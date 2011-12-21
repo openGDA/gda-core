@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.util.PlotMode;
-import uk.ac.diamond.scisoft.analysis.rcp.util.PlotUtils;
+import uk.ac.diamond.scisoft.analysis.rcp.util.ComparisonPlotUtils;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.nexus.DataSetComparisionDialog;
 import uk.ac.diamond.scisoft.analysis.rcp.views.nexus.DataSetPlotView;
@@ -94,7 +94,7 @@ public class CompareDataSetsHandler extends AbstractHandler implements IHandler,
 				public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					monitor.beginTask("Extracting and Plotting Comparison Data", 100);
 			        try {
-						PlotUtils.createComparisionPlot(sel.toArray(), d.getSelections(), plotMode, window, monitor);
+						ComparisonPlotUtils.createComparisionPlot(sel.toArray(), d.getSelections(), plotMode, window, monitor);
 					} catch (Exception e) {
 						logger.error("Cannot plot selected Data Sets", e);
 					} 

@@ -9,6 +9,7 @@ Require-Bundle: org.junit4;bundle-version="4.8.1",
  org.eclipse.core.runtime,
  org.eclipse.core.resources;bundle-version="3.7.100",
  org.eclipse.search;bundle-version="3.7.0",
+ org.eclipse.ui.editors;bundle-version="3.7.0",
  org.apache.commons.math;bundle-version="2.2.0",
  uk.ac.gda.libs;bundle-version="1.0.0",
  uk.ac.gda.nexus;bundle-version="1.0.0",
@@ -27,4 +28,6 @@ Export-Package: uk.ac.diamond.scisoft.analysis.rcp,
  uk.ac.diamond.scisoft.analysis.rcp.results.navigator.search,
  uk.ac.diamond.scisoft.analysis.rcp.results.navigator.util,
  uk.ac.diamond.scisoft.analysis.rcp.util,
- uk.ac.diamond.scisoft.analysis.rcp.views
+ uk.ac.diamond.scisoft.analysis.rcp.views,
+ uk.ac.diamond.scisoft.analysis.rcp.views.nexus
+Import-Package: org.nfunk.jep

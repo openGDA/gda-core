@@ -2,7 +2,77 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="uk.ac.diamond.scisoft.analysis.rcp.editors.AsciiEditor"
+            default="false"
+            extensions="srs"
+            icon="icons/page_white_paint.png"
+            id="uk.ac.diamond.scisoft.analysis.rcp.editors.AsciiEditor"
+            name="Ascii Data Editor">
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editorActions">
+<!--      <editorContribution
+            id="uk.ac.diamond.scisoft.analysis.rcp.nexusEditorContribution"
+            targetID="uk.ac.diamond.scisoft.analysis.rcp.editors.NexusTreeEditor">
+         <action
+               class="uk.ac.diamond.scisoft.analysis.rcp.views.nexus.DeleteExpressionHandler"
+               definitionId="uk.ac.diamond.scisoft.analysis.rcp.deleteExpression"
+               icon="icons/calculator_delete.png"
+               id="uk.ac.diamond.scisoft.analysis.rcp.deleteExpressionEditorAction"
+               label="Delete Expression"
+               style="push"
+               toolbarPath="Normal/additions"
+               tooltip="Delete an expression">
+         </action>
+         <action
+               class="uk.ac.diamond.scisoft.analysis.rcp.views.nexus.AddExpressionHandler"
+               definitionId="uk.ac.diamond.scisoft.analysis.rcp.addExpression"
+               icon="icons/calculator_add.png"
+               id="uk.ac.diamond.scisoft.analysis.rcp.addExpressionEditorAction"
+               label="Add Expression"
+               style="radio"
+               toolbarPath="Normal/additions"
+               tooltip="Add an expression of the other data sets">
+         </action>
+      </editorContribution>
+-->
+      <editorContribution
+            id="uk.ac.diamond.scisoft.analysis.rcp.nexusEditorContribution"
+            targetID="uk.ac.diamond.scisoft.analysis.rcp.editors.AsciiEditor">
+         <action
+               class="uk.ac.diamond.scisoft.analysis.rcp.views.nexus.DeleteExpressionHandler"
+               definitionId="uk.ac.diamond.scisoft.analysis.rcp.deleteExpression"
+               icon="icons/calculator_delete.png"
+               id="uk.ac.diamond.scisoft.analysis.rcp.deleteExpressionEditorAction"
+               label="Delete Expression"
+               style="push"
+               toolbarPath="Normal/additions"
+               tooltip="Delete an expression">
+         </action>
+         <action
+               class="uk.ac.diamond.scisoft.analysis.rcp.views.nexus.AddExpressionHandler"
+               definitionId="uk.ac.diamond.scisoft.analysis.rcp.addExpression"
+               icon="icons/calculator_add.png"
+               id="uk.ac.diamond.scisoft.analysis.rcp.addExpressionEditorAction"
+               label="Add Expression"
+               style="radio"
+               toolbarPath="Normal/additions"
+               tooltip="Add an expression of the other data sets">
+         </action>
+      </editorContribution>
+   </extension>
+   <extension
          point="org.eclipse.ui.views">
+      <view
+            category="uk.ac.diamond.scisoft.analysis.rcp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.nexus.DataSetPlotView"
+            icon="icons/chart_curve.png"
+            id="uk.ac.gda.views.nexus.NexusPlotView"
+            name="Data Sets">
+      </view>
       <view
             name="Stats and Maths"
             icon="icons/calculator_link.png"
@@ -23,6 +93,16 @@
    </extension>
    <extension
          point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.views.nexus.AddExpressionHandler"
+            id="uk.ac.diamond.scisoft.analysis.rcp.addExpression"
+            name="Add Expression">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.views.nexus.DeleteExpressionHandler"
+            id="uk.ac.diamond.scisoft.analysis.rcp.deleteExpression"
+            name="Delete Expression">
+      </command>
       <command
             defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions.RefreshNavigatorAction"
             id="uk.ac.diamond.scisoft.analysis.rcp.refreshNavigator"
@@ -219,6 +299,77 @@
                tooltip="If there is an xml node in the nexus file.">
          </command>
       </menuContribution>
+      <menuContribution
+            locationURI="toolbar:uk.ac.gda.views.nexus.NexusPlotView">
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.addExpression"
+               icon="icons/calculator_add.png"
+               label="Add Expression"
+               style="push"
+               tooltip="Adds an expression which can be plotted. Must be function of other data sets.">
+         </command>
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.deleteExpression"
+               icon="icons/calculator_delete.png"
+               label="Delete Expression"
+               style="push"
+               tooltip="Deletes an expression.">
+         </command>
+         <separator
+               name="uk.ac.diamond.scisoft.analysis.rcp.separator1"
+               visible="true">
+         </separator>
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.preference.preferenceDialog"
+               icon="icons/application_view_list.png"
+               label="Preferences..."
+               style="push">
+         </command>
+      </menuContribution>
+      <menuContribution
+            locationURI="popup:uk.ac.gda.views.nexus.NexusPlotView">
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.addExpression"
+               icon="icons/calculator_add.png"
+               label="Add Expression"
+               style="push"
+               tooltip="Adds an expression which can be plotted. Must be function of other data sets.">
+         </command>
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.deleteExpression"
+               icon="icons/calculator_delete.png"
+               label="Delete Expression"
+               style="push"
+               tooltip="Deletes an expression.">
+         </command>
+         <separator
+               name="uk.ac.diamond.scisoft.analysis.rcp.separator2"
+               visible="true">
+         </separator>
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.preference.preferenceDialog"
+               label="Preferences..."
+               style="push">
+         </command>
+      </menuContribution>
+     <menuContribution
+           locationURI="toolbar:org.eclipse.search.ui.views.SearchView">
+        <command
+              commandId="uk.ac.diamond.scisoft.analysis.rcp.compareDataSets"
+              icon="icons/chart_curve_go.png"
+              label="Compare..."
+              style="push">
+        </command>
+     </menuContribution>
+     <menuContribution
+           locationURI="popup:org.eclipse.search.ui.views.SearchView">
+        <command
+              commandId="uk.ac.diamond.scisoft.analysis.rcp.compareDataSets"
+              icon="icons/chart_curve_go.png"
+              label="Compare..."
+              style="push">
+        </command>
+     </menuContribution>
    </extension>
    <extension
          point="org.eclipse.search.searchPages">
@@ -239,5 +390,22 @@
             searchResultClass="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.search.DataSearchResult">
       </viewPage>
    </extension>
-
+   <extension
+         point="org.eclipse.ui.popupMenus">
+<!--
+      <objectContribution
+            adaptable="true"
+            id="uk.ac.diamond.scisoft.analysis.rcp.compareObjectContribution"
+            objectClass="org.eclipse.core.resources.IFile">
+         <action
+               class="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions.CompareDataSetsHandler"
+               enablesFor="+"
+               icon="icons/chart_curve_go.png"
+               id="uk.ac.diamond.scisoft.analysis.rcp.compareDataSetsDelegate"
+               label="Compare..."
+               tooltip="Compare files">
+         </action>
+      </objectContribution>
+-->
+   </extension>
 </plugin>
