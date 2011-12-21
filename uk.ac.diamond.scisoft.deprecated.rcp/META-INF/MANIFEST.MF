@@ -31,3 +31,4 @@ Export-Package: uk.ac.diamond.scisoft.analysis.rcp,
  uk.ac.diamond.scisoft.analysis.rcp.views,
  uk.ac.diamond.scisoft.analysis.rcp.views.nexus
 Import-Package: org.nfunk.jep
+Bundle-Vendor: Diamond Light Source Ltd.
