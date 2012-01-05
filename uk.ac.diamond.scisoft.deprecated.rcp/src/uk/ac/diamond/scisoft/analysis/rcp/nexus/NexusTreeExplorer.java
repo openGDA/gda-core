@@ -531,7 +531,8 @@ public class NexusTreeExplorer extends Composite implements IObserver, ISelectio
 								if (attributes.containsKey("axis")) {
 									Object thisAxis = attributes.get("axis");
 									Integer intAxis = Integer.parseInt(thisAxis.toString()) - 1;
-									choice.setDimension(new int[] {intAxis}, intAxis);
+									choice.setIndexMapping(intAxis);
+									choice.setAxisNumber(intAxis);
 								}
 								if (attributes.containsKey("primary")) {
 									Object thisPrimary = attributes.get("primary");
@@ -580,32 +581,32 @@ public class NexusTreeExplorer extends Composite implements IObserver, ISelectio
 				axes.add(i, null); // expand list
 				for (AxisChoice c : choices) {
 					// check if dimension number and axis length matches
-					if (c.getDimension() == i) {
-						if (c.getLength() == dim) {
-							aSel.addSelection(c, c.getPrimary());
+					if (c.getAxisNumber() == i) {
+						if (c.getSize() == dim) {
+							aSel.addChoice(c, c.getPrimary());
 						} else {
 							logger.warn("Ignoring axis {} as its length ({}) does not match data dimension ({})",
-									new Object[] { c.getName(), c.getLength(), dim });
+									new Object[] { c.getName(), c.getSize(), dim });
 						}
 					}
 				}
 
 				for (AxisChoice c : choices) {
 					// add in others if axis length matches
-					if (c.getDimension() != i) {
-						if (c.getLength() == dim)
-							aSel.addSelection(c, 0);
+					if (c.getAxisNumber() != i) {
+						if (c.getSize() == dim)
+							aSel.addChoice(c, 0);
 					}
 				}
 
 				if (i < aNames.size()) {
 					for (AxisChoice c : choices) {
 						if (c.getName().equals(aNames.get(i))) {
-							if (c.getLength() == dim) {
-								aSel.addSelection(c, 1);
+							if (c.getSize() == dim) {
+								aSel.addChoice(c, 1);
 							} else {
 								logger.warn("Ignoring specified axis {} as its length ({}) does not match data dimension ({})",
-											new Object[] { aNames.get(i), c.getLength(), dim });
+											new Object[] { aNames.get(i), c.getSize(), dim });
 							}
 						}
 					}
@@ -615,10 +616,11 @@ public class NexusTreeExplorer extends Composite implements IObserver, ISelectio
 				AbstractDataset axis = AbstractDataset.arange(dim, AbstractDataset.INT32);
 				axis.setName("dim:" + (i+1));
 				AxisChoice newChoice = new AxisChoice(axis);
-				newChoice.setDimension(new int[] {i});
-				aSel.addSelection(newChoice, aSel.getMaxOrder() + 1);
+				newChoice.setIndexMapping(i);
+				newChoice.setAxisNumber(i);
+				aSel.addChoice(newChoice, aSel.getMaxOrder() + 1);
 
-				aSel.reorderNames();
+				aSel.reorderChoices();
 				aSel.selectAxis(0);
 				axes.set(i, aSel);
 			}
