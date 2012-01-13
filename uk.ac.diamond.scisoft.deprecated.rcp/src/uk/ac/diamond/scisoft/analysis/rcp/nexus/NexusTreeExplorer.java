@@ -577,7 +577,7 @@ public class NexusTreeExplorer extends Composite implements IObserver, ISelectio
 
 			for (int i = 0; i < rank; i++) {
 				int dim = cData.getShape()[i];
-				AxisSelection aSel = new AxisSelection(dim);
+				AxisSelection aSel = new AxisSelection(dim, i);
 				axes.add(i, null); // expand list
 				for (AxisChoice c : choices) {
 					// check if dimension number and axis length matches
