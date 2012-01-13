@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExampleParameters>
+    <element>Fe</element>
+    <edge>K</edge>
+    <start>100</start>
+    <stop>200</stop>
+    <ExampleItem>
+        <x>7000.0</x>
+        <y>7050.0</y>
+    </ExampleItem>
+</ExampleParameters>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<!-- N.B. this stuff breaks Xerlin
+ targetNamespace="http://www.dl.ac.uk/GDASchema" xmlns="http://www.dl.ac.uk/GDASchema">
+ -->
+ 
+	 <xsd:element name="ExampleParameters">
+	 	<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="element" type="xsd:string" maxOccurs="1" minOccurs="1"/>
+				
+				<xsd:element name="edge" maxOccurs="1" minOccurs="1">
+					<xsd:simpleType>
+						<xsd:restriction base="xsd:string">
+							<xsd:enumeration value="K"/>
+							<xsd:enumeration value="L1"/>
+							<xsd:enumeration value="L2"/>
+							<xsd:enumeration value="L3"/>
+						</xsd:restriction>
+					</xsd:simpleType>
+				</xsd:element>
+				
+				<xsd:element name="start" type="xsd:double" maxOccurs="1" minOccurs="1"/>
+				<xsd:element name="stop" type="xsd:double" maxOccurs="1" minOccurs="1"/>
+
+				<xsd:element name="items" maxOccurs="unbounded" minOccurs="1">
+					 	<xsd:complexType>
+							<xsd:sequence>
+				                <xsd:element name="x" type="xsd:double" maxOccurs="1" minOccurs="1"/>
+				                <xsd:element name="y" type="xsd:double" maxOccurs="1" minOccurs="1"/>
+							</xsd:sequence>
+						</xsd:complexType>
+			    </xsd:element>
+				
+			</xsd:sequence>	
+		</xsd:complexType>
+	</xsd:element>
+	
+</xsd:schema>
+	

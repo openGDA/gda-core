@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<!-- N.B. this stuff breaks Xerlin
+ targetNamespace="http://www.dl.ac.uk/GDASchema" xmlns="http://www.dl.ac.uk/GDASchema">
+ -->
+	 <xsd:element name="TestScanParameters">
+	 	<xsd:complexType>
+			<xsd:sequence>
+	 			<xsd:element  name="shouldValidate" type="xsd:boolean" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="scannableName" type="xsd:string" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="element" type="xsd:string" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="edge" maxOccurs="1" minOccurs="0">
+					<xsd:simpleType>
+						<xsd:restriction base="xsd:string">
+							<xsd:enumeration value="K"/>
+							<xsd:enumeration value="L1"/>
+							<xsd:enumeration value="L2"/>
+							<xsd:enumeration value="L3"/>
+						</xsd:restriction>
+					</xsd:simpleType>
+				</xsd:element>
+				<xsd:element name="initialEnergy" type="xsd:double" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="finalEnergy" type="xsd:double" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="edgeEnergy" type="xsd:double" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="coreHole" type="xsd:double" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="gaf1" type="xsd:double" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="gaf2" type="xsd:double" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="A" type="xsd:double" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="B" type="xsd:double" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="preEdgeStep" type="xsd:double" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="preEdgeTime" type="xsd:double" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="edgeStep" type="xsd:double" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="edgeTime" type="xsd:double" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="exafsStep" type="xsd:double" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="exafsTime" type="xsd:double" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="exafsFromTime" type="xsd:double" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="exafsToTime" type="xsd:double" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="exafsStepType" maxOccurs="1" minOccurs="0">
+					<xsd:simpleType>
+						<xsd:restriction base="xsd:string">
+							<xsd:enumeration value="k"/>
+							<xsd:enumeration value="E"/>
+						</xsd:restriction>
+					</xsd:simpleType>
+				</xsd:element>
+			</xsd:sequence>	
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>
+	

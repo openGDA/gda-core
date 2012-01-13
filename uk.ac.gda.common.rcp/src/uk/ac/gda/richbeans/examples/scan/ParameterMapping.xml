@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+	<class name="uk.ac.gda.richbeans.examples.scan.TestScanParameters">
+		<map-to xml="TestScanParameters" />
+		<field name="shouldValidate" type="boolean">
+			<bind-xml name="shouldValidate" node="element"/>
+		</field>
+		<field name="scannableName" type="string">
+			<bind-xml name="scannableName" node="element" />
+		</field>
+		<field name="element" type="string">
+			<bind-xml name="element" node="element" />
+		</field>
+		<field name="edge" type="string">
+			<bind-xml name="edge" node="element" />
+		</field>
+		<field name="initialEnergy" type="double">
+			<bind-xml name="initialEnergy" node="element" />
+		</field>
+		<field name="finalEnergy" type="double">
+			<bind-xml name="finalEnergy" node="element" />
+		</field>
+		<field name="edgeEnergy" type="double">
+			<bind-xml name="edgeEnergy" node="element" />
+		</field>
+		<field name="coreHole" type="double">
+			<bind-xml name="coreHole" node="element" />
+		</field>
+		<field name="gaf1" type="double">
+			<bind-xml name="gaf1" node="element" />
+		</field>
+		<field name="gaf2" type="double">
+			<bind-xml name="gaf2" node="element" />
+		</field>		
+		<field name="a" type="double">
+			<bind-xml name="A" node="element" />
+		</field>
+		<field name="b" type="double">
+			<bind-xml name="B" node="element" />
+		</field>
+		<field name="preEdgeStep" type="double">
+			<bind-xml name="preEdgeStep" node="element" />
+		</field>
+		<field name="preEdgeTime" type="double">
+			<bind-xml name="preEdgeTime" node="element" />
+		</field>
+		<field name="edgeStep" type="double">
+			<bind-xml name="edgeStep" node="element" />
+		</field>
+		<field name="edgeTime" type="double">
+			<bind-xml name="edgeTime" node="element" />
+		</field>
+		<field name="exafsStep" type="double">
+			<bind-xml name="exafsStep" node="element" />
+		</field>
+		<field name="exafsTime" type="double">
+			<bind-xml name="exafsTime" node="element" />
+		</field>
+		<field name="exafsFromTime" type="double">
+			<bind-xml name="exafsFromTime" node="element" />
+		</field>
+		<field name="exafsToTime" type="double">
+			<bind-xml name="exafsToTime" node="element" />
+		</field>
+		<field name="exafsStepType" type="string">
+			<bind-xml name="exafsStepType" node="element" />
+		</field>
+	</class>
+</mapping>
+	

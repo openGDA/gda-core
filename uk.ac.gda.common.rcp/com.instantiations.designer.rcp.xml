@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<commands>
+	<addCategory
+		id="custom_1256051541702"
+		name="DLS Field Widgets"
+		description=""
+		visible="true"
+		open="true"/>
+	<addComponent
+		id="custom_1256051983889"
+		name="ScaleBox"
+		visible="true"
+		class="uk.ac.gda.ui.components.scalebox.ScaleBox"
+		category="custom_1256051541702"/>
+	<editComponent
+		id="custom_1256051983889"
+		name="ScaleBox"
+		description="A number entry box with bounds capability"
+		visible="true"
+		class="uk.ac.gda.ui.components.scalebox.ScaleBox"/>
+	<addComponent
+		id="custom_1256052087411"
+		name="ComboWrapper"
+		description="A class for editing a choice of strings. A map can also be used where visble and XML choices are not the same."
+		visible="true"
+		class="uk.ac.gda.ui.components.wrappers.ComboWrapper"
+		category="custom_1256051541702"/>
+	<editComponent
+		id="custom_1256052087411"
+		name="ComboWrapper"
+		description="A class for editing a choice of strings. A map can also be used where visble and XML choices are not the same."
+		visible="true"
+		class="uk.ac.gda.ui.components.wrappers.ComboWrapper"/>
+	<addComponent
+		id="custom_1256052146379"
+		name="BooleanWrapper"
+		description="A class to edit a boolean in the XML."
+		visible="true"
+		class="uk.ac.gda.ui.components.wrappers.BooleanWrapper"
+		category="custom_1256051541702"/>
+	<addComponent
+		id="custom_1256052178228"
+		name="LabelWrapper"
+		description="A label that can be set to display a value that is persisted into the XML."
+		visible="true"
+		class="uk.ac.gda.ui.components.wrappers.LabelWrapper"
+		category="custom_1256051541702"/>
+	<addComponent
+		id="custom_1256052213116"
+		name="PrintfWrapper"
+		description="A class to wrap editing a printf style format which is then persisted to XML."
+		visible="true"
+		class="uk.ac.gda.ui.components.wrappers.PrintfWrapper"
+		category="custom_1256051541702"/>
+	<addComponent
+		id="custom_1256052257101"
+		name="RadioWrapper"
+		description="A wrapper for a choice displayed as exclusive radio buttons."
+		visible="true"
+		class="uk.ac.gda.ui.components.wrappers.RadioWrapper"
+		category="custom_1256051541702"/>
+	<addComponent
+		id="custom_1256052283557"
+		name="SpinnerWrapper"
+		description="Used to edit an integer field."
+		visible="true"
+		class="uk.ac.gda.ui.components.wrappers.SpinnerWrapper"
+		category="custom_1256051541702"/>
+	<addComponent
+		id="custom_1256052316622"
+		name="TextWrapper"
+		description="A class to edit a text field which can be persisted to XML."
+		visible="true"
+		class="uk.ac.gda.ui.components.wrappers.TextWrapper"
+		category="custom_1256051541702"/>
+	<addComponent
+		id="custom_1256052335206"
+		name="FileBox"
+		description="A component for editing a file field."
+		visible="true"
+		class="uk.ac.gda.ui.components.file.FileBox"
+		category="custom_1256051541702"/>
+	<addComponent
+		id="custom_1256052380790"
+		name="ComboAndNumberWrapper"
+		description="Edits a field which value can be a choice and a number (for some choices)."
+		visible="true"
+		class="uk.ac.gda.ui.components.wrappers.ComboAndNumberWrapper"
+		category="custom_1256051541702"/>
+	<addCategory
+		id="custom_1256052383124"
+		name="DLS List Widgets"
+		description=""
+		visible="true"
+		open="true"/>
+	<addComponent
+		id="custom_1256052433359"
+		name="BeanListEditor"
+		description="Edits a list of beans. Requires the prototype bean and editor for that bean to be set after creation."
+		visible="true"
+		class="uk.ac.gda.ui.components.selector.BeanListEditor"
+		category="custom_1256052383124"/>
+	<addComponent
+		id="custom_1256052466840"
+		name="GridListEditor"
+		description="Edits the beans as a static grid of values. You cannot add and remove beans as with BeanListEditor."
+		visible="true"
+		class="uk.ac.gda.ui.components.selector.GridListEditor"
+		category="custom_1256052383124"/>
+</commands>
