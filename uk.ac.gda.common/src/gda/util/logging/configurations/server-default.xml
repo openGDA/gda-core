@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+
+	<logger name="org.apache.commons.configuration">
+		<level value="WARN" />
+	</logger>
+	
+	<logger name="org.castor">
+		<level value="WARN" />
+	</logger>
+	
+	<logger name="org.exolab.castor">
+		<level value="WARN" />
+	</logger>
+	
+	<logger name="org.springframework">
+		<level value="WARN" />
+	</logger>
+	
+	<logger name="org.apache.sshd">
+		<level value="WARN" />
+	</logger>
+	
+</configuration>
