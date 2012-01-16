@@ -125,9 +125,14 @@ public class ScaleBoxAndFixedExpression extends ScaleBox{
 	    this.dataProvider = dataProvider;
 	}
 	
-    private void createFixedExpressionLabel() {
-		
-    	// We allow user expressions
+	private void createFixedExpressionLabel() {
+
+		if (!label.isVisible()) {
+			final GridData data = (GridData) label.getLayoutData();
+			data.exclude = true;
+		}
+
+		// We allow user expressions
     	createExpressionLabel(-1);
     	
     	final GridLayout gridLayout = new GridLayout(4,false);
