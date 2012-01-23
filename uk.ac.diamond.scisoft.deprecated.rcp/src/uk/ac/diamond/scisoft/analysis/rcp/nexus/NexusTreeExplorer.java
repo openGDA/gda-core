@@ -578,7 +578,7 @@ public class NexusTreeExplorer extends Composite implements IObserver, ISelectio
 			for (int i = 0; i < rank; i++) {
 				int dim = cData.getShape()[i];
 				AxisSelection aSel = new AxisSelection(dim, i);
-				axes.add(i, null); // expand list
+				axes.add(aSel);
 				for (AxisChoice c : choices) {
 					// check if dimension number and axis length matches
 					if (c.getAxisNumber() == i) {
@@ -619,10 +619,6 @@ public class NexusTreeExplorer extends Composite implements IObserver, ISelectio
 				newChoice.setIndexMapping(i);
 				newChoice.setAxisNumber(i);
 				aSel.addChoice(newChoice, aSel.getMaxOrder() + 1);
-
-				aSel.reorderChoices();
-				aSel.selectAxis(0);
-				axes.set(i, aSel);
 			}
 		}
 
