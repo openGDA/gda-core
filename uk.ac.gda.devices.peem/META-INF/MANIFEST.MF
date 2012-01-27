@@ -1,0 +1,39 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: uk.ac.gda.device.peem plugin
+Bundle-SymbolicName: uk.ac.gda.devices.peem; singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: gda.devices.peem.Activator
+Require-Bundle: org.eclipse.core.runtime;bundle-version="3.5.0",
+ org.junit4,
+ uk.ac.gda.core;bundle-version="1.0.0",
+ uk.ac.gda.common;bundle-version="1.0.0",
+ uk.ac.gda.libs;bundle-version="1.0.0",
+ uk.ac.diamond.scisoft.analysis;bundle-version="1.0.0",
+ uk.ac.gda.devices.pco;bundle-version="1.0.0",
+ uk.ac.gda.epics;bundle-version="1.0.0",
+ uk.ac.gda.api,
+ uk.ac.gda.swingclient;bundle-version="1.0.0"
+Eclipse-RegisterBuddy: uk.ac.gda.libs
+Eclipse-BuddyPolicy: registered
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Export-Package: gda.device,
+ gda.device.detector.areadetector,
+ gda.device.detector.pixis,
+ gda.device.detector.uview,
+ gda.device.detector.uview.corba,
+ gda.device.detector.uview.corba.impl,
+ gda.device.peem,
+ gda.device.peem.MicroscopeControl,
+ gda.device.peem.MicroscopeControl.MicroscopePackage,
+ gda.device.peem.corba,
+ gda.device.peem.corba.impl,
+ gda.devices.peem,
+ gda.gui.peem,
+ gda.gui.peem.UViewPlayer
+ 
+Bundle-ClassPath: .,
+ jars/peem-1.0.jar,
+ jars/gda_peem-corba.jar
+Bundle-Vendor: diamond.ac.uk

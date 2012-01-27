@@ -1,0 +1,69 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _PEEM_IDL_
+#define _PEEM_IDL_
+
+#include <device.idl>
+
+module gda {
+module device {
+module peem {
+module corba {
+
+/**
+ *  An interface for a distributed PEEM class
+ */
+interface CorbaPEEM : device::corba::CorbaDevice
+{
+	/* PEEM */	
+	boolean connect()  raises (device::corba::CorbaDeviceException);
+
+	boolean disconnect()  raises (device::corba::CorbaDeviceException);
+
+	/* LEEM 2000 */
+	string modules() raises (device::corba::CorbaDeviceException);
+
+	long getModuleNumber() raises (device::corba::CorbaDeviceException);
+
+	long getModuleIndex(in string moduleName) raises (device::corba::CorbaDeviceException);
+
+	string getPSName(in long index) raises (device::corba::CorbaDeviceException);
+
+	float getPSValue(in long index) raises (device::corba::CorbaDeviceException);
+
+	boolean setPSValue(in long index, in float value) raises (device::corba::CorbaDeviceException);
+
+	string getPreset() raises (device::corba::CorbaDeviceException);
+
+	long setPhi(in float angle) raises (device::corba::CorbaDeviceException);
+
+	void getMicrometerValue(out float xcoord, out float ycoord) raises (device::corba::CorbaDeviceException);
+
+	float getVacuumGaugeValue() raises (device::corba::CorbaDeviceException);
+
+	string getVacuumGaugeLabel() raises (device::corba::CorbaDeviceException);
+
+	boolean isInitDone() raises (device::corba::CorbaDeviceException);
+
+};
+
+};};};};
+
+#endif
