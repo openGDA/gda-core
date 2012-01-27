@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<xsd:complexType name="nexusTreeNodeSelection">
+		<xsd:sequence>
+			<xsd:element name="nxClass" type="xsd:string" maxOccurs="1"
+				minOccurs="0" />
+			<xsd:element name="name" type="xsd:string" maxOccurs="1"
+				minOccurs="0" />
+			<xsd:element name="wanted" type="xsd:integer" maxOccurs="1"
+				minOccurs="0" />
+			<xsd:element name="dataType" type="xsd:integer"
+				maxOccurs="1" minOccurs="0" />
+			<xsd:element name="nexusTreeNodeSelection" type="nexusTreeNodeSelection"
+				maxOccurs="unbounded" minOccurs="0" />
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="nexusTreeNodeSelection" type="nexusTreeNodeSelection" />
+</xsd:schema>
+	

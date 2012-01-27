@@ -1,0 +1,27 @@
+Manifest-Version: 1.0
+Eclipse-BundleShape: dir
+Bundle-ManifestVersion: 2
+Bundle-Name: NeXus Plug-in
+Bundle-SymbolicName: uk.ac.gda.nexus
+Bundle-Version: 1.0.0
+Bundle-Activator: gda.data.nexus.Activator
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: org.eclipse.core.runtime,
+ uk.ac.gda.common;bundle-version="1.0.0",
+ org.junit4;bundle-version="4.5.0",
+ com.springsource.slf4j.api;bundle-version="1.5.6"
+Export-Package: gda.data.nexus,
+ gda.data.nexus.extractor,
+ gda.data.nexus.nxclassio,
+ gda.data.nexus.tree,
+ org.nexusformat
+Bundle-ClassPath: .,
+ jars/jnexus-4.3.jar
+Bundle-NativeCode: lib/win32-x86/hdf5dll.dll;  lib/win32-x86/jnexus.dll;  lib/win32-x86/libNeXus-0.dll;  lib/win32-x86/mxml1.dll;  lib/win32-x86/szip.dll;  lib/win32-x86/zlib1.dll;
+ osname=Win32; processor=x86; processor=x86-64,
+ lib/linux-x86/libhdf5.so.7;  lib/linux-x86/libjnexus.so;  lib/linux-x86/libNeXus.so.0;  lib/linux-x86/libz.so.1;
+ osname=Linux; processor=x86,
+ lib/linux-x86_64/libhdf5.so.7; lib/linux-x86_64/libjnexus.so; lib/linux-x86_64/libNeXus.so.0; lib/linux-x86_64/libz.so;
+ osname=Linux; processor=x86-64
+
