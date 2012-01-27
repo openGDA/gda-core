@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: PCO Contributions
+Bundle-SymbolicName: uk.ac.gda.epics.client.pco;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: uk.ac.gda.epics.client.pco.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ uk.ac.gda.epics.client;bundle-version="1.0.0",
+ uk.ac.diamond.scisoft.analysis.rcp;bundle-version="1.0.0",
+ uk.ac.gda.client;bundle-version="1.0.0",
+ uk.ac.gda.core;bundle-version="1.0.0",
+ uk.ac.gda.libs;bundle-version="1.0.0"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-RegisterBuddy: uk.ac.gda.libs
+Export-Package: uk.ac.gda.epics.client.pco,
+ uk.ac.gda.epics.client.pco.perspective,
+ uk.ac.gda.epics.client.pco.viewfactories,
+ uk.ac.gda.epics.client.pco.views

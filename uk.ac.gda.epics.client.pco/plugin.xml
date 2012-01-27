@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+	<extension
+         point="org.eclipse.ui.views">
+         <view
+            allowMultiple="true"
+            category="uk.ac.gda.epics.client.pco.category"
+            class="uk.ac.gda.epics.client.pco.viewfactories.StatusViewFactory:pcoStatusViewHolder"
+            icon="images/status.png"
+            id="uk.ac.gda.epics.client.pco.status.view"
+            name="PCO Status"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            category="uk.ac.gda.epics.client.pco.category"
+            class="uk.ac.gda.epics.client.pco.viewfactories.CamViewFactory:pcoCameraViewHolder"
+            icon="images/videocam.png"
+            id="uk.ac.gda.epics.client.pco.camera.view"
+            name="PCO Preview"
+            restorable="true">
+      </view>
+      <view
+            category="uk.ac.gda.epics.client.pco.category"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+            icon="images/chart_curve.png"
+            id="uk.ac.gda.beamline.client.pcoplotview"
+            name="PCOPlot"
+            restorable="true">
+      </view>
+      <category
+            id="uk.ac.gda.epics.client.pco.category"
+            name="PCO">
+      </category>
+    <view
+          category="uk.ac.gda.epics.client.pco.category"
+          class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+          icon="images/chart_curve.png"
+          id="uk.ac.gda.beamline.client.pcosubsampleplot"
+          name="PCO Subsample"
+          restorable="true">
+    </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="uk.ac.gda.epics.client.pco.perspective.PCOPerspective"
+            fixed="true"
+            icon="images/pco_perspective.gif"
+            id="uk.ac.gda.epics.client.pco.perspective"
+            name="PCO">
+      </perspective>
+   </extension>
+</plugin>
