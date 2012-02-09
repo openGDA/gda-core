@@ -27,7 +27,10 @@ Export-Package: gda.configuration.properties,
  uk.ac.gda.util.number,
  uk.ac.gda.util.reflect,
  uk.ac.gda.util.schema
-Require-Bundle: uk.ac.gda.libs;bundle-version="1.0.0",
- org.junit4
+Require-Bundle: org.junit4,
+ com.springsource.ch.qos.logback.classic;bundle-version="0.9.15",
+ com.springsource.ch.qos.logback.core;bundle-version="0.9.15",
+ uk.ac.gda.libs;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: org.slf4j;version="[1.5.0,2.0.0)"
