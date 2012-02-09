@@ -18,6 +18,7 @@
 
 package uk.ac.gda.ui.utils;
 
+import java.io.File;
 import java.util.List;
 import java.util.Vector;
 
@@ -31,7 +32,11 @@ import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
+
+import uk.ac.gda.common.rcp.CommonRCPActivator;
 
 public class ProjectUtils {
 	/**
@@ -49,6 +54,10 @@ public class ProjectUtils {
 			final String importFolder, final String natureId, final List<ResourceFilterWrapper> resourceFilterWrappers,
 			IProgressMonitor monitor) throws CoreException {
 
+		File file = new File(importFolder);
+		if(!file.exists())
+			throw new CoreException(new Status(IStatus.ERROR, CommonRCPActivator.PLUGIN_ID, 
+					"Unable to create project folder " + projectName + "." + folderName + " as folder " + importFolder + " does not exist "));
 		IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
 			@Override
 			public void run(IProgressMonitor monitor) throws CoreException {
