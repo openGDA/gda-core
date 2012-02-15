@@ -84,7 +84,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	private int pauseTime;
 	private boolean externalTriggered = false;
 	private boolean isPreviewing = false;
-	private boolean scanRunning;	
+	private boolean scanRunning;
 	private double maxIntensity = 65000;
 
 	public PCODetector() {
@@ -104,12 +104,12 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		controller.acquire();
 		isPreviewing = true;
 	}
-	
+
 	private void stopPreview() throws Exception {
 		controller.stop();
 		isPreviewing = false;
 	}
-	
+
 	public void setMaxIntensity(double maxIntensity) {
 		this.maxIntensity = maxIntensity;
 	}
@@ -121,7 +121,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	public boolean isHdfFormat() {
 		return hdfFormat;
 	}
-	
+
 	@Override
 	public void collectData() throws DeviceException {
 		// TODO sleep needed to give time for camera readout as detector has no READOUT status
@@ -160,7 +160,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 			}
 		}
 	}
-	
+
 	public boolean isExternalTriggered() {
 		return this.externalTriggered;
 	}
@@ -168,7 +168,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	public void setExternalTriggered(boolean externalTriggered) {
 		this.externalTriggered = externalTriggered;
 	}
-	
+
 	/**
 	 * @param hdfFormat
 	 *            The hdfFormat to set.
@@ -242,7 +242,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 			InterfaceProvider.getTerminalPrinter().print(msg);
 		}
 	}
-	
+
 	@Override
 	public void setCollectionTime(double collectionTime) throws DeviceException {
 		try { // TODO beamline reported sometime exposure need to be set twice to succeed
@@ -301,21 +301,26 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 			resetAll(); // this will leave camera disarmed
 			if (hdfFormat) {
 				// HDF saves all data to a single file, so no need to reset filenumber in EPICS
-				//no op
+				// no op
 			} else {
 				controller.getTiff().setFileNumber(0);
 			}
-			setScanNumberAlreadyIncremented(true); // scan number is increamented by scan class before atScanStart called.
+			setScanNumberAlreadyIncremented(true); // scan number is increamented by scan class before atScanStart
+													// called.
 			// must set file path and file name before starting capturing
 			initialiseFilePath();
 			setFileName();
-			ScanInformation scaninfo = InterfaceProvider.getCurrentScanInformationHolder()
-			.getCurrentScanInformation();
+			ScanInformation scaninfo = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
 			if (hdfFormat) {
 				controller.setScanDimensions(scaninfo.getDimensions());
 				controller.startRecording();
 			} else {
-				controller.getTiff().setNumCapture(totalNumberImages2Collect(scaninfo.getDimensions())); // to match "Single" image mode in camera acquisition
+				controller.getTiff().setNumCapture(totalNumberImages2Collect(scaninfo.getDimensions())); // to match
+																											// "Single"
+																											// image
+																											// mode in
+																											// camera
+																											// acquisition
 				controller.getTiff().startCapture();
 			}
 			scanRunning = true;
@@ -327,11 +332,11 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	}
 
 	private int totalNumberImages2Collect(int[] dimensions) {
-			int total = 1;
-			for (int i = 0; i < dimensions.length; i++) {
-				total *= dimensions[i];
-			}
-			return total;
+		int total = 1;
+		for (int i = 0; i < dimensions.length; i++) {
+			total *= dimensions[i];
+		}
+		return total;
 	}
 
 	@Override
@@ -367,8 +372,8 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	public void atPointStart() throws DeviceException {
 		if (!hdfFormat) {
 			try { // Tiff file save must make capture ready for capturing in Stream mode at each point
-				//controller.getTiff().setNumCapture(1);
-				//controller.getTiff().startCapture();
+					// controller.getTiff().setNumCapture(1);
+					// controller.getTiff().startCapture();
 			} catch (Exception e) {
 				logger.error("Failed to start Capturing.", e);
 				throw new DeviceException(getName() + ": Failed to start Capturing.");
@@ -648,7 +653,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	@Override
 	public void plotImage(final String imageFileName) {
 		// Plot the last image collected from file
-		Thread plot = new Thread(new Runnable(){
+		Thread plot = new Thread(new Runnable() {
 			boolean plotted = false;
 			int trycounter = 0;
 			double starttime = System.currentTimeMillis();
@@ -674,17 +679,19 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 							plotted = false;
 						}
 						print("Time elasped since plotting request: " + (System.currentTimeMillis() - starttime));
-						logger.debug("Time elasped since plotting request: {}",(System.currentTimeMillis() - starttime));
-						print("Time elasped since file first appears: "	+ (System.currentTimeMillis() - fileexisttime));
-						logger.debug("Time elasped since file first appears: {}",(System.currentTimeMillis() - fileexisttime));
-						
+						logger.debug("Time elasped since plotting request: {}",
+								(System.currentTimeMillis() - starttime));
+						print("Time elasped since file first appears: " + (System.currentTimeMillis() - fileexisttime));
+						logger.debug("Time elasped since file first appears: {}",
+								(System.currentTimeMillis() - fileexisttime));
+
 					} else {
 						// logger.debug("wait for data file {} to plot.", imageFileName);
 					}
 					time = (System.currentTimeMillis() - starttime);
 				}
 			}
-		},"plotpcoimage");
+		}, "plotpcoimage");
 		plot.start();
 	}
 
@@ -972,77 +979,84 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 			// FIXME - program so that HDF can be used.
 
 		} else {
+			boolean isHdfFormat = isHdfFormat();
 			setHdfFormat(false);
 			// if it isn't hdf the assumption is it should be tiff.
 			// Demand raw
 			// Stop tiff capture
 			// stop tiff capture
-			NDFile tiff = controller.getTiff();
-			NDProcess proc1 = controller.getProc1();
-			NDProcess proc2 = controller.getProc2();
-			ADBase areaDetector = controller.getAreaDetector();
-			NDStats ndStat = controller.getStat();
-			/**/
-			proc1.setEnableLowClip(0);
-			proc1.setEnableHighClip(0);
+			try {
+				NDFile tiff = controller.getTiff();
+				NDProcess proc1 = controller.getProc1();
+				NDProcess proc2 = controller.getProc2();
+				ADBase areaDetector = controller.getAreaDetector();
+				NDStats ndStat = controller.getStat();
+				/**/
+				proc1.setEnableLowClip(0);
+				proc1.setEnableHighClip(0);
 
-			//
-			proc1.setEnableFilter(0);
-			proc2.setEnableFilter(0);
-			/**/
-			proc2.setEnableLowClip(0);
-			proc2.setEnableHighClip(0);
+				//
+				proc1.setEnableFilter(0);
+				proc2.setEnableFilter(0);
+				/**/
+				proc2.setEnableLowClip(0);
+				proc2.setEnableHighClip(0);
 
-			ndStat.getPluginBase().enableCallbacks();
-			ndStat.setComputeStatistics(1);
-			ndStat.getPluginBase().setNDArrayPort(proc1.getPluginBase().getPortName_RBV());
+				ndStat.getPluginBase().enableCallbacks();
+				ndStat.setComputeStatistics(1);
+				ndStat.getPluginBase().setNDArrayPort(proc1.getPluginBase().getPortName_RBV());
 
-			// Set up Proc1
+				// Set up Proc1
 
-			proc1.getPluginBase().enableCallbacks();
-			proc1.getPluginBase().setNDArrayPort(areaDetector.getPortName_RBV());
-			// to synchronise acquisition chain along all the plugins
-			tiff.getPluginBase().setNDArrayPort(proc1.getPluginBase().getPortName_RBV());
-			tiff.getPluginBase().enableCallbacks();
-			tiff.getPluginBase().setBlockingCallbacks(1);
-			proc1.getPluginBase().setBlockingCallbacks(1);
+				proc1.getPluginBase().enableCallbacks();
+				proc1.getPluginBase().setNDArrayPort(areaDetector.getPortName_RBV());
+				// to synchronise acquisition chain along all the plugins
+				tiff.getPluginBase().setNDArrayPort(proc1.getPluginBase().getPortName_RBV());
+				tiff.getPluginBase().enableCallbacks();
+				tiff.getPluginBase().setBlockingCallbacks(1);
+				proc1.getPluginBase().setBlockingCallbacks(1);
 
-			tiff.getPluginBase().enableCallbacks();
-			tiff.stopCapture();
+				tiff.getPluginBase().enableCallbacks();
+				tiff.stopCapture();
 
-			// set tiff capture mode to 'Single'
-			tiff.setFileWriteMode(2);
-			// set file path to demandRawFilePath
-			if (isWindowsIoc) {
-				String replacedWindowsPath = demandRawFilePath.replaceAll(
-						demandRawDataStoreWindows2LinuxFileName.getLinuxPath(),
-						demandRawDataStoreWindows2LinuxFileName.getWindowsPath());
-				tiff.setFilePath(replacedWindowsPath);
-			} else {
-				tiff.setFilePath(demandRawFilePath);
+				// set tiff capture mode to 'Single'
+				tiff.setFileWriteMode(2);
+				// set file path to demandRawFilePath
+				if (isWindowsIoc) {
+					String replacedWindowsPath = demandRawFilePath.replaceAll(
+							demandRawDataStoreWindows2LinuxFileName.getLinuxPath(),
+							demandRawDataStoreWindows2LinuxFileName.getWindowsPath());
+					tiff.setFilePath(replacedWindowsPath);
+				} else {
+					tiff.setFilePath(demandRawFilePath);
+				}
+				// set file name to demandRawFileName
+				tiff.setFileName(demandRawFileName);
+				// reset file number to 0
+				// tiff.setFileNumber(0);
+				// set auto-increment to No
+				tiff.setAutoIncrement(1);
+				// set file format to 'tif'
+				tiff.setFileFormat(0);
+				// set file template
+				areaDetector.setImageMode(0);
+				areaDetector.setTriggerMode(2);
+				controller.setExpTime(acqTime);
+				tiff.resetFileTemplate();
+				// set num image to 1
+				areaDetector.setNumImages(1);
+				tiff.startCapture();
+				// must wait for acquire and write into file finish
+				acquireSynchronously();
+
+				// to remove synchronised acquisition chain along all the plugins
+				tiff.getPluginBase().setBlockingCallbacks(0);
+				proc1.getPluginBase().setBlockingCallbacks(0);
+			} catch (Exception ex) {
+				throw ex;
+			} finally {
+				setHdfFormat(isHdfFormat);
 			}
-			// set file name to demandRawFileName
-			tiff.setFileName(demandRawFileName);
-			// reset file number to 0
-			// tiff.setFileNumber(0);
-			// set auto-increment to No
-			tiff.setAutoIncrement(1);
-			// set file format to 'tif'
-			tiff.setFileFormat(0);
-			// set file template
-			areaDetector.setImageMode(0);
-			areaDetector.setTriggerMode(2);
-			controller.setExpTime(acqTime);
-			tiff.resetFileTemplate();
-			// set num image to 1
-			areaDetector.setNumImages(1);
-			tiff.startCapture();
-			// must wait for acquire and write into file finish
-			acquireSynchronously();
-			setHdfFormat(true);
-			// to remove synchronised acquisition chain along all the plugins
-			tiff.getPluginBase().setBlockingCallbacks(0);
-			proc1.getPluginBase().setBlockingCallbacks(0);
 
 		}
 		return getTiffImageFileName();
@@ -1074,6 +1088,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	public String takeFlat(double acqTime, int numberOfImages, String fileLocation, String fileName,
 			String filePathTemplate) throws Exception {
 		String fullFileName = null;
+		boolean isHdfFormat = isHdfFormat();
 		setHdfFormat(false);
 		logger.info("{} starts to collect {} averaged flat field, please wait...", getName(), numberOfImages);
 		controller.setExpTime(acqTime);
@@ -1124,7 +1139,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		proc2.setEnableFilter(0);
 		//
 		fullFileName = controller.getTiffFullFileName();
-		setHdfFormat(true);
+		setHdfFormat(isHdfFormat);
 		return fullFileName;
 	}
 
@@ -1154,7 +1169,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	public String takeDark(int numberOfImages, double acqTime, String fileLocation, String fileName,
 			String filePathTemplate) throws Exception {
 		String fullFileName = null;
-		// FIXME
+		boolean isHdfFormat = isHdfFormat();
 		setHdfFormat(false);
 		controller.getAreaDetector().setTriggerMode(2);
 		logger.info("{} starts to collect {} averaged flat field, please wait...", getName(), numberOfImages);
@@ -1210,7 +1225,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		proc1.setEnableFilter(0);
 		proc2.setEnableFilter(0);
 		fullFileName = controller.getTiffFullFileName();
-		setHdfFormat(true);
+		setHdfFormat(isHdfFormat);
 		return fullFileName;
 	}
 
