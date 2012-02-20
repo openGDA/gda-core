@@ -5,7 +5,7 @@ Bundle-SymbolicName: uk.ac.gda.common;singleton:=true
 Eclipse-RegisterBuddy: uk.ac.gda.libs
 Eclipse-BuddyPolicy: registered
 Bundle-Version: 1.0.0.qualifier
-Bundle-Vendor: diamond.ac.uk
+Bundle-Vendor: Diamond Light Source
 Export-Package: gda.configuration.properties,
  gda.doe,
  gda.observable,
