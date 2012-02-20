@@ -32,4 +32,4 @@ Export-Package: uk.ac.diamond.scisoft.analysis.rcp,
  uk.ac.diamond.scisoft.analysis.rcp.views.nexus
 Import-Package: org.nfunk.jep,
  org.slf4j;version="[1.5.0,2.0.0)"
-Bundle-Vendor: Diamond Light Source Ltd.
+Bundle-Vendor: Diamond Light Source
