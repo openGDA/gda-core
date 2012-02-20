@@ -4,7 +4,7 @@ Bundle-Name: Common Plug-in
 Bundle-SymbolicName: uk.ac.gda.common.rcp;singleton:=true
 Eclipse-RegisterBuddy: uk.ac.gda.libs
 Bundle-Version: 1.0.0.qualifier
-Bundle-Vendor: diamond.ac.uk
+Bundle-Vendor: Diamond Light Source
 Import-Package: org.eclipse.core.resources,
  org.eclipse.core.runtime,
  org.eclipse.jface.text,
