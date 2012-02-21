@@ -28,12 +28,11 @@
             <formatter type="xml" />
             <classpath>
                 <pathelement location="${junitjar.loc}" />
-                <pathelement location="${jythonjar.loc}" />
-                <path refid="libs.jars.path" />
-                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.nexus/bin" />
+                <pathelement location="${GDA-plugin.basedir}/bin" />
+                <pathelement location="${GDA-plugin.basedir}/jars/*" />
                 <pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
-                <path refid="plugins.jars.path" />
-                <path refid="thirdparty.bundles.path" />
+                <path refid="libs.jars.path" />
+                <pathelement location="${workspace.loc}/tp/plugins/*" />
             </classpath>
             <batchtest todir="@{report.dir}">
                 <fileset dir="${GDA-plugin.basedir}/test">
