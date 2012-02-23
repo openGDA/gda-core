@@ -22,6 +22,7 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color; 
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -55,6 +56,11 @@ public class LabelWrapper extends FieldComposite {
 	
 	private int decimalPlaces = 2;
 	private Label label;
+	
+	public void setLabelColor(Color color){ 
+ 		label.setForeground(color); 
+ 	} 
+
 	/**
 	 * @return the decimalPlaces
 	 */
