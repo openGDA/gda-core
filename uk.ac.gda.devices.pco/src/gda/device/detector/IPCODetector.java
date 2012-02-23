@@ -197,4 +197,11 @@ public interface IPCODetector extends Detector {
 	 */
 	void setRoi1ScalingDivisor(double divisor) throws Exception;
 
+	/**
+	 * @param minY
+	 * @param maxY
+	 * @throws Exception 
+	 */
+	void setupForTilt(int minY, int maxY) throws Exception;
+
 }

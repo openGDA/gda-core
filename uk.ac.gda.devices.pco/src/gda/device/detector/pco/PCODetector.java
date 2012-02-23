@@ -965,6 +965,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	}
 
 	// at the moment programmed only for 'tif'
+	//Demand raw goes through proc so that flat field can be applied
 	@Override
 	public String demandRaw(double acqTime, String demandRawFilePath, String demandRawFileName, boolean isHdf)
 			throws Exception {
@@ -991,7 +992,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 				NDProcess proc2 = controller.getProc2();
 				ADBase areaDetector = controller.getAreaDetector();
 				NDStats ndStat = controller.getStat();
-				/**/
+				/*Demand raw goes through proc so that flat field can be applied*/
 				proc1.setEnableLowClip(0);
 				proc1.setEnableHighClip(0);
 
@@ -1018,7 +1019,8 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 
 				tiff.getPluginBase().enableCallbacks();
 				tiff.stopCapture();
-
+				//set num capture to 1
+				tiff.setNumCapture(1);
 				// set tiff capture mode to 'Single'
 				tiff.setFileWriteMode(2);
 				// set file path to demandRawFilePath
@@ -1044,6 +1046,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 				controller.setExpTime(acqTime);
 				tiff.resetFileTemplate();
 				// set num image to 1
+				
 				areaDetector.setNumImages(1);
 				tiff.startCapture();
 				// must wait for acquire and write into file finish
@@ -1308,5 +1311,14 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	public void setRoi1ScalingDivisor(double divisor) throws Exception {
 		controller.getRoi1().enableScaling();
 		controller.getRoi1().setScale(divisor);
+	}
+
+	@Override
+	public void setupForTilt(int minY, int maxY) throws Exception {
+		controller.getRoi2().setMinY(minY);
+		controller.getRoi2().setSizeY(maxY-minY);
+		
+		String roi2PortName = controller.getRoi2().getPluginBase().getPortName_RBV();
+		controller.getTiff().getPluginBase().setNDArrayPort(roi2PortName);
 	}
 }
