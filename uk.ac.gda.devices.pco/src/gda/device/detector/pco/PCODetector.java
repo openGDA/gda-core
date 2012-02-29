@@ -87,8 +87,30 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	private boolean scanRunning;
 	private double maxIntensity = 65000;
 
+	/**
+	 * RS - Added this field so that reset all is not called at scan start. When tomography aligning, there are
+	 * instances where the y needs to be cropped and reset all sets them to the initial values which isn't desired.
+	 * Discussed with Fajin Y and addressed the problem by caching the value in the client before setting it and
+	 * resetting it to what it was before calling scan.
+	 * 
+	 * <pre>
+	 * Setting the default value to true, so that it behaves as before.
+	 * </pre>
+	 */
+	private boolean needToResetAllBeforeScanStart = true;
+
 	public PCODetector() {
 		setLocal(true); // do not use CORBA, use RMI
+	}
+
+	@Override
+	public boolean isNeedToResetAllBeforeScanStart() {
+		return needToResetAllBeforeScanStart;
+	}
+
+	@Override
+	public void setNeedToResetAllBeforeScanStart(boolean needToResetAllBeforeScanStart) {
+		this.needToResetAllBeforeScanStart = needToResetAllBeforeScanStart;
 	}
 
 	public void preview(double acquireTime) throws Exception {
@@ -297,8 +319,10 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 				}
 				Sleep.sleep(100);
 			}
-			// reset all to ensure camera ready for collection
-			resetAll(); // this will leave camera disarmed
+			if (needToResetAllBeforeScanStart) {
+				// reset all to ensure camera ready for collection
+				resetAll(); // this will leave camera disarmed
+			}
 			if (hdfFormat) {
 				// HDF saves all data to a single file, so no need to reset filenumber in EPICS
 				// no op
@@ -965,7 +989,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	}
 
 	// at the moment programmed only for 'tif'
-	//Demand raw goes through proc so that flat field can be applied
+	// Demand raw goes through proc so that flat field can be applied
 	@Override
 	public String demandRaw(double acqTime, String demandRawFilePath, String demandRawFileName, boolean isHdf)
 			throws Exception {
@@ -992,7 +1016,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 				NDProcess proc2 = controller.getProc2();
 				ADBase areaDetector = controller.getAreaDetector();
 				NDStats ndStat = controller.getStat();
-				/*Demand raw goes through proc so that flat field can be applied*/
+				/* Demand raw goes through proc so that flat field can be applied */
 				proc1.setEnableLowClip(0);
 				proc1.setEnableHighClip(0);
 
@@ -1019,7 +1043,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 
 				tiff.getPluginBase().enableCallbacks();
 				tiff.stopCapture();
-				//set num capture to 1
+				// set num capture to 1
 				tiff.setNumCapture(1);
 				// set tiff capture mode to 'Single'
 				tiff.setFileWriteMode(2);
@@ -1046,7 +1070,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 				controller.setExpTime(acqTime);
 				tiff.resetFileTemplate();
 				// set num image to 1
-				
+
 				areaDetector.setNumImages(1);
 				tiff.startCapture();
 				// must wait for acquire and write into file finish
@@ -1315,10 +1339,16 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 
 	@Override
 	public void setupForTilt(int minY, int maxY) throws Exception {
-		controller.getRoi2().setMinY(minY);
-		controller.getRoi2().setSizeY(maxY-minY);
-		
-		String roi2PortName = controller.getRoi2().getPluginBase().getPortName_RBV();
-		controller.getTiff().getPluginBase().setNDArrayPort(roi2PortName);
+		controller.getAreaDetector().setSizeY(maxY - minY);
+		controller.getAreaDetector().setMinY(minY);
+
+		controller.getTiff().getPluginBase().enableCallbacks();
+	}
+
+	@Override
+	public void resetAfterTiltToInitialValues() throws Exception {
+		ADBase adBase = controller.getAreaDetector();
+		adBase.setMinY(adBase.getInitialMinY());
+		adBase.setSizeY(adBase.getInitialSizeY());
 	}
 }

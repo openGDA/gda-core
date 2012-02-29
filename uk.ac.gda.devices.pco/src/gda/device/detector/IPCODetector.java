@@ -191,7 +191,9 @@ public interface IPCODetector extends Detector {
 	 */
 	public String getTiffImageFileName() throws Exception;
 
-	/**Set the scaling divisor on the ROI1
+	/**
+	 * Set the scaling divisor on the ROI1
+	 * 
 	 * @param divisor
 	 * @throws Exception
 	 */
@@ -200,8 +202,25 @@ public interface IPCODetector extends Detector {
 	/**
 	 * @param minY
 	 * @param maxY
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	void setupForTilt(int minY, int maxY) throws Exception;
+
+	/**
+	 * Reset the values of minY and maxY the initial values
+	 * 
+	 * @throws Exception
+	 */
+	void resetAfterTiltToInitialValues() throws Exception;
+
+	/**
+	 * @param needToResetAllBeforeScanStart
+	 */
+	void setNeedToResetAllBeforeScanStart(boolean needToResetAllBeforeScanStart);
+
+	/**
+	 * @return true is there is a need to resetAll Before Scan start
+	 */
+	boolean isNeedToResetAllBeforeScanStart();
 
 }
