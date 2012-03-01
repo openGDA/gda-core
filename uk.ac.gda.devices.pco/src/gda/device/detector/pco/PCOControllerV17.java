@@ -51,6 +51,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
+import uk.ac.gda.devices.pco.LiveModeUtil;
+
 /**
  * Separating out the detector from the controller - Part of GDA-4231 area detector stuff to get all detectors aligned
  * to EPICS V1.7
@@ -486,18 +488,17 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 			throw ex;
 		}
 	}
-	
-	
+
 	@Override
-	public void armCamera() throws Exception{
+	public void armCamera() throws Exception {
 		setArmMode(1);
 	}
-	
+
 	@Override
-	public void disarmCamera() throws Exception{
+	public void disarmCamera() throws Exception {
 		setArmMode(0);
 	}
-	
+
 	@Override
 	public void setArmMode(int value) throws Exception {
 		if (value != 0 && value != 1) {
@@ -614,7 +615,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 		//makeDetectorReadyForCollection(); // initialise area detector ready for acquisition
 		initialisePluginsArrayDimensions();
 	}
-	
+
 	public void initialisePluginsArrayDimensions() throws Exception {
 		if ((tiff.getPluginBase().isCallbackEnabled() && tiff.getPluginBase().getArraySize0_RBV() == 0)
 				|| (hdf.getPluginBase().isCallbackEnabled() && hdf.getPluginBase().getArraySize0_RBV() == 0)) {
@@ -623,17 +624,17 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 			// dummy acquisition to ensure all plugin array dimensions are initialised,
 			// these must be called at least once after IOC restarts.
 				areaDetector.setTriggerMode((short) 0);
-				areaDetector.setAcquireTime(0.01);
-				areaDetector.startAcquiring();
+			areaDetector.setAcquireTime(0.01);
+			areaDetector.startAcquiring();
 				areaDetector.setTriggerMode((short) 2);
 			}
 		}
 	}
 	@Override
 	public void makeDetectorReadyForCollection() throws Exception {
-		if (getArmMode() == 1) {
-			setArmMode(0); // disarm camera before change parameters
-		}
+			if (getArmMode() == 1) {
+				setArmMode(0); // disarm camera before change parameters
+			}
 		areaDetector.setArrayCounter(0);
 		tiff.stopCapture();
 		tiff.getPluginBase().setDroppedArrays(0);
@@ -644,8 +645,10 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 		// set the image mode to Multiple
 		areaDetector.setImageMode((short) 0);
 		areaDetector.setTriggerMode((short) 2); // EXT + SOFT
-		this.setADCMode(1); // two ADC
-		this.setAcquireMode(0); // AUTO
+		if (LiveModeUtil.isLiveMode()) {
+			this.setADCMode(1); // two ADC
+			this.setAcquireMode(0); // AUTO
+		}
 	}
 
 	/**
@@ -668,11 +671,12 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 		} else
 			hdf.setExtraDimSizeX(dimensions[0]);
 	}
+
 	@Override
 	public void startRecording() throws Exception {
 		if (hdf.getCapture() == 1)
 			throw new DeviceException("detector found already saving data when it should not be");
-		//hdf.setFilePath(PathConstructor.createFromDefaultProperty());
+		// hdf.setFilePath(PathConstructor.createFromDefaultProperty());
 		hdf.startCapture();
 		int totalmillis = 60 * 1000;
 		int grain = 25;
@@ -683,6 +687,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 		}
 		throw new TimeoutException("Timeout waiting for hdf file creation.");
 	}
+
 	@Override
 	public void endRecording() throws Exception {
 		// writing the buffers can take a long time
@@ -1010,7 +1015,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	public String getName() {
 		return name;
 	}
-	
+
 	@Override
 	public void disableTiffSaver() throws Exception {
 		tiff.getPluginBase().disableCallbacks();
@@ -1035,7 +1040,6 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	public String getHDFFileName() throws Exception {
 		return hdf.getFullFileName_RBV();
 	}
-
 
 	@Override
 	public void acquireMJpeg(Double expTime, Double acqPeriod, int binX, int binY) throws Exception {
@@ -1205,9 +1209,9 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 		tiff.setFileNumber(fileNumber);
 	}
 
-	
 	@Override
-	public boolean isArmed() throws Exception{
+	public boolean isArmed() throws Exception {
 		return getArmMode() == 1;
 	}
+
 }

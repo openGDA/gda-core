@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
+import uk.ac.gda.devices.pco.LiveModeUtil;
 
 /**
  * Separating out the detector from the controller - Part of GDA-4231 area detector stuff to get all detectors aligned
@@ -525,7 +526,6 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		LocalProperties.set("gda.data.scan.datawriter.dataFormat", "NexusDataWriter");
 	}
 
-
 	/**
 	 * manage the file path mapping between Windows (where the EPICS IOC is running) and Linux (Where data is to be
 	 * stored).
@@ -579,6 +579,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	}
 
 	private long filenumber = -1;
+	private boolean isWindowsIocSet = false;
 
 	/**
 	 * processes after collected data: <li>Archival of data collected</li> <li>Display the last image</li>
@@ -1074,13 +1075,15 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	}
 
 	// at the moment programmed only for 'tif'
-	//Demand raw goes through proc so that flat field can be applied
+	// Demand raw goes through proc so that flat field can be applied
 	@Override
 	public String demandRaw(double acqTime, String demandRawFilePath, String demandRawFileName, boolean isHdf)
 			throws Exception {
 		// Ensure disarm the camera before any change
-		if (controller.isArmed()) {
-			controller.disarmCamera();
+		if (LiveModeUtil.isLiveMode()) {
+			if (controller.isArmed()) {
+				controller.disarmCamera();
+			}
 		}
 		// Expectation is that this called only after the camera has issued a resetAll command.
 		// set file template to
@@ -1101,7 +1104,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 				NDProcess proc2 = controller.getProc2();
 				ADBase areaDetector = controller.getAreaDetector();
 				NDStats ndStat = controller.getStat();
-				/*Demand raw goes through proc so that flat field can be applied*/
+				/* Demand raw goes through proc so that flat field can be applied */
 				proc1.setEnableLowClip(0);
 				proc1.setEnableHighClip(0);
 
@@ -1128,12 +1131,12 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 
 				tiff.getPluginBase().enableCallbacks();
 				tiff.stopCapture();
-				//set num capture to 1
+				// set num capture to 1
 				tiff.setNumCapture(1);
 				// set tiff capture mode to 'Single'
 				tiff.setFileWriteMode(2);
 				// set file path to demandRawFilePath
-				if (isWindowsIoc) {
+				if (isWindowsIoc()) {
 					String replacedWindowsPath = demandRawFilePath.replaceAll(
 							demandRawDataStoreWindows2LinuxFileName.getLinuxPath(),
 							demandRawDataStoreWindows2LinuxFileName.getWindowsPath());
@@ -1155,7 +1158,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 				controller.setExpTime(acqTime);
 				tiff.resetFileTemplate();
 				// set num image to 1
-				
+
 				areaDetector.setNumImages(1);
 				tiff.startCapture();
 				// must wait for acquire and write into file finish
@@ -1226,7 +1229,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		proc2.setSaveFlatField(1);
 		//
 		// on tiff - set the file path, file name, file template and set the 'tiff' to listen to 'proc1'
-		if (isWindowsIoc) {
+		if (isWindowsIoc()) {
 			String replacedWindowsPath = fileLocation.replaceAll(
 					demandRawDataStoreWindows2LinuxFileName.getLinuxPath(),
 					demandRawDataStoreWindows2LinuxFileName.getWindowsPath());
@@ -1311,7 +1314,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		proc2.setSaveFlatField(1);
 		//
 		// on tiff - set the file path, file name, file template and set the 'tiff' to listen to 'proc1'
-		if (isWindowsIoc) {
+		if (isWindowsIoc()) {
 			String replacedWindowsPath = fileLocation.replaceAll(
 					demandRawDataStoreWindows2LinuxFileName.getLinuxPath(),
 					demandRawDataStoreWindows2LinuxFileName.getWindowsPath());
@@ -1358,10 +1361,15 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 
 	public void setWindowsIoc(boolean isWindowsIoc) {
 		this.isWindowsIoc = isWindowsIoc;
+		isWindowsIocSet = true;
 	}
 
 	public boolean isWindowsIoc() {
-		return isWindowsIoc;
+		if (isWindowsIocSet ) {
+			return isWindowsIoc;
+		}
+		//Only the live mode is windows
+		return LiveModeUtil.isLiveMode();
 	}
 
 	/**
@@ -1408,7 +1416,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 
 	@Override
 	public String getTiffImageFileName() throws Exception {
-		if (isWindowsIoc) {
+		if (isWindowsIoc()) {
 			return controller.getTiffFullFileName().replaceAll(
 					demandRawDataStoreWindows2LinuxFileName.getWindowsPath(),
 					demandRawDataStoreWindows2LinuxFileName.getLinuxPath());
@@ -1420,14 +1428,6 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	public void setRoi1ScalingDivisor(double divisor) throws Exception {
 		controller.getRoi1().enableScaling();
 		controller.getRoi1().setScale(divisor);
-	}
-
-	public void setTriggerPV(String triggerPV) {
-		controller.setTriggerPV(triggerPV);
-	}
-
-	public String getTriggerPV() {
-		return controller.getTriggerPV();
 	}
 
 	@Override
