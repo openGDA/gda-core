@@ -203,13 +203,13 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 
 	@Override
 	public void trigger() throws Exception {
-		EPICS_CONTROLLER.caput(createChannel(triggerPV), 1);
-		try {
-			Thread.sleep(10);
-		} catch (InterruptedException e) {
-			logger.info("{} : trigger wait interrupt.", getName());
-			throw e;
-		}
+		EPICS_CONTROLLER.caputWait(createChannel(triggerPV), 1);
+//		try {
+//			Thread.sleep(10);
+//		} catch (InterruptedException e) {
+//			logger.info("{} : trigger wait interrupt.", getName());
+//			throw e;
+//		}
 		EPICS_CONTROLLER.caput(createChannel(triggerPV), 0);
 	}
 
@@ -268,9 +268,9 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	public void setADCMode(int value) throws Exception {
 		try {
 			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getADC_MODE().getPv()), value);
+				EPICS_CONTROLLER.caputWait(createChannel(config.getADC_MODE().getPv()), value);
 			} else {
-				EPICS_CONTROLLER.caput(getChannel("ADC_MODE", ADC_MODE), value);
+				EPICS_CONTROLLER.caputWait(getChannel("ADC_MODE", ADC_MODE), value);
 			}
 		} catch (Exception ex) {
 			logger.warn("Cannot setADCMode", ex);
@@ -611,25 +611,36 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 			areaDetector.stopAcquiring(); // force stop any active camera acquisition on reset, this will disarm camera
 			Sleep.sleep(3000);
 		}
-		setSensibleDetectorParametersForAcquisition(); // initialise area detector ready for acquisition
+		//makeDetectorReadyForCollection(); // initialise area detector ready for acquisition
 		initialisePluginsArrayDimensions();
 	}
 	
 	public void initialisePluginsArrayDimensions() throws Exception {
 		if ((tiff.getPluginBase().isCallbackEnabled() && tiff.getPluginBase().getArraySize0_RBV() == 0)
 				|| (hdf.getPluginBase().isCallbackEnabled() && hdf.getPluginBase().getArraySize0_RBV() == 0)) {
+			if (tiff.getPluginBase().getArraySize0_RBV() != this.getAreaDetector().getArraySizeX_RBV() || 
+					hdf.getPluginBase().getArraySize0_RBV() != getAreaDetector().getArraySizeX_RBV()) {
 			// dummy acquisition to ensure all plugin array dimensions are initialised,
 			// these must be called at least once after IOC restarts.
-			areaDetector.setAcquireTime(0.01);
-			areaDetector.startAcquiring();
+				areaDetector.setTriggerMode((short) 0);
+				areaDetector.setAcquireTime(0.01);
+				areaDetector.startAcquiring();
+				areaDetector.setTriggerMode((short) 2);
+			}
 		}
 	}
-
-	private void setSensibleDetectorParametersForAcquisition() throws Exception {
+	@Override
+	public void makeDetectorReadyForCollection() throws Exception {
 		if (getArmMode() == 1) {
 			setArmMode(0); // disarm camera before change parameters
 		}
 		areaDetector.setArrayCounter(0);
+		tiff.stopCapture();
+		tiff.getPluginBase().setDroppedArrays(0);
+		tiff.getPluginBase().setArrayCounter(0);
+		hdf.stopCapture();
+		hdf.getPluginBase().setDroppedArrays(0);
+		hdf.getPluginBase().setArrayCounter(0);
 		// set the image mode to Multiple
 		areaDetector.setImageMode((short) 0);
 		areaDetector.setTriggerMode((short) 2); // EXT + SOFT
@@ -905,11 +916,11 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	public void setMjpeg2(FfmpegStream mjpeg) {
 		this.mjpeg2 = mjpeg;
 	}
-
+	@Override
 	public void setTriggerPV(String triggerPV) {
 		this.triggerPV = triggerPV;
 	}
-
+	@Override
 	public String getTriggerPV() {
 		return triggerPV;
 	}

@@ -86,31 +86,10 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	private boolean isPreviewing = false;
 	private boolean scanRunning;
 	private double maxIntensity = 65000;
-
-	/**
-	 * RS - Added this field so that reset all is not called at scan start. When tomography aligning, there are
-	 * instances where the y needs to be cropped and reset all sets them to the initial values which isn't desired.
-	 * Discussed with Fajin Y and addressed the problem by caching the value in the client before setting it and
-	 * resetting it to what it was before calling scan.
-	 * 
-	 * <pre>
-	 * Setting the default value to true, so that it behaves as before.
-	 * </pre>
-	 */
-	private boolean needToResetAllBeforeScanStart = true;
+	private boolean firstcall;
 
 	public PCODetector() {
 		setLocal(true); // do not use CORBA, use RMI
-	}
-
-	@Override
-	public boolean isNeedToResetAllBeforeScanStart() {
-		return needToResetAllBeforeScanStart;
-	}
-
-	@Override
-	public void setNeedToResetAllBeforeScanStart(boolean needToResetAllBeforeScanStart) {
-		this.needToResetAllBeforeScanStart = needToResetAllBeforeScanStart;
 	}
 
 	public void preview(double acquireTime) throws Exception {
@@ -203,6 +182,17 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	@Override
 	public int getStatus() {
 		if (isExternalTriggered()) {
+			if (firstcall) {
+				firstcall=false;
+				try {
+					if (controller.getTiff().getNumCaptured_RBV() == 0) {
+						return Detector.BUSY;
+					}
+				} catch (Exception e) {
+					logger.error("getNumCaptured_RBV() failed at getStatus()", e);
+				}
+				return Detector.IDLE;
+			}
 			// this to make sure motors can be moved at detector readout time
 			if (System.currentTimeMillis() < (aquisitionStartTime + (collectionTime * 1000))) {
 				return Detector.BUSY;
@@ -319,19 +309,24 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 				}
 				Sleep.sleep(100);
 			}
-			if (needToResetAllBeforeScanStart) {
-				// reset all to ensure camera ready for collection
-				resetAll(); // this will leave camera disarmed
-			}
+			controller.makeDetectorReadyForCollection(); // this will leave camera disarmed
 			if (hdfFormat) {
-				// HDF saves all data to a single file, so no need to reset filenumber in EPICS
-				// no op
+				controller.getHdf().getPluginBase().enableCallbacks();
+				controller.getTiff().getPluginBase().disableCallbacks();
+				controller.getHdf().stopCapture();
+				controller.getHdf().getPluginBase().setDroppedArrays(0);
+				controller.getHdf().getPluginBase().setArrayCounter(0);
 			} else {
+				controller.getHdf().getPluginBase().disableCallbacks();
+				controller.getTiff().getPluginBase().enableCallbacks();
+				controller.getTiff().stopCapture();
+				controller.getTiff().getPluginBase().setDroppedArrays(0);
+				controller.getTiff().getPluginBase().setArrayCounter(0);
 				controller.getTiff().setFileNumber(0);
 			}
 			setScanNumberAlreadyIncremented(true); // scan number is increamented by scan class before atScanStart
 													// called.
-			// must set file path and file name before starting capturing
+			// must set file path and file name before starting capturing -EPICS required this
 			initialiseFilePath();
 			setFileName();
 			ScanInformation scaninfo = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
@@ -339,16 +334,14 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 				controller.setScanDimensions(scaninfo.getDimensions());
 				controller.startRecording();
 			} else {
-				controller.getTiff().setNumCapture(totalNumberImages2Collect(scaninfo.getDimensions())); // to match
-																											// "Single"
-																											// image
-																											// mode in
-																											// camera
-																											// acquisition
+				controller.getTiff().setNumCapture(totalNumberImages2Collect(scaninfo.getDimensions())); 
 				controller.getTiff().startCapture();
 			}
 			scanRunning = true;
 			controller.armCamera();
+			Sleep.sleep(3000);
+			firstcall=true;
+			aquisitionStartTime=System.currentTimeMillis();
 		} catch (Exception e) {
 			logger.error("atScanStart failed with error:", e);
 			throw new DeviceException("atScanStart failed with error:", e);
@@ -366,19 +359,103 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	@Override
 	public void atScanEnd() throws DeviceException {
 		setScanNumberAlreadyIncremented(true);
-		try {
+		
 			scanRunning = false;
 			if (hdfFormat) {
-				FileRegistrarHelper.registerFile(getFilePath(controller.getHDFFileName()));
-				controller.endRecording();
+				int num;
+				try {
+					if ((num=controller.getHdf().getPluginBase().getDroppedArrays_RBV())!= 0) {
+						controller.getHdf().stopCapture();
+						throw new DeviceException("Buffer reports dropped array number: " + num );
+					}
+				} catch (Exception e) {
+					logger.error("Failed to get Dropped Array parameter from HDF plugin.", e);
+					throw new DeviceException("Failed to get Dropped Array parameter from HDF plugin.", e);
+				}
+				long starttimer=System.currentTimeMillis();
+				long timer=0;
+				try {
+					while (controller.getHdf().getCapture_RBV()== 1 && timer < starttimer+10*getCollectionTime()*1000){
+						Sleep.sleep(50);
+						timer=System.currentTimeMillis();
+//						if (controller.getHdf().getNumCaptured_RBV() + controller.getHdf().getPluginBase().getDroppedArrays_RBV()== controller.getHdf().getPluginBase().getArrayCounter_RBV()) {
+//							controller.getHdf().stopCapture();
+//						}
+					}
+				} catch (Exception e) {
+					logger.error("Failed to getCapture_RBV() from HDF plugin.", e);
+					throw new DeviceException("Failed to getCapture_RBV() from HDF plugin.", e);
+				}
+				if (timer>=starttimer+10*getCollectionTime()*1000){
+					try {
+						controller.getHdf().stopCapture();
+					} catch (Exception e) {
+						logger.error("failed to stop capture on HDF plugin", e);
+						throw new DeviceException("failed to stop capture on HDF plugin", e );
+					}
+					throw new DeviceException("TimeoutException: It takes to long to collect the last frame");
+				}
+				try {
+					FileRegistrarHelper.registerFile(getFilePath(controller.getHDFFileName()));
+				} catch (Exception e) {
+					logger.error("failed to getHDFFileName() in HDF plugin", e);
+					throw new DeviceException("failed to getHDFFileName() in HDF plugin",e);
+				}
+				try {
+					controller.endRecording();
+				} catch (Exception e) {
+					logger.error("failed to endRecording() in HDF plugin", e);
+					throw new DeviceException("failed to endRecording() in HDF plugin",e);
+				}
 			} else {
-				controller.getTiff().stopCapture();
+				int num;
+				try {
+					num = controller.getTiff().getPluginBase().getDroppedArrays_RBV();
+				} catch (Exception e1) {
+					logger.error("Failed to get Dropped Array parameter from Tiff plugin.", e1);
+					throw new DeviceException("Failed to get Dropped Array parameter from Tiff plugin.", e1);
+				}	
+				if (num!= 0) {
+					try {
+						controller.getTiff().stopCapture();
+					} catch (Exception e) {
+						logger.error("Failed to stop capture in Tiff plugin.", e);
+						throw new DeviceException("Failed to stop capture in Tiff plugin.", e);
+					}
+					throw new DeviceException(getName()+": reports dropped array number: " + num );
+				}
+				long starttimer=System.currentTimeMillis();
+				long timer=0;
+				try {
+					while (controller.getTiff().getCapture_RBV()== 1 && timer < starttimer+10*getCollectionTime()*1000){
+						Sleep.sleep((int)getCollectionTime()/10);
+						timer=System.currentTimeMillis();
+//					if (controller.getTiff().getNumCaptured_RBV() + controller.getTiff().getPluginBase().getDroppedArrays_RBV()== controller.getTiff().getPluginBase().getArrayCounter_RBV()) {
+//						controller.getTiff().stopCapture();
+//					}
+					}
+				} catch (Exception e) {
+					logger.error("Failed to getCapture_RBV() in Tiff plugin.", e);
+					throw new DeviceException("Failed to getCapture_RBV() in Tiff plugin.", e);
+				}
+//				if (timer>=starttimer+10*getCollectionTime()*1000){
+//					try {
+//						controller.getTiff().stopCapture();
+//					} catch (Exception e) {
+//						logger.error("Failed to stop capture in Tiff plugin.", e);
+//						throw new DeviceException("Failed to stop capture in Tiff plugin.", e);
+//					}
+//					throw new DeviceException("TimeoutException: It takes to long to collect the last frame");
+//				}
 			}
-			controller.disarmCamera();
-		} catch (Exception e1) {
-			logger.error("failed to disarm the camera", e1);
-			throw new DeviceException("failed to disarm the camera", e1);
-		}
+			try {
+				controller.disarmCamera();
+			} catch (Exception e) {
+				logger.error("Failed to disarmCamera() in Tiff plugin.", e);
+				throw new DeviceException("Failed to disarmCamera() in Tiff plugin.", e);
+			}
+		
+		
 		if (saveLocal) {
 			try {
 				while (isWriterBusy()) {
@@ -424,7 +501,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	@Override
 	public void stop() throws DeviceException {
 		super.stop();
-		try {
+		try {			
 			controller.stop();
 			setScanNumberAlreadyIncremented(false);
 		} catch (Exception e) {
@@ -440,6 +517,14 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	public void resetAll() throws Exception {
 		controller.resetAll();
 	}
+	public void setFormat(String format) {
+		LocalProperties.set("gda.data.scan.datawriter.dataFormat", format);
+	}
+
+	public void setNexusFormat() {
+		LocalProperties.set("gda.data.scan.datawriter.dataFormat", "NexusDataWriter");
+	}
+
 
 	/**
 	 * manage the file path mapping between Windows (where the EPICS IOC is running) and Linux (Where data is to be
@@ -989,7 +1074,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	}
 
 	// at the moment programmed only for 'tif'
-	// Demand raw goes through proc so that flat field can be applied
+	//Demand raw goes through proc so that flat field can be applied
 	@Override
 	public String demandRaw(double acqTime, String demandRawFilePath, String demandRawFileName, boolean isHdf)
 			throws Exception {
@@ -1016,7 +1101,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 				NDProcess proc2 = controller.getProc2();
 				ADBase areaDetector = controller.getAreaDetector();
 				NDStats ndStat = controller.getStat();
-				/* Demand raw goes through proc so that flat field can be applied */
+				/*Demand raw goes through proc so that flat field can be applied*/
 				proc1.setEnableLowClip(0);
 				proc1.setEnableHighClip(0);
 
@@ -1043,7 +1128,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 
 				tiff.getPluginBase().enableCallbacks();
 				tiff.stopCapture();
-				// set num capture to 1
+				//set num capture to 1
 				tiff.setNumCapture(1);
 				// set tiff capture mode to 'Single'
 				tiff.setFileWriteMode(2);
@@ -1070,7 +1155,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 				controller.setExpTime(acqTime);
 				tiff.resetFileTemplate();
 				// set num image to 1
-
+				
 				areaDetector.setNumImages(1);
 				tiff.startCapture();
 				// must wait for acquire and write into file finish
@@ -1335,6 +1420,14 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	public void setRoi1ScalingDivisor(double divisor) throws Exception {
 		controller.getRoi1().enableScaling();
 		controller.getRoi1().setScale(divisor);
+	}
+
+	public void setTriggerPV(String triggerPV) {
+		controller.setTriggerPV(triggerPV);
+	}
+
+	public String getTriggerPV() {
+		return controller.getTriggerPV();
 	}
 
 	@Override

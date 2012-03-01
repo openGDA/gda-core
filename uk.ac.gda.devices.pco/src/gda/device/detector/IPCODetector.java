@@ -213,14 +213,5 @@ public interface IPCODetector extends Detector {
 	 */
 	void resetAfterTiltToInitialValues() throws Exception;
 
-	/**
-	 * @param needToResetAllBeforeScanStart
-	 */
-	void setNeedToResetAllBeforeScanStart(boolean needToResetAllBeforeScanStart);
-
-	/**
-	 * @return true is there is a need to resetAll Before Scan start
-	 */
-	boolean isNeedToResetAllBeforeScanStart();
 
 }

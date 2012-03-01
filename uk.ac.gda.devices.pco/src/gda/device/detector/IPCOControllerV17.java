@@ -295,4 +295,10 @@ public interface IPCOControllerV17 extends Findable {
 	void disarmCamera() throws Exception;
 
 	boolean isArmed() throws Exception;
+
+	void makeDetectorReadyForCollection() throws Exception;
+
+	void setTriggerPV(String triggerPV);
+
+	String getTriggerPV();
 }
