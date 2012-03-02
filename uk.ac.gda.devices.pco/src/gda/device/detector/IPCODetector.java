@@ -139,8 +139,8 @@ public interface IPCODetector extends Detector {
 
 	public abstract void collectDarkSet() throws Exception;
 
-	String demandRaw(double acqTime, String demandRawFilePath, String demandRawFileName, boolean isHdf)
-			throws Exception;
+	String demandRaw(double acqTime, String demandRawFilePath, String demandRawFileName, boolean isHdf,
+			boolean isFlatFieldCorrectionRequired) throws Exception;
 
 	boolean isHdfFormat();
 
@@ -212,6 +212,5 @@ public interface IPCODetector extends Detector {
 	 * @throws Exception
 	 */
 	void resetAfterTiltToInitialValues() throws Exception;
-
 
 }

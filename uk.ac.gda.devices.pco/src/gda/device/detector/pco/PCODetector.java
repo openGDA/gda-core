@@ -184,7 +184,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	public int getStatus() {
 		if (isExternalTriggered()) {
 			if (firstcall) {
-				firstcall=false;
+				firstcall = false;
 				try {
 					if (controller.getTiff().getNumCaptured_RBV() == 0) {
 						return Detector.BUSY;
@@ -335,14 +335,14 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 				controller.setScanDimensions(scaninfo.getDimensions());
 				controller.startRecording();
 			} else {
-				controller.getTiff().setNumCapture(totalNumberImages2Collect(scaninfo.getDimensions())); 
+				controller.getTiff().setNumCapture(totalNumberImages2Collect(scaninfo.getDimensions()));
 				controller.getTiff().startCapture();
 			}
 			scanRunning = true;
 			controller.armCamera();
 			Sleep.sleep(3000);
-			firstcall=true;
-			aquisitionStartTime=System.currentTimeMillis();
+			firstcall = true;
+			aquisitionStartTime = System.currentTimeMillis();
 		} catch (Exception e) {
 			logger.error("atScanStart failed with error:", e);
 			throw new DeviceException("atScanStart failed with error:", e);
@@ -360,103 +360,108 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	@Override
 	public void atScanEnd() throws DeviceException {
 		setScanNumberAlreadyIncremented(true);
-		
-			scanRunning = false;
-			if (hdfFormat) {
-				int num;
+
+		scanRunning = false;
+		if (hdfFormat) {
+			int num;
+			try {
+				if ((num = controller.getHdf().getPluginBase().getDroppedArrays_RBV()) != 0) {
+					controller.getHdf().stopCapture();
+					throw new DeviceException("Buffer reports dropped array number: " + num);
+				}
+			} catch (Exception e) {
+				logger.error("Failed to get Dropped Array parameter from HDF plugin.", e);
+				throw new DeviceException("Failed to get Dropped Array parameter from HDF plugin.", e);
+			}
+			long starttimer = System.currentTimeMillis();
+			long timer = 0;
+			try {
+				while (controller.getHdf().getCapture_RBV() == 1
+						&& timer < starttimer + 10 * getCollectionTime() * 1000) {
+					Sleep.sleep(50);
+					timer = System.currentTimeMillis();
+					// if (controller.getHdf().getNumCaptured_RBV() +
+					// controller.getHdf().getPluginBase().getDroppedArrays_RBV()==
+					// controller.getHdf().getPluginBase().getArrayCounter_RBV()) {
+					// controller.getHdf().stopCapture();
+					// }
+				}
+			} catch (Exception e) {
+				logger.error("Failed to getCapture_RBV() from HDF plugin.", e);
+				throw new DeviceException("Failed to getCapture_RBV() from HDF plugin.", e);
+			}
+			if (timer >= starttimer + 10 * getCollectionTime() * 1000) {
 				try {
-					if ((num=controller.getHdf().getPluginBase().getDroppedArrays_RBV())!= 0) {
-						controller.getHdf().stopCapture();
-						throw new DeviceException("Buffer reports dropped array number: " + num );
-					}
+					controller.getHdf().stopCapture();
 				} catch (Exception e) {
-					logger.error("Failed to get Dropped Array parameter from HDF plugin.", e);
-					throw new DeviceException("Failed to get Dropped Array parameter from HDF plugin.", e);
+					logger.error("failed to stop capture on HDF plugin", e);
+					throw new DeviceException("failed to stop capture on HDF plugin", e);
 				}
-				long starttimer=System.currentTimeMillis();
-				long timer=0;
-				try {
-					while (controller.getHdf().getCapture_RBV()== 1 && timer < starttimer+10*getCollectionTime()*1000){
-						Sleep.sleep(50);
-						timer=System.currentTimeMillis();
-//						if (controller.getHdf().getNumCaptured_RBV() + controller.getHdf().getPluginBase().getDroppedArrays_RBV()== controller.getHdf().getPluginBase().getArrayCounter_RBV()) {
-//							controller.getHdf().stopCapture();
-//						}
-					}
-				} catch (Exception e) {
-					logger.error("Failed to getCapture_RBV() from HDF plugin.", e);
-					throw new DeviceException("Failed to getCapture_RBV() from HDF plugin.", e);
-				}
-				if (timer>=starttimer+10*getCollectionTime()*1000){
-					try {
-						controller.getHdf().stopCapture();
-					} catch (Exception e) {
-						logger.error("failed to stop capture on HDF plugin", e);
-						throw new DeviceException("failed to stop capture on HDF plugin", e );
-					}
-					throw new DeviceException("TimeoutException: It takes to long to collect the last frame");
-				}
-				try {
-					FileRegistrarHelper.registerFile(getFilePath(controller.getHDFFileName()));
-				} catch (Exception e) {
-					logger.error("failed to getHDFFileName() in HDF plugin", e);
-					throw new DeviceException("failed to getHDFFileName() in HDF plugin",e);
-				}
-				try {
-					controller.endRecording();
-				} catch (Exception e) {
-					logger.error("failed to endRecording() in HDF plugin", e);
-					throw new DeviceException("failed to endRecording() in HDF plugin",e);
-				}
-			} else {
-				int num;
-				try {
-					num = controller.getTiff().getPluginBase().getDroppedArrays_RBV();
-				} catch (Exception e1) {
-					logger.error("Failed to get Dropped Array parameter from Tiff plugin.", e1);
-					throw new DeviceException("Failed to get Dropped Array parameter from Tiff plugin.", e1);
-				}	
-				if (num!= 0) {
-					try {
-						controller.getTiff().stopCapture();
-					} catch (Exception e) {
-						logger.error("Failed to stop capture in Tiff plugin.", e);
-						throw new DeviceException("Failed to stop capture in Tiff plugin.", e);
-					}
-					throw new DeviceException(getName()+": reports dropped array number: " + num );
-				}
-				long starttimer=System.currentTimeMillis();
-				long timer=0;
-				try {
-					while (controller.getTiff().getCapture_RBV()== 1 && timer < starttimer+10*getCollectionTime()*1000){
-						Sleep.sleep((int)getCollectionTime()/10);
-						timer=System.currentTimeMillis();
-//					if (controller.getTiff().getNumCaptured_RBV() + controller.getTiff().getPluginBase().getDroppedArrays_RBV()== controller.getTiff().getPluginBase().getArrayCounter_RBV()) {
-//						controller.getTiff().stopCapture();
-//					}
-					}
-				} catch (Exception e) {
-					logger.error("Failed to getCapture_RBV() in Tiff plugin.", e);
-					throw new DeviceException("Failed to getCapture_RBV() in Tiff plugin.", e);
-				}
-//				if (timer>=starttimer+10*getCollectionTime()*1000){
-//					try {
-//						controller.getTiff().stopCapture();
-//					} catch (Exception e) {
-//						logger.error("Failed to stop capture in Tiff plugin.", e);
-//						throw new DeviceException("Failed to stop capture in Tiff plugin.", e);
-//					}
-//					throw new DeviceException("TimeoutException: It takes to long to collect the last frame");
-//				}
+				throw new DeviceException("TimeoutException: It takes to long to collect the last frame");
 			}
 			try {
-				controller.disarmCamera();
+				FileRegistrarHelper.registerFile(getFilePath(controller.getHDFFileName()));
 			} catch (Exception e) {
-				logger.error("Failed to disarmCamera() in Tiff plugin.", e);
-				throw new DeviceException("Failed to disarmCamera() in Tiff plugin.", e);
+				logger.error("failed to getHDFFileName() in HDF plugin", e);
+				throw new DeviceException("failed to getHDFFileName() in HDF plugin", e);
 			}
-		
-		
+			try {
+				controller.endRecording();
+			} catch (Exception e) {
+				logger.error("failed to endRecording() in HDF plugin", e);
+				throw new DeviceException("failed to endRecording() in HDF plugin", e);
+			}
+		} else {
+			int num;
+			try {
+				num = controller.getTiff().getPluginBase().getDroppedArrays_RBV();
+			} catch (Exception e1) {
+				logger.error("Failed to get Dropped Array parameter from Tiff plugin.", e1);
+				throw new DeviceException("Failed to get Dropped Array parameter from Tiff plugin.", e1);
+			}
+			if (num != 0) {
+				try {
+					controller.getTiff().stopCapture();
+				} catch (Exception e) {
+					logger.error("Failed to stop capture in Tiff plugin.", e);
+					throw new DeviceException("Failed to stop capture in Tiff plugin.", e);
+				}
+				throw new DeviceException(getName() + ": reports dropped array number: " + num);
+			}
+			long starttimer = System.currentTimeMillis();
+			long timer = 0;
+			try {
+				while (controller.getTiff().getCapture_RBV() == 1
+						&& timer < starttimer + 10 * getCollectionTime() * 1000) {
+					Sleep.sleep((int) getCollectionTime() / 10);
+					timer = System.currentTimeMillis();
+					// if (controller.getTiff().getNumCaptured_RBV() +
+					// controller.getTiff().getPluginBase().getDroppedArrays_RBV()==
+					// controller.getTiff().getPluginBase().getArrayCounter_RBV()) {
+					// controller.getTiff().stopCapture();
+					// }
+				}
+			} catch (Exception e) {
+				logger.error("Failed to getCapture_RBV() in Tiff plugin.", e);
+				throw new DeviceException("Failed to getCapture_RBV() in Tiff plugin.", e);
+			}
+			// if (timer>=starttimer+10*getCollectionTime()*1000){
+			// try {
+			// controller.getTiff().stopCapture();
+			// } catch (Exception e) {
+			// logger.error("Failed to stop capture in Tiff plugin.", e);
+			// throw new DeviceException("Failed to stop capture in Tiff plugin.", e);
+			// }
+			// throw new DeviceException("TimeoutException: It takes to long to collect the last frame");
+			// }
+		}
+		try {
+			controller.disarmCamera();
+		} catch (Exception e) {
+			logger.error("Failed to disarmCamera() in Tiff plugin.", e);
+			throw new DeviceException("Failed to disarmCamera() in Tiff plugin.", e);
+		}
+
 		if (saveLocal) {
 			try {
 				while (isWriterBusy()) {
@@ -502,7 +507,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	@Override
 	public void stop() throws DeviceException {
 		super.stop();
-		try {			
+		try {
 			controller.stop();
 			setScanNumberAlreadyIncremented(false);
 		} catch (Exception e) {
@@ -518,6 +523,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	public void resetAll() throws Exception {
 		controller.resetAll();
 	}
+
 	public void setFormat(String format) {
 		LocalProperties.set("gda.data.scan.datawriter.dataFormat", format);
 	}
@@ -1077,8 +1083,8 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	// at the moment programmed only for 'tif'
 	// Demand raw goes through proc so that flat field can be applied
 	@Override
-	public String demandRaw(double acqTime, String demandRawFilePath, String demandRawFileName, boolean isHdf)
-			throws Exception {
+	public String demandRaw(double acqTime, String demandRawFilePath, String demandRawFileName, boolean isHdf,
+			boolean isFlatFieldCorrectionRequired) throws Exception {
 		// Ensure disarm the camera before any change
 		if (LiveModeUtil.isLiveMode()) {
 			if (controller.isArmed()) {
@@ -1100,50 +1106,23 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 			// stop tiff capture
 			try {
 				NDFile tiff = controller.getTiff();
-				NDProcess proc1 = controller.getProc1();
-				NDProcess proc2 = controller.getProc2();
 				ADBase areaDetector = controller.getAreaDetector();
+				String areadDetectorPortName = areaDetector.getPortName_RBV();
+				
 				NDStats ndStat = controller.getStat();
-				/* Demand raw goes through proc so that flat field can be applied */
-				proc1.setEnableLowClip(0);
-				proc1.setEnableHighClip(0);
-
-				//
-				proc1.setEnableFilter(0);
-				proc2.setEnableFilter(0);
-				/**/
-				proc2.setEnableLowClip(0);
-				proc2.setEnableHighClip(0);
-
 				ndStat.getPluginBase().enableCallbacks();
 				ndStat.setComputeStatistics(1);
-				ndStat.getPluginBase().setNDArrayPort(proc1.getPluginBase().getPortName_RBV());
-
-				// Set up Proc1
-
-				proc1.getPluginBase().enableCallbacks();
-				proc1.getPluginBase().setNDArrayPort(areaDetector.getPortName_RBV());
-				// to synchronise acquisition chain along all the plugins
-				tiff.getPluginBase().setNDArrayPort(proc1.getPluginBase().getPortName_RBV());
 				tiff.getPluginBase().enableCallbacks();
 				tiff.getPluginBase().setBlockingCallbacks(1);
-				proc1.getPluginBase().setBlockingCallbacks(1);
 
-				tiff.getPluginBase().enableCallbacks();
 				tiff.stopCapture();
 				// set num capture to 1
 				tiff.setNumCapture(1);
 				// set tiff capture mode to 'Single'
 				tiff.setFileWriteMode(2);
 				// set file path to demandRawFilePath
-				if (isWindowsIoc()) {
-					String replacedWindowsPath = demandRawFilePath.replaceAll(
-							demandRawDataStoreWindows2LinuxFileName.getLinuxPath(),
-							demandRawDataStoreWindows2LinuxFileName.getWindowsPath());
-					tiff.setFilePath(replacedWindowsPath);
-				} else {
-					tiff.setFilePath(demandRawFilePath);
-				}
+				tiff.resetFileTemplate();
+				tiff.getPluginBase().setBlockingCallbacks(0);
 				// set file name to demandRawFileName
 				tiff.setFileName(demandRawFileName);
 				// reset file number to 0
@@ -1152,21 +1131,56 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 				tiff.setAutoIncrement(1);
 				// set file format to 'tif'
 				tiff.setFileFormat(0);
+
+				if (isWindowsIoc()) {
+					String replacedWindowsPath = demandRawFilePath.replaceAll(
+							demandRawDataStoreWindows2LinuxFileName.getLinuxPath(),
+							demandRawDataStoreWindows2LinuxFileName.getWindowsPath());
+					tiff.setFilePath(replacedWindowsPath);
+				} else {
+					tiff.setFilePath(demandRawFilePath);
+				}
 				// set file template
 				areaDetector.setImageMode(0);
 				areaDetector.setTriggerMode(2);
-				controller.setExpTime(acqTime);
-				tiff.resetFileTemplate();
 				// set num image to 1
-
 				areaDetector.setNumImages(1);
+
+				controller.setExpTime(acqTime);
+				if (isFlatFieldCorrectionRequired) {
+
+					/* Demand raw goes through proc so that flat field can be applied */
+					NDProcess proc1 = controller.getProc1();
+					NDProcess proc2 = controller.getProc2();
+					proc1.setEnableLowClip(0);
+					proc1.setEnableHighClip(0);
+
+					//
+					proc1.setEnableFilter(0);
+					proc2.setEnableFilter(0);
+					/**/
+					proc2.setEnableLowClip(0);
+					proc2.setEnableHighClip(0);
+
+					// Set up Proc1
+
+					proc1.getPluginBase().enableCallbacks();
+					proc1.getPluginBase().setNDArrayPort(areadDetectorPortName);
+					// to synchronise acquisition chain along all the plugins
+					proc1.getPluginBase().setBlockingCallbacks(1);
+
+					proc1.getPluginBase().setBlockingCallbacks(0);
+					ndStat.getPluginBase().setNDArrayPort(proc1.getPluginBase().getPortName_RBV());
+					tiff.getPluginBase().setNDArrayPort(proc1.getPluginBase().getPortName_RBV());
+				} else {
+					ndStat.getPluginBase().setNDArrayPort(areadDetectorPortName);
+					tiff.getPluginBase().setNDArrayPort(areadDetectorPortName);
+				}
 				tiff.startCapture();
 				// must wait for acquire and write into file finish
 				acquireSynchronously();
 
 				// to remove synchronised acquisition chain along all the plugins
-				tiff.getPluginBase().setBlockingCallbacks(0);
-				proc1.getPluginBase().setBlockingCallbacks(0);
 			} catch (Exception ex) {
 				throw ex;
 			} finally {
@@ -1365,10 +1379,10 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	}
 
 	public boolean isWindowsIoc() {
-		if (isWindowsIocSet ) {
+		if (isWindowsIocSet) {
 			return isWindowsIoc;
 		}
-		//Only the live mode is windows
+		// Only the live mode is windows
 		return LiveModeUtil.isLiveMode();
 	}
 
