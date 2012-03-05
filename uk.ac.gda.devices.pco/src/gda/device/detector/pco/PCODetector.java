@@ -1083,12 +1083,14 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	// at the moment programmed only for 'tif'
 	// Demand raw goes through proc so that flat field can be applied
 	@Override
-	public String demandRaw(double acqTime, String demandRawFilePath, String demandRawFileName, boolean isHdf,
-			boolean isFlatFieldCorrectionRequired) throws Exception {
+	public String demandRaw(Double acqTime, String demandRawFilePath, String demandRawFileName, Boolean isHdf,
+			Boolean isFlatFieldCorrectionRequired, Boolean demandWhileStreaming) throws Exception {
 		// Ensure disarm the camera before any change
-		if (LiveModeUtil.isLiveMode()) {
-			if (controller.isArmed()) {
-				controller.disarmCamera();
+		if (!demandWhileStreaming) {
+			if (LiveModeUtil.isLiveMode()) {
+				if (controller.isArmed()) {
+					controller.disarmCamera();
+				}
 			}
 		}
 		// Expectation is that this called only after the camera has issued a resetAll command.
@@ -1108,7 +1110,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 				NDFile tiff = controller.getTiff();
 				ADBase areaDetector = controller.getAreaDetector();
 				String areadDetectorPortName = areaDetector.getPortName_RBV();
-				
+
 				NDStats ndStat = controller.getStat();
 				ndStat.getPluginBase().enableCallbacks();
 				ndStat.setComputeStatistics(1);
@@ -1140,13 +1142,15 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 				} else {
 					tiff.setFilePath(demandRawFilePath);
 				}
-				// set file template
-				areaDetector.setImageMode(0);
-				areaDetector.setTriggerMode(2);
-				// set num image to 1
-				areaDetector.setNumImages(1);
+				if (!demandWhileStreaming) {
+					// set file template
+					areaDetector.setImageMode(0);
+					areaDetector.setTriggerMode(2);
+					// set num image to 1
+					areaDetector.setNumImages(1);
 
-				controller.setExpTime(acqTime);
+					controller.setExpTime(acqTime);
+				}
 				if (isFlatFieldCorrectionRequired) {
 
 					/* Demand raw goes through proc so that flat field can be applied */
@@ -1164,6 +1168,9 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 
 					// Set up Proc1
 
+					proc1.setEnableOffsetScale(0);
+					proc2.setEnableOffsetScale(0);
+
 					proc1.getPluginBase().enableCallbacks();
 					proc1.getPluginBase().setNDArrayPort(areadDetectorPortName);
 					// to synchronise acquisition chain along all the plugins
@@ -1176,9 +1183,13 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 					ndStat.getPluginBase().setNDArrayPort(areadDetectorPortName);
 					tiff.getPluginBase().setNDArrayPort(areadDetectorPortName);
 				}
-				tiff.startCapture();
-				// must wait for acquire and write into file finish
-				acquireSynchronously();
+				if (!demandWhileStreaming) {
+					tiff.startCapture();
+					// must wait for acquire and write into file finish
+					acquireSynchronously();
+				} else {
+					tiff.startCaptureSynchronously();
+				}
 
 				// to remove synchronised acquisition chain along all the plugins
 			} catch (Exception ex) {
@@ -1203,6 +1214,8 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		proc.setNumFilter(numberOfImages);
 		// click the reset button
 		proc.setResetFilter(1);
+		// Disable Scale and Offset
+		proc.setEnableOffsetScale(0);
 		// disable flat field
 		proc.setEnableFlatField(0);
 		proc.setScaleFlatField(maxIntensity);
@@ -1266,6 +1279,9 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		//
 		proc1.setEnableFilter(0);
 		proc2.setEnableFilter(0);
+
+		proc1.setEnableOffsetScale(0);
+		proc2.setEnableOffsetScale(0);
 		//
 		fullFileName = controller.getTiffFullFileName();
 		setHdfFormat(isHdfFormat);
@@ -1353,6 +1369,10 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		// disable recursive filter for both procs
 		proc1.setEnableFilter(0);
 		proc2.setEnableFilter(0);
+
+		proc1.setEnableOffsetScale(0);
+		proc2.setEnableOffsetScale(0);
+
 		fullFileName = controller.getTiffFullFileName();
 		setHdfFormat(isHdfFormat);
 		return fullFileName;
@@ -1458,4 +1478,13 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		adBase.setMinY(adBase.getInitialMinY());
 		adBase.setSizeY(adBase.getInitialSizeY());
 	}
+
+	@Override
+	public void setProcScale(int factor) throws Exception {
+		controller.getProc1().setEnableOffsetScale(1);
+		controller.getProc1().setScale(factor);
+		controller.getProc2().setEnableOffsetScale(1);
+		controller.getProc2().setScale(factor);
+	}
+
 }

@@ -1042,7 +1042,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	}
 
 	@Override
-	public void acquireMJpeg(Double expTime, Double acqPeriod, int binX, int binY) throws Exception {
+	public void acquireMJpeg(Double expTime, Double acqPeriod, Double procScaleFactor, int binX, int binY) throws Exception {
 		// plugins arranged - cam -> proc -> roi ->mjpeg
 
 		setImageMode(2);
@@ -1058,6 +1058,9 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 		proc1.getPluginBase().setNDArrayPort(areaDetector.getPortName_RBV());
 		proc1.getPluginBase().enableCallbacks();
 		proc1.setEnableFilter(0);
+		proc1.setEnableOffsetScale(1);
+		proc1.setScale(procScaleFactor);
+		
 		//
 		roi1.getPluginBase().enableCallbacks();
 		roi1.getPluginBase().setNDArrayPort(proc1.getPluginBase().getPortName_RBV());

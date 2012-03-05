@@ -200,7 +200,7 @@ public interface IPCOControllerV17 extends Findable {
 
 	NDFileHDF5 getHdf();
 
-	void acquireMJpeg(Double acqTime, Double acqPeriod, int binX, int binY) throws Exception;
+	void acquireMJpeg(Double acqTime, Double acqPeriod, Double procScaleFactor,int binX, int binY) throws Exception;
 
 	void enableFlatField() throws Exception;
 
