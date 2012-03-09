@@ -14,9 +14,9 @@ Require-Bundle: org.junit4;bundle-version="4.8.1",
  uk.ac.gda.libs;bundle-version="1.0.0",
  uk.ac.gda.nexus;bundle-version="1.0.0",
  uk.ac.gda.common;bundle-version="1.0.0",
- uk.ac.diamond.scisoft.analysis;bundle-version="1.0.0",
- uk.ac.diamond.scisoft.analysis.rcp;bundle-version="1.0.0",
- uk.ac.diamond.scisoft.deprecated;bundle-version="1.0.0",
+ uk.ac.diamond.scisoft.analysis;bundle-version="[1.2.0,2.0.0)",
+ uk.ac.diamond.scisoft.analysis.rcp;bundle-version="[1.2.0,2.0.0)",
+ uk.ac.diamond.scisoft.deprecated;bundle-version="[1.2.0,2.0.0)",
  uk.ac.gda.common.rcp
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
