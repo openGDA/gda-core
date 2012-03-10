@@ -62,6 +62,12 @@ public class LocalProperties {
 	public static final String GDA_DATA = "gda.data";
 	
 	/**
+	 * Name of class in package gda.data.scan.datawriter that is called when ScanDataPoints are available to be written
+	 * Must support interface DataWriter 
+	 */
+	public static final String GDA_DATA_SCAN_DATAWRITER_DATAFORMAT = "gda.data.scan.datawriter.dataFormat";	
+
+	/**
 	 * Property used to provide the 'default' property to gda.data.PathConstructor (in uk.ac.gda.core). This in turn
 	 * is used by *many* classes to determine where scan files or images should be written.
 	 */
@@ -224,6 +230,7 @@ public class LocalProperties {
 	 */
 	public static final String GDA_SCAN_MULTITHREADED_SCANDATA_POINT_PIPElINE_POINTS_TO_COMPUTE_SIMULTANEOUSELY = "gda.scan.multithreadedScanDataPointPipeline.pointsToComputeSimultaneousely";
 
+	
 	// create Jakarta properties handler object
 	// README - The JakartaPropertiesConfig class automatically picks up
 	// system

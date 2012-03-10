@@ -29,12 +29,18 @@ Export-Package: gda.configuration.properties,
  uk.ac.gda.util.schema
 Require-Bundle: org.junit4,
  com.springsource.ch.qos.logback.classic;bundle-version="0.9.15",
- com.springsource.ch.qos.logback.core;bundle-version="0.9.15",
- uk.ac.gda.libs;bundle-version="1.0.0"
+ com.springsource.ch.qos.logback.core;bundle-version="0.9.15"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: org.slf4j;version="[1.5.0,2.0.0)",
+Import-Package: org.apache.commons.beanutils;version="1.8.0",
+ org.apache.commons.configuration;version="1.6.0",
+ org.apache.commons.lang.exception;version="[2.4.0,3.0.0)",
+ org.exolab.castor.mapping;version="1.2.0",
+ org.exolab.castor.xml;version="1.2.0",
+ org.slf4j;version="[1.5.0,2.0.0)",
  org.springframework.beans.factory;version="3.0.4",
  org.springframework.beans.factory.xml;version="3.0.4",
  org.springframework.util;version="3.0.4"
+Bundle-ClassPath: jars/com.springsource.org.apache.xerces-2.9.1.jar,
+ .
 
