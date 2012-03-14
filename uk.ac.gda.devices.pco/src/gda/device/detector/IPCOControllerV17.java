@@ -18,9 +18,6 @@
 
 package gda.device.detector;
 
-import java.awt.Point;
-import java.awt.Rectangle;
-
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.FfmpegStream;
 import gda.device.detector.areadetector.v17.NDArray;
@@ -44,18 +41,25 @@ public interface IPCOControllerV17 extends Findable {
 	ADBase getAreaDetector();
 
 	String getBasePVName();
+
 	/**
-	 * reset the camera and all assciated plugins - enable NDArray callback, stop any acquiring, set acquisition parameters, initialise plugins' array dimensions
+	 * reset the camera and all assciated plugins - enable NDArray callback, stop any acquiring, set acquisition
+	 * parameters, initialise plugins' array dimensions
+	 * 
 	 * @throws Exception
 	 */
 	void resetAll() throws Exception;
+
 	/**
 	 * to provide a software simulated/controlled trigger signal to the detector trigger input
+	 * 
 	 * @throws Exception
 	 */
-	void trigger() throws  Exception;
+	void trigger() throws Exception;
+
 	/**
 	 * stop camera acquiring, disarm the camera (automatically called by EPICS)
+	 * 
 	 * @throws Exception
 	 */
 	void stop() throws Exception;
@@ -67,48 +71,55 @@ public interface IPCOControllerV17 extends Findable {
 	int getADCMode() throws TimeoutException, CAException, InterruptedException, Exception;
 
 	int getPixRate() throws TimeoutException, CAException, InterruptedException, Exception;
+
 	/**
 	 * returns the readout time for one ADC at 8mHz
+	 * 
 	 * @return readout time
 	 */
 	int getReadout1ADC8Mhz();
+
 	/**
 	 * returns the readout time for one ADC at 32mHz
+	 * 
 	 * @return readout time
 	 */
 	int getReadout1ADC32Mhz();
+
 	/**
 	 * returns the readout time for two ADC at 32mHz
+	 * 
 	 * @return readout time
 	 */
 	int getReadout2ADC32Mhz();
 
 	/**
 	 * returns the readout time for two ADC at 8mHz
+	 * 
 	 * @return readout time
 	 */
 	int getReadout2ADC8Mhz();
-	/**
-	 * set acquire or exposure time of the camera when camera is disarmed
-	 * @param collectionTime
-	 * @throws Exception
-	 */
-	void setExpTime(double collectionTime) throws Exception;
+
 	/**
 	 * set the image mode for acquisition: - Single, Multiple, or Continuous when camera is disarmed.
+	 * 
 	 * @param imageMode
 	 * @throws Exception
 	 */
 	void setImageMode(int imageMode) throws Exception;
+
 	/**
 	 * start to acquire image
+	 * 
 	 * @throws Exception
 	 */
 	void acquire() throws Exception;
 
 	NDFile getTiff();
+
 	/**
 	 * returns the number of exposures set in EPICS
+	 * 
 	 * @return number of exposures
 	 * @throws Exception
 	 */
@@ -129,14 +140,18 @@ public interface IPCOControllerV17 extends Findable {
 	NDROI getRoi2();
 
 	NDArray getArray();
+
 	/**
 	 * set camera ADC mode - one ADC or two ADC when camera is disarmed
+	 * 
 	 * @param value
 	 * @throws Exception
 	 */
 	void setADCMode(int value) throws Exception;
+
 	/**
 	 * sets camera pixel rate - 32mHz or 8mHz when camera is disarmed
+	 * 
 	 * @param value
 	 * @throws Exception
 	 */
@@ -149,30 +164,38 @@ public interface IPCOControllerV17 extends Findable {
 	double getPowerSupplyTemperature() throws Exception;
 
 	int getStorageMode() throws Exception;
+
 	/**
 	 * set camera storage mode - recorder or FIFO buffer, when camera id disarmed
+	 * 
 	 * @param value
 	 * @throws Exception
 	 */
 	void setStorageMode(int value) throws Exception;
 
 	int getRecorderMode() throws Exception;
+
 	/**
 	 * set camera recorder mode - Sequence or Ring buffer when camera id disarmed
+	 * 
 	 * @param value
 	 * @throws Exception
 	 */
 	void setRecorderMode(int value) throws Exception;
 
 	int getTimestampMode() throws Exception;
+
 	/**
 	 * sets camera timestamp - None, BCD, BCD+ASCII, or ACSII, when camera is disarmed
+	 * 
 	 * @param value
 	 * @throws Exception
 	 */
 	void setTimestampMode(int value) throws Exception;
+
 	/**
 	 * set camera acquire mode - Auto, Ext. enable, or Ext. trigger when camera id disarmed
+	 * 
 	 * @param value
 	 * @throws Exception
 	 */
@@ -185,14 +208,18 @@ public interface IPCOControllerV17 extends Findable {
 	void setArmMode(int value) throws Exception;
 
 	double getDelayTime() throws Exception;
+
 	/**
 	 * set camera delay time when camera is disarmed
+	 * 
 	 * @param value
 	 * @throws Exception
 	 */
 	void setDelayTime(double value) throws Exception;
+
 	/**
 	 * sets number of image to collect per point or step when camera is disarmed
+	 * 
 	 * @param numimages
 	 * @throws Exception
 	 */
@@ -200,30 +227,27 @@ public interface IPCOControllerV17 extends Findable {
 
 	NDFileHDF5 getHdf();
 
-	void acquireMJpeg(Double acqTime, Double acqPeriod, Double procScaleFactor,int binX, int binY) throws Exception;
-
-	void enableFlatField() throws Exception;
-
 	int getNumImages() throws Exception;
 
 	int getNumCaptured() throws Exception;
 
 	String getFullFileName() throws Exception;
-	
-	double getExpTime() throws Exception;
-	/** 
+
+	/**
 	 * sets camera trigger mode - Auto, Soft, Ext + Soft, or Ext Pulse when camera is disarmed.
+	 * 
 	 * @param value
 	 * @throws Exception
 	 */
 	void setTriggerMode(TriggerMode value) throws Exception;
 
 	TriggerMode getTriggerMode();
-	
+
 	void listTriggerModes();
-	
-	/** 
+
+	/**
 	 * sets camera trigger mode - 0-Auto, 1-Soft, 2-Ext + Soft, or 3-Ext Pulse when camera is disarmed.
+	 * 
 	 * @param value
 	 * @throws Exception
 	 */
@@ -247,48 +271,9 @@ public interface IPCOControllerV17 extends Findable {
 
 	void endRecording() throws Exception;
 
-	/**
-	 * Set roi2 roiStart to the values provided.
-	 * 
-	 * @param roiStart
-	 * @throws Exception
-	 */
-	void setZoomRoiStart(Point roiStart) throws Exception;
-
-	/**
-	 * Set up the zoom controls
-	 * 
-	 * @param roi
-	 * @param bin
-	 * @throws Exception
-	 */
-	void setupZoomMJpeg(Rectangle roi, Point bin) throws Exception;
-
-	Integer getRoi1BinX() throws Exception;
-
-	Integer getSizeX() throws Exception;
-
 	String getTiffFullFileName() throws Exception;
 
-	void disableFlatField() throws Exception;
-
-	Integer getRoi2BinX() throws Exception;
-
-	void setClippingLimits(int lowLimit, int highLimit) throws Exception;
-
-	void setLowClip(double lowClipValue) throws Exception;
-
-	void setHighClip(double highClipValue) throws Exception;
-
 	int getNextFileNumber() throws Exception;
-
-	String getTiffFilePath() throws Exception;
-
-	String getTiffFileName() throws Exception;
-
-	String getTiffFileTemplate() throws Exception;
-
-	void setTiffFileNumber(int fileNumber) throws Exception;
 
 	void armCamera() throws Exception;
 

@@ -29,16 +29,12 @@ import gda.device.detector.IPCOControllerV17;
 import gda.device.detector.IPCODetector;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.areadetector.v17.ADBase;
-import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.areadetector.v17.NDFile;
-import gda.device.detector.areadetector.v17.NDProcess;
-import gda.device.detector.areadetector.v17.NDStats;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 import gda.util.Sleep;
 import gov.aps.jca.TimeoutException;
 
-import java.awt.Point;
 import java.io.File;
 import java.io.IOException;
 import java.util.Vector;
@@ -86,7 +82,6 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	private boolean externalTriggered = false;
 	private boolean isPreviewing = false;
 	private boolean scanRunning;
-	private double maxIntensity = 65000;
 	private boolean firstcall;
 
 	public PCODetector() {
@@ -94,11 +89,13 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	}
 
 	public void preview(double acquireTime) throws Exception {
+		ADBase areaDetector = controller.getAreaDetector();
+
 		// stop the camera first
 		controller.stop();
 		// then change to preview parameters
 		controller.setImageMode(2);
-		controller.setExpTime(acquireTime);
+		areaDetector.setAcquireTime(acquireTime);
 		// make sure all file savers disabled
 		controller.disableTiffSaver();
 		controller.disableHdfSaver();
@@ -110,10 +107,6 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	private void stopPreview() throws Exception {
 		controller.stop();
 		isPreviewing = false;
-	}
-
-	public void setMaxIntensity(double maxIntensity) {
-		this.maxIntensity = maxIntensity;
 	}
 
 	/**
@@ -259,7 +252,8 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	@Override
 	public void setCollectionTime(double collectionTime) throws DeviceException {
 		try { // TODO beamline reported sometime exposure need to be set twice to succeed
-			controller.setExpTime(collectionTime);
+			ADBase areaDetector = controller.getAreaDetector();
+			areaDetector.setAcquireTime(collectionTime);
 			this.collectionTime = collectionTime;
 		} catch (Exception e) {
 			logger.error("{} failed to set exposure time to {}.", getName(), collectionTime);
@@ -272,7 +266,8 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		int numImagesPerPoint = Integer.parseInt(collectspec[1].toString());
 		int totalNumImages = Integer.parseInt(collectspec[2].toString());
 		try {
-			controller.setExpTime(collectionTime);
+			ADBase areaDetector = controller.getAreaDetector();
+			areaDetector.setAcquireTime(collectionTime);
 			controller.setNumImages(numImagesPerPoint);
 			if (numImagesPerPoint > 1) {
 				controller.setImageMode(1); // multiple image per data point
@@ -1080,304 +1075,6 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		}
 	}
 
-	// at the moment programmed only for 'tif'
-	// Demand raw goes through proc so that flat field can be applied
-	@Override
-	public String demandRaw(Double acqTime, String demandRawFilePath, String demandRawFileName, Boolean isHdf,
-			Boolean isFlatFieldCorrectionRequired, Boolean demandWhileStreaming) throws Exception {
-		// Ensure disarm the camera before any change
-		if (!demandWhileStreaming) {
-			if (LiveModeUtil.isLiveMode()) {
-				if (controller.isArmed()) {
-					controller.disarmCamera();
-				}
-			}
-		}
-		// Expectation is that this called only after the camera has issued a resetAll command.
-		// set file template to
-		if (isHdf) {
-			setHdfFormat(true);
-			// FIXME - program so that HDF can be used.
-
-		} else {
-			boolean isHdfFormat = isHdfFormat();
-			setHdfFormat(false);
-			// if it isn't hdf the assumption is it should be tiff.
-			// Demand raw
-			// Stop tiff capture
-			// stop tiff capture
-			try {
-				NDFile tiff = controller.getTiff();
-				ADBase areaDetector = controller.getAreaDetector();
-				String areadDetectorPortName = areaDetector.getPortName_RBV();
-
-				NDStats ndStat = controller.getStat();
-				ndStat.getPluginBase().enableCallbacks();
-				ndStat.setComputeStatistics(1);
-				tiff.getPluginBase().enableCallbacks();
-				tiff.getPluginBase().setBlockingCallbacks(1);
-
-				tiff.stopCapture();
-				// set num capture to 1
-				tiff.setNumCapture(1);
-				// set tiff capture mode to 'Single'
-				tiff.setFileWriteMode(2);
-				// set file path to demandRawFilePath
-				tiff.resetFileTemplate();
-				tiff.getPluginBase().setBlockingCallbacks(0);
-				// set file name to demandRawFileName
-				tiff.setFileName(demandRawFileName);
-				// reset file number to 0
-				// tiff.setFileNumber(0);
-				// set auto-increment to No
-				tiff.setAutoIncrement(1);
-				// set file format to 'tif'
-				tiff.setFileFormat(0);
-
-				if (isWindowsIoc()) {
-					String replacedWindowsPath = demandRawFilePath.replaceAll(
-							demandRawDataStoreWindows2LinuxFileName.getLinuxPath(),
-							demandRawDataStoreWindows2LinuxFileName.getWindowsPath());
-					tiff.setFilePath(replacedWindowsPath);
-				} else {
-					tiff.setFilePath(demandRawFilePath);
-				}
-				if (!demandWhileStreaming) {
-					// set file template
-					areaDetector.setImageMode(0);
-					areaDetector.setTriggerMode(2);
-					// set num image to 1
-					areaDetector.setNumImages(1);
-
-					controller.setExpTime(acqTime);
-				}
-				if (isFlatFieldCorrectionRequired) {
-
-					/* Demand raw goes through proc so that flat field can be applied */
-					NDProcess proc1 = controller.getProc1();
-					NDProcess proc2 = controller.getProc2();
-					proc1.setEnableLowClip(0);
-					proc1.setEnableHighClip(0);
-
-					//
-					proc1.setEnableFilter(0);
-					proc2.setEnableFilter(0);
-					/**/
-					proc2.setEnableLowClip(0);
-					proc2.setEnableHighClip(0);
-
-					// Set up Proc1
-
-					proc1.setEnableOffsetScale(0);
-					proc2.setEnableOffsetScale(0);
-
-					proc1.getPluginBase().enableCallbacks();
-					proc1.getPluginBase().setNDArrayPort(areadDetectorPortName);
-					// to synchronise acquisition chain along all the plugins
-					proc1.getPluginBase().setBlockingCallbacks(1);
-
-					proc1.getPluginBase().setBlockingCallbacks(0);
-					ndStat.getPluginBase().setNDArrayPort(proc1.getPluginBase().getPortName_RBV());
-					tiff.getPluginBase().setNDArrayPort(proc1.getPluginBase().getPortName_RBV());
-				} else {
-					ndStat.getPluginBase().setNDArrayPort(areadDetectorPortName);
-					tiff.getPluginBase().setNDArrayPort(areadDetectorPortName);
-				}
-				if (!demandWhileStreaming) {
-					tiff.startCapture();
-					// must wait for acquire and write into file finish
-					acquireSynchronously();
-				} else {
-					tiff.startCaptureSynchronously();
-				}
-
-				// to remove synchronised acquisition chain along all the plugins
-			} catch (Exception ex) {
-				throw ex;
-			} finally {
-				setHdfFormat(isHdfFormat);
-			}
-
-		}
-		return getTiffImageFileName();
-	}
-
-	private void prepareProcForFlat(NDProcess proc, int numberOfImages) throws Exception {
-		proc.getPluginBase().setNDArrayPort(controller.getAreaDetector().getPortName_RBV());
-		proc.getPluginBase().enableCallbacks();
-
-		// Enable recursive filter
-		proc.setEnableFilter(1);
-		// set 'Filter type:' value to "RecursiveAverage"
-		proc.setFilterType(0);
-		// set number filter - to number of images
-		proc.setNumFilter(numberOfImages);
-		// click the reset button
-		proc.setResetFilter(1);
-		// Disable Scale and Offset
-		proc.setEnableOffsetScale(0);
-		// disable flat field
-		proc.setEnableFlatField(0);
-		proc.setScaleFlatField(maxIntensity);
-		// Necessary, if this is not set it does not provide right image.
-		proc.setOScale(1.0);
-		proc.setOOffset(0);
-		proc.setFScale(1.0);
-		proc.setFOffset(0);
-	}
-
-	@Override
-	public String takeFlat(double acqTime, int numberOfImages, String fileLocation, String fileName,
-			String filePathTemplate) throws Exception {
-		String fullFileName = null;
-		boolean isHdfFormat = isHdfFormat();
-		setHdfFormat(false);
-		logger.info("{} starts to collect {} averaged flat field, please wait...", getName(), numberOfImages);
-		controller.setExpTime(acqTime);
-		controller.getAreaDetector().setTriggerMode(2);
-		NDProcess proc1 = controller.getProc1();
-		prepareProcForFlat(proc1, numberOfImages);
-
-		// Proc2
-		NDProcess proc2 = controller.getProc2();
-		prepareProcForFlat(proc2, numberOfImages);
-		// capture the appropriate number of images
-		controller.setNumImages(numberOfImages - 1);
-		controller.setImageMode(1);
-		//
-		NDFile tiff = controller.getTiff();
-		tiff.getPluginBase().enableCallbacks();
-		tiff.stopCapture();
-
-		acquireSynchronously();
-
-		// save the flat field - so that 'disabled' is considered
-		proc1.setSaveFlatField(1);
-		proc2.setSaveFlatField(1);
-		//
-		// on tiff - set the file path, file name, file template and set the 'tiff' to listen to 'proc1'
-		if (isWindowsIoc()) {
-			String replacedWindowsPath = fileLocation.replaceAll(
-					demandRawDataStoreWindows2LinuxFileName.getLinuxPath(),
-					demandRawDataStoreWindows2LinuxFileName.getWindowsPath());
-			tiff.setFilePath(replacedWindowsPath);
-		} else {
-			tiff.setFilePath(fileLocation);
-		}
-
-		tiff.setFileName(fileName);
-		tiff.setFileTemplate(filePathTemplate);
-		tiff.getPluginBase().setNDArrayPort(proc1.getPluginBase().getPortName_RBV());
-		tiff.setNumCapture(1);
-		tiff.setFileWriteMode(2);
-		tiff.startCapture();
-
-		controller.getAreaDetector().setImageMode(0);
-		//
-		acquireSynchronously();
-
-		//
-		proc1.setEnableFilter(0);
-		proc2.setEnableFilter(0);
-
-		proc1.setEnableOffsetScale(0);
-		proc2.setEnableOffsetScale(0);
-		//
-		fullFileName = controller.getTiffFullFileName();
-		setHdfFormat(isHdfFormat);
-		return fullFileName;
-	}
-
-	private void prepareProcForDark(NDProcess proc, int numberOfImages) throws Exception {
-		// set Proc1 array port to Roi1 and enable callback
-		proc.getPluginBase().setNDArrayPort(controller.getAreaDetector().getPortName_RBV());
-		proc.getPluginBase().enableCallbacks();
-		proc.setEnableFlatField(0);
-		// Enable recursive filter
-		proc.setEnableFilter(1);
-		// set 'Filter type:' value to "RecursiveAverage
-		proc.setFilterType(0);
-		// set number filter - to number of images
-		proc.setNumFilter(numberOfImages);
-		// click the reset button
-		proc.setResetFilter(1);
-		// Necessary, if this is not set it does not provide right image.
-		proc.setOScale(1.0);
-		proc.setOOffset(0);
-		proc.setFScale(1.0);
-		proc.setFOffset(0);
-		// disable background subtraction
-		proc.setEnableBackground(0);
-	}
-
-	@Override
-	public String takeDark(int numberOfImages, double acqTime, String fileLocation, String fileName,
-			String filePathTemplate) throws Exception {
-		String fullFileName = null;
-		boolean isHdfFormat = isHdfFormat();
-		setHdfFormat(false);
-		controller.getAreaDetector().setTriggerMode(2);
-		logger.info("{} starts to collect {} averaged flat field, please wait...", getName(), numberOfImages);
-
-		controller.setExpTime(acqTime);
-
-		// Proc1
-		NDProcess proc1 = controller.getProc1();
-		prepareProcForDark(proc1, numberOfImages);
-
-		// Proc2
-		NDProcess proc2 = controller.getProc2();
-		prepareProcForDark(proc2, numberOfImages);
-
-		// capture the appropriate number of images
-		controller.setNumImages(numberOfImages - 1);
-		controller.setImageMode(1);
-		//
-		NDFile tiff = controller.getTiff();
-		tiff.getPluginBase().enableCallbacks();
-		tiff.stopCapture();
-
-		acquireSynchronously();
-
-		// save the flat field - so that 'disabled' is considered
-		proc1.setSaveFlatField(1);
-		proc2.setSaveFlatField(1);
-		//
-		// on tiff - set the file path, file name, file template and set the 'tiff' to listen to 'proc1'
-		if (isWindowsIoc()) {
-			String replacedWindowsPath = fileLocation.replaceAll(
-					demandRawDataStoreWindows2LinuxFileName.getLinuxPath(),
-					demandRawDataStoreWindows2LinuxFileName.getWindowsPath());
-			tiff.setFilePath(replacedWindowsPath);
-		} else {
-			tiff.setFilePath(fileLocation);
-		}
-		tiff.setFileName(fileName);
-		tiff.setFileTemplate(filePathTemplate);
-		tiff.getPluginBase().setNDArrayPort(proc1.getPluginBase().getPortName_RBV());
-		tiff.setNumCapture(1);
-		tiff.setFileWriteMode(2);
-		tiff.startCapture();
-
-		controller.getAreaDetector().setImageMode(0);
-		// save background subtraction for both procs - to memory
-		proc1.setSaveBackground(1);
-		proc2.setSaveBackground(1);
-		//
-		acquireSynchronously();
-
-		// disable recursive filter for both procs
-		proc1.setEnableFilter(0);
-		proc2.setEnableFilter(0);
-
-		proc1.setEnableOffsetScale(0);
-		proc2.setEnableOffsetScale(0);
-
-		fullFileName = controller.getTiffFullFileName();
-		setHdfFormat(isHdfFormat);
-		return fullFileName;
-	}
-
 	@Override
 	public void stopCapture() throws Exception {
 		if (hdfFormat) {
@@ -1385,12 +1082,6 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		} else {
 			controller.getTiff().stopCapture();
 		}
-	}
-
-	@Override
-	public void abort() throws Exception {
-		stop();
-		stopCapture();
 	}
 
 	public void setWindowsIoc(boolean isWindowsIoc) {
@@ -1423,30 +1114,6 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		this.demandRawDataStoreWindows2LinuxFileName = demandRawDataStoreWindows2LinuxFileName;
 	}
 
-	@Override
-	public void prepareTiltRotationImage(int nFilterVal, int filterType, Point roiSize) throws Exception {
-		// Enable the recursive filter
-		NDProcess proc2 = controller.getProc2();
-		NDArray array = controller.getArray();
-
-		proc2.setEnableFilter(1);
-
-		proc2.setNumFilter(nFilterVal);
-		proc2.setResetFilter(1);
-		proc2.setFilterType(filterType);
-		// set the ndarray array port to prc2 enable nd array
-		proc2.getPluginBase().setNDArrayPort(controller.getAreaDetector().getPortName_RBV());
-		proc2.getPluginBase().enableCallbacks();
-		//
-		array.getPluginBase().setNDArrayPort(proc2.getPluginBase().getPortName_RBV());
-
-		array.getPluginBase().enableCallbacks();
-	}
-
-	@Override
-	public void resetFileFormat() throws Exception {
-		controller.getTiff().resetFileTemplate();
-	}
 
 	@Override
 	public String getTiffImageFileName() throws Exception {
@@ -1459,32 +1126,15 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	}
 
 	@Override
-	public void setRoi1ScalingDivisor(double divisor) throws Exception {
-		controller.getRoi1().enableScaling();
-		controller.getRoi1().setScale(divisor);
-	}
-
-	@Override
-	public void setupForTilt(int minY, int maxY) throws Exception {
-		controller.getAreaDetector().setSizeY(maxY - minY);
-		controller.getAreaDetector().setMinY(minY);
-
-		controller.getTiff().getPluginBase().enableCallbacks();
-	}
-
-	@Override
-	public void resetAfterTiltToInitialValues() throws Exception {
-		ADBase adBase = controller.getAreaDetector();
-		adBase.setMinY(adBase.getInitialMinY());
-		adBase.setSizeY(adBase.getInitialSizeY());
-	}
-
-	@Override
-	public void setProcScale(int factor) throws Exception {
-		controller.getProc1().setEnableOffsetScale(1);
-		controller.getProc1().setScale(factor);
-		controller.getProc2().setEnableOffsetScale(1);
-		controller.getProc2().setScale(factor);
+	public void setTiffFilePathBasedOnIocOS(String demandRawFilePath) throws Exception {
+		if (isWindowsIoc()) {
+			String replacedWindowsPath = demandRawFilePath.replaceAll(
+					demandRawDataStoreWindows2LinuxFileName.getLinuxPath(),
+					demandRawDataStoreWindows2LinuxFileName.getWindowsPath());
+			controller.getTiff().setFilePath(replacedWindowsPath);
+		} else {
+			controller.getTiff().setFilePath(demandRawFilePath);
+		}
 	}
 
 }

@@ -42,8 +42,6 @@ import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 
-import java.awt.Point;
-import java.awt.Rectangle;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -206,12 +204,12 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	@Override
 	public void trigger() throws Exception {
 		EPICS_CONTROLLER.caputWait(createChannel(triggerPV), 1);
-//		try {
-//			Thread.sleep(10);
-//		} catch (InterruptedException e) {
-//			logger.info("{} : trigger wait interrupt.", getName());
-//			throw e;
-//		}
+		// try {
+		// Thread.sleep(10);
+		// } catch (InterruptedException e) {
+		// logger.info("{} : trigger wait interrupt.", getName());
+		// throw e;
+		// }
 		EPICS_CONTROLLER.caput(createChannel(triggerPV), 0);
 	}
 
@@ -545,15 +543,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 		}
 	}
 
-	@Override
-	public void setExpTime(double collectionTime) throws Exception {
-		areaDetector.setAcquireTime(collectionTime);
-	}
 
-	@Override
-	public double getExpTime() throws Exception {
-		return areaDetector.getAcquireTime_RBV();
-	}
 
 	@Override
 	public void setImageMode(int imageMode) throws Exception {
@@ -612,29 +602,30 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 			areaDetector.stopAcquiring(); // force stop any active camera acquisition on reset, this will disarm camera
 			Sleep.sleep(3000);
 		}
-		//makeDetectorReadyForCollection(); // initialise area detector ready for acquisition
+		// makeDetectorReadyForCollection(); // initialise area detector ready for acquisition
 		initialisePluginsArrayDimensions();
 	}
 
 	public void initialisePluginsArrayDimensions() throws Exception {
 		if ((tiff.getPluginBase().isCallbackEnabled() && tiff.getPluginBase().getArraySize0_RBV() == 0)
 				|| (hdf.getPluginBase().isCallbackEnabled() && hdf.getPluginBase().getArraySize0_RBV() == 0)) {
-			if (tiff.getPluginBase().getArraySize0_RBV() != this.getAreaDetector().getArraySizeX_RBV() || 
-					hdf.getPluginBase().getArraySize0_RBV() != getAreaDetector().getArraySizeX_RBV()) {
-			// dummy acquisition to ensure all plugin array dimensions are initialised,
-			// these must be called at least once after IOC restarts.
+			if (tiff.getPluginBase().getArraySize0_RBV() != this.getAreaDetector().getArraySizeX_RBV()
+					|| hdf.getPluginBase().getArraySize0_RBV() != getAreaDetector().getArraySizeX_RBV()) {
+				// dummy acquisition to ensure all plugin array dimensions are initialised,
+				// these must be called at least once after IOC restarts.
 				areaDetector.setTriggerMode((short) 0);
-			areaDetector.setAcquireTime(0.01);
-			areaDetector.startAcquiring();
+				areaDetector.setAcquireTime(0.01);
+				areaDetector.startAcquiring();
 				areaDetector.setTriggerMode((short) 2);
 			}
 		}
 	}
+
 	@Override
 	public void makeDetectorReadyForCollection() throws Exception {
-			if (getArmMode() == 1) {
-				setArmMode(0); // disarm camera before change parameters
-			}
+		if (getArmMode() == 1) {
+			setArmMode(0); // disarm camera before change parameters
+		}
 		areaDetector.setArrayCounter(0);
 		tiff.stopCapture();
 		tiff.getPluginBase().setDroppedArrays(0);
@@ -921,10 +912,12 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	public void setMjpeg2(FfmpegStream mjpeg) {
 		this.mjpeg2 = mjpeg;
 	}
+
 	@Override
 	public void setTriggerPV(String triggerPV) {
 		this.triggerPV = triggerPV;
 	}
+
 	@Override
 	public String getTriggerPV() {
 		return triggerPV;
@@ -1041,62 +1034,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 		return hdf.getFullFileName_RBV();
 	}
 
-	@Override
-	public void acquireMJpeg(Double expTime, Double acqPeriod, Double procScaleFactor, int binX, int binY) throws Exception {
-		// plugins arranged - cam -> proc -> roi ->mjpeg
 
-		setImageMode(2);
-		areaDetector.setTriggerMode(2);
-		setExpTime(expTime);
-		areaDetector.setAcquirePeriod(acqPeriod);
-		// enabling stat
-		stat.getPluginBase().enableCallbacks();
-		stat.setComputeStatistics(1);
-		stat.getPluginBase().setNDArrayPort(proc1.getPluginBase().getPortName_RBV());
-		// Setting default values so the MJPeg viewer can cope with the image streaming.
-		//
-		proc1.getPluginBase().setNDArrayPort(areaDetector.getPortName_RBV());
-		proc1.getPluginBase().enableCallbacks();
-		proc1.setEnableFilter(0);
-		proc1.setEnableOffsetScale(1);
-		proc1.setScale(procScaleFactor);
-		
-		//
-		roi1.getPluginBase().enableCallbacks();
-		roi1.getPluginBase().setNDArrayPort(proc1.getPluginBase().getPortName_RBV());
-
-		// FIXME - Ravi get these values from config
-
-		roi1.setSizeX(areaDetector.getArraySizeX_RBV());
-		roi1.setSizeY(areaDetector.getArraySizeY_RBV());
-
-		roi1.setBinX(binX);
-		roi1.setBinY(binY);
-
-		roi1.enableScaling();
-		roi1.setScale(binX * binY);
-
-		//
-		mjpeg1.getPluginBase().enableCallbacks();
-		mjpeg1.getPluginBase().setNDArrayPort(roi1.getPluginBase().getPortName_RBV());
-
-		/* Disable tiff */
-		tiff.getPluginBase().disableCallbacks();
-
-		acquire();
-	}
-
-	@Override
-	public void enableFlatField() throws Exception {
-		proc1.setEnableFlatField(1);
-		proc2.setEnableFlatField(1);
-	}
-
-	@Override
-	public void disableFlatField() throws Exception {
-		proc1.setEnableFlatField(0);
-		proc2.setEnableFlatField(0);
-	}
 
 	@Override
 	public int getNumCaptured() throws Exception {
@@ -1108,41 +1046,9 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 		return hdf.getFile().getFullFileName_RBV();
 	}
 
-	@Override
-	public void setZoomRoiStart(Point roiStart) throws Exception {
-		roi2.setMinX(roiStart.x);
-		roi2.setMinY(roiStart.y);
-	}
 
-	@Override
-	public void setupZoomMJpeg(Rectangle roi, Point bin) throws Exception {
-		logger.info("zoom - roisize-" + roi + " - bin - " + bin);
-		roi2.getPluginBase().enableCallbacks();
-		roi2.getPluginBase().setNDArrayPort(areaDetector.getPortName_RBV());
-		roi2.setBinX(bin.x);
-		roi2.setBinY(bin.y);
 
-		roi2.setMinX(roi.x);
-		roi2.setMinY(roi.y);
-		roi2.setSizeX(roi.width);
-		roi2.setSizeY(roi.height);
 
-		proc2.getPluginBase().setNDArrayPort(roi2.getPluginBase().getPortName_RBV());
-		proc2.getPluginBase().enableCallbacks();
-
-		mjpeg2.getPluginBase().setNDArrayPort(proc2.getPluginBase().getPortName_RBV());
-		mjpeg2.getPluginBase().enableCallbacks();
-	}
-
-	@Override
-	public Integer getRoi1BinX() throws Exception {
-		return roi1.getBinX();
-	}
-
-	@Override
-	public Integer getSizeX() throws Exception {
-		return areaDetector.getSizeX_RBV();
-	}
 
 	@Override
 	public String getTiffFullFileName() throws Exception {
@@ -1150,66 +1056,8 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	}
 
 	@Override
-	public Integer getRoi2BinX() throws Exception {
-		return roi2.getBinX();
-	}
-
-	@Override
-	public void setClippingLimits(int lowLimit, int highLimit) throws Exception {
-		proc1.setEnableLowClip(1);
-		proc1.setEnableHighClip(1);
-
-		proc2.setEnableLowClip(1);
-		proc2.setEnableHighClip(1);
-
-		proc1.setLowClip(lowLimit);
-		proc2.setLowClip(lowLimit);
-
-		proc1.setHighClip(highLimit);
-		proc2.setHighClip(highLimit);
-	}
-
-	@Override
-	public void setLowClip(double lowClipValue) throws Exception {
-		proc1.setEnableLowClip(1);
-		proc2.setEnableLowClip(1);
-
-		proc1.setLowClip(lowClipValue);
-		proc2.setLowClip(lowClipValue);
-	}
-
-	@Override
-	public void setHighClip(double highClipValue) throws Exception {
-		proc1.setEnableHighClip(1);
-		proc2.setEnableHighClip(1);
-
-		proc1.setHighClip(highClipValue);
-		proc2.setHighClip(highClipValue);
-	}
-
-	@Override
 	public int getNextFileNumber() throws Exception {
 		return tiff.getFileNumber_RBV();
-	}
-
-	@Override
-	public String getTiffFileTemplate() throws Exception {
-		return tiff.getFileTemplate_RBV();
-	}
-
-	@Override
-	public String getTiffFileName() throws Exception {
-		return tiff.getFileName_RBV();
-	}
-
-	@Override
-	public String getTiffFilePath() throws Exception {
-		return tiff.getFilePath_RBV();
-	}
-
-	@Override
-	public void setTiffFileNumber(int fileNumber) throws Exception {
-		tiff.setFileNumber(fileNumber);
 	}
 
 	@Override

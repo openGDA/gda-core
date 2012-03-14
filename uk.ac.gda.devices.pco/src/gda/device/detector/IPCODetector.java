@@ -20,7 +20,6 @@ package gda.device.detector;
 
 import gda.device.Detector;
 
-import java.awt.Point;
 import java.io.File;
 import java.io.IOException;
 
@@ -123,24 +122,7 @@ public interface IPCODetector extends Detector {
 	 */
 	void resetAll() throws Exception;
 
-	/**
-	 * Take flat after configuring required plugins.
-	 * 
-	 * @param expTime
-	 * @param numberOfImages
-	 * @param fileLocation
-	 * @param fileName
-	 * @param filePathTemplate
-	 * @return the file name that the flat is saved to.
-	 * @throws Exception
-	 */
-	String takeFlat(double expTime, int numberOfImages, String fileLocation, String fileName, String filePathTemplate)
-			throws Exception;
-
 	public abstract void collectDarkSet() throws Exception;
-
-	String demandRaw(Double acqTime, String demandRawFilePath, String demandRawFileName, Boolean isHdf,
-			Boolean isFlatFieldCorrectionRequired, Boolean demandWhileStreaming) throws Exception;
 
 	boolean isHdfFormat();
 
@@ -148,75 +130,10 @@ public interface IPCODetector extends Detector {
 
 	void acquireSynchronously() throws Exception;
 
-	/**
-	 * Take dark images
-	 * 
-	 * @param numberOfImages
-	 *            - number of dark images to be taken.
-	 * @param acqTime
-	 * @throws Exception
-	 */
-	String takeDark(int numberOfImages, double acqTime, String fileLocation, String fileName, String filePathTemplate)
-			throws Exception;
-
 	void stopCapture() throws Exception;
 
-	/**
-	 * Stop the areadetector and the filesaver are stopped.
-	 * 
-	 * @throws Exception
-	 */
-	void abort() throws Exception;
+	void setTiffFilePathBasedOnIocOS(String demandRawFilePath) throws Exception;
 
-	/**
-	 * Enables the recursive filter and
-	 * 
-	 * @param nFilterVal
-	 * @param filterType
-	 * @param roi2Size
-	 * @throws Exception
-	 */
-	void prepareTiltRotationImage(int nFilterVal, int filterType, Point roi2Size) throws Exception;
-
-	/**
-	 * Resets only the file format
-	 * 
-	 * @throws Exception
-	 */
-	void resetFileFormat() throws Exception;
-
-	/**
-	 * @return tiff image name depending on the os env of the ioc.
-	 * @throws Exception
-	 */
-	public String getTiffImageFileName() throws Exception;
-
-	/**
-	 * Set the scaling divisor on the ROI1
-	 * 
-	 * @param divisor
-	 * @throws Exception
-	 */
-	void setRoi1ScalingDivisor(double divisor) throws Exception;
-
-	/**
-	 * @param minY
-	 * @param maxY
-	 * @throws Exception
-	 */
-	void setupForTilt(int minY, int maxY) throws Exception;
-
-	/**
-	 * Reset the values of minY and maxY the initial values
-	 * 
-	 * @throws Exception
-	 */
-	void resetAfterTiltToInitialValues() throws Exception;
-
-	/**
-	 * @param factor
-	 * @throws Exception 
-	 */
-	void setProcScale(int factor) throws Exception;
+	String getTiffImageFileName() throws Exception;
 
 }
