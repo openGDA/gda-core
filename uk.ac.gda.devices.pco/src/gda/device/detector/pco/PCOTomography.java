@@ -28,7 +28,6 @@ import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.device.detector.areadetector.v17.NDROI;
 import gda.device.detector.areadetector.v17.NDStats;
-import gda.device.tomography.ITomographyDetector;
 
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -37,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.devices.pco.LiveModeUtil;
+import uk.ac.gda.tomography.devices.ITomographyDetector;
 
 /**
  *
