@@ -78,8 +78,10 @@ public class ComboAndNumberWrapper extends ComboWrapper {
 	
 	@Override
 	public void dispose() {
-		combo.removeSelectionListener(selectionListener);
-		super.dispose();
+		if(!combo.isDisposed()) 
+			combo.removeSelectionListener(selectionListener);
+		if(!super.isDisposed()) 
+			super.dispose();
 	}
 	
 	@Override
