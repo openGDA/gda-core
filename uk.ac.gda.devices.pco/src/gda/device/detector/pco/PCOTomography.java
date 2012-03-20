@@ -23,7 +23,6 @@ import gda.device.detector.IPCOControllerV17;
 import gda.device.detector.IPCODetector;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.FfmpegStream;
-import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.device.detector.areadetector.v17.NDROI;
@@ -55,7 +54,7 @@ public class PCOTomography implements ITomographyDetector {
 	}
 
 	@Override
-	public void setExpTime(double collectionTime) throws Exception {
+	public void setExposureTime(double collectionTime) throws Exception {
 		pcoDetector.getController().getAreaDetector().setAcquireTime(collectionTime);
 	}
 
@@ -77,7 +76,7 @@ public class PCOTomography implements ITomographyDetector {
 		controller.setImageMode(2);
 
 		areaDetector.setTriggerMode(2);
-		setExpTime(expTime);
+		setExposureTime(expTime);
 		areaDetector.setAcquirePeriod(acqPeriod);
 		// enabling stat
 		stat.getPluginBase().enableCallbacks();
@@ -147,11 +146,6 @@ public class PCOTomography implements ITomographyDetector {
 
 		mJpeg2.getPluginBase().setNDArrayPort(proc2.getPluginBase().getPortName_RBV());
 		mJpeg2.getPluginBase().enableCallbacks();
-	}
-
-	@Override
-	public Integer getSizeX() throws Exception {
-		return pcoDetector.getController().getAreaDetector().getSizeX_RBV();
 	}
 
 	@Override
@@ -506,29 +500,6 @@ public class PCOTomography implements ITomographyDetector {
 	}
 
 	@Override
-	public void prepareTiltRotationImage(int nFilterVal, int filterType, Point roi2Size) throws Exception {
-
-		IPCOControllerV17 controller = pcoDetector.getController();
-		// Enable the recursive filter
-		NDProcess proc2 = controller.getProc2();
-		NDArray array = controller.getArray();
-
-		proc2.setEnableFilter(1);
-
-		proc2.setNumFilter(nFilterVal);
-		proc2.setResetFilter(1);
-		proc2.setFilterType(filterType);
-		// set the ndarray array port to prc2 enable nd array
-		proc2.getPluginBase().setNDArrayPort(controller.getAreaDetector().getPortName_RBV());
-		proc2.getPluginBase().enableCallbacks();
-		//
-		array.getPluginBase().setNDArrayPort(proc2.getPluginBase().getPortName_RBV());
-
-		array.getPluginBase().enableCallbacks();
-
-	}
-
-	@Override
 	public void resetFileFormat() throws Exception {
 		pcoDetector.getController().getTiff().resetFileTemplate();
 	}
@@ -589,11 +560,6 @@ public class PCOTomography implements ITomographyDetector {
 	@Override
 	public String getName() {
 		return pcoDetector.getName();
-	}
-
-	@Override
-	public void stop() throws DeviceException {
-		pcoDetector.stop();
 	}
 
 	@Override
