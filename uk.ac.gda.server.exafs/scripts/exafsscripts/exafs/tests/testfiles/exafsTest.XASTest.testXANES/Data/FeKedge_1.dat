@@ -1,0 +1,254 @@
+ &SRS
+SampleParameters=<?xml version="1.0" encoding="UTF-8"?>
+<I20SampleParameters>
+    <name>Cytochrome</name>
+    <description>Cytochrome preparation #7</description>
+    <description>bla bla bla</description>
+    <sampleWheelPosition>3</sampleWheelPosition>
+    <cryostat>
+        <temperature>295.0</temperature>
+        <tolerance>1.5</tolerance>
+        <time>5.0</time>
+        <samplePosition>2.0</samplePosition>
+    </cryostat>
+</I20SampleParameters>
+
+DetectorParameters=<?xml version="1.0" encoding="UTF-8"?>
+<DetectorParameters>
+    <transmission>
+        <ionChamber>
+            <name>I0</name>
+            <deviceName>counterTimer01</deviceName>
+            <channel>1</channel>
+            <currentAmplifierName>epicsKeithley</currentAmplifierName>
+            <gain>5.5</gain>
+            <workingEnergy>7100.0</workingEnergy>
+            <gasType>Ar-Xe</gasType>
+            <percentAbsorption>70.0</percentAbsorption>
+        </ionChamber>
+        <ionChamber>
+            <name>It</name>
+            <deviceName>counterTimer01</deviceName>
+            <channel>2</channel>
+            <currentAmplifierName>epicsKeithley</currentAmplifierName>
+            <gain>3.7</gain>
+            <workingEnergy>7100.0</workingEnergy>
+            <gasType>Xe</gasType>
+            <percentAbsorption>67.0</percentAbsorption>
+        </ionChamber>
+        <ionChamber>
+            <name>Iref</name>
+            <deviceName>counterTimer01</deviceName>
+            <channel>3</channel>
+            <currentAmplifierName>epicsKeithley</currentAmplifierName>
+            <gain>4.8</gain>
+            <workingEnergy>7100.0</workingEnergy>
+            <gasType>Ar</gasType>
+            <percentAbsorption>83.0</percentAbsorption>
+        </ionChamber>
+    </transmission>
+</DetectorParameters>
+
+OutputParameters=<?xml version="1.0" encoding="UTF-8"?>
+<OutputParameters>
+    <asciiFileName>FeKedge</asciiFileName>
+    <asciiDirectory>ascii</asciiDirectory>
+    <nexusDirectory>nexus</nexusDirectory>
+    <signal>
+        <name>bragg</name>
+        <dataFormat>%s</dataFormat>
+    </signal>
+    <signal>
+        <name>time</name>
+        <dataFormat>%s</dataFormat>
+    </signal>
+    <signal>
+        <name>temp</name>
+        <dataFormat>%s</dataFormat>
+    </signal>
+</OutputParameters>
+
+ScanParameters=<?xml version="1.0" encoding="UTF-8"?>
+<XanesScanParameters>
+    <element>Fe</element>
+    <edge>K</edge>
+    <region>
+        <energy>7000.0</energy>
+        <step>3.0</step>
+        <time>1.0</time>
+    </region>
+    <region>
+        <energy>7050.0</energy>
+        <step>1.0</step>
+        <time>0.5</time>
+    </region>
+    <region>
+        <energy>7100.0</energy>
+        <step>2.0</step>
+        <time>1.0</time>
+    </region>
+    <region>
+        <energy>7200.0</energy>
+        <step>2.3</step>
+        <time>1.8</time>
+    </region>
+    <region>
+        <energy>7250.0</energy>
+        <step>8.0</step>
+        <time>5.0</time>
+    </region>
+    <finalEnergy>7300.0</finalEnergy>
+</XanesScanParameters>
+
+ &END
+test
+7000.0
+7003.0
+7006.0
+7009.0
+7012.0
+7015.0
+7018.0
+7021.0
+7024.0
+7027.0
+7030.0
+7033.0
+7036.0
+7039.0
+7042.0
+7045.0
+7048.0
+7051.0
+7050.0
+7051.0
+7052.0
+7053.0
+7054.0
+7055.0
+7056.0
+7057.0
+7058.0
+7059.0
+7060.0
+7061.0
+7062.0
+7063.0
+7064.0
+7065.0
+7066.0
+7067.0
+7068.0
+7069.0
+7070.0
+7071.0
+7072.0
+7073.0
+7074.0
+7075.0
+7076.0
+7077.0
+7078.0
+7079.0
+7080.0
+7081.0
+7082.0
+7083.0
+7084.0
+7085.0
+7086.0
+7087.0
+7088.0
+7089.0
+7090.0
+7091.0
+7092.0
+7093.0
+7094.0
+7095.0
+7096.0
+7097.0
+7098.0
+7099.0
+7100.0
+7100.0
+7102.0
+7104.0
+7106.0
+7108.0
+7110.0
+7112.0
+7114.0
+7116.0
+7118.0
+7120.0
+7122.0
+7124.0
+7126.0
+7128.0
+7130.0
+7132.0
+7134.0
+7136.0
+7138.0
+7140.0
+7142.0
+7144.0
+7146.0
+7148.0
+7150.0
+7152.0
+7154.0
+7156.0
+7158.0
+7160.0
+7162.0
+7164.0
+7166.0
+7168.0
+7170.0
+7172.0
+7174.0
+7176.0
+7178.0
+7180.0
+7182.0
+7184.0
+7186.0
+7188.0
+7190.0
+7192.0
+7194.0
+7196.0
+7198.0
+7200.0
+7200.0
+7202.3
+7204.6
+7206.9
+7209.2
+7211.5
+7213.8
+7216.1
+7218.4
+7220.7
+7223.0
+7225.3
+7227.6
+7229.9
+7232.2
+7234.5
+7236.8
+7239.1
+7241.4
+7243.7
+7246.0
+7248.3
+7250.6
+7250.0
+7258.0
+7266.0
+7274.0
+7282.0
+7290.0
+7298.0

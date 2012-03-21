@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<!-- N.B. this stuff breaks Xerlin
+ targetNamespace="http://www.dl.ac.uk/GDASchema" xmlns="http://www.dl.ac.uk/GDASchema">
+ -->
+	<xsd:element name="XspressParameters">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="detectorName"    type="xsd:string"     maxOccurs="1" minOccurs="1"/>
+				<xsd:element name="resGrade"        type="xsd:string"     maxOccurs="1" minOccurs="1"/>
+				<xsd:element name="readoutMode"                           maxOccurs="1" minOccurs="1">
+					<xsd:simpleType>
+							<xsd:restriction base="xsd:string">
+ 							<xsd:enumeration value="Scalers only"/>
+ 							<xsd:enumeration value="Scalers and MCA"/>
+ 							<xsd:enumeration value="Regions Of Interest"/>
+							</xsd:restriction>
+					</xsd:simpleType>
+				</xsd:element>
+				<xsd:element name="editIndividualElements" type="xsd:boolean"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="DetectorElement" maxOccurs="unbounded"
+					minOccurs="1" />
+				<xsd:element name="ElementCountsData" maxOccurs="unbounded"
+					minOccurs="0" />
+				<xsd:element name="xspressOnlyShowFF" type="xsd:boolean"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="xspressShowDTRawValues" type="xsd:boolean"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="saveRawSpectrum" type="xsd:boolean"
+					maxOccurs="1" minOccurs="0" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	
+	<xsd:element name="XspressDeadTimeParameters">
+		<xsd:complexType>
+			<xsd:sequence>				
+				<xsd:element name="DetectorDeadTimeElement" maxOccurs="unbounded" minOccurs="1" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	
+	<xsd:element name="ElementCountsData">
+		<xsd:complexType>
+			<xsd:sequence>
+			    <xsd:element name="data" type="xsd:string" maxOccurs="1" minOccurs="1"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="DetectorElement">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="name" type="xsd:string" maxOccurs="1" minOccurs="1"/>
+				<xsd:element name="number" type="xsd:integer" maxOccurs="1" minOccurs="1"/>
+				<xsd:element name="windowStart" type="xsd:integer" maxOccurs="1" minOccurs="1"/>
+				<xsd:element name="windowEnd" type="xsd:integer" maxOccurs="1" minOccurs="1"/>
+<!--				<xsd:element name="gain" type="xsd:double" maxOccurs="1" minOccurs="1"/>-->
+<!--				<xsd:element name="offset" type="xsd:double" maxOccurs="1" minOccurs="1"/>-->
+				<xsd:element name="excluded" type="xsd:boolean" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="Region" maxOccurs="unbounded" minOccurs="0">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="roiName" type="xsd:string" maxOccurs="1" minOccurs="1" />
+							<xsd:element name="regionStart" type="xsd:integer" maxOccurs="1" minOccurs="1" />
+							<xsd:element name="regionEnd" type="xsd:integer" maxOccurs="1" minOccurs="1" />
+							<xsd:element name="regionType" maxOccurs="1" minOccurs="1" >
+								<xsd:simpleType>
+	 								<xsd:restriction base="xsd:string">
+			 							<xsd:enumeration value="Virtual Scaler"/>
+			 							<xsd:enumeration value="MCA"/>
+ 									</xsd:restriction>
+ 								</xsd:simpleType>
+ 							</xsd:element>
+ 						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	
+	<xsd:element name="DetectorDeadTimeElement">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="name" type="xsd:string" maxOccurs="1" minOccurs="1"/>
+				<xsd:element name="number" type="xsd:integer" maxOccurs="1" minOccurs="1"/>
+				
+				<xsd:element name="processDeadTimeAllEventGradient" type="xsd:double" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="processDeadTimeAllEventOffset" type="xsd:double" maxOccurs="1" minOccurs="1"/>
+				<xsd:element name="processDeadTimeInWindow" type="xsd:double" maxOccurs="1" minOccurs="1"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	
+</xsd:schema>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EdeScanParameters>
+	<i0IntegrationTime>0.1</i0IntegrationTime>
+	<itIntegrationTime>0.1</itIntegrationTime>
+	<numberOfRepetitions>1</numberOfRepetitions>
+	<delayBetweenRepetitions>0</delayBetweenRepetitions>
+	<frame>
+		<label>Frame1</label>
+		<numberOfScans>1</numberOfScans>
+		<numberOfRepetitions>1</numberOfRepetitions>
+		<timePerScan>0.1</timePerScan>
+		<preceedingTimeDelay>0.0</preceedingTimeDelay>
+	</frame>
+	<externalStart>false</externalStart>
+</EdeScanParameters>

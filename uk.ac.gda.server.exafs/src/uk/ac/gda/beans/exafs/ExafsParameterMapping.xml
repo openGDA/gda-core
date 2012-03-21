@@ -1,0 +1,493 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+
+	<class name="uk.ac.gda.beans.exafs.SampleElements">
+		<map-to xml="SampleElements" />
+		<field name="elementPositions" type="uk.ac.gda.beans.exafs.ElementPosition"
+			collection="collection" set-method="addElementPosition" get-method="getElementPositions">
+			<bind-xml name="elementPosition" node="element" />
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.ElementPosition">
+		<map-to xml="elementPosition" />
+		<field name="name" type="string">
+			<bind-xml name="name" node="element" />
+		</field>
+		<field name="principleElement" type="string">
+			<bind-xml name="principleElement" node="element" />
+		</field>
+		<field name="wheelPosition" type="integer">
+			<bind-xml name="wheelPosition" node="element" />
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.XasScanParameters">
+		<map-to xml="XasScanParameters" />
+		<field name="shouldValidate" type="boolean">
+			<bind-xml name="shouldValidate" node="element" />
+		</field>
+		<field name="scannableName" type="string">
+			<bind-xml name="scannableName" node="element" />
+		</field>
+		<field name="element" type="string">
+			<bind-xml name="element" node="element" />
+		</field>
+		<field name="edge" type="string">
+			<bind-xml name="edge" node="element" />
+		</field>
+		<field name="initialEnergy" type="double">
+			<bind-xml name="initialEnergy" node="element" />
+		</field>
+		<field name="finalEnergy" type="double">
+			<bind-xml name="finalEnergy" node="element" />
+		</field>
+		<field name="edgeEnergy" type="double">
+			<bind-xml name="edgeEnergy" node="element" />
+		</field>
+		<field name="coreHole" type="double">
+			<bind-xml name="coreHole" node="element" />
+		</field>
+		<field name="gaf1" type="double">
+			<bind-xml name="gaf1" node="element" />
+		</field>
+		<field name="gaf2" type="double">
+			<bind-xml name="gaf2" node="element" />
+		</field>
+		<field name="gaf3" type="double">
+			<bind-xml name="gaf3" node="element" />
+		</field>
+		<field name="a" type="double">
+			<bind-xml name="A" node="element" />
+		</field>
+		<field name="b" type="double">
+			<bind-xml name="B" node="element" />
+		</field>
+		<field name="c" type="double">
+			<bind-xml name="C" node="element" />
+		</field>
+		<field name="preEdgeStep" type="double">
+			<bind-xml name="preEdgeStep" node="element" />
+		</field>
+		<field name="preEdgeTime" type="double">
+			<bind-xml name="preEdgeTime" node="element" />
+		</field>
+		<field name="edgeStep" type="double">
+			<bind-xml name="edgeStep" node="element" />
+		</field>
+		<field name="edgeTime" type="double">
+			<bind-xml name="edgeTime" node="element" />
+		</field>
+		<field name="exafsStep" type="double">
+			<bind-xml name="exafsStep" node="element" />
+		</field>
+		<field name="exafsTime" type="double">
+			<bind-xml name="exafsTime" node="element" />
+		</field>
+		<field name="exafsFromTime" type="double">
+			<bind-xml name="exafsFromTime" node="element" />
+		</field>
+		<field name="exafsToTime" type="double">
+			<bind-xml name="exafsToTime" node="element" />
+		</field>
+		<field name="kWeighting" type="double">
+			<bind-xml name="kWeighting" node="element" />
+		</field>
+		<field name="exafsStepType" type="string">
+			<bind-xml name="exafsStepType" node="element" />
+		</field>
+
+
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.XanesScanParameters">
+		<map-to xml="XanesScanParameters" />
+		<field name="shouldValidate" type="boolean">
+			<bind-xml name="shouldValidate" node="element" />
+		</field>
+		<field name="scannableName" type="string">
+			<bind-xml name="scannableName" node="element" />
+		</field>
+		<field name="element" type="string">
+			<bind-xml name="element" node="element" />
+		</field>
+		<field name="edge" type="string">
+			<bind-xml name="edge" node="element" />
+		</field>
+		<field name="regions" type="uk.ac.gda.beans.exafs.Region"
+			collection="collection" set-method="addRegion" get-method="getRegions">
+			<bind-xml name="region" node="element" />
+		</field>
+		<field name="finalEnergy" type="double">
+			<bind-xml name="finalEnergy" node="element" />
+		</field>
+	</class>
+	<class name="uk.ac.gda.beans.exafs.Region">
+		<field name="energy" type="double">
+			<bind-xml name="energy" node="element" />
+		</field>
+		<field name="step" type="double">
+			<bind-xml name="step" node="element" />
+		</field>
+		<field name="time" type="double">
+			<bind-xml name="time" node="element" />
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.XesScanParameters">
+		<map-to xml="XesScanParameters" />
+
+		<field name="shouldValidate" type="boolean">
+			<bind-xml name="shouldValidate" node="element" />
+		</field>
+		<field name="scanType" type="int">
+			<bind-xml name="scanType" node="element" />
+		</field>
+		<field name="analyserType" type="string">
+			<bind-xml name="analyserType" node="element" />
+		</field>
+		<field name="analyserCut0" type="int">
+			<bind-xml name="analyserCut0" node="element" />
+		</field>
+		<field name="analyserCut1" type="int">
+			<bind-xml name="analyserCut1" node="element" />
+		</field>
+		<field name="analyserCut2" type="int">
+			<bind-xml name="analyserCut2" node="element" />
+		</field>
+		<field name="radiusOfCurvature" type="double">
+			<bind-xml name="radiusOfCurvature" node="element" />
+		</field>
+		<field name="element" type="string">
+			<bind-xml name="element" node="element" />
+		</field>
+		<field name="edge" type="string">
+			<bind-xml name="edge" node="element" />
+		</field>
+		<field name="xesEnergy" type="double">
+			<bind-xml name="xesEnergy" node="element" />
+		</field>
+		<field name="xesInitialEnergy" type="double">
+			<bind-xml name="xesInitialEnergy" node="element" />
+		</field>
+		<field name="xesFinalEnergy" type="double">
+			<bind-xml name="xesFinalEnergy" node="element" />
+		</field>
+		<field name="xesStepSize" type="double">
+			<bind-xml name="xesStepSize" node="element" />
+		</field>
+		<field name="xesIntegrationTime" type="double">
+			<bind-xml name="xesIntegrationTime" node="element" />
+		</field>
+		<field name="monoEnergy" type="double">
+			<bind-xml name="monoEnergy" node="element" />
+		</field>
+		<field name="monoInitialEnergy" type="double">
+			<bind-xml name="monoInitialEnergy" node="element" />
+		</field>
+		<field name="monoFinalEnergy" type="double">
+			<bind-xml name="monoFinalEnergy" node="element" />
+		</field>
+		<field name="monoStepSize" type="double">
+			<bind-xml name="monoStepSize" node="element" />
+		</field>
+		<field name="scanFileName" type="string">
+			<bind-xml name="scanFileName" node="element" />
+		</field>
+		<field name="scannableName" type="string">
+			<bind-xml name="scannableName" node="element" />
+		</field>
+		<field name="additionalCrystal0" type="boolean">
+			<bind-xml name="additionalCrystal0" node="element" />
+		</field>
+		<field name="additionalCrystal1" type="boolean">
+			<bind-xml name="additionalCrystal1" node="element" />
+		</field>
+		<field name="additionalCrystal2" type="boolean">
+			<bind-xml name="additionalCrystal2" node="element" />
+		</field>
+		<field name="additionalCrystal3" type="boolean">
+			<bind-xml name="additionalCrystal3" node="element" />
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.DetectorParameters">
+		<map-to xml="DetectorParameters" />
+		<field name="shouldValidate" type="boolean">
+			<bind-xml name="shouldValidate" node="element" />
+		</field>
+		<field name="detectorGroups" type="uk.ac.gda.beans.exafs.DetectorGroup"
+			collection="collection" set-method="addDetectorGroup" get-method="getDetectorGroups">
+			<bind-xml name="detectorGroup" node="element" />
+		</field>
+		<field name="experimentType" type="string">
+			<bind-xml name="experimentType" node="element" />
+		</field>
+		<field name="transmissionParameters" type="uk.ac.gda.beans.exafs.TransmissionParameters">
+			<bind-xml name="transmission" node="element" />
+		</field>
+		<field name="fluorescenceParameters" type="uk.ac.gda.beans.exafs.FluorescenceParameters">
+			<bind-xml name="fluorescence" node="element" />
+		</field>
+		<field name="softXRaysParameters" type="uk.ac.gda.beans.exafs.SoftXRaysParameters">
+			<bind-xml name="softXRays" node="element" />
+		</field>
+		<field name="electronYieldParameters" type="uk.ac.gda.beans.exafs.ElectronYieldParameters">
+			<bind-xml name="electronYield" node="element" />
+		</field>
+		<field name="xesParameters" type="uk.ac.gda.beans.exafs.FluorescenceParameters">
+			<bind-xml name="xes" node="element" />
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.DetectorGroup">
+		<map-to xml="detectorGroup" />
+		<field name="name" type="string">
+			<bind-xml name="name" node="element" />
+		</field>
+		<field name="detector" type="string" collection="array"
+			set-method="setDetector" get-method="getDetector">
+			<bind-xml name="detector" node="element" />
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.TransmissionParameters">
+		<map-to xml="transmission" />
+		<field name="detectorType" type="string">
+			<bind-xml name="detectorType" node="element" />
+		</field>
+		<field name="workingEnergy" type="double">
+			<bind-xml name="workingEnergy" node="element" />
+		</field>
+		<field name="ionChamberParameters" type="uk.ac.gda.beans.exafs.IonChamberParameters"
+			collection="collection" set-method="addIonChamberParameter"
+			get-method="getIonChamberParameters">
+			<bind-xml name="ionChamber" node="element" />
+		</field>
+		<field name="collectDiffractionImages" type="boolean">
+			<bind-xml name="collectDiffractionImages" node="element" />
+		</field>
+		<field name="mythenEnergy" type="double">
+			<bind-xml name="mythenEnergy" node="element" />
+		</field>
+		<field name="mythenTime" type="double">
+			<bind-xml name="mythenTime" node="element" />
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.FluorescenceParameters">
+		<map-to xml="fluorescence" />
+		<field name="configFileName" type="string">
+			<bind-xml name="configFileName" node="element" />
+		</field>
+		<field name="workingEnergy" type="double">
+			<bind-xml name="workingEnergy" node="element" />
+		</field>
+		<field name="detectorType" type="string">
+			<bind-xml name="detectorType" node="element" />
+		</field>
+		<field name="ionChamberParameters" type="uk.ac.gda.beans.exafs.IonChamberParameters"
+			collection="collection" set-method="addIonChamberParameter"
+			get-method="getIonChamberParameters">
+			<bind-xml name="ionChamber" node="element" />
+		</field>
+		<field name="collectDiffractionImages" type="boolean">
+			<bind-xml name="collectDiffractionImages" node="element" />
+		</field>
+		<field name="mythenEnergy" type="double">
+			<bind-xml name="mythenEnergy" node="element" />
+		</field>
+		<field name="mythenTime" type="double">
+			<bind-xml name="mythenTime" node="element" />
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.SoftXRaysParameters">
+		<map-to xml="softXRays" />
+		<field name="configFileName" type="string">
+			<bind-xml name="configFileName" node="element" />
+		</field>
+		<field name="workingEnergy" type="double">
+			<bind-xml name="workingEnergy" node="element" />
+		</field>
+		<field name="detectorType" type="string">
+			<bind-xml name="detectorType" node="element" />
+		</field>
+		<field name="drainCurrentParameters" type="uk.ac.gda.beans.exafs.DrainCurrentParameters"
+			collection="collection" set-method="addDrainCurrentParameter"
+			get-method="getDrainCurrentParameters">
+			<bind-xml name="drainCurrent" node="element" />
+		</field>
+		<field name="collectDiffractionImages" type="boolean">
+			<bind-xml name="collectDiffractionImages" node="element" />
+		</field>
+		<field name="mythenEnergy" type="double">
+			<bind-xml name="mythenEnergy" node="element" />
+		</field>
+		<field name="mythenTime" type="double">
+			<bind-xml name="mythenTime" node="element" />
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.IonChamberParameters">
+		<map-to xml="ionChamberParameters" />
+		<field name="name" type="string">
+			<bind-xml name="name" node="element" />
+		</field>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element" />
+		</field>
+		<field name="channel" type="integer">
+			<bind-xml name="channel" node="element" />
+		</field>
+		<field name="currentAmplifierName" type="string">
+			<bind-xml name="currentAmplifierName" node="element" />
+		</field>
+		<field name="gain" type="string">
+			<bind-xml name="gain" node="element" />
+		</field>
+		<field name="useGasProperties" type="boolean" set-method="setUseGasProperties"
+			get-method="isUseGasProperties">
+			<bind-xml name="useGasProperties" node="element" />
+		</field>
+		<field name="gasType" type="string">
+			<bind-xml name="gasType" node="element" />
+		</field>
+		<field name="percentAbsorption" type="double">
+			<bind-xml name="percentAbsorption" node="element" />
+		</field>
+		<field name="pressure" type="double">
+			<bind-xml name="pressure" node="element" />
+		</field>
+		<field name="totalPressure" type="double">
+			<bind-xml name="totalPressure" node="element" />
+		</field>
+		<field name="ionChamberLength" type="double">
+			<bind-xml name="ionChamberLength" node="element" />
+		</field>
+		<field name="gas_fill1_period_box" type="double">
+			<bind-xml name="gas_fill1_period_box" node="element" />
+		</field>
+		<field name="gas_fill2_period_box" type="double">
+			<bind-xml name="gas_fill2_period_box" node="element" />
+		</field>
+		<field name="changeSensitivity" type="boolean">
+			<bind-xml name="changeSensitivity" node="element" />
+		</field>
+		<field name="autoFillGas" type="boolean">
+			<bind-xml name="autoFillGas" node="element" />
+		</field>
+		<field name="flush" type="boolean">
+			<bind-xml name="flush" node="element" />
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.DrainCurrentParameters">
+		<map-to xml="drainCurrentParameters" />
+		<field name="name" type="string">
+			<bind-xml name="name" node="element" />
+		</field>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element" />
+		</field>
+		<field name="channel" type="integer">
+			<bind-xml name="channel" node="element" />
+		</field>
+		<field name="currentAmplifierName" type="string">
+			<bind-xml name="currentAmplifierName" node="element" />
+		</field>
+		<field name="gain" type="string">
+			<bind-xml name="gain" node="element" />
+		</field>
+		<field name="changeSensitivity" type="boolean">
+			<bind-xml name="changeSensitivity" node="element" />
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.SignalParameters">
+		<map-to xml="signal" />
+		<field name="label" type="string">
+			<bind-xml name="label" node="element" />
+		</field>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element" />
+		</field>
+		<field name="dataFormat" type="string">
+			<bind-xml name="dataFormat" node="element" />
+		</field>
+		<field name="expression" type="string">
+			<bind-xml name="expression" node="element" />
+		</field>
+		<field name="scannableName" type="string">
+			<bind-xml name="scannableName" node="element" />
+		</field>
+	</class>
+	
+	<class name="uk.ac.gda.beans.exafs.MetadataParameters">
+		<map-to xml="metadata" />
+		<field name="scannableName" type="string">
+			<bind-xml name="scannableName" node="element" />
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.OutputParameters">
+		<map-to xml="OutputParameters" />
+		<field name="shouldValidate" type="boolean">
+			<bind-xml name="shouldValidate" node="element" />
+		</field>
+		<field name="asciiFileName" type="string">
+			<bind-xml name="asciiFileName" node="element" />
+		</field>
+		<field name="asciiDirectory" type="string">
+			<bind-xml name="asciiDirectory" node="element" />
+		</field>
+		<field name="nexusDirectory" type="string">
+			<bind-xml name="nexusDirectory" node="element" />
+		</field>
+		<field name="extraData" type="boolean">
+			<bind-xml name="extraData" node="element" />
+		</field>
+		<field name="signalActive" type="boolean">
+			<bind-xml name="signalActive" node="element" />
+		</field>
+		<field name="metadataActive" type="boolean">
+			<bind-xml name="metadataActive" node="element" />
+		</field>
+		<field name="beforeScriptName" type="string">
+			<bind-xml name="beforeScriptName" node="element" />
+		</field>
+		<field name="afterScriptName" type="string">
+			<bind-xml name="afterScriptName" node="element" />
+		</field>
+		<field name="signal" type="uk.ac.gda.beans.exafs.SignalParameters"
+			collection="collection" set-method="addSignal" get-method="getSignalList">
+			<bind-xml name="signal" node="element" />
+		</field>
+		<field name="metadata" type="uk.ac.gda.beans.exafs.MetadataParameters"
+			collection="collection" set-method="addMetadata" get-method="getMetadataList">
+			<bind-xml name="metadata" node="element" />
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.QEXAFSParameters">
+		<map-to xml="QEXAFSParameters" />
+		<field name="initialEnergy" type="double">
+			<bind-xml name="initialEnergy" node="element" />
+		</field>
+		<field name="finalEnergy" type="double">
+			<bind-xml name="finalEnergy" node="element" />
+		</field>
+		<field name="speed" type="double">
+			<bind-xml name="speed" node="element" />
+		</field>
+		<field name="stepSize" type="double">
+			<bind-xml name="stepSize" node="element" />
+		</field>
+		<field name="time" type="double">
+			<bind-xml name="time" node="element" />
+		</field>
+	</class>
+
+
+</mapping>
+	

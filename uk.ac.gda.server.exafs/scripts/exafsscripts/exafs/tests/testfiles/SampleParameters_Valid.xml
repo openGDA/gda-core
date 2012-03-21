@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<I20SampleParameters>
+	<name>Cytochrome</name>
+	<description>Cytochrome preparation #7</description>
+	<description>bla bla bla</description>
+	<sampleWheelPosition>3</sampleWheelPosition>
+	<sampleEnvironment>Cryostat</sampleEnvironment>
+	<cryostat>
+		<temperature>295.0</temperature>
+		<tolerance>1.5</tolerance>
+		<time>5.0</time>
+		<samplePosition>2.0</samplePosition>
+	</cryostat>
+	<furnace>
+		<temperature>295.0</temperature>
+		<tolerance>1.5</tolerance>
+		<time>5.0</time>
+		<x>6.9</x>
+		<y>4.7</y>
+		<z>2.5</z>
+	</furnace>
+</I20SampleParameters>

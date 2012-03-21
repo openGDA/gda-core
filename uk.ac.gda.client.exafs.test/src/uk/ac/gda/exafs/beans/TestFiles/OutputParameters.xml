@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<OutputParameters>
+	<asciiFileName>FeKedge</asciiFileName>
+	<asciiDirectory>ascii</asciiDirectory>
+	<nexusDirectory>nexus</nexusDirectory>
+	<signal>
+		<label>Bragg</label>
+		<name>bragg</name>
+		<dataFormat>9.4f</dataFormat>
+		<expression>bragg/I0</expression>
+		<scannableName>Mono</scannableName>
+	</signal>
+	<signal>
+		<label>Time(sec)</label>
+		<name>time</name>
+		<dataFormat>%s</dataFormat>
+		<expression>time*1000</expression>
+		<scannableName>EpicsClock</scannableName>
+	</signal>
+	<signal>
+		<label>Temp</label>
+		<name>temp</name>
+		<dataFormat>%s</dataFormat>
+		<expression>temp</expression>
+		<scannableName>Eurotherm</scannableName>
+	</signal>
+</OutputParameters>

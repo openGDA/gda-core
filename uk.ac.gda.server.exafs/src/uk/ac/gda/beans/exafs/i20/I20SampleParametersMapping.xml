@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+
+	<class name="uk.ac.gda.beans.exafs.i20.I20SampleParameters">
+		<map-to xml="I20SampleParameters" />
+		<field name="shouldValidate" type="boolean">
+			<bind-xml name="shouldValidate" node="element" />
+		</field>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element" />
+		</field>
+		<field name="descriptions" type="string" collection="collection"
+			set-method="addDescription" get-method="getDescriptions">
+			<bind-xml name="description" node="element" />
+		</field>
+		<field name="sampleWheelPosition" type="string">
+			<bind-xml name="sampleWheelPosition" node="element" />
+		</field>
+		<field name="sampleEnvironment" type="string">
+			<bind-xml name="sampleEnvironment" node="element" />
+		</field>
+		<field name="roomTemperatureParameters" type="uk.ac.gda.beans.exafs.i20.SampleStageParameters">
+			<bind-xml name="roomTemperature" node="element" />
+		</field>
+		<field name="cryostatParameters" type="uk.ac.gda.beans.exafs.i20.CryostatParameters">
+			<bind-xml name="cryostat" node="element" />
+		</field>
+		<field name="furnaceParameters" type="uk.ac.gda.beans.exafs.i20.FurnaceParameters">
+			<bind-xml name="furnace" node="element" />
+		</field>
+		<field name="microreactorParameters" type="uk.ac.gda.beans.exafs.i20.MicroreactorParameters">
+			<bind-xml name="microreactor" node="element" />
+		</field>
+		<field name="customXYZParameters" type="uk.ac.gda.beans.exafs.i20.CustomXYZParameter"
+			collection="collection" set-method="addCustomXYZParameter"
+			get-method="getCustomXYZParameters">
+			<bind-xml name="custom_xyz" node="element" />
+		</field>
+		<field name="customParameters" type="uk.ac.gda.beans.exafs.i20.CustomParameter"
+			collection="collection" set-method="addCustomParameter" get-method="getCustomParameters">
+			<bind-xml name="custom" node="element" />
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.i20.CryostatParameters">
+		<map-to xml="cryostat" />
+		<field name="temperature" type="string">
+			<bind-xml name="temperature" node="element" />
+		</field>
+		<field name="tolerance" type="double">
+			<bind-xml name="tolerance" node="element" />
+		</field>
+		<field name="time" type="double">
+			<bind-xml name="time" node="element" />
+		</field>
+		<field name="heaterRange" type="integer">
+			<bind-xml name="heaterRange" node="element" />
+		</field>
+		<field name="profileType" type="string">
+			<bind-xml name="profileType" node="element" />
+		</field>
+		<field name="p" type="double">
+			<bind-xml name="p" node="element" />
+		</field>
+		<field name="i" type="double">
+			<bind-xml name="i" node="element" />
+		</field>
+		<field name="d" type="double">
+			<bind-xml name="d" node="element" />
+		</field>
+		<field name="ramp" type="double">
+			<bind-xml name="ramp" node="element" />
+		</field>
+		<field name="sampleHolder" type="string">
+			<bind-xml name="sampleHolder" node="element" />
+		</field>
+		<field name="sampleNumber" type="string">
+			<bind-xml name="sampleNumber" node="element" />
+		</field>
+		<field name="position" type="string">
+			<bind-xml name="position" node="element" />
+		</field>
+		<field name="finePosition" type="string">
+			<bind-xml name="finePosition" node="element" />
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.i20.FurnaceParameters">
+		<map-to xml="furnace" />
+		<field name="temperature" type="string">
+			<bind-xml name="temperature" node="element" />
+		</field>
+		<field name="tolerance" type="double">
+			<bind-xml name="tolerance" node="element" />
+		</field>
+		<field name="time" type="double">
+			<bind-xml name="time" node="element" />
+		</field>
+		<field name="x" type="string">
+			<bind-xml name="x" node="element" />
+		</field>
+		<field name="y" type="string">
+			<bind-xml name="y" node="element" />
+		</field>
+		<field name="z" type="string">
+			<bind-xml name="z" node="element" />
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.i20.SampleStageParameters">
+		<map-to xml="roomTemperature" />
+		<field name="x" type="string">
+			<bind-xml name="x" node="element" />
+		</field>
+		<field name="y" type="string">
+			<bind-xml name="y" node="element" />
+		</field>
+		<field name="z" type="string">
+			<bind-xml name="z" node="element" />
+		</field>
+		<field name="rotation" type="string">
+			<bind-xml name="rotation" node="element" />
+		</field>
+		<field name="fineRotation" type="string">
+			<bind-xml name="fineRotation" node="element" />
+		</field>
+		<field name="roll" type="string">
+			<bind-xml name="roll" node="element" />
+		</field>
+		<field name="yaw" type="string">
+			<bind-xml name="yaw" node="element" />
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.i20.CustomXYZParameter">
+		<map-to xml="custom_xyz" />
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element" />
+		</field>
+		<field name="x" type="double">
+			<bind-xml name="x" node="element" />
+		</field>
+		<field name="y" type="double">
+			<bind-xml name="y" node="element" />
+		</field>
+		<field name="z" type="double">
+			<bind-xml name="z" node="element" />
+		</field>
+		<field name="value" type="double">
+			<bind-xml name="value" node="element" />
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.i20.CustomParameter">
+		<map-to xml="custom" />
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element" />
+		</field>
+		<field name="value" type="double">
+			<bind-xml name="value" node="element" />
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.i20.MicroreactorParameters">
+		<map-to xml="microreactor" />
+		<field name="gas0Rate" type="integer">
+			<bind-xml name="gas0Rate" node="element" />
+		</field>
+		<field name="gas1Rate" type="integer">
+			<bind-xml name="gas1Rate" node="element" />
+		</field>
+		<field name="gas2Rate" type="integer">
+			<bind-xml name="gas2Rate" node="element" />
+		</field>
+		<field name="gas3Rate" type="integer">
+			<bind-xml name="gas3Rate" node="element" />
+		</field>
+		<field name="gas4Rate" type="integer">
+			<bind-xml name="gas4Rate" node="element" />
+		</field>
+		<field name="gas5Rate" type="integer">
+			<bind-xml name="gas5Rate" node="element" />
+		</field>
+		<field name="gas6Rate" type="integer">
+			<bind-xml name="gas6Rate" node="element" />
+		</field>
+		<field name="gas7Rate" type="integer">
+			<bind-xml name="gas7Rate" node="element" />
+		</field>
+		<field name="temperature" type="integer">
+			<bind-xml name="temperature" node="element" />
+		</field>
+		<field name="masses" type="string">
+			<bind-xml name="masses" node="element" />
+		</field>
+	</class>
+
+</mapping>

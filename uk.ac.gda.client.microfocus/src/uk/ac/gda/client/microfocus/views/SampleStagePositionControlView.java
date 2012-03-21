@@ -1,0 +1,81 @@
+/*-
+ * Copyright © 2010 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package uk.ac.gda.client.microfocus.views;
+
+import gda.device.ScannableMotionUnits;
+import gda.factory.Finder;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.ui.part.ViewPart;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import uk.ac.gda.ui.viewer.RotationViewer;
+
+public class SampleStagePositionControlView extends ViewPart  {
+	public SampleStagePositionControlView() {
+	}
+
+	protected static final Logger logger = LoggerFactory.getLogger(SampleStagePositionControlView.class);
+	public static final String ID = "uk.ac.gda.client.microfocus.views.SamplePositionView";
+	private ScrolledComposite scrolledComposite;
+	private RotationViewer samplexViewer;
+	private RotationViewer sampleyViewer;
+	private RotationViewer samplezViewer;
+	private RotationViewer energyViewer;
+	private RotationViewer sampleThetaViewer;
+	@Override
+	public void createPartControl(Composite parent) {
+		scrolledComposite = new ScrolledComposite(parent,SWT.H_SCROLL | SWT.V_SCROLL);
+		scrolledComposite.setExpandHorizontal(true);
+		scrolledComposite.setExpandVertical(true);
+
+		
+		Group sampleGroup = new Group(scrolledComposite, SWT.BORDER);	
+		sampleGroup.setLayout(new GridLayout(2, true));
+		GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
+		sampleGroup.setLayoutData(data);
+		
+		
+		samplexViewer = new RotationViewer((ScannableMotionUnits)Finder.getInstance().find("sc_MicroFocusSampleX"), 1.0);
+		samplexViewer.createControls(sampleGroup, SWT.SINGLE);
+		sampleyViewer = new RotationViewer((ScannableMotionUnits)Finder.getInstance().find("sc_MicroFocusSampleY"), 1.0);
+		sampleyViewer.createControls(sampleGroup, SWT.SINGLE);
+		samplezViewer = new RotationViewer((ScannableMotionUnits)Finder.getInstance().find("sc_sample_z"), 1.0);
+		samplezViewer.createControls(sampleGroup, SWT.SINGLE);
+		sampleThetaViewer = new RotationViewer((ScannableMotionUnits)Finder.getInstance().find("sc_sample_thetacoarse"));
+		sampleThetaViewer.createControls(sampleGroup, SWT.SINGLE);
+		energyViewer = new RotationViewer((ScannableMotionUnits)Finder.getInstance().find("energy"));
+		energyViewer.createControls(sampleGroup, SWT.SINGLE);
+		
+		scrolledComposite.setContent(sampleGroup);
+		//getSite().getPage().addPartListener(this);
+	}
+
+	@Override
+	public void setFocus() {
+		scrolledComposite.setFocus();
+	}
+	
+}

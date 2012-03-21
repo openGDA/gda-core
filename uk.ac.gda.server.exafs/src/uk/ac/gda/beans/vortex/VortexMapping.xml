@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+	<class name="uk.ac.gda.beans.vortex.VortexParameters">
+		<map-to xml="VortexParameters"/>
+		<field name="detectorName" type="string">
+			<bind-xml name="detectorName" node="element"/>
+		</field>
+		<field name="tfgName" type="string">
+			<bind-xml name="tfgName" node="element"/>
+		</field>
+		<field name="countType" type="string">
+			<bind-xml name="countType" node="element"/>
+		</field>
+		<field name="collectionTime" type="double">
+			<bind-xml name="collectionTime" node="element"/>
+		</field>
+		<field name="DetectorElement" type="uk.ac.gda.beans.vortex.DetectorElement"
+			collection="collection" set-method="addDetectorElement" get-method="getDetectorList">
+			<bind-xml name="DetectorElement" node="element"/>
+		</field>
+		<field name="deadTime" type="double">
+			<bind-xml name="deadTime" node="element"/>
+		</field>
+		<field name="data" type="uk.ac.gda.beans.ElementCountsData"
+		       collection="array" set-method="setData" get-method="getData">
+			<bind-xml name="ElementCountsData" node="element"/>
+		</field>
+		<field name="saveRawSpectrum" type="boolean">
+			<bind-xml name="saveRawSpectrum" node="element" />
+		</field>
+	</class>
+	<class name="uk.ac.gda.beans.vortex.VortexDeadTimeParameters">
+		<map-to xml="VortexDeadTimeParameters"/>		
+		<field name="DetectorDeadTimeElement" type="uk.ac.gda.beans.vortex.DetectorDeadTimeElement"
+			collection="collection" set-method="addDetectorDeadTimeElement" get-method="getDetectorDeadTimeElementList">
+			<bind-xml name="DetectorDeadTimeElement" node="element"/>
+		</field>		
+	</class>
+	
+	<class name="uk.ac.gda.beans.ElementCountsData">
+		<map-to xml="ElementCountsData"/>
+		<field name="dataString" type="string">
+			<bind-xml name="data" node="element"/>
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.vortex.DetectorElement">
+		<map-to xml="DetectorElement"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="number" type="integer">
+			<bind-xml name="number" node="element"/>
+		</field>
+		<field name="ROI" type="uk.ac.gda.beans.vortex.RegionOfInterest"
+			collection="collection" set-method="addRegion" get-method="getRegionList">
+			<bind-xml name="ROI" node="element"/>
+		</field>
+		<field name="gain" type="double">
+			<bind-xml name="gain" node="element"/>
+		</field>
+		<field name="peakingTime" type="double">
+			<bind-xml name="peakingTime" node="element"/>
+		</field>
+		<field name="offset" type="double">
+			<bind-xml name="offset" node="element"/>
+		</field>
+		<field name="excluded" type="boolean">
+			<bind-xml name="excluded" node="element"/>
+		</field>
+	</class>
+	
+	<class name="uk.ac.gda.beans.vortex.DetectorDeadTimeElement">
+		<map-to xml="DetectorDeadTimeElement"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="number" type="integer">
+			<bind-xml name="number" node="element"/>
+		</field>		
+		<field name="processDeadTimeAllEvent" type="double">
+			<bind-xml name="processDeadTimeAllEvent" node="element"/>
+		</field>
+		<field name="processDeadTimeInWindow" type="double">
+			<bind-xml name="processDeadTimeInWindow" node="element"/>
+		</field>		
+	</class>
+	
+	<class name="uk.ac.gda.beans.vortex.RegionOfInterest">
+		<map-to xml="ROI"/>
+		<field name="roiName" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+	    <field name="windowStart" type="integer">
+			<bind-xml name="windowStart" node="element"/>
+		</field>
+		<field name="windowEnd" type="integer">
+			<bind-xml name="windowEnd" node="element"/>
+		</field>
+		<field name="counts" type="integer">
+			<bind-xml name="counts" node="element"/>
+		</field>
+	</class>
+	
+	
+</mapping>
+	

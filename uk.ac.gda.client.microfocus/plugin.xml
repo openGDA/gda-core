@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="uk.ac.gda.microfocus.display.detectorfile" name="Detector file" schema="schema/uk.ac.gda.microfocus.display.detectorfile.exsd"/>
+   <extension-point id="uk.ac.gda.microfocus.display.default.detectorfile" name="Default detector File" schema="schema/uk.ac.gda.microfocus.display.default.detectorFile.exsd"/>
+   <extension-point id="uk.ac.gda.microfocus.xScannableName" name="X Scannable Name" schema="schema/uk.ac.gda.microfocus.xScannableName.exsd"/>
+   <extension-point id="uk.ac.gda.microfocus.yScannableName" name="Y Scannable Name" schema="schema/uk.ac.gda.microfocus.yScannableName.exsd"/>
+   <extension-point id="uk.ac.gda.microfocus.zScannableName" name="Z Scannable Name" schema="schema/uk.ac.gda.microfocus.zScannableName.exsd"/>
+   <extension-point id="uk.ac.gda.microfocus.trajectory.xScannableName" name="TrajectoryXScannableName" schema="schema/uk.ac.gda.microfocus.trajectory.xScannableName.exsd"/>
+   <extension-point id="uk.ac.gda.microfocus.trajectory.counterTimerName" name="TrajectoryCounterTimerName" schema="schema/uk.ac.gda.microfocus.trajectory.counterTimerName.exsd"/>
+   <extension-point id="uk.ac.microfocus.elementlist.refresh" name="View ids for refresh on focus" schema="schema/uk.ac.microfocus.elementlist.refresh.exsd"/>
+  <extension point="org.eclipse.ui.editors">
+    <editor class="uk.ac.gda.client.microfocus.ui.editors.MicroFocusScanParametersEditor"
+            default="true"
+            id="uk.ac.gda.client.microfocus.ui.editors.MicroFocusScanParametersEditor"
+            name="MicroFocusScanParameters">
+            <contentTypeBinding
+                contentTypeId="uk.ac.gda.beans.microfocus.MicroFocusScanParametersContentType">
+            </contentTypeBinding>
+     </editor>
+  </extension>
+  <extension point="org.eclipse.core.contenttype.contentTypes">
+     <content-type
+       base-type="org.eclipse.core.runtime.xml"
+       describer="uk.ac.gda.microfocus.ui.describers.MicroFocusScanParametersDescriber"
+       file-extensions="xml"
+       id="uk.ac.gda.beans.microfocus.MicroFocusScanParametersContentType"
+       name="MicroFocusScanParameters File Content"
+       priority="high">
+     </content-type>
+  </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="uk.ac.gda.client.microfocus.ui.MicroFocusPespective"
+            id="uk.ac.gda.microfocus.ui.MicroFocusPerspective"
+            name="Microfocus">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            category="uk.ac.gda.client.microfocus.category"
+            class="uk.ac.gda.client.microfocus.views.scan.MicroFocusElementListView"
+            id="uk.ac.gda.client.microfocus.MFElementListView"
+            name="Xspress"
+            restorable="true">
+      </view>
+      <view
+            category="uk.ac.gda.client.microfocus.category"
+            class="uk.ac.gda.client.microfocus.views.scan.MicroFocusElementListView"
+            id="uk.ac.gda.client.microfocus.VortexElementListView"
+            name="Vortex"
+            restorable="true">
+      </view>
+      <view
+            category="uk.ac.gda.client.microfocus.category"
+            class="uk.ac.gda.client.microfocus.views.ExafsSelectionView"
+            id="uk.ac.gda.client.microfocus.SelectExafsView"
+            name="ExafsSelectionView"
+            restorable="true">
+      </view>
+      <view
+            category="uk.ac.gda.client.microfocus.category"
+            class="uk.ac.gda.client.microfocus.views.SampleStagePositionControlView"
+            id="uk.ac.gda.client.microfocus.views.SamplePositionView"
+            name="SampleStagePositionsView"
+            restorable="true">
+      </view>
+      <category
+            id="uk.ac.gda.client.microfocus.category"
+            name="Data Acquisition - MicroFous">
+      </category>
+      <view
+            category="uk.ac.gda.client.microfocus.category"
+            class="uk.ac.gda.client.microfocus.views.CameraFocusZoomControlView"
+            id="uk.ac.gda.client.microfocus.CameraFocusZoomControlView"
+            name="Camera Focus and Zoom"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            categoryId="uk.ac.gda.client.microfocus.filesoperations.category"
+            description="Load Command"
+            id="uk.ac.gda.client.microfocus.LoadFileCommand"
+            name="Load File">
+      </command>
+      <category
+            id="uk.ac.gda.client.microfocus.filesoperations.category"
+            name="File Operations">
+      </category>
+      <command
+            categoryId="uk.ac.gda.client.microfocus.filesoperations.category"
+            description="Refresh Element List"
+            id="uk.ac.gda.client.microfocus.RefreshListCommand"
+            name="Refresh">
+      </command>
+      <command
+            defaultHandler="uk.ac.gda.client.microfocus.ui.commands.RunExafsHandler"
+            description="Run exafs at the selected point"
+            id="uk.ac.gda.client.microfocus.runExafsCommand"
+            name="runExafs">
+      </command>
+      <command
+            id="uk.ac.gda.client.microfocus.AddExafsScanCommand"
+            name="AddExafsScan">
+      </command>
+      <command
+            description="Delect Exafs scan"
+            id="uk.ac.gda.client.microfocus.DeleteExafsScanCommand"
+            name="Delete Exafs Scan">
+      </command>
+      <command
+            id="uk.ac.gda.client.microfocus.UpdateExafsScanCommand"
+            name="UpdateScans">
+      </command>
+      <command
+            description="Option to load files for scanning or viewing"
+            id="uk.ac.gda.client.microfocus.SelectScanOrViewCommand"
+            name="Load File for Scan/View">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="toolbar:uk.ac.gda.client.microfocus.MFElementListView?after=additions">
+         <command
+               commandId="uk.ac.gda.client.microfocus.LoadFileCommand"
+               icon="icons/folder_image.png"
+               id="uk.ac.gda.client.microfocus.toolbars.MFElementListLoadView"
+               style="push"
+               tooltip="load">
+         </command>
+         <command
+               commandId="uk.ac.gda.client.microfocus.RefreshListCommand"
+               icon="icons/page_refresh.png"
+               id="uk.ac.gda.client.microfocus.toolbars.MFElementListRefreshView"
+               style="push">
+         </command>
+         <command
+               commandId="uk.ac.gda.client.microfocus.SelectScanOrViewCommand"
+               id="uk.ac.gda.client.microfocus.toolbars.MFElementListOptionView"
+               label="scan"
+               style="toggle"
+               tooltip="load files for scan/view">
+         </command>
+      </menuContribution>
+      <menuContribution
+            locationURI="toolbar:uk.ac.gda.client.microfocus.VortexElementListView?after=additions">
+         <command
+               commandId="uk.ac.gda.client.microfocus.RefreshListCommand"
+               icon="icons/page_refresh.png"
+               id="uk.ac.gda.client.microfocus.toolbars.VortexElementListRefreshView"
+               style="push">
+         </command>
+         <command
+               commandId="uk.ac.gda.client.microfocus.LoadFileCommand"
+               icon="icons/folder_image.png"
+               id="uk.ac.gda.client.microfocus.toolbars.VortexElementListLoadView"
+               style="push"
+               tooltip="load">
+         </command>
+         <command
+               commandId="uk.ac.gda.client.microfocus.SelectScanOrViewCommand"
+               id="uk.ac.gda.client.microfocus.toolbars.VortexElementListOptionView"
+               label="scan"
+               style="toggle">
+         </command>
+      </menuContribution>
+      <menuContribution
+            locationURI="toolbar:uk.ac.gda.client.microfocus.SelectExafsView?after=additions">
+         <command
+               commandId="uk.ac.gda.client.microfocus.AddExafsScanCommand"
+               icon="icons/chart_line_add.png"
+               id="uk.ac.gda.client.microfocus.toolbars.AddExafsScan"
+               style="push">
+         </command>
+         <command
+               commandId="uk.ac.gda.client.microfocus.DeleteExafsScanCommand"
+               icon="icons/chart_line_delete.png"
+               id="uk.ac.gda.client.microfocus.toolbars.DelecteExafsScan"
+               style="push">
+         </command>
+         <command
+               commandId="uk.ac.gda.client.microfocus.UpdateExafsScanCommand"
+               icon="icons/page_refresh.png"
+               id="uk.ac.gda.client.microfocus.toolbars.UpdateExafsScan"
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="uk.ac.gda.client.microfocus.ui.commands.LoadFileHandler"
+            commandId="uk.ac.gda.client.microfocus.LoadFileCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.microfocus.ui.commands.RefreshHandler"
+            commandId="uk.ac.gda.client.microfocus.RefreshListCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.microfocus.ui.commands.RunExafsHandler"
+            commandId="uk.ac.gda.client.microfocus.runExafsCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.microfocus.ui.commands.AddExafsScanCommandHandler"
+            commandId="uk.ac.gda.client.microfocus.AddExafsScanCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.microfocus.ui.commands.DeleteExafsScanCommandHandler"
+            commandId="uk.ac.gda.client.microfocus.DeleteExafsScanCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.microfocus.ui.commands.UpdateExafsScanCommandHandler"
+            commandId="uk.ac.gda.client.microfocus.UpdateExafsScanCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.microfocus.ui.commands.SelectScanOrViewCommandHandler"
+            commandId="uk.ac.gda.client.microfocus.SelectScanOrViewCommand">
+      </handler>
+   </extension>
+
+</plugin>

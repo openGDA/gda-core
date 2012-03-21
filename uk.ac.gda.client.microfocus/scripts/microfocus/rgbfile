@@ -1,0 +1,12 @@
+from uk.ac.gda.client.microfocus.util import RGBFileReader
+from uk.ac.diamond.scisoft.analysis.dataset import IntegerDataset
+rgbFile = RGBFileReader("/dls/i18/data/2010/sp4591-1/processing/48167_1.rgb")
+con = rgbFile.getContents()
+from uk.ac.diamond.scisoft.analysis.dataset import RGBDataset
+bal1 = IntegerDataset(con[6], [41,61])
+rhl3 = IntegerDataset(con[7], [41,61]
+baka = IntegerDataset(con[8], [41,61])
+rgb = RGBDataset(bal1,rhl3,baka)
+RCPPlotter.plot(rgb, "MapPlot")
+RCPPlotter.plotImage("MapPlot", rgb)
+RCPPlotter.imagePlot("MapPlot", bal1)

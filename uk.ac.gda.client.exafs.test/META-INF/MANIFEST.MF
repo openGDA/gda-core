@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Exafs Tests
+Bundle-SymbolicName: uk.ac.gda.client.exafs.test
+Bundle-Version: 1.0.0
+Fragment-Host: uk.ac.gda.client.exafs;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: uk.ac.gda.beans.exafs
+Require-Bundle: org.junit4;bundle-version="4.8.1"

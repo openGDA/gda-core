@@ -1,0 +1,72 @@
+<project name="plugin-uk.ac.gda.client.exafs.test" basedir=".">
+
+    <dirname property="GDA-plugin.basedir" file="${ant.file.${ant.project.name}}" />
+    <pathconvert property="workspace.loc" setonempty="false">
+        <regexpmapper from="(.*)/plugins/.+" to="\1"/>
+        <path><pathelement location="${GDA-plugin.basedir}" /></path>
+    </pathconvert>
+    <pathconvert property="workspace.loc" setonempty="false">
+        <regexpmapper from="(.*)_git/.+" to="\1"/>
+        <path><pathelement location="${GDA-plugin.basedir}" /></path>
+    </pathconvert>
+    <property name="workspace.git.loc" value="${workspace.loc}_git" />
+    <import file="${workspace.loc}/builder/build-common.xml" />
+
+    <!-- ====================================================================
+           Build
+         ==================================================================== -->
+
+    <target name="plugin.post-build-action" depends="_plugin.post-build-action_check" if="plugin.post-build-action.required">
+        <!-- the pde build uses ant copy, which does not preserve permissions, so we need to add the execute permission back on -->
+        <echo message="performing plugin.post-build-action in ${GDA-plugin.basedir} - issuing chmod" />
+        <chmod perm="+x" osfamily="unix" verbose="${gdaVerboseSetting}">
+            <fileset dir="${GDA-plugin.basedir}">
+                <include name="@dot/${mucal-part}" />
+                <include name="bin/${mucal-part}" />
+            </fileset>
+        </chmod>
+    </target>
+
+    <target name="_plugin.post-build-action_check">
+        <property name="mucal-part" value="uk/ac/gda/exafs/beans/TestFiles/bin/mucal.bin" />
+        <condition property="plugin.post-build-action.required">
+            <and>
+                <os family="unix" />
+                <or>
+                    <available file="${GDA-plugin.basedir}/@dot/${mucal-part}" type="file" />
+                    <available file="${GDA-plugin.basedir}/bin/${mucal-part}" type="file" />
+                </or>
+            </and>
+        </condition>
+    </target>
+
+    <!-- ====================================================================
+           Invoke the tests
+         ==================================================================== -->
+
+    <target name="junit-tests" depends="toolCheck, set-test-base">
+        <junit-call description="${ant.project.name} Java JUnit tests">
+            <formatter type="xml" />
+            <classpath>
+                <pathelement location="${junitjar.loc}" />
+                <pathelement location="${jythonjar.loc}" />
+                <path refid="libs.jars.path" />
+                <pathelement location="${GDA-plugin.basedir}/bin" />
+                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.api/bin" />
+                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.client.exafs/bin" />
+                <pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
+                <pathelement location="${workspace.git.loc}/gda-common-rcp.git/uk.ac.gda.common.rcp/bin" />
+                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.client.experimentdefinition/bin" />
+                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.server.exafs/bin" />
+                <pathelement location="${workspace.loc}/tp/plugins/*" />
+            </classpath>
+            <batchtest todir="@{report.dir}">
+                <fileset dir="${GDA-plugin.basedir}/src">
+                    <include name="**/*Test.java" />
+                    <exclude name="**/*PluginTest.java" />
+                </fileset>
+            </batchtest>
+        </junit-call>
+    </target>
+
+</project>

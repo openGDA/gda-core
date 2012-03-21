@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+	<class name="uk.ac.gda.beans.exafs.b18.B18SampleParameters">
+		<map-to xml="B18SampleParameters" />
+		<field name="shouldValidate" type="boolean">
+			<bind-xml name="shouldValidate" node="element" />
+		</field>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element" />
+		</field>
+		<field name="description1" type="string">
+			<bind-xml name="description1" node="element" />
+		</field>
+		<field name="description2" type="string">
+			<bind-xml name="description2" node="element" />
+		</field>
+		<field name="stage" type="string">
+			<bind-xml name="stage" node="element" />
+		</field>
+		<field name="temperatureControl" type="string">
+			<bind-xml name="temperaturecontrol" node="element" />
+		</field>
+		<field name="XYThetaStageParameters" type="uk.ac.gda.beans.exafs.b18.XYThetaStageParameters">
+			<bind-xml name="xythetastage" node="element" />
+		</field>
+		<field name="LN2CryoStageParameters" type="uk.ac.gda.beans.exafs.b18.LN2CryoStageParameters">
+			<bind-xml name="ln2cryostage" node="element" />
+		</field>
+		<field name="SXCryoStageParameters" type="uk.ac.gda.beans.exafs.b18.SXCryoStageParameters">
+			<bind-xml name="sxcryostage" node="element" />
+		</field>
+		<field name="PulseTubeCryostatParameters" type="uk.ac.gda.beans.exafs.b18.PulseTubeCryostatParameters">
+			<bind-xml name="pulsetubecryostat" node="element" />
+		</field>
+		<field name="FurnaceParameters" type="uk.ac.gda.beans.exafs.b18.FurnaceParameters">
+			<bind-xml name="furnace" node="element" />
+		</field>
+		<field name="LakeshoreParameters" type="uk.ac.gda.beans.exafs.b18.LakeshoreParameters">
+			<bind-xml name="lakeshore" node="element" />
+		</field>
+		<field name="SampleWheelParameters" type="uk.ac.gda.beans.exafs.b18.SampleWheelParameters">
+			<bind-xml name="samplewheel" node="element" />
+		</field>
+		<field name="UserStageParameters" type="uk.ac.gda.beans.exafs.b18.UserStageParameters">
+			<bind-xml name="userstage" node="element" />
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.b18.UserStageParameters">
+		<map-to xml="userstage" />
+		<field name="axis2" type="double">
+			<bind-xml name="axis2" node="element" />
+		</field>
+		<field name="axis4" type="double">
+			<bind-xml name="axis4" node="element" />
+		</field>
+		<field name="axis5" type="double">
+			<bind-xml name="axis5" node="element" />
+		</field>
+		<field name="axis6" type="double">
+			<bind-xml name="axis6" node="element" />
+		</field>
+		<field name="axis7" type="double">
+			<bind-xml name="axis7" node="element" />
+		</field>
+		<field name="axis8" type="double">
+			<bind-xml name="axis8" node="element" />
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.b18.SampleWheelParameters">
+		<map-to xml="samplewheel" />
+		<field name="demand" type="double">
+			<bind-xml name="demand" node="element" />
+		</field>
+		<field name="filter" type="string">
+			<bind-xml name="filter" node="element" />
+		</field>
+		<field name="manual" type="boolean">
+			<bind-xml name="manual" node="element" />
+		</field>
+		<field name="wheelEnabled" type="boolean">
+			<bind-xml name="wheelEnabled" node="element" />
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.b18.XYThetaStageParameters">
+		<map-to xml="xythetastage" />
+		<field name="x" type="double">
+			<bind-xml name="x" node="element" />
+		</field>
+		<field name="y" type="double">
+			<bind-xml name="y" node="element" />
+		</field>
+		<field name="theta" type="double">
+			<bind-xml name="theta" node="element" />
+		</field>
+	</class>
+	
+	<class name="uk.ac.gda.beans.exafs.b18.LN2CryoStageParameters">
+		<map-to xml="ln2cryostage" />
+		<field name="height" type="double">
+			<bind-xml name="height" node="element" />
+		</field>
+		<field name="angle" type="double">
+			<bind-xml name="angle" node="element" />
+		</field>
+		<field name="calibAngle" type="double">
+			<bind-xml name="calibAngle" node="element" />
+		</field>
+		<field name="calibHeight" type="double">
+			<bind-xml name="calibHeight" node="element" />
+		</field>		
+		<field name="sampleNumberA" type="integer">
+			<bind-xml name="sampleNumberA" node="element" />
+		</field>
+		<field name="sampleNumberB" type="integer">
+			<bind-xml name="sampleNumberB" node="element" />
+		</field>
+		<field name="cylinderType" type="string">
+			<bind-xml name="cylinderType" node="element" />
+		</field>
+		<field name="manual" type="boolean">
+			<bind-xml name="manual" node="element" />
+		</field>
+		<field name="editCalibration" type="boolean">
+			<bind-xml name="editCalibration" node="element" />
+		</field>		
+	</class>
+	
+	<class name="uk.ac.gda.beans.exafs.b18.SXCryoStageParameters">
+		<map-to xml="sxcryostage" />
+		<field name="height" type="double">
+			<bind-xml name="height" node="element" />
+		</field>
+		<field name="rot" type="double">
+			<bind-xml name="rot" node="element" />
+		</field>
+		<field name="calibHeight" type="double">
+			<bind-xml name="calibHeight" node="element" />
+		</field>		
+		<field name="sampleNumber" type="integer">
+			<bind-xml name="sampleNumber" node="element" />
+		</field>
+		<field name="manual" type="boolean">
+			<bind-xml name="manual" node="element" />
+		</field>			
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.b18.PulseTubeCryostatParameters">
+		<map-to xml="pulsetubecryostat" />
+		<field name="temperature1" type="double">
+			<bind-xml name="temperature1" node="element" />
+		</field>
+		<field name="temperature2" type="double">
+			<bind-xml name="temperature2" node="element" />
+		</field>
+		<field name="pressure" type="double">
+			<bind-xml name="pressure" node="element" />
+		</field>
+		<field name="setPoint" type="double">
+			<bind-xml name="setPoint" node="element" />
+		</field>
+		<field name="tolerance" type="double">
+			<bind-xml name="tolerance" node="element" />
+		</field>
+		<field name="time" type="double">
+			<bind-xml name="time" node="element" />
+		</field>
+		<field name="controlFlag" type="boolean">
+			<bind-xml name="controlFlag" node="element" />
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.b18.FurnaceParameters">
+		<map-to xml="furnace" />
+		<field name="temperature" type="double">
+			<bind-xml name="temperature" node="element" />
+		</field>
+		<field name="tolerance" type="double">
+			<bind-xml name="tolerance" node="element" />
+		</field>
+		<field name="time" type="double">
+			<bind-xml name="time" node="element" />
+		</field>
+		<field name="controlFlag" type="boolean">
+			<bind-xml name="controlFlag" node="element" />
+		</field>
+	</class>
+	
+	<class name="uk.ac.gda.beans.exafs.b18.LakeshoreParameters">
+		<map-to xml="lakeshore" />
+		<field name="temp0" type="double">
+			<bind-xml name="temp0" node="element" />
+		</field>
+		<field name="temp1" type="double">
+			<bind-xml name="temp1" node="element" />
+		</field>
+		<field name="temp2" type="double">
+			<bind-xml name="temp2" node="element" />
+		</field>
+		<field name="temp3" type="double">
+			<bind-xml name="temp3" node="element" />
+		</field>
+		<field name="tempSelect0" type="boolean">
+			<bind-xml name="tempSelect0" node="element" />
+		</field>
+		<field name="tempSelect1" type="boolean">
+			<bind-xml name="tempSelect1" node="element" />
+		</field>
+		<field name="tempSelect2" type="boolean">
+			<bind-xml name="tempSelect2" node="element" />
+		</field>
+		<field name="tempSelect3" type="boolean">
+			<bind-xml name="tempSelect3" node="element" />
+		</field>
+		<field name="setPointSet" type="double">
+			<bind-xml name="setPointSet" node="element" />
+		</field>
+		<field name="tolerance" type="double">
+			<bind-xml name="tolerance" node="element" />
+		</field>
+		<field name="time" type="double">
+			<bind-xml name="time" node="element" />
+		</field>
+		<field name="controlFlag" type="boolean">
+			<bind-xml name="controlFlag" node="element" />
+		</field>
+	</class>
+</mapping>

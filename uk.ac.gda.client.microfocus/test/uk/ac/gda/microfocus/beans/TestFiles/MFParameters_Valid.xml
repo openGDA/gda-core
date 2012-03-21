@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MicroFocusScanParameters>
+    <xScannableName>MicroFocusSampleX</xScannableName>
+    <yScannableName>MicroFocusSampleY</yScannableName>
+    <xStart>2.0</xStart>
+    <xEnd>8.0</xEnd>
+    <xStepSize>1.0</xStepSize>
+    <yStart>0.0</yStart>
+    <yEnd>4.0</yEnd>
+    <yStepSize>1.0</yStepSize>
+    <collectionTime>1.0</collectionTime>
+    <energyScannableName>energy</energyScannableName>
+    <energy>3500.0</energy>
+    <zScannableName>sc_sample_z</zScannableName>
+    <zValue>2.5</zValue>
+    <continuousScannableName>sc_sample_z</continuousScannableName>
+    <raster>true</raster>
+    <rowTime>10.0</rowTime> 
+</MicroFocusScanParameters>

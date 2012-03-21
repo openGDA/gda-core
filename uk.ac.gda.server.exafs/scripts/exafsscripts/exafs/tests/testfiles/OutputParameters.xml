@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<OutputParameters>
+	<asciiFileName>FeKedge</asciiFileName>
+	<asciiDirectory>ascii</asciiDirectory>
+	<nexusDirectory>nexus</nexusDirectory>
+	<signal>
+		<name>bragg</name>
+		<dataFormat>%s</dataFormat>
+	</signal>
+	<signal>
+		<name>time</name>
+		<dataFormat>%s</dataFormat>
+	</signal>
+	<signal>
+		<name>temp</name>
+		<dataFormat>%s</dataFormat>
+	</signal>
+</OutputParameters>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+	<class name="uk.ac.gda.beans.xspress.XspressParameters">
+		<map-to xml="XspressParameters"/>
+		<field name="detectorName" type="string">
+			<bind-xml name="detectorName" node="element"/>
+		</field>
+		<field name="resGrade" type="string">
+			<bind-xml name="resGrade" node="element"/>
+		</field>
+		<field name="readoutMode" type="string">
+			<bind-xml name="readoutMode" node="element"/>
+		</field>
+		<field name="editIndividualElements" type="boolean">
+			<bind-xml name="editIndividualElements" node="element" />
+		</field>
+		<field name="DetectorElement" type="uk.ac.gda.beans.xspress.DetectorElement"
+			collection="collection" set-method="addDetectorElement" get-method="getDetectorList">
+			<bind-xml name="DetectorElement" node="element"/>
+		</field>
+		<field name="data" type="uk.ac.gda.beans.ElementCountsData"
+		       collection="array" set-method="setData" get-method="getData">
+			<bind-xml name="ElementCountsData" node="element"/>
+		</field>
+		<field name="xspressOnlyShowFF" type="boolean">
+			<bind-xml name="xspressOnlyShowFF" node="element" />
+		</field>
+		<field name="xspressShowDTRawValues" type="boolean">
+			<bind-xml name="xspressShowDTRawValues" node="element" />
+		</field>
+		<field name="saveRawSpectrum" type="boolean">
+			<bind-xml name="saveRawSpectrum" node="element" />
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.xspress.XspressDeadTimeParameters">
+		<map-to xml="XspressDeadTimeParameters"/>
+		<field name="DetectorDeadTimeElement" type="uk.ac.gda.beans.xspress.DetectorDeadTimeElement"
+			collection="collection" set-method="addDetectorDeadTimeElement" get-method="getDetectorDeadTimeElementList">
+			<bind-xml name="DetectorDeadTimeElement" node="element"/>
+		</field>		
+	</class>
+	<class name="uk.ac.gda.beans.ElementCountsData">
+		<map-to xml="ElementCountsData"/>
+		<field name="dataString" type="string">
+			<bind-xml name="data" node="element"/>
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.xspress.XspressROI">
+		<map-to xml="xspressROI"/>
+		<field name="roiName" type="string">
+			<bind-xml name="roiName" node="element"/>
+		</field>
+		<field name="regionStart" type="integer">
+			<bind-xml name="regionStart" node="element"/>
+		</field>
+		<field name="regionEnd" type="integer">
+			<bind-xml name="regionEnd" node="element"/>
+		</field>
+		<field name="regionType" type="string">
+			<bind-xml name="regionType" node="element"/>
+		</field>
+	</class>
+	
+	<class name="uk.ac.gda.beans.xspress.DetectorElement">
+		<map-to xml="DetectorElement"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="number" type="integer">
+			<bind-xml name="number" node="element"/>
+		</field>
+		<field name="windowStart" type="integer">
+			<bind-xml name="windowStart" node="element"/>
+		</field>
+		<field name="windowEnd" type="integer">
+			<bind-xml name="windowEnd" node="element"/>
+		</field>
+		<field name="excluded" type="boolean">
+			<bind-xml name="excluded" node="element"/>
+		</field>
+		<field name="Region" type="uk.ac.gda.beans.xspress.XspressROI"
+			collection="collection" set-method="addRegion" get-method="getRegionList">
+			<bind-xml name="Region" node="element"/>
+		</field>
+	</class>
+	<class name="uk.ac.gda.beans.xspress.DetectorDeadTimeElement">
+		<map-to xml="DetectorDeadTimeElement"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="number" type="integer">
+			<bind-xml name="number" node="element"/>
+		</field>
+		<field name="processDeadTimeAllEventGradient" type="double">
+			<bind-xml name="processDeadTimeAllEventGradient" node="element"/>
+		</field>
+		<field name="processDeadTimeAllEventOffset" type="double">
+			<bind-xml name="processDeadTimeAllEventOffset" node="element"/>
+		</field>
+		<field name="processDeadTimeInWindow" type="double">
+			<bind-xml name="processDeadTimeInWindow" node="element"/>
+		</field>		
+	</class>
+</mapping>
+	

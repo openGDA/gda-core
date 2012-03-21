@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Xmap
+Bundle-SymbolicName: uk.ac.gda.server.exafs.epics
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: uk.ac.gda.xmap.Activator
+Require-Bundle: org.eclipse.core.runtime,
+ uk.ac.gda.server.exafs;bundle-version="1.0.0",
+ uk.ac.gda.common;bundle-version="1.0.0",
+ uk.ac.gda.core;bundle-version="1.0.0",
+ uk.ac.gda.epics;bundle-version="1.0.0",
+ uk.ac.gda.libs;bundle-version="1.0.0",
+ uk.ac.gda.nexus;bundle-version="1.0.0",
+ org.junit4;bundle-version="4.8.1",
+ uk.ac.gda.api
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: gda.device.detector,
+ gda.device.detector.xmap,
+ gda.device.detector.xmap.corba.impl,
+ gda.device.detector.xmap.util,
+ uk.ac.gda.xmap
+Eclipse-RegisterBuddy: uk.ac.gda.common, uk.ac.gda.core
+Import-Package: org.slf4j;version="[1.5.0,2.0.0)"

@@ -1,0 +1,510 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<!-- N.B. this stuff breaks Xerlin targetNamespace="http://www.dl.ac.uk/GDASchema" 
+		xmlns="http://www.dl.ac.uk/GDASchema"> -->
+	<xsd:element name="SampleElements">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="elementPosition" maxOccurs="unbounded"
+					minOccurs="0">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="name" type="xsd:string" maxOccurs="1"
+								minOccurs="1" />
+							<xsd:element name="principleElement" type="xsd:string"
+								maxOccurs="1" minOccurs="1" />
+							<xsd:element name="wheelPosition" type="xsd:integer"
+								maxOccurs="1" minOccurs="1" />
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="XasScanParameters">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="shouldValidate" type="xsd:boolean"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="scannableName" type="xsd:string"
+					maxOccurs="1" minOccurs="1" />
+				<xsd:element name="element" type="xsd:string" maxOccurs="1"
+					minOccurs="1" />
+				<xsd:element name="edge" maxOccurs="1" minOccurs="1">
+					<xsd:simpleType>
+						<xsd:restriction base="xsd:string">
+							<xsd:enumeration value="K" />
+							<xsd:enumeration value="L1" />
+							<xsd:enumeration value="L2" />
+							<xsd:enumeration value="L3" />
+						</xsd:restriction>
+					</xsd:simpleType>
+				</xsd:element>
+				<xsd:element name="initialEnergy" type="xsd:double"
+					maxOccurs="1" minOccurs="1" />
+				<xsd:element name="finalEnergy" type="xsd:double"
+					maxOccurs="1" minOccurs="1" />
+				<xsd:element name="edgeEnergy" type="xsd:double"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:choice>
+					<xsd:sequence>
+						<xsd:element name="coreHole" type="xsd:double"
+							maxOccurs="1" minOccurs="0" />
+						<xsd:element name="gaf1" type="xsd:double" maxOccurs="1"
+							minOccurs="1" />
+						<xsd:element name="gaf2" type="xsd:double" maxOccurs="1"
+							minOccurs="1" />
+						<xsd:element name="gaf3" type="xsd:double" maxOccurs="1"
+							minOccurs="0" />
+					</xsd:sequence>
+					<xsd:sequence>
+						<xsd:element name="A" type="xsd:double" maxOccurs="1"
+							minOccurs="1" />
+						<xsd:element name="B" type="xsd:double" maxOccurs="1"
+							minOccurs="1" />
+						<xsd:element name="C" type="xsd:double" maxOccurs="1"
+							minOccurs="0" />
+					</xsd:sequence>
+				</xsd:choice>
+				<xsd:element name="preEdgeStep" type="xsd:double"
+					maxOccurs="1" minOccurs="1" />
+				<xsd:element name="preEdgeTime" type="xsd:double"
+					maxOccurs="1" minOccurs="1" />
+				<xsd:element name="edgeStep" type="xsd:double"
+					maxOccurs="1" minOccurs="1" />
+				<xsd:element name="edgeTime" type="xsd:double"
+					maxOccurs="1" minOccurs="1" />
+				<xsd:element name="exafsStep" type="xsd:double"
+					maxOccurs="1" minOccurs="1" />
+				<xsd:choice>
+					<xsd:sequence>
+						<xsd:element name="exafsTime" type="xsd:double"
+							maxOccurs="1" minOccurs="1" />
+					</xsd:sequence>
+					<xsd:sequence>
+						<xsd:element name="exafsFromTime" type="xsd:double"
+							maxOccurs="1" minOccurs="1" />
+						<xsd:element name="exafsToTime" type="xsd:double"
+							maxOccurs="1" minOccurs="1" />
+						<xsd:element name="kWeighting" type="xsd:double"
+							maxOccurs="1" minOccurs="1" />
+					</xsd:sequence>
+				</xsd:choice>
+
+				<xsd:element name="exafsStepType" maxOccurs="1"
+					minOccurs="1">
+					<xsd:simpleType>
+						<xsd:restriction base="xsd:string">
+							<xsd:enumeration value="k" />
+							<xsd:enumeration value="E" />
+						</xsd:restriction>
+					</xsd:simpleType>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="XanesScanParameters">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="shouldValidate" type="xsd:boolean"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="scannableName" type="xsd:string"
+					maxOccurs="1" minOccurs="1" />
+				<xsd:element name="element" type="xsd:string" maxOccurs="1"
+					minOccurs="1" />
+
+				<xsd:element name="edge" maxOccurs="1" minOccurs="1">
+					<xsd:simpleType>
+						<xsd:restriction base="xsd:string">
+							<xsd:enumeration value="K" />
+							<xsd:enumeration value="L1" />
+							<xsd:enumeration value="L2" />
+							<xsd:enumeration value="L3" />
+						</xsd:restriction>
+					</xsd:simpleType>
+				</xsd:element>
+
+				<xsd:element name="region" maxOccurs="unbounded"
+					minOccurs="1">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="energy" type="xsd:double"
+								maxOccurs="1" minOccurs="1" />
+							<xsd:element name="step" type="xsd:double" maxOccurs="1"
+								minOccurs="1" />
+							<xsd:element name="time" type="xsd:double" maxOccurs="1"
+								minOccurs="1" />
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="finalEnergy" type="xsd:double"
+					maxOccurs="1" minOccurs="1" />
+
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="XesScanParameters">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="shouldValidate" type="xsd:boolean"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="scanType" type="xsd:int" maxOccurs="1"
+					minOccurs="0" />
+				<xsd:element name="analyserType" type="xsd:string"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="analyserCut0" type="xsd:int"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="analyserCut1" type="xsd:int"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="analyserCut2" type="xsd:int"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="radiusOfCurvature" type="xsd:double"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="element" type="xsd:string" maxOccurs="1"
+					minOccurs="0" />
+				<xsd:element name="edge" type="xsd:string" maxOccurs="1"
+					minOccurs="0" />
+				<xsd:element name="xesEnergy" type="xsd:double"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="xesInitialEnergy" type="xsd:double"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="xesFinalEnergy" type="xsd:double"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="xesStepSize" type="xsd:double"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="xesIntegrationTime" type="xsd:double"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="monoEnergy" type="xsd:double"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="monoInitialEnergy" type="xsd:double"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="monoFinalEnergy" type="xsd:double"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="monoStepSize" type="xsd:double"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="scanFileName" type="xsd:string"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="scannableName" type="xsd:string"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="additionalCrystal0" type="xsd:boolean"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="additionalCrystal1" type="xsd:boolean"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="additionalCrystal2" type="xsd:boolean"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="additionalCrystal3" type="xsd:boolean"
+					maxOccurs="1" minOccurs="0" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:complexType name="ionChamberType">
+		<xsd:sequence>
+			<xsd:element name="name" type="xsd:string" maxOccurs="1"
+				minOccurs="1" />
+			<xsd:element name="deviceName" type="xsd:string"
+				maxOccurs="1" minOccurs="1" />
+			<xsd:element name="channel" type="xsd:integer" maxOccurs="1"
+				minOccurs="1" />
+			<xsd:element name="currentAmplifierName" type="xsd:string"
+				maxOccurs="1" minOccurs="1" />
+			<xsd:element name="gain" type="xsd:string" maxOccurs="1"
+				minOccurs="1" />
+			<!-- NOTE Working energy is not a property of ion chamber and is ignored. -->
+			<xsd:element name="workingEnergy" type="xsd:double"
+				maxOccurs="1" minOccurs="0" />
+			<xsd:element name="useGasProperties" type="xsd:boolean"
+				maxOccurs="1" minOccurs="0" />
+			<xsd:element name="gasType" type="xsd:string" maxOccurs="1"
+				minOccurs="0" />
+			<xsd:element name="percentAbsorption" type="xsd:double"
+				maxOccurs="1" minOccurs="0" />
+			<xsd:element name="pressure" type="xsd:double" maxOccurs="1"
+				minOccurs="0" />
+			<xsd:element name="totalPressure" type="xsd:double"
+				maxOccurs="1" minOccurs="0" />
+			<xsd:element name="ionChamberLength" type="xsd:double"
+				maxOccurs="1" minOccurs="0" />
+			<xsd:element name="gas_fill1_period_box" type="xsd:double"
+				maxOccurs="1" minOccurs="0" />
+			<xsd:element name="gas_fill2_period_box" type="xsd:double"
+				maxOccurs="1" minOccurs="0" />
+			<xsd:element name="changeSensitivity" type="xsd:boolean"
+				maxOccurs="1" minOccurs="0" />
+			<xsd:element name="autoFillGas" type="xsd:boolean"
+				maxOccurs="1" minOccurs="0" />
+			<xsd:element name="flush" type="xsd:boolean"
+				maxOccurs="1" minOccurs="0" />
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="ionChamberWOGasType">
+		<xsd:sequence>
+			<xsd:element name="name" type="xsd:string" maxOccurs="1"
+				minOccurs="1" />
+			<xsd:element name="deviceName" type="xsd:string"
+				maxOccurs="1" minOccurs="1" />
+			<xsd:element name="channel" type="xsd:integer" maxOccurs="1"
+				minOccurs="1" />
+			<xsd:element name="currentAmplifierName" type="xsd:string"
+				maxOccurs="1" minOccurs="1" />
+			<xsd:element name="gain" type="xsd:string" maxOccurs="1"
+				minOccurs="1" />
+			<!-- NOTE Working energy is not a property of ion chamber and is ignored. -->
+			<xsd:element name="workingEnergy" type="xsd:double"
+				maxOccurs="1" minOccurs="0" />
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:complexType name="drainCurrentType">
+		<xsd:sequence>
+			<xsd:element name="name" type="xsd:string" maxOccurs="1"
+				minOccurs="1" />
+			<xsd:element name="deviceName" type="xsd:string"
+				maxOccurs="1" minOccurs="1" />
+			<xsd:element name="channel" type="xsd:integer" maxOccurs="1"
+				minOccurs="1" />
+			<xsd:element name="currentAmplifierName" type="xsd:string"
+				maxOccurs="1" minOccurs="1" />
+			<xsd:element name="gain" type="xsd:string" maxOccurs="1"
+				minOccurs="1" />
+			<!-- NOTE Working energy is not a property of drain current and is ignored. -->
+			<xsd:element name="workingEnergy" type="xsd:double"
+				maxOccurs="1" minOccurs="0" />
+			<xsd:element name="changeSensitivity" type="xsd:boolean"
+				maxOccurs="1" minOccurs="0" />
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:element name="DetectorParameters">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="shouldValidate" type="xsd:boolean"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="detectorGroup" maxOccurs="unbounded"
+					minOccurs="1">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="name" type="xsd:string" maxOccurs="1"
+								minOccurs="1" />
+							<xsd:element name="detector" type="xsd:string"
+								maxOccurs="unbounded" minOccurs="1" />
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+
+				<xsd:element name="experimentType" maxOccurs="1"
+					minOccurs="0">
+					<xsd:simpleType>
+						<xsd:restriction base="xsd:string">
+							<xsd:enumeration value="Transmission" />
+							<xsd:enumeration value="Fluorescence" />
+							<xsd:enumeration value="TransmissionWOGas" />
+							<xsd:enumeration value="FluorescenceWOGas" />
+							<xsd:enumeration value="XES" />
+							<xsd:enumeration value="Soft X-Rays" />
+							<xsd:enumeration value="Electron Yield" />
+						</xsd:restriction>
+					</xsd:simpleType>
+				</xsd:element>
+
+				<xsd:element name="transmission" maxOccurs="1"
+					minOccurs="0">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="detectorType" type="xsd:string"
+								maxOccurs="1" minOccurs="1" />
+							<xsd:element name="workingEnergy" type="xsd:double"
+								maxOccurs="1" minOccurs="1" />
+							<xsd:element name="ionChamber" type="ionChamberType"
+								maxOccurs="3" minOccurs="3" />
+							<xsd:element name="collectDiffractionImages" type="xsd:boolean"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="mythenEnergy" type="xsd:double"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="mythenTime" type="xsd:double"
+								maxOccurs="1" minOccurs="0" />
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="transmissionWOGas" maxOccurs="1"
+					minOccurs="0">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="detectorType" type="xsd:string"
+								maxOccurs="1" minOccurs="1" />
+							<xsd:element name="workingEnergy" type="xsd:double"
+								maxOccurs="1" minOccurs="1" />
+							<xsd:element name="ionChamber" type="ionChamberWOGasType"
+								maxOccurs="3" minOccurs="3" />
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="fluorescence" maxOccurs="1"
+					minOccurs="0">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="configFileName" type="xsd:string"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="workingEnergy" type="xsd:double"
+								maxOccurs="1" minOccurs="1" />
+							<xsd:element name="detectorType" type="xsd:string"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="ionChamber" type="ionChamberType"
+								maxOccurs="3" minOccurs="0" />
+							<xsd:element name="collectDiffractionImages" type="xsd:boolean"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="mythenEnergy" type="xsd:double"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="mythenTime" type="xsd:double"
+								maxOccurs="1" minOccurs="0" />
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="fluorescenceWOGas" maxOccurs="1"
+					minOccurs="0">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="configFileName" type="xsd:string"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="workingEnergy" type="xsd:double"
+								maxOccurs="1" minOccurs="1" />
+							<xsd:element name="detectorType" type="xsd:string"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="collectDiffractionImages" type="xsd:boolean"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="ionChamber" type="ionChamberWOGasType"
+								maxOccurs="3" minOccurs="3" />
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="softXRays" maxOccurs="1" minOccurs="0">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="configFileName" type="xsd:string"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="workingEnergy" type="xsd:double"
+								maxOccurs="1" minOccurs="1" />
+							<xsd:element name="detectorType" type="xsd:string"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="drainCurrent" type="drainCurrentType"
+								maxOccurs="2" minOccurs="2" />
+							<xsd:element name="collectDiffractionImages" type="xsd:boolean"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="mythenEnergy" type="xsd:double"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="mythenTime" type="xsd:double"
+								maxOccurs="1" minOccurs="0" />
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="xes" maxOccurs="1" minOccurs="0">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="configFileName" type="xsd:string"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="workingEnergy" type="xsd:double"
+								maxOccurs="1" minOccurs="1" />
+							<xsd:element name="detectorType" type="xsd:string"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="ionChamber" type="ionChamberType"
+								maxOccurs="1" minOccurs="1" />
+							<xsd:element name="collectDiffractionImages" type="xsd:boolean"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="mythenEnergy" type="xsd:double"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="mythenTime" type="xsd:double"
+								maxOccurs="1" minOccurs="0" />
+
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="electronYield" maxOccurs="1"
+					minOccurs="0">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="name" type="xsd:string" maxOccurs="1"
+								minOccurs="1" />
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+
+	<xsd:complexType name="signalType">
+		<xsd:sequence>
+			<xsd:element name="label" type="xsd:string" maxOccurs="1"
+				minOccurs="1" />
+			<xsd:element name="name" type="xsd:string" maxOccurs="1"
+				minOccurs="0" />
+			<xsd:element name="dataFormat" type="xsd:string"
+				maxOccurs="1" minOccurs="1" />
+			<xsd:element name="expression" type="xsd:string"
+				maxOccurs="1" minOccurs="0" />
+			<xsd:element name="scannableName" type="xsd:string"
+				maxOccurs="1" minOccurs="1" />
+		</xsd:sequence>
+	</xsd:complexType>
+	
+	<xsd:complexType name="metadataType">
+		<xsd:sequence>
+			<xsd:element name="scannableName" type="xsd:string" maxOccurs="1"
+				minOccurs="0" />
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:element name="OutputParameters">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="shouldValidate" type="xsd:boolean"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="asciiFileName" type="xsd:string"
+					maxOccurs="1" minOccurs="1" />
+				<xsd:element name="asciiDirectory" type="xsd:string"
+					maxOccurs="1" minOccurs="1" />
+				<xsd:element name="nexusDirectory" type="xsd:string"
+					maxOccurs="1" minOccurs="1" />
+				<xsd:element name="extraData" type="xsd:boolean"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="signalActive" type="xsd:boolean"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="metadataActive" type="xsd:boolean"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="beforeScriptName" type="xsd:string"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="afterScriptName" type="xsd:string"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="signal" type="signalType" maxOccurs="unbounded"
+					minOccurs="0" />
+				<xsd:element name="metadata" type="metadataType" maxOccurs="unbounded"
+					minOccurs="0" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	
+
+	<xsd:element name="QEXAFSParameters">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="initialEnergy" type="xsd:double"
+					maxOccurs="1" minOccurs="1" />
+				<xsd:element name="finalEnergy" type="xsd:double"
+					maxOccurs="1" minOccurs="1" />
+				<xsd:element name="speed" type="xsd:double"
+					maxOccurs="1" minOccurs="1" />
+				<xsd:element name="stepSize" type="xsd:double"
+					maxOccurs="1" minOccurs="1" />
+				<xsd:element name="time" type="xsd:double"
+					maxOccurs="1" minOccurs="1" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+</xsd:schema>
+	

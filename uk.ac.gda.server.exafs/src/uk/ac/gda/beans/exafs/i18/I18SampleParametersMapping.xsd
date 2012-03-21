@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<!--
+		N.B. this stuff breaks Xerlin
+		targetNamespace="http://www.dl.ac.uk/GDASchema"
+		xmlns="http://www.dl.ac.uk/GDASchema">
+	-->
+	<xsd:element name="I18SampleParameters">
+		<xsd:complexType>
+			<xsd:sequence>
+				
+				<xsd:element  name="name" type="xsd:string" maxOccurs="1" minOccurs="1"/> 
+	         <xsd:element  name="description" type="xsd:string" maxOccurs="1" minOccurs="0"/>
+	         <xsd:element name="SampleStage" maxOccurs="1" minOccurs="1"> 
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="x" type="xsd:double" maxOccurs="1"
+								minOccurs="1" />
+							<xsd:element name="y" type="xsd:double" maxOccurs="1"
+								minOccurs="1" />
+							<xsd:element name="z" type="xsd:double" maxOccurs="1"
+								minOccurs="1" />
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="Attenuator1" maxOccurs="1"
+					minOccurs="1">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="name" type="xsd:string" maxOccurs="1"
+								minOccurs="1" />
+							<xsd:element name="position" type="xsd:string"
+								maxOccurs="unbounded" minOccurs="1" />
+							<xsd:element name="selectedPosition" type="xsd:string"
+								maxOccurs="1" minOccurs="1" />
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="Attenuator2" maxOccurs="1"
+					minOccurs="1">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="name" type="xsd:string" maxOccurs="1"
+								minOccurs="1" />
+							<xsd:element name="position" type="xsd:string"
+								maxOccurs="unbounded" minOccurs="1" />
+							<xsd:element name="selectedPosition" type="xsd:string"
+								maxOccurs="1" minOccurs="1" />
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+
+
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>
+	

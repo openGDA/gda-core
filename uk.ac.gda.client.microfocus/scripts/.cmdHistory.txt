@@ -1,0 +1,101 @@
+vx.setYScannableName("MicroFocusSampleY")
+vx.setSelectedElement("Pb")
+mfpt.setDataProvider(vf)
+mfpt.setDataProvider(vx)
+vx.getWindowsfromVortexBean()
+vx.getWindowsfromVortexBean([])
+vf.loadData("/home/nv23/workspaces/gdatrunk_sep09ws/configurations/diamond/i18/users/data/2010/sp0/i18-173.nxs")
+vx.loadData("/home/nv23/workspaces/gdatrunk_sep09ws/configurations/diamond/i18/users/data/2010/sp0/i18-173.nxs")
+mfpt.plotElement("Pb")
+from uk.ac.gda.client.microfocus.util import ScalerMFMappableDataProvider
+sc = ScalerMFMappableDataProvider()
+sc.setXScannableName("MicroFocusSampleX")
+sc.setYScannableName("MicroFocusSampleY")
+sc.loadData("/home/nv23/workspaces/gdatrunk_sep09ws/configurations/diamond/i18/users/data/2010/sp0/i18-130.nxs")
+mfpt.setDataProvider(sc)
+mfpt.plotElement("I0")
+sc.setDetectorName("counterTimer01")
+mfpt.plotElement("I0")
+mfpt.setDataProvider(xs)
+mfpt.plotElement("fe")
+mfpt.plotElement("Pb")
+mfpt.plotElement("Mg")
+mfpt.setDataProvider(sc)
+mfpt.plotElement("I0")
+mfpt.plotElement("It")
+mfpt.plotElement("Iref")
+mfpt.plotElement("It")
+mfpt.setDataProvider(vx)
+mfpt.plotElement("Pb")
+from uk.ac.gda.client.microfocus.util import XspressMFMappableDataProvider
+from uk.ac.gda.client.microfocus.util import MicroFocusNexusPlotter
+mfpt = MicroFocusNexusPlotter()
+xs = XspressMFMappableDataProvider()
+xs.setXScannableName("MicroFocusSampleX")
+xs.setYScannableName("MicroFocusSampleY")
+xs.getWindowsfromBean([])
+xs.loadData("/home/nv23/workspaces/gdatrunk_sep09ws/configurations/diamond/i18/users/data/2010/sp0/i18-58.nxs")
+mfpt.setDataProvider(xs)
+mfpt.plotElement("fe")
+mfpt.setPlottingWindowName("Plot 1")
+mfpt.plotElement("fe")
+mfpt.plotElement("Pb")
+xs.loadBean()
+xs.loadData("/home/nv23/workspaces/gdatrunk_sep09ws/configurations/diamond/i18/users/data/2010/sp0/i18-58.nxs")
+mfpt.plotElement("fe")
+scan MicroFocusSampleY 0.0 2.0 2.0 MicroFocusSampleX 0.0 4.0 2.0 counterTimer01 1.0
+reset_namespace
+from uk.ac.gda.client.microfocus.util import XspressMFMappableDataProvider
+from uk.ac.gda.client.microfocus.util import MicroFocusNexusPlotter
+xs = XspressMFMappableDataProvider()
+xs.setXScannableName("MicroFocusSampleX")
+xs.setYScannableName("MicroFocusSampleY")
+mfpt = MicroFocusNexusPlotter()
+xs.loadBean()
+xs.loadData("/home/nv23/workspaces/gdatrunk_sep09ws/configurations/diamond/i18/users/data/2010/sp0/i18-182.nxs")
+mfpt.setPlottingWindowName("Plot 1")
+mfpt.setDataProvider(xs)
+mfpt.plotElement("fe")
+scan MicroFocusSampleY 0.0 2.0 2.0 MicroFocusSampleX 0.0 4.0 2.0 counterTimer01 1.0
+from uk.ac.gda.client.microfocus.util import XspressMFMappableDataProvider
+from uk.ac.gda.client.microfocus.util import MicroFocusNexusPlotter
+xs = XspressMFMappableDataProvider()
+xs.setXScannableName("MicroFocusSampleX")
+xs.setYScannableName("MicroFocusSampleY")
+xs.loadBean()
+mfpt = MicroFocusNexusPlotter()
+mfpt.plotElement("fe")
+mfpt.setDataProvider(xs)
+xs.loadData("/home/nv23/workspaces/gdatrunk_sep09ws/configurations/diamond/i18/users/data/2010/sp0/i18-186.nxs")
+mfpt.setPlottingWindowName("Plot 1")
+mfpt.plotElement("fe")
+from uk.ac.gda.client.microfocus.util import XspressMFMappableDataProvider
+from uk.ac.gda.client.microfocus.util import MicroFocusNexusPlotter
+xs = XspressMFMappableDataProvider()
+xs.setXScannableName("MicroFocusSampleX")
+xs.setYScannableName("MicroFocusSampleY")
+xs.loadBean()
+mfpt = MicroFocusNexusPlotter()
+mfpt.setPlottingWindowName("Plot 1")
+mfpt.setDataProvider(xs)
+xs.loadData("/home/nv23/workspaces/gdatrunk_sep09ws/configurations/diamond/i18/users/data/2010/sp0/i18-186.nxs")
+mfpt.plotElement("fe")
+mfpt.plotElement("Pb")
+scan MicroFocusSampleY 0.0 2.0 2.0 MicroFocusSampleX 0.0 4.0 2.0 counterTimer01 1.0
+reset_namespace
+scan MicroFocusSampleY 0.0 2.0 2.0 MicroFocusSampleX 0.0 4.0 2.0 counterTimer01 1.0
+reset_namespace
+scan MicroFocusSampleY 0.0 2.0 2.0 MicroFocusSampleX 0.0 4.0 2.0 counterTimer01 1.0
+reset_namespace
+map
+reset_namespace
+map
+showElementsList()
+map
+reset_namespace
+finder.find("tfg").stop()
+scan MicroFocusSampleY 0.0 2.0 2.0 MicroFocusSampleX 0.0 4.0 2.0 counterTimer01 1.0
+reset_namespace
+scan MicroFocusSampleY 0.0 2.0 2.0 MicroFocusSampleX 0.0 4.0 2.0 counterTimer01 1.0
+reset_namespace
+scan MicroFocusSampleY 0.0 2.0 2.0 MicroFocusSampleX 0.0 4.0 2.0 counterTimer01 1.0

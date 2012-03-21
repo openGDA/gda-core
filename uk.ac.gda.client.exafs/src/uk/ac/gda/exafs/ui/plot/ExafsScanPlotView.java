@@ -1,0 +1,210 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package uk.ac.gda.exafs.ui.plot;
+
+import gda.rcp.util.ScanDataPointEvent;
+import gda.rcp.views.scan.AbstractCachedScanPlotView;
+import gda.scan.IScanDataPoint;
+import gda.util.Element;
+
+import java.util.ArrayList;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
+import uk.ac.diamond.scisoft.analysis.rcp.views.plot.PlotData;
+import uk.ac.diamond.scisoft.spectroscopy.fitting.XafsFittingUtils;
+import uk.ac.gda.beans.exafs.QEXAFSParameters;
+import uk.ac.gda.beans.exafs.XanesScanParameters;
+import uk.ac.gda.beans.exafs.XasScanParameters;
+import uk.ac.gda.beans.exafs.XesScanParameters;
+import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
+import uk.ac.gda.client.experimentdefinition.IExperimentObject;
+import uk.ac.gda.exafs.ui.data.ScanObject;
+
+/**
+ * This class assumes that the point with energy less than A are to be included in the pre-edge.
+ */
+class ExafsScanPlotView extends AbstractCachedScanPlotView {
+
+	private static final Logger logger = LoggerFactory.getLogger(ExafsScanPlotView.class);
+
+	/**
+	 * 
+	 */
+	public static final String ID = "gda.rcp.views.scan.ExafsScanPlotView"; //$NON-NLS-1$
+
+	protected double a = Double.NaN;
+
+	protected ArrayList<Double> procY;
+
+	protected final XafsFittingUtils xafsFittingUtils = new XafsFittingUtils();
+
+	/**
+	 * 
+	 */
+	public ExafsScanPlotView() {
+		super();
+		this.procY = new ArrayList<Double>(89);
+	}
+
+	@Override
+	public void scanDataPointChanged(ScanDataPointEvent e) {
+
+		try {
+			ScanObject curScan = ((ScanObject) ExperimentFactory.getScanController().getCurrentScan());
+			if (curScan != null && !curScan.isMicroFocus()) {
+				super.scanDataPointChanged(e);
+			}
+
+		} catch (Exception exp) {
+			logger.error("Unable to determine the scan type", exp);
+		}
+
+	}
+
+	@Override
+	public void scanStopped() {
+		try {
+			ScanObject curScan = ((ScanObject) ExperimentFactory.getScanController().getCurrentScan());
+			if (curScan != null && !curScan.isMicroFocus()) {
+				super.scanStopped();
+				a = Double.NaN;
+			}
+		} catch (Exception e) {
+			logger.error("Unable to determine the scan type", e);
+		}
+	}
+
+	@Override
+	public void scanStarted() {
+		try {
+			ScanObject curScan = ((ScanObject) ExperimentFactory.getScanController().getCurrentScan());
+			if (curScan != null && !curScan.isMicroFocus()) {
+				super.scanStarted();
+				calculateA();
+			}
+		} catch (Exception e) {
+			logger.error("Unable to determine the scan type", e);
+		}
+	}
+
+	protected boolean calculateA() {
+
+		if (!Double.isNaN(a))
+			return true;
+		try {
+			IExperimentObject currentScan = ExperimentFactory.getScanController().getCurrentScan();
+			if (currentScan == null)
+				return false; // Leave a as last calculated
+
+			final Object params = ((ScanObject) currentScan).getScanParameters();
+			if (params instanceof XasScanParameters) {
+				final XasScanParameters scanParams = (XasScanParameters) params;
+				final Double A = scanParams.getA();
+				if (A == null) {
+					final Element element = Element.getElement(scanParams.getElement());
+					final double coreHole = element.getCoreHole(scanParams.getEdge());
+					final double edgeEn = (scanParams.getEdgeEnergy() == null) ? element.getEdgeEnergy(scanParams
+							.getEdge()) : scanParams.getEdgeEnergy();
+					this.a = edgeEn - (scanParams.getGaf1() * coreHole);
+				} else {
+					this.a = A;
+				}
+			} else if (params instanceof XanesScanParameters) {
+				this.a = ((XanesScanParameters) params).getRegions().get(0).getEnergy();
+			} else if (params instanceof XesScanParameters) {
+				this.a = ((XesScanParameters) params).getMonoInitialEnergy();
+			} else if (params instanceof QEXAFSParameters) {
+				this.a = ((QEXAFSParameters) params).getInitialEnergy();
+			} else {
+				throw new Exception("Undefined scan parameters encountered");
+			}
+		} catch (Exception e) {
+			logger.error("Cannot get scan parameters from " + ExperimentFactory.getScanController().getCurrentScan(), e);
+			this.a = 10000d;
+		}
+		return true;
+	}
+
+	@Override
+	protected String getCurrentPlotName(int scanNumber) {
+		return "Scan " + scanNumber + " [EXAFS]";
+	}
+
+	@Override
+	protected void plotPointsFromService() throws Exception {
+
+		if (!calculateA())
+			return;
+		procY.clear();
+
+		super.plotPointsFromService();
+	}
+
+	@Override
+	protected IPlotData getY(IScanDataPoint... points) {
+
+		calculateA();
+		if (cachedX == null)
+			cachedX = new ArrayList<Double>(89);
+		if (cachedY == null)
+			cachedY = new ArrayList<Double>(89);
+		for (int i = 0; i < points.length; i++) {
+			final IScanDataPoint point = points[i];
+			final double[] i0anIt = ScanDataPointUtils.getI0andIt(point);
+
+			final double i0 = i0anIt[0];
+			final double it = i0anIt[1];
+			final double ln = Math.log(i0 / it);
+
+			if (Double.isNaN(ln))
+				continue;
+			if (Double.isNaN(point.getAllValuesAsDoubles()[0]))
+				continue;
+
+			cachedY.add(ln);
+			cachedX.add(point.getAllValuesAsDoubles()[0]);
+		}
+
+		return new PlotData(getYAxis(), cachedY);
+	}
+
+	@Override
+	protected IPlotData getX(IScanDataPoint... points) {
+		return new PlotData(getXAxis(), cachedX);
+	}
+
+	@Override
+	protected String getXAxis() {
+		return "Energy (eV)";
+	}
+
+	@Override
+	protected String getYAxis() {
+		return "EXAFS";
+	}
+
+	@Override
+	protected String getGraphTitle() {
+		return "EXAFS";
+	}
+
+}

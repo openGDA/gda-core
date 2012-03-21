@@ -1,0 +1,136 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+	<xsd:element name="SampleParameters">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="shouldValidate" type="xsd:boolean"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="name" type="xsd:string" maxOccurs="1"
+					minOccurs="1" />
+				<xsd:element name="description" type="xsd:string"
+					maxOccurs="unbounded" minOccurs="0" />
+				<xsd:element name="sampleWheelPosition" type="xsd:string"
+					maxOccurs="1" minOccurs="0" />
+
+				<xsd:element name="sampleEnvironment" maxOccurs="1"
+					minOccurs="1">
+					<xsd:simpleType>
+						<xsd:restriction base="xsd:string">
+							<xsd:enumeration value="None" />
+							<xsd:enumeration value="Room Temperature" />
+							<xsd:enumeration value="Cryostat" />
+							<xsd:enumeration value="Furnace" />
+							<xsd:enumeration value="Custom (XYZ)" />
+							<xsd:enumeration value="Custom" />
+						</xsd:restriction>
+					</xsd:simpleType>
+				</xsd:element>
+
+				<xsd:element name="roomTemperature" maxOccurs="1" minOccurs="0">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="x" type="xsd:string" maxOccurs="1"
+								minOccurs="1" />
+							<xsd:element name="y" type="xsd:string" maxOccurs="1"
+								minOccurs="1" />
+							<xsd:element name="z" type="xsd:string" maxOccurs="1"
+								minOccurs="1" />
+							<xsd:element name="rotation" type="xsd:string"
+								maxOccurs="1" minOccurs="1" />
+							<xsd:element name="roll" type="xsd:string" maxOccurs="1"
+								minOccurs="1" />
+							<xsd:element name="yaw" type="xsd:string" maxOccurs="1"
+								minOccurs="1" />
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+
+				<xsd:element name="cryostat" maxOccurs="1" minOccurs="0">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="temperature" type="xsd:string"
+								maxOccurs="1" minOccurs="1" />
+							<xsd:element name="tolerance" type="xsd:double"
+								maxOccurs="1" minOccurs="1" />
+							<xsd:element name="time" type="xsd:double" maxOccurs="1"
+								minOccurs="1" />
+							<xsd:element name="heaterRange" type="xsd:integer"
+								maxOccurs="1" minOccurs="1" />
+							<xsd:element name="profileType" type="xsd:string"
+								maxOccurs="1" minOccurs="1" />
+							<xsd:element name="p" type="xsd:double" maxOccurs="1"
+								minOccurs="0" />
+							<xsd:element name="i" type="xsd:double" maxOccurs="1"
+								minOccurs="0" />
+							<xsd:element name="d" type="xsd:double" maxOccurs="1"
+								minOccurs="0" />
+							<xsd:element name="ramp" type="xsd:double" maxOccurs="1"
+								minOccurs="0" />
+							<xsd:element name="sampleHolder" type="xsd:string"
+								maxOccurs="1" minOccurs="1" />
+							<xsd:element name="sampleNumber" type="xsd:string"
+								maxOccurs="1" minOccurs="1" />
+							<xsd:element name="position" type="xsd:string"
+								maxOccurs="1" minOccurs="1" />
+							<xsd:element name="finePosition" type="xsd:string"
+								maxOccurs="1" minOccurs="1" />
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+
+				<xsd:element name="furnace" maxOccurs="1" minOccurs="0">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="temperature" type="xsd:string"
+								maxOccurs="1" minOccurs="1" />
+							<xsd:element name="tolerance" type="xsd:double"
+								maxOccurs="1" minOccurs="1" />
+							<xsd:element name="time" type="xsd:double" maxOccurs="1"
+								minOccurs="1" />
+							<xsd:element name="x" type="xsd:string" maxOccurs="1"
+								minOccurs="1" />
+							<xsd:element name="y" type="xsd:string" maxOccurs="1"
+								minOccurs="1" />
+							<xsd:element name="z" type="xsd:string" maxOccurs="1"
+								minOccurs="1" />
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+
+
+				<xsd:element name="custom_xyz" maxOccurs="unbounded"
+					minOccurs="0">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="deviceName" type="xsd:string"
+								maxOccurs="1" minOccurs="1" />
+							<xsd:element name="x" type="xsd:double" maxOccurs="1"
+								minOccurs="1" />
+							<xsd:element name="y" type="xsd:double" maxOccurs="1"
+								minOccurs="1" />
+							<xsd:element name="z" type="xsd:double" maxOccurs="1"
+								minOccurs="1" />
+							<xsd:element name="value" type="xsd:double"
+								maxOccurs="1" minOccurs="1" />
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+
+				<xsd:element name="custom" maxOccurs="unbounded"
+					minOccurs="0">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="deviceName" type="xsd:string"
+								maxOccurs="1" minOccurs="1" />
+							<xsd:element name="value" type="xsd:double"
+								maxOccurs="1" minOccurs="1" />
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+
+</xsd:schema>

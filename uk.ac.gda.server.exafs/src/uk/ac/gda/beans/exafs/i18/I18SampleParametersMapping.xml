@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+	<class name="uk.ac.gda.beans.exafs.i18.I18SampleParameters">
+		<map-to xml="I18SampleParameters" />
+		<field name="name" type="string"> 
+ 			<bind-xml name="name" node="element" /> 
+ 		</field> 
+ 		<field name="description" type="string"> 
+ 			<bind-xml name="description" node="element" /> 
+ 		</field> 
+		<field name="sampleStageParameters" type="uk.ac.gda.beans.exafs.i18.SampleStageParameters">
+			<bind-xml name="SampleStage" node="element" />
+		</field>
+		<field name="attenuatorParameter1" type="uk.ac.gda.beans.exafs.i18.AttenuatorParameters">
+			<bind-xml name="Attenuator1" node="element" />
+		</field>
+		<field name="attenuatorParameter2" type="uk.ac.gda.beans.exafs.i18.AttenuatorParameters">
+			<bind-xml name="Attenuator2" node="element" />
+		</field>
+	</class>
+	<class name="uk.ac.gda.beans.exafs.i18.SampleStageParameters">
+		<map-to xml="SampleStage" />
+		<field name="x" type="double">
+			<bind-xml name="x" node="element" />
+		</field>
+		<field name="y" type="double">
+			<bind-xml name="y" node="element" />
+		</field>
+		<field name="z" type="double">
+			<bind-xml name="z" node="element" />
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.i18.AttenuatorParameters">
+		<map-to xml="Attenuator" />
+		<field name="name" type="string">
+			<bind-xml name="name" node="element" />
+		</field>
+		<field name="position" type="string"
+		collection="collection" set-method="addPosition" get-method="getPosition">
+			<bind-xml name="position" node="element" />
+		</field>
+		<field name="selectedPosition" type="string">
+			<bind-xml name="selectedPosition" node="element" />
+		</field>
+	</class>
+
+</mapping>
