@@ -25,7 +25,7 @@
                 <path refid="libs.jars.path" />
                 <pathelement location="${GDA-plugin.basedir}/bin" />
                 <pathelement location="${workspace.loc}/plugins/uk.ac.gda.api/bin" />
-                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.server.exafs/bin" />
+                <pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.server.exafs/bin" />
                 <pathelement location="${workspace.loc}/plugins/uk.ac.gda.core/classes/main" />
                 <pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
                 <pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/bin" />

@@ -30,7 +30,7 @@
                 <pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/jars/*" />
                 <pathelement location="${workspace.git.loc}/scisoft/scisoft-core.git/uk.ac.diamond.scisoft.analysis/bin" />
                 <pathelement location="${workspace.git.loc}/scisoft/scisoft-core.git/uk.ac.diamond.scisoft.deprecated/bin" />
-                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.server.exafs/bin" />
+                <pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.server.exafs/bin" />
                 <pathelement location="${workspace.loc}/tp/plugins/*" />
             </classpath>
             <batchtest todir="@{report.dir}">
