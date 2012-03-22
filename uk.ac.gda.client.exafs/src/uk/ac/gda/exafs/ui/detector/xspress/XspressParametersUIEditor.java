@@ -145,13 +145,13 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	private boolean isAutoSave;
 
 	Label acquireFileLabel;
-	
+
 	private BooleanWrapper xspressOnlyShowFF;
 	private BooleanWrapper xspressShowDTRawValues;
 	private BooleanWrapper saveRawSpectrum;
-	
+
 	private SelectionAdapter xspressOptionsListener;
-	
+
 	/**
 	 * @param path
 	 * @param mappingURL
@@ -249,7 +249,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		grpAcquire.setLayout(gridLayout);
 
 		Button loadBtn = new Button(grpAcquire, SWT.NONE);
-		loadBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class,  "/folder.png"));
+		loadBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/folder.png"));
 		loadBtn.setText("Load Saved mca");
 		loadBtn.addListener(SWT.Selection, new Listener() {
 			@Override
@@ -269,7 +269,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		acquire.setLayout(gridLayoutAcq);
 
 		Button acquireBtn = new Button(acquire, SWT.NONE);
-		acquireBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class,  "/application_side_expand.png"));
+		acquireBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/application_side_expand.png"));
 		acquireBtn.setText("Acquire");
 		acquireBtn.addListener(SWT.Selection, new Listener() {
 			@Override
@@ -381,7 +381,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 
 		sashPlotForm.setWeights(new int[] { 30, 74 });
 
-
 		configureUI();
 	}
 
@@ -406,12 +405,13 @@ public class XspressParametersUIEditor extends DetectorEditor {
 					.setToolTipText("Add the raw scaler values used in deadtime (DT) calculations to ascii output");
 			xspressShowDTRawValues.setValue(Boolean.FALSE);
 			addXspressOptionsListener(xspressShowDTRawValues);
-			
+
 			this.saveRawSpectrum = new BooleanWrapper(xspressParametersGroup, SWT.NONE);
 			saveRawSpectrum.setText("Save raw spectrum to file");
 			saveRawSpectrum.setValue(false);
 		}
 	}
+
 	private void addXspressOptionsListener(BooleanWrapper booleanwrapper) {
 
 		if (xspressOptionsListener == null) {
@@ -431,8 +431,8 @@ public class XspressParametersUIEditor extends DetectorEditor {
 						IDetectorParameters params = ob.getDetectorParameters();
 						if (params.getExperimentType().equalsIgnoreCase(DetectorParameters.TRANSMISSION_TYPE)) {
 							showWarning();
-						} else if (params.getExperimentType().equalsIgnoreCase(DetectorParameters.FLUORESCENCE_TYPE)){
-							if (!params.getFluorescenceParameters().getDetectorType().equalsIgnoreCase("Germanium")){
+						} else if (params.getExperimentType().equalsIgnoreCase(DetectorParameters.FLUORESCENCE_TYPE)) {
+							if (!params.getFluorescenceParameters().getDetectorType().equalsIgnoreCase("Germanium")) {
 								showWarning();
 							}
 						}
@@ -457,6 +457,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			}
 		};
 	}
+
 	private void updateResGradeVisibility() {
 		GridUtils.startMultiLayout(parentComposite);
 		try {
@@ -589,12 +590,10 @@ public class XspressParametersUIEditor extends DetectorEditor {
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-
 		if (!(Boolean) showIndividualElements.getValue()) {
 			applyToAll(false);
 		}
 		super.doSave(monitor);
-
 	}
 
 	private ListEditorUIAdapter listEditorUI = new ListEditorUIAdapter() {
@@ -629,15 +628,12 @@ public class XspressParametersUIEditor extends DetectorEditor {
 
 	@Override
 	public void dispose() {
-		if(!applyToAllButton.isDisposed())
+		if (!applyToAllButton.isDisposed())
 			applyToAllButton.removeSelectionListener(applyToAllListener);
-		if(!super.isDisposed())
+		if (!super.isDisposed())
 			super.dispose();
 	}
 
-	/**
-	 * @return Returns the resGrade.
-	 */
 	public ComboWrapper getResGrade() {
 		return resGrade;
 	}
@@ -703,6 +699,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			// Int array above is [element][grade (1, 2 or all 16)][mca channel]
 
 			getData().setValue(ElementCountsData.getDataFor(data));
+			this.dirtyContainer.setDirty(true);
 			detectorData = getData(data);
 			getSite().getShell().getDisplay().asyncExec(new Runnable() {
 				@Override
@@ -727,9 +724,15 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			}
 
 		} catch (Exception e) {
+			getSite().getShell().getDisplay().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					MessageDialog.openWarning(getSite().getShell(), "Cannot read out detector data",
+							"Problem acquiring data. See log for details.\n(Do you hold the baton?)");
+				}
+			});
 			logger.error("Cannot read out detector data.", e);
 			return;
-
 		} finally {
 			try {
 				xsDetector.setResGrade(resGrade_orig);
@@ -918,7 +921,14 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	public BooleanWrapper getXspressShowDTRawValues() {
 		return xspressShowDTRawValues;
 	}
+
 	public BooleanWrapper getSaveRawSpectrum() {
 		return saveRawSpectrum;
+	}
+
+	@Override
+	protected String getDataXMLName() {
+		String varDir = LocalProperties.get(LocalProperties.GDA_VAR_DIR);
+		return varDir + "/xspress_editor_data.xml";
 	}
 }

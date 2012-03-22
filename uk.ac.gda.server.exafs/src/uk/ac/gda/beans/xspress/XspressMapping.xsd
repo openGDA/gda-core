@@ -21,8 +21,6 @@
 					maxOccurs="1" minOccurs="0" />
 				<xsd:element name="DetectorElement" maxOccurs="unbounded"
 					minOccurs="1" />
-				<xsd:element name="ElementCountsData" maxOccurs="unbounded"
-					minOccurs="0" />
 				<xsd:element name="xspressOnlyShowFF" type="xsd:boolean"
 					maxOccurs="1" minOccurs="0" />
 				<xsd:element name="xspressShowDTRawValues" type="xsd:boolean"
@@ -41,14 +39,6 @@
 		</xsd:complexType>
 	</xsd:element>
 	
-	<xsd:element name="ElementCountsData">
-		<xsd:complexType>
-			<xsd:sequence>
-			    <xsd:element name="data" type="xsd:string" maxOccurs="1" minOccurs="1"/>
-			</xsd:sequence>
-		</xsd:complexType>
-	</xsd:element>
-
 	<xsd:element name="DetectorElement">
 		<xsd:complexType>
 			<xsd:sequence>

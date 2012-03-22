@@ -26,8 +26,10 @@ import gda.jython.scriptcontroller.ScriptExecutor;
 import gda.jython.scriptcontroller.corba.impl.ScriptcontrollerAdapter;
 import gda.observable.IObserver;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
@@ -41,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -120,7 +123,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	// NOTE: Grades often not applicable in which case that dimension is size 1.
 
 	// Used for saving data to XML
-	private DataWrapper data;
+	protected DataWrapper data;
 
 	// Upload widgets
 	private Action uploadAction;
@@ -204,12 +207,16 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	 * Called when acquire finished in display thread.
 	 */
 	public abstract void acquireFinished();
-
+	
+	/**
+	 * @return - String- the full path of the xml where the acquired data is persisted.
+	 */
+	protected abstract String getDataXMLName();
 
 	@Override
 	public void createPartControl(Composite parent) {
 
-		this.data = new DataWrapper();
+		this.data = readStoredData();
 
 		// parent.setLayout(new GridLayout(1,true));
 		this.sashPlotForm = createSashPlot(parent);
@@ -245,6 +252,12 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 				});
 			}
 		});
+	}
+	
+	@Override
+	public void doSave(IProgressMonitor monitor) {
+		writeStoredData(monitor);
+		super.doSave(monitor);
 	}
 
 	/**
@@ -857,10 +870,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		});
 	}
 
-	/**
-	 * @return Returns the data.
-	 */
-	public DataWrapper getData() {
+	protected DataWrapper getData() {
 		return data;
 	}
 
@@ -1035,6 +1045,50 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		}
 		return detectorListComposite.getDetectorElementComposite();
 	}
+	
+	protected DataWrapper readStoredData() {
+		DataWrapper newwrapper = new DataWrapper();
 
+		try {
+			File dataFile = new File(getDataXMLName());
+			if (!dataFile.exists()) {
+				return new DataWrapper();
+			}
+			BufferedReader in = new BufferedReader(new FileReader(dataFile));
+			ElementCountsData[] elements = new ElementCountsData[0];
+			String strLine;
+			while ((strLine = in.readLine()) != null) {
+				// Print the content on the console
+				ElementCountsData newData = new ElementCountsData();
+				newData.setDataString(strLine);
+				elements = (ElementCountsData[]) ArrayUtils.add(elements, newData);
+			}
+			// Close the input stream
+			in.close();
+
+			newwrapper.setValue(elements);
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			logger.error("TODO put description of error here", e);
+		}
+
+		return newwrapper;
+	}
+
+	protected void writeStoredData(@SuppressWarnings("unused") IProgressMonitor monitor) {
+		try {
+			BufferedWriter out = new BufferedWriter(new FileWriter(getDataXMLName()));
+			ElementCountsData[] elements = (ElementCountsData[]) this.data.getValue();
+			for (int i = 0; i < elements.length; i++) {
+				out.write(elements[i].getDataString());
+				out.write("\n");
+			}
+			out.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			logger.error("TODO put description of error here", e);
+		}
+	}
 
 }

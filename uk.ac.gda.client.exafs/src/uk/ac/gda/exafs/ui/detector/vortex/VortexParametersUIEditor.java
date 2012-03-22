@@ -38,6 +38,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -378,6 +379,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 
 			final int[][][] data3d = get3DArray(data);
 			getData().setValue(ElementCountsData.getDataFor(data3d));
+			this.dirtyContainer.setDirty(true);
 			detectorData = getData(data3d);
 
 			if (monitor != null)
@@ -401,7 +403,15 @@ public class VortexParametersUIEditor extends DetectorEditor {
 			}
 
 		} catch (DeviceException e) {
-			logger.error("Internal errror cannot get xMap data from Vortex detector.", e);
+			getSite().getShell().getDisplay().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					MessageDialog.openWarning(getSite().getShell(), "Cannot read out detector data",
+							"Problem acquiring data. See log for details.\n(Do you hold the baton?)");
+				}
+			});
+
+			logger.error("Cannot get xMap data from Vortex detector.", e);
 			return;
 		} catch (IOException e) {
 			logger.error("Unable to save the acquired data to file ", e);
@@ -595,4 +605,11 @@ public class VortexParametersUIEditor extends DetectorEditor {
 	public BooleanWrapper getSaveRawSpectrum() {
 		return saveRawSpectrum;
 	}
+	
+	@Override
+	protected String getDataXMLName() {
+		String varDir = LocalProperties.get(LocalProperties.GDA_VAR_DIR);
+		return varDir + "/vortex_editor_data.xml";
+	}
+
 }
