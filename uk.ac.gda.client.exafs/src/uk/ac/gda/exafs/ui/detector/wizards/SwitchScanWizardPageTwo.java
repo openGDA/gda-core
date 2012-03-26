@@ -94,8 +94,6 @@ public class SwitchScanWizardPageTwo extends WizardPage {
 					if (file instanceof String) {
 						final String fileType = (String) file;
 						file = ACTIONS.get(fileType).getXmlCommandHander().doCopy(selected.getRunFileManager().getContainingFolder());
-					} else {
-						file = file;
 					}
 					newScanFile = (IFile) file;
 				}
@@ -147,9 +145,7 @@ public class SwitchScanWizardPageTwo extends WizardPage {
 				if (file instanceof String) {
 					final String fileType = (String) file;
 					file = ACTIONS.get(fileType).getXmlCommandHander().doCopy(selected.getRunFileManager().getContainingFolder());
-				} else {
-					file = file;
-				}
+				} 
 				newSampleFile = (IFile) file;
 			}
 		});
@@ -166,8 +162,6 @@ public class SwitchScanWizardPageTwo extends WizardPage {
 				if (file instanceof String) {
 					final String fileType = (String) file;
 					file = ACTIONS.get(fileType).getXmlCommandHander().doCopy(selected.getRunFileManager().getContainingFolder());
-				} else {
-					file = file;
 				}
 				newDetectorFile = (IFile) file;
 			}
@@ -186,8 +180,6 @@ public class SwitchScanWizardPageTwo extends WizardPage {
 				if (file instanceof String) {
 					final String fileType = (String) file;
 					file = ACTIONS.get(fileType).getXmlCommandHander().doCopy(selected.getRunFileManager().getContainingFolder());
-				} else {
-					file = file;
 				}
 				newOutputFile = (IFile) file;
 			}
@@ -253,6 +245,10 @@ public class SwitchScanWizardPageTwo extends WizardPage {
 				if (type.getName().equals("XAS Scan"))
 					beanTypes.add(type);
 
+			if (editorType.equals("xes"))
+				if (type.getName().equals("XES Scan"))
+					beanTypes.add(type);
+
 			if (editorType.equals("qexafs"))
 				if (type.getName().equals("QEXAFS Scan"))
 					beanTypes.add(type);
@@ -261,12 +257,16 @@ public class SwitchScanWizardPageTwo extends WizardPage {
 				if (type.getName().equals("XANES Scan"))
 					beanTypes.add(type);
 
+			if (editorType.equals("microfocus"))
+				if (type.getName().equals("Microfocus Scan"))
+					beanTypes.add(type);
+
 			if (editorType.equals("detector"))
 				if (type.getName().equals("Detector"))
 					beanTypes.add(type);
 
 			if (editorType.equals("sample"))
-				if (type.getName().equals("B18 Sample"))
+				if (type.getName().equals("B18 Sample") || type.getName().equals("I18 Sample") || type.getName().equals("I20 Sample") )
 					beanTypes.add(type);
 
 			if (editorType.equals("output"))

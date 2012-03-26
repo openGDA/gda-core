@@ -18,6 +18,10 @@
 
 package uk.ac.gda.exafs.ui.detector.wizards;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.wizard.WizardPage;
@@ -28,6 +32,11 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
+import uk.ac.gda.beans.IRichBean;
+import uk.ac.gda.beans.exafs.QEXAFSParameters;
+import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
+import uk.ac.gda.exafs.ui.data.ScanObjectManager;
+
 public class SwitchScanWizardPageOne extends WizardPage {
 
 	Combo expType;
@@ -36,6 +45,33 @@ public class SwitchScanWizardPageOne extends WizardPage {
 	
 	SwitchScanWizardPageOne() {
 		super("Choose scan type");
+	}
+	
+	private String[] getExperimentTypes(){
+		
+		if (ScanObjectManager.isXESOnlyMode()) {
+			return new String[]{"Xes"};
+		} 
+		
+		String[] types = new String[]{ "Xas", "Xanes"};
+		
+		IConfigurationElement[] config = Platform.getExtensionRegistry().getConfigurationElementsFor(
+				"uk.ac.common.beans.factory");
+		for (IConfigurationElement element : config) {
+			if (element.getName().equals("bean")) {
+				try {
+					IRichBean thisbean = (IRichBean) element.createExecutableExtension("class");
+					if (thisbean instanceof MicroFocusScanParameters){
+						types = (String[]) ArrayUtils.add(types, "Microfocus");
+					} else if (thisbean instanceof QEXAFSParameters){
+						types = (String[]) ArrayUtils.add(types, "Qexafs");
+					}
+				} catch (CoreException e) {
+					// ignore
+				}
+			}
+		}
+		return types;
 	}
 
 	@Override
@@ -48,8 +84,9 @@ public class SwitchScanWizardPageOne extends WizardPage {
 		
 		lblChooseType = new Label(selectTypeArea, 0);
 		lblChooseType.setText("Please choose an experiment type");
+		
+		String[] scanTypes = getExperimentTypes();
 
-		String[] scanTypes = { "Xas", "Xanes", "Qexafs" };
 		expType = new Combo(selectTypeArea, 0);
 		expType.setItems(scanTypes);
 		expType.addSelectionListener(new SelectionListener(){
