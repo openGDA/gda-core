@@ -18,7 +18,6 @@
 
 package uk.ac.gda.exafs.ui.actions;
 
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -43,28 +42,31 @@ import uk.ac.gda.pydev.extension.ui.perspective.JythonPerspective;
 /**
  * This class is here because Sofia requested action exist to switch between perspective groups.
  */
-public class DataCollectionModeHandler extends AbstractHandler implements IWorkbenchWindowActionDelegate, IEditorActionDelegate   {
+public class DataCollectionModeHandler extends AbstractHandler implements IWorkbenchWindowActionDelegate,
+		IEditorActionDelegate {
 
 	private static final Logger logger = LoggerFactory.getLogger(DataCollectionModeHandler.class);
-	
+
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
-		return doDataCollectionMode();		
+		return doDataCollectionMode();
 	}
 
 	/**
 	 * Called by testing.
+	 * 
 	 * @return boolean
 	 */
 	public static boolean doDataCollectionMode() {
-		
+
 		IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		IPerspectiveDescriptor[] descriptors = win.getActivePage().getSortedPerspectives();
 
 		try {
 			PlatformUI.getWorkbench().showPerspective(JythonPerspective.ID, win);
-			PlatformUI.getWorkbench().showPerspective(DataExplorationPerspective.ID, win);
+			PlatformUI.getWorkbench().showPerspective(uk.ac.diamond.scisoft.analysis.rcp.DataExplorationPerspective.ID,
+					win);
 			PlatformUI.getWorkbench().showPerspective(PlottingPerspective.ID, win);
 			PlatformUI.getWorkbench().showPerspective(ExperimentPerspective.ID, win);
 		} catch (WorkbenchException e) {
@@ -73,8 +75,9 @@ public class DataCollectionModeHandler extends AbstractHandler implements IWorkb
 		}
 
 		for (IPerspectiveDescriptor desc : descriptors) {
-			if (!(desc.getId().equals(JythonPerspective.ID) || desc.getId().equals(DataExplorationPerspective.ID)
-					|| desc.getId().equals(PlottingPerspective.ID) | desc.getId().equals(ExperimentPerspective.ID))) {
+			if (!(desc.getId().equals(JythonPerspective.ID)
+					|| desc.getId().equals(uk.ac.diamond.scisoft.analysis.rcp.DataExplorationPerspective.ID) || desc
+					.getId().equals(PlottingPerspective.ID) | desc.getId().equals(ExperimentPerspective.ID))) {
 				win.getActivePage().closePerspective(desc, true, true);
 			}
 		}
@@ -85,9 +88,8 @@ public class DataCollectionModeHandler extends AbstractHandler implements IWorkb
 	@Override
 	public void init(IWorkbenchWindow window) {
 		// TODO Auto-generated method stub
-		
-	}
 
+	}
 
 	@Override
 	public void run(IAction action) {
@@ -101,14 +103,13 @@ public class DataCollectionModeHandler extends AbstractHandler implements IWorkb
 	@Override
 	public void selectionChanged(IAction action, ISelection selection) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setActiveEditor(IAction action, IEditorPart targetEditor) {
 		// TODO Auto-generated method stub
-		
-	}
 
+	}
 
 }
