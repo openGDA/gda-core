@@ -18,6 +18,7 @@
 
 package uk.ac.gda.common.rcp;
 
+import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -71,6 +72,14 @@ public class CommonRCPActivator extends AbstractUIPlugin {
 			return window.getShell();
 		}
 		return null;
+	}
+	
+	@Override
+	protected void initializeImageRegistry(ImageRegistry reg) {
+		super.initializeImageRegistry(reg);
+		for (String imgPath : ImageConstants.IMAGES) {
+			reg.put(imgPath, imageDescriptorFromPlugin(PLUGIN_ID, imgPath));
+		}
 	}
 
 
