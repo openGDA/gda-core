@@ -58,7 +58,9 @@ import uk.ac.gda.common.rcp.CommonRCPActivator;
 import uk.ac.gda.common.rcp.ImageConstants;
 
 /**
- * Composite that works like a stepper
+ * Composite that works like a stepper. This stepper displays a slider which displays label underneath it. Also displays
+ * a stepper text box which can used along with the slider. For usage, please refer to
+ * "uk.ac.gda.ui.components.StepperTest"
  * 
  * @author rsr31645
  */
