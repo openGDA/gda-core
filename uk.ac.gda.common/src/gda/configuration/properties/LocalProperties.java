@@ -231,6 +231,11 @@ public class LocalProperties {
 	public static final String GDA_SCAN_MULTITHREADED_SCANDATA_POINT_PIPElINE_POINTS_TO_COMPUTE_SIMULTANEOUSELY = "gda.scan.multithreadedScanDataPointPipeline.pointsToComputeSimultaneousely";
 
 	
+	/**
+	 * Name of the numtracker used to derive the scan id. If not set then the scan id is not set and relies on filewriters to set it.
+	 */
+	public static final String GDA_SCANBASE_NUMTRACKER_NAME = "gda.scanbase.numtracker.name";
+	
 	// create Jakarta properties handler object
 	// README - The JakartaPropertiesConfig class automatically picks up
 	// system
