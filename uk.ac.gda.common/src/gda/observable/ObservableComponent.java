@@ -42,6 +42,8 @@ public class ObservableComponent implements IObservable, IIsBeingObserved {
 	 */
 	@Override
 	public void addIObserver(IObserver anIObserver) {
+		if( anIObserver  == null)
+			return;
 		synchronized(myIObservers){
 			if (!myIObservers.contains(anIObserver))
 				myIObservers.addElement(anIObserver);
@@ -57,6 +59,8 @@ public class ObservableComponent implements IObservable, IIsBeingObserved {
 	 */
 	@Override
 	public void deleteIObserver(IObserver anIObserver) {
+		if( anIObserver  == null)
+			return;
 		synchronized(myIObservers){
 			myIObservers.removeElement(anIObserver);
 		}
