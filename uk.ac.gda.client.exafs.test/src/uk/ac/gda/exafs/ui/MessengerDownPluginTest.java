@@ -25,6 +25,7 @@ import gda.jython.IScanDataPointProvider;
 import gda.jython.InterfaceProvider;
 import gda.rcp.GDAClientActivator;
 import gda.rcp.util.UIScanDataPointEventService;
+import gda.scan.IScanDataPoint;
 
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -92,19 +93,18 @@ public class MessengerDownPluginTest implements IScanDataPointProvider {
 
 	@Override
 	public void addIScanDataPointObserver(IScanDataPointObserver anObserver) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void deleteIScanDataPointObserver(IScanDataPointObserver anObserver) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void update(Object dataSource, Object data) {
-		// TODO Auto-generated method stub
-		
+	}
+
+	@Override
+	public IScanDataPoint getLastScanDataPoint() {
+		return null;
 	}
 }
