@@ -206,6 +206,10 @@ public class Stepper extends Canvas {
 	public Stepper(Composite parent, int style, boolean showActualValueLabel) {
 		this(parent, style, showActualValueLabel, null);
 	}
+	
+	public Stepper(Composite parent, int style, Image sliderImage) {
+		this(parent, style, true, sliderImage);
+	}
 
 	public Stepper(Composite parent, int style, boolean showActualValueLabel, Image sliderImage) {
 		super(parent, style);
