@@ -225,7 +225,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 		acquireFileLabel.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 
 		openDialog = new FileDialog(parent.getShell(), SWT.OPEN);
-		openDialog.setFilterPath(LocalProperties.get("gda.data.scan.datawriter.datadir"));
+		openDialog.setFilterPath(LocalProperties.get(LocalProperties.GDA_DATAWRITER_DIR));
 
 		Composite composite_1 = new Composite(left, SWT.NONE);
 		composite_1.setLayout(new GridLayout(2, false));
