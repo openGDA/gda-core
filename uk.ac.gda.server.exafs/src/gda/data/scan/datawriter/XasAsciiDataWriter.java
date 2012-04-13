@@ -125,7 +125,7 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 
 		try {
 			if (firstData) {
-				this.setupFile(dataPoint);
+				this.setupFile();
 				
 				// write out the command if its not too long
 				if (!dataPoint.getCommand().contains("org.python.core")){

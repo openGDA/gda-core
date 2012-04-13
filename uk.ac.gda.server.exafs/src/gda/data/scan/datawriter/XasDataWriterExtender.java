@@ -120,7 +120,7 @@ public class XasDataWriterExtender extends AsciiWriterExtender {
 				final String fileName = String.format(filenameTemplate,  Integer.parseInt(runNum));
 				return fileName;
 			}
-		} catch (NumberFormatException ignored) {
+		} catch (Exception ignored) {
 			// if getCurrentScanIdentifier is not a number we do not do the 
 			// format at all.
 		}

@@ -33,7 +33,7 @@ public class XasAsciiNexusDatapointCompletingDataWriter implements DataWriter{
 
 	DatapointCompletingDataWriter sink;
 	
-	public XasAsciiNexusDatapointCompletingDataWriter() throws InstantiationException {
+	public XasAsciiNexusDatapointCompletingDataWriter() throws Exception {
 		XasAsciiNexusDataWriter xasAsciiNexusDataWriter = new XasAsciiNexusDataWriter();
 		sink = new DatapointCompletingDataWriter();
 		sink.setDatawriter(xasAsciiNexusDataWriter);
