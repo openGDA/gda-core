@@ -566,4 +566,9 @@ public class PCOTomography implements ITomographyDetector {
 	public boolean isBusy() throws DeviceException {
 		return pcoDetector.isBusy();
 	}
+
+	@Override
+	public void setExternalTriggered(Boolean val) {
+		pcoDetector.setExternalTriggered(val);
+	}
 }

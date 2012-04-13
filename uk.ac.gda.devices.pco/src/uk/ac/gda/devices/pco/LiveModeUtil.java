@@ -31,7 +31,7 @@ public class LiveModeUtil {
 	 */
 	public static boolean isLiveMode() {
 		String gdaMode = LocalProperties.get("gda.mode");
-		if ("live".equals(gdaMode)) {
+		if ("localhost".equals(gdaMode) || "live".equals(gdaMode)) {
 			return true;
 		}
 		return false;

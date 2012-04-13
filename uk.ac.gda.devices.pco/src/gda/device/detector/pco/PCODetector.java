@@ -160,6 +160,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		return this.externalTriggered;
 	}
 
+	@Override
 	public void setExternalTriggered(boolean externalTriggered) {
 		this.externalTriggered = externalTriggered;
 	}

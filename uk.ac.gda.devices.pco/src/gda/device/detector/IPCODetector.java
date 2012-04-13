@@ -136,4 +136,9 @@ public interface IPCODetector extends Detector {
 
 	String getTiffImageFileName() throws Exception;
 
+	/**
+	 * @param externalTriggered
+	 */
+	void setExternalTriggered(boolean externalTriggered);
+
 }
