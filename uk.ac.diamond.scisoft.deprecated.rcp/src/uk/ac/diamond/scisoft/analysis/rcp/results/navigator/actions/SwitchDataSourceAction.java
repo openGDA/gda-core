@@ -16,6 +16,8 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions;
 
+import gda.configuration.properties.LocalProperties;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -36,7 +38,7 @@ public class SwitchDataSourceAction extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		
 		final DirectoryDialog dialog = new DirectoryDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), SWT.OPEN);
-		dialog.setFilterPath(System.getProperty("gda.data"));
+		dialog.setFilterPath(System.getProperty(LocalProperties.GDA_DATA));
 		final String          path   = dialog.open();
 		if (path!=null) {
 			final DataNavigator view = (DataNavigator)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView(DataNavigator.ID);
