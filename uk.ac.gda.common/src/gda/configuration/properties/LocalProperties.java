@@ -234,7 +234,15 @@ public class LocalProperties {
 	/**
 	 * Name of the numtracker used to derive the scan id. If not set then the scan id is not set and relies on filewriters to set it.
 	 */
-	public static final String GDA_SCANBASE_NUMTRACKER_NAME = "gda.scanbase.numtracker.name";
+	private static final String GDA_SCAN_SETS_SCANNUMBER = "gda.scan.sets.scannumber";
+	
+	public static boolean isScanSetsScanNumber(){
+		return LocalProperties.check(LocalProperties.GDA_SCAN_SETS_SCANNUMBER);
+	}
+	public static void setScanSetsScanNumber(boolean enable){
+		LocalProperties.set(LocalProperties.GDA_SCAN_SETS_SCANNUMBER, Boolean.toString(enable));
+	}
+	
 	
 	// create Jakarta properties handler object
 	// README - The JakartaPropertiesConfig class automatically picks up
