@@ -571,4 +571,11 @@ public class PCOTomography implements ITomographyDetector {
 	public void setExternalTriggered(Boolean val) {
 		pcoDetector.setExternalTriggered(val);
 	}
+
+	@Override
+	public void initDetector() throws Exception {
+		// set the image model to single
+		pcoDetector.getController().setImageMode(0);
+		pcoDetector.acquireSynchronously();
+	}
 }
