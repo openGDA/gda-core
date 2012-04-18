@@ -511,6 +511,8 @@ public class PCOTomography implements ITomographyDetector {
 
 	@Override
 	public void resetAll() throws Exception {
+		//Ensure that the camera is stopped before resetAll is called
+		pcoDetector.stop();
 		pcoDetector.resetAll();
 	}
 
@@ -575,7 +577,20 @@ public class PCOTomography implements ITomographyDetector {
 	@Override
 	public void initDetector() throws Exception {
 		// set the image model to single
-		pcoDetector.getController().setImageMode(0);
+		IPCOControllerV17 controller = pcoDetector.getController();
+		controller.setImageMode(0);
+		// setting the ADC model to 2-ADC mode
+		pcoDetector.setADCMode(1);
+		
+		NDProcess proc1 = controller.getProc1();
+		proc1.setEnableHighClip(1);
+		proc1.setHighClip(65534);
+		//
+		NDProcess proc2 = controller.getProc2();
+		proc2.setEnableHighClip(1);
+		proc2.setHighClip(65534);
+		
+		// acquire a single image to set the arrays correctly
 		pcoDetector.acquireSynchronously();
 	}
 }

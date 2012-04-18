@@ -141,4 +141,12 @@ public interface IPCODetector extends Detector {
 	 */
 	void setExternalTriggered(boolean externalTriggered);
 
+	/**
+	 * The ADC mode is set on the detector
+	 * 
+	 * @param mode
+	 * @throws Exception
+	 */
+	void setADCMode(int mode) throws Exception;
+
 }
