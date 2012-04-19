@@ -94,26 +94,12 @@ public class XasNexusDataWriter extends NexusExtraMetadataDataWriter {
 
 	private void writeVortexParameters() throws Exception {
 		String slurp = BeansFactory.getXMLString(LocalProperties.getConfigDir() + "/templates/Vortex_Parameters.xml");
-		int startOfCountsData = slurp.indexOf("<ElementCountsData>");
-		int endOfCountsData = slurp.lastIndexOf("</ElementCountsData>");
-
-		String substring = slurp.substring(0, startOfCountsData);
-		substring += slurp.substring(endOfCountsData + "</ElementCountsData>".length());
-		slurp = null;
-
-		NeXusUtils.writeNexusString(file, "VortexParameters", substring);
+		NeXusUtils.writeNexusString(file, "VortexParameters", slurp);
 	}
 
 	protected void writeXspressParameters() throws Exception {
 		String slurp = BeansFactory.getXMLString(LocalProperties.getConfigDir() + "/templates/Xspress_Parameters.xml");
-		int startOfCountsData = slurp.indexOf("<ElementCountsData>");
-		int endOfCountsData = slurp.lastIndexOf("</ElementCountsData>");
-
-		String substring = slurp.substring(0, startOfCountsData);
-		substring += slurp.substring(endOfCountsData + "</ElementCountsData>".length());
-		slurp = null;
-
-		NeXusUtils.writeNexusString(file, "XspressParameters", substring);
+		NeXusUtils.writeNexusString(file, "XspressParameters", slurp);
 	}
 
 	private void writeXml(final String name, final Object bean) throws NexusException, Exception {
