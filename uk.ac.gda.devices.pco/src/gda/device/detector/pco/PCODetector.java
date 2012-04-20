@@ -1115,7 +1115,6 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		this.demandRawDataStoreWindows2LinuxFileName = demandRawDataStoreWindows2LinuxFileName;
 	}
 
-
 	@Override
 	public String getTiffImageFileName() throws Exception {
 		if (isWindowsIoc()) {
@@ -1135,6 +1134,14 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 			controller.getTiff().setFilePath(replacedWindowsPath);
 		} else {
 			controller.getTiff().setFilePath(demandRawFilePath);
+		}
+	}
+
+	@Override
+	public void setADCMode(int mode) throws Exception {
+		// The ADC mode is available only the actual PCO IOC and not the simulation
+		if (LiveModeUtil.isLiveMode()) {
+			controller.setADCMode(mode);
 		}
 	}
 

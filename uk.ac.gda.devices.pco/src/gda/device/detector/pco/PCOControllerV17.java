@@ -543,8 +543,6 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 		}
 	}
 
-
-
 	@Override
 	public void setImageMode(int imageMode) throws Exception {
 		areaDetector.setImageMode(imageMode);
@@ -570,6 +568,12 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 
 	@Override
 	public void resetAll() throws Exception {
+		// The camera needs to be disarmed before the resetAll is called.
+		if (LiveModeUtil.isLiveMode()) {
+			if (isArmed()) {
+				disarmCamera();
+			}
+		}
 		if (areaDetector != null)
 			areaDetector.reset();
 		if (draw != null)
@@ -1034,8 +1038,6 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 		return hdf.getFullFileName_RBV();
 	}
 
-
-
 	@Override
 	public int getNumCaptured() throws Exception {
 		return hdf.getFile().getNumCaptured_RBV();
@@ -1045,10 +1047,6 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	public String getFullFileName() throws Exception {
 		return hdf.getFile().getFullFileName_RBV();
 	}
-
-
-
-
 
 	@Override
 	public String getTiffFullFileName() throws Exception {
