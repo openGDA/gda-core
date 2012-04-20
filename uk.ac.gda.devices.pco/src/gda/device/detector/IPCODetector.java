@@ -136,4 +136,18 @@ public interface IPCODetector extends Detector {
 
 	String getTiffImageFileName() throws Exception;
 
+	/**
+	 * @param externalTriggered
+	 */
+	void setExternalTriggered(boolean externalTriggered);
+
+	/**
+	 * The ADC mode is set on the detector
+	 * 
+	 * @param mode
+	 * @throws Exception
+	 */
+	void setADCMode(int mode) throws Exception;
+
+
 }

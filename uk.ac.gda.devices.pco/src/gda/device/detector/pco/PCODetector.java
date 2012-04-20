@@ -160,6 +160,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		return this.externalTriggered;
 	}
 
+	@Override
 	public void setExternalTriggered(boolean externalTriggered) {
 		this.externalTriggered = externalTriggered;
 	}
@@ -1134,6 +1135,14 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 			controller.getTiff().setFilePath(replacedWindowsPath);
 		} else {
 			controller.getTiff().setFilePath(demandRawFilePath);
+		}
+	}
+	
+	@Override
+	public void setADCMode(int mode) throws Exception {
+		// The ADC mode is available only the actual PCO IOC and not the simulation
+		if (LiveModeUtil.isLiveMode()) {
+			controller.setADCMode(mode);
 		}
 	}
 
