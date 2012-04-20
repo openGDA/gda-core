@@ -521,11 +521,11 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	}
 
 	public void setFormat(String format) {
-		LocalProperties.set("gda.data.scan.datawriter.dataFormat", format);
+		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, format);
 	}
 
 	public void setNexusFormat() {
-		LocalProperties.set("gda.data.scan.datawriter.dataFormat", "NexusDataWriter");
+		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "NexusDataWriter");
 	}
 
 	/**
