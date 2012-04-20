@@ -651,7 +651,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	public void notifyFileSaved(File file) {
 		final FluorescenceComposite comp = (FluorescenceComposite) BeanUI.getBeanField("fluorescenceParameters",
 				DetectorParameters.class);
-		if (comp == null)
+		if (comp == null || comp.isDisposed())
 			return;
 		comp.getDetectorType().setValue("Germanium");
 		comp.getConfigFileName().setValue(file.getAbsolutePath());

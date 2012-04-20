@@ -369,16 +369,18 @@ public class DetectorElementComposite extends Composite {
 	}
 
 	private void updateTotalCountsDisplay() {
-		if (isIndividualElements && thisElementTotalCountsValue != null) {
-			totalCounts.setValue("Element Total Counts "
-					+ NumberFormat.getInstance().format(thisElementTotalCountsValue));
-		} else if (allElementTotalCountsValue != null) {
-			totalCounts.setValue("All Element Total Counts "
-					+ NumberFormat.getInstance().format(allElementTotalCountsValue));
-		} else {
-			totalCounts.setValue("");
+		if (totalCounts != null) {
+			if (isIndividualElements && thisElementTotalCountsValue != null) {
+				totalCounts.setValue("Element Total Counts "
+						+ NumberFormat.getInstance().format(thisElementTotalCountsValue));
+			} else if (allElementTotalCountsValue != null) {
+				totalCounts.setValue("All Element Total Counts "
+						+ NumberFormat.getInstance().format(allElementTotalCountsValue));
+			} else {
+				totalCounts.setValue("");
+			}
+			GridUtils.layoutFull(totalCounts);
 		}
-		GridUtils.layoutFull(totalCounts);
 	}
 
 	public void setTotalCounts(final Double total) {

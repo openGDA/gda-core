@@ -611,5 +611,17 @@ public class VortexParametersUIEditor extends DetectorEditor {
 		String varDir = LocalProperties.get(LocalProperties.GDA_VAR_DIR);
 		return varDir + "/vortex_editor_data.xml";
 	}
-
+	
+	@Override
+	public void dispose() {
+		countType.dispose();
+		autoSave.dispose();
+		live.dispose();
+		saveRawSpectrum.dispose();
+		acquireTime.dispose();
+		acquire.dispose();
+		acquireFileLabel.dispose();
+		acquireBtn.dispose();
+		super.dispose();
+	}
 }
