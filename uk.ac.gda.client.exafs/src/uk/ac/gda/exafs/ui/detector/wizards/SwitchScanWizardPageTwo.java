@@ -254,11 +254,11 @@ public class SwitchScanWizardPageTwo extends WizardPage {
 					beanTypes.add(type);
 
 			if (editorType.equals("xanes"))
-				if (type.getName().equals("XANES Scan"))
+				if ((type.getName().equals("XANES Scan")) || (type.getName().equals("ANGLE Scan")))
 					beanTypes.add(type);
 
 			if (editorType.equals("microfocus"))
-				if (type.getName().equals("Microfocus Scan"))
+				if (type.getName().equals("Micro Focus"))
 					beanTypes.add(type);
 
 			if (editorType.equals("detector"))
