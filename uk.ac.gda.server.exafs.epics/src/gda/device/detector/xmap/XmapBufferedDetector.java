@@ -17,6 +17,7 @@
  */
 
 package gda.device.detector.xmap;
+import java.io.File;
 import java.util.List;
 import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
@@ -174,7 +175,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 			
 			waitForFile(fileName);
 			// change to linux format
-			String beamline = LocalProperties.get("gda.factory.factoryName","");
+			String beamline = LocalProperties.get("gda.factory.factoryName","").toLowerCase();
 			fileName = fileName.replace("X:/", "/dls/"+beamline);
 			fileLoader = new XmapNexusFileLoader(fileName);
 			fileLoader.loadFile();
@@ -208,6 +209,16 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			logger.error("TODO put description of error here", e);
+			try {
+				stop();
+				controller.endRecording();
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
+				logger.error("TODO put description of error here", e1);
+				throw new DeviceException("Unalble to end hdf5 capture", e1);
+			}
+			controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
 			throw new DeviceException("Unable to load file " + fileName, e);
 		}
 	}
@@ -354,7 +365,8 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 
 		// Check to see if the data directory has been defined.
 		String dataDir = PathConstructor.createFromDefaultProperty();
-
+		dataDir = dataDir + "tmp"+File.separator ;
+		dataDir = dataDir.replace("/dls/"+beamline.toLowerCase(), "X:/");
 		controller.setDirectory(dataDir);
 
 		// Now lets try and setup the NumTracker...
@@ -383,6 +395,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 				
 			int buffPerRow = (numberOfPointsPerScan ) / 124 + 1;
 			controller.setHdfNumCapture(buffPerRow);
+			//controller.setHdfNumCapture(numberOfPointsPerScan);
 			// TODO prepare tfg for triggering
 			// controller.clearAndStart();
 			// controller.setNexusCapture(1);
