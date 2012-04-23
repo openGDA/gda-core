@@ -34,7 +34,7 @@ public class TimeEditingSupport extends EditingSupport {
 	private IWorkbenchPartSite site;
 	XanesScanParametersUIEditor editor;
 	
-	public TimeEditingSupport(TableViewer viewer, XanesScanParameters bean, IWorkbenchPartSite site) {
+	public TimeEditingSupport(TableViewer viewer, XanesScanParameters bean, IWorkbenchPartSite site, XanesScanParametersUIEditor editor) {
 		super(viewer);
 		this.viewer = viewer;
 		this.bean = bean;
@@ -64,5 +64,9 @@ public class TimeEditingSupport extends EditingSupport {
 		int region = ((XanesRegionParameters) element).getRegion()-1;
 		bean.getRegions().get(region).setTime(Double.parseDouble(value.toString()));
 		viewer.refresh();
+		try {
+			editor.setDirty(true);
+		} catch (Exception e) {
+		}
 	}
 }
