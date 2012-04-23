@@ -163,5 +163,6 @@ public class I18SampleParameters implements Serializable, ISampleParameters {
 	public void setName(String name) {
 		this.name = name;
 	}
+	
 
 }

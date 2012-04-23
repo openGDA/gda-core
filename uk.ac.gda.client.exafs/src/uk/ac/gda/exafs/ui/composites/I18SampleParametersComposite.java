@@ -18,11 +18,14 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
+import org.eclipse.swt.graphics.Color;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 
 import uk.ac.gda.beans.exafs.i18.AttenuatorParameters;
@@ -68,7 +71,8 @@ public final class I18SampleParametersComposite extends Composite {
 		}
 		sampleSatgeComp.setLayout(new GridLayout(1,false));
 		label = new Label(sampleSatgeComp, SWT.NONE);
-		label.setText("Sample Stage");
+		label.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
+		label.setText("Sample Stage . Ignore this if using in a Microfocus Scan");
 		sampleStageParameters = new SampleStageParametersComposite(sampleSatgeComp,SWT.NONE);
 		sampleStageParameters.setEditorClass(uk.ac.gda.beans.exafs.i18.SampleStageParameters.class);
 		{
@@ -152,6 +156,11 @@ public final class I18SampleParametersComposite extends Composite {
 	public Button getAttnCurrentPosition()
 	{
 		return attnCurrentPosition;
+	}
+	
+	public void disableSample()
+	{
+		sampleStageParameters.setEnabled(false);
 	}
 
 }

@@ -440,7 +440,7 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 						displayController.displayMap(selectedElement, filePath);
 						if (loadMapForScan)
 							scanLoader.loadMapXmlForScan(controller.getSelectedFolder(), filePath);
-						else {
+						/*else {
 							final java.util.List<String> files = scanLoader.loadMapXmlForView(filePath);
 							if (files.size() > 0) {
 								Display.getDefault().asyncExec(new Runnable() {
@@ -455,7 +455,7 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 
 								});
 							}
-						}
+						}*/
 
 					} catch (Exception e) {
 						logger.error("Error displaying the map ", e);
