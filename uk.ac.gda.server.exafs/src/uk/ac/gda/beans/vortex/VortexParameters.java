@@ -23,6 +23,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Vector;
+
+import javax.swing.plaf.synth.Region;
 
 import org.apache.commons.beanutils.BeanUtils;
 
@@ -211,4 +214,30 @@ public class VortexParameters implements Serializable, IRichBean {
 	public boolean isSaveRawSpectrum() {
 		return saveRawSpectrum;
 	}
+	
+	/**
+	  * Copy constructor.
+	  */
+	  public VortexParameters(VortexParameters vp) {
+		  setDetectorName(vp.detectorName);
+		  setCountType(vp.countType);
+		  setSaveRawSpectrum(vp.saveRawSpectrum);
+		  setCollectionTime(vp.collectionTime);
+			
+		  Vector<DetectorElement> des= new Vector<DetectorElement>();
+		  for(DetectorElement d: vp.getDetectorList()){
+			  des.add(new DetectorElement(d));
+		  }
+		  setDetectorList(des);
+		  setDeadTime(vp.deadTime);
+		  setTfgName(vp.tfgName);
+	  }
+
+	public List<RegionOfInterest> getRois() {
+		List<RegionOfInterest> list = new Vector<RegionOfInterest>();
+		for(DetectorElement d:getDetectorList()){
+			list.addAll(d.getRegionList());
+		}
+		return list;
+	}	
 }
