@@ -210,14 +210,15 @@ def map (sampleFileName, scanFileName, detectorFileName, outputFileName, folderN
             handle_messages.simpleLog("map start time " + str(scanStart))
             handle_messages.simpleLog("map end time " + str(scanEnd)) 
             dataWriter.removeDataWriterExtender(mfd)
+            finish()
 
 def finish():
-    #command_server = Finder.getInstance().find("command_server")
-    #beam = command_server.getFromJythonNamespace("beam", None)
-    #detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
-    #remove_default(beam)
-    #remove_default(detectorFillingMonitor)
-    pass
+    command_server = Finder.getInstance().find("command_server")
+    beam = command_server.getFromJythonNamespace("beam", None)
+    detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
+    remove_default(beam)
+    remove_default(detectorFillingMonitor)
+    #pass
 def setupForMap(beanGroup):
     if beanGroup.getDetector().getExperimentType() == "Fluorescence":
         if (beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium" ):

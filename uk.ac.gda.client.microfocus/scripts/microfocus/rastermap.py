@@ -192,6 +192,7 @@ def rastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, f
             handle_messages.simpleLog("map start time " + str(scanStart))
             handle_messages.simpleLog("map end time " + str(scanEnd))
             dataWriter.removeDataWriterExtender(mfd)
+            finish()
 
 def setupForRaster(beanGroup):
     
@@ -248,12 +249,12 @@ def setupForRaster(beanGroup):
     
 
 def finish():
-    #command_server = Finder.getInstance().find("command_server")
-    #beam = command_server.getFromJythonNamespace("beam", None)
-    #detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
-    #remove_default(beam)
-    #remove_default(detectorFillingMonitor)
-    pass
+    command_server = Finder.getInstance().find("command_server")
+    beam = command_server.getFromJythonNamespace("beam", None)
+    detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
+    remove_default(beam)
+    remove_default(detectorFillingMonitor)
+    #pass
 
 class MicroFocusEnvironment:
     testScriptFolder=None
