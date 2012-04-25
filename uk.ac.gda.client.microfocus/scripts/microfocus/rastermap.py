@@ -4,7 +4,7 @@ from uk.ac.gda.beans import BeansFactory
 from gda.factory import Finder
 from gda.exafs.scan import BeanGroup
 from exafsscripts.exafs.xas_scans import getDetectors
-from gda.jython.commands.ScannableCommands import scan, add_default
+from gda.jython.commands.ScannableCommands import scan, add_default, remove_default
 from java.io import File
 from java.lang import System
 from gda.configuration.properties import LocalProperties
@@ -21,6 +21,7 @@ from gda.jython.commands import ScannableCommands
 from gdascripts.messages import handle_messages
 import time
 #import microfocus.microfocus_elements
+rootnamespace = {}
 def rastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, scanNumber= -1, validation=True):
     """
     main map data collection command. 
@@ -48,8 +49,8 @@ def rastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, f
     if(sampleFileName == None or sampleFileName == 'None'):
         sampleBean = None
     else:
-        #sampleBean   = BeansFactory.getBeanObject(xmlFolderName, sampleFileName)
-        sampleBean = None
+        sampleBean   = BeansFactory.getBeanObject(xmlFolderName, sampleFileName)
+        #sampleBean = None
         
     scanBean     = BeansFactory.getBeanObject(xmlFolderName, scanFileName)
     detectorBean = BeansFactory.getBeanObject(xmlFolderName, detectorFileName)
@@ -191,6 +192,7 @@ def rastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, f
             handle_messages.simpleLog("map start time " + str(scanStart))
             handle_messages.simpleLog("map end time " + str(scanEnd))
             dataWriter.removeDataWriterExtender(mfd)
+            finish()
 
 def setupForRaster(beanGroup):
     
@@ -227,6 +229,14 @@ def setupForRaster(beanGroup):
             rois = element.getRegionList();
             element.setWindow(rois.get(0).getRegionStart(), rois.get(0).getRegionEnd())
         BeansFactory.saveBean(File(fullFileName), bean)
+    ##set the file name for the output parameters
+    outputBean=beanGroup.getOutput()
+    sampleParameters = beanGroup.getSample()
+    outputBean.setAsciiFileName(sampleParameters.getName())
+    print "Setting the ascii file name as " ,sampleParameters.getName()    
+    att1 = sampleParameters.getAttenuatorParameter1()
+    att2 = sampleParameters.getAttenuatorParameter2()
+    pos([rootnamespace['D7A'], att1.getSelectedPosition(), rootnamespace['D7B'], att2.getSelectedPosition()])
     configFluoDetector(beanGroup)
     print "setting up raster scan"
     print "beangroup:", beanGroup
@@ -237,6 +247,15 @@ def setupForRaster(beanGroup):
     trajBeamMonitor.setActive(True)
     finder.find("RCPController").openPesrpective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")
     
+
+def finish():
+    command_server = Finder.getInstance().find("command_server")
+    beam = command_server.getFromJythonNamespace("beam", None)
+    detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
+    remove_default(beam)
+    remove_default(detectorFillingMonitor)
+    #pass
+
 class MicroFocusEnvironment:
     testScriptFolder=None
     def getScriptFolder(self):

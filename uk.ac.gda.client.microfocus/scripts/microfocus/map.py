@@ -4,7 +4,7 @@ from uk.ac.gda.beans import BeansFactory
 from gda.factory import Finder
 from gda.exafs.scan import BeanGroup
 from exafsscripts.exafs.xas_scans import getDetectors
-from gda.jython.commands.ScannableCommands import scan, add_default
+from gda.jython.commands.ScannableCommands import scan, add_default, remove_default
 from java.io import File
 from java.lang import System
 from gda.configuration.properties import LocalProperties
@@ -21,7 +21,9 @@ from gda.device.detector.xspress import ResGrades
 #import microfocus.microfocus_elements
 from gdascripts.messages import handle_messages
 from gda.jython.commands import ScannableCommands
-
+from BeamlineParameters import JythonNameSpaceMapping
+from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
+rootnamespace = {}
 def map (sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, scanNumber= -1, validation=True):
     #print globals()
     """
@@ -50,8 +52,7 @@ def map (sampleFileName, scanFileName, detectorFileName, outputFileName, folderN
     if(sampleFileName == None or sampleFileName == 'None'):
         sampleBean = None
     else:
-        sampleBean = None
-        #   = BeansFactory.getBeanObject(MicroFocusEnvironment().getScriptFolder(), sampleFileName)
+        sampleBean  = BeansFactory.getBeanObject(xmlFolderName, sampleFileName)
         
     scanBean     = BeansFactory.getBeanObject(xmlFolderName, scanFileName)
     if(scanBean.isRaster()):
@@ -209,7 +210,15 @@ def map (sampleFileName, scanFileName, detectorFileName, outputFileName, folderN
             handle_messages.simpleLog("map start time " + str(scanStart))
             handle_messages.simpleLog("map end time " + str(scanEnd)) 
             dataWriter.removeDataWriterExtender(mfd)
+            finish()
 
+def finish():
+    command_server = Finder.getInstance().find("command_server")
+    beam = command_server.getFromJythonNamespace("beam", None)
+    detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
+    remove_default(beam)
+    remove_default(detectorFillingMonitor)
+    #pass
 def setupForMap(beanGroup):
     if beanGroup.getDetector().getExperimentType() == "Fluorescence":
         if (beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium" ):
@@ -247,8 +256,16 @@ def setupForMap(beanGroup):
         detectorFillingMonitor.setPauseBeforeLine(False)
         detectorFillingMonitor.setCollectionTime(collectionTime)
     trajBeamMonitor.setActive(False)
+    ##set the file name for the output parameters
+    outputBean=beanGroup.getOutput()
+    sampleParameters = beanGroup.getSample()
+    outputBean.setAsciiFileName(sampleParameters.getName())
+    print "Setting the ascii file name as " ,sampleParameters.getName()
+    att1 = sampleParameters.getAttenuatorParameter1()
+    att2 = sampleParameters.getAttenuatorParameter2()
+    pos([rootnamespace['D7A'], att1.getSelectedPosition(), rootnamespace['D7B'], att2.getSelectedPosition()])
     LocalProperties.set("gda.scan.useScanPlotSettings", "true")
-    redefineNexusMetadataForMaps(beanGroup)
+    #redefineNexusMetadataForMaps(beanGroup)
     finder.find("RCPController").openPesrpective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")
     
 def redefineNexusMetadataForMaps(beanGroup):
@@ -285,8 +302,8 @@ def redefineNexusMetadataForMaps(beanGroup):
 
     #attenustors
     
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("D7A", str(jython_mapper.D7A()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXatenuator, "Attenuators"))
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("D7B", str(jython_mapper.D7B()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXatenuator, "Attenuators"))
+    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("D7A", str(jython_mapper.D7A()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXattenuator, "Attenuators"))
+    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("D7B", str(jython_mapper.D7B()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXattenuator, "Attenuators"))
     
     #energy
     NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("energy", str(jython_mapper.energy()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXmonochromator, "DCM energy"))

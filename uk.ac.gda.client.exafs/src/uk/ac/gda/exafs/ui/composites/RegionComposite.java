@@ -250,7 +250,7 @@ public class RegionComposite extends Composite {
 				}
 			}
 		});
-		col.setEditingSupport(new TimeEditingSupport(viewer, bean, site));
+		col.setEditingSupport(new TimeEditingSupport(viewer, bean, site, editor));
 	}
 
 	private TableViewerColumn createTableViewerColumn(String title, int bound) {

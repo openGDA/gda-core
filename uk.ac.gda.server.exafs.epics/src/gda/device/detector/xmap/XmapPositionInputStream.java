@@ -67,7 +67,8 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 			hardwareTriggeredNexusXmap.waitForFile(fileName);
 			//change to linux format
 			String beamline = LocalProperties.get("gda.factory.factoryName","");
-			fileName = fileName.replace("X:/", "/dls/"+beamline);
+			beamline = beamline.toLowerCase();
+			fileName = fileName.replace("X:/", "/dls");
 			fileLoader = new XmapNexusFileLoader(fileName);			
 			fileLoader.loadFile();
 		

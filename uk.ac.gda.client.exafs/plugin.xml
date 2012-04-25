@@ -114,6 +114,11 @@
             name="Copy XANES XML">
       </command>
       <command
+            description="Copy a MICROFOCUS XML to the experiment folder."
+            id="uk.ac.gda.client.exafs.CopyMICROFOCUSCommand"
+            name="Copy MICROFOCUS XML">
+      </command>
+      <command
             description="Copy a QEXAFS XML to the experiment folder."
             id="uk.ac.gda.client.exafs.CopyQEXAFSCommand"
             name="Copy QEXAFS XML">
@@ -273,6 +278,10 @@
       <handler
             class="uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler"
             commandId="uk.ac.gda.client.exafs.CopyXANESCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler"
+            commandId="uk.ac.gda.client.exafs.CopyMICROFOCUSCommand">
       </handler>
       <handler
             class="uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler"

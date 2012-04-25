@@ -66,6 +66,7 @@ public class StepEditingSupport extends EditingSupport {
 		bean.getRegions().get(region).setStep(Double.parseDouble(value.toString()));
 		try {
 			editor.updatePlottedPoints();
+			editor.setDirty(true);
 		} catch (Exception e) {
 		}
 		viewer.refresh();
