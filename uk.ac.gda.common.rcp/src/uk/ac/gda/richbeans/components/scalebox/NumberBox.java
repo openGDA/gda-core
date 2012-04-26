@@ -535,17 +535,29 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 			buf.append(getTooltipOveride());
 			buf.append("\n\n");
 		}
-
-		buf.append(numberFormat.format(getMinimum()));
+		
+		if (getMinimum() == -Double.MAX_VALUE) {
+			buf.append("-∞");
+		} else {
+			buf.append(numberFormat.format(getMinimum()));
+		}
+		
 		if (unit != null)
 			buf.append(" " + unit);
 		buf.append(" < ");
 		final String field = getFieldName() != null ? getFieldName() : "value";
 		buf.append(field);
 		buf.append(" < ");
-		buf.append(numberFormat.format(getMaximum()));
+		
+		if (getMaximum() == Double.MAX_VALUE) {
+			buf.append("∞");
+		} else {
+			buf.append(numberFormat.format(getMaximum()));
+		}
+		
 		if (unit != null)
 			buf.append(" " + unit);
+		
 		text.setToolTipText(buf.toString());
 	}
 

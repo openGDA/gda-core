@@ -75,6 +75,7 @@ public class Stepper extends Canvas {
 
 	private int steps = 1;
 	private boolean moved;
+	private boolean showActualValueLabel;
 
 	private FigureCanvas figCanvas;
 
@@ -140,7 +141,9 @@ public class Stepper extends Canvas {
 				int selection = spinner.getSelection();
 				//
 				moveToStep(selection);
-				actualValue.setText(getDisplayVal(selection));
+				if (showActualValueLabel) {
+					actualValue.setText(getDisplayVal(selection));
+				}
 				fireNotifyChanged();
 			}
 
@@ -197,12 +200,22 @@ public class Stepper extends Canvas {
 	}
 
 	public Stepper(Composite parent, int style) {
-		this(parent, style, null);
+		this(parent, style, true);
+	}
+	
+	public Stepper(Composite parent, int style, boolean showActualValueLabel) {
+		this(parent, style, showActualValueLabel, null);
+	}
+	
+	public Stepper(Composite parent, int style, Image sliderImage) {
+		this(parent, style, true, sliderImage);
 	}
 
-	public Stepper(Composite parent, int style, Image sliderImage) {
+	public Stepper(Composite parent, int style, boolean showActualValueLabel, Image sliderImage) {
 		super(parent, style);
 		this.setBackground(ColorConstants.white);
+		this.showActualValueLabel = showActualValueLabel;
+		
 		GridLayout layout = new GridLayout(3, false);
 		layout.marginWidth = 1;
 		layout.marginHeight = 1;
@@ -255,9 +268,11 @@ public class Stepper extends Canvas {
 		spinner.addSelectionListener(spinnerSelectionListener);
 		spinner.setMaximum(0);
 
-		actualValue = new org.eclipse.swt.widgets.Label(spinnerGroup, SWT.None);
-		actualValue.setBackground(ColorConstants.white);
-		actualValue.setLayoutData(new org.eclipse.swt.layout.GridData(GridData.FILL_BOTH));
+		if (showActualValueLabel) {
+			actualValue = new org.eclipse.swt.widgets.Label(spinnerGroup, SWT.None);
+			actualValue.setBackground(ColorConstants.white);
+			actualValue.setLayoutData(new org.eclipse.swt.layout.GridData(GridData.FILL_BOTH));
+		}
 
 		listeners = new ArrayList<IStepperSelectionListener>();
 
@@ -301,7 +316,9 @@ public class Stepper extends Canvas {
 
 					int markerIndex = markerFigure.getMarkerIndex();
 					spinner.setSelection(markerIndex);
-					actualValue.setText(getDisplayVal(markerIndex));
+					if (showActualValueLabel) {
+						actualValue.setText(getDisplayVal(markerIndex));
+					}
 					fireNotifyChanged();
 				}
 				mousePressed = false;
@@ -385,7 +402,9 @@ public class Stepper extends Canvas {
 
 	public void setSelection(int index) {
 		spinner.setSelection(index);
-		actualValue.setText(getDisplayVal(index));
+		if (showActualValueLabel) {
+			actualValue.setText(getDisplayVal(index));
+		}
 		moveToStep(index);
 	}
 
@@ -671,7 +690,9 @@ public class Stepper extends Canvas {
 				pixelStep = 0;
 			}
 			spinner.setSelection(pixelStep);
-			actualValue.setText(getDisplayVal(pixelStep));
+			if (showActualValueLabel) {
+				actualValue.setText(getDisplayVal(pixelStep));
+			}
 			moved = true;
 		}
 	}
