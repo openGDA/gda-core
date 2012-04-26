@@ -119,6 +119,7 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 
 		this.numberFormat = NumberFormat.getInstance();
 		numberFormat.setMaximumFractionDigits(decimalPlaces);
+		numberFormat.setMinimumFractionDigits(decimalPlaces);
 		numberFormat.setGroupingUsed(false);
 	}
 
@@ -713,6 +714,7 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 	public void setDecimalPlaces(int decimalPlaces) {
 		this.decimalPlaces = decimalPlaces;
 		numberFormat.setMaximumFractionDigits(decimalPlaces);
+		numberFormat.setMinimumFractionDigits(decimalPlaces);
 	}
 
 	/**
