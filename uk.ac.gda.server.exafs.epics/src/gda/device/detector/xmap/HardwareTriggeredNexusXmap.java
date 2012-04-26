@@ -403,5 +403,8 @@ public class HardwareTriggeredNexusXmap extends HardwareTriggerableDetectorBase 
 		return true;
 	}
 	
+	public boolean isInBufferMode() throws Exception{
+		return controller.isBufferedArrayPort();
+	}
 
 }
