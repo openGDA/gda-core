@@ -33,6 +33,7 @@ import gda.scan.IScanDataPoint;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -47,6 +48,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.gda.beans.BeansFactory;
+import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.RegionOfInterest;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
@@ -124,8 +126,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		try {
 			detectorBean = BeansFactory.getBean(new File(detectorBeanFileName));
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Error loading bean from "+detectorBeanFileName,e);
 		}
 
 		for(Detector detector : detectors){
@@ -707,6 +708,24 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 
 	public String getNormaliseElement() {
 		return normaliseElement;
+	}
+
+	public void setRoiFromBean() {
+		if(detectorBean instanceof VortexParameters){
+			VortexParameters vp = (VortexParameters)detectorBean;
+			List<String> names = new Vector<String>();
+			for( DetectorElement d:vp.getDetectorList()){
+				if( !d.isExcluded()){
+					for( RegionOfInterest roi : d.getRegionList()){
+						if( roi.getRoiStart() != -1){
+							names.add(roi.getRoiName());
+						}
+					}
+				}
+			}
+			setRoiNames(names.toArray(new String[0]));
+			setSelectedElement(names.size() > 0 ? names.get(0) : "");
+		}
 	}
 
 }

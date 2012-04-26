@@ -102,7 +102,7 @@ public class ROIWindowOverlay extends AbstractOverlayConsumer {
     	this.xStart = x1;
     	this.xEnd   = x2;
     	
-    	if (draw) {
+    	if (draw & (provider != null)){
 	    	provider.begin(OverlayType.VECTOR2D);
 			
 			provider.setColour(parts[0], java.awt.Color.RED);
@@ -112,7 +112,7 @@ public class ROIWindowOverlay extends AbstractOverlayConsumer {
 			((Overlay1DProvider)provider).drawLine(parts[1], xEnd,   yMin, xEnd,   yMax);
 			
 			provider.end(OverlayType.VECTOR2D);
-    	}
+		}
    }
     
     /**

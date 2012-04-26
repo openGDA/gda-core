@@ -21,6 +21,7 @@ package uk.ac.gda.beans.vortex;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import org.apache.commons.beanutils.BeanUtils;
 
@@ -252,5 +253,22 @@ public class DetectorElement  implements Serializable, IDetectorElement {
 		this.regionList = regions;
 	}
 
-	
+	public DetectorElement(DetectorElement detectorElement){
+		excluded = detectorElement.excluded;
+		gain = detectorElement.gain;
+		name = detectorElement.name;
+		number = detectorElement.number;
+		offset = detectorElement.offset;
+		peakingTime = detectorElement.peakingTime;
+		Vector<RegionOfInterest> rois = new Vector<RegionOfInterest>();
+		for( RegionOfInterest rl : detectorElement.getRegionList()){
+			RegionOfInterest roi = new RegionOfInterest();
+			roi.setCounts(rl.getCounts());
+			roi.setRoiName(rl.getRoiName());
+			roi.setWindowEnd(rl.getWindowEnd());
+			roi.setWindowStart(rl.getWindowStart());
+			rois.add(roi);
+		}
+		setRegionList(rois);
+	}
 }
