@@ -1,0 +1,130 @@
+/*-
+ * Copyright © 2012 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package gda.device.detector.xmap.util;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
+import uk.ac.diamond.scisoft.analysis.io.DataHolder;
+import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
+
+
+public class XmapBufferedHdf5FileLoader implements XmapFileLoader {
+	
+	static Logger logger = LoggerFactory.getLogger(XmapBufferedHdf5FileLoader.class);
+	private HDF5Loader hdf5Loader;
+	protected DataHolder dataHolder ;
+	protected ILazyDataset  lazyDataset;
+	private String fileName;
+	
+	
+	
+	public XmapBufferedHdf5FileLoader(String fileName) {
+		super();
+		this.fileName = fileName;
+	}
+
+	@Override
+	public void loadFile() throws Exception {
+		hdf5Loader = new HDF5Loader(fileName);
+		dataHolder = hdf5Loader.loadFile();			
+		
+		
+	}
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		XmapBufferedHdf5FileLoader loader = new XmapBufferedHdf5FileLoader("/scratch/vortex-fast-raster-exp2.h5");
+		try {
+			loader.loadFile();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			logger.error("TODO put description of error here", e);
+		}
+	}
+
+	@Override
+	public short[][] getData(int dataPointNumber) {
+		lazyDataset = dataHolder.getLazyDataset("/entry/instrument/detector/data");
+		int channelNumbers = lazyDataset.getShape()[1];
+		int numberOfDetectorElements = lazyDataset.getShape()[2];
+		IDataset slice = lazyDataset.getSlice(new int[]{dataPointNumber, 0, 0}, new int[]{dataPointNumber + 1,channelNumbers,numberOfDetectorElements }, new int[]{1,1,1});
+		ILazyDataset sqSlice = slice.squeeze();
+		int[] data = (int[])((AbstractDataset)sqSlice).getBuffer();
+		short allData [][] = new short[numberOfDetectorElements][channelNumbers];
+		for(int i =0; i < numberOfDetectorElements; i++)
+		{
+			for (int j =0; j < channelNumbers; j++)
+			{
+				allData[i][j] = (short)data[i*channelNumbers +j];
+			}
+		}
+		return allData;
+	}
+	
+
+	@Override
+	public int getNumberOfDataPoints() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	
+	@Override
+	public double getTrigger(int dataPointNumber, int element) {
+		lazyDataset = dataHolder.getLazyDataset("/entry/instrument/detector/NDAttributes/triggers_ch_"+element);
+		IDataset slice = lazyDataset.getSlice(new int[]{dataPointNumber}, new int[]{dataPointNumber+1 }, new int[]{1});
+		ILazyDataset sqSlice = slice.squeeze();
+		long[] trigger = (long[])((AbstractDataset)sqSlice).getBuffer();
+		return trigger[0];
+	}
+
+	@Override
+	public double getRealTime(int dataPointNumber, int element) {
+		lazyDataset = dataHolder.getLazyDataset("/entry/instrument/detector/NDAttributes/real_time_ch_"+element);
+		IDataset slice = lazyDataset.getSlice(new int[]{dataPointNumber}, new int[]{dataPointNumber+1 }, new int[]{1});
+		ILazyDataset sqSlice = slice.squeeze();
+		double[] realtime = (double[])((AbstractDataset)sqSlice).getBuffer();
+		return realtime[0];
+	}
+
+	@Override
+	public double getLiveTime(int dataPointNumber, int element) {
+		lazyDataset = dataHolder.getLazyDataset("/entry/instrument/detector/NDAttributes/trigger_live_time_ch_"+element);
+		IDataset slice = lazyDataset.getSlice(new int[]{dataPointNumber}, new int[]{dataPointNumber+1 }, new int[]{1});
+		ILazyDataset sqSlice = slice.squeeze();
+		double[] livetime = (double[])((AbstractDataset)sqSlice).getBuffer();
+		return livetime[0];
+	}
+
+	@Override
+	public double getEvents(int dataPointNumber, int element) {
+		lazyDataset = dataHolder.getLazyDataset("/entry/instrument/detector/NDAttributes/events_ch_"+element);
+		IDataset slice = lazyDataset.getSlice(new int[]{dataPointNumber}, new int[]{dataPointNumber+1 }, new int[]{1});
+		ILazyDataset sqSlice = slice.squeeze();
+		long[] events = (long[])((AbstractDataset)sqSlice).getBuffer();
+		return events[0];
+	}
+
+}

@@ -44,6 +44,8 @@ import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
 import gda.device.detector.xmap.edxd.EDXDMappingController;
 import gda.device.detector.xmap.edxd.EDXDController.COLLECTION_MODES;
+import gda.device.detector.xmap.util.XmapBufferedHdf5FileLoader;
+import gda.device.detector.xmap.util.XmapFileLoader;
 import gda.device.detector.xmap.util.XmapNexusFileLoader;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
@@ -62,7 +64,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 
 	NexusXmap xmap;
 	//private final ExecutorService pool = Executors.newFixedThreadPool(25);
-	private XmapNexusFileLoader fileLoader;
+	private XmapFileLoader fileLoader;
 	private static final Logger logger = LoggerFactory.getLogger(XmapBufferedDetector.class);
 	protected ContinuousParameters continuousParameters = null;
 	protected boolean isContinuousMode = false;
@@ -177,7 +179,10 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 			// change to linux format
 			String beamline = LocalProperties.get("gda.factory.factoryName","").toLowerCase();
 			fileName = fileName.replace("X:/", "/dls/"+beamline);
-			fileLoader = new XmapNexusFileLoader(fileName);
+			if(controller.isBufferedArrayPort())
+				fileLoader = new XmapBufferedHdf5FileLoader(fileName);
+			else
+				fileLoader = new XmapNexusFileLoader(fileName);
 			fileLoader.loadFile();
 			lastFileName = fileName;
 			lastFileReadStatus = true;

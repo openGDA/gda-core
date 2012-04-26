@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2011 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,26 +18,13 @@
 
 package gda.device.detector.xmap.util;
 
-import static org.junit.Assert.assertEquals;
-import gda.device.detector.xmap.util.XmapNexusFileLoader;
+public interface XmapFileLoader {
+	public short[][] getData(int dataPointNumber);
+	public int getNumberOfDataPoints();
+	public void loadFile() throws Exception;
+	public double getTrigger(int dataPointNumber, int element);
+	public double getRealTime(int dataPointNumber, int element);
+	public double getLiveTime(int dataPointNumber, int element);
+	public double getEvents(int dataPointNumber, int element);
 
-import org.junit.Before;
-import org.junit.Test;
-
-public class XmapNexusFileLoaderTest {
-	XmapNexusFileLoader xMapLoader;
-	@Before
-	public void setUp()throws Exception
-	{
-		String testfile1 = "testfiles/gda/device/detector/xmap/util/i18-6777-HTXmapMca.h5";		
-		xMapLoader = new XmapNexusFileLoader(testfile1);
-		xMapLoader.loadFile();
-	
-	}
-	@Test
-	public void testgetData() throws Exception {		
-		short  [][]result = xMapLoader.getData(0);
-		assertEquals(result[0][513], (short)0);
-	}
-	
 }
