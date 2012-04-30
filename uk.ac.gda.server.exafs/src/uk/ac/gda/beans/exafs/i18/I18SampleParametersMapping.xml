@@ -29,6 +29,9 @@
 		<field name="z" type="double">
 			<bind-xml name="z" node="element" />
 		</field>
+		<field name="disable" type="boolean">
+			<bind-xml name="disable" node="element" />
+		</field>
 	</class>
 
 	<class name="uk.ac.gda.beans.exafs.i18.AttenuatorParameters">
