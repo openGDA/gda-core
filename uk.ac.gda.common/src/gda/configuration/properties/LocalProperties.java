@@ -230,6 +230,24 @@ public class LocalProperties {
 	 */
 	public static final String GDA_SCAN_MULTITHREADED_SCANDATA_POINT_PIPElINE_POINTS_TO_COMPUTE_SIMULTANEOUSELY = "gda.scan.multithreadedScanDataPointPipeline.pointsToComputeSimultaneousely";
 
+	/**
+	 * Prefix for the title of the GDA window
+	 */
+	public static final String GDA_GUI_TITLEBAR_PREFIX = "gda.gui.titlebar.prefix";
+	
+	/**
+	 * Name of the numtracker used to derive the scan id. If not set then the scan id is not set and relies on filewriters to set it.
+	 */
+	private static final String GDA_SCAN_SETS_SCANNUMBER = "gda.scan.sets.scannumber";
+	
+	
+	public static boolean isScanSetsScanNumber(){
+		return LocalProperties.check(LocalProperties.GDA_SCAN_SETS_SCANNUMBER);
+	}
+	public static void setScanSetsScanNumber(boolean enable){
+		LocalProperties.set(LocalProperties.GDA_SCAN_SETS_SCANNUMBER, Boolean.toString(enable));
+	}
+	
 	
 	// create Jakarta properties handler object
 	// README - The JakartaPropertiesConfig class automatically picks up
