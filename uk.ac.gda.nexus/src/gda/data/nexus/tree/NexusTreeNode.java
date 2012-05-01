@@ -506,8 +506,9 @@ public class NexusTreeNode implements INexusTree, Serializable {
 		int ilen = childNodes.size();
 		int iotherlen= otherChildNodes.size();
 		if(ilen != iotherlen){
-			if(reportFalse)
-				logger.info("childNode lengths differ");
+			if(reportFalse){
+				logger.info("childNode lengths differ.\n"+childNodes.toString() +"\n\n" + otherChildNodes.toString());
+			}
 			return false;
 		}
 		for(int i=0; i< ilen; i++){
