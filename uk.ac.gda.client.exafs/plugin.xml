@@ -733,15 +733,6 @@
             type="Scan">
       </describer> 
       <describer
-            bean="uk.ac.gda.beans.exafs.b18.B18SampleParameters"
-            commandId="uk.ac.gda.client.exafs.CopySampleCommand"
-            contentType="uk.ac.diamond.gda.client.exafs.getB18SampleContent"
-            includeInNew="true"
-            name="B18 Sample"
-            template="B18Sample_Parameters"
-            type="Sample">
-      </describer> 
-      <describer
             bean="uk.ac.gda.beans.exafs.DetectorParameters"
             commandId="uk.ac.gda.client.exafs.CopyDetectorCommand"
             contentType="uk.ac.diamond.gda.client.exafs.getDetectorContent"
