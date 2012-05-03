@@ -127,6 +127,34 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 	}
 
 	/**
+	 * Report roi even if start = -1
+	 */
+	boolean reportInvalidROI=true;
+	
+	protected boolean isReportInvalidROI() {
+		return reportInvalidROI;
+	}
+
+	protected void setReportInvalidROI(boolean reportInvalidROI) {
+		this.reportInvalidROI = reportInvalidROI;
+	}
+
+	/*
+	 * if true NexusTree contains a single item called fullspectrum that has the fullspectrum for all analysers in a single 2d object
+	 */
+	boolean returnFullSpectrum=true;
+	
+	
+	
+	protected boolean isReturnFullSpectrum() {
+		return returnFullSpectrum;
+	}
+
+	protected void setReturnFullSpectrum(boolean returnFullSpectrum) {
+		this.returnFullSpectrum = returnFullSpectrum;
+	}
+
+	/**
 	 * Returns common value if all elements in the given list are equal, otherwise throws an IllegalStateException
 	 */
 	private static <T> T consensusFrom(List<T> list) {
@@ -465,8 +493,9 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 	@Override
 	public int[] getData(int mcaNumber) throws DeviceException {
 		Object data = analysers.get(mcaNumber).getData();
-		if( data instanceof int[])
+		if( data instanceof int[]){
 			return (int[])data;
+		}
 		int[] integerArray = ArrayUtils.toPrimitive(
 				PositionConvertorFunctions.toIntegerArray(data));
 		return ArrayUtils.subarray(integerArray, 0, (int) analysers.get(mcaNumber).getNumberOfChannels());
@@ -525,7 +554,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 			for (int roiIndex = 0; roiIndex < thisElement.getRegionList().size(); roiIndex++) {
 	
 				final RegionOfInterest roi = thisElement.getRegionList().get(roiIndex);
-				if( roi.getRoiStart() != -1){
+				if( isReportInvalidROI() || roi.getRoiStart() != -1){
 					double count;
 					if( epicsMCA != null){
 						/* This causes far less channel access calls than getROICountsUsingCache
@@ -558,6 +587,8 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 			}
 		}
 		logger.info("xmap - total readout time: " + (System.nanoTime() - startTime)/1000000000.);
+		if( isReturnFullSpectrum())
+			output.addData(detTree, "fullSpectrum", new int[]{detectorData.length, detectorData[0].length}, NexusFile.NX_INT32, detectorData, "counts", 1);
 		
 		if(summation != null)
 			output.addData(detTree, "allElementSum", new int[]{summation.length}, NexusFile.NX_INT32, summation, "counts",1);
@@ -661,7 +692,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 			extraNames.add(thisElement.getName() + "_realtime");
 			extraNames.add(thisElement.getName() + "_livetime");
 			for (RegionOfInterest roi : thisElement.getRegionList()) {
-				if( roi.getRoiStart() != -1)
+				if( isReportInvalidROI() || roi.getRoiStart() != -1)
 					extraNames.add(getExtraName(thisElement, roi));
 			}
 		}
