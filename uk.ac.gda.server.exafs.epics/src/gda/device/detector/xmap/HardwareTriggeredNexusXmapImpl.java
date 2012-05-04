@@ -43,7 +43,7 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 	private NexusXmap xmap;
 	private EDXDMappingController controller;
 	private boolean integrateBetweenPoints = true;
-	
+
 	@Override
 	public NexusXmap getXmap() {
 		return xmap;
@@ -189,6 +189,7 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 		if (!isHardwareTriggering()) {
 			xmap.collectData();
 		}
+
 	}
 
 	@Override
@@ -227,7 +228,6 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 			xmap.prepareForCollection();
 		}
 	}
-	@Override
 	public void arm() throws DeviceException {
 		//prepare the detector for continuous collection
 		// TODO Auto-generated method stub
@@ -445,6 +445,5 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 	public void setIntegrateBetweenPoints(boolean integrateBetweenPoints) {
 		this.integrateBetweenPoints = integrateBetweenPoints;
 	}
-	
 
 }

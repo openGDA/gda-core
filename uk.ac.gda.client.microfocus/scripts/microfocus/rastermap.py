@@ -60,6 +60,7 @@ def rastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, f
     if(detectorBean.getFluorescenceParameters().getDetectorType() == "Silicon"):
         vortexRastermap(sampleFileName, scanFileName, detectorFileName, outputFileName, folderName, scanNumber, validation)
         return
+
     outputBean   = BeansFactory.getBeanObject(xmlFolderName, outputFileName)
      
     # give the beans to the xasdatawriter class to help define the folders/filenames 

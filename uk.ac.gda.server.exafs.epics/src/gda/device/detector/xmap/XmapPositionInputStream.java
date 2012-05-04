@@ -48,11 +48,13 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 	 */
 	private final HardwareTriggeredNexusXmap hardwareTriggeredNexusXmap;
 
+	private boolean sumAllElementData = false;
 	/**
 	 * @param hardwareTriggeredNexusXmap
 	 */
-	XmapPositionInputStream(HardwareTriggeredNexusXmap hardwareTriggeredNexusXmap) {
+	XmapPositionInputStream(HardwareTriggeredNexusXmap hardwareTriggeredNexusXmap ,boolean sumAllElementdata) {
 		this.hardwareTriggeredNexusXmap = hardwareTriggeredNexusXmap;
+		this.sumAllElementData = sumAllElementdata;
 	}
 
 	private int readSoFar =0;
@@ -63,7 +65,7 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 		String fileName=null;
 		try {
 			System.out.println("wating for file");
-			 fileName= this.hardwareTriggeredNexusXmap.getController().getHDFFileName();
+			 fileName= this.hardwareTriggeredNexusXmap.getHDFFileName();
 			 
 			Vector <NexusTreeProvider> container = new Vector<NexusTreeProvider>();
 			hardwareTriggeredNexusXmap.waitForFile(fileName);
@@ -89,7 +91,7 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 		return container;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			HardwareTriggeredNexusXmap.logger.error("TODO put description of error here", e);
+			HardwareTriggeredNexusXmapImpl.logger.error("TODO put description of error here", e);
 			throw new DeviceException("Unable to load file " + fileName , e);
 		}
 	}
@@ -147,7 +149,7 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 				roiNames[iroi] = roi.getRoiName();
 			}
 
-			if (this.hardwareTriggeredNexusXmap.getXmap().isSumAllElementData()) {
+			if (this.isSumAllElementData()) {
 				if (summation == null)
 					summation = new double[detectorData[element].length];
 				for (int i = 0; i < detectorData[element].length; i++) {
@@ -263,15 +265,25 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 		return 0;
 	}
 	
-	
-	private double calculateROICounts(int roiIndex, int elementIndex, short[]data) throws DeviceException
-	{
-		int regionLow = (int)this.hardwareTriggeredNexusXmap.getController().getSubDetector(elementIndex).getLowROIs()[roiIndex];
-		int regionHigh = (int)this.hardwareTriggeredNexusXmap.getController().getSubDetector(elementIndex).getHighROIs()[roiIndex];
-		double count =0.0;
-		for (int i = regionLow; i<= regionHigh; i++)
+
+	private double calculateROICounts(int regionLow, int regionHigh, short[] data) {
+		double count = 0.0;
+		for (int i = regionLow; i <= regionHigh; i++)
 			count += data[i];
 		return count;
+	}
+
+
+
+	public boolean isSumAllElementData() {
+		return sumAllElementData;
+	}
+
+
+
+
+	public void setSumAllElementData(boolean sumAllElementData) {
+		this.sumAllElementData = sumAllElementData;
 	}
 	
 	
