@@ -64,9 +64,12 @@ public class PCOTomography implements ITomographyDetector {
 	public void acquireMJpeg(Double expTime, Double acqPeriod, Double procScaleFactor, int binX, int binY)
 			throws Exception {
 		// plugins arranged - cam -> proc -> roi ->mjpeg
-
 		IPCOControllerV17 controller = pcoDetector.getController();
+
 		ADBase areaDetector = controller.getAreaDetector();
+		if (expTime != areaDetector.getAcquireTime_RBV()) {
+			pcoDetector.stop();
+		}
 		NDStats stat = controller.getStat();
 		NDProcess proc1 = controller.getProc1();
 		NDROI roi1 = controller.getRoi1();
@@ -352,10 +355,11 @@ public class PCOTomography implements ITomographyDetector {
 		controller.getAreaDetector().setTriggerMode(2);
 		NDProcess proc1 = controller.getProc1();
 		prepareProcForFlat(proc1, numberOfImages);
-
+		proc1.setEnableFlatField(1);
 		// Proc2
 		NDProcess proc2 = controller.getProc2();
 		prepareProcForFlat(proc2, numberOfImages);
+		proc2.setEnableFlatField(1);
 		// capture the appropriate number of images
 		controller.setNumImages(numberOfImages - 1);
 		controller.setImageMode(1);
@@ -390,6 +394,9 @@ public class PCOTomography implements ITomographyDetector {
 
 		proc1.setEnableOffsetScale(0);
 		proc2.setEnableOffsetScale(0);
+
+		proc1.setEnableFlatField(0);
+		proc2.setEnableFlatField(0);
 		//
 		fullFileName = controller.getTiffFullFileName();
 		setHdfFormat(isHdfFormat);
@@ -592,6 +599,18 @@ public class PCOTomography implements ITomographyDetector {
 
 		// acquire a single image to set the arrays correctly
 		pcoDetector.acquireSynchronously();
+	}
+
+	@Override
+	public void disableDarkSubtraction() throws Exception {
+		pcoDetector.getController().getProc1().setEnableBackground(0);
+		pcoDetector.getController().getProc2().setEnableBackground(0);
+	}
+
+	@Override
+	public void enableDarkSubtraction() throws Exception {
+		pcoDetector.getController().getProc1().setEnableBackground(1);
+		pcoDetector.getController().getProc2().setEnableBackground(1);
 	}
 
 }
