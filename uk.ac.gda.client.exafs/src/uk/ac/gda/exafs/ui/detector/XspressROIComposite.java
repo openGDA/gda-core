@@ -26,6 +26,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
+import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.richbeans.components.FieldComposite.NOTIFY_TYPE;
@@ -43,10 +44,10 @@ public class XspressROIComposite extends DetectorROIComposite {
 
 	private ScaleBox regionStart;
 	private ScaleBox regionEnd;
-	private ComboWrapper regionType;
+	
 	private LabelWrapper counts;
 	private TextWrapper roiName;
-	private Label lblRegionBins;
+	
 	private boolean modeOverride = LocalProperties.check("gda.xspress.mode.override");
 
 	/**
@@ -81,27 +82,7 @@ public class XspressROIComposite extends DetectorROIComposite {
 		regionEnd.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		regionEnd.setButtonVisible(true);
 		regionEnd.setDecimalPlaces(0);
-		
-		lblRegionBins = new Label(this, SWT.NONE);
-		lblRegionBins.setText("Region type");
-		
-		regionType = new ComboWrapper(this, SWT.READ_ONLY);
-		regionType.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		regionType.setItems(new String[]{XspressROI.VIRTUALSCALER, XspressROI.MCA});
-		regionType.select(0);
-		if(modeOverride)
-		{
-			lblRegionBins.setVisible(false);			
-			GridUtils.setVisibleAndLayout(regionType, false);
-		}
-		regionType.addValueListener(new ValueAdapter("regionType") {
-			@Override
-			public void valueChangePerformed(ValueEvent e) {
-				setFitTypeVisibility();
-			}
-		});
 
-		
 		Label lblCounts = new Label(this, SWT.NONE);
 		lblCounts.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		lblCounts.setText("In window counts");
@@ -133,12 +114,6 @@ public class XspressROIComposite extends DetectorROIComposite {
 	 */
 	public ScaleBox getRegionStart() {
 		return regionStart;
-	}
-	/**
-	 * @return d
-	 */
-	public ComboWrapper getRegionType() {
-		return regionType;
 	}
 	
 	public LabelWrapper getCounts() {
