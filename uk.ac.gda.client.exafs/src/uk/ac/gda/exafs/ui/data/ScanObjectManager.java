@@ -18,17 +18,52 @@
 
 package uk.ac.gda.exafs.ui.data;
 
+import gda.exafs.scan.ScanStartedMessage;
+import gda.factory.Findable;
+import gda.factory.Finder;
+import gda.jython.scriptcontroller.logging.ILoggingScriptController;
+import gda.jython.scriptcontroller.logging.LoggingScriptController;
+import gda.observable.IObserver;
+import gda.rcp.GDAClientActivator;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 
+import uk.ac.gda.beans.exafs.IDetectorParameters;
+import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentObjectManager;
 import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 import uk.ac.gda.client.experimentdefinition.IExperimentObjectManager;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
+import uk.ac.gda.preferences.PreferenceConstants;
 
-public final class ScanObjectManager extends ExperimentObjectManager implements IExperimentObjectManager {
+public final class ScanObjectManager extends ExperimentObjectManager implements IExperimentObjectManager, IObserver {
 
+	private static IScanParameters currentScan;
+	private static IDetectorParameters currentDetectorParameters;
+	private static LoggingScriptController messageController;
+	
+	
+	public ScanObjectManager() {
+		String controllers = GDAClientActivator.getDefault().getPreferenceStore()
+				.getString(PreferenceConstants.GDA_LOGGINGSCRIPTCONTROLLERS);
+		String[] controllerNames = controllers.split(",");
+
+		for (String name : controllerNames) {
+			Findable objRef = Finder.getInstance().find(name.trim());
+			if (objRef instanceof ILoggingScriptController) {
+				ILoggingScriptController newcontroller = (ILoggingScriptController) objRef;
+				try {
+					newcontroller.addIObserver(this);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+//					logger.error("TODO put description of error here", e);
+				}
+			}
+		}
+	}
+	
 	/**
 	 * On I20, if the XES scan is an option, according to the extension
 	 * registry, then it should be the only scan option and the appearance of
@@ -49,6 +84,39 @@ public final class ScanObjectManager extends ExperimentObjectManager implements 
 	public static void setXESOnlyMode(boolean onlyXESScans) {
 		ExafsActivator.getDefault().getPreferenceStore().setValue(ExafsPreferenceConstants.XES_MODE_ENABLED, onlyXESScans);
 	}
+	
+	/**
+	 * Based on information returned from the specific Script Controller, returns the ScanObject currently in progress.
+	 * <p>
+	 * For parts of the UI whose display varies based on what is running. 
+	 * 
+	 * @return null if no scan running
+	 */
+	public static IScanParameters getCurrentScan() {
+		return currentScan;
+	}
+	
+	public static IDetectorParameters getCurrentDetectorParameters() {
+		return currentDetectorParameters;
+	}
+
+	public LoggingScriptController getMessageController() {
+		return messageController;
+	}
+
+	public void setMessageController(LoggingScriptController messageController) {
+		ScanObjectManager.messageController = messageController;
+		messageController.addIObserver(this);
+	}
+	
+	@Override
+	public void update(Object source, Object arg) {
+		if (arg instanceof ScanStartedMessage){
+			currentScan = ((ScanStartedMessage)arg).getStartedScan();
+			currentDetectorParameters = ((ScanStartedMessage)arg).getDetectorParams();
+		} 
+	}
+
 
 	@Override
 	protected IExperimentObject createNewExperimentObject(String line) {
@@ -105,5 +173,4 @@ public final class ScanObjectManager extends ExperimentObjectManager implements 
 	public String[] getOrderedColumnBeanTypes() {
 		return new String[]{"Scan","Detector","Sample","Output"};
 	}
-
 }

@@ -24,11 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.collections.BidiMap;
-import org.apache.commons.collections.bidimap.TreeBidiMap;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.IRichBean;
@@ -46,9 +43,8 @@ import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
 
 /**
- * This class looks a bit like a bean but it is not designed to be a bean. It is
- * an interface to the .scan file. setting the file names can also be committed
- * to the file by calling the write() method.
+ * This class looks a bit like a bean but it is not designed to be a bean. It is an interface to the .scan file. setting
+ * the file names can also be committed to the file by calling the write() method.
  */
 public class ScanObject extends ExperimentObject implements IExperimentObject {
 
@@ -57,7 +53,7 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 	public static final String SAMPLEBEANTYPE = "Sample";
 	public static final String SCANBEANTYPE = "Scan";
 
-	transient private static final Logger logger = LoggerFactory.getLogger(ScanObject.class);
+	// transient private static final Logger logger = LoggerFactory.getLogger(ScanObject.class);
 
 	@Override
 	public void createFilesFromTemplates() {
@@ -93,19 +89,15 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 	public Map<String, IFile> getFilesWithTypes() {
 		BidiMap typeToFiles = getTypeToFileMap();
 
-		//NV23 changed as mF parameters need to have sampleParameters to change th scan file prefix 
+		// NV23 changed as mF parameters need to have sampleParameters to change th scan file prefix
 		// with microfocus scans, do not have a sample parameters
-		/*try {
-			if (getScanParameters() instanceof MicroFocusScanParameters) {
-				BidiMap mapCopy = new TreeBidiMap();
-				mapCopy.put(SCANBEANTYPE, typeToFiles.get(SCANBEANTYPE));
-				mapCopy.put(DETECTORBEANTYPE, typeToFiles.get(DETECTORBEANTYPE));
-				mapCopy.put(OUTPUTBEANTYPE, typeToFiles.get(OUTPUTBEANTYPE));
-				typeToFiles = mapCopy;
-			}
-		} catch (Exception e) {
-			logger.error("Exception mapping xml files with type: " + e.getMessage(), e);
-		}*/
+		/*
+		 * try { if (getScanParameters() instanceof MicroFocusScanParameters) { BidiMap mapCopy = new TreeBidiMap();
+		 * mapCopy.put(SCANBEANTYPE, typeToFiles.get(SCANBEANTYPE)); mapCopy.put(DETECTORBEANTYPE,
+		 * typeToFiles.get(DETECTORBEANTYPE)); mapCopy.put(OUTPUTBEANTYPE, typeToFiles.get(OUTPUTBEANTYPE)); typeToFiles
+		 * = mapCopy; } } catch (Exception e) { logger.error("Exception mapping xml files with type: " + e.getMessage(),
+		 * e); }
+		 */
 
 		Map<String, IFile> targetFiles = new HashMap<String, IFile>(typeToFiles.size());
 		for (Object fileType : typeToFiles.keySet()) {
@@ -120,36 +112,24 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 		return runFileManager.getContainingFolder();
 	}
 
-	/**
-	 * @return file
-	 */
 	public IFile getSampleFile() {
 		if (getSampleFileName() == null)
 			return null;
 		return getFolder().getFile(getSampleFileName());
 	}
 
-	/**
-	 * @return file
-	 */
 	public IFile getScanFile() {
 		if (getScanFileName() == null)
 			return null;
 		return getFolder().getFile(getScanFileName());
 	}
 
-	/**
-	 * @return file
-	 */
 	public IFile getDetectorFile() {
 		if (getDetectorFileName() == null)
 			return null;
 		return getFolder().getFile(getDetectorFileName());
 	}
 
-	/**
-	 * @return file
-	 */
 	public IFile getOutputFile() {
 		if (getOutputFileName() == null)
 			return null;
@@ -235,8 +215,7 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 	}
 
 	/**
-	 * @return true if xanes file, false if not xanes or if file cannot be
-	 *         found.
+	 * @return true if xanes file, false if not xanes or if file cannot be found.
 	 * @throws Exception
 	 */
 	public boolean isXanes() throws Exception {
@@ -244,8 +223,7 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 	}
 
 	/**
-	 * @return true if xanes file, false if not xanes or if file cannot be
-	 *         found.
+	 * @return true if xanes file, false if not xanes or if file cannot be found.
 	 * @throws Exception
 	 */
 	public boolean isMicroFocus() throws Exception {
@@ -253,8 +231,7 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 	}
 
 	/**
-	 * @return true if qexafs file, false if not qeaxfs or if file cannot be
-	 *         found.
+	 * @return true if qexafs file, false if not qeaxfs or if file cannot be found.
 	 * @throws Exception
 	 */
 	public boolean isQexafs() throws Exception {
@@ -272,7 +249,7 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 	public boolean isXes() throws Exception {
 		return isDescribed(XesScanParameters.class);
 	}
-	
+
 	private boolean isDescribed(Class<? extends IRichBean> beanClass) throws Exception {
 		if (getScanFile() == null)
 			return false;
@@ -283,8 +260,8 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 	}
 
 	/**
-	 * Returns a new bean. NOTE: Should not be used to get beans for editor,
-	 * this is not the editors version but a representation of the current file.
+	 * Returns a new bean. NOTE: Should not be used to get beans for editor, this is not the editors version but a
+	 * representation of the current file.
 	 * 
 	 * @return a new bean from the file.
 	 * @throws Exception
@@ -318,8 +295,8 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 	}
 
 	/**
-	 * Returns a new bean. NOTE: Should not be used to get beans for editor,
-	 * this is not the editors version but a representation of the current file.
+	 * Returns a new bean. NOTE: Should not be used to get beans for editor, this is not the editors version but a
+	 * representation of the current file.
 	 * 
 	 * @return a new bean from the file.
 	 * @throws Exception
@@ -335,8 +312,8 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 	}
 
 	/**
-	 * Returns a new bean. NOTE: Should not be used to get beans for editor,
-	 * this is not the editors version but a representation of the current file.
+	 * Returns a new bean. NOTE: Should not be used to get beans for editor, this is not the editors version but a
+	 * representation of the current file.
 	 * 
 	 * @return a new bean from the file.
 	 * @throws Exception
@@ -353,8 +330,8 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 	}
 
 	/**
-	 * Returns a new bean. NOTE: Should not be used to get beans for editor,
-	 * this is not the editors version but a representation of the current file.
+	 * Returns a new bean. NOTE: Should not be used to get beans for editor, this is not the editors version but a
+	 * representation of the current file.
 	 * 
 	 * @return a new bean from the file.
 	 * @throws Exception
@@ -405,5 +382,59 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 	@Override
 	public long estimateTime() throws Exception {
 		return ExafsTimeEstimator.getTime(getScanParameters());
+	}
+
+	@Override
+	public String getCommandString() throws Exception {
+		return getCommandLine();
+	}
+
+	@Override
+	public String getCommandSummaryString() throws Exception {
+		final StringBuilder buf = new StringBuilder(getNumberRepetitions() + " repeats: ");
+		buf.append(getCommandLine());
+		return buf.toString();
+	}
+
+	private String getExptCommand() throws Exception {
+		if (isXanes()) {
+			return "xas";
+		} else if (isQexafs()) {
+			return "qexafs";
+		} else if (isMicroFocus()) {
+			return "map";
+		} else if (isXes()) {
+			return "xes";
+		}
+		return "xas";
+	}
+
+	private String getCommandLine() throws Exception {
+		return getExptCommand() + " " + getArgs();
+	}
+
+	private String getArgs() {
+		final StringBuilder buf = new StringBuilder();
+		buf.append("\"" + getFileKey(getSampleFileName()) + "\"");
+		buf.append(" \"");
+		buf.append(getFileKey(getScanFileName()));
+		buf.append("\" \"");
+		buf.append(getFileKey(getDetectorFileName()));
+		buf.append("\" \"");
+		buf.append(getFileKey(getOutputFileName()));
+		buf.append("\" ");
+		buf.append("\"" + getRunFileManager().getContainingFolder().getName() + "\"");
+		buf.append(" " + getNumberRepetitions() + " ");
+		buf.append("False");
+		return buf.toString();
+	}
+
+	private static String getFileKey(final String fileName) {
+		if (fileName == null || fileName.equals("None"))
+			return "None";
+		if (fileName.indexOf("[") != -1) {
+			return fileName.substring(0, fileName.lastIndexOf('.'));
+		}
+		return fileName.substring(0, fileName.lastIndexOf("."));
 	}
 }

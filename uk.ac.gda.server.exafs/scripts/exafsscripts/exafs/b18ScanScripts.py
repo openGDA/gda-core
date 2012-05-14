@@ -6,6 +6,7 @@ from gda.configuration.properties import LocalProperties
 from gda.data.scan.datawriter import XasAsciiDataWriter, NexusExtraMetadataDataWriter
 from gda.exafs.scan import ExafsScanPointCreator, XanesScanPointCreator
 from gda.exafs.scan import BeanGroup, BeanGroups
+from gda.exafs.scan import ScanStartedMessage
 from gda.device.scannable import XasScannable
 from gda.device.scannable import XasScannableWithDetectorFramesSetup
 from gda.device.scannable import JEPScannable
@@ -15,6 +16,7 @@ from gda.jython.commands.GeneralCommands import run
 from uk.ac.gda.beans import BeansFactory
 from uk.ac.gda.beans.exafs import XanesScanParameters
 from gdascripts.messages.handle_messages import simpleLog
+from gda.jython.scriptcontroller.logging import XasProgressUpdater
 
 
 class Scan:
@@ -58,13 +60,23 @@ class XasScan(Scan):
         ScanBase.interrupted = False
     
         controller = Finder.getInstance().find("ExafsScriptObserver")
-    
+        
         # Create the beans from the file names
         xmlFolderName = ExafsEnvironment().getScriptFolder() + folderName + "/"
         print "xmlFolderName", xmlFolderName  
         
         sampleBean, scanBean, detectorBean, outputBean = self._createBeans(xmlFolderName, sampleFileName, scanFileName, detectorFileName, outputFileName)
-         
+
+        # send initial message to the log
+        from gda.jython.scriptcontroller.logging import LoggingScriptController
+        from gda.jython.scriptcontroller.logging import XasLoggingMessage
+        loggingcontroller= Finder.getInstance().find("XASLoggingScriptController")
+        unique_id           = LoggingScriptController.createUniqueID("XasScan");
+        logmsg = XasLoggingMessage(unique_id, "XasScan", "Starting XAS scan...", str(scanNumber), str("0%"),str(0),scanBean)
+        loggingcontroller.update(None,logmsg)
+        loggingcontroller.update(None,ScanStartedMessage(scanBean,detectorBean))
+        loggingbean = XasProgressUpdater(loggingcontroller,logmsg)
+
         # create the scannable which will control energy & time for each point
         useFrames = LocalProperties.check("gda.microfocus.scans.useFrames")
         if(detectorBean.getExperimentType() == "Fluorescence" and detectorBean.getFluorescenceParameters().getDetectorType() == "Germanium" and useFrames):
@@ -150,6 +162,7 @@ class XasScan(Scan):
                 args += [temperatureController]
             args += detectorList 
             args += signalParameters
+            args += [loggingbean]
             
             simpleLog("about to scan")
             

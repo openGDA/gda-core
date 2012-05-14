@@ -18,9 +18,7 @@
 
 package uk.ac.gda.exafs.ui.controller;
 
-import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
-import gda.jython.batoncontrol.ClientDetails;
 import gda.jython.gui.JythonGuiConstants;
 import gda.jython.scriptcontroller.ScriptExecutor;
 
@@ -28,53 +26,38 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.beans.validation.InvalidBeanException;
-import uk.ac.gda.beans.validation.InvalidBeanMessage;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
-import uk.ac.gda.client.experimentdefinition.ExperimentObjectHelper;
 import uk.ac.gda.client.experimentdefinition.IExperimentObject;
-import uk.ac.gda.client.experimentdefinition.ui.experimentqueue.ExperimentException;
-import uk.ac.gda.client.experimentdefinition.ui.experimentqueue.ExperimentQueue;
 import uk.ac.gda.exafs.ui.data.ScanObject;
-import uk.ac.gda.exafs.ui.data.ScanObjectManager;
-import uk.ac.gda.richbeans.editors.xml.XMLBeanEditor;
-import uk.ac.gda.views.baton.BatonView;
 
 /**
  * NOTE Could possibly be using Eclipse Job class
  */
-public class ExafsQueue extends ExperimentQueue {
+@Deprecated
+public class ExafsQueue /*extends ExperimentQueue*/ {
 
-	@SuppressWarnings("hiding")
 	protected static final Logger logger = LoggerFactory.getLogger(ExafsQueue.class);
 
-	/**
-	 * NOTE this method is already being run in the queue thread. Do not start new threads in the method. {@inheritDoc}
-	 * If you throw RuntimeExceptions from this method, it will kill the queue. However the user can restart the queue.
-	 */
-	@Override
-	protected boolean process(IExperimentObject run) throws ExperimentException {
+//	@Override
+	protected boolean process(IExperimentObject run) throws Exception {
 
 		try {
 			// Hack warning: A data-structure in the GDA sometimes throws a concurrent
 			// modification if we proceed straight to the ScriptExecutor.Run(...) line.
 			Thread.sleep(100);
 		} catch (InterruptedException e) {
-			throw new ExperimentException(e, run);
+			throw new Exception(e);
 		}
 
-		if (run.isAborted())
-			return false;
+//		if (run.isAborted())
+//			return false;
 
 		final ScanObject ob = (ScanObject) run;
 		String command = null;
@@ -82,32 +65,32 @@ public class ExafsQueue extends ExperimentQueue {
 
 			checkForInvalidMixOfScanTypes(ob);
 
-			checkAvailable(ob);
+//			checkAvailable(ob);
 
 			command = getCommandLine(ob);
 
 			// Print the command so that users can see what is done.
-			if (run.isAborted())
-				return false;
+//			if (run.isAborted())
+//				return false;
 			JythonServerFacade.getInstance().print(command);
 
 			// Call the validation
-			if (run.isAborted())
-				return false;
+//			if (run.isAborted())
+//				return false;
 
 			// use the extension point for beamline specific validation
 			ExperimentFactory.getValidator().validate(ob);
 
 			// Run command and block.
-			if (run.isAborted())
-				return false;
-			ScriptExecutor.Run("ExafsScriptObserver", new ExperimentObjectHelper(ob), getBeans(ob), command,
+//			if (run.isAborted())
+//				return false;
+			ScriptExecutor.Run("ExafsScriptObserver", null, getBeans(ob), command,
 					JythonGuiConstants.TERMINALNAME);
 			return true;
 
-		} catch (InvalidBeanException ne) {
+		}/* catch (InvalidBeanException ne) {
 			final List<InvalidBeanMessage> msgs = ne.getMessages();
-			final ExperimentException o = new ExperimentException(run);
+//			final ExperimentException o = new ExperimentException(run);
 			if (msgs.size() > 1) {
 				o.setMultipleErrors(msgs);
 				o.setErrorTitle("Validation Errors Reported");
@@ -119,12 +102,12 @@ public class ExafsQueue extends ExperimentQueue {
 			}
 			throw o;
 
-		} catch (ExperimentException ne) {
-			if (run.isAborted())
-				return false;
+		}*/ /*catch (Exception ne) {
+//			if (run.isAborted())
+//				return false;
 			throw ne;
 
-		} catch (Exception ne) {
+		}*/ catch (Exception ne) {
 			if (command != null) {
 				logger.error("Cannot execute command " + command, ne);
 			} else {
@@ -149,29 +132,29 @@ public class ExafsQueue extends ExperimentQueue {
 		}
 
 		// test the rest
-		Object[] wholeQueue = this.queueList.toArray();
-		for (Object scanObj : wholeQueue) {
-			if (testScanParametersIsXES(((ScanObject) scanObj).getScanParameters())) {
-				xesSeen = true;
-			} else {
-				otherSeen = true;
-			}
-		}
-
-		if (xesSeen && otherSeen) {
-			throw new InvalidBeanException(
-					"A mixture of XES and other scan types has been queued.\nThis is not allowed due to potential hardware collisions.\nYou will need to resolve this in order to proceed.");
-		}
-
-		if (ScanObjectManager.isXESOnlyMode() && otherSeen) {
-			throw new InvalidBeanException(
-					"Non-XES scan types have been queued when running in XES mode.\nThis is not allowed due to potential hardware collisions.\nYou will need to switch to XAS mode or delete those scans.");
-		}
-
-		if (!ScanObjectManager.isXESOnlyMode() && xesSeen) {
-			throw new InvalidBeanException(
-					"XES scan types have been queued when running in XAS mode.\nThis is not allowed due to potential hardware collisions.\nYou will need to switch to XES mode or delete those scans.");
-		}
+//		Object[] wholeQueue = this.queueList.toArray();
+//		for (Object scanObj : wholeQueue) {
+//			if (testScanParametersIsXES(((ScanObject) scanObj).getScanParameters())) {
+//				xesSeen = true;
+//			} else {
+//				otherSeen = true;
+//			}
+//		}
+//
+//		if (xesSeen && otherSeen) {
+//			throw new InvalidBeanException(
+//					"A mixture of XES and other scan types has been queued.\nThis is not allowed due to potential hardware collisions.\nYou will need to resolve this in order to proceed.");
+//		}
+//
+//		if (ScanObjectManager.isXESOnlyMode() && otherSeen) {
+//			throw new InvalidBeanException(
+//					"Non-XES scan types have been queued when running in XES mode.\nThis is not allowed due to potential hardware collisions.\nYou will need to switch to XAS mode or delete those scans.");
+//		}
+//
+//		if (!ScanObjectManager.isXESOnlyMode() && xesSeen) {
+//			throw new InvalidBeanException(
+//					"XES scan types have been queued when running in XAS mode.\nThis is not allowed due to potential hardware collisions.\nYou will need to switch to XES mode or delete those scans.");
+//		}
 
 	}
 
@@ -215,14 +198,14 @@ public class ExafsQueue extends ExperimentQueue {
 			return ret;
 
 		} catch (InvocationTargetException ne) {
-			if (ne.getCause() instanceof org.xml.sax.SAXParseException) {
-				final ExperimentException ee = new ExperimentException(run);
-				ee.setErrorTitle("XML Validation Error");
-				ee.setUserMessage("The " + typeName + " are not valid in the file '" + fileName
+/*			if (ne.getCause() instanceof org.xml.sax.SAXParseException) {
+				final Exception ee = new Exception(The " + typeName + " are not valid in the file '" + fileName
 						+ "'.\n\nThe scan cannot be run.\n\n" + "Error message:\n"
 						+ XMLBeanEditor.getSantitizedExceptionMessage(ne.getCause().getMessage()));
+				ee.setErrorTitle("XML Validation Error");
+				ee.setUserMessage(");
 				throw ee;
-			}
+			}*/
 			throw ne;
 		}
 	}
@@ -253,13 +236,13 @@ public class ExafsQueue extends ExperimentQueue {
 	private String getArgs(ScanObject run) {
 		final StringBuilder buf = new StringBuilder();
 		buf.append("\"" + ExafsQueue.getFileKey(run.getSampleFileName()) + "\"");
-		buf.append(" ");
+		buf.append(" \"");
 		buf.append(ExafsQueue.getFileKey(run.getScanFileName()));
-		buf.append(" ");
+		buf.append("\" ");
 		buf.append(ExafsQueue.getFileKey(run.getDetectorFileName()));
-		buf.append(" ");
+		buf.append(" \"");
 		buf.append(ExafsQueue.getFileKey(run.getOutputFileName()));
-		buf.append(" ");
+		buf.append("\" ");
 		buf.append("\"" + run.getRunFileManager().getContainingFolder().getName() + "\"");
 		buf.append(" " + run.getRepetition() + " ");
 		buf.append("False");
@@ -270,68 +253,68 @@ public class ExafsQueue extends ExperimentQueue {
 	 * NOTE This should be on the super class to avoid duplication but the restrictions we have on class path are
 	 * meaning that common.rcp is not compiling with core classes referenced.
 	 * 
-	 * @throws ExperimentException
+	 * @throws Exception
 	 */
-	private void checkAvailable(IExperimentObject run) throws ExperimentException {
-
-		// You have to request the baton in case you are
-		if (JythonServerFacade.getInstance().isBatonHeld()) {
-			JythonServerFacade.getInstance().requestBaton();
-		} else if (!JythonServerFacade.getInstance().amIBatonHolder()) {
-			JythonServerFacade.getInstance().requestBaton();
-		}
-
-		if (JythonServerFacade.getInstance().isBatonHeld() && !JythonServerFacade.getInstance().amIBatonHolder()) {
-			final ClientDetails batonedUser = JythonServerFacade.getInstance().getBatonHolder();
-
-			try {
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(BatonView.ID);
-			} catch (PartInitException e) {
-				logger.error("PartInitException while trying to display the BatonView", e);
-			}
-
-			String message = "";
-			if (batonedUser == null) {
-				message = "You do not currently hold the baton.\n\nPlease take the baton to run scans.";
-			} else {
-				message = "You do not currently hold the baton, it is being held by user id " + batonedUser.getUserID()
-						+ ".\n\nPlease take the baton to run scans.";
-			}
-			final String finalMessage = message;
-			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					MessageDialog.openWarning(PlatformUI.getWorkbench().getDisplay().getActiveShell(),
-							"Cannot run the queue", finalMessage);
-				}
-			});
-			throw new ExperimentException(message, run);
-		}
-
-		// NOTE: As many scans can be added by one client as you like, there is a local queue.
-		// This block is only for another client(s) accessing the server.
-		if (JythonServerFacade.getInstance().getScanStatus() != Jython.IDLE
-				|| JythonServerFacade.getInstance().getScriptStatus() != Jython.IDLE) {
-			final ClientDetails batonedUser = JythonServerFacade.getInstance().getBatonHolder();
-			String message = "";
-			if (batonedUser == null) {
-				message = "Currently a scan is already being run by another user.";
-			} else {
-				message = "Currently a scan is already being run.\nThe current baton holder is "
-						+ batonedUser.getUserID();
-			}
-			final String finalMessage = message;
-
-			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					MessageDialog.openWarning(PlatformUI.getWorkbench().getDisplay().getActiveShell(),
-							"Cannot run the queue", finalMessage);
-				}
-			});
-			throw new ExperimentException(message, run);
-
-		}
-	}
+//	private void checkAvailable(IExperimentObject run) throws ExperimentException {
+//
+//		// You have to request the baton in case you are
+//		if (JythonServerFacade.getInstance().isBatonHeld()) {
+//			JythonServerFacade.getInstance().requestBaton();
+//		} else if (!JythonServerFacade.getInstance().amIBatonHolder()) {
+//			JythonServerFacade.getInstance().requestBaton();
+//		}
+//
+//		if (JythonServerFacade.getInstance().isBatonHeld() && !JythonServerFacade.getInstance().amIBatonHolder()) {
+//			final ClientDetails batonedUser = JythonServerFacade.getInstance().getBatonHolder();
+//
+//			try {
+//				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(BatonView.ID);
+//			} catch (PartInitException e) {
+//				logger.error("PartInitException while trying to display the BatonView", e);
+//			}
+//
+//			String message = "";
+//			if (batonedUser == null) {
+//				message = "You do not currently hold the baton.\n\nPlease take the baton to run scans.";
+//			} else {
+//				message = "You do not currently hold the baton, it is being held by user id " + batonedUser.getUserID()
+//						+ ".\n\nPlease take the baton to run scans.";
+//			}
+//			final String finalMessage = message;
+//			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+//				@Override
+//				public void run() {
+//					MessageDialog.openWarning(PlatformUI.getWorkbench().getDisplay().getActiveShell(),
+//							"Cannot run the queue", finalMessage);
+//				}
+//			});
+//			throw new ExperimentException(message, run);
+//		}
+//
+//		// NOTE: As many scans can be added by one client as you like, there is a local queue.
+//		// This block is only for another client(s) accessing the server.
+//		if (JythonServerFacade.getInstance().getScanStatus() != Jython.IDLE
+//				|| JythonServerFacade.getInstance().getScriptStatus() != Jython.IDLE) {
+//			final ClientDetails batonedUser = JythonServerFacade.getInstance().getBatonHolder();
+//			String message = "";
+//			if (batonedUser == null) {
+//				message = "Currently a scan is already being run by another user.";
+//			} else {
+//				message = "Currently a scan is already being run.\nThe current baton holder is "
+//						+ batonedUser.getUserID();
+//			}
+//			final String finalMessage = message;
+//
+//			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+//				@Override
+//				public void run() {
+//					MessageDialog.openWarning(PlatformUI.getWorkbench().getDisplay().getActiveShell(),
+//							"Cannot run the queue", finalMessage);
+//				}
+//			});
+//			throw new ExperimentException(message, run);
+//
+//		}
+//	}
 
 }

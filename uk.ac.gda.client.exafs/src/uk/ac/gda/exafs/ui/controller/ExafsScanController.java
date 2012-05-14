@@ -18,26 +18,16 @@
 
 package uk.ac.gda.exafs.ui.controller;
 
-import gda.device.scannable.ScannableUtils;
 import gda.jython.JythonServerFacade;
-import gda.jython.PanicStopEvent;
-import gda.observable.IObserver;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
-import uk.ac.gda.client.experimentdefinition.IExperimentObject;
-import uk.ac.gda.client.experimentdefinition.IExperimentObjectManager;
-import uk.ac.gda.client.experimentdefinition.ui.experimentqueue.ControllerStatus;
-import uk.ac.gda.client.experimentdefinition.ui.experimentqueue.ExperimentController;
 import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
@@ -45,115 +35,17 @@ import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
 /**
  * NOTE Could possibly be using Eclipse Job class
  */
-public class ExafsScanController extends ExperimentController {
+@Deprecated
+public class ExafsScanController /*extends ExperimentController*/ {
 
 	private static final Logger logger = LoggerFactory.getLogger(ExafsScanController.class);
 
 	public ExafsScanController() {
 		super();
-
-		// Listen to panic stop and clear the queue
-		JythonServerFacade.getInstance().addIObserver(new IObserver() {
-			@Override
-			public void update(Object source, Object arg) {
-				if (arg instanceof PanicStopEvent) {
-					// Panic stop results in new queue
-					internalRestart();
-					fireControllerStatusListeners();
-				}
-			}
-		});
 	}
 
-	/**
-	 */
-	@Override
-	public void doRun() {
 
-		try {
-			if (!canRun()) {
-				return;
-			}
-		} catch (Exception ne) {
-			logger.error("Cannot run in " + getClass().getName() + ". Unexpected error.", ne);
-		}
 
-		super.doRun();
-	}
-
-	/**
-	 * Checks if can run and shows error messages.
-	 * 
-	 * @return true if config ok.
-	 */
-	private boolean canRun() throws Exception {
-		final IExperimentObjectManager factory = ExperimentFactory.getExperimentEditorManager().getSelectedMultiScan();
-		if (factory == null) {
-			setState(ControllerStatus.INACTIVE);
-			fireControllerStatusListeners();
-			return false;
-		}
-
-		if (factory.checkError()) {
-			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-					"Scan Configuration Invalid", "The scan '" + factory.getName() + "' has errors and cannot be run.");
-			fireControllerStatusListeners();
-			return false;
-		}
-
-		// Check Scannables are not busy
-		final List<IExperimentObject> runs = getRuns();
-		for (IExperimentObject experimentObject : runs) {
-
-			final ScanObject scan = (ScanObject) experimentObject;
-			final String scannableName = scan.getScannableName();
-
-			if (scannableName == null)
-				continue;
-			if (ScannableUtils.isScannableBusy(scannableName)) {
-				MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-						"Scan Cannot be Run Hardware Busy", "The monochromator '" + scannableName
-								+ "' is not currently available for use.\n\nIt is probably currently moving.");
-				fireControllerStatusListeners();
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	@Override
-	public void doClear() {
-
-		setPaused(true);
-		try {
-			boolean yes = MessageDialog.openQuestion(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-					"Confirm Forced Stop", "This will force a stop on all running scripts and commands.\n\n"
-							+ "Are you sure you would like to continue?");
-
-			if (!yes)
-				return;
-
-			JythonServerFacade.getInstance().panicStop();
-			super.doClear();
-
-		} finally {
-			setPaused(false);
-			JythonServerFacade.getInstance().requestBaton();
-			fireControllerStatusListeners();
-		}
-	}
-
-	private void internalRestart() {
-		setPaused(true);
-		try {
-			super.doClear();
-		} finally {
-			setPaused(false);
-			JythonServerFacade.getInstance().requestBaton();
-			fireControllerStatusListeners();
-		}
-	}
 
 	/**
 	 * Gets time estimation of current scan from server.
@@ -203,26 +95,6 @@ public class ExafsScanController extends ExperimentController {
 			return "1";
 		}*/
 		return "estimateXas " + fileName + " " + ob.getNumberRepetitions() + " True";
-	}
-
-//	@Override
-//	protected ExperimentQueue createQueue() {
-//		return new ExafsQueue();
-//	}
-
-	/**
-	 * Returns the currently running scan object, if any.
-	 * 
-	 * @return scan
-	 */
-	@Override
-	public ScanObject getCurrentScan() {
-		return (ScanObject) super.getCurrentScan();
-	}
-
-	@Override
-	public boolean isMultipleRun() {
-		return queue.getQueueSize() > 0;
 	}
 
 }

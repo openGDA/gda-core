@@ -30,6 +30,7 @@ Export-Package: gda.data.scan.datawriter,
  gda.exafs.mucal,
  gda.exafs.scan,
  gda.exafs.xes,
+ gda.jython.scriptcontroller.logging,
  gda.util,
  uk.ac.gda.beans,
  uk.ac.gda.beans.exafs,
@@ -41,6 +42,5 @@ Export-Package: gda.data.scan.datawriter,
  uk.ac.gda.beans.vortex,
  uk.ac.gda.beans.xspress,
  uk.ac.gda.server.exafs
-Eclipse-RegisterBuddy: uk.ac.gda.common, uk.ac.gda.core
+Eclipse-RegisterBuddy: uk.ac.gda.common, uk.ac.gda.core, uk.ac.gda.client
 Import-Package: org.slf4j;version="[1.5.0,2.0.0)"
-Import-Package: org.slf4j;version="1.5.6"

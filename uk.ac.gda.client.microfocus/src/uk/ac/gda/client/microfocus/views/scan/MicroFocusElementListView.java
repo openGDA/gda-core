@@ -61,18 +61,18 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.Overlay2DProvider;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.OverlayProvider;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.IImagePositionEvent;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
+import uk.ac.gda.beans.exafs.IDetectorParameters;
+import uk.ac.gda.beans.exafs.IScanParameters;
+import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentEditorManager;
-import uk.ac.gda.client.experimentdefinition.ui.experimentqueue.ControllerStatus;
-import uk.ac.gda.client.experimentdefinition.ui.experimentqueue.ControllerStatusEvent;
-import uk.ac.gda.client.experimentdefinition.ui.experimentqueue.ControllerStatusListener;
 import uk.ac.gda.client.microfocus.controller.MicroFocusDisplayController;
 import uk.ac.gda.client.microfocus.util.MicroFocusScanLoader;
 import uk.ac.gda.exafs.ui.data.ScanObject;
-import uk.ac.gda.richbeans.xml.XMLEditorManager;
+import uk.ac.gda.exafs.ui.data.ScanObjectManager;
 
 public class MicroFocusElementListView extends ViewPart implements Overlay2DConsumer, SelectionListener,
-		ControllerStatusListener, FocusListener, IObservable
+		 FocusListener, IObservable
 
 {
 	/**
@@ -168,7 +168,8 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 				// then register this with the plot.
 				plotView.getMainPlotter().registerOverlay(this);
 				logger.info("The Plot View is " + plotView);
-				ExperimentFactory.getScanController().addControllerStatusListener(this);
+				//FIXME need some functionality to replace this? or is this now redundant?
+//				ExperimentFactory.getScanController().addControllerStatusListener(this);
 			}
 			/*
 			 * IPlotUI plotUI = plotView.getPlotUI(); if(plotUI instanceof Plot2DUI) { sidePlotView =
@@ -276,10 +277,10 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 
 	private String findCurrentDetectorFile() throws Exception {
 		if (isScanRunning()) {
-			ScanObject runningScan = (ScanObject) ExperimentFactory.getScanController().getCurrentScan();
-			if (runningScan.isMicroFocus()) {
-				String currentDetector = runningScan.getDetectorParameters().getFluorescenceParameters()
-						.getConfigFileName();
+			IScanParameters runningScan = ScanObjectManager.getCurrentScan();
+			IDetectorParameters runningDetParams = ScanObjectManager.getCurrentDetectorParameters();
+			if (runningScan instanceof MicroFocusScanParameters) {
+				String currentDetector = runningDetParams.getFluorescenceParameters().getConfigFileName();
 				if (currentDetector.contains(this.getTitle())) {
 					// find the full file path
 					return controller.getSelectedFolder().findMember(currentDetector).getLocationURI().getPath();
@@ -310,7 +311,7 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 
 	private PlotView plotView;
 	private String selectedElement;
-	private boolean scanRunning;
+//	private boolean scanRunning;
 
 	@Override
 	public void hideOverlays() {
@@ -539,15 +540,15 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 		});
 	}
 
-	@Override
-	public void statusChangePerformed(ControllerStatusEvent evnt) {
-		scanRunning = (evnt.getState() == ControllerStatus.PLAYING);
-		if (scanRunning) {
-			logger.info("the current scan is " + evnt.getCurrentRun().getRunName());
-			displayController.disableProvider();
-
-		}
-	}
+//	@Override
+//	public void statusChangePerformed(ControllerStatusEvent evnt) {
+//		scanRunning = (evnt.getState() == ControllerStatus.PLAYING);
+//		if (scanRunning) {
+//			logger.info("the current scan is " + evnt.getCurrentRun().getRunName());
+//			displayController.disableProvider();
+//
+//		}
+//	}
 
 	@Override
 	public void focusGained(FocusEvent e) {
