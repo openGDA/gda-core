@@ -46,6 +46,7 @@ public class DetectorElementComposite extends Composite {
 	private BooleanWrapper excluded;
 	private ScaleBox offset;
 	private LabelWrapper totalCounts;
+	private LabelWrapper elementTotalCounts;
 	private Double allElementTotalCountsValue;
 	private Double thisElementTotalCountsValue;
 	private ScaleBox gain;
@@ -104,9 +105,13 @@ public class DetectorElementComposite extends Composite {
 
 			this.totalCounts = new LabelWrapper(topComposite, SWT.NONE);
 			totalCounts.setTextType(TEXT_TYPE.PLAIN_TEXT);
-			totalCounts.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+			totalCounts.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 2, 1));
 			totalCounts.setText("");
-			totalCounts.setAlignment(SWT.CENTER);
+			
+			this.elementTotalCounts = new LabelWrapper(topComposite, SWT.NONE);
+			elementTotalCounts.setTextType(TEXT_TYPE.PLAIN_TEXT);
+			elementTotalCounts.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 2, 1));
+			elementTotalCounts.setText("");
 
 			this.windowComposite = new Group(mainComposite, SWT.NONE);
 			windowComposite.setText("Window");
@@ -369,21 +374,26 @@ public class DetectorElementComposite extends Composite {
 	}
 
 	private void updateTotalCountsDisplay() {
-		if (totalCounts != null) {
-			if (isIndividualElements && thisElementTotalCountsValue != null) {
-				totalCounts.setValue("Element Total Counts "
-						+ NumberFormat.getInstance().format(thisElementTotalCountsValue));
-			} else if (allElementTotalCountsValue != null) {
-				totalCounts.setValue("All Element Total Counts "
-						+ NumberFormat.getInstance().format(allElementTotalCountsValue));
-			} else {
-				totalCounts.setValue("");
-			}
-			GridUtils.layoutFull(totalCounts);
+		if (isIndividualElements && thisElementTotalCountsValue != null) {
+			elementTotalCounts.setValue("Element Total Counts "
+					+ NumberFormat.getInstance().format(thisElementTotalCountsValue));
+		}	
+		else {
+			elementTotalCounts.setValue("									");
 		}
+		
+		if (allElementTotalCountsValue != null) {
+			totalCounts.setValue("All Element Total Counts "
+					+ NumberFormat.getInstance().format(allElementTotalCountsValue));
+		}
+		else {
+			totalCounts.setValue("");
+		}
+		
+		GridUtils.layoutFull(totalCounts);
 	}
 
-	public void setTotalCounts(final Double total) {
+	public void setTotalElementCounts(final Double total) {
 		if (Double.isNaN(total))
 			return;
 		if (Double.isInfinite(total))
@@ -392,9 +402,18 @@ public class DetectorElementComposite extends Composite {
 			return;
 		if (isIndividualElements) {
 			thisElementTotalCountsValue = total;
-		} else {
-			allElementTotalCountsValue = total;
 		}
+		updateTotalCountsDisplay();
+	}
+	
+	public void setTotalCounts(final Double total) {
+		if (Double.isNaN(total))
+			return;
+		if (Double.isInfinite(total))
+			return;
+		if (totalCounts == null)
+			return;
+		allElementTotalCountsValue = total;
 		updateTotalCountsDisplay();
 	}
 
