@@ -46,9 +46,9 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements DataWrite
 	private String nexusFileTemplate;
 
 	/**
-	 * @throws InstantiationException
+	 * @throws Exception 
 	 */
-	public XasAsciiNexusDataWriter() throws InstantiationException {
+	public XasAsciiNexusDataWriter() throws Exception {
 		super();
 		xasAscii = new XasAsciiDataWriter();
 		nexus = new XasNexusDataWriter(xasAscii.getFileNumber());

@@ -26,6 +26,8 @@ import gda.data.nexus.tree.NexusTreeNode;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
+import gda.device.detector.xmap.util.XmapBufferedHdf5FileLoader;
+import gda.device.detector.xmap.util.XmapFileLoader;
 import gda.device.detector.xmap.util.XmapNexusFileLoader;
 import gda.device.scannable.PositionInputStream;
 
@@ -54,7 +56,7 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 	}
 
 	private int readSoFar =0;
-	private XmapNexusFileLoader fileLoader ;
+	private XmapFileLoader fileLoader ;
 	
 	@Override
 	public Vector<NexusTreeProvider> read(int maxToRead) throws NoSuchElementException, InterruptedException, DeviceException  {
@@ -67,8 +69,12 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 			hardwareTriggeredNexusXmap.waitForFile(fileName);
 			//change to linux format
 			String beamline = LocalProperties.get("gda.factory.factoryName","");
-			fileName = fileName.replace("X:/", "/dls/"+beamline);
-			fileLoader = new XmapNexusFileLoader(fileName);			
+			beamline = beamline.toLowerCase();
+			fileName = fileName.replace("X:/", "/dls");
+			if(hardwareTriggeredNexusXmap.isInBufferMode())
+				fileLoader = new XmapBufferedHdf5FileLoader(fileName);
+			else
+				fileLoader = new XmapNexusFileLoader(fileName);			
 			fileLoader.loadFile();
 		
 		int totalToRead = readSoFar + maxToRead;

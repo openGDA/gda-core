@@ -72,7 +72,7 @@ public class AsciiDataWriter extends ExafsIncrementalFile {
 	public void addData(IScanDataPoint dataPoint) throws Exception {
 		try {
 			if (firstData) {
-				this.setupFile(dataPoint);
+				this.setupFile();
 				columnHeader = dataPoint.getHeaderString(scanDataPointFormatter);
 				writeColumnHeadings();
 				firstData = false;
@@ -167,10 +167,9 @@ public class AsciiDataWriter extends ExafsIncrementalFile {
 	/**
 	 * This allows inheriting classes to extend the functionality at this point
 	 * 
-	 * @param dataPoint
 	 * @throws Exception 
 	 */
-	protected void setupFile(@SuppressWarnings("unused") IScanDataPoint dataPoint) throws Exception {
+	protected void setupFile() throws Exception {
 		super.prepareForCollection();
 	}
 	

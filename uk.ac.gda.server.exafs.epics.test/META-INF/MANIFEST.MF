@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: uk.ac.gda.server.exafs.epics.test
+Bundle-SymbolicName: uk.ac.gda.server.exafs.epics.test
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Diamond Light Source
+Fragment-Host: uk.ac.gda.server.exafs.epics
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: uk.ac.gda.client.microfocus;bundle-version="1.0.0"

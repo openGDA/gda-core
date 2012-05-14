@@ -25,9 +25,15 @@ import java.util.ArrayList;
 
 public class XasAsciiNexusDatapointCompletingDataWriter implements DataWriter{
 
+	@Override
+	public void configureScanNumber(Long scanNumber) throws Exception {
+//		sink.configureScanNumber(scanNumber);
+		
+	}
+
 	DatapointCompletingDataWriter sink;
 	
-	public XasAsciiNexusDatapointCompletingDataWriter() throws InstantiationException {
+	public XasAsciiNexusDatapointCompletingDataWriter() throws Exception {
 		XasAsciiNexusDataWriter xasAsciiNexusDataWriter = new XasAsciiNexusDataWriter();
 		sink = new DatapointCompletingDataWriter();
 		sink.setDatawriter(xasAsciiNexusDataWriter);

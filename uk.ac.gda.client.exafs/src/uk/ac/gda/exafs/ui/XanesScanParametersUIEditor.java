@@ -261,4 +261,8 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 		return finalEnergy;
 	}
 
+	public void setDirty(boolean dirty)
+	{
+		this.dirtyContainer.setDirty(dirty);
+	}
 }

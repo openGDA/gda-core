@@ -20,7 +20,7 @@ package gda.data.scan.datawriter;
 
 public class XesAsciiNexusDataWriter extends XasAsciiNexusDataWriter {
 
-	public XesAsciiNexusDataWriter() throws InstantiationException {
+	public XesAsciiNexusDataWriter() throws Exception {
 		super();
 	}
 

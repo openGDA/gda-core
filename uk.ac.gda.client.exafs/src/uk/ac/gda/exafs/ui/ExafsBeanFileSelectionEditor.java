@@ -113,7 +113,7 @@ public abstract class ExafsBeanFileSelectionEditor extends RichBeanMultiPageEdit
 		
 		if(allowParentChange && (currentiFile.getName().contains("Xspress") ||currentiFile.getName().contains("Vortex")) )
 		{			
-			path = LocalProperties.get("gda.var") + File.separator + currentiFile.getName();
+			path = LocalProperties.get(LocalProperties.GDA_VAR_DIR) + File.separator + currentiFile.getName();
 		}
 		super.doSaveAs();
 	}

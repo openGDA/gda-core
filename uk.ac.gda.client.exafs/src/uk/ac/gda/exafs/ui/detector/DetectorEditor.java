@@ -112,6 +112,10 @@ import com.swtdesigner.SWTResourceManager;
  */
 public abstract class DetectorEditor extends RichBeanEditorPart {
 
+	/*
+	 * name of ScriptController that must be in the system for uploading to device to work
+	 */
+	private static final String EXAFS_SCRIPT_OBSERVER = "ExafsScriptObserver";
 	private static final Logger logger = LoggerFactory.getLogger(DetectorEditor.class);
 	protected boolean saveToExtension = LocalProperties.check("gda.xml.save.extension");
 	protected ROIWindowOverlay currentOverlay;
@@ -171,8 +175,9 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	 * monitor can be null if the task is not being monitored.
 	 * 
 	 * @param monitor
+	 * @throws Exception 
 	 */
-	protected abstract void acquire(final IProgressMonitor monitor, final double collectionTimeValue);
+	protected abstract void acquire(final IProgressMonitor monitor, final double collectionTimeValue) throws Exception;
 
 	/**
 	 * @return the time that is waited during the acquisition loop. Called in the display thread.
@@ -456,7 +461,8 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		}
 
 		ScanObject scanObject = (ScanObject) ExperimentFactory.getExperimentEditorManager().getSelectedScan();
-		final Serializable outputBean = scanObject.getOutputParameters();
+		//The user may be editing a file e.g. VortexParameters outside of the ExperimentPerspective with no selected scan
+		final Serializable outputBean = scanObject != null ? scanObject.getOutputParameters() : null;
 
 		final boolean ok = MessageDialog
 				.openConfirm(
@@ -482,11 +488,11 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 					monitor.worked(10);
 					if(saveToExtension){
 						String additionalSaveName = new File(path).getName();
-						ScriptExecutor.Run("ExafsScriptObserver", createObserver(), data, command
+						ScriptExecutor.Run(EXAFS_SCRIPT_OBSERVER, createObserver(), data, command
 								+ "(XspressParametersToLoad,OutputParametersToLoad,\""+ additionalSaveName+"\")", JythonGuiConstants.TERMINALNAME);
 					}
 					else
-						ScriptExecutor.Run("ExafsScriptObserver", createObserver(), data, command
+						ScriptExecutor.Run(EXAFS_SCRIPT_OBSERVER, createObserver(), data, command
 								+ "(XspressParametersToLoad,OutputParametersToLoad)", JythonGuiConstants.TERMINALNAME);
 					monitor.worked(50);
 
@@ -681,6 +687,8 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	}
 
 	protected int sumElementInWindowCounts(final int start, final int end, int total, int element) {
+		if( start == -1)
+			return 0;
 		final int numGrades = detectorData[element].length;
 		for (int igrade = 0; igrade < numGrades; ++igrade) {
 			for (int icount = start; icount <= end; ++icount) {
@@ -927,7 +935,11 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 			@Override
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-				acquire(monitor, time);
+				try {
+					acquire(monitor, time);
+				} catch (Exception e) {
+					logger.error("Error performing single acquire", e);
+				}
 			}
 		});
 	}

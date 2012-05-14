@@ -322,7 +322,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		acquireFileLabel.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 
 		openDialog = new FileDialog(parent.getShell(), SWT.OPEN);
-		openDialog.setFilterPath(LocalProperties.get("gda.data.scan.datawriter.datadir"));
+		openDialog.setFilterPath(LocalProperties.get(LocalProperties.GDA_DATAWRITER_DIR));
 
 		final Composite grid = new Composite(left, SWT.BORDER);
 		grid.setLayout(new GridLayout(1, false));
@@ -660,7 +660,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	public void notifyFileSaved(File file) {
 		final FluorescenceComposite comp = (FluorescenceComposite) BeanUI.getBeanField("fluorescenceParameters",
 				DetectorParameters.class);
-		if (comp == null)
+		if (comp == null || comp.isDisposed())
 			return;
 		comp.getDetectorType().setValue("Germanium");
 		comp.getConfigFileName().setValue(file.getAbsolutePath());

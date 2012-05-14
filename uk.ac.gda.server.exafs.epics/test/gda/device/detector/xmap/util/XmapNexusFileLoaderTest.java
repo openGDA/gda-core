@@ -21,19 +21,23 @@ package gda.device.detector.xmap.util;
 import static org.junit.Assert.assertEquals;
 import gda.device.detector.xmap.util.XmapNexusFileLoader;
 
+import org.junit.Before;
 import org.junit.Test;
 
 public class XmapNexusFileLoaderTest {
-	@Test
-	public void testLoadFile() throws Exception {
-
-		String testfile1 = "testfiles/gda/device/detector/xmap/util/i18-6777-HTXmapMca.h5";
-		
-		XmapNexusFileLoader xMapLoader = new XmapNexusFileLoader(testfile1);
-
+	XmapNexusFileLoader xMapLoader;
+	@Before
+	public void setUp()throws Exception
+	{
+		String testfile1 = "testfiles/gda/device/detector/xmap/util/i18-6777-HTXmapMca.h5";		
+		xMapLoader = new XmapNexusFileLoader(testfile1);
 		xMapLoader.loadFile();
+	
+	}
+	@Test
+	public void testgetData() throws Exception {		
 		short  [][]result = xMapLoader.getData(0);
 		assertEquals(result[0][513], (short)0);
 	}
-
+	
 }

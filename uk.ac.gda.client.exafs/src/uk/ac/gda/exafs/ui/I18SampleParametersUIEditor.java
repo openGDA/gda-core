@@ -32,7 +32,10 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.exafs.i18.I18SampleParameters;
 import uk.ac.gda.exafs.ui.composites.AttenuatorParametersComposite;
 import uk.ac.gda.exafs.ui.composites.I18SampleParametersComposite;
@@ -45,7 +48,7 @@ import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
  *
  */
 public final class I18SampleParametersUIEditor extends RichBeanEditorPart {
-
+	private static final Logger logger = LoggerFactory.getLogger(I18SampleParametersUIEditor.class);
 	public I18SampleParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
 		super(path, mappingURL, dirtyContainer, editingBean);
 	}
@@ -70,6 +73,14 @@ public final class I18SampleParametersUIEditor extends RichBeanEditorPart {
 		scrolledComposite.setExpandVertical(true);
 
 		this.beanComposite = new I18SampleParametersComposite(scrolledComposite, SWT.NONE);
+		/*try {
+			if(((I18SampleParameters)BeansFactory.deepClone(editingBean)).getSampleStageParameters().getDisable())
+				this.beanComposite.disableSample();
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			logger.error("TODO put description of error here", e);
+		}*/
 		((GridData) beanComposite.getSampleStageParameters().getZ().getLayoutData()).widthHint = 544;
 		fillAttenuatorPositions();
 		addListeners();

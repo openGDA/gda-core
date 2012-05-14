@@ -136,7 +136,7 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 		populateLists(detectorFileName, defaultDetectorFileName);
 		openDialog = new FileDialog(parent.getShell(), SWT.OPEN);
 		openDialog.setFilterPath(LocalProperties.get("gda.data.scan.datawriter.datadir"));
-		selectedElement = xspressList.getItem(0);
+		selectedElement = xspressList.getItemCount() > 0 ? xspressList.getItem(0) : null;
 		xspressList.addSelectionListener(this);
 		xspressList.setToolTipText(loadedDetectorFileName);
 		Label elementLabel = new Label(xspressComposite, SWT.NONE);
@@ -248,7 +248,7 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 		final JythonServerFacade jythonServerFacade = JythonServerFacade.getInstance();
 		String command = "getNumberOfDetectors(\"" + xmlfile + "\")";
 		String reply = jythonServerFacade.evaluateCommand(command);
-		elementSpinner.setMaximum(Integer.parseInt(reply) - 1);
+		elementSpinner.setMaximum( reply!=null ? (Integer.parseInt(reply) - 1) : 0);
 	}
 
 	public void refresh() {
@@ -440,7 +440,7 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 						displayController.displayMap(selectedElement, filePath);
 						if (loadMapForScan)
 							scanLoader.loadMapXmlForScan(controller.getSelectedFolder(), filePath);
-						else {
+						/*else {
 							final java.util.List<String> files = scanLoader.loadMapXmlForView(filePath);
 							if (files.size() > 0) {
 								Display.getDefault().asyncExec(new Runnable() {
@@ -455,7 +455,7 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 
 								});
 							}
-						}
+						}*/
 
 					} catch (Exception e) {
 						logger.error("Error displaying the map ", e);

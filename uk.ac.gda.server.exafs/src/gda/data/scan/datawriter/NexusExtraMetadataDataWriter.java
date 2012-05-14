@@ -79,11 +79,11 @@ public class NexusExtraMetadataDataWriter extends NexusDataWriter {
 		return groupedMetadata;
 	}
 	
-	public NexusExtraMetadataDataWriter() throws InstantiationException {
+	public NexusExtraMetadataDataWriter() {
 		super();
 	}
 	
-	public NexusExtraMetadataDataWriter(Long fileNumber) throws InstantiationException {
+	public NexusExtraMetadataDataWriter(Long fileNumber) {
 		super(fileNumber);
 	}
 
@@ -98,9 +98,13 @@ public class NexusExtraMetadataDataWriter extends NexusDataWriter {
 				
 				boolean madeSubGroup = false;
 				if (group.get(0).getNxEntryType() == NexusFileMetadata.EntryTypes.NXinstrument){
-					file.makegroup("instrument", group.get(0).getNxEntryType().toString());
+					if (file.groupdir().get("instrument") == null) {
+						file.makegroup("instrument", group.get(0).getNxEntryType().toString());
+					}
 					file.opengroup("instrument", group.get(0).getNxEntryType().toString());
-					file.makegroup(group.get(0).getTypeLabel(), group.get(0).getNxEntrySubType().toString());
+					if (file.groupdir().get(group.get(0).getTypeLabel()) == null) {
+						file.makegroup(group.get(0).getTypeLabel(), group.get(0).getNxEntrySubType().toString());
+					}
 					file.opengroup(group.get(0).getTypeLabel().toString(), group.get(0).getNxEntrySubType().toString());					
 					madeSubGroup = true;
 				} else {

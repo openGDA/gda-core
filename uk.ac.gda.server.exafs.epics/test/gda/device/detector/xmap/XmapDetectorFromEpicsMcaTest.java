@@ -49,7 +49,7 @@ public class XmapDetectorFromEpicsMcaTest {
 	private EpicsMCA mca1;
 
 	@Before
-	public void setUp() {
+	public void setUp()  {
 		xmap = new XmapDetectorFromEpicsMca();
 		xmap.setName("xmap");
 		mca0 = mock(EpicsMCA.class);
@@ -58,6 +58,7 @@ public class XmapDetectorFromEpicsMcaTest {
 		mcalist.add(mca0);
 		mcalist.add(mca1);
 		xmap.setAnalysers(mcalist);
+
 		// Note: not configured here to aid testing
 	}
 
@@ -68,6 +69,7 @@ public class XmapDetectorFromEpicsMcaTest {
 
 	@Test
 	public void testLoadConfigurationFromFile() throws Exception {
+		xmap.configure();
 		xmap.setConfigFileName("testfiles/gda/device/detector/xmap/XmapDetectorFromEpicsMcaTest.xml");
 		xmap.loadConfigurationFromFile();
 		assertArrayEquals(new String[] { "Pb_K", "Fe_K" }, xmap.getChannelLabels().toArray(new String[0]));
@@ -91,21 +93,25 @@ public class XmapDetectorFromEpicsMcaTest {
 	}
 
 	@Test
-	public void testClear() throws DeviceException {
+	public void testClear() throws DeviceException, FactoryException {
+		xmap.configure();
+		
 		xmap.clear();
 		verify(mca0).clear();
 		verify(mca1).clear();
 	}
 
 	@Test
-	public void testStart() throws DeviceException {
+	public void testStart() throws DeviceException, FactoryException {
+		xmap.configure();
 		xmap.start();
 		verify(mca0).startAcquisition();
 		verify(mca1).startAcquisition();
 	}
 
 	@Test
-	public void testClearAndStart() throws DeviceException {
+	public void testClearAndStart() throws DeviceException, FactoryException {
+		xmap.configure();
 		xmap.clearAndStart();
 		InOrder inOrder = inOrder(mca0, mca1);
 		inOrder.verify(mca0).eraseStartAcquisition();
@@ -113,21 +119,24 @@ public class XmapDetectorFromEpicsMcaTest {
 	}
 
 	@Test
-	public void testCollectData() throws DeviceException {
+	public void testCollectData() throws DeviceException, FactoryException {
+		xmap.configure();
 		xmap.collectData();
 		verify(mca0).eraseStartAcquisition();
 		verify(mca1).eraseStartAcquisition();
 	}
 
 	@Test
-	public void testStop() throws DeviceException {
+	public void testStop() throws DeviceException, FactoryException {
+		xmap.configure();
 		xmap.stop();
 		verify(mca0).stop();
 		verify(mca1).stop();
 	}
 
 	@Test
-	public void testSetNumberOfBins() throws DeviceException {
+	public void testSetNumberOfBins() throws DeviceException, FactoryException {
+		xmap.configure();
 		xmap.setNumberOfBins(2000);
 		verify(mca0).setNumberOfChannels(2000);
 		verify(mca1).setNumberOfChannels(2000);
@@ -135,21 +144,24 @@ public class XmapDetectorFromEpicsMcaTest {
 	}
 
 	@Test
-	public void testGetNumberOfBins() throws DeviceException {
+	public void testGetNumberOfBins() throws DeviceException, FactoryException {
+		xmap.configure();
 		when(mca0.getNumberOfChannels()).thenReturn((long) 2000);
 		when(mca1.getNumberOfChannels()).thenReturn((long) 2000);
 		assertEquals(2000, xmap.getNumberOfBins());
 	}
 
 	@Test(expected = IllegalStateException.class)
-	public void testGetNumberOfBinsNoConsensus() throws DeviceException {
+	public void testGetNumberOfBinsNoConsensus() throws DeviceException, FactoryException {
+		xmap.configure();
 		when(mca0.getNumberOfChannels()).thenReturn((long) 1000);
 		when(mca1.getNumberOfChannels()).thenReturn((long) 2000);
 		xmap.getNumberOfBins();
 	}
 
 	@Test
-	public void testSetAcquisitionTimeRealTimeDefault() throws DeviceException {
+	public void testSetAcquisitionTimeRealTimeDefault() throws DeviceException, FactoryException {
+		xmap.configure();
 		assertFalse(xmap.isUseLiveTime()); // i.e. use real time by default
 		xmap.setAcquisitionTime(1000.);
 		verify(mca0).setPresets((new EpicsMCAPresets((float) 1., 0, 0, 0, 0, 0)));
@@ -159,7 +171,8 @@ public class XmapDetectorFromEpicsMcaTest {
 	}
 
 	@Test
-	public void testSetAcquisitionTimeLiveTime() throws DeviceException {
+	public void testSetAcquisitionTimeLiveTime() throws DeviceException, FactoryException {
+		xmap.configure();
 		xmap.setUseLiveTime(true);
 		assertTrue(xmap.isUseLiveTime()); // i.e. use real time by default
 		xmap.setAcquisitionTime(1000.);
@@ -170,41 +183,47 @@ public class XmapDetectorFromEpicsMcaTest {
 	}
 
 	@Test
-	public void testGetAcquisitionTimeNearlyEqual() throws DeviceException {
+	public void testGetAcquisitionTimeNearlyEqual() throws DeviceException, FactoryException {
+		xmap.configure();
 		when(mca0.getCollectionTime()).thenReturn(1.);
 		when(mca1.getCollectionTime()).thenReturn(1.0001);
 		assertEquals(1000., xmap.getAcquisitionTime(), .0001);
 	}
 
 	@Test
-	public void testGetAcquisitionTime() throws DeviceException {
+	public void testGetAcquisitionTime() throws DeviceException, FactoryException {
+		xmap.configure();
 		when(mca0.getCollectionTime()).thenReturn(1.00001);
 		when(mca1.getCollectionTime()).thenReturn(1.00001);
 		assertEquals(1000., xmap.getAcquisitionTime(), .1);
 	}
 
 	@Test
-	public void testGetAcquisitionTimeWithZero() throws DeviceException {
+	public void testGetAcquisitionTimeWithZero() throws DeviceException, FactoryException {
+		xmap.configure();
 		when(mca0.getCollectionTime()).thenReturn(0.);
 		when(mca1.getCollectionTime()).thenReturn(0.);
 		assertEquals(0., xmap.getAcquisitionTime(), 0.0001);
 	}
 
 	@Test(expected = IllegalStateException.class)
-	public void testGetAcquisitionTimeNoConsensus() throws DeviceException {
+	public void testGetAcquisitionTimeNoConsensus() throws DeviceException, FactoryException {
+		xmap.configure();
 		when(mca0.getCollectionTime()).thenReturn(1.);
 		when(mca1.getCollectionTime()).thenReturn(1.01);
 		xmap.getAcquisitionTime();
 	}
 
 	@Test
-	public void testGetRealTime() throws DeviceException {
+	public void testGetRealTime() throws DeviceException, FactoryException {
+		xmap.configure();
 		testGetAcquisitionTime();
 		assertEquals(1000, xmap.getRealTime(), .1);
 	}
 
 	@Test(expected = IllegalStateException.class)
-	public void testGetRealTimeNoConsensus() throws DeviceException {
+	public void testGetRealTimeNoConsensus() throws DeviceException, FactoryException {
+		xmap.configure();
 		when(mca0.getCollectionTime()).thenReturn(1.);
 		when(mca1.getCollectionTime()).thenReturn(1.01);
 		xmap.getRealTime();
@@ -216,19 +235,22 @@ public class XmapDetectorFromEpicsMcaTest {
 	}
 
 	@Test
-	public void testCreatesOwnFiles() throws DeviceException {
+	public void testCreatesOwnFiles() throws DeviceException, FactoryException {
+		xmap.configure();
 		assertFalse(xmap.createsOwnFiles());
 	}
 
 	@Test
-	public void testGetStatusIDLE() throws DeviceException {
+	public void testGetStatusIDLE() throws DeviceException, FactoryException {
+		xmap.configure();
 		when(mca0.getStatus()).thenReturn(Detector.IDLE);
 		when(mca1.getStatus()).thenReturn(Detector.IDLE);
 		assertEquals(Detector.IDLE, xmap.getStatus());
 	}
 
 	@Test
-	public void testGetStatusBUSY() throws DeviceException {
+	public void testGetStatusBUSY() throws DeviceException, FactoryException {
+		xmap.configure();
 		when(mca0.getStatus()).thenReturn(Detector.BUSY);
 		when(mca1.getStatus()).thenReturn(Detector.BUSY);
 		assertEquals(Detector.BUSY, xmap.getStatus());
@@ -241,7 +263,8 @@ public class XmapDetectorFromEpicsMcaTest {
 	}
 
 	@Test
-	public void testGetStatusFAULT() throws DeviceException {
+	public void testGetStatusFAULT() throws DeviceException, FactoryException {
+		xmap.configure();
 		when(mca0.getStatus()).thenReturn(Detector.FAULT);
 		when(mca1.getStatus()).thenReturn(Detector.FAULT);
 		assertEquals(Detector.FAULT, xmap.getStatus());
@@ -254,7 +277,8 @@ public class XmapDetectorFromEpicsMcaTest {
 	}
 
 	@Test
-	public void testGetDataInt() throws DeviceException {
+	public void testGetDataInt() throws DeviceException, FactoryException {
+		xmap.configure();
 		when(mca0.getNumberOfChannels()).thenReturn((long) 5);
 		when(mca1.getNumberOfChannels()).thenReturn((long) 5);
 		when(mca0.getData()).thenReturn(new int[] { 1, 2, 3, 4, 5 });
@@ -263,7 +287,8 @@ public class XmapDetectorFromEpicsMcaTest {
 	}
 
 	@Test
-	public void testGetData() throws DeviceException {
+	public void testGetData() throws DeviceException, FactoryException {
+		xmap.configure();
 		when(mca0.getNumberOfChannels()).thenReturn((long) 5);
 		when(mca1.getNumberOfChannels()).thenReturn((long) 5);
 		when(mca0.getData()).thenReturn(new int[] { 1, 2, 3, 4, 5 });
@@ -271,20 +296,11 @@ public class XmapDetectorFromEpicsMcaTest {
 		assertArrayEquals(new int[][] { { 1, 2, 3, 4, 5 }, { 11, 12, 13, 14, 15 } }, xmap.getData());
 	}
 
-	@Test
-	public void testGetDataIntWithMcasThatReturnZeroPaddedSpecta() throws DeviceException {
-		when(mca0.getNumberOfChannels()).thenReturn((long) 5);
-		when(mca1.getNumberOfChannels()).thenReturn((long) 5);
-		when(mca0.getData()).thenReturn(new int[] { 1, 2, 3, 4, 5, 90, 91 });
-		when(mca1.getData()).thenReturn(new int[] { 11, 12, 13, 14, 15, 92, 93, 94 });
-		assertArrayEquals(new int[] { 1, 2, 3, 4, 5 }, xmap.getData(0));
-		assertArrayEquals(new int[] { 11, 12, 13, 14, 15 }, xmap.getData(1));
-	}
-
 	// TODO: extra names and so on from CopyOfNexusXmap
 
 	@Test
-	public void testSetROINonPublic() throws DeviceException {
+	public void testSetROINonPublic() throws DeviceException, FactoryException{
+		xmap.configure();
 		when(mca0.getNumberOfRegions()).thenReturn(5);
 		xmap.setROI(new double[][] { { 10., 20. }, { 30., 40. }, { 50., 60. } }, 0);
 		verify(mca0).addRegionOfInterest(0, 10., 20., -1, -1, "roi0");
@@ -295,7 +311,8 @@ public class XmapDetectorFromEpicsMcaTest {
 	}
 
 	@Test
-	public void testSetROIs() throws DeviceException {
+	public void testSetROIs() throws DeviceException, FactoryException {
+		xmap.configure();
 		when(mca0.getNumberOfRegions()).thenReturn(5);
 		when(mca1.getNumberOfRegions()).thenReturn(5);
 		xmap.setROIs(new double[][] { { 10., 20. }, { 30., 40. }, { 50., 60. } });
@@ -352,7 +369,8 @@ public class XmapDetectorFromEpicsMcaTest {
 	}
 
 	@Test
-	public void testGetNumberOfROIs() throws DeviceException {
+	public void testGetNumberOfROIs() throws DeviceException, FactoryException {
+		xmap.configure();
 		when(mca0.getNumberOfRegions()).thenReturn(5);
 		when(mca1.getNumberOfRegions()).thenReturn(5);
 		xmap.setROIs(new double[][] { { 10., 20. }, { 30., 40. }, { 50., 60. } });
@@ -360,7 +378,8 @@ public class XmapDetectorFromEpicsMcaTest {
 	}
 
 	@Test
-	public void testGetROICounts() throws DeviceException {
+	public void testGetROICounts() throws DeviceException, FactoryException {
+		xmap.configure();
 		when(mca0.getRegionsOfInterestCount()).thenReturn(new double[][] { { 100, 80 }, { 200, 180 }, { 300, 280 } });
 		when(mca1.getRegionsOfInterestCount()).thenReturn(new double[][] { { 101, 81 }, { 201, 181 }, { 301, 281 } });
 		assertFalse(xmap.isReadNetCounts());
@@ -369,7 +388,8 @@ public class XmapDetectorFromEpicsMcaTest {
 	}
 
 	@Test
-	public void testGetROIsSum() throws DeviceException {
+	public void testGetROIsSum() throws DeviceException, FactoryException {
+		xmap.configure();
 		testSetROIs();
 		when(mca0.getRegionsOfInterestCount()).thenReturn(new double[][] { { 100, 80 }, { 200, 180 }, { 300, 280 } });
 		when(mca1.getRegionsOfInterestCount()).thenReturn(new double[][] { { 101, 81 }, { 201, 181 }, { 301, 281 } });

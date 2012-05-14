@@ -114,6 +114,11 @@
             name="Copy XANES XML">
       </command>
       <command
+            description="Copy a MICROFOCUS XML to the experiment folder."
+            id="uk.ac.gda.client.exafs.CopyMICROFOCUSCommand"
+            name="Copy MICROFOCUS XML">
+      </command>
+      <command
             description="Copy a QEXAFS XML to the experiment folder."
             id="uk.ac.gda.client.exafs.CopyQEXAFSCommand"
             name="Copy QEXAFS XML">
@@ -277,6 +282,10 @@
       <handler
             class="uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler"
             commandId="uk.ac.gda.client.exafs.CopyXANESCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler"
+            commandId="uk.ac.gda.client.exafs.CopyMICROFOCUSCommand">
       </handler>
       <handler
             class="uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler"
@@ -673,4 +682,174 @@
          </run>
       </runtime>
    </extension>
+   
+    <extension
+         point="uk.ac.common.beans.factory">
+      <bean
+            class="uk.ac.gda.beans.exafs.XasScanParameters"
+            describer="uk.ac.gda.exafs.ui.describers.XasDescriber">
+      </bean>
+      <bean
+            class="uk.ac.gda.beans.exafs.XanesScanParameters"
+            describer="uk.ac.gda.exafs.ui.describers.XanesDescriber">
+      </bean>
+      <bean
+            class="uk.ac.gda.beans.exafs.QEXAFSParameters"
+            describer="uk.ac.gda.exafs.ui.describers.QEXAFSParametersDescriber">
+      </bean>
+      <bean
+            class="uk.ac.gda.beans.exafs.b18.B18SampleParameters"
+            describer="uk.ac.gda.exafs.ui.describers.B18SampleParametersDescriber">
+      </bean>
+      <bean
+            class="uk.ac.gda.beans.exafs.DetectorParameters"
+            describer="uk.ac.gda.exafs.ui.describers.DetectorDescriber">
+      </bean>
+      <bean
+            class="uk.ac.gda.beans.exafs.OutputParameters"
+            describer="uk.ac.gda.exafs.ui.describers.OutputDescriber">
+      </bean>
+      <bean
+            class="uk.ac.gda.beans.exafs.SampleElements">
+      </bean>
+      <bean
+            class="uk.ac.gda.beans.vortex.VortexParameters"
+            describer="uk.ac.gda.exafs.ui.describers.VortexDescriber">
+      </bean>
+      <bean
+            class="uk.ac.gda.beans.xspress.XspressParameters"
+            describer="uk.ac.gda.exafs.ui.describers.XspressDescriber">
+      </bean>
+   </extension>
+
+   <extension
+         point="uk.ac.gda.richbeans.beantypes">
+      <describer
+            bean="uk.ac.gda.beans.exafs.XasScanParameters"
+            commandId="uk.ac.gda.client.exafs.CopyXASCommand"
+            contentType="uk.ac.diamond.gda.client.exafs.getXasContent"
+            includeInNew="true"
+            name="XAS Scan"
+            template="XAS_Parameters"
+            type="Scan">
+      </describer>
+      <describer
+            bean="uk.ac.gda.beans.exafs.XanesScanParameters"
+            commandId="uk.ac.gda.client.exafs.CopyXANESCommand"
+            contentType="uk.ac.diamond.gda.client.exafs.getXanesContent"
+            includeInNew="false"
+            name="XANES Scan"
+            template="XANES_Parameters"
+            type="Scan">
+      </describer> 
+      <describer
+            bean="uk.ac.gda.beans.exafs.DetectorParameters"
+            commandId="uk.ac.gda.client.exafs.CopyDetectorCommand"
+            contentType="uk.ac.diamond.gda.client.exafs.getDetectorContent"
+            includeInNew="true"
+            name="Detector"
+            template="Detector_Parameters"
+            type="Detector">
+      </describer>
+      <describer
+            bean="uk.ac.gda.beans.exafs.OutputParameters"
+            commandId="uk.ac.gda.client.exafs.CopyOutputCommand"
+            contentType="uk.ac.diamond.gda.client.exafs.getOutputContent"
+            includeInNew="true"
+            name="Output"
+            template="Output_Parameters"
+            type="Output">
+      </describer>
+      <describer
+            bean="uk.ac.gda.beans.xspress.XspressParameters"
+            contentType="uk.ac.diamond.gda.client.exafs.getXspressContent"
+            includeInNew="false"
+            name="Xspress"
+            template="Xspress_Parameters"
+            type="UNREGISTERED">
+      </describer>
+      <describer
+            bean="uk.ac.gda.beans.vortex.VortexParameters"
+            contentType="uk.ac.diamond.gda.client.exafs.getVortexContent"
+            includeInNew="false"
+            name="Vortex"
+            template="Vortex_Parameters"
+            type="UNREGISTERED">
+      </describer>
+      <describer
+            bean="uk.ac.gda.beans.exafs.QEXAFSParameters"
+            commandId="uk.ac.gda.client.exafs.CopyQEXAFSCommand"
+            contentType="uk.ac.diamond.gda.client.exafs.getQexafsContent"
+            includeInNew="false"
+            name="QEXAFS Scan"
+            template="QEXAFS_Parameters"
+            type="Scan">
+      </describer>
+      <describer
+            bean="uk.ac.gda.beans.exafs.SampleElements"
+            includeInNew="false"
+            name="Sample Elements"
+            template="Sample_Elements"
+            type="UNREGISTERED">
+      </describer>
+   </extension>
+   <extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <content-type
+            base-type="org.eclipse.core.runtime.xml"
+            describer="uk.ac.gda.exafs.ui.describers.DetectorDescriber"
+            file-extensions="xml"
+            id="uk.ac.diamond.gda.client.exafs.getDetectorContent"
+            name="Detector Bean File Content"
+            priority="high">
+      </content-type>
+      <content-type
+            base-type="org.eclipse.core.runtime.xml"
+            describer="uk.ac.gda.exafs.ui.describers.OutputDescriber"
+            file-extensions="xml"
+            id="uk.ac.diamond.gda.client.exafs.getOutputContent"
+            name="Output Bean File Content"
+            priority="high">
+      </content-type>
+      <content-type
+            base-type="org.eclipse.core.runtime.xml"
+            describer="uk.ac.gda.exafs.ui.describers.XspressDescriber"
+            file-extensions="xml"
+            id="uk.ac.diamond.gda.client.exafs.getXspressContent"
+            name="Xspress Bean File Content"
+            priority="high">
+      </content-type>
+      <content-type
+            base-type="org.eclipse.core.runtime.xml"
+            describer="uk.ac.gda.exafs.ui.describers.VortexDescriber"
+            file-extensions="xml"
+            id="uk.ac.diamond.gda.client.exafs.getVortexContent"
+            name="Vortex Bean File Content"
+            priority="high">
+      </content-type>
+      <content-type
+            base-type="org.eclipse.core.runtime.xml"
+            describer="uk.ac.gda.exafs.ui.describers.XasDescriber"
+            file-extensions="xml"
+            id="uk.ac.diamond.gda.client.exafs.getXasContent"
+            name="XAS Bean File Content"
+            priority="high">
+      </content-type>
+      <content-type
+            base-type="org.eclipse.core.runtime.xml"
+            describer="uk.ac.gda.exafs.ui.describers.XanesDescriber"
+            file-extensions="xml"
+            id="uk.ac.diamond.gda.client.exafs.getXanesContent"
+            name="XANES Bean File Content"
+            priority="high">
+      </content-type>
+      <content-type
+            base-type="org.eclipse.core.runtime.xml"
+            describer="uk.ac.gda.exafs.ui.describers.QEXAFSParametersDescriber"
+            file-extensions="xml"
+            id="uk.ac.diamond.gda.client.exafs.getQexafsContent"
+            name="QEXAFS Bean File Content"
+            priority="high">
+      </content-type>
+   </extension>   
 </plugin>

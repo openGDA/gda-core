@@ -46,7 +46,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.Plot1DStyles;
 
 public class XmapMonitorView extends MonitorViewBase {
 	
-	private static final Double MAX_FLUO_RATE = 499000.0;
+	private static final Double MAX_FLUO_RATE = 399000.0;
 
 	public static final String ID = "uk.ac.gda.exafs.ui.views.xmapmonitor"; //$NON-NLS-1$
 

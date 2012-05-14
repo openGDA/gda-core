@@ -93,8 +93,9 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 	public Map<String, IFile> getFilesWithTypes() {
 		BidiMap typeToFiles = getTypeToFileMap();
 
+		//NV23 changed as mF parameters need to have sampleParameters to change th scan file prefix 
 		// with microfocus scans, do not have a sample parameters
-		try {
+		/*try {
 			if (getScanParameters() instanceof MicroFocusScanParameters) {
 				BidiMap mapCopy = new TreeBidiMap();
 				mapCopy.put(SCANBEANTYPE, typeToFiles.get(SCANBEANTYPE));
@@ -104,7 +105,7 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 			}
 		} catch (Exception e) {
 			logger.error("Exception mapping xml files with type: " + e.getMessage(), e);
-		}
+		}*/
 
 		Map<String, IFile> targetFiles = new HashMap<String, IFile>(typeToFiles.size());
 		for (Object fileType : typeToFiles.keySet()) {

@@ -1,8 +1,8 @@
-#Diamond Light Source
-#Beamline I01
-#Beam current - start: 298.90
-#
-energycounts
-7.2f10.2f
-7.2f10.2f
-#Beam current - end: 300.00
+# Diamond Light Source
+# Beamline I01
+# Beam current - start: 298.90
+# 
+# energy	counts
+1000.0	   0.0
+1100.0	   0.0
+# Beam current - end: 300.00

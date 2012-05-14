@@ -56,19 +56,19 @@ public class MicroFocusDisplayController {
 	public MicroFocusDisplayController() {
 		super();
 		IConfigurationElement[] config = Platform.getExtensionRegistry().getConfigurationElementsFor("uk.ac.gda.microfocus.xScannableName");
-		if(null != config)
+		if((null != config)  && (config.length > 0))
 		{
 			xScannable = config[0].getAttribute("name");
 			logger.info("the x scannable ffrom extn is " + xScannable);
 		}
 		config = Platform.getExtensionRegistry().getConfigurationElementsFor("uk.ac.gda.microfocus.yScannableName");
-		if(null != config)
+		if((null != config)  && (config.length > 0))
 		{
 			yScannable = config[0].getAttribute("name");
 			logger.info("the y scannable ffrom extn is " + yScannable);
 		}
 		config = Platform.getExtensionRegistry().getConfigurationElementsFor("uk.ac.gda.microfocus.zScannableName");
-		if(null != config)
+		if((null != config)  && (config.length > 0))
 		{
 			zScannableName = config[0].getAttribute("name");
 			logger.info("the z scannable ffrom extn is " + zScannableName);

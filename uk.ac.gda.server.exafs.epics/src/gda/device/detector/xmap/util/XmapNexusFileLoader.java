@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class XmapNexusFileLoader {
+public class XmapNexusFileLoader implements XmapFileLoader{
 
 	private static final Logger logger = LoggerFactory.getLogger(XmapNexusFileLoader.class);
 	private String fileName;
@@ -44,6 +44,7 @@ public class XmapNexusFileLoader {
 		return fullDataArray.get(dataPointNumber);
 		return null;
 	}
+	@Override
 	public short[][] getData(int dataPointNumber)
 	{
 		if(fullDataArray != null)
@@ -54,12 +55,14 @@ public class XmapNexusFileLoader {
 		return null;
 	}
 	
+	@Override
 	public int getNumberOfDataPoints()
 	{
 		if(fullDataArray != null)
 			return fullDataArray.size();
 			return 0;
 	}
+	@Override
 	public void loadFile() throws Exception {
 		//fileName = "/dls/i18/data/2011/cm2065-4/i18-6871-0-raster_xmap.h5";
 		INexusTree tree = NexusTreeBuilder.getNexusTree(fileName.trim(), NexusTreeNodeSelection.createTreeForAllNXEntries());
@@ -352,6 +355,7 @@ public class XmapNexusFileLoader {
 
 		}
 
+		@Override
 		public double getTrigger(int dataPointNumber, int element) {
 			switch(element){
 				case 0:
@@ -367,6 +371,7 @@ public class XmapNexusFileLoader {
 			}
 		}
 
+		@Override
 		public double getRealTime(int dataPointNumber, int element) {
 			switch(element){
 				case 0:
@@ -381,6 +386,7 @@ public class XmapNexusFileLoader {
 					return 0.0;
 			}
 		}
+		@Override
 		public double getLiveTime(int dataPointNumber, int element) {
 			switch(element){
 				case 0:
@@ -396,6 +402,7 @@ public class XmapNexusFileLoader {
 			}
 		}
 		
+		@Override
 		public double getEvents(int dataPointNumber, int element) {
 			switch(element){
 				case 0:

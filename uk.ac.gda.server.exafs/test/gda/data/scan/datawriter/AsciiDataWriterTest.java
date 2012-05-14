@@ -18,19 +18,15 @@
 
 package gda.data.scan.datawriter;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
 import gda.device.Scannable;
 import gda.device.detector.DummyDetector;
 import gda.device.scannable.DummyScannable;
 import gda.device.scannable.ScannableUtils;
-import gda.jython.InterfaceProvider;
-import gda.jython.MockJythonServer;
-import gda.jython.MockJythonServerFacade;
 import gda.scan.ScanDataPoint;
-import gda.util.TestsUtil;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -38,8 +34,9 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Vector;
 
+import junit.framework.Assert;
+
 import org.junit.Test;
-import org.junit.Ignore;
 
 /**
  * Test the configurable format of this data writer. This uses DummyScannable and DummyDetector so indirectly tests
@@ -51,7 +48,6 @@ public class AsciiDataWriterTest {
 	 * 
 	 */
 	@Test
-	@Ignore("2010/01/20 Test ignored since not passing in Hudson")
 	public void testConfiguration() {
 
 		// build the configuration object
@@ -95,19 +91,10 @@ public class AsciiDataWriterTest {
 
 		try {
 			// create a datawriter
-			String testDir = TestsUtil.constructTestPath("", AsciiDataWriter.class);
+			String testDir = TestHelpers.setUpTest(AsciiDataWriterTest.class, "testConfiguration", true);
 			System.setProperty("gda.testDir", testDir);
-			LocalProperties.set("gda.data.scan.datawriter.datadir", testDir);
-			LocalProperties.set("gda.data.scan.datawriter.dataFormat", "AsciiNexusDataWriter");
-			MockJythonServer mockServer = new MockJythonServer();
-			MockJythonServerFacade mockFacade = new MockJythonServerFacade();
-			InterfaceProvider.setCurrentScanInformationHolderForTesting(mockServer);
-			InterfaceProvider.setDefaultScannableProviderForTesting(mockServer);
-			InterfaceProvider.setCommandRunnerForTesting(mockFacade);
-			InterfaceProvider.setTerminalPrinterForTesting(mockFacade);
-			InterfaceProvider.setScanStatusHolderForTesting(mockFacade);
-			InterfaceProvider.setJythonNamespaceForTesting(mockFacade);
-			InterfaceProvider.setJythonServerNotiferForTesting(mockServer);
+			LocalProperties.set(LocalProperties.GDA_DATAWRITER_DIR, testDir);
+			LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "AsciiNexusDataWriter");
 
 			AsciiDataWriter writer = new AsciiDataWriter(config);
 
@@ -140,7 +127,7 @@ public class AsciiDataWriterTest {
 				point.setNumberOfPoints(11);
 				point.setInstrument("I01");
 				point.setCommand("scan energy 1000 1100 100 counts 1");
-				point.setScanIdentifier("testscanid");
+				point.setScanIdentifier("1000");
 				try {
 					writer.addData(point);
 				} catch (Exception e) {
@@ -171,7 +158,7 @@ public class AsciiDataWriterTest {
 				contents1 += y;
 			}
 
-			assertTrue(contents.equals(contents1));
+			Assert.assertEquals(contents,contents1);
 
 		} catch (Exception e) {
 			fail(e.getMessage());

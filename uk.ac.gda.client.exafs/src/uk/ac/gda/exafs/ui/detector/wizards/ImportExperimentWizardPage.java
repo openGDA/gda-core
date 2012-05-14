@@ -75,7 +75,7 @@ public class ImportExperimentWizardPage extends WizardPage {
 	@Override
 	public void createControl(Composite parent) {
 
-		rootPath = LocalProperties.get("gda.data");
+		rootPath = LocalProperties.get(LocalProperties.GDA_DATA);
 		File yearDir = new File(rootPath);
 
 		String[] yearsList = yearDir.list();

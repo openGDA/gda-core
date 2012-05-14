@@ -12,6 +12,7 @@
 				<xsd:element name="collectionTime" type="xsd:double" maxOccurs="1" minOccurs="0"/>
 				<xsd:element name="DetectorElement" maxOccurs="unbounded" minOccurs="1" />
 				<xsd:element name="deadTime"       type="xsd:double" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="saveRawSpectrum" type="xsd:boolean" maxOccurs="1" minOccurs="0" />
 			</xsd:sequence>
 		</xsd:complexType>
 	</xsd:element>

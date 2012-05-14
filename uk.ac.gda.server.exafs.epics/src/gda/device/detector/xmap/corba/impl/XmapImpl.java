@@ -24,18 +24,20 @@ import gda.device.XmapDetector;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.corba.impl.DeviceImpl;
 import gda.device.detector.corba.impl.DetectorImpl;
+import gda.device.detector.xmap.XmapDetectorFromEpicsMca;
 import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.factory.corba.CorbaFactoryException;
 
 import org.omg.CORBA.Any;
 import org.omg.PortableServer.POA;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  */
 public class XmapImpl extends gda.device.detector.xmap.corba.CorbaXmapDetectorPOA {
-
+	private static final Logger logger = LoggerFactory.getLogger(XmapImpl.class);
 	private XmapDetector xmapDetector;
 	private POA poa;
 	private DetectorImpl detectorImpl;
@@ -53,7 +55,7 @@ public class XmapImpl extends gda.device.detector.xmap.corba.CorbaXmapDetectorPO
 		scannableImpl = new ScannableImpl(xmapDetector, poa);
 		deviceImpl = new DeviceImpl(xmapDetector, poa);
 	}
-	
+
 	/**
 	 * Get the implementation object
 	 * 
@@ -65,21 +67,25 @@ public class XmapImpl extends gda.device.detector.xmap.corba.CorbaXmapDetectorPO
 
 	/**
 	 * Set the implementation object.
-	 * @param xmapDetector 
+	 * 
+	 * @param xmapDetector
 	 */
 	public void _delegate(XmapDetector xmapDetector) {
 		this.xmapDetector = xmapDetector;
 	}
+
 	// implement EtlDetector methods delegation
 	@Override
 	public org.omg.PortableServer.POA _default_POA() {
 		return (poa != null) ? poa : super._default_POA();
 	}
+
 	@Override
 	public void clear() throws CorbaDeviceException {
 		try {
 			xmapDetector.clear();
 		} catch (DeviceException ex) {
+			logger.error(ex.getMessage(), ex);
 			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
@@ -89,6 +95,7 @@ public class XmapImpl extends gda.device.detector.xmap.corba.CorbaXmapDetectorPO
 		try {
 			xmapDetector.clearAndStart();
 		} catch (DeviceException ex) {
+			logger.error(ex.getMessage(), ex);
 			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
@@ -98,6 +105,7 @@ public class XmapImpl extends gda.device.detector.xmap.corba.CorbaXmapDetectorPO
 		try {
 			return xmapDetector.getAcquisitionTime();
 		} catch (DeviceException ex) {
+			logger.error(ex.getMessage(), ex);
 			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
@@ -107,6 +115,7 @@ public class XmapImpl extends gda.device.detector.xmap.corba.CorbaXmapDetectorPO
 		try {
 			return xmapDetector.getData(arg0);
 		} catch (DeviceException ex) {
+			logger.error(ex.getMessage(), ex);
 			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
@@ -116,6 +125,7 @@ public class XmapImpl extends gda.device.detector.xmap.corba.CorbaXmapDetectorPO
 		try {
 			return xmapDetector.getData();
 		} catch (DeviceException ex) {
+			logger.error(ex.getMessage(), ex);
 			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
@@ -125,6 +135,7 @@ public class XmapImpl extends gda.device.detector.xmap.corba.CorbaXmapDetectorPO
 		try {
 			return xmapDetector.getNumberOfBins();
 		} catch (DeviceException ex) {
+			logger.error(ex.getMessage(), ex);
 			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
@@ -134,6 +145,7 @@ public class XmapImpl extends gda.device.detector.xmap.corba.CorbaXmapDetectorPO
 		try {
 			return xmapDetector.getReadRate();
 		} catch (DeviceException ex) {
+			logger.error(ex.getMessage(), ex);
 			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
@@ -143,6 +155,7 @@ public class XmapImpl extends gda.device.detector.xmap.corba.CorbaXmapDetectorPO
 		try {
 			return xmapDetector.getRealTime();
 		} catch (DeviceException ex) {
+			logger.error(ex.getMessage(), ex);
 			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
@@ -152,6 +165,7 @@ public class XmapImpl extends gda.device.detector.xmap.corba.CorbaXmapDetectorPO
 		try {
 			return xmapDetector.getStatusRate();
 		} catch (DeviceException ex) {
+			logger.error(ex.getMessage(), ex);
 			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
@@ -161,6 +175,7 @@ public class XmapImpl extends gda.device.detector.xmap.corba.CorbaXmapDetectorPO
 		try {
 			xmapDetector.setAcquisitionTime(time);
 		} catch (DeviceException ex) {
+			logger.error(ex.getMessage(), ex);
 			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
@@ -170,6 +185,7 @@ public class XmapImpl extends gda.device.detector.xmap.corba.CorbaXmapDetectorPO
 		try {
 			xmapDetector.setNumberOfBins(numberOfBins);
 		} catch (DeviceException ex) {
+			logger.error(ex.getMessage(), ex);
 			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
@@ -179,6 +195,7 @@ public class XmapImpl extends gda.device.detector.xmap.corba.CorbaXmapDetectorPO
 		try {
 			xmapDetector.setReadRate(readRate);
 		} catch (DeviceException ex) {
+			logger.error(ex.getMessage(), ex);
 			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
@@ -188,6 +205,7 @@ public class XmapImpl extends gda.device.detector.xmap.corba.CorbaXmapDetectorPO
 		try {
 			xmapDetector.setStatusRate(statusRate);
 		} catch (DeviceException ex) {
+			logger.error(ex.getMessage(), ex);
 			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
@@ -197,6 +215,7 @@ public class XmapImpl extends gda.device.detector.xmap.corba.CorbaXmapDetectorPO
 		try {
 			xmapDetector.start();
 		} catch (DeviceException ex) {
+			logger.error(ex.getMessage(), ex);
 			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
@@ -223,22 +242,18 @@ public class XmapImpl extends gda.device.detector.xmap.corba.CorbaXmapDetectorPO
 	}
 
 	/*
-	public boolean isActive() {
-		return detectorImpl.isActive();
-	}
-	*/
-	
+	 * public boolean isActive() { return detectorImpl.isActive(); }
+	 */
+
 	/*
-	public void setActive(boolean activate) {
-		detectorImpl.setActive(activate);
-	}
-	*/
-	
+	 * public void setActive(boolean activate) { detectorImpl.setActive(activate); }
+	 */
+
 	@Override
 	public void setCollectionTime(double time) throws CorbaDeviceException {
 		detectorImpl.setCollectionTime(time);
 	}
-	
+
 	@Override
 	public double getCollectionTime() throws CorbaDeviceException {
 		return detectorImpl.getCollectionTime();
@@ -273,7 +288,7 @@ public class XmapImpl extends gda.device.detector.xmap.corba.CorbaXmapDetectorPO
 	public String getDetectorType() throws CorbaDeviceException {
 		return detectorImpl.getDetectorType();
 	}
-	
+
 	// implement inherited Scannable interface methods delegation
 	@Override
 	public String _toString() {
@@ -400,18 +415,17 @@ public class XmapImpl extends gda.device.detector.xmap.corba.CorbaXmapDetectorPO
 	public void atLevelMoveStart() throws CorbaDeviceException {
 		scannableImpl.atLevelMoveStart();
 	}
-	
+
 	@Override
 	public void atCommandFailure() throws CorbaDeviceException {
 		scannableImpl.atCommandFailure();
 	}
-	
+
 	@Override
 	public String toFormattedString() throws CorbaDeviceException {
 		return scannableImpl.toFormattedString();
 	}
 
-	
 	@Override
 	public boolean isAt(Any arg0) throws CorbaDeviceException {
 		try {
@@ -431,6 +445,7 @@ public class XmapImpl extends gda.device.detector.xmap.corba.CorbaXmapDetectorPO
 	public Any getAttribute(String attributeName) throws CorbaDeviceException {
 		return deviceImpl.getAttribute(attributeName);
 	}
+
 	@Override
 	public void reconfigure() throws CorbaFactoryException {
 		detectorImpl.reconfigure();
@@ -440,7 +455,7 @@ public class XmapImpl extends gda.device.detector.xmap.corba.CorbaXmapDetectorPO
 	public void close() throws CorbaDeviceException {
 		detectorImpl.close();
 	}
-	
+
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
 		return deviceImpl.getProtectionLevel();
@@ -456,6 +471,7 @@ public class XmapImpl extends gda.device.detector.xmap.corba.CorbaXmapDetectorPO
 		try {
 			return xmapDetector.getNumberOfROIs();
 		} catch (DeviceException ex) {
+			logger.error(ex.getMessage(), ex);
 			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
@@ -465,13 +481,14 @@ public class XmapImpl extends gda.device.detector.xmap.corba.CorbaXmapDetectorPO
 		try {
 			return xmapDetector.getROIsSum();
 		} catch (DeviceException ex) {
+			logger.error(ex.getMessage(), ex);
 			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
 
 	@Override
 	public void setNumberOfROIs(int arg0) throws CorbaDeviceException {
-		//Do nothing
+		// Do nothing
 	}
 
 	@Override
@@ -479,9 +496,10 @@ public class XmapImpl extends gda.device.detector.xmap.corba.CorbaXmapDetectorPO
 		try {
 			xmapDetector.setROIs(arg0);
 		} catch (DeviceException ex) {
+			logger.error(ex.getMessage(), ex);
 			throw new CorbaDeviceException(ex.getMessage());
 		}
-		
+
 	}
 
 	@Override
@@ -489,6 +507,7 @@ public class XmapImpl extends gda.device.detector.xmap.corba.CorbaXmapDetectorPO
 		try {
 			return xmapDetector.getNumberOfMca();
 		} catch (DeviceException ex) {
+			logger.error(ex.getMessage(), ex);
 			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
@@ -498,6 +517,7 @@ public class XmapImpl extends gda.device.detector.xmap.corba.CorbaXmapDetectorPO
 		try {
 			xmapDetector.setNthROI(rois, roiIndex);
 		} catch (DeviceException ex) {
+			logger.error(ex.getMessage(), ex);
 			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
