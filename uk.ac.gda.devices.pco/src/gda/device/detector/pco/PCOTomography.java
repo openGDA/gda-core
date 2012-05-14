@@ -511,17 +511,22 @@ public class PCOTomography implements ITomographyDetector {
 
 	@Override
 	public void resetAll() throws Exception {
-		//Ensure that the camera is stopped before resetAll is called
+		// Ensure that the camera is stopped before resetAll is called
 		pcoDetector.stop();
 		pcoDetector.resetAll();
 	}
 
 	@Override
-	public void setupForTilt(int minY, int maxY) throws Exception {
+	public void setupForTilt(int minY, int maxY, int minX, int maxX) throws Exception {
 		IPCOControllerV17 controller = pcoDetector.getController();
 		ADBase areaDetector = controller.getAreaDetector();
-		areaDetector.setSizeY(maxY - minY);
+		//Adding 1 as the detector starts counting pixels beginning from 1
+		areaDetector.setSizeY(maxY - minY + 1);
 		areaDetector.setMinY(minY);
+
+		areaDetector.setSizeX(maxX - minX + 1);
+		areaDetector.setMinX(minX);
+
 
 		controller.getTiff().getPluginBase().enableCallbacks();
 
@@ -532,6 +537,8 @@ public class PCOTomography implements ITomographyDetector {
 		ADBase adBase = pcoDetector.getController().getAreaDetector();
 		adBase.setMinY(adBase.getInitialMinY());
 		adBase.setSizeY(adBase.getInitialSizeY());
+		adBase.setMinX(adBase.getInitialMinX());
+		adBase.setSizeX(adBase.getInitialSizeX());
 
 	}
 
@@ -581,7 +588,7 @@ public class PCOTomography implements ITomographyDetector {
 		controller.setImageMode(0);
 		// setting the ADC model to 2-ADC mode
 		pcoDetector.setADCMode(1);
-		
+
 		NDProcess proc1 = controller.getProc1();
 		proc1.setEnableHighClip(1);
 		proc1.setHighClip(65534);
@@ -589,7 +596,7 @@ public class PCOTomography implements ITomographyDetector {
 		NDProcess proc2 = controller.getProc2();
 		proc2.setEnableHighClip(1);
 		proc2.setHighClip(65534);
-		
+
 		// acquire a single image to set the arrays correctly
 		pcoDetector.acquireSynchronously();
 	}
