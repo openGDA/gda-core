@@ -1,5 +1,5 @@
 #@PydevCodeAnalysisIgnore
-from uk.ac.gda.client.microfocus.scan.datawriter import MicroFocusWriterExtender
+from uk.ac.gda.client.microfocus.scan.datawriter import TwoWayMicroFocusWriterExtender
 from uk.ac.gda.beans import BeansFactory
 from gda.factory import Finder
 from gda.exafs.scan import BeanGroup
@@ -13,6 +13,7 @@ from gda.data import PathConstructor
 from gda.data.scan.datawriter import XasAsciiDataWriter
 from gda.factory import Finder
 from gda.scan import TrajectoryScanLine
+from fast_scan import ScanPositionsTwoWay
 #import microfocus.microfocus_elements
 def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, scanNumber= -1, validation=True):
     """
@@ -90,7 +91,7 @@ def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileN
     energyList = [scanBean.getEnergy()]
     zScannablePos = scanBean.getZValue()
     for energy in energyList:
-        mfd = MicroFocusWriterExtender(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize())
+        mfd = TwoWayMicroFocusWriterExtender(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize())
         globals()["microfocusScanWriter"] = mfd
         mfd.setPlotName("MapPlot")
         print " the detector is " 
@@ -158,9 +159,11 @@ def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileN
             ##ContinuousScan(trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [raster_xspress,]).runScan();##rowTIme in the Scan bean is in milliseconds
             if(detectorType == "Silicon"):
                 print "Xmap Raster Scan"
-                tsl = TrajectoryScanLine([continuousSampleX, scanBean.getXStart(), scanBean.getXEnd(), scanBean.getXStepSize(), HTXmapMca, scanBean.getRowTime()/(1000.0 * nx)] )
+                #tsl = TrajectoryScanLine([continuousSampleX, scanBean.getXStart(), scanBean.getXEnd(), scanBean.getXStepSize(), HTXmapMca, scanBean.getRowTime()/(1000.0 * nx)] )
+                tsl = TrajectoryScanLine([continuousSampleX, ScanPositionsTwoWay(continuousSampleX,scanBean.getXStart(), scanBean.getXEnd(), scanBean.getXStepSize()), HTXmapMca, scanBean.getRowTime()/(1000.0 * nx)] )
                 tsl.setScanDataPointQueueLength(10000);tsl.setPositionCallableThreadPoolSize(1)
-                scan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),tsl,energyScannable, zScannable,realX])
+                #scan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),tsl,energyScannable, zScannable,realX])
+                scan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),tsl,energyScannable, zScannable])
             else:
                 print "Xspress Raster Scan"
                 scan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),ContinuousScan(trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime()/1000.0, [raster_counterTimer01, raster_xspress]),energyScannable, zScannable,realX])

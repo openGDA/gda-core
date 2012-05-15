@@ -79,8 +79,8 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 		
 		int totalToRead = readSoFar + maxToRead;
 		int numOfPoints = fileLoader.getNumberOfDataPoints();
-		if(totalToRead < numOfPoints)
-			totalToRead = numOfPoints;
+		//if(totalToRead < numOfPoints) may not be the correct 
+		totalToRead = numOfPoints;
 		for(int i =readSoFar  ; i <  totalToRead; i++)
 		{
 			container.add(writeToNexusFile(i, fileLoader.getData(i)));
@@ -99,7 +99,7 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 
 	public NXDetectorData writeToNexusFile(int dataPointNumber, short[][] s) throws DeviceException {
 		NXDetectorData output = new NXDetectorData(this.hardwareTriggeredNexusXmap);
-		INexusTree detTree = output.getDetTree(this.hardwareTriggeredNexusXmap.getName());
+		INexusTree detTree = output.getDetTree(this.hardwareTriggeredNexusXmap.getXmap().getName());
 
 		int numberOfElements = this.hardwareTriggeredNexusXmap.getXmap().vortexParameters.getDetectorList().size();
 		int numberOfROIs = this.hardwareTriggeredNexusXmap.getXmap().vortexParameters.getDetectorList().get(0).getRegionList().size();
@@ -141,7 +141,7 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 				final RegionOfInterest roi = thisElement.getRegionList().get(iroi);
 				
 				//TODO calculate roi from the full spectrum data
-				double count = calculateROICounts(iroi, element, detectorData[element]);
+				double count = calculateROICounts(roi.getRoiStart(), roi.getRoiEnd(), detectorData[element]);
 				count *= deadTimeCorrectionFactor;
 				roiCounts[iroi][element] = count;
 				roiNames[iroi] = roi.getRoiName();
@@ -232,7 +232,8 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 				if (j>=this.hardwareTriggeredNexusXmap.getXmap().vortexParameters.getDetectorList().size()) continue;
 				DetectorElement element = this.hardwareTriggeredNexusXmap.getXmap().vortexParameters.getDetectorList().get(j);
 				if (element.isExcluded()) continue;
-				double correctedMCA = calculateROICounts(i, j,detectorData[j])*k[j];
+				RegionOfInterest region = element.getRegionList().get(i);
+				double correctedMCA = calculateROICounts(region.getRoiStart(), region.getRoiStart(),detectorData[j])*k[j];
 				rois[i]+=correctedMCA;
 			}
  		}

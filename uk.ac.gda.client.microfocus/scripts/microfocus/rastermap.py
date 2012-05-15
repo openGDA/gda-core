@@ -54,8 +54,9 @@ def rastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, f
         
     scanBean     = BeansFactory.getBeanObject(xmlFolderName, scanFileName)
     detectorBean = BeansFactory.getBeanObject(xmlFolderName, detectorFileName)
-    #if(detectorBean.getFluorescenceParameters().getDetectorType() == "Silicon"):
-     #   vortexRastermap(sampleFileName, scanFileName, detectorFileName, outputFileName, folderName, scanNumber, validation)
+    if(detectorBean.getFluorescenceParameters().getDetectorType() == "Silicon"):
+        vortexRastermap(sampleFileName, scanFileName, detectorFileName, outputFileName, folderName, scanNumber, validation)
+        return
     outputBean   = BeansFactory.getBeanObject(xmlFolderName, outputFileName)
      
     # give the beans to the xasdatawriter class to help define the folders/filenames 
@@ -208,13 +209,15 @@ def setupForRaster(beanGroup):
     detectorFillingMonitor1 = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
     trajBeamMonitor1 = command_server.getFromJythonNamespace("trajBeamMonitor", None)
     print "setting collection time to" , str(collectionTime)        
-    topupMonitor1.setPauseBeforePoint(False)
-    topupMonitor1.setPauseBeforeLine(True)
-    topupMonitor1.setCollectionTime(collectionTime)
-    add_default(beam1)
-    beam1.setPauseBeforePoint(False)
-    beam1.setPauseBeforeLine(True)
-    if(beanGroup.getDetector().getExperimentType() == "Fluorescence" and beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium"):
+    if(not (topupMonitor1 == None)):
+        topupMonitor1.setPauseBeforePoint(False)
+        topupMonitor1.setPauseBeforeLine(True)
+        topupMonitor1.setCollectionTime(collectionTime)
+    if(not (beam1 == None)):
+        add_default(beam1)
+        beam1.setPauseBeforePoint(False)
+        beam1.setPauseBeforeLine(True)
+    if(beanGroup.getDetector().getExperimentType() == "Fluorescence" and beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium"and not (detectorFillingMonitor == None)):
         add_default(detectorFillingMonitor1)
         detectorFillingMonitor1.setPauseBeforePoint(False)
         detectorFillingMonitor1.setPauseBeforeLine(True)
@@ -244,7 +247,8 @@ def setupForRaster(beanGroup):
     print "experimenttype:", beanGroup.getDetector().getExperimentType()
   
     LocalProperties.set("gda.scan.useScanPlotSettings", "true")
-    trajBeamMonitor.setActive(True)
+    if not (trajBeamMonitor1 == None):
+        trajBeamMonitor1.setActive(True)
     finder.find("RCPController").openPesrpective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")
     
 
