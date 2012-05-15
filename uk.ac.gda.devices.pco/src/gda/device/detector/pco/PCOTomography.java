@@ -524,11 +524,16 @@ public class PCOTomography implements ITomographyDetector {
 	}
 
 	@Override
-	public void setupForTilt(int minY, int maxY) throws Exception {
+	public void setupForTilt(int minY, int maxY, int minX, int maxX) throws Exception {
 		IPCOControllerV17 controller = pcoDetector.getController();
 		ADBase areaDetector = controller.getAreaDetector();
-		areaDetector.setSizeY(maxY - minY);
+		//Adding 1 as the detector starts counting pixels beginning from 1
+		areaDetector.setSizeY(maxY - minY + 1);
 		areaDetector.setMinY(minY);
+
+		areaDetector.setSizeX(maxX - minX + 1);
+		areaDetector.setMinX(minX);
+
 
 		controller.getTiff().getPluginBase().enableCallbacks();
 
@@ -539,6 +544,8 @@ public class PCOTomography implements ITomographyDetector {
 		ADBase adBase = pcoDetector.getController().getAreaDetector();
 		adBase.setMinY(adBase.getInitialMinY());
 		adBase.setSizeY(adBase.getInitialSizeY());
+		adBase.setMinX(adBase.getInitialMinX());
+		adBase.setSizeX(adBase.getInitialSizeX());
 
 	}
 
