@@ -376,7 +376,7 @@ public class TwoWayMicroFocusWriterExtenderTest {
 			assertEquals(dataSDP[i], mnData[i], 0.0);
 		}
 	}
-	@Test
+	
 	public void testTwoWayDisplayPlotMidway() throws Exception
 	{
 		twoWaySetup();
