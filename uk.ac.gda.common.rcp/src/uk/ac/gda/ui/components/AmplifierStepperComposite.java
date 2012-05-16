@@ -455,7 +455,10 @@ public class AmplifierStepperComposite extends Composite {
 		shell.setBackground(ColorConstants.black);
 		AmplifierStepperComposite sliderComposite = new AmplifierStepperComposite(shell, SWT.None);
 		shell.setText(sliderComposite.getClass().getName());
-		sliderComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
+		GridData layoutData = new GridData(GridData.FILL_BOTH);
+		layoutData.heightHint = 400;
+		layoutData.widthHint = 100;
+		sliderComposite.setLayoutData(layoutData);
 		shell.pack();
 		shell.open();
 

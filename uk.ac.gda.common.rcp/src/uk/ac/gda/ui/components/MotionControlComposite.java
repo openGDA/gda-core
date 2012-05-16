@@ -1030,7 +1030,8 @@ public class MotionControlComposite extends Composite {
 		MotionControlComposite motionControlComposite = new MotionControlComposite(shell, new FormToolkit(display),
 				SWT.None);
 
-		motionControlComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
+		GridData layoutData = new GridData(GridData.FILL_BOTH);
+		motionControlComposite.setLayoutData(layoutData);
 		shell.pack();
 		shell.open();
 
