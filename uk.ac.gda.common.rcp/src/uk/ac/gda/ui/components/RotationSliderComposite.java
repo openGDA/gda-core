@@ -370,16 +370,18 @@ public abstract class RotationSliderComposite extends Composite {
 			}
 			moved = true;
 			Point p = e.getLocation();
-			Dimension delta = p.getDifference(movedPoint);
-			Figure f = ((Figure) e.getSource());
-			// Restricted drag movement for the triangle
-			if (delta.width + f.getBounds().x >= 1) {
-				if (f.getBounds().width + f.getBounds().x + delta.width <= f.getParent().getBounds().width + 1) {
-					f.setBounds(f.getBounds().getTranslated(delta.width, 0));
-					updateSliderLabel();
+			if (p != null) {
+				Dimension delta = p.getDifference(movedPoint);
+				Figure f = ((Figure) e.getSource());
+				// Restricted drag movement for the triangle
+				if (delta.width + f.getBounds().x >= 1) {
+					if (f.getBounds().width + f.getBounds().x + delta.width <= f.getParent().getBounds().width + 1) {
+						f.setBounds(f.getBounds().getTranslated(delta.width, 0));
+						updateSliderLabel();
+					}
 				}
+				movedPoint = p;
 			}
-			movedPoint = p;
 		}
 
 	}
