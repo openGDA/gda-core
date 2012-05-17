@@ -56,7 +56,7 @@ class Scan:
     
 class XasScan(Scan):
         
-    def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, scanNumber= -1, validation=True):
+    def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, numRepetitions= -1, validation=True):
         ScanBase.interrupted = False
     
         controller = Finder.getInstance().find("ExafsScriptObserver")
@@ -70,12 +70,11 @@ class XasScan(Scan):
         # send initial message to the log
         from gda.jython.scriptcontroller.logging import LoggingScriptController
         from gda.jython.scriptcontroller.logging import XasLoggingMessage
-        loggingcontroller= Finder.getInstance().find("XASLoggingScriptController")
-        unique_id           = LoggingScriptController.createUniqueID("XasScan");
-        logmsg = XasLoggingMessage(unique_id, "XasScan", "Starting XAS scan...", str(scanNumber), str("0%"),str(0),scanBean)
-        loggingcontroller.update(None,logmsg)
-        loggingcontroller.update(None,ScanStartedMessage(scanBean,detectorBean))
-        loggingbean = XasProgressUpdater(loggingcontroller,logmsg)
+        loggingcontroller   = Finder.getInstance().find("XASLoggingScriptController")
+        scriptType = "Exafs"
+        if isinstance(scanBean, XanesScanParameters):
+            scriptType = "Xanes"
+        unique_id           = LoggingScriptController.createUniqueID(scriptType);
 
         # create the scannable which will control energy & time for each point
         useFrames = LocalProperties.check("gda.microfocus.scans.useFrames")
@@ -94,7 +93,7 @@ class XasScan(Scan):
         originalGroup.setScriptFolder(xmlFolderName)
         originalGroup.setScannable(Finder.getInstance().find(scanBean.getScannableName())) #TODO
         originalGroup.setExperimentFolderName(folderName)
-        originalGroup.setScanNumber(scanNumber)
+#        originalGroup.setScanNumber(scanNumber)
         if (sampleBean != None):
             originalGroup.setSample(sampleBean)
         originalGroup.setDetector(detectorBean)
@@ -102,14 +101,16 @@ class XasScan(Scan):
         originalGroup.setOutput(outputBean)
         originalGroup.setValidate(validation)
         originalGroup.setScan(scanBean)
-        
+
+# RJW May2012 remove the DOE stuff and replace with the number of repetitions        
         # Use BeanGroups to generate the DOE experiments.
-        groups = BeanGroups.expand(originalGroup)
-        infos = BeanGroups.getInfo(originalGroup)
-        print "DoE group size", len(groups)
+#        groups = BeanGroups.expand(originalGroup)
+#        infos = BeanGroups.getInfo(originalGroup)
+#        print "DoE group size", len(groups)
         
-        for i in range(0, len(groups)):
-            beanGroup = groups[i];
+        for repetitionNumber in range(0, numRepetitions):
+            originalGroup.setScanNumber(repetitionNumber)
+            beanGroup = originalGroup   #groups[i];
             XasAsciiDataWriter.setBeanGroup(beanGroup)
     
             # create the list of scan points
@@ -122,20 +123,27 @@ class XasScan(Scan):
                 points = ExafsScanPointCreator.calculateEnergies(beanGroup.getScan())
                 if useFrames:
                     xas_scannable.setExafsScanRegionTimes(ExafsScanPointCreator.getScanTimes(beanGroup.getScan()))
+
+            # send out initial messages
+            logmsg = XasLoggingMessage(unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str("0%"),str(0),scanBean)
+            loggingcontroller.update(None,logmsg)
+            loggingcontroller.update(None,ScanStartedMessage(scanBean,detectorBean))
+            loggingbean = XasProgressUpdater(loggingcontroller,logmsg)
+
             
             # This step adds information to the sample parameters description 
             # if we are doing a multiple run.
-            if len(groups) > 1:
-                rangeInfo = infos[i]
-                beanGroup.getSample().addDescription("");
-                beanGroup.getSample().addDescription("***");
-                beanGroup.getSample().addDescription("Design of experiments study run '" + str(i + 1) + "' of '" + str(len(groups)) + "'. With following parameter(s):")
-                beanGroup.getSample().addDescription(rangeInfo.getHeader())
-                beanGroup.getSample().addDescription(rangeInfo.getValues())
-                beanGroup.getSample().addDescription("***");
-                simpleLog("Loop of experiments: run " + str(i + 1) + " of " + str(len(groups)))
-                simpleLog("Variable(s) being looped over:" + str(rangeInfo.getHeader()))
-                simpleLog("Current value(s):" + str(rangeInfo.getValues()))
+#            if len(groups) > 1:
+#                rangeInfo = infos[i]
+#                beanGroup.getSample().addDescription("");
+#                beanGroup.getSample().addDescription("***");
+#                beanGroup.getSample().addDescription("Design of experiments study run '" + str(i + 1) + "' of '" + str(len(groups)) + "'. With following parameter(s):")
+#                beanGroup.getSample().addDescription(rangeInfo.getHeader())
+#                beanGroup.getSample().addDescription(rangeInfo.getValues())
+#                beanGroup.getSample().addDescription("***");
+#                simpleLog("Loop of experiments: run " + str(i + 1) + " of " + str(len(groups)))
+#                simpleLog("Variable(s) being looped over:" + str(rangeInfo.getHeader()))
+#                simpleLog("Current value(s):" + str(rangeInfo.getValues()))
     
             # work out which detectors to use (they will need to have been configured already by the GUI)
             detectorList = self._getDetectors(beanGroup.getDetector(), beanGroup.getScan()) 
