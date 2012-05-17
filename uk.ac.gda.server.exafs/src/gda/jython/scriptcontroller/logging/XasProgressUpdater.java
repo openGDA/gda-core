@@ -45,7 +45,7 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 	public XasProgressUpdater(LoggingScriptController controller,XasLoggingMessage msg){
 		this.controller = controller;
 		this.id = msg.getUniqueID();
-		this.scriptName = msg.getScriptName();
+		this.scriptName = msg.getName();
 		this.repetition = msg.getRepetition();
 		this.predictedTotalTime = msg.getPredictedTotalTime();
 		this.setInputNames(new String[] {});
