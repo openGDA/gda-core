@@ -18,33 +18,31 @@
 
 package gda.device.detector.xmap;
 
+import gda.data.NumTracker;
+import gda.data.PathConstructor;
+import gda.data.metadata.GDAMetadataProvider;
+import gda.data.nexus.tree.NexusTreeProvider;
+import gda.device.DeviceException;
+import gda.device.detector.DAServer;
+import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetectorBase;
+import gda.device.detector.xmap.edxd.EDXDController.COLLECTION_MODES;
+import gda.device.detector.xmap.edxd.EDXDMappingController;
+import gda.device.scannable.PositionStreamIndexer;
+import gda.factory.FactoryException;
+
 import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.NumTracker;
-import gda.data.PathConstructor;
-import gda.data.metadata.GDAMetadataProvider;
-import gda.data.nexus.tree.NexusTreeProvider;
-import gda.device.DeviceException;
-import gda.device.XmapDetector;
-import gda.device.detector.DAServer;
-import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetectorBase;
-import gda.device.detector.xmap.edxd.EDXDController.COLLECTION_MODES;
-import gda.device.detector.xmap.edxd.EDXDMappingController;
-import gda.device.scannable.PositionCallableProvider;
-import gda.device.scannable.PositionStreamIndexer;
-import gda.factory.Configurable;
-import gda.factory.FactoryException;
-
-public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorBase implements HardwareTriggeredNexusXmap {
+public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorBase implements HardwareTriggeredNexusXmap{
 	static final Logger logger = LoggerFactory.getLogger(HardwareTriggeredNexusXmapImpl.class);
-	
+	private boolean slave = true;
 	private DAServer daServer;
 	private NexusXmap xmap;
 	private EDXDMappingController controller;
+	private boolean integrateBetweenPoints = true;
 	
 	@Override
 	public NexusXmap getXmap() {
@@ -188,7 +186,9 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 
 	@Override
 	public void collectData() throws DeviceException {
-		//do nothing
+		if (!isHardwareTriggering()) {
+			xmap.collectData();
+		}
 	}
 
 	@Override
@@ -215,9 +215,18 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
+		if (!isHardwareTriggering()) {
+			xmap.readout();
+		}
 		throw new DeviceException("Can only be used in continuous scans");
 	}
 	
+	@Override
+	public void prepareForCollection() throws DeviceException {
+		if (!isHardwareTriggering()) {
+			xmap.prepareForCollection();
+		}
+	}
 	@Override
 	public void arm() throws DeviceException {
 		//prepare the detector for continuous collection
@@ -278,10 +287,9 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 		// TODO Auto-generated method stub
 
 	}
-
-	@SuppressWarnings("rawtypes")
+	
 	@Override
-	public Callable getPositionCallable() throws DeviceException {
+	public Callable<NexusTreeProvider> getPositionCallable() throws DeviceException {
 		return indexer.getPositionCallable();
 	}
 	
@@ -290,7 +298,7 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 	{
 		try {
 			//setup tfg time frames
-			setTimeFrames();
+			setupContinuousOperation();
 			setupFilename();
 			controller.resetCounters();
 			
@@ -311,11 +319,21 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 		this.indexer  = new PositionStreamIndexer<NexusTreeProvider>(new XmapPositionInputStream(this, this.xmap.isSumAllElementData()));
 	}
 
+	public void setupContinuousOperation(){
+		if (!isSlave()) {
+				setTimeFrames();				
+			} else {
+				switchOffExtTrigger();
+			}
+	}
+	
 	private void setTimeFrames() {
 		switchOnExtTrigger();
-		getDaServer().sendCommand("tfg setup-groups ext-start cycles 1");
-		getDaServer().sendCommand(getHardwareTriggerProvider().getNumberTriggers() + " 0.000001 0.00000001 0 0 0 8");
-		getDaServer().sendCommand("-1 0 0 0 0 0 0");
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("tfg setup-groups ext-start cycles 1"+"\n");
+		buffer.append(getHardwareTriggerProvider().getNumberTriggers() + " 0.000001 0.00000001 0 0 0 8\n");
+		buffer.append("-1 0 0 0 0 0 0");
+		getDaServer().sendCommand(buffer.toString());
 		getDaServer().sendCommand("tfg arm");
 	}
 	private void switchOnExtTrigger() {
@@ -400,8 +418,7 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 	}
 	@Override
 	public boolean integratesBetweenPoints() {
-		// TODO Auto-generated method stub
-		return true;
+		return isIntegrateBetweenPoints();
 	}
 	@Override
 	public String getHDFFileName() throws DeviceException  {
@@ -411,8 +428,22 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 			throw new DeviceException("CAnnot get the hdf5 file name from the xmap controller", e);
 		}
 	}
+	
+	@Override
 	public boolean isInBufferMode() throws Exception{
 		return controller.isBufferedArrayPort();
+	}
+	public boolean isSlave() {
+		return slave;
+	}
+	public void setSlave(boolean slave) {
+		this.slave = slave;
+	}
+	public boolean isIntegrateBetweenPoints() {
+		return integrateBetweenPoints;
+	}
+	public void setIntegrateBetweenPoints(boolean integrateBetweenPoints) {
+		this.integrateBetweenPoints = integrateBetweenPoints;
 	}
 	
 

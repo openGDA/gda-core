@@ -20,6 +20,7 @@ from gda.device.detector.xspress import ResGrades
 from gda.jython.commands import ScannableCommands
 from gdascripts.messages import handle_messages
 import time
+from gda.device.scannable import ScannableUtils
 #import microfocus.microfocus_elements
 rootnamespace = {}
 def rastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, scanNumber= -1, validation=True):
@@ -54,6 +55,8 @@ def rastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, f
         
     scanBean     = BeansFactory.getBeanObject(xmlFolderName, scanFileName)
     detectorBean = BeansFactory.getBeanObject(xmlFolderName, detectorFileName)
+    #if(detectorBean.getFluorescenceParameters().getDetectorType() == "Silicon"):
+    #    vortexRastermap(sampleFileName, scanFileName, detectorFileName, outputFileName, folderName, scanNumber, validation)
     if(detectorBean.getFluorescenceParameters().getDetectorType() == "Silicon"):
         vortexRastermap(sampleFileName, scanFileName, detectorFileName, outputFileName, folderName, scanNumber, validation)
         return
@@ -87,15 +90,13 @@ def rastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, f
     #signalParameters = getSignalList(outputBean)
     finder = Finder.getInstance()
     dataWriter = finder.find("DataWriterFactory")
-    nx = abs(scanBean.getXEnd() - scanBean.getXStart()) / scanBean.getXStepSize()
-    ny = abs(scanBean.getYEnd() - scanBean.getYStart()) / scanBean.getYStepSize()
+    #nx = abs(scanBean.getXEnd() - scanBean.getXStart()) / scanBean.getXStepSize()
+    #ny = abs(scanBean.getYEnd() - scanBean.getYStart()) / scanBean.getYStepSize()
     
-  
-    print "number of x points is ", str(nx)
-    print "number of y points is ", str(ny)
+  #
     # Determine no of points
-    nx = int(round(nx + 1.0))
-    ny = int(round(ny + 1.0))
+    nx = ScannableUtils.getNumberSteps(Finder.getInstance().find(scanBean.getXScannableName()),scanBean.getXStart(), scanBean.getXEnd(),scanBean.getXStepSize()) + 1
+    ny = ScannableUtils.getNumberSteps(Finder.getInstance().find(scanBean.getYScannableName()),scanBean.getYStart(), scanBean.getYEnd(),scanBean.getYStepSize()) + 1
     print "number of x points is ", str(nx)
     print "number of y points is ", str(ny)
     energyList = [scanBean.getEnergy()]

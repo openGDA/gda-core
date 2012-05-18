@@ -18,6 +18,7 @@
 
 package gda.device.detector.xmap;
 
+import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.XmapDetector;
 import gda.device.detector.NexusDetector;
@@ -26,7 +27,7 @@ import gda.device.scannable.PositionCallableProvider;
 import gda.factory.Configurable;
 
 public interface HardwareTriggeredNexusXmap extends XmapDetector,HardwareTriggerableDetector,
-		PositionCallableProvider, Configurable, NexusDetector {
+		PositionCallableProvider<NexusTreeProvider>, Configurable, NexusDetector {
 
 	public String getHDFFileName()throws DeviceException;
 	public void waitForFile(String fileName)throws DeviceException, InterruptedException;

@@ -65,8 +65,6 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 	private int windowEnd = 1200;
 	private String selectedElement = "";
 	private Object detectorBean;
-	private double firstX = 0.0;
-	private double firstY = 0.0;
 	@SuppressWarnings("rawtypes")
 	private List[] elementRois;
 	private Logger logger = LoggerFactory.getLogger(TwoWayMicroFocusWriterExtender.class);
@@ -86,6 +84,7 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 	private double zValue;
 	private double energyValue;
 	private int plottedSoFar = -1;
+	private int rowsPlottedSoFar = -1;
 	private IScanDataPoint lastDataPoint =null;
 	private int plotUpdateFrequency = 5;
 	private double minValue = Double.MAX_VALUE;
@@ -114,8 +113,8 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 	public TwoWayMicroFocusWriterExtender(int xPoints, int yPoints, double xStepSize, double yStepSize) {
 		this.numberOfXPoints = xPoints;
 		this.numberOfYPoints = yPoints;
-		this.xStepSize = xStepSize;
-		this.yStepSize = yStepSize;
+		this.setxStepSize(xStepSize);
+		this.setyStepSize(yStepSize);
 		minValue = Double.MAX_VALUE;
 		createDataSet();
 
@@ -189,23 +188,22 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 		this.plotName = plotName;
 	}
 
-	@SuppressWarnings({ "static-access", "unchecked" })
+	@SuppressWarnings("static-access")
 	@Override
 	public void addData(IDataWriterExtender parent, IScanDataPoint dataPoint) throws Exception {
 		updateDataSetFromSDP(dataPoint );
-		
-		plottedSoFar = dataPoint.getCurrentPointNumber();
 		if(plottedSoFar % plotUpdateFrequency == 0 || (plottedSoFar + 1 ) == (numberOfXPoints * numberOfYPoints))
 			RCPPlotter.imagePlot(plotName,dataSet);
 		lastDataPoint = dataPoint;
 		
 	}
 	/**
-	 * This method is only for testing . 
+	 * This method is made public only for testing . 
 	 * @param plottedSoFar
 	 */
 	public void setPlottedSoFar(int plottedSoFar) {
 		this.plottedSoFar = plottedSoFar;
+		this.rowsPlottedSoFar = plottedSoFar / numberOfXPoints + 1;
 	}
 
 	public void updateDataSetFromSDP(IScanDataPoint dataPoint )throws Exception
@@ -216,8 +214,6 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 		Vector<Detector> detFromDP = dataPoint.getDetectors();
 		if (dataPoint.getCurrentPointNumber() == 0 && lastDataPoint == null) {
 			// this is the first point in the scan
-			firstX = xy[1];
-			firstY = xy[0];
 			fillRoiNames();
 			totalPoints = numberOfXPoints * numberOfYPoints;
 			scalerValues = new double[totalPoints][];
@@ -266,12 +262,11 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 		}
 
 		if(lastDataPoint == null || (!lastDataPoint.equals(dataPoint) && lastDataPoint.getCurrentFilename().equals(dataPoint.getCurrentFilename()))){
-			int[]xyIndex = getXYIndex(dataPoint.getCurrentPointNumber(),xy[1], xy[0]);
+			int[]xyIndex = getXYIndex(dataPoint.getCurrentPointNumber(),xy[1]);
 			int correctedDataPointNumber = xyIndex[1]*numberOfXPoints+xyIndex[0];
 			xValues[correctedDataPointNumber] = xy[1];
 			yValues[correctedDataPointNumber] = xy[0];
-			if(dataPoint.getCurrentPointNumber() % numberOfXPoints == 0)
-				determineDirection(firstX, xy[1]);
+			
 		double value = 0;
 		double windowTotal = 0.0;
 
@@ -323,6 +318,7 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 					for (int i = 0; i < numberOfSubDetectors; i++) {
 						//data = d.getData(detectorName, detectorName + "_element_" + i, "SDS");
 						//dataArray[i] = ((double[]) ((NexusGroupData) data).getBuffer());
+						@SuppressWarnings("unchecked")
 						List<XspressROI> roiList = elementRois[i];
 						for (XspressROI roi : roiList) {
 							String key = roi.getRoiName();
@@ -388,6 +384,7 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 							wholeDataArray[j] = (double[]) singleElementSpectrum;
 						}
 						spectrumLength = wholeDataArray[j].length;
+						@SuppressWarnings("unchecked")
 						List<RegionOfInterest> roiList = elementRois[j];
 						//calculating window total manually instead of using xmap ROIs
 						for (RegionOfInterest roi : roiList) {
@@ -439,24 +436,25 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 			for(int i =0; i< detectorValues.length;i++ )
 				detectorValues[i][correctedDataPointNumber] = detectorValues[i][correctedDataPointNumber] / normaliseValue;
 		}
-		
+		setPlottedSoFar(dataPoint.getCurrentPointNumber());
 		//yIndex,xIndex
 		dataSet.set(value, xyIndex[1], xyIndex[0]);
 		fillDataSet((minValue - fillDecrement));
 		}
 	}
-	private void determineDirection(double firstX2, Double double1) {
-		// TODO Auto-generated method stub
-		
-	}
+	
 
 	private void fillDataSet(double minValue2) {
-		for(int yindex =0 ; yindex < numberOfYPoints ; yindex++)
+		for(int xindex = 0 ; xindex < numberOfXPoints ; xindex++)
+		{
+			if(dataSet.getDouble(new int[]{rowsPlottedSoFar -1,xindex}) == lastFilledValue)
+					dataSet.set(minValue2,rowsPlottedSoFar -1, xindex);
+		}
+		for(int yindex =rowsPlottedSoFar ; yindex < numberOfYPoints ; yindex++)
 		{
 			for(int xindex = 0 ; xindex < numberOfXPoints ; xindex++)
 			{
-				if(dataSet.getDouble(new int[]{yindex,xindex}) == lastFilledValue)
-					dataSet.set(minValue2,yindex, xindex);
+				dataSet.set(minValue2,yindex, xindex);
 			}			
 		}
 		lastFilledValue = minValue2;
@@ -546,13 +544,16 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 			minValue =  Double.MAX_VALUE;
 			logger.info("about to fill the data set");
 			
-			for(int i = 0; i <= plottedSoFar; i++)
+			for(int i = 0; i < (rowsPlottedSoFar * numberOfXPoints); i++)
 			{
-				if(scalerValues[i][selectedElementIndex] < minValue )
+				if(scalerValues[i][selectedElementIndex] != 0.0)
 				{
-					minValue = scalerValues[i][selectedElementIndex] ;
+					if(scalerValues[i][selectedElementIndex] < minValue )
+					{
+						minValue = scalerValues[i][selectedElementIndex] ;
+					}
+					dataSet.set(scalerValues[i][selectedElementIndex], i/numberOfXPoints , i%numberOfXPoints);
 				}
-				dataSet.set(scalerValues[i][selectedElementIndex], i/numberOfXPoints , i%numberOfXPoints);
 			}
 			fillDecrement = (int)minValue /100;
 			if(plottedSoFar + 1 != (numberOfXPoints * numberOfYPoints))
@@ -569,12 +570,15 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 			boolean mapFound = false;
 			Integer elementIndex = roiNameMap.get(selectedElement);
 			if(elementIndex != null){
-				for(int point = 0; point <= plottedSoFar; point ++)
+				for(int point = 0; point < (rowsPlottedSoFar * numberOfXPoints); point ++)
 				{
-					dataSet.set(detectorValues[elementIndex][point ], point/numberOfXPoints, point %numberOfXPoints);
-					if(detectorValues[elementIndex][point ] < minValue)
+					if(detectorValues[elementIndex][point ] != 0.0)
 					{
-						minValue = detectorValues[elementIndex][point ];
+						dataSet.set(detectorValues[elementIndex][point ], point/numberOfXPoints, point %numberOfXPoints);
+						if(detectorValues[elementIndex][point ] < minValue)
+						{
+							minValue = detectorValues[elementIndex][point ];
+						}
 					}
 				}
 			}
@@ -592,12 +596,15 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 			minValue = Double.MAX_VALUE;
 			Integer elementIndex = roiNameMap.get(selectedElement);
 			if(elementIndex != null){
-				for(int point = 0; point <= plottedSoFar; point ++)
+				for(int point = 0; point < (rowsPlottedSoFar * numberOfXPoints); point ++)
 				{
-					dataSet.set(detectorValues[elementIndex][point ], point/numberOfXPoints, point %numberOfXPoints);
-					if(detectorValues[elementIndex][point ] < minValue)
+					if(detectorValues[elementIndex][point ] != 0.0)
 					{
-						minValue = detectorValues[elementIndex][point ];
+						dataSet.set(detectorValues[elementIndex][point ], point/numberOfXPoints, point %numberOfXPoints);
+						if(detectorValues[elementIndex][point ] < minValue)
+						{
+							minValue = detectorValues[elementIndex][point ];
+						}
 					}
 				}
 			}
@@ -649,7 +656,7 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 		}
 	}
 	
-	private int[] getXYIndex(int dataPointNumber, double xValue, double yValue)
+	private int[] getXYIndex(int dataPointNumber, double xValue)
 	{
 		int xIndex = dataPointNumber % numberOfXPoints;
 		int yIndex = dataPointNumber / numberOfXPoints;
@@ -756,6 +763,22 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 
 	public String getNormaliseElement() {
 		return normaliseElement;
+	}
+
+	public double getxStepSize() {
+		return xStepSize;
+	}
+
+	public void setxStepSize(double xStepSize) {
+		this.xStepSize = xStepSize;
+	}
+
+	public double getyStepSize() {
+		return yStepSize;
+	}
+
+	public void setyStepSize(double yStepSize) {
+		this.yStepSize = yStepSize;
 	}
 
 }

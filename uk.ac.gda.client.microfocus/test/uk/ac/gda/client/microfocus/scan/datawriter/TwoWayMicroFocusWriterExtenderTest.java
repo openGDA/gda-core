@@ -37,8 +37,6 @@ import gda.scan.ScanDataPoint;
 
 import java.io.File;
 import java.util.ArrayList;
-
-import org.junit.Before;
 import org.junit.Test;
 import org.nexusformat.NexusFile;
 
@@ -80,7 +78,7 @@ public class TwoWayMicroFocusWriterExtenderTest {
 		}
 	}
 	
-	public void configureTwoWayWriter()throws Exception{
+	public void configureTwoWayWriter(){
 		ArrayList<String> beansList = new ArrayList<String>();
 		beansList.add("uk.ac.gda.beans.exafs.DetectorParameters");
 		beansList.add("uk.ac.gda.beans.exafs.OutputParameters");
@@ -331,7 +329,7 @@ public class TwoWayMicroFocusWriterExtenderTest {
 		}
 		assertEquals(mfWriterExtender.getDataSet().getDouble(new int[]{1,4}), 337.0, 0.0);
 		//correct fillDataset
-		//assertEquals(mfWriterExtender.getDataSet().getDouble(new int[]{1,8}), 348.0, 0.0);
+		assertEquals(mfWriterExtender.getDataSet().getDouble(new int[]{1,8}), 348.0, 0.0);
 		
 	}
 	@Test
@@ -342,7 +340,7 @@ public class TwoWayMicroFocusWriterExtenderTest {
 		for(int i =0 ; i < pointsList.length; i++){
 			mfWriterExtender.updateDataSetFromSDP(pointsList[i]);
 		}
-		mfWriterExtender.setPlottedSoFar(pointsList.length - 1);
+		//mfWriterExtender.setPlottedSoFar(pointsList.length - 1);
 		double[] dataSDP = (double[])mfWriterExtender.getDataSet().getBuffer();		
 		for(int i =0 ; i <  dataSDP.length; i++){
 			assertEquals(dataSDP[i], feData[i], 0.0);
@@ -362,7 +360,7 @@ public class TwoWayMicroFocusWriterExtenderTest {
 		for(int i =0 ; i < midway; i++){
 			mfWriterExtender.updateDataSetFromSDP(pointsList[i]);
 		}
-		mfWriterExtender.setPlottedSoFar(midway - 1);
+		//mfWriterExtender.setPlottedSoFar(midway - 1);
 		double[] dataSDP = (double[])mfWriterExtender.getDataSet().getBuffer();		
 		for(int i =0 ; i < midway; i++){
 			assertEquals(dataSDP[i], feData[i], 0.0);
@@ -377,6 +375,7 @@ public class TwoWayMicroFocusWriterExtenderTest {
 		}
 	}
 	
+	@Test
 	public void testTwoWayDisplayPlotMidway() throws Exception
 	{
 		twoWaySetup();
@@ -385,7 +384,7 @@ public class TwoWayMicroFocusWriterExtenderTest {
 		for(int i =0 ; i < midway; i++){
 			mfWriterExtender.updateDataSetFromSDP(pointsList[i]);
 		}
-		mfWriterExtender.setPlottedSoFar(midway - 1);
+		//mfWriterExtender.setPlottedSoFar(midway - 1);
 		double[] dataSDP = (double[])mfWriterExtender.getDataSet().getBuffer();		
 		for(int i =0 ; i < numberOfXPoints; i++){
 			assertEquals(dataSDP[i], twoWayFeData[i], 0.0);
@@ -398,6 +397,9 @@ public class TwoWayMicroFocusWriterExtenderTest {
 		}
 		assertEquals(dataSDP[midway],twoWayFeData[4] - ((int)(twoWayFeData[4] /100)), 0.0);
 		mfWriterExtender.displayPlot("Mn_Ka");
+		dataSDP = (double[])mfWriterExtender.getDataSet().getBuffer();		
+		assertEquals(twoWayMnData[numberOfScanDataPoints -1],dataSDP[numberOfScanDataPoints -1],  0.0);
+		assertEquals(dataSDP[midway],twoWayMnData[3] - ((int)(twoWayMnData[3] /100)), 0.0);
 		for(int i =midway  ; i < pointsList.length; i++){
 			mfWriterExtender.updateDataSetFromSDP(pointsList[i]);
 		}
