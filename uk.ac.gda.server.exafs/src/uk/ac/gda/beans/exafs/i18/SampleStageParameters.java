@@ -24,6 +24,7 @@ public class SampleStageParameters implements Serializable {
 	private Double x;
 	private Double y;
 	private Double z;
+	private Boolean disable = false;
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -88,6 +89,12 @@ public class SampleStageParameters implements Serializable {
 	}
 	public Double getZ() {
 		return z;
+	}
+	public Boolean getDisable() {
+		return disable;
+	}
+	public void setDisable(Boolean disable) {
+		this.disable = disable;
 	}
 
 }

@@ -48,11 +48,13 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 	 */
 	private final HardwareTriggeredNexusXmap hardwareTriggeredNexusXmap;
 
+	private boolean sumAllElementData = false;
 	/**
 	 * @param hardwareTriggeredNexusXmap
 	 */
-	XmapPositionInputStream(HardwareTriggeredNexusXmap hardwareTriggeredNexusXmap) {
+	XmapPositionInputStream(HardwareTriggeredNexusXmap hardwareTriggeredNexusXmap ,boolean sumAllElementdata) {
 		this.hardwareTriggeredNexusXmap = hardwareTriggeredNexusXmap;
+		this.sumAllElementData = sumAllElementdata;
 	}
 
 	private int readSoFar =0;
@@ -63,7 +65,7 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 		String fileName=null;
 		try {
 			System.out.println("wating for file");
-			 fileName= this.hardwareTriggeredNexusXmap.getController().getHDFFileName();
+			 fileName= this.hardwareTriggeredNexusXmap.getHDFFileName();
 			 
 			Vector <NexusTreeProvider> container = new Vector<NexusTreeProvider>();
 			hardwareTriggeredNexusXmap.waitForFile(fileName);
@@ -79,8 +81,8 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 		
 		int totalToRead = readSoFar + maxToRead;
 		int numOfPoints = fileLoader.getNumberOfDataPoints();
-		if(totalToRead < numOfPoints)
-			totalToRead = numOfPoints;
+		//if(totalToRead < numOfPoints) may not be the correct 
+		totalToRead = numOfPoints;
 		for(int i =readSoFar  ; i <  totalToRead; i++)
 		{
 			container.add(writeToNexusFile(i, fileLoader.getData(i)));
@@ -89,7 +91,7 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 		return container;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			HardwareTriggeredNexusXmap.logger.error("TODO put description of error here", e);
+			HardwareTriggeredNexusXmapImpl.logger.error("TODO put description of error here", e);
 			throw new DeviceException("Unable to load file " + fileName , e);
 		}
 	}
@@ -99,7 +101,7 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 
 	public NXDetectorData writeToNexusFile(int dataPointNumber, short[][] s) throws DeviceException {
 		NXDetectorData output = new NXDetectorData(this.hardwareTriggeredNexusXmap);
-		INexusTree detTree = output.getDetTree(this.hardwareTriggeredNexusXmap.getName());
+		INexusTree detTree = output.getDetTree(this.hardwareTriggeredNexusXmap.getXmap().getName());
 
 		int numberOfElements = this.hardwareTriggeredNexusXmap.getXmap().vortexParameters.getDetectorList().size();
 		int numberOfROIs = this.hardwareTriggeredNexusXmap.getXmap().vortexParameters.getDetectorList().get(0).getRegionList().size();
@@ -141,13 +143,13 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 				final RegionOfInterest roi = thisElement.getRegionList().get(iroi);
 				
 				//TODO calculate roi from the full spectrum data
-				double count = calculateROICounts(iroi, element, detectorData[element]);
+				double count = calculateROICounts(roi.getRoiStart(), roi.getRoiEnd(), detectorData[element]);
 				count *= deadTimeCorrectionFactor;
 				roiCounts[iroi][element] = count;
 				roiNames[iroi] = roi.getRoiName();
 			}
 
-			if (this.hardwareTriggeredNexusXmap.getXmap().isSumAllElementData()) {
+			if (this.isSumAllElementData()) {
 				if (summation == null)
 					summation = new double[detectorData[element].length];
 				for (int i = 0; i < detectorData[element].length; i++) {
@@ -232,7 +234,8 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 				if (j>=this.hardwareTriggeredNexusXmap.getXmap().vortexParameters.getDetectorList().size()) continue;
 				DetectorElement element = this.hardwareTriggeredNexusXmap.getXmap().vortexParameters.getDetectorList().get(j);
 				if (element.isExcluded()) continue;
-				double correctedMCA = calculateROICounts(i, j,detectorData[j])*k[j];
+				RegionOfInterest region = element.getRegionList().get(i);
+				double correctedMCA = calculateROICounts(region.getRoiStart(), region.getRoiStart(),detectorData[j])*k[j];
 				rois[i]+=correctedMCA;
 			}
  		}
@@ -262,15 +265,25 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 		return 0;
 	}
 	
-	
-	private double calculateROICounts(int roiIndex, int elementIndex, short[]data) throws DeviceException
-	{
-		int regionLow = (int)this.hardwareTriggeredNexusXmap.getController().getSubDetector(elementIndex).getLowROIs()[roiIndex];
-		int regionHigh = (int)this.hardwareTriggeredNexusXmap.getController().getSubDetector(elementIndex).getHighROIs()[roiIndex];
-		double count =0.0;
-		for (int i = regionLow; i<= regionHigh; i++)
+
+	private double calculateROICounts(int regionLow, int regionHigh, short[] data) {
+		double count = 0.0;
+		for (int i = regionLow; i <= regionHigh; i++)
 			count += data[i];
 		return count;
+	}
+
+
+
+	public boolean isSumAllElementData() {
+		return sumAllElementData;
+	}
+
+
+
+
+	public void setSumAllElementData(boolean sumAllElementData) {
+		this.sumAllElementData = sumAllElementData;
 	}
 	
 	

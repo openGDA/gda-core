@@ -73,7 +73,7 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 	}
 
 	@Override
-	public String getScriptName() {
+	public String getName() {
 		return scriptName;
 	}
 	
@@ -100,6 +100,17 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 	@ScriptControllerLogColumn(columnName = "Total Time", refresh = false, columnIndex = 4)
 	public String getPredictedTotalTime() {
 		return predictedTotalTime;
+	}
+
+	@Override
+	public int getPercentDone() {
+		String percent = percentComplete.replace("%", "").trim();
+		return Integer.parseInt(percent);
+	}
+
+	@Override
+	public String getMsg() {
+		return getPercentComplete();
 	}
 
 }

@@ -391,9 +391,20 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 
 	@Override
 	public String getCommandSummaryString() throws Exception {
-		final StringBuilder buf = new StringBuilder(getNumberRepetitions() + " repeats: ");
-		buf.append(getCommandLine());
-		return buf.toString();
+		String summary = "";
+
+		String multiscanName = runFileManager.getName();
+
+		String folderName = runFileManager.getContainingFolder().getName();
+
+		summary = "(" + getExptCommand() + ") " + folderName + "-" + multiscanName + "-" + getRunName();
+
+		if (getNumberRepetitions() > 1) {
+			summary += " [" + getNumberRepetitions() + " repeats]";
+		}
+
+		
+		return summary;
 	}
 
 	private String getExptCommand() throws Exception {
