@@ -410,7 +410,7 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 					
 				}
 				for (String s : roiNames) {
-					rgbLine.append(roiTable.get(s));
+					rgbLine.append(Math.round(roiTable.get(s)));
 					rgbLine.append(" ");
 				}
 				logger.debug("The y value is " + xy[0]);

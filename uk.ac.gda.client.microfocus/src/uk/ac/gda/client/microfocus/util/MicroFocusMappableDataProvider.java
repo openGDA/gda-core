@@ -18,9 +18,9 @@
 
 package uk.ac.gda.client.microfocus.util;
 
-import gda.analysis.ScanFileHolder;
 import gda.configuration.properties.LocalProperties;
 import gda.data.nexus.tree.INexusTree;
+
 import java.util.ArrayList;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -35,19 +35,23 @@ import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 
 public abstract class MicroFocusMappableDataProvider {
-	
-	protected ScanFileHolder sfh;
 
 	public MicroFocusMappableDataProvider() {
 		super();
-		if (LocalProperties.get("gda.factory.factoryName").equals("b16server")	|| LocalProperties.get("gda.factory.factoryName").equals("b16")) {
-			zScannableName = "z";
+		try {
+			if (LocalProperties.get("gda.factory.factoryName").equals("b16server")	|| LocalProperties.get("gda.factory.factoryName").equals("b16")) {
+				
+					zScannableName = "z";
+			}
+		} catch (Exception e) {
+				logger.warn("Error finding the Local Propertues for Z scannable name", e);
 		}
+		
 	}
 
 	protected INexusTree mainTree;
 	protected String xScannableName;
-	protected String trajectoryScannableName =  null;
+	protected String[] trajectoryScannableName =  null;
 	protected String trajectoryCounterTimerName = null;
 	protected int yAxisLengthFromFile =0;
 	protected int xAxisLengthFromFile =0;
@@ -67,13 +71,13 @@ public abstract class MicroFocusMappableDataProvider {
 
 
 
-	public String getTrajectoryScannableName() {
+	public String[] getTrajectoryScannableName() {
 		return trajectoryScannableName;
 	}
 
 
 
-	public void setTrajectoryScannableName(String trajectoryScannableName) {
+	public void setTrajectoryScannableName(String trajectoryScannableName[]) {
 		this.trajectoryScannableName = trajectoryScannableName;
 	}
 
@@ -175,7 +179,11 @@ public abstract class MicroFocusMappableDataProvider {
 
 			 if(xscannableDS == null && trajectoryScannableName != null)
 			 {
-				 xscannableDS =dataHolder.getLazyDataset("/entry1/instrument/"+trajectoryScannableName+"/"+trajectoryScannableName);				
+				 for(int i =0 ; i < trajectoryScannableName.length; i++){
+					 xscannableDS =dataHolder.getLazyDataset("/entry1/instrument/"+trajectoryScannableName[i]+"/"+trajectoryScannableName[i]);
+					 if(xscannableDS != null)
+						 break;
+				 }
 			 }
 			 
 			 AbstractDataset xdata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(xscannableDS));
@@ -198,7 +206,7 @@ public abstract class MicroFocusMappableDataProvider {
 				ArrayList<Double> yList = new ArrayList<Double>();
 				double xtmp = x[0];
 				xList.add(xtmp);
-				for(int i =1; i<x.length; i++)
+				for(int i =1; i<xAxisLengthFromFile; i++)
 				{
 					
 					if(x[i] == xtmp || Math.abs((x[i]- xtmp)) <= 0.000000000000001)
