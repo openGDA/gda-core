@@ -118,7 +118,7 @@ public class AsciiDataWriter extends ExafsIncrementalFile {
 	}
 
 	@Override
-	public void writeFooter() {
+	public void writeFooter() {		
 		for (AsciiMetadataConfig line : this.configuration.getFooter()) {
 			try {
 				String string = this.configuration.getCommentMarker() + " " + line.toString() + "\n";

@@ -31,13 +31,14 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.PlotData;
 import uk.ac.diamond.scisoft.spectroscopy.fitting.XafsFittingUtils;
+import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.beans.exafs.XesScanParameters;
-import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
-import uk.ac.gda.client.experimentdefinition.IExperimentObject;
+import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
 import uk.ac.gda.exafs.ui.data.ScanObject;
+import uk.ac.gda.exafs.ui.data.ScanObjectManager;
 
 /**
  * This class assumes that the point with energy less than A are to be included in the pre-edge.
@@ -69,8 +70,8 @@ class ExafsScanPlotView extends AbstractCachedScanPlotView {
 	public void scanDataPointChanged(ScanDataPointEvent e) {
 
 		try {
-			ScanObject curScan = ((ScanObject) ExperimentFactory.getScanController().getCurrentScan());
-			if (curScan != null && !curScan.isMicroFocus()) {
+			IScanParameters curScan = ScanObjectManager.getCurrentScan();
+			if (curScan != null && !(curScan instanceof MicroFocusScanParameters)) {
 				super.scanDataPointChanged(e);
 			}
 
@@ -83,8 +84,8 @@ class ExafsScanPlotView extends AbstractCachedScanPlotView {
 	@Override
 	public void scanStopped() {
 		try {
-			ScanObject curScan = ((ScanObject) ExperimentFactory.getScanController().getCurrentScan());
-			if (curScan != null && !curScan.isMicroFocus()) {
+			IScanParameters curScan = ScanObjectManager.getCurrentScan();
+			if (curScan != null && !(curScan instanceof MicroFocusScanParameters)) {
 				super.scanStopped();
 				a = Double.NaN;
 			}
@@ -96,8 +97,8 @@ class ExafsScanPlotView extends AbstractCachedScanPlotView {
 	@Override
 	public void scanStarted() {
 		try {
-			ScanObject curScan = ((ScanObject) ExperimentFactory.getScanController().getCurrentScan());
-			if (curScan != null && !curScan.isMicroFocus()) {
+			IScanParameters curScan = ScanObjectManager.getCurrentScan();
+			if (curScan != null && !(curScan instanceof MicroFocusScanParameters)) {
 				super.scanStarted();
 				calculateA();
 			}
@@ -111,11 +112,11 @@ class ExafsScanPlotView extends AbstractCachedScanPlotView {
 		if (!Double.isNaN(a))
 			return true;
 		try {
-			IExperimentObject currentScan = ExperimentFactory.getScanController().getCurrentScan();
-			if (currentScan == null)
+			final IScanParameters params = ScanObjectManager.getCurrentScan();
+			if (params == null)
 				return false; // Leave a as last calculated
 
-			final Object params = ((ScanObject) currentScan).getScanParameters();
+//			final IScanParameters params = currentScan.getScanParameters();
 			if (params instanceof XasScanParameters) {
 				final XasScanParameters scanParams = (XasScanParameters) params;
 				final Double A = scanParams.getA();
@@ -138,7 +139,7 @@ class ExafsScanPlotView extends AbstractCachedScanPlotView {
 				throw new Exception("Undefined scan parameters encountered");
 			}
 		} catch (Exception e) {
-			logger.error("Cannot get scan parameters from " + ExperimentFactory.getScanController().getCurrentScan(), e);
+			logger.error("Cannot get scan parameters from " + ScanObjectManager.getCurrentScan(), e);
 			this.a = 10000d;
 		}
 		return true;

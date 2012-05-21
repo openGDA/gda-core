@@ -28,8 +28,8 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Maths;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.DataSetPlotData;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
-import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
-import uk.ac.gda.exafs.ui.data.ScanObject;
+import uk.ac.gda.beans.exafs.IScanParameters;
+import uk.ac.gda.exafs.ui.data.ScanObjectManager;
 
 /**
  * This class assumes that the point with energy less than A are to be included in the pre-edge.
@@ -91,12 +91,12 @@ public class DerivativeScanPlotView extends ExafsScanPlotView {
 
 	private double getKStartEnergy() {
 		try {
-			ScanObject currentScan = (ScanObject) ExperimentFactory.getScanController().getCurrentScan();
+			IScanParameters currentScan = ScanObjectManager.getCurrentScan();
 			if (currentScan == null)
 				return kStartEnergy; // Leave as last calculated
 
-			final Object params = currentScan.getScanParameters();
-			return ExafsScanPointCreator.getStartOfConstantKRegion(params);
+//			final Object params = currentScan.getScanParameters();
+			return ExafsScanPointCreator.getStartOfConstantKRegion(currentScan);
 		} catch (Exception e) {
 			return a + 300;
 		}

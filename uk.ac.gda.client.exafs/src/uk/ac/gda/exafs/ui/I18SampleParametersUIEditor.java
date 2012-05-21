@@ -73,14 +73,16 @@ public final class I18SampleParametersUIEditor extends RichBeanEditorPart {
 		scrolledComposite.setExpandVertical(true);
 
 		this.beanComposite = new I18SampleParametersComposite(scrolledComposite, SWT.NONE);
-		/*try {
-			if(((I18SampleParameters)BeansFactory.deepClone(editingBean)).getSampleStageParameters().getDisable())
+		try {
+			if(((I18SampleParameters)editingBean).getSampleStageParameters().getDisable())
 				this.beanComposite.disableSample();
+			else
+				this.beanComposite.enableSample();
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			logger.error("TODO put description of error here", e);
-		}*/
+		}
 		((GridData) beanComposite.getSampleStageParameters().getZ().getLayoutData()).widthHint = 544;
 		fillAttenuatorPositions();
 		addListeners();
@@ -213,7 +215,16 @@ public final class I18SampleParametersUIEditor extends RichBeanEditorPart {
 	@Override
 	public void linkUI(final boolean isPageChange) {
 		super.linkUI(isPageChange);
-		//loadRealPositions();
+		try {
+			if(((I18SampleParameters)editingBean).getSampleStageParameters().getDisable())
+				this.beanComposite.disableSample();
+			else
+				this.beanComposite.enableSample();
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			logger.error("TODO put description of error here", e);
+		}
 	}
 	
 }

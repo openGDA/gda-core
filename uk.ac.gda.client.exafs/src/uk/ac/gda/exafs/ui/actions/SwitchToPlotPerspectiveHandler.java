@@ -26,9 +26,10 @@ import org.eclipse.ui.WorkbenchException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
+import uk.ac.gda.beans.exafs.IScanParameters;
+import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
 import uk.ac.gda.exafs.ui.PlottingPerspective;
-import uk.ac.gda.exafs.ui.data.ScanObject;
+import uk.ac.gda.exafs.ui.data.ScanObjectManager;
 
 public class SwitchToPlotPerspectiveHandler extends AbstractHandler {
 
@@ -37,15 +38,16 @@ public class SwitchToPlotPerspectiveHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		String perspectiveID = PlottingPerspective.ID;
-		try {			
-				ScanObject scObj = (ScanObject) ExperimentFactory.getScanController().getCurrentScan();
-				if (scObj != null && scObj.isMicroFocus())
-					perspectiveID =  "uk.ac.gda.microfocus.ui.MicroFocusPerspective";
-			PlatformUI.getWorkbench().showPerspective(perspectiveID, PlatformUI.getWorkbench().getActiveWorkbenchWindow());
+		try {
+			IScanParameters scObj = ScanObjectManager.getCurrentScan();
+			if (scObj != null && scObj instanceof MicroFocusScanParameters)
+				perspectiveID = "uk.ac.gda.microfocus.ui.MicroFocusPerspective";
+			PlatformUI.getWorkbench().showPerspective(perspectiveID,
+					PlatformUI.getWorkbench().getActiveWorkbenchWindow());
 		} catch (WorkbenchException e) {
-			logger.error("Cannot change perspective to "+perspectiveID, e);
+			logger.error("Cannot change perspective to " + perspectiveID, e);
 		} catch (Exception e) {
-			logger.error("Cannot change perspective to "+perspectiveID, e);
+			logger.error("Cannot change perspective to " + perspectiveID, e);
 		}
 		return null;
 	}

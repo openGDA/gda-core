@@ -1,5 +1,5 @@
 #@PydevCodeAnalysisIgnore
-from uk.ac.gda.client.microfocus.scan.datawriter import MicroFocusWriterExtender
+from uk.ac.gda.client.microfocus.scan.datawriter import TwoWayMicroFocusWriterExtender,MicroFocusWriterExtender
 from uk.ac.gda.beans import BeansFactory
 from gda.factory import Finder
 from gda.exafs.scan import BeanGroup
@@ -13,7 +13,10 @@ from gda.data import PathConstructor
 from gda.data.scan.datawriter import XasAsciiDataWriter
 from gda.factory import Finder
 from gda.scan import TrajectoryScanLine
+from fast_scan import ScanPositionsTwoWay
+from gda.device.scannable import ScannableUtils
 #import microfocus.microfocus_elements
+rootnamespace = {}
 def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, scanNumber= -1, validation=True):
     """
     main map data collection command. 
@@ -25,6 +28,7 @@ def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileN
     print "attempt to run raster map"
     #return
     print detectorFileName
+    origScanPlotSettings = LocalProperties.check("gda.scan.useScanPlotSettings")
     
     if False:# Turn on debugging here
         print "Values sent to script:"
@@ -43,7 +47,7 @@ def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileN
         sampleBean = None
     else:
         #sampleBean   = BeansFactory.getBeanObject(xmlFolderName, sampleFileName)
-        sampleBean = None
+        sampleBean   = BeansFactory.getBeanObject(xmlFolderName, sampleFileName)
         
     scanBean     = BeansFactory.getBeanObject(xmlFolderName, scanFileName)
     detectorBean = BeansFactory.getBeanObject(xmlFolderName, detectorFileName)
@@ -70,27 +74,23 @@ def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileN
     detectorList = getDetectors(detectorBean, outputBean, None) 
    
     # set up the sample 
-    setupForRaster(beanGroup)
+    setupForVortexRaster(beanGroup)
     
     # extract any signal parameters to add to the scan command
     #signalParameters = getSignalList(outputBean)
     finder = Finder.getInstance()
     dataWriter = finder.find("DataWriterFactory")
-    nx = abs(scanBean.getXEnd() - scanBean.getXStart()) / scanBean.getXStepSize()
-    ny = abs(scanBean.getYEnd() - scanBean.getYStart()) / scanBean.getYStepSize()
+    nx = ScannableUtils.getNumberSteps(Finder.getInstance().find(scanBean.getXScannableName()),scanBean.getXStart(), scanBean.getXEnd(),scanBean.getXStepSize()) + 1
+    ny = ScannableUtils.getNumberSteps(Finder.getInstance().find(scanBean.getYScannableName()),scanBean.getYStart(), scanBean.getYEnd(),scanBean.getYStepSize()) + 1
     
   
     print "number of x points is ", str(nx)
     print "number of y points is ", str(ny)
-    # Determine no of points
-    nx = int(round(nx + 1.0))
-    ny = int(round(ny + 1.0))
-    print "number of x points is ", str(nx)
-    print "number of y points is ", str(ny)
+   
     energyList = [scanBean.getEnergy()]
     zScannablePos = scanBean.getZValue()
     for energy in energyList:
-        mfd = MicroFocusWriterExtender(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize())
+        mfd = TwoWayMicroFocusWriterExtender(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize())
         globals()["microfocusScanWriter"] = mfd
         mfd.setPlotName("MapPlot")
         print " the detector is " 
@@ -158,40 +158,74 @@ def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileN
             ##ContinuousScan(trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [raster_xspress,]).runScan();##rowTIme in the Scan bean is in milliseconds
             if(detectorType == "Silicon"):
                 print "Xmap Raster Scan"
-                tsl = TrajectoryScanLine([continuousSampleX, scanBean.getXStart(), scanBean.getXEnd(), scanBean.getXStepSize(), HTXmapMca, scanBean.getRowTime()/(1000.0 * nx)] )
+                #tsl = TrajectoryScanLine([continuousSampleX, scanBean.getXStart(), scanBean.getXEnd(), scanBean.getXStepSize(), HTXmapMca, scanBean.getRowTime()/(1000.0 * nx)] )
+                tsl = TrajectoryScanLine([continuousSampleX, ScanPositionsTwoWay(continuousSampleX,scanBean.getXStart(), scanBean.getXEnd(), scanBean.getXStepSize()), HTScaler, HTXmapMca, scanBean.getRowTime()/(1000.0 * nx)] )
                 tsl.setScanDataPointQueueLength(10000);tsl.setPositionCallableThreadPoolSize(1)
-                scan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),tsl,energyScannable, zScannable,realX])
+                #scan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),tsl,energyScannable, zScannable,realX])
+                xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),tsl,energyScannable, zScannable, realX])
+                xmapRasterscan.getScanPlotSettings().setIgnore(1)
+                xmapRasterscan.runScan()
             else:
                 print "Xspress Raster Scan"
-                scan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),ContinuousScan(trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime()/1000.0, [raster_counterTimer01, raster_xspress]),energyScannable, zScannable,realX])
-
+                xspressRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),ContinuousScan(trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [raster_counterTimer01, raster_xspress]),energyScannable, zScannable,realX])
+                xspressRasterscan.getScanPlotSettings().setIgnore(1)
+                xspressRasterscan.runScan()
 
         finally:
+            scanEnd = time.asctime()
+            if(origScanPlotSettings):
+                LocalProperties.set("gda.scan.useScanPlotSettings", "true")
+            else:
+                LocalProperties.set("gda.scan.useScanPlotSettings", "false")
+            handle_messages.simpleLog("map start time " + str(scanStart))
+            handle_messages.simpleLog("map end time " + str(scanEnd))
             dataWriter.removeDataWriterExtender(mfd)
+            finish()
 
+def finish():
+    command_server = Finder.getInstance().find("command_server")
+    beam = command_server.getFromJythonNamespace("beam", None)
+    detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
+    remove_default(beam)
+    remove_default(detectorFillingMonitor)
+    
 def setupForVortexRaster(beanGroup):
-    scan = beanGroup.getScan()
+    rasterscan = beanGroup.getScan()
     print "collection time is " , str(scan.getRowTime())   
-    collectionTime = scan.getRowTime()/ 1000.0
+    collectionTime = rasterscan.getRowTime()/ 1000.0
     print "1setting collection time to" , str(collectionTime)  
     command_server = Finder.getInstance().find("command_server")    
     topupMonitor = command_server.getFromJythonNamespace("topupMonitor", None)    
     beam = command_server.getFromJythonNamespace("beam", None)
     detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
     trajBeamMonitor = command_server.getFromJythonNamespace("trajBeamMonitor", None)
-    print "setting collection time to" , str(collectionTime)        
-    topupMonitor.setPauseBeforePoint(False)
-    topupMonitor.setPauseBeforeLine(True)
-    topupMonitor.setCollectionTime(collectionTime)
-    add_default(beam)
-    beam.setPauseBeforePoint(False)
-    beam.setPauseBeforeLine(True)
-    if(beanGroup.getDetector().getExperimentType() == "Fluorescence" and beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium"):
+    print "setting collection time to" , str(collectionTime)
+    if(not (topupMonitor == None)):        
+        topupMonitor.setPauseBeforePoint(False)
+        topupMonitor.setPauseBeforeLine(True)
+        topupMonitor.setCollectionTime(collectionTime)
+    if(not (beam == None)):
+        add_default(beam)
+        beam.setPauseBeforePoint(False)
+        beam.setPauseBeforeLine(True)
+    if(beanGroup.getDetector().getExperimentType() == "Fluorescence" and beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium" and not (detectorFillingMonitor == None)):
         add_default(detectorFillingMonitor)
         detectorFillingMonitor.setPauseBeforePoint(False)
         detectorFillingMonitor.setPauseBeforeLine(True)
-    
-    trajBeamMonitor.setActive(True)
+        detectorFillingMonitor.setCollectionTime(collectionTime)
+    if(not (trajBeamMonitor == None)):
+        trajBeamMonitor.setActive(True)
+        
+    ##set the file name for the output parameters
+    outputBean=beanGroup.getOutput()
+    sampleParameters = beanGroup.getSample()
+    outputBean.setAsciiFileName(sampleParameters.getName())
+    print "Setting the ascii file name as " ,sampleParameters.getName()    
+    att1 = sampleParameters.getAttenuatorParameter1()
+    att2 = sampleParameters.getAttenuatorParameter2()
+    pos([rootnamespace['D7A'], att1.getSelectedPosition(), rootnamespace['D7B'], att2.getSelectedPosition()])
+    configFluoDetector(beanGroup)
+    LocalProperties.set("gda.scan.useScanPlotSettings", "true")
     finder.find("RCPController").openPesrpective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")
     
 class MicroFocusEnvironment:

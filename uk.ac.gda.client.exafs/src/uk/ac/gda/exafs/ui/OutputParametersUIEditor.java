@@ -362,12 +362,12 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 		asciiDirectory.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		asciiDirectory.setToolTipText("The ascii sub-folder that will store ascii output files.");
 		asciiDirectory.setTextType(TextWrapper.TEXT_TYPE.FILENAME);
-		asciiDirectory.addValueListener(new ValueAdapter("asciiDirectoryListener") {
-			@Override
-			public void valueChangePerformed(ValueEvent e) {
-				ExperimentFactory.getExperimentEditorManager().refreshMultiScanControls();
-			}
-		});
+//		asciiDirectory.addValueListener(new ValueAdapter("asciiDirectoryListener") {
+//			@Override
+//			public void valueChangePerformed(ValueEvent e) {
+//				ExperimentFactory.getExperimentEditorManager().refreshMultiScanControls();
+//			}
+//		});
 
 		final Label nexusFolderLabel = new Label(ouputFilePreferencesGroup, SWT.NONE);
 		nexusFolderLabel.setLayoutData(new GridData(SWT.CENTER, SWT.TOP, false, false));

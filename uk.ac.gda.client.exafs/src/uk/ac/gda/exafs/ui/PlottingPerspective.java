@@ -24,8 +24,8 @@ import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
+import uk.ac.gda.client.CommandQueueViewFactory;
 import uk.ac.gda.client.XYPlotView;
-import uk.ac.gda.client.experimentdefinition.components.RunControllerView;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.plot.LnI0ItScanPlotView;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
@@ -67,7 +67,7 @@ public class PlottingPerspective implements IPerspectiveFactory {
 //		}
 
 		IFolderLayout folderLayout_1 = layout.createFolder("folder0", IPageLayout.BOTTOM, 0.85f, XYPlotView.ID);
-		folderLayout_1.addView(RunControllerView.ID);
+		folderLayout_1.addView(CommandQueueViewFactory.ID);
 	}
 
 }

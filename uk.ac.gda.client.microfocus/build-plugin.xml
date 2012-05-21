@@ -16,7 +16,7 @@
            Invoke the tests
          ==================================================================== -->
 
-    <target name="junit-tests" depends="toolCheck, set-test-base">
+    <target name="junit-tests" depends="toolCheck, set-ncsa-hdf-context-GDA, set-test-base">
         <junit-call description="${ant.project.name} Java JUnit tests">
             <formatter type="xml" />
             <classpath>
@@ -25,13 +25,19 @@
                 <path refid="libs.jars.path" />
                 <pathelement location="${GDA-plugin.basedir}/bin" />
                 <pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
+                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.api/bin" />
                 <pathelement location="${workspace.loc}/plugins/uk.ac.gda.core/classes/main" />
+                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.core/classes/test" />
                 <pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/bin" />
                 <pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/jars/*" />
                 <pathelement location="${workspace.git.loc}/scisoft/scisoft-core.git/uk.ac.diamond.scisoft.analysis/bin" />
                 <pathelement location="${workspace.git.loc}/scisoft/scisoft-core.git/uk.ac.diamond.scisoft.deprecated/bin" />
                 <pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.server.exafs/bin" />
+                <pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.server.exafs.epics/bin" />
+                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.client/bin" />
+                <pathelement location="${workspace.loc}/plugins/uk.ac.diamond.org.springframework/jars/*" />
                 <pathelement location="${workspace.loc}/tp/plugins/*" />
+                <path refid="ncsa.hdf.classpath" />
             </classpath>
             <batchtest todir="@{report.dir}">
                 <fileset dir="${GDA-plugin.basedir}/test">

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DetectorParameters>
+
+    <detectorGroup>
+        <name>transmission</name>
+        <detector>counterTimer01</detector>
+    </detectorGroup>  
+    <detectorGroup>
+        <name>Silicon</name>
+        <detector>counterTimer03</detector>
+        <detector>FFI0_vortex</detector>
+        <detector>xmapMca</detector>
+        <detector>counterTimer01</detector>
+    </detectorGroup>  
+    <detectorGroup>
+        <name>Germanium</name>
+        <detector>counterTimer02</detector>
+        <detector>FFI0</detector>
+        <detector>xspress2system</detector>
+        <detector>counterTimer01</detector>
+    </detectorGroup>
+    
+    <experimentType>Transmission</experimentType>    
+    
+    <transmission>
+        <detectorType>transmission</detectorType>
+        <workingEnergy>7111.14</workingEnergy>
+        <ionChamber>
+            <name>I0</name>
+            <deviceName>counterTimer01</deviceName>
+            <channel>1</channel>
+            <currentAmplifierName>Stanford01</currentAmplifierName>
+            <gain>1 nA/V</gain>
+            <useGasProperties>false</useGasProperties>
+            
+        </ionChamber>
+        <ionChamber>
+            <name>It</name>
+            <deviceName>counterTimer01</deviceName>
+            <channel>2</channel>
+            <currentAmplifierName>Stanford02</currentAmplifierName>
+            <gain>1 nA/V</gain>
+            <useGasProperties>false</useGasProperties>            
+        </ionChamber>
+        <ionChamber>
+            <name>Iother</name>
+            <deviceName>counterTimer01</deviceName>
+            <channel>3</channel>
+            <currentAmplifierName>Stanford03</currentAmplifierName>
+            <gain>1 nA/V</gain>
+            <useGasProperties>false</useGasProperties>            
+        </ionChamber>
+    </transmission>
+    <fluorescence>
+        <workingEnergy>7111.14</workingEnergy>
+        <detectorType>Germanium</detectorType>
+        <ionChamber>
+            <name>I0</name>
+            <deviceName>counterTimer01</deviceName>
+            <channel>1</channel>
+            <currentAmplifierName>Stanford01</currentAmplifierName>
+            <gain>1 nA/V</gain>
+            <useGasProperties>false</useGasProperties>           
+        </ionChamber>
+        <ionChamber>
+            <name>It</name>
+            <deviceName>counterTimer01</deviceName>
+            <channel>2</channel>
+            <currentAmplifierName>Stanford02</currentAmplifierName>
+            <gain>1 nA/V</gain>
+            <useGasProperties>false</useGasProperties>
+        </ionChamber>
+        <ionChamber>
+            <name>Iref</name>
+            <deviceName>counterTimer01</deviceName>
+            <channel>3</channel>
+            <currentAmplifierName>Stanford03</currentAmplifierName>
+            <gain>1 nA/V</gain>
+             <useGasProperties>false</useGasProperties>
+        </ionChamber>
+    </fluorescence>
+</DetectorParameters>

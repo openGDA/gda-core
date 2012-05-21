@@ -29,6 +29,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 
 import uk.ac.gda.beans.exafs.i18.AttenuatorParameters;
+import uk.ac.gda.beans.exafs.i18.SampleStageParameters;
 import uk.ac.gda.richbeans.components.FieldComposite;
 import uk.ac.gda.richbeans.components.wrappers.TextWrapper;
 
@@ -161,6 +162,10 @@ public final class I18SampleParametersComposite extends Composite {
 	public void disableSample()
 	{
 		sampleStageParameters.setEnabled(false);
+	}
+	public void enableSample()
+	{
+		sampleStageParameters.setEnabled(true);
 	}
 
 }
