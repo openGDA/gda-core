@@ -32,9 +32,14 @@ import uk.ac.gda.beans.IRichBean;
  *
  */
 public class XspressParameters implements Serializable,IRichBean {	
+	/**
+	 * The region type when the ROI returns the sum of counts in the region, so acts like a scaler.
+	 */
+	public static final String VIRTUALSCALER = "Virtual Scaler";
 
 	private String                detectorName;
 	private String                resGrade;
+	private String regionType = VIRTUALSCALER;
 	private List<DetectorElement> detectorList;
 	private ElementCountsData[]   data;
 	private String                readoutMode;
@@ -82,6 +87,7 @@ public class XspressParameters implements Serializable,IRichBean {
 		result = prime * result + ((detectorName == null) ? 0 : detectorName.hashCode());
 		result = prime * result + ((readoutMode == null) ? 0 : readoutMode.hashCode());
 		result = prime * result + ((resGrade == null) ? 0 : resGrade.hashCode());
+		result = prime * result + ((regionType == null) ? 0 : regionType.hashCode());
 		result = prime * result + (editIndividualElements ? 1231 : 1237);
 		result = prime * result + (xspressOnlyShowFF ? 1231 : 1237);
 		result = prime * result + (xspressShowDTRawValues ? 1231 : 1237);
@@ -118,6 +124,11 @@ public class XspressParameters implements Serializable,IRichBean {
 			if (other.resGrade != null)
 				return false;
 		} else if (!resGrade.equals(other.resGrade))
+			return false;
+		if (regionType == null) {
+			if (other.regionType != null)
+				return false;
+		} else if (!regionType.equals(other.regionType))
 			return false;
 		if (xspressOnlyShowFF != other.xspressOnlyShowFF)
 			return false;
@@ -197,6 +208,21 @@ public class XspressParameters implements Serializable,IRichBean {
 
 	public boolean isSaveRawSpectrum() {
 		return saveRawSpectrum;
+	}
+	
+	/**
+	 * @return Returns the regionType.
+	 */
+	public String getRegionType() {
+		return regionType;
+	}
+
+	/**
+	 * @param regionType
+	 *            The regionType to set.
+	 */
+	public void setRegionType(String regionType) {
+		this.regionType = regionType;
 	}
 
 }

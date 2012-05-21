@@ -8,6 +8,9 @@
 		<field name="resGrade" type="string">
 			<bind-xml name="resGrade" node="element"/>
 		</field>
+		<field name="regionType" type="string">
+			<bind-xml name="regionType" node="element"/>
+		</field>
 		<field name="readoutMode" type="string">
 			<bind-xml name="readoutMode" node="element"/>
 		</field>
@@ -42,14 +45,11 @@
 		<field name="roiName" type="string">
 			<bind-xml name="roiName" node="element"/>
 		</field>
-		<field name="regionStart" type="integer">
-			<bind-xml name="regionStart" node="element"/>
+		<field name="roiStart" type="integer">
+			<bind-xml name="roiStart" node="element"/>
 		</field>
-		<field name="regionEnd" type="integer">
-			<bind-xml name="regionEnd" node="element"/>
-		</field>
-		<field name="regionType" type="string">
-			<bind-xml name="regionType" node="element"/>
+		<field name="roiEnd" type="integer">
+			<bind-xml name="roiEnd" node="element"/>
 		</field>
 	</class>
 	

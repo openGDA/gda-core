@@ -836,7 +836,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			List<DetectorElement> elements = bean.getDetectorList();
 			for (DetectorElement element : elements) {
 				List<XspressROI> rois = element.getRegionList();
-				element.setWindow(rois.get(0).getRegionStart(), rois.get(0).getRegionEnd());
+				element.setWindow(rois.get(0).getRoiStart(), rois.get(0).getRoiEnd());
 			}
 			super.upload(bean);
 		} else

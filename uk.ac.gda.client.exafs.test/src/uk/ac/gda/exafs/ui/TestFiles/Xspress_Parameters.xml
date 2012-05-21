@@ -15,8 +15,8 @@
         <excluded>false</excluded>
         <Region>
             <roiName>peak</roiName>
-            <regionStart>539</regionStart>
-            <regionEnd>618</regionEnd>
+            <roiStart>539</roiStart>
+            <roiEnd>618</roiEnd>
             <regionType>MCA</regionType>
         </Region>
     </DetectorElement>
@@ -31,8 +31,8 @@
         <excluded>false</excluded>
         <Region>
             <roiName>peak</roiName>
-            <regionStart>539</regionStart>
-            <regionEnd>618</regionEnd>
+            <roiStart>539</roiStart>
+            <roiEnd>618</roiEnd>
             <regionType>MCA</regionType>
         </Region>
     </DetectorElement>
@@ -47,8 +47,8 @@
         <excluded>false</excluded>
         <Region>
             <roiName>peak</roiName>
-            <regionStart>539</regionStart>
-            <regionEnd>618</regionEnd>
+            <roiStart>539</roiStart>
+            <roiEnd>618</roiEnd>
             <regionType>MCA</regionType>
         </Region>
     </DetectorElement>
@@ -63,8 +63,8 @@
         <excluded>false</excluded>
         <Region>
             <roiName>peak</roiName>
-            <regionStart>539</regionStart>
-            <regionEnd>618</regionEnd>
+            <roiStart>539</roiStart>
+            <roiEnd>618</roiEnd>
             <regionType>MCA</regionType>
         </Region>
     </DetectorElement>
@@ -79,8 +79,8 @@
         <excluded>false</excluded>
         <Region>
             <roiName>peak</roiName>
-            <regionStart>539</regionStart>
-            <regionEnd>618</regionEnd>
+            <roiStart>539</roiStart>
+            <roiEnd>618</roiEnd>
             <regionType>MCA</regionType>
         </Region>
     </DetectorElement>
@@ -95,8 +95,8 @@
         <excluded>false</excluded>
         <Region>
             <roiName>peak</roiName>
-            <regionStart>539</regionStart>
-            <regionEnd>618</regionEnd>
+            <roiStart>539</roiStart>
+            <roiEnd>618</roiEnd>
             <regionType>MCA</regionType>
         </Region>
     </DetectorElement>
@@ -111,8 +111,8 @@
         <excluded>false</excluded>
         <Region>
             <roiName>peak</roiName>
-            <regionStart>539</regionStart>
-            <regionEnd>618</regionEnd>
+            <roiStart>539</roiStart>
+            <roiEnd>618</roiEnd>
             <regionType>MCA</regionType>
         </Region>
     </DetectorElement>
@@ -127,8 +127,8 @@
         <excluded>false</excluded>
         <Region>
             <roiName>peak</roiName>
-            <regionStart>539</regionStart>
-            <regionEnd>618</regionEnd>
+            <roiStart>539</roiStart>
+            <roiEnd>618</roiEnd>
             <regionType>MCA</regionType>
         </Region>
     </DetectorElement>
@@ -143,8 +143,8 @@
         <excluded>false</excluded>
         <Region>
             <roiName>peak</roiName>
-            <regionStart>539</regionStart>
-            <regionEnd>618</regionEnd>
+            <roiStart>539</roiStart>
+            <roiEnd>618</roiEnd>
             <regionType>MCA</regionType>
         </Region>
     </DetectorElement>
