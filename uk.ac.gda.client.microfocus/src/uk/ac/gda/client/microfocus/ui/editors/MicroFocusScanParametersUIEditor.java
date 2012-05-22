@@ -119,6 +119,12 @@ public final class MicroFocusScanParametersUIEditor extends RichBeanEditorPart {
 	public void setFocus() {
 		//TODO
 	}
+	
+	@Override
+	public void linkUI(boolean isPageChange){
+		super.linkUI(isPageChange);
+		beanComposite.updateScanInfo();
+	}
 
 	public FieldComposite getXScannableName() {
 		return beanComposite.getXScannableName();

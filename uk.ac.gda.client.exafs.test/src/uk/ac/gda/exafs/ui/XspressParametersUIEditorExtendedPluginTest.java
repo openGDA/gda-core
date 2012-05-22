@@ -73,9 +73,9 @@ public class XspressParametersUIEditorExtendedPluginTest {
 		// If defect occurs, Region Start will be out of bounds, incorrectly.
 		final DetectorElementComposite comp = (DetectorElementComposite)uiEd.getDetectorList().getEditorUI();
 		final Object              roiEditor = comp.getRegionList().getEditorUI();
-		final ScaleBox          regionStart = (ScaleBox)BeanUI.getFieldWiget("regionStart", roiEditor);
+		final ScaleBox          roiStart = (ScaleBox)BeanUI.getFieldWiget("roiStart", roiEditor);
 		
-		if (!regionStart.isValidBounds()) throw new Exception("'regionStart' has incorrectly identified invalid bounds!");
+		if (!roiStart.isValidBounds()) throw new Exception("'roiStart' has incorrectly identified invalid bounds!");
 		if (boundsEditor.isDirty())       throw new Exception("Editor is dirty even though only different nodes have been selected.");
 	}
 	

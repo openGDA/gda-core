@@ -31,6 +31,8 @@ import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 import uk.ac.gda.richbeans.components.wrappers.TextWrapper;
 import uk.ac.gda.richbeans.event.ValueEvent;
 import uk.ac.gda.richbeans.event.ValueListener;
+import uk.ac.gda.richbeans.event.ValueAdapter;
+import uk.ac.gda.richbeans.event.ValueEvent;
 
 /**
  * @author nv23
@@ -55,6 +57,12 @@ public final class MicroFocusScanParametersComposite extends Composite {
 	private FieldComposite energyScannableName;
 	private BooleanWrapper raster;
 	private ScaleBox rowTime;
+	private Label rowDistanceLabel;
+	private Label pointsPerRowLabel;
+	private Label numberOfRowsLabel;
+	private Label timePerPointLabel;
+	private Label scanTypeLabel;
+	private Composite infoComposite;
 
 	public MicroFocusScanParametersComposite(Composite parent, int style) {
 		super(parent, style);
@@ -65,7 +73,7 @@ public final class MicroFocusScanParametersComposite extends Composite {
 			tableComposite.setLayoutData(gridData);
 		}
 		tableComposite.setLayout(new GridLayout(2, false));
-		setLayout(new GridLayout(1, true));
+		setLayout(new GridLayout(2, false));
 
 		Label label = new Label(tableComposite, SWT.NONE);
 		{
@@ -74,12 +82,13 @@ public final class MicroFocusScanParametersComposite extends Composite {
 			gridData.widthHint = 115;
 			label.setLayoutData(gridData);
 		}
+		
 		label.setText("xScannableName");
 		this.xScannableName = new TextWrapper(tableComposite, SWT.NONE);
 		xScannableName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
 				false, 1, 1));
 		xScannableName.setEnabled(false);
-
+		
 		label = new Label(tableComposite, SWT.NONE);
 		label.setText("yScannableName");
 		this.yScannableName = new TextWrapper(tableComposite, SWT.NONE);
@@ -95,7 +104,13 @@ public final class MicroFocusScanParametersComposite extends Composite {
 		collectionTime.setMinimum(0.0);
 		collectionTime.setMaximum(100.0);
 		collectionTime.setUnit("s");
-
+		collectionTime.addValueListener(new ValueAdapter ("collectionTimeListener"){
+			@Override
+			public void valueChangePerformed(ValueEvent e) {
+				updateScanInfo();
+			
+			}
+		});
 		label = new Label(tableComposite, SWT.NONE);
 		label.setText("xStart");
 		this.xStart = new ScaleBox(tableComposite, SWT.NONE);
@@ -105,7 +120,13 @@ public final class MicroFocusScanParametersComposite extends Composite {
 		xStart.setMaximum(12.50);
 		xStart.setUnit("mm");
 		xStart.setDecimalPlaces(4);
-
+		xStart.addValueListener(new ValueAdapter ("xStartListener"){
+		@Override
+		public void valueChangePerformed(ValueEvent e) {
+			updateScanInfo();
+		
+		}
+	});
 		label = new Label(tableComposite, SWT.NONE);
 		label.setText("xEnd");
 		this.xEnd = new ScaleBox(tableComposite, SWT.NONE);
@@ -115,6 +136,13 @@ public final class MicroFocusScanParametersComposite extends Composite {
 		xEnd.setMaximum(12.50);
 		xEnd.setUnit("mm");
 		xEnd.setDecimalPlaces(4);
+		xEnd.addValueListener(new ValueAdapter ("xEndListener"){
+			@Override
+			public void valueChangePerformed(ValueEvent e) {
+				updateScanInfo();
+			
+			}
+		});
 		
 		label = new Label(tableComposite, SWT.NONE);
 		label.setText("xStepSize");
@@ -125,6 +153,14 @@ public final class MicroFocusScanParametersComposite extends Composite {
 		xStepSize.setMinimum(-12.5);
 		xStepSize.setMaximum(12.50);
 		xStepSize.setUnit("mm");
+		xStepSize.addValueListener(new ValueAdapter ("xStepSizeListener"){
+			@Override
+			public void valueChangePerformed(ValueEvent e) {
+				updateScanInfo();
+			
+			}
+		});
+		
 		
 		label = new Label(tableComposite, SWT.NONE);
 		label.setText("yStart");
@@ -135,8 +171,14 @@ public final class MicroFocusScanParametersComposite extends Composite {
 		yStart.setMaximum(15.0);
 		yStart.setUnit("mm");
 		yStart.setDecimalPlaces(4);
+		yStart.addValueListener(new ValueAdapter ("yStartListener"){
+			@Override
+			public void valueChangePerformed(ValueEvent e) {
+				updateScanInfo();
+			
+			}
+		});
 		
-
 		label = new Label(tableComposite, SWT.NONE);
 		label.setText("yEnd");
 		this.yEnd = new ScaleBox(tableComposite, SWT.NONE);
@@ -146,8 +188,14 @@ public final class MicroFocusScanParametersComposite extends Composite {
 		yEnd.setMaximum(15.0);
 		yEnd.setUnit("mm");
 		yEnd.setDecimalPlaces(4);
+		yEnd.addValueListener(new ValueAdapter ("yEndListener"){
+			@Override
+			public void valueChangePerformed(ValueEvent e) {
+				updateScanInfo();
+			
+			}
+		});
 		
-
 		label = new Label(tableComposite, SWT.NONE);
 		label.setText("yStepSize");
 		this.yStepSize = new ScaleBox(tableComposite, SWT.NONE);
@@ -157,13 +205,21 @@ public final class MicroFocusScanParametersComposite extends Composite {
 		yStepSize.setMaximum(15.0);
 		yStepSize.setUnit("mm");
 		yStepSize.setDecimalPlaces(4);
+		yStepSize.addValueListener(new ValueAdapter ("yStepSizeListener"){
+			@Override
+			public void valueChangePerformed(ValueEvent e) {
+				updateScanInfo();
+			
+			}
+		});
 		
 		label = new Label(tableComposite, SWT.NONE);
 		label.setText("EnergyScannableName");
 		this.energyScannableName = new TextWrapper(tableComposite, SWT.NONE);
-energyScannableName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
+		energyScannableName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
 				false, 1, 1));
 		energyScannableName.setEnabled(false);
+		
 		label = new Label(tableComposite, SWT.NONE);
 		label.setText("energies");
 		this.energy = new ScaleBox(tableComposite, SWT.NONE);
@@ -176,6 +232,7 @@ energyScannableName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
 		this.energy.setMaximum(35000.0);
 		this.energy.setUnit("eV");
 		this.energy.setDecimalPlaces(4);
+		
 		label = new Label(tableComposite, SWT.NONE);
 		label.setText("ZScannableName");
 		this.zScannableName = new TextWrapper(tableComposite, SWT.NONE);
@@ -192,6 +249,20 @@ energyScannableName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
 		this.zValue.setUnit("mm");
 		this.zValue.setDecimalPlaces(4);
 		zScannableName.setEnabled(false);
+		
+		infoComposite = new Composite(this, SWT.NONE);
+		infoComposite.setLayout(new GridLayout());
+		scanTypeLabel = new Label(infoComposite, SWT.NONE);
+		scanTypeLabel.setText("                                                                    ");
+		rowDistanceLabel = new Label(infoComposite, SWT.NONE);
+		rowDistanceLabel.setText("                                                                 ");
+		pointsPerRowLabel = new Label(infoComposite, SWT.NONE);
+		pointsPerRowLabel.setText("                                                                ");
+		numberOfRowsLabel = new Label(infoComposite, SWT.NONE);
+		numberOfRowsLabel.setText("                                                                 ");
+		timePerPointLabel = new Label(infoComposite, SWT.NONE);
+		timePerPointLabel.setText("                                                                 ");
+				
 		Composite rasterComposite = new Composite(this, SWT.NONE);
 		rasterComposite.setLayout(new GridLayout());
 		raster = new BooleanWrapper(rasterComposite, SWT.NONE);
@@ -220,7 +291,7 @@ energyScannableName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
 							rowTime.setEnabled(false);
 							collectionTime.setEnabled(true);
 						}
-						
+						updateScanInfo();
 					}
 					
 				});
@@ -243,7 +314,34 @@ energyScannableName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
 		rowTime.setMaximum(10000.0);
 		rowTime.setUnit("s");
 		rowTime.setEnabled(false);
-		
+		rowTime.addValueListener(new ValueAdapter ("rowTimeListener"){
+			@Override
+			public void valueChangePerformed(ValueEvent e) {
+				updateScanInfo();
+			
+			}
+		});
+	}
+
+	protected void updateScanInfo() {
+		double rowDistance = Math.abs(xEnd.getNumericValue() - xStart.getNumericValue()) ;
+		int pointsPerRow =(int) (Math.round((rowDistance / xStepSize.getNumericValue()) + 1));
+		int numberOfRows = (int)Math.round((Math.abs(yEnd.getNumericValue() - yStart.getNumericValue())/yStepSize.getNumericValue() + 1));
+		rowDistanceLabel.setText("Row Distance : "+ rowDistance);
+		pointsPerRowLabel.setText("No. of points/row : "+ pointsPerRow);
+		numberOfRowsLabel.setText("No. of rows : "+ numberOfRows);
+		if(raster.getValue())
+		{
+			double timePerPoint = rowTime.getNumericValue() / pointsPerRow;
+			timePerPointLabel.setText("Time per point : " + timePerPoint);
+			scanTypeLabel.setText("Raster Map");
+		}
+		else
+		{
+			scanTypeLabel.setText("Step Map");
+			timePerPointLabel.setText("Time per point : "+ collectionTime.getNumericValue());
+		}
+		infoComposite.layout();
 	}
 
 	public FieldComposite getXScannableName() {

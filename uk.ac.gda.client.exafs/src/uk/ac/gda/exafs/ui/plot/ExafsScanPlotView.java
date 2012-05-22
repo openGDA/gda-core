@@ -162,7 +162,6 @@ class ExafsScanPlotView extends AbstractCachedScanPlotView {
 
 	@Override
 	protected IPlotData getY(IScanDataPoint... points) {
-
 		calculateA();
 		if (cachedX == null)
 			cachedX = new ArrayList<Double>(89);
@@ -170,21 +169,16 @@ class ExafsScanPlotView extends AbstractCachedScanPlotView {
 			cachedY = new ArrayList<Double>(89);
 		for (int i = 0; i < points.length; i++) {
 			final IScanDataPoint point = points[i];
-			final double[] i0anIt = ScanDataPointUtils.getI0andIt(point);
-
-			final double i0 = i0anIt[0];
-			final double it = i0anIt[1];
+			final double i0 = ScanDataPointUtils.getI0(point);
+			final double it = ScanDataPointUtils.getIt(point);
 			final double ln = Math.log(i0 / it);
-
 			if (Double.isNaN(ln))
 				continue;
 			if (Double.isNaN(point.getAllValuesAsDoubles()[0]))
 				continue;
-
 			cachedY.add(ln);
 			cachedX.add(point.getAllValuesAsDoubles()[0]);
 		}
-
 		return new PlotData(getYAxis(), cachedY);
 	}
 

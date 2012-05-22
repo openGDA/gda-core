@@ -312,8 +312,8 @@ public class MicroFocusNexusReader {
 						if (roi.getRoiName().equals(elementName)) {
 							if(dataret[detectorNo] == null)
 								getElementData(detectorNo);
-							int windowEnd = roi.getRegionEnd();
-							for(int k = roi.getRegionStart(); k <= windowEnd; k++)
+							int windowEnd = roi.getRoiEnd();
+							for(int k = roi.getRoiStart(); k <= windowEnd; k++)
 							{
 								mapData[i][j] += dataret[detectorNo][i][j][k];
 							}

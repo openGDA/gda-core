@@ -68,6 +68,7 @@ public class Xspress2SystemTest {
 		Etfg tfg = new Etfg();
 		tfg.setName("tfg");
 		try {
+			xspress.setNumberOfDetectors(9);
 			xspress.setDaServer(daserver);
 			xspress.setTfg(tfg);
 			xspress.setConfigFileName(TestFileFolder + "/xspressConfig.xml");
@@ -101,7 +102,7 @@ public class Xspress2SystemTest {
 	 */
 	@Test
 	public void testConfigure() {
-		XspressROI roi = new XspressROI("1st_peak", 100, 1122, XspressROI.VIRTUALSCALER);
+		XspressROI roi = new XspressROI("1st_peak", 100, 1122);
 		ArrayList<XspressROI> regions = new ArrayList<XspressROI>();
 		regions.add(roi);
 		DetectorElement[] expected = {
@@ -296,8 +297,8 @@ public class Xspress2SystemTest {
 		assertEquals(256, xspress.getCurrentMCASize());
 		try {
 			ArrayList<XspressROI> regionList = new ArrayList<XspressROI>();
-			XspressROI roi = new XspressROI("roi1", 50, 100, XspressROI.VIRTUALSCALER);
-			XspressROI roi2 = new XspressROI("roi2", 150, 174, XspressROI.MCA);
+			XspressROI roi = new XspressROI("roi1", 50, 100);
+			XspressROI roi2 = new XspressROI("roi2", 150, 174);
 			regionList.add(roi);
 			regionList.add(roi2);
 			for (int i = 0; i < xspress.numberOfDetectors; i++) {
@@ -306,8 +307,8 @@ public class Xspress2SystemTest {
 			xspress.setReadoutMode(XspressDetector.READOUT_ROIS);
 			xspress.setResGrade(ResGrades.NONE);
 
-			assertEquals(5, xspress.getCurrentMCABits());
-			assertEquals(32, xspress.getCurrentMCASize());
+			assertEquals(2, xspress.getCurrentMCABits());
+			assertEquals(4, xspress.getCurrentMCASize());
 		} catch (DeviceException e) {
 			fail(e.getMessage());
 		}
@@ -324,8 +325,8 @@ public class Xspress2SystemTest {
 
 			// then switch to using regions of interest mode
 			ArrayList<XspressROI> regionList = new ArrayList<XspressROI>();
-			XspressROI roi = new XspressROI("roi1", 50, 100, XspressROI.VIRTUALSCALER);
-			XspressROI roi2 = new XspressROI("roi2", 150, 174, XspressROI.MCA);
+			XspressROI roi = new XspressROI("roi1", 50, 100);
+			XspressROI roi2 = new XspressROI("roi2", 150, 174);
 			regionList.add(roi);
 			regionList.add(roi2);
 			for (int i = 0; i < xspress.numberOfDetectors; i++) {

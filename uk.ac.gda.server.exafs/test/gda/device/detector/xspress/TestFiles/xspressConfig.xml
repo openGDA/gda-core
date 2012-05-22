@@ -2,6 +2,7 @@
 <XspressParameters>
     <detectorName>xspress2system</detectorName>
     <resGrade>res-min-div-8</resGrade>
+    <regionType>Virtual Scaler</regionType>
     <readoutMode>Scalers and MCA</readoutMode>
     <editIndividualElements>false</editIndividualElements>
     <DetectorElement>
@@ -12,9 +13,8 @@
         <excluded>false</excluded>
         <Region>
             <roiName>1st_peak</roiName>
-            <regionStart>100</regionStart>
-            <regionEnd>1122</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <roiStart>100</roiStart>
+            <roiEnd>1122</roiEnd>
         </Region>
     </DetectorElement>
     <DetectorElement>
@@ -25,9 +25,8 @@
         <excluded>false</excluded>
         <Region>
             <roiName>1st_peak</roiName>
-            <regionStart>100</regionStart>
-            <regionEnd>1122</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <roiStart>100</roiStart>
+            <roiEnd>1122</roiEnd>
         </Region>
     </DetectorElement>
     <DetectorElement>
@@ -38,9 +37,8 @@
         <excluded>false</excluded>
         <Region>
             <roiName>1st_peak</roiName>
-            <regionStart>100</regionStart>
-            <regionEnd>1122</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <roiStart>100</roiStart>
+            <roiEnd>1122</roiEnd>
         </Region>
     </DetectorElement>
     <DetectorElement>
@@ -51,9 +49,8 @@
         <excluded>false</excluded>
         <Region>
             <roiName>1st_peak</roiName>
-            <regionStart>100</regionStart>
-            <regionEnd>1122</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <roiStart>100</roiStart>
+            <roiEnd>1122</roiEnd>
         </Region>
     </DetectorElement>
     <DetectorElement>
@@ -64,9 +61,8 @@
         <excluded>true</excluded>
         <Region>
             <roiName>1st_peak</roiName>
-            <regionStart>100</regionStart>
-            <regionEnd>1122</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <roiStart>100</roiStart>
+            <roiEnd>1122</roiEnd>
         </Region>
     </DetectorElement>
     <DetectorElement>
@@ -77,9 +73,8 @@
         <excluded>false</excluded>
         <Region>
             <roiName>1st_peak</roiName>
-            <regionStart>100</regionStart>
-            <regionEnd>1122</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <roiStart>100</roiStart>
+            <roiEnd>1122</roiEnd>
         </Region>
     </DetectorElement>
     <DetectorElement>
@@ -90,9 +85,8 @@
         <excluded>false</excluded>
         <Region>
             <roiName>1st_peak</roiName>
-            <regionStart>100</regionStart>
-            <regionEnd>1122</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <roiStart>100</roiStart>
+            <roiEnd>1122</roiEnd>
         </Region>
     </DetectorElement>
     <DetectorElement>
@@ -103,9 +97,8 @@
         <excluded>false</excluded>
         <Region>
             <roiName>1st_peak</roiName>
-            <regionStart>100</regionStart>
-            <regionEnd>1122</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <roiStart>100</roiStart>
+            <roiEnd>1122</roiEnd>
         </Region>
     </DetectorElement>
     <DetectorElement>
@@ -116,9 +109,8 @@
         <excluded>false</excluded>
         <Region>
             <roiName>1st_peak</roiName>
-            <regionStart>100</regionStart>
-            <regionEnd>1122</regionEnd>
-            <regionType>Virtual Scaler</regionType>
+            <roiStart>100</roiStart>
+            <roiEnd>1122</roiEnd>
         </Region>
     </DetectorElement>
     <xspressOnlyShowFF>false</xspressOnlyShowFF>

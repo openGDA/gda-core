@@ -23,28 +23,47 @@ import gda.scan.IScanDataPoint;
 import java.util.List;
 
 public class ScanDataPointUtils {
-	/**
-	 * Call to extract I0 and It from data.
-	 * 
-	 * @param point
-	 * @return double[] data
-	 */
-	public static double[] getI0andIt(final IScanDataPoint point) {
-
+	
+	public static double getFF(final IScanDataPoint point) {
 		if (point == null)
-			return null;
+			return 0;
 		final Double[] data = point.getDetectorDataAsDoubles();
 		final List<String> names = point.getDetectorHeader();
-		double i0 = Double.NaN, it = Double.NaN;
+		double ff = Double.NaN;
+		for (int i = 0; i < names.size(); i++) {
+			if (names.get(i).toLowerCase().equals("ff")) {
+				ff = data[i];
+			}
+		}
+		return ff;
+	}
+	
+	public static double getI0(final IScanDataPoint point) {
+		if (point == null)
+			return 0;
+		final Double[] data = point.getDetectorDataAsDoubles();
+		final List<String> names = point.getDetectorHeader();
+		double i0 = Double.NaN;
 		for (int i = 0; i < names.size(); i++) {
 			if (names.get(i).toLowerCase().equals("i0")) {
 				i0 = data[i];
 			}
+		}
+		return i0;
+	}
+	
+	public static double getIt(final IScanDataPoint point) {
+		if (point == null)
+			return 0;
+		final Double[] data = point.getDetectorDataAsDoubles();
+		final List<String> names = point.getDetectorHeader();
+		double it = Double.NaN;
+		for (int i = 0; i < names.size(); i++) {
 			if (names.get(i).toLowerCase().equals("it")) {
 				it = data[i];
 			}
 		}
-		return new double[] { i0, it };
+		return it;
 	}
-
+	
 }

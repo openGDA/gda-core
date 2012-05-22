@@ -115,13 +115,13 @@ public class DetectorValidator extends AbstractValidator {
 			
 				final List<XspressROI> rs = e.getRegionList();
 				for (XspressROI roi : rs) {
-					checkBounds("Start", roi.getRegionStart(), 0, roi.getRegionEnd(), errors, "The start is out of bounds.");
-					checkBounds("End",   roi.getRegionEnd(),   roi.getRegionStart(), 4095, errors, "The end is out of bounds.");				
+					checkBounds("Start", roi.getRoiStart(), 0, roi.getRoiEnd(), errors, "The start is out of bounds.");
+					checkBounds("End",   roi.getRoiEnd(),   roi.getRoiStart(), 4095, errors, "The end is out of bounds.");				
 				    checkNotNull("Name", roi.getRoiName(), errors, "The region name must be set.");
 				}
 			
 				try {
-					final List<Object[]> regions = getList(e.getRegionList(), "regionStart", "regionEnd", "roiName");
+					final List<Object[]> regions = getList(e.getRegionList(), "roiStart", "roiEnd", "roiName");
 				    IntersectionUtils.checkIntersection(regions);
 				} catch (IntersectionException ne) {
 					errors.add(new InvalidBeanMessage("The regions for '"+ne.getFirstName()+"' and '"+ne.getSecondName()+"' in element '"+e.getName()+"' are intersecting."));

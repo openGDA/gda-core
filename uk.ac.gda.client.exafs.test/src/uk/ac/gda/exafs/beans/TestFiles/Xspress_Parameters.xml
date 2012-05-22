@@ -11,8 +11,8 @@
         <excluded>false</excluded>
         <Region>
             <roiName>fe</roiName>
-            <regionStart>622</regionStart>
-            <regionEnd>948</regionEnd>
+            <roiStart>622</roiStart>
+            <roiEnd>948</roiEnd>
             <regionType>MCA</regionType>
             <fitType>sum all</fitType>
         </Region>
@@ -25,8 +25,8 @@
         <excluded>false</excluded>
         <Region>
             <roiName>fe</roiName>
-            <regionStart>622</regionStart>
-            <regionEnd>948</regionEnd>
+            <roiStart>622</roiStart>
+            <roiEnd>948</roiEnd>
             <regionType>MCA</regionType>
                         <fitType>sum all</fitType>
         </Region>
@@ -39,8 +39,8 @@
         <excluded>false</excluded>
         <Region>
             <roiName>fe</roiName>
-            <regionStart>622</regionStart>
-            <regionEnd>948</regionEnd>
+            <roiStart>622</roiStart>
+            <roiEnd>948</roiEnd>
             <regionType>MCA</regionType>
                         <fitType>sum all</fitType>
         </Region>
@@ -53,8 +53,8 @@
         <excluded>false</excluded>
         <Region>
             <roiName>fe</roiName>
-            <regionStart>622</regionStart>
-            <regionEnd>948</regionEnd>
+            <roiStart>622</roiStart>
+            <roiEnd>948</roiEnd>
             <regionType>MCA</regionType>
                         <fitType>sum all</fitType>
         </Region>
@@ -67,8 +67,8 @@
         <excluded>false</excluded>
         <Region>
             <roiName>fe</roiName>
-            <regionStart>622</regionStart>
-            <regionEnd>948</regionEnd>
+            <roiStart>622</roiStart>
+            <roiEnd>948</roiEnd>
             <regionType>MCA</regionType>
                         <fitType>sum all</fitType>
         </Region>
@@ -81,8 +81,8 @@
         <excluded>false</excluded>
         <Region>
             <roiName>fe</roiName>
-            <regionStart>622</regionStart>
-            <regionEnd>948</regionEnd>
+            <roiStart>622</roiStart>
+            <roiEnd>948</roiEnd>
             <regionType>MCA</regionType>
                         <fitType>sum all</fitType>
         </Region>
@@ -95,8 +95,8 @@
         <excluded>false</excluded>
         <Region>
             <roiName>fe</roiName>
-            <regionStart>622</regionStart>
-            <regionEnd>948</regionEnd>
+            <roiStart>622</roiStart>
+            <roiEnd>948</roiEnd>
             <regionType>MCA</regionType>
                         <fitType>sum all</fitType>
         </Region>
@@ -109,26 +109,26 @@
         <excluded>false</excluded>
         <Region>
             <roiName>fe</roiName>
-            <regionStart>616</regionStart>
-            <regionEnd>638</regionEnd>
+            <roiStart>616</roiStart>
+            <roiEnd>638</roiEnd>
             <regionType>Virtual Scaler</regionType>
         </Region>
         <Region>
             <roiName>Pb</roiName>
-            <regionStart>1500</regionStart>
-            <regionEnd>1800</regionEnd>
+            <roiStart>1500</roiStart>
+            <roiEnd>1800</roiEnd>
             <regionType>Virtual Scaler</regionType>
         </Region>
         <Region>
             <roiName>Mg</roiName>
-            <regionStart>654</regionStart>
-            <regionEnd>679</regionEnd>
+            <roiStart>654</roiStart>
+            <roiEnd>679</roiEnd>
             <regionType>Virtual Scaler</regionType>
         </Region>
         <Region>
             <roiName>Cr</roiName>
-            <regionStart>711</regionStart>
-            <regionEnd>1273</regionEnd>
+            <roiStart>711</roiStart>
+            <roiEnd>1273</roiEnd>
             <regionType>Virtual Scaler</regionType>
         </Region>
     </DetectorElement>
@@ -140,8 +140,8 @@
         <excluded>false</excluded>
         <Region>
             <roiName>fe</roiName>
-            <regionStart>622</regionStart>
-            <regionEnd>948</regionEnd>
+            <roiStart>622</roiStart>
+            <roiEnd>948</roiEnd>
             <regionType>MCA</regionType>
                         <fitType>sum all</fitType>
         </Region>
