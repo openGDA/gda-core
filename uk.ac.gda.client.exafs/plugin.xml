@@ -268,6 +268,10 @@
             id="uk.ac.gda.client.exafs.ui.views.xmapi1monitor.startcommand"
             name="Start Monitoring XES Xmap">
       </command>
+      <command
+            id="uk.ac.gda.client.exafs.addScan"
+            name="Add Scan">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
@@ -306,6 +310,10 @@
       <handler
             class="uk.ac.gda.exafs.ui.actions.ImportExperimentCommandHandler"
             commandId="uk.ac.gda.client.exafs.ImportExperimentCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.exafs.ui.actions.AddScanCommandHandler"
+            commandId="uk.ac.gda.client.exafs.addScan">
       </handler>
    </extension>
    <extension
@@ -480,6 +488,23 @@
             </visibleWhen>
                
          </command>
+         <command
+               commandId="uk.ac.gda.client.exafs.addScan"
+               helpContextId="org.eclipse.ui.add_scan"
+               icon="icons/control_equalizer_blue.png"
+               label="Add Scan"
+               style="push"
+               tooltip="Adds a new scan">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="activeWorkbenchWindow.activePerspective">
+                  <equals
+                        value="uk.ac.gda.client.experimentdefinition.experimentperspective">
+                  </equals>
+               </with>
+            </visibleWhen>
+         </command>
       </menuContribution>
       <menuContribution 
             locationURI="toolbar:uk.ac.gda.exafs.ui.views.B18ScalersMonitor"> 
@@ -624,21 +649,6 @@
                   name="additions">
             </separator>
          </menu>
-      </editorContribution>
-      <editorContribution
-            id="uk.ac.gda.client.exafs.ExafsRunEditorContribution"
-            targetID="gda.gui.eclipse.editors.scan.experimentdefinition.ExperimentRunEditor">
-
-         <action
-               class="uk.ac.gda.exafs.ui.actions.scan.SwitchScanTypeAction"
-               definitionId="uk.ac.gda.client.exafs.switchScanType"
-               icon="icons/control_equalizer_blue.png"
-               id="uk.ac.gda.client.exafs.SwitchScanTypeAction"
-               label="Switch scan type..."
-               style="push"
-               toolbarPath="Normal/additions"
-               tooltip="Switch scan type...">
-         </action>
       </editorContribution>
    </extension>
    <extension point="org.eclipse.core.runtime.preferences">

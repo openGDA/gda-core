@@ -26,27 +26,23 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.richbeans.components.FieldComposite.NOTIFY_TYPE;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
-import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.components.wrappers.LabelWrapper;
 import uk.ac.gda.richbeans.components.wrappers.TextWrapper;
-import uk.ac.gda.richbeans.event.ValueAdapter;
-import uk.ac.gda.richbeans.event.ValueEvent;
 
 /**
  *
  */
 public class XspressROIComposite extends DetectorROIComposite {
 
-	private ScaleBox regionStart;
-	private ScaleBox regionEnd;
-	private ComboWrapper regionType;
+	private ScaleBox roiStart;
+	private ScaleBox roiEnd;
+	
 	private LabelWrapper counts;
 	private TextWrapper roiName;
-	private Label lblRegionBins;
+	
 	private boolean modeOverride = LocalProperties.check("gda.xspress.mode.override");
 
 	/**
@@ -67,41 +63,21 @@ public class XspressROIComposite extends DetectorROIComposite {
 		final Label windowStartLabel = new Label(this, SWT.NONE);
 		windowStartLabel.setText("Region start");
 
-		regionStart = new ScaleBox(this, SWT.NONE);
-		regionStart.setIntegerBox(true);
-		regionStart.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		regionStart.setButtonVisible(true);
-		regionStart.setDecimalPlaces(0);
+		roiStart = new ScaleBox(this, SWT.NONE);
+		roiStart.setIntegerBox(true);
+		roiStart.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		roiStart.setButtonVisible(true);
+		roiStart.setDecimalPlaces(0);
 
 		final Label windowEndLabel = new Label(this, SWT.NONE);
 		windowEndLabel.setText("Region end");
 
-		regionEnd = new ScaleBox(this, SWT.NONE);
-		regionEnd.setIntegerBox(true);
-		regionEnd.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		regionEnd.setButtonVisible(true);
-		regionEnd.setDecimalPlaces(0);
-		
-		lblRegionBins = new Label(this, SWT.NONE);
-		lblRegionBins.setText("Region type");
-		
-		regionType = new ComboWrapper(this, SWT.READ_ONLY);
-		regionType.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		regionType.setItems(new String[]{XspressROI.VIRTUALSCALER, XspressROI.MCA});
-		regionType.select(0);
-		if(modeOverride)
-		{
-			lblRegionBins.setVisible(false);			
-			GridUtils.setVisibleAndLayout(regionType, false);
-		}
-		regionType.addValueListener(new ValueAdapter("regionType") {
-			@Override
-			public void valueChangePerformed(ValueEvent e) {
-				setFitTypeVisibility();
-			}
-		});
+		roiEnd = new ScaleBox(this, SWT.NONE);
+		roiEnd.setIntegerBox(true);
+		roiEnd.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		roiEnd.setButtonVisible(true);
+		roiEnd.setDecimalPlaces(0);
 
-		
 		Label lblCounts = new Label(this, SWT.NONE);
 		lblCounts.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		lblCounts.setText("In window counts");
@@ -110,8 +86,8 @@ public class XspressROIComposite extends DetectorROIComposite {
 		counts.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		counts.setNotifyType(NOTIFY_TYPE.VALUE_CHANGED);
 		
-		regionStart.setMaximum(regionEnd);
-		regionEnd.setMinimum(regionStart);
+		roiStart.setMaximum(roiEnd);
+		roiEnd.setMinimum(roiStart);
 
 	}
 	
@@ -124,21 +100,15 @@ public class XspressROIComposite extends DetectorROIComposite {
 	/**
 	 * @return d
 	 */
-	public ScaleBox getRegionEnd() {
-		return regionEnd;
+	public ScaleBox getRoiEnd() {
+		return roiEnd;
 	}
 
 	/**
 	 * @return d
 	 */
-	public ScaleBox getRegionStart() {
-		return regionStart;
-	}
-	/**
-	 * @return d
-	 */
-	public ComboWrapper getRegionType() {
-		return regionType;
+	public ScaleBox getRoiStart() {
+		return roiStart;
 	}
 	
 	public LabelWrapper getCounts() {
@@ -155,7 +125,7 @@ public class XspressROIComposite extends DetectorROIComposite {
 	@Override
 	public FieldWidgetsForDetectorElementsComposite getFieldWidgetsForDetectorElementsComposite() {
 		if (widgets == null) {
-			widgets = new FieldWidgetsForDetectorElementsComposite(getRegionStart(), getRegionEnd(), getCounts());
+			widgets = new FieldWidgetsForDetectorElementsComposite(getRoiStart(), getRoiEnd(), getCounts());
 		}
 		return widgets;
 	}	

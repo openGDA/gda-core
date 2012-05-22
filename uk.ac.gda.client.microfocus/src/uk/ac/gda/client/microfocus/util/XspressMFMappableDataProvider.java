@@ -78,8 +78,8 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 						List <XspressROI>roiList = elementRois[detectorNo];
 						for (XspressROI roi : roiList) {
 							if (roi.getRoiName().equals(selectedElement)) {								
-								int windowEnd = roi.getRegionEnd();
-								for(int k = roi.getRegionStart(); k <= windowEnd; k++)
+								int windowEnd = roi.getRoiEnd();
+								for(int k = roi.getRoiStart(); k <= windowEnd; k++)
 								{
 									mapData[i][j] += dataSliceFromFile[j][detectorNo][k];
 								}
@@ -91,8 +91,8 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 								if(otherElementIndex != null){
 									if(dataret[otherElementIndex] == null)
 										dataret[otherElementIndex] = new double[yAxisLengthFromFile * xAxisLengthFromFile];
-									int windowEnd = roi.getRegionEnd();
-									for(int k = roi.getRegionStart(); k <= windowEnd; k++)
+									int windowEnd = roi.getRoiEnd();
+									for(int k = roi.getRoiStart(); k <= windowEnd; k++)
 									{
 										dataret[otherElementIndex][(i*xAxisLengthFromFile)+j] += dataSliceFromFile[j][detectorNo][k];
 									}
@@ -127,7 +127,7 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 
 	@SuppressWarnings("unused")
 	private double[] getDataSliceFromFile(int y, int x, int detectorNo, XspressROI roi) {
-		IDataset slice = lazyDataset.getSlice(new int[]{y, x, detectorNo,roi.getRegionStart()}, new int[]{y+1, x+1, detectorNo+1, roi.getRegionEnd()}, new int[]{1,1,1,1});
+		IDataset slice = lazyDataset.getSlice(new int[]{y, x, detectorNo,roi.getRoiStart()}, new int[]{y+1, x+1, detectorNo+1, roi.getRoiEnd()}, new int[]{1,1,1,1});
 		ILazyDataset sqSlice = slice.squeeze();
 		 return (double[])((AbstractDataset)sqSlice).getBuffer();
 	}

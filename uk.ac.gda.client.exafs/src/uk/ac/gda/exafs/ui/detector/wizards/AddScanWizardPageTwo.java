@@ -1,30 +1,10 @@
-/*-
- * Copyright © 2011 Diamond Light Source Ltd.
- *
- * This file is part of GDA.
- *
- * GDA is free software: you can redistribute it and/or modify it under the
- * terms of the GNU General Public License version 3 as published by the Free
- * Software Foundation.
- *
- * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
- *
- * You should have received a copy of the GNU General Public License along
- * with GDA. If not, see <http://www.gnu.org/licenses/>.
- */
-
 package uk.ac.gda.exafs.ui.detector.wizards;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
@@ -35,9 +15,12 @@ import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import java.util.List;
 
 import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
@@ -45,10 +28,8 @@ import uk.ac.gda.client.experimentdefinition.IExperimentBeanDescription;
 import uk.ac.gda.client.experimentdefinition.IExperimentEditorManager;
 import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.richbeans.components.cell.IXMLFileListProvider;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.GridData;
 
-public class SwitchScanWizardPageTwo extends WizardPage {
+public class AddScanWizardPageTwo extends WizardPage {
 
 	Combo scanFiles;
 	Combo sampleFiles;
@@ -73,7 +54,7 @@ public class SwitchScanWizardPageTwo extends WizardPage {
 
 	private Map<String, IExperimentBeanDescription> ACTIONS;
 
-	protected SwitchScanWizardPageTwo() {
+	protected AddScanWizardPageTwo() {
 		super("Choose scan files");
 	}
 
@@ -81,7 +62,7 @@ public class SwitchScanWizardPageTwo extends WizardPage {
 	public void setVisible(boolean visible) {
 		super.setVisible(visible);
 		if (visible) {
-			scanType = ((SwitchScanWizardPageOne) getWizard().getStartingPage()).getScanType();
+			scanType = ((AddScanWizardPageOne) getWizard().getStartingPage()).getScanType();
 			String[] scans = getFileList(scanType.toLowerCase());
 			scanFiles.setItems(scans);
 			scanFiles.select(scans.length - 1);
@@ -130,11 +111,7 @@ public class SwitchScanWizardPageTwo extends WizardPage {
 		gd_sampleFiles.widthHint = 297;
 		sampleFiles.setLayoutData(gd_sampleFiles);
 		sampleFiles.setItems(samples);
-
-		String current = selected.getSampleFileName();
-		for (int i = 0; i < samples.length; i++)
-			if (samples[i].equals(current))
-				sampleFiles.select(i);
+		sampleFiles.select(samples.length - 1);
 
 		lblChooseDetector = new Label(selectFilesArea, 0);
 		lblChooseDetector.setText("Detector file");
@@ -143,11 +120,7 @@ public class SwitchScanWizardPageTwo extends WizardPage {
 		gd_detectorFiles.widthHint = 297;
 		detectorFiles.setLayoutData(gd_detectorFiles);
 		detectorFiles.setItems(detectors);
-
-		current = selected.getDetectorFileName();
-		for (int i = 0; i < detectors.length; i++)
-			if (detectors[i].equals(current))
-				detectorFiles.select(i);
+		detectorFiles.select(detectors.length - 1);
 
 		lblChooseOutput = new Label(selectFilesArea, 0);
 		lblChooseOutput.setText("Output file");
@@ -156,12 +129,8 @@ public class SwitchScanWizardPageTwo extends WizardPage {
 		gd_outputFiles.widthHint = 297;
 		outputFiles.setLayoutData(gd_outputFiles);
 		outputFiles.setItems(outputs);
-
-		current = selected.getOutputFileName();
-		for (int i = 0; i < outputs.length; i++)
-			if (outputs[i].equals(current))
-				outputFiles.select(i);
-
+		outputFiles.select(outputs.length - 1);
+		
 		sampleFiles.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
@@ -269,7 +238,7 @@ public class SwitchScanWizardPageTwo extends WizardPage {
 
 		selected = (ScanObject) controller.getSelectedScan();
 
-		IFolder currentDirectory = selected.getFolder();
+		IFolder currentDirectory = selected.getRunFileManager().getContainingFolder();
 
 		List<Object> objects = new ArrayList<Object>();
 		if (getScanBeanTypes(type) != null) {

@@ -745,18 +745,19 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		}
 
 		getDetectorElementComposite().setTotalCounts(getTotalCounts(data));
+		getDetectorElementComposite().setTotalElementCounts(getTotalElementCounts(data));
 	}
 
-	private Double getTotalCounts(Collection<AbstractDataset> d) {
+	private Double getTotalElementCounts(Collection<AbstractDataset> d) {
 
-		if (getDetectorElementComposite().isIndividualElements()) {
 			double sum = 0;
 			for (AbstractDataset dataSet : d) {
 				sum += (Double) dataSet.sum();
 			}
 			return new Double(sum);
-		}
+	}
 
+	private Double getTotalCounts(Collection<AbstractDataset> d) {
 		if (detectorData == null)
 			return Double.NaN;
 		double sum = 0;

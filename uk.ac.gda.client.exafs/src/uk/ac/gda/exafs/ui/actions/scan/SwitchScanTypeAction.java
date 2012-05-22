@@ -39,6 +39,7 @@ import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentBeanDescription;
 import uk.ac.gda.client.experimentdefinition.IExperimentEditorManager;
+import uk.ac.gda.client.experimentdefinition.IExperimentObjectManager;
 import uk.ac.gda.client.experimentdefinition.components.XMLFileDialog;
 import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.exafs.ui.data.ScanObjectManager;
@@ -89,7 +90,7 @@ public class SwitchScanTypeAction extends AbstractHandler implements IWorkbenchW
 				getScanBeanTypes(), "Change Scan Type", "Choose a file type to change the current scan to. "
 						+ "This file is then used to configure the scan required.");
 
-		IFile choice = dialog.open(selected.getRunFileManager().getContainingFolder());
+		IFile choice = dialog.open(selected.getFolder());
 		if (choice == null) {
 			return;
 		}
@@ -102,9 +103,10 @@ public class SwitchScanTypeAction extends AbstractHandler implements IWorkbenchW
 		final ScanObject selected = (ScanObject) controller.getSelectedScan();
 		selected.setScanFileName(newFile.getName());
 		try {
-			selected.getRunFileManager().write();
+			IExperimentObjectManager man = ExperimentFactory.getManager(selected);
+			man.write();
 		} catch (Exception e) {
-			logger.error("Cannot write: " + selected.getRunFileManager().getFile(), e);
+			logger.error("Cannot write: " + selected.getFolder(), e);
 		}
 		controller.openDefaultEditors(selected, true);
 	}

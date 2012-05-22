@@ -43,8 +43,7 @@ public class DetectorElementConverter {
 		ArrayList<XspressROI> regionList = new ArrayList<XspressROI>();
 		for (CorbaXspressROI corbaRegion : cd.regions) {
 
-			regionList.add(new XspressROI(corbaRegion.regionName, corbaRegion.regionStart, corbaRegion.regionEnd,
-					corbaRegion.regionType));
+			regionList.add(new XspressROI(corbaRegion.regionName, corbaRegion.regionStart, corbaRegion.regionEnd));
 		}
 
 		DetectorElement d = new DetectorElement(cd.name, cd.number, cd.windowStart, cd.windowEnd,cd.excluded, regionList);
@@ -64,8 +63,8 @@ public class DetectorElementConverter {
 		CorbaXspressROI corbaRegionList[] = new CorbaXspressROI[regionList.size()];
 		int i = 0;
 		for (XspressROI region : regionList) {
-			corbaRegionList[i++] = new CorbaXspressROI(region.getRoiName(), region.getRegionStart(), region
-					.getRegionEnd(), region.getRegionType());
+			corbaRegionList[i++] = new CorbaXspressROI(region.getRoiName(), region.getRoiStart(), region
+					.getRoiEnd(), null);
 		}
 		return new CorbaDetectorElement(d.getName(), d.getNumber(), d.getWindowStart(), d.getWindowEnd(), d.isExcluded(),
 				corbaRegionList);

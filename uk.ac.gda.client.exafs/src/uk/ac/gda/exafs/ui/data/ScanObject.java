@@ -20,10 +20,11 @@ package uk.ac.gda.exafs.ui.data;
 
 import gda.exafs.scan.ExafsTimeEstimator;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.collections.BidiMap;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 
@@ -87,7 +88,7 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 
 	@Override
 	public Map<String, IFile> getFilesWithTypes() {
-		BidiMap typeToFiles = getTypeToFileMap();
+		HashMap<String,String> typeToFiles = getTypeToFileMap();
 
 		// NV23 changed as mF parameters need to have sampleParameters to change th scan file prefix
 		// with microfocus scans, do not have a sample parameters
@@ -101,15 +102,10 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 
 		Map<String, IFile> targetFiles = new HashMap<String, IFile>(typeToFiles.size());
 		for (Object fileType : typeToFiles.keySet()) {
-			IFile file = getFolder().getFile((String) typeToFiles.get(fileType));
+			IFile file = getFolder().getFile(typeToFiles.get(fileType));
 			targetFiles.put((String) fileType, file);
 		}
 		return targetFiles;
-	}
-
-	@Override
-	public IFolder getFolder() {
-		return runFileManager.getContainingFolder();
 	}
 
 	public IFile getSampleFile() {
@@ -153,40 +149,40 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 	}
 
 	public String getSampleFileName() {
-		return (String) getTypeToFileMap().get(SAMPLEBEANTYPE);
+		return getTypeToFileMap().get(SAMPLEBEANTYPE);
 	}
 
 	public void setSampleFileName(String fileName) {
 		if (fileName.indexOf(' ') > -1)
 			throw new RuntimeException("Sample name cannot contain a space.");
 		getTypeToFileMap().put(SAMPLEBEANTYPE, fileName);
-		notifyListeners("SampleFileName");
+//		notifyListeners("SampleFileName");
 	}
 
 	public String getScanFileName() {
-		return (String) getTypeToFileMap().get(SCANBEANTYPE);
+		return getTypeToFileMap().get(SCANBEANTYPE);
 	}
 
 	public void setScanFileName(String fileName) {
 		if (fileName.indexOf(' ') > -1)
 			throw new RuntimeException("Scan name cannot contain a space.");
 		getTypeToFileMap().put(SCANBEANTYPE, fileName);
-		notifyListeners("ScanFileName");
+//		notifyListeners("ScanFileName");
 	}
 
 	public String getDetectorFileName() {
-		return (String) getTypeToFileMap().get(DETECTORBEANTYPE);
+		return getTypeToFileMap().get(DETECTORBEANTYPE);
 	}
 
 	public void setDetectorFileName(String fileName) {
 		if (fileName.indexOf(' ') > -1)
 			throw new RuntimeException("Detector name cannot contain a space.");
 		getTypeToFileMap().put(DETECTORBEANTYPE, fileName);
-		notifyListeners("DetectorFileName");
+//		notifyListeners("DetectorFileName");
 	}
 
 	public String getOutputFileName() {
-		return (String) getTypeToFileMap().get(OUTPUTBEANTYPE);
+		return getTypeToFileMap().get(OUTPUTBEANTYPE);
 	}
 
 	public void setOutputFileName(String fileName) {
@@ -194,7 +190,7 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 			throw new RuntimeException("Output name cannot contain a space.");
 		getTypeToFileMap().put(OUTPUTBEANTYPE, fileName);
 		this.outputPath = null;
-		notifyListeners("OutputFileName");
+//		notifyListeners("OutputFileName");
 	}
 
 	private String outputPath;
@@ -270,7 +266,7 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 		if (getScanFileName() == null)
 			return null;
 
-		final IFile file = runFileManager.getContainingFolder().getFile(getScanFileName());
+		final IFile file = getFolder().getFile(getScanFileName());
 		if (!file.exists())
 			return null;
 		return (IScanParameters) BeansFactory.getBean(file.getLocation().toFile());
@@ -304,7 +300,7 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 	public IOutputParameters getOutputParameters() throws Exception {
 		if (getOutputFileName() == null)
 			return null;
-		final IFile file = runFileManager.getContainingFolder().getFile(getOutputFileName());
+		final IFile file = getFolder().getFile(getOutputFileName());
 		if (!file.exists())
 			return null;
 		return (IOutputParameters) BeansFactory.getBean(file.getLocation().toFile());
@@ -321,7 +317,7 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 	public ISampleParameters getSampleParameters() throws Exception {
 		if (getSampleFileName() == null)
 			return null;
-		final IFile file = runFileManager.getContainingFolder().getFile(getSampleFileName());
+		final IFile file = getFolder().getFile(getSampleFileName());
 		if (!file.exists())
 			return null;
 
@@ -339,7 +335,7 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 	public IDetectorParameters getDetectorParameters() throws Exception {
 		if (getDetectorFileName() == null)
 			return null;
-		final IFile file = runFileManager.getContainingFolder().getFile(getDetectorFileName());
+		final IFile file = getFolder().getFile(getDetectorFileName());
 		if (!file.exists())
 			return null;
 		return (IDetectorParameters) BeansFactory.getBean(file.getLocation().toFile());
@@ -386,25 +382,7 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 
 	@Override
 	public String getCommandString() throws Exception {
-		return getCommandLine();
-	}
-
-	@Override
-	public String getCommandSummaryString() throws Exception {
-		String summary = "";
-
-		String multiscanName = runFileManager.getName();
-
-		String folderName = runFileManager.getContainingFolder().getName();
-
-		summary = "(" + getExptCommand() + ") " + folderName + "-" + multiscanName + "-" + getRunName();
-
-		if (getNumberRepetitions() > 1) {
-			summary += " [" + getNumberRepetitions() + " repeats]";
-		}
-
-		
-		return summary;
+		return getExptCommand() + " " + getArgs();
 	}
 
 	private String getExptCommand() throws Exception {
@@ -420,10 +398,6 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 		return "xas";
 	}
 
-	private String getCommandLine() throws Exception {
-		return getExptCommand() + " " + getArgs();
-	}
-
 	private String getArgs() {
 		final StringBuilder buf = new StringBuilder();
 		buf.append("\"" + getFileKey(getSampleFileName()) + "\"");
@@ -434,7 +408,7 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 		buf.append("\" \"");
 		buf.append(getFileKey(getOutputFileName()));
 		buf.append("\" ");
-		buf.append("\"" + getRunFileManager().getContainingFolder().getName() + "\"");
+		buf.append("\"" + getFolder().getName() + "\"");
 		buf.append(" " + getNumberRepetitions() + " ");
 		buf.append("False");
 		return buf.toString();
@@ -447,5 +421,23 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 			return fileName.substring(0, fileName.lastIndexOf('.'));
 		}
 		return fileName.substring(0, fileName.lastIndexOf("."));
+	}
+
+	@Override
+	public void parseEditorFile(String fileName) throws Exception {
+		BufferedReader br = new BufferedReader(new FileReader(fileName));
+		String line = br.readLine();
+		br.close();
+		String[] parts = line.split(" ");
+		
+		if (parts.length != 8) {
+			throw new Exception("File contents incorrect! "  + fileName);
+		}
+		
+		setSampleFileName(parts[1]);
+		setScanFileName(parts[2]);
+		setDetectorFileName(parts[3]);
+		setOutputFileName(parts[4]);
+		setNumberRepetitions(Integer.parseInt(parts[6]));
 	}
 }

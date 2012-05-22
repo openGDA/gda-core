@@ -37,6 +37,9 @@ public class LnI0ItScanPlotView extends AbstractCachedScanPlotView {
 	 */
 	public static final String ID = "gda.rcp.views.scan.LnI0ItScanPlotView"; //$NON-NLS-1$
 
+	private String yAxis = "ln(I0/It)";
+	private String graphTitle = "Absorption  -  ln(I0/It) vs. Energy";
+	
 	@Override
 	public void configurePlot(final DataSetPlotter plotter) {
 		plotter.setAxisOffset(0, -0.5, 0);
@@ -61,20 +64,30 @@ public class LnI0ItScanPlotView extends AbstractCachedScanPlotView {
 
 	@Override
 	protected String getCurrentPlotName(int scanNumber) {
-		return "Scan " + scanNumber + " [ln(I0/It)]";
+		return "Scan " + scanNumber + " [+ yAxis +]";
 	}
 
 	@Override
 	protected PlotData getY(IScanDataPoint... points) {
-
 		if (cachedY == null)
 			cachedY = new ArrayList<Double>(89);
 		for (int i = 0; i < points.length; i++) {
 			final IScanDataPoint point = points[i];
-			final double[] i0anIt = ScanDataPointUtils.getI0andIt(point);
-			if (Double.isNaN(i0anIt[0]) || Double.isNaN(i0anIt[1]))
+			double ff = ScanDataPointUtils.getFF(point);
+			double i0 = ScanDataPointUtils.getI0(point);
+			double it = ScanDataPointUtils.getIt(point);
+			if (Double.isNaN(i0))
 				continue;
-			cachedY.add(Math.log(i0anIt[0] / i0anIt[1]));
+			if (!Double.isNaN(ff)) {
+				cachedY.add(ff / i0);
+				yAxis = "FF/I0";
+				graphTitle = "Absorption  -  FF/I0 vs. Energy";
+			} else if (!Double.isNaN(it)) {
+				cachedY.add(Math.log(i0 / it));
+				yAxis = "ln(I0/It)";
+				graphTitle = "Absorption  -  ln(I0/It) vs. Energy";
+			} else
+				continue;
 		}
 		return new PlotData(getYAxis(), cachedY);
 	}
@@ -86,12 +99,12 @@ public class LnI0ItScanPlotView extends AbstractCachedScanPlotView {
 
 	@Override
 	protected String getYAxis() {
-		return "ln(I0/It)";
+		return yAxis;
 	}
 
 	@Override
 	protected String getGraphTitle() {
-		return "Absorption  -  ln(I0/It) vs. Energy";
+		return graphTitle;
 	}
 
 }

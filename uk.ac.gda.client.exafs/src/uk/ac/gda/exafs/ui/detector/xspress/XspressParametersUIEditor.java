@@ -151,6 +151,8 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	private BooleanWrapper saveRawSpectrum;
 
 	private SelectionAdapter xspressOptionsListener;
+	private Label lblRegionBins;
+	private ComboWrapper regionType;
 
 	/**
 	 * @param path
@@ -240,7 +242,14 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			GridUtils.setVisibleAndLayout(resGradeLabel, false);
 			GridUtils.setVisibleAndLayout(resGrade, false);
 		}
-
+		lblRegionBins = new Label(topComposite, SWT.NONE);
+		lblRegionBins.setText("Region type");
+		
+		regionType = new ComboWrapper(topComposite, SWT.READ_ONLY);
+		regionType.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		regionType.setItems(new String[]{XspressParameters.VIRTUALSCALER, XspressROI.MCA});
+		regionType.select(0);
+		
 		Group grpAcquire = new Group(left, SWT.NONE);
 		grpAcquire.setText("Acquire Spectra");
 		grpAcquire.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false, 1, 1));
@@ -827,7 +836,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			List<DetectorElement> elements = bean.getDetectorList();
 			for (DetectorElement element : elements) {
 				List<XspressROI> rois = element.getRegionList();
-				element.setWindow(rois.get(0).getRegionStart(), rois.get(0).getRegionEnd());
+				element.setWindow(rois.get(0).getRoiStart(), rois.get(0).getRoiEnd());
 			}
 			super.upload(bean);
 		} else
@@ -930,5 +939,12 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	protected String getDataXMLName() {
 		String varDir = LocalProperties.get(LocalProperties.GDA_VAR_DIR);
 		return varDir + "/xspress_editor_data.xml";
+	}
+	
+	/**
+	 * @return d
+	 */
+	public ComboWrapper getRegionType() {
+		return regionType;
 	}
 }

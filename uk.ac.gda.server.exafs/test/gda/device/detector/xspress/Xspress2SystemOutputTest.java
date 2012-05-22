@@ -189,7 +189,7 @@ public class Xspress2SystemOutputTest {
 			String asciiData = results.toString();
 			String[] asciiDataParts = asciiData.split("\t");
 			// test ascii
-			assertEquals(10,asciiDataParts.length);
+			assertEquals(1,asciiDataParts.length);
 			assertEquals(xspress.getExtraNames().length,asciiDataParts.length);
 			
 			//test when DTC values added
@@ -199,7 +199,7 @@ public class Xspress2SystemOutputTest {
 			results = xspress.readout();
 			asciiData = results.toString();
 			asciiDataParts = asciiData.split("\t");
-			assertEquals((4*9+9+1),asciiDataParts.length);
+			assertEquals((4*9+1),asciiDataParts.length);
 			assertEquals(xspress.getExtraNames().length,asciiDataParts.length);
 			
 		} catch (DeviceException e) {
@@ -223,7 +223,7 @@ public class Xspress2SystemOutputTest {
 			String asciiData = results.toString();
 			String[] asciiDataParts = asciiData.split("\t");
 			// test ascii
-			assertEquals(11,asciiDataParts.length);
+			assertEquals(2,asciiDataParts.length);
 			assertEquals(xspress.getExtraNames().length,asciiDataParts.length);
 			
 			//test when DTC values added
@@ -233,7 +233,7 @@ public class Xspress2SystemOutputTest {
 			results = xspress.readout();
 			asciiData = results.toString();
 			asciiDataParts = asciiData.split("\t");
-			assertEquals((4*9+9+1 + 1),asciiDataParts.length);  // 4 *  numElements + good for each element + FF + FF_bad
+			assertEquals((4*9+1 + 1),asciiDataParts.length);  // 4 *  numElements + good for each element + FF + FF_bad
 			assertEquals(xspress.getExtraNames().length,asciiDataParts.length);
 			
 		} catch (DeviceException e) {

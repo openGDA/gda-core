@@ -160,7 +160,8 @@ public final class ScanObjectManager extends ExperimentObjectManager implements 
 			String detFileName, String outputFileName, int numRepetitions) {
 		ScanObject newScan = new ScanObject();
 		newScan.setRunName(runName);
-		newScan.setRunFileManager(this);
+		newScan.setMultiScanName(this.getName());
+		newScan.setFolder(getContainingFolder());
 		newScan.setScanFileName(scanFileName);
 		newScan.setDetectorFileName(detFileName);
 		newScan.setSampleFileName(sampleFileName);

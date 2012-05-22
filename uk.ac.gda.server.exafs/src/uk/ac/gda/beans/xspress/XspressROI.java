@@ -31,82 +31,29 @@ import uk.ac.gda.beans.DetectorROI;
 public class XspressROI implements DetectorROI, Serializable {
 
 	/**
-	 * The region type when the ROI returns the sum of counts in the region, so acts like a scaler.
-	 */
-	public static final String VIRTUALSCALER = "Virtual Scaler";
-
-	/**
 	 * The region type when the ROI returns the part of the MCA in this region.
 	 */
 	public static final String MCA = "MCA";
 
-	private int regionStart;
-	private int regionEnd;
-	private String regionType = VIRTUALSCALER;
+	private int roiStart;
+	private int roiEnd;
 	private String roiName = "<need to set a name>";
 
 	public XspressROI() {
 	}
 
-	public XspressROI(String roiName, int regionStart, int regionEnd, String regionType) {
-		this.roiName = roiName;
-		this.regionStart = regionStart;
-		this.regionEnd = regionEnd;
-		this.regionType = regionType;
-	}
-
-	/**
-	 * @return Returns the regionStart.
-	 */
-	public int getRegionStart() {
-		return regionStart;
-	}
-
-	/**
-	 * @param regionStart
-	 *            The regionStart to set.
-	 */
-	public void setRegionStart(int regionStart) {
-		this.regionStart = regionStart;
-	}
-
-	/**
-	 * @return Returns the regionEnd.
-	 */
-	public int getRegionEnd() {
-		return regionEnd;
-	}
-
-	/**
-	 * @param regionEnd
-	 *            The regionEnd to set.
-	 */
-	public void setRegionEnd(int regionEnd) {
-		this.regionEnd = regionEnd;
-	}
-
-	/**
-	 * @return Returns the regionType.
-	 */
-	public String getRegionType() {
-		return regionType;
-	}
-
-	/**
-	 * @param regionType
-	 *            The regionType to set.
-	 */
-	public void setRegionType(String regionType) {
-		this.regionType = regionType;
+	public XspressROI(String roiName, int roiStart, int roiEnd) {
+		this.roiName=roiName;
+		this.roiEnd = roiEnd;
+		this.roiStart = roiStart;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + regionEnd;
-		result = prime * result + regionStart;
-		result = prime * result + ((regionType == null) ? 0 : regionType.hashCode());
+		result = prime * result + roiEnd;
+		result = prime * result + roiStart;
 		result = prime * result + ((roiName == null) ? 0 : roiName.hashCode());
 		return result;
 	}
@@ -120,14 +67,9 @@ public class XspressROI implements DetectorROI, Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		XspressROI other = (XspressROI) obj;
-		if (regionEnd != other.regionEnd)
+		if (roiEnd != other.roiEnd)
 			return false;
-		if (regionStart != other.regionStart)
-			return false;
-		if (regionType == null) {
-			if (other.regionType != null)
-				return false;
-		} else if (!regionType.equals(other.regionType))
+		if (roiStart != other.roiStart)
 			return false;
 		if (roiName == null) {
 			if (other.roiName != null)
@@ -158,13 +100,23 @@ public class XspressROI implements DetectorROI, Serializable {
 		this.roiName = roiName;
 	}
 
-	@Override
-	public int getRoiEnd() {
-		return getRegionEnd();
+	
+	
+	public void setRoiStart(int roiStart) {
+		this.roiStart = roiStart;
+	}
+
+	public void setRoiEnd(int roiEnd) {
+		this.roiEnd = roiEnd;
 	}
 
 	@Override
 	public int getRoiStart() {
-		return getRegionStart();
+		return roiStart;
+	}
+
+	@Override
+	public int getRoiEnd() {
+		return roiEnd;
 	}
 }
