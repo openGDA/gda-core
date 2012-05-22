@@ -31,6 +31,7 @@ import org.eclipse.ui.IWorkbenchPage;
 
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentObject;
+import uk.ac.gda.client.experimentdefinition.IExperimentObjectManager;
 import uk.ac.gda.client.experimentdefinition.components.ExperimentFolderEditor;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
@@ -79,21 +80,20 @@ public abstract class ExafsBeanFileSelectionEditor extends RichBeanMultiPageEdit
 			}
 		}
 		
-		// Just change the name on the one we are selected.	
+		// Just change the name on the one we are selected.
 		IExperimentObject ob = ExperimentFactory.getExperimentEditorManager().getSelectedScan();
-		if (ob==null) {
-			MessageDialog.openError(getSite().getShell(), "Cannot save file.",
-		               "The file '"+newName.getName()+"' cannot be saved in '"+newName.getParentFile().getName()+"'.\n\n"+
-		               "No scan has been selected. Please enter multi-scan mode and select a scan you wish to edit.");
+		if (ob == null) {
+			MessageDialog.openError(getSite().getShell(), "Cannot save file.", "The file '" + newName.getName()
+					+ "' cannot be saved in '" + newName.getParentFile().getName() + "'.\n\n"
+					+ "No scan has been selected. Please enter multi-scan mode and select a scan you wish to edit.");
 		} else {
-		
 			ob.renameFile(oldName.getName(), newName.getName());
-		    ob.getRunFileManager().write();
+			IExperimentObjectManager man = ExperimentFactory.getManager(ob);
+			man.write();
 		}
-		
-		return true;
- 	}
 
+		return true;
+	}
 
 	@Override
 	protected String validateFileName(final String newFile) {

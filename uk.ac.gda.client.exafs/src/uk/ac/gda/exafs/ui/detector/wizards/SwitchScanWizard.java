@@ -24,7 +24,9 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 
+import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentEditorManager;
+import uk.ac.gda.client.experimentdefinition.IExperimentObjectManager;
 import uk.ac.gda.exafs.ui.data.ScanObject;
 
 public class SwitchScanWizard extends Wizard implements INewWizard{
@@ -52,7 +54,8 @@ public class SwitchScanWizard extends Wizard implements INewWizard{
 		selected.setOutputFileName(newOutputFile.getName());
 		
 		try {
-			selected.getRunFileManager().write();
+			IExperimentObjectManager man = ExperimentFactory.getManager(selected);
+			man.write();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -127,9 +127,11 @@ public class Xspress2SystemTest {
 		
 		for (int i = 0; i < expected.length; i++) {
 			try {
-				if (!expected[i].equals(xspress.getDetector(i)))
+				DetectorElement xspressElement = xspress.getDetector(i);
+				if (!expected[i].equals(xspressElement))
 					fail("Values read are incorrect - " + xspress.getDetector(i).toString());
-				if (!expectedDT[i].equals(xspress.getDeadTimeParameters().getDetectorDT(i)))
+				DetectorDeadTimeElement xspressDTElement = xspress.getDeadTimeParameters().getDetectorDT(i);
+				if (!expectedDT[i].equals(xspressDTElement))
 					fail("Values read are incorrect - " + xspress.getDeadTimeParameters().getDetectorDT(i).toString());
 			} catch (DeviceException e) {
 				fail("Device Exception " + e.getMessage());

@@ -93,7 +93,7 @@ public class SwitchScanWizardPageTwo extends WizardPage {
 					Object file = detectorFileList[scanFiles.getSelectionIndex()];
 					if (file instanceof String) {
 						final String fileType = (String) file;
-						file = ACTIONS.get(fileType).getXmlCommandHander().doCopy(selected.getRunFileManager().getContainingFolder());
+						file = ACTIONS.get(fileType).getXmlCommandHander().doCopy(selected.getFolder());
 					}
 					newScanFile = (IFile) file;
 				}
@@ -144,7 +144,7 @@ public class SwitchScanWizardPageTwo extends WizardPage {
 				Object file = sampleFileList[sampleFiles.getSelectionIndex()];
 				if (file instanceof String) {
 					final String fileType = (String) file;
-					file = ACTIONS.get(fileType).getXmlCommandHander().doCopy(selected.getRunFileManager().getContainingFolder());
+					file = ACTIONS.get(fileType).getXmlCommandHander().doCopy(selected.getFolder());
 				} 
 				newSampleFile = (IFile) file;
 			}
@@ -161,7 +161,7 @@ public class SwitchScanWizardPageTwo extends WizardPage {
 				Object file = detectorFileList[detectorFiles.getSelectionIndex()];
 				if (file instanceof String) {
 					final String fileType = (String) file;
-					file = ACTIONS.get(fileType).getXmlCommandHander().doCopy(selected.getRunFileManager().getContainingFolder());
+					file = ACTIONS.get(fileType).getXmlCommandHander().doCopy(selected.getFolder());
 				}
 				newDetectorFile = (IFile) file;
 			}
@@ -179,7 +179,7 @@ public class SwitchScanWizardPageTwo extends WizardPage {
 				Object file = outputFileList[outputFiles.getSelectionIndex()];
 				if (file instanceof String) {
 					final String fileType = (String) file;
-					file = ACTIONS.get(fileType).getXmlCommandHander().doCopy(selected.getRunFileManager().getContainingFolder());
+					file = ACTIONS.get(fileType).getXmlCommandHander().doCopy(selected.getFolder());
 				}
 				newOutputFile = (IFile) file;
 			}
@@ -215,7 +215,7 @@ public class SwitchScanWizardPageTwo extends WizardPage {
 
 		selected = (ScanObject) controller.getSelectedScan();
 
-		IFolder currentDirectory = selected.getRunFileManager().getContainingFolder();
+		IFolder currentDirectory = selected.getFolder();
 
 		List<Object> objects = new ArrayList<Object>();
 		if (getScanBeanTypes(type) != null) {
