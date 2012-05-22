@@ -176,7 +176,7 @@ public class AddScanWizardPageTwo extends WizardPage {
 			if (file instanceof String) {
 				final String fileType = (String) file;
 				file = ACTIONS.get(fileType).getXmlCommandHander()
-						.doCopy(selected.getRunFileManager().getContainingFolder());
+						.doCopy(selected.getFolder());
 			}
 			newScanFile = (IFile) file;
 	}
@@ -187,7 +187,7 @@ public class AddScanWizardPageTwo extends WizardPage {
 		if (file instanceof String) {
 			final String fileType = (String) file;
 			file = ACTIONS.get(fileType).getXmlCommandHander()
-					.doCopy(selected.getRunFileManager().getContainingFolder());
+					.doCopy(selected.getFolder());
 		}
 		newSampleFile = (IFile) file;
 	}
@@ -198,7 +198,7 @@ public class AddScanWizardPageTwo extends WizardPage {
 		if (file instanceof String) {
 			final String fileType = (String) file;
 			file = ACTIONS.get(fileType).getXmlCommandHander()
-					.doCopy(selected.getRunFileManager().getContainingFolder());
+					.doCopy(selected.getFolder());
 		}
 		newDetectorFile = (IFile) file;
 	}
@@ -209,7 +209,7 @@ public class AddScanWizardPageTwo extends WizardPage {
 		if (file instanceof String) {
 			final String fileType = (String) file;
 			file = ACTIONS.get(fileType).getXmlCommandHander()
-					.doCopy(selected.getRunFileManager().getContainingFolder());
+					.doCopy(selected.getFolder());
 		}
 		newOutputFile = (IFile) file;
 	}
@@ -238,7 +238,7 @@ public class AddScanWizardPageTwo extends WizardPage {
 
 		selected = (ScanObject) controller.getSelectedScan();
 
-		IFolder currentDirectory = selected.getRunFileManager().getContainingFolder();
+		IFolder currentDirectory = selected.getFolder();
 
 		List<Object> objects = new ArrayList<Object>();
 		if (getScanBeanTypes(type) != null) {

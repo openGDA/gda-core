@@ -24,7 +24,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
@@ -35,6 +34,8 @@ import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -45,8 +46,6 @@ import uk.ac.gda.client.experimentdefinition.IExperimentBeanDescription;
 import uk.ac.gda.client.experimentdefinition.IExperimentEditorManager;
 import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.richbeans.components.cell.IXMLFileListProvider;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.GridData;
 
 public class SwitchScanWizardPageTwo extends WizardPage {
 
@@ -207,7 +206,7 @@ public class SwitchScanWizardPageTwo extends WizardPage {
 			if (file instanceof String) {
 				final String fileType = (String) file;
 				file = ACTIONS.get(fileType).getXmlCommandHander()
-						.doCopy(selected.getRunFileManager().getContainingFolder());
+						.doCopy(selected.getFolder());
 			}
 			newScanFile = (IFile) file;
 	}
@@ -218,7 +217,7 @@ public class SwitchScanWizardPageTwo extends WizardPage {
 		if (file instanceof String) {
 			final String fileType = (String) file;
 			file = ACTIONS.get(fileType).getXmlCommandHander()
-					.doCopy(selected.getRunFileManager().getContainingFolder());
+					.doCopy(selected.getFolder());
 		}
 		newSampleFile = (IFile) file;
 	}
@@ -229,7 +228,7 @@ public class SwitchScanWizardPageTwo extends WizardPage {
 		if (file instanceof String) {
 			final String fileType = (String) file;
 			file = ACTIONS.get(fileType).getXmlCommandHander()
-					.doCopy(selected.getRunFileManager().getContainingFolder());
+					.doCopy(selected.getFolder());
 		}
 		newDetectorFile = (IFile) file;
 	}
@@ -240,7 +239,7 @@ public class SwitchScanWizardPageTwo extends WizardPage {
 		if (file instanceof String) {
 			final String fileType = (String) file;
 			file = ACTIONS.get(fileType).getXmlCommandHander()
-					.doCopy(selected.getRunFileManager().getContainingFolder());
+					.doCopy(selected.getFolder());
 		}
 		newOutputFile = (IFile) file;
 	}
