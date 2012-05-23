@@ -160,4 +160,20 @@ public interface ICameraControlListener extends ZoomButtonActionListener {
 	 */
 	void sampleDescriptionChanged(String sampleDescription);
 
+	/**
+	 * Informs listeners that the sample histogram has been selected.
+	 * 
+	 * @param selection
+	 * @throws Exception
+	 */
+	void sampleHistogram(boolean selection) throws Exception;
+
+	/**
+	 * Informs listeners that the flat histogram has been selected.
+	 * 
+	 * @param selection
+	 * @throws Exception
+	 */
+	void flatHistogram(boolean selection) throws Exception;
+
 }

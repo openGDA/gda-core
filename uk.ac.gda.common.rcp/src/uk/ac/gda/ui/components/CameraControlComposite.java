@@ -127,7 +127,7 @@ public class CameraControlComposite extends Composite {
 
 	private STREAM_STATE streamState = STREAM_STATE.NO_STREAM;
 
-	private synchronized void setStreamState(STREAM_STATE streamState) {
+	public synchronized void setStreamState(STREAM_STATE streamState) {
 		this.streamState = streamState;
 	}
 
@@ -345,7 +345,7 @@ public class CameraControlComposite extends Composite {
 
 		//
 		Composite lowerRowComposite = toolkit.createComposite(resolutionComposite);
-		layout = new GridLayout(2, true);
+		layout = new GridLayout(4, true);
 		layout.horizontalSpacing = 2;
 		layout.verticalSpacing = 2;
 		layout.marginWidth = 2;
@@ -357,10 +357,11 @@ public class CameraControlComposite extends Composite {
 		Label lblNumFrames = toolkit.createLabel(lowerRowComposite, FRAMES_PER_PROJECTION, SWT.CENTER | SWT.WRAP);
 		GridData ld = new GridData(GridData.FILL_BOTH);
 		ld.verticalAlignment = SWT.CENTER;
+		ld.horizontalSpan=3;
 		lblNumFrames.setLayoutData(ld);
-		lblNumFrames.setFont(fontRegistry.get(NORMAL_TEXT_8));
+		lblNumFrames.setFont(fontRegistry.get(NORMAL_TEXT_9));
 
-		txtResFramesPerProjection = toolkit.createText(lowerRowComposite, RESOLUTION_4);
+		txtResFramesPerProjection = toolkit.createText(lowerRowComposite, RESOLUTION_4, SWT.CENTER);
 		txtResFramesPerProjection.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		return resolutionComposite;
@@ -802,6 +803,7 @@ public class CameraControlComposite extends Composite {
 	 * @param btnCntrl
 	 */
 	private static void deSelectControl(final Button btnCntrl) {
+		logger.debug("Deselecting control:{}", btnCntrl);
 		if (btnCntrl != null && !btnCntrl.isDisposed()) {
 			btnCntrl.getDisplay().syncExec(new Runnable() {
 
@@ -851,8 +853,6 @@ public class CameraControlComposite extends Composite {
 				if (!isSelected(btnSampleStream)) {
 					logger.debug("'Stream' is selected");
 					/**/
-					deSelectControl(btnFlatStream);
-					selectControl(btnSampleStream);
 					try {
 						startSampleStreaming();
 					} catch (Exception e) {
@@ -860,11 +860,12 @@ public class CameraControlComposite extends Composite {
 						setStreamState(STREAM_STATE.NO_STREAM);
 						logger.error("exception selecting stream", e);
 					}
+					selectControl(btnSampleStream);
 					setStreamState(STREAM_STATE.SAMPLE_STREAM);
 
 				} else {
 					logger.debug("'Stream' is de-selected");
-					streamStopped();
+					stopSampleStream();
 					setStreamState(STREAM_STATE.NO_STREAM);
 				}
 			} else if (sourceObj == btnFlatToSample) {
@@ -889,16 +890,21 @@ public class CameraControlComposite extends Composite {
 				if (!isSelected(btnSampleHistogram)) {
 					logger.debug("'btnSampleHistogram' is selected");
 					selectControl(btnSampleHistogram);
+					try {
+						for (ICameraControlListener cl : cameraControlListeners) {
+							cl.sampleHistogram(true);
+						}
+					} catch (Exception e1) {
+						logger.debug("Error setting exposure time", e1);
+					}
 				} else {
 					logger.debug("'btnSampleHistogram' is de-selected");
-					deSelectControl(btnSampleHistogram);
+					stopSampleHistogram();
 				}
 			} else if (sourceObj == btnFlatStream) {
 				if (!isSelected(btnFlatStream)) {
 					logger.debug("'btnFlatStream' is selected");
-					deSelectControl(btnSampleStream);
 					selectControl(btnFlatStream);
-
 					try {
 						startFlatStreaming();
 					} catch (Exception e) {
@@ -911,7 +917,14 @@ public class CameraControlComposite extends Composite {
 					setStreamState(STREAM_STATE.NO_STREAM);
 					logger.debug("'btnFlatStream' is de-selected");
 					deSelectControl(btnFlatStream);
-					streamStopped();
+					try {
+						for (ICameraControlListener cl : cameraControlListeners) {
+							cl.flatStream(false);
+						}
+					} catch (Exception e) {
+						showError(ERR_CAPTURING_RAW, e);
+						logger.error("Flat single capturing has problems", e);
+					}
 				}
 			} else if (sourceObj == btnFlatSingle) {
 				if (!isSelected(btnFlatSingle)) {
@@ -932,9 +945,16 @@ public class CameraControlComposite extends Composite {
 				if (!isSelected(btnFlatHistogram)) {
 					logger.debug("'btnFlatHistogram' is selected");
 					selectControl(btnFlatHistogram);
+					try {
+						for (ICameraControlListener cl : cameraControlListeners) {
+							cl.flatHistogram(true);
+						}
+					} catch (Exception e1) {
+						logger.debug("Error setting exposure time", e1);
+					}
 				} else {
-					logger.debug("'btnFlatHistogram' is de-selected");
-					deSelectControl(btnFlatHistogram);
+					logger.debug("'btnSampleHistogram' is de-selected");
+					stopFlatHistogram();
 				}
 			} else if (sourceObj == btnSampleIn) {
 				if (!isSelected(btnSampleIn)) {
@@ -1083,7 +1103,7 @@ public class CameraControlComposite extends Composite {
 			} else if (sourceObj == btnProfile) {
 				if (!isSelected(btnProfile)) {
 					logger.debug("'Profile' is selected");
-					streamStopped();
+					stopSampleStream();
 					try {
 						for (ICameraControlListener cl : cameraControlListeners) {
 							cl.profile(true);
@@ -1346,7 +1366,7 @@ public class CameraControlComposite extends Composite {
 	/**
 	 * Deselects both the streams
 	 */
-	public void deselectStream() {
+	public void deselectSampleAndFlatStream() {
 		deSelectControl(btnSampleStream);
 		deSelectControl(btnFlatStream);
 		setStreamState(STREAM_STATE.NO_STREAM);
@@ -1357,6 +1377,9 @@ public class CameraControlComposite extends Composite {
 	 */
 	public void startSampleStreaming() throws Exception {
 		selectStreamButton();
+		if (isSelected(btnFlatStream)) {
+			deSelectControl(btnFlatStream);
+		}
 		try {
 			for (ICameraControlListener cl : cameraControlListeners) {
 				cl.sampleStream(true);
@@ -1364,16 +1387,19 @@ public class CameraControlComposite extends Composite {
 			streamState = STREAM_STATE.SAMPLE_STREAM;
 		} catch (Exception ex) {
 			logger.error("startStreaming:" + ex);
-			deselectStream();
+			deselectSampleAndFlatStream();
 			throw new Exception("Unable to start streaming:", ex);
 		}
 	}
 
 	public void startFlatStreaming() throws Exception {
+		selectControl(btnFlatStream);
+
 		try {
 			for (ICameraControlListener cl : cameraControlListeners) {
 				cl.flatStream(true);
 			}
+			streamState = STREAM_STATE.FLAT_STREAM;
 		} catch (Exception ex) {
 			logger.error("startStreaming:" + ex);
 			deSelectControl(btnFlatStream);
@@ -1384,16 +1410,44 @@ public class CameraControlComposite extends Composite {
 	/**
 	 * This is called when the "Stream" button is de-selected from the GDA GUI.
 	 */
-	public void streamStopped() {
+	public void stopSampleStream() {
 		if (this != null && !this.isDisposed()) {
-			this.getDisplay().asyncExec(new Runnable() {
+			this.getDisplay().syncExec(new Runnable() {
 
 				@Override
 				public void run() {
 					try {
-						deselectStream();
+						deselectSampleAndFlatStream();
 						for (ICameraControlListener cl : cameraControlListeners) {
 							cl.sampleStream(false);
+						}
+						if (!ZOOM_LEVEL.NO_ZOOM.equals(getSelectedZoomLevel())) {
+							setZoom(ZOOM_LEVEL.NO_ZOOM);
+						}
+					} catch (Exception ex) {
+						logger.error("stopStreaming:", ex);
+					}
+				}
+			});
+			// Deselects both sample and flat stream
+
+		}
+
+	}
+	
+	/**
+	 * This is called when the "Stream" button is de-selected from the GDA GUI.
+	 */
+	public void stopFlatStream() {
+		if (this != null && !this.isDisposed()) {
+			this.getDisplay().syncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					try {
+						deselectSampleAndFlatStream();
+						for (ICameraControlListener cl : cameraControlListeners) {
+							cl.flatStream(false);
 						}
 						if (!ZOOM_LEVEL.NO_ZOOM.equals(getSelectedZoomLevel())) {
 							setZoom(ZOOM_LEVEL.NO_ZOOM);
@@ -1473,4 +1527,35 @@ public class CameraControlComposite extends Composite {
 		display.dispose();
 	}
 
+	public void stopSampleHistogram() {
+		deSelectControl(btnSampleHistogram);
+		for (ICameraControlListener c : cameraControlListeners) {
+			try {
+				c.sampleHistogram(false);
+			} catch (Exception e) {
+				logger.error("TODO put description of error here", e);
+				showError("Problem stopping Histogram", e);
+			}
+		}
+	}
+
+	public void stopFlatHistogram() {
+		deSelectControl(btnFlatHistogram);
+		for (ICameraControlListener c : cameraControlListeners) {
+			try {
+				c.flatHistogram(false);
+			} catch (Exception e) {
+				logger.error("TODO put description of error here", e);
+				showError("Problem stopping Histogram", e);
+			}
+		}
+	}
+
+	public void deselectSampleStream() {
+		deSelectControl(btnSampleStream);
+	}
+
+	public void deselectFlatStream() {
+		deSelectControl(btnFlatStream);
+	}
 }
