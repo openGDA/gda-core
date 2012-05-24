@@ -46,7 +46,7 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements DataWrite
 	private String nexusFileTemplate;
 
 	/**
-	 * @throws Exception 
+	 * @throws InstantiationException
 	 */
 	public XasAsciiNexusDataWriter() throws Exception {
 		super();

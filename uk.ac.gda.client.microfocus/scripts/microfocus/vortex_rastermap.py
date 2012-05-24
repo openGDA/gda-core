@@ -15,6 +15,9 @@ from gda.factory import Finder
 from gda.scan import TrajectoryScanLine
 from fast_scan import ScanPositionsTwoWay
 from gda.device.scannable import ScannableUtils
+from gda.data.scan.datawriter import TwoDScanRowReverser
+from gda.data.scan.datawriter import XasAsciiNexusDatapointCompletingDataWriter
+
 #from microfocus.map import redefineNexusMetadataForMaps
 #import microfocus.microfocus_elements
 rootnamespace = {}
@@ -131,7 +134,7 @@ def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileN
             mfd.getWindowsfromBean()
         mfd.setEnergyValue(energy)
         mfd.setZValue(zScannablePos)
-        dataWriter.addDataWriterExtender(mfd)
+        #dataWriter.addDataWriterExtender(mfd)
         xScannable = finder.find(scanBean.getXScannableName())
         yScannable = finder.find(scanBean.getYScannableName())
         ##useFrames = LocalProperties.check("gda.microfocus.scans.useFrames")
@@ -165,6 +168,14 @@ def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileN
                 #scan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),tsl,energyScannable, zScannable,realX])
                 xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),tsl,energyScannable, zScannable])
                 xmapRasterscan.getScanPlotSettings().setIgnore(1)
+                xasWriter = XasAsciiNexusDatapointCompletingDataWriter()
+                rowR = TwoDScanRowReverser()
+                rowR.setNoOfColumns(nx)
+                rowR.setNoOfRows(ny)
+                rowR.setReverseOdd(True)
+                xasWriter.setIndexer(rowR)
+                xasWriter.addDataWriterExtender(mfd)
+                xmapRasterscan.setDataWriter(xasWriter)
                 xmapRasterscan.runScan()
             else:
                 print "Xspress Raster Scan"
@@ -180,7 +191,7 @@ def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileN
                 LocalProperties.set("gda.scan.useScanPlotSettings", "false")
             #handle_messages.simpleLog("map start time " + str(scanStart))
             #handle_messages.simpleLog("map end time " + str(scanEnd))
-            dataWriter.removeDataWriterExtender(mfd)
+            #dataWriter.removeDataWriterExtender(mfd)
             finish()
 
 def finish():
