@@ -92,8 +92,8 @@ public class CameraControlComposite extends Composite {
 	private static final String FLAT = "Flat";
 	private static final String SAMPLE = "Sample";
 	private static final String SHOW_FLAT = "Show Flat";
-	private static final String SHOW_ROI = "Show ROI";
-	private static final String DEFINE_ROI = "Define ROI";
+	private static final String RESET_ROI = "Reset";
+	private static final String DEFINE_ROI = "Define";
 	private static final String PROFILE = "Profile";
 	private static final String SATURATION = "Saturation";
 	private static final String FRAMES_PER_PROJECTION = "frames per projection";
@@ -163,7 +163,7 @@ public class CameraControlComposite extends Composite {
 	private Button btnFlatToSample;
 
 	private Button btnDefineRoi;
-	private Button btnShowHideRoi;
+	private Button btnResetRoi;
 	//
 	private Button btnResFour;
 	private Button btnResEight;
@@ -357,7 +357,7 @@ public class CameraControlComposite extends Composite {
 		Label lblNumFrames = toolkit.createLabel(lowerRowComposite, FRAMES_PER_PROJECTION, SWT.CENTER | SWT.WRAP);
 		GridData ld = new GridData(GridData.FILL_BOTH);
 		ld.verticalAlignment = SWT.CENTER;
-		ld.horizontalSpan=3;
+		ld.horizontalSpan = 3;
 		lblNumFrames.setLayoutData(ld);
 		lblNumFrames.setFont(fontRegistry.get(NORMAL_TEXT_9));
 
@@ -399,13 +399,17 @@ public class CameraControlComposite extends Composite {
 	private Composite createDefineRoiComposite(FormToolkit toolkit, Composite parent) {
 		Composite defineRoiComposite = toolkit.createComposite(parent);
 		defineRoiComposite.setLayout(getGridLayoutZeroSetting());
-		btnDefineRoi = toolkit.createButton(defineRoiComposite, DEFINE_ROI, SWT.PUSH | SWT.WRAP);
+
+		Label lblROI = toolkit.createLabel(defineRoiComposite, "ROI", SWT.CENTER);
+		lblROI.setLayoutData(new GridData(GridData.FILL_BOTH));
+
+		btnDefineRoi = toolkit.createButton(defineRoiComposite, DEFINE_ROI, SWT.PUSH);
 		btnDefineRoi.setLayoutData(new GridData(GridData.FILL_BOTH));
 		btnDefineRoi.addSelectionListener(buttonSelectionListener);
 		//
-		btnShowHideRoi = toolkit.createButton(defineRoiComposite, SHOW_ROI, SWT.PUSH | SWT.WRAP);
-		btnShowHideRoi.setLayoutData(new GridData(GridData.FILL_BOTH));
-		btnShowHideRoi.addSelectionListener(buttonSelectionListener);
+		btnResetRoi = toolkit.createButton(defineRoiComposite, RESET_ROI, SWT.PUSH);
+		btnResetRoi.setLayoutData(new GridData(GridData.FILL_BOTH));
+		btnResetRoi.addSelectionListener(buttonSelectionListener);
 		return defineRoiComposite;
 	}
 
@@ -976,17 +980,39 @@ public class CameraControlComposite extends Composite {
 				if (!isSelected(btnDefineRoi)) {
 					logger.debug("'btnDefineRoi' is selected");
 					selectControl(btnDefineRoi);
+					try {
+						for (ICameraControlListener cl : cameraControlListeners) {
+							cl.defineRoi(true);
+						}
+					} catch (IllegalStateException s) {
+						showError("Cannot Define ROI", s);
+						deSelectControl(btnDefineRoi);
+					} catch (Exception e1) {
+						logger.debug("Error setting exposure time", e1);
+						showError("Cannot Define ROI", e1);
+					}
 				} else {
 					logger.debug("'btnDefineRoi' is de-selected");
 					deSelectControl(btnDefineRoi);
+					try {
+						for (ICameraControlListener cl : cameraControlListeners) {
+							cl.defineRoi(false);
+						}
+					} catch (Exception e1) {
+						logger.debug("Error setting exposure time", e1);
+					}
 				}
-			} else if (sourceObj == btnShowHideRoi) {
-				if (!isSelected(btnShowHideRoi)) {
-					logger.debug("'btnShowHideRoi' is selected");
-					selectControl(btnShowHideRoi);
-				} else {
-					logger.debug("'btnShowHideRoi' is de-selected");
-					deSelectControl(btnShowHideRoi);
+			} else if (sourceObj == btnResetRoi) {
+				logger.debug("'btnResetRoi' is selected");
+				try {
+					for (ICameraControlListener cl : cameraControlListeners) {
+						cl.resetRoi();
+					}
+				} catch (IllegalStateException s) {
+					showError("Cannot Reset ROI", s);
+				} catch (Exception e1) {
+					logger.debug("Error setting exposure time", e1);
+					showError("Cannot Define ROI", e1);
 				}
 			} else if (sourceObj == btnResFour) {
 				if (!isSelected(btnResFour)) {
@@ -1232,7 +1258,7 @@ public class CameraControlComposite extends Composite {
 		btnDarkShow.setEnabled(false);
 
 		btnDefineRoi.setEnabled(false);
-		btnShowHideRoi.setEnabled(false);
+		btnResetRoi.setEnabled(false);
 
 		btnResFour.setEnabled(false);
 		btnResEight.setEnabled(false);
@@ -1273,7 +1299,7 @@ public class CameraControlComposite extends Composite {
 		btnDarkShow.setEnabled(true);
 
 		btnDefineRoi.setEnabled(true);
-		btnShowHideRoi.setEnabled(true);
+		btnResetRoi.setEnabled(true);
 
 		btnResFour.setEnabled(true);
 		btnResEight.setEnabled(true);
@@ -1434,7 +1460,7 @@ public class CameraControlComposite extends Composite {
 		}
 
 	}
-	
+
 	/**
 	 * This is called when the "Stream" button is de-selected from the GDA GUI.
 	 */

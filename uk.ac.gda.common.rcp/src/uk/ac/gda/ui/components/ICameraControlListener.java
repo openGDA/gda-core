@@ -176,4 +176,16 @@ public interface ICameraControlListener extends ZoomButtonActionListener {
 	 */
 	void flatHistogram(boolean selection) throws Exception;
 
+	/**
+	 * Informs the listeners that "Define ROI" button has been selected.
+	 * 
+	 * @param selection
+	 */
+	void defineRoi(boolean selection);
+
+	/**
+	 * Informs the listeners to reset the ROI bounds
+	 */
+	void resetRoi();
+
 }
