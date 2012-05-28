@@ -188,4 +188,19 @@ public interface ICameraControlListener extends ZoomButtonActionListener {
 	 */
 	void resetRoi();
 
+	/**
+	 * Informs the listeners that "Sample In" has been requested.
+	 * @throws InterruptedException 
+	 * @throws InvocationTargetException 
+	 */
+	void moveSampleIn() throws InvocationTargetException, InterruptedException;
+
+	/**
+	 * Informs the listeners that "Sample Out" has been requested.
+	 * @throws InterruptedException 
+	 * @throws InvocationTargetException 
+	 */
+
+	void moveSampleOut() throws InvocationTargetException, InterruptedException;
+
 }

@@ -963,18 +963,35 @@ public class CameraControlComposite extends Composite {
 			} else if (sourceObj == btnSampleIn) {
 				if (!isSelected(btnSampleIn)) {
 					logger.debug("'btnSampleIn' is selected");
-					selectControl(btnSampleIn);
-				} else {
-					logger.debug("'btnSampleIn' is de-selected");
-					deSelectControl(btnSampleIn);
+					selectSampleIn();
+					try {
+						for (ICameraControlListener cl : cameraControlListeners) {
+							cl.moveSampleIn();
+						}
+					} catch (IllegalStateException s) {
+						showError("Cannot Move Sample In", s);
+						selectSampleOut();
+					} catch (Exception e1) {
+						showError("Cannot Move Sample In", e1);
+						selectSampleOut();
+					}
 				}
 			} else if (sourceObj == btnSampleOut) {
 				if (!isSelected(btnSampleOut)) {
 					logger.debug("'btnSampleOut' is selected");
-					selectControl(btnSampleOut);
-				} else {
-					logger.debug("'btnSampleOut' is de-selected");
-					deSelectControl(btnSampleOut);
+					logger.debug("'btnSampleIn' is selected");
+					selectSampleOut();
+					try {
+						for (ICameraControlListener cl : cameraControlListeners) {
+							cl.moveSampleOut();
+						}
+					} catch (IllegalStateException s) {
+						showError("Cannot Move Sample In", s);
+						selectSampleIn();
+					} catch (Exception e1) {
+						showError("Cannot Move Sample In", e1);
+						selectSampleIn();
+					}
 				}
 			} else if (sourceObj == btnDefineRoi) {
 				if (!isSelected(btnDefineRoi)) {
@@ -1583,5 +1600,15 @@ public class CameraControlComposite extends Composite {
 
 	public void deselectFlatStream() {
 		deSelectControl(btnFlatStream);
+	}
+
+	public void selectSampleIn() {
+		selectControl(btnSampleIn);
+		deSelectControl(btnSampleOut);
+	}
+
+	public void selectSampleOut() {
+		selectControl(btnSampleOut);
+		deSelectControl(btnSampleIn);
 	}
 }
