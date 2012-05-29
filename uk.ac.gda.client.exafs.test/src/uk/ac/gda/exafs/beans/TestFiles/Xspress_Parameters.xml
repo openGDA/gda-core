@@ -1,149 +1,119 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <XspressParameters>
     <detectorName>xspress2system</detectorName>
-    <resGrade>res-none</resGrade>
-    <readoutMode>Regions Of Interest</readoutMode>
+    <resGrade>res-min-div-8</resGrade>
+    <regionType>Virtual Scaler</regionType>
+    <readoutMode>Scalers and MCA</readoutMode>
+    <editIndividualElements>false</editIndividualElements>
     <DetectorElement>
         <name>Element0</name>
         <number>0</number>
-        <windowStart>556</windowStart>
-        <windowEnd>731</windowEnd>       
+        <windowStart>0</windowStart>
+        <windowEnd>4000</windowEnd>
         <excluded>false</excluded>
         <Region>
-            <roiName>fe</roiName>
-            <roiStart>622</roiStart>
-            <roiEnd>948</roiEnd>
-            <regionType>MCA</regionType>
-            <fitType>sum all</fitType>
+            <roiName>1st_peak</roiName>
+            <roiStart>100</roiStart>
+            <roiEnd>1122</roiEnd>
         </Region>
     </DetectorElement>
     <DetectorElement>
         <name>Element1</name>
         <number>1</number>
-        <windowStart>556</windowStart>
-        <windowEnd>731</windowEnd>
+        <windowStart>85</windowStart>
+        <windowEnd>2047</windowEnd>
         <excluded>false</excluded>
         <Region>
-            <roiName>fe</roiName>
-            <roiStart>622</roiStart>
-            <roiEnd>948</roiEnd>
-            <regionType>MCA</regionType>
-                        <fitType>sum all</fitType>
+            <roiName>1st_peak</roiName>
+            <roiStart>100</roiStart>
+            <roiEnd>1122</roiEnd>
         </Region>
     </DetectorElement>
     <DetectorElement>
         <name>Element2</name>
         <number>2</number>
-        <windowStart>556</windowStart>
-        <windowEnd>731</windowEnd>       
+        <windowStart>34</windowStart>
+        <windowEnd>2439</windowEnd>
         <excluded>false</excluded>
         <Region>
-            <roiName>fe</roiName>
-            <roiStart>622</roiStart>
-            <roiEnd>948</roiEnd>
-            <regionType>MCA</regionType>
-                        <fitType>sum all</fitType>
+            <roiName>1st_peak</roiName>
+            <roiStart>100</roiStart>
+            <roiEnd>1122</roiEnd>
         </Region>
     </DetectorElement>
     <DetectorElement>
         <name>Element3</name>
         <number>3</number>
-        <windowStart>556</windowStart>
-        <windowEnd>731</windowEnd>
+        <windowStart>31</windowStart>
+        <windowEnd>2126</windowEnd>
         <excluded>false</excluded>
         <Region>
-            <roiName>fe</roiName>
-            <roiStart>622</roiStart>
-            <roiEnd>948</roiEnd>
-            <regionType>MCA</regionType>
-                        <fitType>sum all</fitType>
+            <roiName>1st_peak</roiName>
+            <roiStart>100</roiStart>
+            <roiEnd>1122</roiEnd>
         </Region>
     </DetectorElement>
     <DetectorElement>
         <name>Element4</name>
         <number>4</number>
-        <windowStart>556</windowStart>
-        <windowEnd>731</windowEnd>        
-        <excluded>false</excluded>
+        <windowStart>0</windowStart>
+        <windowEnd>4000</windowEnd>
+        <excluded>true</excluded>
         <Region>
-            <roiName>fe</roiName>
-            <roiStart>622</roiStart>
-            <roiEnd>948</roiEnd>
-            <regionType>MCA</regionType>
-                        <fitType>sum all</fitType>
+            <roiName>1st_peak</roiName>
+            <roiStart>100</roiStart>
+            <roiEnd>1122</roiEnd>
         </Region>
     </DetectorElement>
     <DetectorElement>
         <name>Element5</name>
         <number>5</number>
-        <windowStart>556</windowStart>
-        <windowEnd>731</windowEnd>        
+        <windowStart>85</windowStart>
+        <windowEnd>2047</windowEnd>
         <excluded>false</excluded>
         <Region>
-            <roiName>fe</roiName>
-            <roiStart>622</roiStart>
-            <roiEnd>948</roiEnd>
-            <regionType>MCA</regionType>
-                        <fitType>sum all</fitType>
+            <roiName>1st_peak</roiName>
+            <roiStart>100</roiStart>
+            <roiEnd>1122</roiEnd>
         </Region>
     </DetectorElement>
     <DetectorElement>
         <name>Element6</name>
         <number>6</number>
-        <windowStart>556</windowStart>
-        <windowEnd>731</windowEnd>        
+        <windowStart>34</windowStart>
+        <windowEnd>2439</windowEnd>
         <excluded>false</excluded>
         <Region>
-            <roiName>fe</roiName>
-            <roiStart>622</roiStart>
-            <roiEnd>948</roiEnd>
-            <regionType>MCA</regionType>
-                        <fitType>sum all</fitType>
+            <roiName>1st_peak</roiName>
+            <roiStart>100</roiStart>
+            <roiEnd>1122</roiEnd>
         </Region>
     </DetectorElement>
     <DetectorElement>
         <name>Element7</name>
         <number>7</number>
-        <windowStart>556</windowStart>
-        <windowEnd>731</windowEnd>        
+        <windowStart>31</windowStart>
+        <windowEnd>2126</windowEnd>
         <excluded>false</excluded>
         <Region>
-            <roiName>fe</roiName>
-            <roiStart>616</roiStart>
-            <roiEnd>638</roiEnd>
-            <regionType>Virtual Scaler</regionType>
-        </Region>
-        <Region>
-            <roiName>Pb</roiName>
-            <roiStart>1500</roiStart>
-            <roiEnd>1800</roiEnd>
-            <regionType>Virtual Scaler</regionType>
-        </Region>
-        <Region>
-            <roiName>Mg</roiName>
-            <roiStart>654</roiStart>
-            <roiEnd>679</roiEnd>
-            <regionType>Virtual Scaler</regionType>
-        </Region>
-        <Region>
-            <roiName>Cr</roiName>
-            <roiStart>711</roiStart>
-            <roiEnd>1273</roiEnd>
-            <regionType>Virtual Scaler</regionType>
+            <roiName>1st_peak</roiName>
+            <roiStart>100</roiStart>
+            <roiEnd>1122</roiEnd>
         </Region>
     </DetectorElement>
     <DetectorElement>
         <name>Element8</name>
         <number>8</number>
-        <windowStart>556</windowStart>
-        <windowEnd>731</windowEnd>
+        <windowStart>31</windowStart>
+        <windowEnd>2126</windowEnd>
         <excluded>false</excluded>
         <Region>
-            <roiName>fe</roiName>
-            <roiStart>622</roiStart>
-            <roiEnd>948</roiEnd>
-            <regionType>MCA</regionType>
-                        <fitType>sum all</fitType>
+            <roiName>1st_peak</roiName>
+            <roiStart>100</roiStart>
+            <roiEnd>1122</roiEnd>
         </Region>
     </DetectorElement>
+    <xspressOnlyShowFF>false</xspressOnlyShowFF>
+    <xspressShowDTRawValues>false</xspressShowDTRawValues>
+    <saveRawSpectrum>false</saveRawSpectrum>
 </XspressParameters>
