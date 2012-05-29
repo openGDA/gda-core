@@ -20,6 +20,7 @@ package uk.ac.gda.exafs.ui.composites;
 
 import gda.util.Element;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -32,8 +33,11 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.beans.BeansFactory;
+import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.FluorescenceParameters;
+import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
 import uk.ac.gda.beans.exafs.TransmissionParameters;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
@@ -246,39 +250,14 @@ public class WorkingEnergyComposite extends FieldBeanComposite {
 			final ScanObject ob = (ScanObject) ExperimentFactory.getExperimentEditorManager().getSelectedScan();
 
 			if (ob != null) {
-				final String element, edge;
-				final Object params = ob.getScanParameters();
-				if (params instanceof XanesScanParameters) {
-					element = ((XanesScanParameters) params).getElement();
-					edge = ((XanesScanParameters) params).getEdge();
-					final Element ele = Element.getElement(element);
-					workingEnergy.setMinimum(((XanesScanParameters) params).getRegions().get(0).getEnergy());
-					workingEnergy.setMaximum(ele.getFinalEnergy(edge));
-					if (Math.floor(ele.getEdgeEnergy(edge)) == ele.getEdgeEnergy(edge))
-						workingEnergy.setValue((int) ele.getEdgeEnergy(edge));
-					else
-						workingEnergy.setValue(ele.getEdgeEnergy(edge));
-				} else if (params instanceof XasScanParameters) {
-					element = ((XasScanParameters) params).getElement();
-					edge = ((XasScanParameters) params).getEdge();
-					final Element ele = Element.getElement(element);
-					workingEnergy.setMinimum(ele.getInitialEnergy(edge));
-					workingEnergy.setMaximum(ele.getFinalEnergy(edge));
-					if (Math.floor(ele.getEdgeEnergy(edge)) == ele.getEdgeEnergy(edge))
-						workingEnergy.setValue((int) ele.getEdgeEnergy(edge));
-					else
-						workingEnergy.setValue(ele.getEdgeEnergy(edge));
-				} else if (params instanceof XesScanParameters) {
-					XesScanParameters xesparams = (XesScanParameters)params;
-					element = "";
-					double init = xesparams.getXesInitialEnergy();
-					double fin = xesparams.getXesFinalEnergy();
-					String energy = String.valueOf(init + ((fin - init) / 2.0));
-					workingEnergy.setMinimum(init);
-					workingEnergy.setMaximum(fin);
-					workingEnergy.setValue(energy);
-				} else {
-					element = "";
+				final IScanParameters params = ob.getScanParameters();
+				if (ob.isXanes()) {
+					setWorkingEmergyUsingXanes((XanesScanParameters) params);
+				} else if (ob.isXas()) {
+					setWorkingEnergyUsingXas((XasScanParameters) params);
+				} else if (ob.isXes()) {
+					setWorkingEnergyUsingXes(ob, (XesScanParameters) params);
+				} else {  //QEXAFS
 					double init = ((QEXAFSParameters) params).getInitialEnergy();
 					double fin = ((QEXAFSParameters) params).getFinalEnergy();
 					double energy = init + ((fin - init) / 2.0);
@@ -293,6 +272,57 @@ public class WorkingEnergyComposite extends FieldBeanComposite {
 		} catch (Exception ne) {
 			logger.error("Cannot get edge energy for element.", ne);
 		}
+	}
+
+	private void setWorkingEnergyUsingXes(ScanObject ob, final XesScanParameters params) throws Exception {
+		XesScanParameters xesparams = params;
+		
+		if (xesparams.getScanType() == XesScanParameters.SCAN_XES_FIXED_MONO
+				|| xesparams.getScanType() == XesScanParameters.SCAN_XES_SCAN_MONO) {
+
+			double init = xesparams.getXesInitialEnergy();
+			double fin = xesparams.getXesFinalEnergy();
+			String energy = String.valueOf(init + ((fin - init) / 2.0));
+			workingEnergy.setMinimum(init);
+			workingEnergy.setMaximum(fin);
+			workingEnergy.setValue(energy);
+
+		} else {
+
+			String subscanFileName = xesparams.getScanFileName();
+			IFile subscanFile = ob.getFolder().getFile(subscanFileName);
+			IRichBean bean = BeansFactory.getBean(subscanFile.getLocation().toFile());
+
+			if (bean instanceof XasScanParameters) {
+				setWorkingEnergyUsingXas((XasScanParameters) bean);
+			} else if (bean instanceof XanesScanParameters) {
+				setWorkingEmergyUsingXanes((XanesScanParameters) bean);
+			}
+		}
+	}
+
+	private void setWorkingEnergyUsingXas(final XasScanParameters params) {
+		String element = params.getElement();
+		String edge = params.getEdge();
+		final Element ele = Element.getElement(element);
+		workingEnergy.setMinimum(ele.getInitialEnergy(edge));
+		workingEnergy.setMaximum(ele.getFinalEnergy(edge));
+		if (Math.floor(ele.getEdgeEnergy(edge)) == ele.getEdgeEnergy(edge))
+			workingEnergy.setValue((int) ele.getEdgeEnergy(edge));
+		else
+			workingEnergy.setValue(ele.getEdgeEnergy(edge));
+	}
+
+	private void setWorkingEmergyUsingXanes(final XanesScanParameters params) {
+		String element = params.getElement();
+		String edge = params.getEdge();
+		final Element ele = Element.getElement(element);
+		workingEnergy.setMinimum(params.getRegions().get(0).getEnergy());
+		workingEnergy.setMaximum(ele.getFinalEnergy(edge));
+		if (Math.floor(ele.getEdgeEnergy(edge)) == ele.getEdgeEnergy(edge))
+			workingEnergy.setValue((int) ele.getEdgeEnergy(edge));
+		else
+			workingEnergy.setValue(ele.getEdgeEnergy(edge));
 	}
 
 	public ScaleBox getWorkingEnergy() {

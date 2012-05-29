@@ -15,7 +15,7 @@
 			 							<xsd:enumeration value="MCA"/>
  									</xsd:restriction>
  								</xsd:simpleType>
- 							</xsd:element>
+ 				</xsd:element>
 				<xsd:element name="readoutMode"                           maxOccurs="1" minOccurs="1">
 					<xsd:simpleType>
 							<xsd:restriction base="xsd:string">

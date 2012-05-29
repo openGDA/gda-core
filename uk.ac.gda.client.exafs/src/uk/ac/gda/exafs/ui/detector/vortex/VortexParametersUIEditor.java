@@ -20,7 +20,6 @@ package uk.ac.gda.exafs.ui.detector.vortex;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
-import gda.device.DeviceException;
 import gda.device.Timer;
 import gda.device.XmapDetector;
 import gda.factory.Finder;
@@ -72,7 +71,6 @@ import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.components.wrappers.LabelWrapper;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 
-
 import com.swtdesigner.SWTResourceManager;
 
 public class VortexParametersUIEditor extends DetectorEditor {
@@ -97,14 +95,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 	public Label acquireFileLabel;
 	Button acquireBtn;
 
-	/**
-	 * @param path
-	 * @param mappingURL
-	 * @param dirtyContainer
-	 * @param editingBean
-	 */
 	public VortexParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
-
 		super(path, mappingURL, dirtyContainer, editingBean, "vortex");
 		this.vortexParameters = (VortexParameters) editingBean;
 	}
@@ -300,8 +291,6 @@ public class VortexParametersUIEditor extends DetectorEditor {
 
 		addOutputPreferences(left);
 		configureUI();
-		
-
 	}
 
 	private void addOutputPreferences(Composite comp) {
@@ -394,7 +383,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 			if (monitor != null)
 				monitor.worked(1);
 
-			final double deadTimeFinal = xmapDetector.getRealTime() * 1000d - collectionTimeValue;;
+			final double deadTimeFinal = xmapDetector.getRealTime() * 1000d - collectionTimeValue;
 
 			// Note: currently has to be in this order.
 			getSite().getShell().getDisplay().asyncExec(new Runnable() {
@@ -593,7 +582,6 @@ public class VortexParametersUIEditor extends DetectorEditor {
 								setEnabled(true);
 							}
 						});
-
 					} catch (Exception e) {
 						logger.warn("Exception whilst loading map", e);
 					} finally {
@@ -604,17 +592,13 @@ public class VortexParametersUIEditor extends DetectorEditor {
 								// don't report
 							}
 						}
-
 					}
-
 					return Status.OK_STATUS;
 				}
-
 			};
 			job.setUser(true);
 			job.schedule();
 		}
-
 	}
 
 	public BooleanWrapper getSaveRawSpectrum() {
