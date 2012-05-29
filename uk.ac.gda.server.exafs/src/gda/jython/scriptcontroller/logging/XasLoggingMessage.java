@@ -103,7 +103,7 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 	}
 
 	@Override
-	public int getPercentDone() {
+	public float getPercentDone() {
 		String percent = percentComplete.replace("%", "").trim();
 		return Integer.parseInt(percent);
 	}
