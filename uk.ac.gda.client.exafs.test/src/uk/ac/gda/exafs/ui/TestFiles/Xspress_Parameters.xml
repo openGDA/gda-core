@@ -4,6 +4,7 @@
     <resGrade>res-none</resGrade>
     <readoutMode>Scalers only</readoutMode>
     <editIndividualElements>true</editIndividualElements>
+   <regionType>MCA</regionType>
     <DetectorElement>
         <name>Element0</name>
         <number>0</number>
@@ -17,7 +18,6 @@
             <roiName>peak</roiName>
             <roiStart>539</roiStart>
             <roiEnd>618</roiEnd>
-            <regionType>MCA</regionType>
         </Region>
     </DetectorElement>
     <DetectorElement>
@@ -33,7 +33,6 @@
             <roiName>peak</roiName>
             <roiStart>539</roiStart>
             <roiEnd>618</roiEnd>
-            <regionType>MCA</regionType>
         </Region>
     </DetectorElement>
     <DetectorElement>
@@ -49,7 +48,6 @@
             <roiName>peak</roiName>
             <roiStart>539</roiStart>
             <roiEnd>618</roiEnd>
-            <regionType>MCA</regionType>
         </Region>
     </DetectorElement>
     <DetectorElement>
@@ -65,7 +63,6 @@
             <roiName>peak</roiName>
             <roiStart>539</roiStart>
             <roiEnd>618</roiEnd>
-            <regionType>MCA</regionType>
         </Region>
     </DetectorElement>
     <DetectorElement>
@@ -81,7 +78,6 @@
             <roiName>peak</roiName>
             <roiStart>539</roiStart>
             <roiEnd>618</roiEnd>
-            <regionType>MCA</regionType>
         </Region>
     </DetectorElement>
     <DetectorElement>
@@ -97,7 +93,6 @@
             <roiName>peak</roiName>
             <roiStart>539</roiStart>
             <roiEnd>618</roiEnd>
-            <regionType>MCA</regionType>
         </Region>
     </DetectorElement>
     <DetectorElement>
@@ -113,7 +108,6 @@
             <roiName>peak</roiName>
             <roiStart>539</roiStart>
             <roiEnd>618</roiEnd>
-            <regionType>MCA</regionType>
         </Region>
     </DetectorElement>
     <DetectorElement>
@@ -129,7 +123,6 @@
             <roiName>peak</roiName>
             <roiStart>539</roiStart>
             <roiEnd>618</roiEnd>
-            <regionType>MCA</regionType>
         </Region>
     </DetectorElement>
     <DetectorElement>
@@ -145,7 +138,6 @@
             <roiName>peak</roiName>
             <roiStart>539</roiStart>
             <roiEnd>618</roiEnd>
-            <regionType>MCA</regionType>
         </Region>
     </DetectorElement>
     <xspressOnlyShowFF>false</xspressOnlyShowFF>
