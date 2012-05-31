@@ -225,6 +225,12 @@ public class LocalProperties {
 	public static final String GDA_SCAN_MULTITHREADED_SCANDATA_POINT_PIPElINE_LENGTH = "gda.scan.multithreadedScanDataPointPipeline.length";
 
 	/**
+	 * The number of ScanDataPoints that can be in a gda.scan.MultithreadedScanDataPointPipeline before it starts
+	 * blocking new requests. i.e. the number of points 'behind' the collection completed points can get.
+	 */
+	public static final String GDA_SCAN_CONCURRENTSCAN_READOUT_CONCURRENTLY = "gda.scan.concurrentScan.readoutConcurrently";
+
+	/**
 	 * The number of threads used by a scan to convert position Callables from PositionCallableProviding Scannables to
 	 * Object positions.
 	 */
