@@ -166,7 +166,7 @@ def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileN
                 tsl = TrajectoryScanLine([continuousSampleX, ScanPositionsTwoWay(continuousSampleX,scanBean.getXStart(), scanBean.getXEnd(), scanBean.getXStepSize()),  HTXmapMca, scanBean.getRowTime()/(1000.0 * nx)] )
                 tsl.setScanDataPointQueueLength(10000);tsl.setPositionCallableThreadPoolSize(1)
                 #scan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),tsl,energyScannable, zScannable,realX])
-                xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),tsl,energyScannable, zScannable])
+                xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),tsl])
                 xmapRasterscan.getScanPlotSettings().setIgnore(1)
                 xasWriter = XasAsciiNexusDatapointCompletingDataWriter()
                 rowR = TwoDScanRowReverser()
@@ -179,7 +179,7 @@ def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileN
                 xmapRasterscan.runScan()
             else:
                 print "Xspress Raster Scan"
-                xspressRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),ContinuousScan(trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [raster_counterTimer01, raster_xspress]),energyScannable, zScannable,realX])
+                xspressRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),ContinuousScan(trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [raster_counterTimer01, raster_xspress]),realX])
                 xspressRasterscan.getScanPlotSettings().setIgnore(1)
                 xspressRasterscan.runScan()
 

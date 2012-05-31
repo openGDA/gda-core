@@ -180,7 +180,7 @@ def map (sampleFileName, scanFileName, detectorFileName, outputFileName, folderN
             zScannable.moveTo(zScannablePos)
         ##in mf scans collection time is in seconds  consistent with xas scans
         scanBean.setCollectionTime(scanBean.getCollectionTime())
-        args=[yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),  xScannable, scanBean.getXStart(), scanBean.getXEnd(),  scanBean.getXStepSize(),energyScannable, zScannable]
+        args=[yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),  xScannable, scanBean.getXStart(), scanBean.getXEnd(),  scanBean.getXStepSize()]
         
         #if(detectorBean.getExperimentType() == "Fluorescence" and detectorBean.getFluorescenceParameters().getDetectorType() == "Germanium" and useFrames):
         if(detectorBean.getExperimentType() == "Fluorescence" and useFrames):
@@ -265,7 +265,7 @@ def setupForMap(beanGroup):
     att2 = sampleParameters.getAttenuatorParameter2()
     pos([rootnamespace['D7A'], att1.getSelectedPosition(), rootnamespace['D7B'], att2.getSelectedPosition()])
     LocalProperties.set("gda.scan.useScanPlotSettings", "true")
-    #redefineNexusMetadataForMaps(beanGroup)
+    redefineNexusMetadataForMaps(beanGroup)
     finder.find("RCPController").openPesrpective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")
     
 def redefineNexusMetadataForMaps(beanGroup):
@@ -296,9 +296,9 @@ def redefineNexusMetadataForMaps(beanGroup):
     NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("s3xpos", str(jython_mapper.s3xpos()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXaperture, "postDCM_slits"))
     
     # Sample Stage
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("sample_z", str(jython_mapper.sc_sample_z()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXsample_stage, "Sample_Stage"))
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("sample_thetacoarse", str(jython_mapper.sc_sample_thetacoarse()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXsample_stage, "Sample_Stage"))
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("sample_thetafine", str(jython_mapper.sc_sample_thetafine()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXsample_stage, "Sample_Stage"))
+    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("sc_sample_z", str(jython_mapper.sc_sample_z()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXsample_stage, "Sample_Stage"))
+    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("sc_sample_thetacoarse", str(jython_mapper.sc_sample_thetacoarse()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXsample_stage, "Sample_Stage"))
+    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("sc_sample_thetafine", str(jython_mapper.sc_sample_thetafine()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXsample_stage, "Sample_Stage"))
 
     #attenustors
     
