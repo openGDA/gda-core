@@ -125,6 +125,8 @@ public class CameraControlComposite extends Composite {
 
 	//
 
+	private String sampleDescription;
+
 	private STREAM_STATE streamState = STREAM_STATE.NO_STREAM;
 
 	public synchronized void setStreamState(STREAM_STATE streamState) {
@@ -689,17 +691,20 @@ public class CameraControlComposite extends Composite {
 			}
 		}
 	};
-
+	private double flatExposureTime;
+	private double sampleExposureTime;
 	/**
 	 * Key adapter for the text boxes to validate and persist values
 	 */
 	private KeyAdapter txtKeyListener = new KeyAdapter() {
+
 		@Override
 		public void keyPressed(KeyEvent e) {
 			// Sample exposure time
 			if (e.getSource().equals(txtSampleExposureTime)) {
 				if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
 					if (isValid(Double.class, txtSampleExposureTime.getText())) {
+						sampleExposureTime = Double.parseDouble(txtSampleExposureTime.getText());
 						try {
 							for (ICameraControlListener cl : cameraControlListeners) {
 								cl.sampleExposureTimeChanged(Double.parseDouble(txtSampleExposureTime.getText()));
@@ -716,6 +721,7 @@ public class CameraControlComposite extends Composite {
 				// Flat exposure time
 				if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
 					if (isValid(Double.class, txtFlatExpTime.getText())) {
+						flatExposureTime = Double.parseDouble(txtFlatExpTime.getText());
 						try {
 							for (ICameraControlListener cl : cameraControlListeners) {
 								cl.flatExposureTimeChanged(Double.parseDouble(txtFlatExpTime.getText()));
@@ -732,6 +738,7 @@ public class CameraControlComposite extends Composite {
 				// Flat exposure time
 				if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
 					if (!TYPE_DESCRIPTION.equals(txtSampleDesc.getText())) {
+						sampleDescription = txtSampleDesc.getText();
 						try {
 							for (ICameraControlListener cl : cameraControlListeners) {
 								cl.sampleDescriptionChanged(txtSampleDesc.getText());
@@ -1162,7 +1169,7 @@ public class CameraControlComposite extends Composite {
 							cl.profile(false);
 						}
 					} catch (Exception e) {
-						logger.error(e.getMessage());
+						logger.error("Error Profiling ;{}", e.getMessage());
 					}
 					deSelectControl(btnProfile);
 				}
@@ -1173,7 +1180,7 @@ public class CameraControlComposite extends Composite {
 						cl.saveAlignmentConfiguration();
 					}
 				} catch (Exception e) {
-					logger.error(e.getMessage());
+					logger.error("Error Saving:{}", e.getMessage());
 				}
 			}
 		}
@@ -1350,6 +1357,7 @@ public class CameraControlComposite extends Composite {
 	}
 
 	public void setPreferredSampleExposureTime(final double preferredExposureTime) {
+		sampleExposureTime = preferredExposureTime;
 		if (txtSampleExposureTime != null && !txtSampleExposureTime.isDisposed()) {
 			txtSampleExposureTime.getDisplay().syncExec(new Runnable() {
 
@@ -1362,7 +1370,7 @@ public class CameraControlComposite extends Composite {
 	}
 
 	public double getSampleExposureTime() {
-		return Double.parseDouble(txtSampleExposureTime.getText());
+		return sampleExposureTime;
 	}
 
 	/**
@@ -1512,7 +1520,7 @@ public class CameraControlComposite extends Composite {
 	}
 
 	public double getFlatExposureTime() {
-		return Double.parseDouble(txtFlatExpTime.getText());
+		return flatExposureTime;
 	}
 
 	public STREAM_STATE getStreamState() {
@@ -1524,6 +1532,7 @@ public class CameraControlComposite extends Composite {
 	}
 
 	public void setPreferredFlatExposureTime(final double preferredFlatExposureTime) {
+		flatExposureTime = preferredFlatExposureTime;
 		if (txtFlatExpTime != null && !txtFlatExpTime.isDisposed()) {
 			txtFlatExpTime.getDisplay().syncExec(new Runnable() {
 
@@ -1610,5 +1619,21 @@ public class CameraControlComposite extends Composite {
 	public void selectSampleOut() {
 		selectControl(btnSampleOut);
 		deSelectControl(btnSampleIn);
+	}
+
+	public String getSampleDescription() {
+		return sampleDescription;
+	}
+
+	public void clearSampleDescription() {
+		sampleDescription = null;
+		getDisplay().asyncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				txtSampleDesc.setText(TYPE_DESCRIPTION);
+			}
+		});
+
 	}
 }

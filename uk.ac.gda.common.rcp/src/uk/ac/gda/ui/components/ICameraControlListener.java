@@ -150,8 +150,10 @@ public interface ICameraControlListener extends ZoomButtonActionListener {
 
 	/**
 	 * Save alignment configuration
+	 * @throws InterruptedException 
+	 * @throws InvocationTargetException 
 	 */
-	void saveAlignmentConfiguration();
+	void saveAlignmentConfiguration() throws InvocationTargetException, InterruptedException;
 
 	/**
 	 * Informs the listeners that the sample description has changed.

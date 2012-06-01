@@ -112,6 +112,8 @@ public class MotionControlComposite extends Composite {
 
 	private boolean rotationAxisFound = false;
 
+	private double energy = Double.NaN;
+
 	// Fonts
 	private FontRegistry fontRegistry;
 
@@ -245,6 +247,7 @@ public class MotionControlComposite extends Composite {
 				// X-ray energy
 				if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
 					if (isValid(Double.class, txtXrayEnergy.getText())) {
+						energy = Double.parseDouble(txtXrayEnergy.getText());
 						try {
 							for (IMotionControlListener ml : motionControlListeners) {
 								ml.xRayEnergyChanged(Double.parseDouble(txtXrayEnergy.getText()));
@@ -1121,5 +1124,20 @@ public class MotionControlComposite extends Composite {
 				}
 			});
 		}
+	}
+
+	public void setEnergyValue(final double energy) {
+		this.energy = energy;
+		getDisplay().asyncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				txtXrayEnergy.setText(Double.toString(energy));
+			}
+		});
+	}
+
+	public double getEnergy() {
+		return energy;
 	}
 }
