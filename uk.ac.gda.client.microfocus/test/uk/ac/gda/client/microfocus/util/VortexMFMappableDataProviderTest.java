@@ -37,7 +37,7 @@ import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.vortex.RegionOfInterest;
 import uk.ac.gda.util.PackageUtils;
 
-@Ignore("2010/03/04 Test ignored as MicroFocusMappableDataProvider now calls getExtensionRegistry, so this needs to be converted to a Plug-in Test.")
+//@Ignore("2010/03/04 Test ignored as MicroFocusMappableDataProvider now calls getExtensionRegistry, so this needs to be converted to a Plug-in Test.")
 public class VortexMFMappableDataProviderTest {
 	final static String testScratchDirectoryName =
 		TestUtils.generateDirectorynameFromClassname(VortexMFMappableDataProviderTest.class.getCanonicalName());

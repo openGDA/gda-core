@@ -52,6 +52,7 @@ import uk.ac.gda.beans.vortex.RegionOfInterest;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
+import uk.ac.gda.client.microfocus.util.RandomLineFileWriter;
 
 public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 	private String plotName;
@@ -75,7 +76,7 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 	private Hashtable<String, Double> roiTable;
 	private Hashtable<String, Integer> roiNameMap;
 	private StringBuffer roiHeader = new StringBuffer("row  column");
-	private FileWriter writer;
+	private RandomLineFileWriter writer;
 	private String[] roiNames;
 	private double[][] scalerValues;
 	private double[][] detectorValues;
@@ -410,7 +411,7 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 					
 				}
 				for (String s : roiNames) {
-					rgbLine.append(roiTable.get(s));
+					rgbLine.append(Math.round(roiTable.get(s)));
 					rgbLine.append(" ");
 				}
 				logger.debug("The y value is " + xy[0]);
@@ -419,8 +420,8 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 			}
 		}
 		if (dataPoint.getCurrentPointNumber() == 0)
-			addToRgbFile(roiHeader.toString());
-		addToRgbFile(rgbLine.toString().trim());
+			writer.addHeader(roiHeader.toString());
+		writer.addToFile(correctedDataPointNumber,rgbLine.toString().trim());
 		if(roiTable != null)
 			roiTable.clear();
 		if(value < minValue)
@@ -648,13 +649,6 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 		// TODO Auto-generated method stub
 		return (y*numberOfXPoints + x );
 	}
-
-	private void addToRgbFile(String string) throws IOException {
-		if (writer != null) {
-			writer.write(string + "\n");
-			writer.flush();
-		}
-	}
 	
 	private int[] getXYIndex(int dataPointNumber, double xValue)
 	{
@@ -679,12 +673,8 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 	private void createRgbFile(String string) {
 		if (!string.contains("."))
 			string = string + ".rgb";
-
-		try {
-			writer = new FileWriter(new File(string));
-		} catch (IOException e) {
-			logger.error("unable to create the rgb file " + string);
-		}
+		writer = new RandomLineFileWriter();
+		writer.createRandomLineFile(string);
 
 	}
 

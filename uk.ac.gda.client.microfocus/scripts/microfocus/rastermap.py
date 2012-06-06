@@ -176,12 +176,12 @@ def rastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, f
             
             if(detectorType == "Silicon"):
                 print "Xmap Raster Scan"
-                xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),ContinuousScan(trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [raster_counterTimer01, raster_xmap]),energyScannable, zScannable,realX])
+                xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),ContinuousScan(trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [raster_counterTimer01, raster_xmap]),realX])
                 xmapRasterscan.getScanPlotSettings().setIgnore(1)
                 xmapRasterscan.runScan()
             else:
                 print "Xspress Raster Scan"
-                xspressRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),ContinuousScan(trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [raster_counterTimer01, raster_xspress]),energyScannable, zScannable,realX])
+                xspressRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),ContinuousScan(trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [raster_counterTimer01, raster_xspress]),realX])
                 xspressRasterscan.getScanPlotSettings().setIgnore(1)
                 xspressRasterscan.runScan()
 
@@ -251,6 +251,7 @@ def setupForRaster(beanGroup):
     LocalProperties.set("gda.scan.useScanPlotSettings", "true")
     if not (trajBeamMonitor1 == None):
         trajBeamMonitor1.setActive(True)
+    redefineNexusMetadataForMaps(beanGroup)
     finder.find("RCPController").openPesrpective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")
     
 

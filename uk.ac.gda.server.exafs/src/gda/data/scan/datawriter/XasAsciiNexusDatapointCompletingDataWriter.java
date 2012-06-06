@@ -32,7 +32,16 @@ public class XasAsciiNexusDatapointCompletingDataWriter implements DataWriter{
 	}
 
 	DatapointCompletingDataWriter sink;
-	
+	DataIndexer indexer;
+
+	public DataIndexer getIndexer() {
+		return indexer;
+	}
+
+	public void setIndexer(DataIndexer indexer) {
+		this.indexer = indexer;
+	}
+
 	public XasAsciiNexusDatapointCompletingDataWriter() throws Exception {
 		XasAsciiNexusDataWriter xasAsciiNexusDataWriter = new XasAsciiNexusDataWriter();
 		sink = new DatapointCompletingDataWriter();
@@ -45,6 +54,8 @@ public class XasAsciiNexusDatapointCompletingDataWriter implements DataWriter{
 
 	@Override
 	public void addData(IScanDataPoint point) throws Exception {
+		if(getIndexer() != null)
+			indexer.indexData(point);
 		sink.addData(point);
 	}
 

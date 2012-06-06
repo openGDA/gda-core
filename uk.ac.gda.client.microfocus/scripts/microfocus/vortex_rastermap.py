@@ -15,6 +15,10 @@ from gda.factory import Finder
 from gda.scan import TrajectoryScanLine
 from fast_scan import ScanPositionsTwoWay
 from gda.device.scannable import ScannableUtils
+from gda.data.scan.datawriter import TwoDScanRowReverser
+from gda.data.scan.datawriter import XasAsciiNexusDatapointCompletingDataWriter
+
+#from microfocus.map import redefineNexusMetadataForMaps
 #import microfocus.microfocus_elements
 rootnamespace = {}
 def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, scanNumber= -1, validation=True):
@@ -130,7 +134,7 @@ def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileN
             mfd.getWindowsfromBean()
         mfd.setEnergyValue(energy)
         mfd.setZValue(zScannablePos)
-        dataWriter.addDataWriterExtender(mfd)
+        #dataWriter.addDataWriterExtender(mfd)
         xScannable = finder.find(scanBean.getXScannableName())
         yScannable = finder.find(scanBean.getYScannableName())
         ##useFrames = LocalProperties.check("gda.microfocus.scans.useFrames")
@@ -159,15 +163,23 @@ def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileN
             if(detectorType == "Silicon"):
                 print "Xmap Raster Scan"
                 #tsl = TrajectoryScanLine([continuousSampleX, scanBean.getXStart(), scanBean.getXEnd(), scanBean.getXStepSize(), HTXmapMca, scanBean.getRowTime()/(1000.0 * nx)] )
-                tsl = TrajectoryScanLine([continuousSampleX, ScanPositionsTwoWay(continuousSampleX,scanBean.getXStart(), scanBean.getXEnd(), scanBean.getXStepSize()), HTScaler, HTXmapMca, scanBean.getRowTime()/(1000.0 * nx)] )
+                tsl = TrajectoryScanLine([continuousSampleX, ScanPositionsTwoWay(continuousSampleX,scanBean.getXStart(), scanBean.getXEnd(), scanBean.getXStepSize()),  HTXmapMca, scanBean.getRowTime()/(1000.0 * nx)] )
                 tsl.setScanDataPointQueueLength(10000);tsl.setPositionCallableThreadPoolSize(1)
                 #scan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),tsl,energyScannable, zScannable,realX])
-                xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),tsl,energyScannable, zScannable, realX])
+                xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),tsl])
                 xmapRasterscan.getScanPlotSettings().setIgnore(1)
+                xasWriter = XasAsciiNexusDatapointCompletingDataWriter()
+                rowR = TwoDScanRowReverser()
+                rowR.setNoOfColumns(nx)
+                rowR.setNoOfRows(ny)
+                rowR.setReverseOdd(True)
+                xasWriter.setIndexer(rowR)
+                xasWriter.addDataWriterExtender(mfd)
+                xmapRasterscan.setDataWriter(xasWriter)
                 xmapRasterscan.runScan()
             else:
                 print "Xspress Raster Scan"
-                xspressRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),ContinuousScan(trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [raster_counterTimer01, raster_xspress]),energyScannable, zScannable,realX])
+                xspressRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),ContinuousScan(trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [raster_counterTimer01, raster_xspress]),realX])
                 xspressRasterscan.getScanPlotSettings().setIgnore(1)
                 xspressRasterscan.runScan()
 
@@ -177,9 +189,9 @@ def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileN
                 LocalProperties.set("gda.scan.useScanPlotSettings", "true")
             else:
                 LocalProperties.set("gda.scan.useScanPlotSettings", "false")
-            handle_messages.simpleLog("map start time " + str(scanStart))
-            handle_messages.simpleLog("map end time " + str(scanEnd))
-            dataWriter.removeDataWriterExtender(mfd)
+            #handle_messages.simpleLog("map start time " + str(scanStart))
+            #handle_messages.simpleLog("map end time " + str(scanEnd))
+            #dataWriter.removeDataWriterExtender(mfd)
             finish()
 
 def finish():
@@ -191,7 +203,7 @@ def finish():
     
 def setupForVortexRaster(beanGroup):
     rasterscan = beanGroup.getScan()
-    print "collection time is " , str(scan.getRowTime())   
+    print "collection time is " , str(rasterscan.getRowTime())   
     collectionTime = rasterscan.getRowTime()/ 1000.0
     print "1setting collection time to" , str(collectionTime)  
     command_server = Finder.getInstance().find("command_server")    
@@ -226,6 +238,7 @@ def setupForVortexRaster(beanGroup):
     pos([rootnamespace['D7A'], att1.getSelectedPosition(), rootnamespace['D7B'], att2.getSelectedPosition()])
     configFluoDetector(beanGroup)
     LocalProperties.set("gda.scan.useScanPlotSettings", "true")
+    redefineNexusMetadataForMaps(beanGroup)
     finder.find("RCPController").openPesrpective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")
     
 class MicroFocusEnvironment:

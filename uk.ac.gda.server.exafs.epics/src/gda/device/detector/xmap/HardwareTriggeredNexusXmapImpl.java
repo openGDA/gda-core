@@ -330,10 +330,9 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 	private void setTimeFrames() {
 		switchOnExtTrigger();
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("tfg setup-groups ext-start cycles 1"+"\n");
-		buffer.append(getHardwareTriggerProvider().getNumberTriggers() + " 0.000001 0.00000001 0 0 0 8\n");
-		buffer.append("-1 0 0 0 0 0 0");
-		getDaServer().sendCommand(buffer.toString());
+		getDaServer().sendCommand("tfg setup-groups ext-start cycles 1");
+		getDaServer().sendCommand(getHardwareTriggerProvider().getNumberTriggers() + " 0.000001 0.00000001 0 0 0 8");
+		getDaServer().sendCommand("-1 0 0 0 0 0 0");
 		getDaServer().sendCommand("tfg arm");
 	}
 	private void switchOnExtTrigger() {

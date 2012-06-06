@@ -34,7 +34,7 @@ import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.util.PackageUtils;
-@Ignore("2010/03/04 Test ignored as MicroFocusMappableDataProvider now calls getExtensionRegistry, so this needs to be converted to a Plug-in Test.")
+//@Ignore("2010/03/04 Test ignored as MicroFocusMappableDataProvider now calls getExtensionRegistry, so this needs to be converted to a Plug-in Test.")
 public class XspressMFMappableDataProviderTest {
 	final static String testScratchDirectoryName =
 		TestUtils.generateDirectorynameFromClassname(XspressMFMappableDataProviderTest.class.getCanonicalName());
@@ -50,7 +50,7 @@ public class XspressMFMappableDataProviderTest {
 		XspressDataProvider.setXScannableName("sc_MicroFocusSampleX");
 		XspressDataProvider.setYScannableName("sc_MicroFocusSampleY");
 		XspressDataProvider.setZScannableName("sc_sample_z");
-		XspressDataProvider.setTrajectoryScannableName("realX");
+		XspressDataProvider.setTrajectoryScannableName(new String[]{"realX"});
 		XspressDataProvider.setSelectedElement("fe");
 	}
 	@Test

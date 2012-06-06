@@ -33,7 +33,7 @@ import org.junit.Test;
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.util.PackageUtils;
-@Ignore("2010/03/04 Test ignored as ScalerMFMappableDataProvider now calls getExtensionRegistry, so this needs to be converted to a Plug-in Test.")
+//@Ignore("2010/03/04 Test ignored as ScalerMFMappableDataProvider now calls getExtensionRegistry, so this needs to be converted to a Plug-in Test.")
 public class ScalerMFMappableDataProviderTest {
 	
 	

@@ -17,15 +17,6 @@
  */
 
 package gda.device.detector.xmap;
-import java.io.File;
-import java.util.List;
-import org.nexusformat.NexusFile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import uk.ac.gda.beans.vortex.DetectorElement;
-import uk.ac.gda.beans.vortex.RegionOfInterest;
-import uk.ac.gda.util.CorrectionUtils;
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
@@ -42,14 +33,15 @@ import gda.device.detector.DAServer;
 import gda.device.detector.DetectorBase;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
-import gda.device.detector.xmap.edxd.EDXDMappingController;
 import gda.device.detector.xmap.edxd.EDXDController.COLLECTION_MODES;
+import gda.device.detector.xmap.edxd.EDXDMappingController;
 import gda.device.detector.xmap.util.XmapBufferedHdf5FileLoader;
 import gda.device.detector.xmap.util.XmapFileLoader;
 import gda.device.detector.xmap.util.XmapNexusFileLoader;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 
+import java.io.File;
 import java.util.List;
 
 import org.nexusformat.NexusFile;

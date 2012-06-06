@@ -47,7 +47,7 @@ public class MicroFocusDisplayController {
 	private String detectorFile;
 	private String defaultDetectorFile;
 	private int currentDetectorElementNo;
-	private String trajectoryScannableName;
+	private String[] trajectoryScannableName;
 	private String zScannableName;
 	private String trajectoryCounterTimerName;
 	
@@ -76,7 +76,9 @@ public class MicroFocusDisplayController {
 		config = Platform.getExtensionRegistry().getConfigurationElementsFor("uk.ac.gda.microfocus.trajectory.xScannableName");
 		if((null != config) && (config.length > 0))
 		{
-			trajectoryScannableName = config[0].getAttribute("name");			
+			trajectoryScannableName = new String[config.length];
+			for(int i =0 ; i < config.length;i++)
+			trajectoryScannableName[i] = config[i].getAttribute("name");			
 		}
 		config = Platform.getExtensionRegistry().getConfigurationElementsFor("uk.ac.gda.microfocus.trajectory.counterTimerName");
 		if((null != config) && (config.length > 0))
