@@ -22,27 +22,21 @@ import java.io.Serializable;
 
 import org.apache.commons.beanutils.BeanUtils;
 
-import uk.ac.gda.doe.DOEField;
-
 /**
  * 
  */
 public class FurnaceParameters  implements Serializable{
-	@DOEField(3)
-	private String x;
-	@DOEField(3)
-	private String y;
-	@DOEField(3)
-	private String z;
-	@DOEField(DOEField.DEFAULT_LEVEL)
-	private String temperature;
-	private double tolerance;
-	private double time;
+	private Double x;
+	private Double y;
+	private Double z;
+	private Double temperature;
+	private Double tolerance;
+	private Double time;
 
 	/**
 	 * @return the x
 	 */
-	public String getX() {
+	public Double getX() {
 		return x;
 	}
 
@@ -50,14 +44,14 @@ public class FurnaceParameters  implements Serializable{
 	 * @param x
 	 *            the x to set
 	 */
-	public void setX(String x) {
+	public void setX(Double x) {
 		this.x = x;
 	}
 
 	/**
 	 * @return the y
 	 */
-	public String getY() {
+	public Double getY() {
 		return y;
 	}
 
@@ -65,14 +59,14 @@ public class FurnaceParameters  implements Serializable{
 	 * @param y
 	 *            the y to set
 	 */
-	public void setY(String y) {
+	public void setY(Double y) {
 		this.y = y;
 	}
 
 	/**
 	 * @return the z
 	 */
-	public String getZ() {
+	public Double getZ() {
 		return z;
 	}
 
@@ -80,14 +74,14 @@ public class FurnaceParameters  implements Serializable{
 	 * @param z
 	 *            the z to set
 	 */
-	public void setZ(String z) {
+	public void setZ(Double z) {
 		this.z = z;
 	}
 
 	/**
 	 * @return the temperature
 	 */
-	public String getTemperature() {
+	public Double getTemperature() {
 		return temperature;
 	}
 
@@ -95,7 +89,7 @@ public class FurnaceParameters  implements Serializable{
 	 * @param temperature
 	 *            the temperature to set
 	 */
-	public void setTemperature(String temperature) {
+	public void setTemperature(Double temperature) {
 		this.temperature = temperature;
 	}
 

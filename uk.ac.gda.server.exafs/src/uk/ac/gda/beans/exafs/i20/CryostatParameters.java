@@ -31,7 +31,7 @@ import uk.ac.gda.doe.DOEField;
 public class CryostatParameters implements Serializable {
 		
 	@DOEField(10)
-	private String  temperature;
+	private Double  temperature;
 	private Integer heaterRange;
 	private Double  time;
 	private String  profileType;
@@ -54,7 +54,7 @@ public class CryostatParameters implements Serializable {
 	/**
 	 * @return the temperature
 	 */
-	public String getTemperature() {
+	public Double getTemperature() {
 		return temperature;
 	}
 
@@ -62,7 +62,7 @@ public class CryostatParameters implements Serializable {
 	 * @param temperature
 	 *            the temperature to set
 	 */
-	public void setTemperature(String temperature) {
+	public void setTemperature(Double temperature) {
 		this.temperature = temperature;
 	}
 
@@ -186,132 +186,94 @@ public class CryostatParameters implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((d == null) ? 0 : d.hashCode());
-		result = prime * result
-				+ ((finePosition == null) ? 0 : finePosition.hashCode());
-		result = prime * result
-				+ ((heaterRange == null) ? 0 : heaterRange.hashCode());
+		result = prime * result + ((finePosition == null) ? 0 : finePosition.hashCode());
+		result = prime * result + ((heaterRange == null) ? 0 : heaterRange.hashCode());
 		result = prime * result + ((i == null) ? 0 : i.hashCode());
 		result = prime * result + ((p == null) ? 0 : p.hashCode());
-		result = prime * result
-				+ ((position == null) ? 0 : position.hashCode());
-		result = prime * result
-				+ ((profileType == null) ? 0 : profileType.hashCode());
+		result = prime * result + ((position == null) ? 0 : position.hashCode());
+		result = prime * result + ((profileType == null) ? 0 : profileType.hashCode());
 		result = prime * result + ((ramp == null) ? 0 : ramp.hashCode());
-		result = prime * result
-				+ ((sampleHolder == null) ? 0 : sampleHolder.hashCode());
-		result = prime * result
-				+ ((sampleNumber == null) ? 0 : sampleNumber.hashCode());
-		result = prime * result
-				+ ((temperature == null) ? 0 : temperature.hashCode());
+		result = prime * result + ((sampleHolder == null) ? 0 : sampleHolder.hashCode());
+		result = prime * result + ((sampleNumber == null) ? 0 : sampleNumber.hashCode());
+		long temp;
+		temp = Double.doubleToLongBits(temperature);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + ((time == null) ? 0 : time.hashCode());
-		result = prime * result
-				+ ((tolerance == null) ? 0 : tolerance.hashCode());
+		result = prime * result + ((tolerance == null) ? 0 : tolerance.hashCode());
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-		if (obj == null) {
+		if (obj == null)
 			return false;
-		}
-		if (getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass())
 			return false;
-		}
 		CryostatParameters other = (CryostatParameters) obj;
 		if (d == null) {
-			if (other.d != null) {
+			if (other.d != null)
 				return false;
-			}
-		} else if (!d.equals(other.d)) {
+		} else if (!d.equals(other.d))
 			return false;
-		}
 		if (finePosition == null) {
-			if (other.finePosition != null) {
+			if (other.finePosition != null)
 				return false;
-			}
-		} else if (!finePosition.equals(other.finePosition)) {
+		} else if (!finePosition.equals(other.finePosition))
 			return false;
-		}
 		if (heaterRange == null) {
-			if (other.heaterRange != null) {
+			if (other.heaterRange != null)
 				return false;
-			}
-		} else if (!heaterRange.equals(other.heaterRange)) {
+		} else if (!heaterRange.equals(other.heaterRange))
 			return false;
-		}
 		if (i == null) {
-			if (other.i != null) {
+			if (other.i != null)
 				return false;
-			}
-		} else if (!i.equals(other.i)) {
+		} else if (!i.equals(other.i))
 			return false;
-		}
 		if (p == null) {
-			if (other.p != null) {
+			if (other.p != null)
 				return false;
-			}
-		} else if (!p.equals(other.p)) {
+		} else if (!p.equals(other.p))
 			return false;
-		}
 		if (position == null) {
-			if (other.position != null) {
+			if (other.position != null)
 				return false;
-			}
-		} else if (!position.equals(other.position)) {
+		} else if (!position.equals(other.position))
 			return false;
-		}
 		if (profileType == null) {
-			if (other.profileType != null) {
+			if (other.profileType != null)
 				return false;
-			}
-		} else if (!profileType.equals(other.profileType)) {
+		} else if (!profileType.equals(other.profileType))
 			return false;
-		}
 		if (ramp == null) {
-			if (other.ramp != null) {
+			if (other.ramp != null)
 				return false;
-			}
-		} else if (!ramp.equals(other.ramp)) {
+		} else if (!ramp.equals(other.ramp))
 			return false;
-		}
 		if (sampleHolder == null) {
-			if (other.sampleHolder != null) {
+			if (other.sampleHolder != null)
 				return false;
-			}
-		} else if (!sampleHolder.equals(other.sampleHolder)) {
+		} else if (!sampleHolder.equals(other.sampleHolder))
 			return false;
-		}
 		if (sampleNumber == null) {
-			if (other.sampleNumber != null) {
+			if (other.sampleNumber != null)
 				return false;
-			}
-		} else if (!sampleNumber.equals(other.sampleNumber)) {
+		} else if (!sampleNumber.equals(other.sampleNumber))
 			return false;
-		}
-		if (temperature == null) {
-			if (other.temperature != null) {
-				return false;
-			}
-		} else if (!temperature.equals(other.temperature)) {
+		if (Double.doubleToLongBits(temperature) != Double.doubleToLongBits(other.temperature))
 			return false;
-		}
 		if (time == null) {
-			if (other.time != null) {
+			if (other.time != null)
 				return false;
-			}
-		} else if (!time.equals(other.time)) {
+		} else if (!time.equals(other.time))
 			return false;
-		}
 		if (tolerance == null) {
-			if (other.tolerance != null) {
+			if (other.tolerance != null)
 				return false;
-			}
-		} else if (!tolerance.equals(other.tolerance)) {
+		} else if (!tolerance.equals(other.tolerance))
 			return false;
-		}
 		return true;
 	}
 	/**
