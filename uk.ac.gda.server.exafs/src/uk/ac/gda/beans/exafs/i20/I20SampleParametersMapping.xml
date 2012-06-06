@@ -44,7 +44,7 @@
 
 	<class name="uk.ac.gda.beans.exafs.i20.CryostatParameters">
 		<map-to xml="cryostat" />
-		<field name="temperature" type="string">
+		<field name="temperature" type="double">
 			<bind-xml name="temperature" node="element" />
 		</field>
 		<field name="tolerance" type="double">
@@ -87,7 +87,7 @@
 
 	<class name="uk.ac.gda.beans.exafs.i20.FurnaceParameters">
 		<map-to xml="furnace" />
-		<field name="temperature" type="string">
+		<field name="temperature" type="double">
 			<bind-xml name="temperature" node="element" />
 		</field>
 		<field name="tolerance" type="double">
@@ -96,38 +96,38 @@
 		<field name="time" type="double">
 			<bind-xml name="time" node="element" />
 		</field>
-		<field name="x" type="string">
+		<field name="x" type="double">
 			<bind-xml name="x" node="element" />
 		</field>
-		<field name="y" type="string">
+		<field name="y" type="double">
 			<bind-xml name="y" node="element" />
 		</field>
-		<field name="z" type="string">
+		<field name="z" type="double">
 			<bind-xml name="z" node="element" />
 		</field>
 	</class>
 
 	<class name="uk.ac.gda.beans.exafs.i20.SampleStageParameters">
 		<map-to xml="roomTemperature" />
-		<field name="x" type="string">
+		<field name="x" type="double">
 			<bind-xml name="x" node="element" />
 		</field>
-		<field name="y" type="string">
+		<field name="y" type="double">
 			<bind-xml name="y" node="element" />
 		</field>
-		<field name="z" type="string">
+		<field name="z" type="double">
 			<bind-xml name="z" node="element" />
 		</field>
-		<field name="rotation" type="string">
+		<field name="rotation" type="double">
 			<bind-xml name="rotation" node="element" />
 		</field>
-		<field name="fineRotation" type="string">
+		<field name="fineRotation" type="double">
 			<bind-xml name="fineRotation" node="element" />
 		</field>
-		<field name="roll" type="string">
+		<field name="roll" type="double">
 			<bind-xml name="roll" node="element" />
 		</field>
-		<field name="yaw" type="string">
+		<field name="yaw" type="double">
 			<bind-xml name="yaw" node="element" />
 		</field>
 	</class>
