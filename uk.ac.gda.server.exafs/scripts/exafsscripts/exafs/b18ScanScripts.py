@@ -232,49 +232,49 @@ class QexafsScan(Scan):
         self.energy_scannable = energy_scannable
         self.ion_chambers_scannable = ion_chambers_scannable
     
-    def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, scanNumber= -1, validation=True):
+    def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, numRepetitions= -1, validation=True):
         xmlFolderName = ExafsEnvironment().getScriptFolder() + folderName + "/"
         sampleBean, scanBean, detectorBean, outputBean = self._createBeans(xmlFolderName, sampleFileName, scanFileName, detectorFileName, outputFileName) 
         controller = Finder.getInstance().find("ExafsScriptObserver")
-        XasAsciiDataWriter.setBeanGroup(self._createBeanGroup(controller, xmlFolderName, folderName, scanNumber, sampleBean, detectorBean, outputBean, scanBean))
+        XasAsciiDataWriter.setBeanGroup(self._createBeanGroup(controller, xmlFolderName, folderName, sampleBean, detectorBean, outputBean, scanBean))
         outputBean.setAsciiFileName(sampleBean.getName())
         # work out which detectors to use (they will need to have been configured already by the GUI)
         detectorList = self._getQEXAFSDetectors(detectorBean, outputBean, scanBean) 
         print "detectors to be used:", str(detectorList)
         
-        # set up the sample 
-        self.detectorPreparer.prepare(detectorBean, outputBean, xmlFolderName)
-        self.samplePreparer.prepare(sampleBean)
-        self.outputPreparer.prepare(outputBean)
+        for repetitionNumber in range(0, numRepetitions):
+
+            # set up the sample 
+            self.detectorPreparer.prepare(detectorBean, outputBean, xmlFolderName)
+            self.samplePreparer.prepare(sampleBean)
+            self.outputPreparer.prepare(outputBean)
         
         # no signal parameters
-        if len(outputBean.getCheckedSignalList()) > 0:
-            print "Signal parameters not available with QEXAFS"
-        if self.energy_scannable == None:
-            raise "No object for controlling energy during QEXAFS found! Expected qexafs_energy (or scannable1 for testing)"
+            if len(outputBean.getCheckedSignalList()) > 0:
+                print "Signal parameters not available with QEXAFS"
+            if self.energy_scannable == None:
+                raise "No object for controlling energy during QEXAFS found! Expected qexafs_energy (or scannable1 for testing)"
         
-        #numberPoints = self._getNumberOfFrames(detectorBean, scanBean)
+            initial_energy = scanBean.getInitialEnergy()
+            final_energy = scanBean.getFinalEnergy()
+            step_size = scanBean.getStepSize()
+            import math
+            numberPoints = int(math.ceil((final_energy-initial_energy)/step_size))
         
-        initial_energy = scanBean.getInitialEnergy()
-        final_energy = scanBean.getFinalEnergy()
-        step_size = scanBean.getStepSize()
-        import math
-        numberPoints = int(math.ceil((final_energy-initial_energy)/step_size))
+            self._runScript(outputBean.getBeforeScriptName())
         
-        self._runScript(outputBean.getBeforeScriptName())
+            scan_time = scanBean.getTime()
         
-        scan_time = scanBean.getTime()
+            print "running QEXAFS scan:", self.energy_scannable.getName(), scanBean.getInitialEnergy(), scanBean.getFinalEnergy(), numberPoints, scan_time, detectorList
+            controller.update(None, ScriptProgressEvent("Running QEXAFS scan"))
+            thisscan = ContinuousScan(self.energy_scannable , scanBean.getInitialEnergy(), scanBean.getFinalEnergy(), numberPoints, scan_time, detectorList)
+            controller.update(None, ScanCreationEvent(thisscan.getName()))
+            thisscan.runScan()  
+            controller.update(None, ScanFinishEvent(thisscan.getName(), ScanFinishEvent.FinishType.OK));
         
-        print "running QEXAFS scan:", self.energy_scannable.getName(), scanBean.getInitialEnergy(), scanBean.getFinalEnergy(), numberPoints, scan_time, detectorList
-        controller.update(None, ScriptProgressEvent("Running QEXAFS scan"))
-        thisscan = ContinuousScan(self.energy_scannable , scanBean.getInitialEnergy(), scanBean.getFinalEnergy(), numberPoints, scan_time, detectorList)
-        controller.update(None, ScanCreationEvent(thisscan.getName()))
-        thisscan.runScan()  
-        controller.update(None, ScanFinishEvent(thisscan.getName(), ScanFinishEvent.FinishType.OK));
+            self._runScript(outputBean.getAfterScriptName())
         
-        self._runScript(outputBean.getAfterScriptName())
-        
-        #remove added metadata from default metadata list to avoid multiple instances of the same metadata
+            #remove added metadata from default metadata list to avoid multiple instances of the same metadata
         jython_mapper = JythonNameSpaceMapping()
         original_header=jython_mapper.original_header[:]
         Finder.getInstance().find("datawriterconfig").setHeader(original_header)
@@ -315,13 +315,13 @@ class QexafsScan(Scan):
         
         
 
-    def _createBeanGroup(self, controller, xmlFolderName, folderName, scanNumber, sampleBean, detectorBean, outputBean, scanBean):
+    def _createBeanGroup(self, controller, xmlFolderName, folderName, sampleBean, detectorBean, outputBean, scanBean):
         # give the beans to the xasdatawriter class to help define the folders/filenames 
         beanGroup = BeanGroup()
         beanGroup.setController(controller)
         beanGroup.setScriptFolder(xmlFolderName)
         beanGroup.setExperimentFolderName(folderName)
-        beanGroup.setScanNumber(scanNumber)
+        #beanGroup.setScanNumber(scanNumber)
         beanGroup.setSample(sampleBean)
         beanGroup.setDetector(detectorBean)
         beanGroup.setOutput(outputBean)
