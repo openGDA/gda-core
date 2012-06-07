@@ -20,6 +20,7 @@ package uk.ac.gda.exafs.ui.detector.vortex;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
+import gda.device.DeviceException;
 import gda.device.Timer;
 import gda.device.XmapDetector;
 import gda.factory.Finder;
@@ -406,24 +407,12 @@ public class VortexParametersUIEditor extends DetectorEditor {
 
 			logger.error("Cannot get xMap data from Vortex detector.", e);
 			return;
-		} catch (IOException e) {
-			logger.error("Unable to save the acquired data to file ", e);
 		} finally {
 			if (monitor != null) {
 				monitor.worked(1);
 				sashPlotForm.appendStatus("Collected data from detector successfully.", logger);
 			}
 
-		} catch (Exception e) {
-			getSite().getShell().getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					MessageDialog.openWarning(getSite().getShell(), "Cannot read out detector data",
-							"Problem acquiring data. See log for details.\n(Do you hold the baton?)");
-				}
-			});
-			logger.error("Cannot get xMap data from Vortex detector.", e);
-			throw e;
 		}
 
 		if (isAutoSave && monitor != null) {
