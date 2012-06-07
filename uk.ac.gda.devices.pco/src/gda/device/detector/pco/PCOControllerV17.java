@@ -570,6 +570,12 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 
 	@Override
 	public void resetAll() throws Exception {
+		// The camera needs to be disarmed before the resetAll is called.
+		if (LiveModeUtil.isLiveMode()) {
+			if (isArmed()) {
+				disarmCamera();
+			}
+		}
 		if (areaDetector != null)
 			areaDetector.reset();
 		if (draw != null)
@@ -1033,8 +1039,6 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	public String getHDFFileName() throws Exception {
 		return hdf.getFullFileName_RBV();
 	}
-
-
 
 	@Override
 	public int getNumCaptured() throws Exception {
