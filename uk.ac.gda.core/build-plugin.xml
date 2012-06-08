@@ -38,9 +38,9 @@
                 <pathelement location="${jythonjar.loc}" />
                 <pathelement location="${GDA-plugin.basedir}/classes/test" />
                 <pathelement location="${GDA-plugin.basedir}/classes/main" />
-                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.api/bin" />
-                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.api/jars/*" />
-                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.analysis/bin" />
+                <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/bin" />
+                <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/jars/*" />
+                <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.analysis/bin" />
                 <pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
                 <pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/bin" />
                 <pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/jars/*" />
@@ -104,9 +104,9 @@
                 <pathelement location="${jythonjar.loc}" />  <!-- put ahead of the version of Jython bundled with pydev -->
                 <pathelement location="${GDA-plugin.basedir}/classes/test" />
                 <pathelement location="${GDA-plugin.basedir}/classes/main" />
-                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.api/bin" />
-                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.api/jars/*" />
-                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.analysis/bin" />
+                <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/bin" />
+                <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/jars/*" />
+                <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.analysis/bin" />
                 <pathelement location="${workspace.loc}/plugins/uk.ac.gda.swingclient/bin" />
                 <pathelement location="${workspace.loc}/plugins/uk.ac.gda.common.client/bin" />
                 <pathelement location="${workspace.loc}/plugins/uk.ac.gda.dls/bin" />
