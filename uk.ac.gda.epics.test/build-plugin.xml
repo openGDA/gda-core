@@ -25,8 +25,8 @@
                 <pathelement location="${jythonjar.loc}" />
                 <path refid="libs.jars.path" />
                 <pathelement location="${GDA-plugin.basedir}/bin" />
-                <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.epics/bin" />
-                <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.epics/jars/*" />
+                <pathelement location="${workspace.git.loc}/gda-epics.git/uk.ac.gda.epics/bin" />
+                <pathelement location="${workspace.git.loc}/gda-epics.git/uk.ac.gda.epics/jars/*" />
                 <pathelement location="${workspace.git.loc}/scisoft/scisoft-core.git/uk.ac.diamond.scisoft.analysis/bin" />
                 <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/bin" />
                 <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.analysis/bin" />
