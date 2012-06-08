@@ -24,9 +24,9 @@
                 <pathelement location="${jythonjar.loc}" />
                 <pathelement location="${GDA-plugin.basedir}/bin" />
                 <pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
-                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.core/classes/main" />
-                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.core/classes/test" />
-                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.api/bin" />
+                <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.core/classes/main" />
+                <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.core/classes/test" />
+                <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/bin" />
                 <pathelement location="${workspace.git.loc}/scisoft/scisoft-core.git/uk.ac.diamond.scisoft.analysis/bin" />
                 <pathelement location="${workspace.git.loc}/scisoft/scisoft-core.git/uk.ac.diamond.scisoft.analysis/jars/*" />
                 <pathelement location="${workspace.git.loc}/scisoft/scisoft-core.git/uk.ac.diamond.scisoft.deprecated/bin" />
