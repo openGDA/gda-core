@@ -56,7 +56,7 @@
                 <pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.client.exafs/bin" />
                 <pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
                 <pathelement location="${workspace.git.loc}/gda-common-rcp.git/uk.ac.gda.common.rcp/bin" />
-                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.client.experimentdefinition/bin" />
+                <pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.client.experimentdefinition/bin" />
                 <pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.server.exafs/bin" />
                 <pathelement location="${workspace.loc}/tp/plugins/*" />
             </classpath>
