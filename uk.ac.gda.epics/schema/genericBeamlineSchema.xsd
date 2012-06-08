@@ -1,0 +1,2260 @@
+<?xml version="1.0" ?>
+<!-- Generic Schema for checking all beamline gda interface files -->
+<!-- In this context, a deviceType represents an EPICS template -->
+<!-- and a device represents an instantiation of a template -->
+<!-- To add a new deviceType, follow the instructions in comments -->
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<!-- This is the group of attributes common to all devices -->
+	<xs:attributeGroup name="deviceAttributes">
+		<xs:attribute name="name" type="xs:string" use="required"/>
+		<xs:attribute name="desc" type="xs:string" use="required"/>
+	</xs:attributeGroup>
+	<!-- This is the group of attributes common to all records -->
+	<xs:attributeGroup name="recordAttributes">
+		<xs:attribute name="desc" type="xs:string" use="required"/>
+		<xs:attribute name="pv" type="xs:string" use="required"/>
+		<xs:attribute name="ro" type="xs:boolean" use="required"/>
+		<!-- type value must be one of: "motor","scaler","mbbinary","binary","pv","mca","array" -->
+		<xs:attribute name="type" type="xs:string" use="required"/>
+	</xs:attributeGroup>
+	<!-- All elements defined in template types below should have this type -->
+	<xs:complexType name="elementType">
+		<xs:attributeGroup ref="recordAttributes"/>
+	</xs:complexType>
+	<!-- These are template types -->
+	<xs:complexType name="bimorphpsuType">
+		<xs:all>
+			<xs:element minOccurs="0" name="VOUT" type="elementType"/>
+			<xs:element name="TARGET" type="elementType"/>
+			<xs:element name="TARGETRBV" type="elementType"/>
+			<xs:element name="APPLYTARGET" type="elementType"/>
+			<xs:element minOccurs="0" name="POWERON" type="elementType"/>
+			<xs:element minOccurs="0" name="POWERONSET" type="elementType"/>
+			<xs:element name="STATUS" type="elementType"/>
+			<xs:element name="ELECTRODES" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="bpmType">
+		<xs:all>
+			<xs:element name="XPOS" type="elementType"/>
+			<xs:element name="YPOS" type="elementType"/>
+			<xs:element minOccurs="0" name="INTENSITY" type="elementType"/>
+			<xs:element minOccurs="0" name="CAL_INTENSITY" type="elementType"/>
+			<xs:element minOccurs="0" name="NORM_INTENSITY" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="cameraType">
+		<xs:all>
+			<xs:element name="HEIGHT" type="elementType"/>
+			<xs:element name="WIDTH" type="elementType"/>
+			<xs:element name="DATA" type="elementType"/>
+			<xs:element name="CAPTURE" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="cryocoolerType">
+		<xs:all>
+			<xs:element name="NFLOW" type="elementType"/>
+			<xs:element name="FEEDT" type="elementType"/>
+			<xs:element name="COOLP" type="elementType"/>
+			<xs:element name="PSET" type="elementType"/>
+			<xs:element name="TPBUF" type="elementType"/>
+			<xs:element name="LP1L" type="elementType"/>
+			<xs:element name="LP1H" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="currAmpQuadType">
+		<xs:all>
+			<xs:element minOccurs="0" name="I1" type="elementType"/>
+			<xs:element minOccurs="0" name="I2" type="elementType"/>
+			<xs:element minOccurs="0" name="I3" type="elementType"/>
+			<xs:element minOccurs="0" name="I4" type="elementType"/>
+			<xs:element name="RANGE" type="elementType"/>
+			<xs:element minOccurs="0" name="RANGE_READBACK" type="elementType"/>
+			<xs:element name="VENDOR" type="elementType"/>
+			<xs:element name="MODEL" type="elementType"/>
+			<xs:element minOccurs="0" name="DISABLE" type="elementType"/>			
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="currAmpSingleType">
+		<xs:all>
+			<xs:element minOccurs="0" name="OVERLOAD" type="elementType"/>
+			<xs:element name="SETGAIN" type="elementType"/>
+			<xs:element minOccurs="0" name="SETACDC" type="elementType"/>
+			<xs:element minOccurs="0" name="I" type="elementType"/>
+			<xs:element name="VENDOR" type="elementType"/>
+			<xs:element name="MODEL" type="elementType"/>
+			<xs:element minOccurs="0" name="SETGAINUNIT" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="DLS8512Type">
+		<xs:all>
+			<xs:element name="TIME" type="elementType"/>
+			<xs:element name="TRIGGER" type="elementType"/>
+			<xs:element minOccurs="0" name="SCALED0" type="elementType"/>
+			<xs:element minOccurs="0" name="RAW0" type="elementType"/>
+			<xs:element minOccurs="0" name="SCALED1" type="elementType"/>
+			<xs:element minOccurs="0" name="RAW1" type="elementType"/>
+			<xs:element minOccurs="0" name="SCALED2" type="elementType"/>
+			<xs:element minOccurs="0" name="RAW2" type="elementType"/>
+			<xs:element minOccurs="0" name="SCALED3" type="elementType"/>
+			<xs:element minOccurs="0" name="RAW3" type="elementType"/>
+			<xs:element minOccurs="0" name="SCALED4" type="elementType"/>
+			<xs:element minOccurs="0" name="RAW4" type="elementType"/>
+			<xs:element minOccurs="0" name="SCALED5" type="elementType"/>
+			<xs:element minOccurs="0" name="RAW5" type="elementType"/>
+			<xs:element minOccurs="0" name="SCALED6" type="elementType"/>
+			<xs:element minOccurs="0" name="RAW6" type="elementType"/>
+			<xs:element minOccurs="0" name="SCALED7" type="elementType"/>
+			<xs:element minOccurs="0" name="RAW7" type="elementType"/>
+			<xs:element minOccurs="0" name="SCALED8" type="elementType"/>
+			<xs:element minOccurs="0" name="RAW8" type="elementType"/>
+			<xs:element minOccurs="0" name="SCALED9" type="elementType"/>
+			<xs:element minOccurs="0" name="RAW9" type="elementType"/>
+			<xs:element minOccurs="0" name="SCALED10" type="elementType"/>
+			<xs:element minOccurs="0" name="RAW10" type="elementType"/>
+			<xs:element minOccurs="0" name="SCALED11" type="elementType"/>
+			<xs:element minOccurs="0" name="RAW11" type="elementType"/>
+			<xs:element minOccurs="0" name="SCALED12" type="elementType"/>
+			<xs:element minOccurs="0" name="RAW12" type="elementType"/>
+			<xs:element minOccurs="0" name="SCALED13" type="elementType"/>
+			<xs:element minOccurs="0" name="RAW13" type="elementType"/>
+			<xs:element minOccurs="0" name="SCALED14" type="elementType"/>
+			<xs:element minOccurs="0" name="RAW14" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="dlsMcaCanberraType">
+		<xs:all>
+			<xs:element name="ERASE" type="elementType"/>
+			<xs:element name="ERASESTART" type="elementType"/>
+			<xs:element name="START" type="elementType"/>
+			<xs:element name="STOP" type="elementType"/>
+			<xs:element name="READRATE" type="elementType"/>
+			<xs:element name="STATRATE" type="elementType"/>
+			<xs:element name="MCA" type="elementType"/>
+			<xs:element minOccurs="0" name="ADCGAIN" type="elementType"/>
+			<xs:element minOccurs="0" name="ADCOFFSET" type="elementType"/>
+			<xs:element minOccurs="0" name="ADCLLD" type="elementType"/>
+			<xs:element minOccurs="0" name="ADCULD" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="dlsMcsSIS3820Type">
+		<xs:all>
+			<xs:element name="ERASESTART" type="elementType"/>
+			<xs:element name="ERASE" type="elementType"/>
+			<xs:element name="START" type="elementType"/>
+			<xs:element name="STOP" type="elementType"/>
+			<xs:element name="NBINS" type="elementType"/>
+			<xs:element minOccurs="0" name="STATRATE" type="elementType"/>
+			<xs:element minOccurs="0" name="READRATE" type="elementType"/>
+			<xs:element minOccurs="0" name="ENACLIENTWAIT" type="elementType"/>
+			<xs:element minOccurs="0" name="CLIENTWAIT" type="elementType"/>
+			<xs:element minOccurs="0" name="TREAL" type="elementType"/>
+			<xs:element name="ACQ" type="elementType"/>
+			<xs:element name="TACQ" type="elementType"/>
+			<xs:element name="TDWELL" type="elementType"/>
+			<xs:element minOccurs="0" name="BINADV" type="elementType"/>
+			<xs:element minOccurs="0" name="EXTPRE" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG1" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG2" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG3" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG4" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG5" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG6" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG7" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG8" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG9" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG10" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG11" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG12" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG13" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG14" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG15" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG16" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG17" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG18" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG19" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG20" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG21" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG22" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG23" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG24" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG25" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG26" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG27" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG28" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG29" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG30" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG31" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG32" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="elettraSY900SType">
+		<xs:all>
+			<xs:element name="STATUS" type="elementType"/>
+			<xs:element name="LASTERR" type="elementType"/>
+			<xs:element name="SETALLVOLT" type="elementType"/>
+			<xs:element name="SETALLTRGT" type="elementType"/>
+			<xs:element name="SETALLSHIFT" type="elementType"/>
+			<xs:element name="SETALLOFF" type="elementType"/>
+			<xs:element name="SETALLON" type="elementType"/>
+			<xs:element name="RESETERROR" type="elementType"/>
+			<xs:element minOccurs="0" name="VOUT00" type="elementType"/>
+			<xs:element minOccurs="0" name="VTRGT00" type="elementType"/>
+			<xs:element minOccurs="0" name="STATUS00" type="elementType"/>
+			<xs:element minOccurs="0" name="SETVOUT00" type="elementType"/>
+			<xs:element minOccurs="0" name="SETVTRGT00" type="elementType"/>
+			<xs:element minOccurs="0" name="SETSHIFT00" type="elementType"/>
+			<xs:element minOccurs="0" name="VOUT01" type="elementType"/>
+			<xs:element minOccurs="0" name="VTRGT01" type="elementType"/>
+			<xs:element minOccurs="0" name="STATUS01" type="elementType"/>
+			<xs:element minOccurs="0" name="SETVOUT01" type="elementType"/>
+			<xs:element minOccurs="0" name="SETVTRGT01" type="elementType"/>
+			<xs:element minOccurs="0" name="SETSHIFT01" type="elementType"/>
+			<xs:element minOccurs="0" name="VOUT02" type="elementType"/>
+			<xs:element minOccurs="0" name="VTRGT02" type="elementType"/>
+			<xs:element minOccurs="0" name="STATUS02" type="elementType"/>
+			<xs:element minOccurs="0" name="SETVOUT02" type="elementType"/>
+			<xs:element minOccurs="0" name="SETVTRGT02" type="elementType"/>
+			<xs:element minOccurs="0" name="SETSHIFT02" type="elementType"/>
+			<xs:element minOccurs="0" name="VOUT03" type="elementType"/>
+			<xs:element minOccurs="0" name="VTRGT03" type="elementType"/>
+			<xs:element minOccurs="0" name="STATUS03" type="elementType"/>
+			<xs:element minOccurs="0" name="SETVOUT03" type="elementType"/>
+			<xs:element minOccurs="0" name="SETVTRGT03" type="elementType"/>
+			<xs:element minOccurs="0" name="SETSHIFT03" type="elementType"/>
+			<xs:element minOccurs="0" name="VOUT04" type="elementType"/>
+			<xs:element minOccurs="0" name="VTRGT04" type="elementType"/>
+			<xs:element minOccurs="0" name="STATUS04" type="elementType"/>
+			<xs:element minOccurs="0" name="SETVOUT04" type="elementType"/>
+			<xs:element minOccurs="0" name="SETVTRGT04" type="elementType"/>
+			<xs:element minOccurs="0" name="SETSHIFT04" type="elementType"/>
+			<xs:element minOccurs="0" name="VOUT05" type="elementType"/>
+			<xs:element minOccurs="0" name="VTRGT05" type="elementType"/>
+			<xs:element minOccurs="0" name="STATUS05" type="elementType"/>
+			<xs:element minOccurs="0" name="SETVOUT05" type="elementType"/>
+			<xs:element minOccurs="0" name="SETVTRGT05" type="elementType"/>
+			<xs:element minOccurs="0" name="SETSHIFT05" type="elementType"/>
+			<xs:element minOccurs="0" name="VOUT06" type="elementType"/>
+			<xs:element minOccurs="0" name="VTRGT06" type="elementType"/>
+			<xs:element minOccurs="0" name="STATUS06" type="elementType"/>
+			<xs:element minOccurs="0" name="SETVOUT06" type="elementType"/>
+			<xs:element minOccurs="0" name="SETVTRGT06" type="elementType"/>
+			<xs:element minOccurs="0" name="SETSHIFT06" type="elementType"/>
+			<xs:element minOccurs="0" name="VOUT07" type="elementType"/>
+			<xs:element minOccurs="0" name="VTRGT07" type="elementType"/>
+			<xs:element minOccurs="0" name="STATUS07" type="elementType"/>
+			<xs:element minOccurs="0" name="SETVOUT07" type="elementType"/>
+			<xs:element minOccurs="0" name="SETVTRGT07" type="elementType"/>
+			<xs:element minOccurs="0" name="SETSHIFT07" type="elementType"/>
+			<xs:element minOccurs="0" name="VOUT08" type="elementType"/>
+			<xs:element minOccurs="0" name="VTRGT08" type="elementType"/>
+			<xs:element minOccurs="0" name="STATUS08" type="elementType"/>
+			<xs:element minOccurs="0" name="SETVOUT08" type="elementType"/>
+			<xs:element minOccurs="0" name="SETVTRGT08" type="elementType"/>
+			<xs:element minOccurs="0" name="SETSHIFT08" type="elementType"/>
+			<xs:element minOccurs="0" name="VOUT09" type="elementType"/>
+			<xs:element minOccurs="0" name="VTRGT09" type="elementType"/>
+			<xs:element minOccurs="0" name="STATUS09" type="elementType"/>
+			<xs:element minOccurs="0" name="SETVOUT09" type="elementType"/>
+			<xs:element minOccurs="0" name="SETVTRGT09" type="elementType"/>
+			<xs:element minOccurs="0" name="SETSHIFT09" type="elementType"/>
+			<xs:element minOccurs="0" name="VOUT10" type="elementType"/>
+			<xs:element minOccurs="0" name="VTRGT10" type="elementType"/>
+			<xs:element minOccurs="0" name="STATUS10" type="elementType"/>
+			<xs:element minOccurs="0" name="SETVOUT10" type="elementType"/>
+			<xs:element minOccurs="0" name="SETVTRGT10" type="elementType"/>
+			<xs:element minOccurs="0" name="SETSHIFT10" type="elementType"/>
+			<xs:element minOccurs="0" name="VOUT11" type="elementType"/>
+			<xs:element minOccurs="0" name="VTRGT11" type="elementType"/>
+			<xs:element minOccurs="0" name="STATUS11" type="elementType"/>
+			<xs:element minOccurs="0" name="SETVOUT11" type="elementType"/>
+			<xs:element minOccurs="0" name="SETVTRGT11" type="elementType"/>
+			<xs:element minOccurs="0" name="SETSHIFT11" type="elementType"/>
+			<xs:element minOccurs="0" name="VOUT12" type="elementType"/>
+			<xs:element minOccurs="0" name="VTRGT12" type="elementType"/>
+			<xs:element minOccurs="0" name="STATUS12" type="elementType"/>
+			<xs:element minOccurs="0" name="SETVOUT12" type="elementType"/>
+			<xs:element minOccurs="0" name="SETVTRGT12" type="elementType"/>
+			<xs:element minOccurs="0" name="SETSHIFT12" type="elementType"/>
+			<xs:element minOccurs="0" name="VOUT13" type="elementType"/>
+			<xs:element minOccurs="0" name="VTRGT13" type="elementType"/>
+			<xs:element minOccurs="0" name="STATUS13" type="elementType"/>
+			<xs:element minOccurs="0" name="SETVOUT13" type="elementType"/>
+			<xs:element minOccurs="0" name="SETVTRGT13" type="elementType"/>
+			<xs:element minOccurs="0" name="SETSHIFT13" type="elementType"/>
+			<xs:element minOccurs="0" name="VOUT14" type="elementType"/>
+			<xs:element minOccurs="0" name="VTRGT14" type="elementType"/>
+			<xs:element minOccurs="0" name="STATUS14" type="elementType"/>
+			<xs:element minOccurs="0" name="SETVOUT14" type="elementType"/>
+			<xs:element minOccurs="0" name="SETVTRGT14" type="elementType"/>
+			<xs:element minOccurs="0" name="SETSHIFT14" type="elementType"/>
+			<xs:element minOccurs="0" name="VOUT15" type="elementType"/>
+			<xs:element minOccurs="0" name="VTRGT15" type="elementType"/>
+			<xs:element minOccurs="0" name="STATUS15" type="elementType"/>
+			<xs:element minOccurs="0" name="SETVOUT15" type="elementType"/>
+			<xs:element minOccurs="0" name="SETVTRGT15" type="elementType"/>
+			<xs:element minOccurs="0" name="SETSHIFT15" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="ETLdetectorType">
+		<xs:all>
+			<xs:element name="HVADC" type="elementType"/>
+			<xs:element name="HVRBV" type="elementType"/>
+			<xs:element name="HV" type="elementType"/>
+			<xs:element name="ULIM" type="elementType"/>
+			<xs:element name="LLIM" type="elementType"/>
+			<xs:element name="ULIMRBV" type="elementType"/>
+			<xs:element name="LLIMRBV" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="eurotherm2kType">
+		<xs:all>
+			<xs:element name="SP" type="elementType"/>
+			<xs:element name="SPRBV" type="elementType"/>
+			<xs:element name="RR" type="elementType"/>
+			<xs:element name="RRRBV" type="elementType"/>
+			<xs:element minOccurs="0" name="O" type="elementType"/>
+			<xs:element minOccurs="0" name="ORBV" type="elementType"/>
+			<xs:element name="PVRBV" type="elementType"/>
+			<xs:element minOccurs="0" name="P" type="elementType"/>
+			<xs:element minOccurs="0" name="PRBV" type="elementType"/>
+			<xs:element minOccurs="0" name="I" type="elementType"/>
+			<xs:element minOccurs="0" name="IRBV" type="elementType"/>
+			<xs:element minOccurs="0" name="D" type="elementType"/>
+			<xs:element minOccurs="0" name="DRBV" type="elementType"/>
+			<xs:element minOccurs="0" name="ERR" type="elementType"/>
+			<xs:element minOccurs="0" name="DISABLE" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="horibaTriax190Type">
+		<xs:all>
+			<xs:element name="ACCBUSY" type="elementType"/>
+			<xs:element name="ACCEXITSET" type="elementType"/>
+			<xs:element name="GRATINGSET" type="elementType"/>
+			<xs:element name="GRATINGGET" type="elementType"/>
+			<xs:element name="TTLIN" type="elementType"/>
+			<xs:element name="TTLOUT" type="elementType"/>
+			<xs:element name="EXITSLIT" type="elementType"/>
+			<xs:element name="ENTRSLIT" type="elementType"/>
+			<xs:element name="MONO" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+		<xs:complexType name="k2400Type">
+		<xs:all>
+			<xs:element name="V" type="elementType"/>
+			<xs:element name="I" type="elementType"/>
+			<xs:element name="R" type="elementType"/>
+			<xs:element name="OUTP" type="elementType"/>
+			<xs:element name="SOUR_FUNC" type="elementType"/>
+			<xs:element name="SOUR_MODE" type="elementType"/>
+			<xs:element name="SOTX" type="elementType"/>
+			<xs:element name="SOUR_RANG" type="elementType"/>
+			<xs:element name="SOUR_LEV" type="elementType"/>
+			<xs:element name="SENS_FUNC" type="elementType"/>
+			<xs:element name="SETX" type="elementType"/>
+			<xs:element name="SENS_PROT" type="elementType"/>
+			<xs:element name="SENS_RANG" type="elementType"/>
+			<xs:element name="SENS_RANG_AUTO" type="elementType"/>
+			<xs:element minOccurs="0" name="RESPONSE" type="elementType"/>
+			<xs:element minOccurs="0" name="COMMAND" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="lakeshore340Type">
+		<xs:all>
+			<xs:element minOccurs="0" name="DISABLE" type="elementType"/>
+			<xs:element name="KRDG0" type="elementType"/>
+			<xs:element name="KRDG1" type="elementType"/>
+			<xs:element name="KRDG2" type="elementType"/>
+			<xs:element name="KRDG3" type="elementType"/>
+			<xs:element name="SETP_S" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="linkamType">
+		<xs:all>
+			<xs:element name="SETPUMPMODE" type="elementType"/>
+			<xs:element name="SETRAMPLIMIT" type="elementType"/>
+			<xs:element name="SETRAMPRATE" type="elementType"/>
+			<xs:element name="SETRAMPCONTROL" type="elementType"/>
+			<xs:element name="SETLOGPERIOD" type="elementType"/>
+			<xs:element name="CLEARLOG" type="elementType"/>
+			<xs:element name="SETLOGMODE" type="elementType"/>
+			<xs:element name="STATUS" type="elementType"/>
+			<xs:element name="EB1" type="elementType"/>
+			<xs:element name="GS1" type="elementType"/>
+			<xs:element name="SB1" type="elementType"/>
+			<xs:element name="PUMPSPEED" type="elementType"/>
+			<xs:element name="SETPUMPSPEED" type="elementType"/>
+			<xs:element name="PUMPMODE" type="elementType"/>
+			<xs:element name="STAGESTATUS" type="elementType"/>
+			<xs:element name="STARTREAD" type="elementType"/>
+			<xs:element name="DISABLE" type="elementType"/>
+			<xs:element name="TEMP" type="elementType"/>
+			<xs:element name="LOGTEMP" type="elementType"/>
+			<xs:element name="LOGDSC" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="mcaGroupType">
+		<xs:all>
+			<xs:element name="ERASESTART" type="elementType"/>
+			<xs:element minOccurs="0" name="ERASE" type="elementType"/>
+			<xs:element name="START" type="elementType"/>
+			<xs:element name="STOP" type="elementType"/>
+			<xs:element name="NBINS" type="elementType"/>
+			<xs:element minOccurs="0" name="STATRATE" type="elementType"/>
+			<xs:element minOccurs="0" name="READRATE" type="elementType"/>
+			<xs:element minOccurs="0" name="TREAL" type="elementType"/>
+			<xs:element name="ACQ" type="elementType"/>
+			<xs:element name="TACQ" type="elementType"/>
+			<xs:element minOccurs="0" name="TACQTYPE" type="elementType"/>
+			<xs:element minOccurs="0" name="TDWELL" type="elementType"/>
+			<xs:element minOccurs="0" name="BINADV" type="elementType"/>
+			<xs:element minOccurs="0" name="EXTPRE" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG0" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG1" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG2" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG3" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG4" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG5" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG6" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG7" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG8" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG9" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG10" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG11" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG12" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG13" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG14" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG15" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG16" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG17" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG18" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG19" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG20" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG21" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG22" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG23" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG24" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG25" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG26" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG27" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG28" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG29" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG30" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG31" type="elementType"/>
+			<xs:element minOccurs="0" name="SIG32" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="nx100Type">
+		<xs:all>
+			<xs:element name="JOB" type="elementType"/>
+			<xs:element name="START" type="elementType"/>
+			<xs:element name="HOLD" type="elementType"/>
+			<xs:element name="SVON" type="elementType"/>
+			<xs:element name="ERR" type="elementType"/>
+			<xs:element minOccurs="0" name="COUNTER" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="OXCS700Type">
+		<xs:all>
+			<xs:element name="PHASE" type="elementType"/>
+			<xs:element name="RUNMODE" type="elementType"/>
+			<xs:element name="RAMPRATE" type="elementType"/>
+			<xs:element name="TARGETTEMP" type="elementType"/>
+			<xs:element name="REMAINING" type="elementType"/>
+			<xs:element name="RUNTIME" type="elementType"/>
+			<xs:element name="RESTART" type="elementType"/>
+			<xs:element name="RAMP" type="elementType"/>
+			<xs:element name="RRATE" type="elementType"/>
+			<xs:element name="RTEMP" type="elementType"/>
+			<xs:element name="PLAT" type="elementType"/>
+			<xs:element name="PTIME" type="elementType"/>
+			<xs:element name="HOLD" type="elementType"/>
+			<xs:element name="COOL" type="elementType"/>
+			<xs:element name="CTEMP" type="elementType"/>
+			<xs:element name="PURGE" type="elementType"/>
+			<xs:element minOccurs="0" name="END" type="elementType"/>
+			<xs:element name="PAUSE" type="elementType"/>
+			<xs:element name="RESUME" type="elementType"/>
+			<xs:element name="STOP" type="elementType"/>
+			<xs:element name="TEMP" type="elementType"/>
+			<xs:element name="ALARM" type="elementType"/>
+			<xs:element minOccurs="0" name="DISABLE" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="pilatusType">
+		<xs:all>
+			<xs:element name="MODE" type="elementType"/>
+			<xs:element name="GAIN" type="elementType"/>
+			<xs:element name="THRESHOLD" type="elementType"/>
+			<xs:element name="START" type="elementType"/>
+			<xs:element name="ABORT" type="elementType"/>
+			<xs:element name="EXP_T" type="elementType"/>
+			<xs:element name="EXP_T_GET" type="elementType"/>
+			<xs:element name="NIMAGES" type="elementType"/>
+			<xs:element name="EXP_P" type="elementType"/>
+			<xs:element name="EXP_P_GET" type="elementType"/>
+			<xs:element name="NEXPIMAGES" type="elementType"/>
+			<xs:element name="DELAY" type="elementType"/>
+			<xs:element name="PATH" type="elementType"/>
+			<xs:element name="PATH_ARRAY" type="elementType"/>
+			<xs:element name="PATH_SEND" type="elementType"/>
+			<xs:element name="BPNAME" type="elementType"/>
+			<xs:element name="FFNAME" type="elementType"/>
+			<xs:element name="FILENAME" type="elementType"/>
+			<xs:element name="FILEFORMAT" type="elementType"/>
+			<xs:element name="FILENUMBER" type="elementType"/>
+			<xs:element name="AUTOINCREMENT" type="elementType"/>
+			<xs:element name="TIMEOUT" type="elementType"/>
+			<xs:element name="HEADER" type="elementType"/>
+			<xs:element name="GEN_CMD" type="elementType"/>
+			<xs:element name="GEN_REPLY" type="elementType"/>
+			<xs:element name="GEN_SEND" type="elementType"/>
+			<xs:element name="PROBLEM" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="pneumaticType">
+		<xs:all>
+			<xs:element name="CONTROL" type="elementType"/>
+			<xs:element name="STA" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="pneumaticCallbackType">
+		<xs:all>
+			<xs:element name="CONTROL" type="elementType"/>
+			<xs:element name="STA" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="positionerType">
+		<xs:all>
+			<xs:element name="SELECT" type="elementType"/>
+			<xs:element name="DMOV" type="elementType"/>
+			<xs:element name="ERROR" type="elementType"/>
+			<xs:element name="INPOS" type="elementType"/>
+			<xs:element name="STOP" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="sampleChangerType">
+		<xs:all>
+			<xs:element name="STATUS" type="elementType"/>
+			<xs:element name="TEMPSET1" type="elementType"/>
+			<xs:element name="HEATERSET1" type="elementType"/>
+			<xs:element name="HEATERGET1" type="elementType"/>
+			<xs:element name="HEATERSEL1" type="elementType"/>
+			<xs:element minOccurs="0" name="TEMPSET2" type="elementType"/>
+			<xs:element minOccurs="0" name="HEATERSET2" type="elementType"/>
+			<xs:element minOccurs="0" name="HEATERGET2" type="elementType"/>
+			<xs:element minOccurs="0" name="HEATERSEL2" type="elementType"/>
+			<xs:element minOccurs="0" name="TEMPSET3" type="elementType"/>
+			<xs:element minOccurs="0" name="HEATERSET3" type="elementType"/>
+			<xs:element minOccurs="0" name="HEATERGET3" type="elementType"/>
+			<xs:element minOccurs="0" name="HEATERSEL3" type="elementType"/>
+			<xs:element name="TEMP11" type="elementType"/>
+			<xs:element name="TEMP12" type="elementType"/>
+			<xs:element name="TEMP13" type="elementType"/>
+			<xs:element name="TEMP14" type="elementType"/>
+			<xs:element name="TEMP15" type="elementType"/>
+			<xs:element name="TEMP16" type="elementType"/>
+			<xs:element name="TEMP17" type="elementType"/>
+			<xs:element name="TEMP18" type="elementType"/>
+			<xs:element name="TEMP19" type="elementType"/>
+			<xs:element minOccurs="0" name="TEMP21" type="elementType"/>
+			<xs:element minOccurs="0" name="TEMP22" type="elementType"/>
+			<xs:element minOccurs="0" name="TEMP23" type="elementType"/>
+			<xs:element minOccurs="0" name="TEMP24" type="elementType"/>
+			<xs:element minOccurs="0" name="TEMP25" type="elementType"/>
+			<xs:element minOccurs="0" name="TEMP26" type="elementType"/>
+			<xs:element minOccurs="0" name="TEMP27" type="elementType"/>
+			<xs:element minOccurs="0" name="TEMP28" type="elementType"/>
+			<xs:element minOccurs="0" name="TEMP29" type="elementType"/>
+			<xs:element minOccurs="0" name="TEMP31" type="elementType"/>
+			<xs:element minOccurs="0" name="TEMP32" type="elementType"/>
+			<xs:element minOccurs="0" name="TEMP33" type="elementType"/>
+			<xs:element minOccurs="0" name="TEMP34" type="elementType"/>
+			<xs:element minOccurs="0" name="TEMP35" type="elementType"/>
+			<xs:element minOccurs="0" name="TEMP36" type="elementType"/>
+			<xs:element minOccurs="0" name="TEMP37" type="elementType"/>
+			<xs:element minOccurs="0" name="TEMP38" type="elementType"/>
+			<xs:element minOccurs="0" name="TEMP39" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="simpleArrayType">
+		<xs:all>
+			<xs:element name="RECORD" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="simpleBinaryType">
+		<xs:all>
+			<xs:element name="RECORD" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="simpleMbbinaryType">
+		<xs:all>
+			<xs:element name="RECORD" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="simpleMcaType">
+		<xs:all>
+			<xs:element name="RECORD" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="simpleMotorType">
+		<xs:all>
+			<xs:element name="RECORD" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="simplePvType">
+		<xs:all>
+			<xs:element name="RECORD" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="simpleScalerType">
+		<xs:all>
+			<xs:element name="RECORD" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="trajectoryScanType">
+		<xs:all>
+			<xs:element name="NELM" type="elementType"/>
+			<xs:element minOccurs="0" name="MAXNELM" type="elementType"/>
+			<xs:element minOccurs="0" name="NOMOTORS" type="elementType"/>
+			<xs:element name="NPULSES" type="elementType"/>
+			<xs:element name="SPULSES" type="elementType"/>
+			<xs:element name="EPULSES" type="elementType"/>
+			<xs:element name="APULSES" type="elementType"/>
+			<xs:element name="TIME" type="elementType"/>
+			<xs:element name="M1MOVE" type="elementType"/>
+			<xs:element minOccurs="0" name="M2MOVE" type="elementType"/>
+			<xs:element minOccurs="0" name="M3MOVE" type="elementType"/>
+			<xs:element minOccurs="0" name="M4MOVE" type="elementType"/>
+			<xs:element minOccurs="0" name="M5MOVE" type="elementType"/>
+			<xs:element minOccurs="0" name="M6MOVE" type="elementType"/>
+			<xs:element minOccurs="0" name="M7MOVE" type="elementType"/>
+			<xs:element minOccurs="0" name="M8MOVE" type="elementType"/>
+			<xs:element name="M1TRAJ" type="elementType"/>
+			<xs:element minOccurs="0" name="M2TRAJ" type="elementType"/>
+			<xs:element minOccurs="0" name="M3TRAJ" type="elementType"/>
+			<xs:element minOccurs="0" name="M4TRAJ" type="elementType"/>
+			<xs:element minOccurs="0" name="M5TRAJ" type="elementType"/>
+			<xs:element minOccurs="0" name="M6TRAJ" type="elementType"/>
+			<xs:element minOccurs="0" name="M7TRAJ" type="elementType"/>
+			<xs:element minOccurs="0" name="M8TRAJ" type="elementType"/>
+			<xs:element name="BUILD" type="elementType"/>
+			<xs:element name="BSTATE" type="elementType"/>
+			<xs:element name="BSTATUS" type="elementType"/>
+			<xs:element name="BMESS" type="elementType"/>
+			<xs:element name="EXECUTE" type="elementType"/>
+			<xs:element name="ESTATE" type="elementType"/>
+			<xs:element name="ESTATUS" type="elementType"/>
+			<xs:element name="EMESS" type="elementType"/>
+			<xs:element name="ABORT" type="elementType"/>
+			<xs:element name="READ" type="elementType"/>
+			<xs:element name="RSTATE" type="elementType"/>
+			<xs:element name="RSTATUS" type="elementType"/>
+			<xs:element name="RMESS" type="elementType"/>
+			<xs:element name="M1ACTUAL" type="elementType"/>
+			<xs:element minOccurs="0" name="M2ACTUAL" type="elementType"/>
+			<xs:element minOccurs="0" name="M3ACTUAL" type="elementType"/>
+			<xs:element minOccurs="0" name="M4ACTUAL" type="elementType"/>
+			<xs:element minOccurs="0" name="M5ACTUAL" type="elementType"/>
+			<xs:element minOccurs="0" name="M6ACTUAL" type="elementType"/>
+			<xs:element minOccurs="0" name="M7ACTUAL" type="elementType"/>
+			<xs:element minOccurs="0" name="M8ACTUAL" type="elementType"/>
+			<xs:element name="M1NAME" type="elementType"/>
+			<xs:element minOccurs="0" name="M2NAME" type="elementType"/>
+			<xs:element minOccurs="0" name="M3NAME" type="elementType"/>
+			<xs:element minOccurs="0" name="M4NAME" type="elementType"/>
+			<xs:element minOccurs="0" name="M5NAME" type="elementType"/>
+			<xs:element minOccurs="0" name="M6NAME" type="elementType"/>
+			<xs:element minOccurs="0" name="M7NAME" type="elementType"/>
+			<xs:element minOccurs="0" name="M8NAME" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="xiaArrayType">
+		<xs:all>
+			<xs:element name="AA1F1" type="elementType"/>
+			<xs:element name="AA1F2" type="elementType"/>
+			<xs:element name="AA1F3" type="elementType"/>
+			<xs:element name="AA1F4" type="elementType"/>
+			<xs:element name="AA2F1" type="elementType"/>
+			<xs:element name="AA2F2" type="elementType"/>
+			<xs:element name="AA2F3" type="elementType"/>
+			<xs:element name="AA2F4" type="elementType"/>
+			<xs:element name="DA1F1" type="elementType"/>
+			<xs:element name="DA1F2" type="elementType"/>
+			<xs:element name="DA1F3" type="elementType"/>
+			<xs:element name="DA1F4" type="elementType"/>
+			<xs:element name="DA2F1" type="elementType"/>
+			<xs:element name="DA2F2" type="elementType"/>
+			<xs:element name="DA2F3" type="elementType"/>
+			<xs:element name="DA2F4" type="elementType"/>
+			<xs:element name="DTRANS" type="elementType"/>
+			<xs:element name="DABS" type="elementType"/>
+			<xs:element name="DEN" type="elementType"/>
+			<xs:element name="DWAV" type="elementType"/>
+			<xs:element name="ATRANS" type="elementType"/>
+			<xs:element name="AABS" type="elementType"/>
+			<xs:element name="AEN" type="elementType"/>
+			<xs:element name="AWAV" type="elementType"/>
+			<xs:element name="CHANGE" type="elementType"/>
+			<xs:element minOccurs="0" name="USECURRENTENERGY" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="scanDataType">
+		<xs:all>
+			<xs:element name="COUNTER" type="elementType"/>
+			<xs:element name="STARTINDEX" type="elementType"/>
+			<xs:element name="NOELEMENTS" type="elementType"/>
+			<xs:element name="NODETECTORS" type="elementType"/>
+			<xs:element name="UPDATE" type="elementType"/>
+			<xs:element minOccurs="0" name="CH1DATA" type="elementType"/>
+			<xs:element minOccurs="0" name="CH2DATA" type="elementType"/>
+			<xs:element minOccurs="0" name="CH3DATA" type="elementType"/>
+			<xs:element minOccurs="0" name="CH4DATA" type="elementType"/>
+			<xs:element minOccurs="0" name="CH5DATA" type="elementType"/>
+			<xs:element minOccurs="0" name="CH6DATA" type="elementType"/>
+			<xs:element minOccurs="0" name="CH7DATA" type="elementType"/>
+			<xs:element minOccurs="0" name="CH8DATA" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="OxInstCryojetType">
+		<xs:all>
+			<xs:element minOccurs="0" name="PGAIN_SET" type="elementType"/>
+			<xs:element minOccurs="0" name="IGAIN_SET" type="elementType"/>
+			<xs:element minOccurs="0" name="DGAIN_SET" type="elementType"/>
+			<xs:element minOccurs="0" name="SHIELDFLOW_SET" type="elementType"/>
+			<xs:element minOccurs="0" name="SAMPLEFLOW_SET" type="elementType"/>
+			<xs:element name="TEMP_SET" type="elementType"/>
+			<xs:element name="SENSOR_TEMP" type="elementType"/>
+			<xs:element minOccurs="0" name="SENSOR_TEMP_DESC" type="elementType"/>
+			<xs:element minOccurs="0" name="DISABLE" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="OxInstIPSType">
+		<xs:all>
+			<xs:element minOccurs="0" name="DISABLE" type="elementType"/>
+			<xs:element               name="RBV_DEMANDFIELD" type="elementType"/>
+			<xs:element minOccurs="0" name="RBV_SETPOINTFIELD" type="elementType"/>
+			<xs:element minOccurs="0" name="RBV_FIELDSWEEPRATE" type="elementType"/>
+			<xs:element               name="STS_ACTIVITY" type="elementType"/>
+			<xs:element minOccurs="0" name="STS_SWEEPMODESWEEP" type="elementType"/>
+			<xs:element minOccurs="0" name="STS_SWEEPMODETYPE" type="elementType"/>
+			<xs:element               name="SET_ACTIVITY" type="elementType"/>
+			<xs:element               name="SET_SETPOINTFIELD" type="elementType"/>
+			<xs:element minOccurs="0" name="SET_FIELDSWEEPRATE" type="elementType"/>
+			<xs:element minOccurs="0" name="SET_SWEEPMODETYPE" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="magnetType">
+		<xs:all>
+			<xs:element name="XDMD" type="elementType"/>
+			<xs:element name="YDMD" type="elementType"/>
+			<xs:element name="ZDMD" type="elementType"/>
+			<xs:element name="XRBV" type="elementType"/>
+			<xs:element name="YRBV" type="elementType"/>
+			<xs:element name="ZRBV" type="elementType"/>
+			<xs:element name="RAMPSTATUS" type="elementType"/>
+			<xs:element name="LIMITSTATUS" type="elementType"/>
+			<xs:element name="MODE" type="elementType"/>
+			<xs:element name="START" type="elementType"/>
+			<xs:element name="INIT" type="elementType"/>
+		</xs:all>
+	<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="ADBaseType">
+		<xs:all>
+			<xs:element name="PortName_RBV" type="elementType"/>
+			<xs:element name="Manufacturer_RBV" type="elementType"/>
+			<xs:element name="Model_RBV" type="elementType"/>
+			<xs:element name="MaxSizeX_RBV" type="elementType"/>
+			<xs:element name="MaxSizeY_RBV" type="elementType"/>
+			<xs:element name="DataType" type="elementType"/>
+			<xs:element name="DataType_RBV" type="elementType"/>
+			<xs:element name="ColorMode" type="elementType"/>
+			<xs:element name="ColorMode_RBV" type="elementType"/>
+			<xs:element name="BinX" type="elementType"/>
+			<xs:element name="BinX_RBV" type="elementType"/>
+			<xs:element name="BinY" type="elementType"/>
+			<xs:element name="BinY_RBV" type="elementType"/>
+			<xs:element name="MinX" type="elementType"/>
+			<xs:element name="MinX_RBV" type="elementType"/>
+			<xs:element name="MinY" type="elementType"/>
+			<xs:element name="MinY_RBV" type="elementType"/>
+			<xs:element name="SizeX" type="elementType"/>
+			<xs:element name="SizeX_RBV" type="elementType"/>
+			<xs:element name="SizeY" type="elementType"/>
+			<xs:element name="SizeY_RBV" type="elementType"/>
+			<xs:element name="ReverseX" type="elementType"/>
+			<xs:element name="ReverseX_RBV" type="elementType"/>
+			<xs:element name="ReverseY" type="elementType"/>
+			<xs:element name="ReverseY_RBV" type="elementType"/>
+			<xs:element name="ArraySizeX_RBV" type="elementType"/>
+			<xs:element name="ArraySizeY_RBV" type="elementType"/>
+			<xs:element name="ArraySizeZ_RBV" type="elementType"/>
+			<xs:element name="ArraySize_RBV" type="elementType"/>
+			<xs:element name="AcquireTime" type="elementType"/>
+			<xs:element name="AcquireTime_RBV" type="elementType"/>
+			<xs:element name="AcquirePeriod" type="elementType"/>
+			<xs:element name="AcquirePeriod_RBV" type="elementType"/>
+			<xs:element name="TimeRemaining_RBV" type="elementType"/>
+			<xs:element name="Gain" type="elementType"/>
+			<xs:element name="Gain_RBV" type="elementType"/>
+			<xs:element name="FrameType" type="elementType"/>
+			<xs:element name="FrameType_RBV" type="elementType"/>
+			<xs:element name="ImageMode" type="elementType"/>
+			<xs:element name="ImageMode_RBV" type="elementType"/>
+			<xs:element name="TriggerMode" type="elementType"/>
+			<xs:element name="TriggerMode_RBV" type="elementType"/>
+			<xs:element name="NumExposures" type="elementType"/>
+			<xs:element name="NumExposures_RBV" type="elementType"/>
+			<xs:element name="NumExposuresCounter_RBV" type="elementType"/>
+			<xs:element name="NumImages" type="elementType"/>
+			<xs:element name="NumImages_RBV" type="elementType"/>
+			<xs:element name="NumImagesCounter_RBV" type="elementType"/>
+			<xs:element name="Acquire" type="elementType"/>
+			<xs:element name="Acquire_RBV" type="elementType"/>
+			<xs:element name="ArrayCounter" type="elementType"/>
+			<xs:element name="ArrayCounter_RBV" type="elementType"/>
+			<xs:element name="ArrayRate_RBV" type="elementType"/>
+			<xs:element name="DetectorState_RBV" type="elementType"/>
+			<xs:element name="ArrayCallbacks" type="elementType"/>
+			<xs:element name="ArrayCallbacks_RBV" type="elementType"/>
+			<xs:element name="NDAttributesFile" type="elementType"/>
+			<xs:element name="StatusMessage_RBV" type="elementType"/>
+			<xs:element name="StringToServer_RBV" type="elementType"/>
+			<xs:element name="StringFromServer_RBV" type="elementType"/>
+			<xs:element name="ReadStatus" type="elementType"/>
+			<xs:element name="ShutterMode" type="elementType"/>
+			<xs:element name="ShutterMode_RBV" type="elementType"/>
+			<xs:element name="ShutterControl" type="elementType"/>
+			<xs:element name="ShutterControl_RBV" type="elementType"/>
+			<xs:element name="ShutterStatus_RBV" type="elementType"/>
+			<xs:element name="ShutterOpenDelay" type="elementType"/>
+			<xs:element name="ShutterOpenDelay_RBV" type="elementType"/>
+			<xs:element name="ShutterCloseDelay" type="elementType"/>
+			<xs:element name="ShutterCloseDelay_RBV" type="elementType"/>
+			<xs:element name="ShutterOpenEPICSPV" type="elementType"/>
+			<xs:element name="ShutterOpenEPICSCmd" type="elementType"/>
+			<xs:element name="ShutterCloseEPICSPV" type="elementType"/>
+			<xs:element name="ShutterCloseEPICSCmd" type="elementType"/>
+			<xs:element name="ShutterStatusEPICS_RBV" type="elementType"/>
+			<xs:element name="ShutterStatusEPICSPV" type="elementType"/>
+			<xs:element name="ShutterStatusEPICSCloseVal" type="elementType"/>
+			<xs:element name="ShutterStatusEPICSOpenVal" type="elementType"/>
+			<xs:element name="Temperature" type="elementType"/>
+			<xs:element name="Temperature_RBV" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="mar345Type">
+		<xs:all>
+			<xs:element name="Abort" type="elementType"/>
+			<xs:element name="Abort_RBV" type="elementType"/>
+			<xs:element name="Erase" type="elementType"/>
+			<xs:element name="Erase_RBV" type="elementType"/>
+			<xs:element name="NumErase" type="elementType"/>
+			<xs:element name="NumErase_RBV" type="elementType"/>
+			<xs:element name="NumErased_RBV" type="elementType"/>
+			<xs:element name="EraseMode" type="elementType"/>
+			<xs:element name="EraseMode_RBV" type="elementType"/>
+			<xs:element name="ChangeMode" type="elementType"/>
+			<xs:element name="ChangeMode_RBV" type="elementType"/>
+			<xs:element name="ScanSize" type="elementType"/>
+			<xs:element name="ScanSize_RBV" type="elementType"/>
+			<xs:element name="ScanResolution" type="elementType"/>
+			<xs:element name="ScanResolution_RBV" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="marCCDType">
+		<xs:all>
+			<xs:element name="MarState_RBV" type="elementType"/>
+			<xs:element name="MarStatus_RBV" type="elementType"/>
+			<xs:element name="MarAcquireStatus_RBV" type="elementType"/>
+			<xs:element name="MarReadoutStatus_RBV" type="elementType"/>
+			<xs:element name="MarCorrectStatus_RBV" type="elementType"/>
+			<xs:element name="MarWritingStatus_RBV" type="elementType"/>
+			<xs:element name="MarDezingerStatus_RBV" type="elementType"/>
+			<xs:element name="ReadTiffTimeout" type="elementType"/>
+			<xs:element name="OverlapMode" type="elementType"/>
+			<xs:element name="OverlapMode_RBV" type="elementType"/>
+			<xs:element name="FrameShift" type="elementType"/>
+			<xs:element name="FrameShift_RBV" type="elementType"/>
+			<xs:element name="FrameType" type="elementType"/>
+			<xs:element name="FrameType_RBV" type="elementType"/>
+			<xs:element name="DetectorDistance" type="elementType"/>
+			<xs:element name="BeamX" type="elementType"/>
+			<xs:element name="BeamY" type="elementType"/>
+			<xs:element name="StartPhi" type="elementType"/>
+			<xs:element name="RotationAxis" type="elementType"/>
+			<xs:element name="RotationRange" type="elementType"/>
+			<xs:element name="TwoTheta" type="elementType"/>
+			<xs:element name="Wavelength" type="elementType"/>
+			<xs:element name="FileComments" type="elementType"/>
+			<xs:element name="DatasetComments" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="NDColorConvertType">
+		<xs:all>
+			<xs:element name="ColorModeOut" type="elementType"/>
+			<xs:element name="ColorModeOut_RBV" type="elementType"/>
+			<xs:element name="FalseColour" type="elementType"/>
+			<xs:element name="FalseColour_RBV" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="NDFileType">
+		<xs:all>
+			<xs:element name="FilePath" type="elementType"/>
+			<xs:element name="FilePath_RBV" type="elementType"/>
+			<xs:element name="FileName" type="elementType"/>
+			<xs:element name="FileName_RBV" type="elementType"/>
+			<xs:element name="FileNumber" type="elementType"/>
+			<xs:element name="FileNumber_RBV" type="elementType"/>
+			<xs:element name="AutoIncrement" type="elementType"/>
+			<xs:element name="AutoIncrement_RBV" type="elementType"/>
+			<xs:element name="FileTemplate" type="elementType"/>
+			<xs:element name="FileTemplate_RBV" type="elementType"/>
+			<xs:element name="FullFileName_RBV" type="elementType"/>
+			<xs:element name="AutoSave" type="elementType"/>
+			<xs:element name="AutoSave_RBV" type="elementType"/>
+			<xs:element name="WriteFile" type="elementType"/>
+			<xs:element name="WriteFile_RBV" type="elementType"/>
+			<xs:element name="ReadFile" type="elementType"/>
+			<xs:element name="ReadFile_RBV" type="elementType"/>
+			<xs:element name="FileFormat" type="elementType"/>
+			<xs:element name="FileFormat_RBV" type="elementType"/>
+			<xs:element name="FileWriteMode" type="elementType"/>
+			<xs:element name="FileWriteMode_RBV" type="elementType"/>
+			<xs:element name="Capture" type="elementType"/>
+			<xs:element name="Capture_RBV" type="elementType"/>
+			<xs:element name="NumCapture" type="elementType"/>
+			<xs:element name="NumCapture_RBV" type="elementType"/>
+			<xs:element name="NumCaptured_RBV" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="NDFileJPEGType">
+		<xs:all>
+			<xs:element name="JPEGQuality" type="elementType"/>
+			<xs:element name="JPEGQuality_RBV" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="NDFileMagickType">
+		<xs:all>
+			<xs:element name="Quality" type="elementType"/>
+			<xs:element name="Quality_RBV" type="elementType"/>
+			<xs:element name="BitDepth" type="elementType"/>
+			<xs:element name="BitDepth_RBV" type="elementType"/>
+			<xs:element name="CompressType" type="elementType"/>
+			<xs:element name="CompressType_RBV" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="NDFileNetCDFType">
+		<xs:all/>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="NDFileNexusType">
+		<xs:all>
+			<xs:element name="TemplateFilePath" type="elementType"/>
+			<xs:element name="TemplateFilePath_RBV" type="elementType"/>
+			<xs:element name="TemplateFileName" type="elementType"/>
+			<xs:element name="TemplateFileName_RBV" type="elementType"/>
+			<xs:element name="FileTemplateValid" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="NDFileHDF5Type">
+		<xs:all>
+			<xs:element name="NumRowChunks" type="elementType"/>
+			<xs:element name="NumRowChunks_RBV" type="elementType"/>
+			<xs:element name="NumExtraDims" type="elementType"/>
+			<xs:element name="NumExtraDims_RBV" type="elementType"/>
+			<xs:element name="ExtraDimSizeN" type="elementType"/>
+			<xs:element name="ExtraDimSizeN_RBV" type="elementType"/>
+			<xs:element name="ExtraDimSizeX" type="elementType"/>
+			<xs:element name="ExtraDimSizeX_RBV" type="elementType"/>
+			<xs:element name="ExtraDimSizeY" type="elementType"/>
+			<xs:element name="ExtraDimSizeY_RBV" type="elementType"/>
+			<xs:element name="runtime" type="elementType"/>
+			<xs:element name="IOSpeed" type="elementType"/>
+			<xs:element name="Compression" type="elementType"/>
+			<xs:element name="Compression_RBV" type="elementType"/>
+			<xs:element name="NumBitOffset_RBV" type="elementType"/>
+			<xs:element name="NumBitPrecision" type="elementType"/>
+			<xs:element name="NumBitPrecision_RBV" type="elementType"/>
+			<xs:element name="NumBitOffset" type="elementType"/>
+			<xs:element name="szipNumPixels" type="elementType"/>
+			<xs:element name="szipNumPixels_RBV" type="elementType"/>
+			<xs:element name="ZCompressLevel" type="elementType"/>
+			<xs:element name="ZCompressLevel_RBV" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>	
+	<xs:complexType name="NDFileTIFFType">
+		<xs:all/>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="NDOverlayType">
+		<xs:all>
+			<xs:element name="Name0" type="elementType"/>
+			<xs:element name="Name_RBV0" type="elementType"/>
+			<xs:element name="Use0" type="elementType"/>
+			<xs:element name="Use0_RBV" type="elementType"/>
+			<xs:element name="PositionXLink0" type="elementType"/>
+			<xs:element name="PositionX0" type="elementType"/>
+			<xs:element name="PositionX0_RBV" type="elementType"/>
+			<xs:element name="PositionYLink0" type="elementType"/>
+			<xs:element name="PositionY0" type="elementType"/>
+			<xs:element name="PositionY0_RBV" type="elementType"/>
+			<xs:element name="SizeXLink0" type="elementType"/>
+			<xs:element name="SizeX0" type="elementType"/>
+			<xs:element name="SizeX0_RBV" type="elementType"/>
+			<xs:element name="SizeYLink0" type="elementType"/>
+			<xs:element name="SizeY0" type="elementType"/>
+			<xs:element name="SizeY0_RBV" type="elementType"/>
+			<xs:element name="Shape0" type="elementType"/>
+			<xs:element name="Shape0_RBV" type="elementType"/>
+			<xs:element name="DrawMode0" type="elementType"/>
+			<xs:element name="DrawMode0_RBV" type="elementType"/>
+			<xs:element name="Red0" type="elementType"/>
+			<xs:element name="Red0_RBV" type="elementType"/>
+			<xs:element name="Green0" type="elementType"/>
+			<xs:element name="Green0_RBV" type="elementType"/>
+			<xs:element name="Blue0" type="elementType"/>
+			<xs:element name="Blue0_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Name1" type="elementType"/>
+			<xs:element minOccurs="0" name="Name_RBV1" type="elementType"/>
+			<xs:element minOccurs="0" name="Use1" type="elementType"/>
+			<xs:element minOccurs="0" name="Use1_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionXLink1" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionX1" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionX1_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionYLink1" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionY1" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionY1_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeXLink1" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeX1" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeX1_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeYLink1" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeY1" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeY1_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Shape1" type="elementType"/>
+			<xs:element minOccurs="0" name="Shape1_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="DrawMode1" type="elementType"/>
+			<xs:element minOccurs="0" name="DrawMode1_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Red1" type="elementType"/>
+			<xs:element minOccurs="0" name="Red1_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Green1" type="elementType"/>
+			<xs:element minOccurs="0" name="Green1_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Blue1" type="elementType"/>
+			<xs:element minOccurs="0" name="Blue1_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Name2" type="elementType"/>
+			<xs:element minOccurs="0" name="Name_RBV2" type="elementType"/>
+			<xs:element minOccurs="0" name="Use2" type="elementType"/>
+			<xs:element minOccurs="0" name="Use2_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionXLink2" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionX2" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionX2_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionYLink2" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionY2" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionY2_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeXLink2" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeX2" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeX2_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeYLink2" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeY2" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeY2_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Shape2" type="elementType"/>
+			<xs:element minOccurs="0" name="Shape2_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="DrawMode2" type="elementType"/>
+			<xs:element minOccurs="0" name="DrawMode2_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Red2" type="elementType"/>
+			<xs:element minOccurs="0" name="Red2_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Green2" type="elementType"/>
+			<xs:element minOccurs="0" name="Green2_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Blue2" type="elementType"/>
+			<xs:element minOccurs="0" name="Blue2_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Name3" type="elementType"/>
+			<xs:element minOccurs="0" name="Name_RBV3" type="elementType"/>
+			<xs:element minOccurs="0" name="Use3" type="elementType"/>
+			<xs:element minOccurs="0" name="Use3_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionXLink3" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionX3" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionX3_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionYLink3" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionY3" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionY3_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeXLink3" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeX3" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeX3_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeYLink3" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeY3" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeY3_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Shape3" type="elementType"/>
+			<xs:element minOccurs="0" name="Shape3_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="DrawMode3" type="elementType"/>
+			<xs:element minOccurs="0" name="DrawMode3_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Red3" type="elementType"/>
+			<xs:element minOccurs="0" name="Red3_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Green3" type="elementType"/>
+			<xs:element minOccurs="0" name="Green3_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Blue3" type="elementType"/>
+			<xs:element minOccurs="0" name="Blue3_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Name4" type="elementType"/>
+			<xs:element minOccurs="0" name="Name_RBV4" type="elementType"/>
+			<xs:element minOccurs="0" name="Use4" type="elementType"/>
+			<xs:element minOccurs="0" name="Use4_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionXLink4" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionX4" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionX4_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionYLink4" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionY4" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionY4_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeXLink4" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeX4" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeX4_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeYLink4" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeY4" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeY4_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Shape4" type="elementType"/>
+			<xs:element minOccurs="0" name="Shape4_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="DrawMode4" type="elementType"/>
+			<xs:element minOccurs="0" name="DrawMode4_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Red4" type="elementType"/>
+			<xs:element minOccurs="0" name="Red4_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Green4" type="elementType"/>
+			<xs:element minOccurs="0" name="Green4_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Blue4" type="elementType"/>
+			<xs:element minOccurs="0" name="Blue4_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Name5" type="elementType"/>
+			<xs:element minOccurs="0" name="Name_RBV5" type="elementType"/>
+			<xs:element minOccurs="0" name="Use5" type="elementType"/>
+			<xs:element minOccurs="0" name="Use5_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionXLink5" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionX5" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionX5_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionYLink5" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionY5" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionY5_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeXLink5" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeX5" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeX5_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeYLink5" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeY5" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeY5_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Shape5" type="elementType"/>
+			<xs:element minOccurs="0" name="Shape5_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="DrawMode5" type="elementType"/>
+			<xs:element minOccurs="0" name="DrawMode5_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Red5" type="elementType"/>
+			<xs:element minOccurs="0" name="Red5_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Green5" type="elementType"/>
+			<xs:element minOccurs="0" name="Green5_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Blue5" type="elementType"/>
+			<xs:element minOccurs="0" name="Blue5_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Name6" type="elementType"/>
+			<xs:element minOccurs="0" name="Name_RBV6" type="elementType"/>
+			<xs:element minOccurs="0" name="Use6" type="elementType"/>
+			<xs:element minOccurs="0" name="Use6_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionXLink6" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionX6" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionX6_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionYLink6" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionY6" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionY6_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeXLink6" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeX6" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeX6_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeYLink6" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeY6" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeY6_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Shape6" type="elementType"/>
+			<xs:element minOccurs="0" name="Shape6_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="DrawMode6" type="elementType"/>
+			<xs:element minOccurs="0" name="DrawMode6_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Red6" type="elementType"/>
+			<xs:element minOccurs="0" name="Red6_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Green6" type="elementType"/>
+			<xs:element minOccurs="0" name="Green6_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Blue6" type="elementType"/>
+			<xs:element minOccurs="0" name="Blue6_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Name7" type="elementType"/>
+			<xs:element minOccurs="0" name="Name_RBV7" type="elementType"/>
+			<xs:element minOccurs="0" name="Use7" type="elementType"/>
+			<xs:element minOccurs="0" name="Use7_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionXLink7" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionX7" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionX7_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionYLink7" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionY7" type="elementType"/>
+			<xs:element minOccurs="0" name="PositionY7_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeXLink7" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeX7" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeX7_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeYLink7" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeY7" type="elementType"/>
+			<xs:element minOccurs="0" name="SizeY7_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Shape7" type="elementType"/>
+			<xs:element minOccurs="0" name="Shape7_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="DrawMode7" type="elementType"/>
+			<xs:element minOccurs="0" name="DrawMode7_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Red7" type="elementType"/>
+			<xs:element minOccurs="0" name="Red7_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Green7" type="elementType"/>
+			<xs:element minOccurs="0" name="Green7_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="Blue7" type="elementType"/>
+			<xs:element minOccurs="0" name="Blue7_RBV" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="NDPluginBaseType">
+		<xs:all>
+			<xs:element name="PortName_RBV" type="elementType"/>
+			<xs:element name="PluginType_RBV" type="elementType"/>
+			<xs:element name="NDArrayPort" type="elementType"/>
+			<xs:element name="NDArrayPort_RBV" type="elementType"/>
+			<xs:element name="NDArrayAddress" type="elementType"/>
+			<xs:element name="NDArrayAddress_RBV" type="elementType"/>
+			<xs:element name="EnableCallbacks" type="elementType"/>
+			<xs:element name="EnableCallbacks_RBV" type="elementType"/>
+			<xs:element name="MinCallbackTime" type="elementType"/>
+			<xs:element name="MinCallbackTime_RBV" type="elementType"/>
+			<xs:element name="BlockingCallbacks" type="elementType"/>
+			<xs:element name="BlockingCallbacks_RBV" type="elementType"/>
+			<xs:element name="ArrayCounter" type="elementType"/>
+			<xs:element name="ArrayCounter_RBV" type="elementType"/>
+			<xs:element name="ArrayRate_RBV" type="elementType"/>
+			<xs:element name="DroppedArrays" type="elementType"/>
+			<xs:element name="DroppedArrays_RBV" type="elementType"/>
+			<xs:element name="NDimensions_RBV" type="elementType"/>
+			<xs:element name="ArraySize0_RBV" type="elementType"/>
+			<xs:element name="ArraySize1_RBV" type="elementType"/>
+			<xs:element name="ArraySize2_RBV" type="elementType"/>
+			<xs:element name="DataType_RBV" type="elementType"/>
+			<xs:element name="ColorMode_RBV" type="elementType"/>
+			<xs:element name="BayerPattern_RBV" type="elementType"/>
+			<xs:element name="UniqueId_RBV" type="elementType"/>
+			<xs:element name="TimeStamp_RBV" type="elementType"/>
+			<xs:element name="NDAttributesFile" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="NDProcessType">
+		<xs:all>
+			<xs:element name="DataTypeOut" type="elementType"/>
+			<xs:element name="DataTypeOut_RBV" type="elementType"/>
+			<xs:element name="SaveBackground" type="elementType"/>
+			<xs:element name="SaveBackground_RBV" type="elementType"/>
+			<xs:element name="EnableBackground" type="elementType"/>
+			<xs:element name="EnableBackground_RBV" type="elementType"/>
+			<xs:element name="ValidBackground_RBV" type="elementType"/>
+			<xs:element name="SaveFlatField" type="elementType"/>
+			<xs:element name="SaveFlatField_RBV" type="elementType"/>
+			<xs:element name="EnableFlatField" type="elementType"/>
+			<xs:element name="EnableFlatField_RBV" type="elementType"/>
+			<xs:element name="ValidFlatField_RBV" type="elementType"/>
+			<xs:element name="ScaleFlatField" type="elementType"/>
+			<xs:element name="ScaleFlatField_RBV" type="elementType"/>
+			<xs:element name="EnableOffsetScale" type="elementType"/>
+			<xs:element name="EnableOffsetScale_RBV" type="elementType"/>
+			<xs:element name="Offset" type="elementType"/>
+			<xs:element name="Offset_RBV" type="elementType"/>
+			<xs:element name="Scale" type="elementType"/>
+			<xs:element name="Scale_RBV" type="elementType"/>
+			<xs:element name="EnableLowClip" type="elementType"/>
+			<xs:element name="EnableLowClip_RBV" type="elementType"/>
+			<xs:element name="LowClip" type="elementType"/>
+			<xs:element name="LowClip_RBV" type="elementType"/>
+			<xs:element name="EnableHighClip" type="elementType"/>
+			<xs:element name="EnableHighClip_RBV" type="elementType"/>
+			<xs:element name="HighClip" type="elementType"/>
+			<xs:element name="HighClip_RBV" type="elementType"/>
+			<xs:element name="EnableFilter" type="elementType"/>
+			<xs:element name="EnableFilter_RBV" type="elementType"/>
+			<xs:element name="ResetFilter" type="elementType"/>
+			<xs:element name="ResetFilter_RBV" type="elementType"/>
+			<xs:element name="NumFilter" type="elementType"/>
+			<xs:element name="NumFilter_RBV" type="elementType"/>
+			<xs:element name="NumFilterRecip" type="elementType"/>
+			<xs:element name="NumFiltered_RBV" type="elementType"/>
+			<xs:element name="OOffset" type="elementType"/>
+			<xs:element name="OOffset_RBV" type="elementType"/>
+			<xs:element name="OScale" type="elementType"/>
+			<xs:element name="OScale_RBV" type="elementType"/>
+			<xs:element name="OC1" type="elementType"/>
+			<xs:element name="OC1_RBV" type="elementType"/>
+			<xs:element name="OC2" type="elementType"/>
+			<xs:element name="OC2_RBV" type="elementType"/>
+			<xs:element name="OC3" type="elementType"/>
+			<xs:element name="OC3_RBV" type="elementType"/>
+			<xs:element name="OC4" type="elementType"/>
+			<xs:element name="OC4_RBV" type="elementType"/>
+			<xs:element name="FOffset" type="elementType"/>
+			<xs:element name="FOffset_RBV" type="elementType"/>
+			<xs:element name="FScale" type="elementType"/>
+			<xs:element name="FScale_RBV" type="elementType"/>
+			<xs:element name="FC1" type="elementType"/>
+			<xs:element name="FC1_RBV" type="elementType"/>
+			<xs:element name="FC2" type="elementType"/>
+			<xs:element name="FC2_RBV" type="elementType"/>
+			<xs:element name="FC3" type="elementType"/>
+			<xs:element name="FC3_RBV" type="elementType"/>
+			<xs:element name="FC4" type="elementType"/>
+			<xs:element name="FC4_RBV" type="elementType"/>
+			<xs:element name="ROffset" type="elementType"/>
+			<xs:element name="ROffset_RBV" type="elementType"/>
+			<xs:element name="RC1" type="elementType"/>
+			<xs:element name="RC1_RBV" type="elementType"/>
+			<xs:element name="RC2" type="elementType"/>
+			<xs:element name="RC2_RBV" type="elementType"/>
+			<xs:element name="FilterType" type="elementType"/>
+			<xs:element name="FilterTypeSeq" type="elementType"/>
+			<xs:element name="RecursiveAveSeq" type="elementType"/>
+			<xs:element name="RecursiveSumSeq" type="elementType"/>
+			<xs:element name="DifferenceSeq" type="elementType"/>
+			<xs:element name="RecursiveAveDiffSeq" type="elementType"/>
+			<xs:element name="CopyToFilterSeq" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="NDROIType">
+		<xs:all>
+			<xs:element name="Label" type="elementType"/>
+			<xs:element name="Label_RBV" type="elementType"/>
+			<xs:element name="BinX" type="elementType"/>
+			<xs:element name="BinX_RBV" type="elementType"/>
+			<xs:element name="BinY" type="elementType"/>
+			<xs:element name="BinY_RBV" type="elementType"/>
+			<xs:element name="BinZ" type="elementType"/>
+			<xs:element name="BinZ_RBV" type="elementType"/>
+			<xs:element name="MinX" type="elementType"/>
+			<xs:element name="MinX_RBV" type="elementType"/>
+			<xs:element name="MinY" type="elementType"/>
+			<xs:element name="MinY_RBV" type="elementType"/>
+			<xs:element name="MinZ" type="elementType"/>
+			<xs:element name="MinZ_RBV" type="elementType"/>
+			<xs:element name="SizeX" type="elementType"/>
+			<xs:element name="SizeX_RBV" type="elementType"/>
+			<xs:element name="SizeY" type="elementType"/>
+			<xs:element name="SizeY_RBV" type="elementType"/>
+			<xs:element name="SizeZ" type="elementType"/>
+			<xs:element name="SizeZ_RBV" type="elementType"/>
+			<xs:element name="MaxSizeX_RBV" type="elementType"/>
+			<xs:element name="MaxSizeY_RBV" type="elementType"/>
+			<xs:element name="MaxSizeZ_RBV" type="elementType"/>
+			<xs:element name="ReverseX" type="elementType"/>
+			<xs:element name="ReverseX_RBV" type="elementType"/>
+			<xs:element name="ReverseY" type="elementType"/>
+			<xs:element name="ReverseY_RBV" type="elementType"/>
+			<xs:element name="ReverseZ" type="elementType"/>
+			<xs:element name="ReverseZ_RBV" type="elementType"/>
+			<xs:element name="ArraySizeX_RBV" type="elementType"/>
+			<xs:element name="ArraySizeY_RBV" type="elementType"/>
+			<xs:element name="ArraySizeZ_RBV" type="elementType"/>
+			<xs:element name="EnableScale" type="elementType"/>
+			<xs:element name="EnableScale_RBV" type="elementType"/>
+			<xs:element name="Scale" type="elementType"/>
+			<xs:element name="Scale_RBV" type="elementType"/>
+			<xs:element name="DataTypeOut" type="elementType"/>
+			<xs:element name="DataTypeOut_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="EnableX" type="elementType"/>
+			<xs:element minOccurs="0" name="EnableX_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="EnableY" type="elementType"/>
+			<xs:element minOccurs="0" name="EnableY_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="EnableZ" type="elementType"/>
+			<xs:element minOccurs="0" name="EnableZ_RBV" type="elementType"/>			
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="NDStatsType">
+		<xs:all>
+			<xs:element name="ComputeStatistics" type="elementType"/>
+			<xs:element name="ComputeStatistics_RBV" type="elementType"/>
+			<xs:element name="BgdWidth" type="elementType"/>
+			<xs:element name="BgdWidth_RBV" type="elementType"/>
+			<xs:element name="MinValue_RBV" type="elementType"/>
+			<xs:element name="MaxValue_RBV" type="elementType"/>
+			<xs:element name="MeanValue_RBV" type="elementType"/>
+			<xs:element name="Sigma_RBV" type="elementType"/>
+			<xs:element name="Total_RBV" type="elementType"/>
+			<xs:element name="Net_RBV" type="elementType"/>
+			<xs:element name="ComputeCentroid" type="elementType"/>
+			<xs:element name="ComputeCentroid_RBV" type="elementType"/>
+			<xs:element name="CentroidThreshold" type="elementType"/>
+			<xs:element name="CentroidThreshold_RBV" type="elementType"/>
+			<xs:element name="CentroidX_RBV" type="elementType"/>
+			<xs:element name="CentroidY_RBV" type="elementType"/>
+			<xs:element name="SigmaX_RBV" type="elementType"/>
+			<xs:element name="SigmaY_RBV" type="elementType"/>
+			<xs:element name="SigmaXY_RBV" type="elementType"/>
+			<xs:element name="ComputeProfiles" type="elementType"/>
+			<xs:element name="ComputeProfiles_RBV" type="elementType"/>
+			<xs:element name="ProfileSizeX_RBV" type="elementType"/>
+			<xs:element name="ProfileSizeY_RBV" type="elementType"/>
+			<xs:element name="CursorX" type="elementType"/>
+			<xs:element name="CursorX_RBV" type="elementType"/>
+			<xs:element name="CursorY" type="elementType"/>
+			<xs:element name="CursorY_RBV" type="elementType"/>
+			<xs:element name="ProfileAverageX_RBV" type="elementType"/>
+			<xs:element name="ProfileAverageY_RBV" type="elementType"/>
+			<xs:element name="ProfileThresholdX_RBV" type="elementType"/>
+			<xs:element name="ProfileThresholdY_RBV" type="elementType"/>
+			<xs:element name="ProfileCentroidX_RBV" type="elementType"/>
+			<xs:element name="ProfileCentroidY_RBV" type="elementType"/>
+			<xs:element name="ProfileCursorX_RBV" type="elementType"/>
+			<xs:element name="ProfileCursorY_RBV" type="elementType"/>
+			<xs:element name="ComputeHistogram" type="elementType"/>
+			<xs:element name="ComputeHistogram_RBV" type="elementType"/>
+			<xs:element name="HistSize" type="elementType"/>
+			<xs:element name="HistSize_RBV" type="elementType"/>
+			<xs:element name="HistMin" type="elementType"/>
+			<xs:element name="HistMin_RBV" type="elementType"/>
+			<xs:element name="HistMax" type="elementType"/>
+			<xs:element name="HistMax_RBV" type="elementType"/>
+			<xs:element name="HistEntropy_RBV" type="elementType"/>
+			<xs:element name="Histogram_RBV" type="elementType"/>
+			<xs:element name="MaxSizeX" type="elementType"/>
+			<xs:element name="SetXHOPR" type="elementType"/>
+			<xs:element name="MaxSizeY" type="elementType"/>
+			<xs:element name="SetYHOPR" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="NDStdArraysType">
+		<xs:all>
+			<xs:element name="ArrayData" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="NDTransformType">
+		<xs:all>
+			<xs:element name="Label" type="elementType"/>
+			<xs:element name="Type1" type="elementType"/>
+			<xs:element name="Type2" type="elementType"/>
+			<xs:element name="Type3" type="elementType"/>
+			<xs:element name="Type4" type="elementType"/>
+			<xs:element name="OriginLocation" type="elementType"/>
+			<xs:element name="OriginLocation_RBV" type="elementType"/>
+			<xs:element name="T1MaxSize0" type="elementType"/>
+			<xs:element name="T1MaxSize1" type="elementType"/>
+			<xs:element name="T1MaxSize2" type="elementType"/>
+			<xs:element name="T2MaxSize0" type="elementType"/>
+			<xs:element name="T2MaxSize1" type="elementType"/>
+			<xs:element name="T2MaxSize2" type="elementType"/>
+			<xs:element name="T3MaxSize0" type="elementType"/>
+			<xs:element name="T3MaxSize1" type="elementType"/>
+			<xs:element name="T3MaxSize2" type="elementType"/>
+			<xs:element name="T4MaxSize0" type="elementType"/>
+			<xs:element name="T4MaxSize1" type="elementType"/>
+			<xs:element name="T4MaxSize2" type="elementType"/>
+			<xs:element name="ArraySize0" type="elementType"/>
+			<xs:element name="ArraySize1" type="elementType"/>
+			<xs:element name="ArraySize2" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="prosilicaType">
+		<xs:all>
+			<xs:element name="PSReadStatistics" type="elementType"/>
+			<xs:element name="PSDriverType_RBV" type="elementType"/>
+			<xs:element name="PSFilterVersion_RBV" type="elementType"/>
+			<xs:element name="PSFrameRate_RBV" type="elementType"/>
+			<xs:element name="PSFramesCompleted_RBV" type="elementType"/>
+			<xs:element name="PSFramesDropped_RBV" type="elementType"/>
+			<xs:element name="PSPacketsErroneous_RBV" type="elementType"/>
+			<xs:element name="PSPacketsMissed_RBV" type="elementType"/>
+			<xs:element name="PSPacketsReceived_RBV" type="elementType"/>
+			<xs:element name="PSPacketsRequested_RBV" type="elementType"/>
+			<xs:element name="PSPacketsResent_RBV" type="elementType"/>
+			<xs:element name="PSBadFrameCounter_RBV" type="elementType"/>
+			<xs:element name="SyncIn1Level_RBV" type="elementType"/>
+			<xs:element name="SyncIn2Level_RBV" type="elementType"/>
+			<xs:element name="SyncOut1Mode" type="elementType"/>
+			<xs:element name="SyncOut1Mode_RBV" type="elementType"/>
+			<xs:element name="SyncOut1Level" type="elementType"/>
+			<xs:element name="SyncOut1Level_RBV" type="elementType"/>
+			<xs:element name="SyncOut1Invert" type="elementType"/>
+			<xs:element name="SyncOut1Invert_RBV" type="elementType"/>
+			<xs:element name="SyncOut2Mode" type="elementType"/>
+			<xs:element name="SyncOut2Mode_RBV" type="elementType"/>
+			<xs:element name="SyncOut2Level" type="elementType"/>
+			<xs:element name="SyncOut2Level_RBV" type="elementType"/>
+			<xs:element name="SyncOut2Invert" type="elementType"/>
+			<xs:element name="SyncOut2Invert_RBV" type="elementType"/>
+			<xs:element name="SyncOut3Mode" type="elementType"/>
+			<xs:element name="SyncOut3Mode_RBV" type="elementType"/>
+			<xs:element name="SyncOut3Level" type="elementType"/>
+			<xs:element name="SyncOut3Level_RBV" type="elementType"/>
+			<xs:element name="SyncOut3Invert" type="elementType"/>
+			<xs:element name="SyncOut3Invert_RBV" type="elementType"/>
+			<xs:element name="Strobe1Mode" type="elementType"/>
+			<xs:element name="Strobe1Mode_RBV" type="elementType"/>
+			<xs:element name="Strobe1CtlDuration" type="elementType"/>
+			<xs:element name="Strobe1CtlDuration_RBV" type="elementType"/>
+			<xs:element name="Strobe1Delay" type="elementType"/>
+			<xs:element name="Strobe1Delay_RBV" type="elementType"/>
+			<xs:element name="Strobe1Duration" type="elementType"/>
+			<xs:element name="Strobe1Duration_RBV" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="ffmpegFileType">
+		<xs:all>
+			<xs:element name="FileFormat" type="elementType"/>
+			<xs:element name="FileFormat_RBV" type="elementType"/>
+			<xs:element name="BITRATE" type="elementType"/>
+			<xs:element name="BITRATE_RBV" type="elementType"/>
+			<xs:element name="FPS" type="elementType"/>
+			<xs:element name="FPS_RBV" type="elementType"/>
+			<xs:element name="WIDTH" type="elementType"/>
+			<xs:element name="WIDTH_RBV" type="elementType"/>
+			<xs:element name="HEIGHT" type="elementType"/>
+			<xs:element name="HEIGHT_RBV" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="ffmpegStreamType">
+		<xs:all>
+			<xs:element name="QUALITY" type="elementType"/>
+			<xs:element name="QUALITY_RBV" type="elementType"/>
+			<xs:element name="FALSE_COL" type="elementType"/>
+			<xs:element name="FALSE_COL_RBV" type="elementType"/>
+			<xs:element name="ALWAYS_ON" type="elementType"/>
+			<xs:element name="ALWAYS_ON_RBV" type="elementType"/>
+			<xs:element name="HTTP_PORT_RBV" type="elementType"/>
+			<xs:element name="HOST_RBV" type="elementType"/>
+			<xs:element name="CLIENTS_RBV" type="elementType"/>
+			<xs:element name="JPG_URL_RBV" type="elementType"/>
+			<xs:element name="MJPG_URL_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="MAXW" type="elementType"/>
+			<xs:element minOccurs="0" name="MAXW_RBV" type="elementType"/>			
+			<xs:element minOccurs="0" name="MAXH" type="elementType"/>
+			<xs:element minOccurs="0" name="MAXH_RBV" type="elementType"/>						
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="firewireDCAMType">
+		<xs:all>
+			<xs:element name="FR" type="elementType"/>
+			<xs:element name="FR_RBV" type="elementType"/>
+			<xs:element name="VIDEOMODE" type="elementType"/>
+			<xs:element name="BANDWIDTH" type="elementType"/>
+			<xs:element name="BRIGHTNESS" type="elementType"/>
+			<xs:element name="BRIGHTNESS_RBV" type="elementType"/>
+			<xs:element name="BRIGHTNESS_CTRL" type="elementType"/>
+			<xs:element name="BRIGHTNESS_CTRL_RBV" type="elementType"/>
+			<xs:element name="BRIGHTNESS_AVL" type="elementType"/>
+			<xs:element name="BRIGHTNESS_MIN" type="elementType"/>
+			<xs:element name="BRIGHTNESS_MAX" type="elementType"/>
+			<xs:element name="BRIGHTNESS_ABS_AVL" type="elementType"/>
+			<xs:element name="BRIGHTNESS_ABS" type="elementType"/>
+			<xs:element name="BRIGHTNESS_ABS_RBV" type="elementType"/>
+			<xs:element name="BRIGHTNESS_ABS_MAX" type="elementType"/>
+			<xs:element name="BRIGHTNESS_ABS_MIN" type="elementType"/>
+			<xs:element name="EXPOSURE" type="elementType"/>
+			<xs:element name="EXPOSURE_RBV" type="elementType"/>
+			<xs:element name="EXPOSURE_CTRL" type="elementType"/>
+			<xs:element name="EXPOSURE_CTRL_RBV" type="elementType"/>
+			<xs:element name="EXPOSURE_AVL" type="elementType"/>
+			<xs:element name="EXPOSURE_MIN" type="elementType"/>
+			<xs:element name="EXPOSURE_MAX" type="elementType"/>
+			<xs:element name="EXPOSURE_ABS_AVL" type="elementType"/>
+			<xs:element name="EXPOSURE_ABS" type="elementType"/>
+			<xs:element name="EXPOSURE_ABS_RBV" type="elementType"/>
+			<xs:element name="EXPOSURE_ABS_MAX" type="elementType"/>
+			<xs:element name="EXPOSURE_ABS_MIN" type="elementType"/>
+			<xs:element name="SHARPNESS" type="elementType"/>
+			<xs:element name="SHARPNESS_RBV" type="elementType"/>
+			<xs:element name="SHARPNESS_CTRL" type="elementType"/>
+			<xs:element name="SHARPNESS_CTRL_RBV" type="elementType"/>
+			<xs:element name="SHARPNESS_AVL" type="elementType"/>
+			<xs:element name="SHARPNESS_MIN" type="elementType"/>
+			<xs:element name="SHARPNESS_MAX" type="elementType"/>
+			<xs:element name="SHARPNESS_ABS_AVL" type="elementType"/>
+			<xs:element name="SHARPNESS_ABS" type="elementType"/>
+			<xs:element name="SHARPNESS_ABS_RBV" type="elementType"/>
+			<xs:element name="SHARPNESS_ABS_MAX" type="elementType"/>
+			<xs:element name="SHARPNESS_ABS_MIN" type="elementType"/>
+			<xs:element name="WHITEB" type="elementType"/>
+			<xs:element name="WHITEB_RBV" type="elementType"/>
+			<xs:element name="WHITEB_CTRL" type="elementType"/>
+			<xs:element name="WHITEB_CTRL_RBV" type="elementType"/>
+			<xs:element name="WHITEB_AVL" type="elementType"/>
+			<xs:element name="WHITEB_MIN" type="elementType"/>
+			<xs:element name="WHITEB_MAX" type="elementType"/>
+			<xs:element name="WHITEB_ABS_AVL" type="elementType"/>
+			<xs:element name="WHITEB_ABS" type="elementType"/>
+			<xs:element name="WHITEB_ABS_RBV" type="elementType"/>
+			<xs:element name="WHITEB_ABS_MAX" type="elementType"/>
+			<xs:element name="WHITEB_ABS_MIN" type="elementType"/>
+			<xs:element name="HUE" type="elementType"/>
+			<xs:element name="HUE_RBV" type="elementType"/>
+			<xs:element name="HUE_CTRL" type="elementType"/>
+			<xs:element name="HUE_CTRL_RBV" type="elementType"/>
+			<xs:element name="HUE_AVL" type="elementType"/>
+			<xs:element name="HUE_MIN" type="elementType"/>
+			<xs:element name="HUE_MAX" type="elementType"/>
+			<xs:element name="HUE_ABS_AVL" type="elementType"/>
+			<xs:element name="HUE_ABS" type="elementType"/>
+			<xs:element name="HUE_ABS_RBV" type="elementType"/>
+			<xs:element name="HUE_ABS_MAX" type="elementType"/>
+			<xs:element name="HUE_ABS_MIN" type="elementType"/>
+			<xs:element name="SATURATION" type="elementType"/>
+			<xs:element name="SATURATION_RBV" type="elementType"/>
+			<xs:element name="SATURATION_CTRL" type="elementType"/>
+			<xs:element name="SATURATION_CTRL_RBV" type="elementType"/>
+			<xs:element name="SATURATION_AVL" type="elementType"/>
+			<xs:element name="SATURATION_MIN" type="elementType"/>
+			<xs:element name="SATURATION_MAX" type="elementType"/>
+			<xs:element name="SATURATION_ABS_AVL" type="elementType"/>
+			<xs:element name="SATURATION_ABS" type="elementType"/>
+			<xs:element name="SATURATION_ABS_RBV" type="elementType"/>
+			<xs:element name="SATURATION_ABS_MAX" type="elementType"/>
+			<xs:element name="SATURATION_ABS_MIN" type="elementType"/>
+			<xs:element name="GAMMA" type="elementType"/>
+			<xs:element name="GAMMA_RBV" type="elementType"/>
+			<xs:element name="GAMMA_CTRL" type="elementType"/>
+			<xs:element name="GAMMA_CTRL_RBV" type="elementType"/>
+			<xs:element name="GAMMA_AVL" type="elementType"/>
+			<xs:element name="GAMMA_MIN" type="elementType"/>
+			<xs:element name="GAMMA_MAX" type="elementType"/>
+			<xs:element name="GAMMA_ABS_AVL" type="elementType"/>
+			<xs:element name="GAMMA_ABS" type="elementType"/>
+			<xs:element name="GAMMA_ABS_RBV" type="elementType"/>
+			<xs:element name="GAMMA_ABS_MAX" type="elementType"/>
+			<xs:element name="GAMMA_ABS_MIN" type="elementType"/>
+			<xs:element name="SHUTTER" type="elementType"/>
+			<xs:element name="SHUTTER_RBV" type="elementType"/>
+			<xs:element name="SHUTTER_CTRL" type="elementType"/>
+			<xs:element name="SHUTTER_CTRL_RBV" type="elementType"/>
+			<xs:element name="SHUTTER_AVL" type="elementType"/>
+			<xs:element name="SHUTTER_MIN" type="elementType"/>
+			<xs:element name="SHUTTER_MAX" type="elementType"/>
+			<xs:element name="SHUTTER_ABS_AVL" type="elementType"/>
+			<xs:element name="SHUTTER_ABS" type="elementType"/>
+			<xs:element name="SHUTTER_ABS_RBV" type="elementType"/>
+			<xs:element name="SHUTTER_ABS_MAX" type="elementType"/>
+			<xs:element name="SHUTTER_ABS_MIN" type="elementType"/>
+			<xs:element name="GAIN" type="elementType"/>
+			<xs:element name="GAIN_RBV" type="elementType"/>
+			<xs:element name="GAIN_CTRL" type="elementType"/>
+			<xs:element name="GAIN_CTRL_RBV" type="elementType"/>
+			<xs:element name="GAIN_AVL" type="elementType"/>
+			<xs:element name="GAIN_MIN" type="elementType"/>
+			<xs:element name="GAIN_MAX" type="elementType"/>
+			<xs:element name="GAIN_ABS_AVL" type="elementType"/>
+			<xs:element name="GAIN_ABS" type="elementType"/>
+			<xs:element name="GAIN_ABS_RBV" type="elementType"/>
+			<xs:element name="GAIN_ABS_MAX" type="elementType"/>
+			<xs:element name="GAIN_ABS_MIN" type="elementType"/>
+			<xs:element name="IRIS" type="elementType"/>
+			<xs:element name="IRIS_RBV" type="elementType"/>
+			<xs:element name="IRIS_CTRL" type="elementType"/>
+			<xs:element name="IRIS_CTRL_RBV" type="elementType"/>
+			<xs:element name="IRIS_AVL" type="elementType"/>
+			<xs:element name="IRIS_MIN" type="elementType"/>
+			<xs:element name="IRIS_MAX" type="elementType"/>
+			<xs:element name="IRIS_ABS_AVL" type="elementType"/>
+			<xs:element name="IRIS_ABS" type="elementType"/>
+			<xs:element name="IRIS_ABS_RBV" type="elementType"/>
+			<xs:element name="IRIS_ABS_MAX" type="elementType"/>
+			<xs:element name="IRIS_ABS_MIN" type="elementType"/>
+			<xs:element name="FOCUS" type="elementType"/>
+			<xs:element name="FOCUS_RBV" type="elementType"/>
+			<xs:element name="FOCUS_CTRL" type="elementType"/>
+			<xs:element name="FOCUS_CTRL_RBV" type="elementType"/>
+			<xs:element name="FOCUS_AVL" type="elementType"/>
+			<xs:element name="FOCUS_MIN" type="elementType"/>
+			<xs:element name="FOCUS_MAX" type="elementType"/>
+			<xs:element name="FOCUS_ABS_AVL" type="elementType"/>
+			<xs:element name="FOCUS_ABS" type="elementType"/>
+			<xs:element name="FOCUS_ABS_RBV" type="elementType"/>
+			<xs:element name="FOCUS_ABS_MAX" type="elementType"/>
+			<xs:element name="FOCUS_ABS_MIN" type="elementType"/>
+			<xs:element name="TEMP" type="elementType"/>
+			<xs:element name="TEMP_RBV" type="elementType"/>
+			<xs:element name="TEMP_CTRL" type="elementType"/>
+			<xs:element name="TEMP_CTRL_RBV" type="elementType"/>
+			<xs:element name="TEMP_AVL" type="elementType"/>
+			<xs:element name="TEMP_MIN" type="elementType"/>
+			<xs:element name="TEMP_MAX" type="elementType"/>
+			<xs:element name="TEMP_ABS_AVL" type="elementType"/>
+			<xs:element name="TEMP_ABS" type="elementType"/>
+			<xs:element name="TEMP_ABS_RBV" type="elementType"/>
+			<xs:element name="TEMP_ABS_MAX" type="elementType"/>
+			<xs:element name="TEMP_ABS_MIN" type="elementType"/>
+			<xs:element name="TRIGGER" type="elementType"/>
+			<xs:element name="TRIGGER_RBV" type="elementType"/>
+			<xs:element name="TRIGGER_CTRL" type="elementType"/>
+			<xs:element name="TRIGGER_CTRL_RBV" type="elementType"/>
+			<xs:element name="TRIGGER_AVL" type="elementType"/>
+			<xs:element name="TRIGGER_MIN" type="elementType"/>
+			<xs:element name="TRIGGER_MAX" type="elementType"/>
+			<xs:element name="TRIGGER_ABS_AVL" type="elementType"/>
+			<xs:element name="TRIGGER_ABS" type="elementType"/>
+			<xs:element name="TRIGGER_ABS_RBV" type="elementType"/>
+			<xs:element name="TRIGGER_ABS_MAX" type="elementType"/>
+			<xs:element name="TRIGGER_ABS_MIN" type="elementType"/>
+			<xs:element name="TRIGDLY" type="elementType"/>
+			<xs:element name="TRIGDLY_RBV" type="elementType"/>
+			<xs:element name="TRIGDLY_CTRL" type="elementType"/>
+			<xs:element name="TRIGDLY_CTRL_RBV" type="elementType"/>
+			<xs:element name="TRIGDLY_AVL" type="elementType"/>
+			<xs:element name="TRIGDLY_MIN" type="elementType"/>
+			<xs:element name="TRIGDLY_MAX" type="elementType"/>
+			<xs:element name="TRIGDLY_ABS_AVL" type="elementType"/>
+			<xs:element name="TRIGDLY_ABS" type="elementType"/>
+			<xs:element name="TRIGDLY_ABS_RBV" type="elementType"/>
+			<xs:element name="TRIGDLY_ABS_MAX" type="elementType"/>
+			<xs:element name="TRIGDLY_ABS_MIN" type="elementType"/>
+			<xs:element name="WHITES" type="elementType"/>
+			<xs:element name="WHITES_RBV" type="elementType"/>
+			<xs:element name="WHITES_CTRL" type="elementType"/>
+			<xs:element name="WHITES_CTRL_RBV" type="elementType"/>
+			<xs:element name="WHITES_AVL" type="elementType"/>
+			<xs:element name="WHITES_MIN" type="elementType"/>
+			<xs:element name="WHITES_MAX" type="elementType"/>
+			<xs:element name="WHITES_ABS_AVL" type="elementType"/>
+			<xs:element name="WHITES_ABS" type="elementType"/>
+			<xs:element name="WHITES_ABS_RBV" type="elementType"/>
+			<xs:element name="WHITES_ABS_MAX" type="elementType"/>
+			<xs:element name="WHITES_ABS_MIN" type="elementType"/>
+			<xs:element name="FRAMERATE" type="elementType"/>
+			<xs:element name="FRAMERATE_RBV" type="elementType"/>
+			<xs:element name="FRAMERATE_CTRL" type="elementType"/>
+			<xs:element name="FRAMERATE_CTRL_RBV" type="elementType"/>
+			<xs:element name="FRAMERATE_AVL" type="elementType"/>
+			<xs:element name="FRAMERATE_MIN" type="elementType"/>
+			<xs:element name="FRAMERATE_MAX" type="elementType"/>
+			<xs:element name="FRAMERATE_ABS_AVL" type="elementType"/>
+			<xs:element name="FRAMERATE_ABS" type="elementType"/>
+			<xs:element name="FRAMERATE_ABS_RBV" type="elementType"/>
+			<xs:element name="FRAMERATE_ABS_MAX" type="elementType"/>
+			<xs:element name="FRAMERATE_ABS_MIN" type="elementType"/>
+			<xs:element name="ZOOM" type="elementType"/>
+			<xs:element name="ZOOM_RBV" type="elementType"/>
+			<xs:element name="ZOOM_CTRL" type="elementType"/>
+			<xs:element name="ZOOM_CTRL_RBV" type="elementType"/>
+			<xs:element name="ZOOM_AVL" type="elementType"/>
+			<xs:element name="ZOOM_MIN" type="elementType"/>
+			<xs:element name="ZOOM_MAX" type="elementType"/>
+			<xs:element name="ZOOM_ABS_AVL" type="elementType"/>
+			<xs:element name="ZOOM_ABS" type="elementType"/>
+			<xs:element name="ZOOM_ABS_RBV" type="elementType"/>
+			<xs:element name="ZOOM_ABS_MAX" type="elementType"/>
+			<xs:element name="ZOOM_ABS_MIN" type="elementType"/>
+			<xs:element name="PAN" type="elementType"/>
+			<xs:element name="PAN_RBV" type="elementType"/>
+			<xs:element name="PAN_CTRL" type="elementType"/>
+			<xs:element name="PAN_CTRL_RBV" type="elementType"/>
+			<xs:element name="PAN_AVL" type="elementType"/>
+			<xs:element name="PAN_MIN" type="elementType"/>
+			<xs:element name="PAN_MAX" type="elementType"/>
+			<xs:element name="PAN_ABS_AVL" type="elementType"/>
+			<xs:element name="PAN_ABS" type="elementType"/>
+			<xs:element name="PAN_ABS_RBV" type="elementType"/>
+			<xs:element name="PAN_ABS_MAX" type="elementType"/>
+			<xs:element name="PAN_ABS_MIN" type="elementType"/>
+			<xs:element name="TILT" type="elementType"/>
+			<xs:element name="TILT_RBV" type="elementType"/>
+			<xs:element name="TILT_CTRL" type="elementType"/>
+			<xs:element name="TILT_CTRL_RBV" type="elementType"/>
+			<xs:element name="TILT_AVL" type="elementType"/>
+			<xs:element name="TILT_MIN" type="elementType"/>
+			<xs:element name="TILT_MAX" type="elementType"/>
+			<xs:element name="TILT_ABS_AVL" type="elementType"/>
+			<xs:element name="TILT_ABS" type="elementType"/>
+			<xs:element name="TILT_ABS_RBV" type="elementType"/>
+			<xs:element name="TILT_ABS_MAX" type="elementType"/>
+			<xs:element name="TILT_ABS_MIN" type="elementType"/>
+			<xs:element name="FILTER" type="elementType"/>
+			<xs:element name="FILTER_RBV" type="elementType"/>
+			<xs:element name="FILTER_CTRL" type="elementType"/>
+			<xs:element name="FILTER_CTRL_RBV" type="elementType"/>
+			<xs:element name="FILTER_AVL" type="elementType"/>
+			<xs:element name="FILTER_MIN" type="elementType"/>
+			<xs:element name="FILTER_MAX" type="elementType"/>
+			<xs:element name="FILTER_ABS_AVL" type="elementType"/>
+			<xs:element name="FILTER_ABS" type="elementType"/>
+			<xs:element name="FILTER_ABS_RBV" type="elementType"/>
+			<xs:element name="FILTER_ABS_MAX" type="elementType"/>
+			<xs:element name="FILTER_ABS_MIN" type="elementType"/>
+			<xs:element name="CAPTSIZE" type="elementType"/>
+			<xs:element name="CAPTSIZE_RBV" type="elementType"/>
+			<xs:element name="CAPTSIZE_CTRL" type="elementType"/>
+			<xs:element name="CAPTSIZE_CTRL_RBV" type="elementType"/>
+			<xs:element name="CAPTSIZE_AVL" type="elementType"/>
+			<xs:element name="CAPTSIZE_MIN" type="elementType"/>
+			<xs:element name="CAPTSIZE_MAX" type="elementType"/>
+			<xs:element name="CAPTSIZE_ABS_AVL" type="elementType"/>
+			<xs:element name="CAPTSIZE_ABS" type="elementType"/>
+			<xs:element name="CAPTSIZE_ABS_RBV" type="elementType"/>
+			<xs:element name="CAPTSIZE_ABS_MAX" type="elementType"/>
+			<xs:element name="CAPTSIZE_ABS_MIN" type="elementType"/>
+			<xs:element name="QUALITY" type="elementType"/>
+			<xs:element name="QUALITY_RBV" type="elementType"/>
+			<xs:element name="QUALITY_CTRL" type="elementType"/>
+			<xs:element name="QUALITY_CTRL_RBV" type="elementType"/>
+			<xs:element name="QUALITY_AVL" type="elementType"/>
+			<xs:element name="QUALITY_MIN" type="elementType"/>
+			<xs:element name="QUALITY_MAX" type="elementType"/>
+			<xs:element name="QUALITY_ABS_AVL" type="elementType"/>
+			<xs:element name="QUALITY_ABS" type="elementType"/>
+			<xs:element name="QUALITY_ABS_RBV" type="elementType"/>
+			<xs:element name="QUALITY_ABS_MAX" type="elementType"/>
+			<xs:element name="QUALITY_ABS_MIN" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="URLDriverType">
+		<xs:all>
+			<xs:element name="URL1" type="elementType"/>
+			<xs:element name="URL2" type="elementType"/>
+			<xs:element name="URL3" type="elementType"/>
+			<xs:element name="URL4" type="elementType"/>
+			<xs:element name="URL5" type="elementType"/>
+			<xs:element name="URL6" type="elementType"/>
+			<xs:element name="URL7" type="elementType"/>
+			<xs:element name="URL8" type="elementType"/>
+			<xs:element name="URL9" type="elementType"/>
+			<xs:element name="URL10" type="elementType"/>
+			<xs:element name="URL_RBV" type="elementType"/>
+			<xs:element name="URL1DESC" type="elementType"/>
+			<xs:element name="URL2DESC" type="elementType"/>
+			<xs:element name="URL3DESC" type="elementType"/>
+			<xs:element name="URL4DESC" type="elementType"/>
+			<xs:element name="URL5DESC" type="elementType"/>
+			<xs:element name="URL6DESC" type="elementType"/>
+			<xs:element name="URL7DESC" type="elementType"/>
+			<xs:element name="URL8DESC" type="elementType"/>
+			<xs:element name="URL9DESC" type="elementType"/>
+			<xs:element name="URL10DESC" type="elementType"/>
+			<xs:element name="URL" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="pvCamType">
+		<xs:all>
+			<xs:element name="Initialize" type="elementType"/>
+			<xs:element name="Initialize_RBV" type="elementType"/>
+			<xs:element name="Slot1Cam_RBV" type="elementType"/>
+			<xs:element name="Slot2Cam_RBV" type="elementType"/>
+			<xs:element name="Slot3Cam_RBV" type="elementType"/>
+			<xs:element name="DetectorSelected" type="elementType"/>
+			<xs:element name="DetectorSelected_RBV" type="elementType"/>
+			<xs:element name="ChipName_RBV" type="elementType"/>
+			<xs:element name="NumParallelPixels_RBV" type="elementType"/>
+			<xs:element name="NumSerialPixels_RBV" type="elementType"/>
+			<xs:element name="PixelParallelSize_RBV" type="elementType"/>
+			<xs:element name="PixelSerialSize_RBV" type="elementType"/>
+			<xs:element name="ChipWidth_RBV" type="elementType"/>
+			<xs:element name="ChipHeight_RBV" type="elementType"/>
+			<xs:element name="PixelParallelDist_RBV" type="elementType"/>
+			<xs:element name="PixelSerialDist_RBV" type="elementType"/>
+			<xs:element name="PostMask_RBV" type="elementType"/>
+			<xs:element name="PreMask_RBV" type="elementType"/>
+			<xs:element name="PostScan_RBV" type="elementType"/>
+			<xs:element name="PreScan_RBV" type="elementType"/>
+			<xs:element name="NumPorts_RBV" type="elementType"/>
+			<xs:element name="FullWellCapacity_RBV" type="elementType"/>
+			<xs:element name="FrameTransferCapable_RBV" type="elementType"/>
+			<xs:element name="NumSpeedTableEntries_RBV" type="elementType"/>
+			<xs:element name="SpeedTableIndex" type="elementType"/>
+			<xs:element name="SpeedTableIndex_RBV" type="elementType"/>
+			<xs:element name="BitDepth_RBV" type="elementType"/>
+			<xs:element name="PixelTime_RBV" type="elementType"/>
+			<xs:element name="MaxGainIndex_RBV" type="elementType"/>
+			<xs:element name="GainIndex" type="elementType"/>
+			<xs:element name="GainIndex_RBV" type="elementType"/>
+			<xs:element name="MinShutterOpenDelay_RBV" type="elementType"/>
+			<xs:element name="MaxShutterOpenDelay_RBV" type="elementType"/>
+			<xs:element name="MinShutterCloseDelay_RBV" type="elementType"/>
+			<xs:element name="MaxShutterCloseDelay_RBV" type="elementType"/>
+			<xs:element name="OpenDelay" type="elementType"/>
+			<xs:element name="OpenDelay_RBV" type="elementType"/>
+			<xs:element name="CloseDelay" type="elementType"/>
+			<xs:element name="CloseDelay_RBV" type="elementType"/>
+			<xs:element name="MeasuredTemperature_RBV" type="elementType"/>
+			<xs:element name="SetTemperature" type="elementType"/>
+			<xs:element name="SetTemperature_RBV" type="elementType"/>
+			<xs:element name="MinSetTemperature" type="elementType"/>
+			<xs:element name="MaxSetTemperature" type="elementType"/>
+			<xs:element name="DetectorMode" type="elementType"/>
+			<xs:element name="DetectorMode_RBV" type="elementType"/>
+			<xs:element name="TriggerMode" type="elementType"/>
+			<xs:element name="TriggerMode_RBV" type="elementType"/>
+			<xs:element name="TriggerEdge" type="elementType"/>
+			<xs:element name="TriggerEdge_RBV" type="elementType"/>
+			<xs:element name="PVCamVers_RBV" type="elementType"/>
+			<xs:element name="DevDrvVers_RBV" type="elementType"/>
+			<xs:element name="CameraFirmwareVers_RBV" type="elementType"/>
+			<xs:element name="HeadSerNum_RBV" type="elementType"/>
+			<xs:element name="PCIFWVers_RBV" type="elementType"/>
+			<xs:element name="SerialNum_RBV" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="ADPilatusType">
+		<xs:all>
+			<xs:element name="Armed" type="elementType"/>
+			<xs:element name="DelayTime" type="elementType"/>
+			<xs:element name="DelayTime_RBV" type="elementType"/>
+			<xs:element name="ThresholdEnergy" type="elementType"/>
+			<xs:element name="ThresholdEnergy_RBV" type="elementType"/>
+			<xs:element name="Gain" type="elementType"/>
+			<xs:element name="ImageFileTmot" type="elementType"/>
+			<xs:element name="BadPixelFile" type="elementType"/>
+			<xs:element name="NumBadPixels" type="elementType"/>
+			<xs:element name="FlatFieldFile" type="elementType"/>
+			<xs:element name="MinFlatField" type="elementType"/>
+			<xs:element name="MinFlatField_RBV" type="elementType"/>
+			<xs:element name="FlatFieldValid" type="elementType"/>
+			<xs:element name="Wavelength" type="elementType"/>
+			<xs:element name="EnergyLow" type="elementType"/>
+			<xs:element name="EnergyHigh" type="elementType"/>
+			<xs:element name="DetDist" type="elementType"/>
+			<xs:element name="DetVOffset" type="elementType"/>
+			<xs:element name="BeamX" type="elementType"/>
+			<xs:element name="BeamY" type="elementType"/>
+			<xs:element name="Flux" type="elementType"/>
+			<xs:element name="FilterTransm" type="elementType"/>
+			<xs:element name="StartAngle" type="elementType"/>
+			<xs:element name="AngleIncr" type="elementType"/>
+			<xs:element name="Det2theta" type="elementType"/>
+			<xs:element name="Polarization" type="elementType"/>
+			<xs:element name="Alpha" type="elementType"/>
+			<xs:element name="Kappa" type="elementType"/>
+			<xs:element name="Phi" type="elementType"/>
+			<xs:element name="Chi" type="elementType"/>
+			<xs:element name="OscillAxis" type="elementType"/>
+			<xs:element name="NumOscill" type="elementType"/>
+			<xs:element minOccurs="0" name="PixelCutOff_RBV" type="elementType"/>	
+			<xs:element minOccurs="0" name="GapFill" type="elementType"/>
+			<xs:element minOccurs="0" name="GapFill_RBV" type="elementType"/>		
+			<xs:element minOccurs="0" name="CbfTemplateFile" type="elementType"/>						
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="agilent33220AType">
+		<xs:all>
+			<xs:element name="DISABLE" type="elementType"/>
+			<xs:element name="FUNC" type="elementType"/>
+			<xs:element name="FUNCRBV" type="elementType"/>
+			<xs:element minOccurs="0" name="TRIGSRC" type="elementType"/>
+			<xs:element minOccurs="0" name="TRIGSRCRBV" type="elementType"/>
+			<xs:element minOccurs="0" name="BURSTMODE" type="elementType"/>
+			<xs:element minOccurs="0" name="BURSTMODERBV" type="elementType"/>
+			<xs:element minOccurs="0" name="BURSTNCYC" type="elementType"/>
+			<xs:element minOccurs="0" name="BURSTNCYCINF" type="elementType"/>
+			<xs:element minOccurs="0" name="BURSTNCYCRBV" type="elementType"/>
+			<xs:element minOccurs="0" name="BURST" type="elementType"/>
+			<xs:element minOccurs="0" name="BURSTRBV" type="elementType"/>
+			<xs:element name="FREQ" type="elementType"/>
+			<xs:element name="FREQRBV" type="elementType"/>
+			<xs:element name="AMP" type="elementType"/>
+			<xs:element name="AMPRBV" type="elementType"/>
+			<xs:element name="OFF" type="elementType"/>
+			<xs:element name="OFFRBV" type="elementType"/>
+			<xs:element name="OUT" type="elementType"/>
+			<xs:element name="OUTRBV" type="elementType"/>
+			<xs:element name="DCYC" type="elementType"/>
+			<xs:element name="DCYCRBV" type="elementType"/>
+			<xs:element name="SYMM" type="elementType"/>
+			<xs:element name="SYMMRBV" type="elementType"/>
+			<xs:element name="WIDT" type="elementType"/>
+			<xs:element name="WIDTRBV" type="elementType"/>
+			<xs:element name="TRAN" type="elementType"/>
+			<xs:element name="TRANRBV" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+   	<xs:complexType name="isegHVPSUType">
+		<xs:all>
+			<xs:element name="DISABLE" type="elementType"/>
+			<xs:element name="V1_ACTUAL" type="elementType"/>
+			<xs:element name="V2_ACTUAL" type="elementType"/>
+			<xs:element name="I1_ACTUAL" type="elementType"/>
+			<xs:element name="I2_ACTUAL" type="elementType"/>
+			<xs:element minOccurs="0" name="RESPONSE" type="elementType"/>
+			<xs:element minOccurs="0" name="COMMAND" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="pcocamType">
+		<xs:all>
+			<xs:element minOccurs="0" name="PIX_RATE" type="elementType"/>
+			<xs:element minOccurs="0" name="PIX_RATE_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="ADC_MODE" type="elementType"/>
+			<xs:element minOccurs="0" name="ADC_MODE_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="CAM_RAM_USE_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="ELEC_TEMP_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="POWER_TEMP_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="STORAGE_MODE" type="elementType"/>
+			<xs:element minOccurs="0" name="STORAGE_MODE_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="RECORDER_MODE" type="elementType"/>
+			<xs:element minOccurs="0" name="RECORDER_MODE_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="TIMESTAMP_MODE" type="elementType"/>
+			<xs:element minOccurs="0" name="TIMESTAMP_MODE_RBV" type="elementType"/>
+			<xs:element name="ACQUIRE_MODE" type="elementType"/>
+			<xs:element name="ACQUIRE_MODE_RBV" type="elementType"/>
+			<xs:element name="ARM_MODE" type="elementType"/>
+			<xs:element name="ARM_MODE_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="DELAY_TIME" type="elementType"/>
+			<xs:element minOccurs="0" name="DELAY_TIME_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="IMAGE_NUMBER_RBV" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="pixiumType">
+		<xs:all>
+			<xs:element name="LOGICAL_MODE" type="elementType"/>
+			<xs:element name="LOGICAL_MODE_RBV" type="elementType"/>
+			<xs:element name="PU_MODE" type="elementType"/>
+			<xs:element name="PU_MODE_RBV" type="elementType"/>
+			<xs:element name="NUMBER_OF_OFFSETS" type="elementType"/>
+			<xs:element name="NUMBER_OF_OFFSETS_RBV" type="elementType"/>
+			<xs:element name="OFFSET_REFERENCE_NUMBER" type="elementType"/>
+			<xs:element name="OFFSET_REFERENCE_NUMBER_RBV" type="elementType"/>
+			<xs:element name="OFFSET_REFERENCE" type="elementType"/>
+			<xs:element name="OFFSET_REFERENCE_RBV" type="elementType"/>
+			<xs:element name="OFFSET_CALIBRATION" type="elementType"/>
+			<xs:element name="FRAME_RATE" type="elementType"/>
+			<xs:element name="FRAME_RATE_RBV" type="elementType"/>
+			<xs:element name="X_RAY_WINDOW" type="elementType"/>
+			<xs:element name="X_RAY_WINDOW_RBV" type="elementType"/>
+			<xs:element name="LOGICAL_MODE_STATUS" type="elementType"/>
+			<xs:element name="ACQUISITION_MODE" type="elementType"/>
+			<xs:element name="DELTA_FREQ" type="elementType"/>
+			<xs:element name="DELTA_FREQ_RBV" type="elementType"/>
+			<xs:element name="CONNECTION" type="elementType"/>
+			<xs:element name="CONNECTION_RBV" type="elementType"/>
+			<xs:element name="LOGICAL_MODE_CHANGE" type="elementType"/>
+			<xs:element name="LOGICAL_MODE_CHANGE_RBV" type="elementType"/>
+			<xs:element name="OFFSET_REFERENCE_APPLY" type="elementType"/>
+			<xs:element name="OFFSET_REFERENCE_APPLY_RBV" type="elementType"/>
+			<xs:element name="MODE_CONTROL_DEFINE" type="elementType"/>
+			<xs:element name="MODE_CONTROL_DEFINE_RBV" type="elementType"/>
+			<xs:element name="MODE_CONTROL_DELETE" type="elementType"/>
+			<xs:element name="MODE_CONTROL_DELETE_RBV" type="elementType"/>
+			<xs:element name="MODE_CONTROL_LOAD" type="elementType"/>
+			<xs:element name="MODE_CONTROL_LOAD_RBV" type="elementType"/>
+			<xs:element name="MODE_CONTROL_UNLOAD" type="elementType"/>
+			<xs:element name="MODE_CONTROL_UNLOAD_RBV" type="elementType"/>
+			<xs:element name="MODE_CONTROL_ACTIVATE" type="elementType"/>
+			<xs:element name="MODE_CONTROL_ACTIVATE_RBV" type="elementType"/>
+			<xs:element name="MODE_CONTROL_DEACTIVATE" type="elementType"/>
+			<xs:element name="MODE_CONTROL_DEACTIVATE_RBV" type="elementType"/>
+			<xs:element name="PIXIUM_ABC_THRESHOLD" type="elementType"/>
+			<xs:element name="PIXIUM_ABC_THRESHOLD_RBV" type="elementType"/>
+			<xs:element name="PIXIUM_ABC_MIN_VOLTAGE" type="elementType"/>
+			<xs:element name="PIXIUM_ABC_MIN_VOLTAGE_RBV" type="elementType"/>
+			<xs:element name="PIXIUM_ABC_MAX_VOLTAGE" type="elementType"/>
+			<xs:element name="PIXIUM_ABC_MAX_VOLTAGE_RBV" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="aravisCameraType">
+		<xs:all>
+			<xs:element name="COMPLETED_RBV" type="elementType"/>
+			<xs:element name="FAILURES_RBV" type="elementType"/>
+			<xs:element name="UNDERRUNS_RBV" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>	
+	<xs:complexType name="positionCompareType">
+		<xs:all>
+			<xs:element minOccurs="0" name="MOTOR" type="elementType"/>
+			<xs:element minOccurs="0" name="CTRL" type="elementType"/>
+			<xs:element name="START" type="elementType"/>
+			<xs:element name="STOP" type="elementType"/>
+			<xs:element minOccurs="0" name="STEP" type="elementType"/>
+			<xs:element minOccurs="0" name="PULSE" type="elementType"/>
+			<xs:element minOccurs="0" name="STA" type="elementType"/>
+			<xs:element minOccurs="0" name="STATE" type="elementType"/>
+			<xs:element minOccurs="0" name="NPULSES" type="elementType"/>
+			<xs:element minOccurs="0" name="INIT" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>	
+	<xs:complexType name="caenN1470Type">
+		<xs:all>
+			<xs:element name="BDNAME" type="elementType"/>
+			<xs:element name="BDNCH" type="elementType"/>
+			<xs:element minOccurs="0" name="BDFREL" type="elementType"/>
+			<xs:element minOccurs="0" name="BDSNUM" type="elementType"/>
+			<xs:element minOccurs="0" name="BDILK" type="elementType"/>
+			<xs:element minOccurs="0" name="BDALARM" type="elementType"/>
+			<xs:element name="VSET0" type="elementType"/>
+			<xs:element name="VSET0RBV" type="elementType"/>
+			<xs:element name="VMON0RBV" type="elementType"/>
+			<xs:element name="ISET0" type="elementType"/>
+			<xs:element name="ISET0RBV" type="elementType"/>
+			<xs:element name="IMON0RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="RUP0" type="elementType"/>
+			<xs:element minOccurs="0" name="RUP0RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="RDW0" type="elementType"/>
+			<xs:element minOccurs="0" name="RDW0RBV" type="elementType"/>
+			<xs:element name="STAT0RBV" type="elementType"/>
+			<xs:element name="ON0RBV" type="elementType"/>
+			<xs:element name="ON0" type="elementType"/>
+			<xs:element minOccurs="0" name="VSET1" type="elementType"/>
+			<xs:element minOccurs="0" name="VSET1RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="VMON1RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="ISET1" type="elementType"/>
+			<xs:element minOccurs="0" name="ISET1RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="IMON1RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="RUP1" type="elementType"/>
+			<xs:element minOccurs="0" name="RUP1RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="RDW1" type="elementType"/>
+			<xs:element minOccurs="0" name="RDW1RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="STAT1RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="ON1RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="ON1" type="elementType"/>
+			<xs:element minOccurs="0" name="VSET2" type="elementType"/>
+			<xs:element minOccurs="0" name="VSET2RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="VMON2RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="ISET2" type="elementType"/>
+			<xs:element minOccurs="0" name="ISET2RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="IMON2RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="RUP2" type="elementType"/>
+			<xs:element minOccurs="0" name="RUP2RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="RDW2" type="elementType"/>
+			<xs:element minOccurs="0" name="RDW2RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="STAT2RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="ON2RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="ON2" type="elementType"/>
+			<xs:element minOccurs="0" name="VSET3" type="elementType"/>
+			<xs:element minOccurs="0" name="VSET3RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="VMON3RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="ISET3" type="elementType"/>
+			<xs:element minOccurs="0" name="ISET3RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="IMON3RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="RUP3" type="elementType"/>
+			<xs:element minOccurs="0" name="RUP3RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="RDW3" type="elementType"/>
+			<xs:element minOccurs="0" name="RDW3RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="STAT3RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="ON3RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="ON3" type="elementType"/>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>	
+	<!-- This is the root element of the schema, if you add a new deviceType, -->
+	<!-- be sure to add a device of type deviceType to the sequence -->
+	<xs:element name="devices">
+		<xs:complexType>
+			<xs:sequence maxOccurs="unbounded" minOccurs="0">
+				<xs:choice maxOccurs="unbounded" minOccurs="0">
+					<xs:element name="bimorphpsu" type="bimorphpsuType"/>
+					<xs:element name="bpm" type="bpmType"/>
+					<xs:element name="camera" type="cameraType"/>
+					<xs:element name="cryocooler" type="cryocoolerType"/>
+					<xs:element name="currAmpQuad" type="currAmpQuadType"/>
+					<xs:element name="currAmpSingle" type="currAmpSingleType"/>
+					<xs:element name="DLS8512" type="DLS8512Type"/>
+					<xs:element name="dlsMcaCanberra" type="dlsMcaCanberraType"/>
+					<xs:element name="dlsMcsSIS3820" type="dlsMcsSIS3820Type"/>
+					<xs:element name="elettraSY900S" type="elettraSY900SType"/>
+					<xs:element name="ETLdetector" type="ETLdetectorType"/>
+					<xs:element name="eurotherm2k" type="eurotherm2kType"/>
+					<xs:element name="horibaTriax190" type="horibaTriax190Type"/>
+					<xs:element name="k2400" type="k2400Type"/>
+					<xs:element name="lakeshore340" type="lakeshore340Type"/>
+					<xs:element name="linkam" type="linkamType"/>
+					<xs:element name="mcaGroup" type="mcaGroupType"/>
+					<xs:element name="nx100" type="nx100Type"/>
+					<xs:element name="OXCS700" type="OXCS700Type"/>
+					<xs:element name="pilatus" type="pilatusType"/>
+					<xs:element name="pneumatic" type="pneumaticType"/>
+					<xs:element name="pneumaticCallback" type="pneumaticCallbackType"/>
+					<xs:element name="positioner" type="positionerType"/>
+					<xs:element name="sampleChanger" type="sampleChangerType"/>
+					<xs:element name="simpleArray" type="simpleArrayType"/>
+					<xs:element name="simpleBinary" type="simpleBinaryType"/>
+					<xs:element name="simpleMbbinary" type="simpleMbbinaryType"/>
+					<xs:element name="simpleMca" type="simpleMcaType"/>
+					<xs:element name="simpleMotor" type="simpleMotorType"/>
+					<xs:element name="simplePv" type="simplePvType"/>
+					<xs:element name="simpleScaler" type="simpleScalerType"/>
+					<xs:element name="trajectoryScan" type="trajectoryScanType"/>
+					<xs:element name="scanData" type="scanDataType"/>
+					<xs:element name="xiaArray" type="xiaArrayType"/>
+					<xs:element name="OxInstCryojet" type="OxInstCryojetType"/>
+					<xs:element name="OxInstIPS" type="OxInstIPSType"/>
+					<xs:element name="magnet" type="magnetType"/>
+					<xs:element name="ADBase" type="ADBaseType"/>
+					<xs:element name="mar345" type="mar345Type"/>
+					<xs:element name="marCCD" type="marCCDType"/>
+					<xs:element name="NDColorConvert" type="NDColorConvertType"/>
+					<xs:element name="NDFile" type="NDFileType"/>
+					<xs:element name="NDFileJPEG" type="NDFileJPEGType"/>
+					<xs:element name="NDFileMagick" type="NDFileMagickType"/>
+					<xs:element name="NDFileNetCDF" type="NDFileNetCDFType"/>
+					<xs:element name="NDFileNexus" type="NDFileNexusType"/>
+					<xs:element name="NDFileHDF5" type="NDFileHDF5Type"/>
+					<xs:element name="NDFileTIFF" type="NDFileTIFFType"/>
+					<xs:element name="NDOverlay" type="NDOverlayType"/>
+					<xs:element name="NDPluginBase" type="NDPluginBaseType"/>
+					<xs:element name="NDProcess" type="NDProcessType"/>
+					<xs:element name="NDROI" type="NDROIType"/>
+					<xs:element name="NDStats" type="NDStatsType"/>
+					<xs:element name="NDStdArrays" type="NDStdArraysType"/>
+					<xs:element name="NDTransform" type="NDTransformType"/>
+					<xs:element name="prosilica" type="prosilicaType"/>
+					<xs:element name="ffmpegFile" type="ffmpegFileType"/>
+					<xs:element name="ffmpegStream" type="ffmpegStreamType"/>
+					<xs:element name="firewireDCAM" type="firewireDCAMType"/>
+					<xs:element name="URLDriver" type="URLDriverType"/>
+					<xs:element name="pvCam" type="pvCamType"/>
+					<xs:element name="ADPilatus" type="ADPilatusType"/>
+					<xs:element name="agilent33220A" type="agilent33220AType"/>
+					<xs:element name="isegHVPSU" type="isegHVPSUType"/>
+					<xs:element name="pcocam" type="pcocamType"/>
+					<xs:element name="pixium" type="pixiumType"/>
+					<xs:element name="aravisCamera" type="aravisCameraType"/>			
+					<xs:element name="positionCompare" type="positionCompareType"/>		
+					<xs:element name="caenN1470" type="caenN1470Type"/>					
+				</xs:choice>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

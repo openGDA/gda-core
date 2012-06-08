@@ -1,0 +1,68 @@
+# MOTOMAN robot interpreter Message List	
+Code	Contents
+0	OK
+1010	Command error
+1011	Error in number of command operands
+1012	Command operand value range over
+1013	Command operand length error
+1020	Disk full of files
+2010	Manipulator operating
+2020	Hold by programming pendant
+2030	Hold by playbacl panel
+2040	External hold
+2050	Command hold, Check Door Interlock Failed
+2060	Error/alarm occurring
+2070	Servo OFF
+2080	incorrect mode
+2090	File accessing by other function
+2100	Command remote not set
+2110	This data can not be accessed
+2120	This data can not be loaded
+2130	Editing
+3010	Turn ON the servo power
+3040	Perform home positioning.
+3050	Confirm positions
+3070	Current value not made
+3220	Panel lock; mode/cycle prohibit signal in ON.
+3230	Panel lock; start prohibit signal is ON.
+3350	User coordiante not taught
+3360	User file destroyed
+3370	Incorrect control group
+3380	Incorrect base axis data
+3390	Relativejob conversion prohibit (at CVTRJ)
+3400	Master call prohibit (parameter)
+3410	Master call prohibit (lamp On during operation)
+3420	Master call prohibit (teach lock)
+3430	Robot calibration data not defined
+3450	Servo power  cannot be turned on
+3460	Coordinate system can not be set.
+4010	Insufficient memory capacity (job registered memory)
+4012	Insufficient memory capacity (position data registered memory)
+4020	Job editing prohibit
+4030	Same job name exists
+4040	No specified job
+4060	Set a execution job
+4120	Position data destroyed
+4130	Position data not exist
+4140	Incorrect positiob variable type
+4150	END instruction for job which is not master job
+4170	Instruction data destroyed
+4190	Invalid character in job name
+4200	Invalid character in label name
+4230	Invalid instruction in this system
+4420	No step in job to be converted
+4430	Already converted
+4480	Teach user coordinate.
+4490	Relative job/independent control function not permitted
+5110	Syntaxt error (syntax of instruction)
+5120	Position data error
+5130	No NOP or END instruction
+5170	Format error (incorrect format)
+5180	Incorrect number of data
+5200	Data range over
+5310	Syntaxt error (except instruction)
+5340	Error in pseudo instruction specification
+5370	Error in condition data record
+5390	Error in job data record
+5430	Stsrem not matched
+5480	Incorrect welding function type

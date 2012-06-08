@@ -1,0 +1,838 @@
+<?xml version="1.0" ?>
+<mapping>
+	<!-- general objects -->
+	<class name="gda.factory.ObjectFactory">
+		<map-to xml="ObjectFactory"/>
+		<field name="name" type="java.lang.String">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field collection="collection" get-method="getFindables" name="findables" set-method="addFindable" type="gda.factory.Findable">
+			<bind-xml name="findables" node="element"/>
+		</field>
+	</class>
+	<class identity="name" name="gda.device.DeviceBase">
+		<map-to xml="deviceBase"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="protectionLevel" type="integer">
+			<bind-xml name="protectionLevel" node="element"/>
+		</field>
+		<field name="local" type="boolean">
+			<bind-xml name="local" node="element"/>
+		</field>
+		<field name="configureAtStartup" type="boolean">
+			<bind-xml name="configureAtStartup" node="element"/>
+		</field>
+	</class>
+	
+	<class extends="gda.device.DeviceBase" name="gda.device.scannable.ScannableBase">
+		<field name="level" type="int">
+			<bind-xml name="level" node="element" />
+		</field>
+		<field collection="array" get-method="getInputNames" name="inputNames"
+			set-method="setInputNames" type="string">
+			<bind-xml name="inputName" node="element" />
+		</field>
+		<field collection="array" get-method="getExtraNames" name="extraNames"
+			set-method="setExtraNames" type="string">
+			<bind-xml name="extraName" node="element" />
+		</field>
+		<field collection="array" get-method="getOutputFormat" name="outputFormat"
+			set-method="setOutputFormat" type="string">
+			<bind-xml name="outputFormat" node="element" />
+		</field>
+	</class>
+
+	<class name="gda.data.metadata.EpicsMetadataEntry">
+		<map-to xml="EpicsMetadataEntry"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="pvName" set-method="setPvName" type="string">
+			<bind-xml name="pvName" node="element"/>
+		</field>
+		<field name="defEntryName" type="string">
+			<bind-xml name="defEntryName" node="element"/>
+		</field>
+	</class>
+
+	<class identity="name" name="gda.device.attenuator.EpicsAttenuator">
+		<map-to xml="EpicsAttenuator"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element"/>
+		</field>
+	</class>
+
+	<class name="gda.device.scannable.scannablegroup.EpicsDeferredScannableGroup"	extends="gda.device.scannable.scannablegroup.ScannableGroup">
+		<map-to xml="EpicsDeferredScannableGroup"/>
+		<field name="deferredControlPointName" type="string">
+			<bind-xml name="deferredControlPointName" node="element"/>
+		</field>
+	</class>	
+
+	<class extends="gda.device.DeviceBase" name="gda.device.scannable.PVScannable">
+		<map-to xml="PVScannable"/>
+		<field name="pvName" type="string">
+			<bind-xml name="pvName" node="element"/>
+		</field>
+		<field name="unitsPvName" type="string">
+			<bind-xml name="unitsPvName" node="element"/>
+		</field>
+		<field name="units" type="string">
+			<bind-xml name="units" node="element"/>
+		</field>
+		<field name="deadband" type="double">
+			<bind-xml name="deadband" node="element"/>
+		</field>
+		<field name="canMove" type="boolean">
+			<bind-xml name="canMove" node="element"/>
+		</field>
+	</class>
+
+	<!-- detectors -->
+	<class extends="gda.device.scannable.ScannableBase" name="gda.device.detector.DetectorBase"> </class>
+	<class extends="gda.device.detector.DetectorBase" name="gda.device.detector.countertimer.CounterTimerBase">
+		<field name="timerName" type="string">
+			<bind-xml name="timerName" node="element" />
+		</field>
+		<field name="slave" type="boolean">
+			<bind-xml name="slave" node="element" />
+		</field>
+	</class>
+	
+	<class name="gda.device.detector.pilatus.EpicsPilatus"
+		identity="name" extends="gda.device.detector.DetectorBase">
+		<map-to xml="EpicsPilatus" />
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element" />
+		</field>
+	</class>	
+	
+	<class extends="gda.device.detector.DetectorBase" identity="name" name="gda.device.detector.Epics8512CounterTimer">
+		<map-to xml="Epics8512CounterTimer"/>
+		<field name="dummyOperation" type="boolean">
+			<bind-xml name="dummyOperation" node="element"/>
+		</field>
+		<field name="timeChannelRequired" type="boolean">
+			<bind-xml name="timeChannelRequired" node="element"/>
+		</field>
+		<field name="epicsRecordName" type="string">
+			<bind-xml name="epicsRecordName" node="element"/>
+		</field>
+	</class>
+	
+	<!-- *******Analyser Base*-->
+	<class extends="gda.device.DeviceBase" name="gda.device.detector.analyser.AnalyserBase">
+	</class>
+	
+	<class identity="name" name="gda.device.enumpositioner.PolarimeterPinholeEnumPositioner">
+		<map-to xml="PolarimeterPinholeEnumPositioner"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="numPinholes" type="integer">
+			<bind-xml name="numPinholes" node="element"/>
+		</field>
+		<field collection="collection" get-method="getLabelArrayList" name="label" set-method="addLabel" type="string">
+			<bind-xml name="label" node="element"/>
+		</field>
+		<field collection="collection" get-method="getPositionArrayList" name="position" set-method="addPosition" type="string">
+			<bind-xml name="position" node="element"/>
+		</field>
+		<field collection="collection" get-method="getValueArrayList" name="value" set-method="addValue" type="string">
+			<bind-xml name="value" node="element"/>
+		</field>
+		<field name="fluxMonitorChannelLabel" type="string">
+			<bind-xml name="fluxMonitorChannelLabel" node="element"/>
+		</field>
+		<field name="epicsRecordName" type="string">
+			<bind-xml name="epicsRecordName" node="element"/>
+		</field>		
+	</class>
+	<class identity="name" name="gda.device.enumpositioner.EpicsEnumPositioner">
+		<map-to xml="EpicsEnumPositioner"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="epicsRecordName" type="string">
+			<bind-xml name="epicsRecordName" node="element"/>
+		</field>
+
+	</class>
+	<class identity="name" name="gda.device.enumpositioner.EpicsPositioner">
+		<map-to xml="EpicsPositioner"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="epicsRecordName" type="string">
+			<bind-xml name="epicsRecordName" node="element"/>
+		</field>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element"/>
+		</field>
+	</class>
+	<class identity="name" name="gda.device.enumpositioner.EpicsSimpleMbbinary">
+		<map-to xml="EpicsSimpleMbbinary"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="epicsRecordName" type="string">
+			<bind-xml name="epicsRecordName" node="element"/>
+		</field>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element"/>
+		</field>
+	</class>
+	<class identity="name" name="gda.device.enumpositioner.EpicsPneumatic">
+		<map-to xml="EpicsPneumatic"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="epicsRecordName" type="string">
+			<bind-xml name="epicsRecordName" node="element"/>
+		</field>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element"/>
+		</field>
+	</class>
+	<class identity="name" name="gda.device.enumpositioner.EpicsPneumaticCallback">
+		<map-to xml="EpicsPneumaticCallback"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="epicsRecordName" type="string">
+			<bind-xml name="epicsRecordName" node="element"/>
+		</field>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element"/>
+		</field>
+	</class>
+	<class identity="name" name="gda.device.enumpositioner.EpicsValve">
+		<map-to xml="EpicsValve"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="epicsRecordName" type="string">
+			<bind-xml name="epicsRecordName" node="element"/>
+		</field>
+	</class>
+	<class identity="name" name="gda.device.enumpositioner.EpicsSimpleBinary">
+		<map-to xml="EpicsSimpleBinary"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="epicsRecordName" type="string">
+			<bind-xml name="epicsRecordName" node="element"/>
+		</field>
+	</class>
+	<class identity="name" name="gda.device.enumpositioner.DummyValve">
+		<map-to xml="DummyValve"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+	</class>
+
+	<!-- EpicsMCACounterTimer -->
+	<class extends="gda.device.detector.DetectorBase" identity="name" name="gda.device.detector.EpicsMCACounterTimer">
+		<map-to xml="EpicsMCACounterTimer"/>
+		<field collection="collection" get-method="getEpicsMcaNameList" name="epicsMcaNameList" set-method="addEpicsMcaName" type="string">
+			<bind-xml name="epicsMcaName" node="element"/>
+		</field>
+	</class>
+	<!-- TfgEpicsMCACounterTimer -->
+	<class extends="gda.device.detector.countertimer.CounterTimerBase" identity="name" name="gda.device.detector.countertimer.TfgEpicsMCACounterTimer">
+		<map-to xml="TfgEpicsMCACounterTimer"/>
+		<field collection="collection" get-method="getEpicsMcaNameList" name="epicsMcaNameList" set-method="addEpicsMcaName" type="string">
+			<bind-xml name="epicsMcaName" node="element"/>
+		</field>
+		<field name="epicsAdcName" type="string">
+			<bind-xml name="epicsAdcName" node="element"/>
+		</field>
+	</class>
+
+	<class identity="name" name="gda.device.monitor.EpicsMonitor">
+		<map-to xml="EpicsMonitor"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="epicsRecordName" type="string">
+			<bind-xml name="epicsRecordName" node="element"/>
+		</field>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element"/>
+		</field>
+		<field name="pvName" type="string">
+			<bind-xml name="pvName" node="element"/>
+		</field>
+		<field name="sensitivity" type="double">
+			<bind-xml name="sensitivity" node="element"/>
+		</field>
+	</class>
+	<!-- qbpm classes -->
+	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.qbpm.EpicsQbpm">
+		<map-to xml="EpicsQbpm"/>
+		<field name="currAmpQuadName" type="string">
+			<bind-xml name="currAmpQuadName" node="element"/>
+		</field>
+		<field name="bpmName" type="string">
+			<bind-xml name="bpmName" node="element"/>
+		</field>
+	</class>
+	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.enumpositioner.EpicsCurrAmpQuadController">
+		<map-to xml="EpicsCurrAmpQuadController"/>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element"/>
+		</field>
+	</class>
+	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.monitor.EpicsBpmController">
+		<map-to xml="EpicsBpmController"/>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element"/>
+		</field>
+	</class>
+	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.enumpositioner.EpicsQuadraCurrentAmplifier">
+		<map-to xml="EpicsQuadraCurrentAmplifier"/>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element"/>
+		</field>
+	</class>
+	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.monitor.EpicsBeamPositionMonitor">
+		<map-to xml="EpicsBeamPositionMonitor"/>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element"/>
+		</field>
+	</class>
+	<!-- qbpm classes -->
+	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.monitor.EpicsQuadrantBeamPositionMointor">
+		<map-to xml="EpicsQuadrantBeamPositionMointor"/>
+		<field name="currAmpQuadName" type="string">
+			<bind-xml name="currAmpQuadName" node="element"/>
+		</field>
+		<field name="bpmName" type="string">
+			<bind-xml name="bpmName" node="element"/>
+		</field>
+	</class>
+	
+	
+	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.monitor.EpicsBeamMonitor">
+		<map-to xml="EpicsBeamMonitor"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="detectorName" type="string">
+			<bind-xml name="detectorName" node="element"/>
+		</field>
+		<field name="channel" type="integer">
+			<bind-xml name="channel" node="element"/>
+		</field>
+		<field name="threshold" type="double">
+			<bind-xml name="threshold" node="element"/>
+		</field>
+		<field name="waitTime" type="integer">
+			<bind-xml name="waitTime" node="element"/>
+		</field>
+		<field name="consecutiveCountsAboveThreshold" type="integer">
+			<bind-xml name="consecutiveCountsAboveThreshold" node="element"/>
+		</field>
+		<field name="countTime" type="double">
+			<bind-xml name="countTime" node="element"/>
+		</field>
+	</class>
+	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.monitor.IonChamberBeamMonitor">
+		<map-to xml="IonChamberBeamMonitor"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="monitorName" type="string">
+			<bind-xml name="monitorName" node="element"/>
+		</field>
+		<field name="threshold" type="double">
+			<bind-xml name="threshold" node="element"/>
+		</field>
+	</class>
+
+	<!-- Dummy ControlPoint -->
+	
+	<!-- Epics ControlPoint -->
+	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.controlpoint.EpicsControlPoint">
+		<map-to xml="EpicsControlPoint"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="epicsRecordNameSetPoint" type="string">
+			<bind-xml name="epicsRecordNameSetPoint" node="element"/>
+		</field>
+		<field name="epicsRecordNameGetPoint" type="string">
+			<bind-xml name="epicsRecordNameGetPoint" node="element"/>
+		</field>
+		<field name="pvNameSetPoint" type="string">
+			<bind-xml name="pvNameSetPoint" node="element"/>
+		</field>
+		<field name="pvNameGetPoint" type="string">
+			<bind-xml name="pvNameGetPoint" node="element"/>
+		</field>
+		<field name="deviceNameSetPoint" type="string">
+			<bind-xml name="deviceNameSetPoint" node="element"/>
+		</field>
+		<field name="deviceNameGetPoint" type="string">
+			<bind-xml name="deviceNameGetPoint" node="element"/>
+		</field>
+		<field name="sensitivity" type="double">
+			<bind-xml name="sensitivity" node="element"/>
+		</field>
+	</class>
+
+	
+	
+	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.epicsdevice.FindableEpicsDevice">
+		<map-to xml="EpicsDevice"/>
+		<field collection="collection" get-method="getEpicsRecordNames" name="epicsRecordName" set-method="setEpicsRecordNames" type="string">
+			<bind-xml name="epicsRecordName" node="element"/>
+		</field>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element"/>
+		</field>
+		<field name="dummy" type="boolean">
+			<bind-xml name="dummy" node="element"/>
+		</field>
+	</class>
+
+	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.motor.MotorBase">
+		<map-to xml="motorBase"/>
+		<field name="backlashSteps" type="double">
+			<bind-xml name="backlashSteps" node="element"/>
+		</field>
+		<field name="fastSpeed" type="double">
+			<bind-xml name="fastSpeed" node="element"/>
+		</field>
+		<field name="mediumSpeed" type="double">
+			<bind-xml name="mediumSpeed" node="element"/>
+		</field>
+		<field name="slowSpeed" type="double">
+			<bind-xml name="slowSpeed" node="element"/>
+		</field>
+		<field name="limitsSettable" type="boolean">
+			<bind-xml name="limitsSettable" node="element"/>
+		</field>
+	</class>
+
+	<!-- temperature -->
+	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.temperature.CryoController">
+		<map-to xml="CryoController"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element"/>
+		</field>
+	</class>
+	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.temperature.EpicsEurotherm2kController">
+		<map-to xml="EpicsEurotherm2kController"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element"/>
+		</field>
+		<field name="maxRampRate" type="double">
+			<bind-xml name="maxRampRate" node="element"/>
+		</field>
+		<field name="minRampRate" type="double">
+			<bind-xml name="minRampRate" node="element"/>
+		</field>
+		<field name="maxOutput" type="double">
+			<bind-xml name="maxOutput" node="element"/>
+		</field>
+	</class>
+	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.temperature.EpicsLakeshore340Controller">
+		<map-to xml="EpicsLakeshore340Controller"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element"/>
+		</field>
+	</class>
+	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.temperature.TemperatureBase">
+		<map-to xml="temperatureBase"/>
+		<field collection="collection" get-method="getProbeNames" name="probeName" set-method="setProbeNames" type="string">
+			<bind-xml name="probeName" node="element"/>
+		</field>
+		<field name="accuracy" type="double">
+			<bind-xml name="accuracy" node="element"/>
+		</field>
+		<field name="polltime" type="long">
+			<bind-xml name="polltime" node="element"/>
+		</field>
+		<field name="fileSuffix" type="string">
+			<bind-xml name="fileSuffix" node="element"/>
+		</field>
+		<field name="upperTemp" type="double">
+			<bind-xml name="upperTemp" node="element"/>
+		</field>
+		<field name="lowerTemp" type="double">
+			<bind-xml name="lowerTemp" node="element"/>
+		</field>
+	</class>
+	<class extends="gda.device.temperature.TemperatureBase" identity="name" name="gda.device.temperature.OxfordCryostream700">
+		<map-to xml="OxfordCryostream700"/>
+		<field name="cryoControllerName" type="string">
+			<bind-xml name="cryoControllerName" node="element"/>
+		</field>
+	</class>
+	<class extends="gda.device.temperature.TemperatureBase" identity="name" name="gda.device.temperature.Eurotherm2K">
+		<map-to xml="Eurotherm2K"/>
+		<field name="controllerName" type="string">
+			<bind-xml name="controllerName" node="element"/>
+		</field>
+	</class>
+	<class extends="gda.device.temperature.TemperatureBase" identity="name" name="gda.device.temperature.GdaLakeshore340">
+		<map-to xml="GdaLakeshore340"/>
+		<field name="EpicsLakeshore340ControllerName" type="string">
+			<bind-xml name="EpicsLakeshore340ControllerName" node="element"/>
+		</field>
+	</class>
+
+	<!-- EPICS device section-->
+	<class identity="name" name="gda.epics.AccessControl">
+		<map-to xml="AccessControl"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="accessControlPvName" type="string">
+			<bind-xml name="accessControlPvName" node="element"/>
+		</field>
+	</class>
+	<class identity="name" name="gda.epics.xml.EpicsRecord">
+		<map-to xml="EpicsRecord"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element"/>
+		</field>
+		<field name="subsystemName" type="string">
+			<bind-xml name="subsystemName" node="element"/>
+		</field>
+		<field name="shortName" type="string">
+			<bind-xml name="shortName" node="element"/>
+		</field>
+	</class>
+	<class extends="gda.device.motor.MotorBase" identity="name" name="gda.device.motor.EpicsMotor">
+		<map-to xml="EpicsMotor"/>
+		<field name="epicsRecordName" type="string">
+			<bind-xml name="epicsRecordName" node="element"/>
+		</field>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element"/>
+		</field>
+		<field name="checkMissedTarget" type="boolean">
+			<bind-xml name="checkMissedTarget" node="element"/>
+		</field>
+		<field name="accessControlName" type="string">
+			<bind-xml name="accessControlName" node="element"/>
+		</field>
+		<field name="callbackWait" type="boolean">
+			<bind-xml name="callbackWait" node="element"/>
+		</field>
+	</class>
+	<class extends="gda.device.motor.EpicsMotor" identity="name" name="gda.device.motor.PolarimeterEpicsMotor">
+		<map-to xml="PolarimeterEpicsMotor"/>
+		<field name="homingDirection" type="string">
+			<bind-xml name="homingDirection" node="element"/>
+		</field>
+	</class>
+	<class extends="gda.device.detector.DetectorBase" identity="name" name="gda.device.detector.EpicsScaler">
+		<map-to xml="EpicsScaler"/>
+		<field name="epicsRecordName" type="string">
+			<bind-xml name="epicsRecordName" node="element"/>
+		</field>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element"/>
+		</field>
+		<field name="frequency" type="double">
+			<bind-xml name="frequency" node="element"/>
+		</field>
+	</class>
+	<class extends="gda.device.detector.analyser.AnalyserBase" identity="name" name="gda.device.detector.analyser.EpicsMCA">
+		<map-to xml="EpicsMca"/>
+		<field name="epicsMcaRecordName" type="string">
+			<bind-xml name="epicsMcaRecordName" node="element"/>
+		</field>
+		<field name="numberOfRegions" type="integer">
+			<bind-xml name="numberOfRegions" node="element"/>
+		</field>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element"/>
+		</field>
+		<field name="calibrationName" type="string">
+			<bind-xml name="calibrationName" node="element"/>
+		</field>
+	</class>
+	<class extends="gda.device.detector.analyser.AnalyserBase" identity="name" name="gda.device.detector.analyser.EpicsMCASimple">
+		<map-to xml="EpicsMcaSimple"/>
+		<field name="epicsDeviceName" type="string">
+			<bind-xml name="epicsDeviceName" node="element"/>
+		</field>
+		<field name="calibrationName" type="string">
+			<bind-xml name="calibrationName" node="element"/>
+		</field>
+		<field name="mcaPV" type="string" get-method="getMCAPV" set-method="setMCAPV">
+			<bind-xml name="mcaPV" node="element"/>
+		</field>
+	</class>
+	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.adc.EpicsADC">
+		<map-to table="detector_epics" xml="EpicsAdc"/>
+		<field name="epicsAdcRecordName" type="string">
+			<bind-xml name="epicsAdcRecordName" node="element"/>
+		</field>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element"/>
+		</field>
+	</class>
+	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.EpicsTca">
+		<map-to table="detector_epics" xml="EpicsTca"/>
+		<field name="epicsTcaRecordName" type="string">
+			<bind-xml name="epicsTcaRecordName" node="element"/>
+		</field>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element"/>
+		</field>
+		<field name="calibrationName" type="string">
+			<bind-xml name="calibrationName" node="element"/>
+		</field>
+	</class>
+	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.detector.multichannelscaler.EpicsDlsMcsSis3820Controller">
+		<map-to xml="EpicsDlsMcsSis3820Controller"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element"/>
+		</field>
+	</class>
+
+	<class extends="gda.device.detector.DetectorBase" identity="name" name="gda.device.detector.multichannelscaler.EpicsMultiChannelScaler">
+		<map-to xml="EpicsMultiChannelScaler"/>
+		<field name="controllerName" type="string">
+			<bind-xml name="controllerName" node="element"/>
+		</field>
+		<field collection="map" name="mcaList">
+			<bind-xml name="myMca">
+				<class name="org.exolab.castor.mapping.MapItem">
+					<field name="key" type="java.lang.Integer">
+						<bind-xml name="id" node="attribute"/>
+					</field>
+					<field name="value" type="gda.device.detector.multichannelscaler.Mca">
+						<bind-xml name="mca"/>
+					</field>
+				</class>
+			</bind-xml>
+		</field>
+	</class>
+	
+	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.spin.EnablerController">
+		<map-to xml="EnablerController"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element"/>
+		</field>
+	</class>
+	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.spin.SpeedController">
+		<map-to xml="SpeedController"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element"/>
+		</field>
+	</class>
+	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.spin.Spin">
+		<map-to xml="Spin"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="enableName" type="string">
+			<bind-xml name="enableName" node="element"/>
+		</field>
+		<field name="speedName" type="string">
+			<bind-xml name="speedName" node="element"/>
+		</field>
+	</class>
+	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.robot.RobotSampleState">
+		<map-to xml="RobotSampleState"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element"/>
+		</field>
+	</class>
+	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.robot.NextSamplePosition">
+		<map-to xml="NextSamplePosition"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element"/>
+		</field>
+	</class>
+	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.robot.CurrentSamplePosition">
+		<map-to xml="CurrentSamplePosition"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element"/>
+		</field>
+	</class>
+	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.robot.RobotNX100Controller">
+		<map-to xml="RobotNX100Controller"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element"/>
+		</field>
+		<field name="errorCodeFilename" type="string">
+			<bind-xml name="errorCodeFilename" node="element"/>
+		</field>
+	</class>
+	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.robot.I11Robot">
+		<map-to xml="I11Robot"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="robotControllerName" type="string">
+			<bind-xml name="robotControllerName" node="element"/>
+		</field>
+		<field name="sampleStateControllerName" type="string">
+			<bind-xml name="sampleStateControllerName" node="element"/>
+		</field>
+		<field name="nextSampleNumberControllerName" type="string">
+			<bind-xml name="nextSampleNumberControllerName" node="element"/>
+		</field>
+		<field name="currentSampleNumberControllerName" type="string">
+			<bind-xml name="currentSampleNumberControllerName" node="element"/>
+		</field>
+	</class>
+	
+	<class extends="gda.device.currentamplifier.CurrentAmplifierBase" identity="name" name="gda.device.currentamplifier.EpicsCurrAmpSingle">
+		<map-to xml="EpicsCurrAmpSingle"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element"/>
+		</field>
+	</class>
+	<class extends="gda.device.currentamplifier.CurrentAmplifierBase" identity="name" name="gda.device.currentamplifier.EpicsStanfordCurrentAmp">
+		<map-to xml="EpicsStanfordCurrentAmp"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element"/>
+		</field>
+	</class>
+
+	<class extends="gda.device.DeviceBase" identity="name" name="gda.scan.EpicsTrajectoryScanController">
+		<map-to xml="EpicsTrajectoryScanController"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element"/>
+		</field>
+		<field name="m1axis" type="string">
+			<bind-xml name="m1axis" node="element"/>
+		</field>
+		<field name="m2axis" type="string">
+			<bind-xml name="m2axis" node="element"/>
+		</field>
+		<field name="m3axis" type="string">
+			<bind-xml name="m3axis" node="element"/>
+		</field>
+		<field name="m4axis" type="string">
+			<bind-xml name="m4axis" node="element"/>
+		</field>
+		<field name="m5axis" type="string">
+			<bind-xml name="m5axis" node="element"/>
+		</field>
+		<field name="m6axis" type="string">
+			<bind-xml name="m6axis" node="element"/>
+		</field>
+		<field name="m7axis" type="string">
+			<bind-xml name="m7axis" node="element"/>
+		</field>
+		<field name="m8axis" type="string">
+			<bind-xml name="m8axis" node="element"/>
+		</field>
+		<field name="accelerationTime" type="double">
+			<bind-xml name="accelerationTime" node="element"/>
+		</field>
+	</class>
+
+	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.detector.etldetector.EpicsETLController">
+		<map-to xml="EpicsETLController"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="element"/>
+		</field>
+		<field name="epicsRecordName" type="string">
+			<bind-xml name="epicsRecordName" node="element"/>
+		</field>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element"/>
+		</field>
+	</class>
+	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.detector.xmap.EpicsXmapController">
+		<map-to xml="EpicsXmapController"/>
+		<field name="deviceName" type="string">
+			<bind-xml name="deviceName" node="element"/>
+		</field>
+		<field name="numberOfMca" type="integer">
+			<bind-xml name="numberOfMca" node="element"/>
+		</field>
+		<field name="numberOfBins" type="integer">
+			<bind-xml name="numberOfBins" node="element"/>
+		</field>
+		<field name="numberOfROIs" type="integer">
+			<bind-xml name="numberOfROIs" node="element"/>
+		</field>
+	</class>
+	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.detector.xmap.EpicsXmapController2">
+		<map-to xml="EpicsXmapController2"/>
+		<field name="edxdControllerName" type="string">
+			<bind-xml name="edxdControllerName" node="element"/>
+		</field>
+	</class>
+	
+	<class extends="gda.device.DeviceBase" identity="name" name="gda.device.detector.xmap.edxd.EDXDController">
+		<map-to xml="EDXDController"/>
+		<field name="epicsDeviceName" type="string">
+			<bind-xml name="epicsDeviceName" node="element"/>
+		</field>
+		<field name="numberOfElements" get-method="getNUMBER_OF_ELEMENTS"  set-method="setNUMBER_OF_ELEMENTS" type="integer">
+			<bind-xml name="numberOfElements" node="element"/>
+		</field>
+	</class>
+	
+	<class extends="gda.device.detector.DetectorBase" identity="name" name="gda.device.detector.etldetector.ETLDetector">
+		<map-to xml="ETLDetector"/>
+		<field name="scalerName" type="string">
+			<bind-xml name="scalerName" node="element"/>
+		</field>
+		<field name="detectorName" type="string">
+			<bind-xml name="detectorName" node="element"/>
+		</field>
+		<field name="scalerChannelIndex" type="integer">
+			<bind-xml name="scalerChannelIndex" node="element"/>
+		</field>
+	</class>
+</mapping>

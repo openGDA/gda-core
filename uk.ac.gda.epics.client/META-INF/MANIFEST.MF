@@ -1,0 +1,34 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Epics Client Plug-in
+Bundle-SymbolicName: uk.ac.gda.epics.client
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: uk.ac.gda.epics.client.EPICSClientActivator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ uk.ac.gda.epics;bundle-version="1.0.0",
+ uk.ac.gda.client;bundle-version="1.0.0",
+ uk.ac.diamond.scisoft.analysis.rcp;bundle-version="1.0.0",
+ uk.ac.gda.pydev.extension;bundle-version="1.0.0",
+ uk.ac.gda.video;bundle-version="1.0.0",
+ uk.ac.gda.video.mjpeg;bundle-version="1.0.0",
+ org.eclipse.ui.forms;bundle-version="3.5.2",
+ uk.ac.diamond.scisoft.analysis;bundle-version="1.0.0",
+ uk.ac.gda.libs;bundle-version="1.0.0",
+ uk.ac.gda.core,
+ uk.ac.diamond.scisoft.deprecated.rcp;bundle-version="1.0.0"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-Vendor: Diamond Light Source
+Eclipse-RegisterBuddy: uk.ac.gda.libs
+Export-Package: uk.ac.gda.epics.client,
+ uk.ac.gda.epics.client.imageprovider,
+ uk.ac.gda.epics.client.perspective,
+ uk.ac.gda.epics.client.views,
+ uk.ac.gda.epics.client.views.controllers,
+ uk.ac.gda.epics.client.views.model,
+ uk.ac.gda.epics.client.views.model.impl,
+ uk.ac.gda.epics.client.views.model.simulator
+Import-Package: org.slf4j;version="[1.5.0,2.0.0)",
+ org.springframework.beans.factory;version="3.0.4"
+

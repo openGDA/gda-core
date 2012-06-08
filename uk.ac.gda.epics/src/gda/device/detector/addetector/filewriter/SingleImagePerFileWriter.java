@@ -1,0 +1,193 @@
+/*-
+ * Copyright © 2011 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package gda.device.detector.addetector.filewriter;
+
+import gda.data.PathConstructor;
+import gda.device.detector.addetector.ADDetector;
+import gda.device.detector.areadetector.v17.NDFile;
+import gda.device.detector.areadetector.v17.NDFile.FileWriteMode;
+import gda.device.detectorfilemonitor.HighestExistingFileMonitor;
+import gda.device.detectorfilemonitor.HighestExitingFileMonitorSettings;
+
+import java.io.File;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/*
+ * SingleImagePerFileWriter(ndFileSimulator, "detectorName", "%%s%d%%s-%%d-detname.tif",true,true);
+ */
+public class SingleImagePerFileWriter extends FileWriterBase {
+
+	private final String folderTemplate;
+	boolean templatesRequireScanNumber=true;
+
+	/*
+	 * Object that can be used observe the progress of the scan by looking for file - optional
+	 */
+	HighestExistingFileMonitor highestExistingFileMonitor=null;	
+	
+	/**
+	 * @param ndFile
+	 * @param fileName
+	 * @param fileTemplate
+	 *            - template combined with scanNumber e.g. "%%s%d%%s-%%d-detname.tif" -
+	 * @param setFileNameAndNumber
+	 */
+	public SingleImagePerFileWriter(NDFile ndFile, String fileName, String fileTemplate, String folderTemplate,
+			boolean setFileNumberToZero, boolean setFileNameAndNumber) {
+		super(ndFile, fileName, fileTemplate, setFileNumberToZero, setFileNameAndNumber);
+		this.folderTemplate = folderTemplate;
+	}
+
+
+	public boolean isTemplatesRequireScanNumber() {
+		return templatesRequireScanNumber;
+	}
+
+	public void setTemplatesRequireScanNumber(boolean templatesRequireScanNumber) {
+		this.templatesRequireScanNumber = templatesRequireScanNumber;
+	}
+
+
+	public HighestExistingFileMonitor getHighestExistingFileMonitor() {
+		return highestExistingFileMonitor;
+	}
+
+
+	public void setHighestExistingFileMonitor(HighestExistingFileMonitor highestExistingFileMonitor) {
+		this.highestExistingFileMonitor = highestExistingFileMonitor;
+	}
+
+
+	private static Logger logger = LoggerFactory.getLogger(ADDetector.class);
+	private String fileNameUsed="";
+	private String filePathUsed="";
+	private int nextFileNumber=0;
+	private boolean returnExpectedFileName=false;
+	private String fileTemplateForScan="";
+
+	/**
+	 * If true getFullFileName_RBV returns expected filename rather than
+	 * value from ndfile plugin
+	 */
+	public boolean isReturnExpectedFullFileName() {
+		return returnExpectedFileName;
+	}
+
+
+	public void setReturnExpectedFullFileName(boolean returnExpectedFullFileName) {
+		this.returnExpectedFileName = returnExpectedFullFileName;
+	}
+
+
+	@Override
+	public String getFullFileName_RBV() throws Exception {
+		if( returnExpectedFileName){
+			String fullFileName = String.format( fileTemplateForScan,filePathUsed,fileNameUsed, nextFileNumber);
+			//each call increments the number
+			nextFileNumber++;
+			return fullFileName;
+		}
+		return super.getFullFileName_RBV();
+	}	
+
+	@Override
+	public void prepareForCollection(int numberImagesPerCollection) throws Exception {
+		if (!getEnable())
+			return;
+		if (isSetFileNameAndNumber()) {
+			setupFilename();
+		}
+		getNdFile().getPluginBase().enableCallbacks();
+		logger.warn("Detector will blocking the AreaDetectors acquisition thread while writing files");
+		getNdFile().getPluginBase().setBlockingCallbacks((short)( returnExpectedFileName ? 1: 1)); //always block otherwise file is corrupted 
+		getNdFile().setFileWriteMode(FileWriteMode.SINGLE);
+	}
+
+	private void setupFilename() throws Exception {
+		String fileTemplate = getFileTemplate();
+		if( isTemplatesRequireScanNumber()){
+			fileTemplate = String.format(fileTemplate, getScanNumber());
+		}
+		fileTemplateForScan = fileTemplate;
+		getNdFile().setFileTemplate(fileTemplate);
+		String fileName = getFileName();
+		getNdFile().setFileName(fileName);
+		fileNameUsed=fileName;		
+
+		int filenumber = 0;
+		if (isSetFileNumberToZero()) {
+			getNdFile().setFileNumber(filenumber);
+		} else {
+			filenumber = getNdFile().getFileNumber();
+		}
+		nextFileNumber=filenumber;
+
+		// Check to see if the data directory has been defined.
+		String dataDir = PathConstructor.createFromDefaultProperty();
+		if( folderTemplate != null){
+			if ( isTemplatesRequireScanNumber()){
+				dataDir = String.format(folderTemplate, dataDir, getScanNumber());
+			} else {
+				dataDir = String.format(folderTemplate, dataDir);
+			}
+		}
+		File f = new File(dataDir);
+		if (!f.exists()){
+			if(!f.mkdirs())
+				throw new Exception("Folder does not exist and cannot be made:" + dataDir);
+		}
+		getNdFile().setFilePath(dataDir);
+		filePathUsed=dataDir;
+		
+		getNdFile().setAutoSave((short) 1);
+		getNdFile().setAutoIncrement((short) 1);
+		
+		if( highestExistingFileMonitor != null){
+			fileTemplate=fileTemplate.replaceFirst("%s", "");
+			fileTemplate=fileTemplate.replaceFirst("%s", "");
+			HighestExitingFileMonitorSettings highestExitingFileMonitorSettings = 
+					new HighestExitingFileMonitorSettings(dataDir,fileName+fileTemplate, filenumber);
+			highestExistingFileMonitor.setHighestExitingFileMonitorSettings(highestExitingFileMonitorSettings);
+			highestExistingFileMonitor.setRunning(true);
+		}		
+
+	}
+
+	@Override
+	public void endCollection() throws Exception {
+		if (!getEnable())
+			return;
+		disableFileWriter();
+	}
+
+	@Override
+	public void disableFileWriter() throws Exception {
+		getNdFile().getPluginBase().disableCallbacks();
+		getNdFile().getPluginBase().setBlockingCallbacks((short) 0);
+		getNdFile().setFileWriteMode(FileWriteMode.STREAM);
+	}
+
+	@Override
+	public boolean isLinkFilepath() {
+		return false;
+	}
+
+}

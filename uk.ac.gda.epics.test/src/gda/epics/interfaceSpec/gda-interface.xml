@@ -1,0 +1,17 @@
+<?xml version="1.0" ?>
+<devices xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://serv0002.cs.diamond.ac.uk/repos/controls/etc/trunk/tools/gda/genericBeamlineSchema.xsd">
+    <xiaArray desc="xiaArray" name="xiaArray.1">
+        <F1 desc="F1" pv="Simple-FILT-01:F1TRIGGER" ro="false" type="binary"/>
+        <F2 desc="F2" pv="Simple-FILT-01:F2TRIGGER" ro="false" type="binary"/>
+        <F3 desc="F3" pv="Simple-FILT-01:F3TRIGGER" ro="false" type="binary"/>
+        <F4 desc="F4" pv="Simple-FILT-01:F4TRIGGER" ro="false" type="binary"/>
+        <F1ERR desc="F1ERRSTATE" pv="Simple-FILT-01:F1ERRSTATE" ro="true" type="binary"/>
+        <F2ERR desc="F2ERRSTATE" pv="Simple-FILT-01:F2ERRSTATE" ro="true" type="binary"/>
+        <F3ERR desc="F3ERRSTATE" pv="Simple-FILT-01:F3ERRSTATE" ro="true" type="binary"/>
+        <F4ERR desc="F4ERRSTATE" pv="Simple-FILT-01:F4ERRSTATE" ro="true" type="binary"/>
+        <F1STA desc="F1STATE" pv="Simple-FILT-01:F1STATE" ro="true" type="binary"/>
+        <F2STA desc="F2STATE" pv="Simple-FILT-01:F2STATE" ro="true" type="binary"/>
+        <F3STA desc="F3STATE" pv="Simple-FILT-01:F3STATE" ro="true" type="binary"/>
+        <F4STA desc="F4STATE" pv="Simple-FILT-01:F4STATE" ro="true" type="binary"/>
+    </xiaArray>
+</devices>

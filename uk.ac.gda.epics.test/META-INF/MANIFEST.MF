@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: EPICS Test Plugin
+Bundle-SymbolicName: uk.ac.gda.epics.test
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Diamond Light Source
+Fragment-Host: uk.ac.gda.epics;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: org.junit4;bundle-version="4.8.1"
+Import-Package: org.springframework.beans.factory;version="3.0.4"

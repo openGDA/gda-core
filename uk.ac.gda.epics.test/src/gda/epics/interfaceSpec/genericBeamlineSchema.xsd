@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generic Schema for checking all beamline gda interface files -->
+<!-- In this context, a deviceType represents an EPICS template -->
+<!-- and a device represents an instantiation of a template -->
+<!-- To add a new deviceType, follow the instructions in comments -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<!-- This is the group of attributes common to all devices -->
+	<xs:attributeGroup name="deviceAttributes">
+		<xs:attribute name="name" type="xs:string" use="required"/>
+		<xs:attribute name="desc" type="xs:string" use="required"/>
+	</xs:attributeGroup>
+	<!-- This is the group of attributes common to all records -->
+	<xs:attributeGroup name="recordAttributes">
+		<!-- attribute type must be defined in deviceType -->
+		<!-- type value must be one of: "motor","scaler","mbbinary","binary","pv","array","mca" -->
+		<xs:attribute name="desc" type="xs:string" use="required"/>
+		<xs:attribute name="pv" type="xs:string" use="required"/>
+	</xs:attributeGroup>
+	<!-- This is a deviceType called ETLdetectorType -->
+	<!-- All other deviceTypes should follow this structure -->
+	<!-- It represents an ETL scintillator detector -->
+	<xs:complexType name="ETLdetectorType">
+		<xs:all>
+			<!-- Each element here represents a record -->
+			<xs:element name="HVADC">
+				<!-- Readback the HV value from internal ADC to see what the actual HV value is. Takes a few seconds to ramp up after an HV request has been made-->
+				<xs:complexType>
+					<xs:attribute fixed="pv" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="true" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+			<!-- GDA expects the existence of each of these elements to instantiate the ETLdetectorType class -->
+			<xs:element name="HVRBV">
+				<!-- Immediate readback to see if the HV request has been written -->
+				<xs:complexType>
+					<xs:attribute fixed="pv" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="true" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+			<!-- Each element should follow this structure -->
+			<xs:element name="HV">
+				<!-- Send an HV voltage request to the unit -->
+				<xs:complexType>
+					<xs:attribute fixed="pv" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="false" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+					<!-- There should be a type attribute fixed to the values listed in the recordAttributes comment -->
+					<!-- There should be a read only attribute fixed to true or false -->
+					<!-- desc and pv attributes should be included from recordAttributes -->
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="ULIM">
+				<!--Set the upper voltage threshold to discard pulses above a certain threshold-->
+				<xs:complexType>
+					<xs:attribute fixed="pv" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="false" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="LLIM">
+				<!--Set the lower voltage threshold to discard pulses below a certain threshold-->
+				<xs:complexType>
+					<xs:attribute fixed="pv" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="false" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="ULIMRBV">
+				<!--Readback to see it ULIM request has been written-->
+				<xs:complexType>
+					<xs:attribute fixed="pv" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="false" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="LLIMRBV">
+				<!--Readback to see it LLIM request has been written-->
+				<xs:complexType>
+					<xs:attribute fixed="pv" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="false" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+			
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+		<!-- An all element indicates the contents must all exist in any order -->
+		<!-- Finally make sure that the deviceAttributes are included -->
+	</xs:complexType>
+	<!-- Template with a single scaler record in it -->
+	<xs:complexType name="simpleScalerType">
+		<xs:all>
+			<xs:element name="RECORD">
+				<!-- Just a wrapper for a scaler record -->
+				<xs:complexType>
+					<xs:attribute fixed="scaler" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="false" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<!-- Template with a single motor record in it -->
+	<xs:complexType name="simpleMotorType">
+		<xs:all>
+			<xs:element name="RECORD">
+				<!-- Just a wrapper for a motor record -->
+				<xs:complexType>
+					<xs:attribute fixed="motor" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="false" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<!-- Template with a single pv in it -->
+	<xs:complexType name="simplePvType">
+		<xs:all>
+			<xs:element name="RECORD">
+				<!-- Just a wrapper for a single PV -->
+				<xs:complexType>
+					<xs:attribute fixed="pv" name="type" type="xs:string" use="required"/>
+					<xs:attribute name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<!-- Template with a single array in it -->
+	<xs:complexType name="simpleArrayType">
+		<xs:all>
+			<xs:element name="RECORD">
+				<!-- Just a wrapper for a single PV -->
+				<xs:complexType>
+					<xs:attribute fixed="array" name="type" type="xs:string" use="required"/>
+					<xs:attribute name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>	
+	<!-- Template for moving multiple devices to one of a series of preset positions -->
+	<xs:complexType name="positionerType">
+		<xs:all>
+			<xs:element name="SELECT">
+				<!-- Select the positions from a list -->
+				<xs:complexType>
+					<xs:attribute fixed="mbbinary" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="false" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="DMOV">
+				<!-- set to 1 when all the underlying motors are finished moving -->
+				<xs:complexType>
+					<xs:attribute fixed="pv" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="true" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="ERROR">
+				<!-- set to 1 when one of the underlying motors reports an error -->
+				<xs:complexType>
+					<xs:attribute fixed="pv" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="true" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="INPOS">
+				<!-- set to 1 when all the underlying motors are in position -->
+				<xs:complexType>
+					<xs:attribute fixed="pv" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="true" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="STOP">
+				<!-- write 1 to this to stop all motion -->
+				<xs:complexType>
+					<xs:attribute fixed="pv" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="false" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>			
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<!-- Template for controlling a firewire camera -->
+	<xs:complexType name="firewireCamType">
+		<xs:all>
+			<xs:element name="DATA">
+				<!-- 1d array of pixel information running left-right in lines, needs height and width to decode -->
+				<xs:complexType>
+					<xs:attribute fixed="array" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="true" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="HEIGHT">
+				<!-- height of the image -->
+				<xs:complexType>
+					<xs:attribute fixed="pv" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="true" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="WIDTH">
+				<!-- Width of the image -->
+				<xs:complexType>
+					<xs:attribute fixed="pv" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="true" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="ON">
+				<!-- write 1 to this to turn the camera on -->
+				<xs:complexType>
+					<xs:attribute fixed="pv" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="false" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="TRIG" minOccurs="0">
+				<!-- set the trigger mode to internal to read back images, not needed in new driver -->
+				<xs:complexType>
+					<xs:attribute name="type" type="xs:string" use="required" fixed="mbbinary"/>
+					<xs:attribute name="ro" type="xs:boolean" use="required" fixed="false"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="TRIGRBV" minOccurs="0">
+				<!-- readback for trigger value, not needed in new driver -->
+				<xs:complexType>
+					<xs:attribute name="type" type="xs:string" use="required" fixed="mbbinary"/>
+					<xs:attribute name="ro" type="xs:boolean" use="required" fixed="true"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>					
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<!-- Template for controlling pneumatic devices, like vacuum valves and shutters -->
+	<xs:complexType name="pneumaticType">
+		<xs:all>
+			<xs:element name="CONTROL">
+				<!-- control: open,close,reset select box -->
+				<xs:complexType>
+					<xs:attribute fixed="mbbinary" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="false" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="CONTROLRBV">
+				<!-- readback for control -->
+				<xs:complexType>
+					<xs:attribute fixed="mbbinary" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="true" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="ILKSTA">
+				<!-- Readback the interlock status, has multiple bits for each interlock that can go wrong -->
+				<xs:complexType>
+					<xs:attribute fixed="mbbinary" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="true" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="STA">
+				<!-- status of the valve, TODO: what does each status mean? -->
+				<xs:complexType>
+					<xs:attribute fixed="mbbinary" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="true" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<!-- Template for controlling an xia filter array -->
+	<xs:complexType name="xiaArrayType">
+		<xs:all>
+			<xs:element name="F2">
+				<!--Describe F2-->
+				<xs:complexType>
+					<xs:attribute fixed="binary" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="false" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="F3">
+				<!--Describe F3-->
+				<xs:complexType>
+					<xs:attribute fixed="binary" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="false" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="F4">
+				<!--Describe F4-->
+				<xs:complexType>
+					<xs:attribute fixed="binary" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="false" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="F1">
+				<!--Describe F1-->
+				<xs:complexType>
+					<xs:attribute fixed="binary" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="false" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="F4ERR">
+				<!--Describe F4ERR-->
+				<xs:complexType>
+					<xs:attribute fixed="binary" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="true" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="F3ERR">
+				<!--Describe F3ERR-->
+				<xs:complexType>
+					<xs:attribute fixed="binary" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="true" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="F2ERR">
+				<!--Describe F2ERR-->
+				<xs:complexType>
+					<xs:attribute fixed="binary" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="true" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="F1ERR">
+				<!--Describe F1ERR-->
+				<xs:complexType>
+					<xs:attribute fixed="binary" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="true" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="F4STA">
+				<!--Describe F4STA-->
+				<xs:complexType>
+					<xs:attribute fixed="binary" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="true" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="F3STA">
+				<!--Describe F3STA-->
+				<xs:complexType>
+					<xs:attribute fixed="binary" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="true" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="F2STA">
+				<!--Describe F2STA-->
+				<xs:complexType>
+					<xs:attribute fixed="binary" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="true" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="F1STA">
+				<!--Describe F1STA-->
+				<xs:complexType>
+					<xs:attribute fixed="binary" name="type" type="xs:string" use="required"/>
+					<xs:attribute fixed="true" name="ro" type="xs:boolean" use="required"/>
+					<xs:attributeGroup ref="recordAttributes"/>
+				</xs:complexType>
+			</xs:element>
+		</xs:all>
+		<xs:attributeGroup ref="deviceAttributes"/>
+	</xs:complexType>
+	<!-- This is the root element of the schema, if you add a new deviceType, -->
+	<!-- be sure to add a device of type deviceType to the sequence -->
+	<xs:element name="devices">
+		<xs:complexType>
+			<xs:sequence minOccurs="0" maxOccurs="unbounded">
+				<xs:choice minOccurs="0" maxOccurs="unbounded">
+					<xs:element name="ETLdetector" type="ETLdetectorType"/>
+					<xs:element name="simpleScaler" type="simpleScalerType"/>
+					<xs:element name="simpleMotor" type="simpleMotorType"/>
+					<xs:element name="simplePv" type="simplePvType"/>
+					<xs:element name="simpleArray" type="simpleArrayType"/>
+					<xs:element name="positioner" type="positionerType"/>
+					<xs:element name="firewireCam" type="firewireCamType"/>
+					<xs:element name="pneumatic" type="pneumaticType"/>
+					<xs:element name="xiaArray" type="xiaArrayType"/>
+				</xs:choice>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

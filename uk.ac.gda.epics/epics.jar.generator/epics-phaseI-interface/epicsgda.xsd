@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- schema definition file for device file-->
+<!-- Version 0.1 M. Walters 2006-06-09 First prototype version -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<!-- definition of common attributes -->
+	<xs:attribute name="name" type="xs:string"/>
+	<!-- Name, used in many places -->
+	<xs:attribute name="description" type="xs:string"/>
+	<!-- Description, used below-->
+	<xs:attribute name="epicsname" type="xs:string"/>
+	<!-- EPICS name, used below -->
+	<xs:attribute name="pv" type="xs:string"/>
+	<!-- PV name, used below -->
+	<xs:attribute name="label" type="xs:string"/>
+	<!-- label string, used below -->
+	<xs:attribute name="index" type="xs:nonNegativeInteger"/>
+	<!-- Index, used below-->
+	<xs:attribute name="PV" type="xs:string"/>
+	<!-- PV, used below-->
+
+	<!-- Definition of lists of allowed types -->
+	<xs:simpleType name="subType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="motor"/>
+			<xs:enumeration value="positioner"/>
+			<xs:enumeration value="mca"/>
+			<xs:enumeration value="scaler"/>
+			<xs:enumeration value="camera"/>
+			<xs:enumeration value="monitor"/>
+			<xs:enumeration value="button"/>
+			<xs:enumeration value="controlPoint"/>
+			<xs:enumeration value="valve"/>
+			<xs:enumeration value="scintillator"/>
+			<xs:enumeration value="aim"/>
+			<xs:enumeration value="adc"/>
+			<xs:enumeration value="tca"/>
+			<xs:enumeration value="selection"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="intType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="motion"/>
+			<xs:enumeration value="detector"/>
+			<xs:enumeration value="general"/>
+			<xs:enumeration value="vacuum"/>
+			<xs:enumeration value="counter"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- complex elements -->
+
+	<xs:complexType name="subsystemType">
+		<xs:attribute ref="name" use="required"/>
+		<!-- Name of subsystem -->
+		<xs:attribute ref="description" use="required"/>
+		<!-- Description of subsystem -->
+		<xs:attribute ref="pv" use="required"/>
+		<!-- PV suffix -->
+		<xs:attribute name="type" type="subType" use="required"/>
+		<!-- Type of subsystem -->
+	</xs:complexType>
+	
+
+	<xs:complexType name="interfaceType">
+		<xs:sequence>
+			<xs:element name="subsystem" type="subsystemType" maxOccurs="unbounded"/>
+			<!-- Group of subsystems in the interface -->
+		</xs:sequence>
+		<xs:attribute ref="name" use="required"/>
+		<!-- Name of interface -->
+		<xs:attribute ref="description" use="required"/>
+		<!-- Description of interface -->
+		<xs:attribute ref="label" use="required"/>
+		<!-- label for interface -->
+		<xs:attribute name= "type" type="intType" use="required"/>
+		<!-- Type of interface -->
+	</xs:complexType>
+
+	<xs:complexType name="typeType">
+		<xs:attribute ref="name" use="required"/>
+		<!-- Name of interface -->
+	</xs:complexType>
+	
+
+	<xs:complexType name="deviceType">
+		<xs:sequence>
+			<xs:element name="type" type="typeType" minOccurs="0" maxOccurs="unbounded"/>
+			<!-- Group of interfaces in the device -->
+		</xs:sequence>
+		<xs:attribute ref="name" use="required"/>
+		<!-- Name of device -->
+		<xs:attribute ref="description" use="required"/>
+		<!-- Description of device -->
+		<xs:attribute ref="epicsname" use="required"/>
+		<!-- EPICS name of device -->
+	</xs:complexType>
+	
+	<xs:complexType name="sectionType">
+		<xs:sequence>
+			<xs:element name="device" type="deviceType" minOccurs="0" maxOccurs="unbounded"/>
+			<!-- Group of devices in the section -->
+		</xs:sequence>
+		<xs:attribute ref="name" use="required"/>
+		<!-- Name of section -->
+	</xs:complexType>
+
+	<xs:complexType name="sectType">
+		<xs:attribute ref="name" use="required"/>
+		<!-- Name of section -->
+	</xs:complexType>
+
+	<xs:complexType name="configType">
+		<xs:sequence>
+			<xs:element name="sect" type="sectType" maxOccurs="unbounded"/>
+			<!-- Group of sections in the config -->
+		</xs:sequence>
+		<xs:attribute ref="name" use="required"/>
+		<!-- Name of config -->
+		<xs:attribute ref="index" use="required"/>
+		<!-- Index of config -->
+	</xs:complexType>	
+
+	<xs:complexType name="branchType">
+		<xs:sequence>
+			<xs:element name="config" type="configType" maxOccurs="unbounded"/>
+			<!-- Group of configs in the branch -->
+		</xs:sequence>
+		<xs:attribute ref="name" use="required"/>
+		<!-- Name of branch -->
+		<xs:attribute ref="description" use="required"/>
+		<!-- Description of branch -->
+	</xs:complexType>
+
+      <!-- All allowed main elements -->
+
+
+	<xs:element name="types">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="interface" type="interfaceType" maxOccurs="unbounded"/>
+				<!-- List of sections in the device -->
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="devices">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="section" type="sectionType" maxOccurs="unbounded"/>
+				<!-- List of sections in the device -->
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="configs">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="branch" type="branchType" maxOccurs="unbounded"/>
+				<!-- List of branches for the beamline -->
+			</xs:sequence>
+			<xs:attribute ref="PV" use="required"/>
+			<!-- PV for monitoring config of beamline -->
+		</xs:complexType>
+	</xs:element>
+
+</xs:schema>
