@@ -1,0 +1,105 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _XSPRESSDETECTOR_IDL_
+#define _XSPRESSDETECTOR_IDL_
+
+#include <detector.idl>
+#include <device.idl>
+
+module gda {
+module device {
+module detector {
+module xspress {
+module corba {
+
+	struct CorbaXspressROI
+	{
+		string regionName;
+		long regionStart;
+		long regionEnd;
+		string regionType;
+	};
+	
+
+	struct CorbaDetectorElement
+	{
+		string name;
+		long number;
+		long windowStart;
+		long windowEnd;
+		boolean excluded;
+		sequence<gda::device::detector::xspress::corba::CorbaXspressROI> regions;
+	};
+
+	struct CorbaDetectorReading
+	{
+		CorbaDetectorElement detector;
+		long long originalWindowed;
+		long long total;
+		long long resets;
+		long long acc;
+		long long windowed;
+	};
+
+/**
+ *  An interface for an XspressSystem2Plus 
+ */
+interface CorbaXspress : device::detector::corba::CorbaDetector
+{
+	typedef sequence<gda::device::detector::xspress::corba::CorbaDetectorReading> detectorReadingArray;
+	typedef sequence<double> doubleArray;
+	typedef sequence<long> longArray;
+	typedef sequence<longArray> dataArray; 
+	typedef sequence<dataArray> threeDArray; 
+
+	void start() raises (device::corba::CorbaDeviceException);
+
+	void clear() raises (device::corba::CorbaDeviceException);
+
+	long getNumberOfDetectors() raises (device::corba::CorbaDeviceException);
+
+	threeDArray getMCData(in long time) raises (device::corba::CorbaDeviceException);
+	
+	longArray getRawScalerData() raises (device::corba::CorbaDeviceException);
+
+	void setDetectorWindow(in long detector, in long start, in long end) raises (device::corba::CorbaDeviceException);
+
+	device::detector::xspress::corba::CorbaDetectorElement getDetector(in long which) raises (device::corba::CorbaDeviceException);
+
+	void saveDetectors(in string filename) raises (device::corba::CorbaDeviceException);
+
+	void loadAndInitializeDetectors(in string filename) raises (device::corba::CorbaDeviceException);
+
+	string getResGrade() raises (device::corba::CorbaDeviceException);
+
+	void setResGrade(in string mode) raises (device::corba::CorbaDeviceException);
+	
+	string getReadoutMode() raises (device::corba::CorbaDeviceException);
+
+	void setReadoutMode(in string mode) raises (device::corba::CorbaDeviceException);
+
+	void setDeadtimeCalculationEnergy(in double energy) raises (device::corba::CorbaDeviceException);
+
+	double getDeadtimeCalculationEnergy() raises (device::corba::CorbaDeviceException);
+};
+ 
+};};};};};
+
+#endif // _XSPRESSDETECTOR_IDL_

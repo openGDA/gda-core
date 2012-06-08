@@ -1,0 +1,66 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _XMAP_IDL_
+#define _XMAP_IDL_
+
+#include <detector.idl>
+
+
+module gda {
+	module device {
+		module detector {
+			module xmap {
+				module corba {
+	
+	typedef sequence<long> longArray;
+	typedef sequence<double> doubleArray;
+	typedef sequence<longArray>  dataArray; 
+	typedef sequence<doubleArray> roiArray;
+ 
+interface CorbaXmapDetector : device::detector::corba::CorbaDetector
+{	
+   void clearAndStart()raises (device::corba::CorbaDeviceException);
+	void clear()raises (device::corba::CorbaDeviceException);
+	void start() raises (device::corba::CorbaDeviceException);
+	/*void stop() raises (device::corba::CorbaDeviceException);*/
+	void setNumberOfBins(in long numberOfBins)raises (device::corba::CorbaDeviceException);
+	long getNumberOfBins()raises (device::corba::CorbaDeviceException);
+	void setStatusRate(in double statusRate)raises (device::corba::CorbaDeviceException);
+	double getStatusRate()raises (device::corba::CorbaDeviceException);
+	void setReadRate(in double readRate)raises (device::corba::CorbaDeviceException);
+	double getReadRate()raises (device::corba::CorbaDeviceException);
+	double getRealTime()raises (device::corba::CorbaDeviceException);
+	/*long getStatus()raises (device::corba::CorbaDeviceException);*/
+	void setAcquisitionTime(in double time)raises (device::corba::CorbaDeviceException);
+	double getAcquisitionTime()raises (device::corba::CorbaDeviceException);
+	longArray getChannelData(in long channel) raises (device::corba::CorbaDeviceException);
+	dataArray getData()raises (device::corba::CorbaDeviceException);
+	doubleArray getROIsSum()raises (device::corba::CorbaDeviceException);
+	void setROIs(in roiArray rois)raises (device::corba::CorbaDeviceException);
+	void setNumberOfROIs(in long numberOfROIs)raises (device::corba::CorbaDeviceException);
+	long getNumberOfROIs()raises (device::corba::CorbaDeviceException);
+	long getNumberOfMca()raises (device::corba::CorbaDeviceException);
+	void setNthROI(in roiArray rois, in long roiIndex)raises (device::corba::CorbaDeviceException);
+   
+};
+
+};};};};};
+
+#endif

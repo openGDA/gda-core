@@ -1,0 +1,56 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _Mar345_IDL_
+#define _Mar345_IDL_
+
+#include <device.idl>
+#include <detector.idl>
+
+module gda {
+module device {
+module detector {
+module mar345 {
+module corba {
+
+
+/**
+ *  An interface for a distributed MAR 345 Detector class
+ */
+interface CorbaMar345 : device::detector::corba::CorbaDetector
+{   
+   void appendToKeywordList(in string keywords) raises (device::corba::CorbaDeviceException);
+   void clearKeywordList() raises (device::corba::CorbaDeviceException);
+   void sendKeywordList() raises (device::corba::CorbaDeviceException);
+   void sendKeywords(in string keywords) raises (device::corba::CorbaDeviceException);
+   void setMode(in long mode) raises (device::corba::CorbaDeviceException);
+   void setDirectory(in string directory) raises (device::corba::CorbaDeviceException);
+   void setRootName(in string rootName) raises (device::corba::CorbaDeviceException);
+   void setFormat(in string format) raises (device::corba::CorbaDeviceException);
+   string getFormat() raises (device::corba::CorbaDeviceException);
+   long getMode() raises (device::corba::CorbaDeviceException);
+   string getDirectory() raises (device::corba::CorbaDeviceException);
+   string getRootName() raises (device::corba::CorbaDeviceException);
+   void erase() raises (device::corba::CorbaDeviceException);
+   void scan() raises (device::corba::CorbaDeviceException);  
+};
+
+};};};};};
+
+#endif

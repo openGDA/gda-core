@@ -1,0 +1,166 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _TIMER_IDL_
+#define _TIMER_IDL_
+
+#include <device.idl>
+
+module gda {
+module device {
+module timer {
+module corba {
+
+/**
+ * An interface for a distributed timer class
+ */ 
+interface CorbaTimer : device::corba::CorbaDevice
+{
+   /**
+    * Returns the current state of the timer
+    * All timers must fully implement this.
+    *
+    * @return ACTIVE if the timer has not finished the requested
+    *         operation(s), IDLE if in an completely idle state and
+    *         PAUSED if temporarily suspended.
+    */
+   long getStatus ()
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Returns the current frame number.
+    *
+    * @return the current frame counter number (1st=0)
+    */
+   long getMaximumFrames ()
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Returns the current frame number.
+    *
+    * @return the current frame counter number (1st=0)
+    */
+   long getCurrentFrame()
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Returns the current cycle number.
+    * If not implemented this should return a default of 1.
+    *
+    * @return the current cycle number
+    */
+   long getCurrentCycle()
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * sets the number of times the timer cycles through the framesets.
+    * Default is 1 if h/w does not allow the implementation
+    *
+    * @param cycles sets the cycle count to the specified number
+    */
+   void setCycles (in long cycles)
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Aborts any current timing and returns it to an idle state.
+    */
+   void start()
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Aborts any current timing and returns it to an idle state.
+    */
+   void stop ()
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Restarts framing from the paused state
+    */
+   void restart()
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Create a single frameSet object for a specified live and dead time.
+    * A count for identical frames is specified by the frameCount.
+    *
+    * @return a single frameSet object (for 1 or more identical frames)
+    * @param requested frame dead time in milliseconds
+    * @param requested frame live time in milliseconds
+    * @param requested number of frames required of this type
+    */
+   void addFrameSet (in long frameCount,
+		     in double requestedDeadTime,
+		     in double requestedLiveTime)
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Create a single frameSet object for a specified live and dead time.
+    * A count for identical frames is specified by the frameCount.
+    *
+    * @param frameCount requested number of frames required of this type
+    * @param requestedDeadTime requested frame dead time in milliseconds
+    * @param requestedLiveTime requested frame live time in milliseconds
+    * @param deadPort wait period output level 0 or 1
+    * @param livePort run period output level 0 or 1
+    * @param deadPause pause before wait period 0 or 1
+    * @param livePause pause before run period 0 or 1
+    */
+   void addFrameSet2(in long frameCount,
+		     in double requestedDeadTime,
+		     in double requestedLiveTime,
+		     in long deadPort,
+		     in long livePort,
+		     in long deadPause,
+		     in long livePause)
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Clear all current frameSets
+    */
+   void clearFrameSets()
+      raises (device::corba::CorbaDeviceException);
+
+  /**
+    * Load an array of frameSets obtained from calls to makeFrameSet()
+    * are loaded into the timer.
+    */
+   void loadFrameSets ()
+      raises (device::corba::CorbaDeviceException);
+		
+   /**
+    * Initiates a single specified timing period and allows the
+    * timer to proceed asynchronously. The end of period
+    * can be determined by calls to getStatus() returning IDLE.
+    *
+    * @param requested counting time in milliseconds
+    */
+   void countAsync (in double time) 
+      raises (device::corba::CorbaDeviceException);
+   
+   /**
+    * Output data from timer directly to file
+    *
+    * @param file is the fully qualified file name
+    */
+   void output(in string file)
+      raises (device::corba::CorbaDeviceException);
+}; 
+};};};};
+
+#endif

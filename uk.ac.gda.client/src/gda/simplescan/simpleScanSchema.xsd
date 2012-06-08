@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<xsd:element name="SimpleScan">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="scannableName" type="xsd:string" maxOccurs="1"
+					minOccurs="1" />
+				<xsd:element name="fromPos" type="xsd:double" maxOccurs="1"
+					minOccurs="1" />
+				<xsd:element name="toPos" type="xsd:double" maxOccurs="1"
+					minOccurs="1" />
+				<xsd:element name="stepSize" type="xsd:double"
+					maxOccurs="1" minOccurs="1" />
+				<xsd:element name="acqTime" type="xsd:double" maxOccurs="1"
+					minOccurs="1" />
+				<xsd:element name="scannables" type="scannablesType"
+					maxOccurs="unbounded" minOccurs="0" />
+				<xsd:element name="detectors" type="detectorsType"
+					maxOccurs="unbounded" minOccurs="0" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:complexType name="scannablesType">
+		<xsd:sequence>
+			<xsd:element name="scannableName" type="xsd:string"
+				maxOccurs="1" minOccurs="0" />
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:complexType name="detectorsType">
+		<xsd:sequence>
+			<xsd:element name="enabled" type="xsd:boolean"
+				maxOccurs="1" minOccurs="1" />
+			<xsd:element name="detectorName" type="xsd:string"
+				maxOccurs="1" minOccurs="1" />
+			<xsd:element name="detectorDescription" type="xsd:string"
+				maxOccurs="1" minOccurs="1" />
+		</xsd:sequence>
+	</xsd:complexType>
+
+</xsd:schema>
+
+
+

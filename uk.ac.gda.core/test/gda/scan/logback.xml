@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+    <turboFilter class="ch.qos.logback.classic.turbo.MarkerFilter">
+        <Name>Finest</Name>
+        <Marker>FINEST</Marker>
+        <OnMatch>DENY</OnMatch>
+    </turboFilter>
+
+    <!-- enable this if you want log message appear on local console -->
+   <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%r  %-5level [%logger{36}] - %m%n</pattern>
+        </layout>
+    </appender>
+
+    <appender name="SOCKET" class="ch.qos.logback.classic.net.SocketAppender">
+        <RemoteHost>localhost</RemoteHost>
+        <Port>6000</Port>
+        <ReconnectionDelay>10000</ReconnectionDelay>
+        <IncludeCallerData>true</IncludeCallerData>
+    </appender>
+    <root>
+        <level value="INFO"/>
+        <appender-ref ref="Console"/>
+        <appender-ref ref="SOCKET"/>
+    </root>
+    <logger name="gda">
+        <level value="INFO"/>
+    </logger>
+    <consolePlugin />
+</configuration>

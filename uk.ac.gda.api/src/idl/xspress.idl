@@ -1,0 +1,103 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _XSPRESS_IDL_
+#define _XSPRESS_IDL_
+
+#include <device.idl>
+
+module gda {
+module device {
+module xspress {
+module corba {
+
+   struct CorbaDetector
+   {
+      long number;
+      long windowStart;
+      long windowEnd;
+      double gain;
+      double offset;
+      double deadTime;
+   };
+
+   struct CorbaDetectorReading
+   {
+      CorbaDetector detector;
+      long originalWindowed;
+      long total;
+      long resets;
+      long acc;
+      long windowed;
+   };
+   
+/**
+ *  An interface for an XspressSystem 
+ */
+interface CorbaXspress : device::corba::CorbaDevice
+{
+   typedef sequence<gda::device::corba::CorbaDetectorReading> detectorReadingArray;
+   typedef sequence<double> doubleArray;
+   
+   long getNumberOfDetectors()
+      raises (device::corba::CorbaDeviceException);
+
+   device::xspress::corba::CorbaDetectorReading readDetector(in long which)
+      raises (device::corba::CorbaDeviceException);
+
+   detectorReadingArray readDetectors()
+      raises (device::corba::CorbaDeviceException);
+    
+   any getMCData(in long detector, in long startChannel, in long endChannel, in long time)
+      raises (device::corba::CorbaDeviceException);
+
+   void setDetectorWindow(in long detector, in long start, in long end)
+      raises (device::corba::CorbaDeviceException);
+
+   device::xspress::corba::CorbaDetector getDetector(in long which)
+      raises (device::corba::CorbaDeviceException);
+    
+   void saveDetectors(in string filename)
+      raises (device::corba::CorbaDeviceException);
+   
+   void quit()
+      raises (device::corba::CorbaDeviceException);
+
+   string loadAndInitializeDetectors(in string filename)
+      raises (device::corba::CorbaDeviceException);
+      
+   void setDetectorGain(in long detector, in double gain)
+      raises (device::corba::CorbaDeviceException);
+   
+   void setDetectorOffset(in long detector, in double offset)
+      raises (device::corba::CorbaDeviceException);
+      
+   any readout()
+      raises (device::corba::CorbaDeviceException);
+      
+   any readFrame(in long startChannel, in long channelCount, in long frame)
+      raises (device::corba::CorbaDeviceException);
+   
+   void setReadoutMode(in long newMode)
+      raises (device::corba::CorbaDeviceException);
+};
+ 
+};};};};
+
+#endif // _XSPRESS_IDL_

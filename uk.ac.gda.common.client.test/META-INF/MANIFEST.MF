@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: uk.ac.gda.common.client.test
+Bundle-SymbolicName: uk.ac.gda.common.client.test
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: uk.ac.gda.common.client;bundle-version="1.0.0",
+ uk.ac.gda.api;bundle-version="1.0.0",
+ uk.ac.gda.core;bundle-version="1.0.0",
+ uk.ac.gda.common;bundle-version="1.0.0",
+ uk.ac.gda.libs;bundle-version="1.0.0",
+ uk.ac.diamond.scisoft.deprecated.rcp;bundle-version="1.0.0"
+Export-Package: gda.gui.scanplot

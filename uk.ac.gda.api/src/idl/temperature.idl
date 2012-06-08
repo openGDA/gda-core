@@ -1,0 +1,115 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _TEMPERATURE_IDL_
+#define _TEMPERATURE_IDL_
+
+#include <scannable.idl>
+
+module gda {
+module device {
+module temperature {
+module corba {
+
+typedef sequence<string>  stringArray;
+
+struct CorbaTemperatureRamp
+{
+   long ramp;
+   double startTemp;
+   double endTemp;
+   double rate;
+   double dwellTime;
+   long coolingSpeed;
+};
+
+typedef sequence<CorbaTemperatureRamp>  rampArray;
+
+/**
+ *  An interface for a distributed Temperature class
+ */
+interface CorbaTemperature : device::scannable::corba::CorbaScannable
+{
+   double getCurrentTemperature()
+      raises (device::corba::CorbaDeviceException);
+
+   void setTargetTemperature(in double target)
+      raises (device::corba::CorbaDeviceException);
+
+   double getTargetTemperature()
+      raises (device::corba::CorbaDeviceException);
+
+   boolean isAtTargetTemperature()
+      raises (device::corba::CorbaDeviceException);
+
+   void setLowerTemp(in double lowLimit)
+      raises (device::corba::CorbaDeviceException);
+
+   void setUpperTemp(in double upperLimit)   
+      raises (device::corba::CorbaDeviceException);
+
+   double getUpperTemp()
+      raises (device::corba::CorbaDeviceException);
+
+   double getLowerTemp()
+      raises (device::corba::CorbaDeviceException);
+
+   stringArray getProbeNames()
+      raises (device::corba::CorbaDeviceException);
+
+   void setProbe(in string probeName)
+      raises (device::corba::CorbaDeviceException);
+
+   void waitForTemp ()
+      raises (device::corba::CorbaDeviceException);
+
+   void clearRamps()
+      raises (device::corba::CorbaDeviceException);
+
+   void addRamp(in CorbaTemperatureRamp ramp)
+      raises (device::corba::CorbaDeviceException);
+
+   void start()
+      raises (device::corba::CorbaDeviceException);
+      
+   void begin()
+      raises (device::corba::CorbaDeviceException);
+
+   void end()
+      raises (device::corba::CorbaDeviceException);
+      
+   void setRampRate(in double rate)
+      raises (device::corba::CorbaDeviceException);
+      
+   double getRampRate()
+      raises (device::corba::CorbaDeviceException);
+
+   void hold()
+      raises (device::corba::CorbaDeviceException);
+
+   void setRamps(in rampArray ramps)
+      raises (device::corba::CorbaDeviceException);
+
+   boolean isRunning()
+      raises (device::corba::CorbaDeviceException);
+};
+ 
+};};};};
+
+#endif // _TEMPERATURE_IDL_

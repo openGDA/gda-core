@@ -1,0 +1,10 @@
+ &SRS
+ SRSRUN=1,SRSDAT=200011,SRSTIM=000,
+ SRSSTN='null',SRSPRJ='null    ',SRSEXP='null    ',
+ SRSTLE='                                                            ',
+ SRSCN1='        ',SRSCN2='        ',SRSCN3='        ',
+ &END
+simpleScannable2	ct1	ct2
+0.0	1.0	 2.00
+1.0	1.0	 2.00
+2.0	1.0	 2.00

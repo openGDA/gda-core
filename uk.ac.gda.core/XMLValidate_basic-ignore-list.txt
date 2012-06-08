@@ -1,0 +1,12 @@
+#
+# This file contains a list of XML files known to be invalid, and which XML validation should ignore.
+# It is referenced by the xml_basic target in the builder/build-gda.xml ant script.
+# Each plugin may have it's own version of this list, listing the ignore files for that plugin.
+#
+plugins/uk.ac.gda.core/src/installs/installer/gda-install.xml
+plugins/uk.ac.gda.core/test/gda/device/detector/odccd/TestFiles/CrysalisSimple.xml
+plugins/uk.ac.gda.core/classes/test/gda/device/detector/odccd/TestFiles/CrysalisSimple.xml
+plugins/uk.ac.gda.core/test/gda/px/FluorescenceScan/ParameterFileJUnitTestFiles/ParameterTestInvalid_Empty.xml
+plugins/uk.ac.gda.core/classes/test/gda/px/FluorescenceScan/ParameterFileJUnitTestFiles/ParameterTestInvalid_Empty.xml
+plugins/uk.ac.gda.core/test/gda/px/FluorescenceScan/ParameterFileJUnitTestFiles/ParameterTestInvalid_UnbalancedRoot.xml
+plugins/uk.ac.gda.core/classes/test/gda/px/FluorescenceScan/ParameterFileJUnitTestFiles/ParameterTestInvalid_UnbalancedRoot.xml

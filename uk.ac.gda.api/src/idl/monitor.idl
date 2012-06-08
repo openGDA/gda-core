@@ -1,0 +1,43 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _MONITOR_IDL_
+#define _MONITOR_IDL_
+
+#include <scannable.idl>
+
+module gda {
+module device {
+module monitor {
+module corba {
+
+/**
+ *  An interface for a distributed Monitor class
+ */
+interface CorbaMonitor : device::scannable::corba::CorbaScannable
+{
+	string getUnit()raises (device::corba::CorbaDeviceException);
+   	long getElementCount() raises (device::corba::CorbaDeviceException);
+  	// public DBRType getType() throws DeviceException;
+};
+
+};};};};
+
+#endif
+

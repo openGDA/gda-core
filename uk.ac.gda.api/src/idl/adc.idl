@@ -1,0 +1,96 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include <device.idl>
+
+module gda {
+module device {
+module adc {
+module corba {
+
+typedef sequence<long>  rangeSeq;
+typedef sequence<double> voltageSeq;
+
+/**
+ *  An interface for a distributed Adc class
+ */
+interface CorbaAdc : device::corba::CorbaDevice
+{
+
+/** 
+ * Get the current voltage for the specified channel
+ * @param the Adc channel to read
+ * @return the current voltage
+ */
+   double getVoltage (in long channel)
+      raises (device::corba::CorbaDeviceException);
+
+/**
+ * Get the current voltage from all open channels
+ * @return the current voltages
+ */
+   voltageSeq getVoltages ()
+      raises (device::corba::CorbaDeviceException);
+
+/**
+ * Set the voltage Range for the specified channel
+ * @param the Adc channel to set
+ * @param the range to set (in millivolts) @see getRanges
+ */
+   void setRange (in long channel, in long range)
+      raises (device::corba::CorbaDeviceException);
+
+/**
+ * Get the current voltage Range for the specified channel
+ * @param the Adc channel to get
+ * @param the range(in millivolts) @see getRanges
+ */
+   long getRange (in long channel)
+      raises (device::corba::CorbaDeviceException);
+
+/**
+ * Set the unipolar mode for a specified channel @see isUniPolarSettable
+ * @param the Adc channel to set
+ * @param either true or false
+ */
+   void setUniPolar (in long channel, in boolean polarity)
+      raises (device::corba::CorbaDeviceException);
+
+/**
+ * Get the supported ranges for a particular Adc
+ * @return the supported voltage ranges (in millivolts)
+ */
+   rangeSeq getRanges ()
+      raises (device::corba::CorbaDeviceException);
+
+/**
+ * Get the polarity capability of the Adc
+ * @return true if UNIPOLAR is supported else assume BIPOLAR
+ */
+   boolean isUniPolarSettable ()
+      raises (device::corba::CorbaDeviceException);
+
+/**
+ * Set the sample count (the number of reads / getVoltage)
+ */
+   void setSampleCount (in long count)
+      raises (device::corba::CorbaDeviceException);
+};
+
+};};};};

@@ -1,0 +1,149 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd
+                           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+                           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd" >
+
+	<!-- Add user-defined Scannables here -->
+    <bean id="testLinearMotorX" class = "gda.device.motor.DummyMotor">
+        <property name="name" value="testLinearMotorX"/>
+    </bean>
+
+    <bean id="testLinearSMX" class="gda.device.scannable.ScannableMotor">
+        <property name="name" value="testLinearSMX"/>
+        <property name="protectionLevel" value="2"/>
+        <property name="motorName" value="testLinearMotorX"/>
+        <property name="hardwareUnitString" value="mm"/>
+    </bean>
+	
+	<bean id="simpleScannable" class="gda.org.myls.scannable.SimpleScannable">
+		<property name="name" value="simpleScannable" />
+		<property name="position" value="0.0" />
+		<property name="inputNames">
+			<list>
+				<value>x</value>
+			</list>
+		</property>
+		<property name="extraNames">
+			<list>
+				<!-- no extra names in SimpleScannable -->
+			</list>
+		</property>
+		<property name="level" value="3" />
+		<property name="outputFormat">
+			<list>
+				<value>%5.5G</value>
+			</list>
+		</property>
+		<property name="units">
+			<list>
+				<value>mm</value>
+				<value>counts</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- a Gaussian bean for testing instantiation of scannableGaussian2 bean -->
+	<bean id="testGaussian" class="gda.org.myls.scannable.Gaussian">
+		<property name="name" value="testGaussian" />
+		<property name="centre" value="0.0"/>
+		<property name="width" value="1.0" />
+		<property name="height" value="1.0" />
+		<property name="noise" value="0.1" />
+	</bean>
+	
+	<!-- instantiate a ScannableGaussian with all properties defined -->
+    <bean id="scannableGaussian0" class="gda.org.myls.scannable.ScannableGaussian">
+    	<property name="name" value="scannableGaussian0" />
+   		<property name="position" value="0.0" />
+		<property name="inputNames">
+			<list>
+				<value>x</value>
+			</list>
+		</property>
+		<property name="extraNames">
+			<list>
+				<value>y</value>
+			</list>
+		</property>
+		<property name="level" value="3" />
+		<property name="outputFormat">
+			<list>
+				<value>%5.5G</value>
+				<value>%5.5G</value>
+			</list>
+		</property>
+		<property name="units">
+			<list>
+				<value>mm</value>
+				<value>counts</value>
+			</list>
+		</property>
+		<!-- Gaussian-specific parameters -->
+		<property name="centre" value="0.0" />
+		<property name="height" value="1.0" />
+		<property name="width" value="1.0" />
+		<property name="noise" value="0.1" />
+     </bean>
+    
+    <!-- Instantiate a ScannableGaussian using named Gaussian properties -->
+    <!-- Other Scannable properties, such as input and out names, and formats, are set by the Java class constructor -->
+    <bean id="scannableGaussian1" class="gda.org.myls.scannable.ScannableGaussian">
+    	<property name="name" value="scannableGaussian1" />
+		<!-- Gaussian-specific parameters -->
+   		<property name="centre" value="2.0" />
+   		<property name="width" value="1.0" />
+   		<property name="height" value="1.0" />
+   		<property name="noise" value="0.1" />
+     </bean>
+     
+     <!-- instantiate a ScannableGaussian using the testGaussian bean defined above -->
+     <!-- Other Scannable properties, such as input and out names, and formats, are set by the Java class constructor -->
+     <bean id="scannableGaussian2" class="gda.org.myls.scannable.ScannableGaussian">
+    	<property name="name" value="scannableGaussian2" />
+   		<constructor-arg ref="testGaussian" />
+     </bean>
+     
+     <!-- instantiate a ScannableGaussian using the zero-arg constructor -->
+     <!-- Other Scannable properties, such as input and out names, and formats, are set by the Java class constructor -->
+     <bean id="scannableGaussian3" class="gda.org.myls.scannable.ScannableGaussian">
+    	<property name="name" value="scannableGaussian3" />
+     </bean>
+     
+     <!--  instantiate a scannableSine, setting sine-specific properties here -->
+     <!-- Other Scannable properties, such as input and out names, and formats, are set by the Java class constructor -->
+     <bean id="scannableSine" class="gda.org.myls.scannable.ScannableSine">
+     	<property name="name" value="scannableSine"/>
+     	<property name="period" value="1.0"/> 
+     	<property name="phase" value="0.0"/> 
+     	<property name="magnitude" value="1.0"/> 
+     	<property name="offset" value="0.0"/> 
+     	<property name="noise" value="0.0"/>
+     </bean>
+     
+     <!-- test sine wave -->
+     <!-- Other Scannable properties, such as input and out names, and formats, are set by the Java class constructor -->
+     <bean id="testSineWave" class="gda.org.myls.scannable.SineWave">
+     	<!-- property name="name" value="scannableSine"/ -->
+     	<property name="period" value="1.0"/> 
+     	<property name="phase" value="0.0"/> 
+     	<property name="magnitude" value="1.0"/> 
+     	<property name="offset" value="0.0"/> 
+     	<property name="noise" value="0.2"/>
+     </bean>
+     
+     <!-- instantiate a scannableSine, using default properties defined in the testSineWave bean -->
+     <!-- Other Scannable properties, such as input and out names, and formats, are set by the Java class constructor -->
+     <bean id="scannableSine1" class="gda.org.myls.scannable.ScannableSine">
+     	<property name="name" value="scannableSine1"/>
+     	<property name="sineWave" ref="testSineWave"/> 
+     </bean>
+     
+     <!-- instantiate a scannableSine, using the no argument constructor -->
+     <!-- Other Scannable properties, such as input and out names, and formats, are set by the Java class constructor -->
+     <bean id="scannableSine2" class="gda.org.myls.scannable.ScannableSine">
+     	<property name="name" value="scannableSine2"/>
+     </bean>
+     
+</beans>

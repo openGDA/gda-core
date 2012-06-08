@@ -1,0 +1,66 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _SPIN_IDL_
+#define _SPIN_IDL_
+
+#include <scannable.idl>
+
+module gda {
+module device {
+module spin {
+module corba {
+
+/**
+ * An interface for a distributed spin class
+ */ 
+interface CorbaSpin : device::scannable::corba::CorbaScannable
+{
+   /**
+     * start spin
+     * @throws DeviceException
+     */
+    void on() raises (device::corba::CorbaDeviceException);
+    /**
+     * stop spin
+     * @throws DeviceException
+     */
+    void off() raises (device::corba::CorbaDeviceException);
+    /**
+     * gets spin state - enabled or disabled
+     * @throws DeviceException
+     */
+    string getState() raises (device::corba::CorbaDeviceException);
+    /**
+     * sets the spin speed
+     * @throws DeviceException
+     */
+    void setSpeed(in double speed) raises (device::corba::CorbaDeviceException);
+
+    /**
+     * gets the spin speed
+     * @throws DeviceException
+     */
+    double getSpeed() raises (device::corba::CorbaDeviceException);
+}; 
+
+
+};};};};
+
+#endif //_SPIN_IDL_

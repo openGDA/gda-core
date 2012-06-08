@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- for use as a demo configuration during development -->
+<ObjectFactory>
+   <name>TestFactory</name>
+   <JythonTerminal>
+      <name>Terminal</name>
+   </JythonTerminal>
+   <JythonEditor>
+      <name>Editor</name>
+      <jythonTerminalName>Terminal</jythonTerminalName>
+   </JythonEditor>
+   <vuvConfigurePane>
+      <name>ConfigurePane</name>
+   </vuvConfigurePane>
+   <vuvScanPane>
+      <name>ScanPane</name>
+   </vuvScanPane>
+   <vuvTimeScanPane>
+      <name>TimeScanPane</name>
+   </vuvTimeScanPane>
+   <vuvTemperatureScan>
+      <name>TemperatureScanPane</name>
+   </vuvTemperatureScan>
+   <vuvDataReductionPanel>
+      <name>DataReductionPane</name>
+   </vuvDataReductionPanel>
+</ObjectFactory>

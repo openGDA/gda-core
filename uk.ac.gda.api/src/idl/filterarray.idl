@@ -1,0 +1,55 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include <device.idl>
+
+module gda {
+module device {
+module filterarray {
+module corba {
+
+
+/**
+ * A interface for distributed objects which operate filter arrays.
+ */
+interface CorbaFilterArray : device::corba::CorbaDevice
+{
+   double getAbsorption() raises (device::corba::CorbaDeviceException);
+   
+   void setAbsorption(in double absorption) raises (device::corba::CorbaDeviceException);
+   
+   double getTransmission() raises (device::corba::CorbaDeviceException);
+   
+   void setTransmission(in double transmission) raises (device::corba::CorbaDeviceException);
+
+   double getCalculationEnergy() raises (device::corba::CorbaDeviceException);
+   
+   void setCalculationEnergy(in double energy) raises (device::corba::CorbaDeviceException);
+   
+   double getCalculationWavelength() raises (device::corba::CorbaDeviceException);
+   
+   void setCalculationWavelength(in double wavelength) raises (device::corba::CorbaDeviceException);
+
+   boolean isUsingMonoEnergy() raises (device::corba::CorbaDeviceException);
+   
+   void setUseMonoEnergy(in boolean useEnergy) raises (device::corba::CorbaDeviceException);
+
+}; 
+};};};};
+

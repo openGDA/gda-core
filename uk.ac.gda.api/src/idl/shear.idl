@@ -1,0 +1,115 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _SHEAR_IDL_
+#define _SHEAR_IDL_
+
+#include <device.idl>
+
+module gda {
+module device {
+module shear {
+module corba {
+
+/**
+ *  An interface for a distributed Shear class
+ */
+interface CorbaShear : device::corba::CorbaDevice
+{
+   /**
+    * Get the thickness of the Shear cell
+    * @return thickness expressed in mm
+    */
+   double getThickness ()
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Get the radius of the Shear cell
+    * @return radius expressed in mm
+    */
+   double getRadius ()
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Get the shear rate of the Shear cell
+    * @return gamma in per second
+    */
+   double getShearRate ()
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Get the amplitude of oscillatory shear of the Shear cell
+    * @return amplitude
+    */
+   double getAmplitude ()
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Get the torque current of the Shear cell
+    * @return current in amps
+    */
+   double getTorque ()
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Generate a continous shear field within the Shear cell. It is
+    * possible to enter new shear parameters whilst the cell is performing
+    * continuous shear but not whilst it is performing oscillatory shear. 
+    * @param gamma Shear rate in reciprocal seconds within range 0.05 to 1050.0
+    */
+   void continuousShear (in double gamma)
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Generate an oscillatory shear field within the Shear cell.It is
+    * possible to enter new shear parameters whilst the cell is performing
+    * either oscillatory or continuous shear.
+    * @param gamma Shear rate in reciprocal seconds within range 0.05 to 1050.0
+    * @param amplitude amplitude of oscillation in the range 1 to 1800.
+    */
+   void oscillatoryShear (in double gamma, in double amplitude)
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Stop shearing within the Shear cell. Also sets torque back to default value.
+    */
+   void stopShear ()
+      raises (device::corba::CorbaDeviceException);
+	
+   /**
+    * Set the operating torque of the motor. The maximum torque is
+    * 2.54Nm, though the torque profile is a complicated function
+    * of the motor speed. See p134 of Aerotech manual. The torque
+    * is directly determined by the current drawn: thus it is this
+    * parameter which is programmed. It is not possible to alter
+    * the torque whilst shearing. This parameter resets to the 
+    * defaultvalue when the stop method is called.
+    * @param current is the desired motor current, in the range between
+    * 0.5 & 6.0. If no value is specified then the motor defaults to an
+    * operating current of 1A, corresponding to a torque of 0.4Nm
+    */
+   void setTorque (in double current)
+      raises (device::corba::CorbaDeviceException);
+};
+ 
+};};};};
+
+#endif // _SHEAR_IDL_
+
+

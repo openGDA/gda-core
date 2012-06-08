@@ -1,0 +1,190 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _GPIB_IDL_
+#define _GPIB_IDL_
+
+#include <device.idl>
+
+module gda {
+module device {
+module gpib {
+module corba {
+
+/**
+ *  An interface for a distributed Gpib class
+ */
+interface CorbaGpib : device::corba::CorbaDevice
+{
+  /**
+   * Finds GPIB board/device
+   *
+   * @param deviceName name of the device/borad to be found
+   * @return integer representing the handle to the device/board
+   * @exception DeviceException if the GPIB device cannot be found
+   */
+  long findDevice(in string deviceName)
+      raises (device::corba::CorbaDeviceException);
+
+  /**
+   * Conducts a serial poll
+   *
+   * @param deviceName name of the device to be polled
+   * @return returns the poll byte
+   * @exception DeviceException if the GPIB device is in an error state
+   */
+  long getSerialPollByte(in string deviceName)
+      raises (device::corba::CorbaDeviceException);
+
+  /**
+   * Clears a specific device
+   *
+   * @param deviceName name of the device to be cleared
+   * @exception DeviceException if the GPIB device is in an error state
+   */
+  void sendDeviceClear(in string deviceName)
+      raises (device::corba::CorbaDeviceException);
+
+  /**
+   * Assert interface clear
+   *
+   * @param interfaceName
+   * @exception DeviceException if the GPIB is in an error state
+   */
+  void sendInterfaceClear(in string interFaceName)
+      raises (device::corba::CorbaDeviceException);
+
+  /**
+   * Change the I/O timeout period
+   *
+   * @param deviceName name of the Gpib device
+   * @param timeout allowed for reads/writes in milliseconds
+   */
+  void setTimeOut(in string deviceName, in long timeout)
+      raises (device::corba::CorbaDeviceException);
+
+  /**
+   * Gets the time allowed for reads/writes in milliseconds
+   *
+   * @param deviceName name of the Gpib device
+   * @return timeout the allowed for reads/writes in milliseconds
+   * @exception DeviceException if the GPIB device is in an error state
+   */
+  long getTimeOut(in string deviceName)
+      raises (device::corba::CorbaDeviceException);
+
+  /**
+   * Sets read termination chracter
+   *
+   * @param deviceName name of the Gpib device
+   * @param term the termination character
+   * @exception DeviceException if the GPIB device is in an error state
+   */
+  void setTerminator(in string deviceName, in char term)
+      raises (device::corba::CorbaDeviceException);
+
+  /**
+   * Gets read termination character
+   *
+   * @param deviceName name of the Gpib device
+   * @return the termination character
+   * @exception DeviceException if the GPIB device is in an error state
+   */
+  char getTerminator(in string deviceName)
+      raises (device::corba::CorbaDeviceException);
+
+  /**
+   * Sets termination for talkers
+   *
+   * @param deviceName name of the Gpib device
+   * @param terminate if true, terminator character is used to terminate 
+   * reads if false, no read termination is performed.
+   */
+  void setReadTermination(in string deviceName, in boolean terminate)
+      raises (device::corba::CorbaDeviceException);
+
+  /**
+   * Sets termination for listeners
+   *
+   * @param deviceName name of the Gpib device
+   * @param terminate if true, terminator character is 
+   * used to terminate writes if false no write termination is performed
+   */
+  void setWriteTermination(in string deviceName, in boolean terminate)
+      raises (device::corba::CorbaDeviceException);
+
+  /**
+   * Gets read termination for talkers
+   *
+   * @param deviceName name of the Gpib device
+   * @return if true, termination chracter is used to terminate reads
+   * if false , no read termination is performed
+   * @exception DeviceException if the GPIB device is in an error state
+   */
+  boolean getReadTermination(in string deviceName)
+      raises (device::corba::CorbaDeviceException);
+
+  /**
+   * Gets write termination for listeners
+   *
+   * @param deviceName name of the Gpib device
+   * @return if true, termination chracter is used to terminate write
+   * if false , no write termination is performed
+   * @exception DeviceException if the GPIB device is in an error state
+   */
+  boolean getWriteTermination(in string deviceName)
+      raises (device::corba::CorbaDeviceException);
+
+  /**
+   * Reads the reply string from gpib
+   *
+   * @param deviceName name of the Gpib device
+   * @return the reply
+   * @exception DeviceException
+   */
+  string read(in string deviceName)
+      raises (device::corba::CorbaDeviceException);
+
+  /**
+   * Reads a string of specified length
+   *
+   * @param deviceName name of the Gpib device
+   * @param strLength length of the string to be read
+   * @exception DeviceException
+   */
+
+  string read2(in string deviceName, in long strLength)
+      raises (device::corba::CorbaDeviceException);
+
+  /**
+   * Writes a String
+   *
+   * @param deviceName name of the Gpib device
+   * @param buffer the string to be written
+   * @exception DeviceException
+   */
+   void write(in string deviceName, in string buffer)
+      raises (device::corba::CorbaDeviceException);
+};
+ 
+};};};};
+
+#endif // _GPIB_IDL_
+
+

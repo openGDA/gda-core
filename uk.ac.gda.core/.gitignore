@@ -1,0 +1,14 @@
+# Ignores that are common to all Eclipse GDA plugin projects
+/@dot
+/@dot.log
+# /bin  <-- not omitted in uk.ac.gda.core project
+/build.xml
+/javaCompiler...args
+/src/corba/
+/temp.folder
+/test-reports
+/test-scratch
+
+# Ignores that are specific to this Eclipse project
+/classes
+/null

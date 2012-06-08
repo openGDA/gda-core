@@ -1,0 +1,19 @@
+#This is a test of the check that xvalues do not change in direction. The important point is the last one at 25Deg where the target gas changed direction.
+#This would cause a problem when converting back with a target value of -.77 which is less than -.75.
+Units Deg Deg
+4.0 -.7
+8.0 -0.71927
+8.5 -0.73159
+9.0 -0.73521
+9.5 -0.74085
+10.0 -0.74202
+10.5 -0.74373
+11.0 -0.75447
+12.0 -0.7462
+14.0 -0.7637
+15.0 -0.7737
+15.931 -0.7799
+25.0 -.75
+
+
+

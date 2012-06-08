@@ -1,0 +1,4 @@
+http\://www.diamond.ac.uk/schema/gda/objectfactory/gda-objectfactory-1.0.xsd=gda/configuration/object/schema/gda-objectfactory-1.0.xsd
+http\://www.diamond.ac.uk/schema/gda/jetty/gda-jetty-1.0.xsd=gda/spring/namespaces/jetty/gda-jetty-1.0.xsd
+http\://www.diamond.ac.uk/schema/gda/corba/gda-corba-1.0.xsd=gda/spring/namespaces/corba/gda-corba-1.0.xsd
+http\://www.diamond.ac.uk/schema/gda/gda/gda-gda-1.0.xsd=gda/spring/namespaces/gda/gda-gda-1.0.xsd

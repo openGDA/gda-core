@@ -1,0 +1,124 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _SERIAL_IDL_
+#define _SERIAL_IDL_
+
+#include <device.idl>
+
+module gda {
+module device {
+module serial {
+module corba {
+
+interface CorbaCharReadableDev
+{
+   /**
+    * Reads a character from the device
+    * @return The character read
+    */
+   char readChar() raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Flushes any unread characters from the device
+    */
+   void flush() raises (device::corba::CorbaDeviceException);
+   
+   /**
+    * Sets the maximum length of time to wait for a character to become
+    * available to read.
+    * @param unTime The length of time in milliseconds.
+    */
+   void setReadTimeout( in unsigned long time )
+      raises (device::corba::CorbaDeviceException);
+};
+
+
+interface CorbaCharWriteableDev
+{
+   /**
+    * Writes a character to the device
+    * @param c The character to write
+    */
+   void writeChar( in char c ) raises
+      (device::corba::CorbaDeviceException);
+};
+
+
+/**
+ *  An interface for a distributed Serial class
+ */
+interface CorbaSerial : device::corba::CorbaDevice,
+                          CorbaCharReadableDev,
+                          CorbaCharWriteableDev
+{
+   /** 
+    * Sets the baud rate to the required value
+    * @param baudRate number of bits/second
+    * @exception SerialException
+    */
+   void setBaudRate(in long baudRate)
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Sets the number of data bits to the required value
+    * @param byteSize the number of data bits
+    * @exception SerialException
+    */
+   void setByteSize(in long byteSize)
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Sets the parity to the required value
+    * @param parity
+    * @exception SerialException
+    */
+   void setParity(in string parity)
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Sets the number of stop bits to the required value
+    * @param stopBits
+    * @exception SerialException
+    */
+   void setStopBits(in long stopBits)
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Gets the timeout value for single character reads
+    * @return the timeout in milliseconds
+    * @exception SerialException
+    */
+   unsigned long getReadTimeout()
+      raises (device::corba::CorbaDeviceException);
+      
+   /**
+    * Sets the flow control
+    * @param flowControl
+    * @exception SerialException
+    */
+   void setFlowControl(in string flowControl)
+      raises (device::corba::CorbaDeviceException);
+};
+ 
+};};};};
+
+#endif // _SERIAL_IDL_
+
+

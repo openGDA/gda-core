@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- for use by unit tests -->
+<ObjectFactory>
+    <DummyMotor>
+		<name>Test01Dummy</name>
+		<backlashSteps>2</backlashSteps>
+		<sleepTime>5000</sleepTime>
+		<nonContinuousIncrements>10</nonContinuousIncrements>
+		<fastSpeed>50</fastSpeed>
+		<mediumSpeed>25</mediumSpeed>
+		<slowSpeed>5</slowSpeed>
+    </DummyMotor>
+
+    <Parker6kControllerEnet>
+		<name>Test01Controller</name>
+      <controllerNo>0</controllerNo>
+      <maxNoOfMotors>4</maxNoOfMotors>
+		<host>testHostname</host>
+		<port>5002</port>
+    </Parker6kControllerEnet>
+
+	<Parker6kMotor>
+		<name>Test01Parker</name>
+		<parker6kControllerName>Test01Controller</parker6kControllerName>
+		<axisNo>1</axisNo>
+		<stepper>true</stepper>
+		<minPosition>-1000000.0</minPosition>
+		<maxPosition>1000000.0</maxPosition>
+		<minSpeed>0.0</minSpeed>
+		<maxSpeed>2000.0</maxSpeed>
+		<fastSpeed>50</fastSpeed>
+		<mediumSpeed>25</mediumSpeed>
+		<slowSpeed>5</slowSpeed>
+      <limitsSettable>false</limitsSettable>
+	</Parker6kMotor>
+
+	<Keithley>
+		<name>Test01Keithley</name>
+		<gpibInterfaceName>Test01Gpib</gpibInterfaceName>
+		<deviceName>dev1</deviceName>
+		<timeout>1000</timeout>
+	</Keithley>
+
+	<Gdhist>
+		<name>TestMemory</name>
+		<daServerName>TestdaServer</daServerName>
+		<Dimension>
+      <width>512</width>
+      <height>1</height>
+		</Dimension>
+		<openCommand>test open</openCommand>
+		<startupScript>test startup</startupScript>
+		<sizeCommand>test size</sizeCommand>
+	</Gdhist>
+
+	<Eurotherm2000>
+		<name>TestEurotherm</name>
+		<serialDeviceName>testPort</serialDeviceName>
+		<accuracy>2.0</accuracy>
+		<polltime>5000</polltime>
+		<gid>0</gid>
+		<uid>1</uid>
+		<probeName>Internal</probeName>
+		<probeName>External</probeName>
+	</Eurotherm2000>
+
+	<SerialComm>
+		<name>COM4</name>
+		<portName>/dev/term/a</portName>
+		<baudRate>9600</baudRate>
+		<byteSize>7</byteSize>
+        <stopBits>1</stopBits>
+		<parity>even</parity>
+	</SerialComm>
+
+	<McLennanController>
+		<name>w0_Controller</name>
+		<serialDeviceName>w0</serialDeviceName>
+	</McLennanController>
+
+	<McLennanStepperMotor>
+		<name>EOB_YMotor</name>
+		<McLennanControllerName>w0</McLennanControllerName>
+		<axis>4</axis>
+		<slewSpeed>1000</slewSpeed>
+		<backlashSteps>800</backlashSteps>
+	</McLennanStepperMotor>
+
+	<McLennanServoMotor>
+		<name>AlphaMotor</name>
+		<McLennanControllerName>w0</McLennanControllerName>
+		<axis>6</axis>
+		<slewSpeed>10000</slewSpeed>
+		<backlashSteps>260</backlashSteps>
+		<offset>-4.150</offset>
+	</McLennanServoMotor>
+
+	<McLennan600Motor>
+		<name>PhiMotor</name>
+		<McLennanControllerName>w0</McLennanControllerName>
+		<axis>4</axis>
+		<slewSpeed>10000</slewSpeed>
+		<backlashSteps>800</backlashSteps>
+	</McLennan600Motor>
+
+	<PEM90>
+		<name>PRS232</name>
+		<serialDeviceName>w0</serialDeviceName>
+	</PEM90>
+
+	<TriaxControllerGPIB>
+		<name>TCGPIB</name>
+		<deviceName>dev1</deviceName>
+		<GpibInterfaceName>gpib</GpibInterfaceName>
+	</TriaxControllerGPIB>
+
+	<TriaxMotor>
+		<name>gmotor</name>
+		<triaxControllerName>TCGPIB</triaxControllerName>
+		<identifier>mono</identifier>
+		<slitNumber>1</slitNumber>
+	</TriaxMotor>
+
+
+	<DummyGpib>
+		<name>Test01Gpib</name>
+	</DummyGpib>
+
+   <NewportMotor>
+      <name>newportmoptor01</name>
+      <NewportControllerName>newportcontroller01</NewportControllerName>
+   </NewportMotor>
+
+	<LinearPositioner>
+        <name>testFront</name>
+        <motorName>testLinearMotor</motorName>
+        <stepsPerUnit>1000</stepsPerUnit>
+        <pollTime>750</pollTime>
+        <softLimitLow>-10000</softLimitLow>
+        <softLimitHigh>10000</softLimitHigh>
+    </LinearPositioner>
+
+    <AngularPositioner>
+        <name>testRotate</name>
+        <motorName>testAngularMotor</motorName>
+        <stepsPerUnit>500</stepsPerUnit>
+    </AngularPositioner>
+
+    <LinearPositioner>
+      <name>testBackLinear</name>
+      <motorName>testMotor</motorName>
+      <stepsPerUnit>1000</stepsPerUnit>
+      <softLimitLow>-10000</softLimitLow>
+      <softLimitHigh>10000</softLimitHigh>
+   </LinearPositioner>
+
+    <SingleAxisLinearDOF>
+        <name>testUprightLinear</name>
+        <protectionLevel>0</protectionLevel>
+        <reportingUnit>mm</reportingUnit>
+        <moveableName>testBackLinear</moveableName>
+    </SingleAxisLinearDOF>
+
+	<AngularPositioner>
+   	<name>testBackAngular</name>
+		<motorName>testMotor</motorName>
+   	<stepsPerUnit>1000</stepsPerUnit>
+   	<softLimitLow>-10000</softLimitLow>
+   	<softLimitHigh>10000</softLimitHigh>
+	</AngularPositioner>
+
+    <SingleAxisAngularDOF>
+        <name>testUprightAngular</name>
+        <protectionLevel>0</protectionLevel>
+        <reportingUnit>mdeg</reportingUnit>
+        <moveableName>testBackAngular</moveableName>
+    </SingleAxisAngularDOF>
+
+    <GenericOE>
+        <name>OneDegreeTable</name>
+        <LinearPositioner>
+        		<name>ypositioner</name>
+            <motorName>testMotor</motorName>
+            <stepsPerUnit>1000</stepsPerUnit>
+            <softLimitLow>-10000</softLimitLow>
+            <softLimitHigh>10000</softLimitHigh>
+         </LinearPositioner>
+        <SingleAxisLinearDOF>
+            <name>YTrans</name>
+            <protectionLevel>0</protectionLevel>
+            <reportingUnit>mm</reportingUnit>
+            <moveableName>ypositioner</moveableName>
+        </SingleAxisLinearDOF>
+    </GenericOE>
+
+    <EpicsMotor>
+      <name>TSXXX-MO-HSLIT-01:NEGB:MOT</name>
+      <fastSpeed>50</fastSpeed>
+      <mediumSpeed>25</mediumSpeed>
+      <slowSpeed>5</slowSpeed>
+   </EpicsMotor>
+
+   <!-- Slit -->
+   <GenericOE>
+        <name>slit01</name>
+        <LinearPositioner>
+            <name>positioner6</name>
+            <motorName>Test01Dummy</motorName>
+            <stepsPerUnit>1000</stepsPerUnit>
+            <softLimitLow>-10000</softLimitLow>
+            <softLimitHigh>10000</softLimitHigh>
+        </LinearPositioner>
+        <LinearPositioner>
+            <name>positioner7</name>
+            <motorName>Test01Dummy</motorName>
+            <stepsPerUnit>1000</stepsPerUnit>
+            <softLimitLow>-10000</softLimitLow>
+            <softLimitHigh>10000</softLimitHigh>
+        </LinearPositioner>
+
+        <DoubleAxisGapWidthDOF>
+            <name>HorizGapWidth01</name>
+            <protectionLevel>0</protectionLevel>
+            <reportingUnit>mm</reportingUnit>
+            <moveableName>positioner6</moveableName>
+            <moveableName>positioner7</moveableName>
+        </DoubleAxisGapWidthDOF>
+        <DoubleAxisGapPositionDOF>
+            <name>HorizGapPosition01</name>
+            <protectionLevel>0</protectionLevel>
+            <reportingUnit>mm</reportingUnit>
+            <moveableName>positioner6</moveableName>
+            <moveableName>positioner7</moveableName>
+        </DoubleAxisGapPositionDOF>
+    </GenericOE>
+<!-- Mirror -->
+    <GenericOE>
+        <name>Mirror01</name>
+        <LinearPositioner>
+            <name>positioner12</name>
+            <motorName>Test01Dummy</motorName>
+            <stepsPerUnit>1000</stepsPerUnit>
+            <softLimitLow>-10000</softLimitLow>
+            <softLimitHigh>10000</softLimitHigh>
+        </LinearPositioner>
+        <LinearPositioner>
+            <name>positioner13</name>
+            <motorName>Test01Dummy</motorName>
+            <stepsPerUnit>1000</stepsPerUnit>
+            <softLimitLow>-10000</softLimitLow>
+            <softLimitHigh>10000</softLimitHigh>
+        </LinearPositioner>
+        <DoubleAxisLinearDOF>
+            <name>VertMoveMirror01</name>
+            <protectionLevel>0</protectionLevel>
+            <reportingUnit>mm</reportingUnit>
+            <moveableName>positioner12</moveableName>
+            <moveableName>positioner13</moveableName>
+        </DoubleAxisLinearDOF>
+        <DoubleAxisAngularDOF>
+            <name>RotateMirror01</name>
+            <protectionLevel>0</protectionLevel>
+            <reportingUnit>deg</reportingUnit>
+            <moveableName>positioner12</moveableName>
+            <moveableName>positioner13</moveableName>
+            <separation>1250.0</separation>
+            <axisOffset>625.0</axisOffset>
+            <centralOffset>true</centralOffset>
+         </DoubleAxisAngularDOF>
+    </GenericOE>
+
+<!-- mono -->
+    <GenericOE>
+       <name>Mono</name>
+        <LinearPositioner>
+            <name>positioner15</name>
+            <motorName>Test01Dummy</motorName>
+            <stepsPerUnit>1000</stepsPerUnit>
+            <softLimitLow>-10000</softLimitLow>
+            <softLimitHigh>30000</softLimitHigh>
+        </LinearPositioner>
+        <AngularPositioner>
+            <name>positioner21</name>
+            <motorName>Test01Dummy</motorName>
+            <stepsPerUnit>1000</stepsPerUnit>
+            <softLimitLow>-10000</softLimitLow>
+            <softLimitHigh>30000</softLimitHigh>
+        </AngularPositioner>
+        <MonoDOF>
+            <name>Wavelength</name>
+            <protectionLevel>0</protectionLevel>
+            <reportingUnit>mm</reportingUnit>
+           <twoD>6.271</twoD>
+            <moveableName>positioner21</moveableName>
+        </MonoDOF>
+        <CoupledDOF>
+            <name>MonoPlusXtrans</name>
+            <reportingUnit>mdeg</reportingUnit>
+           <moveableName>Bragg</moveableName>
+           <moveableName>MonoX</moveableName>
+           <IdentityFunction>
+               <name>identity1</name>
+           </IdentityFunction>
+           <LinearFunction>
+               <name>XTransForBragg</name>
+               <slopeDividend>0.05 mm</slopeDividend>
+               <slopeDivisor>1.0 mdeg</slopeDivisor>
+               <interception>10.0 mm</interception>
+           </LinearFunction>
+        </CoupledDOF>
+    </GenericOE>
+
+<!-- AppleTwo Undulator-->
+    <GenericOE>
+        <name>Undulator5u</name>
+        <LinearPositioner>
+            <name>positioner37</name>
+            <motorName>Test01Dummy</motorName>
+            <stepsPerUnit>1000</stepsPerUnit>
+            <softLimitLow>-10000</softLimitLow>
+            <softLimitHigh>10000</softLimitHigh>
+        </LinearPositioner>
+        <LinearPositioner>
+            <name>positioner38</name>
+            <motorName>Test01Dummy</motorName>
+            <stepsPerUnit>1000</stepsPerUnit>
+            <softLimitLow>-10000</softLimitLow>
+            <softLimitHigh>10000</softLimitHigh>
+        </LinearPositioner>
+    </GenericOE>
+
+<!-- SineDrive Monochromator-->
+    <GenericOE>
+        <name>Analyser</name>
+        <LinearPositioner>
+            <name>positioner39</name>
+            <motorName>Test01Dummy</motorName>
+            <stepsPerUnit>1000</stepsPerUnit>
+            <softLimitLow>-10000</softLimitLow>
+            <softLimitHigh>10000</softLimitHigh>
+        </LinearPositioner>
+        <SineDriveWavelengthDOF>
+            <name>SDWavelength</name>
+            <protectionLevel>0</protectionLevel>
+            <reportingUnit>nm</reportingUnit>
+            <sineArmLength>471.4</sineArmLength>
+            <correctionFactor>1</correctionFactor>
+            <gratingDensity>300</gratingDensity>
+            <moveableName>positioner39</moveableName>
+         </SineDriveWavelengthDOF>
+         <SineDriveEnergyDOF>
+            <name>SDEnergy</name>
+            <protectionLevel>0</protectionLevel>
+            <reportingUnit>eV</reportingUnit>
+            <sineArmLength>471.4</sineArmLength>
+            <correctionFactor>1</correctionFactor>
+            <gratingDensity>300</gratingDensity>
+            <moveableName>positioner39</moveableName>
+         </SineDriveEnergyDOF>
+    </GenericOE>
+
+
+	<name>TestFactory</name>
+</ObjectFactory>
+

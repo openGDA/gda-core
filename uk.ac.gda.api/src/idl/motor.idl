@@ -1,0 +1,199 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _MOTOR_IDL_
+#define _MOTOR_IDL_
+
+#include <device.idl>
+
+module gda {
+module device {
+module motor {
+module corba {
+
+enum CorbaMotorStatus
+{
+   UPPERLIMIT,
+   LOWERLIMIT,
+   FAULT,
+   READY,
+   BUSY,
+   UNKNOWN
+};
+   
+exception CorbaMotorException
+{
+   CorbaMotorStatus status;
+   string message; 
+};
+
+
+
+/**
+ * An interface for a distributed motor class
+ */ 
+interface CorbaMotor : device::corba::CorbaDevice
+{
+   /**
+    * Moves the motor by the specified number of steps
+    * @param steps the number of steps to move by
+    */
+   void moveBy (in double steps) raises (CorbaMotorException);
+
+   /**
+    * Moves the motor to the specified number of steps
+    * @param steps the number of steps to move to
+    */
+   void moveTo (in double steps) raises (CorbaMotorException);
+
+   /** Moves the motor in a continuous mode
+    *  @param direction direction to move in
+    **/
+   void moveContinuously(in long direction) raises (CorbaMotorException);
+
+   /**	
+    * Sets the current position of the motor
+    * @param the position to be set as current 
+    */
+   void setPosition(in double steps) raises (CorbaMotorException);
+
+   /**
+    * Gets the current position of the motor
+    *	@return the current position
+    */
+   double getPosition() raises (CorbaMotorException);
+
+   /**
+    * Gets the current motor resolution, i.e. step size, of the motor
+    *	@return the current position
+    */
+   double getMotorResolution() raises (CorbaMotorException);
+
+   /**
+    * Sets the speed of the motor
+    * @param the speed 
+    */
+   void setSpeed(in double speed) raises (CorbaMotorException);
+
+   /**
+    * Gets the current speed setting of the motor
+    * @return the speed in steps per second
+    */
+   double getSpeed() raises (CorbaMotorException);
+   
+   /**
+    * Gets the user offset
+    * @return the user offset set on the motor
+    */
+   double getUserOffset() raises (CorbaMotorException);
+
+    /**
+    * Gets the current retry dead-band setting of the motor
+    * @return the speed in steps per second
+    */
+   double getRetryDeadband() raises (CorbaMotorException);
+ 
+   double getTimeToVelocity() raises (CorbaMotorException);
+   
+   void setTimeToVelocity(in double timeToVelocity) raises (CorbaMotorException);
+
+   /**
+    * Brings the motor to a controlled stop if possible
+    */
+   void stop() raises (CorbaMotorException);
+
+   /**
+    * Brings the motor to an uncontrolled stop if possible
+    */
+   void panicStop() raises (CorbaMotorException);
+
+   /**
+    * Gets the state of the motor
+    * @return a value from the MotorStatus enum
+    */
+   CorbaMotorStatus getStatus() raises (CorbaMotorException);
+
+   /**
+    * Gets the motor name
+    * @return the motor name
+    */
+//   string getName() raises (CorbaMotorException);
+
+   /**
+    * Removes any backlash added to motor move
+    */
+   void correctBacklash() raises (CorbaMotorException);
+   
+   boolean isMoving () raises (CorbaMotorException);
+
+   /**
+    * Sets a general level speed for the motor e.g. Fast, Slow etc.
+    * @param the speed level
+    */
+   void setSpeedLevel(in long speedLevel) raises (CorbaMotorException);
+   
+   /**
+    * Test if motor is homeable
+    */
+   boolean isHomeable () raises (CorbaMotorException);
+
+   /**
+    * Test if motor is homed
+    */
+   boolean isHomed () raises (CorbaMotorException);
+
+   /**
+    * Homes the motor
+    */
+   void home () raises (CorbaMotorException);
+
+   /**
+    * Test if motor has settable limits
+    */
+   boolean isLimitsSettable () raises (CorbaMotorException);
+      
+  /**
+    * Set soft limits
+    */
+   void setSoftLimits (in double min, in double max) 
+      raises (CorbaMotorException); 
+
+   /**
+    * Gets the current user lower limit of the motor
+    *	@return the current position
+    */
+   double getMinPosition() raises (CorbaMotorException);
+
+   /**
+    * Gets the current user high limit of the motor
+    *	@return the current position
+    */
+   double getMaxPosition() raises (CorbaMotorException);
+   
+   /**
+    * Test if motor is initialised
+    */
+   boolean isInitialised () raises (CorbaMotorException);
+      
+}; 
+
+
+};};};};
+
+#endif

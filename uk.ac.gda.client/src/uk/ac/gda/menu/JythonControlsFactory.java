@@ -1,0 +1,199 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package uk.ac.gda.menu;
+
+import gda.jython.InterfaceProvider;
+import gda.jython.Jython;
+import gda.jython.JythonServerStatus;
+import gda.observable.IObserver;
+
+import org.eclipse.core.expressions.Expression;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.ActionContributionItem;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IContributionItem;
+import org.eclipse.jface.action.Separator;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.ui.handlers.IHandlerService;
+import org.eclipse.ui.menus.CommandContributionItem;
+import org.eclipse.ui.menus.CommandContributionItemParameter;
+import org.eclipse.ui.menus.ExtensionContributionFactory;
+import org.eclipse.ui.menus.IContributionRoot;
+import org.eclipse.ui.services.IServiceLocator;
+
+import com.swtdesigner.ResourceManager;
+
+/**
+ * We have to implement these actions in code because they connect to the server and 
+ * have complex logic as to when they are enabled.
+ */
+public class JythonControlsFactory extends ExtensionContributionFactory {
+
+	@Override
+	public void createContributionItems(final IServiceLocator serviceLocator, IContributionRoot additions) {
+		
+		additions.addContributionItem(new Separator(), Expression.TRUE);
+
+		final IContributionItem haltScan = createHaltAction(serviceLocator, "Interrupt Scan Gracefully", "uk.ac.gda.client.jython.HaltScan", "/control_stop_blue.png", true);
+		additions.addContributionItem(haltScan, Expression.TRUE);
+		
+        final IContributionItem pauseScan = createPauseAction(serviceLocator, "Pause Scan", "uk.ac.gda.client.jython.PauseScan", "/control_pause_blue.png", true);
+		additions.addContributionItem(pauseScan, Expression.TRUE);
+
+		additions.addContributionItem(new Separator(), Expression.TRUE);
+		
+	    final IContributionItem haltScript = createHaltAction(serviceLocator, "Stop Script", "uk.ac.gda.client.jython.HaltScript", "/script_delete.png", false);
+		additions.addContributionItem(haltScript, Expression.TRUE);
+		
+        final IContributionItem pauseScript = createPauseAction(serviceLocator, "Pause Script", "uk.ac.gda.client.jython.PauseScript", "/script_pause.png", false);
+		additions.addContributionItem(pauseScript, Expression.TRUE);
+
+		additions.addContributionItem(new Separator(), Expression.TRUE);
+		
+		CommandContributionItemParameter pStop = new CommandContributionItemParameter(serviceLocator, null, "uk.ac.gda.client.StopAll", null, ResourceManager.getImageDescriptor(JythonControlsFactory.class, "/stop.png"), null, null, "Stop All", null, null, SWT.PUSH, null, false);
+		final CommandContributionItem    stopAll = new CommandContributionItem(pStop);
+		  
+		additions.addContributionItem(stopAll, Expression.TRUE);
+	}
+	
+
+	private IContributionItem createHaltAction(final IServiceLocator serviceLocator, final String label, final String commandId, final String iconPath, final boolean isScan) {
+		final ActionContributionItem halt = new HaltContributionItem(new Action(label, SWT.NONE) {
+			@Override
+			public void run() {
+				try {
+					((IHandlerService)serviceLocator.getService(IHandlerService.class)).executeCommand(commandId, new Event());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}, isScan);
+		halt.getAction().setImageDescriptor(ResourceManager.getImageDescriptor(JythonControlsFactory.class, iconPath));
+		return halt;
+	}
+
+
+	private IContributionItem createPauseAction(final IServiceLocator serviceLocator, final String label, final String commandId, final String iconPath, final boolean isScan) {
+		final ActionContributionItem pause = new PauseContributionItem(new Action(label, SWT.TOGGLE) {
+			@Override
+			public void run() {
+				try {
+					final Boolean isPaused = (Boolean)((IHandlerService)serviceLocator.getService(IHandlerService.class)).executeCommand(commandId, new Event());
+				    setChecked(isPaused);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}, isScan);
+		pause.getAction().setImageDescriptor(ResourceManager.getImageDescriptor(JythonControlsFactory.class, iconPath));
+		return pause;
+	}
+
+
+	private class HaltContributionItem extends JythonContributionItem {
+
+		public HaltContributionItem(IAction action, boolean isScan) {
+			super(action, isScan);
+		}
+	}
+		
+	private class PauseContributionItem extends JythonContributionItem {
+
+		public PauseContributionItem(IAction action, boolean isScan) {
+			super(action, isScan);
+		}
+		
+		@Override
+		public void dispose() {
+			super.dispose();
+			InterfaceProvider.getJSFObserver().deleteIObserver(this);
+		}
+
+		@Override
+		public void update(Object source, Object arg) {
+			super.update(source, arg);
+			if (arg instanceof JythonServerStatus) {
+				JythonServerStatus status = (JythonServerStatus)arg;
+				getAction().setChecked(isPaused(status));
+			}
+		}
+		
+	}
+	
+	private abstract class JythonContributionItem extends ActionContributionItem implements IObserver {
+		protected final boolean isScan;
+
+		public JythonContributionItem(IAction action, boolean isScan) {
+			super(action);
+			InterfaceProvider.getJSFObserver().addIObserver(this);
+			this.isScan = isScan;
+			int scriptStatus = InterfaceProvider.getScriptController().getScriptStatus();
+			getAction().setEnabled(scriptStatus==Jython.RUNNING||scriptStatus==Jython.PAUSED);
+		}
+		
+		@Override
+		public void update(Object source, Object arg) {
+			if (arg instanceof JythonServerStatus) {
+				JythonServerStatus status = (JythonServerStatus)arg;
+				getAction().setEnabled(isRunning(status));
+			}
+		}
+		
+		@Override
+		public void dispose() {
+			super.dispose();
+			try {
+				InterfaceProvider.getJSFObserver().deleteIObserver(this);
+			} catch (Exception ignored) {
+				// We do not want any notification if this fails.
+			}
+		}
+		
+		public boolean isRunning(JythonServerStatus status) {
+			boolean isRunning = false;
+			if (isScan) {
+				if (status.scanStatus == Jython.PAUSED || status.scanStatus == Jython.RUNNING) {
+					isRunning = true;
+				}
+			} else {
+				if (status.scriptStatus == Jython.PAUSED || status.scriptStatus == Jython.RUNNING) {
+					isRunning = true;
+				}
+			}
+			return isRunning;
+		}
+		
+		public boolean isPaused(JythonServerStatus status) {
+			boolean isPaused = false;
+			if (isScan) {
+				if (status.scanStatus == Jython.PAUSED) {
+					isPaused = true;
+				}
+			} else {
+				if (status.scriptStatus == Jython.PAUSED) {
+					isPaused = true;
+				}
+			}
+			return isPaused;
+		}
+	}
+
+
+}

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+	<class name="gda.simplescan.SimpleScan">
+		<map-to xml="SimpleScan" />
+		<field name="scannableName" type="string">
+			<bind-xml name="scannableName" node="element" />
+		</field>
+		<field name="fromPos" type="double">
+			<bind-xml name="fromPos" node="element" />
+		</field>
+		<field name="toPos" type="double">
+			<bind-xml name="toPos" node="element" />
+		</field>
+		<field name="stepSize" type="double">
+			<bind-xml name="stepSize" node="element" />
+		</field>
+		<field name="acqTime" type="double">
+			<bind-xml name="acqTime" node="element" />
+		</field>
+		<field name="scannables" type="gda.simplescan.ScannableManagerBean" collection="collection" set-method="addScannable" get-method="getScannables">
+			<bind-xml name="scannables" node="element" />
+		</field>
+		<field name="detectors" type="gda.simplescan.DetectorManagerBean" collection="collection" set-method="addDetector" get-method="getDetectors">
+			<bind-xml name="detectors" node="element" />
+		</field>
+	</class>
+	
+	<class name="gda.simplescan.ScannableManagerBean">
+		<map-to xml="scannables" />
+		<field name="scannableName" type="string">
+			<bind-xml name="scannableName" node="element" />
+		</field>
+	</class>
+	
+	<class name="gda.simplescan.DetectorManagerBean">
+		<map-to xml="detectors" />
+		<field name="enabled" type="boolean">
+			<bind-xml name="enabled" node="element" />
+		</field>
+		<field name="detectorName" type="string">
+			<bind-xml name="detectorName" node="element" />
+		</field>
+		<field name="detectorDescription" type="string">
+			<bind-xml name="detectorDescription" node="element" />
+		</field>
+	</class>
+</mapping>

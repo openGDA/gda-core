@@ -1,0 +1,76 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _DETECTOR_IDL_
+#define _DETECTOR_IDL_
+
+#include <scannable.idl>
+
+module gda {
+module device {
+module detector {
+module corba {
+
+/**
+ *  An interface for a distributed Detector class
+ */
+interface CorbaDetector : device::scannable::corba::CorbaScannable
+{
+   typedef sequence<long> longArray;
+   
+   void collectData()
+      raises (device::corba::CorbaDeviceException);
+
+   void setCollectionTime(in double time)
+      raises (device::corba::CorbaDeviceException);
+
+   double getCollectionTime ()
+      raises (device::corba::CorbaDeviceException);
+
+   long getStatus ()
+      raises (device::corba::CorbaDeviceException);
+
+   any readout()
+      raises (device::corba::CorbaDeviceException);
+      
+   longArray getDataDimensions()
+      raises (device::corba::CorbaDeviceException);
+   
+   boolean createsOwnFiles() 
+      raises (device::corba::CorbaDeviceException);
+   
+   void prepareForCollection()   
+      raises (device::corba::CorbaDeviceException);   
+   
+   void endCollection()
+      raises (device::corba::CorbaDeviceException);
+	
+   string getDescription()
+      raises (device::corba::CorbaDeviceException);
+
+   string getDetectorType()
+      raises (device::corba::CorbaDeviceException);
+
+   string getDetectorID()
+      raises (device::corba::CorbaDeviceException);
+};
+
+};};};};
+
+#endif

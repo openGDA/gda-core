@@ -1,0 +1,1 @@
+print "See gda.jython.ScriptPathsTest"

@@ -1,0 +1,53 @@
+
+#!/bin/bash
+#
+# scan345       Starts scan345.
+#
+#
+# chkconfig: 345 88 12
+# description: scan345 is a Mar 345 scan daemon
+### BEGIN INIT INFO
+# Provides: $scan345
+### END INIT INFO
+
+# Source function library.
+. /etc/init.d/functions
+
+[ -f /opt/mar345/mar345start.sh ] || exit 0
+
+RETVAL=0
+
+umask 077
+
+start() {
+       echo -n $"Starting scan345: "
+       daemon --user=gda /opt/mar345/mar345start.sh
+       echo
+       return $RETVAL
+}
+stop() {
+       echo -n $"Shutting down scan345: "
+       killproc scan345 
+       echo
+       return $RETVAL
+}
+restart() {
+       stop
+       start
+}
+case "$1" in
+ start)
+       start
+       ;;
+ stop)
+       stop
+       ;;
+ restart|reload)
+       restart
+       ;;
+ *)
+       echo $"Usage: $0 {start|stop|restart}"
+       exit 1
+esac
+
+exit $?

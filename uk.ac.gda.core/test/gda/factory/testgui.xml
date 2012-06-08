@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- for use as a demo configuration during development -->
+<ObjectFactory>
+   <name>TestFactory</name>
+
+   <ConfigurePanel>
+      <name>Configure</name>
+   </ConfigurePanel>
+   <StatusPanel>
+      <name>Status</name>
+   </StatusPanel>
+   <GraphPanel>
+      <name>Graphics</name>
+   </GraphPanel>
+   <EnvironmentPanel>
+      <name>Environment</name>
+   </EnvironmentPanel>
+   <OEMovePanel>
+      <name>OEMove</name>
+   </OEMovePanel>
+   <GeneralScanPanel>
+      <name>GeneralScan</name>
+   </GeneralScanPanel>
+   <ExafsPanel>
+      <name>Exafs</name>
+   </ExafsPanel>
+   <!--<MonoSetupPanel>
+      <name>MonoSetup</name>
+      <monochromatorName>Monochromator</monochromatorName>
+      <counter1Name>counterTimer01</counter1Name>
+      <counter2Name>counterTimer02</counter2Name>
+      <gratingDofName>grating</gratingDofName>
+      <mirrorDofName>mirror</mirrorDofName>
+      <gratingAngleDofName>gratingAngle</gratingAngleDofName>
+      <mirrorAngleDofName>mirrorAngle</mirrorAngleDofName>
+      <gratingLinesPerMM>1.2E06</gratingLinesPerMM>
+      <mirrorArmLength>0.15428</mirrorArmLength>
+      <gratingArmLength>0.15</gratingArmLength>
+      <mirrorAngleOffset>0.1</mirrorAngleOffset>
+      <gratingAngleOffset>0.2</gratingAngleOffset>
+   </MonoSetupPanel>-->
+   <JythonEditor>
+      <name>Editor</name>
+   </JythonEditor>
+   <JythonTerminal>
+      <name>Terminal</name>
+      <layoutChoice>1</layoutChoice>
+   </JythonTerminal>
+   <!--NI6602CounterPanel>
+      <name>Counters</name>
+      <counter1Name>counterTimer01</counter1Name>
+      <counter2Name>counterTimer02</counter2Name>
+      <label>ethelred</label>
+      <label>edwin</label>
+   </NI6602CounterPane->
+   <ScanPanel5U>
+      <name>5U scan pane</name>
+    </ScanPanel5U-->
+
+</ObjectFactory>

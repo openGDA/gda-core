@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SimpleScanParameters>
+    <name>Fe</name>
+    <start>100</start>
+    <end>200</end>
+    <seconds>200</seconds>
+</SimpleScanParameters>

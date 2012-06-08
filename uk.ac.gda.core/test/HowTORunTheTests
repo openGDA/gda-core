@@ -1,0 +1,26 @@
+These instructions work with eclipse 3.2.2
+
+To add the test folder to an existing project with eclipse so that you can run the JUnit tests within do the following:
+1. Ensure the project builds as normal. You need to have set the project settings as explained in other documents on using eclipse with GDA.
+
+2. In Project Properties add the test folder to the list of source folders along with src. Ensure the Output Folder remains as src.
+
+3. Select the project and create a new JUnit Test Run configuration 
+with the following options:
+Select to run all tests in the test folder. 
+
+VM Arguments : -Dgda.propertiesFiles=java.properties -Dgov.aps.jca.JCALibrary.properties=JCALibrary.properties -Djava.security.auth.login.config=jaas.cclrc.conf
+Working Directory: ${workspace_loc:[project]/test}
+
+
+where <project_name> is the name of the project.
+
+4. Execute the Run Configuration created in step 3.
+
+
+Using the AllTests class:
+	Add reference to test class to gda.AllTests in gda/test/gda/AllTests.java
+	Then either:
+		At the command line run the command 'ant compile test' e.g.
+			gda>ant compile test 
+		Or in Eclipse select AllTests and select to run as JUnitTest

@@ -1,0 +1,149 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="uk.ac.gda.client.experimentdefinition" xmlns="http://www.w3.org/2001/XMLSchema">
+<annotation>
+      <appinfo>
+         <meta.schema plugin="uk.ac.gda.client.experimentdefinition" id="uk.ac.gda.client.experimentdefinition" name="Experiment Definition"/>
+      </appinfo>
+      <documentation>
+         This extension point is used to list the implementation-specific classes which are to provide services within the experiment definiton framework.
+
+The uk.ac.gda.client.experimentdefinition plugin provides a perspective, with two views, to give GDA users the ability to define and run experiments using one or more xml files to define the experiment.
+
+The xml files used must be associated with specific beans (IRichBean) and each bean type associated witha specific editor.
+
+There would a be Jython script which would use the beans to run an experiment.
+
+There is further functionality, such as bean validation, which is supplied by the experiment definiton plugin. To use this functionality developers need to write utility classes implementing specific interfaces. 
+
+This extension point is for use by plugins implementing a beamline-specific implementation of the experimentdefinition functionality to register their utility classes. Those plugins should register themselves as buddies of the uk.ac.gda.client.experimentdefinition plug-in.
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <annotation>
+         <appinfo>
+            <meta.element />
+         </appinfo>
+      </annotation>
+      <complexType>
+         <sequence>
+            <element ref="experimentobjectmanager"/>
+            <element ref="validator"/>
+            <element ref="editormanager" minOccurs="0" maxOccurs="1"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="experimentobjectmanager">
+      <complexType>
+         <attribute name="class" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn=":uk.ac.gda.richbeans.beans.IExperimentObjectManager"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="validator">
+      <annotation>
+         <documentation>
+            ID of the class which extends org.eclipse.core.resources.IncrementalProjectBuilder to provide validation of the XML used by the editors.
+         </documentation>
+      </annotation>
+      <complexType>
+         <attribute name="class" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn="uk.ac.gda.beans.validation.AbstractValidator:"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="editormanager">
+      <complexType>
+         <attribute name="class" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn=":uk.ac.gda.client.experimentdefinition.IExperimentEditorManager"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="since"/>
+      </appinfo>
+      <documentation>
+         [Enter the first release in which this extension point appears.]
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="examples"/>
+      </appinfo>
+      <documentation>
+         [Enter extension point usage example here.]
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="apiinfo"/>
+      </appinfo>
+      <documentation>
+         [Enter API information here.]
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="implementation"/>
+      </appinfo>
+      <documentation>
+         [Enter information about supplied implementation of this extension point.]
+      </documentation>
+   </annotation>
+
+
+</schema>

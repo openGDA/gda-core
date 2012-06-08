@@ -1,0 +1,36 @@
+TIME           Wed Oct 29 17:00:31 2008
+COUNTER        115711 (57818)
+SHUTTER        CLOSED
+SCANMODE       345 mm @ 100
+DISTANCE       0.000
+PHI            0.000
+INTENSITY      0.000
+WAVELENGTH     1.541789
+DIRECTORY      /dls/i15/data/currentdir
+FILE           nt488_029_001
+COMMAND        12
+COMPLETE       57
+XFORM          99
+TASK ACTIVE    00000000  00100000  
+TASK DONE      10101100  11010010  
+TASK ERROR     00000000  00000000  
+HARDWARE       11110111  01011110  10111100  11011101  
+k SCAN  25 % complete
+mar345: Task SCAN  26 % complete
+mar345: Task SCAN  28 % complete
+mar345: Task SCAN  30 % complete
+mar345: Task SCAN  32 % complete
+mar345: Task SCAN  34 % complete
+mar345: Task SCAN  36 % complete
+mar345: Task SCAN  37 % complete
+mar345: Task SCAN  39 % complete
+mar345: Task SCAN  41 % complete
+mar345: Task SCAN  43 % complete
+mar345: Task SCAN  45 % complete
+mar345: Task SCAN  47 % complete
+mar345: Task SCAN  49 % complete
+mar345: Task SCAN  50 % complete
+mar345: Task SCAN  52 % complete
+mar345: Task SCAN  54 % complete
+mar345: Task SCAN  56 % complete
+mar345: Task SCAN  58 % complete

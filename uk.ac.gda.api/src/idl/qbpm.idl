@@ -1,0 +1,70 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _QBPM_IDL_
+#define _QBPM_IDL_
+
+#include <enumpositioner.idl>
+
+module gda {
+module device {
+module qbpm {
+module corba {
+
+/**
+ *  An interface for a distributed Qbpm class
+ */
+interface CorbaQbpm : device::enumpositioner::corba::CorbaEnumPositioner
+{
+	
+   	string getBpmName() raises (device::corba::CorbaDeviceException);
+
+   	void setBpmName(in string name) raises (device::corba::CorbaDeviceException);
+
+   	string getCurrAmpQuadName() raises (device::corba::CorbaDeviceException);
+
+   	void setCurrAmpQuadName(in string name) raises (device::corba::CorbaDeviceException);
+
+   	double getCurrent1() raises (device::corba::CorbaDeviceException);
+
+   	double getCurrent2() raises (device::corba::CorbaDeviceException);
+
+   	double getCurrent3() raises (device::corba::CorbaDeviceException);
+
+   	double getCurrent4() raises (device::corba::CorbaDeviceException);
+
+   	string getRangeValue() raises (device::corba::CorbaDeviceException);
+
+   	double getIntensityTotal() raises (device::corba::CorbaDeviceException);
+
+   	double getXPosition() raises (device::corba::CorbaDeviceException);
+
+   	double getYPosition() raises (device::corba::CorbaDeviceException);
+   	
+   	string getUnit() raises (device::corba::CorbaDeviceException);
+   	
+   	long getElementCount() raises (device::corba::CorbaDeviceException);
+
+  	// public DBRType getType() throws DeviceException;
+};
+
+};};};};
+
+#endif
+

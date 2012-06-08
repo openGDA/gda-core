@@ -1,0 +1,54 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include <device.idl>
+#include <reconfigurable.idl>
+
+module gda {
+module jython {
+module scriptcontroller {
+module corba {
+                                          
+/**
+ * An interface for a distributed class which drives and observes a script
+ *
+ */
+
+interface CorbaScriptController : gda::_factory::corba::CorbaFindable, gda::_factory::corba::CorbaReconfigurable
+{
+   string getCommand()
+   	raises (device::corba::CorbaDeviceException);
+   
+   void setCommand(in string scriptName)
+   	raises (device::corba::CorbaDeviceException);
+   
+   string getParametersName()
+   	raises (device::corba::CorbaDeviceException);
+   
+   void setParametersName(in string parametersName)
+   	raises (device::corba::CorbaDeviceException);
+
+   string getImportCommand()
+   	raises (device::corba::CorbaDeviceException);
+   
+   void setImportCommand(in string command)
+   	raises (device::corba::CorbaDeviceException);
+};
+};};};};
+

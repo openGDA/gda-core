@@ -1,0 +1,20 @@
+# Bragg pitch
+# Degree values for pitch are interpreted as mrad
+# fine pitch is -0.2 mrad for all pitch values 
+Units Deg Deg
+4.0 -.7
+8.0 -0.71927
+8.5 -0.73159
+9.0 -0.73521
+9.5 -0.74085
+10.0 -0.74202
+10.5 -0.74373
+11.0 -0.75447
+12.0 -0.76
+14.0 -0.7637
+15.0 -0.7737
+15.931 -0.7799
+25.0 -.78
+
+
+

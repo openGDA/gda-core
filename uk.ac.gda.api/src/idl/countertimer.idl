@@ -1,0 +1,94 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _COUNTERTIMER_IDL_
+#define _COUNTERTIMER_IDL_
+
+#include <detector.idl>
+
+module gda {
+module device {
+module detector {
+module countertimer {
+module corba {
+
+typedef sequence<double>  channelSeq;
+
+/**
+ * An interface for a distributed counter/timer class
+ */ 
+interface CorbaCounterTimer : device::detector::corba::CorbaDetector
+{
+   typedef sequence<string> stringArray;
+   
+   long getMaximumFrames ()
+      raises (device::corba::CorbaDeviceException);
+
+   long getCurrentFrame()
+      raises (device::corba::CorbaDeviceException);
+
+   long getCurrentCycle()
+      raises (device::corba::CorbaDeviceException);
+
+   void setCycles (in long cycles)
+      raises (device::corba::CorbaDeviceException);
+
+   void start()
+      raises (device::corba::CorbaDeviceException);
+
+   void restart()
+      raises (device::corba::CorbaDeviceException);
+
+   void addFrameSet (in long frameCount,
+		     in double requestedLiveTime,
+		     in double requestedDeadTime)
+      raises (device::corba::CorbaDeviceException);
+
+   void addFrameSet2(in long frameCount,
+		     in double requestedLiveTime,
+		     in double requestedDeadTime,
+		     in long deadPort,
+		     in long livePort,
+		     in long deadPause,
+		     in long livePause)
+      raises (device::corba::CorbaDeviceException);
+
+   void clearFrameSets()
+      raises (device::corba::CorbaDeviceException);
+
+   void loadFrameSets ()
+      raises (device::corba::CorbaDeviceException);
+		
+   channelSeq readChannel (in long startFrame,
+			      in long frameCount,
+                              in long channel)
+      raises (device::corba::CorbaDeviceException);
+
+   channelSeq readFrame (in long startChannel,
+			 in long channelCount,
+			 in long frame)
+      raises (device::corba::CorbaDeviceException);
+      
+   boolean isSlave() raises (device::corba::CorbaDeviceException);
+
+   void setSlave(in boolean slave) raises (device::corba::CorbaDeviceException);
+}; 
+};};};};};
+
+#endif

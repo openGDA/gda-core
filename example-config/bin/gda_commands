@@ -1,0 +1,6 @@
+#!/bin/bash
+here=`dirname $0`
+config=`cd $here/../; pwd`
+root=`cd $config/../plugins; pwd`
+export CLASSPATH=${root}/uk.ac.gda.example/bin:${root}/uk.ac.gda.example/jars/*
+python2.5  ${root}/uk.ac.gda.core/bin/gda  --config=${config} $@

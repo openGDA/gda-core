@@ -1,0 +1,117 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _ANALYSER_IDL_
+#define _ANALYSER_IDL_
+
+#include <device.idl>
+#include <detector.idl>
+
+module gda {
+module device {
+module detector {
+module analyser {
+module corba {
+
+/**
+ *  An interface for a distributed Detector class
+ */
+interface CorbaAnalyser : device::detector::corba::CorbaDetector
+{
+   typedef sequence<double> doubleArray;
+   typedef sequence<doubleArray> double2DArray;
+
+   
+   /**
+    * readout
+    */
+   void startAcquisition()
+      raises (device::corba::CorbaDeviceException);
+
+   void stopAcquisition()
+      raises (device::corba::CorbaDeviceException);
+
+   void addRegionsOfInterest(in long regionIndex,in double regionLow,in double regionHigh, in long regionBackground,in double regionPreset,in string regionName )
+       raises (device::corba::CorbaDeviceException);
+
+   void deleteRegionOfInterest(in long regionIndex) 
+      raises (device::corba::CorbaDeviceException);
+ 
+   void clear()
+      raises (device::corba::CorbaDeviceException);
+
+   any getCalibrationParameters()
+      raises (device::corba::CorbaDeviceException);
+
+   any getData()
+      raises (device::corba::CorbaDeviceException);
+   
+   any getElapsedParameters()
+      raises (device::corba::CorbaDeviceException);
+   
+   any getPresets()
+      raises (device::corba::CorbaDeviceException);
+      
+  /* any getAdcParameters()
+      raises (device::corba::CorbaDeviceException);*/
+      
+   double2DArray getRegionsOfInterestCount()
+      raises (device::corba::CorbaDeviceException);
+      
+   any getRegionsOfInterest()
+      raises (device::corba::CorbaDeviceException);
+      
+   long getSequence()
+      raises (device::corba::CorbaDeviceException);
+   
+   long getNumberOfRegions()
+      raises (device::corba::CorbaDeviceException);
+      
+   long getNumberOfChannels()
+      raises (device::corba::CorbaDeviceException);
+      
+   void setCalibration(in any calibrate)
+   	  raises (device::corba::CorbaDeviceException);
+   	  
+   void setData(in any data)
+   	  raises (device::corba::CorbaDeviceException);
+   	  
+   void setPresets(in any data)
+   	  raises (device::corba::CorbaDeviceException);
+   	  
+  /* void setAdcParameters(in any adc)
+   	  raises (device::corba::CorbaDeviceException);*/
+   	  
+   void setRegionsOfInterest(in any lowHigh)
+   	  raises (device::corba::CorbaDeviceException);
+   	  
+   void setSequence(in long seq)
+   	  raises (device::corba::CorbaDeviceException);
+   	  
+   void setNumberOfRegions(in long seq)
+   	  raises (device::corba::CorbaDeviceException);
+   	  
+   void setNumberOfChannels(in long channels)
+   	  raises (device::corba::CorbaDeviceException);
+   
+};
+
+};};};};};
+
+#endif

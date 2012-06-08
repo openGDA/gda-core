@@ -1,0 +1,9 @@
+# In the translation, there should be space after the comma
+print "1, 2"
+
+# Try a few different ways of specifying strings
+print "string, ,, string,",
+print "string with quote's\n", 'some - more'
+print 'string with quote"s\n', "some - more"
+print r"raw string\n"
+print r'raw string\n'

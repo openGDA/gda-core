@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="uk.ac.diamond.scisoft.gda.feature"
+      label="scisoft gda"
+      version="8.24.0"
+      provider-name="Diamond Light Source">
+
+   <description url="http://www.opengda.org/">
+      [Enter Feature Description here.]
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      [Enter Copyright Description here.]
+   </copyright>
+
+   <license url="http://www.gnu.org/licenses/gpl.txt">
+      GPLv3
+   </license>
+
+   <includes
+         id="uk.ac.diamond.scisoft.ui.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="org.dawb.visualization.feature"
+         version="0.0.0"/>
+
+   <plugin
+         id="uk.ac.diamond.scisoft.analysis.rcp.contributions"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"
+         unpack="false"/>
+
+   <plugin
+         id="ncsa.hdf"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+</feature>

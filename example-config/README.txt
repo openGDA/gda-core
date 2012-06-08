@@ -1,0 +1,1 @@
+This configuration is referenced by the OpenGDA's Quickstart Guide.

@@ -1,0 +1,988 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension-point id="uk.ac.gda.client.dashboard.objects" name="Default dashboard objects" schema="schema/uk.ac.gda.client.dashboard.objects.exsd"/>
+   <extension-point id="uk.ac.gda.client.preferences" name="Default Preferences" schema="schema/uk.ac.gda.client.preferences.exsd"/>
+   <extension-point id="gda.scan.scan.data.point.formatter" name="Formatter for Scan Data Point" schema="schema/gda.scan.scan.data.point.formatter.exsd"/>
+
+  <extension
+         point="org.eclipse.ui.console.consoleFactories">
+      <consoleFactory
+            class="gda.rcp.console.GDAConsoleFactory"
+            label="GDA Terminal">
+      </consoleFactory>
+   </extension>   
+   <extension
+         id="application"
+         point="org.eclipse.core.runtime.applications">
+      <application>
+         <run
+               class="gda.rcp.Application">
+         </run>
+      </application>
+   </extension>
+   
+   
+   
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="gda.rcp.OVPerspective"
+            icon="icons/eye.png"
+            id="gda.rcp.ovperspective"
+            name="Object Viewer">
+      </perspective>
+      <perspective
+            class="gda.rcp.BatonManagerOnlyPerspective"
+            icon="icons/picture_empty.png"
+            id="gda.rcp.batonmanageronlyperspective"
+            name="Reduced GUI">
+      </perspective>
+      <perspective
+            class="uk.ac.gda.perspectives.DataExplorationPerspective"
+            icon="icons/nexus.png"
+            id="uk.ac.gda.exafs.ui.dataexplorationperspective"
+            name="Data">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+   <perspectiveExtension
+         targetID="org.eclipse.ui.resourcePerspective">
+      <view
+            id="gda.rcp.views.PeripheralView"
+            ratio="0.5"
+            relationship="right"
+            relative="org.eclipse.ui.views.TaskList">
+      </view>
+   </perspectiveExtension>
+   </extension>
+   <extension
+         id="gda.rcp.jythonterminalview"
+         name="Jython Con"
+         point="org.eclipse.ui.views">
+
+      <view
+            allowMultiple="false"
+            category="uk.ac.gda.client.general.category"
+            class="gda.rcp.views.JythonTerminalView"
+            icon="icons/application_xp_terminal.png"
+            id="gda.rcp.jythonterminalview"
+            name="Jython Console"
+            restorable="true">
+      </view>      
+      <view
+            category="uk.ac.gda.client.general.category"
+            class="gda.rcp.views.PeripheralView"
+            icon="icons/sample.gif"
+            id="gda.rcp.views.PeripheralView"
+            name="Peripheral">
+      </view>
+      <view
+            allowMultiple="false"
+            category="uk.ac.gda.client.general.category"
+            class="uk.ac.gda.views.baton.BatonView"
+            icon="icons/server_link.png"
+            id="gda.rcp.views.baton.BatonView"
+            name="Baton Manager">
+      </view>
+      <view
+            allowMultiple="false"
+            category="uk.ac.gda.client.general.category"
+            class="uk.ac.gda.views.baton.MessageView"
+            icon="icons/user_comment.png"
+            id="uk.ac.gda.rcp.views.baton.MessageView"
+            name="Messages">
+      </view>
+
+      <view
+            allowMultiple="true"
+            category="uk.ac.gda.client.general.category"
+            class="uk.ac.gda.client.XYPlotView"
+            icon="icons/chart_curve.png"
+            id="uk.ac.gda.client.xyplotview"
+            name="XYScanPlot"
+            restorable="true">
+      </view>
+      <view
+            category="uk.ac.gda.client.general.category"
+            class="gda.rcp.views.dashboard.DashboardView"
+            icon="icons/layout_content.png"
+            id="uk.ac.gda.exafs.ui.dashboardView"
+            name="Dashboard"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="false"
+            category="uk.ac.gda.client.general.category"
+            class="uk.ac.gda.client.CommandQueueViewFactory"
+            icon="icons/table_multiple.png"
+            id="uk.ac.gda.client.CommandQueueViewFactory"
+            name="Command Queue"
+            restorable="true">
+      </view>
+
+      <view
+            allowMultiple="false"
+            category="uk.ac.gda.client.general.category"
+            class="gda.gui.scriptcontroller.logging.ScriptControllerLogView"
+            icon="icons/table_multiple.png"
+            id="gda.gui.scriptcontroller.logging.scriptcontrollerlogview"
+            name="Script Log"
+            restorable="true">
+      </view>
+   </extension>
+   
+ 
+   
+   <extension
+    
+         id="product"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="uk.ac.gda.client.application"
+            name="GDA Generic Client">
+         <property
+               name="appName"
+               value="GDA Generic Client">
+         </property>
+         <property
+               name="preferenceCustomization"
+               value="plugin_customization.ini">
+         </property>         
+         <property
+               name="windowImages"
+               value="icons/GDALogo128.png,icons/GDALogo64.png,icons/GDALogo48.png,icons/GDALogo32.png,icons/GDALogo16.png,icons/GDALogomed.png,">
+         </property>    
+      </product>
+   </extension>
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            label="GDA Manuals"
+            visible="true"
+            id="gda.rcp.help.manuals">
+         <action
+               id="gda.rcp.help.gdamanual"
+               label="GDA Manual"          
+               menubarPath="help/helpStart"
+               style="push">
+               <class class="org.eclipse.help.ui.browser.LaunchURL">
+                    <parameter name="url" value="http://www.opengda.org/OpenGDA/Documentation.html" />
+               </class>               
+        	</action>        	        	
+      </actionSet>
+   </extension>    
+   <extension
+         point="org.eclipse.help.toc">
+      <toc
+            file="toc.xml">
+      </toc>
+      <toc
+            file="testToc.xml"
+            primary="true">
+      </toc>
+   </extension>
+
+   
+	<extension point="org.eclipse.ui.actionSets">
+	  <actionSet
+	      label="Cheat Sheets"
+	      visible="true"
+	      id="org.eclipse.ui.cheatsheets.actionSet">
+	     <action
+	        label="Cheat Sheets"
+	        class="org.eclipse.ui.cheatsheets.CheatSheetExtensionFactory:helpMenuAction"
+	        menubarPath="help/group.tutorials"
+	        id="org.eclipse.ui.cheatsheets.
+	            actions.CheatSheetHelpMenuAction">
+	     </action>
+	  </actionSet>
+	</extension>
+   
+	<extension point="org.eclipse.ui.cheatsheets.cheatSheetContent">
+  <category
+        id="gda.rcp.cheatsheets.category"
+        name="GDA Cheatsheets">
+  </category>
+  <cheatsheet
+        category="gda.rcp.cheatsheets.category"
+        composite="false"
+        contentFile="cheatsheets/quickstart.xml"
+        id="gda.rcp.quickstart"
+        name="Getting Started With GDA">
+  </cheatsheet>   
+   	</extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="gda.rcp.preferences.GdaRootPreferencePage"
+            id="uk.ac.gda.client.preferences.gdaroot"
+            name="GDA Preferences">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <scheme
+            description="GDA Key Binding Scheme"
+            id="uk.ac.gda.client.scheme"
+            name="GDA Keys"
+            parentId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </scheme>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="uk.ac.gda.actions.PauseScanHandler"
+            id="uk.ac.gda.client.jython.PauseScan"
+            name="Pause Scan">
+      </command>
+      <command
+            defaultHandler="uk.ac.gda.actions.PauseScriptHandler"
+            id="uk.ac.gda.client.jython.PauseScript"
+            name="Pause Script">
+      </command>
+      <command
+            defaultHandler="uk.ac.gda.actions.StopAllHandler"
+            id="uk.ac.gda.client.StopAll"
+            name="Stop All">
+      </command>
+      <command
+            defaultHandler="uk.ac.gda.actions.HaltScriptHandler"
+            id="uk.ac.gda.client.jython.HaltScript"
+            name="Halt Script">
+      </command>
+      <command
+            defaultHandler="uk.ac.gda.actions.HaltScanHandler"
+            id="uk.ac.gda.client.jython.HaltScan"
+            name="Halt Scan">
+      </command>
+      
+      <command
+            defaultHandler="uk.ac.gda.actions.JythonConsoleScrollLockHandler"
+            id="uk.ac.gda.client.jython.ConsoleScrollLock"
+            name="Scroll Lock">
+      </command>
+      <command
+            defaultHandler="uk.ac.gda.actions.JythonConsoleClearConsoleHandler"
+            id="uk.ac.gda.client.jython.ConsoleClear"
+            name="Clear Console">
+      </command>
+      <command
+            defaultHandler="uk.ac.gda.actions.JythonConsoleMoveToTopHandler"
+            id="uk.ac.gda.client.jython.ConsoleMoveToTop"
+            name="Move to top on update">
+      </command>
+      
+
+      <command
+            defaultHandler="uk.ac.gda.client.StopAfterCurrentCommandQueueHandler"
+            id="uk.ac.gda.client.StopAfterCurrentCommandQueue"
+            name="Stop After Current Command Queue">
+      </command>
+      <command
+            defaultHandler="uk.ac.gda.client.StopCommandQueueHandler"
+            id="uk.ac.gda.client.StopCommandQueue"
+            name="Stop Command Queue">
+      </command>
+      <command
+            defaultHandler="uk.ac.gda.client.PauseCommandQueueHandler"
+            id="uk.ac.gda.client.PauseCommandQueue"
+            name="Pause Command Queue">
+      </command>
+      <command
+            defaultHandler="uk.ac.gda.client.StartCommandQueueHandler"
+            id="uk.ac.gda.client.StartCommandQueue"
+            name="Start Command Queue">
+      </command>
+      <command
+            defaultHandler="uk.ac.gda.client.SkipCommandQueueHandler"
+            id="uk.ac.gda.client.SkipCommandQueue"
+            name="Skip Command Queue">
+      </command>
+
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="gda.rcp.views.dashboard.actions.AddScannableHandler"
+            id="uk.ac.gda.client.AddScannableCommand"
+            name="Add Scannable">
+      </command>
+      <command
+            defaultHandler="gda.rcp.views.dashboard.actions.DeleteServerObjectHandler"
+            id="uk.ac.gda.client.DeleteServerObjectCommand"
+            name="Remove Scannable">
+      </command>
+      <command
+            defaultHandler="gda.rcp.views.dashboard.actions.DashboardPreferencesAction"
+            id="uk.ac.gda.client.dashboard.DashboardPreferences"
+            name="Preferences">
+      </command>
+      <command
+            defaultHandler="gda.rcp.views.dashboard.actions.ResetServerObjectsHandler"
+            id="uk.ac.gda.client.ResetServerObjectsCommand"
+            name="Reset">
+      </command>
+      <command
+            defaultHandler="gda.rcp.views.dashboard.actions.RefreshDashHandler"
+            id="uk.ac.gda.client.RefreshDashCommand"
+            name="Refresh Dash">
+      </command>
+      <command
+            defaultHandler="gda.rcp.views.dashboard.actions.ClearServerObjectsHandler"
+            id="uk.ac.gda.client.ClearServerObjectsCommand"
+            name="Clear">
+      </command>
+      <command
+            defaultHandler="uk.ac.gda.actions.RebuildHandler"
+            id="uk.ac.gda.client.RebuildCommand"
+            name="Rebuild">
+      </command>
+    <command
+      defaultHandler="uk.ac.gda.client.XYPlotHideAllHandler"
+      id="uk.ac.gda.client.xyPlotHideAllCommand"
+      name="Hide all scans">
+</command>
+    <command
+      defaultHandler="uk.ac.gda.client.XYPlotClearGraphHandler"
+      id="uk.ac.gda.client.xyPlotClearGraphCommand"
+      name="Remove all scans">
+</command>
+    <command
+      defaultHandler="uk.ac.gda.client.XYPlotNewHandler"
+      id="uk.ac.gda.client.xyPlotNewCommand"
+      name="New">
+</command>
+    <command
+          defaultHandler="gda.rcp.views.dashboard.actions.MoveUpHandler"
+          id="uk.ac.gda.client.DashUpCommand"
+          name="Dash Item Up">
+    </command>
+    <command
+          defaultHandler="gda.rcp.views.dashboard.actions.MoveDownHandler"
+          id="uk.ac.gda.client.DashDownCommand"
+          name="Dash Item Down">
+    </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <category
+            description="Commands relevant to GDA client in general"
+            id="uk.ac.gda.client.category"
+            name="GDA Client Category">
+      </category>
+      <category
+            description="Actions to manage the baton"
+            id="gda.rcp.views.baton"
+            name="Baton Manager Actions">
+      </category>
+      <command
+            categoryId="gda.rcp.views.baton"
+            defaultHandler="uk.ac.gda.views.baton.action.TakeAction"
+            id="gda.rcp.views.baton.TakeCommand"
+            name="Take">
+      </command>
+      <command
+            categoryId="gda.rcp.views.baton"
+            defaultHandler="uk.ac.gda.views.baton.action.ReleaseAction"
+            id="gda.rcp.views.baton.ReleaseCommand"
+            name="Release">
+      </command>
+      <command
+            categoryId="gda.rcp.views.baton"
+            defaultHandler="uk.ac.gda.views.baton.action.RequestAction"
+            id="gda.rcp.views.baton.RequestCommand"
+            name="Request">
+      </command>
+      <command
+            categoryId="gda.rcp.views.baton"
+            defaultHandler="uk.ac.gda.views.baton.action.PassAction"
+            id="gda.rcp.views.baton.PassCommand"
+            name="Pass">
+      </command>
+      <command
+            categoryId="gda.rcp.views.baton"
+            defaultHandler="uk.ac.gda.views.baton.action.RefreshBatonAction"
+            id="gda.rcp.views.baton.RefreshBaton"
+            name="Refresh">
+      </command>
+      <command
+            categoryId="gda.rcp.views.baton"
+            defaultHandler="uk.ac.gda.views.baton.action.SwitchUserAction"
+            id="gda.rcp.views.baton.SwitchUser"
+            name="Switch User">
+      </command>
+      <command
+            categoryId="gda.rcp.views.baton"
+            defaultHandler="uk.ac.gda.views.baton.action.RevertUserAction"
+            id="gda.rcp.views.baton.RevertUser"
+            name="Revert User">
+      </command>
+      <command
+            categoryId="gda.rcp.views.baton"
+            defaultHandler="uk.ac.gda.views.baton.action.PreferencesAction"
+            id="gda.rcp.views.baton.Preferences"
+            name="Preferences">
+      </command>
+      <command
+            categoryId="gda.rcp.views.baton"
+            defaultHandler="uk.ac.gda.views.baton.action.MessagesAction"
+            id="gda.rcp.views.baton.OpenMessageView"
+            name="Open Messages">
+      </command>
+      <command
+            categoryId="uk.ac.gda.client.category"
+            defaultHandler="uk.ac.gda.client.OpenXYScanPlotHandler"
+            id="uk.ac.gda.client.OpenXYScanPlotCommand"
+            name="OpenXYScanPlotCommand">
+      </command>
+
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="toolbar:org.eclipse.ui.views.ProblemView">
+         <command
+               commandId="uk.ac.gda.client.RebuildCommand"
+               icon="icons/building_go.png"
+               label="Revalidate"
+               style="push">
+         </command>
+      </menuContribution>
+	<menuContribution
+	        locationURI="toolbar:uk.ac.gda.client.xyplotview">
+	    <command
+           commandId="uk.ac.gda.client.xyPlotHideAllCommand"
+           icon="icons/chart_curve_hide.png"
+           label="Hide All"
+           tooltip="Hide all scans">
+	    </command>
+     <command
+           commandId="uk.ac.gda.client.xyPlotClearGraphCommand"
+           icon="icons/chart_curve_remove.png"
+           tooltip="Clear plots">
+     </command>
+     <command
+           commandId="uk.ac.gda.client.xyPlotNewCommand"
+           icon="icons/chart_curve_go.png"
+           label="New"
+           tooltip="New">
+     </command>
+	</menuContribution>
+ <menuContribution
+       locationURI="toolbar:gda.rcp.views.baton.BatonView">
+    <command
+          commandId="gda.rcp.views.baton.TakeCommand"
+          icon="icons/server_lightning.png"
+          label="Take"
+          mode="FORCE_TEXT"
+          style="push"
+          tooltip="Take the baton from the current holder.">
+    </command>
+    <command
+          commandId="gda.rcp.views.baton.ReleaseCommand"
+          icon="icons/server_delete.png"
+          label="Release"
+          mode="FORCE_TEXT"
+          style="push"
+          tooltip="Release the baton so that anyone may use it.">
+    </command>
+    <command
+          commandId="gda.rcp.views.baton.RequestCommand"
+          icon="icons/server_add.png"
+          label="Request"
+          mode="FORCE_TEXT"
+          style="push"
+          tooltip="Request the baton form the current holder.">
+    </command>
+    <command
+          commandId="gda.rcp.views.baton.PassCommand"
+          disabledIcon="icons/server_edit.png"
+          icon="icons/server_edit.png"
+          label="Pass"
+          mode="FORCE_TEXT"
+          style="push"
+          tooltip="Pass the baton to another user.">
+    </command>
+    <separator
+          name="uk.ac.gda.client.separator1"
+          visible="true">
+    </separator>
+    <command
+          commandId="gda.rcp.views.baton.RefreshBaton"
+          icon="icons/table_refresh.png"
+          label="Refresh"
+          mode="FORCE_TEXT"
+          style="push"
+          tooltip="Refresh the list of users.">
+    </command>
+ </menuContribution>
+ <menuContribution
+       locationURI="menu:gda.rcp.views.baton.BatonView">
+    <command
+          commandId="gda.rcp.views.baton.SwitchUser"
+          icon="icons/user_edit.png"
+          label="Switch user"
+          mode="FORCE_TEXT"
+          style="push"
+          tooltip="Switch to a different user.">
+    </command>
+    <command
+          commandId="gda.rcp.views.baton.RevertUser"
+          icon="icons/user.png"
+          label="Revert to original user"
+          mode="FORCE_TEXT"
+          style="push"
+          tooltip="Revert back to the original user.">
+    </command>
+    <separator
+          name="uk.ac.gda.client.separator2"
+          visible="true">
+    </separator>
+    <command
+          commandId="gda.rcp.views.baton.OpenMessageView"
+          icon="icons/user_comment.png"
+          label="Open Messaging"
+          mode="FORCE_TEXT"
+          tooltip="Open messaging to talk to other users of the GDA in this beam line.">
+    </command>
+    <separator
+          name="uk.ac.gda.client.separator4"
+          visible="true">
+    </separator>
+    <command
+          commandId="gda.rcp.views.baton.Preferences"
+          label="Preferences..."
+          tooltip="Edit the preferences of the baton control.">
+    </command>
+ </menuContribution>
+ <menuContribution
+       locationURI="popup:gda.rcp.views.baton.BatonView">
+    <command
+          commandId="gda.rcp.views.baton.TakeCommand"
+          icon="icons/server_lightning.png"
+          label="Take"
+          style="push"
+          tooltip="Take the baton from the current holder.">
+    </command>
+    <command
+          commandId="gda.rcp.views.baton.ReleaseCommand"
+          icon="icons/server_delete.png"
+          label="Release"
+          style="push"
+          tooltip="Release the baton so that anyone may use it.">
+    </command>
+    <command
+          commandId="gda.rcp.views.baton.RequestCommand"
+          icon="icons/server_add.png"
+          label="Request"
+          style="push"
+          tooltip="Request the baton form the current holder.">
+    </command>
+    <command
+          commandId="gda.rcp.views.baton.PassCommand"
+          disabledIcon="icons/server_edit.png"
+          icon="icons/server_edit.png"
+          label="Pass"
+          style="push"
+          tooltip="Pass the baton to another user.">
+    </command>
+    <separator
+          name="uk.ac.gda.client.separator2"
+          visible="true">
+    </separator>
+    <command
+          commandId="gda.rcp.views.baton.SwitchUser"
+          icon="icons/user_edit.png"
+          label="Switch user"
+          style="push"
+          tooltip="Switch to a different user.">
+    </command>
+    <command
+          commandId="gda.rcp.views.baton.RevertUser"
+          icon="icons/user.png"
+          label="Revert to original user"
+          style="push"
+          tooltip="Revert back to the original user.">
+    </command>
+    <separator
+          name="uk.ac.gda.client.separator5"
+          visible="true">
+    </separator>
+    <command
+          commandId="gda.rcp.views.baton.RefreshBaton"
+          icon="icons/table_refresh.png"
+          label="Refresh"
+          style="push"
+          tooltip="Refresh the list of users.">
+    </command>
+    <separator
+          name="uk.ac.gda.client.separator6"
+          visible="true">
+    </separator>
+    <command
+          commandId="gda.rcp.views.baton.OpenMessageView"
+          icon="icons/user_comment.png"
+          label="Open Messaging"
+          tooltip="Open messaging to talk to other users of the GDA in this beam line.">
+    </command>
+    <separator
+          name="uk.ac.gda.client.separator1"
+          visible="true">
+    </separator>
+    <command
+          commandId="gda.rcp.views.baton.Preferences"
+          label="Preferences..."
+          tooltip="Edit the preferences of the baton control.">
+    </command>
+ </menuContribution>
+ <menuContribution
+       locationURI="toolbar:uk.ac.gda.exafs.ui.dashboardView">
+    <command
+          commandId="uk.ac.gda.client.RefreshDashCommand"
+          icon="icons/page_refresh.png"
+          label="Refresh"
+          style="push"
+          tooltip="Refresh all values and reconnect">
+    </command>
+    <separator
+          name="uk.ac.gda.client.separator1"
+          visible="true">
+    </separator>
+    <command
+          commandId="uk.ac.gda.client.AddScannableCommand"
+          icon="icons/monitor_add.png"
+          label="Add scannable"
+          style="push"
+          tooltip="Add scannable">
+    </command>
+    <command
+          commandId="uk.ac.gda.client.DeleteServerObjectCommand"
+          icon="icons/cross.png"
+          label="Delete scannable"
+          style="push"
+          tooltip="Delete monitor">
+    </command>
+    <command
+          commandId="uk.ac.gda.client.DashUpCommand"
+          icon="icons/arrow_up.png"
+          label="Move Up"
+          style="push"
+          tooltip="Move selected scannable up">
+    </command>
+    <command
+          commandId="uk.ac.gda.client.DashDownCommand"
+          icon="icons/arrow_down.png"
+          label="Move Down"
+          style="push"
+          tooltip="Move selected scannable down">
+    </command>
+ </menuContribution>
+ <menuContribution
+       locationURI="popup:uk.ac.gda.exafs.ui.dashboardView">
+    <command
+          commandId="uk.ac.gda.client.AddScannableCommand"
+          icon="icons/monitor_add.png"
+          label="Add scannable"
+          style="push"
+          tooltip="Add scannable">
+    </command>
+    <command
+          commandId="uk.ac.gda.client.DeleteServerObjectCommand"
+          icon="icons/cross.png"
+          label="Delete scannable"
+          style="push"
+          tooltip="Delete monitor">
+    </command>
+    <command
+          commandId="uk.ac.gda.client.DashUpCommand"
+          icon="icons/arrow_up.png"
+          label="Move Up"
+          style="push"
+          tooltip="Move selected scannable up">
+    </command>
+    <command
+          commandId="uk.ac.gda.client.DashDownCommand"
+          icon="icons/arrow_down.png"
+          label="Move Down"
+          style="push"
+          tooltip="Move selected scannable down">
+    </command>
+    <separator
+          name="uk.ac.gda.client.exafs.separator3"
+          visible="true">
+    </separator>
+    <command
+          commandId="uk.ac.gda.client.RefreshDashCommand"
+          icon="icons/page_refresh.png"
+          label="Refresh"
+          style="push"
+          tooltip="Refresh all values and reconnect">
+    </command>
+    <separator
+          name="uk.ac.gda.client.exafs.separator4"
+          visible="true">
+    </separator>
+    <command
+          commandId="uk.ac.gda.client.ResetServerObjectsCommand"
+          label="Reset"
+          style="push"
+          tooltip="Reset to default view">
+    </command>
+    <command
+          commandId="uk.ac.gda.client.ClearServerObjectsCommand"
+          icon="icons/page_delete.png"
+          label="Clear"
+          style="push"
+          tooltip="Clear all server objects">
+    </command>
+    <separator
+          name="uk.ac.gda.client.exafs.separator1"
+          visible="true">
+    </separator>
+    <command
+          commandId="uk.ac.gda.client.dashboard.DashboardPreferences"
+          label="Preferences..."
+          style="push">
+    </command>
+ </menuContribution>
+ <menuContribution
+       locationURI="menu:uk.ac.gda.exafs.ui.dashboardView">
+    <command
+          commandId="uk.ac.gda.client.ResetServerObjectsCommand"
+          label="Reset"
+          style="push"
+          tooltip="Reset to default view">
+    </command>
+    <command
+          commandId="uk.ac.gda.client.ClearServerObjectsCommand"
+          icon="icons/page_delete.png"
+          label="Clear"
+          style="push"
+          tooltip="Clear all server objects">
+    </command>
+    <separator
+          name="uk.ac.gda.client.exafs.separator1"
+          visible="true">
+    </separator>
+    <command
+          commandId="uk.ac.gda.client.dashboard.DashboardPreferences"
+          label="Preferences..."
+          style="push">
+    </command>
+ </menuContribution>
+ <menuContribution
+       class="uk.ac.gda.menu.JythonControlsFactory"
+       locationURI="toolbar:gda.rcp.jythonterminalview">
+ </menuContribution>
+ <menuContribution
+       allPopups="false"
+       locationURI="popup:uk.ac.gda.client.CommandQueueViewFactory?after=additions">
+    <command
+          commandId="org.eclipse.ui.edit.copy"
+          style="push">
+    </command>
+ </menuContribution>
+ <menuContribution
+       allPopups="false"
+       locationURI="toolbar:gda.rcp.jythonterminalview">
+    <command
+          commandId="uk.ac.gda.client.jython.ConsoleClear"
+          icon="icons/console_clear.gif"
+          label="Clear Console"
+          style="push"
+          tooltip="Clear Console">
+    </command>
+    <command
+          commandId="uk.ac.gda.client.jython.ConsoleScrollLock"
+          icon="icons/scroll_lock.gif"
+          label="Scroll Lock"
+          style="toggle"
+          tooltip="Scroll Lock">
+    </command>
+    <command
+          commandId="uk.ac.gda.client.jython.ConsoleMoveToTop"
+          icon="icons/console_focus.gif"
+          label="Show Console"
+          style="toggle"
+          tooltip="Show Console When Output Updated">
+    </command>
+ </menuContribution>
+ <menuContribution
+       allPopups="false"
+       locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+    <toolbar
+          id="uk.ac.gda.client.toolbar"
+          label="GDA Client Toolbar">
+       <command
+             commandId="uk.ac.gda.client.OpenXYScanPlotCommand"
+             icon="icons/chart_curve.png"
+             label="XY Scan Plot"
+             mode="FORCE_TEXT"
+             style="push"
+             tooltip="Open the XY Scan Plot view">
+       </command>
+    </toolbar>
+ </menuContribution>
+ 
+ 
+ 
+ </extension>
+   <extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="gda.rcp.client.GDAClientStartup">
+      </startup>
+      <startup
+            class="gda.rcp.client.ReducedGUIStartup">
+      </startup>
+   </extension>
+   <extension
+         point="org.eclipse.ui.contexts">
+      <context
+            id="uk.ac.gda.client.context"
+            name="GDA Client Context">
+      </context>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="uk.ac.gda.preferences.PreferenceInitializer">
+      </initializer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            category="uk.ac.gda.client.preferences.gdaroot"
+            class="uk.ac.gda.views.baton.BatonPreferencePage"
+            id="uk.ac.gda.client.batonPreferences"
+            name="Baton">
+      </page>
+      <page
+            category="uk.ac.gda.client.preferences.gdaroot"
+            class="gda.rcp.views.dashboard.DashboardPreferencePage"
+            id="uk.ac.gda.client.dashboardPreferences"
+            name="Dashboard">
+      </page>
+   </extension>
+   <extension
+         point="uk.ac.gda.common.path.constructor">
+      <path
+            class="gda.data.PathConstructor">
+      </path>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editorActions">
+      <editorContribution
+            id="uk.ac.gda.client.actions.QueuePyDevEditorActionDelegate.contributions"
+            targetID="uk.ac.gda.pydev.extension.editor.PythonEditor">
+         <action
+               class="uk.ac.gda.client.actions.QueuePyDevEditorActionDelegate"
+               icon="icons/table_multiple.png"
+               id="uk.ac.gda.client.actions.QueuePyDevEditorActionDelegate"
+               label="Queue"
+               style="push"
+               toolbarPath="Normal/additions"
+               tooltip="Submit Contents of Editor to Queue">
+         </action>
+      </editorContribution>
+   </extension>   
+<extension point="org.eclipse.ui.popupMenus"> 
+<objectContribution
+      adaptable="true"
+      id="uk.ac.gda.client.actions.QueueScriptSelectionActionDelegate.popup.object"
+      nameFilter="*.py"
+      objectClass="org.eclipse.core.resources.IFile">
+         <action
+               class="uk.ac.gda.client.actions.QueueScriptSelectionActionDelegate"
+               icon="icons/table_multiple.png"
+               id="uk.ac.gda.client.actions.QueueScriptSelectionActionDelegate"
+               label="Queue"
+               style="push"
+               tooltip="Submit to Queue"
+               enablesFor="1">
+         </action>
+   </objectContribution> 
+</extension>
+<extension
+      point="org.eclipse.ui.commands">
+   <command
+         categoryId="uk.ac.gda.client.datadispenserCommands"
+         defaultHandler="uk.ac.gda.client.actions.DataDispenserControllerHandler"
+         id="uk.ac.gda.client.datadispenser.controller.command"
+         name="Open Data Dispenser Control Window">
+   </command>
+   <command
+         categoryId="uk.ac.gda.client.datadispenserCommands"
+         defaultHandler="uk.ac.gda.client.actions.DataDispenserExtMediaHandler"
+         id="uk.ac.gda.client.datadispenser.media.command"
+         name="Open Data Dispenser External Media">
+   </command>
+   <category
+         description="Commands for invoking the data dispenser within the GDA"
+         id="uk.ac.gda.client.datadispenserCommands"
+         name="Data Dispenser Commands">
+   </category>
+</extension>
+<extension
+      point="org.eclipse.ui.commandImages">
+   <image
+         commandId="uk.ac.gda.client.datadispenser.controller.command"
+         icon="icons/drive_user.png">
+   </image>
+   <image
+         commandId="uk.ac.gda.client.datadispenser.media.command"
+         icon="icons/drive_magnify.png">
+   </image>
+</extension>
+<extension
+      point="org.eclipse.ui.handlers">
+   <handler
+         class="uk.ac.gda.client.CommandQueueViewFactoryCopyHandler"
+         commandId="org.eclipse.ui.edit.copy">
+      <activeWhen>
+         <and>
+            <count
+                  value="1">
+            </count>
+            <iterate>
+               <instanceof
+                     value="gda.commandqueue.QueuedCommandSummary">
+               </instanceof>
+            </iterate>
+         </and>
+      </activeWhen>
+   </handler>
+</extension>
+<extension
+      point="org.eclipse.core.expressions.propertyTesters">
+   <propertyTester
+         class="gda.rcp.client.propertyTesters.IsStaffPropertyTester"
+         id="gda.rcp.client.isStaffPropertyTester"
+         namespace="gda.authentication"
+         properties="isStaff"
+         type="java.lang.Object">
+   </propertyTester>
+</extension>
+<extension point="org.eclipse.ui.editors">
+    <editor class="gda.simplescan.SimpleScanEditor"
+            default="true"
+            id="gda.simplescan.SimpleScanEditor"
+            name="SimpleScan">
+            <contentTypeBinding
+                contentTypeId="gda.simplescan.SimpleScanContentType">
+            </contentTypeBinding>
+     </editor>
+  </extension>
+  <extension point="org.eclipse.core.contenttype.contentTypes">
+     <content-type
+       base-type="org.eclipse.core.runtime.xml"
+       describer="gda.simplescan.SimpleScanDescriber"
+       file-extensions="xml"
+       id="gda.simplescan.SimpleScanContentType"
+       name="SimpleScan File Content"
+       priority="high">
+     </content-type>
+  </extension>
+</plugin>

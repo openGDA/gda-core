@@ -1,0 +1,4 @@
+# This is used by the automated testing system
+Units micron mm
+0. 0.
+1000. 1.

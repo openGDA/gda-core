@@ -1,0 +1,10 @@
+<ObjectFactory>
+  <name>tester</name>
+
+ <DummyExafsServer>
+    <name>exafsserver</name>
+    <local>true</local>
+    <host>vmebl10</host>
+    <port>7000</port>
+ </DummyExafsServer>
+</ObjectFactory>

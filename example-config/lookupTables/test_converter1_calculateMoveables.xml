@@ -1,0 +1,7 @@
+<JEPQuantityConverter>
+<ExpressionStoT>180.*acos(25./(2*(X+13.13)))/3.1416</ExpressionStoT>
+<ExpressionTtoS>25./(2.*cos(X*3.1416/180.)) - 13.13</ExpressionTtoS>
+<AcceptableSourceUnits>mm</AcceptableSourceUnits>
+<AcceptableTargetUnits>mDeg</AcceptableTargetUnits>
+</JEPQuantityConverter>
+

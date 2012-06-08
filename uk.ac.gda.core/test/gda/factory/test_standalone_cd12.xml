@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- for use as a demo configuration during development of cd12 panels-->
+<ObjectFactory>
+   <name>TestFactory</name>
+
+<!-- acts as a mono -->
+    <GenericOE>
+        <name>monochromator</name>
+        <LinearPositioner>
+            <name>positioner2</name>
+            <motorName>test02Motor</motorName>
+            <stepsPerUnit>1000</stepsPerUnit>
+            <softLimitLow>-10000</softLimitLow>
+            <softLimitHigh>10000</softLimitHigh>
+        </LinearPositioner>
+        <SingleAxisLinearDOF>
+            <name>mono</name>
+            <protectionLevel>0</protectionLevel>
+            <reportingUnit>mm</reportingUnit>
+            <moveableName>positioner2</moveableName>
+        </SingleAxisLinearDOF>
+    </GenericOE>
+
+<!-- temperature probe -->
+   <!-- couldnt get this working: dummytemp does not work trhough corba properly
+   <DummyTemp>
+      <name>tempc</name>
+      <accuracy>0.1</accuracy>
+   </DummyTemp>-->
+    <GenericOE>
+        <name>myTemperature</name>
+        <LinearPositioner>
+            <name>positioner6</name>
+            <motorName>test06Motor</motorName>
+            <stepsPerUnit>1000</stepsPerUnit>
+            <softLimitLow>-10000</softLimitLow>
+            <softLimitHigh>10000</softLimitHigh>
+        </LinearPositioner>
+        <SingleAxisLinearDOF>
+            <name>tempc</name>
+            <protectionLevel>0</protectionLevel>
+            <reportingUnit>mm</reportingUnit>
+            <moveableName>positioner6</moveableName>
+        </SingleAxisLinearDOF>
+    </GenericOE>
+
+<!-- modulator -->
+  <DummyPEM90>
+      <name>pemc</name>
+   </DummyPEM90>
+
+<!-- the CD countertimer -->
+   <DummyCounterTimer>
+      <name>tio</name>
+      <totalChans>1</totalChans>
+      <active>true</active>
+   </DummyCounterTimer>
+
+<!-- to supply a value to act as the live machine current-->
+    <GenericOE>
+        <name>theMachine</name>
+        <LinearPositioner>
+            <name>positioner3</name>
+            <motorName>test03Motor</motorName>
+            <stepsPerUnit>1000</stepsPerUnit>
+            <softLimitLow>-10000</softLimitLow>
+            <softLimitHigh>10000</softLimitHigh>
+        </LinearPositioner>
+        <SingleAxisLinearDOF>
+            <name>MachineCurrent</name>
+            <protectionLevel>0</protectionLevel>
+            <reportingUnit>mm</reportingUnit>
+            <moveableName>positioner3</moveableName>
+        </SingleAxisLinearDOF>
+    </GenericOE>
+
+
+<!-- Stationary Ganged Slit or Stationary Aperture-->
+    <GenericOE>
+        <name>StationarySlit</name>
+        <LinearPositioner>
+            <name>positioner1</name>
+            <motorName>test01Motor</motorName>
+            <stepsPerUnit>1000</stepsPerUnit>
+            <softLimitLow>-10000</softLimitLow>
+            <softLimitHigh>10000</softLimitHigh>
+        </LinearPositioner>
+        <SingleAxisLinearDOF>
+            <name>PostMonoSlit</name>
+            <protectionLevel>0</protectionLevel>
+            <reportingUnit>mm</reportingUnit>
+            <moveableName>positioner1</moveableName>
+        </SingleAxisLinearDOF>
+    </GenericOE>
+
+<!-- acts as a voltage readout -->
+    <GenericOE>
+        <name>piezo</name>
+        <LinearPositioner>
+            <name>positioner4</name>
+            <motorName>test04Motor</motorName>
+            <stepsPerUnit>1000</stepsPerUnit>
+            <softLimitLow>-10000</softLimitLow>
+            <softLimitHigh>10000</softLimitHigh>
+        </LinearPositioner>
+        <SingleAxisLinearDOF>
+            <name>ht</name>
+            <protectionLevel>0</protectionLevel>
+            <reportingUnit>mm</reportingUnit>
+            <moveableName>positioner4</moveableName>
+        </SingleAxisLinearDOF>
+    </GenericOE>
+
+<!-- motors -->
+    <DummyMotor>
+      <name>test01Motor</name>
+      <backlashSteps>0</backlashSteps>
+      <sleepTime>1000</sleepTime>
+      <nonContinuousIncrements>10</nonContinuousIncrements>
+      <fastSpeed>50</fastSpeed>
+      <mediumSpeed>25</mediumSpeed>
+      <slowSpeed>5</slowSpeed>
+   </DummyMotor>
+   <DummyMotor>
+      <name>test02Motor</name>
+      <backlashSteps>0</backlashSteps>
+      <sleepTime>1000</sleepTime>
+      <nonContinuousIncrements>10</nonContinuousIncrements>
+      <fastSpeed>50</fastSpeed>
+      <mediumSpeed>25</mediumSpeed>
+      <slowSpeed>5</slowSpeed>
+   </DummyMotor>
+   <DummyMotor>
+      <name>test03Motor</name>
+      <backlashSteps>0</backlashSteps>
+      <sleepTime>1000</sleepTime>
+      <nonContinuousIncrements>10</nonContinuousIncrements>
+      <fastSpeed>50</fastSpeed>
+      <mediumSpeed>25</mediumSpeed>
+      <slowSpeed>5</slowSpeed>
+   </DummyMotor>
+   <DummyMotor>
+      <name>test04Motor</name>
+      <backlashSteps>0</backlashSteps>
+      <sleepTime>1000</sleepTime>
+      <nonContinuousIncrements>10</nonContinuousIncrements>
+      <fastSpeed>50</fastSpeed>
+      <mediumSpeed>25</mediumSpeed>
+      <slowSpeed>5</slowSpeed>
+   </DummyMotor>
+   <DummyMotor>
+      <name>test05Motor</name>
+      <backlashSteps>0</backlashSteps>
+      <sleepTime>1000</sleepTime>
+      <nonContinuousIncrements>10</nonContinuousIncrements>
+      <fastSpeed>50</fastSpeed>
+      <mediumSpeed>25</mediumSpeed>
+      <slowSpeed>5</slowSpeed>
+   </DummyMotor>
+   <DummyMotor>
+      <name>test06Motor</name>
+      <backlashSteps>0</backlashSteps>
+      <sleepTime>1000</sleepTime>
+      <nonContinuousIncrements>10</nonContinuousIncrements>
+      <fastSpeed>50</fastSpeed>
+      <mediumSpeed>25</mediumSpeed>
+      <slowSpeed>5</slowSpeed>
+   </DummyMotor>
+
+   <JythonTerminal>
+      <name>Terminal</name>
+   </JythonTerminal>
+   <JythonEditor>
+      <name>Editor</name>
+      <jythonTerminalName>Terminal</jythonTerminalName>
+   </JythonEditor>
+   <vuvConfigurePane>
+      <name>ConfigurePane</name>
+   </vuvConfigurePane>
+   <vuvScanPane>
+      <name>ScanPane</name>
+   </vuvScanPane>
+   <vuvTimeScanPane>
+      <name>TimeScanPane</name>
+   </vuvTimeScanPane>
+   <vuvTemperatureScan>
+      <name>TemperatureScanPane</name>
+   </vuvTemperatureScan>
+   <vuvDataReductionPanel>
+      <name>DataReductionPane</name>
+   </vuvDataReductionPanel>
+</ObjectFactory>

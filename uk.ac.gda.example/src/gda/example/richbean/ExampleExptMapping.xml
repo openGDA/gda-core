@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+
+	<class name="gda.example.richbean.ExampleExpt">
+		<map-to xml="ExampleExpt" />
+		<field name="startEnergy" type="double">
+			<bind-xml name="startEnergy" node="element"/>
+		</field>
+		<field name="finalEnergy" type="double">
+			<bind-xml name="finalEnergy" node="element"/>
+		</field>
+	</class>
+</mapping>
+	

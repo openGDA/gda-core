@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration>
+<min_domegaindeg>0.0</min_domegaindeg>
+<max_domegaindeg>1.0</max_domegaindeg>
+<min_ddetectorindeg>1.0</min_ddetectorindeg>
+<max_ddetectorindeg>2.0</max_ddetectorindeg>
+<min_dkappaindeg>2.0</min_dkappaindeg>
+<max_dkappaindeg>3.0</max_dkappaindeg>
+<min_dphiindeg>3.0</min_dphiindeg>
+<max_dphiindeg>4.0</max_dphiindeg>
+<min_dscanwidthindeg>6.0</min_dscanwidthindeg>
+<max_dscanwidthindeg>7.0</max_dscanwidthindeg>
+<min_dscanspeedratio>7.0</min_dscanspeedratio>
+<max_dscanspeedratio>8.0</max_dscanspeedratio>
+<min_dexposuretimeinsec>8.0</min_dexposuretimeinsec>
+<max_dexposuretimeinsec>9.0</max_dexposuretimeinsec>
+</configuration>

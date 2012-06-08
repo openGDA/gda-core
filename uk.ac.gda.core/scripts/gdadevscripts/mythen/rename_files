@@ -1,0 +1,48 @@
+#! /usr/bin/python
+
+# Creates a directory containing symlinks to the angular calibration files in
+# another directory. Symlink names are of the form "prefix-pos.ext".
+
+# Original filenames are of the form <PREFIX>_scan<ANGLE>_<RUN>.<EXTENSION>
+# New filenames are of the form <PREFIX>-<POSITION>.<EXTENSION>
+
+import os
+import re
+import sys
+
+# check args
+if len(sys.argv) != 5:
+	print "usage: rename_files old-dir prefix run-num new-dir"
+	sys.exit(1)
+(old_dir, prefix, run_num, new_dir) = sys.argv[1:]
+
+os.mkdir(new_dir)
+
+# extensions of angular calibration files
+extensions = [".dat", ".raw", ".parab"]
+
+# read all files in old directory
+file_list = os.listdir(old_dir)
+
+for ext in extensions:
+
+	# find files with this extension
+	ext_files = [{"filename": f} for f in file_list if f.endswith(ext)]
+
+	# find angle in filename
+	regex = prefix + "_scan(.*)_" + str(run_num) + ext
+	for file in ext_files:
+		m = re.search(regex, file["filename"])
+		file["angle"] = float(m.group(1))
+
+	# sort files by angle
+	ext_files.sort(lambda x, y: cmp(x["angle"], y["angle"]))
+
+	# create symlinks from old directory to new
+	for pos in range(len(ext_files)):	
+		file = ext_files[pos]
+		old_pathname = os.path.join("..", old_dir, file["filename"])
+		new_filename =  "%s-%d%s" % (prefix, pos, ext)
+		new_pathname = os.path.join(new_dir, new_filename)
+		print "%s\t%d\t%s" % (file["filename"], pos, new_filename)
+		os.symlink(old_pathname, new_pathname)

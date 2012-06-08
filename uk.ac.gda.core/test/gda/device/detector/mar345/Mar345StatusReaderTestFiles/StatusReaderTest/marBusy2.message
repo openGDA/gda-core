@@ -1,0 +1,16 @@
+TIME           Tue Oct 21 14:10:02 2008
+COUNTER        955513 (476965)
+SHUTTER        CLOSED
+SCANMODE       345 mm @ 100
+DISTANCE       0.000
+PHI        mar345: Task SCAN   5 % complete
+mar345: Task SCAN   7 % complete
+    /dls/i15/data/currentdir
+FILE           Si_20-10-2008_28keV_155_001
+COMMAND        12
+COMPLETE       2
+XFORM          99
+TASK ACTIVE    00000000  00100000  
+TASK DONE      10101100  11010010  
+TASK ERROR     00000000  00000000  
+HARDWARE       00000000  11011111  10011110  11011101  

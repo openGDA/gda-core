@@ -1,0 +1,139 @@
+<project name="plugin-uk.ac.gda.core" basedir=".">
+
+    <dirname property="GDA-plugin.basedir" file="${ant.file.${ant.project.name}}" />
+    <pathconvert property="workspace.loc" setonempty="false">
+        <regexpmapper from="(.*)_git/.+" to="\1"/>
+        <path><pathelement location="${GDA-plugin.basedir}" /></path>
+    </pathconvert>
+    <pathconvert property="workspace.loc" setonempty="false">
+        <regexpmapper from="(.*)/plugins/.+" to="\1"/>
+        <path><pathelement location="${GDA-plugin.basedir}" /></path>
+    </pathconvert>
+    <property name="workspace.git.loc" value="${workspace.loc}_git" />
+    <import file="${workspace.loc}/builder/build-common.xml" />
+
+    <!-- ====================================================================
+           Build
+         ==================================================================== -->
+
+    <!-- the jython scripting view should auto-complete class and method names in this plugin -->
+    <property name="plugin.enable.jython_autocomplete" value="true" />
+
+    <!-- ====================================================================
+           Invoke the tests
+         ==================================================================== -->
+
+    <target name="junit-tests" depends="toolCheck, set-test-base, Xvfb_start, _junit-tests, Xvfb_stop" />
+
+    <target name="_junit-tests" depends="toolCheck, set-test-base">
+        <junit-call description="${ant.project.name} Java JUnit tests" maxmemory="1024m"
+        Xvfb-display-name="${Xvfb-display-name}" Xvfb-display-number="${Xvfb-display-number}">
+            <sysproperty key="basedir" value="${GDA-plugin.basedir}" />
+            <sysproperty key="gda.tests" value = "${GDA-plugin.basedir}/test"/>  <!-- read by plugins/uk.ac.gda.core/src/gda/util/TestsUtil.java -->
+            <sysproperty key="gda.propertiesFiles" value = "${GDA-plugin.basedir}/test/java.properties"/>
+            <sysproperty key="gov.aps.jca.JCALibrary.properties" value="${GDA-plugin.basedir}/test/${gov.aps.jca.JCALibrary.properties}"/>
+            <formatter type="xml" />
+            <classpath>
+                <pathelement location="${junitjar.loc}" />
+                <pathelement location="${jythonjar.loc}" />
+                <pathelement location="${GDA-plugin.basedir}/classes/test" />
+                <pathelement location="${GDA-plugin.basedir}/classes/main" />
+                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.api/bin" />
+                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.api/jars/*" />
+                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.analysis/bin" />
+                <pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
+                <pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/bin" />
+                <pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/jars/*" />
+                <pathelement location="${workspace.git.loc}/scisoft/scisoft-core.git/uk.ac.diamond.scisoft.analysis/bin" />
+                <pathelement location="${workspace.git.loc}/scisoft/scisoft-core.git/uk.ac.diamond.scisoft.analysis/jars/*" />
+                <pathelement location="${workspace.git.loc}/scisoft/scisoft-core.git/uk.ac.diamond.scisoft.deprecated/bin" />
+                <pathelement location="${workspace.loc}/plugins/uk.ac.diamond.org.jacorb/jars/jacorb.jar" />
+                <pathelement location="${workspace.loc}/plugins/uk.ac.diamond.org.springframework/jars/*" />
+                <pathelement location="${workspace.loc}/tp/plugins/*" />
+                <path refid="libs.jars.path" />
+            </classpath>
+            <batchtest todir="@{report.dir}">
+                <fileset dir="${GDA-plugin.basedir}/test">
+                    <include name="**/*Test.java" />
+                    <exclude name="**/*PluginTest.java" />
+                    <!--the excludes below are temporary -->
+                    <exclude name="**/EditPermissionsTest.java" />
+                    <exclude name="**/ObjectFactoryValidationTest.java" />
+                    <exclude name="**/IcatProviderTest.java" />
+                    <exclude name="**/DummyKeithleyTest.java" />
+                    <exclude name="**/KeithleyRemoteTest.java" />
+                    <exclude name="**/KeithleyTest.java" />
+                    <exclude name="**/HPDataLoggerTest.java" />
+                    <exclude name="**/ODCCDControllerTest.java" />
+                    <exclude name="**/XmapTest.java" />
+                    <exclude name="**/DummyMotorTest.java" />
+                    <exclude name="**/TotalDummyMotorTest.java" />
+                    <exclude name="**/DottedAccessScannableMotionBaseTest.java" />
+                    <exclude name="**/DummyTemperatureTest.java" />
+                    <exclude name="**/XspressSystemTest.java" />
+                    <exclude name="**/EventServerTest.java" />
+                    <exclude name="**/ObjectServer.java" />
+                    <exclude name="**/ObjectServerTest.java" />
+                    <exclude name="**/ObjectServer1Test.java" />
+                    <exclude name="**/ChooseVisitIDFrameTest.java" />
+                    <exclude name="**/BeanTest.java" />
+                    <exclude name="**/ScanPlotPanelTest.java" />
+                    <exclude name="**/ParametersPanelBuilderTest.java" />
+                    <exclude name="**/SimpleXYSeriesTest.java" />
+                    <exclude name="**/LdapAuthoriserTest.java" />
+                    <exclude name="**/CommandSocketTest.java" />
+                    <exclude name="**/SimplePlotFrameTest.java" />
+                    <exclude name="**/NewClassTest.java" />
+                    <exclude name="**/NetServiceTest.java" />
+                    <exclude name="**/AboutTest.java" />
+                    <exclude name="**/util/LocalPropertiesTest.java" /> <!-- there is also a LocalPropertiesTest in gda/configuration/properties-->
+                    <exclude name="**/OSCommandRunnerTest.java" />
+                    <exclude name="**/StringInFileTest.java" />
+                    <exclude name="**/SplitQuantitiesConverterTest.java" />
+                    <exclude name="**/LocalParametersTest.java" />
+                </fileset>
+            </batchtest>
+        </junit-call>
+    </target>
+
+    <target name="jyunit-tests-scripts" depends="toolCheck, set-ncsa-hdf-context-GDA, set-test-base">
+        <jython-call description="${ant.project.name} JyUnit tests (scripts)"
+            jython.file="${GDA-plugin.basedir}/scripts/all_tests.py"
+            python.path="${GDA-plugin.basedir}/scripts">
+            <classpath>
+                <pathelement location="${jythonjar.loc}" />  <!-- put ahead of the version of Jython bundled with pydev -->
+                <pathelement location="${GDA-plugin.basedir}/classes/test" />
+                <pathelement location="${GDA-plugin.basedir}/classes/main" />
+                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.api/bin" />
+                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.api/jars/*" />
+                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.analysis/bin" />
+                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.swingclient/bin" />
+                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.common.client/bin" />
+                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.dls/bin" />
+                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.dls/jars/*" />
+                <pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
+                <pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/bin" />
+                <pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/jars/*" />
+                <pathelement location="${workspace.git.loc}/scisoft/scisoft-core.git/uk.ac.diamond.scisoft.analysis/bin" />
+                <pathelement location="${workspace.git.loc}/scisoft/scisoft-core.git/uk.ac.diamond.scisoft.analysis/jars/*" />
+                <pathelement location="${workspace.git.loc}/scisoft/scisoft-core.git/uk.ac.diamond.scisoft.deprecated/bin" />
+                <pathelement location="${workspace.git.loc}/scisoft/scisoft-ui.git/uk.ac.diamond.scisoft.analysis.rcp/bin" />
+                <pathelement location="${workspace.git.loc}/scisoft/scisoft-cbflib.git/uk.ac.diamond.CBFlib/bin" />
+                <pathelement location="${workspace.git.loc}/scisoft/scisoft-cbflib.git/uk.ac.diamond.CBFlib/jars/*" />
+                <pathelement location="${workspace.loc}/plugins/uk.ac.diamond.org.jacorb/jars/jacorb.jar" />
+                <pathelement location="${workspace.git.loc}/scisoft/scisoft-core.git/uk.ac.diamond.scisoft.python/bin" />
+                <pathelement location="${workspace.loc}/plugins/uk.ac.diamond.org.springframework/jars/*" />
+                <pathelement location="${workspace.loc}/tp/plugins/*" />
+                <path refid="ncsa.hdf.classpath" />
+                <path refid="libs.jars.path" />
+            </classpath>
+        </jython-call>
+    </target>
+
+    <target name="jyunit-tests" depends="jyunit-tests-scripts">
+    </target>
+
+    <target name="all-tests" depends="clean-test, junit-tests, jyunit-tests">
+    </target>
+
+</project>

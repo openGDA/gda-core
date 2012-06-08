@@ -1,0 +1,8 @@
+ &SRS
+ SRSRUN=7319,SRSDAT=2010312,SRSTIM=10740,
+ SRSSTN='ws00',SRSPRJ='i04     ',SRSEXP='commissi',
+ SRSTLE='                                                            ',
+ SRSCN1='        ',SRSCN2='        ',SRSCN3='        ',
+ &END
+S3YCENTRE	energy	qbpm1	t	path	peak2d_background	peak2d_peakx	peak2d_peaky	peak2d_topx	peak2d_topyy	peak2d_fwhmx	peak2d_fwhmy	peak2d_fwhmarea
+-3.8900	0.0000	1.2590	863.000000	220736	1.060836	124.655336	135.210539	117.814113	95.772022	25.697602	25.606902	516.820258

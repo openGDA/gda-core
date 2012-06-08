@@ -1,0 +1,53 @@
+#! /usr/bin/python
+
+import sys
+from xml.dom import minidom
+
+if len(sys.argv) > 2:
+	print >>sys.stderr, "usage: find-duplicate-schema-elements [schema]"
+	sys.exit(1)
+
+schema_filename = "GDASchema.xsd"
+if len(sys.argv) == 2:
+	schema_filename = sys.argv[1]
+
+# load schema
+schema = minidom.parse(schema_filename)
+
+# build (element, count) map
+elementinfo = {}
+elements = schema.getElementsByTagName("xsd:element")
+for e in elements:
+	if e.hasAttribute("name"):
+		
+		name = str(e.getAttribute("name"))
+		type = str(e.getAttribute("type"))
+		
+		if not name in elementinfo:
+			elementinfo[name] = {"name": name, "count": 0, "types": {}}
+		elementinfo[name]["count"] += 1
+		
+		if not type in elementinfo[name]["types"]:
+			elementinfo[name]["types"][type] = 0
+		elementinfo[name]["types"][type] += 1
+
+# convert map to list of tuples
+elements = elementinfo.values()
+
+# keep only elements with more than one definition
+elements = [e for e in elements if e["count"] > 1]
+
+# sort by element name
+cmp_element_and_count = lambda x, y: cmp(x["name"].lower(), y["name"].lower())
+elements.sort(cmp_element_and_count)
+
+print "%d with more than one definition:" % len(elements)
+for element in elements:
+	print "%s\t%s" % (element["name"], element["types"])
+
+# keep only elements with conflicting types
+elements = [e for e in elements if len(e["types"]) > 1]
+
+print "%d with conflicting types:" % len(elements)
+for element in elements:
+	print "%s\t%s" % (element["name"], element["types"])

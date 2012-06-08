@@ -1,0 +1,74 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _DEVICE_IDL_
+#define _DEVICE_IDL_
+
+#include <findable.idl>
+#include <reconfigurable.idl>
+
+module gda {
+module device {
+module corba {
+
+exception CorbaDeviceException
+{
+   string message; 
+};
+
+interface CorbaDevice : gda::_factory::corba::CorbaFindable, gda::_factory::corba::CorbaReconfigurable
+{
+   /**
+    * Set a named non-specific attribute of the class.
+    *
+    * @param attributeName to be set
+    * @param value
+    */
+   void setAttribute(in string attributeName, in any value)
+      raises (CorbaDeviceException);
+
+   /**
+    * Get a named non-specific attribute of the class
+    *
+    * @return value of the specified attribute
+    */
+   any getAttribute(in string attributeName)
+      raises (CorbaDeviceException);
+      
+   void close()
+      raises (CorbaDeviceException);
+      
+     /**
+	 * Sets the permission level for this object. If this is not set then a default value will be applied. 
+	 * 
+	 * @param newLevel
+	 * @throws DeviceException
+	 */
+	void setProtectionLevel(in long newLevel) raises (CorbaDeviceException);
+	
+	/**
+	 * @return int - the permission level for this object.
+	 * @throws DeviceException
+	 */
+	long getProtectionLevel() raises (CorbaDeviceException);
+};
+
+};};};
+
+#endif //_DEVICE_IDL_

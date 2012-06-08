@@ -1,0 +1,25 @@
+<xsd:schema targetNamespace="http://www.diamond.ac.uk/schema/gda/corba"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns="http://www.diamond.ac.uk/schema/gda/corba"
+            attributeFormDefault="unqualified">
+
+	<xsd:attributeGroup name="importAttr">
+		<xsd:attribute name="name" type="xsd:string" use="optional" />	
+		<xsd:attribute name="namespace" type="xsd:string"  use="optional"/>
+		<xsd:attribute name="names" type="xsd:string"  use="optional"/>	
+	</xsd:attributeGroup>
+
+	<xsd:complexType name="importType">
+		<xsd:attributeGroup ref="importAttr"/>
+	</xsd:complexType>
+	
+	<xsd:element name="import" type="importType" />
+	
+	<xsd:complexType name="exportType">
+		<xsd:attribute name="namespace" type="xsd:string" use="required" />
+		<xsd:attribute name="exclude" type="xsd:string" use="optional" />
+	</xsd:complexType>
+	
+	<xsd:element name="export" type="exportType" />
+	
+</xsd:schema>

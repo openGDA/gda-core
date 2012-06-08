@@ -1,0 +1,8 @@
+#!/bin/bash
+JAVA_OPTS="-Xms128m -Xmx1024m" `dirname $0`/gda_commands rcpclient --rcp_image=client/gda --restart $@
+
+# Legacy Swing Client
+#JAVA_OPTS="-Xms128m -Xmx1024m" `dirname $0`/gda_commands client --restart $@
+
+
+

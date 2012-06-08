@@ -1,0 +1,56 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _PHANTOM_IDL_
+#define _PHANTOM_IDL_
+
+#include <device.idl>
+
+module uk {
+module ac {
+module diamond {
+module scisoft {
+module analysis {
+module plotserver {
+module corba {
+
+/**
+ * The interface for the PlotManager interface
+ */ 
+ 
+interface CorbaPlotServer : gda::device::corba::CorbaDevice
+{
+	void updateGui(in string guiName, in any guiData) raises (gda::device::corba::CorbaDeviceException);
+
+	any getGuiState(in string guiName) raises (gda::device::corba::CorbaDeviceException);
+
+	void setPlotData(in string guiName, in any plotData) raises (gda::device::corba::CorbaDeviceException);
+
+	any getPlotData(in string guiName) raises (gda::device::corba::CorbaDeviceException);
+	
+	void updateData(in string guiName) raises (gda::device::corba::CorbaDeviceException);
+
+	any getGuiNames() raises (gda::device::corba::CorbaDeviceException);
+
+}; 
+
+
+};};};};};};};
+
+#endif

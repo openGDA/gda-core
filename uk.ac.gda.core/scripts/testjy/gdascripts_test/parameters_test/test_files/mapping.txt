@@ -1,0 +1,23 @@
+one=two
+three= four
+five =six
+seven = eight
+
+# test comment
+# spaces on the next line are intentional
+  
+
+test1=value with spaces
+test2 =value with spaces
+test3= value with spaces
+test4 = value with spaces
+
+spacetest1a value
+spacetest1b      value
+spacetest2a	value
+spacetest2b			value
+spacetest3	 	 	 	value
+
+keyonly
+
+commenttest = multi word value # this is a comment

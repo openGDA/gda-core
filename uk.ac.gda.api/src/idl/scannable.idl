@@ -1,0 +1,254 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _SCANNABLE_IDL_
+#define _SCANNABLE_IDL_
+
+#include <device.idl>
+
+module gda {
+module device {
+module scannable {
+module corba {
+
+/**
+ *  An interface for a distributed Scannable class
+ */
+interface CorbaScannable : device::corba::CorbaDevice
+{
+   typedef sequence<string> stringArray;
+   
+    /**
+     * Current value / readout of whatever this scannable represents
+     * 
+     * @return a string, a double or an array of doubles
+     * @throws DeviceException
+     */
+    any getPosition()
+      raises (device::corba::CorbaDeviceException);
+    
+    /**
+     * Pretty print version of getPosition output.
+     * 
+     * This may include the name of the object and any units it uses.
+     * 
+     * If you require simply the position as a string, use getPosition().toString()
+     * 
+     * @return string 
+     */
+    string toString();
+    
+    /**
+     * Operates the scannable.  The position supplied nmust be of the same type
+     * that the getPosition returns.
+     * 
+     * @param position
+     * @throws DeviceException
+     */
+    void moveTo(in any position)
+      raises (device::corba::CorbaDeviceException);
+    
+    /**
+     * Version of moveTo which returns immediately
+     * 
+     * @param position
+     * @throws DeviceException
+     */
+    void asynchronousMoveTo(in any position)
+      raises (device::corba::CorbaDeviceException);
+      
+    /**
+     * Tests if the given object is meaningful to this Scannable and so could
+     * be used by one of the move commands.
+     * 
+     * @param position
+     * @return null if the position object is valid and achievable for this object
+     */
+    any checkPositionValid(in any position) 
+		raises (device::corba::CorbaDeviceException);
+    
+    /**
+     * Tests if the given object is at (or is close to) the scannable's current
+     * position.
+     * 
+     * @param position
+     * @return true if the position object is close
+     */
+    boolean isAt(in any position)
+    	raises (device::corba::CorbaDeviceException);
+    
+    /**
+     * Sofwtare stop for whatever operation is carried out with moveTo
+     * @throws DeviceException
+     */
+    void stop()
+      raises (device::corba::CorbaDeviceException);
+    
+    /**
+     * @return true - if operation carried out by moveTo has not completed yet
+     */
+    boolean isBusy()
+      raises (device::corba::CorbaDeviceException);
+    
+    /**
+     * Returns when operation carried out by moveTo has completed
+     * 
+     * @throws Exception
+     */
+    void waitWhileBusy()
+      raises (device::corba::CorbaDeviceException);
+    
+    /**
+     * Used for ordering the operations of Scannables during scans
+     * 
+     * @param level
+     */
+    void setLevel(in long level);
+    
+    /**
+     * @return int - the level
+     */
+    long getLevel();
+    
+    /**
+     * @return array of the names of the elements of the object returned by 
+     * getPosition
+     */
+    stringArray getInputNames();
+
+    /**
+     * sets the array of names returned by getInputNames
+     * 
+     * @param names
+     */
+    void setInputNames(in stringArray names);
+    
+    /**
+     * @return array of names of the extra elements if the array returned by 
+     * getPosition is larger than the array required by moveTo
+     */
+    stringArray getExtraNames();
+
+    /**
+     * Sets the array of names returned by getExtraNames
+     * 
+     * @param names
+     */
+    void setExtraNames(in stringArray names);
+    
+    /**
+     * Sets the array of strings describing how best to format the positions
+     * from this scannable
+     * 
+     * @param names
+     */
+    void setOutputFormat(in stringArray names);
+    
+    /**
+     * Returns an array of strings which are the format strings to use
+     * when pretty printing parts of the output
+     * 
+     * @return string array
+     */
+     stringArray getOutputFormat();
+    
+    /**
+     * Replaced by atScanGroupStart
+     * 
+     * @throws DeviceException
+     * @deprecated
+     */
+	void atStart() raises (device::corba::CorbaDeviceException);
+    
+     /**
+     * 
+     * @throws DeviceException
+     * @deprecated
+     */
+	void atLevelMoveStart() raises (device::corba::CorbaDeviceException);
+   
+	void atCommandFailure() raises (device::corba::CorbaDeviceException);
+ 
+    /**
+     * Replaced by atScanGroupEnd
+     * 
+     * @throws DeviceException
+     * @deprecated
+     */
+	void atEnd() raises (device::corba::CorbaDeviceException);
+	
+    /**
+     * Called for every Scannable at the start of a group of nested scans (or a 
+     * single scan if that is the case)
+     */
+    void atScanStart()
+      raises (device::corba::CorbaDeviceException);
+    
+    /**
+     * Called for every Scannable at the end of a group of nested scans (or a 
+     * single scan if that is the case)
+     */
+    void atScanEnd()
+      raises (device::corba::CorbaDeviceException);
+    
+    /**
+     * Called for every Scannable at the start of every scan
+     */
+    void atScanLineStart()
+      raises (device::corba::CorbaDeviceException);
+    
+    /**
+     * Called for every Scannable at the end of every scan
+     */
+    void atScanLineEnd()
+      raises (device::corba::CorbaDeviceException);
+    
+    /**
+     * Called on every Scannable at every data point, for scans which are broken 
+     * down into individual points (i.e. non-continous scans)
+     */
+    void atPointStart()
+      raises (device::corba::CorbaDeviceException);
+    
+    /**
+     * Called on every Scannable at the end of every data point, for scans which 
+     * are broken down into individual points (i.e. non-continous scans)
+     */
+    void atPointEnd()
+      raises (device::corba::CorbaDeviceException);
+
+	/**
+	 * Returns a string representation of the Scannable and its current position/value/status
+	 * <p>
+	 * Typically should return:
+	 * <p>
+	 * name : position <units> <limits>
+	 * <p>
+	 * or for detectors, name : status
+	 * 
+	 * @return string
+	 */
+	string toFormattedString()
+      raises (device::corba::CorbaDeviceException);
+};
+
+};};};};
+
+#endif
+

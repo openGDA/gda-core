@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cheatsheet title="GDA Quickstart Guide">
+   <intro>
+      <description>
+         This tutorial guides you through the process of getting started with GDA
+      </description>
+   </intro>
+   <item title="Open the Object Viewer perspective" dialog="true" skip="true" href="/org.eclipse.platform.doc.user/concepts/concepts-4.htm">
+      <description>
+         If you&apos;re not already in the Object Viewer perspective, in the main menu
+			select <b>Window</b> &gt; <b>Open Perspective</b> &gt; <b>Object Viewer Perspective</b>.
+			<br/>
+			If you are already in the Object Viewer perspective, this step will have no effect in the IDE. 
+			<br/>
+			<br/>
+      </description>
+      <command serialization="org.eclipse.ui.perspectives.showPerspective(org.eclipse.ui.perspectives.showPerspective.perspectiveId=gda.rcp.ovperspective)" confirm="false">
+      </command>
+   </item>
+   <item title="Expand the Object Tree" dialog="true" skip="false">
+      <description>
+         Click on the <b>+</b>  besides &apos;All Objects&apos; to expand the list of objects.
+      </description>
+   </item>
+   <item title="Examine Scannable Objects" dialog="true" skip="false">
+      <description>
+         Scroll the list of object categories until you find the <b> Scannable</b> objects. 
+<br/>
+<br/>
+Expand the list of scannable objects.
+      </description>
+   </item>
+   <item title="View Scannable Properties" dialog="true" skip="false">
+      <description>
+         Select an item under the list of scannable objects.
+<br/>
+<br/>
+Note the properties for this item will be displayed in the <b> Properties view </b>
+      </description>
+   </item>
+   <item title="Success" dialog="true" skip="false">
+      <description>
+         <br/>
+			Congratulations!
+			<br/>
+			<br/>
+			<b> You have completed the GDA Quickstart tutorial </b>.
+      </description>
+   </item>
+</cheatsheet>

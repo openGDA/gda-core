@@ -1,0 +1,102 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _ROBOT_IDL_
+#define _ROBOT_IDL_
+
+#include <scannable.idl>
+
+module gda {
+module device {
+module robot {
+module corba {
+
+enum SampleState
+{
+    CAROUSEL, 
+    INJAWS, 
+    DIFF, 
+    UNKNOWN
+};
+
+
+/**
+ * An interface for a distributed robot class
+ */ 
+interface CorbaRobot : device::scannable::corba::CorbaScannable
+{
+   /**
+     * starts the robot control
+     * @throws DeviceException
+     */
+    void start() raises (device::corba::CorbaDeviceException);
+    /**
+     * fetches the next sample from the carousel and put it on sample stage.
+     * @throws DeviceException
+     */
+    void next() raises (device::corba::CorbaDeviceException);
+    /**
+     * fetches the n'th sample from the carousel and put it on sample stage.
+     * @throws DeviceException
+     */
+    void nextSample(in double n) raises (device::corba::CorbaDeviceException);
+    /**
+     * clear the sample from the sample stage and put it back onto carousel.
+     * @throws DeviceException
+     */
+    void clearSample() raises (device::corba::CorbaDeviceException);
+
+    /**
+     * switches off 
+     * @throws DeviceException
+     */
+    void finish() raises (device::corba::CorbaDeviceException);
+
+    /**
+     * gets the error code for engineer
+     * @return
+     * @throws DeviceException
+     */
+    string getError() raises (device::corba::CorbaDeviceException);
+
+    /**
+     * reset robot following interruption
+     * @throws DeviceException
+     */
+    void recover() raises (device::corba::CorbaDeviceException);
+
+    /**
+     * gets the actual sample position number in Robot 
+     * @return
+     * @throws DeviceException
+     */
+    double getSamplePosition() raises (device::corba::CorbaDeviceException);
+
+    /**
+     * gets robot's sample state i.e. where is the sample in relation to the robot.
+     * @return
+     * @throws DeviceException
+     */
+    SampleState getSampleState() raises (device::corba::CorbaDeviceException);
+}; 
+
+
+};};};};
+
+#endif //_ROBOT_IDL_

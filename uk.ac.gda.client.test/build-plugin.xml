@@ -1,0 +1,43 @@
+<project name="plugin-uk.ac.gda.client.test" basedir=".">
+
+    <dirname property="GDA-plugin.basedir" file="${ant.file.${ant.project.name}}" />
+    <pathconvert property="workspace.loc" setonempty="false">
+        <regexpmapper from="(.*)_git/.+" to="\1"/>
+        <path><pathelement location="${GDA-plugin.basedir}" /></path>
+    </pathconvert>
+    <pathconvert property="workspace.loc" setonempty="false">
+        <regexpmapper from="(.*)/plugins/.+" to="\1"/>
+        <path><pathelement location="${GDA-plugin.basedir}" /></path>
+    </pathconvert>
+    <property name="workspace.git.loc" value="${workspace.loc}_git" />
+    <import file="${workspace.loc}/builder/build-common.xml" />
+
+    <!-- ====================================================================
+           Invoke the tests
+         ==================================================================== -->
+
+    <target name="junit-tests" depends="toolCheck, set-test-base">
+        <junit-call description="${ant.project.name} Java JUnit tests">
+            <formatter type="xml" />
+            <classpath>
+                <pathelement location="${junitjar.loc}" />
+                <pathelement location="${jythonjar.loc}" />
+                <pathelement location="${GDA-plugin.basedir}/bin" />
+                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.client/bin" />
+                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.api/bin" />
+                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.core/classes/main" />
+                <pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
+                <pathelement location="${workspace.git.loc}/scisoft/scisoft-ui.git/uk.ac.diamond.scisoft.analysis.rcp/bin" />
+                <path refid="libs.jars.path" />
+                <pathelement location="${workspace.loc}/tp/plugins/*" />
+            </classpath>
+            <batchtest todir="@{report.dir}">
+                <fileset dir="${GDA-plugin.basedir}/src">
+                    <include name="**/*Test.java" />
+                    <exclude name="**/*PluginTest.java" />
+                </fileset>
+            </batchtest>
+        </junit-call>
+    </target>
+
+</project>

@@ -1,0 +1,80 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:corba="http://www.diamond.ac.uk/schema/gda/corba"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+	http://www.diamond.ac.uk/schema/gda/corba http://www.diamond.ac.uk/schema/gda/corba/gda-corba-1.0.xsd">
+
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location"
+			value="file:${gda.config}/properties/java.properties" />
+	</bean>
+	
+	<bean class="gda.spring.FindableNameSetterPostProcessor" />
+
+	<bean class="gda.factory.corba.util.AdapterFactory">
+		<constructor-arg index="0" value="${gda.factory.factoryName}" />
+		<constructor-arg index="1">
+			<bean class="gda.spring.NetServiceFactoryBean" />
+		</constructor-arg>
+	</bean>
+	
+	<import resource="plot_server.xml" />
+	<import resource="commandQueueProcessor.xml"/>
+
+	<bean id="MyLoggingScriptController" class="uk.ac.gda.remoting.client.GdaRmiProxyFactoryBean">
+		<property name="serviceUrl" value="${gda.rmi.prefix}MyLoggingScriptController" />
+		<property name="serviceInterface" value="gda.jython.scriptcontroller.logging.ILoggingScriptController" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+	</bean>
+	
+	<bean id="MyOtherLoggingScriptController" class="uk.ac.gda.remoting.client.GdaRmiProxyFactoryBean">
+		<property name="serviceUrl" value="${gda.rmi.prefix}MyOtherLoggingScriptController" />
+		<property name="serviceInterface" value="gda.jython.scriptcontroller.logging.ILoggingScriptController" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+	</bean>
+
+	<bean id="ScanDataPointServer" class="uk.ac.gda.remoting.client.GdaRmiProxyFactoryBean">
+		<property name="serviceUrl" value="${gda.rmi.prefix}ScanDataPointServer" />
+		<property name="serviceInterface" value="gda.scan.IScanDataPointServer" />
+		<property name="refreshStubOnConnectFailure" value="true" />
+	</bean>
+
+<!--for an 'empty' configuration, remove the objects below-->
+
+<!-- 	<bean id="sampleDevicesLookup" -->
+<!-- 		class="uk.ac.gda.client.device.collection.DeviceCollectionMapping"> -->
+<!-- 		<property name="id" value="gda.example.views.samplealignment" /> -->
+<!-- 		<property name="collection" ref="sampleDevices" /> -->
+<!-- 	</bean> -->
+
+<!-- 	<bean id="sampleDevices" -->
+<!-- 		class="uk.ac.gda.example.device.collection.SampleAlignmentDeviceCollection"> -->
+<!-- 		<property name="scannable" ref="simpleScannable1" /> -->
+<!-- 		<property name="scannablemotorunits" ref="testLinearSMX" /> -->
+<!-- 	</bean> -->
+
+	<bean id="simpleScannable1" class="gda.device.scannable.SimpleScannable">
+		<property name="currentPosition">
+			<bean class="java.lang.Double">
+				<constructor-arg type="double" value="1.2" />
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="testLinearMotorX" class="gda.device.motor.DummyMotor">
+		<property name="name" value="testLinearMotorX" />
+	</bean>
+
+	<bean id="testLinearSMX" class="gda.device.scannable.ScannableMotor">
+		<property name="name" value="testLinearSMX" />
+		<property name="protectionLevel" value="2" />
+		<property name="motorName" value="testLinearMotorX" />
+		<property name="hardwareUnitString" value="mm" />
+	</bean>
+
+</beans>

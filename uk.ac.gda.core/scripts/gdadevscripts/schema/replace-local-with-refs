@@ -1,0 +1,46 @@
+#! /usr/bin/python
+
+# Really simple script that replaces local element declarations with references
+# to global element declarations. The global element declarations must already
+# exist, and the two REs used for matching element declarations make assumptions
+# about whitespace. It worked at the time :-)
+
+import string
+import re
+
+# matches a global element declaration
+global_pattern = re.compile(r"\s\<xsd:element name=\".*?\" type=\".*?\" />")
+
+# matches a local element declaration
+local_pattern = re.compile(r"(\s+\<xsd:element.*?) name=\"(.*?)\" type=\"(.*?)\"(.*)")
+
+def read_lines_from_file(file):
+	f = open(file)
+	lines = f.readlines()
+	f.close()
+	
+	# remove newline from the end of each line
+	lines = [l[0:-1] for l in lines]
+	
+	return lines
+
+def modify_line(line):
+	
+	# don't modify global element declarations
+	global_match = global_pattern.match(line)
+	if global_match:
+		return line
+	
+	# do change local element declarations
+	local_match = local_pattern.match(line)
+	if local_match:
+		(prefix, name, type, suffix) = (local_match.group(1), local_match.group(2), local_match.group(3), local_match.group(4))
+		# don't change <type>, for now (it has two types: metadataType and CalibrantType)
+		if name != "type":
+			return "%s ref=\"%s\"%s" % (prefix, name, suffix)
+	
+	return line
+
+lines = read_lines_from_file("GDASchema.xsd")
+for l in lines:
+	print modify_line(l)

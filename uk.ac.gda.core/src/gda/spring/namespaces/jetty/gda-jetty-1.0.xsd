@@ -1,0 +1,37 @@
+<xsd:schema targetNamespace="http://www.diamond.ac.uk/schema/gda/jetty"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:beans="http://www.springframework.org/schema/beans"
+            xmlns="http://www.diamond.ac.uk/schema/gda/jetty"
+            attributeFormDefault="unqualified">
+
+	<xsd:import namespace="http://www.springframework.org/schema/beans"/>
+	
+	<xsd:complexType name="serverType">
+			<xsd:sequence>
+				<xsd:element ref="context" minOccurs="0" />
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:ID" use="optional" />
+			<xsd:attribute name="port" type="xsd:integer" use="optional" />
+	</xsd:complexType>
+	
+	<xsd:complexType name="contextType">
+			<xsd:sequence>
+				<xsd:element ref="exporter" minOccurs="0" />
+			</xsd:sequence>
+		<xsd:attribute name="path" type="xsd:string" use="required" />
+	</xsd:complexType>
+	
+	<xsd:complexType name="exporterType">
+		<xsd:attribute name="id" type="xsd:ID" use="optional" />
+		<xsd:attribute name="path" type="xsd:string" use="required" />
+		<xsd:attribute name="service" type="xsd:string" use="required" />
+		<xsd:attribute name="serviceInterface" type="xsd:string" use="required" />
+	</xsd:complexType>
+	
+	<xsd:element name="context" type="contextType" />
+	
+	<xsd:element name="server" type="serverType" />
+	
+	<xsd:element name="exporter" type="exporterType" />
+
+</xsd:schema>

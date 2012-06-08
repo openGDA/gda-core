@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+<!-- 	<import resource="classpath:gda/spring/propertyeditors/registration.xml" /> -->
+
+
+	<bean id="commandQueue" class="gda.commandqueue.CommandQueue">
+	</bean>
+	<bean id="commandQueueProcessor" class="gda.commandqueue.FindableProcessorQueue">
+		<property name="queue" ref="commandQueue" />
+		<property name="startImmediately" value="true"/>
+		<property name="logFilePath" value="${gda.var}/commandQueueProcessor.log"/>		
+	</bean>
+	<bean class="uk.ac.gda.remoting.server.GdaRmiServiceExporter">
+		<property name="serviceName" value="gda/commandQueueProcessor" />
+		<property name="service" ref="commandQueueProcessor" />
+		<property name="serviceInterface" value="gda.commandqueue.IFindableQueueProcessor" />
+	</bean>
+
+</beans>

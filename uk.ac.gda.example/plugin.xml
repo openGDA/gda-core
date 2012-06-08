@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+  <extension point="org.eclipse.ui.editors">
+    <editor class="org.myls.scan.SimpleScanParametersEditor"
+            default="true"
+            id="org.myls.scan.SimpleScanParametersEditor"
+            name="SimpleScanParametersEditor">
+            <contentTypeBinding
+                contentTypeId="org.myls.scan.SimpleScanParametersContentType">
+            </contentTypeBinding>
+     </editor>
+    <editor
+          class="gda.example.richbean.ExampleExptEditor"
+          default="true"
+          id="gda.example.richbean.ExampleExptEditor"
+          name="ExampleExptEditor">
+       <contentTypeBinding
+             contentTypeId="uk.ac.gda.example.ExampleExptContentType">
+       </contentTypeBinding>
+    </editor>
+  </extension>
+  <extension point="org.eclipse.core.contenttype.contentTypes">
+     <content-type
+       base-type="org.eclipse.core.runtime.xml"
+       describer="org.myls.scan.SimpleScanParametersDescriber"
+       file-extensions="xml"
+       id="org.myls.scan.SimpleScanParametersContentType"
+       name="SimpleScanParameters File Content"
+       priority="high">
+     </content-type>
+     <content-type
+           base-type="org.eclipse.core.runtime.xml"
+           describer="gda.example.richbean.ExampleExptDescriber"
+           file-extensions="xml"
+           id="uk.ac.gda.example.ExampleExptContentType"
+           name="ExampleExptContentType"
+           priority="high">
+     </content-type>
+  </extension>
+   <extension point="uk.ac.common.beans.factory">
+      <bean
+            class="org.myls.scan.SimpleScanParameters"
+            describer="org.myls.scan.SimpleScanParametersDescriber">
+      </bean>
+      <bean
+            class="gda.example.richbean.ExampleExpt"
+            describer="gda.example.richbean.ExampleExptDescriber">
+      </bean>
+  </extension>
+   <extension
+         id="product"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="uk.ac.gda.client.application"
+            name="GDA Example">
+         <property
+               name="appName"
+               value="GDA Example">
+         </property>
+         <property
+               name="preferenceCustomization"
+               value="plugin_customization.ini">
+         </property>
+         <property
+               name="aboutImage"
+               value="platform:/plugin/uk.ac.gda.core/icons/GDAlogos/GDALogo128.png">
+         </property>
+         <property
+               name="windowImages"
+               value="platform:/plugin/uk.ac.gda.core/icons/GDAlogos/GDALogo16.png,platform:/plugin/uk.ac.gda.core/icons/GDAlogos/GDALogo32.png,platform:/plugin/uk.ac.gda.core/icons/GDAlogos/GDALogo48.png,platform:/plugin/uk.ac.gda.core/icons/GDAlogos/GDALogo64.png,platform:/plugin/uk.ac.gda.core/icons/GDAlogos/GDALogo128.png">
+         </property>         
+      </product>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            category="uk.ac.gda.client.general.category"
+            class="gda.example.views.SampleAlignmentView"
+            icon="platform:/plugin/uk.ac.gda.core/icons/GDAlogos/GDALogo32.png"
+            id="gda.example.views.samplealignment"
+            name="Sample Alignment"
+            restorable="true">
+      </view>  
+   </extension>
+   <extension
+         point="uk.ac.gda.richbeans.beantypes">
+      <describer
+            bean="gda.example.richbean.ExampleExpt"
+            commandId="uk.ac.gda.example.CopyExampleExpt"
+            contentType="uk.ac.gda.example.ExampleExptContentType"
+            includeInNew="true"
+            name="Example Experiment"
+            template="ExampleExpt_Parameters"
+            type="Scan">
+      </describer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler"
+            commandId="uk.ac.gda.example.CopyExampleExpt">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler"
+            description="Copy an ExampleExpt XML file to the folder being edited"
+            id="uk.ac.gda.example.CopyExampleExpt"
+            name="Copy ExampleExpt XML">
+      </command>
+   </extension>
+   <extension
+         point="uk.ac.gda.client.experimentdefinition">
+      <experimentobjectmanager
+            class="gda.example.richbean.ExampleExperimentObjectManager">
+      </experimentobjectmanager>
+      <validator
+            class="gda.example.richbean.ExampleExptValidator"/>
+   </extension>
+</plugin>

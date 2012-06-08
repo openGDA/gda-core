@@ -1,0 +1,90 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include <device.idl>
+
+module gda {
+module device {
+module modulator {
+module corba {
+
+/**
+ * An Interface for Distributed  PhotoElastic modulator (PEM-90) class
+ */
+
+interface CorbaModulator : device::corba::CorbaDevice 
+{
+   /**
+    * Get the current wavelength
+    * @return wavelength
+    */
+   string getWaveLength ()
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Set the wavelength to be  within the min/max range of the device
+    * @param wavelength to be set
+    * @param unit
+    */
+   void setWaveLength (in double waveLength)
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    *Get the current retardation
+    * @return current retardation value
+    */
+   long getRetardation ()
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Set the retardation
+    * @param retardation to be set
+    */
+   void setRetardation (in double retardation)
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * reset the device to its factory default settings
+    */
+   void reset ()
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Switch echo ON/OFF
+    * @param echo if true- ON otherwise - OFF
+    */
+   void setEcho (in boolean echo)
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Read the current reference frequency 
+    * @param noOfTimes should be either 1 or 2
+    */
+   string readFrequency (in long noOfTimes)
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Set the retardation to INHIBIT/NORMAL mode
+    * @param inhibit if true mode - INHIBIT otherwise mode - NORMAL
+    */
+   void setInhibit (in boolean inhibit)
+      raises (device::corba::CorbaDeviceException);
+};
+
+};};};};

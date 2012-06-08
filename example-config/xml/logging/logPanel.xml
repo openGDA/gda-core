@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="LogPanel" class="gda.util.LogPanelAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%date %-5level %m %n</pattern>
+        </layout>
+	    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+	      <level>INFO</level>
+	    </filter>           
+    </appender>    
+    <logger name="gda">
+        <level value="INFO"/>
+    </logger>
+    <logger name="gda.jython.GDAInteractiveConsole">
+        <level value="ERROR"/>
+    </logger>
+    <root>
+        <level value="ALL"/>
+        <appender-ref ref="LogPanel"/>
+    </root>
+</configuration>

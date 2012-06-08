@@ -1,0 +1,81 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _DATAMANAGER_IDL_
+#define _DATAMANAGER_IDL_
+
+module gda {
+module data {
+module generic {
+module corba {
+
+exception CorbaDataException
+{
+   string message; 
+};
+
+/**
+ *  An interface for a distributed Data Manager class
+ */
+interface CorbaDataManagerInterface
+{
+	
+	typedef sequence<string> stringArray;
+
+	/**
+    * Create a new <code>GenericData</code> object and give it a name. 
+    * @param name The name of the object to create.
+    * @return A reference to the object.
+    */
+   any create(in string name) raises (CorbaDataException);
+   
+   /**
+    * Add an object to the list
+    * @param name The name of the object to add.
+    * @param data The object.
+    */
+   void add(in string name, in any data) raises (CorbaDataException);
+   
+   /**
+    * Remove this object from the list.
+    * @param name The name of the object to remove.
+    */
+   void remove(in string name) raises (CorbaDataException);
+   
+   /**
+    * Return a Vector of strings containing the names of
+    * all the objects in the list.
+    * @return The names of the objects.
+    */
+   stringArray list() raises (CorbaDataException);
+   
+   /**
+    * Returns a reference to the object of this name.
+    * @param name The name of the object.
+    * @return The object reference.
+    */
+   any get(in string name) raises (CorbaDataException);
+	
+
+};
+
+};};};};
+
+#endif
+

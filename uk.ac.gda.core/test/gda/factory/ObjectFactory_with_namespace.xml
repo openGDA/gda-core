@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ObjectFactory
+	xmlns="http://www.diamond.ac.uk/schema/gda/objectfactory"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.diamond.ac.uk/schema/gda/objectfactory http://www.diamond.ac.uk/schema/gda/objectfactory/gda-objectfactory-1.0.xsd">
+
+	<name>test</name>
+
+	<DummyScannable>
+		<name>scannable</name>
+	</DummyScannable>
+
+</ObjectFactory>

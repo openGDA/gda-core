@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+	<xsd:complexType name="DeviceBase">
+		<xsd:sequence>
+			<xsd:element maxOccurs="1" minOccurs="1" ref="name"/>
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:complexType name="DummyScannable">
+		<xsd:complexContent>
+			<xsd:extension base="DeviceBase">
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+
+	<xsd:element name="name" type="xsd:string"/>
+	
+	<xsd:element name="DummyScannable" type="DummyScannable"/>
+	
+	<xsd:element name="ObjectFactory">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="name" />
+				<xsd:element maxOccurs="unbounded" minOccurs="0" ref="DummyScannable" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+</xsd:schema>

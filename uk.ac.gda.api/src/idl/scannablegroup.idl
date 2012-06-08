@@ -1,0 +1,54 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _SCANNABLEGROUP_IDL_
+#define _SCANNABLEGROUP_IDL_
+
+#include <scannable.idl>
+
+module gda {
+module device {
+module scannable {
+module scannablegroup {
+module corba {
+
+/**
+ *  An interface for a distributed Scannable class
+ */
+interface CorbaScannablegroup : device::scannable::corba::CorbaScannable
+{
+	typedef sequence<string> stringArray;
+	
+  	/**
+	 * @param groupMemberName
+	 *            the name of the scannable object to add to this group
+	 */
+	void addGroupMemberName(in string name);
+
+	/**
+	 * @return the names of the members of this group
+	 */
+	stringArray getGroupMemberNames();
+	
+};
+
+};};};};};
+
+#endif
+

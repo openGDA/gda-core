@@ -1,0 +1,145 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include <device.idl>
+
+module gda {
+module device {
+module digitalio {
+module corba {
+
+/**
+ *  An interface for a distributed DigitalIO class
+ */
+interface CorbaDigitalIO : device::corba::CorbaDevice
+{
+   /**
+    * Get the current logic state for the specified channel
+    * @param digital i/o channel name to read
+    * @return current TTL line state
+    */
+   long getState (in string channelName)
+      raises (device::corba::CorbaDeviceException);
+
+   
+   /**
+    * Set the current logic state for the specified channel
+    * @param digital i/o channel name to write to
+    * @param required TTL line state : 0=low and any other value=high
+    */
+   void setState (in string channelName, in long state) 
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Carries out a negative edge sync operation by intialising the
+    * state to high (just in case it's low from a previous operation),
+    * then setting a low state. Finally a return is made to the 
+    * resting high state after a delay period accessed by the methods
+    * getEdgeSyncDelayTime() and setEdgeSyncDelayTime() in msecs. Thus
+    * it's possible to use this also as a negative level sync.
+    * @param digital i/o channel name to write to
+    */
+   void setNegativeEdgeSync (in string channelName) 
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Carries out a positive edge sync operation by intialising the
+    * state to low (just in case it's high from a previous operation),
+    * then setting a high state. Finally a return is made to the 
+    * resting low state after a delay period accessed by the methods
+    * getEdgeSyncDelayTime() and setEdgeSyncDelayTime() in msecs. Thus
+    * it's possible to use this also as a positive level sync.
+    * @param digital i/o channel name to write to
+    */
+   void setPositiveEdgeSync (in string channelName) 
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Carries out a 2 line handshake with an external device which obeys
+    * the protocol rules. The handshake is safe as both devices wait for
+    * each other using a read input line and set a state on a write
+    * output line. Very useful for integrating decoupled subsystems.
+    * This device waits for the input line to go high indicating the
+    * external device is idle and can be triggered. Then the external
+    * device is triggered with a low output state. The input line
+    * then waits for a low state to show the external device has
+    * received the trigger and is busy. The input line then waits for
+    * a high state to show the external device has finished its actions
+    * and is idle again (i.e. back to the pre-trigger state again).
+    * A timeout can be specified by the methods
+    * get2LineSyncTimeout() and set2LineSyncTimeout() in msecs.
+    * @param digital i/o channel name to read input line state
+    * @param digital i/o channel name to write output line state
+    */
+   void setNegative2LineSync (in string inputChannelName,
+			      in string outputChannelName)
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Carries out a 2 line handshake with an external device which obeys
+    * the protocol rules. The handshake is safe as both devices wait for
+    * each other using a read input line and set a state on a write
+    * output line. Very useful for integrating decoupled subsystems.
+    * This device waits for the input line to go low indicating the
+    * external device is idle and can be triggered. Then the external
+    * device is triggered with a high output state. The input line
+    * then waits for a high state to show the external device has
+    * received the trigger and is busy. The input line then waits for
+    * a low state to show the external device has finished its actions
+    * and is idle again (i.e. back to the pre-trigger state again).
+    * A timeout can be specified by the methods
+    * get2LineSyncTimeout() and set2LineSyncTimeout() in msecs.
+    * @param digital i/o channel name to read input line state
+    * @param digital i/o channel name to write output line state
+    */
+   void setPositive2LineSync (in string inputChannelName,
+			      in string outputChannelName)
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Get the current timeout for 2 line sync operations
+    * @return current 2 line sync timeout in msecs
+    */
+   long getTwoLineSyncTimeout ()
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Set the required timeout for 2 line sync operations
+    * @param required 2 line sync timeout in msecs
+    */
+   void setTwoLineSyncTimeout (in long msecs)
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Get the current delay time after edge sync operations
+    * @return the current edge sync delay time in msecs
+    */
+   long getEdgeSyncDelayTime ()
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Set the required delay after edge sync operations
+    * @param required 2 line sync timeout in msecs
+    */
+   void setEdgeSyncDelayTime (in long msecs)
+      raises (device::corba::CorbaDeviceException);
+
+};
+
+};};};};

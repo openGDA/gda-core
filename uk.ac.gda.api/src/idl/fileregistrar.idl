@@ -1,0 +1,53 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _FILEREGISTRAR_IDL_
+#define _FILEREGISTRAR_IDL_
+
+#include <findable.idl>
+
+module gda {
+module data {
+module fileregistrar {
+module corba {
+
+/**
+ * An interface for a file registry
+ */ 
+interface CorbaFileRegistrar : gda::_factory::corba::CorbaFindable
+{
+   typedef sequence<string> stringArray;
+   
+   /**
+    * Register a file for indexing and archiving etc.
+    *
+    * @return total number of readout channels
+    */
+   void registerFile (in string filename);
+
+   /**
+    * Register a set of files for indexing and archiving etc.
+    *
+    * @param array of absolute file names
+    */
+   void registerFiles (in stringArray filenames);
+   
+};};};};};
+
+#endif

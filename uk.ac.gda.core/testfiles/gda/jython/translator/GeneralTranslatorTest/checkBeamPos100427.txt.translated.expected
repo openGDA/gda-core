@@ -1,0 +1,85 @@
+# Script to move the sample out and beamstop in for checking the beam
+#
+#
+# Usage: run "changeBeamsize"  
+# then checkBeamPos("state")
+# where state is either 'start' or 'end'
+from time import sleep
+from hutch_utilities import activateHutch
+global gon_start
+gon_start=0
+
+
+def checkBeamPos(inp):
+
+	if inp == "start":
+
+      
+      
+      
+      print "activate hutch running"
+      activateHutch(0)
+
+      print "Setting filters"
+      pos([ATT1Positioner,'Al 1.000 mm'])
+      pos([ATTD2Positioner,'Al 0.500 mm'])
+
+      
+      print "Moving sample out"
+      print "starting GTABX and gonioy from ",GTABX(),gonioy()
+      global gon_start
+      gon_start = gonp()
+      pos([gonp,0])
+
+      inc([ABSBX,-0.1])
+      a = 0; b = 8
+      while a < b:
+          inc([GTABX,0.25])
+          inc([gonioy,250])
+          a = a + 1
+     
+     
+
+      
+      
+      print "moved GTABX and gonioy to",GTABX(),gonioy()
+      #print "Done"
+      
+      sleep(0.5)
+      print "Moving beamstop in"
+      
+      pos([ABSBZ,0.0])
+      
+      
+      print "Done"
+      print "Open Shutter to view beam, close Shutter when done"
+      print "Tweak focus with ABSBZ if necessary"
+            
+	elif inp == "end":
+      
+      #a more clever way would be to check fast shutter. If it's open then close it
+      
+      #if (sh=="OPEN"):
+      SHTR2.moveTo("CLOSE")
+      print "Shutter is closed"
+      #target = requestInput("Where would you like to the beamstop to (default 25)?")
+      
+      
+      pos([ABSBZ,25])
+      inc([ABSBX,0.1])
+      
+      
+      print "Beamstop move done"
+      print "Moving sample in"
+      print "Returning GTABX and gonioy from:",GTABX(),GTABY()
+      a = 0; b= 8
+      while a < b:
+          inc([GTABX,-0.25])
+          inc([gonioy,-250])
+          a = a + 1
+      print "Returned GTABX and gonioy to",GTABX(),gonioy()
+      global gon_start
+      pos([gonp,gon_start])
+      print "Done"
+	else:
+      print "usage: use either checkBeamPos(start) or checkBeamPos(end)"

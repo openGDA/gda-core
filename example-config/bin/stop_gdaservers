@@ -1,0 +1,6 @@
+#!/bin/bash
+# default debug and profile ports: --debugport=8000, --profileport=8851
+JAVA_OPTS="-Xms128m -Xmx1024m -Dgda.mode=test" `dirname $0`/gda_commands objectserver --debug --stop $@
+`dirname $0`/gda_commands eventserver --stop $@
+`dirname $0`/gda_commands nameserver --stop $@
+`dirname $0`/gda_commands logserver --stop $@

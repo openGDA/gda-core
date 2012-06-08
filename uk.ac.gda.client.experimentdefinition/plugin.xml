@@ -1,0 +1,820 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="uk.ac.gda.client.experimentdefinition" name="Experiment Definition" schema="schema/uk.ac.gda.client.experimentdefinition.exsd"/>
+   <extension-point id="uk.ac.gda.richbeans.beantypes" name="Rich Bean List" schema="schema/uk.ac.gda.richbeans.beantypes.exsd"/>
+
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="uk.ac.gda.client.experimentdefinition.components.ExperimentPerspective"
+            icon="icons/application_form.png"
+            id="uk.ac.gda.client.experimentdefinition.experimentperspective"
+            name="Experiment">
+         <description>
+            This perspective is used to specify parameters setting up the run.
+         </description>
+      </perspective>
+      </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+     <editor
+            class="uk.ac.gda.client.experimentdefinition.components.ExperimentFolderEditor"
+            default="true"
+            icon="icons/folder.png"
+            id="uk.ac.gda.client.experimentdefinition.FolderEditor"
+            name="Folder Contents">
+      </editor>
+      <editor
+            class="uk.ac.gda.client.experimentdefinition.components.ExperimentRunEditor"
+            default="true"
+            extensions="scan"
+            icon="icons/chart_curve.png"
+            id="gda.gui.eclipse.editors.scan.experimentdefinition.ExperimentRunEditor"
+            name="Run Editor">
+      </editor>
+      
+   </extension>
+     <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="uk.ac.gda.client.experimentdefinition.category"
+            name="Data Acquisition - Experiment">
+      </category>
+   </extension>
+   <extension
+         id="gda.rcp.jythonterminalview"
+         name="Jython Con"
+         point="org.eclipse.ui.views">
+      <view
+            allowMultiple="false"
+            category="uk.ac.gda.client.experimentdefinition.category"
+            class="uk.ac.gda.client.experimentdefinition.components.ExperimentExperimentView"
+            icon="icons/chart_curve.png"
+            id="uk.ac.diamond.gda.client.experimentdefinition.ExperimentView"
+            name="Experiment Explorer"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            description="Rename a file in an experiment folder."
+            id="uk.ac.gda.client.experimentdefinition.RenameFileCommand"
+            name="Rename file">
+      </command>
+      <command
+            description="Delete a file in an experiment folder."
+            id="uk.ac.gda.client.experimentdefinition.DeleteFileCommand"
+            name="Delete File">
+      </command>
+      <command
+            id="uk.ac.gda.client.experimentdefinition.CopyToScripts"
+            name="Copy to Scripts">
+      </command>
+      <command
+            description="Run Single Scan Only"
+            id="uk.ac.gda.client.experimentdefinition.RunSingleScanOnlyCommand"
+            name="Run single">
+      </command>
+      <command
+            description="Run Single Experiment"
+            id="uk.ac.gda.client.experimentdefinition.RunSingleExperimentCommand"
+            name="Run single">
+      </command>
+      <command
+            description="Run multiple experiment"
+            id="uk.ac.gda.client.experimentdefinition.RunMultiExperimentCommand"
+            name="Run multi">
+      </command>
+      <command
+            description="Stop everything and restart the queue."
+            id="uk.ac.gda.client.experimentdefinition.StopAllCommand"
+            name="Stop All">
+      </command>
+      <command
+            defaultHandler="uk.ac.gda.client.experimentdefinition.ui.handlers.RefreshProjectAction"
+            id="uk.ac.gda.experimentdefinition.ui.actions.RefreshProjectAction"
+            name="Refresh Project">
+      </command>
+      <command
+            description="Add folder"
+            id="uk.ac.gda.client.experimentdefinition.AddFolderCommand"
+            name="Add folder">
+      </command>
+      <command
+            description="Add scan"
+            id="uk.ac.gda.client.experimentdefinition.AddScanCommand"
+            name="Add scan">
+      </command>
+      <command
+            description="Add run"
+            id="uk.ac.gda.client.experimentdefinition.AddRunCommand"
+            name="Add run">
+      </command>
+      <command
+            description="Delete folder"
+            id="uk.ac.gda.client.experimentdefinition.DeleteFolderCommand"
+            name="Delete folder">
+      </command>
+      <command
+            description="Delete scan"
+            id="uk.ac.gda.client.experimentdefinition.DeleteScanCommand"
+            name="Delete scan">
+      </command>
+      <command
+            description="Delete run"
+            id="uk.ac.gda.client.experimentdefinition.DeleteRunCommand"
+            name="Delete run">
+      </command>
+      <command
+            description="Rename folder"
+            id="uk.ac.gda.client.experimentdefinition.RenameFolderCommand"
+            name="Rename folder">
+      </command>
+      <command
+            description="Rename scan"
+            id="uk.ac.gda.client.experimentdefinition.RenameScanCommand"
+            name="Rename scan">
+      </command>
+      <command
+            description="Rename run"
+            id="uk.ac.gda.client.experimentdefinition.RenameRunCommand"
+            name="Rename run">
+      </command>
+      <command
+            description="Duplicate folder"
+            id="uk.ac.gda.client.experimentdefinition.DuplicateFolderCommand"
+            name="Duplicate folder">
+      </command>
+      <command
+            description="Duplicate scan"
+            id="uk.ac.gda.client.experimentdefinition.DuplicateScanCommand"
+            name="Duplicate scan">
+      </command>
+      <command
+            description="Duplicate run"
+            id="uk.ac.gda.client.experimentdefinition.DuplicateRunCommand"
+            name="Duplicate run">
+      </command>
+      <command
+            description="Repeat run"
+            id="uk.ac.gda.client.experimentdefinition.RepeatRunCommand"
+            name="Repeat run">
+      </command>
+      <command
+            description="Close editors from run."
+            id="uk.ac.gda.client.experimentdefinition.CloseEditorsCommand"
+            name="Close Editors">
+      </command>
+      <command
+            description="Open editors from run."
+            id="uk.ac.gda.client.experimentdefinition.OpenEditorsCommand"
+            name="Open editors">
+      </command>
+      <command
+            description="Open run folder for editing"
+            id="uk.ac.gda.client.experimentdefinition.OpenFolderCommand"
+            name="Open folder">
+      </command>
+        <command
+            description="Edit repetitions of a scan."
+            id="uk.ac.gda.client.experimentdefinition.EditRepetitionsCommand"
+            name="Edit Reps">
+      </command>
+        <command
+              description="Import Experiment"
+              id="uk.ac.gda.client.experimentdefinition.ImportExperimentCommand"
+              name="Import Experiment">
+        </command>
+   </extension>   
+   
+
+   <extension
+         point="org.eclipse.ui.menus">
+         <menuContribution
+            locationURI="popup:uk.ac.diamond.gda.client.experimentdefinition.ExperimentView?after=additions">
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.RunMultiExperimentCommand"
+               icon="icons/control_run_blue.png"
+               label="Queue Multiple Scan"
+               style="push"
+               tooltip="Add multiple scan to command queue">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="activeMenuSelection">
+                  <iterate
+                        ifEmpty="true">
+                     <instanceof
+                           value="uk.ac.gda.client.experimentdefinition.IExperimentObjectManager">
+                     </instanceof>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.RunSingleExperimentCommand"
+               icon="icons/control_play_blue.png"
+               label="Queue Single Scan"
+               style="push"
+               tooltip="Add single scan to command queue">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="activeMenuSelection">
+                  <iterate
+                        ifEmpty="true">
+                     <instanceof
+                           value="uk.ac.gda.client.experimentdefinition.IExperimentObject">
+                     </instanceof>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.AddFolderCommand"
+               icon="icons/folder_add.png"
+               label="Add folder"
+               style="push">
+            <visibleWhen
+                  checkEnabled="true">
+               <with
+                     variable="activeMenuSelection">
+                  <iterate ifEmpty="true">
+                     <instanceof
+                           value="org.eclipse.core.resources.IFolder">
+                     </instanceof>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.AddScanCommand"
+               icon="icons/chart_curve_add.png"
+               label="Add multi-scan"
+               style="push">
+            <visibleWhen
+                  checkEnabled="true">
+               <with
+                     variable="activeMenuSelection">
+                  <iterate
+                        ifEmpty="true"
+                        operator="or">
+                     <instanceof
+                           value="uk.ac.gda.client.experimentdefinition.IExperimentObjectManager">
+                     </instanceof>
+                     <instanceof
+                           value="org.eclipse.core.resources.IFolder">
+                     </instanceof>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+          <command
+               commandId="uk.ac.gda.client.experimentdefinition.AddRunCommand"
+               icon="icons/chart_line_add.png"
+               label="Add scan"
+               style="push">
+             <visibleWhen
+                   checkEnabled="true">
+                <with
+                      variable="activeMenuSelection">
+                   <iterate
+                         ifEmpty="true">
+                      <instanceof
+                            value="uk.ac.gda.client.experimentdefinition.IExperimentObjectManager">
+                      </instanceof>
+                   </iterate>
+                </with>
+             </visibleWhen>
+         </command>
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.DeleteFolderCommand"
+               icon="icons/folder_delete.png"
+               label="Delete folder"
+               style="push">
+            <visibleWhen
+                  checkEnabled="true">
+               <with
+                     variable="activeMenuSelection">
+                  <iterate ifEmpty="true">
+                     <instanceof
+                           value="org.eclipse.core.resources.IFolder">
+                     </instanceof>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.DeleteScanCommand"
+               icon="icons/chart_curve_delete.png"
+               label="Delete multi-scan"
+               style="push">
+            <visibleWhen
+                  checkEnabled="true">
+               <with
+                     variable="activeMenuSelection">
+                  <iterate ifEmpty="true">
+                     <instanceof
+                           value="uk.ac.gda.client.experimentdefinition.IExperimentObjectManager">
+                     </instanceof>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.DeleteRunCommand"
+               icon="icons/chart_line_delete.png"
+               label="Delete scan"
+               style="push">
+            <visibleWhen
+                  checkEnabled="true">
+               <with
+                     variable="activeMenuSelection">
+                  <iterate ifEmpty="true">
+                     <instanceof
+                           value="uk.ac.gda.client.experimentdefinition.IExperimentObject">
+                     </instanceof>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.RenameFolderCommand"
+               icon="icons/folder_edit.png"
+               label="Rename folder"
+               style="push">
+            <visibleWhen
+                  checkEnabled="true">
+               <with
+                     variable="activeMenuSelection">
+                  <iterate ifEmpty="true">
+                     <instanceof
+                           value="org.eclipse.core.resources.IFolder">
+                     </instanceof>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.RenameScanCommand"
+               icon="icons/chart_curve_edit.png"
+               label="Rename multi-scan"
+               style="push">
+            <visibleWhen
+                  checkEnabled="true">
+               <with
+                     variable="activeMenuSelection">
+                  <iterate ifEmpty="true">
+                     <instanceof
+                           value="uk.ac.gda.client.experimentdefinition.IExperimentObjectManager">
+                     </instanceof>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.RenameRunCommand"
+               icon="icons/chart_line_edit.png"
+               label="Rename scan"
+               style="push">
+            <visibleWhen
+                  checkEnabled="true">
+               <with
+                     variable="activeMenuSelection">
+                  <iterate ifEmpty="true">
+                     <instanceof
+                           value="uk.ac.gda.client.experimentdefinition.IExperimentObject">
+                     </instanceof>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.DuplicateFolderCommand"
+               icon="icons/folder_copy.png"
+               label="Duplicate folder"
+               style="push">
+            <visibleWhen
+                  checkEnabled="true">
+               <with
+                     variable="activeMenuSelection">
+                  <iterate ifEmpty="true">
+                     <instanceof
+                           value="org.eclipse.core.resources.IFolder">
+                     </instanceof>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+                  <command
+               commandId="uk.ac.gda.client.experimentdefinition.DuplicateScanCommand"
+               icon="icons/chart_curve_copy.png"
+               label="Repeat multi-scan (Reuse parameter files)"
+               style="push">
+            <visibleWhen
+                  checkEnabled="true">
+               <with
+                     variable="activeMenuSelection">
+                  <iterate ifEmpty="true">
+                     <instanceof
+                           value="uk.ac.gda.client.experimentdefinition.IExperimentObjectManager">
+                     </instanceof>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.DuplicateRunCommand"
+               icon="icons/chart_line_copy.png"
+               label="Duplicate scan (New parameter files)"
+               style="push">
+            <visibleWhen
+                  checkEnabled="true">
+               <with
+                     variable="activeMenuSelection">
+                  <iterate ifEmpty="true">
+                     <instanceof
+                           value="uk.ac.gda.client.experimentdefinition.IExperimentObject">
+                     </instanceof>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.RepeatRunCommand"
+               icon="icons/chart_line_copy.png"
+               id="uk.ac.diamond.gda.client.experimentdefinition.experimentview.menu.repeatscan"
+               label="Repeat scan (Reuse parameter files)"
+               style="push">
+            <visibleWhen
+                  checkEnabled="true">
+               <with
+                     variable="activeMenuSelection">
+                  <iterate
+                        ifEmpty="true">
+                     <instanceof
+                           value="uk.ac.gda.client.experimentdefinition.IExperimentObject">
+                     </instanceof>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.EditRepetitionsCommand"
+               icon="icons/textfield.png"
+               label="Edit Repetitions"
+               style="push"
+               tooltip="Edit repetitions in multiple scan">
+            <visibleWhen
+                  checkEnabled="true">
+               <with
+                     variable="activeMenuSelection">
+                  <iterate
+                        ifEmpty="true">
+                     <instanceof
+                           value="uk.ac.gda.client.experimentdefinition.IExperimentObject">
+                     </instanceof>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.ImportExperimentCommand"
+               icon="icons/import_wiz.gif"
+               label="Import Experiment"
+               style="push">
+            <visibleWhen
+                  checkEnabled="true">
+               <with
+                     variable="activeMenuSelection">
+                  <iterate
+                        ifEmpty="true">
+                     <instanceof
+                           value="org.eclipse.core.resources.IFolder">
+                     </instanceof>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+         <menu
+               icon="icons/page_add.png"
+               label="New">
+            <visibleWhen
+                  checkEnabled="true">
+               <with
+                     variable="activeMenuSelection">
+                  <iterate
+                        ifEmpty="true">
+                     <instanceof
+                           value="org.eclipse.core.resources.IFolder">
+                     </instanceof>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </menu>
+
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.AddScanCommand"
+               icon="icons/chart_curve_add.png"
+               label="Add multi-scan"
+               style="push">
+            <visibleWhen
+                  checkEnabled="true">
+               <with
+                     variable="activeMenuSelection">
+                  <iterate
+                        ifEmpty="true">
+                     <instanceof
+                           value="org.eclipse.core.resources.IFolder">
+                     </instanceof>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+         
+      </menuContribution>
+      <menuContribution
+            locationURI="popup:gda.gui.eclipse.editors.scan.experimentdefinition.ExperimentRunEditor">
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.AddRunCommand"
+               icon="icons/chart_line_add.png"
+               label="Add scan"
+               style="push">
+         </command>
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.DeleteRunCommand"
+               icon="icons/chart_line_delete.png"
+               label="Delete scan"
+               style="push">
+         </command>
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.RenameRunCommand"
+               icon="icons/chart_line_edit.png"
+               label="Rename scan"
+               style="push">
+         </command>
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.DuplicateRunCommand"
+               icon="icons/chart_line_copy.png"
+               label="Duplicate scan"
+               style="push">
+         </command>
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.RepeatRunCommand"
+               icon="icons/chart_line_copy.png"
+               id="uk.ac.diamond.gda.experimentdefinition.popup.runeditor.repeatscan"
+               label="Repeat scan"
+               style="push">
+         </command>
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.OpenEditorsCommand"
+               label="Open Editors"
+               style="push">
+         </command>
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.CloseEditorsCommand"
+               label="Close Editors"
+               style="push">
+         </command>
+         <separator
+               name="uk.ac.gda.client.experimentdefinition.separator6">
+         </separator>
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.OpenFolderCommand"
+               icon="icons/folder.png"
+               label="Open Folder"
+               style="push"
+               tooltip="Open folder editor to show all the files in the experiment folder.">
+         </command>
+         <separator
+               name="uk.ac.gda.client.experimentdefinition.separator7">
+         </separator>
+      </menuContribution>
+      <menuContribution
+            locationURI="popup:uk.ac.gda.client.experimentdefinition.runcontrollerview">
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.RunSingleExperimentCommand"
+               icon="icons/control_play_blue.png"
+               label="Queue"
+               style="push"
+               tooltip="Add single scan to command queue">
+            <visibleWhen
+                  checkEnabled="true">
+               <with
+                     variable="activeMenuSelection">
+                  <iterate
+                        ifEmpty="true">
+                     <instanceof
+                           value="uk.ac.gda.client.experimentdefinition.IExperimentObject">
+                     </instanceof>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+
+      <menuContribution
+            locationURI="menu:uk.ac.gda.client.experimentdefinition.components.RunControllerView">
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.StopAllCommand"
+               icon="icons/stop.png"
+               label="Stop All"
+               style="push"
+               tooltip="Stop everything that ">
+         </command>
+      </menuContribution>
+    </extension>
+      <extension
+         point="org.eclipse.ui.handlers">
+
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.CopyFilesToScriptsCommandHandler"
+            commandId="uk.ac.gda.client.experimentdefinition.CopyToScripts">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.RenameFileCommandHandler"
+            commandId="uk.ac.gda.client.experimentdefinition.RenameFileCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.DeleteFileCommandHandler"
+            commandId="uk.ac.gda.client.experimentdefinition.DeleteFileCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.RunExperimentCommandHandler"
+            commandId="uk.ac.gda.client.experimentdefinition.RunSingleScanOnlyCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.RunExperimentCommandHandler"
+            commandId="uk.ac.gda.client.experimentdefinition.RunSingleExperimentCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.RunExperimentCommandHandler"
+            commandId="uk.ac.gda.client.experimentdefinition.RunMultiExperimentCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.AddCommandHandler"
+            commandId="uk.ac.gda.client.experimentdefinition.AddFolderCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.AddCommandHandler"
+            commandId="uk.ac.gda.client.experimentdefinition.AddScanCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.AddCommandHandler"
+            commandId="uk.ac.gda.client.experimentdefinition.AddRunCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.DeleteCommandHandler"
+            commandId="uk.ac.gda.client.experimentdefinition.DeleteFolderCommand">
+      </handler>
+       <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.DeleteCommandHandler"
+            commandId="uk.ac.gda.client.experimentdefinition.DeleteScanCommand">
+      </handler>
+       <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.DeleteCommandHandler"
+            commandId="uk.ac.gda.client.experimentdefinition.DeleteRunCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.RenameCommandHandler"
+            commandId="uk.ac.gda.client.experimentdefinition.RenameFolderCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.RenameCommandHandler"
+            commandId="uk.ac.gda.client.experimentdefinition.RenameScanCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.RenameCommandHandler"
+            commandId="uk.ac.gda.client.experimentdefinition.RenameRunCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.DuplicateCommandHandler"
+            commandId="uk.ac.gda.client.experimentdefinition.DuplicateFolderCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.DuplicateCommandHandler"
+            commandId="uk.ac.gda.client.experimentdefinition.DuplicateScanCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.DuplicateCommandHandler"
+            commandId="uk.ac.gda.client.experimentdefinition.DuplicateRunCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.RepeatCommandHandler"
+            commandId="uk.ac.gda.client.experimentdefinition.RepeatRunCommand">
+      </handler>
+       <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.CloseEditorsCommandHandler"
+            commandId="uk.ac.gda.client.experimentdefinition.CloseEditorsCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.OpenEditorsCommandHandler"
+            commandId="uk.ac.gda.client.experimentdefinition.OpenEditorsCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.OpenFolderCommandHandler"
+            commandId="uk.ac.gda.client.experimentdefinition.OpenFolderCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.EditRepetitionsCommandHandler"
+            commandId="uk.ac.gda.client.experimentdefinition.EditRepetitionsCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.ImportExperimentCommandHandler"
+            commandId="uk.ac.gda.client.experimentdefinition.ImportExperimentCommand">
+      </handler>
+   </extension>
+   
+   
+   
+   <extension
+         point="org.eclipse.ui.ide.projectNatureImages">
+      <image
+            icon="icons/chart_curve.png"
+            id="uk.ac.gda.client.experimentdefinition.ExperimentNatureImage"
+            natureId="uk.ac.gda.client.experimentdefinition.ExperimentNature">
+      </image>
+   </extension>
+   
+   
+   <extension
+         point="org.eclipse.ui.editorActions">
+      <editorContribution
+            id="uk.ac.gda.client.experimentdefinition.FolderEditorContribution"
+            targetID="uk.ac.gda.client.experimentdefinition.FolderEditor">
+         <menu
+               id="uk.ac.gda.client.experimentdefinition.FolderEditorNewXMLMenu"
+               label="New"
+               path="additions">
+            <groupMarker
+                  name="content">
+            </groupMarker>
+            <separator
+                  name="additions">
+            </separator>
+         </menu>
+      </editorContribution>
+   </extension>
+
+   <extension
+         id="uk.ac.gda.client.experimentdefinition.ExperimentNature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="uk.ac.gda.client.experimentdefinition.components.ExperimentProjectNature">
+         </run>
+      </runtime>
+   </extension>
+
+
+
+
+   <extension
+		point="org.eclipse.ui.activities">
+		<activity
+			description="unwelcomed contributions when in experimentperspective"
+			id="uk.ac.gda.client.experimentdefinition.unwelcomedactivities"
+			name="unwelcomed">
+			<enabledWhen>
+				<not>
+            		<with variable="activeWorkbenchWindow.activePerspective">
+                		<equals value="uk.ac.gda.client.experimentdefinition.experimentperspective"/>
+            		</with>
+            	</not>
+    		</enabledWhen>
+		</activity>
+
+		<activityPatternBinding
+			activityId="uk.ac.gda.client.experimentdefinition.unwelcomedactivities"
+			pattern="org\.eclipse\.ui\.ide/org.eclipse.ui.openLocalFile">
+		</activityPatternBinding>
+		<activityPatternBinding
+			activityId="uk.ac.gda.client.experimentdefinition.unwelcomedactivities"
+			pattern=".*file\.export">
+		</activityPatternBinding>
+	</extension>
+
+   <extension
+         point="org.eclipse.ui.startup">
+         <startup 
+         	class="uk.ac.gda.client.experimentdefinition.components.ExperimentPerspectiveListener">
+         </startup>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.importWizards">
+      <category
+            id="uk.ac.gda.client.experimentdefinition.category1"
+            name="Experiment XML files">
+      </category>
+      <wizard
+            category="uk.ac.gda.client.experimentdefinition.category1"
+            class="uk.ac.gda.client.experimentdefinition.wizards.ImportXMLWizard"
+            icon="icons/script_go.png"
+            id="uk.ac.gda.client.experimentdefinition.wizard1"
+            name="Import existing XML files into project">
+      </wizard>
+   </extension>
+</plugin>

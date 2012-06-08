@@ -1,0 +1,178 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _MEMORY_IDL_
+#define _MEMORY_IDL_
+
+#include <device.idl>
+
+module gda {
+module device {
+module memory {
+module corba {
+
+typedef sequence<double> doubleArray;
+typedef sequence<long> longArray;
+typedef sequence<long> integerArray;
+
+/**
+ * An interface for a distributed memory class
+ */ 
+interface CorbaMemory : device::corba::CorbaDevice
+{
+   /**
+    * Clear the complete memory system.
+    */
+   void clear()
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Clear the specified number of frames/images/spectra starting
+    * with specified frame/image/spectrum number.
+    *
+    * @param start is the starting frame/image/spectrum number (1st = 0)
+    * @param count is the number of frames/images/spectra to clear
+    */
+   void clear2(in long start, in long count)
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Clear the specified block of memory. The parameters give the
+    * ability to clear a 3D block of memory.
+    *
+    * @param x is the start address for the offset in the x dimension
+    * @param y is the start address for the offset in the y dimension
+    * @param t is the start address for the offset in the y dimension
+    * @param dx is the address count in the x dimension
+    * @param dy is the address count in the y dimension
+    * @param dt is the address count in the y dimension
+    */
+   void clear3(in long x, in long y, in long t, in long dx, in long dy, in long dt)
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Starts/enables the memory system.
+    */
+   void start()
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Stops/disables the memory system.
+    */
+   void stop()
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Read the specified block of memory. The parameters give the
+    * ability to read a 3D block of memory.
+    *
+    * @param x is the start address for the offset in the x dimension
+    * @param y is the start address for the offset in the y dimension
+    * @param t is the start address for the offset in the y dimension
+    * @param dx is the address count in the x dimension
+    * @param dy is the address count in the y dimension
+    * @param dt is the address count in the y dimension
+    *
+    * @return the data in floating point format
+    */
+   doubleArray read(in long x, in long y, in long t, in long dx,
+		    in long dy, in long dt)
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Read the specified frame/image/spectrum.
+    *
+    * @param frame is the frame/image/spectrum number (1st = 0)
+    *
+    * @return the data in floating point format
+    */
+   doubleArray read2(in long frame)
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Set the size of the memory system.
+    *
+    * @param d is the dimensions array.
+    */
+   void setDimension(in longArray d)
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Get the size of the memory system.
+    *
+    * @return the memory dimension as an array.
+    */
+   longArray getDimension()
+      raises (device::corba::CorbaDeviceException);
+   
+   /**
+    * Write to the specified block of memory. The parameters give the
+    * ability to write a 3D block of memory.
+    *
+    * @param data is the data to write to the memory
+    * @param x is the start address for the offset in the x dimension
+    * @param y is the start address for the offset in the y dimension
+    * @param t is the start address for the offset in the y dimension
+    * @param dx is the address count in the x dimension
+    * @param dy is the address count in the y dimension
+    * @param dt is the address count in the y dimension
+    */
+   void write(in doubleArray data, in long x, in long y, in long t,
+	      in long dx, in long dy, in long dt)
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Write to the specified frame of memory. The parameters give the
+    * ability to write a 3D block of memory.
+    *
+    * @param data is the data to write to the memory
+    */
+   void write2(in doubleArray data, in long frame)
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Output data from memory directly to file
+    *
+    * @param file is the fully qualified file name
+    */
+   void output(in string file)
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+    * Get the physical memory size
+    *
+    * @return the physical memory size expressed in words.
+    */
+   long getMemorySize()
+      raises (device::corba::CorbaDeviceException);
+
+   /**
+	* If the detector supports multiple pixel settings, this will return an array of 
+	* possible values. Null otherwise. 
+	* Assumes the detector is 2D with identical axes.
+	* 
+	* @return list of supported resolutions 
+	* @throws DeviceException
+	*/      
+   integerArray getSupportedDimensions()
+      raises (device::corba::CorbaDeviceException);
+}; 
+};};};};
+
+#endif

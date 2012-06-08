@@ -1,0 +1,65 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _BEAMLINE_IDL_
+#define _BEAMLINE_IDL_
+
+#include <device.idl>
+
+module gda {
+module beamline {
+module corba {
+
+/**
+ *  An interface for a distributed object holding important values which
+ *  client and server-side objects need to share.
+ */
+interface CorbaBeamlineInfo : _factory::corba::CorbaFindable
+{
+    void setDataDir(in string dir);
+    string getDataDir();
+
+    void setFilePrefix(in string prefix);
+    string getFilePrefix();
+
+    void setFileSuffix(in string suffix);
+    string getFileSuffix();
+
+    void setFileExtension(in string ext);
+    string getFileExtension();
+
+    long long getFileNumber();
+    long long getNextFileNumber();
+
+    void setProjectName(in string project);
+    string getProjectName();
+
+    void setExperimentName(in string experiment);
+    string getExperimentName();
+      
+    void setHeader(in string header);
+    string getHeader();
+
+    void setSubHeader(in string subheader);
+    string getSubHeader();
+};
+
+};};};
+
+#endif

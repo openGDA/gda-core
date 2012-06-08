@@ -1,0 +1,95 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _AMPLIFIER_IDL_
+#define _AMPLIFIER_IDL_
+
+#include <device.idl>
+
+module gda {
+module device {
+module amplifier {
+module corba {
+
+
+/**
+ *  An interface for a distributed Amplifier class
+ */
+interface CorbaAmplifier : device::corba::CorbaDevice
+{
+
+void autoCurrentSuppress()
+      raises (device::corba::CorbaDeviceException);
+      
+   void autoZeroCorrect()
+      raises (device::corba::CorbaDeviceException);
+      
+   double getCurrentSuppressValue() 
+      raises (device::corba::CorbaDeviceException);
+
+   double getFilterRiseTime()
+      raises (device::corba::CorbaDeviceException);
+      
+   double getGain() 
+      raises (device::corba::CorbaDeviceException);
+
+   string getStatus()
+      raises (device::corba::CorbaDeviceException);
+
+   double getVoltageBias()
+      raises (device::corba::CorbaDeviceException);
+
+   void setAutoFilter(in boolean onOff)
+      raises (device::corba::CorbaDeviceException);
+      
+   void setCurrentSuppress(in boolean onOff)   
+      raises (device::corba::CorbaDeviceException);
+      
+   void setCurrentSuppressionParams(in double value)   
+      raises (device::corba::CorbaDeviceException);
+      
+   void setCurrentSuppressionParams2(in double value, in long range)   
+      raises (device::corba::CorbaDeviceException);
+
+   void setEnlargeGain(in boolean onOff)
+      raises (device::corba::CorbaDeviceException);
+
+   void setFilter(in boolean onOff)
+      raises (device::corba::CorbaDeviceException);
+
+   void setFilterRiseTime(in long level)
+      raises (device::corba::CorbaDeviceException);
+
+   void setGain(in long level)
+      raises (device::corba::CorbaDeviceException);
+
+   void setVoltageBias(in boolean voltageBias)
+      raises (device::corba::CorbaDeviceException);
+
+   void setVoltageBias2(in double value)
+      raises (device::corba::CorbaDeviceException);
+
+   void setZeroCheck(in boolean onOff)
+      raises (device::corba::CorbaDeviceException);
+   
+};
+ 
+};};};};
+
+#endif // _AMPLIFIER_IDL_

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ObjectFactory>
+	<name>testSuite</name>
+	<JythonServer>	
+	<name>command_server</name>
+	</JythonServer>
+</ObjectFactory>

@@ -1,0 +1,8 @@
+<JEPQuantityConverter>
+<ExpressionTtoS>4X</ExpressionTtoS>
+<ExpressionStoT>X/4</ExpressionStoT>
+<AcceptableSourceUnits>Deg</AcceptableSourceUnits>
+<AcceptableTargetUnits>Ang</AcceptableTargetUnits>
+<SourceMinIsTargetMax>false</SourceMinIsTargetMax>
+</JEPQuantityConverter>
+

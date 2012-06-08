@@ -1,0 +1,129 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _CURRENTAMPLIFIER_IDL_
+#define _CURRENTAMPLIFIER_IDL_
+
+#include <scannable.idl>
+
+module gda {
+module device {
+module currentamplifier {
+module corba {
+
+enum CorbaStatus
+{
+    NORMAL, 
+    OVERLOAD
+};
+
+/**
+ *  An interface for a distributed EPICS Current Amplifier class
+ */
+interface CorbaCurrentAmplifier : device::scannable::corba::CorbaScannable
+{
+	typedef sequence<string> stringArray;
+
+    /**
+     * Returns an array of all possible gain positions which this device can be moved to.
+     * 
+     * @return an array of gain positions
+     * @throws DeviceException
+     */
+    stringArray getGainPositions() raises (device::corba::CorbaDeviceException);
+    /**
+     * Returns an array of all possible mode positions which this device can be set to.
+     * @return an array of mode positions
+     * @throws DeviceException
+     */
+     stringArray getModePositions() raises (device::corba::CorbaDeviceException);
+
+    /**
+     * Moves amplifier's gain to the named position.
+     * 
+     * @param position
+     * @throws DeviceException
+     */
+    void setGain(in string position) raises (device::corba::CorbaDeviceException);
+    /**
+     * returns the current gain position
+     * @return gain position
+     * @throws DeviceException
+     */
+    string getGain() raises (device::corba::CorbaDeviceException);
+    /**
+     * returns the current value
+     * @return current
+     * @throws DeviceException
+     */
+    double getCurrent() raises (device::corba::CorbaDeviceException);
+    /**
+     * sets the amplifier's mode of operation
+     * @param mode
+     * @throws DeviceException
+     */
+    void setMode(in string mode) raises (device::corba::CorbaDeviceException);
+    /**
+     * gets the amplifier's mode of operation
+     * @return mode
+     * @throws DeviceException
+     */
+    string getMode() raises (device::corba::CorbaDeviceException);
+    
+   /**
+    * Returns the overload status
+    * 
+    * @return the status
+    * @throws DeviceException
+    */
+   CorbaStatus getStatus() raises (device::corba::CorbaDeviceException);
+   /**
+	 * returns a parsed list of gains available for this amplifier.
+	 * @throws DeviceException
+	 */
+	void listGains() raises (device::corba::CorbaDeviceException);
+	
+	/**
+	 * Moves amplifier's gain unit to the named unit.
+	 * 
+	 * @param unit
+	 * @throws DeviceException
+	 */
+	void setGainUnit(in string unit) raises (device::corba::CorbaDeviceException);
+
+	/**
+	 * returns the current gain unit
+	 * 
+	 * @return gain unit
+	 * @throws DeviceException
+	 */
+	string getGainUnit() raises (device::corba::CorbaDeviceException);
+
+	/**
+	 * Returns an array of all possible gain units which this device can be moved to.
+	 * 
+	 * @return an array of gain units
+	 * @throws DeviceException
+	 */
+	stringArray getGainUnits() raises (device::corba::CorbaDeviceException);
+};
+ 
+};};};};
+
+#endif // _CURRENTAMPLIFIER_IDL_

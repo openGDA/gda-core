@@ -1,0 +1,26 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd
+                           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+                           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd" >
+
+
+	<import resource="devices/simulated/jack_motors.xml" />
+	
+	<bean id="FrontJackScannable" class="gda.device.scannable.ScannableMotor">
+		<property name="motor" ref="RightFrontJack_Motor" />
+	</bean>	
+	<bean id="LeftJackScannable" class="gda.device.scannable.ScannableMotor">
+		<property name="motor" ref="LeftFrontJack_Motor" />
+	</bean>	
+	<!--  this is needed to JCameraman to get the zoom -->
+	<bean id="Jack" class="gda.device.scannable.scannablegroup.ScannableGroup">
+		<property name="groupMembers">
+			<list>
+				<ref bean="FrontJackScannable" />
+				<ref bean="LeftJackScannable" />
+			</list>
+		</property>
+	</bean>	
+</beans>

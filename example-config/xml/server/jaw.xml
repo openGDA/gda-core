@@ -1,0 +1,39 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<import resource="devices/simulated/jaw_motors.xml" />
+
+	<bean id="s1x1" class="gda.device.scannable.ScannableMotor">
+		<property name="motor" ref="S1X1_motor" />
+		<property name="initialUserUnits" value="mm" />
+	</bean>
+	<bean id="s1x2" class="gda.device.scannable.ScannableMotor">
+		<property name="motor" ref="S1X2_motor" />
+		<property name="initialUserUnits" value="mm" />
+	</bean>
+	<bean id="s1xcentre" class="gda.device.scannable.TwoJawSlitPosition">
+		<property name="initialUserUnits" value="mm" />
+		<property name="tolerance" value="1" />
+		<property name="firstJaw" ref="s1x1" />
+		<property name="secondJaw" ref="s1x2" />
+	</bean>
+	<bean id="s1xsize" class="gda.device.scannable.TwoJawSlitGap">
+		<property name="initialUserUnits" value="mm" />
+		<property name="tolerance" value="1" />
+		<property name="firstJaw" ref="s1x1" />
+		<property name="secondJaw" ref="s1x2" />
+	</bean>
+	<bean id="s1" class="gda.device.scannable.scannablegroup.ScannableGroup">
+		<property name="groupMembers">
+			<list>
+				<ref bean="s1xcentre" />
+				<ref bean="s1xsize" />
+				<ref bean="s1x1" />
+				<ref bean="s1x2" />
+			</list>
+		</property>
+	</bean>
+	
+</beans>	

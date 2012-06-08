@@ -1,0 +1,33 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: GDA Example
+Bundle-SymbolicName: uk.ac.gda.example;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.gda.client.experimentdefinition, uk.ac.gda.client
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: uk.ac.gda.libs;bundle-version="1.0.0",
+ uk.ac.gda.common;bundle-version="1.0.0",
+ uk.ac.gda.core;bundle-version="1.0.0",
+ org.eclipse.ui;bundle-version="3.5.1",
+ org.eclipse.core.runtime;bundle-version="3.5.0",
+ uk.ac.gda.client;bundle-version="1.0.0",
+ uk.ac.gda.common.rcp;bundle-version="1.0.0",
+ uk.ac.gda.client.experimentdefinition;bundle-version="1.0.0",
+ org.eclipse.core.resources;bundle-version="3.6.0"
+Bundle-ClassPath: .,
+ jars/gda-corba-example.jar
+Export-Package: gda.example.providers,
+ gda.example.richbean,
+ gda.example.scriptcontroller.logging,
+ gda.example.viewer,
+ gda.example.views,
+ gda.org.myls,
+ gda.org.myls.powersupply,
+ gda.org.myls.powersupply.corba,
+ gda.org.myls.powersupply.corba.impl,
+ gda.org.myls.scannable,
+ org.myls.powersupply,
+ org.myls.scan,
+ uk.ac.gda.example.device.collection
+Import-Package: org.slf4j;version="[1.5.0,2.0.0)"

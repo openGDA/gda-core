@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ObjectFactory>
+   <name>gda_tests</name>
+
+   <!--**************************-->
+   <!--** Creation of Metadata **-->
+   <!--**************************-->
+
+   <FindableHashtable>
+      <name>GDAHashtable</name>
+   </FindableHashtable>
+
+   <!--**************************-->
+   <!--** Creation of Metadata **-->
+   <!--**************************-->
+ 
+   <GdaMetadata>
+      <name>GDAMetadata</name>
+      <MetadataEntry>
+         <name>facility</name>
+         <type>property</type>
+         <accessName>gda.facility</accessName>
+      </MetadataEntry>
+      <MetadataEntry>
+         <name>facilityType</name>
+         <type>property</type>
+         <accessName>gda.facilityType</accessName>
+      </MetadataEntry>
+      <MetadataEntry>
+         <name>federalid</name>
+         <type>stored</type>
+      </MetadataEntry>
+      <MetadataEntry>
+         <name>password</name>
+         <type>stored</type>
+      </MetadataEntry>
+      <MetadataEntry>
+         <name>metadataMode</name>
+         <type>stored</type>
+      </MetadataEntry>
+   </GdaMetadata>
+
+   <!--******************************-->
+   <!--** Creation of CounterTimer **-->
+   <!--******************************-->
+
+   <DummyCounterTimer>
+      <name>counterTimer1</name>
+      <channelLabel>time</channelLabel>
+      <channelLabel>I0</channelLabel>
+      <channelLabel>It</channelLabel>
+      <channelLabel>Im</channelLabel>
+      <channelLabel>If</channelLabel>
+      <channelLabel>IC1</channelLabel>
+      <channelLabel>IC2</channelLabel>
+      <channelLabel>IC3</channelLabel>
+      <usedByDefault>true</usedByDefault>
+      <!--useGaussian>true</useGaussian>
+      <noiseLevel>0.0</noiseLevel-->
+      <timeChannelRequired>true</timeChannelRequired>
+   </DummyCounterTimer>
+ 
+   <!--******************-->
+   <!--** Table Motors **-->
+   <!--******************-->
+
+   <DummyMotor>
+      <name>TableFrontHorizMotor</name>
+      <backlashSteps>0</backlashSteps>
+      <fastSpeed>200</fastSpeed>
+      <mediumSpeed>100</mediumSpeed>
+      <slowSpeed>50</slowSpeed>
+      <limitsSettable>true</limitsSettable>
+   </DummyMotor>
+
+   <DummyMotor>
+      <name>TableFrontVertMotor</name>
+      <backlashSteps>0</backlashSteps>
+      <fastSpeed>200</fastSpeed>
+      <mediumSpeed>100</mediumSpeed>
+      <slowSpeed>50</slowSpeed>
+      <limitsSettable>true</limitsSettable>
+   </DummyMotor>
+
+   <DummyMotor>
+      <name>TableBackHorizMotor</name>
+      <backlashSteps>0</backlashSteps>
+      <fastSpeed>200</fastSpeed>
+      <mediumSpeed>100</mediumSpeed>
+      <slowSpeed>50</slowSpeed>
+      <limitsSettable>true</limitsSettable>
+   </DummyMotor>
+
+   <DummyMotor>
+      <name>TableBackVertMotor</name>
+      <backlashSteps>0</backlashSteps>
+      <fastSpeed>200</fastSpeed>
+      <mediumSpeed>100</mediumSpeed>
+      <slowSpeed>50</slowSpeed>
+      <limitsSettable>true</limitsSettable>
+   </DummyMotor>
+     <!--*****************************-->
+     <!--** Creation of SampleTable **-->
+     <!--*****************************-->
+
+   <GenericOE>
+      <name>SampleTable</name>
+
+      <LinearPositioner>
+         <name>TableFrontHorizPositioner</name>
+         <motorName>TableFrontHorizMotor</motorName>
+         <stepsPerUnit>378.0</stepsPerUnit>
+         <softLimitLow>-1000000</softLimitLow>
+         <softLimitHigh>1000000</softLimitHigh>
+      </LinearPositioner>
+
+      <LinearPositioner>
+         <name>TableFrontVertPositioner</name>
+         <motorName>TableFrontVertMotor</motorName>
+         <stepsPerUnit>-666.67</stepsPerUnit>
+         <softLimitLow>-1000000</softLimitLow>
+         <softLimitHigh>1000000</softLimitHigh>
+      </LinearPositioner>
+
+      <LinearPositioner>
+         <name>TableBackHorizPositioner</name>
+         <motorName>TableBackHorizMotor</motorName>
+         <stepsPerUnit>378.0</stepsPerUnit>
+         <softLimitLow>-1000000</softLimitLow>
+         <softLimitHigh>1000000</softLimitHigh>
+      </LinearPositioner>
+
+      <LinearPositioner>
+         <name>TableBackVertPositioner</name>
+         <motorName>TableBackVertMotor</motorName>
+         <stepsPerUnit>-602.4</stepsPerUnit>
+         <softLimitLow>-1000000</softLimitLow>
+         <softLimitHigh>1000000</softLimitHigh>
+      </LinearPositioner>
+
+      <SingleAxisLinearDOF>
+         <name>TableFrontHoriz</name>
+         <protectionLevel>0</protectionLevel>
+         <moveableName>TableFrontHorizPositioner</moveableName>
+      </SingleAxisLinearDOF>
+
+      <SingleAxisLinearDOF>
+         <name>TableFrontVert</name>
+         <protectionLevel>0</protectionLevel>
+         <moveableName>TableFrontVertPositioner</moveableName>
+      </SingleAxisLinearDOF>
+
+      <SingleAxisLinearDOF>
+         <name>TableBackHoriz</name>
+         <protectionLevel>0</protectionLevel>
+         <moveableName>TableBackHorizPositioner</moveableName>
+      </SingleAxisLinearDOF>
+
+      <SingleAxisLinearDOF>
+         <name>TableBackVert</name>
+         <protectionLevel>0</protectionLevel>
+         <moveableName>TableBackVertPositioner</moveableName>
+      </SingleAxisLinearDOF>
+
+      <DoubleAxisLinearDOF>
+         <name>TableHoriz</name>
+         <protectionLevel>0</protectionLevel>
+         <moveableName>TableFrontHorizPositioner</moveableName>
+         <moveableName>TableBackHorizPositioner</moveableName>
+      </DoubleAxisLinearDOF>
+
+      <DoubleAxisLinearDOF>
+         <name>TableVert</name>
+         <protectionLevel>0</protectionLevel>
+         <moveableName>TableFrontVertPositioner</moveableName>
+         <moveableName>TableBackVertPositioner</moveableName>
+      </DoubleAxisLinearDOF>
+
+      <DoubleAxisAngularDOF>
+         <name>TableYaw</name>
+         <protectionLevel>0</protectionLevel>
+         <acceptableUnit>mrad</acceptableUnit>
+         <acceptableUnit>rad</acceptableUnit>
+         <moveableName>TableFrontHorizPositioner</moveableName>
+         <moveableName>TableBackHorizPositioner</moveableName>
+         <axisOffset>260.0</axisOffset>
+         <centralOffset>false</centralOffset>
+         <separation>600.0</separation>
+      </DoubleAxisAngularDOF>
+
+      <DoubleAxisAngularDOF>
+         <name>TablePitch</name>
+         <protectionLevel>0</protectionLevel>
+         <acceptableUnit>mDeg</acceptableUnit>
+         <moveableName>TableFrontVertPositioner</moveableName>
+         <moveableName>TableBackVertPositioner</moveableName>
+         <axisOffset>180.0</axisOffset>
+         <centralOffset>false</centralOffset>
+         <separation>760.0</separation>
+      </DoubleAxisAngularDOF>
+   </GenericOE>
+
+   <!--******************************-->
+   <!--** Creation of JythonServer **-->
+   <!--******************************-->
+
+   <JythonServer>
+      <name>command_server</name>
+   </JythonServer>
+
+</ObjectFactory>

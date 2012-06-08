@@ -1,0 +1,66 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _ODCCD_IDL_
+#define _ODCCD_IDL_
+
+#include <device.idl>
+#include <detector.idl>
+
+module gda {
+module device {
+module detector {
+module odccd {
+module corba {
+
+typedef sequence<octet> byteSeq;
+
+/**
+ *  An interface for a distributed Oxford Diffraction CCD Detector class
+ */
+interface CorbaODCCD : device::detector::corba::CorbaDetector
+{
+   
+    void connect(in string host) raises (device::corba::CorbaDeviceException);
+
+	void disconnect() raises (device::corba::CorbaDeviceException);
+
+	boolean isConnected() raises (device::corba::CorbaDeviceException);
+
+	string getDataName() raises (device::corba::CorbaDeviceException);
+
+    double temperature() raises (device::corba::CorbaDeviceException);
+
+	double waterTemperature() raises (device::corba::CorbaDeviceException);
+
+	void runScript(in string command) raises (device::corba::CorbaDeviceException);
+
+	string shutter() raises (device::corba::CorbaDeviceException);
+
+	string openShutter() raises (device::corba::CorbaDeviceException);
+
+	string closeShutter() raises (device::corba::CorbaDeviceException);
+
+	any readDataFromISDataBase(in string pathname) raises (device::corba::CorbaDeviceException);
+   
+};
+
+};};};};};
+
+#endif

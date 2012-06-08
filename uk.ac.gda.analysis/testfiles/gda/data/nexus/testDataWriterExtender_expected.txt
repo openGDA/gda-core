@@ -1,0 +1,303 @@
+<top @name=>
+<NXentry @name=entry1>
+<SDS @name=collection_description>
+<dimensions><dimension>25</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>Description of Collection</value>
+</SDS>
+<SDS @name=entry_identifier>
+<dimensions><dimension>1</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>1</value>
+</SDS>
+<SDS @name=experiment_description>
+<dimensions><dimension>25</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>Description of Experiment</value>
+</SDS>
+<NXinstrument @name=instrument>
+<NXdetector @name=SimpleDetector1>
+<SDS @name=SimpleDetector1_0>
+<dimensions><dimension>1</dimension></dimensions>
+<type>NX_FLOAT64</type>
+<values>
+<value>0.0</value>
+</values>
+<Attr @name=target>
+<dimensions><dimension>52</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>/entry1/instrument/SimpleDetector1/SimpleDetector1_0</value>
+</Attr>
+</SDS>
+<SDS @name=SimpleDetector1_1>
+<dimensions><dimension>1</dimension></dimensions>
+<type>NX_FLOAT64</type>
+<values>
+<value>1.0</value>
+</values>
+<Attr @name=target>
+<dimensions><dimension>52</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>/entry1/instrument/SimpleDetector1/SimpleDetector1_1</value>
+</Attr>
+</SDS>
+<SDS @name=SimpleDetector1_2>
+<dimensions><dimension>1</dimension></dimensions>
+<type>NX_FLOAT64</type>
+<values>
+<value>2.0</value>
+</values>
+<Attr @name=target>
+<dimensions><dimension>52</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>/entry1/instrument/SimpleDetector1/SimpleDetector1_2</value>
+</Attr>
+</SDS>
+<SDS @name=SimpleDetector1_3>
+<dimensions><dimension>1</dimension></dimensions>
+<type>NX_FLOAT64</type>
+<values>
+<value>3.0</value>
+</values>
+<Attr @name=target>
+<dimensions><dimension>52</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>/entry1/instrument/SimpleDetector1/SimpleDetector1_3</value>
+</Attr>
+</SDS>
+<SDS @name=SimpleDetector1_4>
+<dimensions><dimension>1</dimension></dimensions>
+<type>NX_FLOAT64</type>
+<values>
+<value>4.0</value>
+</values>
+<Attr @name=target>
+<dimensions><dimension>52</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>/entry1/instrument/SimpleDetector1/SimpleDetector1_4</value>
+</Attr>
+</SDS>
+<SDS @name=SimpleDetector1_5>
+<dimensions><dimension>1</dimension></dimensions>
+<type>NX_FLOAT64</type>
+<values>
+<value>5.0</value>
+</values>
+<Attr @name=target>
+<dimensions><dimension>52</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>/entry1/instrument/SimpleDetector1/SimpleDetector1_5</value>
+</Attr>
+</SDS>
+<SDS @name=SimpleDetector1_6>
+<dimensions><dimension>1</dimension></dimensions>
+<type>NX_FLOAT64</type>
+<values>
+<value>6.0</value>
+</values>
+<Attr @name=target>
+<dimensions><dimension>52</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>/entry1/instrument/SimpleDetector1/SimpleDetector1_6</value>
+</Attr>
+</SDS>
+<SDS @name=SimpleDetector1_7>
+<dimensions><dimension>1</dimension></dimensions>
+<type>NX_FLOAT64</type>
+<values>
+<value>7.0</value>
+</values>
+<Attr @name=target>
+<dimensions><dimension>52</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>/entry1/instrument/SimpleDetector1/SimpleDetector1_7</value>
+</Attr>
+</SDS>
+<SDS @name=SimpleDetector1_8>
+<dimensions><dimension>1</dimension></dimensions>
+<type>NX_FLOAT64</type>
+<values>
+<value>8.0</value>
+</values>
+<Attr @name=target>
+<dimensions><dimension>52</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>/entry1/instrument/SimpleDetector1/SimpleDetector1_8</value>
+</Attr>
+</SDS>
+<SDS @name=SimpleDetector1_9>
+<dimensions><dimension>1</dimension></dimensions>
+<type>NX_FLOAT64</type>
+<values>
+<value>9.0</value>
+</values>
+<Attr @name=target>
+<dimensions><dimension>52</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>/entry1/instrument/SimpleDetector1/SimpleDetector1_9</value>
+</Attr>
+</SDS>
+<SDS @name=description>
+<dimensions><dimension>12</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>description1</value>
+</SDS>
+<SDS @name=id>
+<dimensions><dimension>11</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>detectorID1</value>
+</SDS>
+<SDS @name=type>
+<dimensions><dimension>13</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>detectorType1</value>
+</SDS>
+</NXdetector>
+<NXpositioner @name=SimpleScannable1>
+<SDS @name=simpleScannable1>
+<dimensions><dimension>1</dimension></dimensions>
+<type>NX_FLOAT64</type>
+<values>
+<value>0.0</value>
+</values>
+<Attr @name=axis>
+<dimensions><dimension>1</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>1</value>
+</Attr>
+<Attr @name=label>
+<dimensions><dimension>1</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>1</value>
+</Attr>
+<Attr @name=primary>
+<dimensions><dimension>1</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>1</value>
+</Attr>
+<Attr @name=target>
+<dimensions><dimension>52</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>/entry1/instrument/SimpleScannable1/simpleScannable1</value>
+</Attr>
+</SDS>
+<Attr @name=units>
+<dimensions><dimension>3</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>Å</value>
+</Attr>
+</NXpositioner>
+<NXpositioner @name=SimpleScannable2>
+<SDS @name=simpleScannable2>
+<dimensions><dimension>1</dimension></dimensions>
+<type>NX_FLOAT64</type>
+<values>
+<value>0.0</value>
+</values>
+<Attr @name=axis>
+<dimensions><dimension>1</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>1</value>
+</Attr>
+<Attr @name=target>
+<dimensions><dimension>52</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>/entry1/instrument/SimpleScannable2/simpleScannable2</value>
+</Attr>
+</SDS>
+<Attr @name=units>
+<dimensions><dimension>2</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>eV</value>
+</Attr>
+</NXpositioner>
+<SDS @name=name>
+<dimensions><dimension>4</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>base</value>
+</SDS>
+<NXsource @name=source>
+<SDS @name=current>
+<dimensions><dimension>1</dimension></dimensions>
+<type>NX_FLOAT64</type>
+<values>
+<value>-1.0</value>
+</values>
+</SDS>
+<SDS @name=frequency>
+<dimensions><dimension>1</dimension></dimensions>
+<type>NX_FLOAT64</type>
+<values>
+<value>-1.0</value>
+</values>
+</SDS>
+<SDS @name=name>
+<dimensions><dimension>3</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>DLS</value>
+</SDS>
+<SDS @name=power>
+<dimensions><dimension>1</dimension></dimensions>
+<type>NX_FLOAT64</type>
+<values>
+<value>-1.0</value>
+</values>
+</SDS>
+<SDS @name=probe>
+<dimensions><dimension>5</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>x-ray</value>
+</SDS>
+<SDS @name=type>
+<dimensions><dimension>24</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>Synchrotron X-ray Source</value>
+</SDS>
+<SDS @name=voltage>
+<dimensions><dimension>1</dimension></dimensions>
+<type>NX_FLOAT64</type>
+<values>
+<value>-1000.0</value>
+</values>
+</SDS>
+</NXsource>
+</NXinstrument>
+<SDS @name=program_name>
+<dimensions><dimension>10</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>GDA 7.11.0</value>
+</SDS>
+<SDS @name=scan_command>
+<dimensions><dimension>67</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>scan SimpleScannable1 0.0 10.0 1.0 SimpleScannable2 SimpleDetector1</value>
+</SDS>
+<SDS @name=scan_dimensions>
+<dimensions><dimension>1</dimension></dimensions>
+<type>24</type>
+<values>
+<value>11</value>
+</values>
+</SDS>
+<SDS @name=scan_identifier>
+<dimensions><dimension>8</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>12345678</value>
+</SDS>
+<NXuser @name=user01>
+</NXuser>
+</NXentry>
+</top>
+
+I0	ln(I0/it)	
+   0.00000	 -Infinity	
+   1.00000	  -0.69315	
+   2.00000	   0.00000	
+   3.00000	   0.40547	
+   4.00000	   0.69315	
+   5.00000	   0.91629	
+   6.00000	   1.09861	
+   7.00000	   1.25276	
+   8.00000	   1.38629	
+   9.00000	   1.50408	
+  10.00000	   1.60944	

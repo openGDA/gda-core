@@ -1,0 +1,54 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:corba="http://www.diamond.ac.uk/schema/gda/corba"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+	http://www.diamond.ac.uk/schema/gda/corba http://www.diamond.ac.uk/schema/gda/corba/gda-corba-1.0.xsd">
+
+	<!-- ScriptControllers are distributed objects which act as middle-men between 
+		Jython scripts and the GUI. GUI parts can register themselves as observers 
+		of the ScriptController. -->
+
+	<!-- Then specific scripts may send update messages to the ScriptController, 
+		which in turn fans out the messages to its client-side observers. -->
+
+	<!-- This is an example of a LoggingScriptController. This subclass of ScriptController 
+		looks for a configured type of message bean. When messages of this type are 
+		seen then the information in that bean is logged to a Derby database. There 
+		is a view which displays the contents of this database. -->
+
+	<bean id="MyLoggingScriptController"
+		class="gda.jython.scriptcontroller.logging.LoggingScriptController">
+		<property name="messageClassToLog"
+			value="gda.example.scriptcontroller.logging.ExampleLoggingMessage" />
+		<property name="directory" value="${gda.var}/" />
+		<property name="local" value="true"/>
+	</bean>
+
+	<bean class="uk.ac.gda.remoting.server.GdaRmiServiceExporter">
+		<property name="serviceName" value="gda/MyLoggingScriptController" />
+		<property name="service" ref="MyLoggingScriptController" />
+		<property name="serviceInterface"
+			value="gda.jython.scriptcontroller.logging.ILoggingScriptController" />
+	</bean>
+
+	<bean id="MyOtherLoggingScriptController"
+		class="gda.jython.scriptcontroller.logging.LoggingScriptController">
+		<property name="messageClassToLog"
+			value="gda.example.scriptcontroller.logging.OtherExampleLoggingMessage" />
+		<property name="directory" value="${gda.var}/" />
+		<property name="local" value="true"/>
+	</bean>
+
+	<bean class="uk.ac.gda.remoting.server.GdaRmiServiceExporter">
+		<property name="serviceName" value="gda/MyOtherLoggingScriptController" />
+		<property name="service" ref="MyOtherLoggingScriptController" />
+		<property name="serviceInterface"
+			value="gda.jython.scriptcontroller.logging.ILoggingScriptController" />
+	</bean>
+
+
+</beans>

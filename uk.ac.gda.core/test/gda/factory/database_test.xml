@@ -1,0 +1,11 @@
+<database name="mydb" engine="mysql" >
+  <driver url="jdbc:mysql://diamrs0004l.diamond.ac.uk/gda_test"
+          class-name="org.gjt.mm.mysql.Driver">
+    <param name="user" value="test"/>
+    <param name="password" value="test" />
+  </driver>
+  <mapping href="D:\GDA\trunk\src\trunk\tests\dl\factory\db_mapping.xml" />
+</database>
+
+
+

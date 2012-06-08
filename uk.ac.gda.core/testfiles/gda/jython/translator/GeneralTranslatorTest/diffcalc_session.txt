@@ -1,0 +1,66 @@
+# test version of a file originally located at configurations/diamond/base/scripts/diffcalc_session.py
+# this file is never run, it's just passed through the translator to test the translator
+
+#@PydevCodeAnalysisIgnore
+
+#run "StartupDiffractionCalculatorExample"
+#from diffraction_calculator.external_scannables.Hkl import Hkl
+#from diffraction_calculator.external_scannables import SixCircle
+print "klklklklklklklklk"
+
+print ">>> ubcalc"
+ubcalc
+
+print ">>> newubcalc 'calc'"
+newubcalc 'calc'
+
+print ">>> ubcalc"
+ubcalc
+
+print ">>> setlat 'cube' 1.54"
+setlat 'cube' 1.54
+
+print ">>> ubcalc"
+ubcalc
+
+print ">>> pos en 12.39842/1.54"
+pos en 12.39842/1.54
+
+print ">>> pos sixc (0 60 0 30 0 0)"
+pos sixc (0 60 0 30 0 0)
+
+print ">>> addref 1 0 0 'ref1'"
+addref 1 0 0 'ref1'
+
+print ">>> pos phi -9"
+pos phi -90
+
+print ">>> addref 0 1 0 'ref2'"
+addref 0 1 0 'ref2'
+
+print ">>> ubcalc"
+ubcalc
+
+print ">>> hkl"
+hkl
+
+print ">>> sixc"
+sixc
+
+print ">>> sim hkl (0 1 0)"
+sim hkl (0 1 0)
+
+print ">>> pos hkl (0 1 0)"
+pos([hkl, (0 1 0)])
+
+print ">>> pos sixc"
+pos((sixc))
+
+print ">>> hklmode"
+hklmode
+
+print ">>> hklmode 1"
+hklmode 1
+
+print ">>> hklmode"
+hklmode

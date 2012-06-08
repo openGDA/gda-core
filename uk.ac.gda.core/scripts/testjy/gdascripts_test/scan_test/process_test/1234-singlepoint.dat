@@ -1,0 +1,22 @@
+ &SRS
+ SRSRUN=31473,SRSDAT=2011322,SRSTIM=0627,
+ SRSSTN='BASE',SRSPRJ='GDA_BASE',SRSEXP='Emulator',
+ SRSTLE='                                                            ',
+ SRSCN1='        ',SRSCN2='        ',SRSCN3='        ',
+<MetaDataAtStart>
+cmd='scan omega 11 13 0.005 checkbeam rc ai5 pil 30'
+date='Fri Apr 22 00:05:52 2011'
+rc=199.9
+s8ysize=0.99999
+s8xsize=0.99999
+fcChi=28.022
+fcPhi=56.074
+fc2Theta=23.99999
+ai5=0.83821
+fcsampX= -0.4
+fcsampY= 0.72
+fcsampZ=-3.579
+</MetaDataAtStart>
+ &END
+x	yi	ye	ze1	ze2 wi1 wi2	we
+0	0.0	 1.0	0	1	100	 100.0	101.0

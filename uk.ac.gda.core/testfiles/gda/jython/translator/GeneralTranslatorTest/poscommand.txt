@@ -1,0 +1,23 @@
+pos d2filter "Polycarbon .2mm"
+
+pos x 0.5 4. 3
+pos x .5 4.0 3
+
+pos x -0.5 -4. -3
+pos x -.5 -4.0 -3
+
+pos posname 1.0 "string with embedded , . " 5
+pos posname 2 "string with quote's" 5.0
+pos posname -3 'string with quote"s' 0.1
+pos posname 1.0 "string with quote\"s" -5.0
+pos posname 1.0 'string with quote\'s' -0.1
+pos posname 1.0 r"raw string" 22
+pos posname 1.0 r'raw string' 33
+pos posname 1.0 '''triple quoted string''' -5 
+pos posname 1.0 1. .1
+pos posname [1.0 1. .1]
+pos posname [1.0, 1., .1]
+pos posname (1.0, 1., .1)
+pos posname ( 1.0, 1., .1)
+pos posname ( 1.0 , 1. , .1 )
+

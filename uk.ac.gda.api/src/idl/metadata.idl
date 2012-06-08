@@ -1,0 +1,63 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _METADATA_IDL_
+#define _METADATA_IDL_
+
+#include <device.idl>
+
+module gda
+{
+   module data
+   {
+      module metadata
+      {
+	 module corba
+	 {	    
+	    struct CorbaMetadataEntry
+	    {
+	    	sequence<octet> data;
+	    };
+
+	    interface CorbaMetadata : gda::_factory::corba::CorbaFindable
+	    {
+	       typedef sequence<gda::data::metadata::corba::CorbaMetadataEntry> metadataEntries;
+
+	       metadataEntries getMetadataEntries()
+		  raises (device::corba::CorbaDeviceException);
+      
+	       void addMetadataEntry(in gda::data::metadata::corba::CorbaMetadataEntry metadataEntry)
+		  raises (device::corba::CorbaDeviceException);
+		  
+	       void setMetadataValue(in string name, in string metadataValue)
+		  raises (device::corba::CorbaDeviceException);
+	       
+	       string getMetadataValue(in string name)
+		  raises (device::corba::CorbaDeviceException);
+	       
+	       string getMetadataValue2(in string name, in string property, in string defaultValue)
+		  raises (device::corba::CorbaDeviceException);
+
+	    };
+	 };
+      };
+   };
+};
+
+#endif

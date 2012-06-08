@@ -1,0 +1,165 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _DETECTOR_IDL_
+#define _DETECTOR_IDL_
+
+#include <device.idl>
+module gda {
+module jython{
+module corba {
+	typedef sequence<string> stringArray;
+	typedef sequence<double> doubleArray;
+ 	typedef sequence<octet> octetArray;
+ 	typedef sequence<long> longArray;
+ 	typedef sequence<boolean> booleanArray;
+ 	
+ 	struct CorbaFacadeDetails
+ 	{
+ 		longArray index;
+		stringArray userID;
+		stringArray hostname;
+		longArray authorisationLevel;
+		booleanArray hasBaton;
+		stringArray visitID;
+ 	};
+};
+};
+};
+
+
+module gda {
+module jython {
+module corba {
+
+/**
+ *  An interface for a distributed Detector class
+ */
+interface CorbaJython : gda::_factory::corba::CorbaFindable
+{
+    string evaluateCommand(in string command, in string JSFIdentifier)
+      raises (device::corba::CorbaDeviceException);
+
+    void runCommand(in string command, in string JSFIdentifier)
+      raises (device::corba::CorbaDeviceException);
+
+    void runCommand_withObserver(in string command, in string scanObserver, in string JSFIdentifier)
+      raises (device::corba::CorbaDeviceException);
+
+    void runScript(in string command, in string JSFIdentifier)
+      raises (device::corba::CorbaDeviceException);
+
+    void runScript_withObserver(in string command, in string scanObserver, in string JSFIdentifier)
+      raises (device::corba::CorbaDeviceException);
+
+    boolean runsource(in string command, in string observer, in string JSFIdentifier)
+      raises (device::corba::CorbaDeviceException);
+
+    long addFacade(in string name, in string hostName, in string username, in string visitID)
+      raises (device::corba::CorbaDeviceException);
+
+    void removeFacade(in string name)
+      raises (device::corba::CorbaDeviceException);
+
+    void haltCurrentScan(in string JSFIdentifier)
+      raises (device::corba::CorbaDeviceException);
+
+    void haltCurrentScript(in string JSFIdentifier)
+      raises (device::corba::CorbaDeviceException);
+
+    void panicStop(in string JSFIdentifier)
+      raises (device::corba::CorbaDeviceException);
+
+    void pauseCurrentScan(in string JSFIdentifier)
+      raises (device::corba::CorbaDeviceException);
+
+    void pauseCurrentScript(in string JSFIdentifier)
+      raises (device::corba::CorbaDeviceException);
+
+    void resumeCurrentScan(in string JSFIdentifier)
+      raises (device::corba::CorbaDeviceException);
+
+    void restartCurrentScan(in string JSFIdentifier)
+      raises (device::corba::CorbaDeviceException);
+
+    void resumeCurrentScript(in string JSFIdentifier)
+      raises (device::corba::CorbaDeviceException);
+
+    long getScanStatus(in string JSFIdentifier) raises (device::corba::CorbaDeviceException);
+
+    long getScriptStatus(in string JSFIdentifier) raises (device::corba::CorbaDeviceException);
+
+    void setScanStatus(in long status,in string JSFIdentifier) raises (device::corba::CorbaDeviceException);
+
+    void setScriptStatus(in long status,in string JSFIdentifier) raises (device::corba::CorbaDeviceException);
+    
+    void placeInJythonNamespace(in string objectName, in any obj,in string JSFIdentifier) raises (device::corba::CorbaDeviceException);
+
+    any getFromJythonNamespace(in string objectName,in string JSFIdentifier) raises (device::corba::CorbaDeviceException); 
+    
+    string getRelease(in string JSFIdentifier) raises (device::corba::CorbaDeviceException);
+    
+    string getStartupOutput(in string JSFIdentifier) raises (device::corba::CorbaDeviceException);
+       
+    void setRawInput(in string theInput,in string JSFIdentifier) raises (device::corba::CorbaDeviceException);
+    
+    void addAliasedCommand(in string commandName,in string JSFIdentifier) raises (device::corba::CorbaDeviceException);
+    
+    void addAliasedVarargCommand(in string commandName,in string JSFIdentifier) raises (device::corba::CorbaDeviceException);
+    
+    stringArray getAliasedCommand(in string JSFIdentifier) raises (device::corba::CorbaDeviceException);
+    
+    stringArray getAliasedVarargCommand(in string JSFIdentifier) raises (device::corba::CorbaDeviceException);
+
+    boolean requestBaton(in string uniqueIdentifier) raises (device::corba::CorbaDeviceException);
+
+	void returnBaton(in string uniqueIdentifier) raises (device::corba::CorbaDeviceException);
+
+	void assignBaton(in string myJSFIdentifier, in long indexOfReciever) raises (device::corba::CorbaDeviceException);
+	
+	any getOtherClientInformation(in string myJSFIdentifier) raises (device::corba::CorbaDeviceException);
+	
+	boolean amIBatonHolder(in string myJSFIdentifier) raises (device::corba::CorbaDeviceException);
+
+	boolean isBatonHeld() raises (device::corba::CorbaDeviceException);
+	
+	long getAuthorisationLevel(in long index) raises (device::corba::CorbaDeviceException);	
+	
+	void switchUser(in string uniqueFacadeName, in string username, in string visitID) raises (device::corba::CorbaDeviceException);
+	
+	void sendMessage(in string uniqueFacadeName, in string message) raises (device::corba::CorbaDeviceException);
+	
+	string locateScript(in string scriptToRun) raises (device::corba::CorbaDeviceException);
+
+    string getDefaultScriptProjectFolder() raises (device::corba::CorbaDeviceException);
+    
+    stringArray getAllScriptProjectFolders() raises (device::corba::CorbaDeviceException);
+    
+    string getProjectNameForPath(in string path) raises (device::corba::CorbaDeviceException);
+    
+    boolean projectIsUserType(in string path) raises (device::corba::CorbaDeviceException);
+    
+    boolean projectIsConfigType(in string path) raises (device::corba::CorbaDeviceException);
+    
+    boolean projectIsCoreType(in string path) raises (device::corba::CorbaDeviceException);
+};
+
+};};};
+
+#endif

@@ -1,0 +1,18 @@
+ &SRS
+ SRSRUN=1,SRSDAT=200011,SRSTIM=000,
+ SRSSTN='null',SRSPRJ='null    ',SRSEXP='null    ',
+ SRSTLE='                                                            ',
+ SRSCN1='        ',SRSCN2='        ',SRSCN3='        ',
+ &END
+simpleScannable1	simpleScannable2	SimpleDetector1_0	SimpleDetector1_1	SimpleDetector1_2	SimpleDetector1_3	SimpleDetector1_4	SimpleDetector1_5	SimpleDetector1_6	SimpleDetector1_7	SimpleDetector1_8	SimpleDetector1_9
+0.0	  0.0	0.0	  1.0	  2.0	  3.0	  4.0	  5.0	  6.0	  7.0	  8.0	  9.0
+1.0	  0.0	0.0	  1.0	  2.0	  3.0	  4.0	  5.0	  6.0	  7.0	  8.0	  9.0
+2.0	  0.0	0.0	  1.0	  2.0	  3.0	  4.0	  5.0	  6.0	  7.0	  8.0	  9.0
+3.0	  0.0	0.0	  1.0	  2.0	  3.0	  4.0	  5.0	  6.0	  7.0	  8.0	  9.0
+4.0	  0.0	0.0	  1.0	  2.0	  3.0	  4.0	  5.0	  6.0	  7.0	  8.0	  9.0
+5.0	  0.0	0.0	  1.0	  2.0	  3.0	  4.0	  5.0	  6.0	  7.0	  8.0	  9.0
+6.0	  0.0	0.0	  1.0	  2.0	  3.0	  4.0	  5.0	  6.0	  7.0	  8.0	  9.0
+7.0	  0.0	0.0	  1.0	  2.0	  3.0	  4.0	  5.0	  6.0	  7.0	  8.0	  9.0
+8.0	  0.0	0.0	  1.0	  2.0	  3.0	  4.0	  5.0	  6.0	  7.0	  8.0	  9.0
+9.0	  0.0	0.0	  1.0	  2.0	  3.0	  4.0	  5.0	  6.0	  7.0	  8.0	  9.0
+10	  0.0	0.0	  1.0	  2.0	  3.0	  4.0	  5.0	  6.0	  7.0	  8.0	  9.0

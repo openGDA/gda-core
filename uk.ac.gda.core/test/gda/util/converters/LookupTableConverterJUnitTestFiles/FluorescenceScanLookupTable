@@ -1,0 +1,5 @@
+#        energy Start step1    pt1  step2    pt2  step3    end roiLow roiHigh
+Units       eV     eV    eV     eV     eV     eV     eV     eV     eV      eV
+          5000   3000   100   4500     25   5500    100   7000   4500    5500
+         10000   8000   200   9000     50  11000    200  12000   9500   10500
+         20000  18000   200  19000     50  21000    200  22000  19500   20500 

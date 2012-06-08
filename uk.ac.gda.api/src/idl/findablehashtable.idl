@@ -1,0 +1,69 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include <device.idl>
+
+module gda {
+module util {
+module findableHashtable {
+module corba {
+	
+/**
+ * An Interface for Distributed Hashtable class
+ */
+
+interface CorbaFindableHashtable : gda::_factory::corba::CorbaFindable
+{
+   void putBoolean(in string key, in boolean value)
+       raises (device::corba::CorbaDeviceException);
+   boolean getBoolean(in string key)
+      raises (device::corba::CorbaDeviceException);
+
+   void putInt(in string key, in long value)
+       raises (device::corba::CorbaDeviceException);
+   long getInt(in string key)
+      raises (device::corba::CorbaDeviceException);
+
+   void putLong(in string key, in long long value)
+       raises (device::corba::CorbaDeviceException);
+   long long getLong(in string key)
+      raises (device::corba::CorbaDeviceException);
+
+   void putFloat(in string key, in float value)
+       raises (device::corba::CorbaDeviceException);
+   float getFloat(in string key)
+      raises (device::corba::CorbaDeviceException);
+
+   void putDouble(in string key, in double value)
+       raises (device::corba::CorbaDeviceException);
+   double getDouble(in string key)
+      raises (device::corba::CorbaDeviceException);
+
+   void putString(in string key, in string value)
+       raises (device::corba::CorbaDeviceException);
+   string getString(in string key)
+      raises (device::corba::CorbaDeviceException);
+
+   void put(in string key, in any value)
+       raises (device::corba::CorbaDeviceException);
+   any get(in string key)
+      raises (device::corba::CorbaDeviceException);
+};
+
+};};};};
