@@ -1,0 +1,26 @@
+This document briefly explains how to add a new element to an interface and regenerate the model for it.
+
+Let's say we wanted to add an element called "name" to the interface "uk.ac.gda.excalibur.config.model.ExcaliburConfig" 
+1. Add a setter and getter to the interface. 
+2. Annotate the getter (getName()) with @model and the method will look as below
+    /**
+	 * @model
+	 */
+	String getName();
+3. Do not annotate the setter so the setter remains
+     void setName(String name);
+4. Right click on the "excaliburConfig.genmodel" file inside the "model" folder and click on "Reload"
+5. This will open a wizard 
+	Select "Annotated Java" and click Next
+	Enable the checkbox "uk.ac.gda.excalibur.config.model" package (this should have already been selected)
+	and press "Finish"
+5. Open the file in the "EMF Generator" editor and right click on the root node which is called "ExcaliburConfig" and do 
+   Generate Model Code
+   Generate Edit Code
+   Generate Editor Code
+   
+This will generate the necessary java methods in its implementation and will provide a handle for emf command executions. 
+     
+References:
+1. http://help.eclipse.org/ganymede/index.jsp?topic=/org.eclipse.emf.doc/references/overview/EMF.html
+2. http://wiki.eclipse.org/index.php/EMF/FAQ

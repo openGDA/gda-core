@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" copyrightText="&#xA;Copyright © 2011 Diamond Light Source Ltd.&#xA;&#xA;This file is part of GDA.&#xA;&#xA;GDA is free software: you can redistribute it and/or modify it under the&#xA;terms of the GNU General Public License version 3 as published by the Free&#xA;Software Foundation.&#xA;&#xA;GDA is distributed in the hope that it will be useful, but WITHOUT ANY&#xA;WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS&#xA;FOR A PARTICULAR PURPOSE. See the GNU General Public License for more&#xA;details.&#xA;&#xA;You should have received a copy of the GNU General Public License along&#xA;with GDA. If not, see &lt;http://www.gnu.org/licenses/>."
+    modelDirectory="/uk.ac.gda.devices.excalibur/src" modelPluginID="uk.ac.gda.devices.excalibur"
+    modelName="ExcaliburConfig" importerID="org.eclipse.emf.importer.java" complianceLevel="6.0">
+  <foreignModel>@model</foreignModel>
+  <genPackages prefix="ExcaliburConfig" basePackage="uk.ac.gda.excalibur.config" resource="XMI"
+      disposableProviderFactory="true" ecorePackage="excaliburConfig.ecore#/">
+    <genDataTypes ecoreDataType="excaliburConfig.ecore#//Exception"/>
+    <genDataTypes ecoreDataType="excaliburConfig.ecore#//StringArray"/>
+    <genDataTypes ecoreDataType="excaliburConfig.ecore#//ShortArray"/>
+    <genClasses ecoreClass="excaliburConfig.ecore#//AnperModel">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/preamp"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/ikrum"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/shaper"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/disc"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/discls"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/thresholdn"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/dacPixel"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/delay"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/tpBufferIn"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/tpBufferOut"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/rpz"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/gnd"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/tpref"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/fbk"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/cas"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/tprefA"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/tprefB"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/threshold0"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/threshold1"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/threshold2"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/threshold3"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/threshold4"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/threshold5"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/threshold6"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/threshold7"/>
+    </genClasses>
+    <genClasses ecoreClass="excaliburConfig.ecore#//ArrayCountsModel">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//ArrayCountsModel/arrayCountFem1"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//ArrayCountsModel/arrayCountFem2"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//ArrayCountsModel/arrayCountFem3"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//ArrayCountsModel/arrayCountFem4"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//ArrayCountsModel/arrayCountFem5"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//ArrayCountsModel/arrayCountFem6"/>
+    </genClasses>
+    <genClasses ecoreClass="excaliburConfig.ecore#//BaseNode">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference excaliburConfig.ecore#//BaseNode/gap"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference excaliburConfig.ecore#//BaseNode/mst"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference excaliburConfig.ecore#//BaseNode/fix"/>
+    </genClasses>
+    <genClasses ecoreClass="excaliburConfig.ecore#//ExcaliburConfig">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference excaliburConfig.ecore#//ExcaliburConfig/readoutNodes"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference excaliburConfig.ecore#//ExcaliburConfig/configNode"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference excaliburConfig.ecore#//ExcaliburConfig/summaryNode"/>
+    </genClasses>
+    <genClasses ecoreClass="excaliburConfig.ecore#//GapModel">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//GapModel/gapFillConstant"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//GapModel/gapFillingEnabled"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//GapModel/gapFillMode"/>
+    </genClasses>
+    <genClasses ecoreClass="excaliburConfig.ecore#//MasterConfigAdbaseModel">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//MasterConfigAdbaseModel/counterDepth"/>
+    </genClasses>
+    <genClasses ecoreClass="excaliburConfig.ecore#//MasterConfigNode">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference excaliburConfig.ecore#//MasterConfigNode/configFem"/>
+    </genClasses>
+    <genClasses ecoreClass="excaliburConfig.ecore#//MasterModel">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//MasterModel/frameDivisor"/>
+    </genClasses>
+    <genClasses ecoreClass="excaliburConfig.ecore#//MpxiiiChipRegModel">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//MpxiiiChipRegModel/dacSense"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//MpxiiiChipRegModel/dacSenseDecode"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//MpxiiiChipRegModel/dacSenseName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//MpxiiiChipRegModel/dacExternal"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//MpxiiiChipRegModel/dacExternalDecode"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//MpxiiiChipRegModel/dacExternalName"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference excaliburConfig.ecore#//MpxiiiChipRegModel/anper"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference excaliburConfig.ecore#//MpxiiiChipRegModel/pixel"/>
+    </genClasses>
+    <genClasses ecoreClass="excaliburConfig.ecore#//MpxiiiGlobalRegModel">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//MpxiiiGlobalRegModel/colourMode"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//MpxiiiGlobalRegModel/colourModeAsString"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//MpxiiiGlobalRegModel/colourModeLabels"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//MpxiiiGlobalRegModel/dacNumber"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//MpxiiiGlobalRegModel/dacNameCalc1"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//MpxiiiGlobalRegModel/dacNameCalc2"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//MpxiiiGlobalRegModel/dacNameCalc3"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//MpxiiiGlobalRegModel/dacNameSel1"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//MpxiiiGlobalRegModel/dacNameSel2"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//MpxiiiGlobalRegModel/dacNameSel3"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//MpxiiiGlobalRegModel/dacName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//MpxiiiGlobalRegModel/counterDepthLabels"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//MpxiiiGlobalRegModel/counterDepth"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//MpxiiiGlobalRegModel/counterDepthAsString"/>
+    </genClasses>
+    <genClasses ecoreClass="excaliburConfig.ecore#//PixelModel">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//PixelModel/mask"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//PixelModel/test"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//PixelModel/gainMode"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//PixelModel/thresholdA"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//PixelModel/thresholdB"/>
+    </genClasses>
+    <genClasses ecoreClass="excaliburConfig.ecore#//ReadoutNode">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference excaliburConfig.ecore#//ReadoutNode/readoutNodeFem"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//ReadoutNode/id"/>
+    </genClasses>
+    <genClasses ecoreClass="excaliburConfig.ecore#//ReadoutNodeFemModel">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//ReadoutNodeFemModel/counterDepth"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference excaliburConfig.ecore#//ReadoutNodeFemModel/mpxiiiChipReg1"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference excaliburConfig.ecore#//ReadoutNodeFemModel/mpxiiiChipReg2"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference excaliburConfig.ecore#//ReadoutNodeFemModel/mpxiiiChipReg3"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference excaliburConfig.ecore#//ReadoutNodeFemModel/mpxiiiChipReg4"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference excaliburConfig.ecore#//ReadoutNodeFemModel/mpxiiiChipReg5"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference excaliburConfig.ecore#//ReadoutNodeFemModel/mpxiiiChipReg6"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference excaliburConfig.ecore#//ReadoutNodeFemModel/mpxiiiChipReg7"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference excaliburConfig.ecore#//ReadoutNodeFemModel/mpxiiiChipReg8"/>
+    </genClasses>
+    <genClasses ecoreClass="excaliburConfig.ecore#//SummaryAdbaseModel">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//SummaryAdbaseModel/frameDivisor"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//SummaryAdbaseModel/counterDepth"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//SummaryAdbaseModel/gapFillConstant"/>
+    </genClasses>
+    <genClasses ecoreClass="excaliburConfig.ecore#//SummaryNode">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference excaliburConfig.ecore#//SummaryNode/summaryFem"/>
+    </genClasses>
+    <genClasses ecoreClass="excaliburConfig.ecore#//FixModel">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//FixModel/statisticsEnabled"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//FixModel/scaleEdgePixelsEnabled"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>
