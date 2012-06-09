@@ -56,11 +56,11 @@ public class Hdf5Helper {
 		GROUP, DATASET;
 	}
 
-	public boolean writeToFileSimple(Hdf5HelperData hData, String fileName, HDF5HelperLocations location, String dataSetName) throws Exception {
-		return writeToFile(hData, fileName, location, dataSetName, null, null, null);
+	public void writeToFileSimple(Hdf5HelperData hData, String fileName, HDF5HelperLocations location, String dataSetName) throws Exception {
+		writeToFile(hData, fileName, location, dataSetName, null, null, null);
 	}
 	
-	public boolean writeToFileOld(Hdf5HelperData hData, String fileName, String groupName, String dataSetName,
+/*	public boolean writeToFileOld(Hdf5HelperData hData, String fileName, String groupName, String dataSetName,
 			long[] chunk_dims, boolean[] extendible, long[] offset) throws Exception {
 
 		boolean success = true;
@@ -180,7 +180,7 @@ public class Hdf5Helper {
 				H5.H5Fclose(fileId);
 		}
 	}
-
+*/
 	private void createAttribute(int loc_id, String attributeName, String attributeValue) throws Exception{
 
 		Hdf5HelperData attr_data = Hdf5HelperData.getInstance(attributeValue);
@@ -208,16 +208,26 @@ public class Hdf5Helper {
 		}
 	}
 
-	public boolean writeToFile(Hdf5HelperData hData, String fileName, HDF5HelperLocations location, String dataSetName,
+	/**
+	 * 
+	 * @param hData - data for current slab
+	 * @param fileName
+	 * @param location
+	 * @param dataSetName
+	 * @param chunk_dims - the dimensions of each slab to be written
+	 * @param extendible - array to indicate which dimension is extendible
+	 * @param offset - offset for current slab
+	 * @throws Exception
+	 */
+	public void writeToFile(Hdf5HelperData hData, String fileName, HDF5HelperLocations location, String dataSetName,
 			long[] chunk_dims, boolean[] extendible, long[] offset) throws Exception {
 
-		boolean success = true;
 		int fileId = -1;
 		int filespaceId = -1;
 		int datasetId = -1;
 		int groupId = -1;
 		int[] groupIds = new int[location.size()];
-		boolean[] isDataSet = new boolean[groupIds.length];
+//		boolean[] isDataSet = new boolean[groupIds.length];
 		Arrays.fill(groupIds, -1);
 
 		if (extendible != null){
@@ -238,20 +248,20 @@ public class Hdf5Helper {
 			for (int i = 0; i < location.size(); i++) {
 				int loc_id = i == 0 ? fileId : groupIds[i - 1];
 				String name = location.get(i).name;
-				isDataSet[i] = false;
+/*				isDataSet[i] = false;
 				if( name.endsWith(":DS")){
 					name = name.replace(":DS","");
 					isDataSet[i] = true;
 				}
-				try {
-					if( isDataSet[i]){
+*/				try {
+/*					if( isDataSet[i]){
 						groupIds[i] = H5.H5Dopen(loc_id, name, HDF5Constants.H5P_DEFAULT);
 					} else {
-						H5.H5Gget_info_by_name(loc_id, name, HDF5Constants.H5P_DEFAULT);
+*/						H5.H5Gget_info_by_name(loc_id, name, HDF5Constants.H5P_DEFAULT);
 						groupIds[i] = H5.H5Gopen(loc_id, name, HDF5Constants.H5P_DEFAULT);
-					}
+//					}
 				} catch (Exception ex) {
-					if( !isDataSet[i]){
+//					if( !isDataSet[i]){
 						groupIds[i] = H5.H5Gcreate(loc_id, name, HDF5Constants.H5P_DEFAULT,
 								HDF5Constants.H5P_DEFAULT, HDF5Constants.H5P_DEFAULT);
 						
@@ -260,10 +270,10 @@ public class Hdf5Helper {
 							createAttribute(groupIds[i],  attributeName, location.get(i).attributeValue);
 						}
 						
-					} else {
+/*					} else {
 						throw new Exception("DataSet does not exist " + location );
 					}
-				}
+*/				}
 			}
 			groupId = groupIds[groupIds.length - 1];
 
@@ -294,14 +304,40 @@ public class Hdf5Helper {
 
 
 				if (extendible != null) {
-
-					long [] extent = new long[hData.dims.length];
-					for( int i=0; i< extent.length;i++){
-						extent[i] = offset[i] + hData.dims[i];
-					}
-					H5.H5Dset_extent(datasetId, extent); 
-
+					
+					//ensure dataspace size is big enough for the new item
 					int filespace = H5.H5Dget_space(datasetId);
+					if( filespace < 0)
+						throw new Exception("Unable to open the filespace");
+
+					int ndims = H5.H5Sget_simple_extent_ndims(filespace);
+					long[] dims = new long[ndims];
+					long[] maxdims = new long[ndims];
+					H5.H5Sget_simple_extent_dims(filespace,dims, maxdims);
+					
+					if( dims.length != offset.length)
+						throw new Exception("dims.length != offset.length");
+					if( dims.length != hData.dims.length)
+						throw new Exception("dims.length != hData.dims.length");
+					
+					//need to extend current size rather than just use offset and current item as it
+					//will reduce the dataset set if the new extent is less than existing value.
+					long [] extent = new long[hData.dims.length];
+					boolean extend=false;
+					for( int i=0; i< extent.length;i++){
+						extent[i] = Math.max(dims[i], offset[i] + hData.dims[i]);
+						extend |= extent[i] > dims[i];
+						if( extent[i] > maxdims[i] && maxdims[i] != -1)
+							throw new Exception("Cannot extend dataspace beyond limit set at creation");
+					}
+					if( extend){
+						H5.H5Dset_extent(datasetId, extent); 
+						H5.H5Sclose(filespace);
+						filespace = H5.H5Dget_space(datasetId);
+						if( filespace < 0)
+							throw new Exception("Unable to open the filespace");
+					}
+					
 					int status = H5.H5Sselect_hyperslab(filespace, HDF5Constants.H5S_SELECT_SET, offset, null,
 							hData.dims, null);
 					if (status < 0)
@@ -313,7 +349,6 @@ public class Hdf5Helper {
 							HDF5Constants.H5P_DEFAULT, hData.data);
 				}
 			}
-			return success;
 		} catch (Exception ex) {
 			throw new Exception("Unable to write to file:" + fileName + " at group:" + location, ex);
 		} finally {
@@ -323,11 +358,11 @@ public class Hdf5Helper {
 				H5.H5Sclose(filespaceId);
 			for (int i = groupIds.length - 1; i >= 0; i--) {
 				if (groupIds[i] != -1){
-					if( isDataSet[i]){
+/*					if( isDataSet[i]){
 						H5.H5Dclose(groupIds[i]);
 					} else {
-						H5.H5Gclose(groupIds[i]);
-					}
+*/						H5.H5Gclose(groupIds[i]);
+//					}
 				}
 			}
 			if (fileId >= 0)
