@@ -286,8 +286,9 @@ where task can be:
 	def mainline(self, argv):
 
 		self.get_commandlineArgs(argv)
-
-		self.gda_root = os.path.realpath(abspath(os.path.abspath(os.path.dirname(__file__)), "..", ".."))  # Typically points to the plugins/ directory.
+		#this file is  $gda_root/../<workspace>_git/gda-core.git/uk.ac.gda.core/bin/gda
+		# gda_root points to plugins folder
+		self.gda_root = os.path.realpath(abspath(os.path.dirname(__file__),"..","..","..","plugins").replace("_git",""))
 		self.subversion_checkout_parent = abspath(self.gda_root, "..")
 		self.git_checkout_parent = '%s_git' % (self.subversion_checkout_parent,)
 		if not os.path.isdir(self.git_checkout_parent):
