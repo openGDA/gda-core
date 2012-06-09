@@ -36,6 +36,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.fitting.Generic1DFitter;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.APeak;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.Gaussian;
+import uk.ac.diamond.scisoft.analysis.io.ILazyLoader;
 import uk.ac.diamond.scisoft.analysis.optimize.GeneticAlg;
 import uk.ac.gda.analysis.hdf5.HDF5HelperLocations;
 import uk.ac.gda.analysis.hdf5.HDF5NexusLocation;
@@ -43,7 +44,6 @@ import uk.ac.gda.analysis.hdf5.Hdf5Helper;
 import uk.ac.gda.analysis.hdf5.Hdf5Helper.TYPE;
 import uk.ac.gda.analysis.hdf5.Hdf5HelperData;
 import uk.ac.gda.analysis.hdf5.Hdf5HelperLazyLoader;
-import uk.ac.gda.devices.excalibur.ExcaliburReadoutNodeFem;
 
 /**
  *
@@ -63,6 +63,9 @@ public class ExcaliburEqualizationHelper {
 	public static final String THRESHOLD_DATASET = "threshold";
 	public static final String EDGE_THRESHOLDS_DATASET = "edgeThresholds";
 	private static final ExcaliburEqualizationHelper INSTANCE = new ExcaliburEqualizationHelper();
+	public static final int chipHeight = 256;
+	public static final int chipWidth = 256;
+	public static final int chipPixels = chipHeight*chipWidth;
 
 	public static ExcaliburEqualizationHelper getInstance() {
 		return INSTANCE;
@@ -328,40 +331,85 @@ public class ExcaliburEqualizationHelper {
 
 */	}
 
-	public int[] createBinnedPopulation(IntegerDataset ids) throws ScanFileHolderException{
-		ids.max();
-		int [] numInBins  = new int[ids.max().intValue()-1];
+	int[] createBinnedPopulation(AbstractDataset ids) {
+		int minVal = ids.min().intValue();
+		//range of values is from minVal to max. Num of bins is range +1
+		//first bin contains population with val = minVal
+		int [] numInBins  = new int[ids.max().intValue()-minVal+1];
 		Arrays.fill(numInBins, 0);
 		IndexIterator iter = ids.getIterator();
 
 		while (iter.hasNext()){
-			int value = ids.getAbs(iter.index);
-			numInBins[value] += 1;
+			int value = (int) ids.getElementLongAbs(iter.index);
+			numInBins[value-minVal] += 1;
 		}
 		return numInBins;
 	}
 
-	
-	public APeak fitGaussian(String filename, List<ExcaliburReadoutNodeFem> fems) throws Exception{
-		Hdf5HelperLazyLoader loader = new Hdf5HelperLazyLoader(filename, getEqualisationLocation().getLocationForOpen(), EDGE_THRESHOLDS_DATASET, false );
-		for(ExcaliburReadoutNodeFem node : fems ){
-			node.getMpxiiiChipReg1().getPixel();
+	/**
+	 * Loads the edge threshold calc for each pixel in a set of chips.
+	 * Gets population of values for each chip and fits a gaussian to get average and fwhm
+	 * @param fileName
+	 * @return A 2d array of APeaks that match the structure of the chips in the detector
+	 * @throws Exception 
+	 */
+	APeak[][] getChipEdgeThreshold(String fileName) throws Exception{
+		String groupName = getEqualisationLocation().getLocationForOpen();
+		String datasetName = EDGE_THRESHOLDS_DATASET;
+		Hdf5HelperLazyLoader loader = new Hdf5HelperLazyLoader(fileName, groupName, datasetName, false );
+		int[] shape = loader.getLazyDataSet().getShape();
+		if( shape.length != 2){
+			throw new IllegalArgumentException("shape.length != 2");
 		}
-		return null;
-//		AbstractDataset dataset = loader.getDataset(null, shape, start, stop, step);
+		long fullHeight = shape[0];
+		if(fullHeight % chipHeight != 0){
+			throw new IllegalArgumentException("fullHeight % chipHeight != 0");
+		}
+		long fullWidth = shape[1];
+		if(fullWidth % chipWidth != 0){
+			throw new IllegalArgumentException("fullWidth % chipWidth != 0");
+		}
+		long numChipsHigh = fullHeight/chipHeight;
+		long numChipsAcross = fullWidth/chipWidth;
+		APeak [][] aPeaks = new APeak[(int) numChipsHigh][];
+		int[] start = new int[2]; 
+		int[] stop = new int[2]; 
+		int[] step= new int[2];
+		step[0]=step[1]=1;
+		for( int ih=0; ih< numChipsHigh; ih++){
+			aPeaks[ih] = new APeak[(int) numChipsAcross];
+			start[0] = (ih*chipHeight);
+			stop[0] = (start[0]+chipHeight); //exclusive
+			for( int iw=0; iw< numChipsAcross; iw++){
+				start[1] = (iw*chipWidth);
+				stop[1] = (start[1] + chipWidth); //exclusive
+				aPeaks[ih][iw] =fitGaussian(loader, start, stop, step);
+			}
+		}
+		return aPeaks;
 	}
-	public APeak fitGaussian(String filename, int[] shape, int[] start, int[] stop, int[] step ) throws ScanFileHolderException{
-		Hdf5HelperLazyLoader loader = new Hdf5HelperLazyLoader(filename, getEqualisationLocation().getLocationForOpen(), EDGE_THRESHOLDS_DATASET, false );
-		AbstractDataset dataset = loader.getDataset(null, shape, start, stop, step);
+	
+	
+	/**
+	 * 
+	 * @param loader - loader that can return a dataset containing values that are expressible as shorts
+	 * @param start
+	 * @param stop
+	 * @param step
+	 * @return result of fitting gaussian over the population within the slice given by start, stop, step
+	 * @throws ScanFileHolderException
+	 */
+	public APeak fitGaussian(ILazyLoader loader,int[] start, int[] stop, int[] step ) throws ScanFileHolderException{
+		AbstractDataset dataset = loader.getDataset(null, null, start, stop, step);
 		
-		IntegerDataset ids = new IntegerDataset(dataset);
-		int[] population = createBinnedPopulation( ids);
+		int offset = dataset.min().intValue();
+		int[] population = createBinnedPopulation( dataset);
 		double [] xvals = new double[population.length]; 
 		double [] yvals = new double[population.length]; 
 		int numFound=0;
 		for( int i=0; i< population.length; i++){
 			if( population[i]>0){
-				xvals[i]=i;
+				xvals[i]=i + offset;
 				yvals[i] = population[i];
 				numFound +=1;
 			}
@@ -380,7 +428,7 @@ public class ExcaliburEqualizationHelper {
 			APeak peakFunction = new Gaussian(10,10,10);
 			List<APeak> fittedPeakList = Generic1DFitter.fitPeaks(xvals_ds, yvals_ds, peakFunction, new GeneticAlg(0.0001),
 					smoothing, numPeaks, threshold, autoStopping, backgroundDominated);
-			if( fittedPeakList.size() ==1){
+			if( fittedPeakList != null && fittedPeakList.size() ==1){
 				return fittedPeakList.get(0);
 			}
 		}
