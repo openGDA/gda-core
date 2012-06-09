@@ -307,6 +307,11 @@ public class XYPlotView extends ViewPart implements IAllScanDataPointsObserver {
 		if (xSel == null) {
 			return null;
 		}
+		List<String> xyDataSetNames = new Vector<String>();
+		xyDataSetNames.add((String) xSel[0]);
+		if( possibleXYDataSetNames.length == 1){
+			return xyDataSetNames;
+		}
 		ListSelectionDialog lsd = new ListSelectionDialog(shell, possibleXYDataSetNames, new ArrayContentProvider(),
 				new LabelProvider(), "");
 		lsd.setInitialSelections(new Object[] { possibleXYDataSetNames[1] });
@@ -317,8 +322,6 @@ public class XYPlotView extends ViewPart implements IAllScanDataPointsObserver {
 		if (ySels == null) {
 			return null;
 		}
-		List<String> xyDataSetNames = new Vector<String>();
-		xyDataSetNames.add((String) xSel[0]);
 		for (Object ySel : ySels) {
 			xyDataSetNames.add((String) ySel);
 		}
