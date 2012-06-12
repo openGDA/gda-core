@@ -18,12 +18,13 @@
 
 package gda.util.exafs;
 
+import java.io.Serializable;
 import java.util.StringTokenizer;
 
 /**
  * Represents an absorption edge.
  */
-public class AbsorptionEdge {
+public class AbsorptionEdge implements Serializable{
 	private String elementSymbol;
 
 	private String edgeType;
