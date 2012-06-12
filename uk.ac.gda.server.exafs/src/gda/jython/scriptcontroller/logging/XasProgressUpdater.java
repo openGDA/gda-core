@@ -39,6 +39,7 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 	private final String predictedTotalTime;
 	private final String scriptName;
 	private final String repetition;
+	private final String outputFolder;
 	private long timeStarted;
 	private String lastPercentComplete;
 	
@@ -48,6 +49,7 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 		this.scriptName = msg.getName();
 		this.repetition = msg.getRepetition();
 		this.predictedTotalTime = msg.getPredictedTotalTime();
+		this.outputFolder = msg.getOutputFolder();
 		this.setInputNames(new String[] {});
 		this.setExtraNames(new String[] {});
 		this.setOutputFormat(new String[] {});
@@ -75,7 +77,7 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 	public void atScanEnd() throws DeviceException {
 		InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(this);
 		XasLoggingMessage msg = new XasLoggingMessage(id, scriptName, "complete", repetition, "100%", getElapsedTime(),
-				predictedTotalTime);
+				predictedTotalTime, outputFolder);
 		controller.update(this, msg);
 	}
 	
@@ -83,7 +85,7 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 	public void atCommandFailure() throws DeviceException {
 		InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(this);
 		XasLoggingMessage msg = new XasLoggingMessage(id, scriptName, "scan aborted", repetition, lastPercentComplete, getElapsedTime(),
-				predictedTotalTime);
+				predictedTotalTime, outputFolder);
 		controller.update(this, msg);
 	}
 
@@ -112,7 +114,7 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 			lastPercentComplete = percentComplete+ "%";
 
 			XasLoggingMessage msg = new XasLoggingMessage(id, scriptName, "in progress", repetition, percentComplete
-					+ "%", getElapsedTime(), predictedTotalTime);
+					+ "%", getElapsedTime(), predictedTotalTime, outputFolder);
 			controller.update(this, msg);
 		}
 	}

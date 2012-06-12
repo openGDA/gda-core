@@ -75,6 +75,7 @@ class XasScan(Scan):
         if isinstance(scanBean, XanesScanParameters):
             scriptType = "Xanes"
         unique_id           = LoggingScriptController.createUniqueID(scriptType);
+        outputFolder = outputBean.getAsciiDirectory()+ "/" + outputBean.getAsciiFileName()
 
         # create the scannable which will control energy & time for each point
         useFrames = LocalProperties.check("gda.microfocus.scans.useFrames")
@@ -125,7 +126,7 @@ class XasScan(Scan):
                     xas_scannable.setExafsScanRegionTimes(ExafsScanPointCreator.getScanTimes(beanGroup.getScan()))
 
             # send out initial messages
-            logmsg = XasLoggingMessage(unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str("0%"),str(0),scanBean)
+            logmsg = XasLoggingMessage(unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str("0%"),str(0),scanBean,outputFolder)
             loggingcontroller.update(None,logmsg)
             loggingcontroller.update(None,ScanStartedMessage(scanBean,detectorBean))
             loggingbean = XasProgressUpdater(loggingcontroller,logmsg)
