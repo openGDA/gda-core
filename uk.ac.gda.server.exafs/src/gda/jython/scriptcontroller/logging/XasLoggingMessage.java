@@ -32,10 +32,11 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 	private String percentComplete;
 	private String elaspedTime;
 	private String predictedTotalTime;
+	private String outputFolder;
 	
 	
 	protected XasLoggingMessage(String id, String scriptName, String message, String repetition, String percentComplete,
-			String elaspedTime, String predictedTotalTime) {
+			String elaspedTime, String predictedTotalTime, String outputFolder) {
 		super();
 		this.id = id;
 		this.scriptName = scriptName;
@@ -44,10 +45,11 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 		this.percentComplete = percentComplete;
 		this.elaspedTime = elaspedTime;
 		this.predictedTotalTime = predictedTotalTime;
+		this.outputFolder = outputFolder;
 	}
 	
 	public XasLoggingMessage(String id, String scriptName, String message, String repetition, String percentComplete,
-			String elaspedTime, IScanParameters parameters) throws Exception {
+			String elaspedTime, IScanParameters parameters, String outputFolder) throws Exception {
 		super();
 		this.id = id;
 		this.scriptName = scriptName;
@@ -55,6 +57,7 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 		this.repetition = repetition;
 		this.percentComplete = percentComplete;
 		this.elaspedTime = elaspedTime;
+		this.outputFolder = outputFolder;
 		
 		long totalTime = ExafsTimeEstimator.getTime(parameters);
 		
@@ -100,6 +103,11 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 	@ScriptControllerLogColumn(columnName = "Total Time", refresh = false, columnIndex = 4)
 	public String getPredictedTotalTime() {
 		return predictedTotalTime;
+	}
+	
+	@ScriptControllerLogColumn(columnName = "output Folder", refresh = false, columnIndex = 5)
+	public String getOutputFolder() {
+		return outputFolder;
 	}
 
 	@Override

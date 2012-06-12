@@ -272,6 +272,14 @@
             id="uk.ac.gda.client.exafs.addScan"
             name="Add Scan">
       </command>
+      <command
+            id="uk.ac.gda.client.exafs.haltAfterRepetition"
+            name="Halt After Repetition">
+      </command>
+      <command
+            id="uk.ac.gda.client.exafs.skipRepetition"
+            name="Skip Current Repetition">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
@@ -315,6 +323,14 @@
             class="uk.ac.gda.exafs.ui.actions.AddScanCommandHandler"
             commandId="uk.ac.gda.client.exafs.addScan">
       </handler>
+     <handler
+            class="uk.ac.gda.exafs.ui.actions.HaltAfterRepetition"
+            commandId="uk.ac.gda.client.exafs.haltAfterRepetition">
+     </handler>
+     <handler
+            class="uk.ac.gda.exafs.ui.actions.SkipRepetition"
+            commandId="uk.ac.gda.client.exafs.skipRepetition">
+     </handler>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -337,7 +353,24 @@
    </extension>
    <extension
          point="org.eclipse.ui.menus">
-               <menuContribution
+      <menuContribution
+            locationURI="toolbar:uk.ac.gda.client.CommandQueueViewFactory">
+         <command
+               commandId="uk.ac.gda.client.exafs.skipRepetition"
+               icon="icons/stepover.png"
+               label="Skip current repetition"
+               style="push"
+               tooltip="Skips the current repetition and moves on to the next one">
+         </command>
+         <command
+               commandId="uk.ac.gda.client.exafs.haltAfterRepetition"
+               icon="icons/stepreturn.png"
+               label="Halt scan after repetition"
+               style="push"
+               tooltip="Stops the current scan once the current repetition has completed">
+         </command>
+      </menuContribution>
+      <menuContribution
             locationURI="toolbar:uk.ac.gda.client.experimentdefinition.runcontrollerview">
          <command
                commandId="uk.ac.gda.client.exafs.switchToPlotPerspective"
@@ -851,5 +884,5 @@
             name="QEXAFS Bean File Content"
             priority="high">
       </content-type>
-   </extension>   
+   </extension>
 </plugin>
