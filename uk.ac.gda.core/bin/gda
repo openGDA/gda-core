@@ -843,9 +843,12 @@ where task can be:
 			# look up a jar in tp/plugins
 			jarPaths = glob.glob( os.path.join(self.tp, "plugins", dependent + "_*.jar") )  # use * in place of version numbers
 			if len(jarPaths) > 1:
-				self.logger.critical("Multiple jars satisfy %s: %s" % (dependent, jarPaths))
+				self.logger.warn("Multiple jars satisfy %s: %s" % (dependent, jarPaths))
 			if len(jarPaths) >= 1:
-				self.append_to_class_path( jarPaths[0] )
+				for jarPath in sorted(jarPaths):
+					# FIXME: this is a complete hack. There are 2 version of jscience (2.0.2 and 4.3.1) in tp/ and the classpath order is important.
+					# Further investigation is required.
+					self.append_to_class_path( jarPath )
 			else:
 				self.logger.critical("Cannot find dependent: %s" % (dependent,))
 
