@@ -814,13 +814,13 @@ public class CameraControlComposite extends Composite {
 	 * @param btnCntrl
 	 */
 	private static void deSelectControl(final Button btnCntrl) {
-		logger.debug("Deselecting control:{}", btnCntrl);
 		if (btnCntrl != null && !btnCntrl.isDisposed()) {
 			btnCntrl.getDisplay().syncExec(new Runnable() {
 
 				@Override
 				public void run() {
 					if (!btnCntrl.isDisposed()) {
+						logger.debug("Deselecting control:{}", btnCntrl);
 						btnCntrl.setForeground(btnCntrl.getDisplay().getSystemColor(SWT.COLOR_LIST_FOREGROUND));
 						btnCntrl.setBackground(btnCntrl.getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
 					}
