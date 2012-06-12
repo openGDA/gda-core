@@ -286,7 +286,7 @@ where task can be:
 	def mainline(self, argv):
 
 		self.get_commandlineArgs(argv)
-		#this file is  $gda_root/../<workspace>_git/gda-core.git/uk.ac.gda.core/bin/gda
+		# this file is  $gda_root/../<workspace>_git/gda-core.git/uk.ac.gda.core/bin/gda
 		# gda_root points to plugins folder
 		self.gda_root = os.path.realpath(abspath(os.path.dirname(__file__),"..","..","..","plugins").replace("_git",""))
 		self.subversion_checkout_parent = abspath(self.gda_root, "..")
@@ -544,11 +544,8 @@ where task can be:
 			self.logger.trace('attempting to determine location of GDA config directory')
 			path = self._determine_first_valid_directory([
 				lambda: os.getenv("GDA_CONFIG") and os.path.abspath(os.getenv("GDA_CONFIG")),
-				lambda: os.getenv("BEAMLINE",None) and abspath(self.gda_root, "..", os.getenv("BEAMLINE").lower() + "-config"),
-				lambda: abspath(self.gda_root, "..", "config"),
-				lambda: abspath(self.gda_root, "..", "configurations", "diamond", "base"),
-				lambda: abspath(self.gda_root, "..", "gda-config-base"),
-				lambda: abspath(self.gda_root, "..", "example-config"),
+				lambda: os.getenv("BEAMLINE",None) and abspath(self.subversion_checkout_parent, os.getenv("BEAMLINE").lower() + "-config"),
+				lambda: abspath(self.subversion_checkout_parent, "config"),
 				])
 			if not path:
 				self.logger.critical("Could not determine the location of the GDA configuration directory from one of the standard locations")
@@ -627,7 +624,8 @@ where task can be:
 		if self.is_new_style_layout:
 			item_description.append( ('profile', self.options.profile) )
 			item_description.append( ('mode', self.options.gda_mode) )
-		item_description.append( ("gda.root", self.gda_root) )
+		item_description.append( ("install.workspace.loc", self.subversion_checkout_parent) )
+		item_description.append( ("install.git.loc", self.git_checkout_parent) )
 		item_description.append( ("gda.data", self.options.gda_data or "Will be taken from the java.properties file - if it is missing, then GDA may not work") )
 		item_description.append( ("gda.var", self.options.gda_var or "Will be taken from the java.properties file - if it is missing, then GDA may not work") )
 		item_description.append( ("gda_logdir", self.options.gda_logdir or "gda.logs.dir will be taken from the java.properties file") )
@@ -822,7 +820,7 @@ where task can be:
 		self.dependents_already_processed.append(dependent)
 
 		if dependent == "org.junit4":
-			junit_template = abspath(self.gda_root,"..","tp", "plugins","org.junit_4*","junit.jar")
+			junit_template = abspath(self.subversion_checkout_parent, "tp", "plugins", "org.junit_4*", "junit.jar")
 			for path in glob.glob(junit_template):
 				self.append_to_class_path(path)
 			return  # don't look for junit dependencies
@@ -1054,7 +1052,9 @@ where task can be:
 	def log_panel(self, debug_opts=None):
 		class_name="gda.util.LogPanel"
 		vmargs = (
-					"-Dgda.root="+self.gda_root,				  
+					"-Dgda.root="+self.gda_root,
+					"-Dinstall.workspace.loc=" + self.subversion_checkout_parent,
+					"-Dinstall.git.loc=" + self.git_checkout_parent,
 					"-Dgda.config="+self.options.gda_config,
 				)
 		vmargs = self.addOptionalVMArgs(vmargs)
@@ -1063,7 +1063,9 @@ where task can be:
 	def log_server(self, debug_opts=None):
 		class_name="gda.util.LogServer"
 		vmargs = (
-					"-Dgda.root="+self.gda_root,			  
+					"-Dgda.root="+self.gda_root,
+					"-Dinstall.workspace.loc=" + self.subversion_checkout_parent,
+					"-Dinstall.git.loc=" + self.git_checkout_parent,
 					"-Dgda.config="+self.options.gda_config
 		)
 		vmargs = self.addOptionalVMArgs(vmargs)
@@ -1095,13 +1097,14 @@ where task can be:
 	def event_server(self, debug_opts=None):
 		class_name="gda.factory.corba.util.ChannelServer"
 		vmargs = (
-					"-Dgda.root="+self.gda_root,			  
+					"-Dgda.root="+self.gda_root,
+					"-Dinstall.workspace.loc=" + self.subversion_checkout_parent,
+					"-Dinstall.git.loc=" + self.git_checkout_parent,
 					"-Dgda.config="+self.options.gda_config,
 					"-Djacorb.config.dir="+ self.options.jacorb_config_dir,
 				)
 		vmargs = self.addOptionalVMArgs(vmargs)
 		return self.stop_start_java(self.gda_class_path, class_name , vmargs=vmargs, sleep=2, debug_opts=debug_opts)
-
 
 	def object_server(self, xmlfile="", debug_opts=None):
 		class_name="gda.util.ObjectServer"
@@ -1112,6 +1115,8 @@ where task can be:
 				args = args + ("-p", self.options.profile)
 		vmargs = (  
 					"-Dgda.root="+self.gda_root,
+					"-Dinstall.workspace.loc=" + self.subversion_checkout_parent,
+					"-Dinstall.git.loc=" + self.git_checkout_parent,
 					"-Dgda.config="+self.options.gda_config,
 					"-Djacorb.config.dir="+ self.options.jacorb_config_dir,
 					"-Dgov.aps.jca.JCALibrary.properties="+self.options.jcalibrary_properties,
@@ -1125,7 +1130,9 @@ where task can be:
 	def client(self, xmlfile="", debug_opts=None):
 		class_name="gda.gui.AcquisitionGUI"		
 		vmargs = (  
-					"-Dgda.root="+self.gda_root,				  
+					"-Dgda.root="+self.gda_root,
+					"-Dinstall.workspace.loc=" + self.subversion_checkout_parent,
+					"-Dinstall.git.loc=" + self.git_checkout_parent,
 					"-Dgda.config="+self.options.gda_config,
 					"-Djacorb.config.dir="+ self.options.jacorb_config_dir,
 					"-Dgov.aps.jca.JCALibrary.properties="+self.options.jcalibrary_properties
@@ -1142,7 +1149,9 @@ where task can be:
 
 	def rcp_client(self, debug_opts=None):
 		vmargs = (  
-					"-Dgda.root="+self.gda_root,			  
+					"-Dgda.root="+self.gda_root,
+					"-Dinstall.workspace.loc=" + self.subversion_checkout_parent,
+					"-Dinstall.git.loc=" + self.git_checkout_parent,
 					"-Dgda.config="+self.options.gda_config,
 					"-Djacorb.config.dir="+ self.options.jacorb_config_dir,
 					"-Dgov.aps.jca.JCALibrary.properties="+self.options.jcalibrary_properties
@@ -1156,6 +1165,8 @@ where task can be:
 		class_name="gda.jython.authoriser.EditPermissions"
 		vmargs = (  
 				"-Dgda.root="+self.gda_root,
+				"-Dinstall.workspace.loc=" + self.subversion_checkout_parent,
+				"-Dinstall.git.loc=" + self.git_checkout_parent,
 				"-Dgda.config="+self.options.gda_config
 				)
 		args=()
@@ -1165,7 +1176,9 @@ where task can be:
 		""" method that can call onto a class to test the system works
 		"""
 		vmargs = (
-					"-Dgda.root="+self.gda_root,			  
+					"-Dgda.root="+self.gda_root,
+					"-Dinstall.workspace.loc=" + self.subversion_checkout_parent,
+					"-Dinstall.git.loc=" + self.git_checkout_parent,
 					"-Dgda.config="+self.options.gda_config,
 					"-Djacorb.config.dir="+ self.options.jacorb_config_dir,
 					"-Dgov.aps.jca.JCALibrary.properties="+self.options.jcalibrary_properties
@@ -1173,7 +1186,7 @@ where task can be:
 		vmargs = self.addOptionalVMArgs(vmargs)
 
 		class_name="gda.util.GDALauncherHelper"
-		class_path = self.gda_class_path+os.pathsep + os.path.join(self.gda_root, "plugins","uk.ac.gda.core", "classes", "test")
+		class_path = self.gda_class_path + os.pathsep + os.path.join(self.git_checkout_parent, "gda-core.git","uk.ac.gda.core", "classes", "test")
 		outputFilePath = "TestStartupScript_Output.py"
 		verbose = self.options.verbose
 		self.options.verbose = False
