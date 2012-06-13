@@ -20,6 +20,7 @@
 package gda.jython;
 
 import gda.configuration.properties.LocalProperties;
+import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.jython.translator.Translator;
@@ -149,7 +150,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 		Properties gdaCustomProperties = new Properties();
 		gdaCustomProperties.setProperty("python.console.encoding", "UTF-8");
 		gdaCustomProperties.setProperty("python.cachedir", cacheDir.getAbsolutePath());
-		String jythonRoot = LocalProperties.getRoot() + "uk.ac.gda.libs/jython2.5.1/";
+		String jythonRoot = LocalProperties.getInstallationWorkspaceDir() + "plugins/uk.ac.gda.libs/jython2.5.1/";
 
 		// something sets path to jython lib already!
 		// gdaCustomProperties.setProperty("python.path", jythonRoot + "Lib");
@@ -260,10 +261,14 @@ public class GDAJythonInterpreter extends ObservableComponent {
 				} else {
 					logger.info("clearing old Jython class files...");
 					for (String path : _jythonScriptPaths.getPaths()) {
-						PyString scriptFolder = new PyString(path);
-						if (!sys.path.contains(scriptFolder)) {
+						PyString scriptFolderName = new PyString(path);
+						File scriptDir = new File(scriptFolderName.toString());
+						if (!scriptDir.exists()){
+							throw new FactoryException("Configured Jython script location " + scriptFolderName + " does not exist.");
+						}
+						if (!sys.path.contains(scriptFolderName)) {
 							removeAllJythonClassFiles(new File(path));
-							sys.path.append(scriptFolder);
+							sys.path.append(scriptFolderName);
 						}
 					}
 				}

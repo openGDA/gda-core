@@ -151,7 +151,8 @@ public class ScriptProjectCreator implements IStartup {
 		if (!isInterpreter(monitor)) {
 
 			// Code copies from Pydev when the user chooses a Jython interpreter - these are the defaults.
-			final String interpreterPath = LocalProperties.getRoot() + "/uk.ac.gda.libs/jython2.5.1/";
+			final String interpreterPath = LocalProperties.getInstallationWorkspaceDir()
+					+ "plugins/uk.ac.gda.libs/jython2.5.1/";
 			final String executable = interpreterPath + "jython.jar";
 
 			final File script = PydevPlugin.getScriptWithinPySrc("interpreterInfo.py");

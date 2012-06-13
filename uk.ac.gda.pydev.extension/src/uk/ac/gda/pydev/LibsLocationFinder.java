@@ -36,7 +36,7 @@ public class LibsLocationFinder {
 	public static final List<String> findGdaLibs() {
 		
 		final List<String> libs = new ArrayList<String>(31);
-		final File   libsFolder = new File(LocalProperties.getRoot()+"/uk.ac.gda.libs/");
+		final File   libsFolder = new File(LocalProperties.getInstallationWorkspaceDir() + "plugins/uk.ac.gda.libs/");
 		if (libsFolder.exists()&&libsFolder.isDirectory()) {
 			final File[] fa = libsFolder.listFiles(new FilenameFilter() {
 				@Override
@@ -56,20 +56,27 @@ public class LibsLocationFinder {
 	}
 
 	/**
-	 * Looks for the gda-script-interface.jar
+	 * Looks for a jar file named gda-script-interface.jar stored in the client product installation directory.
+	 * <p>
+	 * If created, this jar file holds a subset of GDA java classes to be made available to PyDev.
+	 * <p>
+	 * This is a way of making classes available to PyDev without exposing PyDev to the entire GDA codebase which caused
+	 * memory problems for PyDev.
+	 * 
 	 * @return location or null if it does not exist.
 	 */
 	public static String findGdaInterface() {
-		
-		String path = System.getProperty("gda.debgug.client.interface");
-		if (path!=null) return path;
-		
-		final File plugins = new File(LocalProperties.getRoot());
-		final File gda     = plugins.getParentFile();
-		final File client  = new File(gda,    "client");
-		final File inter   = new File(client, "gda-script-interface.jar");
-		if (inter.exists()) return inter.getAbsolutePath();
-		
+
+		String path = System.getProperty("gda.debug.client.interface");
+		if (path != null)
+			return path;
+
+		final File plugins = new File(LocalProperties.getInstallationWorkspaceDir());
+		final File client = new File(plugins, "client");
+		final File inter = new File(client, "gda-script-interface.jar");
+		if (inter.exists())
+			return inter.getAbsolutePath();
+
 		return null;
 	}
 }
