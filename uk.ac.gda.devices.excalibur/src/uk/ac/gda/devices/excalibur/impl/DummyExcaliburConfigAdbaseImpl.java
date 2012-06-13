@@ -154,4 +154,64 @@ public class DummyExcaliburConfigAdbaseImpl extends ADBaseSimulator implements E
 		return false;
 	}
 
+	@Override
+	public short[] getPixelMask() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setPixelMask(short[] pixelMask) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public short[] getPixelTest() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setPixelTest(short[] pixelMask) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setPixelGainMode(short[] pixelGainMode) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public short[] getPixelGainMode() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setPixelThresholdA(short[] pixelThresholdA) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public short[] getPixelThresholdA() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public short[] getPixelThresholdB() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setPixelThresholdB(short[] pixelThresholdB) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

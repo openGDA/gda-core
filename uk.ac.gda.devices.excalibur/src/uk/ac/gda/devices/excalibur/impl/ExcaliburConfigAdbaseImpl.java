@@ -34,6 +34,13 @@ public class ExcaliburConfigAdbaseImpl extends ADBaseImpl implements ExcaliburCo
 
 	private static final String CONNECTION_STATUS = "ConnectionStatus";
 	private static final String COUNTER_DEPTH = "CounterDepth";
+
+	private static final String PIXEL_MASK = "PixelMask";
+	private static final String PIXEL_TEST = "PixelTest";
+	private static final String PIXEL_GAIN_MODE = "PixelGainMode";
+	private static final String PIXEL_THRESHOLD_A = "PixelThresholdA";
+	private static final String PIXEL_THRESHOLD_B = "PixelThresholdB";
+
 	private ArrayCounts arrayCounts;
 
 	@Override
@@ -44,6 +51,56 @@ public class ExcaliburConfigAdbaseImpl extends ADBaseImpl implements ExcaliburCo
 	@Override
 	public void setCounterDepth(int counterDepth) throws CAException, InterruptedException, Exception {
 		EPICS_CONTROLLER.caput(getChannel(COUNTER_DEPTH), counterDepth);
+	}
+
+	@Override
+	public short[] getPixelMask() throws Exception {
+		return EPICS_CONTROLLER.cagetShortArray(getChannel(PIXEL_MASK));
+	}
+
+	@Override
+	public void setPixelMask(short[] pixelMask) throws Exception {
+		EPICS_CONTROLLER.caput(getChannel(PIXEL_MASK), pixelMask);
+	}
+
+	@Override
+	public short[] getPixelTest() throws Exception {
+		return EPICS_CONTROLLER.cagetShortArray(getChannel(PIXEL_TEST));
+	}
+
+	@Override
+	public void setPixelTest(short[] pixelMask) throws Exception {
+		EPICS_CONTROLLER.caput(getChannel(PIXEL_TEST), pixelMask);
+	}
+
+	@Override
+	public short[] getPixelGainMode() throws Exception {
+		return EPICS_CONTROLLER.cagetShortArray(getChannel(PIXEL_GAIN_MODE));
+	}
+
+	@Override
+	public void setPixelGainMode(short[] pixelGainMode) throws Exception {
+		EPICS_CONTROLLER.caput(getChannel(PIXEL_GAIN_MODE), pixelGainMode);
+	}
+
+	@Override
+	public short[] getPixelThresholdA() throws Exception {
+		return EPICS_CONTROLLER.cagetShortArray(getChannel(PIXEL_THRESHOLD_A));
+	}
+
+	@Override
+	public void setPixelThresholdA(short[] pixelThresholdA) throws Exception {
+		EPICS_CONTROLLER.caput(getChannel(PIXEL_THRESHOLD_A), pixelThresholdA);
+	}
+
+	@Override
+	public short[] getPixelThresholdB() throws Exception {
+		return EPICS_CONTROLLER.cagetShortArray(getChannel(PIXEL_THRESHOLD_B));
+	}
+
+	@Override
+	public void setPixelThresholdB(short[] pixelThresholdB) throws Exception {
+		EPICS_CONTROLLER.caput(getChannel(PIXEL_THRESHOLD_B), pixelThresholdB);
 	}
 
 	@Override

@@ -40,4 +40,24 @@ public interface ExcaliburConfigAdbase extends ADBase{
 	 */
 	public ArrayCounts getArrayCounts() throws Exception;
 
+	short[] getPixelMask() throws Exception;
+
+	void setPixelMask(short[] pixelMask) throws Exception;
+
+	short[] getPixelTest() throws Exception;
+
+	void setPixelTest(short[] pixelMask) throws Exception;
+
+	void setPixelGainMode(short[] pixelGainMode) throws Exception;
+
+	short[] getPixelGainMode() throws Exception;
+
+	void setPixelThresholdA(short[] pixelThresholdA) throws Exception;
+
+	short[] getPixelThresholdA() throws Exception;
+
+	short[] getPixelThresholdB() throws Exception;
+
+	void setPixelThresholdB(short[] pixelThresholdB) throws Exception;
+
 }
