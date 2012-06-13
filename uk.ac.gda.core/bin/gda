@@ -624,8 +624,8 @@ where task can be:
 		if self.is_new_style_layout:
 			item_description.append( ('profile', self.options.profile) )
 			item_description.append( ('mode', self.options.gda_mode) )
-		item_description.append( ("install.workspace.loc", self.subversion_checkout_parent) )
-		item_description.append( ("install.git.loc", self.git_checkout_parent) )
+		item_description.append( ("gda.install.workspace.loc", self.subversion_checkout_parent) )
+		item_description.append( ("gda.install.git.loc", self.git_checkout_parent) )
 		item_description.append( ("gda.data", self.options.gda_data or "Will be taken from the java.properties file - if it is missing, then GDA may not work") )
 		item_description.append( ("gda.var", self.options.gda_var or "Will be taken from the java.properties file - if it is missing, then GDA may not work") )
 		item_description.append( ("gda_logdir", self.options.gda_logdir or "gda.logs.dir will be taken from the java.properties file") )
@@ -1056,8 +1056,8 @@ where task can be:
 		class_name="gda.util.LogPanel"
 		vmargs = (
 					"-Dgda.root="+self.gda_root,
-					"-Dinstall.workspace.loc=" + self.subversion_checkout_parent,
-					"-Dinstall.git.loc=" + self.git_checkout_parent,
+					"-Dgda.install.workspace.loc=" + self.subversion_checkout_parent,
+					"-Dgda.install.git.loc=" + self.git_checkout_parent,
 					"-Dgda.config="+self.options.gda_config,
 				)
 		vmargs = self.addOptionalVMArgs(vmargs)
@@ -1067,8 +1067,8 @@ where task can be:
 		class_name="gda.util.LogServer"
 		vmargs = (
 					"-Dgda.root="+self.gda_root,
-					"-Dinstall.workspace.loc=" + self.subversion_checkout_parent,
-					"-Dinstall.git.loc=" + self.git_checkout_parent,
+					"-Dgda.install.workspace.loc=" + self.subversion_checkout_parent,
+					"-Dgda.install.git.loc=" + self.git_checkout_parent,
 					"-Dgda.config="+self.options.gda_config
 		)
 		vmargs = self.addOptionalVMArgs(vmargs)
@@ -1101,8 +1101,8 @@ where task can be:
 		class_name="gda.factory.corba.util.ChannelServer"
 		vmargs = (
 					"-Dgda.root="+self.gda_root,
-					"-Dinstall.workspace.loc=" + self.subversion_checkout_parent,
-					"-Dinstall.git.loc=" + self.git_checkout_parent,
+					"-Dgda.install.workspace.loc=" + self.subversion_checkout_parent,
+					"-Dgda.install.git.loc=" + self.git_checkout_parent,
 					"-Dgda.config="+self.options.gda_config,
 					"-Djacorb.config.dir="+ self.options.jacorb_config_dir,
 				)
@@ -1118,8 +1118,8 @@ where task can be:
 				args = args + ("-p", self.options.profile)
 		vmargs = (  
 					"-Dgda.root="+self.gda_root,
-					"-Dinstall.workspace.loc=" + self.subversion_checkout_parent,
-					"-Dinstall.git.loc=" + self.git_checkout_parent,
+					"-Dgda.install.workspace.loc=" + self.subversion_checkout_parent,
+					"-Dgda.install.git.loc=" + self.git_checkout_parent,
 					"-Dgda.config="+self.options.gda_config,
 					"-Djacorb.config.dir="+ self.options.jacorb_config_dir,
 					"-Dgov.aps.jca.JCALibrary.properties="+self.options.jcalibrary_properties,
@@ -1134,8 +1134,8 @@ where task can be:
 		class_name="gda.gui.AcquisitionGUI"		
 		vmargs = (  
 					"-Dgda.root="+self.gda_root,
-					"-Dinstall.workspace.loc=" + self.subversion_checkout_parent,
-					"-Dinstall.git.loc=" + self.git_checkout_parent,
+					"-Dgda.install.workspace.loc=" + self.subversion_checkout_parent,
+					"-Dgda.install.git.loc=" + self.git_checkout_parent,
 					"-Dgda.config="+self.options.gda_config,
 					"-Djacorb.config.dir="+ self.options.jacorb_config_dir,
 					"-Dgov.aps.jca.JCALibrary.properties="+self.options.jcalibrary_properties
@@ -1153,8 +1153,8 @@ where task can be:
 	def rcp_client(self, debug_opts=None):
 		vmargs = (  
 					"-Dgda.root="+self.gda_root,
-					"-Dinstall.workspace.loc=" + self.subversion_checkout_parent,
-					"-Dinstall.git.loc=" + self.git_checkout_parent,
+					"-Dgda.install.workspace.loc=" + self.subversion_checkout_parent,
+					"-Dgda.install.git.loc=" + self.git_checkout_parent,
 					"-Dgda.config="+self.options.gda_config,
 					"-Djacorb.config.dir="+ self.options.jacorb_config_dir,
 					"-Dgov.aps.jca.JCALibrary.properties="+self.options.jcalibrary_properties
@@ -1168,8 +1168,8 @@ where task can be:
 		class_name="gda.jython.authoriser.EditPermissions"
 		vmargs = (  
 				"-Dgda.root="+self.gda_root,
-				"-Dinstall.workspace.loc=" + self.subversion_checkout_parent,
-				"-Dinstall.git.loc=" + self.git_checkout_parent,
+				"-Dgda.install.workspace.loc=" + self.subversion_checkout_parent,
+				"-Dgda.install.git.loc=" + self.git_checkout_parent,
 				"-Dgda.config="+self.options.gda_config
 				)
 		args=()
@@ -1180,8 +1180,8 @@ where task can be:
 		"""
 		vmargs = (
 					"-Dgda.root="+self.gda_root,
-					"-Dinstall.workspace.loc=" + self.subversion_checkout_parent,
-					"-Dinstall.git.loc=" + self.git_checkout_parent,
+					"-Dgda.install.workspace.loc=" + self.subversion_checkout_parent,
+					"-Dgda.install.git.loc=" + self.git_checkout_parent,
 					"-Dgda.config="+self.options.gda_config,
 					"-Djacorb.config.dir="+ self.options.jacorb_config_dir,
 					"-Dgov.aps.jca.JCALibrary.properties="+self.options.jcalibrary_properties
