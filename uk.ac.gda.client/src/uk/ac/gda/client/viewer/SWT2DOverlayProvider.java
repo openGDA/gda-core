@@ -34,6 +34,7 @@ import javax.swing.SwingConstants;
 
 import org.eclipse.draw2d.Ellipse;
 import org.eclipse.draw2d.IFigure;
+import org.eclipse.draw2d.ImageFigure;
 import org.eclipse.draw2d.Label;
 import org.eclipse.draw2d.MarginBorder;
 import org.eclipse.draw2d.PolylineShape;
@@ -45,6 +46,7 @@ import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.PointList;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.OverlayType;
@@ -284,6 +286,8 @@ public class SWT2DOverlayProvider implements Overlay2DProvider {
 			break;
 			case ELLIPSE:
 			break;
+			case IMAGE:
+				figure = new ImageFigure();
 		}
 		
 		return registerPrimitive(figure);
@@ -479,6 +483,19 @@ public class SWT2DOverlayProvider implements Overlay2DProvider {
 			}
 		}
 		return hits;
+	}
+
+	@Override
+	public void drawImage(int imageID, Image image, double lux, double luy, double rlx, double rly) {
+		if (overlayInOperation){
+			IFigure figure = figures.get(imageID);
+			if (figure instanceof ImageFigure) {
+				ImageFigure image1 = (ImageFigure) figure;
+				image1.setImage(image);
+				Rectangle bounds = topFigure.getBounds();
+				image1.setBounds(new Rectangle(bounds.x + (int)lux, bounds.y + (int)luy, (int)(rlx-lux), (int)(rly-luy) ));
+			}	
+		}
 	}
 
 }
