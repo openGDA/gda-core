@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Copyright © 2012 Diamond Light Source Ltd., Science and Technology
  * Facilities Council Daresbury Laboratory
  *
  * This file is part of GDA.
@@ -18,11 +18,6 @@
  */
 
 package gda.configuration.properties;
-
-// import gda.data.NumTracker;
-// import gda.factory.ObjectFactory;
-// import gda.factory.XmlObjectCreator;
-// import gda.scan.MultithreadedScanDataPointPipeline;
 
 import java.io.File;
 import java.net.URL;
@@ -45,14 +40,41 @@ public class LocalProperties {
 	private static final Logger logger = LoggerFactory.getLogger(LocalProperties.class);
 
 	/**
-	 * The system property which defines the location of the GDA installation. Spoecifically this is the plugins
-	 * directory holding all the Eclipse plugins. A features and thridparty directories are assumed to be at the same
-	 * level.
+	 * Along with {@link #GDA_GIT_LOC} replaces the gda.root variable.
+	 * <p>
+	 * The system property which defines the location of the some of the GDA installation. Within this folder should be
+	 * the IDE's .metadata folder and the third-party plugin, plus any svn checkouts.
+	 * <p>
+	 * At Diamond, the folder structure is, by convention:
+	 * </p>
+	 * <code>
+	 * <folder named after GDA release version>/
+	 *   |
+	 *   |-> workspace/                      # GDA_WORKSPACE_LOC relates to this folder
+	 *          |->tp                        # thirdparty plugin
+	 *          |->plugins                   # checkout of plugin projects remaining in svn
+	 *          |->features                  # checkout of feature projects remaining in svn
+	 *   |
+	 *   |->workspace_loc/                   # {@link #GDA_GIT_LOC} relates to this folder
+	 *          |->gda-xas-core.git/         # folders of each git repository used in this installation at this level
+	 *   				|->uk.ac.gda.core/   # each plugin project within this git repository at this level
+	 * </code>
 	 * <p>
 	 * It should not be assumed that the configuration files are relative to this location. This is defined by
 	 * GDA_CONFIG
 	 */
-	public static final String GDA_ROOT = "gda.root";
+	public static final String GDA_WORKSPACE_LOC = "gda.install.workspace.loc";
+
+	/**
+	 * Along with {@link #GDA_WORKSPACE_LOC} replaces the gda.root variable.
+	 * <p>
+	 * The system property which defines the top-level folder holding the various git repositories which make up this
+	 * gda installation.
+	 * <p>
+	 * It should not be assumed that the configuration files are relative to this location. This is defined by
+	 * GDA_CONFIG
+	 */
+	public static final String GDA_GIT_LOC = "gda.install.git.loc";
 
 	/**
 	 * Property that sets the top-level directory where data is written to. The actual directory the data writers should
@@ -485,13 +507,29 @@ public class LocalProperties {
 	 * @return the location of the core plugin's lib folder
 	 */
 	public static String getCoreLibraryDirectory() {
-		return getRoot() + "/uk.ac.gda.core/lib/";
+		return getParentGitDir() + "gda-core.git/uk.ac.gda.core/lib/";
 	}
 
-	public static String getRoot() {
-		return appendSeparator(get(GDA_ROOT));
+	/**
+	 * {@link #GDA_WORKSPACE_LOC}
+	 * @return String
+	 */
+	public static String getInstallationWorkspaceDir() {
+		return appendSeparator(get(GDA_WORKSPACE_LOC));
+	}
+	
+	/**
+	 * {@link #GDA_GIT_LOC}
+	 * @return String
+	 */
+	public static String getParentGitDir() {
+		return appendSeparator(get(GDA_GIT_LOC));
 	}
 
+	/**
+	 * {@link #GDA_CONFIG}
+	 * @return String
+	 */
 	public static String getConfigDir() {
 		return appendSeparator(get(GDA_CONFIG));
 	}
