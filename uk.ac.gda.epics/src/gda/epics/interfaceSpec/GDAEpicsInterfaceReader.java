@@ -32,7 +32,8 @@ public class GDAEpicsInterfaceReader {
 	 *  Name of schema used to validate Configurator.INTERFACE_CONFIGURATION_XML_KEY
 	 */
 	public static final String GDA_EPICS_INTERFACE_SCHEMA = "gda.epics.interface.schema";
-	public static final String DEFAULT_GDA_EPICS_INTERFACE_SCHEMA=LocalProperties.getRoot() + "/uk.ac.gda.epics/schema/genericBeamlineSchema.xsd";
+	public static final String DEFAULT_GDA_EPICS_INTERFACE_SCHEMA = LocalProperties.getParentGitDir()
+			+ "gda-epics.git/uk.ac.gda.epics/schema/genericBeamlineSchema.xsd";
 	private Reader uncheckedReader = null;
 	private Reader checkedReader = null;
 	private static GDAEpicsInterfaceReader instance;
