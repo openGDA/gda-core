@@ -18,7 +18,10 @@
 
 package gda.analysis.numerical.straightline;
 
+import java.lang.reflect.Array;
 import java.util.List;
+
+import org.apache.commons.lang.ArrayUtils;
 
 /**
  * Class to evaluate straightline expressions for a set of x,y values
@@ -84,15 +87,19 @@ public class StraightLineFit {
 		}
 		return new Results(offsets, slopes, dims);		
 	}
-	public static Results fitInt(List<int[]> data, long [] dims, double[] x) {
+	public static Results fitInt(List<Object> data, long [] dims, double[] x) {
 		
-		int numLines = data.get(0).length;
+		Object object = data.get(0);
+		if( ! object.getClass().isArray()) {
+			throw new IllegalArgumentException("fitInt can only accept arrays");
+		}
+		int numLines = ArrayUtils.getLength(object);
 		int pointsPerLine = x.length;
 		if( data.size() != pointsPerLine)
 			throw new IllegalArgumentException("data.size() != pointsPerLine");
 			
 		for( int i=0; i< pointsPerLine; i++){
-			if( data.get(i).length != numLines)
+			if( ArrayUtils.getLength(data.get(i)) != numLines)
 				throw new IllegalArgumentException("data.get(i).length != numLines");
 			
 		}
@@ -103,7 +110,7 @@ public class StraightLineFit {
 		double [] offsets = new double[numLines];
 		for (int line = 0; line < numLines; line++) {
 			for( int point=0; point<pointsPerLine; point++){
-				y[point] = data.get(point)[line];
+				y[point] = Array.getDouble(data.get(point),line);
 			}
 			Result fit2 = fit2(y, x, xAverage, x1);
 			slopes[line] = fit2.getSlope();
@@ -120,7 +127,7 @@ public class StraightLineFit {
 	 * @param x
 	 * @return Array of Result of length equal to the length of the data arrays
 	 */
-	public static Results fitInt(List<int[]> data, long[] dims, int[] x) {
+	public static Results fitInt(List<Object> data, long[] dims, int[] x) {
 
 		double[] xDouble = new double[x.length];
 		for( int point=0; point<x.length; point++){
