@@ -6,7 +6,6 @@ from gda.configuration.properties import LocalProperties
 from gda.data.scan.datawriter import XasAsciiDataWriter, NexusExtraMetadataDataWriter
 from gda.exafs.scan import ExafsScanPointCreator, XanesScanPointCreator
 from gda.exafs.scan import BeanGroup, BeanGroups
-from gda.exafs.scan import ScanStartedMessage
 from gda.device.scannable import XasScannable
 from gda.device.scannable import XasScannableWithDetectorFramesSetup
 from gda.device.scannable import JEPScannable
@@ -16,7 +15,6 @@ from gda.jython.commands.GeneralCommands import run
 from uk.ac.gda.beans import BeansFactory
 from uk.ac.gda.beans.exafs import XanesScanParameters
 from gdascripts.messages.handle_messages import simpleLog
-from gda.jython.scriptcontroller.logging import XasProgressUpdater
 
 
 class Scan:
@@ -56,27 +54,17 @@ class Scan:
     
 class XasScan(Scan):
         
-    def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, numRepetitions= -1, validation=True):
+    def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, scanNumber= -1, validation=True):
         ScanBase.interrupted = False
     
         controller = Finder.getInstance().find("ExafsScriptObserver")
-        
+    
         # Create the beans from the file names
         xmlFolderName = ExafsEnvironment().getScriptFolder() + folderName + "/"
         print "xmlFolderName", xmlFolderName  
         
         sampleBean, scanBean, detectorBean, outputBean = self._createBeans(xmlFolderName, sampleFileName, scanFileName, detectorFileName, outputFileName)
-
-        # send initial message to the log
-        from gda.jython.scriptcontroller.logging import LoggingScriptController
-        from gda.jython.scriptcontroller.logging import XasLoggingMessage
-        loggingcontroller   = Finder.getInstance().find("XASLoggingScriptController")
-        scriptType = "Exafs"
-        if isinstance(scanBean, XanesScanParameters):
-            scriptType = "Xanes"
-        unique_id           = LoggingScriptController.createUniqueID(scriptType);
-        outputFolder = outputBean.getAsciiDirectory()+ "/" + outputBean.getAsciiFileName()
-
+         
         # create the scannable which will control energy & time for each point
         useFrames = LocalProperties.check("gda.microfocus.scans.useFrames")
         if(detectorBean.getExperimentType() == "Fluorescence" and detectorBean.getFluorescenceParameters().getDetectorType() == "Germanium" and useFrames):
@@ -94,7 +82,7 @@ class XasScan(Scan):
         originalGroup.setScriptFolder(xmlFolderName)
         originalGroup.setScannable(Finder.getInstance().find(scanBean.getScannableName())) #TODO
         originalGroup.setExperimentFolderName(folderName)
-#        originalGroup.setScanNumber(scanNumber)
+        originalGroup.setScanNumber(scanNumber)
         if (sampleBean != None):
             originalGroup.setSample(sampleBean)
         originalGroup.setDetector(detectorBean)
@@ -102,16 +90,14 @@ class XasScan(Scan):
         originalGroup.setOutput(outputBean)
         originalGroup.setValidate(validation)
         originalGroup.setScan(scanBean)
-
-# RJW May2012 remove the DOE stuff and replace with the number of repetitions        
-        # Use BeanGroups to generate the DOE experiments.
-#        groups = BeanGroups.expand(originalGroup)
-#        infos = BeanGroups.getInfo(originalGroup)
-#        print "DoE group size", len(groups)
         
-        for repetitionNumber in range(0, numRepetitions):
-            originalGroup.setScanNumber(repetitionNumber)
-            beanGroup = originalGroup   #groups[i];
+        # Use BeanGroups to generate the DOE experiments.
+        groups = BeanGroups.expand(originalGroup)
+        infos = BeanGroups.getInfo(originalGroup)
+        print "DoE group size", len(groups)
+        
+        for i in range(0, len(groups)):
+            beanGroup = groups[i];
             XasAsciiDataWriter.setBeanGroup(beanGroup)
     
             # create the list of scan points
@@ -124,27 +110,20 @@ class XasScan(Scan):
                 points = ExafsScanPointCreator.calculateEnergies(beanGroup.getScan())
                 if useFrames:
                     xas_scannable.setExafsScanRegionTimes(ExafsScanPointCreator.getScanTimes(beanGroup.getScan()))
-
-            # send out initial messages
-            logmsg = XasLoggingMessage(unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str("0%"),str(0),scanBean,outputFolder)
-            loggingcontroller.update(None,logmsg)
-            loggingcontroller.update(None,ScanStartedMessage(scanBean,detectorBean))
-            loggingbean = XasProgressUpdater(loggingcontroller,logmsg)
-
             
             # This step adds information to the sample parameters description 
             # if we are doing a multiple run.
-#            if len(groups) > 1:
-#                rangeInfo = infos[i]
-#                beanGroup.getSample().addDescription("");
-#                beanGroup.getSample().addDescription("***");
-#                beanGroup.getSample().addDescription("Design of experiments study run '" + str(i + 1) + "' of '" + str(len(groups)) + "'. With following parameter(s):")
-#                beanGroup.getSample().addDescription(rangeInfo.getHeader())
-#                beanGroup.getSample().addDescription(rangeInfo.getValues())
-#                beanGroup.getSample().addDescription("***");
-#                simpleLog("Loop of experiments: run " + str(i + 1) + " of " + str(len(groups)))
-#                simpleLog("Variable(s) being looped over:" + str(rangeInfo.getHeader()))
-#                simpleLog("Current value(s):" + str(rangeInfo.getValues()))
+            if len(groups) > 1:
+                rangeInfo = infos[i]
+                beanGroup.getSample().addDescription("");
+                beanGroup.getSample().addDescription("***");
+                beanGroup.getSample().addDescription("Design of experiments study run '" + str(i + 1) + "' of '" + str(len(groups)) + "'. With following parameter(s):")
+                beanGroup.getSample().addDescription(rangeInfo.getHeader())
+                beanGroup.getSample().addDescription(rangeInfo.getValues())
+                beanGroup.getSample().addDescription("***");
+                simpleLog("Loop of experiments: run " + str(i + 1) + " of " + str(len(groups)))
+                simpleLog("Variable(s) being looped over:" + str(rangeInfo.getHeader()))
+                simpleLog("Current value(s):" + str(rangeInfo.getValues()))
     
             # work out which detectors to use (they will need to have been configured already by the GUI)
             detectorList = self._getDetectors(beanGroup.getDetector(), beanGroup.getScan()) 
@@ -154,6 +133,9 @@ class XasScan(Scan):
             self.detectorPreparer.prepare(detectorBean, outputBean, xmlFolderName)
             temperatureController = self.samplePreparer.prepare(sampleBean)
             self.outputPreparer.prepare(outputBean)
+    
+    
+            
     
             # extract any signal parameters to add to the scan command
             signalParameters = self._getSignalList(beanGroup.getOutput())
@@ -171,7 +153,6 @@ class XasScan(Scan):
                 args += [temperatureController]
             args += detectorList 
             args += signalParameters
-            args += [loggingbean]
             
             simpleLog("about to scan")
             
@@ -198,7 +179,7 @@ class XasScan(Scan):
     
     def _getSignalList(self, outputParameters):
         signalList = []
-        for signal in outputParameters.getCheckedSignalList():
+        for signal in outputParameters.getSignalList():
              scannable = JEPScannable.createJEPScannable(signal.getLabel(), signal.getScannableName(), signal.getDataFormat(), signal.getName(), signal.getExpression())
              signalList.append(scannable)
         return signalList
@@ -228,54 +209,62 @@ class XasScan(Scan):
    
 class QexafsScan(Scan):
     
-    def __init__(self, detectorPreparer, samplePreparer, outputPreparer, energy_scannable, ion_chambers_scannable):
+    def __init__(self, detectorPreparer, samplePreparer, outputPreparer, energy_scannable, ion_chambers_scannable, cirrus, sample_temperature,sample_temperature2):
         Scan.__init__(self, detectorPreparer, samplePreparer, outputPreparer)
         self.energy_scannable = energy_scannable
         self.ion_chambers_scannable = ion_chambers_scannable
+        self.cirrus = cirrus
+        self.sample_temperature = sample_temperature
+        self.sample_temperature2 = sample_temperature2
     
-    def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, numRepetitions= -1, validation=True):
+    def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, scanNumber= -1, validation=True):
         xmlFolderName = ExafsEnvironment().getScriptFolder() + folderName + "/"
         sampleBean, scanBean, detectorBean, outputBean = self._createBeans(xmlFolderName, sampleFileName, scanFileName, detectorFileName, outputFileName) 
         controller = Finder.getInstance().find("ExafsScriptObserver")
-        XasAsciiDataWriter.setBeanGroup(self._createBeanGroup(controller, xmlFolderName, folderName, sampleBean, detectorBean, outputBean, scanBean))
+        XasAsciiDataWriter.setBeanGroup(self._createBeanGroup(controller, xmlFolderName, folderName, scanNumber, sampleBean, detectorBean, outputBean, scanBean))
         outputBean.setAsciiFileName(sampleBean.getName())
         # work out which detectors to use (they will need to have been configured already by the GUI)
         detectorList = self._getQEXAFSDetectors(detectorBean, outputBean, scanBean) 
         print "detectors to be used:", str(detectorList)
         
-        for repetitionNumber in range(0, numRepetitions):
-
-            # set up the sample 
-            self.detectorPreparer.prepare(detectorBean, outputBean, xmlFolderName)
-            self.samplePreparer.prepare(sampleBean)
-            self.outputPreparer.prepare(outputBean)
+        # set up the sample 
+        self.detectorPreparer.prepare(detectorBean, outputBean, xmlFolderName)
+        self.samplePreparer.prepare(sampleBean)
+        self.outputPreparer.prepare(outputBean)
         
         # no signal parameters
-            if len(outputBean.getCheckedSignalList()) > 0:
-                print "Signal parameters not available with QEXAFS"
-            if self.energy_scannable == None:
-                raise "No object for controlling energy during QEXAFS found! Expected qexafs_energy (or scannable1 for testing)"
+        if len(outputBean.getCheckedSignalList()) > 0:
+            print "Signal parameters not available with QEXAFS"
+        if self.energy_scannable == None:
+            raise "No object for controlling energy during QEXAFS found! Expected qexafs_energy (or scannable1 for testing)"
         
-            initial_energy = scanBean.getInitialEnergy()
-            final_energy = scanBean.getFinalEnergy()
-            step_size = scanBean.getStepSize()
-            import math
-            numberPoints = int(math.ceil((final_energy-initial_energy)/step_size))
+        #numberPoints = self._getNumberOfFrames(detectorBean, scanBean)
         
-            self._runScript(outputBean.getBeforeScriptName())
+        initial_energy = scanBean.getInitialEnergy()
+        final_energy = scanBean.getFinalEnergy()
+        step_size = scanBean.getStepSize()
+        import math
+        numberPoints = int(math.ceil((final_energy-initial_energy)/step_size))
         
-            scan_time = scanBean.getTime()
+        self._runScript(outputBean.getBeforeScriptName())
         
-            print "running QEXAFS scan:", self.energy_scannable.getName(), scanBean.getInitialEnergy(), scanBean.getFinalEnergy(), numberPoints, scan_time, detectorList
-            controller.update(None, ScriptProgressEvent("Running QEXAFS scan"))
-            thisscan = ContinuousScan(self.energy_scannable , scanBean.getInitialEnergy(), scanBean.getFinalEnergy(), numberPoints, scan_time, detectorList)
-            controller.update(None, ScanCreationEvent(thisscan.getName()))
-            thisscan.runScan()  
-            controller.update(None, ScanFinishEvent(thisscan.getName(), ScanFinishEvent.FinishType.OK));
+        scan_time = scanBean.getTime()
         
-            self._runScript(outputBean.getAfterScriptName())
         
-            #remove added metadata from default metadata list to avoid multiple instances of the same metadata
+        #if sampleBean.getStage() == "cirrus":
+        #    print "cirrus selected"
+        #    self._control_cirrus_detector(sampleBean.getCirrusParameters(), initial_energy, final_energy, scan_time)
+        
+        print "running QEXAFS scan:", self.energy_scannable.getName(), scanBean.getInitialEnergy(), scanBean.getFinalEnergy(), numberPoints, scan_time, detectorList
+        controller.update(None, ScriptProgressEvent("Running QEXAFS scan"))
+        thisscan = ContinuousScan(self.energy_scannable , scanBean.getInitialEnergy(), scanBean.getFinalEnergy(), numberPoints, scan_time, detectorList)
+        controller.update(None, ScanCreationEvent(thisscan.getName()))
+        thisscan.runScan()  
+        controller.update(None, ScanFinishEvent(thisscan.getName(), ScanFinishEvent.FinishType.OK));
+        
+        self._runScript(outputBean.getAfterScriptName())
+        
+        #remove added metadata from default metadata list to avoid multiple instances of the same metadata
         jython_mapper = JythonNameSpaceMapping()
         original_header=jython_mapper.original_header[:]
         Finder.getInstance().find("datawriterconfig").setHeader(original_header)
@@ -310,25 +299,67 @@ class QexafsScan(Scan):
             return self._createDetArray(["qexafs_counterTimer01"], scanBean)
         else:
             if detectorBean.getFluorescenceParameters().getDetectorType() == "Silicon":
-                return self._createDetArray(["qexafs_counterTimer01", "qexafs_xmap", "QexafsFFI0"], scanBean)
+                return self._createDetArray(["qexafs_counterTimer01", "qexafs_xmap", "VortexQexafsFFI0"], scanBean)
             else:
                 return self._createDetArray(["qexafs_counterTimer01", "qexafs_xspress", "QexafsFFI0"], scanBean)
         
         
 
-    def _createBeanGroup(self, controller, xmlFolderName, folderName, sampleBean, detectorBean, outputBean, scanBean):
+    def _createBeanGroup(self, controller, xmlFolderName, folderName, scanNumber, sampleBean, detectorBean, outputBean, scanBean):
         # give the beans to the xasdatawriter class to help define the folders/filenames 
         beanGroup = BeanGroup()
         beanGroup.setController(controller)
         beanGroup.setScriptFolder(xmlFolderName)
         beanGroup.setExperimentFolderName(folderName)
-        #beanGroup.setScanNumber(scanNumber)
+        beanGroup.setScanNumber(scanNumber)
         beanGroup.setSample(sampleBean)
         beanGroup.setDetector(detectorBean)
         beanGroup.setOutput(outputBean)
         beanGroup.setScan(scanBean)
         return beanGroup
 
+    #===========================================================================
+    # def _control_cirrus_detector(self, bean, initial_energy, final_energy, scan_time):
+    #    
+    #    masses = []
+    #    masses.append(bean.isMass2())
+    #    masses.append(bean.isMass4())
+    #    masses.append(bean.isMass12())
+    #    masses.append(bean.isMass14())
+    #    masses.append(bean.isMass15())
+    #    masses.append(bean.isMass16())
+    #    masses.append(bean.isMass17())
+    #    masses.append(bean.isMass18())
+    #    masses.append(bean.isMass28())
+    #    masses.append(bean.isMass32())
+    #    masses.append(bean.isMass36())
+    #    masses.append(bean.isMass40())
+    #    masses.append(bean.isMass44())
+    #    masses.append(bean.isMass64())
+    #    masses.append(bean.isMass69())
+    #    
+    #    self.initial_energy=initial_energy
+    #    self.final_energy=final_energy
+    #    self.scan_time = scan_time
+    #    
+    #    i=0
+    #    massList = []
+    #    mList= [2,4,12,14,15,16,17,18,28,32,36,40,44,64,69]
+    #    for mass in masses:
+    #        if mass is True:
+    #            massList.append(mList[i])
+    #        i+=1
+    #    if len(massList)>0:
+    #        print str(massList)
+    #        self.cirrus.setMasses(massList)
+    #    else:
+    #        massList=self.cirrus.getMasses()
+    #    
+    #    print "Number of cirrus reads=" + str(int(self.scan_time/bean.getInterval()))
+    #    
+    #    mythread = CollectCirrusData(int(self.scan_time/bean.getInterval()), bean.getInterval(), PathConstructor.createFromProperty("gda.device.cirrus.datadir"), self.cirrus, self.sample_temperature, self.sample_temperature2, self.energy_scannable, self.initial_energy, self.final_energy, massList)
+    #    mythread.start()
+    #===========================================================================
                 
 class ExafsEnvironment:
     testScriptFolder = None
@@ -347,3 +378,59 @@ class ExafsEnvironment:
         # The scannable name is defined in the XML when not in testing mode.
         # Therefore the scannable argument is omitted from the bean
         return None
+    
+from threading import Thread
+from gda.data import PathConstructor;
+import time
+
+#===============================================================================
+# class CollectCirrusData(Thread):
+#        
+#    def __init__(self, itterations, interval, filename, cirrus, sample_temperature, sample_temperature2, energy_scannable, initial_energy, final_energy, mList):
+#        Thread.__init__(self)
+#        self.itterations=itterations
+#        self.interval=interval
+#        from gda.data import NumTracker;
+#        numTracker = NumTracker("tmp")
+#        thisFileNumber = numTracker.getCurrentFileNumber()+1;
+#        print filename + "/" + str(thisFileNumber) + "_cirrus.txt"
+#        self.filename=filename + str(thisFileNumber) + "_cirrus.txt"
+#        self.cirrus=cirrus
+#        self.sample_temperature = sample_temperature
+#        self.sample_temperature2 = sample_temperature2
+#        self.initial_energy=initial_energy
+#        self.final_energy=final_energy
+#        self.energy_scannable=energy_scannable
+#        self.mList = mList
+#        
+#    def run(self):
+#        timeout = 20
+#        t=0
+#        while int(self.energy_scannable()) not in range(self.initial_energy-10, self.initial_energy+10):
+#            t+=1
+#            if t==timeout:
+#                break
+#        
+#        timeCounter=0
+#        
+#        f = open(self.filename, 'w')
+#        f.write("time    ")
+#        for m in self.mList:
+#            f.write(str(m) + "    ")
+#        f.write("temperature")
+#        f.write("\n")
+#        
+#        for itt in range(self.itterations):
+#            print "writing cirrus data"
+#            self.cirrus.collectData()
+#            data = self.cirrus.readout().toString().split('\t')
+#            f.write(str(timeCounter)+"    ")
+#            for d in data:
+#                f.write(str(d)+"    ")
+#            f.write(str(self.sample_temperature()) + "\n")
+#            f.write(str(self.sample_temperature2()) + "\n")
+#            timeCounter+=self.interval
+#            time.sleep(self.interval)
+#            
+#        f.close()    
+#===============================================================================
