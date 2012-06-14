@@ -68,7 +68,7 @@ public abstract class BaseChipRegScannable extends ScannableBase {
 		Double pos = positionArray[0];
 
 		for (ExcaliburReadoutNodeFem fem : fems) {
-			for (int chipNum = 1; chipNum <= 8; chipNum++) {
+			for (int chipNum = 0; chipNum < 8; chipNum++) { 
 				MpxiiiChipReg chipReg = fem.getIndexedMpxiiiChipReg(chipNum);
 				try {
 					doAsynchronousMoveTo(chipReg, pos.intValue());

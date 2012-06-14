@@ -25,6 +25,7 @@ import gda.device.detector.areadetector.v17.ADBase;
  */
 public interface ExcaliburReadoutNodeFem extends ADBase {
 
+	public static final short CHIPS_PER_FEM=8;
 	/**
 	 * 
 	 */

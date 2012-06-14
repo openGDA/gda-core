@@ -18,6 +18,7 @@
 
 package uk.ac.gda.devices.excalibur.equalization;
 
+import gda.analysis.io.ScanFileHolderException;
 import gda.analysis.numerical.straightline.Results;
 import gda.analysis.numerical.straightline.StraightLineFit;
 
@@ -25,7 +26,9 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
+
 import org.apache.commons.lang.ArrayUtils;
+
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
@@ -34,7 +37,9 @@ import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.fitting.Generic1DFitter;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.APeak;
+import uk.ac.diamond.scisoft.analysis.fitting.functions.CompositeFunction;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.Gaussian;
+import uk.ac.diamond.scisoft.analysis.fitting.functions.IPeak;
 import uk.ac.diamond.scisoft.analysis.optimize.GeneticAlg;
 import uk.ac.gda.analysis.hdf5.HDF5HelperLocations;
 import uk.ac.gda.analysis.hdf5.HDF5NexusLocation;
@@ -42,6 +47,8 @@ import uk.ac.gda.analysis.hdf5.Hdf5Helper;
 import uk.ac.gda.analysis.hdf5.Hdf5Helper.TYPE;
 import uk.ac.gda.analysis.hdf5.Hdf5HelperData;
 import uk.ac.gda.analysis.hdf5.Hdf5HelperLazyLoader;
+import uk.ac.gda.devices.excalibur.ExcaliburReadoutNodeFem;
+import uk.ac.gda.devices.excalibur.MpxiiiChipReg;
 
 /**
  *
@@ -49,7 +56,9 @@ import uk.ac.gda.analysis.hdf5.Hdf5HelperLazyLoader;
 public class ExcaliburEqualizationHelper {
 
 	public static final String THRESHOLD_N_EQ_TARGET_ATTR = "thresholdNopt_eq_target";
-	public static final String THRESHOLD_NOPT = "thresholdNopt";
+	public static final String THRESHOLD_NOPT = "thresholdNopt"; // short[]
+	public static final String THRESHOLD_0OPT = "threshold0opt"; //double []
+	public static final String THRESHOLDN_MASK = "thresholdN_mask"; //short []
 	public static final double FIT_FAILED_WIDTH = -1.0;
 	public static final short EDGE_POSITION_IF_ALL_BELOW_THRESHOLD = Short.MIN_VALUE;
 	public static final short EDGE_POSITION_IF_ALL_ABOVE_THRESHOLD = Short.MAX_VALUE;
@@ -96,11 +105,11 @@ public class ExcaliburEqualizationHelper {
 		return getChipTopPixel(chipRow)+chipHeight-1;
 	}
 
-	long getChipLeftPixel(long chipRow){
-		return chipRow*(chipWidth+3);
+	long getChipLeftPixel(long chipColumn){
+		return chipColumn*(chipWidth+3);
 	}
-	long getChipRightPixel(long chipRow){
-		return getChipLeftPixel(chipRow) + chipWidth-1;
+	long getChipRightPixel(long chipColumn){
+		return getChipLeftPixel(chipColumn) + chipWidth-1;
 	}
 	
 	
@@ -471,7 +480,7 @@ public class ExcaliburEqualizationHelper {
 		if( numItems != chipPresent.length)
 			throw new IllegalArgumentException("numItems != chipPresent.length");
 		
-		APeak[] aPeaks = getChipAveragedThresholdFromThresholdFile(thresholdFile, dims, chipPresent);
+		CompositeFunction[] aPeaks = getChipAveragedThresholdFromThresholdFile(thresholdFile, dims, chipPresent);
 		if( numItems != aPeaks.length)
 			throw new IllegalArgumentException("numItems != aPeaks.length");
 
@@ -483,8 +492,9 @@ public class ExcaliburEqualizationHelper {
 			present[i] = (short) (chipPresent[i] ? 1 : 0);
 			if( chipPresent[i]){
 				if( aPeaks[i] != null){
-					positions[i] = aPeaks[i].getPosition();
-					fwhms[i] = aPeaks[i].getFWHM();
+					IPeak function = aPeaks[i].getPeak(0);
+					positions[i] = function.getPosition();
+					fwhms[i] =function.getFWHM();
 				}
 			}
 			
@@ -506,7 +516,7 @@ public class ExcaliburEqualizationHelper {
 	 * @return A 2d array of APeaks that match the structure of the chips in the detector
 	 * @throws Exception 
 	 */
-	public APeak[] getChipAveragedThresholdFromThresholdFile(String fileName,  long[] chipDims, boolean chipPresent[]) throws Exception{
+	public CompositeFunction[] getChipAveragedThresholdFromThresholdFile(String fileName,  long[] chipDims, boolean chipPresent[]) throws Exception{
 		if( chipDims.length!= 2)
 			throw new IllegalArgumentException("chipDims.length!= 2");
 		String groupName = getEqualisationLocation().getLocationForOpen();
@@ -529,7 +539,7 @@ public class ExcaliburEqualizationHelper {
 			throw new IllegalArgumentException("fullWidth != reqdWidth: " + reqdWidth);
 		}
 			
-		APeak [] aPeaks = new APeak[(int) (numChipsHigh * numChipsAcross)];
+		CompositeFunction [] aPeaks = new CompositeFunction[(int) (numChipsHigh * numChipsAcross)];
 		Arrays.fill(aPeaks, null);
 		int[] start = new int[2]; 
 		int[] stop = new int[2]; 
@@ -545,12 +555,19 @@ public class ExcaliburEqualizationHelper {
 					stop[1] = (start[1] + chipWidth); //exclusive
 					AbstractDataset dataset = loader.getDataset(null, null, start, stop, step);
 					IntegerDataset dataset2 = getDatasetWithValidPixels(dataset);
-					if( dataset2 != null)
-						aPeaks[chipIndex] = fitGaussianToBinnedPopulation(dataset2);
+					if( dataset2 != null){
+						int offset = dataset2.min().intValue();
+						int[] population = createBinnedPopulation( dataset2);						
+						aPeaks[chipIndex] = fitGaussianToBinnedPopulation(population, offset);
+					}
 				}
 			}
 		}
 		return aPeaks;
+	}
+	
+	boolean thresholdEdgePosIsValid(short value){
+		return 	( value != EDGE_POSITION_IF_ALL_ABOVE_THRESHOLD && value != EDGE_POSITION_IF_ALL_BELOW_THRESHOLD && value != EDGE_POSITION_IF_PIXEL_MASKED_OUT);
 	}
 	
 	IntegerDataset getDatasetWithValidPixels(AbstractDataset dataset){
@@ -559,8 +576,8 @@ public class ExcaliburEqualizationHelper {
 		IndexIterator iter = dataset.getIterator();
 
 		while (iter.hasNext()){
-			int value = (int) dataset.getElementLongAbs(iter.index);
-			if( value != EDGE_POSITION_IF_ALL_ABOVE_THRESHOLD && value != EDGE_POSITION_IF_ALL_BELOW_THRESHOLD && value != EDGE_POSITION_IF_PIXEL_MASKED_OUT){
+			short value = (short) dataset.getElementLongAbs(iter.index);
+			if( thresholdEdgePosIsValid(value)){
 				validData[numValidData] = value;
 				numValidData++;
 			}
@@ -571,10 +588,9 @@ public class ExcaliburEqualizationHelper {
 	 * 
 	 * @return result of fitting gaussian over the population within the slice given by start, stop, step
 	 */
-	public APeak fitGaussianToBinnedPopulation(AbstractDataset dataset ){ 
+	public CompositeFunction fitGaussianToBinnedPopulation(int[] population, int offset){ 
 		
-		int offset = dataset.min().intValue();
-		int[] population = createBinnedPopulation( dataset);
+
 		double [] xvals = new double[population.length]; 
 		double [] yvals = new double[population.length]; 
 		int numFound=0;
@@ -606,7 +622,7 @@ public class ExcaliburEqualizationHelper {
 			double xfwhm = (xmax-xmin)/4;
 			double yheight = ymax-ymin;
 			APeak peakFunction = new Gaussian(xavg,xfwhm,yheight*xfwhm);
-			List<APeak> fittedPeakList = Generic1DFitter.fitPeaks(xvals_ds, yvals_ds, peakFunction, new GeneticAlg(0.0001),
+			List<CompositeFunction> fittedPeakList = Generic1DFitter.fitPeakFunctions(xvals_ds, yvals_ds, peakFunction, new GeneticAlg(0.0001),
 					smoothing, numPeaks, threshold, autoStopping, backgroundDominated);
 			if( fittedPeakList != null && fittedPeakList.size() ==1){
 				return fittedPeakList.get(0);
@@ -646,14 +662,178 @@ public class ExcaliburEqualizationHelper {
 		if(lenFromOffsetData !=  lenFromSlopeData || lenFromSlopeData != lenFromFwhmData)
 			throw new IllegalArgumentException("lenFromOffsetData !=  lenFromSlopeData || lenFromSlopeData != lenFromFwhmData");
 		short [] thresholdNOpt = new short[(int) lenFromOffsetData];
+		double [] threshold0opt = new double[(int) lenFromOffsetData];
 		for( int i=0; i< lenFromOffsetData; i++){
-			double threshold0opt = 3.2* Array.getDouble(fwhmData.data, i) + equalisationTarget;
-			thresholdNOpt[i] = (short)((threshold0opt - Array.getDouble(offsetData.data,i))/(Array.getDouble(slopeData.data,i)));
+			threshold0opt[i] = 3.2* Array.getDouble(fwhmData.data, i) + equalisationTarget;
+			thresholdNOpt[i] = (short)((threshold0opt[i] - Array.getDouble(offsetData.data,i))/(Array.getDouble(slopeData.data,i)));
 		}
-		Hdf5HelperData data = new Hdf5HelperData(offsetData.dims, thresholdNOpt);
+		Hdf5HelperData data = new Hdf5HelperData(offsetData.dims, threshold0opt);
+		hdf.writeToFileSimple(data, resultFile, getEqualisationLocation(), THRESHOLD_0OPT);
+		hdf.writeAttribute(resultFile, Hdf5Helper.TYPE.DATASET, getEqualisationLocation().add(THRESHOLD_0OPT),
+				THRESHOLD_N_EQ_TARGET_ATTR, new Hdf5HelperData(equalisationTarget));		
+		data = new Hdf5HelperData(offsetData.dims, thresholdNOpt);
 		hdf.writeToFileSimple(data, resultFile, getEqualisationLocation(), THRESHOLD_NOPT);
-		hdf.writeAttribute(resultFile, Hdf5Helper.TYPE.DATASET, getEdgeThresholdsLocation().add(THRESHOLD_NOPT),
+		hdf.writeAttribute(resultFile, Hdf5Helper.TYPE.DATASET, getEqualisationLocation().add(THRESHOLD_NOPT),
 				THRESHOLD_N_EQ_TARGET_ATTR, new Hdf5HelperData(equalisationTarget));		
 	}
 	
+	/**
+	 * Set thresholdN in the hardware to the values in the edgeThresholdNResponseFile
+	 * If setThresholdAFromMask is true set then set thresholdA on each pixel to either 0 or 16 dependent on value in mask
+	 * @param edgeThresholdNResponseFile
+	 * @param readoutFems
+	 * @throws Exception
+	 */
+	public void setThresholdNFromFile(String edgeThresholdNResponseFile, List<ExcaliburReadoutNodeFem> readoutFems, boolean setThresholdAFromMask) throws Exception{
+		Hdf5Helper hdf = Hdf5Helper.getInstance();
+		Hdf5HelperData hdata = hdf.readDataSetAll(edgeThresholdNResponseFile, getEqualisationLocation().getLocationForOpen(), THRESHOLD_NOPT, true);
+		if( hdata.dims.length!=2)
+			throw new IllegalArgumentException("data.dims.length!=2");
+		if( hdata.dims[0]!= readoutFems.size())
+			throw new IllegalArgumentException("data.dims[0]!= readoutFems.size()");
+		if( hdata.dims[1]!=ExcaliburReadoutNodeFem.CHIPS_PER_FEM)
+			throw new IllegalArgumentException("data.dims[1]!=CHIPS_PER_FEM");
+		
+		short [] thresholdNOpt = (short[]) hdata.data;
+		for( int ifem=0; ifem<readoutFems.size(); ifem++ ){
+			ExcaliburReadoutNodeFem fem = readoutFems.get(ifem);
+			for( int ichip=0; ichip< ExcaliburReadoutNodeFem.CHIPS_PER_FEM; ichip++){
+				int index = ifem*ExcaliburReadoutNodeFem.CHIPS_PER_FEM + ichip;
+				MpxiiiChipReg chip = fem.getIndexedMpxiiiChipReg(ichip);
+				chip.getAnper().setThresholdn(thresholdNOpt[index]);
+
+				if(setThresholdAFromMask){
+					long chipTopPixel = getChipTopPixel(ifem);
+					long chipLeftPixel = getChipLeftPixel(ichip);
+					long[] sstride = new long[]{ 1,1};
+					long[] sstart = new long[]{chipTopPixel, chipLeftPixel};
+					long[] dsize = new long[]{chipHeight, chipWidth};
+					Hdf5HelperData hmask = hdf.readDataSet(edgeThresholdNResponseFile, getEqualisationLocation().getLocationForOpen(), THRESHOLDN_MASK, 
+							sstart, sstride, dsize);
+					short[] mask = (short[])hmask.data;
+					short[] thresholdA = new short[mask.length];
+					for( int i=0; i< mask.length;i++){
+						thresholdA[i] = (short) (mask[i]==1 ? 16 : 0);
+					}
+					chip.getPixel().setThresholdA(thresholdA);
+				}
+				
+			}
+		}
+	}
+	/**
+	 * Creates a useThresholdN mask. For each pixel decide whether the threshold is closest to the optimim( read from
+	 * optThresholdFile) with or without use of thresholdN. The result is a 2d array of shorts (1=use, 0= do not use)
+	 * written into the result file
+	 * 
+	 * The optThresholdFile contains 1 value per chip
+	 * @throws Exception 
+	 */
+	public void createThresholdNOptMask(String optThresholdFile, String notUsingThresholdNFile, String usingThresholdNFile, String resultFile) throws Exception{
+		Hdf5Helper hdf = Hdf5Helper.getInstance();
+		Hdf5HelperData hthresholdOpt = hdf.readDataSetAll(optThresholdFile, getEqualisationLocation().getLocationForOpen(), THRESHOLD_0OPT, true);
+		Hdf5HelperData hthresholdNotUsingThresholdN = hdf.readDataSetAll(notUsingThresholdNFile, getEqualisationLocation().getLocationForOpen(), THRESHOLD_DATASET, true);
+		Hdf5HelperData hthresholdUsingThresholdN = hdf.readDataSetAll(usingThresholdNFile, getEqualisationLocation().getLocationForOpen(), THRESHOLD_DATASET, true);
+		if( hthresholdUsingThresholdN.dims.length!=hthresholdNotUsingThresholdN.dims.length)
+			throw new IllegalArgumentException("hthresholdUsingThresholdN.dims.length!=hthresholdNotUsingThresholdN.dims.length");
+			
+		if( hthresholdOpt.dims.length!=2)
+			throw new IllegalArgumentException("hthresholdOpt.dims.length!=2");
+		long totalHeight = hthresholdNotUsingThresholdN.dims[0];
+		long totalWidth = hthresholdNotUsingThresholdN.dims[1];
+		short[] notUsingThresholdN = (short[]) hthresholdNotUsingThresholdN.data;
+		short[] usingThresholdN = (short[]) hthresholdUsingThresholdN.data;
+		short[] mask = new short[(int) (totalHeight*totalWidth)];
+
+		long numChipsRows = hthresholdOpt.dims[0];
+		long numChipsAcross = hthresholdOpt.dims[1];
+		for( int iChipRow=0; iChipRow< numChipsRows; iChipRow++){
+			long chipTopPixel = getChipTopPixel(iChipRow);
+			long chipBottomPixel = getChipBottomPixel(iChipRow);
+			for( int iChipCol=0; iChipCol< numChipsAcross; iChipCol++){
+				//get thresholdOpt for this chip
+				double thresholdOpt = Array.getDouble(hthresholdOpt.data, (int) (iChipRow*numChipsAcross + iChipCol));
+				long chipLeftPixel = getChipLeftPixel(iChipCol);
+				long chipRightPixel = getChipRightPixel(iChipCol);
+				for( long ix= chipTopPixel; ix<chipBottomPixel; ix++){
+					for( long iy= chipLeftPixel; iy<chipRightPixel; iy++){
+						long index = ix * totalWidth + iy;
+						short using = usingThresholdN[(int) index];
+						short notusing = notUsingThresholdN[(int) index];
+						short maskVal=0;
+						if( thresholdEdgePosIsValid(using) && thresholdEdgePosIsValid(notusing))
+							maskVal = (short) (Math.abs(thresholdOpt -using) < Math.abs(thresholdOpt - notusing) ? 1:0);
+						else if ( thresholdEdgePosIsValid(using))
+							maskVal = 1;
+						else if ( thresholdEdgePosIsValid(notusing))
+							maskVal = 0;
+						mask[(int) index] = maskVal;
+					}
+					
+				}
+			}
+		}
+		Hdf5HelperData hmask = new Hdf5HelperData(hthresholdNotUsingThresholdN.dims, mask);
+		hdf.writeToFileSimple(hmask, resultFile, getEqualisationLocation(), THRESHOLDN_MASK);
+		
+	}
+	
+	/**
+	 * Gets the max threshold0 limit required so that all but numPixelsOutSide pixels have a value within the limit.
+	 * The threshold0 limit is chip specific. Write results into selectThresholdTargetThresholdFile as long[].
+	 * return max
+	 * @throws ScanFileHolderException 
+	 */
+	public long createThresholdTarget(String thresholdFile, long[] chipDims, boolean chipPresent[], long numPixelsOutSide, String resultFile) throws ScanFileHolderException{
+		//need to get binned populations and then get value to include all but 100 values
+		if( chipDims.length!= 2)
+			throw new IllegalArgumentException("chipDims.length!= 2");
+		String groupName = getEqualisationLocation().getLocationForOpen();
+		String datasetName = THRESHOLD_DATASET;
+		Hdf5HelperLazyLoader loader = new Hdf5HelperLazyLoader(thresholdFile, groupName, datasetName, false );
+		int[] shape = loader.getLazyDataSet().getShape();
+		if( shape.length != 2){
+			throw new IllegalArgumentException("shape.length != 2");
+		}
+		long fullHeight = shape[0];
+		long numChipsHigh = chipDims[0];
+		long reqdHeight = getChipBottomPixel(numChipsHigh-1)+1;
+		if(fullHeight != reqdHeight){
+			throw new IllegalArgumentException("fullHeight != reqdHeight: " + reqdHeight);
+		}
+		long fullWidth = shape[1];
+		long numChipsAcross = chipDims[1];
+		long reqdWidth = getChipRightPixel(numChipsAcross-1)+1;
+		if(fullWidth != reqdWidth){
+			throw new IllegalArgumentException("fullWidth != reqdWidth: " + reqdWidth);
+		}
+			
+		int [] thresholdLimit = new int[(int) (numChipsHigh * numChipsAcross)];
+		int[] start = new int[2]; 
+		int[] stop = new int[2]; 
+		int[] step= new int[2];
+		step[0]=step[1]=1;
+		for( int ih=0; ih< numChipsHigh; ih++){
+			start[0] = (int) getChipTopPixel(ih);
+			stop[0] = (start[0]+chipHeight); //exclusive
+			for( int iw=0; iw< numChipsAcross; iw++){
+				int chipIndex = (int) (ih *numChipsAcross + iw);
+				if( chipPresent[chipIndex]){
+					start[1] = (int) getChipLeftPixel(iw);
+					stop[1] = (start[1] + chipWidth); //exclusive
+					AbstractDataset dataset = loader.getDataset(null, null, start, stop, step);
+					IntegerDataset dataset2 = getDatasetWithValidPixels(dataset);
+					if( dataset2 != null){
+						int offset = dataset2.min().intValue();
+						int[] population = createBinnedPopulation( dataset2);						
+						thresholdLimit[chipIndex] = 0;//TODO find thresholdLimitfitGaussianToBinnedPopulation(population, offset);
+					}
+				}
+			}
+		}
+		//write results into file.
+		IntegerDataset dataset = new IntegerDataset(thresholdLimit, thresholdLimit.length);
+		return dataset.max().longValue();
+
+	}
 }

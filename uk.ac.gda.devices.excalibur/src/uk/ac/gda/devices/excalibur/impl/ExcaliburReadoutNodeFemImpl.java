@@ -30,14 +30,6 @@ import uk.ac.gda.devices.excalibur.MpxiiiChipReg;
  */
 public class ExcaliburReadoutNodeFemImpl extends ADBaseImpl implements ExcaliburReadoutNodeFem, ADBase {
 
-	private MpxiiiChipReg mpxiiiChipReg1;
-	private MpxiiiChipReg mpxiiiChipReg2;
-	private MpxiiiChipReg mpxiiiChipReg3;
-	private MpxiiiChipReg mpxiiiChipReg4;
-	private MpxiiiChipReg mpxiiiChipReg5;
-	private MpxiiiChipReg mpxiiiChipReg6;
-	private MpxiiiChipReg mpxiiiChipReg7;
-	private MpxiiiChipReg mpxiiiChipReg8;
 	private static final String COUNTER_DEPTH = "CounterDepth";
 
 	@Override
@@ -50,104 +42,89 @@ public class ExcaliburReadoutNodeFemImpl extends ADBaseImpl implements Excalibur
 		EPICS_CONTROLLER.caput(getChannel(COUNTER_DEPTH), counterDepth);
 	}
 
+	private MpxiiiChipReg[] mpxiiiChipRegs = new MpxiiiChipReg[8];
+
 	@Override
 	public MpxiiiChipReg getMpxiiiChipReg1() {
-		return mpxiiiChipReg1;
+		return getIndexedMpxiiiChipReg(0);
 	}
 
 	@Override
 	public MpxiiiChipReg getMpxiiiChipReg2() {
-		return mpxiiiChipReg2;
+		return getIndexedMpxiiiChipReg(1);
 	}
 
 	@Override
 	public MpxiiiChipReg getMpxiiiChipReg3() {
-		return mpxiiiChipReg3;
+		return getIndexedMpxiiiChipReg(2);
 	}
 
 	@Override
 	public MpxiiiChipReg getMpxiiiChipReg4() {
-		return mpxiiiChipReg4;
+		return getIndexedMpxiiiChipReg(3);
 	}
 
 	@Override
 	public MpxiiiChipReg getMpxiiiChipReg5() {
-		return mpxiiiChipReg5;
+		return getIndexedMpxiiiChipReg(4);
 	}
 
 	@Override
 	public MpxiiiChipReg getMpxiiiChipReg6() {
-		return mpxiiiChipReg6;
+		return getIndexedMpxiiiChipReg(5);
 	}
 
 	@Override
 	public MpxiiiChipReg getMpxiiiChipReg7() {
-		return mpxiiiChipReg7;
+		return getIndexedMpxiiiChipReg(6);
 	}
 
 	@Override
 	public MpxiiiChipReg getMpxiiiChipReg8() {
-		return mpxiiiChipReg8;
+		return getIndexedMpxiiiChipReg(7);
 	}
 
-	public void setMpxiiiChipReg1(MpxiiiChipReg mpxiiiChipReg1) {
-		this.mpxiiiChipReg1 = mpxiiiChipReg1;
+	public void setMpxiiiChipReg1(MpxiiiChipReg mpxiiiChipReg) {
+		this.mpxiiiChipRegs[0] = mpxiiiChipReg;
 	}
 
-	public void setMpxiiiChipReg2(MpxiiiChipReg mpxiiiChipReg2) {
-		this.mpxiiiChipReg2 = mpxiiiChipReg2;
+	public void setMpxiiiChipReg2(MpxiiiChipReg mpxiiiChipReg) {
+		this.mpxiiiChipRegs[1] = mpxiiiChipReg;
 	}
 
-	public void setMpxiiiChipReg3(MpxiiiChipReg mpxiiiChipReg3) {
-		this.mpxiiiChipReg3 = mpxiiiChipReg3;
+	public void setMpxiiiChipReg3(MpxiiiChipReg mpxiiiChipReg) {
+		this.mpxiiiChipRegs[2] = mpxiiiChipReg;
 	}
 
-	public void setMpxiiiChipReg4(MpxiiiChipReg mpxiiiChipReg4) {
-		this.mpxiiiChipReg4 = mpxiiiChipReg4;
+	public void setMpxiiiChipReg4(MpxiiiChipReg mpxiiiChipReg) {
+		this.mpxiiiChipRegs[3] = mpxiiiChipReg;
 	}
 
-	public void setMpxiiiChipReg5(MpxiiiChipReg mpxiiiChipReg5) {
-		this.mpxiiiChipReg5 = mpxiiiChipReg5;
+	public void setMpxiiiChipReg5(MpxiiiChipReg mpxiiiChipReg) {
+		this.mpxiiiChipRegs[4] = mpxiiiChipReg;
 	}
 
-	public void setMpxiiiChipReg6(MpxiiiChipReg mpxiiiChipReg6) {
-		this.mpxiiiChipReg6 = mpxiiiChipReg6;
+	public void setMpxiiiChipReg6(MpxiiiChipReg mpxiiiChipReg) {
+		this.mpxiiiChipRegs[5] = mpxiiiChipReg;
 	}
 
-	public void setMpxiiiChipReg7(MpxiiiChipReg mpxiiiChipReg7) {
-		this.mpxiiiChipReg7 = mpxiiiChipReg7;
+	public void setMpxiiiChipReg7(MpxiiiChipReg mpxiiiChipReg) {
+		this.mpxiiiChipRegs[6] = mpxiiiChipReg;
 	}
 
-	public void setMpxiiiChipReg8(MpxiiiChipReg mpxiiiChipReg8) {
-		this.mpxiiiChipReg8 = mpxiiiChipReg8;
+	public void setMpxiiiChipReg8(MpxiiiChipReg mpxiiiChipReg) {
+		this.mpxiiiChipRegs[7] = mpxiiiChipReg;
 	}
 
 	/**
 	 * 
-	 * @param index
+	 * @param index 0 based index to chipReg
 	 * @return the {@link MpxiiiChipReg} for the provided index
 	 */
 	@Override
 	public MpxiiiChipReg getIndexedMpxiiiChipReg(int index) {
-		switch (index) {
-		case 1:
-			return mpxiiiChipReg1;
-		case 2:
-			return mpxiiiChipReg2;
-		case 3:
-			return mpxiiiChipReg3;
-		case 4:
-			return mpxiiiChipReg4;
-		case 5:
-			return mpxiiiChipReg5;
-		case 6:
-			return mpxiiiChipReg6;
-		case 7:
-			return mpxiiiChipReg7;
-		case 8:
-			return mpxiiiChipReg8;
-
-		}
-		throw new IllegalArgumentException("Invalid chip register");
+		return mpxiiiChipRegs[index];
 	}
+
+
 }
