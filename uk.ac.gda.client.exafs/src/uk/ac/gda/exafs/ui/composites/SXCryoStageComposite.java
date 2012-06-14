@@ -173,12 +173,10 @@ public class SXCryoStageComposite extends FieldBeanComposite {
 	public void setMotorLimits(String motorName, ScaleBox box) throws Exception {
 		String lowerLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getLowerMotorLimit()");
 		String upperLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getUpperMotorLimit()");
-		if (lowerLimit != null && !lowerLimit.isEmpty()) {
+		if (!lowerLimit.equals("None") && lowerLimit != null && !lowerLimit.isEmpty())
 			box.setMinimum(Double.parseDouble(lowerLimit));
-		}
-		if (upperLimit != null && !upperLimit.isEmpty()) {
+		if (!upperLimit.equals("None") && upperLimit != null && !upperLimit.isEmpty())
 			box.setMaximum(Double.parseDouble(upperLimit));
-		}
 	}
 
 	public FieldComposite getHeight() {

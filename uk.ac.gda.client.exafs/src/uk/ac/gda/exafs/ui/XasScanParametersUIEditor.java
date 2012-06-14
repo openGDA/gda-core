@@ -354,7 +354,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			finalEnergy.setLabelDecimalPlaces(3);
 			finalEnergy.setPrefix(" ");
 			finalEnergy.setUnit("eV");
-			finalEnergy.setMaximum(35000.0);
+			finalEnergy.setMaximum(40000.0);
 			finalEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 			initialEnergy.setMaximum(finalEnergy);
 			finalEnergy.setMinimum(initialEnergy);

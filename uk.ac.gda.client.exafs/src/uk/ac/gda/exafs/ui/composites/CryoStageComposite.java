@@ -39,7 +39,7 @@ import uk.ac.gda.richbeans.components.scalebox.RangeBox;
  *
  */
 public class CryoStageComposite extends FieldBeanComposite {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(XYThetaStageComposite.class);
 
 	private RangeBox x;
@@ -62,54 +62,54 @@ public class CryoStageComposite extends FieldBeanComposite {
 		x.setUnit("mm");
 		label = new Label(this, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		
+
 		label.setText("rot");
 		this.rot = new RangeBox(this, SWT.NONE);
 		rot.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		rot.setUnit("deg");
 		new Label(this, SWT.NONE);
-		
+
 		try {
 			setMotorLimits("cryox", x);
 			setMotorLimits("cryorot", rot);
-			
+
 		} catch (Exception e) {
 			logger.warn("exception while fetching hardware limits: " + e.getMessage(), e);
 		}
-		
+
 		Button btnSet = new Button(this, SWT.NONE);
 		btnSet.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				String xval = JythonServerFacade.getInstance().evaluateCommand("cryox()");
-				
-				if(xval.substring(xval.indexOf(".")+1).length()>2)
-					x.setValue(xval.substring(0, xval.indexOf(".")+3));
+
+				if (xval.substring(xval.indexOf(".") + 1).length() > 2)
+					x.setValue(xval.substring(0, xval.indexOf(".") + 3));
 				else
 					x.setValue(xval);
-				
+
 				String rotval = JythonServerFacade.getInstance().evaluateCommand("cryorot()");
-				if(rotval.substring(rotval.indexOf(".")+1).length()>2)
-					rot.setValue(rotval.substring(0, rotval.indexOf(".")+3));
+				if (rotval.substring(rotval.indexOf(".") + 1).length() > 2)
+					rot.setValue(rotval.substring(0, rotval.indexOf(".") + 3));
 				else
 					rot.setValue(rotval);
 			}
 		});
-		
-		
-		
+
 		btnSet.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		btnSet.setText("Get current values");
 
 	}
 
-	public void setMotorLimits(String motorName, RangeBox box) throws Exception{
-		String lowerLimit = JythonServerFacade.getInstance().evaluateCommand(motorName+".getLowerMotorLimit()");
-		String upperLimit = JythonServerFacade.getInstance().evaluateCommand(motorName+".getUpperMotorLimit()");
-		box.setMinimum(Double.parseDouble(lowerLimit));
-		box.setMaximum(Double.parseDouble(upperLimit));
+	public void setMotorLimits(String motorName, RangeBox box) throws Exception {
+		String lowerLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getLowerMotorLimit()");
+		String upperLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getUpperMotorLimit()");
+		if (!lowerLimit.equals("None") && lowerLimit != null && !lowerLimit.isEmpty())
+			box.setMinimum(Double.parseDouble(lowerLimit));
+		if (!upperLimit.equals("None") && upperLimit != null && !upperLimit.isEmpty())
+			box.setMaximum(Double.parseDouble(upperLimit));
 	}
-	
+
 	public FieldComposite getX() {
 		return x;
 	}

@@ -18,7 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-
 import gda.jython.JythonServerFacade;
 
 import org.eclipse.swt.SWT;
@@ -62,11 +61,11 @@ public class B18FurnaceComposite extends FieldBeanComposite {
 
 		try {
 			setMotorLimits("eurotherm", temperature);
-			
+
 		} catch (Exception e) {
 			logger.warn("exception while fetching hardware limits: " + e.getMessage(), e);
 		}
-		
+
 		Label lblTolerance = new Label(this, SWT.NONE);
 		lblTolerance.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblTolerance.setText("Tolerance");
@@ -88,33 +87,34 @@ public class B18FurnaceComposite extends FieldBeanComposite {
 		controlFlag.setText("Only read, no control");
 	}
 
-	public void setMotorLimits(String motorName, ScaleBox box) throws Exception{
-		String lowerLimit = JythonServerFacade.getInstance().evaluateCommand(motorName+".getLowerLimit()");
-		String upperLimit = JythonServerFacade.getInstance().evaluateCommand(motorName+".getUpperLimit()");
-		box.setMinimum(Double.parseDouble(lowerLimit));
-		box.setMaximum(Double.parseDouble(upperLimit));
+	public void setMotorLimits(String motorName, ScaleBox box) throws Exception {
+		String lowerLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getLowerLimit()");
+		String upperLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getUpperLimit()");
+		if (!lowerLimit.equals("None") && lowerLimit != null && !lowerLimit.isEmpty())
+			box.setMinimum(Double.parseDouble(lowerLimit));
+		if (!upperLimit.equals("None") && upperLimit != null && !upperLimit.isEmpty())
+			box.setMaximum(Double.parseDouble(upperLimit));
 	}
-	
+
 	@Override
 	protected void checkSubclass() {
 		// Disable the check that prevents subclassing of SWT components
 	}
-	
-	public FieldComposite getTemperature(){
+
+	public FieldComposite getTemperature() {
 		return temperature;
 	}
 
-	public FieldComposite getTolerance(){
+	public FieldComposite getTolerance() {
 		return tolerance;
 	}
 
-	public FieldComposite getTime(){
+	public FieldComposite getTime() {
 		return time;
 	}
 
 	public FieldComposite getControlFlag() {
 		return controlFlag;
 	}
-	
 
 }
