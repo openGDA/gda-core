@@ -32,8 +32,6 @@ import javax.mail.MethodNotSupportedException;
 
 import org.springframework.util.StringUtils;
 
-import uk.ac.gda.util.io.FileUtils;
-
 /**
  * JythonScriptFileRunnerCommand is an implementation of Command whose run method runs the script file set by the
  * setScriptFile method in the CommandRunner
@@ -175,16 +173,7 @@ public class JythonScriptFileRunnerCommand extends CommandBase implements Serial
 
 	@Override
 	public CommandSummary getCommandSummary() {
-		// return the description, unless the file has been opened (and maybe edited)
-		if (!StringUtils.hasLength(settingsFile)){
-			return new SimpleCommandSummary(getDescription());
-		}
-		try {
-			StringBuffer contents = FileUtils.readFile(new File(settingsFile));
-			return new SimpleCommandSummary(contents.toString());
-		} catch (Exception e) {
-			return new SimpleCommandSummary(getDescription());
-		}
+		return new SimpleCommandSummary(getDescription());
 	}
 
 	@Override
