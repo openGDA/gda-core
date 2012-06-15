@@ -30,7 +30,6 @@ import gda.factory.corba.util.AdapterFactory;
 import gda.spring.SpringApplicationContextBasedObjectFactory;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -68,30 +67,7 @@ public class SpringObjectServer extends ObjectServer {
 	 */
 	public SpringObjectServer(File xmlFile, boolean localObjectsOnly) {
 		super(xmlFile, localObjectsOnly);
-		if (xmlFile.isFile()) {
-			applicationContext = new FileSystemXmlApplicationContext("file:" + xmlFile.getAbsolutePath());
-		} else if (xmlFile.isDirectory()) {
-			//TODO to support multiple configuration metadata files so no need <import/> in a single root XML file. 
-			applicationContext = new FileSystemXmlApplicationContext(listOfFiles(xmlFile));
-		} else {
-			throw new IllegalArgumentException("Argument is neither a file nor a directory :" + xmlFile);
-		}
-	}
-
-	private String[] listOfFiles(File xmlFile) {
-		return xmlFile.list(new FilenameFilter() {
-			
-			@Override
-			public boolean accept(File dir, String name) {
-				if (name.contains(".xml")) {
-					return true;
-				} else if (new File(dir, name).isDirectory()) {
-					//recurse through child directories.
-					listOfFiles(new File(dir, name));
-				}
-				return false;
-			}
-		});
+		applicationContext = new FileSystemXmlApplicationContext("file:" + xmlFile.getAbsolutePath());
 	}
 
 	@Override
