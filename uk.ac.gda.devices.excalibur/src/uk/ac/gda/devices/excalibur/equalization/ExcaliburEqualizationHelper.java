@@ -18,7 +18,6 @@
 
 package uk.ac.gda.devices.excalibur.equalization;
 
-import gda.analysis.io.ScanFileHolderException;
 import gda.analysis.numerical.straightline.Results;
 import gda.analysis.numerical.straightline.StraightLineFit;
 
@@ -497,40 +496,25 @@ public class ExcaliburEqualizationHelper {
 			throw new IllegalArgumentException("shape.length != 2");
 		}
 		long fullHeight = shape[0];
-		long numChipsHigh = chipDims[0];
-		long reqdHeight = ChipSet.getChipBottomPixel(numChipsHigh-1)+1;
-		if(fullHeight != reqdHeight){
-			throw new IllegalArgumentException("fullHeight != reqdHeight: " + reqdHeight);
+		ChipSet chipset  = new ChipSet((int)chipDims[0], (int)chipDims[1], chipPresent);
+		if(fullHeight != chipset.pixelsPerCol){
+			throw new IllegalArgumentException("fullHeight != reqdHeight: " + chipset.pixelsPerCol);
 		}
 		long fullWidth = shape[1];
-		long numChipsAcross = chipDims[1];
-		long reqdWidth = ChipSet.getChipRightPixel(numChipsAcross-1)+1;
-		if(fullWidth != reqdWidth){
-			throw new IllegalArgumentException("fullWidth != reqdWidth: " + reqdWidth);
+		if(fullWidth != chipset.pixelsPerRow){
+			throw new IllegalArgumentException("fullWidth != reqdWidth: " + chipset.pixelsPerRow);
 		}
 			
-		CompositeFunction [] aPeaks = new CompositeFunction[(int) (numChipsHigh * numChipsAcross)];
+		CompositeFunction [] aPeaks = new CompositeFunction[(chipset.rows * chipset.columns)];
 		Arrays.fill(aPeaks, null);
-		int[] start = new int[2]; 
-		int[] stop = new int[2]; 
-		int[] step= new int[2];
-		step[0]=step[1]=1;
-		for( int ih=0; ih< numChipsHigh; ih++){
-			start[0] = (int) ChipSet.getChipTopPixel(ih);
-			stop[0] = (start[0]+ChipSet.chipHeight); //exclusive
-			for( int iw=0; iw< numChipsAcross; iw++){
-				int chipIndex = (int) (ih *numChipsAcross + iw);
-				if( chipPresent[chipIndex]){
-					start[1] = (int) ChipSet.getChipLeftPixel(iw);
-					stop[1] = (start[1] + ChipSet.chipWidth); //exclusive
-					AbstractDataset dataset = loader.getDataset(null, null, start, stop, step);
-					IntegerDataset dataset2 = getDatasetWithValidPixels(dataset);
-					if( dataset2 != null){
-						int offset = dataset2.min().intValue();
-						int[] population = createBinnedPopulation( dataset2);						
-						aPeaks[chipIndex] = fitGaussianToBinnedPopulation(population, offset);
-					}
-				}
+
+		for( Chip chip : chipset.getChips()){
+			AbstractDataset dataset = chip.getDataset(loader);
+			IntegerDataset dataset2 = getDatasetWithValidPixels(dataset);
+			if( dataset2 != null){
+				int offset = dataset2.min().intValue();
+				int[] population = createBinnedPopulation( dataset2);						
+				aPeaks[chip.index] = fitGaussianToBinnedPopulation(population, offset);
 			}
 		}
 		return aPeaks;
@@ -766,30 +750,30 @@ public class ExcaliburEqualizationHelper {
 			throw new IllegalArgumentException("shape.length != 2");
 		}
 		long fullHeight = shape[0];
-		long numChipsHigh = chipDims[0];
+		int numChipsHigh = (int) chipDims[0];
 		long reqdHeight = ChipSet.getChipBottomPixel(numChipsHigh-1)+1;
 		if(fullHeight != reqdHeight){
 			throw new IllegalArgumentException("fullHeight != reqdHeight: " + reqdHeight);
 		}
 		long fullWidth = shape[1];
-		long numChipsAcross = chipDims[1];
+		int numChipsAcross = (int) chipDims[1];
 		long reqdWidth =ChipSet.getChipRightPixel(numChipsAcross-1)+1;
 		if(fullWidth != reqdWidth){
 			throw new IllegalArgumentException("fullWidth != reqdWidth: " + reqdWidth);
 		}
 			
-		int [] thresholdLimit = new int[(int) (numChipsHigh * numChipsAcross)];
+		int [] thresholdLimit = new int[(numChipsHigh * numChipsAcross)];
 		int[] start = new int[2]; 
 		int[] stop = new int[2]; 
 		int[] step= new int[2];
 		step[0]=step[1]=1;
 		for( int ih=0; ih< numChipsHigh; ih++){
-			start[0] = (int) ChipSet.getChipTopPixel(ih);
+			start[0] = ChipSet.getChipTopPixel(ih);
 			stop[0] = (start[0]+ChipSet.chipHeight); //exclusive
 			for( int iw=0; iw< numChipsAcross; iw++){
-				int chipIndex = (int) (ih *numChipsAcross + iw);
+				int chipIndex = (ih *numChipsAcross + iw);
 				if( chipPresent[chipIndex]){
-					start[1] = (int)ChipSet.getChipLeftPixel(iw);
+					start[1] = ChipSet.getChipLeftPixel(iw);
 					stop[1] = (start[1] + ChipSet.chipWidth); //exclusive
 					AbstractDataset dataset = loader.getDataset(null, null, start, stop, step);
 					IntegerDataset dataset2 = getDatasetWithValidPixels(dataset);

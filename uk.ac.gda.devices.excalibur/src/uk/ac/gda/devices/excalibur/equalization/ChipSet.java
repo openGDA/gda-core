@@ -18,9 +18,14 @@
 
 package uk.ac.gda.devices.excalibur.equalization;
 
+import gda.analysis.io.ScanFileHolderException;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+
+import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.io.ILazyLoader;
 
 /**
  * Class used in manipulating data  in arrays that is from an array of chips
@@ -30,7 +35,7 @@ public class ChipSet {
 	public static final int chipWidth = 256;
 	public static final int chipPixels = chipHeight*chipWidth;
 	
-	public static long getChipTopPixel(long chipRow){
+	public static int getChipTopPixel(long chipRow){
 		switch ((int)chipRow){
 		case 0:
 			return 0;
@@ -49,33 +54,37 @@ public class ChipSet {
 		}
 	}
 	
-	public static long getChipBottomPixel(long chipRow){
+	public static int getChipBottomPixel(int chipRow){
 		return getChipTopPixel(chipRow)+chipHeight-1;
 	}
 
-	public static long getChipLeftPixel(long chipColumn){
+	public static int getChipLeftPixel(int chipColumn){
 		return chipColumn*(chipWidth+3);
 	}
-	public static long getChipRightPixel(long chipColumn){
+	public static int getChipRightPixel(int chipColumn){
 		return getChipLeftPixel(chipColumn) + chipWidth-1;
 	}	
 	
-	public static long getPixelsPerRow(long columns){
+	public static int getPixelsPerRow(int columns){
 		return ChipSet.getChipRightPixel(columns-1)+1;
 	}
-	
+	public static int getPixelsPerCol(int rows){
+		return ChipSet.getChipBottomPixel(rows-1)+1;
+	}
 
 	private final boolean[] present;
 	List<Chip> chips;
 	public final int columns;
 	public final int rows;
 	public final long pixelsPerRow;
+	public final long pixelsPerCol;
 
 	ChipSet( int rows, int columns, boolean [] present){
 		this.rows = rows;
 		this.columns = columns;
 		this.present = present;
-		this.pixelsPerRow = ChipSet.getPixelsPerRow(columns);
+		pixelsPerRow = ChipSet.getPixelsPerRow(columns);
+		pixelsPerCol = ChipSet.getPixelsPerCol(rows);
 		
 		
 	}
@@ -117,18 +126,18 @@ class Chip {
 		return index;
 	}
 	
-	long getChipTopPixel(){
+	int getChipTopPixel(){
 		return ChipSet.getChipTopPixel(row);
 	}
 	
-	long getChipBottomPixel(){
+	int getChipBottomPixel(){
 		return ChipSet.getChipBottomPixel(row);
 	}
 
-	long getChipLeftPixel(){
+	int getChipLeftPixel(){
 		return ChipSet.getChipLeftPixel(column);
 	}
-	long getChipRightPixel(){
+	int getChipRightPixel(){
 		return ChipSet.getChipRightPixel(column);
 	}
 	
@@ -140,6 +149,17 @@ class Chip {
 		return chipSet.pixelsPerRow;
 	}
 	
+	public AbstractDataset getDataset(ILazyLoader loader) throws ScanFileHolderException{
+		int[] start = new int[2]; 
+		int[] stop = new int[2]; 
+		int[] step= new int[2];
+		step[0]=step[1]=1;		
+		start[0] = getChipTopPixel();
+		stop[0] = (start[0]+ChipSet.chipHeight); //exclusive
+		start[1] = getChipLeftPixel();
+		stop[1] = (start[1] + ChipSet.chipWidth); //exclusive
+		return loader.getDataset(null, null, start, stop, step);
+	}
 
 }
 
