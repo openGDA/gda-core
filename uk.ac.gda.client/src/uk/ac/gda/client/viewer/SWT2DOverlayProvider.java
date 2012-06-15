@@ -287,7 +287,7 @@ public class SWT2DOverlayProvider implements Overlay2DProvider {
 			case ELLIPSE:
 			break;
 			case IMAGE:
-				figure = new ImageFigure();
+				figure = new ImageWithTransparencyFigure();
 			break;
 		}
 		
@@ -420,6 +420,11 @@ public class SWT2DOverlayProvider implements Overlay2DProvider {
 			shape.setAlpha((int) ((1.0-transparency) * 255.0));
 			return true;
 		}
+		else if (fig instanceof ImageWithTransparencyFigure) {
+			ImageWithTransparencyFigure transparentFig = (ImageWithTransparencyFigure) fig;
+			transparentFig.setTransparency(transparency);
+			return true;
+		}
 		return false;
 	}
 
@@ -490,7 +495,13 @@ public class SWT2DOverlayProvider implements Overlay2DProvider {
 	public void drawImage(int imageID, Image image, double lux, double luy, double rlx, double rly) {
 		if (overlayInOperation){
 			IFigure figure = figures.get(imageID);
-			if (figure instanceof ImageFigure) {
+			if (figure instanceof ImageWithTransparencyFigure) {
+				ImageWithTransparencyFigure image1 = (ImageWithTransparencyFigure) figure;
+				image1.setImage(image);
+				Rectangle bounds = topFigure.getBounds();
+				image1.setBounds(new Rectangle(bounds.x + (int)lux, bounds.y + (int)luy, (int)(rlx-lux), (int)(rly-luy) ));
+			}	
+			else if (figure instanceof ImageFigure) {
 				ImageFigure image1 = (ImageFigure) figure;
 				image1.setImage(image);
 				Rectangle bounds = topFigure.getBounds();
