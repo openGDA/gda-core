@@ -90,7 +90,7 @@ public class CommandProcessorComposite extends Composite {
 		final ImageDescriptor forwardOneImage = GDAClientActivator.getImageDescriptor("icons/control_fastforward_blue.png");
 		pauseImage = GDAClientActivator.getImageDescriptor("icons/control_pause_blue.png");
 		runImage = GDAClientActivator.getImageDescriptor("icons/control_play_blue.png");
-		final ImageDescriptor stopImage = GDAClientActivator.getImageDescriptor("icons/stop.png");
+		final ImageDescriptor stopImage = GDAClientActivator.getImageDescriptor("icons/delete.png");
 		final ImageDescriptor addImage = GDAClientActivator.getImageDescriptor("icons/add.png");
 		final ImageDescriptor showLogImage = GDAClientActivator.getImageDescriptor("icons/book_open.png");
 
