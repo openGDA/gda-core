@@ -78,39 +78,9 @@ public class ExcaliburEqualizationHelper {
 	public static final String CHIP_THRESHOLD_GAUSSIAN_POSITION_DATASET = "chip_threshold_gaussian_position";
 	public static final String CHIP_THRESHOLD_GAUSSIAN_FWHM_DATASET = "chip_threshold_gaussian_fwhm";
 	private static final ExcaliburEqualizationHelper INSTANCE = new ExcaliburEqualizationHelper();
-	public static final int chipHeight = 256;
-	public static final int chipWidth = 256;
-	public static final int chipPixels = chipHeight*chipWidth;
 
-	long getChipTopPixel(long chipRow){
-		switch ((int)chipRow){
-		case 0:
-			return 0;
-		case 1:
-			return chipHeight+3;
-		case 2: 
-			return 2*chipHeight + 3 + 124;
-		case 3:
-			return 3*chipHeight + 3 + 124 + 3;
-		case 4:
-			return 4*chipHeight + 3 + 124 + 3 + 124;
-		case 5:
-			return 5*chipHeight + 3 + 124 + 3 + 124 + 3;
-		default:
-			throw new IllegalArgumentException("chipRow must be between 0 and 5");
-		}
-	}
-	
-	long getChipBottomPixel(long chipRow){
-		return getChipTopPixel(chipRow)+chipHeight-1;
-	}
 
-	long getChipLeftPixel(long chipColumn){
-		return chipColumn*(chipWidth+3);
-	}
-	long getChipRightPixel(long chipColumn){
-		return getChipLeftPixel(chipColumn) + chipWidth-1;
-	}
+
 	
 	
 	public static ExcaliburEqualizationHelper getInstance() {
@@ -384,7 +354,7 @@ public class ExcaliburEqualizationHelper {
 					edgeThresholdsSlice.length);
 			start[shape.length - 2] = Math.min(start[shape.length - 2]+sizeOfSlice,shape[shape.length - 2]);
 			stop[shape.length - 2] = Math.min(stop[shape.length - 2]+sizeOfSlice,shape[shape.length - 2]);
-			iEdgeThresholdProcessed += shape[2] * sizeOfSlice;//TODO surely shape[2] as we are slicing over shape[1]
+			iEdgeThresholdProcessed += shape[2] * sizeOfSlice;
 		}
 		return new Hdf5HelperData(new long[] { shape[1], shape[2] }, edgeThresholds);
 	}
@@ -528,13 +498,13 @@ public class ExcaliburEqualizationHelper {
 		}
 		long fullHeight = shape[0];
 		long numChipsHigh = chipDims[0];
-		long reqdHeight = getChipBottomPixel(numChipsHigh-1)+1;
+		long reqdHeight = ChipSet.getChipBottomPixel(numChipsHigh-1)+1;
 		if(fullHeight != reqdHeight){
 			throw new IllegalArgumentException("fullHeight != reqdHeight: " + reqdHeight);
 		}
 		long fullWidth = shape[1];
 		long numChipsAcross = chipDims[1];
-		long reqdWidth = getChipRightPixel(numChipsAcross-1)+1;
+		long reqdWidth = ChipSet.getChipRightPixel(numChipsAcross-1)+1;
 		if(fullWidth != reqdWidth){
 			throw new IllegalArgumentException("fullWidth != reqdWidth: " + reqdWidth);
 		}
@@ -546,13 +516,13 @@ public class ExcaliburEqualizationHelper {
 		int[] step= new int[2];
 		step[0]=step[1]=1;
 		for( int ih=0; ih< numChipsHigh; ih++){
-			start[0] = (int) getChipTopPixel(ih);
-			stop[0] = (start[0]+chipHeight); //exclusive
+			start[0] = (int) ChipSet.getChipTopPixel(ih);
+			stop[0] = (start[0]+ChipSet.chipHeight); //exclusive
 			for( int iw=0; iw< numChipsAcross; iw++){
 				int chipIndex = (int) (ih *numChipsAcross + iw);
 				if( chipPresent[chipIndex]){
-					start[1] = (int) getChipLeftPixel(iw);
-					stop[1] = (start[1] + chipWidth); //exclusive
+					start[1] = (int) ChipSet.getChipLeftPixel(iw);
+					stop[1] = (start[1] + ChipSet.chipWidth); //exclusive
 					AbstractDataset dataset = loader.getDataset(null, null, start, stop, step);
 					IntegerDataset dataset2 = getDatasetWithValidPixels(dataset);
 					if( dataset2 != null){
@@ -703,11 +673,11 @@ public class ExcaliburEqualizationHelper {
 				chip.getAnper().setThresholdn(thresholdNOpt[index]);
 
 				if(setThresholdAFromMask){
-					long chipTopPixel = getChipTopPixel(ifem);
-					long chipLeftPixel = getChipLeftPixel(ichip);
+					long chipTopPixel = ChipSet.getChipTopPixel(ifem);
+					long chipLeftPixel = ChipSet.getChipLeftPixel(ichip);
 					long[] sstride = new long[]{ 1,1};
 					long[] sstart = new long[]{chipTopPixel, chipLeftPixel};
-					long[] dsize = new long[]{chipHeight, chipWidth};
+					long[] dsize = new long[]{ChipSet.chipHeight, ChipSet.chipWidth};
 					Hdf5HelperData hmask = hdf.readDataSet(edgeThresholdNResponseFile, getEqualisationLocation().getLocationForOpen(), THRESHOLDN_MASK, 
 							sstart, sstride, dsize);
 					short[] mask = (short[])hmask.data;
@@ -748,13 +718,13 @@ public class ExcaliburEqualizationHelper {
 		long numChipsRows = hthresholdOpt.dims[0];
 		long numChipsAcross = hthresholdOpt.dims[1];
 		for( int iChipRow=0; iChipRow< numChipsRows; iChipRow++){
-			long chipTopPixel = getChipTopPixel(iChipRow);
-			long chipBottomPixel = getChipBottomPixel(iChipRow);
+			long chipTopPixel = ChipSet.getChipTopPixel(iChipRow);
+			long chipBottomPixel = ChipSet.getChipBottomPixel(iChipRow);
 			for( int iChipCol=0; iChipCol< numChipsAcross; iChipCol++){
 				//get thresholdOpt for this chip
 				double thresholdOpt = Array.getDouble(hthresholdOpt.data, (int) (iChipRow*numChipsAcross + iChipCol));
-				long chipLeftPixel = getChipLeftPixel(iChipCol);
-				long chipRightPixel = getChipRightPixel(iChipCol);
+				long chipLeftPixel = ChipSet.getChipLeftPixel(iChipCol);
+				long chipRightPixel = ChipSet.getChipRightPixel(iChipCol);
 				for( long ix= chipTopPixel; ix<chipBottomPixel; ix++){
 					for( long iy= chipLeftPixel; iy<chipRightPixel; iy++){
 						long index = ix * totalWidth + iy;
@@ -782,9 +752,9 @@ public class ExcaliburEqualizationHelper {
 	 * Gets the max threshold0 limit required so that all but numPixelsOutSide pixels have a value within the limit.
 	 * The threshold0 limit is chip specific. Write results into selectThresholdTargetThresholdFile as long[].
 	 * return max
-	 * @throws ScanFileHolderException 
+	 * @throws Exception 
 	 */
-	public long createThresholdTarget(String thresholdFile, long[] chipDims, boolean chipPresent[], long numPixelsOutSide, String resultFile) throws ScanFileHolderException{
+	public long createThresholdTarget(String thresholdFile, long[] chipDims, boolean chipPresent[], long numPixelsOutSide, String resultFile) throws Exception{
 		//need to get binned populations and then get value to include all but 100 values
 		if( chipDims.length!= 2)
 			throw new IllegalArgumentException("chipDims.length!= 2");
@@ -797,13 +767,13 @@ public class ExcaliburEqualizationHelper {
 		}
 		long fullHeight = shape[0];
 		long numChipsHigh = chipDims[0];
-		long reqdHeight = getChipBottomPixel(numChipsHigh-1)+1;
+		long reqdHeight = ChipSet.getChipBottomPixel(numChipsHigh-1)+1;
 		if(fullHeight != reqdHeight){
 			throw new IllegalArgumentException("fullHeight != reqdHeight: " + reqdHeight);
 		}
 		long fullWidth = shape[1];
 		long numChipsAcross = chipDims[1];
-		long reqdWidth = getChipRightPixel(numChipsAcross-1)+1;
+		long reqdWidth =ChipSet.getChipRightPixel(numChipsAcross-1)+1;
 		if(fullWidth != reqdWidth){
 			throw new IllegalArgumentException("fullWidth != reqdWidth: " + reqdWidth);
 		}
@@ -814,13 +784,13 @@ public class ExcaliburEqualizationHelper {
 		int[] step= new int[2];
 		step[0]=step[1]=1;
 		for( int ih=0; ih< numChipsHigh; ih++){
-			start[0] = (int) getChipTopPixel(ih);
-			stop[0] = (start[0]+chipHeight); //exclusive
+			start[0] = (int) ChipSet.getChipTopPixel(ih);
+			stop[0] = (start[0]+ChipSet.chipHeight); //exclusive
 			for( int iw=0; iw< numChipsAcross; iw++){
 				int chipIndex = (int) (ih *numChipsAcross + iw);
 				if( chipPresent[chipIndex]){
-					start[1] = (int) getChipLeftPixel(iw);
-					stop[1] = (start[1] + chipWidth); //exclusive
+					start[1] = (int)ChipSet.getChipLeftPixel(iw);
+					stop[1] = (start[1] + ChipSet.chipWidth); //exclusive
 					AbstractDataset dataset = loader.getDataset(null, null, start, stop, step);
 					IntegerDataset dataset2 = getDatasetWithValidPixels(dataset);
 					if( dataset2 != null){
