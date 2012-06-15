@@ -288,6 +288,7 @@ public class SWT2DOverlayProvider implements Overlay2DProvider {
 			break;
 			case IMAGE:
 				figure = new ImageFigure();
+			break;
 		}
 		
 		return registerPrimitive(figure);
