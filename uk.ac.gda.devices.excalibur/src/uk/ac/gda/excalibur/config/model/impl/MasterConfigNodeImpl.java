@@ -8,15 +8,12 @@ package uk.ac.gda.excalibur.config.model.impl;
 
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
-
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
-
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 
 import uk.ac.gda.excalibur.config.model.ExcaliburConfigPackage;
 import uk.ac.gda.excalibur.config.model.MasterConfigAdbaseModel;
-import uk.ac.gda.excalibur.config.model.FixModel;
 import uk.ac.gda.excalibur.config.model.MasterConfigNode;
 
 /**
@@ -33,12 +30,6 @@ import uk.ac.gda.excalibur.config.model.MasterConfigNode;
  * @generated
  */
 public class MasterConfigNodeImpl extends BaseNodeImpl implements MasterConfigNode {
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public static final String copyright = "\nCopyright © 2011 Diamond Light Source Ltd.\n\nThis file is part of GDA.\n\nGDA is free software: you can redistribute it and/or modify it under the\nterms of the GNU General Public License version 3 as published by the Free\nSoftware Foundation.\n\nGDA is distributed in the hope that it will be useful, but WITHOUT ANY\nWARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS\nFOR A PARTICULAR PURPOSE. See the GNU General Public License for more\ndetails.\n\nYou should have received a copy of the GNU General Public License along\nwith GDA. If not, see <http://www.gnu.org/licenses/>.";
 
 	/**
 	 * The cached value of the '{@link #getConfigFem() <em>Config Fem</em>}' containment reference.
@@ -74,6 +65,7 @@ public class MasterConfigNodeImpl extends BaseNodeImpl implements MasterConfigNo
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public MasterConfigAdbaseModel getConfigFem() {
 		return configFem;
 	}
@@ -98,6 +90,7 @@ public class MasterConfigNodeImpl extends BaseNodeImpl implements MasterConfigNo
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setConfigFem(MasterConfigAdbaseModel newConfigFem) {
 		if (newConfigFem != configFem) {
 			NotificationChain msgs = null;

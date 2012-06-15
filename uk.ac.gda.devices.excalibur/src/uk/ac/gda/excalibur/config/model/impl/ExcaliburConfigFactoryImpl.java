@@ -132,6 +132,7 @@ public class ExcaliburConfigFactoryImpl extends EFactoryImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public AnperModel createAnperModel() {
 		AnperModelImpl anperModel = new AnperModelImpl();
 		return anperModel;
@@ -142,6 +143,7 @@ public class ExcaliburConfigFactoryImpl extends EFactoryImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ArrayCountsModel createArrayCountsModel() {
 		ArrayCountsModelImpl arrayCountsModel = new ArrayCountsModelImpl();
 		return arrayCountsModel;
@@ -152,6 +154,7 @@ public class ExcaliburConfigFactoryImpl extends EFactoryImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public BaseNode createBaseNode() {
 		BaseNodeImpl baseNode = new BaseNodeImpl();
 		return baseNode;
@@ -162,6 +165,7 @@ public class ExcaliburConfigFactoryImpl extends EFactoryImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ExcaliburConfig createExcaliburConfig() {
 		ExcaliburConfigImpl excaliburConfig = new ExcaliburConfigImpl();
 		return excaliburConfig;
@@ -172,6 +176,7 @@ public class ExcaliburConfigFactoryImpl extends EFactoryImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public GapModel createGapModel() {
 		GapModelImpl gapModel = new GapModelImpl();
 		return gapModel;
@@ -182,6 +187,7 @@ public class ExcaliburConfigFactoryImpl extends EFactoryImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public MasterConfigAdbaseModel createMasterConfigAdbaseModel() {
 		MasterConfigAdbaseModelImpl masterConfigAdbaseModel = new MasterConfigAdbaseModelImpl();
 		return masterConfigAdbaseModel;
@@ -192,6 +198,7 @@ public class ExcaliburConfigFactoryImpl extends EFactoryImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public MasterConfigNode createMasterConfigNode() {
 		MasterConfigNodeImpl masterConfigNode = new MasterConfigNodeImpl();
 		return masterConfigNode;
@@ -202,6 +209,7 @@ public class ExcaliburConfigFactoryImpl extends EFactoryImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public MasterModel createMasterModel() {
 		MasterModelImpl masterModel = new MasterModelImpl();
 		return masterModel;
@@ -212,6 +220,7 @@ public class ExcaliburConfigFactoryImpl extends EFactoryImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public MpxiiiChipRegModel createMpxiiiChipRegModel() {
 		MpxiiiChipRegModelImpl mpxiiiChipRegModel = new MpxiiiChipRegModelImpl();
 		return mpxiiiChipRegModel;
@@ -222,6 +231,7 @@ public class ExcaliburConfigFactoryImpl extends EFactoryImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public MpxiiiGlobalRegModel createMpxiiiGlobalRegModel() {
 		MpxiiiGlobalRegModelImpl mpxiiiGlobalRegModel = new MpxiiiGlobalRegModelImpl();
 		return mpxiiiGlobalRegModel;
@@ -232,6 +242,7 @@ public class ExcaliburConfigFactoryImpl extends EFactoryImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public PixelModel createPixelModel() {
 		PixelModelImpl pixelModel = new PixelModelImpl();
 		return pixelModel;
@@ -242,6 +253,7 @@ public class ExcaliburConfigFactoryImpl extends EFactoryImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ReadoutNode createReadoutNode() {
 		ReadoutNodeImpl readoutNode = new ReadoutNodeImpl();
 		return readoutNode;
@@ -252,6 +264,7 @@ public class ExcaliburConfigFactoryImpl extends EFactoryImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ReadoutNodeFemModel createReadoutNodeFemModel() {
 		ReadoutNodeFemModelImpl readoutNodeFemModel = new ReadoutNodeFemModelImpl();
 		return readoutNodeFemModel;
@@ -262,6 +275,7 @@ public class ExcaliburConfigFactoryImpl extends EFactoryImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public SummaryAdbaseModel createSummaryAdbaseModel() {
 		SummaryAdbaseModelImpl summaryAdbaseModel = new SummaryAdbaseModelImpl();
 		return summaryAdbaseModel;
@@ -272,6 +286,7 @@ public class ExcaliburConfigFactoryImpl extends EFactoryImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public SummaryNode createSummaryNode() {
 		SummaryNodeImpl summaryNode = new SummaryNodeImpl();
 		return summaryNode;
@@ -282,6 +297,7 @@ public class ExcaliburConfigFactoryImpl extends EFactoryImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public FixModel createFixModel() {
 		FixModelImpl fixModel = new FixModelImpl();
 		return fixModel;
@@ -310,6 +326,7 @@ public class ExcaliburConfigFactoryImpl extends EFactoryImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@SuppressWarnings("unused")
 	public String[] createStringArrayFromString(EDataType eDataType, String initialValue) {
 		return (String[])super.createFromString(initialValue);
 	}
@@ -319,6 +336,7 @@ public class ExcaliburConfigFactoryImpl extends EFactoryImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@SuppressWarnings("unused")
 	public String convertStringArrayToString(EDataType eDataType, Object instanceValue) {
 		return super.convertToString(instanceValue);
 	}
@@ -328,6 +346,7 @@ public class ExcaliburConfigFactoryImpl extends EFactoryImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@SuppressWarnings("unused")
 	public short[] createShortArrayFromString(EDataType eDataType, String initialValue) {
 		return (short[])super.createFromString(initialValue);
 	}
@@ -337,6 +356,7 @@ public class ExcaliburConfigFactoryImpl extends EFactoryImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@SuppressWarnings("unused")
 	public String convertShortArrayToString(EDataType eDataType, Object instanceValue) {
 		return super.convertToString(instanceValue);
 	}
@@ -346,6 +366,7 @@ public class ExcaliburConfigFactoryImpl extends EFactoryImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ExcaliburConfigPackage getExcaliburConfigPackage() {
 		return (ExcaliburConfigPackage)getEPackage();
 	}

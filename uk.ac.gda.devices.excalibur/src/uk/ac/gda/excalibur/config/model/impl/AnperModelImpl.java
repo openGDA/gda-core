@@ -810,6 +810,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getPreamp() {
 		return preamp;
 	}
@@ -819,6 +820,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setPreamp(int newPreamp) {
 		int oldPreamp = preamp;
 		preamp = newPreamp;
@@ -833,6 +835,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetPreamp() {
 		int oldPreamp = preamp;
 		boolean oldPreampESet = preampESet;
@@ -847,6 +850,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetPreamp() {
 		return preampESet;
 	}
@@ -856,6 +860,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getIkrum() {
 		return ikrum;
 	}
@@ -865,6 +870,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setIkrum(int newIkrum) {
 		int oldIkrum = ikrum;
 		ikrum = newIkrum;
@@ -879,6 +885,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetIkrum() {
 		int oldIkrum = ikrum;
 		boolean oldIkrumESet = ikrumESet;
@@ -893,6 +900,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetIkrum() {
 		return ikrumESet;
 	}
@@ -902,6 +910,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getShaper() {
 		return shaper;
 	}
@@ -911,6 +920,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setShaper(int newShaper) {
 		int oldShaper = shaper;
 		shaper = newShaper;
@@ -925,6 +935,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetShaper() {
 		int oldShaper = shaper;
 		boolean oldShaperESet = shaperESet;
@@ -939,6 +950,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetShaper() {
 		return shaperESet;
 	}
@@ -948,6 +960,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getDisc() {
 		return disc;
 	}
@@ -957,6 +970,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDisc(int newDisc) {
 		int oldDisc = disc;
 		disc = newDisc;
@@ -971,6 +985,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetDisc() {
 		int oldDisc = disc;
 		boolean oldDiscESet = discESet;
@@ -985,6 +1000,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetDisc() {
 		return discESet;
 	}
@@ -994,6 +1010,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getDiscls() {
 		return discls;
 	}
@@ -1003,6 +1020,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDiscls(int newDiscls) {
 		int oldDiscls = discls;
 		discls = newDiscls;
@@ -1017,6 +1035,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetDiscls() {
 		int oldDiscls = discls;
 		boolean oldDisclsESet = disclsESet;
@@ -1031,6 +1050,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetDiscls() {
 		return disclsESet;
 	}
@@ -1040,6 +1060,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getThresholdn() {
 		return thresholdn;
 	}
@@ -1049,6 +1070,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setThresholdn(int newThresholdn) {
 		int oldThresholdn = thresholdn;
 		thresholdn = newThresholdn;
@@ -1063,6 +1085,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetThresholdn() {
 		int oldThresholdn = thresholdn;
 		boolean oldThresholdnESet = thresholdnESet;
@@ -1077,6 +1100,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetThresholdn() {
 		return thresholdnESet;
 	}
@@ -1086,6 +1110,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getDacPixel() {
 		return dacPixel;
 	}
@@ -1095,6 +1120,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDacPixel(int newDacPixel) {
 		int oldDacPixel = dacPixel;
 		dacPixel = newDacPixel;
@@ -1109,6 +1135,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetDacPixel() {
 		int oldDacPixel = dacPixel;
 		boolean oldDacPixelESet = dacPixelESet;
@@ -1123,6 +1150,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetDacPixel() {
 		return dacPixelESet;
 	}
@@ -1132,6 +1160,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getDelay() {
 		return delay;
 	}
@@ -1141,6 +1170,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDelay(int newDelay) {
 		int oldDelay = delay;
 		delay = newDelay;
@@ -1155,6 +1185,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetDelay() {
 		int oldDelay = delay;
 		boolean oldDelayESet = delayESet;
@@ -1169,6 +1200,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetDelay() {
 		return delayESet;
 	}
@@ -1178,6 +1210,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getTpBufferIn() {
 		return tpBufferIn;
 	}
@@ -1187,6 +1220,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setTpBufferIn(int newTpBufferIn) {
 		int oldTpBufferIn = tpBufferIn;
 		tpBufferIn = newTpBufferIn;
@@ -1201,6 +1235,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetTpBufferIn() {
 		int oldTpBufferIn = tpBufferIn;
 		boolean oldTpBufferInESet = tpBufferInESet;
@@ -1215,6 +1250,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetTpBufferIn() {
 		return tpBufferInESet;
 	}
@@ -1224,6 +1260,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getTpBufferOut() {
 		return tpBufferOut;
 	}
@@ -1233,6 +1270,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setTpBufferOut(int newTpBufferOut) {
 		int oldTpBufferOut = tpBufferOut;
 		tpBufferOut = newTpBufferOut;
@@ -1247,6 +1285,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetTpBufferOut() {
 		int oldTpBufferOut = tpBufferOut;
 		boolean oldTpBufferOutESet = tpBufferOutESet;
@@ -1261,6 +1300,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetTpBufferOut() {
 		return tpBufferOutESet;
 	}
@@ -1270,6 +1310,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getRpz() {
 		return rpz;
 	}
@@ -1279,6 +1320,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setRpz(int newRpz) {
 		int oldRpz = rpz;
 		rpz = newRpz;
@@ -1293,6 +1335,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetRpz() {
 		int oldRpz = rpz;
 		boolean oldRpzESet = rpzESet;
@@ -1307,6 +1350,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetRpz() {
 		return rpzESet;
 	}
@@ -1316,6 +1360,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getGnd() {
 		return gnd;
 	}
@@ -1325,6 +1370,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setGnd(int newGnd) {
 		int oldGnd = gnd;
 		gnd = newGnd;
@@ -1339,6 +1385,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetGnd() {
 		int oldGnd = gnd;
 		boolean oldGndESet = gndESet;
@@ -1353,6 +1400,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetGnd() {
 		return gndESet;
 	}
@@ -1362,6 +1410,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getTpref() {
 		return tpref;
 	}
@@ -1371,6 +1420,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setTpref(int newTpref) {
 		int oldTpref = tpref;
 		tpref = newTpref;
@@ -1385,6 +1435,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetTpref() {
 		int oldTpref = tpref;
 		boolean oldTprefESet = tprefESet;
@@ -1399,6 +1450,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetTpref() {
 		return tprefESet;
 	}
@@ -1408,6 +1460,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getFbk() {
 		return fbk;
 	}
@@ -1417,6 +1470,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFbk(int newFbk) {
 		int oldFbk = fbk;
 		fbk = newFbk;
@@ -1431,6 +1485,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetFbk() {
 		int oldFbk = fbk;
 		boolean oldFbkESet = fbkESet;
@@ -1445,6 +1500,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetFbk() {
 		return fbkESet;
 	}
@@ -1454,6 +1510,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getCas() {
 		return cas;
 	}
@@ -1463,6 +1520,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setCas(int newCas) {
 		int oldCas = cas;
 		cas = newCas;
@@ -1477,6 +1535,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetCas() {
 		int oldCas = cas;
 		boolean oldCasESet = casESet;
@@ -1491,6 +1550,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetCas() {
 		return casESet;
 	}
@@ -1500,6 +1560,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getTprefA() {
 		return tprefA;
 	}
@@ -1509,6 +1570,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setTprefA(int newTprefA) {
 		int oldTprefA = tprefA;
 		tprefA = newTprefA;
@@ -1523,6 +1585,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetTprefA() {
 		int oldTprefA = tprefA;
 		boolean oldTprefAESet = tprefAESet;
@@ -1537,6 +1600,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetTprefA() {
 		return tprefAESet;
 	}
@@ -1546,6 +1610,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getTprefB() {
 		return tprefB;
 	}
@@ -1555,6 +1620,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setTprefB(int newTprefB) {
 		int oldTprefB = tprefB;
 		tprefB = newTprefB;
@@ -1569,6 +1635,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetTprefB() {
 		int oldTprefB = tprefB;
 		boolean oldTprefBESet = tprefBESet;
@@ -1583,6 +1650,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetTprefB() {
 		return tprefBESet;
 	}
@@ -1592,6 +1660,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getThreshold0() {
 		return threshold0;
 	}
@@ -1601,6 +1670,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setThreshold0(int newThreshold0) {
 		int oldThreshold0 = threshold0;
 		threshold0 = newThreshold0;
@@ -1615,6 +1685,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetThreshold0() {
 		int oldThreshold0 = threshold0;
 		boolean oldThreshold0ESet = threshold0ESet;
@@ -1629,6 +1700,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetThreshold0() {
 		return threshold0ESet;
 	}
@@ -1638,6 +1710,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getThreshold1() {
 		return threshold1;
 	}
@@ -1647,6 +1720,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setThreshold1(int newThreshold1) {
 		int oldThreshold1 = threshold1;
 		threshold1 = newThreshold1;
@@ -1661,6 +1735,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetThreshold1() {
 		int oldThreshold1 = threshold1;
 		boolean oldThreshold1ESet = threshold1ESet;
@@ -1675,6 +1750,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetThreshold1() {
 		return threshold1ESet;
 	}
@@ -1684,6 +1760,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getThreshold2() {
 		return threshold2;
 	}
@@ -1693,6 +1770,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setThreshold2(int newThreshold2) {
 		int oldThreshold2 = threshold2;
 		threshold2 = newThreshold2;
@@ -1707,6 +1785,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetThreshold2() {
 		int oldThreshold2 = threshold2;
 		boolean oldThreshold2ESet = threshold2ESet;
@@ -1721,6 +1800,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetThreshold2() {
 		return threshold2ESet;
 	}
@@ -1730,6 +1810,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getThreshold3() {
 		return threshold3;
 	}
@@ -1739,6 +1820,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setThreshold3(int newThreshold3) {
 		int oldThreshold3 = threshold3;
 		threshold3 = newThreshold3;
@@ -1753,6 +1835,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetThreshold3() {
 		int oldThreshold3 = threshold3;
 		boolean oldThreshold3ESet = threshold3ESet;
@@ -1767,6 +1850,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetThreshold3() {
 		return threshold3ESet;
 	}
@@ -1776,6 +1860,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getThreshold4() {
 		return threshold4;
 	}
@@ -1785,6 +1870,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setThreshold4(int newThreshold4) {
 		int oldThreshold4 = threshold4;
 		threshold4 = newThreshold4;
@@ -1799,6 +1885,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetThreshold4() {
 		int oldThreshold4 = threshold4;
 		boolean oldThreshold4ESet = threshold4ESet;
@@ -1813,6 +1900,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetThreshold4() {
 		return threshold4ESet;
 	}
@@ -1822,6 +1910,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getThreshold5() {
 		return threshold5;
 	}
@@ -1831,6 +1920,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setThreshold5(int newThreshold5) {
 		int oldThreshold5 = threshold5;
 		threshold5 = newThreshold5;
@@ -1845,6 +1935,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetThreshold5() {
 		int oldThreshold5 = threshold5;
 		boolean oldThreshold5ESet = threshold5ESet;
@@ -1859,6 +1950,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetThreshold5() {
 		return threshold5ESet;
 	}
@@ -1868,6 +1960,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getThreshold6() {
 		return threshold6;
 	}
@@ -1877,6 +1970,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setThreshold6(int newThreshold6) {
 		int oldThreshold6 = threshold6;
 		threshold6 = newThreshold6;
@@ -1891,6 +1985,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetThreshold6() {
 		int oldThreshold6 = threshold6;
 		boolean oldThreshold6ESet = threshold6ESet;
@@ -1905,6 +2000,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetThreshold6() {
 		return threshold6ESet;
 	}
@@ -1914,6 +2010,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getThreshold7() {
 		return threshold7;
 	}
@@ -1923,6 +2020,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setThreshold7(int newThreshold7) {
 		int oldThreshold7 = threshold7;
 		threshold7 = newThreshold7;
@@ -1937,6 +2035,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetThreshold7() {
 		int oldThreshold7 = threshold7;
 		boolean oldThreshold7ESet = threshold7ESet;
@@ -1951,6 +2050,7 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetThreshold7() {
 		return threshold7ESet;
 	}

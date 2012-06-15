@@ -2406,6 +2406,7 @@ public interface ExcaliburConfigPackage extends EPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@SuppressWarnings("hiding")
 	interface Literals {
 		/**
 		 * The meta object literal for the '{@link uk.ac.gda.excalibur.config.model.impl.AnperModelImpl <em>Anper Model</em>}' class.

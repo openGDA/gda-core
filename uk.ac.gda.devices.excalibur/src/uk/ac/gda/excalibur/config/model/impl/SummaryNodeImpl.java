@@ -72,6 +72,7 @@ public class SummaryNodeImpl extends EObjectImpl implements SummaryNode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public SummaryAdbaseModel getSummaryFem() {
 		return summaryFem;
 	}
@@ -96,6 +97,7 @@ public class SummaryNodeImpl extends EObjectImpl implements SummaryNode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setSummaryFem(SummaryAdbaseModel newSummaryFem) {
 		if (newSummaryFem != summaryFem) {
 			NotificationChain msgs = null;

@@ -7,15 +7,10 @@
 package uk.ac.gda.excalibur.config.model.impl;
 
 import org.eclipse.emf.common.notify.Notification;
-import org.eclipse.emf.common.notify.NotificationChain;
-
 import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.InternalEObject;
-
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
 
-import uk.ac.gda.excalibur.config.model.ArrayCountsModel;
 import uk.ac.gda.excalibur.config.model.ExcaliburConfigPackage;
 import uk.ac.gda.excalibur.config.model.MasterConfigAdbaseModel;
 
@@ -84,6 +79,7 @@ public class MasterConfigAdbaseModelImpl extends EObjectImpl implements MasterCo
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getCounterDepth() {
 		return counterDepth;
 	}
@@ -93,6 +89,7 @@ public class MasterConfigAdbaseModelImpl extends EObjectImpl implements MasterCo
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setCounterDepth(int newCounterDepth) {
 		int oldCounterDepth = counterDepth;
 		counterDepth = newCounterDepth;

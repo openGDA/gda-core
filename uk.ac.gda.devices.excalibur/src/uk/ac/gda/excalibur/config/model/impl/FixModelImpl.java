@@ -114,6 +114,7 @@ public class FixModelImpl extends EObjectImpl implements FixModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isStatisticsEnabled() {
 		return statisticsEnabled;
 	}
@@ -123,6 +124,7 @@ public class FixModelImpl extends EObjectImpl implements FixModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setStatisticsEnabled(boolean newStatisticsEnabled) {
 		boolean oldStatisticsEnabled = statisticsEnabled;
 		statisticsEnabled = newStatisticsEnabled;
@@ -135,6 +137,7 @@ public class FixModelImpl extends EObjectImpl implements FixModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isScaleEdgePixelsEnabled() {
 		return scaleEdgePixelsEnabled;
 	}
@@ -144,6 +147,7 @@ public class FixModelImpl extends EObjectImpl implements FixModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setScaleEdgePixelsEnabled(boolean newScaleEdgePixelsEnabled) {
 		boolean oldScaleEdgePixelsEnabled = scaleEdgePixelsEnabled;
 		scaleEdgePixelsEnabled = newScaleEdgePixelsEnabled;

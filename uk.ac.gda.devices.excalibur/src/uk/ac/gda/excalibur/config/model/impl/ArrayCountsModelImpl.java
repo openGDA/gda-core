@@ -186,6 +186,7 @@ public class ArrayCountsModelImpl extends EObjectImpl implements ArrayCountsMode
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getArrayCountFem1() {
 		return arrayCountFem1;
 	}
@@ -195,6 +196,7 @@ public class ArrayCountsModelImpl extends EObjectImpl implements ArrayCountsMode
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setArrayCountFem1(int newArrayCountFem1) {
 		int oldArrayCountFem1 = arrayCountFem1;
 		arrayCountFem1 = newArrayCountFem1;
@@ -207,6 +209,7 @@ public class ArrayCountsModelImpl extends EObjectImpl implements ArrayCountsMode
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getArrayCountFem2() {
 		return arrayCountFem2;
 	}
@@ -216,6 +219,7 @@ public class ArrayCountsModelImpl extends EObjectImpl implements ArrayCountsMode
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setArrayCountFem2(int newArrayCountFem2) {
 		int oldArrayCountFem2 = arrayCountFem2;
 		arrayCountFem2 = newArrayCountFem2;
@@ -228,6 +232,7 @@ public class ArrayCountsModelImpl extends EObjectImpl implements ArrayCountsMode
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getArrayCountFem3() {
 		return arrayCountFem3;
 	}
@@ -237,6 +242,7 @@ public class ArrayCountsModelImpl extends EObjectImpl implements ArrayCountsMode
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setArrayCountFem3(int newArrayCountFem3) {
 		int oldArrayCountFem3 = arrayCountFem3;
 		arrayCountFem3 = newArrayCountFem3;
@@ -249,6 +255,7 @@ public class ArrayCountsModelImpl extends EObjectImpl implements ArrayCountsMode
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getArrayCountFem4() {
 		return arrayCountFem4;
 	}
@@ -258,6 +265,7 @@ public class ArrayCountsModelImpl extends EObjectImpl implements ArrayCountsMode
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setArrayCountFem4(int newArrayCountFem4) {
 		int oldArrayCountFem4 = arrayCountFem4;
 		arrayCountFem4 = newArrayCountFem4;
@@ -270,6 +278,7 @@ public class ArrayCountsModelImpl extends EObjectImpl implements ArrayCountsMode
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getArrayCountFem5() {
 		return arrayCountFem5;
 	}
@@ -279,6 +288,7 @@ public class ArrayCountsModelImpl extends EObjectImpl implements ArrayCountsMode
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setArrayCountFem5(int newArrayCountFem5) {
 		int oldArrayCountFem5 = arrayCountFem5;
 		arrayCountFem5 = newArrayCountFem5;
@@ -291,6 +301,7 @@ public class ArrayCountsModelImpl extends EObjectImpl implements ArrayCountsMode
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getArrayCountFem6() {
 		return arrayCountFem6;
 	}
@@ -300,6 +311,7 @@ public class ArrayCountsModelImpl extends EObjectImpl implements ArrayCountsMode
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setArrayCountFem6(int newArrayCountFem6) {
 		int oldArrayCountFem6 = arrayCountFem6;
 		arrayCountFem6 = newArrayCountFem6;

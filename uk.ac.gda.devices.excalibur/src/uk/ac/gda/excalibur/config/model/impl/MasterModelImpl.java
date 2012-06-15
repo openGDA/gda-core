@@ -81,6 +81,7 @@ public class MasterModelImpl extends EObjectImpl implements MasterModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getFrameDivisor() {
 		return frameDivisor;
 	}
@@ -90,6 +91,7 @@ public class MasterModelImpl extends EObjectImpl implements MasterModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFrameDivisor(int newFrameDivisor) {
 		int oldFrameDivisor = frameDivisor;
 		frameDivisor = newFrameDivisor;

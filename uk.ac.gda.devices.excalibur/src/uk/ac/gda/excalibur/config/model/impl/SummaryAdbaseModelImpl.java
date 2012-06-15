@@ -123,6 +123,7 @@ public class SummaryAdbaseModelImpl extends EObjectImpl implements SummaryAdbase
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getFrameDivisor() {
 		return frameDivisor;
 	}
@@ -132,6 +133,7 @@ public class SummaryAdbaseModelImpl extends EObjectImpl implements SummaryAdbase
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFrameDivisor(int newFrameDivisor) {
 		int oldFrameDivisor = frameDivisor;
 		frameDivisor = newFrameDivisor;
@@ -144,6 +146,7 @@ public class SummaryAdbaseModelImpl extends EObjectImpl implements SummaryAdbase
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getCounterDepth() {
 		return counterDepth;
 	}
@@ -153,6 +156,7 @@ public class SummaryAdbaseModelImpl extends EObjectImpl implements SummaryAdbase
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setCounterDepth(int newCounterDepth) {
 		int oldCounterDepth = counterDepth;
 		counterDepth = newCounterDepth;
@@ -165,6 +169,7 @@ public class SummaryAdbaseModelImpl extends EObjectImpl implements SummaryAdbase
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getGapFillConstant() {
 		return gapFillConstant;
 	}
@@ -174,6 +179,7 @@ public class SummaryAdbaseModelImpl extends EObjectImpl implements SummaryAdbase
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setGapFillConstant(int newGapFillConstant) {
 		int oldGapFillConstant = gapFillConstant;
 		gapFillConstant = newGapFillConstant;

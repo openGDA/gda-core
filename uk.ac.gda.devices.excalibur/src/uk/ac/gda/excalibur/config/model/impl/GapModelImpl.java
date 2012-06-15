@@ -115,6 +115,7 @@ public class GapModelImpl extends EObjectImpl implements GapModel {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getGapFillConstant() {
 		return gapFillConstant;
 	}
@@ -123,6 +124,7 @@ public class GapModelImpl extends EObjectImpl implements GapModel {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setGapFillConstant(int newGapFillConstant) {
 		int oldGapFillConstant = gapFillConstant;
 		gapFillConstant = newGapFillConstant;
@@ -134,6 +136,7 @@ public class GapModelImpl extends EObjectImpl implements GapModel {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isGapFillingEnabled() {
 		return gapFillingEnabled;
 	}
@@ -142,6 +145,7 @@ public class GapModelImpl extends EObjectImpl implements GapModel {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setGapFillingEnabled(boolean newGapFillingEnabled) {
 		boolean oldGapFillingEnabled = gapFillingEnabled;
 		gapFillingEnabled = newGapFillingEnabled;
@@ -153,6 +157,7 @@ public class GapModelImpl extends EObjectImpl implements GapModel {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getGapFillMode() {
 		return gapFillMode;
 	}
@@ -161,6 +166,7 @@ public class GapModelImpl extends EObjectImpl implements GapModel {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setGapFillMode(int newGapFillMode) {
 		int oldGapFillMode = gapFillMode;
 		gapFillMode = newGapFillMode;

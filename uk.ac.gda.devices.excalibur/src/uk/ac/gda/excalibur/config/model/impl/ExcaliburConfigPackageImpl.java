@@ -245,6 +245,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getAnperModel() {
 		return anperModelEClass;
 	}
@@ -254,6 +255,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getAnperModel_Preamp() {
 		return (EAttribute)anperModelEClass.getEStructuralFeatures().get(0);
 	}
@@ -263,6 +265,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getAnperModel_Ikrum() {
 		return (EAttribute)anperModelEClass.getEStructuralFeatures().get(1);
 	}
@@ -272,6 +275,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getAnperModel_Shaper() {
 		return (EAttribute)anperModelEClass.getEStructuralFeatures().get(2);
 	}
@@ -281,6 +285,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getAnperModel_Disc() {
 		return (EAttribute)anperModelEClass.getEStructuralFeatures().get(3);
 	}
@@ -290,6 +295,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getAnperModel_Discls() {
 		return (EAttribute)anperModelEClass.getEStructuralFeatures().get(4);
 	}
@@ -299,6 +305,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getAnperModel_Thresholdn() {
 		return (EAttribute)anperModelEClass.getEStructuralFeatures().get(5);
 	}
@@ -308,6 +315,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getAnperModel_DacPixel() {
 		return (EAttribute)anperModelEClass.getEStructuralFeatures().get(6);
 	}
@@ -317,6 +325,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getAnperModel_Delay() {
 		return (EAttribute)anperModelEClass.getEStructuralFeatures().get(7);
 	}
@@ -326,6 +335,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getAnperModel_TpBufferIn() {
 		return (EAttribute)anperModelEClass.getEStructuralFeatures().get(8);
 	}
@@ -335,6 +345,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getAnperModel_TpBufferOut() {
 		return (EAttribute)anperModelEClass.getEStructuralFeatures().get(9);
 	}
@@ -344,6 +355,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getAnperModel_Rpz() {
 		return (EAttribute)anperModelEClass.getEStructuralFeatures().get(10);
 	}
@@ -353,6 +365,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getAnperModel_Gnd() {
 		return (EAttribute)anperModelEClass.getEStructuralFeatures().get(11);
 	}
@@ -362,6 +375,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getAnperModel_Tpref() {
 		return (EAttribute)anperModelEClass.getEStructuralFeatures().get(12);
 	}
@@ -371,6 +385,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getAnperModel_Fbk() {
 		return (EAttribute)anperModelEClass.getEStructuralFeatures().get(13);
 	}
@@ -380,6 +395,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getAnperModel_Cas() {
 		return (EAttribute)anperModelEClass.getEStructuralFeatures().get(14);
 	}
@@ -389,6 +405,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getAnperModel_TprefA() {
 		return (EAttribute)anperModelEClass.getEStructuralFeatures().get(15);
 	}
@@ -398,6 +415,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getAnperModel_TprefB() {
 		return (EAttribute)anperModelEClass.getEStructuralFeatures().get(16);
 	}
@@ -407,6 +425,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getAnperModel_Threshold0() {
 		return (EAttribute)anperModelEClass.getEStructuralFeatures().get(17);
 	}
@@ -416,6 +435,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getAnperModel_Threshold1() {
 		return (EAttribute)anperModelEClass.getEStructuralFeatures().get(18);
 	}
@@ -425,6 +445,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getAnperModel_Threshold2() {
 		return (EAttribute)anperModelEClass.getEStructuralFeatures().get(19);
 	}
@@ -434,6 +455,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getAnperModel_Threshold3() {
 		return (EAttribute)anperModelEClass.getEStructuralFeatures().get(20);
 	}
@@ -443,6 +465,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getAnperModel_Threshold4() {
 		return (EAttribute)anperModelEClass.getEStructuralFeatures().get(21);
 	}
@@ -452,6 +475,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getAnperModel_Threshold5() {
 		return (EAttribute)anperModelEClass.getEStructuralFeatures().get(22);
 	}
@@ -461,6 +485,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getAnperModel_Threshold6() {
 		return (EAttribute)anperModelEClass.getEStructuralFeatures().get(23);
 	}
@@ -470,6 +495,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getAnperModel_Threshold7() {
 		return (EAttribute)anperModelEClass.getEStructuralFeatures().get(24);
 	}
@@ -479,6 +505,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getArrayCountsModel() {
 		return arrayCountsModelEClass;
 	}
@@ -488,6 +515,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getArrayCountsModel_ArrayCountFem1() {
 		return (EAttribute)arrayCountsModelEClass.getEStructuralFeatures().get(0);
 	}
@@ -497,6 +525,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getArrayCountsModel_ArrayCountFem2() {
 		return (EAttribute)arrayCountsModelEClass.getEStructuralFeatures().get(1);
 	}
@@ -506,6 +535,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getArrayCountsModel_ArrayCountFem3() {
 		return (EAttribute)arrayCountsModelEClass.getEStructuralFeatures().get(2);
 	}
@@ -515,6 +545,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getArrayCountsModel_ArrayCountFem4() {
 		return (EAttribute)arrayCountsModelEClass.getEStructuralFeatures().get(3);
 	}
@@ -524,6 +555,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getArrayCountsModel_ArrayCountFem5() {
 		return (EAttribute)arrayCountsModelEClass.getEStructuralFeatures().get(4);
 	}
@@ -533,6 +565,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getArrayCountsModel_ArrayCountFem6() {
 		return (EAttribute)arrayCountsModelEClass.getEStructuralFeatures().get(5);
 	}
@@ -542,6 +575,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getBaseNode() {
 		return baseNodeEClass;
 	}
@@ -551,6 +585,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getBaseNode_Gap() {
 		return (EReference)baseNodeEClass.getEStructuralFeatures().get(0);
 	}
@@ -560,6 +595,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getBaseNode_Mst() {
 		return (EReference)baseNodeEClass.getEStructuralFeatures().get(1);
 	}
@@ -569,6 +605,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getBaseNode_Fix() {
 		return (EReference)baseNodeEClass.getEStructuralFeatures().get(2);
 	}
@@ -578,6 +615,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getExcaliburConfig() {
 		return excaliburConfigEClass;
 	}
@@ -587,6 +625,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getExcaliburConfig_ReadoutNodes() {
 		return (EReference)excaliburConfigEClass.getEStructuralFeatures().get(0);
 	}
@@ -596,6 +635,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getExcaliburConfig_ConfigNode() {
 		return (EReference)excaliburConfigEClass.getEStructuralFeatures().get(1);
 	}
@@ -605,6 +645,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getExcaliburConfig_SummaryNode() {
 		return (EReference)excaliburConfigEClass.getEStructuralFeatures().get(2);
 	}
@@ -614,6 +655,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getGapModel() {
 		return gapModelEClass;
 	}
@@ -623,6 +665,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getGapModel_GapFillConstant() {
 		return (EAttribute)gapModelEClass.getEStructuralFeatures().get(0);
 	}
@@ -632,6 +675,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getGapModel_GapFillingEnabled() {
 		return (EAttribute)gapModelEClass.getEStructuralFeatures().get(1);
 	}
@@ -641,6 +685,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getGapModel_GapFillMode() {
 		return (EAttribute)gapModelEClass.getEStructuralFeatures().get(2);
 	}
@@ -650,6 +695,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getMasterConfigAdbaseModel() {
 		return masterConfigAdbaseModelEClass;
 	}
@@ -659,6 +705,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMasterConfigAdbaseModel_CounterDepth() {
 		return (EAttribute)masterConfigAdbaseModelEClass.getEStructuralFeatures().get(0);
 	}
@@ -668,6 +715,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getMasterConfigNode() {
 		return masterConfigNodeEClass;
 	}
@@ -677,6 +725,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getMasterConfigNode_ConfigFem() {
 		return (EReference)masterConfigNodeEClass.getEStructuralFeatures().get(0);
 	}
@@ -686,6 +735,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getMasterModel() {
 		return masterModelEClass;
 	}
@@ -695,6 +745,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMasterModel_FrameDivisor() {
 		return (EAttribute)masterModelEClass.getEStructuralFeatures().get(0);
 	}
@@ -704,6 +755,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getMpxiiiChipRegModel() {
 		return mpxiiiChipRegModelEClass;
 	}
@@ -713,6 +765,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMpxiiiChipRegModel_DacSense() {
 		return (EAttribute)mpxiiiChipRegModelEClass.getEStructuralFeatures().get(0);
 	}
@@ -722,6 +775,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMpxiiiChipRegModel_DacSenseDecode() {
 		return (EAttribute)mpxiiiChipRegModelEClass.getEStructuralFeatures().get(1);
 	}
@@ -731,6 +785,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMpxiiiChipRegModel_DacSenseName() {
 		return (EAttribute)mpxiiiChipRegModelEClass.getEStructuralFeatures().get(2);
 	}
@@ -740,6 +795,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMpxiiiChipRegModel_DacExternal() {
 		return (EAttribute)mpxiiiChipRegModelEClass.getEStructuralFeatures().get(3);
 	}
@@ -749,6 +805,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMpxiiiChipRegModel_DacExternalDecode() {
 		return (EAttribute)mpxiiiChipRegModelEClass.getEStructuralFeatures().get(4);
 	}
@@ -758,6 +815,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMpxiiiChipRegModel_DacExternalName() {
 		return (EAttribute)mpxiiiChipRegModelEClass.getEStructuralFeatures().get(5);
 	}
@@ -767,6 +825,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getMpxiiiChipRegModel_Anper() {
 		return (EReference)mpxiiiChipRegModelEClass.getEStructuralFeatures().get(6);
 	}
@@ -776,6 +835,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getMpxiiiChipRegModel_Pixel() {
 		return (EReference)mpxiiiChipRegModelEClass.getEStructuralFeatures().get(7);
 	}
@@ -785,6 +845,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getMpxiiiGlobalRegModel() {
 		return mpxiiiGlobalRegModelEClass;
 	}
@@ -794,6 +855,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMpxiiiGlobalRegModel_ColourMode() {
 		return (EAttribute)mpxiiiGlobalRegModelEClass.getEStructuralFeatures().get(0);
 	}
@@ -803,6 +865,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMpxiiiGlobalRegModel_ColourModeAsString() {
 		return (EAttribute)mpxiiiGlobalRegModelEClass.getEStructuralFeatures().get(1);
 	}
@@ -812,6 +875,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMpxiiiGlobalRegModel_ColourModeLabels() {
 		return (EAttribute)mpxiiiGlobalRegModelEClass.getEStructuralFeatures().get(2);
 	}
@@ -821,6 +885,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMpxiiiGlobalRegModel_DacNumber() {
 		return (EAttribute)mpxiiiGlobalRegModelEClass.getEStructuralFeatures().get(3);
 	}
@@ -830,6 +895,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMpxiiiGlobalRegModel_DacNameCalc1() {
 		return (EAttribute)mpxiiiGlobalRegModelEClass.getEStructuralFeatures().get(4);
 	}
@@ -839,6 +905,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMpxiiiGlobalRegModel_DacNameCalc2() {
 		return (EAttribute)mpxiiiGlobalRegModelEClass.getEStructuralFeatures().get(5);
 	}
@@ -848,6 +915,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMpxiiiGlobalRegModel_DacNameCalc3() {
 		return (EAttribute)mpxiiiGlobalRegModelEClass.getEStructuralFeatures().get(6);
 	}
@@ -857,6 +925,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMpxiiiGlobalRegModel_DacNameSel1() {
 		return (EAttribute)mpxiiiGlobalRegModelEClass.getEStructuralFeatures().get(7);
 	}
@@ -866,6 +935,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMpxiiiGlobalRegModel_DacNameSel2() {
 		return (EAttribute)mpxiiiGlobalRegModelEClass.getEStructuralFeatures().get(8);
 	}
@@ -875,6 +945,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMpxiiiGlobalRegModel_DacNameSel3() {
 		return (EAttribute)mpxiiiGlobalRegModelEClass.getEStructuralFeatures().get(9);
 	}
@@ -884,6 +955,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMpxiiiGlobalRegModel_DacName() {
 		return (EAttribute)mpxiiiGlobalRegModelEClass.getEStructuralFeatures().get(10);
 	}
@@ -893,6 +965,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMpxiiiGlobalRegModel_CounterDepthLabels() {
 		return (EAttribute)mpxiiiGlobalRegModelEClass.getEStructuralFeatures().get(11);
 	}
@@ -902,6 +975,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMpxiiiGlobalRegModel_CounterDepth() {
 		return (EAttribute)mpxiiiGlobalRegModelEClass.getEStructuralFeatures().get(12);
 	}
@@ -911,6 +985,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMpxiiiGlobalRegModel_CounterDepthAsString() {
 		return (EAttribute)mpxiiiGlobalRegModelEClass.getEStructuralFeatures().get(13);
 	}
@@ -920,6 +995,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getPixelModel() {
 		return pixelModelEClass;
 	}
@@ -929,6 +1005,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getPixelModel_Mask() {
 		return (EAttribute)pixelModelEClass.getEStructuralFeatures().get(0);
 	}
@@ -938,6 +1015,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getPixelModel_Test() {
 		return (EAttribute)pixelModelEClass.getEStructuralFeatures().get(1);
 	}
@@ -947,6 +1025,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getPixelModel_GainMode() {
 		return (EAttribute)pixelModelEClass.getEStructuralFeatures().get(2);
 	}
@@ -956,6 +1035,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getPixelModel_ThresholdA() {
 		return (EAttribute)pixelModelEClass.getEStructuralFeatures().get(3);
 	}
@@ -965,6 +1045,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getPixelModel_ThresholdB() {
 		return (EAttribute)pixelModelEClass.getEStructuralFeatures().get(4);
 	}
@@ -974,6 +1055,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getReadoutNode() {
 		return readoutNodeEClass;
 	}
@@ -983,6 +1065,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getReadoutNode_ReadoutNodeFem() {
 		return (EReference)readoutNodeEClass.getEStructuralFeatures().get(0);
 	}
@@ -992,6 +1075,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getReadoutNode_Id() {
 		return (EAttribute)readoutNodeEClass.getEStructuralFeatures().get(1);
 	}
@@ -1001,6 +1085,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getReadoutNodeFemModel() {
 		return readoutNodeFemModelEClass;
 	}
@@ -1010,6 +1095,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getReadoutNodeFemModel_CounterDepth() {
 		return (EAttribute)readoutNodeFemModelEClass.getEStructuralFeatures().get(0);
 	}
@@ -1019,6 +1105,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getReadoutNodeFemModel_MpxiiiChipReg1() {
 		return (EReference)readoutNodeFemModelEClass.getEStructuralFeatures().get(1);
 	}
@@ -1028,6 +1115,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getReadoutNodeFemModel_MpxiiiChipReg2() {
 		return (EReference)readoutNodeFemModelEClass.getEStructuralFeatures().get(2);
 	}
@@ -1037,6 +1125,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getReadoutNodeFemModel_MpxiiiChipReg3() {
 		return (EReference)readoutNodeFemModelEClass.getEStructuralFeatures().get(3);
 	}
@@ -1046,6 +1135,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getReadoutNodeFemModel_MpxiiiChipReg4() {
 		return (EReference)readoutNodeFemModelEClass.getEStructuralFeatures().get(4);
 	}
@@ -1055,6 +1145,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getReadoutNodeFemModel_MpxiiiChipReg5() {
 		return (EReference)readoutNodeFemModelEClass.getEStructuralFeatures().get(5);
 	}
@@ -1064,6 +1155,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getReadoutNodeFemModel_MpxiiiChipReg6() {
 		return (EReference)readoutNodeFemModelEClass.getEStructuralFeatures().get(6);
 	}
@@ -1073,6 +1165,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getReadoutNodeFemModel_MpxiiiChipReg7() {
 		return (EReference)readoutNodeFemModelEClass.getEStructuralFeatures().get(7);
 	}
@@ -1082,6 +1175,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getReadoutNodeFemModel_MpxiiiChipReg8() {
 		return (EReference)readoutNodeFemModelEClass.getEStructuralFeatures().get(8);
 	}
@@ -1091,6 +1185,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getSummaryAdbaseModel() {
 		return summaryAdbaseModelEClass;
 	}
@@ -1100,6 +1195,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSummaryAdbaseModel_FrameDivisor() {
 		return (EAttribute)summaryAdbaseModelEClass.getEStructuralFeatures().get(0);
 	}
@@ -1109,6 +1205,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSummaryAdbaseModel_CounterDepth() {
 		return (EAttribute)summaryAdbaseModelEClass.getEStructuralFeatures().get(1);
 	}
@@ -1118,6 +1215,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSummaryAdbaseModel_GapFillConstant() {
 		return (EAttribute)summaryAdbaseModelEClass.getEStructuralFeatures().get(2);
 	}
@@ -1127,6 +1225,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getSummaryNode() {
 		return summaryNodeEClass;
 	}
@@ -1136,6 +1235,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getSummaryNode_SummaryFem() {
 		return (EReference)summaryNodeEClass.getEStructuralFeatures().get(0);
 	}
@@ -1145,6 +1245,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getFixModel() {
 		return fixModelEClass;
 	}
@@ -1154,6 +1255,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getFixModel_StatisticsEnabled() {
 		return (EAttribute)fixModelEClass.getEStructuralFeatures().get(0);
 	}
@@ -1163,6 +1265,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getFixModel_ScaleEdgePixelsEnabled() {
 		return (EAttribute)fixModelEClass.getEStructuralFeatures().get(1);
 	}
@@ -1172,6 +1275,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EDataType getException() {
 		return exceptionEDataType;
 	}
@@ -1181,6 +1285,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EDataType getStringArray() {
 		return stringArrayEDataType;
 	}
@@ -1190,6 +1295,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EDataType getShortArray() {
 		return shortArrayEDataType;
 	}
@@ -1199,6 +1305,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ExcaliburConfigFactory getExcaliburConfigFactory() {
 		return (ExcaliburConfigFactory)getEFactoryInstance();
 	}

@@ -172,6 +172,7 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getCounterDepth() {
 		return counterDepth;
 	}
@@ -181,6 +182,7 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setCounterDepth(int newCounterDepth) {
 		int oldCounterDepth = counterDepth;
 		counterDepth = newCounterDepth;
@@ -193,6 +195,7 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public MpxiiiChipRegModel getMpxiiiChipReg1() {
 		return mpxiiiChipReg1;
 	}
@@ -217,6 +220,7 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setMpxiiiChipReg1(MpxiiiChipRegModel newMpxiiiChipReg1) {
 		if (newMpxiiiChipReg1 != mpxiiiChipReg1) {
 			NotificationChain msgs = null;
@@ -236,6 +240,7 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public MpxiiiChipRegModel getMpxiiiChipReg2() {
 		return mpxiiiChipReg2;
 	}
@@ -260,6 +265,7 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setMpxiiiChipReg2(MpxiiiChipRegModel newMpxiiiChipReg2) {
 		if (newMpxiiiChipReg2 != mpxiiiChipReg2) {
 			NotificationChain msgs = null;
@@ -279,6 +285,7 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public MpxiiiChipRegModel getMpxiiiChipReg3() {
 		return mpxiiiChipReg3;
 	}
@@ -303,6 +310,7 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setMpxiiiChipReg3(MpxiiiChipRegModel newMpxiiiChipReg3) {
 		if (newMpxiiiChipReg3 != mpxiiiChipReg3) {
 			NotificationChain msgs = null;
@@ -322,6 +330,7 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public MpxiiiChipRegModel getMpxiiiChipReg4() {
 		return mpxiiiChipReg4;
 	}
@@ -346,6 +355,7 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setMpxiiiChipReg4(MpxiiiChipRegModel newMpxiiiChipReg4) {
 		if (newMpxiiiChipReg4 != mpxiiiChipReg4) {
 			NotificationChain msgs = null;
@@ -365,6 +375,7 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public MpxiiiChipRegModel getMpxiiiChipReg5() {
 		return mpxiiiChipReg5;
 	}
@@ -389,6 +400,7 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setMpxiiiChipReg5(MpxiiiChipRegModel newMpxiiiChipReg5) {
 		if (newMpxiiiChipReg5 != mpxiiiChipReg5) {
 			NotificationChain msgs = null;
@@ -408,6 +420,7 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public MpxiiiChipRegModel getMpxiiiChipReg6() {
 		return mpxiiiChipReg6;
 	}
@@ -432,6 +445,7 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setMpxiiiChipReg6(MpxiiiChipRegModel newMpxiiiChipReg6) {
 		if (newMpxiiiChipReg6 != mpxiiiChipReg6) {
 			NotificationChain msgs = null;
@@ -451,6 +465,7 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public MpxiiiChipRegModel getMpxiiiChipReg7() {
 		return mpxiiiChipReg7;
 	}
@@ -475,6 +490,7 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setMpxiiiChipReg7(MpxiiiChipRegModel newMpxiiiChipReg7) {
 		if (newMpxiiiChipReg7 != mpxiiiChipReg7) {
 			NotificationChain msgs = null;
@@ -494,6 +510,7 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public MpxiiiChipRegModel getMpxiiiChipReg8() {
 		return mpxiiiChipReg8;
 	}
@@ -518,6 +535,7 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setMpxiiiChipReg8(MpxiiiChipRegModel newMpxiiiChipReg8) {
 		if (newMpxiiiChipReg8 != mpxiiiChipReg8) {
 			NotificationChain msgs = null;

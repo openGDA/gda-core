@@ -105,6 +105,7 @@ public class ExcaliburConfigImpl extends EObjectImpl implements ExcaliburConfig 
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EList<ReadoutNode> getReadoutNodes() {
 		if (readoutNodes == null) {
 			readoutNodes = new EObjectContainmentEList<ReadoutNode>(ReadoutNode.class, this, ExcaliburConfigPackage.EXCALIBUR_CONFIG__READOUT_NODES);
@@ -117,6 +118,7 @@ public class ExcaliburConfigImpl extends EObjectImpl implements ExcaliburConfig 
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public MasterConfigNode getConfigNode() {
 		return configNode;
 	}
@@ -141,6 +143,7 @@ public class ExcaliburConfigImpl extends EObjectImpl implements ExcaliburConfig 
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setConfigNode(MasterConfigNode newConfigNode) {
 		if (newConfigNode != configNode) {
 			NotificationChain msgs = null;
@@ -160,6 +163,7 @@ public class ExcaliburConfigImpl extends EObjectImpl implements ExcaliburConfig 
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public SummaryNode getSummaryNode() {
 		return summaryNode;
 	}
@@ -184,6 +188,7 @@ public class ExcaliburConfigImpl extends EObjectImpl implements ExcaliburConfig 
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setSummaryNode(SummaryNode newSummaryNode) {
 		if (newSummaryNode != summaryNode) {
 			NotificationChain msgs = null;

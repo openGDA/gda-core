@@ -354,6 +354,7 @@ public class MpxiiiGlobalRegModelImpl extends EObjectImpl implements MpxiiiGloba
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getColourMode() {
 		return colourMode;
 	}
@@ -363,6 +364,7 @@ public class MpxiiiGlobalRegModelImpl extends EObjectImpl implements MpxiiiGloba
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setColourMode(int newColourMode) {
 		int oldColourMode = colourMode;
 		colourMode = newColourMode;
@@ -375,6 +377,7 @@ public class MpxiiiGlobalRegModelImpl extends EObjectImpl implements MpxiiiGloba
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getColourModeAsString() {
 		return colourModeAsString;
 	}
@@ -384,6 +387,7 @@ public class MpxiiiGlobalRegModelImpl extends EObjectImpl implements MpxiiiGloba
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setColourModeAsString(String newColourModeAsString) {
 		String oldColourModeAsString = colourModeAsString;
 		colourModeAsString = newColourModeAsString;
@@ -396,6 +400,7 @@ public class MpxiiiGlobalRegModelImpl extends EObjectImpl implements MpxiiiGloba
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String[] getColourModeLabels() {
 		return colourModeLabels;
 	}
@@ -405,6 +410,7 @@ public class MpxiiiGlobalRegModelImpl extends EObjectImpl implements MpxiiiGloba
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setColourModeLabels(String[] newColourModeLabels) {
 		String[] oldColourModeLabels = colourModeLabels;
 		colourModeLabels = newColourModeLabels;
@@ -417,6 +423,7 @@ public class MpxiiiGlobalRegModelImpl extends EObjectImpl implements MpxiiiGloba
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getDacNumber() {
 		return dacNumber;
 	}
@@ -426,6 +433,7 @@ public class MpxiiiGlobalRegModelImpl extends EObjectImpl implements MpxiiiGloba
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDacNumber(double newDacNumber) {
 		double oldDacNumber = dacNumber;
 		dacNumber = newDacNumber;
@@ -438,6 +446,7 @@ public class MpxiiiGlobalRegModelImpl extends EObjectImpl implements MpxiiiGloba
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getDacNameCalc1() {
 		return dacNameCalc1;
 	}
@@ -447,6 +456,7 @@ public class MpxiiiGlobalRegModelImpl extends EObjectImpl implements MpxiiiGloba
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDacNameCalc1(double newDacNameCalc1) {
 		double oldDacNameCalc1 = dacNameCalc1;
 		dacNameCalc1 = newDacNameCalc1;
@@ -459,6 +469,7 @@ public class MpxiiiGlobalRegModelImpl extends EObjectImpl implements MpxiiiGloba
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getDacNameCalc2() {
 		return dacNameCalc2;
 	}
@@ -468,6 +479,7 @@ public class MpxiiiGlobalRegModelImpl extends EObjectImpl implements MpxiiiGloba
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDacNameCalc2(double newDacNameCalc2) {
 		double oldDacNameCalc2 = dacNameCalc2;
 		dacNameCalc2 = newDacNameCalc2;
@@ -480,6 +492,7 @@ public class MpxiiiGlobalRegModelImpl extends EObjectImpl implements MpxiiiGloba
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getDacNameCalc3() {
 		return dacNameCalc3;
 	}
@@ -489,6 +502,7 @@ public class MpxiiiGlobalRegModelImpl extends EObjectImpl implements MpxiiiGloba
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDacNameCalc3(double newDacNameCalc3) {
 		double oldDacNameCalc3 = dacNameCalc3;
 		dacNameCalc3 = newDacNameCalc3;
@@ -501,6 +515,7 @@ public class MpxiiiGlobalRegModelImpl extends EObjectImpl implements MpxiiiGloba
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getDacNameSel1() {
 		return dacNameSel1;
 	}
@@ -510,6 +525,7 @@ public class MpxiiiGlobalRegModelImpl extends EObjectImpl implements MpxiiiGloba
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDacNameSel1(int newDacNameSel1) {
 		int oldDacNameSel1 = dacNameSel1;
 		dacNameSel1 = newDacNameSel1;
@@ -522,6 +538,7 @@ public class MpxiiiGlobalRegModelImpl extends EObjectImpl implements MpxiiiGloba
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getDacNameSel2() {
 		return dacNameSel2;
 	}
@@ -531,6 +548,7 @@ public class MpxiiiGlobalRegModelImpl extends EObjectImpl implements MpxiiiGloba
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDacNameSel2(int newDacNameSel2) {
 		int oldDacNameSel2 = dacNameSel2;
 		dacNameSel2 = newDacNameSel2;
@@ -543,6 +561,7 @@ public class MpxiiiGlobalRegModelImpl extends EObjectImpl implements MpxiiiGloba
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getDacNameSel3() {
 		return dacNameSel3;
 	}
@@ -552,6 +571,7 @@ public class MpxiiiGlobalRegModelImpl extends EObjectImpl implements MpxiiiGloba
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDacNameSel3(int newDacNameSel3) {
 		int oldDacNameSel3 = dacNameSel3;
 		dacNameSel3 = newDacNameSel3;
@@ -564,6 +584,7 @@ public class MpxiiiGlobalRegModelImpl extends EObjectImpl implements MpxiiiGloba
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getDacName() {
 		return dacName;
 	}
@@ -573,6 +594,7 @@ public class MpxiiiGlobalRegModelImpl extends EObjectImpl implements MpxiiiGloba
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDacName(String newDacName) {
 		String oldDacName = dacName;
 		dacName = newDacName;
@@ -585,6 +607,7 @@ public class MpxiiiGlobalRegModelImpl extends EObjectImpl implements MpxiiiGloba
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String[] getCounterDepthLabels() {
 		return counterDepthLabels;
 	}
@@ -594,6 +617,7 @@ public class MpxiiiGlobalRegModelImpl extends EObjectImpl implements MpxiiiGloba
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setCounterDepthLabels(String[] newCounterDepthLabels) {
 		String[] oldCounterDepthLabels = counterDepthLabels;
 		counterDepthLabels = newCounterDepthLabels;
@@ -606,6 +630,7 @@ public class MpxiiiGlobalRegModelImpl extends EObjectImpl implements MpxiiiGloba
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getCounterDepth() {
 		return counterDepth;
 	}
@@ -615,6 +640,7 @@ public class MpxiiiGlobalRegModelImpl extends EObjectImpl implements MpxiiiGloba
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setCounterDepth(int newCounterDepth) {
 		int oldCounterDepth = counterDepth;
 		counterDepth = newCounterDepth;
@@ -627,6 +653,7 @@ public class MpxiiiGlobalRegModelImpl extends EObjectImpl implements MpxiiiGloba
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getCounterDepthAsString() {
 		return counterDepthAsString;
 	}
@@ -636,6 +663,7 @@ public class MpxiiiGlobalRegModelImpl extends EObjectImpl implements MpxiiiGloba
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setCounterDepthAsString(String newCounterDepthAsString) {
 		String oldCounterDepthAsString = counterDepthAsString;
 		counterDepthAsString = newCounterDepthAsString;

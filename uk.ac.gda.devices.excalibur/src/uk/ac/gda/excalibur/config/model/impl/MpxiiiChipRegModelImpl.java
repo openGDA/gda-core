@@ -212,6 +212,7 @@ public class MpxiiiChipRegModelImpl extends EObjectImpl implements MpxiiiChipReg
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getDacSense() {
 		return dacSense;
 	}
@@ -221,6 +222,7 @@ public class MpxiiiChipRegModelImpl extends EObjectImpl implements MpxiiiChipReg
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDacSense(int newDacSense) {
 		int oldDacSense = dacSense;
 		dacSense = newDacSense;
@@ -233,6 +235,7 @@ public class MpxiiiChipRegModelImpl extends EObjectImpl implements MpxiiiChipReg
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getDacSenseDecode() {
 		return dacSenseDecode;
 	}
@@ -242,6 +245,7 @@ public class MpxiiiChipRegModelImpl extends EObjectImpl implements MpxiiiChipReg
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDacSenseDecode(int newDacSenseDecode) {
 		int oldDacSenseDecode = dacSenseDecode;
 		dacSenseDecode = newDacSenseDecode;
@@ -254,6 +258,7 @@ public class MpxiiiChipRegModelImpl extends EObjectImpl implements MpxiiiChipReg
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getDacSenseName() {
 		return dacSenseName;
 	}
@@ -263,6 +268,7 @@ public class MpxiiiChipRegModelImpl extends EObjectImpl implements MpxiiiChipReg
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDacSenseName(String newDacSenseName) {
 		String oldDacSenseName = dacSenseName;
 		dacSenseName = newDacSenseName;
@@ -275,6 +281,7 @@ public class MpxiiiChipRegModelImpl extends EObjectImpl implements MpxiiiChipReg
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getDacExternal() {
 		return dacExternal;
 	}
@@ -284,6 +291,7 @@ public class MpxiiiChipRegModelImpl extends EObjectImpl implements MpxiiiChipReg
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDacExternal(int newDacExternal) {
 		int oldDacExternal = dacExternal;
 		dacExternal = newDacExternal;
@@ -296,6 +304,7 @@ public class MpxiiiChipRegModelImpl extends EObjectImpl implements MpxiiiChipReg
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getDacExternalDecode() {
 		return dacExternalDecode;
 	}
@@ -305,6 +314,7 @@ public class MpxiiiChipRegModelImpl extends EObjectImpl implements MpxiiiChipReg
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDacExternalDecode(int newDacExternalDecode) {
 		int oldDacExternalDecode = dacExternalDecode;
 		dacExternalDecode = newDacExternalDecode;
@@ -317,6 +327,7 @@ public class MpxiiiChipRegModelImpl extends EObjectImpl implements MpxiiiChipReg
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getDacExternalName() {
 		return dacExternalName;
 	}
@@ -326,6 +337,7 @@ public class MpxiiiChipRegModelImpl extends EObjectImpl implements MpxiiiChipReg
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDacExternalName(String newDacExternalName) {
 		String oldDacExternalName = dacExternalName;
 		dacExternalName = newDacExternalName;
@@ -338,6 +350,7 @@ public class MpxiiiChipRegModelImpl extends EObjectImpl implements MpxiiiChipReg
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public AnperModel getAnper() {
 		return anper;
 	}
@@ -362,6 +375,7 @@ public class MpxiiiChipRegModelImpl extends EObjectImpl implements MpxiiiChipReg
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setAnper(AnperModel newAnper) {
 		if (newAnper != anper) {
 			NotificationChain msgs = null;
@@ -381,6 +395,7 @@ public class MpxiiiChipRegModelImpl extends EObjectImpl implements MpxiiiChipReg
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public PixelModel getPixel() {
 		return pixel;
 	}
@@ -405,6 +420,7 @@ public class MpxiiiChipRegModelImpl extends EObjectImpl implements MpxiiiChipReg
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setPixel(PixelModel newPixel) {
 		if (newPixel != pixel) {
 			NotificationChain msgs = null;

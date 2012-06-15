@@ -31,12 +31,6 @@ import uk.ac.gda.excalibur.config.model.ReadoutNodeFemModel;
  * @generated
  */
 public class ReadoutNodeImpl extends BaseNodeImpl implements ReadoutNode {
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public static final String copyright = "\nCopyright © 2011 Diamond Light Source Ltd.\n\nThis file is part of GDA.\n\nGDA is free software: you can redistribute it and/or modify it under the\nterms of the GNU General Public License version 3 as published by the Free\nSoftware Foundation.\n\nGDA is distributed in the hope that it will be useful, but WITHOUT ANY\nWARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS\nFOR A PARTICULAR PURPOSE. See the GNU General Public License for more\ndetails.\n\nYou should have received a copy of the GNU General Public License along\nwith GDA. If not, see <http://www.gnu.org/licenses/>.";
 
 	/**
 	 * The cached value of the '{@link #getReadoutNodeFem() <em>Readout Node Fem</em>}' containment reference.
@@ -92,6 +86,7 @@ public class ReadoutNodeImpl extends BaseNodeImpl implements ReadoutNode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ReadoutNodeFemModel getReadoutNodeFem() {
 		return readoutNodeFem;
 	}
@@ -116,6 +111,7 @@ public class ReadoutNodeImpl extends BaseNodeImpl implements ReadoutNode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setReadoutNodeFem(ReadoutNodeFemModel newReadoutNodeFem) {
 		if (newReadoutNodeFem != readoutNodeFem) {
 			NotificationChain msgs = null;
@@ -135,6 +131,7 @@ public class ReadoutNodeImpl extends BaseNodeImpl implements ReadoutNode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getId() {
 		return id;
 	}
@@ -144,6 +141,7 @@ public class ReadoutNodeImpl extends BaseNodeImpl implements ReadoutNode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setId(int newId) {
 		int oldId = id;
 		id = newId;

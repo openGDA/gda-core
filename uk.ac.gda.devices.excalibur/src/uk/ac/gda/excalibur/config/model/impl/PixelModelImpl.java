@@ -6,16 +6,11 @@
  */
 package uk.ac.gda.excalibur.config.model.impl;
 
-import java.util.Collection;
-import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.notify.Notification;
-
 import org.eclipse.emf.ecore.EClass;
-
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
 
-import org.eclipse.emf.ecore.util.EDataTypeUniqueEList;
 import uk.ac.gda.excalibur.config.model.ExcaliburConfigPackage;
 import uk.ac.gda.excalibur.config.model.PixelModel;
 
@@ -168,6 +163,7 @@ public class PixelModelImpl extends EObjectImpl implements PixelModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public short[] getMask() {
 		return mask;
 	}
@@ -177,6 +173,7 @@ public class PixelModelImpl extends EObjectImpl implements PixelModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setMask(short[] newMask) {
 		short[] oldMask = mask;
 		mask = newMask;
@@ -189,6 +186,7 @@ public class PixelModelImpl extends EObjectImpl implements PixelModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public short[] getTest() {
 		return test;
 	}
@@ -198,6 +196,7 @@ public class PixelModelImpl extends EObjectImpl implements PixelModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setTest(short[] newTest) {
 		short[] oldTest = test;
 		test = newTest;
@@ -210,6 +209,7 @@ public class PixelModelImpl extends EObjectImpl implements PixelModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public short[] getGainMode() {
 		return gainMode;
 	}
@@ -219,6 +219,7 @@ public class PixelModelImpl extends EObjectImpl implements PixelModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setGainMode(short[] newGainMode) {
 		short[] oldGainMode = gainMode;
 		gainMode = newGainMode;
@@ -231,6 +232,7 @@ public class PixelModelImpl extends EObjectImpl implements PixelModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public short[] getThresholdA() {
 		return thresholdA;
 	}
@@ -240,6 +242,7 @@ public class PixelModelImpl extends EObjectImpl implements PixelModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setThresholdA(short[] newThresholdA) {
 		short[] oldThresholdA = thresholdA;
 		thresholdA = newThresholdA;
@@ -252,6 +255,7 @@ public class PixelModelImpl extends EObjectImpl implements PixelModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public short[] getThresholdB() {
 		return thresholdB;
 	}
@@ -261,6 +265,7 @@ public class PixelModelImpl extends EObjectImpl implements PixelModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setThresholdB(short[] newThresholdB) {
 		short[] oldThresholdB = thresholdB;
 		thresholdB = newThresholdB;
@@ -295,7 +300,6 @@ public class PixelModelImpl extends EObjectImpl implements PixelModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {

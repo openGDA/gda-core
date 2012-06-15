@@ -98,6 +98,7 @@ public class BaseNodeImpl extends EObjectImpl implements BaseNode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public GapModel getGap() {
 		return gap;
 	}
@@ -122,6 +123,7 @@ public class BaseNodeImpl extends EObjectImpl implements BaseNode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setGap(GapModel newGap) {
 		if (newGap != gap) {
 			NotificationChain msgs = null;
@@ -141,6 +143,7 @@ public class BaseNodeImpl extends EObjectImpl implements BaseNode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public MasterModel getMst() {
 		return mst;
 	}
@@ -165,6 +168,7 @@ public class BaseNodeImpl extends EObjectImpl implements BaseNode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setMst(MasterModel newMst) {
 		if (newMst != mst) {
 			NotificationChain msgs = null;
@@ -184,6 +188,7 @@ public class BaseNodeImpl extends EObjectImpl implements BaseNode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public FixModel getFix() {
 		return fix;
 	}
@@ -208,6 +213,7 @@ public class BaseNodeImpl extends EObjectImpl implements BaseNode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFix(FixModel newFix) {
 		if (newFix != fix) {
 			NotificationChain msgs = null;
