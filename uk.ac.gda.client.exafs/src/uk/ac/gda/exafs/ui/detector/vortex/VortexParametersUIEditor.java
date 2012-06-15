@@ -20,7 +20,6 @@ package uk.ac.gda.exafs.ui.detector.vortex;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
-import gda.device.DeviceException;
 import gda.device.Timer;
 import gda.device.XmapDetector;
 import gda.factory.Finder;
@@ -396,7 +395,13 @@ public class VortexParametersUIEditor extends DetectorEditor {
 					getDeadTime().setValue(deadTimeFinal);
 				}
 			});
-		} catch (DeviceException e) {
+
+			if (monitor != null) {
+				monitor.worked(1);
+				sashPlotForm.appendStatus("Collected data from detector successfully.", logger);
+			}
+
+		} catch (Exception e) {
 			getSite().getShell().getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
@@ -404,15 +409,8 @@ public class VortexParametersUIEditor extends DetectorEditor {
 							"Problem acquiring data. See log for details.\n(Do you hold the baton?)");
 				}
 			});
-
 			logger.error("Cannot get xMap data from Vortex detector.", e);
-			return;
-		} finally {
-			if (monitor != null) {
-				monitor.worked(1);
-				sashPlotForm.appendStatus("Collected data from detector successfully.", logger);
-			}
-
+			throw e;
 		}
 
 		if (isAutoSave && monitor != null) {
@@ -612,7 +610,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 		String varDir = LocalProperties.get(LocalProperties.GDA_VAR_DIR);
 		return varDir + "/vortex_editor_data.xml";
 	}
-
+	
 	@Override
 	public void dispose() {
 		countType.dispose();

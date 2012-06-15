@@ -941,6 +941,9 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		return varDir + "/xspress_editor_data.xml";
 	}
 	
+	/**
+	 * @return d
+	 */
 	public ComboWrapper getRegionType() {
 		return regionType;
 	}

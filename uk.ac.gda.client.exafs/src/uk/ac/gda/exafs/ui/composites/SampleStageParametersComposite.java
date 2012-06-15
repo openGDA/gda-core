@@ -65,12 +65,12 @@ public final class SampleStageParametersComposite extends FieldBeanComposite {
 		this.z = new ScaleBox(this, SWT.NONE);
 		z.setDecimalPlaces(4);
 		z.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		try {
 			setMotorLimits("sc_MicroFocusSampleX", (x));
-			setMotorLimits("sc_MicroFocusSampleX",  y);
+			setMotorLimits("sc_MicroFocusSampleX", y);
 			setMotorLimits("sc_sample_z", z);
-			
+
 		} catch (Exception e) {
 			logger.warn("exception while fetching hardware limits: " + e.getMessage(), e);
 		}
@@ -88,11 +88,14 @@ public final class SampleStageParametersComposite extends FieldBeanComposite {
 	public FieldComposite getZ() {
 		return z;
 	}
-	public void setMotorLimits(String motorName, ScaleBox box) throws Exception{
-		String lowerLimit = JythonServerFacade.getInstance().evaluateCommand(motorName+".getLowerInnerLimit()");
-		String upperLimit = JythonServerFacade.getInstance().evaluateCommand(motorName+".getUpperInnerLimit()");
-		box.setMinimum(Double.parseDouble(lowerLimit));
-		box.setMaximum(Double.parseDouble(upperLimit));
+
+	public void setMotorLimits(String motorName, ScaleBox box) throws Exception {
+		String lowerLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getLowerInnerLimit()");
+		String upperLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getUpperInnerLimit()");
+		if (!lowerLimit.equals("None") && lowerLimit != null && !lowerLimit.isEmpty())
+			box.setMinimum(Double.parseDouble(lowerLimit));
+		if (!upperLimit.equals("None") && upperLimit != null && !upperLimit.isEmpty())
+			box.setMaximum(Double.parseDouble(upperLimit));
 	}
 
 }

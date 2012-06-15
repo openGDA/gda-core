@@ -35,8 +35,8 @@ import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
  */
 public class FurnaceComposite extends FieldBeanComposite {
 
-	private RangeBox x,y,z;
-	private RangeBox temperature;
+	private ScaleBox x,y,z;
+	private ScaleBox temperature;
 	private ScaleBox tolerance;
 	private ScaleBox time;
 
@@ -53,7 +53,7 @@ public class FurnaceComposite extends FieldBeanComposite {
 		final Label xLabel = new Label(this, SWT.NONE);
 		xLabel.setText("x");
 
-		x = new RangeBox(this, SWT.NONE);
+		x = new ScaleBox(this, SWT.NONE);
 		x.setMinimum(-15);
 		x.setMaximum(15);
 		x.setUnit("mm");
@@ -63,7 +63,7 @@ public class FurnaceComposite extends FieldBeanComposite {
 		final Label yLabel = new Label(this, SWT.NONE);
 		yLabel.setText("y");
 
-		y = new RangeBox(this, SWT.NONE);
+		y = new ScaleBox(this, SWT.NONE);
 		y.setMinimum(-20.0);
 		y.setMaximum(20.0);
 		final GridData gd_y = new GridData(SWT.FILL, SWT.CENTER, true, false);
@@ -73,7 +73,7 @@ public class FurnaceComposite extends FieldBeanComposite {
 		final Label zLabel = new Label(this, SWT.NONE);
 		zLabel.setText("z");
 
-		z = new RangeBox(this, SWT.NONE);
+		z = new ScaleBox(this, SWT.NONE);
 		z.setMinimum(-15);
 		z.setMaximum(15);
 		final GridData gd_z = new GridData(SWT.FILL, SWT.CENTER, true, false);
@@ -83,7 +83,7 @@ public class FurnaceComposite extends FieldBeanComposite {
 		final Label temperatureLabel = new Label(this, SWT.NONE);
 		temperatureLabel.setText("Temperature");
 
-		temperature = new RangeBox(this, SWT.NONE);
+		temperature = new ScaleBox(this, SWT.NONE);
 		temperature.setMinimum(295);
 		temperature.setMaximum(1300);
 		temperature.setUnit("K");

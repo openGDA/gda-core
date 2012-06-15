@@ -385,11 +385,11 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 				edgeEnergy_Label.setMaximum(22000.0);
 				edgeEnergy_Label.setMinimum(2050.0);
 			} else if (dcmCrystal.equals("Si(311)")) {
-				edgeEnergy_Label.setMaximum(36000.0);
+				edgeEnergy_Label.setMaximum(40000.0);
 				edgeEnergy_Label.setMinimum(4000.0);
 			}
 		} else {
-			edgeEnergy_Label.setMaximum(35000.0);
+			edgeEnergy_Label.setMaximum(40000.0);
 		}
 		BeanUI.addBeanField(editingBean.getClass(), "EdgeEnergy", edgeEnergy_Label);
 

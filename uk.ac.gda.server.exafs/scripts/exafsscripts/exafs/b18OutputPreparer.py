@@ -6,8 +6,8 @@ class B18OutputPreparer:
         pass
     
     def prepare(self, outputParameters):
-        metadataActive = outputParameters.isMetadataActive()
-        if metadataActive:
+        metadataList = outputParameters.getMetadataList()
+        if len(metadataList)>0:
             self.add_to_metadata(outputParameters.getMetadataList())
     
     def add_to_metadata(self, metadataList):

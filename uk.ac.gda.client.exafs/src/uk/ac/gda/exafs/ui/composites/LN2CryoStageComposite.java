@@ -393,8 +393,10 @@ public class LN2CryoStageComposite extends FieldBeanComposite {
 	public void setMotorLimits(String motorName, NumberBox box) throws Exception {
 		String lowerLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getLowerMotorLimit()");
 		String upperLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getUpperMotorLimit()");
-		box.setMinimum(Double.parseDouble(lowerLimit));
-		box.setMaximum(Double.parseDouble(upperLimit));
+		if (!lowerLimit.equals("None") && lowerLimit != null && !lowerLimit.isEmpty())
+			box.setMinimum(Double.parseDouble(lowerLimit));
+		if (!upperLimit.equals("None") && upperLimit != null && !upperLimit.isEmpty())
+			box.setMaximum(Double.parseDouble(upperLimit));
 	}
 
 	public void setSample(int x, int y) {
