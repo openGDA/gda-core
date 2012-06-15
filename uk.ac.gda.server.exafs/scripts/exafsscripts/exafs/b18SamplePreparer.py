@@ -40,11 +40,11 @@ class B18SamplePreparer:
 			self._control_user_stage(sampleParameters.getUserStageParameters()) 
 		if sampleParameters.getTemperatureControl() != "None":
 			if sampleParameters.getTemperatureControl() == "furnace":
-				return self._control_furnace(sampleParameters.getFurnaceParameters())
+				return [self._control_furnace(sampleParameters.getFurnaceParameters())]
 			elif sampleParameters.getTemperatureControl() == "lakeshore":
-				return self._control_lakeshore(sampleParameters.getLakeshoreParameters())	
+				return [self._control_lakeshore(sampleParameters.getLakeshoreParameters())]
 			elif sampleParameters.getTemperatureControl() == "pulsetubecryostat":
-				return self._control_pulsetube(sampleParameters.getPulseTubeCryostatParameters())
+				return [self._control_pulsetube(sampleParameters.getPulseTubeCryostatParameters())]
 		
 			
 
