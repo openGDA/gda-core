@@ -17,6 +17,9 @@
  */
 package uk.ac.gda.devices.excalibur;
 
+import gov.aps.jca.CAException;
+import gov.aps.jca.TimeoutException;
+
 /**
  * 
  */
@@ -270,4 +273,30 @@ public interface ChipAnper {
 	 * 
 	 */
 	public void setThreshold7(int threshold) throws Exception;
+
+	/**
+	 * Enable the readout chip
+	 * 
+	 * @throws CAException
+	 * @throws InterruptedException
+	 * @throws TimeoutException
+	 */
+	void enableChip() throws CAException, InterruptedException, TimeoutException;
+
+	/**
+	 * Disable the readout chip
+	 * 
+	 * @throws CAException
+	 * @throws InterruptedException
+	 * @throws TimeoutException
+	 */
+	void disableChip() throws CAException, InterruptedException, TimeoutException;
+
+	/**
+	 * @return whether the readout chip is enabled or not.
+	 * @throws TimeoutException
+	 * @throws CAException
+	 * @throws InterruptedException
+	 */
+	boolean isChipEnabled() throws TimeoutException, CAException, InterruptedException;
 }

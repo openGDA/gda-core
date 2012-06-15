@@ -27,6 +27,8 @@ import uk.ac.gda.excalibur.config.model.ReadoutNodeFemModel;
  * The following features are implemented:
  * <ul>
  *   <li>{@link uk.ac.gda.excalibur.config.model.impl.ReadoutNodeFemModelImpl#getCounterDepth <em>Counter Depth</em>}</li>
+ *   <li>{@link uk.ac.gda.excalibur.config.model.impl.ReadoutNodeFemModelImpl#getOperationMode <em>Operation Mode</em>}</li>
+ *   <li>{@link uk.ac.gda.excalibur.config.model.impl.ReadoutNodeFemModelImpl#getCounterSelect <em>Counter Select</em>}</li>
  *   <li>{@link uk.ac.gda.excalibur.config.model.impl.ReadoutNodeFemModelImpl#getMpxiiiChipReg1 <em>Mpxiii Chip Reg1</em>}</li>
  *   <li>{@link uk.ac.gda.excalibur.config.model.impl.ReadoutNodeFemModelImpl#getMpxiiiChipReg2 <em>Mpxiii Chip Reg2</em>}</li>
  *   <li>{@link uk.ac.gda.excalibur.config.model.impl.ReadoutNodeFemModelImpl#getMpxiiiChipReg3 <em>Mpxiii Chip Reg3</em>}</li>
@@ -41,13 +43,6 @@ import uk.ac.gda.excalibur.config.model.ReadoutNodeFemModel;
  * @generated
  */
 public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeFemModel {
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public static final String copyright = "\nCopyright © 2011 Diamond Light Source Ltd.\n\nThis file is part of GDA.\n\nGDA is free software: you can redistribute it and/or modify it under the\nterms of the GNU General Public License version 3 as published by the Free\nSoftware Foundation.\n\nGDA is distributed in the hope that it will be useful, but WITHOUT ANY\nWARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS\nFOR A PARTICULAR PURPOSE. See the GNU General Public License for more\ndetails.\n\nYou should have received a copy of the GNU General Public License along\nwith GDA. If not, see <http://www.gnu.org/licenses/>.";
-
 	/**
 	 * The default value of the '{@link #getCounterDepth() <em>Counter Depth</em>}' attribute.
 	 * <!-- begin-user-doc -->
@@ -67,6 +62,46 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 	 * @ordered
 	 */
 	protected int counterDepth = COUNTER_DEPTH_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getOperationMode() <em>Operation Mode</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getOperationMode()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final int OPERATION_MODE_EDEFAULT = 0;
+
+	/**
+	 * The cached value of the '{@link #getOperationMode() <em>Operation Mode</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getOperationMode()
+	 * @generated
+	 * @ordered
+	 */
+	protected int operationMode = OPERATION_MODE_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getCounterSelect() <em>Counter Select</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getCounterSelect()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final int COUNTER_SELECT_EDEFAULT = 0;
+
+	/**
+	 * The cached value of the '{@link #getCounterSelect() <em>Counter Select</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getCounterSelect()
+	 * @generated
+	 * @ordered
+	 */
+	protected int counterSelect = COUNTER_SELECT_EDEFAULT;
 
 	/**
 	 * The cached value of the '{@link #getMpxiiiChipReg1() <em>Mpxiii Chip Reg1</em>}' containment reference.
@@ -188,6 +223,52 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 		counterDepth = newCounterDepth;
 		if (eNotificationRequired())
 			eNotify(new ENotificationImpl(this, Notification.SET, ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__COUNTER_DEPTH, oldCounterDepth, counterDepth));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public int getOperationMode() {
+		return operationMode;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public void setOperationMode(int newOperationMode) {
+		int oldOperationMode = operationMode;
+		operationMode = newOperationMode;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__OPERATION_MODE, oldOperationMode, operationMode));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public int getCounterSelect() {
+		return counterSelect;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public void setCounterSelect(int newCounterSelect) {
+		int oldCounterSelect = counterSelect;
+		counterSelect = newCounterSelect;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__COUNTER_SELECT, oldCounterSelect, counterSelect));
 	}
 
 	/**
@@ -588,6 +669,10 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 		switch (featureID) {
 			case ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__COUNTER_DEPTH:
 				return getCounterDepth();
+			case ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__OPERATION_MODE:
+				return getOperationMode();
+			case ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__COUNTER_SELECT:
+				return getCounterSelect();
 			case ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG1:
 				return getMpxiiiChipReg1();
 			case ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG2:
@@ -618,6 +703,12 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 		switch (featureID) {
 			case ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__COUNTER_DEPTH:
 				setCounterDepth((Integer)newValue);
+				return;
+			case ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__OPERATION_MODE:
+				setOperationMode((Integer)newValue);
+				return;
+			case ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__COUNTER_SELECT:
+				setCounterSelect((Integer)newValue);
 				return;
 			case ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG1:
 				setMpxiiiChipReg1((MpxiiiChipRegModel)newValue);
@@ -658,6 +749,12 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 			case ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__COUNTER_DEPTH:
 				setCounterDepth(COUNTER_DEPTH_EDEFAULT);
 				return;
+			case ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__OPERATION_MODE:
+				setOperationMode(OPERATION_MODE_EDEFAULT);
+				return;
+			case ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__COUNTER_SELECT:
+				setCounterSelect(COUNTER_SELECT_EDEFAULT);
+				return;
 			case ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG1:
 				setMpxiiiChipReg1((MpxiiiChipRegModel)null);
 				return;
@@ -696,6 +793,10 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 		switch (featureID) {
 			case ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__COUNTER_DEPTH:
 				return counterDepth != COUNTER_DEPTH_EDEFAULT;
+			case ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__OPERATION_MODE:
+				return operationMode != OPERATION_MODE_EDEFAULT;
+			case ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__COUNTER_SELECT:
+				return counterSelect != COUNTER_SELECT_EDEFAULT;
 			case ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG1:
 				return mpxiiiChipReg1 != null;
 			case ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG2:
@@ -728,6 +829,10 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 		StringBuffer result = new StringBuffer(super.toString());
 		result.append(" (counterDepth: ");
 		result.append(counterDepth);
+		result.append(", operationMode: ");
+		result.append(operationMode);
+		result.append(", counterSelect: ");
+		result.append(counterSelect);
 		result.append(')');
 		return result.toString();
 	}

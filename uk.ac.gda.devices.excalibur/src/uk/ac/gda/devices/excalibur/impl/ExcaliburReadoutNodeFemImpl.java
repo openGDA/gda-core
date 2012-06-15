@@ -31,6 +31,8 @@ import uk.ac.gda.devices.excalibur.MpxiiiChipReg;
 public class ExcaliburReadoutNodeFemImpl extends ADBaseImpl implements ExcaliburReadoutNodeFem, ADBase {
 
 	private static final String COUNTER_DEPTH = "CounterDepth";
+	private static final String OPERATION_MODE = "OperationMode";
+	private static final String COUNTER_SELECT = "CounterSelect";
 
 	@Override
 	public int getCounterDepth() throws TimeoutException, CAException, InterruptedException, Exception {
@@ -40,6 +42,26 @@ public class ExcaliburReadoutNodeFemImpl extends ADBaseImpl implements Excalibur
 	@Override
 	public void setCounterDepth(int counterDepth) throws CAException, InterruptedException, Exception {
 		EPICS_CONTROLLER.caput(getChannel(COUNTER_DEPTH), counterDepth);
+	}
+
+	@Override
+	public int getOperationMode() throws TimeoutException, CAException, InterruptedException, Exception {
+		return EPICS_CONTROLLER.cagetInt(getChannel(OPERATION_MODE));
+	}
+
+	@Override
+	public void setOperationMode(int operationMode) throws CAException, InterruptedException, Exception {
+		EPICS_CONTROLLER.caput(getChannel(OPERATION_MODE), operationMode);
+	}
+
+	@Override
+	public int getCounterSelect() throws TimeoutException, CAException, InterruptedException, Exception {
+		return EPICS_CONTROLLER.cagetInt(getChannel(COUNTER_SELECT));
+	}
+
+	@Override
+	public void setCounterSelect(int counterSelect) throws CAException, InterruptedException, Exception {
+		EPICS_CONTROLLER.caput(getChannel(COUNTER_SELECT), counterSelect);
 	}
 
 	private MpxiiiChipReg[] mpxiiiChipRegs = new MpxiiiChipReg[8];
@@ -117,14 +139,13 @@ public class ExcaliburReadoutNodeFemImpl extends ADBaseImpl implements Excalibur
 	}
 
 	/**
-	 * 
-	 * @param index 0 based index to chipReg
+	 * @param index
+	 *            0 based index to chipReg
 	 * @return the {@link MpxiiiChipReg} for the provided index
 	 */
 	@Override
 	public MpxiiiChipReg getIndexedMpxiiiChipReg(int index) {
 		return mpxiiiChipRegs[index];
 	}
-
 
 }

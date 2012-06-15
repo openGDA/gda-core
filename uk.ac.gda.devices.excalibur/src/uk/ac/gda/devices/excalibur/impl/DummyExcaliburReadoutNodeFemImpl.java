@@ -124,4 +124,28 @@ public class DummyExcaliburReadoutNodeFemImpl extends ADBaseSimulator implements
 		return mpxiiiChipRegs[index];
 	}
 
+	@Override
+	public int getOperationMode() throws TimeoutException, CAException, InterruptedException, Exception {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void setOperationMode(int operationMode) throws CAException, InterruptedException, Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public int getCounterSelect() throws TimeoutException, CAException, InterruptedException, Exception {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void setCounterSelect(int counterSelect) throws CAException, InterruptedException, Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

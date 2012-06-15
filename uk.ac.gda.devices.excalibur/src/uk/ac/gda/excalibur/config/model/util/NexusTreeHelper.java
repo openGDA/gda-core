@@ -85,6 +85,14 @@ public class NexusTreeHelper {
 					.getChildNode(EXCONF_PKG.getReadoutNodeFemModel_CounterDepth().getName(),
 							NexusExtractor.SDSClassName).getData().getFirstValue());
 
+			readoutNodeFemModel.setCounterSelect((Integer) femNode
+					.getChildNode(EXCONF_PKG.getReadoutNodeFemModel_CounterSelect().getName(),
+							NexusExtractor.SDSClassName).getData().getFirstValue());
+
+			readoutNodeFemModel.setOperationMode((Integer) femNode
+					.getChildNode(EXCONF_PKG.getReadoutNodeFemModel_OperationMode().getName(),
+							NexusExtractor.SDSClassName).getData().getFirstValue());
+
 			//
 			INexusTree chip1RegTreeNode = femNode.getChildNode(CHIP_REG1, EXCONF_PKG.getMpxiiiChipRegModel().getName());
 			MpxiiiChipRegModel chipRegModel1 = createChipRegModel(chip1RegTreeNode);
@@ -308,6 +316,10 @@ public class NexusTreeHelper {
 				.getChildNode(EXCONF_PKG.getAnperModel_TprefB().getName(), NexusExtractor.SDSClassName).getData()
 				.getFirstValue());
 
+		anperModel.setChipDisable((Boolean) anperTreeNode
+				.getChildNode(EXCONF_PKG.getAnperModel_ChipDisable().getName(), NexusExtractor.SDSClassName).getData()
+				.getFirstValue());
+
 		chipRegModel1.setAnper(anperModel);
 		//
 		INexusTree pixelTreeNode = chip1RegTreeNode.getChildNode(PIXEL, EXCONF_PKG.getPixelModel().getName());
@@ -354,6 +366,12 @@ public class NexusTreeHelper {
 
 			nxfem.addChildNode(new NexusTreeNode(EXCONF_PKG.getReadoutNodeFemModel_CounterDepth().getName(),
 					NexusExtractor.SDSClassName, nxfem, new NexusGroupData(fem.getCounterDepth())));
+
+			nxfem.addChildNode(new NexusTreeNode(EXCONF_PKG.getReadoutNodeFemModel_CounterSelect().getName(),
+					NexusExtractor.SDSClassName, nxfem, new NexusGroupData(fem.getCounterSelect())));
+
+			nxfem.addChildNode(new NexusTreeNode(EXCONF_PKG.getReadoutNodeFemModel_OperationMode().getName(),
+					NexusExtractor.SDSClassName, nxfem, new NexusGroupData(fem.getOperationMode())));
 
 			addChipRegNode(nxfem, fem.getMpxiiiChipReg1(), CHIP_REG1);
 			addChipRegNode(nxfem, fem.getMpxiiiChipReg2(), CHIP_REG2);
@@ -488,6 +506,10 @@ public class NexusTreeHelper {
 				NexusExtractor.SDSClassName, anperNode, new NexusGroupData(anperModel.getTprefA())));
 		anperNode.addChildNode(new NexusTreeNode(EXCONF_PKG.getAnperModel_TprefB().getName(),
 				NexusExtractor.SDSClassName, anperNode, new NexusGroupData(anperModel.getTprefB())));
+		anperNode.addChildNode(new NexusTreeNode(EXCONF_PKG.getAnperModel_ChipDisable().getName(),
+				NexusExtractor.SDSClassName, anperNode,
+				new NexusGroupData(Boolean.toString(anperModel.isChipDisable()))));
+
 		chipReg.addChildNode(anperNode);
 		//
 		PixelModel pixelModel = mpxiiiChipReg.getPixel();

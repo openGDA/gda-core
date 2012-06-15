@@ -134,7 +134,6 @@ public class ExcaliburConfigModelHelper {
 
 	}
 
-	
 	/**
 	 * @param summary
 	 * @return {@link SummaryNode} which can be set on the {@link ExcaliburConfig}
@@ -168,6 +167,8 @@ public class ExcaliburConfigModelHelper {
 			ExcaliburReadoutNodeFem fem = readoutNodeWrapper.getAdBase();
 			ReadoutNodeFemModel readoutNodeFem = ExcaliburConfigFactory.eINSTANCE.createReadoutNodeFemModel();
 			readoutNodeFem.setCounterDepth(fem.getCounterDepth());
+			readoutNodeFem.setCounterSelect(fem.getCounterSelect());
+			readoutNodeFem.setOperationMode(fem.getOperationMode());
 			readoutNodeFem.setMpxiiiChipReg1(getMpxiiiChipRegModel(fem.getMpxiiiChipReg1()));
 			readoutNodeFem.setMpxiiiChipReg2(getMpxiiiChipRegModel(fem.getMpxiiiChipReg2()));
 			readoutNodeFem.setMpxiiiChipReg3(getMpxiiiChipRegModel(fem.getMpxiiiChipReg3()));
@@ -255,6 +256,8 @@ public class ExcaliburConfigModelHelper {
 		anperModel.setTpref(anper.getTpref());
 		anperModel.setTprefA(anper.getTprefA());
 		anperModel.setTprefB(anper.getTprefB());
+		// There is a slight doubt here - setting it as it sounds right
+		anperModel.setChipDisable(!anper.isChipEnabled());
 		return anperModel;
 	}
 
@@ -286,6 +289,9 @@ public class ExcaliburConfigModelHelper {
 			ExcaliburReadoutNodeFem detectorNode = readOutNodes.get(count);
 
 			detectorNode.setCounterDepth(modelReadoutNodeFem.getCounterDepth());
+			detectorNode.setCounterSelect(modelReadoutNodeFem.getCounterSelect());
+			detectorNode.setOperationMode(modelReadoutNodeFem.getOperationMode());
+			
 			setDetectorChipReg(detectorNode.getMpxiiiChipReg1(), modelReadoutNodeFem.getMpxiiiChipReg1());
 			setDetectorChipReg(detectorNode.getMpxiiiChipReg2(), modelReadoutNodeFem.getMpxiiiChipReg2());
 			setDetectorChipReg(detectorNode.getMpxiiiChipReg3(), modelReadoutNodeFem.getMpxiiiChipReg3());
@@ -333,6 +339,11 @@ public class ExcaliburConfigModelHelper {
 		detectorAnper.setTpref(modelAnper.getTpref());
 		detectorAnper.setTprefA(modelAnper.getTprefA());
 		detectorAnper.setTprefB(modelAnper.getTprefB());
+		if (modelAnper.isChipDisable()) {
+			detectorAnper.disableChip();
+		} else {
+			detectorAnper.enableChip();
+		}
 	}
 
 	private void setDetectorPixel(ChipPixel detectorPixel, PixelModel modelPixel) throws Exception {

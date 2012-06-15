@@ -18,6 +18,9 @@
 
 package uk.ac.gda.devices.excalibur.impl;
 
+import gov.aps.jca.CAException;
+import gov.aps.jca.TimeoutException;
+
 import org.springframework.beans.factory.InitializingBean;
 
 import uk.ac.gda.devices.excalibur.ChipAnper;
@@ -320,5 +323,23 @@ public class DummyMpxiiiChipRegAnper implements ChipAnper, InitializingBean {
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
+	}
+
+	@Override
+	public void enableChip() throws CAException, InterruptedException, TimeoutException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void disableChip() throws CAException, InterruptedException, TimeoutException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean isChipEnabled() throws TimeoutException, CAException, InterruptedException {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

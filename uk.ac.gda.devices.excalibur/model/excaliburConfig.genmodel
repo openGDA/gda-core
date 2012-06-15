@@ -3,8 +3,9 @@
     xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
     xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" copyrightText="&#xA;Copyright © 2011 Diamond Light Source Ltd.&#xA;&#xA;This file is part of GDA.&#xA;&#xA;GDA is free software: you can redistribute it and/or modify it under the&#xA;terms of the GNU General Public License version 3 as published by the Free&#xA;Software Foundation.&#xA;&#xA;GDA is distributed in the hope that it will be useful, but WITHOUT ANY&#xA;WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS&#xA;FOR A PARTICULAR PURPOSE. See the GNU General Public License for more&#xA;details.&#xA;&#xA;You should have received a copy of the GNU General Public License along&#xA;with GDA. If not, see &lt;http://www.gnu.org/licenses/>."
     modelDirectory="/uk.ac.gda.devices.excalibur/src" modelPluginID="uk.ac.gda.devices.excalibur"
-    modelName="ExcaliburConfig" importerID="org.eclipse.emf.importer.java" complianceLevel="6.0">
-  <foreignModel>@model</foreignModel>
+    modelName="ExcaliburConfig" importerID="org.eclipse.emf.importer.ecore" complianceLevel="6.0"
+    copyrightFields="false">
+  <foreignModel>excaliburConfig.ecore</foreignModel>
   <genPackages prefix="ExcaliburConfig" basePackage="uk.ac.gda.excalibur.config" resource="XMI"
       disposableProviderFactory="true" ecorePackage="excaliburConfig.ecore#/">
     <genDataTypes ecoreDataType="excaliburConfig.ecore#//Exception"/>
@@ -36,6 +37,7 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/threshold5"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/threshold6"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/threshold7"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/chipDisable"/>
     </genClasses>
     <genClasses ecoreClass="excaliburConfig.ecore#//ArrayCountsModel">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//ArrayCountsModel/arrayCountFem1"/>
@@ -108,6 +110,8 @@
     </genClasses>
     <genClasses ecoreClass="excaliburConfig.ecore#//ReadoutNodeFemModel">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//ReadoutNodeFemModel/counterDepth"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//ReadoutNodeFemModel/operationMode"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//ReadoutNodeFemModel/counterSelect"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference excaliburConfig.ecore#//ReadoutNodeFemModel/mpxiiiChipReg1"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference excaliburConfig.ecore#//ReadoutNodeFemModel/mpxiiiChipReg2"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference excaliburConfig.ecore#//ReadoutNodeFemModel/mpxiiiChipReg3"/>

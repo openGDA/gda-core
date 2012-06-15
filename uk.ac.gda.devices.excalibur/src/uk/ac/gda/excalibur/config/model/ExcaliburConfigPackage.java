@@ -29,13 +29,6 @@ import org.eclipse.emf.ecore.EReference;
  */
 public interface ExcaliburConfigPackage extends EPackage {
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	String copyright = "\nCopyright © 2011 Diamond Light Source Ltd.\n\nThis file is part of GDA.\n\nGDA is free software: you can redistribute it and/or modify it under the\nterms of the GNU General Public License version 3 as published by the Free\nSoftware Foundation.\n\nGDA is distributed in the hope that it will be useful, but WITHOUT ANY\nWARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS\nFOR A PARTICULAR PURPOSE. See the GNU General Public License for more\ndetails.\n\nYou should have received a copy of the GNU General Public License along\nwith GDA. If not, see <http://www.gnu.org/licenses/>.";
-
-	/**
 	 * The package name.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -303,13 +296,22 @@ public interface ExcaliburConfigPackage extends EPackage {
 	int ANPER_MODEL__THRESHOLD7 = 24;
 
 	/**
+	 * The feature id for the '<em><b>Chip Disable</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ANPER_MODEL__CHIP_DISABLE = 25;
+
+	/**
 	 * The number of structural features of the '<em>Anper Model</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int ANPER_MODEL_FEATURE_COUNT = 25;
+	int ANPER_MODEL_FEATURE_COUNT = 26;
 
 	/**
 	 * The meta object id for the '{@link uk.ac.gda.excalibur.config.model.impl.ArrayCountsModelImpl <em>Array Counts Model</em>}' class.
@@ -1017,13 +1019,31 @@ public interface ExcaliburConfigPackage extends EPackage {
 	int READOUT_NODE_FEM_MODEL__COUNTER_DEPTH = 0;
 
 	/**
+	 * The feature id for the '<em><b>Operation Mode</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int READOUT_NODE_FEM_MODEL__OPERATION_MODE = 1;
+
+	/**
+	 * The feature id for the '<em><b>Counter Select</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int READOUT_NODE_FEM_MODEL__COUNTER_SELECT = 2;
+
+	/**
 	 * The feature id for the '<em><b>Mpxiii Chip Reg1</b></em>' containment reference.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG1 = 1;
+	int READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG1 = 3;
 
 	/**
 	 * The feature id for the '<em><b>Mpxiii Chip Reg2</b></em>' containment reference.
@@ -1032,7 +1052,7 @@ public interface ExcaliburConfigPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG2 = 2;
+	int READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG2 = 4;
 
 	/**
 	 * The feature id for the '<em><b>Mpxiii Chip Reg3</b></em>' containment reference.
@@ -1041,7 +1061,7 @@ public interface ExcaliburConfigPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG3 = 3;
+	int READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG3 = 5;
 
 	/**
 	 * The feature id for the '<em><b>Mpxiii Chip Reg4</b></em>' containment reference.
@@ -1050,7 +1070,7 @@ public interface ExcaliburConfigPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG4 = 4;
+	int READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG4 = 6;
 
 	/**
 	 * The feature id for the '<em><b>Mpxiii Chip Reg5</b></em>' containment reference.
@@ -1059,7 +1079,7 @@ public interface ExcaliburConfigPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG5 = 5;
+	int READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG5 = 7;
 
 	/**
 	 * The feature id for the '<em><b>Mpxiii Chip Reg6</b></em>' containment reference.
@@ -1068,7 +1088,7 @@ public interface ExcaliburConfigPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG6 = 6;
+	int READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG6 = 8;
 
 	/**
 	 * The feature id for the '<em><b>Mpxiii Chip Reg7</b></em>' containment reference.
@@ -1077,7 +1097,7 @@ public interface ExcaliburConfigPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG7 = 7;
+	int READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG7 = 9;
 
 	/**
 	 * The feature id for the '<em><b>Mpxiii Chip Reg8</b></em>' containment reference.
@@ -1086,7 +1106,7 @@ public interface ExcaliburConfigPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG8 = 8;
+	int READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG8 = 10;
 
 	/**
 	 * The number of structural features of the '<em>Readout Node Fem Model</em>' class.
@@ -1095,7 +1115,7 @@ public interface ExcaliburConfigPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int READOUT_NODE_FEM_MODEL_FEATURE_COUNT = 9;
+	int READOUT_NODE_FEM_MODEL_FEATURE_COUNT = 11;
 
 	/**
 	 * The meta object id for the '{@link uk.ac.gda.excalibur.config.model.impl.SummaryAdbaseModelImpl <em>Summary Adbase Model</em>}' class.
@@ -1521,6 +1541,17 @@ public interface ExcaliburConfigPackage extends EPackage {
 	 * @generated
 	 */
 	EAttribute getAnperModel_Threshold7();
+
+	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.excalibur.config.model.AnperModel#isChipDisable <em>Chip Disable</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Chip Disable</em>'.
+	 * @see uk.ac.gda.excalibur.config.model.AnperModel#isChipDisable()
+	 * @see #getAnperModel()
+	 * @generated
+	 */
+	EAttribute getAnperModel_ChipDisable();
 
 	/**
 	 * Returns the meta object for class '{@link uk.ac.gda.excalibur.config.model.ArrayCountsModel <em>Array Counts Model</em>}'.
@@ -2171,6 +2202,28 @@ public interface ExcaliburConfigPackage extends EPackage {
 	EAttribute getReadoutNodeFemModel_CounterDepth();
 
 	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.excalibur.config.model.ReadoutNodeFemModel#getOperationMode <em>Operation Mode</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Operation Mode</em>'.
+	 * @see uk.ac.gda.excalibur.config.model.ReadoutNodeFemModel#getOperationMode()
+	 * @see #getReadoutNodeFemModel()
+	 * @generated
+	 */
+	EAttribute getReadoutNodeFemModel_OperationMode();
+
+	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.excalibur.config.model.ReadoutNodeFemModel#getCounterSelect <em>Counter Select</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Counter Select</em>'.
+	 * @see uk.ac.gda.excalibur.config.model.ReadoutNodeFemModel#getCounterSelect()
+	 * @see #getReadoutNodeFemModel()
+	 * @generated
+	 */
+	EAttribute getReadoutNodeFemModel_CounterSelect();
+
+	/**
 	 * Returns the meta object for the containment reference '{@link uk.ac.gda.excalibur.config.model.ReadoutNodeFemModel#getMpxiiiChipReg1 <em>Mpxiii Chip Reg1</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -2617,6 +2670,14 @@ public interface ExcaliburConfigPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute ANPER_MODEL__THRESHOLD7 = eINSTANCE.getAnperModel_Threshold7();
+
+		/**
+		 * The meta object literal for the '<em><b>Chip Disable</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute ANPER_MODEL__CHIP_DISABLE = eINSTANCE.getAnperModel_ChipDisable();
 
 		/**
 		 * The meta object literal for the '{@link uk.ac.gda.excalibur.config.model.impl.ArrayCountsModelImpl <em>Array Counts Model</em>}' class.
@@ -3121,6 +3182,22 @@ public interface ExcaliburConfigPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute READOUT_NODE_FEM_MODEL__COUNTER_DEPTH = eINSTANCE.getReadoutNodeFemModel_CounterDepth();
+
+		/**
+		 * The meta object literal for the '<em><b>Operation Mode</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute READOUT_NODE_FEM_MODEL__OPERATION_MODE = eINSTANCE.getReadoutNodeFemModel_OperationMode();
+
+		/**
+		 * The meta object literal for the '<em><b>Counter Select</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute READOUT_NODE_FEM_MODEL__COUNTER_SELECT = eINSTANCE.getReadoutNodeFemModel_CounterSelect();
 
 		/**
 		 * The meta object literal for the '<em><b>Mpxiii Chip Reg1</b></em>' containment reference feature.

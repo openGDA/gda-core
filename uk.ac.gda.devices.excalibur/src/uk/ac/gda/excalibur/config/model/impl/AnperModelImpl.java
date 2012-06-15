@@ -48,19 +48,13 @@ import uk.ac.gda.excalibur.config.model.ExcaliburConfigPackage;
  *   <li>{@link uk.ac.gda.excalibur.config.model.impl.AnperModelImpl#getThreshold5 <em>Threshold5</em>}</li>
  *   <li>{@link uk.ac.gda.excalibur.config.model.impl.AnperModelImpl#getThreshold6 <em>Threshold6</em>}</li>
  *   <li>{@link uk.ac.gda.excalibur.config.model.impl.AnperModelImpl#getThreshold7 <em>Threshold7</em>}</li>
+ *   <li>{@link uk.ac.gda.excalibur.config.model.impl.AnperModelImpl#isChipDisable <em>Chip Disable</em>}</li>
  * </ul>
  * </p>
  *
  * @generated
  */
 public class AnperModelImpl extends EObjectImpl implements AnperModel {
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public static final String copyright = "\nCopyright © 2011 Diamond Light Source Ltd.\n\nThis file is part of GDA.\n\nGDA is free software: you can redistribute it and/or modify it under the\nterms of the GNU General Public License version 3 as published by the Free\nSoftware Foundation.\n\nGDA is distributed in the hope that it will be useful, but WITHOUT ANY\nWARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS\nFOR A PARTICULAR PURPOSE. See the GNU General Public License for more\ndetails.\n\nYou should have received a copy of the GNU General Public License along\nwith GDA. If not, see <http://www.gnu.org/licenses/>.";
-
 	/**
 	 * The default value of the '{@link #getPreamp() <em>Preamp</em>}' attribute.
 	 * <!-- begin-user-doc -->
@@ -785,6 +779,35 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * @ordered
 	 */
 	protected boolean threshold7ESet;
+
+	/**
+	 * The default value of the '{@link #isChipDisable() <em>Chip Disable</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isChipDisable()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final boolean CHIP_DISABLE_EDEFAULT = false;
+
+	/**
+	 * The cached value of the '{@link #isChipDisable() <em>Chip Disable</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isChipDisable()
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean chipDisable = CHIP_DISABLE_EDEFAULT;
+
+	/**
+	 * This is true if the Chip Disable attribute has been set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean chipDisableESet;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -2061,6 +2084,56 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 	 * @generated
 	 */
 	@Override
+	public boolean isChipDisable() {
+		return chipDisable;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public void setChipDisable(boolean newChipDisable) {
+		boolean oldChipDisable = chipDisable;
+		chipDisable = newChipDisable;
+		boolean oldChipDisableESet = chipDisableESet;
+		chipDisableESet = true;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, ExcaliburConfigPackage.ANPER_MODEL__CHIP_DISABLE, oldChipDisable, chipDisable, !oldChipDisableESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public void unsetChipDisable() {
+		boolean oldChipDisable = chipDisable;
+		boolean oldChipDisableESet = chipDisableESet;
+		chipDisable = CHIP_DISABLE_EDEFAULT;
+		chipDisableESet = false;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.UNSET, ExcaliburConfigPackage.ANPER_MODEL__CHIP_DISABLE, oldChipDisable, CHIP_DISABLE_EDEFAULT, oldChipDisableESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public boolean isSetChipDisable() {
+		return chipDisableESet;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
 			case ExcaliburConfigPackage.ANPER_MODEL__PREAMP:
@@ -2113,6 +2186,8 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 				return getThreshold6();
 			case ExcaliburConfigPackage.ANPER_MODEL__THRESHOLD7:
 				return getThreshold7();
+			case ExcaliburConfigPackage.ANPER_MODEL__CHIP_DISABLE:
+				return isChipDisable();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -2199,6 +2274,9 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 				return;
 			case ExcaliburConfigPackage.ANPER_MODEL__THRESHOLD7:
 				setThreshold7((Integer)newValue);
+				return;
+			case ExcaliburConfigPackage.ANPER_MODEL__CHIP_DISABLE:
+				setChipDisable((Boolean)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -2287,6 +2365,9 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 			case ExcaliburConfigPackage.ANPER_MODEL__THRESHOLD7:
 				unsetThreshold7();
 				return;
+			case ExcaliburConfigPackage.ANPER_MODEL__CHIP_DISABLE:
+				unsetChipDisable();
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -2349,6 +2430,8 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 				return isSetThreshold6();
 			case ExcaliburConfigPackage.ANPER_MODEL__THRESHOLD7:
 				return isSetThreshold7();
+			case ExcaliburConfigPackage.ANPER_MODEL__CHIP_DISABLE:
+				return isSetChipDisable();
 		}
 		return super.eIsSet(featureID);
 	}
@@ -2413,6 +2496,8 @@ public class AnperModelImpl extends EObjectImpl implements AnperModel {
 		if (threshold6ESet) result.append(threshold6); else result.append("<unset>");
 		result.append(", threshold7: ");
 		if (threshold7ESet) result.append(threshold7); else result.append("<unset>");
+		result.append(", chipDisable: ");
+		if (chipDisableESet) result.append(chipDisable); else result.append("<unset>");
 		result.append(')');
 		return result.toString();
 	}

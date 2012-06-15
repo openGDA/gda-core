@@ -19,13 +19,16 @@
 package uk.ac.gda.devices.excalibur;
 
 import gda.device.detector.areadetector.v17.ADBase;
+import gov.aps.jca.CAException;
+import gov.aps.jca.TimeoutException;
 
 /**
  * 
  */
 public interface ExcaliburReadoutNodeFem extends ADBase {
 
-	public static final short CHIPS_PER_FEM=8;
+	public static final short CHIPS_PER_FEM = 8;
+
 	/**
 	 * 
 	 */
@@ -81,5 +84,43 @@ public interface ExcaliburReadoutNodeFem extends ADBase {
 	 * @return {@link MpxiiiChipReg}
 	 */
 	MpxiiiChipReg getIndexedMpxiiiChipReg(int index);
+
+	/**
+	 * @return operation mode of the readout fem
+	 * @throws TimeoutException
+	 * @throws CAException
+	 * @throws InterruptedException
+	 * @throws Exception
+	 */
+	int getOperationMode() throws TimeoutException, CAException, InterruptedException, Exception;
+
+	/**
+	 * Set the operation mode of the readout fem
+	 * 
+	 * @param operationMode
+	 * @throws CAException
+	 * @throws InterruptedException
+	 * @throws Exception
+	 */
+	void setOperationMode(int operationMode) throws CAException, InterruptedException, Exception;
+
+	/**
+	 * @return counter select of the readout fem
+	 * @throws TimeoutException
+	 * @throws CAException
+	 * @throws InterruptedException
+	 * @throws Exception
+	 */
+	int getCounterSelect() throws TimeoutException, CAException, InterruptedException, Exception;
+
+	/**
+	 * set the counter select of the readout fem.
+	 * 
+	 * @param counterSelect
+	 * @throws CAException
+	 * @throws InterruptedException
+	 * @throws Exception
+	 */
+	void setCounterSelect(int counterSelect) throws CAException, InterruptedException, Exception;
 
 }

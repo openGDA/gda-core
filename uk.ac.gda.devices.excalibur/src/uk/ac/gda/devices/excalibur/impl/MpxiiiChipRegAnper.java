@@ -98,6 +98,8 @@ public class MpxiiiChipRegAnper implements ChipAnper, InitializingBean {
 
 	private static final String THRESHOLD_7 = "Threshold:7";
 
+	private static final String CHIP_DISABLE = "ChipDisable";
+
 	/**
 	 * Base PV Name passed in from the spring configuration
 	 */
@@ -392,7 +394,22 @@ public class MpxiiiChipRegAnper implements ChipAnper, InitializingBean {
 	public void setThreshold7(int threshold) throws Exception {
 		EPICS_CONTROLLER.caput(getChannel(THRESHOLD_7), threshold);
 	}
-	
+
+	@Override
+	public void enableChip() throws CAException, InterruptedException, TimeoutException {
+		EPICS_CONTROLLER.caput(getChannel(CHIP_DISABLE), 0);
+	}
+
+	@Override
+	public void disableChip() throws CAException, InterruptedException, TimeoutException {
+		EPICS_CONTROLLER.caput(getChannel(CHIP_DISABLE), 1);
+	}
+
+	@Override
+	public boolean isChipEnabled() throws TimeoutException, CAException, InterruptedException {
+		return EPICS_CONTROLLER.cagetInt(getChannel(CHIP_DISABLE)) == 0;
+	}
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if (basePVName == null) {

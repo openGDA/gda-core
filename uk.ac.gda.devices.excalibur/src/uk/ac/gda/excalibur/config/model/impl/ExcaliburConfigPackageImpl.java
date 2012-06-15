@@ -44,13 +44,6 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public static final String copyright = "\nCopyright © 2011 Diamond Light Source Ltd.\n\nThis file is part of GDA.\n\nGDA is free software: you can redistribute it and/or modify it under the\nterms of the GNU General Public License version 3 as published by the Free\nSoftware Foundation.\n\nGDA is distributed in the hope that it will be useful, but WITHOUT ANY\nWARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS\nFOR A PARTICULAR PURPOSE. See the GNU General Public License for more\ndetails.\n\nYou should have received a copy of the GNU General Public License along\nwith GDA. If not, see <http://www.gnu.org/licenses/>.";
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	private EClass anperModelEClass = null;
 
 	/**
@@ -498,6 +491,15 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	@Override
 	public EAttribute getAnperModel_Threshold7() {
 		return (EAttribute)anperModelEClass.getEStructuralFeatures().get(24);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getAnperModel_ChipDisable() {
+		return (EAttribute)anperModelEClass.getEStructuralFeatures().get(25);
 	}
 
 	/**
@@ -1105,28 +1107,26 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EAttribute getReadoutNodeFemModel_OperationMode() {
+		return (EAttribute)readoutNodeFemModelEClass.getEStructuralFeatures().get(1);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getReadoutNodeFemModel_CounterSelect() {
+		return (EAttribute)readoutNodeFemModelEClass.getEStructuralFeatures().get(2);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	@Override
 	public EReference getReadoutNodeFemModel_MpxiiiChipReg1() {
-		return (EReference)readoutNodeFemModelEClass.getEStructuralFeatures().get(1);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public EReference getReadoutNodeFemModel_MpxiiiChipReg2() {
-		return (EReference)readoutNodeFemModelEClass.getEStructuralFeatures().get(2);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public EReference getReadoutNodeFemModel_MpxiiiChipReg3() {
 		return (EReference)readoutNodeFemModelEClass.getEStructuralFeatures().get(3);
 	}
 
@@ -1136,7 +1136,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * @generated
 	 */
 	@Override
-	public EReference getReadoutNodeFemModel_MpxiiiChipReg4() {
+	public EReference getReadoutNodeFemModel_MpxiiiChipReg2() {
 		return (EReference)readoutNodeFemModelEClass.getEStructuralFeatures().get(4);
 	}
 
@@ -1146,7 +1146,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * @generated
 	 */
 	@Override
-	public EReference getReadoutNodeFemModel_MpxiiiChipReg5() {
+	public EReference getReadoutNodeFemModel_MpxiiiChipReg3() {
 		return (EReference)readoutNodeFemModelEClass.getEStructuralFeatures().get(5);
 	}
 
@@ -1156,7 +1156,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * @generated
 	 */
 	@Override
-	public EReference getReadoutNodeFemModel_MpxiiiChipReg6() {
+	public EReference getReadoutNodeFemModel_MpxiiiChipReg4() {
 		return (EReference)readoutNodeFemModelEClass.getEStructuralFeatures().get(6);
 	}
 
@@ -1166,7 +1166,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * @generated
 	 */
 	@Override
-	public EReference getReadoutNodeFemModel_MpxiiiChipReg7() {
+	public EReference getReadoutNodeFemModel_MpxiiiChipReg5() {
 		return (EReference)readoutNodeFemModelEClass.getEStructuralFeatures().get(7);
 	}
 
@@ -1176,8 +1176,28 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * @generated
 	 */
 	@Override
-	public EReference getReadoutNodeFemModel_MpxiiiChipReg8() {
+	public EReference getReadoutNodeFemModel_MpxiiiChipReg6() {
 		return (EReference)readoutNodeFemModelEClass.getEStructuralFeatures().get(8);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public EReference getReadoutNodeFemModel_MpxiiiChipReg7() {
+		return (EReference)readoutNodeFemModelEClass.getEStructuralFeatures().get(9);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public EReference getReadoutNodeFemModel_MpxiiiChipReg8() {
+		return (EReference)readoutNodeFemModelEClass.getEStructuralFeatures().get(10);
 	}
 
 	/**
@@ -1355,6 +1375,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 		createEAttribute(anperModelEClass, ANPER_MODEL__THRESHOLD5);
 		createEAttribute(anperModelEClass, ANPER_MODEL__THRESHOLD6);
 		createEAttribute(anperModelEClass, ANPER_MODEL__THRESHOLD7);
+		createEAttribute(anperModelEClass, ANPER_MODEL__CHIP_DISABLE);
 
 		arrayCountsModelEClass = createEClass(ARRAY_COUNTS_MODEL);
 		createEAttribute(arrayCountsModelEClass, ARRAY_COUNTS_MODEL__ARRAY_COUNT_FEM1);
@@ -1427,6 +1448,8 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 
 		readoutNodeFemModelEClass = createEClass(READOUT_NODE_FEM_MODEL);
 		createEAttribute(readoutNodeFemModelEClass, READOUT_NODE_FEM_MODEL__COUNTER_DEPTH);
+		createEAttribute(readoutNodeFemModelEClass, READOUT_NODE_FEM_MODEL__OPERATION_MODE);
+		createEAttribute(readoutNodeFemModelEClass, READOUT_NODE_FEM_MODEL__COUNTER_SELECT);
 		createEReference(readoutNodeFemModelEClass, READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG1);
 		createEReference(readoutNodeFemModelEClass, READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG2);
 		createEReference(readoutNodeFemModelEClass, READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG3);
@@ -1512,6 +1535,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 		initEAttribute(getAnperModel_Threshold5(), ecorePackage.getEInt(), "threshold5", null, 0, 1, AnperModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getAnperModel_Threshold6(), ecorePackage.getEInt(), "threshold6", null, 0, 1, AnperModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getAnperModel_Threshold7(), ecorePackage.getEInt(), "threshold7", null, 0, 1, AnperModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getAnperModel_ChipDisable(), ecorePackage.getEBoolean(), "chipDisable", null, 0, 1, AnperModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(arrayCountsModelEClass, ArrayCountsModel.class, "ArrayCountsModel", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getArrayCountsModel_ArrayCountFem1(), ecorePackage.getEInt(), "arrayCountFem1", null, 0, 1, ArrayCountsModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -1584,6 +1608,8 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 
 		initEClass(readoutNodeFemModelEClass, ReadoutNodeFemModel.class, "ReadoutNodeFemModel", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getReadoutNodeFemModel_CounterDepth(), ecorePackage.getEInt(), "counterDepth", null, 0, 1, ReadoutNodeFemModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getReadoutNodeFemModel_OperationMode(), ecorePackage.getEInt(), "operationMode", null, 0, 1, ReadoutNodeFemModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getReadoutNodeFemModel_CounterSelect(), ecorePackage.getEInt(), "counterSelect", null, 0, 1, ReadoutNodeFemModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getReadoutNodeFemModel_MpxiiiChipReg1(), this.getMpxiiiChipRegModel(), null, "mpxiiiChipReg1", null, 0, 1, ReadoutNodeFemModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getReadoutNodeFemModel_MpxiiiChipReg2(), this.getMpxiiiChipRegModel(), null, "mpxiiiChipReg2", null, 0, 1, ReadoutNodeFemModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getReadoutNodeFemModel_MpxiiiChipReg3(), this.getMpxiiiChipRegModel(), null, "mpxiiiChipReg3", null, 0, 1, ReadoutNodeFemModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);

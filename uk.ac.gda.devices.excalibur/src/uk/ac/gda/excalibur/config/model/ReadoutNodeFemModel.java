@@ -38,6 +38,58 @@ public interface ReadoutNodeFemModel extends EObject {
 	public void setCounterDepth(int counterDepth);
 
 	/**
+	 * Returns the value of the '<em><b>Operation Mode</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Operation Mode</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Operation Mode</em>' attribute.
+	 * @see #setOperationMode(int)
+	 * @see uk.ac.gda.excalibur.config.model.ExcaliburConfigPackage#getReadoutNodeFemModel_OperationMode()
+	 * @model
+	 * @generated
+	 */
+	int getOperationMode();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.gda.excalibur.config.model.ReadoutNodeFemModel#getOperationMode <em>Operation Mode</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Operation Mode</em>' attribute.
+	 * @see #getOperationMode()
+	 * @generated
+	 */
+	void setOperationMode(int value);
+
+	/**
+	 * Returns the value of the '<em><b>Counter Select</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Counter Select</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Counter Select</em>' attribute.
+	 * @see #setCounterSelect(int)
+	 * @see uk.ac.gda.excalibur.config.model.ExcaliburConfigPackage#getReadoutNodeFemModel_CounterSelect()
+	 * @model
+	 * @generated
+	 */
+	int getCounterSelect();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.gda.excalibur.config.model.ReadoutNodeFemModel#getCounterSelect <em>Counter Select</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Counter Select</em>' attribute.
+	 * @see #getCounterSelect()
+	 * @generated
+	 */
+	void setCounterSelect(int value);
+
+	/**
 	 * @model type="MpxiiiChipRegModel" containment="true"
 	 */
 
