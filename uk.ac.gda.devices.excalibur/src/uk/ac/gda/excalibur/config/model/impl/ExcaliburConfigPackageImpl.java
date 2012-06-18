@@ -498,15 +498,6 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getAnperModel_ChipDisable() {
-		return (EAttribute)anperModelEClass.getEStructuralFeatures().get(25);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	@Override
 	public EClass getArrayCountsModel() {
 		return arrayCountsModelEClass;
@@ -768,68 +759,8 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * @generated
 	 */
 	@Override
-	public EAttribute getMpxiiiChipRegModel_DacSense() {
-		return (EAttribute)mpxiiiChipRegModelEClass.getEStructuralFeatures().get(0);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public EAttribute getMpxiiiChipRegModel_DacSenseDecode() {
-		return (EAttribute)mpxiiiChipRegModelEClass.getEStructuralFeatures().get(1);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public EAttribute getMpxiiiChipRegModel_DacSenseName() {
-		return (EAttribute)mpxiiiChipRegModelEClass.getEStructuralFeatures().get(2);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public EAttribute getMpxiiiChipRegModel_DacExternal() {
-		return (EAttribute)mpxiiiChipRegModelEClass.getEStructuralFeatures().get(3);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public EAttribute getMpxiiiChipRegModel_DacExternalDecode() {
-		return (EAttribute)mpxiiiChipRegModelEClass.getEStructuralFeatures().get(4);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public EAttribute getMpxiiiChipRegModel_DacExternalName() {
-		return (EAttribute)mpxiiiChipRegModelEClass.getEStructuralFeatures().get(5);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
 	public EReference getMpxiiiChipRegModel_Anper() {
-		return (EReference)mpxiiiChipRegModelEClass.getEStructuralFeatures().get(6);
+		return (EReference)mpxiiiChipRegModelEClass.getEStructuralFeatures().get(0);
 	}
 
 	/**
@@ -839,7 +770,16 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 */
 	@Override
 	public EReference getMpxiiiChipRegModel_Pixel() {
-		return (EReference)mpxiiiChipRegModelEClass.getEStructuralFeatures().get(7);
+		return (EReference)mpxiiiChipRegModelEClass.getEStructuralFeatures().get(1);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getMpxiiiChipRegModel_ChipDisable() {
+		return (EAttribute)mpxiiiChipRegModelEClass.getEStructuralFeatures().get(2);
 	}
 
 	/**
@@ -1205,6 +1145,24 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EAttribute getReadoutNodeFemModel_DacSense() {
+		return (EAttribute)readoutNodeFemModelEClass.getEStructuralFeatures().get(11);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getReadoutNodeFemModel_DacExternal() {
+		return (EAttribute)readoutNodeFemModelEClass.getEStructuralFeatures().get(12);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	@Override
 	public EClass getSummaryAdbaseModel() {
 		return summaryAdbaseModelEClass;
@@ -1375,7 +1333,6 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 		createEAttribute(anperModelEClass, ANPER_MODEL__THRESHOLD5);
 		createEAttribute(anperModelEClass, ANPER_MODEL__THRESHOLD6);
 		createEAttribute(anperModelEClass, ANPER_MODEL__THRESHOLD7);
-		createEAttribute(anperModelEClass, ANPER_MODEL__CHIP_DISABLE);
 
 		arrayCountsModelEClass = createEClass(ARRAY_COUNTS_MODEL);
 		createEAttribute(arrayCountsModelEClass, ARRAY_COUNTS_MODEL__ARRAY_COUNT_FEM1);
@@ -1410,14 +1367,9 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 		createEAttribute(masterModelEClass, MASTER_MODEL__FRAME_DIVISOR);
 
 		mpxiiiChipRegModelEClass = createEClass(MPXIII_CHIP_REG_MODEL);
-		createEAttribute(mpxiiiChipRegModelEClass, MPXIII_CHIP_REG_MODEL__DAC_SENSE);
-		createEAttribute(mpxiiiChipRegModelEClass, MPXIII_CHIP_REG_MODEL__DAC_SENSE_DECODE);
-		createEAttribute(mpxiiiChipRegModelEClass, MPXIII_CHIP_REG_MODEL__DAC_SENSE_NAME);
-		createEAttribute(mpxiiiChipRegModelEClass, MPXIII_CHIP_REG_MODEL__DAC_EXTERNAL);
-		createEAttribute(mpxiiiChipRegModelEClass, MPXIII_CHIP_REG_MODEL__DAC_EXTERNAL_DECODE);
-		createEAttribute(mpxiiiChipRegModelEClass, MPXIII_CHIP_REG_MODEL__DAC_EXTERNAL_NAME);
 		createEReference(mpxiiiChipRegModelEClass, MPXIII_CHIP_REG_MODEL__ANPER);
 		createEReference(mpxiiiChipRegModelEClass, MPXIII_CHIP_REG_MODEL__PIXEL);
+		createEAttribute(mpxiiiChipRegModelEClass, MPXIII_CHIP_REG_MODEL__CHIP_DISABLE);
 
 		mpxiiiGlobalRegModelEClass = createEClass(MPXIII_GLOBAL_REG_MODEL);
 		createEAttribute(mpxiiiGlobalRegModelEClass, MPXIII_GLOBAL_REG_MODEL__COLOUR_MODE);
@@ -1458,6 +1410,8 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 		createEReference(readoutNodeFemModelEClass, READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG6);
 		createEReference(readoutNodeFemModelEClass, READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG7);
 		createEReference(readoutNodeFemModelEClass, READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG8);
+		createEAttribute(readoutNodeFemModelEClass, READOUT_NODE_FEM_MODEL__DAC_SENSE);
+		createEAttribute(readoutNodeFemModelEClass, READOUT_NODE_FEM_MODEL__DAC_EXTERNAL);
 
 		summaryAdbaseModelEClass = createEClass(SUMMARY_ADBASE_MODEL);
 		createEAttribute(summaryAdbaseModelEClass, SUMMARY_ADBASE_MODEL__FRAME_DIVISOR);
@@ -1535,7 +1489,6 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 		initEAttribute(getAnperModel_Threshold5(), ecorePackage.getEInt(), "threshold5", null, 0, 1, AnperModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getAnperModel_Threshold6(), ecorePackage.getEInt(), "threshold6", null, 0, 1, AnperModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getAnperModel_Threshold7(), ecorePackage.getEInt(), "threshold7", null, 0, 1, AnperModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getAnperModel_ChipDisable(), ecorePackage.getEBoolean(), "chipDisable", null, 0, 1, AnperModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(arrayCountsModelEClass, ArrayCountsModel.class, "ArrayCountsModel", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getArrayCountsModel_ArrayCountFem1(), ecorePackage.getEInt(), "arrayCountFem1", null, 0, 1, ArrayCountsModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -1570,14 +1523,9 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 		initEAttribute(getMasterModel_FrameDivisor(), ecorePackage.getEInt(), "frameDivisor", null, 0, 1, MasterModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(mpxiiiChipRegModelEClass, MpxiiiChipRegModel.class, "MpxiiiChipRegModel", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEAttribute(getMpxiiiChipRegModel_DacSense(), ecorePackage.getEInt(), "dacSense", null, 0, 1, MpxiiiChipRegModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getMpxiiiChipRegModel_DacSenseDecode(), ecorePackage.getEInt(), "dacSenseDecode", null, 0, 1, MpxiiiChipRegModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getMpxiiiChipRegModel_DacSenseName(), ecorePackage.getEString(), "dacSenseName", null, 0, 1, MpxiiiChipRegModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getMpxiiiChipRegModel_DacExternal(), ecorePackage.getEInt(), "dacExternal", null, 0, 1, MpxiiiChipRegModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getMpxiiiChipRegModel_DacExternalDecode(), ecorePackage.getEInt(), "dacExternalDecode", null, 0, 1, MpxiiiChipRegModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getMpxiiiChipRegModel_DacExternalName(), ecorePackage.getEString(), "dacExternalName", null, 0, 1, MpxiiiChipRegModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getMpxiiiChipRegModel_Anper(), this.getAnperModel(), null, "anper", null, 0, 1, MpxiiiChipRegModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getMpxiiiChipRegModel_Pixel(), this.getPixelModel(), null, "pixel", null, 0, 1, MpxiiiChipRegModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getMpxiiiChipRegModel_ChipDisable(), ecorePackage.getEBoolean(), "chipDisable", null, 0, 1, MpxiiiChipRegModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(mpxiiiGlobalRegModelEClass, MpxiiiGlobalRegModel.class, "MpxiiiGlobalRegModel", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getMpxiiiGlobalRegModel_ColourMode(), ecorePackage.getEInt(), "colourMode", null, 0, 1, MpxiiiGlobalRegModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -1618,6 +1566,8 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 		initEReference(getReadoutNodeFemModel_MpxiiiChipReg6(), this.getMpxiiiChipRegModel(), null, "mpxiiiChipReg6", null, 0, 1, ReadoutNodeFemModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getReadoutNodeFemModel_MpxiiiChipReg7(), this.getMpxiiiChipRegModel(), null, "mpxiiiChipReg7", null, 0, 1, ReadoutNodeFemModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getReadoutNodeFemModel_MpxiiiChipReg8(), this.getMpxiiiChipRegModel(), null, "mpxiiiChipReg8", null, 0, 1, ReadoutNodeFemModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getReadoutNodeFemModel_DacSense(), ecorePackage.getEInt(), "dacSense", null, 0, 1, ReadoutNodeFemModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getReadoutNodeFemModel_DacExternal(), ecorePackage.getEInt(), "dacExternal", null, 0, 1, ReadoutNodeFemModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(summaryAdbaseModelEClass, SummaryAdbaseModel.class, "SummaryAdbaseModel", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getSummaryAdbaseModel_FrameDivisor(), ecorePackage.getEInt(), "frameDivisor", null, 0, 1, SummaryAdbaseModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);

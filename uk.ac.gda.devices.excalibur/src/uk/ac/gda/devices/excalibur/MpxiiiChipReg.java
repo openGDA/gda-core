@@ -18,69 +18,11 @@
 
 package uk.ac.gda.devices.excalibur;
 
+
 /**
  * Interface that corresponds to $excalibur_ioc/excaliburApp/Db/mpxiiChipReg.template
  */
 public interface MpxiiiChipReg {
-	/**
-	 * 
-	 */
-	int getDacSense() throws Exception;
-
-	/**
-	 * 
-	 */
-	public void setDacSense(int dacSense) throws Exception;
-
-	/**
-	 * 
-	 */
-	int getDacSenseDecode() throws Exception;
-
-	/**
-	 * 
-	 */
-	public void setDacSenseDecode(int dacSenseDecode) throws Exception;
-
-	/**
-	 * 
-	 */
-	String getDacSenseName() throws Exception;
-
-	/**
-	 * 
-	 */
-	public void setDacSenseName(String dacSenseName) throws Exception;
-
-	/**
-	 * 
-	 */
-	int getDacExternal() throws Exception;
-
-	/**
-	 * 
-	 */
-	public void setDacExternal(int dacExternal) throws Exception;
-
-	/**
-	 * 
-	 */
-	int getDacExternalDecode() throws Exception;
-
-	/**
-	 * 
-	 */
-	public void setDacExternalDecode(int dacExternalDecode) throws Exception;
-
-	/**
-	 * 
-	 */
-	String getDacExternalName() throws Exception;
-
-	/**
-	 * 
-	 */
-	public void setDacExternalName(String dacExternalName) throws Exception;
 
 	/**
 	 */
@@ -100,5 +42,21 @@ public interface MpxiiiChipReg {
 	 * 
 	 */
 	public void setPixel(ChipPixel pixel) throws Exception;
+
+	/**
+	 * @throws Exception
+	 */
+	void enableChip() throws Exception;
+
+	/**
+	 * @throws Exception
+	 */
+	void disableChip() throws Exception;
+
+	/**
+	 * @return true if chip is enabled
+	 * @throws Exception
+	 */
+	boolean isChipEnabled() throws Exception;
 
 }

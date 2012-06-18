@@ -27,140 +27,15 @@ import uk.ac.gda.excalibur.config.model.PixelModel;
  * <p>
  * The following features are implemented:
  * <ul>
- *   <li>{@link uk.ac.gda.excalibur.config.model.impl.MpxiiiChipRegModelImpl#getDacSense <em>Dac Sense</em>}</li>
- *   <li>{@link uk.ac.gda.excalibur.config.model.impl.MpxiiiChipRegModelImpl#getDacSenseDecode <em>Dac Sense Decode</em>}</li>
- *   <li>{@link uk.ac.gda.excalibur.config.model.impl.MpxiiiChipRegModelImpl#getDacSenseName <em>Dac Sense Name</em>}</li>
- *   <li>{@link uk.ac.gda.excalibur.config.model.impl.MpxiiiChipRegModelImpl#getDacExternal <em>Dac External</em>}</li>
- *   <li>{@link uk.ac.gda.excalibur.config.model.impl.MpxiiiChipRegModelImpl#getDacExternalDecode <em>Dac External Decode</em>}</li>
- *   <li>{@link uk.ac.gda.excalibur.config.model.impl.MpxiiiChipRegModelImpl#getDacExternalName <em>Dac External Name</em>}</li>
  *   <li>{@link uk.ac.gda.excalibur.config.model.impl.MpxiiiChipRegModelImpl#getAnper <em>Anper</em>}</li>
  *   <li>{@link uk.ac.gda.excalibur.config.model.impl.MpxiiiChipRegModelImpl#getPixel <em>Pixel</em>}</li>
+ *   <li>{@link uk.ac.gda.excalibur.config.model.impl.MpxiiiChipRegModelImpl#isChipDisable <em>Chip Disable</em>}</li>
  * </ul>
  * </p>
  *
  * @generated
  */
 public class MpxiiiChipRegModelImpl extends EObjectImpl implements MpxiiiChipRegModel {
-	/**
-	 * The default value of the '{@link #getDacSense() <em>Dac Sense</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getDacSense()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final int DAC_SENSE_EDEFAULT = 0;
-
-	/**
-	 * The cached value of the '{@link #getDacSense() <em>Dac Sense</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getDacSense()
-	 * @generated
-	 * @ordered
-	 */
-	protected int dacSense = DAC_SENSE_EDEFAULT;
-
-	/**
-	 * The default value of the '{@link #getDacSenseDecode() <em>Dac Sense Decode</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getDacSenseDecode()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final int DAC_SENSE_DECODE_EDEFAULT = 0;
-
-	/**
-	 * The cached value of the '{@link #getDacSenseDecode() <em>Dac Sense Decode</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getDacSenseDecode()
-	 * @generated
-	 * @ordered
-	 */
-	protected int dacSenseDecode = DAC_SENSE_DECODE_EDEFAULT;
-
-	/**
-	 * The default value of the '{@link #getDacSenseName() <em>Dac Sense Name</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getDacSenseName()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final String DAC_SENSE_NAME_EDEFAULT = null;
-
-	/**
-	 * The cached value of the '{@link #getDacSenseName() <em>Dac Sense Name</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getDacSenseName()
-	 * @generated
-	 * @ordered
-	 */
-	protected String dacSenseName = DAC_SENSE_NAME_EDEFAULT;
-
-	/**
-	 * The default value of the '{@link #getDacExternal() <em>Dac External</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getDacExternal()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final int DAC_EXTERNAL_EDEFAULT = 0;
-
-	/**
-	 * The cached value of the '{@link #getDacExternal() <em>Dac External</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getDacExternal()
-	 * @generated
-	 * @ordered
-	 */
-	protected int dacExternal = DAC_EXTERNAL_EDEFAULT;
-
-	/**
-	 * The default value of the '{@link #getDacExternalDecode() <em>Dac External Decode</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getDacExternalDecode()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final int DAC_EXTERNAL_DECODE_EDEFAULT = 0;
-
-	/**
-	 * The cached value of the '{@link #getDacExternalDecode() <em>Dac External Decode</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getDacExternalDecode()
-	 * @generated
-	 * @ordered
-	 */
-	protected int dacExternalDecode = DAC_EXTERNAL_DECODE_EDEFAULT;
-
-	/**
-	 * The default value of the '{@link #getDacExternalName() <em>Dac External Name</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getDacExternalName()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final String DAC_EXTERNAL_NAME_EDEFAULT = null;
-
-	/**
-	 * The cached value of the '{@link #getDacExternalName() <em>Dac External Name</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getDacExternalName()
-	 * @generated
-	 * @ordered
-	 */
-	protected String dacExternalName = DAC_EXTERNAL_NAME_EDEFAULT;
-
 	/**
 	 * The cached value of the '{@link #getAnper() <em>Anper</em>}' containment reference.
 	 * <!-- begin-user-doc -->
@@ -182,6 +57,35 @@ public class MpxiiiChipRegModelImpl extends EObjectImpl implements MpxiiiChipReg
 	protected PixelModel pixel;
 
 	/**
+	 * The default value of the '{@link #isChipDisable() <em>Chip Disable</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isChipDisable()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final boolean CHIP_DISABLE_EDEFAULT = false;
+
+	/**
+	 * The cached value of the '{@link #isChipDisable() <em>Chip Disable</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isChipDisable()
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean chipDisable = CHIP_DISABLE_EDEFAULT;
+
+	/**
+	 * This is true if the Chip Disable attribute has been set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean chipDisableESet;
+
+	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
@@ -198,144 +102,6 @@ public class MpxiiiChipRegModelImpl extends EObjectImpl implements MpxiiiChipReg
 	@Override
 	protected EClass eStaticClass() {
 		return ExcaliburConfigPackage.Literals.MPXIII_CHIP_REG_MODEL;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public int getDacSense() {
-		return dacSense;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public void setDacSense(int newDacSense) {
-		int oldDacSense = dacSense;
-		dacSense = newDacSense;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__DAC_SENSE, oldDacSense, dacSense));
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public int getDacSenseDecode() {
-		return dacSenseDecode;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public void setDacSenseDecode(int newDacSenseDecode) {
-		int oldDacSenseDecode = dacSenseDecode;
-		dacSenseDecode = newDacSenseDecode;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__DAC_SENSE_DECODE, oldDacSenseDecode, dacSenseDecode));
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public String getDacSenseName() {
-		return dacSenseName;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public void setDacSenseName(String newDacSenseName) {
-		String oldDacSenseName = dacSenseName;
-		dacSenseName = newDacSenseName;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__DAC_SENSE_NAME, oldDacSenseName, dacSenseName));
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public int getDacExternal() {
-		return dacExternal;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public void setDacExternal(int newDacExternal) {
-		int oldDacExternal = dacExternal;
-		dacExternal = newDacExternal;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__DAC_EXTERNAL, oldDacExternal, dacExternal));
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public int getDacExternalDecode() {
-		return dacExternalDecode;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public void setDacExternalDecode(int newDacExternalDecode) {
-		int oldDacExternalDecode = dacExternalDecode;
-		dacExternalDecode = newDacExternalDecode;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__DAC_EXTERNAL_DECODE, oldDacExternalDecode, dacExternalDecode));
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public String getDacExternalName() {
-		return dacExternalName;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public void setDacExternalName(String newDacExternalName) {
-		String oldDacExternalName = dacExternalName;
-		dacExternalName = newDacExternalName;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__DAC_EXTERNAL_NAME, oldDacExternalName, dacExternalName));
 	}
 
 	/**
@@ -434,6 +200,56 @@ public class MpxiiiChipRegModelImpl extends EObjectImpl implements MpxiiiChipReg
 	 * @generated
 	 */
 	@Override
+	public boolean isChipDisable() {
+		return chipDisable;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public void setChipDisable(boolean newChipDisable) {
+		boolean oldChipDisable = chipDisable;
+		chipDisable = newChipDisable;
+		boolean oldChipDisableESet = chipDisableESet;
+		chipDisableESet = true;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__CHIP_DISABLE, oldChipDisable, chipDisable, !oldChipDisableESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public void unsetChipDisable() {
+		boolean oldChipDisable = chipDisable;
+		boolean oldChipDisableESet = chipDisableESet;
+		chipDisable = CHIP_DISABLE_EDEFAULT;
+		chipDisableESet = false;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.UNSET, ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__CHIP_DISABLE, oldChipDisable, CHIP_DISABLE_EDEFAULT, oldChipDisableESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public boolean isSetChipDisable() {
+		return chipDisableESet;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
 			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__ANPER:
@@ -452,22 +268,12 @@ public class MpxiiiChipRegModelImpl extends EObjectImpl implements MpxiiiChipReg
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__DAC_SENSE:
-				return getDacSense();
-			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__DAC_SENSE_DECODE:
-				return getDacSenseDecode();
-			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__DAC_SENSE_NAME:
-				return getDacSenseName();
-			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__DAC_EXTERNAL:
-				return getDacExternal();
-			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__DAC_EXTERNAL_DECODE:
-				return getDacExternalDecode();
-			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__DAC_EXTERNAL_NAME:
-				return getDacExternalName();
 			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__ANPER:
 				return getAnper();
 			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__PIXEL:
 				return getPixel();
+			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__CHIP_DISABLE:
+				return isChipDisable();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -480,29 +286,14 @@ public class MpxiiiChipRegModelImpl extends EObjectImpl implements MpxiiiChipReg
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__DAC_SENSE:
-				setDacSense((Integer)newValue);
-				return;
-			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__DAC_SENSE_DECODE:
-				setDacSenseDecode((Integer)newValue);
-				return;
-			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__DAC_SENSE_NAME:
-				setDacSenseName((String)newValue);
-				return;
-			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__DAC_EXTERNAL:
-				setDacExternal((Integer)newValue);
-				return;
-			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__DAC_EXTERNAL_DECODE:
-				setDacExternalDecode((Integer)newValue);
-				return;
-			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__DAC_EXTERNAL_NAME:
-				setDacExternalName((String)newValue);
-				return;
 			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__ANPER:
 				setAnper((AnperModel)newValue);
 				return;
 			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__PIXEL:
 				setPixel((PixelModel)newValue);
+				return;
+			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__CHIP_DISABLE:
+				setChipDisable((Boolean)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -516,29 +307,14 @@ public class MpxiiiChipRegModelImpl extends EObjectImpl implements MpxiiiChipReg
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__DAC_SENSE:
-				setDacSense(DAC_SENSE_EDEFAULT);
-				return;
-			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__DAC_SENSE_DECODE:
-				setDacSenseDecode(DAC_SENSE_DECODE_EDEFAULT);
-				return;
-			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__DAC_SENSE_NAME:
-				setDacSenseName(DAC_SENSE_NAME_EDEFAULT);
-				return;
-			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__DAC_EXTERNAL:
-				setDacExternal(DAC_EXTERNAL_EDEFAULT);
-				return;
-			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__DAC_EXTERNAL_DECODE:
-				setDacExternalDecode(DAC_EXTERNAL_DECODE_EDEFAULT);
-				return;
-			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__DAC_EXTERNAL_NAME:
-				setDacExternalName(DAC_EXTERNAL_NAME_EDEFAULT);
-				return;
 			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__ANPER:
 				setAnper((AnperModel)null);
 				return;
 			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__PIXEL:
 				setPixel((PixelModel)null);
+				return;
+			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__CHIP_DISABLE:
+				unsetChipDisable();
 				return;
 		}
 		super.eUnset(featureID);
@@ -552,22 +328,12 @@ public class MpxiiiChipRegModelImpl extends EObjectImpl implements MpxiiiChipReg
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
-			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__DAC_SENSE:
-				return dacSense != DAC_SENSE_EDEFAULT;
-			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__DAC_SENSE_DECODE:
-				return dacSenseDecode != DAC_SENSE_DECODE_EDEFAULT;
-			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__DAC_SENSE_NAME:
-				return DAC_SENSE_NAME_EDEFAULT == null ? dacSenseName != null : !DAC_SENSE_NAME_EDEFAULT.equals(dacSenseName);
-			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__DAC_EXTERNAL:
-				return dacExternal != DAC_EXTERNAL_EDEFAULT;
-			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__DAC_EXTERNAL_DECODE:
-				return dacExternalDecode != DAC_EXTERNAL_DECODE_EDEFAULT;
-			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__DAC_EXTERNAL_NAME:
-				return DAC_EXTERNAL_NAME_EDEFAULT == null ? dacExternalName != null : !DAC_EXTERNAL_NAME_EDEFAULT.equals(dacExternalName);
 			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__ANPER:
 				return anper != null;
 			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__PIXEL:
 				return pixel != null;
+			case ExcaliburConfigPackage.MPXIII_CHIP_REG_MODEL__CHIP_DISABLE:
+				return isSetChipDisable();
 		}
 		return super.eIsSet(featureID);
 	}
@@ -582,18 +348,8 @@ public class MpxiiiChipRegModelImpl extends EObjectImpl implements MpxiiiChipReg
 		if (eIsProxy()) return super.toString();
 
 		StringBuffer result = new StringBuffer(super.toString());
-		result.append(" (dacSense: ");
-		result.append(dacSense);
-		result.append(", dacSenseDecode: ");
-		result.append(dacSenseDecode);
-		result.append(", dacSenseName: ");
-		result.append(dacSenseName);
-		result.append(", dacExternal: ");
-		result.append(dacExternal);
-		result.append(", dacExternalDecode: ");
-		result.append(dacExternalDecode);
-		result.append(", dacExternalName: ");
-		result.append(dacExternalName);
+		result.append(" (chipDisable: ");
+		if (chipDisableESet) result.append(chipDisable); else result.append("<unset>");
 		result.append(')');
 		return result.toString();
 	}

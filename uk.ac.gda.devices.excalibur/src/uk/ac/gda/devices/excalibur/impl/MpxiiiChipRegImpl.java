@@ -28,25 +28,15 @@ import java.util.Map;
 import org.springframework.beans.factory.InitializingBean;
 
 import uk.ac.gda.devices.excalibur.ChipAnper;
-import uk.ac.gda.devices.excalibur.MpxiiiChipReg;
 import uk.ac.gda.devices.excalibur.ChipPixel;
+import uk.ac.gda.devices.excalibur.MpxiiiChipReg;
 
 /**
  *
  */
 public class MpxiiiChipRegImpl implements MpxiiiChipReg, InitializingBean {
-	private static final String DACEXTERNAL_NAME = "DacExternal:Name";
-
-	private static final String DACEXTERNAL_DECODE = "DacExternal:Decode";
-
-	private static final String DACEXTERNAL = "DacExternal";
-
-	private static final String DACSENSE_NAME = "DacSense:Name";
-
-	private static final String DACSENSE_DECODE = "DacSense:Decode";
-
-	private static final String DACSENSE = "DacSense";
-
+	
+	private static final String CHIP_DISABLE = "ChipDisable";
 	/**
 	 * Map that stores the channel against the PV name
 	 */
@@ -61,66 +51,6 @@ public class MpxiiiChipRegImpl implements MpxiiiChipReg, InitializingBean {
 	private IPVProvider pvProvider;
 
 	private final static EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
-
-	@Override
-	public int getDacSense() throws Exception {
-		return EPICS_CONTROLLER.cagetInt(getChannel(DACSENSE));
-	}
-
-	@Override
-	public void setDacSense(int dacSense) throws Exception {
-		EPICS_CONTROLLER.caput(getChannel(DACSENSE), dacSense);
-	}
-
-	@Override
-	public int getDacSenseDecode() throws Exception {
-		return EPICS_CONTROLLER.cagetInt(getChannel(DACSENSE_DECODE));
-	}
-
-	@Override
-	public void setDacSenseDecode(int dacSenseDecode) throws Exception {
-		EPICS_CONTROLLER.caput(getChannel(DACSENSE_DECODE), dacSenseDecode);
-	}
-
-	@Override
-	public String getDacSenseName() throws Exception {
-		return EPICS_CONTROLLER.caget(getChannel(DACSENSE_NAME));
-	}
-
-	@Override
-	public void setDacSenseName(String dacSenseName) throws Exception {
-		EPICS_CONTROLLER.caput(getChannel(DACSENSE_NAME), dacSenseName);
-	}
-
-	@Override
-	public int getDacExternal() throws Exception {
-		return EPICS_CONTROLLER.cagetInt(getChannel(DACEXTERNAL));
-	}
-
-	@Override
-	public void setDacExternal(int dacExternal) throws Exception {
-		EPICS_CONTROLLER.caput(getChannel(DACEXTERNAL), dacExternal);
-	}
-
-	@Override
-	public int getDacExternalDecode() throws Exception {
-		return EPICS_CONTROLLER.cagetInt(getChannel(DACEXTERNAL_DECODE));
-	}
-
-	@Override
-	public void setDacExternalDecode(int dacExternalDecode) throws Exception {
-		EPICS_CONTROLLER.caput(getChannel(DACEXTERNAL_DECODE), dacExternalDecode);
-	}
-
-	@Override
-	public String getDacExternalName() throws Exception {
-		return EPICS_CONTROLLER.caget(getChannel(DACEXTERNAL_NAME));
-	}
-
-	@Override
-	public void setDacExternalName(String dacExternalName) throws Exception {
-		EPICS_CONTROLLER.caput(getChannel(DACEXTERNAL_NAME), dacExternalName);
-	}
 
 	@Override
 	public ChipAnper getAnper() {
@@ -202,5 +132,20 @@ public class MpxiiiChipRegImpl implements MpxiiiChipReg, InitializingBean {
 	 */
 	public void setPvProvider(IPVProvider pvProvider) {
 		this.pvProvider = pvProvider;
+	}
+
+	@Override
+	public void enableChip() throws Exception {
+		EPICS_CONTROLLER.caput(getChannel(CHIP_DISABLE), 0);
+	}
+
+	@Override
+	public void disableChip() throws Exception {
+		EPICS_CONTROLLER.caput(getChannel(CHIP_DISABLE), 1);
+	}
+
+	@Override
+	public boolean isChipEnabled() throws Exception {
+		return EPICS_CONTROLLER.cagetInt(getChannel(CHIP_DISABLE)) == 0;
 	}
 }

@@ -217,4 +217,56 @@ public interface ReadoutNodeFemModel extends EObject {
 	 */
 	void setMpxiiiChipReg8(MpxiiiChipRegModel value);
 
+	/**
+	 * Returns the value of the '<em><b>Dac Sense</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Dac Sense</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Dac Sense</em>' attribute.
+	 * @see #setDacSense(int)
+	 * @see uk.ac.gda.excalibur.config.model.ExcaliburConfigPackage#getReadoutNodeFemModel_DacSense()
+	 * @model
+	 * @generated
+	 */
+	int getDacSense();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.gda.excalibur.config.model.ReadoutNodeFemModel#getDacSense <em>Dac Sense</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Dac Sense</em>' attribute.
+	 * @see #getDacSense()
+	 * @generated
+	 */
+	void setDacSense(int value);
+
+	/**
+	 * Returns the value of the '<em><b>Dac External</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Dac External</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Dac External</em>' attribute.
+	 * @see #setDacExternal(int)
+	 * @see uk.ac.gda.excalibur.config.model.ExcaliburConfigPackage#getReadoutNodeFemModel_DacExternal()
+	 * @model
+	 * @generated
+	 */
+	int getDacExternal();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.gda.excalibur.config.model.ReadoutNodeFemModel#getDacExternal <em>Dac External</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Dac External</em>' attribute.
+	 * @see #getDacExternal()
+	 * @generated
+	 */
+	void setDacExternal(int value);
+
 }

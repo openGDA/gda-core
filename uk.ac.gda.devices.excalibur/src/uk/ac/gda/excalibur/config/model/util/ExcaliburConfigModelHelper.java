@@ -169,6 +169,8 @@ public class ExcaliburConfigModelHelper {
 			readoutNodeFem.setCounterDepth(fem.getCounterDepth());
 			readoutNodeFem.setCounterSelect(fem.getCounterSelect());
 			readoutNodeFem.setOperationMode(fem.getOperationMode());
+			readoutNodeFem.setDacExternal(fem.getDacExternal());
+			readoutNodeFem.setDacSense(fem.getDacSense());
 			readoutNodeFem.setMpxiiiChipReg1(getMpxiiiChipRegModel(fem.getMpxiiiChipReg1()));
 			readoutNodeFem.setMpxiiiChipReg2(getMpxiiiChipRegModel(fem.getMpxiiiChipReg2()));
 			readoutNodeFem.setMpxiiiChipReg3(getMpxiiiChipRegModel(fem.getMpxiiiChipReg3()));
@@ -207,14 +209,10 @@ public class ExcaliburConfigModelHelper {
 
 	private MpxiiiChipRegModel getMpxiiiChipRegModel(MpxiiiChipReg chip) throws Exception {
 		MpxiiiChipRegModel chipRegModel = ExcaliburConfigFactory.eINSTANCE.createMpxiiiChipRegModel();
-		chipRegModel.setDacExternal(chip.getDacExternal());
-		chipRegModel.setDacExternalDecode(chip.getDacExternal());
-		chipRegModel.setDacExternalName(chip.getDacExternalName());
-		chipRegModel.setDacSense(chip.getDacSense());
-		chipRegModel.setDacSenseDecode(chip.getDacSenseDecode());
-		chipRegModel.setDacSenseName(chip.getDacSenseName());
+		
 		chipRegModel.setAnper(getAnperModel(chip.getAnper()));
 		chipRegModel.setPixel(getPixelModel(chip.getPixel()));
+		chipRegModel.setChipDisable(!chip.isChipEnabled());
 
 		return chipRegModel;
 	}
@@ -257,7 +255,7 @@ public class ExcaliburConfigModelHelper {
 		anperModel.setTprefA(anper.getTprefA());
 		anperModel.setTprefB(anper.getTprefB());
 		// There is a slight doubt here - setting it as it sounds right
-		anperModel.setChipDisable(!anper.isChipEnabled());
+		
 		return anperModel;
 	}
 
@@ -291,6 +289,8 @@ public class ExcaliburConfigModelHelper {
 			detectorNode.setCounterDepth(modelReadoutNodeFem.getCounterDepth());
 			detectorNode.setCounterSelect(modelReadoutNodeFem.getCounterSelect());
 			detectorNode.setOperationMode(modelReadoutNodeFem.getOperationMode());
+			detectorNode.setDacExternal(modelReadoutNodeFem.getDacExternal());
+			detectorNode.setDacSense(modelReadoutNodeFem.getDacSense());
 			
 			setDetectorChipReg(detectorNode.getMpxiiiChipReg1(), modelReadoutNodeFem.getMpxiiiChipReg1());
 			setDetectorChipReg(detectorNode.getMpxiiiChipReg2(), modelReadoutNodeFem.getMpxiiiChipReg2());
@@ -303,12 +303,11 @@ public class ExcaliburConfigModelHelper {
 	}
 
 	private void setDetectorChipReg(MpxiiiChipReg detectorChip, MpxiiiChipRegModel modelChipReg) throws Exception {
-		detectorChip.setDacExternal(modelChipReg.getDacExternal());
-		detectorChip.setDacExternalDecode(modelChipReg.getDacExternalDecode());
-		detectorChip.setDacExternalName(modelChipReg.getDacExternalName());
-		detectorChip.setDacSense(modelChipReg.getDacSense());
-		detectorChip.setDacSenseDecode(modelChipReg.getDacSenseDecode());
-		detectorChip.setDacSenseName(modelChipReg.getDacSenseName());
+		if (modelChipReg.isChipDisable()) {
+			detectorChip.disableChip();
+		} else {
+			detectorChip.enableChip();
+		}
 		setDetectorPixel(detectorChip.getPixel(), modelChipReg.getPixel());
 		setDetectorAnper(detectorChip.getAnper(), modelChipReg.getAnper());
 	}
@@ -339,11 +338,6 @@ public class ExcaliburConfigModelHelper {
 		detectorAnper.setTpref(modelAnper.getTpref());
 		detectorAnper.setTprefA(modelAnper.getTprefA());
 		detectorAnper.setTprefB(modelAnper.getTprefB());
-		if (modelAnper.isChipDisable()) {
-			detectorAnper.disableChip();
-		} else {
-			detectorAnper.enableChip();
-		}
 	}
 
 	private void setDetectorPixel(ChipPixel detectorPixel, PixelModel modelPixel) throws Exception {

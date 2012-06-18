@@ -325,21 +325,4 @@ public class DummyMpxiiiChipRegAnper implements ChipAnper, InitializingBean {
 	public void afterPropertiesSet() throws Exception {
 	}
 
-	@Override
-	public void enableChip() throws CAException, InterruptedException, TimeoutException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void disableChip() throws CAException, InterruptedException, TimeoutException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public boolean isChipEnabled() throws TimeoutException, CAException, InterruptedException {
-		// TODO Auto-generated method stub
-		return false;
-	}
 }

@@ -27,78 +27,6 @@ import org.eclipse.emf.ecore.EObject;
  */
 public interface MpxiiiChipRegModel extends EObject {
 	/**
-	 * @model
-	 */
-
-	int getDacSense();
-
-	/**
-	 * 
-	 */
-
-	public void setDacSense(int dacSense);
-
-	/**
-	 * @model
-	 */
-
-	int getDacSenseDecode();
-
-	/**
-	 * 
-	 */
-
-	public void setDacSenseDecode(int dacSenseDecode);
-
-	/**
-	 * @model
-	 */
-
-	String getDacSenseName();
-
-	/**
-	 * 
-	 */
-
-	public void setDacSenseName(String dacSenseName);
-
-	/**
-	 * @model
-	 */
-
-	int getDacExternal();
-
-	/**
-	 * 
-	 */
-
-	public void setDacExternal(int dacExternal);
-
-	/**
-	 * @model
-	 */
-
-	int getDacExternalDecode();
-
-	/**
-	 * 
-	 */
-
-	public void setDacExternalDecode(int dacExternalDecode);
-
-	/**
-	 * @model
-	 */
-
-	String getDacExternalName();
-
-	/**
-	 * 
-	 */
-
-	public void setDacExternalName(String dacExternalName);
-
-	/**
 	 * @model type="AnperModel" containment="true"
 	 */
 
@@ -119,5 +47,58 @@ public interface MpxiiiChipRegModel extends EObject {
 	 * 
 	 */
 	public void setPixel(PixelModel pixel);
+
+	/**
+	 * Returns the value of the '<em><b>Chip Disable</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Chip Disable</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Chip Disable</em>' attribute.
+	 * @see #isSetChipDisable()
+	 * @see #unsetChipDisable()
+	 * @see #setChipDisable(boolean)
+	 * @see uk.ac.gda.excalibur.config.model.ExcaliburConfigPackage#getMpxiiiChipRegModel_ChipDisable()
+	 * @model unsettable="true"
+	 * @generated
+	 */
+	boolean isChipDisable();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.gda.excalibur.config.model.MpxiiiChipRegModel#isChipDisable <em>Chip Disable</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Chip Disable</em>' attribute.
+	 * @see #isSetChipDisable()
+	 * @see #unsetChipDisable()
+	 * @see #isChipDisable()
+	 * @generated
+	 */
+	void setChipDisable(boolean value);
+
+	/**
+	 * Unsets the value of the '{@link uk.ac.gda.excalibur.config.model.MpxiiiChipRegModel#isChipDisable <em>Chip Disable</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isSetChipDisable()
+	 * @see #isChipDisable()
+	 * @see #setChipDisable(boolean)
+	 * @generated
+	 */
+	void unsetChipDisable();
+
+	/**
+	 * Returns whether the value of the '{@link uk.ac.gda.excalibur.config.model.MpxiiiChipRegModel#isChipDisable <em>Chip Disable</em>}' attribute is set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return whether the value of the '<em>Chip Disable</em>' attribute is set.
+	 * @see #unsetChipDisable()
+	 * @see #isChipDisable()
+	 * @see #setChipDisable(boolean)
+	 * @generated
+	 */
+	boolean isSetChipDisable();
 
 }

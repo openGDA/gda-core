@@ -33,6 +33,31 @@ public class ExcaliburReadoutNodeFemImpl extends ADBaseImpl implements Excalibur
 	private static final String COUNTER_DEPTH = "CounterDepth";
 	private static final String OPERATION_MODE = "OperationMode";
 	private static final String COUNTER_SELECT = "CounterSelect";
+	
+	private static final String DACEXTERNAL = "DacExternal";
+
+	private static final String DACSENSE = "DacSense";
+	
+	@Override
+	public int getDacSense() throws Exception {
+		return EPICS_CONTROLLER.cagetInt(getChannel(DACSENSE));
+	}
+
+	@Override
+	public void setDacSense(int dacSense) throws Exception {
+		EPICS_CONTROLLER.caput(getChannel(DACSENSE), dacSense);
+	}
+	
+	@Override
+	public int getDacExternal() throws Exception {
+		return EPICS_CONTROLLER.cagetInt(getChannel(DACEXTERNAL));
+	}
+
+	@Override
+	public void setDacExternal(int dacExternal) throws Exception {
+		EPICS_CONTROLLER.caput(getChannel(DACEXTERNAL), dacExternal);
+	}
+
 
 	@Override
 	public int getCounterDepth() throws TimeoutException, CAException, InterruptedException, Exception {

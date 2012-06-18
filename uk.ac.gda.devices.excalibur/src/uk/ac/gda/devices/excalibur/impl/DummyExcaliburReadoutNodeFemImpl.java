@@ -31,6 +31,10 @@ import uk.ac.gda.devices.excalibur.MpxiiiChipReg;
 public class DummyExcaliburReadoutNodeFemImpl extends ADBaseSimulator implements ExcaliburReadoutNodeFem, ADBase {
 
 	private int counterDepth;
+	private int dacSense;
+
+	private int dacExternal;
+
 	@Override
 	public int getCounterDepth() throws TimeoutException, CAException, InterruptedException, Exception {
 		return counterDepth;
@@ -40,6 +44,7 @@ public class DummyExcaliburReadoutNodeFemImpl extends ADBaseSimulator implements
 	public void setCounterDepth(int counterDepth) throws CAException, InterruptedException, Exception {
 		this.counterDepth = counterDepth;
 	}
+
 	private MpxiiiChipReg[] mpxiiiChipRegs = new MpxiiiChipReg[8];
 
 	@Override
@@ -115,7 +120,6 @@ public class DummyExcaliburReadoutNodeFemImpl extends ADBaseSimulator implements
 	}
 
 	/**
-	 * 
 	 * @param index
 	 * @return the {@link MpxiiiChipReg} for the provided index
 	 */
@@ -133,7 +137,7 @@ public class DummyExcaliburReadoutNodeFemImpl extends ADBaseSimulator implements
 	@Override
 	public void setOperationMode(int operationMode) throws CAException, InterruptedException, Exception {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -145,7 +149,27 @@ public class DummyExcaliburReadoutNodeFemImpl extends ADBaseSimulator implements
 	@Override
 	public void setCounterSelect(int counterSelect) throws CAException, InterruptedException, Exception {
 		// TODO Auto-generated method stub
-		
+
+	}
+
+	@Override
+	public int getDacSense() throws Exception {
+		return dacSense;
+	}
+
+	@Override
+	public void setDacSense(int dacSense) throws Exception {
+		this.dacSense = dacSense;
+	}
+
+	@Override
+	public int getDacExternal() throws Exception {
+		return dacExternal;
+	}
+
+	@Override
+	public void setDacExternal(int dacExternal) throws Exception {
+		this.dacExternal = dacExternal;
 	}
 
 }

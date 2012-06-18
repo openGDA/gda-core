@@ -296,22 +296,13 @@ public interface ExcaliburConfigPackage extends EPackage {
 	int ANPER_MODEL__THRESHOLD7 = 24;
 
 	/**
-	 * The feature id for the '<em><b>Chip Disable</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int ANPER_MODEL__CHIP_DISABLE = 25;
-
-	/**
 	 * The number of structural features of the '<em>Anper Model</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int ANPER_MODEL_FEATURE_COUNT = 26;
+	int ANPER_MODEL_FEATURE_COUNT = 25;
 
 	/**
 	 * The meta object id for the '{@link uk.ac.gda.excalibur.config.model.impl.ArrayCountsModelImpl <em>Array Counts Model</em>}' class.
@@ -646,67 +637,13 @@ public interface ExcaliburConfigPackage extends EPackage {
 	int MPXIII_CHIP_REG_MODEL = 8;
 
 	/**
-	 * The feature id for the '<em><b>Dac Sense</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int MPXIII_CHIP_REG_MODEL__DAC_SENSE = 0;
-
-	/**
-	 * The feature id for the '<em><b>Dac Sense Decode</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int MPXIII_CHIP_REG_MODEL__DAC_SENSE_DECODE = 1;
-
-	/**
-	 * The feature id for the '<em><b>Dac Sense Name</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int MPXIII_CHIP_REG_MODEL__DAC_SENSE_NAME = 2;
-
-	/**
-	 * The feature id for the '<em><b>Dac External</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int MPXIII_CHIP_REG_MODEL__DAC_EXTERNAL = 3;
-
-	/**
-	 * The feature id for the '<em><b>Dac External Decode</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int MPXIII_CHIP_REG_MODEL__DAC_EXTERNAL_DECODE = 4;
-
-	/**
-	 * The feature id for the '<em><b>Dac External Name</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int MPXIII_CHIP_REG_MODEL__DAC_EXTERNAL_NAME = 5;
-
-	/**
 	 * The feature id for the '<em><b>Anper</b></em>' containment reference.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int MPXIII_CHIP_REG_MODEL__ANPER = 6;
+	int MPXIII_CHIP_REG_MODEL__ANPER = 0;
 
 	/**
 	 * The feature id for the '<em><b>Pixel</b></em>' containment reference.
@@ -715,7 +652,16 @@ public interface ExcaliburConfigPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int MPXIII_CHIP_REG_MODEL__PIXEL = 7;
+	int MPXIII_CHIP_REG_MODEL__PIXEL = 1;
+
+	/**
+	 * The feature id for the '<em><b>Chip Disable</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int MPXIII_CHIP_REG_MODEL__CHIP_DISABLE = 2;
 
 	/**
 	 * The number of structural features of the '<em>Mpxiii Chip Reg Model</em>' class.
@@ -724,7 +670,7 @@ public interface ExcaliburConfigPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int MPXIII_CHIP_REG_MODEL_FEATURE_COUNT = 8;
+	int MPXIII_CHIP_REG_MODEL_FEATURE_COUNT = 3;
 
 	/**
 	 * The meta object id for the '{@link uk.ac.gda.excalibur.config.model.impl.MpxiiiGlobalRegModelImpl <em>Mpxiii Global Reg Model</em>}' class.
@@ -1109,13 +1055,31 @@ public interface ExcaliburConfigPackage extends EPackage {
 	int READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG8 = 10;
 
 	/**
+	 * The feature id for the '<em><b>Dac Sense</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int READOUT_NODE_FEM_MODEL__DAC_SENSE = 11;
+
+	/**
+	 * The feature id for the '<em><b>Dac External</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int READOUT_NODE_FEM_MODEL__DAC_EXTERNAL = 12;
+
+	/**
 	 * The number of structural features of the '<em>Readout Node Fem Model</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int READOUT_NODE_FEM_MODEL_FEATURE_COUNT = 11;
+	int READOUT_NODE_FEM_MODEL_FEATURE_COUNT = 13;
 
 	/**
 	 * The meta object id for the '{@link uk.ac.gda.excalibur.config.model.impl.SummaryAdbaseModelImpl <em>Summary Adbase Model</em>}' class.
@@ -1543,17 +1507,6 @@ public interface ExcaliburConfigPackage extends EPackage {
 	EAttribute getAnperModel_Threshold7();
 
 	/**
-	 * Returns the meta object for the attribute '{@link uk.ac.gda.excalibur.config.model.AnperModel#isChipDisable <em>Chip Disable</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Chip Disable</em>'.
-	 * @see uk.ac.gda.excalibur.config.model.AnperModel#isChipDisable()
-	 * @see #getAnperModel()
-	 * @generated
-	 */
-	EAttribute getAnperModel_ChipDisable();
-
-	/**
 	 * Returns the meta object for class '{@link uk.ac.gda.excalibur.config.model.ArrayCountsModel <em>Array Counts Model</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -1832,72 +1785,6 @@ public interface ExcaliburConfigPackage extends EPackage {
 	EClass getMpxiiiChipRegModel();
 
 	/**
-	 * Returns the meta object for the attribute '{@link uk.ac.gda.excalibur.config.model.MpxiiiChipRegModel#getDacSense <em>Dac Sense</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Dac Sense</em>'.
-	 * @see uk.ac.gda.excalibur.config.model.MpxiiiChipRegModel#getDacSense()
-	 * @see #getMpxiiiChipRegModel()
-	 * @generated
-	 */
-	EAttribute getMpxiiiChipRegModel_DacSense();
-
-	/**
-	 * Returns the meta object for the attribute '{@link uk.ac.gda.excalibur.config.model.MpxiiiChipRegModel#getDacSenseDecode <em>Dac Sense Decode</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Dac Sense Decode</em>'.
-	 * @see uk.ac.gda.excalibur.config.model.MpxiiiChipRegModel#getDacSenseDecode()
-	 * @see #getMpxiiiChipRegModel()
-	 * @generated
-	 */
-	EAttribute getMpxiiiChipRegModel_DacSenseDecode();
-
-	/**
-	 * Returns the meta object for the attribute '{@link uk.ac.gda.excalibur.config.model.MpxiiiChipRegModel#getDacSenseName <em>Dac Sense Name</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Dac Sense Name</em>'.
-	 * @see uk.ac.gda.excalibur.config.model.MpxiiiChipRegModel#getDacSenseName()
-	 * @see #getMpxiiiChipRegModel()
-	 * @generated
-	 */
-	EAttribute getMpxiiiChipRegModel_DacSenseName();
-
-	/**
-	 * Returns the meta object for the attribute '{@link uk.ac.gda.excalibur.config.model.MpxiiiChipRegModel#getDacExternal <em>Dac External</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Dac External</em>'.
-	 * @see uk.ac.gda.excalibur.config.model.MpxiiiChipRegModel#getDacExternal()
-	 * @see #getMpxiiiChipRegModel()
-	 * @generated
-	 */
-	EAttribute getMpxiiiChipRegModel_DacExternal();
-
-	/**
-	 * Returns the meta object for the attribute '{@link uk.ac.gda.excalibur.config.model.MpxiiiChipRegModel#getDacExternalDecode <em>Dac External Decode</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Dac External Decode</em>'.
-	 * @see uk.ac.gda.excalibur.config.model.MpxiiiChipRegModel#getDacExternalDecode()
-	 * @see #getMpxiiiChipRegModel()
-	 * @generated
-	 */
-	EAttribute getMpxiiiChipRegModel_DacExternalDecode();
-
-	/**
-	 * Returns the meta object for the attribute '{@link uk.ac.gda.excalibur.config.model.MpxiiiChipRegModel#getDacExternalName <em>Dac External Name</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Dac External Name</em>'.
-	 * @see uk.ac.gda.excalibur.config.model.MpxiiiChipRegModel#getDacExternalName()
-	 * @see #getMpxiiiChipRegModel()
-	 * @generated
-	 */
-	EAttribute getMpxiiiChipRegModel_DacExternalName();
-
-	/**
 	 * Returns the meta object for the containment reference '{@link uk.ac.gda.excalibur.config.model.MpxiiiChipRegModel#getAnper <em>Anper</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -1918,6 +1805,17 @@ public interface ExcaliburConfigPackage extends EPackage {
 	 * @generated
 	 */
 	EReference getMpxiiiChipRegModel_Pixel();
+
+	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.excalibur.config.model.MpxiiiChipRegModel#isChipDisable <em>Chip Disable</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Chip Disable</em>'.
+	 * @see uk.ac.gda.excalibur.config.model.MpxiiiChipRegModel#isChipDisable()
+	 * @see #getMpxiiiChipRegModel()
+	 * @generated
+	 */
+	EAttribute getMpxiiiChipRegModel_ChipDisable();
 
 	/**
 	 * Returns the meta object for class '{@link uk.ac.gda.excalibur.config.model.MpxiiiGlobalRegModel <em>Mpxiii Global Reg Model</em>}'.
@@ -2312,6 +2210,28 @@ public interface ExcaliburConfigPackage extends EPackage {
 	EReference getReadoutNodeFemModel_MpxiiiChipReg8();
 
 	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.excalibur.config.model.ReadoutNodeFemModel#getDacSense <em>Dac Sense</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Dac Sense</em>'.
+	 * @see uk.ac.gda.excalibur.config.model.ReadoutNodeFemModel#getDacSense()
+	 * @see #getReadoutNodeFemModel()
+	 * @generated
+	 */
+	EAttribute getReadoutNodeFemModel_DacSense();
+
+	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.excalibur.config.model.ReadoutNodeFemModel#getDacExternal <em>Dac External</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Dac External</em>'.
+	 * @see uk.ac.gda.excalibur.config.model.ReadoutNodeFemModel#getDacExternal()
+	 * @see #getReadoutNodeFemModel()
+	 * @generated
+	 */
+	EAttribute getReadoutNodeFemModel_DacExternal();
+
+	/**
 	 * Returns the meta object for class '{@link uk.ac.gda.excalibur.config.model.SummaryAdbaseModel <em>Summary Adbase Model</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -2672,14 +2592,6 @@ public interface ExcaliburConfigPackage extends EPackage {
 		EAttribute ANPER_MODEL__THRESHOLD7 = eINSTANCE.getAnperModel_Threshold7();
 
 		/**
-		 * The meta object literal for the '<em><b>Chip Disable</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute ANPER_MODEL__CHIP_DISABLE = eINSTANCE.getAnperModel_ChipDisable();
-
-		/**
 		 * The meta object literal for the '{@link uk.ac.gda.excalibur.config.model.impl.ArrayCountsModelImpl <em>Array Counts Model</em>}' class.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
@@ -2904,54 +2816,6 @@ public interface ExcaliburConfigPackage extends EPackage {
 		EClass MPXIII_CHIP_REG_MODEL = eINSTANCE.getMpxiiiChipRegModel();
 
 		/**
-		 * The meta object literal for the '<em><b>Dac Sense</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute MPXIII_CHIP_REG_MODEL__DAC_SENSE = eINSTANCE.getMpxiiiChipRegModel_DacSense();
-
-		/**
-		 * The meta object literal for the '<em><b>Dac Sense Decode</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute MPXIII_CHIP_REG_MODEL__DAC_SENSE_DECODE = eINSTANCE.getMpxiiiChipRegModel_DacSenseDecode();
-
-		/**
-		 * The meta object literal for the '<em><b>Dac Sense Name</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute MPXIII_CHIP_REG_MODEL__DAC_SENSE_NAME = eINSTANCE.getMpxiiiChipRegModel_DacSenseName();
-
-		/**
-		 * The meta object literal for the '<em><b>Dac External</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute MPXIII_CHIP_REG_MODEL__DAC_EXTERNAL = eINSTANCE.getMpxiiiChipRegModel_DacExternal();
-
-		/**
-		 * The meta object literal for the '<em><b>Dac External Decode</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute MPXIII_CHIP_REG_MODEL__DAC_EXTERNAL_DECODE = eINSTANCE.getMpxiiiChipRegModel_DacExternalDecode();
-
-		/**
-		 * The meta object literal for the '<em><b>Dac External Name</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute MPXIII_CHIP_REG_MODEL__DAC_EXTERNAL_NAME = eINSTANCE.getMpxiiiChipRegModel_DacExternalName();
-
-		/**
 		 * The meta object literal for the '<em><b>Anper</b></em>' containment reference feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
@@ -2966,6 +2830,14 @@ public interface ExcaliburConfigPackage extends EPackage {
 		 * @generated
 		 */
 		EReference MPXIII_CHIP_REG_MODEL__PIXEL = eINSTANCE.getMpxiiiChipRegModel_Pixel();
+
+		/**
+		 * The meta object literal for the '<em><b>Chip Disable</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute MPXIII_CHIP_REG_MODEL__CHIP_DISABLE = eINSTANCE.getMpxiiiChipRegModel_ChipDisable();
 
 		/**
 		 * The meta object literal for the '{@link uk.ac.gda.excalibur.config.model.impl.MpxiiiGlobalRegModelImpl <em>Mpxiii Global Reg Model</em>}' class.
@@ -3262,6 +3134,22 @@ public interface ExcaliburConfigPackage extends EPackage {
 		 * @generated
 		 */
 		EReference READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG8 = eINSTANCE.getReadoutNodeFemModel_MpxiiiChipReg8();
+
+		/**
+		 * The meta object literal for the '<em><b>Dac Sense</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute READOUT_NODE_FEM_MODEL__DAC_SENSE = eINSTANCE.getReadoutNodeFemModel_DacSense();
+
+		/**
+		 * The meta object literal for the '<em><b>Dac External</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute READOUT_NODE_FEM_MODEL__DAC_EXTERNAL = eINSTANCE.getReadoutNodeFemModel_DacExternal();
 
 		/**
 		 * The meta object literal for the '{@link uk.ac.gda.excalibur.config.model.impl.SummaryAdbaseModelImpl <em>Summary Adbase Model</em>}' class.

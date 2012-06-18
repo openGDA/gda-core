@@ -37,7 +37,6 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/threshold5"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/threshold6"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/threshold7"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//AnperModel/chipDisable"/>
     </genClasses>
     <genClasses ecoreClass="excaliburConfig.ecore#//ArrayCountsModel">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//ArrayCountsModel/arrayCountFem1"/>
@@ -72,14 +71,9 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//MasterModel/frameDivisor"/>
     </genClasses>
     <genClasses ecoreClass="excaliburConfig.ecore#//MpxiiiChipRegModel">
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//MpxiiiChipRegModel/dacSense"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//MpxiiiChipRegModel/dacSenseDecode"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//MpxiiiChipRegModel/dacSenseName"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//MpxiiiChipRegModel/dacExternal"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//MpxiiiChipRegModel/dacExternalDecode"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//MpxiiiChipRegModel/dacExternalName"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference excaliburConfig.ecore#//MpxiiiChipRegModel/anper"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference excaliburConfig.ecore#//MpxiiiChipRegModel/pixel"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//MpxiiiChipRegModel/chipDisable"/>
     </genClasses>
     <genClasses ecoreClass="excaliburConfig.ecore#//MpxiiiGlobalRegModel">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//MpxiiiGlobalRegModel/colourMode"/>
@@ -120,6 +114,8 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference excaliburConfig.ecore#//ReadoutNodeFemModel/mpxiiiChipReg6"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference excaliburConfig.ecore#//ReadoutNodeFemModel/mpxiiiChipReg7"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference excaliburConfig.ecore#//ReadoutNodeFemModel/mpxiiiChipReg8"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//ReadoutNodeFemModel/dacSense"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//ReadoutNodeFemModel/dacExternal"/>
     </genClasses>
     <genClasses ecoreClass="excaliburConfig.ecore#//SummaryAdbaseModel">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute excaliburConfig.ecore#//SummaryAdbaseModel/frameDivisor"/>

@@ -123,4 +123,24 @@ public interface ExcaliburReadoutNodeFem extends ADBase {
 	 */
 	void setCounterSelect(int counterSelect) throws CAException, InterruptedException, Exception;
 
+	/**
+	 * @throws Exception 
+	 */
+	int getDacSense() throws Exception;
+
+	/**
+	 * @throws Exception 
+	 */
+	void setDacSense(int value) throws Exception;
+
+	/**
+	 * @throws Exception 
+	 */
+	int getDacExternal() throws Exception;
+
+	/**
+	 * @throws Exception 
+	 */
+	void setDacExternal(int value) throws Exception;
+
 }

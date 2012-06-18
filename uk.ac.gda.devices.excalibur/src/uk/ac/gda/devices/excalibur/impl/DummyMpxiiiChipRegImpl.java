@@ -18,6 +18,9 @@
 
 package uk.ac.gda.devices.excalibur.impl;
 
+import gov.aps.jca.CAException;
+import gov.aps.jca.TimeoutException;
+
 import org.springframework.beans.factory.InitializingBean;
 
 import uk.ac.gda.devices.excalibur.ChipAnper;
@@ -31,78 +34,6 @@ public class DummyMpxiiiChipRegImpl implements MpxiiiChipReg, InitializingBean {
 	private ChipAnper anper;
 
 	private ChipPixel pixel;
-
-	private int dacSense;
-
-	private int dacSenseDecode;
-
-	private String dacSenseName="dacSenseName";
-
-	private int dacExternal;
-
-	private int dacExternalDecode;
-
-	private String dacExternalName="dacExternalName";
-
-	@Override
-	public int getDacSense() throws Exception {
-		return dacSense;
-	}
-
-	@Override
-	public void setDacSense(int dacSense) throws Exception {
-		this.dacSense = dacSense;
-	}
-
-	@Override
-	public int getDacSenseDecode() throws Exception {
-		return dacSenseDecode;
-	}
-
-	@Override
-	public void setDacSenseDecode(int dacSenseDecode) throws Exception {
-		this.dacSenseDecode = dacSenseDecode;
-	}
-
-	@Override
-	public String getDacSenseName() throws Exception {
-		return dacSenseName;
-	}
-
-	@Override
-	public void setDacSenseName(String dacSenseName) throws Exception {
-		this.dacSenseName = dacSenseName;
-	}
-
-	@Override
-	public int getDacExternal() throws Exception {
-		return dacExternal;
-	}
-
-	@Override
-	public void setDacExternal(int dacExternal) throws Exception {
-		this.dacExternal = dacExternal;
-	}
-
-	@Override
-	public int getDacExternalDecode() throws Exception {
-		return dacExternalDecode;
-	}
-
-	@Override
-	public void setDacExternalDecode(int dacExternalDecode) throws Exception {
-		this.dacExternalDecode = dacExternalDecode;
-	}
-
-	@Override
-	public String getDacExternalName() throws Exception {
-		return dacExternalName;
-	}
-
-	@Override
-	public void setDacExternalName(String dacExternalName) throws Exception {
-		this.dacExternalName = dacExternalName;
-	}
 
 	@Override
 	public ChipAnper getAnper() {
@@ -137,5 +68,21 @@ public class DummyMpxiiiChipRegImpl implements MpxiiiChipReg, InitializingBean {
 
 	}
 
+	@Override
+	public void enableChip() throws CAException, InterruptedException, TimeoutException {
+		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void disableChip() throws CAException, InterruptedException, TimeoutException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public boolean isChipEnabled() throws TimeoutException, CAException, InterruptedException {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

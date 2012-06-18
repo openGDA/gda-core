@@ -37,6 +37,8 @@ import uk.ac.gda.excalibur.config.model.ReadoutNodeFemModel;
  *   <li>{@link uk.ac.gda.excalibur.config.model.impl.ReadoutNodeFemModelImpl#getMpxiiiChipReg6 <em>Mpxiii Chip Reg6</em>}</li>
  *   <li>{@link uk.ac.gda.excalibur.config.model.impl.ReadoutNodeFemModelImpl#getMpxiiiChipReg7 <em>Mpxiii Chip Reg7</em>}</li>
  *   <li>{@link uk.ac.gda.excalibur.config.model.impl.ReadoutNodeFemModelImpl#getMpxiiiChipReg8 <em>Mpxiii Chip Reg8</em>}</li>
+ *   <li>{@link uk.ac.gda.excalibur.config.model.impl.ReadoutNodeFemModelImpl#getDacSense <em>Dac Sense</em>}</li>
+ *   <li>{@link uk.ac.gda.excalibur.config.model.impl.ReadoutNodeFemModelImpl#getDacExternal <em>Dac External</em>}</li>
  * </ul>
  * </p>
  *
@@ -182,6 +184,46 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 	 * @ordered
 	 */
 	protected MpxiiiChipRegModel mpxiiiChipReg8;
+
+	/**
+	 * The default value of the '{@link #getDacSense() <em>Dac Sense</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getDacSense()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final int DAC_SENSE_EDEFAULT = 0;
+
+	/**
+	 * The cached value of the '{@link #getDacSense() <em>Dac Sense</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getDacSense()
+	 * @generated
+	 * @ordered
+	 */
+	protected int dacSense = DAC_SENSE_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getDacExternal() <em>Dac External</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getDacExternal()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final int DAC_EXTERNAL_EDEFAULT = 0;
+
+	/**
+	 * The cached value of the '{@link #getDacExternal() <em>Dac External</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getDacExternal()
+	 * @generated
+	 * @ordered
+	 */
+	protected int dacExternal = DAC_EXTERNAL_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -636,6 +678,48 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public int getDacSense() {
+		return dacSense;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setDacSense(int newDacSense) {
+		int oldDacSense = dacSense;
+		dacSense = newDacSense;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__DAC_SENSE, oldDacSense, dacSense));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public int getDacExternal() {
+		return dacExternal;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setDacExternal(int newDacExternal) {
+		int oldDacExternal = dacExternal;
+		dacExternal = newDacExternal;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__DAC_EXTERNAL, oldDacExternal, dacExternal));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
@@ -689,6 +773,10 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 				return getMpxiiiChipReg7();
 			case ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG8:
 				return getMpxiiiChipReg8();
+			case ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__DAC_SENSE:
+				return getDacSense();
+			case ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__DAC_EXTERNAL:
+				return getDacExternal();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -733,6 +821,12 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 				return;
 			case ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG8:
 				setMpxiiiChipReg8((MpxiiiChipRegModel)newValue);
+				return;
+			case ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__DAC_SENSE:
+				setDacSense((Integer)newValue);
+				return;
+			case ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__DAC_EXTERNAL:
+				setDacExternal((Integer)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -779,6 +873,12 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 			case ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG8:
 				setMpxiiiChipReg8((MpxiiiChipRegModel)null);
 				return;
+			case ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__DAC_SENSE:
+				setDacSense(DAC_SENSE_EDEFAULT);
+				return;
+			case ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__DAC_EXTERNAL:
+				setDacExternal(DAC_EXTERNAL_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -813,6 +913,10 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 				return mpxiiiChipReg7 != null;
 			case ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__MPXIII_CHIP_REG8:
 				return mpxiiiChipReg8 != null;
+			case ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__DAC_SENSE:
+				return dacSense != DAC_SENSE_EDEFAULT;
+			case ExcaliburConfigPackage.READOUT_NODE_FEM_MODEL__DAC_EXTERNAL:
+				return dacExternal != DAC_EXTERNAL_EDEFAULT;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -833,6 +937,10 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 		result.append(operationMode);
 		result.append(", counterSelect: ");
 		result.append(counterSelect);
+		result.append(", dacSense: ");
+		result.append(dacSense);
+		result.append(", dacExternal: ");
+		result.append(dacExternal);
 		result.append(')');
 		return result.toString();
 	}
