@@ -36,19 +36,6 @@ public class HardwareTriggeredStandard extends SimpleAcquire {
 		getAdBase().setImageModeWait(ImageMode.MULTIPLE);
 		getAdBase().setNumImages(numImages);
 	}
-
-	/**
-	 * When continuously scanning the collection period is primary.
-	 */
-	@Override
-	protected void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
-		getAdBase().setAcquirePeriod(collectionTime);
-		if (getReadoutTime() < 0) {
-			getAdBase().setAcquireTime(0.0);
-		} else {
-			getAdBase().setAcquireTime(collectionTime - getReadoutTime());
-		}
-	}
 	
 	protected void configureTriggerMode() throws Exception {
 		getAdBase().setTriggerMode(StandardTriggerMode.EXTERNAL.ordinal());

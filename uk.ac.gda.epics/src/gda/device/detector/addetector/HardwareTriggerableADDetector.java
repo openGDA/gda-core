@@ -270,12 +270,12 @@ public class HardwareTriggerableADDetector extends ADDetector implements Hardwar
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		super.afterPropertiesSet();
-		if (hardwareTriggeredCollectionStrategy == null)
+		if (this.isHardwareTriggering() && hardwareTriggeredCollectionStrategy == null)
 			throw new IllegalStateException("hardwareTriggeredCollectionStrategy is not defined");
-		if (nonHardwareTriggeredCollectionStrategy == null)
+		if (!this.isHardwareTriggering() && nonHardwareTriggeredCollectionStrategy == null)
 			throw new IllegalStateException("nonHardwareTriggeredCollectionStrategy is not defined");
 	}
-
+	
 	public ADTriggeringStrategy getHardwareTriggeredCollectionStrategy() {
 		return hardwareTriggeredCollectionStrategy;
 	}
