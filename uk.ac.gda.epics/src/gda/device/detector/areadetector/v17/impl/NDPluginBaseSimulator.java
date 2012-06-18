@@ -189,12 +189,12 @@ public class NDPluginBaseSimulator implements NDPluginBase {
 
 	@Override
 	public int getArraySize0_RBV() throws Exception {
-		return dims[0];
+		return dims[1]; //width is ArraySize0 and is last entry in dims
 	}
 
 	@Override
 	public int getArraySize1_RBV() throws Exception {
-		return dims[1];
+		return dims[0]; //height is ArraySize1 and is last entry in dims
 	}
 
 	@Override
