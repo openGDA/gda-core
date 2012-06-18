@@ -138,5 +138,4 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 	public int getNumberImagesPerCollection(double collectionTime) {
 		return ndProcess == null ? calcNumberImagesPerCollection(collectionTime) : 1;
 	}
-
 }

@@ -29,6 +29,8 @@ public interface ADTriggeringStrategy {
 
 	public double getAcquirePeriod()  throws Exception;
 
+	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception;
+
 	public void collectData() throws Exception;
 
 	public void endCollection() throws Exception;
