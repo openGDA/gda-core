@@ -65,14 +65,14 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 		String fileName=null;
 		try {
 			System.out.println("wating for file");
+			hardwareTriggeredNexusXmap.waitForCurrentScanFile();
 			 fileName= this.hardwareTriggeredNexusXmap.getHDFFileName();
-			 
 			Vector <NexusTreeProvider> container = new Vector<NexusTreeProvider>();
-			hardwareTriggeredNexusXmap.waitForFile(fileName);
+			
 			//change to linux format
 			String beamline = LocalProperties.get("gda.factory.factoryName","");
 			beamline = beamline.toLowerCase();
-			fileName = fileName.replace("X:/", "/dls");
+			fileName = fileName.replace("X:/", "/dls/" + beamline);
 			if(hardwareTriggeredNexusXmap.isInBufferMode())
 				fileLoader = new XmapBufferedHdf5FileLoader(fileName);
 			else
@@ -100,7 +100,7 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 
 
 	public NXDetectorData writeToNexusFile(int dataPointNumber, short[][] s) throws DeviceException {
-		NXDetectorData output = new NXDetectorData(this.hardwareTriggeredNexusXmap);
+		NXDetectorData output = new NXDetectorData(this.hardwareTriggeredNexusXmap.getXmap());
 		INexusTree detTree = output.getDetTree(this.hardwareTriggeredNexusXmap.getXmap().getName());
 
 		int numberOfElements = this.hardwareTriggeredNexusXmap.getXmap().vortexParameters.getDetectorList().size();

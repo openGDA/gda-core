@@ -31,6 +31,7 @@ public interface HardwareTriggeredNexusXmap extends XmapDetector,HardwareTrigger
 
 	public String getHDFFileName()throws DeviceException;
 	public void waitForFile(String fileName)throws DeviceException, InterruptedException;
+	public void waitForCurrentScanFile()throws DeviceException, InterruptedException;
 	public Xmap getXmap();
 	public boolean isInBufferMode() throws Exception;
 }

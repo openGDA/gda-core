@@ -20,6 +20,10 @@ from gda.device.detector.xspress import ResGrades
 from gda.jython.commands import ScannableCommands
 from gdascripts.messages import handle_messages
 import time
+from fast_scan import ScanPositionsTwoWay
+from gda.device.scannable import ScannableUtils
+from gda.data.scan.datawriter import TwoDScanRowReverser
+from gda.data.scan.datawriter import XasAsciiNexusDatapointCompletingDataWriter
 from gda.device.scannable import ScannableUtils
 #import microfocus.microfocus_elements
 rootnamespace = {}
@@ -145,7 +149,7 @@ def rastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, f
         mfd.setZValue(zScannablePos)
         #mfd.setNormalise(True)
         #mfd.setNormaliseElement("I0")
-        dataWriter.addDataWriterExtender(mfd)
+        #dataWriter.addDataWriterExtender(mfd)
         xScannable = finder.find(scanBean.getXScannableName())
         yScannable = finder.find(scanBean.getYScannableName())
         ##useFrames = LocalProperties.check("gda.microfocus.scans.useFrames")
@@ -176,13 +180,25 @@ def rastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, f
             
             if(detectorType == "Silicon"):
                 print "Xmap Raster Scan"
-                xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),ContinuousScan(trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [raster_counterTimer01, raster_xmap]),realX])
+                cs = ContinuousScan(trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [raster_counterTimer01, raster_xmap]) 
+                xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),cs,realX])
                 xmapRasterscan.getScanPlotSettings().setIgnore(1)
+                xasWriter = XasAsciiNexusDatapointCompletingDataWriter()
+                #rowR = TwoDScanRowReverser()
+                #rowR.setNoOfColumns(nx)
+                #rowR.setNoOfRows(ny)
+                #rowR.setReverseOdd(True)
+                #xasWriter.setIndexer(rowR)
+                xasWriter.addDataWriterExtender(mfd)
+                xmapRasterscan.setDataWriter(xasWriter)
                 xmapRasterscan.runScan()
             else:
                 print "Xspress Raster Scan"
                 xspressRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),ContinuousScan(trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [raster_counterTimer01, raster_xspress]),realX])
                 xspressRasterscan.getScanPlotSettings().setIgnore(1)
+                xasWriter = XasAsciiNexusDatapointCompletingDataWriter()
+                xasWriter.addDataWriterExtender(mfd)
+                xspressRasterscan.setDataWriter(xasWriter)
                 xspressRasterscan.runScan()
 
 
@@ -194,7 +210,7 @@ def rastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, f
                 LocalProperties.set("gda.scan.useScanPlotSettings", "false")
             handle_messages.simpleLog("map start time " + str(scanStart))
             handle_messages.simpleLog("map end time " + str(scanEnd))
-            dataWriter.removeDataWriterExtender(mfd)
+            #dataWriter.removeDataWriterExtender(mfd)
             finish()
 
 def setupForRaster(beanGroup):

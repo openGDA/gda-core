@@ -13,11 +13,11 @@ from gda.data import PathConstructor
 from gda.data.scan.datawriter import XasAsciiDataWriter
 from gda.factory import Finder
 from gda.scan import TrajectoryScanLine
-from fast_scan import ScanPositionsTwoWay
+from uk.ac.gda.client.microfocus.util import ScanPositionsTwoWay
 from gda.device.scannable import ScannableUtils
 from gda.data.scan.datawriter import TwoDScanRowReverser
 from gda.data.scan.datawriter import XasAsciiNexusDatapointCompletingDataWriter
-
+import time
 #from microfocus.map import redefineNexusMetadataForMaps
 #import microfocus.microfocus_elements
 rootnamespace = {}
@@ -157,14 +157,22 @@ def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileN
         #    args.append(scanBean.getCollectionTime())
         # print args
         #=======================================================================
+        scanStart = time.asctime()
         try:
             numberPoints = abs(scanBean.getXEnd()- scanBean.getXStart())/scanBean.getXStepSize()
             ##ContinuousScan(trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [raster_xspress,]).runScan();##rowTIme in the Scan bean is in milliseconds
             if(detectorType == "Silicon"):
                 print "Xmap Raster Scan"
-                #tsl = TrajectoryScanLine([continuousSampleX, scanBean.getXStart(), scanBean.getXEnd(), scanBean.getXStepSize(), HTXmapMca, scanBean.getRowTime()/(1000.0 * nx)] )
-                tsl = TrajectoryScanLine([continuousSampleX, ScanPositionsTwoWay(continuousSampleX,scanBean.getXStart(), scanBean.getXEnd(), scanBean.getXStepSize()),  HTXmapMca, scanBean.getRowTime()/(1000.0 * nx)] )
-                tsl.setScanDataPointQueueLength(10000);tsl.setPositionCallableThreadPoolSize(1)
+                HTScaler.setIntegrateBetweenPoints(True)
+                HTXmapMca.setIntegrateBetweenPoints(True)
+                HTScaler.setCollectionTime(scanBean.getRowTime() / nx)
+                HTXmapMca.setCollectionTime(scanBean.getRowTime() / nx)
+                HTScaler.setScanNumberOfPoints(nx)
+                HTXmapMca.setScanNumberOfPoints(nx)                
+                #tsl = TrajectoryScanLine([continuousSampleX, scanBean.getXStart(), scanBean.getXEnd(), scanBean.getXStepSize(), HTScaler, HTXmapMca ,scanBean.getRowTime()/(nx)] )
+                
+                tsl = TrajectoryScanLine([continuousSampleX, ScanPositionsTwoWay(continuousSampleX,scanBean.getXStart(), scanBean.getXEnd(), scanBean.getXStepSize()),  HTScaler, HTXmapMca, scanBean.getRowTime()/(nx)] )
+                tsl.setScanDataPointQueueLength(10000);tsl.setPositionCallableThreadPoolSize(10)
                 #scan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),tsl,energyScannable, zScannable,realX])
                 xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),tsl])
                 xmapRasterscan.getScanPlotSettings().setIgnore(1)
@@ -189,8 +197,8 @@ def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileN
                 LocalProperties.set("gda.scan.useScanPlotSettings", "true")
             else:
                 LocalProperties.set("gda.scan.useScanPlotSettings", "false")
-            #handle_messages.simpleLog("map start time " + str(scanStart))
-            #handle_messages.simpleLog("map end time " + str(scanEnd))
+            handle_messages.simpleLog("map start time " + str(scanStart))
+            handle_messages.simpleLog("map end time " + str(scanEnd))
             #dataWriter.removeDataWriterExtender(mfd)
             finish()
 

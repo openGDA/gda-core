@@ -298,5 +298,11 @@ public class DummyHardwareTriggeredNexusXmap extends HardwareTriggerableDetector
 	public int[] getDataDimensions() throws DeviceException {
 		return xmap.getDataDimensions();	
 	}
+
+	@Override
+	public void waitForCurrentScanFile() throws DeviceException, InterruptedException {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

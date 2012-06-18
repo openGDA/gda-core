@@ -30,6 +30,7 @@ import gda.device.detector.xmap.edxd.EDXDMappingController;
 import gda.device.scannable.PositionStreamIndexer;
 import gda.factory.FactoryException;
 
+import java.io.File;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -43,7 +44,11 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 	private NexusXmap xmap;
 	private EDXDMappingController controller;
 	private boolean integrateBetweenPoints = true;
-
+	private int lastScanNumber=0;
+	private String[] cachedExtraNames;
+	private String[] cachedOutputFormat;
+	private int lastRowNumber =-1;
+	
 	@Override
 	public NexusXmap getXmap() {
 		return xmap;
@@ -59,6 +64,14 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 		this.controller = controller;
 	}
 	private PositionStreamIndexer<NexusTreeProvider> indexer;
+	private int scanNumberOfPoints;
+	private boolean armedForNewScan;
+	public int getScanNumberOfPoints() {
+		return scanNumberOfPoints;
+	}
+	public void setScanNumberOfPoints(int scanNumberOfPoints) {
+		this.scanNumberOfPoints = scanNumberOfPoints;
+	}
 	@Override
 	public void configure() throws FactoryException {
 	
@@ -180,6 +193,48 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 	}
 
 	@Override
+	public String[] getExtraNames() {
+		if(armedForNewScan)
+		{
+			if(cachedExtraNames == null)
+			{
+				cachedExtraNames = xmap.getExtraNames();
+			}
+			return cachedExtraNames;
+		}
+		return xmap.getExtraNames();
+	}
+	
+	@Override
+	public String[] getInputNames() {
+		return xmap.getInputNames();
+	}
+	
+	@Override
+	public String[] getOutputFormat()
+	{
+		if(armedForNewScan)
+		{
+			if(cachedOutputFormat == null)
+				cachedOutputFormat = getOutputFormatFromSuper();
+			return cachedOutputFormat;
+		}
+		
+		return getOutputFormatFromSuper();
+	}
+	
+	private String[] getOutputFormatFromSuper(){
+		int inputNamesLength = xmap.getInputNames().length;
+		int extraNamesLength = xmap.getExtraNames().length;
+		String[] outputFormat = new String[inputNamesLength + extraNamesLength];
+		String[] currentOF = xmap.getOutputFormat();
+		for(int i =0 ; i < outputFormat.length;i++)
+		{
+			outputFormat[i] = currentOF[0];
+		}
+		return outputFormat;
+	}
+	@Override
 	public void start() throws DeviceException {
 		xmap.start();
 	}
@@ -229,29 +284,17 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 		}
 	}
 	public void arm() throws DeviceException {
-		//prepare the detector for continuous collection
-		// TODO Auto-generated method stub
-		/*try {
-			setupFilename();
-			controller.resetCounters();
-			
-			//controller.setNexusCapture(0);
-			controller.setAutoPixelsPerBuffer(true);
-			int numberOfPointsPerScan = getHardwareTriggerProvider().getNumberTriggers(); 
-			//??TODO should get the number of points per scan 
-			controller.setPixelsPerBuffer(numberOfPointsPerScan);
-			int buffPerRow = (numberOfPointsPerScan + 1)/124 + 1;
-			//controller.setNexusNumCapture(buffPerRow);
-			//TODO prepare tfg for triggering
-			//controller.clearAndStart();
-			//controller.setNexusCapture(1);
+		try {
 			controller.startRecording();
+			this.clearAndStart();
+			armedForNewScan = false;
 		} catch (Exception e) {
-			
+			// TODO Auto-generated catch block
+			armedForNewScan = false;
 			logger.error("TODO put description of error here", e);
 			throw new DeviceException("Error occurred arming the xmap detector", e);
-		}*/
-
+			
+		}
 	}
 	private void setupFilename() throws Exception {
 		String beamline = null;
@@ -267,18 +310,23 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 		}
 
 		controller.setFilenamePrefix(beamline);
-		controller.setFilenamePostfix(getName());
 		
+
 		// Check to see if the data directory has been defined.
 		String dataDir = PathConstructor.createFromDefaultProperty();
-
+		dataDir = dataDir + "tmp"+File.separator ;
+		dataDir = dataDir.replace("/dls/"+beamline.toLowerCase(), "X:/");
 		controller.setDirectory(dataDir);
-		
+
 		// Now lets try and setup the NumTracker...
 		NumTracker runNumber = new NumTracker("tmp");
 		// Get the current number
 		Number scanNumber = runNumber.getCurrentFileNumber();
-		
+		if(! (scanNumber.intValue() == lastScanNumber))
+			lastRowNumber = -1;
+		lastScanNumber = scanNumber.intValue();
+		lastRowNumber++;
+		controller.setFilenamePostfix(lastRowNumber +"-"+getName());
 		controller.setFileNumber(scanNumber);
 	}
 
@@ -304,34 +352,38 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 			
 			//controller.setNexusCapture(0);
 			controller.setAutoPixelsPerBuffer(true);
-			int numberOfPointsPerScan = getHardwareTriggerProvider().getNumberTriggers(); 
+			int numberOfPointsPerScan = getHardwareTriggerProvider().getNumberTriggers() ; 
+			if(numberOfPointsPerScan != 0 && integratesBetweenPoints())
+				numberOfPointsPerScan = numberOfPointsPerScan - 1;
+			if(numberOfPointsPerScan == 0)
+				numberOfPointsPerScan = this.scanNumberOfPoints;
 			//??TODO should get the number of points per scan 
 			controller.setPixelsPerRun(numberOfPointsPerScan);
 			int buffPerRow = (numberOfPointsPerScan + 1)/124 + 1;
 			controller.setHdfNumCapture(buffPerRow);
-			controller.startRecording();
-		} catch (Exception e) {
+			cachedExtraNames = null;
+			cachedOutputFormat = null;
+			armedForNewScan = true;
 			
+		} catch (Exception e) {
+			armedForNewScan = false;
 			logger.error("TODO put description of error here", e);
 			throw new DeviceException("Error occurred arming the xmap detector", e);
 		}
-		this.clearAndStart();
 		this.indexer  = new PositionStreamIndexer<NexusTreeProvider>(new XmapPositionInputStream(this, this.xmap.isSumAllElementData()));
-	}
+			}
 
 	public void setupContinuousOperation(){
 		if (!isSlave()) {
 				setTimeFrames();				
-			} else {
-				switchOffExtTrigger();
 			}
-	}
+		}
 	
 	private void setTimeFrames() {
 		switchOnExtTrigger();
 		StringBuffer buffer = new StringBuffer();
 		getDaServer().sendCommand("tfg setup-groups ext-start cycles 1");
-		getDaServer().sendCommand(getHardwareTriggerProvider().getNumberTriggers() + " 0.000001 0.00000001 0 0 0 8");
+		getDaServer().sendCommand(this.scanNumberOfPoints + " 0.000001 0.00000001 0 0 0 8");
 		getDaServer().sendCommand("-1 0 0 0 0 0 0");
 		getDaServer().sendCommand("tfg arm");
 	}
@@ -358,7 +410,9 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 	public void atScanEnd() throws DeviceException
 	{
 		try {
-			switchOffExtTrigger();
+			if(!isSlave())
+				switchOffExtTrigger();
+			xmap.stop();
 			controller.endRecording();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -372,7 +426,10 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 	public void atCommandFailure() throws DeviceException
 	{
 		try {
-			switchOffExtTrigger();
+			if(!isSlave())
+				switchOffExtTrigger();
+			
+			xmap.stop();
 			controller.endRecording();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -388,10 +445,32 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 	{
 		
 	}
+	
+	@Override
+	public void waitForCurrentScanFile() throws DeviceException, InterruptedException{
+		String fileName = getHDFFileName();
+		//Should actually use getHardwareTriggerProvider().getNumberTriggers()
+		//but this is always null before the scan is run once
+		double timeOut = getCollectionTime() * this.scanNumberOfPoints*1000;
+		double waitedSoFar = 0;
+		while(true){//(waitedSoFar <= timeOut){
+		if(fileName.contains(lastScanNumber +"-" + lastRowNumber))
+		{
+			waitForFile(fileName);
+			break;
+		}
+			Thread.sleep(100);
+			waitedSoFar += 100;
+			fileName = getHDFFileName();
+		}
+			
+	}
 
 	@Override
 	public void waitForFile(String fileName) throws DeviceException, InterruptedException {
-		double timeoutMilliSeconds = getCollectionTime() * getHardwareTriggerProvider().getNumberTriggers()*1000;
+		//Should actually use getHardwareTriggerProvider().getNumberTriggers()
+				//but this is always null before the scan is run once
+		double timeoutMilliSeconds = getCollectionTime() * this.scanNumberOfPoints*1000;
 		double waitedSoFarMilliSeconds = 0;
 		int waitTime = 1000;
 		while(isStillWriting(fileName) || waitedSoFarMilliSeconds <=  timeoutMilliSeconds)
@@ -445,4 +524,11 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 		this.integrateBetweenPoints = integrateBetweenPoints;
 	}
 
+	@Override
+	public boolean isBusy()  throws DeviceException{
+		if(armedForNewScan)
+			return false;
+		return super.isBusy();
+	
+	}
 }
