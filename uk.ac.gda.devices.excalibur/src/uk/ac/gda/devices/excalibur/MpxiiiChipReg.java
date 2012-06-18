@@ -59,4 +59,5 @@ public interface MpxiiiChipReg {
 	 */
 	boolean isChipEnabled() throws Exception;
 
+	void loadDacConfig() throws Exception;
 }

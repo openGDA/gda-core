@@ -37,6 +37,9 @@ import uk.ac.gda.devices.excalibur.MpxiiiChipReg;
 public class MpxiiiChipRegImpl implements MpxiiiChipReg, InitializingBean {
 	
 	private static final String CHIP_DISABLE = "ChipDisable";
+
+	private static final String LoadDacConfig = "LoadDacConfig";
+
 	/**
 	 * Map that stores the channel against the PV name
 	 */
@@ -147,5 +150,10 @@ public class MpxiiiChipRegImpl implements MpxiiiChipReg, InitializingBean {
 	@Override
 	public boolean isChipEnabled() throws Exception {
 		return EPICS_CONTROLLER.cagetInt(getChannel(CHIP_DISABLE)) == 0;
+	}
+	
+	@Override
+	public void loadDacConfig() throws Exception{
+		EPICS_CONTROLLER.caputWait(getChannel(LoadDacConfig), 1);
 	}
 }

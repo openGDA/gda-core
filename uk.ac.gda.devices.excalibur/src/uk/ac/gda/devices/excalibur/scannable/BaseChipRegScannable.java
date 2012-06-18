@@ -72,7 +72,7 @@ public abstract class BaseChipRegScannable extends ScannableBase {
 				MpxiiiChipReg chipReg = fem.getIndexedMpxiiiChipReg(chipNum);
 				try {
 					doAsynchronousMoveTo(chipReg, pos.intValue());
-					
+					chipReg.loadDacConfig();
 				} catch (Exception e) {
 					throw new DeviceException(e);
 				}

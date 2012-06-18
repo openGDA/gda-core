@@ -85,4 +85,9 @@ public class DummyMpxiiiChipRegImpl implements MpxiiiChipReg, InitializingBean {
 		// TODO Auto-generated method stub
 		return false;
 	}
+	
+	@Override
+	public void loadDacConfig() throws Exception{
+		//do nothing
+	}	
 }

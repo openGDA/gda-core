@@ -275,30 +275,6 @@
   <children xmi:type="notation:Node" xmi:id="_Lg9ltE18EeGvXe3VfZPOeQ" type="1001">
     <children xmi:type="notation:Node" xmi:id="_Lg-MwE18EeGvXe3VfZPOeQ" type="4001"/>
     <children xmi:type="notation:Node" xmi:id="_Lg-MwU18EeGvXe3VfZPOeQ" type="5001">
-      <children xmi:type="notation:Node" xmi:id="_Lg-z1E18EeGvXe3VfZPOeQ" type="2001">
-        <element xmi:type="ecore:EAttribute" href="excaliburConfig.ecore#//MpxiiiChipRegModel/dacSense"/>
-        <layoutConstraint xmi:type="notation:Location" xmi:id="_Lg-z1U18EeGvXe3VfZPOeQ"/>
-      </children>
-      <children xmi:type="notation:Node" xmi:id="_Lg_a4E18EeGvXe3VfZPOeQ" type="2001">
-        <element xmi:type="ecore:EAttribute" href="excaliburConfig.ecore#//MpxiiiChipRegModel/dacSenseDecode"/>
-        <layoutConstraint xmi:type="notation:Location" xmi:id="_Lg_a4U18EeGvXe3VfZPOeQ"/>
-      </children>
-      <children xmi:type="notation:Node" xmi:id="_Lg_a4k18EeGvXe3VfZPOeQ" type="2001">
-        <element xmi:type="ecore:EAttribute" href="excaliburConfig.ecore#//MpxiiiChipRegModel/dacSenseName"/>
-        <layoutConstraint xmi:type="notation:Location" xmi:id="_Lg_a4018EeGvXe3VfZPOeQ"/>
-      </children>
-      <children xmi:type="notation:Node" xmi:id="_Lg_a5E18EeGvXe3VfZPOeQ" type="2001">
-        <element xmi:type="ecore:EAttribute" href="excaliburConfig.ecore#//MpxiiiChipRegModel/dacExternal"/>
-        <layoutConstraint xmi:type="notation:Location" xmi:id="_Lg_a5U18EeGvXe3VfZPOeQ"/>
-      </children>
-      <children xmi:type="notation:Node" xmi:id="_LhAB8E18EeGvXe3VfZPOeQ" type="2001">
-        <element xmi:type="ecore:EAttribute" href="excaliburConfig.ecore#//MpxiiiChipRegModel/dacExternalDecode"/>
-        <layoutConstraint xmi:type="notation:Location" xmi:id="_LhAB8U18EeGvXe3VfZPOeQ"/>
-      </children>
-      <children xmi:type="notation:Node" xmi:id="_LhAB8k18EeGvXe3VfZPOeQ" type="2001">
-        <element xmi:type="ecore:EAttribute" href="excaliburConfig.ecore#//MpxiiiChipRegModel/dacExternalName"/>
-        <layoutConstraint xmi:type="notation:Location" xmi:id="_LhAB8018EeGvXe3VfZPOeQ"/>
-      </children>
       <styles xmi:type="notation:DrawerStyle" xmi:id="_Lg-Mwk18EeGvXe3VfZPOeQ"/>
       <styles xmi:type="notation:SortingStyle" xmi:id="_Lg-Mw018EeGvXe3VfZPOeQ"/>
       <styles xmi:type="notation:FilteringStyle" xmi:id="_Lg-MxE18EeGvXe3VfZPOeQ"/>
