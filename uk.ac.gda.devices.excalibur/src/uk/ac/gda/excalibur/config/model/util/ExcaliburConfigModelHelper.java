@@ -282,7 +282,7 @@ public class ExcaliburConfigModelHelper {
 	 */
 	public void sendToExcalibur(List<ExcaliburReadoutNodeFem> readOutNodes, ExcaliburConfig excaliburConfig)
 			throws Exception {
-		for (int count = 0; count < 6; count++) {
+		for (int count = 0; count < excaliburConfig.getReadoutNodes().size(); count++) {
 			ReadoutNodeFemModel modelReadoutNodeFem = excaliburConfig.getReadoutNodes().get(count).getReadoutNodeFem();
 			ExcaliburReadoutNodeFem detectorNode = readOutNodes.get(count);
 
@@ -299,6 +299,7 @@ public class ExcaliburConfigModelHelper {
 			setDetectorChipReg(detectorNode.getMpxiiiChipReg5(), modelReadoutNodeFem.getMpxiiiChipReg5());
 			setDetectorChipReg(detectorNode.getMpxiiiChipReg6(), modelReadoutNodeFem.getMpxiiiChipReg6());
 			setDetectorChipReg(detectorNode.getMpxiiiChipReg7(), modelReadoutNodeFem.getMpxiiiChipReg7());
+			setDetectorChipReg(detectorNode.getMpxiiiChipReg8(), modelReadoutNodeFem.getMpxiiiChipReg8());
 		}
 	}
 
