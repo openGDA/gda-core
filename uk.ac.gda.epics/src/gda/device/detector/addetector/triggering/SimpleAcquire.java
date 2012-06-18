@@ -39,7 +39,8 @@ public class SimpleAcquire extends AbstractADTriggeringStrategy {
 		getAdBase().setNumImages(numImages);
 	}
 
-	protected void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
+	@Override
+	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
 		getAdBase().setAcquireTime(collectionTime);
 		if (getReadoutTime() < 0) {
 			getAdBase().setAcquirePeriod(0.0);

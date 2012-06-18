@@ -139,4 +139,10 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 		return ndProcess == null ? calcNumberImagesPerCollection(collectionTime) : 1;
 	}
 
+	@Override
+	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
