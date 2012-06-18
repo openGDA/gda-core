@@ -40,16 +40,6 @@ public class SimpleAcquire extends AbstractADTriggeringStrategy {
 	}
 
 	@Override
-	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
-		getAdBase().setAcquireTime(collectionTime);
-		if (getReadoutTime() < 0) {
-			getAdBase().setAcquirePeriod(0.0);
-		} else {
-			getAdBase().setAcquirePeriod(collectionTime + getReadoutTime());
-		}
-	}
-
-	@Override
 	public double getAcquireTime() throws Exception {
 		return getAdBase().getAcquireTime_RBV();
 	}

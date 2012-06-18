@@ -55,6 +55,16 @@ abstract public class AbstractADTriggeringStrategy implements ADTriggeringStrate
 	}
 
 	@Override
+	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
+		getAdBase().setAcquireTime(collectionTime);
+		if (getReadoutTime() < 0) {
+			getAdBase().setAcquirePeriod(0.0);
+		} else {
+			getAdBase().setAcquirePeriod(collectionTime + getReadoutTime());
+		}
+	}
+	
+	@Override
 	public void afterPropertiesSet() throws Exception {
 		if( adBase == null)
 			throw new RuntimeException("adBase is not set");

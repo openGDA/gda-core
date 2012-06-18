@@ -102,13 +102,6 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 	public double getAcquirePeriod() throws Exception {
 		return getAdBase().getAcquirePeriod_RBV()*numberImagesPerCollection;
 	}
-
-	@Override
-	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
-		// TODO Auto-generated method stub
-		
-	}
-
 	
 	@Override
 	public void collectData() throws Exception {
