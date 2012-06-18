@@ -174,7 +174,7 @@ def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileN
                 tsl = TrajectoryScanLine([continuousSampleX, ScanPositionsTwoWay(continuousSampleX,scanBean.getXStart(), scanBean.getXEnd(), scanBean.getXStepSize()),  HTScaler, HTXmapMca, scanBean.getRowTime()/(nx)] )
                 tsl.setScanDataPointQueueLength(10000);tsl.setPositionCallableThreadPoolSize(10)
                 #scan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),tsl,energyScannable, zScannable,realX])
-                xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),tsl])
+                xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),tsl, realX])
                 xmapRasterscan.getScanPlotSettings().setIgnore(1)
                 xasWriter = XasAsciiNexusDatapointCompletingDataWriter()
                 rowR = TwoDScanRowReverser()

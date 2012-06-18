@@ -446,7 +446,7 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 	
 
 	private void fillDataSet(double minValue2) {
-		/*for(int xindex = 0 ; xindex < numberOfXPoints ; xindex++)
+		for(int xindex = 0 ; xindex < numberOfXPoints ; xindex++)
 		{
 			if(dataSet.getDouble(new int[]{rowsPlottedSoFar -1,xindex}) == lastFilledValue)
 					dataSet.set(minValue2,rowsPlottedSoFar -1, xindex);
@@ -456,6 +456,21 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 			for(int xindex = 0 ; xindex < numberOfXPoints ; xindex++)
 			{
 				dataSet.set(minValue2,yindex, xindex);
+			}			
+		}
+		lastFilledValue = minValue2;
+		//filling the buffer
+		/*double[] dataBuffer = (double[])dataSet.getBuffer();
+		for(int xindex = 0 ; xindex < numberOfXPoints ; xindex++)
+		{
+			if(dataBuffer[rowsPlottedSoFar -1  * numberOfXPoints + xindex] == lastFilledValue)
+				dataBuffer[rowsPlottedSoFar -1  * numberOfXPoints + xindex] =minValue2;
+		}
+		for(int yindex =rowsPlottedSoFar ; yindex < numberOfYPoints ; yindex++)
+		{
+			for(int xindex = 0 ; xindex < numberOfXPoints ; xindex++)
+			{
+				dataBuffer[yindex * numberOfXPoints +xindex] = minValue2;
 			}			
 		}
 		lastFilledValue = minValue2;*/
