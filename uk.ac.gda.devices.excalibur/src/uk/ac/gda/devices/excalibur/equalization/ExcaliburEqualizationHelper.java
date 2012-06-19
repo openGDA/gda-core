@@ -33,7 +33,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
-import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.ShortDataset;
 import uk.ac.diamond.scisoft.analysis.fitting.Generic1DFitter;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.APeak;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.CompositeFunction;
@@ -344,10 +344,10 @@ public class ExcaliburEqualizationHelper {
 		}
 		while (start[shape.length - 2] < shape[shape.length - 2]) {
 			IDataset slice = dataset.getSlice(null, start, stop, null);
-			if (!(slice instanceof IntegerDataset))
-				throw new Exception("data is not of type IntegerDataset");
-			IntegerDataset ds = ((IntegerDataset) slice);
-			short[] edgeThresholdsSlice = getThresholdFromSliceofScanData((int[]) ds.getBuffer(),
+			if (!(slice instanceof ShortDataset))
+				throw new Exception("data is not of type ShortDataset");
+			ShortDataset ds = ((ShortDataset) slice);
+			short[] edgeThresholdsSlice = getThresholdFromSliceofScanData((short[]) ds.getBuffer(),
 					ds.getShape(), null, threshold, 0, false, threshold0ValsAsInt);
 			System.arraycopy(edgeThresholdsSlice, 0, edgeThresholds, iEdgeThresholdProcessed,
 					edgeThresholdsSlice.length);
@@ -360,7 +360,7 @@ public class ExcaliburEqualizationHelper {
 	/*
 	 * Not to be called by scripts.
 	 */
-	public short[] getThresholdFromSliceofScanData(int[] data, int[] shape, int[] activePixels, int thresholdVal,
+	public short[] getThresholdFromSliceofScanData(short[] data, int[] shape, int[] activePixels, int thresholdVal,
 			int dimensionToTraverse, boolean isForward, short[] lookupTable)
 			throws Exception {
 		// assume dimensionToTraverse ==2
@@ -510,7 +510,7 @@ public class ExcaliburEqualizationHelper {
 
 		for( Chip chip : chipset.getChips()){
 			AbstractDataset dataset = chip.getDataset(loader);
-			IntegerDataset dataset2 = getDatasetWithValidPixels(dataset);
+			ShortDataset dataset2 = getDatasetWithValidPixels(dataset);
 			if( dataset2 != null){
 				int offset = dataset2.min().intValue();
 				int[] population = createBinnedPopulation( dataset2);						
@@ -524,8 +524,8 @@ public class ExcaliburEqualizationHelper {
 		return 	( value != EDGE_POSITION_IF_ALL_ABOVE_THRESHOLD && value != EDGE_POSITION_IF_ALL_BELOW_THRESHOLD && value != EDGE_POSITION_IF_PIXEL_MASKED_OUT);
 	}
 	
-	IntegerDataset getDatasetWithValidPixels(AbstractDataset dataset){
-		int [] validData = new int[dataset.getSize()];
+	ShortDataset getDatasetWithValidPixels(AbstractDataset dataset){
+		short [] validData = new short[dataset.getSize()];
 		int numValidData = 0;
 		IndexIterator iter = dataset.getIterator();
 
@@ -536,7 +536,7 @@ public class ExcaliburEqualizationHelper {
 				numValidData++;
 			}
 		}
-		return numValidData > 0 ? new IntegerDataset(Arrays.copyOf(validData, numValidData),numValidData) : null;
+		return numValidData > 0 ? new ShortDataset(Arrays.copyOf(validData, numValidData),numValidData) : null;
 	}
 	/**
 	 * 
@@ -762,7 +762,7 @@ public class ExcaliburEqualizationHelper {
 			throw new IllegalArgumentException("fullWidth != reqdWidth: " + reqdWidth);
 		}
 			
-		int [] thresholdLimit = new int[(numChipsHigh * numChipsAcross)];
+		short [] thresholdLimit = new short[(numChipsHigh * numChipsAcross)];
 		int[] start = new int[2]; 
 		int[] stop = new int[2]; 
 		int[] step= new int[2];
@@ -776,7 +776,7 @@ public class ExcaliburEqualizationHelper {
 					start[1] = ChipSet.getChipLeftPixel(iw);
 					stop[1] = (start[1] + ChipSet.chipWidth); //exclusive
 					AbstractDataset dataset = loader.getDataset(null, null, start, stop, step);
-					IntegerDataset dataset2 = getDatasetWithValidPixels(dataset);
+					ShortDataset dataset2 = getDatasetWithValidPixels(dataset);
 					if( dataset2 != null){
 						int offset = dataset2.min().intValue();
 						int[] population = createBinnedPopulation( dataset2);						
@@ -786,7 +786,7 @@ public class ExcaliburEqualizationHelper {
 			}
 		}
 		//write results into file.
-		IntegerDataset dataset = new IntegerDataset(thresholdLimit, thresholdLimit.length);
+		ShortDataset dataset = new ShortDataset(thresholdLimit, thresholdLimit.length);
 		return dataset.max().longValue();
 
 	}
