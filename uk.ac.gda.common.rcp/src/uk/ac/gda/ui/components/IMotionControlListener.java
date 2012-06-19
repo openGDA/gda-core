@@ -109,6 +109,7 @@ public interface IMotionControlListener extends IModuleChangeListener {
 	 * to inform the listeners that the sample weight has changed.
 	 * 
 	 * @param sampleWeight
+	 * @throws Exception 
 	 */
-	void setSampleWeight(SAMPLE_WEIGHT sampleWeight);
+	void setSampleWeight(SAMPLE_WEIGHT sampleWeight) throws Exception;
 }

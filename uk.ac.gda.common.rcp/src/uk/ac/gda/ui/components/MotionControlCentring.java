@@ -39,7 +39,7 @@ public enum MotionControlCentring {
 			deSelectControl(mCC.btnMoveAxisOfRotation);
 
 			disable(mCC.txtXrayEnergy);
-			disable(mCC.btnSampleWeight10to50);
+			disable(mCC.btnSampleWeight20to50);
 			disable(mCC.btnSampleWeight1to10);
 			disable(mCC.btnSampleWeightLessThan1);
 			disable(mCC.txtCameraDistance);
@@ -74,7 +74,7 @@ public enum MotionControlCentring {
 			enable(mCC.btnTilt);
 
 			enable(mCC.txtXrayEnergy);
-			enable(mCC.btnSampleWeight10to50);
+			enable(mCC.btnSampleWeight20to50);
 			enable(mCC.btnSampleWeight1to10);
 			enable(mCC.btnSampleWeightLessThan1);
 			enable(mCC.txtCameraDistance);
@@ -108,7 +108,7 @@ public enum MotionControlCentring {
 			disable(mCC.btnTilt);
 
 			disable(mCC.txtXrayEnergy);
-			disable(mCC.btnSampleWeight10to50);
+			disable(mCC.btnSampleWeight20to50);
 			disable(mCC.btnSampleWeight1to10);
 			disable(mCC.btnSampleWeightLessThan1);
 			disable(mCC.txtCameraDistance);
@@ -139,7 +139,7 @@ public enum MotionControlCentring {
 			enable(mCC.btnTilt);
 
 			enable(mCC.txtXrayEnergy);
-			enable(mCC.btnSampleWeight10to50);
+			enable(mCC.btnSampleWeight20to50);
 			enable(mCC.btnSampleWeight1to10);
 			enable(mCC.btnSampleWeightLessThan1);
 			enable(mCC.txtCameraDistance);
@@ -175,7 +175,7 @@ public enum MotionControlCentring {
 			disable(mCC.btnTilt);
 
 			disable(mCC.txtXrayEnergy);
-			disable(mCC.btnSampleWeight10to50);
+			disable(mCC.btnSampleWeight20to50);
 			disable(mCC.btnSampleWeight1to10);
 			disable(mCC.btnSampleWeightLessThan1);
 			disable(mCC.txtCameraDistance);
@@ -203,7 +203,7 @@ public enum MotionControlCentring {
 			enable(mCC.btnTilt);
 
 			enable(mCC.txtXrayEnergy);
-			enable(mCC.btnSampleWeight10to50);
+			enable(mCC.btnSampleWeight20to50);
 			enable(mCC.btnSampleWeight1to10);
 			enable(mCC.btnSampleWeightLessThan1);
 			enable(mCC.txtCameraDistance);
@@ -242,7 +242,7 @@ public enum MotionControlCentring {
 
 			disable(mCC.txtXrayEnergy);
 			disable(mCC.btnSampleWeightLessThan1);
-			disable(mCC.btnSampleWeight10to50);
+			disable(mCC.btnSampleWeight20to50);
 			disable(mCC.btnSampleWeight1to10);
 			disable(mCC.txtCameraDistance);
 			//
@@ -272,7 +272,7 @@ public enum MotionControlCentring {
 			enable(mCC.btnFindAxisOfRotation);
 
 			enable(mCC.txtXrayEnergy);
-			enable(mCC.btnSampleWeight10to50);
+			enable(mCC.btnSampleWeight20to50);
 			enable(mCC.btnSampleWeight1to10);
 			enable(mCC.btnSampleWeightLessThan1);
 			enable(mCC.txtCameraDistance);
@@ -306,7 +306,7 @@ public enum MotionControlCentring {
 			enable(mCC.btnTilt);
 
 			enable(mCC.txtXrayEnergy);
-			enable(mCC.btnSampleWeight10to50);
+			enable(mCC.btnSampleWeight20to50);
 			enable(mCC.btnSampleWeight1to10);
 			enable(mCC.btnSampleWeightLessThan1);
 			enable(mCC.txtCameraDistance);
@@ -339,7 +339,7 @@ public enum MotionControlCentring {
 			disable(mCC.btnTilt);
 
 			disable(mCC.txtXrayEnergy);
-			disable(mCC.btnSampleWeight10to50);
+			disable(mCC.btnSampleWeight20to50);
 			disable(mCC.btnSampleWeight1to10);
 			disable(mCC.btnSampleWeightLessThan1);
 			disable(mCC.txtCameraDistance);
@@ -369,7 +369,7 @@ public enum MotionControlCentring {
 	protected abstract void switchOn(MotionControlComposite motionControlComposite) throws Exception;
 
 	private static final Logger logger = LoggerFactory.getLogger(MotionControlCentring.class);
-
+	
 	/**
 	 * Method to run in the UI thread to set the colors to show the button selected
 	 * 
@@ -404,4 +404,5 @@ public enum MotionControlCentring {
 			});
 		}
 	}
+
 }

@@ -90,11 +90,13 @@ public class MotionControlComposite extends Composite {
 
 	private static final String BEAMLINE_CONTROL_lbl = "Beamline Control";
 
-	private static final String SAMPLE_WEIGHT_TEN_TO_FIFTY_lbl = "10 - 50";
+	private static final String SAMPLE_WEIGHT_TWENTY_TO_FIFTY_lbl = "20 - 50";
 
 	private static final String SAMPLE_WEIGHT_ONE_TO_TEN_lbl = "1 - 10";
 
 	private static final String SAMPLE_WEIGHT_LESS_THAN_1_lbl = "< 1";
+
+	private static final String SAMPLE_WEIGHT_TEN_TO_TWENTY_lbl = "10 - 20";
 
 	private static final String SAMPLE_WEIGHT_KG_lbl = "Sample Weight (kg)";
 
@@ -114,12 +116,14 @@ public class MotionControlComposite extends Composite {
 
 	private double energy = Double.NaN;
 
+	private SAMPLE_WEIGHT sampleWeight = SAMPLE_WEIGHT.LESS_THAN_ONE;
+
 	// Fonts
 	private FontRegistry fontRegistry;
 
 	private static final String BOLD_TEXT_12 = "bold-text_12";
-	private static final String NORMAL_TEXT_7 = "normal-text_7";
-	private static final String NORMAL_TEXT_6 = "normal-text_6";
+	private static final String NORMAL_TEXT_9 = "normal-text_9";
+	private static final String BOLD_TEXT_7 = "bold-text_6";
 	private static final String BOLD_TEXT_9 = "bold-text_9";
 	//
 	private static final Logger logger = LoggerFactory.getLogger(MotionControlComposite.class);
@@ -135,6 +139,8 @@ public class MotionControlComposite extends Composite {
 	private static final String lbl_VERTICAL = "Vertical";
 
 	private static final String MOVE_TOMO_AXIS_lbl = "Move Tomo Axis";
+
+	private Label lblRotationAxisNotFound;
 
 	protected Button btnHorizontal;
 	protected Label lblFindRotationAxis;
@@ -161,7 +167,9 @@ public class MotionControlComposite extends Composite {
 
 	protected Button btnSampleWeight1to10;
 
-	protected Button btnSampleWeight10to50;
+	protected Button btnSampleWeight10to20;
+
+	protected Button btnSampleWeight20to50;
 
 	protected Text txtCameraDistance;
 
@@ -180,10 +188,16 @@ public class MotionControlComposite extends Composite {
 				return SAMPLE_WEIGHT_ONE_TO_TEN_lbl;
 			}
 		},
-		TEN_TO_FIFTY {
+		TEN_TO_TWENTY {
 			@Override
 			public String toString() {
-				return SAMPLE_WEIGHT_TEN_TO_FIFTY_lbl;
+				return SAMPLE_WEIGHT_TEN_TO_TWENTY_lbl;
+			}
+		},
+		TWENTY_TO_FIFTY {
+			@Override
+			public String toString() {
+				return SAMPLE_WEIGHT_TWENTY_TO_FIFTY_lbl;
 			}
 		};
 
@@ -346,8 +360,6 @@ public class MotionControlComposite extends Composite {
 		}
 	};
 
-	private Label lblRotationAxisNotFound;
-
 	public void addMotionControlListener(IMotionControlListener motionControlListener) {
 		logger.debug("Registering motion control listener");
 		if (motionControlListener != null) {
@@ -481,12 +493,12 @@ public class MotionControlComposite extends Composite {
 		horizontalVerticalWeightControlContainer.setLayoutData(new GridData(GridData.FILL_BOTH));
 
 		btnHorizontal = toolkit.createButton(horizontalVerticalWeightControlContainer, HORIZONTAL_lbl, SWT.PUSH);
-		btnHorizontal.setFont(fontRegistry.get(NORMAL_TEXT_7));
+		btnHorizontal.setFont(fontRegistry.get(NORMAL_TEXT_9));
 		btnHorizontal.setLayoutData(new GridData(GridData.FILL_BOTH));
 		btnHorizontal.addListener(SWT.MouseDown, ctrlMouseListener);
 
 		btnVertical = toolkit.createButton(horizontalVerticalWeightControlContainer, lbl_VERTICAL, SWT.PUSH);
-		btnVertical.setFont(fontRegistry.get(NORMAL_TEXT_7));
+		btnVertical.setFont(fontRegistry.get(NORMAL_TEXT_9));
 		btnVertical.setLayoutData(new GridData(GridData.FILL_BOTH));
 		btnVertical.addListener(SWT.MouseDown, ctrlMouseListener);
 
@@ -495,12 +507,12 @@ public class MotionControlComposite extends Composite {
 		ld.horizontalSpan = 2;
 		sampleWeightComposite.setLayoutData(ld);
 
-		layout = new GridLayout(3, true);
+		layout = new GridLayout(4, true);
 		sampleWeightComposite.setLayout(layout);
 
 		Label lblSampleWeight = toolkit.createLabel(sampleWeightComposite, SAMPLE_WEIGHT_KG_lbl);
 		gd = new GridData(GridData.FILL_HORIZONTAL);
-		gd.horizontalSpan = 3;
+		gd.horizontalSpan = 4;
 		gd.horizontalAlignment = SWT.CENTER;
 		lblSampleWeight.setLayoutData(gd);
 
@@ -510,15 +522,23 @@ public class MotionControlComposite extends Composite {
 		btnSampleWeightLessThan1 = toolkit.createButton(sampleWeightComposite, SAMPLE_WEIGHT_LESS_THAN_1_lbl, SWT.PUSH);
 		btnSampleWeightLessThan1.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		btnSampleWeightLessThan1.addListener(SWT.MouseDown, ctrlMouseListener);
+		btnSampleWeightLessThan1.setFont(fontRegistry.get(BOLD_TEXT_7));
 		//
 		btnSampleWeight1to10 = toolkit.createButton(sampleWeightComposite, SAMPLE_WEIGHT_ONE_TO_TEN_lbl, SWT.PUSH);
 		btnSampleWeight1to10.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		btnSampleWeight1to10.addListener(SWT.MouseDown, ctrlMouseListener);
+		btnSampleWeight1to10.setFont(fontRegistry.get(BOLD_TEXT_7));
 		//
-		btnSampleWeight10to50 = toolkit.createButton(sampleWeightComposite, SAMPLE_WEIGHT_TEN_TO_FIFTY_lbl, SWT.PUSH);
-		btnSampleWeight10to50.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		btnSampleWeight10to50.addListener(SWT.MouseDown, ctrlMouseListener);
-
+		btnSampleWeight10to20 = toolkit.createButton(sampleWeightComposite, SAMPLE_WEIGHT_TEN_TO_TWENTY_lbl, SWT.PUSH);
+		btnSampleWeight10to20.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		btnSampleWeight10to20.addListener(SWT.MouseDown, ctrlMouseListener);
+		btnSampleWeight10to20.setFont(fontRegistry.get(BOLD_TEXT_7));
+		//
+		btnSampleWeight20to50 = toolkit
+				.createButton(sampleWeightComposite, SAMPLE_WEIGHT_TWENTY_TO_FIFTY_lbl, SWT.PUSH);
+		btnSampleWeight20to50.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		btnSampleWeight20to50.addListener(SWT.MouseDown, ctrlMouseListener);
+		btnSampleWeight20to50.setFont(fontRegistry.get(BOLD_TEXT_7));
 		return sampleMotionControlComposite;
 	}
 
@@ -539,7 +559,7 @@ public class MotionControlComposite extends Composite {
 		futureUseComposite.setLayout(new FillLayout());
 
 		Label lblFutureUse = toolkit.createLabel(futureUseComposite, FOR_FUTURE_USE);
-		lblFutureUse.setFont(fontRegistry.get(NORMAL_TEXT_7));
+		lblFutureUse.setFont(fontRegistry.get(NORMAL_TEXT_9));
 		lblFutureUse.setBackground(ColorConstants.lightGray);
 
 		Composite xRayEnergyComposite = toolkit.createComposite(beamlineControlComposite);
@@ -550,7 +570,7 @@ public class MotionControlComposite extends Composite {
 
 		Label lblXrayEnergy = toolkit.createLabel(xRayEnergyComposite, X_RAY_ENERGY_lbl, SWT.WRAP | SWT.CENTER);
 		lblXrayEnergy.setLayoutData(new GridData(GridData.FILL_BOTH));
-		lblXrayEnergy.setFont(fontRegistry.get(NORMAL_TEXT_7));
+		lblXrayEnergy.setFont(fontRegistry.get(NORMAL_TEXT_9));
 		lblXrayEnergy.setBackground(ColorConstants.lightGray);
 
 		txtXrayEnergy = toolkit.createText(xRayEnergyComposite, ENERGY_DEFAULT_VALUE, SWT.CENTER);
@@ -577,18 +597,18 @@ public class MotionControlComposite extends Composite {
 		// Buttons for align tilts
 
 		btnTilt = toolkit.createButton(tomoAlignmentComposite, ALIGN_TILT_lbl, SWT.PUSH);
-		btnTilt.setFont(fontRegistry.get(NORMAL_TEXT_7));
+		btnTilt.setFont(fontRegistry.get(NORMAL_TEXT_9));
 		btnTilt.setLayoutData(new GridData(GridData.FILL_BOTH));
 		btnTilt.addListener(SWT.MouseDown, ctrlMouseListener);
 
 		//
 		btnFindAxisOfRotation = toolkit.createButton(tomoAlignmentComposite, FIND_TOMO_AXIS_lbl, SWT.PUSH | SWT.WRAP);
 		btnFindAxisOfRotation.setLayoutData(new GridData(GridData.FILL_BOTH));
-		btnFindAxisOfRotation.setFont(fontRegistry.get(NORMAL_TEXT_7));
+		btnFindAxisOfRotation.setFont(fontRegistry.get(NORMAL_TEXT_9));
 		btnFindAxisOfRotation.addListener(SWT.MouseDown, ctrlMouseListener);
 
 		Label lblTiltLastSaved = toolkit.createLabel(tomoAlignmentComposite, LAST_SAVED_lbl, SWT.WRAP | SWT.CENTER);
-		lblTiltLastSaved.setFont(fontRegistry.get(NORMAL_TEXT_7));
+		lblTiltLastSaved.setFont(fontRegistry.get(NORMAL_TEXT_9));
 		lblTiltLastSaved.setLayoutData(new GridData(GridData.FILL_BOTH));
 		lblTiltLastSaved.setBackground(ColorConstants.lightBlue);
 		lblTiltLastSaved.setForeground(ColorConstants.white);
@@ -602,7 +622,7 @@ public class MotionControlComposite extends Composite {
 		btnMoveAxisOfRotation = toolkit.createButton(moveAxisBtnComposite, MOVE_TOMO_AXIS_lbl, SWT.PUSH | SWT.WRAP);
 		// btnMoveAxisOfRotation.setLayoutData(new GridData(GridData.FILL_BOTH));
 		btnMoveAxisOfRotation.setBackground(ColorConstants.green);
-		btnMoveAxisOfRotation.setFont(fontRegistry.get(NORMAL_TEXT_7));
+		btnMoveAxisOfRotation.setFont(fontRegistry.get(NORMAL_TEXT_9));
 		btnMoveAxisOfRotation.addListener(SWT.MouseDown, ctrlMouseListener);
 
 		lblRotationAxisNotFound = toolkit.createLabel(moveAxisBtnComposite, ROTATION_AXIS_NOT_DEFINED_shortdesc,
@@ -642,7 +662,7 @@ public class MotionControlComposite extends Composite {
 
 		Label lblCameraDistance = toolkit.createLabel(cameraDistanceComposite, CAMERA_DISTANCE_lbl, SWT.WRAP
 				| SWT.CENTER);
-		lblCameraDistance.setFont(fontRegistry.get(NORMAL_TEXT_7));
+		lblCameraDistance.setFont(fontRegistry.get(NORMAL_TEXT_9));
 
 		GridData layoutData = new GridData(GridData.FILL_BOTH);
 		layoutData.horizontalSpan = 2;
@@ -779,7 +799,7 @@ public class MotionControlComposite extends Composite {
 		statusComposite.setBackground(ColorConstants.black);
 
 		lblFindRotationAxis = toolkit.createLabel(statusComposite, NOT_FOUND_key, SWT.CENTER | SWT.BORDER_DOT);
-		lblFindRotationAxis.setFont(fontRegistry.get(NORMAL_TEXT_7));
+		lblFindRotationAxis.setFont(fontRegistry.get(NORMAL_TEXT_9));
 		GridData layoutData1 = new GridData(GridData.FILL_BOTH);
 		layoutData1.verticalAlignment = SWT.CENTER;
 		lblFindRotationAxis.setBackground(ColorConstants.red);
@@ -826,8 +846,8 @@ public class MotionControlComposite extends Composite {
 			String fontName = Display.getCurrent().getSystemFont().getFontData()[0].getName();
 			fontRegistry.put(BOLD_TEXT_12, new FontData[] { new FontData(fontName, 12, SWT.BOLD) });
 			fontRegistry.put(BOLD_TEXT_9, new FontData[] { new FontData(fontName, 9, SWT.BOLD) });
-			fontRegistry.put(NORMAL_TEXT_7, new FontData[] { new FontData(fontName, 9, SWT.NORMAL) });
-			fontRegistry.put(NORMAL_TEXT_6, new FontData[] { new FontData(fontName, 6, SWT.NORMAL) });
+			fontRegistry.put(NORMAL_TEXT_9, new FontData[] { new FontData(fontName, 9, SWT.NORMAL) });
+			fontRegistry.put(BOLD_TEXT_7, new FontData[] { new FontData(fontName, 7, SWT.BOLD) });
 		}
 	}
 
@@ -930,9 +950,7 @@ public class MotionControlComposite extends Composite {
 					} else if (sourceObj == btnSampleWeightLessThan1) {
 						// Button - Vertical
 						if (!isSelected(btnSampleWeightLessThan1)) {
-							MotionControlCentring.deSelectControl(btnSampleWeight1to10);
-							MotionControlCentring.deSelectControl(btnSampleWeight10to50);
-							MotionControlCentring.selectControl(btnSampleWeightLessThan1);
+							selectSampleWeightControlInUi(btnSampleWeightLessThan1);
 							//
 							for (IMotionControlListener mcl : motionControlListeners) {
 								mcl.setSampleWeight(SAMPLE_WEIGHT.LESS_THAN_ONE);
@@ -941,23 +959,29 @@ public class MotionControlComposite extends Composite {
 					} else if (sourceObj == btnSampleWeight1to10) {
 						// Button - Vertical
 						if (!isSelected(btnSampleWeight1to10)) {
-							MotionControlCentring.selectControl(btnSampleWeight1to10);
-							MotionControlCentring.deSelectControl(btnSampleWeight10to50);
-							MotionControlCentring.deSelectControl(btnSampleWeightLessThan1);
+							selectSampleWeightControlInUi(btnSampleWeight1to10);
 							//
 							for (IMotionControlListener mcl : motionControlListeners) {
 								mcl.setSampleWeight(SAMPLE_WEIGHT.ONE_TO_TEN);
 							}
 						}
-					} else if (sourceObj == btnSampleWeight10to50) {
+					} else if (sourceObj == btnSampleWeight10to20) {
 						// Button - Vertical
-						if (!isSelected(btnSampleWeight10to50)) {
-							MotionControlCentring.deSelectControl(btnSampleWeight1to10);
-							MotionControlCentring.selectControl(btnSampleWeight10to50);
-							MotionControlCentring.deSelectControl(btnSampleWeightLessThan1);
+						if (!isSelected(btnSampleWeight10to20)) {
+							selectSampleWeightControlInUi(btnSampleWeight10to20);
+
 							//
 							for (IMotionControlListener mcl : motionControlListeners) {
-								mcl.setSampleWeight(SAMPLE_WEIGHT.TEN_TO_FIFTY);
+								mcl.setSampleWeight(SAMPLE_WEIGHT.TEN_TO_TWENTY);
+							}
+						}
+					} else if (sourceObj == btnSampleWeight20to50) {
+						// Button - Vertical
+						if (!isSelected(btnSampleWeight20to50)) {
+							selectSampleWeightControlInUi(btnSampleWeight20to50);
+							//
+							for (IMotionControlListener mcl : motionControlListeners) {
+								mcl.setSampleWeight(SAMPLE_WEIGHT.TWENTY_TO_FIFTY);
 							}
 						}
 					}
@@ -984,6 +1008,41 @@ public class MotionControlComposite extends Composite {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Method to run in the UI thread to set the colors to show the button selected
+	 * 
+	 * @param btnCntrl
+	 */
+	private static void selectControl(final Button btnCntrl) {
+		btnCntrl.getDisplay().asyncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				btnCntrl.setForeground(ColorConstants.red);
+				btnCntrl.setBackground(ColorConstants.lightGray);
+
+			}
+		});
+	}
+
+	/**
+	 * Method to run in the UI thread to set the colors to show the button de-selected
+	 * 
+	 * @param btnCntrl
+	 */
+	private static void deSelectControl(final Button btnCntrl) {
+		if (btnCntrl != null && !btnCntrl.isDisposed()) {
+			btnCntrl.getDisplay().asyncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					btnCntrl.setForeground(btnCntrl.getDisplay().getSystemColor(SWT.COLOR_LIST_FOREGROUND));
+					btnCntrl.setBackground(btnCntrl.getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
+				}
+			});
+		}
 	}
 
 	/**
@@ -1139,5 +1198,48 @@ public class MotionControlComposite extends Composite {
 
 	public double getEnergy() {
 		return energy;
+	}
+
+	// Sample Weight controls
+
+	public void setSampleWeightUI(final SAMPLE_WEIGHT sampleWeight) {
+		this.sampleWeight = sampleWeight;
+
+		getDisplay().syncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				switch (sampleWeight) {
+				case ONE_TO_TEN:
+					selectSampleWeightControlInUi(btnSampleWeight1to10);
+					break;
+				case TEN_TO_TWENTY:
+					selectSampleWeightControlInUi(btnSampleWeight10to20);
+					break;
+				case TWENTY_TO_FIFTY:
+					selectSampleWeightControlInUi(btnSampleWeight20to50);
+					break;
+				case LESS_THAN_ONE:
+					selectSampleWeightControlInUi(btnSampleWeightLessThan1);
+					break;
+				}
+			}
+		});
+	}
+
+	protected void selectSampleWeightControlInUi(Button btnSampleWt) {
+		final Button[] btns = new Button[] { btnSampleWeightLessThan1, btnSampleWeight1to10, btnSampleWeight10to20,
+				btnSampleWeight20to50 };
+		for (Button button : btns) {
+			if (btnSampleWt.equals(button)) {
+				selectControl(button);
+			} else {
+				deSelectControl(button);
+			}
+		}
+	}
+
+	public SAMPLE_WEIGHT getSampleWeight() {
+		return sampleWeight;
 	}
 }
