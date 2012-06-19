@@ -100,7 +100,6 @@ public class ExcaliburCollectionStrategy implements ADTriggeringStrategy, Initia
 		return 1;
 	}
 
-	@Override
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
 		// TODO Auto-generated method stub
 		
