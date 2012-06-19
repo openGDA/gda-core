@@ -42,6 +42,7 @@ public class ThresholdAScannable extends BaseChipRegScannable {
 		short[] values = new short[thresholdALength];
 		Arrays.fill(values, (short) intValue);
 		chipReg.getPixel().setThresholdA(values);
+		chipReg.loadPixelConfig();
 	}
 
 	@Override

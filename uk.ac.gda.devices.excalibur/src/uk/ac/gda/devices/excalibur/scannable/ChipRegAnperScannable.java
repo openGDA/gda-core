@@ -48,8 +48,9 @@ public class ChipRegAnperScannable extends BaseChipRegScannable{
 		Method method = class1.getMethod(setmethod, partypes);
 		if( method != null){
 			Object arglist[] = new Object[1];
-            arglist[0] = intValue;			
+			arglist[0] = intValue;			
 			method.invoke(anper, intValue);
+			chipReg.loadDacConfig();
 		}
 	}
 

@@ -35,6 +35,7 @@ public class Threshold1Scannable extends BaseChipRegScannable {
 	@Override
 	protected void doAsynchronousMoveTo(MpxiiiChipReg chipReg, int intValue) throws Exception {
 		chipReg.getAnper().setThreshold1(intValue);
+		chipReg.loadPixelConfig();
 	}
 
 	@Override

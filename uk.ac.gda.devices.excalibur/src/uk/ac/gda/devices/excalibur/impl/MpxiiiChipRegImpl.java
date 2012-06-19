@@ -39,6 +39,7 @@ public class MpxiiiChipRegImpl implements MpxiiiChipReg, InitializingBean {
 	private static final String CHIP_DISABLE = "ChipDisable";
 
 	private static final String LoadDacConfig = "LoadDacConfig";
+	private static final String LoadPixelConfig = "LoadPixelConfig";
 
 	/**
 	 * Map that stores the channel against the PV name
@@ -155,5 +156,10 @@ public class MpxiiiChipRegImpl implements MpxiiiChipReg, InitializingBean {
 	@Override
 	public void loadDacConfig() throws Exception{
 		EPICS_CONTROLLER.caputWait(getChannel(LoadDacConfig), 1);
+	}
+
+	@Override
+	public void loadPixelConfig() throws Exception {
+		EPICS_CONTROLLER.caputWait(getChannel(LoadPixelConfig), 1);
 	}
 }

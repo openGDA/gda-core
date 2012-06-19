@@ -27,27 +27,27 @@ import uk.ac.gda.devices.excalibur.MpxiiiChipReg;
 /**
  *
  */
-public class ThresholdBScannable extends BaseChipRegScannable {
+public class MaskScannable extends BaseChipRegScannable {
 
 	/**
 	 * @param fems
 	 */
-	public ThresholdBScannable(List<ExcaliburReadoutNodeFem> fems) {
+	public MaskScannable(List<ExcaliburReadoutNodeFem> fems) {
 		super(fems);
 	}
 
 	@Override
 	protected void doAsynchronousMoveTo(MpxiiiChipReg chipReg, int intValue) throws Exception {
-		int thresholdBLength = chipReg.getPixel().getThresholdB().length;
-		short[] values = new short[thresholdBLength];
+		int thresholdALength = chipReg.getPixel().getMask().length;
+		short[] values = new short[thresholdALength];
 		Arrays.fill(values, (short) intValue);
-		chipReg.getPixel().setThresholdB(values);
+		chipReg.getPixel().setMask(values);
 		chipReg.loadPixelConfig();
 	}
 
 	@Override
 	protected Object doGetPosition() throws Exception {
-		return fems.get(0).getMpxiiiChipReg1().getPixel().getThresholdB()[0];
+		return fems.get(0).getMpxiiiChipReg1().getPixel().getMask()[0];
 	}
 
 }

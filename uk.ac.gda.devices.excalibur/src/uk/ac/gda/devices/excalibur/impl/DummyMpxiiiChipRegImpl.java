@@ -70,24 +70,26 @@ public class DummyMpxiiiChipRegImpl implements MpxiiiChipReg, InitializingBean {
 
 	@Override
 	public void enableChip() throws CAException, InterruptedException, TimeoutException {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void disableChip() throws CAException, InterruptedException, TimeoutException {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public boolean isChipEnabled() throws TimeoutException, CAException, InterruptedException {
-		// TODO Auto-generated method stub
 		return false;
 	}
 	
 	@Override
 	public void loadDacConfig() throws Exception{
 		//do nothing
+	}
+
+	@Override
+	public void loadPixelConfig() throws Exception {
+		// do nothing
 	}	
 }

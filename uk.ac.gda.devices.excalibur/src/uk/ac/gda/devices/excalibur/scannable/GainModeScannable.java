@@ -42,6 +42,7 @@ public class GainModeScannable extends BaseChipRegScannable {
 		short[] values = new short[gainModeLength];
 		Arrays.fill(values, (short) intValue);
 		chipReg.getPixel().setGainMode(values);
+		chipReg.loadPixelConfig();
 	}
 
 	@Override

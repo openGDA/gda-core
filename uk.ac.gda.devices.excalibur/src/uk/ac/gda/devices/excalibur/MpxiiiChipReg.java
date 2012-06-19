@@ -60,4 +60,7 @@ public interface MpxiiiChipReg {
 	boolean isChipEnabled() throws Exception;
 
 	void loadDacConfig() throws Exception;
+
+	void loadPixelConfig() throws Exception;
+	
 }
