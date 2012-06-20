@@ -203,12 +203,12 @@ class PixelIndexIterator implements Iterator<Long> {
 
 	public PixelIndexIterator(Chip chip) {
 		this.chip = chip;
-		pixelindex = chip.getChipTopPixel() + chip.getChipLeftPixel();
+		pixelindex = chip.getChipTopPixel() + chip.getChipLeftPixel()-1;//subtract 1 as the value is read after callig next which adds 1
 	}
 
 	@Override
 	public boolean hasNext() {
-		return row<ChipSet.chipHeight;
+		return row<ChipSet.chipHeight-1;
 	}
 
 	@Override

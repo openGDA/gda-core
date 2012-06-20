@@ -57,55 +57,46 @@ public class ExcaliburEqualizationHelper {
 
 	public static final String THRESHOLD_N_EQ_TARGET_ATTR = "thresholdNopt_eq_target";
 	public static final String THRESHOLD_NOPT = "thresholdNopt"; // short[]
-	public static final String THRESHOLD_0OPT = "threshold0opt"; //double []
-	public static final String THRESHOLDN_MASK = "thresholdN_mask"; //short []
+	public static final String THRESHOLD_0OPT = "threshold0opt"; // double []
+	public static final String THRESHOLDN_MASK = "thresholdN_mask"; // short []
 	public static final double FIT_FAILED_WIDTH = -1.0;
 	public static final short EDGE_POSITION_IF_ALL_BELOW_THRESHOLD = Short.MIN_VALUE;
 	public static final short EDGE_POSITION_IF_ALL_ABOVE_THRESHOLD = Short.MAX_VALUE;
-	public static final short EDGE_POSITION_IF_PIXEL_MASKED_OUT = Short.MAX_VALUE-1;
+	public static final short EDGE_POSITION_IF_PIXEL_MASKED_OUT = Short.MAX_VALUE - 1;
 	public static final String THRESHOLD_TARGET_ATTR = "thresholdTarget";
 	public static final String THRESHOLD_FROM_THRESHOLD_RESPONSE_DATASET = "thresholdFromThresholdResponse";
 	public static final String THRESHOLD_RESPONSE_OFFSETS_DATASET = "edgeThresholdResponseOffsets";
 	public static final String THRESHOLD_RESPONSE_SLOPES_DATASET = "edgeThresholdResponseSlopes";
 	public static final String THRESHOLDABNVAL_DATASET = "thresholdABNVal";
-	public static final String THRESHOLDABNVAL_ATTR = "thresholdABNVal"; //identifies the DAC being set outside the scan
+	public static final String THRESHOLDABNVAL_ATTR = "thresholdABNVal"; // identifies the DAC being set outside the
+																			// scan
 	public static final String THRESHOLD_LIMIT_ATTR = "thresholdLimit";
 	public static final String THRESHOLD_LIMIT_DATASET = "thresholdLimit";
-//	public static final String THRESHOLD_ATTRIBUTE = "threshold";
+	// public static final String THRESHOLD_ATTRIBUTE = "threshold";
 	public static final String THRESHOLD_STDDEV_ATTRIBUTE = "threshold_mean";
 	public static final String THRESHOLD_MEAN_ATTRIBUTE = "threshold_stddev";
 	public static final String THRESHOLD_DATASET = "edgeThresholds";
-	public static final String CHIP_PRESENT_DATASET="chip_present";
+	public static final String CHIP_PRESENT_DATASET = "chip_present";
 	public static final String CHIP_THRESHOLD_GAUSSIAN_POSITION_DATASET = "chip_threshold_gaussian_position";
 	public static final String CHIP_THRESHOLD_GAUSSIAN_FWHM_DATASET = "chip_threshold_gaussian_fwhm";
 	private static final ExcaliburEqualizationHelper INSTANCE = new ExcaliburEqualizationHelper();
 
-
-
-	
-	
 	public static ExcaliburEqualizationHelper getInstance() {
 		return INSTANCE;
 	}
 
-/*	double[] convertUsingAxis(int[] indexData, double[] lookupTable) {
-		double[] data = new double[indexData.length];
-		for (int i = 0; i < data.length; i++) {
-			data[i] = lookupTable[indexData[i]];
-		}
-		return data;
-	}*/
-
-	public Hdf5HelperData getConfigFromFile(String fileName) throws Exception{
-		return Hdf5Helper.getInstance().readDataSetAll(fileName, getEqualisationLocation().getLocationForOpen(), THRESHOLD_FROM_THRESHOLD_RESPONSE_DATASET, true);
+	public Hdf5HelperData getConfigFromFile(String fileName) throws Exception {
+		return Hdf5Helper.getInstance().readDataSetAll(fileName, getEqualisationLocation().getLocationForOpen(),
+				THRESHOLD_FROM_THRESHOLD_RESPONSE_DATASET, true);
 	}
-	
+
 	/**
-	 * Calls getEdgeThresholdABResponseFromThresholdFiles and stores the data in the resultFile
-	 * The result file has a set of slope values in dataset EDGE_THRESHOLD_RESPONSE_SLOPES_DATASET
-	 * and a set of offset values in dataset EDGE_THRESHOLD_RESPONSE_OFFSETS_DATASET
+	 * Calls getEdgeThresholdABResponseFromThresholdFiles and stores the data in the resultFile The result file has a
+	 * set of slope values in dataset EDGE_THRESHOLD_RESPONSE_SLOPES_DATASET and a set of offset values in dataset
+	 * EDGE_THRESHOLD_RESPONSE_OFFSETS_DATASET
 	 */
-	public void createEdgeThresholdABResponseFromThresholdFiles(List<String> edgeThresholdFilenames, String resultFile) throws Exception {
+	public void createEdgeThresholdABResponseFromThresholdFiles(List<String> edgeThresholdFilenames, String resultFile)
+			throws Exception {
 		Results responses = getEdgeThresholdABResponseFromThresholdFiles(edgeThresholdFilenames);
 		Hdf5HelperData hdSlopes = new Hdf5HelperData(responses.getDims(), responses.getSlopes());
 		Hdf5Helper.getInstance().writeToFileSimple(hdSlopes, resultFile, getEqualisationLocation(),
@@ -116,23 +107,25 @@ public class ExcaliburEqualizationHelper {
 	}
 
 	/**
-	 * Read the set of threshold values recorded in a set of files by calls to createThresholdFileFromScanData
-	 * and return a set of straight line fits to the axis recorded in the attribute THRESHOLDABVAL_ATTR
+	 * Read the set of threshold values recorded in a set of files by calls to createThresholdFileFromScanData and
+	 * return a set of straight line fits to the axis recorded in the attribute THRESHOLDABVAL_ATTR
+	 * 
 	 * @param edgeThresholdFilenames
 	 * @throws Exception
 	 */
 	public Results getEdgeThresholdABResponseFromThresholdFiles(List<String> edgeThresholdFilenames) throws Exception {
 
-		return getStraightLineFit(edgeThresholdFilenames,THRESHOLDABNVAL_ATTR, THRESHOLD_DATASET);
+		return getStraightLineFit(edgeThresholdFilenames, THRESHOLDABNVAL_ATTR, THRESHOLD_DATASET);
 	}
 
 	/**
-	 * Calls getEdgeThresholdNResponseFromThresholdFiles and stores the data in the resultFile
-	 * The result file has a set of slope values in dataset EDGE_THRESHOLD_RESPONSE_SLOPES_DATASET
-	 * and a set of offset values in dataset EDGE_THRESHOLD_RESPONSE_OFFSETS_DATASET
+	 * Calls getEdgeThresholdNResponseFromThresholdFiles and stores the data in the resultFile The result file has a set
+	 * of slope values in dataset EDGE_THRESHOLD_RESPONSE_SLOPES_DATASET and a set of offset values in dataset
+	 * EDGE_THRESHOLD_RESPONSE_OFFSETS_DATASET
 	 */
-	public void createThresholdNResponseFromThresholdFiles(List<String> edgeThresholdFilenames, String resultFile) throws Exception {
-		Results responses = getEdgeThresholdNResponseFromThresholdFiles(edgeThresholdFilenames);
+	public void createDACResponseFromThresholdFiles(List<String> edgeThresholdFilenames, String resultFile)
+			throws Exception {
+		Results responses = getDACResponseFromThresholdFiles(edgeThresholdFilenames);
 		Hdf5HelperData hdSlopes = new Hdf5HelperData(responses.getDims(), responses.getSlopes());
 		Hdf5Helper.getInstance().writeToFileSimple(hdSlopes, resultFile, getEqualisationLocation(),
 				THRESHOLD_RESPONSE_SLOPES_DATASET);
@@ -140,23 +133,27 @@ public class ExcaliburEqualizationHelper {
 		Hdf5Helper.getInstance().writeToFileSimple(hdOffsets, resultFile, getEqualisationLocation(),
 				THRESHOLD_RESPONSE_OFFSETS_DATASET);
 	}
-	
+
 	/**
-	 * Read the set of threshold values recorded in a set of files by calls to createChipAveragedThresholdFileFromScanData
-	 * and return a set of straight line fits to the axis recorded in the attribute THRESHOLDABVAL_ATTR
+	 * Read the set of threshold values recorded in a set of files by calls to
+	 * createChipAveragedThresholdFileFromScanData and return a set of straight line fits to the axis recorded in the
+	 * attribute THRESHOLDABVAL_ATTR
+	 * 
 	 * @param edgeThresholdFilenames
 	 * @throws Exception
 	 */
-	public Results getEdgeThresholdNResponseFromThresholdFiles(List<String> edgeThresholdFilenames) throws Exception {
+	public Results getDACResponseFromThresholdFiles(List<String> edgeThresholdFilenames) throws Exception {
 
-		return getStraightLineFit(edgeThresholdFilenames,THRESHOLDABNVAL_ATTR, CHIP_THRESHOLD_GAUSSIAN_POSITION_DATASET);
+		return getStraightLineFit(edgeThresholdFilenames, THRESHOLDABNVAL_ATTR,
+				CHIP_THRESHOLD_GAUSSIAN_POSITION_DATASET);
 	}
-	
-	public Results getStraightLineFit(List<String> datasetFileNames, String axisAttributeName, String datasetName) throws Exception {
+
+	public Results getStraightLineFit(List<String> datasetFileNames, String axisAttributeName, String datasetName)
+			throws Exception {
 
 		double[] thresholdABArray = new double[datasetFileNames.size()];
 		Vector<Object> data = new Vector<Object>();
-		long[] dims = null; 
+		long[] dims = null;
 		for (int i = 0; i < datasetFileNames.size(); i++) {
 			// get data for filename
 			Hdf5HelperData readAttribute = Hdf5Helper.getInstance().readAttribute(datasetFileNames.get(i),
@@ -166,61 +163,51 @@ public class ExcaliburEqualizationHelper {
 					getEqualisationLocation().getLocationForOpen(), datasetName, true);
 
 			data.add(edgeThresholds.data);
-			if (ArrayUtils.getLength(data.get(data.size()-1)) != ArrayUtils.getLength(data.get(0)))
+			if (ArrayUtils.getLength(data.get(data.size() - 1)) != ArrayUtils.getLength(data.get(0)))
 				throw new Exception("Data lengths in different files are not equal");
 			dims = edgeThresholds.dims;
 		}
 		return StraightLineFit.fitInt(data, dims, thresholdABArray);
 	}
-	
-	/**
-	 * 
-	 * Combine the threshold data stored in files by calling createThresholdFileFromScanData multiple times
-	 * into a single file.
-	 * Each call of createThresholdFileFromScanData creates a file with containing a 2d dataset giving the threshold edge values
-	 * for each pixel. This dataset has an attribute THRESHOLDAVAL_ATTR containing the value of
-	 * either thresholdA or thresholdB for the scan.
-	 * The values of THRESHOLDAVAL_ATTR also combined into a dataset that is stored in the result file
-	 * as dataset THRESHOLDAB_DATASET which acts as the 3rd axis for the conbined 3d data
-	 */
-	public void combineThresholdsFromThresholdFiles(List<String> edgeThresholdFiles, 
-			String resultFile, boolean includeChipData) throws Exception {
-		Hdf5Helper hdf =Hdf5Helper.getInstance();
-		hdf.concatenateDataSetsFromFiles(edgeThresholdFiles, getEqualisationLocation(), THRESHOLD_DATASET,
-				resultFile);
-		if(includeChipData ){
-			hdf.concatenateDataSetsFromFiles(edgeThresholdFiles, getEqualisationLocation(), CHIP_PRESENT_DATASET,resultFile);
-			hdf.concatenateDataSetsFromFiles(edgeThresholdFiles, getEqualisationLocation(), CHIP_THRESHOLD_GAUSSIAN_FWHM_DATASET,resultFile);
-			hdf.concatenateDataSetsFromFiles(edgeThresholdFiles, getEqualisationLocation(), CHIP_THRESHOLD_GAUSSIAN_POSITION_DATASET,resultFile);
-		}
 
-		@SuppressWarnings("cast")
-		Hdf5HelperData signalData = new Hdf5HelperData((int) 1);
+	/**
+	 * Combine the threshold data stored in files by calling createThresholdFileFromScanData multiple times into a
+	 * single file. Each call of createThresholdFileFromScanData creates a file with containing a 2d dataset giving the
+	 * threshold edge values for each pixel. This dataset has an attribute THRESHOLDAVAL_ATTR containing the value of
+	 * either thresholdA or thresholdB for the scan. The values of THRESHOLDAVAL_ATTR also combined into a dataset that
+	 * is stored in the result file as dataset THRESHOLDAB_DATASET which acts as the 3rd axis for the conbined 3d data
+	 */
+	public void combineThresholdsFromThresholdFiles(List<String> edgeThresholdFiles, String resultFile,
+			boolean includeChipData) throws Exception {
+		Hdf5Helper hdf = Hdf5Helper.getInstance();
+		hdf.concatenateDataSetsFromFiles(edgeThresholdFiles, getEqualisationLocation(), THRESHOLD_DATASET, resultFile);
+		if (includeChipData) {
+			hdf.concatenateDataSetsFromFiles(edgeThresholdFiles, getEqualisationLocation(), CHIP_PRESENT_DATASET,
+					resultFile);
+			hdf.concatenateDataSetsFromFiles(edgeThresholdFiles, getEqualisationLocation(),
+					CHIP_THRESHOLD_GAUSSIAN_FWHM_DATASET, resultFile);
+			hdf.concatenateDataSetsFromFiles(edgeThresholdFiles, getEqualisationLocation(),
+					CHIP_THRESHOLD_GAUSSIAN_POSITION_DATASET, resultFile);
+		}
 
 		HDF5HelperLocations edgeloc = getEdgeThresholdsLocation();
-		hdf.writeAttribute(resultFile, Hdf5Helper.TYPE.DATASET, edgeloc, "signal", signalData);
+		hdf.writeAttribute(resultFile, Hdf5Helper.TYPE.DATASET, edgeloc, "signal", 1);
 		Vector<Hdf5HelperData> data = new Vector<Hdf5HelperData>();
 		for (String f : edgeThresholdFiles) {
-			data.add(hdf.readAttribute(f, Hdf5Helper.TYPE.DATASET, edgeloc.getLocationForOpen(),
-					THRESHOLDABNVAL_ATTR));
+			data.add(hdf.readAttribute(f, Hdf5Helper.TYPE.DATASET, edgeloc.getLocationForOpen(), THRESHOLDABNVAL_ATTR));
 		}
 		hdf.concatenateDataSets(data, getEqualisationLocation(), THRESHOLDABNVAL_DATASET, resultFile);
-		@SuppressWarnings("cast")
-		Hdf5HelperData axisData = new Hdf5HelperData((int) 1);
 
 		HDF5HelperLocations thresholdLoc = getEqualisationLocation();
 		thresholdLoc.add(THRESHOLDABNVAL_DATASET);
 
-		hdf.writeAttribute(resultFile, Hdf5Helper.TYPE.DATASET, thresholdLoc, "axis", axisData);
+		hdf.writeAttribute(resultFile, Hdf5Helper.TYPE.DATASET, thresholdLoc, "axis", 1);
 	}
-	
 
-	
 	/**
-	 * Calls getConfigFromThresholdResponseFile and stores result in the result file
-	 * The file contains the set of values of thesholdA or thresholdB for a given thresholdTarget in the dataset
-	 * CONFIG_FROM_THRESHOLD_RESPONSE_DATASET. This dataset has an attribute THRESHOLD_TARGET_ATTR that
-	 * gives the targetThreshold
+	 * Calls getConfigFromThresholdResponseFile and stores result in the result file The file contains the set of values
+	 * of thesholdA or thresholdB for a given thresholdTarget in the dataset CONFIG_FROM_THRESHOLD_RESPONSE_DATASET.
+	 * This dataset has an attribute THRESHOLD_TARGET_ATTR that gives the targetThreshold
 	 * 
 	 * @param edgeThresholdABResponseFile
 	 * @param thresholdTarget
@@ -230,25 +217,21 @@ public class ExcaliburEqualizationHelper {
 	public void createThresholdFromThresholdResponseFile(String edgeThresholdABResponseFile, int thresholdTarget,
 			String resultFileName) throws Exception {
 
-		Hdf5HelperData thresholdABData = getThresholdFromThresholdResponseFile(edgeThresholdABResponseFile, thresholdTarget);
+		Hdf5HelperData thresholdABData = getThresholdFromThresholdResponseFile(edgeThresholdABResponseFile,
+				thresholdTarget);
 		Hdf5Helper.getInstance().writeToFileSimple(thresholdABData, resultFileName, getEqualisationLocation(),
-				THRESHOLD_FROM_THRESHOLD_RESPONSE_DATASET); 
+				THRESHOLD_FROM_THRESHOLD_RESPONSE_DATASET);
 		Hdf5Helper.getInstance().writeAttribute(resultFileName, Hdf5Helper.TYPE.DATASET,
 				getEqualisationLocation().add(THRESHOLD_FROM_THRESHOLD_RESPONSE_DATASET), THRESHOLD_TARGET_ATTR,
-				new Hdf5HelperData(thresholdTarget));
+				thresholdTarget);
 
 	}
 
-	
 	/**
-	 * From the thresholdAB response stored in the file thresholdResponseFilename calculate the
-	 * value of thresholdA or B for each pixel that gives the desired thresholdTarget
-	 * 
-	 * For each pixel:
-	 * thresholdEdge = slope* thresholdA + offset
-	 * 
+	 * From the thresholdAB response stored in the file thresholdResponseFilename calculate the value of thresholdA or B
+	 * for each pixel that gives the desired thresholdTarget For each pixel: thresholdEdge = slope* thresholdA + offset
 	 * for a given thresholdEdge, slope and offset this function returns the value of thresholdA
-	 *  
+	 * 
 	 * @param thresholdResponseFilename
 	 *            file containing the slope and offsets for each pixel on the detector of the threshold edge to
 	 *            ThresholdA ( or B) value
@@ -289,39 +272,32 @@ public class ExcaliburEqualizationHelper {
 	}
 
 	/**
-	 * Calls getThresholdFromScanData and stores the result in the result file
-	 * 
-	 * The edge threshold values are stored in dataset EDGE_THRESHOLDS_DATASET
-	 * This dataset has the edgeThreshold limit stored in the attribute THRESHOLD_LIMIT_ATTR and
-	 * the value of detector thresholdABNName stored in attribute THRESHOLDABVAL_ATTR
-	 * 
-	 * 
+	 * Calls getThresholdFromScanData and stores the result in the result file The edge threshold values are stored in
+	 * dataset EDGE_THRESHOLDS_DATASET This dataset has the edgeThreshold limit stored in the attribute
+	 * THRESHOLD_LIMIT_ATTR and the value of detector thresholdABNName stored in attribute THRESHOLDABVAL_ATTR
 	 */
 	public void createThresholdFileFromScanData(String filename, String detectorName, String threshold0Name,
 			String thresholdABNName, int edgeThreshold, int sizeOfSlice, String resultfilename) throws Exception {
-		String detectorLocation = "entry1/" + detectorName;
-		Hdf5HelperData hd = getThresholdFromScanData(edgeThreshold, sizeOfSlice, filename, detectorLocation, threshold0Name,
-				"data");
+		String detectorLocation = "entry1/" + detectorName; 
+		Hdf5HelperData hd = getThresholdFromScanData(edgeThreshold, sizeOfSlice, filename, detectorLocation,
+				threshold0Name, "data");
 		HDF5HelperLocations equalisationLocation = getEqualisationLocation();
 		Hdf5Helper hdf = Hdf5Helper.getInstance();
 		hdf.writeToFileSimple(hd, resultfilename, equalisationLocation, THRESHOLD_DATASET);
-		hdf.writeAttribute(resultfilename, Hdf5Helper.TYPE.DATASET, getEdgeThresholdsLocation(),
-				THRESHOLD_LIMIT_ATTR, new Hdf5HelperData(edgeThreshold));
-		Hdf5HelperData thresholdAValData = hdf.readDataSetAll(filename, detectorLocation,
-				thresholdABNName, true);
-		thresholdAValData.dims = new long[] { 1 };
-		hdf.writeAttribute(resultfilename, Hdf5Helper.TYPE.DATASET, getEdgeThresholdsLocation(),
-				THRESHOLDABNVAL_ATTR, thresholdAValData);
+		hdf.writeAttribute(resultfilename, Hdf5Helper.TYPE.DATASET, getEdgeThresholdsLocation(), THRESHOLD_LIMIT_ATTR,
+				edgeThreshold);
+		Hdf5HelperData thresholdAValData = hdf.readDataSetAll(filename, detectorLocation, thresholdABNName, true);
+		hdf.writeAttribute(resultfilename, Hdf5Helper.TYPE.DATASET, getEdgeThresholdsLocation(), THRESHOLDABNVAL_ATTR,
+				((double[]) thresholdAValData.data)[0]);
 	}
 
 	/**
-	 * From the scan of detector name against threshold0 calculate the edge threshold for each pixel
-	 * and save results to the file.
-	 * As the data for a complete scan can be too large for the memepry available the data is treated
-	 * in slices by calling getThresholdFromSliceofScanData.
+	 * From the scan of detector name against threshold0 calculate the edge threshold for each pixel and save results to
+	 * the file. As the data for a complete scan can be too large for the memepry available the data is treated in
+	 * slices by calling getThresholdFromSliceofScanData.
 	 */
-	public Hdf5HelperData getThresholdFromScanData(int threshold, int sizeOfSlice, String scanFilename, String groupName,
-			String dataSetNameThreshold0, String dataSetNameDetector) throws Exception {
+	public Hdf5HelperData getThresholdFromScanData(int threshold, int sizeOfSlice, String scanFilename,
+			String groupName, String dataSetNameThreshold0, String dataSetNameDetector) throws Exception {
 
 		Hdf5HelperLazyLoader loader = new Hdf5HelperLazyLoader(scanFilename, groupName, dataSetNameDetector, false);
 		ILazyDataset dataset = loader.getLazyDataSet();
@@ -349,22 +325,22 @@ public class ExcaliburEqualizationHelper {
 			if (!(slice instanceof ShortDataset))
 				throw new Exception("data is not of type ShortDataset");
 			ShortDataset ds = ((ShortDataset) slice);
-			short[] edgeThresholdsSlice = getThresholdFromSliceofScanData((short[]) ds.getBuffer(),
-					ds.getShape(), null, threshold, 0, false, threshold0ValsAsInt);
+			short[] edgeThresholdsSlice = getThresholdFromSliceofScanData((short[]) ds.getBuffer(), ds.getShape(),
+					null, threshold, 0, false, threshold0ValsAsInt);
 			System.arraycopy(edgeThresholdsSlice, 0, edgeThresholds, iEdgeThresholdProcessed,
 					edgeThresholdsSlice.length);
-			start[shape.length - 2] = Math.min(start[shape.length - 2]+sizeOfSlice,shape[shape.length - 2]);
-			stop[shape.length - 2] = Math.min(stop[shape.length - 2]+sizeOfSlice,shape[shape.length - 2]);
+			start[shape.length - 2] = Math.min(start[shape.length - 2] + sizeOfSlice, shape[shape.length - 2]);
+			stop[shape.length - 2] = Math.min(stop[shape.length - 2] + sizeOfSlice, shape[shape.length - 2]);
 			iEdgeThresholdProcessed += shape[2] * sizeOfSlice;
 		}
 		return new Hdf5HelperData(new long[] { shape[1], shape[2] }, edgeThresholds);
 	}
+
 	/*
 	 * Not to be called by scripts.
 	 */
 	public short[] getThresholdFromSliceofScanData(short[] data, int[] shape, int[] activePixels, int thresholdVal,
-			int dimensionToTraverse, boolean isForward, short[] lookupTable)
-			throws Exception {
+			int dimensionToTraverse, boolean isForward, short[] lookupTable) throws Exception {
 		// assume dimensionToTraverse ==2
 		if (shape.length != 3)
 			throw new Exception("Invalid shape");
@@ -431,14 +407,12 @@ public class ExcaliburEqualizationHelper {
 		return res;
 	}
 
-
-
 	/**
-	 * Calls getChipAveragedThresholdFromThresholdFile and writes result to resultFileName
-	 * The resultFile has 3 datasets:
-	 * CHIP_PRESENT_DATASET - dataset of shorts - value ==1 if chip is present
-	 * THRESHOLD_DATASET - dataset of chip averaged threshold position
-	 * CHIP_THRESHOLD_GAUSSIAN_FWHM_DATASET -  - dataset of fwhm of chip threshold population
+	 * Calls getChipAveragedThresholdFromThresholdFile and writes result to resultFileName The resultFile has 3
+	 * datasets: CHIP_PRESENT_DATASET - dataset of shorts - value ==1 if chip is present THRESHOLD_DATASET - dataset of
+	 * chip averaged threshold position CHIP_THRESHOLD_GAUSSIAN_FWHM_DATASET - - dataset of fwhm of chip threshold
+	 * population
+	 * 
 	 * @param thresholdFile
 	 * @param rows
 	 * @param columns
@@ -446,111 +420,113 @@ public class ExcaliburEqualizationHelper {
 	 * @param resultFileName
 	 * @throws Exception
 	 */
-	public void createChipAveragedThresholdFileFromThresholdFile(String thresholdFile, int rows, int columns, boolean chipPresent[], String resultFileName) throws Exception{
+	public void createChipAveragedThresholdFileFromThresholdFile(String thresholdFile, int rows, int columns,
+			boolean chipPresent[], String resultFileName) throws Exception {
 		Hdf5Helper hdf = Hdf5Helper.getInstance();
-		long dims[] = new long[]{rows, columns};
+		long dims[] = new long[] { rows, columns };
 		int numItems = (int) hdf.lenFromDims(dims);
-		if( numItems != chipPresent.length)
+		if (numItems != chipPresent.length)
 			throw new IllegalArgumentException("numItems != chipPresent.length");
-		
-		CompositeFunction[] aPeaks = getChipAveragedThresholdFromThresholdFile(thresholdFile, rows, columns, chipPresent);
-		if( numItems != aPeaks.length)
+
+		CompositeFunction[] aPeaks = getChipAveragedThresholdFromThresholdFile(thresholdFile, rows, columns,
+				chipPresent);
+		if (numItems != aPeaks.length)
 			throw new IllegalArgumentException("numItems != aPeaks.length");
 
-		short [] present = new short[numItems];
-		double [] positions = new double[numItems];
-		double [] fwhms = new double[numItems];
+		short[] present = new short[numItems];
+		double[] positions = new double[numItems];
+		double[] fwhms = new double[numItems];
 		Arrays.fill(fwhms, FIT_FAILED_WIDTH);
-		for( int i=0; i< numItems; i++){
+		for (int i = 0; i < numItems; i++) {
 			present[i] = (short) (chipPresent[i] ? 1 : 0);
-			if( chipPresent[i]){
-				if( aPeaks[i] != null){
+			if (chipPresent[i]) {
+				if (aPeaks[i] != null) {
 					IPeak function = aPeaks[i].getPeak(0);
 					positions[i] = function.getPosition();
-					fwhms[i] =function.getFWHM();
+					fwhms[i] = function.getFWHM();
 				}
 			}
-			
+
 		}
-		hdf.writeToFileSimple(new Hdf5HelperData(dims, present), resultFileName, getEqualisationLocation(), CHIP_PRESENT_DATASET);
-		hdf.writeToFileSimple(new Hdf5HelperData(dims, positions), resultFileName, getEqualisationLocation(), CHIP_THRESHOLD_GAUSSIAN_POSITION_DATASET);
-		hdf.writeToFileSimple(new Hdf5HelperData(dims, fwhms), resultFileName, getEqualisationLocation(), CHIP_THRESHOLD_GAUSSIAN_FWHM_DATASET);
+		hdf.writeToFileSimple(new Hdf5HelperData(dims, present), resultFileName, getEqualisationLocation(),
+				CHIP_PRESENT_DATASET);
+		hdf.writeToFileSimple(new Hdf5HelperData(dims, positions), resultFileName, getEqualisationLocation(),
+				CHIP_THRESHOLD_GAUSSIAN_POSITION_DATASET);
+		hdf.writeToFileSimple(new Hdf5HelperData(dims, fwhms), resultFileName, getEqualisationLocation(),
+				CHIP_THRESHOLD_GAUSSIAN_FWHM_DATASET);
 	}
-	
-	
+
 	/**
-	 * 
 	 * Gets the threshold values averaged over a population of pixels on a chip read from a threshold file previously
-	 * created by calling createThresholdFileFromScanData
-	 * .
-	 * Loads the edge threshold calc for each pixel in a set of chips.
-	 * Gets population of values for each chip and fits a gaussian to get average and fwhm
+	 * created by calling createThresholdFileFromScanData . Loads the edge threshold calc for each pixel in a set of
+	 * chips. Gets population of values for each chip and fits a gaussian to get average and fwhm
+	 * 
 	 * @param fileName
 	 * @return A 2d array of APeaks that match the structure of the chips in the detector
-	 * @throws Exception 
+	 * @throws Exception
 	 */
-	public CompositeFunction[] getChipAveragedThresholdFromThresholdFile(String fileName,  int rows, int columns, boolean chipPresent[]) throws Exception{
+	public CompositeFunction[] getChipAveragedThresholdFromThresholdFile(String fileName, int rows, int columns,
+			boolean chipPresent[]) throws Exception {
 		String groupName = getEqualisationLocation().getLocationForOpen();
 		String datasetName = THRESHOLD_DATASET;
-		Hdf5HelperLazyLoader loader = new Hdf5HelperLazyLoader(fileName, groupName, datasetName, false );
+		Hdf5HelperLazyLoader loader = new Hdf5HelperLazyLoader(fileName, groupName, datasetName, false);
 		int[] shape = loader.getLazyDataSet().getShape();
-		
-		ChipSet chipset  = new ChipSet(rows, columns, chipPresent);
+
+		ChipSet chipset = new ChipSet(rows, columns, chipPresent);
 		chipset.checkLoaderShape(shape);
-			
-		CompositeFunction [] aPeaks = new CompositeFunction[(chipset.rows * chipset.columns)];
+
+		CompositeFunction[] aPeaks = new CompositeFunction[(chipset.rows * chipset.columns)];
 		Arrays.fill(aPeaks, null);
 
-		for( Chip chip : chipset.getChips()){
+		for (Chip chip : chipset.getChips()) {
 			AbstractDataset dataset = chip.getDataset(loader);
 			ShortDataset dataset2 = getDatasetWithValidPixels(dataset);
-			if( dataset2 != null){
+			if (dataset2 != null) {
 				int offset = dataset2.min().intValue();
-				int[] population = createBinnedPopulation( dataset2);						
+				int[] population = createBinnedPopulation(dataset2);
 				aPeaks[chip.index] = fitGaussianToBinnedPopulation(population, offset);
 			}
 		}
 		return aPeaks;
 	}
-	
-	boolean thresholdEdgePosIsValid(short value){
-		return 	( value != EDGE_POSITION_IF_ALL_ABOVE_THRESHOLD && value != EDGE_POSITION_IF_ALL_BELOW_THRESHOLD && value != EDGE_POSITION_IF_PIXEL_MASKED_OUT);
+
+	boolean thresholdEdgePosIsValid(short value) {
+		return (value != EDGE_POSITION_IF_ALL_ABOVE_THRESHOLD && value != EDGE_POSITION_IF_ALL_BELOW_THRESHOLD && value != EDGE_POSITION_IF_PIXEL_MASKED_OUT);
 	}
-	
-	ShortDataset getDatasetWithValidPixels(AbstractDataset dataset){
-		short [] validData = new short[dataset.getSize()];
+
+	ShortDataset getDatasetWithValidPixels(AbstractDataset dataset) {
+		short[] validData = new short[dataset.getSize()];
 		int numValidData = 0;
 		IndexIterator iter = dataset.getIterator();
 
-		while (iter.hasNext()){
+		while (iter.hasNext()) {
 			short value = (short) dataset.getElementLongAbs(iter.index);
-			if( thresholdEdgePosIsValid(value)){
+			if (thresholdEdgePosIsValid(value)) {
 				validData[numValidData] = value;
 				numValidData++;
 			}
 		}
-		return numValidData > 0 ? new ShortDataset(Arrays.copyOf(validData, numValidData),numValidData) : null;
+		return numValidData > 0 ? new ShortDataset(Arrays.copyOf(validData, numValidData), numValidData) : null;
 	}
+
 	/**
-	 * 
 	 * @return result of fitting gaussian over the population within the slice given by start, stop, step
 	 */
-	public CompositeFunction fitGaussianToBinnedPopulation(int[] population, int offset){ 
-		
+	public CompositeFunction fitGaussianToBinnedPopulation(int[] population, int offset) {
 
-		double [] xvals = new double[population.length]; 
-		double [] yvals = new double[population.length]; 
-		int numFound=0;
-		for( int i=0; i< population.length; i++){
-			if( population[i]>0){
-				xvals[numFound]=i + offset;
+		double[] xvals = new double[population.length];
+		double[] yvals = new double[population.length];
+		int numFound = 0;
+		for (int i = 0; i < population.length; i++) {
+			if (population[i] > 0) {
+				xvals[numFound] = i + offset;
 				yvals[numFound] = population[i];
-				numFound +=1;
+				numFound += 1;
 			}
 		}
 		xvals = Arrays.copyOf(xvals, numFound);
 		yvals = Arrays.copyOf(yvals, numFound);
-		if( numFound > 0){
+		if (numFound > 0) {
 			xvals = Arrays.copyOf(xvals, numFound);
 			yvals = Arrays.copyOf(yvals, numFound);
 			DoubleDataset xvals_ds = new DoubleDataset(xvals);
@@ -560,267 +536,293 @@ public class ExcaliburEqualizationHelper {
 			double threshold = 0.10;
 			int numPeaks = 1;
 			int smoothing = 5;
-			
+
 			double xmax = xvals_ds.max().doubleValue();
 			double xmin = xvals_ds.min().doubleValue();
 			double ymax = yvals_ds.max().doubleValue();
 			double ymin = yvals_ds.min().doubleValue();
-			double xavg = (xmax+xmin)/2;
-			double xfwhm = (xmax-xmin)/4;
-			double yheight = ymax-ymin;
-			APeak peakFunction = new Gaussian(xavg,xfwhm,yheight*xfwhm);
-			List<CompositeFunction> fittedPeakList = Generic1DFitter.fitPeakFunctions(xvals_ds, yvals_ds, peakFunction, new GeneticAlg(0.0001),
-					smoothing, numPeaks, threshold, autoStopping, backgroundDominated);
-			if( fittedPeakList != null && fittedPeakList.size() ==1){
+			double xavg = (xmax + xmin) / 2;
+			double xfwhm = (xmax - xmin) / 4;
+			double yheight = ymax - ymin;
+			APeak peakFunction = new Gaussian(xavg, xfwhm, yheight * xfwhm);
+			List<CompositeFunction> fittedPeakList = Generic1DFitter.fitPeakFunctions(xvals_ds, yvals_ds, peakFunction,
+					new GeneticAlg(0.0001), smoothing, numPeaks, threshold, autoStopping, backgroundDominated);
+			if (fittedPeakList != null && fittedPeakList.size() == 1) {
 				return fittedPeakList.get(0);
 			}
 		}
 		return null;
 	}
-	
+
 	int[] createBinnedPopulation(AbstractDataset ids) {
 		int minVal = ids.min().intValue();
-		//range of values is from minVal to max. Num of bins is range +1
-		//first bin contains population with val = minVal
-		int [] numInBins  = new int[ids.max().intValue()-minVal+1];
+		// range of values is from minVal to max. Num of bins is range +1
+		// first bin contains population with val = minVal
+		int[] numInBins = new int[ids.max().intValue() - minVal + 1];
 		Arrays.fill(numInBins, 0);
 		IndexIterator iter = ids.getIterator();
 
-		while (iter.hasNext()){
+		while (iter.hasNext()) {
 			int value = (int) ids.getElementLongAbs(iter.index);
-			numInBins[value-minVal] += 1;
+			numInBins[value - minVal] += 1;
 		}
 		return numInBins;
 	}
 
-	public void createThresholdNOpt(String thresholdNChipResponseFile, String thresholdN50ChipThresholdFile, double equalisationTarget, String resultFile) throws Exception{
+	public void createThresholdNOpt(String thresholdNChipResponseFile, String thresholdN50ChipThresholdFile,
+			double equalisationTarget, String resultFile) throws Exception {
 		Hdf5Helper hdf = Hdf5Helper.getInstance();
-		//read the offset and slope - a1, a2
-		Hdf5HelperData offsetData = hdf.readDataSetAll(thresholdNChipResponseFile, getEqualisationLocation().getLocationForOpen(), THRESHOLD_RESPONSE_OFFSETS_DATASET, true);
-		Hdf5HelperData slopeData = hdf.readDataSetAll(thresholdNChipResponseFile, getEqualisationLocation().getLocationForOpen(), THRESHOLD_RESPONSE_SLOPES_DATASET, true);
+		// read the offset and slope - a1, a2
+		Hdf5HelperData offsetData = hdf.readDataSetAll(thresholdNChipResponseFile, getEqualisationLocation()
+				.getLocationForOpen(), THRESHOLD_RESPONSE_OFFSETS_DATASET, true);
+		Hdf5HelperData slopeData = hdf.readDataSetAll(thresholdNChipResponseFile, getEqualisationLocation()
+				.getLocationForOpen(), THRESHOLD_RESPONSE_SLOPES_DATASET, true);
 
-		//read the fwhm for thresholdN=50
-		Hdf5HelperData fwhmData = hdf.readDataSetAll(thresholdN50ChipThresholdFile, getEqualisationLocation().getLocationForOpen(), CHIP_THRESHOLD_GAUSSIAN_FWHM_DATASET, true);
+		// read the fwhm for thresholdN=50
+		Hdf5HelperData fwhmData = hdf.readDataSetAll(thresholdN50ChipThresholdFile, getEqualisationLocation()
+				.getLocationForOpen(), CHIP_THRESHOLD_GAUSSIAN_FWHM_DATASET, true);
 
 		long lenFromOffsetData = hdf.lenFromDims(offsetData.dims);
 		long lenFromSlopeData = hdf.lenFromDims(slopeData.dims);
 		long lenFromFwhmData = hdf.lenFromDims(fwhmData.dims);
-		
-		if(lenFromOffsetData !=  lenFromSlopeData || lenFromSlopeData != lenFromFwhmData)
-			throw new IllegalArgumentException("lenFromOffsetData !=  lenFromSlopeData || lenFromSlopeData != lenFromFwhmData");
-		short [] thresholdNOpt = new short[(int) lenFromOffsetData];
-		double [] threshold0opt = new double[(int) lenFromOffsetData];
-		for( int i=0; i< lenFromOffsetData; i++){
-			threshold0opt[i] = 3.2* Array.getDouble(fwhmData.data, i) + equalisationTarget;
-			thresholdNOpt[i] = (short)((threshold0opt[i] - Array.getDouble(offsetData.data,i))/(Array.getDouble(slopeData.data,i)));
+
+		if (lenFromOffsetData != lenFromSlopeData || lenFromSlopeData != lenFromFwhmData)
+			throw new IllegalArgumentException(
+					"lenFromOffsetData !=  lenFromSlopeData || lenFromSlopeData != lenFromFwhmData");
+		short[] thresholdNOpt = new short[(int) lenFromOffsetData];
+		double[] threshold0opt = new double[(int) lenFromOffsetData];
+		for (int i = 0; i < lenFromOffsetData; i++) {
+			threshold0opt[i] = 3.2 * Array.getDouble(fwhmData.data, i) + equalisationTarget;
+			thresholdNOpt[i] = (short) ((threshold0opt[i] - Array.getDouble(offsetData.data, i)) / (Array.getDouble(
+					slopeData.data, i)));
 		}
 		Hdf5HelperData data = new Hdf5HelperData(offsetData.dims, threshold0opt);
 		hdf.writeToFileSimple(data, resultFile, getEqualisationLocation(), THRESHOLD_0OPT);
 		hdf.writeAttribute(resultFile, Hdf5Helper.TYPE.DATASET, getEqualisationLocation().add(THRESHOLD_0OPT),
-				THRESHOLD_N_EQ_TARGET_ATTR, new Hdf5HelperData(equalisationTarget));		
+				THRESHOLD_N_EQ_TARGET_ATTR, equalisationTarget);
 		data = new Hdf5HelperData(offsetData.dims, thresholdNOpt);
 		hdf.writeToFileSimple(data, resultFile, getEqualisationLocation(), THRESHOLD_NOPT);
 		hdf.writeAttribute(resultFile, Hdf5Helper.TYPE.DATASET, getEqualisationLocation().add(THRESHOLD_NOPT),
-				THRESHOLD_N_EQ_TARGET_ATTR, new Hdf5HelperData(equalisationTarget));		
+				THRESHOLD_N_EQ_TARGET_ATTR, equalisationTarget);
 	}
-	
+
 	/**
-	 * Set thresholdN in the hardware to the values in the edgeThresholdNResponseFile
-	 * If setThresholdAFromMask is true set then set thresholdA on each pixel to either 0 or 16 dependent on value in mask
+	 * Set thresholdN in the hardware to the values in the edgeThresholdNResponseFile If setThresholdAFromMask is true
+	 * set then set thresholdA on each pixel to either 0 or 16 dependent on value in mask
+	 * 
 	 * @param edgeThresholdNResponseFile
 	 * @param readoutFems
 	 * @throws Exception
 	 */
-	public void setThresholdNFromFile(String edgeThresholdNResponseFile, List<ExcaliburReadoutNodeFem> readoutFems, int rows, int columns, boolean []chipPresent, boolean setThresholdAFromMask) throws Exception{
+	public void setThresholdNFromFile(String edgeThresholdNResponseFile, List<ExcaliburReadoutNodeFem> readoutFems,
+			int rows, int columns, boolean[] chipPresent, boolean setThresholdAFromMask) throws Exception {
 
-		
 		Hdf5Helper hdf = Hdf5Helper.getInstance();
-		Hdf5HelperData hdata = hdf.readDataSetAll(edgeThresholdNResponseFile, getEqualisationLocation().getLocationForOpen(), THRESHOLD_NOPT, true);
-		if( hdata.dims.length!=2)
+		Hdf5HelperData hdata = hdf.readDataSetAll(edgeThresholdNResponseFile, getEqualisationLocation()
+				.getLocationForOpen(), THRESHOLD_NOPT, true);
+		if (hdata.dims.length != 2)
 			throw new IllegalArgumentException("data.dims.length!=2");
-		if( hdata.dims[0]!= readoutFems.size())
+		if (hdata.dims[0] != readoutFems.size())
 			throw new IllegalArgumentException("data.dims[0]!= readoutFems.size()");
-		if( hdata.dims[1]!=ExcaliburReadoutNodeFem.CHIPS_PER_FEM)
+		if (hdata.dims[1] != ExcaliburReadoutNodeFem.CHIPS_PER_FEM)
 			throw new IllegalArgumentException("data.dims[1]!=CHIPS_PER_FEM");
-		
-		if( columns != ExcaliburReadoutNodeFem.CHIPS_PER_FEM)
-			throw new IllegalArgumentException("columns != ExcaliburReadoutNodeFem.CHIPS_PER_FEM");
-		short [] thresholdNOpt = (short[]) hdata.data;
 
-		ChipSet chipset  = new ChipSet(rows, columns, chipPresent);
-		Hdf5HelperLazyLoader loader=null;
-		if(setThresholdAFromMask){
-			loader = new Hdf5HelperLazyLoader(edgeThresholdNResponseFile, getEqualisationLocation().getLocationForOpen(), THRESHOLDN_MASK, false );
+		if (columns != ExcaliburReadoutNodeFem.CHIPS_PER_FEM)
+			throw new IllegalArgumentException("columns != ExcaliburReadoutNodeFem.CHIPS_PER_FEM");
+		short[] thresholdNOpt = (short[]) hdata.data;
+
+		ChipSet chipset = new ChipSet(rows, columns, chipPresent);
+		Hdf5HelperLazyLoader loader = null;
+		if (setThresholdAFromMask) {
+			loader = new Hdf5HelperLazyLoader(edgeThresholdNResponseFile, getEqualisationLocation()
+					.getLocationForOpen(), THRESHOLDN_MASK, false);
 			int[] shape = loader.getLazyDataSet().getShape();
 			chipset.checkLoaderShape(shape);
 		}
-		for( Chip chip : chipset.getChips()){
+		for (Chip chip : chipset.getChips()) {
 			ExcaliburReadoutNodeFem fem = readoutFems.get(chip.row);
 			MpxiiiChipReg chipReg = fem.getIndexedMpxiiiChipReg(chip.column);
 			chipReg.getAnper().setThresholdn(thresholdNOpt[chip.index]);
+			chipReg.loadDacConfig();
 
-			if(setThresholdAFromMask){
+			if (setThresholdAFromMask) {
 				ShortDataset dataset = (ShortDataset) chip.getDataset(loader);
 				short[] mask = (short[]) dataset.getBuffer();
 				short[] thresholdA = new short[mask.length];
-				for( int i=0; i< mask.length;i++){
-					thresholdA[i] = (short) (mask[i]==1 ? 16 : 0);
+				for (int i = 0; i < mask.length; i++) {
+					thresholdA[i] = (short) (mask[i] == 1 ? 16 : 0);
 				}
 				chipReg.getPixel().setThresholdA(thresholdA);
-				
-			}
-		
-		}
-		
-		
-/*		for( int ifem=0; ifem<readoutFems.size(); ifem++ ){
-			ExcaliburReadoutNodeFem fem = readoutFems.get(ifem);
-			for( int ichip=0; ichip< ExcaliburReadoutNodeFem.CHIPS_PER_FEM; ichip++){
-				int index = ifem*ExcaliburReadoutNodeFem.CHIPS_PER_FEM + ichip;
-				MpxiiiChipReg chip = fem.getIndexedMpxiiiChipReg(ichip);
-				chip.getAnper().setThresholdn(thresholdNOpt[index]);
+				chipReg.loadPixelConfig();
 
-				if(setThresholdAFromMask){
-					long chipTopPixel = ChipSet.getChipTopPixel(ifem);
-					long chipLeftPixel = ChipSet.getChipLeftPixel(ichip);
-					long[] sstride = new long[]{ 1,1};
-					long[] sstart = new long[]{chipTopPixel, chipLeftPixel};
-					long[] dsize = new long[]{ChipSet.chipHeight, ChipSet.chipWidth};
-					Hdf5HelperData hmask = hdf.readDataSet(edgeThresholdNResponseFile, getEqualisationLocation().getLocationForOpen(), THRESHOLDN_MASK, 
-							sstart, sstride, dsize);
-					short[] mask = (short[])hmask.data;
-					short[] thresholdA = new short[mask.length];
-					for( int i=0; i< mask.length;i++){
-						thresholdA[i] = (short) (mask[i]==1 ? 16 : 0);
-					}
-					chip.getPixel().setThresholdA(thresholdA);
-				}
-				
 			}
+
 		}
-*/	}
+	}
+
 	/**
 	 * Creates a useThresholdN mask. For each pixel decide whether the threshold is closest to the optimim( read from
 	 * optThresholdFile) with or without use of thresholdN. The result is a 2d array of shorts (1=use, 0= do not use)
-	 * written into the result file
+	 * written into the result file The optThresholdFile contains 1 value per chip
 	 * 
-	 * The optThresholdFile contains 1 value per chip
-	 * @throws Exception 
+	 * @throws Exception
 	 */
-	public void createThresholdNOptMask(String optThresholdFile, String notUsingThresholdNFile, String usingThresholdNFile, String resultFile) throws Exception{
+	public void createThresholdNOptMask(String optThresholdFile, String notUsingThresholdNFile,
+			String usingThresholdNFile, String resultFile) throws Exception {
 		Hdf5Helper hdf = Hdf5Helper.getInstance();
-		Hdf5HelperData hthresholdOpt = hdf.readDataSetAll(optThresholdFile, getEqualisationLocation().getLocationForOpen(), THRESHOLD_0OPT, true);
-		Hdf5HelperData hthresholdNotUsingThresholdN = hdf.readDataSetAll(notUsingThresholdNFile, getEqualisationLocation().getLocationForOpen(), THRESHOLD_DATASET, true);
-		Hdf5HelperData hthresholdUsingThresholdN = hdf.readDataSetAll(usingThresholdNFile, getEqualisationLocation().getLocationForOpen(), THRESHOLD_DATASET, true);
-		if( hthresholdUsingThresholdN.dims.length!=hthresholdNotUsingThresholdN.dims.length)
-			throw new IllegalArgumentException("hthresholdUsingThresholdN.dims.length!=hthresholdNotUsingThresholdN.dims.length");
-			
-		if( hthresholdOpt.dims.length!=2)
+		Hdf5HelperData hthresholdOpt = hdf.readDataSetAll(optThresholdFile, getEqualisationLocation()
+				.getLocationForOpen(), THRESHOLD_0OPT, true);
+		Hdf5HelperData hthresholdNotUsingThresholdN = hdf.readDataSetAll(notUsingThresholdNFile,
+				getEqualisationLocation().getLocationForOpen(), THRESHOLD_DATASET, true);
+		Hdf5HelperData hthresholdUsingThresholdN = hdf.readDataSetAll(usingThresholdNFile, getEqualisationLocation()
+				.getLocationForOpen(), THRESHOLD_DATASET, true);
+		if (hthresholdUsingThresholdN.dims.length != hthresholdNotUsingThresholdN.dims.length)
+			throw new IllegalArgumentException(
+					"hthresholdUsingThresholdN.dims.length!=hthresholdNotUsingThresholdN.dims.length");
+
+		if (hthresholdOpt.dims.length != 2)
 			throw new IllegalArgumentException("hthresholdOpt.dims.length!=2");
 		long totalHeight = hthresholdNotUsingThresholdN.dims[0];
 		long totalWidth = hthresholdNotUsingThresholdN.dims[1];
 		short[] notUsingThresholdN = (short[]) hthresholdNotUsingThresholdN.data;
 		short[] usingThresholdN = (short[]) hthresholdUsingThresholdN.data;
-		short[] mask = new short[(int) (totalHeight*totalWidth)];
+		short[] mask = new short[(int) (totalHeight * totalWidth)];
 
 		int numChipsRows = (int) hthresholdOpt.dims[0];
 		int numChipsAcross = (int) hthresholdOpt.dims[1];
-		
-		ChipSet chipset  = new ChipSet(numChipsRows, numChipsAcross);
-		
-		for( Chip chip : chipset.getChips()){
+
+		ChipSet chipset = new ChipSet(numChipsRows, numChipsAcross);
+
+		for (Chip chip : chipset.getChips()) {
 			double thresholdOpt = Array.getDouble(hthresholdOpt.data, chip.index);
 			Iterator<Long> iterator = chip.getPixelIndexIterator();
-			while(iterator.hasNext()){
+			while (iterator.hasNext()) {
 				long index = iterator.next();
 				short using = usingThresholdN[(int) index];
 				short notusing = notUsingThresholdN[(int) index];
-				short maskVal=0;
-				if( thresholdEdgePosIsValid(using) && thresholdEdgePosIsValid(notusing))
-					maskVal = (short) (Math.abs(thresholdOpt -using) < Math.abs(thresholdOpt - notusing) ? 1:0);
-				else if ( thresholdEdgePosIsValid(using))
+				short maskVal = 0;
+				if (thresholdEdgePosIsValid(using) && thresholdEdgePosIsValid(notusing))
+					maskVal = (short) (Math.abs(thresholdOpt - using) < Math.abs(thresholdOpt - notusing) ? 1 : 0);
+				else if (thresholdEdgePosIsValid(using))
 					maskVal = 1;
-				else if ( thresholdEdgePosIsValid(notusing))
+				else if (thresholdEdgePosIsValid(notusing))
 					maskVal = 0;
 				mask[(int) index] = maskVal;
 			}
-			
+
 		}
-		
-/*		for( int iChipRow=0; iChipRow< numChipsRows; iChipRow++){
-			long chipTopPixel = ChipSet.getChipTopPixel(iChipRow);
-			long chipBottomPixel = ChipSet.getChipBottomPixel(iChipRow);
-			for( int iChipCol=0; iChipCol< numChipsAcross; iChipCol++){
-				//get thresholdOpt for this chip
-				double thresholdOpt = Array.getDouble(hthresholdOpt.data, (int) (iChipRow*numChipsAcross + iChipCol));
-				long chipLeftPixel = ChipSet.getChipLeftPixel(iChipCol);
-				long chipRightPixel = ChipSet.getChipRightPixel(iChipCol);
-				for( long ix= chipTopPixel; ix<chipBottomPixel; ix++){
-					for( long iy= chipLeftPixel; iy<chipRightPixel; iy++){
-						long index = ix * totalWidth + iy;
-						short using = usingThresholdN[(int) index];
-						short notusing = notUsingThresholdN[(int) index];
-						short maskVal=0;
-						if( thresholdEdgePosIsValid(using) && thresholdEdgePosIsValid(notusing))
-							maskVal = (short) (Math.abs(thresholdOpt -using) < Math.abs(thresholdOpt - notusing) ? 1:0);
-						else if ( thresholdEdgePosIsValid(using))
-							maskVal = 1;
-						else if ( thresholdEdgePosIsValid(notusing))
-							maskVal = 0;
-						mask[(int) index] = maskVal;
-					}
-					
-				}
-			}
-		}
-*/		Hdf5HelperData hmask = new Hdf5HelperData(hthresholdNotUsingThresholdN.dims, mask);
+
+		Hdf5HelperData hmask = new Hdf5HelperData(hthresholdNotUsingThresholdN.dims, mask);
 		hdf.writeToFileSimple(hmask, resultFile, getEqualisationLocation(), THRESHOLDN_MASK);
-		
+
 	}
-	
+
 	/**
-	 * Gets the max threshold0 limit required so that all but numPixelsOutSide pixels have a value within the limit.
-	 * The threshold0 limit is chip specific. Write results into selectThresholdTargetThresholdFile as long[].
-	 * return max
-	 * @throws Exception 
+	 * Gets the max threshold0 limit required so that all but numPixelsOutSide pixels have a value within the limit. The
+	 * threshold0 limit is chip specific. Write results into selectThresholdTargetThresholdFile as long[]. return max
+	 * 
+	 * @throws Exception
 	 */
-	public long createThresholdTarget(String thresholdFile, int rows, int columns, boolean chipPresent[], long numPixelsOutSide, String resultFile) throws Exception{
-		//need to get binned populations and then get value to include all but 100 values
+	public long createThresholdTarget(String thresholdFile, int rows, int columns, boolean chipPresent[],
+			long numPixelsOutSide, String resultFile) throws Exception {
+		// need to get binned populations and then get value to include all but 100 values
 		String groupName = getEqualisationLocation().getLocationForOpen();
 		String datasetName = THRESHOLD_DATASET;
-		Hdf5HelperLazyLoader loader = new Hdf5HelperLazyLoader(thresholdFile, groupName, datasetName, false );
+		Hdf5HelperLazyLoader loader = new Hdf5HelperLazyLoader(thresholdFile, groupName, datasetName, false);
 		int[] shape = loader.getLazyDataSet().getShape();
-		
-		ChipSet chipset  = new ChipSet(rows, columns, chipPresent);
-		chipset.checkLoaderShape(shape);
-			
-		short [] thresholdLimit = new short[chipset.numChips];
 
-		for( Chip chip : chipset.getChips()){
+		ChipSet chipset = new ChipSet(rows, columns, chipPresent);
+		chipset.checkLoaderShape(shape);
+
+		short[] thresholdLimit = new short[chipset.numChips];
+
+		for (Chip chip : chipset.getChips()) {
 			AbstractDataset dataset = chip.getDataset(loader);
 			ShortDataset dataset2 = getDatasetWithValidPixels(dataset);
-			if( dataset2 != null){
+			if (dataset2 != null) {
 				int offset = dataset2.min().intValue();
-				int[] population = createBinnedPopulation( dataset2);						
-				thresholdLimit[chip.index] = 0;//TODO find thresholdLimitfitGaussianToBinnedPopulation(population, offset);
-				//go backwards until we have removed numPixelsOutSide
-				int numOutside=0;
-				int i=population.length-1;
-				while( numOutside < numPixelsOutSide && i>=0){
+				int[] population = createBinnedPopulation(dataset2);
+				thresholdLimit[chip.index] = 0;
+				// go backwards until we have removed numPixelsOutSide
+				int numOutside = 0;
+				int i = population.length - 1;
+				while (numOutside < numPixelsOutSide && i >= 0) {
 					numOutside += population[i];
 					i--;
 				}
-				short thresholdlimit = (short) (i+offset);
-				thresholdLimit[chip.index] = thresholdlimit; //if numPixelsOutSide==0 then use all i= population.length-1
+				short thresholdlimit = (short) (i + offset);
+				thresholdLimit[chip.index] = thresholdlimit; // if numPixelsOutSide==0 then use all i=
+																// population.length-1
 			}
-			
+
 		}
-		
-		//write results into file.
+
+		// write results into file.
 		ShortDataset dataset = new ShortDataset(thresholdLimit, thresholdLimit.length);
 		long maxThresholdLimit = dataset.max().longValue();
-		Hdf5Helper.getInstance().writeToFileSimple(new Hdf5HelperData(chipset.getDims(), thresholdLimit), resultFile, getEqualisationLocation(), THRESHOLD_LIMIT_DATASET);
-		Hdf5Helper.getInstance().writeAttribute(resultFile,  Hdf5Helper.TYPE.DATASET, getEqualisationLocation().add(THRESHOLD_LIMIT_DATASET), THRESHOLD_LIMIT_ATTR, maxThresholdLimit);
+		Hdf5Helper.getInstance().writeToFileSimple(new Hdf5HelperData(chipset.getDims(), thresholdLimit), resultFile,
+				getEqualisationLocation(), THRESHOLD_LIMIT_DATASET);
+		Hdf5Helper.getInstance().writeAttribute(resultFile, Hdf5Helper.TYPE.DATASET,
+				getEqualisationLocation().add(THRESHOLD_LIMIT_DATASET), THRESHOLD_LIMIT_ATTR, maxThresholdLimit);
 		return maxThresholdLimit;
 	}
+
+	public void createDACPixelOpt(String dacChipResponseFile, double tmax, double param1, String resultFile)
+			throws Exception {
+		Hdf5Helper hdf = Hdf5Helper.getInstance();
+		// read the offset and slope - a1, a2
+		Hdf5HelperData offsetData = hdf.readDataSetAll(dacChipResponseFile, getEqualisationLocation()
+				.getLocationForOpen(), THRESHOLD_RESPONSE_OFFSETS_DATASET, true);
+		Hdf5HelperData slopeData = hdf.readDataSetAll(dacChipResponseFile, getEqualisationLocation()
+				.getLocationForOpen(), THRESHOLD_RESPONSE_SLOPES_DATASET, true);
+
+		long lenFromOffsetData = hdf.lenFromDims(offsetData.dims);
+		long lenFromSlopeData = hdf.lenFromDims(slopeData.dims);
+
+		if (lenFromOffsetData != lenFromSlopeData)
+			throw new IllegalArgumentException("lenFromOffsetData !=  lenFromSlopeData ");
+		short[] thresholdNOpt = new short[(int) lenFromOffsetData];
+		double[] threshold0opt = new double[(int) lenFromOffsetData];
+		for (int i = 0; i < lenFromOffsetData; i++) {
+			threshold0opt[i] = tmax;
+			thresholdNOpt[i] = (short) ((threshold0opt[i] - Array.getDouble(offsetData.data, i)) / (Array.getDouble(
+					slopeData.data, i)));
+		}
+		Hdf5HelperData data = new Hdf5HelperData(offsetData.dims, threshold0opt);
+		hdf.writeToFileSimple(data, resultFile, getEqualisationLocation(), THRESHOLD_0OPT);
+		hdf.writeAttribute(resultFile, Hdf5Helper.TYPE.DATASET, getEqualisationLocation().add(THRESHOLD_0OPT),
+				THRESHOLD_N_EQ_TARGET_ATTR, param1);
+		data = new Hdf5HelperData(offsetData.dims, thresholdNOpt);
+		hdf.writeToFileSimple(data, resultFile, getEqualisationLocation(), THRESHOLD_NOPT);
+		hdf.writeAttribute(resultFile, Hdf5Helper.TYPE.DATASET, getEqualisationLocation().add(THRESHOLD_NOPT),
+				THRESHOLD_N_EQ_TARGET_ATTR, param1);
+	}
+	public void setDACPixelFromFile(String edgeThresholdNResponseFile, List<ExcaliburReadoutNodeFem> readoutFems,
+			int rows, int columns, boolean[] chipPresent) throws Exception {
+
+		Hdf5Helper hdf = Hdf5Helper.getInstance();
+		Hdf5HelperData hdata = hdf.readDataSetAll(edgeThresholdNResponseFile, getEqualisationLocation()
+				.getLocationForOpen(), THRESHOLD_NOPT, true);
+		if (hdata.dims.length != 2)
+			throw new IllegalArgumentException("data.dims.length!=2");
+		if (hdata.dims[0] != readoutFems.size())
+			throw new IllegalArgumentException("data.dims[0]!= readoutFems.size()");
+		if (hdata.dims[1] != ExcaliburReadoutNodeFem.CHIPS_PER_FEM)
+			throw new IllegalArgumentException("data.dims[1]!=CHIPS_PER_FEM");
+
+		if (columns != ExcaliburReadoutNodeFem.CHIPS_PER_FEM)
+			throw new IllegalArgumentException("columns != ExcaliburReadoutNodeFem.CHIPS_PER_FEM");
+		short[] dacPixelOpt = (short[]) hdata.data;
+		
+
+		ChipSet chipset = new ChipSet(rows, columns, chipPresent);
+		for (Chip chip : chipset.getChips()) {
+			ExcaliburReadoutNodeFem fem = readoutFems.get(chip.row);
+			MpxiiiChipReg chipReg = fem.getIndexedMpxiiiChipReg(chip.column);
+			chipReg.getAnper().setDacPixel(dacPixelOpt[chip.index]);
+			chipReg.loadDacConfig();
+		}
+	}
+
+
 }
