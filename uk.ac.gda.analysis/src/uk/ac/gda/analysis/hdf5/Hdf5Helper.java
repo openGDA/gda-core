@@ -706,6 +706,18 @@ public class Hdf5Helper {
 			long data) throws Exception {
 		writeAttribute(fileName, attribHolder, location, attributeName, new Hdf5HelperData(data));
 	}
+	public void writeAttribute(String fileName, TYPE attribHolder, HDF5HelperLocations location, String attributeName,
+			double data) throws Exception {
+		writeAttribute(fileName, attribHolder, location, attributeName, new Hdf5HelperData(data));
+	}
+	public void writeAttribute(String fileName, TYPE attribHolder, HDF5HelperLocations location, String attributeName,
+			int data) throws Exception {
+		writeAttribute(fileName, attribHolder, location, attributeName, new Hdf5HelperData(data));
+	}
+	public void writeAttribute(String fileName, TYPE attribHolder, HDF5HelperLocations location, String attributeName,
+			short data) throws Exception {
+		writeAttribute(fileName, attribHolder, location, attributeName, new Hdf5HelperData(data));
+	}
 
 	public void writeAttribute(String fileName, TYPE attribHolder, HDF5HelperLocations location, String attributeName,
 			Hdf5HelperData hData) throws Exception {
