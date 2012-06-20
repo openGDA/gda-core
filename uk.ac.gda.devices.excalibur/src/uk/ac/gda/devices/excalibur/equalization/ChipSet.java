@@ -20,6 +20,7 @@ package uk.ac.gda.devices.excalibur.equalization;
 
 import gda.analysis.io.ScanFileHolderException;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -78,15 +79,24 @@ public class ChipSet {
 	public final int rows;
 	public final long pixelsPerRow;
 	public final long pixelsPerCol;
+	public final int numChips;
 
-	ChipSet( int rows, int columns, boolean [] present){
+	public ChipSet( int rows, int columns, boolean [] present){
 		this.rows = rows;
 		this.columns = columns;
 		this.present = present;
+		numChips =rows * columns;
 		pixelsPerRow = ChipSet.getPixelsPerRow(columns);
 		pixelsPerCol = ChipSet.getPixelsPerCol(rows);
-		
-		
+	}
+	public ChipSet( int rows, int columns){
+		this.rows = rows;
+		this.columns = columns;
+		numChips =rows * columns;
+		this.present = new boolean[rows*columns];
+		Arrays.fill(present, true);
+		pixelsPerRow = ChipSet.getPixelsPerRow(columns);
+		pixelsPerCol = ChipSet.getPixelsPerCol(rows);
 	}
 	
 	public List<Chip> getChips(){
@@ -102,6 +112,25 @@ public class ChipSet {
 		}
 		return chips;
 	}
+
+	public void checkLoaderShape(int[] shape) throws IllegalArgumentException{
+		if( shape.length != 2){
+			throw new IllegalArgumentException("shape.length != 2");
+		}
+		long fullHeight = shape[0];
+		if(fullHeight != pixelsPerCol){
+			throw new IllegalArgumentException("fullHeight != reqdHeight: " + pixelsPerCol);
+		}
+		long fullWidth = shape[1];
+		if(fullWidth != pixelsPerRow){
+			throw new IllegalArgumentException("fullWidth != reqdWidth: " + pixelsPerRow);
+		}
+	}
+	
+	public long[] getDims(){
+		return new long[]{rows, columns};
+	}
+	
 }
 class Chip {
 
