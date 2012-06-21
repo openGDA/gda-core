@@ -23,6 +23,7 @@ import gda.configuration.properties.LocalProperties;
 import static gda.configuration.properties.LocalProperties.GDA_DATAWRITER_DIR;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.device.DeviceException;
+import gda.util.HostId;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -66,11 +67,11 @@ import uk.ac.gda.util.io.IPathConstructor;
 public class PathConstructor implements IPathConstructor {
 	private static final Logger logger = LoggerFactory.getLogger(PathConstructor.class);
 
-	private static String[] tokens = { "visit", "instrument", "facility", "year", "subdirectory" };
+	private static String[] tokens = { "visit", "instrument", "facility", "year", "subdirectory", "hostid" };
 
-	private static String[] defaultProperties = { "gda.defVisit", "gda.instrument", "gda.facility", "", "" };
+	private static String[] defaultProperties = { "gda.defVisit", "gda.instrument", "gda.facility", "", "", "" };
 
-	private static String[] defaultValues = { "0-0", "", "", (new SimpleDateFormat("yyyy")).format(new Date()), "" };
+	private static String[] defaultValues = { "0-0", "", "", (new SimpleDateFormat("yyyy")).format(new Date()), "", HostId.getId() };
 
 	/**
 	 * @return the default java property name that contains the data directory template.
