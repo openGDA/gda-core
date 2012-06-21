@@ -20,6 +20,7 @@ package gda.device.detector.xmap.util;
 
 public interface XmapFileLoader {
 	public short[][] getData(int dataPointNumber);
+	public short[][][] getData(int fromDataPointNumber , int toDataPointNumber)throws Exception;
 	public int getNumberOfDataPoints();
 	public void loadFile() throws Exception;
 	public double getTrigger(int dataPointNumber, int element);

@@ -31,7 +31,7 @@ public class XmapBufferedHdf5FileLoaderTest {
 	@Before
 	public void setUp()throws Exception
 	{
-		String testfile1 = "testfiles/gda/device/detector/xmap/util/vortex-fast-raster-exp2.h5";
+		String testfile1 = "testfiles/gda/device/detector/xmap/util/i18-2309-0-HTXmapMca.h5";//"testfiles/gda/device/detector/xmap/util/vortex-fast-raster-exp2.h5";
 		 xMapLoader = new XmapBufferedHdf5FileLoader(testfile1);
 		xMapLoader.loadFile();
 	
@@ -45,23 +45,23 @@ public class XmapBufferedHdf5FileLoaderTest {
 	@Test
 	public void testgetTrigger()  {		
 		double result = xMapLoader.getTrigger(0, 0);
-		assertEquals(result, 1881.0, 0.0);
+		assertEquals(601.0,result,  0.0);
 	}
 	@Test
 	public void testgetRealTime()  {		
 		double result = xMapLoader.getRealTime(0, 0);
-		assertEquals(result, 0.44159872, 0.0);
+		assertEquals(result,0.020898240000000002, 0.0);
 	}
 	
 	@Test
 	public void testgetLiveTime(){		
 		double result = xMapLoader.getLiveTime(0, 0);
-		assertEquals(result, 0.44090016, 0.0);
+		assertEquals(result,0.02067104, 0.0);
 	}
 	@Test
 	public void testgetEvents(){		
 		double result = xMapLoader.getEvents(0, 0);
-		assertEquals(result, 1868.0, 0.0);
+		assertEquals(588, result, 0.0);
 	}
 
 }

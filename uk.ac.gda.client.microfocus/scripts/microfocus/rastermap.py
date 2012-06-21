@@ -61,6 +61,7 @@ def rastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, f
     detectorBean = BeansFactory.getBeanObject(xmlFolderName, detectorFileName)
     #if(detectorBean.getFluorescenceParameters().getDetectorType() == "Silicon"):
     #    vortexRastermap(sampleFileName, scanFileName, detectorFileName, outputFileName, folderName, scanNumber, validation)
+    #FOR NORMAL TRAJECTORY SCAN WITH VORTEX COMMENT THE FOLLOWING THREE LINES
     if(detectorBean.getFluorescenceParameters().getDetectorType() == "Silicon"):
         vortexRastermap(sampleFileName, scanFileName, detectorFileName, outputFileName, folderName, scanNumber, validation)
         return

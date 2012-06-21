@@ -83,15 +83,19 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 		int numOfPoints = fileLoader.getNumberOfDataPoints();
 		//if(totalToRead < numOfPoints) may not be the correct 
 		totalToRead = numOfPoints;
-		for(int i =readSoFar  ; i <  totalToRead; i++)
+		/*for(int i =readSoFar  ; i <  totalToRead; i++)
 		{
 			container.add(writeToNexusFile(i, fileLoader.getData(i)));
+		}*/
+		short[][][] readData = fileLoader.getData(readSoFar, totalToRead - 1);
+		for(int i =0; i < readData.length; i++)
+		{
+			container.add(writeToNexusFile(readSoFar + i, readData[i]));
 		}
 		readSoFar = totalToRead;
 		return container;
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			HardwareTriggeredNexusXmapImpl.logger.error("TODO put description of error here", e);
+			HardwareTriggeredNexusXmapImpl.logger.error("Unable to load file " + fileName, e);
 			throw new DeviceException("Unable to load file " + fileName , e);
 		}
 	}

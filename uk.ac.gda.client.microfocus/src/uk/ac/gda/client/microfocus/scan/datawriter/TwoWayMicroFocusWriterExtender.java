@@ -31,9 +31,8 @@ import gda.device.detector.countertimer.TfgScaler;
 import gda.device.detector.xmap.XmapBufferedDetector;
 import gda.device.detector.xspress.XspressDetector;
 import gda.scan.IScanDataPoint;
+
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.StringTokenizer;

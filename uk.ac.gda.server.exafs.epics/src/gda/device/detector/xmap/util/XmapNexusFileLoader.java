@@ -417,4 +417,37 @@ public class XmapNexusFileLoader implements XmapFileLoader{
 					return 0.0;
 			}
 		}
+
+		@Override
+		public short[][][] getData(int fromDataPointNumber, int toDataPointNumber) throws Exception {
+			int totalToRead =(toDataPointNumber -  fromDataPointNumber) + 1; 
+			if(fullDataArray == null || fromDataPointNumber > fullDataArray.size() || toDataPointNumber >= fullDataArray.size())
+			{
+				throw new Exception("Data not available for the requested range " + fromDataPointNumber + " - " + toDataPointNumber );
+			}
+			if(fromDataPointNumber > toDataPointNumber)
+			{
+				int temp = toDataPointNumber;
+				toDataPointNumber = fromDataPointNumber;
+				fromDataPointNumber = temp;
+			}
+			short [][][] returnData  = new short[totalToRead][][];
+			if(fullDataArray != null)
+			{
+				if(fromDataPointNumber == toDataPointNumber)
+				{
+					returnData[0] =  new short[][]{fullDataArray.get(fromDataPointNumber).channel0Spectrum, fullDataArray.get(fromDataPointNumber).channel1Spectrum
+							, fullDataArray.get(fromDataPointNumber).channel2Spectrum, fullDataArray.get(fromDataPointNumber).channel3Spectrum};
+					return returnData;
+				}
+				int returnIndex=0;
+				for(int dataPointNumber =fromDataPointNumber; dataPointNumber <= toDataPointNumber; dataPointNumber++)
+				{
+					returnData[returnIndex++] = new short[][]{fullDataArray.get(dataPointNumber).channel0Spectrum, fullDataArray.get(dataPointNumber).channel1Spectrum
+	, fullDataArray.get(dataPointNumber).channel2Spectrum, fullDataArray.get(dataPointNumber).channel3Spectrum};
+				}
+				return returnData;
+			}
+			return null;
+		}
 }

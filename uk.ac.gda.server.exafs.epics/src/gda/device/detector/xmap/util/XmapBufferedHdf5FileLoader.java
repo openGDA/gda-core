@@ -46,7 +46,9 @@ public class XmapBufferedHdf5FileLoader implements XmapFileLoader {
 	@Override
 	public void loadFile() throws Exception {
 		hdf5Loader = new HDF5Loader(fileName);
-		dataHolder = hdf5Loader.loadFile();			
+		dataHolder = hdf5Loader.loadFile();		
+		lazyDataset = dataHolder.getLazyDataset("/entry/instrument/detector/data");
+
 		
 		
 	}
@@ -67,9 +69,9 @@ public class XmapBufferedHdf5FileLoader implements XmapFileLoader {
 	@Override
 	public short[][] getData(int dataPointNumber) {
 		lazyDataset = dataHolder.getLazyDataset("/entry/instrument/detector/data");
-		int channelNumbers = lazyDataset.getShape()[1];
-		int numberOfDetectorElements = lazyDataset.getShape()[2];
-		IDataset slice = lazyDataset.getSlice(new int[]{dataPointNumber, 0, 0}, new int[]{dataPointNumber + 1,channelNumbers,numberOfDetectorElements }, new int[]{1,1,1});
+				int channelNumbers = lazyDataset.getShape()[2];
+		int numberOfDetectorElements = lazyDataset.getShape()[1];
+		IDataset slice = lazyDataset.getSlice(new int[]{dataPointNumber, 0, 0}, new int[]{dataPointNumber + 1,numberOfDetectorElements,channelNumbers }, new int[]{1,1,1});
 		ILazyDataset sqSlice = slice.squeeze();
 		int[] data = (int[])((AbstractDataset)sqSlice).getBuffer();
 		short allData [][] = new short[numberOfDetectorElements][channelNumbers];
@@ -77,12 +79,44 @@ public class XmapBufferedHdf5FileLoader implements XmapFileLoader {
 		{
 			for (int j =0; j < channelNumbers; j++)
 			{
-				allData[i][j] = (short)data[i*channelNumbers +j];
+				allData[i][j] = (short)data[i*numberOfDetectorElements +j];
 			}
 		}
 		return allData;
 	}
 	
+	@Override
+	public short[][][] getData(int fromDataPointNumber , int  toDataPointNumber) throws Exception {
+		lazyDataset = dataHolder.getLazyDataset("/entry/instrument/detector/data");
+		int numberOfAvailableDataPoints = lazyDataset.getShape()[0];
+		int channelNumbers = lazyDataset.getShape()[2];
+		int numberOfDetectorElements = lazyDataset.getShape()[1];
+		if(lazyDataset == null || fromDataPointNumber > numberOfAvailableDataPoints || toDataPointNumber >= numberOfAvailableDataPoints)
+		{
+			throw new Exception("Data not available for the requested range " + fromDataPointNumber + " - " + toDataPointNumber );
+		}
+		if(fromDataPointNumber > toDataPointNumber)
+		{
+			int temp = toDataPointNumber;
+			toDataPointNumber = fromDataPointNumber;
+			fromDataPointNumber = temp;
+		}
+		IDataset slice = lazyDataset.getSlice(new int[]{fromDataPointNumber, 0, 0}, new int[]{toDataPointNumber,numberOfDetectorElements,channelNumbers }, new int[]{1,1,1});
+		ILazyDataset sqSlice = slice.squeeze();
+		int[] data = (int[])((AbstractDataset)sqSlice).getBuffer();
+		int noDataPtsToRead = (toDataPointNumber -fromDataPointNumber) + 1;
+		short allData [][][] = new short[noDataPtsToRead][numberOfDetectorElements][channelNumbers];
+		for(int k = 0 ; k < noDataPtsToRead; k++){
+		for(int i =0; i < numberOfDetectorElements; i++)
+		{
+			for (int j =0; j < channelNumbers; j++)
+			{
+				allData[k][i][j] = (short)data[k *noDataPtsToRead + i*numberOfDetectorElements +j];
+			}
+		}
+		}
+		return allData;
+	}
 
 	@Override
 	public int getNumberOfDataPoints() {

@@ -360,7 +360,11 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 			//??TODO should get the number of points per scan 
 			controller.setPixelsPerRun(numberOfPointsPerScan);
 			int buffPerRow = (numberOfPointsPerScan + 1)/124 + 1;
-			controller.setHdfNumCapture(buffPerRow);
+			if(controller.isBufferedArrayPort())
+				controller.setHdfNumCapture(numberOfPointsPerScan);
+			else
+				controller.setHdfNumCapture(buffPerRow);
+			
 			cachedExtraNames = null;
 			cachedOutputFormat = null;
 			armedForNewScan = true;
@@ -381,7 +385,6 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 	
 	private void setTimeFrames() {
 		switchOnExtTrigger();
-		StringBuffer buffer = new StringBuffer();
 		getDaServer().sendCommand("tfg setup-groups ext-start cycles 1");
 		getDaServer().sendCommand(this.scanNumberOfPoints + " 0.000001 0.00000001 0 0 0 8");
 		getDaServer().sendCommand("-1 0 0 0 0 0 0");
@@ -451,8 +454,6 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 		String fileName = getHDFFileName();
 		//Should actually use getHardwareTriggerProvider().getNumberTriggers()
 		//but this is always null before the scan is run once
-		double timeOut = getCollectionTime() * this.scanNumberOfPoints*1000;
-		double waitedSoFar = 0;
 		while(true){//(waitedSoFar <= timeOut){
 		if(fileName.contains(lastScanNumber +"-" + lastRowNumber))
 		{
@@ -460,7 +461,6 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 			break;
 		}
 			Thread.sleep(100);
-			waitedSoFar += 100;
 			fileName = getHDFFileName();
 		}
 			
