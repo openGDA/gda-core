@@ -106,7 +106,7 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 	 */
 	@Override
 	public void put(IScanDataPoint point) throws DeviceException, Exception {
-		logger.info("'{}': added to pipeline. Points already waiting in queue: {}", point.toString(),
+		logger.debug("'{}': added to pipeline. Points already waiting in queue: {}", point.toString(),
 				broadcasterQueue.getQueue().size());
 		throwException();
 		convertPositionCallablesToFutures(point);
