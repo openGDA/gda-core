@@ -1005,7 +1005,7 @@ where task can be:
 			
 		if self.options.profiler:
 			vmargs_profiler = (
-				"-agentlib:jprofilerti=port=" + self.options.profiler_port,
+				"-agentlib:jprofilerti=port=" + str(self.options.profiler_port),
 				"-Xbootclasspath/a:"+self.profiler_jar
 				) 
 			vmargs_tuple += vmargs_profiler
