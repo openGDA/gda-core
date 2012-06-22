@@ -97,12 +97,14 @@ public class CameraControlComposite extends Composite {
 	private static final String PROFILE = "Profile";
 	private static final String SATURATION = "Saturation";
 	private static final String FRAMES_PER_PROJECTION = "frames per projection";
-	private static final String RESOLUTION_12 = "12";
-	private static final String RESOLUTION_8 = "8";
-	private static final String RESOLUTION_4 = "4";
+	private static final String RESOLUTION_8x = "8x";
+	private static final String RESOLUTION_4x = "4x";
+	private static final String RESOLUTION_2x = "2x";
+	private static final String RESOLUTION_FULL = "Full";
 	private static final String RESOLUTION = "Res:";
 	private static final String SHOW_DARK = "Show Dark";
 	private static final String CORRECT_FLAT_DARK = "Correct Flat && Dark";
+	private static final String FRAMES_PER_PROJECTION_DEFAULT_VAL = "4";
 	// Error Descriptions
 	private static final String ERR_PROFILING = "Error while profiling image";
 	private static final String ERR_WHILE_SATURATION = "Error while saturation";
@@ -167,9 +169,10 @@ public class CameraControlComposite extends Composite {
 	private Button btnDefineRoi;
 	private Button btnResetRoi;
 	//
-	private Button btnResFour;
-	private Button btnResEight;
-	private Button btnResTwelve;
+	private Button btnResFull;
+	private Button btnRes2x;
+	private Button btnRes4x;
+	private Button btnRes8x;
 
 	private Text txtSampleDesc;
 	private Text txtResFramesPerProjection;
@@ -310,7 +313,7 @@ public class CameraControlComposite extends Composite {
 
 		//
 		Composite upperRowComposite = toolkit.createComposite(resolutionComposite);
-		GridLayout layout = new GridLayout(4, true);
+		GridLayout layout = new GridLayout(5, false);
 		layout.horizontalSpacing = 2;
 		layout.verticalSpacing = 2;
 		layout.marginWidth = 2;
@@ -321,24 +324,29 @@ public class CameraControlComposite extends Composite {
 		upperRowComposite.setLayoutData(layoutData);
 
 		Label lblRes = toolkit.createLabel(upperRowComposite, RESOLUTION);
-		layoutData = new GridData(GridData.FILL_HORIZONTAL);
+		layoutData = new GridData();
 		layoutData.verticalAlignment = SWT.CENTER;
 		lblRes.setLayoutData(layoutData);
 
-		btnResFour = toolkit.createButton(upperRowComposite, RESOLUTION_4, SWT.PUSH);
-		btnResFour.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		btnResFour.addSelectionListener(buttonSelectionListener);
-		btnResFour.setFont(fontRegistry.get(NORMAL_TEXT_7));
+		btnResFull = toolkit.createButton(upperRowComposite, RESOLUTION_FULL, SWT.PUSH);
+		btnResFull.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		btnResFull.addSelectionListener(buttonSelectionListener);
+		btnResFull.setFont(fontRegistry.get(NORMAL_TEXT_7));
 
-		btnResEight = toolkit.createButton(upperRowComposite, RESOLUTION_8, SWT.PUSH);
-		btnResEight.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		btnResEight.addSelectionListener(buttonSelectionListener);
-		btnResEight.setFont(fontRegistry.get(NORMAL_TEXT_7));
+		btnRes2x = toolkit.createButton(upperRowComposite, RESOLUTION_2x, SWT.PUSH);
+		btnRes2x.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		btnRes2x.addSelectionListener(buttonSelectionListener);
+		btnRes2x.setFont(fontRegistry.get(NORMAL_TEXT_7));
 
-		btnResTwelve = toolkit.createButton(upperRowComposite, RESOLUTION_12, SWT.PUSH);
-		btnResTwelve.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		btnResTwelve.addSelectionListener(buttonSelectionListener);
-		btnResTwelve.setFont(fontRegistry.get(NORMAL_TEXT_7));
+		btnRes4x = toolkit.createButton(upperRowComposite, RESOLUTION_4x, SWT.PUSH);
+		btnRes4x.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		btnRes4x.addSelectionListener(buttonSelectionListener);
+		btnRes4x.setFont(fontRegistry.get(NORMAL_TEXT_7));
+
+		btnRes8x = toolkit.createButton(upperRowComposite, RESOLUTION_8x, SWT.PUSH);
+		btnRes8x.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		btnRes8x.addSelectionListener(buttonSelectionListener);
+		btnRes8x.setFont(fontRegistry.get(NORMAL_TEXT_7));
 		//
 		Composite horizontalBar = toolkit.createComposite(resolutionComposite);
 		layoutData = new GridData(GridData.FILL_HORIZONTAL);
@@ -363,7 +371,8 @@ public class CameraControlComposite extends Composite {
 		lblNumFrames.setLayoutData(ld);
 		lblNumFrames.setFont(fontRegistry.get(NORMAL_TEXT_9));
 
-		txtResFramesPerProjection = toolkit.createText(lowerRowComposite, RESOLUTION_4, SWT.CENTER);
+		txtResFramesPerProjection = toolkit
+				.createText(lowerRowComposite, FRAMES_PER_PROJECTION_DEFAULT_VAL, SWT.CENTER);
 		txtResFramesPerProjection.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		return resolutionComposite;
@@ -1038,29 +1047,25 @@ public class CameraControlComposite extends Composite {
 					logger.debug("Error setting exposure time", e1);
 					showError("Cannot Define ROI", e1);
 				}
-			} else if (sourceObj == btnResFour) {
-				if (!isSelected(btnResFour)) {
+			} else if (sourceObj == btnResFull) {
+				if (!isSelected(btnResFull)) {
 					logger.debug("'btnResFour' is selected");
-					selectControl(btnResFour);
-				} else {
-					logger.debug("'btnResFour' is de-selected");
-					deSelectControl(btnResFour);
+					selectRes(btnResFull);
 				}
-			} else if (sourceObj == btnResEight) {
-				if (!isSelected(btnResEight)) {
-					logger.debug("'btnResEight' is selected");
-					selectControl(btnResEight);
-				} else {
-					logger.debug("'btnResEight' is de-selected");
-					deSelectControl(btnResEight);
+			} else if (sourceObj == btnRes2x) {
+				if (!isSelected(btnRes2x)) {
+					logger.debug("'btnRes2x' is selected");
+					selectRes(btnRes2x);
 				}
-			} else if (sourceObj == btnResTwelve) {
-				if (!isSelected(btnResTwelve)) {
-					logger.debug("'btnResTwelve' is selected");
-					selectControl(btnResTwelve);
-				} else {
-					logger.debug("'btnResTwelve' is de-selected");
-					deSelectControl(btnResTwelve);
+			} else if (sourceObj == btnRes4x) {
+				if (!isSelected(btnRes4x)) {
+					logger.debug("'btnRes4x' is selected");
+					selectRes(btnRes4x);
+				}
+			} else if (sourceObj == btnRes8x) {
+				if (!isSelected(btnRes8x)) {
+					logger.debug("'btnRes8x' is selected");
+					selectRes(btnRes8x);
 				}
 			} else if (sourceObj == btnSampleSingle) {
 				if (!isSelected(btnSampleSingle)) {
@@ -1196,6 +1201,18 @@ public class CameraControlComposite extends Composite {
 		return zoomComposite;
 	}
 
+	protected void selectRes(Button btnRes) {
+		Button[] buttons = new Button[] { btnResFull, btnRes2x, btnRes4x, btnRes8x };
+		for (Button button : buttons) {
+			if (button.equals(btnRes)) {
+				selectControl(button);
+			} else {
+				deSelectControl(button);
+			}
+		}
+
+	}
+
 	/**
 	 * Starts the demand raw
 	 * 
@@ -1284,9 +1301,9 @@ public class CameraControlComposite extends Composite {
 		btnDefineRoi.setEnabled(false);
 		btnResetRoi.setEnabled(false);
 
-		btnResFour.setEnabled(false);
-		btnResEight.setEnabled(false);
-		btnResTwelve.setEnabled(false);
+		btnResFull.setEnabled(false);
+		btnRes2x.setEnabled(false);
+		btnRes4x.setEnabled(false);
 		txtResFramesPerProjection.setEditable(false);
 
 		btnSampleToFlat.setEnabled(false);
@@ -1325,9 +1342,9 @@ public class CameraControlComposite extends Composite {
 		btnDefineRoi.setEnabled(true);
 		btnResetRoi.setEnabled(true);
 
-		btnResFour.setEnabled(true);
-		btnResEight.setEnabled(true);
-		btnResTwelve.setEnabled(true);
+		btnResFull.setEnabled(true);
+		btnRes2x.setEnabled(true);
+		btnRes4x.setEnabled(true);
 		txtResFramesPerProjection.setEditable(true);
 
 		btnSampleToFlat.setEnabled(true);

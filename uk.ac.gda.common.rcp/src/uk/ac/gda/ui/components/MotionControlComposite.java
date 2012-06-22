@@ -39,6 +39,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
@@ -66,6 +67,15 @@ import uk.ac.gda.ui.components.RotationSliderComposite.SliderSelectionListener;
  * @author rsr31645
  */
 public class MotionControlComposite extends Composite {
+	
+	/**
+	 * Enum that caters to the motion control composite
+	 */
+	public enum MotionControlCentring {
+		TILT, HORIZONTAL,
+
+		FIND_AXIS_ROTATION, VERTICAL, MOVE_AXIS_OF_ROTATION
+	}
 	private static final String ROTATION_AXIS_NOT_DEFINED_shortdesc = "Rotation Axis Not Defined";
 
 	private static final String CAMERA_DIST_DEFAULT_VALUE = "341";
@@ -147,7 +157,7 @@ public class MotionControlComposite extends Composite {
 	protected Button btnTilt;
 	protected Button btnFindAxisOfRotation;
 
-	protected Button btnVertical;
+	private Button btnVertical;
 
 	protected Button btnMoveAxisOfRotation;
 
@@ -1070,7 +1080,24 @@ public class MotionControlComposite extends Composite {
 	 * @throws Exception
 	 */
 	public void switchOn(MotionControlCentring centringButton) throws Exception {
-		centringButton.switchOn(this);
+		switch (centringButton) {
+		case TILT:
+			doTilt(true);
+			break;
+		case FIND_AXIS_ROTATION:
+			doFindAxisOfRotation(true);
+			break;
+		case HORIZONTAL:
+			doHorizontal(true);
+			break;
+		case MOVE_AXIS_OF_ROTATION:
+			doMoveAxisOfRotation(true);
+			break;
+		case VERTICAL:
+			doVertical(true);
+			break;
+		}
+
 	}
 
 	/**
@@ -1080,7 +1107,23 @@ public class MotionControlComposite extends Composite {
 	 * @throws Exception
 	 */
 	public void switchOff(MotionControlCentring centringButton) throws Exception {
-		centringButton.switchOff(this);
+		switch (centringButton) {
+		case TILT:
+			doTilt(false);
+			break;
+		case FIND_AXIS_ROTATION:
+			doFindAxisOfRotation(false);
+			break;
+		case HORIZONTAL:
+			doHorizontal(false);
+			break;
+		case MOVE_AXIS_OF_ROTATION:
+			doMoveAxisOfRotation(false);
+			break;
+		case VERTICAL:
+			doVertical(false);
+			break;
+		}
 	}
 
 	public static void main(String[] args) {
@@ -1242,4 +1285,132 @@ public class MotionControlComposite extends Composite {
 	public SAMPLE_WEIGHT getSampleWeight() {
 		return sampleWeight;
 	}
+
+	private void switchMotionCentring(boolean switchOn, Button btnSelected) {
+		Button[] selectableBtns = new Button[] { btnTilt, btnVertical, btnHorizontal, btnMoveAxisOfRotation,
+				btnFindAxisOfRotation };
+
+		if (switchOn) {
+			for (Button button : selectableBtns) {
+				if (button.equals(btnSelected)) {
+					selectControl(button);
+				} else {
+					deSelectControl(button);
+					disable(button);
+				}
+			}
+
+			disableCommonControls();
+		} else {
+			for (Button button : selectableBtns) {
+				if (button.equals(btnSelected)) {
+					deSelectControl(button);
+				} else {
+					enable(button);
+				}
+			}
+
+			enableCommonControls();
+
+		}
+	}
+
+	private void doTilt(boolean switchOn) throws Exception {
+		logger.debug("'Tilt' - is selected");
+		switchMotionCentring(switchOn, btnTilt);
+		try {
+			for (IMotionControlListener mcl : getMotionControlListeners()) {
+				mcl.tilt(switchOn);
+			}
+		} catch (Exception ex) {
+			showErrorDialog(ex);
+			throw ex;
+		}
+	}
+	
+	private void doVertical(boolean switchOn) throws Exception {
+		logger.debug("'Tilt' - is selected");
+		switchMotionCentring(switchOn, btnVertical);
+		try {
+			for (IMotionControlListener mcl : getMotionControlListeners()) {
+				mcl.vertical(switchOn);
+			}
+		} catch (Exception ex) {
+			showErrorDialog(ex);
+			throw ex;
+		}
+
+	}
+
+	private void doHorizontal(boolean switchOn) throws Exception {
+		logger.debug("'Tilt' - is selected");
+		switchMotionCentring(switchOn, btnHorizontal);
+		try {
+			for (IMotionControlListener mcl : getMotionControlListeners()) {
+				mcl.horizontal(switchOn);
+			}
+		} catch (Exception ex) {
+			showErrorDialog(ex);
+			throw ex;
+		}
+
+	}
+
+	private void doFindAxisOfRotation(boolean switchOn) throws Exception {
+		logger.debug("'Tilt' - is selected");
+		switchMotionCentring(switchOn, btnFindAxisOfRotation);
+		try {
+			for (IMotionControlListener mcl : getMotionControlListeners()) {
+				mcl.findRotationAxis(switchOn);
+			}
+		} catch (Exception ex) {
+			showErrorDialog(ex);
+			throw ex;
+		}
+
+	}
+
+	private void doMoveAxisOfRotation(boolean switchOn) throws Exception {
+		logger.debug("'Tilt' - is selected");
+		switchMotionCentring(switchOn, btnMoveAxisOfRotation);
+		try {
+			for (IMotionControlListener mcl : getMotionControlListeners()) {
+				mcl.moveAxisOfRotation(switchOn);
+			}
+		} catch (Exception ex) {
+			showErrorDialog(ex);
+			throw ex;
+		}
+	}
+
+	private Control[] getCommonControlList() {
+		Control[] disableList = new Control[] { txtXrayEnergy, btnSampleWeight20to50, btnSampleWeight1to10,
+				btnSampleWeight10to20, btnSampleWeightLessThan1, txtCameraDistance };
+		return disableList;
+	}
+
+	private void enableCommonControls() {
+		Control[] enableControlList = getCommonControlList();
+
+		for (Control control : enableControlList) {
+			enable(control);
+		}
+	}
+
+	private void disableCommonControls() {
+		Control[] disableControlList = getCommonControlList();
+		
+		for (Control control : disableControlList) {
+			disable(control);
+		}
+	}
+
+	private static void enable(Control control) {
+		control.setEnabled(true);
+	}
+
+	private static void disable(Control control) {
+		control.setEnabled(false);
+	}
+
 }
