@@ -34,6 +34,7 @@ import java.util.concurrent.FutureTask;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import gda.scan.Trajectory;
 
 public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements TrajectoryMoveController {
 
@@ -71,6 +72,16 @@ public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements 
 
 	private final Double[] triggerDeltas = null; // final as not yet used
 	
+	private boolean useAlternateMethod;
+	
+	
+	public boolean isUseAlternateMethod() {
+		return useAlternateMethod;
+	}
+
+	public void setUseAlternateMethod(boolean useAlternateMethod) {
+		this.useAlternateMethod = useAlternateMethod;
+	}
 	
 	public EpicsTrajectoryScanControllerDev812 getController() {
 		return controller;
@@ -174,10 +185,22 @@ public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements 
 	@Override
 	public void prepareForMove() throws DeviceException, InterruptedException {
 		// note: these methods all work with no points (they clear in this case)
-		pushNumberOfElementsAndPulses();
-		pushPathsFromPoints();
-		pushEnableAxisSettings();
-		controller.setTrajectoryTime(getTotalTime());
+		if(useAlternateMethod)
+		{
+			try {
+				setTrajectory();
+			} catch (OutOfRangeException e) {
+				throw new DeviceException("Unable to buld trajectory ", e);
+			}
+		}
+		else
+		{
+			pushNumberOfElementsAndPulses();
+			pushPathsFromPoints();
+			controller.setTrajectoryTime(getTotalTime());
+		}
+		
+		pushEnableAxisSettings();		
 		controller.build(); // will throw an exception with no points (this is okay)
 		
 		// move to first position
@@ -377,6 +400,31 @@ public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements 
 	
 	public List<Double[]> getPointsList() {
 		return points;
+	}
+	
+	private void setTrajectory() throws DeviceException, InterruptedException, OutOfRangeException {
+		Trajectory trajectory = new Trajectory();
+		int pointsSize = points.size();
+		trajectory.setTotalElementNumber(pointsSize );
+		trajectory.setTotalPulseNumber(pointsSize );
+		int movingMotorIndex =-1;
+		Double[] first = points.get(0);
+			for (int i = 0; i < first.length; i++) {
+				if(first[i] != null)
+					movingMotorIndex = i;
+			}
+		double[] path = trajectory.defineCVPath(points.get(0)[movingMotorIndex],points.get(pointsSize -1)[movingMotorIndex],getTotalTime());		
+		controller.setMTraj(motorFromIndex(movingMotorIndex), path);
+		
+		controller.setNumberOfElements((int)trajectory.getElementNumbers());
+		controller.setNumberOfPulses((int) trajectory.getPulseNumbers());
+		controller.setStartPulseElement((int) trajectory.getStartPulseElement());
+		controller.setStopPulseElement((int) trajectory.getStopPulseElement());
+
+		if (controller.getStopPulseElement() != (int) (trajectory.getStopPulseElement())){
+			controller.setStopPulseElement((int) (trajectory.getStopPulseElement()));	
+		}
+		controller.setTrajectoryTime(trajectory.getTotalTime());
 	}
 
 }
