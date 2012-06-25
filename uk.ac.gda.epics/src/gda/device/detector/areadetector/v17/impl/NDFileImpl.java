@@ -746,9 +746,9 @@ public class NDFileImpl implements InitializingBean, NDFile {
 	public void stopCapture() throws Exception {
 		try {
 			if (config != null) {
-				EPICS_CONTROLLER.caputWait(createChannel(config.getCapture().getPv()), 0);
+				EPICS_CONTROLLER.caput(createChannel(config.getCapture().getPv()), 0);
 			} else {
-				EPICS_CONTROLLER.caputWait(getChannel(Capture), 0);
+				EPICS_CONTROLLER.caput(getChannel(Capture), 0);
 			}
 			// If the acquisition state is busy then wait for it to complete.
 			while (getCapture() == 1) {

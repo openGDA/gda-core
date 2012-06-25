@@ -1248,21 +1248,11 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void stopAcquiring() throws Exception {
 		try {
-			//ImageMode - 2 is 'Continuous' mode on the area detector.
-			if (getImageMode() == 2) {
-				//It is necessary that this is not changed to caputWait as caputWait will wait forever in 'Continuous' mode
 				if (config != null) {
 					EPICS_CONTROLLER.caput(createChannel(config.getAcquire().getPv()), 0);
 				} else {
 					EPICS_CONTROLLER.caput(getChannel(Acquire), 0);
 				}
-			} else {
-				if (config != null) {
-					EPICS_CONTROLLER.caputWait(createChannel(config.getAcquire().getPv()), 0);
-				} else {
-					EPICS_CONTROLLER.caputWait(getChannel(Acquire), 0);
-				}
-			}
 		} catch (Exception e) {
 			logger.error("Exception on stop Acquiring", e);
 			throw e;

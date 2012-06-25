@@ -18,11 +18,10 @@
 
 package gda.device.detector.areadetector.v17;
 
-import java.util.concurrent.TimeoutException;
-
 import gda.device.detector.areadetector.AreaDetectorBin;
 import gda.device.detector.areadetector.AreaDetectorROI;
-import gda.device.detector.areadetector.v17.ADBase.ImageMode;
+
+import java.util.concurrent.TimeoutException;
 
 /**
  *
