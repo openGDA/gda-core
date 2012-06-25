@@ -475,6 +475,10 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 		return outputFormat;
 	}
 
+	public String[] getExtraNames() {
+		return extraNames;
+	}
+
 	@Override
 	public GDANexusDetectorData mergeIn(GDANexusDetectorData ntp) {
 			if( ntp != null){
