@@ -47,9 +47,6 @@ import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author rsr31645
- */
 public class AutoCompleter {
 
 	private ICommandRunner commandRunner = InterfaceProvider.getCommandRunner();
@@ -59,8 +56,6 @@ public class AutoCompleter {
 	private static final Logger logger = LoggerFactory.getLogger(AutoCompleter.class);
 
 	private JythonTerminalContentProposalProvider contentProposalProvider;
-
-	private boolean addArgs;
 
 	private String postFix;
 
@@ -77,7 +72,7 @@ public class AutoCompleter {
 			@Override
 			public void keyPressed(final org.eclipse.swt.events.KeyEvent e) {
 				if (((e.stateMask & SWT.CTRL) != 0) && e.keyCode == ' ') {
-					List<IContentProposal> proposals = getProposals(true);
+					List<IContentProposal> proposals = getProposals();
 					if (proposals != null && proposals.size() == 1) {
 						if (!txtInput.getText().trim().equals(proposals.get(0).getContent())) {
 							contentProposalListener.proposalAccepted(proposals.get(0));
@@ -88,7 +83,7 @@ public class AutoCompleter {
 				} else if (e.keyCode == ' ' && adapter.isProposalPopupOpen()) {
 					// If the "space" key is pressed when the proposal popup is open then autocomplete it with the top
 					// most entry.
-					List<IContentProposal> proposals = getProposals(true);
+					List<IContentProposal> proposals = getProposals();
 					if (!proposals.isEmpty()) {
 						contentProposalListener.proposalAccepted(proposals.get(0));
 						adapter.closeProposalPopup();
@@ -96,6 +91,7 @@ public class AutoCompleter {
 				}
 			}
 		});
+		
 		try {
 			installContentProposalAdapter(txtInput, new TextContentAdapter());
 		} catch (ParseException e) {
@@ -126,10 +122,7 @@ public class AutoCompleter {
 		public void proposalAccepted(IContentProposal proposal) {
 			finishAutoCompletion(proposal.getLabel());
 		}
-
 	};
-
-	
 
 	private ILabelProvider prv = new LabelProvider() {
 		@Override
@@ -170,18 +163,17 @@ public class AutoCompleter {
 
 	private IContentProposalProvider getContentProposalProvider() {
 		if (contentProposalProvider == null) {
-			contentProposalProvider = new JythonTerminalContentProposalProvider(getProposals(true));
+			contentProposalProvider = new JythonTerminalContentProposalProvider(getProposals());
 		}
 		return contentProposalProvider;
 	}
 
 	protected void handleModify() {
-		List<IContentProposal> proposals = getProposals(true);
+		List<IContentProposal> proposals = getProposals();
 		contentProposalProvider.setProposals(proposals);
 	}
 
-	private List<IContentProposal> getProposals(boolean addArgs) {
-		this.addArgs = addArgs;
+	private List<IContentProposal> getProposals() {
 		postFix = "";
 		// get last word on which to prompt for completion
 		String lastWord = getLastWord();
@@ -206,9 +198,6 @@ public class AutoCompleter {
 		}
 	};
 
-	/**
-	 * @return lastWord
-	 */
 	public String getLastWord() {
 		String lastWord = "";
 		{
@@ -274,21 +263,10 @@ public class AutoCompleter {
 	private void finishAutoCompletion(String name) {
 		if (name != null) {
 			String replacement = name;
-			// if (addArgs && optionChosen.type == 2 && postFix.isEmpty()) {
-			// replacement += optionChosen.args;
-			// }
 			final String newtext = wordsBefore + prefixOfLastWord + replacement + postFix;
 			txtInput.setText(newtext);
-			// text.setSelection(text.getText().length(), text.getText().length());
 			txtInput.setFocus();
 			txtInput.setSelection(txtInput.getCharCount() + 1, txtInput.getCharCount() + 1);
-			// if (addArgs) {
-			// String help = optionChosen.helpDoc;
-			// if (help.isEmpty()) {
-			// help = optionChosen.name + "\n" + commandRunner.evaluateCommand(optionChosen.name + ".__doc__");
-			// }
-			// InterfaceProvider.getTerminalPrinter().print(help);
-			// }
 		}
 	}
 
@@ -340,7 +318,6 @@ public class AutoCompleter {
 		public void setProposals(List<IContentProposal> items) {
 			contentProposals = items;
 		}
-
 	}
 
 	public void dispose() {
@@ -348,5 +325,4 @@ public class AutoCompleter {
 			adapter.removeContentProposalListener(contentProposalListener);
 		}
 	}
-
 }

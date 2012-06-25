@@ -77,6 +77,7 @@ public class Etfg extends Tfg {
 		daServer.sendCommand(String.format("tfg setup-port %d %d", inversion, drive));
 	}
 
+	@SuppressWarnings("unused")
 	public void setStartMethod(int startTrig) throws DeviceException {
 		if (daServer != null && daServer.isConnected()) {
 			startMethod = startTrig;
@@ -127,7 +128,6 @@ public class Etfg extends Tfg {
 				vmeStart = false;
 			}
 		}
-
 	}
 	
 	@Override
