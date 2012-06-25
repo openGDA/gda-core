@@ -479,21 +479,37 @@ public class TomoAlignmentViewController implements InitializingBean {
 	}
 
 	public void dispose() {
-		motorHandler.dispose();
+		if (motorHandler != null) {
+			motorHandler.dispose();
+		}
 
-		cameraHandler.dispose();
+		if (cameraHandler != null) {
+			cameraHandler.dispose();
+		}
 
-		moduleLookupTableHandler.dispose();
+		if (moduleLookupTableHandler != null) {
+			moduleLookupTableHandler.dispose();
+		}
 
-		tiltController.dispose();
+		if (tiltController != null) {
+			tiltController.dispose();
+		}
 
-		cameraMotionController.dispose();
+		if (cameraMotionController != null) {
+			cameraMotionController.dispose();
+		}
 
-		roiHandler.dispose();
+		if (roiHandler != null) {
+			roiHandler.dispose();
+		}
 
-		cameraModuleController.dispose();
+		if (cameraModuleController != null) {
+			cameraModuleController.dispose();
+		}
 
-		sampleWeightRotationHandler.dispose();
+		if (sampleWeightRotationHandler != null) {
+			sampleWeightRotationHandler.dispose();
+		}
 	}
 
 	/**
