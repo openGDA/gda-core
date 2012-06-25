@@ -49,6 +49,7 @@
                 <pathelement location="${workspace.git.loc}/scisoft/scisoft-core.git/uk.ac.diamond.scisoft.deprecated/bin" />
                 <pathelement location="${workspace.loc}/plugins/uk.ac.diamond.org.jacorb/jars/jacorb.jar" />
                 <pathelement location="${workspace.loc}/plugins/uk.ac.diamond.org.springframework/jars/*" />
+                <pathelement path="${workspace.loc}/tp/plugins/uk.ac.diamond.org.jscience_2.0.2.jar" />  <!--ensure that 2.0.2 appears first in classpath -->
                 <pathelement location="${workspace.loc}/tp/plugins/*" />
                 <path refid="libs.jars.path" />
             </classpath>
