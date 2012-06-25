@@ -38,7 +38,7 @@ import uk.ac.gda.devices.pco.LiveModeUtil;
 import uk.ac.gda.tomography.devices.ITomographyDetector;
 
 /**
- *
+ * Tomography implementation for the PCO camera.
  */
 public class PCOTomography implements ITomographyDetector {
 	private static final Logger logger = LoggerFactory.getLogger(PCOTomography.class);
@@ -96,8 +96,6 @@ public class PCOTomography implements ITomographyDetector {
 		//
 		roi1.getPluginBase().enableCallbacks();
 		roi1.getPluginBase().setNDArrayPort(proc1.getPluginBase().getPortName_RBV());
-
-		// FIXME - Ravi get these values from config
 
 		roi1.setSizeX(areaDetector.getArraySizeX_RBV());
 		roi1.setSizeY(areaDetector.getArraySizeY_RBV());
@@ -519,7 +517,9 @@ public class PCOTomography implements ITomographyDetector {
 	@Override
 	public void resetAll() throws Exception {
 		// Ensure that the camera is stopped before resetAll is called
-		pcoDetector.stop();
+		if (pcoDetector.isBusy()) {
+			pcoDetector.stop();
+		}
 		pcoDetector.resetAll();
 	}
 
@@ -527,13 +527,12 @@ public class PCOTomography implements ITomographyDetector {
 	public void setupForTilt(int minY, int maxY, int minX, int maxX) throws Exception {
 		IPCOControllerV17 controller = pcoDetector.getController();
 		ADBase areaDetector = controller.getAreaDetector();
-		//Adding 1 as the detector starts counting pixels beginning from 1
+		// Adding 1 as the detector starts counting pixels beginning from 1
 		areaDetector.setSizeY(maxY - minY + 1);
 		areaDetector.setMinY(minY);
 
 		areaDetector.setSizeX(maxX - minX + 1);
 		areaDetector.setMinX(minX);
-
 
 		controller.getTiff().getPluginBase().enableCallbacks();
 
