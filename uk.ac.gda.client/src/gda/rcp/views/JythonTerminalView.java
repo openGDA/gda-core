@@ -112,12 +112,12 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 
 	private Text txtInput;
 	/** {@link Document} containing output text */
-	private JythonTerminalDocument outputDoc;
+	JythonTerminalDocument outputDoc;
 
 	/** {@link TextViewer} that displays the output document */
-	private TextViewer outputTextViewer;
+	TextViewer outputTextViewer;
 
-	private String txtOutputLast;
+	String txtOutputLast; //copy of string sent to outputDoc.set()
 	private Text txtPrompt;
 
 	private Vector<String> cmdHistory = new Vector<String>(0);
@@ -126,8 +126,6 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 	private JythonServerFacade jsf;
 	private boolean runFromHistory = false;
 	private String currentCmd;
-	@SuppressWarnings("unused")
-	// private AutoCompleter completer;
 	private boolean printOutput = false;
 
 	private FileWriter outputFile;
@@ -137,7 +135,6 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 	// to update the output area from the buffer
 	UpdaterRunner updaterRunner = new UpdaterRunner();
 	volatile boolean outputBufferUpdated = false;
-	private volatile boolean updateComplete = false;
 
 	private ScanDataPointFormatter scanDataPointFormatter;
 
@@ -269,7 +266,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 	 * Lock to allow exclusive access to the current content of the output text box, and the copy of the current
 	 * content.
 	 */
-	private final Lock outputLock = new ReentrantLock(true);
+	final Lock outputLock = new ReentrantLock(true);
 
 	protected void setOutputText(String text) {
 		outputLock.lock();
@@ -844,27 +841,25 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 	}
 
 	private class UpdaterRunner implements Runnable {
+		private SimpleOutputUpdater latestUpdater;
+
 		@Override
 		public void run() {
 			while (true) {
 				try {
 					// test if anything added
 					while (!outputBufferUpdated) {
-						Thread.sleep(25);
+						Thread.sleep(250);
 					}
 					outputBufferUpdated = false;
-					String output = outputBuffer.toString().trim();
-
-					updateComplete = false;
-					if (!PlatformUI.getWorkbench().getDisplay().isDisposed()) {
-						PlatformUI.getWorkbench().getDisplay().asyncExec(new SimpleOutputUpdater(output));
-						for (int i = 0; i < 10; i++) {
-							if (updateComplete) {
-								break;
-							}
-							Thread.sleep(25);
+					//if there is not already a SimpleOutputUpdater on the UIThread queue then add one 
+					if( latestUpdater ==null || !latestUpdater.inqueue){
+						latestUpdater = new SimpleOutputUpdater(JythonTerminalView.this);
+						if (!PlatformUI.getWorkbench().getDisplay().isDisposed()) {
+							PlatformUI.getWorkbench().getDisplay().asyncExec(latestUpdater);
 						}
 					}
+					Thread.sleep(500);
 				} catch (InterruptedException e) {
 					outputBufferUpdated = true;
 				}
@@ -996,59 +991,6 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 		txtInput.setSelection(txtInput.getCharCount(), txtInput.getCharCount());
 	}
 
-	/**
-	 * Used by appendOutpupt
-	 */
-	private final class SimpleOutputUpdater implements Runnable {
-
-		String newOutput = "";
-
-		SimpleOutputUpdater(String newOutput) {
-			this.newOutput = newOutput;
-		}
-
-		@Override
-		public void run() {
-			// On Windows, newlines are \r\n terminated, when you call setText() or append()
-			// \n is replaced with \r\n, so this sequence unexpectedly may return false:
-			// txtOutput.setText(newOutput);
-			// txtOutput.getText().equals(newOutput);
-			// The effect of this is we need to keep a local copy of the last
-			// string to be set, and we need to calculate the selection index on
-			// what the text actually is to know what the selection index should be
-
-			outputLock.lock();
-			try {
-				if (newOutput.startsWith(txtOutputLast)) {
-					String append = newOutput.substring(txtOutputLast.length());
-					outputDoc.append(append);
-				} else {
-					outputDoc.set(newOutput);
-				}
-				txtOutputLast = newOutput;
-			} finally {
-				outputLock.unlock();
-			}
-
-			if (!scrollLock) {
-				String realOutput = outputDoc.get();
-				if (outputTextViewer.getTextWidget() != null && realOutput.contains("\n")) {
-					int index = realOutput.lastIndexOf("\n") + 1;
-					outputTextViewer.getTextWidget().setSelection(index);
-					outputTextViewer.getTextWidget().showSelection();
-				}
-			}
-			updateComplete = true;
-
-			if (moveToTopOnUpdate) {
-				IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-				IWorkbenchPage page = window.getActivePage();
-				if (JythonTerminalView.this.getSite().getPage().equals(page)) {
-					page.bringToTop(JythonTerminalView.this);
-				}
-			}
-		}
-	}
 
 	private IJythonContext getJythonContext() {
 		return (this.mockJythonContext != null) ? this.mockJythonContext : jsf;
@@ -1088,4 +1030,62 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 		super.dispose();
 	}
 
+}
+/**
+ * Used by appendOutpupt
+ */
+class SimpleOutputUpdater implements Runnable {
+
+	public boolean inqueue;
+	private final JythonTerminalView jtv;
+
+	SimpleOutputUpdater(JythonTerminalView jtv) {
+		this.jtv = jtv;
+		inqueue=true;
+	}
+
+	@Override
+	public void run() {
+		inqueue = false; 
+		// On Windows, newlines are \r\n terminated, when you call setText() or append()
+		// \n is replaced with \r\n, so this sequence unexpectedly may return false:
+		// txtOutput.setText(newOutput);
+		// txtOutput.getText().equals(newOutput);
+		// The effect of this is we need to keep a local copy of the last
+		// string to be set, and we need to calculate the selection index on
+		// what the text actually is to know what the selection index should be
+
+		jtv.outputLock.lock();
+		try {
+			String newOutput = jtv.outputBuffer.toString().trim();
+			//decide whether to call outputDoc.append or set
+			if (newOutput .startsWith(jtv.txtOutputLast)) {
+				String append = newOutput.substring(jtv.txtOutputLast.length());
+				jtv.outputDoc.append(append);
+			} else {
+				jtv.outputDoc.set(newOutput);
+			}
+			jtv.txtOutputLast = newOutput;
+		} finally {
+			jtv.outputLock.unlock();
+		}
+
+		if (!JythonTerminalView.getScrollLock()) {
+			//we need to change what is shown
+			String realOutput = jtv.outputDoc.get();
+			if (jtv.outputTextViewer.getTextWidget() != null && realOutput.contains("\n")) {
+				int index = realOutput.lastIndexOf("\n") + 1;
+				jtv.outputTextViewer.getTextWidget().setSelection(index);
+				jtv.outputTextViewer.getTextWidget().showSelection();
+			}
+		}
+
+		if (JythonTerminalView.getMoveToTopOnUpdate()) {
+			IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+			IWorkbenchPage page = window.getActivePage();
+			if (jtv.getSite().getPage().equals(page)) {
+				page.bringToTop(jtv);
+			}
+		}
+	}
 }
