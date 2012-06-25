@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+
+	<class name="org.diamond.tomo.highrestomo.beans.HighResolutionTomographyParameters">
+		<map-to xml="HighResolutionTomographyParameters" />
+		<field name="startAngle" type="double">
+			<bind-xml name="startAngle" node="element" />
+		</field>
+		<field name="endAngle" type="double">
+			<bind-xml name="endAngle" node="element" />
+		</field>
+		<field name="exposureTime" type="double">
+			<bind-xml name="exposureTime" node="element" />
+		</field>
+		<field name="numberOfProjections" type="integer">
+			<bind-xml name="numberOfProjections" node="element" />
+		</field>
+		<field name="numberOfFlatFields" type="integer">
+			<bind-xml name="numberOfFlatFields" node="element" />
+		</field>
+		<field name="imagesPerFlat" type="integer">
+			<bind-xml name="imagesPerFlat" node="element" />
+		</field>
+		<field name="imagesPerdark" type="integer">
+			<bind-xml name="imagesPerdark" node="element" />
+		</field>
+	</class>
+
+</mapping>
+	

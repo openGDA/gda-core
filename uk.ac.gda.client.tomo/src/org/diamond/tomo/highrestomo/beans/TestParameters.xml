@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<HighResolutionTomographyParameters>
+    <startAngle>149.0</startAngle>
+    <endAngle>289.0</endAngle>
+    <exposureTime>1.0</exposureTime>
+    <numberOfProjections>6027</numberOfProjections>
+    <numberOfFlatFields>52</numberOfFlatFields>
+    <imagesPerFlat>52</imagesPerFlat>
+    <imagesPerdark>100</imagesPerdark>
+</HighResolutionTomographyParameters>

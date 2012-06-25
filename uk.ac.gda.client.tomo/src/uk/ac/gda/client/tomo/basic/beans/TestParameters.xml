@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BasicTomographyParameters>
+    <camera>pco</camera>
+    <theta>dum.a</theta>
+    <flatFieldTranslation>dum.d</flatFieldTranslation>
+    <cameraROIStartX>0</cameraROIStartX>
+    <cameraROIStartY>0</cameraROIStartY>
+    <cameraROISizeX>4008</cameraROISizeX>
+    <cameraROISizeY>2500</cameraROISizeY>
+    <cameraBinX>1</cameraBinX>
+    <cameraBinY>1</cameraBinY>
+    <cameraExposureTime>0.2</cameraExposureTime>
+    <scanStartAngle>0.0</scanStartAngle>
+    <scanEndAngle>180.0</scanEndAngle>
+    <scanNumberOfPointsPerSegment>60</scanNumberOfPointsPerSegment>
+    <scanNumberOfSegments>3</scanNumberOfSegments>
+    <darkNumberOfImages>5</darkNumberOfImages>
+    <flatNumberOfImages>5</flatNumberOfImages>
+    <reconNumberOfChunks>2</reconNumberOfChunks>
+    <reconJobName>Test</reconJobName>
+</BasicTomographyParameters>

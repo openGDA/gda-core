@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tomography API
+Bundle-SymbolicName: uk.ac.gda.tomography
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: uk.ac.gda.tomography.TomographyPlugin
+Bundle-Vendor: Diamond Light Source
+Require-Bundle: org.eclipse.core.runtime,
+ uk.ac.gda.api;bundle-version="1.0.0",
+ org.eclipse.emf.ecore;bundle-version="2.7.0",
+ org.eclipse.emf.ecore.xmi;bundle-version="2.7.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Export-Package: uk.ac.gda.tomography.devices,
+ uk.ac.gda.tomography.parameters,
+ uk.ac.gda.tomography.parameters.impl,
+ uk.ac.gda.tomography.parameters.util

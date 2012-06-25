@@ -1,0 +1,51 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package uk.ac.gda.client.tomo.basic;
+
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.util.concurrent.Callable;
+
+import org.edna.tomov1.launchers.TomoLaunchers;
+import org.edna.tomov1.xsdata.XSDataInputTomography;
+
+import uk.ac.gda.client.tomo.ReconStatus;
+
+public class BasicTomoTask implements Callable<ReconStatus> {
+
+	private XSDataInputTomography xsDataInputTomography;
+	private PrintStream out;
+	
+	public void setXSDataInputTomography(XSDataInputTomography inputData) {
+		xsDataInputTomography = inputData;
+	}
+
+	@Override
+	public ReconStatus call() throws Exception {
+		
+		out = new PrintStream(new FileOutputStream("/dls/i12/logs/edna.log",true));
+		
+		TomoLaunchers.LaunchEDPluginTomography(xsDataInputTomography, out);
+		ReconStatus reconStatus = new ReconStatus();
+		reconStatus.setMessage("Edna task has completed");
+		return reconStatus;
+		
+	}
+
+}
