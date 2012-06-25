@@ -78,6 +78,21 @@ public class CameraControlComposite extends Composite {
 		FLAT_STREAM, SAMPLE_STREAM, NO_STREAM;
 	}
 
+	public enum RESOLUTION {
+		FULL(RESOLUTION_FULL), TWO_X(RESOLUTION_2x), FOUR_X(RESOLUTION_4x), EIGHT_X(RESOLUTION_8x);
+
+		private final String value;
+
+		@Override
+		public String toString() {
+			return value;
+		}
+
+		private RESOLUTION(String value) {
+			this.value = value;
+		}
+	}
+
 	// logger
 	private static final Logger logger = LoggerFactory.getLogger(CameraControlComposite.class);
 	// Labels
@@ -96,12 +111,11 @@ public class CameraControlComposite extends Composite {
 	private static final String DEFINE_ROI = "Define";
 	private static final String PROFILE = "Profile";
 	private static final String SATURATION = "Saturation";
-	private static final String FRAMES_PER_PROJECTION = "frames per projection";
+	private static final String FRAMES_PER_PROJECTION = "Frames per Projection";
 	private static final String RESOLUTION_8x = "8x";
 	private static final String RESOLUTION_4x = "4x";
 	private static final String RESOLUTION_2x = "2x";
 	private static final String RESOLUTION_FULL = "Full";
-	private static final String RESOLUTION = "Res:";
 	private static final String SHOW_DARK = "Show Dark";
 	private static final String CORRECT_FLAT_DARK = "Correct Flat && Dark";
 	private static final String FRAMES_PER_PROJECTION_DEFAULT_VAL = "4";
@@ -130,6 +144,7 @@ public class CameraControlComposite extends Composite {
 	private String sampleDescription;
 
 	private STREAM_STATE streamState = STREAM_STATE.NO_STREAM;
+	private RESOLUTION resolution = RESOLUTION.FULL;
 
 	public synchronized void setStreamState(STREAM_STATE streamState) {
 		this.streamState = streamState;
@@ -184,6 +199,8 @@ public class CameraControlComposite extends Composite {
 
 	private Label lblFlatExpTime;
 	private Button btnSaveAlignment;
+
+	private Label lblObjectPixelSize;
 
 	/**
 	 * @param parent
@@ -306,27 +323,31 @@ public class CameraControlComposite extends Composite {
 	private Composite createResolutionComposite(FormToolkit toolkit, Composite parent) {
 		Composite resolutionComposite = toolkit.createComposite(parent);
 
-		resolutionComposite.setLayout(getGridLayoutZeroSetting());
+		GridLayout layout1 = getGridLayoutZeroSetting();
+		layout1.marginLeft = 2;
+		layout1.marginRight = 2;
+		layout1.numColumns = 2;
+		layout1.makeColumnsEqualWidth = false;
+		resolutionComposite.setLayout(layout1);
 
-		Label lblTomoResolution = toolkit.createLabel(resolutionComposite, "TOMO RESOLUTION", SWT.CENTER);
-		lblTomoResolution.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		Label lblTomoResolution = toolkit.createLabel(resolutionComposite, "Resolution : Pixel Size = ", SWT.LEFT);
+		lblTomoResolution.setLayoutData(new GridData());
+
+		lblObjectPixelSize = toolkit.createLabel(resolutionComposite, "0.000 mm", SWT.LEFT_TO_RIGHT);
+		lblObjectPixelSize.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		//
 		Composite upperRowComposite = toolkit.createComposite(resolutionComposite);
-		GridLayout layout = new GridLayout(5, false);
+		GridLayout layout = new GridLayout(4, false);
 		layout.horizontalSpacing = 2;
 		layout.verticalSpacing = 2;
 		layout.marginWidth = 2;
 		layout.marginHeight = 2;
 
 		upperRowComposite.setLayout(layout);
-		GridData layoutData = new GridData(GridData.FILL_BOTH);
+		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
+		layoutData.horizontalSpan = 2;
 		upperRowComposite.setLayoutData(layoutData);
-
-		Label lblRes = toolkit.createLabel(upperRowComposite, RESOLUTION);
-		layoutData = new GridData();
-		layoutData.verticalAlignment = SWT.CENTER;
-		lblRes.setLayoutData(layoutData);
 
 		btnResFull = toolkit.createButton(upperRowComposite, RESOLUTION_FULL, SWT.PUSH);
 		btnResFull.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -347,10 +368,12 @@ public class CameraControlComposite extends Composite {
 		btnRes8x.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		btnRes8x.addSelectionListener(buttonSelectionListener);
 		btnRes8x.setFont(fontRegistry.get(NORMAL_TEXT_7));
-		//
+
 		Composite horizontalBar = toolkit.createComposite(resolutionComposite);
 		layoutData = new GridData(GridData.FILL_HORIZONTAL);
-		layoutData.heightHint = 3;
+		horizontalBar.setBackground(ColorConstants.black);
+		layoutData.heightHint = 2;
+		layoutData.horizontalSpan = 2;
 		horizontalBar.setLayoutData(layoutData);
 
 		//
@@ -362,10 +385,12 @@ public class CameraControlComposite extends Composite {
 		layout.marginHeight = 2;
 
 		lowerRowComposite.setLayout(layout);
-		lowerRowComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		GridData layoutData2 = new GridData(GridData.FILL_HORIZONTAL);
+		layoutData2.horizontalSpan = 2;
+		lowerRowComposite.setLayoutData(layoutData2);
 
 		Label lblNumFrames = toolkit.createLabel(lowerRowComposite, FRAMES_PER_PROJECTION, SWT.CENTER | SWT.WRAP);
-		GridData ld = new GridData(GridData.FILL_BOTH);
+		GridData ld = new GridData(GridData.FILL_HORIZONTAL);
 		ld.verticalAlignment = SWT.CENTER;
 		ld.horizontalSpan = 3;
 		lblNumFrames.setLayoutData(ld);
@@ -1653,4 +1678,39 @@ public class CameraControlComposite extends Composite {
 		});
 
 	}
+
+	public void setResolutionPixelSize(final String pixelSize) {
+		if (lblObjectPixelSize != null && !lblObjectPixelSize.isDisposed()) {
+			lblObjectPixelSize.getDisplay().syncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					lblObjectPixelSize.setText(pixelSize);
+				}
+			});
+		}
+	}
+
+	public void setResolution(final RESOLUTION res) {
+		this.resolution = res;
+		switch (res) {
+		case FULL:
+			selectRes(btnResFull);
+			break;
+		case TWO_X:
+			selectRes(btnRes2x);
+			break;
+		case FOUR_X:
+			selectRes(btnRes4x);
+			break;
+		case EIGHT_X:
+			selectRes(btnRes8x);
+			break;
+		}
+	}
+
+	public RESOLUTION getResolution() {
+		return resolution;
+	}
+
 }
