@@ -250,7 +250,7 @@
          <command
                commandId="uk.ac.gda.client.experimentdefinition.QueueAndRunMultiExperimentCommand"
                icon="icons/page_white_go.png"
-               label="Queue and Run Multiple Scan"
+               label="Queue Multiple Scan and Start Queue"
                style="push"
                tooltip="Add multiple scan to command queue and immediately start the queue">
             <visibleWhen
@@ -269,7 +269,7 @@
          <command
                commandId="uk.ac.gda.client.experimentdefinition.QueueAndRunSingleExperimentCommand"
                icon="icons/page_white_go.png"
-               label="Queue and Run Single Scan"
+               label="Queue Single Scan and Start Queue"
                style="push"
                tooltip="Add single scan to command queue and immediately start the queue">
             <visibleWhen
@@ -288,7 +288,7 @@
          <command
                commandId="uk.ac.gda.client.experimentdefinition.AddFolderCommand"
                icon="icons/folder_add.png"
-               label="Add folder"
+               label="Create new folder"
                style="push">
             <visibleWhen
                   checkEnabled="true">
@@ -305,7 +305,7 @@
          <command
                commandId="uk.ac.gda.client.experimentdefinition.AddScanCommand"
                icon="icons/chart_curve_add.png"
-               label="Add multi-scan"
+               label="Create new multi-scan"
                style="push">
             <visibleWhen
                   checkEnabled="true">
@@ -327,7 +327,7 @@
           <command
                commandId="uk.ac.gda.client.experimentdefinition.AddRunCommand"
                icon="icons/chart_line_add.png"
-               label="Add scan"
+               label="Create new scan"
                style="push">
              <visibleWhen
                    checkEnabled="true">
