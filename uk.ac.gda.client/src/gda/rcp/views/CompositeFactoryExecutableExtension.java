@@ -48,9 +48,14 @@ public class CompositeFactoryExecutableExtension extends AbstractFindableExecuta
 
 	@Override
 	public Object create() throws CoreException {
-		CompositeFactoryView view = new CompositeFactoryView();
+		CompositeFactoryView view = createView();
 		view.setViewTitle(viewTitle);
 		view.setCompositeFactories(compositeFactories);
+		return view;
+	}
+	
+	protected CompositeFactoryView createView() {
+		CompositeFactoryView view = new CompositeFactoryView();
 		return view;
 	}
 
