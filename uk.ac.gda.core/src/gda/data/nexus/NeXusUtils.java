@@ -29,6 +29,7 @@ import gda.device.DeviceException;
 import gda.util.Version;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 import org.nexusformat.NeXusFileInterface;
@@ -246,6 +247,8 @@ public class NeXusUtils {
 		// These are other components that we may or may not have values for...
 		write_NXmonochromator(file);
 
+		write_NXinsertion_device(file);
+		
 		// Make the source
 		write_NXsource(file);
 
@@ -343,17 +346,13 @@ public class NeXusUtils {
 			writeNexusString(file, "type", metadata.getMetadataValue("facility.type", "gda.facility.type",
 					"Synchrotron X-ray Source"));
 			writeNexusString(file, "probe", metadata.getMetadataValue("facility.probe", "gda.facility.probe", "x-ray"));
-			writeNexusString(file, "mode", metadata.getMetadataValue("source.fillMode"));
-			writeNexusString(file, "facility_mode", metadata.getMetadataValue("facility.mode"));
-			writeNexusDouble(file, "frequency", Double.parseDouble(metadata.getMetadataValue(
-					"instrument.source.frequency", null, DEFAULT_NUMBER_VALUE)));
-			writeNexusDouble(file, "voltage", Double.parseDouble(metadata.getMetadataValue("instrument.source.energy",
-					null, DEFAULT_NUMBER_VALUE)) * 1000.0);
-			writeNexusDouble(file, "power", Double.parseDouble(metadata.getMetadataValue("instrument.source.power",
-					null, DEFAULT_NUMBER_VALUE)));
-			writeNexusDouble(file, "current", Double.parseDouble(metadata.getMetadataValue("instrument.source.current",
-					null, DEFAULT_NUMBER_VALUE)));
-			writeNexusString(file, "notes", metadata.getMetadataValue("facility.message"));
+//			writeNexusString(file, "mode", metadata.getMetadataValue("source.fillMode"));
+//			writeNexusString(file, "facility_mode", metadata.getMetadataValue("facility.mode"));
+//			writeNexusDouble(file, "frequency", Double.parseDouble(metadata.getMetadataValue("instrument.source.frequency", null, DEFAULT_NUMBER_VALUE)));
+//			writeNexusDouble(file, "voltage", Double.parseDouble(metadata.getMetadataValue("instrument.source.energy", null, DEFAULT_NUMBER_VALUE)) * 1000.0);
+			writeNexusDouble(file, "energy", Double.parseDouble(metadata.getMetadataValue("instrument.source.energy",	null, DEFAULT_NUMBER_VALUE)), "GeV");
+			writeNexusDouble(file, "current", Double.parseDouble(metadata.getMetadataValue("instrument.source.current",	null, DEFAULT_NUMBER_VALUE)), "mA");
+//			writeNexusString(file, "notes", metadata.getMetadataValue("facility.message"));
 		} catch (DeviceException e) {
 			logger.warn("NXsource: Problem reading one or more items of metadata.");
 		}
@@ -413,11 +412,14 @@ public class NeXusUtils {
 			file.opengroup("monochromator", "NXmonochromator");
 
 			try {
-				writeNexusString(file, "name", metadata.getMetadataValue("instrument.monochromator.name"));
-				writeNexusDouble(file, "wavelength", metadata.getMetadataValue("instrument.monochromator.wavelength",
-						null, DEFAULT_NUMBER_VALUE));
-				writeNexusDouble(file, "energy", metadata.getMetadataValue("instrument.monochromator.energy", null,
-						DEFAULT_NUMBER_VALUE));
+				if (metadata.getMetadataValue("instrument.monochromator.name") != null)
+					writeNexusString(file, "name", metadata.getMetadataValue("instrument.monochromator.name"));
+				if (metadata.getMetadataValue("instrument.monochromator.energy") != null) {
+					writeNexusDouble(file, "energy", Double.parseDouble(metadata.getMetadataValue("instrument.monochromator.energy")), "keV");
+				} else if (metadata.getMetadataValue("instrument.monochromator.wavelength") != null) {
+					writeNexusDouble(file, "wavelength", Double.parseDouble(metadata.getMetadataValue("instrument.monochromator.wavelength")), "Angstrom");
+				}
+
 			} catch (DeviceException e) {
 				logger.warn("NXmonochromator: Problem reading one or more items of metadata.");
 			}
@@ -434,6 +436,7 @@ public class NeXusUtils {
 	 */
 	public static void write_NXinsertion_device(NeXusFileInterface file) throws NexusException {
 		boolean found = false;
+		Metadata metadata = GDAMetadataProvider.getInstance();
 
 		ArrayList<String> items = new ArrayList<String>();
 		items.add("instrument.insertion_device.name");
@@ -460,7 +463,7 @@ public class NeXusUtils {
 			// If we can't find the metadata object, then just create a blank one so that
 			// we fail gracefully on reading any metadata items.
 
-			// Make the source if it's not there.
+			// Make the group if it's not there.
 			if (file.groupdir().get("insertion_device") == null) {
 				logger.debug("NeXus: Creating NXinsertion_device");
 				file.makegroup("insertion_device", "NXinsertion_device");
@@ -468,9 +471,15 @@ public class NeXusUtils {
 			// Open the NXinsertion_device
 			file.opengroup("insertion_device", "NXinsertion_device");
 
+			try {
+				if (metadata.getMetadataValue("instrument.monochromator.wavelength") != null) {
+					writeNexusDouble(file, "gap", Double.parseDouble(metadata.getMetadataValue("instrument.insertion_device.gap")), "mm");
+				}
+			} catch (DeviceException e) {
+				logger.warn("NXmonochromator: Problem reading one or more items of metadata.");
+			}
 			// name
 			// type
-			// gap
 			// taper
 			// phase
 			// poles
@@ -768,7 +777,7 @@ public class NeXusUtils {
 	 * @param value
 	 * @throws NexusException
 	 */
-	public static void writeNexusDouble(NeXusFileInterface file, String name, double value) throws NexusException {
+	public static void writeNexusDouble(NeXusFileInterface file, String name, double value, String units) throws NexusException {
 		int[] dimArray = new int[1];
 		dimArray[0] = 1;
 		if (file.groupdir().get(name) == null) {
@@ -777,7 +786,22 @@ public class NeXusUtils {
 		file.opendata(name);
 		double[] dataArray = { value };
 		file.putdata(dataArray);
+		if (units != null) {
+			file.putattr("units", units.getBytes(Charset.forName("UTF-8")), NexusFile.NX_CHAR);
+		}
 		file.closedata();
+	}
+	
+	/**
+	 * Writes the double 'value' into a field called 'name' at the current position in the NeXus file.
+	 * 
+	 * @param file
+	 * @param name
+	 * @param value
+	 * @throws NexusException
+	 */
+	public static void writeNexusDouble(NeXusFileInterface file, String name, double value) throws NexusException {
+		writeNexusDouble(file, name, value, null);
 	}
 
 	/**
