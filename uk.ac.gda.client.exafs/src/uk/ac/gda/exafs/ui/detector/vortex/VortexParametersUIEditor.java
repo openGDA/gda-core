@@ -19,9 +19,7 @@
 package uk.ac.gda.exafs.ui.detector.vortex;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
 import gda.data.PathConstructor;
-import gda.device.DeviceException;
 import gda.device.Timer;
 import gda.device.XmapDetector;
 import gda.factory.Finder;
@@ -77,6 +75,8 @@ import com.swtdesigner.SWTResourceManager;
 
 public class VortexParametersUIEditor extends DetectorEditor {
 
+	private static final String GDA_DEVICE_VORTEX_SPOOL_DIR = "gda.device.vortex.spoolDir";
+
 	private static final Logger logger = LoggerFactory.getLogger(VortexParametersUIEditor.class);
 
 	private ComboWrapper countType;
@@ -95,14 +95,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 	public Label acquireFileLabel;
 	Button acquireBtn;
 
-	/**
-	 * @param path
-	 * @param mappingURL
-	 * @param dirtyContainer
-	 * @param editingBean
-	 */
 	public VortexParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
-
 		super(path, mappingURL, dirtyContainer, editingBean, "vortex");
 		this.vortexParameters = (VortexParameters) editingBean;
 	}
@@ -226,7 +219,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 		acquireFileLabel.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 
 		openDialog = new FileDialog(parent.getShell(), SWT.OPEN);
-		openDialog.setFilterPath(LocalProperties.get("gda.data.scan.datawriter.datadir"));
+		openDialog.setFilterPath(LocalProperties.get(LocalProperties.GDA_DATAWRITER_DIR));
 
 		Composite composite_1 = new Composite(left, SWT.NONE);
 		composite_1.setLayout(new GridLayout(2, false));
@@ -298,8 +291,6 @@ public class VortexParametersUIEditor extends DetectorEditor {
 
 		addOutputPreferences(left);
 		configureUI();
-		
-
 	}
 
 	private void addOutputPreferences(Composite comp) {
@@ -327,9 +318,10 @@ public class VortexParametersUIEditor extends DetectorEditor {
 	 * Not called in UI thread. This needs to be protected if data is obtained from ui objects.
 	 * 
 	 * @param monitor
+	 * @throws Exception 
 	 */
 	@Override
-	protected void acquire(final IProgressMonitor monitor, final double collectionTimeValue) {
+	protected void acquire(final IProgressMonitor monitor, final double collectionTimeValue) throws Exception {
 
 		int loopSleepTimeInMillis = 100;
 		
@@ -340,10 +332,15 @@ public class VortexParametersUIEditor extends DetectorEditor {
 		if (monitor != null)
 			monitor.beginTask("Acquire xMap data", numWorkUnits);
 
-		final XmapDetector xmapDetector = (XmapDetector) Finder.getInstance().find(vortexParameters.getDetectorName());
-		final Timer tfg = (Timer) Finder.getInstance().find(vortexParameters.getTfgName());
-		
-		double deadTime = 0d;
+		String detectorName = vortexParameters.getDetectorName();
+		final XmapDetector xmapDetector = (XmapDetector) Finder.getInstance().find(detectorName);
+		if( xmapDetector ==null)
+			throw new Exception("Unable to find Xmapdetector called :'" + detectorName + "'");
+		String tfgName = vortexParameters.getTfgName();
+		final Timer tfg = (Timer) Finder.getInstance().find(tfgName);
+		if( tfg ==null)
+			throw new Exception("Unable to find tfg called :'" + tfgName + "'");
+
 		try {
 			xmapDetector.clearAndStart();
 			if (monitor != null)
@@ -386,24 +383,25 @@ public class VortexParametersUIEditor extends DetectorEditor {
 			if (monitor != null)
 				monitor.worked(1);
 
-			final double realTime = xmapDetector.getRealTime() * 1000d;
-			deadTime = realTime - collectionTimeValue;
-			if (isAutoSave && monitor != null) {
-				String spoolDirPath = PathConstructor.createFromProperty("gda.device.vortex.spoolDir");
-				final String filepath = spoolDirPath + getFileNumber() + "Vortex.mca";
-				save(detectorData, filepath);
-				logger.info("Saved to filePath " + filepath);
-				// Get res grade for calibration.
-				getSite().getShell().getDisplay().syncExec(new Runnable() {
-					@Override
-					public void run() {
-						acquireFileLabel.setText("Saved to: " + filepath);
-					}
-				});
+			final double deadTimeFinal = xmapDetector.getRealTime() * 1000d - collectionTimeValue;
 
+			// Note: currently has to be in this order.
+			getSite().getShell().getDisplay().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					getDetectorElementComposite().setEndMaximum(detectorData[0][0].length - 1);
+					plot(getDetectorList().getSelectedIndex());
+					setEnabled(true);
+					getDeadTime().setValue(deadTimeFinal);
+				}
+			});
+
+			if (monitor != null) {
+				monitor.worked(1);
+				sashPlotForm.appendStatus("Collected data from detector successfully.", logger);
 			}
 
-		} catch (DeviceException e) {
+		} catch (Exception e) {
 			getSite().getShell().getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
@@ -411,45 +409,38 @@ public class VortexParametersUIEditor extends DetectorEditor {
 							"Problem acquiring data. See log for details.\n(Do you hold the baton?)");
 				}
 			});
-
 			logger.error("Cannot get xMap data from Vortex detector.", e);
-			return;
-		} finally {
-			if (monitor != null) {
-				monitor.done();
-				sashPlotForm.appendStatus("Collected data from detector successfully.", logger);
-			}
+			throw e;
 		}
 
-		final double deadTimeFinal = deadTime;
+		if (isAutoSave && monitor != null) {
+			String msg = "Error saving detector data to file";
+			String spoolFilePath="";
+			try{
+				String spoolDirPath = PathConstructor.createFromProperty(GDA_DEVICE_VORTEX_SPOOL_DIR);
+				if( spoolDirPath==null || spoolDirPath.length()==0)
+					throw new Exception("Error saving data. Vortex device spool dir is not defined in property "+ GDA_DEVICE_VORTEX_SPOOL_DIR);
 
-		// Note: currently has to be in this order.
-		getSite().getShell().getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				getDetectorElementComposite().setEndMaximum(detectorData[0][0].length - 1);
-				plot(getDetectorList().getSelectedIndex());
-				setEnabled(true);
-				getDeadTime().setValue(deadTimeFinal);
+				File filePath = File.createTempFile("mca", ".mca", new File(spoolDirPath));
+				spoolFilePath = filePath.getAbsolutePath();
+				save(detectorData, spoolFilePath);
+				msg = "Saved to: " + spoolFilePath;
+				logger.info("Detector data Saved to " + spoolFilePath);
+			} finally{
+				final String msgFinal=msg;
+				getSite().getShell().getDisplay().syncExec(new Runnable() {
+					@Override
+					public void run() {
+						acquireFileLabel.setText(msgFinal);
+					}
+				});
 			}
-		});
+		}
+		if (monitor != null) {
+			monitor.done();
+		}
+	}
 
-	}
-	
-	public long getFileNumber() {
-		// Now lets try and setup the NumTracker...
-				NumTracker runNumber = null;
-				try {
-					runNumber = new NumTracker("tmp");
-					runNumber.incrementNumber();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					logger.error("TODO put description of error here", e);
-				}
-				// Get the current number
-				return runNumber.getCurrentFileNumber();
-	}
-	
 	protected int[][][] get3DArray(int[][] data) {
 		final int[][][] ret = new int[data.length][1][];
 		for (int i = 0; i < data.length; i++) {
@@ -591,7 +582,6 @@ public class VortexParametersUIEditor extends DetectorEditor {
 								setEnabled(true);
 							}
 						});
-
 					} catch (Exception e) {
 						logger.warn("Exception whilst loading map", e);
 					} finally {
@@ -602,17 +592,13 @@ public class VortexParametersUIEditor extends DetectorEditor {
 								// don't report
 							}
 						}
-
 					}
-
 					return Status.OK_STATUS;
 				}
-
 			};
 			job.setUser(true);
 			job.schedule();
 		}
-
 	}
 
 	public BooleanWrapper getSaveRawSpectrum() {

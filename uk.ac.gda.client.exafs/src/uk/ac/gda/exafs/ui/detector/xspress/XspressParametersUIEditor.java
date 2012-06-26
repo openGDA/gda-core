@@ -19,7 +19,6 @@
 package uk.ac.gda.exafs.ui.detector.xspress;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.device.detector.xspress.ResGrades;
@@ -152,6 +151,8 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	private BooleanWrapper saveRawSpectrum;
 
 	private SelectionAdapter xspressOptionsListener;
+	private Label lblRegionBins;
+	private ComboWrapper regionType;
 
 	/**
 	 * @param path
@@ -241,7 +242,14 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			GridUtils.setVisibleAndLayout(resGradeLabel, false);
 			GridUtils.setVisibleAndLayout(resGrade, false);
 		}
-
+		lblRegionBins = new Label(topComposite, SWT.NONE);
+		lblRegionBins.setText("Region type");
+		
+		regionType = new ComboWrapper(topComposite, SWT.READ_ONLY);
+		regionType.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		regionType.setItems(new String[]{XspressParameters.VIRTUALSCALER, XspressROI.MCA});
+		regionType.select(0);
+		
 		Group grpAcquire = new Group(left, SWT.NONE);
 		grpAcquire.setText("Acquire Spectra");
 		grpAcquire.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false, 1, 1));
@@ -314,7 +322,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		acquireFileLabel.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 
 		openDialog = new FileDialog(parent.getShell(), SWT.OPEN);
-		openDialog.setFilterPath(LocalProperties.get("gda.data.scan.datawriter.datadir"));
+		openDialog.setFilterPath(LocalProperties.get(LocalProperties.GDA_DATAWRITER_DIR));
 
 		final Composite grid = new Composite(left, SWT.BORDER);
 		grid.setLayout(new GridLayout(1, false));
@@ -708,17 +716,18 @@ public class XspressParametersUIEditor extends DetectorEditor {
 					calculateCounts(showIndividualElements.getValue());
 				}
 			});
+			// find if the data needs to be written to disk
 
 			if (isAutoSave) {
 				String spoolDirPath = PathConstructor.createFromProperty("gda.device.xspress.spoolDir");
-				final String filepath = spoolDirPath + getFileNumber() + "Xspress.mca";
-				save(detectorData, filepath);
-				logger.info("Saved to filePath " + filepath);
+				final File filePath = File.createTempFile("mca", ".xsp", new File(spoolDirPath));
+				save(detectorData, filePath.getAbsolutePath());
+				logger.info("Saved to filePath " + filePath);
 				// Get res grade for calibration.
 				getSite().getShell().getDisplay().syncExec(new Runnable() {
 					@Override
 					public void run() {
-						acquireFileLabel.setText("Saved to: " + filepath);
+						acquireFileLabel.setText("Saved to: " + filePath.getAbsolutePath());
 					}
 				});
 			}
@@ -760,21 +769,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			}
 		});
 	}
-	
-	public long getFileNumber() {
-		// Now lets try and setup the NumTracker...
-				NumTracker runNumber = null;
-				try {
-					runNumber = new NumTracker("tmp");
-					runNumber.incrementNumber();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					logger.error("TODO put description of error here", e);
-				}
-				// Get the current number
-				return runNumber.getCurrentFileNumber();
-	}
-	
+
 	@Override
 	protected double getDetectorCollectionTime() {
 		return acquireTime.getNumericValue(); // convert to ms
@@ -944,5 +939,12 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	protected String getDataXMLName() {
 		String varDir = LocalProperties.get(LocalProperties.GDA_VAR_DIR);
 		return varDir + "/xspress_editor_data.xml";
+	}
+	
+	/**
+	 * @return d
+	 */
+	public ComboWrapper getRegionType() {
+		return regionType;
 	}
 }

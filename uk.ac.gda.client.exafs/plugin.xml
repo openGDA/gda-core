@@ -280,6 +280,10 @@
             id="uk.ac.gda.client.exafs.skipRepetition"
             name="Skip Current Repetition">
       </command>
+      <command
+            id="uk.ac.gda.client.exafs.changenumberRepetitions"
+            name="Change Number of Repetitions">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
@@ -331,6 +335,10 @@
             class="uk.ac.gda.exafs.ui.actions.SkipRepetition"
             commandId="uk.ac.gda.client.exafs.skipRepetition">
      </handler>
+     <handler
+           class="uk.ac.gda.exafs.ui.actions.ChangeNumberRepetitions"
+           commandId="uk.ac.gda.client.exafs.changenumberRepetitions">
+     </handler>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -369,9 +377,12 @@
                style="push"
                tooltip="Stops the current scan once the current repetition has completed">
          </command>
-      </menuContribution>
-      <menuContribution
-            locationURI="toolbar:uk.ac.gda.client.experimentdefinition.runcontrollerview">
+         <command
+               commandId="uk.ac.gda.client.exafs.changenumberRepetitions"
+               icon="icons/table_edit.png"
+               label="Edit number of repetitions"
+               style="push">
+         </command>
          <command
                commandId="uk.ac.gda.client.exafs.switchToPlotPerspective"
                icon="icons/chart_bar.png"

@@ -18,9 +18,6 @@
 
 package uk.ac.gda.exafs.ui.actions;
 
-import gda.exafs.scan.RepetitionsProperties;
-import gda.jython.InterfaceProvider;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -30,33 +27,36 @@ import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
+import org.eclipse.ui.PlatformUI;
 
-public class SkipRepetition extends AbstractHandler implements IWorkbenchWindowActionDelegate, IEditorActionDelegate {
+import uk.ac.gda.exafs.ui.dialogs.ChangeNumberRepetitionsDialog;
+
+public class ChangeNumberRepetitions extends AbstractHandler implements IWorkbenchWindowActionDelegate,
+		IEditorActionDelegate {
 
 	@Override
-	public void run(IAction arg0) {
+	public void run(IAction action) {
 	}
 
 	@Override
-	public void selectionChanged(IAction arg0, ISelection arg1) {
+	public void selectionChanged(IAction action, ISelection selection) {
 	}
 
 	@Override
-	public Object execute(ExecutionEvent arg0) throws ExecutionException {
-		InterfaceProvider.getTerminalPrinter().print(
-				"Request made to skip the current repetition and if available move on to the next one.");
-		InterfaceProvider.getCommandRunner().runCommand(
-				"LocalProperties.set(\"" + RepetitionsProperties.SKIP_REPETITION_PROPERTY + "\",\"true\")");
-		InterfaceProvider.getCommandRunner().runCommand("ScanBase.setInterrupted(True)");
-		return null;
+	public Object execute(ExecutionEvent event) throws ExecutionException {
+		ChangeNumberRepetitionsDialog dialog = new ChangeNumberRepetitionsDialog(PlatformUI.getWorkbench()
+				.getActiveWorkbenchWindow().getShell());
+		dialog.create();
+		dialog.open();
+		return Boolean.TRUE;
 	}
 
 	@Override
-	public void setActiveEditor(IAction arg0, IEditorPart arg1) {
+	public void setActiveEditor(IAction action, IEditorPart targetEditor) {
 	}
 
 	@Override
-	public void init(IWorkbenchWindow arg0) {
+	public void init(IWorkbenchWindow window) {
 	}
 
 }

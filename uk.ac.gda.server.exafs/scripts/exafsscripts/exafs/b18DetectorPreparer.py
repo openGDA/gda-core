@@ -67,7 +67,7 @@ class B18DetectorPreparer:
     def configFluoDetector(self, detectorParameters, outputParameters, scriptFolder):
         detType = detectorParameters.getFluorescenceParameters().getDetectorType()
         fullFileName = scriptFolder + detectorParameters.getFluorescenceParameters().getConfigFileName()
-        print "configuring", detType, "detector using", fullFileName
+        print "Configuring", detType, "detector using", fullFileName
         if detType == "Germanium":
             Xspress2DetectorConfiguration(Finder.getInstance().find("ExafsScriptObserver"), fullFileName, None, outputParameters).configure()
         else:

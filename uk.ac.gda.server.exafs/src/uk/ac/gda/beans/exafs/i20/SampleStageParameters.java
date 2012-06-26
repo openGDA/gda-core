@@ -30,24 +30,24 @@ import uk.ac.gda.doe.DOEField;
 public class SampleStageParameters  implements Serializable{
 	
 	@DOEField(DOEField.DEFAULT_LEVEL)
-	private String x;
+	private Double x;
 	@DOEField(DOEField.DEFAULT_LEVEL)
-	private String y;
+	private Double y;
 	@DOEField(DOEField.DEFAULT_LEVEL)
-	private String z;
+	private Double z;
 	@DOEField(DOEField.DEFAULT_LEVEL)
-	private String rotation;
+	private Double rotation;
 	@DOEField(DOEField.DEFAULT_LEVEL)
-	private String fineRotation;
+	private Double fineRotation;
 	@DOEField(DOEField.DEFAULT_LEVEL)
-	private String roll;
+	private Double roll;
 	@DOEField(DOEField.DEFAULT_LEVEL)
-	private String yaw;
+	private Double yaw;
 
 	/**
 	 * @return the x
 	 */
-	public String getX() {
+	public Double getX() {
 		return x;
 	}
 
@@ -55,14 +55,14 @@ public class SampleStageParameters  implements Serializable{
 	 * @param x
 	 *            the x to set
 	 */
-	public void setX(String x) {
+	public void setX(Double x) {
 		this.x = x;
 	}
 
 	/**
 	 * @return the y
 	 */
-	public String getY() {
+	public Double getY() {
 		return y;
 	}
 
@@ -70,14 +70,14 @@ public class SampleStageParameters  implements Serializable{
 	 * @param y
 	 *            the y to set
 	 */
-	public void setY(String y) {
+	public void setY(Double y) {
 		this.y = y;
 	}
 
 	/**
 	 * @return the z
 	 */
-	public String getZ() {
+	public Double getZ() {
 		return z;
 	}
 
@@ -85,14 +85,14 @@ public class SampleStageParameters  implements Serializable{
 	 * @param z
 	 *            the z to set
 	 */
-	public void setZ(String z) {
+	public void setZ(Double z) {
 		this.z = z;
 	}
 
 	/**
 	 * @return the rotation
 	 */
-	public String getRotation() {
+	public Double getRotation() {
 		return rotation;
 	}
 
@@ -100,14 +100,14 @@ public class SampleStageParameters  implements Serializable{
 	 * @param rotation
 	 *            the rotation to set
 	 */
-	public void setRotation(String rotation) {
+	public void setRotation(Double rotation) {
 		this.rotation = rotation;
 	}
 
 	/**
 	 * @return the roll
 	 */
-	public String getRoll() {
+	public Double getRoll() {
 		return roll;
 	}
 
@@ -115,14 +115,14 @@ public class SampleStageParameters  implements Serializable{
 	 * @param roll
 	 *            the roll to set
 	 */
-	public void setRoll(String roll) {
+	public void setRoll(Double roll) {
 		this.roll = roll;
 	}
 
 	/**
 	 * @return the yaw
 	 */
-	public String getYaw() {
+	public Double getYaw() {
 		return yaw;
 	}
 
@@ -130,15 +130,15 @@ public class SampleStageParameters  implements Serializable{
 	 * @param yaw
 	 *            
 	 */
-	public void setYaw(String yaw) {
+	public void setYaw(Double yaw) {
 		this.yaw = yaw;
 	}
 
-	public String getFineRotation() {
+	public Double getFineRotation() {
 		return fineRotation;
 	}
 
-	public void setFineRotation(String fineRotation) {
+	public void setFineRotation(Double fineRotation) {
 		this.fineRotation = fineRotation;
 	}
 

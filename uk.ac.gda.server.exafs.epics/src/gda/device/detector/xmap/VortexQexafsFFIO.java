@@ -98,7 +98,7 @@ public class VortexQexafsFFIO extends DetectorBase implements BufferedDetector{
 			
 			Double[] expressFrameDoubles = expressFrameData.getDoubleVals();
 			int col=0;
-			String[] names = expressFrameData.extraNames;
+			String[] names = expressFrameData.getExtraNames();
 			for(int name=0;name<expressFrameDoubles.length;name++)
 				if(names[name].equals("FF"))
 					col=name;
