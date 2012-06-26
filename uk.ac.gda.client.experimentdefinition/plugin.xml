@@ -88,6 +88,21 @@
             name="Run multi">
       </command>
       <command
+            description="Queue and Run Single Scan Only"
+            id="uk.ac.gda.client.experimentdefinition.QueueAndRunSingleScanOnlyCommand"
+            name="Queue and Run single">
+      </command>
+      <command
+            description="Queue and Run Single Experiment"
+            id="uk.ac.gda.client.experimentdefinition.QueueAndRunSingleExperimentCommand"
+            name="Queue and Run single">
+      </command>
+      <command
+            description="Queue and Run multiple experiment"
+            id="uk.ac.gda.client.experimentdefinition.QueueAndRunMultiExperimentCommand"
+            name="Queue and Run multi">
+      </command>
+      <command
             description="Stop everything and restart the queue."
             id="uk.ac.gda.client.experimentdefinition.StopAllCommand"
             name="Stop All">
@@ -196,7 +211,7 @@
             locationURI="popup:uk.ac.diamond.gda.client.experimentdefinition.ExperimentView?after=additions">
          <command
                commandId="uk.ac.gda.client.experimentdefinition.RunMultiExperimentCommand"
-               icon="icons/control_run_blue.png"
+               icon="icons/page_white_text.png"
                label="Queue Multiple Scan"
                style="push"
                tooltip="Add multiple scan to command queue">
@@ -215,10 +230,48 @@
          </command>
          <command
                commandId="uk.ac.gda.client.experimentdefinition.RunSingleExperimentCommand"
-               icon="icons/control_play_blue.png"
+               icon="icons/page_white_text.png"
                label="Queue Single Scan"
                style="push"
                tooltip="Add single scan to command queue">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="activeMenuSelection">
+                  <iterate
+                        ifEmpty="true">
+                     <instanceof
+                           value="uk.ac.gda.client.experimentdefinition.IExperimentObject">
+                     </instanceof>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.QueueAndRunMultiExperimentCommand"
+               icon="icons/page_white_go.png"
+               label="Queue and Run Multiple Scan"
+               style="push"
+               tooltip="Add multiple scan to command queue and immediately start the queue">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="activeMenuSelection">
+                  <iterate
+                        ifEmpty="true">
+                     <instanceof
+                           value="uk.ac.gda.client.experimentdefinition.IExperimentObjectManager">
+                     </instanceof>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.QueueAndRunSingleExperimentCommand"
+               icon="icons/page_white_go.png"
+               label="Queue and Run Single Scan"
+               style="push"
+               tooltip="Add single scan to command queue and immediately start the queue">
             <visibleWhen
                   checkEnabled="false">
                <with
@@ -652,6 +705,18 @@
       <handler
             class="uk.ac.gda.client.experimentdefinition.ui.handlers.RunExperimentCommandHandler"
             commandId="uk.ac.gda.client.experimentdefinition.RunMultiExperimentCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.QueueAndRunExperimentCommandHandler"
+            commandId="uk.ac.gda.client.experimentdefinition.QueueAndRunSingleScanOnlyCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.QueueAndRunExperimentCommandHandler"
+            commandId="uk.ac.gda.client.experimentdefinition.QueueAndRunSingleExperimentCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.QueueAndRunExperimentCommandHandler"
+            commandId="uk.ac.gda.client.experimentdefinition.QueueAndRunMultiExperimentCommand">
       </handler>
       <handler
             class="uk.ac.gda.client.experimentdefinition.ui.handlers.AddCommandHandler"
