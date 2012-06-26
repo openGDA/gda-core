@@ -132,6 +132,7 @@ public class ContinuousScan extends ConcurrentScanChild {
 		// the hardware will do.
 		numberScanpoints = qscanAxis.prepareForContinuousMove();
 		params.setNumberDataPoints(numberScanpoints);
+		super.setTotalNumberOfPoints(numberScanpoints);
 
 		// prep the detectors
 		for (BufferedDetector detector : qscanDetectors) {
@@ -292,7 +293,7 @@ public class ContinuousScan extends ConcurrentScanChild {
 		}
 		logger.info("data read successfully");
 
-		for (int thisFrame = lowFrame; thisFrame <= highFrame; thisFrame++) {
+		for (int thisFrame = lowFrame; thisFrame < highFrame; thisFrame++) {
 			checkForInterrupts();
 			currentPointCount++;
 			this.stepId = new ScanStepId(qscanAxis.getName(), currentPointCount);
@@ -302,6 +303,7 @@ public class ContinuousScan extends ConcurrentScanChild {
 			thisPoint.setStepIds(getStepIds());
 			thisPoint.setScanPlotSettings(getScanPlotSettings());
 			thisPoint.setScanDimensions(getDimensions());
+			thisPoint.setNumberOfPoints(numberScanpoints);
 
 			// add the scannables. For the qscanAxis scannable calculate the position.
 			double stepSize = (stop - start) / (numberScanpoints - 1);
@@ -347,7 +349,7 @@ public class ContinuousScan extends ConcurrentScanChild {
 			// (This is implemented as setters at the moment, as I didn't want to risk changing the constructor
 			// statement above and risk breaking the scanning system!)
 			thisPoint.setCurrentPointNumber(this.currentPointCount);
-			thisPoint.setNumberOfPoints(super.getTotalNumberOfPoints());
+//			thisPoint.setNumberOfPoints(super.getTotalNumberOfPoints());
 			thisPoint.setInstrument(instrument);
 			thisPoint.setCommand(getCommand());
 			setScanIdentifierInScanDataPoint(thisPoint);

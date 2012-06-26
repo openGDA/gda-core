@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -20,10 +20,16 @@ package gda.rcp.views;
 
 import java.util.List;
 
-import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.ui.part.ViewPart;
+import org.springframework.beans.factory.InitializingBean;
 
-public class CompositeFactoryExecutableExtension extends AbstractFindableExecutableExtension{
-
+public class CompositeFactoryView extends ViewPart implements InitializingBean{
 	
 	String viewTitle;
 	
@@ -35,6 +41,7 @@ public class CompositeFactoryExecutableExtension extends AbstractFindableExecuta
 	public void setViewTitle(String viewTitle) {
 		this.viewTitle = viewTitle;
 	}
+	
 
 	List<CompositeFactory> compositeFactories= null;
 	
@@ -46,15 +53,29 @@ public class CompositeFactoryExecutableExtension extends AbstractFindableExecuta
 		this.compositeFactories = compositeFactories;
 	}
 
+	
 	@Override
-	public Object create() throws CoreException {
-		CompositeFactoryView view = new CompositeFactoryView();
-		view.setViewTitle(viewTitle);
-		view.setCompositeFactories(compositeFactories);
-		return view;
+	public void createPartControl(Composite parent) {
+		setPartName(viewTitle);
+		Group grp= new Group(parent, SWT.NONE);
+		GridLayout statusLayout = new GridLayout(compositeFactories.size(), false);
+		grp.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true));
+		grp.setLayout(statusLayout);
+
+		for(CompositeFactory compositeFactory : compositeFactories){
+			Composite composite = compositeFactory.createComposite(grp, SWT.NONE, this.getSite());
+			GridDataFactory.fillDefaults().applyTo(composite);
+		}
+	}
+	
+	@Override
+	public void setFocus() {
+		// TODO Auto-generated method stub
+
 	}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
 	}
+
 }
