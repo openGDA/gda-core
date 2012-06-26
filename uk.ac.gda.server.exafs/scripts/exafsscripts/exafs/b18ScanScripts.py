@@ -67,41 +67,7 @@ class Scan:
 
     
 class XasScan(Scan):
-        
-    def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, numRepetitions= -1, validation=True):
-        ScanBase.interrupted = False
     
-        controller = Finder.getInstance().find("ExafsScriptObserver")
-        
-        # Create the beans from the file names
-        xmlFolderName = ExafsEnvironment().getScriptFolder() + folderName + "/"
-        print "xmlFolderName", xmlFolderName  
-        
-        sampleBean, scanBean, detectorBean, outputBean = self._createBeans(xmlFolderName, sampleFileName, scanFileName, detectorFileName, outputFileName)
-
-        # send initial message to the log
-        from gda.jython.scriptcontroller.logging import LoggingScriptController
-        from gda.jython.scriptcontroller.logging import XasLoggingMessage
-        loggingcontroller   = Finder.getInstance().find("XASLoggingScriptController")
-        scriptType = "Exafs"
-        if isinstance(scanBean, XanesScanParameters):
-            scriptType = "Xanes"
-        unique_id           = LoggingScriptController.createUniqueID(scriptType);
-        outputFolder = outputBean.getAsciiDirectory()+ "/" + outputBean.getAsciiFileName()
-
-        # create the scannable which will control energy & time for each point
-        useFrames = LocalProperties.check("gda.microfocus.scans.useFrames")
-        if(detectorBean.getExperimentType() == "Fluorescence" and detectorBean.getFluorescenceParameters().getDetectorType() == "Germanium" and useFrames):
-            xas_scannable = XasScannableWithDetectorFramesSetup()
-            xas_scannable.setHarmonicConverterName("auto_mDeg_idGap_mm_converter")
-        else:
-            xas_scannable = XasScannable()
-            useFrames = 0
-        xas_scannable.setName("xas_scannable")
-        print "Energy control supplied by scannable:", scanBean.getScannableName()
-        xas_scannable.setEnergyScannable(Finder.getInstance().find(scanBean.getScannableName()))
-        # give the beans to the xasdatawriter class to help define the folders/filenames 
-
     def _defineBeanGroup(self, folderName, validation, controller, xmlFolderName, sampleBean, scanBean, detectorBean, outputBean):
 
         originalGroup = BeanGroup()
@@ -291,7 +257,10 @@ class QexafsScan(Scan):
         Scan.__init__(self, None,detectorPreparer, samplePreparer, outputPreparer,None)
         self.energy_scannable = energy_scannable
         self.ion_chambers_scannable = ion_chambers_scannable
-    
+        #self.cirrus = cirrus
+        #self.sample_temperature = sample_temperature
+        #self.sample_temperature2 = sample_temperature2
+            
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, numRepetitions= -1, validation=True):
         xmlFolderName = ExafsEnvironment().getXMLFolder() + folderName + "/"
 
@@ -320,7 +289,7 @@ class QexafsScan(Scan):
             self.samplePreparer.prepare(sampleBean)
             self.outputPreparer.prepare(outputBean)
         
-        # no signal parameters
+            # no signal parameters
             if len(outputBean.getCheckedSignalList()) > 0:
                 print "Signal parameters not available with QEXAFS"
             if self.energy_scannable == None:
@@ -413,6 +382,48 @@ class QexafsScan(Scan):
         beanGroup.setOutput(outputBean)
         beanGroup.setScan(scanBean)
         return beanGroup
+    #===========================================================================
+    # def _control_cirrus_detector(self, bean, initial_energy, final_energy, scan_time):
+    #    
+    #    masses = []
+    #    masses.append(bean.isMass2())
+    #    masses.append(bean.isMass4())
+    #    masses.append(bean.isMass12())
+    #    masses.append(bean.isMass14())
+    #    masses.append(bean.isMass15())
+    #    masses.append(bean.isMass16())
+    #    masses.append(bean.isMass17())
+    #    masses.append(bean.isMass18())
+    #    masses.append(bean.isMass28())
+    #    masses.append(bean.isMass32())
+    #    masses.append(bean.isMass36())
+    #    masses.append(bean.isMass40())
+    #    masses.append(bean.isMass44())
+    #    masses.append(bean.isMass64())
+    #    masses.append(bean.isMass69())
+    #    
+    #    self.initial_energy=initial_energy
+    #    self.final_energy=final_energy
+    #    self.scan_time = scan_time
+    #    
+    #    i=0
+    #    massList = []
+    #    mList= [2,4,12,14,15,16,17,18,28,32,36,40,44,64,69]
+    #    for mass in masses:
+    #        if mass is True:
+    #            massList.append(mList[i])
+    #        i+=1
+    #    if len(massList)>0:
+    #        print str(massList)
+    #        self.cirrus.setMasses(massList)
+    #    else:
+    #        massList=self.cirrus.getMasses()
+    #    
+    #    print "Number of cirrus reads=" + str(int(self.scan_time/bean.getInterval()))
+    #    
+    #    mythread = CollectCirrusData(int(self.scan_time/bean.getInterval()), bean.getInterval(), PathConstructor.createFromProperty("gda.device.cirrus.datadir"), self.cirrus, self.sample_temperature, self.sample_temperature2, self.energy_scannable, self.initial_energy, self.final_energy, massList)
+    #    mythread.start()
+    #===========================================================================
 
                 
 class ExafsEnvironment:
