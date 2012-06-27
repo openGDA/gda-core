@@ -262,7 +262,7 @@ public interface ITomographyDetector {
 	 * @return true if the detector is busy; false otherwise.
 	 * @throws DeviceException
 	 */
-	boolean isBusy() throws DeviceException;
+	boolean isAcquiring() throws DeviceException;
 
 	/**
 	 * The PCO detector can be controlled using an external hardware trigger - however, for the tomography alignment it

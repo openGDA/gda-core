@@ -160,7 +160,7 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 		try {
 			/**/
 			logger.info("setting exposure time:" + exposureTime);
-			boolean isCameraBusy = getCamera().isBusy();
+			boolean isCameraBusy = getCamera().isAcquiring();
 			if (isCameraBusy) {
 				getCamera().abort();
 			}

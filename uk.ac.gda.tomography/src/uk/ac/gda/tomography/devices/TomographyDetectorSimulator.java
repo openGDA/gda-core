@@ -176,7 +176,7 @@ public class TomographyDetectorSimulator implements ITomographyDetector {
 	}
 
 	@Override
-	public boolean isBusy() throws DeviceException {
+	public boolean isAcquiring() throws DeviceException {
 		// TODO Auto-generated method stub
 		return false;
 	}
