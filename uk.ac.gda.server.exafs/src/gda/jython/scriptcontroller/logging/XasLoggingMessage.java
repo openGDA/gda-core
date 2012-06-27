@@ -35,7 +35,7 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 	private String outputFolder;
 	
 	
-	protected XasLoggingMessage(String id, String scriptName, String message, String repetition, String percentComplete,
+	public XasLoggingMessage(String id, String scriptName, String message, String repetition, String percentComplete,
 			String elaspedTime, String predictedTotalTime, String outputFolder) {
 		super();
 		this.id = id;
