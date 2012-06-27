@@ -24,12 +24,10 @@ import gda.images.camera.ImageListener;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
@@ -395,6 +393,7 @@ public class CameraCompositeController implements ICameraControlListener {
 
 	private class RunnableWithProgress implements IRunnableWithProgress {
 
+		private boolean isJobComplete = false;
 		private final boolean flatCorrectionSelected;
 		private final boolean isAmplifierAtOne;
 		private final boolean isStreaming;
@@ -411,27 +410,30 @@ public class CameraCompositeController implements ICameraControlListener {
 
 		@Override
 		public void run(final IProgressMonitor baseMonitor) throws InvocationTargetException, InterruptedException {
-			Job checkProgressJob = new Job("Check Progress") {
-
-				@Override
-				protected IStatus run(IProgressMonitor monitor) {
-					while (true) {
-						if (baseMonitor.isCanceled()) {
-							try {
-								tomoAlignmentViewController.stopDemandRaw();
-							} catch (Exception e) {
-								MessageDialog.openError(cameraControls.getShell(), "User Stopped Operation",
-										"Problem with taking Single: User stopped operation");
-							}
-							break;
-						}
-					}
-					return Status.OK_STATUS;
-				}
-			};
-			checkProgressJob.schedule(50);
-
+			Job checkProgressJob = null;
+			isJobComplete = false;
 			try {
+				checkProgressJob = new Job("Check Progress") {
+
+					@Override
+					protected IStatus run(IProgressMonitor monitor) {
+						while (!isJobComplete) {
+							if (baseMonitor.isCanceled()) {
+								try {
+									tomoAlignmentViewController.stopDemandRaw();
+								} catch (Exception e) {
+									logger.error("Problem stopping sample single");
+//									MessageDialog.openError(cameraControls.getShell(), "User Stopped Operation",
+//											"Problem with taking Single: User stopped operation");
+								}
+								break;
+							}
+						}
+						return Status.OK_STATUS;
+					}
+				};
+				checkProgressJob.schedule(50);
+
 				SubMonitor progress = SubMonitor.convert(baseMonitor);
 				progress.beginTask("Demanding raw image", 10);
 				String fileLocation = null;
@@ -474,13 +476,17 @@ public class CameraCompositeController implements ICameraControlListener {
 				logger.error("problem while demand raw", e1);
 				throw new InvocationTargetException(e1, "Problem while demanding raw");
 			} finally {
+				isJobComplete = true;
 				baseMonitor.done();
 				v.setLeftWindowInfo(TomoAlignmentView.SAMPLE_SINGLE);
-				checkProgressJob.done(Status.OK_STATUS);
+				if (checkProgressJob != null) {
+					checkProgressJob.cancel();
+				}
 			}
 		}
 
 	}
+	
 
 	@Override
 	public void sampleSingle(final boolean flatCorrectionSelected) throws Exception {
@@ -1074,7 +1080,7 @@ public class CameraCompositeController implements ICameraControlListener {
 					tomoAlignmentViewController.moveSampleStageIn(monitor);
 				} catch (DeviceException e) {
 					cameraControls.selectSampleOut();
-					throw new InvocationTargetException(e, "Unable to move sample stage: "+e.getMessage());
+					throw new InvocationTargetException(e, "Unable to move sample stage: " + e.getMessage());
 				} finally {
 					monitor.done();
 				}
@@ -1094,7 +1100,7 @@ public class CameraCompositeController implements ICameraControlListener {
 					tomoAlignmentViewController.moveSampleStageOut(monitor);
 				} catch (DeviceException e) {
 					cameraControls.selectSampleOut();
-					throw new InvocationTargetException(e, "Unable to move sample stage: "+e.getMessage());
+					throw new InvocationTargetException(e, "Unable to move sample stage: " + e.getMessage());
 				} finally {
 					monitor.done();
 				}
