@@ -75,6 +75,7 @@ public class ADPilatusTest extends ADDetectorTest {
 	@Override
 	protected void createDetector() throws Exception {
 		adPilatus = new HardwareTriggerableADDetector();
+		adPilatus.setIntegratesBetweenPoints(true);
 		mockAdDriverPilatus = mock(ADDriverPilatus.class);
 		adPilatus.setNonHardwareTriggeredCollectionStrategy(new SingleExposurePilatus(mockAdBase, 0.003)); // default strategy
 		adPilatus.setHardwareTriggeredCollectionStrategy(new HardwareTriggeredPilatus(mockAdBase, mockAdDriverPilatus, 0.003, HARDWARE_TRIGGER_MODE)); // default strategy
@@ -125,8 +126,8 @@ public class ADPilatusTest extends ADDetectorTest {
 		pil().setCollectionTime(1.);
 		pil().arm();
 		InOrder inOrder = inOrder(mockAdBase, mockAdDriverPilatus);
-		inOrder.verify(mockAdBase).setAcquirePeriod(1.);
-		inOrder.verify(mockAdBase).setAcquireTime(1 - READOUT_TIME);
+		inOrder.verify(mockAdBase).setAcquirePeriod(1. + READOUT_TIME);
+		inOrder.verify(mockAdBase).setAcquireTime(1);
 		inOrder.verify(mockAdBase).setTriggerMode(HARDWARE_TRIGGER_MODE.ordinal());
 		inOrder.verify(mockAdBase).setImageModeWait(ImageMode.MULTIPLE);
 		inOrder.verify(mockAdBase).setNumImages(10);
