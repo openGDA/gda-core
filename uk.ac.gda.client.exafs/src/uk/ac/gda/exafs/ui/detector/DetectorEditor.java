@@ -240,14 +240,14 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 					public void run() {
 						isZooming = sashPlotForm.getPlotter().isZoomEnabled();
 						try {
-							getDetectorElementComposite().setStartEnabled(!isZooming);
-							getDetectorElementComposite().setEndEnabled(!isZooming);
+							//getDetectorElementComposite().setStartEnabled(!isZooming);
+							//getDetectorElementComposite().setEndEnabled(!isZooming);
 							if (currentOverlay != null) {
 								if (isZooming) {
 									sashPlotForm.getPlotter().unRegisterOverlay(currentOverlay);
-								} else {
+								} //else {
 									createOverlay(getDetectorList().getSelectedIndex());
-								}
+								//}
 							}
 
 						} catch (Exception e) {
@@ -834,23 +834,23 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 				start != null ? (Integer) start : 0, end != null ? (Integer) end : 0);
 		currentOverlay.setDraw(getDetectorElementComposite().getRegionList().getListSize() > 0);
 		sashPlotForm.getPlotter().registerOverlay(currentOverlay);
-
+		
 		currentOverlay.addGraphSelectionListener(new GraphSelectionListener() {
 
 			@Override
 			public void graphSelectionPerformed(GraphSelectionEvent evt) {
 				currentOverlay.setBusy(true);
 				try {
-					double start = evt.getStart().getX();
-					double end = evt.getEnd().getX();
-					if (start > end) {
-						double tmp = start;
-						start = end;
-						end = tmp;
-					}
-
-					getDetectorElementComposite().getStart().setValue(start);
-					getDetectorElementComposite().getEnd().setValue(end);
+//					double start = evt.getStart().getX();
+//					double end = evt.getEnd().getX();
+//					if (start > end) {
+//						double tmp = start;
+//						start = end;
+//						end = tmp;
+//					}
+//
+//					getDetectorElementComposite().getStart().setValue(start);
+//					getDetectorElementComposite().getEnd().setValue(end);
 
 					// Select next element?
 					if (changeElement) {

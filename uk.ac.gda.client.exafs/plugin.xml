@@ -8,7 +8,7 @@
          point="org.eclipse.ui.views">
       <category
             id="uk.ac.gda.client.exafs.category"
-            name="Data Acquisition - XAFS">
+            name="Data Acquisition - XAS">
       </category>
       <view
             category="uk.ac.gda.client.exafs.category"
@@ -27,7 +27,7 @@
             restorable="true">
       </view>
      <view
-            category="uk.ac.gda.client.general.category"
+            category="uk.ac.gda.client.exafs.category"
             class="uk.ac.gda.exafs.ui.plot.FourierScanPlotView"
             icon="icons/chart_curve.png"
             id="gda.rcp.views.scan.FourierScanPlotView"
@@ -35,7 +35,7 @@
             restorable="true">
       </view>
        <view
-            category="uk.ac.gda.client.general.category"
+            category="uk.ac.gda.client.exafs.category"
             class="uk.ac.gda.exafs.ui.plot.LnI0ItScanPlotView"
             icon="icons/chart_curve.png"
             id="gda.rcp.views.scan.LnI0ItScanPlotView"
@@ -373,15 +373,16 @@
          <command
                commandId="uk.ac.gda.client.exafs.haltAfterRepetition"
                icon="icons/stepreturn.png"
-               label="Halt scan after repetition"
+               label="Halt scan after current repetition"
                style="push"
                tooltip="Stops the current scan once the current repetition has completed">
          </command>
          <command
                commandId="uk.ac.gda.client.exafs.changenumberRepetitions"
                icon="icons/table_edit.png"
-               label="Edit number of repetitions"
-               style="push">
+               label="Edit repetitions of running scan"
+               style="push"
+               tooltip="If a scan running, edits the number of repetitions which will be completed.">
          </command>
          <command
                commandId="uk.ac.gda.client.exafs.switchToPlotPerspective"
