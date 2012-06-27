@@ -38,6 +38,15 @@ import org.slf4j.LoggerFactory;
  */
 public class Tfg extends DeviceBase implements Timer, Runnable {
 
+	public static final String AUTO_CONTINUE_ATTR_NAME = "Auto-Continue";
+
+	public static final String EXT_START_ATTR_NAME = "Ext-Start";
+	public static final String AUTO_REARM_ATTR_NAME = "Auto-Rearm";
+
+	public static final String EXT_INHIBIT_ATTR_NAME = "Ext-Inhibit";
+
+	public static final String VME_START_ATTR_NAME = "VME-Start";
+
 	private static final Logger logger = LoggerFactory.getLogger(Tfg.class);
 
 	private static final int EC740_MAXFRAME = 1024;
@@ -45,7 +54,11 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 	protected DAServer daServer = null;
 	private String daServerName;
 	protected boolean extStart = false;
+	//if true that tfg.start sends "tfg start", otherwise sends "tfg arm"
 	protected boolean vmeStart = true;
+	//if true auto-rearm to added to the end of the setup-groups command rather than cycles
+	protected boolean autoReArm = false;
+	
 	protected boolean extInh = false;
 	protected int cycles = 1;
 	private int totalCycles = 0;
@@ -343,8 +356,12 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 			sb.append(" ext-inh");
 		}
 
-		sb.append(" cycles ");
-		sb.append(cycles);
+		if ( autoReArm){
+			sb.append(" auto-rearm ");
+		} else {
+			sb.append(" cycles ");
+			sb.append(cycles);
+		}
 		sb.append("\n");
 
 		totalExptTime = 0;
@@ -435,13 +452,15 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 	 */
 	@Override
 	public void setAttribute(String attributeName, Object value) throws DeviceException {
-		if ("Ext-Start".equals(attributeName)) {
+		if (EXT_START_ATTR_NAME.equals(attributeName)) {
 			extStart = ((Boolean) value).booleanValue();
-		} else if ("Ext-Inhibit".equals(attributeName)) {
+		} else if (EXT_INHIBIT_ATTR_NAME.equals(attributeName)) {
 			extInh = ((Boolean) value).booleanValue();
-		} else if ("VME-Start".equals(attributeName)) {
+		} else if (AUTO_REARM_ATTR_NAME.equals(attributeName)) {
+			autoReArm = ((Boolean) value).booleanValue();
+		} else if (VME_START_ATTR_NAME.equals(attributeName)) {
 			vmeStart = ((Boolean) value).booleanValue();
-		} else if ("Auto-Continue".equals(attributeName)) {
+		} else if (AUTO_CONTINUE_ATTR_NAME.equals(attributeName)) {
 			autoContinue = (Boolean) value ? 1 : 0;
 			checkOKToSendCommand();
 			daServer.sendCommand("tfg options auto-cont " + autoContinue);
@@ -466,13 +485,15 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 	@Override
 	public Object getAttribute(String attributeName) {
 		Object obj = null;
-		if ("Ext-Start".equals(attributeName)) {
+		if (EXT_START_ATTR_NAME.equals(attributeName)) {
 			obj = new Boolean(extStart);
-		} else if ("Ext-Inhibit".equals(attributeName)) {
+		} else if (EXT_INHIBIT_ATTR_NAME.equals(attributeName)) {
 			obj = new Boolean(extInh);
+		} else if (AUTO_REARM_ATTR_NAME.equals(attributeName)) {
+			obj = new Boolean(autoReArm);
 		} else if ("VME_Start".equals(attributeName)) {
 			obj = new Boolean(extInh);
-		} else if ("Auto-Continue".equals(attributeName)) {
+		} else if (AUTO_CONTINUE_ATTR_NAME.equals(attributeName)) {
 			obj = new Boolean((autoContinue == 1) ? true : false);
 		} else if ("User".equals(attributeName)) {
 			obj = user;
