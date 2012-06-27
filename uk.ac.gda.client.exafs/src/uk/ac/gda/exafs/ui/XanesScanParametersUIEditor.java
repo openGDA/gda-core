@@ -174,7 +174,7 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 
 			if (dcmCrystal.equals("Si(111)")) {
 				finalEnergy.setMinimum(2050.0);
-				finalEnergy.setMaximum(22000.0);
+				finalEnergy.setMaximum(26000.0);
 			} else if (dcmCrystal.equals("Si(311)")) {
 				finalEnergy.setMinimum(4000.0);
 				finalEnergy.setMaximum(40000.0);
