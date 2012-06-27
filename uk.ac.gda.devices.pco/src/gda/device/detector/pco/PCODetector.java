@@ -227,8 +227,18 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 			} else {
 				// do not want to wait EPICS AD full file name update before collect next image - to support NDArray
 				// buffering
-				output = String.format(controller.getTiff().getFileTemplate().trim(), scanSaveFolder.getAbsolutePath(),
-						controller.getTiff().getFileName(), controller.getTiff().getFileNumber());
+				String fileTemplate = "File template not set";
+				String fileName = "File name not set";
+				int fileNumber = -1;
+				if (controller.getTiff() != null) {
+					if (controller.getTiff().getFileTemplate() != null) {
+						fileTemplate = controller.getTiff().getFileTemplate().trim();
+					}
+					fileName = controller.getTiff().getFileName();
+					fileNumber = controller.getTiff().getFileNumber();
+				}
+
+				output = String.format(fileTemplate, scanSaveFolder.getAbsolutePath(), fileName, fileNumber);
 				if (scanRunning) {
 					dataTree.addScanFileLink(getName(), "nxfile://" + output + "#entry/instrument/detector/data");
 				}
@@ -1115,7 +1125,6 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		this.demandRawDataStoreWindows2LinuxFileName = demandRawDataStoreWindows2LinuxFileName;
 	}
 
-
 	@Override
 	public String getTiffImageFileName() throws Exception {
 		if (isWindowsIoc()) {
@@ -1137,7 +1146,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 			controller.getTiff().setFilePath(demandRawFilePath);
 		}
 	}
-	
+
 	@Override
 	public void setADCMode(int mode) throws Exception {
 		// The ADC mode is available only the actual PCO IOC and not the simulation
