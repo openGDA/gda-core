@@ -122,23 +122,32 @@ public class CirrusController implements IEvents {
 			throw new DeviceException(
 					"Connection with Cirrus hardware does not have control of the hardware. Try to reconnect.");
 		}
-
 	}
 
 	public void createMeasurement(Integer[] masses) throws DeviceException {
 
 		checkCanControlHardware();
 
-		JRGASensor pSensor = rgaConnection.getSelectedSensor();
+		prepareHardwareForMeasurement();
 
+		this.masses = masses;
+		rgaConnection.getSelectedSensor().getMeasurements()
+				.AddPeakJump("GDA_measurement", rgaFilterModes.PeakAverage, 0, 0, 0, 0);
+		logger.info("new measurement defined in " + name);
+	}
+
+	protected void prepareHardwareForMeasurement() {
+		JRGASensor pSensor = rgaConnection.getSelectedSensor();
 		if (pSensor.getFilaments().isFilamentOn() == false) {
 			logger.info("Switching " + name + " filaments on....");
 			pSensor.getFilaments().setFilamentOn(true);
 		}
-
-		this.masses = masses;
-		logger.info("new measurement defined in " + name);
-		pSensor.getMeasurements().AddPeakJump("GDA_measurement", rgaFilterModes.PeakAverage, 0, 0, 0, 0);
+		JCirrus cirrus = rgaConnection.getSelectedSensor().getCirrus();
+		if (cirrus.getPumpState() == 0) {
+			cirrus.setPumpState(2);
+		} else if (cirrus.getPumpState() == 2 && cirrus.getHeaterState() < 1) {
+			cirrus.setHeaterState(1);
+		}
 	}
 
 	public void stop() throws DeviceException {
