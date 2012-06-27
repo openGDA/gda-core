@@ -218,6 +218,13 @@ public abstract class ScanBase implements Scan {
 	 * @throws InterruptedException
 	 */
 	public static void checkForInterrupts() throws InterruptedException {
+		
+		if (InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.IDLE) {
+			paused = false;
+			interrupted = false;
+			return;
+		}
+		
 		try {
 			if (paused & !interrupted) {
 				InterfaceProvider.getScanStatusHolder().setScanStatus(Jython.PAUSED);
@@ -1210,6 +1217,15 @@ public abstract class ScanBase implements Scan {
 	}
 	
 	public static void setPaused(boolean paused){
+		if (paused == ScanBase.paused)
+			return;
+
+		if (InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.IDLE) {
+			logger.info("paused flag set from " + ScanBase.paused + " to " + paused + " by thread :'" + Thread.currentThread().getName() + "' while idle -- ignored");
+			ScanBase.paused = paused;
+			return;
+		}
+
 		logger.info("paused flag set from " + ScanBase.paused + " to " + paused + " by thread :'" + Thread.currentThread().getName() + "'");
 		ScanBase.paused = paused;
 	}
@@ -1217,6 +1233,17 @@ public abstract class ScanBase implements Scan {
 	 * @param interrupted - allows scripts to be stopped at a convenient point
 	 */
 	public static void setInterrupted(boolean interrupted) {
+		if (interrupted == ScanBase.interrupted) 
+			return;
+		
+		if (InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.IDLE) {
+			String msg = MessageFormat.format("interrupted flag set from {0} to {1} by thread :''{2}'' while idle -- ignored",
+					ScanBase.interrupted, interrupted, Thread.currentThread().getName());
+			logger.info(msg);
+			logger.debug(msg + " from:\n" + generateStackTrace());
+			return;
+		}
+		
 		String msg = MessageFormat.format("interrupted flag set from {0} to {1} by thread :''{2}''",
 				ScanBase.interrupted, interrupted, Thread.currentThread().getName());
 		logger.info(msg);
