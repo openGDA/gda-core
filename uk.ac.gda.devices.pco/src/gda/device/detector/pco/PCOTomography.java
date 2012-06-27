@@ -18,6 +18,7 @@
 
 package gda.device.detector.pco;
 
+import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.IPCOControllerV17;
 import gda.device.detector.IPCODetector;
@@ -579,8 +580,8 @@ public class PCOTomography implements ITomographyDetector {
 	}
 
 	@Override
-	public boolean isBusy() throws DeviceException {
-		return pcoDetector.isBusy();
+	public boolean isAcquiring() throws DeviceException {
+		return pcoDetector.getStatus() == Detector.BUSY;
 	}
 
 	@Override
