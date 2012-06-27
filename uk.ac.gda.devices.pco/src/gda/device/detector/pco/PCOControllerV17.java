@@ -128,9 +128,15 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	 * detector's trigger mode - auto, soft, Ext + Soft, Ext Pulse. used to switch detcetor operation mode.
 	 */
 	private TriggerMode triggermode = TriggerMode.SOFT;
+	private final boolean isLive;
 
 	public enum TriggerMode {
 		AUTO, SOFT, EXTSOFT, EXTPULSE
+	}
+
+	public PCOControllerV17() {
+		super();
+		isLive = LiveModeUtil.isLiveMode();
 	}
 
 	@Override
@@ -232,21 +238,23 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	@Override
 	public int getReadoutTime() throws Exception {
 		int readouttime = 200;
-		if (getADCMode() < 1) {
-			if (getPixRate() < 16000000) {
-				readouttime = getReadout1ADC8Mhz();
+		if (isLive) {
+			if (getADCMode() < 1) {
+				if (getPixRate() < 16000000) {
+					readouttime = getReadout1ADC8Mhz();
+				} else {
+					readouttime = getReadout1ADC32Mhz();
+				}
 			} else {
-				readouttime = getReadout1ADC32Mhz();
+				if (getPixRate() < 16000000) {
+					readouttime = getReadout2ADC8Mhz();
+				} else {
+					readouttime = getReadout2ADC32Mhz();
+				}
 			}
-		} else {
-			if (getPixRate() < 16000000) {
-				readouttime = getReadout2ADC8Mhz();
-			} else {
-				readouttime = getReadout2ADC32Mhz();
-			}
+			print(String.format("PauseTime is %d ADCmode is %d and Pixrate is %d", readouttime, getADCMode(),
+					getPixRate()));
 		}
-
-		print(String.format("PauseTime is %d ADCmode is %d and Pixrate is %d", readouttime, getADCMode(), getPixRate()));
 		return readouttime;
 
 	}
@@ -266,6 +274,10 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 
 	@Override
 	public void setADCMode(int value) throws Exception {
+		if (!isLive) {
+			return;
+		}
+
 		try {
 			if (config != null) {
 				EPICS_CONTROLLER.caputWait(createChannel(config.getADC_MODE().getPv()), value);
@@ -457,6 +469,10 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 
 	@Override
 	public void setAcquireMode(int value) throws Exception {
+		if (!isLive) {
+			return;
+		}
+		
 		if (value < 0 && value > 2) {
 			throw new IllegalArgumentException(getName()
 					+ ": Input must be 0 - Auto, 1 - Ext. enable, and 2 - Ext. trigger");
@@ -465,7 +481,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 			if (config != null) {
 				EPICS_CONTROLLER.caput(createChannel(config.getACQUIRE_MODE().getPv()), value);
 			} else {
-				EPICS_CONTROLLER.caput(getChannel("ACQUIRE_MODE", ACQUIRE_MODE), value);
+				EPICS_CONTROLLER.caput(getChannel(ACQUIRE_MODE, ACQUIRE_MODE), value);
 			}
 		} catch (Exception ex) {
 			logger.warn("Cannot setAcquireMode", ex);
@@ -480,7 +496,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 			if (config != null) {
 				return EPICS_CONTROLLER.cagetInt(createChannel(config.getARM_MODE_RBV().getPv()));
 			}
-			return EPICS_CONTROLLER.cagetInt(getChannel("ARM_MODE_RBV", ARM_MODE_RBV));
+			return EPICS_CONTROLLER.cagetInt(getChannel(ARM_MODE_RBV, ARM_MODE_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getArmMode", ex);
 			throw ex;
@@ -499,6 +515,9 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 
 	@Override
 	public void setArmMode(int value) throws Exception {
+		if (!isLive) {
+			return;
+		}
 		if (value != 0 && value != 1) {
 			throw new IllegalArgumentException(getName() + ": Input must be 0 - Disarmed, 1 - Armed");
 		}
@@ -506,7 +525,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 			if (config != null) {
 				EPICS_CONTROLLER.caputWait(createChannel(config.getARM_MODE().getPv()), value);
 			} else {
-				EPICS_CONTROLLER.caputWait(getChannel("ARM_MODE", ARM_MODE), value);
+				EPICS_CONTROLLER.caputWait(getChannel(ARM_MODE, ARM_MODE), value);
 			}
 		} catch (Exception ex) {
 			logger.warn("Cannot setArmMode", ex);
@@ -521,7 +540,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 			if (config != null) {
 				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getDELAY_TIME_RBV().getPv()));
 			}
-			return EPICS_CONTROLLER.cagetDouble(getChannel("DELAY_TIME_RBV", DELAY_TIME_RBV));
+			return EPICS_CONTROLLER.cagetDouble(getChannel(DELAY_TIME_RBV, DELAY_TIME_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getDelayTime", ex);
 			throw ex;
@@ -534,7 +553,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 			if (config != null) {
 				EPICS_CONTROLLER.caput(createChannel(config.getDELAY_TIME().getPv()), value);
 			} else {
-				EPICS_CONTROLLER.caput(getChannel("DELAY_TIME", DELAY_TIME), value);
+				EPICS_CONTROLLER.caput(getChannel(DELAY_TIME, DELAY_TIME), value);
 			}
 		} catch (Exception ex) {
 			logger.warn("Cannot setDelayTime", ex);
@@ -542,8 +561,6 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 			throw ex;
 		}
 	}
-
-
 
 	@Override
 	public void setImageMode(int imageMode) throws Exception {
@@ -571,7 +588,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	@Override
 	public void resetAll() throws Exception {
 		// The camera needs to be disarmed before the resetAll is called.
-		if (LiveModeUtil.isLiveMode()) {
+		if (isLive) {
 			if (isArmed()) {
 				disarmCamera();
 			}
@@ -629,8 +646,10 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 
 	@Override
 	public void makeDetectorReadyForCollection() throws Exception {
-		if (getArmMode() == 1) {
-			setArmMode(0); // disarm camera before change parameters
+		if (isLive) {
+			if (getArmMode() == 1) {
+				setArmMode(0); // disarm camera before change parameters
+			}
 		}
 		areaDetector.setArrayCounter(0);
 		tiff.stopCapture();
@@ -642,10 +661,8 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 		// set the image mode to Multiple
 		areaDetector.setImageMode((short) 0);
 		areaDetector.setTriggerMode((short) 2); // EXT + SOFT
-		if (LiveModeUtil.isLiveMode()) {
-			this.setADCMode(1); // two ADC
-			this.setAcquireMode(0); // AUTO
-		}
+		this.setADCMode(1); // two ADC
+		this.setAcquireMode(0); // AUTO
 	}
 
 	/**
@@ -1049,10 +1066,6 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	public String getFullFileName() throws Exception {
 		return hdf.getFile().getFullFileName_RBV();
 	}
-
-
-
-
 
 	@Override
 	public String getTiffFullFileName() throws Exception {
