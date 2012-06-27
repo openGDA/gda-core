@@ -2084,14 +2084,23 @@ public class NDProcessImpl implements InitializingBean, NDProcess {
 	}
 
 	@Override
-	public void setFilterType(FilterTypeEnum filterType) throws Exception {
-		setFilterType(filterType.getOrdinal());
+	public void setFilterCallbacks(int filterCallback) throws Exception {
+		EPICS_CONTROLLER.caput(getChannel(FilterCallbacks), filterCallback);
 	}
 
 	@Override
-	public FilterTypeEnum getFilterTypeEx() throws Exception {
-		short type = getFilterType();
-		return FilterTypeEnum.valueOf(type);
+	public int getFilterCallbacks() throws Exception {
+		return EPICS_CONTROLLER.cagetInt(getChannel(FilterCallbacks_RBV));
+	}
+
+	@Override
+	public void setAutoResetFilter(int enable) throws Exception {
+		EPICS_CONTROLLER.caput(getChannel(AutoResetFilter), enable);
+	}
+
+	@Override
+	public int getAutoResetFilter() throws Exception {
+		return EPICS_CONTROLLER.cagetInt(getChannel(AutoResetFilter_RBV));
 	}
 
 }

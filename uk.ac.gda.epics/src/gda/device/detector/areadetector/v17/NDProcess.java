@@ -178,25 +178,23 @@ public interface NDProcess {
 	static final String AutoResetFilter_RBV = "AutoResetFilter_RBV";
 	static final String FilterCallbacks = "FilterCallbacks";
 	static final String FilterCallbacks_RBV = "FilterCallbacks_RBV";
+	
+	static final int FilterCallback_EveryArray=0;
+	static final int FilterCallback_ArrayNOnly=1;
+	
+	static final int FilterType_UserDefined=0;
+	static final int FilterType_OffsetScale=1;
+	static final int FilterType_RecursiveAve=2;
+	static final int FilterType_RecursiveSum=3;
+	static final int FilterType_Difference=4;
+	static final int FilterType_RecursiveAveDiff=5;
+	static final int FilterTypeV1_8_RecursiveAve=0;
+	static final int FilterTypeV1_8_Average=1;
+	static final int FilterTypeV1_8_Sum=2;
+	static final int FilterTypeV1_8_Diff=3;
+	static final int FilterTypeV1_8_RecursiveAveDiff=4;
+	static final int FilterTypeV1_8_CopyToFilter=5;
 
-	public enum FilterTypeEnum {
-		UserDefined(0),
-		OffsetScale(1),
-		RecursiveAve(2),
-		RecursiveSum(3),
-		Difference(4),
-		RecursiveAveDiff(5);
-		private final int ordinal;
-		FilterTypeEnum(int ordinal){ this.ordinal=ordinal;}
-		public int getOrdinal(){ return ordinal;}
-		public static FilterTypeEnum valueOf(short type) throws Exception {
-			for(FilterTypeEnum val : values()){
-				if( val.getOrdinal()==type)
-					return val;
-			}
-			throw new Exception("Value is invalid :" + type);
-		}
-	}	
 	
 	NDPluginBase getPluginBase();
 
@@ -700,10 +698,10 @@ public interface NDProcess {
 	 */
 	void setFilterType(int filtertype) throws Exception;
 
-	void setFilterType(FilterTypeEnum filterType) throws Exception;
+/*	void setFilterType(FilterTypeEnum filterType) throws Exception;
 
 	FilterTypeEnum getFilterTypeEx() throws Exception;
-	/**
+*/	/**
 	 *
 	 */
 	int getFilterTypeSeq() throws Exception;
@@ -768,4 +766,15 @@ public interface NDProcess {
 	 */
 	void reset() throws Exception;
 
+	/**
+	 * See Area Detector NDProcess FilterCallbacks doc. 
+	 */
+	void setFilterCallbacks(int filterCallback) throws Exception;
+	
+	int getFilterCallbacks() throws Exception;
+	
+	void setAutoResetFilter(int enable) throws Exception;
+	
+	int getAutoResetFilter() throws Exception;
+	
 }

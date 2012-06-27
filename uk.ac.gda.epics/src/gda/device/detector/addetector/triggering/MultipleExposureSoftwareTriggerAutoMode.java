@@ -23,7 +23,6 @@ import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.device.detector.areadetector.v17.ADBase.StandardTriggerMode;
 import gda.device.detector.areadetector.v17.NDProcess;
-import gda.device.detector.areadetector.v17.NDProcess.FilterTypeEnum;
 
 /*
  * Implementation of ADTriggeringStrategy that is used when multiple exposures are to be taken per
@@ -37,7 +36,18 @@ import gda.device.detector.areadetector.v17.NDProcess.FilterTypeEnum;
  */
 public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggeringStrategy {
 
+	/**
+	 * maxExposureTime  - maximum exposure time(s) that the camera is capable of.
+	 */
 	double maxExposureTime=Double.MAX_VALUE;
+
+	/**
+	 * exposureTime  - exposure time(s) that the camera is run at.
+	 * 
+	 * If GDA Detector collection time > exposureTime then multiple exposures are taken and added together using the NDProcess plugin
+	 */
+	double exposureTime=maxExposureTime;
+
 	int numberImagesPerCollection=1;
 	NDProcess ndProcess=null;
 	public MultipleExposureSoftwareTriggerAutoMode(ADBase adBase, double maxExposureTime) {
@@ -61,6 +71,16 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 		this.maxExposureTime = maxExposureTime;
 	}
 
+	public double getExposureTime() {
+		return exposureTime;
+	}
+
+	public void setExposureTime(double exposureTime) {
+		if( exposureTime > maxExposureTime)
+			throw new IllegalArgumentException("Unable to set exposure time to " + exposureTime + ". max value = " + maxExposureTime);
+		this.exposureTime = exposureTime;
+	}
+
 	@Override
 	public void prepareForCollection(double collectionTime, int numImagesIgnored) throws Exception {
 		getAdBase().stopAcquiring(); 
@@ -68,11 +88,11 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 		numberImagesPerCollection = calcNumberImagesPerCollection(collectionTime);
 		getAdBase().setNumImages(numberImagesPerCollection);
 		getAdBase().setImageModeWait(numberImagesPerCollection > 1 ? ImageMode.MULTIPLE : ImageMode.SINGLE);
-		getAdBase().setAcquireTime(numberImagesPerCollection > 1 ?maxExposureTime : collectionTime);
+		getAdBase().setAcquireTime(numberImagesPerCollection > 1 ?exposureTime : collectionTime);
 //		getAdBase().setAcquirePeriod(0.0);
 		
 		if( ndProcess != null){
-			ndProcess.setFilterType(FilterTypeEnum.RecursiveSum);
+			ndProcess.setFilterType(NDProcess.FilterTypeV1_8_Sum);
 			ndProcess.setNumFilter(numberImagesPerCollection);
 			ndProcess.setEnableFilter(1);
 			ndProcess.getPluginBase().enableCallbacks();
@@ -87,7 +107,7 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 		getAdBase().setImageModeWait(ImageMode.SINGLE);
 		getAdBase().setNumImages(1);
 		if( ndProcess != null){
-			ndProcess.setFilterType(FilterTypeEnum.RecursiveSum);
+			ndProcess.setFilterType(NDProcess.FilterTypeV1_8_Sum);
 			ndProcess.setNumFilter(1);
 			ndProcess.getPluginBase().disableCallbacks();
 		}
@@ -129,8 +149,8 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 	}
 
 	protected int calcNumberImagesPerCollection(double collectionTime) {
-		if (collectionTime > maxExposureTime)
-			return (int)(collectionTime/maxExposureTime + 0.5);
+		if (collectionTime > exposureTime)
+			return (int)(collectionTime/exposureTime + 0.5);
 		return 1;
 	}
 	

@@ -24,6 +24,7 @@ import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.device.detector.areadetector.v17.ADDriverPco;
 import gda.device.detector.areadetector.v17.ADDriverPco.PcoTriggerMode;
 import gda.device.timer.Etfg;
+import gda.device.timer.Tfg;
 import gda.scan.ScanBase;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
@@ -72,6 +73,34 @@ public class PCOTFGTrigger extends SimpleAcquire {
 		return etfg;
 	}
 
+	public short getExposeTriggerOutVal() {
+		return exposeTriggerOutVal;
+	}
+
+	public void setExposeTriggerOutVal(short exposeTriggerOutVal) {
+		this.exposeTriggerOutVal = exposeTriggerOutVal;
+	}
+
+	public short getNoLongerBusyTriggerInVal() {
+		return noLongerBusyTriggerInVal;
+	}
+
+	public void setNoLongerBusyTriggerInVal(short noLongerBusyTriggerInVal) {
+		this.noLongerBusyTriggerInVal = noLongerBusyTriggerInVal;
+	}
+
+
+
+	public String getNoLongerBusyTriggerSetupCommand() {
+		return noLongerBusyTriggerSetupCommand;
+	}
+
+	public void setNoLongerBusyTriggerSetupCommand(String noLongerBusyTriggerSetupCommand) {
+		this.noLongerBusyTriggerSetupCommand = noLongerBusyTriggerSetupCommand;
+	}
+
+
+
 	int expectedCycle = 0;
 	final int CYCLES = 100000;// should be enough!
 	private boolean collectingData = false;
@@ -81,6 +110,15 @@ public class PCOTFGTrigger extends SimpleAcquire {
 	private boolean checkCameraUsage = true;
 	private Double cameraUsageUpperLimit = 90.;
 	private Double cameraUsageLowerLimit = 25.;
+	
+	//The port value used to trigger the camera in live mode
+	private short exposeTriggerOutVal=64; // TFG2 USER6 PCO TriggerIn 
+
+	//The pause value used to detect that the camera is no longer busy
+	private short noLongerBusyTriggerInVal=39; //Falling edge on adc5
+	
+	//command to setup the trigger used to detect that the camera is no longer busy
+	private String noLongerBusyTriggerSetupCommand="tfg setup-trig start adc5 alternate 1"; //// PCO BUSY Out on TFg2 TF3_OUT5
 
 	@Override
 	public void prepareForCollection(double collectionTime, int numImagesIgnored) throws Exception {
@@ -89,16 +127,17 @@ public class PCOTFGTrigger extends SimpleAcquire {
 			adDriverPco.getCameraUsagePV().addMonitorListener(getCameraUsageListener());
 
 		etfg.stop();
-		etfg.getDaServer().sendCommand("tfg setup-trig start adc1 alternate 1"); // PCo Trigger Out as adc1
-		etfg.setAttribute("Ext-Start", false);
-		etfg.setAttribute("Ext-Inhibit", false);
-		etfg.setAttribute("VME-Start", true);
-		etfg.setAttribute("Auto-Continue", false);
+		etfg.getDaServer().sendCommand(noLongerBusyTriggerSetupCommand); 
+		etfg.setAttribute(Tfg.EXT_START_ATTR_NAME, false);
+		etfg.setAttribute(Tfg.EXT_INHIBIT_ATTR_NAME, false);
+		etfg.setAttribute(Tfg.VME_START_ATTR_NAME, true);
+		etfg.setAttribute(Tfg.AUTO_CONTINUE_ATTR_NAME, false);
+		etfg.setAttribute(Tfg.AUTO_REARM_ATTR_NAME, false);
 
 		etfg.clearFrameSets();
 		etfg.addFrameSet(1, 0.0001, 0., 0, 0, -1, 0); // software continue - after start it waits for software start
-		etfg.addFrameSet(1, 0., collectionTime * 1000., 0, 255, 0, 0); //set exposure
-		etfg.addFrameSet(1, 0.0001, 0., 0, 0, 35, 0); // wait for PCo Trigger Out which is actually PCO Busy
+		etfg.addFrameSet(1, 0., collectionTime * 1000., 0, exposeTriggerOutVal, 0, 0); //set exposure trigger
+		etfg.addFrameSet(1, 0.0001, 0., 0, 0, noLongerBusyTriggerInVal, 0); // wait for PCo Trigger Out which is actually PCO Busy
 		etfg.setCycles(CYCLES);
 		etfg.loadFrameSets();
 		etfg.start();

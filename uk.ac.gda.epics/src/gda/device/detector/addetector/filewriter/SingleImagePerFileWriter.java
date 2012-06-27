@@ -115,6 +115,7 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 		if (isSetFileNameAndNumber()) {
 			setupFilename();
 		}
+		setNDArrayPortAndAddress();
 		getNdFile().getPluginBase().enableCallbacks();
 		logger.warn("Detector will blocking the AreaDetectors acquisition thread while writing files");
 		getNdFile().getPluginBase().setBlockingCallbacks((short)( returnExpectedFileName ? 1: 1)); //always block otherwise file is corrupted 

@@ -23,6 +23,12 @@ package gda.device.detector.addetector.triggering;
  */
 public interface ADTriggeringStrategy {
 
+	/**
+	 * 
+	 * @param collectionTime - in seconds
+	 * @param numImages
+	 * @throws Exception
+	 */
 	public void prepareForCollection(double collectionTime, int numImages) throws Exception;
 	
 	public double getAcquireTime() throws Exception;
@@ -44,7 +50,7 @@ public interface ADTriggeringStrategy {
 	public void waitWhileBusy() throws InterruptedException, Exception;
 	
 	/*
-	 * Returns the number of images required to achieve the desired collectionTime
+	 * Returns the number of images required to achieve the desired collectionTime (seconds)
 	 * This is number of images per ScanDataPoint
 	 */
 	public int getNumberImagesPerCollection(double collectionTime);

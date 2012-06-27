@@ -31,11 +31,22 @@ public abstract class FileWriterBase implements FileWriter, InitializingBean{
 	private final String fileName;
 	private boolean setFileNumberToZero=true;
 	private boolean enableDuringScan = true;
-
 	
-	/*
-	 * 
+	/**
+	 * Value of Input Array port in plugin
 	 */
+	private String ndArrayPortVal="";
+	
+
+	public String getNdArrayPortVal() {
+		return ndArrayPortVal;
+	}
+
+
+	public void setNdArrayPortVal(String ndArrayPortVal) {
+		this.ndArrayPortVal = ndArrayPortVal;
+	}
+
 
 	protected NDFile getNdFile() {
 		return ndFile;
@@ -155,4 +166,9 @@ public abstract class FileWriterBase implements FileWriter, InitializingBean{
 		return ndFile.getFullFileName_RBV();
 	}
 	
+	
+	protected void setNDArrayPortAndAddress() throws Exception {
+		if( ndArrayPortVal != null && ndArrayPortVal.length()>0)
+			ndFile.getPluginBase().setNDArrayPort(ndArrayPortVal);
+	}
 }

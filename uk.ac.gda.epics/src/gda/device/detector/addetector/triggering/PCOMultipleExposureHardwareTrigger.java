@@ -23,8 +23,9 @@ import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.device.detector.areadetector.v17.ADDriverPco;
 import gda.device.detector.areadetector.v17.ADDriverPco.PcoTriggerMode;
-import gda.device.detector.areadetector.v17.NDProcess.FilterTypeEnum;
+import gda.device.detector.areadetector.v17.NDProcess;
 import gda.device.timer.Etfg;
+import gda.device.timer.Tfg;
 
 /*
  * Class of detector used to take multiple exposures that are then added together to make a single collection file
@@ -40,6 +41,18 @@ import gda.device.timer.Etfg;
 public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftwareTriggerAutoMode {
 
 	private final ADDriverPco adDriverPco;
+	private Etfg etfg;
+	
+	//time in s between detecting trigger (PCO Trigger Out) and sending trigger to PCO (PCO Trigger In)
+	private double delayTime=0;
+	
+	public double getDelayTime() {
+		return delayTime;
+	}
+
+	public void setDelayTime(double delayTime) {
+		this.delayTime = delayTime;
+	}
 
 	public PCOMultipleExposureHardwareTrigger(ADBase adBase, double maxExposureTime, ADDriverPco adDriverPco) {
 		super(adBase, maxExposureTime);
@@ -50,28 +63,54 @@ public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftware
 		return adDriverPco;
 	}
 
+	public Etfg getEtfg() {
+		return etfg;
+	}
+
+	public void setEtfg(Etfg etfg) {
+		this.etfg = etfg;
+	}
+
 	@Override
 	public void prepareForCollection(double collectionTime, int numImagesIgnored) throws Exception {
 		getAdBase().stopAcquiring();
 
 		numberImagesPerCollection = calcNumberImagesPerCollection(collectionTime);
-		getAdBase().setAcquireTime(numberImagesPerCollection > 1 ? maxExposureTime : collectionTime);
+		getAdBase().setAcquireTime(numberImagesPerCollection > 1 ? exposureTime : collectionTime);
 
 		if (ndProcess != null) {
 
-			ndProcess.setFilterType(FilterTypeEnum.RecursiveAve);// FilterTypeEnum.RecursiveSum);
+			ndProcess.setFilterType(NDProcess.FilterTypeV1_8_Sum);
 			ndProcess.setNumFilter(numberImagesPerCollection);
+			ndProcess.setFilterCallbacks(NDProcess.FilterCallback_ArrayNOnly);
 			ndProcess.setEnableFilter(0); // enable in collectData
-			// ndProcess.setResetFilter(1);
+			// do noy use autoreset - rather reset for every collection
+			// need to set Callbacks Array N only - version 1.8 of AD
+			ndProcess.setAutoResetFilter(0);
 			ndProcess.getPluginBase().enableCallbacks();
 			ndProcess.getPluginBase().setArrayCounter(0);
 			ndProcess.getPluginBase().setDroppedArrays(0);
 			ndProcess.setDataTypeOut(5); // UINT32
-			// do noy use autoreset - rather reset for every collection
-			// need to set Callbacks Array N only - version 1.8 of AD
 			/*
 			 * if tfg is present we can use autoreset
 			 */
+		}
+		
+		if( etfg != null){
+			etfg.stop();
+
+			etfg.setAttribute(Tfg.EXT_START_ATTR_NAME, true);
+			etfg.setAttribute(Tfg.AUTO_REARM_ATTR_NAME, true);
+			etfg.setAttribute(Tfg.VME_START_ATTR_NAME, false);
+			etfg.setAttribute(Tfg.EXT_INHIBIT_ATTR_NAME, false);
+			etfg.setAttribute(Tfg.AUTO_CONTINUE_ATTR_NAME, false);
+
+			etfg.clearFrameSets();
+			etfg.getDaServer().sendCommand("tfg setup-trig start adc4 alternate 1"); // PCO Trigger Out on TFg2 TF3_OUT4 
+			etfg.addFrameSet(1, delayTime*1000, exposureTime * 1000., 0, 64, 0, 0); //set exposure TFG2 User Out 6
+			etfg.setCycles(1); //the number of cycles is not used
+			etfg.loadFrameSets();
+			
 		}
 		// we want 1 image per trigger - there will be multiple triggers per collection
 		getAdBase().setNumImages(1);
@@ -80,11 +119,12 @@ public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftware
 		// delay
 		getAdBase().setTriggerMode(PcoTriggerMode.EXTERNAL_AND_SOFTWARE.ordinal()); // exposure time set by camera
 																					// rather than trigger
-		adDriverPco.getArmModePV().putCallback(true);
 	}
 
 	@Override
 	public void endCollection() throws Exception {
+		if( etfg != null)
+			etfg.stop();
 		getAdBase().stopAcquiring();
 		if (ndProcess != null) {
 			ndProcess.setEnableFilter(0);
@@ -100,6 +140,12 @@ public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftware
 
 	@Override
 	public void collectData() throws Exception {
+		//toggle armed state to clear memeory of images taken at last position
+		if( etfg != null)
+			etfg.stop(); 
+		adDriverPco.getArmModePV().putCallback(false);
+		adDriverPco.getArmModePV().putCallback(true);
+
 		if (ndProcess != null) {
 			ndProcess.setResetFilter(1);
 			ndProcess.setEnableFilter(1);
@@ -107,6 +153,8 @@ public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftware
 				Thread.sleep(50); // should use wait in setFilter
 			}
 		}
+		if( etfg != null)
+			etfg.start();
 
 	}
 

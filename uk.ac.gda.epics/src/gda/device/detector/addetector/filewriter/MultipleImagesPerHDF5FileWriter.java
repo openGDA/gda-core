@@ -77,6 +77,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 	public void prepareForCollection(int numberImagesPerCollection) throws Exception {
 		if(!getEnable())
 			return;
+		setNDArrayPortAndAddress();
 		getNdFile().getPluginBase().disableCallbacks();
 		getNdFile().getPluginBase().setBlockingCallbacks(blocking ? 1:0); //use camera memory 
 		getNdFile().setFileWriteMode(FileWriteMode.STREAM); 
