@@ -58,7 +58,7 @@ public class DerivativeScanPlotView extends ExafsScanPlotView {
 	protected IPlotData getY(IScanDataPoint... points) {
 
 		try {
-			if (cachedX != null && !cachedX.isEmpty() && cachedY != null && !cachedY.isEmpty()) {
+//			if (cachedX != null && !cachedX.isEmpty() && cachedY != null && !cachedY.isEmpty()) {
 				// Adds both cachedX and cachedY points.
 				super.getY(points);
 
@@ -73,7 +73,7 @@ public class DerivativeScanPlotView extends ExafsScanPlotView {
 					final AbstractDataset derv = Maths.derivative(energy, norm, 1);
 					return new DataSetPlotData(getYAxis(), derv);
 				}
-			}
+//			}
 		} catch (Exception e) {
 			logger.warn("Cannot normalise data", e);
 			return null;
