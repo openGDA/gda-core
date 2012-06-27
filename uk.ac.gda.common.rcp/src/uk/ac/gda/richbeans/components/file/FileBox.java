@@ -20,9 +20,17 @@ package uk.ac.gda.richbeans.components.file;
 
 import java.io.File;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.fieldassist.ContentProposalAdapter;
 import org.eclipse.jface.fieldassist.TextContentAdapter;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DropTarget;
+import org.eclipse.swt.dnd.DropTargetAdapter;
+import org.eclipse.swt.dnd.DropTargetEvent;
+import org.eclipse.swt.dnd.FileTransfer;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -38,6 +46,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.ColumnLayout;
 import org.eclipse.ui.forms.widgets.ColumnLayoutData;
+import org.eclipse.ui.part.ResourceTransfer;
 
 import swing2swt.layout.BorderLayout;
 import uk.ac.gda.richbeans.beans.IFieldWidget;
@@ -138,6 +147,26 @@ public class FileBox extends FieldComposite implements IFieldWidget, IFilterExte
 			}
 		};
 		button.addSelectionListener(selectionListener);
+		
+		// We try to add a DND lister to allow files to be dragged and dropped here
+		DropTarget dt = new DropTarget(text, DND.DROP_MOVE| DND.DROP_DEFAULT| DND.DROP_COPY);
+		dt.setTransfer(new Transfer[] { TextTransfer.getInstance (), FileTransfer.getInstance(), ResourceTransfer.getInstance()});
+		dt.addDropListener(new DropTargetAdapter() {
+			@Override
+			public void drop(DropTargetEvent event) {
+                final Object data = event.data;
+                if (data instanceof String[]) {
+                	setValue(((String[])data)[0]);
+                	
+                } else if (data instanceof IResource[]) {
+                	final IResource[] res = (IResource[])data;
+                	setValue(res[0].getLocation().toOSString());
+                	
+                } else if (data instanceof File[]) {
+                	setValue(((File[])data)[0].getAbsolutePath());
+                }
+			}			
+		});
 	}
 	
 	@Override
