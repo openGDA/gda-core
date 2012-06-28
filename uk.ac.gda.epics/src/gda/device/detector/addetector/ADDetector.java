@@ -31,6 +31,7 @@ import gda.device.Scannable;
 import gda.device.detector.DetectorBase;
 import gda.device.detector.DetectorWithReadout;
 import gda.device.detector.FileWritingDetector;
+import gda.device.detector.GDANexusDetectorData;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.NXDetectorDataWithFilepathForSrs;
 import gda.device.detector.NexusDetector;
@@ -68,27 +69,47 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.StringUtils;
 
 /**
- * <b>WARNING: This class is very much under development and will likely be until at least GDA 8.20 . <i>Please do use
+ * <b>WARNING: This class is very much under development and will likely be until at least GDA 8.26 . <i>Please do use
  * it though</i> so that we can learn from your uses cases, but please let Rob Walton and Paul Gibbons know that you
  * are!</b>. The way it is configured is likely to change.
  * <p>
- * A {@link Scannable} {@link Detector} driver for Epics AreaDetectors suitable for use within {@link Scan}s and by the
- * {@link ScannableCommands#pos()} command. This class is appropriate for use only in step scans. The Epics AreaDetector
- * software is very modular and this is reflected in the structure of this class. The detector requires a core
- * {@link ADBase} component and both {@link NDArray} and {@link NDStats} plugin.
- * <p>
- * The detector readouts {@link NexusTreeProvider}s suitable for use with Nexus datawriters. If configured to return
- * filepaths it will readout a special {@link NexusTreeProvider} which will result in the filepath being returned as the
- * first Scannable extra field and printed to the terminal and SRS files. By default the readout will return the
- * acquisition time (as an input field) and element in the Nexus tree, and the binary data from the detector. This
- * behaviour can be modified with the various read and compute attributes.
- * <p>
- * If an {@link NDFile} plugin is provided {@link #canWriteFiles()} will return true and the plugin can be configured
- * through in an abbreviated form through the detector's {@link FileWritingDetector} interface. In addition, if an
- * optional {@link ObservablePathProvider} is configured this will update the filepath by sending {@link PathChanged}
- * events to the detector (via the {@link #update(Object, Object)} method.
- * <p>
- * This detector will not work with pos until pos handles detectors as detectors rather than scannables
+ * A {@link Scannable} {@link Detector} driver for Epics AreaDetectors suitable for use within {@link Scan}s that
+ * support detectors that implement PositionCallableProvider<NexusTreeProvider>. 
+ * 
+ * The NexusTreeProvider returned by the call method of the PositionCallableProvider implements {@link GDANexusDetectorData}
+ * which provides plottable and printable data as well as binary detector data and detector metadata. If configured to return
+ * filepaths the object supports {@link NXDetectorDataWithFilepathForSrs} which will result in the filepath being 
+ * returned as the first Scannable extra field and printed to the terminal and SRS files.
+ * 
+ * The Epics AreaDetector software is very modular and this is reflected in the structure of this class. 
+ * As far as ADDetector is concerned an EPICS AreaDetector consists of 2 or 3 parts:
+ * 1. A Base plugin that supports the source of the data, e.g. camera, The base is used to setup the acquisition, 
+ * exposure time trigger mode, and start/stop acquisition. The result of an acquisition is a chunk of binary data.
+ * 2. A NDArray plugin that makes the binary data available over channel access 
+ * 3. A file writer plugin that will write the binary data to a file of some format. Either 1 file 
+ * per acquisition or 1 file per collection of acquisitions
+ * 
+ * This camera can be used by GDA in 2 different modes:
+ * 
+ * 1. Camera base  + PV
+ * 2. Camera base + file writer
+ * 
+ * 
+ * This structure is represented in ADDetector by 3 main components:
+ * 
+ * {@link ADTriggeringStrategy} - used to handle the camera base
+ * {@link NDArray} - handles the PV to read the binary data
+ * {@link FileWriter} - used to handle the file writer plugin
+ * 
+ * The result of getPositionCallable is  the creation of an object that has sufficient information to allow creation of 
+ * a NexusTreeProvider in its call method. This object can take data from:
+ * 
+ * 1. The NDArray object if present and selected 
+ * 2. An NDStats, that represents the NDStats plugin, if present and selected
+ * 3. The ADTriggeringStrategy object if selected
+ * 4. The FileWriter if selected
+ * 5. Another NexusTreeProvider that provides meta data if present.
+ * 
  */
 public class ADDetector extends DetectorBase implements InitializingBean, NexusDetector, FileWritingDetector, IObserver,
 PositionCallableProvider<NexusTreeProvider>, DetectorWithReadout{
