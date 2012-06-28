@@ -218,6 +218,13 @@ public abstract class ScanBase implements Scan {
 	 * @throws InterruptedException
 	 */
 	public static void checkForInterrupts() throws InterruptedException {
+		
+		if (InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.IDLE) {
+			paused = false;
+			interrupted = false;
+			return;
+		}
+		
 		try {
 			if (paused & !interrupted) {
 				InterfaceProvider.getScanStatusHolder().setScanStatus(Jython.PAUSED);
@@ -424,8 +431,8 @@ public abstract class ScanBase implements Scan {
 		}
 
 		readoutDetectorsAndPublish(point);
-
 	}
+	
 	/**
 	 * Readout detectors into ScanDataPoint and add to pipeline for possible completion and publishing.
 	 * @param point
@@ -492,13 +499,12 @@ public abstract class ScanBase implements Scan {
 		}
 	}
 	
-	
-	
 	protected void createScanDataPointPipeline() throws Exception {
 		DataWriter dataWriter = (manuallySetDataWriter == null) ? DefaultDataWriterFactory
 				.createDataWriterFromFactory() : manuallySetDataWriter;
 		createScanDataPointPipeline(dataWriter);
 	}
+	
 	protected void createScanDataPointPipeline(DataWriter dataWriter) {
 
 		/*
@@ -534,11 +540,11 @@ public abstract class ScanBase implements Scan {
 		if (interrupted) {
 			// stop all scannables
 			try {
-				logger.info("ScanBase stopping " + allScannables.size() + "Scannables involved in interupted Scan");
+				logger.info("ScanBase stopping " + allScannables.size() + " Scannables involved in interupted Scan");
 				for (Scannable scannable : allScannables) {
 					scannable.stop();
 				}
-				logger.info("ScanBase stopping " + allDetectors.size() + "Detectors involved in interupted Scan");
+				logger.info("ScanBase stopping " + allDetectors.size() + " Detectors involved in interupted Scan");
 				for (Scannable scannable : allDetectors) {
 					scannable.stop();
 				}
@@ -593,8 +599,7 @@ public abstract class ScanBase implements Scan {
 				try {
 					this.scanDataPointPipeline.shutdown(Long.MAX_VALUE); // no timeout
 				} catch (InterruptedException e) {
-					throw new DeviceException("Interupted while shutting down ScanDataPointPipeline from scan thread",
-							e);
+					throw new DeviceException("Interupted while shutting down ScanDataPointPipeline from scan thread", e);
 
 				}
 
@@ -987,13 +992,7 @@ public abstract class ScanBase implements Scan {
 				}
 				phase = "doing collection";
 				doCollection();
-			} catch (Exception e) {
-				errorMessage = createMessage(e, phase);
-				logger.error(errorMessage + " Calling atCommandFailure hooks and then interrupting scan.", e);
-				cancelReadoutAndPublishCompletion();
-				callAtCommandFailureHooks();
-				setInterrupted(true);
-			} catch (Error e) {
+			} catch (Throwable e) {
 				errorMessage = createMessage(e, phase);
 				logger.error(errorMessage + " Calling atCommandFailure hooks and then interrupting scan.", e);
 				cancelReadoutAndPublishCompletion();
@@ -1218,6 +1217,15 @@ public abstract class ScanBase implements Scan {
 	}
 	
 	public static void setPaused(boolean paused){
+		if (paused == ScanBase.paused)
+			return;
+
+		if (InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.IDLE) {
+			logger.info("paused flag set from " + ScanBase.paused + " to " + paused + " by thread :'" + Thread.currentThread().getName() + "' while idle -- ignored");
+			ScanBase.paused = paused;
+			return;
+		}
+
 		logger.info("paused flag set from " + ScanBase.paused + " to " + paused + " by thread :'" + Thread.currentThread().getName() + "'");
 		ScanBase.paused = paused;
 	}
@@ -1225,6 +1233,17 @@ public abstract class ScanBase implements Scan {
 	 * @param interrupted - allows scripts to be stopped at a convenient point
 	 */
 	public static void setInterrupted(boolean interrupted) {
+		if (interrupted == ScanBase.interrupted) 
+			return;
+		
+		if (InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.IDLE) {
+			String msg = MessageFormat.format("interrupted flag set from {0} to {1} by thread :''{2}'' while idle -- ignored",
+					ScanBase.interrupted, interrupted, Thread.currentThread().getName());
+			logger.info(msg);
+			logger.debug(msg + " from:\n" + generateStackTrace());
+			return;
+		}
+		
 		String msg = MessageFormat.format("interrupted flag set from {0} to {1} by thread :''{2}''",
 				ScanBase.interrupted, interrupted, Thread.currentThread().getName());
 		logger.info(msg);
