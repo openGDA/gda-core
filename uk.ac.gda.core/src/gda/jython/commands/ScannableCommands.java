@@ -550,7 +550,6 @@ public class ScannableCommands {
 		if (LocalProperties.check(GDA_SCAN_SET_SCAN_PLOT_SETTINGS)) {
 			scan.setScanPlotSettings(createScanPlotSettings(scan));
 		}
-		configureScanPipelineParameters(scan);
 	}
 
 	/**

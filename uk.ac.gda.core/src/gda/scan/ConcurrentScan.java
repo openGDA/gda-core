@@ -25,6 +25,7 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableUtils;
 import gda.jython.InterfaceProvider;
+import gda.jython.commands.ScannableCommands;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -335,6 +336,8 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 			logger.error("Error while creating scan: " + e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName(), e);
 			throw new IllegalArgumentException("Error while creating scan: " + e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName(), e);
 		}
+		
+		ScannableCommands.configureScanPipelineParameters(this);
 	}
 
 	public String reportDevicesByLevel() {
