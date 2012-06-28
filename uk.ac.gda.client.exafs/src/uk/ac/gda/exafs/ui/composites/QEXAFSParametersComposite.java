@@ -185,6 +185,7 @@ public final class QEXAFSParametersComposite extends Composite {
 		initialEnergy.addValueListener(new ValueAdapter("initialEnergyListener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
+				if(initialEnergy.getNumericValue()!=0 && !initialEnergy.getValue().toString().equals(""))
 					calculate(provider);
 			}
 		});
@@ -192,6 +193,7 @@ public final class QEXAFSParametersComposite extends Composite {
 		finalEnergy.addValueListener(new ValueAdapter("finalEnergyListener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
+				if(finalEnergy.getNumericValue()!=0 && !finalEnergy.getValue().toString().equals(""))
 					calculate(provider);
 			}
 		});
@@ -199,14 +201,16 @@ public final class QEXAFSParametersComposite extends Composite {
 		speed.addValueListener(new ValueAdapter("speedListener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
-				calculate(provider);
+				if(speed.getNumericValue()!=0 && !speed.getValue().toString().equals(""))
+					calculate(provider);
 			}
 		});
 
 		stepSize.addValueListener(new ValueAdapter("stepSizeListener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
-				calculate(provider);
+				if(stepSize.getNumericValue()!=0 && !stepSize.getValue().toString().equals(""))
+					calculate(provider);
 			}
 		});
 		calculate(provider);
