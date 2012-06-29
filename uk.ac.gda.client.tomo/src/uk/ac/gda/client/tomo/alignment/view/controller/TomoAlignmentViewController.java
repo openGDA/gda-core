@@ -574,7 +574,7 @@ public class TomoAlignmentViewController implements InitializingBean {
 		}
 	}
 
-	public void moveCenterCurrentPosition(IProgressMonitor monitor, CAMERA_MODULE cameraModule, Dimension difference)
+	public void moveHorizontal(IProgressMonitor monitor, CAMERA_MODULE cameraModule, Dimension difference)
 			throws Exception {
 		SubMonitor progress = SubMonitor.convert(monitor);
 		progress.beginTask("Moving Center Current Position", 2);

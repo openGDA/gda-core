@@ -507,7 +507,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 						case HORIZONTAL:
 							try {
 								tomoAlignmentViewController
-										.moveCenterCurrentPosition(monitor, cameraModule, difference);
+										.moveHorizontal(monitor, cameraModule, difference);
 							} catch (InterruptedException e) {
 								logger.error("Action stopped by user");
 							} catch (Exception e) {
