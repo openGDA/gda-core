@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            class="uk.ac.gda.devices.mythen.visualisation.views.MythenDataView"
+            icon="icons/chart_curve.png"
+            id="uk.ac.gda.devices.mythen.visualisation.views.MythenDataView"
+            name="Mythen data"
+            restorable="true">
+      </view>
+      <view
+            class="uk.ac.gda.devices.mythen.visualisation.views.MythenDataControlView"
+            icon="icons/chart_curve.png"
+            id="uk.ac.gda.devices.mythen.visualisation.views.MythenDataControlView"
+            name="Mythen data control"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="false"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+            icon="icons/chart_curve.png"
+            id="uk.ac.gda.devices.mythen.visualisation.views.mythen_plot"
+            name="Mythen"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="uk.ac.gda.devices.mythen.visualisation.commands.AddFilesCommand"
+            id="uk.ac.gda.devices.mythen.visualisation.commands.AddFilesCommand"
+            name="Add data files">
+      </command>
+      <command
+            defaultHandler="uk.ac.gda.devices.mythen.visualisation.commands.AddSrsFilesCommand"
+            id="uk.ac.gda.devices.mythen.visualisation.commands.AddSrsFilesCommand"
+            name="Add data files using GDA scan data file">
+      </command>
+      <command
+            defaultHandler="uk.ac.gda.devices.mythen.visualisation.commands.RemoveSelectedFilesCommand"
+            id="uk.ac.gda.devices.mythen.visualisation.commands.RemoveSelectedFilesCommand"
+            name="Remove selected file(s)">
+      </command>
+      <command
+            defaultHandler="uk.ac.gda.devices.mythen.visualisation.commands.RemoveAllFilesCommand"
+            id="uk.ac.gda.devices.mythen.visualisation.commands.RemoveAllFilesCommand"
+            name="Remove all files">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="toolbar:uk.ac.gda.devices.mythen.visualisation.views.MythenDataControlView">
+         <command
+               commandId="uk.ac.gda.devices.mythen.visualisation.commands.AddFilesCommand"
+               icon="icons/table.png"
+               label="Add data files"
+               style="push">
+         </command>
+         <command
+               commandId="uk.ac.gda.devices.mythen.visualisation.commands.AddSrsFilesCommand"
+               icon="icons/table_multiple.png"
+               label="Add data files using GDA scan data file"
+               style="push">
+         </command>
+         <command
+               commandId="uk.ac.gda.devices.mythen.visualisation.commands.RemoveSelectedFilesCommand"
+               disabledIcon="icons/disabled/rem_co.gif"
+               icon="icons/enabled/rem_co.gif"
+               label="Remove selected file(s)"
+               style="push">
+         </command>
+         <command
+               commandId="uk.ac.gda.devices.mythen.visualisation.commands.RemoveAllFilesCommand"
+               disabledIcon="icons/disabled/rem_all_co.gif"
+               icon="icons/enabled/rem_all_co.gif"
+               label="Remove all files"
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+
+</plugin>

@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Mythen detector classes
+Bundle-SymbolicName: uk.ac.gda.devices.mythen
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Diamond Light Source
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: gda.device.detector,
+ gda.device.detector.mythen,
+ gda.device.detector.mythen.client,
+ gda.device.detector.mythen.data,
+ gda.device.detector.mythen.tasks
+Require-Bundle: org.junit4,
+ uk.ac.gda.core,
+ uk.ac.gda.oe;bundle-version="1.0.0",
+ uk.ac.diamond.scisoft.analysis;bundle-version="1.0.0",
+ uk.ac.gda.libs;bundle-version="1.0.0",
+ uk.ac.gda.common,
+ uk.ac.gda.nexus,
+ uk.ac.gda.common.client;bundle-version="1.0.0",
+ uk.ac.gda.swingclient
+Import-Package: org.slf4j;version="[1.5.0,2.0.0)",
+ org.springframework.beans.factory;version="3.0.4",
+ org.springframework.util;version="3.0.4"
