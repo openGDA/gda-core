@@ -1,0 +1,28 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: HRPD Plug-in
+Bundle-SymbolicName: uk.ac.gda.client.hrpd;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: uk.ac.gda.client.hrpd.Activator
+Bundle-Vendor: Diamond Light Source
+Eclipse-RegisterBuddy: uk.ac.gda.client.experimentdefinition
+Require-Bundle: uk.ac.gda.core;bundle-version="1.0.0",
+ uk.ac.gda.libs;bundle-version="1.0.0",
+ uk.ac.gda.client;bundle-version="1.0.0",
+ uk.ac.gda.common;bundle-version="1.0.0",
+ uk.ac.gda.common.rcp;bundle-version="1.0.0",
+ uk.ac.gda.client.experimentdefinition;bundle-version="1.0.0",
+ org.eclipse.core.resources;bundle-version="3.6.0",
+ uk.ac.diamond.scisoft.analysis;bundle-version="1.0.0",
+ uk.ac.diamond.scisoft.analysis.rcp;bundle-version="1.0.0",
+ org.eclipse.core.runtime,
+ org.eclipse.ui,
+ org.python.pydev,
+ uk.ac.gda.hrpd;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Import-Package: com.artenum.jyconsole,
+ org.eclipse.debug.ui,
+ org.eclipse.search.ui,
+ org.eclipse.ui.console,
+ org.python.pydev.ui.wizards.files

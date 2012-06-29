@@ -1,0 +1,101 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _SAMPLE_IDL_
+#define _SAMPLE_IDL_
+
+#include <findable.idl>
+
+module gda {
+module hrpd {
+module sample {
+module corba {
+
+/**
+ *  An interface for a distributed object holding important values which
+ *  client and server-side objects need to share.
+ */
+interface CorbaSampleInfo : _factory::corba::CorbaFindable
+{
+/**
+	 * open the workbook
+	 */
+	 void open();
+	/**
+	 * Closes the workbook.
+	 */
+	 void close();
+	/**
+	 * check if this object is configured or not.
+	 * @return true or false
+	 */
+	 	/**
+	 * prints the current sample information to terminal.
+	 */
+	void values();
+	 
+	boolean isConfigured();
+    void loadSampleInfo(in long sampleNo);
+    void saveSampleInfo(in long sampleNo);
+    void saveExperimentInfo(in long sampleNo);
+
+    string getCarouselNo();
+    void setCarouselNo(in string no);
+	/**
+	 * sets the sample position on the carousel.
+	 * @param caroselNo
+	 */
+	void setCarouselNoInt(in long caroselNo);
+
+    string getSampleID();
+    void setSampleID(in string id);
+
+    string getSampleName();
+    void setSampleName(in string sampleName);
+
+    string getDescription();
+    void setDescription(in string description);
+
+    string getTitle();
+    void setTitle(in string title);
+
+    string getComment();
+    void setComment(in string comment);
+
+    void setRunNumber(in string runNumber);
+    void setDate(in string date);
+    void setTime(in string time);
+    void setBeamline(in string beamline);
+    void setProject(in string project);
+    void setExperiment(in string experiment);
+    void setWavelength(in string wavelength);
+    void setTemperature(in string temperature);
+      
+	long getRowOffset();
+    void setRowOffset(in long roeOffset);
+    string getSampleInfoFile();
+    void setSampleInfoFile(in string sampleInfoFile);
+    boolean isSaveExperimentSummary();
+    void setSaveExperimentSummary(in boolean saveExperimentSummary);
+      
+};
+
+};};};};
+
+#endif

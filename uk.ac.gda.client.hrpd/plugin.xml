@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         id="application"
+         point="org.eclipse.core.runtime.applications">
+      <application>
+         <run
+               class="uk.ac.gda.client.hrpd.Application">
+         </run>
+      </application>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="uk.ac.gda.client.hrpd.perspectives.HrpdExperimentPerspective"
+            fixed="true"
+            id="uk.ac.gda.client.hrpd.ExperimentPerspective"
+            name="Surface and Interface X-ray Diffraction Experiment">
+      </perspective>
+      <perspective
+            class="uk.ac.gda.client.hrpd.perspectives.HrpdScriptingPerspective"
+            id="uk.ac.gda.client.hrpd.ScriptingPerspective"
+            name="HRPD Basic Scripting Perspective">
+      </perspective>
+      <perspective
+            class="uk.ac.gda.client.hrpd.perspectives.HrpdAdvancedScriptingPerspective"
+            id="uk.ac.gda.client.hrpd.AdvancedScriptingPerspective"
+            name="HRPD Advanced Scripting Perspective">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="uk.ac.gda.client.hrpd.views.hrpdCategory"
+            name="Powder Diffraction">
+      </category>
+      <view
+            category="uk.ac.gda.client.hrpd.views.hrpdCategory"
+            class="uk.ac.gda.client.hrpd.views.JythonConsoleView"
+            icon="icons/terminal_16.png"
+            id="uk.ac.gda.client.hrpd.views.JythonConsoleView"
+            name="JythonConsole"
+            restorable="true">
+      </view>
+      <view
+            category="uk.ac.gda.client.hrpd.views.hrpdCategory"
+            class="uk.ac.gda.client.hrpd.views.XrrView"
+            icon="icons/hrpd_16.png"
+            id="uk.ac.gda.client.hrpd.views.XrrView"
+            name="X-ray Reflectivity"
+            restorable="true">
+      </view>
+      <view
+            name="Image Viewer"
+            id="uk.ac.gda.client.hrpd.views.ImageView"
+            category="uk.ac.gda.client.hrpd.views.hrpdCategory"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+            icon="icons/map_magnify.png"
+            allowMultiple="false"
+            restorable="true">
+      </view>
+      <view
+            name="Area Detector"
+            id="uk.ac.gda.client.hrpd.views.AreaDetectorView"
+            category="uk.ac.gda.client.hrpd.views.hrpdCategory"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+            icon="icons/detector2D_02_16.png"
+            allowMultiple="false"
+            restorable="true">
+      </view>
+      <view
+            name="Area Detector 2I"
+            id="uk.ac.gda.client.hrpd.views.AreaDetectorView2"
+            category="uk.ac.gda.client.hrpd.views.hrpdCategory"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+            icon="icons/detector2D_02_16.png"
+            allowMultiple="false"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="false"
+            category="uk.ac.gda.client.hrpd.views.hrpdCategory"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView"
+            icon="icons/map_magnify.png"
+            id="uk.ac.gda.client.hrpd.views.ImageExplorerView"
+            name="Image Explorer"
+            restorable="true">
+      </view>
+      <view
+            class="gda.rcp.views.JythonTerminalView"
+            icon="icons/application_xp_terminal.png"
+            id="uk.ac.gda.client.hrpd.views.terminalView"
+            name="GDA Jython Terminal"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         id="uk.ac.diamond.scisoft.analysis.rcp.ExplorerViewDefault"
+         name="Default"
+         point="uk.ac.diamond.scisoft.analysis.rcp.ExplorerViewRegister">
+         <ViewRegister
+         	ViewName="Area Detector">
+         </ViewRegister>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.menus">
+         <menuContribution
+            locationURI="toolbar:uk.ac.gda.client.hrpd.views.ImageExplorerView">
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.GridOverviewAction"
+               icon="icons/eye.png"
+               label="Overview Action"
+               style="toggle"
+               tooltip="Switch to Overview mode">
+               <parameter
+               		name="uk.ac.diamond.scisoft.analysis.command.sourceView"
+               		value="uk.ac.gda.client.hrpd.views.ImageExplorerView">
+               	</parameter>
+         </command>
+      </menuContribution>      
+      <menuContribution
+            locationURI="toolbar:uk.ac.gda.client.hrpd.views.ImageExplorerView">
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.DemoGridViewSelectionAction"
+               icon="icons/monitor.png"
+               label="Demo Action"
+               style="push"
+               tooltip="Give selection to server">
+               <parameter
+               		name="uk.ac.diamond.scisoft.analysis.command.sourceView"
+               		value="uk.ac.gda.client.hrpd.views.ImageExplorerView">
+               	</parameter>
+         </command>
+      </menuContribution>                                                                  
+   </extension>
+
+
+</plugin>
