@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2011 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -36,7 +36,7 @@ public class ChiSquareErrorPlotView extends ExafsScanPlotView {
 	@SuppressWarnings("hiding")
 	public static final String ID = "gda.rcp.views.scan.ChiSquareErrorPlotView"; //$NON-NLS-1$
 
-	static protected ArrayList<Double> cachedE, cachedChi2;
+	private ArrayList<Double> cachedE, cachedChi2;
 
 	public ChiSquareErrorPlotView() {
 		super();
@@ -62,21 +62,20 @@ public class ChiSquareErrorPlotView extends ExafsScanPlotView {
 
 	@Override
 	protected IPlotData getY(IScanDataPoint... points) {
+		if (cachedY.size() <= 3){
+			return null; // cannot estimate edge
+		}
 
-		// Adds both cachedX and cachedY points.
-		super.getY(points);
-
-		Double[] chi2result;
 		final AbstractDataset energy = AbstractDataset.createFromList(cachedX);
 		final AbstractDataset lnI0It = AbstractDataset.createFromList(cachedY);
-
+		
 		try {
 			Double[] edgePos = xafsFittingUtils.estimateEdgePosition(energy, lnI0It);
 
 			if (edgePos != null)
 				if (edgePos[0] > (edgePos[1] + 200.0)) {
 					xafsFittingUtils.setDoFilter(false);
-					chi2result = xafsFittingUtils.getChi2Error(energy, lnI0It, 15.0, 25.0);
+					Double[]  chi2result = xafsFittingUtils.getChi2Error(energy, lnI0It, 15.0, 25.0);
 					if (!(Double.isNaN(chi2result[0])) && !(Double.isNaN(chi2result[1]))) {
 						cachedE.add(chi2result[0]);
 						cachedChi2.add(chi2result[1]);
@@ -94,9 +93,10 @@ public class ChiSquareErrorPlotView extends ExafsScanPlotView {
 
 	@Override
 	protected IPlotData getX(IScanDataPoint... points) {
-		synchronized (this) {
-			return new DataSetPlotData(getXAxis(), AbstractDataset.createFromList(cachedE));
+		if (cachedE.size() <= 3){
+			return null;
 		}
+		return new DataSetPlotData(getXAxis(), AbstractDataset.createFromList(cachedE));
 	}
 
 	@Override
