@@ -43,7 +43,7 @@ public class ClientManager {
 	 */
 	public static boolean isClient() {
 		// TODO Make test more appropriate
-		if (System.getProperty("gda.root")==null || System.getProperty("gda.config")==null) {
+		if (System.getProperty("gda.config")==null) {
 			return false;
 		}
 		return true;
