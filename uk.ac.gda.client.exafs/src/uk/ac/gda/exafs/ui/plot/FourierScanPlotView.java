@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -31,19 +31,11 @@ import uk.ac.gda.exafs.ui.data.ScanObjectManager;
  */
 public class FourierScanPlotView extends ExafsScanPlotView {
 
-	// private static final Logger logger = LoggerFactory.getLogger(SubtractedBackgroundScanPlotView.class);
-
-	/**
-	 * 
-	 */
 	@SuppressWarnings("hiding")
 	public static final String ID = "gda.rcp.views.scan.FourierScanPlotView"; //$NON-NLS-1$
 
 	private IPlotData xDataSetData;
 
-	/**
-	 * 
-	 */
 	public FourierScanPlotView() {
 		super();
 		setSampleRate(1500);
@@ -53,30 +45,27 @@ public class FourierScanPlotView extends ExafsScanPlotView {
 
 	@Override
 	protected IPlotData getY(IScanDataPoint... points) {
-
-		// Adds both cachedX and cachedY points.
-		super.getY(points);
+		if (cachedY.size() <= 3) {
+			return null; // cannot estimate edge
+		}
 
 		try {
 			AbstractDataset energy = AbstractDataset.createFromList(cachedX);
 			AbstractDataset lnI0It = AbstractDataset.createFromList(cachedY);
 
 			Double[] edgePos = xafsFittingUtils.estimateEdgePosition(energy, lnI0It);
-			if (edgePos != null)
-				if (edgePos[0] > (edgePos[1] + 200)) {
-					AbstractDataset[] fft = xafsFittingUtils.getFFT(energy, lnI0It);
+			if (edgePos != null && edgePos[0] > (edgePos[1] + 200)) {
+				AbstractDataset[] fft = xafsFittingUtils.getFFT(energy, lnI0It);
 
-					this.xDataSetData = new DataSetPlotData(getXAxis(), fft[0]);
+				this.xDataSetData = new DataSetPlotData(getXAxis(), fft[0]);
 
-					// At the time of writing this code DataSet does not inherit from AbstractDataset!!
-					return new DataSetPlotData("fft", fft[1]);
-				}
+				// At the time of writing this code DataSet does not inherit from AbstractDataset!!
+				return new DataSetPlotData("fft", fft[1]);
+			}
 			return null;
 		} catch (Exception e) {
-			// logger.error("Cannot normalise data", e);
 			return null;
 		}
-
 	}
 
 	@Override
@@ -90,10 +79,9 @@ public class FourierScanPlotView extends ExafsScanPlotView {
 	private double getKStartEnergy() {
 		try {
 			final IScanParameters params = ScanObjectManager.getCurrentScan();
-			if (params == null)
+			if (params == null) {
 				return kStartEnergy; // Leave as last calculated
-
-//			final Object params = currentScan.getScanParameters();
+			}
 			return ExafsScanPointCreator.getStartOfConstantKRegion(params);
 		} catch (Exception e) {
 			return a + 300;

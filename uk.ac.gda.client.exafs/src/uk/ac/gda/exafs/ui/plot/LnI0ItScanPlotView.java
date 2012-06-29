@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -27,14 +27,8 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.AxisMode;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.PlotData;
 
-/**
- *
- */
 public class LnI0ItScanPlotView extends AbstractCachedScanPlotView {
 
-	/**
-	 * 
-	 */
 	public static final String ID = "gda.rcp.views.scan.LnI0ItScanPlotView"; //$NON-NLS-1$
 
 	private String yAxis = "ln(I0/It)";
@@ -55,9 +49,6 @@ public class LnI0ItScanPlotView extends AbstractCachedScanPlotView {
 		return AxisMode.LINEAR_WITH_OFFSET;
 	}
 
-	/**
-	 * 
-	 */
 	public LnI0ItScanPlotView() {
 		super();
 	}
@@ -68,11 +59,11 @@ public class LnI0ItScanPlotView extends AbstractCachedScanPlotView {
 	}
 
 	@Override
-	protected PlotData getY(IScanDataPoint... points) {
+	protected void updateCache(IScanDataPoint[] sdpArray) {
 		if (cachedY == null)
 			cachedY = new ArrayList<Double>(89);
-		for (int i = 0; i < points.length; i++) {
-			final IScanDataPoint point = points[i];
+		for (int i = 0; i < sdpArray.length; i++) {
+			final IScanDataPoint point = sdpArray[i];
 			double ff = ScanDataPointUtils.getFF(point);
 			double i0 = ScanDataPointUtils.getI0(point);
 			double it = ScanDataPointUtils.getIt(point);
@@ -89,6 +80,10 @@ public class LnI0ItScanPlotView extends AbstractCachedScanPlotView {
 			} else
 				continue;
 		}
+	}
+
+	@Override
+	protected PlotData getY(IScanDataPoint... points) {
 		return new PlotData(getYAxis(), cachedY);
 	}
 
@@ -106,5 +101,4 @@ public class LnI0ItScanPlotView extends AbstractCachedScanPlotView {
 	protected String getGraphTitle() {
 		return graphTitle;
 	}
-
 }

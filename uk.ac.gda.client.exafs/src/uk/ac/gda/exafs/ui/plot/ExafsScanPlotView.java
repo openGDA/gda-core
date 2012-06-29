@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -37,48 +37,39 @@ import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.beans.exafs.XesScanParameters;
 import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
-import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.exafs.ui.data.ScanObjectManager;
 
 /**
  * This class assumes that the point with energy less than A are to be included in the pre-edge.
+ * <p>
+ * Note that the cachedY
+ * array inherited from the AbstractCachedScanPlotView class is filled with the latest ln(I0/It) data and does not
+ * contain the actual data to be plotted. That is provided by the subclasses' implementation of getY.
  */
-class ExafsScanPlotView extends AbstractCachedScanPlotView {
+abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 
 	private static final Logger logger = LoggerFactory.getLogger(ExafsScanPlotView.class);
 
-	/**
-	 * 
-	 */
 	public static final String ID = "gda.rcp.views.scan.ExafsScanPlotView"; //$NON-NLS-1$
 
 	protected double a = Double.NaN;
 
-	protected ArrayList<Double> procY;
-
 	protected final XafsFittingUtils xafsFittingUtils = new XafsFittingUtils();
 
-	/**
-	 * 
-	 */
 	public ExafsScanPlotView() {
 		super();
-		this.procY = new ArrayList<Double>(89);
 	}
 
 	@Override
 	public void scanDataPointChanged(ScanDataPointEvent e) {
-
 		try {
 			IScanParameters curScan = ScanObjectManager.getCurrentScan();
-			if (curScan != null && !(curScan instanceof MicroFocusScanParameters)) {
+			if (!(curScan instanceof MicroFocusScanParameters)) {
 				super.scanDataPointChanged(e);
 			}
-
 		} catch (Exception exp) {
 			logger.error("Unable to determine the scan type", exp);
 		}
-
 	}
 
 	@Override
@@ -155,13 +146,16 @@ class ExafsScanPlotView extends AbstractCachedScanPlotView {
 
 		if (!calculateA())
 			return;
-		procY.clear();
-
 		super.plotPointsFromService();
 	}
 
+	/**
+	 * Recalculates A and then adds to the cachedY and cachedX buffers.
+	 * <p>
+	 * Subclasses should then update/recalculate the cachedY buffer within their getY methods.
+	 */
 	@Override
-	protected IPlotData getY(IScanDataPoint... points) {
+	protected void updateCache(IScanDataPoint[] points) {
 		calculateA();
 		if (cachedX == null)
 			cachedX = new ArrayList<Double>(89);
@@ -179,7 +173,6 @@ class ExafsScanPlotView extends AbstractCachedScanPlotView {
 			cachedY.add(ln);
 			cachedX.add(point.getAllValuesAsDoubles()[0]);
 		}
-		return new PlotData(getYAxis(), cachedY);
 	}
 
 	@Override

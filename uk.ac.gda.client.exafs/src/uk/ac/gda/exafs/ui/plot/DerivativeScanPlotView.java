@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -38,15 +38,9 @@ public class DerivativeScanPlotView extends ExafsScanPlotView {
 
 	private static final Logger logger = LoggerFactory.getLogger(DerivativeScanPlotView.class);
 
-	/**
-	 * 
-	 */
 	@SuppressWarnings("hiding")
 	public static final String ID = "gda.rcp.views.scan.DerivativeScanPlotView"; //$NON-NLS-1$
 
-	/**
-	 * 
-	 */
 	public DerivativeScanPlotView() {
 		super();
 		setSampleRate(1000);
@@ -54,25 +48,24 @@ public class DerivativeScanPlotView extends ExafsScanPlotView {
 
 	private double kStartEnergy;
 
+	/**
+	 * Assumes that the cachedLn and cachedX arrays are fully up to date
+	 */
 	@Override
 	protected IPlotData getY(IScanDataPoint... points) {
 
-		try {
-			if (cachedX != null && !cachedX.isEmpty() && cachedY != null && !cachedY.isEmpty()) {
-				// Adds both cachedX and cachedY points.
-				super.getY(points);
+		if (cachedY.size() <= 3) {
+			return null; // cannot estimate edge
+		}
 
-				final AbstractDataset energy = AbstractDataset.createFromList(cachedX);
-				final AbstractDataset lnI0It = AbstractDataset.createFromList(cachedY);
-				Double[] edgePos = xafsFittingUtils.estimateEdgePosition(energy, lnI0It);
-				AbstractDataset norm = null;
-				if (edgePos != null)
-					if (edgePos[0] > (edgePos[1] + 200.0))
-						norm = xafsFittingUtils.getNormalisedIntensity(energy, lnI0It);
-				if (norm != null) {
-					final AbstractDataset derv = Maths.derivative(energy, norm, 1);
-					return new DataSetPlotData(getYAxis(), derv);
-				}
+		try {
+			final AbstractDataset energy = AbstractDataset.createFromList(cachedX);
+			final AbstractDataset lnI0It = AbstractDataset.createFromList(cachedY);
+			Double[] edgePos = xafsFittingUtils.estimateEdgePosition(energy, lnI0It);
+			if (edgePos != null && edgePos[0] > (edgePos[1] + 200.0)) {
+				AbstractDataset norm = xafsFittingUtils.getNormalisedIntensity(energy, lnI0It);
+				AbstractDataset derv = Maths.derivative(energy, norm, 1);
+				return new DataSetPlotData(getYAxis(), derv);
 			}
 		} catch (Exception e) {
 			logger.warn("Cannot normalise data", e);
@@ -95,7 +88,7 @@ public class DerivativeScanPlotView extends ExafsScanPlotView {
 			if (currentScan == null)
 				return kStartEnergy; // Leave as last calculated
 
-//			final Object params = currentScan.getScanParameters();
+			// final Object params = currentScan.getScanParameters();
 			return ExafsScanPointCreator.getStartOfConstantKRegion(currentScan);
 		} catch (Exception e) {
 			return a + 300;
