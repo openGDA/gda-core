@@ -43,6 +43,11 @@ public class ClientManager {
 	 */
 	public static boolean isClient() {
 		// TODO Make test more appropriate
+<<<<<<< HEAD
+=======
+		
+		// FIXME have removed test for gda.root, but this looks flakey. Needs fixing.
+>>>>>>> branch '1.1' of ssh://dascgitolite@dasc-git.diamond.ac.uk/gda/gda-common.git
 		if (System.getProperty("gda.config")==null) {
 			return false;
 		}
