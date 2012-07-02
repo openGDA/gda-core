@@ -817,12 +817,23 @@ public class CameraControlComposite extends Composite {
 	 * @return true when background color is lightgray and foreground color is red - this is what was set when the
 	 *         widget was selected.
 	 */
-	private boolean isSelected(Button button) {
-		if (ColorConstants.red.equals(button.getForeground())
-				&& ColorConstants.lightGray.equals(button.getBackground())) {
-			return true;
+	private boolean isSelected(final Button button) {
+		final boolean[] isSelected = new boolean[1];
+		if (button != null && !button.isDisposed()) {
+			getDisplay().syncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					if (ColorConstants.red.equals(button.getForeground())
+							&& ColorConstants.lightGray.equals(button.getBackground())) {
+						isSelected[0] = true;
+					} else {
+						isSelected[0] = false;
+					}
+				}
+			});
 		}
-		return false;
+		return isSelected[0];
 	}
 
 	/**
@@ -1622,25 +1633,29 @@ public class CameraControlComposite extends Composite {
 	}
 
 	public void stopSampleHistogram() {
-		deSelectControl(btnSampleHistogram);
-		for (ICameraControlListener c : cameraControlListeners) {
-			try {
-				c.sampleHistogram(false);
-			} catch (Exception e) {
-				logger.error("TODO put description of error here", e);
-				showError("Problem stopping Histogram", e);
+		if (isSelected(btnSampleHistogram)) {
+			deSelectControl(btnSampleHistogram);
+			for (ICameraControlListener c : cameraControlListeners) {
+				try {
+					c.sampleHistogram(false);
+				} catch (Exception e) {
+					logger.error("TODO put description of error here", e);
+					showError("Problem stopping Histogram", e);
+				}
 			}
 		}
 	}
 
 	public void stopFlatHistogram() {
-		deSelectControl(btnFlatHistogram);
-		for (ICameraControlListener c : cameraControlListeners) {
-			try {
-				c.flatHistogram(false);
-			} catch (Exception e) {
-				logger.error("TODO put description of error here", e);
-				showError("Problem stopping Histogram", e);
+		if (isSelected(btnFlatHistogram)) {
+			deSelectControl(btnFlatHistogram);
+			for (ICameraControlListener c : cameraControlListeners) {
+				try {
+					c.flatHistogram(false);
+				} catch (Exception e) {
+					logger.error("TODO put description of error here", e);
+					showError("Problem stopping Histogram", e);
+				}
 			}
 		}
 	}
