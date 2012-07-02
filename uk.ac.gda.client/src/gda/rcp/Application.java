@@ -461,9 +461,11 @@ public class Application implements IApplication {
 		}
 
 		if (path == null) {
-			final String configDir = LocalProperties.getVarDir();
-			path = PathConstructor.createFromTemplate(configDir + "/.workspace-" + UserAuthentication.getUsername()
-					+ "-" + LocalProperties.get(LocalProperties.RCP_APP_VISIT));
+			final String varDir = LocalProperties.getVarDir();
+			final String username = UserAuthentication.getUsername();
+			final String visit = LocalProperties.get(LocalProperties.RCP_APP_VISIT);
+			final String template = String.format("%s/.workspace-%s-%s", varDir, username, visit);
+			path = PathConstructor.createFromTemplate(template);
 		}
 		return path;
 	}
