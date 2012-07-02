@@ -60,6 +60,8 @@ public class LnI0ItScanPlotView extends AbstractCachedScanPlotView {
 
 	@Override
 	protected void updateCache(IScanDataPoint[] sdpArray) {
+		if (cachedX == null)
+			cachedX = new ArrayList<Double>(89);
 		if (cachedY == null)
 			cachedY = new ArrayList<Double>(89);
 		for (int i = 0; i < sdpArray.length; i++) {
@@ -71,10 +73,12 @@ public class LnI0ItScanPlotView extends AbstractCachedScanPlotView {
 				continue;
 			if (!Double.isNaN(ff)) {
 				cachedY.add(ff / i0);
+				cachedX.add(point.getAllValuesAsDoubles()[0]);
 				yAxis = "FF/I0";
 				graphTitle = "Absorption  -  FF/I0 vs. Energy";
 			} else if (!Double.isNaN(it)) {
 				cachedY.add(Math.log(i0 / it));
+				cachedX.add(point.getAllValuesAsDoubles()[0]);
 				yAxis = "ln(I0/It)";
 				graphTitle = "Absorption  -  ln(I0/It) vs. Energy";
 			} else
