@@ -620,4 +620,19 @@ public class PCOTomography implements ITomographyDetector {
 		pcoDetector.getController().getProc2().setEnableBackground(1);
 	}
 
+	@Override
+	public double getProc1Scale() throws Exception {
+		return pcoDetector.getController().getProc1().getScale();
+	}
+
+	@Override
+	public void setProc1Scale(double newScale) throws Exception {
+		NDProcess proc1 = pcoDetector.getController().getProc1();
+
+		proc1.setEnableOffsetScale(1);
+		logger.debug("Setting new scale:{}", newScale);
+
+		proc1.setScale(newScale);
+	}
+
 }
