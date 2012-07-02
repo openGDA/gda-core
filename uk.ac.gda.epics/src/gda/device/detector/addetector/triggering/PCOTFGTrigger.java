@@ -140,13 +140,7 @@ public class PCOTFGTrigger extends SimpleAcquire {
 		etfg.addFrameSet(1, 0.0001, 0., 0, 0, noLongerBusyTriggerInVal, 0); // wait for PCo Trigger Out which is actually PCO Busy
 		etfg.setCycles(CYCLES);
 		etfg.loadFrameSets();
-		etfg.start();
 		etfg.setMonitorInBackground(false);
-		while (etfg.getStatus() != 2) {
-			Thread.sleep(50);
-			ScanBase.checkForInterrupts();
-		}
-		expectedCycle = CYCLES;
 
 		getAdBase().setAcquireTime(collectionTime);
 
@@ -160,12 +154,19 @@ public class PCOTFGTrigger extends SimpleAcquire {
 																					// rather than trigger
 		adDriverPco.getArmModePV().putCallback(true);
 		// the callback is coming back before the camera is ready as seen by the BUSY out is still high
-		while (!adDriverPco.getArmModePV().get()) {
+		while (!adDriverPco.getArmModePV().get()) {//this is not working as armMode does not reflect true state of arm - check with oscilloscope
 			Thread.sleep(50);
 			ScanBase.checkForInterrupts();
 		}
 		this.collectionTime = collectionTime;
-		Thread.sleep(1000); //without this the first trigger seems to be ignored
+		Thread.sleep(2000); //without this the first trigger seems to be ignored
+		etfg.start();
+		while (etfg.getStatus() != 2) {
+			Thread.sleep(50);
+			ScanBase.checkForInterrupts();
+		}
+		expectedCycle = CYCLES;
+		
 	}
 
 	private MonitorListener getCameraUsageListener() {
