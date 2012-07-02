@@ -1033,4 +1033,43 @@ public class TomoAlignmentViewController implements InitializingBean {
 	public void setSampleWeightRotationHandler(ISampleWeightRotationHandler sampleWeightRotationHandler) {
 		this.sampleWeightRotationHandler = sampleWeightRotationHandler;
 	}
+
+	public void setProc1ScaleValue(double minValue, double maxValue, double from, double to) throws Exception {
+
+		double scaledValue = (to - from) / (maxValue - minValue);
+
+		scaledValue = scaledValue + 1;
+
+		if (scaledValue < 0) {
+			scaledValue = 0;
+		} else if (scaledValue > 2) {
+			scaledValue = 2;
+		}
+		logger.debug("Scaled value:{}", scaledValue);
+
+		double proc1Scale = cameraHandler.getProc1Scale();
+		double newScale = scaledValue;
+
+		if (proc1Scale != 0) {
+			newScale = proc1Scale * scaledValue;
+		}
+		cameraHandler.setProc1ScaleValue(newScale);
+	}
+
+	/**
+	 * The histogram value evaluated is adjusted towards setting a more appropriate exposure time value.
+	 * 
+	 * @throws Exception
+	 */
+	public void applyHistogramToAdjustExposureTime() throws Exception {
+		double exposureTime = getCameraExposureTime();
+
+		double proc1Scale = cameraHandler.getProc1Scale();
+
+		double newExposureTime = exposureTime * proc1Scale;
+
+		cameraHandler.setProc1ScaleValue(1);
+
+		setExposureTime(newExposureTime, 1);
+	}
 }

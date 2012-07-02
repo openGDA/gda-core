@@ -33,7 +33,7 @@ import uk.ac.gda.ui.components.ZoomButtonComposite.ZOOM_LEVEL;
  * 
  * @author rsr31645 - Ravi Somayaji
  */
-public interface ICameraHandler extends ITomoHandler{
+public interface ICameraHandler extends ITomoHandler {
 
 	/**
 	 * @param exposureTime
@@ -435,5 +435,19 @@ public interface ICameraHandler extends ITomoHandler{
 	 * @return the full image height of the detector
 	 */
 	int getFullImageHeight();
+
+	/**
+	 * Update the proc scale value
+	 * 
+	 * @param scaledValue
+	 * @throws Exception
+	 */
+	void setProc1ScaleValue(double scaledValue) throws Exception;
+
+	/**
+	 * @return proc1 scale value
+	 * @throws Exception
+	 */
+	double getProc1Scale() throws Exception;
 
 }

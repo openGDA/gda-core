@@ -86,7 +86,7 @@ import uk.ac.gda.client.tomo.composites.OverlayImageFigure.OverlayImgFigureListe
 import uk.ac.gda.client.tomo.composites.ScaleBarComposite;
 import uk.ac.gda.client.tomo.composites.StatInfoComposite;
 import uk.ac.gda.client.tomo.composites.TomoPlotComposite;
-import uk.ac.gda.client.tomo.composites.TomoPlotComposite.OverlayLineListener;
+import uk.ac.gda.client.tomo.composites.TomoPlotComposite.PlottingSystemActionListener;
 import uk.ac.gda.client.tomo.composites.ZoomedImageComposite;
 import uk.ac.gda.client.tomo.composites.ZoomedImgCanvas;
 import uk.ac.gda.epics.client.EPICSClientActivator;
@@ -288,14 +288,15 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 	};
 
-	private OverlayLineListener profileLineListener = new OverlayLineListener() {
+	private PlottingSystemActionListener profileLineListener = new PlottingSystemActionListener() {
 		@Override
-		public void overlayAt(final double xVal, final long intensity) {
+		public void profileLineMovedTo(final double xVal, final long intensity) {
 			if (page_rightInfo_nonProfile != null && !page_rightInfo_nonProfile.isDisposed()) {
 				page_rightInfo_nonProfile.getDisplay().syncExec(new Runnable() {
 
 					@Override
 					public void run() {
+						pageBook_rightInfo.showPage(page_rightInfo_profile);
 						String formattedXVal = lblXDecimalFormat.format(xVal);
 						lblXValue.setText(formattedXVal);
 						lblProfileIntensityValue.setText(Long.toString(intensity));
@@ -305,6 +306,33 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 					}
 
 				});
+			}
+		}
+
+		@Override
+		public void histogramChangedRoi(double minValue, double maxValue, double from, double to) {
+			logger.debug("minValue:{}", minValue);
+			logger.debug("maxValue:{}", maxValue);
+			logger.debug("from:{}", from);
+			logger.debug("to:{}", to);
+
+			try {
+				tomoAlignmentViewController.setProc1ScaleValue(minValue, maxValue, from, to);
+			} catch (Exception e) {
+				loadErrorInDisplay("Problem updating scale on the detector", "Problem updating scale on the detector:"
+						+ e.getMessage());
+			}
+		}
+
+		@Override
+		public void applyExposureTimeButtonClicked() {
+			logger.debug("Apply exposure time button clicked:");
+			try {
+				tomoAlignmentViewController.applyHistogramToAdjustExposureTime();
+			} catch (Exception e) {
+				logger.error("TODO put description of error here", e);
+				loadErrorInDisplay("Cannot apply calculated exposure time", "Cannot apply calculated exposure time:"
+						+ e.getMessage());
 			}
 		}
 	};
@@ -506,8 +534,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 							break;
 						case HORIZONTAL:
 							try {
-								tomoAlignmentViewController
-										.moveHorizontal(monitor, cameraModule, difference);
+								tomoAlignmentViewController.moveHorizontal(monitor, cameraModule, difference);
 							} catch (InterruptedException e) {
 								logger.error("Action stopped by user");
 							} catch (Exception e) {
@@ -1418,8 +1445,40 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		}
 	}
 
+	private ImageListener<ImageData> tomoImageListener = new ImageListener<ImageData>() {
+
+		@Override
+		public void setName(String name) {
+
+		}
+
+		@Override
+		public String getName() {
+			return null;
+		}
+
+		@Override
+		public void processImage(final ImageData imageData) {
+			if (leftWindowImageViewer != null && !leftWindowImageViewer.isDisposed()) {
+				leftWindowImageViewer.getDisplay().syncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						try {
+							tomoPlotComposite.updateHistogramData(getLeftWindowViewerDisplayMode(), imageData);
+						} catch (Exception ex) {
+							cameraControls.stopSampleHistogram();
+						}
+					}
+				});
+
+			}
+		}
+	};
+
 	@Override
 	public void dispose() {
+
 		try {
 			if (leftWindowImageViewer != null) {
 				logger.debug("Removing zoom rect listener");
@@ -1433,8 +1492,10 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			tomoPlotComposite.removeOverlayLineListener(profileLineListener);
 			zoomRectListener = null;
 
-			leftVideoReceiver.removeImageListener(leftVideoListener);
-			rightVideoReceiver.removeImageListener(rightVideoListener);
+			stopFullVideoReceiver();
+			// leftVideoReceiver.removeImageListener(leftVideoListener);
+			// leftVideoReceiver.removeImageListener(tomoImageListener);
+			// rightVideoReceiver.removeImageListener(rightVideoListener);
 			leftVideoListener = null;
 			rightVideoListener = null;
 
@@ -1473,15 +1534,13 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			cameraControls.dispose();
 			//
 			motionControlComposite.dispose();
+			tomoPlotComposite.dispose();
 			//
 			tomoAlignmentViewController.unregisterTomoAlignmentView(this);
 			tomoAlignmentViewController.dispose();
 			toolkit.dispose();
 			// ACTIVE_WORKBENCH_WINDOW.getPartService().removePartListener(partListener);
 			histogramAdjuster.dispose();
-			if (tomoPlotComposite != null) {
-				tomoPlotComposite.cleanUp();
-			}
 			super.dispose();
 		} catch (Exception ex) {
 			logger.error("Exception in dispose", ex);
@@ -1553,6 +1612,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	void stopFullVideoReceiver() {
 		if (fullImgReceiverStarted) {
 			leftVideoReceiver.removeImageListener(leftVideoListener);
+			leftVideoReceiver.removeImageListener(tomoImageListener);
 			leftVideoReceiver.closeConnection();
 			fullImgReceiverStarted = false;
 
@@ -1632,7 +1692,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		} finally {
 			setLeftWindowInfo(STREAM_STOPPED);
 		}
-
 	}
 
 	/**
@@ -1898,6 +1957,14 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	@Override
 	public void setResolution(RESOLUTION res) {
 		cameraControls.setResolution(res);
+	}
+
+	public void addLeftWindowTomoImageListener() {
+		leftVideoReceiver.addImageListener(tomoImageListener);
+	}
+
+	public void removeLeftWindowTomoImageListener() {
+		leftVideoReceiver.removeImageListener(tomoImageListener);
 	}
 
 }

@@ -101,7 +101,7 @@
             fixed="false"
             icon="icons/tomoPerspective.gif"
             id="uk.ac.gda.client.tomo.perspective"
-            name="Tomography">
+            name="Tomo">
       </perspective>
    </extension>
    <extension

@@ -886,14 +886,24 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 	public String getDarkFieldImageFullFileName() {
 		return String.format(darkFileTemplate, darkFilePath, darkImageFileName);
 	}
-	
+
 	@Override
-	public int getFullImageWidth(){
+	public int getFullImageWidth() {
 		return imgWidth;
 	}
+
 	@Override
-	public int getFullImageHeight(){
+	public int getFullImageHeight() {
 		return imgHeight;
 	}
 
+	@Override
+	public void setProc1ScaleValue(double newScale) throws Exception {
+		camera.setProc1Scale(newScale);
+	}
+
+	@Override
+	public double getProc1Scale() throws Exception {
+		return camera.getProc1Scale();
+	}
 }
