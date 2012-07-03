@@ -313,8 +313,9 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 		@Override
 		public void zoomRectMoved(Rectangle bounds, Dimension figureTopLeftRelativeImgBounds, Dimension difference) {
+			logger.debug("BoundX :"+bounds.x+ " BoundY:"+bounds.y );
 			IProgressMonitor monitor = new NullProgressMonitor();
-			if (isStreamingSampleExposure()) {
+			if (isStreamingSampleExposure() || isStreamingFlatExposure()) {
 				// change the ROI start only if 'Stream' is switched 'ON'
 				try {
 					tomoAlignmentViewController.handleZoomStartMoved(figureTopLeftRelativeImgBounds);
@@ -323,8 +324,8 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 					loadErrorInDisplay("Problem moving zoom rectangle", e.getMessage());
 				}
 			} else {
-				ViewerDisplayMode singleImage = leftWindowDisplayMode;
-				if (singleImage != null) {
+				ViewerDisplayMode displayMode = leftWindowDisplayMode;
+				if (displayMode == ViewerDisplayMode.FLAT_SINGLE || displayMode == ViewerDisplayMode.SAMPLE_SINGLE) {
 					int leftWindowBinValue = tomoAlignmentViewController.getLeftWindowBinValue();
 					if (cameraControls.isProfileSelected()) {
 						Rectangle leftWindowImgBounds = leftWindowImageViewer.getImageBounds();
@@ -347,8 +348,10 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 					} else {
 						ZOOM_LEVEL selectedZoomLevel = cameraControls.getSelectedZoomLevel();
 						double zoomDemandRawScaleX = selectedZoomLevel.getDemandRawScale().x;
+						logger.debug("Zoom demand Raw scale X:{}", zoomDemandRawScaleX);
 
 						Dimension scaled = difference.getCopy().getScaled(leftWindowBinValue * zoomDemandRawScaleX);
+						logger.debug("Amount scaled:{}", scaled);
 						page_nonProfile_demandRawZoom.scroll(scaled);
 					}
 				}
@@ -506,8 +509,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 							break;
 						case HORIZONTAL:
 							try {
-								tomoAlignmentViewController
-										.moveHorizontal(monitor, cameraModule, difference);
+								tomoAlignmentViewController.moveHorizontal(monitor, cameraModule, difference);
 							} catch (InterruptedException e) {
 								logger.error("Action stopped by user");
 							} catch (Exception e) {
@@ -734,7 +736,9 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		setDefaultLayoutSettings(gl);
 		rightWindowComposite.setLayout(gl);
 		pageBook_rightWindow = new PageBook(rightWindowComposite, SWT.None);
-		pageBook_rightWindow.setLayoutData(new GridData(GridData.FILL_BOTH));
+		
+		GridData ld1 = new GridData(GridData.FILL_BOTH);
+		pageBook_rightWindow.setLayoutData(ld1);
 
 		page_rightWindow_nonProfile = toolkit.createComposite(pageBook_rightWindow);
 		GridLayout layout = new GridLayout(2, false);
@@ -760,7 +764,10 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		imgViewerComposite.setLayout(gridlayout);
 
 		pageBook_nonProfile_zoomImg = new PageBook(imgViewerComposite, SWT.None);
-		pageBook_nonProfile_zoomImg.setLayoutData(new GridData(GridData.FILL_BOTH));
+		
+		GridData gd = new GridData(GridData.FILL_BOTH);
+		gd.heightHint = 100;
+		pageBook_nonProfile_zoomImg.setLayoutData(gd);
 
 		page_nonProfile_streamZoom = new ZoomedImageComposite(pageBook_nonProfile_zoomImg, SWT.DOUBLE_BUFFERED);
 		page_nonProfile_demandRawZoom = new ZoomedImgCanvas(pageBook_nonProfile_zoomImg, DOUBLE_BUFFERED);
@@ -1730,6 +1737,10 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 	public boolean isStreamingSampleExposure() {
 		return STREAM_STATE.SAMPLE_STREAM.equals(cameraControls.getStreamState());
+	}
+
+	public boolean isStreamingFlatExposure() {
+		return STREAM_STATE.FLAT_STREAM.equals(cameraControls.getStreamState());
 	}
 
 	public STEPPER getSelectedAmplifierStepper() {
