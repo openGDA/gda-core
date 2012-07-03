@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,6 +18,7 @@
 
 package uk.ac.gda.exafs.ui;
 
+import gda.gui.scriptcontroller.logging.ScriptControllerLogView;
 import gda.rcp.views.JythonTerminalView;
 
 import org.eclipse.ui.IFolderLayout;
@@ -30,14 +31,10 @@ import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.plot.LnI0ItScanPlotView;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.exafs.ui.views.scalersmonitor.B18ScalersMonitorView;
+import uk.ac.gda.exafs.ui.views.scalersmonitor.ScalersMonitorView;
 
-/**
- *
- */
 public class PlottingPerspective implements IPerspectiveFactory {
-	/**
-	 * 
-	 */
+
 	public static final String ID = "org.diamond.exafs.ui.PlottingPerspective";
 
 	@Override
@@ -45,30 +42,29 @@ public class PlottingPerspective implements IPerspectiveFactory {
 		String editorArea = layout.getEditorArea();
 		layout.setEditorAreaVisible(false);
 
-		IFolderLayout folderLayout_0 = layout.createFolder("folder10", IPageLayout.LEFT, 0.76f, editorArea);
+		IFolderLayout folderLayout_0 = layout.createFolder("folder10", IPageLayout.LEFT, 0.7f, editorArea);
 		folderLayout_0.addView(XYPlotView.ID);
 		if (!ExafsActivator.getDefault().getPreferenceStore()
 				.getBoolean(ExafsPreferenceConstants.HIDE_LnI0ItScanPlotView)) {
 			folderLayout_0.addView(LnI0ItScanPlotView.ID);
 		}
 
-//		IFolderLayout folderLayout_2 = layout.createFolder("folder1", IPageLayout.RIGHT, 0.55f, LnI0ItScanPlotView.ID);
-//		folderLayout_2.addView(DerivativeScanPlotView.ID);
-//		folderLayout_2.addView(SubtractedBackgroundScanPlotView.ID);
-//		folderLayout_2.addView(FourierScanPlotView.ID);
-
 		IFolderLayout folderLayout = layout.createFolder("folder", IPageLayout.BOTTOM, 0.5f, "folder1");
 		folderLayout.addView(JythonTerminalView.ID);
 
-//		if (ExafsActivator.getDefault().getPreferenceStore()
-//				.getBoolean(ExafsPreferenceConstants.SHOW_B18ScalersMonitorView)) {
+		if (ExafsActivator.getDefault().getPreferenceStore()
+				.getBoolean(ExafsPreferenceConstants.SHOW_B18ScalersMonitorView)) {
 			folderLayout.addView(B18ScalersMonitorView.ID);
-//		} else {
-//			folderLayout.addView(ScalersMonitorView.ID);
-//		}
+		} else {
+			folderLayout.addView(ScalersMonitorView.ID);
+		}
 
-		IFolderLayout folderLayout_1 = layout.createFolder("folder0", IPageLayout.BOTTOM, 0.85f, XYPlotView.ID);
+		IFolderLayout folderLayout_1 = layout.createFolder("folder0", IPageLayout.BOTTOM, 0.7f, XYPlotView.ID);
+
 		folderLayout_1.addView(CommandQueueViewFactory.ID);
+		
+		IFolderLayout folderLayout_2 = layout.createFolder("folder2", IPageLayout.RIGHT, 0.5f, "folder0");
+		folderLayout_2.addView(ScriptControllerLogView.ID);
 	}
 
 }

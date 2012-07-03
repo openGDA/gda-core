@@ -269,10 +269,6 @@
             name="Start Monitoring XES Xmap">
       </command>
       <command
-            id="uk.ac.gda.client.exafs.addScan"
-            name="Add Scan">
-      </command>
-      <command
             id="uk.ac.gda.client.exafs.haltAfterRepetition"
             name="Halt After Repetition">
       </command>
@@ -322,10 +318,6 @@
       <handler
             class="uk.ac.gda.exafs.ui.actions.ImportExperimentCommandHandler"
             commandId="uk.ac.gda.client.exafs.ImportExperimentCommand">
-      </handler>
-      <handler
-            class="uk.ac.gda.exafs.ui.actions.AddScanCommandHandler"
-            commandId="uk.ac.gda.client.exafs.addScan">
       </handler>
      <handler
             class="uk.ac.gda.exafs.ui.actions.HaltAfterRepetition"
@@ -532,23 +524,6 @@
                </with>
             </visibleWhen>
                
-         </command>
-         <command
-               commandId="uk.ac.gda.client.exafs.addScan"
-               helpContextId="org.eclipse.ui.add_scan"
-               icon="icons/control_equalizer_blue.png"
-               label="Add Scan"
-               style="push"
-               tooltip="Adds a new scan">
-            <visibleWhen
-                  checkEnabled="false">
-               <with
-                     variable="activeWorkbenchWindow.activePerspective">
-                  <equals
-                        value="uk.ac.gda.client.experimentdefinition.experimentperspective">
-                  </equals>
-               </with>
-            </visibleWhen>
          </command>
       </menuContribution>
       <menuContribution 
