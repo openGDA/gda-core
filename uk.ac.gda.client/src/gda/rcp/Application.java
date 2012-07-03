@@ -49,6 +49,7 @@ import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.osgi.framework.debug.Debug;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
@@ -77,6 +78,8 @@ public class Application implements IApplication {
 
 	@Override
 	public Object start(IApplicationContext context) {
+		
+//		Debug.DEBUG_LOADER = true;
 
 		Display display = PlatformUI.createDisplay();
 		try {
@@ -499,6 +502,10 @@ public class Application implements IApplication {
 					if (gda_gui_beans != null) {
 						// remove existing factories first 
 						Finder.getInstance().removeAllFactories();
+						ClassLoader appClassLoader = Application.class.getClassLoader();
+						ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+						System.out.println("Application class loader: " + appClassLoader);
+						System.out.println("TCCL: " + tccl);
 						SpringObjectServer s = new SpringObjectServer(new File(gda_gui_beans), localObjectsOnly);
 						s.configure();
 						
