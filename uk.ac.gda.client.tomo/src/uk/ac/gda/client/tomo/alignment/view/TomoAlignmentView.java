@@ -110,6 +110,18 @@ import uk.ac.gda.ui.components.ZoomButtonComposite.ZOOM_LEVEL;
  */
 public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
+	public enum RIGHT_PAGE {
+		NONE, PLOT, ZOOM_DEMAND_RAW, NO_ZOOM, ZOOM_STREAM
+	}
+
+	public enum LEFT_PAGE {
+		IMAGE_VIEWER;
+	}
+
+	public enum RIGHT_INFO {
+		NONE, PROFILE, HISTOGRAM;
+	}
+
 	public static final String STREAM_STOPPED = "STREAM STOPPED";
 	private ViewerDisplayMode leftWindowDisplayMode = ViewerDisplayMode.STREAM_STOPPED;
 	public static final int RIGHT_WINDOW_WIDTH = 320;
@@ -139,6 +151,9 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	Label lblFileTimeStamp;
 	Label lblFileName;
 	private Composite page_rightInfo_profile;
+
+	private Composite page_rightInfo_histogram;
+
 	private PageBook pageBook_rightInfo;
 	/**/
 	private FullImageComposite leftWindowImageViewer;
@@ -161,6 +176,8 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	public static final String FILE_NAME = "FileName :";
 	public static final String BLANK_STR = "";
 	private static final String ZOOM_NOT_SELECTED_shortdesc = "ZOOM NOT SELECTED";
+
+	private static final String SET_EXPOSURE_TIME = "Apply Exposure Time";
 
 	//
 	private ICameraControlListener cameraControlListener;
@@ -288,6 +305,20 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 	};
 
+	public void setRightInfoPage(RIGHT_INFO rightInfo) {
+		switch (rightInfo) {
+		case NONE:
+			pageBook_rightInfo.showPage(page_rightInfo_nonProfile);
+			break;
+		case PROFILE:
+			pageBook_rightInfo.showPage(page_rightInfo_profile);
+			break;
+		case HISTOGRAM:
+			pageBook_rightInfo.showPage(page_rightInfo_histogram);
+			break;
+		}
+	}
+
 	private PlottingSystemActionListener profileLineListener = new PlottingSystemActionListener() {
 		@Override
 		public void profileLineMovedTo(final double xVal, final long intensity) {
@@ -296,13 +327,14 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 					@Override
 					public void run() {
-						pageBook_rightInfo.showPage(page_rightInfo_profile);
+						setRightInfoPage(RIGHT_INFO.PROFILE);
 						String formattedXVal = lblXDecimalFormat.format(xVal);
 						lblXValue.setText(formattedXVal);
 						lblProfileIntensityValue.setText(Long.toString(intensity));
 						leftWindowImageViewer.showProfileHighlighter();
-						leftWindowImageViewer.moveProfileHighlighter(xVal
-								/ tomoAlignmentViewController.getLeftWindowBinValue());
+						int leftWindowBinValue = tomoAlignmentViewController.getLeftWindowBinValue();
+						// FIXME - potential divide by zero problem
+						leftWindowImageViewer.moveProfileHighlighter(xVal / leftWindowBinValue);
 					}
 
 				});
@@ -1111,6 +1143,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		pageBook_rightInfo = new PageBook(baseInfoViewerComposite, SWT.None);
 		pageBook_rightInfo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
+		// Non profile page -
 		page_rightInfo_nonProfile = toolkit.createComposite(pageBook_rightInfo);
 		GridLayout layout2 = new GridLayout();
 		layout2.marginHeight = 2;
@@ -1137,6 +1170,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		rightScaleBar = new ScaleBarComposite(scalebarComposite, SWT.RIGHT);
 		rightScaleBar.setLayoutData(new GridData());
 
+		// Profile page.
 		page_rightInfo_profile = toolkit.createComposite(pageBook_rightInfo);
 		GridLayout layout3 = new GridLayout(4, true);
 		layout3.marginHeight = 2;
@@ -1167,7 +1201,32 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		GridData ld2 = new GridData(GridData.FILL_HORIZONTAL);
 		ld2.horizontalSpan = 3;
 		lblProfileIntensityValue.setLayoutData(ld2);
-		pageBook_rightInfo.showPage(page_rightInfo_nonProfile);
+
+		// Histogram Page
+		page_rightInfo_histogram = toolkit.createComposite(pageBook_rightInfo);
+		page_rightInfo_histogram.setBackground(ColorConstants.cyan);
+		GridLayout gl = new GridLayout();
+		setDefaultLayoutSettings(gl);
+		page_rightInfo_histogram.setLayout(gl);
+
+		Button btnApplyExposureSettings = new Button(page_rightInfo_histogram, SWT.PUSH);
+		btnApplyExposureSettings.setText(SET_EXPOSURE_TIME);
+		btnApplyExposureSettings.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				try {
+					tomoAlignmentViewController.applyHistogramToAdjustExposureTime();
+				} catch (Exception e1) {
+					logger.error("TODO put description of error here", e1);
+					loadErrorInDisplay("Problem applying histogram value to exposure time",
+							"Problem applying histogram value to exposure time:" + e1.getMessage());
+				}
+			}
+		});
+		layoutData = new GridData(GridData.FILL_BOTH);
+		btnApplyExposureSettings.setLayoutData(layoutData);
+
+		setRightInfoPage(RIGHT_INFO.NONE);
 
 		return borderComposite;
 	}
@@ -1447,31 +1506,24 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 	private ImageListener<ImageData> tomoImageListener = new ImageListener<ImageData>() {
 
+		private String name;
+
 		@Override
 		public void setName(String name) {
-
+			this.name = name;
 		}
 
 		@Override
 		public String getName() {
-			return null;
+			return name;
 		}
 
 		@Override
 		public void processImage(final ImageData imageData) {
-			if (leftWindowImageViewer != null && !leftWindowImageViewer.isDisposed()) {
-				leftWindowImageViewer.getDisplay().syncExec(new Runnable() {
-
-					@Override
-					public void run() {
-						try {
-							tomoPlotComposite.updateHistogramData(getLeftWindowViewerDisplayMode(), imageData);
-						} catch (Exception ex) {
-							cameraControls.stopSampleHistogram();
-						}
-					}
-				});
-
+			try {
+				tomoPlotComposite.updateHistogramData(getLeftWindowViewerDisplayMode(), imageData);
+			} catch (Exception ex) {
+				cameraControls.stopSampleHistogram();
 			}
 		}
 	};
@@ -1611,9 +1663,10 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	 */
 	void stopFullVideoReceiver() {
 		if (fullImgReceiverStarted) {
+			leftVideoReceiver.closeConnection();
+
 			leftVideoReceiver.removeImageListener(leftVideoListener);
 			leftVideoReceiver.removeImageListener(tomoImageListener);
-			leftVideoReceiver.closeConnection();
 			fullImgReceiverStarted = false;
 
 			if (zoomReceiverStarted) {
@@ -1669,7 +1722,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		cameraControls.profileStopped();
 		leftWindowImageViewer.hideLineProfiler();
 		pageBook_rightWindow.showPage(page_rightWindow_nonProfile);
-		pageBook_rightInfo.showPage(page_rightInfo_nonProfile);
+		setRightInfoPage(RIGHT_INFO.NONE);
 		tomoPlotComposite.setImagesToPlot(null, null);
 		ZOOM_LEVEL selectedZoomLevel = cameraControls.getSelectedZoomLevel();
 		if (!ZOOM_LEVEL.NO_ZOOM.equals(selectedZoomLevel)) {
@@ -1763,9 +1816,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		@Override
 		public void run() {
 			try {
-				if (isSuccess.get()) {
-					// startVideoReceiver();
-				} else {
+				if (!isSuccess.get()) {
 					stopFullVideoReceiver();
 				}
 			} catch (InterruptedException e) {
@@ -1774,6 +1825,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 						ERROR_STREAM_START_shortdesc);
 				//
 				cameraControls.stopSampleStream();
+				cameraControls.stopFlatStream();
 				//
 			} catch (ExecutionException e) {
 				logger.error("IOC May be down", e);
@@ -1781,6 +1833,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 						ERROR_STREAM_START_shortdesc);
 				//
 				cameraControls.stopSampleStream();
+				cameraControls.stopFlatStream();
 				stopFullVideoReceiver();
 			}
 
@@ -1803,10 +1856,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		return motionControlComposite.getSelectedCameraModule();
 	}
 
-	public enum RIGHT_PAGE {
-		NON_PROFILE, PLOT, ZOOM_DEMAND_RAW, NO_ZOOM, ZOOM_STREAM
-	}
-
 	public void setRightPage(final RIGHT_PAGE page) {
 		if (pageBook_rightWindow.getDisplay() != null && !pageBook_rightWindow.getDisplay().isDisposed()) {
 			pageBook_rightWindow.getDisplay().syncExec(new Runnable() {
@@ -1814,7 +1863,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 				@Override
 				public void run() {
 					switch (page) {
-					case NON_PROFILE:
+					case NONE:
 						pageBook_rightWindow.showPage(page_rightWindow_nonProfile);
 						break;
 					case PLOT:
@@ -1835,10 +1884,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 				}
 			});
 		}
-	}
-
-	public enum LEFT_PAGE {
-		IMAGE_VIEWER;
 	}
 
 	public void setLeftPage(final LEFT_PAGE page) {

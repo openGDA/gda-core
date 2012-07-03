@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
-import org.dawb.common.ui.plot.IAxis;
 import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawb.common.ui.plot.region.IROIListener;
@@ -39,14 +38,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.MouseListener;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,21 +65,21 @@ import uk.ac.gda.client.tomo.ViewerDisplayMode;
  */
 public class TomoPlotComposite extends Composite {
 
+	private static final String DARK = "DARK";
+
+	private static final String INTENSITY = "INTENSITY";
+
+	private static final String INTENSITY_PLOT = "Intensity plot";
+
 	public enum MODE {
 		HISTOGRAM, PROFILE, TILT, NONE;
 	}
 
 	private IRegion xHair;
 
-	private IAxis x1;
-
 	private MODE mode = MODE.NONE;
 
-	private static final String SET_EXPOSURE_TIME = "Apply Exposure Time";
-
 	private static final String REGION_FIT2 = "RegionFit2";
-
-	private static final String SCALING_REGION = "ScalingRegion";
 
 	private static final Logger logger = LoggerFactory.getLogger(TomoPlotComposite.class);
 
@@ -106,8 +102,6 @@ public class TomoPlotComposite extends Composite {
 	private ILineTrace histogramTrace;
 
 	private ILineTrace profileLineTrace;
-
-	private Composite lowerBarContainingApplyButton;
 
 	public interface PlottingSystemActionListener {
 
@@ -155,28 +149,7 @@ public class TomoPlotComposite extends Composite {
 		plottingSystem = PlottingFactory.createPlottingSystem();
 		plottingSystem.createPlotPart(plotComposite, "", null, PlotType.PT1D_MULTI, null);
 		lineListeners = new ArrayList<TomoPlotComposite.PlottingSystemActionListener>();
-
-		lowerBarContainingApplyButton = new Composite(this, SWT.None);
-		lowerBarContainingApplyButton.setBackground(ColorConstants.white);
-		lowerBarContainingApplyButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		lowerBarContainingApplyButton.setLayout(getGridLayoutZeroSettings());
-
-		Button btnApplyExposureSettings = new Button(lowerBarContainingApplyButton, SWT.PUSH);
-		btnApplyExposureSettings.setText(SET_EXPOSURE_TIME);
-		btnApplyExposureSettings.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				for (PlottingSystemActionListener lis : lineListeners) {
-					lis.applyExposureTimeButtonClicked();
-				}
-			}
-		});
-		GridData layoutData = new GridData();
-		layoutData.horizontalAlignment = GridData.HORIZONTAL_ALIGN_END;
-		btnApplyExposureSettings.setLayoutData(layoutData);
 		//
-		x1 = plottingSystem.getSelectedXAxis();
-
 	}
 
 	private GridLayout getGridLayoutZeroSettings() {
@@ -201,9 +174,6 @@ public class TomoPlotComposite extends Composite {
 	}
 
 	public void updateProfilePlots(IProgressMonitor monitor, final int xStart, final int xEnd, final int y) {
-		// the below delay routine is added on Mark Basham's suggestion which is needed so that the plotter does'nt get
-		// over-updated. Time check if below 0.1s ignore request
-
 		if (mode != MODE.PROFILE) {
 			plottingSystem.clear();
 		}
@@ -255,13 +225,12 @@ public class TomoPlotComposite extends Composite {
 			getDisplay().syncExec(new Runnable() {
 				@Override
 				public void run() {
-					plottingSystem.setTitle("Intensity plot");
+					plottingSystem.setTitle(INTENSITY_PLOT);
 					plottingSystem.getSelectedYAxis().setFormatPattern("######.#");
 					plottingSystem.getSelectedYAxis().setRange(0, 65600);
 
 					createMouseFollowLineRegion();
 
-					lowerBarContainingApplyButton.setVisible(false);
 				}
 			});
 		}
@@ -270,12 +239,12 @@ public class TomoPlotComposite extends Composite {
 
 	public void setImagesToPlot(String rawPlotImageFilename, String darkImgFileName) {
 		if (rawPlotImageFilename != null) {
-			rawImgDs = loadDatasetForTiffImg(rawPlotImageFilename, "INTENSITY");
+			rawImgDs = loadDatasetForTiffImg(rawPlotImageFilename, INTENSITY);
 		} else {
 			rawImgDs = null;
 		}
 		if (darkImgFileName != null) {
-			darkImgDs = loadDatasetForTiffImg(darkImgFileName, "DARK");
+			darkImgDs = loadDatasetForTiffImg(darkImgFileName, DARK);
 		} else {
 			darkImgDs = null;
 		}
@@ -303,9 +272,6 @@ public class TomoPlotComposite extends Composite {
 
 			@Override
 			public void run() {
-				// Dont show the apply button
-				lowerBarContainingApplyButton.setVisible(false);
-				//
 				plottingSystem.clear();
 				final DoublePointList centers1 = tiltPoints.getCenters1();
 				final DoublePointList centers2 = tiltPoints.getCenters2();
@@ -383,13 +349,6 @@ public class TomoPlotComposite extends Composite {
 						xHair = null;
 					}
 					// show the apply button if streaming is happening in the left window.
-					if (displayMode == ViewerDisplayMode.FLAT_STREAM_LIVE
-							|| displayMode == ViewerDisplayMode.SAMPLE_STREAM_LIVE) {
-						lowerBarContainingApplyButton.setVisible(true);
-					} else {
-						lowerBarContainingApplyButton.setVisible(false);
-					}
-
 					mode = MODE.HISTOGRAM;
 					createMouseFollowLineRegion();
 					if (plottingSystem.getTrace("Histogram") == null) {
