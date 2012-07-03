@@ -74,7 +74,7 @@
  	        icon="icons/control_play_blue.png" 
  	        id="uk.ac.gda.exafs.ui.views.B18ScalersMonitor" 
  	        name="B18 Detector Rates" 
- 	        restorable="false"> 
+ 	        restorable="true"> 
  	  </view>
       <view
             category="uk.ac.gda.client.exafs.category"
@@ -478,7 +478,7 @@
                commandId="uk.ac.gda.client.exafs.ui.views.scalersmonitor.startcommand"
                icon="icons/control_play_blue.png"
                label="start"
-               style="push"
+               style="toggle"
                tooltip="start monitoring">
          </command>
          <command
