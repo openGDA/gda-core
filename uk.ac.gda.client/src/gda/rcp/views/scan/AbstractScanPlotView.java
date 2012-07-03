@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -54,25 +54,12 @@ import uk.ac.gda.ClientManager;
  */
 public abstract class AbstractScanPlotView extends AbstractPlotView implements ScanPlotListener {
 
-	/**
-	 * 
-	 */
 	public static enum GRAPH_MODE {
-		/**
-		 * 
-		 */
 		CHECK_VISIBLE_AND_TIMER,
-		/**
-		 * 
-		 */
 		CHECK_TIMER_ONLY,
-		/**
-		 * 
-		 */
 		DIRECT_DRAW
 	}
 
-	// Data
 	private static final Logger logger = LoggerFactory.getLogger(AbstractScanPlotView.class);
 
 	protected int sampleRate = 500;
@@ -82,9 +69,6 @@ public abstract class AbstractScanPlotView extends AbstractPlotView implements S
 	protected Timer timer;
 	protected IPlotData x, y, xSaved, ySaved;
 
-	/**
-	 * 
-	 */
 	protected AbstractScanPlotView() {
 		try {
 			UIScanDataPointEventService.getInstance().addScanPlotListener(this);
@@ -102,7 +86,6 @@ public abstract class AbstractScanPlotView extends AbstractPlotView implements S
 
 	protected abstract String getCurrentPlotName(int scanNumber);
 
-	// Methods
 	@Override
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
@@ -135,13 +118,14 @@ public abstract class AbstractScanPlotView extends AbstractPlotView implements S
 
 		this.scanning = false;
 
-		// Plot last plot as we might have been
-		// invisible during the updates.
-		try {
-			plotPointsFromService();
-		} catch (Exception e) {
-			logger.error("Cannot plot final data when scan stopped.", e);
-		}
+//		should not do any work at this point in a base class
+//		// Plot last plot as we might have been
+//		// invisible during the updates.
+//		try {
+//			plotPointsFromService();
+//		} catch (Exception e) {
+//			logger.error("Cannot plot final data when scan stopped.", e);
+//		}
 
 		legendEntries = false;
 
@@ -246,9 +230,14 @@ public abstract class AbstractScanPlotView extends AbstractPlotView implements S
 		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				createPlot(x, y, GRAPH_MODE.CHECK_VISIBLE_AND_TIMER);
+				rebuildPlot();
 			}
+
 		});
+	}
+
+	protected void rebuildPlot() {
+		createPlot(x, y, GRAPH_MODE.CHECK_VISIBLE_AND_TIMER);
 	}
 
 	/**
@@ -385,9 +374,6 @@ public abstract class AbstractScanPlotView extends AbstractPlotView implements S
 		return true;
 	}
 
-	/**
-	 * 
-	 */
 	@Override
 	public void scanPaused() {
 
@@ -410,9 +396,6 @@ public abstract class AbstractScanPlotView extends AbstractPlotView implements S
 			timer.setDelay(sampleRate);
 	}
 
-	/**
-	 * @return Returns the xAxisValues.
-	 */
 	public AxisValues getXAxisValues() {
 		return scanning ? xAxisValues.clone() : new AxisValues(xSaved.getDataSet());
 	}

@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -25,36 +25,33 @@ import java.util.List;
 
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.PlotData;
 
-
 /**
- * Base class for plotting multiple plots at the same time. The default
- * implementation is 
+ * Base class for plotting multiple plots at the same time. The default implementation is
  */
 public class MultipleScanPlotView extends AbstractCachedScanPlotView {
-	
-	/**
-	 * 
-	 */
+
 	public static final String ID = "gda.rcp.views.scan.MultipleScanPlotView";
 
 	protected PlotData cachedAllY;
-	
+
 	@Override
 	public void scanStopped() {
 		super.scanStopped();
-        if (cachedAllY==null) cachedAllY = new PlotData();
-        cachedAllY.clear();
+		if (cachedAllY == null)
+			cachedAllY = new PlotData();
+		cachedAllY.clear();
 	}
-	
+
 	@Override
 	public void scanStarted() {
 		super.scanStarted();
-	    if (cachedAllY==null) cachedAllY = new PlotData();
-    }
+		if (cachedAllY == null)
+			cachedAllY = new PlotData();
+	}
 
 	@Override
 	protected String getCurrentPlotName(int scanNumber) {
-		return "Scan "+scanNumber;
+		return "Scan " + scanNumber;
 	}
 
 	@Override
@@ -62,26 +59,29 @@ public class MultipleScanPlotView extends AbstractCachedScanPlotView {
 		return "Scan";
 	}
 
-
 	@Override
 	protected void plotPointsFromService() throws Exception {
-	    
-	    if (cachedAllY==null) cachedAllY = new PlotData();
-	    cachedAllY.clear();
+
+		if (cachedAllY == null)
+			cachedAllY = new PlotData();
+		cachedAllY.clear();
 		super.plotPointsFromService();
 	}
 
 	@Override
-	protected PlotData getY(IScanDataPoint... points) {
-		
- 		for (int i = 0; i < points.length; i++) {
-			final IScanDataPoint point = points[i];
-			final List<Double> data   = Arrays.asList(point.getDetectorDataAsDoubles());
-			final List<String> names  = point.getDetectorHeader();
+	protected void updateCache(IScanDataPoint[] sdpArray) {
+		for (int i = 0; i < sdpArray.length; i++) {
+			final IScanDataPoint point = sdpArray[i];
+			final List<Double> data = Arrays.asList(point.getDetectorDataAsDoubles());
+			final List<String> names = point.getDetectorHeader();
 			for (int j = 0; j < data.size(); j++) {
 				cachedAllY.addData(names.get(j), data.get(j));
 			}
 		}
+	}
+
+	@Override
+	protected PlotData getY(IScanDataPoint... points) {
 		return cachedAllY;
 	}
 
@@ -89,9 +89,9 @@ public class MultipleScanPlotView extends AbstractCachedScanPlotView {
 	protected String getYAxis() {
 		return "Scan Data";
 	}
-	
+
 	@Override
 	protected String getXAxis() {
 		return "Point Number";
-	}	
+	}
 }

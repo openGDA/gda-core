@@ -54,7 +54,7 @@ print ">>> pos hkl (0 1 0)"
 pos([hkl, (0,1,0)])
 
 print ">>> pos sixc"
-pos((sixc))
+pos([(sixc)])
 
 print ">>> hklmode"
 hklmode

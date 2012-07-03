@@ -19,6 +19,7 @@
 package gda.jython.translator;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import gda.jython.InterfaceProvider;
 import gda.jython.MockJythonServer;
 import gda.jython.MockJythonServerFacade;
@@ -236,14 +237,12 @@ public class GeneralTranslatorTest {
 	}
 	
 	@Test
-	@Ignore("2010-11-24 This won't pass with the current translator")
 	public void testStringWithMixOfQuotes1() {
 		final String text = "\"he'llo [a b c]\"";
 		assertEquals(text, translator.translate(text));
 	}
 	
 	@Test
-	@Ignore("2010-11-24 This won't pass with the current translator")
 	public void testStringWithMixOfQuotes2() {
 		final String text = "'he\"llo [a b c]'";
 		assertEquals(text, translator.translate(text));
@@ -264,12 +263,11 @@ public class GeneralTranslatorTest {
 	}
 	
 	@Test
-	@Ignore("2011-08-15 This won't pass with the current translator")
 	public void testLineWithComment() {
-		final String originalText = "cam.configure() # TODO Remove if not required; 27-Jul-2011/ais";
-		final String expectedTranslation = originalText; // probably...
+		final String originalText = "cam.configure() # TODO Remove if not required 27-Jul-2011/ais";
+		final String expectedTranslation = "cam.configure() ";
 		final String actualTranslation = translator.translate(originalText);
-		assertEquals(expectedTranslation, actualTranslation);
+		assertTrue(expectedTranslation.equals(actualTranslation));
 	}
 	
 }
