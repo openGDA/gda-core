@@ -24,13 +24,17 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.tomo.alignment.view.handlers.IRoiHandler;
 
+/**
+ * This class is added to not adjust the x on the pco roi. the x needs to be adjusted very carefully as setting it
+ * incorrectly may cause the IOC to misbehave.
+ */
 public class PCORoiPointsHandlerNoXAdj implements IRoiHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(PCORoiPointsHandlerNoXAdj.class);
-	
+
 	@Override
 	public void dispose() {
-		//do nothing
+		// do nothing
 	}
 
 	@Override

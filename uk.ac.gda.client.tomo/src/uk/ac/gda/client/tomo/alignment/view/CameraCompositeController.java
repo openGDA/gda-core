@@ -19,7 +19,6 @@
 package uk.ac.gda.client.tomo.alignment.view;
 
 import gda.device.DeviceException;
-import gda.images.camera.ImageListener;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -47,6 +46,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.client.tomo.ViewerDisplayMode;
 import uk.ac.gda.client.tomo.alignment.view.TomoAlignmentView.LEFT_PAGE;
 import uk.ac.gda.client.tomo.alignment.view.TomoAlignmentView.RIGHT_PAGE;
+import uk.ac.gda.client.tomo.alignment.view.TomoAlignmentView.RIGHT_INFO;
 import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentViewController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.IRoiHandler;
 import uk.ac.gda.client.tomo.alignment.view.utils.ScaleDisplay;
@@ -65,7 +65,6 @@ import uk.ac.gda.ui.components.ZoomButtonComposite.ZOOM_LEVEL;
  */
 public class CameraCompositeController implements ICameraControlListener {
 	private IProgressMonitor monitor = new NullProgressMonitor();
-	private ImageListener<ImageData> tomoImageListener = null;
 	private TomoAlignmentView v;
 	private static final IWorkbenchWindow ACTIVE_WORKBENCH_WINDOW = PlatformUI.getWorkbench()
 			.getActiveWorkbenchWindow();
@@ -91,7 +90,6 @@ public class CameraCompositeController implements ICameraControlListener {
 
 		if (selection) {
 			// show the plot view
-
 			ViewerDisplayMode leftWindowViewerDisplayMode = v.getLeftWindowViewerDisplayMode();
 			if (ViewerDisplayMode.SAMPLE_STREAM_LIVE.equals(leftWindowViewerDisplayMode)) {
 
@@ -108,53 +106,25 @@ public class CameraCompositeController implements ICameraControlListener {
 				}
 
 				v.setRightPage(RIGHT_PAGE.PLOT);
-				tomoImageListener = new ImageListener<ImageData>() {
-
-					@Override
-					public void setName(String name) {
-
-					}
-
-					@Override
-					public String getName() {
-						return null;
-					}
-
-					@Override
-					public void processImage(final ImageData imageData) {
-						if (leftWindowImageViewer != null && !leftWindowImageViewer.isDisposed()) {
-							leftWindowImageViewer.getDisplay().syncExec(new Runnable() {
-
-								@Override
-								public void run() {
-									try {
-										v.tomoPlotComposite.updateHistogramData(imageData);
-									} catch (Exception ex) {
-										cameraControls.stopSampleHistogram();
-									}
-								}
-							});
-
-						}
-					}
-				};
-				v.leftVideoReceiver.addImageListener(tomoImageListener);
+				v.addLeftWindowTomoImageListener();
+				v.setRightInfoPage(RIGHT_INFO.HISTOGRAM);
 			} else if (ViewerDisplayMode.SAMPLE_SINGLE.equals(leftWindowViewerDisplayMode)) {
 				String fileName = leftWindowViewerDisplayMode.getFileName(tomoAlignmentViewController);
 				cameraControls.setZoom(ZOOM_LEVEL.NO_ZOOM);
 				cameraControls.stopFlatHistogram();
-				v.tomoPlotComposite.updateHistogramData(new ImageData(fileName));
+				v.tomoPlotComposite.updateHistogramData(v.getLeftWindowViewerDisplayMode(), new ImageData(fileName));
 				v.setRightPage(RIGHT_PAGE.PLOT);
+				v.setRightInfoPage(RIGHT_INFO.NONE);
 			} else {
 				MessageDialog.openError(cameraControls.getShell(), "Histogram cannot be displayed",
 						"Histogram can only be displayed for Sample Stream or Single");
 				cameraControls.stopSampleHistogram();
+				v.setRightInfoPage(RIGHT_INFO.NONE);
 			}
 		} else {
-			v.setRightPage(RIGHT_PAGE.NON_PROFILE);
-			if (tomoImageListener != null) {
-				v.leftVideoReceiver.removeImageListener(tomoImageListener);
-			}
+			cameraControls.stopSampleStream();
+			v.setRightPage(RIGHT_PAGE.NONE);
+			v.setRightInfoPage(RIGHT_INFO.NONE);
 		}
 	}
 
@@ -181,37 +151,7 @@ public class CameraCompositeController implements ICameraControlListener {
 				}
 
 				v.setRightPage(RIGHT_PAGE.PLOT);
-				tomoImageListener = new ImageListener<ImageData>() {
-
-					@Override
-					public void setName(String name) {
-
-					}
-
-					@Override
-					public String getName() {
-						return null;
-					}
-
-					@Override
-					public void processImage(final ImageData image) {
-						if (leftWindowImageViewer != null && !leftWindowImageViewer.isDisposed()) {
-							leftWindowImageViewer.getDisplay().syncExec(new Runnable() {
-
-								@Override
-								public void run() {
-									try {
-										v.tomoPlotComposite.updateHistogramData(image);
-									} catch (Exception ex) {
-										cameraControls.stopFlatHistogram();
-									}
-								}
-							});
-
-						}
-					}
-				};
-				v.leftVideoReceiver.addImageListener(tomoImageListener);
+				v.addLeftWindowTomoImageListener();
 			} else {
 				MessageDialog.openError(cameraControls.getShell(), "Histogram cannot be displayed",
 						"Histogram can only be displayed for Flat Stream or Single");
@@ -219,10 +159,8 @@ public class CameraCompositeController implements ICameraControlListener {
 
 			}
 		} else {
-			v.setRightPage(RIGHT_PAGE.NON_PROFILE);
-			if (tomoImageListener != null) {
-				v.leftVideoReceiver.removeImageListener(tomoImageListener);
-			}
+			v.setRightPage(RIGHT_PAGE.NONE);
+			v.removeLeftWindowTomoImageListener();
 		}
 
 	}
@@ -423,8 +361,8 @@ public class CameraCompositeController implements ICameraControlListener {
 									tomoAlignmentViewController.stopDemandRaw();
 								} catch (Exception e) {
 									logger.error("Problem stopping sample single");
-//									MessageDialog.openError(cameraControls.getShell(), "User Stopped Operation",
-//											"Problem with taking Single: User stopped operation");
+									// MessageDialog.openError(cameraControls.getShell(), "User Stopped Operation",
+									// "Problem with taking Single: User stopped operation");
 								}
 								break;
 							}
@@ -486,7 +424,6 @@ public class CameraCompositeController implements ICameraControlListener {
 		}
 
 	}
-	
 
 	@Override
 	public void sampleSingle(final boolean flatCorrectionSelected) throws Exception {
@@ -532,10 +469,14 @@ public class CameraCompositeController implements ICameraControlListener {
 	private void displayFileDetails(ViewerDisplayMode viewDisplayMode) throws Exception {
 		String rawFileName = viewDisplayMode.getFileName(tomoAlignmentViewController);
 		v.lblFileName.setText(String.format("%1$s %2$s", TomoAlignmentView.FILE_NAME, rawFileName));
-		File checkFile = new File(rawFileName);
-		if (checkFile.exists()) {
-			v.lblFileTimeStamp.setText(String.format("%1$s %2$s", TomoAlignmentView.TIMESTAMP,
-					getSimpleDateFormat(checkFile.lastModified())));
+		if (rawFileName != null) {
+			File checkFile = new File(rawFileName);
+			if (checkFile.exists()) {
+				v.lblFileTimeStamp.setText(String.format("%1$s %2$s", TomoAlignmentView.TIMESTAMP,
+						getSimpleDateFormat(checkFile.lastModified())));
+			}
+		} else {
+			throw new IllegalArgumentException("Single image could not be loaded");
 		}
 	}
 

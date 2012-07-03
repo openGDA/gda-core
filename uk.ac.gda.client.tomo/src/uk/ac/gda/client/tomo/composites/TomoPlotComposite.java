@@ -31,14 +31,17 @@ import org.dawb.common.ui.plot.region.IROIListener;
 import org.dawb.common.ui.plot.region.IRegion;
 import org.dawb.common.ui.plot.region.IRegion.RegionType;
 import org.dawb.common.ui.plot.region.ROIEvent;
+import org.dawb.common.ui.plot.region.RegionUtils;
+import org.dawb.common.ui.plot.trace.ILineTrace;
+import org.dawb.common.ui.plot.trace.ITrace;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.draw2d.ColorConstants;
-import org.eclipse.draw2d.MouseEvent;
 import org.eclipse.draw2d.MouseListener;
-import org.eclipse.draw2d.MouseMotionListener;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
@@ -46,125 +49,43 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.TIFFImageLoader;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.OverlayType;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.PrimitiveType;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.Overlay1DConsumer;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.Overlay1DProvider;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.OverlayProvider;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.AreaSelectEvent;
 import uk.ac.diamond.scisoft.analysis.roi.EllipticalFitROI;
-import uk.ac.diamond.scisoft.analysis.roi.LinearROI;
 import uk.ac.diamond.scisoft.analysis.roi.PolygonalROI;
+import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.gda.client.tomo.DoublePointList;
 import uk.ac.gda.client.tomo.DoublePointList.DoublePoint;
 import uk.ac.gda.client.tomo.TiltPlotPointsHolder;
+import uk.ac.gda.client.tomo.ViewerDisplayMode;
 
 /**
  *
  */
-public class TomoPlotComposite extends Composite implements Overlay1DConsumer {
+public class TomoPlotComposite extends Composite {
 
-	private static final String SCALING_REGION = "ScalingRegion";
+	private static final String DARK = "DARK";
+
+	private static final String INTENSITY = "INTENSITY";
+
+	private static final String INTENSITY_PLOT = "Intensity plot";
+
+	public enum MODE {
+		HISTOGRAM, PROFILE, TILT, NONE;
+	}
+
+	private IRegion xHair;
+
+	private MODE mode = MODE.NONE;
+
+	private static final String REGION_FIT2 = "RegionFit2";
 
 	private static final Logger logger = LoggerFactory.getLogger(TomoPlotComposite.class);
 
-	private Overlay1DProvider provider;
-
 	private AbstractPlottingSystem plottingSystem;
-	private ArrayList<IDataset> dataSets;
-
-	private int registerPrimitive = -1;
 
 	private IntegerDataset rawDataSlice;
-
-	public interface OverlayLineListener {
-		public void overlayAt(double xVal, long intensity);
-	}
-
-	/**
-	 * @param parent
-	 * @param style
-	 * @throws Exception
-	 */
-	public TomoPlotComposite(Composite parent, int style) throws Exception {
-		super(parent, style);
-		GridLayout layout = new GridLayout();
-		layout.marginWidth = 0;
-		layout.marginHeight = 0;
-		layout.verticalSpacing = 0;
-		layout.horizontalSpacing = 0;
-		// this.setLayout(layout);
-		this.setLayout(new FillLayout());
-		plottingSystem = PlottingFactory.createPlottingSystem();
-		plottingSystem.createPlotPart(this, "", null, PlotType.PT1D_MULTI, null);
-
-		dataSets = new ArrayList<IDataset>();
-		// dataSetPlotter.registerOverlay(this);
-		// lineListeners = new ArrayList<TomoPlotComposite.OverlayLineListener>();
-		// TODO-Ravi check this is required?
-		// dataSetPlotter.registerOverlay(page_rightWindow_profile);
-	}
-
-	@Override
-	public void registerProvider(OverlayProvider provider) {
-		logger.info("Registered Overlay1DProvider", provider);
-		this.provider = (Overlay1DProvider) provider;
-	}
-
-	@Override
-	public void unregisterProvider() {
-		provider = null;
-	}
-
-	@Override
-	public void removePrimitives() {
-		logger.info("Remove primitives called");
-	}
-
-	@Override
-	public void areaSelected(AreaSelectEvent event) {
-		clearOverlays();
-		provider.begin(OverlayType.VECTOR2D);
-		registerPrimitive = provider.registerPrimitive(PrimitiveType.LINE);
-		// provider.setTransparency(registerPrimitive, 0.5);
-		provider.setColour(registerPrimitive, java.awt.Color.RED);
-		try {
-			provider.drawLine(registerPrimitive, event.getX(), 0, event.getX(), 70000);
-		} catch (Exception ex) {
-			logger.error("Error while drawing line:", ex);
-		}
-		provider.end(OverlayType.VECTOR2D);
-
-		for (OverlayLineListener lis : lineListeners) {
-			double x = event.getX();
-			long intensity = rawDataSlice.getLong((int) event.getX());
-			lis.overlayAt(x, intensity);
-		}
-	}
-
-	private ArrayList<OverlayLineListener> lineListeners;
-
-	public boolean addOverlayLineListener(OverlayLineListener overlayLineListener) {
-		// return lineListeners.add(overlayLineListener);
-		return true;
-	}
-
-	public boolean removeOverlayLineListener(OverlayLineListener overlayLineListener) {
-		// return lineListeners.remove(overlayLineListener);
-		return true;
-	}
-
-	private void clearOverlays() {
-		if (registerPrimitive != -1) {
-			provider.begin(OverlayType.VECTOR2D);
-			provider.unregisterPrimitive(registerPrimitive);
-			provider.end(OverlayType.VECTOR2D);
-		}
-	}
 
 	private long timeSinceLastUpdate = 0;
 
@@ -174,26 +95,104 @@ public class TomoPlotComposite extends Composite implements Overlay1DConsumer {
 
 	private uk.ac.diamond.scisoft.analysis.dataset.function.Histogram histogram;
 
-	private IRegion scalingRegion;
-
 	private boolean shouldUpdatePlot = true;
 
-	public void updatePointPlot(final List<Point> points) {
+	private ROIBase xBounds;
 
+	private ILineTrace histogramTrace;
+
+	private ILineTrace profileLineTrace;
+
+	public interface PlottingSystemActionListener {
+
+		/**
+		 * Informs the listener when the profile line is moved to a certain location
+		 * 
+		 * @param xVal
+		 *            - value to which the profile mouse has been moved to
+		 * @param intensity
+		 *            - the intensity at the current x
+		 */
+		void profileLineMovedTo(double xVal, long intensity);
+
+		/**
+		 * Informs the listener when the histogram roi is changed.
+		 * 
+		 * @param minValue
+		 * @param maxValue
+		 * @param from
+		 * @param to
+		 */
+		void histogramChangedRoi(double minValue, double maxValue, double from, double to);
+
+		/**
+		 * Informs the listener when the apply histogram button is clicked.
+		 */
+		void applyExposureTimeButtonClicked();
+	}
+
+	/**
+	 * @param parent
+	 * @param style
+	 * @throws Exception
+	 */
+	public TomoPlotComposite(Composite parent, int style) throws Exception {
+		super(parent, style);
+		this.setBackground(ColorConstants.white);
+
+		GridLayout layout = getGridLayoutZeroSettings();
+		this.setLayout(layout);
+		Composite plotComposite = new Composite(this, SWT.None);
+		plotComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
+		plotComposite.setLayout(new FillLayout());
+
+		plottingSystem = PlottingFactory.createPlottingSystem();
+		plottingSystem.createPlotPart(plotComposite, "", null, PlotType.PT1D_MULTI, null);
+		lineListeners = new ArrayList<TomoPlotComposite.PlottingSystemActionListener>();
+		//
+	}
+
+	private GridLayout getGridLayoutZeroSettings() {
+		GridLayout layout = new GridLayout();
+
+		layout.marginWidth = 0;
+		layout.marginHeight = 0;
+		layout.verticalSpacing = 0;
+		layout.horizontalSpacing = 0;
+
+		return layout;
+	}
+
+	private ArrayList<PlottingSystemActionListener> lineListeners;
+
+	public boolean addOverlayLineListener(PlottingSystemActionListener overlayLineListener) {
+		return lineListeners.add(overlayLineListener);
+	}
+
+	public boolean removeOverlayLineListener(PlottingSystemActionListener overlayLineListener) {
+		return lineListeners.remove(overlayLineListener);
 	}
 
 	public void updateProfilePlots(IProgressMonitor monitor, final int xStart, final int xEnd, final int y) {
-		// the below delay routine is added on Mark Basham's suggestion which is needed so that the plotter does'nt get
-		// over-updated. Time check if below 0.1s ignore request
+		if (mode != MODE.PROFILE) {
+			plottingSystem.clear();
+		}
+
+		mode = MODE.PROFILE;
 		if (getDisplay() != null && !getDisplay().isDisposed()) {
 			getDisplay().syncExec(new Runnable() {
 
 				@Override
 				public void run() {
-					removeOtherRegions();
+					if (xHair != null) {
+						removeOtherRegions(xHair.getName());
+					} else {
+						removeOtherRegions();
+					}
 				}
 			});
 		}
+
 		if (rawImgDs != null) {
 			long currentTimeMillis = System.currentTimeMillis();
 			if (currentTimeMillis - timeSinceLastUpdate < 100) {
@@ -201,7 +200,6 @@ public class TomoPlotComposite extends Composite implements Overlay1DConsumer {
 				return;
 			}
 			timeSinceLastUpdate = currentTimeMillis;
-			clearOverlays();
 			final ArrayList<AbstractDataset> plotDataSets = new ArrayList<AbstractDataset>();
 
 			// DoubleDataset axis = DoubleDataset.arange(xStart, xEnd, 1);
@@ -220,14 +218,19 @@ public class TomoPlotComposite extends Composite implements Overlay1DConsumer {
 				plotDataSets.add(darkDataSlice);
 			}
 
-			plottingSystem.clear();
-			plottingSystem.createPlot1D(axis, plotDataSets, monitor);
+			List<ITrace> profileLineTraces = plottingSystem.updatePlot1D(axis, plotDataSets, monitor);
+			if (!profileLineTraces.isEmpty()) {
+				profileLineTrace = (ILineTrace) profileLineTraces.get(0);
+			}
 			getDisplay().syncExec(new Runnable() {
 				@Override
 				public void run() {
-					plottingSystem.setTitle("Intensity plot");
+					plottingSystem.setTitle(INTENSITY_PLOT);
 					plottingSystem.getSelectedYAxis().setFormatPattern("######.#");
 					plottingSystem.getSelectedYAxis().setRange(0, 65600);
+
+					createMouseFollowLineRegion();
+
 				}
 			});
 		}
@@ -236,12 +239,12 @@ public class TomoPlotComposite extends Composite implements Overlay1DConsumer {
 
 	public void setImagesToPlot(String rawPlotImageFilename, String darkImgFileName) {
 		if (rawPlotImageFilename != null) {
-			rawImgDs = loadDatasetForTiffImg(rawPlotImageFilename, "INTENSITY");
+			rawImgDs = loadDatasetForTiffImg(rawPlotImageFilename, INTENSITY);
 		} else {
 			rawImgDs = null;
 		}
 		if (darkImgFileName != null) {
-			darkImgDs = loadDatasetForTiffImg(darkImgFileName, "DARK");
+			darkImgDs = loadDatasetForTiffImg(darkImgFileName, DARK);
 		} else {
 			darkImgDs = null;
 		}
@@ -263,13 +266,8 @@ public class TomoPlotComposite extends Composite implements Overlay1DConsumer {
 		return dataset;
 	}
 
-	public void cleanUp() {
-		// dataSetPlotter.cleanUp();
-		// provider.setPrimitiveVisible(registerPrimitive, false);
-	}
-
 	public void updatePlotPoints(final IProgressMonitor progress, final TiltPlotPointsHolder tiltPoints) {
-
+		mode = MODE.TILT;
 		getDisplay().syncExec(new Runnable() {
 
 			@Override
@@ -283,7 +281,7 @@ public class TomoPlotComposite extends Composite implements Overlay1DConsumer {
 				DoubleDataset x3 = new DoubleDataset(line2.getXDoubleArray());
 				ArrayList<AbstractDataset> singletonList = new ArrayList<AbstractDataset>(1);
 				singletonList.add(y3);
-				plottingSystem.createPlot1D(x3, singletonList, progress);
+				plottingSystem.updatePlot1D(x3, singletonList, progress);
 
 				plottingSystem.setTitle("Tilt alignment");
 				plottingSystem.getSelectedYAxis().setFormatPattern("######.#");
@@ -309,12 +307,12 @@ public class TomoPlotComposite extends Composite implements Overlay1DConsumer {
 					region1.setMobile(false);
 
 					//
-					IRegion region2 = plottingSystem.getRegion("RegionFit2");
+					IRegion region2 = plottingSystem.getRegion(REGION_FIT2);
 					if (region2 != null) {
 						plottingSystem.removeRegion(region2);
 					}
 
-					region2 = plottingSystem.createRegion("RegionFit2", RegionType.ELLIPSEFIT);
+					region2 = plottingSystem.createRegion(REGION_FIT2, RegionType.ELLIPSEFIT);
 					region2.setLineWidth(1);
 					region2.setRegionColor(ColorConstants.blue);
 					PolygonalROI roi2 = new PolygonalROI();
@@ -327,7 +325,7 @@ public class TomoPlotComposite extends Composite implements Overlay1DConsumer {
 					region2.setMobile(false);
 
 				} catch (Exception e) {
-					logger.error("TODO put description of error here", e);
+					logger.error("Problem plotting tilt points.", e);
 				}
 
 			}
@@ -338,24 +336,31 @@ public class TomoPlotComposite extends Composite implements Overlay1DConsumer {
 		this.shouldUpdatePlot = updatePlot;
 	}
 
-	public void updateHistogramData(final ImageData image) throws Exception {
+	public void updateHistogramData(final ViewerDisplayMode displayMode, final ImageData image) {
 		if (shouldUpdatePlot) {
 			getDisplay().syncExec(new Runnable() {
 
 				@Override
 				public void run() {
-					plottingSystem.clear();
-					removeOtherRegions(SCALING_REGION);
+					if (mode != MODE.HISTOGRAM) {
+						histogramTrace = null;
+						removeXHairListeners();
+						removeOtherRegions();
+						xHair = null;
+					}
+					// show the apply button if streaming is happening in the left window.
+					mode = MODE.HISTOGRAM;
+					createMouseFollowLineRegion();
+					if (plottingSystem.getTrace("Histogram") == null) {
+						plottingSystem.clear();
+					}
+
+					// removeOtherRegions(xHair.getName());
 					if (histogram == null) {
 						histogram = new uk.ac.diamond.scisoft.analysis.dataset.function.Histogram(256);
 					}
 
 					ImageData imgD = (ImageData) image.clone();
-					// Need to consider a clone because once the original data is set below the high values then it can
-					// be
-					// reverted
-					// for values above.
-					// imgDataClone.palette.isDirect = false;
 					int intensities[] = new int[imgD.width * imgD.height];
 					int i = 0;
 					if (image.depth > 16) {
@@ -381,106 +386,34 @@ public class TomoPlotComposite extends Composite implements Overlay1DConsumer {
 
 					IntegerDataset ds = new IntegerDataset(intensities, imgD.width, imgD.height);
 
-					// IntegerDataset ds = new IntegerDataset(image.data, image.width, image.height);
 					int max = ds.max().intValue();
 					int min = ds.min().intValue();
 					histogram.setMinMax(min, max);
-					AbstractDataset value = histogram.value(ds).get(0);
+					ds.setName("Histogram Dataset");
+					AbstractDataset histogramDs = histogram.value(ds).get(0);
+					histogramDs.setName("Histogram Dataset");
 
-					ArrayList<AbstractDataset> dsHisto = new ArrayList<AbstractDataset>(1);
-					dsHisto.add(value);
-					//
+					IntegerDataset xaxisRange = IntegerDataset.arange(min, max, 255);
+					xaxisRange.setName("Intensities");
 
-					plottingSystem.createPlot1D(IntegerDataset.arange(min, max, 255), dsHisto, null);
+					if (histogramTrace == null) {
+						histogramTrace = plottingSystem.createLineTrace("Histogram");
+					}
+
+					histogramTrace.setData(xaxisRange, histogramDs);
+
+					if (plottingSystem.getTrace("Histogram") == null) {
+						plottingSystem.addTrace(histogramTrace);
+					}
+					plottingSystem.repaint();
+
+					// plottingSystem.updatePlot1D(xaxisRange, dsHisto, null);
+					plottingSystem.setTitle("Histogram Plot");
 					plottingSystem.getSelectedYAxis().setFormatPattern("#####");
 					plottingSystem.getSelectedXAxis().setFormatPattern("#####");
-					// plottingSystem.getSelectedYAxis().setRange(0, 15000);
-
-					scalingRegion = plottingSystem.getRegion(SCALING_REGION);
-					
-					if (scalingRegion == null) {
-						try {
-							scalingRegion = plottingSystem.createRegion(SCALING_REGION, RegionType.XAXIS_LINE);
-						} catch (Exception e) {
-							logger.error("TODO put description of error here", e);
-						}
-						scalingRegion.setLineWidth(4);
-						scalingRegion.setRegionColor(ColorConstants.darkGreen);
-
-//						ScalingRegionMouseListener scalingRegionMouseListener = new ScalingRegionMouseListener();
-//
-//						scalingRegion.addMouseListener(scalingRegionMouseListener);
-//						scalingRegion.addMouseMotionListener(scalingRegionMouseListener);
-						
-						scalingRegion.setROI(new LinearROI(new double[] { 25000, 0 }, new double[] { 25000, 15000 }));
-						plottingSystem.addRegion(scalingRegion);
-					}
-					
-					scalingRegion.setMobile(true);
-					scalingRegion.setUserRegion(true);
-					
-					IROIListener roiListener = new IROIListener.Stub(){
-						@Override
-						public void roiChanged(ROIEvent evt) {
-							super.roiChanged(evt);
-							setShouldUpdatePlot(true);
-						}
-						
-						@Override
-						public void roiDragged(ROIEvent evt) {
-							super.roiDragged(evt);
-							setShouldUpdatePlot(false);
-						}
-					};
-					
-					scalingRegion.addROIListener(roiListener);
 				}
 			});
 		}
-	}
-
-	class ScalingRegionMouseListener implements MouseListener, MouseMotionListener {
-
-		@Override
-		public void mousePressed(MouseEvent me) {
-			logger.debug("Scaling region mouse pressed:{}", me.getSource());
-		}
-
-		@Override
-		public void mouseReleased(MouseEvent me) {
-			logger.debug("Scaling region mouseReleased:{}", me.getSource());
-		}
-
-		@Override
-		public void mouseDoubleClicked(MouseEvent me) {
-			logger.debug("Scaling region mouseDoubleClicked:{}", me.getSource());
-		}
-
-		@Override
-		public void mouseDragged(MouseEvent me) {
-			logger.debug("Scaling region mouseDragged:{}", me.getSource());
-		}
-
-		@Override
-		public void mouseEntered(MouseEvent me) {
-			logger.debug("Scaling region mouseEntered:{}", me.getSource());
-		}
-
-		@Override
-		public void mouseExited(MouseEvent me) {
-			logger.debug("Scaling region mouseExited:{}", me.getSource());
-		}
-
-		@Override
-		public void mouseHover(MouseEvent me) {
-			logger.debug("Scaling region mouseHover:{}", me.getSource());
-		}
-
-		@Override
-		public void mouseMoved(MouseEvent me) {
-			logger.debug("Scaling region mouseMoved:{}", me.getSource());
-		}
-
 	}
 
 	/**
@@ -501,6 +434,139 @@ public class TomoPlotComposite extends Composite implements Overlay1DConsumer {
 				plottingSystem.removeRegion(iRegion);
 			}
 		}
+	}
+
+	@Override
+	public void dispose() {
+		if (!plottingSystem.isDisposed()) {
+			plottingSystem.clear();
+		}
+		super.dispose();
+	}
+
+	private void createMouseFollowLineRegion() {
+
+		if (plottingSystem == null)
+			return;
+		try {
+			if (xHair == null || plottingSystem.getRegion(xHair.getName()) == null) {
+				this.xHair = plottingSystem.createRegion(RegionUtils.getUniqueName("DragLine", plottingSystem),
+						IRegion.RegionType.XAXIS_LINE);
+
+				xHair.addROIListener(mouseFollowRoiListener);
+
+				addMouseFollowLineRegion(xHair);
+				if (mode == MODE.HISTOGRAM) {
+					xHair.addMouseListener(mouseFollowRegionMouseListner);
+				}
+			}
+
+		} catch (Exception ne) {
+			logger.error("Cannot create cross-hairs!", ne);
+		}
+	}
+
+	private IROIListener mouseFollowRoiListener = new IROIListener() {
+
+		private void update(ROIEvent evt) {
+			final IRegion region = (IRegion) evt.getSource();
+			ROIBase roi = region.getROI();
+			xBounds = roi;
+		}
+
+		@Override
+		public void roiDragged(ROIEvent evt) {
+			update(evt);
+			if (mode == MODE.PROFILE) {
+				for (PlottingSystemActionListener lis : lineListeners) {
+					int[] intPoint = evt.getROI().getIntPoint();
+					lis.profileLineMovedTo(intPoint[0], profileLineTrace.getYData().getInt(intPoint[0]));
+				}
+			}
+		}
+
+		@Override
+		public void roiChanged(ROIEvent evt) {
+			update(evt);
+		}
+
+	};
+
+	private MouseListener mouseFollowRegionMouseListner = new MouseListener.Stub() {
+		@Override
+		public void mousePressed(org.eclipse.draw2d.MouseEvent me) {
+			if (mode == MODE.HISTOGRAM) {
+				try {
+
+					final Color snapShotColor = ColorConstants.blue;
+					createStaticRegion("DragLine", xBounds, snapShotColor, xHair.getRegionType());
+
+					setShouldUpdatePlot(false);
+
+					removeXHairListeners();
+					plottingSystem.removeRegion(xHair);
+					xHair = null;
+
+				} catch (Exception ne) {
+					logger.error(ne.getMessage(), ne);
+				}
+			}
+		}
+	};
+
+	private void removeXHairListeners() {
+		if (xHair != null) {
+			xHair.removeMouseListener(mouseFollowRegionMouseListner);
+		}
+	}
+
+	private IRegion createStaticRegion(String nameStub, final ROIBase bounds, final Color snapShotColor,
+			final RegionType regionType) throws Exception {
+
+		final IRegion region = plottingSystem.createRegion(RegionUtils.getUniqueName(nameStub, plottingSystem),
+				regionType);
+		region.setRegionColor(snapShotColor);
+		plottingSystem.addRegion(region);
+		region.setROI(bounds);
+
+		region.addROIListener(new IROIListener() {
+
+			private Double pointX;
+
+			@Override
+			public void roiDragged(ROIEvent evt) {
+				if (pointX == null) {
+					pointX = evt.getROI().getPointX();
+					logger.debug("distance started:{}", pointX);
+				}
+			}
+
+			@Override
+			public void roiChanged(ROIEvent evt) {
+				// need to introspect the movement and propagate the change to hardware.
+				double minValue = histogramTrace.getXData().min().doubleValue();
+				double maxValue = histogramTrace.getXData().max().doubleValue();
+				double endPoint = evt.getROI().getPointX();
+				logger.debug("distance ended:{}", endPoint);
+				for (PlottingSystemActionListener lis : lineListeners) {
+					lis.histogramChangedRoi(minValue, maxValue, pointX, endPoint);
+				}
+
+				plottingSystem.removeRegion(region);
+				region.removeROIListener(this);
+				setShouldUpdatePlot(true);
+			}
+		});
+
+		return region;
+	}
+
+	private void addMouseFollowLineRegion(IRegion region) {
+		region.setVisible(true);
+		region.setTrackMouse(true);
+		region.setRegionColor(ColorConstants.red);
+		region.setUserRegion(false); // They cannot see preferences or change it!
+		plottingSystem.addRegion(region);
 	}
 
 }

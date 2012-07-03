@@ -184,29 +184,43 @@ public class TomographyDetectorSimulator implements ITomographyDetector {
 	@Override
 	public void setExternalTriggered(Boolean val) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void initDetector() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void disableDarkSubtraction() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void enableDarkSubtraction() {
 		// TODO Auto-generated method stub
-		
+
 	}
-@Override
+
+	@Override
 	public void setupForTilt(int minY, int maxY, int minX, int maxX) throws Exception {
 		// TODO Auto-generated method stub
-		
+
 	}
+
+	@Override
+	public double getProc1Scale() throws Exception {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void setProc1Scale(double newScale) throws Exception {
+		// TODO Auto-generated method stub
+
+	}
+
 }

@@ -275,7 +275,8 @@ public interface ITomographyDetector {
 	/**
 	 * Invoked to initialise the detector properties - in case of the PCO detector, an image needs to be taken so that
 	 * the array values are passed to all the plugins.
-	 * @throws Exception 
+	 * 
+	 * @throws Exception
 	 */
 	void initDetector() throws Exception;
 
@@ -288,8 +289,23 @@ public interface ITomographyDetector {
 
 	/**
 	 * Request to enable the dark subtraction flag on the area detector.
-	 * @throws Exception 
+	 * 
+	 * @throws Exception
 	 */
 	void enableDarkSubtraction() throws Exception;
+
+	/**
+	 * @return scale value from the proc1 plugin.
+	 * @throws Exception
+	 */
+	double getProc1Scale() throws Exception;
+
+	/**
+	 * Update the scale value on the proc1 plugin.
+	 * 
+	 * @param newScale
+	 * @throws Exception
+	 */
+	void setProc1Scale(double newScale) throws Exception;
 
 }

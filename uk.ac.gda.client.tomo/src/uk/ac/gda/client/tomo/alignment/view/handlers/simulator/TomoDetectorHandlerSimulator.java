@@ -381,4 +381,16 @@ public class TomoDetectorHandlerSimulator implements ICameraHandler {
 		return 0;
 	}
 
+	@Override
+	public void setProc1ScaleValue(double scaledValue) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public double getProc1Scale() throws Exception {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }
