@@ -251,17 +251,20 @@ public class FixedImageViewerComposite extends Composite {
 		public void mouseDragged(org.eclipse.draw2d.MouseEvent me) {
 			Point draggedLoc = me.getLocation();
 			Dimension difference = draggedLoc.getDifference(location);
+			// difference = difference between the previous position and the position moved to
 			// restrict movement of the zoom rect
 
 			Rectangle rectFigureBounds = rectFigure.getBounds();
 
 			Rectangle figBoundsCopy = rectFigureBounds.getCopy();
 			Dimension diffCheck = figBoundsCopy.getLocation().getDifference(getImageBounds().getLocation());
+			// diffCheck = difference between the rectangle and the image bounds
 
 			int diffCheckWidth = diffCheck.width;
 			int movedWidth = difference.width;
 			int diffCheckHeight = diffCheck.height;
 			int movedHeight = difference.height;
+
 			int rectFigureWidth = rectFigure.getSize().width;
 			int rectFigureHeight = rectFigure.getSize().height;
 			int imgBoundsWidth = getImageBounds().width;
@@ -284,12 +287,13 @@ public class FixedImageViewerComposite extends Composite {
 			rectFigureBounds.translate(movedWidth, movedHeight);
 			Dimension figureBoundsRelativeImage = rectFigure.getBounds().getLocation()
 					.getDifference(getImageBounds().getLocation());
-			location = draggedLoc;
 			rectFigure.getParent().repaint();
 			for (ZoomRectangleListener zrl : zoomRectListeners) {
+				logger.debug("MovedWidth:" + movedWidth + "  MovedHeight:" + movedHeight);
 				zrl.zoomRectMoved(getZoomFigureBounds(), figureBoundsRelativeImage, new Dimension(movedWidth,
 						movedHeight));
 			}
+			location = draggedLoc;
 		}
 
 		@Override
@@ -520,12 +524,20 @@ public class FixedImageViewerComposite extends Composite {
 	 */
 	public void showZoomRectangleFigure(Dimension dimension) {
 		getZoomRectFigure().setVisible(true);
+		logger.debug("Zoom rectangle dimensionX:" + dimension.width + "   dimensionY:" + dimension.height);
 
 		int feedBackXCenter = feedbackFigure.getSize().width / 2;
+		logger.debug("feedbackfigure center x:{}", feedBackXCenter);
 		int feedbackYCenter = feedbackFigure.getSize().height / 2;
+		logger.debug("feedbackfigure center y:{}", feedbackYCenter);
 
-		getZoomRectFigure().setLocation(
-				new Point(feedBackXCenter - dimension.width / 2, feedbackYCenter - dimension.height / 2));
+		int zoomFigureXLoc = feedBackXCenter - dimension.width / 2;
+		logger.debug("zoom figure x loc:{}", zoomFigureXLoc);
+
+		int zoomFigureYLoc = feedbackYCenter - dimension.height / 2;
+		logger.debug("zoomFigureYLoc loc:{}", zoomFigureYLoc);
+
+		getZoomRectFigure().setLocation(new Point(zoomFigureXLoc, zoomFigureYLoc));
 		// new Point(getImageBounds().x, getImageBounds().y));
 		getZoomRectFigure().setSize(dimension.width, dimension.height);
 	}
