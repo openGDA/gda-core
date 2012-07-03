@@ -29,6 +29,7 @@ import uk.ac.gda.client.XYPlotView;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.plot.LnI0ItScanPlotView;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
+import uk.ac.gda.exafs.ui.views.scalersmonitor.B18ScalersMonitorView;
 
 /**
  *
@@ -61,7 +62,7 @@ public class PlottingPerspective implements IPerspectiveFactory {
 
 //		if (ExafsActivator.getDefault().getPreferenceStore()
 //				.getBoolean(ExafsPreferenceConstants.SHOW_B18ScalersMonitorView)) {
-//			folderLayout.addView(B18ScalersMonitorView.ID);
+			folderLayout.addView(B18ScalersMonitorView.ID);
 //		} else {
 //			folderLayout.addView(ScalersMonitorView.ID);
 //		}
