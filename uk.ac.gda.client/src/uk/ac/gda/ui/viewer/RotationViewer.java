@@ -162,14 +162,7 @@ public class RotationViewer {
 	 */
 	public void createControls(Composite parent, int style){	
 		createWidgets(parent, checkStyle(style));
-		
-		if (motor == null) {
-			logger.warn("rotation viewer for '" + motorLabel + "' does not have a motor");
-		}
-		
-		final IUnitsDescriptor descriptor = (motor == null) ? null : motor.getDescriptor();
-		final String unit = (descriptor == null) ? null : descriptor.getUnit();
-		nudgeSizeBox.setUnit(unit);
+		nudgeSizeBox.setUnit(motor.getDescriptor().getUnit());
 
 		nudgeSizeBox.setValue(standardStep);
 		nudgeSizeBox.on();
