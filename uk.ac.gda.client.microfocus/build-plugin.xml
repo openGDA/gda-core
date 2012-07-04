@@ -35,7 +35,7 @@
                 <pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.server.exafs/bin" />
                 <pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.server.exafs.epics/bin" />
                 <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.client/bin" />
-                <pathelement location="${workspace.loc}/plugins/uk.ac.diamond.org.springframework/jars/*" />
+                <pathelement location="${workspace.git.loc}/diamond-springframework.git/uk.ac.diamond.org.springframework/jars/*" />
                 <pathelement location="${workspace.loc}/tp/plugins/*" />
                 <path refid="ncsa.hdf.classpath" />
             </classpath>
