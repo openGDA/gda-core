@@ -30,7 +30,7 @@
             <classpath>
                 <pathelement location="${junitjar.loc}" />
                 <pathelement location="${GDA-plugin.basedir}/bin" />
-                <pathelement location="${workspace.loc}/plugins/uk.ac.diamond.org.springframework/jars/*" />
+                <pathelement location="${workspace.git.loc}/diamond-springframework.git/uk.ac.diamond.org.springframework/jars/*" />
                 <pathelement location="${workspace.loc}/tp/plugins/*" />
                 <path refid="libs.jars.path" />
             </classpath>
