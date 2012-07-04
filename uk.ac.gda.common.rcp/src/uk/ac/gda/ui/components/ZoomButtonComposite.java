@@ -110,7 +110,7 @@ public class ZoomButtonComposite extends Composite {
 
 			@Override
 			public Dimension getRectSize() {
-				return new Dimension(188, 188);
+				return new Dimension(182, 182);
 			}
 
 			@Override
@@ -135,7 +135,7 @@ public class ZoomButtonComposite extends Composite {
 
 			@Override
 			public Point getRoiSize() {
-				return new Point(750, 750);
+				return new Point(728, 728);
 			}
 
 			@Override
@@ -150,7 +150,7 @@ public class ZoomButtonComposite extends Composite {
 
 			@Override
 			public Dimension getRectSize() {
-				return new Dimension(95, 95);
+				return new Dimension(92, 92);
 			}
 
 			@Override
@@ -175,7 +175,7 @@ public class ZoomButtonComposite extends Composite {
 
 			@Override
 			public Point getRoiSize() {
-				return new Point(375, 375);
+				return new Point(368, 368);
 			}
 
 			@Override
@@ -190,7 +190,7 @@ public class ZoomButtonComposite extends Composite {
 
 			@Override
 			public Dimension getRectSize() {
-				return new Dimension(47, 47);
+				return new Dimension(46, 46);
 			}
 
 			@Override
@@ -215,7 +215,7 @@ public class ZoomButtonComposite extends Composite {
 
 			@Override
 			public Point getRoiSize() {
-				return new Point(188, 188);
+				return new Point(184, 184);
 			}
 
 			@Override
@@ -230,7 +230,7 @@ public class ZoomButtonComposite extends Composite {
 		ZOOM_HALF(0.5) {
 			@Override
 			public Dimension getRectSize() {
-				return new Dimension(376, 376);
+				return new Dimension(363, 363);
 			}
 
 			@Override
@@ -255,7 +255,7 @@ public class ZoomButtonComposite extends Composite {
 
 			@Override
 			public Point getRoiSize() {
-				return new Point(1500, 1500);
+				return new Point(1452, 1452);
 			}
 
 			@Override

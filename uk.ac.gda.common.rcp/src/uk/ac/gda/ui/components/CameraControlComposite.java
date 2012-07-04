@@ -1695,7 +1695,7 @@ public class CameraControlComposite extends Composite {
 	}
 
 	public void setResolutionPixelSize(final String pixelSize) {
-		if (lblObjectPixelSize != null && !lblObjectPixelSize.isDisposed()) {
+		if (pixelSize != null && lblObjectPixelSize != null && !lblObjectPixelSize.isDisposed()) {
 			lblObjectPixelSize.getDisplay().syncExec(new Runnable() {
 
 				@Override
