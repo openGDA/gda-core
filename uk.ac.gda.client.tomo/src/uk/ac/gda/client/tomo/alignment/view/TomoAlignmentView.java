@@ -140,9 +140,10 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	/**/
 	private ZoomedImageComposite page_nonProfile_streamZoom;
 
-	private ZoomedImgCanvas page_nonProfile_demandRawZoom;
+	private ZoomedImgCanvas demandRawZoomCanvas;
 	/**/
 	private Composite page_leftWindow_imgViewer;
+	private Composite page_nonProfile_demandRaw;
 	/**/
 	private PageBook pageBook_leftWindow;
 	private PageBook pageBook_nonProfile_zoomImg;
@@ -372,8 +373,8 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	private ZoomRectangleListener zoomRectListener = new ZoomRectangleListener() {
 
 		@Override
-		public void zoomRectMoved(Rectangle bounds, Dimension figureTopLeftRelativeImgBounds, Dimension difference) {
-			logger.debug("BoundX :"+bounds.x+ " BoundY:"+bounds.y );
+		public void zoomRectMoved(Rectangle bounds, Dimension figureTopLeftRelativeImgBounds, Dimension distanceMoved) {
+			logger.debug("BoundX :" + bounds.x + " BoundY:" + bounds.y);
 			IProgressMonitor monitor = new NullProgressMonitor();
 			if (isStreamingSampleExposure() || isStreamingFlatExposure()) {
 				// change the ROI start only if 'Stream' is switched 'ON'
@@ -409,10 +410,14 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 						ZOOM_LEVEL selectedZoomLevel = cameraControls.getSelectedZoomLevel();
 						double zoomDemandRawScaleX = selectedZoomLevel.getDemandRawScale().x;
 						logger.debug("Zoom demand Raw scale X:{}", zoomDemandRawScaleX);
+						logger.debug("dx:{}", distanceMoved.width);
+						logger.debug("dy:{}", distanceMoved.height);
 
-						Dimension scaled = difference.getCopy().getScaled(leftWindowBinValue * zoomDemandRawScaleX);
-						logger.debug("Amount scaled:{}", scaled);
-						page_nonProfile_demandRawZoom.scroll(scaled);
+						Dimension scaled = distanceMoved.getCopy().getScaled(leftWindowBinValue * zoomDemandRawScaleX);
+						logger.debug("Scaled dx:{}", scaled.width);
+						logger.debug("Scaled dy:{}", scaled.height);
+
+						demandRawZoomCanvas.scroll(scaled);
 					}
 				}
 			}
@@ -796,7 +801,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		setDefaultLayoutSettings(gl);
 		rightWindowComposite.setLayout(gl);
 		pageBook_rightWindow = new PageBook(rightWindowComposite, SWT.None);
-		
+
 		GridData ld1 = new GridData(GridData.FILL_BOTH);
 		pageBook_rightWindow.setLayoutData(ld1);
 
@@ -824,14 +829,23 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		imgViewerComposite.setLayout(gridlayout);
 
 		pageBook_nonProfile_zoomImg = new PageBook(imgViewerComposite, SWT.None);
-		
+
 		GridData gd = new GridData(GridData.FILL_BOTH);
 		gd.heightHint = 100;
 		pageBook_nonProfile_zoomImg.setLayoutData(gd);
 
 		page_nonProfile_streamZoom = new ZoomedImageComposite(pageBook_nonProfile_zoomImg, SWT.DOUBLE_BUFFERED);
-		page_nonProfile_demandRawZoom = new ZoomedImgCanvas(pageBook_nonProfile_zoomImg, DOUBLE_BUFFERED);
 
+		page_nonProfile_demandRaw = toolkit.createComposite(pageBook_nonProfile_zoomImg);
+		gl = new GridLayout();
+		setDefaultLayoutSettings(gl);
+		gl.marginWidth=20;
+		page_nonProfile_demandRaw.setLayout(gl);
+		page_nonProfile_demandRaw.setBackground(ColorConstants.cyan);
+		demandRawZoomCanvas = new ZoomedImgCanvas(page_nonProfile_demandRaw, DOUBLE_BUFFERED);
+		GridData layoutData2 = new GridData(GridData.FILL_BOTH);
+		demandRawZoomCanvas.setLayoutData(layoutData2);
+		//
 		page_nonProfile_noZoom = new Composite(pageBook_nonProfile_zoomImg, SWT.None);
 		page_nonProfile_noZoom.setLayout(new FillLayout());
 
@@ -1579,7 +1593,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			// zoomedImgProvider.removeJpegImageListener(zoomImgListener);
 
 			page_nonProfile_streamZoom.dispose();
-			page_nonProfile_demandRawZoom.dispose();
+			demandRawZoomCanvas.dispose();
 
 			pageBook_nonProfile_zoomImg.dispose();
 			//
@@ -1699,8 +1713,8 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	 */
 	void stopZoomVideoReceiver() {
 		if (zoomReceiverStarted) {
-			rightVideoReceiver.removeImageListener(rightVideoListener);
 			rightVideoReceiver.closeConnection();
+			rightVideoReceiver.removeImageListener(rightVideoListener);
 			zoomReceiverStarted = false;
 
 		}
@@ -1883,7 +1897,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 						break;
 					case ZOOM_DEMAND_RAW:
 						pageBook_rightWindow.showPage(page_rightInfo_nonProfile);
-						pageBook_nonProfile_zoomImg.showPage(page_nonProfile_demandRawZoom);
+						pageBook_nonProfile_zoomImg.showPage(page_nonProfile_demandRaw);
 						break;
 					case NO_ZOOM:
 						pageBook_rightWindow.showPage(page_rightInfo_nonProfile);
@@ -1914,15 +1928,15 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	}
 
 	public void loadDemandRawZoom(ImageData appliedSaturation, PointInDouble demandRawScale, boolean b) {
-		page_nonProfile_demandRawZoom.loadImage(appliedSaturation, demandRawScale, b);
+		demandRawZoomCanvas.loadImage(appliedSaturation, demandRawScale, b);
 	}
 
 	public void loadDemandRawZoom(String fileName, PointInDouble demandRawScale, boolean b) {
-		page_nonProfile_demandRawZoom.loadImage(fileName, demandRawScale, b);
+		demandRawZoomCanvas.loadImage(fileName, demandRawScale, b);
 	}
 
 	public void clearZoomWindow() {
-		page_nonProfile_demandRawZoom.clearZoomWindow();
+		demandRawZoomCanvas.clearZoomWindow();
 		page_nonProfile_streamZoom.clearZoomWindow();
 	}
 

@@ -53,7 +53,7 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 	private int imgWidth = 4008;
 	private int imgHeight = 2672;
 
-	private static final String lbl_CAPTURING_IMAGE_AT_EXPOSURE_TIME = "Capturing image at exposure time %1$f";
+	private static final String lbl_CAPTURING_IMAGE_AT_EXPOSURE_TIME = "Capturing image at exposure time %.2g(s)";
 	private static final String lbl_PROGRESS_TAKING_FLAT = "Taking flat";
 
 	private static final String lbl_PROGRESS_TAKING_DARK = "Taking dark";
@@ -289,8 +289,8 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 		// y co-ordinate of the center of the image = 1336
 
 		Dimension rectSize = zoomLevel.getRectSize();
-		final int roiX = (int) (((double) imgWidth / 2) - rectSize.width / 2);
-		final int roiY = (int) (((double) imgHeight / 2) - rectSize.height / 2);
+		final int roiX = 0;//(int) (((double) imgWidth / 2) - rectSize.width / 2);
+		final int roiY = 0;//(int) (((double) imgHeight / 2) - rectSize.height / 2);
 		getCamera().setupZoomMJpeg(new Rectangle(roiX, roiY, zoomLevel.getRoiSize().x, zoomLevel.getRoiSize().y),
 				new java.awt.Point(zoomLevel.getBin().x, zoomLevel.getBin().y));
 	}
@@ -491,6 +491,11 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 		int numberOfImages = TomoClientActivator.getDefault().getPreferenceStore()
 				.getInt(TomoAlignmentPreferencePage.TOMO_CLIENT_DARK_NUM_IMG_PREF);
 
+		// Just so that the recursive average is for a minimum of 2 images. it is better to do it this way rather than
+		// limit the user to enter numbers greater than or equal to 2
+		if (numberOfImages == 1) {
+			numberOfImages = numberOfImages + 1;
+		}
 		final SubMonitor progress = SubMonitor.convert(monitor);
 		progress.beginTask(lbl_PROGRESS_TAKING_DARK, numberOfImages);
 		logger.info("Take {} dark images", numberOfImages);

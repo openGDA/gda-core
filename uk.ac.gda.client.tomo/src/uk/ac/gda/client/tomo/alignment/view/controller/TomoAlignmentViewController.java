@@ -1065,8 +1065,13 @@ public class TomoAlignmentViewController implements InitializingBean {
 		double exposureTime = getCameraExposureTime();
 
 		double proc1Scale = cameraHandler.getProc1Scale();
+		double newExposureTime = exposureTime;
+		// If the proc1Scale is 0 which can be likely - then we set the scale back to 1 and leave the exposure time as
+		// it is.
 
-		double newExposureTime = exposureTime * proc1Scale;
+		if (proc1Scale != 0) {
+			newExposureTime = newExposureTime * proc1Scale;
+		}
 
 		cameraHandler.setProc1ScaleValue(1);
 

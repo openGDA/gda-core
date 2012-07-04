@@ -72,16 +72,19 @@ public class ZoomedImgCanvas extends Canvas {
 
 	/* Paint function */
 	private void paint(GC gc) {
-		Rectangle clientRect = getClientArea(); /* Canvas' painting area */
+		Rectangle clientRect = getMaximumArea(); /* Canvas' painting area */
+		logger.debug("Client area for zoom image:{}", clientRect);
 		if (sourceImage != null) {
 			Rectangle imageRect = SWT2Dutil.inverseTransformRect(transform, clientRect);
-			int gap = 2; /* find a better start point to render */
+			// int gap = 2; /* find a better start point to render */
+			int gap = 0;
 			imageRect.x -= gap;
 			imageRect.y -= gap;
 			imageRect.width += 2 * gap;
 			imageRect.height += 2 * gap;
 
 			Rectangle imageBound = sourceImage.getBounds();
+			logger.debug("Source image rect:{}", imageBound);
 			imageRect = imageRect.intersection(imageBound);
 			Rectangle destRect = SWT2Dutil.transformRect(transform, imageRect);
 			if (screenImage != null) {
@@ -90,6 +93,10 @@ public class ZoomedImgCanvas extends Canvas {
 			screenImage = new Image(getDisplay(), clientRect.width, clientRect.height);
 			GC newGC = new GC(screenImage);
 			newGC.setClipping(clientRect);
+			logger.debug("Image rect x:{}", imageRect.x);
+			logger.debug("Image rect y:{}", imageRect.y);
+			logger.debug("Image rect width:{}", imageRect.width);
+			logger.debug("Image rect height:{}", imageRect.height);
 			newGC.drawImage(sourceImage, imageRect.x, imageRect.y, imageRect.width, imageRect.height, destRect.x,
 					destRect.y, destRect.width, destRect.height);
 			newGC.dispose();
@@ -112,19 +119,12 @@ public class ZoomedImgCanvas extends Canvas {
 		AffineTransform af = transform;
 		scaleX = scale.x;// (double) this.getBounds().width / (double) rectangle.width;
 		scaleY = scale.y;// (double) this.getBounds().height / (double) rectangle.height;
-		/* update transform. */
-		Rectangle rect = getClientArea();
-		int w = rect.width, h = rect.height;
-		double dx = (((double) w)) / 2;
-		double dy = (((double) h)) / 2;
 
 		af.preConcatenate(AffineTransform.getScaleInstance(scaleX, scaleY));
-		// af.preConcatenate(AffineTransform.getTranslateInstance(-dx ,-dy));
-		// af.preConcatenate(AffineTransform.getTranslateInstance(-(scaleX * dimension.width),
-		// -(scaleY * dimension.height)));
+
 		transform = af;
 		if (center) {
-			center();
+			// center();
 		}
 		syncScroll();
 	}
@@ -150,19 +150,6 @@ public class ZoomedImgCanvas extends Canvas {
 		syncScroll();
 	}
 
-	/* Scroll */
-	public void scroll(PointInDouble differenceMoved) {
-		double dx = -differenceMoved.x, dy = -differenceMoved.y;
-		if (sourceImage == null) {
-			return;
-		}
-
-		AffineTransform af = transform;
-		af.preConcatenate(AffineTransform.getTranslateInstance(dx, dy));
-		transform = af;
-		syncScroll();
-	}
-
 	/**
 	 * Synchronize the scrollbar with the image. If the transform is out of range, it will correct it. This function
 	 * considers only following factors :<b> transform, image size, client area</b>.
@@ -176,6 +163,10 @@ public class ZoomedImgCanvas extends Canvas {
 		redraw();
 	}
 
+	private Rectangle getMaximumArea() {
+		return new Rectangle(0, 0, 728, 728);
+	}
+
 	private void center() {
 		AffineTransform af = transform;
 		double sx = af.getScaleX(), sy = af.getScaleY();
@@ -187,14 +178,14 @@ public class ZoomedImgCanvas extends Canvas {
 			ty = 0;
 		}
 		Rectangle imageBound = sourceImage.getBounds();
-		int cw = getClientArea().width, ch = getClientArea().height;
+		int cw = getMaximumArea().width, ch = getMaximumArea().height;
 		double xImageWidth = imageBound.width * sx;
 		if (xImageWidth > cw) {
 			int hMax = (int) xImageWidth;
 			if (((int) -tx) > hMax - cw) {
 				tx = -hMax + cw;
 			} else {
-				tx = (ch - xImageWidth) / 2; // center if too small.
+				tx = (cw - xImageWidth) / 2; // center if too small.
 			}
 		}
 
@@ -203,7 +194,7 @@ public class ZoomedImgCanvas extends Canvas {
 			int vMax = (int) yImageHeight;
 			if (((int) -ty) > vMax - ch) {
 				ty = -vMax + ch;
-			} else { /* image is less higher than client area */
+			} else {
 				ty = (ch - yImageHeight) / 2; // center if too small.
 			}
 

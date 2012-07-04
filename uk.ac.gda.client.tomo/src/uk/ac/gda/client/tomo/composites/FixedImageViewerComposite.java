@@ -270,10 +270,10 @@ public class FixedImageViewerComposite extends Composite {
 			int imgBoundsWidth = getImageBounds().width;
 			int imgBoundsHeight = getImageBounds().height;
 
-			if (diffCheckWidth + movedWidth < -1) {
+			if (diffCheckWidth + movedWidth < 0) {
 				movedWidth = 0;
 			}
-			if (diffCheckHeight + movedHeight < -1) {
+			if (diffCheckHeight + movedHeight < 0) {
 				movedHeight = 0;
 			}
 
@@ -285,9 +285,11 @@ public class FixedImageViewerComposite extends Composite {
 			}
 
 			rectFigureBounds.translate(movedWidth, movedHeight);
+			//
 			Dimension figureBoundsRelativeImage = rectFigure.getBounds().getLocation()
 					.getDifference(getImageBounds().getLocation());
 			rectFigure.getParent().repaint();
+
 			for (ZoomRectangleListener zrl : zoomRectListeners) {
 				logger.debug("MovedWidth:" + movedWidth + "  MovedHeight:" + movedHeight);
 				zrl.zoomRectMoved(getZoomFigureBounds(), figureBoundsRelativeImage, new Dimension(movedWidth,
@@ -524,7 +526,8 @@ public class FixedImageViewerComposite extends Composite {
 	 */
 	public void showZoomRectangleFigure(Dimension dimension) {
 		getZoomRectFigure().setVisible(true);
-		logger.debug("Zoom rectangle dimensionX:" + dimension.width + "   dimensionY:" + dimension.height);
+		logger.debug("Zoom rectangle dimensionX:{}", dimension.width);
+		logger.debug("Zoom rectangle dimensionY:{}", dimension.height);
 
 		int feedBackXCenter = feedbackFigure.getSize().width / 2;
 		logger.debug("feedbackfigure center x:{}", feedBackXCenter);
@@ -537,7 +540,8 @@ public class FixedImageViewerComposite extends Composite {
 		int zoomFigureYLoc = feedbackYCenter - dimension.height / 2;
 		logger.debug("zoomFigureYLoc loc:{}", zoomFigureYLoc);
 
-		getZoomRectFigure().setLocation(new Point(zoomFigureXLoc, zoomFigureYLoc));
+		// getZoomRectFigure().setLocation(new Point(zoomFigureXLoc, zoomFigureYLoc));
+		getZoomRectFigure().setLocation(new Point(getImageBounds().x, getImageBounds().y));
 		// new Point(getImageBounds().x, getImageBounds().y));
 		getZoomRectFigure().setSize(dimension.width, dimension.height);
 	}

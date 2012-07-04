@@ -123,9 +123,9 @@ public class TomoAlignmentPreferencePage extends PreferencePage implements IWork
 
 		txtSampleMoveDist = new Text(flatGroup, SWT.BORDER);
 		txtSampleMoveDist.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		txtSampleMoveDist.addVerifyListener(doubleVerifyListener);
 		txtSampleMoveDist.setText(Double.toString(preferenceStore.getDouble(TOMO_CLIENT_FLAT_DIST_MOVE_PREF)));
 		txtSampleMoveDist.setData(ERR_MSG_ID, SAMPLE_MOVE_DISTANCE);
+		txtSampleMoveDist.addModifyListener(sampleMoveDistanceValueVerifyListener);
 
 		// Dark group
 		Group darkGroup = new Group(root, SWT.None);
@@ -150,47 +150,49 @@ public class TomoAlignmentPreferencePage extends PreferencePage implements IWork
 		return root;
 	}
 
+	private boolean validateIntegerText(Text txtCtrl) {
+		Object errMsgId = txtCtrl.getData(ERR_MSG_ID);
+		String txt = txtCtrl.getText();
+		boolean result = true;
+		if (txt == null || txt.length() < 1) {
+			setErrorMessage(String.format(INVALID_VALUE_ERRMSG, errMsgId));
+			result = false;
+		} else if (!txt.matches("(\\d)*")) {
+			setErrorMessage(String.format(INVALID_VALUE_ERRMSG, errMsgId));
+			result = false;
+		} else {
+			int intVal = Integer.parseInt(txt);
+			if (intVal < 1) {
+				setErrorMessage(String.format("Must be greater than 0 - %1$s", errMsgId));
+				result = false;
+			} else {
+				setErrorMessage(null);
+			}
+		}
+		return result;
+	}
+
 	private ModifyListener intVerifyListener = new ModifyListener() {
 
 		@Override
 		public void modifyText(ModifyEvent e) {
 			Object source = e.getSource();
 			if (source.equals(txtNumFlatImages)) {
-				String txt = txtNumFlatImages.getText();
-				if (txt == null || txt.length() < 1) {
-					setErrorMessage(String.format(INVALID_VALUE_ERRMSG, e.widget.getData(ERR_MSG_ID)));
-				} else if (!txt.matches("(\\d)*")) {
-					setErrorMessage(String.format(INVALID_VALUE_ERRMSG, e.widget.getData(ERR_MSG_ID)));
-				} else {
-					setErrorMessage(null);
-				}
+				validateIntegerText(txtNumFlatImages);
 			}
 			if (source.equals(txtNumDarkImages)) {
-				String txt = txtNumDarkImages.getText();
-				if (txt == null || txt.length() < 1) {
-					setErrorMessage(String.format(INVALID_VALUE_ERRMSG, e.widget.getData(ERR_MSG_ID)));
-				} else if (!txt.matches("(\\d)*")) {
-					setErrorMessage(String.format(INVALID_VALUE_ERRMSG, e.widget.getData(ERR_MSG_ID)));
-				} else {
-					setErrorMessage(null);
-				}
+				validateIntegerText(txtNumDarkImages);
 			}
 		}
+
 	};
-	private VerifyListener doubleVerifyListener = new VerifyListener() {
+	private ModifyListener sampleMoveDistanceValueVerifyListener = new ModifyListener() {
 
 		@Override
-		public void verifyText(VerifyEvent e) {
+		public void modifyText(ModifyEvent e) {
 			Object source = e.getSource();
 			if (source.equals(txtSampleMoveDist)) {
-				String txt = txtNumFlatImages.getText();
-				if (txt == null || txt.length() < 1) {
-					setErrorMessage(String.format(INVALID_VALUE_ERRMSG, e.widget.getData(ERR_MSG_ID)));
-				} else if (!txt.matches("(\\d)*.?(\\d)*")) {
-					setErrorMessage(String.format(INVALID_VALUE_ERRMSG, e.widget.getData(ERR_MSG_ID)));
-				} else {
-					setErrorMessage(null);
-				}
+				validateDoubleValue(txtSampleMoveDist);
 			}
 
 		}
@@ -198,9 +200,15 @@ public class TomoAlignmentPreferencePage extends PreferencePage implements IWork
 
 	@Override
 	public boolean performOk() {
-		preferenceStore.setValue(TOMO_CLIENT_FLAT_DIST_MOVE_PREF, Double.parseDouble(txtSampleMoveDist.getText()));
-		preferenceStore.setValue(TOMO_CLIENT_FLAT_NUM_IMG_PREF, Integer.parseInt(txtNumFlatImages.getText()));
-		preferenceStore.setValue(TOMO_CLIENT_DARK_NUM_IMG_PREF, Integer.parseInt(txtNumDarkImages.getText()));
+		if (validateDoubleValue(txtSampleMoveDist)) {
+			preferenceStore.setValue(TOMO_CLIENT_FLAT_DIST_MOVE_PREF, Double.parseDouble(txtSampleMoveDist.getText()));
+		}
+		if (validateIntegerText(txtNumFlatImages)) {
+			preferenceStore.setValue(TOMO_CLIENT_FLAT_NUM_IMG_PREF, Integer.parseInt(txtNumFlatImages.getText()));
+		}
+		if (validateIntegerText(txtNumDarkImages)) {
+			preferenceStore.setValue(TOMO_CLIENT_DARK_NUM_IMG_PREF, Integer.parseInt(txtNumDarkImages.getText()));
+		}
 		return true;
 	}
 
@@ -209,5 +217,22 @@ public class TomoAlignmentPreferencePage extends PreferencePage implements IWork
 		txtSampleMoveDist.setText(Double.toString(preferenceStore.getDefaultDouble(TOMO_CLIENT_FLAT_DIST_MOVE_PREF)));
 		txtNumFlatImages.setText(Integer.toString(preferenceStore.getDefaultInt(TOMO_CLIENT_FLAT_NUM_IMG_PREF)));
 		txtNumDarkImages.setText(Integer.toString(preferenceStore.getDefaultInt(TOMO_CLIENT_DARK_NUM_IMG_PREF)));
+	}
+
+	private boolean validateDoubleValue(Text txtCtrl) {
+		String txt = txtCtrl.getText();
+		Object errMsgId = txtCtrl.getData(ERR_MSG_ID);
+		boolean result = true;
+
+		if (txt == null || txt.length() < 1) {
+			setErrorMessage(String.format(INVALID_VALUE_ERRMSG, errMsgId));
+			result = false;
+		} else if (!txt.matches("(\\d)*.?(\\d)*")) {
+			setErrorMessage(String.format(INVALID_VALUE_ERRMSG, errMsgId));
+			result = false;
+		} else {
+			setErrorMessage(null);
+		}
+		return result;
 	}
 }

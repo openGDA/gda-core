@@ -122,7 +122,7 @@ public class CameraCompositeController implements ICameraControlListener {
 				v.setRightInfoPage(RIGHT_INFO.NONE);
 			}
 		} else {
-			cameraControls.stopSampleStream();
+			v.removeLeftWindowTomoImageListener();
 			v.setRightPage(RIGHT_PAGE.NONE);
 			v.setRightInfoPage(RIGHT_INFO.NONE);
 		}
@@ -265,10 +265,10 @@ public class CameraCompositeController implements ICameraControlListener {
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					try {
 						SubMonitor progress = SubMonitor.convert(monitor);
-						progress.beginTask("Demanding raw image", 10);
+						progress.beginTask("Taking single", 10);
 						String fileLocation = null;
 
-						// Special case of demanding raw - when the amplifier is at "1" and the stream is switched
+						// Special case of taking single - when the amplifier is at "1" and the stream is switched
 						// on. This is to prevent the arming/disarming of the camera in order to save a few seconds
 						if (isAmplifierAtOne && isStreaming) {
 							fileLocation = tomoAlignmentViewController.demandRawWithStreamOn(progress.newChild(2),
@@ -304,7 +304,7 @@ public class CameraCompositeController implements ICameraControlListener {
 						}
 					} catch (Exception e1) {
 						logger.error("problem while demand raw", e1);
-						throw new InvocationTargetException(e1, "Problem while demanding raw");
+						throw new InvocationTargetException(e1, "Problem while taking single");
 					} finally {
 						monitor.done();
 						v.setLeftWindowInfo(TomoAlignmentView.FLAT_SINGLE);
@@ -314,7 +314,7 @@ public class CameraCompositeController implements ICameraControlListener {
 			ViewerDisplayMode viewDisplayMode = v.getLeftWindowViewerDisplayMode();
 			v.updateScaleBars(v.getSelectedCameraModule());
 
-			if (viewDisplayMode == ViewerDisplayMode.SAMPLE_SINGLE) {
+			if (viewDisplayMode == ViewerDisplayMode.FLAT_SINGLE) {
 				displayFileDetails(viewDisplayMode);
 			}
 		} catch (InvocationTargetException e) {
@@ -323,7 +323,7 @@ public class CameraCompositeController implements ICameraControlListener {
 		} catch (InterruptedException e) {
 			logger.error("demandRaw", e);
 		} catch (Exception e) {
-			logger.error("Exception while demanding raw ", e);
+			logger.error("Exception while taking single ", e);
 			throw e;
 		}
 
@@ -373,10 +373,10 @@ public class CameraCompositeController implements ICameraControlListener {
 				checkProgressJob.schedule(50);
 
 				SubMonitor progress = SubMonitor.convert(baseMonitor);
-				progress.beginTask("Demanding raw image", 10);
+				progress.beginTask("Taking single", 10);
 				String fileLocation = null;
 
-				// Special case of demanding raw - when the amplifier is at "1" and the stream is switched
+				// Special case of taking single - when the amplifier is at "1" and the stream is switched
 				// on. This is to prevent the arming/disarming of the camera in order to save a few seconds
 				if (isAmplifierAtOne && isStreaming) {
 					fileLocation = tomoAlignmentViewController.demandRawWithStreamOn(progress.newChild(2),
@@ -412,7 +412,7 @@ public class CameraCompositeController implements ICameraControlListener {
 				}
 			} catch (Exception e1) {
 				logger.error("problem while demand raw", e1);
-				throw new InvocationTargetException(e1, "Problem while demanding raw");
+				throw new InvocationTargetException(e1, "Problem while taking single");
 			} finally {
 				isJobComplete = true;
 				baseMonitor.done();
@@ -460,7 +460,7 @@ public class CameraCompositeController implements ICameraControlListener {
 		} catch (InterruptedException e) {
 			logger.error("demandRaw", e);
 		} catch (Exception e) {
-			logger.error("Exception while demanding raw ", e);
+			logger.error("Exception while taking single ", e);
 			throw e;
 		}
 
@@ -775,7 +775,7 @@ public class CameraCompositeController implements ICameraControlListener {
 						try {
 							tomoAlignmentViewController.takeDark(progress.newChild(9), expTime);
 						} catch (Exception e) {
-							throw new InvocationTargetException(e);
+							throw new InvocationTargetException(e, "Problem taking flat and dark images");
 						}
 
 						if (!progress.isCanceled()) {
@@ -784,6 +784,12 @@ public class CameraCompositeController implements ICameraControlListener {
 							cameraControls.stopSampleStream();
 							progress.worked(1);
 							int numFlat = tomoAlignmentViewController.getPreferredNumberFlatImages();
+							// Just so that the recursive average is for a minimum of 2 images. it is better to do it
+							// this way rather than
+							// limit the user to enter numbers greater than or equal to 2
+							if (numFlat == 1) {
+								numFlat = numFlat + 1;
+							}
 							tomoAlignmentViewController.takeFlat(progress.newChild(9), numFlat, expTime);
 						} else {
 							throw new InterruptedException("Operation was cancelled");
@@ -849,13 +855,13 @@ public class CameraCompositeController implements ICameraControlListener {
 					leftWindowImageViewer.loadMainImage(imgData.scaledTo(TomoAlignmentView.SCALED_TO_X,
 							TomoAlignmentView.SCALED_TO_Y));
 					img.dispose();
-					displayFileDetails(ViewerDisplayMode.FLAT_SINGLE);
+					displayFileDetails(ViewerDisplayMode.STATIC_FLAT);
 				} catch (Exception e) {
 					throw e;
 				} finally {
 					logger.debug("Loaded Flat image File Name timestamp {}",
 							getSimpleDateFormat(checkFile.lastModified()));
-					v.setLeftWindowInfo(TomoAlignmentView.STATIC_FLAT);
+					v.setLeftWindowInfo(TomoAlignmentView.FLAT_SINGLE);
 				}
 			}
 		}

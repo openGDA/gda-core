@@ -43,13 +43,22 @@ public enum ViewerDisplayMode {
 		@Override
 		public String getFileName(TomoAlignmentViewController tomoAlignmentViewController) throws Exception {
 			return tomoAlignmentViewController.getDemandRawTiffFullFileName();
+//			return "/dls_sw/dasc/tomo/ravi.tif";
+
+		}
+
+	},
+	STATIC_FLAT(TomoAlignmentView.STATIC_FLAT) {
+		@Override
+		public String getFileName(TomoAlignmentViewController tomoAlignmentViewController) {
+			return tomoAlignmentViewController.getFlatImageFullFileName();
 		}
 
 	},
 	FLAT_SINGLE(TomoAlignmentView.FLAT_SINGLE) {
 		@Override
-		public String getFileName(TomoAlignmentViewController tomoAlignmentViewController) {
-			return tomoAlignmentViewController.getFlatImageFullFileName();
+		public String getFileName(TomoAlignmentViewController tomoAlignmentViewController) throws Exception {
+			return tomoAlignmentViewController.getDemandRawTiffFullFileName();
 		}
 
 	},
