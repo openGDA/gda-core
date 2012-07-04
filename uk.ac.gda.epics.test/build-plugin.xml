@@ -35,7 +35,7 @@
                 <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.core/classes/test" />
                 <pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/bin" />
                 <pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/jars/*" />
-                <pathelement location="${workspace.loc}/plugins/uk.ac.diamond.org.springframework/jars/*" />
+                <pathelement location="${workspace.git.loc}/diamond-springframework.git/uk.ac.diamond.org.springframework/jars/*" />
                 <pathelement path="${workspace.loc}/tp/plugins/uk.ac.diamond.org.jscience_2.0.2.jar" />  <!--ensure that 2.0.2 appears first in classpath -->
                 <pathelement location="${workspace.loc}/tp/plugins/*" />
             </classpath>
