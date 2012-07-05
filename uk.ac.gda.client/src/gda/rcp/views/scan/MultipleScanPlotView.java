@@ -20,6 +20,7 @@ package gda.rcp.views.scan;
 
 import gda.scan.IScanDataPoint;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -69,9 +70,10 @@ public class MultipleScanPlotView extends AbstractCachedScanPlotView {
 	}
 
 	@Override
-	protected void updateCache(IScanDataPoint[] sdpArray) {
-		for (int i = 0; i < sdpArray.length; i++) {
-			final IScanDataPoint point = sdpArray[i];
+	protected void updateCache(ArrayList<IScanDataPoint> collection, int startIndex) {
+		for (int i = startIndex; i < collection.size(); i++){
+			IScanDataPoint point = collection.get(i);
+//			final IScanDataPoint point = sdpArray.get(i);
 			final List<Double> data = Arrays.asList(point.getDetectorDataAsDoubles());
 			final List<String> names = point.getDetectorHeader();
 			for (int j = 0; j < data.size(); j++) {
