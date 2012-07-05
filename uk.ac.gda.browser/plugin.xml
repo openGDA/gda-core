@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            name="Web Browser"
+            class="uk.ac.gda.browser.BrowserView"
+            id="uk.ac.gda.browserview">
+      </view>
+   </extension>
+</plugin>
