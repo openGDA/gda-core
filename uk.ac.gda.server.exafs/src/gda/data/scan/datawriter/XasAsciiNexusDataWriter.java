@@ -143,12 +143,12 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements DataWrite
 		
 		// work out sub-folders and filenames
 		try {
-			if (XasAsciiDataWriter.group != null && XasAsciiDataWriter.group.getScanNumber() >= 1) {
+			if (XasAsciiDataWriter.group != null && XasAsciiDataWriter.group.getScanNumber() >= 0) {
 				final OutputParameters params = (OutputParameters)XasAsciiDataWriter.group.getOutput();
-				xasDir += params.getAsciiDirectory();
+				xasDir += "/"+params.getAsciiDirectory();
 				nexusFileTemplate = XasAsciiDataWriter.group.getExperimentFolderName() + "/" + params.getNexusDirectory() + "/%d_"+ params.getAsciiFileName();
 			} else {
-				xasDir += "ascii" ;
+				xasDir += "/ascii" ;
 				nexusFileTemplate = "nexus/%d_" + nameFrag;
 			}
 			

@@ -40,10 +40,12 @@ public class XasNexusDataWriter extends NexusExtraMetadataDataWriter {
 
 	public XasNexusDataWriter() throws InstantiationException {
 		super();
+		setupProperties();
 	}
 
 	public XasNexusDataWriter(Long fileNumber) throws InstantiationException {
 		super(fileNumber);
+		setupProperties();
 	}
 
 	@Override

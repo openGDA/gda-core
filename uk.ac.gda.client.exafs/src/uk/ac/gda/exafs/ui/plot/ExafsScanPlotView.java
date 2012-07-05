@@ -155,14 +155,14 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 	 * Subclasses should then update/recalculate the cachedY buffer within their getY methods.
 	 */
 	@Override
-	protected void updateCache(IScanDataPoint[] points) {
+	protected void updateCache(ArrayList<IScanDataPoint> collection, int startIndex) {
 		calculateA();
 		if (cachedX == null)
 			cachedX = new ArrayList<Double>(89);
 		if (cachedY == null)
 			cachedY = new ArrayList<Double>(89);
-		for (int i = 0; i < points.length; i++) {
-			final IScanDataPoint point = points[i];
+		for (int i = startIndex; i < collection.size(); i++){
+			IScanDataPoint point = collection.get(i);
 			final double i0 = ScanDataPointUtils.getI0(point);
 			final double it = ScanDataPointUtils.getIt(point);
 			final double ln = Math.log(i0 / it);
