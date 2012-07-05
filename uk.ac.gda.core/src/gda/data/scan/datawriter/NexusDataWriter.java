@@ -173,8 +173,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	}
 	
 	/**
-	 * Constructor. This attempts to read the java.property which defines the beamline name.
-	 * 
+	 * Constructor. This attempts to read the java.property which defines the beamline name. 
 	 */
 	public NexusDataWriter(){
 		super();
@@ -184,7 +183,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		scanNumber = fileNumber;
 	}
 
-	private void setupProperties() throws InstantiationException {
+	protected void setupProperties() throws InstantiationException {
 		if( setupPropertiesDone)
 			return;
 		metadata = GDAMetadataProvider.getInstance();
