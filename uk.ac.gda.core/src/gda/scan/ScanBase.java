@@ -626,9 +626,6 @@ public abstract class ScanBase implements Scan {
 				}, command);
 				commandThread.start();
 			}
-			
-			// reset the variable as the very last thing to do.
-			interrupted = false;
 		}
 	}
 
