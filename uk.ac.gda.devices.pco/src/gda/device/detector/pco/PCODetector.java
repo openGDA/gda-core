@@ -74,7 +74,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	private String faltFileNameRoot;
 	private int numberOfFlatImages;
 	private static final Logger logger = LoggerFactory.getLogger(PCODetector.class);
-	boolean saveLocal = false;
+	private boolean saveLocal = false;
 	private boolean hdfFormat = true; // default is HDF format
 	private String plotName;
 	private long aquisitionStartTime;
@@ -1155,4 +1155,11 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		}
 	}
 
+	public void setSaveLocal(boolean saveLocal) {
+		this.saveLocal = saveLocal;
+	}
+	
+	public boolean isSaveLocal() {
+		return saveLocal;
+	}
 }
