@@ -106,12 +106,10 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 					});
 				}
 			}
-			if (!waitingForRefresh){
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					continueCalculations = false;
-				}
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				break;
 			}
 		}
 	}
