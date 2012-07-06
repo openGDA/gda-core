@@ -23,6 +23,7 @@ import gda.device.DeviceException;
 import gda.device.detector.IPCOControllerV17;
 import gda.device.detector.IPCODetector;
 import gda.device.detector.areadetector.v17.ADBase;
+import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.device.detector.areadetector.v17.FfmpegStream;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDProcess;
@@ -77,7 +78,7 @@ public class PCOTomography implements ITomographyDetector {
 		FfmpegStream mJpeg1 = controller.getMJpeg1();
 		NDFile tiff = controller.getTiff();
 
-		controller.setImageMode(2);
+		controller.setImageMode(ImageMode.CONTINUOUS.ordinal());
 
 		areaDetector.setTriggerMode(2);
 		setExposureTime(expTime);
