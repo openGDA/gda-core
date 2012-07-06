@@ -34,7 +34,6 @@ Require-Bundle: org.junit4,
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.apache.commons.configuration;version="1.6.0",
- org.apache.commons.lang.exception;version="[2.4.0,3.0.0)",
  org.exolab.castor.mapping;version="1.2.0",
  org.exolab.castor.xml;version="1.2.0",
  org.slf4j;version="[1.5.0,2.0.0)",
