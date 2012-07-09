@@ -551,12 +551,20 @@ public class PCOTomography implements ITomographyDetector {
 	}
 
 	@Override
-	public void setProcScale(int factor) throws Exception {
+	public void setProcScale(double factor) throws Exception {
 		IPCOControllerV17 controller = pcoDetector.getController();
 		controller.getProc1().setEnableOffsetScale(1);
 		controller.getProc1().setScale(factor);
 		controller.getProc2().setEnableOffsetScale(1);
 		controller.getProc2().setScale(factor);
+	}
+
+	public void setProcOffset(double offset) throws Exception {
+		IPCOControllerV17 controller = pcoDetector.getController();
+		controller.getProc1().setEnableOffsetScale(1);
+		controller.getProc1().setOffset(offset);
+		controller.getProc2().setEnableOffsetScale(1);
+		controller.getProc2().setOffset(offset);
 	}
 
 	@Override
@@ -597,6 +605,14 @@ public class PCOTomography implements ITomographyDetector {
 		// setting the ADC model to 2-ADC mode
 		pcoDetector.setADCMode(1);
 
+		enableLowHighClip();
+
+		// acquire a single image to set the arrays correctly
+		pcoDetector.acquireSynchronously();
+	}
+
+	private void enableLowHighClip() throws Exception {
+		IPCOControllerV17 controller = pcoDetector.getController();
 		NDProcess proc1 = controller.getProc1();
 		proc1.setEnableHighClip(1);
 		proc1.setHighClip(65534);
@@ -605,8 +621,11 @@ public class PCOTomography implements ITomographyDetector {
 		proc2.setEnableHighClip(1);
 		proc2.setHighClip(65534);
 
-		// acquire a single image to set the arrays correctly
-		pcoDetector.acquireSynchronously();
+		proc1.setEnableLowClip(1);
+		proc1.setLowClip(0);
+		//
+		proc2.setEnableLowClip(1);
+		proc2.setLowClip(0);
 	}
 
 	@Override
@@ -634,6 +653,13 @@ public class PCOTomography implements ITomographyDetector {
 		logger.debug("Setting new scale:{}", newScale);
 
 		proc1.setScale(newScale);
+	}
+
+	@Override
+	public void setOffsetAndScale(double offset, double scale) throws Exception {
+		enableLowHighClip();
+		setProcScale(scale);
+		setProcOffset(offset);
 	}
 
 }
