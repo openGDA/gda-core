@@ -52,6 +52,9 @@ import org.slf4j.LoggerFactory;
  */
 public class ColourSliderComposite extends Composite {
 
+	private int maximum = 100000;
+
+	private int markerInterval = 10000;
 	private FigureCanvas figCanvas;
 	private Panel topSliderHolder;
 	private Triangle topTriangleFigure;
@@ -64,14 +67,19 @@ public class ColourSliderComposite extends Composite {
 	private Dragger bottomSliderDragger;
 
 	private ArrayList<IColourSliderListener> colourSliderListeners;
-	private static final int INITIAL_UPPER_Y_POSITION = 80;
 	private ColorGradientedFigure upperGradientedFigure;
 	private IFigure lowerGradientedFigure;
-	private static final int BOTTOM_SLIDER_OFFSET = 48;
 	private final static int OUTER_GRADIENT_WIDTH = 28;
-	private static final int TOP_LIMITING_INDEX = 27;
-	private static final int BOTTOM_LIMITING_INDEX = 705;
 	private static final Logger logger = LoggerFactory.getLogger(ColourSliderComposite.class);
+
+	private int bottomLimitInPixel = 0;
+	private int topLimitInPixel;
+
+	private double maximumLimit;
+
+	private boolean topSliderMoved = false;
+
+	private boolean bottomSliderMoved = false;
 
 	public void addColourSliderListener(IColourSliderListener colourSliderListener) {
 		colourSliderListeners.add(colourSliderListener);
@@ -81,14 +89,19 @@ public class ColourSliderComposite extends Composite {
 		colourSliderListeners.remove(colourSliderListener);
 	}
 
+	public void setMaximum(int maximum) {
+		this.maximum = maximum;
+	}
+
+	public void setMarkerInterval(int markerInterval) {
+		this.markerInterval = markerInterval;
+	}
+
 	/**
 	 * Slider listener which propagates the events to the composites listening to the colour slider.
 	 */
 	public interface IColourSliderListener {
-		void updateHigherLimitMoved(Point highBasePoint, Point lowBasePoint, Point highInitialPoint,
-				Point currentPosition);
-
-		void updateLowerLimitMoved(Point highBasePoint, Point lowBasePoint, Point lowInitialPoint, Point currentPosition);
+		void colourSliderRegion(int upperLimit, int lowerLimit);
 	}
 
 	public ColourSliderComposite(Composite parent, int style) {
@@ -107,20 +120,40 @@ public class ColourSliderComposite extends Composite {
 		colourSliderListeners = new ArrayList<ColourSliderComposite.IColourSliderListener>();
 	}
 
+	public int getCountForPixel(int pixel) {
+		double pixel0 = getPixelLocation(0);
+		logger.debug("Pixel at 0 count:{}", pixel0);
+		double pixelMax = getPixelLocation(maximum);
+		logger.debug("Pixel at pixelMax:{}", pixelMax);
+		double pixelProportion = maximum / (pixel0 - pixelMax);
+
+		double countAtPixel = (pixel0 - pixel) * pixelProportion;
+		logger.debug("Pixel at countAtPixel:{}", countAtPixel);
+		return (int) countAtPixel;
+	}
+
 	private IFigure getContents() {
 		RectangleFigure boundaryFigure = new RectangleFigure() {
 			@Override
 			public void paint(Graphics graphics) {
 				super.paint(graphics);
-				graphics.drawLine(0, 57, 30, 57);// line at 70000
-				graphics.drawLine(0, 150, 30, 150);// line at 60000
-				graphics.drawLine(0, 243, 30, 243);// line at 50000
-				graphics.drawLine(0, 335, 30, 335);// line at 40000
-				graphics.drawLine(0, 427, 30, 427);// line at 30000
-				graphics.drawLine(0, 518, 30, 518);// line at 20000
-				graphics.drawLine(0, 611, 30, 611);// line at 10000
-				graphics.drawLine(0, 704, 30, 704);// line at 0
 
+				// graphics.drawLine(0, topLimitInPixel, 30, topLimitInPixel);
+				graphics.drawLine(0, bottomLimitInPixel, 30, bottomLimitInPixel);
+
+				logger.debug("maximum:{}", maximum);
+				logger.debug("markerInterval{}", markerInterval);
+				int numMarkerIntervals = maximum / markerInterval;
+				logger.debug("numMarkerIntervals:{}", numMarkerIntervals);
+				int totalDistanceBetweenLowestAndHighestPoint = bottomLimitInPixel - topLimitInPixel;
+				logger.debug("totalDistanceBetweenLowestAndHighestPoint:{}", totalDistanceBetweenLowestAndHighestPoint);
+				int individualInterval = totalDistanceBetweenLowestAndHighestPoint / numMarkerIntervals;
+				logger.debug("individualInterval:{}", individualInterval);
+
+				for (int count = bottomLimitInPixel - individualInterval; count > topLimitInPixel; count = count
+						- individualInterval) {
+					graphics.drawLine(0, count, 30, count);
+				}
 			}
 		};
 		boundaryFigure.setLayoutManager(new ColourSliderCompositeLayout());
@@ -205,28 +238,41 @@ public class ColourSliderComposite extends Composite {
 		@Override
 		public void layout(IFigure parent) {
 			super.layout(parent);
+			Dimension size = new Dimension(getBounds().width, getBounds().height);
+			bottomLimitInPixel = size.height - topSliderHolder.getSize().height - 50;
+			topLimitInPixel = 90;
 
 			// Parent is the rectangle that holds both the triangles.
 			Rectangle parentBounds = parent.getBounds();
 			parent.setSize(30, parentBounds.height);
 			//
 			Rectangle topSliderHolderBounds = topSliderHolder.getBounds();
-			topSliderHolder.setLocation(new Point(topSliderHolderBounds.x, INITIAL_UPPER_Y_POSITION));
+			int maxLimitPixelLoc = getPixelLocation(maximumLimit);
+			int xStart = topSliderHolderBounds.x;
 
-			topTriangleFigure.setLocation(new Point(5, topSliderHolderBounds.y - 1));
-			topClosureFigure.setLocation(new Point(5, topSliderHolderBounds.y + 15 - 1));
+			if (!topSliderMoved) {
+				int topSliderStart = maxLimitPixelLoc;
+				if (maxLimitPixelLoc != 0) {
+					topSliderStart = maxLimitPixelLoc - topSliderHolderBounds.height;
+				}
+				logger.debug("topSliderStart:{}", topSliderStart);
+				topSliderHolder.setLocation(new Point(xStart, topSliderStart));
 
-			/**/
-			Rectangle bottomSliderHolderBounds = bottomSliderHolder.getBounds();
-			bottomSliderHolder.setLocation(new Point(topSliderHolderBounds.x, parentBounds.height
-					- BOTTOM_SLIDER_OFFSET));
-
-			if (bottomSliderHolderBounds.y < topSliderHolderBounds.y + 25) {
-				bottomSliderHolderBounds.setLocation(5, parentBounds.height - 50);
+				topTriangleFigure.setLocation(new Point(5, topSliderHolderBounds.y - 1));
+				topClosureFigure.setLocation(new Point(5, topSliderHolderBounds.y + 15 - 1));
 			}
-			bottomTriangleFigure.setBounds(new Rectangle(5, bottomSliderHolderBounds.y, 20, 15));
-			bottomClosureFigure.setBounds(new Rectangle(5, bottomSliderHolderBounds.y, 20, 1));
+			/**/
+			if (!bottomSliderMoved) {
+				int bottomSliderStart = bottomLimitInPixel;// + bottomSliderHolder.getSize().height;
+				Rectangle bottomSliderHolderBounds = bottomSliderHolder.getBounds();
+				bottomSliderHolder.setLocation(new Point(xStart, bottomSliderStart));
 
+				if (bottomSliderHolderBounds.y < topSliderHolderBounds.y + 25) {
+					bottomSliderHolderBounds.setLocation(5, parentBounds.height - 50);
+				}
+				bottomTriangleFigure.setBounds(new Rectangle(5, bottomSliderHolderBounds.y, 20, 15));
+				bottomClosureFigure.setBounds(new Rectangle(5, bottomSliderHolderBounds.y, 20, 1));
+			}
 			//
 			int histogramHeight = bottomSliderHolder.getBounds().y
 					- (topSliderHolder.getBounds().y + topSliderHolder.getBounds().height);
@@ -248,28 +294,9 @@ public class ColourSliderComposite extends Composite {
 	class Dragger extends MouseMotionListener.Stub implements MouseListener {
 
 		private Point last;
-		private Point initialTopPosition;
-		private Point initialBottomPosition;
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			IFigure bottomSliderParent = bottomSliderHolder.getParent();
-			int topSlHeight = topSliderHolder.getSize().height;
-			if (e.getSource() == topSliderHolder) {
-
-				for (IColourSliderListener cListener : colourSliderListeners) {
-					cListener.updateHigherLimitMoved(new Point(0, 57), new Point(0, 704), new Point(
-							initialTopPosition.x, initialTopPosition.y + topSlHeight),
-							new Point(5, topSliderHolder.getLocation().y + topSlHeight));
-				}
-			} else {
-				for (IColourSliderListener cListener : colourSliderListeners) {
-					cListener.updateLowerLimitMoved(new Point(0, INITIAL_UPPER_Y_POSITION + topSlHeight), new Point(0,
-							bottomSliderParent.getBounds().height - BOTTOM_SLIDER_OFFSET), initialBottomPosition,
-							bottomSliderHolder.getLocation());
-				}
-			}
-			int i = topSliderHolder.getLocation().y + topSlHeight;
 			e.consume();
 		}
 
@@ -280,8 +307,6 @@ public class ColourSliderComposite extends Composite {
 		@Override
 		public void mousePressed(MouseEvent e) {
 			last = e.getLocation();
-			initialTopPosition = topSliderHolder.getLocation();
-			initialBottomPosition = bottomSliderHolder.getLocation();
 			e.consume();
 		}
 
@@ -289,40 +314,55 @@ public class ColourSliderComposite extends Composite {
 		public void mouseDragged(MouseEvent e) {
 			Point p = e.getLocation();
 			Dimension delta = p.getDifference(last);
-			Rectangle topsliderBounds = topSliderHolder.getBounds();
+			Rectangle topSliderBounds = topSliderHolder.getBounds();
 			Rectangle bottomSliderBounds = bottomSliderHolder.getBounds();
+			int xStart = topSliderBounds.x;
+			int heightMoved = delta.height;
 			if (e.getSource() == topSliderHolder) {
-				// Restricted drag movement for the triangle
-				// If the sum of the mouse dragged location difference and the topsliderbounds->y is greater than 0, so
-				// that it doesn't move beyond the top of the panel.
-				if (delta.height + topsliderBounds.y > (TOP_LIMITING_INDEX + topsliderBounds.height)) {
-					// If it doesn't cross the below slider.
-					if (delta.height + topsliderBounds.y + topsliderBounds.height < bottomSliderBounds.y) {
-						// Move the triangle
-						topSliderHolder.setLocation(new Point(topsliderBounds.x, topsliderBounds.y + delta.height));
-						// topSliderHolder.setBounds(topsliderBounds.getTranslated(0, delta.height));
-						// recalculate bounds for histogramrect - and set the new bounds of the coloured rectangle.
-						upperGradientedFigure
-								.setBounds(new Rectangle(1, 5, OUTER_GRADIENT_WIDTH, topsliderBounds.y - 5));
-
-					}
+				topSliderMoved = true;
+				int movedY = topSliderBounds.y + delta.height;
+				//
+				if (movedY + topSliderBounds.height < getPixelLocation(maximumLimit)) {
+					movedY = topSliderBounds.y;
+					heightMoved = 0;
+				} else if (movedY + topSliderBounds.height > bottomSliderBounds.y) {
+					movedY = topSliderBounds.y;
+					heightMoved = 0;
 				}
+
+				topSliderHolder.setLocation(new Point(xStart, movedY));
+				upperGradientedFigure.setBounds(new Rectangle(1, 0, OUTER_GRADIENT_WIDTH, topSliderBounds.y));
+
+				for (IColourSliderListener lis : colourSliderListeners) {
+					lis.colourSliderRegion(getCountForPixel(topSliderBounds.y + topSliderBounds.height),
+							getCountForPixel(bottomSliderBounds.y));
+				}
+
 			} else if (e.getSource() == bottomSliderHolder) {
 				// Restrict the bottom slider to go beyond the height of the parent panel
-				int bottomSliderHolderParentHeight = bottomSliderHolder.getParent().getBounds().height;
-				int bottomGradientStartY = bottomSliderBounds.y + bottomSliderBounds.height;
-				if (bottomSliderBounds.y + delta.height < BOTTOM_LIMITING_INDEX) {
-					// Restrict the bottom slider to cross over the top slider.
-					if (bottomSliderBounds.y + delta.height > topsliderBounds.y + topsliderBounds.height) {
-						bottomSliderHolder.setBounds(bottomSliderBounds.getTranslated(0, delta.height));
-						// recalculate bounds for histogramrect
-						lowerGradientedFigure.setBounds(new Rectangle(1, bottomGradientStartY + 2,
-								OUTER_GRADIENT_WIDTH, bottomSliderHolderParentHeight - bottomGradientStartY - 5));
-					}
+				bottomSliderMoved = true;
+
+				int movedY = bottomSliderBounds.y + heightMoved;
+				//
+				if (movedY > getPixelLocation(0)) {
+					movedY = bottomSliderBounds.y;
+					heightMoved = 0;
+				} else if (movedY < topSliderBounds.y + topSliderBounds.height) {
+					movedY = bottomSliderBounds.y;
+					heightMoved = 0;
+				}
+
+				bottomSliderHolder.setLocation(new Point(xStart, movedY));
+				lowerGradientedFigure.setBounds(new Rectangle(1, bottomSliderBounds.y + bottomSliderBounds.height,
+						OUTER_GRADIENT_WIDTH, ColourSliderComposite.this.getSize().y));
+
+				for (IColourSliderListener lis : colourSliderListeners) {
+					lis.colourSliderRegion(getCountForPixel(topSliderBounds.y + topSliderBounds.height),
+							getCountForPixel(bottomSliderBounds.y));
 				}
 			}
-			int histogramHeight = bottomSliderBounds.y - (topsliderBounds.y + topsliderBounds.height);
-			histogramRect.setBounds(new Rectangle(1, topsliderBounds.y + topsliderBounds.height, OUTER_GRADIENT_WIDTH,
+			int histogramHeight = bottomSliderBounds.y - (topSliderBounds.y + topSliderBounds.height);
+			histogramRect.setBounds(new Rectangle(1, topSliderBounds.y + topSliderBounds.height, OUTER_GRADIENT_WIDTH,
 					histogramHeight));
 			last = p;
 		}
@@ -331,13 +371,25 @@ public class ColourSliderComposite extends Composite {
 	public static void main(String[] args) {
 		final Display display = new Display();
 		final Shell shell = new Shell(display, SWT.SHELL_TRIM);
-		shell.setBounds(new org.eclipse.swt.graphics.Rectangle(0, 0, 100, 400));
+		shell.setBounds(new org.eclipse.swt.graphics.Rectangle(0, 0, 100, 800));
 		shell.setLayout(new GridLayout());
 		shell.setBackground(ColorConstants.black);
 		ColourSliderComposite sliderComposite = new ColourSliderComposite(shell, SWT.DOWN);
 		shell.setText(sliderComposite.getClass().getName());
 		sliderComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
-		shell.pack();
+		sliderComposite.setMaximum(70000);
+		sliderComposite.setMaximumLimit(65534);
+
+		IColourSliderListener lis = new IColourSliderListener() {
+
+			@Override
+			public void colourSliderRegion(int upperLimit, int lowerLimit) {
+				System.out.println("Upper Limit:" + upperLimit);
+				System.out.println("Lower Limit:" + lowerLimit);
+			}
+		};
+
+		sliderComposite.addColourSliderListener(lis);
 		shell.open();
 
 		while (!shell.isDisposed()) {
@@ -346,6 +398,27 @@ public class ColourSliderComposite extends Composite {
 			}
 		}
 		display.dispose();
+	}
+
+	public int getPixelLocation(double count) {
+		if (bottomLimitInPixel != 0) {
+			int totalNumberPixels = bottomLimitInPixel - topLimitInPixel;
+			logger.debug("totalNumberPixels:{}", totalNumberPixels);
+			int totalCount = maximum;
+
+			double countsPerPixel = totalCount / totalNumberPixels;
+			logger.debug("countsPerPixel:{}", countsPerPixel);
+			double pixelAtCount = count / countsPerPixel;
+			logger.debug("pixelAtCount:{}", pixelAtCount);
+			double countLocInPixel = bottomLimitInPixel - pixelAtCount;
+			logger.debug("countLocInPixel:{}", countLocInPixel);
+			return (int) countLocInPixel;
+		}
+		return 0;
+	}
+
+	public void setMaximumLimit(double maximumLimit) {
+		this.maximumLimit = maximumLimit;
 	}
 
 	@Override

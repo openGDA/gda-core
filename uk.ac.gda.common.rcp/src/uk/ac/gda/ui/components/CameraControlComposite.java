@@ -291,6 +291,7 @@ public class CameraControlComposite extends Composite {
 		Composite saveBtnComposite = createSaveBtnComposite(toolkit, remainingComposites);
 		saveBtnComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
 
+		setResolution(RESOLUTION.FULL);
 	}
 
 	private Composite createSaveBtnComposite(FormToolkit toolkit, Composite parent) {
@@ -944,15 +945,7 @@ public class CameraControlComposite extends Composite {
 				}
 			} else if (sourceObj == btnSampleHistogram) {
 				if (!isSelected(btnSampleHistogram)) {
-					logger.debug("'btnSampleHistogram' is selected");
-					selectControl(btnSampleHistogram);
-					try {
-						for (ICameraControlListener cl : cameraControlListeners) {
-							cl.sampleHistogram(true);
-						}
-					} catch (Exception e1) {
-						logger.debug("Error setting exposure time", e1);
-					}
+					startSampleHistogram();
 				} else {
 					logger.debug("'btnSampleHistogram' is de-selected");
 					stopSampleHistogram();
@@ -999,15 +992,7 @@ public class CameraControlComposite extends Composite {
 				}
 			} else if (sourceObj == btnFlatHistogram) {
 				if (!isSelected(btnFlatHistogram)) {
-					logger.debug("'btnFlatHistogram' is selected");
-					selectControl(btnFlatHistogram);
-					try {
-						for (ICameraControlListener cl : cameraControlListeners) {
-							cl.flatHistogram(true);
-						}
-					} catch (Exception e1) {
-						logger.debug("Error setting exposure time", e1);
-					}
+					startFlatHistogram();
 				} else {
 					logger.debug("'btnSampleHistogram' is de-selected");
 					stopFlatHistogram();
@@ -1107,7 +1092,7 @@ public class CameraControlComposite extends Composite {
 				if (!isSelected(btnSampleSingle)) {
 					logger.debug("'Demand Raw' is selected");
 					try {
-						startDemandRaw();
+						startSampleSingle();
 					} catch (Exception e) {
 						showError(ERR_CAPTURING_RAW, e);
 						logger.error("Problem with starting demand raw", e);
@@ -1225,7 +1210,20 @@ public class CameraControlComposite extends Composite {
 				}
 			}
 		}
+
 	};
+
+	public void startSampleHistogram() {
+		logger.debug("'btnSampleHistogram' is selected");
+		selectControl(btnSampleHistogram);
+		try {
+			for (ICameraControlListener cl : cameraControlListeners) {
+				cl.sampleHistogram(true);
+			}
+		} catch (Exception e1) {
+			logger.debug("Error setting exposure time", e1);
+		}
+	}
 
 	/**
 	 * @param toolkit
@@ -1250,17 +1248,33 @@ public class CameraControlComposite extends Composite {
 	}
 
 	/**
-	 * Starts the demand raw
+	 * Starts the sample single
 	 * 
 	 * @throws Exception
 	 */
-	public void startDemandRaw() throws Exception {
+	public void startSampleSingle() throws Exception {
 		try {
 			for (ICameraControlListener cl : cameraControlListeners) {
 				cl.sampleSingle(isFlatCorrectionSelected());
 			}
 		} catch (Exception ex) {
-			logger.error("start demand raw:" + ex);
+			logger.error("Start sample single" + ex);
+			throw ex;
+		}
+	}
+
+	/**
+	 * Starts the demand raw
+	 * 
+	 * @throws Exception
+	 */
+	public void startFlatSingle() throws Exception {
+		try {
+			for (ICameraControlListener cl : cameraControlListeners) {
+				cl.flatSingle(isFlatCorrectionSelected());
+			}
+		} catch (Exception ex) {
+			logger.error("start flat single:" + ex);
 			throw ex;
 		}
 	}
@@ -1416,7 +1430,7 @@ public class CameraControlComposite extends Composite {
 
 				@Override
 				public void run() {
-					txtSampleExposureTime.setText(Double.toString(preferredExposureTime));
+					txtSampleExposureTime.setText(String.format("%.3g", preferredExposureTime));
 				}
 			});
 		}
@@ -1591,7 +1605,7 @@ public class CameraControlComposite extends Composite {
 
 				@Override
 				public void run() {
-					txtFlatExpTime.setText(Double.toString(preferredFlatExposureTime));
+					txtFlatExpTime.setText(String.format("%.3g", preferredFlatExposureTime));
 				}
 			});
 		}
@@ -1726,6 +1740,22 @@ public class CameraControlComposite extends Composite {
 
 	public RESOLUTION getResolution() {
 		return resolution;
+	}
+
+	public void deSelectSampleHistogram() {
+		deSelectControl(btnSampleHistogram);
+	}
+
+	public void startFlatHistogram() {
+		logger.debug("'btnFlatHistogram' is selected");
+		selectControl(btnFlatHistogram);
+		try {
+			for (ICameraControlListener cl : cameraControlListeners) {
+				cl.flatHistogram(true);
+			}
+		} catch (Exception e1) {
+			logger.debug("Error setting exposure time", e1);
+		}
 	}
 
 }
