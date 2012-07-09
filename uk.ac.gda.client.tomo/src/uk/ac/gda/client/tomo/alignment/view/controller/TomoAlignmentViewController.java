@@ -1036,6 +1036,18 @@ public class TomoAlignmentViewController implements InitializingBean {
 
 	public void setProc1ScaleValue(double minValue, double maxValue, double from, double to) throws Exception {
 
+		double scaledValue = getScaledFactor(minValue, maxValue, from, to);
+
+		double proc1Scale = cameraHandler.getProc1Scale();
+		double newScale = scaledValue;
+
+		if (proc1Scale != 0) {
+			newScale = proc1Scale * scaledValue;
+		}
+		cameraHandler.setProc1ScaleValue(newScale);
+	}
+
+	private double getScaledFactor(double minValue, double maxValue, double from, double to) {
 		double scaledValue = (to - from) / (maxValue - minValue);
 
 		scaledValue = scaledValue + 1;
@@ -1046,14 +1058,7 @@ public class TomoAlignmentViewController implements InitializingBean {
 			scaledValue = 2;
 		}
 		logger.debug("Scaled value:{}", scaledValue);
-
-		double proc1Scale = cameraHandler.getProc1Scale();
-		double newScale = scaledValue;
-
-		if (proc1Scale != 0) {
-			newScale = proc1Scale * scaledValue;
-		}
-		cameraHandler.setProc1ScaleValue(newScale);
+		return scaledValue;
 	}
 
 	/**
@@ -1076,5 +1081,28 @@ public class TomoAlignmentViewController implements InitializingBean {
 		cameraHandler.setProc1ScaleValue(1);
 
 		setExposureTime(newExposureTime, 1);
+		
+		updatePreferredSampleExposureTime(newExposureTime);
 	}
+
+	public void setAdjustedExposureTime(double minValue, double maxValue, double from, double to) throws Exception {
+		double scaledFactor = getScaledFactor(minValue, maxValue, from, to);
+		double adjustedExposureTime = getCameraExposureTime();
+		if (scaledFactor != 0) {
+			adjustedExposureTime = adjustedExposureTime * scaledFactor;
+		}
+		updateAdjustedPreferredExposureTime(adjustedExposureTime);
+		setExposureTime(adjustedExposureTime, 1);
+	}
+
+	protected void updateAdjustedPreferredExposureTime(double preferredExposureTime) {
+		for (ITomoAlignmentView av : tomoalignmentViews) {
+			av.setAdjustedPreferredExposureTimeToWidget(preferredExposureTime);
+		}
+	}
+
+	public void applyScalingContrast(double offset, double scale) throws Exception {
+		cameraHandler.applyScalingAndContrast(offset, scale);
+	}
+	
 }

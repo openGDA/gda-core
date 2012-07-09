@@ -548,13 +548,15 @@ public class TomoPlotComposite extends Composite {
 				double maxValue = histogramTrace.getXData().max().doubleValue();
 				double endPoint = evt.getROI().getPointX();
 				logger.debug("distance ended:{}", endPoint);
+				
+				plottingSystem.removeRegion(region);
+				region.removeROIListener(this);
+				setShouldUpdatePlot(true);
+				
 				for (PlottingSystemActionListener lis : lineListeners) {
 					lis.histogramChangedRoi(minValue, maxValue, pointX, endPoint);
 				}
 
-				plottingSystem.removeRegion(region);
-				region.removeROIListener(this);
-				setShouldUpdatePlot(true);
 			}
 		});
 

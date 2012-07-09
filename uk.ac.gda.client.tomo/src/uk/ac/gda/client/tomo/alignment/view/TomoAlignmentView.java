@@ -260,6 +260,26 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	private IColourSliderListener histogramSliderListener = new IColourSliderListener() {
 
 		@Override
+		public void colourSliderRegion(int upperLimit, int lowerLimit) {
+			logger.debug("Lower Limit:{}", lowerLimit);
+			logger.debug("Upper Limit:{}", upperLimit);
+			switch (leftWindowDisplayMode) {
+			case SAMPLE_SINGLE:
+				ImageData histAppliedImgData = histogramAdjuster.updateHistogramValues(lowerLimit, upperLimit);
+				loadImageInUIThread(leftWindowImageViewer, histAppliedImgData.scaledTo(SCALED_TO_X, SCALED_TO_Y));
+				break;
+			case SAMPLE_STREAM_LIVE:
+				double scale = ((histogramAdjuster.getMaxIntensity() - histogramAdjuster.getMinIntensity()) / (upperLimit - lowerLimit));
+				try {
+					tomoAlignmentViewController.applyScalingContrast(-lowerLimit, scale);
+				} catch (Exception e) {
+					logger.error("TODO put description of error here", e);
+					loadErrorInDisplay("Problem applying contrast", "Problem applying contrast:" + e.getMessage());
+				}
+				break;
+			}
+		}
+
 		public void updateHigherLimitMoved(Point highBasePoint, Point lowBasePoint, Point highInitialPoint,
 				Point currentPosition) {
 
@@ -282,7 +302,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			}
 		}
 
-		@Override
 		public void updateLowerLimitMoved(Point highBasePoint, Point lowBasePoint, Point lowInitialPoint,
 				Point currentPosition) {
 
@@ -349,11 +368,38 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			logger.debug("from:{}", from);
 			logger.debug("to:{}", to);
 
-			try {
-				tomoAlignmentViewController.setProc1ScaleValue(minValue, maxValue, from, to);
-			} catch (Exception e) {
-				loadErrorInDisplay("Problem updating scale on the detector", "Problem updating scale on the detector:"
-						+ e.getMessage());
+			switch (leftWindowDisplayMode) {
+			case SAMPLE_STREAM_LIVE:
+			case FLAT_STREAM_LIVE:
+				try {
+					tomoAlignmentViewController.setProc1ScaleValue(minValue, maxValue, from, to);
+				} catch (Exception e) {
+					loadErrorInDisplay("Problem updating scale on the detector",
+							"Problem updating scale on the detector:" + e.getMessage());
+				}
+				break;
+			case SAMPLE_SINGLE:
+				try {
+					tomoAlignmentViewController.setAdjustedExposureTime(minValue, maxValue, from, to);
+					cameraControls.startSampleSingle();
+					cameraControls.startSampleHistogram();
+				} catch (Exception e) {
+					loadErrorInDisplay("Problem updating scale on the detector",
+							"Problem updating scale on the detector:" + e.getMessage());
+					logger.error("TODO put description of error here", e);
+				}
+				break;
+			case FLAT_SINGLE:
+				try {
+					tomoAlignmentViewController.setAdjustedExposureTime(minValue, maxValue, from, to);
+					cameraControls.startFlatSingle();
+					cameraControls.startFlatHistogram();
+				} catch (Exception e) {
+					loadErrorInDisplay("Problem updating scale on the detector",
+							"Problem updating scale on the detector:" + e.getMessage());
+					logger.error("TODO put description of error here", e);
+				}
+				break;
 			}
 		}
 
@@ -839,9 +885,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		page_nonProfile_demandRaw = toolkit.createComposite(pageBook_nonProfile_zoomImg);
 		gl = new GridLayout();
 		setDefaultLayoutSettings(gl);
-		gl.marginWidth=20;
 		page_nonProfile_demandRaw.setLayout(gl);
-		page_nonProfile_demandRaw.setBackground(ColorConstants.cyan);
 		demandRawZoomCanvas = new ZoomedImgCanvas(page_nonProfile_demandRaw, DOUBLE_BUFFERED);
 		GridData layoutData2 = new GridData(GridData.FILL_BOTH);
 		demandRawZoomCanvas.setLayoutData(layoutData2);
@@ -900,13 +944,17 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		Composite viewerComposite = createLeftWindowImageViewerComposite(page_leftWindow_imgViewer);
 		GridData layoutData = new GridData(GridData.FILL_BOTH);
 		viewerComposite.setLayoutData(layoutData);
-
+		//
+		histogramAdjuster = new HistogramAdjuster();
+		//
 		histogramSliderComposite = new ColourSliderComposite(page_leftWindow_imgViewer, SWT.None);
 		layoutData = new GridData(GridData.FILL_VERTICAL);
 		layoutData.widthHint = 30;
 		histogramSliderComposite.setLayoutData(layoutData);
+		histogramSliderComposite.setMaximum(70000);
+		histogramSliderComposite.setMarkerInterval(10000);
+		histogramSliderComposite.setMaximumLimit(histogramAdjuster.getMaxIntensity());
 		histogramSliderComposite.addColourSliderListener(histogramSliderListener);
-		histogramAdjuster = new HistogramAdjuster();
 
 		Composite infoComposite = createLeftWindowInfoViewComposite(page_leftWindow_imgViewer);
 		layoutData = new GridData(GridData.FILL_HORIZONTAL);
@@ -968,7 +1016,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 								"Please select a module before a raw image can be captured.");
 						return;
 					}
-					cameraControls.startDemandRaw();
+					cameraControls.startSampleSingle();
 					pageBook_leftWindow.showPage(page_leftWindow_imgViewer);
 				} catch (Exception e1) {
 					logger.error("Demand Raw problems", e1);
@@ -1226,7 +1274,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 		// Histogram Page
 		page_rightInfo_histogram = toolkit.createComposite(pageBook_rightInfo);
-		page_rightInfo_histogram.setBackground(ColorConstants.cyan);
 		GridLayout gl = new GridLayout();
 		setDefaultLayoutSettings(gl);
 		page_rightInfo_histogram.setLayout(gl);
@@ -1741,14 +1788,16 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	 * Set of procedures that need to be done when profiling is stopped.
 	 */
 	void stopProfiling() {
-		cameraControls.profileStopped();
-		leftWindowImageViewer.hideLineProfiler();
-		pageBook_rightWindow.showPage(page_rightWindow_nonProfile);
-		setRightInfoPage(RIGHT_INFO.NONE);
-		tomoPlotComposite.setImagesToPlot(null, null);
-		ZOOM_LEVEL selectedZoomLevel = cameraControls.getSelectedZoomLevel();
-		if (!ZOOM_LEVEL.NO_ZOOM.equals(selectedZoomLevel)) {
-			cameraControls.setZoom(selectedZoomLevel);
+		if (cameraControls.isProfileSelected()) {
+			cameraControls.profileStopped();
+			leftWindowImageViewer.hideLineProfiler();
+			pageBook_rightWindow.showPage(page_rightWindow_nonProfile);
+			setRightInfoPage(RIGHT_INFO.NONE);
+			tomoPlotComposite.setImagesToPlot(null, null);
+			ZOOM_LEVEL selectedZoomLevel = cameraControls.getSelectedZoomLevel();
+			if (!ZOOM_LEVEL.NO_ZOOM.equals(selectedZoomLevel)) {
+				cameraControls.setZoom(selectedZoomLevel);
+			}
 		}
 	}
 
@@ -2038,4 +2087,12 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		leftVideoReceiver.removeImageListener(tomoImageListener);
 	}
 
+	@Override
+	public void setAdjustedPreferredExposureTimeToWidget(double preferredExposureTime) {
+		if (leftWindowDisplayMode == ViewerDisplayMode.SAMPLE_STREAM_LIVE) {
+			setPreferredSampleExposureTimeToWidget(preferredExposureTime);
+		} else if (leftWindowDisplayMode == ViewerDisplayMode.FLAT_STREAM_LIVE) {
+			setPreferredFlatExposureTimeToWidget(preferredExposureTime);
+		}
+	}
 }

@@ -190,12 +190,21 @@ public class LineProfileSliderComposite extends Composite {
 	}
 
 	@Override
-	public void setEnabled(boolean enabled) {
+	public void setEnabled(final boolean enabled) {
 		super.setEnabled(enabled);
-		if (!enabled) {
-			triangleFigure.setBackgroundColor(ColorConstants.gray);
-		} else {
-			triangleFigure.setBackgroundColor(ColorConstants.black);
+		if (getDisplay() != null && !getDisplay().isDisposed()) {
+			getDisplay().asyncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					if (!enabled) {
+						triangleFigure.setBackgroundColor(ColorConstants.gray);
+					} else {
+						triangleFigure.setBackgroundColor(ColorConstants.black);
+					}
+
+				}
+			});
 		}
 	}
 

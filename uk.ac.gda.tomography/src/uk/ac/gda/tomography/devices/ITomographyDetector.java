@@ -243,7 +243,7 @@ public interface ITomographyDetector {
 	 *            - value to which the proc scale should be set
 	 * @throws Exception
 	 */
-	void setProcScale(int factor) throws Exception;
+	void setProcScale(double factor) throws Exception;
 
 	/**
 	 * Set the scaling divisor on the ROI1
@@ -308,4 +308,12 @@ public interface ITomographyDetector {
 	 */
 	void setProc1Scale(double newScale) throws Exception;
 
+	/**
+	 * Set offset and scale on the proc plugins of the detector.
+	 * 
+	 * @param offset
+	 * @param scale
+	 * @throws Exception 
+	 */
+	void setOffsetAndScale(double offset, double scale) throws Exception;
 }

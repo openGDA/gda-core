@@ -78,4 +78,6 @@ public interface ITomoAlignmentView {
 
 	void setResolution(RESOLUTION res);
 
+	void setAdjustedPreferredExposureTimeToWidget(double preferredExposureTime);
+
 }

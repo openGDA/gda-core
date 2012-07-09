@@ -47,6 +47,7 @@ import uk.ac.gda.client.tomo.composites.OverlayImageFigure.MOVE_AXIS;
 import uk.ac.gda.client.tomo.composites.SWT2Dutil;
 import uk.ac.gda.ui.components.CameraControlComposite;
 import uk.ac.gda.ui.components.IMotionControlListener;
+import uk.ac.gda.ui.components.CameraControlComposite.RESOLUTION;
 import uk.ac.gda.ui.components.ModuleButtonComposite.CAMERA_MODULE;
 import uk.ac.gda.ui.components.MotionControlComposite;
 import uk.ac.gda.ui.components.MotionControlComposite.MotionControlCentring;
@@ -212,6 +213,7 @@ public class MotionControlListener implements IMotionControlListener {
 						}
 						tomoAlignmentViewController.setModule(newModule, moduleChangeMonitor);
 						v.resetAmplifier();
+						v.setResolution(RESOLUTION.FULL);
 					} catch (InterruptedException ie) {
 						throw ie;
 					} catch (InvocationTargetException ite) {

@@ -450,4 +450,12 @@ public interface ICameraHandler extends ITomoHandler {
 	 */
 	double getProc1Scale() throws Exception;
 
+	/**
+	 * Apply scale and offset on the detector
+	 * 
+	 * @param offset
+	 * @param scale
+	 * @throws Exception 
+	 */
+	void applyScalingAndContrast(double offset, double scale) throws Exception;
 }
