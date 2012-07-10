@@ -17,7 +17,7 @@
          ==================================================================== -->
 
     <target name="junit-tests" depends="toolCheck, set-test-base">
-        <junit-call description="${ant.project.name} Java JUnit tests" forkmode="perTest">
+        <junit-call description="${ant.project.name} Java JUnit tests" forkmode="perTest" maxmemory="1536m">
             <!-- forkmode=perTest, since different tests have different JCALibrary.properties (specifically src/gda/epics/gdaCAClientTest.java uses non-defaults) -->
             <formatter type="xml" />
             <classpath>
