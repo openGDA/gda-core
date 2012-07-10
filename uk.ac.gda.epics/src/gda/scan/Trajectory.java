@@ -340,6 +340,9 @@ public class Trajectory implements Configurable {
 	 */
 	private double[] calculateCVPath(double start, double end, long n, long s) {
 		int x = -1;
+		int totalNumElements = (int) (s + n + s + 1);
+		path = new double[totalNumElements];
+
 		for (x = 0; x < s; x++) {
 			path[x] = (end - start) * (x * x - s * s) / (2 * s * (n - 1)) + start;
 		}
@@ -352,8 +355,8 @@ public class Trajectory implements Configurable {
 			path[x - 1] = (end - start) * ((s + n) * (s + n) + (4 * s + 2 * n) * (x - s - n) - x * x)
 					/ (2 * s * (n - 1)) + end;
 		}
-		if (x < MAXIMUM_ELEMENT_NUMBER) {
-			for (int i = x; i < MAXIMUM_ELEMENT_NUMBER; i++) {
+		if (x < totalNumElements) {
+			for (int i = x; i < totalNumElements; i++) {
 				path[i] = 0;
 			}
 		}
