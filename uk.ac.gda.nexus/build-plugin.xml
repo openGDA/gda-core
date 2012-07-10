@@ -24,7 +24,7 @@
          ==================================================================== -->
 
     <target name="junit-tests" depends="toolCheck, set-test-base">
-        <junit-call description="${ant.project.name} Java JUnit tests">
+        <junit-call description="${ant.project.name} Java JUnit tests" maxmemory="1536m">
             <formatter type="xml" />
             <classpath>
                 <pathelement location="${junitjar.loc}" />
