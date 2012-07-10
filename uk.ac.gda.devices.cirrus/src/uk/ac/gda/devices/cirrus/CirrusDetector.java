@@ -37,7 +37,7 @@ import org.nexusformat.NexusFile;
  */
 public class CirrusDetector extends DetectorBase implements NexusDetector {
 
-	private CirrusController controller;
+	private CirrusController controller = new CirrusController();
 	private String cirrusHost;
 	private Integer[] masses = new Integer[] {};
 	
@@ -165,11 +165,12 @@ public class CirrusDetector extends DetectorBase implements NexusDetector {
 		
 		return extranames;
 	}
+	
+	public void turnOffHardware() throws DeviceException{
+		controller.turnOffHardware();
+	}
 
 	public CirrusController getController() {
-		if (controller == null){
-			controller = new CirrusController();
-		}
 		return controller;
 	}
 
@@ -187,6 +188,14 @@ public class CirrusDetector extends DetectorBase implements NexusDetector {
 
 	public void setMasses(Integer[] masses) {
 		this.masses = masses;
+	}
+	
+	public int getFilamentToUse() {
+		return controller.getFilamentToUse();
+	}
+
+	public void setFilamentToUse(int filamentToUse) {
+		controller.setFilamentToUse(filamentToUse);
 	}
 
 }
