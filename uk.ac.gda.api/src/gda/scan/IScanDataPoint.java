@@ -297,7 +297,7 @@ public interface IScanDataPoint {
 	public void setStepIds(List<IScanStepId> stepIds);
 
 	/**
-	 * @return Returns the uniqueName.
+	 * @return Returns the unique identifier for the scan.
 	 */
 	public String getUniqueName();
 

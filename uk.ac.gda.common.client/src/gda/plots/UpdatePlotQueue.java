@@ -74,7 +74,7 @@ public class UpdatePlotQueue implements Runnable {
 					}
 				}
 				if (itemsToBeHandled != null && !killed) {
-					Thread.sleep(1000);
+					Thread.sleep(50);
 					int numItems = itemsToBeHandled.length;
 					for (int index = 0; index < numItems; index++) {
 						try {
