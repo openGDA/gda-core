@@ -94,7 +94,7 @@ public class SpringBeanFactory implements IExecutableExtension, IExecutableExten
 				logger.debug("Interrupted while waiting for Spring application context for '{}' bundle to appear; continuing to wait...", bundleName);
 			}
 			if (appContext == null) {
-				logger.debug("Spring application context for '{}' bundle has not yet appeared; continuing to wait...", bundleName);
+				logger.info("Spring application context for '{}' bundle has not yet appeared; continuing to wait...", bundleName);
 			}
 		}
 		
