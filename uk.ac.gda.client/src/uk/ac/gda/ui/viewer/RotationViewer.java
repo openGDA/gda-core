@@ -401,6 +401,10 @@ public class RotationViewer {
 	 * @param decimalPlaces
 	 */
 	public void setMotorPositionViewerDecimalPlaces(int decimalPlaces) {
+		if (motorPositionViewer == null) {
+			throw new IllegalStateException("Cannot set decimal places for this RotationViewer's MotorPositionViewer - widgets have not been created. Call createControls first");
+		}
+		
 		motorPositionViewer.setDecimalPlaces(decimalPlaces);
 	}
 	
