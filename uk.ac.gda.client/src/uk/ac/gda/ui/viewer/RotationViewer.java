@@ -353,7 +353,7 @@ public class RotationViewer {
 			GridDataFactory.createFrom(data).align(GridData.END, GridData.CENTER).applyTo(nudgeSizeLabel);
 			GridDataFactory.createFrom(data).applyTo(nudgeSizeBox);
 		}
-		nudgeSizeBox.setDecimalPlaces(4);
+		nudgeSizeBox.setDecimalPlaces(nudgeSizeBoxDecimalPlaces);
 
 	}
 	
@@ -382,12 +382,18 @@ public class RotationViewer {
 		return button;
 	}
 	
+	private int nudgeSizeBoxDecimalPlaces = 4;
+	
 	/**
 	 * Set the number of decimal places displayed by the nudge box
 	 * @param decimalPlaces
 	 */
 	public void setNudgeSizeBoxDecimalPlaces(int decimalPlaces) {
-		nudgeSizeBox.setDecimalPlaces(decimalPlaces);
+		this.nudgeSizeBoxDecimalPlaces = decimalPlaces;
+		
+		if (nudgeSizeBox != null) {
+			nudgeSizeBox.setDecimalPlaces(decimalPlaces);
+		}
 	}
 	
 	/**
