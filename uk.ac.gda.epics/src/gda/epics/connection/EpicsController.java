@@ -518,21 +518,25 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		}
 		return value;
 	}
+
 	private void checkConnection(Channel ch) throws InterruptedException {
-		if (ch.getConnectionState() == Channel.CONNECTED) 
-			return;
-		long startTime_ms =	System.currentTimeMillis();
 		double timeout_s = EpicsGlobals.getTimeout();
-		long timeout_ms = (long)(timeout_s*1000.);
-		
-		while (ch.getConnectionState() != Channel.CONNECTED && (System.currentTimeMillis() - startTime_ms < timeout_ms) ){
+		checkConnection(ch, timeout_s);
+	}
+
+	private void checkConnection(Channel ch, double timeout_s) throws InterruptedException {
+		if (ch.getConnectionState() == Channel.CONNECTED)
+			return;
+		long startTime_ms = System.currentTimeMillis();
+		long timeout_ms = (long) (timeout_s * 1000.);
+
+		while (ch.getConnectionState() != Channel.CONNECTED && (System.currentTimeMillis() - startTime_ms < timeout_ms)) {
 			Thread.sleep(10);
 		}
 		if (ch.getConnectionState() != Channel.CONNECTED) {
-			logger.error("Connection to {} request timeout {}s", ch.getName(),timeout_s);
+			logger.error("Connection to {} request timeout {}s", ch.getName(), timeout_s);
 		}
 	}
-	
 
 	/**
 	 * gets a string value array from this channel without implicit CA data type conversion, return the results as a
@@ -1781,7 +1785,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * @throws TimeoutException
 	 */
 	public void caput(Channel ch, double value, double timeout) throws CAException, TimeoutException, InterruptedException {
-		checkConnection(ch);
+		checkConnection(ch, timeout);
 		try {
 			PutListenerImpl listener = new PutListenerImpl();
 			synchronized (listener) {
@@ -1827,7 +1831,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * @throws TimeoutException
 	 */
 	public void caput(Channel ch, float value, double timeout) throws CAException, TimeoutException, InterruptedException {
-		checkConnection(ch);
+		checkConnection(ch, timeout);
 		try {
 			PutListenerImpl listener = new PutListenerImpl();
 			synchronized (listener) {
@@ -1873,7 +1877,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * @throws TimeoutException
 	 */
 	public void caput(Channel ch, short value, double timeout) throws CAException, TimeoutException, InterruptedException {
-		checkConnection(ch);
+		checkConnection(ch, timeout);
 		try {
 			PutListenerImpl listener = new PutListenerImpl();
 			synchronized (listener) {
@@ -1919,7 +1923,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * @throws TimeoutException
 	 */
 	public void caput(Channel ch, int value, double timeout) throws CAException, TimeoutException, InterruptedException {
-		checkConnection(ch);
+		checkConnection(ch, timeout);
 		try {
 			PutListenerImpl listener = new PutListenerImpl();
 			synchronized (listener) {
@@ -1965,7 +1969,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * @throws TimeoutException
 	 */
 	public void caput(Channel ch, String value, double timeout) throws CAException, TimeoutException, InterruptedException {
-		checkConnection(ch);
+		checkConnection(ch, timeout);
 		try {
 			PutListenerImpl listener = new PutListenerImpl();
 			synchronized (listener) {
@@ -2011,7 +2015,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * @throws TimeoutException
 	 */
 	public void caput(Channel ch, double[] value, double timeout) throws CAException, TimeoutException, InterruptedException {
-		checkConnection(ch);
+		checkConnection(ch, timeout);
 		try {
 			PutListenerImpl listener = new PutListenerImpl();
 			synchronized (listener) {
@@ -2057,7 +2061,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * @throws TimeoutException
 	 */
 	public void caput(Channel ch, int[] value, double timeout) throws CAException, TimeoutException, InterruptedException {
-		checkConnection(ch);
+		checkConnection(ch, timeout);
 		try {
 			PutListenerImpl listener = new PutListenerImpl();
 			synchronized (listener) {
@@ -2103,7 +2107,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * @throws TimeoutException
 	 */
 	public void caput(Channel ch, short[] value, double timeout) throws CAException, TimeoutException, InterruptedException {
-		checkConnection(ch);
+		checkConnection(ch, timeout);
 		try {
 			PutListenerImpl listener = new PutListenerImpl();
 			synchronized (listener) {
@@ -2149,7 +2153,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * @throws TimeoutException
 	 */
 	public void caput(Channel ch, float[] value, double timeout) throws CAException, TimeoutException, InterruptedException {
-		checkConnection(ch);
+		checkConnection(ch, timeout);
 		try {
 			PutListenerImpl listener = new PutListenerImpl();
 			synchronized (listener) {
@@ -2195,7 +2199,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * @throws TimeoutException
 	 */
 	public void caput(Channel ch, String[] value, double timeout) throws CAException, TimeoutException, InterruptedException {
-		checkConnection(ch);
+		checkConnection(ch, timeout);
 		try {
 			PutListenerImpl listener = new PutListenerImpl();
 			synchronized (listener) {
@@ -2526,7 +2530,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		}
 	}
 	public void caput(Channel ch, byte[] value, double timeout) throws CAException, TimeoutException, InterruptedException {
-		checkConnection(ch);
+		checkConnection(ch, timeout);
 		try {
 			PutListenerImpl listener = new PutListenerImpl();
 			synchronized (listener) {
