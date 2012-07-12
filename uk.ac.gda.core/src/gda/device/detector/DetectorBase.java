@@ -182,4 +182,20 @@ public abstract class DetectorBase extends ScannableBase implements Serializable
 
 		return message;
 	}
+
+	@Override
+	public String getDescription() throws DeviceException {
+		return "DetectorBase";
+	}
+
+	@Override
+	public String getDetectorID() throws DeviceException {
+		return "detectorbase-1";
+	}
+
+	@Override
+	public String getDetectorType() throws DeviceException {
+		return "DetectorBase";
+	}
+	
 }
