@@ -445,11 +445,11 @@ public class MotionControlListener implements IMotionControlListener {
 							SubMonitor progress = SubMonitor.convert(monitor);
 							progress.beginTask("Preparing to find axis of Tomo rotation", 10);
 
-							tomoAlignmentViewController.moveRotationMotor(progress.newChild(1), -180);
+							tomoAlignmentViewController.moveRotationMotorBy(progress.newChild(1), -180);
 							firstImageLocation = tomoAlignmentViewController.demandRaw(progress.newChild(2),
 									steppedAcqTime, false);
 
-							tomoAlignmentViewController.moveRotationMotor(progress.newChild(1), 180);
+							tomoAlignmentViewController.moveRotationMotorBy(progress.newChild(1), 180);
 
 							secondImageLocation = tomoAlignmentViewController.demandRaw(progress.newChild(1),
 									steppedAcqTime, false);
@@ -518,7 +518,7 @@ public class MotionControlListener implements IMotionControlListener {
 			@Override
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 				try {
-					tomoAlignmentViewController.moveRotationMotor(monitor, deg);
+					tomoAlignmentViewController.moveRotationMotorBy(monitor, deg);
 					// this will be returned only after the rotation is complete
 					rotationCompleted();
 				} catch (InterruptedException ex) {

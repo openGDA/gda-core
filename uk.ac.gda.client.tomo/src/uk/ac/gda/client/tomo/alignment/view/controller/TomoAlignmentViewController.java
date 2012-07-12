@@ -23,7 +23,6 @@ import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
 import gov.aps.jca.TimeoutException;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.text.DecimalFormat;
@@ -36,28 +35,22 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Rectangle;
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import uk.ac.gda.client.tomo.StatInfo;
 import uk.ac.gda.client.tomo.TiltPlotPointsHolder;
-import uk.ac.gda.client.tomo.TomoAlignmentConfigurationHolder;
+import uk.ac.gda.client.tomo.alignment.view.IRotationMotorListener;
 import uk.ac.gda.client.tomo.alignment.view.ITomoAlignmentView;
-import uk.ac.gda.client.tomo.alignment.view.controller.SaveableConfiguration.AlignmentScanMode;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraModuleController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraMotionController;
@@ -66,12 +59,8 @@ import uk.ac.gda.client.tomo.alignment.view.handlers.IMotorHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.IRoiHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ISampleWeightRotationHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ITiltController;
+import uk.ac.gda.client.tomo.alignment.view.handlers.ITomoAlignmentSaveHandler;
 import uk.ac.gda.client.tomo.alignment.view.utils.ScaleDisplay;
-import uk.ac.gda.tomography.parameters.AlignmentConfiguration;
-import uk.ac.gda.tomography.parameters.DetectorProperties;
-import uk.ac.gda.tomography.parameters.DetectorRoi;
-import uk.ac.gda.tomography.parameters.TomoExperiment;
-import uk.ac.gda.tomography.parameters.TomoParametersFactory;
 import uk.ac.gda.ui.components.CameraControlComposite.RESOLUTION;
 import uk.ac.gda.ui.components.ModuleButtonComposite.CAMERA_MODULE;
 import uk.ac.gda.ui.components.MotionControlComposite.SAMPLE_WEIGHT;
@@ -99,6 +88,8 @@ public class TomoAlignmentViewController implements InitializingBean {
 
 	private ISampleWeightRotationHandler sampleWeightRotationHandler;
 
+	private ITomoAlignmentSaveHandler saveHandler;
+
 	private Exception iocDownException = null;
 
 	public enum SAMPLE_STAGE_STATE {
@@ -112,6 +103,9 @@ public class TomoAlignmentViewController implements InitializingBean {
 	public static double MAX_INTENSITY = 65535;
 
 	private Set<ITomoAlignmentView> tomoalignmentViews = new HashSet<ITomoAlignmentView>();
+
+	private Set<IRotationMotorListener> rotationMotorListeners = new HashSet<IRotationMotorListener>();
+
 	private static final Logger logger = LoggerFactory.getLogger(TomoAlignmentViewController.class);
 
 	private Thread prepareAlignmentThread;
@@ -131,6 +125,14 @@ public class TomoAlignmentViewController implements InitializingBean {
 	public void setMotorHandler(IMotorHandler motorHandler) {
 		this.motorHandler = motorHandler;
 		this.motorHandler.setTomoAlignmentViewController(this);
+	}
+
+	public boolean addRotationMotorListener(IRotationMotorListener rotationMotorListener) {
+		return this.rotationMotorListeners.add(rotationMotorListener);
+	}
+
+	public boolean removeRotationMotorListener(IRotationMotorListener rotationMotorListener) {
+		return this.rotationMotorListeners.remove(rotationMotorListener);
 	}
 
 	/**
@@ -473,9 +475,24 @@ public class TomoAlignmentViewController implements InitializingBean {
 	}
 
 	public void updateRotationDegree(Double rotationMotorDeg) {
-		for (ITomoAlignmentView av : tomoalignmentViews) {
+		for (IRotationMotorListener rml : rotationMotorListeners) {
+			rml.setRotationDeg(rotationMotorDeg);
+		}
+		//
+		for (IRotationMotorListener av : tomoalignmentViews) {
 			av.setRotationDeg(rotationMotorDeg);
 		}
+	}
+
+	public void setIsRotationMotorBusy(boolean busy) {
+		for (IRotationMotorListener rml : rotationMotorListeners) {
+			rml.updateRotationMotorBusy(busy);
+		}
+		//
+		for (ITomoAlignmentView av : tomoalignmentViews) {
+			av.updateRotationMotorBusy(busy);
+		}
+
 	}
 
 	public void dispose() {
@@ -651,7 +668,7 @@ public class TomoAlignmentViewController implements InitializingBean {
 		return cameraHandler.getRoi1BinX();
 	}
 
-	public void moveRotationMotor(IProgressMonitor monitor, double deg) throws DeviceException, InterruptedException {
+	public void moveRotationMotorBy(IProgressMonitor monitor, double deg) throws DeviceException, InterruptedException {
 		SubMonitor progress = SubMonitor.convert(monitor);
 		motorHandler.moveRotationMotorBy(progress.newChild(1), deg);
 	}
@@ -779,12 +796,6 @@ public class TomoAlignmentViewController implements InitializingBean {
 	public void updateStatSigma(double sigma) {
 		for (ITomoAlignmentView av : tomoalignmentViews) {
 			av.updateStatInfo(StatInfo.SIGMA, df.format(sigma));
-		}
-	}
-
-	public void setIsRotationMotorBusy(boolean b) {
-		for (ITomoAlignmentView av : tomoalignmentViews) {
-			av.updateRotationMotorBusy(b);
 		}
 	}
 
@@ -931,110 +942,14 @@ public class TomoAlignmentViewController implements InitializingBean {
 		SubMonitor progress = SubMonitor.convert(monitor);
 		progress.beginTask("Saving Configuration", 20);
 
-		int[] roiPoints = saveableConfiguration.getRoiPoints();
-		int count = 0;
-		if (roiPoints != null) {
-			for (int i : roiPoints) {
-				roiPoints[count++] = i * getLeftWindowBinValue();
-			}
-		} else {
-			roiPoints = new int[] { 0, 0, cameraHandler.getFullImageWidth(), cameraHandler.getFullImageHeight() };
-		}
-		saveableConfiguration.setRoiPoints(roiPoints);
-
-		saveableConfiguration.setSampleVerticalPosition(motorHandler.getSs1Y2Position());
-
-		saveableConfiguration.setScanMode(AlignmentScanMode.Step);
-
-		saveableConfiguration.setSampleDetectorDistance(motorHandler.getT3M1ZPosition());
-
-		saveToConfigurationFile(monitor, saveableConfiguration);
-
-		// List of data items to be saved
-		// 1. Module number
-
-		// 2. Vertical sample position
-		// 3. Sample centre position (x and z)
-		// 4. Tomo tilt angles
-		// 5. Sample Acquisition time
-		// 6. Flat field acquisition time
-		// 7. Energy
-		// 8. Recorded Camera ROI
-		// 9. Sample weight
-		// 10. Desired 3D resolution
-		// 11. Frames per projection
-		// 12. Sample description
-		// 13. Snap shot of 0 and 90 deg
-		// 14. Acquisition time divider
-		// 15. Camera exposure
-		// 16. Camera ROI
-		// 17. Camera binning
-		// 18. 1. projections
-		// 19. Total run time
-	}
-
-	private void saveToConfigurationFile(IProgressMonitor monitor, final SaveableConfiguration saveableConfiguration)
-			throws InvocationTargetException, InterruptedException {
-		WorkspaceModifyOperation saveConfigurationOperation = new WorkspaceModifyOperation() {
-
-			@Override
-			protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException,
-					InterruptedException {
-
-				Resource res = TomoAlignmentConfigurationHolder.getAlignmentConfigResource(monitor, true);
-				EObject eObject = res.getContents().get(0);
-				if (eObject instanceof TomoExperiment) {
-					TomoExperiment experiment = (TomoExperiment) eObject;
-
-					AlignmentConfiguration expConfiguration = TomoParametersFactory.eINSTANCE
-							.createAlignmentConfiguration();
-					logger.debug("sample description:{}", saveableConfiguration.getSampleDescription());
-					expConfiguration.setDescription(saveableConfiguration.getSampleDescription());
-
-					DetectorProperties detectorProperties = TomoParametersFactory.eINSTANCE.createDetectorProperties();
-					detectorProperties.setModule(saveableConfiguration.getModuleNumber());
-
-					DetectorRoi detectorRoi = TomoParametersFactory.eINSTANCE.createDetectorRoi();
-					int[] roiPoints = saveableConfiguration.getRoiPoints();
-					detectorRoi.setMinX(roiPoints[0]);
-					detectorRoi.setMinY(roiPoints[1]);
-					detectorRoi.setMaxX(roiPoints[2]);
-					detectorRoi.setMaxY(roiPoints[3]);
-
-					detectorProperties.setDetectorRoi(detectorRoi);
-					logger.warn("Need to know about the acquisition time divider");
-					logger.warn("Need to know about the 3d resolution");
-					logger.warn("Need to know about the detector bin value");
-					logger.warn("Need to know about the number of frames per projection");
-
-					expConfiguration.setDetectorProperties(detectorProperties);
-
-					expConfiguration.setSampleExposureTime(saveableConfiguration.getSampleAcquisitonTime());
-					expConfiguration.setFlatExposureTime(saveableConfiguration.getFlatAcquisitionTime());
-
-					expConfiguration.setEnergy(saveableConfiguration.getEnergy());
-
-					experiment.getParameters().getConfigurationSet().add(expConfiguration);
-				}
-
-				Map<Object, Object> options = new HashMap<Object, Object>();
-				options.put(XMLResource.OPTION_ENCODING, "UTF-8");
-				try {
-					res.save(options);
-				} catch (IOException e) {
-					logger.error("Exception saving the configuration model", e);
-				}
-
-			}
-		};
-		saveConfigurationOperation.run(monitor);
+		saveHandler.saveConfiguration(monitor, saveableConfiguration);
 	}
 
 	public void setSampleWeightRotationHandler(ISampleWeightRotationHandler sampleWeightRotationHandler) {
 		this.sampleWeightRotationHandler = sampleWeightRotationHandler;
 	}
 
-	public void setProc1ScaleValue(double minValue, double maxValue, double from, double to) throws Exception {
+	public void setAdjustedProc1ScaleValue(double minValue, double maxValue, double from, double to) throws Exception {
 
 		double scaledValue = getScaledFactor(minValue, maxValue, from, to);
 
@@ -1048,15 +963,24 @@ public class TomoAlignmentViewController implements InitializingBean {
 	}
 
 	private double getScaledFactor(double minValue, double maxValue, double from, double to) {
-		double scaledValue = (to - from) / (maxValue - minValue);
-
-		scaledValue = scaledValue + 1;
-
-		if (scaledValue < 0) {
-			scaledValue = 0;
-		} else if (scaledValue > 2) {
-			scaledValue = 2;
+		// double scaledValue = (to - from) / (maxValue - minValue);
+		//
+		// scaledValue = scaledValue + 1;
+		//
+		// if (scaledValue < 0) {
+		// scaledValue = 0;
+		// } else if (scaledValue > 2) {
+		// scaledValue = 2;
+		// }
+		
+		// slight guard
+		if (to < 0) {
+			to = 0.001;
 		}
+		if(from < 0){
+			from = 0.001;
+		}
+		double scaledValue = to / from;
 		logger.debug("Scaled value:{}", scaledValue);
 		return scaledValue;
 	}
@@ -1078,11 +1002,11 @@ public class TomoAlignmentViewController implements InitializingBean {
 			newExposureTime = newExposureTime * proc1Scale;
 		}
 
-		cameraHandler.setProc1ScaleValue(1);
+		setProc1ScaleValue(1);
 
 		setExposureTime(newExposureTime, 1);
-		
-		updatePreferredSampleExposureTime(newExposureTime);
+
+		updateAdjustedPreferredExposureTime(newExposureTime);
 	}
 
 	public void setAdjustedExposureTime(double minValue, double maxValue, double from, double to) throws Exception {
@@ -1104,5 +1028,17 @@ public class TomoAlignmentViewController implements InitializingBean {
 	public void applyScalingContrast(double offset, double scale) throws Exception {
 		cameraHandler.applyScalingAndContrast(offset, scale);
 	}
+
+	public ITomoAlignmentSaveHandler getSaveHandler() {
+		return saveHandler;
+	}
+
+	public void setSaveHandler(ITomoAlignmentSaveHandler saveHandler) {
+		this.saveHandler = saveHandler;
+	}
 	
+	public void setProc1ScaleValue(double scale) throws Exception{
+		cameraHandler.setProc1ScaleValue(scale);
+	}
+
 }

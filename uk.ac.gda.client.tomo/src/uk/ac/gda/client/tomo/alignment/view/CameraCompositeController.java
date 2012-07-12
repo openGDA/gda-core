@@ -88,9 +88,9 @@ public class CameraCompositeController implements ICameraControlListener {
 		logger.debug("sample histogram selected {}", selection);
 		double sampleExposureTime = cameraControls.getSampleExposureTime();
 
+		ViewerDisplayMode leftWindowViewerDisplayMode = v.getLeftWindowViewerDisplayMode();
 		if (selection) {
 			// show the plot view
-			ViewerDisplayMode leftWindowViewerDisplayMode = v.getLeftWindowViewerDisplayMode();
 			if (ViewerDisplayMode.SAMPLE_STREAM_LIVE.equals(leftWindowViewerDisplayMode)) {
 
 				cameraControls.setZoom(ZOOM_LEVEL.NO_ZOOM);
@@ -125,6 +125,10 @@ public class CameraCompositeController implements ICameraControlListener {
 			v.removeLeftWindowTomoImageListener();
 			v.setRightPage(RIGHT_PAGE.NONE);
 			v.setRightInfoPage(RIGHT_INFO.NONE);
+			if (ViewerDisplayMode.SAMPLE_STREAM_LIVE.equals(leftWindowViewerDisplayMode)) {
+				tomoAlignmentViewController.setProc1ScaleValue(1);
+			}
+
 		}
 	}
 
@@ -179,7 +183,7 @@ public class CameraCompositeController implements ICameraControlListener {
 	}
 
 	@Override
-	public void saveAlignmentConfiguration() throws InvocationTargetException, InterruptedException {
+	public void saveAlignmentConfiguration() throws Exception {
 		logger.debug("save alignment configuration");
 		v.saveConfiguration();
 	}

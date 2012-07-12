@@ -21,7 +21,6 @@ package uk.ac.gda.client.tomo.alignment.view.handlers.impl;
 import gda.device.DeviceException;
 import gda.device.IScannableMotor;
 import gda.device.Scannable;
-import gda.device.scannable.ScannableStatus;
 import gda.observable.IObserver;
 import gda.util.Sleep;
 
@@ -40,7 +39,7 @@ import uk.ac.gda.client.tomo.preferences.TomoAlignmentPreferencePage;
 /**
  * Class which handles motors commands
  */
-public class TomoAlignmentMotorHandler implements IMotorHandler, IObserver {
+public class TomoAlignmentMotorHandler implements IMotorHandler {
 
 	private IScannableMotor cam1XScannable;
 	private IScannableMotor cam1ZScannable;
@@ -66,7 +65,7 @@ public class TomoAlignmentMotorHandler implements IMotorHandler, IObserver {
 	 */
 	private double thethaOffset;
 	private Double defaultDistanceToMoveForFlat;
-//	private double ss1xPosition;
+	// private double ss1xPosition;
 	/**
 	 * The absolute position of the sample stage. This value is only used for calculations.
 	 */
@@ -89,7 +88,6 @@ public class TomoAlignmentMotorHandler implements IMotorHandler, IObserver {
 	 */
 	public void setRotationScannable(IScannableMotor rotationScannable) {
 		this.rotationScannable = rotationScannable;
-		this.rotationScannable.addIObserver(this);
 	}
 
 	/**
@@ -181,7 +179,6 @@ public class TomoAlignmentMotorHandler implements IMotorHandler, IObserver {
 
 	@Override
 	public void dispose() {
-		this.rotationScannable.deleteIObserver(this);
 		logger.debug("Disposing TomoAlignmentMotorHandler");
 	}
 
@@ -195,24 +192,24 @@ public class TomoAlignmentMotorHandler implements IMotorHandler, IObserver {
 		return (Double) rotationScannable.getPosition();
 	}
 
-	@Override
-	public void update(Object source, Object arg) {
-		try {
-			if (source == this.rotationScannable && arg instanceof ScannableStatus) {
-				int status = ((ScannableStatus) arg).getStatus();
-				if (status > 0) {
-					tomoAlignmentViewController.setIsRotationMotorBusy(true);
-					while (rotationScannable.isBusy()) {
-						tomoAlignmentViewController.updateRotationDegree((Double) rotationScannable.getPosition());
-					}
-				} else {
-					tomoAlignmentViewController.setIsRotationMotorBusy(false);
-				}
-			}
-		} catch (Exception ex) {
-			logger.error("Exception while updating rotation scannable{}", ex);
-		}
-	}
+	// @Override
+	// public void update(Object source, Object arg) {
+	// try {
+	// if (source == this.rotationScannable && arg instanceof ScannableStatus) {
+	// int status = ((ScannableStatus) arg).getStatus();
+	// if (status > 0) {
+	// tomoAlignmentViewController.setIsRotationMotorBusy(true);
+	// while (rotationScannable.isBusy()) {
+	// tomoAlignmentViewController.updateRotationDegree((Double) rotationScannable.getPosition());
+	// }
+	// } else {
+	// tomoAlignmentViewController.setIsRotationMotorBusy(false);
+	// }
+	// }
+	// } catch (Exception ex) {
+	// logger.error("Exception while updating rotation scannable{}", ex);
+	// }
+	// }
 
 	/**
 	 * @param tomoAlignmentViewController
@@ -277,17 +274,17 @@ public class TomoAlignmentMotorHandler implements IMotorHandler, IObserver {
 
 	public void setT3xScannable(IScannableMotor t3xScannable) {
 		this.t3xScannable = t3xScannable;
-		this.t3xScannable.addIObserver(this);
+		// this.t3xScannable.addIObserver(this);
 	}
 
 	public void setT3m1zScannable(IScannableMotor t3m1zScannable) {
 		this.t3m1zScannable = t3m1zScannable;
-		this.t3m1zScannable.addIObserver(this);
+		// this.t3m1zScannable.addIObserver(this);
 	}
 
 	public void setT3m1yScannable(IScannableMotor t3m1yScannable) {
 		this.t3m1yScannable = t3m1yScannable;
-		this.t3m1yScannable.addIObserver(this);
+		// this.t3m1yScannable.addIObserver(this);
 	}
 
 	/**
@@ -296,17 +293,17 @@ public class TomoAlignmentMotorHandler implements IMotorHandler, IObserver {
 	 */
 	public void setCam1ZScannable(IScannableMotor cam1ZScannable) {
 		this.cam1ZScannable = cam1ZScannable;
-		cam1ZScannable.addIObserver(this);
+		// cam1ZScannable.addIObserver(this);
 	}
 
 	public void setCam1XScannable(IScannableMotor cam1xScannable) {
 		cam1XScannable = cam1xScannable;
-		cam1xScannable.addIObserver(this);
+		// cam1xScannable.addIObserver(this);
 	}
 
 	public void setCam1RollScannable(IScannableMotor cam1RollScannable) {
 		this.cam1RollScannable = cam1RollScannable;
-		cam1RollScannable.addIObserver(this);
+		// cam1RollScannable.addIObserver(this);
 	}
 
 	@Override
@@ -416,10 +413,15 @@ public class TomoAlignmentMotorHandler implements IMotorHandler, IObserver {
 	public void moveRotationMotorTo(IProgressMonitor monitor, double deg) throws DeviceException, InterruptedException {
 		// Dont call move motor for rotation motor because there is a GUI element on this. The IObserver will pick up
 		// the status and keep it on wait.
-		// motorsRunning.add(rotationScannable);
-		// rotationScannable.moveTo(deg);
-		// motorsRunning.remove(rotationScannable);
-		moveMotor(monitor, rotationScannable, deg);
+		motorsRunning.add(rotationScannable);
+		rotationScannable.asynchronousMoveTo(deg);
+		while (rotationScannable.isBusy()) {
+			tomoAlignmentViewController.setIsRotationMotorBusy(true);
+			tomoAlignmentViewController.updateRotationDegree((Double) rotationScannable.getPosition());
+			Thread.sleep(10);
+		}
+		tomoAlignmentViewController.setIsRotationMotorBusy(false);
+		motorsRunning.remove(rotationScannable);
 	}
 
 	@Override
@@ -594,27 +596,25 @@ public class TomoAlignmentMotorHandler implements IMotorHandler, IObserver {
 	public Double getDefaultSampleInPosition() {
 		return defaultSampleInPosition;
 	}
-	
+
 	@Override
 	public String getSs1RxName() {
 		return ss1RxScannable.getName();
 	}
-	
+
 	@Override
 	public String getSs1RzName() {
 		return ss1RzScannable.getName();
 	}
-	
+
 	@Override
 	public boolean isSs1RxBusy() throws DeviceException {
 		return ss1RxScannable.isBusy();
 	}
-	
+
 	@Override
 	public boolean isSs1RzBusy() throws DeviceException {
 		return ss1RzScannable.isBusy();
 	}
-	
-	
 
 }

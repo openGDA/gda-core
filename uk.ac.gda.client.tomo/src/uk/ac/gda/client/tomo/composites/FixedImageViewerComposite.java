@@ -45,6 +45,7 @@ import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.PointList;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.layout.FillLayout;
@@ -583,6 +584,12 @@ public class FixedImageViewerComposite extends Composite {
 		return colourChangeListeners.remove(colourChangeListener);
 	}
 
+	@Override
+	public void setBackground(Color color) {
+		super.setBackground(color);
+		canvas.setBackground(color);
+	}
+
 	/**
 	 * Returns the bounds of the drawn image
 	 * 
@@ -626,19 +633,12 @@ public class FixedImageViewerComposite extends Composite {
 		try {
 			if (!canvas.isDisposed()) {
 				Image newImage = null;
-				// if (isGray) {
-				// final Image srcImage = new Image(getDisplay(), imageDataIn);
-				// newImage = new Image(getDisplay(), srcImage, SWT.IMAGE_GRAY);
-				// srcImage.dispose();
-				// } else {
 				newImage = new Image(getDisplay(), imageDataIn);
-				// }
 				if (!canvas.isDisposed()) {
 					if (mainImage != null && !mainImage.isDisposed()) {
 						mainImage.dispose();
 					}
 					mainImage = newImage;
-					// mainImgData = scaledTo;
 					mainImgData = imageDataIn;
 					mainImgFig.setImage(mainImage);
 				}

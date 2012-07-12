@@ -28,7 +28,7 @@ import uk.ac.gda.ui.components.ModuleButtonComposite.CAMERA_MODULE;
 /**
  * Interface by which the tomo alignment controller communicates with the tomo alignment view.
  */
-public interface ITomoAlignmentView {
+public interface ITomoAlignmentView extends IRotationMotorListener {
 
 	void updateFullImgStreamUrl(String mjPegURL);
 
@@ -42,25 +42,21 @@ public interface ITomoAlignmentView {
 
 	void updateLeftWindowNumPixelsLabel(String cameraScaleBarDisplayText, int barLengthInPixel);
 
-	void setRotationDeg(Double rotationMotorDeg);
-
 	void setFlatFieldCorrection(boolean enabled);
 
 	void setPreferredSampleExposureTimeToWidget(double preferredExposureTime);
 
 	void setPreferredFlatExposureTimeToWidget(double preferredExposureTime);
-	
+
 	void resetAmplifier() throws Exception;
 
-	//void stopStreaming();
+	// void stopStreaming();
 
 	void setCameraModule(CAMERA_MODULE module);
 
 	void updateStatInfo(StatInfo statInfo, String val);
 
 	void updateRightWindowNumPixelsLabel(String cameraScaleBarDisplayText, int barLengthInPixel);
-
-	void updateRotationMotorBusy(boolean b);
 
 	void updateErrorAligningTilt(String status);
 

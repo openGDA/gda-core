@@ -19,7 +19,6 @@
 package uk.ac.gda.client.tomo.alignment.view;
 
 import static org.eclipse.swt.SWT.DOUBLE_BUFFERED;
-import gda.device.DeviceException;
 import gda.images.camera.ImageListener;
 import gda.images.camera.MotionJpegOverHttpReceiverSwt;
 
@@ -372,7 +371,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			case SAMPLE_STREAM_LIVE:
 			case FLAT_STREAM_LIVE:
 				try {
-					tomoAlignmentViewController.setProc1ScaleValue(minValue, maxValue, from, to);
+					tomoAlignmentViewController.setAdjustedProc1ScaleValue(minValue, maxValue, from, to);
 				} catch (Exception e) {
 					loadErrorInDisplay("Problem updating scale on the detector",
 							"Problem updating scale on the detector:" + e.getMessage());
@@ -2038,11 +2037,20 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		}
 	}
 
-	public void saveConfiguration() throws InvocationTargetException, InterruptedException {
+	public void saveConfiguration() throws Exception {
+		cameraControls.startSampleStreaming();
+
+		AlignmentConfigSaveDialog configSaveDialog = new AlignmentConfigSaveDialog(getViewSite().getShell(),
+				tomoAlignmentViewController, leftVideoReceiver);
+		configSaveDialog.open();
+
+		int returnCode = configSaveDialog.getReturnCode();
+
 		ACTIVE_WORKBENCH_WINDOW.run(true, false, new IRunnableWithProgress() {
 
 			@Override
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+
 				SaveableConfiguration configuration = new SaveableConfiguration();
 				configuration.setModuleNumber(motionControlComposite.getSelectedCameraModule().getValue());
 				configuration.setSampleAcquisitonTime(cameraControls.getSampleExposureTime());
@@ -2050,18 +2058,18 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 				configuration.setSampleDescription(cameraControls.getSampleDescription());
 				configuration.setRoiPoints(leftWindowImageViewer.getRoiPoints());
 				configuration.setEnergy(motionControlComposite.getEnergy());
-				try {
-					tomoAlignmentViewController.saveConfiguration(monitor, configuration);
-				} catch (DeviceException e) {
-					logger.error("TODO put description of error here", e);
-					throw new InvocationTargetException(e, "Cannot save alignment configuration");
-				}
+				// try {
+				// tomoAlignmentViewController.saveConfiguration(monitor, configuration);
+				// } catch (DeviceException e) {
+				// logger.error("TODO put description of error here", e);
+				// throw new InvocationTargetException(e, "Cannot save alignment configuration");
+				// }
 			}
 		});
 
 		cameraControls.clearSampleDescription();
-		MessageDialog.openInformation(getSite().getShell(), "Alignment Configuration Saved",
-				"The alignment configuration has been saved");
+		// MessageDialog.openInformation(getSite().getShell(), "Alignment Configuration Saved",
+		// "The alignment configuration has been saved");
 	}
 
 	@Override
@@ -2089,10 +2097,14 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 	@Override
 	public void setAdjustedPreferredExposureTimeToWidget(double preferredExposureTime) {
-		if (leftWindowDisplayMode == ViewerDisplayMode.SAMPLE_STREAM_LIVE) {
+		if (leftWindowDisplayMode == ViewerDisplayMode.SAMPLE_STREAM_LIVE
+				|| leftWindowDisplayMode == ViewerDisplayMode.SAMPLE_SINGLE) {
 			setPreferredSampleExposureTimeToWidget(preferredExposureTime);
-		} else if (leftWindowDisplayMode == ViewerDisplayMode.FLAT_STREAM_LIVE) {
+			tomoAlignmentViewController.setPreferredSampleExposureTime(preferredExposureTime);
+		} else if (leftWindowDisplayMode == ViewerDisplayMode.FLAT_STREAM_LIVE
+				|| leftWindowDisplayMode == ViewerDisplayMode.FLAT_SINGLE) {
 			setPreferredFlatExposureTimeToWidget(preferredExposureTime);
+			tomoAlignmentViewController.setPreferredFlatExposureTime(preferredExposureTime);
 		}
 	}
 }
