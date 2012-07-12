@@ -999,7 +999,7 @@ where task can be:
 		return pid
 	
 	def stop_start_process(self, imagePath, prevmargs=(), vmargs=(), args=(), debug_opts=None):
-		if self.options.stop and not self.kill_process((imagePath,)+args):
+		if self.options.stop and not self.kill_process((os.path.realpath(imagePath),)+args):
 			return 0
 		if not self.options.start:
 			return 0

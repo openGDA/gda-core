@@ -222,14 +222,13 @@ public class ExperimentRunEditor extends EditorPart implements ExperimentObjectL
 
 					runObjectManager.write();
 
-//					if (property.equals("NumberRepetitions")) {
-//						try {
-//							// Need new time estimation.
-//							ExperimentFactory.getExperimentEditorManager().refreshMultiScanControls();
-//						} catch (Exception ne) {
-//							logger.error("Cannot estimate time of scan - server error.", ne);
-//						}
-//					}
+					if (property.equals("NumberRepetitions") || property.equals("RunName")) {
+						try {
+							ExperimentFactory.getExperimentEditorManager().refreshViewers();
+						} catch (Exception ne) {
+							logger.error("Cannot estimate time of scan - server error.", ne);
+						}
+					}
 				} catch (Exception e) {
 					logger.error("Cannot set " + property, e);
 				} finally {

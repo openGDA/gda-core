@@ -185,15 +185,26 @@ public class ScriptControllerLogContentProvider implements ITreeContentProvider,
 		return (arg0 instanceof ScriptControllerLogResults);
 	}
 
+	private boolean isUpdating = false;
+	
 	@Override
 	public void update(final Object source, final Object arg) {
+		
+		
 		if (arg instanceof ScriptControllerLogResults) {
+			
 			addToKnowScripts(((ScriptControllerLogResults) arg).getScriptName());
 			if (haveSeenBefore((ScriptControllerLogResults) arg)) {
+				if (isUpdating) return;
+				isUpdating = true;
 				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 					@Override
 					public void run() {
-						view.getTreeViewer().refresh(true);
+						try {
+						    view.getTreeViewer().refresh(true);
+						} finally {
+							isUpdating=false;
+						}
 					}
 				});
 			} else {
@@ -201,18 +212,25 @@ public class ScriptControllerLogContentProvider implements ITreeContentProvider,
 				mapID2Controller.put(temp.getUniqueID(), (ILoggingScriptController) source);
 				results = (ScriptControllerLogResults[]) ArrayUtils.addAll(new ScriptControllerLogResults[] { temp },
 						results);
+				if (isUpdating) return;
+				isUpdating = true;
 				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 					@Override
 					public void run() {
-						view.getTreeViewer().setInput(ScriptControllerLogContentProvider.this.getElements(null));
-						view.getTreeViewer().refresh(true);
-						view.getTreeViewer().collapseAll();
-						view.getTreeViewer().expandToLevel(arg, 1);
-						view.getTreeViewer().reveal(arg);
-						// view.getTreeViewer().setSelection(new StructuredSelection(arg), true);
+						try {
+							view.getTreeViewer().setInput(ScriptControllerLogContentProvider.this.getElements(null));
+							view.getTreeViewer().refresh(true);
+							view.getTreeViewer().collapseAll();
+							view.getTreeViewer().expandToLevel(arg, 1);
+							view.getTreeViewer().reveal(arg);
+							// view.getTreeViewer().setSelection(new StructuredSelection(arg), true);
+						} finally {
+							isUpdating=false;
+						}
 					}
 				});
 			}
+
 		}
 	}
 
