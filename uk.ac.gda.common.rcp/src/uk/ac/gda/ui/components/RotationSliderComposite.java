@@ -39,6 +39,7 @@ import org.eclipse.draw2d.Triangle;
 import org.eclipse.draw2d.XYLayout;
 import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Point;
+import org.eclipse.draw2d.geometry.PrecisionPoint;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.swt.SWT;
@@ -171,7 +172,7 @@ public abstract class RotationSliderComposite extends Composite {
 		double numPixelPerDeg = sliderBoundary.getBounds().width / getTotalSliderDegree();
 		/**/
 		double newX = SLIDER_START_TOLERANCE + (newPosition * numPixelPerDeg);
-		sliderTriangle.setLocation(new Point(newX, sliderTriangle.getLocation().y));
+		sliderTriangle.setLocation(new PrecisionPoint(newX, sliderTriangle.getLocation().y));
 
 		// Labels inside the label
 		updateSliderLabel();

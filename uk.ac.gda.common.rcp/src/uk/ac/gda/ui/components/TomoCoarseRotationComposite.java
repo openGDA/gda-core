@@ -323,22 +323,28 @@ public class TomoCoarseRotationComposite extends RotationSliderComposite {
 		btn.setBackgroundColor(ColorConstants.red);
 	}
 
-	protected void showButtonDeSelected() {
-		if (btnCenter != null) {
-			setButtonProperties(btnCenter);
-		}
-		if (btnLeft != null) {
-			setButtonProperties(btnLeft);
-		}
-		if (btnLeftCenter != null) {
-			setButtonProperties(btnLeftCenter);
-		}
-		if (btnRight != null) {
-			setButtonProperties(btnRight);
-		}
-		if (btnRightCenter != null) {
-			setButtonProperties(btnRightCenter);
-		}
+	public void showButtonDeSelected() {
+		getDisplay().syncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				if (btnCenter != null) {
+					setButtonProperties(btnCenter);
+				}
+				if (btnLeft != null) {
+					setButtonProperties(btnLeft);
+				}
+				if (btnLeftCenter != null) {
+					setButtonProperties(btnLeftCenter);
+				}
+				if (btnRight != null) {
+					setButtonProperties(btnRight);
+				}
+				if (btnRightCenter != null) {
+					setButtonProperties(btnRightCenter);
+				}
+			}
+		});
 	}
 
 	@SuppressWarnings("rawtypes")

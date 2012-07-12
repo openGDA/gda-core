@@ -263,6 +263,7 @@ public class MotionControlComposite extends Composite {
 							showErrorDialog(new IllegalArgumentException("Invalid value to be set as camera distance",
 									e1));
 						}
+						MotionControlComposite.this.setFocus();
 					} else {
 						showErrorDialog(new IllegalArgumentException("Invalid value to be set as camera distance"));
 					}
@@ -670,7 +671,7 @@ public class MotionControlComposite extends Composite {
 		cameraDistanceComposite.setLayout(layout);
 		cameraDistanceComposite.setBackground(ColorConstants.lightGray);
 
-		Label lblCameraDistance = toolkit.createLabel(cameraDistanceComposite, CAMERA_DISTANCE_lbl, SWT.WRAP
+		lblCameraDistance = toolkit.createLabel(cameraDistanceComposite, CAMERA_DISTANCE_lbl, SWT.WRAP
 				| SWT.CENTER);
 		lblCameraDistance.setFont(fontRegistry.get(NORMAL_TEXT_9));
 
@@ -1004,6 +1005,8 @@ public class MotionControlComposite extends Composite {
 	};
 
 	private Composite moveAxisBtnComposite;
+
+	private Label lblCameraDistance;
 
 	/**
 	 * Returns <code>true</code> if the colors as set when selected.

@@ -141,14 +141,14 @@ public class ColourSliderComposite extends Composite {
 				// graphics.drawLine(0, topLimitInPixel, 30, topLimitInPixel);
 				graphics.drawLine(0, bottomLimitInPixel, 30, bottomLimitInPixel);
 
-				logger.debug("maximum:{}", maximum);
-				logger.debug("markerInterval{}", markerInterval);
+//				logger.debug("maximum:{}", maximum);
+//				logger.debug("markerInterval{}", markerInterval);
 				int numMarkerIntervals = maximum / markerInterval;
-				logger.debug("numMarkerIntervals:{}", numMarkerIntervals);
+//				logger.debug("numMarkerIntervals:{}", numMarkerIntervals);
 				int totalDistanceBetweenLowestAndHighestPoint = bottomLimitInPixel - topLimitInPixel;
-				logger.debug("totalDistanceBetweenLowestAndHighestPoint:{}", totalDistanceBetweenLowestAndHighestPoint);
+//				logger.debug("totalDistanceBetweenLowestAndHighestPoint:{}", totalDistanceBetweenLowestAndHighestPoint);
 				int individualInterval = totalDistanceBetweenLowestAndHighestPoint / numMarkerIntervals;
-				logger.debug("individualInterval:{}", individualInterval);
+//				logger.debug("individualInterval:{}", individualInterval);
 
 				for (int count = bottomLimitInPixel - individualInterval; count > topLimitInPixel; count = count
 						- individualInterval) {

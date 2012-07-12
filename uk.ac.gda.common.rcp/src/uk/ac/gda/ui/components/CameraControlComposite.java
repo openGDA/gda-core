@@ -747,6 +747,7 @@ public class CameraControlComposite extends Composite {
 						} catch (Exception e1) {
 							logger.debug("Error setting exposure time", e1);
 						}
+						btnSampleStream.setFocus();
 					} else {
 						MessageDialog.openError(txtSampleExposureTime.getShell(), INVALID_VALUE,
 								INVALID_EXPOSURE_TIME_shortdesc);
@@ -764,6 +765,7 @@ public class CameraControlComposite extends Composite {
 						} catch (Exception e1) {
 							logger.error("Error setting exposure time", e1);
 						}
+						btnFlatStream.setFocus();
 					} else {
 						MessageDialog.openError(txtFlatExpTime.getShell(), INVALID_VALUE,
 								INVALID_EXPOSURE_TIME_shortdesc);
@@ -781,6 +783,7 @@ public class CameraControlComposite extends Composite {
 						} catch (Exception e1) {
 							logger.error(ERR_PROBLEM_SETTING_SAMPLE_DESCRIPTION, e1);
 						}
+						btnSaveAlignment.setFocus();
 					} else {
 						MessageDialog.openError(txtSampleDesc.getShell(), ERR_PROBLEM_SETTING_SAMPLE_DESCRIPTION,
 								ERR_PROBLEM_SETTING_SAMPLE_DESCRIPTION);
