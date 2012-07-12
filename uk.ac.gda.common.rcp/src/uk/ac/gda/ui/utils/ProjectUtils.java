@@ -55,9 +55,16 @@ public class ProjectUtils {
 			IProgressMonitor monitor) throws CoreException {
 
 		File file = new File(importFolder);
-		if(!file.exists())
-			throw new CoreException(new Status(IStatus.ERROR, CommonRCPActivator.PLUGIN_ID, 
-					"Unable to create project folder " + projectName + "." + folderName + " as folder " + importFolder + " does not exist "));
+		final String finalFolder;
+		if (!file.exists()) {
+			finalFolder = importFolder.trim();
+			file = new File(finalFolder);
+			if (!file.exists())
+				throw new CoreException(new Status(IStatus.ERROR, CommonRCPActivator.PLUGIN_ID, 
+					"Unable to create project folder " + projectName + "." + folderName + " as folder " + finalFolder + " does not exist "));
+		} else {
+			finalFolder = importFolder;
+		}
 		IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
 			@Override
 			public void run(IProgressMonitor monitor) throws CoreException {
@@ -80,7 +87,7 @@ public class ProjectUtils {
 				project.open(monitor);
 				if (project.findMember(folderName) == null) {
 					final IFolder src = project.getFolder(folderName);
-					src.createLink(new Path(importFolder), IResource.BACKGROUND_REFRESH,
+					src.createLink(new Path(finalFolder), IResource.BACKGROUND_REFRESH,
 							monitor);
 
 					if (resourceFilterWrappers != null) {
