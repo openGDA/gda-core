@@ -420,8 +420,12 @@ public class PlotViewStatsAndMaths extends ViewPart implements IObserver {
 			return;
 		}
 
-		if (changeCode instanceof NexusDataBean) {
-			currentBean = (NexusDataBean) changeCode;
+//		if (changeCode instanceof NexusDataBean) {
+//			currentBean = (NexusDataBean) changeCode;
+//			processData(currentBean);
+//		}
+		if (changeCode instanceof DataBean) {
+			currentBean = (DataBean) changeCode;
 			processData(currentBean);
 		}
 	}
