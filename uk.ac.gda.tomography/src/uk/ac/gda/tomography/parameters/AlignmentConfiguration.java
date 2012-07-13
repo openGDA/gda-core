@@ -26,6 +26,9 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getScanMode <em>Scan Mode</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSampleExposureTime <em>Sample Exposure Time</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getFlatExposureTime <em>Flat Exposure Time</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getCreatedUserId <em>Created User Id</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getStitchingThetaAngle <em>Stitching Theta Angle</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getCreatedDateTime <em>Created Date Time</em>}</li>
  * </ul>
  * </p>
  *
@@ -512,5 +515,83 @@ public interface AlignmentConfiguration extends EObject {
 	 * @generated
 	 */
 	boolean isSetFlatExposureTime();
+
+	/**
+	 * Returns the value of the '<em><b>Created User Id</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Created User Id</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Created User Id</em>' attribute.
+	 * @see #setCreatedUserId(String)
+	 * @see uk.ac.gda.tomography.parameters.TomoParametersPackage#getAlignmentConfiguration_CreatedUserId()
+	 * @model unique="false"
+	 * @generated
+	 */
+	String getCreatedUserId();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getCreatedUserId <em>Created User Id</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Created User Id</em>' attribute.
+	 * @see #getCreatedUserId()
+	 * @generated
+	 */
+	void setCreatedUserId(String value);
+
+	/**
+	 * Returns the value of the '<em><b>Stitching Theta Angle</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Stitching Theta Angle</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Stitching Theta Angle</em>' attribute.
+	 * @see #setStitchingThetaAngle(double)
+	 * @see uk.ac.gda.tomography.parameters.TomoParametersPackage#getAlignmentConfiguration_StitchingThetaAngle()
+	 * @model required="true"
+	 * @generated
+	 */
+	double getStitchingThetaAngle();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getStitchingThetaAngle <em>Stitching Theta Angle</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Stitching Theta Angle</em>' attribute.
+	 * @see #getStitchingThetaAngle()
+	 * @generated
+	 */
+	void setStitchingThetaAngle(double value);
+
+	/**
+	 * Returns the value of the '<em><b>Created Date Time</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Created Date Time</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Created Date Time</em>' attribute.
+	 * @see #setCreatedDateTime(String)
+	 * @see uk.ac.gda.tomography.parameters.TomoParametersPackage#getAlignmentConfiguration_CreatedDateTime()
+	 * @model unique="false"
+	 * @generated
+	 */
+	String getCreatedDateTime();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getCreatedDateTime <em>Created Date Time</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Created Date Time</em>' attribute.
+	 * @see #getCreatedDateTime()
+	 * @generated
+	 */
+	void setCreatedDateTime(String value);
 
 } // AlignmentConfiguration

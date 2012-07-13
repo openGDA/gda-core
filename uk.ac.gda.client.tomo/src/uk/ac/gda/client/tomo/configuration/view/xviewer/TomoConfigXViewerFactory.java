@@ -29,6 +29,8 @@ public class TomoConfigXViewerFactory extends XViewerFactory {
 
 	private static final String COLUMN_PREFIX = "tomo.alignment";
 
+	public static final String USER_ID_COL_ID = COLUMN_PREFIX + ".userId";
+
 	public static final String FLAT_EXPOSURE_TIME_COL_ID = COLUMN_PREFIX + ".flatExposureTime";
 
 	public static final String SAMPLE_EXPOSURE_TIME_COL_ID = COLUMN_PREFIX + ".sampleExposureTime";
@@ -37,16 +39,19 @@ public class TomoConfigXViewerFactory extends XViewerFactory {
 
 	public static final String SAMPLE_DESC_COL_ID = COLUMN_PREFIX + ".sampleDesc";
 
-	public static XViewerColumn Sample_Desc_Col = new XViewerColumn(SAMPLE_DESC_COL_ID, "Sample Description", 100,
+	private static XViewerColumn User_Id_Col = new XViewerColumn(USER_ID_COL_ID, "User Id", 100, SWT.LEFT, true,
+			SortDataType.String, false, "User Id");
+
+	private static XViewerColumn Sample_Desc_Col = new XViewerColumn(SAMPLE_DESC_COL_ID, "Sample Description", 100,
 			SWT.LEFT, true, SortDataType.String, false, "Sample Description");
 
-	public static XViewerColumn Sample_Detector_Distance_Col = new XViewerColumn(SAMPLE_DETECTOR_DIST_COL_ID,
+	private static XViewerColumn Sample_Detector_Distance_Col = new XViewerColumn(SAMPLE_DETECTOR_DIST_COL_ID,
 			"Sample Detector Distance", 100, SWT.LEFT, true, SortDataType.Float, false, "Sample Detector Distance");
 
-	public static XViewerColumn Sample_Exposure_Time_Col = new XViewerColumn(SAMPLE_EXPOSURE_TIME_COL_ID,
+	private static XViewerColumn Sample_Exposure_Time_Col = new XViewerColumn(SAMPLE_EXPOSURE_TIME_COL_ID,
 			"Sample Exposure Time", 100, SWT.LEFT, true, SortDataType.Float, false, "Sample Exposure Time");
 
-	public static XViewerColumn Flat_Exposure_Time_Col = new XViewerColumn(FLAT_EXPOSURE_TIME_COL_ID,
+	private static XViewerColumn Flat_Exposure_Time_Col = new XViewerColumn(FLAT_EXPOSURE_TIME_COL_ID,
 			"Flat Exposure Time", 100, SWT.LEFT, true, SortDataType.Float, false, "Flat Exposure Time");
 
 	@Override
@@ -56,7 +61,8 @@ public class TomoConfigXViewerFactory extends XViewerFactory {
 
 	public TomoConfigXViewerFactory(String namespace) {
 		super(namespace);
-		registerColumn(Sample_Desc_Col, Sample_Detector_Distance_Col, Sample_Exposure_Time_Col, Flat_Exposure_Time_Col);
+		registerColumn(User_Id_Col, Sample_Desc_Col, Sample_Detector_Distance_Col, Sample_Exposure_Time_Col,
+				Flat_Exposure_Time_Col);
 	}
 
 }

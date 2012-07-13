@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <genmodel:GenModel xmi:version="2.0"
     xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
-    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/uk.ac.gda.client.tomo/src"
-    modelPluginID="uk.ac.gda.client.tomo" modelName="Tomoparameters" importerID="org.eclipse.emf.importer.ecore"
-    complianceLevel="6.0" copyrightFields="false">
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/uk.ac.gda.tomography/src"
+    modelPluginID="uk.ac.gda.tomography" modelName="Tomoparameters" testsDirectory="/uk.ac.gda.tomography.tests/src"
+    importerID="org.eclipse.emf.importer.ecore" complianceLevel="6.0" copyrightFields="false"
+    editPluginID="uk.ac.gda.tomography.edit" editorPluginID="uk.ac.gda.tomography..editor"
+    testsPluginID="uk.ac.gda.tomography.tests">
   <foreignModel>tomoparameters.ecore</foreignModel>
   <genPackages prefix="TomoParameters" basePackage="uk.ac.gda.tomography" resource="XMI"
       disposableProviderFactory="true" ecorePackage="tomoparameters.ecore#/">
@@ -11,11 +13,20 @@
       <genEnumLiterals ecoreEnumLiteral="tomoparameters.ecore#//ScanMode/Continuous"/>
       <genEnumLiterals ecoreEnumLiteral="tomoparameters.ecore#//ScanMode/Step"/>
     </genEnums>
-    <genClasses ecoreClass="tomoparameters.ecore#//TomoExperiment">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference tomoparameters.ecore#//TomoExperiment/parameters"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//TomoExperiment/description"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//TomoExperiment/totalTimeToRun"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//TomoExperiment/version"/>
+    <genClasses ecoreClass="tomoparameters.ecore#//AlignmentConfiguration">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//AlignmentConfiguration/id"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//AlignmentConfiguration/energy"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//AlignmentConfiguration/numberOfProjections"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//AlignmentConfiguration/description"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference tomoparameters.ecore#//AlignmentConfiguration/detectorProperties"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//AlignmentConfiguration/sampleDetectorDistance"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference tomoparameters.ecore#//AlignmentConfiguration/sampleParams"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//AlignmentConfiguration/scanMode"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//AlignmentConfiguration/sampleExposureTime"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//AlignmentConfiguration/flatExposureTime"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//AlignmentConfiguration/createdUserId"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//AlignmentConfiguration/stitchingThetaAngle"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//AlignmentConfiguration/createdDateTime"/>
     </genClasses>
     <genClasses ecoreClass="tomoparameters.ecore#//DetectorBin">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//DetectorBin/binX"/>
@@ -35,18 +46,6 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//DetectorRoi/minY"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//DetectorRoi/maxY"/>
     </genClasses>
-    <genClasses ecoreClass="tomoparameters.ecore#//AlignmentConfiguration">
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//AlignmentConfiguration/id"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//AlignmentConfiguration/energy"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//AlignmentConfiguration/numberOfProjections"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//AlignmentConfiguration/description"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference tomoparameters.ecore#//AlignmentConfiguration/detectorProperties"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//AlignmentConfiguration/sampleDetectorDistance"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference tomoparameters.ecore#//AlignmentConfiguration/sampleParams"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//AlignmentConfiguration/scanMode"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//AlignmentConfiguration/sampleExposureTime"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//AlignmentConfiguration/flatExposureTime"/>
-    </genClasses>
     <genClasses ecoreClass="tomoparameters.ecore#//Parameters">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference tomoparameters.ecore#//Parameters/configurationSet"/>
     </genClasses>
@@ -60,6 +59,12 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//SamplePosition/centerZ"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//SamplePosition/tiltX"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//SamplePosition/tiltZ"/>
+    </genClasses>
+    <genClasses ecoreClass="tomoparameters.ecore#//TomoExperiment">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference tomoparameters.ecore#//TomoExperiment/parameters"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//TomoExperiment/description"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//TomoExperiment/totalTimeToRun"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//TomoExperiment/version"/>
     </genClasses>
   </genPackages>
 </genmodel:GenModel>

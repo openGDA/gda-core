@@ -69,6 +69,7 @@ public class TomoConfigContentProvider implements ITreeContentProvider {
 			configContent.setSampleDescription(alignmentConfiguration.getDescription());
 			configContent.setFlatExposureTime(alignmentConfiguration.getFlatExposureTime());
 			configContent.setSampleExposureTime(alignmentConfiguration.getSampleExposureTime());
+			configContent.setUserId(alignmentConfiguration.getCreatedUserId());
 			configContents.add(configContent);
 		}
 		return configContents.toArray();

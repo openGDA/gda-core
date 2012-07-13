@@ -2,15 +2,36 @@
 <ecore:EPackage xmi:version="2.0"
     xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="parameters"
-    nsURI="http:///uk/ac/gda/client/tomo/tomoparameters.ecore" nsPrefix="uk.ac.gda.client.tomo.parameters">
-  <eClassifiers xsi:type="ecore:EClass" name="TomoExperiment">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="parameters" eType="#//Parameters"
-        containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="description" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+    nsURI="http:///uk/ac/gda/client/tomo/tomoparameters.ecore" nsPrefix="">
+  <eClassifiers xsi:type="ecore:EClass" name="AlignmentConfiguration">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         unsettable="true"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="totalTimeToRun" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDate"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="version" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
-        defaultValueLiteral="1" unsettable="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="energy" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="numberOfProjections" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EIntegerObject"
+        unsettable="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="description" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="detectorProperties" lowerBound="1"
+        eType="#//DetectorProperties" unsettable="true" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="sampleDetectorDistance"
+        lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"
+        unsettable="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="sampleParams" lowerBound="1"
+        eType="#//SampleParams" unsettable="true" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="scanMode" lowerBound="1"
+        eType="#//ScanMode" unsettable="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="sampleExposureTime" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble" unsettable="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="flatExposureTime" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble" unsettable="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="createdUserId" unique="false"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="stitchingThetaAngle" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="createdDateTime" unique="false"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="DetectorBin">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="binX" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EIntegerObject"
@@ -46,30 +67,6 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="maxY" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EIntegerObject"
         unsettable="true"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="AlignmentConfiguration">
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
-        unsettable="true"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="energy" lowerBound="1"
-        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="numberOfProjections" lowerBound="1"
-        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EIntegerObject"
-        unsettable="true"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="description" lowerBound="1"
-        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="detectorProperties" lowerBound="1"
-        eType="#//DetectorProperties" unsettable="true" containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="sampleDetectorDistance"
-        lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"
-        unsettable="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="sampleParams" lowerBound="1"
-        eType="#//SampleParams" unsettable="true" containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="scanMode" lowerBound="1"
-        eType="#//ScanMode" unsettable="true"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="sampleExposureTime" lowerBound="1"
-        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble" unsettable="true"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="flatExposureTime" lowerBound="1"
-        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble" unsettable="true"/>
-  </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Parameters">
     <eStructuralFeatures xsi:type="ecore:EReference" name="configurationSet" upperBound="-1"
         eType="#//AlignmentConfiguration" containment="true"/>
@@ -95,5 +92,14 @@
   <eClassifiers xsi:type="ecore:EEnum" name="ScanMode">
     <eLiterals name="Continuous"/>
     <eLiterals name="Step" value="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="TomoExperiment">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="parameters" eType="#//Parameters"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="description" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        unsettable="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="totalTimeToRun" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDate"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="version" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
+        defaultValueLiteral="1" unsettable="true"/>
   </eClassifiers>
 </ecore:EPackage>

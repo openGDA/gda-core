@@ -25,6 +25,8 @@ public class TomoConfigurationLabelProvider extends XViewerLabelProvider {
 			String colId = xCol.getId();
 			if (TomoConfigXViewerFactory.SAMPLE_DESC_COL_ID.equals(colId)) {
 				return configContent.getSampleDescription();
+			} else if (TomoConfigXViewerFactory.USER_ID_COL_ID.equals(colId)) {
+				return configContent.getUserId();
 			} else if (TomoConfigXViewerFactory.FLAT_EXPOSURE_TIME_COL_ID.equals(colId)) {
 				return Double.toString(configContent.getFlatExposureTime());
 			} else if (TomoConfigXViewerFactory.SAMPLE_EXPOSURE_TIME_COL_ID.equals(colId)) {

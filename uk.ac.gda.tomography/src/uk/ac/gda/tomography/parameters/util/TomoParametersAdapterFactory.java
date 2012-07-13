@@ -11,6 +11,7 @@ import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.common.notify.impl.AdapterFactoryImpl;
 import org.eclipse.emf.ecore.EObject;
 
+import uk.ac.gda.tomography.parameters.*;
 import uk.ac.gda.tomography.parameters.AlignmentConfiguration;
 import uk.ac.gda.tomography.parameters.DetectorBin;
 import uk.ac.gda.tomography.parameters.DetectorProperties;
@@ -78,8 +79,8 @@ public class TomoParametersAdapterFactory extends AdapterFactoryImpl {
 	protected TomoParametersSwitch<Adapter> modelSwitch =
 		new TomoParametersSwitch<Adapter>() {
 			@Override
-			public Adapter caseTomoExperiment(TomoExperiment object) {
-				return createTomoExperimentAdapter();
+			public Adapter caseAlignmentConfiguration(AlignmentConfiguration object) {
+				return createAlignmentConfigurationAdapter();
 			}
 			@Override
 			public Adapter caseDetectorBin(DetectorBin object) {
@@ -94,10 +95,6 @@ public class TomoParametersAdapterFactory extends AdapterFactoryImpl {
 				return createDetectorRoiAdapter();
 			}
 			@Override
-			public Adapter caseAlignmentConfiguration(AlignmentConfiguration object) {
-				return createAlignmentConfigurationAdapter();
-			}
-			@Override
 			public Adapter caseParameters(Parameters object) {
 				return createParametersAdapter();
 			}
@@ -108,6 +105,10 @@ public class TomoParametersAdapterFactory extends AdapterFactoryImpl {
 			@Override
 			public Adapter caseSamplePosition(SamplePosition object) {
 				return createSamplePositionAdapter();
+			}
+			@Override
+			public Adapter caseTomoExperiment(TomoExperiment object) {
+				return createTomoExperimentAdapter();
 			}
 			@Override
 			public Adapter defaultCase(EObject object) {

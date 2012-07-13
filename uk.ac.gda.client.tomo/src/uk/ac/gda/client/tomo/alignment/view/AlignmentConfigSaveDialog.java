@@ -295,7 +295,7 @@ public class AlignmentConfigSaveDialog extends Dialog {
 		@Override
 		public void processImage(final ImageData image) {
 			if (!getShell().getDisplay().isDisposed()) {
-				getShell().getDisplay().syncExec(new Runnable() {
+				getShell().getDisplay().asyncExec(new Runnable() {
 
 					@Override
 					public void run() {

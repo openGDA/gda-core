@@ -24,19 +24,20 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 
-import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentViewController;
+import uk.ac.gda.client.tomo.alignment.view.handlers.ITomoConfigResourceHandler;
 import uk.ac.gda.client.tomo.configuration.view.TomoConfigurationView;
 
 /**
  * Factory method that invokes the View object
  */
-public class TomoConfigurationViewFactoryFactory implements FindableExecutableExtension {
+public class TomoConfigurationViewFactoryFactory implements FindableExecutableExtension, InitializingBean {
 	private final Logger logger = LoggerFactory.getLogger(TomoConfigurationViewFactoryFactory.class);
 	private String viewPartName;
 	private String name;
 
-	private TomoAlignmentViewController tomoAlignmentViewController;
+	private ITomoConfigResourceHandler tomoConfigResourceHandler;
 
 	public String getViewPartName() {
 		return viewPartName;
@@ -59,27 +60,29 @@ public class TomoConfigurationViewFactoryFactory implements FindableExecutableEx
 	@Override
 	public Object create() throws CoreException {
 		logger.info("Creating tomoalignment view");
-		TomoConfigurationView tomographyAlignmentView = new TomoConfigurationView();
-		tomographyAlignmentView.setViewPartName(viewPartName);
-		return tomographyAlignmentView;
+		TomoConfigurationView tomographyConfigurationView = new TomoConfigurationView();
+		tomographyConfigurationView.setViewPartName(viewPartName);
+		tomographyConfigurationView.setConfigFileHandler(tomoConfigResourceHandler);
+		return tomographyConfigurationView;
 	}
 
-	public TomoAlignmentViewController getTomoAlignmentViewController() {
-		return tomoAlignmentViewController;
-	}
-
-	public void setTomoAlignmentViewController(TomoAlignmentViewController tomoAlignmentViewController) {
-		this.tomoAlignmentViewController = tomoAlignmentViewController;
-	}
+	
 
 	@Override
 	public void setInitializationData(IConfigurationElement config, String propertyName, Object data)
 			throws CoreException {
 	}
+	
+	public void setTomoConfigResourceHandler(ITomoConfigResourceHandler tomoConfigResourceHandler) {
+		this.tomoConfigResourceHandler = tomoConfigResourceHandler;
+	}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-
+		if (tomoConfigResourceHandler == null) {
+			throw new IllegalStateException(
+					"'tomoConfigResourceHandler' should be provided to the TomoConfigurationView");
+		}
 	}
 
 }

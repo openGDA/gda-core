@@ -36,6 +36,9 @@ import uk.ac.gda.tomography.parameters.TomoParametersPackage;
  *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getScanMode <em>Scan Mode</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getSampleExposureTime <em>Sample Exposure Time</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getFlatExposureTime <em>Flat Exposure Time</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getCreatedUserId <em>Created User Id</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getStitchingThetaAngle <em>Stitching Theta Angle</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getCreatedDateTime <em>Created Date Time</em>}</li>
  * </ul>
  * </p>
  *
@@ -293,6 +296,66 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	 * @ordered
 	 */
 	protected boolean flatExposureTimeESet;
+
+	/**
+	 * The default value of the '{@link #getCreatedUserId() <em>Created User Id</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getCreatedUserId()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String CREATED_USER_ID_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getCreatedUserId() <em>Created User Id</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getCreatedUserId()
+	 * @generated
+	 * @ordered
+	 */
+	protected String createdUserId = CREATED_USER_ID_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getStitchingThetaAngle() <em>Stitching Theta Angle</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getStitchingThetaAngle()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final double STITCHING_THETA_ANGLE_EDEFAULT = 0.0;
+
+	/**
+	 * The cached value of the '{@link #getStitchingThetaAngle() <em>Stitching Theta Angle</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getStitchingThetaAngle()
+	 * @generated
+	 * @ordered
+	 */
+	protected double stitchingThetaAngle = STITCHING_THETA_ANGLE_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getCreatedDateTime() <em>Created Date Time</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getCreatedDateTime()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String CREATED_DATE_TIME_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getCreatedDateTime() <em>Created Date Time</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getCreatedDateTime()
+	 * @generated
+	 * @ordered
+	 */
+	protected String createdDateTime = CREATED_DATE_TIME_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -862,6 +925,69 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public String getCreatedUserId() {
+		return createdUserId;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setCreatedUserId(String newCreatedUserId) {
+		String oldCreatedUserId = createdUserId;
+		createdUserId = newCreatedUserId;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__CREATED_USER_ID, oldCreatedUserId, createdUserId));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public double getStitchingThetaAngle() {
+		return stitchingThetaAngle;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setStitchingThetaAngle(double newStitchingThetaAngle) {
+		double oldStitchingThetaAngle = stitchingThetaAngle;
+		stitchingThetaAngle = newStitchingThetaAngle;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__STITCHING_THETA_ANGLE, oldStitchingThetaAngle, stitchingThetaAngle));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public String getCreatedDateTime() {
+		return createdDateTime;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setCreatedDateTime(String newCreatedDateTime) {
+		String oldCreatedDateTime = createdDateTime;
+		createdDateTime = newCreatedDateTime;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__CREATED_DATE_TIME, oldCreatedDateTime, createdDateTime));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
@@ -901,6 +1027,12 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 				return getSampleExposureTime();
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__FLAT_EXPOSURE_TIME:
 				return getFlatExposureTime();
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__CREATED_USER_ID:
+				return getCreatedUserId();
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__STITCHING_THETA_ANGLE:
+				return getStitchingThetaAngle();
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__CREATED_DATE_TIME:
+				return getCreatedDateTime();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -942,6 +1074,15 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 				return;
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__FLAT_EXPOSURE_TIME:
 				setFlatExposureTime((Double)newValue);
+				return;
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__CREATED_USER_ID:
+				setCreatedUserId((String)newValue);
+				return;
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__STITCHING_THETA_ANGLE:
+				setStitchingThetaAngle((Double)newValue);
+				return;
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__CREATED_DATE_TIME:
+				setCreatedDateTime((String)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -985,6 +1126,15 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__FLAT_EXPOSURE_TIME:
 				unsetFlatExposureTime();
 				return;
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__CREATED_USER_ID:
+				setCreatedUserId(CREATED_USER_ID_EDEFAULT);
+				return;
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__STITCHING_THETA_ANGLE:
+				setStitchingThetaAngle(STITCHING_THETA_ANGLE_EDEFAULT);
+				return;
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__CREATED_DATE_TIME:
+				setCreatedDateTime(CREATED_DATE_TIME_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -1017,6 +1167,12 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 				return isSetSampleExposureTime();
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__FLAT_EXPOSURE_TIME:
 				return isSetFlatExposureTime();
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__CREATED_USER_ID:
+				return CREATED_USER_ID_EDEFAULT == null ? createdUserId != null : !CREATED_USER_ID_EDEFAULT.equals(createdUserId);
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__STITCHING_THETA_ANGLE:
+				return stitchingThetaAngle != STITCHING_THETA_ANGLE_EDEFAULT;
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__CREATED_DATE_TIME:
+				return CREATED_DATE_TIME_EDEFAULT == null ? createdDateTime != null : !CREATED_DATE_TIME_EDEFAULT.equals(createdDateTime);
 		}
 		return super.eIsSet(featureID);
 	}
@@ -1047,6 +1203,12 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 		if (sampleExposureTimeESet) result.append(sampleExposureTime); else result.append("<unset>");
 		result.append(", flatExposureTime: ");
 		if (flatExposureTimeESet) result.append(flatExposureTime); else result.append("<unset>");
+		result.append(", createdUserId: ");
+		result.append(createdUserId);
+		result.append(", stitchingThetaAngle: ");
+		result.append(stitchingThetaAngle);
+		result.append(", createdDateTime: ");
+		result.append(createdDateTime);
 		result.append(')');
 		return result.toString();
 	}

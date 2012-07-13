@@ -38,6 +38,7 @@ import org.eclipse.draw2d.geometry.PointList;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.FontRegistry;
@@ -59,6 +60,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.widgets.FormToolkit;
@@ -103,6 +105,7 @@ import uk.ac.gda.ui.components.MotionControlComposite;
 import uk.ac.gda.ui.components.MotionControlComposite.MotionControlCentring;
 import uk.ac.gda.ui.components.PointInDouble;
 import uk.ac.gda.ui.components.ZoomButtonComposite.ZOOM_LEVEL;
+import uk.ac.gda.ui.event.PartAdapter2;
 
 /**
  * View for Tomography alignment, and scan
@@ -121,6 +124,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		NONE, PROFILE, HISTOGRAM;
 	}
 
+	private boolean isSaving;
 	public static final String STREAM_STOPPED = "STREAM STOPPED";
 	private ViewerDisplayMode leftWindowDisplayMode = ViewerDisplayMode.STREAM_STOPPED;
 	public static final int RIGHT_WINDOW_WIDTH = 320;
@@ -256,8 +260,34 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 	private final static int MAX_INTENSITY = 70000;
 
+	private IPartListener tomoPartAdapter = new PartAdapter2() {
+		@Override
+		public void partDeactivated(org.eclipse.ui.IWorkbenchPart part) {
+			stopStreamByCheckingIfOn();
+		}
+
+		private void stopStreamByCheckingIfOn() {
+			if (isStreamingSampleExposure()) {
+				cameraControls.stopSampleStream();
+			} else if (isStreamingFlatExposure()) {
+				cameraControls.stopFlatStream();
+			}
+		}
+
+		@Override
+		public void partHidden(org.eclipse.ui.IWorkbenchPartReference partRef) {
+			stopStreamByCheckingIfOn();
+		}
+
+		@Override
+		public void partClosed(org.eclipse.ui.IWorkbenchPart part) {
+			stopStreamByCheckingIfOn();
+		}
+	};
+
 	private IColourSliderListener histogramSliderListener = new IColourSliderListener() {
 
+		@SuppressWarnings("incomplete-switch")
 		@Override
 		public void colourSliderRegion(int upperLimit, int lowerLimit) {
 			logger.debug("Lower Limit:{}", lowerLimit);
@@ -276,49 +306,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 					loadErrorInDisplay("Problem applying contrast", "Problem applying contrast:" + e.getMessage());
 				}
 				break;
-			}
-		}
-
-		public void updateHigherLimitMoved(Point highBasePoint, Point lowBasePoint, Point highInitialPoint,
-				Point currentPosition) {
-
-			double maxLength = lowBasePoint.y - highBasePoint.y;
-			double differenceFromBase = lowBasePoint.y - currentPosition.y;
-			double clipRatio = differenceFromBase / maxLength;
-
-			try {
-				if (isStreamingSampleExposure()) {
-					// do nothing
-				} else {
-					STEPPER selectedStepper = amplifierStepper.getSelectedStepper();
-					double r = (clipRatio * MAX_INTENSITY) / selectedStepper.getValue();
-					ImageData histAppliedImgData = histogramAdjuster.updateHistogramHighValue((int) r);
-					loadImageInUIThread(leftWindowImageViewer, histAppliedImgData.scaledTo(SCALED_TO_X, SCALED_TO_Y));
-				}
-			} catch (Exception e) {
-				logger.error("problem changing the low clip", e);
-				loadErrorInDisplay("Problem changing low clip", e.getMessage());
-			}
-		}
-
-		public void updateLowerLimitMoved(Point highBasePoint, Point lowBasePoint, Point lowInitialPoint,
-				Point currentPosition) {
-
-			double maxLength = lowBasePoint.y - highBasePoint.y;
-			double differenceFromBase = lowBasePoint.y - currentPosition.y;
-			double clipRatio = differenceFromBase / maxLength;
-			try {
-				if (isStreamingSampleExposure()) {
-					// do nothing
-				} else {
-					STEPPER selectedStepper = amplifierStepper.getSelectedStepper();
-					double r = (clipRatio * MAX_INTENSITY) / selectedStepper.getValue();
-					ImageData histAppliedImgData = histogramAdjuster.updateHistogramLowValue((int) r);
-					leftWindowImageViewer.loadMainImage(histAppliedImgData.scaledTo(SCALED_TO_X, SCALED_TO_Y));
-				}
-			} catch (Exception e) {
-				logger.error("problem changing the low clip", e);
-				loadErrorInDisplay("Problem changing low clip", e.getMessage());
 			}
 		}
 
@@ -763,6 +750,8 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			motionControlListener = new MotionControlListener(this, tomoAlignmentViewController,
 					motionControlComposite, cameraControls, leftWindowImageViewer);
 			motionControlComposite.addMotionControlListener(motionControlListener);
+
+			getSite().getPage().addPartListener(tomoPartAdapter);
 		} catch (Exception ex) {
 			throw new RuntimeException("Error opening view", ex);
 		}
@@ -1443,7 +1432,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			}
 
 			// Other wise if there is an image data then show the image composite.
-			if (imgViewer != null && !imgViewer.isDisposed()) {
+			if (!isSaving && imgViewer != null && !imgViewer.isDisposed()) {
 				if (imgViewer != null) {
 					loadImageInUIThread(imgViewer, image);
 				}
@@ -1600,6 +1589,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	public void dispose() {
 
 		try {
+			getSite().getPage().removePartListener(tomoPartAdapter);
 			if (leftWindowImageViewer != null) {
 				logger.debug("Removing zoom rect listener");
 				leftWindowImageViewer.removeZoomRectListener(zoomRectListener);
@@ -2038,36 +2028,47 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	}
 
 	public void saveConfiguration() throws Exception {
-		cameraControls.startSampleStreaming();
+		try {
+			isSaving = true;
+			cameraControls.startSampleStreaming();
+			cameraControls.setZoom(ZOOM_LEVEL.NO_ZOOM);
 
-		AlignmentConfigSaveDialog configSaveDialog = new AlignmentConfigSaveDialog(getViewSite().getShell(),
-				tomoAlignmentViewController, leftVideoReceiver);
-		configSaveDialog.open();
+			AlignmentConfigSaveDialog configSaveDialog = new AlignmentConfigSaveDialog(getViewSite().getShell(),
+					tomoAlignmentViewController, leftVideoReceiver);
+			configSaveDialog.open();
 
-		int returnCode = configSaveDialog.getReturnCode();
+			int returnCode = configSaveDialog.getReturnCode();
 
-		ACTIVE_WORKBENCH_WINDOW.run(true, false, new IRunnableWithProgress() {
+			if (IDialogConstants.OK_ID == returnCode) {
 
-			@Override
-			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+				ACTIVE_WORKBENCH_WINDOW.run(true, false, new IRunnableWithProgress() {
 
-				SaveableConfiguration configuration = new SaveableConfiguration();
-				configuration.setModuleNumber(motionControlComposite.getSelectedCameraModule().getValue());
-				configuration.setSampleAcquisitonTime(cameraControls.getSampleExposureTime());
-				configuration.setFlatAcquisitionTime(cameraControls.getFlatExposureTime());
-				configuration.setSampleDescription(cameraControls.getSampleDescription());
-				configuration.setRoiPoints(leftWindowImageViewer.getRoiPoints());
-				configuration.setEnergy(motionControlComposite.getEnergy());
-				// try {
-				// tomoAlignmentViewController.saveConfiguration(monitor, configuration);
-				// } catch (DeviceException e) {
-				// logger.error("TODO put description of error here", e);
-				// throw new InvocationTargetException(e, "Cannot save alignment configuration");
-				// }
+					@Override
+					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+
+						SaveableConfiguration configuration = new SaveableConfiguration();
+						configuration.setModuleNumber(motionControlComposite.getSelectedCameraModule().getValue());
+						configuration.setSampleAcquisitonTime(cameraControls.getSampleExposureTime());
+						configuration.setFlatAcquisitionTime(cameraControls.getFlatExposureTime());
+						configuration.setSampleDescription(cameraControls.getSampleDescription());
+						configuration.setRoiPoints(leftWindowImageViewer.getRoiPoints());
+						configuration.setEnergy(motionControlComposite.getEnergy());
+						try {
+							tomoAlignmentViewController.saveConfiguration(monitor, configuration);
+						} catch (Exception e) {
+							logger.error("TODO put description of error here", e);
+							throw new InvocationTargetException(e, "Cannot save alignment configuration");
+						} finally {
+							monitor.done();
+						}
+					}
+				});
+				cameraControls.clearSampleDescription();
 			}
-		});
+		} finally {
+			isSaving = false;
+		}
 
-		cameraControls.clearSampleDescription();
 		// MessageDialog.openInformation(getSite().getShell(), "Alignment Configuration Saved",
 		// "The alignment configuration has been saved");
 	}

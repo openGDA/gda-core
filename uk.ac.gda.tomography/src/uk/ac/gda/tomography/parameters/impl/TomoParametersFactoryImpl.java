@@ -10,6 +10,7 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.impl.EFactoryImpl;
 import org.eclipse.emf.ecore.plugin.EcorePlugin;
 
+import uk.ac.gda.tomography.parameters.*;
 import uk.ac.gda.tomography.parameters.AlignmentConfiguration;
 import uk.ac.gda.tomography.parameters.DetectorBin;
 import uk.ac.gda.tomography.parameters.DetectorProperties;
@@ -61,14 +62,14 @@ public class TomoParametersFactoryImpl extends EFactoryImpl implements TomoParam
 	@Override
 	public EObject create(EClass eClass) {
 		switch (eClass.getClassifierID()) {
-			case TomoParametersPackage.TOMO_EXPERIMENT: return createTomoExperiment();
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION: return createAlignmentConfiguration();
 			case TomoParametersPackage.DETECTOR_BIN: return createDetectorBin();
 			case TomoParametersPackage.DETECTOR_PROPERTIES: return createDetectorProperties();
 			case TomoParametersPackage.DETECTOR_ROI: return createDetectorRoi();
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION: return createAlignmentConfiguration();
 			case TomoParametersPackage.PARAMETERS: return createParameters();
 			case TomoParametersPackage.SAMPLE_PARAMS: return createSampleParams();
 			case TomoParametersPackage.SAMPLE_POSITION: return createSamplePosition();
+			case TomoParametersPackage.TOMO_EXPERIMENT: return createTomoExperiment();
 			default:
 				throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier");
 		}

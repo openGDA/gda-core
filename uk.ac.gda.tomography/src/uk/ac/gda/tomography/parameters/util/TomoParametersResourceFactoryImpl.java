@@ -14,7 +14,7 @@ import org.eclipse.emf.ecore.resource.impl.ResourceFactoryImpl;
  * <!-- begin-user-doc -->
  * The <b>Resource Factory</b> associated with the package.
  * <!-- end-user-doc -->
- * @see TomoParametersResourceImpl
+ * @see uk.ac.gda.tomography.parameters.util.TomoParametersResourceImpl
  * @generated
  */
 public class TomoParametersResourceFactoryImpl extends ResourceFactoryImpl {

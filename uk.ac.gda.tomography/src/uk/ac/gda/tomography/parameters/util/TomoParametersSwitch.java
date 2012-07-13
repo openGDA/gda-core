@@ -10,6 +10,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.util.Switch;
 
+import uk.ac.gda.tomography.parameters.*;
 import uk.ac.gda.tomography.parameters.AlignmentConfiguration;
 import uk.ac.gda.tomography.parameters.DetectorBin;
 import uk.ac.gda.tomography.parameters.DetectorProperties;
@@ -77,9 +78,9 @@ public class TomoParametersSwitch<T> extends Switch<T> {
 	@Override
 	protected T doSwitch(int classifierID, EObject theEObject) {
 		switch (classifierID) {
-			case TomoParametersPackage.TOMO_EXPERIMENT: {
-				TomoExperiment tomoExperiment = (TomoExperiment)theEObject;
-				T result = caseTomoExperiment(tomoExperiment);
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION: {
+				AlignmentConfiguration alignmentConfiguration = (AlignmentConfiguration)theEObject;
+				T result = caseAlignmentConfiguration(alignmentConfiguration);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
@@ -101,12 +102,6 @@ public class TomoParametersSwitch<T> extends Switch<T> {
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION: {
-				AlignmentConfiguration alignmentConfiguration = (AlignmentConfiguration)theEObject;
-				T result = caseAlignmentConfiguration(alignmentConfiguration);
-				if (result == null) result = defaultCase(theEObject);
-				return result;
-			}
 			case TomoParametersPackage.PARAMETERS: {
 				Parameters parameters = (Parameters)theEObject;
 				T result = caseParameters(parameters);
@@ -122,6 +117,12 @@ public class TomoParametersSwitch<T> extends Switch<T> {
 			case TomoParametersPackage.SAMPLE_POSITION: {
 				SamplePosition samplePosition = (SamplePosition)theEObject;
 				T result = caseSamplePosition(samplePosition);
+				if (result == null) result = defaultCase(theEObject);
+				return result;
+			}
+			case TomoParametersPackage.TOMO_EXPERIMENT: {
+				TomoExperiment tomoExperiment = (TomoExperiment)theEObject;
+				T result = caseTomoExperiment(tomoExperiment);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}

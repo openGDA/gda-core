@@ -28,6 +28,8 @@ public class TomoConfigContent implements ITomoConfigContent {
 	private double flatExposureTime;
 	private double sampleDetectorDistance;
 	private String sampleDescription;
+	private String userId;
+	
 
 	@Override
 	public double getSampleExposureTime() {
@@ -63,5 +65,13 @@ public class TomoConfigContent implements ITomoConfigContent {
 
 	public void setSampleDescription(String sampleDescription) {
 		this.sampleDescription = sampleDescription;
+	}
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
 }

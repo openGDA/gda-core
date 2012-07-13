@@ -51,6 +51,7 @@ import uk.ac.gda.client.tomo.StatInfo;
 import uk.ac.gda.client.tomo.TiltPlotPointsHolder;
 import uk.ac.gda.client.tomo.alignment.view.IRotationMotorListener;
 import uk.ac.gda.client.tomo.alignment.view.ITomoAlignmentView;
+import uk.ac.gda.client.tomo.alignment.view.controller.SaveableConfiguration.AlignmentScanMode;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraModuleController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraMotionController;
@@ -59,7 +60,7 @@ import uk.ac.gda.client.tomo.alignment.view.handlers.IMotorHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.IRoiHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ISampleWeightRotationHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ITiltController;
-import uk.ac.gda.client.tomo.alignment.view.handlers.ITomoAlignmentSaveHandler;
+import uk.ac.gda.client.tomo.alignment.view.handlers.ITomoConfigResourceHandler;
 import uk.ac.gda.client.tomo.alignment.view.utils.ScaleDisplay;
 import uk.ac.gda.ui.components.CameraControlComposite.RESOLUTION;
 import uk.ac.gda.ui.components.ModuleButtonComposite.CAMERA_MODULE;
@@ -88,7 +89,7 @@ public class TomoAlignmentViewController implements InitializingBean {
 
 	private ISampleWeightRotationHandler sampleWeightRotationHandler;
 
-	private ITomoAlignmentSaveHandler saveHandler;
+	private ITomoConfigResourceHandler saveHandler;
 
 	private Exception iocDownException = null;
 
@@ -694,7 +695,10 @@ public class TomoAlignmentViewController implements InitializingBean {
 			throw new IllegalArgumentException("'tiltController' should be provided");
 		}
 		if (moduleLookupTableHandler == null) {
-			throw new IllegalArgumentException("'lookupTableHandler' should be provided");
+			throw new IllegalArgumentException("'moduleLookupTableHandler' should be provided");
+		}
+		if (saveHandler == null) {
+			throw new IllegalArgumentException("'saveHandler' should be provided");
 		}
 	}
 
@@ -942,6 +946,23 @@ public class TomoAlignmentViewController implements InitializingBean {
 		SubMonitor progress = SubMonitor.convert(monitor);
 		progress.beginTask("Saving Configuration", 20);
 
+		int[] roiPoints = saveableConfiguration.getRoiPoints();
+		int count = 0;
+		if (roiPoints != null) {
+			for (int i : roiPoints) {
+				roiPoints[count++] = i * cameraHandler.getRoi1BinValue();
+			}
+		} else {
+			roiPoints = new int[] { 0, 0, cameraHandler.getFullImageWidth(), cameraHandler.getFullImageHeight() };
+		}
+		saveableConfiguration.setRoiPoints(roiPoints);
+
+		saveableConfiguration.setSampleVerticalPosition(motorHandler.getSs1Y2Position());
+
+		saveableConfiguration.setScanMode(AlignmentScanMode.Step);
+
+		saveableConfiguration.setSampleDetectorDistance(motorHandler.getT3M1ZPosition());
+
 		saveHandler.saveConfiguration(monitor, saveableConfiguration);
 	}
 
@@ -972,12 +993,12 @@ public class TomoAlignmentViewController implements InitializingBean {
 		// } else if (scaledValue > 2) {
 		// scaledValue = 2;
 		// }
-		
+
 		// slight guard
 		if (to < 0) {
 			to = 0.001;
 		}
-		if(from < 0){
+		if (from < 0) {
 			from = 0.001;
 		}
 		double scaledValue = to / from;
@@ -1029,15 +1050,15 @@ public class TomoAlignmentViewController implements InitializingBean {
 		cameraHandler.applyScalingAndContrast(offset, scale);
 	}
 
-	public ITomoAlignmentSaveHandler getSaveHandler() {
+	public ITomoConfigResourceHandler getSaveHandler() {
 		return saveHandler;
 	}
 
-	public void setSaveHandler(ITomoAlignmentSaveHandler saveHandler) {
+	public void setSaveHandler(ITomoConfigResourceHandler saveHandler) {
 		this.saveHandler = saveHandler;
 	}
-	
-	public void setProc1ScaleValue(double scale) throws Exception{
+
+	public void setProc1ScaleValue(double scale) throws Exception {
 		cameraHandler.setProc1ScaleValue(scale);
 	}
 

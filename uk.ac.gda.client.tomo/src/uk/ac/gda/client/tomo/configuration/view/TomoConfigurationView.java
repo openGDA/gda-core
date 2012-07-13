@@ -18,15 +18,14 @@
 
 package uk.ac.gda.client.tomo.configuration.view;
 
+import java.lang.reflect.InvocationTargetException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.draw2d.ColorConstants;
+import org.eclipse.emf.common.notify.Adapter;
+import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.nebula.widgets.xviewer.XViewer;
@@ -40,13 +39,12 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.ViewPart;
-import org.eclipse.ui.progress.UIJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.tomo.ImageConstants;
-import uk.ac.gda.client.tomo.TomoAlignmentConfigurationHolder;
 import uk.ac.gda.client.tomo.TomoClientActivator;
+import uk.ac.gda.client.tomo.alignment.view.handlers.ITomoConfigResourceHandler;
 import uk.ac.gda.client.tomo.composites.FixedImageViewerComposite;
 import uk.ac.gda.client.tomo.configuration.view.xviewer.TomoConfigContentProvider;
 import uk.ac.gda.client.tomo.configuration.view.xviewer.TomoConfigXViewerFactory;
@@ -63,6 +61,8 @@ public class TomoConfigurationView extends ViewPart {
 	private static final Logger logger = LoggerFactory.getLogger(TomoConfigurationView.class);
 	private Label lblTime;
 	private Label lblDate;
+	private XViewer configModelTableViewer;
+	private ITomoConfigResourceHandler configFileHandler;
 
 	private DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
 	private DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
@@ -88,13 +88,17 @@ public class TomoConfigurationView extends ViewPart {
 		GridLayout l = new GridLayout();
 		setLayoutSettings(l, 0, 0, 0, 0);
 		xViewerContainer.setLayout(l);
-		xViewerContainer.setLayoutData(new GridData(GridData.FILL_BOTH));
+		GridData ld = new GridData(GridData.FILL_BOTH);
+		ld.heightHint = 30;
+		xViewerContainer.setLayoutData(ld);
 
-		XViewer viewer = new XViewer(xViewerContainer, SWT.MULTI | SWT.BORDER | SWT.FULL_SELECTION,
+		configModelTableViewer = new XViewer(xViewerContainer, SWT.MULTI | SWT.BORDER | SWT.FULL_SELECTION,
 				new TomoConfigXViewerFactory("tomo.config"));
-		viewer.setContentProvider(new TomoConfigContentProvider());
-		viewer.setLabelProvider(new TomoConfigurationLabelProvider(viewer));
-		viewer.getTree().setLayoutData(new GridData(GridData.FILL_BOTH | GridData.HORIZONTAL_ALIGN_BEGINNING));
+		configModelTableViewer.setContentProvider(new TomoConfigContentProvider());
+		configModelTableViewer.setLabelProvider(new TomoConfigurationLabelProvider(configModelTableViewer));
+		GridData layoutData1 = new GridData(GridData.FILL_BOTH | GridData.HORIZONTAL_ALIGN_BEGINNING);
+		
+		configModelTableViewer.getTree().setLayoutData(layoutData1);
 
 		//
 		Composite deleteBtnContainer = toolkit.createComposite(btnAndTableViewerComposite);
@@ -184,10 +188,13 @@ public class TomoConfigurationView extends ViewPart {
 
 		Resource alignmentConfigResource = null;
 		try {
-			alignmentConfigResource = TomoAlignmentConfigurationHolder.getAlignmentConfigResource(null, false);
-		} catch (CoreException e) {
+			alignmentConfigResource = configFileHandler.getTomoConfigResource(null, true);
+		} catch (InvocationTargetException e) {
+			logger.error("TODO put description of error here", e);
+		} catch (InterruptedException e) {
 			logger.error("TODO put description of error here", e);
 		}
+
 		TomoExperiment tomoExperiment = null;
 
 		if (alignmentConfigResource != null) {
@@ -195,6 +202,7 @@ public class TomoConfigurationView extends ViewPart {
 				EObject eObject = alignmentConfigResource.getContents().get(0);
 				if (eObject instanceof TomoExperiment) {
 					tomoExperiment = (TomoExperiment) eObject;
+					tomoExperiment.getParameters().eAdapters().add(tomoConfigNotifyAdapter);
 				}
 			}
 		}
@@ -211,8 +219,31 @@ public class TomoConfigurationView extends ViewPart {
 			}
 		};
 		display.timerExec(time, timer);
-		viewer.setInput(tomoExperiment);
+		configModelTableViewer.setInput(tomoExperiment);
 	}
+
+	private Adapter tomoConfigNotifyAdapter = new Adapter() {
+		@Override
+		public void notifyChanged(org.eclipse.emf.common.notify.Notification notification) {
+			logger.debug("tomoConfigNotifyAdapter#notifyChanged:{}", notification);
+			refreshTable();
+		}
+
+		@Override
+		public Notifier getTarget() {
+			return null;
+		}
+
+		@Override
+		public void setTarget(Notifier newTarget) {
+
+		}
+
+		@Override
+		public boolean isAdapterForType(Object type) {
+			return false;
+		}
+	};
 
 	private void setLayoutSettings(GridLayout layout, int marginWidth, int marginHeight, int horizontalSpacing,
 			int verticalSpacing) {
@@ -220,6 +251,18 @@ public class TomoConfigurationView extends ViewPart {
 		layout.marginHeight = marginHeight;
 		layout.horizontalSpacing = horizontalSpacing;
 		layout.verticalSpacing = verticalSpacing;
+	}
+
+	protected void refreshTable() {
+		if (configModelTableViewer != null && !configModelTableViewer.getTree().isDisposed()) {
+			configModelTableViewer.getTree().getDisplay().syncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					configModelTableViewer.refresh();
+				}
+			});
+		}
 	}
 
 	@Override
@@ -242,5 +285,15 @@ public class TomoConfigurationView extends ViewPart {
 	@Override
 	public Image getTitleImage() {
 		return TomoClientActivator.getDefault().getImageRegistry().get(ImageConstants.ICON_TOMO_CONFIG);
+	}
+
+	public void setConfigFileHandler(ITomoConfigResourceHandler configFileHandler) {
+		this.configFileHandler = configFileHandler;
+	}
+
+	@Override
+	public void dispose() {
+		configModelTableViewer.dispose();
+		super.dispose();
 	}
 }
