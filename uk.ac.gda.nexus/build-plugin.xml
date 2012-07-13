@@ -24,6 +24,14 @@
          ==================================================================== -->
 
     <target name="junit-tests" depends="toolCheck, set-test-base">
+        <loadfile property="redhat_release" srcFile="/etc/redhat-release" failonerror="false" />
+        <property name="redhat_release" value="probably not 5" />
+        <condition property="NexusExtractorTest_skip_if_RH5" value="**/NexusExtractorTest.java" else="FilenameThatDoesNotExist">
+            <contains string="${redhat_release}" substring="Red Hat Enterprise Linux Client release 5." />
+        </condition>
+        <condition property="NexusReadinTest_skip_if_RH5" value="**/NexusReadinTest.java" else="FilenameThatDoesNotExist">
+            <contains string="${redhat_release}" substring="Red Hat Enterprise Linux Client release 5." />
+        </condition>
         <junit-call description="${ant.project.name} Java JUnit tests" maxmemory="1536m">
             <formatter type="xml" />
             <classpath>
@@ -37,6 +45,8 @@
             <batchtest todir="@{report.dir}">
                 <fileset dir="${GDA-plugin.basedir}/test">
                     <include name="**/*Test.java" />
+                    <exclude name="${NexusExtractorTest_skip_if_RH5}" />  <!-- doesn't always work on RedHat 5 -->
+                    <exclude name="${NexusReadinTest_skip_if_RH5}" />  <!-- doesn't always work on RedHat 5 -->
                 </fileset>
             </batchtest>
         </junit-call>
