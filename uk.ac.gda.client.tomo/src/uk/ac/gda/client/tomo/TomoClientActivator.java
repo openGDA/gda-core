@@ -56,7 +56,7 @@ public class TomoClientActivator extends AbstractUIPlugin {
 	@Override
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
-		getImageRegistry().dispose();
+//		getImageRegistry().dispose();
 		super.stop(context);
 	}
 
