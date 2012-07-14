@@ -18,16 +18,28 @@
 
 package uk.ac.gda.client.tomo.view;
 
+import gda.factory.FactoryException;
+import gda.images.camera.DummySwtVideoReceiver;
+
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import uk.ac.gda.client.tomo.composites.CameraComposite;
+import uk.ac.gda.client.tomo.composites.NewImageListener;
 
 /**
  * View to display the live images from the camera
  * Used in alignment and monitoring
  */
-public class CameraViewPart extends ViewPart {
+public class CameraViewPart extends ViewPart implements NewImageListener {
+
+	static final Logger logger = LoggerFactory.getLogger(CameraViewPart.class);
 
 	static public String ID="uk.ac.gda.client.tomo.CameraView";
+	private CameraComposite cameraComposite;
 	public CameraViewPart() {
 		// TODO Auto-generated constructor stub
 	}
@@ -35,13 +47,36 @@ public class CameraViewPart extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		// TODO Auto-generated method stub
-
+		DummySwtVideoReceiver receiver = new DummySwtVideoReceiver();
+		receiver.setDesiredFrameRate(10);
+		try {
+			receiver.configure();
+		} catch (FactoryException e) {
+			// TODO Auto-generated catch block
+			logger.error("TODO put description of error here", e);
+		}
+		cameraComposite = new CameraComposite(parent, SWT.NONE, parent.getDisplay(), receiver, this);
+		
 	}
 
 	@Override
 	public void setFocus() {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void handlerNewImageNotification() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void dispose() {
+		super.dispose();
+		if( cameraComposite != null){
+			cameraComposite.dispose();
+		}
 	}
 
 }
