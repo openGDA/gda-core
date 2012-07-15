@@ -52,6 +52,11 @@
             id="uk.ac.gda.client.tomo.commands.sampleCommand"
             name="Run Basic Tomography">
       </command>
+      <command
+            defaultHandler="uk.ac.gda.client.tomo.view.ZoomToFitHandler"
+            id="uk.ac.gda.client.tomo.view.ZoomToFitCommand"
+            name="Zoom To Fit">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
@@ -69,6 +74,7 @@
             sequence="M1+6">
       </key>
    </extension>
+   
    <extension
          point="org.eclipse.ui.menus">
       <menuContribution
@@ -93,6 +99,18 @@
             </command>
          </menu>
       </menuContribution>
+ <menuContribution
+       locationURI="toolbar:uk.ac.gda.client.tomo.CameraView?after=additions">
+    <command
+          commandId="uk.ac.gda.client.tomo.view.ZoomToFitCommand"
+          label="Zoom To Fit"
+          style="push">
+    </command>
+ </menuContribution>
+ <menuContribution
+       locationURI="menu:uk.ac.gda.client.tomo.CameraView?after=additions">
+ </menuContribution>
+      
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">

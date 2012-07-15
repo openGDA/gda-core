@@ -19,32 +19,30 @@
 package uk.ac.gda.client.tomo.composites;
 
 import gda.images.camera.ImageListener;
-import gda.images.camera.MotionJpegOverHttpReceiverSwt;
 import gda.images.camera.VideoReceiver;
 
 import java.text.DateFormat;
-import java.util.Date;
 
+import org.eclipse.draw2d.ColorConstants;
+import org.eclipse.draw2d.IFigure;
+import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.SWTImageUtils;
+import uk.ac.gda.client.tomo.figures.BeamScaleFigure;
 import uk.ac.gda.client.viewer.ImageViewer;
+
 
 public class CameraComposite extends Composite {
 
@@ -64,48 +62,59 @@ public class CameraComposite extends Composite {
 		this.videoReceiver = videoReceiver;
 
 		setLayout(new GridLayout(1, false));
-		SashForm sashForm = new SashForm(this, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, true).applyTo(sashForm);
-		sashForm.setOrientation(SWT.VERTICAL);
-
-		createImageComposite(sashForm);
+		viewer = new uk.ac.gda.client.viewer.ImageViewer(this, SWT.DOUBLE_BUFFERED);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(viewer.getCanvas());
 
 		viewer.showDefaultImage();
 
 		videoReceiver.addImageListener(listener);
-		pack();
-	}
-
-	private void createImageComposite(Composite sashForm2) {
-		Composite imageComp = new Composite(sashForm2, SWT.NONE);
-		imageComp.setLayout(new GridLayout(1, true));
-
-		Composite btnComp = new Composite(imageComp, SWT.NONE);
-		GridDataFactory.fillDefaults().applyTo(btnComp);
-		btnComp.setLayout(new GridLayout(3, false));
-
-		Button zoomFit = new Button(btnComp, SWT.PUSH);
-		GridDataFactory.fillDefaults().applyTo(zoomFit);
-		zoomFit.setText("Auto-zoom");
-		zoomFit.addSelectionListener(new SelectionListener() {
-
+		viewer.getCanvas().addListener(SWT.Resize, new Listener() {
 			@Override
-			public void widgetDefaultSelected(SelectionEvent arg0) {
-			}
-
-			@Override
-			public void widgetSelected(SelectionEvent arg0) {
+			public void handleEvent(Event event) {
 				zoomFit();
 			}
 		});
-
-		lastImageId = new Label(btnComp, SWT.NONE);
-		GridDataFactory.fillDefaults().applyTo(lastImageId);
-		lastImageId.setText("Time of last Image");
-		
-
-		viewer = new uk.ac.gda.client.viewer.ImageViewer(imageComp, SWT.DOUBLE_BUFFERED);
+		zoomFit();
 		pack();
+	}
+	/**
+	 * Adds the given figure as a child to the main image figure
+	 * @param figure to add
+	 */
+	public void addFigure(IFigure figure) {
+		getTopFigure().add(figure);
+		
+	}
+
+	/**
+	 * Removes the given figure from the image figure hierarchy
+	 * @param figure
+	 */
+	public void removeFigure(IFigure figure) {
+		getTopFigure().remove(figure);
+		
+	}
+	
+	public IFigure getTopFigure() {
+		return viewer.getTopFigure();
+	}
+
+	private boolean layoutReset = false;
+	private void initViewer() {
+		// On the first image, ensure we reset the display to match incoming image dimensions
+		if (!layoutReset){
+			layoutReset = true;
+					viewer.resetView();
+					int offset = 200;
+					Rectangle imageBounds = viewer.getImageBounds();
+					Rectangle scaleBounds = new Rectangle(imageBounds.width - offset, imageBounds.height - offset, -1, -1);
+					beamScaleFigure = new BeamScaleFigure();
+					beamScaleFigure.setBeamSize(100, 100);
+					beamScaleFigure.setXScale(1.0);
+					beamScaleFigure.setYScale(1.0);
+					beamScaleFigure.setBackgroundColor(ColorConstants.darkGray);
+					getTopFigure().add(beamScaleFigure, scaleBounds);
+		}
 	}
 
 	@Override
@@ -120,7 +129,7 @@ public class CameraComposite extends Composite {
 		viewer.dispose();
 	}
 
-	void zoomFit() {
+	public void zoomFit() {
 		if (viewer != null)
 			viewer.zoomFit();
 	}
@@ -129,8 +138,9 @@ public class CameraComposite extends Composite {
 	}
 
 	ImageData lastImage;
-	private Label lastImageId;
+//	private Label lastImageId;
 	DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.LONG);
+	private BeamScaleFigure beamScaleFigure;
 	private final class VideoListener implements ImageListener<ImageData> {
 		private String name;
 
@@ -139,6 +149,7 @@ public class CameraComposite extends Composite {
 			this.name = name;
 		}
 
+		@SuppressWarnings("unused")
 		public void clear() {
 			viewer.showDefaultImage();
 		}
@@ -160,13 +171,13 @@ public class CameraComposite extends Composite {
 				if(processingImage)
 					return;
 				processingImage=true;
-/*				try {
+				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					logger.error("TODO put description of error here", e);
 				}
-*/				getDisplay().asyncExec(new Runnable() {
+				getDisplay().asyncExec(new Runnable() {
 					@Override
 					public void run() {
 						boolean showingDefault = viewer.isShowingDefault();
@@ -177,9 +188,13 @@ public class CameraComposite extends Composite {
 							if (showingDefault) {
 								zoomFit();
 							}
-							lastImageId.setText(df.format(new Date()));
+//							lastImageId.setText(df.format(new Date()));
 							if( newImageListener != null)
 								newImageListener.handlerNewImageNotification();
+
+							initViewer();
+							
+							
 							if( lastImage2 == lastImage){
 								processingImage=false;
 								break;
@@ -213,3 +228,5 @@ class SWTImageDataConverter {
 
 	}
 }
+
+

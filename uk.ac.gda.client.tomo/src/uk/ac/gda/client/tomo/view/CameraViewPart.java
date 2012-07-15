@@ -23,6 +23,10 @@ import gda.images.camera.DummySwtVideoReceiver;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +60,6 @@ public class CameraViewPart extends ViewPart implements NewImageListener {
 			logger.error("TODO put description of error here", e);
 		}
 		cameraComposite = new CameraComposite(parent, SWT.NONE, parent.getDisplay(), receiver, this);
-		
 	}
 
 	@Override
@@ -77,6 +80,12 @@ public class CameraViewPart extends ViewPart implements NewImageListener {
 		if( cameraComposite != null){
 			cameraComposite.dispose();
 		}
+	}
+
+	public void zoomToFit() {
+		if( cameraComposite != null)
+			cameraComposite.zoomFit();
+		
 	}
 
 }
