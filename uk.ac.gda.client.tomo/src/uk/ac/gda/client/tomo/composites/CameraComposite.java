@@ -21,8 +21,6 @@ package uk.ac.gda.client.tomo.composites;
 import gda.images.camera.ImageListener;
 import gda.images.camera.VideoReceiver;
 
-import java.text.DateFormat;
-
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.Rectangle;
@@ -41,13 +39,14 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.SWTImageUtils;
 import uk.ac.gda.client.tomo.figures.BeamScaleFigure;
+import uk.ac.gda.client.tomo.figures.ImageKeyFigure;
 import uk.ac.gda.client.viewer.ImageViewer;
 
 
 public class CameraComposite extends Composite {
 
 	static final Logger logger = LoggerFactory.getLogger(CameraComposite.class);
-	private ImageViewer viewer;
+	ImageViewer viewer;
 	private VideoReceiver<ImageData> videoReceiver;
 	private VideoListener listener = new VideoListener();
 
@@ -77,45 +76,11 @@ public class CameraComposite extends Composite {
 		zoomFit();
 		pack();
 	}
-	/**
-	 * Adds the given figure as a child to the main image figure
-	 * @param figure to add
-	 */
-	public void addFigure(IFigure figure) {
-		getTopFigure().add(figure);
-		
-	}
-
-	/**
-	 * Removes the given figure from the image figure hierarchy
-	 * @param figure
-	 */
-	public void removeFigure(IFigure figure) {
-		getTopFigure().remove(figure);
-		
-	}
-	
 	public IFigure getTopFigure() {
 		return viewer.getTopFigure();
 	}
 
 	private boolean layoutReset = false;
-	private void initViewer() {
-		// On the first image, ensure we reset the display to match incoming image dimensions
-		if (!layoutReset){
-			layoutReset = true;
-					viewer.resetView();
-					int offset = 200;
-					Rectangle imageBounds = viewer.getImageBounds();
-					Rectangle scaleBounds = new Rectangle(imageBounds.width - offset, imageBounds.height - offset, -1, -1);
-					beamScaleFigure = new BeamScaleFigure();
-					beamScaleFigure.setBeamSize(100, 100);
-					beamScaleFigure.setXScale(1.0);
-					beamScaleFigure.setYScale(1.0);
-					beamScaleFigure.setBackgroundColor(ColorConstants.darkGray);
-					getTopFigure().add(beamScaleFigure, scaleBounds);
-		}
-	}
 
 	@Override
 	public boolean setFocus() {
@@ -138,9 +103,6 @@ public class CameraComposite extends Composite {
 	}
 
 	ImageData lastImage;
-//	private Label lastImageId;
-	DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.LONG);
-	private BeamScaleFigure beamScaleFigure;
 	private final class VideoListener implements ImageListener<ImageData> {
 		private String name;
 
@@ -188,13 +150,13 @@ public class CameraComposite extends Composite {
 							if (showingDefault) {
 								zoomFit();
 							}
-//							lastImageId.setText(df.format(new Date()));
-							if( newImageListener != null)
-								newImageListener.handlerNewImageNotification();
+							if (!layoutReset){
+								layoutReset = true;
+								viewer.resetView();
+							}
 
-							initViewer();
-							
-							
+							if( newImageListener != null)
+								newImageListener.handlerNewImageNotification(lastImage2);
 							if( lastImage2 == lastImage){
 								processingImage=false;
 								break;
@@ -206,6 +168,9 @@ public class CameraComposite extends Composite {
 				});
 			}
 		}
+	}
+	public ImageViewer getViewer() {
+		return viewer;
 	}
 }
 

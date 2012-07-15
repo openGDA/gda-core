@@ -18,6 +18,8 @@
 
 package uk.ac.gda.client.tomo.composites;
 
+import org.eclipse.swt.graphics.ImageData;
+
 public interface NewImageListener {
-	void handlerNewImageNotification();
+	void handlerNewImageNotification(ImageData lastImage2);
 }
