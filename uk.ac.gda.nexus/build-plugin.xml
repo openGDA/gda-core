@@ -27,10 +27,16 @@
         <loadfile property="redhat_release" srcFile="/etc/redhat-release" failonerror="false" />
         <property name="redhat_release" value="probably not 5" />
         <condition property="NexusExtractorTest_skip_if_RH5" value="**/NexusExtractorTest.java" else="FilenameThatDoesNotExist">
-            <contains string="${redhat_release}" substring="Red Hat Enterprise Linux Client release 5." />
+            <or>
+                <contains string="${redhat_release}" substring="Red Hat Enterprise Linux Server release 5." />
+                <contains string="${redhat_release}" substring="Red Hat Enterprise Linux Client release 5." />
+            </or>
         </condition>
         <condition property="NexusReadinTest_skip_if_RH5" value="**/NexusReadinTest.java" else="FilenameThatDoesNotExist">
-            <contains string="${redhat_release}" substring="Red Hat Enterprise Linux Client release 5." />
+            <or>
+                <contains string="${redhat_release}" substring="Red Hat Enterprise Linux Server release 5." />
+                <contains string="${redhat_release}" substring="Red Hat Enterprise Linux Client release 5." />
+            </or>
         </condition>
         <junit-call description="${ant.project.name} Java JUnit tests" maxmemory="1536m">
             <formatter type="xml" />
