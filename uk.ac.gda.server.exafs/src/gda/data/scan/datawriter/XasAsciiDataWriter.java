@@ -73,6 +73,7 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 
 	@Override
 	public void writeHeader() {
+		
 		// use configured header first
 		super.writeHeader();
 
@@ -196,7 +197,7 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 			dataDir = newFile.getName() + "/";
 		}
 		try {
-			if (group != null && group.getScanNumber() >= 1) {
+			if (group != null && group.getScanNumber() >= 0) {
 				final OutputParameters params = (OutputParameters) XasAsciiDataWriter.group.getOutput();
 				dataDir += params.getAsciiDirectory() + "/";
 				//this.setRepetitionNumber( group.getScanNumber());
