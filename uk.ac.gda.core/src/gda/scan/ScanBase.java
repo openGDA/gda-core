@@ -220,6 +220,10 @@ public abstract class ScanBase implements Scan {
 	public static void checkForInterrupts() throws InterruptedException {
 		
 		if (InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.IDLE) {
+			//do not reset as if the scan thread detects this and so goes idle other threads related to the scan will not get the interruption
+			//we should clear the interruption at the start of the scan instead
+//			paused = false;
+//			interrupted = false; 
 			return;
 		}
 
