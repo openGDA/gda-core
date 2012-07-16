@@ -45,6 +45,15 @@ class WaitWhileScannableBelowThresholdMonitorOnly(ScannableMotionBase):
         '''This can't be used as isBusy is not checked unless the scannable
         is 'moved' by passing in a number'''
         return False
+
+    def waitWhileBusy(self):
+        if JythonServerFacade.getInstance().getScanStatus()==RUNNING:
+            # loop until okay
+            while not self._getStatusAndHandleChange():  
+                # not okay
+                sleep(self.secondsBetweenChecks)
+                self._collectNewMonitorValue()  
+            # now okay
     
     def getPosition(self):
         '''If scan is running then pauses until status is okay and returning False
