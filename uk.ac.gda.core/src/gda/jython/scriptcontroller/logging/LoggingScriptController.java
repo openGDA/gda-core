@@ -89,6 +89,7 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 	private PreparedStatement psFetchEntry;
 	private PreparedStatement psRefresh;
 	private PreparedStatement psLatestRunID;
+	private String dbName;
 
 	public LoggingScriptController() {
 		super();
@@ -252,7 +253,7 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 		if (varDir == null) {
 			LocalProperties.getVarDir();
 		}
-		String dbName = varDir + tableName;
+		dbName = varDir + tableName;
 		url = "jdbc:derby:" + dbName + ";create=true";
 		conn = DriverManager.getConnection(url);
 	}
@@ -467,7 +468,7 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 			conn.close();
 			boolean gotSQLExc = false;
 			try {
-				DriverManager.getConnection("jdbc:derby:;shutdown=true");
+				DriverManager.getConnection("jdbc:derby:" + dbName + ";shutdown=true");
 			} catch (SQLException se) {
 				if (se.getSQLState().equals("XJ015")) {
 					gotSQLExc = true;
