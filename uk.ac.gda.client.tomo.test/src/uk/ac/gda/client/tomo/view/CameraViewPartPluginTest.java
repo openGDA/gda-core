@@ -19,13 +19,8 @@
 package uk.ac.gda.client.tomo.view;
 
 import gda.TestHelpers;
-import gda.commandqueue.CommandQueue;
-import gda.commandqueue.FindableProcessorQueue;
-import gda.commandqueue.Processor;
-import gda.commandqueue.Queue;
+import gda.images.camera.DummySwtVideoReceiver;
 import gda.rcp.util.OSGIServiceRegister;
-
-import java.io.File;
 
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -37,7 +32,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import uk.ac.gda.client.CommandQueueView;
 import uk.ac.gda.client.tomo.test.PluginTestHelpers;
 
 /**
@@ -52,6 +46,7 @@ public class CameraViewPartPluginTest {
 	 */
 	@BeforeClass
 	public static void setUpBeforeClass() {
+		
 	}
 
 	/**
@@ -68,25 +63,19 @@ public class CameraViewPartPluginTest {
 	@Before
 	public void setUp() throws Exception {
 		scratchFolder=TestHelpers.setUpTest(CameraViewPartPluginTest.class, "setUp", true);
-/*		FindableProcessorQueue simpleProcessor = new FindableProcessorQueue();
-		simpleProcessor.setLogFilePath(scratchFolder + File.separator + "commandQueue.log");
-		simpleProcessor.setStartImmediately(false);
-		simpleProcessor.afterPropertiesSet();
-		
-		Queue queue = new CommandQueue();
-		simpleProcessor.setQueue(queue);
-		Processor processor = simpleProcessor;
-	
-		OSGIServiceRegister processorReg = new OSGIServiceRegister();
-		processorReg.setClass(Processor.class);
-		processorReg.setService(processor);
-		processorReg.afterPropertiesSet();
+		DummySwtVideoReceiver receiver = new DummySwtVideoReceiver();
+		receiver.setDesiredFrameRate(10);
+		receiver.configure();
 
-		OSGIServiceRegister queueReg = new OSGIServiceRegister();
-		queueReg.setClass(Queue.class);
-		queueReg.setService(queue);
-		queueReg.afterPropertiesSet();
-*/		
+		CameraViewPartConfigImpl configImpl = new CameraViewPartConfigImpl();
+		configImpl.setReceiver(receiver);
+		configImpl.afterPropertiesSet();
+		
+		OSGIServiceRegister register = new OSGIServiceRegister();
+		register.setClass(CameraViewPartConfig.class);
+		register.setService(configImpl);
+		register.afterPropertiesSet();
+
 	}
 
 	/**

@@ -22,7 +22,6 @@ import gda.factory.FactoryException;
 import gda.images.camera.DummySwtVideoReceiver;
 
 import org.eclipse.draw2d.ColorConstants;
-import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -31,11 +30,13 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.client.tomo.TomoClientActivator;
 import uk.ac.gda.client.tomo.composites.CameraComposite;
 import uk.ac.gda.client.tomo.composites.NewImageListener;
 import uk.ac.gda.client.tomo.figures.BeamScaleFigure;
@@ -51,22 +52,24 @@ public class CameraViewPart extends ViewPart implements NewImageListener {
 	static public String ID = "uk.ac.gda.client.tomo.CameraView";
 	private CameraComposite cameraComposite;
 
+	private CameraViewPartConfig cameraConfig;
+
 	public CameraViewPart() {
 		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	public void createPartControl(Composite parent) {
-		// TODO Auto-generated method stub
-		DummySwtVideoReceiver receiver = new DummySwtVideoReceiver();
-		receiver.setDesiredFrameRate(10);
-		try {
-			receiver.configure();
-		} catch (FactoryException e) {
-			// TODO Auto-generated catch block
-			logger.error("TODO put description of error here", e);
+
+		cameraConfig = TomoClientActivator.getCameraConfig();
+
+		if (cameraConfig == null) {
+			Label lblCamera = new Label(parent, SWT.NONE);
+			lblCamera.setText("No CameraViewPartConfig service found");
+			return;
 		}
-		cameraComposite = new CameraComposite(parent, SWT.NONE, parent.getDisplay(), receiver, this);
+		
+		cameraComposite = new CameraComposite(parent, SWT.NONE, parent.getDisplay(), cameraConfig.getReceiver(), this);
 
 		Action zoomFit = new Action("Zoom to Fit") {
 			@Override

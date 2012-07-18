@@ -6,11 +6,8 @@ Require-Bundle: org.junit4,
  org.junit,
  com.windowtester.runtime,
  com.windowtester.swing.runtime,
- com.instantiations.eclipse.debug,
  org.eclipse.jface,
- com.instantiations.common.core,
  org.eclipse.core.runtime,
- com.instantiations.eclipse.util,
  org.eclipse.swt,
  com.windowtester.swt.runtime.gef
 Fragment-Host: uk.ac.gda.client.tomo;bundle-version="1.0.0"
