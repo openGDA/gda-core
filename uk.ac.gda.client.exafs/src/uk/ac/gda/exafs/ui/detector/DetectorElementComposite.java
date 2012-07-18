@@ -374,6 +374,11 @@ public class DetectorElementComposite extends Composite {
 	}
 
 	private void updateTotalCountsDisplay() {
+		// if too early in lifecycle of composite
+		if (elementTotalCounts == null || totalCounts == null){
+			return;
+		}
+		
 		if (isIndividualElements && thisElementTotalCountsValue != null) {
 			elementTotalCounts.setValue("Element Total Counts "
 					+ NumberFormat.getInstance().format(thisElementTotalCountsValue));
