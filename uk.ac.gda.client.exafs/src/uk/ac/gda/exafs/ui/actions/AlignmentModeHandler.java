@@ -34,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.exafs.ui.AlignmentPerspective;
-import uk.ac.gda.perspectives.DataExplorationPerspective;
 
 
 /**
@@ -49,29 +48,19 @@ public class AlignmentModeHandler extends AbstractHandler implements IWorkbenchW
 		return doAlignemtMode();
 	}
 	
-	/**
-	 * Called by testing.
-	 * @return boolean
-	 */
 	public static boolean doAlignemtMode() {
 		try {
 			IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 			IPerspectiveDescriptor[] descriptors = win.getActivePage().getSortedPerspectives();
 			
-			PlatformUI.getWorkbench().showPerspective(DataExplorationPerspective.ID, win); 
+			PlatformUI.getWorkbench().showPerspective(uk.ac.diamond.scisoft.analysis.rcp.DataExplorationPerspective.ID, win); 
 			PlatformUI.getWorkbench().showPerspective(AlignmentPerspective.ID, win); 
 
 			for (IPerspectiveDescriptor desc : descriptors){
-				if (!(desc.getId().equals(DataExplorationPerspective.ID) || desc.getId().equals(AlignmentPerspective.ID))){
+				if (!(desc.getId().equals(uk.ac.diamond.scisoft.analysis.rcp.DataExplorationPerspective.ID) || desc.getId().equals(AlignmentPerspective.ID))){
 					win.getActivePage().closePerspective(desc, true, true);
 				}
-			}
-			
-			
-//			// We close everything in Exafs by selecting and then closing.
-//			win.getActivePage().closeAllPerspectives(true, true);
-//			
-					
+			}	
 		} catch (WorkbenchException e) {
 			logger.error("Cannot open "+AlignmentPerspective.ID, e);
 			return Boolean.FALSE;
@@ -82,8 +71,6 @@ public class AlignmentModeHandler extends AbstractHandler implements IWorkbenchW
 
 	@Override
 	public void init(IWorkbenchWindow window) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -97,14 +84,10 @@ public class AlignmentModeHandler extends AbstractHandler implements IWorkbenchW
 
 	@Override
 	public void selectionChanged(IAction action, ISelection selection) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void setActiveEditor(IAction action, IEditorPart targetEditor) {
-		// TODO Auto-generated method stub
-		
 	}
 
 

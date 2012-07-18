@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.client.experimentdefinition.components.ExperimentPerspective;
 import uk.ac.gda.exafs.ui.AlignmentPerspective;
 import uk.ac.gda.exafs.ui.PlottingPerspective;
-import uk.ac.gda.perspectives.DataExplorationPerspective;
 import uk.ac.gda.pydev.extension.ui.perspective.JythonPerspective;
 
 /**
@@ -53,11 +52,6 @@ public class DataCollectionModeHandler extends AbstractHandler implements IWorkb
 		return doDataCollectionMode();
 	}
 
-	/**
-	 * Called by testing.
-	 * 
-	 * @return boolean
-	 */
 	public static boolean doDataCollectionMode() {
 
 		IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
@@ -87,8 +81,6 @@ public class DataCollectionModeHandler extends AbstractHandler implements IWorkb
 
 	@Override
 	public void init(IWorkbenchWindow window) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -102,14 +94,10 @@ public class DataCollectionModeHandler extends AbstractHandler implements IWorkb
 
 	@Override
 	public void selectionChanged(IAction action, ISelection selection) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setActiveEditor(IAction action, IEditorPart targetEditor) {
-		// TODO Auto-generated method stub
-
 	}
 
 }
