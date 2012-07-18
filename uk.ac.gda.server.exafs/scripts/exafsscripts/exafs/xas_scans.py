@@ -4,13 +4,18 @@ import pprint
 from BeamlineParameters import JythonNameSpaceMapping, FinderNameMapping
 
 from java.io import File
+from java.lang import InterruptedException
+
 from gda.configuration.properties import LocalProperties
 from gda.data import PathConstructor
 from gda.data.scan.datawriter import XasAsciiDataWriter, NexusExtraMetadataDataWriter
+from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
 from gda.exafs.scan import ExafsScanPointCreator, XanesScanPointCreator
 from gda.exafs.scan.ExafsScanRegionCalculator import calculateABC
 from gda.exafs.scan import BeanGroup
 from gda.exafs.scan import BeanGroups
+from gda.exafs.scan import ScanStartedMessage
+from gda.exafs.scan import RepetitionsProperties
 from gda.device import CounterTimer
 from gda.device.detector.countertimer import CounterTimerBase
 from gda.device.detector.xspress import XspressDetector
@@ -19,18 +24,23 @@ from gda.device.scannable import XasScannableWithDetectorFramesSetup
 from gda.device.scannable import JEPScannable
 from gda.factory import Finder
 from gda.jython import InterfaceProvider
+from gda.jython.commands.GeneralCommands import run
 from gda.jython.commands.ScannableCommands import scan, pos, add_default, remove_default
 from gda.jython.scriptcontroller.event import ScanCreationEvent, ScanFinishEvent, ScriptProgressEvent
+from gda.jython.scriptcontroller.logging import XasProgressUpdater
+from gda.jython.scriptcontroller.logging import LoggingScriptController
+from gda.jython.scriptcontroller.logging import XasLoggingMessage
+from gda.jython import ScriptBase
 from gda.scan import ScanBase, ContinuousScan, ConcurrentScan
-from gda.jython.commands.GeneralCommands import run
+
 from uk.ac.gda.beans import BeansFactory
 from uk.ac.gda.beans.exafs import XanesScanParameters
 from uk.ac.gda.doe import RangeInfo
 from uk.ac.gda.beans.exafs import XesScanParameters, SignalParameters
-from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
+
 from gdascripts.messages.handle_messages import simpleLog
 from exafsscripts.exafs.setupBeamline import setup,finish
-from gda.factory import Finder
+
 
 def estimateXas(scanFileName, nosOfScans=1, timeEstimation=False):
     """
@@ -51,128 +61,45 @@ def estimateXanes(scanFileName, nosOfScans=1, timeEstimation=False):
     # TODO Get time from points if timeEstimation==True
     return len(points)
 
-def qexafs (sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, scanNumber= -1, validation=True):
-
-    xmlFolderName = ExafsEnvironment().getScriptFolder() + folderName + "/"
-    
-    # Create the beans from the file names
-    sampleBean = BeansFactory.getBeanObject(xmlFolderName, sampleFileName)
-    # this should be the qexafs bean
-    scanBean = BeansFactory.getBeanObject(xmlFolderName, scanFileName)
-    detectorBean = BeansFactory.getBeanObject(xmlFolderName, detectorFileName)
-    outputBean = BeansFactory.getBeanObject(xmlFolderName, outputFileName)
-     
-    finder_mapper = FinderNameMapping()
-    jython_mapper = JythonNameSpaceMapping()
-    controller = Finder.getInstance().find("ExafsScriptObserver")
-     
-    # give the beans to the xasdatawriter class to help define the folders/filenames 
-    beanGroup = BeanGroup()
-    beanGroup.setController(controller)
-    beanGroup.setScriptFolder(xmlFolderName)
-    beanGroup.setExperimentFolderName(folderName)
-    beanGroup.setScanNumber(scanNumber)
-    beanGroup.setSample(sampleBean)
-    beanGroup.setDetector(detectorBean)
-    beanGroup.setOutput(outputBean)
-    beanGroup.setScan(scanBean)
-    
-    XasAsciiDataWriter.setBeanGroup(beanGroup)
-
-    # work out which detectors to use (they will need to have been configured already by the GUI)
-    detectorList = getQEXAFSDetectors(beanGroup.getDetector(), beanGroup.getOutput(), beanGroup.getScan()) 
-    print "detectors to be used:", str(detectorList)
-    
-    # set up the sample 
-    temp = setup(beanGroup)
-    
-    # no signal parameters
-    if len(outputBean.getCheckedSignalList()) > 0:
-        print "Signal parameters not available with QEXAFS"
-    
-    
-    # energy controller
-    energyController = jython_mapper.qexafs_energy
-#    if energyController == None:
-#        energyController = jython_mapper.qexafs_energy
-    if energyController == None:
-        raise "No object for controlling energy during QEXAFS found! Expected qexafs_energy (or scannable1 for testing)"
-    
-    # work out the number of frames to collect
-    numberPoints = 0
-    if detectorBean.getExperimentType() == "Fluorescence" and detectorBean.getFluorescenceParameters().getDetectorType() == "Germanium":
-        maxPoints = jython_mapper.qexafs_counterTimer01.maximumReadFrames()
-        if scanBean.isChooseNumberPoints():
-            numberPoints = maxPoints
-        else:
-            numberPoints = scanBean.getNumberPoints()
-            if numberPoints > maxPoints:
-                raise "Too many frames for the given detector configuration." 
-    # for ion chambers only use a default value
-    elif scanBean.isChooseNumberPoints():
-        print "using default number of frames: 1000"
-        numberPoints = 1000 # a default value as user has selected max possible but is only using the ion chambers (so max will be very high)
-    # have a limit anyway of 4096
-    else:
-        numberPoints = scanBean.getNumberPoints()
-        if numberPoints > 4096:
-                raise "Too many frames for the given detector configuration." 
-            
-    # run the script held in outputparameters
-    scriptName = beanGroup.getOutput().getBeforeScriptName()
-    if scriptName != None and scriptName != "":
-        scriptName = scriptName[scriptName.rfind("/") + 1:]
-        run(scriptName)
-
-    print "running QEXAFS scan:", energyController.getName(), scanBean.getInitialEnergy(), scanBean.getFinalEnergy(), numberPoints, scanBean.getTotalTime(), detectorList
-    
-    controller.update(None, ScriptProgressEvent("Running QEXAFS scan"))
-    thisscan = ContinuousScan(energyController, scanBean.getInitialEnergy(), scanBean.getFinalEnergy(), numberPoints, scanBean.getTotalTime(), detectorList)
-
-    controller.update(None,ScanCreationEvent(thisscan.getName()))
-    thisscan.runScan()  
-    controller.update(None,ScanFinishEvent(thisscan.getName(),ScanFinishEvent.FinishType.OK));
-
-    
-    scriptName = beanGroup.getOutput().getAfterScriptName()
-    if scriptName != None and scriptName != "":
-        scriptName = scriptName[scriptName.rfind("/") + 1:]
-        run(scriptName)
-    
-    #remove added metadata from default metadata list to avoid multiple instances of the same metadata
-    original_header=jython_mapper.original_header[:]
-    Finder.getInstance().find("datawriterconfig").setHeader(original_header)
-    
-    
-def xes (sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, scanNumber= -1, validation=True):
+def xes (sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, numRepetitions= 1, validation=True):
     
     # Create the beans from the file names
     xmlFolderName = ExafsEnvironment().getScriptFolder() + folderName + "/"
     sampleBean = BeansFactory.getBeanObject(xmlFolderName, sampleFileName)
-    # this should be the xes bean
     xesScanBean = BeansFactory.getBeanObject(xmlFolderName, scanFileName)
     detectorBean = BeansFactory.getBeanObject(xmlFolderName, detectorFileName)
     outputBean = BeansFactory.getBeanObject(xmlFolderName, outputFileName)
      
     finder_mapper = FinderNameMapping()
     jython_mapper = JythonNameSpaceMapping()
-     
+    loggingcontroller = Finder.getInstance().find("XASLoggingScriptController")
+
+    # create unique ID for this scan (all repetitions will share the same ID)
+    scriptType = "Xes"
+    scan_unique_id = LoggingScriptController.createUniqueID(scriptType);
+        
+    # update to terminal
+    print "Starting xes scan..."
+    print ""
+    print "Output to",xmlFolderName
+    print ""
+
     # give the beans to the xasdatawriter class to help define the folders/filenames 
     beanGroup = BeanGroup()
     beanGroup.setController(Finder.getInstance().find("ExafsScriptObserver"))
     beanGroup.setScriptFolder(xmlFolderName)
     beanGroup.setExperimentFolderName(folderName)
-    beanGroup.setScanNumber(scanNumber)
+    beanGroup.setScanNumber(numRepetitions)
     beanGroup.setSample(sampleBean)
     beanGroup.setDetector(detectorBean)
     beanGroup.setOutput(outputBean)
-
     beanGroup.setScan(xesScanBean)
-    XasAsciiDataWriter.setBeanGroup(beanGroup)
+
+#    XasAsciiDataWriter.setBeanGroup(beanGroup)
 
     # work out which detectors to use (they will need to have been configured already by the GUI)
     detectorList = getDetectors(beanGroup.getDetector(), beanGroup.getOutput(), beanGroup.getScan()) 
-    print "detectors to be used:", str(detectorList)
+#    print "detectors to be used:", str(detectorList)
     
     # set up the sample 
     setup(beanGroup)
@@ -182,12 +109,12 @@ def xes (sampleFileName, scanFileName, detectorFileName, outputFileName, folderN
     signalParameters = getSignalList(outputBean)
     
     # run the scan
-    if len(signalParameters) > 0:
-        print "signal list:",str(signalParameters)
+    #if len(signalParameters) > 0:
+#        print "signal list:",str(signalParameters)
     
     # get the relevant objects from the namespace
     xes_energy = jython_mapper.XESEnergy
-    mono_energy = jython_mapper.bragg1
+    mono_energy = jython_mapper.test
     analyserAngle = jython_mapper.XESBragg
     #L = jython_mapper.xtal_x
     
@@ -236,7 +163,7 @@ def xes (sampleFileName, scanFileName, detectorFileName, outputFileName, folderN
         add_default(analyserAngle)
 
         try:
-            xas(sampleBean, xas_scanfilename, detectorBean, outputBean, folderName, scanNumber, validation)
+            xas(sampleBean, xas_scanfilename, detectorBean, outputBean, folderName, numRepetitions, validation)
         finally:
             print "cleaning up scan defaults"
             remove_default(xes_energy)
@@ -254,7 +181,7 @@ def xes (sampleFileName, scanFileName, detectorFileName, outputFileName, folderN
         add_default(analyserAngle)
 
         try:
-            xanes(sampleBean, xanes_scanfilename, detectorBean, outputBean, folderName, scanNumber, validation)
+            xanes(sampleBean, xanes_scanfilename, detectorBean, outputBean, folderName, numRepetitions, validation)
         finally:
             print "cleaning up scan defaults"
             remove_default(xes_energy)
@@ -262,8 +189,7 @@ def xes (sampleFileName, scanFileName, detectorFileName, outputFileName, folderN
         return
     else:
         raise "scan type in XES Scan Parameters bean/xml not acceptable"
-
-
+        
     # run the script held in outputparameters
     scriptName = beanGroup.getOutput().getBeforeScriptName()
     if scriptName != None and scriptName != "":
@@ -274,10 +200,72 @@ def xes (sampleFileName, scanFileName, detectorFileName, outputFileName, folderN
     args += [xesScanBean.getXesIntegrationTime()]
     if len(signalParameters) > 0:
         args += signalParameters
-    print args 
-    
+#    print args 
+
+
+	# now that the scan has been defined, run it in a loop
+
+    # reset the properties used to control repetition behaviour
+    LocalProperties.set(RepetitionsProperties.HALT_AFTER_REP_PROPERTY,"false")
+    LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
+    LocalProperties.set(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY,str(numRepetitions))
+    repetitionNumber = 0
+        
     try:
-        scan(args)
+        while True:
+            repetitionNumber+= 1
+            beanGroup.setScanNumber(repetitionNumber)
+            XasAsciiDataWriter.setBeanGroup(beanGroup)
+
+            # send out initial messages for logging and display to user
+            outputFolder = outputBean.getAsciiDirectory()+ "/" + outputBean.getAsciiFileName()
+            logmsg = XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str("0%"),str(0),xesScanBean,outputFolder)
+            loggingcontroller.update(None,logmsg)
+            loggingcontroller.update(None,ScanStartedMessage(xesScanBean,detectorBean)) # informs parts of the UI about current scan
+            loggingbean = XasProgressUpdater(loggingcontroller,logmsg)
+            args += [loggingbean]
+            try:
+                loggingcontroller.update(None, ScriptProgressEvent("Running scan"))
+                ScanBase.interrupted = False
+                if numRepetitions > 1:
+                    print ""
+                    print "Starting repetition", str(repetitionNumber),"of",numRepetitions
+                thisscan = ConcurrentScan(args)
+                loggingcontroller.update(None, ScanCreationEvent(thisscan.getName()))
+                thisscan.runScan()
+            except InterruptedException, e:
+                if LocalProperties.get(RepetitionsProperties.SKIP_REPETITION_PROPERTY) == "true":
+                    LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
+                    ScanBase.interrupted = False
+                    # only wanted to skip this repetition, so absorb the exception and continue the loop
+                    if numRepetitions > 1:
+                        print "Repetition", str(repetitionNumber),"skipped."
+                else:
+                    print e
+                    raise # any other exception we are not expecting so raise whatever this is to abort the script
+                       
+            #update observers
+            loggingcontroller.update(None, ScanFinishEvent(thisscan.getName(), ScanFinishEvent.FinishType.OK));
+
+            # run post scan script
+            scriptName = beanGroup.getOutput().getAfterScriptName()
+            if scriptName != None and scriptName != "":
+                scriptName = scriptName[scriptName.rfind("/") + 1:]
+                run(scriptName)
+
+            #check if halt after current repetition set to true
+            if numRepetitions > 1 and LocalProperties.get(RepetitionsProperties.HALT_AFTER_REP_PROPERTY) == "true":
+                print "The repetition loop was requested to be halted, so this scan has ended after", str(repetitionNumber), "repetition(s)."
+                break
+                
+            #check if the number of repetitions has been altered and we should now end the loop
+            numRepsFromProperty = int(LocalProperties.get(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY))
+            if numRepsFromProperty != numRepetitions and numRepsFromProperty <= (repetitionNumber):
+                print "The number of repetitions has been reset to",str(numRepsFromProperty), ". As",str(repetitionNumber),"repetitions have been completed this scan will now end."
+                break
+            elif numRepsFromProperty <= (repetitionNumber):
+                break
+
     finally:
         LocalProperties.set("gda.data.scan.datawriter.dataFormat", originalDataFormat)
 
@@ -286,7 +274,7 @@ def xanes (sampleFileName, scanFileName, detectorFileName, outputFileName, folde
     xas(sampleFileName, scanFileName, detectorFileName, outputFileName, folderName, scanNumber, validation)
     return
 
-def xas (sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, scanNumber= -1, validation=True):
+def xas (sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, numRepetitions= 1, validation=True):
     """
     main xas data collection command. 
     usage:-
@@ -304,16 +292,17 @@ def xas (sampleFileName, scanFileName, detectorFileName, outputFileName, folderN
         print "detectorFileName", detectorFileName
         print "outputFileName", outputFileName
         print "folderName", folderName
-        print "scanNumber", scanNumber
+        print "numRepetitions", numRepetitions
         print "validation", validation
 
     finder_mapper = FinderNameMapping()
     jython_mapper = JythonNameSpaceMapping()
     controller = Finder.getInstance().find("ExafsScriptObserver")
+    loggingcontroller = Finder.getInstance().find("XASLoggingScriptController")
 
     # Create the beans from the file names
     xmlFolderName = ExafsEnvironment().getScriptFolder() + folderName + "/"
-    print "xmlFolderName", xmlFolderName  
+#    print "xmlFolderName", xmlFolderName  
     if(sampleFileName == None):
         sampleBean = None
     else:
@@ -331,7 +320,7 @@ def xas (sampleFileName, scanFileName, detectorFileName, outputFileName, folderN
         xas_scannable = XasScannable()
         useFrames = 0
     xas_scannable.setName("xas_scannable")
-    print "Energy control supplied by scannable:", scanBean.getScannableName()
+#    print "Energy control supplied by scannable:", scanBean.getScannableName()
     xas_scannable.setEnergyScannable(Finder.getInstance().find(scanBean.getScannableName()))
      
     # give the beans to the xasdatawriter class to help define the folders/filenames 
@@ -340,7 +329,7 @@ def xas (sampleFileName, scanFileName, detectorFileName, outputFileName, folderN
     originalGroup.setScriptFolder(xmlFolderName)
     originalGroup.setScannable(Finder.getInstance().find(scanBean.getScannableName())) #TODO
     originalGroup.setExperimentFolderName(folderName)
-    originalGroup.setScanNumber(scanNumber)
+    originalGroup.setScanNumber(numRepetitions)
     if (sampleBean != None):
         originalGroup.setSample(sampleBean)
     originalGroup.setDetector(detectorBean)
@@ -349,99 +338,160 @@ def xas (sampleFileName, scanFileName, detectorFileName, outputFileName, folderN
     originalGroup.setScan(scanBean)
     
     # Use BeanGroups to generate the DOE experiments.
-    groups = BeanGroups.expand(originalGroup)
-    infos = BeanGroups.getInfo(originalGroup)
-    print "DoE group size", len(groups)
+#    groups = BeanGroups.expand(originalGroup)
+#    infos = BeanGroups.getInfo(originalGroup)
+#    print "DoE group size", len(groups)
     
-    for i in range(0, len(groups)):
-        
-        beanGroup = groups[i];
-        
-        XasAsciiDataWriter.setBeanGroup(beanGroup)
+#    for i in range(0, len(groups)):
 
-        # create the list of scan points
-        points = ()
-        if isinstance(beanGroup.getScan(), XanesScanParameters):
-            points = XanesScanPointCreator.calculateEnergies(beanGroup.getScan())
-            if useFrames:
-                xas_scannable.setExafsScanRegionTimes(XanesScanPointCreator.getScanTimes(beanGroup.getScan()))
-        else:
-            points = ExafsScanPointCreator.calculateEnergies(beanGroup.getScan())
-            if useFrames:
-                xas_scannable.setExafsScanRegionTimes(ExafsScanPointCreator.getScanTimes(beanGroup.getScan()))
+    # create unique ID for this scan (all repetitions will share the same ID)
+    scriptType = "Exafs"
+    if isinstance(scanBean, XanesScanParameters):
+        scriptType = "Xanes"
+    scan_unique_id = LoggingScriptController.createUniqueID(scriptType);
+        
+    # update to terminal
+    print "Starting",scriptType,detectorBean.getExperimentType(),"scan over scannable '"+scanBean.getScannableName()+"'..."
+    print ""
+    print "Output to",xmlFolderName
+    print ""
+
+    beanGroup = originalGroup;
+        
+
+    # reset the properties used to control repetition behaviour
+    LocalProperties.set(RepetitionsProperties.HALT_AFTER_REP_PROPERTY,"false")
+    LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
+    LocalProperties.set(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY,str(numRepetitions))
+    repetitionNumber = 0
+        
+    try:
+        while True:
+            repetitionNumber+= 1
+            beanGroup.setScanNumber(repetitionNumber)
+            XasAsciiDataWriter.setBeanGroup(beanGroup)
+
+            # create the list of scan points
+            points = ()
+            if isinstance(beanGroup.getScan(), XanesScanParameters):
+                points = XanesScanPointCreator.calculateEnergies(beanGroup.getScan())
+                if useFrames:
+                    xas_scannable.setExafsScanRegionTimes(XanesScanPointCreator.getScanTimes(beanGroup.getScan()))
+            else:
+                points = ExafsScanPointCreator.calculateEnergies(beanGroup.getScan())
+                if useFrames:
+                    xas_scannable.setExafsScanRegionTimes(ExafsScanPointCreator.getScanTimes(beanGroup.getScan()))
         
         # This step adds information to the sample parameters description 
         # if we are doing a multiple run.
-        if len(groups) > 1:
-            rangeInfo = infos[i]
-            beanGroup.getSample().addDescription("");
-            beanGroup.getSample().addDescription("***");
-            beanGroup.getSample().addDescription("Design of experiments study run '" + str(i + 1) + "' of '" + str(len(groups)) + "'. With following parameter(s):")
-            beanGroup.getSample().addDescription(rangeInfo.getHeader())
-            beanGroup.getSample().addDescription(rangeInfo.getValues())
-            beanGroup.getSample().addDescription("***");
-            simpleLog("Loop of experiments: run " + str(i + 1) + " of " + str(len(groups)))
-            simpleLog("Variable(s) being looped over:" + str(rangeInfo.getHeader()))
-            simpleLog("Current value(s):" + str(rangeInfo.getValues()))
+#        if len(groups) > 1:
+#            rangeInfo = infos[i]
+#            beanGroup.getSample().addDescription("");
+#            beanGroup.getSample().addDescription("***");
+#            beanGroup.getSample().addDescription("Design of experiments study run '" + str(i + 1) + "' of '" + str(len(groups)) + "'. With following parameter(s):")
+#            beanGroup.getSample().addDescription(rangeInfo.getHeader())
+#            beanGroup.getSample().addDescription(rangeInfo.getValues())
+#            beanGroup.getSample().addDescription("***");
+#            simpleLog("Loop of experiments: run " + str(i + 1) + " of " + str(len(groups)))
+#            simpleLog("Variable(s) being looped over:" + str(rangeInfo.getHeader()))
+#            simpleLog("Current value(s):" + str(rangeInfo.getValues()))
 
-        # work out which detectors to use (they will need to have been configured already by the GUI)
-        detectorList = getDetectors(beanGroup.getDetector(), beanGroup.getOutput(), beanGroup.getScan()) 
-        xas_scannable.setDetectors(detectorList)
-        
-        
-        
-        # set up the sample 
-        extraColumns = setup(beanGroup)
+            # work out which detectors to use (they will need to have been configured already by the GUI)
+            detectorList = getDetectors(beanGroup.getDetector(), beanGroup.getOutput(), beanGroup.getScan()) 
+            xas_scannable.setDetectors(detectorList)
 
-        # extract any signal parameters to add to the scan command
-        signalParameters = getSignalList(beanGroup.getOutput())
-        
-        # run the script held in outputparameters
-        scriptName = beanGroup.getOutput().getBeforeScriptName()
-        if scriptName != None and scriptName != "":
-            scriptName = scriptName[scriptName.rfind("/") + 1:]
-            run(scriptName)
+            # send out initial messages for logging and display to user
+            outputFolder = outputBean.getAsciiDirectory()+ "/" + outputBean.getAsciiFileName()
+            logmsg = XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str("0%"),str(0),scanBean,outputFolder)
+            loggingcontroller.update(None,logmsg)
+            loggingcontroller.update(None,ScanStartedMessage(scanBean,detectorBean)) # informs parts of the UI about current scan
+            loggingbean = XasProgressUpdater(loggingcontroller,logmsg)
+   
+            # set up the sample 
+            extraColumns = setup(beanGroup)
 
-        # run the scans
-        print "detectors:", str(detectorList)
-        if len(signalParameters) > 0:
-            print "signal list:", str(signalParameters)
-        print "number of steps:", len(points)
-        args = [xas_scannable, points]
-        if extraColumns != None:
-            print "adding to the scan", extraColumns
-            args += [extraColumns]
-        args += detectorList 
-        args += signalParameters
+            # extract any signal parameters to add to the scan command
+            signalParameters = getSignalList(beanGroup.getOutput())
         
-        simpleLog("about to scan")
-        
-        ScanBase.checkForInterrupts()
+            # run the script held in outputparameters
+            scriptName = beanGroup.getOutput().getBeforeScriptName()
+            if scriptName != None and scriptName != "":
+                scriptName = scriptName[scriptName.rfind("/") + 1:]
+                run(scriptName)
 
-        try:
-            controller.update(None, ScriptProgressEvent("Running scan"))
-            thisscan = ConcurrentScan(args)
-            controller.update(None, ScanCreationEvent(thisscan.getName()))
-            thisscan.runScan()  
-            #scan(args)
-        finally:
-        # clear the extra metadata which would have been added to the Nxues file (rebuilt everytime in setup)
+            # run the scans
+            print "detectors:", str(detectorList)
+            if len(signalParameters) > 0:
+                print "signal list:", str(signalParameters)
+            print "number of steps:", len(points)
+            args = [xas_scannable, points]
+            if extraColumns != None:
+                print "adding to the scan", extraColumns
+                args += [extraColumns]
+            args += detectorList 
+            args += signalParameters
+            args += [loggingbean]
+            
+            #simpleLog("about to scan")
+        
+            ScanBase.checkForInterrupts()
+
+            try:
+                if numRepetitions > 1:
+                    print ""
+                    print "Starting repetition", str(repetitionNumber),"of",numRepetitions
+                controller.update(None, ScriptProgressEvent("Running scan"))
+                thisscan = ConcurrentScan(args)
+                controller.update(None, ScanCreationEvent(thisscan.getName()))
+                thisscan.runScan()  
+                #scan(args)
+            except InterruptedException, e:
+                if LocalProperties.get(RepetitionsProperties.SKIP_REPETITION_PROPERTY) == "true":
+                    LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
+                    ScanBase.interrupted = False
+                    # check if a panic stop has been issued, so the whole script should stop
+                    if ScriptBase.isInterrupted():
+                        raise e
+                    # only wanted to skip this repetition, so absorb the exception and continue the loop
+                    if numRepetitions > 1:
+                        print "Repetition", str(repetitionNumber),"skipped."
+                else:
+                    print e
+                    raise # any other exception we are not expecting so raise whatever this is to abort the script
+            
             controller.update(None, ScanFinishEvent(thisscan.getName(), ScanFinishEvent.FinishType.OK));
-            NexusExtraMetadataDataWriter.removeAllMetadataEntries()
-            LocalProperties.set("gda.scan.useScanPlotSettings", "false")
-            LocalProperties.set("gda.plot.ScanPlotSettings.fromUserList", "false")
-            finish(beanGroup)
- 
-        scriptName = beanGroup.getOutput().getAfterScriptName()
-        if scriptName != None and scriptName != "":
-            scriptName = scriptName[scriptName.rfind("/") + 1:]
-            run(scriptName)
 
-        #remove added metadata from default metadata list to avoid multiple instances of the same metadata
-        # undefined in I20 - has this been set elsewhere on a specific beamline?
-        #original_header=jython_mapper.original_header[:]
-        #Finder.getInstance().find("datawriterconfig").setHeader(original_header)
-        # End Loop
+            scriptName = beanGroup.getOutput().getAfterScriptName()
+            if scriptName != None and scriptName != "":
+                scriptName = scriptName[scriptName.rfind("/") + 1:]
+                run(scriptName)
+
+            #check if halt after current repetition set to true
+            if numRepetitions > 1 and LocalProperties.get(RepetitionsProperties.HALT_AFTER_REP_PROPERTY) == "true":
+                print "The repetition loop was requested to be halted, so this scan has ended after", str(repetitionNumber), "repetition(s)."
+                break
+                
+            #check if the number of repetitions has been altered and we should now end the loop
+            numRepsFromProperty = int(LocalProperties.get(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY))
+            if numRepsFromProperty != numRepetitions and numRepsFromProperty <= (repetitionNumber):
+                print "The number of repetitions has been reset to",str(numRepsFromProperty), ". As",str(repetitionNumber),"repetitions have been completed this scan will now end."
+                break
+            elif numRepsFromProperty <= (repetitionNumber):
+                break
+
+    finally:
+    # clear the extra metadata which would have been added to the Nxues file (rebuilt everytime in setup)
+        NexusExtraMetadataDataWriter.removeAllMetadataEntries()
+        LocalProperties.set("gda.scan.useScanPlotSettings", "false")
+        LocalProperties.set("gda.plot.ScanPlotSettings.fromUserList", "false")
+        finish(beanGroup)
+ 
+
+    #remove added metadata from default metadata list to avoid multiple instances of the same metadata
+    # undefined in I20 - has this been set elsewhere on a specific beamline?
+    #original_header=jython_mapper.original_header[:]
+    #Finder.getInstance().find("datawriterconfig").setHeader(original_header)
+    # End Loop
     
 def getSignalList(outputParameters):
     signalList = []
