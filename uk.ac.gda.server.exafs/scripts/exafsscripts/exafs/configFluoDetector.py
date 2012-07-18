@@ -7,7 +7,7 @@ def configFluoDetector(beanGroup):
     """
     
     detType = beanGroup.getDetector().getFluorescenceParameters().getDetectorType()
-    fullFileName = beanGroup.getScriptFolder() + beanGroup.getDetector().getFluorescenceParameters().getConfigFileName()
+    fullFileName = str(beanGroup.getScriptFolder()) + str(beanGroup.getDetector().getFluorescenceParameters().getConfigFileName())
     outputParameters = beanGroup.getOutput()
     print "configuring",detType,"detector using",fullFileName
     if detType == "Germanium":
