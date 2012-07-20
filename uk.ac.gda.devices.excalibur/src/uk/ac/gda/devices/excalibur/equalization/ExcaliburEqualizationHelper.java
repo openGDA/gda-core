@@ -60,9 +60,9 @@ public class ExcaliburEqualizationHelper {
 	public static final String THRESHOLD_0OPT = "threshold0opt"; // double []
 	public static final String THRESHOLDN_MASK = "thresholdN_mask"; // short []
 	public static final double FIT_FAILED_WIDTH = -1.0;
-	public static final short EDGE_POSITION_IF_ALL_BELOW_THRESHOLD = Short.MIN_VALUE;
-	public static final short EDGE_POSITION_IF_ALL_ABOVE_THRESHOLD = Short.MAX_VALUE;
-	public static final short EDGE_POSITION_IF_PIXEL_MASKED_OUT = Short.MAX_VALUE - 1;
+	public static final short EDGE_POSITION_IF_ALL_BELOW_THRESHOLD = 514; //valid values are between 0 and 512 - range of threshold
+	public static final short EDGE_POSITION_IF_ALL_ABOVE_THRESHOLD = 515;
+	public static final short EDGE_POSITION_IF_PIXEL_MASKED_OUT = -1;
 	public static final String THRESHOLD_TARGET_ATTR = "thresholdTarget";
 	public static final String THRESHOLD_FROM_THRESHOLD_RESPONSE_DATASET = "thresholdFromThresholdResponse";
 	public static final String THRESHOLD_RESPONSE_OFFSETS_DATASET = "edgeThresholdResponseOffsets";
@@ -623,7 +623,7 @@ public class ExcaliburEqualizationHelper {
 		if (hdata.dims.length != 2)
 			throw new IllegalArgumentException("data.dims.length!=2");
 		if (hdata.dims[0] != readoutFems.size())
-			throw new IllegalArgumentException("data.dims[0]!= readoutFems.size()");
+			throw new IllegalArgumentException("hdata.dims[0]!= readoutFems.size()(" + hdata.dims[0] + " != " + readoutFems.size());
 		if (hdata.dims[1] != ExcaliburReadoutNodeFem.CHIPS_PER_FEM)
 			throw new IllegalArgumentException("data.dims[1]!=CHIPS_PER_FEM");
 

@@ -102,7 +102,34 @@ public class ExcaliburNDArraySimulator implements NDArray{
 
 	@Override
 	public short[] getShortArrayData(int numberOfElements) throws Exception {
-		throw new UnsupportedOperationException("Only getIntArrayData is supported");
+		int w = pluginBase.getArraySize0_RBV();
+		int h = pluginBase.getArraySize1_RBV();
+		
+		if( widthUsed != w || heightUsed != h || heights==null){
+			handleWidthHeight(w, h);
+		}
+
+		short [] ldata = new short[w * h];
+		double xVal = ScannableUtils.getCurrentPositionArray(threshold)[0];
+		short adjustment = fems.get(0).getMpxiiiChipReg1().getPixel().getThresholdA()[0];
+		for (int index = 0; index < ldata.length; index++) {
+			if(reportSCurve){
+				ldata[index] = (short)( heights[index]* distributions[index].cumulativeProbability(xVal-adjustment));
+			} else {
+				ldata[index] = (short) (heights[index] * Math.exp(-0.5 * Math.pow(((xVal - centres[index]-adjustment) / widths[index]), 2.0)));
+			}
+		}
+		if( deadRows != null){
+			for( Integer i : deadRows){
+				if( i < w && i>=0){
+					for (int j = 0; j < h; j++) {
+						ldata[i*h +j]=-1;
+					}
+				}
+			}
+		}
+		
+		return ldata;
 	}
 
 	@Override
@@ -122,8 +149,9 @@ public class ExcaliburNDArraySimulator implements NDArray{
 	}
 	@Override
 	public int[] getIntArrayData(int numberOfElements) throws Exception {
-		if(getPluginBase().getDataType_RBV() != NDPluginBase.UInt32)
+/*		if(getPluginBase().getDataType_RBV() != NDPluginBase.UInt32)
 			throw new UnsupportedOperationException("Only getIntArrayData for  NDPluginBase.UInt32 is supported");
+*/
 		int w = pluginBase.getArraySize0_RBV();
 		int h = pluginBase.getArraySize1_RBV();
 		
