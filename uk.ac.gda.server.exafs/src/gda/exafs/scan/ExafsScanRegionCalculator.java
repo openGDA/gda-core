@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -88,12 +88,11 @@ public class ExafsScanRegionCalculator {
 	 * @param preEdgeStep
 	 * @param edgeStep
 	 * @return double[]
-	 * @throws Exception
 	 */
 	public static double[] calculateVariableStepRegion(final Double aEnergy, 
 			                                           final Double bEnergy, 
 			                                           final Double preEdgeStep,
-			                                           final Double edgeStep) throws Exception {
+			                                           final Double edgeStep) throws ExafsScanPointCreatorException {
 		double ds = edgeStep - preEdgeStep;
 		double de = bEnergy - aEnergy;
 		double di = (edgeStep + preEdgeStep) / 2d;
@@ -114,7 +113,7 @@ public class ExafsScanRegionCalculator {
 				return ee;
 			}
 		}
-		throw new Exception("Could not calculate AB region of XasScan");
+		throw new ExafsScanPointCreatorException("Could not calculate AB region of XasScan");
 	}
 
 	private ExafsScanRegionCalculator() {

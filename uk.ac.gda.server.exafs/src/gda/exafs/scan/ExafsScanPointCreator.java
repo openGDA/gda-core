@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -135,25 +135,18 @@ public class ExafsScanPointCreator {
 		}
 	}
 
-	// public void setKStart(Double kStart) {
-	// this.kStart = kStart;
-	// }
-
 	public void setkWeighting(Double kWeighting) {
 		this.kWeighting = kWeighting;
 	}
 
-	/**
-	 * Constructor.
-	 */
 	public ExafsScanPointCreator() {
 	}
 
 	/**
 	 * @return an array of the energies this scan will step through
-	 * @throws Exception
+	 * @throws ExafsScanPointCreatorException
 	 */
-	private double[][] getScanEnergies() throws Exception {
+	private double[][] getScanEnergies() throws ExafsScanPointCreatorException {
 
 		checkAllValuesEntered();
 
@@ -186,7 +179,7 @@ public class ExafsScanPointCreator {
 
 	}
 
-	private double[][] calculateValues() throws Exception {
+	private double[][] calculateValues() throws ExafsScanPointCreatorException {
 
 		// Rather than using two dimensional arrays, this method should use pojo objects and collections
 		// this is much easier to deal with.
@@ -244,7 +237,7 @@ public class ExafsScanPointCreator {
 	}
 
 	private double[][] convertABSteps(Double aEnergy, Double bEnergy, Double preEdgeStep, Double edgeStep,
-			Double stepTime) throws Exception {
+			Double stepTime) throws ExafsScanPointCreatorException {
 
 		// double[][] abEnergies = createStepArray(aEnergy, bEnergy, preEdgeStep, stepTime, false);
 		double[] steps = ExafsScanRegionCalculator.calculateVariableStepRegion(aEnergy, bEnergy, preEdgeStep, edgeStep);
@@ -273,7 +266,7 @@ public class ExafsScanPointCreator {
 	private static final int EXAFS_SMOOTH_COUNT = 10;
 
 	private double[][][] createEdgeToExafsSteps(final Double cEnergy, double[][] exafsEnergies, final Double edgeStep,
-			final Double stepTime) throws Exception {
+			final Double stepTime) throws ExafsScanPointCreatorException {
 
 		// If too few points in exafs, we do nothing
 		if (exafsEnergies.length < EXAFS_SMOOTH_COUNT) {
@@ -457,52 +450,52 @@ public class ExafsScanPointCreator {
 		return element;
 	}
 
-	private void checkAllValuesEntered() throws Exception {
+	private void checkAllValuesEntered() throws ExafsScanPointCreatorException {
 
 		final double aNearest = getNearestAEnergy();
 		setaEnergy(aNearest);
 
 		if (initialEnergy == null) {
-			throw new Exception("initialEnergy not set");
+			throw new ExafsScanPointCreatorException("initialEnergy not set");
 		}
 		if (aEnergy == null) {
-			throw new Exception("A/Gaf1 Energy not set");
+			throw new ExafsScanPointCreatorException("A/Gaf1 Energy not set");
 		}
 		if (bEnergy == null) {
-			throw new Exception("B/Gaf2 Energy not set");
+			throw new ExafsScanPointCreatorException("B/Gaf2 Energy not set");
 		}
 		if (preEdgeStep == null) {
-			throw new Exception("preEdgeStep not set");
+			throw new ExafsScanPointCreatorException("preEdgeStep not set");
 		}
 		if (preEdgeTime == null) {
-			throw new Exception("preEdgeTime not set");
+			throw new ExafsScanPointCreatorException("preEdgeTime not set");
 		}
 		if (cEnergy == null) {
-			throw new Exception("cEnergy not set");
+			throw new ExafsScanPointCreatorException("cEnergy not set");
 		}
 		if (edgeStep == null) {
-			throw new Exception("edgeStep not set");
+			throw new ExafsScanPointCreatorException("edgeStep not set");
 		}
 		if (edgeTime == null) {
-			throw new Exception("edgeTime not set");
+			throw new ExafsScanPointCreatorException("edgeTime not set");
 		}
 		if (finalEnergy == null) {
-			throw new Exception("finalEnergy not set");
+			throw new ExafsScanPointCreatorException("finalEnergy not set");
 		}
 		if (exafsStep == null) {
-			throw new Exception("exafsStep not set");
+			throw new ExafsScanPointCreatorException("exafsStep not set");
 		}
 		if (exafsConstantTime && exafsTime == null) {
-			throw new Exception("exafsTime not set");
+			throw new ExafsScanPointCreatorException("exafsTime not set");
 		} else if (!exafsConstantTime && (exafsFromTime == null || exafsToTime == null)) {
-			throw new Exception("exafsFromTime and exafsToTime need to be set if varying exafs time to be used");
+			throw new ExafsScanPointCreatorException("exafsFromTime and exafsToTime need to be set if varying exafs time to be used");
 		}
 		if (numberDetectors == null) {
-			throw new Exception("numberDetectors not set");
+			throw new ExafsScanPointCreatorException("numberDetectors not set");
 		}
 
 		if (!exafsConstantEnergyStep && edgeEnergy == null) {
-			throw new Exception("edgeEnergy not set when doing constant K in exafs region");
+			throw new ExafsScanPointCreatorException("edgeEnergy not set when doing constant K in exafs region");
 		}
 
 	}
@@ -521,24 +514,24 @@ public class ExafsScanPointCreator {
 		return ret;
 	}
 
-	private void checkAllValuesConsistent() throws Exception {
+	private void checkAllValuesConsistent() throws ExafsScanPointCreatorException {
 		if (initialEnergy > aEnergy) {
-			throw new Exception("initialEnergy higher than edgeRegionLowEnergy");
+			throw new ExafsScanPointCreatorException("initialEnergy higher than edgeRegionLowEnergy");
 		}
 		if (cEnergy < aEnergy) {
-			throw new Exception("edgeRegionLowEnergy higher than edgeRegionHighEnergy");
+			throw new ExafsScanPointCreatorException("edgeRegionLowEnergy higher than edgeRegionHighEnergy");
 		}
 		if (cEnergy > finalEnergy) {
-			throw new Exception("edgeRegionHighEnergy higher than finalEnergy");
+			throw new ExafsScanPointCreatorException("edgeRegionHighEnergy higher than finalEnergy");
 		}
 		if (preEdgeStep > aEnergy - initialEnergy) {
-			throw new Exception("preEdgeStep too big");
+			throw new ExafsScanPointCreatorException("preEdgeStep too big");
 		}
 		if (edgeStep > cEnergy - aEnergy) {
-			throw new Exception("edgeStep too big");
+			throw new ExafsScanPointCreatorException("edgeStep too big");
 		}
 		if (exafsStep > finalEnergy - cEnergy) {
-			throw new Exception("exafsStep too big");
+			throw new ExafsScanPointCreatorException("exafsStep too big");
 		}
 	}
 
