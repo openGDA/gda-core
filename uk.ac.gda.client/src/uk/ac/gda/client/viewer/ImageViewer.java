@@ -232,6 +232,15 @@ public class ImageViewer {
 		fig.addMouseMotionListener(new MouseMotionListener.Stub() {
 			@Override
 			public void mouseDragged(org.eclipse.draw2d.MouseEvent me) {
+				mouseDraggedMovedHandler(me);
+			}
+
+			@Override
+			public void mouseMoved(org.eclipse.draw2d.MouseEvent me) {
+				mouseDraggedMovedHandler(me);
+			}
+
+			private void mouseDraggedMovedHandler(org.eclipse.draw2d.MouseEvent me) {
 				if (image != null) {
 					if (panInProgress) {
 						Point currentPoint = me.getLocation();

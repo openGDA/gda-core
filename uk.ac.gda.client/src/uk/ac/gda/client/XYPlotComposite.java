@@ -433,7 +433,7 @@ public class XYPlotComposite extends Composite {
 						 */
 						int linenum = plotter.addData(scanIdentifier, dataFileName, stepIds, new DoubleDataset(1),
 							new DoubleDataset(1), xAxisHeader, yAxisHeader, false, false);
-						plotView.getXYData(linenum).archiveFilename = scan.archiveFilename;
+						plotView.getXYData(linenum).archiveFilename = scan.archiveFilename;//we need to set to archiveFilename in scan as currently equal to null
 						plotView.getXYData(linenum).archive=null;
 					}
 
@@ -996,6 +996,7 @@ class XYData {
 					obj_in = new ObjectInputStream(f_in);
 					Object obj = obj_in.readObject();
 					archive = (XYDataArchive) obj;
+					number = archive.getxAxis().size();
 					archiveFilename = null;
 				} finally {
 					if (obj_in != null)

@@ -218,6 +218,12 @@ public abstract class ScanBase implements Scan {
 	 * @throws InterruptedException
 	 */
 	public static void checkForInterrupts() throws InterruptedException {
+		
+		if (InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.IDLE) {
+			return;
+		}
+
+		
 		try {
 			if (paused & !interrupted) {
 				InterfaceProvider.getScanStatusHolder().setScanStatus(Jython.PAUSED);
@@ -620,9 +626,6 @@ public abstract class ScanBase implements Scan {
 				}, command);
 				commandThread.start();
 			}
-			
-			// reset the variable as the very last thing to do.
-			interrupted = false;
 		}
 	}
 
@@ -1054,10 +1057,6 @@ public abstract class ScanBase implements Scan {
 				message += ": " + errorMessage;
 			}
 			logger.info(message);
-			
-			// Reset flag as we have now aborted the scan. Instead throw the exception to inform
-			// the code which created and ran the scan that it has been aborted.
-			interrupted = false;
 			throw new InterruptedException(message);
 		}
 	}

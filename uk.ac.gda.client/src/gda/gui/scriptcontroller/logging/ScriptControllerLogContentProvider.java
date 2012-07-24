@@ -27,6 +27,9 @@ import gda.observable.IObserver;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -47,6 +50,7 @@ public class ScriptControllerLogContentProvider implements ITreeContentProvider,
 	private ScriptControllerLogResults[] results = null;
 	private HashMap<String, ILoggingScriptController> mapID2Controller = new HashMap<String, ILoggingScriptController>();
 	private final ScriptControllerLogView view;
+	private final Lock updateViewLock = new ReentrantLock();
 
 	public ScriptControllerLogContentProvider(ScriptControllerLogView view, String scriptControllerNames) {
 		super();
@@ -187,32 +191,53 @@ public class ScriptControllerLogContentProvider implements ITreeContentProvider,
 
 	@Override
 	public void update(final Object source, final Object arg) {
-		if (arg instanceof ScriptControllerLogResults) {
-			addToKnowScripts(((ScriptControllerLogResults) arg).getScriptName());
-			if (haveSeenBefore((ScriptControllerLogResults) arg)) {
-				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						view.getTreeViewer().refresh(true);
+
+		try {
+			if (arg instanceof ScriptControllerLogResults && updateViewLock.tryLock(500, TimeUnit.MILLISECONDS)) {
+				try {
+					addToKnowScripts(((ScriptControllerLogResults) arg).getScriptName());
+					if (haveSeenBefore((ScriptControllerLogResults) arg)) {
+						ScriptControllerLogResults temp = (ScriptControllerLogResults) arg;
+						if (!results[0].getUniqueID().equals(temp.getUniqueID())) {
+							return;
+						}
+						ScriptControllerLogResults newResults = new ScriptControllerLogResults(temp.getUniqueID(),
+								temp.getScriptName(), results[0].getStarted(), temp.getUpdated());
+						results[0] = newResults;
+						PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								view.getTreeViewer().refresh();
+							}
+						});
+					} else {
+						ScriptControllerLogResults temp = (ScriptControllerLogResults) arg;
+						mapID2Controller.put(temp.getUniqueID(), (ILoggingScriptController) source);
+						results = (ScriptControllerLogResults[]) ArrayUtils.addAll(
+								new ScriptControllerLogResults[] { temp }, results);
+
+						PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+							@Override
+							public void run() {
+
+								view.getTreeViewer()
+										.setInput(ScriptControllerLogContentProvider.this.getElements(null));
+								view.getTreeViewer().refresh();
+								view.getTreeViewer().collapseAll();
+								view.getTreeViewer().expandToLevel(arg, 1);
+								view.getTreeViewer().reveal(arg);
+								// view.getTreeViewer().setSelection(new StructuredSelection(arg), true);
+
+							}
+						});
 					}
-				});
-			} else {
-				ScriptControllerLogResults temp = (ScriptControllerLogResults) arg;
-				mapID2Controller.put(temp.getUniqueID(), (ILoggingScriptController) source);
-				results = (ScriptControllerLogResults[]) ArrayUtils.addAll(new ScriptControllerLogResults[] { temp },
-						results);
-				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						view.getTreeViewer().setInput(ScriptControllerLogContentProvider.this.getElements(null));
-						view.getTreeViewer().refresh(true);
-						view.getTreeViewer().collapseAll();
-						view.getTreeViewer().expandToLevel(arg, 1);
-						view.getTreeViewer().reveal(arg);
-						// view.getTreeViewer().setSelection(new StructuredSelection(arg), true);
-					}
-				});
+				} finally {
+					updateViewLock.unlock();
+				}
+
 			}
+		} catch (InterruptedException e) {
+			// ignore as this will only ultimately return to the server
 		}
 	}
 
