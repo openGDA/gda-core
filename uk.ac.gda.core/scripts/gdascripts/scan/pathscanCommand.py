@@ -8,7 +8,7 @@ Created on 24 July 2012
 
 @author: fy65
 '''
-from dummy_detector import DummyDetector
+from gdascripts.scannable.detector.dummy.dummy_detector import DummyDetector
 try:
     if dummydetector == None: #@UndefinedVariable
         dummydetector=DummyDetector("dummydetector")
