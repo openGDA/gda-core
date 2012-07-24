@@ -32,7 +32,6 @@ import string
 from gda.device.scannable.scannablegroup import ScannableGroup
 from gda.jython.commands.ScannableCommands import scan
 from gda.jython.commands.GeneralCommands import alias
-from init_scan_commands_and_processing import scanp
 
 class PathScan():
     def __init__(self, name, detectorToUse=edxd):#@UndefinedVariable
@@ -117,14 +116,14 @@ class PathScan():
         print self.exposuretime
         pathPositions=tuple(self.path)
         print pathPositions
-        scan self.sg pathPositions self.detector exposureTime
+        scan([self.sg, pathPositions, self.detector, exposureTime])
     
     def startScan(self,filename, exposureTime):
         print self.pointid
         print self.exposuretime
         pathPositions=tuple(self.path)
         print pathPositions
-        scan self.sg pathPositions self.detector exposureTime
+        scan([self.sg, pathPositions, self.detector, exposureTime])
             
     def setName(self, name):
         self.name=name
