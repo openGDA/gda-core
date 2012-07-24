@@ -108,7 +108,7 @@ public abstract class TfgScalerWithDarkCurrent extends TfgScaler {
 
 		setCollectionTime(bean.getOriginalCollectionTime());
 
-		return new DarkCurrentResults(getCollectionTime(), counts);
+		return new DarkCurrentResults(bean.getDarkCollectionTime(), counts);
 	}
 
 	/**
