@@ -702,14 +702,6 @@
             describer="uk.ac.gda.exafs.ui.describers.XanesDescriber">
       </bean>
       <bean
-            class="uk.ac.gda.beans.exafs.QEXAFSParameters"
-            describer="uk.ac.gda.exafs.ui.describers.QEXAFSParametersDescriber">
-      </bean>
-      <bean
-            class="uk.ac.gda.beans.exafs.b18.B18SampleParameters"
-            describer="uk.ac.gda.exafs.ui.describers.B18SampleParametersDescriber">
-      </bean>
-      <bean
             class="uk.ac.gda.beans.exafs.DetectorParameters"
             describer="uk.ac.gda.exafs.ui.describers.DetectorDescriber">
       </bean>
