@@ -849,7 +849,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 				try {
 					// test if anything added
 					while (!outputBufferUpdated) {
-						Thread.sleep(250);
+						Thread.sleep(50);
 					}
 					outputBufferUpdated = false;
 					//if there is not already a SimpleOutputUpdater on the UIThread queue then add one 
@@ -859,7 +859,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 							PlatformUI.getWorkbench().getDisplay().asyncExec(latestUpdater);
 						}
 					}
-					Thread.sleep(500);
+					Thread.sleep(50);
 				} catch (InterruptedException e) {
 					outputBufferUpdated = true;
 				}

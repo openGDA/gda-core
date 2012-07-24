@@ -35,32 +35,44 @@ public class RunExperimentCommandHandler extends AbstractExperimentCommandHandle
 
 		if (event.getCommand().getId().equals("uk.ac.gda.client.experimentdefinition.RunMultiExperimentCommand")) {
 
-			final IExperimentObjectManager man = getController().getSelectedMultiScan();
-			if (man == null)
-				return false;
-
-			List<IExperimentObject> exptList = man.getExperimentList();
-			for (IExperimentObject expt : exptList) {
-				addExperimentToQueue(expt);
-			}
+			queueMultiScan();
 
 		} else if (event.getCommand().getId()
 				.equals("uk.ac.gda.client.experimentdefinition.RunSingleExperimentCommand")) {
-			
-			final IExperimentObject ob = getController().getSelectedScan();
-			addExperimentToQueue(ob);
+
+			queueSingleScan();
 
 		} else if (event.getCommand().getId().equals("uk.ac.gda.client.experimentdefinition.RunSingleScanOnlyCommand")) {
 
-			final IExperimentObject ob = getController().getSelectedScan();
-			if (ob == null)
-				return false;
-
-			final IExperimentObject single = ExperimentFactory.getManager(ob).cloneExperiment(ob);
-			single.setNumberRepetitions(1);
-			addExperimentToQueue(single);
+			queueSingleScanSingleRepetition();
 		}
-		return true;
+		return null;
+	}
+
+	protected void queueSingleScanSingleRepetition() throws ExecutionException {
+		final IExperimentObject ob = getController().getSelectedScan();
+		if (ob == null)
+			return;
+
+		final IExperimentObject single = ExperimentFactory.getManager(ob).cloneExperiment(ob);
+		single.setNumberRepetitions(1);
+		addExperimentToQueue(single);
+	}
+
+	protected void queueSingleScan() throws ExecutionException {
+		final IExperimentObject ob = getController().getSelectedScan();
+		addExperimentToQueue(ob);
+	}
+
+	protected void queueMultiScan() throws ExecutionException {
+		final IExperimentObjectManager man = getController().getSelectedMultiScan();
+		if (man == null)
+			return;
+
+		List<IExperimentObject> exptList = man.getExperimentList();
+		for (IExperimentObject expt : exptList) {
+			addExperimentToQueue(expt);
+		}
 	}
 
 	private void addExperimentToQueue(final IExperimentObject ob) throws ExecutionException {

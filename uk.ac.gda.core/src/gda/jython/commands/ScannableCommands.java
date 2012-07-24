@@ -539,11 +539,17 @@ public class ScannableCommands {
 
 	public static ConcurrentScan createConcurrentScan(Object... args) throws Exception {
 		ConcurrentScan scan = new ConcurrentScan(args);
+		doCommandLineSpecificConcurrentScanSetup(scan);
+		return scan;
+	}
+	
+	/**
+	 * Warning: anything done in this method will not be done for scans created programmatically (e.g. in scripts).
+	 */
+	private static void doCommandLineSpecificConcurrentScanSetup(ConcurrentScan scan) throws Exception {
 		if (LocalProperties.check(GDA_SCAN_SET_SCAN_PLOT_SETTINGS)) {
 			scan.setScanPlotSettings(createScanPlotSettings(scan));
 		}
-		configureScanPipelineParameters(scan);
-		return scan;
 	}
 
 	/**

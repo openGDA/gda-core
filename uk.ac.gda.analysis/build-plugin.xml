@@ -34,7 +34,8 @@
                 <pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/jars/*" />
                 <pathelement location="${workspace.git.loc}/scisoft/scisoft-cbflib.git/uk.ac.diamond.CBFlib/bin" />
                 <pathelement location="${workspace.git.loc}/scisoft/scisoft-cbflib.git/uk.ac.diamond.CBFlib/jars/*" />
-                <pathelement location="${workspace.loc}/plugins/uk.ac.diamond.org.springframework/jars/*" />
+                <pathelement location="${workspace.git.loc}/diamond-springframework.git/uk.ac.diamond.org.springframework/jars/*" />
+                <pathelement path="${workspace.loc}/tp/plugins/org.apache.commons.math_2.2.0.jar" />  <!--ensure that 2.2.0 appears first in classpath -->
                 <pathelement location="${workspace.loc}/tp/plugins/*" />
                 <path refid="ncsa.hdf.classpath" />
                 <path refid="libs.jars.path" />

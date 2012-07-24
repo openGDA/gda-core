@@ -18,18 +18,9 @@
 
 package gda.rcp.views;
 
-
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.ui.part.ViewPart;
-import org.springframework.beans.factory.InitializingBean;
 
 public class CompositeFactoryExecutableExtension extends AbstractFindableExecutableExtension{
 
@@ -57,64 +48,18 @@ public class CompositeFactoryExecutableExtension extends AbstractFindableExecuta
 
 	@Override
 	public Object create() throws CoreException {
-		CompositeFactoryView view = new CompositeFactoryView();
+		CompositeFactoryView view = createView();
 		view.setViewTitle(viewTitle);
 		view.setCompositeFactories(compositeFactories);
+		return view;
+	}
+	
+	protected CompositeFactoryView createView() {
+		CompositeFactoryView view = new CompositeFactoryView();
 		return view;
 	}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
 	}
-}
-
-class CompositeFactoryView extends ViewPart implements InitializingBean{
-	
-	String viewTitle;
-	
-	
-	public String getViewTitle() {
-		return viewTitle;
-	}
-
-	public void setViewTitle(String viewTitle) {
-		this.viewTitle = viewTitle;
-	}
-	
-
-	List<CompositeFactory> compositeFactories= null;
-	
-	public List<CompositeFactory> getCompositeFactories() {
-		return compositeFactories;
-	}
-
-	public void setCompositeFactories(List<CompositeFactory> compositeFactories) {
-		this.compositeFactories = compositeFactories;
-	}
-
-	
-	@Override
-	public void createPartControl(Composite parent) {
-		setPartName(viewTitle);
-		Group grp= new Group(parent, SWT.NONE);
-		GridLayout statusLayout = new GridLayout(compositeFactories.size(), false);
-		grp.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true));
-		grp.setLayout(statusLayout);
-
-		for(CompositeFactory compositeFactory : compositeFactories){
-			Composite composite = compositeFactory.createComposite(grp, SWT.NONE, this.getSite());
-			GridDataFactory.fillDefaults().applyTo(composite);
-		}
-	}
-	
-	@Override
-	public void setFocus() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void afterPropertiesSet() throws Exception {
-	}
-
 }

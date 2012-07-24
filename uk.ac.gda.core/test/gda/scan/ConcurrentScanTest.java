@@ -812,7 +812,6 @@ public class ConcurrentScanTest {
 		InOrder inOrder = inOrder(lev5a, writer_spy);
 
 		inOrder.verify(lev5a).asynchronousMoveTo(0.);
-		inOrder.verify(writer_spy).addData(any(ScanDataPoint.class));
 		inOrder.verify(lev5a).asynchronousMoveTo(1.);
 		inOrder.verify(lev5a).asynchronousMoveTo(3.);
 		inOrder.verify(lev5a).asynchronousMoveTo(4.);

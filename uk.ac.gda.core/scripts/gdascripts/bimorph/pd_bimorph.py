@@ -227,10 +227,10 @@ class EemBimorph(Bimorph):
 
 class Bimorph_HFM(Bimorph):
 	def __init__(self):
-		Bimorph.__init__(self,"hfm_bimorph",0,14,"-MO-PSU-01:BM:V",300)
+		Bimorph.__init__(self,"hfm_bimorph",0,14,"-MO-PSU-01:BM:V",0)
 
 
 class Bimorph_VFM(Bimorph):
 	def __init__(self):
-		Bimorph.__init__(self,"vfm_bimorph",14,8,"-MO-PSU-01:BM:V",300)
+		Bimorph.__init__(self,"vfm_bimorph",14,8,"-MO-PSU-01:BM:V",0)
 	

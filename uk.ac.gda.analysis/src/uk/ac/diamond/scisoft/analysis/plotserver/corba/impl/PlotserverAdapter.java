@@ -52,7 +52,7 @@ public class PlotserverAdapter extends DeviceAdapter implements PlotServer {
 	private static final String GDA_LOCALPLOTVIEWS_REGEX = "gda.localplotviews.regex";
 	private CorbaPlotServer corbaPlotServer;
 	SimplePlotServer delegate=null;
-	private String localplotviews=null;;
+	private String localplotviews=null;
 
 	/**
 	 * Create client side interface to the CORBA package.
@@ -249,7 +249,7 @@ public class PlotserverAdapter extends DeviceAdapter implements PlotServer {
 				org.omg.CORBA.Any any = corbaPlotServer.getGuiNames();
 				String [] otherNames = (String[]) any.extract_Value();
 				if( otherNames != null){
-					if( guiNames != null){
+					if( guiNames != null && guiNames.length>0){
 						List<String> asList = Arrays.asList(guiNames);
 						asList.addAll(Arrays.asList(otherNames));
 						return asList.toArray(new String[0]);
