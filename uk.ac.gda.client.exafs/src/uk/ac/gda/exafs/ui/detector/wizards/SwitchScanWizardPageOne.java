@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2011 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -19,7 +19,6 @@
 package uk.ac.gda.exafs.ui.detector.wizards;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -66,7 +65,7 @@ public class SwitchScanWizardPageOne extends WizardPage {
 					} else if (thisbean instanceof QEXAFSParameters){
 						types = (String[]) ArrayUtils.add(types, "Qexafs");
 					}
-				} catch (CoreException e) {
+				} catch (Exception e) {
 					// ignore
 				}
 			}
