@@ -84,7 +84,10 @@ public class ChipSet {
 	public ChipSet( int rows, int columns, boolean [] present){
 		this.rows = rows;
 		this.columns = columns;
-		this.present = present;
+		this.present = present != null ? present :  new boolean[rows*columns];
+		if(present == null){
+			Arrays.fill(this.present, true);
+		}
 		numChips =rows * columns;
 		pixelsPerRow = ChipSet.getPixelsPerRow(columns);
 		pixelsPerCol = ChipSet.getPixelsPerCol(rows);
