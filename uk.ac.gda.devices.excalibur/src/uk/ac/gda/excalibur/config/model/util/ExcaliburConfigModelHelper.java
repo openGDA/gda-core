@@ -310,7 +310,9 @@ public class ExcaliburConfigModelHelper {
 			detectorChip.enableChip();
 		}
 		setDetectorPixel(detectorChip.getPixel(), modelChipReg.getPixel());
+		detectorChip.loadPixelConfig();
 		setDetectorAnper(detectorChip.getAnper(), modelChipReg.getAnper());
+		detectorChip.loadDacConfig();
 	}
 
 	private void setDetectorAnper(ChipAnper detectorAnper, AnperModel modelAnper) throws Exception {
