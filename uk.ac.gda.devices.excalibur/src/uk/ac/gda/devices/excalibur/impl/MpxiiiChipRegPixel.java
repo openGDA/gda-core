@@ -138,4 +138,29 @@ public class MpxiiiChipRegPixel implements ChipPixel, InitializingBean {
 		this.basePVName = basePVName;
 	}
 
+	@Override
+	public int getThresholdA_Length() throws Exception {
+		return getChannel(THRESHOLDA).getElementCount();
+	}
+
+	@Override
+	public int getMask_Length() throws Exception {
+		return getChannel(MASK).getElementCount();
+	}
+
+	@Override
+	public int getTest_Length() throws Exception {
+		return getChannel(TEST).getElementCount();
+	}
+
+	@Override
+	public int getGainMode_Length() throws Exception {
+		return getChannel(GAINMODE).getElementCount();
+	}
+
+	@Override
+	public int getThresholdB_Length() throws Exception {
+		return getChannel(THRESHOLDB).getElementCount();
+	}
+
 }

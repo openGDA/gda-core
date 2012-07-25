@@ -98,5 +98,30 @@ public class DummyMpxiiiChipRegPixel implements ChipPixel, InitializingBean {
 		thresholdB= new short[size];		
 	}
 
+	@Override
+	public int getMask_Length() throws Exception {
+		return size;
+	}
+
+	@Override
+	public int getTest_Length() throws Exception {
+		return size;
+	}
+
+	@Override
+	public int getGainMode_Length() throws Exception {
+		return size;
+	}
+
+	@Override
+	public int getThresholdA_Length() throws Exception {
+		return size;
+	}
+
+	@Override
+	public int getThresholdB_Length() throws Exception {
+		return size;
+	}
+
 
 }

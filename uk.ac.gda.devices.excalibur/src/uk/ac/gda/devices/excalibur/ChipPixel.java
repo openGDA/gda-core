@@ -25,7 +25,7 @@ public interface ChipPixel {
 	 * 
 	 */
 	short[] getMask() throws Exception;
-
+	int getMask_Length() throws Exception;
 	/**
 	 * 
 	 */
@@ -35,7 +35,7 @@ public interface ChipPixel {
 	 * 
 	 */
 	short[] getTest() throws Exception;
-
+	int getTest_Length() throws Exception;
 	/**
 	 * 
 	 */
@@ -45,6 +45,7 @@ public interface ChipPixel {
 	 * 
 	 */
 	short[] getGainMode() throws Exception;
+	int getGainMode_Length() throws Exception;
 
 	/**
 	 * 
@@ -55,6 +56,7 @@ public interface ChipPixel {
 	 * 
 	 */
 	short[] getThresholdA() throws Exception;
+	int getThresholdA_Length() throws Exception;
 
 	/**
 	 * 
@@ -65,6 +67,7 @@ public interface ChipPixel {
 	 * 
 	 */
 	short[] getThresholdB() throws Exception;
+	int getThresholdB_Length() throws Exception;
 
 	/**
 	 * 
