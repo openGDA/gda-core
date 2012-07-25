@@ -24,12 +24,14 @@ package gda.analysis.numerical.straightline;
 public class Results {
 	final double[] offsets;
 	final double[] slopes;
+	final short[] fitok; 
 	final long [] dims;
-	public Results(double[] offsets, double[] slopes, long [] dims) {
+	public Results(double[] offsets, double[] slopes, long [] dims, short[] fitok) {
 		super();
 		this.offsets = offsets;
 		this.slopes = slopes;
 		this.dims = dims;
+		this.fitok = fitok;
 	}
 	public double[] getOffsets() {
 		return offsets;
@@ -39,6 +41,9 @@ public class Results {
 	}
 	public long[] getDims() {
 		return dims;
+	}
+	public short[] getFitok() {
+		return fitok;
 	}
 	
 }

@@ -19,6 +19,7 @@
 package gda.analysis.numerical.straightline;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -77,15 +78,20 @@ public class StraightLineFit {
 		double[] y = new double[pointsPerLine];
 		double [] slopes = new double[numLines];
 		double [] offsets = new double[numLines];
-		for (int line = 0; line < numLines; line++) {
-			for( int point=0; point<pointsPerLine; point++){
-				y[point] = data.get(point)[line];
+		short [] fitoks = new short[numLines];
+		Arrays.fill(fitoks, (short)0);
+		if( pointsPerLine >= 2){
+			Arrays.fill(fitoks, (short)1);
+			for (int line = 0; line < numLines; line++) {
+				for( int point=0; point<pointsPerLine; point++){
+					y[point] = data.get(point)[line];
+				}
+				Result fit2 = fit2(y, x, xAverage, x1);
+				slopes[line] = fit2.getSlope();
+				offsets[line] = fit2.getOffset();
 			}
-			Result fit2 = fit2(y, x, xAverage, x1);
-			slopes[line] = fit2.getSlope();
-			offsets[line] = fit2.getOffset();
 		}
-		return new Results(offsets, slopes, dims);		
+		return new Results(offsets, slopes, dims, fitoks);		
 	}
 	public static Results fitInt(List<Object> data, long [] dims, double[] x) {
 		
@@ -108,15 +114,20 @@ public class StraightLineFit {
 		double[] y = new double[pointsPerLine];
 		double [] slopes = new double[numLines];
 		double [] offsets = new double[numLines];
-		for (int line = 0; line < numLines; line++) {
-			for( int point=0; point<pointsPerLine; point++){
-				y[point] = Array.getDouble(data.get(point),line);
+		short [] fitoks = new short[numLines];
+		Arrays.fill(fitoks, (short)0);		
+		if( pointsPerLine >= 2){
+			Arrays.fill(fitoks, (short)1);
+			for (int line = 0; line < numLines; line++) {
+				for( int point=0; point<pointsPerLine; point++){
+					y[point] = Array.getDouble(data.get(point),line);
+				}
+				Result fit2 = fit2(y, x, xAverage, x1);
+				slopes[line] = fit2.getSlope();
+				offsets[line] = fit2.getOffset();
 			}
-			Result fit2 = fit2(y, x, xAverage, x1);
-			slopes[line] = fit2.getSlope();
-			offsets[line] = fit2.getOffset();
 		}
-		return new Results(offsets, slopes, dims);		
+		return new Results(offsets, slopes, dims, fitoks);		
 	}
 
 	
