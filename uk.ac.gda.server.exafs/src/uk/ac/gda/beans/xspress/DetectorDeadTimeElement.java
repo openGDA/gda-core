@@ -37,6 +37,7 @@ public class DetectorDeadTimeElement implements Serializable {
 	private double processDeadTimeAllEventGradient;
 	private double processDeadTimeAllEventOffset;
 	private double processDeadTimeInWindow;
+	private double processDeadTimeInWindowGradient;
 	private String name;
 	private int number;
 
@@ -53,8 +54,19 @@ public class DetectorDeadTimeElement implements Serializable {
 		this.processDeadTimeAllEventGradient = processDeadTimeAllEventGradient;
 		this.processDeadTimeAllEventOffset = processDeadTimeAllEventOffset;
 		this.processDeadTimeInWindow = processDeadTimeInWindow;
+		this.processDeadTimeInWindowGradient = 0; // only noticed on 64-element so this value is optional
+	}
+	
+	public DetectorDeadTimeElement(String name, int number, double processDeadTimeAllEventGradient, double processDeadTimeAllEventOffset, double processDeadTimeInWindow,double processDeadTimeInWindowGradient) {
+		this.name = name;
+		this.number = number;		
+		this.processDeadTimeAllEventGradient = processDeadTimeAllEventGradient;
+		this.processDeadTimeAllEventOffset = processDeadTimeAllEventOffset;
+		this.processDeadTimeInWindow = processDeadTimeInWindow;
+		this.processDeadTimeInWindowGradient = processDeadTimeInWindowGradient;
 	}
 
+	
 	/**
 		 *
 		 */
@@ -85,40 +97,30 @@ public class DetectorDeadTimeElement implements Serializable {
 		this.processDeadTimeAllEventOffset = processDeadTimeAllEventOffset;
 	}
 
-	/**
-	 * @return Returns the processDeadTimeInWindow.
-	 */
 	public double getProcessDeadTimeInWindow() {
 		return processDeadTimeInWindow;
 	}
-
-	/**
-	 * @param processDeadTimeInWindow
-	 *            The processDeadTimeInWindow to set.
-	 */
+	
 	public void setProcessDeadTimeInWindow(double processDeadTimeInWindow) {
 		this.processDeadTimeInWindow = processDeadTimeInWindow;
 	}
 
-	/**
-	 * @return Returns the name.
-	 */
+	public double getProcessDeadTimeInWindowGradient() {
+		return processDeadTimeInWindowGradient;
+	}
+
+	public void setProcessDeadTimeInWindowGradient(double processDeadTimeInWindowGradient) {
+		this.processDeadTimeInWindowGradient = processDeadTimeInWindowGradient;
+	}
+
 	public String getName() {
 		return name;
 	}
 
-	/**
-	 * @param name
-	 *            The name to set.
-	 */
 	public void setName(String name) {
 		this.name = name;
 	}
 
-	/**
-	 * @param number
-	 *            The number to set.
-	 */
 	public void setNumber(int number) {
 		this.number = number;
 	}
@@ -149,6 +151,8 @@ public class DetectorDeadTimeElement implements Serializable {
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		temp = Double.doubleToLongBits(processDeadTimeInWindow);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(processDeadTimeInWindowGradient);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
 
@@ -176,7 +180,10 @@ public class DetectorDeadTimeElement implements Serializable {
 			return false;
 		if (Double.doubleToLongBits(processDeadTimeInWindow) != Double.doubleToLongBits(other.processDeadTimeInWindow))
 			return false;
-		
+		if (Double.doubleToLongBits(processDeadTimeInWindowGradient) != Double
+				.doubleToLongBits(other.processDeadTimeInWindowGradient))
+			return false;
 		return true;
 	}
+
 }
