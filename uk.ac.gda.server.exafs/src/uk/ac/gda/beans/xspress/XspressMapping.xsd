@@ -79,6 +79,7 @@
 				<xsd:element name="processDeadTimeAllEventGradient" type="xsd:double" maxOccurs="1" minOccurs="0"/>
 				<xsd:element name="processDeadTimeAllEventOffset" type="xsd:double" maxOccurs="1" minOccurs="1"/>
 				<xsd:element name="processDeadTimeInWindow" type="xsd:double" maxOccurs="1" minOccurs="1"/>
+				<xsd:element name="processDeadTimeInWindowGradient" type="xsd:double" maxOccurs="1" minOccurs="0"/>
 			</xsd:sequence>
 		</xsd:complexType>
 	</xsd:element>
