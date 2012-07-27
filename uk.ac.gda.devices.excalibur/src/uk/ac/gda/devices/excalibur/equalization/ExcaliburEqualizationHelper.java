@@ -906,7 +906,15 @@ public class ExcaliburEqualizationHelper {
 		return maxThresholdLimit;
 	}
 
-	public void createDACPixelOpt(String dacChipResponseFile, double tmax, double param1, String resultFile)
+	/**
+	 * 
+	 * @param dacChipResponseFile
+	 * @param thresholdLimitFile - file holding THRESHOLD_LIMIT_DATASET - tmax in section 3.4.3
+	 * @param eqTarget
+	 * @param resultFile
+	 * @throws Exception
+	 */
+	public void createDACPixelOpt(String dacChipResponseFile, String thresholdLimitFile, double eqTarget, String resultFile)
 			throws Exception {
 		Hdf5Helper hdf = Hdf5Helper.getInstance();
 		// read the offset and slope - a1, a2
@@ -915,26 +923,36 @@ public class ExcaliburEqualizationHelper {
 		Hdf5HelperData slopeData = hdf.readDataSetAll(dacChipResponseFile, getEqualisationLocation()
 				.getLocationForOpen(), THRESHOLD_RESPONSE_SLOPES_DATASET, true);
 
+		Hdf5HelperData thresholdLimitData = hdf.readDataSetAll(thresholdLimitFile, getEqualisationLocation()
+				.getLocationForOpen(), THRESHOLD_LIMIT_DATASET, true);
+		
 		long lenFromOffsetData = hdf.lenFromDims(offsetData.dims);
 		long lenFromSlopeData = hdf.lenFromDims(slopeData.dims);
 
 		if (lenFromOffsetData != lenFromSlopeData)
 			throw new IllegalArgumentException("lenFromOffsetData !=  lenFromSlopeData ");
+
+		long lenFromthresholdLimitData = hdf.lenFromDims(thresholdLimitData.dims);
+		
+		if (lenFromOffsetData != lenFromthresholdLimitData)
+			throw new IllegalArgumentException("lenFromOffsetData != lenFromthresholdLimitData");
+		
 		short[] dacPixelOpt = new short[(int) lenFromOffsetData];
 		double[] threshold0opt = new double[(int) lenFromOffsetData];
 		for (int i = 0; i < lenFromOffsetData; i++) {
-			threshold0opt[i] = tmax;
+			double thresholdLimit_Tmax = Array.getDouble(thresholdLimitData.data,i);
+			threshold0opt[i] = 29*(thresholdLimit_Tmax-eqTarget)/30.;
 			dacPixelOpt[i] = (short) ((threshold0opt[i] - Array.getDouble(offsetData.data, i)) / (Array.getDouble(
 					slopeData.data, i)));
 		}
 		Hdf5HelperData data = new Hdf5HelperData(offsetData.dims, threshold0opt);
 		hdf.writeToFileSimple(data, resultFile, getEqualisationLocation(), THRESHOLD_0OPT);
 		hdf.writeAttribute(resultFile, Hdf5Helper.TYPE.DATASET, getEqualisationLocation().add(THRESHOLD_0OPT),
-				THRESHOLD_N_EQ_TARGET_ATTR, param1);
+				THRESHOLD_N_EQ_TARGET_ATTR, eqTarget);
 		data = new Hdf5HelperData(offsetData.dims, dacPixelOpt);
 		hdf.writeToFileSimple(data, resultFile, getEqualisationLocation(), DACPIXEL_OPT);
 		hdf.writeAttribute(resultFile, Hdf5Helper.TYPE.DATASET, getEqualisationLocation().add(DACPIXEL_OPT),
-				THRESHOLD_N_EQ_TARGET_ATTR, param1);
+				THRESHOLD_N_EQ_TARGET_ATTR, eqTarget);
 	}
 
 	public void setDACPixelFromFile(String edgeThresholdNResponseFile, List<ExcaliburReadoutNodeFem> readoutFems,
