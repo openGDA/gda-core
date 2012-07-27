@@ -512,15 +512,21 @@ public abstract class ScanBase implements Scan {
 		/*
 		 * If queue length is not 0 then always use the multi threaded pipeline
 		 */
-		if ( getScanDataPointQueueLength() == 0) {
+		if (getScanDataPointQueueLength() == 0) {
 			scanDataPointPipeline = new BasicScanDataPointPipeline(new ScanDataPointPublisher(dataWriter, this));
 		} else {
-			float estimatedPointsToComputeSimultaneousely = (float) getPositionCallableThreadPoolSize()
-					/ (float) Math.max(numberOfScannablesThatCanProvidePositionCallables(),1);
+			float estimatedPointsToComputeSimultaneousely;
+			if ((getPositionCallableThreadPoolSize() == 0) | (numberOfScannablesThatCanProvidePositionCallables() == 0)) {
+				estimatedPointsToComputeSimultaneousely = 0;
+			} else {
+				estimatedPointsToComputeSimultaneousely = (float) getPositionCallableThreadPoolSize()
+						/ (float) numberOfScannablesThatCanProvidePositionCallables();
+			}
 			logger.info(String.format(
 					"Creating MultithreadedScanDataPointPipeline which can hold %d points before blocking"
 							+ ", and that will on average process %.1f points simultaneousely using %d threads.",
-					getScanDataPointQueueLength(), estimatedPointsToComputeSimultaneousely, getPositionCallableThreadPoolSize()));
+					getScanDataPointQueueLength(), estimatedPointsToComputeSimultaneousely,
+					getPositionCallableThreadPoolSize()));
 
 			scanDataPointPipeline = new MultithreadedScanDataPointPipeline(
 					new ScanDataPointPublisher(dataWriter, this), getPositionCallableThreadPoolSize(),

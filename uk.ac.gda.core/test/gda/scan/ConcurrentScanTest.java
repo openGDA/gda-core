@@ -1050,7 +1050,7 @@ public class ConcurrentScanTest {
 
 	@Test
 	public void testConcurrentScanWithWithScannableThetReturnsCallable() throws Exception {
-		// NOTE: Not a PositionCallableProvider!
+		// NOTE: Not a PositionCallableProvider so should not be processed in pipeline!
 		testScratchDirectoryName = TestHelpers.setUpTest(this.getClass(),
 				"testConcurrentScanWithWithScannableThetReturnsCallable", true);
 		setLocalProperties();

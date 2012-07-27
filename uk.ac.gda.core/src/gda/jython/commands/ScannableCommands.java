@@ -588,11 +588,11 @@ public class ScannableCommands {
 	
 	public static void configureScanPipelineParameters(ScanBase scan) {
 		int scanDataPointQueueLength = LocalProperties.getInt(
-		LocalProperties.GDA_SCAN_MULTITHREADED_SCANDATA_POINT_PIPElINE_LENGTH, 4);
+				LocalProperties.GDA_SCAN_MULTITHREADED_SCANDATA_POINT_PIPElINE_LENGTH, 4);
 		int pointsToComputeSimultaneousely = LocalProperties.getInt(
-		LocalProperties.GDA_SCAN_MULTITHREADED_SCANDATA_POINT_PIPElINE_POINTS_TO_COMPUTE_SIMULTANEOUSELY, 3);
+				LocalProperties.GDA_SCAN_MULTITHREADED_SCANDATA_POINT_PIPElINE_POINTS_TO_COMPUTE_SIMULTANEOUSELY, 3);
 		int positionCallableThreadPoolSize = pointsToComputeSimultaneousely * 
-				Math.max(scan.numberOfScannablesThatCanProvidePositionCallables(), 1);
+				scan.numberOfScannablesThatCanProvidePositionCallables();
 
 		/*
 		 * This is called when creating a scan. An inner scan may already have set the
