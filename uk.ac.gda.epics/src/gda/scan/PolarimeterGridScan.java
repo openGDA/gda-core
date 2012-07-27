@@ -431,8 +431,9 @@ public class PolarimeterGridScan extends ScanBase implements Scan {
 
 	/**
 	 * Run the nested scan
+	 * @throws Exception 
 	 */
-	protected void runChildScan() {
+	protected void runChildScan() throws Exception {
 		// before running the child scan, make sure it is sharing the same
 		// datahandler and lists
 		childScan.setDataWriter(getDataWriter());
