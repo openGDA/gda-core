@@ -277,9 +277,9 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 				if (scannable instanceof DetectorWithReadout) {
 					if (!detectorWithReadoutDeprecationWarningGiven ) {
 						logger.warn("The DetectorWithReadout interface is deprecated. Set gda.scan.concurrentScan.readoutConcurrently to true instead (after reading the 8.24 release note");
-						((DetectorWithReadout) scannable).waitForReadoutCompletion();
 						detectorWithReadoutDeprecationWarningGiven = true;
 					}
+					((DetectorWithReadout) scannable).waitForReadoutCompletion();
 				}
 			}
 			
