@@ -125,7 +125,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 	protected void createEstimationComposite(final Composite right) {
 
 		final Composite topRight = new Composite(right, SWT.NONE);
-		topRight.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
+		topRight.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		topRight.setLayout(new GridLayout(2, false));
 
 		final Label estimatedNumberOfLabel = new Label(topRight, SWT.NONE);
