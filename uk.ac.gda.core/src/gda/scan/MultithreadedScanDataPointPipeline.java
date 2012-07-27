@@ -67,12 +67,17 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 	 * @param positionCallableThreadPoolSize
 	 *            the number of threads used to process Callables
 	 * @param scanDataPointPipelineLength
-	 *            the number of points allowed in the Pipeline concurrently. Currently must be 2 or more.
+	 *            the number of points allowed in the Pipeline concurrently.
 	 */
 	public MultithreadedScanDataPointPipeline(ScanDataPointPublisher broadcaster, int positionCallableThreadPoolSize,
 			int scanDataPointPipelineLength, String scanName) {
 
 		this.broadcaster = broadcaster;
+		
+		if (scanDataPointPipelineLength == 0) {
+			logger.warn("A zero length pipeline was requested but this would be unable to accept ScanDataPoints. A pipeline of length one hase been created instead");
+			scanDataPointPipelineLength = 1;
+		}
 		
 		NamedThreadFactory threadFactory = new NamedThreadFactory(
 				" scan-" + scanName + "-MSDPP.positionCallableService-%d of " + positionCallableThreadPoolSize);
@@ -86,13 +91,13 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 	 * Uses a ThreadPoolExecutor with a custom queue designed to block rather than throw a RejectedExecutionException if
 	 * the thread is busy and queue is full. The total number of points in the Pipeline is the number of points in the
 	 * workQueue plus the one being worked on in the single thread.
-	 * <p>
-	 * A queue cannot have zero length a customised SynchronousQueue is used if a Pipeline of length 1 is requested
 	 * 
 	 * @param scanDataPointPipelineLength
 	 */
 	private void createScannablePopulatorAndBroadcasterQueueAndThread(int scanDataPointPipelineLength, String scanName) {
 		BlockingQueue<Runnable> workQueue;
+		
+		//  A queue cannot have zero length a customised SynchronousQueue is used if a Pipeline of length 1 is requested
 		if (scanDataPointPipelineLength == 1) {
 			workQueue = new SynchronousQueueWithBlockingOffer<Runnable>();
 		} else {	

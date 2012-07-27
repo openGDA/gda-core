@@ -509,29 +509,22 @@ public abstract class ScanBase implements Scan {
 	
 	protected void createScanDataPointPipeline(DataWriter dataWriter) {
 
-		/*
-		 * If queue length is not 0 then always use the multi threaded pipeline
-		 */
-		if (getScanDataPointQueueLength() == 0) {
-			scanDataPointPipeline = new BasicScanDataPointPipeline(new ScanDataPointPublisher(dataWriter, this));
+		float estimatedPointsToComputeSimultaneousely;
+		if ((getPositionCallableThreadPoolSize() == 0) | (numberOfScannablesThatCanProvidePositionCallables() == 0)) {
+			estimatedPointsToComputeSimultaneousely = 0;
 		} else {
-			float estimatedPointsToComputeSimultaneousely;
-			if ((getPositionCallableThreadPoolSize() == 0) | (numberOfScannablesThatCanProvidePositionCallables() == 0)) {
-				estimatedPointsToComputeSimultaneousely = 0;
-			} else {
-				estimatedPointsToComputeSimultaneousely = (float) getPositionCallableThreadPoolSize()
-						/ (float) numberOfScannablesThatCanProvidePositionCallables();
-			}
-			logger.info(String.format(
-					"Creating MultithreadedScanDataPointPipeline which can hold %d points before blocking"
-							+ ", and that will on average process %.1f points simultaneousely using %d threads.",
-					getScanDataPointQueueLength(), estimatedPointsToComputeSimultaneousely,
-					getPositionCallableThreadPoolSize()));
-
-			scanDataPointPipeline = new MultithreadedScanDataPointPipeline(
-					new ScanDataPointPublisher(dataWriter, this), getPositionCallableThreadPoolSize(),
-					getScanDataPointQueueLength(), getName());
+			estimatedPointsToComputeSimultaneousely = (float) getPositionCallableThreadPoolSize()
+					/ (float) numberOfScannablesThatCanProvidePositionCallables();
 		}
+		logger.info(String.format(
+				"Creating MultithreadedScanDataPointPipeline which can hold %d points before blocking"
+						+ ", and that will on average process %.1f points simultaneousely using %d threads.",
+				getScanDataPointQueueLength(), estimatedPointsToComputeSimultaneousely,
+				getPositionCallableThreadPoolSize()));
+
+		scanDataPointPipeline = new MultithreadedScanDataPointPipeline(
+				new ScanDataPointPublisher(dataWriter, this), getPositionCallableThreadPoolSize(),
+				getScanDataPointQueueLength(), getName());
 	}
 
 	@Override

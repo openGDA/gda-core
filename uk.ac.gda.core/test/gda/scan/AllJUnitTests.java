@@ -34,7 +34,6 @@ import org.junit.runners.Suite;
 	ScanPlotSettingsTest.class,
 	ContinuousScanTest.class,
 	ScanDataPointTest.class,
-	BasicScanDataPointPipelineTest.class,
 	MultithreadedScanDataPointPipelineTest.class,
 	TrajectoryScanLineTest.class,
 	ConstantVelocityScanLineTest.class
