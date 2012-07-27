@@ -145,7 +145,7 @@ public class ExcaliburEqualizationHelper {
 	public static final String THRESHOLDABNVAL_ATTR = "thresholdABNVal"; // identifies the DAC being set outside the
 																			// scan
 	public static final String THRESHOLD_LIMIT_ATTR = "thresholdLimit";
-	public static final String THRESHOLD_LIMIT_DATASET = "thresholdLimit";
+	public static final String THRESHOLD_LIMIT_FROMCENTRE_DATASET = "thresholdLimitFromCentre";
 	// public static final String THRESHOLD_ATTRIBUTE = "threshold";
 	public static final String THRESHOLD_STDDEV_ATTRIBUTE = "threshold_mean";
 	public static final String THRESHOLD_MEAN_ATTRIBUTE = "threshold_stddev";
@@ -862,10 +862,20 @@ public class ExcaliburEqualizationHelper {
 	 * 
 	 * @throws Exception
 	 */
-	public long createThresholdTarget(String thresholdFile, int rows, int columns, boolean chipPresent[],
+	public long createThresholdTarget(String thresholdFile, String populationCentreThresholdNOffFile, int rows, int columns, boolean chipPresent[],
 			long numPixelsOutSide, String resultFile) throws Exception {
 		// need to get binned populations and then get value to include all but 100 values
+
 		String groupName = getEqualisationLocation().getLocationForOpen();
+
+		Hdf5Helper hdf = Hdf5Helper.getInstance();
+		Hdf5HelperData hdata = hdf.readDataSetAll(populationCentreThresholdNOffFile, getEqualisationLocation()
+				.getLocationForOpen(), CHIP_THRESHOLD_GAUSSIAN_POSITION_DATASET, true);
+		if (hdata.dims.length != 2)
+			throw new IllegalArgumentException("data.dims.length!=2");
+
+		double[] popCentre= (double[]) hdata.data;
+		
 		String datasetName = THRESHOLD_DATASET;
 		Hdf5HelperLazyLoader loader = new Hdf5HelperLazyLoader(thresholdFile, groupName, datasetName, false);
 		int[] shape = loader.getLazyDataSet().getShape();
@@ -874,6 +884,7 @@ public class ExcaliburEqualizationHelper {
 		chipset.checkLoaderShape(shape);
 
 		short[] thresholdLimit = new short[chipset.numChips];
+		short[] thresholdLimitFromCentre = new short[chipset.numChips];
 
 		for (Chip chip : chipset.getChips()) {
 			AbstractDataset dataset = chip.getDataset(loader);
@@ -892,6 +903,7 @@ public class ExcaliburEqualizationHelper {
 				short thresholdlimit = (short) (i + offset);
 				thresholdLimit[chip.index] = thresholdlimit; // if numPixelsOutSide==0 then use all i=
 																// population.length-1
+				thresholdLimitFromCentre[chip.index]=(short) (thresholdlimit-(short)(popCentre[chip.index]));
 			}
 
 		}
@@ -899,10 +911,10 @@ public class ExcaliburEqualizationHelper {
 		// write results into file.
 		ShortDataset dataset = new ShortDataset(thresholdLimit, thresholdLimit.length);
 		long maxThresholdLimit = dataset.max().longValue();
-		Hdf5Helper.getInstance().writeToFileSimple(new Hdf5HelperData(chipset.getDims(), thresholdLimit), resultFile,
-				getEqualisationLocation(), THRESHOLD_LIMIT_DATASET);
+		Hdf5Helper.getInstance().writeToFileSimple(new Hdf5HelperData(chipset.getDims(), thresholdLimitFromCentre), resultFile,
+				getEqualisationLocation(), THRESHOLD_LIMIT_FROMCENTRE_DATASET);
 		Hdf5Helper.getInstance().writeAttribute(resultFile, Hdf5Helper.TYPE.DATASET,
-				getEqualisationLocation().add(THRESHOLD_LIMIT_DATASET), THRESHOLD_LIMIT_ATTR, maxThresholdLimit);
+				getEqualisationLocation().add(THRESHOLD_LIMIT_FROMCENTRE_DATASET), THRESHOLD_LIMIT_ATTR, maxThresholdLimit);
 		return maxThresholdLimit;
 	}
 
@@ -924,7 +936,7 @@ public class ExcaliburEqualizationHelper {
 				.getLocationForOpen(), THRESHOLD_RESPONSE_SLOPES_DATASET, true);
 
 		Hdf5HelperData thresholdLimitData = hdf.readDataSetAll(thresholdLimitFile, getEqualisationLocation()
-				.getLocationForOpen(), THRESHOLD_LIMIT_DATASET, true);
+				.getLocationForOpen(), THRESHOLD_LIMIT_FROMCENTRE_DATASET, true);
 		
 		long lenFromOffsetData = hdf.lenFromDims(offsetData.dims);
 		long lenFromSlopeData = hdf.lenFromDims(slopeData.dims);
@@ -941,7 +953,7 @@ public class ExcaliburEqualizationHelper {
 		double[] threshold0opt = new double[(int) lenFromOffsetData];
 		for (int i = 0; i < lenFromOffsetData; i++) {
 			double thresholdLimit_Tmax = Array.getDouble(thresholdLimitData.data,i);
-			threshold0opt[i] = 29*(thresholdLimit_Tmax-eqTarget)/30.;
+			threshold0opt[i] = eqTarget-thresholdLimit_Tmax;
 			dacPixelOpt[i] = (short) ((threshold0opt[i] - Array.getDouble(offsetData.data, i)) / (Array.getDouble(
 					slopeData.data, i)));
 		}
