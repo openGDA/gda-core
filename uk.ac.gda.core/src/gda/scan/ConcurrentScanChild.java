@@ -64,6 +64,8 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 	}
 	
 	private PointPositionInLine pointPositionInLine;
+
+	private boolean detectorWithReadoutDeprecationWarningGiven = false;
 	
 	final protected PointPositionInLine getPointPositionInLine() {
 		return pointPositionInLine;
@@ -273,7 +275,11 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 			// on detectors (technically scannables) that implement DetectorWithReadout call waitForReadoutComplete
 			for (Scannable scannable : scannablesAtThisLevel) {
 				if (scannable instanceof DetectorWithReadout) {
-					((DetectorWithReadout) scannable).waitForReadoutCompletion();
+					if (!detectorWithReadoutDeprecationWarningGiven ) {
+						logger.warn("The DetectorWithReadout interface is deprecated. Set gda.scan.concurrentScan.readoutConcurrently to true instead (after reading the 8.24 release note");
+						((DetectorWithReadout) scannable).waitForReadoutCompletion();
+						detectorWithReadoutDeprecationWarningGiven = true;
+					}
 				}
 			}
 			

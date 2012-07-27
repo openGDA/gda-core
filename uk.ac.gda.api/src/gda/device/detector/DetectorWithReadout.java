@@ -23,6 +23,7 @@ package gda.device.detector;
  * example motors are being moved. The detector may report that its not busy, but still be reading out. ConcurrentScan will call this hook on all Scannables at the current level that
  * implement this interface before triggering Scannables to move and Detectors to collect data.
  */
+@Deprecated // Set gda.scan.concurrentScan.readoutConcurrently to true instead (after reading the 8.24 release note).
 public interface DetectorWithReadout {
 
 	/**
