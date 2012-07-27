@@ -21,21 +21,15 @@ package gda.scan;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.*;
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
-import gda.device.DeviceException;
 import gda.device.Scannable;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.FutureTask;
-
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.invocation.InvocationOnMock;
@@ -45,7 +39,6 @@ import org.mockito.stubbing.Answer;
  * These tests rerun all the tests in ConcurrentScanTest, but with concurrentScan configured to readout
  * detectors is parallel 
  */
-@Ignore("2012/06/08 Test class ignored as some of the tests within it sometimes fail (possibly due to a race condition). Test design will be reworked.")
 public class ConcurrentScanWithConcurrentReadoutTest extends ConcurrentScanTest {
 
 	private DelayedAnswer detlev5Readout1;

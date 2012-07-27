@@ -974,7 +974,6 @@ public abstract class ScanBase implements Scan {
 	public void run() throws Exception {
 		// lineScanNeedsDoing = false;
 		logger.debug("ScanBase.run() for scan: '" + getName() + "'");
-		String phase;
 		do {
 			lineScanNeedsDoing = false;
 			pointNumberAtLineBeginning = currentPointCount;
@@ -985,7 +984,6 @@ public abstract class ScanBase implements Scan {
 				}
 
 				// run the child scan, based on innerscanstatus
-				phase = "preparing for collection";
 				try {
 					prepareForCollection();
 				} catch (Exception e) {
