@@ -539,7 +539,7 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 	/*
 	 * Run the nested scan @throws InterruptedException @throws Exception
 	 */
-	private void runChildScan() {
+	private void runChildScan() throws Exception {
 		// give the child scan the dataHandler reference
 		IConcurrentScanChild child = getChild();
 		child.setScanDataPointPipeline(this.scanDataPointPipeline);

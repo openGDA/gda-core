@@ -67,17 +67,23 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 	 * @param positionCallableThreadPoolSize
 	 *            the number of threads used to process Callables
 	 * @param scanDataPointPipelineLength
-	 *            the number of points allowed in the Pipeline concurrently. Currently must be 2 or more.
+	 *            the number of points allowed in the Pipeline concurrently.
 	 */
 	public MultithreadedScanDataPointPipeline(ScanDataPointPublisher broadcaster, int positionCallableThreadPoolSize,
 			int scanDataPointPipelineLength, String scanName) {
 
 		this.broadcaster = broadcaster;
 		
+		if (scanDataPointPipelineLength == 0) {
+			logger.warn("A zero length pipeline was requested but this would be unable to accept ScanDataPoints. A pipeline of length one hase been created instead");
+			scanDataPointPipelineLength = 1;
+		}
+		
 		NamedThreadFactory threadFactory = new NamedThreadFactory(
 				" scan-" + scanName + "-MSDPP.positionCallableService-%d of " + positionCallableThreadPoolSize);
-		
-		positionCallableService = Executors.newFixedThreadPool(positionCallableThreadPoolSize, threadFactory);
+		if (positionCallableThreadPoolSize > 0) {
+			positionCallableService = Executors.newFixedThreadPool(positionCallableThreadPoolSize, threadFactory);
+		} // else leave it null.
 		createScannablePopulatorAndBroadcasterQueueAndThread(scanDataPointPipelineLength, scanName);
 	}
 
@@ -85,13 +91,13 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 	 * Uses a ThreadPoolExecutor with a custom queue designed to block rather than throw a RejectedExecutionException if
 	 * the thread is busy and queue is full. The total number of points in the Pipeline is the number of points in the
 	 * workQueue plus the one being worked on in the single thread.
-	 * <p>
-	 * A queue cannot have zero length a customised SynchronousQueue is used if a Pipeline of length 1 is requested
 	 * 
 	 * @param scanDataPointPipelineLength
 	 */
 	private void createScannablePopulatorAndBroadcasterQueueAndThread(int scanDataPointPipelineLength, String scanName) {
 		BlockingQueue<Runnable> workQueue;
+		
+		//  A queue cannot have zero length a customised SynchronousQueue is used if a Pipeline of length 1 is requested
 		if (scanDataPointPipelineLength == 1) {
 			workQueue = new SynchronousQueueWithBlockingOffer<Runnable>();
 		} else {	
@@ -109,7 +115,10 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 		logger.debug("'{}': added to pipeline. Points already waiting in queue: {}", point.toString(),
 				broadcasterQueue.getQueue().size());
 		throwException();
-		convertPositionCallablesToFutures(point);
+		if (positionCallableService != null) {
+			// If this has not been created we need not look for Callables
+			convertPositionCallablesToFutures(point);
+		}
 		try {
 			broadcasterQueue.execute(new ScanDataPointPopulatorAndPublisher(getBroadcaster(),
 					point, this));
@@ -189,7 +198,9 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 	}
 
 	private int shutdownNowAndGetNumberOfDumpedPoints() {
-		positionCallableService.shutdownNow();
+		if (positionCallableService != null) {
+			positionCallableService.shutdownNow();
+		}
 		List<Runnable> remainingPointsInQueue = broadcasterQueue.shutdownNow();
 		try {
 			getBroadcaster().shutdown();
@@ -212,17 +223,19 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 	public void shutdown(long timeoutMillis) throws DeviceException, InterruptedException {
 		try {
 			// 1. Shutdown the populate-and-broadcast Executor
-			positionCallableService.shutdown();
-			boolean shutdownOkay = positionCallableService.awaitTermination(timeoutMillis, TimeUnit.MILLISECONDS);
-			if (!shutdownOkay) {
-				int numberOfDumpedPoints = shutdownNowAndGetNumberOfDumpedPoints();
-				throw new DeviceException("positionCallableExecutor did not shutdown politely before " + timeoutMillis
-						+ "ms timeout. The Pipeline has been stopped and " + numberOfDumpedPoints + " points dumped.");
+			if (positionCallableService != null) {
+				positionCallableService.shutdown();
+				boolean shutdownOkay = positionCallableService.awaitTermination(timeoutMillis, TimeUnit.MILLISECONDS);
+				if (!shutdownOkay) {
+					int numberOfDumpedPoints = shutdownNowAndGetNumberOfDumpedPoints();
+					throw new DeviceException("positionCallableExecutor did not shutdown politely before " + timeoutMillis
+							+ "ms timeout. The Pipeline has been stopped and " + numberOfDumpedPoints + " points dumped.");
+				}
 			}
 
 			// 2. Shutdown the now empty position callable executor
 			broadcasterQueue.shutdown();
-			shutdownOkay = broadcasterQueue.awaitTermination(1200000, TimeUnit.MILLISECONDS);
+			boolean shutdownOkay = broadcasterQueue.awaitTermination(1200000, TimeUnit.MILLISECONDS);
 			// (timeout is to broadcast last point only as its callables will have all returned.)
 			if (!shutdownOkay) {
 				int numberOfDumpedPoints = shutdownNowAndGetNumberOfDumpedPoints();

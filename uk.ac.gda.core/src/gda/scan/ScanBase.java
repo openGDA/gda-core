@@ -121,7 +121,6 @@ public abstract class ScanBase implements Scan {
 	 */
 	int currentPointCount = -1;
 
-	protected volatile String errorMessage = "";
 	/**
 	 * instrument name.
 	 */
@@ -510,23 +509,22 @@ public abstract class ScanBase implements Scan {
 	
 	protected void createScanDataPointPipeline(DataWriter dataWriter) {
 
-		/*
-		 * If queue length is not 0 then always use the multi threaded pipeline
-		 */
-		if ( getScanDataPointQueueLength() == 0) {
-			scanDataPointPipeline = new BasicScanDataPointPipeline(new ScanDataPointPublisher(dataWriter, this));
+		float estimatedPointsToComputeSimultaneousely;
+		if ((getPositionCallableThreadPoolSize() == 0) | (numberOfScannablesThatCanProvidePositionCallables() == 0)) {
+			estimatedPointsToComputeSimultaneousely = 0;
 		} else {
-			float estimatedPointsToComputeSimultaneousely = (float) getPositionCallableThreadPoolSize()
-					/ (float) Math.max(numberOfScannablesThatCanProvidePositionCallables(),1);
-			logger.info(String.format(
-					"Creating MultithreadedScanDataPointPipeline which can hold %d points before blocking"
-							+ ", and that will on average process %.1f points simultaneousely using %d threads.",
-					getScanDataPointQueueLength(), estimatedPointsToComputeSimultaneousely, getPositionCallableThreadPoolSize()));
-
-			scanDataPointPipeline = new MultithreadedScanDataPointPipeline(
-					new ScanDataPointPublisher(dataWriter, this), getPositionCallableThreadPoolSize(),
-					getScanDataPointQueueLength(), getName());
+			estimatedPointsToComputeSimultaneousely = (float) getPositionCallableThreadPoolSize()
+					/ (float) numberOfScannablesThatCanProvidePositionCallables();
 		}
+		logger.info(String.format(
+				"Creating MultithreadedScanDataPointPipeline which can hold %d points before blocking"
+						+ ", and that will on average process %.1f points simultaneousely using %d threads.",
+				getScanDataPointQueueLength(), estimatedPointsToComputeSimultaneousely,
+				getPositionCallableThreadPoolSize()));
+
+		scanDataPointPipeline = new MultithreadedScanDataPointPipeline(
+				new ScanDataPointPublisher(dataWriter, this), getPositionCallableThreadPoolSize(),
+				getScanDataPointQueueLength(), getName());
 	}
 
 	@Override
@@ -892,11 +890,11 @@ public abstract class ScanBase implements Scan {
 			checkForInterrupts();
 
 			prepareDevicesForCollection();
-		} catch (Exception ex) {
-			String message = createMessage(ex, "prepareForCollection");
-			logger.info(message, ex);
+		} catch (Exception e) {
+			String message = createMessage(e) + " during prepare for collection";
+			logger.info(message);
 			getTerminalPrinter().print(message);
-			throw ex;
+			throw e;
 		}
 	}
 
@@ -972,48 +970,50 @@ public abstract class ScanBase implements Scan {
 	}
 
 	@Override
-	public void run() {
+	public void run() throws Exception {
 		// lineScanNeedsDoing = false;
 		logger.debug("ScanBase.run() for scan: '" + getName() + "'");
-		String phase;
 		do {
 			lineScanNeedsDoing = false;
 			pointNumberAtLineBeginning = currentPointCount;
-			phase = "validating scannables";
 			try {
-				errorMessage = "";
 				// validate scannables
 				for (Scannable scannable : getScannables()) {
 					ScannableBase.validateScannable(scannable);
 				}
 
 				// run the child scan, based on innerscanstatus
-				phase = "preparing for collection";
-				prepareForCollection();
+				try {
+					prepareForCollection();
+				} catch (Exception e) {
+					throw new Exception("Exception preparing for scan collection: " + createMessage(e), e);
+				}
 				if (getScannables().size() == 0 && getDetectors().size() == 0) {
 					throw new IllegalStateException("ScanBase: No scannables, detectors or monitors to be scanned!");
 				}
-				phase = "doing collection";
-				doCollection();
-			} catch (Throwable e) {
-				errorMessage = createMessage(e, phase);
-				logger.error(errorMessage + " Calling atCommandFailure hooks and then interrupting scan.", e);
+				
+				try {
+					doCollection();
+				} catch (Exception e) {
+					throw new Exception("Exception during scan collection: " + createMessage(e), e);
+				}
+			} catch (Exception e) {
+				logger.error(createMessage(e) + " during scan: calling atCommandFailure hooks and then interrupting scan.");
 				cancelReadoutAndPublishCompletion();
 				callAtCommandFailureHooks();
-				setInterrupted(true);
+				throw e;
 			} finally {
 				try {
 					endScan();
-				} catch (DeviceException ex) {
-					if ((ex instanceof RedoScanLineThrowable) && (getChild() == null)) {
-						logger.info("Redoing scan line because: ", ex.getMessage());
+				} catch (DeviceException e) {
+					if ((e instanceof RedoScanLineThrowable) && (getChild() == null)) {
+						logger.info("Redoing scan line because: ", e.getMessage());
 						lineScanNeedsDoing = true;
 						currentPointCount = pointNumberAtLineBeginning;
 					} else {
-						errorMessage = createMessage(ex, "endScan");
-						logger.error(errorMessage + " Calling atCommandFailure hooks.", ex);
+						logger.error(createMessage(e) + " Calling atCommandFailure hooks.");
 						callAtCommandFailureHooks();
-						setInterrupted(true);
+						throw e;
 					}
 				}
 			}
@@ -1024,20 +1024,18 @@ public abstract class ScanBase implements Scan {
 	
 	@Override
 	public void runScan() throws InterruptedException, Exception {
+		if (getScanStatusHolder().getScanStatus() != Jython.IDLE) {
+			throw new Exception("Scan not started as there is already a scan running (could be paused).");
+		}
 		try {
 			// check if a scan or script is currently running.
-			if (getScanStatusHolder().getScanStatus() == Jython.IDLE && !this.isChild()) {
-				// Note: some subclasses override the run method so its code cannot
-				// be simply pulled into this method
-				run();
-			} else {
-				if (getScanStatusHolder().getScanStatus() != Jython.IDLE) {
-					throw new Exception("Scan not started as there is already a scan running (could be paused).");
-				}
+			if (this.isChild()) {
+				return;
 			}
-		} catch (InterruptedException e) {
-			interrupted = true;
-			logger.debug("Scan interrupted.");
+			// Note: some subclasses override the run method so its code cannot
+			// be simply pulled into this method
+			run();
+
 		} finally {
 			
 			// Leaving interrupted true (if it is) allows jython scripts running
@@ -1045,23 +1043,16 @@ public abstract class ScanBase implements Scan {
 			// (It is set to false at the start of a scan anyway).
 			paused = false;
 			insideMultiScan = false;
-
+			
 			// inform observers that scan is complete by sending a Boolean false
 			// nb moved this until after batonTaken is false as we use the flag
 			// to check for scan end.
 			getScanStatusHolder().setScanStatus(Jython.IDLE);
 		}
 
-		// if an error occurred during a scan, then code gets here.
-		// We want to propagate an error so that current script/command stops.
 		if (interrupted) {
-			String message = "Scan halted";
-			if (errorMessage != null) {
-				logger.error(errorMessage);
-				message += ": " + errorMessage;
-			}
-			logger.info(message);
-			throw new InterruptedException(message);
+			logger.info("Scan interuppted ScanBase.interupted flag");
+			throw new InterruptedException("Scan interrupted");
 		}
 	}
 
@@ -1145,53 +1136,46 @@ public abstract class ScanBase implements Scan {
 	 * detectors to use are identified, and the data handlers objects are created and setup.
 	 */
 	protected synchronized void setUp() {
-		try {
-			// first add to the list of scannables all those items which are
-			// in the list of defaults
-			Vector<Scannable> defaultScannables = getDefaultScannableProvider().getDefaultScannables();
-			for (Scannable scannable : defaultScannables) {
-				if (!allScannables.contains(scannable)) {
-					allScannables.add(scannable);
-				}
+		// first add to the list of scannables all those items which are
+		// in the list of defaults
+		Vector<Scannable> defaultScannables = getDefaultScannableProvider().getDefaultScannables();
+		for (Scannable scannable : defaultScannables) {
+			if (!allScannables.contains(scannable)) {
+				allScannables.add(scannable);
 			}
-			// look to see if any of the scannables was a detector
-			// and add it to the list of detectors
-			/*
-			 * A detector may be specified as a scannable in the constructor to ScanBase class. e.g. within a Jython
-			 * script we may want to execute a scan passing in a non-default detector as: gda.scan.ConcurrentScan( [
-			 * dof, parameters.start.getValue(), parameters.end.getValue(), parameters.step.getValue(), detector
-			 * ]).runScan(); Such a detector would be an instance of Scannable and also DetectorAdapter. Such objects
-			 * need to be added to the list of detectors to be removed.
-			 */
-			ArrayList<Scannable> detectorsToRemove = new ArrayList<Scannable>();
-			for (Scannable scannable : allScannables) {
-				if (scannable instanceof Detector) {
-					// recast
-					Detector det = (Detector) scannable;
-					// add the detector to the list of detectors.
-					if (!allDetectors.contains(det)) {
-						this.allDetectors.add(det);
-						detectorsToRemove.add(scannable);
-					}
-				}
-			}
-
-			// detectors are to be treated differently from scannables,
-			// so remove anything just added to the list of detectors from
-			// the list of scannables
-			for (Object detector : detectorsToRemove) {
-				allScannables.remove(detector);
-			}
-
-			// ensure that there are no duplications in the list of scannables
-			removeDuplicateScannables();
-
-		} catch (Exception ex) {
-			String message = createMessage(ex, "setUp")  + ". Halting scan.";
-			logger.error(message, ex);
-			getTerminalPrinter().print(message);
-			getCurrentScanController().haltCurrentScan();
 		}
+		// look to see if any of the scannables was a detector
+		// and add it to the list of detectors
+		/*
+		 * A detector may be specified as a scannable in the constructor to ScanBase class. e.g. within a Jython
+		 * script we may want to execute a scan passing in a non-default detector as: gda.scan.ConcurrentScan( [
+		 * dof, parameters.start.getValue(), parameters.end.getValue(), parameters.step.getValue(), detector
+		 * ]).runScan(); Such a detector would be an instance of Scannable and also DetectorAdapter. Such objects
+		 * need to be added to the list of detectors to be removed.
+		 */
+		ArrayList<Scannable> detectorsToRemove = new ArrayList<Scannable>();
+		for (Scannable scannable : allScannables) {
+			if (scannable instanceof Detector) {
+				// recast
+				Detector det = (Detector) scannable;
+				// add the detector to the list of detectors.
+				if (!allDetectors.contains(det)) {
+					this.allDetectors.add(det);
+					detectorsToRemove.add(scannable);
+				}
+			}
+		}
+
+		// detectors are to be treated differently from scannables,
+		// so remove anything just added to the list of detectors from
+		// the list of scannables
+		for (Object detector : detectorsToRemove) {
+			allScannables.remove(detector);
+		}
+
+		// ensure that there are no duplications in the list of scannables
+		removeDuplicateScannables();
+
 	}
 
 	@Override
@@ -1269,18 +1253,17 @@ public abstract class ScanBase implements Scan {
 	}
 	
 	/**
-	 * Returns for example "ErrorType during doCollection: message" 
+	 * Returns for example "ErrorType: message" 
 	 * @param e
-	 * @param phase
 	 * @return message
 	 */
-	private String createMessage(Throwable e, String phase) {
+	private String createMessage(Throwable e) {
 		if (e.getMessage() != null) {
-			return e.getClass().getSimpleName() + " during " + phase + ": "+ e.getMessage();
+			return e.getClass().getSimpleName() + ": " + e.getMessage();
 		} else if (e instanceof PyException) {
-			return e.getClass().getSimpleName() + " during " + phase + ": "+ e.toString();
+			return e.getClass().getSimpleName() + ": " + e.toString();
 		} else {
-			return e.getClass().getSimpleName() + " during " + phase +".";
+			return e.getClass().getSimpleName();
 		}
 	}
 

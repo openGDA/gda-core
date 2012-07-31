@@ -129,7 +129,7 @@ public class PointsScan extends ScanBase implements Scan {
 	}
 
 	@Override
-	public void run() {
+	public void run() throws Exception {
 		// make sure the concurrent scan has the same observers
 		/*
 		 * for (Iterator i = observableComponent.iterator(); i.hasNext(); ) {

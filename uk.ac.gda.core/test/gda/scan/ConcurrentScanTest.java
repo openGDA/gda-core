@@ -701,10 +701,10 @@ public class ConcurrentScanTest {
 
 		try {
 			scan.runScan();
-			Assert.fail("DeviceException expected");
-		} catch (InterruptedException e) {
+			Assert.fail("Exception expected");
+		} catch (Exception e) {
 			Assert.assertEquals(
-					"Scan halted: DeviceException during doing collection: Scannable zie has no input or extra names defined. Its getPosition method should return null/None but returned: 'should_have_returned_null'.",
+					"Exception during scan collection: DeviceException: Scannable zie has no input or extra names defined. Its getPosition method should return null/None but returned: 'should_have_returned_null'.",
 					e.getMessage());
 		}
 	}
@@ -774,9 +774,9 @@ public class ConcurrentScanTest {
 
 		try {
 			scan.runScan();
-			Assert.fail("InterruptedException expected");
-		} catch (InterruptedException e) {
-			// We expect one of these!
+			Assert.fail("Exception expected");
+		} catch (Exception e) {
+			assertEquals("Exception during scan collection: DeviceException: Planned failure for test", e.getMessage());
 		}
 
 		for (Scannable scn : Arrays.asList(lev4, lev5a, failer, lev6)) {
@@ -1039,23 +1039,18 @@ public class ConcurrentScanTest {
 	}
 
 	@Test
-	public void testRedoScanLine() {
+	public void testRedoScanLine() throws InterruptedException, Exception {
 		setLocalProperties();
-		try {
-			doThrow(new RedoScanLineThrowable("Beam drop testing Throwable")).doNothing().when(lev6).atScanLineEnd();
-			Object[] args = new Object[] { lev4, 2.0, 3.0, 1.0, lev6, 0., 1., 0.1 };
-			ConcurrentScan scan = new ConcurrentScan(args);
-			scan.runScan();
-			verify(lev4, times(33)).getPosition();
-
-		} catch (Exception e) {
-			fail(e.getMessage());
-		}
+		doThrow(new RedoScanLineThrowable("Beam drop testing Throwable")).doNothing().when(lev6).atScanLineEnd();
+		Object[] args = new Object[] { lev4, 2.0, 3.0, 1.0, lev6, 0., 1., 0.1 };
+		ConcurrentScan scan = new ConcurrentScan(args);
+		scan.runScan();
+		verify(lev4, times(33)).getPosition();
 	}
 
 	@Test
 	public void testConcurrentScanWithWithScannableThetReturnsCallable() throws Exception {
-		// NOTE: Not a PositionCallableProvider!
+		// NOTE: Not a PositionCallableProvider so should not be processed in pipeline!
 		testScratchDirectoryName = TestHelpers.setUpTest(this.getClass(),
 				"testConcurrentScanWithWithScannableThetReturnsCallable", true);
 		setLocalProperties();
