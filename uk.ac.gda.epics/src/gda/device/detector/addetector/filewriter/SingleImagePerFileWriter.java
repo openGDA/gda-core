@@ -35,14 +35,32 @@ import org.slf4j.LoggerFactory;
  */
 public class SingleImagePerFileWriter extends FileWriterBase {
 
+	private static Logger logger = LoggerFactory.getLogger(ADDetector.class);
+
 	private final String folderTemplate;
-	boolean templatesRequireScanNumber=true;
+
+	boolean templatesRequireScanNumber = true;
 
 	/*
 	 * Object that can be used observe the progress of the scan by looking for file - optional
 	 */
-	HighestExistingFileMonitor highestExistingFileMonitor=null;	
+	HighestExistingFileMonitor highestExistingFileMonitor = null; // TODO: Not used (yet?)
 	
+	private boolean returnExpectedFileName = false;
+
+
+	// non configuration state
+	
+	private String fileNameUsed = "";
+	
+	private String filePathUsed = "";
+	
+	private int nextFileNumber = 0;
+	
+	private String fileTemplateForScan = ""; // TODO, Why do we need this?
+
+
+
 	/**
 	 * @param ndFile
 	 * @param fileName
@@ -56,7 +74,6 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 		this.folderTemplate = folderTemplate;
 	}
 
-
 	public boolean isTemplatesRequireScanNumber() {
 		return templatesRequireScanNumber;
 	}
@@ -65,48 +82,36 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 		this.templatesRequireScanNumber = templatesRequireScanNumber;
 	}
 
-
 	public HighestExistingFileMonitor getHighestExistingFileMonitor() {
 		return highestExistingFileMonitor;
 	}
-
 
 	public void setHighestExistingFileMonitor(HighestExistingFileMonitor highestExistingFileMonitor) {
 		this.highestExistingFileMonitor = highestExistingFileMonitor;
 	}
 
 
-	private static Logger logger = LoggerFactory.getLogger(ADDetector.class);
-	private String fileNameUsed="";
-	private String filePathUsed="";
-	private int nextFileNumber=0;
-	private boolean returnExpectedFileName=false;
-	private String fileTemplateForScan="";
-
 	/**
-	 * If true getFullFileName_RBV returns expected filename rather than
-	 * value from ndfile plugin
+	 * If true getFullFileName_RBV returns expected filename rather than value from ndfile plugin
 	 */
 	public boolean isReturnExpectedFullFileName() {
 		return returnExpectedFileName;
 	}
 
-
 	public void setReturnExpectedFullFileName(boolean returnExpectedFullFileName) {
 		this.returnExpectedFileName = returnExpectedFullFileName;
 	}
 
-
 	@Override
 	public String getFullFileName_RBV() throws Exception {
-		if( returnExpectedFileName){
-			String fullFileName = String.format( fileTemplateForScan,filePathUsed,fileNameUsed, nextFileNumber);
-			//each call increments the number
+		if (returnExpectedFileName) {
+			String fullFileName = String.format(fileTemplateForScan, filePathUsed, fileNameUsed, nextFileNumber);
+			// each call increments the number
 			nextFileNumber++;
 			return fullFileName;
 		}
 		return super.getFullFileName_RBV();
-	}	
+	}
 
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection) throws Exception {
@@ -117,58 +122,57 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 		}
 		setNDArrayPortAndAddress();
 		getNdFile().getPluginBase().enableCallbacks();
-		logger.warn("Detector will blocking the AreaDetectors acquisition thread while writing files");
-		getNdFile().getPluginBase().setBlockingCallbacks((short)( returnExpectedFileName ? 1: 1)); //always block otherwise file is corrupted 
+		logger.warn("Detector will block the AreaDetectors acquisition thread while writing files");
+		getNdFile().getPluginBase().setBlockingCallbacks((short) (returnExpectedFileName ? 1 : 1)); // always block
 		getNdFile().setFileWriteMode(FileWriteMode.SINGLE);
 	}
 
 	private void setupFilename() throws Exception {
 		String fileTemplate = getFileTemplate();
-		if( isTemplatesRequireScanNumber()){
+		if (isTemplatesRequireScanNumber()) {
 			fileTemplate = String.format(fileTemplate, getScanNumber());
 		}
 		fileTemplateForScan = fileTemplate;
 		getNdFile().setFileTemplate(fileTemplate);
 		String fileName = getFileName();
 		getNdFile().setFileName(fileName);
-		fileNameUsed=fileName;		
+		fileNameUsed = fileName;
 
-		int filenumber = 0;
 		if (isSetFileNumberToZero()) {
-			getNdFile().setFileNumber(filenumber);
+			getNdFile().setFileNumber(0);
+			nextFileNumber = 0;
 		} else {
-			filenumber = getNdFile().getFileNumber();
+			nextFileNumber = getNdFile().getFileNumber();
 		}
-		nextFileNumber=filenumber;
 
 		// Check to see if the data directory has been defined.
 		String dataDir = PathConstructor.createFromDefaultProperty();
-		if( folderTemplate != null){
-			if ( isTemplatesRequireScanNumber()){
+		if (folderTemplate != null) {
+			if (isTemplatesRequireScanNumber()) {
 				dataDir = String.format(folderTemplate, dataDir, getScanNumber());
 			} else {
 				dataDir = String.format(folderTemplate, dataDir);
 			}
 		}
 		File f = new File(dataDir);
-		if (!f.exists()){
-			if(!f.mkdirs())
+		if (!f.exists()) {
+			if (!f.mkdirs())
 				throw new Exception("Folder does not exist and cannot be made:" + dataDir);
 		}
 		getNdFile().setFilePath(dataDir);
-		filePathUsed=dataDir;
-		
+		filePathUsed = dataDir;
+
 		getNdFile().setAutoSave((short) 1);
 		getNdFile().setAutoIncrement((short) 1);
-		
-		if( highestExistingFileMonitor != null){
-			fileTemplate=fileTemplate.replaceFirst("%s", "");
-			fileTemplate=fileTemplate.replaceFirst("%s", "");
-			HighestExitingFileMonitorSettings highestExitingFileMonitorSettings = 
-					new HighestExitingFileMonitorSettings(dataDir,fileName+fileTemplate, filenumber);
+
+		if (highestExistingFileMonitor != null) {
+			fileTemplate = fileTemplate.replaceFirst("%s", "");
+			fileTemplate = fileTemplate.replaceFirst("%s", "");
+			HighestExitingFileMonitorSettings highestExitingFileMonitorSettings = new HighestExitingFileMonitorSettings(
+					dataDir, fileName + fileTemplate, nextFileNumber);
 			highestExistingFileMonitor.setHighestExitingFileMonitorSettings(highestExitingFileMonitorSettings);
 			highestExistingFileMonitor.setRunning(true);
-		}		
+		}
 
 	}
 
