@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -22,15 +22,13 @@ import java.io.Serializable;
 
 import org.apache.commons.beanutils.BeanUtils;
 
-import uk.ac.gda.doe.DOEField;
-
 /**
  * Class to represent changeable parameters for a cryostat device.
- *
+
  */
 public class CryostatParameters implements Serializable {
 		
-	@DOEField(10)
+
 	private Double  temperature;
 	private Integer heaterRange;
 	private Double  time;
@@ -38,147 +36,209 @@ public class CryostatParameters implements Serializable {
 	private Double  p,i,d,ramp;
 	private Double  tolerance;
 	private String  sampleHolder;
-	
-	/**
-	 * NOTE the field sampleNumber was an integer and should be marked
-	 * using the optional type argument as follows:
-	 */
-	@DOEField(value=4, type=Integer.class)
-	private String sampleNumber;
-	
-	@DOEField(3)
-	private String  position;
-	@DOEField(2)
-	private String  finePosition;
+	private String  sampleNumbers = "";
+	private Double  position1 = 0.0;
+	private Double  finePosition1 = 0.0;
+	private String  sampleDescription1 = "";
+	private Double  position2 = 0.0;
+	private Double  finePosition2 = 0.0;
+	private String  sampleDescription2 = "";
+	private Double  position3 = 0.0;
+	private Double  finePosition3 = 0.0;
+	private String  sampleDescription3 = "";
+	private Double  position4 = 0.0;
+	private Double  finePosition4 = 0.0;
+	private String  sampleDescription4 = "";
 
-	/**
-	 * @return the temperature
-	 */
 	public Double getTemperature() {
 		return temperature;
 	}
 
-	/**
-	 * @param temperature
-	 *            the temperature to set
-	 */
 	public void setTemperature(Double temperature) {
 		this.temperature = temperature;
 	}
 
-	/**
-	 * @return the tolerance
-	 */
 	public Integer getHeaterRange() {
 		return heaterRange;
 	}
 
-	/**
-	 * @param tolerance
-	 *            the tolerance to set
-	 */
 	public void setHeaterRange(Integer tolerance) {
 		this.heaterRange = tolerance;
 	}
 
-	/**
-	 * @return the time
-	 */
 	public Double getTime() {
 		return time;
 	}
 
-	/**
-	 * @param time
-	 *            the time to set
-	 */
 	public void setTime(Double time) {
 		this.time = time;
 	}
 
-	/**
-	 * @return the samplePosition
-	 */
-	public String getSampleNumber() {
-		return sampleNumber;
+	public String getSampleNumbers() {
+		return sampleNumbers;
 	}
 
-	/**
-	 * @param samplePosition
-	 *            the samplePosition to set
-	 */
-	public void setSampleNumber(String samplePosition) {
-		this.sampleNumber = samplePosition;
+	public void setSampleNumbers(String sampleNumbers) {
+		this.sampleNumbers = sampleNumbers;
 	}
 
-	/**
-	 * @return Returns the profileType.
-	 */
 	public String getProfileType() {
 		return profileType;
 	}
 
-	/**
-	 * @param profileType The profileType to set.
-	 */
 	public void setProfileType(String profileType) {
 		this.profileType = profileType;
 	}
-
-	/**
-	 * @return Returns the p.
-	 */
 	public Double getP() {
 		return p;
 	}
-
-	/**
-	 * @param p The p to set.
-	 */
 	public void setP(Double p) {
 		this.p = p;
 	}
-
-	/**
-	 * @return Returns the i.
-	 */
+	
 	public Double getI() {
 		return i;
 	}
 
-	/**
-	 * @param i The i to set.
-	 */
 	public void setI(Double i) {
 		this.i = i;
 	}
 
-	/**
-	 * @return Returns the d.
-	 */
 	public Double getD() {
 		return d;
 	}
 
-	/**
-	 * @param d The d to set.
-	 */
 	public void setD(Double d) {
 		this.d = d;
 	}
 
-	/**
-	 * @return Returns the ramp.
-	 */
 	public Double getRamp() {
 		return ramp;
 	}
 
-	/**
-	 * @param ramp The ramp to set.
-	 */
 	public void setRamp(Double ramp) {
 		this.ramp = ramp;
+	}
+
+	@Override
+	public String toString() {
+		try {
+			return BeanUtils.describe(this).toString();
+		} catch (Exception e) {
+			return e.getMessage();
+		}
+	}
+
+	public Double getTolerance() {
+		return tolerance;
+	}
+
+	public void setTolerance(Double tolerance) {
+		this.tolerance = tolerance;
+	}
+
+	public String getSampleHolder() {
+		return sampleHolder;
+	}
+
+	public void setSampleHolder(String sampleHolder) {
+		this.sampleHolder = sampleHolder;
+	}
+
+	public Double getPosition1() {
+		return position1;
+	}
+
+	public void setPosition1(Double position1) {
+		this.position1 = position1;
+	}
+
+	public Double getFinePosition1() {
+		return finePosition1;
+	}
+
+	public void setFinePosition1(Double finePosition1) {
+		this.finePosition1 = finePosition1;
+	}
+
+	public String getSampleDescription1() {
+		return sampleDescription1;
+	}
+
+	public void setSampleDescription1(String sampleDescription1) {
+		this.sampleDescription1 = sampleDescription1;
+	}
+
+	public Double getPosition2() {
+		return position2;
+	}
+
+	public void setPosition2(Double position2) {
+		this.position2 = position2;
+	}
+
+	public Double getFinePosition2() {
+		return finePosition2;
+	}
+
+	public void setFinePosition2(Double finePosition2) {
+		this.finePosition2 = finePosition2;
+	}
+
+	public String getSampleDescription2() {
+		return sampleDescription2;
+	}
+
+	public void setSampleDescription2(String sampleDescription2) {
+		this.sampleDescription2 = sampleDescription2;
+	}
+
+	public Double getPosition3() {
+		return position3;
+	}
+
+	public void setPosition3(Double position3) {
+		this.position3 = position3;
+	}
+
+	public Double getFinePosition3() {
+		return finePosition3;
+	}
+
+	public void setFinePosition3(Double finePosition3) {
+		this.finePosition3 = finePosition3;
+	}
+
+	public String getSampleDescription3() {
+		return sampleDescription3;
+	}
+
+	public void setSampleDescription3(String sampleDescription3) {
+		this.sampleDescription3 = sampleDescription3;
+	}
+
+	public Double getPosition4() {
+		return position4;
+	}
+
+	public void setPosition4(Double position4) {
+		this.position4 = position4;
+	}
+
+	public Double getFinePosition4() {
+		return finePosition4;
+	}
+
+	public void setFinePosition4(Double finePosition4) {
+		this.finePosition4 = finePosition4;
+	}
+
+	public String getSampleDescription4() {
+		return sampleDescription4;
+	}
+
+	public void setSampleDescription4(String sampleDescription4) {
+		this.sampleDescription4 = sampleDescription4;
 	}
 
 	@Override
@@ -186,18 +246,26 @@ public class CryostatParameters implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((d == null) ? 0 : d.hashCode());
-		result = prime * result + ((finePosition == null) ? 0 : finePosition.hashCode());
+		result = prime * result + ((finePosition1 == null) ? 0 : finePosition1.hashCode());
+		result = prime * result + ((finePosition2 == null) ? 0 : finePosition2.hashCode());
+		result = prime * result + ((finePosition3 == null) ? 0 : finePosition3.hashCode());
+		result = prime * result + ((finePosition4 == null) ? 0 : finePosition4.hashCode());
 		result = prime * result + ((heaterRange == null) ? 0 : heaterRange.hashCode());
 		result = prime * result + ((i == null) ? 0 : i.hashCode());
 		result = prime * result + ((p == null) ? 0 : p.hashCode());
-		result = prime * result + ((position == null) ? 0 : position.hashCode());
+		result = prime * result + ((position1 == null) ? 0 : position1.hashCode());
+		result = prime * result + ((position2 == null) ? 0 : position2.hashCode());
+		result = prime * result + ((position3 == null) ? 0 : position3.hashCode());
+		result = prime * result + ((position4 == null) ? 0 : position4.hashCode());
 		result = prime * result + ((profileType == null) ? 0 : profileType.hashCode());
 		result = prime * result + ((ramp == null) ? 0 : ramp.hashCode());
+		result = prime * result + ((sampleDescription1 == null) ? 0 : sampleDescription1.hashCode());
+		result = prime * result + ((sampleDescription2 == null) ? 0 : sampleDescription2.hashCode());
+		result = prime * result + ((sampleDescription3 == null) ? 0 : sampleDescription3.hashCode());
+		result = prime * result + ((sampleDescription4 == null) ? 0 : sampleDescription4.hashCode());
 		result = prime * result + ((sampleHolder == null) ? 0 : sampleHolder.hashCode());
-		result = prime * result + ((sampleNumber == null) ? 0 : sampleNumber.hashCode());
-		long temp;
-		temp = Double.doubleToLongBits(temperature);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + ((sampleNumbers == null) ? 0 : sampleNumbers.hashCode());
+		result = prime * result + ((temperature == null) ? 0 : temperature.hashCode());
 		result = prime * result + ((time == null) ? 0 : time.hashCode());
 		result = prime * result + ((tolerance == null) ? 0 : tolerance.hashCode());
 		return result;
@@ -217,10 +285,25 @@ public class CryostatParameters implements Serializable {
 				return false;
 		} else if (!d.equals(other.d))
 			return false;
-		if (finePosition == null) {
-			if (other.finePosition != null)
+		if (finePosition1 == null) {
+			if (other.finePosition1 != null)
 				return false;
-		} else if (!finePosition.equals(other.finePosition))
+		} else if (!finePosition1.equals(other.finePosition1))
+			return false;
+		if (finePosition2 == null) {
+			if (other.finePosition2 != null)
+				return false;
+		} else if (!finePosition2.equals(other.finePosition2))
+			return false;
+		if (finePosition3 == null) {
+			if (other.finePosition3 != null)
+				return false;
+		} else if (!finePosition3.equals(other.finePosition3))
+			return false;
+		if (finePosition4 == null) {
+			if (other.finePosition4 != null)
+				return false;
+		} else if (!finePosition4.equals(other.finePosition4))
 			return false;
 		if (heaterRange == null) {
 			if (other.heaterRange != null)
@@ -237,10 +320,25 @@ public class CryostatParameters implements Serializable {
 				return false;
 		} else if (!p.equals(other.p))
 			return false;
-		if (position == null) {
-			if (other.position != null)
+		if (position1 == null) {
+			if (other.position1 != null)
 				return false;
-		} else if (!position.equals(other.position))
+		} else if (!position1.equals(other.position1))
+			return false;
+		if (position2 == null) {
+			if (other.position2 != null)
+				return false;
+		} else if (!position2.equals(other.position2))
+			return false;
+		if (position3 == null) {
+			if (other.position3 != null)
+				return false;
+		} else if (!position3.equals(other.position3))
+			return false;
+		if (position4 == null) {
+			if (other.position4 != null)
+				return false;
+		} else if (!position4.equals(other.position4))
 			return false;
 		if (profileType == null) {
 			if (other.profileType != null)
@@ -252,17 +350,40 @@ public class CryostatParameters implements Serializable {
 				return false;
 		} else if (!ramp.equals(other.ramp))
 			return false;
+		if (sampleDescription1 == null) {
+			if (other.sampleDescription1 != null)
+				return false;
+		} else if (!sampleDescription1.equals(other.sampleDescription1))
+			return false;
+		if (sampleDescription2 == null) {
+			if (other.sampleDescription2 != null)
+				return false;
+		} else if (!sampleDescription2.equals(other.sampleDescription2))
+			return false;
+		if (sampleDescription3 == null) {
+			if (other.sampleDescription3 != null)
+				return false;
+		} else if (!sampleDescription3.equals(other.sampleDescription3))
+			return false;
+		if (sampleDescription4 == null) {
+			if (other.sampleDescription4 != null)
+				return false;
+		} else if (!sampleDescription4.equals(other.sampleDescription4))
+			return false;
 		if (sampleHolder == null) {
 			if (other.sampleHolder != null)
 				return false;
 		} else if (!sampleHolder.equals(other.sampleHolder))
 			return false;
-		if (sampleNumber == null) {
-			if (other.sampleNumber != null)
+		if (sampleNumbers == null) {
+			if (other.sampleNumbers != null)
 				return false;
-		} else if (!sampleNumber.equals(other.sampleNumber))
+		} else if (!sampleNumbers.equals(other.sampleNumbers))
 			return false;
-		if (Double.doubleToLongBits(temperature) != Double.doubleToLongBits(other.temperature))
+		if (temperature == null) {
+			if (other.temperature != null)
+				return false;
+		} else if (!temperature.equals(other.temperature))
 			return false;
 		if (time == null) {
 			if (other.time != null)
@@ -275,73 +396,6 @@ public class CryostatParameters implements Serializable {
 		} else if (!tolerance.equals(other.tolerance))
 			return false;
 		return true;
-	}
-	/**
-	 *
-	 */
-	@Override
-	public String toString() {
-		try {
-			return BeanUtils.describe(this).toString();
-		} catch (Exception e) {
-			return e.getMessage();
-		}
-	}
-
-	/**
-	 * @return Returns the tolerance.
-	 */
-	public Double getTolerance() {
-		return tolerance;
-	}
-
-	/**
-	 * @param tolerance The tolerance to set.
-	 */
-	public void setTolerance(Double tolerance) {
-		this.tolerance = tolerance;
-	}
-
-	/**
-	 * @return Returns the sampleHolder.
-	 */
-	public String getSampleHolder() {
-		return sampleHolder;
-	}
-
-	/**
-	 * @param sampleHolder The sampleHolder to set.
-	 */
-	public void setSampleHolder(String sampleHolder) {
-		this.sampleHolder = sampleHolder;
-	}
-
-	/**
-	 * @return Returns the position.
-	 */
-	public String getPosition() {
-		return position;
-	}
-
-	/**
-	 * @param position The position to set.
-	 */
-	public void setPosition(String position) {
-		this.position = position;
-	}
-
-	/**
-	 * @return Returns the finePosition.
-	 */
-	public String getFinePosition() {
-		return finePosition;
-	}
-
-	/**
-	 * @param finePosition The finePosition to set.
-	 */
-	public void setFinePosition(String finePosition) {
-		this.finePosition = finePosition;
 	}
 
 }

@@ -11,6 +11,8 @@
 					maxOccurs="unbounded" minOccurs="0" />
 				<xsd:element name="sampleWheelPosition" type="xsd:string"
 					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="useSampleWheel" type="xsd:boolean"
+					maxOccurs="1" minOccurs="0" />
 
 				<xsd:element name="sampleEnvironment" maxOccurs="1"
 					minOccurs="1">
@@ -69,14 +71,40 @@
 								minOccurs="0" />
 							<xsd:element name="ramp" type="xsd:double" maxOccurs="1"
 								minOccurs="0" />
-							<xsd:element name="sampleHolder" type="xsd:string"
-								maxOccurs="1" minOccurs="1" />
-							<xsd:element name="sampleNumber" type="xsd:string"
-								maxOccurs="1" minOccurs="1" />
-							<xsd:element name="position" type="xsd:string"
-								maxOccurs="1" minOccurs="1" />
-							<xsd:element name="finePosition" type="xsd:string"
-								maxOccurs="1" minOccurs="1" />
+							<xsd:element name="sampleHolder" maxOccurs="1" minOccurs="1">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:enumeration value="4 Samples" />
+										<xsd:enumeration value="Liquid Cell" />
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<xsd:element name="sampleNumbers" type="xsd:string"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="position1" type="xsd:string"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="finePosition1" type="xsd:string"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="sampleDescription1" type="xsd:string"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="position2" type="xsd:double"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="finePosition2" type="xsd:double"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="sampleDescription2" type="xsd:string"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="position3" type="xsd:double"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="finePosition3" type="xsd:double"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="sampleDescription3" type="xsd:string"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="position4" type="xsd:double"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="finePosition4" type="xsd:double"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="sampleDescription4" type="xsd:string"
+								maxOccurs="1" minOccurs="0" />
 						</xsd:sequence>
 					</xsd:complexType>
 				</xsd:element>
