@@ -112,7 +112,7 @@ import org.springframework.util.StringUtils;
  * 
  */
 public class ADDetector extends DetectorBase implements InitializingBean, NexusDetector, FileWritingDetector, IObserver,
-PositionCallableProvider<NexusTreeProvider>, DetectorWithReadout{
+PositionCallableProvider<NexusTreeProvider> {
 
 
 
@@ -1040,11 +1040,6 @@ PositionCallableProvider<NexusTreeProvider>, DetectorWithReadout{
 		} finally {
 			firstReadoutInScan = false;
 		}
-	}
-
-	@Override
-	public void waitForReadoutCompletion() throws InterruptedException {
-		//do nothing
 	}
 
 }
