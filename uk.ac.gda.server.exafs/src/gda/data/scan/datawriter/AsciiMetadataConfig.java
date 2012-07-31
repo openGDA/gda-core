@@ -53,6 +53,8 @@ public class AsciiMetadataConfig {
 					}
 					
 				} catch (DeviceException e) {
+					logger.error("DeviceException whilst fetching position from " + labelValues[i].getName() + " to add to metadata in file." +
+							"\nIf this problem persists then the object should be reconfigured or removed from the metadata configuration.",e);
 					positions[i] = "";
 				}
 			}
