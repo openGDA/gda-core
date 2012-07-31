@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -27,7 +27,6 @@ import org.apache.commons.beanutils.BeanUtils;
 
 import uk.ac.gda.beans.exafs.ISampleParameters;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
-import uk.ac.gda.doe.DOEControl;
 
 public class I20SampleParameters implements Serializable, ISampleParameters {
 
@@ -57,18 +56,9 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 	private List<String> descriptions;
 	private String name;
 	private String sampleWheelPosition;
-
-	@DOEControl(
-	// Values are the values of sampleEnvironment which result in activating the
-	// fields argument.
-	values = { "None", "Room Temperature", "Furnace", "Cryostat", "Microreactor", "Custom (XYZ)", "Custom" },
-	// NOTE The fields argument must match the fields in this class with the
-	// same name.
-	fields = { "noneParameters", "roomTemperatureParameters", "furnaceParameters", "cryostatParameters", "microreactorParameters",
-			"customXYZParameters", "customParameters" })
+	private Boolean useSampleWheel = false;
 	private String sampleEnvironment = "None";
 
-	private NoneParameters noneParameters;
 	private SampleStageParameters roomTemperatureParameters;
 	private CryostatParameters cryostatParameters;
 	private FurnaceParameters furnaceParameters;
@@ -104,8 +94,7 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 
 	public void setDescriptions(List<String> descriptions) {
 		// Castor's implementation for string lists is different to other lists
-		// and the set can pass in an unmodifiable
-		// list.
+		// and the set can pass in an unmodifiable list.
 		this.descriptions.clear();
 		if (descriptions == null) {
 			return;
@@ -193,6 +182,39 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 	public void setCustomXYZParameters(List<CustomXYZParameter> customParameters) {
 		this.customXYZParameters = customParameters;
 	}
+	
+	@Override
+	public String toString() {
+		try {
+			return BeanUtils.describe(this).toString();
+		} catch (Exception e) {
+			return e.getMessage();
+		}
+	}
+
+	public String getSampleEnvironment() {
+		return sampleEnvironment;
+	}
+
+	public void setSampleEnvironment(String sampleEnvironment) {
+		this.sampleEnvironment = sampleEnvironment;
+	}
+
+	public boolean isShouldValidate() {
+		return shouldValidate;
+	}
+
+	public void setShouldValidate(boolean shouldValidate) {
+		this.shouldValidate = shouldValidate;
+	}
+
+	public Boolean getUseSampleWheel() {
+		return useSampleWheel;
+	}
+
+	public void setUseSampleWheel(Boolean useSampleWheel) {
+		this.useSampleWheel = useSampleWheel;
+	}
 
 	@Override
 	public int hashCode() {
@@ -205,11 +227,11 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 		result = prime * result + ((furnaceParameters == null) ? 0 : furnaceParameters.hashCode());
 		result = prime * result + ((microreactorParameters == null) ? 0 : microreactorParameters.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((noneParameters == null) ? 0 : noneParameters.hashCode());
 		result = prime * result + ((roomTemperatureParameters == null) ? 0 : roomTemperatureParameters.hashCode());
 		result = prime * result + ((sampleEnvironment == null) ? 0 : sampleEnvironment.hashCode());
 		result = prime * result + ((sampleWheelPosition == null) ? 0 : sampleWheelPosition.hashCode());
 		result = prime * result + (shouldValidate ? 1231 : 1237);
+		result = prime * result + ((useSampleWheel == null) ? 0 : useSampleWheel.hashCode());
 		return result;
 	}
 
@@ -257,11 +279,6 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 				return false;
 		} else if (!name.equals(other.name))
 			return false;
-		if (noneParameters == null) {
-			if (other.noneParameters != null)
-				return false;
-		} else if (!noneParameters.equals(other.noneParameters))
-			return false;
 		if (roomTemperatureParameters == null) {
 			if (other.roomTemperatureParameters != null)
 				return false;
@@ -279,35 +296,12 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 			return false;
 		if (shouldValidate != other.shouldValidate)
 			return false;
+		if (useSampleWheel == null) {
+			if (other.useSampleWheel != null)
+				return false;
+		} else if (!useSampleWheel.equals(other.useSampleWheel))
+			return false;
 		return true;
 	}
-
-	@Override
-	public String toString() {
-		try {
-			return BeanUtils.describe(this).toString();
-		} catch (Exception e) {
-			return e.getMessage();
-		}
-	}
-
-	public String getSampleEnvironment() {
-		return sampleEnvironment;
-	}
-
-	public void setSampleEnvironment(String sampleEnvironment) {
-		this.sampleEnvironment = sampleEnvironment;
-	}
-
-	public boolean isShouldValidate() {
-		return shouldValidate;
-	}
-
-	public void setShouldValidate(boolean shouldValidate) {
-		this.shouldValidate = shouldValidate;
-	}
-
-	public void setNoneParameters(NoneParameters noneParameters) {
-		this.noneParameters = noneParameters;
-	}
+	
 }
