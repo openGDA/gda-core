@@ -241,6 +241,8 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			GridUtils.setVisibleAndLayout(readoutMode, false);
 			GridUtils.setVisibleAndLayout(resGradeLabel, false);
 			GridUtils.setVisibleAndLayout(resGrade, false);
+			GridUtils.setVisibleAndLayout(lblRegionBins, false);
+			GridUtils.setVisibleAndLayout(regionType, false);
 		}
 		lblRegionBins = new Label(topComposite, SWT.NONE);
 		lblRegionBins.setText("Region type");
@@ -473,9 +475,13 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			if (readoutMode.getSelectionIndex() == 2 && !modeOverride) {
 				GridUtils.setVisibleAndLayout(resGradeLabel, true);
 				GridUtils.setVisibleAndLayout(resGrade, true);
+				GridUtils.setVisibleAndLayout(lblRegionBins, true);
+				GridUtils.setVisibleAndLayout(regionType, true);
 			} else {
 				GridUtils.setVisibleAndLayout(resGradeLabel, false);
 				GridUtils.setVisibleAndLayout(resGrade, false);
+				GridUtils.setVisibleAndLayout(lblRegionBins, false);
+				GridUtils.setVisibleAndLayout(regionType, false);
 			}
 		} finally {
 			GridUtils.endMultiLayout();
