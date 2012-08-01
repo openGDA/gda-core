@@ -738,6 +738,16 @@ public class XspressParametersUIEditor extends DetectorEditor {
 				});
 			}
 
+		} catch (IllegalArgumentException e) {
+			getSite().getShell().getDisplay().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					MessageDialog.openWarning(getSite().getShell(), "Cannot write out detector data",
+							"The Java property gda.device.xspress.spoolDir has not been defined or is invalid.");
+				}
+			});
+			logger.error("Cannot read out detector data.", e);
+			return;
 		} catch (Exception e) {
 			getSite().getShell().getDisplay().asyncExec(new Runnable() {
 				@Override
