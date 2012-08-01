@@ -1347,16 +1347,17 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 			int element, int mcaPosition, XspressROI thisRoi, int mcaEndPosition) {
 		// get the raw data. Only interested in good counts if threshold set
 		int[][] mcas;
+		int[][] mcaDataForThisElement = unpackedMCAData[frame][element];
 		switch (getNumberofGrades()) {
 		case NO_RES_GRADE:
-			mcas = new int[][] { getResGradesSlice(unpackedMCAData[frame][element], mcaPosition, mcaEndPosition,
+			mcas = new int[][] { getResGradesSlice(mcaDataForThisElement, mcaPosition, mcaEndPosition,
 					thisRoi.getRoiStart(), thisRoi.getRoiEnd())[0] };
 			break;
 		case RES_THRES:
 			// all res grades
 		default:
-			mcas = getResGradesSlice(unpackedMCAData[frame][element], mcaPosition, mcaEndPosition,
-					thisRoi.getRoiStart(), thisRoi.getRoiEnd());
+			mcas = getResGradesSlice(mcaDataForThisElement, mcaPosition, mcaEndPosition, thisRoi.getRoiStart(),
+					thisRoi.getRoiEnd());
 			break;
 		}
 
@@ -1379,8 +1380,8 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 			double goodIn = sumPartialMCACounts(mcas[1]);
 			double badIn = sumPartialMCACounts(mcas[0]);
 			double goodOut = mcas[1][mcas[1].length - 1];
-			double badOut = mcas[0][mcas[0].length - 1];
-			double allEvents = goodIn + badIn + goodOut + badOut;
+			// account for other ROIs by summing everything in the arrays
+			double allEvents = sumArrayContents(mcaDataForThisElement[0]) + sumArrayContents(mcaDataForThisElement[1]);
 			// so corrected value = goodIn * dct * (all/good)
 			peakArea = goodIn * (allEvents / (goodIn + goodOut)) * dctFactor;
 			peakArea_bad = badIn * dctFactor;
@@ -1405,7 +1406,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	 */
 	private double[] extractVirtualScaler(int[][][][] unpackedMCAData, int frame, double[] deadtimeCorrectionFactor,
 			int element, int mcaPosition) {
-		// get the raw data. Only interested in good counts if threshold set
+		// get the raw data. Only interested in good counts (second element) if threshold set
 		int[] vsCounts;
 		int[][] mcaDataForThisElement = unpackedMCAData[frame][element];
 		double dctFactor = deadtimeCorrectionFactor[element];
@@ -1432,8 +1433,9 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 			double goodIn = vsCounts[1];
 			double badIn = vsCounts[0];
 			double goodOut = mcaDataForThisElement[1][mcaDataForThisElement[1].length - 1];
-			double badOut = mcaDataForThisElement[0][mcaDataForThisElement[0].length - 1];
-			double allEvents = goodIn + badIn + goodOut + badOut;
+			// account for other ROIs by summing everything in array
+//			double badOut = mcaDataForThisElement[0][mcaDataForThisElement[0].length - 1];
+			double allEvents = sumArrayContents(mcaDataForThisElement[0]) + sumArrayContents(mcaDataForThisElement[1]);
 
 			// so corrected value = goodIn * dct * (all/good)
 			double goodIn_corrected = goodIn * (allEvents / (goodIn + goodOut)) * dctFactor;
@@ -1472,6 +1474,14 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 			return correctedResGrades;
 
 		}
+	}
+
+	private int sumArrayContents(int[] is) {
+		int total = 0;
+		for (int element: is){
+			total += element;
+		}
+		return total;
 	}
 
 	private double sumPartialMCACounts(double[] ds) {
