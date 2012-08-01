@@ -45,6 +45,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -90,6 +91,7 @@ import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
+import uk.ac.gda.richbeans.event.ValueListener;
 
 import com.swtdesigner.ResourceManager;
 import com.swtdesigner.SWTResourceManager;
@@ -125,7 +127,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	private XspressParameters xspressParameters;
 
 	private Button applyToAllButton;
-	private Label applyToAllLabel;
+	private Button applyToAllLabel;
 
 	private SelectionAdapter applyToAllListener;
 
@@ -133,7 +135,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	private ScaleBox acquireTime;
 	private BooleanWrapper showIndividualElements;
 
-	private Label detectorElementsLabel;
+	private Group detectorElementsLabel;
 	private boolean isAdditiveResolutionGradeMode = false;
 	private Action additiveResModeAction;
 	private Label resGradeLabel;
@@ -153,6 +155,8 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	private SelectionAdapter xspressOptionsListener;
 	private Label lblRegionBins;
 	private ComboWrapper regionType;
+	private ValueListener detectorElementCompositeValueListener;
+	private Composite middleComposite;
 
 	/**
 	 * @param path
@@ -333,20 +337,43 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		this.showIndividualElements = new BooleanWrapper(grid, SWT.NONE);
 		showIndividualElements.setText("Show individual elements");
 
-		final Composite middle = new Composite(grid, SWT.NONE);
-		middle.setLayout(new GridLayout(2, false));
+		middleComposite = new Composite(grid, SWT.BORDER);
+		middleComposite.setLayout(new GridLayout(2, false));
 
-		this.applyToAllLabel = new Label(middle, SWT.NONE);
-		applyToAllLabel.setText("Apply To All Elements ");
-		applyToAllLabel.setEnabled(false);
+		this.applyToAllLabel = new Button(middleComposite, SWT.CHECK);
+		applyToAllLabel.setText("Apply Changes To All Elements ");
+		applyToAllLabel.setEnabled(true);
+		applyToAllLabel.setSelection(true);
+		applyToAllLabel.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (applyToAllLabel.getSelection()) {
+					if (applyToAll(true)) {
+						if (detectorElementCompositeValueListener == null){
+							createApplyToAllObserver();
+						}
+					} else {
+						applyToAllLabel.setSelection(false);
+					}
+				}
+				applyToAllButton.setEnabled(!applyToAllLabel.getSelection());
+			}
 
-		this.applyToAllButton = new Button(middle, SWT.NONE);
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				widgetSelected(e);				
+			}
+		});
+
+		this.applyToAllButton = new Button(middleComposite, SWT.NONE);
 		applyToAllButton.setEnabled(false);
 		GridData gridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gridData.widthHint = 60;
-		gridData.minimumWidth = 60;
+		gridData.widthHint = 90;
+		gridData.minimumWidth = 90;
 		applyToAllButton.setLayoutData(gridData);
-		applyToAllButton.setImage(SWTResourceManager.getImage(XspressParametersUIEditor.class, "/camera_go.png"));
+		applyToAllButton.setText("Apply now");
+//		applyToAllButton.setImage(SWTResourceManager.getImage(XspressParametersUIEditor.class, "/camera_go.png"));
 		applyToAllButton.setToolTipText("Apply current detector regions of interest to all other detector elements.");
 		this.applyToAllListener = new SelectionAdapter() {
 			@Override
@@ -361,8 +388,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			public void valueChangePerformed(ValueEvent e) {
 				if ((Boolean) e.getValue() == false) {
 					if (!applyToAll(true)) {
-						// user didn't want to lose individual settings, cancel
-						// change
+						// user didn't want to lose individual settings, cancel change
 						showIndividualElements.setValue(true);
 						return;
 					}
@@ -371,14 +397,16 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			}
 		});
 
-		this.detectorElementsLabel = new Label(grid, SWT.NONE);
-		detectorElementsLabel.setText("  Detector Elements");
+		detectorElementsLabel = new Group(grid, SWT.BORDER);
+		GridLayoutFactory.fillDefaults().applyTo(detectorElementsLabel);
+//		this.detectorElementsLabel = new Label(grid, SWT.NONE);
+		detectorElementsLabel.setText("Detector Elements");
 
 		try {
 			IDetectorROICompositeFactory factory = XspressParametersUIHelper.INSTANCE.getDetectorROICompositeFactory();
 			if (xspressParameters != null) {
 				List<DetectorElement> detectorList = xspressParameters.getDetectorList();
-				createDetectorList(grid, DetectorElement.class, detectorList.size(), XspressROI.class, factory,
+				createDetectorList(detectorElementsLabel, DetectorElement.class, detectorList.size(), XspressROI.class, factory,
 						"Xspress", false);
 				XspressParametersUIHelper.INSTANCE.setDetectorListGridOrder(getDetectorList());
 				getDetectorElementComposite().setMinimumRegions(XspressParametersUIHelper.INSTANCE.getMinimumRegions());
@@ -393,6 +421,32 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		sashPlotForm.setWeights(new int[] { 30, 74 });
 
 		configureUI();
+	}
+	
+	protected void createApplyToAllObserver() {
+		
+		detectorElementCompositeValueListener = new ValueListener() {
+			
+			@Override
+			public void valueChangePerformed(ValueEvent e) {
+				if (applyToAllLabel.getSelection()) {
+					applyToAll(false);
+				}
+			}
+			
+			@Override
+			public String getValueListenerName() {
+				return null;
+			}
+		};
+		
+		// if any changes in certain UI components then apply to all elements
+		getDetectorElementComposite().getWindowStart().addValueListener(detectorElementCompositeValueListener);
+		
+		getDetectorElementComposite().getWindowEnd().addValueListener(detectorElementCompositeValueListener);
+		
+		getDetectorElementComposite().getRegionList().addValueListener(detectorElementCompositeValueListener);
+		
 	}
 
 	private void addOutputPreferences(Composite comp) {
@@ -563,9 +617,17 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		GridUtils.startMultiLayout(parentComposite);
 		try {
 			boolean currentEditIndividual = showIndividualElements.getValue();
+			
+			if (currentEditIndividual) {
+				detectorElementsLabel.setText("Detector Elements");
+			} else {
+				detectorElementsLabel.setText("All Elements");
+			}
+			
+			GridUtils.setVisibleAndLayout(middleComposite, currentEditIndividual);
 			GridUtils.setVisibleAndLayout(applyToAllLabel, currentEditIndividual);
 			GridUtils.setVisibleAndLayout(applyToAllButton, currentEditIndividual);
-			GridUtils.setVisibleAndLayout(detectorElementsLabel, currentEditIndividual);
+//			GridUtils.setVisibleAndLayout(detectorElementsLabel, currentEditIndividual);
 			GridUtils.setVisibleAndLayout(getDetectorElementComposite().getName(), currentEditIndividual);
 			GridUtils.setVisibleAndLayout(getDetectorElementComposite().getExcluded(), currentEditIndividual);
 			getDetectorElementComposite().setIndividualElements(currentEditIndividual);
@@ -605,7 +667,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		if (!(Boolean) showIndividualElements.getValue()) {
+		if (!(Boolean) showIndividualElements.getValue() || applyToAllLabel.getSelection()) {
 			applyToAll(false);
 		}
 		super.doSave(monitor);
@@ -722,14 +784,12 @@ public class XspressParametersUIEditor extends DetectorEditor {
 					calculateCounts(showIndividualElements.getValue());
 				}
 			});
-			// find if the data needs to be written to disk
 
 			if (isAutoSave) {
 				String spoolDirPath = PathConstructor.createFromProperty("gda.device.xspress.spoolDir");
 				final File filePath = File.createTempFile("mca", ".xsp", new File(spoolDirPath));
 				save(detectorData, filePath.getAbsolutePath());
-				logger.info("Saved to filePath " + filePath);
-				// Get res grade for calibration.
+				sashPlotForm.appendStatus("Saved snapshot to filePath " + filePath, logger);
 				getSite().getShell().getDisplay().syncExec(new Runnable() {
 					@Override
 					public void run() {
@@ -770,9 +830,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			if (monitor != null)
 				monitor.done();
 			sashPlotForm.appendStatus("Collected data from detector successfully.", logger);
-			// Changed to configure on save.
-			// sashPlotForm.appendStatus("Press the configure button in the top right hand corner to apply this change to the whole system permanently.",
-			// logger);
 		}
 
 		// Note: currently has to be in this order.
@@ -807,13 +864,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	@Override
 	public XMLCommandHandler getXMLCommandHandler() {
 		return ExperimentBeanManager.INSTANCE.getXmlCommandHandler(XspressParameters.class);
-	}
-
-	@Override
-	public void setEnabled(boolean b) {
-		super.setEnabled(b);
-		this.applyToAllLabel.setEnabled(b);
-		this.applyToAllButton.setEnabled(b);
 	}
 
 	@Override
