@@ -285,7 +285,7 @@ where task can be:
 
 		self.get_commandlineArgs(argv)
 		# this file is  <workspace>_git/gda-core.git/uk.ac.gda.core/bin/gda
-		self.gda_install_git_loc = os.path.realpath(abspath(os.path.dirname(__file__),"..","..",".."))
+		self.gda_install_git_loc = os.path.realpath(abspath(os.path.realpath(os.path.dirname(__file__)),"..","..",".."))
 		assert self.gda_install_git_loc.endswith("_git")
 		self.gda_install_workspace_loc = self.gda_install_git_loc[:-4]
 		assert os.path.isdir(self.gda_install_workspace_loc)
