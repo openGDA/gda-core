@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Copyright © 2012 Diamond Light Source Ltd., Science and Technology
  * Facilities Council
  *
  * This file is part of GDA.
@@ -43,24 +43,24 @@ public class Xspress2DetectorConfiguration extends DetectorConfiguration {
 
 	private XspressParameters xspressParameters;
 	private ObservableComponent controller;
-	private OutputParameters outputParameters;
+//	private OutputParameters outputParameters;
 
 	private String additionalSavePath;
 
 	public Xspress2DetectorConfiguration(final ObservableComponent controller, final String path, final Object beanName,
-			final OutputParameters outputParams) throws Exception {
+			@SuppressWarnings("unused") final OutputParameters outputParams) throws Exception {
 
 		this.controller = controller;
 		this.xspressParameters = (XspressParameters) getBean(path, beanName);
-		this.outputParameters = outputParams;
+//		this.outputParameters = outputParams;
 		additionalSavePath =new File(path).getName();
 	}
 	public Xspress2DetectorConfiguration(final ObservableComponent controller, final String path, final Object beanName,
-			final OutputParameters outputParams, final String addtionalSavePath) throws Exception {
+			@SuppressWarnings("unused") final OutputParameters outputParams, final String addtionalSavePath) throws Exception {
 
 		this.controller = controller;
 		this.xspressParameters = (XspressParameters) getBean(path, beanName);
-		this.outputParameters = outputParams;
+//		this.outputParameters = outputParams;
 		this.additionalSavePath = addtionalSavePath;
 	}
 
