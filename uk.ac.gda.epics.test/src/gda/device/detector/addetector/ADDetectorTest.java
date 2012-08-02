@@ -500,22 +500,6 @@ public class ADDetectorTest {
 	}
 
 	@Test
-	public void testSetPathProvider() throws Exception {
-		ObservablePathProvider mockPathProvider = mock(ObservablePathProvider.class);
-		when(mockPathProvider.getPath()).thenReturn("somepath");
-
-		det().setPathProvider(mockPathProvider);
-		verify(mockPathProvider).addIObserver(det());
-		verify(mockNdFile).setFilePath("somepath");
-	}
-
-	@Test
-	public void testUpdateWithPathChanged() throws Exception {
-		det().update(null, new PathChanged("newpath"));
-		verify(mockNdFile).setFilePath("newpath");
-	}
-
-	@Test
 	public void testStop() throws Exception {
 		det().stop();
 		verify(mockAdBase).stopAcquiring();
