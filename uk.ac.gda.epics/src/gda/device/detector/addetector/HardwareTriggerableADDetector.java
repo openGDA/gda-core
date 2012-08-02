@@ -148,10 +148,12 @@ public class HardwareTriggerableADDetector extends ADDetector implements Hardwar
 	@Override
 	public void atScanLineStart() throws DeviceException {
 		try {
-			String filePath = getFilePath();
-			String fileName = getFileName();
 			int fileNumber_RBV = getNdFile().getFileNumber_RBV();
-			baseFilepathForMultipleExposure = String.format(getFileTemplate(), filePath, fileName, fileNumber_RBV);
+			String fileTemplate_RBV = getNdFile().getFileTemplate_RBV();
+			String filePath_RBV = getNdFile().getFilePath_RBV();
+			String fileName_RBV = getNdFile().getFileName_RBV();
+			
+			baseFilepathForMultipleExposure = String.format(fileTemplate_RBV, filePath_RBV, fileName_RBV, fileNumber_RBV);
 			getAdBase().setArrayCounter(0);
 		} catch (Exception e) {
 			throw new DeviceException(e.getClass() + " while creating filepath", e);
