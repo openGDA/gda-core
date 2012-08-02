@@ -26,13 +26,7 @@
     <target name="junit-tests" depends="toolCheck, set-test-base">
         <loadfile property="redhat_release" srcFile="/etc/redhat-release" failonerror="false" />
         <property name="redhat_release" value="probably not 5" />
-        <condition property="NexusExtractorTest_skip_if_RH5" value="**/NexusExtractorTest.java" else="FilenameThatDoesNotExist">
-            <or>
-                <contains string="${redhat_release}" substring="Red Hat Enterprise Linux Server release 5." />
-                <contains string="${redhat_release}" substring="Red Hat Enterprise Linux Client release 5." />
-            </or>
-        </condition>
-        <condition property="NexusReadinTest_skip_if_RH5" value="**/NexusReadinTest.java" else="FilenameThatDoesNotExist">
+        <condition property="exclude_if_RH5" value="" else="SuffixToNullifyExclude">
             <or>
                 <contains string="${redhat_release}" substring="Red Hat Enterprise Linux Server release 5." />
                 <contains string="${redhat_release}" substring="Red Hat Enterprise Linux Client release 5." />
@@ -51,8 +45,9 @@
             <batchtest todir="@{report.dir}">
                 <fileset dir="${GDA-plugin.basedir}/test">
                     <include name="**/*Test.java" />
-                    <exclude name="${NexusExtractorTest_skip_if_RH5}" />  <!-- doesn't always work on RedHat 5 -->
-                    <exclude name="${NexusReadinTest_skip_if_RH5}" />  <!-- doesn't always work on RedHat 5 -->
+                    <exclude name="**/NexusExtractorTest.java${exclude_if_RH5}" />  <!-- doesn't always work on RedHat 5 -->
+                    <exclude name="**/NexusReadinTest.java${exclude_if_RH5}" />  <!-- doesn't always work on RedHat 5 -->
+                    <exclude name="**/NexusTreeBuilderTest.java${exclude_if_RH5}" />  <!-- doesn't always work on RedHat 5 -->
                 </fileset>
             </batchtest>
         </junit-call>
