@@ -52,7 +52,7 @@ public class SwitchScanWizardPageOne extends WizardPage {
 		if (ScanObjectManager.isXESOnlyMode()) {
 			return new String[]{"Xes"};
 		} 
-		
+		 
 		String[] types = new String[]{ "Xas", "Xanes"};
 		
 		IConfigurationElement[] config = Platform.getExtensionRegistry().getConfigurationElementsFor(
@@ -67,7 +67,6 @@ public class SwitchScanWizardPageOne extends WizardPage {
 						types = (String[]) ArrayUtils.add(types, "Qexafs");
 					}
 				} catch (CoreException e) {
-					// ignore
 				}
 			}
 		}
@@ -90,17 +89,13 @@ public class SwitchScanWizardPageOne extends WizardPage {
 		expType = new Combo(selectTypeArea, 0);
 		expType.setItems(scanTypes);
 		expType.addSelectionListener(new SelectionListener(){
-
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-				
 			}
-
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				scanType=expType.getItem(expType.getSelectionIndex());
 			}
-			
 		});
 		
 		setPageComplete(true);

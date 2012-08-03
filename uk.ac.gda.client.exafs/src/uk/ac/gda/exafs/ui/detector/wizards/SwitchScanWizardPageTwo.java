@@ -245,13 +245,13 @@ public class SwitchScanWizardPageTwo extends WizardPage {
 	}
 
 	private String[] getFileList(String name) {
-		Object[] detectorFileList = getEditorFiles(name);
-		String[] detectors = new String[detectorFileList.length];
-		for (int i = 0; i < detectors.length; i++) {
-			detectors[i] = detectorFileList[i].toString()
-					.substring(detectorFileList[i].toString().lastIndexOf("/") + 1);
+		Object[] fileList = getEditorFiles(name);
+		String[] files = new String[fileList.length];
+		for (int i = 0; i < files.length; i++) {
+			files[i] = fileList[i].toString()
+					.substring(fileList[i].toString().lastIndexOf("/") + 1);
 		}
-		return detectors;
+		return files;
 	}
 
 	private Object[] getEditorFiles(String type) {
@@ -311,7 +311,7 @@ public class SwitchScanWizardPageTwo extends WizardPage {
 					beanTypes.add(type);
 
 			if (editorType.equals("microfocus"))
-				if (type.getName().equals("Microfocus Scan"))
+				if (type.getName().equals("Micro Focus"))
 					beanTypes.add(type);
 
 			if (editorType.equals("detector"))
