@@ -169,7 +169,7 @@ public class TomoAlignmentMotorHandler implements IMotorHandler {
 	}
 
 	@Override
-	public double getSamplePosition() throws DeviceException {
+	public double getSampleBaseMotorPosition() throws DeviceException {
 		Object position = sampleHolderScannable.getPosition();
 		if (position instanceof Double) {
 			return ((Double) position).doubleValue();
@@ -183,7 +183,7 @@ public class TomoAlignmentMotorHandler implements IMotorHandler {
 	}
 
 	@Override
-	public double getSs1Y2Position() throws DeviceException {
+	public double getVerticalPosition() throws DeviceException {
 		return (Double) ss1Y2Scannable.getPosition();
 	}
 
@@ -469,6 +469,16 @@ public class TomoAlignmentMotorHandler implements IMotorHandler {
 	}
 
 	@Override
+	public Double getSs1TxPosition() throws DeviceException {
+		return (Double) ss1TxScannable.getPosition();
+	}
+
+	@Override
+	public Double getSs1TzPosition() throws DeviceException {
+		return (Double) ss1TzScannable.getPosition();
+	}
+
+	@Override
 	public void moveSs1Tz(IProgressMonitor monitor, Double ss1TzPosition) throws DeviceException, InterruptedException {
 		moveMotor(monitor, ss1TzScannable, ss1TzPosition);
 	}
@@ -598,13 +608,38 @@ public class TomoAlignmentMotorHandler implements IMotorHandler {
 	}
 
 	@Override
-	public String getSs1RxName() {
+	public String getTiltXMotorName() {
 		return ss1RxScannable.getName();
 	}
 
 	@Override
-	public String getSs1RzName() {
+	public String getTiltZMotorName() {
 		return ss1RzScannable.getName();
+	}
+
+	@Override
+	public String getCentreXMotorName() {
+		return ss1TxScannable.getName();
+	}
+
+	@Override
+	public String getCentreZMotorName() {
+		return ss1TzScannable.getName();
+	}
+
+	@Override
+	public String getSampleBaseMotorName() {
+		return sampleHolderScannable.getName();
+	}
+
+	@Override
+	public String getVerticalMotorName() {
+		return ss1Y2Scannable.getName();
+	}
+	
+	@Override
+	public String getCameraStageZMotorName(){
+		return t3m1zScannable.getName();
 	}
 
 	@Override
@@ -616,5 +651,7 @@ public class TomoAlignmentMotorHandler implements IMotorHandler {
 	public boolean isSs1RzBusy() throws DeviceException {
 		return ss1RzScannable.isBusy();
 	}
+	
+	
 
 }

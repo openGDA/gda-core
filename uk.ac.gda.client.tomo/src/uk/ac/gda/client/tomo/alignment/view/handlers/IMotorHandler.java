@@ -52,7 +52,7 @@ public interface IMotorHandler extends ITomoHandler {
 	 * @return the position of the sample stage base motor.
 	 * @throws DeviceException
 	 */
-	double getSamplePosition() throws DeviceException;
+	double getSampleBaseMotorPosition() throws DeviceException;
 
 	/**
 	 * Request to move the sample stage to the given position.
@@ -372,7 +372,7 @@ public interface IMotorHandler extends ITomoHandler {
 	 * @return the motor position of Y2B motor [on i12 ss1.y2 on the Huber sample stage]
 	 * @throws DeviceException
 	 */
-	double getSs1Y2Position() throws DeviceException;
+	double getVerticalPosition() throws DeviceException;
 
 	/**
 	 * Move the Y2B motor by the given position [on i12 ss1.y2 on the Huber sample stage]
@@ -421,7 +421,7 @@ public interface IMotorHandler extends ITomoHandler {
 
 	/**
 	 * @return true if 3B Z tilt motor [on i12 ss1.rz on the Huber sample stage] is busy
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	boolean isSs1RzBusy() throws DeviceException;
 
@@ -429,11 +429,11 @@ public interface IMotorHandler extends ITomoHandler {
 	 * @return name of 3B Z tilt motor [on i12 ss1.rz on the Huber sample stage]
 	 */
 
-	String getSs1RzName();
+	String getTiltZMotorName();
 
 	/**
 	 * @return true if 3A X tilt motor [on i12 ss1.rx on the Huber sample stage] is busy
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	boolean isSs1RxBusy() throws DeviceException;
 
@@ -441,6 +441,43 @@ public interface IMotorHandler extends ITomoHandler {
 	 * @return name of 3A X tilt motor [on i12 ss1.rx on the Huber sample stage]
 	 */
 
-	String getSs1RxName();
+	String getTiltXMotorName();
+
+	/**
+	 * @return position of the Sample X motor [on i12 ss1t.x on the Huber sample stage]
+	 * @throws DeviceException
+	 */
+	Double getSs1TxPosition() throws DeviceException;
+
+	/**
+	 * @return the postion of Sample Z motor [on i12 ss1t.z on the Huber sample stage]
+	 * @throws DeviceException
+	 */
+	Double getSs1TzPosition() throws DeviceException;
+
+	/**
+	 * @return name of the motor responsible for centreX - (on i12 it is ss1_tx)
+	 */
+	String getCentreXMotorName();
+
+	/**
+	 * @return name of the motor responsible for centreZ - (on i12 it is ss1_tz)
+	 */
+	String getCentreZMotorName();
+
+	/**
+	 * @return name of the motor responsible for sample base - (on i12 it is ss1_x)
+	 */
+	String getSampleBaseMotorName();
+
+	/**
+	 * @return name of the motor responsible for vertical motor - (on i12 it is ss1_y2)
+	 */
+	String getVerticalMotorName();
+
+	/**
+	 * @return name of the motor responsible for camera stage z axisF - (on i12 it is t3_m1z)
+	 */
+	String getCameraStageZMotorName();
 
 }

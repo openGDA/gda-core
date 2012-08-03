@@ -42,4 +42,20 @@ public interface Parameters extends EObject {
 	 */
 	EList<AlignmentConfiguration> getConfigurationSet();
 
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @model
+	 * @generated
+	 */
+	AlignmentConfiguration getAlignmentConfiguration(String configurationId);
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @model
+	 * @generated
+	 */
+	Integer getIndex(AlignmentConfiguration alignmentConfiguration);
+
 } // Parameters

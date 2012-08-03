@@ -79,11 +79,7 @@ public class AlignmentConfigSaveDialog extends Dialog {
 
 	private static final String SHELL_TITLE = "Save Tomography Alignment Configuration";
 
-	private enum VIEWER {
-		THETA, THETA_PLUS_90
-	}
-
-	private VIEWER viewer = VIEWER.THETA;
+	private ImageLocationRelTheta viewerButtonSelected = ImageLocationRelTheta.THETA;
 
 	private static final Logger logger = LoggerFactory.getLogger(AlignmentConfigSaveDialog.class);
 
@@ -117,7 +113,7 @@ public class AlignmentConfigSaveDialog extends Dialog {
 	protected void configureShell(Shell newShell) {
 		super.configureShell(newShell);
 		newShell.setText(SHELL_TITLE);
-		newShell.setSize(1500, 900);
+		newShell.setSize(1500, 750);
 	}
 
 	private SelectionListener btnSelectionListener = new SelectionAdapter() {
@@ -125,7 +121,7 @@ public class AlignmentConfigSaveDialog extends Dialog {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			if (e.getSource().equals(btnTheta)) {
-				viewer = VIEWER.THETA;
+				viewerButtonSelected = ImageLocationRelTheta.THETA;
 				leftWindowViewer.setBackground(ENABLED);
 				rightWindowViewer.setBackground(DISABLED);
 				btnThetaPlus90.setEnabled(true);
@@ -134,9 +130,9 @@ public class AlignmentConfigSaveDialog extends Dialog {
 
 				moveRotationMotorBy(-90.0);
 			} else if (e.getSource().equals(btnThetaPlus90)) {
+				viewerButtonSelected = ImageLocationRelTheta.THETA_PLUS_90;
 				rightWindowViewer.setBackground(ENABLED);
 				leftWindowViewer.setBackground(DISABLED);
-				viewer = VIEWER.THETA_PLUS_90;
 				btnTheta.setEnabled(true);
 				btnThetaPlus90.setEnabled(false);
 				loadImageIntoViewer(leftWindowViewer);
@@ -175,6 +171,8 @@ public class AlignmentConfigSaveDialog extends Dialog {
 							});
 						} catch (Exception e) {
 							throw new InvocationTargetException(e);
+						} finally {
+							monitor.done();
 						}
 					}
 				});
@@ -299,7 +297,7 @@ public class AlignmentConfigSaveDialog extends Dialog {
 
 					@Override
 					public void run() {
-						if (viewer.equals(VIEWER.THETA)) {
+						if (viewerButtonSelected.equals(ImageLocationRelTheta.THETA)) {
 							try {
 
 								Rectangle bounds = leftWindowViewer.getBounds();
@@ -309,7 +307,7 @@ public class AlignmentConfigSaveDialog extends Dialog {
 							} catch (Exception e) {
 								logger.error("TODO put description of error here", e);
 							}
-						} else if (viewer.equals(VIEWER.THETA_PLUS_90)) {
+						} else if (viewerButtonSelected.equals(ImageLocationRelTheta.THETA_PLUS_90)) {
 							try {
 								Rectangle bounds = rightWindowViewer.getBounds();
 								Dimension dim = getScaleValue(image.width, image.height, bounds.width, bounds.height);
@@ -471,6 +469,8 @@ public class AlignmentConfigSaveDialog extends Dialog {
 							coarseRotation.showButtonDeSelected();
 						} catch (Exception ex) {
 							logger.error("Problem using rotation motor:{}", ex);
+						} finally {
+							monitor.done();
 						}
 
 					}
@@ -488,4 +488,9 @@ public class AlignmentConfigSaveDialog extends Dialog {
 			moveRotationMotorTo(deg);
 		}
 	};
+
+	public ImageLocationRelTheta getViewerButtonSelected() {
+		return viewerButtonSelected;
+	}
+
 }

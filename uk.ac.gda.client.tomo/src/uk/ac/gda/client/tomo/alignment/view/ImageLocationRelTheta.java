@@ -15,19 +15,8 @@
  * You should have received a copy of the GNU General Public License along
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
+package uk.ac.gda.client.tomo.alignment.view;
 
-package uk.ac.gda.client.tomo.configuration.view.xviewer;
-
-/**
- *
- */
-public interface ITomoConfigContent {
-	
-	double getSampleExposureTime();
-	
-	double getFlatExposureTime();
-	
-	double getSampleDetectorDistance();
-	
-	String getSampleDescription();
+public enum ImageLocationRelTheta {
+	THETA, THETA_PLUS_90
 }

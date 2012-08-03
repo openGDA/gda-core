@@ -1,8 +1,5 @@
 /**
- * <copyright>
- * </copyright>
- *
- * $Id$
+ * <copyright> </copyright> $Id$
  */
 package uk.ac.gda.tomography.parameters.impl;
 
@@ -21,9 +18,7 @@ import uk.ac.gda.tomography.parameters.Parameters;
 import uk.ac.gda.tomography.parameters.TomoParametersPackage;
 
 /**
- * <!-- begin-user-doc -->
- * An implementation of the model object '<em><b>Parameters</b></em>'.
- * <!-- end-user-doc -->
+ * <!-- begin-user-doc --> An implementation of the model object '<em><b>Parameters</b></em>'. <!-- end-user-doc -->
  * <p>
  * The following features are implemented:
  * <ul>
@@ -36,8 +31,7 @@ import uk.ac.gda.tomography.parameters.TomoParametersPackage;
 public class ParametersImpl extends EObjectImpl implements Parameters {
 	/**
 	 * The cached value of the '{@link #getConfigurationSet() <em>Configuration Set</em>}' containment reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @see #getConfigurationSet()
 	 * @generated
 	 * @ordered
@@ -45,8 +39,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	protected EList<AlignmentConfiguration> configurationSet;
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	protected ParametersImpl() {
@@ -54,8 +47,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -64,8 +56,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -77,8 +68,37 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
+	 * @generated not
+	 */
+	@Override
+	public AlignmentConfiguration getAlignmentConfiguration(String configurationId) {
+		for (AlignmentConfiguration alignmentConfiguration : getConfigurationSet()) {
+			if (alignmentConfiguration.getId().equals(configurationId)) {
+				return alignmentConfiguration;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
+	 * @generated NOT
+	 */
+	@Override
+	public Integer getIndex(AlignmentConfiguration alignmentConfiguration) {
+		for (int index = 0; index < getConfigurationSet().size(); index++) {
+			if (getConfigurationSet().get(index).getId() == alignmentConfiguration.getId()) {
+				return index;
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -91,8 +111,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -105,8 +124,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@SuppressWarnings("unchecked")
@@ -122,8 +140,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -137,8 +154,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -149,5 +165,6 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 		}
 		return super.eIsSet(featureID);
 	}
+	
 
-} //ParametersImpl
+} // ParametersImpl

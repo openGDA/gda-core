@@ -15,13 +15,18 @@ import uk.ac.gda.tomography.parameters.AlignmentConfiguration;
 import uk.ac.gda.tomography.parameters.DetectorBin;
 import uk.ac.gda.tomography.parameters.DetectorProperties;
 import uk.ac.gda.tomography.parameters.DetectorRoi;
+import uk.ac.gda.tomography.parameters.DetectorStage;
+import uk.ac.gda.tomography.parameters.Module;
 import uk.ac.gda.tomography.parameters.Parameters;
-import uk.ac.gda.tomography.parameters.SampleParams;
-import uk.ac.gda.tomography.parameters.SamplePosition;
+import uk.ac.gda.tomography.parameters.Resolution;
+import uk.ac.gda.tomography.parameters.SampleStage;
+import uk.ac.gda.tomography.parameters.SampleWeight;
 import uk.ac.gda.tomography.parameters.ScanMode;
 import uk.ac.gda.tomography.parameters.TomoExperiment;
 import uk.ac.gda.tomography.parameters.TomoParametersFactory;
 import uk.ac.gda.tomography.parameters.TomoParametersPackage;
+import uk.ac.gda.tomography.parameters.Unit;
+import uk.ac.gda.tomography.parameters.ValueUnit;
 
 /**
  * <!-- begin-user-doc --> An implementation of the model <b>Factory</b>. <!-- end-user-doc -->
@@ -66,10 +71,13 @@ public class TomoParametersFactoryImpl extends EFactoryImpl implements TomoParam
 			case TomoParametersPackage.DETECTOR_BIN: return createDetectorBin();
 			case TomoParametersPackage.DETECTOR_PROPERTIES: return createDetectorProperties();
 			case TomoParametersPackage.DETECTOR_ROI: return createDetectorRoi();
+			case TomoParametersPackage.DETECTOR_STAGE: return createDetectorStage();
+			case TomoParametersPackage.MODULE: return createModule();
 			case TomoParametersPackage.PARAMETERS: return createParameters();
-			case TomoParametersPackage.SAMPLE_PARAMS: return createSampleParams();
-			case TomoParametersPackage.SAMPLE_POSITION: return createSamplePosition();
+			case TomoParametersPackage.SAMPLE_STAGE: return createSampleStage();
+			case TomoParametersPackage.STITCH_PARAMETERS: return createStitchParameters();
 			case TomoParametersPackage.TOMO_EXPERIMENT: return createTomoExperiment();
+			case TomoParametersPackage.VALUE_UNIT: return createValueUnit();
 			default:
 				throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier");
 		}
@@ -84,6 +92,12 @@ public class TomoParametersFactoryImpl extends EFactoryImpl implements TomoParam
 		switch (eDataType.getClassifierID()) {
 			case TomoParametersPackage.SCAN_MODE:
 				return createScanModeFromString(eDataType, initialValue);
+			case TomoParametersPackage.RESOLUTION:
+				return createResolutionFromString(eDataType, initialValue);
+			case TomoParametersPackage.SAMPLE_WEIGHT:
+				return createSampleWeightFromString(eDataType, initialValue);
+			case TomoParametersPackage.UNIT:
+				return createUnitFromString(eDataType, initialValue);
 			default:
 				throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
 		}
@@ -98,6 +112,12 @@ public class TomoParametersFactoryImpl extends EFactoryImpl implements TomoParam
 		switch (eDataType.getClassifierID()) {
 			case TomoParametersPackage.SCAN_MODE:
 				return convertScanModeToString(eDataType, instanceValue);
+			case TomoParametersPackage.RESOLUTION:
+				return convertResolutionToString(eDataType, instanceValue);
+			case TomoParametersPackage.SAMPLE_WEIGHT:
+				return convertSampleWeightToString(eDataType, instanceValue);
+			case TomoParametersPackage.UNIT:
+				return convertUnitToString(eDataType, instanceValue);
 			default:
 				throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
 		}
@@ -112,6 +132,37 @@ public class TomoParametersFactoryImpl extends EFactoryImpl implements TomoParam
 	public TomoExperiment createTomoExperiment() {
 		TomoExperimentImpl tomoExperiment = new TomoExperimentImpl();
 		return tomoExperiment;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public ValueUnit createValueUnit() {
+		ValueUnitImpl valueUnit = new ValueUnitImpl();
+		return valueUnit;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public DetectorStage createDetectorStage() {
+		DetectorStageImpl detectorStage = new DetectorStageImpl();
+		return detectorStage;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public Module createModule() {
+		ModuleImpl module = new ModuleImpl();
+		return module;
 	}
 
 	/**
@@ -166,23 +217,24 @@ public class TomoParametersFactoryImpl extends EFactoryImpl implements TomoParam
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
-	public SampleParams createSampleParams() {
-		SampleParamsImpl sampleParams = new SampleParamsImpl();
-		return sampleParams;
+	public SampleStage createSampleStage() {
+		SampleStageImpl sampleStage = new SampleStageImpl();
+		return sampleStage;
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	@Override
-	public SamplePosition createSamplePosition() {
-		SamplePositionImpl samplePosition = new SamplePositionImpl();
-		return samplePosition;
+	public StitchParameters createStitchParameters() {
+		StitchParametersImpl stitchParameters = new StitchParametersImpl();
+		return stitchParameters;
 	}
 
 	/**
@@ -201,6 +253,66 @@ public class TomoParametersFactoryImpl extends EFactoryImpl implements TomoParam
 	 */
 	@SuppressWarnings("unused")
 	public String convertScanModeToString(EDataType eDataType, Object instanceValue) {
+		return instanceValue == null ? null : instanceValue.toString();
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public Resolution createResolutionFromString(EDataType eDataType, String initialValue) {
+		Resolution result = Resolution.get(initialValue);
+		if (result == null) throw new IllegalArgumentException("The value '" + initialValue + "' is not a valid enumerator of '" + eDataType.getName() + "'");
+		return result;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public String convertResolutionToString(EDataType eDataType, Object instanceValue) {
+		return instanceValue == null ? null : instanceValue.toString();
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public SampleWeight createSampleWeightFromString(EDataType eDataType, String initialValue) {
+		SampleWeight result = SampleWeight.get(initialValue);
+		if (result == null) throw new IllegalArgumentException("The value '" + initialValue + "' is not a valid enumerator of '" + eDataType.getName() + "'");
+		return result;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public String convertSampleWeightToString(EDataType eDataType, Object instanceValue) {
+		return instanceValue == null ? null : instanceValue.toString();
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public Unit createUnitFromString(EDataType eDataType, String initialValue) {
+		Unit result = Unit.get(initialValue);
+		if (result == null) throw new IllegalArgumentException("The value '" + initialValue + "' is not a valid enumerator of '" + eDataType.getName() + "'");
+		return result;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public String convertUnitToString(EDataType eDataType, Object instanceValue) {
 		return instanceValue == null ? null : instanceValue.toString();
 	}
 

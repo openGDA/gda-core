@@ -6,17 +6,23 @@
  */
 package uk.ac.gda.tomography.parameters.impl;
 
+import java.util.Date;
+
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 
 import uk.ac.gda.tomography.parameters.AlignmentConfiguration;
 import uk.ac.gda.tomography.parameters.DetectorProperties;
-import uk.ac.gda.tomography.parameters.SampleParams;
+import uk.ac.gda.tomography.parameters.DetectorStage;
+import uk.ac.gda.tomography.parameters.SampleStage;
+import uk.ac.gda.tomography.parameters.SampleWeight;
 import uk.ac.gda.tomography.parameters.ScanMode;
+import uk.ac.gda.tomography.parameters.StitchParameters;
 import uk.ac.gda.tomography.parameters.TomoParametersPackage;
 
 /**
@@ -28,17 +34,19 @@ import uk.ac.gda.tomography.parameters.TomoParametersPackage;
  * <ul>
  *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getId <em>Id</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getEnergy <em>Energy</em>}</li>
- *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getNumberOfProjections <em>Number Of Projections</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getDescription <em>Description</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getDetectorProperties <em>Detector Properties</em>}</li>
- *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getSampleDetectorDistance <em>Sample Detector Distance</em>}</li>
- *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getSampleParams <em>Sample Params</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getSampleStageParameters <em>Sample Stage Parameters</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getScanMode <em>Scan Mode</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getSampleExposureTime <em>Sample Exposure Time</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getFlatExposureTime <em>Flat Exposure Time</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getCreatedUserId <em>Created User Id</em>}</li>
- *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getStitchingThetaAngle <em>Stitching Theta Angle</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getCreatedDateTime <em>Created Date Time</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getSampleWeight <em>Sample Weight</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getDetectorStageParameters <em>Detector Stage Parameters</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getProposalId <em>Proposal Id</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getStitchParameters <em>Stitch Parameters</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getSelectedToRun <em>Selected To Run</em>}</li>
  * </ul>
  * </p>
  *
@@ -95,35 +103,6 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	protected double energy = ENERGY_EDEFAULT;
 
 	/**
-	 * The default value of the '{@link #getNumberOfProjections() <em>Number Of Projections</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getNumberOfProjections()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final Integer NUMBER_OF_PROJECTIONS_EDEFAULT = null;
-
-	/**
-	 * The cached value of the '{@link #getNumberOfProjections() <em>Number Of Projections</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getNumberOfProjections()
-	 * @generated
-	 * @ordered
-	 */
-	protected Integer numberOfProjections = NUMBER_OF_PROJECTIONS_EDEFAULT;
-
-	/**
-	 * This is true if the Number Of Projections attribute has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	protected boolean numberOfProjectionsESet;
-
-	/**
 	 * The default value of the '{@link #getDescription() <em>Description</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -163,52 +142,23 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	protected boolean detectorPropertiesESet;
 
 	/**
-	 * The default value of the '{@link #getSampleDetectorDistance() <em>Sample Detector Distance</em>}' attribute.
+	 * The cached value of the '{@link #getSampleStageParameters() <em>Sample Stage Parameters</em>}' containment reference.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getSampleDetectorDistance()
+	 * @see #getSampleStageParameters()
 	 * @generated
 	 * @ordered
 	 */
-	protected static final double SAMPLE_DETECTOR_DISTANCE_EDEFAULT = 0.0;
+	protected SampleStage sampleStageParameters;
 
 	/**
-	 * The cached value of the '{@link #getSampleDetectorDistance() <em>Sample Detector Distance</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getSampleDetectorDistance()
-	 * @generated
-	 * @ordered
-	 */
-	protected double sampleDetectorDistance = SAMPLE_DETECTOR_DISTANCE_EDEFAULT;
-
-	/**
-	 * This is true if the Sample Detector Distance attribute has been set.
+	 * This is true if the Sample Stage Parameters containment reference has been set.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	protected boolean sampleDetectorDistanceESet;
-
-	/**
-	 * The cached value of the '{@link #getSampleParams() <em>Sample Params</em>}' containment reference.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getSampleParams()
-	 * @generated
-	 * @ordered
-	 */
-	protected SampleParams sampleParams;
-
-	/**
-	 * This is true if the Sample Params containment reference has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	protected boolean sampleParamsESet;
+	protected boolean sampleStageParametersESet;
 
 	/**
 	 * The default value of the '{@link #getScanMode() <em>Scan Mode</em>}' attribute.
@@ -218,7 +168,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	 * @generated
 	 * @ordered
 	 */
-	protected static final ScanMode SCAN_MODE_EDEFAULT = ScanMode.CONTINUOUS;
+	protected static final ScanMode SCAN_MODE_EDEFAULT = ScanMode.STEP;
 
 	/**
 	 * The cached value of the '{@link #getScanMode() <em>Scan Mode</em>}' attribute.
@@ -318,26 +268,6 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	protected String createdUserId = CREATED_USER_ID_EDEFAULT;
 
 	/**
-	 * The default value of the '{@link #getStitchingThetaAngle() <em>Stitching Theta Angle</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getStitchingThetaAngle()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final double STITCHING_THETA_ANGLE_EDEFAULT = 0.0;
-
-	/**
-	 * The cached value of the '{@link #getStitchingThetaAngle() <em>Stitching Theta Angle</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getStitchingThetaAngle()
-	 * @generated
-	 * @ordered
-	 */
-	protected double stitchingThetaAngle = STITCHING_THETA_ANGLE_EDEFAULT;
-
-	/**
 	 * The default value of the '{@link #getCreatedDateTime() <em>Created Date Time</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -345,7 +275,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String CREATED_DATE_TIME_EDEFAULT = null;
+	protected static final Date CREATED_DATE_TIME_EDEFAULT = null;
 
 	/**
 	 * The cached value of the '{@link #getCreatedDateTime() <em>Created Date Time</em>}' attribute.
@@ -355,15 +285,114 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	 * @generated
 	 * @ordered
 	 */
-	protected String createdDateTime = CREATED_DATE_TIME_EDEFAULT;
+	protected Date createdDateTime = CREATED_DATE_TIME_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getSampleWeight() <em>Sample Weight</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getSampleWeight()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final SampleWeight SAMPLE_WEIGHT_EDEFAULT = SampleWeight.LESS_THAN_1;
+
+	/**
+	 * The cached value of the '{@link #getSampleWeight() <em>Sample Weight</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getSampleWeight()
+	 * @generated
+	 * @ordered
+	 */
+	protected SampleWeight sampleWeight = SAMPLE_WEIGHT_EDEFAULT;
+
+	/**
+	 * The cached value of the '{@link #getDetectorStageParameters() <em>Detector Stage Parameters</em>}' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getDetectorStageParameters()
+	 * @generated
+	 * @ordered
+	 */
+	protected DetectorStage detectorStageParameters;
+
+	/**
+	 * This is true if the Detector Stage Parameters containment reference has been set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean detectorStageParametersESet;
+
+	/**
+	 * The default value of the '{@link #getProposalId() <em>Proposal Id</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getProposalId()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String PROPOSAL_ID_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getProposalId() <em>Proposal Id</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getProposalId()
+	 * @generated
+	 * @ordered
+	 */
+	protected String proposalId = PROPOSAL_ID_EDEFAULT;
+
+	/**
+	 * The cached value of the '{@link #getStitchParameters() <em>Stitch Parameters</em>}' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getStitchParameters()
+	 * @generated
+	 * @ordered
+	 */
+	protected StitchParameters stitchParameters;
+
+	/**
+	 * This is true if the Stitch Parameters containment reference has been set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean stitchParametersESet;
+
+	/**
+	 * The default value of the '{@link #getSelectedToRun() <em>Selected To Run</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getSelectedToRun()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final Boolean SELECTED_TO_RUN_EDEFAULT = Boolean.FALSE;
+
+	/**
+	 * The cached value of the '{@link #getSelectedToRun() <em>Selected To Run</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getSelectedToRun()
+	 * @generated
+	 * @ordered
+	 */
+	protected Boolean selectedToRun = SELECTED_TO_RUN_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated not
 	 */
 	protected AlignmentConfigurationImpl() {
 		super();
+		setId(EcoreUtil.generateUUID());
 	}
 
 	/**
@@ -447,56 +476,6 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 		energy = newEnergy;
 		if (eNotificationRequired())
 			eNotify(new ENotificationImpl(this, Notification.SET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__ENERGY, oldEnergy, energy));
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public Integer getNumberOfProjections() {
-		return numberOfProjections;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public void setNumberOfProjections(Integer newNumberOfProjections) {
-		Integer oldNumberOfProjections = numberOfProjections;
-		numberOfProjections = newNumberOfProjections;
-		boolean oldNumberOfProjectionsESet = numberOfProjectionsESet;
-		numberOfProjectionsESet = true;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__NUMBER_OF_PROJECTIONS, oldNumberOfProjections, numberOfProjections, !oldNumberOfProjectionsESet));
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public void unsetNumberOfProjections() {
-		Integer oldNumberOfProjections = numberOfProjections;
-		boolean oldNumberOfProjectionsESet = numberOfProjectionsESet;
-		numberOfProjections = NUMBER_OF_PROJECTIONS_EDEFAULT;
-		numberOfProjectionsESet = false;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.UNSET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__NUMBER_OF_PROJECTIONS, oldNumberOfProjections, NUMBER_OF_PROJECTIONS_EDEFAULT, oldNumberOfProjectionsESet));
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public boolean isSetNumberOfProjections() {
-		return numberOfProjectionsESet;
 	}
 
 	/**
@@ -627,8 +606,8 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	 * @generated
 	 */
 	@Override
-	public double getSampleDetectorDistance() {
-		return sampleDetectorDistance;
+	public SampleStage getSampleStageParameters() {
+		return sampleStageParameters;
 	}
 
 	/**
@@ -636,63 +615,13 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	@Override
-	public void setSampleDetectorDistance(double newSampleDetectorDistance) {
-		double oldSampleDetectorDistance = sampleDetectorDistance;
-		sampleDetectorDistance = newSampleDetectorDistance;
-		boolean oldSampleDetectorDistanceESet = sampleDetectorDistanceESet;
-		sampleDetectorDistanceESet = true;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_DETECTOR_DISTANCE, oldSampleDetectorDistance, sampleDetectorDistance, !oldSampleDetectorDistanceESet));
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public void unsetSampleDetectorDistance() {
-		double oldSampleDetectorDistance = sampleDetectorDistance;
-		boolean oldSampleDetectorDistanceESet = sampleDetectorDistanceESet;
-		sampleDetectorDistance = SAMPLE_DETECTOR_DISTANCE_EDEFAULT;
-		sampleDetectorDistanceESet = false;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.UNSET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_DETECTOR_DISTANCE, oldSampleDetectorDistance, SAMPLE_DETECTOR_DISTANCE_EDEFAULT, oldSampleDetectorDistanceESet));
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public boolean isSetSampleDetectorDistance() {
-		return sampleDetectorDistanceESet;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public SampleParams getSampleParams() {
-		return sampleParams;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public NotificationChain basicSetSampleParams(SampleParams newSampleParams, NotificationChain msgs) {
-		SampleParams oldSampleParams = sampleParams;
-		sampleParams = newSampleParams;
-		boolean oldSampleParamsESet = sampleParamsESet;
-		sampleParamsESet = true;
+	public NotificationChain basicSetSampleStageParameters(SampleStage newSampleStageParameters, NotificationChain msgs) {
+		SampleStage oldSampleStageParameters = sampleStageParameters;
+		sampleStageParameters = newSampleStageParameters;
+		boolean oldSampleStageParametersESet = sampleStageParametersESet;
+		sampleStageParametersESet = true;
 		if (eNotificationRequired()) {
-			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_PARAMS, oldSampleParams, newSampleParams, !oldSampleParamsESet);
+			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_STAGE_PARAMETERS, oldSampleStageParameters, newSampleStageParameters, !oldSampleStageParametersESet);
 			if (msgs == null) msgs = notification; else msgs.add(notification);
 		}
 		return msgs;
@@ -704,21 +633,21 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	 * @generated
 	 */
 	@Override
-	public void setSampleParams(SampleParams newSampleParams) {
-		if (newSampleParams != sampleParams) {
+	public void setSampleStageParameters(SampleStage newSampleStageParameters) {
+		if (newSampleStageParameters != sampleStageParameters) {
 			NotificationChain msgs = null;
-			if (sampleParams != null)
-				msgs = ((InternalEObject)sampleParams).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_PARAMS, null, msgs);
-			if (newSampleParams != null)
-				msgs = ((InternalEObject)newSampleParams).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_PARAMS, null, msgs);
-			msgs = basicSetSampleParams(newSampleParams, msgs);
+			if (sampleStageParameters != null)
+				msgs = ((InternalEObject)sampleStageParameters).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_STAGE_PARAMETERS, null, msgs);
+			if (newSampleStageParameters != null)
+				msgs = ((InternalEObject)newSampleStageParameters).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_STAGE_PARAMETERS, null, msgs);
+			msgs = basicSetSampleStageParameters(newSampleStageParameters, msgs);
 			if (msgs != null) msgs.dispatch();
 		}
 		else {
-			boolean oldSampleParamsESet = sampleParamsESet;
-			sampleParamsESet = true;
+			boolean oldSampleStageParametersESet = sampleStageParametersESet;
+			sampleStageParametersESet = true;
 			if (eNotificationRequired())
-				eNotify(new ENotificationImpl(this, Notification.SET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_PARAMS, newSampleParams, newSampleParams, !oldSampleParamsESet));
+				eNotify(new ENotificationImpl(this, Notification.SET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_STAGE_PARAMETERS, newSampleStageParameters, newSampleStageParameters, !oldSampleStageParametersESet));
 		}
 	}
 
@@ -727,13 +656,13 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public NotificationChain basicUnsetSampleParams(NotificationChain msgs) {
-		SampleParams oldSampleParams = sampleParams;
-		sampleParams = null;
-		boolean oldSampleParamsESet = sampleParamsESet;
-		sampleParamsESet = false;
+	public NotificationChain basicUnsetSampleStageParameters(NotificationChain msgs) {
+		SampleStage oldSampleStageParameters = sampleStageParameters;
+		sampleStageParameters = null;
+		boolean oldSampleStageParametersESet = sampleStageParametersESet;
+		sampleStageParametersESet = false;
 		if (eNotificationRequired()) {
-			ENotificationImpl notification = new ENotificationImpl(this, Notification.UNSET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_PARAMS, oldSampleParams, null, oldSampleParamsESet);
+			ENotificationImpl notification = new ENotificationImpl(this, Notification.UNSET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_STAGE_PARAMETERS, oldSampleStageParameters, null, oldSampleStageParametersESet);
 			if (msgs == null) msgs = notification; else msgs.add(notification);
 		}
 		return msgs;
@@ -745,18 +674,18 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	 * @generated
 	 */
 	@Override
-	public void unsetSampleParams() {
-		if (sampleParams != null) {
+	public void unsetSampleStageParameters() {
+		if (sampleStageParameters != null) {
 			NotificationChain msgs = null;
-			msgs = ((InternalEObject)sampleParams).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_PARAMS, null, msgs);
-			msgs = basicUnsetSampleParams(msgs);
+			msgs = ((InternalEObject)sampleStageParameters).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_STAGE_PARAMETERS, null, msgs);
+			msgs = basicUnsetSampleStageParameters(msgs);
 			if (msgs != null) msgs.dispatch();
 		}
 		else {
-			boolean oldSampleParamsESet = sampleParamsESet;
-			sampleParamsESet = false;
+			boolean oldSampleStageParametersESet = sampleStageParametersESet;
+			sampleStageParametersESet = false;
 			if (eNotificationRequired())
-				eNotify(new ENotificationImpl(this, Notification.UNSET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_PARAMS, null, null, oldSampleParamsESet));
+				eNotify(new ENotificationImpl(this, Notification.UNSET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_STAGE_PARAMETERS, null, null, oldSampleStageParametersESet));
 		}
 	}
 
@@ -766,8 +695,8 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	 * @generated
 	 */
 	@Override
-	public boolean isSetSampleParams() {
-		return sampleParamsESet;
+	public boolean isSetSampleStageParameters() {
+		return sampleStageParametersESet;
 	}
 
 	/**
@@ -925,6 +854,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getCreatedUserId() {
 		return createdUserId;
 	}
@@ -934,6 +864,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setCreatedUserId(String newCreatedUserId) {
 		String oldCreatedUserId = createdUserId;
 		createdUserId = newCreatedUserId;
@@ -946,28 +877,8 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public double getStitchingThetaAngle() {
-		return stitchingThetaAngle;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setStitchingThetaAngle(double newStitchingThetaAngle) {
-		double oldStitchingThetaAngle = stitchingThetaAngle;
-		stitchingThetaAngle = newStitchingThetaAngle;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__STITCHING_THETA_ANGLE, oldStitchingThetaAngle, stitchingThetaAngle));
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public String getCreatedDateTime() {
+	@Override
+	public Date getCreatedDateTime() {
 		return createdDateTime;
 	}
 
@@ -976,11 +887,271 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public void setCreatedDateTime(String newCreatedDateTime) {
-		String oldCreatedDateTime = createdDateTime;
+	@Override
+	public void setCreatedDateTime(Date newCreatedDateTime) {
+		Date oldCreatedDateTime = createdDateTime;
 		createdDateTime = newCreatedDateTime;
 		if (eNotificationRequired())
 			eNotify(new ENotificationImpl(this, Notification.SET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__CREATED_DATE_TIME, oldCreatedDateTime, createdDateTime));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public SampleWeight getSampleWeight() {
+		return sampleWeight;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public void setSampleWeight(SampleWeight newSampleWeight) {
+		SampleWeight oldSampleWeight = sampleWeight;
+		sampleWeight = newSampleWeight == null ? SAMPLE_WEIGHT_EDEFAULT : newSampleWeight;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_WEIGHT, oldSampleWeight, sampleWeight));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public DetectorStage getDetectorStageParameters() {
+		return detectorStageParameters;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public NotificationChain basicSetDetectorStageParameters(DetectorStage newDetectorStageParameters, NotificationChain msgs) {
+		DetectorStage oldDetectorStageParameters = detectorStageParameters;
+		detectorStageParameters = newDetectorStageParameters;
+		boolean oldDetectorStageParametersESet = detectorStageParametersESet;
+		detectorStageParametersESet = true;
+		if (eNotificationRequired()) {
+			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_STAGE_PARAMETERS, oldDetectorStageParameters, newDetectorStageParameters, !oldDetectorStageParametersESet);
+			if (msgs == null) msgs = notification; else msgs.add(notification);
+		}
+		return msgs;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public void setDetectorStageParameters(DetectorStage newDetectorStageParameters) {
+		if (newDetectorStageParameters != detectorStageParameters) {
+			NotificationChain msgs = null;
+			if (detectorStageParameters != null)
+				msgs = ((InternalEObject)detectorStageParameters).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_STAGE_PARAMETERS, null, msgs);
+			if (newDetectorStageParameters != null)
+				msgs = ((InternalEObject)newDetectorStageParameters).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_STAGE_PARAMETERS, null, msgs);
+			msgs = basicSetDetectorStageParameters(newDetectorStageParameters, msgs);
+			if (msgs != null) msgs.dispatch();
+		}
+		else {
+			boolean oldDetectorStageParametersESet = detectorStageParametersESet;
+			detectorStageParametersESet = true;
+			if (eNotificationRequired())
+				eNotify(new ENotificationImpl(this, Notification.SET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_STAGE_PARAMETERS, newDetectorStageParameters, newDetectorStageParameters, !oldDetectorStageParametersESet));
+		}
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public NotificationChain basicUnsetDetectorStageParameters(NotificationChain msgs) {
+		DetectorStage oldDetectorStageParameters = detectorStageParameters;
+		detectorStageParameters = null;
+		boolean oldDetectorStageParametersESet = detectorStageParametersESet;
+		detectorStageParametersESet = false;
+		if (eNotificationRequired()) {
+			ENotificationImpl notification = new ENotificationImpl(this, Notification.UNSET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_STAGE_PARAMETERS, oldDetectorStageParameters, null, oldDetectorStageParametersESet);
+			if (msgs == null) msgs = notification; else msgs.add(notification);
+		}
+		return msgs;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public void unsetDetectorStageParameters() {
+		if (detectorStageParameters != null) {
+			NotificationChain msgs = null;
+			msgs = ((InternalEObject)detectorStageParameters).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_STAGE_PARAMETERS, null, msgs);
+			msgs = basicUnsetDetectorStageParameters(msgs);
+			if (msgs != null) msgs.dispatch();
+		}
+		else {
+			boolean oldDetectorStageParametersESet = detectorStageParametersESet;
+			detectorStageParametersESet = false;
+			if (eNotificationRequired())
+				eNotify(new ENotificationImpl(this, Notification.UNSET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_STAGE_PARAMETERS, null, null, oldDetectorStageParametersESet));
+		}
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public boolean isSetDetectorStageParameters() {
+		return detectorStageParametersESet;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public String getProposalId() {
+		return proposalId;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setProposalId(String newProposalId) {
+		String oldProposalId = proposalId;
+		proposalId = newProposalId;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__PROPOSAL_ID, oldProposalId, proposalId));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public StitchParameters getStitchParameters() {
+		return stitchParameters;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public NotificationChain basicSetStitchParameters(StitchParameters newStitchParameters, NotificationChain msgs) {
+		StitchParameters oldStitchParameters = stitchParameters;
+		stitchParameters = newStitchParameters;
+		boolean oldStitchParametersESet = stitchParametersESet;
+		stitchParametersESet = true;
+		if (eNotificationRequired()) {
+			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__STITCH_PARAMETERS, oldStitchParameters, newStitchParameters, !oldStitchParametersESet);
+			if (msgs == null) msgs = notification; else msgs.add(notification);
+		}
+		return msgs;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setStitchParameters(StitchParameters newStitchParameters) {
+		if (newStitchParameters != stitchParameters) {
+			NotificationChain msgs = null;
+			if (stitchParameters != null)
+				msgs = ((InternalEObject)stitchParameters).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - TomoParametersPackage.ALIGNMENT_CONFIGURATION__STITCH_PARAMETERS, null, msgs);
+			if (newStitchParameters != null)
+				msgs = ((InternalEObject)newStitchParameters).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - TomoParametersPackage.ALIGNMENT_CONFIGURATION__STITCH_PARAMETERS, null, msgs);
+			msgs = basicSetStitchParameters(newStitchParameters, msgs);
+			if (msgs != null) msgs.dispatch();
+		}
+		else {
+			boolean oldStitchParametersESet = stitchParametersESet;
+			stitchParametersESet = true;
+			if (eNotificationRequired())
+				eNotify(new ENotificationImpl(this, Notification.SET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__STITCH_PARAMETERS, newStitchParameters, newStitchParameters, !oldStitchParametersESet));
+		}
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public NotificationChain basicUnsetStitchParameters(NotificationChain msgs) {
+		StitchParameters oldStitchParameters = stitchParameters;
+		stitchParameters = null;
+		boolean oldStitchParametersESet = stitchParametersESet;
+		stitchParametersESet = false;
+		if (eNotificationRequired()) {
+			ENotificationImpl notification = new ENotificationImpl(this, Notification.UNSET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__STITCH_PARAMETERS, oldStitchParameters, null, oldStitchParametersESet);
+			if (msgs == null) msgs = notification; else msgs.add(notification);
+		}
+		return msgs;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void unsetStitchParameters() {
+		if (stitchParameters != null) {
+			NotificationChain msgs = null;
+			msgs = ((InternalEObject)stitchParameters).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - TomoParametersPackage.ALIGNMENT_CONFIGURATION__STITCH_PARAMETERS, null, msgs);
+			msgs = basicUnsetStitchParameters(msgs);
+			if (msgs != null) msgs.dispatch();
+		}
+		else {
+			boolean oldStitchParametersESet = stitchParametersESet;
+			stitchParametersESet = false;
+			if (eNotificationRequired())
+				eNotify(new ENotificationImpl(this, Notification.UNSET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__STITCH_PARAMETERS, null, null, oldStitchParametersESet));
+		}
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean isSetStitchParameters() {
+		return stitchParametersESet;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public Boolean getSelectedToRun() {
+		return selectedToRun;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setSelectedToRun(Boolean newSelectedToRun) {
+		Boolean oldSelectedToRun = selectedToRun;
+		selectedToRun = newSelectedToRun;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__SELECTED_TO_RUN, oldSelectedToRun, selectedToRun));
 	}
 
 	/**
@@ -993,8 +1164,12 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 		switch (featureID) {
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_PROPERTIES:
 				return basicUnsetDetectorProperties(msgs);
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_PARAMS:
-				return basicUnsetSampleParams(msgs);
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_STAGE_PARAMETERS:
+				return basicUnsetSampleStageParameters(msgs);
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_STAGE_PARAMETERS:
+				return basicUnsetDetectorStageParameters(msgs);
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__STITCH_PARAMETERS:
+				return basicUnsetStitchParameters(msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
@@ -1011,16 +1186,12 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 				return getId();
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__ENERGY:
 				return getEnergy();
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__NUMBER_OF_PROJECTIONS:
-				return getNumberOfProjections();
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__DESCRIPTION:
 				return getDescription();
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_PROPERTIES:
 				return getDetectorProperties();
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_DETECTOR_DISTANCE:
-				return getSampleDetectorDistance();
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_PARAMS:
-				return getSampleParams();
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_STAGE_PARAMETERS:
+				return getSampleStageParameters();
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SCAN_MODE:
 				return getScanMode();
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_EXPOSURE_TIME:
@@ -1029,10 +1200,18 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 				return getFlatExposureTime();
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__CREATED_USER_ID:
 				return getCreatedUserId();
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__STITCHING_THETA_ANGLE:
-				return getStitchingThetaAngle();
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__CREATED_DATE_TIME:
 				return getCreatedDateTime();
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_WEIGHT:
+				return getSampleWeight();
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_STAGE_PARAMETERS:
+				return getDetectorStageParameters();
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__PROPOSAL_ID:
+				return getProposalId();
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__STITCH_PARAMETERS:
+				return getStitchParameters();
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SELECTED_TO_RUN:
+				return getSelectedToRun();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -1051,20 +1230,14 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__ENERGY:
 				setEnergy((Double)newValue);
 				return;
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__NUMBER_OF_PROJECTIONS:
-				setNumberOfProjections((Integer)newValue);
-				return;
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__DESCRIPTION:
 				setDescription((String)newValue);
 				return;
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_PROPERTIES:
 				setDetectorProperties((DetectorProperties)newValue);
 				return;
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_DETECTOR_DISTANCE:
-				setSampleDetectorDistance((Double)newValue);
-				return;
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_PARAMS:
-				setSampleParams((SampleParams)newValue);
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_STAGE_PARAMETERS:
+				setSampleStageParameters((SampleStage)newValue);
 				return;
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SCAN_MODE:
 				setScanMode((ScanMode)newValue);
@@ -1078,11 +1251,23 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__CREATED_USER_ID:
 				setCreatedUserId((String)newValue);
 				return;
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__STITCHING_THETA_ANGLE:
-				setStitchingThetaAngle((Double)newValue);
-				return;
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__CREATED_DATE_TIME:
-				setCreatedDateTime((String)newValue);
+				setCreatedDateTime((Date)newValue);
+				return;
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_WEIGHT:
+				setSampleWeight((SampleWeight)newValue);
+				return;
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_STAGE_PARAMETERS:
+				setDetectorStageParameters((DetectorStage)newValue);
+				return;
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__PROPOSAL_ID:
+				setProposalId((String)newValue);
+				return;
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__STITCH_PARAMETERS:
+				setStitchParameters((StitchParameters)newValue);
+				return;
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SELECTED_TO_RUN:
+				setSelectedToRun((Boolean)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -1102,20 +1287,14 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__ENERGY:
 				setEnergy(ENERGY_EDEFAULT);
 				return;
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__NUMBER_OF_PROJECTIONS:
-				unsetNumberOfProjections();
-				return;
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__DESCRIPTION:
 				setDescription(DESCRIPTION_EDEFAULT);
 				return;
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_PROPERTIES:
 				unsetDetectorProperties();
 				return;
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_DETECTOR_DISTANCE:
-				unsetSampleDetectorDistance();
-				return;
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_PARAMS:
-				unsetSampleParams();
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_STAGE_PARAMETERS:
+				unsetSampleStageParameters();
 				return;
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SCAN_MODE:
 				unsetScanMode();
@@ -1129,11 +1308,23 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__CREATED_USER_ID:
 				setCreatedUserId(CREATED_USER_ID_EDEFAULT);
 				return;
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__STITCHING_THETA_ANGLE:
-				setStitchingThetaAngle(STITCHING_THETA_ANGLE_EDEFAULT);
-				return;
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__CREATED_DATE_TIME:
 				setCreatedDateTime(CREATED_DATE_TIME_EDEFAULT);
+				return;
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_WEIGHT:
+				setSampleWeight(SAMPLE_WEIGHT_EDEFAULT);
+				return;
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_STAGE_PARAMETERS:
+				unsetDetectorStageParameters();
+				return;
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__PROPOSAL_ID:
+				setProposalId(PROPOSAL_ID_EDEFAULT);
+				return;
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__STITCH_PARAMETERS:
+				unsetStitchParameters();
+				return;
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SELECTED_TO_RUN:
+				setSelectedToRun(SELECTED_TO_RUN_EDEFAULT);
 				return;
 		}
 		super.eUnset(featureID);
@@ -1151,16 +1342,12 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 				return isSetId();
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__ENERGY:
 				return energy != ENERGY_EDEFAULT;
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__NUMBER_OF_PROJECTIONS:
-				return isSetNumberOfProjections();
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__DESCRIPTION:
 				return DESCRIPTION_EDEFAULT == null ? description != null : !DESCRIPTION_EDEFAULT.equals(description);
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_PROPERTIES:
 				return isSetDetectorProperties();
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_DETECTOR_DISTANCE:
-				return isSetSampleDetectorDistance();
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_PARAMS:
-				return isSetSampleParams();
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_STAGE_PARAMETERS:
+				return isSetSampleStageParameters();
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SCAN_MODE:
 				return isSetScanMode();
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_EXPOSURE_TIME:
@@ -1169,10 +1356,18 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 				return isSetFlatExposureTime();
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__CREATED_USER_ID:
 				return CREATED_USER_ID_EDEFAULT == null ? createdUserId != null : !CREATED_USER_ID_EDEFAULT.equals(createdUserId);
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__STITCHING_THETA_ANGLE:
-				return stitchingThetaAngle != STITCHING_THETA_ANGLE_EDEFAULT;
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__CREATED_DATE_TIME:
 				return CREATED_DATE_TIME_EDEFAULT == null ? createdDateTime != null : !CREATED_DATE_TIME_EDEFAULT.equals(createdDateTime);
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_WEIGHT:
+				return sampleWeight != SAMPLE_WEIGHT_EDEFAULT;
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_STAGE_PARAMETERS:
+				return isSetDetectorStageParameters();
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__PROPOSAL_ID:
+				return PROPOSAL_ID_EDEFAULT == null ? proposalId != null : !PROPOSAL_ID_EDEFAULT.equals(proposalId);
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__STITCH_PARAMETERS:
+				return isSetStitchParameters();
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SELECTED_TO_RUN:
+				return SELECTED_TO_RUN_EDEFAULT == null ? selectedToRun != null : !SELECTED_TO_RUN_EDEFAULT.equals(selectedToRun);
 		}
 		return super.eIsSet(featureID);
 	}
@@ -1191,12 +1386,8 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 		if (idESet) result.append(id); else result.append("<unset>");
 		result.append(", energy: ");
 		result.append(energy);
-		result.append(", numberOfProjections: ");
-		if (numberOfProjectionsESet) result.append(numberOfProjections); else result.append("<unset>");
 		result.append(", description: ");
 		result.append(description);
-		result.append(", sampleDetectorDistance: ");
-		if (sampleDetectorDistanceESet) result.append(sampleDetectorDistance); else result.append("<unset>");
 		result.append(", scanMode: ");
 		if (scanModeESet) result.append(scanMode); else result.append("<unset>");
 		result.append(", sampleExposureTime: ");
@@ -1205,10 +1396,14 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 		if (flatExposureTimeESet) result.append(flatExposureTime); else result.append("<unset>");
 		result.append(", createdUserId: ");
 		result.append(createdUserId);
-		result.append(", stitchingThetaAngle: ");
-		result.append(stitchingThetaAngle);
 		result.append(", createdDateTime: ");
 		result.append(createdDateTime);
+		result.append(", sampleWeight: ");
+		result.append(sampleWeight);
+		result.append(", proposalId: ");
+		result.append(proposalId);
+		result.append(", selectedToRun: ");
+		result.append(selectedToRun);
 		result.append(')');
 		return result.toString();
 	}

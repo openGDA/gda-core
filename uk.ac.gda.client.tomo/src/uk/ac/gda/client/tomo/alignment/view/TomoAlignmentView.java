@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2011 Diamond Light Source Ltd.
+O * Copyright © 2011 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -258,8 +258,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	private Label lblPixelY;
 	private Label lblPixelIntensityVal;
 
-	private final static int MAX_INTENSITY = 70000;
-
 	private IPartListener tomoPartAdapter = new PartAdapter2() {
 		@Override
 		public void partDeactivated(org.eclipse.ui.IWorkbenchPart part) {
@@ -358,7 +356,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			case SAMPLE_STREAM_LIVE:
 			case FLAT_STREAM_LIVE:
 				try {
-					tomoAlignmentViewController.setAdjustedProc1ScaleValue(minValue, maxValue, from, to);
+					tomoAlignmentViewController.setAdjustedProc1ScaleValue(from, to);
 				} catch (Exception e) {
 					loadErrorInDisplay("Problem updating scale on the detector",
 							"Problem updating scale on the detector:" + e.getMessage());
@@ -366,7 +364,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 				break;
 			case SAMPLE_SINGLE:
 				try {
-					tomoAlignmentViewController.setAdjustedExposureTime(minValue, maxValue, from, to);
+					tomoAlignmentViewController.setAdjustedExposureTime(from, to);
 					cameraControls.startSampleSingle();
 					cameraControls.startSampleHistogram();
 				} catch (Exception e) {
@@ -377,7 +375,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 				break;
 			case FLAT_SINGLE:
 				try {
-					tomoAlignmentViewController.setAdjustedExposureTime(minValue, maxValue, from, to);
+					tomoAlignmentViewController.setAdjustedExposureTime(from, to);
 					cameraControls.startFlatSingle();
 					cameraControls.startFlatHistogram();
 				} catch (Exception e) {
@@ -385,6 +383,12 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 							"Problem updating scale on the detector:" + e.getMessage());
 					logger.error("TODO put description of error here", e);
 				}
+				break;
+			case DARK_SINGLE:
+			case STATIC_FLAT:
+			case STREAM_STOPPED:
+				// Do nothing
+				// Wont be applicable as the histogram only applies to single or stream
 				break;
 			}
 		}
@@ -2038,26 +2042,78 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			configSaveDialog.open();
 
 			int returnCode = configSaveDialog.getReturnCode();
+			final ImageLocationRelTheta viewerBtnSelected = configSaveDialog.getViewerButtonSelected();
 
 			if (IDialogConstants.OK_ID == returnCode) {
 
 				ACTIVE_WORKBENCH_WINDOW.run(true, false, new IRunnableWithProgress() {
+					private final DecimalFormat threePrecision = new DecimalFormat("#.###");
 
 					@Override
 					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-
-						SaveableConfiguration configuration = new SaveableConfiguration();
-						configuration.setModuleNumber(motionControlComposite.getSelectedCameraModule().getValue());
-						configuration.setSampleAcquisitonTime(cameraControls.getSampleExposureTime());
-						configuration.setFlatAcquisitionTime(cameraControls.getFlatExposureTime());
-						configuration.setSampleDescription(cameraControls.getSampleDescription());
-						configuration.setRoiPoints(leftWindowImageViewer.getRoiPoints());
-						configuration.setEnergy(motionControlComposite.getEnergy());
 						try {
-							tomoAlignmentViewController.saveConfiguration(monitor, configuration);
-						} catch (Exception e) {
-							logger.error("TODO put description of error here", e);
-							throw new InvocationTargetException(e, "Cannot save alignment configuration");
+							monitor.setTaskName("Saving configuration...");
+							SaveableConfiguration configuration = new SaveableConfiguration();
+							// Module number
+							configuration.setModuleNumber(motionControlComposite.getSelectedCameraModule().getValue());
+							// Sample Acquisition time
+							configuration.setSampleAcquisitonTime(Double.valueOf(threePrecision.format(cameraControls
+									.getSampleExposureTime())));
+							// Flat Acquisition time
+							configuration.setFlatAcquisitionTime(Double.valueOf(threePrecision.format(cameraControls
+									.getFlatExposureTime())));
+							// Sample description
+							configuration.setSampleDescription(cameraControls.getSampleDescription());
+							// ROI points
+							configuration.setRoiPoints(leftWindowImageViewer.getRoiPoints());
+							// Energy
+							configuration.setEnergy(motionControlComposite.getEnergy());
+							// resolution
+							configuration.setResolution3D(cameraControls.getResolution());
+							// sample weight
+							configuration.setSampleWeight(motionControlComposite.getSampleWeight());
+							// number of projections
+							configuration.setNumProjections(cameraControls.getFramesPerProjection());
+
+							String imgAtTheta = null;
+							double theta = 0;
+							String imgAtThetaPlus90 = null;
+							try {
+								switch (viewerBtnSelected) {
+								case THETA:
+									theta = tomoAlignmentViewController.getRotationMotorDeg();
+									imgAtTheta = tomoAlignmentViewController.demandRawWithStreamOn(monitor, false);
+									tomoAlignmentViewController.moveRotationMotorBy(monitor, 90);
+									imgAtThetaPlus90 = tomoAlignmentViewController
+											.demandRawWithStreamOn(monitor, false);
+									tomoAlignmentViewController.moveRotationMotorBy(monitor, -90);
+									break;
+								case THETA_PLUS_90:
+									theta = tomoAlignmentViewController.getRotationMotorDeg() - 90;
+									imgAtThetaPlus90 = tomoAlignmentViewController
+											.demandRawWithStreamOn(monitor, false);
+									tomoAlignmentViewController.moveRotationMotorBy(monitor, -90);
+									imgAtTheta = tomoAlignmentViewController.demandRawWithStreamOn(monitor, false);
+									break;
+								}
+							} catch (Exception ex) {
+								logger.error("Unable to save images at theta:{}", ex);
+								throw new InvocationTargetException(ex, "Cannot save images at theta");
+							}
+							// stitching angle
+							configuration.setStitchingAngle(theta);
+							// image at theta
+							configuration.setImageAtTheta(imgAtTheta);
+							// image at theta+90
+							configuration.setImageAtThetaPlus90(imgAtThetaPlus90);
+							try {
+								tomoAlignmentViewController.saveConfiguration(monitor, configuration);
+							} catch (Exception e) {
+								logger.error("Unable to save configuration", e);
+								throw new InvocationTargetException(e, "Cannot save alignment configuration");
+							}
+						} catch (InvocationTargetException e) {
+							throw e;
 						} finally {
 							monitor.done();
 						}
@@ -2068,9 +2124,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		} finally {
 			isSaving = false;
 		}
-
-		// MessageDialog.openInformation(getSite().getShell(), "Alignment Configuration Saved",
-		// "The alignment configuration has been saved");
 	}
 
 	@Override

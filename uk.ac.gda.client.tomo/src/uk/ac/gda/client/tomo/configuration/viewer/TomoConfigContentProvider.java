@@ -16,14 +16,13 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.client.tomo.configuration.view.xviewer;
+package uk.ac.gda.client.tomo.configuration.viewer;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 
-import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
 import uk.ac.gda.tomography.parameters.AlignmentConfiguration;
@@ -32,22 +31,19 @@ import uk.ac.gda.tomography.parameters.TomoExperiment;
 /**
  *
  */
-public class TomoConfigContentProvider implements ITreeContentProvider {
-	protected Collection<AlignmentConfiguration> rootSet = new HashSet<AlignmentConfiguration>();
+public class TomoConfigContentProvider implements IStructuredContentProvider {
 	private static Object[] EMPTY_ARRAY = new Object[0];
 
 	public TomoConfigContentProvider() {
 		super();
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
-	@SuppressWarnings("unchecked")
-	public Object[] getChildren(Object parentElement) {
-
+	public Object[] getElements(Object parentElement) {
 		if (parentElement instanceof TomoExperiment) {
 			TomoExperiment tomoExperiment = (TomoExperiment) parentElement;
 			return getTomoConfigContent(tomoExperiment);
-
 		}
 
 		if (parentElement instanceof Object[]) {
@@ -66,30 +62,10 @@ public class TomoConfigContentProvider implements ITreeContentProvider {
 		ArrayList<ITomoConfigContent> configContents = new ArrayList<ITomoConfigContent>();
 		for (AlignmentConfiguration alignmentConfiguration : configurationSet) {
 			TomoConfigContent configContent = new TomoConfigContent();
-			configContent.setSampleDescription(alignmentConfiguration.getDescription());
-			configContent.setFlatExposureTime(alignmentConfiguration.getFlatExposureTime());
-			configContent.setSampleExposureTime(alignmentConfiguration.getSampleExposureTime());
-			configContent.setUserId(alignmentConfiguration.getCreatedUserId());
+			TomoConfigViewerUtil.setupConfigContent(alignmentConfiguration, configContent);
 			configContents.add(configContent);
 		}
 		return configContents.toArray();
-	}
-
-	@Override
-	public Object getParent(Object element) {
-		return null;
-	}
-
-	@Override
-	public boolean hasChildren(Object element) {
-		return false;
-	}
-
-	@Override
-	public Object[] getElements(Object inputElement) {
-		if (inputElement instanceof String)
-			return new Object[] { inputElement };
-		return getChildren(inputElement);
 	}
 
 	@Override
@@ -98,13 +74,6 @@ public class TomoConfigContentProvider implements ITreeContentProvider {
 
 	@Override
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-	}
-
-	/**
-	 * @return the rootSet
-	 */
-	public Collection<AlignmentConfiguration> getRootSet() {
-		return rootSet;
 	}
 
 }

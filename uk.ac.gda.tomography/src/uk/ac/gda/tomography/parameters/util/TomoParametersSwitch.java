@@ -15,11 +15,13 @@ import uk.ac.gda.tomography.parameters.AlignmentConfiguration;
 import uk.ac.gda.tomography.parameters.DetectorBin;
 import uk.ac.gda.tomography.parameters.DetectorProperties;
 import uk.ac.gda.tomography.parameters.DetectorRoi;
+import uk.ac.gda.tomography.parameters.DetectorStage;
+import uk.ac.gda.tomography.parameters.Module;
 import uk.ac.gda.tomography.parameters.Parameters;
-import uk.ac.gda.tomography.parameters.SampleParams;
-import uk.ac.gda.tomography.parameters.SamplePosition;
+import uk.ac.gda.tomography.parameters.SampleStage;
 import uk.ac.gda.tomography.parameters.TomoExperiment;
 import uk.ac.gda.tomography.parameters.TomoParametersPackage;
+import uk.ac.gda.tomography.parameters.ValueUnit;
 
 /**
  * <!-- begin-user-doc -->
@@ -102,27 +104,45 @@ public class TomoParametersSwitch<T> extends Switch<T> {
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
+			case TomoParametersPackage.DETECTOR_STAGE: {
+				DetectorStage detectorStage = (DetectorStage)theEObject;
+				T result = caseDetectorStage(detectorStage);
+				if (result == null) result = defaultCase(theEObject);
+				return result;
+			}
+			case TomoParametersPackage.MODULE: {
+				Module module = (Module)theEObject;
+				T result = caseModule(module);
+				if (result == null) result = defaultCase(theEObject);
+				return result;
+			}
 			case TomoParametersPackage.PARAMETERS: {
 				Parameters parameters = (Parameters)theEObject;
 				T result = caseParameters(parameters);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
-			case TomoParametersPackage.SAMPLE_PARAMS: {
-				SampleParams sampleParams = (SampleParams)theEObject;
-				T result = caseSampleParams(sampleParams);
+			case TomoParametersPackage.SAMPLE_STAGE: {
+				SampleStage sampleStage = (SampleStage)theEObject;
+				T result = caseSampleStage(sampleStage);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
-			case TomoParametersPackage.SAMPLE_POSITION: {
-				SamplePosition samplePosition = (SamplePosition)theEObject;
-				T result = caseSamplePosition(samplePosition);
+			case TomoParametersPackage.STITCH_PARAMETERS: {
+				StitchParameters stitchParameters = (StitchParameters)theEObject;
+				T result = caseStitchParameters(stitchParameters);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
 			case TomoParametersPackage.TOMO_EXPERIMENT: {
 				TomoExperiment tomoExperiment = (TomoExperiment)theEObject;
 				T result = caseTomoExperiment(tomoExperiment);
+				if (result == null) result = defaultCase(theEObject);
+				return result;
+			}
+			case TomoParametersPackage.VALUE_UNIT: {
+				ValueUnit valueUnit = (ValueUnit)theEObject;
+				T result = caseValueUnit(valueUnit);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
@@ -143,6 +163,51 @@ public class TomoParametersSwitch<T> extends Switch<T> {
 	 */
 	@SuppressWarnings("unused")
 	public T caseTomoExperiment(TomoExperiment object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpreting the object as an instance of '<em>Value Unit</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpreting the object as an instance of '<em>Value Unit</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public T caseValueUnit(ValueUnit object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpreting the object as an instance of '<em>Detector Stage</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpreting the object as an instance of '<em>Detector Stage</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public T caseDetectorStage(DetectorStage object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpreting the object as an instance of '<em>Module</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpreting the object as an instance of '<em>Module</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public T caseModule(Module object) {
 		return null;
 	}
 
@@ -227,34 +292,32 @@ public class TomoParametersSwitch<T> extends Switch<T> {
 	}
 
 	/**
-	 * Returns the result of interpreting the object as an instance of '<em>Sample Params</em>'.
+	 * Returns the result of interpreting the object as an instance of '<em>Sample Stage</em>'.
 	 * <!-- begin-user-doc -->
 	 * This implementation returns null;
 	 * returning a non-null result will terminate the switch.
 	 * <!-- end-user-doc -->
 	 * @param object the target of the switch.
-	 * @return the result of interpreting the object as an instance of '<em>Sample Params</em>'.
+	 * @return the result of interpreting the object as an instance of '<em>Sample Stage</em>'.
 	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
 	 * @generated
 	 */
-	@SuppressWarnings("unused")
-	public T caseSampleParams(SampleParams object) {
+	public T caseSampleStage(SampleStage object) {
 		return null;
 	}
 
 	/**
-	 * Returns the result of interpreting the object as an instance of '<em>Sample Position</em>'.
+	 * Returns the result of interpreting the object as an instance of '<em>Stitch Parameters</em>'.
 	 * <!-- begin-user-doc -->
 	 * This implementation returns null;
 	 * returning a non-null result will terminate the switch.
 	 * <!-- end-user-doc -->
 	 * @param object the target of the switch.
-	 * @return the result of interpreting the object as an instance of '<em>Sample Position</em>'.
+	 * @return the result of interpreting the object as an instance of '<em>Stitch Parameters</em>'.
 	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
 	 * @generated
 	 */
-	@SuppressWarnings("unused")
-	public T caseSamplePosition(SamplePosition object) {
+	public T caseStitchParameters(StitchParameters object) {
 		return null;
 	}
 

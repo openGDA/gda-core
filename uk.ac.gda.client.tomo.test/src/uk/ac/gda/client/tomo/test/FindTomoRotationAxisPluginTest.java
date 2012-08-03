@@ -54,7 +54,7 @@ public class FindTomoRotationAxisPluginTest extends UITestCaseSWT {
 	public void testFindTomoRotationAxisPlugin() throws Exception {
 		IUIContext ui = getUI();
 
-		PluginTestHelpers.openPerspective(ui);
+		PluginTestHelpers.openTomoPerspective(ui);
 
 		ui.click(new SWTWidgetLocator(ToolItem.class, "Reset Detector"));
 		PluginTestHelpers.delay(2000);

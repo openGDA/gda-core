@@ -18,6 +18,9 @@
 
 package uk.ac.gda.client.tomo.alignment.view.controller;
 
+import uk.ac.gda.ui.components.CameraControlComposite.RESOLUTION;
+import uk.ac.gda.ui.components.MotionControlComposite.SAMPLE_WEIGHT;
+
 /**
  *
  */
@@ -48,9 +51,9 @@ public class SaveableConfiguration {
 
 	private int[] roiPoints;
 
-	private double sampleWeight;
+	private SAMPLE_WEIGHT sampleWeight;
 
-	private double selection3D;
+	private RESOLUTION resolution3D;
 
 	private double framesPerProjection;
 
@@ -62,11 +65,37 @@ public class SaveableConfiguration {
 
 	private double cameraBinning;
 
-	private double numProjections;
+	private int numProjections;
 
 	private AlignmentScanMode scanMode;
 
 	private double totalRunTime;
+
+	private double moduleX;
+
+	private double moduleZ;
+
+	private double moduleRoll;
+
+	private double sampleBaseX;
+
+	private double tiltX;
+
+	private double tiltZ;
+
+	private double detectorStageX;
+
+	private double detectorStageY;
+
+	private double detectorStageZ;
+
+	private double stitchingAngle;
+
+	private String imageLocationAtThetaPlus90;
+
+	private String imageLocationAtTheta;
+
+	private Double horizontalFieldOfView;
 
 	/**
 	 * @return Returns the moduleNumber.
@@ -236,7 +265,7 @@ public class SaveableConfiguration {
 	/**
 	 * @return Returns the sampleWeight.
 	 */
-	public double getSampleWeight() {
+	public SAMPLE_WEIGHT getSampleWeight() {
 		return sampleWeight;
 	}
 
@@ -244,23 +273,23 @@ public class SaveableConfiguration {
 	 * @param sampleWeight
 	 *            The sampleWeight to set.
 	 */
-	public void setSampleWeight(double sampleWeight) {
+	public void setSampleWeight(SAMPLE_WEIGHT sampleWeight) {
 		this.sampleWeight = sampleWeight;
 	}
 
 	/**
 	 * @return Returns the selection3D.
 	 */
-	public double getSelection3D() {
-		return selection3D;
+	public RESOLUTION getResolution3D() {
+		return resolution3D;
 	}
 
 	/**
-	 * @param selection3d
+	 * @param resolution3d
 	 *            The selection3D to set.
 	 */
-	public void setSelection3D(double selection3d) {
-		selection3D = selection3d;
+	public void setResolution3D(RESOLUTION resolution3d) {
+		resolution3D = resolution3d;
 	}
 
 	/**
@@ -341,7 +370,7 @@ public class SaveableConfiguration {
 	/**
 	 * @return Returns the numProjections.
 	 */
-	public double getNumProjections() {
+	public int getNumProjections() {
 		return numProjections;
 	}
 
@@ -349,7 +378,7 @@ public class SaveableConfiguration {
 	 * @param numProjections
 	 *            The numProjections to set.
 	 */
-	public void setNumProjections(double numProjections) {
+	public void setNumProjections(int numProjections) {
 		this.numProjections = numProjections;
 	}
 
@@ -381,5 +410,109 @@ public class SaveableConfiguration {
 	 */
 	public void setTotalRunTime(double totalRunTime) {
 		this.totalRunTime = totalRunTime;
+	}
+
+	public double getModuleRoll() {
+		return moduleRoll;
+	}
+
+	public void setModuleRoll(double moduleRoll) {
+		this.moduleRoll = moduleRoll;
+	}
+
+	public double getModuleZ() {
+		return moduleZ;
+	}
+
+	public void setModuleZ(double moduleZ) {
+		this.moduleZ = moduleZ;
+	}
+
+	public double getModuleX() {
+		return moduleX;
+	}
+
+	public void setModuleX(double moduleX) {
+		this.moduleX = moduleX;
+	}
+
+	public double getSampleBaseX() {
+		return sampleBaseX;
+	}
+
+	public void setSampleBaseX(double sampleBaseX) {
+		this.sampleBaseX = sampleBaseX;
+	}
+
+	public double getTiltX() {
+		return tiltX;
+	}
+
+	public void setTiltX(double tiltX) {
+		this.tiltX = tiltX;
+	}
+
+	public double getTiltZ() {
+		return tiltZ;
+	}
+
+	public void setTiltZ(double tiltZ) {
+		this.tiltZ = tiltZ;
+	}
+
+	public double getDetectorStageX() {
+		return detectorStageX;
+	}
+
+	public void setDetectorStageX(double detectorStageX) {
+		this.detectorStageX = detectorStageX;
+	}
+
+	public double getDetectorStageY() {
+		return detectorStageY;
+	}
+
+	public void setDetectorStageY(double detectorStageY) {
+		this.detectorStageY = detectorStageY;
+	}
+
+	public double getDetectorStageZ() {
+		return detectorStageZ;
+	}
+
+	public void setDetectorStageZ(double detectorStageZ) {
+		this.detectorStageZ = detectorStageZ;
+	}
+
+	public void setStitchingAngle(double thetaValue) {
+		this.stitchingAngle = thetaValue;
+	}
+
+	public double getStitchingAngle() {
+		return stitchingAngle;
+	}
+
+	public void setImageAtThetaPlus90(String imageLocationAtThetaPlus90) {
+		this.imageLocationAtThetaPlus90 = imageLocationAtThetaPlus90;
+	}
+
+	public String getImageLocationAtThetaPlus90() {
+		return imageLocationAtThetaPlus90;
+	}
+
+	public void setImageAtTheta(String imageLocationAtTheta) {
+		this.imageLocationAtTheta = imageLocationAtTheta;
+	}
+
+	public String getImageLocationAtTheta() {
+		return imageLocationAtTheta;
+	}
+
+	public void setModuleHorizontalFieldOfView(Double horizontalFieldOfView) {
+		this.horizontalFieldOfView = horizontalFieldOfView;
+	}
+
+	public Double getHorizontalFieldOfView() {
+		return horizontalFieldOfView;
 	}
 }

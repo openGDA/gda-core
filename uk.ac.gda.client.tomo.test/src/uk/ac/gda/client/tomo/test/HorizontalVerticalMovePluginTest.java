@@ -50,7 +50,7 @@ public class HorizontalVerticalMovePluginTest extends UITestCaseSWT {
 	public void testHorizontalVertical() throws Exception {
 		IUIContext ui = getUI();
 
-		PluginTestHelpers.openPerspective(ui);
+		PluginTestHelpers.openTomoPerspective(ui);
 		PluginTestHelpers.delay(2000);
 		ui.click(new SWTWidgetLocator(ToolItem.class, "Reset Detector"));
 //		new DebugHelper().printWidgets();

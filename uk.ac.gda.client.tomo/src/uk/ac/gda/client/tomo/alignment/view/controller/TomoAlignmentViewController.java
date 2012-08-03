@@ -350,7 +350,7 @@ public class TomoAlignmentViewController implements InitializingBean {
 
 				updateStatInfo();
 
-				updateSampleInOutState(motorHandler.getSamplePosition());
+				updateSampleInOutState(motorHandler.getSampleBaseMotorPosition());
 
 				updateEnergy(getEnergy());
 
@@ -584,7 +584,7 @@ public class TomoAlignmentViewController implements InitializingBean {
 			// ObjectPixelSize * binValue gives the distance to move per pixel on the screen
 			double scale = objectPixelSize * cameraHandler.getRoi1BinValue();
 			double movement = -(difference.height) * scale;
-			double finalPosition = motorHandler.getSs1Y2Position() + movement;
+			double finalPosition = motorHandler.getVerticalPosition() + movement;
 			motorHandler.moveSs1Y2To(monitor, finalPosition);
 		} catch (DeviceException e) {
 			logger.error("Exception when moving y2 motor", e.getMessage());
@@ -927,52 +927,20 @@ public class TomoAlignmentViewController implements InitializingBean {
 		SubMonitor progress = SubMonitor.convert(monitor);
 
 		progress.beginTask("Move Sample Stage out", 4);
-		samplePositionBeforeMovingOut = motorHandler.getSamplePosition();
+		samplePositionBeforeMovingOut = motorHandler.getSampleBaseMotorPosition();
 
 		double distanceToMoveSampleOut = motorHandler.getDistanceToMoveSampleOut();
 
 		motorHandler.moveSampleScannableBy(progress, distanceToMoveSampleOut);
 	}
 
-	/**
-	 * @param monitor
-	 * @param saveableConfiguration
-	 * @throws InterruptedException
-	 * @throws InvocationTargetException
-	 * @throws DeviceException
-	 */
-	public void saveConfiguration(IProgressMonitor monitor, final SaveableConfiguration saveableConfiguration)
-			throws InvocationTargetException, InterruptedException, DeviceException {
-		SubMonitor progress = SubMonitor.convert(monitor);
-		progress.beginTask("Saving Configuration", 20);
-
-		int[] roiPoints = saveableConfiguration.getRoiPoints();
-		int count = 0;
-		if (roiPoints != null) {
-			for (int i : roiPoints) {
-				roiPoints[count++] = i * cameraHandler.getRoi1BinValue();
-			}
-		} else {
-			roiPoints = new int[] { 0, 0, cameraHandler.getFullImageWidth(), cameraHandler.getFullImageHeight() };
-		}
-		saveableConfiguration.setRoiPoints(roiPoints);
-
-		saveableConfiguration.setSampleVerticalPosition(motorHandler.getSs1Y2Position());
-
-		saveableConfiguration.setScanMode(AlignmentScanMode.Step);
-
-		saveableConfiguration.setSampleDetectorDistance(motorHandler.getT3M1ZPosition());
-
-		saveHandler.saveConfiguration(monitor, saveableConfiguration);
-	}
-
 	public void setSampleWeightRotationHandler(ISampleWeightRotationHandler sampleWeightRotationHandler) {
 		this.sampleWeightRotationHandler = sampleWeightRotationHandler;
 	}
 
-	public void setAdjustedProc1ScaleValue(double minValue, double maxValue, double from, double to) throws Exception {
+	public void setAdjustedProc1ScaleValue(double from, double to) throws Exception {
 
-		double scaledValue = getScaledFactor(minValue, maxValue, from, to);
+		double scaledValue = getScaledFactor(from, to);
 
 		double proc1Scale = cameraHandler.getProc1Scale();
 		double newScale = scaledValue;
@@ -983,7 +951,7 @@ public class TomoAlignmentViewController implements InitializingBean {
 		cameraHandler.setProc1ScaleValue(newScale);
 	}
 
-	private double getScaledFactor(double minValue, double maxValue, double from, double to) {
+	private double getScaledFactor(double from, double to) {
 		// double scaledValue = (to - from) / (maxValue - minValue);
 		//
 		// scaledValue = scaledValue + 1;
@@ -1030,8 +998,8 @@ public class TomoAlignmentViewController implements InitializingBean {
 		updateAdjustedPreferredExposureTime(newExposureTime);
 	}
 
-	public void setAdjustedExposureTime(double minValue, double maxValue, double from, double to) throws Exception {
-		double scaledFactor = getScaledFactor(minValue, maxValue, from, to);
+	public void setAdjustedExposureTime(double from, double to) throws Exception {
+		double scaledFactor = getScaledFactor(from, to);
 		double adjustedExposureTime = getCameraExposureTime();
 		if (scaledFactor != 0) {
 			adjustedExposureTime = adjustedExposureTime * scaledFactor;
@@ -1060,6 +1028,82 @@ public class TomoAlignmentViewController implements InitializingBean {
 
 	public void setProc1ScaleValue(double scale) throws Exception {
 		cameraHandler.setProc1ScaleValue(scale);
+	}
+
+	/**
+	 * @param monitor
+	 * @param saveableConfiguration
+	 * @throws InterruptedException
+	 * @throws InvocationTargetException
+	 * @throws DeviceException
+	 */
+	public void saveConfiguration(IProgressMonitor monitor, final SaveableConfiguration saveableConfiguration)
+			throws InvocationTargetException, InterruptedException, DeviceException {
+		SubMonitor progress = SubMonitor.convert(monitor);
+		progress.beginTask("Saving Configuration", 20);
+
+		// energy - provided by view
+		// number of projections - provided by view
+		// description - provided by view
+		// Detector properties
+		// 3d resolution - provided by view
+		// number of frames per projection - provided by view
+		// roi
+		int[] roiPoints = saveableConfiguration.getRoiPoints();
+		int count = 0;
+		if (roiPoints != null) {
+			for (int i : roiPoints) {
+				roiPoints[count++] = i * cameraHandler.getRoi1BinValue();
+			}
+		} else {
+			roiPoints = new int[] { 0, 0, cameraHandler.getFullImageWidth(), cameraHandler.getFullImageHeight() };
+		}
+		// ROI adjusted to bin value
+		saveableConfiguration.setRoiPoints(roiPoints);
+		// module
+		// module number - provided by view
+
+		// horizontalFieldOfView
+		Double horizontalFieldOfView = moduleLookupTableHandler.lookupHFOV(CAMERA_MODULE.getEnum(saveableConfiguration
+				.getModuleNumber()));
+		saveableConfiguration.setModuleHorizontalFieldOfView(horizontalFieldOfView);
+		// cam1 x
+		saveableConfiguration.setModuleX(motorHandler.getCam1XPosition());
+		// cam1z
+		saveableConfiguration.setModuleZ(motorHandler.getCam1ZPosition());
+		// cam1roll
+		saveableConfiguration.setModuleRoll(motorHandler.getCam1RollPosition());
+		// sample stage parameters
+		// basex
+		saveableConfiguration.setSampleBaseX(motorHandler.getSampleBaseMotorPosition());
+		// Y position
+		saveableConfiguration.setSampleVerticalPosition(motorHandler.getVerticalPosition());
+		// center x
+		saveableConfiguration.setSampleCenterXPosition(motorHandler.getSs1TxPosition());
+		// center z
+		saveableConfiguration.setSampleCenterZPosition(motorHandler.getSs1TzPosition());
+		// tilt x
+		saveableConfiguration.setTiltX(motorHandler.getSs1RxPosition());
+		// tilt z
+		saveableConfiguration.setTiltZ(motorHandler.getSs1RzPosition());
+		//
+		// sample exposure time - provided by view
+		// flat exposure time - provided by view
+		// sampleWeight - provided by view
+		// detector stage parameters
+		// x
+		saveableConfiguration.setDetectorStageX(motorHandler.getT3XPosition());
+		// y
+		saveableConfiguration.setDetectorStageY(motorHandler.getT3M1YPosition());
+		// z
+		saveableConfiguration.setDetectorStageZ(motorHandler.getT3M1ZPosition());
+		// image location at theta - provided by view
+		// Image location at theta +90 - provided by view
+
+		// Scan mode
+		saveableConfiguration.setScanMode(AlignmentScanMode.Step);
+
+		saveHandler.saveConfiguration(monitor, saveableConfiguration);
 	}
 
 }

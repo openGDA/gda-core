@@ -18,14 +18,14 @@
 
 package uk.ac.gda.client.tomo.alignment.view.handlers;
 
-import java.lang.reflect.InvocationTargetException;
-
 import gda.device.DeviceException;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.emf.ecore.resource.Resource;
 
 import uk.ac.gda.client.tomo.alignment.view.controller.SaveableConfiguration;
+import uk.ac.gda.tomography.parameters.TomoExperiment;
 
 /**
  *
@@ -51,5 +51,5 @@ public interface ITomoConfigResourceHandler extends ITomoHandler {
 	 * @throws InterruptedException 
 	 * @throws InvocationTargetException 
 	 */
-	Resource getTomoConfigResource(IProgressMonitor monitor, boolean shouldCreate) throws InvocationTargetException, InterruptedException;
+	TomoExperiment getTomoConfigResource(IProgressMonitor monitor, boolean shouldCreate) throws InvocationTargetException, InterruptedException;
 }

@@ -6,6 +6,8 @@
  */
 package uk.ac.gda.tomography.parameters;
 
+import java.util.Date;
+
 import org.eclipse.emf.ecore.EObject;
 
 /**
@@ -18,17 +20,19 @@ import org.eclipse.emf.ecore.EObject;
  * <ul>
  *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getId <em>Id</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getEnergy <em>Energy</em>}</li>
- *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getNumberOfProjections <em>Number Of Projections</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getDescription <em>Description</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getDetectorProperties <em>Detector Properties</em>}</li>
- *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSampleDetectorDistance <em>Sample Detector Distance</em>}</li>
- *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSampleParams <em>Sample Params</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSampleStageParameters <em>Sample Stage Parameters</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getScanMode <em>Scan Mode</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSampleExposureTime <em>Sample Exposure Time</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getFlatExposureTime <em>Flat Exposure Time</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getCreatedUserId <em>Created User Id</em>}</li>
- *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getStitchingThetaAngle <em>Stitching Theta Angle</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getCreatedDateTime <em>Created Date Time</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSampleWeight <em>Sample Weight</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getDetectorStageParameters <em>Detector Stage Parameters</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getProposalId <em>Proposal Id</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getStitchParameters <em>Stitch Parameters</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSelectedToRun <em>Selected To Run</em>}</li>
  * </ul>
  * </p>
  *
@@ -117,59 +121,6 @@ public interface AlignmentConfiguration extends EObject {
 	void setEnergy(double value);
 
 	/**
-	 * Returns the value of the '<em><b>Number Of Projections</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <p>
-	 * If the meaning of the '<em>Number Of Projections</em>' attribute isn't clear,
-	 * there really should be more of a description here...
-	 * </p>
-	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Number Of Projections</em>' attribute.
-	 * @see #isSetNumberOfProjections()
-	 * @see #unsetNumberOfProjections()
-	 * @see #setNumberOfProjections(Integer)
-	 * @see uk.ac.gda.tomography.parameters.TomoParametersPackage#getAlignmentConfiguration_NumberOfProjections()
-	 * @model unsettable="true" required="true"
-	 * @generated
-	 */
-	Integer getNumberOfProjections();
-
-	/**
-	 * Sets the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getNumberOfProjections <em>Number Of Projections</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Number Of Projections</em>' attribute.
-	 * @see #isSetNumberOfProjections()
-	 * @see #unsetNumberOfProjections()
-	 * @see #getNumberOfProjections()
-	 * @generated
-	 */
-	void setNumberOfProjections(Integer value);
-
-	/**
-	 * Unsets the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getNumberOfProjections <em>Number Of Projections</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #isSetNumberOfProjections()
-	 * @see #getNumberOfProjections()
-	 * @see #setNumberOfProjections(Integer)
-	 * @generated
-	 */
-	void unsetNumberOfProjections();
-
-	/**
-	 * Returns whether the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getNumberOfProjections <em>Number Of Projections</em>}' attribute is set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return whether the value of the '<em>Number Of Projections</em>' attribute is set.
-	 * @see #unsetNumberOfProjections()
-	 * @see #getNumberOfProjections()
-	 * @see #setNumberOfProjections(Integer)
-	 * @generated
-	 */
-	boolean isSetNumberOfProjections();
-
-	/**
 	 * Returns the value of the '<em><b>Description</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <p>
@@ -249,113 +200,61 @@ public interface AlignmentConfiguration extends EObject {
 	boolean isSetDetectorProperties();
 
 	/**
-	 * Returns the value of the '<em><b>Sample Detector Distance</b></em>' attribute.
+	 * Returns the value of the '<em><b>Sample Stage Parameters</b></em>' containment reference.
 	 * <!-- begin-user-doc -->
 	 * <p>
-	 * If the meaning of the '<em>Sample Detector Distance</em>' attribute isn't clear,
+	 * If the meaning of the '<em>Sample Stage Parameters</em>' containment reference isn't clear,
 	 * there really should be more of a description here...
 	 * </p>
 	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Sample Detector Distance</em>' attribute.
-	 * @see #isSetSampleDetectorDistance()
-	 * @see #unsetSampleDetectorDistance()
-	 * @see #setSampleDetectorDistance(double)
-	 * @see uk.ac.gda.tomography.parameters.TomoParametersPackage#getAlignmentConfiguration_SampleDetectorDistance()
-	 * @model unsettable="true" required="true"
-	 * @generated
-	 */
-	double getSampleDetectorDistance();
-
-	/**
-	 * Sets the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSampleDetectorDistance <em>Sample Detector Distance</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Sample Detector Distance</em>' attribute.
-	 * @see #isSetSampleDetectorDistance()
-	 * @see #unsetSampleDetectorDistance()
-	 * @see #getSampleDetectorDistance()
-	 * @generated
-	 */
-	void setSampleDetectorDistance(double value);
-
-	/**
-	 * Unsets the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSampleDetectorDistance <em>Sample Detector Distance</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #isSetSampleDetectorDistance()
-	 * @see #getSampleDetectorDistance()
-	 * @see #setSampleDetectorDistance(double)
-	 * @generated
-	 */
-	void unsetSampleDetectorDistance();
-
-	/**
-	 * Returns whether the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSampleDetectorDistance <em>Sample Detector Distance</em>}' attribute is set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return whether the value of the '<em>Sample Detector Distance</em>' attribute is set.
-	 * @see #unsetSampleDetectorDistance()
-	 * @see #getSampleDetectorDistance()
-	 * @see #setSampleDetectorDistance(double)
-	 * @generated
-	 */
-	boolean isSetSampleDetectorDistance();
-
-	/**
-	 * Returns the value of the '<em><b>Sample Params</b></em>' containment reference.
-	 * <!-- begin-user-doc -->
-	 * <p>
-	 * If the meaning of the '<em>Sample Params</em>' containment reference isn't clear,
-	 * there really should be more of a description here...
-	 * </p>
-	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Sample Params</em>' containment reference.
-	 * @see #isSetSampleParams()
-	 * @see #unsetSampleParams()
-	 * @see #setSampleParams(SampleParams)
-	 * @see uk.ac.gda.tomography.parameters.TomoParametersPackage#getAlignmentConfiguration_SampleParams()
+	 * @return the value of the '<em>Sample Stage Parameters</em>' containment reference.
+	 * @see #isSetSampleStageParameters()
+	 * @see #unsetSampleStageParameters()
+	 * @see #setSampleStageParameters(SampleStage)
+	 * @see uk.ac.gda.tomography.parameters.TomoParametersPackage#getAlignmentConfiguration_SampleStageParameters()
 	 * @model containment="true" unsettable="true" required="true"
 	 * @generated
 	 */
-	SampleParams getSampleParams();
+	SampleStage getSampleStageParameters();
 
 	/**
-	 * Sets the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSampleParams <em>Sample Params</em>}' containment reference.
+	 * Sets the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSampleStageParameters <em>Sample Stage Parameters</em>}' containment reference.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Sample Params</em>' containment reference.
-	 * @see #isSetSampleParams()
-	 * @see #unsetSampleParams()
-	 * @see #getSampleParams()
+	 * @param value the new value of the '<em>Sample Stage Parameters</em>' containment reference.
+	 * @see #isSetSampleStageParameters()
+	 * @see #unsetSampleStageParameters()
+	 * @see #getSampleStageParameters()
 	 * @generated
 	 */
-	void setSampleParams(SampleParams value);
+	void setSampleStageParameters(SampleStage value);
 
 	/**
-	 * Unsets the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSampleParams <em>Sample Params</em>}' containment reference.
+	 * Unsets the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSampleStageParameters <em>Sample Stage Parameters</em>}' containment reference.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #isSetSampleParams()
-	 * @see #getSampleParams()
-	 * @see #setSampleParams(SampleParams)
+	 * @see #isSetSampleStageParameters()
+	 * @see #getSampleStageParameters()
+	 * @see #setSampleStageParameters(SampleStage)
 	 * @generated
 	 */
-	void unsetSampleParams();
+	void unsetSampleStageParameters();
 
 	/**
-	 * Returns whether the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSampleParams <em>Sample Params</em>}' containment reference is set.
+	 * Returns whether the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSampleStageParameters <em>Sample Stage Parameters</em>}' containment reference is set.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return whether the value of the '<em>Sample Params</em>' containment reference is set.
-	 * @see #unsetSampleParams()
-	 * @see #getSampleParams()
-	 * @see #setSampleParams(SampleParams)
+	 * @return whether the value of the '<em>Sample Stage Parameters</em>' containment reference is set.
+	 * @see #unsetSampleStageParameters()
+	 * @see #getSampleStageParameters()
+	 * @see #setSampleStageParameters(SampleStage)
 	 * @generated
 	 */
-	boolean isSetSampleParams();
+	boolean isSetSampleStageParameters();
 
 	/**
 	 * Returns the value of the '<em><b>Scan Mode</b></em>' attribute.
+	 * The default value is <code>"Step"</code>.
 	 * The literals are from the enumeration {@link uk.ac.gda.tomography.parameters.ScanMode}.
 	 * <!-- begin-user-doc -->
 	 * <p>
@@ -369,7 +268,7 @@ public interface AlignmentConfiguration extends EObject {
 	 * @see #unsetScanMode()
 	 * @see #setScanMode(ScanMode)
 	 * @see uk.ac.gda.tomography.parameters.TomoParametersPackage#getAlignmentConfiguration_ScanMode()
-	 * @model unsettable="true" required="true"
+	 * @model default="Step" unsettable="true" required="true"
 	 * @generated
 	 */
 	ScanMode getScanMode();
@@ -543,32 +442,6 @@ public interface AlignmentConfiguration extends EObject {
 	void setCreatedUserId(String value);
 
 	/**
-	 * Returns the value of the '<em><b>Stitching Theta Angle</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <p>
-	 * If the meaning of the '<em>Stitching Theta Angle</em>' attribute isn't clear,
-	 * there really should be more of a description here...
-	 * </p>
-	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Stitching Theta Angle</em>' attribute.
-	 * @see #setStitchingThetaAngle(double)
-	 * @see uk.ac.gda.tomography.parameters.TomoParametersPackage#getAlignmentConfiguration_StitchingThetaAngle()
-	 * @model required="true"
-	 * @generated
-	 */
-	double getStitchingThetaAngle();
-
-	/**
-	 * Sets the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getStitchingThetaAngle <em>Stitching Theta Angle</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Stitching Theta Angle</em>' attribute.
-	 * @see #getStitchingThetaAngle()
-	 * @generated
-	 */
-	void setStitchingThetaAngle(double value);
-
-	/**
 	 * Returns the value of the '<em><b>Created Date Time</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <p>
@@ -577,12 +450,12 @@ public interface AlignmentConfiguration extends EObject {
 	 * </p>
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Created Date Time</em>' attribute.
-	 * @see #setCreatedDateTime(String)
+	 * @see #setCreatedDateTime(Date)
 	 * @see uk.ac.gda.tomography.parameters.TomoParametersPackage#getAlignmentConfiguration_CreatedDateTime()
 	 * @model unique="false"
 	 * @generated
 	 */
-	String getCreatedDateTime();
+	Date getCreatedDateTime();
 
 	/**
 	 * Sets the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getCreatedDateTime <em>Created Date Time</em>}' attribute.
@@ -592,6 +465,194 @@ public interface AlignmentConfiguration extends EObject {
 	 * @see #getCreatedDateTime()
 	 * @generated
 	 */
-	void setCreatedDateTime(String value);
+	void setCreatedDateTime(Date value);
+
+	/**
+	 * Returns the value of the '<em><b>Sample Weight</b></em>' attribute.
+	 * The literals are from the enumeration {@link uk.ac.gda.tomography.parameters.SampleWeight}.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Sample Weight</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Sample Weight</em>' attribute.
+	 * @see uk.ac.gda.tomography.parameters.SampleWeight
+	 * @see #setSampleWeight(SampleWeight)
+	 * @see uk.ac.gda.tomography.parameters.TomoParametersPackage#getAlignmentConfiguration_SampleWeight()
+	 * @model
+	 * @generated
+	 */
+	SampleWeight getSampleWeight();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSampleWeight <em>Sample Weight</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Sample Weight</em>' attribute.
+	 * @see uk.ac.gda.tomography.parameters.SampleWeight
+	 * @see #getSampleWeight()
+	 * @generated
+	 */
+	void setSampleWeight(SampleWeight value);
+
+	/**
+	 * Returns the value of the '<em><b>Detector Stage Parameters</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Detector Stage Parameters</em>' containment reference isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Detector Stage Parameters</em>' containment reference.
+	 * @see #isSetDetectorStageParameters()
+	 * @see #unsetDetectorStageParameters()
+	 * @see #setDetectorStageParameters(DetectorStage)
+	 * @see uk.ac.gda.tomography.parameters.TomoParametersPackage#getAlignmentConfiguration_DetectorStageParameters()
+	 * @model containment="true" unsettable="true" required="true"
+	 * @generated
+	 */
+	DetectorStage getDetectorStageParameters();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getDetectorStageParameters <em>Detector Stage Parameters</em>}' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Detector Stage Parameters</em>' containment reference.
+	 * @see #isSetDetectorStageParameters()
+	 * @see #unsetDetectorStageParameters()
+	 * @see #getDetectorStageParameters()
+	 * @generated
+	 */
+	void setDetectorStageParameters(DetectorStage value);
+
+	/**
+	 * Unsets the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getDetectorStageParameters <em>Detector Stage Parameters</em>}' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isSetDetectorStageParameters()
+	 * @see #getDetectorStageParameters()
+	 * @see #setDetectorStageParameters(DetectorStage)
+	 * @generated
+	 */
+	void unsetDetectorStageParameters();
+
+	/**
+	 * Returns whether the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getDetectorStageParameters <em>Detector Stage Parameters</em>}' containment reference is set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return whether the value of the '<em>Detector Stage Parameters</em>' containment reference is set.
+	 * @see #unsetDetectorStageParameters()
+	 * @see #getDetectorStageParameters()
+	 * @see #setDetectorStageParameters(DetectorStage)
+	 * @generated
+	 */
+	boolean isSetDetectorStageParameters();
+
+	/**
+	 * Returns the value of the '<em><b>Proposal Id</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Proposal Id</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Proposal Id</em>' attribute.
+	 * @see #setProposalId(String)
+	 * @see uk.ac.gda.tomography.parameters.TomoParametersPackage#getAlignmentConfiguration_ProposalId()
+	 * @model unique="false"
+	 * @generated
+	 */
+	String getProposalId();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getProposalId <em>Proposal Id</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Proposal Id</em>' attribute.
+	 * @see #getProposalId()
+	 * @generated
+	 */
+	void setProposalId(String value);
+
+	/**
+	 * Returns the value of the '<em><b>Stitch Parameters</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Stitch Parameters</em>' containment reference isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Stitch Parameters</em>' containment reference.
+	 * @see #isSetStitchParameters()
+	 * @see #unsetStitchParameters()
+	 * @see #setStitchParameters(StitchParameters)
+	 * @see uk.ac.gda.tomography.parameters.TomoParametersPackage#getAlignmentConfiguration_StitchParameters()
+	 * @model containment="true" unsettable="true" required="true"
+	 * @generated
+	 */
+	StitchParameters getStitchParameters();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getStitchParameters <em>Stitch Parameters</em>}' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Stitch Parameters</em>' containment reference.
+	 * @see #isSetStitchParameters()
+	 * @see #unsetStitchParameters()
+	 * @see #getStitchParameters()
+	 * @generated
+	 */
+	void setStitchParameters(StitchParameters value);
+
+	/**
+	 * Unsets the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getStitchParameters <em>Stitch Parameters</em>}' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isSetStitchParameters()
+	 * @see #getStitchParameters()
+	 * @see #setStitchParameters(StitchParameters)
+	 * @generated
+	 */
+	void unsetStitchParameters();
+
+	/**
+	 * Returns whether the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getStitchParameters <em>Stitch Parameters</em>}' containment reference is set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return whether the value of the '<em>Stitch Parameters</em>' containment reference is set.
+	 * @see #unsetStitchParameters()
+	 * @see #getStitchParameters()
+	 * @see #setStitchParameters(StitchParameters)
+	 * @generated
+	 */
+	boolean isSetStitchParameters();
+
+	/**
+	 * Returns the value of the '<em><b>Selected To Run</b></em>' attribute.
+	 * The default value is <code>"false"</code>.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Selected To Run</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Selected To Run</em>' attribute.
+	 * @see #setSelectedToRun(Boolean)
+	 * @see uk.ac.gda.tomography.parameters.TomoParametersPackage#getAlignmentConfiguration_SelectedToRun()
+	 * @model default="false"
+	 * @generated
+	 */
+	Boolean getSelectedToRun();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSelectedToRun <em>Selected To Run</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Selected To Run</em>' attribute.
+	 * @see #getSelectedToRun()
+	 * @generated
+	 */
+	void setSelectedToRun(Boolean value);
 
 } // AlignmentConfiguration

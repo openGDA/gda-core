@@ -16,12 +16,12 @@ import org.eclipse.emf.ecore.EObject;
  * <p>
  * The following features are supported:
  * <ul>
- *   <li>{@link uk.ac.gda.tomography.parameters.DetectorProperties#getModule <em>Module</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.DetectorProperties#getDesired3DResolution <em>Desired3 DResolution</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.DetectorProperties#getNumberOfFramerPerProjection <em>Number Of Framer Per Projection</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.DetectorProperties#getAcquisitionTimeDivider <em>Acquisition Time Divider</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.DetectorProperties#getDetectorRoi <em>Detector Roi</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.DetectorProperties#getDetectorBin <em>Detector Bin</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.parameters.DetectorProperties#getModuleParameters <em>Module Parameters</em>}</li>
  * </ul>
  * </p>
  *
@@ -31,60 +31,9 @@ import org.eclipse.emf.ecore.EObject;
  */
 public interface DetectorProperties extends EObject {
 	/**
-	 * Returns the value of the '<em><b>Module</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <p>
-	 * If the meaning of the '<em>Module</em>' attribute isn't clear,
-	 * there really should be more of a description here...
-	 * </p>
-	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Module</em>' attribute.
-	 * @see #isSetModule()
-	 * @see #unsetModule()
-	 * @see #setModule(Integer)
-	 * @see uk.ac.gda.tomography.parameters.TomoParametersPackage#getDetectorProperties_Module()
-	 * @model unsettable="true" required="true"
-	 * @generated
-	 */
-	Integer getModule();
-
-	/**
-	 * Sets the value of the '{@link uk.ac.gda.tomography.parameters.DetectorProperties#getModule <em>Module</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Module</em>' attribute.
-	 * @see #isSetModule()
-	 * @see #unsetModule()
-	 * @see #getModule()
-	 * @generated
-	 */
-	void setModule(Integer value);
-
-	/**
-	 * Unsets the value of the '{@link uk.ac.gda.tomography.parameters.DetectorProperties#getModule <em>Module</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #isSetModule()
-	 * @see #getModule()
-	 * @see #setModule(Integer)
-	 * @generated
-	 */
-	void unsetModule();
-
-	/**
-	 * Returns whether the value of the '{@link uk.ac.gda.tomography.parameters.DetectorProperties#getModule <em>Module</em>}' attribute is set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return whether the value of the '<em>Module</em>' attribute is set.
-	 * @see #unsetModule()
-	 * @see #getModule()
-	 * @see #setModule(Integer)
-	 * @generated
-	 */
-	boolean isSetModule();
-
-	/**
 	 * Returns the value of the '<em><b>Desired3 DResolution</b></em>' attribute.
+	 * The default value is <code>"Full"</code>.
+	 * The literals are from the enumeration {@link uk.ac.gda.tomography.parameters.Resolution}.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Desired3 DResolution</em>' attribute isn't clear,
@@ -92,26 +41,28 @@ public interface DetectorProperties extends EObject {
 	 * </p>
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Desired3 DResolution</em>' attribute.
+	 * @see uk.ac.gda.tomography.parameters.Resolution
 	 * @see #isSetDesired3DResolution()
 	 * @see #unsetDesired3DResolution()
-	 * @see #setDesired3DResolution(Integer)
+	 * @see #setDesired3DResolution(Resolution)
 	 * @see uk.ac.gda.tomography.parameters.TomoParametersPackage#getDetectorProperties_Desired3DResolution()
-	 * @model unsettable="true" required="true"
+	 * @model default="Full" unsettable="true" required="true"
 	 * @generated
 	 */
-	Integer getDesired3DResolution();
+	Resolution getDesired3DResolution();
 
 	/**
 	 * Sets the value of the '{@link uk.ac.gda.tomography.parameters.DetectorProperties#getDesired3DResolution <em>Desired3 DResolution</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @param value the new value of the '<em>Desired3 DResolution</em>' attribute.
+	 * @see uk.ac.gda.tomography.parameters.Resolution
 	 * @see #isSetDesired3DResolution()
 	 * @see #unsetDesired3DResolution()
 	 * @see #getDesired3DResolution()
 	 * @generated
 	 */
-	void setDesired3DResolution(Integer value);
+	void setDesired3DResolution(Resolution value);
 
 	/**
 	 * Unsets the value of the '{@link uk.ac.gda.tomography.parameters.DetectorProperties#getDesired3DResolution <em>Desired3 DResolution</em>}' attribute.
@@ -119,7 +70,7 @@ public interface DetectorProperties extends EObject {
 	 * <!-- end-user-doc -->
 	 * @see #isSetDesired3DResolution()
 	 * @see #getDesired3DResolution()
-	 * @see #setDesired3DResolution(Integer)
+	 * @see #setDesired3DResolution(Resolution)
 	 * @generated
 	 */
 	void unsetDesired3DResolution();
@@ -131,7 +82,7 @@ public interface DetectorProperties extends EObject {
 	 * @return whether the value of the '<em>Desired3 DResolution</em>' attribute is set.
 	 * @see #unsetDesired3DResolution()
 	 * @see #getDesired3DResolution()
-	 * @see #setDesired3DResolution(Integer)
+	 * @see #setDesired3DResolution(Resolution)
 	 * @generated
 	 */
 	boolean isSetDesired3DResolution();
@@ -347,5 +298,58 @@ public interface DetectorProperties extends EObject {
 	 * @generated
 	 */
 	boolean isSetDetectorBin();
+
+	/**
+	 * Returns the value of the '<em><b>Module Parameters</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Module Parameters</em>' containment reference isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Module Parameters</em>' containment reference.
+	 * @see #isSetModuleParameters()
+	 * @see #unsetModuleParameters()
+	 * @see #setModuleParameters(Module)
+	 * @see uk.ac.gda.tomography.parameters.TomoParametersPackage#getDetectorProperties_ModuleParameters()
+	 * @model containment="true" unsettable="true" required="true"
+	 * @generated
+	 */
+	Module getModuleParameters();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.gda.tomography.parameters.DetectorProperties#getModuleParameters <em>Module Parameters</em>}' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Module Parameters</em>' containment reference.
+	 * @see #isSetModuleParameters()
+	 * @see #unsetModuleParameters()
+	 * @see #getModuleParameters()
+	 * @generated
+	 */
+	void setModuleParameters(Module value);
+
+	/**
+	 * Unsets the value of the '{@link uk.ac.gda.tomography.parameters.DetectorProperties#getModuleParameters <em>Module Parameters</em>}' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isSetModuleParameters()
+	 * @see #getModuleParameters()
+	 * @see #setModuleParameters(Module)
+	 * @generated
+	 */
+	void unsetModuleParameters();
+
+	/**
+	 * Returns whether the value of the '{@link uk.ac.gda.tomography.parameters.DetectorProperties#getModuleParameters <em>Module Parameters</em>}' containment reference is set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return whether the value of the '<em>Module Parameters</em>' containment reference is set.
+	 * @see #unsetModuleParameters()
+	 * @see #getModuleParameters()
+	 * @see #setModuleParameters(Module)
+	 * @generated
+	 */
+	boolean isSetModuleParameters();
 
 } // DetectorProperties

@@ -18,18 +18,51 @@
 
 package uk.ac.gda.client.tomo.configuration.view;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.StringTokenizer;
 
+import org.eclipse.core.commands.operations.IOperationHistoryListener;
+import org.eclipse.core.commands.operations.IUndoContext;
+import org.eclipse.core.commands.operations.IUndoableOperation;
+import org.eclipse.core.commands.operations.ObjectUndoContext;
+import org.eclipse.core.commands.operations.OperationHistoryEvent;
 import org.eclipse.draw2d.ColorConstants;
+import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.common.notify.Adapter;
+import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.Notifier;
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.nebula.widgets.xviewer.XViewer;
+import org.eclipse.emf.edit.command.MoveCommand;
+import org.eclipse.emf.edit.command.RemoveCommand;
+import org.eclipse.emf.edit.command.SetCommand;
+import org.eclipse.emf.edit.domain.EditingDomain;
+import org.eclipse.emf.transaction.TransactionalEditingDomain;
+import org.eclipse.emf.workspace.IWorkspaceCommandStack;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.resource.FontRegistry;
+import org.eclipse.jface.viewers.CellEditor;
+import org.eclipse.jface.viewers.CheckboxCellEditor;
+import org.eclipse.jface.viewers.ColumnLayoutData;
+import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.ComboBoxCellEditor;
+import org.eclipse.jface.viewers.EditingSupport;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.TableLayout;
+import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -37,39 +70,115 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IWorkbenchCommandConstants;
+import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.eclipse.ui.operations.RedoActionHandler;
+import org.eclipse.ui.operations.UndoActionHandler;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.tomo.ImageConstants;
 import uk.ac.gda.client.tomo.TomoClientActivator;
+import uk.ac.gda.client.tomo.TomoClientConstants;
+import uk.ac.gda.client.tomo.alignment.view.ImageLocationRelTheta;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ITomoConfigResourceHandler;
-import uk.ac.gda.client.tomo.composites.FixedImageViewerComposite;
-import uk.ac.gda.client.tomo.configuration.view.xviewer.TomoConfigContentProvider;
-import uk.ac.gda.client.tomo.configuration.view.xviewer.TomoConfigXViewerFactory;
-import uk.ac.gda.client.tomo.configuration.view.xviewer.TomoConfigurationLabelProvider;
+import uk.ac.gda.client.tomo.composites.StitchedImageCanvas;
+import uk.ac.gda.client.tomo.composites.StitchedImageCanvas.StitchConfig;
+import uk.ac.gda.client.tomo.configuration.view.handlers.IScanControllerUpdateListener;
+import uk.ac.gda.client.tomo.configuration.viewer.TomoConfigContent;
+import uk.ac.gda.client.tomo.configuration.viewer.TomoConfigContent.CONFIG_STATUS;
+import uk.ac.gda.client.tomo.configuration.viewer.TomoConfigContentProvider;
+import uk.ac.gda.client.tomo.configuration.viewer.TomoConfigLabelProvider;
+import uk.ac.gda.client.tomo.configuration.viewer.TomoConfigTableConstants;
+import uk.ac.gda.client.tomo.configuration.viewer.TomoConfigViewerUtil;
+import uk.ac.gda.tomography.parameters.AlignmentConfiguration;
+import uk.ac.gda.tomography.parameters.DetectorProperties;
+import uk.ac.gda.tomography.parameters.Parameters;
+import uk.ac.gda.tomography.parameters.Resolution;
+import uk.ac.gda.tomography.parameters.SampleStage;
+import uk.ac.gda.tomography.parameters.ScanMode;
+import uk.ac.gda.tomography.parameters.StitchParameters;
 import uk.ac.gda.tomography.parameters.TomoExperiment;
+import uk.ac.gda.tomography.parameters.TomoParametersPackage;
+import uk.ac.gda.ui.components.CameraControlComposite.RESOLUTION;
 
 /**
  *
  */
 public class TomoConfigurationView extends ViewPart {
+	private static final String TOMOGRAPHY_SCAN_ALREADY_IN_PROGRESS_MSG = "Tomography Scan already in progress...";
 
+	private static final String ID_GET_RUNNING_CONFIG = "RunningConfig#";
+
+	private static final Logger logger = LoggerFactory.getLogger(TomoConfigurationView.class);
+
+	private static final String MOVE_DOWN = "Move Down";
+	private static final String MOVE_UP = "Move Up";
+	private static final String DELETE_SELECTED_CONFIGS = "Delete Selected Configuration(s)";
+	private static final String DELETE_ALL_CONFIGS = "Delete All Configurations";
+	private Button btnDeleteSelected;
+	private IUndoContext undoContext;
 	private String viewPartName;
 	private FormToolkit toolkit;
-	private static final Logger logger = LoggerFactory.getLogger(TomoConfigurationView.class);
 	private Label lblTime;
 	private Label lblDate;
-	private XViewer configModelTableViewer;
+	private TableViewer configModelTableViewer;
 	private ITomoConfigResourceHandler configFileHandler;
+	private ArrayList<StitchConfig> stitchConfigs = new ArrayList<StitchedImageCanvas.StitchConfig>();
 
-	private DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+	private DateFormat timeFormat = new SimpleDateFormat("HH:mm");
 	private DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+	private UndoActionHandler fUndoAction;
+	private RedoActionHandler fRedoAction;
+	private Button btnDeleteAll;
+	private Button btnStartTomoRuns;
+	/**/
+	private StitchedImageCanvas img0DegComposite;
+	private StitchedImageCanvas img90DegComposite;
+	private TomoConfigurationViewController tomoConfigViewController;
+	/**/
+	private final String columnHeaders[] = { TomoConfigTableConstants.SELECTION, TomoConfigTableConstants.PROPOSAL,
+			TomoConfigTableConstants.SAMPLE_DESCRIPTION, TomoConfigTableConstants.MODULE_NUMBER,
+			TomoConfigTableConstants.ACQUISITION_TIME, TomoConfigTableConstants.FLAT_ACQ_TIME,
+			TomoConfigTableConstants.DETECTOR_DISTANCE, TomoConfigTableConstants.ENERGY,
+			TomoConfigTableConstants.SAMPLE_WEIGHT, TomoConfigTableConstants.RESOLUTION,
+			TomoConfigTableConstants.FRAMES_PER_PROJECTION, TomoConfigTableConstants.CONTINUOUS_STEP,
+			TomoConfigTableConstants.RUN_TIME, TomoConfigTableConstants.EST_END_TIME,
+			TomoConfigTableConstants.TIME_DIVIDER, TomoConfigTableConstants.SHOULD_DISPLAY,
+			TomoConfigTableConstants.PROGRESS };
+
+	private ColumnLayoutData columnLayouts[] = { new ColumnWeightData(10), new ColumnWeightData(60),
+			new ColumnWeightData(300), new ColumnWeightData(40), new ColumnWeightData(40), new ColumnWeightData(40),
+			new ColumnWeightData(60), new ColumnWeightData(60), new ColumnWeightData(60), new ColumnWeightData(40),
+			new ColumnWeightData(40), new ColumnWeightData(65), new ColumnWeightData(40), new ColumnWeightData(40),
+			new ColumnWeightData(40), new ColumnWeightData(40), new ColumnWeightData(40) };
+	// Fonts
+	private FontRegistry fontRegistry;
+
+	private Button btnMoveUp;
+	private Button btnMoveDown;
+
+	private static final String BOLD_9 = "bold_9";
+
+	private void initializeFontRegistry() {
+		if (Display.getCurrent() != null) {
+			fontRegistry = new FontRegistry(Display.getCurrent());
+			String fontName = Display.getCurrent().getSystemFont().getFontData()[0].getName();
+			fontRegistry.put(BOLD_9, new FontData[] { new FontData(fontName, 9, SWT.BOLD) });
+		}
+	}
 
 	@Override
 	public void createPartControl(Composite parent) {
 		toolkit = new FormToolkit(parent.getDisplay());
+		initializeFontRegistry();
 		toolkit.setBorderStyle(SWT.BORDER);
 
 		Composite rootComposite = toolkit.createComposite(parent);
@@ -81,35 +190,46 @@ public class TomoConfigurationView extends ViewPart {
 		setLayoutSettings(layout, 0, 0, 0, 0);
 		// os
 		btnAndTableViewerComposite.setLayout(layout);
-		btnAndTableViewerComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
-
+		GridData layoutData2 = new GridData(GridData.FILL_BOTH);
+		btnAndTableViewerComposite.setLayoutData(layoutData2);
 		//
-		Composite xViewerContainer = toolkit.createComposite(btnAndTableViewerComposite);
+		Composite tableViewerContainer = toolkit.createComposite(btnAndTableViewerComposite);
 		GridLayout l = new GridLayout();
 		setLayoutSettings(l, 0, 0, 0, 0);
-		xViewerContainer.setLayout(l);
+		tableViewerContainer.setLayout(l);
 		GridData ld = new GridData(GridData.FILL_BOTH);
-		ld.heightHint = 30;
-		xViewerContainer.setLayoutData(ld);
+		ld.heightHint = 60;
+		tableViewerContainer.setLayoutData(ld);
 
-		configModelTableViewer = new XViewer(xViewerContainer, SWT.MULTI | SWT.BORDER | SWT.FULL_SELECTION,
-				new TomoConfigXViewerFactory("tomo.config"));
+		configModelTableViewer = new TableViewer(tableViewerContainer, SWT.MULTI | SWT.BORDER | SWT.FULL_SELECTION);
+
+		// CheckboxTableViewer.newCheckList(tableViewerContainer, SWT.MULTI | SWT.BORDER | SWT.FULL_SELECTION);
+		createColumns(configModelTableViewer);
 		configModelTableViewer.setContentProvider(new TomoConfigContentProvider());
-		configModelTableViewer.setLabelProvider(new TomoConfigurationLabelProvider(configModelTableViewer));
-		GridData layoutData1 = new GridData(GridData.FILL_BOTH | GridData.HORIZONTAL_ALIGN_BEGINNING);
-		
-		configModelTableViewer.getTree().setLayoutData(layoutData1);
+		configModelTableViewer.setLabelProvider(new TomoConfigLabelProvider());
 
+		GridData tableLayoutData = new GridData(GridData.FILL_BOTH | GridData.HORIZONTAL_ALIGN_BEGINNING);
+		tableLayoutData.heightHint = 30;
+		configModelTableViewer.getTable().setLayoutData(tableLayoutData);
 		//
 		Composite deleteBtnContainer = toolkit.createComposite(btnAndTableViewerComposite);
 		deleteBtnContainer.setLayoutData(new GridData(GridData.FILL_VERTICAL));
 		deleteBtnContainer.setLayout(new GridLayout());
+		btnMoveUp = toolkit.createButton(deleteBtnContainer, MOVE_UP, SWT.PUSH);
+		btnMoveUp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		btnMoveUp.addSelectionListener(btnSelListener);
 
-		Button btnDeleteAll = toolkit.createButton(deleteBtnContainer, "Delete All Configs", SWT.PUSH);
+		btnMoveDown = toolkit.createButton(deleteBtnContainer, MOVE_DOWN, SWT.PUSH);
+		btnMoveDown.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		btnMoveDown.addSelectionListener(btnSelListener);
+
+		btnDeleteAll = toolkit.createButton(deleteBtnContainer, DELETE_ALL_CONFIGS, SWT.PUSH);
 		btnDeleteAll.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		btnDeleteAll.addSelectionListener(btnSelListener);
 
-		Button btnDeleteSelected = toolkit.createButton(deleteBtnContainer, "Delete Selected Configs", SWT.PUSH);
+		btnDeleteSelected = toolkit.createButton(deleteBtnContainer, DELETE_SELECTED_CONFIGS, SWT.PUSH);
 		btnDeleteSelected.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		btnDeleteSelected.addSelectionListener(btnSelListener);
 
 		//
 		Composite middleRowComposite = toolkit.createComposite(rootComposite);
@@ -117,35 +237,46 @@ public class TomoConfigurationView extends ViewPart {
 		setLayoutSettings(layout2, 0, 0, 2, 0);
 		middleRowComposite.setLayout(layout2);
 		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
-		layoutData.heightHint = 75;
+		layoutData.heightHint = 45;
 		middleRowComposite.setLayoutData(layoutData);
 
 		//
 		Composite timeNowCompositeContainer = toolkit.createComposite(middleRowComposite);
 		timeNowCompositeContainer.setLayoutData(new GridData(GridData.FILL_BOTH));
 
-		timeNowCompositeContainer.setLayout(new GridLayout());
+		GridLayout layout5 = new GridLayout();
+		setLayoutSettings(layout5, 2, 2, 2, 2);
+		timeNowCompositeContainer.setLayout(layout5);
 		timeNowCompositeContainer.setBackground(ColorConstants.black);
 
 		Composite innerCompositeTimeNow = toolkit.createComposite(timeNowCompositeContainer);
-		innerCompositeTimeNow.setLayout(new GridLayout());
+		GridLayout gl1 = new GridLayout(2, true);
+		setLayoutSettings(gl1, 0, 0, 5, 0);
+		innerCompositeTimeNow.setLayout(gl1);
 		innerCompositeTimeNow.setLayoutData(new GridData(GridData.FILL_BOTH));
 
-		Label lblNow = toolkit.createLabel(innerCompositeTimeNow, "Now", SWT.WRAP | SWT.CENTER);
-		lblNow.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		Label lblDateNow = toolkit.createLabel(innerCompositeTimeNow, "Current Date:", SWT.WRAP | SWT.RIGHT);
+		GridData layoutData4 = new GridData(GridData.FILL_BOTH);
+		lblDateNow.setLayoutData(layoutData4);
 
-		lblDate = toolkit.createLabel(innerCompositeTimeNow, "", SWT.WRAP | SWT.CENTER);
+		lblDate = toolkit.createLabel(innerCompositeTimeNow, "", SWT.WRAP | SWT.LEFT);
 		lblDate.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		lblDate.setFont(fontRegistry.get(BOLD_9));
 
-		lblTime = toolkit.createLabel(innerCompositeTimeNow, "", SWT.WRAP | SWT.CENTER);
+		Label lblTimeNow = toolkit.createLabel(innerCompositeTimeNow, "Current Time:", SWT.WRAP | SWT.RIGHT);
+		layoutData4 = new GridData(GridData.FILL_BOTH);
+		lblTimeNow.setLayoutData(layoutData4);
+
+		lblTime = toolkit.createLabel(innerCompositeTimeNow, "", SWT.WRAP | SWT.LEFT);
 		lblTime.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		lblTime.setFont(fontRegistry.get(BOLD_9));
 
-		//
 		//
 		Composite estEndTimeCompositeContainer = toolkit.createComposite(middleRowComposite);
 		estEndTimeCompositeContainer.setLayoutData(new GridData(GridData.FILL_BOTH));
-
-		estEndTimeCompositeContainer.setLayout(new GridLayout());
+		layout5 = new GridLayout();
+		setLayoutSettings(layout5, 2, 2, 2, 2);
+		estEndTimeCompositeContainer.setLayout(layout5);
 		estEndTimeCompositeContainer.setBackground(ColorConstants.black);
 		//
 		Composite innerCompositeEstEndTime = toolkit.createComposite(estEndTimeCompositeContainer);
@@ -155,11 +286,11 @@ public class TomoConfigurationView extends ViewPart {
 		Label lblEstEndTime = toolkit
 				.createLabel(innerCompositeEstEndTime, "Estimated End Time", SWT.WRAP | SWT.CENTER);
 		lblEstEndTime.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		//
-		//
-		// Start Tomo Runs
-		Button btnStartTomoRuns = toolkit.createButton(middleRowComposite, "Start Tomo Runs", SWT.PUSH);
+
+		// Start tomo runs
+		btnStartTomoRuns = toolkit.createButton(middleRowComposite, "Start Tomo Runs", SWT.PUSH);
 		btnStartTomoRuns.setLayoutData(new GridData(GridData.FILL_BOTH));
+		btnStartTomoRuns.addSelectionListener(btnSelListener);
 
 		// Interrupt Tomo Runs
 		Button btnInterruptTomoRuns = toolkit.createButton(middleRowComposite, "Interrupt Tomo Runs", SWT.PUSH);
@@ -178,54 +309,257 @@ public class TomoConfigurationView extends ViewPart {
 		GridLayout layout3 = new GridLayout(2, false);
 		setLayoutSettings(layout3, 2, 0, 4, 0);
 		imageDisplayComposite.setLayout(layout3);
-		imageDisplayComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
-		//
-		FixedImageViewerComposite img0DegComposite = new FixedImageViewerComposite(imageDisplayComposite, SWT.None);
+		GridData layoutData3 = new GridData(GridData.FILL_BOTH);
+		layoutData3.heightHint = 540;
+		imageDisplayComposite.setLayoutData(layoutData3);
+		img0DegComposite = new StitchedImageCanvas(imageDisplayComposite, ImageLocationRelTheta.THETA, SWT.None);
 		img0DegComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
 
-		FixedImageViewerComposite img90DegComposite = new FixedImageViewerComposite(imageDisplayComposite, SWT.None);
+		img90DegComposite = new StitchedImageCanvas(imageDisplayComposite, ImageLocationRelTheta.THETA_PLUS_90,
+				SWT.None);
 		img90DegComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
 
-		Resource alignmentConfigResource = null;
+		TomoExperiment tomoExperiment = getModel();
+		configModelTableViewer.setInput(tomoExperiment);
+
+		createActions();
+
+		final int time = 60000;// 1 minute delay
+		final Display display = getViewSite().getShell().getDisplay();
+		Runnable timer = new Runnable() {
+
+			@Override
+			public void run() {
+				if (!display.isDisposed() && !lblDate.isDisposed()) {
+					lblDate.setText(dateFormat.format(new Date()));
+					lblTime.setText(timeFormat.format(new Date()));
+					display.timerExec(time, this);
+				}
+			}
+		};
+		display.timerExec(0, timer);
+		//
+		tomoConfigViewController.initialize();
+		tomoConfigViewController.addScanControllerUpdateListener(scanControllerUpdateListener);
+		tomoConfigViewController.isScanRunning();
+		//
+		configModelTableViewer.getTable().layout();
+	}
+
+	private SelectionListener btnSelListener = new SelectionAdapter() {
+		@SuppressWarnings("rawtypes")
+		@Override
+		public void widgetSelected(org.eclipse.swt.events.SelectionEvent e) {
+			Parameters parameters = getModel().getParameters();
+			if (e.getSource().equals(btnDeleteSelected)) {
+				logger.debug("Delete Selected");
+
+				ISelection selection = configModelTableViewer.getSelection();
+				List configContents = ((IStructuredSelection) selection).toList();
+				ArrayList<AlignmentConfiguration> configs = new ArrayList<AlignmentConfiguration>();
+				for (Object tomoConfigContent : configContents) {
+					AlignmentConfiguration alignmentConfiguration = parameters
+							.getAlignmentConfiguration(((TomoConfigContent) tomoConfigContent).getConfigId());
+					if (alignmentConfiguration != null) {
+						configs.add(alignmentConfiguration);
+					}
+
+				}
+
+				Command rmCommand = RemoveCommand.create(getEditingDomain(), parameters,
+						TomoParametersPackage.eINSTANCE.getParameters_ConfigurationSet(), configs);
+				try {
+					runCommand(rmCommand);
+				} catch (IOException ie) {
+					logger.error("TODO put description of error here", ie);
+				}
+
+			} else if (e.getSource().equals(btnDeleteAll)) {
+				logger.debug("Delete All");
+				List<AlignmentConfiguration> configurationSet = parameters.getConfigurationSet();
+				Command rmCommand = RemoveCommand.create(getEditingDomain(), parameters,
+						TomoParametersPackage.eINSTANCE.getParameters_ConfigurationSet(), configurationSet);
+				try {
+					runCommand(rmCommand);
+				} catch (IOException ie) {
+					logger.error("TODO put description of error here", ie);
+				}
+			} else if (e.getSource().equals(btnMoveUp) || e.getSource().equals(btnMoveDown)) {
+				ISelection selection = configModelTableViewer.getSelection();
+				if (selection instanceof IStructuredSelection) {
+					IStructuredSelection ssl = (IStructuredSelection) selection;
+					Object firstElement = ssl.getFirstElement();
+					if (firstElement instanceof TomoConfigContent) {
+						TomoConfigContent tcc = (TomoConfigContent) firstElement;
+						AlignmentConfiguration alignmentConfiguration = getAlignmentConfiguration(tcc);
+
+						int oldIndex = parameters.getConfigurationSet().indexOf(alignmentConfiguration);
+						int newIndex = oldIndex;
+						if (e.getSource().equals(btnMoveUp)) {
+							if (oldIndex > 0) {
+								newIndex = oldIndex - 1;
+							}
+						} else if (e.getSource().equals(btnMoveDown)) {
+							if (oldIndex < parameters.getConfigurationSet().size()) {
+								newIndex = oldIndex + 1;
+							}
+						}
+						if (oldIndex != newIndex) {
+							try {
+								runCommand(MoveCommand.create(getEditingDomain(), parameters,
+										TomoParametersPackage.eINSTANCE.getParameters_ConfigurationSet(),
+										alignmentConfiguration, newIndex));
+							} catch (IOException e1) {
+								logger.error("TODO put description of error here", e1);
+							}
+						}
+
+						configModelTableViewer.setSelection(new StructuredSelection(configModelTableViewer
+								.getElementAt(newIndex)));
+					}
+				}
+			} else if (e.getSource().equals(btnStartTomoRuns)) {
+				logger.debug("Calling start tomo runs");
+				configModelTableViewer.setSelection(null);
+				tomoConfigViewController.startScan(getModel());
+			}
+		}
+	};
+
+	private void createActions() {
+		IActionBars actionBars = getViewSite().getActionBars();
+
+		fUndoAction = new UndoActionHandler(getSite(), getUndoContext());
+		fUndoAction.setActionDefinitionId(IWorkbenchCommandConstants.EDIT_UNDO);
+		fRedoAction = new RedoActionHandler(getSite(), getUndoContext());
+		fRedoAction.setActionDefinitionId(IWorkbenchCommandConstants.EDIT_REDO);
+		actionBars.setGlobalActionHandler(ActionFactory.UNDO.getId(), fUndoAction);
+		actionBars.setGlobalActionHandler(ActionFactory.REDO.getId(), fRedoAction);
+
+		getViewSite().getWorkbenchWindow().getWorkbench().getOperationSupport().getOperationHistory()
+				.addOperationHistoryListener(historyListener);
+	}
+
+	protected void runCommand(final Command rmCommand) throws IOException {
+
+		getEditingDomain().getCommandStack().execute(rmCommand);
+
+		getModel().eResource().save(null);
+	}
+
+	private EditingDomain getEditingDomain() {
+		return TransactionalEditingDomain.Registry.INSTANCE
+				.getEditingDomain(TomoClientConstants.TOMO_CONFIG_EDITING_DOMAIN);
+	}
+
+	private IUndoContext getUndoContext() {
+		if (undoContext == null) {
+			undoContext = new ObjectUndoContext(this, getPartName());
+		}
+		return undoContext;
+	}
+
+	private IOperationHistoryListener historyListener = new IOperationHistoryListener() {
+
+		@Override
+		public void historyNotification(OperationHistoryEvent event) {
+			if (event.getEventType() == OperationHistoryEvent.DONE) {
+				// Set<Resource> affectedResources = ResourceUndoContext.getAffectedResources(event.getOperation());
+				// if (affectedResources.contains(getModel().eResource())) {
+				final IUndoableOperation operation = event.getOperation();
+				operation.removeContext(((IWorkspaceCommandStack) getEditingDomain().getCommandStack())
+						.getDefaultUndoContext());
+				operation.addContext(getUndoContext());
+				// }
+			} else if (event.getEventType() == OperationHistoryEvent.UNDONE
+					|| event.getEventType() == OperationHistoryEvent.REDONE) {
+				try {
+					getModel().eResource().save(null);
+				} catch (IOException e) {
+					logger.error("TODO put description of error here", e);
+				}
+			}
+		}
+	};
+
+	private TomoExperiment getModel() {
+		TomoExperiment tomoExperiment = null;
 		try {
-			alignmentConfigResource = configFileHandler.getTomoConfigResource(null, true);
+			tomoExperiment = configFileHandler.getTomoConfigResource(null, true);
 		} catch (InvocationTargetException e) {
 			logger.error("TODO put description of error here", e);
 		} catch (InterruptedException e) {
 			logger.error("TODO put description of error here", e);
 		}
 
-		TomoExperiment tomoExperiment = null;
+		if (tomoExperiment != null && !tomoExperiment.getParameters().eAdapters().contains(tableRefreshNotifyAdapter)) {
+			Parameters parameters = tomoExperiment.getParameters();
+			parameters.eAdapters().add(tableRefreshNotifyAdapter);
+			for (AlignmentConfiguration ac : parameters.getConfigurationSet()) {
+				ac.eAdapters().add(rowRefreshNotifyAdapter);
+				ac.getDetectorProperties().eAdapters().add(rowRefreshNotifyAdapter);
+			}
 
-		if (alignmentConfigResource != null) {
-			if (alignmentConfigResource.getContents() != null && !alignmentConfigResource.getContents().isEmpty()) {
-				EObject eObject = alignmentConfigResource.getContents().get(0);
-				if (eObject instanceof TomoExperiment) {
-					tomoExperiment = (TomoExperiment) eObject;
-					tomoExperiment.getParameters().eAdapters().add(tomoConfigNotifyAdapter);
+		}
+
+		return tomoExperiment;
+	}
+
+	private Adapter rowRefreshNotifyAdapter = new Adapter() {
+
+		@Override
+		public void notifyChanged(Notification notification) {
+			Object notifier = notification.getNotifier();
+			AlignmentConfiguration ac = null;
+			if (notifier instanceof AlignmentConfiguration) {
+				ac = (AlignmentConfiguration) notifier;
+			} else if (notifier instanceof DetectorProperties) {
+				ac = (AlignmentConfiguration) ((DetectorProperties) notifier).eContainer();
+			}
+			if (ac != null) {
+				if (!configModelTableViewer.getTable().isDisposed()) {
+					Object elementAt = configModelTableViewer.getElementAt(getModel().getParameters().getIndex(ac));
+					if (elementAt instanceof TomoConfigContent) {
+						TomoConfigContent cc = (TomoConfigContent) elementAt;
+						TomoConfigViewerUtil.setupConfigContent(ac, cc);
+						refreshRow(cc);
+					}
 				}
 			}
 		}
 
-		final int time = 1000;// 1 sec delay
-		final Display display = getViewSite().getShell().getDisplay();
-		Runnable timer = new Runnable() {
+		@Override
+		public Notifier getTarget() {
+			return null;
+		}
 
-			@Override
-			public void run() {
-				lblDate.setText(dateFormat.format(new Date()));
-				lblTime.setText(timeFormat.format(new Date()));
-				display.timerExec(time, this);
-			}
-		};
-		display.timerExec(time, timer);
-		configModelTableViewer.setInput(tomoExperiment);
-	}
+		@Override
+		public void setTarget(Notifier newTarget) {
 
-	private Adapter tomoConfigNotifyAdapter = new Adapter() {
+		}
+
+		@Override
+		public boolean isAdapterForType(Object type) {
+			return false;
+		}
+
+	};
+	private Adapter tableRefreshNotifyAdapter = new Adapter() {
 		@Override
 		public void notifyChanged(org.eclipse.emf.common.notify.Notification notification) {
 			logger.debug("tomoConfigNotifyAdapter#notifyChanged:{}", notification);
+
+			int eventType = notification.getEventType();
+			if (eventType == Notification.ADD) {
+				Object notifier = notification.getNotifier();
+				if (notifier instanceof AlignmentConfiguration) {
+					AlignmentConfiguration ac = (AlignmentConfiguration) notifier;
+					if (!ac.eAdapters().contains(rowRefreshNotifyAdapter)) {
+						ac.eAdapters().add(rowRefreshNotifyAdapter);
+						ac.getDetectorProperties().eAdapters().add(rowRefreshNotifyAdapter);
+					}
+				}
+			}
 			refreshTable();
 		}
 
@@ -254,8 +588,8 @@ public class TomoConfigurationView extends ViewPart {
 	}
 
 	protected void refreshTable() {
-		if (configModelTableViewer != null && !configModelTableViewer.getTree().isDisposed()) {
-			configModelTableViewer.getTree().getDisplay().syncExec(new Runnable() {
+		if (configModelTableViewer != null && !configModelTableViewer.getTable().isDisposed()) {
+			configModelTableViewer.getTable().getDisplay().syncExec(new Runnable() {
 
 				@Override
 				public void run() {
@@ -263,6 +597,73 @@ public class TomoConfigurationView extends ViewPart {
 				}
 			});
 		}
+	}
+
+	protected void refreshRow(final TomoConfigContent config) {
+		// Organise the list to display the stitched image
+		if (config.isShouldDisplay()) {
+			includeInListToDisplay(config);
+		} else {
+			excludeFromListToDisplay(config.getConfigId());
+		}
+
+		if (configModelTableViewer != null && !configModelTableViewer.getTable().isDisposed()) {
+			configModelTableViewer.getTable().getDisplay().syncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					configModelTableViewer.refresh(config, true);
+				}
+			});
+		}
+	}
+
+	private void excludeFromListToDisplay(String configId) {
+		StitchConfig stitchConfig = getStitchConfig(configId);
+		if (stitchConfig != null && stitchConfigs.contains(stitchConfig)) {
+			stitchConfigs.remove(stitchConfig);
+			// refreshImageViews();
+		}
+	}
+
+	private void refreshImageViews() {
+		img0DegComposite.setStitchConfigs(stitchConfigs);
+		img90DegComposite.setStitchConfigs(stitchConfigs);
+	}
+
+	private StitchConfig getStitchConfig(String configId) {
+		for (StitchConfig sc : stitchConfigs) {
+			if (sc.getId().equals(configId)) {
+				return sc;
+			}
+		}
+		return null;
+	}
+
+	private void includeInListToDisplay(TomoConfigContent config) {
+		StitchConfig stitchConfig = getStitchConfig(config.getConfigId());
+		if (stitchConfig == null) {
+			AlignmentConfiguration ac = getAlignmentConfiguration(config);
+			StitchConfig sc = new StitchConfig();
+			sc.setId(ac.getId());
+			SampleStage sampleStageParameters = ac.getSampleStageParameters();
+			sc.setHorizontalX(sampleStageParameters.getCenterX().getValue());
+			sc.setHorizontalZ(ac.getSampleStageParameters().getCenterZ().getValue());
+			sc.setVerticalMotor(sampleStageParameters.getVertical().getValue());
+			StitchParameters sp = ac.getStitchParameters();
+			sc.setTheta(sp.getStitchingThetaAngle());
+			sc.setImageLocationAt0(sp.getImageAtTheta());
+			sc.setImageLocationAt90(sp.getImageAtThetaPlus90());
+			stitchConfigs.add(sc);
+
+			//
+			// refreshImageViews();
+		}
+
+	}
+
+	private AlignmentConfiguration getAlignmentConfiguration(TomoConfigContent config) {
+		return getModel().getParameters().getAlignmentConfiguration(config.getConfigId());
 	}
 
 	@Override
@@ -293,7 +694,278 @@ public class TomoConfigurationView extends ViewPart {
 
 	@Override
 	public void dispose() {
-		configModelTableViewer.dispose();
+		TomoExperiment tomoExperiment = getModel();
+		if (tomoExperiment != null && tomoExperiment.getParameters().eAdapters().contains(tableRefreshNotifyAdapter)) {
+			Parameters parameters = tomoExperiment.getParameters();
+			parameters.eAdapters().remove(tableRefreshNotifyAdapter);
+			for (AlignmentConfiguration ac : parameters.getConfigurationSet()) {
+				ac.eAdapters().remove(rowRefreshNotifyAdapter);
+				ac.getDetectorProperties().eAdapters().remove(rowRefreshNotifyAdapter);
+			}
+		}
+		getViewSite().getWorkbenchWindow().getWorkbench().getOperationSupport().getOperationHistory()
+				.removeOperationHistoryListener(historyListener);
+		tomoConfigViewController.dispose();
 		super.dispose();
 	}
+
+	public void createColumns(TableViewer tableViewer) {
+		TableLayout layout = new TableLayout();
+		Table table = tableViewer.getTable();
+		table.setLayout(layout);
+		table.setHeaderVisible(true);
+		table.setLinesVisible(true);
+		for (int i = 0; i < columnHeaders.length; i++) {
+			layout.addColumnData(columnLayouts[i]);
+			TableColumn tc = new TableColumn(table, SWT.NONE, i);
+			TableViewerColumn tableViewerColumn = new TableViewerColumn(tableViewer, tc);
+			tc.setResizable(columnLayouts[i].resizable);
+			tc.setText(columnHeaders[i]);
+			tc.setToolTipText(columnHeaders[i]);
+			tableViewerColumn.setEditingSupport(new TomoColumnEditingSupport(tableViewer, tableViewerColumn));
+		}
+	}
+
+	public TomoConfigurationViewController getTomoConfigViewController() {
+		return tomoConfigViewController;
+	}
+
+	public void setTomoConfigViewController(TomoConfigurationViewController tomoConfigViewController) {
+		this.tomoConfigViewController = tomoConfigViewController;
+	}
+
+	private class TomoColumnEditingSupport extends EditingSupport {
+
+		private String columnIdentifier;
+
+		public TomoColumnEditingSupport(TableViewer viewer, TableViewerColumn tableViewerColumn) {
+			super(viewer);
+			columnIdentifier = tableViewerColumn.getColumn().getText();
+
+		}
+
+		@Override
+		protected void setValue(Object element, Object value) {
+			logger.debug("setValue:element:{}", element);
+			logger.debug("setValue:value:{}", value);
+			if (element instanceof TomoConfigContent) {
+				TomoConfigContent configContent = (TomoConfigContent) element;
+				if (TomoConfigTableConstants.SAMPLE_DESCRIPTION.equals(columnIdentifier)) {
+					try {
+						runCommand(SetCommand.create(getEditingDomain(), getModel().getParameters()
+								.getAlignmentConfiguration(configContent.getConfigId()),
+								TomoParametersPackage.eINSTANCE.getAlignmentConfiguration_Description(), value));
+					} catch (IOException e) {
+						logger.error("Error setting description", e);
+					}
+				} else if (TomoConfigTableConstants.CONTINUOUS_STEP.equals(columnIdentifier)) {
+					ScanMode scanMode = ScanMode.get((Integer) value);
+					try {
+						runCommand(SetCommand.create(getEditingDomain(), getModel().getParameters()
+								.getAlignmentConfiguration(configContent.getConfigId()),
+								TomoParametersPackage.eINSTANCE.getAlignmentConfiguration_ScanMode(), scanMode));
+					} catch (IOException e) {
+						logger.error("Error setting scan mode", e);
+					}
+				} else if (TomoConfigTableConstants.RESOLUTION.equals(columnIdentifier)) {
+					Resolution resolution = Resolution.get((Integer) value);
+					try {
+						runCommand(SetCommand
+								.create(getEditingDomain(),
+										getModel().getParameters()
+												.getAlignmentConfiguration(configContent.getConfigId())
+												.getDetectorProperties(),
+										TomoParametersPackage.eINSTANCE.getDetectorProperties_Desired3DResolution(),
+										resolution));
+					} catch (IOException e) {
+						logger.error("Error setting resolution", e);
+					}
+				} else if (TomoConfigTableConstants.SHOULD_DISPLAY.equals(columnIdentifier)) {
+					configContent.setShouldDisplay((Boolean) value);
+					refreshRow(configContent);
+				} else if (TomoConfigTableConstants.SELECTION.equals(columnIdentifier)) {
+					Boolean isSelectedToRun = (Boolean) value;
+					try {
+						runCommand(SetCommand.create(getEditingDomain(), getModel().getParameters()
+								.getAlignmentConfiguration(configContent.getConfigId()),
+								TomoParametersPackage.eINSTANCE.getAlignmentConfiguration_SelectedToRun(),
+								isSelectedToRun));
+					} catch (IOException e) {
+						logger.error("Error setting resolution", e);
+					}
+				}
+			}
+
+		}
+
+		@Override
+		protected Object getValue(Object element) {
+			logger.debug("getValue:{}", element);
+			if (element instanceof TomoConfigContent) {
+				TomoConfigContent configContent = (TomoConfigContent) element;
+				if (TomoConfigTableConstants.SAMPLE_DESCRIPTION.equals(columnIdentifier)) {
+					return configContent.getSampleDescription() != null ? configContent.getSampleDescription() : "";
+				} else if (TomoConfigTableConstants.CONTINUOUS_STEP.equals(columnIdentifier)) {
+					return ScanMode.get(configContent.getScanMode()).getValue();
+				} else if (TomoConfigTableConstants.RESOLUTION.equals(columnIdentifier)) {
+					return RESOLUTION.get(configContent.getResolution()).getValue();
+				} else if (TomoConfigTableConstants.SHOULD_DISPLAY.equals(columnIdentifier)) {
+					return configContent.isShouldDisplay();
+				} else if (TomoConfigTableConstants.SELECTION.equals(columnIdentifier)) {
+					return configContent.isSelectedToRun();
+				}
+			}
+			return null;
+		}
+
+		@Override
+		protected CellEditor getCellEditor(Object element) {
+			logger.debug("getCellEditor:{}", element);
+			Table table = ((TableViewer) getViewer()).getTable();
+			if (TomoConfigTableConstants.SAMPLE_DESCRIPTION.equals(columnIdentifier)) {
+				return new TextCellEditor(table);
+			} else if (TomoConfigTableConstants.CONTINUOUS_STEP.equals(columnIdentifier)) {
+				return new ComboBoxCellEditor(table, new String[] { ScanMode.CONTINUOUS.getName(),
+						ScanMode.STEP.getName() });
+			} else if (TomoConfigTableConstants.RESOLUTION.equals(columnIdentifier)) {
+				return new ComboBoxCellEditor(table, new String[] { RESOLUTION.FULL.toString(),
+						RESOLUTION.TWO_X.toString(), RESOLUTION.FOUR_X.toString(), RESOLUTION.EIGHT_X.toString() });
+			} else if (TomoConfigTableConstants.SHOULD_DISPLAY.equals(columnIdentifier)) {
+				return new CheckboxCellEditor(table);
+			} else if (TomoConfigTableConstants.SELECTION.equals(columnIdentifier)) {
+				return new CheckboxCellEditor(table);
+			}
+			return null;
+		}
+
+		@Override
+		protected boolean canEdit(Object element) {
+			if (TomoConfigTableConstants.SAMPLE_DESCRIPTION.equals(columnIdentifier)) {
+				return true;
+			}
+			if (TomoConfigTableConstants.SAMPLE_DESCRIPTION.equals(columnIdentifier)) {
+				return true;
+			}
+			// else if (TomoConfigTableConstants.CONTINUOUS_STEP.equals(columnIdentifier)) {
+			// return true;
+			// }
+			else if (TomoConfigTableConstants.RESOLUTION.equals(columnIdentifier)) {
+				return true;
+			} else if (TomoConfigTableConstants.SHOULD_DISPLAY.equals(columnIdentifier)) {
+				return true;
+			} else if (TomoConfigTableConstants.SELECTION.equals(columnIdentifier)) {
+				return true;
+			}
+			logger.debug("canEdit:{}", element);
+			return false;
+		}
+	}
+
+	private HashMap<String, CONFIG_STATUS> getConfigStatusForTomoConfigContent(String runningConfigId) {
+		String removedBraces = runningConfigId.replace("{", "").replace("}", "").replace("'", "");
+		StringTokenizer strTokenizer = new StringTokenizer(removedBraces, ",");
+		HashMap<String, CONFIG_STATUS> map = new HashMap<String, CONFIG_STATUS>();
+		while (strTokenizer.hasMoreTokens()) {
+			// will be of the format a:b
+			String token = strTokenizer.nextToken();
+			logger.debug("token:{}", token);
+			int indexOfColon = token.indexOf(":");
+			String configId = token.substring(0, indexOfColon).trim();
+			logger.debug("configId:{}", configId);
+			String status = token.substring(indexOfColon + 1).trim();
+			logger.debug("status:{}", status);
+			CONFIG_STATUS configStatus = CONFIG_STATUS.getConfigStatus(status);
+			map.put(configId, configStatus);
+		}
+		return map;
+	}
+
+	private IScanControllerUpdateListener scanControllerUpdateListener = new IScanControllerUpdateListener() {
+
+		@Override
+		public void updateScanProgress(final double progress) {
+			final Shell shell = getViewSite().getShell();
+			shell.getDisplay().asyncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					TableItem[] items = configModelTableViewer.getTable().getItems();
+					for (TableItem tableItem : items) {
+						TomoConfigContent c = (TomoConfigContent) tableItem.getData();
+						if (c.getStatus() == CONFIG_STATUS.RUNNING) {
+							c.setProgress(Math.round(progress));
+							logger.debug("desc:{}", c.getSampleDescription());
+							logger.debug("status:{}", c.getProgress());
+							refreshRow(c);
+							break;
+						}
+					}
+				}
+			});
+		}
+
+		@Override
+		public void updateMessage(final String message) {
+
+			if (message.startsWith(ID_GET_RUNNING_CONFIG)) {
+				final String runningConfigId = message.substring(ID_GET_RUNNING_CONFIG.length());
+				if (runningConfigId.equals("None")) {
+					logger.debug("No configs are running");
+				} else {
+					final HashMap<String, CONFIG_STATUS> configStatusForTomoConfigContent = getConfigStatusForTomoConfigContent(runningConfigId);
+					final Shell shell = getSite().getShell();
+					shell.getDisplay().asyncExec(new Runnable() {
+
+						@Override
+						public void run() {
+							TableItem[] items = configModelTableViewer.getTable().getItems();
+							for (TableItem tableItem : items) {
+								TomoConfigContent c = (TomoConfigContent) tableItem.getData();
+								if (configStatusForTomoConfigContent.keySet().contains(c.getConfigId())) {
+									CONFIG_STATUS status = configStatusForTomoConfigContent.get(c.getConfigId());
+									c.setStatus(status);
+									if (status == CONFIG_STATUS.COMPLETE) {
+										c.setProgress(100);
+									} else if (status == CONFIG_STATUS.NONE) {
+										c.setProgress(0);
+									}
+								} else {
+									c.setStatus(CONFIG_STATUS.NONE);
+									c.setProgress(0);
+								}
+								refreshRow(c);
+							}
+
+						}
+					});
+				}
+			} else if (message.equals(TOMOGRAPHY_SCAN_ALREADY_IN_PROGRESS_MSG)) {
+				final Shell shell = getSite().getShell();
+				shell.getDisplay().asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						MessageDialog.openError(shell, TOMOGRAPHY_SCAN_ALREADY_IN_PROGRESS_MSG,
+								TOMOGRAPHY_SCAN_ALREADY_IN_PROGRESS_MSG);
+					}
+				});
+			} else {
+				getSite().getShell().getDisplay().asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						getViewSite().getActionBars().getStatusLineManager().setMessage(message);
+
+					}
+				});
+			}
+
+		}
+
+		@Override
+		public void updateError(Exception exception) {
+			logger.error("Error from server:{}", exception);
+		}
+	};
+
 }

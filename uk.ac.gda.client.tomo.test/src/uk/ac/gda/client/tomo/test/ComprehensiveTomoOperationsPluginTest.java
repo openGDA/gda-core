@@ -52,7 +52,7 @@ public class ComprehensiveTomoOperationsPluginTest extends UITestCaseSWT {
 		ui.ensureThat(new WorkbenchLocator().hasFocus());
 		ui.ensureThat(ViewLocator.forName("Welcome").isClosed());
 		ui.ensureThat(new WorkbenchLocator().isMaximized());
-		PluginTestHelpers.openPerspective(ui);
+		PluginTestHelpers.openTomoPerspective(ui);
 		// new DebugHelper().printWidgets();
 		ui.click(new SWTWidgetLocator(ToolItem.class, "Reset Detector"));
 

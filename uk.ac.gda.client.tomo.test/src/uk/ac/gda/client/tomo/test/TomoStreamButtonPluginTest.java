@@ -52,7 +52,7 @@ public class TomoStreamButtonPluginTest extends UITestCaseSWT {
 	public void testStreamSingle() throws Exception {
 
 		IUIContext ui = getUI();
-		PluginTestHelpers.openPerspective(ui);
+		PluginTestHelpers.openTomoPerspective(ui);
 
 		//new DebugHelper().printWidgets();
 		ui.click(new SWTWidgetLocator(ToolItem.class, "Reset Detector"));

@@ -28,6 +28,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import uk.ac.gda.client.tomo.alignment.view.handlers.ITomoConfigResourceHandler;
 import uk.ac.gda.client.tomo.configuration.view.TomoConfigurationView;
+import uk.ac.gda.client.tomo.configuration.view.TomoConfigurationViewController;
 
 /**
  * Factory method that invokes the View object
@@ -38,6 +39,7 @@ public class TomoConfigurationViewFactoryFactory implements FindableExecutableEx
 	private String name;
 
 	private ITomoConfigResourceHandler tomoConfigResourceHandler;
+	private TomoConfigurationViewController tomoConfigViewController;
 
 	public String getViewPartName() {
 		return viewPartName;
@@ -59,20 +61,19 @@ public class TomoConfigurationViewFactoryFactory implements FindableExecutableEx
 
 	@Override
 	public Object create() throws CoreException {
-		logger.info("Creating tomoalignment view");
+		logger.info("Creating tomo configuration view");
 		TomoConfigurationView tomographyConfigurationView = new TomoConfigurationView();
 		tomographyConfigurationView.setViewPartName(viewPartName);
 		tomographyConfigurationView.setConfigFileHandler(tomoConfigResourceHandler);
+		tomographyConfigurationView.setTomoConfigViewController(tomoConfigViewController);
 		return tomographyConfigurationView;
 	}
-
-	
 
 	@Override
 	public void setInitializationData(IConfigurationElement config, String propertyName, Object data)
 			throws CoreException {
 	}
-	
+
 	public void setTomoConfigResourceHandler(ITomoConfigResourceHandler tomoConfigResourceHandler) {
 		this.tomoConfigResourceHandler = tomoConfigResourceHandler;
 	}
@@ -85,4 +86,11 @@ public class TomoConfigurationViewFactoryFactory implements FindableExecutableEx
 		}
 	}
 
+	public TomoConfigurationViewController getTomoConfigViewController() {
+		return tomoConfigViewController;
+	}
+
+	public void setTomoConfigViewController(TomoConfigurationViewController tomoConfigViewController) {
+		this.tomoConfigViewController = tomoConfigViewController;
+	}
 }

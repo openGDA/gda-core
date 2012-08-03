@@ -19,6 +19,9 @@
 package uk.ac.gda.client.tomo.alignment.view.handlers.impl;
 
 import gda.device.DeviceException;
+import gda.jython.JythonServerFacade;
+import gda.observable.IObservable;
+import gda.observable.IObserver;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
 
@@ -41,7 +44,11 @@ public class CameraMotionController implements ICameraMotionController, Initiali
 
 	private IMotorHandler motorHandler;
 
+	private IObservable tomoScriptController;
+
 	private static final Logger logger = LoggerFactory.getLogger(CameraMotionController.class);
+
+	private static final String MOVE_T3_M1_Z_COMMAND = "tomographyScani13.moveT3M1ZTo(%d, %f)";
 
 	public void setMotorHandler(IMotorHandler motorHandler) {
 		this.motorHandler = motorHandler;
@@ -54,30 +61,32 @@ public class CameraMotionController implements ICameraMotionController, Initiali
 	@Override
 	public void moveT3m1ZTo(IProgressMonitor monitor, CAMERA_MODULE module, double t3m1ZValue) throws DeviceException,
 			InterruptedException {
+		final Exception[] exceptions = new Exception[1];
 		final SubMonitor progress = SubMonitor.convert(monitor);
-		progress.beginTask("Adjusting camera position", 5);
-		progress.worked(1);
-		motorHandler.moveT3M1ZTo(monitor, t3m1ZValue);
+		progress.beginTask("Moving camera stage", 5);
+		String moveModuleCmd = String.format(MOVE_T3_M1_Z_COMMAND, module.getValue().intValue(), t3m1ZValue);
+		IObserver observer = new IObserver() {
 
-		progress.worked(1);
-
-		double t3m1ZOffset = motorHandler.getT3m1zOffset();
-
-		double t3m1ZToLookup = t3m1ZValue - t3m1ZOffset;
-
-		double lookupT3M1Y = cameraMotionLookupTableHandler.lookupT3M1Y(module, t3m1ZToLookup);
-
-		double t3m1yOffset = motorHandler.getT3m1yOffset();
-		motorHandler.moveT3M1YTo(monitor, lookupT3M1Y + t3m1yOffset);
-		progress.worked(1);
-
-		double lookupT3X = cameraMotionLookupTableHandler.lookupT3X(module, t3m1ZToLookup);
-		double t3xOffset = motorHandler.getT3xOffset();
-
-		motorHandler.moveT3XTo(monitor, lookupT3X + t3xOffset);
-		progress.worked(1);
-
-		progress.done();
+			@Override
+			public void update(Object source, Object arg) {
+				if (source.equals(getTomoScriptController())) {
+					logger.debug("Observing source:{}", source);
+					logger.debug("Observing arg:{}", arg);
+					if (arg instanceof Exception) {
+						Exception ex = (Exception) arg;
+						exceptions[0] = ex;
+					} else {
+						progress.subTask(arg.toString());
+					}
+				}
+			}
+		};
+		getTomoScriptController().addIObserver(observer);
+		JythonServerFacade.getInstance().evaluateCommand(moveModuleCmd);
+		getTomoScriptController().deleteIObserver(observer);
+		if (exceptions[0] != null) {
+			throw new DeviceException(exceptions[0]);
+		}
 	}
 
 	@Override
@@ -133,11 +142,19 @@ public class CameraMotionController implements ICameraMotionController, Initiali
 		}
 
 	}
-	
+
 	@Override
 	public void dispose() {
 		// TODO Auto-generated method stub
-		
+
+	}
+
+	public IObservable getTomoScriptController() {
+		return tomoScriptController;
+	}
+
+	public void setTomoScriptController(IObservable tomoScriptController) {
+		this.tomoScriptController = tomoScriptController;
 	}
 
 }

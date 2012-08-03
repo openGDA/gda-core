@@ -41,7 +41,7 @@ public class TomographyPerspectivePluginTest extends UITestCaseSWT {
 	public void testTomoAlignmentOperations3Plugin() throws Exception {
 		IUIContext ui = getUI();
 
-		PluginTestHelpers.openPerspective(ui);
+		PluginTestHelpers.openTomoPerspective(ui);
 	}
 
 }

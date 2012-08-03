@@ -9,8 +9,6 @@ import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 
-import uk.ac.gda.tomography.parameters.impl.TomoParametersPackageImpl;
-
 /**
  * <!-- begin-user-doc --> The <b>Package</b> for the model. It contains accessors for the meta objects to represent
  * <ul>
@@ -60,7 +58,7 @@ public interface TomoParametersPackage extends EPackage {
 	 * @see uk.ac.gda.tomography.parameters.impl.TomoParametersPackageImpl#getTomoExperiment()
 	 * @generated
 	 */
-	int TOMO_EXPERIMENT = 7;
+	int TOMO_EXPERIMENT = 9;
 
 	/**
 	 * The meta object id for the '{@link uk.ac.gda.tomography.parameters.impl.DetectorBinImpl <em>Detector Bin</em>}' class.
@@ -115,21 +113,12 @@ public interface TomoParametersPackage extends EPackage {
 	int ALIGNMENT_CONFIGURATION__ENERGY = 1;
 
 	/**
-	 * The feature id for the '<em><b>Number Of Projections</b></em>' attribute.
-	 * <!-- begin-user-doc --> <!--
-	 * end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int ALIGNMENT_CONFIGURATION__NUMBER_OF_PROJECTIONS = 2;
-
-	/**
 	 * The feature id for the '<em><b>Description</b></em>' attribute.
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int ALIGNMENT_CONFIGURATION__DESCRIPTION = 3;
+	int ALIGNMENT_CONFIGURATION__DESCRIPTION = 2;
 
 	/**
 	 * The feature id for the '<em><b>Detector Properties</b></em>' containment reference.
@@ -138,25 +127,16 @@ public interface TomoParametersPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int ALIGNMENT_CONFIGURATION__DETECTOR_PROPERTIES = 4;
+	int ALIGNMENT_CONFIGURATION__DETECTOR_PROPERTIES = 3;
 
 	/**
-	 * The feature id for the '<em><b>Sample Detector Distance</b></em>' attribute.
-	 * <!-- begin-user-doc --> <!--
-	 * end-user-doc -->
+	 * The feature id for the '<em><b>Sample Stage Parameters</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int ALIGNMENT_CONFIGURATION__SAMPLE_DETECTOR_DISTANCE = 5;
-
-	/**
-	 * The feature id for the '<em><b>Sample Params</b></em>' containment reference.
-	 * <!-- begin-user-doc --> <!--
-	 * end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int ALIGNMENT_CONFIGURATION__SAMPLE_PARAMS = 6;
+	int ALIGNMENT_CONFIGURATION__SAMPLE_STAGE_PARAMETERS = 4;
 
 	/**
 	 * The feature id for the '<em><b>Scan Mode</b></em>' attribute.
@@ -164,7 +144,7 @@ public interface TomoParametersPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int ALIGNMENT_CONFIGURATION__SCAN_MODE = 7;
+	int ALIGNMENT_CONFIGURATION__SCAN_MODE = 5;
 
 	/**
 	 * The feature id for the '<em><b>Sample Exposure Time</b></em>' attribute.
@@ -173,7 +153,7 @@ public interface TomoParametersPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int ALIGNMENT_CONFIGURATION__SAMPLE_EXPOSURE_TIME = 8;
+	int ALIGNMENT_CONFIGURATION__SAMPLE_EXPOSURE_TIME = 6;
 
 	/**
 	 * The feature id for the '<em><b>Flat Exposure Time</b></em>' attribute. <!-- begin-user-doc --> <!-- end-user-doc
@@ -182,7 +162,7 @@ public interface TomoParametersPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int ALIGNMENT_CONFIGURATION__FLAT_EXPOSURE_TIME = 9;
+	int ALIGNMENT_CONFIGURATION__FLAT_EXPOSURE_TIME = 7;
 
 	/**
 	 * The feature id for the '<em><b>Created User Id</b></em>' attribute.
@@ -191,16 +171,7 @@ public interface TomoParametersPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int ALIGNMENT_CONFIGURATION__CREATED_USER_ID = 10;
-
-	/**
-	 * The feature id for the '<em><b>Stitching Theta Angle</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int ALIGNMENT_CONFIGURATION__STITCHING_THETA_ANGLE = 11;
+	int ALIGNMENT_CONFIGURATION__CREATED_USER_ID = 8;
 
 	/**
 	 * The feature id for the '<em><b>Created Date Time</b></em>' attribute.
@@ -209,7 +180,52 @@ public interface TomoParametersPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int ALIGNMENT_CONFIGURATION__CREATED_DATE_TIME = 12;
+	int ALIGNMENT_CONFIGURATION__CREATED_DATE_TIME = 9;
+
+	/**
+	 * The feature id for the '<em><b>Sample Weight</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ALIGNMENT_CONFIGURATION__SAMPLE_WEIGHT = 10;
+
+	/**
+	 * The feature id for the '<em><b>Detector Stage Parameters</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ALIGNMENT_CONFIGURATION__DETECTOR_STAGE_PARAMETERS = 11;
+
+	/**
+	 * The feature id for the '<em><b>Proposal Id</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ALIGNMENT_CONFIGURATION__PROPOSAL_ID = 12;
+
+	/**
+	 * The feature id for the '<em><b>Stitch Parameters</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ALIGNMENT_CONFIGURATION__STITCH_PARAMETERS = 13;
+
+	/**
+	 * The feature id for the '<em><b>Selected To Run</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ALIGNMENT_CONFIGURATION__SELECTED_TO_RUN = 14;
 
 	/**
 	 * The number of structural features of the '<em>Alignment Configuration</em>' class.
@@ -218,7 +234,7 @@ public interface TomoParametersPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int ALIGNMENT_CONFIGURATION_FEATURE_COUNT = 13;
+	int ALIGNMENT_CONFIGURATION_FEATURE_COUNT = 15;
 
 	/**
 	 * The feature id for the '<em><b>Bin X</b></em>' attribute.
@@ -246,21 +262,13 @@ public interface TomoParametersPackage extends EPackage {
 	int DETECTOR_BIN_FEATURE_COUNT = 2;
 
 	/**
-	 * The feature id for the '<em><b>Module</b></em>' attribute.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int DETECTOR_PROPERTIES__MODULE = 0;
-
-	/**
 	 * The feature id for the '<em><b>Desired3 DResolution</b></em>' attribute.
 	 * <!-- begin-user-doc --> <!--
 	 * end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int DETECTOR_PROPERTIES__DESIRED3_DRESOLUTION = 1;
+	int DETECTOR_PROPERTIES__DESIRED3_DRESOLUTION = 0;
 
 	/**
 	 * The feature id for the '<em><b>Number Of Framer Per Projection</b></em>' attribute.
@@ -269,7 +277,7 @@ public interface TomoParametersPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int DETECTOR_PROPERTIES__NUMBER_OF_FRAMER_PER_PROJECTION = 2;
+	int DETECTOR_PROPERTIES__NUMBER_OF_FRAMER_PER_PROJECTION = 1;
 
 	/**
 	 * The feature id for the '<em><b>Acquisition Time Divider</b></em>' attribute.
@@ -278,7 +286,7 @@ public interface TomoParametersPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int DETECTOR_PROPERTIES__ACQUISITION_TIME_DIVIDER = 3;
+	int DETECTOR_PROPERTIES__ACQUISITION_TIME_DIVIDER = 2;
 
 	/**
 	 * The feature id for the '<em><b>Detector Roi</b></em>' containment reference.
@@ -287,7 +295,7 @@ public interface TomoParametersPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int DETECTOR_PROPERTIES__DETECTOR_ROI = 4;
+	int DETECTOR_PROPERTIES__DETECTOR_ROI = 3;
 
 	/**
 	 * The feature id for the '<em><b>Detector Bin</b></em>' containment reference.
@@ -296,7 +304,16 @@ public interface TomoParametersPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int DETECTOR_PROPERTIES__DETECTOR_BIN = 5;
+	int DETECTOR_PROPERTIES__DETECTOR_BIN = 4;
+
+	/**
+	 * The feature id for the '<em><b>Module Parameters</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int DETECTOR_PROPERTIES__MODULE_PARAMETERS = 5;
 
 	/**
 	 * The number of structural features of the '<em>Detector Properties</em>' class.
@@ -355,7 +372,100 @@ public interface TomoParametersPackage extends EPackage {
 	 * @see uk.ac.gda.tomography.parameters.impl.TomoParametersPackageImpl#getParameters()
 	 * @generated
 	 */
-	int PARAMETERS = 4;
+	int PARAMETERS = 6;
+
+	/**
+	 * The meta object id for the '{@link uk.ac.gda.tomography.parameters.impl.SampleStageImpl <em>Sample Stage</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see uk.ac.gda.tomography.parameters.impl.SampleStageImpl
+	 * @see uk.ac.gda.tomography.parameters.impl.TomoParametersPackageImpl#getSampleStage()
+	 * @generated
+	 */
+	int SAMPLE_STAGE = 7;
+
+	/**
+	 * The meta object id for the '{@link uk.ac.gda.tomography.parameters.impl.DetectorStageImpl <em>Detector Stage</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see uk.ac.gda.tomography.parameters.impl.DetectorStageImpl
+	 * @see uk.ac.gda.tomography.parameters.impl.TomoParametersPackageImpl#getDetectorStage()
+	 * @generated
+	 */
+	int DETECTOR_STAGE = 4;
+
+	/**
+	 * The feature id for the '<em><b>X</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int DETECTOR_STAGE__X = 0;
+
+	/**
+	 * The feature id for the '<em><b>Y</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int DETECTOR_STAGE__Y = 1;
+
+	/**
+	 * The feature id for the '<em><b>Z</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int DETECTOR_STAGE__Z = 2;
+
+	/**
+	 * The number of structural features of the '<em>Detector Stage</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int DETECTOR_STAGE_FEATURE_COUNT = 3;
+
+	/**
+	 * The meta object id for the '{@link uk.ac.gda.tomography.parameters.impl.ModuleImpl <em>Module</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see uk.ac.gda.tomography.parameters.impl.ModuleImpl
+	 * @see uk.ac.gda.tomography.parameters.impl.TomoParametersPackageImpl#getModule()
+	 * @generated
+	 */
+	int MODULE = 5;
+
+	/**
+	 * The feature id for the '<em><b>Module Number</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int MODULE__MODULE_NUMBER = 0;
+
+	/**
+	 * The feature id for the '<em><b>Horizontal Field Of View</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int MODULE__HORIZONTAL_FIELD_OF_VIEW = 1;
+
+	/**
+	 * The number of structural features of the '<em>Module</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int MODULE_FEATURE_COUNT = 2;
 
 	/**
 	 * The feature id for the '<em><b>Configuration Set</b></em>' containment reference list.
@@ -376,97 +486,113 @@ public interface TomoParametersPackage extends EPackage {
 	int PARAMETERS_FEATURE_COUNT = 1;
 
 	/**
-	 * The meta object id for the '{@link uk.ac.gda.tomography.parameters.impl.SampleParamsImpl <em>Sample Params</em>}' class.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * @see uk.ac.gda.tomography.parameters.impl.SampleParamsImpl
-	 * @see uk.ac.gda.tomography.parameters.impl.TomoParametersPackageImpl#getSampleParams()
-	 * @generated
-	 */
-	int SAMPLE_PARAMS = 5;
-
-	/**
-	 * The feature id for the '<em><b>Position</b></em>' containment reference.
-	 * <!-- begin-user-doc --> <!--
-	 * end-user-doc -->
+	 * The feature id for the '<em><b>Vertical</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE_PARAMS__POSITION = 0;
+	int SAMPLE_STAGE__VERTICAL = 0;
 
 	/**
-	 * The feature id for the '<em><b>Weight</b></em>' attribute.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * The feature id for the '<em><b>Center X</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE_PARAMS__WEIGHT = 1;
+	int SAMPLE_STAGE__CENTER_X = 1;
 
 	/**
-	 * The number of structural features of the '<em>Sample Params</em>' class.
-	 * <!-- begin-user-doc --> <!--
-	 * end-user-doc -->
+	 * The feature id for the '<em><b>Center Z</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE_PARAMS_FEATURE_COUNT = 2;
+	int SAMPLE_STAGE__CENTER_Z = 2;
 
 	/**
-	 * The meta object id for the '{@link uk.ac.gda.tomography.parameters.impl.SamplePositionImpl <em>Sample Position</em>}' class.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * @see uk.ac.gda.tomography.parameters.impl.SamplePositionImpl
-	 * @see uk.ac.gda.tomography.parameters.impl.TomoParametersPackageImpl#getSamplePosition()
-	 * @generated
-	 */
-	int SAMPLE_POSITION = 6;
-
-	/**
-	 * The feature id for the '<em><b>Vertical</b></em>' attribute.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * The feature id for the '<em><b>Tilt X</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE_POSITION__VERTICAL = 0;
+	int SAMPLE_STAGE__TILT_X = 3;
 
 	/**
-	 * The feature id for the '<em><b>Center X</b></em>' attribute.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * The feature id for the '<em><b>Tilt Z</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE_POSITION__CENTER_X = 1;
+	int SAMPLE_STAGE__TILT_Z = 4;
 
 	/**
-	 * The feature id for the '<em><b>Center Z</b></em>' attribute.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * The feature id for the '<em><b>Base X</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE_POSITION__CENTER_Z = 2;
+	int SAMPLE_STAGE__BASE_X = 5;
 
 	/**
-	 * The feature id for the '<em><b>Tilt X</b></em>' attribute.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * The number of structural features of the '<em>Sample Stage</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE_POSITION__TILT_X = 3;
+	int SAMPLE_STAGE_FEATURE_COUNT = 6;
 
 	/**
-	 * The feature id for the '<em><b>Tilt Z</b></em>' attribute.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * The meta object id for the '{@link uk.ac.gda.tomography.parameters.impl.StitchParametersImpl <em>Stitch Parameters</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see uk.ac.gda.tomography.parameters.impl.StitchParametersImpl
+	 * @see uk.ac.gda.tomography.parameters.impl.TomoParametersPackageImpl#getStitchParameters()
+	 * @generated
+	 */
+	int STITCH_PARAMETERS = 8;
+
+	/**
+	 * The feature id for the '<em><b>Stitching Theta Angle</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE_POSITION__TILT_Z = 4;
+	int STITCH_PARAMETERS__STITCHING_THETA_ANGLE = 0;
 
 	/**
-	 * The number of structural features of the '<em>Sample Position</em>' class.
-	 * <!-- begin-user-doc --> <!--
-	 * end-user-doc -->
+	 * The feature id for the '<em><b>Image At Theta</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE_POSITION_FEATURE_COUNT = 5;
+	int STITCH_PARAMETERS__IMAGE_AT_THETA = 1;
+
+	/**
+	 * The feature id for the '<em><b>Image At Theta Plus90</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STITCH_PARAMETERS__IMAGE_AT_THETA_PLUS90 = 2;
+
+	/**
+	 * The number of structural features of the '<em>Stitch Parameters</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STITCH_PARAMETERS_FEATURE_COUNT = 3;
 
 	/**
 	 * The feature id for the '<em><b>Parameters</b></em>' containment reference.
@@ -512,6 +638,43 @@ public interface TomoParametersPackage extends EPackage {
 	int TOMO_EXPERIMENT_FEATURE_COUNT = 4;
 
 	/**
+	 * The meta object id for the '{@link uk.ac.gda.tomography.parameters.impl.ValueUnitImpl <em>Value Unit</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see uk.ac.gda.tomography.parameters.impl.ValueUnitImpl
+	 * @see uk.ac.gda.tomography.parameters.impl.TomoParametersPackageImpl#getValueUnit()
+	 * @generated
+	 */
+	int VALUE_UNIT = 10;
+
+	/**
+	 * The feature id for the '<em><b>Units</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int VALUE_UNIT__UNITS = 0;
+
+	/**
+	 * The feature id for the '<em><b>Value</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int VALUE_UNIT__VALUE = 1;
+
+	/**
+	 * The number of structural features of the '<em>Value Unit</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int VALUE_UNIT_FEATURE_COUNT = 2;
+
+	/**
 	 * The meta object id for the '{@link uk.ac.gda.tomography.parameters.ScanMode <em>Scan Mode</em>}' enum. <!--
 	 * begin-user-doc --> <!-- end-user-doc -->
 	 * 
@@ -519,7 +682,37 @@ public interface TomoParametersPackage extends EPackage {
 	 * @see uk.ac.gda.tomography.parameters.impl.TomoParametersPackageImpl#getScanMode()
 	 * @generated
 	 */
-	int SCAN_MODE = 8;
+	int SCAN_MODE = 11;
+
+	/**
+	 * The meta object id for the '{@link uk.ac.gda.tomography.parameters.Resolution <em>Resolution</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see uk.ac.gda.tomography.parameters.Resolution
+	 * @see uk.ac.gda.tomography.parameters.impl.TomoParametersPackageImpl#getResolution()
+	 * @generated
+	 */
+	int RESOLUTION = 12;
+
+	/**
+	 * The meta object id for the '{@link uk.ac.gda.tomography.parameters.SampleWeight <em>Sample Weight</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see uk.ac.gda.tomography.parameters.SampleWeight
+	 * @see uk.ac.gda.tomography.parameters.impl.TomoParametersPackageImpl#getSampleWeight()
+	 * @generated
+	 */
+	int SAMPLE_WEIGHT = 13;
+
+	/**
+	 * The meta object id for the '{@link uk.ac.gda.tomography.parameters.Unit <em>Unit</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see uk.ac.gda.tomography.parameters.Unit
+	 * @see uk.ac.gda.tomography.parameters.impl.TomoParametersPackageImpl#getUnit()
+	 * @generated
+	 */
+	int UNIT = 14;
 
 	/**
 	 * Returns the meta object for class '{@link uk.ac.gda.tomography.parameters.TomoExperiment <em>Tomo Experiment</em>}'.
@@ -574,6 +767,113 @@ public interface TomoParametersPackage extends EPackage {
 	EAttribute getTomoExperiment_Version();
 
 	/**
+	 * Returns the meta object for class '{@link uk.ac.gda.tomography.parameters.ValueUnit <em>Value Unit</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Value Unit</em>'.
+	 * @see uk.ac.gda.tomography.parameters.ValueUnit
+	 * @generated
+	 */
+	EClass getValueUnit();
+
+	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.parameters.ValueUnit#getUnits <em>Units</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Units</em>'.
+	 * @see uk.ac.gda.tomography.parameters.ValueUnit#getUnits()
+	 * @see #getValueUnit()
+	 * @generated
+	 */
+	EAttribute getValueUnit_Units();
+
+	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.parameters.ValueUnit#getValue <em>Value</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Value</em>'.
+	 * @see uk.ac.gda.tomography.parameters.ValueUnit#getValue()
+	 * @see #getValueUnit()
+	 * @generated
+	 */
+	EAttribute getValueUnit_Value();
+
+	/**
+	 * Returns the meta object for class '{@link uk.ac.gda.tomography.parameters.DetectorStage <em>Detector Stage</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Detector Stage</em>'.
+	 * @see uk.ac.gda.tomography.parameters.DetectorStage
+	 * @generated
+	 */
+	EClass getDetectorStage();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link uk.ac.gda.tomography.parameters.DetectorStage#getX <em>X</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>X</em>'.
+	 * @see uk.ac.gda.tomography.parameters.DetectorStage#getX()
+	 * @see #getDetectorStage()
+	 * @generated
+	 */
+	EReference getDetectorStage_X();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link uk.ac.gda.tomography.parameters.DetectorStage#getY <em>Y</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Y</em>'.
+	 * @see uk.ac.gda.tomography.parameters.DetectorStage#getY()
+	 * @see #getDetectorStage()
+	 * @generated
+	 */
+	EReference getDetectorStage_Y();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link uk.ac.gda.tomography.parameters.DetectorStage#getZ <em>Z</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Z</em>'.
+	 * @see uk.ac.gda.tomography.parameters.DetectorStage#getZ()
+	 * @see #getDetectorStage()
+	 * @generated
+	 */
+	EReference getDetectorStage_Z();
+
+	/**
+	 * Returns the meta object for class '{@link uk.ac.gda.tomography.parameters.Module <em>Module</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Module</em>'.
+	 * @see uk.ac.gda.tomography.parameters.Module
+	 * @generated
+	 */
+	EClass getModule();
+
+	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.parameters.Module#getModuleNumber <em>Module Number</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Module Number</em>'.
+	 * @see uk.ac.gda.tomography.parameters.Module#getModuleNumber()
+	 * @see #getModule()
+	 * @generated
+	 */
+	EAttribute getModule_ModuleNumber();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link uk.ac.gda.tomography.parameters.Module#getHorizontalFieldOfView <em>Horizontal Field Of View</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Horizontal Field Of View</em>'.
+	 * @see uk.ac.gda.tomography.parameters.Module#getHorizontalFieldOfView()
+	 * @see #getModule()
+	 * @generated
+	 */
+	EReference getModule_HorizontalFieldOfView();
+
+	/**
 	 * Returns the meta object for class '{@link uk.ac.gda.tomography.parameters.DetectorBin <em>Detector Bin</em>}'.
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @return the meta object for class '<em>Detector Bin</em>'.
@@ -610,16 +910,6 @@ public interface TomoParametersPackage extends EPackage {
 	 * @generated
 	 */
 	EClass getDetectorProperties();
-
-	/**
-	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.parameters.DetectorProperties#getModule <em>Module</em>}'.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Module</em>'.
-	 * @see uk.ac.gda.tomography.parameters.DetectorProperties#getModule()
-	 * @see #getDetectorProperties()
-	 * @generated
-	 */
-	EAttribute getDetectorProperties_Module();
 
 	/**
 	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.parameters.DetectorProperties#getDesired3DResolution <em>Desired3 DResolution</em>}'.
@@ -674,6 +964,17 @@ public interface TomoParametersPackage extends EPackage {
 	 * @generated
 	 */
 	EReference getDetectorProperties_DetectorBin();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link uk.ac.gda.tomography.parameters.DetectorProperties#getModuleParameters <em>Module Parameters</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Module Parameters</em>'.
+	 * @see uk.ac.gda.tomography.parameters.DetectorProperties#getModuleParameters()
+	 * @see #getDetectorProperties()
+	 * @generated
+	 */
+	EReference getDetectorProperties_ModuleParameters();
 
 	/**
 	 * Returns the meta object for class '{@link uk.ac.gda.tomography.parameters.DetectorRoi <em>Detector Roi</em>}'.
@@ -755,16 +1056,6 @@ public interface TomoParametersPackage extends EPackage {
 	EAttribute getAlignmentConfiguration_Energy();
 
 	/**
-	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getNumberOfProjections <em>Number Of Projections</em>}'.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Number Of Projections</em>'.
-	 * @see uk.ac.gda.tomography.parameters.AlignmentConfiguration#getNumberOfProjections()
-	 * @see #getAlignmentConfiguration()
-	 * @generated
-	 */
-	EAttribute getAlignmentConfiguration_NumberOfProjections();
-
-	/**
 	 * Returns the meta object for the attribute '
 	 * {@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getDescription <em>Description</em>}'. <!--
 	 * begin-user-doc --> <!-- end-user-doc -->
@@ -787,26 +1078,15 @@ public interface TomoParametersPackage extends EPackage {
 	EReference getAlignmentConfiguration_DetectorProperties();
 
 	/**
-	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSampleDetectorDistance <em>Sample Detector Distance</em>}'.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Sample Detector Distance</em>'.
-	 * @see uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSampleDetectorDistance()
+	 * Returns the meta object for the containment reference '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSampleStageParameters <em>Sample Stage Parameters</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Sample Stage Parameters</em>'.
+	 * @see uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSampleStageParameters()
 	 * @see #getAlignmentConfiguration()
 	 * @generated
 	 */
-	EAttribute getAlignmentConfiguration_SampleDetectorDistance();
-
-	/**
-	 * Returns the meta object for the containment reference '
-	 * {@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSampleParams <em>Sample Params</em>}'. <!--
-	 * begin-user-doc --> <!-- end-user-doc -->
-	 * 
-	 * @return the meta object for the containment reference '<em>Sample Params</em>'.
-	 * @see uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSampleParams()
-	 * @see #getAlignmentConfiguration()
-	 * @generated
-	 */
-	EReference getAlignmentConfiguration_SampleParams();
+	EReference getAlignmentConfiguration_SampleStageParameters();
 
 	/**
 	 * Returns the meta object for the attribute '
@@ -852,17 +1132,6 @@ public interface TomoParametersPackage extends EPackage {
 	EAttribute getAlignmentConfiguration_CreatedUserId();
 
 	/**
-	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getStitchingThetaAngle <em>Stitching Theta Angle</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Stitching Theta Angle</em>'.
-	 * @see uk.ac.gda.tomography.parameters.AlignmentConfiguration#getStitchingThetaAngle()
-	 * @see #getAlignmentConfiguration()
-	 * @generated
-	 */
-	EAttribute getAlignmentConfiguration_StitchingThetaAngle();
-
-	/**
 	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getCreatedDateTime <em>Created Date Time</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -872,6 +1141,61 @@ public interface TomoParametersPackage extends EPackage {
 	 * @generated
 	 */
 	EAttribute getAlignmentConfiguration_CreatedDateTime();
+
+	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSampleWeight <em>Sample Weight</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Sample Weight</em>'.
+	 * @see uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSampleWeight()
+	 * @see #getAlignmentConfiguration()
+	 * @generated
+	 */
+	EAttribute getAlignmentConfiguration_SampleWeight();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getDetectorStageParameters <em>Detector Stage Parameters</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Detector Stage Parameters</em>'.
+	 * @see uk.ac.gda.tomography.parameters.AlignmentConfiguration#getDetectorStageParameters()
+	 * @see #getAlignmentConfiguration()
+	 * @generated
+	 */
+	EReference getAlignmentConfiguration_DetectorStageParameters();
+
+	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getProposalId <em>Proposal Id</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Proposal Id</em>'.
+	 * @see uk.ac.gda.tomography.parameters.AlignmentConfiguration#getProposalId()
+	 * @see #getAlignmentConfiguration()
+	 * @generated
+	 */
+	EAttribute getAlignmentConfiguration_ProposalId();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getStitchParameters <em>Stitch Parameters</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Stitch Parameters</em>'.
+	 * @see uk.ac.gda.tomography.parameters.AlignmentConfiguration#getStitchParameters()
+	 * @see #getAlignmentConfiguration()
+	 * @generated
+	 */
+	EReference getAlignmentConfiguration_StitchParameters();
+
+	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSelectedToRun <em>Selected To Run</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Selected To Run</em>'.
+	 * @see uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSelectedToRun()
+	 * @see #getAlignmentConfiguration()
+	 * @generated
+	 */
+	EAttribute getAlignmentConfiguration_SelectedToRun();
 
 	/**
 	 * Returns the meta object for class '{@link uk.ac.gda.tomography.parameters.Parameters <em>Parameters</em>}'. <!--
@@ -896,93 +1220,123 @@ public interface TomoParametersPackage extends EPackage {
 	EReference getParameters_ConfigurationSet();
 
 	/**
-	 * Returns the meta object for class '{@link uk.ac.gda.tomography.parameters.SampleParams <em>Sample Params</em>}'.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * @return the meta object for class '<em>Sample Params</em>'.
-	 * @see uk.ac.gda.tomography.parameters.SampleParams
-	 * @generated
-	 */
-	EClass getSampleParams();
-
-	/**
-	 * Returns the meta object for the containment reference '{@link uk.ac.gda.tomography.parameters.SampleParams#getPosition <em>Position</em>}'.
+	 * Returns the meta object for class '{@link uk.ac.gda.tomography.parameters.SampleStage <em>Sample Stage</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the containment reference '<em>Position</em>'.
-	 * @see uk.ac.gda.tomography.parameters.SampleParams#getPosition()
-	 * @see #getSampleParams()
+	 * @return the meta object for class '<em>Sample Stage</em>'.
+	 * @see uk.ac.gda.tomography.parameters.SampleStage
 	 * @generated
 	 */
-	EReference getSampleParams_Position();
+	EClass getSampleStage();
 
 	/**
-	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.parameters.SampleParams#getWeight <em>Weight</em>}'.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Weight</em>'.
-	 * @see uk.ac.gda.tomography.parameters.SampleParams#getWeight()
-	 * @see #getSampleParams()
+	 * Returns the meta object for the containment reference '{@link uk.ac.gda.tomography.parameters.SampleStage#getVertical <em>Vertical</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Vertical</em>'.
+	 * @see uk.ac.gda.tomography.parameters.SampleStage#getVertical()
+	 * @see #getSampleStage()
 	 * @generated
 	 */
-	EAttribute getSampleParams_Weight();
+	EReference getSampleStage_Vertical();
 
 	/**
-	 * Returns the meta object for class '{@link uk.ac.gda.tomography.parameters.SamplePosition <em>Sample Position</em>}'.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * @return the meta object for class '<em>Sample Position</em>'.
-	 * @see uk.ac.gda.tomography.parameters.SamplePosition
+	 * Returns the meta object for the containment reference '{@link uk.ac.gda.tomography.parameters.SampleStage#getCenterX <em>Center X</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Center X</em>'.
+	 * @see uk.ac.gda.tomography.parameters.SampleStage#getCenterX()
+	 * @see #getSampleStage()
 	 * @generated
 	 */
-	EClass getSamplePosition();
+	EReference getSampleStage_CenterX();
 
 	/**
-	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.parameters.SamplePosition#getVertical <em>Vertical</em>}'.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Vertical</em>'.
-	 * @see uk.ac.gda.tomography.parameters.SamplePosition#getVertical()
-	 * @see #getSamplePosition()
+	 * Returns the meta object for the containment reference '{@link uk.ac.gda.tomography.parameters.SampleStage#getCenterZ <em>Center Z</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Center Z</em>'.
+	 * @see uk.ac.gda.tomography.parameters.SampleStage#getCenterZ()
+	 * @see #getSampleStage()
 	 * @generated
 	 */
-	EAttribute getSamplePosition_Vertical();
+	EReference getSampleStage_CenterZ();
 
 	/**
-	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.parameters.SamplePosition#getCenterX <em>Center X</em>}'.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Center X</em>'.
-	 * @see uk.ac.gda.tomography.parameters.SamplePosition#getCenterX()
-	 * @see #getSamplePosition()
+	 * Returns the meta object for the containment reference '{@link uk.ac.gda.tomography.parameters.SampleStage#getTiltX <em>Tilt X</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Tilt X</em>'.
+	 * @see uk.ac.gda.tomography.parameters.SampleStage#getTiltX()
+	 * @see #getSampleStage()
 	 * @generated
 	 */
-	EAttribute getSamplePosition_CenterX();
+	EReference getSampleStage_TiltX();
 
 	/**
-	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.parameters.SamplePosition#getCenterZ <em>Center Z</em>}'.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Center Z</em>'.
-	 * @see uk.ac.gda.tomography.parameters.SamplePosition#getCenterZ()
-	 * @see #getSamplePosition()
+	 * Returns the meta object for the containment reference '{@link uk.ac.gda.tomography.parameters.SampleStage#getTiltZ <em>Tilt Z</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Tilt Z</em>'.
+	 * @see uk.ac.gda.tomography.parameters.SampleStage#getTiltZ()
+	 * @see #getSampleStage()
 	 * @generated
 	 */
-	EAttribute getSamplePosition_CenterZ();
+	EReference getSampleStage_TiltZ();
 
 	/**
-	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.parameters.SamplePosition#getTiltX <em>Tilt X</em>}'.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Tilt X</em>'.
-	 * @see uk.ac.gda.tomography.parameters.SamplePosition#getTiltX()
-	 * @see #getSamplePosition()
+	 * Returns the meta object for the containment reference '{@link uk.ac.gda.tomography.parameters.SampleStage#getBaseX <em>Base X</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Base X</em>'.
+	 * @see uk.ac.gda.tomography.parameters.SampleStage#getBaseX()
+	 * @see #getSampleStage()
 	 * @generated
 	 */
-	EAttribute getSamplePosition_TiltX();
+	EReference getSampleStage_BaseX();
 
 	/**
-	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.parameters.SamplePosition#getTiltZ <em>Tilt Z</em>}'.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Tilt Z</em>'.
-	 * @see uk.ac.gda.tomography.parameters.SamplePosition#getTiltZ()
-	 * @see #getSamplePosition()
+	 * Returns the meta object for class '{@link uk.ac.gda.tomography.parameters.StitchParameters <em>Stitch Parameters</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Stitch Parameters</em>'.
+	 * @see uk.ac.gda.tomography.parameters.StitchParameters
 	 * @generated
 	 */
-	EAttribute getSamplePosition_TiltZ();
+	EClass getStitchParameters();
+
+	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.parameters.StitchParameters#getStitchingThetaAngle <em>Stitching Theta Angle</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Stitching Theta Angle</em>'.
+	 * @see uk.ac.gda.tomography.parameters.StitchParameters#getStitchingThetaAngle()
+	 * @see #getStitchParameters()
+	 * @generated
+	 */
+	EAttribute getStitchParameters_StitchingThetaAngle();
+
+	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.parameters.StitchParameters#getImageAtTheta <em>Image At Theta</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Image At Theta</em>'.
+	 * @see uk.ac.gda.tomography.parameters.StitchParameters#getImageAtTheta()
+	 * @see #getStitchParameters()
+	 * @generated
+	 */
+	EAttribute getStitchParameters_ImageAtTheta();
+
+	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.parameters.StitchParameters#getImageAtThetaPlus90 <em>Image At Theta Plus90</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Image At Theta Plus90</em>'.
+	 * @see uk.ac.gda.tomography.parameters.StitchParameters#getImageAtThetaPlus90()
+	 * @see #getStitchParameters()
+	 * @generated
+	 */
+	EAttribute getStitchParameters_ImageAtThetaPlus90();
 
 	/**
 	 * Returns the meta object for enum '{@link uk.ac.gda.tomography.parameters.ScanMode <em>Scan Mode</em>}'. <!--
@@ -993,6 +1347,36 @@ public interface TomoParametersPackage extends EPackage {
 	 * @generated
 	 */
 	EEnum getScanMode();
+
+	/**
+	 * Returns the meta object for enum '{@link uk.ac.gda.tomography.parameters.Resolution <em>Resolution</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Resolution</em>'.
+	 * @see uk.ac.gda.tomography.parameters.Resolution
+	 * @generated
+	 */
+	EEnum getResolution();
+
+	/**
+	 * Returns the meta object for enum '{@link uk.ac.gda.tomography.parameters.SampleWeight <em>Sample Weight</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Sample Weight</em>'.
+	 * @see uk.ac.gda.tomography.parameters.SampleWeight
+	 * @generated
+	 */
+	EEnum getSampleWeight();
+
+	/**
+	 * Returns the meta object for enum '{@link uk.ac.gda.tomography.parameters.Unit <em>Unit</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Unit</em>'.
+	 * @see uk.ac.gda.tomography.parameters.Unit
+	 * @generated
+	 */
+	EEnum getUnit();
 
 	/**
 	 * Returns the factory that creates the instances of the model.
@@ -1058,6 +1442,92 @@ public interface TomoParametersPackage extends EPackage {
 		EAttribute TOMO_EXPERIMENT__VERSION = eINSTANCE.getTomoExperiment_Version();
 
 		/**
+		 * The meta object literal for the '{@link uk.ac.gda.tomography.parameters.impl.ValueUnitImpl <em>Value Unit</em>}' class.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see uk.ac.gda.tomography.parameters.impl.ValueUnitImpl
+		 * @see uk.ac.gda.tomography.parameters.impl.TomoParametersPackageImpl#getValueUnit()
+		 * @generated
+		 */
+		EClass VALUE_UNIT = eINSTANCE.getValueUnit();
+
+		/**
+		 * The meta object literal for the '<em><b>Units</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute VALUE_UNIT__UNITS = eINSTANCE.getValueUnit_Units();
+
+		/**
+		 * The meta object literal for the '<em><b>Value</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute VALUE_UNIT__VALUE = eINSTANCE.getValueUnit_Value();
+
+		/**
+		 * The meta object literal for the '{@link uk.ac.gda.tomography.parameters.impl.DetectorStageImpl <em>Detector Stage</em>}' class.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see uk.ac.gda.tomography.parameters.impl.DetectorStageImpl
+		 * @see uk.ac.gda.tomography.parameters.impl.TomoParametersPackageImpl#getDetectorStage()
+		 * @generated
+		 */
+		EClass DETECTOR_STAGE = eINSTANCE.getDetectorStage();
+
+		/**
+		 * The meta object literal for the '<em><b>X</b></em>' containment reference feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference DETECTOR_STAGE__X = eINSTANCE.getDetectorStage_X();
+
+		/**
+		 * The meta object literal for the '<em><b>Y</b></em>' containment reference feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference DETECTOR_STAGE__Y = eINSTANCE.getDetectorStage_Y();
+
+		/**
+		 * The meta object literal for the '<em><b>Z</b></em>' containment reference feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference DETECTOR_STAGE__Z = eINSTANCE.getDetectorStage_Z();
+
+		/**
+		 * The meta object literal for the '{@link uk.ac.gda.tomography.parameters.impl.ModuleImpl <em>Module</em>}' class.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see uk.ac.gda.tomography.parameters.impl.ModuleImpl
+		 * @see uk.ac.gda.tomography.parameters.impl.TomoParametersPackageImpl#getModule()
+		 * @generated
+		 */
+		EClass MODULE = eINSTANCE.getModule();
+
+		/**
+		 * The meta object literal for the '<em><b>Module Number</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute MODULE__MODULE_NUMBER = eINSTANCE.getModule_ModuleNumber();
+
+		/**
+		 * The meta object literal for the '<em><b>Horizontal Field Of View</b></em>' containment reference feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference MODULE__HORIZONTAL_FIELD_OF_VIEW = eINSTANCE.getModule_HorizontalFieldOfView();
+
+		/**
 		 * The meta object literal for the '{@link uk.ac.gda.tomography.parameters.impl.DetectorBinImpl <em>Detector Bin</em>}' class.
 		 * <!-- begin-user-doc --> <!-- end-user-doc -->
 		 * @see uk.ac.gda.tomography.parameters.impl.DetectorBinImpl
@@ -1090,14 +1560,6 @@ public interface TomoParametersPackage extends EPackage {
 		 * @generated
 		 */
 		EClass DETECTOR_PROPERTIES = eINSTANCE.getDetectorProperties();
-
-		/**
-		 * The meta object literal for the '<em><b>Module</b></em>' attribute feature.
-		 * <!-- begin-user-doc --> <!--
-		 * end-user-doc -->
-		 * @generated
-		 */
-		EAttribute DETECTOR_PROPERTIES__MODULE = eINSTANCE.getDetectorProperties_Module();
 
 		/**
 		 * The meta object literal for the '<em><b>Desired3 DResolution</b></em>' attribute feature.
@@ -1138,6 +1600,14 @@ public interface TomoParametersPackage extends EPackage {
 		 * @generated
 		 */
 		EReference DETECTOR_PROPERTIES__DETECTOR_BIN = eINSTANCE.getDetectorProperties_DetectorBin();
+
+		/**
+		 * The meta object literal for the '<em><b>Module Parameters</b></em>' containment reference feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference DETECTOR_PROPERTIES__MODULE_PARAMETERS = eINSTANCE.getDetectorProperties_ModuleParameters();
 
 		/**
 		 * The meta object literal for the '{@link uk.ac.gda.tomography.parameters.impl.DetectorRoiImpl <em>Detector Roi</em>}' class.
@@ -1206,14 +1676,6 @@ public interface TomoParametersPackage extends EPackage {
 		EAttribute ALIGNMENT_CONFIGURATION__ENERGY = eINSTANCE.getAlignmentConfiguration_Energy();
 
 		/**
-		 * The meta object literal for the '<em><b>Number Of Projections</b></em>' attribute feature. <!--
-		 * begin-user-doc --> <!-- end-user-doc -->
-		 * 
-		 * @generated
-		 */
-		EAttribute ALIGNMENT_CONFIGURATION__NUMBER_OF_PROJECTIONS = eINSTANCE.getAlignmentConfiguration_NumberOfProjections();
-
-		/**
 		 * The meta object literal for the '<em><b>Description</b></em>' attribute feature.
 		 * <!-- begin-user-doc --> <!--
 		 * end-user-doc -->
@@ -1230,20 +1692,12 @@ public interface TomoParametersPackage extends EPackage {
 		EReference ALIGNMENT_CONFIGURATION__DETECTOR_PROPERTIES = eINSTANCE.getAlignmentConfiguration_DetectorProperties();
 
 		/**
-		 * The meta object literal for the '<em><b>Sample Detector Distance</b></em>' attribute feature. <!--
-		 * begin-user-doc --> <!-- end-user-doc -->
-		 * 
+		 * The meta object literal for the '<em><b>Sample Stage Parameters</b></em>' containment reference feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EAttribute ALIGNMENT_CONFIGURATION__SAMPLE_DETECTOR_DISTANCE = eINSTANCE.getAlignmentConfiguration_SampleDetectorDistance();
-
-		/**
-		 * The meta object literal for the '<em><b>Sample Params</b></em>' containment reference feature. <!--
-		 * begin-user-doc --> <!-- end-user-doc -->
-		 * 
-		 * @generated
-		 */
-		EReference ALIGNMENT_CONFIGURATION__SAMPLE_PARAMS = eINSTANCE.getAlignmentConfiguration_SampleParams();
+		EReference ALIGNMENT_CONFIGURATION__SAMPLE_STAGE_PARAMETERS = eINSTANCE.getAlignmentConfiguration_SampleStageParameters();
 
 		/**
 		 * The meta object literal for the '<em><b>Scan Mode</b></em>' attribute feature.
@@ -1278,20 +1732,52 @@ public interface TomoParametersPackage extends EPackage {
 		EAttribute ALIGNMENT_CONFIGURATION__CREATED_USER_ID = eINSTANCE.getAlignmentConfiguration_CreatedUserId();
 
 		/**
-		 * The meta object literal for the '<em><b>Stitching Theta Angle</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute ALIGNMENT_CONFIGURATION__STITCHING_THETA_ANGLE = eINSTANCE.getAlignmentConfiguration_StitchingThetaAngle();
-
-		/**
 		 * The meta object literal for the '<em><b>Created Date Time</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
 		EAttribute ALIGNMENT_CONFIGURATION__CREATED_DATE_TIME = eINSTANCE.getAlignmentConfiguration_CreatedDateTime();
+
+		/**
+		 * The meta object literal for the '<em><b>Sample Weight</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute ALIGNMENT_CONFIGURATION__SAMPLE_WEIGHT = eINSTANCE.getAlignmentConfiguration_SampleWeight();
+
+		/**
+		 * The meta object literal for the '<em><b>Detector Stage Parameters</b></em>' containment reference feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference ALIGNMENT_CONFIGURATION__DETECTOR_STAGE_PARAMETERS = eINSTANCE.getAlignmentConfiguration_DetectorStageParameters();
+
+		/**
+		 * The meta object literal for the '<em><b>Proposal Id</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute ALIGNMENT_CONFIGURATION__PROPOSAL_ID = eINSTANCE.getAlignmentConfiguration_ProposalId();
+
+		/**
+		 * The meta object literal for the '<em><b>Stitch Parameters</b></em>' containment reference feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference ALIGNMENT_CONFIGURATION__STITCH_PARAMETERS = eINSTANCE.getAlignmentConfiguration_StitchParameters();
+
+		/**
+		 * The meta object literal for the '<em><b>Selected To Run</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute ALIGNMENT_CONFIGURATION__SELECTED_TO_RUN = eINSTANCE.getAlignmentConfiguration_SelectedToRun();
 
 		/**
 		 * The meta object literal for the '{@link uk.ac.gda.tomography.parameters.impl.ParametersImpl <em>Parameters</em>}' class.
@@ -1311,78 +1797,96 @@ public interface TomoParametersPackage extends EPackage {
 		EReference PARAMETERS__CONFIGURATION_SET = eINSTANCE.getParameters_ConfigurationSet();
 
 		/**
-		 * The meta object literal for the '{@link uk.ac.gda.tomography.parameters.impl.SampleParamsImpl <em>Sample Params</em>}' class.
-		 * <!-- begin-user-doc --> <!-- end-user-doc -->
-		 * @see uk.ac.gda.tomography.parameters.impl.SampleParamsImpl
-		 * @see uk.ac.gda.tomography.parameters.impl.TomoParametersPackageImpl#getSampleParams()
+		 * The meta object literal for the '{@link uk.ac.gda.tomography.parameters.impl.SampleStageImpl <em>Sample Stage</em>}' class.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see uk.ac.gda.tomography.parameters.impl.SampleStageImpl
+		 * @see uk.ac.gda.tomography.parameters.impl.TomoParametersPackageImpl#getSampleStage()
 		 * @generated
 		 */
-		EClass SAMPLE_PARAMS = eINSTANCE.getSampleParams();
+		EClass SAMPLE_STAGE = eINSTANCE.getSampleStage();
 
 		/**
-		 * The meta object literal for the '<em><b>Position</b></em>' containment reference feature.
-		 * <!-- begin-user-doc
-		 * --> <!-- end-user-doc -->
+		 * The meta object literal for the '<em><b>Vertical</b></em>' containment reference feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EReference SAMPLE_PARAMS__POSITION = eINSTANCE.getSampleParams_Position();
+		EReference SAMPLE_STAGE__VERTICAL = eINSTANCE.getSampleStage_Vertical();
 
 		/**
-		 * The meta object literal for the '<em><b>Weight</b></em>' attribute feature.
-		 * <!-- begin-user-doc --> <!--
-		 * end-user-doc -->
+		 * The meta object literal for the '<em><b>Center X</b></em>' containment reference feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EAttribute SAMPLE_PARAMS__WEIGHT = eINSTANCE.getSampleParams_Weight();
+		EReference SAMPLE_STAGE__CENTER_X = eINSTANCE.getSampleStage_CenterX();
 
 		/**
-		 * The meta object literal for the '{@link uk.ac.gda.tomography.parameters.impl.SamplePositionImpl <em>Sample Position</em>}' class.
-		 * <!-- begin-user-doc --> <!-- end-user-doc -->
-		 * @see uk.ac.gda.tomography.parameters.impl.SamplePositionImpl
-		 * @see uk.ac.gda.tomography.parameters.impl.TomoParametersPackageImpl#getSamplePosition()
+		 * The meta object literal for the '<em><b>Center Z</b></em>' containment reference feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EClass SAMPLE_POSITION = eINSTANCE.getSamplePosition();
+		EReference SAMPLE_STAGE__CENTER_Z = eINSTANCE.getSampleStage_CenterZ();
 
 		/**
-		 * The meta object literal for the '<em><b>Vertical</b></em>' attribute feature.
-		 * <!-- begin-user-doc --> <!--
-		 * end-user-doc -->
+		 * The meta object literal for the '<em><b>Tilt X</b></em>' containment reference feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EAttribute SAMPLE_POSITION__VERTICAL = eINSTANCE.getSamplePosition_Vertical();
+		EReference SAMPLE_STAGE__TILT_X = eINSTANCE.getSampleStage_TiltX();
 
 		/**
-		 * The meta object literal for the '<em><b>Center X</b></em>' attribute feature.
-		 * <!-- begin-user-doc --> <!--
-		 * end-user-doc -->
+		 * The meta object literal for the '<em><b>Tilt Z</b></em>' containment reference feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EAttribute SAMPLE_POSITION__CENTER_X = eINSTANCE.getSamplePosition_CenterX();
+		EReference SAMPLE_STAGE__TILT_Z = eINSTANCE.getSampleStage_TiltZ();
 
 		/**
-		 * The meta object literal for the '<em><b>Center Z</b></em>' attribute feature.
-		 * <!-- begin-user-doc --> <!--
-		 * end-user-doc -->
+		 * The meta object literal for the '<em><b>Base X</b></em>' containment reference feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EAttribute SAMPLE_POSITION__CENTER_Z = eINSTANCE.getSamplePosition_CenterZ();
+		EReference SAMPLE_STAGE__BASE_X = eINSTANCE.getSampleStage_BaseX();
 
 		/**
-		 * The meta object literal for the '<em><b>Tilt X</b></em>' attribute feature.
-		 * <!-- begin-user-doc --> <!--
-		 * end-user-doc -->
+		 * The meta object literal for the '{@link uk.ac.gda.tomography.parameters.impl.StitchParametersImpl <em>Stitch Parameters</em>}' class.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see uk.ac.gda.tomography.parameters.impl.StitchParametersImpl
+		 * @see uk.ac.gda.tomography.parameters.impl.TomoParametersPackageImpl#getStitchParameters()
 		 * @generated
 		 */
-		EAttribute SAMPLE_POSITION__TILT_X = eINSTANCE.getSamplePosition_TiltX();
+		EClass STITCH_PARAMETERS = eINSTANCE.getStitchParameters();
 
 		/**
-		 * The meta object literal for the '<em><b>Tilt Z</b></em>' attribute feature.
-		 * <!-- begin-user-doc --> <!--
-		 * end-user-doc -->
+		 * The meta object literal for the '<em><b>Stitching Theta Angle</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EAttribute SAMPLE_POSITION__TILT_Z = eINSTANCE.getSamplePosition_TiltZ();
+		EAttribute STITCH_PARAMETERS__STITCHING_THETA_ANGLE = eINSTANCE.getStitchParameters_StitchingThetaAngle();
+
+		/**
+		 * The meta object literal for the '<em><b>Image At Theta</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute STITCH_PARAMETERS__IMAGE_AT_THETA = eINSTANCE.getStitchParameters_ImageAtTheta();
+
+		/**
+		 * The meta object literal for the '<em><b>Image At Theta Plus90</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute STITCH_PARAMETERS__IMAGE_AT_THETA_PLUS90 = eINSTANCE.getStitchParameters_ImageAtThetaPlus90();
 
 		/**
 		 * The meta object literal for the '{@link uk.ac.gda.tomography.parameters.ScanMode <em>Scan Mode</em>}' enum.
@@ -1392,6 +1896,36 @@ public interface TomoParametersPackage extends EPackage {
 		 * @generated
 		 */
 		EEnum SCAN_MODE = eINSTANCE.getScanMode();
+
+		/**
+		 * The meta object literal for the '{@link uk.ac.gda.tomography.parameters.Resolution <em>Resolution</em>}' enum.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see uk.ac.gda.tomography.parameters.Resolution
+		 * @see uk.ac.gda.tomography.parameters.impl.TomoParametersPackageImpl#getResolution()
+		 * @generated
+		 */
+		EEnum RESOLUTION = eINSTANCE.getResolution();
+
+		/**
+		 * The meta object literal for the '{@link uk.ac.gda.tomography.parameters.SampleWeight <em>Sample Weight</em>}' enum.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see uk.ac.gda.tomography.parameters.SampleWeight
+		 * @see uk.ac.gda.tomography.parameters.impl.TomoParametersPackageImpl#getSampleWeight()
+		 * @generated
+		 */
+		EEnum SAMPLE_WEIGHT = eINSTANCE.getSampleWeight();
+
+		/**
+		 * The meta object literal for the '{@link uk.ac.gda.tomography.parameters.Unit <em>Unit</em>}' enum.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see uk.ac.gda.tomography.parameters.Unit
+		 * @see uk.ac.gda.tomography.parameters.impl.TomoParametersPackageImpl#getUnit()
+		 * @generated
+		 */
+		EEnum UNIT = eINSTANCE.getUnit();
 
 	}
 

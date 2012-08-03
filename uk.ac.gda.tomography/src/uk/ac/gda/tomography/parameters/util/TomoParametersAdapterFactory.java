@@ -16,11 +16,13 @@ import uk.ac.gda.tomography.parameters.AlignmentConfiguration;
 import uk.ac.gda.tomography.parameters.DetectorBin;
 import uk.ac.gda.tomography.parameters.DetectorProperties;
 import uk.ac.gda.tomography.parameters.DetectorRoi;
+import uk.ac.gda.tomography.parameters.DetectorStage;
+import uk.ac.gda.tomography.parameters.Module;
 import uk.ac.gda.tomography.parameters.Parameters;
-import uk.ac.gda.tomography.parameters.SampleParams;
-import uk.ac.gda.tomography.parameters.SamplePosition;
+import uk.ac.gda.tomography.parameters.SampleStage;
 import uk.ac.gda.tomography.parameters.TomoExperiment;
 import uk.ac.gda.tomography.parameters.TomoParametersPackage;
+import uk.ac.gda.tomography.parameters.ValueUnit;
 
 /**
  * <!-- begin-user-doc -->
@@ -95,20 +97,32 @@ public class TomoParametersAdapterFactory extends AdapterFactoryImpl {
 				return createDetectorRoiAdapter();
 			}
 			@Override
+			public Adapter caseDetectorStage(DetectorStage object) {
+				return createDetectorStageAdapter();
+			}
+			@Override
+			public Adapter caseModule(Module object) {
+				return createModuleAdapter();
+			}
+			@Override
 			public Adapter caseParameters(Parameters object) {
 				return createParametersAdapter();
 			}
 			@Override
-			public Adapter caseSampleParams(SampleParams object) {
-				return createSampleParamsAdapter();
+			public Adapter caseSampleStage(SampleStage object) {
+				return createSampleStageAdapter();
 			}
 			@Override
-			public Adapter caseSamplePosition(SamplePosition object) {
-				return createSamplePositionAdapter();
+			public Adapter caseStitchParameters(StitchParameters object) {
+				return createStitchParametersAdapter();
 			}
 			@Override
 			public Adapter caseTomoExperiment(TomoExperiment object) {
 				return createTomoExperimentAdapter();
+			}
+			@Override
+			public Adapter caseValueUnit(ValueUnit object) {
+				return createValueUnitAdapter();
 			}
 			@Override
 			public Adapter defaultCase(EObject object) {
@@ -141,6 +155,48 @@ public class TomoParametersAdapterFactory extends AdapterFactoryImpl {
 	 * @generated
 	 */
 	public Adapter createTomoExperimentAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link uk.ac.gda.tomography.parameters.ValueUnit <em>Value Unit</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see uk.ac.gda.tomography.parameters.ValueUnit
+	 * @generated
+	 */
+	public Adapter createValueUnitAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link uk.ac.gda.tomography.parameters.DetectorStage <em>Detector Stage</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see uk.ac.gda.tomography.parameters.DetectorStage
+	 * @generated
+	 */
+	public Adapter createDetectorStageAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link uk.ac.gda.tomography.parameters.Module <em>Module</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see uk.ac.gda.tomography.parameters.Module
+	 * @generated
+	 */
+	public Adapter createModuleAdapter() {
 		return null;
 	}
 
@@ -215,30 +271,30 @@ public class TomoParametersAdapterFactory extends AdapterFactoryImpl {
 	}
 
 	/**
-	 * Creates a new adapter for an object of class '{@link uk.ac.gda.tomography.parameters.SampleParams <em>Sample Params</em>}'.
+	 * Creates a new adapter for an object of class '{@link uk.ac.gda.tomography.parameters.SampleStage <em>Sample Stage</em>}'.
 	 * <!-- begin-user-doc -->
 	 * This default implementation returns null so that we can easily ignore cases;
 	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
 	 * <!-- end-user-doc -->
 	 * @return the new adapter.
-	 * @see uk.ac.gda.tomography.parameters.SampleParams
+	 * @see uk.ac.gda.tomography.parameters.SampleStage
 	 * @generated
 	 */
-	public Adapter createSampleParamsAdapter() {
+	public Adapter createSampleStageAdapter() {
 		return null;
 	}
 
 	/**
-	 * Creates a new adapter for an object of class '{@link uk.ac.gda.tomography.parameters.SamplePosition <em>Sample Position</em>}'.
+	 * Creates a new adapter for an object of class '{@link uk.ac.gda.tomography.parameters.StitchParameters <em>Stitch Parameters</em>}'.
 	 * <!-- begin-user-doc -->
 	 * This default implementation returns null so that we can easily ignore cases;
 	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
 	 * <!-- end-user-doc -->
 	 * @return the new adapter.
-	 * @see uk.ac.gda.tomography.parameters.SamplePosition
+	 * @see uk.ac.gda.tomography.parameters.StitchParameters
 	 * @generated
 	 */
-	public Adapter createSamplePositionAdapter() {
+	public Adapter createStitchParametersAdapter() {
 		return null;
 	}
 

@@ -118,7 +118,9 @@ public class StatInfoComposite extends Composite {
 
 				@Override
 				public void run() {
-					lbl.setText(val);
+					if (!lbl.isDisposed()) {
+						lbl.setText(val);
+					}
 				}
 			});
 		}
@@ -147,7 +149,7 @@ public class StatInfoComposite extends Composite {
 
 				@Override
 				public void run() {
-					lblExposureTimeVal.setText(String.format("%.3g (s)",acqExposure));
+					lblExposureTimeVal.setText(String.format("%.3g (s)", acqExposure));
 				}
 			});
 		}

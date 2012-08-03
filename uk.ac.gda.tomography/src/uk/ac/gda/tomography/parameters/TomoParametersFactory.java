@@ -35,6 +35,33 @@ public interface TomoParametersFactory extends EFactory {
 	TomoExperiment createTomoExperiment();
 
 	/**
+	 * Returns a new object of class '<em>Value Unit</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return a new object of class '<em>Value Unit</em>'.
+	 * @generated
+	 */
+	ValueUnit createValueUnit();
+
+	/**
+	 * Returns a new object of class '<em>Detector Stage</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return a new object of class '<em>Detector Stage</em>'.
+	 * @generated
+	 */
+	DetectorStage createDetectorStage();
+
+	/**
+	 * Returns a new object of class '<em>Module</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return a new object of class '<em>Module</em>'.
+	 * @generated
+	 */
+	Module createModule();
+
+	/**
 	 * Returns a new object of class '<em>Detector Bin</em>'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -80,22 +107,22 @@ public interface TomoParametersFactory extends EFactory {
 	Parameters createParameters();
 
 	/**
-	 * Returns a new object of class '<em>Sample Params</em>'.
+	 * Returns a new object of class '<em>Sample Stage</em>'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return a new object of class '<em>Sample Params</em>'.
+	 * @return a new object of class '<em>Sample Stage</em>'.
 	 * @generated
 	 */
-	SampleParams createSampleParams();
+	SampleStage createSampleStage();
 
 	/**
-	 * Returns a new object of class '<em>Sample Position</em>'.
+	 * Returns a new object of class '<em>Stitch Parameters</em>'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return a new object of class '<em>Sample Position</em>'.
+	 * @return a new object of class '<em>Stitch Parameters</em>'.
 	 * @generated
 	 */
-	SamplePosition createSamplePosition();
+	StitchParameters createStitchParameters();
 
 	/**
 	 * Returns the package supported by this factory.

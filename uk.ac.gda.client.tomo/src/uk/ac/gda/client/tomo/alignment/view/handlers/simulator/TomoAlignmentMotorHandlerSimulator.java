@@ -37,7 +37,7 @@ public class TomoAlignmentMotorHandlerSimulator implements IMotorHandler {
 	}
 
 	@Override
-	public double getSamplePosition() throws DeviceException {
+	public double getSampleBaseMotorPosition() throws DeviceException {
 		// TODO Auto-generated method stub
 		return 0;
 	}
@@ -263,7 +263,7 @@ public class TomoAlignmentMotorHandlerSimulator implements IMotorHandler {
 	}
 
 	@Override
-	public double getSs1Y2Position() throws DeviceException {
+	public double getVerticalPosition() throws DeviceException {
 		// TODO Auto-generated method stub
 		return 0;
 	}
@@ -350,7 +350,7 @@ public class TomoAlignmentMotorHandlerSimulator implements IMotorHandler {
 	}
 
 	@Override
-	public String getSs1RzName() {
+	public String getTiltZMotorName() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -362,7 +362,49 @@ public class TomoAlignmentMotorHandlerSimulator implements IMotorHandler {
 	}
 
 	@Override
-	public String getSs1RxName() {
+	public String getTiltXMotorName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Double getSs1TxPosition() throws DeviceException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Double getSs1TzPosition() throws DeviceException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getCentreXMotorName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getCentreZMotorName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getSampleBaseMotorName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getVerticalMotorName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getCameraStageZMotorName() {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -41,8 +41,12 @@ public class ImageConstants {
 
 	public static final String ICON_SAVE_CONFIGURATION = "icons/save_configuration.gif";
 
+	public static final String ICON_CHECKED_STATE = "icons/checked_state.png";
+
+	public static final String ICON_UNCHECKED_STATE = "icons/un_checked_state.png";
+
 	public static String[] IMAGES = new String[] { ICON_RESET_DETECTOR, ICON_HORIZONTAL_FLIP, ICON_PITCH_ROTATE,
 			ICON_ROLL_ROTATE, ICON_VERTICAL_FLIP, ICON_RAW_IMAGE, ICON_TOMO_ALIGNMENT, ICON_SAVE_CONFIGURATION,
-			ICON_TOMO_CONFIG };
+			ICON_TOMO_CONFIG, ICON_CHECKED_STATE, ICON_UNCHECKED_STATE };
 
 }

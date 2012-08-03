@@ -19,12 +19,17 @@
 package uk.ac.gda.client.tomo.alignment.view.handlers.impl;
 
 import gda.device.DeviceException;
+import gda.jython.InterfaceProvider;
+import gda.jython.JythonServerFacade;
+import gda.observable.IObservable;
+import gda.observable.IObserver;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.client.tomo.TomoClientConstants;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraModuleController;
 import uk.ac.gda.ui.components.ModuleButtonComposite.CAMERA_MODULE;
 
@@ -36,59 +41,36 @@ public class CameraModuleControllerWithSampleTilt extends CameraModuleController
 
 	private final static Logger logger = LoggerFactory.getLogger(CameraModuleControllerWithSampleTilt.class);
 
+	private IObservable tomoScriptController;
+
 	@Override
-	public void moveModuleTo(CAMERA_MODULE module, IProgressMonitor monitor) throws Exception {
+	public void moveModuleTo(CAMERA_MODULE module, final IProgressMonitor monitor) throws Exception {
+		final Exception[] exceptions = new Exception[1];
+		final SubMonitor progress = SubMonitor.convert(monitor);
+		progress.beginTask("Module change", 5);
+		String moveModuleCmd = String.format(TomoClientConstants.MOVE_MODULE_COMMAND, module.getValue().intValue());
+		IObserver observer = new IObserver() {
 
-		SubMonitor progress = SubMonitor.convert(monitor);
-
-		motorHandler.aysncMoveSs1Rx(sampleTiltX);
-
-		motorHandler.aysncMoveSs1Rz(sampleTiltZ);
-
-		Double cam1xPosition = motorHandler.getCam1XPosition();
-
-		double cam1xLookupVal = lookupTableHandler.lookupCam1X(module);
-		double cam1zLookupVal = lookupTableHandler.lookupCam1Z(module);
-		double ss1RzLookupVal = lookupTableHandler.lookupSs1Rz(module);
-		double t3xLookupVal = cameraMotionController.getT3X(module);
-		double t3m1yLookupVal = cameraMotionController.getT3M1y(module);
-
-		double offset = Math.abs(cam1xPosition - cam1xLookupVal);
-		monitor.beginTask("", 6);
-		if (offset < 0.1) {
-			logger.warn("already in module", module.getValue());
-			progress.worked(3);
-		} else {
-			if (!monitor.isCanceled()) {
-				motorHandler.moveCam1Z(progress.newChild(1), cameraSafeZ);
+			@Override
+			public void update(Object source, Object arg) {
+				if (source.equals(tomoScriptController)) {
+					logger.debug("Observing source:{}", source);
+					logger.debug("Observing arg:{}", arg);
+					if (arg instanceof Exception) {
+						Exception ex = (Exception) arg;
+						exceptions[0] = ex;
+					} else {
+						progress.subTask(arg.toString());
+					}
+				}
 			}
-			if (!monitor.isCanceled()) {
-				motorHandler.moveCam1X(progress.newChild(1), cam1xLookupVal);
-			}
-			if (!monitor.isCanceled()) {
-				motorHandler.moveCam1Z(progress.newChild(1), cam1zLookupVal);
-			}
+		};
+		tomoScriptController.addIObserver(observer);
+		JythonServerFacade.getInstance().evaluateCommand(moveModuleCmd);
+		tomoScriptController.deleteIObserver(observer);
+		if (exceptions[0] != null) {
+			throw exceptions[0];
 		}
-		if (!monitor.isCanceled()) {
-			while (motorHandler.isSs1RzBusy()) {
-				monitor.setTaskName(String.format("Waiting for %1$s to complete motion", motorHandler.getSs1RzName()));
-				Thread.sleep(100);
-			}
-			while (motorHandler.isSs1RxBusy()) {
-				monitor.setTaskName(String.format("Waiting for %1$s to complete motion", motorHandler.getSs1RxName()));
-				Thread.sleep(100);
-			}
-			motorHandler.moveSs1Rz(progress.newChild(1), ss1RzLookupVal);
-		}
-		monitor.setTaskName("");
-		if (!monitor.isCanceled()) {
-			motorHandler.moveT3XTo(progress.newChild(1), t3xLookupVal);
-		}
-
-		if (!monitor.isCanceled()) {
-			motorHandler.moveT3M1YTo(progress.newChild(1), t3m1yLookupVal);
-		}
-
 	}
 
 	@Override
@@ -114,5 +96,13 @@ public class CameraModuleControllerWithSampleTilt extends CameraModuleController
 			}
 		}
 		return CAMERA_MODULE.NO_MODULE;
+	}
+
+	public IObservable getTomoScriptController() {
+		return tomoScriptController;
+	}
+
+	public void setTomoScriptController(IObservable tomoScriptController) {
+		this.tomoScriptController = tomoScriptController;
 	}
 }
