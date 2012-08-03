@@ -41,6 +41,11 @@ public class SimpleScan implements Serializable{
 	public SimpleScan(){
 		scannables = new ArrayList<ScannableManagerBean>(50);
 		detectors = new ArrayList<DetectorManagerBean>(50);
+		fromPos=0.0;
+		toPos=0.0;
+		stepSize=0.0;
+		acqTime=0.0;
+		
 	}
 	
 	@Override

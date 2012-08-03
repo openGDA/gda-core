@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SimpleScan>
+    <scannableName>energy</scannableName>
+    <fromPos>1.8</fromPos>
+    <toPos>9.0</toPos>
+    <stepSize>0.6</stepSize>
+    <acqTime>3.0</acqTime>
+    <scannables>
+        <scannableName>energy</scannableName>
+    </scannables>
+    <scannables>
+        <scannableName>sam2rot</scannableName>
+    </scannables>
+    <scannables>
+        <scannableName>sam2x</scannableName>
+    </scannables>
+    <scannables>
+        <scannableName>test</scannableName>
+    </scannables>
+    <scannables>
+        <scannableName>sam2y</scannableName>
+    </scannables>
+    <detectors>
+        <enabled>true</enabled>
+        <detectorName>counterTimer01</detectorName>
+        <detectorDescription>ion chambers</detectorDescription>
+    </detectors>
+    <detectors>
+        <enabled>true</enabled>
+        <detectorName>xspress2system</detectorName>
+        <detectorDescription>germanium</detectorDescription>
+    </detectors>
+    <detectors>
+        <enabled>true</enabled>
+        <detectorName>xmapMca</detectorName>
+        <detectorDescription>vortex</detectorDescription>
+    </detectors>
+    <detectors>
+        <enabled>true</enabled>
+        <detectorName>mythen</detectorName>
+        <detectorDescription>strip</detectorDescription>
+    </detectors>
+</SimpleScan>
