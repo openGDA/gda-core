@@ -38,6 +38,7 @@ public class SubdirectoryMetadataEntry extends StoredMetadataEntry implements IO
 
 	Map<String, String> visit2subdir = new HashMap<String, String>();
 	String currentvisit = "";
+	private String defaultSubdirectory = "";
 
 	@Override
 	public void configure() throws FactoryException {
@@ -92,8 +93,19 @@ public class SubdirectoryMetadataEntry extends StoredMetadataEntry implements IO
 			visit2subdir.put(currentvisit, getMetadataValue());
 			currentvisit = arg.toString();
 			super.setValue("");
-			if (visit2subdir.containsKey(currentvisit))
+			if (visit2subdir.containsKey(currentvisit)) {
 				setValue(visit2subdir.get(currentvisit));
+			} else {
+				setValue(getDefaultSubdirectory());
+			}
 		}
+	}
+
+	public String getDefaultSubdirectory() {
+		return defaultSubdirectory;
+	}
+
+	public void setDefaultSubdirectory(String defaultSubdirectory) {
+		this.defaultSubdirectory = defaultSubdirectory;
 	}
 }
