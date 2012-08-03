@@ -27,7 +27,7 @@ import org.springframework.beans.factory.InitializingBean;
 public abstract class FileWriterBase implements FileWriter, InitializingBean{
 
 	private final NDFile ndFile;
-	private final String fileTemplate;
+	protected String fileTemplate;
 	private final String fileName;
 	private boolean setFileNumberToZero=true;
 	private boolean enableDuringScan = true;
