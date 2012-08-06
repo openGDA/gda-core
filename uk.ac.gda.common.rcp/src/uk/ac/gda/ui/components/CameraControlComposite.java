@@ -79,17 +79,32 @@ public class CameraControlComposite extends Composite {
 	}
 
 	public enum RESOLUTION {
-		FULL(RESOLUTION_FULL), TWO_X(RESOLUTION_2x), FOUR_X(RESOLUTION_4x), EIGHT_X(RESOLUTION_8x);
+		FULL(RESOLUTION_FULL, 0), TWO_X(RESOLUTION_2x, 1), FOUR_X(RESOLUTION_4x, 2), EIGHT_X(RESOLUTION_8x, 3);
 
 		private final String value;
+		private final int index;
 
 		@Override
 		public String toString() {
 			return value;
 		}
 
-		private RESOLUTION(String value) {
+		private RESOLUTION(String value, int index) {
 			this.value = value;
+			this.index = index;
+		}
+
+		public static RESOLUTION get(String resolution) {
+			for (RESOLUTION res : values()) {
+				if (resolution.equals(res.toString())) {
+					return res;
+				}
+			}
+			return null;
+		}
+
+		public int getValue() {
+			return index;
 		}
 	}
 
@@ -118,7 +133,7 @@ public class CameraControlComposite extends Composite {
 	private static final String RESOLUTION_FULL = "Full";
 	private static final String SHOW_DARK = "Show Dark";
 	private static final String CORRECT_FLAT_DARK = "Correct Flat && Dark";
-	private static final String FRAMES_PER_PROJECTION_DEFAULT_VAL = "4";
+	private static final String FRAMES_PER_PROJECTION_DEFAULT_VAL = "1";
 	// Error Descriptions
 	private static final String ERR_PROFILING = "Error while profiling image";
 	private static final String ERR_WHILE_SATURATION = "Error while saturation";
@@ -140,6 +155,9 @@ public class CameraControlComposite extends Composite {
 	private static final String NORMAL_TEXT_7 = "normal_text_7";
 
 	//
+	private double flatExposureTime;
+	private double sampleExposureTime;
+	private int framesPerProjection = Integer.parseInt(FRAMES_PER_PROJECTION_DEFAULT_VAL);
 
 	private String sampleDescription;
 
@@ -400,7 +418,8 @@ public class CameraControlComposite extends Composite {
 		txtResFramesPerProjection = toolkit
 				.createText(lowerRowComposite, FRAMES_PER_PROJECTION_DEFAULT_VAL, SWT.CENTER);
 		txtResFramesPerProjection.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
+		txtResFramesPerProjection.addKeyListener(txtKeyListener);
+		txtResFramesPerProjection.addFocusListener(focusListener);
 		return resolutionComposite;
 	}
 
@@ -726,8 +745,7 @@ public class CameraControlComposite extends Composite {
 			}
 		}
 	};
-	private double flatExposureTime;
-	private double sampleExposureTime;
+
 	/**
 	 * Key adapter for the text boxes to validate and persist values
 	 */
@@ -772,7 +790,7 @@ public class CameraControlComposite extends Composite {
 					}
 				}
 			} else if (e.getSource().equals(txtSampleDesc)) {
-				// Flat exposure time
+				// Sample description
 				if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
 					if (!TYPE_DESCRIPTION.equals(txtSampleDesc.getText())) {
 						sampleDescription = txtSampleDesc.getText();
@@ -787,6 +805,18 @@ public class CameraControlComposite extends Composite {
 					} else {
 						MessageDialog.openError(txtSampleDesc.getShell(), ERR_PROBLEM_SETTING_SAMPLE_DESCRIPTION,
 								ERR_PROBLEM_SETTING_SAMPLE_DESCRIPTION);
+					}
+				}
+			} else if (e.getSource().equals(txtResFramesPerProjection)) {
+				// Flat exposure time
+				if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
+					if (isValid(Integer.class, txtResFramesPerProjection.getText())) {
+						framesPerProjection = Integer.parseInt(txtResFramesPerProjection.getText());
+
+						btnSaveAlignment.setFocus();
+					} else {
+						MessageDialog.openError(txtResFramesPerProjection.getShell(), INVALID_VALUE,
+								"Invalid Frames Per Projection value");
 					}
 				}
 			}
@@ -1073,22 +1103,26 @@ public class CameraControlComposite extends Composite {
 				}
 			} else if (sourceObj == btnResFull) {
 				if (!isSelected(btnResFull)) {
-					logger.debug("'btnResFour' is selected");
+					logger.debug("'btnResFull' is selected");
+					resolution = RESOLUTION.FULL;
 					selectRes(btnResFull);
 				}
 			} else if (sourceObj == btnRes2x) {
 				if (!isSelected(btnRes2x)) {
 					logger.debug("'btnRes2x' is selected");
+					resolution = RESOLUTION.TWO_X;
 					selectRes(btnRes2x);
 				}
 			} else if (sourceObj == btnRes4x) {
 				if (!isSelected(btnRes4x)) {
 					logger.debug("'btnRes4x' is selected");
+					resolution = RESOLUTION.FOUR_X;
 					selectRes(btnRes4x);
 				}
 			} else if (sourceObj == btnRes8x) {
 				if (!isSelected(btnRes8x)) {
 					logger.debug("'btnRes8x' is selected");
+					resolution = RESOLUTION.EIGHT_X;
 					selectRes(btnRes8x);
 				}
 			} else if (sourceObj == btnSampleSingle) {
@@ -1497,34 +1531,38 @@ public class CameraControlComposite extends Composite {
 	 * @throws Exception
 	 */
 	public void startSampleStreaming() throws Exception {
-		selectStreamButton();
-		if (isSelected(btnFlatStream)) {
-			deSelectControl(btnFlatStream);
-		}
-		try {
-			for (ICameraControlListener cl : cameraControlListeners) {
-				cl.sampleStream(true);
+		if (getStreamState() != STREAM_STATE.SAMPLE_STREAM) {
+			selectStreamButton();
+			if (isSelected(btnFlatStream)) {
+				deSelectControl(btnFlatStream);
 			}
-			streamState = STREAM_STATE.SAMPLE_STREAM;
-		} catch (Exception ex) {
-			logger.error("startStreaming:" + ex);
-			deselectSampleAndFlatStream();
-			throw new Exception("Unable to start streaming:", ex);
+			try {
+				for (ICameraControlListener cl : cameraControlListeners) {
+					cl.sampleStream(true);
+				}
+				streamState = STREAM_STATE.SAMPLE_STREAM;
+			} catch (Exception ex) {
+				logger.error("startStreaming:" + ex);
+				deselectSampleAndFlatStream();
+				throw new Exception("Unable to start streaming:", ex);
+			}
 		}
 	}
 
 	public void startFlatStreaming() throws Exception {
-		selectControl(btnFlatStream);
+		if (getStreamState() != STREAM_STATE.FLAT_STREAM) {
+			selectControl(btnFlatStream);
 
-		try {
-			for (ICameraControlListener cl : cameraControlListeners) {
-				cl.flatStream(true);
+			try {
+				for (ICameraControlListener cl : cameraControlListeners) {
+					cl.flatStream(true);
+				}
+				streamState = STREAM_STATE.FLAT_STREAM;
+			} catch (Exception ex) {
+				logger.error("startStreaming:" + ex);
+				deSelectControl(btnFlatStream);
+				throw new Exception("Unable to start streaming:", ex);
 			}
-			streamState = STREAM_STATE.FLAT_STREAM;
-		} catch (Exception ex) {
-			logger.error("startStreaming:" + ex);
-			deSelectControl(btnFlatStream);
-			throw new Exception("Unable to start streaming:", ex);
 		}
 	}
 
@@ -1532,54 +1570,57 @@ public class CameraControlComposite extends Composite {
 	 * This is called when the "Stream" button is de-selected from the GDA GUI.
 	 */
 	public void stopSampleStream() {
-		if (this != null && !this.isDisposed()) {
-			this.getDisplay().syncExec(new Runnable() {
+		if (getStreamState() == STREAM_STATE.SAMPLE_STREAM) {
+			if (this != null && !this.isDisposed()) {
+				this.getDisplay().syncExec(new Runnable() {
 
-				@Override
-				public void run() {
-					try {
-						deselectSampleAndFlatStream();
-						for (ICameraControlListener cl : cameraControlListeners) {
-							cl.sampleStream(false);
+					@Override
+					public void run() {
+						try {
+							deselectSampleAndFlatStream();
+							for (ICameraControlListener cl : cameraControlListeners) {
+								cl.sampleStream(false);
+							}
+							if (!ZOOM_LEVEL.NO_ZOOM.equals(getSelectedZoomLevel())) {
+								setZoom(ZOOM_LEVEL.NO_ZOOM);
+							}
+						} catch (Exception ex) {
+							logger.error("stopStreaming:", ex);
 						}
-						if (!ZOOM_LEVEL.NO_ZOOM.equals(getSelectedZoomLevel())) {
-							setZoom(ZOOM_LEVEL.NO_ZOOM);
-						}
-					} catch (Exception ex) {
-						logger.error("stopStreaming:", ex);
 					}
-				}
-			});
-			// Deselects both sample and flat stream
+				});
+				// Deselects both sample and flat stream
 
+			}
 		}
-
 	}
 
 	/**
 	 * This is called when the "Stream" button is de-selected from the GDA GUI.
 	 */
 	public void stopFlatStream() {
-		if (this != null && !this.isDisposed()) {
-			this.getDisplay().syncExec(new Runnable() {
+		if (getStreamState() == STREAM_STATE.FLAT_STREAM) {
+			if (this != null && !this.isDisposed()) {
+				this.getDisplay().syncExec(new Runnable() {
 
-				@Override
-				public void run() {
-					try {
-						deselectSampleAndFlatStream();
-						for (ICameraControlListener cl : cameraControlListeners) {
-							cl.flatStream(false);
+					@Override
+					public void run() {
+						try {
+							deselectSampleAndFlatStream();
+							for (ICameraControlListener cl : cameraControlListeners) {
+								cl.flatStream(false);
+							}
+							if (!ZOOM_LEVEL.NO_ZOOM.equals(getSelectedZoomLevel())) {
+								setZoom(ZOOM_LEVEL.NO_ZOOM);
+							}
+						} catch (Exception ex) {
+							logger.error("stopStreaming:", ex);
 						}
-						if (!ZOOM_LEVEL.NO_ZOOM.equals(getSelectedZoomLevel())) {
-							setZoom(ZOOM_LEVEL.NO_ZOOM);
-						}
-					} catch (Exception ex) {
-						logger.error("stopStreaming:", ex);
 					}
-				}
-			});
-			// Deselects both sample and flat stream
+				});
+				// Deselects both sample and flat stream
 
+			}
 		}
 
 	}
@@ -1759,6 +1800,10 @@ public class CameraControlComposite extends Composite {
 		} catch (Exception e1) {
 			logger.debug("Error setting exposure time", e1);
 		}
+	}
+
+	public int getFramesPerProjection() {
+		return framesPerProjection;
 	}
 
 }

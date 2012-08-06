@@ -46,6 +46,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.ui.event.PartAdapter2;
+
 /**
  * Composite that has two slider which can be slided towards each other or away - this is used as a histogram control
  * for the tomography alignment view.
@@ -122,13 +124,13 @@ public class ColourSliderComposite extends Composite {
 
 	public int getCountForPixel(int pixel) {
 		double pixel0 = getPixelLocation(0);
-		logger.debug("Pixel at 0 count:{}", pixel0);
+		// logger.debug("Pixel at 0 count:{}", pixel0);
 		double pixelMax = getPixelLocation(maximum);
-		logger.debug("Pixel at pixelMax:{}", pixelMax);
+		// logger.debug("Pixel at pixelMax:{}", pixelMax);
 		double pixelProportion = maximum / (pixel0 - pixelMax);
 
 		double countAtPixel = (pixel0 - pixel) * pixelProportion;
-		logger.debug("Pixel at countAtPixel:{}", countAtPixel);
+		// logger.debug("Pixel at countAtPixel:{}", countAtPixel);
 		return (int) countAtPixel;
 	}
 
@@ -141,14 +143,15 @@ public class ColourSliderComposite extends Composite {
 				// graphics.drawLine(0, topLimitInPixel, 30, topLimitInPixel);
 				graphics.drawLine(0, bottomLimitInPixel, 30, bottomLimitInPixel);
 
-//				logger.debug("maximum:{}", maximum);
-//				logger.debug("markerInterval{}", markerInterval);
+				// logger.debug("maximum:{}", maximum);
+				// logger.debug("markerInterval{}", markerInterval);
 				int numMarkerIntervals = maximum / markerInterval;
-//				logger.debug("numMarkerIntervals:{}", numMarkerIntervals);
+				// logger.debug("numMarkerIntervals:{}", numMarkerIntervals);
 				int totalDistanceBetweenLowestAndHighestPoint = bottomLimitInPixel - topLimitInPixel;
-//				logger.debug("totalDistanceBetweenLowestAndHighestPoint:{}", totalDistanceBetweenLowestAndHighestPoint);
+				// logger.debug("totalDistanceBetweenLowestAndHighestPoint:{}",
+				// totalDistanceBetweenLowestAndHighestPoint);
 				int individualInterval = totalDistanceBetweenLowestAndHighestPoint / numMarkerIntervals;
-//				logger.debug("individualInterval:{}", individualInterval);
+				// logger.debug("individualInterval:{}", individualInterval);
 
 				for (int count = bottomLimitInPixel - individualInterval; count > topLimitInPixel; count = count
 						- individualInterval) {
@@ -255,7 +258,7 @@ public class ColourSliderComposite extends Composite {
 				if (maxLimitPixelLoc != 0) {
 					topSliderStart = maxLimitPixelLoc - topSliderHolderBounds.height;
 				}
-				logger.debug("topSliderStart:{}", topSliderStart);
+				// logger.debug("topSliderStart:{}", topSliderStart);
 				topSliderHolder.setLocation(new Point(xStart, topSliderStart));
 
 				topTriangleFigure.setLocation(new Point(5, topSliderHolderBounds.y - 1));
@@ -403,15 +406,15 @@ public class ColourSliderComposite extends Composite {
 	public int getPixelLocation(double count) {
 		if (bottomLimitInPixel != 0) {
 			int totalNumberPixels = bottomLimitInPixel - topLimitInPixel;
-			logger.debug("totalNumberPixels:{}", totalNumberPixels);
+			// logger.debug("totalNumberPixels:{}", totalNumberPixels);
 			int totalCount = maximum;
 
 			double countsPerPixel = totalCount / totalNumberPixels;
-			logger.debug("countsPerPixel:{}", countsPerPixel);
+			// logger.debug("countsPerPixel:{}", countsPerPixel);
 			double pixelAtCount = count / countsPerPixel;
-			logger.debug("pixelAtCount:{}", pixelAtCount);
+			// logger.debug("pixelAtCount:{}", pixelAtCount);
 			double countLocInPixel = bottomLimitInPixel - pixelAtCount;
-			logger.debug("countLocInPixel:{}", countLocInPixel);
+			// logger.debug("countLocInPixel:{}", countLocInPixel);
 			return (int) countLocInPixel;
 		}
 		return 0;

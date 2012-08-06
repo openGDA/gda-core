@@ -67,7 +67,7 @@ import uk.ac.gda.ui.components.RotationSliderComposite.SliderSelectionListener;
  * @author rsr31645
  */
 public class MotionControlComposite extends Composite {
-	
+
 	/**
 	 * Enum that caters to the motion control composite
 	 */
@@ -76,6 +76,7 @@ public class MotionControlComposite extends Composite {
 
 		FIND_AXIS_ROTATION, VERTICAL, MOVE_AXIS_OF_ROTATION
 	}
+
 	private static final String ROTATION_AXIS_NOT_DEFINED_shortdesc = "Rotation Axis Not Defined";
 
 	private static final String CAMERA_DIST_DEFAULT_VALUE = "341";
@@ -126,7 +127,7 @@ public class MotionControlComposite extends Composite {
 
 	private double energy = Double.NaN;
 
-	private SAMPLE_WEIGHT sampleWeight = SAMPLE_WEIGHT.LESS_THAN_ONE;
+	private SAMPLE_WEIGHT sampleWeight = SAMPLE_WEIGHT.TWENTY_TO_FIFTY;
 
 	// Fonts
 	private FontRegistry fontRegistry;
@@ -186,33 +187,19 @@ public class MotionControlComposite extends Composite {
 	private StackLayout moveAxisRotationCmpLayout;
 
 	public enum SAMPLE_WEIGHT {
-		LESS_THAN_ONE {
-			@Override
-			public String toString() {
-				return SAMPLE_WEIGHT_LESS_THAN_1_lbl;
-			}
-		},
-		ONE_TO_TEN {
-			@Override
-			public String toString() {
-				return SAMPLE_WEIGHT_ONE_TO_TEN_lbl;
-			}
-		},
-		TEN_TO_TWENTY {
-			@Override
-			public String toString() {
-				return SAMPLE_WEIGHT_TEN_TO_TWENTY_lbl;
-			}
-		},
-		TWENTY_TO_FIFTY {
-			@Override
-			public String toString() {
-				return SAMPLE_WEIGHT_TWENTY_TO_FIFTY_lbl;
-			}
-		};
+		LESS_THAN_ONE(SAMPLE_WEIGHT_LESS_THAN_1_lbl), ONE_TO_TEN(SAMPLE_WEIGHT_ONE_TO_TEN_lbl), TEN_TO_TWENTY(
+				SAMPLE_WEIGHT_TEN_TO_TWENTY_lbl), TWENTY_TO_FIFTY(SAMPLE_WEIGHT_TWENTY_TO_FIFTY_lbl);
+
+		private String value;
 
 		@Override
-		public abstract String toString();
+		public String toString() {
+			return value;
+		}
+
+		private SAMPLE_WEIGHT(String value) {
+			this.value = value;
+		}
 	}
 
 	/**
@@ -550,6 +537,8 @@ public class MotionControlComposite extends Composite {
 		btnSampleWeight20to50.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		btnSampleWeight20to50.addListener(SWT.MouseDown, ctrlMouseListener);
 		btnSampleWeight20to50.setFont(fontRegistry.get(BOLD_TEXT_7));
+
+		btnSampleWeight20to50.setSelection(true);
 		return sampleMotionControlComposite;
 	}
 
@@ -588,6 +577,7 @@ public class MotionControlComposite extends Composite {
 		txtXrayEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtXrayEnergy.addFocusListener(focusListener);
 		txtXrayEnergy.addKeyListener(txtKeyListener);
+		txtXrayEnergy.setEditable(false);
 		return beamlineControlComposite;
 	}
 
@@ -671,8 +661,7 @@ public class MotionControlComposite extends Composite {
 		cameraDistanceComposite.setLayout(layout);
 		cameraDistanceComposite.setBackground(ColorConstants.lightGray);
 
-		lblCameraDistance = toolkit.createLabel(cameraDistanceComposite, CAMERA_DISTANCE_lbl, SWT.WRAP
-				| SWT.CENTER);
+		lblCameraDistance = toolkit.createLabel(cameraDistanceComposite, CAMERA_DISTANCE_lbl, SWT.WRAP | SWT.CENTER);
 		lblCameraDistance.setFont(fontRegistry.get(NORMAL_TEXT_9));
 
 		GridData layoutData = new GridData(GridData.FILL_BOTH);
@@ -1330,7 +1319,7 @@ public class MotionControlComposite extends Composite {
 			throw ex;
 		}
 	}
-	
+
 	private void doVertical(boolean switchOn) throws Exception {
 		logger.debug("'Tilt' - is selected");
 		switchMotionCentring(switchOn, btnVertical);
@@ -1402,7 +1391,7 @@ public class MotionControlComposite extends Composite {
 
 	private void disableCommonControls() {
 		Control[] disableControlList = getCommonControlList();
-		
+
 		for (Control control : disableControlList) {
 			disable(control);
 		}
