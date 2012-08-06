@@ -61,6 +61,10 @@ public class FileContentProposalProvider implements IContentProposalProvider {
 	}
 
 	private IFilterExtensionProvider filterExtensionProv;
+	private IContentProposal[] currentProposals;
+	public int getSize() {
+		return currentProposals!=null ? currentProposals.length : -1;
+	}
 	
 	@Override
 	public IContentProposal[] getProposals(String contents, int position) {
@@ -71,11 +75,15 @@ public class FileContentProposalProvider implements IContentProposalProvider {
 		return ret;
 	}
 	
-	private IContentProposal[] getProposals(String existing, File dir) {
+	public String getFirstPath() {
+		return currentProposals!=null ? currentProposals[0].getContent() : null;
+	}
+
+    private IContentProposal[] getProposals(String existing, File dir) {
 		final File      [] fa  = dir.listFiles(new FilenameChecker());
 		if (fa == null) return null;
 		List<IContentProposal> ret = new ArrayList<IContentProposal>(fa.length);
-		ret.add(new FileContentProposal(dir));
+		//ret.add(new FileContentProposal(dir));
 		for (int i = 0; i < fa.length; i++) {
 			final File file = fa[i];
 			try {
@@ -88,7 +96,8 @@ public class FileContentProposalProvider implements IContentProposalProvider {
 			ret.add(new FileContentProposal(file));
 		}
 		if (ret.isEmpty()) return null;
-		return ret.toArray(new IContentProposal[ret.size()]);
+		this.currentProposals = ret.toArray(new IContentProposal[ret.size()]);
+		return currentProposals;
 	}
 
 	private File getDirectory(String contents, int position) {
