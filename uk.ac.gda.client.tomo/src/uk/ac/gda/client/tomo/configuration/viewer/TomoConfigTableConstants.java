@@ -42,19 +42,19 @@ public interface TomoConfigTableConstants {
 
 	public static final String SAMPLE_DESCRIPTION = "Description";
 	public static final String PROPOSAL = "Visit Id";
-	public static final String MODULE_NUMBER = "Module(mm)";
+	public static final String MODULE_NUMBER = "Module";
 	public static final String ACQUISITION_TIME = "Acq time(s)";
 	public static final String FLAT_ACQ_TIME = "Flat acq time(s)";
-	public static final String DETECTOR_DISTANCE = "Detector distance(mm)";
-	public static final String ENERGY = "Energy(keV)";
+	public static final String DETECTOR_DISTANCE = "Det-dist.";
+	public static final String ENERGY = "Energy";
 	public static final String SAMPLE_WEIGHT = "Weight (kgs)";
-	public static final String RESOLUTION = "Resolution";
-	public static final String FRAMES_PER_PROJECTION = "Frames Per Projection";
-	public static final String CONTINUOUS_STEP = "Continuous/Step";
+	public static final String RESOLUTION = "Res.";
+	public static final String FRAMES_PER_PROJECTION = "FpP";
+	public static final String CONTINUOUS_STEP = "C/S";
 	public static final String RUN_TIME = "Run time(s)";
 	public static final String EST_END_TIME = "Est. end time(s)";
-	public static final String TIME_DIVIDER = "Time divider(%)";
+	public static final String TIME_DIVIDER = "Time divider";
 	public static final String PROGRESS = "Progress";
-	public static final String SELECTION = "Selection";
-	public static final String SHOULD_DISPLAY = "Display?";
+	public static final String SELECTION = "Do";
+	public static final String SHOULD_DISPLAY = "Display";
 }

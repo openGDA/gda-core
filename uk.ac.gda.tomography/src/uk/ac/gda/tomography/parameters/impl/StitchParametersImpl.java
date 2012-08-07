@@ -7,9 +7,7 @@
 package uk.ac.gda.tomography.parameters.impl;
 
 import org.eclipse.emf.common.notify.Notification;
-
 import org.eclipse.emf.ecore.EClass;
-
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
 
@@ -125,6 +123,7 @@ public class StitchParametersImpl extends EObjectImpl implements StitchParameter
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getStitchingThetaAngle() {
 		return stitchingThetaAngle;
 	}
@@ -134,6 +133,7 @@ public class StitchParametersImpl extends EObjectImpl implements StitchParameter
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setStitchingThetaAngle(double newStitchingThetaAngle) {
 		double oldStitchingThetaAngle = stitchingThetaAngle;
 		stitchingThetaAngle = newStitchingThetaAngle;
@@ -148,6 +148,7 @@ public class StitchParametersImpl extends EObjectImpl implements StitchParameter
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetStitchingThetaAngle() {
 		double oldStitchingThetaAngle = stitchingThetaAngle;
 		boolean oldStitchingThetaAngleESet = stitchingThetaAngleESet;
@@ -162,6 +163,7 @@ public class StitchParametersImpl extends EObjectImpl implements StitchParameter
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetStitchingThetaAngle() {
 		return stitchingThetaAngleESet;
 	}
@@ -171,6 +173,7 @@ public class StitchParametersImpl extends EObjectImpl implements StitchParameter
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getImageAtTheta() {
 		return imageAtTheta;
 	}
@@ -180,6 +183,7 @@ public class StitchParametersImpl extends EObjectImpl implements StitchParameter
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setImageAtTheta(String newImageAtTheta) {
 		String oldImageAtTheta = imageAtTheta;
 		imageAtTheta = newImageAtTheta;
@@ -192,6 +196,7 @@ public class StitchParametersImpl extends EObjectImpl implements StitchParameter
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getImageAtThetaPlus90() {
 		return imageAtThetaPlus90;
 	}
@@ -201,6 +206,7 @@ public class StitchParametersImpl extends EObjectImpl implements StitchParameter
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setImageAtThetaPlus90(String newImageAtThetaPlus90) {
 		String oldImageAtThetaPlus90 = imageAtThetaPlus90;
 		imageAtThetaPlus90 = newImageAtThetaPlus90;

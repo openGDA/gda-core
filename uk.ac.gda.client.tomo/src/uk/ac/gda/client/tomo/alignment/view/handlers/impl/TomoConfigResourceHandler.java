@@ -25,8 +25,10 @@ import gda.jython.authenticator.UserAuthentication;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -48,18 +50,15 @@ import uk.ac.gda.tomography.parameters.AlignmentConfiguration;
 import uk.ac.gda.tomography.parameters.DetectorBin;
 import uk.ac.gda.tomography.parameters.DetectorProperties;
 import uk.ac.gda.tomography.parameters.DetectorRoi;
-import uk.ac.gda.tomography.parameters.DetectorStage;
 import uk.ac.gda.tomography.parameters.Module;
+import uk.ac.gda.tomography.parameters.MotorPosition;
 import uk.ac.gda.tomography.parameters.Parameters;
 import uk.ac.gda.tomography.parameters.Resolution;
-import uk.ac.gda.tomography.parameters.SampleStage;
 import uk.ac.gda.tomography.parameters.SampleWeight;
 import uk.ac.gda.tomography.parameters.StitchParameters;
 import uk.ac.gda.tomography.parameters.TomoExperiment;
 import uk.ac.gda.tomography.parameters.TomoParametersFactory;
 import uk.ac.gda.tomography.parameters.TomoParametersPackage;
-import uk.ac.gda.tomography.parameters.Unit;
-import uk.ac.gda.tomography.parameters.ValueUnit;
 import uk.ac.gda.tomography.parameters.util.TomoParametersResourceFactoryImpl;
 import uk.ac.gda.ui.components.CameraControlComposite.RESOLUTION;
 import uk.ac.gda.ui.components.MotionControlComposite.SAMPLE_WEIGHT;
@@ -108,7 +107,9 @@ public class TomoConfigResourceHandler implements ITomoConfigResourceHandler, In
 					// Detector properties
 					expConfiguration.setDetectorProperties(createDetectorProperties(saveableConfiguration));
 					// SampleStageParameters
-					expConfiguration.setSampleStageParameters(createSampleStage(saveableConfiguration));
+					addTomoAlignmentMotorPositions(saveableConfiguration.getMotorPositions(),
+							expConfiguration.getMotorPositions());
+					// expConfiguration.setSampleStageParameters(createSampleStage(saveableConfiguration));
 					// sample exposure time
 					expConfiguration.setSampleExposureTime(saveableConfiguration.getSampleAcquisitonTime());
 					// flat exposure time
@@ -119,8 +120,6 @@ public class TomoConfigResourceHandler implements ITomoConfigResourceHandler, In
 					expConfiguration.setCreatedDateTime(new Date());
 					// sampleWeight
 					expConfiguration.setSampleWeight(getSampleWeight(saveableConfiguration.getSampleWeight()));
-					// detectorStageParameters
-					expConfiguration.setDetectorStageParameters(createDetectorStageParameters(saveableConfiguration));
 					// stitching theta angle
 					expConfiguration.setStitchParameters(createStitchParameters(saveableConfiguration));
 					// add the configuration to the parameter set
@@ -146,27 +145,6 @@ public class TomoConfigResourceHandler implements ITomoConfigResourceHandler, In
 				return stitchParameters;
 			}
 
-			private DetectorStage createDetectorStageParameters(SaveableConfiguration saveableConfiguration) {
-				DetectorStage detectorStage = TomoParametersFactory.eINSTANCE.createDetectorStage();
-
-				ValueUnit x = TomoParametersFactory.eINSTANCE.createValueUnit();
-				x.setValue(saveableConfiguration.getDetectorStageX());
-				x.setUnits(Unit.MM);
-				detectorStage.setX(x);
-
-				ValueUnit y = TomoParametersFactory.eINSTANCE.createValueUnit();
-				y.setValue(saveableConfiguration.getDetectorStageY());
-				y.setUnits(Unit.MM);
-				detectorStage.setY(y);
-
-				ValueUnit z = TomoParametersFactory.eINSTANCE.createValueUnit();
-				z.setValue(saveableConfiguration.getDetectorStageZ());
-				z.setUnits(Unit.MM);
-				detectorStage.setZ(z);
-
-				return detectorStage;
-			}
-
 			private SampleWeight getSampleWeight(SAMPLE_WEIGHT sampleWeight) {
 				switch (sampleWeight) {
 				case LESS_THAN_ONE:
@@ -179,41 +157,6 @@ public class TomoConfigResourceHandler implements ITomoConfigResourceHandler, In
 					return SampleWeight.TWENTY_TO_FIFTY;
 				}
 				return null;
-			}
-
-			private SampleStage createSampleStage(SaveableConfiguration saveableConfiguration) {
-				SampleStage sampleStageProperties = TomoParametersFactory.eINSTANCE.createSampleStage();
-				ValueUnit baseX = TomoParametersFactory.eINSTANCE.createValueUnit();
-				baseX.setUnits(Unit.MM);
-				baseX.setValue(saveableConfiguration.getSampleBaseX());
-				sampleStageProperties.setBaseX(baseX);
-
-				ValueUnit vertical = TomoParametersFactory.eINSTANCE.createValueUnit();
-				vertical.setUnits(Unit.MM);
-				vertical.setValue(saveableConfiguration.getSampleVerticalPosition());
-				sampleStageProperties.setVertical(vertical);
-
-				ValueUnit centerX = TomoParametersFactory.eINSTANCE.createValueUnit();
-				centerX.setUnits(Unit.MM);
-				centerX.setValue(saveableConfiguration.getSampleCenterXPosition());
-				sampleStageProperties.setCenterX(centerX);
-
-				ValueUnit centerZ = TomoParametersFactory.eINSTANCE.createValueUnit();
-				centerZ.setUnits(Unit.MM);
-				centerZ.setValue(saveableConfiguration.getSampleCenterZPosition());
-				sampleStageProperties.setCenterZ(centerZ);
-
-				ValueUnit tiltX = TomoParametersFactory.eINSTANCE.createValueUnit();
-				tiltX.setUnits(Unit.MM);
-				tiltX.setValue(saveableConfiguration.getTiltX());
-				sampleStageProperties.setTiltX(tiltX);
-
-				ValueUnit tiltZ = TomoParametersFactory.eINSTANCE.createValueUnit();
-				tiltZ.setUnits(Unit.MM);
-				tiltZ.setValue(saveableConfiguration.getTiltZ());
-				sampleStageProperties.setTiltZ(tiltZ);
-				//
-				return sampleStageProperties;
 			}
 
 			private DetectorProperties createDetectorProperties(SaveableConfiguration saveableConfiguration) {
@@ -241,12 +184,7 @@ public class TomoConfigResourceHandler implements ITomoConfigResourceHandler, In
 				// module parameters
 				Module modulePosition = TomoParametersFactory.eINSTANCE.createModule();
 				modulePosition.setModuleNumber(saveableConfiguration.getModuleNumber());
-
-				ValueUnit horizontalFieldOfView = TomoParametersFactory.eINSTANCE.createValueUnit();
-				horizontalFieldOfView.setUnits(Unit.MICRONS);
-				horizontalFieldOfView.setValue(saveableConfiguration.getHorizontalFieldOfView());
-				modulePosition.setHorizontalFieldOfView(horizontalFieldOfView);
-
+				modulePosition.setHorizontalFieldOfView(saveableConfiguration.getHorizontalFieldOfView());
 				//
 				detectorProperties.setModuleParameters(modulePosition);
 
@@ -269,6 +207,19 @@ public class TomoConfigResourceHandler implements ITomoConfigResourceHandler, In
 		};
 		saveConfigurationOperation.run(monitor);
 
+	}
+
+	protected void addTomoAlignmentMotorPositions(
+			ArrayList<uk.ac.gda.client.tomo.alignment.view.controller.SaveableConfiguration.MotorPosition> savedMotorPositions,
+			List<MotorPosition> motorPositions) {
+
+		for (uk.ac.gda.client.tomo.alignment.view.controller.SaveableConfiguration.MotorPosition motorPosition : savedMotorPositions) {
+			MotorPosition mp = TomoParametersFactory.eINSTANCE.createMotorPosition();
+			mp.setName(motorPosition.getName());
+			mp.setPosition(motorPosition.getPosition());
+			motorPositions.add(mp);
+		}
+		//
 	}
 
 	/**

@@ -26,6 +26,7 @@ import gov.aps.jca.TimeoutException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -52,6 +53,7 @@ import uk.ac.gda.client.tomo.TiltPlotPointsHolder;
 import uk.ac.gda.client.tomo.alignment.view.IRotationMotorListener;
 import uk.ac.gda.client.tomo.alignment.view.ITomoAlignmentView;
 import uk.ac.gda.client.tomo.alignment.view.controller.SaveableConfiguration.AlignmentScanMode;
+import uk.ac.gda.client.tomo.alignment.view.controller.SaveableConfiguration.MotorPosition;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraModuleController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraMotionController;
@@ -1067,36 +1069,34 @@ public class TomoAlignmentViewController implements InitializingBean {
 		Double horizontalFieldOfView = moduleLookupTableHandler.lookupHFOV(CAMERA_MODULE.getEnum(saveableConfiguration
 				.getModuleNumber()));
 		saveableConfiguration.setModuleHorizontalFieldOfView(horizontalFieldOfView);
-		// cam1 x
-		saveableConfiguration.setModuleX(motorHandler.getCam1XPosition());
-		// cam1z
-		saveableConfiguration.setModuleZ(motorHandler.getCam1ZPosition());
-		// cam1roll
-		saveableConfiguration.setModuleRoll(motorHandler.getCam1RollPosition());
 		// sample stage parameters
 		// basex
-		saveableConfiguration.setSampleBaseX(motorHandler.getSampleBaseMotorPosition());
-		// Y position
-		saveableConfiguration.setSampleVerticalPosition(motorHandler.getVerticalPosition());
-		// center x
-		saveableConfiguration.setSampleCenterXPosition(motorHandler.getSs1TxPosition());
-		// center z
-		saveableConfiguration.setSampleCenterZPosition(motorHandler.getSs1TzPosition());
+		ArrayList<MotorPosition> motorPositions = saveableConfiguration.getMotorPositions();
+		// ss1_x
+		motorPositions.add(new MotorPosition(motorHandler.getSampleBaseMotorName(), motorHandler
+				.getSampleBaseMotorPosition()));
+		// ss1_y
+		motorPositions.add(new MotorPosition(motorHandler.getVerticalMotorName(), motorHandler.getVerticalPosition()));
+		// ss1_tx
+		motorPositions.add(new MotorPosition(motorHandler.getCentreXMotorName(), motorHandler.getSs1TxPosition()));
+		// ss1_tz
+		motorPositions.add(new MotorPosition(motorHandler.getCentreZMotorName(), motorHandler.getSs1TzPosition()));
 		// tilt x
-		saveableConfiguration.setTiltX(motorHandler.getSs1RxPosition());
+		motorPositions.add(new MotorPosition(motorHandler.getTiltXMotorName(), motorHandler.getSs1RxPosition()));
 		// tilt z
-		saveableConfiguration.setTiltZ(motorHandler.getSs1RzPosition());
+		motorPositions.add(new MotorPosition(motorHandler.getTiltZMotorName(), motorHandler.getSs1RzPosition()));
 		//
 		// sample exposure time - provided by view
 		// flat exposure time - provided by view
 		// sampleWeight - provided by view
 		// detector stage parameters
 		// x
-		saveableConfiguration.setDetectorStageX(motorHandler.getT3XPosition());
+		motorPositions.add(new MotorPosition(motorHandler.getT3XMotorName(), motorHandler.getT3XPosition()));
 		// y
-		saveableConfiguration.setDetectorStageY(motorHandler.getT3M1YPosition());
+		motorPositions.add(new MotorPosition(motorHandler.getT3m1YMotorName(), motorHandler.getT3M1YPosition()));
 		// z
-		saveableConfiguration.setDetectorStageZ(motorHandler.getT3M1ZPosition());
+		motorPositions.add(new MotorPosition(motorHandler.getT3m1ZMotorName(), motorHandler.getT3M1ZPosition()));
+
 		// image location at theta - provided by view
 		// Image location at theta +90 - provided by view
 

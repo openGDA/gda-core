@@ -26,6 +26,7 @@ import org.eclipse.swt.graphics.Image;
 
 import uk.ac.gda.client.tomo.ImageConstants;
 import uk.ac.gda.client.tomo.TomoClientActivator;
+import uk.ac.gda.client.tomo.TomoClientConstants;
 
 public class TomoConfigLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider {
 	@Override
@@ -110,16 +111,18 @@ public class TomoConfigLabelProvider extends LabelProvider implements ITableLabe
 
 	@Override
 	public Color getBackground(Object element, int columnIndex) {
-		if (element instanceof TomoConfigContent) {
-			switch (((TomoConfigContent) element).getStatus()) {
-			case COMPLETE:
-				return COLOR_COMPLETE;
-			case RUNNING:
-				return COLOR_RUNNING;
-			case NONE:
-				return COLOR_NONE;
-			case FAIL:
-				return COLOR_FAIL;
+		if (columnIndex == TomoConfigTableConstants.COL_PROGRESS) {
+			if (element instanceof TomoConfigContent) {
+				switch (((TomoConfigContent) element).getStatus()) {
+				case COMPLETE:
+					return COLOR_COMPLETE;
+				case RUNNING:
+					return COLOR_RUNNING;
+				case NONE:
+					return COLOR_NONE;
+				case FAIL:
+					return COLOR_FAIL;
+				}
 			}
 
 		}

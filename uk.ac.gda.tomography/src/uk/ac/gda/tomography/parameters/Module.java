@@ -80,56 +80,29 @@ public interface Module extends EObject {
 	boolean isSetModuleNumber();
 
 	/**
-	 * Returns the value of the '<em><b>Horizontal Field Of View</b></em>' containment reference.
+	 * Returns the value of the '<em><b>Horizontal Field Of View</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Horizontal Field Of View</em>' containment reference isn't clear,
 	 * there really should be more of a description here...
 	 * </p>
 	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Horizontal Field Of View</em>' containment reference.
-	 * @see #isSetHorizontalFieldOfView()
-	 * @see #unsetHorizontalFieldOfView()
-	 * @see #setHorizontalFieldOfView(ValueUnit)
+	 * @return the value of the '<em>Horizontal Field Of View</em>' attribute.
+	 * @see #setHorizontalFieldOfView(double)
 	 * @see uk.ac.gda.tomography.parameters.TomoParametersPackage#getModule_HorizontalFieldOfView()
-	 * @model containment="true" unsettable="true"
+	 * @model
 	 * @generated
 	 */
-	ValueUnit getHorizontalFieldOfView();
+	double getHorizontalFieldOfView();
 
 	/**
-	 * Sets the value of the '{@link uk.ac.gda.tomography.parameters.Module#getHorizontalFieldOfView <em>Horizontal Field Of View</em>}' containment reference.
+	 * Sets the value of the '{@link uk.ac.gda.tomography.parameters.Module#getHorizontalFieldOfView <em>Horizontal Field Of View</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Horizontal Field Of View</em>' containment reference.
-	 * @see #isSetHorizontalFieldOfView()
-	 * @see #unsetHorizontalFieldOfView()
+	 * @param value the new value of the '<em>Horizontal Field Of View</em>' attribute.
 	 * @see #getHorizontalFieldOfView()
 	 * @generated
 	 */
-	void setHorizontalFieldOfView(ValueUnit value);
-
-	/**
-	 * Unsets the value of the '{@link uk.ac.gda.tomography.parameters.Module#getHorizontalFieldOfView <em>Horizontal Field Of View</em>}' containment reference.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #isSetHorizontalFieldOfView()
-	 * @see #getHorizontalFieldOfView()
-	 * @see #setHorizontalFieldOfView(ValueUnit)
-	 * @generated
-	 */
-	void unsetHorizontalFieldOfView();
-
-	/**
-	 * Returns whether the value of the '{@link uk.ac.gda.tomography.parameters.Module#getHorizontalFieldOfView <em>Horizontal Field Of View</em>}' containment reference is set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return whether the value of the '<em>Horizontal Field Of View</em>' containment reference is set.
-	 * @see #unsetHorizontalFieldOfView()
-	 * @see #getHorizontalFieldOfView()
-	 * @see #setHorizontalFieldOfView(ValueUnit)
-	 * @generated
-	 */
-	boolean isSetHorizontalFieldOfView();
+	void setHorizontalFieldOfView(double value);
 
 } // Module

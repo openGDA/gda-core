@@ -7,15 +7,12 @@
 package uk.ac.gda.tomography.parameters.impl;
 
 import org.eclipse.emf.common.notify.Notification;
-import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
 
 import uk.ac.gda.tomography.parameters.Module;
 import uk.ac.gda.tomography.parameters.TomoParametersPackage;
-import uk.ac.gda.tomography.parameters.ValueUnit;
 
 /**
  * <!-- begin-user-doc -->
@@ -62,23 +59,24 @@ public class ModuleImpl extends EObjectImpl implements Module {
 	protected boolean moduleNumberESet;
 
 	/**
-	 * The cached value of the '{@link #getHorizontalFieldOfView() <em>Horizontal Field Of View</em>}' containment reference.
+	 * The default value of the '{@link #getHorizontalFieldOfView() <em>Horizontal Field Of View</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @see #getHorizontalFieldOfView()
 	 * @generated
 	 * @ordered
 	 */
-	protected ValueUnit horizontalFieldOfView;
+	protected static final double HORIZONTAL_FIELD_OF_VIEW_EDEFAULT = 0.0;
 
 	/**
-	 * This is true if the Horizontal Field Of View containment reference has been set.
+	 * The cached value of the '{@link #getHorizontalFieldOfView() <em>Horizontal Field Of View</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
+	 * @see #getHorizontalFieldOfView()
 	 * @generated
 	 * @ordered
 	 */
-	protected boolean horizontalFieldOfViewESet;
+	protected double horizontalFieldOfView = HORIZONTAL_FIELD_OF_VIEW_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -104,6 +102,7 @@ public class ModuleImpl extends EObjectImpl implements Module {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Integer getModuleNumber() {
 		return moduleNumber;
 	}
@@ -113,6 +112,7 @@ public class ModuleImpl extends EObjectImpl implements Module {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setModuleNumber(Integer newModuleNumber) {
 		Integer oldModuleNumber = moduleNumber;
 		moduleNumber = newModuleNumber;
@@ -127,6 +127,7 @@ public class ModuleImpl extends EObjectImpl implements Module {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetModuleNumber() {
 		Integer oldModuleNumber = moduleNumber;
 		boolean oldModuleNumberESet = moduleNumberESet;
@@ -141,6 +142,7 @@ public class ModuleImpl extends EObjectImpl implements Module {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetModuleNumber() {
 		return moduleNumberESet;
 	}
@@ -150,7 +152,8 @@ public class ModuleImpl extends EObjectImpl implements Module {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public ValueUnit getHorizontalFieldOfView() {
+	@Override
+	public double getHorizontalFieldOfView() {
 		return horizontalFieldOfView;
 	}
 
@@ -159,99 +162,12 @@ public class ModuleImpl extends EObjectImpl implements Module {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public NotificationChain basicSetHorizontalFieldOfView(ValueUnit newHorizontalFieldOfView, NotificationChain msgs) {
-		ValueUnit oldHorizontalFieldOfView = horizontalFieldOfView;
-		horizontalFieldOfView = newHorizontalFieldOfView;
-		boolean oldHorizontalFieldOfViewESet = horizontalFieldOfViewESet;
-		horizontalFieldOfViewESet = true;
-		if (eNotificationRequired()) {
-			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, TomoParametersPackage.MODULE__HORIZONTAL_FIELD_OF_VIEW, oldHorizontalFieldOfView, newHorizontalFieldOfView, !oldHorizontalFieldOfViewESet);
-			if (msgs == null) msgs = notification; else msgs.add(notification);
-		}
-		return msgs;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setHorizontalFieldOfView(ValueUnit newHorizontalFieldOfView) {
-		if (newHorizontalFieldOfView != horizontalFieldOfView) {
-			NotificationChain msgs = null;
-			if (horizontalFieldOfView != null)
-				msgs = ((InternalEObject)horizontalFieldOfView).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - TomoParametersPackage.MODULE__HORIZONTAL_FIELD_OF_VIEW, null, msgs);
-			if (newHorizontalFieldOfView != null)
-				msgs = ((InternalEObject)newHorizontalFieldOfView).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - TomoParametersPackage.MODULE__HORIZONTAL_FIELD_OF_VIEW, null, msgs);
-			msgs = basicSetHorizontalFieldOfView(newHorizontalFieldOfView, msgs);
-			if (msgs != null) msgs.dispatch();
-		}
-		else {
-			boolean oldHorizontalFieldOfViewESet = horizontalFieldOfViewESet;
-			horizontalFieldOfViewESet = true;
-			if (eNotificationRequired())
-				eNotify(new ENotificationImpl(this, Notification.SET, TomoParametersPackage.MODULE__HORIZONTAL_FIELD_OF_VIEW, newHorizontalFieldOfView, newHorizontalFieldOfView, !oldHorizontalFieldOfViewESet));
-		}
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public NotificationChain basicUnsetHorizontalFieldOfView(NotificationChain msgs) {
-		ValueUnit oldHorizontalFieldOfView = horizontalFieldOfView;
-		horizontalFieldOfView = null;
-		boolean oldHorizontalFieldOfViewESet = horizontalFieldOfViewESet;
-		horizontalFieldOfViewESet = false;
-		if (eNotificationRequired()) {
-			ENotificationImpl notification = new ENotificationImpl(this, Notification.UNSET, TomoParametersPackage.MODULE__HORIZONTAL_FIELD_OF_VIEW, oldHorizontalFieldOfView, null, oldHorizontalFieldOfViewESet);
-			if (msgs == null) msgs = notification; else msgs.add(notification);
-		}
-		return msgs;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void unsetHorizontalFieldOfView() {
-		if (horizontalFieldOfView != null) {
-			NotificationChain msgs = null;
-			msgs = ((InternalEObject)horizontalFieldOfView).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - TomoParametersPackage.MODULE__HORIZONTAL_FIELD_OF_VIEW, null, msgs);
-			msgs = basicUnsetHorizontalFieldOfView(msgs);
-			if (msgs != null) msgs.dispatch();
-		}
-		else {
-			boolean oldHorizontalFieldOfViewESet = horizontalFieldOfViewESet;
-			horizontalFieldOfViewESet = false;
-			if (eNotificationRequired())
-				eNotify(new ENotificationImpl(this, Notification.UNSET, TomoParametersPackage.MODULE__HORIZONTAL_FIELD_OF_VIEW, null, null, oldHorizontalFieldOfViewESet));
-		}
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public boolean isSetHorizontalFieldOfView() {
-		return horizontalFieldOfViewESet;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	@Override
-	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
-		switch (featureID) {
-			case TomoParametersPackage.MODULE__HORIZONTAL_FIELD_OF_VIEW:
-				return basicUnsetHorizontalFieldOfView(msgs);
-		}
-		return super.eInverseRemove(otherEnd, featureID, msgs);
+	public void setHorizontalFieldOfView(double newHorizontalFieldOfView) {
+		double oldHorizontalFieldOfView = horizontalFieldOfView;
+		horizontalFieldOfView = newHorizontalFieldOfView;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, TomoParametersPackage.MODULE__HORIZONTAL_FIELD_OF_VIEW, oldHorizontalFieldOfView, horizontalFieldOfView));
 	}
 
 	/**
@@ -282,7 +198,7 @@ public class ModuleImpl extends EObjectImpl implements Module {
 				setModuleNumber((Integer)newValue);
 				return;
 			case TomoParametersPackage.MODULE__HORIZONTAL_FIELD_OF_VIEW:
-				setHorizontalFieldOfView((ValueUnit)newValue);
+				setHorizontalFieldOfView((Double)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -300,7 +216,7 @@ public class ModuleImpl extends EObjectImpl implements Module {
 				unsetModuleNumber();
 				return;
 			case TomoParametersPackage.MODULE__HORIZONTAL_FIELD_OF_VIEW:
-				unsetHorizontalFieldOfView();
+				setHorizontalFieldOfView(HORIZONTAL_FIELD_OF_VIEW_EDEFAULT);
 				return;
 		}
 		super.eUnset(featureID);
@@ -317,7 +233,7 @@ public class ModuleImpl extends EObjectImpl implements Module {
 			case TomoParametersPackage.MODULE__MODULE_NUMBER:
 				return isSetModuleNumber();
 			case TomoParametersPackage.MODULE__HORIZONTAL_FIELD_OF_VIEW:
-				return isSetHorizontalFieldOfView();
+				return horizontalFieldOfView != HORIZONTAL_FIELD_OF_VIEW_EDEFAULT;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -334,6 +250,8 @@ public class ModuleImpl extends EObjectImpl implements Module {
 		StringBuffer result = new StringBuffer(super.toString());
 		result.append(" (moduleNumber: ");
 		if (moduleNumberESet) result.append(moduleNumber); else result.append("<unset>");
+		result.append(", horizontalFieldOfView: ");
+		result.append(horizontalFieldOfView);
 		result.append(')');
 		return result.toString();
 	}

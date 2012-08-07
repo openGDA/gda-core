@@ -25,6 +25,11 @@ import uk.ac.gda.ui.components.CameraControlComposite;
 import uk.ac.gda.ui.components.MotionControlComposite.SAMPLE_WEIGHT;
 
 public class TomoConfigViewerUtil {
+	/**
+	 * XXX - Need to move this into a configurable value
+	 */
+	private static final String T3_M1Z = "t3_m1z";
+
 	public static void setupConfigContent(AlignmentConfiguration alignmentConfiguration, TomoConfigContent configContent) {
 		configContent.setSelectedToRun(alignmentConfiguration.getSelectedToRun());
 		configContent.setSampleExposureTime(alignmentConfiguration.getSampleExposureTime());
@@ -35,7 +40,8 @@ public class TomoConfigViewerUtil {
 		configContent.setModuleNumber(alignmentConfiguration.getDetectorProperties().getModuleParameters()
 				.getModuleNumber());
 		configContent.setEnergy(alignmentConfiguration.getEnergy());
-		configContent.setSampleDetectorDistance(alignmentConfiguration.getDetectorStageParameters().getZ().getValue());
+		configContent.setSampleDetectorDistance(alignmentConfiguration.getMotorPosition(T3_M1Z));
+
 		configContent.setSampleWeight(getSampleWeightString(alignmentConfiguration.getSampleWeight()));
 		configContent.setResolution(getResolutionString(alignmentConfiguration.getDetectorProperties()
 				.getDesired3DResolution()));
@@ -43,7 +49,7 @@ public class TomoConfigViewerUtil {
 				.getNumberOfFramerPerProjection());
 		configContent.setScanMode(alignmentConfiguration.getScanMode().toString());
 		configContent.setModuleObjectPixelSize(alignmentConfiguration.getDetectorProperties().getModuleParameters()
-				.getHorizontalFieldOfView().getValue());
+				.getHorizontalFieldOfView());
 	}
 
 	private static String getResolutionString(Resolution desired3dResolution) {

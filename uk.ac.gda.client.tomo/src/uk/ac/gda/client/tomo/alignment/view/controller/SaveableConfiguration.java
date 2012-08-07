@@ -18,6 +18,8 @@
 
 package uk.ac.gda.client.tomo.alignment.view.controller;
 
+import java.util.ArrayList;
+
 import uk.ac.gda.ui.components.CameraControlComposite.RESOLUTION;
 import uk.ac.gda.ui.components.MotionControlComposite.SAMPLE_WEIGHT;
 
@@ -30,16 +32,6 @@ public class SaveableConfiguration {
 	}
 
 	private int moduleNumber;
-
-	private double sampleVerticalPosition;
-
-	private double sampleCenterXPosition;
-
-	private double sampleCenterZPosition;
-
-	private double tiltZPosition;
-
-	private double tiltXPosition;
 
 	private double sampleAcquisitonTime;
 
@@ -71,24 +63,6 @@ public class SaveableConfiguration {
 
 	private double totalRunTime;
 
-	private double moduleX;
-
-	private double moduleZ;
-
-	private double moduleRoll;
-
-	private double sampleBaseX;
-
-	private double tiltX;
-
-	private double tiltZ;
-
-	private double detectorStageX;
-
-	private double detectorStageY;
-
-	private double detectorStageZ;
-
 	private double stitchingAngle;
 
 	private String imageLocationAtThetaPlus90;
@@ -96,6 +70,38 @@ public class SaveableConfiguration {
 	private String imageLocationAtTheta;
 
 	private Double horizontalFieldOfView;
+
+	private ArrayList<MotorPosition> motorPositions = new ArrayList<SaveableConfiguration.MotorPosition>();
+
+	private int tomoRotationAxis;
+
+	public static class MotorPosition {
+		private String name;
+
+		private double position;
+
+		public MotorPosition(String name, double position) {
+			this.name = name;
+			this.position = position;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public double getPosition() {
+			return position;
+		}
+
+		public void setPosition(double position) {
+			this.position = position;
+		}
+
+	}
 
 	/**
 	 * @return Returns the moduleNumber.
@@ -110,81 +116,6 @@ public class SaveableConfiguration {
 	 */
 	public void setModuleNumber(int moduleNumber) {
 		this.moduleNumber = moduleNumber;
-	}
-
-	/**
-	 * @return Returns the sampleVerticalPosition.
-	 */
-	public double getSampleVerticalPosition() {
-		return sampleVerticalPosition;
-	}
-
-	/**
-	 * @param sampleVerticalPosition
-	 *            The sampleVerticalPosition to set.
-	 */
-	public void setSampleVerticalPosition(double sampleVerticalPosition) {
-		this.sampleVerticalPosition = sampleVerticalPosition;
-	}
-
-	/**
-	 * @return Returns the sampleCenterXPosition.
-	 */
-	public double getSampleCenterXPosition() {
-		return sampleCenterXPosition;
-	}
-
-	/**
-	 * @param sampleCenterXPosition
-	 *            The sampleCenterXPosition to set.
-	 */
-	public void setSampleCenterXPosition(double sampleCenterXPosition) {
-		this.sampleCenterXPosition = sampleCenterXPosition;
-	}
-
-	/**
-	 * @return Returns the sampleCenterZPosition.
-	 */
-	public double getSampleCenterZPosition() {
-		return sampleCenterZPosition;
-	}
-
-	/**
-	 * @param sampleCenterZPosition
-	 *            The sampleCenterZPosition to set.
-	 */
-	public void setSampleCenterZPosition(double sampleCenterZPosition) {
-		this.sampleCenterZPosition = sampleCenterZPosition;
-	}
-
-	/**
-	 * @return Returns the tiltZPosition.
-	 */
-	public double getTiltZPosition() {
-		return tiltZPosition;
-	}
-
-	/**
-	 * @param tiltZPosition
-	 *            The tiltZPosition to set.
-	 */
-	public void setTiltZPosition(double tiltZPosition) {
-		this.tiltZPosition = tiltZPosition;
-	}
-
-	/**
-	 * @return Returns the tiltXPosition.
-	 */
-	public double getTiltXPosition() {
-		return tiltXPosition;
-	}
-
-	/**
-	 * @param tiltXPosition
-	 *            The tiltXPosition to set.
-	 */
-	public void setTiltXPosition(double tiltXPosition) {
-		this.tiltXPosition = tiltXPosition;
 	}
 
 	/**
@@ -412,78 +343,6 @@ public class SaveableConfiguration {
 		this.totalRunTime = totalRunTime;
 	}
 
-	public double getModuleRoll() {
-		return moduleRoll;
-	}
-
-	public void setModuleRoll(double moduleRoll) {
-		this.moduleRoll = moduleRoll;
-	}
-
-	public double getModuleZ() {
-		return moduleZ;
-	}
-
-	public void setModuleZ(double moduleZ) {
-		this.moduleZ = moduleZ;
-	}
-
-	public double getModuleX() {
-		return moduleX;
-	}
-
-	public void setModuleX(double moduleX) {
-		this.moduleX = moduleX;
-	}
-
-	public double getSampleBaseX() {
-		return sampleBaseX;
-	}
-
-	public void setSampleBaseX(double sampleBaseX) {
-		this.sampleBaseX = sampleBaseX;
-	}
-
-	public double getTiltX() {
-		return tiltX;
-	}
-
-	public void setTiltX(double tiltX) {
-		this.tiltX = tiltX;
-	}
-
-	public double getTiltZ() {
-		return tiltZ;
-	}
-
-	public void setTiltZ(double tiltZ) {
-		this.tiltZ = tiltZ;
-	}
-
-	public double getDetectorStageX() {
-		return detectorStageX;
-	}
-
-	public void setDetectorStageX(double detectorStageX) {
-		this.detectorStageX = detectorStageX;
-	}
-
-	public double getDetectorStageY() {
-		return detectorStageY;
-	}
-
-	public void setDetectorStageY(double detectorStageY) {
-		this.detectorStageY = detectorStageY;
-	}
-
-	public double getDetectorStageZ() {
-		return detectorStageZ;
-	}
-
-	public void setDetectorStageZ(double detectorStageZ) {
-		this.detectorStageZ = detectorStageZ;
-	}
-
 	public void setStitchingAngle(double thetaValue) {
 		this.stitchingAngle = thetaValue;
 	}
@@ -515,4 +374,17 @@ public class SaveableConfiguration {
 	public Double getHorizontalFieldOfView() {
 		return horizontalFieldOfView;
 	}
+
+	public ArrayList<MotorPosition> getMotorPositions() {
+		return motorPositions;
+	}
+
+	public void setTomoRotationAxis(int tomoRotationAxis) {
+		this.tomoRotationAxis = tomoRotationAxis;
+	}
+
+	public int getTomoRotationAxis() {
+		return tomoRotationAxis;
+	}
+
 }

@@ -480,4 +480,19 @@ public interface IMotorHandler extends ITomoHandler {
 	 */
 	String getCameraStageZMotorName();
 
+	/**
+	 * @return name of the detector stage x motor
+	 */
+	String getT3XMotorName();
+
+	/**
+	 * @return detector stage z motor
+	 */
+	String getT3m1ZMotorName();
+
+	/**
+	 * @return name of the detector stage y motor
+	 */
+	String getT3m1YMotorName();
+
 }

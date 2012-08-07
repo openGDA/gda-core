@@ -409,4 +409,22 @@ public class TomoAlignmentMotorHandlerSimulator implements IMotorHandler {
 		return null;
 	}
 
+	@Override
+	public String getT3XMotorName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getT3m1ZMotorName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getT3m1YMotorName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

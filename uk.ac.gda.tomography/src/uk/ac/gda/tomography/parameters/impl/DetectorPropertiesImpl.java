@@ -582,6 +582,7 @@ public class DetectorPropertiesImpl extends EObjectImpl implements DetectorPrope
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setModuleParameters(Module newModuleParameters) {
 		if (newModuleParameters != moduleParameters) {
 			NotificationChain msgs = null;

@@ -35,24 +35,6 @@ public interface TomoParametersFactory extends EFactory {
 	TomoExperiment createTomoExperiment();
 
 	/**
-	 * Returns a new object of class '<em>Value Unit</em>'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return a new object of class '<em>Value Unit</em>'.
-	 * @generated
-	 */
-	ValueUnit createValueUnit();
-
-	/**
-	 * Returns a new object of class '<em>Detector Stage</em>'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return a new object of class '<em>Detector Stage</em>'.
-	 * @generated
-	 */
-	DetectorStage createDetectorStage();
-
-	/**
 	 * Returns a new object of class '<em>Module</em>'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -60,6 +42,15 @@ public interface TomoParametersFactory extends EFactory {
 	 * @generated
 	 */
 	Module createModule();
+
+	/**
+	 * Returns a new object of class '<em>Motor Position</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return a new object of class '<em>Motor Position</em>'.
+	 * @generated
+	 */
+	MotorPosition createMotorPosition();
 
 	/**
 	 * Returns a new object of class '<em>Detector Bin</em>'.
@@ -105,15 +96,6 @@ public interface TomoParametersFactory extends EFactory {
 	 * @generated
 	 */
 	Parameters createParameters();
-
-	/**
-	 * Returns a new object of class '<em>Sample Stage</em>'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return a new object of class '<em>Sample Stage</em>'.
-	 * @generated
-	 */
-	SampleStage createSampleStage();
 
 	/**
 	 * Returns a new object of class '<em>Stitch Parameters</em>'.

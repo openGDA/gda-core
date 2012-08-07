@@ -1,34 +1,33 @@
 /**
- * <copyright>
- * </copyright>
- *
- * $Id$
+ * <copyright> </copyright> $Id$
  */
 package uk.ac.gda.tomography.parameters.impl;
 
+import java.util.Collection;
 import java.util.Date;
 
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
+import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.emf.ecore.util.InternalEList;
 
 import uk.ac.gda.tomography.parameters.AlignmentConfiguration;
 import uk.ac.gda.tomography.parameters.DetectorProperties;
-import uk.ac.gda.tomography.parameters.DetectorStage;
-import uk.ac.gda.tomography.parameters.SampleStage;
+import uk.ac.gda.tomography.parameters.MotorPosition;
 import uk.ac.gda.tomography.parameters.SampleWeight;
 import uk.ac.gda.tomography.parameters.ScanMode;
 import uk.ac.gda.tomography.parameters.StitchParameters;
 import uk.ac.gda.tomography.parameters.TomoParametersPackage;
 
 /**
- * <!-- begin-user-doc -->
- * An implementation of the model object '<em><b>Alignment Configuration</b></em>'.
- * <!-- end-user-doc -->
+ * <!-- begin-user-doc --> An implementation of the model object '<em><b>Alignment Configuration</b></em>'. <!--
+ * end-user-doc -->
  * <p>
  * The following features are implemented:
  * <ul>
@@ -36,17 +35,19 @@ import uk.ac.gda.tomography.parameters.TomoParametersPackage;
  *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getEnergy <em>Energy</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getDescription <em>Description</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getDetectorProperties <em>Detector Properties</em>}</li>
- *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getSampleStageParameters <em>Sample Stage Parameters</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getScanMode <em>Scan Mode</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getSampleExposureTime <em>Sample Exposure Time</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getFlatExposureTime <em>Flat Exposure Time</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getCreatedUserId <em>Created User Id</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getCreatedDateTime <em>Created Date Time</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getSampleWeight <em>Sample Weight</em>}</li>
- *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getDetectorStageParameters <em>Detector Stage Parameters</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getProposalId <em>Proposal Id</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getStitchParameters <em>Stitch Parameters</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getSelectedToRun <em>Selected To Run</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getMotorPositions <em>Motor Positions</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getInBeamPosition <em>In Beam Position</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getOutOfBeamPosition <em>Out Of Beam Position</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getTomoRotationAxis <em>Tomo Rotation Axis</em>}</li>
  * </ul>
  * </p>
  *
@@ -55,8 +56,7 @@ import uk.ac.gda.tomography.parameters.TomoParametersPackage;
 public class AlignmentConfigurationImpl extends EObjectImpl implements AlignmentConfiguration {
 	/**
 	 * The default value of the '{@link #getId() <em>Id</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @see #getId()
 	 * @generated
 	 * @ordered
@@ -65,8 +65,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 
 	/**
 	 * The cached value of the '{@link #getId() <em>Id</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @see #getId()
 	 * @generated
 	 * @ordered
@@ -75,8 +74,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 
 	/**
 	 * This is true if the Id attribute has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
@@ -84,8 +82,8 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 
 	/**
 	 * The default value of the '{@link #getEnergy() <em>Energy</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
 	 * @see #getEnergy()
 	 * @generated
 	 * @ordered
@@ -94,8 +92,8 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 
 	/**
 	 * The cached value of the '{@link #getEnergy() <em>Energy</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
 	 * @see #getEnergy()
 	 * @generated
 	 * @ordered
@@ -104,8 +102,8 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 
 	/**
 	 * The default value of the '{@link #getDescription() <em>Description</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
 	 * @see #getDescription()
 	 * @generated
 	 * @ordered
@@ -114,8 +112,8 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 
 	/**
 	 * The cached value of the '{@link #getDescription() <em>Description</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
 	 * @see #getDescription()
 	 * @generated
 	 * @ordered
@@ -124,8 +122,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 
 	/**
 	 * The cached value of the '{@link #getDetectorProperties() <em>Detector Properties</em>}' containment reference.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @see #getDetectorProperties()
 	 * @generated
 	 * @ordered
@@ -134,36 +131,17 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 
 	/**
 	 * This is true if the Detector Properties containment reference has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
 	protected boolean detectorPropertiesESet;
 
 	/**
-	 * The cached value of the '{@link #getSampleStageParameters() <em>Sample Stage Parameters</em>}' containment reference.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getSampleStageParameters()
-	 * @generated
-	 * @ordered
-	 */
-	protected SampleStage sampleStageParameters;
-
-	/**
-	 * This is true if the Sample Stage Parameters containment reference has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	protected boolean sampleStageParametersESet;
-
-	/**
 	 * The default value of the '{@link #getScanMode() <em>Scan Mode</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
 	 * @see #getScanMode()
 	 * @generated
 	 * @ordered
@@ -172,8 +150,8 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 
 	/**
 	 * The cached value of the '{@link #getScanMode() <em>Scan Mode</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
 	 * @see #getScanMode()
 	 * @generated
 	 * @ordered
@@ -182,17 +160,16 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 
 	/**
 	 * This is true if the Scan Mode attribute has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
 	protected boolean scanModeESet;
 
 	/**
-	 * The default value of the '{@link #getSampleExposureTime() <em>Sample Exposure Time</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The default value of the '{@link #getSampleExposureTime() <em>Sample Exposure Time</em>}' attribute. <!--
+	 * begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getSampleExposureTime()
 	 * @generated
 	 * @ordered
@@ -200,9 +177,9 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	protected static final double SAMPLE_EXPOSURE_TIME_EDEFAULT = 0.0;
 
 	/**
-	 * The cached value of the '{@link #getSampleExposureTime() <em>Sample Exposure Time</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The cached value of the '{@link #getSampleExposureTime() <em>Sample Exposure Time</em>}' attribute. <!--
+	 * begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getSampleExposureTime()
 	 * @generated
 	 * @ordered
@@ -211,17 +188,16 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 
 	/**
 	 * This is true if the Sample Exposure Time attribute has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
 	protected boolean sampleExposureTimeESet;
 
 	/**
-	 * The default value of the '{@link #getFlatExposureTime() <em>Flat Exposure Time</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The default value of the '{@link #getFlatExposureTime() <em>Flat Exposure Time</em>}' attribute. <!--
+	 * begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getFlatExposureTime()
 	 * @generated
 	 * @ordered
@@ -229,9 +205,9 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	protected static final double FLAT_EXPOSURE_TIME_EDEFAULT = 0.0;
 
 	/**
-	 * The cached value of the '{@link #getFlatExposureTime() <em>Flat Exposure Time</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The cached value of the '{@link #getFlatExposureTime() <em>Flat Exposure Time</em>}' attribute. <!--
+	 * begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getFlatExposureTime()
 	 * @generated
 	 * @ordered
@@ -240,8 +216,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 
 	/**
 	 * This is true if the Flat Exposure Time attribute has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
@@ -249,8 +224,8 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 
 	/**
 	 * The default value of the '{@link #getCreatedUserId() <em>Created User Id</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc
+	 * --> <!-- end-user-doc -->
 	 * @see #getCreatedUserId()
 	 * @generated
 	 * @ordered
@@ -268,9 +243,9 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	protected String createdUserId = CREATED_USER_ID_EDEFAULT;
 
 	/**
-	 * The default value of the '{@link #getCreatedDateTime() <em>Created Date Time</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The default value of the '{@link #getCreatedDateTime() <em>Created Date Time</em>}' attribute. <!--
+	 * begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getCreatedDateTime()
 	 * @generated
 	 * @ordered
@@ -279,8 +254,8 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 
 	/**
 	 * The cached value of the '{@link #getCreatedDateTime() <em>Created Date Time</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc
+	 * --> <!-- end-user-doc -->
 	 * @see #getCreatedDateTime()
 	 * @generated
 	 * @ordered
@@ -308,28 +283,9 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	protected SampleWeight sampleWeight = SAMPLE_WEIGHT_EDEFAULT;
 
 	/**
-	 * The cached value of the '{@link #getDetectorStageParameters() <em>Detector Stage Parameters</em>}' containment reference.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getDetectorStageParameters()
-	 * @generated
-	 * @ordered
-	 */
-	protected DetectorStage detectorStageParameters;
-
-	/**
-	 * This is true if the Detector Stage Parameters containment reference has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	protected boolean detectorStageParametersESet;
-
-	/**
 	 * The default value of the '{@link #getProposalId() <em>Proposal Id</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
 	 * @see #getProposalId()
 	 * @generated
 	 * @ordered
@@ -338,8 +294,8 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 
 	/**
 	 * The cached value of the '{@link #getProposalId() <em>Proposal Id</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
 	 * @see #getProposalId()
 	 * @generated
 	 * @ordered
@@ -347,9 +303,9 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	protected String proposalId = PROPOSAL_ID_EDEFAULT;
 
 	/**
-	 * The cached value of the '{@link #getStitchParameters() <em>Stitch Parameters</em>}' containment reference.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The cached value of the '{@link #getStitchParameters() <em>Stitch Parameters</em>}' containment reference. <!--
+	 * begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getStitchParameters()
 	 * @generated
 	 * @ordered
@@ -358,8 +314,8 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 
 	/**
 	 * This is true if the Stitch Parameters containment reference has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
@@ -367,8 +323,8 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 
 	/**
 	 * The default value of the '{@link #getSelectedToRun() <em>Selected To Run</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc
+	 * --> <!-- end-user-doc -->
 	 * @see #getSelectedToRun()
 	 * @generated
 	 * @ordered
@@ -386,8 +342,78 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	protected Boolean selectedToRun = SELECTED_TO_RUN_EDEFAULT;
 
 	/**
+	 * The cached value of the '{@link #getMotorPositions() <em>Motor Positions</em>}' containment reference list. <!--
+	 * begin-user-doc --> <!-- end-user-doc -->
+	 * 
+	 * @see #getMotorPositions()
+	 * @generated
+	 * @ordered
+	 */
+	protected EList<MotorPosition> motorPositions;
+
+	/**
+	 * The default value of the '{@link #getInBeamPosition() <em>In Beam Position</em>}' attribute.
+	 * <!-- begin-user-doc
+	 * --> <!-- end-user-doc -->
+	 * @see #getInBeamPosition()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final double IN_BEAM_POSITION_EDEFAULT = 0.0;
+
+	/**
+	 * The cached value of the '{@link #getInBeamPosition() <em>In Beam Position</em>}' attribute.
+	 * <!-- begin-user-doc
+	 * --> <!-- end-user-doc -->
+	 * @see #getInBeamPosition()
+	 * @generated
+	 * @ordered
+	 */
+	protected double inBeamPosition = IN_BEAM_POSITION_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getOutOfBeamPosition() <em>Out Of Beam Position</em>}' attribute. <!--
+	 * begin-user-doc --> <!-- end-user-doc -->
+	 * 
+	 * @see #getOutOfBeamPosition()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final double OUT_OF_BEAM_POSITION_EDEFAULT = 0.0;
+
+	/**
+	 * The cached value of the '{@link #getOutOfBeamPosition() <em>Out Of Beam Position</em>}' attribute. <!--
+	 * begin-user-doc --> <!-- end-user-doc -->
+	 * 
+	 * @see #getOutOfBeamPosition()
+	 * @generated
+	 * @ordered
+	 */
+	protected double outOfBeamPosition = OUT_OF_BEAM_POSITION_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getTomoRotationAxis() <em>Tomo Rotation Axis</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
+	 * @see #getTomoRotationAxis()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final Integer TOMO_ROTATION_AXIS_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getTomoRotationAxis() <em>Tomo Rotation Axis</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getTomoRotationAxis()
+	 * @generated
+	 * @ordered
+	 */
+	protected Integer tomoRotationAxis = TOMO_ROTATION_AXIS_EDEFAULT;
+
+	/**
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated not
 	 */
 	protected AlignmentConfigurationImpl() {
@@ -396,8 +422,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -406,8 +431,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -416,8 +440,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -431,8 +454,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -446,8 +468,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -456,8 +477,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -466,8 +486,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -479,8 +498,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -489,8 +507,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -502,8 +519,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -512,8 +528,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	public NotificationChain basicSetDetectorProperties(DetectorProperties newDetectorProperties, NotificationChain msgs) {
@@ -529,8 +544,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -553,8 +567,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	public NotificationChain basicUnsetDetectorProperties(NotificationChain msgs) {
@@ -570,8 +583,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -591,8 +603,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -601,107 +612,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public SampleStage getSampleStageParameters() {
-		return sampleStageParameters;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public NotificationChain basicSetSampleStageParameters(SampleStage newSampleStageParameters, NotificationChain msgs) {
-		SampleStage oldSampleStageParameters = sampleStageParameters;
-		sampleStageParameters = newSampleStageParameters;
-		boolean oldSampleStageParametersESet = sampleStageParametersESet;
-		sampleStageParametersESet = true;
-		if (eNotificationRequired()) {
-			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_STAGE_PARAMETERS, oldSampleStageParameters, newSampleStageParameters, !oldSampleStageParametersESet);
-			if (msgs == null) msgs = notification; else msgs.add(notification);
-		}
-		return msgs;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public void setSampleStageParameters(SampleStage newSampleStageParameters) {
-		if (newSampleStageParameters != sampleStageParameters) {
-			NotificationChain msgs = null;
-			if (sampleStageParameters != null)
-				msgs = ((InternalEObject)sampleStageParameters).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_STAGE_PARAMETERS, null, msgs);
-			if (newSampleStageParameters != null)
-				msgs = ((InternalEObject)newSampleStageParameters).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_STAGE_PARAMETERS, null, msgs);
-			msgs = basicSetSampleStageParameters(newSampleStageParameters, msgs);
-			if (msgs != null) msgs.dispatch();
-		}
-		else {
-			boolean oldSampleStageParametersESet = sampleStageParametersESet;
-			sampleStageParametersESet = true;
-			if (eNotificationRequired())
-				eNotify(new ENotificationImpl(this, Notification.SET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_STAGE_PARAMETERS, newSampleStageParameters, newSampleStageParameters, !oldSampleStageParametersESet));
-		}
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public NotificationChain basicUnsetSampleStageParameters(NotificationChain msgs) {
-		SampleStage oldSampleStageParameters = sampleStageParameters;
-		sampleStageParameters = null;
-		boolean oldSampleStageParametersESet = sampleStageParametersESet;
-		sampleStageParametersESet = false;
-		if (eNotificationRequired()) {
-			ENotificationImpl notification = new ENotificationImpl(this, Notification.UNSET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_STAGE_PARAMETERS, oldSampleStageParameters, null, oldSampleStageParametersESet);
-			if (msgs == null) msgs = notification; else msgs.add(notification);
-		}
-		return msgs;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public void unsetSampleStageParameters() {
-		if (sampleStageParameters != null) {
-			NotificationChain msgs = null;
-			msgs = ((InternalEObject)sampleStageParameters).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_STAGE_PARAMETERS, null, msgs);
-			msgs = basicUnsetSampleStageParameters(msgs);
-			if (msgs != null) msgs.dispatch();
-		}
-		else {
-			boolean oldSampleStageParametersESet = sampleStageParametersESet;
-			sampleStageParametersESet = false;
-			if (eNotificationRequired())
-				eNotify(new ENotificationImpl(this, Notification.UNSET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_STAGE_PARAMETERS, null, null, oldSampleStageParametersESet));
-		}
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public boolean isSetSampleStageParameters() {
-		return sampleStageParametersESet;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -710,8 +621,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -725,8 +635,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -740,8 +649,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -750,8 +658,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -760,8 +667,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -775,8 +681,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -790,8 +695,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -800,8 +704,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -810,8 +713,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -825,8 +727,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -840,8 +741,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -850,8 +750,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -860,8 +759,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -873,8 +771,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -883,8 +780,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -896,8 +792,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -906,8 +801,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -919,118 +813,19 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
-	public DetectorStage getDetectorStageParameters() {
-		return detectorStageParameters;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public NotificationChain basicSetDetectorStageParameters(DetectorStage newDetectorStageParameters, NotificationChain msgs) {
-		DetectorStage oldDetectorStageParameters = detectorStageParameters;
-		detectorStageParameters = newDetectorStageParameters;
-		boolean oldDetectorStageParametersESet = detectorStageParametersESet;
-		detectorStageParametersESet = true;
-		if (eNotificationRequired()) {
-			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_STAGE_PARAMETERS, oldDetectorStageParameters, newDetectorStageParameters, !oldDetectorStageParametersESet);
-			if (msgs == null) msgs = notification; else msgs.add(notification);
-		}
-		return msgs;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public void setDetectorStageParameters(DetectorStage newDetectorStageParameters) {
-		if (newDetectorStageParameters != detectorStageParameters) {
-			NotificationChain msgs = null;
-			if (detectorStageParameters != null)
-				msgs = ((InternalEObject)detectorStageParameters).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_STAGE_PARAMETERS, null, msgs);
-			if (newDetectorStageParameters != null)
-				msgs = ((InternalEObject)newDetectorStageParameters).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_STAGE_PARAMETERS, null, msgs);
-			msgs = basicSetDetectorStageParameters(newDetectorStageParameters, msgs);
-			if (msgs != null) msgs.dispatch();
-		}
-		else {
-			boolean oldDetectorStageParametersESet = detectorStageParametersESet;
-			detectorStageParametersESet = true;
-			if (eNotificationRequired())
-				eNotify(new ENotificationImpl(this, Notification.SET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_STAGE_PARAMETERS, newDetectorStageParameters, newDetectorStageParameters, !oldDetectorStageParametersESet));
-		}
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public NotificationChain basicUnsetDetectorStageParameters(NotificationChain msgs) {
-		DetectorStage oldDetectorStageParameters = detectorStageParameters;
-		detectorStageParameters = null;
-		boolean oldDetectorStageParametersESet = detectorStageParametersESet;
-		detectorStageParametersESet = false;
-		if (eNotificationRequired()) {
-			ENotificationImpl notification = new ENotificationImpl(this, Notification.UNSET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_STAGE_PARAMETERS, oldDetectorStageParameters, null, oldDetectorStageParametersESet);
-			if (msgs == null) msgs = notification; else msgs.add(notification);
-		}
-		return msgs;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public void unsetDetectorStageParameters() {
-		if (detectorStageParameters != null) {
-			NotificationChain msgs = null;
-			msgs = ((InternalEObject)detectorStageParameters).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_STAGE_PARAMETERS, null, msgs);
-			msgs = basicUnsetDetectorStageParameters(msgs);
-			if (msgs != null) msgs.dispatch();
-		}
-		else {
-			boolean oldDetectorStageParametersESet = detectorStageParametersESet;
-			detectorStageParametersESet = false;
-			if (eNotificationRequired())
-				eNotify(new ENotificationImpl(this, Notification.UNSET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_STAGE_PARAMETERS, null, null, oldDetectorStageParametersESet));
-		}
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public boolean isSetDetectorStageParameters() {
-		return detectorStageParametersESet;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	public String getProposalId() {
 		return proposalId;
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setProposalId(String newProposalId) {
 		String oldProposalId = proposalId;
 		proposalId = newProposalId;
@@ -1039,17 +834,16 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public StitchParameters getStitchParameters() {
 		return stitchParameters;
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	public NotificationChain basicSetStitchParameters(StitchParameters newStitchParameters, NotificationChain msgs) {
@@ -1065,10 +859,10 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setStitchParameters(StitchParameters newStitchParameters) {
 		if (newStitchParameters != stitchParameters) {
 			NotificationChain msgs = null;
@@ -1088,8 +882,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	public NotificationChain basicUnsetStitchParameters(NotificationChain msgs) {
@@ -1105,10 +898,10 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetStitchParameters() {
 		if (stitchParameters != null) {
 			NotificationChain msgs = null;
@@ -1125,28 +918,28 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetStitchParameters() {
 		return stitchParametersESet;
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Boolean getSelectedToRun() {
 		return selectedToRun;
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setSelectedToRun(Boolean newSelectedToRun) {
 		Boolean oldSelectedToRun = selectedToRun;
 		selectedToRun = newSelectedToRun;
@@ -1155,8 +948,97 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public EList<MotorPosition> getMotorPositions() {
+		if (motorPositions == null) {
+			motorPositions = new EObjectContainmentEList<MotorPosition>(MotorPosition.class, this, TomoParametersPackage.ALIGNMENT_CONFIGURATION__MOTOR_POSITIONS);
+		}
+		return motorPositions;
+	}
+
+	/**
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public double getInBeamPosition() {
+		return inBeamPosition;
+	}
+
+	/**
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public void setInBeamPosition(double newInBeamPosition) {
+		double oldInBeamPosition = inBeamPosition;
+		inBeamPosition = newInBeamPosition;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__IN_BEAM_POSITION, oldInBeamPosition, inBeamPosition));
+	}
+
+	/**
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public double getOutOfBeamPosition() {
+		return outOfBeamPosition;
+	}
+
+	/**
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public void setOutOfBeamPosition(double newOutOfBeamPosition) {
+		double oldOutOfBeamPosition = outOfBeamPosition;
+		outOfBeamPosition = newOutOfBeamPosition;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__OUT_OF_BEAM_POSITION, oldOutOfBeamPosition, outOfBeamPosition));
+	}
+
+	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public Integer getTomoRotationAxis() {
+		return tomoRotationAxis;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setTomoRotationAxis(Integer newTomoRotationAxis) {
+		Integer oldTomoRotationAxis = tomoRotationAxis;
+		tomoRotationAxis = newTomoRotationAxis;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, TomoParametersPackage.ALIGNMENT_CONFIGURATION__TOMO_ROTATION_AXIS, oldTomoRotationAxis, tomoRotationAxis));
+	}
+
+	/**
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
+	 * @generated NOT
+	 */
+	@Override
+	public Double getMotorPosition(String motorName) {
+		for (MotorPosition mp : motorPositions) {
+			if (mp.getName().equals(motorName)) {
+				return mp.getPosition();
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -1164,19 +1046,16 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 		switch (featureID) {
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_PROPERTIES:
 				return basicUnsetDetectorProperties(msgs);
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_STAGE_PARAMETERS:
-				return basicUnsetSampleStageParameters(msgs);
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_STAGE_PARAMETERS:
-				return basicUnsetDetectorStageParameters(msgs);
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__STITCH_PARAMETERS:
 				return basicUnsetStitchParameters(msgs);
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__MOTOR_POSITIONS:
+				return ((InternalEList<?>)getMotorPositions()).basicRemove(otherEnd, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -1190,8 +1069,6 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 				return getDescription();
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_PROPERTIES:
 				return getDetectorProperties();
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_STAGE_PARAMETERS:
-				return getSampleStageParameters();
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SCAN_MODE:
 				return getScanMode();
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_EXPOSURE_TIME:
@@ -1204,23 +1081,29 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 				return getCreatedDateTime();
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_WEIGHT:
 				return getSampleWeight();
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_STAGE_PARAMETERS:
-				return getDetectorStageParameters();
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__PROPOSAL_ID:
 				return getProposalId();
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__STITCH_PARAMETERS:
 				return getStitchParameters();
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SELECTED_TO_RUN:
 				return getSelectedToRun();
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__MOTOR_POSITIONS:
+				return getMotorPositions();
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__IN_BEAM_POSITION:
+				return getInBeamPosition();
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__OUT_OF_BEAM_POSITION:
+				return getOutOfBeamPosition();
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__TOMO_ROTATION_AXIS:
+				return getTomoRotationAxis();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
@@ -1235,9 +1118,6 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 				return;
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_PROPERTIES:
 				setDetectorProperties((DetectorProperties)newValue);
-				return;
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_STAGE_PARAMETERS:
-				setSampleStageParameters((SampleStage)newValue);
 				return;
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SCAN_MODE:
 				setScanMode((ScanMode)newValue);
@@ -1257,9 +1137,6 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_WEIGHT:
 				setSampleWeight((SampleWeight)newValue);
 				return;
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_STAGE_PARAMETERS:
-				setDetectorStageParameters((DetectorStage)newValue);
-				return;
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__PROPOSAL_ID:
 				setProposalId((String)newValue);
 				return;
@@ -1269,13 +1146,25 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SELECTED_TO_RUN:
 				setSelectedToRun((Boolean)newValue);
 				return;
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__MOTOR_POSITIONS:
+				getMotorPositions().clear();
+				getMotorPositions().addAll((Collection<? extends MotorPosition>)newValue);
+				return;
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__IN_BEAM_POSITION:
+				setInBeamPosition((Double)newValue);
+				return;
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__OUT_OF_BEAM_POSITION:
+				setOutOfBeamPosition((Double)newValue);
+				return;
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__TOMO_ROTATION_AXIS:
+				setTomoRotationAxis((Integer)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -1292,9 +1181,6 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 				return;
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_PROPERTIES:
 				unsetDetectorProperties();
-				return;
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_STAGE_PARAMETERS:
-				unsetSampleStageParameters();
 				return;
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SCAN_MODE:
 				unsetScanMode();
@@ -1314,9 +1200,6 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_WEIGHT:
 				setSampleWeight(SAMPLE_WEIGHT_EDEFAULT);
 				return;
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_STAGE_PARAMETERS:
-				unsetDetectorStageParameters();
-				return;
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__PROPOSAL_ID:
 				setProposalId(PROPOSAL_ID_EDEFAULT);
 				return;
@@ -1326,13 +1209,24 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SELECTED_TO_RUN:
 				setSelectedToRun(SELECTED_TO_RUN_EDEFAULT);
 				return;
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__MOTOR_POSITIONS:
+				getMotorPositions().clear();
+				return;
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__IN_BEAM_POSITION:
+				setInBeamPosition(IN_BEAM_POSITION_EDEFAULT);
+				return;
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__OUT_OF_BEAM_POSITION:
+				setOutOfBeamPosition(OUT_OF_BEAM_POSITION_EDEFAULT);
+				return;
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__TOMO_ROTATION_AXIS:
+				setTomoRotationAxis(TOMO_ROTATION_AXIS_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -1346,8 +1240,6 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 				return DESCRIPTION_EDEFAULT == null ? description != null : !DESCRIPTION_EDEFAULT.equals(description);
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_PROPERTIES:
 				return isSetDetectorProperties();
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_STAGE_PARAMETERS:
-				return isSetSampleStageParameters();
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SCAN_MODE:
 				return isSetScanMode();
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_EXPOSURE_TIME:
@@ -1360,21 +1252,26 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 				return CREATED_DATE_TIME_EDEFAULT == null ? createdDateTime != null : !CREATED_DATE_TIME_EDEFAULT.equals(createdDateTime);
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SAMPLE_WEIGHT:
 				return sampleWeight != SAMPLE_WEIGHT_EDEFAULT;
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__DETECTOR_STAGE_PARAMETERS:
-				return isSetDetectorStageParameters();
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__PROPOSAL_ID:
 				return PROPOSAL_ID_EDEFAULT == null ? proposalId != null : !PROPOSAL_ID_EDEFAULT.equals(proposalId);
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__STITCH_PARAMETERS:
 				return isSetStitchParameters();
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SELECTED_TO_RUN:
 				return SELECTED_TO_RUN_EDEFAULT == null ? selectedToRun != null : !SELECTED_TO_RUN_EDEFAULT.equals(selectedToRun);
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__MOTOR_POSITIONS:
+				return motorPositions != null && !motorPositions.isEmpty();
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__IN_BEAM_POSITION:
+				return inBeamPosition != IN_BEAM_POSITION_EDEFAULT;
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__OUT_OF_BEAM_POSITION:
+				return outOfBeamPosition != OUT_OF_BEAM_POSITION_EDEFAULT;
+			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__TOMO_ROTATION_AXIS:
+				return TOMO_ROTATION_AXIS_EDEFAULT == null ? tomoRotationAxis != null : !TOMO_ROTATION_AXIS_EDEFAULT.equals(tomoRotationAxis);
 		}
 		return super.eIsSet(featureID);
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -1404,8 +1301,14 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 		result.append(proposalId);
 		result.append(", selectedToRun: ");
 		result.append(selectedToRun);
+		result.append(", inBeamPosition: ");
+		result.append(inBeamPosition);
+		result.append(", outOfBeamPosition: ");
+		result.append(outOfBeamPosition);
+		result.append(", tomoRotationAxis: ");
+		result.append(tomoRotationAxis);
 		result.append(')');
 		return result.toString();
 	}
 
-} //AlignmentConfigurationImpl
+} // AlignmentConfigurationImpl

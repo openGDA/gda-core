@@ -18,19 +18,16 @@ import uk.ac.gda.tomography.parameters.AlignmentConfiguration;
 import uk.ac.gda.tomography.parameters.DetectorBin;
 import uk.ac.gda.tomography.parameters.DetectorProperties;
 import uk.ac.gda.tomography.parameters.DetectorRoi;
-import uk.ac.gda.tomography.parameters.DetectorStage;
 import uk.ac.gda.tomography.parameters.Module;
+import uk.ac.gda.tomography.parameters.MotorPosition;
 import uk.ac.gda.tomography.parameters.Parameters;
 import uk.ac.gda.tomography.parameters.Resolution;
-import uk.ac.gda.tomography.parameters.SampleStage;
 import uk.ac.gda.tomography.parameters.SampleWeight;
 import uk.ac.gda.tomography.parameters.ScanMode;
 import uk.ac.gda.tomography.parameters.StitchParameters;
 import uk.ac.gda.tomography.parameters.TomoExperiment;
 import uk.ac.gda.tomography.parameters.TomoParametersFactory;
 import uk.ac.gda.tomography.parameters.TomoParametersPackage;
-import uk.ac.gda.tomography.parameters.Unit;
-import uk.ac.gda.tomography.parameters.ValueUnit;
 
 /**
  * <!-- begin-user-doc -->
@@ -51,21 +48,14 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	private EClass valueUnitEClass = null;
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	private EClass detectorStageEClass = null;
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	private EClass moduleEClass = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EClass motorPositionEClass = null;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -107,13 +97,6 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	private EClass sampleStageEClass = null;
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	private EClass stitchParametersEClass = null;
 
 	/**
@@ -136,13 +119,6 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 * @generated
 	 */
 	private EEnum sampleWeightEEnum = null;
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	private EEnum unitEEnum = null;
 
 	/**
 	 * Creates an instance of the model <b>Package</b>, registered with
@@ -260,73 +236,7 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EClass getValueUnit() {
-		return valueUnitEClass;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EAttribute getValueUnit_Units() {
-		return (EAttribute)valueUnitEClass.getEStructuralFeatures().get(0);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EAttribute getValueUnit_Value() {
-		return (EAttribute)valueUnitEClass.getEStructuralFeatures().get(1);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	@Override
-	public EClass getDetectorStage() {
-		return detectorStageEClass;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public EReference getDetectorStage_X() {
-		return (EReference)detectorStageEClass.getEStructuralFeatures().get(0);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public EReference getDetectorStage_Y() {
-		return (EReference)detectorStageEClass.getEStructuralFeatures().get(1);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public EReference getDetectorStage_Z() {
-		return (EReference)detectorStageEClass.getEStructuralFeatures().get(2);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	public EClass getModule() {
 		return moduleEClass;
 	}
@@ -336,6 +246,7 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getModule_ModuleNumber() {
 		return (EAttribute)moduleEClass.getEStructuralFeatures().get(0);
 	}
@@ -345,8 +256,39 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EReference getModule_HorizontalFieldOfView() {
-		return (EReference)moduleEClass.getEStructuralFeatures().get(1);
+	@Override
+	public EAttribute getModule_HorizontalFieldOfView() {
+		return (EAttribute)moduleEClass.getEStructuralFeatures().get(1);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public EClass getMotorPosition() {
+		return motorPositionEClass;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public EAttribute getMotorPosition_Name() {
+		return (EAttribute)motorPositionEClass.getEStructuralFeatures().get(0);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public EAttribute getMotorPosition_Position() {
+		return (EAttribute)motorPositionEClass.getEStructuralFeatures().get(1);
 	}
 
 	/**
@@ -555,18 +497,8 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 * @generated
 	 */
 	@Override
-	public EReference getAlignmentConfiguration_SampleStageParameters() {
-		return (EReference)alignmentConfigurationEClass.getEStructuralFeatures().get(4);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
 	public EAttribute getAlignmentConfiguration_ScanMode() {
-		return (EAttribute)alignmentConfigurationEClass.getEStructuralFeatures().get(5);
+		return (EAttribute)alignmentConfigurationEClass.getEStructuralFeatures().get(4);
 	}
 
 	/**
@@ -576,7 +508,7 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 */
 	@Override
 	public EAttribute getAlignmentConfiguration_SampleExposureTime() {
-		return (EAttribute)alignmentConfigurationEClass.getEStructuralFeatures().get(6);
+		return (EAttribute)alignmentConfigurationEClass.getEStructuralFeatures().get(5);
 	}
 
 	/**
@@ -586,7 +518,7 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 */
 	@Override
 	public EAttribute getAlignmentConfiguration_FlatExposureTime() {
-		return (EAttribute)alignmentConfigurationEClass.getEStructuralFeatures().get(7);
+		return (EAttribute)alignmentConfigurationEClass.getEStructuralFeatures().get(6);
 	}
 
 	/**
@@ -596,7 +528,7 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 */
 	@Override
 	public EAttribute getAlignmentConfiguration_CreatedUserId() {
-		return (EAttribute)alignmentConfigurationEClass.getEStructuralFeatures().get(8);
+		return (EAttribute)alignmentConfigurationEClass.getEStructuralFeatures().get(7);
 	}
 
 	/**
@@ -606,7 +538,7 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 */
 	@Override
 	public EAttribute getAlignmentConfiguration_CreatedDateTime() {
-		return (EAttribute)alignmentConfigurationEClass.getEStructuralFeatures().get(9);
+		return (EAttribute)alignmentConfigurationEClass.getEStructuralFeatures().get(8);
 	}
 
 	/**
@@ -616,6 +548,16 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 */
 	@Override
 	public EAttribute getAlignmentConfiguration_SampleWeight() {
+		return (EAttribute)alignmentConfigurationEClass.getEStructuralFeatures().get(9);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public EAttribute getAlignmentConfiguration_ProposalId() {
 		return (EAttribute)alignmentConfigurationEClass.getEStructuralFeatures().get(10);
 	}
 
@@ -625,7 +567,7 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 * @generated
 	 */
 	@Override
-	public EReference getAlignmentConfiguration_DetectorStageParameters() {
+	public EReference getAlignmentConfiguration_StitchParameters() {
 		return (EReference)alignmentConfigurationEClass.getEStructuralFeatures().get(11);
 	}
 
@@ -634,7 +576,8 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getAlignmentConfiguration_ProposalId() {
+	@Override
+	public EAttribute getAlignmentConfiguration_SelectedToRun() {
 		return (EAttribute)alignmentConfigurationEClass.getEStructuralFeatures().get(12);
 	}
 
@@ -643,7 +586,8 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EReference getAlignmentConfiguration_StitchParameters() {
+	@Override
+	public EReference getAlignmentConfiguration_MotorPositions() {
 		return (EReference)alignmentConfigurationEClass.getEStructuralFeatures().get(13);
 	}
 
@@ -652,8 +596,28 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getAlignmentConfiguration_SelectedToRun() {
+	@Override
+	public EAttribute getAlignmentConfiguration_InBeamPosition() {
 		return (EAttribute)alignmentConfigurationEClass.getEStructuralFeatures().get(14);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public EAttribute getAlignmentConfiguration_OutOfBeamPosition() {
+		return (EAttribute)alignmentConfigurationEClass.getEStructuralFeatures().get(15);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getAlignmentConfiguration_TomoRotationAxis() {
+		return (EAttribute)alignmentConfigurationEClass.getEStructuralFeatures().get(16);
 	}
 
 	/**
@@ -682,75 +646,6 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 * @generated
 	 */
 	@Override
-	public EClass getSampleStage() {
-		return sampleStageEClass;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public EReference getSampleStage_Vertical() {
-		return (EReference)sampleStageEClass.getEStructuralFeatures().get(0);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public EReference getSampleStage_CenterX() {
-		return (EReference)sampleStageEClass.getEStructuralFeatures().get(1);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public EReference getSampleStage_CenterZ() {
-		return (EReference)sampleStageEClass.getEStructuralFeatures().get(2);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public EReference getSampleStage_TiltX() {
-		return (EReference)sampleStageEClass.getEStructuralFeatures().get(3);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public EReference getSampleStage_TiltZ() {
-		return (EReference)sampleStageEClass.getEStructuralFeatures().get(4);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public EReference getSampleStage_BaseX() {
-		return (EReference)sampleStageEClass.getEStructuralFeatures().get(5);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	public EClass getStitchParameters() {
 		return stitchParametersEClass;
 	}
@@ -760,6 +655,7 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getStitchParameters_StitchingThetaAngle() {
 		return (EAttribute)stitchParametersEClass.getEStructuralFeatures().get(0);
 	}
@@ -769,6 +665,7 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getStitchParameters_ImageAtTheta() {
 		return (EAttribute)stitchParametersEClass.getEStructuralFeatures().get(1);
 	}
@@ -778,6 +675,7 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getStitchParameters_ImageAtThetaPlus90() {
 		return (EAttribute)stitchParametersEClass.getEStructuralFeatures().get(2);
 	}
@@ -817,15 +715,6 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EEnum getUnit() {
-		return unitEEnum;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	@Override
 	public TomoParametersFactory getTomoParametersFactory() {
 		return (TomoParametersFactory)getEFactoryInstance();
@@ -855,17 +744,19 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 		createEAttribute(alignmentConfigurationEClass, ALIGNMENT_CONFIGURATION__ENERGY);
 		createEAttribute(alignmentConfigurationEClass, ALIGNMENT_CONFIGURATION__DESCRIPTION);
 		createEReference(alignmentConfigurationEClass, ALIGNMENT_CONFIGURATION__DETECTOR_PROPERTIES);
-		createEReference(alignmentConfigurationEClass, ALIGNMENT_CONFIGURATION__SAMPLE_STAGE_PARAMETERS);
 		createEAttribute(alignmentConfigurationEClass, ALIGNMENT_CONFIGURATION__SCAN_MODE);
 		createEAttribute(alignmentConfigurationEClass, ALIGNMENT_CONFIGURATION__SAMPLE_EXPOSURE_TIME);
 		createEAttribute(alignmentConfigurationEClass, ALIGNMENT_CONFIGURATION__FLAT_EXPOSURE_TIME);
 		createEAttribute(alignmentConfigurationEClass, ALIGNMENT_CONFIGURATION__CREATED_USER_ID);
 		createEAttribute(alignmentConfigurationEClass, ALIGNMENT_CONFIGURATION__CREATED_DATE_TIME);
 		createEAttribute(alignmentConfigurationEClass, ALIGNMENT_CONFIGURATION__SAMPLE_WEIGHT);
-		createEReference(alignmentConfigurationEClass, ALIGNMENT_CONFIGURATION__DETECTOR_STAGE_PARAMETERS);
 		createEAttribute(alignmentConfigurationEClass, ALIGNMENT_CONFIGURATION__PROPOSAL_ID);
 		createEReference(alignmentConfigurationEClass, ALIGNMENT_CONFIGURATION__STITCH_PARAMETERS);
 		createEAttribute(alignmentConfigurationEClass, ALIGNMENT_CONFIGURATION__SELECTED_TO_RUN);
+		createEReference(alignmentConfigurationEClass, ALIGNMENT_CONFIGURATION__MOTOR_POSITIONS);
+		createEAttribute(alignmentConfigurationEClass, ALIGNMENT_CONFIGURATION__IN_BEAM_POSITION);
+		createEAttribute(alignmentConfigurationEClass, ALIGNMENT_CONFIGURATION__OUT_OF_BEAM_POSITION);
+		createEAttribute(alignmentConfigurationEClass, ALIGNMENT_CONFIGURATION__TOMO_ROTATION_AXIS);
 
 		detectorBinEClass = createEClass(DETECTOR_BIN);
 		createEAttribute(detectorBinEClass, DETECTOR_BIN__BIN_X);
@@ -885,25 +776,16 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 		createEAttribute(detectorRoiEClass, DETECTOR_ROI__MIN_Y);
 		createEAttribute(detectorRoiEClass, DETECTOR_ROI__MAX_Y);
 
-		detectorStageEClass = createEClass(DETECTOR_STAGE);
-		createEReference(detectorStageEClass, DETECTOR_STAGE__X);
-		createEReference(detectorStageEClass, DETECTOR_STAGE__Y);
-		createEReference(detectorStageEClass, DETECTOR_STAGE__Z);
-
 		moduleEClass = createEClass(MODULE);
 		createEAttribute(moduleEClass, MODULE__MODULE_NUMBER);
-		createEReference(moduleEClass, MODULE__HORIZONTAL_FIELD_OF_VIEW);
+		createEAttribute(moduleEClass, MODULE__HORIZONTAL_FIELD_OF_VIEW);
+
+		motorPositionEClass = createEClass(MOTOR_POSITION);
+		createEAttribute(motorPositionEClass, MOTOR_POSITION__NAME);
+		createEAttribute(motorPositionEClass, MOTOR_POSITION__POSITION);
 
 		parametersEClass = createEClass(PARAMETERS);
 		createEReference(parametersEClass, PARAMETERS__CONFIGURATION_SET);
-
-		sampleStageEClass = createEClass(SAMPLE_STAGE);
-		createEReference(sampleStageEClass, SAMPLE_STAGE__VERTICAL);
-		createEReference(sampleStageEClass, SAMPLE_STAGE__CENTER_X);
-		createEReference(sampleStageEClass, SAMPLE_STAGE__CENTER_Z);
-		createEReference(sampleStageEClass, SAMPLE_STAGE__TILT_X);
-		createEReference(sampleStageEClass, SAMPLE_STAGE__TILT_Z);
-		createEReference(sampleStageEClass, SAMPLE_STAGE__BASE_X);
 
 		stitchParametersEClass = createEClass(STITCH_PARAMETERS);
 		createEAttribute(stitchParametersEClass, STITCH_PARAMETERS__STITCHING_THETA_ANGLE);
@@ -916,15 +798,10 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 		createEAttribute(tomoExperimentEClass, TOMO_EXPERIMENT__TOTAL_TIME_TO_RUN);
 		createEAttribute(tomoExperimentEClass, TOMO_EXPERIMENT__VERSION);
 
-		valueUnitEClass = createEClass(VALUE_UNIT);
-		createEAttribute(valueUnitEClass, VALUE_UNIT__UNITS);
-		createEAttribute(valueUnitEClass, VALUE_UNIT__VALUE);
-
 		// Create enums
 		scanModeEEnum = createEEnum(SCAN_MODE);
 		resolutionEEnum = createEEnum(RESOLUTION);
 		sampleWeightEEnum = createEEnum(SAMPLE_WEIGHT);
-		unitEEnum = createEEnum(UNIT);
 	}
 
 	/**
@@ -962,17 +839,22 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 		initEAttribute(getAlignmentConfiguration_Energy(), ecorePackage.getEDouble(), "energy", null, 1, 1, AlignmentConfiguration.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getAlignmentConfiguration_Description(), ecorePackage.getEString(), "description", null, 1, 1, AlignmentConfiguration.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getAlignmentConfiguration_DetectorProperties(), this.getDetectorProperties(), null, "detectorProperties", null, 1, 1, AlignmentConfiguration.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getAlignmentConfiguration_SampleStageParameters(), this.getSampleStage(), null, "sampleStageParameters", null, 1, 1, AlignmentConfiguration.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getAlignmentConfiguration_ScanMode(), this.getScanMode(), "scanMode", "Step", 1, 1, AlignmentConfiguration.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getAlignmentConfiguration_SampleExposureTime(), ecorePackage.getEDouble(), "sampleExposureTime", null, 1, 1, AlignmentConfiguration.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getAlignmentConfiguration_FlatExposureTime(), ecorePackage.getEDouble(), "flatExposureTime", null, 1, 1, AlignmentConfiguration.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getAlignmentConfiguration_CreatedUserId(), ecorePackage.getEString(), "createdUserId", null, 0, 1, AlignmentConfiguration.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getAlignmentConfiguration_CreatedDateTime(), ecorePackage.getEDate(), "createdDateTime", null, 0, 1, AlignmentConfiguration.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getAlignmentConfiguration_SampleWeight(), this.getSampleWeight(), "sampleWeight", null, 0, 1, AlignmentConfiguration.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getAlignmentConfiguration_DetectorStageParameters(), this.getDetectorStage(), null, "detectorStageParameters", null, 1, 1, AlignmentConfiguration.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getAlignmentConfiguration_ProposalId(), ecorePackage.getEString(), "proposalId", null, 0, 1, AlignmentConfiguration.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getAlignmentConfiguration_StitchParameters(), this.getStitchParameters(), null, "stitchParameters", null, 1, 1, AlignmentConfiguration.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getAlignmentConfiguration_SelectedToRun(), ecorePackage.getEBooleanObject(), "selectedToRun", "false", 0, 1, AlignmentConfiguration.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getAlignmentConfiguration_MotorPositions(), this.getMotorPosition(), null, "motorPositions", null, 0, -1, AlignmentConfiguration.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getAlignmentConfiguration_InBeamPosition(), ecorePackage.getEDouble(), "inBeamPosition", null, 0, 1, AlignmentConfiguration.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getAlignmentConfiguration_OutOfBeamPosition(), ecorePackage.getEDouble(), "outOfBeamPosition", null, 0, 1, AlignmentConfiguration.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getAlignmentConfiguration_TomoRotationAxis(), ecorePackage.getEIntegerObject(), "tomoRotationAxis", null, 0, 1, AlignmentConfiguration.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+
+		EOperation op = addEOperation(alignmentConfigurationEClass, ecorePackage.getEDoubleObject(), "getMotorPosition", 0, 1, IS_UNIQUE, IS_ORDERED);
+		addEParameter(op, ecorePackage.getEString(), "motorName", 0, 1, IS_UNIQUE, IS_ORDERED);
 
 		initEClass(detectorBinEClass, DetectorBin.class, "DetectorBin", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getDetectorBin_BinX(), ecorePackage.getEIntegerObject(), "binX", null, 1, 1, DetectorBin.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -992,31 +874,22 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 		initEAttribute(getDetectorRoi_MinY(), ecorePackage.getEIntegerObject(), "minY", null, 1, 1, DetectorRoi.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getDetectorRoi_MaxY(), ecorePackage.getEIntegerObject(), "maxY", null, 1, 1, DetectorRoi.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
-		initEClass(detectorStageEClass, DetectorStage.class, "DetectorStage", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEReference(getDetectorStage_X(), this.getValueUnit(), null, "x", null, 0, 1, DetectorStage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getDetectorStage_Y(), this.getValueUnit(), null, "y", null, 0, 1, DetectorStage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getDetectorStage_Z(), this.getValueUnit(), null, "z", null, 0, 1, DetectorStage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-
 		initEClass(moduleEClass, Module.class, "Module", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getModule_ModuleNumber(), ecorePackage.getEIntegerObject(), "moduleNumber", null, 1, 1, Module.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getModule_HorizontalFieldOfView(), this.getValueUnit(), null, "horizontalFieldOfView", null, 0, 1, Module.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getModule_HorizontalFieldOfView(), ecorePackage.getEDouble(), "horizontalFieldOfView", null, 0, 1, Module.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+
+		initEClass(motorPositionEClass, MotorPosition.class, "MotorPosition", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+		initEAttribute(getMotorPosition_Name(), ecorePackage.getEString(), "name", null, 0, 1, MotorPosition.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getMotorPosition_Position(), ecorePackage.getEDouble(), "position", null, 0, 1, MotorPosition.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(parametersEClass, Parameters.class, "Parameters", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getParameters_ConfigurationSet(), this.getAlignmentConfiguration(), null, "configurationSet", null, 0, -1, Parameters.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
-		EOperation op = addEOperation(parametersEClass, this.getAlignmentConfiguration(), "getAlignmentConfiguration", 0, 1, IS_UNIQUE, IS_ORDERED);
+		op = addEOperation(parametersEClass, this.getAlignmentConfiguration(), "getAlignmentConfiguration", 0, 1, IS_UNIQUE, IS_ORDERED);
 		addEParameter(op, ecorePackage.getEString(), "configurationId", 0, 1, IS_UNIQUE, IS_ORDERED);
 
 		op = addEOperation(parametersEClass, ecorePackage.getEIntegerObject(), "getIndex", 0, 1, IS_UNIQUE, IS_ORDERED);
 		addEParameter(op, this.getAlignmentConfiguration(), "alignmentConfiguration", 0, 1, IS_UNIQUE, IS_ORDERED);
-
-		initEClass(sampleStageEClass, SampleStage.class, "SampleStage", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEReference(getSampleStage_Vertical(), this.getValueUnit(), null, "vertical", null, 0, 1, SampleStage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getSampleStage_CenterX(), this.getValueUnit(), null, "centerX", null, 0, 1, SampleStage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getSampleStage_CenterZ(), this.getValueUnit(), null, "centerZ", null, 0, 1, SampleStage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getSampleStage_TiltX(), this.getValueUnit(), null, "tiltX", null, 0, 1, SampleStage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getSampleStage_TiltZ(), this.getValueUnit(), null, "tiltZ", null, 0, 1, SampleStage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getSampleStage_BaseX(), this.getValueUnit(), null, "baseX", null, 0, 1, SampleStage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(stitchParametersEClass, StitchParameters.class, "StitchParameters", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getStitchParameters_StitchingThetaAngle(), ecorePackage.getEDouble(), "stitchingThetaAngle", null, 1, 1, StitchParameters.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -1028,10 +901,6 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 		initEAttribute(getTomoExperiment_Description(), ecorePackage.getEString(), "description", null, 0, 1, TomoExperiment.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getTomoExperiment_TotalTimeToRun(), ecorePackage.getEDate(), "totalTimeToRun", null, 0, 1, TomoExperiment.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getTomoExperiment_Version(), ecorePackage.getEInt(), "version", "1", 0, 1, TomoExperiment.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-
-		initEClass(valueUnitEClass, ValueUnit.class, "ValueUnit", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEAttribute(getValueUnit_Units(), this.getUnit(), "units", null, 0, 1, ValueUnit.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getValueUnit_Value(), ecorePackage.getEDouble(), "value", null, 0, 1, ValueUnit.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		// Initialize enums and add enum literals
 		initEEnum(scanModeEEnum, ScanMode.class, "ScanMode");
@@ -1049,12 +918,6 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 		addEEnumLiteral(sampleWeightEEnum, SampleWeight.ONE_TO_TEN);
 		addEEnumLiteral(sampleWeightEEnum, SampleWeight.TEN_TO_TWENTY);
 		addEEnumLiteral(sampleWeightEEnum, SampleWeight.TWENTY_TO_FIFTY);
-
-		initEEnum(unitEEnum, Unit.class, "Unit");
-		addEEnumLiteral(unitEEnum, Unit.SECONDS);
-		addEEnumLiteral(unitEEnum, Unit.MM);
-		addEEnumLiteral(unitEEnum, Unit.MICRONS);
-		addEEnumLiteral(unitEEnum, Unit.DEGREE);
 
 		// Create resource
 		createResource(eNS_URI);

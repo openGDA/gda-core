@@ -598,6 +598,21 @@ public class TomoAlignmentMotorHandler implements IMotorHandler {
 		return t3xScannable.getUserOffset();
 	}
 
+	@Override
+	public String getT3XMotorName() {
+		return t3xScannable.getName();
+	}
+
+	@Override
+	public String getT3m1ZMotorName() {
+		return t3m1zScannable.getName();
+	}
+
+	@Override
+	public String getT3m1YMotorName() {
+		return t3m1yScannable.getName();
+	}
+
 	public void setDefaultSampleInPosition(Double defaultSampleInPosition) {
 		this.defaultSampleInPosition = defaultSampleInPosition;
 	}
@@ -636,9 +651,9 @@ public class TomoAlignmentMotorHandler implements IMotorHandler {
 	public String getVerticalMotorName() {
 		return ss1Y2Scannable.getName();
 	}
-	
+
 	@Override
-	public String getCameraStageZMotorName(){
+	public String getCameraStageZMotorName() {
 		return t3m1zScannable.getName();
 	}
 
@@ -651,7 +666,5 @@ public class TomoAlignmentMotorHandler implements IMotorHandler {
 	public boolean isSs1RzBusy() throws DeviceException {
 		return ss1RzScannable.isBusy();
 	}
-	
-	
 
 }

@@ -32,10 +32,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.tomo.TomoClientConstants;
-import uk.ac.gda.client.tomo.alignment.view.handlers.IMotorHandler;
-import uk.ac.gda.client.tomo.configuration.view.handlers.ITomoScanController;
 import uk.ac.gda.client.tomo.configuration.view.handlers.IScanControllerUpdateListener;
+import uk.ac.gda.client.tomo.configuration.view.handlers.ITomoScanController;
 import uk.ac.gda.tomography.parameters.AlignmentConfiguration;
+import uk.ac.gda.tomography.parameters.MotorPosition;
 import uk.ac.gda.tomography.parameters.Resolution;
 
 public class TomoScanController implements ITomoScanController {
@@ -44,21 +44,10 @@ public class TomoScanController implements ITomoScanController {
 
 	private static final Logger logger = LoggerFactory.getLogger(TomoScanController.class);
 
-	private IMotorHandler motorHandler;
-
-	public IMotorHandler getMotorHandler() {
-		return motorHandler;
-	}
-
-	public void setMotorHandler(IMotorHandler motorHandler) {
-		this.motorHandler = motorHandler;
-	}
-
 	private IObservable tomoScriptController;
 
 	public void setTomoScriptController(IObservable tomoScriptController) {
 		this.tomoScriptController = tomoScriptController;
-
 	}
 
 	@Override
@@ -108,40 +97,9 @@ public class TomoScanController implements ITomoScanController {
 						}
 					};
 
-					// t3m1z
-					Double t3m1zValue = Double.valueOf(alignmentConfiguration.getDetectorStageParameters().getZ()
-							.getValue());
-					motorMoveMap.put("'" + motorHandler.getCameraStageZMotorName() + "'", t3m1zValue);
-
-					// ss1_tx
-					Double ss1txValue = Double.valueOf(alignmentConfiguration.getSampleStageParameters().getCenterX()
-							.getValue());
-					motorMoveMap.put("'" + motorHandler.getCentreXMotorName() + "'", ss1txValue);
-
-					// ss1_tz
-					Double ss1tzValue = Double.valueOf(alignmentConfiguration.getSampleStageParameters().getCenterZ()
-							.getValue());
-					motorMoveMap.put("'" + motorHandler.getCentreZMotorName() + "'", ss1tzValue);
-
-					// ss1_rx
-					Double ss1rxValue = Double.valueOf(alignmentConfiguration.getSampleStageParameters().getTiltX()
-							.getValue());
-					motorMoveMap.put("'" + motorHandler.getTiltXMotorName() + "'", ss1rxValue);
-
-					// ss1_rz
-					Double ss1rzValue = Double.valueOf(alignmentConfiguration.getSampleStageParameters().getTiltZ()
-							.getValue());
-					motorMoveMap.put("'" + motorHandler.getTiltZMotorName() + "'", ss1rzValue);
-
-					// ss1_x
-					Double baseXValue = Double.valueOf(alignmentConfiguration.getSampleStageParameters().getBaseX()
-							.getValue());
-					motorMoveMap.put("'" + motorHandler.getSampleBaseMotorName() + "'", baseXValue);
-
-					// ss1_y2
-					Double verticalValue = Double.valueOf(alignmentConfiguration.getSampleStageParameters()
-							.getVertical().getValue());
-					motorMoveMap.put("'" + motorHandler.getVerticalMotorName() + "'", verticalValue);
+					for (MotorPosition mp : alignmentConfiguration.getMotorPositions()) {
+						motorMoveMap.put("'" + mp.getName() + "'", mp.getPosition());
+					}
 
 					motorMoveMaps.add(motorMoveMap);
 
@@ -161,9 +119,9 @@ public class TomoScanController implements ITomoScanController {
 					int desiredResolution = getDesiredResolution(alignmentConfiguration.getDetectorProperties()
 							.getDesired3DResolution());
 					double timeDivider = 0.8;
-					double positionOfBaseAtFlat = 0;
-					double positionOfBaseInBeam = alignmentConfiguration.getSampleStageParameters().getBaseX()
-							.getValue();
+					double positionOfBaseAtFlat = alignmentConfiguration.getOutOfBeamPosition();
+					double positionOfBaseInBeam = alignmentConfiguration.getInBeamPosition();
+					int tomoAxisOfRotation = alignmentConfiguration.getTomoRotationAxis();
 
 					sampleAcqTimeList.add(sampleAcq);
 					flatAcqTimesList.add(flatAcq);

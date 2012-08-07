@@ -11,71 +11,70 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
 
+import uk.ac.gda.tomography.parameters.MotorPosition;
 import uk.ac.gda.tomography.parameters.TomoParametersPackage;
-import uk.ac.gda.tomography.parameters.Unit;
-import uk.ac.gda.tomography.parameters.ValueUnit;
 
 /**
  * <!-- begin-user-doc -->
- * An implementation of the model object '<em><b>Value Unit</b></em>'.
+ * An implementation of the model object '<em><b>Motor Position</b></em>'.
  * <!-- end-user-doc -->
  * <p>
  * The following features are implemented:
  * <ul>
- *   <li>{@link uk.ac.gda.tomography.parameters.impl.ValueUnitImpl#getUnits <em>Units</em>}</li>
- *   <li>{@link uk.ac.gda.tomography.parameters.impl.ValueUnitImpl#getValue <em>Value</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.parameters.impl.MotorPositionImpl#getName <em>Name</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.parameters.impl.MotorPositionImpl#getPosition <em>Position</em>}</li>
  * </ul>
  * </p>
  *
  * @generated
  */
-public class ValueUnitImpl extends EObjectImpl implements ValueUnit {
+public class MotorPositionImpl extends EObjectImpl implements MotorPosition {
 	/**
-	 * The default value of the '{@link #getUnits() <em>Units</em>}' attribute.
+	 * The default value of the '{@link #getName() <em>Name</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getUnits()
+	 * @see #getName()
 	 * @generated
 	 * @ordered
 	 */
-	protected static final Unit UNITS_EDEFAULT = Unit.SECONDS;
+	protected static final String NAME_EDEFAULT = null;
 
 	/**
-	 * The cached value of the '{@link #getUnits() <em>Units</em>}' attribute.
+	 * The cached value of the '{@link #getName() <em>Name</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getUnits()
+	 * @see #getName()
 	 * @generated
 	 * @ordered
 	 */
-	protected Unit units = UNITS_EDEFAULT;
+	protected String name = NAME_EDEFAULT;
 
 	/**
-	 * The default value of the '{@link #getValue() <em>Value</em>}' attribute.
+	 * The default value of the '{@link #getPosition() <em>Position</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getValue()
+	 * @see #getPosition()
 	 * @generated
 	 * @ordered
 	 */
-	protected static final double VALUE_EDEFAULT = 0.0;
+	protected static final double POSITION_EDEFAULT = 0.0;
 
 	/**
-	 * The cached value of the '{@link #getValue() <em>Value</em>}' attribute.
+	 * The cached value of the '{@link #getPosition() <em>Position</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getValue()
+	 * @see #getPosition()
 	 * @generated
 	 * @ordered
 	 */
-	protected double value = VALUE_EDEFAULT;
+	protected double position = POSITION_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected ValueUnitImpl() {
+	protected MotorPositionImpl() {
 		super();
 	}
 
@@ -86,7 +85,7 @@ public class ValueUnitImpl extends EObjectImpl implements ValueUnit {
 	 */
 	@Override
 	protected EClass eStaticClass() {
-		return TomoParametersPackage.Literals.VALUE_UNIT;
+		return TomoParametersPackage.Literals.MOTOR_POSITION;
 	}
 
 	/**
@@ -94,8 +93,9 @@ public class ValueUnitImpl extends EObjectImpl implements ValueUnit {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public Unit getUnits() {
-		return units;
+	@Override
+	public String getName() {
+		return name;
 	}
 
 	/**
@@ -103,11 +103,12 @@ public class ValueUnitImpl extends EObjectImpl implements ValueUnit {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public void setUnits(Unit newUnits) {
-		Unit oldUnits = units;
-		units = newUnits == null ? UNITS_EDEFAULT : newUnits;
+	@Override
+	public void setName(String newName) {
+		String oldName = name;
+		name = newName;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, TomoParametersPackage.VALUE_UNIT__UNITS, oldUnits, units));
+			eNotify(new ENotificationImpl(this, Notification.SET, TomoParametersPackage.MOTOR_POSITION__NAME, oldName, name));
 	}
 
 	/**
@@ -115,8 +116,9 @@ public class ValueUnitImpl extends EObjectImpl implements ValueUnit {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public double getValue() {
-		return value;
+	@Override
+	public double getPosition() {
+		return position;
 	}
 
 	/**
@@ -124,11 +126,12 @@ public class ValueUnitImpl extends EObjectImpl implements ValueUnit {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public void setValue(double newValue) {
-		double oldValue = value;
-		value = newValue;
+	@Override
+	public void setPosition(double newPosition) {
+		double oldPosition = position;
+		position = newPosition;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, TomoParametersPackage.VALUE_UNIT__VALUE, oldValue, value));
+			eNotify(new ENotificationImpl(this, Notification.SET, TomoParametersPackage.MOTOR_POSITION__POSITION, oldPosition, position));
 	}
 
 	/**
@@ -139,10 +142,10 @@ public class ValueUnitImpl extends EObjectImpl implements ValueUnit {
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-			case TomoParametersPackage.VALUE_UNIT__UNITS:
-				return getUnits();
-			case TomoParametersPackage.VALUE_UNIT__VALUE:
-				return getValue();
+			case TomoParametersPackage.MOTOR_POSITION__NAME:
+				return getName();
+			case TomoParametersPackage.MOTOR_POSITION__POSITION:
+				return getPosition();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -155,11 +158,11 @@ public class ValueUnitImpl extends EObjectImpl implements ValueUnit {
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-			case TomoParametersPackage.VALUE_UNIT__UNITS:
-				setUnits((Unit)newValue);
+			case TomoParametersPackage.MOTOR_POSITION__NAME:
+				setName((String)newValue);
 				return;
-			case TomoParametersPackage.VALUE_UNIT__VALUE:
-				setValue((Double)newValue);
+			case TomoParametersPackage.MOTOR_POSITION__POSITION:
+				setPosition((Double)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -173,11 +176,11 @@ public class ValueUnitImpl extends EObjectImpl implements ValueUnit {
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-			case TomoParametersPackage.VALUE_UNIT__UNITS:
-				setUnits(UNITS_EDEFAULT);
+			case TomoParametersPackage.MOTOR_POSITION__NAME:
+				setName(NAME_EDEFAULT);
 				return;
-			case TomoParametersPackage.VALUE_UNIT__VALUE:
-				setValue(VALUE_EDEFAULT);
+			case TomoParametersPackage.MOTOR_POSITION__POSITION:
+				setPosition(POSITION_EDEFAULT);
 				return;
 		}
 		super.eUnset(featureID);
@@ -191,10 +194,10 @@ public class ValueUnitImpl extends EObjectImpl implements ValueUnit {
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
-			case TomoParametersPackage.VALUE_UNIT__UNITS:
-				return units != UNITS_EDEFAULT;
-			case TomoParametersPackage.VALUE_UNIT__VALUE:
-				return value != VALUE_EDEFAULT;
+			case TomoParametersPackage.MOTOR_POSITION__NAME:
+				return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
+			case TomoParametersPackage.MOTOR_POSITION__POSITION:
+				return position != POSITION_EDEFAULT;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -209,12 +212,12 @@ public class ValueUnitImpl extends EObjectImpl implements ValueUnit {
 		if (eIsProxy()) return super.toString();
 
 		StringBuffer result = new StringBuffer(super.toString());
-		result.append(" (units: ");
-		result.append(units);
-		result.append(", value: ");
-		result.append(value);
+		result.append(" (name: ");
+		result.append(name);
+		result.append(", position: ");
+		result.append(position);
 		result.append(')');
 		return result.toString();
 	}
 
-} //ValueUnitImpl
+} //MotorPositionImpl

@@ -26,50 +26,16 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
-import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraModuleController;
-import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraMotionController;
-import uk.ac.gda.client.tomo.configuration.view.handlers.ITomoScanController;
 import uk.ac.gda.client.tomo.configuration.view.handlers.IScanControllerUpdateListener;
+import uk.ac.gda.client.tomo.configuration.view.handlers.ITomoScanController;
 import uk.ac.gda.tomography.parameters.AlignmentConfiguration;
 import uk.ac.gda.tomography.parameters.TomoExperiment;
 
-public class TomoConfigurationViewController implements InitializingBean {
+public class TomoConfigurationViewController {
 	private static final Logger logger = LoggerFactory.getLogger(TomoConfigurationViewController.class);
 
-	private ICameraMotionController cameraMotionController;
-
-	private ICameraModuleController cameraModuleController;
-
 	private ITomoScanController scanController;
-
-	public ICameraMotionController getCameraMotionController() {
-		return cameraMotionController;
-	}
-
-	public void setCameraMotionController(ICameraMotionController cameraMotionController) {
-		this.cameraMotionController = cameraMotionController;
-	}
-
-	public ICameraModuleController getCameraModuleController() {
-		return cameraModuleController;
-	}
-
-	public void setCameraModuleController(ICameraModuleController cameraModuleController) {
-		this.cameraModuleController = cameraModuleController;
-	}
-
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		if (cameraModuleController == null) {
-			throw new IllegalArgumentException("cameraModuleController should be provided");
-		}
-
-		if (cameraMotionController == null) {
-			throw new IllegalArgumentException("cameraMotionController should be provided");
-		}
-	}
 
 	private class TomoScan extends Job {
 

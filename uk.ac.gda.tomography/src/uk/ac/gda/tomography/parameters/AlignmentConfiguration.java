@@ -8,6 +8,7 @@ package uk.ac.gda.tomography.parameters;
 
 import java.util.Date;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 
 /**
@@ -22,17 +23,19 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getEnergy <em>Energy</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getDescription <em>Description</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getDetectorProperties <em>Detector Properties</em>}</li>
- *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSampleStageParameters <em>Sample Stage Parameters</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getScanMode <em>Scan Mode</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSampleExposureTime <em>Sample Exposure Time</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getFlatExposureTime <em>Flat Exposure Time</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getCreatedUserId <em>Created User Id</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getCreatedDateTime <em>Created Date Time</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSampleWeight <em>Sample Weight</em>}</li>
- *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getDetectorStageParameters <em>Detector Stage Parameters</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getProposalId <em>Proposal Id</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getStitchParameters <em>Stitch Parameters</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSelectedToRun <em>Selected To Run</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getMotorPositions <em>Motor Positions</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getInBeamPosition <em>In Beam Position</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getOutOfBeamPosition <em>Out Of Beam Position</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getTomoRotationAxis <em>Tomo Rotation Axis</em>}</li>
  * </ul>
  * </p>
  *
@@ -198,59 +201,6 @@ public interface AlignmentConfiguration extends EObject {
 	 * @generated
 	 */
 	boolean isSetDetectorProperties();
-
-	/**
-	 * Returns the value of the '<em><b>Sample Stage Parameters</b></em>' containment reference.
-	 * <!-- begin-user-doc -->
-	 * <p>
-	 * If the meaning of the '<em>Sample Stage Parameters</em>' containment reference isn't clear,
-	 * there really should be more of a description here...
-	 * </p>
-	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Sample Stage Parameters</em>' containment reference.
-	 * @see #isSetSampleStageParameters()
-	 * @see #unsetSampleStageParameters()
-	 * @see #setSampleStageParameters(SampleStage)
-	 * @see uk.ac.gda.tomography.parameters.TomoParametersPackage#getAlignmentConfiguration_SampleStageParameters()
-	 * @model containment="true" unsettable="true" required="true"
-	 * @generated
-	 */
-	SampleStage getSampleStageParameters();
-
-	/**
-	 * Sets the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSampleStageParameters <em>Sample Stage Parameters</em>}' containment reference.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Sample Stage Parameters</em>' containment reference.
-	 * @see #isSetSampleStageParameters()
-	 * @see #unsetSampleStageParameters()
-	 * @see #getSampleStageParameters()
-	 * @generated
-	 */
-	void setSampleStageParameters(SampleStage value);
-
-	/**
-	 * Unsets the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSampleStageParameters <em>Sample Stage Parameters</em>}' containment reference.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #isSetSampleStageParameters()
-	 * @see #getSampleStageParameters()
-	 * @see #setSampleStageParameters(SampleStage)
-	 * @generated
-	 */
-	void unsetSampleStageParameters();
-
-	/**
-	 * Returns whether the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getSampleStageParameters <em>Sample Stage Parameters</em>}' containment reference is set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return whether the value of the '<em>Sample Stage Parameters</em>' containment reference is set.
-	 * @see #unsetSampleStageParameters()
-	 * @see #getSampleStageParameters()
-	 * @see #setSampleStageParameters(SampleStage)
-	 * @generated
-	 */
-	boolean isSetSampleStageParameters();
 
 	/**
 	 * Returns the value of the '<em><b>Scan Mode</b></em>' attribute.
@@ -497,59 +447,6 @@ public interface AlignmentConfiguration extends EObject {
 	void setSampleWeight(SampleWeight value);
 
 	/**
-	 * Returns the value of the '<em><b>Detector Stage Parameters</b></em>' containment reference.
-	 * <!-- begin-user-doc -->
-	 * <p>
-	 * If the meaning of the '<em>Detector Stage Parameters</em>' containment reference isn't clear,
-	 * there really should be more of a description here...
-	 * </p>
-	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Detector Stage Parameters</em>' containment reference.
-	 * @see #isSetDetectorStageParameters()
-	 * @see #unsetDetectorStageParameters()
-	 * @see #setDetectorStageParameters(DetectorStage)
-	 * @see uk.ac.gda.tomography.parameters.TomoParametersPackage#getAlignmentConfiguration_DetectorStageParameters()
-	 * @model containment="true" unsettable="true" required="true"
-	 * @generated
-	 */
-	DetectorStage getDetectorStageParameters();
-
-	/**
-	 * Sets the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getDetectorStageParameters <em>Detector Stage Parameters</em>}' containment reference.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Detector Stage Parameters</em>' containment reference.
-	 * @see #isSetDetectorStageParameters()
-	 * @see #unsetDetectorStageParameters()
-	 * @see #getDetectorStageParameters()
-	 * @generated
-	 */
-	void setDetectorStageParameters(DetectorStage value);
-
-	/**
-	 * Unsets the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getDetectorStageParameters <em>Detector Stage Parameters</em>}' containment reference.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #isSetDetectorStageParameters()
-	 * @see #getDetectorStageParameters()
-	 * @see #setDetectorStageParameters(DetectorStage)
-	 * @generated
-	 */
-	void unsetDetectorStageParameters();
-
-	/**
-	 * Returns whether the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getDetectorStageParameters <em>Detector Stage Parameters</em>}' containment reference is set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return whether the value of the '<em>Detector Stage Parameters</em>' containment reference is set.
-	 * @see #unsetDetectorStageParameters()
-	 * @see #getDetectorStageParameters()
-	 * @see #setDetectorStageParameters(DetectorStage)
-	 * @generated
-	 */
-	boolean isSetDetectorStageParameters();
-
-	/**
 	 * Returns the value of the '<em><b>Proposal Id</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <p>
@@ -654,5 +551,107 @@ public interface AlignmentConfiguration extends EObject {
 	 * @generated
 	 */
 	void setSelectedToRun(Boolean value);
+
+	/**
+	 * Returns the value of the '<em><b>Motor Positions</b></em>' containment reference list.
+	 * The list contents are of type {@link uk.ac.gda.tomography.parameters.MotorPosition}.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Motor Positions</em>' containment reference list isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Motor Positions</em>' containment reference list.
+	 * @see uk.ac.gda.tomography.parameters.TomoParametersPackage#getAlignmentConfiguration_MotorPositions()
+	 * @model containment="true"
+	 * @generated
+	 */
+	EList<MotorPosition> getMotorPositions();
+
+	/**
+	 * Returns the value of the '<em><b>In Beam Position</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>In Beam Position</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>In Beam Position</em>' attribute.
+	 * @see #setInBeamPosition(double)
+	 * @see uk.ac.gda.tomography.parameters.TomoParametersPackage#getAlignmentConfiguration_InBeamPosition()
+	 * @model
+	 * @generated
+	 */
+	double getInBeamPosition();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getInBeamPosition <em>In Beam Position</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>In Beam Position</em>' attribute.
+	 * @see #getInBeamPosition()
+	 * @generated
+	 */
+	void setInBeamPosition(double value);
+
+	/**
+	 * Returns the value of the '<em><b>Out Of Beam Position</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Out Of Beam Position</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Out Of Beam Position</em>' attribute.
+	 * @see #setOutOfBeamPosition(double)
+	 * @see uk.ac.gda.tomography.parameters.TomoParametersPackage#getAlignmentConfiguration_OutOfBeamPosition()
+	 * @model
+	 * @generated
+	 */
+	double getOutOfBeamPosition();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getOutOfBeamPosition <em>Out Of Beam Position</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Out Of Beam Position</em>' attribute.
+	 * @see #getOutOfBeamPosition()
+	 * @generated
+	 */
+	void setOutOfBeamPosition(double value);
+
+	/**
+	 * Returns the value of the '<em><b>Tomo Rotation Axis</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Tomo Rotation Axis</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Tomo Rotation Axis</em>' attribute.
+	 * @see #setTomoRotationAxis(Integer)
+	 * @see uk.ac.gda.tomography.parameters.TomoParametersPackage#getAlignmentConfiguration_TomoRotationAxis()
+	 * @model
+	 * @generated
+	 */
+	Integer getTomoRotationAxis();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getTomoRotationAxis <em>Tomo Rotation Axis</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Tomo Rotation Axis</em>' attribute.
+	 * @see #getTomoRotationAxis()
+	 * @generated
+	 */
+	void setTomoRotationAxis(Integer value);
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @model
+	 * @generated
+	 */
+	Double getMotorPosition(String motorName);
 
 } // AlignmentConfiguration

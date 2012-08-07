@@ -2106,6 +2106,11 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 							configuration.setImageAtTheta(imgAtTheta);
 							// image at theta+90
 							configuration.setImageAtThetaPlus90(imgAtThetaPlus90);
+							if (leftWindowImageViewer.getCrossWireVertical().isVisible()) {
+								int x = leftWindowImageViewer.getCrossWireVertical().getPoints().getFirstPoint().x - leftWindowImageViewer.getImageBounds().x;
+								logger.debug("Tomo rotation axis:{}", x);
+								configuration.setTomoRotationAxis(x * tomoAlignmentViewController.getLeftWindowBinValue());
+							}
 							try {
 								tomoAlignmentViewController.saveConfiguration(monitor, configuration);
 							} catch (Exception e) {

@@ -4,6 +4,9 @@
     xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="parameters"
     nsURI="http:///uk/ac/gda/client/tomo/tomoparameters.ecore" nsPrefix="">
   <eClassifiers xsi:type="ecore:EClass" name="AlignmentConfiguration">
+    <eOperations name="getMotorPosition" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDoubleObject">
+      <eParameters name="motorName" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eOperations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="energy" lowerBound="1"
@@ -12,8 +15,6 @@
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="detectorProperties" lowerBound="1"
         eType="#//DetectorProperties" unsettable="true" containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="sampleStageParameters"
-        lowerBound="1" eType="#//SampleStage" unsettable="true" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="scanMode" lowerBound="1"
         eType="#//ScanMode" defaultValueLiteral="Step" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="sampleExposureTime" lowerBound="1"
@@ -25,14 +26,17 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="createdDateTime" unique="false"
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDate"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="sampleWeight" eType="#//SampleWeight"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="detectorStageParameters"
-        lowerBound="1" eType="#//DetectorStage" unsettable="true" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="proposalId" unique="false"
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="stitchParameters" lowerBound="1"
         eType="#//StitchParameters" unsettable="true" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="selectedToRun" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject"
         defaultValueLiteral="false"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="motorPositions" upperBound="-1"
+        eType="#//MotorPosition" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="inBeamPosition" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="outOfBeamPosition" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="tomoRotationAxis" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EIntegerObject"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="DetectorBin">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="binX" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EIntegerObject"
@@ -66,20 +70,16 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="maxY" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EIntegerObject"
         unsettable="true"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="DetectorStage">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="x" eType="#//ValueUnit"
-        unsettable="true" containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="y" eType="#//ValueUnit"
-        unsettable="true" containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="z" eType="#//ValueUnit"
-        unsettable="true" containment="true"/>
-  </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Module">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="moduleNumber" lowerBound="1"
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EIntegerObject"
         unsettable="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="horizontalFieldOfView"
-        eType="#//ValueUnit" unsettable="true" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="horizontalFieldOfView"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MotorPosition">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="position" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Parameters">
     <eOperations name="getAlignmentConfiguration" eType="#//AlignmentConfiguration">
@@ -90,20 +90,6 @@
     </eOperations>
     <eStructuralFeatures xsi:type="ecore:EReference" name="configurationSet" upperBound="-1"
         eType="#//AlignmentConfiguration" containment="true"/>
-  </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="SampleStage">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="vertical" eType="#//ValueUnit"
-        unsettable="true" containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="centerX" eType="#//ValueUnit"
-        unsettable="true" containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="centerZ" eType="#//ValueUnit"
-        unsettable="true" containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="tiltX" eType="#//ValueUnit"
-        unsettable="true" containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="tiltZ" eType="#//ValueUnit"
-        unsettable="true" containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="baseX" eType="#//ValueUnit"
-        unsettable="true" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EEnum" name="ScanMode">
     <eLiterals name="Continuous"/>
@@ -135,15 +121,5 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="totalTimeToRun" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDate"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="version" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
         defaultValueLiteral="1" unsettable="true"/>
-  </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="ValueUnit">
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="units" eType="#//Unit"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
-  </eClassifiers>
-  <eClassifiers xsi:type="ecore:EEnum" name="Unit">
-    <eLiterals name="Seconds" literal="Seconds"/>
-    <eLiterals name="MM" value="1"/>
-    <eLiterals name="Microns" value="2"/>
-    <eLiterals name="Degree" value="3"/>
   </eClassifiers>
 </ecore:EPackage>
