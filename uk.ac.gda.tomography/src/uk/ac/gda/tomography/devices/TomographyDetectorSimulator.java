@@ -159,12 +159,6 @@ public class TomographyDetectorSimulator implements ITomographyDetector {
 	}
 
 	@Override
-	public void setProcScale(int factor) throws Exception {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void setRoi1ScalingDivisor(double divisor) throws Exception {
 		// TODO Auto-generated method stub
 
@@ -221,6 +215,18 @@ public class TomographyDetectorSimulator implements ITomographyDetector {
 	public void setProc1Scale(double newScale) throws Exception {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void setProcScale(double factor) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setOffsetAndScale(double offset, double scale) throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

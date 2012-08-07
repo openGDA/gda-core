@@ -366,7 +366,7 @@ public class TomoDetectorHandlerSimulator implements ICameraHandler {
 	@Override
 	public void setUpForTilt(int minY, int maxY, int minX, int maxX) throws Exception {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -384,13 +384,19 @@ public class TomoDetectorHandlerSimulator implements ICameraHandler {
 	@Override
 	public void setProc1ScaleValue(double scaledValue) throws Exception {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public double getProc1Scale() throws Exception {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	@Override
+	public void applyScalingAndContrast(double offset, double scale) throws Exception {
+		// TODO Auto-generated method stub
+
 	}
 
 }

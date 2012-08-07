@@ -130,21 +130,21 @@ public class CameraCompositeController implements ICameraControlListener {
 
 	@Override
 	public void flatHistogram(boolean selection) throws Exception {
-
-		logger.debug("sample histogram selected {}", selection);
+		logger.debug("flat histogram selected {}", selection);
 		double flatExposureTime = cameraControls.getFlatExposureTime();
 
 		if (selection) {
 			// show the plot view
 			ViewerDisplayMode leftWindowViewerDisplayMode = v.getLeftWindowViewerDisplayMode();
-			if (ViewerDisplayMode.FLAT_STREAM_LIVE.equals(leftWindowViewerDisplayMode)
-					|| ViewerDisplayMode.FLAT_SINGLE.equals(leftWindowViewerDisplayMode)) {
-				cameraControls.deselectSampleStream();
+			if (ViewerDisplayMode.FLAT_STREAM_LIVE.equals(leftWindowViewerDisplayMode)) {
+
 				cameraControls.setZoom(ZOOM_LEVEL.NO_ZOOM);
 				cameraControls.stopSampleHistogram();
+				cameraControls.deselectSampleStream();
 				//
 				v.resetAmplifier();
 				cameraControls.deSelectSaturation();
+
 				double cameraExposureTime = tomoAlignmentViewController.getCameraExposureTime();
 				if (cameraExposureTime != flatExposureTime) {
 					tomoAlignmentViewController.setAmplifierUpdate(flatExposureTime, 1);
@@ -152,17 +152,25 @@ public class CameraCompositeController implements ICameraControlListener {
 
 				v.setRightPage(RIGHT_PAGE.PLOT);
 				v.addLeftWindowTomoImageListener();
+				v.setRightInfoPage(RIGHT_INFO.HISTOGRAM);
+			} else if (ViewerDisplayMode.FLAT_SINGLE.equals(leftWindowViewerDisplayMode)) {
+				String fileName = leftWindowViewerDisplayMode.getFileName(tomoAlignmentViewController);
+				cameraControls.setZoom(ZOOM_LEVEL.NO_ZOOM);
+				cameraControls.stopSampleHistogram();
+				v.tomoPlotComposite.updateHistogramData(v.getLeftWindowViewerDisplayMode(), new ImageData(fileName));
+				v.setRightPage(RIGHT_PAGE.PLOT);
+				v.setRightInfoPage(RIGHT_INFO.NONE);
 			} else {
 				MessageDialog.openError(cameraControls.getShell(), "Histogram cannot be displayed",
-						"Histogram can only be displayed for Flat Stream or Single");
+						"Histogram can only be displayed for Sample Stream or Single");
 				cameraControls.stopFlatHistogram();
-
+				v.setRightInfoPage(RIGHT_INFO.NONE);
 			}
 		} else {
-			v.setRightPage(RIGHT_PAGE.NONE);
 			v.removeLeftWindowTomoImageListener();
+			v.setRightPage(RIGHT_PAGE.NONE);
+			v.setRightInfoPage(RIGHT_INFO.NONE);
 		}
-
 	}
 
 	@Override
@@ -265,7 +273,7 @@ public class CameraCompositeController implements ICameraControlListener {
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					try {
 						SubMonitor progress = SubMonitor.convert(monitor);
-						progress.beginTask("Taking single", 10);
+						progress.beginTask("Taking Single", 10);
 						String fileLocation = null;
 
 						// Special case of taking single - when the amplifier is at "1" and the stream is switched
@@ -484,40 +492,55 @@ public class CameraCompositeController implements ICameraControlListener {
 	public void profile(boolean selected) throws Exception {
 		if (selected) {
 			logger.debug("'Profile' is selected");
-			cameraControls.startDemandRaw();
 			v.setRightPage(RIGHT_PAGE.PLOT);
+			ACTIVE_WORKBENCH_WINDOW.run(true, false, new IRunnableWithProgress() {
 
-			// According to the requirement only RAW images need to be profiled.
-			ViewerDisplayMode staticSingleEnum = v.getLeftWindowViewerDisplayMode();
+				@Override
+				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+					try {
+						final Exception[] es = new Exception[1];
+						cameraControls.getDisplay().syncExec(new Runnable() {
 
-			if (ViewerDisplayMode.SAMPLE_SINGLE == staticSingleEnum) {
-				String rawFileName = null;
-				try {
-					rawFileName = staticSingleEnum.getFileName(tomoAlignmentViewController);
+							@Override
+							public void run() {
 
-					String darkImgFileName = null;
-					if (tomoAlignmentViewController.isDarkImageSaved()) {
-						darkImgFileName = tomoAlignmentViewController.getDarkImageFileName();
-					}
-					v.tomoPlotComposite.setImagesToPlot(rawFileName, darkImgFileName);
+								try {
+									cameraControls.startSampleSingle();
+								} catch (Exception e) {
+									logger.error("TODO put description of error here", e);
+									es[0] = e;
+								}
+							}
+						});
+						if (es[0] != null) {
+							throw es[0];
+						}
 
-					ACTIVE_WORKBENCH_WINDOW.run(true, false, new IRunnableWithProgress() {
+						// According to the requirement only RAW images need to be profiled.
+						ViewerDisplayMode staticSingleEnum = v.getLeftWindowViewerDisplayMode();
 
-						@Override
-						public void run(IProgressMonitor monitor) throws InvocationTargetException,
-								InterruptedException {
+						if (ViewerDisplayMode.SAMPLE_SINGLE == staticSingleEnum) {
+							String rawFileName = null;
+							rawFileName = staticSingleEnum.getFileName(tomoAlignmentViewController);
+
+							String darkImgFileName = null;
+							if (tomoAlignmentViewController.isDarkImageSaved()) {
+								darkImgFileName = tomoAlignmentViewController.getDarkImageFileName();
+							}
+							v.tomoPlotComposite.setImagesToPlot(rawFileName, darkImgFileName);
+
 							v.updatePlots(monitor, 0, 4008, 1);
 							monitor.done();
-						}
-					});
 
-				} catch (Exception e1) {
-					logger.error("getting raw file problem.", e1);
+						}
+					} catch (Exception e1) {
+						logger.error("getting raw file problem.", e1);
+						throw new InvocationTargetException(e1, "Problem starting to profile");
+					}
 				}
 
-			}
+			});
 			leftWindowImageViewer.showLineProfiler();
-			v.setRightPage(RIGHT_PAGE.PLOT);
 		} else {
 			logger.debug("'Profile' is de-selected");
 			v.stopProfiling();

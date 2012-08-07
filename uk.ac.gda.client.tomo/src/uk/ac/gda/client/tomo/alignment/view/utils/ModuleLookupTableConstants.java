@@ -51,4 +51,6 @@ public interface ModuleLookupTableConstants {
 	final String SS1_X = "ss1_x";
 
 	final String BALL_DIAMETER = "ball-diameter";
+	
+	final String SS1_RZ = "ss1_rz";
 }

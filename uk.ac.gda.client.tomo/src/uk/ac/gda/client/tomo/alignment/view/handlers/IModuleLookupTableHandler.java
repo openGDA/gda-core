@@ -68,14 +68,6 @@ public interface IModuleLookupTableHandler extends ITomoHandler {
 
 	/**
 	 * @param module
-	 * @return the ss1Rx for the given module. If module is {@link CAMERA_MODULE}.NO_MODULE then returns {@link Double}
-	 *         .Nan
-	 * @throws DeviceException
-	 */
-	double lookupSs1Rx(CAMERA_MODULE module) throws DeviceException;
-
-	/**
-	 * @param module
 	 * @return the ss1Rz for the given module. If module is {@link CAMERA_MODULE}.NO_MODULE then returns {@link Double}
 	 *         .Nan
 	 * @throws DeviceException

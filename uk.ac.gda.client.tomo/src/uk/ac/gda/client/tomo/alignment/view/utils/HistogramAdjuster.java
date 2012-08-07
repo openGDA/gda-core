@@ -72,6 +72,13 @@ public class HistogramAdjuster {
 		return imgData;
 	}
 
+	public ImageData updateHistogramValues(int lowValue, int highValue) {
+		this.lowValue = lowValue;
+		this.highValue = highValue;
+		ImageData imgData = updateHistogram();
+		return imgData;
+	}
+
 	protected ImageData updateHistogram() {
 		logger.debug("Updating histogram");
 		int[] valArray = new int[BIN_SIZE];
@@ -91,8 +98,8 @@ public class HistogramAdjuster {
 			valArray[i] = pixel0;
 		}
 
-//		RGB rgb255 = new RGB(dBin - 1, dBin - 1, dBin - 1);
-		RGB rgb255 = new RGB(255,255,255);
+		// RGB rgb255 = new RGB(dBin - 1, dBin - 1, dBin - 1);
+		RGB rgb255 = new RGB(255, 255, 255);
 		int pixel255 = palette.getPixel(rgb255);
 		for (int i = dBin - 1; i < BIN_SIZE; i++) {
 			valArray[i] = pixel255;
@@ -123,4 +130,11 @@ public class HistogramAdjuster {
 		return imgData;
 	}
 
+	public double getMaxIntensity() {
+		return maxIntensity;
+	}
+	
+	public double getMinIntensity(){
+		return 0;
+	}
 }

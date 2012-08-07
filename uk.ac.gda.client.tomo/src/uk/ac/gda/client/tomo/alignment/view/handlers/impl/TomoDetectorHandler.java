@@ -245,7 +245,7 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 	@Override
 	public String demandRawWithStreamOn(IProgressMonitor monitor, boolean flatCorrectionSelected) throws Exception {
 		SubMonitor progress = SubMonitor.convert(monitor);
-		progress.subTask("raw image");
+		progress.subTask(String.format("Exposure time %.3g(s)", getAcqExposureRBV()));
 
 		String fullFileName = getCamera().demandRaw(null, getImageFilePath(), demandRawFileName, false,
 				flatCorrectionSelected, true);
@@ -910,5 +910,10 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 	@Override
 	public double getProc1Scale() throws Exception {
 		return camera.getProc1Scale();
+	}
+
+	@Override
+	public void applyScalingAndContrast(double offset, double scale) throws Exception {
+		camera.setOffsetAndScale(offset, scale);
 	}
 }
