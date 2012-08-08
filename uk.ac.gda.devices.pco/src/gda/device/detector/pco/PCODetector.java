@@ -1158,8 +1158,17 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	public void setSaveLocal(boolean saveLocal) {
 		this.saveLocal = saveLocal;
 	}
-	
+
 	public boolean isSaveLocal() {
 		return saveLocal;
 	}
+
+	public void setTriggerPV(String triggerPV) {
+		controller.setTriggerPV(triggerPV);
+	}
+
+	public String getTriggerPV() {
+		return controller.getTriggerPV();
+	}
+
 }

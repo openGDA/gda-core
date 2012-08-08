@@ -499,6 +499,7 @@ public class PCOTomography implements ITomographyDetector {
 	public void abort() throws Exception {
 		pcoDetector.stop();
 		pcoDetector.stopCapture();
+		pcoDetector.getController().disarmCamera();
 	}
 
 	@Override
