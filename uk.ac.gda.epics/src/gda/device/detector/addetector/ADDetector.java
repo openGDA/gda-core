@@ -27,7 +27,6 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.DetectorBase;
-import gda.device.detector.DetectorWithReadout;
 import gda.device.detector.GDANexusDetectorData;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.NXDetectorDataWithFilepathForSrs;
@@ -46,8 +45,6 @@ import gda.device.detector.areadetector.v17.NDStats;
 import gda.device.scannable.PositionCallableProvider;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
-import gda.jython.commands.ScannableCommands;
-import gda.observable.IObserver;
 import gda.scan.Scan;
 import gda.scan.ScanBase;
 
@@ -56,9 +53,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Vector;
 import java.util.concurrent.Callable;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -178,9 +175,9 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 
 	private static final String[] A = new String[] {};
 
-	private static final String UNSUPPORTED_PART_OF_SCANNABLE_INTERFACE = "ADDetector does not support operation through its Scannable interface. Do not use pos until pos supports detectors as Detectors rather than Scannables";
+	protected static final String UNSUPPORTED_PART_OF_SCANNABLE_INTERFACE = "ADDetector does not support operation through its Scannable interface. Do not use pos until pos supports detectors as Detectors rather than Scannables";
 
-	private static final String FILEPATH_EXTRANAME = "filepath";
+	protected static final String FILEPATH_EXTRANAME = "filepath";
 
 	private static Logger logger = LoggerFactory.getLogger(ADDetector.class);
 
@@ -438,7 +435,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 	/**
 	 * Extra name for each element in the stats and centroid statistics, if the instance is set to compute these.
 	 */
-	private void configureExtraNamesAndOutputFormat() {
+	protected void configureExtraNamesAndOutputFormat() {
 		if (!afterPropertiesSetCalled)
 			return;
 		List<String> extraNames = new ArrayList<String>();
@@ -528,7 +525,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 			{
 				//do not close down plugins as the callable could involve waiting for the last file to arrive
 				//on disk
-				latestPositionCallable.call();
+				latestPositionCallable.call(); // TODO: Should not be needed!
 			}
 			if(isReadFilepath()){
 				getFileWriter().endCollection();
@@ -642,9 +639,11 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 
 	private void addDoubleItemToNXData(NXDetectorData data, String name, Double val) {
 		data.addData(getName(), name, dims, NexusFile.NX_FLOAT64, new double[] { val }, null, null);
+		data.setDoubleVals((Double[]) ArrayUtils.add(data.getDoubleVals(), val));
 	}
 
-	private void addMultipleDoubleItemsToNXData(NXDetectorData data, String[] nameArray, Double[] valArray) {
+	protected final void addMultipleDoubleItemsToNXData(NXDetectorData data, String[] nameArray, Double[] valArray) {
+		
 		for (int i = 0; i < valArray.length; i++) {
 			addDoubleItemToNXData(data, nameArray[i], valArray[i]);
 		}
@@ -743,10 +742,13 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 			if (isReadArray()) {
 				readoutArrayIntoNXDetectorData(data);
 			}
-			populateNXDetectorData(data);
+			data.setDoubleVals(new Double[0]);
+			appendNXDetectorDataFromCollectionStrategy(data);
+			appendNXDetectorDataFromFileWriter(data);
+			appendNXDetectorDataFromPlugins(data);
 
-			if (metaDataProvider != null && firstReadoutInScan) {
-				INexusTree nexusTree = metaDataProvider.getNexusTree();
+			if (getMetaDataProvider() != null && firstReadoutInScan) {
+				INexusTree nexusTree = getMetaDataProvider().getNexusTree();
 				INexusTree detTree = data.getDetTree(getName());
 				detTree.addChildNode(nexusTree);
 			}
@@ -862,64 +864,62 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 			logger.warn("Dimensions of data from " + getName() + " is zero length");
 		}
 	}
-	private void populateNXDetectorData(NXDetectorData readoutData) throws Exception {
-		Vector<Double> doubleVals = new Vector<Double>();
+	protected void appendNXDetectorDataFromCollectionStrategy(NXDetectorData data) throws Exception {
 
 		if (isReadAcquisitionTime()) {
 			double acquireTime_RBV = getCollectionStrategy().getAcquireTime(); // TODO: PERFORMANCE, cache or listen
-			doubleVals.add(acquireTime_RBV);
-			addDoubleItemToNXData(readoutData, "count_time", acquireTime_RBV);
+			addDoubleItemToNXData(data, "count_time", acquireTime_RBV);
 		}
 
 		if (isReadAcquisitionPeriod()) {
 			double acquirePeriod_RBV = getCollectionStrategy().getAcquirePeriod(); // TODO: PERFORMANCE, cache or listen
-			doubleVals.add(acquirePeriod_RBV);
-			addDoubleItemToNXData(readoutData, "period", acquirePeriod_RBV);
+			addDoubleItemToNXData(data, "period", acquirePeriod_RBV);
 		}
-
+	}
+	
+	protected void appendNXDetectorDataFromFileWriter(NXDetectorData data) throws Exception {
+		List<Double> doubleVals = new ArrayList<Double>(Arrays.asList(data.getDoubleVals()));
 		if (isReadFilepath()) {
 			String filename = createFileName();
 			if (!StringUtils.hasLength(filename))
 				throw new IllegalArgumentException("filename is null or zero length");
 			// add reference to external file
 			if( !getFileWriter().isLinkFilepath()){
-				assert(readoutData instanceof NXDetectorDataWithFilepathForSrs); 
-				NXDetectorDataWithFilepathForSrs data = (NXDetectorDataWithFilepathForSrs) readoutData;
+				assert(data instanceof NXDetectorDataWithFilepathForSrs); 
+				NXDetectorDataWithFilepathForSrs dataForSrs = (NXDetectorDataWithFilepathForSrs) data;
 
-				NexusTreeNode fileNameNode = data.addFileNames(getName(), "image_data", new String[] { filename },
+				NexusTreeNode fileNameNode = dataForSrs.addFileNames(getName(), "image_data", new String[] { filename },
 						true, true);
 				fileNameNode.addChildNode(new NexusTreeNode("signal", NexusExtractor.AttrClassName, fileNameNode,
 						new NexusGroupData(1)));
 				// add filename as an NXNote
-				data.addFileName(getName(), filename);
+				dataForSrs.addFileName(getName(), filename);
 				int indexOf = Arrays.asList(getExtraNames()).indexOf(FILEPATH_EXTRANAME);
-				data.setFilepathOutputFieldIndex(indexOf);
+				dataForSrs.setFilepathOutputFieldIndex(indexOf);
 
 				doubleVals.add(0.); // this is needed as we have added an entry in extraNames
 
 			}else {
 				if (firstReadoutInScan) {
-					readoutData.addScanFileLink(getName(), "nxfile://" + filename + "#entry/instrument/detector/data");
+					data.addScanFileLink(getName(), "nxfile://" + filename + "#entry/instrument/detector/data");
 				}
 			}
+			data.setDoubleVals(doubleVals.toArray(new Double[] {}));
 		}
+
+	}
+	protected void appendNXDetectorDataFromPlugins(NXDetectorData data) throws Exception {
 
 		if (isComputeStats()) {
 			Double[] currentDoubleVals = statsGroup.getCurrentDoubleVals();
-			doubleVals.addAll(Arrays.asList(currentDoubleVals));
-			addMultipleDoubleItemsToNXData(readoutData, statsGroup.getFieldNames(), currentDoubleVals);
+			addMultipleDoubleItemsToNXData(data, statsGroup.getFieldNames(), currentDoubleVals);
 		}
 
 		if (isComputeCentroid()) {
 			Double[] currentDoubleVals = centroidGroup.getCurrentDoubleVals();
-			doubleVals.addAll(Arrays.asList(currentDoubleVals));
-			addMultipleDoubleItemsToNXData(readoutData, centroidGroup.getFieldNames(), currentDoubleVals);
+			addMultipleDoubleItemsToNXData(data, centroidGroup.getFieldNames(), currentDoubleVals);
 		}
 
-		if (doubleVals.size() > 0) {
-			readoutData.setDoubleVals(doubleVals.toArray(new Double[0]));
-			// NOTE: must match the list of extra names - ScanDataPoint.addDetector
-		}
 	}
 }
 
