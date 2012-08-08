@@ -26,7 +26,7 @@ import java.util.NoSuchElementException;
 import java.util.Vector;
 
 /**
- * Provides a a very simple input stream for reading positions/data from {@link Scannable}s / {@link Detector}s.
+ * Provides a very simple input stream for reading positions/data from {@link Scannable}s / {@link Detector}s.
  *
  * @param <T>
  */
@@ -34,7 +34,7 @@ public interface PositionInputStream<T> {
 
 	/**
 	 * Return at least one element, but no more than maxToRead, waiting until able to do so. The parameter maxToRead is
-	 * there to protect the caller from potentially receiving to much data in call, not to meet the needs of the
+	 * there to protect the caller from potentially receiving too much data in call, not to meet the needs of the
 	 * detector.
 	 * 
 	 * @param maxToRead

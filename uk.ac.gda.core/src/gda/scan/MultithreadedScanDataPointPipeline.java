@@ -161,7 +161,12 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 	}
 
 	protected static DeviceException wrappedException(Throwable e) {
-		String message = (e instanceof PyException) ? e.toString() : e.getMessage();
+		String message;
+		if (e instanceof NullPointerException) {
+			message = "NullPointerException";
+		} else {
+			message = (e instanceof PyException) ? e.toString() : e.getMessage();
+		}
 		return new DeviceException("Unable to publish scan data point because: " + message, e);
 	}
 
