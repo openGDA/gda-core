@@ -184,7 +184,7 @@ public class PCOTFGTrigger extends SimpleAcquire {
 	}
 
 	@Override
-	public void endCollection() throws Exception {
+	public void completeCollection() throws Exception {
 		if (checkCameraUsage)
 			adDriverPco.getCameraUsagePV().removeMonitorListener(getCameraUsageListener());
 		collectingData = false;

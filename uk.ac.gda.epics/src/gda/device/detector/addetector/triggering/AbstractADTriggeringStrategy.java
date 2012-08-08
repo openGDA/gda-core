@@ -18,8 +18,15 @@
 
 package gda.device.detector.addetector.triggering;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Vector;
+
+import org.apache.commons.lang.ArrayUtils;
 import org.springframework.beans.factory.InitializingBean;
 
+import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
 
 abstract public class AbstractADTriggeringStrategy implements ADTriggeringStrategy, InitializingBean{
@@ -27,6 +34,10 @@ abstract public class AbstractADTriggeringStrategy implements ADTriggeringStrate
 	private final ADBase adBase;
 
 	private double readoutTime = 0.1; // TODO: Should default to 0
+	
+	private boolean readAcquisitionTime = true;
+
+	private boolean readAcquisitionPeriod = false;
 	
 	AbstractADTriggeringStrategy(ADBase adBase) {
 		this.adBase = adBase;
@@ -42,6 +53,14 @@ abstract public class AbstractADTriggeringStrategy implements ADTriggeringStrate
 	public void setReadoutTime(double readoutTime) {
 		this.readoutTime = readoutTime;
 	}
+	
+	public void setReadAcquisitionTime(boolean readAcquisitionTime) {
+		this.readAcquisitionTime = readAcquisitionTime;
+	}
+
+	public void setReadAcquisitionPeriod(boolean readAcquisitionPeriod) {
+		this.readAcquisitionPeriod = readAcquisitionPeriod;
+	}
 
 	/**
 	 * Get the required readout/dwell time (t_period - t_acquire).
@@ -52,6 +71,14 @@ abstract public class AbstractADTriggeringStrategy implements ADTriggeringStrate
 	
 	protected ADBase getAdBase() {
 		return adBase;
+	}
+	
+	public boolean isReadAcquisitionTime() {
+		return readAcquisitionTime;
+	}
+	
+	public boolean isReadAcquisitionPeriod() {
+		return readAcquisitionPeriod;
 	}
 
 	@Override
@@ -68,6 +95,70 @@ abstract public class AbstractADTriggeringStrategy implements ADTriggeringStrate
 	public void afterPropertiesSet() throws Exception {
 		if( adBase == null)
 			throw new RuntimeException("adBase is not set");
+	}
+	
+	@Override
+	public String getName() {
+		return "driver";
+	}
+
+	@Override
+	public boolean willRequireCallbacks() {
+		return false;
+	}
+	
+	@Override
+	public void prepareForLine() throws Exception {
+	}
+
+	@Override
+	public void completeLine() throws Exception {
+	}
+	
+	@Override
+	public List<String> getInputStreamFieldNames() {
+		List<String> fieldNames = new ArrayList<String>();
+		if (isReadAcquisitionTime()) {
+			fieldNames.add("count_time");
+		}
+		if (isReadAcquisitionPeriod()) {
+			fieldNames.add("period");
+		}
+		return fieldNames;
+	}
+
+	@Override
+	public List<String> getInputStreamFormats() {
+		List<String> formats = new ArrayList<String>();
+		if (isReadAcquisitionTime()) {
+			formats.add("%.2f");
+		}
+		if (isReadAcquisitionPeriod()) {
+			formats.add("%.2f");
+		}
+		return formats;
+	}
+
+	@Override
+	public Vector<Double[]> read(int maxToRead) throws NoSuchElementException, InterruptedException, DeviceException {
+		Double[] times = new Double[0];
+		if (isReadAcquisitionTime()) {
+			try {
+				ArrayUtils.add(times, getAcquireTime());
+			} catch (Exception e) {
+				throw new DeviceException(e);
+			}
+		}
+		if (isReadAcquisitionPeriod()) {
+			try {
+				ArrayUtils.add(times, getAcquirePeriod());
+			} catch (Exception e) {
+				throw new DeviceException(e);
+			}
+		}
+		Vector<Double[]> vector = new Vector<Double[]>();
+		vector.add(times);
+		return new Vector<Double[]>();
 	}
 
 }

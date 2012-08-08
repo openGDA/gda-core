@@ -530,7 +530,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 			if(isReadFilepath()){
 				getFileWriter().endCollection();
 			}
-			getCollectionStrategy().endCollection();
+			getCollectionStrategy().completeCollection();
 		} catch (Exception e) {
 			throw new DeviceException(e);
 		}

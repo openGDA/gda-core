@@ -39,8 +39,8 @@ public class SingleExposurePco extends SingleExposureStandard {
 	}
 
 	@Override
-	public void endCollection() throws Exception {
-		super.endCollection();
+	public void completeCollection() throws Exception {
+		super.completeCollection();
 		adDriverPco.getArmModePV().putCallback(false);
 	}
 	

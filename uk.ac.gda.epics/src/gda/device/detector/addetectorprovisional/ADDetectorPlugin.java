@@ -29,11 +29,7 @@ public interface ADDetectorPlugin<T> extends PositionInputStream<T> {
 	
 	boolean willRequireCallbacks();
 
-	List<String> getInputStreamFieldNames();
-
-	List<String> getInputStreamFormats();
-
-	void prepareForCollection(int numberImagesPerCollection) throws Exception;
+	void prepareForCollection(double collectionTime, int numberImagesPerCollection) throws Exception;
 	
 	void prepareForLine() throws Exception;
 
@@ -45,6 +41,8 @@ public interface ADDetectorPlugin<T> extends PositionInputStream<T> {
 
 	void stop() throws Exception;
 	
-	
-	
+	List<String> getInputStreamFieldNames();
+
+	List<String> getInputStreamFormats();
+
 }

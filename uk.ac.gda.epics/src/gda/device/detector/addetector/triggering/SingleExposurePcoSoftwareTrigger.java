@@ -49,11 +49,11 @@ public class SingleExposurePcoSoftwareTrigger extends SingleExposureStandard {
 	}
 
 	@Override
-	public void endCollection() throws Exception {
+	public void completeCollection() throws Exception {
 		//wait for last busystate to clear from last acquire - as file is written and camera disarms
 		logger.info("endCollection:Before waitWhileBusy");
 		super.waitWhileBusy();
-		super.endCollection();
+		super.completeCollection();
 		adDriverPco.getArmModePV().putCallback(false);
 	}
 	
