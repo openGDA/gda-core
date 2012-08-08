@@ -34,7 +34,6 @@ import gda.device.detector.addetector.filewriter.FileWriter;
 import gda.device.detector.addetector.triggering.ADTriggeringStrategy;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.NDArray;
-import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDStats;
 
@@ -336,7 +335,7 @@ public class ADDetectorTest {
 		NXDetectorData data = (NXDetectorData) det().readout();
 		assertEquals("", data.toString());
 		Double[] doubleVals = data.getDoubleVals();
-		assertArrayEquals(new Double[] { null }, doubleVals);
+		assertArrayEquals(new Double[] { }, doubleVals);
 	}
 
 	@Test
@@ -352,7 +351,7 @@ public class ADDetectorTest {
 
 		NXDetectorData data = (NXDetectorData) det().readout();
 		assertEquals("", data.toString());
-		assertArrayEquals(new Double[] { null }, data.getDoubleVals());
+		assertArrayEquals(new Double[] { }, data.getDoubleVals());
 	}
 
 	@Test
