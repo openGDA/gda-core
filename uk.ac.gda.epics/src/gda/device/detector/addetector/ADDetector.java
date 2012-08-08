@@ -18,8 +18,6 @@
 
 package gda.device.detector.addetector;
 
-import gda.data.ObservablePathProvider;
-import gda.data.PathChanged;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -196,8 +194,6 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 
 	private ADTriggeringStrategy collectionStrategy;
 
-	private ObservablePathProvider pathProvider;
-
 	private String description = "ADDetector";
 
 	private String detectorType = "ADDetector";
@@ -306,10 +302,6 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 
 	public NDFile getNdFile() {
 		return ndFile;
-	}
-
-	public ObservablePathProvider getPathProvider() {
-		return pathProvider;
 	}
 
 	public boolean isComputeStats() {
