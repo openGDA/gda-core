@@ -212,12 +212,9 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 	@Override
 	public String[] getExtraNames() {
 		List<String> extraNames = new ArrayList<String>();
-		if (isReadAcquisitionTime()) {
-			extraNames.add("count_time");
-		}
-		if (isReadAcquisitionPeriod()) {
-			extraNames.add("period");
-		}
+		
+		extraNames.addAll(getCollectionStrategy().getInputStreamFieldNames());
+
 		if (isReadFilepath() && !getFileWriter().isLinkFilepath()) {
 			extraNames.add(FILEPATH_EXTRANAME);
 		}
@@ -231,12 +228,9 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 	@Override
 	public String[] getOutputFormat() {
 		List<String> formats = new ArrayList<String>();
-		if (isReadAcquisitionTime()) {
-			formats.add("%.2f");
-		}
-		if (isReadAcquisitionPeriod()) {
-			formats.add("%.2f");
-		}
+		
+		formats.addAll(getCollectionStrategy().getInputStreamFormats());
+
 		if (isReadFilepath() && !getFileWriter().isLinkFilepath()) {
 			// used to format the double that is put into the doubleVals array in this case
 			formats.add("%.2f"); // TODO I don't follow this - RobW
@@ -250,13 +244,13 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 	@Override
 	public void atScanStart() throws DeviceException {
 
-		super.atScanStart(); // may enable/disable array callbacks
+		super.atScanStart(); // TODO may enable/disable array callbacks, and duplicate some calls below
 
 		try {
 
 			int numberImagesPerCollection = getCollectionStrategy().getNumberImagesPerCollection(getCollectionTime());
 			for (ADDetectorPlugin<?> plugin : pluginList) {
-				plugin.prepareForCollection(numberImagesPerCollection);
+				plugin.prepareForCollection(getCollectionTime(), numberImagesPerCollection);
 			}
 			getAdBase().setArrayCallbacks(areCallbacksRequired() ? 1 : 0);
 
@@ -264,6 +258,14 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 			throw new DeviceException(e);
 		}
 	}
+
+//	private List<ADDetectorPlugin<Double[]>> getCompletePluginList() {
+//		ArrayList<ADDetectorPlugin<Double[]>> completePluginList = new ArrayList<ADDetectorPlugin<Double[]>>();
+//		completePluginList.add(getCollectionStrategy());
+//		completePluginList.add(getFileWriter());
+//		completePluginList.addAll(getPluginList());
+//		return completePluginList;
+//	}
 
 	boolean areCallbacksRequired() {
 
@@ -287,7 +289,23 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 			}
 		}
 	}
-
+	@Override
+	protected void appendNXDetectorDataFromCollectionStrategy(NXDetectorData data) throws Exception {
+		// TODO Code copied from appendNXDetectorDataFromPlugins below
+		Double[] doubleVals;
+		try {
+			Vector<Double[]> read = getCollectionStrategy().read(Integer.MAX_VALUE);
+			if (read.size() == 0) {
+				throw new AssertionError(getCollectionStrategy().getName() + " input stream returned zero elements.");
+			}
+			doubleVals = read.get(0);
+		} catch (Exception e) {
+			throw new DeviceException(e);
+		}
+		
+		addMultipleDoubleItemsToNXData(data, getCollectionStrategy().getInputStreamFieldNames().toArray(new String[0]), doubleVals);
+	}
+	
 	@Override
 	protected void appendNXDetectorDataFromPlugins(NXDetectorData data) throws Exception {
 		

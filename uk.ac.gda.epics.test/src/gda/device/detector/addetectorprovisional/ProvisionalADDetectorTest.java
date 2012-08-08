@@ -41,8 +41,10 @@ import gda.device.detector.areadetector.v17.NDStats;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Vector;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.Ignore;
@@ -53,6 +55,8 @@ import org.mockito.MockitoAnnotations;
 
 public class ProvisionalADDetectorTest extends ADDetectorTest{
 
+	private static final double ACQUIRE_TIME = 0.5;
+	private static final double ACQUIRE_PERIOD = 0.55;
 	@Mock private ADDetectorPlugin<Double[]> adDetectorPlugin1;
 	@Mock private ADDetectorPlugin<Double[]> adDetectorPlugin2;
 	@Mock private ADDetectorPlugin<Double[]> statsPlugin;
@@ -89,6 +93,8 @@ public class ProvisionalADDetectorTest extends ADDetectorTest{
 		when(centroidPlugin.getInputStreamFormats()).thenReturn(Arrays.asList(CENTROID_FORMATS));
 		when(ndArray.getPluginBase()).thenReturn(ndArrayBase);
 		
+		enableReadAcquisitionTimeAndPeriod(true, false);
+		
 	}
 
 	@Override
@@ -106,6 +112,35 @@ public class ProvisionalADDetectorTest extends ADDetectorTest{
 			pluginList.add(centroidPlugin);
 		}
 		det().setPluginList(pluginList);
+	}
+	
+	@Override
+	protected void enableReadAcquisitionTimeAndPeriod(boolean enableTime, boolean enablePeriod) {
+		
+		List<String> fieldNames = new ArrayList<String>();
+		List<String> formats = new ArrayList<String>();
+		Double[] times = new Double[0];
+		
+		if (enableTime) {
+			fieldNames.add("count_time");
+			formats.add("%.2f");
+			times = (Double[]) ArrayUtils.add(times, ACQUIRE_TIME);
+		}
+		if (enablePeriod) {
+			fieldNames.add("period");
+			formats.add("%.2f");
+			times = (Double[]) ArrayUtils.add(times, ACQUIRE_PERIOD);
+			
+		}
+		Vector<Double[]> vector = new Vector<Double[]>();
+		vector.add(times);
+		when(collectionStrategy.getInputStreamFieldNames()).thenReturn(fieldNames);
+		when(collectionStrategy.getInputStreamFormats()).thenReturn(formats);
+		try {
+			when(collectionStrategy.read(anyInt())).thenReturn(vector);
+		} catch (Exception e){
+			throw new RuntimeException(e);
+		}
 	}
 
 	
@@ -126,14 +161,14 @@ public class ProvisionalADDetectorTest extends ADDetectorTest{
 	@Test
 	public void testGetInputNamesAreAlwaysEmpty() {
 		assertArrayEquals(new String[] {}, det().getInputNames());
-		det().setReadAcquisitionTime(false);
+		enableReadAcquisitionTimeAndPeriod(false, false);
 		assertArrayEquals(new String[] {}, det().getInputNames());
 	}
 
 	@Test
 	public void testGetExtraNamesNoPlugins() {
 		assertArrayEquals(new String[] { "count_time" }, det().getExtraNames());
-		det().setReadAcquisitionPeriod(true);
+		enableReadAcquisitionTimeAndPeriod(true, true);
 		assertArrayEquals(new String[] { "count_time", "period" }, det().getExtraNames());
 		det().setReadFilepath(true);
 		assertArrayEquals(new String[] { "count_time", "period", "filepath" }, det().getExtraNames());
@@ -141,7 +176,7 @@ public class ProvisionalADDetectorTest extends ADDetectorTest{
 
 	@Test
 	public void testGetExtraNamesOnePlugin() {
-		det().setReadAcquisitionTime(false);
+		enableReadAcquisitionTimeAndPeriod(false, false);
 		det().setPluginList(asList(adDetectorPlugin1));
 		assertArrayEquals(PLUGIN1_NAMES, det().getExtraNames());
 	}
@@ -157,13 +192,12 @@ public class ProvisionalADDetectorTest extends ADDetectorTest{
 		det().setPluginList(asList(adDetectorPlugin1,adDetectorPlugin2));
 		String[] PLUGIN_FORMATS = (String[]) addAll(PLUGIN1_FORMATS, PLUGIN2_FORMATS);
 		
-		det().setReadAcquisitionTime(false);
-		det().setReadAcquisitionPeriod(false);
+		enableReadAcquisitionTimeAndPeriod(false, false);
 		assertArrayEquals(addAll(new String[] {}, PLUGIN_FORMATS), det().getOutputFormat());
 	
-		det().setReadAcquisitionTime(true);
+		enableReadAcquisitionTimeAndPeriod(true, false);
 		det().setReadFilepath(true);
-		det().setReadAcquisitionPeriod(true);
+		enableReadAcquisitionTimeAndPeriod(true, true);
 		// the 3rd value in position is a number that represents the file.
 		assertArrayEquals(addAll(new String[] { "%.2f", "%.2f", "%.2f" }, PLUGIN_FORMATS), det().getOutputFormat());
 		det().setReadFilepath(false);
@@ -172,16 +206,16 @@ public class ProvisionalADDetectorTest extends ADDetectorTest{
 	//
 	@Test
 	public void testReadoutNoPlugins() throws DeviceException {
-		det().setReadAcquisitionTime(false);
+		enableReadAcquisitionTimeAndPeriod(false, false);
 		NXDetectorData data = (NXDetectorData) det().readout();
-		assertEquals("", data.toString());
 		Double[] doubleVals = data.getDoubleVals();
+		assertEquals("", data.toString());
 		assertArrayEquals(new Double[] { }, doubleVals);
 	}
 
 	@Test
 	public void testReadoutOnePlugin() throws Exception { // TODO: Two next
-		det().setReadAcquisitionTime(false);
+		enableReadAcquisitionTimeAndPeriod(false, false);
 		det().setPluginList(asList(adDetectorPlugin1));
 		Vector<Double[]> vector = new Vector<Double[]>();
 		vector.add(new Double[] {0., 1., 2.});
@@ -257,14 +291,11 @@ public class ProvisionalADDetectorTest extends ADDetectorTest{
 	@Override
 	@Test
 	public void testReadoutTimes() throws Exception {
-		det().setReadAcquisitionPeriod(true);
-
-		when(collectionStrategy.getAcquireTime()).thenReturn(0.5);
-		when(collectionStrategy.getAcquirePeriod()).thenReturn(0.55);
+		enableReadAcquisitionTimeAndPeriod(true, true);
 		
 		NXDetectorData readout = (NXDetectorData) det().readout();
-		assertEquals("0.50\t0.55", readout.toString());
 		assertArrayEquals(new Double[] { 0.5, 0.55 }, readout.getDoubleVals());
+		assertEquals("0.50\t0.55", readout.toString());
 
 		INexusTree rootNode = readout.getNexusTree().getChildNode(0);
 		assertArrayEquals(new double[] { 0.5 }, (double[]) rootNode.getChildNode("count_time", "SDS").getData()
