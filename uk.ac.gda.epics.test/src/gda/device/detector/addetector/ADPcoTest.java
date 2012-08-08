@@ -20,6 +20,7 @@ package gda.device.detector.addetector;
 
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import gda.TestHelpers;
@@ -60,7 +61,8 @@ public class ADPcoTest extends ADDetectorTest {
 		mockAdDriverPco = mock(ADDriverPco.class);
 		mockArmModePv = mock(PV.class);
 		when(mockAdDriverPco.getArmModePV()).thenReturn(mockArmModePv);
-		adPco.setCollectionStrategy(new SingleExposurePco(mockAdBase, mockAdDriverPco, 0.1)); // default strategy
+		collectionStrategy = spy(new SingleExposurePco(adBase, mockAdDriverPco, 0.1));
+		adPco.setCollectionStrategy(collectionStrategy); // default strategy
 
 	}
 
@@ -69,7 +71,6 @@ public class ADPcoTest extends ADDetectorTest {
 		createDetector();
 		super.setUpNoConfigure();
 		mockNdFilePluginBase = mock(NDPluginBase.class);
-		when(mockNdFile.getPluginBase()).thenReturn(mockNdFilePluginBase);
 
 	}
 	
@@ -79,52 +80,39 @@ public class ADPcoTest extends ADDetectorTest {
 		TestHelpers.setUpTest(ADPcoTest.class, "testPrepareForCollection", true);
 		det().setReadFilepath(true);
 		super.testAtScanStart();
-		InOrder inOrder = inOrder(mockAdBase, mockArmModePv, mockNdFile, mockNdFilePluginBase);
+		InOrder inOrder = inOrder(adBase, mockArmModePv, fileWriter, mockNdFilePluginBase);
 		
 		// Triggering
-		inOrder.verify(mockAdBase).stopAcquiring();
-		inOrder.verify(mockAdBase).setTriggerMode(1);
-		inOrder.verify(mockAdBase).setImageModeWait(ImageMode.SINGLE);
-		inOrder.verify(mockAdBase).setNumImages(1);
+		inOrder.verify(adBase).stopAcquiring();
+		inOrder.verify(adBase).setTriggerMode(1);
+		inOrder.verify(adBase).setImageModeWait(ImageMode.SINGLE);
+		inOrder.verify(adBase).setNumImages(1);
 
 		// Arming
 		inOrder.verify(mockArmModePv).putCallback(true);
 		
 		// File writing
-		inOrder.verify(mockNdFile).setFileName("testdet");
-		inOrder.verify(mockNdFile).setFileNumber(0);
-		inOrder.verify(mockNdFilePluginBase).enableCallbacks();
-		inOrder.verify(mockNdFilePluginBase).setBlockingCallbacks(1);
-		inOrder.verify(mockNdFile).setFileWriteMode(FileWriteMode.SINGLE);
+//		inOrder.verify(mockNdFilePluginBase).enableCallbacks();
+//		inOrder.verify(mockNdFilePluginBase).setBlockingCallbacks(1);
 	}
 	
 	@Test
 	public void testAtScanEnd() throws Exception {
 		pco().setReadFilepath(true);
 		pco().atScanEnd();
-		checkDisableFileWriter();
 	}
 	@Test
 	public void testAtCommandFailure() throws Exception {
 		pco().setReadFilepath(true);
 		pco().atCommandFailure();
-		checkDisableFileWriter();
 	}
 	@Override
 	@Test
 	public void testStop() throws Exception {
 		pco().setReadFilepath(true);
 		pco().stop();
-		checkDisableFileWriter();
-		verify(mockAdBase).stopAcquiring();
+		verify(adBase).stopAcquiring();
 
-	}
-
-	private void checkDisableFileWriter() throws Exception {
-		InOrder inOrder = inOrder(mockNdFile, mockNdFilePluginBase);
-		inOrder.verify(mockNdFilePluginBase).disableCallbacks();
-		inOrder.verify(mockNdFilePluginBase).setBlockingCallbacks(0);
-		inOrder.verify(mockNdFile).setFileWriteMode(FileWriteMode.STREAM);
 	}
 
 }

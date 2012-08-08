@@ -26,6 +26,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -40,6 +41,7 @@ import gda.device.detector.addetector.triggering.SingleExposurePilatus;
 import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.device.detector.areadetector.v17.ADDriverPilatus;
 import gda.device.detector.areadetector.v17.ADDriverPilatus.PilatusTriggerMode;
+import gda.device.detector.areadetector.v17.NDFile;
 
 import java.io.File;
 import java.util.concurrent.Callable;
@@ -58,6 +60,8 @@ public class ADPilatusTest extends ADDetectorTest {
 	private ADDriverPilatus mockAdDriverPilatus;
 
 	private HardwareTriggerProvider triggerProvider;
+	
+	private NDFile ndFile;
 
 	public ADPilatusTest() {
 		READOUT_TIME = .003;
@@ -77,8 +81,11 @@ public class ADPilatusTest extends ADDetectorTest {
 		adPilatus = new HardwareTriggerableADDetector();
 		adPilatus.setIntegratesBetweenPoints(true);
 		mockAdDriverPilatus = mock(ADDriverPilatus.class);
-		adPilatus.setNonHardwareTriggeredCollectionStrategy(new SingleExposurePilatus(mockAdBase, 0.003)); // default strategy
-		adPilatus.setHardwareTriggeredCollectionStrategy(new HardwareTriggeredPilatus(mockAdBase, mockAdDriverPilatus, 0.003, HARDWARE_TRIGGER_MODE)); // default strategy
+		collectionStrategy = spy(new SingleExposurePilatus(adBase, 0.003));
+		adPilatus.setNonHardwareTriggeredCollectionStrategy(collectionStrategy); // default strategy
+		adPilatus.setHardwareTriggeredCollectionStrategy(new HardwareTriggeredPilatus(adBase, mockAdDriverPilatus, 0.003, HARDWARE_TRIGGER_MODE)); // default strategy
+		ndFile = mock(NDFile.class);
+		adPilatus.setNdFile(ndFile);
 	}
 
 	@Override
@@ -125,14 +132,14 @@ public class ADPilatusTest extends ADDetectorTest {
 		pil().setHardwareTriggering(true);
 		pil().setCollectionTime(1.);
 		pil().arm();
-		InOrder inOrder = inOrder(mockAdBase, mockAdDriverPilatus);
-		inOrder.verify(mockAdBase).setAcquirePeriod(1. + READOUT_TIME);
-		inOrder.verify(mockAdBase).setAcquireTime(1);
-		inOrder.verify(mockAdBase).setTriggerMode(HARDWARE_TRIGGER_MODE.ordinal());
-		inOrder.verify(mockAdBase).setImageModeWait(ImageMode.MULTIPLE);
-		inOrder.verify(mockAdBase).setNumImages(10);
+		InOrder inOrder = inOrder(adBase, mockAdDriverPilatus);
+		inOrder.verify(adBase).setAcquirePeriod(1. + READOUT_TIME);
+		inOrder.verify(adBase).setAcquireTime(1);
+		inOrder.verify(adBase).setTriggerMode(HARDWARE_TRIGGER_MODE.ordinal());
+		inOrder.verify(adBase).setImageModeWait(ImageMode.MULTIPLE);
+		inOrder.verify(adBase).setNumImages(10);
 		inOrder.verify(mockAdDriverPilatus).setDelayTime(0);
-		inOrder.verify(mockAdBase).startAcquiring();
+		inOrder.verify(adBase).startAcquiring();
 		inOrder.verify(mockAdDriverPilatus).waitForArmed(30);
 	}
 
@@ -156,10 +163,10 @@ public class ADPilatusTest extends ADDetectorTest {
 
 	protected void setupGetPositionCallableInAHardwareTriggeredScan(String filepath) throws Exception, DeviceException {
 		setupForReadoutAndGetPositionWithFilenameAndTimes();
-		when(mockNdFile.getFileTemplate_RBV()).thenReturn("%s%s%d.cbf");
-		when(mockNdFile.getFilePath_RBV()).thenReturn(filepath);
-		when(mockNdFile.getFileName_RBV()).thenReturn("file");
-		when(mockNdFile.getFileNumber_RBV()).thenReturn(99);
+		when(ndFile.getFileTemplate_RBV()).thenReturn("%s%s%d.cbf");
+		when(ndFile.getFilePath_RBV()).thenReturn(filepath);
+		when(ndFile.getFileName_RBV()).thenReturn("file");
+		when(ndFile.getFileNumber_RBV()).thenReturn(99);
 		pil().atScanLineStart();
 		pil().setHardwareTriggering(true);
 		pil().arm();
@@ -181,7 +188,7 @@ public class ADPilatusTest extends ADDetectorTest {
 	public void testPositionCallableWaitingNoChecks() throws Exception {
 		setupGetPositionCallableInAHardwareTriggeredScan("/full/path/to/");
 		pil().getPositionCallable().call();
-		verify(mockAdBase, never()).waitForArrayCounterToReach(anyInt(), anyInt());
+		verify(adBase, never()).waitForArrayCounterToReach(anyInt(), anyInt());
 		// Will hang if waiting for file
 	}
 
@@ -190,7 +197,7 @@ public class ADPilatusTest extends ADDetectorTest {
 		pil().setExposureCompleteWhenArrayCounterSaysSo(true);
 		setupGetPositionCallableInAHardwareTriggeredScan("/full/path/to/");
 		pil().getPositionCallable().call();
-		verify(mockAdBase).waitForArrayCounterToReach(anyInt(), anyInt());
+		verify(adBase).waitForArrayCounterToReach(anyInt(), anyInt());
 		// Will hang if waiting for file
 
 	}
