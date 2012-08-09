@@ -287,9 +287,6 @@ class QexafsScan(Scan):
         detectorList = self._getQEXAFSDetectors(detectorBean, outputBean, scanBean) 
         print "detectors to be used:", str(detectorList)
         
-<<<<<<< HEAD
-        for repetitionNumber in range(0, numRepetitions):
-=======
         
         # send initial message to the log
         from gda.jython.scriptcontroller.logging import LoggingScriptController
@@ -306,7 +303,6 @@ class QexafsScan(Scan):
         print ""
         print "Output to",xmlFolderName
         print ""
->>>>>>> f7eca0f... GDA-5040 optimised online analysis view for when running Qexafs
 
         
         # reset the properties used to control repetition behaviour
@@ -315,21 +311,6 @@ class QexafsScan(Scan):
         LocalProperties.set(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY,str(numRepetitions))
         repetitionNumber = 0
         
-<<<<<<< HEAD
-            self._runScript(outputBean.getBeforeScriptName())
-        
-            scan_time = scanBean.getTime()
-        
-            print "running QEXAFS scan:", self.energy_scannable.getName(), scanBean.getInitialEnergy(), scanBean.getFinalEnergy(), numberPoints, scan_time, detectorList
-            controller.update(None, ScriptProgressEvent("Running QEXAFS scan"))
-            thisscan = ContinuousScan(self.energy_scannable , scanBean.getInitialEnergy(), scanBean.getFinalEnergy(), numberPoints, scan_time, detectorList)
-            controller.update(None, ScanCreationEvent(thisscan.getName()))
-            thisscan.runScan()  
-            controller.update(None, ScanFinishEvent(thisscan.getName(), ScanFinishEvent.FinishType.OK));
-        
-            self._runScript(outputBean.getAfterScriptName())
-        
-=======
         try:
             while True:
                 repetitionNumber+= 1
@@ -420,7 +401,6 @@ class QexafsScan(Scan):
             LocalProperties.set("gda.scan.useScanPlotSettings", "false")
             LocalProperties.set("gda.plot.ScanPlotSettings.fromUserList", "false")
             
->>>>>>> f7eca0f... GDA-5040 optimised online analysis view for when running Qexafs
             #remove added metadata from default metadata list to avoid multiple instances of the same metadata
             if (jython_mapper.original_header != None):
                 jython_mapper = JythonNameSpaceMapping()
