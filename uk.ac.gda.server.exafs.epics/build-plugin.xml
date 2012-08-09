@@ -32,7 +32,7 @@
                 <pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/jars/*" />
                 <pathelement location="${workspace.git.loc}/gda-epics.git/uk.ac.gda.epics/bin" />
                 <pathelement location="${workspace.git.loc}/gda-epics.git/uk.ac.gda.epics/jars/*" />
-                <pathelement location="${workspace.git.loc}/scisoft/scisoft-core.git/uk.ac.diamond.scisoft.analysis/bin" />
+                <pathelement location="${workspace.git.loc}/${scisoft.git.parent.dir}scisoft-core.git/uk.ac.diamond.scisoft.analysis/bin" />
                 <pathelement location="${workspace.loc}/tp/plugins/*" />
                 <path refid="ncsa.hdf.classpath" />
             </classpath>
