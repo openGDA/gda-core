@@ -296,8 +296,7 @@ where task can be:
 		self.determine_gda_configuration()
 		self.determine_gda_environment()
 		self.determine_gda_data()
-		if self.task != "rcpclient":
-			self.build_class_path_and_library_path()
+		self.build_class_path_and_library_path()
 		self.log_gda_configuration_and_data()
 
 		if self.options.version:
