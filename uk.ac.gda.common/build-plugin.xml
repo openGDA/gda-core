@@ -24,7 +24,6 @@
          ==================================================================== -->
 
     <target name="junit-tests" depends="toolCheck, set-test-base">
-        <echo>zzz ${GDA-plugin.basedir}</echo>
         <junit-call description="${ant.project.name} Java JUnit tests">
             <formatter type="xml" />
             <classpath>
