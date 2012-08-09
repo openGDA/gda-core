@@ -19,11 +19,8 @@
 package gda.simplescan;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 
-import org.eclipse.core.runtime.Path;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IPartListener;
@@ -43,12 +40,15 @@ public class SimpleScanView extends ViewPart {
 	SimpleScanComposite simpleScanComposite;
 
 	private IPartListener partListener = new IPartListener() {
+		@Override
 		public void partActivated(IWorkbenchPart part) {}
+		@Override
 		public void partBroughtToTop(IWorkbenchPart part) {}
+		@Override
 		public void partClosed(IWorkbenchPart part) {}
+		@Override
 		public void partDeactivated(IWorkbenchPart part) {
 			if(part instanceof SimpleScanView){
-			double value = simpleScanComposite.getFromPos().getNumericValue();
 			try {
 				BeanUI.uiToBean(simpleScanComposite, editingBean);
 				XMLHelpers.writeToXML(SimpleScan.mappingURL, editingBean, path);
@@ -56,6 +56,7 @@ public class SimpleScanView extends ViewPart {
 			}
 			}
 		}
+		@Override
 		public void partOpened(IWorkbenchPart part) {}
 	};
 
@@ -75,7 +76,6 @@ public class SimpleScanView extends ViewPart {
 			logger.error("Could not load xml " + path + " into bean", e);
 		}
 		simpleScanComposite = new SimpleScanComposite(parent, SWT.NONE, editingBean, null);
-		double value = simpleScanComposite.getFromPos().getNumericValue();
 		getSite().getPage().addPartListener(partListener);
 	}
 
