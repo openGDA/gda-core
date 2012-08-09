@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,6 +18,7 @@
 
 package uk.ac.gda.exafs.ui.actions;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -33,39 +34,45 @@ import org.eclipse.ui.WorkbenchException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.rcp.DataExplorationPerspective;
 import uk.ac.gda.exafs.ui.AlignmentPerspective;
-
+import uk.ac.gda.pydev.extension.ui.perspective.JythonPerspective;
 
 /**
  * This class is here because Sofia requested action exist to switch between perspective groups.
  */
-public class AlignmentModeHandler extends AbstractHandler implements IWorkbenchWindowActionDelegate, IEditorActionDelegate  {
+public class AlignmentModeHandler extends AbstractHandler implements IWorkbenchWindowActionDelegate,
+		IEditorActionDelegate {
 
 	private static final Logger logger = LoggerFactory.getLogger(AlignmentModeHandler.class);
-	
+
+	private static final String[] idsToShow = new String[] { DataExplorationPerspective.ID, AlignmentPerspective.ID,
+			JythonPerspective.ID };
+
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		return doAlignemtMode();
 	}
-	
+
 	public static boolean doAlignemtMode() {
 		try {
 			IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 			IPerspectiveDescriptor[] descriptors = win.getActivePage().getSortedPerspectives();
-			
-			PlatformUI.getWorkbench().showPerspective(uk.ac.diamond.scisoft.analysis.rcp.DataExplorationPerspective.ID, win); 
-			PlatformUI.getWorkbench().showPerspective(AlignmentPerspective.ID, win); 
 
-			for (IPerspectiveDescriptor desc : descriptors){
-				if (!(desc.getId().equals(uk.ac.diamond.scisoft.analysis.rcp.DataExplorationPerspective.ID) || desc.getId().equals(AlignmentPerspective.ID))){
+			for (String id : idsToShow) {
+				PlatformUI.getWorkbench().showPerspective(id, win);
+			}
+
+			for (IPerspectiveDescriptor desc : descriptors) {
+				if (!ArrayUtils.contains(idsToShow, desc.getId())) {
 					win.getActivePage().closePerspective(desc, true, true);
 				}
-			}	
+			}
 		} catch (WorkbenchException e) {
-			logger.error("Cannot open "+AlignmentPerspective.ID, e);
+			logger.error("Cannot open " + AlignmentPerspective.ID, e);
 			return Boolean.FALSE;
 		}
-		
+
 		return Boolean.TRUE;
 	}
 
@@ -89,6 +96,5 @@ public class AlignmentModeHandler extends AbstractHandler implements IWorkbenchW
 	@Override
 	public void setActiveEditor(IAction action, IEditorPart targetEditor) {
 	}
-
 
 }
