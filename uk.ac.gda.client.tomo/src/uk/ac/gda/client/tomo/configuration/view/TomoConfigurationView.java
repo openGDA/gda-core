@@ -645,9 +645,9 @@ public class TomoConfigurationView extends ViewPart {
 			AlignmentConfiguration ac = getAlignmentConfiguration(config);
 			StitchConfig sc = new StitchConfig();
 			sc.setId(ac.getId());
-//			sc.setHorizontalX(sampleStageParameters.getCenterX().getValue());
-//			sc.setHorizontalZ(ac.getSampleStageParameters().getCenterZ().getValue());
-//			sc.setVerticalMotor(sampleStageParameters.getVertical().getValue());
+			// sc.setHorizontalX(sampleStageParameters.getCenterX().getValue());
+			// sc.setHorizontalZ(ac.getSampleStageParameters().getCenterZ().getValue());
+			// sc.setVerticalMotor(sampleStageParameters.getVertical().getValue());
 			StitchParameters sp = ac.getStitchParameters();
 			sc.setTheta(sp.getStitchingThetaAngle());
 			sc.setImageLocationAt0(sp.getImageAtTheta());
@@ -703,6 +703,7 @@ public class TomoConfigurationView extends ViewPart {
 		}
 		getViewSite().getWorkbenchWindow().getWorkbench().getOperationSupport().getOperationHistory()
 				.removeOperationHistoryListener(historyListener);
+		tomoConfigViewController.removeScanControllerUpdateListener(scanControllerUpdateListener);
 		tomoConfigViewController.dispose();
 		super.dispose();
 	}
@@ -900,6 +901,11 @@ public class TomoConfigurationView extends ViewPart {
 					}
 				}
 			});
+		}
+
+		@Override
+		public void updateExposureTime(double exposureTime) {
+			// Do nothing
 		}
 
 		@Override

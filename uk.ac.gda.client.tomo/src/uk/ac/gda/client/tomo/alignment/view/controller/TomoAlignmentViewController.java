@@ -46,10 +46,10 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
 import uk.ac.gda.client.tomo.StatInfo;
 import uk.ac.gda.client.tomo.TiltPlotPointsHolder;
+import uk.ac.gda.client.tomo.TomoViewController;
 import uk.ac.gda.client.tomo.alignment.view.IRotationMotorListener;
 import uk.ac.gda.client.tomo.alignment.view.ITomoAlignmentView;
 import uk.ac.gda.client.tomo.alignment.view.controller.SaveableConfiguration.AlignmentScanMode;
@@ -73,7 +73,7 @@ import uk.ac.gda.ui.components.ZoomButtonComposite.ZOOM_LEVEL;
  * The Tomography alignment view controller - this controller communicates with the EPICS model and updates the relevant
  * views.
  */
-public class TomoAlignmentViewController implements InitializingBean {
+public class TomoAlignmentViewController extends TomoViewController {
 
 	private IMotorHandler motorHandler;
 
@@ -321,6 +321,7 @@ public class TomoAlignmentViewController implements InitializingBean {
 	}
 
 	public Future<Boolean> init() {
+		super.initialize();
 		ExecutorService executorService = Executors.newFixedThreadPool(3);
 		return executorService.submit(initThread);
 	}
@@ -498,6 +499,7 @@ public class TomoAlignmentViewController implements InitializingBean {
 
 	}
 
+	@Override
 	public void dispose() {
 		if (motorHandler != null) {
 			motorHandler.dispose();
@@ -530,6 +532,7 @@ public class TomoAlignmentViewController implements InitializingBean {
 		if (sampleWeightRotationHandler != null) {
 			sampleWeightRotationHandler.dispose();
 		}
+		super.dispose();
 	}
 
 	/**
@@ -540,12 +543,21 @@ public class TomoAlignmentViewController implements InitializingBean {
 	 * @param monitor
 	 * @throws Exception
 	 */
+	/**
+	 * @param newModule
+	 * @param monitor
+	 * @throws Exception
+	 */
 	public void setModule(final CAMERA_MODULE newModule, IProgressMonitor monitor) throws Exception {
 		logger.debug("Setting module on the camera using the camera modules lookuptable:" + newModule);
 		try {
 			monitor.subTask("Move motors");
 			cameraModuleController.moveModuleTo(newModule, monitor);
+
+			Double lookupDefaultExposureTime = moduleLookupTableHandler.lookupDefaultExposureTime(newModule);
+			setExposureTime(lookupDefaultExposureTime, 1);
 			if (!monitor.isCanceled()) {
+				updateAdjustedPreferredExposureTime(lookupDefaultExposureTime);
 				updateModuleSelected(newModule);
 				updateResolutionPixelSize(getResolutionPixelSize(newModule));
 				updateResolution(RESOLUTION.FULL);
@@ -684,6 +696,7 @@ public class TomoAlignmentViewController implements InitializingBean {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
+		super.afterPropertiesSet();
 		if (motorHandler == null) {
 			throw new IllegalArgumentException("'motorHandler' should be provided");
 		}

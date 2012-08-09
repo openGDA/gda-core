@@ -119,14 +119,21 @@ public interface IModuleLookupTableHandler extends ITomoHandler {
 	/**
 	 * @param module
 	 * @return object pixel size of the detector for a given module
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	Double lookupObjectPixelSize(CAMERA_MODULE module) throws DeviceException;
 
 	/**
 	 * @return units for the object pixel size
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	String lookupObjectPixelSizeUnits() throws DeviceException;
+
+	/**
+	 * @param newModule
+	 * @return the default exposure time for a given module
+	 * @throws DeviceException 
+	 */
+	Double lookupDefaultExposureTime(CAMERA_MODULE newModule) throws DeviceException;
 
 }

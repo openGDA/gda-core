@@ -168,4 +168,13 @@ public class ModuleLookupTableHandler implements IModuleLookupTableHandler {
 	public String lookupObjectPixelSizeUnits() throws DeviceException {
 		return moduleTable.lookupUnitString(ModuleLookupTableConstants.OBJECT_PIXEL_SIZE);
 	}
+
+	@Override
+	public Double lookupDefaultExposureTime(CAMERA_MODULE module) throws DeviceException {
+		if (!CAMERA_MODULE.NO_MODULE.equals(module)) {
+			return Double.valueOf(moduleTable.lookupValue(module.getValue(),
+					ModuleLookupTableConstants.DEFAULT_EXPOSURE_TIME));
+		}
+		return null;
+	}
 }

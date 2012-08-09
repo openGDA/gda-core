@@ -21,18 +21,11 @@ package uk.ac.gda.client.tomo.figures;
 
 
 import java.text.DateFormat;
-import java.text.DecimalFormat;
 import java.util.Date;
 
-import javax.vecmath.Vector2d;
-
 import org.eclipse.draw2d.BorderLayout;
-import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.Label;
-import org.eclipse.draw2d.RectangleFigure;
-import org.eclipse.draw2d.geometry.Dimension;
-import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.graphics.ImageData;
 
 

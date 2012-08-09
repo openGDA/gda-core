@@ -90,6 +90,7 @@ import uk.ac.gda.client.tomo.composites.TomoPlotComposite;
 import uk.ac.gda.client.tomo.composites.TomoPlotComposite.PlottingSystemActionListener;
 import uk.ac.gda.client.tomo.composites.ZoomedImageComposite;
 import uk.ac.gda.client.tomo.composites.ZoomedImgCanvas;
+import uk.ac.gda.client.tomo.configuration.view.handlers.IScanControllerUpdateListener;
 import uk.ac.gda.epics.client.EPICSClientActivator;
 import uk.ac.gda.ui.components.AmplifierStepperComposite;
 import uk.ac.gda.ui.components.AmplifierStepperComposite.AmplifierStepperListener;
@@ -591,7 +592,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 										logger.debug("T = {}", calcTomoAxis);
 										logger.debug("Setting crosshair to {}", newCrosshair);
 
-										leftWindowImageViewer.moveCrossHairTo(newCrosshair);
+										leftWindowImageViewer.moveCrossHair1To(newCrosshair);
 										motionControlComposite.setTomoAxisFound(true);
 									}
 								});
@@ -756,10 +757,35 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			motionControlComposite.addMotionControlListener(motionControlListener);
 
 			getSite().getPage().addPartListener(tomoPartAdapter);
+			tomoAlignmentViewController.addScanControllerUpdateListener(scanControllerUpdateListener);
+			tomoAlignmentViewController.isScanRunning();
 		} catch (Exception ex) {
 			throw new RuntimeException("Error opening view", ex);
 		}
 	}
+
+	private IScanControllerUpdateListener scanControllerUpdateListener = new IScanControllerUpdateListener() {
+
+		@Override
+		public void updateScanProgress(double progress) {
+
+		}
+
+		@Override
+		public void updateMessage(String message) {
+
+		}
+
+		@Override
+		public void updateExposureTime(double exposureTime) {
+			setPreferredSampleExposureTimeToWidget(exposureTime);
+		}
+
+		@Override
+		public void updateError(Exception exception) {
+
+		}
+	};
 
 	private void createActions() {
 		//
@@ -936,6 +962,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		Composite viewerComposite = createLeftWindowImageViewerComposite(page_leftWindow_imgViewer);
 		GridData layoutData = new GridData(GridData.FILL_BOTH);
 		viewerComposite.setLayoutData(layoutData);
+		
 		//
 		histogramAdjuster = new HistogramAdjuster();
 		//
@@ -2106,10 +2133,12 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 							configuration.setImageAtTheta(imgAtTheta);
 							// image at theta+90
 							configuration.setImageAtThetaPlus90(imgAtThetaPlus90);
-							if (leftWindowImageViewer.getCrossWireVertical().isVisible()) {
-								int x = leftWindowImageViewer.getCrossWireVertical().getPoints().getFirstPoint().x - leftWindowImageViewer.getImageBounds().x;
+							if (leftWindowImageViewer.getCrossWire1Vertical().isVisible()) {
+								int x = leftWindowImageViewer.getCrossWire1Vertical().getPoints().getFirstPoint().x
+										- leftWindowImageViewer.getImageBounds().x;
 								logger.debug("Tomo rotation axis:{}", x);
-								configuration.setTomoRotationAxis(x * tomoAlignmentViewController.getLeftWindowBinValue());
+								configuration.setTomoRotationAxis(x
+										* tomoAlignmentViewController.getLeftWindowBinValue());
 							}
 							try {
 								tomoAlignmentViewController.saveConfiguration(monitor, configuration);

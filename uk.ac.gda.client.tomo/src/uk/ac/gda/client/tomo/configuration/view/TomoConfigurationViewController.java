@@ -27,15 +27,12 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.client.tomo.configuration.view.handlers.IScanControllerUpdateListener;
-import uk.ac.gda.client.tomo.configuration.view.handlers.ITomoScanController;
+import uk.ac.gda.client.tomo.TomoViewController;
 import uk.ac.gda.tomography.parameters.AlignmentConfiguration;
 import uk.ac.gda.tomography.parameters.TomoExperiment;
 
-public class TomoConfigurationViewController {
+public class TomoConfigurationViewController extends TomoViewController {
 	private static final Logger logger = LoggerFactory.getLogger(TomoConfigurationViewController.class);
-
-	private ITomoScanController scanController;
 
 	private class TomoScan extends Job {
 
@@ -66,34 +63,6 @@ public class TomoConfigurationViewController {
 		final List<AlignmentConfiguration> configurationSet = tomoExperiment.getParameters().getConfigurationSet();
 		TomoScan tomoScan = new TomoScan(configurationSet);
 		tomoScan.schedule();
-	}
-
-	public void dispose() {
-		getScanController().dispose();
-	}
-
-	public void isScanRunning() {
-		getScanController().isScanRunning();
-	}
-
-	public void addScanControllerUpdateListener(IScanControllerUpdateListener scanControllerUpdateListener) {
-		getScanController().addControllerUpdateListener(scanControllerUpdateListener);
-	}
-
-	public void removeScanControllerUpdateListener(IScanControllerUpdateListener scanControllerUpdateListener) {
-		getScanController().removeControllerUpdateListener(scanControllerUpdateListener);
-	}
-
-	public ITomoScanController getScanController() {
-		return scanController;
-	}
-
-	public void setScanController(ITomoScanController scanController) {
-		this.scanController = scanController;
-	}
-
-	public void initialize() {
-		scanController.initialize();
 	}
 
 }

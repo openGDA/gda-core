@@ -46,6 +46,8 @@ public class TomoScanController implements ITomoScanController {
 
 	private IObservable tomoScriptController;
 
+	private boolean isInitialised = false;
+
 	public void setTomoScriptController(IObservable tomoScriptController) {
 		this.tomoScriptController = tomoScriptController;
 	}
@@ -191,8 +193,18 @@ public class TomoScanController implements ITomoScanController {
 					}
 				} else {
 					if (arg instanceof String) {
-						for (IScanControllerUpdateListener lis : controllerUpdates) {
-							lis.updateMessage((String) arg);
+						String message = (String) arg;
+						if (message.startsWith("ExposureTime:")) {
+							String expInDouble = message.substring("ExposureTime:".length());
+							if (expInDouble.matches("(\\d)*.?(\\d)*")) {
+								for (IScanControllerUpdateListener lis : controllerUpdates) {
+									lis.updateExposureTime(Double.parseDouble(expInDouble));
+								}
+							}
+						} else {
+							for (IScanControllerUpdateListener lis : controllerUpdates) {
+								lis.updateMessage(message);
+							}
 						}
 					}
 				}
@@ -202,10 +214,13 @@ public class TomoScanController implements ITomoScanController {
 
 	@Override
 	public void dispose() {
-		if (tomoScriptController != null) {
-			tomoScriptController.deleteIObserver(tomoScriptControllerObserver);
+		if (controllerUpdates.size() < 1) {
+			if (tomoScriptController != null) {
+				tomoScriptController.deleteIObserver(tomoScriptControllerObserver);
+			}
+			InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(tomoScriptControllerObserver);
+			isInitialised = false;
 		}
-		InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(tomoScriptControllerObserver);
 	}
 
 	@Override
@@ -215,10 +230,13 @@ public class TomoScanController implements ITomoScanController {
 
 	@Override
 	public void initialize() {
-		if (this.tomoScriptController != null) {
-			this.tomoScriptController.addIObserver(tomoScriptControllerObserver);
+		if (!isInitialised) {
+			if (this.tomoScriptController != null) {
+				this.tomoScriptController.addIObserver(tomoScriptControllerObserver);
+			}
+			InterfaceProvider.getScanDataPointProvider().addIScanDataPointObserver(tomoScriptControllerObserver);
+			isInitialised = true;
 		}
-		InterfaceProvider.getScanDataPointProvider().addIScanDataPointObserver(tomoScriptControllerObserver);
 	}
 
 }

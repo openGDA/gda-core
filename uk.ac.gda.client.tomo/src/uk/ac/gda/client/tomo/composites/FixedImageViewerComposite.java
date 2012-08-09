@@ -77,9 +77,7 @@ import uk.ac.gda.client.viewer.SwtImagePositionTool;
 public class FixedImageViewerComposite extends Composite {
 
 	private final static Logger logger = LoggerFactory.getLogger(FixedImageViewerComposite.class);
-	protected Polyline crossWireHorizontal;
-	protected Polyline crossWireVertical;
-
+	
 	protected Polyline profilerLine;
 	private List<IColourChangeListener> colourChangeListeners = new ArrayList<IColourChangeListener>();
 
@@ -406,18 +404,7 @@ public class FixedImageViewerComposite extends Composite {
 		};
 
 		feedbackFigure.setBackgroundColor(ColorConstants.orange);
-		// **/
-		crossWireHorizontal = new Polyline();
-		crossWireHorizontal.setLineWidth(1);
-		crossWireHorizontal.setForegroundColor(ColorConstants.white);
-		crossWireHorizontal.setVisible(false);
-		feedbackFigure.add(crossWireHorizontal);
-
-		crossWireVertical = new Polyline();
-		crossWireVertical.setLineWidth(1);
-		crossWireVertical.setForegroundColor(ColorConstants.white);
-		crossWireVertical.setVisible(false);
-		feedbackFigure.add(crossWireVertical);
+		
 
 		leftWindowTipFigure = new LeftWindowTipFigure();
 		leftWindowTipFigure.setVisible(false);
@@ -547,26 +534,7 @@ public class FixedImageViewerComposite extends Composite {
 		getZoomRectFigure().setSize(dimension.width, dimension.height);
 	}
 
-	/**
-	 * Hides the cross wire
-	 */
-	public void hideCrossWire() {
-		if (crossWireHorizontal.isVisible()) {
-			crossWireHorizontal.setVisible(false);
-		}
-		if (crossWireVertical.isVisible()) {
-			crossWireVertical.setVisible(false);
-		}
-	}
-
-	public void showCrossWire() {
-		if (!crossWireHorizontal.isVisible()) {
-			crossWireHorizontal.setVisible(true);
-		}
-		if (!crossWireVertical.isVisible()) {
-			crossWireVertical.setVisible(true);
-		}
-	}
+	
 
 	/**
 	 * @param colourChangeListener
@@ -785,10 +753,6 @@ public class FixedImageViewerComposite extends Composite {
 	 */
 	protected OverlayImageFigure getOverlayImgFigure() {
 		return overlayImgFig;
-	}
-
-	public Polyline getCrossWireVertical() {
-		return crossWireVertical;
 	}
 
 }

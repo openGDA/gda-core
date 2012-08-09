@@ -111,4 +111,10 @@ public class ModuleLookupTableHandlerSimulator implements IModuleLookupTableHand
 		return null;
 	}
 
+	@Override
+	public Double lookupDefaultExposureTime(CAMERA_MODULE newModule) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

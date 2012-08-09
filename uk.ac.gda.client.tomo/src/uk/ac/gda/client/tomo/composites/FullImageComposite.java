@@ -31,7 +31,11 @@ import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.PointList;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +46,8 @@ import uk.ac.gda.client.tomo.composites.OverlayImageFigure.OverlayImgFigureListe
  * also features for Cross Hair, Zoom Rectangle, profiling across with draggable slider.
  */
 public class FullImageComposite extends FixedImageViewerComposite {
+	private static final String HIDE_CROSSHAIR = "Hide Crosshair";
+	private static final String SHOW_CROSSHAIR = "Show Crosshair";
 	private final static Logger logger = LoggerFactory.getLogger(FullImageComposite.class);
 	// private RectangleFigure rectFigure;
 	private Polyline horizontalTop;
@@ -54,6 +60,10 @@ public class FullImageComposite extends FixedImageViewerComposite {
 	private Ellipse rightTopPoint;
 	private Ellipse leftBottomPoint;
 	private Ellipse rightBottomPoint;
+	protected Polyline crossWireVertical1;
+
+	protected Polyline crossWireHorizontal2;
+	protected Polyline crossWireVertical2;
 
 	private ListenerList listenerList = new ListenerList();
 
@@ -76,6 +86,47 @@ public class FullImageComposite extends FixedImageViewerComposite {
 		 * @param y2
 		 */
 		public void roiPointsChanged(int directionChanged, int x1, int y1, int x2, int y2);
+	}
+
+	/**
+	 * Hides the cross wire
+	 */
+	public void hideCrossWire1() {
+		if (crossWireVertical1.isVisible()) {
+			crossWireVertical1.setVisible(false);
+		}
+	}
+
+	public void showCrossWire1() {
+		if (!crossWireVertical1.isVisible()) {
+			crossWireVertical1.setVisible(true);
+		}
+	}
+
+	/**
+	 * Hides the cross wire
+	 */
+	public void hideCrossWire2() {
+		if (crossWireHorizontal2.isVisible()) {
+			crossWireHorizontal2.setVisible(false);
+		}
+		if (crossWireVertical2.isVisible()) {
+			crossWireVertical2.setVisible(false);
+		}
+	}
+
+	public void showCrossWire2() {
+		crossWireVertical2.setPoints(new PointList(new int[] { feedbackFigure.getSize().width / 2, 0,
+				feedbackFigure.getSize().width / 2, feedbackFigure.getSize().height }));
+
+		crossWireHorizontal2.setPoints(new PointList(new int[] { 0, feedbackFigure.getSize().height / 2,
+				feedbackFigure.getSize().width, feedbackFigure.getSize().height / 2 }));
+		if (!crossWireHorizontal2.isVisible()) {
+			crossWireHorizontal2.setVisible(true);
+		}
+		if (!crossWireVertical2.isVisible()) {
+			crossWireVertical2.setVisible(true);
+		}
 	}
 
 	public FullImageComposite(Composite parent, int style) {
@@ -167,6 +218,47 @@ public class FullImageComposite extends FixedImageViewerComposite {
 		feedbackFigure.add(leftBottomPoint);
 		feedbackFigure.add(rightTopPoint);
 		feedbackFigure.add(rightBottomPoint);
+
+		crossWireHorizontal2 = new Polyline();
+		crossWireHorizontal2.setLineWidth(1);
+		crossWireHorizontal2.setForegroundColor(ColorConstants.orange);
+		crossWireHorizontal2.setVisible(false);
+		feedbackFigure.add(crossWireHorizontal2);
+
+		crossWireVertical2 = new Polyline();
+		crossWireVertical2.setLineWidth(1);
+		crossWireVertical2.setForegroundColor(ColorConstants.orange);
+		crossWireVertical2.setVisible(false);
+		feedbackFigure.add(crossWireVertical2);
+		//
+		crossWireVertical1 = new Polyline();
+		crossWireVertical1.setLineWidth(1);
+		crossWireVertical1.setForegroundColor(ColorConstants.white);
+		crossWireVertical1.setVisible(false);
+		feedbackFigure.add(crossWireVertical1);
+
+		// Cross hair menu
+		Menu crossHairMenu = new Menu(getCanvas());
+		final MenuItem crossHairMenuItem = new MenuItem(crossHairMenu, SWT.PUSH);
+		crossHairMenuItem.setText(SHOW_CROSSHAIR);
+		crossHairMenuItem.addSelectionListener(new SelectionAdapter() {
+			private boolean crossHairVisible = false;
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (crossHairVisible) {
+					hideCrossWire2();
+					crossHairMenuItem.setText(SHOW_CROSSHAIR);
+					crossHairVisible = false;
+				} else {
+					showCrossWire2();
+					crossHairMenuItem.setText(HIDE_CROSSHAIR);
+					crossHairVisible = true;
+				}
+			}
+
+		});
+		getCanvas().setMenu(crossHairMenu);
 	}
 
 	private class LinePointMouseListener implements MouseMotionListener, MouseListener {
@@ -533,19 +625,17 @@ public class FullImageComposite extends FixedImageViewerComposite {
 	/**
 	 * @param width
 	 */
-	public void moveCrossHairTo(int width) {
-		crossWireHorizontal.setPoints(new PointList(new int[] { 0, feedbackFigure.getBounds().height / 2,
-				feedbackFigure.getBounds().width, feedbackFigure.getBounds().height / 2 }));
-		crossWireVertical.setPoints(new PointList(new int[] { width, 0, width, feedbackFigure.getBounds().height }));
-		showCrossWire();
+	public void moveCrossHair1To(int width) {
+		crossWireVertical1.setPoints(new PointList(new int[] { width, 0, width, feedbackFigure.getBounds().height }));
+		showCrossWire1();
 	}
 
 	public int getImageCenterX() {
 		return getImageBounds().x + ((getImageBounds().width) / 2);
 	}
 
-	public int getCrossWireXRelativeToImage() {
-		return crossWireVertical.getBounds().x - getImageBounds().x;
+	public int getCrossWire1XRelativeToImage() {
+		return crossWireVertical1.getBounds().x - getImageBounds().x;
 	}
 
 	public void resetRoiWidgets() {
@@ -672,4 +762,7 @@ public class FullImageComposite extends FixedImageViewerComposite {
 		return new int[] { firstPoint.x, firstPoint.y, lastPoint.x, lastPoint.y };
 	}
 
+	public Polyline getCrossWire1Vertical() {
+		return crossWireVertical1;
+	}
 }

@@ -46,8 +46,8 @@ import uk.ac.gda.client.tomo.composites.FullImageComposite;
 import uk.ac.gda.client.tomo.composites.OverlayImageFigure.MOVE_AXIS;
 import uk.ac.gda.client.tomo.composites.SWT2Dutil;
 import uk.ac.gda.ui.components.CameraControlComposite;
-import uk.ac.gda.ui.components.IMotionControlListener;
 import uk.ac.gda.ui.components.CameraControlComposite.RESOLUTION;
+import uk.ac.gda.ui.components.IMotionControlListener;
 import uk.ac.gda.ui.components.ModuleButtonComposite.CAMERA_MODULE;
 import uk.ac.gda.ui.components.MotionControlComposite;
 import uk.ac.gda.ui.components.MotionControlComposite.MotionControlCentring;
@@ -292,10 +292,10 @@ public class MotionControlListener implements IMotionControlListener {
 			v.disableCameraControls();
 			final int imageCentre = leftWindowImageViewer.getImageCenterX();// already accounted for offset
 
-			leftWindowImageViewer.getCrossWireVertical().setCursor(
+			leftWindowImageViewer.getCrossWire1Vertical().setCursor(
 					leftWindowImageViewer.getDisplay().getSystemCursor(SWT.CURSOR_HAND));
-			leftWindowImageViewer.getCrossWireVertical().addMouseListener(crossWireMouseListener);
-			leftWindowImageViewer.getCrossWireVertical().addMouseMotionListener(crossWireMouseListener);
+			leftWindowImageViewer.getCrossWire1Vertical().addMouseListener(crossWireMouseListener);
+			leftWindowImageViewer.getCrossWire1Vertical().addMouseMotionListener(crossWireMouseListener);
 			crossWireMouseListener.setImageCentre(imageCentre);
 			crossWireMouseListener.setMin(leftWindowImageViewer.getImageBounds().x);
 			crossWireMouseListener.setMax(leftWindowImageViewer.getImageBounds().x
@@ -305,10 +305,10 @@ public class MotionControlListener implements IMotionControlListener {
 		} else {
 			v.enableCameraControls();
 			crossWireMouseListener.removeCrossWireListener(crossWireListener);
-			leftWindowImageViewer.getCrossWireVertical().setCursor(
+			leftWindowImageViewer.getCrossWire1Vertical().setCursor(
 					Display.getCurrent().getSystemCursor(SWT.CURSOR_ARROW));
-			leftWindowImageViewer.getCrossWireVertical().removeMouseListener(crossWireMouseListener);
-			leftWindowImageViewer.getCrossWireVertical().removeMouseMotionListener(crossWireMouseListener);
+			leftWindowImageViewer.getCrossWire1Vertical().removeMouseListener(crossWireMouseListener);
+			leftWindowImageViewer.getCrossWire1Vertical().removeMouseMotionListener(crossWireMouseListener);
 		}
 	}
 

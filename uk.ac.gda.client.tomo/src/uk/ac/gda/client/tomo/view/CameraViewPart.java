@@ -18,9 +18,6 @@
 
 package uk.ac.gda.client.tomo.view;
 
-import gda.factory.FactoryException;
-import gda.images.camera.DummySwtVideoReceiver;
-
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.jface.action.Action;

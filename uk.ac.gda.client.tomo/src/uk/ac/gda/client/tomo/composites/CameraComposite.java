@@ -21,9 +21,7 @@ package uk.ac.gda.client.tomo.composites;
 import gda.images.camera.ImageListener;
 import gda.images.camera.VideoReceiver;
 
-import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.IFigure;
-import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.ImageData;
@@ -38,8 +36,6 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.SWTImageUtils;
-import uk.ac.gda.client.tomo.figures.BeamScaleFigure;
-import uk.ac.gda.client.tomo.figures.ImageKeyFigure;
 import uk.ac.gda.client.viewer.ImageViewer;
 
 

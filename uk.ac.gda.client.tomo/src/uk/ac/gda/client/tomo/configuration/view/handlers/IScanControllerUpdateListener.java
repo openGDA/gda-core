@@ -24,4 +24,6 @@ public interface IScanControllerUpdateListener {
 	public void updateScanProgress(double progress);
 
 	public void updateError(Exception exception);
+	
+	public void updateExposureTime(double exposureTime);
 }

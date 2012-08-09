@@ -26,7 +26,6 @@ import org.eclipse.swt.graphics.Image;
 
 import uk.ac.gda.client.tomo.ImageConstants;
 import uk.ac.gda.client.tomo.TomoClientActivator;
-import uk.ac.gda.client.tomo.TomoClientConstants;
 
 public class TomoConfigLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider {
 	@Override
