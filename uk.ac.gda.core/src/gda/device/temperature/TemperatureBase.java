@@ -320,7 +320,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 
 	@Override
 	public boolean rawIsBusy() throws DeviceException {
-		return isAtTargetTemperature();
+		return !isAtTargetTemperature();
 	}
 
 	/**
