@@ -92,6 +92,9 @@
 		<field name="processDeadTimeInWindow" type="double">
 			<bind-xml name="processDeadTimeInWindow" node="element"/>
 		</field>		
+		<field name="processDeadTimeInWindowGradient" type="double">
+			<bind-xml name="processDeadTimeInWindowGradient" node="element"/>
+		</field>		
 	</class>
 </mapping>
 	

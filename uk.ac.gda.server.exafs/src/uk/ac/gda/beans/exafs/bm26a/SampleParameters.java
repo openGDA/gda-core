@@ -66,7 +66,7 @@ public class SampleParameters implements Serializable, ISampleParameters {
 			"customXYZParameters", "customParameters" })
 	private String sampleEnvironment = "None";
 
-	private NoneParameters noneParameters;
+//	private NoneParameters noneParameters;
 	private SampleStageParameters roomTemperatureParameters;
 	private CryostatParameters cryostatParameters;
 	private FurnaceParameters furnaceParameters;
@@ -284,8 +284,8 @@ public class SampleParameters implements Serializable, ISampleParameters {
 		this.shouldValidate = shouldValidate;
 	}
 
-	public void setNoneParameters(NoneParameters noneParameters) {
-		this.noneParameters = noneParameters;
+	public void setNoneParameters(@SuppressWarnings("unused") NoneParameters noneParameters) {
+//		this.noneParameters = noneParameters;
 	}
 
 }

@@ -26,8 +26,6 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.wizard.WizardPage;
@@ -257,14 +255,14 @@ public class SwitchScanWizardPageTwo extends WizardPage {
 	private Object[] getEditorFiles(String type) {
 
 		controller = ExperimentFactory.getExperimentEditorManager();
-		IFolder expFolder = controller.getSelectedMultiScan().getContainingFolder();
-		@SuppressWarnings("unused")
-		IResource[] folderMembers = null;
-		try {
-			folderMembers = expFolder.members();
-		} catch (CoreException e) {
-			e.printStackTrace();
-		}
+//		IFolder expFolder = controller.getSelectedMultiScan().getContainingFolder();
+//		@SuppressWarnings("unused")
+//		IResource[] folderMembers = null;
+//		try {
+//			folderMembers = expFolder.members();
+//		} catch (CoreException e) {
+//			e.printStackTrace();
+//		}
 
 		selected = (ScanObject) controller.getSelectedScan();
 

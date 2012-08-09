@@ -26,12 +26,12 @@ import org.apache.commons.beanutils.BeanUtils;
  * 
  */
 public class FurnaceParameters  implements Serializable{
-	private Double x;
-	private Double y;
-	private Double z;
-	private Double temperature;
-	private Double tolerance;
-	private Double time;
+	private Double x = 0.;
+	private Double y = 0.;
+	private Double z = 0.;
+	private String temperature = "";
+	private Double tolerance = 0.;
+	private Double time = 0.;
 
 	/**
 	 * @return the x
@@ -81,7 +81,7 @@ public class FurnaceParameters  implements Serializable{
 	/**
 	 * @return the temperature
 	 */
-	public Double getTemperature() {
+	public String getTemperature() {
 		return temperature;
 	}
 
@@ -89,7 +89,7 @@ public class FurnaceParameters  implements Serializable{
 	 * @param temperature
 	 *            the temperature to set
 	 */
-	public void setTemperature(Double temperature) {
+	public void setTemperature(String temperature) {
 		this.temperature = temperature;
 	}
 
