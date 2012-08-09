@@ -60,7 +60,6 @@ public class DescriptionEditingSupport extends EditingSupport {
 		for (int i=0;i<bean.getDetectors().size();i++){
 			if(bean.getDetectors().get(i).getDetectorName().equals(element.toString())){
 				bean.getDetectors().get(i).setDetectorDescription(String.valueOf(value));
-				editor.setDirty(true);
 			}
 		}
 		viewer.refresh();

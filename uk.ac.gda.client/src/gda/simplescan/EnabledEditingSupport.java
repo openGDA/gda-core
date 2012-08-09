@@ -61,7 +61,7 @@ public class EnabledEditingSupport extends EditingSupport {
 		for (int i=0;i<bean.getDetectors().size();i++){
 			if(bean.getDetectors().get(i).getDetectorName().equals(element.toString())){
 				bean.getDetectors().get(i).setEnabled((Boolean)value);
-				editor.setDirty(true);
+				//editor.setDirty(true);
 			}
 		}
 		viewer.refresh();
