@@ -30,8 +30,8 @@
                 <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.core/classes/test" />
                 <pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/bin" />
                 <pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/jars/*" />
-                <pathelement location="${workspace.git.loc}/scisoft/scisoft-core.git/uk.ac.diamond.scisoft.analysis/bin" />
-                <pathelement location="${workspace.git.loc}/scisoft/scisoft-core.git/uk.ac.diamond.scisoft.deprecated/bin" />
+                <pathelement location="${workspace.git.loc}/${scisoft.git.parent.dir}scisoft-core.git/uk.ac.diamond.scisoft.analysis/bin" />
+                <pathelement location="${workspace.git.loc}/${scisoft.git.parent.dir}scisoft-core.git/uk.ac.diamond.scisoft.deprecated/bin" />
                 <pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.server.exafs/bin" />
                 <pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.server.exafs.epics/bin" />
                 <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.client/bin" />

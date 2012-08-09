@@ -89,18 +89,14 @@ public class SwitchScanWizardPageOne extends WizardPage {
 		expType = new Combo(selectTypeArea, 0);
 		expType.setItems(scanTypes);
 		expType.addSelectionListener(new SelectionListener(){
-
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-				
 			}
-
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				scanType=expType.getItem(expType.getSelectionIndex());
 				SwitchScanWizardPageOne.this.setPageComplete(true);
 			}
-			
 		});
 		
 		setPageComplete(false);
