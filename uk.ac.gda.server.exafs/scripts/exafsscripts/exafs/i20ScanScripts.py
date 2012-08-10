@@ -13,8 +13,8 @@ class I20XasScan(XasScan):
         # Insert sample environment looping logic here by subclassing
         #
         
-        
-        self.setDetectorCorrectionParameters(beanGroup)
+        if beanGroup.getDetector().getExperimentType() == 'Fluorescence':
+            self.setDetectorCorrectionParameters(beanGroup)
         
         if beanGroup.getSample().getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[1] :
             
