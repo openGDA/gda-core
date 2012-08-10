@@ -54,6 +54,7 @@ import uk.ac.gda.richbeans.components.selector.BeanSelectionListener;
 import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.event.ValueEvent;
 import uk.ac.gda.richbeans.event.ValueListener;
+import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 /**
  *
@@ -90,10 +91,11 @@ public final class SimpleScanComposite extends Composite {
 	private DescriptionEditingSupport des;
 	private EnabledEditingSupport detEnabled;
 	private SimpleScanUIEditor editor;
-
+	private String path;
+	
 	public SimpleScanComposite(Composite parent, int style, Object editingBean, SimpleScanUIEditor editor) {
 		super(parent, style);
-
+		path = "/uk.ac.gda.client/src/gda/simplescan/simpleScan.xml";
 		CHECKED = GDAClientActivator.getImageDescriptor("icons/checked.gif").createImage();
 		UNCHECKED = GDAClientActivator.getImageDescriptor("icons/unchecked.gif").createImage();
 
@@ -124,8 +126,8 @@ public final class SimpleScanComposite extends Composite {
 
 		setLayout(new GridLayout(1, false));
 		this.fromPos = new ScaleBox(composite, SWT.NONE);
-		fromPos.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));		
-		
+		fromPos.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+
 		new Label(fromPos, SWT.NONE);
 		
 		lblTo = new Label(composite, SWT.NONE);
@@ -221,6 +223,22 @@ public final class SimpleScanComposite extends Composite {
 		});
 		
 		createScanButton(this);
+		
+		this.fromPos.setValue(bean.getFromPos());
+		this.toPos.setValue(bean.getToPos());
+		this.stepSize.setValue(bean.getStepSize());
+		this.acqTime.setValue(bean.getAcqTime());
+		
+		List<ScannableManagerBean> scannables = bean.getScannables();
+		boolean found = false;
+		for(int i=0;i<scannables.size();i++){
+			if(scannables.get(i).getScannableName().equals(bean.getScannableName())){
+				this.scannableName.select(i+1);
+				found=true;
+			}	
+		}
+		if(!found)
+			this.scannableName.select(0);
 	}
 
 	public void createScanButton(Composite comp) {
@@ -247,26 +265,22 @@ public final class SimpleScanComposite extends Composite {
 		double from = fromPos.getNumericValue();
 		double to = toPos.getNumericValue();
 		double step = stepSize.getNumericValue();
-		double acq = 0;
-		if(acqTime.getValue()!=null)
-			acq = acqTime.getNumericValue();
+		double acq = acqTime.getNumericValue();
+		
+		
 		
 		if(bean.getDetectors().size()==0){
 			String command = "scan "+ scannable_name + " " + from + " " + to + " " + step;
-			System.out.println(command);
 			JythonServerFacade.getInstance().runCommand(command);
 		}
 		else{
 			List<DetectorManagerBean> detectors = bean.getDetectors();
 			String detList = "";
 			for(int i=0;i<detectors.size();i++){
-				if(detectors.get(i).isEnabled())
 				detList += detectors.get(i).getDetectorName() + " ";
 			}
-			if(!detList.equals("") && acq!=0)
-				detList += acq;
+			detList += acq;
 			String command = "scan "+ scannable_name + " " + from + " " + to + " " + step + " " + detList;
-			System.out.println(command);
 			JythonServerFacade.getInstance().runCommand(command);
 		}
 	}
@@ -286,13 +300,28 @@ public final class SimpleScanComposite extends Composite {
 
 	public void updateScannables() {
 		List<String> names = new ArrayList<String>(bean.getScannables().size());
-		String[] comboNames = new String[bean.getScannables().size()];
-		for (int i = 0; i < bean.getScannables().size(); i++) {
-			names.add(bean.getScannables().get(i).getScannableName());
-			comboNames[i] = bean.getScannables().get(i).getScannableName();
+		String[] comboNames = new String[bean.getScannables().size()+1];
+		comboNames[0] = "";
+		for (int i = 1; i < bean.getScannables().size()+1; i++) {
+			names.add(bean.getScannables().get(i-1).getScannableName());
+			comboNames[i] = bean.getScannables().get(i-1).getScannableName();
 		}
+
 		scannableList.addItem(names);
 		scannableName.setItems(comboNames);
+		
+		List<ScannableManagerBean> scannables = bean.getScannables();
+		boolean found=false;
+		
+		for(int i=0;i<scannables.size();i++){
+			if(scannables.get(i).getScannableName().equals(bean.getScannableName())){
+				scannableName.select(i+1);
+				found=true;
+			}
+		}
+		if(!found)
+			scannableName.select(0);
+		
 	}
 
 	public void updateDetectors() {
@@ -307,32 +336,27 @@ public final class SimpleScanComposite extends Composite {
 			viewer.setInput(names);
 			viewer.refresh();
 		}
-	}
-	
-
+	}	
 	
 	public void createScannables(Composite comp) {
 		this.scannableName = new ComboWrapper(comp, SWT.NONE);
 		scannableName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-
 		scannableName.addValueListener(new ValueListener() {
-			
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
-				String name = scannableName.getItem(scannableName.getSelectionIndex());
 				try {
-					setMotorLimits(name, fromPos);
-					setMotorLimits(name, toPos);
+					setMotorLimits(bean.getScannableName(), fromPos);
+					setMotorLimits(bean.getScannableName(), toPos);
 				} catch (Exception e1) {
 				}
 			}
 			
 			@Override
 			public String getValueListenerName() {
-				// TODO Auto-generated method stub
 				return null;
 			}
 		});
+
 	}
 
 	public void createDetectors(Composite comp) {
@@ -479,7 +503,6 @@ public final class SimpleScanComposite extends Composite {
 			public void widgetSelected(SelectionEvent e) {
 				bean.removeScannable(scannableList.getSelected());
 				updateScannables();
-				editor.setDirty(true);
 			}
 
 			@Override
@@ -528,7 +551,6 @@ public final class SimpleScanComposite extends Composite {
 			public void widgetSelected(SelectionEvent e) {
 				bean.removeDetector(detectorList.getSelected());
 				updateDetectors();
-				editor.setDirty(true);
 			}
 
 			@Override
@@ -547,21 +569,23 @@ public final class SimpleScanComposite extends Composite {
 		configureDevicesExpandableComposite.addExpansionListener(addScannableExpansionListener);
 	}
 	
-	
+	public SimpleScan getBean(){
+		return bean;
+	}
 
-	public FieldComposite getFromPos() {
+	public ScaleBox getFromPos() {
 		return fromPos;
 	}
 
-	public FieldComposite getToPos() {
+	public ScaleBox getToPos() {
 		return toPos;
 	}
 
-	public FieldComposite getStepSize() {
+	public ScaleBox getStepSize() {
 		return stepSize;
 	}
 
-	public FieldComposite getAcqTime() {
+	public ScaleBox getAcqTime() {
 		return acqTime;
 	}
 

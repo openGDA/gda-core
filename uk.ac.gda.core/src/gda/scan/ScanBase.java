@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Copyright © 2012 Diamond Light Source Ltd., Science and Technology
  * Facilities Council Daresbury Laboratory
  *
  * This file is part of GDA.
@@ -19,7 +19,6 @@
 
 package gda.scan;
 
-import static gda.jython.InterfaceProvider.getCurrentScanController;
 import static gda.jython.InterfaceProvider.getCurrentScanInformationHolder;
 import static gda.jython.InterfaceProvider.getDefaultScannableProvider;
 import static gda.jython.InterfaceProvider.getJythonServerNotifer;
@@ -994,6 +993,8 @@ public abstract class ScanBase implements Scan {
 				
 				try {
 					doCollection();
+				} catch (InterruptedException e) {
+					throw e;   // need the correct exception type so wrapping code know its an interrupt
 				} catch (Exception e) {
 					throw new Exception("Exception during scan collection: " + createMessage(e), e);
 				}

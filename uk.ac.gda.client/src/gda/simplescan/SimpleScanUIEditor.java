@@ -63,6 +63,11 @@ public final class SimpleScanUIEditor extends RichBeanEditorPart {
 		scrolledComposite.setContent(beanComposite);
 		beanComposite.layout();
 		scrolledComposite.setMinSize(beanComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		
+	}
+	
+	public SimpleScanComposite getComposite(){
+		return beanComposite;
 	}
 	
 	@Override
