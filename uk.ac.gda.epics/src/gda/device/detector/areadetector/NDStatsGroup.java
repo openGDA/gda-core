@@ -27,6 +27,8 @@ public interface NDStatsGroup {
 	
 	String[] getFieldNames();
 
+	String[] getFieldFormats();
+
 	Double[] getCurrentDoubleVals() throws Exception;
 	
 	NDStats getNdStats();

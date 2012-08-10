@@ -34,6 +34,7 @@ import gda.device.detector.addetectorprovisional.data.NXDetectorDataAppender;
 import gda.device.detector.addetectorprovisional.data.NXDetectorDataDoubleAppender;
 import gda.device.detector.addetectorprovisional.data.NXDetectorDataFileAppenderForSrs;
 import gda.device.detector.addetectorprovisional.data.NXDetectorDataNullAppender;
+import gda.device.detector.addetectorprovisional.plugin.ADBasicStats;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,6 +57,7 @@ public class ProvisionalADDetectorTest extends ADDetectorTest{
 	@Mock private ADDetectorPlugin adDetectorPlugin2;
 	@Mock private ADDetectorPlugin statsPlugin;
 	@Mock private ADDetectorPlugin centroidPlugin;
+	private ADBasicStats adBasicStats;
 	
 	private ProvisionalADDetector adDet;
 	
@@ -73,19 +75,19 @@ public class ProvisionalADDetectorTest extends ADDetectorTest{
 	@Before
 	public void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
+		adBasicStats = new ADBasicStats(ndStats);
+				
 		when(ndStats.getPluginBase()).thenReturn(ndStatsBase);
 		adDet = new ProvisionalADDetector("testdet", adBase, collectionStrategy, fileWriter);
 		det().setAdArrayPlugin(new ADArrayPlugin(ndArray));
 		det().getAdArrayPlugin().setEnabled(true);
+		det().setAdditionalPluginList(Arrays.asList((ADDetectorPlugin)adBasicStats));
 		
 		when(adDetectorPlugin1.getInputStreamExtraNames()).thenReturn(Arrays.asList(PLUGIN1_NAMES));
 		when(adDetectorPlugin2.getInputStreamExtraNames()).thenReturn(Arrays.asList(PLUGIN2_NAMES));
 		when(adDetectorPlugin1.getInputStreamFormats()).thenReturn(Arrays.asList(PLUGIN1_FORMATS));
 		when(adDetectorPlugin2.getInputStreamFormats()).thenReturn(Arrays.asList(PLUGIN2_FORMATS));
 		
-		when(statsPlugin.getInputStreamExtraNames()).thenReturn(Arrays.asList(STATS_NAMES));
-		when(centroidPlugin.getInputStreamExtraNames()).thenReturn(Arrays.asList(CENTROID_NAMES));
-
 		when(statsPlugin.getInputStreamFormats()).thenReturn(Arrays.asList(STATS_FORMATS));
 		when(centroidPlugin.getInputStreamFormats()).thenReturn(Arrays.asList(CENTROID_FORMATS));
 		when(ndArray.getPluginBase()).thenReturn(ndArrayBase);
@@ -99,6 +101,7 @@ public class ProvisionalADDetectorTest extends ADDetectorTest{
 		
 		enableReadAcquisitionTimeAndPeriod(true, false);
 		enableFileWriter(false);
+		enableStatsAndCentroid(false,  false);
 		
 	}
 
@@ -109,14 +112,8 @@ public class ProvisionalADDetectorTest extends ADDetectorTest{
 
 	@Override
 	protected void enableStatsAndCentroid(boolean computeStats, boolean computeCentroid) {
-		List<ADDetectorPlugin> pluginList = new ArrayList<ADDetectorPlugin>();
-		if (computeStats) {
-			pluginList.add(statsPlugin);
-		}
-		if (computeCentroid) {
-			pluginList.add(centroidPlugin);
-		}
-		det().setAdditionalPluginList(pluginList);
+		adBasicStats.setComputeStats(computeStats);
+		adBasicStats.setComputeCentroid(computeCentroid);
 	}
 	
 	@Override
@@ -339,7 +336,7 @@ public class ProvisionalADDetectorTest extends ADDetectorTest{
 		enableArrayReadout(true);
 		det().setCollectionTime(1.);
 		det().atScanStart();
-		verify(adBase).setArrayCallbacks((short) 0);
+		verify(adBase).setArrayCallbacks((short) 1);
 		verify(ndArrayBase).enableCallbacks();
 		verify(ndArrayBase).setBlockingCallbacks((short) 1);
 		verify(collectionStrategy).prepareForCollection(1.,  1);
