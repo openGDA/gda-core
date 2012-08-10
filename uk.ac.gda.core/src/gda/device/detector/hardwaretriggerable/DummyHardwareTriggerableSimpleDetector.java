@@ -24,6 +24,8 @@ import gda.device.scannable.PositionCallableProvider;
 import gda.device.scannable.PositionInputStream;
 import gda.device.scannable.PositionStreamIndexer;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
@@ -166,8 +168,8 @@ public class DummyHardwareTriggerableSimpleDetector extends DummyHardwareTrigger
 	}
 
 	@Override
-	public Vector<Double> read(int maxToRead) throws NoSuchElementException, InterruptedException {
-		Vector<Double> read = new Vector<Double>();
+	public List<Double> read(int maxToRead) throws NoSuchElementException, InterruptedException {
+		List<Double> read = new ArrayList<Double>();
 		if (totalRead >= getHardwareTriggerProvider().getNumberTriggers()) {
 			throw new NoSuchElementException("All " + totalRead + " elements have already been read out of "
 					+ getHardwareTriggerProvider().getNumberTriggers() + " available");

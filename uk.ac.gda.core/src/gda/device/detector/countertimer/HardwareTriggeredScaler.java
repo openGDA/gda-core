@@ -18,13 +18,6 @@
 
 package gda.device.detector.countertimer;
 
-import java.util.HashMap;
-import java.util.NoSuchElementException;
-import java.util.Vector;
-import java.util.concurrent.Callable;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.device.continuouscontroller.HardwareTriggerProvider;
 import gda.device.detector.DAServer;
@@ -32,6 +25,15 @@ import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetector;
 import gda.device.scannable.PositionCallableProvider;
 import gda.device.scannable.PositionInputStream;
 import gda.device.scannable.PositionStreamIndexer;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.concurrent.Callable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HardwareTriggeredScaler extends TfgScalerWithLogValues implements HardwareTriggerableDetector, 
 PositionCallableProvider<double[]> {
@@ -182,11 +184,11 @@ PositionCallableProvider<double[]> {
 
 		private int readSoFar =0;
 		@Override
-		public Vector<double[]> read(int maxToRead) throws NoSuchElementException, InterruptedException,
+		public List<double[]> read(int maxToRead) throws NoSuchElementException, InterruptedException,
 				DeviceException {
 			int totalToRead =  getNumberFrames();
 			
-			Vector<double[]> container = new Vector<double[]>();
+			List<double[]> container = new ArrayList<double[]>();
 			for(int i =readSoFar  ; i <  totalToRead; i++)
 			{
 				container.add((HardwareTriggeredScaler.super.readFrame(i)));
