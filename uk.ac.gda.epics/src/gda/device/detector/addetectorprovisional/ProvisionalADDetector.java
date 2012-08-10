@@ -333,7 +333,7 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 			DeviceException {
 		for (ADDetectorPlugin plugin : plugins) {
 			try {
-				Vector<NXDetectorDataAppender> dataAppenders = plugin.read(Integer.MAX_VALUE);
+				List<NXDetectorDataAppender> dataAppenders = plugin.read(Integer.MAX_VALUE);
 				if (dataAppenders.size() == 0) {
 					throw new AssertionError(plugin.getName() + " input stream returned zero elements.");
 				}
