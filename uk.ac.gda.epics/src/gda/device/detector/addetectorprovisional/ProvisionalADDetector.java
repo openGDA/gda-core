@@ -294,7 +294,7 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 		for (ADDetectorPlugin<Double[]> plugin : pluginList) {
 			Double[] doubleVals;
 			try {
-				Vector<Double[]> read = plugin.read(Integer.MAX_VALUE);
+				List<Double[]> read = plugin.read(Integer.MAX_VALUE);
 				if (read.size() == 0) {
 					throw new AssertionError(plugin.getName() + " input stream returned zero elements.");
 				}
