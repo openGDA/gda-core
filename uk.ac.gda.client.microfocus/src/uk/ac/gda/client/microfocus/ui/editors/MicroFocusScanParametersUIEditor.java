@@ -30,15 +30,12 @@ import uk.ac.gda.richbeans.components.FieldComposite;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
-/**
- * @author nv23
- *
- */
 public final class MicroFocusScanParametersUIEditor extends RichBeanEditorPart {
 
 	private MicroFocusScanParametersComposite beanComposite;
 	private MicroFocusScanParameters scanParameters;
 
+	
 	/**
 	 * @param path
 	 * @param mappingURL
@@ -70,54 +67,20 @@ public final class MicroFocusScanParametersUIEditor extends RichBeanEditorPart {
 		scrolledComposite.setExpandVertical(true);
 
 		this.beanComposite = new MicroFocusScanParametersComposite(
-				scrolledComposite, SWT.NONE);
+				scrolledComposite, scanParameters, SWT.NONE);
 		((GridData) beanComposite.getXScannableName().getLayoutData()).widthHint = 323;
 		((GridData) beanComposite.getCollectionTime().getLayoutData()).widthHint = 215;
-		//addListeners();
 		scrolledComposite.setContent(beanComposite);
 		beanComposite.layout();
 		scrolledComposite.setMinSize(beanComposite.computeSize(SWT.DEFAULT,
 				SWT.DEFAULT));
 	}
 
-	/*private void addListeners() {
-		beanComposite.getAddButton().addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent se)
-			{
-				double e = beanComposite.getEnergy().getNumericValue();
-				beanComposite.getEnergies().add(String.valueOf(e));
-				addEnergyToBean(e);
-				dirtyContainer.setDirty(true);
-				
-			}
-
-			
-		});
-		beanComposite.getDeleteButton().addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent se)
-			{
-				int selectedIndex = 	beanComposite.getEnergies().getSelectionIndex();
-				if(selectedIndex != -1)
-				{
-					double energyToDelete = Double.parseDouble(beanComposite.getEnergies().getItem(selectedIndex));
-					deleteFromBean(energyToDelete);
-					beanComposite.getEnergies().remove(selectedIndex);
-					dirtyContainer.setDirty(true);
-				}
-				
-			}
-		});
-		
-	}*/
-
 	/**
 	 * 
 	 */
 	@Override
 	public void setFocus() {
-		//TODO
 	}
 	
 	@Override
@@ -181,17 +144,4 @@ public final class MicroFocusScanParametersUIEditor extends RichBeanEditorPart {
 	public FieldComposite getRowTime() {
 		return beanComposite.getRowTime();
 	}
-	
-/*	public Button getAddButton(){
-		return beanComposite.getAddButton();
 	}
-	public Button getDeleteButton(){
-		return beanComposite.getDeleteButton();
-	}
-	public ScaleBox getEnergy()
-	{
-		return beanComposite.getEnergy();
-		
-	}*/
-
-}

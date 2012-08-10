@@ -24,10 +24,6 @@ import gda.util.exafs.Element;
 import java.text.DecimalFormat;
 import java.util.List;
 
-import org.dawb.common.ui.plot.region.IROIListener;
-import org.dawb.common.ui.plot.region.IRegion;
-import org.dawb.common.ui.plot.region.IRegion.RegionType;
-import org.dawb.common.ui.plot.region.ROIEvent;
 import org.eclipse.jface.dialogs.IPageChangedListener;
 import org.eclipse.jface.dialogs.PageChangedEvent;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -41,15 +37,12 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.roi.LinearROI;
-import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
@@ -74,7 +67,6 @@ import uk.ac.gda.util.schema.SchemaReader;
  * @author fcp94556
  */
 public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPropertyChangeListener {
-
 
 	private static final Logger logger = LoggerFactory.getLogger(XasScanParametersUIEditor.class);
 
@@ -113,6 +105,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 
 	private GridLayout gridLayout_1;
 
+	private EdgePlotSelectionListener edgePlotMouselistener;
 	private boolean  energyInK = ExafsActivator.getDefault().getPreferenceStore()
 			.getBoolean(ExafsPreferenceConstants.EXAFS_FINAL_ANGSTROM);
 
@@ -172,7 +165,9 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		this.expandContainer = main;
 
 		createEstimationComposite(right);
-		createPlotRegions();
+		
+		edgePlotMouselistener = new EdgePlotSelectionListener(this);
+		updateEdgePlotOverlayRegistration();
 
 		scrolledComposite.setMinSize(container.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
@@ -182,92 +177,14 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 
 		updateLayout();
 	}
-	
-	private IRegion aLine;
-	/**
-	 * Creates the ILineTrace and the IRegions for specifying the locations of the boundaries
-	 */
-	private void createPlotRegions() {
-			
-		// We create a XAXIS_LINE for each moveable thing.
-		try {
-			this.aLine = plotter.createRegion("a", RegionType.XAXIS_LINE);
-			// Red is reserved for a plot in error now.
-			aLine.setRegionColor(Display.getDefault().getSystemColor(SWT.COLOR_DARK_GREEN));			
-			plotter.addRegion(aLine);
-			new RegionSynchronizer(aLine, getA(), getGaf1());
-			aLine.setMobile(ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.EXAFS_GRAPH_EDITABLE));
-		} catch (Exception e) {
-			logger.error("Cannot create region for position of a!", e);
-		}
-		
-		
-		// TODO FIXME Richard et. al. please fill in the other regions for b,c as required by Sofia :)
-		// bLine = ...
-		// blineSync = new RegionSynchronizer(aLine, getB(), getGaf2());
-	}
-	
-	private class RegionSynchronizer extends ValueAdapter implements IROIListener {
 
-		private IRegion line;
-		private ScaleBox abc, gaf;
-		
-		RegionSynchronizer(IRegion line, ScaleBox abc, ScaleBox gaf) {
-			this.line = line;
-			line.addROIListener(this);
-			
-			this.abc  = abc;
-			abc.addValueListener(this);	
-			
-			this.gaf  = gaf;
-		}
-	
+	protected void updateEdgePlotOverlayRegistration() {
 
-		@Override
-		public void roiDragged(ROIEvent evt) {
-			setBoxValue(evt.getROI());
+		if (ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.EXAFS_GRAPH_EDITABLE)) {
+			super.plotter.registerOverlay(edgePlotMouselistener);
+		} else {
+			super.plotter.unRegisterOverlay(edgePlotMouselistener);
 		}
-		@Override
-		public void roiChanged(ROIEvent evt) {
-			setBoxValue(evt.getROI());
-		}
-		private void setBoxValue(ROIBase roi) {
-			if (suspendGraphUpdate) return;
-			try {
-				suspendGraphUpdate = true;
-				final double energy = roi.getPoint()[0];
-				 
-                abc.setNumericValue(energy);
-                gaf.setNumericValue(calc(energy));
-				
-			} finally {
-				suspendGraphUpdate = false;
-			}
-		}
-		@Override
-		public void valueChangePerformed(ValueEvent e) {
-			update();
-		}
-
-		public void update() {
-			if (suspendGraphUpdate) return;
-			try {
-				suspendGraphUpdate = true;
-				double[] pnt = new double[]{abc.getNumericValue(), 0d};
-				line.setROI(new LinearROI(pnt, pnt));
-			} finally {
-				suspendGraphUpdate = false;
-			}
-		}
-		
-		// @see EdgePlotSelectionListener (deleted class)
-		protected double calc(double energy) {
-			final double ed = getEdgeValue();
-			final double coreHole = Double.parseDouble(getCoreHole_unused().getValue());
-			return Math.round((ed - energy) / coreHole);
-		}
-
-
 	}
 
 	private void createStepParameters(Composite centre) {
@@ -469,8 +386,14 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		gaf1.addValueListener(new ValueAdapter("gaf1Listener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
-				updateAValue(e.getDoubleValue());
+				final double gaf1 = e.getDoubleValue();
+				double newA =  calcAorB(gaf1);
+				final double minEnergy = getInitialEnergy().getNumericValue();
+				if ( newA > minEnergy) {
+					getA().setNumericValue(newA);
+				}
 			}
+
 		});
 
 		final Label gaf2Label = new Label(topCentre, SWT.NONE);
@@ -484,18 +407,16 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		gaf2.addValueListener(new ValueAdapter("gaf2Listener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
-				final double ed = getEdgeValue();
-				getB().setNumericValue(
-						ed - (e.getDoubleValue() * Double.parseDouble(getCoreHole_unused().getValue())));
+				final double gaf2 = e.getDoubleValue();
+				double newB =  calcAorB(gaf2);
+				getB().setNumericValue(newB);
 
 				// change C as well if the preference has been set to do so
-				if (ExafsActivator.getDefault().getPreferenceStore().getBoolean(
-						ExafsPreferenceConstants.C_MIRRORS_B_LINK)) {
-					getC().setNumericValue(
-							ed + (e.getDoubleValue() * Double.parseDouble(getCoreHole_unused().getValue())));
+				if (ExafsActivator.getDefault().getPreferenceStore()
+						.getBoolean(ExafsPreferenceConstants.C_MIRRORS_B_LINK)) {
+					getC().setNumericValue(calcC(gaf2));
 					getGaf3().setNumericValue(e.getDoubleValue());
 				}
-
 			}
 		});
 
@@ -509,9 +430,8 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		gaf3.addValueListener(new ValueAdapter("gaf3Listener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
-				final double ed = getEdgeValue();
-				getC().setNumericValue(
-						ed + (e.getDoubleValue() * Double.parseDouble(getCoreHole_unused().getValue())));
+				final double gaf3 = e.getDoubleValue();
+				getC().setNumericValue(calcC(gaf3));
 			}
 		});
 
@@ -721,32 +641,18 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 				correctFinalEnergy(isPageChange);
 				correctC(isPageChange);
 			}
-			
 			try {
 				updatePlottedPoints();
-				// TODO
-				gaf1.fireValueListeners();
-				updateAValue(gaf1.getNumericValue());
-			
 			} catch (Exception e1) {
 				logger.error("Cannot update XAS points", e1);
 			}
 			setupEstimationWidgets();
-			
 		} catch (Exception e) {
+			// TODO Auto-generated catch block
 			logger.error("TODO put description of error here", e);
 		} finally {
 			setPointsUpdate(true);
 		}
-		
-
-	}
-	
-	private void updateAValue(double gafValue) {
-		final String value = getCoreHole_unused().getValue();
-		if (value == null || "".equals(value)) return;
-		final double ed = getEdgeValue();
-		getA().setNumericValue(ed - (gafValue * Double.parseDouble(value)));
 	}
 
 	private void correctC(boolean isPageChange) {
@@ -895,20 +801,22 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	}
 
 	protected double getAfromElement() throws Exception {
-		final Element ele = getElementUseBean();
-		final String edge = getEdgeUseBean();
-		if (ele == null || edge == null)
-			return 0d;
-		final double ed = getEdgeValue();
-		return ed - (getGaf1Value() * ele.getCoreHole(edge));
+		return getABfromElement(getGaf1Value());
 	}
 
 	protected double getBfromElement() throws Exception {
+		return getABfromElement(getGaf2Value());
+	}
+	
+	private double getABfromElement(double abValue) throws Exception {
 		final Element ele = getElementUseBean();
 		final String edge = getEdgeUseBean();
 		final double ed = getEdgeValue();
-		return ed - (getGaf2Value() * ele.getCoreHole(edge));
+		if (ele == null || edge == null)
+			return 0d;
+		return ed - (abValue * ele.getCoreHole(edge));
 	}
+	
 
 	protected double getCfromElement() throws Exception {
 		final Element ele = getElementUseBean();
@@ -1206,7 +1114,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 				}
 				updateEdgeRegion();
 			} else if (event.getProperty().equals(ExafsPreferenceConstants.EXAFS_GRAPH_EDITABLE)) {
-				if (aLine!=null) aLine.setMobile((Boolean)event.getNewValue());
+				updateEdgePlotOverlayRegistration();
 			}
 			updateKStartIfVisible();
 		} catch (Exception ne) {
@@ -1249,5 +1157,36 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		return editingBean;
 	}
 	
+	protected Double calcAorB(double gaf){
+		final String value = getCoreHole_unused().getValue();
+		if (value == null || "".equals(value))
+			return null;
+		final double ed = getEdgeValue();
+		final double core = Double.parseDouble(value);
+		return ed - (gaf * core);
+	}
+	
+	protected Double calcC(double gaf){
+		final String value = getCoreHole_unused().getValue();
+		if (value == null || "".equals(value))
+			return null;
+		final double ed = getEdgeValue();
+		final double core = Double.parseDouble(value);
+		return ed + (gaf * core);
+	}
+	
+	protected double calcGaf1or2(double latestTargetValue) { 
+		final double ed = getEdgeValue();
+		final double coreHole = Double.parseDouble(getCoreHole_unused().getValue());
+		double gaf1 = Math.round((ed - latestTargetValue) / coreHole);
+		return gaf1;
+	}
+
+	protected double calcGaf3(double latestTargetValue) {
+		final double ed = getEdgeValue();
+		final double coreHole = Double.parseDouble(getCoreHole_unused().getValue());
+		double gaf3 = Math.abs(Math.round((latestTargetValue - ed) / coreHole));
+		return gaf3;
+	}
 
 }

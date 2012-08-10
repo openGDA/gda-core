@@ -18,6 +18,7 @@
 
 package uk.ac.gda.exafs.ui.actions;
 
+import gda.exafs.scan.RepetitionsProperties;
 import gda.jython.InterfaceProvider;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -31,8 +32,8 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
 public class HaltAfterRepetition extends AbstractHandler implements IWorkbenchWindowActionDelegate,
-IEditorActionDelegate {
-
+		IEditorActionDelegate {
+	
 	@Override
 	public void run(IAction arg0) {
 	}
@@ -43,8 +44,10 @@ IEditorActionDelegate {
 
 	@Override
 	public Object execute(ExecutionEvent arg0) throws ExecutionException {
-		InterfaceProvider.getCommandRunner().runCommand("LocalProperties.set(\"uk.ac.gda.exafs.haltafterrepetition\",\"true\")");
-		InterfaceProvider.getTerminalPrinter().print("Request made to halt the current scan once this repetition has completed.");
+		InterfaceProvider.getCommandRunner().runCommand(
+				"LocalProperties.set(\"" + RepetitionsProperties.HALT_AFTER_REP_PROPERTY + "\",\"true\")");
+		InterfaceProvider.getTerminalPrinter().print(
+				"Request made to halt the current scan once this repetition has completed.");
 		return null;
 	}
 
