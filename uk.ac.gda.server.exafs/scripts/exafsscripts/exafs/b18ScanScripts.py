@@ -105,7 +105,7 @@ class XasScan(Scan):
         scan_unique_id = LoggingScriptController.createUniqueID(scriptType);
         
         # update to terminal
-        print "Starting",scriptType,detectorBean.getFluorescenceParameters().getDetectorType(),"scan over scannable '"+scanBean.getScannableName()+"'..."
+        print "Starting",scriptType,detectorBean.getExperimentType(),"scan over scannable '"+scanBean.getScannableName()+"'..."
         print ""
         print "Output to",xmlFolderName
         print ""
