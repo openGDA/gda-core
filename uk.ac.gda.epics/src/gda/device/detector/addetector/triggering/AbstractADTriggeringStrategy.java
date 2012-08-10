@@ -27,6 +27,8 @@ import org.apache.commons.lang.ArrayUtils;
 import org.springframework.beans.factory.InitializingBean;
 
 import gda.device.DeviceException;
+import gda.device.detector.addetectorprovisional.data.NXDetectorDataAppender;
+import gda.device.detector.addetectorprovisional.data.NXDetectorDataDoubleAppender;
 import gda.device.detector.areadetector.v17.ADBase;
 
 abstract public class AbstractADTriggeringStrategy implements ADTriggeringStrategy, InitializingBean{
@@ -82,6 +84,11 @@ abstract public class AbstractADTriggeringStrategy implements ADTriggeringStrate
 	}
 
 	@Override
+	public void prepareForCollection(int numberImagesPerCollection) throws Exception {
+		throw new UnsupportedOperationException("Must be operated via prepareForCollection(collectionTime, numberImagesPerCollection)");
+		
+	}
+	@Override
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
 		if (getReadoutTime() < 0) {
 			getAdBase().setAcquirePeriod(0.0);
@@ -116,7 +123,7 @@ abstract public class AbstractADTriggeringStrategy implements ADTriggeringStrate
 	}
 	
 	@Override
-	public List<String> getInputStreamFieldNames() {
+	public List<String> getInputStreamExtraNames() {
 		List<String> fieldNames = new ArrayList<String>();
 		if (isReadAcquisitionTime()) {
 			fieldNames.add("count_time");
@@ -140,25 +147,25 @@ abstract public class AbstractADTriggeringStrategy implements ADTriggeringStrate
 	}
 
 	@Override
-	public Vector<Double[]> read(int maxToRead) throws NoSuchElementException, InterruptedException, DeviceException {
-		Double[] times = new Double[0];
+	public Vector<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException, DeviceException {
+		List<Double> times = new ArrayList<Double>();
 		if (isReadAcquisitionTime()) {
 			try {
-				ArrayUtils.add(times, getAcquireTime());
+				times.add(getAcquireTime());
 			} catch (Exception e) {
 				throw new DeviceException(e);
 			}
 		}
 		if (isReadAcquisitionPeriod()) {
 			try {
-				ArrayUtils.add(times, getAcquirePeriod());
+				times.add(getAcquirePeriod());
 			} catch (Exception e) {
 				throw new DeviceException(e);
 			}
 		}
-		Vector<Double[]> vector = new Vector<Double[]>();
-		vector.add(times);
-		return new Vector<Double[]>();
+		Vector<NXDetectorDataAppender> vector = new Vector<NXDetectorDataAppender>();
+		vector.add(new NXDetectorDataDoubleAppender(getInputStreamExtraNames(), times));
+		return vector;
 	}
 
 }

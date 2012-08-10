@@ -171,4 +171,28 @@ public abstract class FileWriterBase implements FileWriter, InitializingBean{
 		if( ndArrayPortVal != null && ndArrayPortVal.length()>0)
 			ndFile.getPluginBase().setNDArrayPort(ndArrayPortVal);
 	}
+	
+	@Override
+	public String getName() {
+		return "filewriter";
+	}
+
+	@Override
+	public boolean willRequireCallbacks() {
+		return getEnable();
+	}
+
+	@Override
+	public void prepareForLine() throws Exception {
+		
+	}
+
+	@Override
+	public void completeLine() throws Exception {
+	}
+
+	@Override
+	public void completeCollection() throws Exception {
+	}
+
 }

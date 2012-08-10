@@ -20,16 +20,17 @@ package gda.device.detector.addetectorprovisional;
 
 import java.util.List;
 
+import gda.device.detector.addetectorprovisional.data.NXDetectorDataAppender;
 import gda.device.scannable.PositionInputStream;
 
 
-public interface ADDetectorPlugin<T> extends PositionInputStream<T> {
+public interface ADDetectorPlugin extends PositionInputStream<NXDetectorDataAppender> {
 	
 	String getName(); // For naming within the context of the ADDetecoctor instance. e.g. from Jython: pilatus.roi1
 	
 	boolean willRequireCallbacks();
 
-	void prepareForCollection(double collectionTime, int numberImagesPerCollection) throws Exception;
+	void prepareForCollection(int numberImagesPerCollection) throws Exception;
 	
 	void prepareForLine() throws Exception;
 
@@ -41,7 +42,7 @@ public interface ADDetectorPlugin<T> extends PositionInputStream<T> {
 
 	void stop() throws Exception;
 	
-	List<String> getInputStreamFieldNames();
+	List<String> getInputStreamExtraNames();
 
 	List<String> getInputStreamFormats();
 

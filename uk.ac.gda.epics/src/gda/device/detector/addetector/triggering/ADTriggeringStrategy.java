@@ -23,7 +23,7 @@ import gda.device.detector.addetectorprovisional.ADDetectorPlugin;
 /**
  * Called by ADDetector;s Detector hooks (in the order triggered by ConcurrentScan)
  */
-public interface ADTriggeringStrategy extends ADDetectorPlugin<Double[]>{
+public interface ADTriggeringStrategy extends ADDetectorPlugin{
 
 	public double getAcquireTime() throws Exception;
 
@@ -32,6 +32,8 @@ public interface ADTriggeringStrategy extends ADDetectorPlugin<Double[]>{
 	@Deprecated // This does not need to be on the interface. It duplicates some of the behaviour in prepareForCollection
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception;
 
+	void prepareForCollection(double collectionTime, int numberImagesPerCollection) throws Exception;
+	
 	public void collectData() throws Exception;
 
 	public int getStatus() throws Exception;

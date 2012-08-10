@@ -18,10 +18,18 @@
 
 package gda.device.detector.addetectorprovisional.filewriter;
 
+import gda.device.DeviceException;
+import gda.device.detector.NXDetectorDataWithFilepathForSrs;
+import gda.device.detector.addetectorprovisional.data.NXDetectorDataAppender;
+import gda.device.detector.addetectorprovisional.data.NXDetectorDataFileAppenderForSrs;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDFile.FileWriteMode;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +40,8 @@ import org.slf4j.LoggerFactory;
  */
 public class SingleImagePerFileWriter extends ProvisionalFileWriterBase {
 
+	protected static final String FILEPATH_EXTRANAME = "filepath";
+	
 	private static Logger logger = LoggerFactory.getLogger(SingleImagePerFileWriter.class);
 
 	private boolean returnExpectedFileName = false;
@@ -124,7 +134,7 @@ public class SingleImagePerFileWriter extends ProvisionalFileWriterBase {
 	}
 
 	@Override
-	public void endCollection() throws Exception {
+	public void completeCollection() throws Exception {
 		if (!getEnable())
 			return;
 		disableFileWriter();
@@ -146,6 +156,30 @@ public class SingleImagePerFileWriter extends ProvisionalFileWriterBase {
 			return fullFileName;
 		}
 		return super.getFullFileName_RBV();
+	}
+
+	@Override
+	public List<String> getInputStreamExtraNames() {
+		return Arrays.asList(FILEPATH_EXTRANAME);
+	}
+
+	@Override
+	public List<String> getInputStreamFormats() {
+		return Arrays.asList("%.2f");
+	}
+
+	@Override
+	public Vector<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
+			DeviceException {
+		NXDetectorDataAppender dataAppender;
+		try {
+			dataAppender = new NXDetectorDataFileAppenderForSrs(getFullFileName_RBV(), FILEPATH_EXTRANAME);
+		} catch (Exception e) {
+			throw new DeviceException(e);
+		}
+		Vector<NXDetectorDataAppender> appenders = new Vector<NXDetectorDataAppender>();
+		appenders.add(dataAppender);
+		return appenders;
 	}
 
 }
