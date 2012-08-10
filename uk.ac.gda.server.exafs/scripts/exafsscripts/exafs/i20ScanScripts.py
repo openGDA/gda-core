@@ -3,6 +3,7 @@ from BeamlineParameters import JythonNameSpaceMapping, FinderNameMapping
 from uk.ac.gda.beans.exafs import XanesScanParameters
 from uk.ac.gda.beans.exafs import XesScanParameters
 from uk.ac.gda.beans.exafs import XasScanParameters
+from uk.ac.gda.beans.exafs.i20 import I20SampleParameters
 
 class I20XasScan(XasScan):
     
@@ -15,7 +16,24 @@ class I20XasScan(XasScan):
         
         self.setDetectorCorrectionParameters(beanGroup)
         
-        self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
+        if beanGroup.getSample().getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[1] :
+            
+            sampleStageParameters = beanGroup.getSample().getRoomTemperatureParameters()
+            numSamples = sampleStageParameters.getNumberOfSamples()
+            for i in range(0,numSamples):
+                x = sampleStageParameters.getXs()[i]
+                y = sampleStageParameters.getYs()[i]
+                z = sampleStageParameters.getZs()[i]
+                rotation = sampleStageParameters.getRotations()[i]
+                roll = sampleStageParameters.getRolls()[i]
+                pitch = sampleStageParameters.getPitches()[i]
+                print "would now move sample stage to",x,y,z,rotation,roll,pitch
+                #TODO add to metadata?
+                self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
+                
+                
+        else :
+            self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
         
         
         

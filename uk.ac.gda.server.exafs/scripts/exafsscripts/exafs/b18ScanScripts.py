@@ -11,9 +11,6 @@ from gda.exafs.scan import ScanStartedMessage
 from gda.device.scannable import XasScannable
 from gda.device.scannable import XasScannableWithDetectorFramesSetup
 from gda.device.scannable import JEPScannable
-from gda.exafs.scan import ExafsScanPointCreator, XanesScanPointCreator
-from gda.exafs.scan import BeanGroup, BeanGroups
-from gda.exafs.scan import ScanStartedMessage
 from gda.exafs.scan import RepetitionsProperties
 from gda.factory import Finder
 from java.lang import InterruptedException

@@ -142,6 +142,9 @@
 
 	<class name="uk.ac.gda.beans.exafs.i20.SampleStageParameters">
 		<map-to xml="roomTemperature" />
+		<field name="numberOfSamples" type="integer">
+			<bind-xml name="numberOfSamples" node="element" />
+		</field>
 		<field name="sample1_x" type="double">
 			<bind-xml name="sample1_x" node="element" />
 		</field>

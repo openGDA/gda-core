@@ -25,8 +25,9 @@ import org.apache.commons.beanutils.BeanUtils;
 /**
  * class to hold sample stage parameters
  */
-public class SampleStageParameters  implements Serializable{
-	
+public class SampleStageParameters implements Serializable {
+
+	private Integer numberOfSamples;
 	private Double sample1_x;
 	private Double sample1_y;
 	private Double sample1_z;
@@ -51,6 +52,41 @@ public class SampleStageParameters  implements Serializable{
 	private Double sample4_rotation;
 	private Double sample4_roll;
 	private Double sample4_pitch;
+
+	/*
+	 * useful methods when used in scripts
+	 */
+	public Double[] getXs() {
+		return new Double[] { sample1_x, sample2_x, sample3_x, sample4_x };
+	}
+
+	public Double[] getYs() {
+		return new Double[] { sample1_y, sample2_y, sample3_y, sample4_y };
+	}
+
+	public Double[] getZs() {
+		return new Double[] { sample1_z, sample2_z, sample3_z, sample4_z };
+	}
+
+	public Double[] getRotations() {
+		return new Double[] { sample1_rotation, sample2_rotation, sample3_rotation, sample4_rotation };
+	}
+
+	public Double[] getRolls() {
+		return new Double[] { sample1_roll, sample2_roll, sample3_roll, sample4_roll };
+	}
+
+	public Double[] getPitches() {
+		return new Double[] { sample1_pitch, sample2_pitch, sample3_pitch, sample4_pitch };
+	}
+
+	public Integer getNumberOfSamples() {
+		return numberOfSamples;
+	}
+
+	public void setNumberOfSamples(Integer numberOfSamples) {
+		this.numberOfSamples = numberOfSamples;
+	}
 
 	public Double getSample1_x() {
 		return sample1_x;
@@ -248,6 +284,7 @@ public class SampleStageParameters  implements Serializable{
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((numberOfSamples == null) ? 0 : numberOfSamples.hashCode());
 		result = prime * result + ((sample1_pitch == null) ? 0 : sample1_pitch.hashCode());
 		result = prime * result + ((sample1_roll == null) ? 0 : sample1_roll.hashCode());
 		result = prime * result + ((sample1_rotation == null) ? 0 : sample1_rotation.hashCode());
@@ -284,6 +321,11 @@ public class SampleStageParameters  implements Serializable{
 		if (getClass() != obj.getClass())
 			return false;
 		SampleStageParameters other = (SampleStageParameters) obj;
+		if (numberOfSamples == null) {
+			if (other.numberOfSamples != null)
+				return false;
+		} else if (!numberOfSamples.equals(other.numberOfSamples))
+			return false;
 		if (sample1_pitch == null) {
 			if (other.sample1_pitch != null)
 				return false;
