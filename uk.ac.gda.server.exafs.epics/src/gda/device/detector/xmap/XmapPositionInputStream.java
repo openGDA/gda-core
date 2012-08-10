@@ -31,9 +31,9 @@ import gda.device.detector.xmap.util.XmapFileLoader;
 import gda.device.detector.xmap.util.XmapNexusFileLoader;
 import gda.device.scannable.PositionInputStream;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Vector;
 
 import org.nexusformat.NexusFile;
 
@@ -61,13 +61,13 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider>
 	private XmapFileLoader fileLoader ;
 	
 	@Override
-	public Vector<NexusTreeProvider> read(int maxToRead) throws NoSuchElementException, InterruptedException, DeviceException  {
+	public List<NexusTreeProvider> read(int maxToRead) throws NoSuchElementException, InterruptedException, DeviceException  {
 		String fileName=null;
 		try {
 			System.out.println("wating for file");
 			hardwareTriggeredNexusXmap.waitForCurrentScanFile();
 			 fileName= this.hardwareTriggeredNexusXmap.getHDFFileName();
-			Vector <NexusTreeProvider> container = new Vector<NexusTreeProvider>();
+			List <NexusTreeProvider> container = new ArrayList<NexusTreeProvider>();
 			
 			//change to linux format
 			String beamline = LocalProperties.get("gda.factory.factoryName","");
