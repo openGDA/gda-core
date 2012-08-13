@@ -19,7 +19,12 @@
 package uk.ac.gda.exafs.ui.views.scalersmonitor;
 
 import gda.device.DeviceException;
+import gda.rcp.GDAClientActivator;
 
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IWorkbenchPartReference;
@@ -30,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
+import uk.ac.gda.client.CommandQueueViewFactory;
 
 /**
  * Base class for view showing live data from an Ion chambers / fluorescence detector pairing.
@@ -53,6 +59,12 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 	protected volatile Thread updateThread;
 
 	protected volatile boolean keepOnTrucking = true;
+
+	private Action btnRunPause;
+
+	private ImageDescriptor pauseImage;
+
+	private ImageDescriptor runImage;
 
 	/**
 	 * Collect the data from the fluorescence detector
@@ -84,6 +96,28 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 	public void createPartControl(Composite parent) {
 		getSite().getPage().addPartListener(this);
 		createThread();
+		createToolbar();
+	}
+
+	private void createToolbar() {
+		IToolBarManager manager = getViewSite().getActionBars().getToolBarManager();
+		pauseImage = GDAClientActivator.getImageDescriptor("icons/control_stop_blue.png");
+		runImage = GDAClientActivator.getImageDescriptor("icons/control_play_blue.png");
+		btnRunPause = new Action(null, SWT.NONE) {
+			@Override
+			public void run() {
+				if (btnRunPause.getImageDescriptor().equals(pauseImage)) {
+					setRunMonitoring(false);
+					btnRunPause.setImageDescriptor(runImage);
+				} else {
+					setRunMonitoring(true);
+					btnRunPause.setImageDescriptor(pauseImage);
+				}
+			}
+		};
+		btnRunPause.setId(CommandQueueViewFactory.ID + ".runpause");
+		btnRunPause.setImageDescriptor(runImage);
+		manager.add(btnRunPause);
 	}
 
 	@Override

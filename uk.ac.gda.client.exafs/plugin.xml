@@ -178,22 +178,10 @@
             id="uk.ac.gda.client.exafs.dataCollectionCommand"
             name="Data Collection Mode">
       </command>
-      <command
-            categoryId="uk.ac.gda.client.exafs.ui.views.scalersmonitor"
-            defaultHandler="uk.ac.gda.exafs.ui.views.scalersmonitor.StartHandler"
-            id="uk.ac.gda.client.exafs.ui.views.scalersmonitor.startcommand"
-            name="Start Monitoring Scalers">
-      </command>
       <category
             id="uk.ac.gda.client.exafs.ui.views.scalersmonitor"
             name="ScalersMonitorViewCommands">
       </category>
-      <command
-            categoryId="uk.ac.gda.client.exafs.ui.views.scalersmonitor"
-            defaultHandler="uk.ac.gda.exafs.ui.views.scalersmonitor.StopHandler"
-            id="uk.ac.gda.client.exafs.ui.views.scalersmonitor.stopcommand"
-            name="Stop Monitoring Scalers">
-      </command>
       <command
             defaultHandler="uk.ac.gda.exafs.ui.views.scalersmonitor.ShowXspressCommand"
             id="uk.ac.gda.client.exafs.ui.views.scalersmonitor.showXspress"
@@ -224,49 +212,9 @@
             id="uk.ac.gda.client.exafs.resetperspective"
             name="Reset Perspective">
       </command>
-      <command 
- 	        categoryId="uk.ac.gda.client.exafs.ui.views.scalersmonitor" 
- 	        defaultHandler="uk.ac.gda.exafs.ui.views.scalersmonitor.B18StartHandler" 
- 	        id="uk.ac.gda.client.exafs.ui.views.scalersmonitor.b18startcommand" 
- 	        name="Start Monitoring B18 Scalers"> 
- 	  </command> 
- 	  <command 
- 	        categoryId="uk.ac.gda.client.exafs.ui.views.scalersmonitor" 
- 	        defaultHandler="uk.ac.gda.exafs.ui.views.scalersmonitor.B18StopHandler" 
- 	        id="uk.ac.gda.client.exafs.ui.views.scalersmonitor.b18stopcommand" 
- 	        name="Stop Monitoring B18 Scalers"> 
-      </command> 
       <command
             id="k.ac.gda.client.exafs.ui.views.scalersmonitor.startcommand"
             name="name">
-      </command>
-      <command
-            categoryId="uk.ac.gda.client.exafs.ui.views.xmapmonitor"
-            defaultHandler="uk.ac.gda.exafs.ui.views.scalersmonitor.StartXmapHandler"
-            id="uk.ac.gda.client.exafs.ui.views.xmapmonitor.startcommand"
-            name="Start Monitoring Xmap">
-      </command>
-      <command
-            categoryId="uk.ac.gda.client.exafs.ui.views.xmapmonitor"
-            defaultHandler="uk.ac.gda.exafs.ui.views.scalersmonitor.StopXmapHandler"
-            id="uk.ac.gda.client.exafs.ui.views.xmapmonitor.stopcommand"
-            name="Stop Monitoring Xmap">
-      </command>
-      <category
-            id="uk.ac.gda.client.exafs.ui.views.xmapmonitor"
-            name="XmapMonitorViewCommands">
-      </category>
-      <command
-            categoryId="uk.ac.gda.client.exafs.ui.views.xmapmonitor"
-            defaultHandler="uk.ac.gda.exafs.ui.views.scalersmonitor.XmapI1StopHandler"
-            id="uk.ac.gda.client.exafs.ui.views.xmapi1monitor.stopcommand"
-            name="Stop Monitoring XES Xmap">
-      </command>
-      <command
-            categoryId="uk.ac.gda.client.exafs.ui.views.xmapmonitor"
-            defaultHandler="uk.ac.gda.exafs.ui.views.scalersmonitor.XmapI1StartHandler"
-            id="uk.ac.gda.client.exafs.ui.views.xmapi1monitor.startcommand"
-            name="Start Monitoring XES Xmap">
       </command>
       <command
             id="uk.ac.gda.client.exafs.haltAfterRepetition"
@@ -464,44 +412,6 @@
          </toolbar>
       </menuContribution>
       <menuContribution
-            locationURI="toolbar:uk.ac.gda.exafs.ui.views.scalersmonitor">
-         <command
-               commandId="uk.ac.gda.client.exafs.ui.views.scalersmonitor.startcommand"
-               icon="icons/control_play_blue.png"
-               label="start"
-               style="push"
-               tooltip="start monitoring">
-         </command>
-         <command
-               commandId="uk.ac.gda.client.exafs.ui.views.scalersmonitor.stopcommand"
-               icon="icons/control_stop_blue.png"
-               label="stop"
-               style="push"
-               tooltip="stop monitoring">
-         </command>
-         <toolbar
-               id="uk.ac.gda.client.exafs.ui.views.scalersmonitor.toolbar1">
-            <command
-                  commandId="uk.ac.gda.client.exafs.ui.views.scalersmonitor.refToMenuID"
-                  label="Pulldown Menu"
-                  style="pulldown">
-            </command>
-         </toolbar>
-      </menuContribution>
-      <menuContribution
-            locationURI="menu:uk.ac.gda.client.exafs.ui.views.scalersmonitor.refToMenuID">
-         <command
-               commandId="uk.ac.gda.client.exafs.ui.views.scalersmonitor.changerate"
-               label="Change Rate..."
-               style="push">
-         </command>
-         <command
-               commandId="uk.ac.gda.client.exafs.ui.views.scalersmonitor.showXspress"
-               label="Show Xspress"
-               style="toggle">
-         </command>
-      </menuContribution>
-      <menuContribution
             locationURI="popup:uk.ac.diamond.gda.client.experimentdefinition.ExperimentView">
          <command
                commandId="uk.ac.gda.client.exafs.switchScanType"
@@ -525,31 +435,6 @@
                
          </command>
       </menuContribution>
-      <menuContribution 
-            locationURI="toolbar:uk.ac.gda.exafs.ui.views.B18ScalersMonitor"> 
-         <command 
-              commandId="uk.ac.gda.client.exafs.ui.views.scalersmonitor.b18startcommand" 
-              icon="icons/control_play_blue.png" 
-              label="start" 
-              style="push" 
-              tooltip="start monitoring"> 
-         </command> 
-         <command 
-              commandId="uk.ac.gda.client.exafs.ui.views.scalersmonitor.b18stopcommand" 
-              icon="icons/control_stop_blue.png" 
-              label="stop" 
-              style="push" 
-              tooltip="stop monitoring"> 
-         </command> 
-         <toolbar 
-              id="uk.ac.gda.client.exafs.ui.views.scalersmonitor.toolbar1"> 
-            <command 
-                  commandId="uk.ac.gda.client.exafs.ui.views.scalersmonitor.refToMenuID" 
-                  label="Pulldown Menu" 
-                  style="pulldown"> 
-            </command> 
-         </toolbar> 
-      </menuContribution> 
       <menuContribution
             locationURI="popup:gda.gui.eclipse.editors.scan.experimentdefinition.ExperimentRunEditor?after=uk.ac.gda.client.experimentdefinition.separator7">
          <command
@@ -574,41 +459,6 @@
                icon="icons/import_wiz.gif"
                label="Import Experiment"
                style="push">
-         </command>
-      </menuContribution>
-      <menuContribution
-            allPopups="false"
-            locationURI="toolbar:uk.ac.gda.exafs.ui.views.xmapmonitor">
-         <command
-               commandId="uk.ac.gda.client.exafs.ui.views.xmapmonitor.startcommand"
-               icon="icons/control_play_blue.png"
-               label="start"
-               style="push"
-               tooltip="start monitoring">
-         </command>
-         <command
-               commandId="uk.ac.gda.client.exafs.ui.views.xmapmonitor.stopcommand"
-               icon="icons/control_stop_blue.png"
-               label="stop"
-               style="push"
-               tooltip="stop monitoring">
-         </command>
-      </menuContribution>
-      <menuContribution
-            locationURI="toolbar:uk.ac.gda.exafs.ui.views.xmapi1monitor">
-         <command
-               commandId="uk.ac.gda.client.exafs.ui.views.xmapi1monitor.startcommand"
-               icon="icons/control_play_blue.png"
-               label="start"
-               style="push"
-               tooltip="start monitoring">
-         </command>
-         <command
-               commandId="uk.ac.gda.client.exafs.ui.views.xmapi1monitor.stopcommand"
-               icon="icons/control_stop_blue.png"
-               label="stop"
-               style="push"
-               tooltip="stop monitoring">
          </command>
       </menuContribution>
    </extension>

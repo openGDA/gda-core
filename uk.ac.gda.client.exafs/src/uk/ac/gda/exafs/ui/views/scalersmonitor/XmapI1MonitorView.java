@@ -25,7 +25,11 @@ import gda.device.XmapDetector;
 import gda.factory.Finder;
 import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
+import gda.rcp.GDAClientActivator;
 
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -37,6 +41,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.gda.client.CommandQueueViewFactory;
 
 
 /**
@@ -57,6 +63,12 @@ public class XmapI1MonitorView extends ViewPart implements Runnable, IPartListen
 	protected XmapI1MonitorViewData displayData;
 	private volatile Thread updateThread;
 
+	private ImageDescriptor pauseImage;
+
+	private ImageDescriptor runImage;
+
+	private Action btnRunPause;
+
 	public XmapI1MonitorView() {
 	}
 
@@ -73,6 +85,28 @@ public class XmapI1MonitorView extends ViewPart implements Runnable, IPartListen
 
 		// create a thread for this object and start it
 		createThread();
+		createToolbar();
+	}
+
+	private void createToolbar() {
+		IToolBarManager manager = getViewSite().getActionBars().getToolBarManager();
+		pauseImage = GDAClientActivator.getImageDescriptor("icons/control_stop_blue.png");
+		runImage = GDAClientActivator.getImageDescriptor("icons/control_play_blue.png");
+		btnRunPause = new Action(null, SWT.NONE) {
+			@Override
+			public void run() {
+				if (btnRunPause.getImageDescriptor().equals(pauseImage)) {
+					setRunMonitoring(false);
+					btnRunPause.setImageDescriptor(runImage);
+				} else {
+					setRunMonitoring(true);
+					btnRunPause.setImageDescriptor(pauseImage);
+				}
+			}
+		};
+		btnRunPause.setId(CommandQueueViewFactory.ID + ".runpause");
+		btnRunPause.setImageDescriptor(runImage);
+		manager.add(btnRunPause);
 	}
 
 	private void createThread() {
