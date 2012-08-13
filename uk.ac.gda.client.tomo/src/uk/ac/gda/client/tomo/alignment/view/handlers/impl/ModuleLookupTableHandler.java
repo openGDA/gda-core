@@ -113,17 +113,9 @@ public class ModuleLookupTableHandler implements IModuleLookupTableHandler {
 	}
 
 	@Override
-	public double lookupSs1Rx(CAMERA_MODULE module) throws DeviceException {
-		if (!CAMERA_MODULE.NO_MODULE.equals(module)) {
-			return moduleTable.lookupValue(module.getValue(), ModuleLookupTableConstants.S2_XS);
-		}
-		return Double.NaN;
-	}
-
-	@Override
 	public double lookupSs1Rz(CAMERA_MODULE selectedCameraModule) throws DeviceException {
 		if (!CAMERA_MODULE.NO_MODULE.equals(selectedCameraModule)) {
-			return moduleTable.lookupValue(selectedCameraModule.getValue(), ModuleLookupTableConstants.S2_YS);
+			return moduleTable.lookupValue(selectedCameraModule.getValue(), ModuleLookupTableConstants.SS1_RZ);
 		}
 		return Double.NaN;
 	}

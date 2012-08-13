@@ -64,12 +64,6 @@ public class ModuleLookupTableHandlerSimulator implements IModuleLookupTableHand
 	}
 
 	@Override
-	public double lookupSs1Rx(CAMERA_MODULE module) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
 	public double lookupSs1Rz(CAMERA_MODULE module) {
 		// TODO Auto-generated method stub
 		return 0;

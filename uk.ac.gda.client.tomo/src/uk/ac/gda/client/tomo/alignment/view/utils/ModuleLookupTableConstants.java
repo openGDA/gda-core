@@ -53,4 +53,6 @@ public interface ModuleLookupTableConstants {
 	final String BALL_DIAMETER = "ball-diameter";
 
 	final String DEFAULT_EXPOSURE_TIME = "defaultExposureTime";
+	
+	final String SS1_RZ = "ss1_rz";
 }

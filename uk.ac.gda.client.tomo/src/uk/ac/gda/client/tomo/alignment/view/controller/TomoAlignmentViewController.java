@@ -985,6 +985,7 @@ public class TomoAlignmentViewController extends TomoViewController {
 			from = 0.001;
 		}
 		double scaledValue = to / from;
+
 		logger.debug("Scaled value:{}", scaledValue);
 		return scaledValue;
 	}

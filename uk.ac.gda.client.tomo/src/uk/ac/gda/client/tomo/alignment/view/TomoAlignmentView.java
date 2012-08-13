@@ -592,7 +592,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 										logger.debug("T = {}", calcTomoAxis);
 										logger.debug("Setting crosshair to {}", newCrosshair);
 
-										leftWindowImageViewer.moveCrossHair1To(newCrosshair);
+										leftWindowImageViewer.moveCrossHairTo(newCrosshair);
 										motionControlComposite.setTomoAxisFound(true);
 									}
 								});
@@ -962,7 +962,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		Composite viewerComposite = createLeftWindowImageViewerComposite(page_leftWindow_imgViewer);
 		GridData layoutData = new GridData(GridData.FILL_BOTH);
 		viewerComposite.setLayoutData(layoutData);
-		
 		//
 		histogramAdjuster = new HistogramAdjuster();
 		//
