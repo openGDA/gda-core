@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.eclipse.draw2d.MouseEvent;
+import org.eclipse.swt.SWT;
 
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.IDataPositionEvent.Mode;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.IImagePositionEvent;
@@ -118,7 +119,8 @@ public class SwtImagePositionTool {
 		short flags = 0;
 		if (event.button == 1) flags += IImagePositionEvent.LEFTMOUSEBUTTON;
 		if (event.button == 3) flags += IImagePositionEvent.RIGHTMOUSEBUTTON;
-		//TODO: MUST handle key events like ctrl and shift too
+		if ((event.getState() & SWT.CONTROL) != 0) flags += IImagePositionEvent.CTRLKEY;
+		if ((event.getState() & SWT.SHIFT) != 0) flags += IImagePositionEvent.SHIFTKEY;
 		return flags;
 	}	
 

@@ -451,12 +451,10 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 			return;
 		}
 
-		if (detectorReadoutTask != null) {
-			// #waitForDetectorReadout() should have been called to ensure the previous put has completed.
-			if (!detectorReadoutTask.isDone()){
-				throw new IllegalStateException("previous point has not finished reading out.");
-			}
-		}
+		// Make sure the previous point has read been published
+		// (If the scan contains a detector this method will already have been called)
+		waitForDetectorReadoutAndPublishCompletion();
+
 
 		detectorReadoutTask = new FutureTask<Void>(new Callable<Void>() {
 

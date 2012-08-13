@@ -22,10 +22,8 @@ import gda.rcp.util.ScanDataPointEvent;
 import gda.scan.IScanDataPoint;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.ui.PlatformUI;
 
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
@@ -41,19 +39,23 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 
 	// attributes to perform calculations in a separate thread
 	private ScanDataPointEvent latestEvent;
+	private ScanDataPointEvent lastEventUsedInACalculation;
 	private Thread performCalculationsThread = null;
 	private volatile boolean continueCalculations = true;
 	private String currentScanUniqueName = "";
+	private volatile boolean waitingForRefresh = false;
 
 	@Override
 	public void scanStopped() {
-		super.scanStopped();
-		if (cachedX == null)
-			cachedX = new ArrayList<Double>(89);
-		if (cachedY == null)
-			cachedY = new ArrayList<Double>(89);
-		cachedX.clear();
-		cachedY.clear();
+		
+		//do nothing as this will intefere with the last points coming through
+//		super.scanStopped();
+//		if (cachedX == null)
+//			cachedX = new ArrayList<Double>(89);
+//		if (cachedY == null)
+//			cachedY = new ArrayList<Double>(89);
+//		cachedX.clear();
+//		cachedY.clear();
 	}
 
 	@Override
@@ -63,6 +65,8 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 			cachedX = new ArrayList<Double>(89);
 		if (cachedY == null)
 			cachedY = new ArrayList<Double>(89);
+		cachedX.clear();
+		cachedY.clear();
 	}
 
 	@Override
@@ -80,6 +84,7 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 	protected void checkLoopRunning() {
 		if (performCalculationsThread == null || !performCalculationsThread.isAlive()) {
 			performCalculationsThread = new Thread(this, this.getClass().getSimpleName());
+			continueCalculations = true;
 			performCalculationsThread.start();
 		}
 	}
@@ -87,17 +92,24 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 	@Override
 	public void run() {
 		while (continueCalculations) {
-			if (updateCachedValues()) {
+			if (!waitingForRefresh && updateCachedValues()) {
 				y = getY((IScanDataPoint[]) null);
-				x = getX((IScanDataPoint[]) null);
+				x = getX((IScanDataPoint[]) null); 
 				if (y != null && x != null) {
+					waitingForRefresh = true;
 					PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 						@Override
 						public void run() {
 							rebuildPlot(); // uses x and y
+							waitingForRefresh = false;
 						}
 					});
 				}
+			}
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				break;
 			}
 		}
 	}
@@ -117,10 +129,14 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 	 * @return boolean - true if the cache was updated
 	 */
 	private boolean updateCachedValues() {
+		
+		if (lastEventUsedInACalculation!= null && latestEvent == lastEventUsedInACalculation){
+			return false;
+		}
 
 		// take copies of what we are going to use
 		IScanDataPoint sdp = latestEvent.getCurrentPoint();
-		Collection<IScanDataPoint> allSDPs = latestEvent.getDataPoints();
+		ArrayList<IScanDataPoint> allSDPs = (ArrayList<IScanDataPoint>) latestEvent.getDataPoints();
 
 		if (currentScanUniqueName == null || currentScanUniqueName.isEmpty()) {
 			currentScanUniqueName = sdp.getUniqueName();
@@ -135,23 +151,39 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 			// somehow missed the scan started event
 			scanStarted();
 		}
+		lastEventUsedInACalculation = latestEvent;
 
 		// assume a new entry to Y for every SDP
 		int previousCacheSize = cachedY.size();
+		int newCacheSize = allSDPs.size();
 
-		if (previousCacheSize == allSDPs.size()) {
+		if (previousCacheSize == newCacheSize) {
 			// nothing new
 			return false;
 		}
+		
+//		ArrayList<IScanDataPoint> al = (ArrayList<IScanDataPoint>) allSDPs;
+		
+		int startIndex = 0;
+		if (previousCacheSize > 0){
+			startIndex = previousCacheSize - 1;
+		}
+		
+		if (startIndex == newCacheSize -1){
+			return false;
+		}
+		
+//		int endIndex = al.size();
+		
+//		List<IScanDataPoint> sublist  = ((AbstractList<IScanDataPoint>) latestEvent.getDataPoints()).subList(startIndex,newCacheSize);
 
 		// extract new SDPs and perform calculations
-		IScanDataPoint[] sdpArray = allSDPs.toArray(new IScanDataPoint[allSDPs.size()]);
-		sdpArray = (IScanDataPoint[]) ArrayUtils.subarray(sdpArray, previousCacheSize,sdpArray.length);
+//		IScanDataPoint[] sdpArray = allSDPs.toArray(new IScanDataPoint[allSDPs.size()]);
+//		sdpArray = (IScanDataPoint[]) ArrayUtils.subarray(sdpArray, previousCacheSize,sdpArray.length);
  
 //		getY(sdpArray);
-		updateCache(sdpArray);
-		
-		return sdpArray.length > 0;
+		updateCache(allSDPs,startIndex);
+		return true;
 	}
 
 	/**
@@ -159,9 +191,9 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 	 * <p>
 	 * It is then expected that the next calls to getX and getY will reflect the latest cache contents.
 	 * 
-	 * @param sdpArray
+	 * @param collection
 	 */
-	protected abstract void updateCache(IScanDataPoint[] sdpArray);
+	protected abstract void updateCache(ArrayList<IScanDataPoint> collection, int startIndex);
 
 	@Override
 	protected IPlotData getX(IScanDataPoint... points) {

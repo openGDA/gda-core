@@ -64,7 +64,7 @@ public abstract class AbstractScanPlotView extends AbstractPlotView implements S
 
 	protected int sampleRate = 500;
 	protected int scanNumber = 0;
-	protected boolean scanning = false;
+	protected volatile boolean scanning = false;
 	protected boolean legendEntries = false;
 	protected Timer timer;
 	protected IPlotData x, y, xSaved, ySaved;

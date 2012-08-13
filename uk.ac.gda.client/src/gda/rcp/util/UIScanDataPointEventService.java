@@ -121,41 +121,39 @@ public final class UIScanDataPointEventService {
 				}
 
 				// NOTE: If not all listeners fired on the UI
-				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							if (info instanceof JythonServerStatus) {
-								final JythonServerStatus status = (JythonServerStatus) info;
-								if (status.scanStatus == Jython.IDLE) {
-									fireScanStopped();
-								} else if (status.scanStatus == Jython.PAUSED) {
-									fireScanPaused();
-								} else {
-									fireScanStarted();
-								}
-							}
-							
-							if (info instanceof IScanDataPoint) {
-								
-								final IScanDataPoint currentPoint = (IScanDataPoint) info;
-								
-								if (currentDataPoints != null
-										&& currentDataPoints.size() > 0
-										&& !currentPoint.getUniqueName().equals(currentDataPoints.get(0).getUniqueName())) {
-									
-									currentDataPoints.clear();
-								}
-								
-								cachePoint(currentDataPoints, currentPoint);
-								
-								fireScanDataPoint(new ScanDataPointEvent(currentDataPoints, currentPoint));
-							}
-						} catch (Throwable th) {
-							logger.error("Error in ScanDataPointEventService", th);
+//				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+//					@Override
+//					public void run() {
+				try {
+					if (info instanceof JythonServerStatus) {
+						final JythonServerStatus status = (JythonServerStatus) info;
+						if (status.scanStatus == Jython.IDLE) {
+							fireScanStopped();
+						} else if (status.scanStatus == Jython.PAUSED) {
+							fireScanPaused();
+						} else {
+							fireScanStarted();
 						}
 					}
-				});
+
+					if (info instanceof IScanDataPoint) {
+
+						final IScanDataPoint currentPoint = (IScanDataPoint) info;
+
+						if (currentDataPoints != null && currentDataPoints.size() > 0
+								&& !currentPoint.getUniqueName().equals(currentDataPoints.get(0).getUniqueName())) {
+
+							currentDataPoints.clear();
+						}
+
+						cachePoint(currentDataPoints, currentPoint);
+						fireScanDataPoint(new ScanDataPointEvent(currentDataPoints, currentPoint));
+					}
+				} catch (Throwable th) {
+					logger.error("Error in ScanDataPointEventService", th);
+				}
+//					}
+//				});
 			}
 
 		};
@@ -187,9 +185,6 @@ public final class UIScanDataPointEventService {
 		if (currentDataPoints != null) currentDataPoints.clear();
 	}
 
-	/**
-	 * @param l
-	 */
 	public void addScanPlotListener(ScanPlotListener l) {
 		if (listeners == null) {
 			listeners = new ArrayList<ScanPlotListener>(3);
@@ -251,7 +246,6 @@ public final class UIScanDataPointEventService {
 
 	protected void fireScanDataPoint(final ScanDataPointEvent e) {
 		if (listeners == null) {
-			logger.debug("ScanDataPointEventService has empty list of listeners");
 			return;
 		}
 
@@ -264,24 +258,14 @@ public final class UIScanDataPointEventService {
 		}
 	}
 
-	/**
-	 * @return Returns the running.
-	 */
 	public boolean isRunning() {
 		return running;
 	}
 
-	/**
-	 * @return Returns the currentDataPoints.
-	 */
 	public List<IScanDataPoint> getCurrentDataPoints() {
 		return Collections.unmodifiableList(currentDataPoints);
 	}
 
-	/**
-	 * @param l
-	 *            listener to be removed
-	 */
 	public void removeScanPlotListener(ScanPlotListener l) {
 		if (listeners != null) {
 			while (listeners.remove(l)) {

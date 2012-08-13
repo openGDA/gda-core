@@ -52,7 +52,7 @@ public class PlotserverAdapter extends DeviceAdapter implements PlotServer {
 	private static final String GDA_LOCALPLOTVIEWS_REGEX = "gda.localplotviews.regex";
 	private CorbaPlotServer corbaPlotServer;
 	SimplePlotServer delegate=null;
-	private String localplotviews=null;;
+	private String localplotviews=null;
 
 	/**
 	 * Create client side interface to the CORBA package.
