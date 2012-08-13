@@ -64,6 +64,8 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 	}
 	
 	private PointPositionInLine pointPositionInLine;
+
+	private boolean detectorWithReadoutDeprecationWarningGiven = false;
 	
 	final protected PointPositionInLine getPointPositionInLine() {
 		return pointPositionInLine;
@@ -273,6 +275,10 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 			// on detectors (technically scannables) that implement DetectorWithReadout call waitForReadoutComplete
 			for (Scannable scannable : scannablesAtThisLevel) {
 				if (scannable instanceof DetectorWithReadout) {
+					if (!detectorWithReadoutDeprecationWarningGiven ) {
+						logger.warn("The DetectorWithReadout interface is deprecated. Set gda.scan.concurrentScan.readoutConcurrently to true instead (after reading the 8.24 release note");
+						detectorWithReadoutDeprecationWarningGiven = true;
+					}
 					((DetectorWithReadout) scannable).waitForReadoutCompletion();
 				}
 			}
@@ -451,12 +457,10 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 			return;
 		}
 
-		if (detectorReadoutTask != null) {
-			// #waitForDetectorReadout() should have been called to ensure the previous put has completed.
-			if (!detectorReadoutTask.isDone()){
-				throw new IllegalStateException("previous point has not finished reading out.");
-			}
-		}
+		// Make sure the previous point has read been published
+		// (If the scan contains a detector this method will already have been called)
+		waitForDetectorReadoutAndPublishCompletion();
+
 
 		detectorReadoutTask = new FutureTask<Void>(new Callable<Void>() {
 

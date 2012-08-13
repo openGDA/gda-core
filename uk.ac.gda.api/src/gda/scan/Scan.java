@@ -29,7 +29,7 @@ import java.util.Vector;
 /**
  * Interface for all scans
  */
-public interface Scan extends Runnable, Serializable {
+public interface Scan extends Serializable {
 	/**
 	 * Name of the thread which all scans run within when started by their runScan method.
 	 */
@@ -54,8 +54,7 @@ public interface Scan extends Runnable, Serializable {
 	 * allows the scan in its own thread. This should NOT be called directly otherwise this may cause thread handling
 	 * issues and instability in the command server. runScan() should be called instead.
 	 */
-	@Override
-	public void run();
+	public void run() throws Exception;
 
 	/**
 	 * Does the work of creating a new thread and calling the run() method. Inheriting classes may also declare a

@@ -18,6 +18,7 @@
 
 package gda.scan;
 
+import static gda.jython.InterfaceProvider.setJythonServerNotiferForTesting;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -27,21 +28,24 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import gda.MockFactory;
+import gda.data.scan.datawriter.DataWriter;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.DummyCallable;
 import gda.device.scannable.PositionCallableProvider;
+import gda.jython.IJythonServerNotifer;
 
 import java.util.concurrent.Callable;
 
 import junitx.framework.ArrayAssert;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 
 @SuppressWarnings("rawtypes")
-public class MultithreadedScanDataPointPipelineTest extends BasicScanDataPointPipelineTest {
+public class MultithreadedScanDataPointPipelineTest {
 
 	interface PositionCallableProvidingScannable extends PositionCallableProvider, Scannable {
 	}
@@ -49,7 +53,37 @@ public class MultithreadedScanDataPointPipelineTest extends BasicScanDataPointPi
 	interface PositionCallableProvidingDetector extends PositionCallableProvider, Detector {
 	}
 
-	private MultithreadedScanDataPointPipeline multithreadedPipeline;
+	class NamedObject {
+		private String name;
+
+		NamedObject(String name) {
+			this.name = name;
+		}
+
+		@Override
+		public String toString() {
+			return name;
+		}
+	}
+
+	protected ScanBase mockScan;
+	protected DataWriter mockDataWriter;
+	protected IJythonServerNotifer mockJythonServerNotifer;
+	protected Scannable scna;
+	protected Scannable scnb;
+	protected Scannable zie;
+	protected Detector deta;
+	protected NamedObject posa1;
+	protected NamedObject posb1;
+	protected NamedObject dataa1;
+	protected NamedObject posa2;
+	protected NamedObject posb2;
+	protected NamedObject dataa2;
+	protected NamedObject posa3;
+	protected NamedObject posb3;
+	protected NamedObject dataa3;
+	
+	private MultithreadedScanDataPointPipeline pipeline;
 	private PositionCallableProvidingScannable scnc;
 	private PositionCallableProvidingScannable scnd;
 	private Callable<Object> callablec1;
@@ -86,22 +120,107 @@ public class MultithreadedScanDataPointPipelineTest extends BasicScanDataPointPi
 	private Callable callabledetb2;
 	private Callable callabledetb3;
 
-	@Override
+	@Before
+	public void setUp() {
+		mockDataWriter = mock(DataWriter.class);
+		mockScan = mock(ScanBase.class);
+		configurePipeline();
+		mockJythonServerNotifer = mock(IJythonServerNotifer.class);
+		setJythonServerNotiferForTesting(mockJythonServerNotifer);
+	}
+
+	protected void configureMockScannablesAndDetectors() throws DeviceException {
+		scna = gda.MockFactory.createMockScannable("scna");
+		scnb = gda.MockFactory.createMockScannable("scnb");
+		zie = gda.MockFactory.createMockZieScannable("zie", 5);
+		deta = mock(Detector.class);
+		posa1 = new NamedObject("posa1");
+		posb1 = new NamedObject("posb1");
+		dataa1 = new NamedObject("data1");
+		posa2 = new NamedObject("posa2");
+		posb2 = new NamedObject("posb2");
+		dataa2 = new NamedObject("data2");
+		posa3 = new NamedObject("posa3");
+		posb3 = new NamedObject("posb3");
+		dataa3 = new NamedObject("data3");
+		when(scna.getPosition()).thenReturn(posa1, posa2, posa3);
+		when(scnb.getPosition()).thenReturn(posb1, posb2, posb3);
+		when(deta.readout()).thenReturn(dataa1, dataa2, dataa3);
+		when(scna.getOutputFormat()).thenReturn(new String[] { "formata" });
+		when(scnb.getOutputFormat()).thenReturn(new String[] { "formatb" });
+		when(deta.getInputNames()).thenReturn(new String[] { "inputname" });
+		when(deta.getOutputFormat()).thenReturn(new String[] { "detinputformat", "detoutputformat" });
+	}
+
+	protected ScanDataPoint createScanDataPoint() {
+		ScanDataPoint point = new ScanDataPoint();
+		point.addScannable(scna);
+		point.addScannable(scnb);
+		point.addDetector(deta);
+		return point;
+	}
+
+	@Test
+	public void testPopulatePositionsAndDataAndBroadcast() throws Exception {
+		configureMockScannablesAndDetectors();
+		ScanDataPoint point1 = createScanDataPoint();
+		ScanDataPoint point2 = createScanDataPoint();
+		pipeline.put(point1);
+		pipeline.put(point2);
+		pipeline.shutdown(1000);
+
+		InOrder inOrderBroadcastThread = inOrder(mockDataWriter, mockJythonServerNotifer);
+		// verify(mockDataWriter).addData(point1);
+		// verify(mockJythonServerNotifer).notifyServer(mockScan, point1);
+		// verify(mockDataWriter).addData(point2);
+		// verify(mockJythonServerNotifer).notifyServer(mockScan, point2);
+		inOrderBroadcastThread.verify(mockDataWriter).addData(point1);
+		inOrderBroadcastThread.verify(mockJythonServerNotifer).notifyServer(mockScan, point1);
+		inOrderBroadcastThread.verify(mockDataWriter).addData(point2);
+		inOrderBroadcastThread.verify(mockJythonServerNotifer).notifyServer(mockScan, point2);
+
+	}
+
+	@Test
+	public void testPopulatePositionsAndDataAndBroadcastThrowsGetPositionException() throws Exception {
+		configureMockScannablesAndDetectors();
+		DeviceException expected = new DeviceException("expected");
+		when(scnb.getPosition()).thenThrow(expected);
+		ScanDataPoint point = createScanDataPoint();
+		try {
+			pipeline.put(point);
+		} catch (DeviceException e) {
+			assertEquals(expected, e.getCause());
+		}
+	}
+
+	@Test
+	public void testGetDataWriter() {
+		assertEquals(mockDataWriter, pipeline.getDataWriter());
+	}
+
+	@Test
+	public void testShutdown() throws Exception {
+		// no exceptions thrown by DataWriter.completeCollection
+		pipeline.shutdown(5000);
+		verify(mockDataWriter).completeCollection();
+	}
+
+	@Test
+	public void testShutdownNow() throws Exception {
+		// no exceptions thrown by DataWriter.completeCollection
+		pipeline.shutdownNow();
+		verify(mockDataWriter).completeCollection();
+	}
+
+	
+	
 	protected void configurePipeline() {
-		multithreadedPipeline = new MultithreadedScanDataPointPipeline(new ScanDataPointPublisher(mockDataWriter,
+		pipeline = new MultithreadedScanDataPointPipeline(new ScanDataPointPublisher(mockDataWriter,
 				mockScan), 10, 10, "scan-name");
 		// multithreadedPipeline = new MultithreadedScanDataPointPipeline(mockSDP, 10, 10);
 	}
 
-	@Override
-	public ScanDataPointPipeline getBasicPipeline() {
-		return multithreadedPipeline;
-	}
-
-	@Override
-	public ScanDataPointPipeline getPipeline() {
-		return multithreadedPipeline;
-	}
 
 	@SuppressWarnings("unchecked")
 	protected void configureMockScannablesAndDetectorsWithCallableProviders() throws Exception {
@@ -171,9 +290,9 @@ public class MultithreadedScanDataPointPipelineTest extends BasicScanDataPointPi
 		configureMockScannablesAndDetectorsWithCallableProviders();
 		ScanDataPoint point1 = createScanDataPointWithCallableProviders("point1");
 		ScanDataPoint point2 = createScanDataPointWithCallableProviders("point2");
-		getPipeline().put(point1);
-		getPipeline().put(point2);
-		getPipeline().shutdown(1000);
+		pipeline.put(point1);
+		pipeline.put(point2);
+		pipeline.shutdown(1000);
 
 		InOrder inOrderTestThread = inOrder(scna, scnc, scnb, scnd, deta, detb);
 		inOrderTestThread.verify(scna).getPosition();
@@ -206,12 +325,12 @@ public class MultithreadedScanDataPointPipelineTest extends BasicScanDataPointPi
 		DeviceException expected = new DeviceException("expected");
 		when(callablec1.call()).thenThrow(expected);
 		ScanDataPoint point = createScanDataPointWithCallableProviders("point");
-		getPipeline().put(point);
+		pipeline.put(point);
 		Thread.sleep(1000); // make sure the bad point has been computed
 		// Should get exception on next put
 
 		try {
-			getPipeline().put(mock(ScanDataPoint.class));
+			pipeline.put(mock(ScanDataPoint.class));
 			fail("DeviceException expected");
 		} catch (DeviceException e) {
 			assertEquals(expected, e.getCause().getCause());
@@ -225,12 +344,12 @@ public class MultithreadedScanDataPointPipelineTest extends BasicScanDataPointPi
 		DeviceException expected = new DeviceException("expected");
 		when(callablec1.call()).thenThrow(expected);
 		ScanDataPoint point = createScanDataPointWithCallableProviders("point");
-		getPipeline().put(point);
+		pipeline.put(point);
 		Thread.sleep(1000); // make sure the bad point has been computed
 		// Should get exception on next put
 
 		try {
-			getPipeline().shutdown(1000);
+			pipeline.shutdown(1000);
 			fail("DeviceException expected");
 		} catch (DeviceException e) {
 			assertEquals(expected, e.getCause().getCause());
@@ -239,12 +358,12 @@ public class MultithreadedScanDataPointPipelineTest extends BasicScanDataPointPi
 
 	@Test
 	public void testPopAndBroadcastOnShutdownPipeline() throws Exception {
-		getPipeline().shutdown(1000);
+		pipeline.shutdown(1000);
 		configureMockScannablesAndDetectors();
 		ScanDataPoint point = createScanDataPoint();
 
 		try {
-			getPipeline().put(point);
+			pipeline.put(point);
 			fail("DeviceException expected");
 		} catch (DeviceException e) {
 			assertEquals("Could not add new point to MultithreadedScanDataPointPipeline as it is shutdown.", e
@@ -267,19 +386,19 @@ public class MultithreadedScanDataPointPipelineTest extends BasicScanDataPointPi
 		@Override
 		public void run() {
 			try {
-				getPipeline().put(_point1);
+				pipeline.put(_point1);
 				System.out.println("point1 put to pipeline");
 				reached1 = true;
-				getPipeline().put(_point2);
+				pipeline.put(_point2);
 				reached2 = true;
 				System.out.println("point2 put to pipeline");
 
 				if (_point3 != null) {
-					getPipeline().put(_point3);
+					pipeline.put(_point3);
 					reached3 = true;
 					System.out.println("point3 put to pipeline");
 				}
-				getPipeline().shutdown(30000);
+				pipeline.shutdown(30000);
 				System.out.println("shutdown complete");
 			} catch (Exception e) {
 				caughtException = e;
@@ -290,35 +409,31 @@ public class MultithreadedScanDataPointPipelineTest extends BasicScanDataPointPi
 	@Test
 	public void testScanThreadBlocksWhenPointsAdded_Length2() throws Exception {
 		configureDummyCallableTest();
-		multithreadedPipeline = new MultithreadedScanDataPointPipeline(mockSDPPublisher, 10, 2, "scan-name");
+		pipeline = new MultithreadedScanDataPointPipeline(mockSDPPublisher, 10, 2, "scan-name");
 		ScanLikeRun scanLikeRun = new ScanLikeRun(point1, point2, point3);
 		Thread scanThread = new Thread(scanLikeRun);
 		scanThread.start();
 
-		Thread.sleep(1000);
+		Thread.sleep(2000);
 		// pipeline should now be full
 		assertTrue(reached1);
 		assertTrue(reached2);
-		assertFalse("point3 put should still be blocking", reached3);
+		assertFalse("point3 put should still be blocking, 2s after veing added", reached3);
 
 		// complete processing point1
 		dummyCallablec1.makeReady();
 		dummyCallabled1.makeReady();
-		Thread.sleep(1000);
-		assertTrue("point 3 should now be in pipeline", reached3);
-		verify(mockSDPPublisher).publish(point1);
+		Thread.sleep(2000);
+		assertTrue("point 3 should now be in pipeline, 2s after pipeline cleared", reached3);
 
 		// complete processing point2
 		dummyCallablec2.makeReady();
 		dummyCallabled2.makeReady();
-		Thread.sleep(1000);
-		verify(mockSDPPublisher).publish(point2);
 
 		// complete processing point3
 		dummyCallablec3.makeReady();
 		dummyCallabled3.makeReady();
-		Thread.sleep(1000);
-		verify(mockSDPPublisher).publish(point3);
+
 
 		scanThread.join(5000);
 		if (scanThread.isAlive()) {
@@ -328,23 +443,17 @@ public class MultithreadedScanDataPointPipelineTest extends BasicScanDataPointPi
 			throw new Exception("Problem in scan thread:", caughtException);
 		}
 
-		ArrayAssert.assertEquals(new Object[] { posa1, posc1, posb1, posd1 }, point1.getScannablePositions().toArray());
-		ArrayAssert.assertEquals(new Object[] { dataa1, datab1 }, point1.getDetectorData().toArray());
-		ArrayAssert.assertEquals(new Object[] { posa2, posc2, posb2, posd2 }, point2.getScannablePositions().toArray());
-		ArrayAssert.assertEquals(new Object[] { dataa2, datab2 }, point2.getDetectorData().toArray());
-		ArrayAssert.assertEquals(new Object[] { posa3, posc3, posb3, posd3 }, point3.getScannablePositions().toArray());
-		ArrayAssert.assertEquals(new Object[] { dataa3, datab3 }, point3.getDetectorData().toArray());
 	}
 
 	@Test
 	public void testScanThreadBlocksWhenPointsAdded_Length1() throws Exception {
 		configureDummyCallableTest();
-		multithreadedPipeline = new MultithreadedScanDataPointPipeline(mockSDPPublisher, 10, 1, "scan-name");
+		pipeline = new MultithreadedScanDataPointPipeline(mockSDPPublisher, 10, 1, "scan-name");
 		ScanLikeRun scanLikeRun = new ScanLikeRun(point1, point2, null);
 		Thread scanThread = new Thread(scanLikeRun);
 		scanThread.start();
 
-		Thread.sleep(1000);
+		Thread.sleep(2000);
 		// pipeline should now be full
 		assertTrue(reached1);
 		assertFalse("point2 put should still be blocking", reached2);
@@ -352,15 +461,12 @@ public class MultithreadedScanDataPointPipelineTest extends BasicScanDataPointPi
 		// complete processing point1
 		dummyCallablec1.makeReady();
 		dummyCallabled1.makeReady();
-		Thread.sleep(1000);
+		Thread.sleep(2000);
 		assertTrue("point 2 should now be in pipeline", reached2);
-		verify(mockSDPPublisher).publish(point1);
 
 		// complete processing point2
 		dummyCallablec2.makeReady();
 		dummyCallabled2.makeReady();
-		Thread.sleep(1000);
-		verify(mockSDPPublisher).publish(point2);
 
 		scanThread.join(5000);
 		if (scanThread.isAlive()) {
@@ -369,11 +475,6 @@ public class MultithreadedScanDataPointPipelineTest extends BasicScanDataPointPi
 		if (caughtException != null) {
 			throw new Exception("Problem in scan thread:", caughtException);
 		}
-
-		ArrayAssert.assertEquals(new Object[] { posa1, posc1, posb1, posd1 }, point1.getScannablePositions().toArray());
-		ArrayAssert.assertEquals(new Object[] { dataa1, datab1 }, point1.getDetectorData().toArray());
-		ArrayAssert.assertEquals(new Object[] { posa2, posc2, posb2, posd2 }, point2.getScannablePositions().toArray());
-		ArrayAssert.assertEquals(new Object[] { dataa2, datab2 }, point2.getDetectorData().toArray());
 	}
 
 	private void configureDummyCallableTest() throws DeviceException, Exception {

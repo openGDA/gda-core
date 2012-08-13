@@ -285,7 +285,7 @@ where task can be:
 
 		self.get_commandlineArgs(argv)
 		# this file is  <workspace>_git/gda-core.git/uk.ac.gda.core/bin/gda
-		self.gda_install_git_loc = os.path.realpath(abspath(os.path.dirname(__file__),"..","..",".."))
+		self.gda_install_git_loc = os.path.realpath(abspath(os.path.realpath(os.path.dirname(__file__)),"..","..",".."))
 		assert self.gda_install_git_loc.endswith("_git")
 		self.gda_install_workspace_loc = self.gda_install_git_loc[:-4]
 		assert os.path.isdir(self.gda_install_workspace_loc)
@@ -425,13 +425,14 @@ where task can be:
 			if path_function:
 				path = path_function()
 				if not path:
-					self.logger.trace('skipping check of "%s" as an existing directory' % (path,))
+					self.logger.trace('   skipping check of "%s" as an existing directory' % (path,))
 				else:
 					if not os.path.isdir(path):
-						self.logger.trace('checking if "%s" is an existing directory -- no' % (path,))
+						self.logger.trace('   checking if "%s" is an existing directory -- no' % (path,))
 					else:
-						self.logger.trace('checking if "%s" is an existing directory - yes' % (path,))
+						self.logger.trace('   checking if "%s" is an existing directory - yes' % (path,))
 						return path
+		self.logger.trace('   no existing directory found in this check')
 		return None
 
 
@@ -623,7 +624,7 @@ where task can be:
 		item_description.append( ("jacorb.config.dir", self.options.jacorb_config_dir) )
 		item_description.append( ("gov.aps.jca.JCALibrary.properties", self.options.jcalibrary_properties) )
 		for item, description in item_description:
-			self.logger.debug("%-20s: %s" % (item, description))
+			self.logger.debug("%-25s: %s" % (item, description))
 
 
 	def determine_gda_environment(self):
@@ -678,11 +679,19 @@ where task can be:
 			sys.exit(1)
 
 	def build_class_path_and_library_path(self):
-		""" Builds the class path and library pathfor server process(s) and the non-RCP client .
+		""" Builds the class path and library path for server process(s) and the non-RCP client.
 		"""
 
 		self.gda_class_path_list = []
 		self.library_path = []
+
+		self.server_dependents_to_ignore = [
+			"system.bundle",
+			"org.python.pydev", "org.python.pydev.core", "org.python.pydev.debug", "org.python.pydev.ast",
+			"org.python.pydev.customizations", "org.python.pydev.help", "org.python.pydev.jython",
+			"org.python.pydev.parser", "org.python.pydev.refactoring",
+			"com.python.pydev", "com.python.pydev.analysis", "com.python.pydev.codecompletion", "com.python.pydev.debug",
+			"com.python.pydev.fastparser", "com.python.pydev.refactoring", "ch.qos.logback.eclipse"]
 
 		# uk.ac.gda.core needs special handling, since it uses classes/ rather than the standard bin/
 		location = self.plugin_location["uk.ac.gda.core"]
@@ -717,10 +726,9 @@ where task can be:
 			self.append_to_class_path( os.path.join(location, "*") )
 			self.append_to_class_path( os.path.join(location, "jython2.5.1","jython.jar") )
 
-			
 			# be smart - just add plugins listed as dependencies in the CSpec for the GDA configuration
 			self.plugin_parser = PluginData(self.options.lib_subdir)  # for extracting information from a plugin manifest
-			self.dependents_already_processed = ["system.bundle"]
+			self.dependents_already_processed = []
 			self.append_plugin_and_dependencies_to_class_path_and_library_path("uk.ac.gda.core")
 			cspec_path = os.path.join(self.options.gda_config, "buckminster.cspec")
 			if os.path.exists(cspec_path):
@@ -728,7 +736,8 @@ where task can be:
 				for entry in doc.getElementsByTagName('cs:dependency'):
 					if entry.getAttribute('componentType') == "osgi.bundle":
 						dependent = entry.getAttribute('name')
-						self.append_plugin_and_dependencies_to_class_path_and_library_path(dependent)
+						if not ((self.task in self.server_tasks) and (dependent in self.server_dependents_to_ignore)):
+							self.append_plugin_and_dependencies_to_class_path_and_library_path(dependent)
 
 		# add any classes and jars from the configuration
 		config_classes = abspath(self.options.gda_config, "classes")
@@ -785,7 +794,7 @@ where task can be:
 		"""
 
 		self.logger.trace("append_plugin_and_dependencies_to_class_path_and_library_path called for: %s" % (dependent,))
-		if dependent  in self.dependents_already_processed:
+		if dependent in self.dependents_already_processed:
 			return
 		self.dependents_already_processed.append(dependent)
 
@@ -807,7 +816,8 @@ where task can be:
 					dependencies.append(testDependent)
 			for dependency in dependencies:
 				if dependency not in self.dependents_already_processed:
-					self.append_plugin_and_dependencies_to_class_path_and_library_path(dependency)
+					if not ((self.task in self.server_tasks) and (dependency in self.server_dependents_to_ignore)):
+						self.append_plugin_and_dependencies_to_class_path_and_library_path(dependency)
 
 		else:
 			# look up a jar in tp/plugins

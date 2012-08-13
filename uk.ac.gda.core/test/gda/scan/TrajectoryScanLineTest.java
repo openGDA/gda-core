@@ -125,12 +125,7 @@ public class TrajectoryScanLineTest {
 	@Test
 	public void singleLineScanMockScannablesAndTwoMockDetectors() throws InterruptedException, Exception {
 		TestHelpers.setUpTest(TrajectoryScanLineTest.class, "singleLineScanMockScannablesAndTwoMockDetectors", true);
-		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "DummyDataWriter");
-
-		TrajectoryScanLine scan = new TrajectoryScanLine(new Object[]{mockedx, 0., 1., 1., mockedy, 10., 1., mockeddet1, 2., mockeddet2});
-		
-		scan.runScan();
-		InOrder inOrder = inOrder(mockedx, mockedy, mockedController, mockeddet1, mockeddet2);
+		InOrder inOrder = performSingleLineMockScannableAndTwoDetectors();
 		
 		inOrder.verify(mockeddet1).setCollectionTime(2.); // must be called in constructor!
 		
@@ -149,14 +144,41 @@ public class TrajectoryScanLineTest {
 		inOrder.verify(mockeddet2).collectData();
 
 		inOrder.verify(mockedController).prepareForMove();
-		
-		inOrder.verify(mockeddet1).arm(); // order unimportant
-		inOrder.verify(mockeddet2).arm(); // order unimportant
-		
+		// detectors armed in here in parallel and tested below
 		inOrder.verify(mockedController).startMove();
 		inOrder.verify(mockedController).waitWhileMoving();
+		
 	}
 	
+	@Test
+	public void singleLineScanMockScannablesAndTwoMockDetectorsArmsDet1() throws InterruptedException, Exception {
+		TestHelpers.setUpTest(TrajectoryScanLineTest.class, "singleLineScanMockScannablesAndTwoMockDetectors_ArmsDet1", true);
+		InOrder inOrder = performSingleLineMockScannableAndTwoDetectors();
+
+		inOrder.verify(mockedController).prepareForMove();
+		inOrder.verify(mockeddet1).arm();
+		inOrder.verify(mockedController).startMove();
+	}
+
+	@Test
+	public void singleLineScanMockScannablesAndTwoMockDetectorsArmsDet2() throws InterruptedException, Exception {
+		TestHelpers.setUpTest(TrajectoryScanLineTest.class, "singleLineScanMockScannablesAndTwoMockDetectors_ArmsDet2", true);
+		InOrder inOrder = performSingleLineMockScannableAndTwoDetectors();
+		
+
+		inOrder.verify(mockedController).prepareForMove();
+		inOrder.verify(mockeddet2).arm();
+		inOrder.verify(mockedController).startMove();
+	}
+	
+	private InOrder performSingleLineMockScannableAndTwoDetectors() throws InterruptedException, Exception {
+		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "DummyDataWriter");
+		
+		TrajectoryScanLine scan = new TrajectoryScanLine(new Object[]{mockedx, 0., 1., 1., mockedy, 10., 1., mockeddet1, 2., mockeddet2});
+		
+		scan.runScan();
+		return inOrder(mockedx, mockedy, mockedController, mockeddet1, mockeddet2);
+	}
 	
 	@Test
 	public void singleLineScanWithDeferredAndTrajectoryScannableGroupAndMockDetector () throws Exception  {
@@ -248,17 +270,7 @@ public class TrajectoryScanLineTest {
 	@Test
 	public void singleLineScanMockScannablesAndTwoMockDetectorsIntegrating() throws InterruptedException, Exception {
 		TestHelpers.setUpTest(TrajectoryScanLineTest.class, "singleLineScanMockScannablesAndTwoMockDetectorsIntegrating", true);
-		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "DummyDataWriter");
-		when(mockeddet1.integratesBetweenPoints()).thenReturn(true);
-		when(mockeddet2.integratesBetweenPoints()).thenReturn(true);
-		when(mockedx.getLevel()).thenReturn(5);
-		when(mockedy.getLevel()).thenReturn(6);
-		TrajectoryScanLine scan = new TrajectoryScanLine(new Object[]{mockedx, 0., 1., 1., mockedy, 10., 1., mockeddet1, 2., mockeddet2});
-		
-		scan.runScan();
-		InOrder inOrder = inOrder(mockedx, mockedy, mockedController, mockeddet1, mockeddet2);
-		
-		inOrder.verify(mockeddet1).setCollectionTime(2.); // must be called in constructor!
+		InOrder inOrder = performSingleLineScanMockScannablesAndTwoMockDetectorsIntegrating();
 		
 		inOrder.verify(mockedController).stopAndReset();
 		inOrder.verify(mockedx).setOperatingContinuously(true);
@@ -290,12 +302,44 @@ public class TrajectoryScanLineTest {
 		
 		
 		inOrder.verify(mockedController).prepareForMove();
-		
-		inOrder.verify(mockeddet1).arm(); // order unimportant
-		inOrder.verify(mockeddet2).arm(); // order unimportant
-		
+		// detectors armed in here in parallel and tested below
 		inOrder.verify(mockedController).startMove();
 		inOrder.verify(mockedController).waitWhileMoving();
 	}
-	// intergrateBetwweenPoints
+	
+	@Test
+	public void singleLineScanMockScannablesAndTwoMockDetectorsIntegratingArmsDet1() throws InterruptedException, Exception {
+		TestHelpers.setUpTest(TrajectoryScanLineTest.class, "singleLineScanMockScannablesAndTwoMockDetectorsIntegrating", true);
+		InOrder inOrder = performSingleLineScanMockScannablesAndTwoMockDetectorsIntegrating();
+		
+		inOrder.verify(mockedController).prepareForMove();
+		inOrder.verify(mockeddet1).arm();
+		inOrder.verify(mockedController).startMove();
+	}
+
+	@Test
+	public void singleLineScanMockScannablesAndTwoMockDetectorsIntegratingArmsDet2() throws InterruptedException, Exception {
+		TestHelpers.setUpTest(TrajectoryScanLineTest.class, "singleLineScanMockScannablesAndTwoMockDetectorsIntegrating", true);
+		InOrder inOrder = performSingleLineScanMockScannablesAndTwoMockDetectorsIntegrating();
+		
+		inOrder.verify(mockedController).prepareForMove();
+		inOrder.verify(mockeddet2).arm();
+		inOrder.verify(mockedController).startMove();
+	}
+	
+	private InOrder performSingleLineScanMockScannablesAndTwoMockDetectorsIntegrating() throws InterruptedException,
+			Exception, DeviceException {
+		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "DummyDataWriter");
+		when(mockeddet1.integratesBetweenPoints()).thenReturn(true);
+		when(mockeddet2.integratesBetweenPoints()).thenReturn(true);
+		when(mockedx.getLevel()).thenReturn(5);
+		when(mockedy.getLevel()).thenReturn(6);
+		TrajectoryScanLine scan = new TrajectoryScanLine(new Object[]{mockedx, 0., 1., 1., mockedy, 10., 1., mockeddet1, 2., mockeddet2});
+		
+		scan.runScan();
+		InOrder inOrder = inOrder(mockedx, mockedy, mockedController, mockeddet1, mockeddet2);
+		
+		inOrder.verify(mockeddet1).setCollectionTime(2.); // must be called in constructor!
+		return inOrder;
+	}
 }

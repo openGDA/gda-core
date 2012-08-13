@@ -44,7 +44,9 @@ public class NXDetectorDataWithFilepathForSrs extends NXDetectorData {
 	public NXDetectorDataWithFilepathForSrs(Scannable adDetector) {
 		super(adDetector);
 	}
-
+	public NXDetectorDataWithFilepathForSrs() {
+		
+	}
 	@Override
 	public void addFileName(String detName, String filename) {
 		if (filepath != null) {

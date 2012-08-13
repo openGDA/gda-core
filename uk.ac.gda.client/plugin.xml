@@ -131,6 +131,13 @@
             name="Script Log"
             restorable="true">
       </view>
+      <view
+            allowMultiple="false"
+            class="gda.simplescan.SimpleScanView"
+            id="uk.ac.gda.client.simplescanview"
+            name="Simple Scan"
+            restorable="true">
+      </view>
    </extension>
    
  
