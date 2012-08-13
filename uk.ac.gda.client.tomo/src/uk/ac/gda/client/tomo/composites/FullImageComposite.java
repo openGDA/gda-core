@@ -625,7 +625,7 @@ public class FullImageComposite extends FixedImageViewerComposite {
 	/**
 	 * @param width
 	 */
-	public void moveCrossHair1To(int width) {
+	public void moveCrossHairTo(int width) {
 		crossWireVertical1.setPoints(new PointList(new int[] { width, 0, width, feedbackFigure.getBounds().height }));
 		showCrossWire1();
 	}
