@@ -18,6 +18,7 @@
 
 package uk.ac.gda.exafs.ui;
 
+import gda.configuration.properties.LocalProperties;
 import gda.gui.scriptcontroller.logging.ScriptControllerLogView;
 import gda.rcp.views.JythonTerminalView;
 
@@ -28,7 +29,10 @@ import org.eclipse.ui.IPerspectiveFactory;
 import uk.ac.gda.client.CommandQueueViewFactory;
 import uk.ac.gda.client.XYPlotView;
 import uk.ac.gda.exafs.ExafsActivator;
+import uk.ac.gda.exafs.ui.plot.DerivativeScanPlotView;
+import uk.ac.gda.exafs.ui.plot.FourierScanPlotView;
 import uk.ac.gda.exafs.ui.plot.LnI0ItScanPlotView;
+import uk.ac.gda.exafs.ui.plot.SubtractedBackgroundScanPlotView;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.exafs.ui.views.scalersmonitor.B18ScalersMonitorView;
 import uk.ac.gda.exafs.ui.views.scalersmonitor.ScalersMonitorView;
@@ -47,6 +51,12 @@ public class PlottingPerspective implements IPerspectiveFactory {
 		if (!ExafsActivator.getDefault().getPreferenceStore()
 				.getBoolean(ExafsPreferenceConstants.HIDE_LnI0ItScanPlotView)) {
 			folderLayout_0.addView(LnI0ItScanPlotView.ID);
+			String nameFrag = LocalProperties.get("gda.instrument");
+			if (nameFrag.equals("i20")) {
+				folderLayout_0.addView(DerivativeScanPlotView.ID);
+				folderLayout_0.addView(SubtractedBackgroundScanPlotView.ID);
+				folderLayout_0.addView(FourierScanPlotView.ID);
+			}
 		}
 
 		IFolderLayout folderLayout = layout.createFolder("folder", IPageLayout.BOTTOM, 0.5f, "folder1");
