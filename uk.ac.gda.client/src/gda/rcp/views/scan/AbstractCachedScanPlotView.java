@@ -47,15 +47,7 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 
 	@Override
 	public void scanStopped() {
-		
-		//do nothing as this will intefere with the last points coming through
-//		super.scanStopped();
-//		if (cachedX == null)
-//			cachedX = new ArrayList<Double>(89);
-//		if (cachedY == null)
-//			cachedY = new ArrayList<Double>(89);
-//		cachedX.clear();
-//		cachedY.clear();
+		//do nothing as this will interfere with the last points coming through
 	}
 
 	@Override
@@ -71,6 +63,7 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 
 	@Override
 	public void scanDataPointChanged(ScanDataPointEvent e) {
+		
 		if (cachedX == null)
 			cachedX = new ArrayList<Double>(89);
 		if (cachedY == null)
@@ -100,6 +93,7 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 					PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 						@Override
 						public void run() {
+							showPlotter();
 							rebuildPlot(); // uses x and y
 							waitingForRefresh = false;
 						}
@@ -162,8 +156,6 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 			return false;
 		}
 		
-//		ArrayList<IScanDataPoint> al = (ArrayList<IScanDataPoint>) allSDPs;
-		
 		int startIndex = 0;
 		if (previousCacheSize > 0){
 			startIndex = previousCacheSize - 1;
@@ -173,15 +165,6 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 			return false;
 		}
 		
-//		int endIndex = al.size();
-		
-//		List<IScanDataPoint> sublist  = ((AbstractList<IScanDataPoint>) latestEvent.getDataPoints()).subList(startIndex,newCacheSize);
-
-		// extract new SDPs and perform calculations
-//		IScanDataPoint[] sdpArray = allSDPs.toArray(new IScanDataPoint[allSDPs.size()]);
-//		sdpArray = (IScanDataPoint[]) ArrayUtils.subarray(sdpArray, previousCacheSize,sdpArray.length);
- 
-//		getY(sdpArray);
 		updateCache(allSDPs,startIndex);
 		return true;
 	}
@@ -201,14 +184,6 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 		if (cachedX == null)
 			cachedX = new ArrayList<Double>(89);
 
-//		if (points != null){
-//			for (int i = 0; i < points.length; i++) {
-//				final IScanDataPoint point = points[i];
-//				final Double[] data = point.getAllValuesAsDoubles();
-//				cachedX.add(data[0]);
-//				xAxisTitle = point.getPositionHeader().get(0);
-//			}
-//		}
 		return new PlotData(xAxisTitle, cachedX);
 	}
 

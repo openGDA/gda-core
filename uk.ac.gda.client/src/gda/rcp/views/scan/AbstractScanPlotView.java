@@ -117,16 +117,6 @@ public abstract class AbstractScanPlotView extends AbstractPlotView implements S
 	public void scanStopped() {
 
 		this.scanning = false;
-
-//		should not do any work at this point in a base class
-//		// Plot last plot as we might have been
-//		// invisible during the updates.
-//		try {
-//			plotPointsFromService();
-//		} catch (Exception e) {
-//			logger.error("Cannot plot final data when scan stopped.", e);
-//		}
-
 		legendEntries = false;
 
 		// We do *NOT* clear the xAxisValues as this breaks zooming.
@@ -186,6 +176,8 @@ public abstract class AbstractScanPlotView extends AbstractPlotView implements S
 	 */
 	@Override
 	public void scanDataPointChanged(final ScanDataPointEvent e) {
+		
+		showPlotter();
 
 		// This was slowing down everything, so calculate x and y in a separate thread
 		Job updater = new Job("Updating graph for " + this.getClass().getName()) {
