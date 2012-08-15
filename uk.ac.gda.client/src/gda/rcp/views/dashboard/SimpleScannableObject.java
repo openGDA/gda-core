@@ -88,7 +88,7 @@ public class SimpleScannableObject extends ServerObject {
 	@Override
 	protected void connect() {
 
-		if (scannableName == null) {
+		if (scannableName == null || scannableName.isEmpty()) {
 			setError(true);
 			return;
 		}
