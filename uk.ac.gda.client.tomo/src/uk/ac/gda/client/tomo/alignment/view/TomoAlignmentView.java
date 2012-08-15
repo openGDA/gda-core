@@ -38,7 +38,6 @@ import org.eclipse.draw2d.geometry.PointList;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
-import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.FontRegistry;
@@ -2062,15 +2061,17 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			isSaving = true;
 			cameraControls.startSampleStreaming();
 			cameraControls.setZoom(ZOOM_LEVEL.NO_ZOOM);
+			// rsr31645 - Commented below code which opens the save dialog to show images at 0 and +90. This would be
+			// used for stitching images in the configuration view, however, the stitch feature will not be used for
+			// sometime now.
+//			AlignmentConfigSaveDialog configSaveDialog = new AlignmentConfigSaveDialog(getViewSite().getShell(),
+//					tomoAlignmentViewController, leftVideoReceiver);
+//			configSaveDialog.open();
+//
+//			int returnCode = configSaveDialog.getReturnCode();
+//			final ImageLocationRelTheta viewerBtnSelected = configSaveDialog.getViewerButtonSelected();
 
-			AlignmentConfigSaveDialog configSaveDialog = new AlignmentConfigSaveDialog(getViewSite().getShell(),
-					tomoAlignmentViewController, leftVideoReceiver);
-			configSaveDialog.open();
-
-			int returnCode = configSaveDialog.getReturnCode();
-			final ImageLocationRelTheta viewerBtnSelected = configSaveDialog.getViewerButtonSelected();
-
-			if (IDialogConstants.OK_ID == returnCode) {
+//			if (IDialogConstants.OK_ID == returnCode) {
 
 				ACTIVE_WORKBENCH_WINDOW.run(true, false, new IRunnableWithProgress() {
 					private final DecimalFormat threePrecision = new DecimalFormat("#.###");
@@ -2101,37 +2102,39 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 							// number of projections
 							configuration.setNumProjections(cameraControls.getFramesPerProjection());
 
-							String imgAtTheta = null;
-							double theta = 0;
-							String imgAtThetaPlus90 = null;
-							try {
-								switch (viewerBtnSelected) {
-								case THETA:
-									theta = tomoAlignmentViewController.getRotationMotorDeg();
-									imgAtTheta = tomoAlignmentViewController.demandRawWithStreamOn(monitor, false);
-									tomoAlignmentViewController.moveRotationMotorBy(monitor, 90);
-									imgAtThetaPlus90 = tomoAlignmentViewController
-											.demandRawWithStreamOn(monitor, false);
-									tomoAlignmentViewController.moveRotationMotorBy(monitor, -90);
-									break;
-								case THETA_PLUS_90:
-									theta = tomoAlignmentViewController.getRotationMotorDeg() - 90;
-									imgAtThetaPlus90 = tomoAlignmentViewController
-											.demandRawWithStreamOn(monitor, false);
-									tomoAlignmentViewController.moveRotationMotorBy(monitor, -90);
-									imgAtTheta = tomoAlignmentViewController.demandRawWithStreamOn(monitor, false);
-									break;
-								}
-							} catch (Exception ex) {
-								logger.error("Unable to save images at theta:{}", ex);
-								throw new InvocationTargetException(ex, "Cannot save images at theta");
-							}
-							// stitching angle
-							configuration.setStitchingAngle(theta);
-							// image at theta
-							configuration.setImageAtTheta(imgAtTheta);
-							// image at theta+90
-							configuration.setImageAtThetaPlus90(imgAtThetaPlus90);
+//							String imgAtTheta = null;
+//							double theta = 0;
+//							String imgAtThetaPlus90 = null;
+//							try {
+//								switch (viewerBtnSelected) {
+//								case THETA:
+//									theta = tomoAlignmentViewController.getRotationMotorDeg();
+//									imgAtTheta = tomoAlignmentViewController.demandRawWithStreamOn(monitor, false);
+//									tomoAlignmentViewController.moveRotationMotorBy(monitor, 90);
+//									imgAtThetaPlus90 = tomoAlignmentViewController
+//											.demandRawWithStreamOn(monitor, false);
+//									tomoAlignmentViewController.moveRotationMotorBy(monitor, -90);
+//									break;
+//								case THETA_PLUS_90:
+//									theta = tomoAlignmentViewController.getRotationMotorDeg() - 90;
+//									imgAtThetaPlus90 = tomoAlignmentViewController
+//											.demandRawWithStreamOn(monitor, false);
+//									tomoAlignmentViewController.moveRotationMotorBy(monitor, -90);
+//									imgAtTheta = tomoAlignmentViewController.demandRawWithStreamOn(monitor, false);
+//									break;
+//								}
+//							} catch (Exception ex) {
+//								logger.error("Unable to save images at theta:{}", ex);
+//								throw new InvocationTargetException(ex, "Cannot save images at theta");
+//							}
+//							// stitching angle
+//							configuration.setStitchingAngle(theta);
+//							// image at theta
+//							configuration.setImageAtTheta(imgAtTheta);
+//							// image at theta+90
+//							configuration.setImageAtThetaPlus90(imgAtThetaPlus90);
+							
+							
 							if (leftWindowImageViewer.getCrossWire1Vertical().isVisible()) {
 								int x = leftWindowImageViewer.getCrossWire1Vertical().getPoints().getFirstPoint().x
 										- leftWindowImageViewer.getImageBounds().x;
@@ -2153,7 +2156,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 					}
 				});
 				cameraControls.clearSampleDescription();
-			}
+//			}
 		} finally {
 			isSaving = false;
 		}

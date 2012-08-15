@@ -123,7 +123,6 @@ public class TomoScanController implements ITomoScanController {
 					double timeDivider = 0.8;
 					double positionOfBaseAtFlat = alignmentConfiguration.getOutOfBeamPosition();
 					double positionOfBaseInBeam = alignmentConfiguration.getInBeamPosition();
-					int tomoAxisOfRotation = alignmentConfiguration.getTomoRotationAxis();
 
 					sampleAcqTimeList.add(sampleAcq);
 					flatAcqTimesList.add(flatAcq);
@@ -134,6 +133,7 @@ public class TomoScanController implements ITomoScanController {
 					timeDividerList.add(timeDivider);
 					positionOfBaseAtFlatList.add(positionOfBaseAtFlat);
 					positionOfBaseInBeamList.add(positionOfBaseInBeam);
+					int tomoAxisOfRotation = alignmentConfiguration.getTomoRotationAxis();
 
 				} catch (Exception e) {
 					logger.error("TODO put description of error here", e);
@@ -144,7 +144,7 @@ public class TomoScanController implements ITomoScanController {
 		// numberOfFramesPerProjection, numberofProjections,
 		// isContinuousScan, desiredResolution, timeDivider, positionOfBaseAtFlat, positionOfBaseInBeam
 		String setupTomoScanCmd = String
-				.format("tomographyScani13.tomographyConfigurationManager.setupTomoScan(%1$d, %2$s, %3$s, %4$s, %5$s, %6$s, %7$s, %8$s, %9$s, %10$s, %11$s, %12$s, %13$s, %14$s)",
+				.format("tomoAlignment.tomographyConfigurationManager.setupTomoScan(%1$d, %2$s, %3$s, %4$s, %5$s, %6$s, %7$s, %8$s, %9$s, %10$s, %11$s, %12$s, %13$s, %14$s)",
 						length, configIds, descriptions, moduleNumbers, motorMoveMaps, sampleAcqTimeList,
 						flatAcqTimesList, numFramesPerPrList, numProjList, isContinuousList, desiredResolutionList,
 						timeDividerList, positionOfBaseAtFlatList, positionOfBaseInBeamList);
