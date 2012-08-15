@@ -236,7 +236,6 @@ public class PositionConvertorFunctions {
 			return ((Number) object).doubleValue();
 		}
 		if (object instanceof PyString) {
-			// The next case fails with PyStrings
 			return ((PyString) object).atof();
 		}
 		if (object instanceof PyObject) {
@@ -330,7 +329,6 @@ public class PositionConvertorFunctions {
 			return ((Number) object).intValue();
 		}
 		if (object instanceof PyString) {
-			// The next case fails with PyStrings
 			return ((PyString) object).atoi();
 		}
 		if (object instanceof PyObject) {
