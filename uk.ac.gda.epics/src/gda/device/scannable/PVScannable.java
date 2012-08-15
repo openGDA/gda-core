@@ -54,7 +54,7 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 	 * The attribute to get to retrieve the units string from Epics.
 	 */
 	public static final String UNITSATTRIBUTE = "unitName";
-
+	private String name;
 	private double deadband = 0.0;
 	private double lastKnownValue = 0.0;
 	private boolean isBusy = false;
@@ -66,7 +66,15 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 	private Channel theChannel;
 	private EpicsController controller;
 	private EpicsChannelManager channelManager;
+	
+	public PVScannable() {
+		
+	}
 
+	public PVScannable(String name, String pv) {
+		this.name=name;
+		this.pvName=pv;
+	}
 	/**
 	 * @see gda.device.DeviceBase#configure()
 	 */
