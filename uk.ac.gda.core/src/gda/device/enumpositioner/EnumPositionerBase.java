@@ -42,7 +42,7 @@ public abstract class EnumPositionerBase extends ScannableBase implements EnumPo
 
 	protected Vector<String> positions = new Vector<String>();
 	protected volatile EnumPositionerStatus positionerStatus = EnumPositionerStatus.IDLE;
-
+	protected String name;
 	/**
 	 * sets the OutputFormat
 	 */
