@@ -103,4 +103,11 @@ public class PreferenceConstants {
 	 * ScriptControllerLogView.
 	 */
 	public static final String GDA_LOGGINGSCRIPTCONTROLLERS = "gda.loggingscriptcontrollers.to_observe";
+	
+	/**
+	 * set to true if text should be shown in the command queue view toolbar instead of images.
+	 * <p>
+	 * This would help avoid confusion with similar icons in other views which do similar but different jobs.
+	 */
+	public static final String GDA_COMMAND_QUEUE_SHOW_TEXT = "gda.commandqueue.showtext";
 }
