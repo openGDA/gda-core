@@ -152,6 +152,8 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 				command = command + " " + args[i];
 			}
 		}
+		
+		logger.info("Command to run: " +command);
 
 		try {
 			// the first argument should be a scannable else a syntax error
