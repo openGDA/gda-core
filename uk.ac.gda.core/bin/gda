@@ -162,6 +162,9 @@ class GdaOS:
 		self.logger.debug("Popen: %s" % (command,))
 		self.logger.debug("       %s" % (args,))
 		if not dry_run:
+			if not os.path.exists(command):
+				self.logger.critical('Attempting to run command that does not exist: "%s"' % (command,))
+				sys.exit(1)
 			return subprocess.Popen((command,)+args).pid
 		else:
 			self.logger.debug("subprocess.Popen(...) dry-run")
@@ -172,6 +175,9 @@ class GdaOS:
 		a file-like object from which the output can be read"""
 		self.logger.debug("Popen: %s" % (command,))
 		if not dry_run:
+			if not os.path.exists(command):
+				self.logger.critical('Attempting to run command that does not exist: "%s"' % (command,))
+				sys.exit(1)
 			return subprocess.Popen(command, shell=True, stdout=subprocess.PIPE).stdout
 		else:
 			self.logger.debug("subprocess.Popen(... , shell=True, stdout=subprocess.PIPE) dry-run")
@@ -183,6 +189,9 @@ class GdaOS:
 		self.logger.debug("Popen: %s" % (command,))
 		self.logger.debug("       %s" % (args,))
 		if not dry_run:
+			if not os.path.exists(command):
+				self.logger.critical('Attempting to run command that does not exist: "%s"' % (command,))
+				sys.exit(1)
 			return subprocess.Popen((command,)+args, stdout=subprocess.PIPE).stdout
 		else:
 			self.logger.debug("subprocess.Popen(... , stdout=subprocess.PIPE) dry-run")
@@ -193,6 +202,9 @@ class GdaOS:
 		self.logger.debug("execv: %s" % (command,))
 		self.logger.debug("       %s" % (args,))
 		if not dry_run:
+			if not os.path.exists(command):
+				self.logger.critical('Attempting to run command that does not exist: "%s"' % (command,))
+				sys.exit(1)
 			os.execv(all_args[0], all_args)
 		else:
 			self.logger.debug("os.execv(...) dry-run")
