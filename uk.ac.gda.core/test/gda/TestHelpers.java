@@ -122,7 +122,9 @@ public class TestHelpers {
 					+ "</level>" + "</filter>";
 		}
 		f += "<layout class='ch.qos.logback.classic.PatternLayout'><pattern>%-5level %logger %ex - %m%n</pattern></layout></appender>"
-				+ "<logger name='gda'><level value='DEBUG'/></logger>"
+				+ "<logger name='gda'><level value='INFO'/></logger>"
+				+ "<logger name='gda.data.metadata.GDAMetadataProvider'><level value='ERROR'/></logger>"  // suppress "WARN  gda.data.metadata.GDAMetadataProvider  - setInstanceForTesting called"
+				+ "<logger name='gda.jython.InterfaceProvider'><level value='ERROR'/></logger>"  // suppress "WARN  gda.jython.InterfaceProvider  - setXxYyZzForTesting called"
 				+ "<root><level value='ALL'/><appender-ref ref='DebugFILE'/><appender-ref ref='DebugCONSOLE'/></root></configuration>";
 		joranConfigurator.doConfigure(new ByteArrayInputStream(f.getBytes()));
 
