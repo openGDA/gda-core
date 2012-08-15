@@ -131,6 +131,8 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 	
 	@Override
 	public void configure() throws FactoryException {
+		this.setInputNames(new String[]{getName()});
+		this.setExtraNames(new String[0]);
 		if (!configured) {
 			
 			if (recordName != null) {
