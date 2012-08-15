@@ -1134,6 +1134,9 @@ where task can be:
 		vmargs = self.addOptionalVMArgs(vmargs)
 		if self.options.rcp_image == None:
 			self.options.rcp_image = abspath(self.options.gda_config, "eclipse", "gda")
+			if not os.path.exists(self.options.rcp_image):
+				self.logger.critical('Attempting to run RCP image that does not exist: "%s"' % (self.options.rcp_image,))
+				sys.exit(1)
 		return self.stop_start_process(self.options.rcp_image,prevmargs=("-vmargs",), vmargs=vmargs, debug_opts=debug_opts)
 
 	def user_permissions(self, xmlfile="", debug_opts=None):
