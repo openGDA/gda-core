@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <devices xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://serv0002.cs.diamond.ac.uk/repos/controls/diamond/release/support/gda/2008-3/gdaApp/src/genericBeamlineSchema.xsd">
     <simplePv desc="Vortex AIM 1" name="VORTEX_AIM.1">
-        <RECORD desc="Vortex AIM 1" pv="BL0XI-DI-DET-01:aim_adc1" ro="false" type="unknown"/>
+        <RECORD desc="Vortex AIM 1" pv="BL0XI-DI-DET-01:aim_adc1" ro="false" type="pv"/>
     </simplePv>	
 </devices>
