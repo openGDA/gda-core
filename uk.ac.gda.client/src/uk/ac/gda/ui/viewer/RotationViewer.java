@@ -30,6 +30,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.layout.RowLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -40,6 +41,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,6 +68,33 @@ import uk.ac.gda.ui.internal.viewer.ScannableRotationSource;
  * </dl>
  * This class is  not intended to be subclassed outside the viewer framework.
  * </p>
+ * 
+ * <p>There are 2 or 3 parts to this component:</p>
+ * <ol>
+ * <li>motor position viewer (name label and position text box)</li>
+ * <li>(optional) 2×2 grid of fixed step buttons</li>
+ * <li>nudge controls (+/- buttons, size box, and optional label)</li>
+ * </ol>
+ * 
+ * <p>There are 3 ways to configure it:</p>
+ * <ol>
+ * <li>show fixed steps, or not</li>
+ * <li>SWT.SINGLE style, or SWT.NONE</li>
+ * <li>single line layout, or not</li>
+ * </ol>
+ * 
+ * <p>"Show fixed steps" determines whether the fixed step buttons are shown.</p>
+ * 
+ * <p>The style specifies whether the nudge buttons should be on one line or not.</p>
+ * <ul>
+ * <li>Specifying SWT.NONE will create a 2×2 grid (+, -, "Size" label, nudge size text box).</li>
+ * <li>Specifying SWT.SINGLE will create a 3×1 grid (-, +, nudge size text box). (This only takes effect if "show fixed
+ *     steps" is false. If "show fixed steps" is true, the 2×2 grid of buttons is shown, which is 2 rows high, so
+ *     there's no point collapsing the nudge buttons onto one line.)</li>
+ * </ul>
+ * 
+ * <p>"Single line layout" controls whether the motor position viewer is on its own line or not. If set to false, the
+ * (optional) fixed step buttons and nudge controls will be on their own row.</p>
  */
 public class RotationViewer {
 	private static final Logger logger = LoggerFactory.getLogger(RotationViewer.class);
@@ -295,47 +324,65 @@ public class RotationViewer {
 	 * @param style 
 	 */
 	private void createWidgets(Composite parent, int style) {
-		int numColumns = singleLineLayout ? 5 : 4;
-	    final Composite rotationGroup = new Composite(parent, SWT.NONE);
-		rotationGroup.setLayout(new GridLayout(numColumns, false));
+		
+		final boolean DEBUG_LAYOUT = false;
+		
+		final boolean singleLineNudgeControls = ((style & SWT.SINGLE) != 0);
+		
+		final Composite rotationGroup = new Composite(parent, SWT.NONE);
+		int numColumns = singleLineLayout ? 2 : 1;
+		GridLayoutFactory.swtDefaults().numColumns(numColumns).equalWidth(false).margins(0, 0).spacing(0, 0).applyTo(rotationGroup);
+		
+		if (DEBUG_LAYOUT) {
+			rotationGroup.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_GREEN));
+		}
 		
 		if (motorLabel == null)
 			motorLabel = scannable.getName();
 		
-		motorPositionViewer = new MotorPositionViewer(rotationGroup, scannable, motorLabel);
-
-	    final Composite stepGroup;
-	    if (singleLineLayout) {
-	    	stepGroup = new Composite(rotationGroup, SWT.NONE);
-	    } else {
-	    	stepGroup = new Composite(parent, SWT.NONE);
-	    }
-	    
+		Composite motorPositionContainer = new Composite(rotationGroup, SWT.NONE);
+		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(motorPositionContainer);
+		motorPositionViewer = new MotorPositionViewer(motorPositionContainer, scannable, motorLabel);
+		
+		if (DEBUG_LAYOUT) {
+			motorPositionContainer.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
+		}
+		
+		final Composite otherControls = new Composite(rotationGroup, SWT.NONE);
+		RowLayoutFactory.swtDefaults().extendedMargins(0, 0, 0, 0).spacing(0).applyTo(otherControls);
+		
+		if (DEBUG_LAYOUT) {
+			otherControls.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
+		}
+		
 		GridData data = new GridData();
 		data.widthHint = 60;
 		data.horizontalAlignment = GridData.CENTER;	
-		DecimalFormat df = new DecimalFormat("###");
 		
 		if (showFixedSteps){
-			GridLayoutFactory.fillDefaults().numColumns(2).applyTo(stepGroup);
-			final Composite buttonGroup = new Composite(stepGroup, SWT.NONE);
-			buttonGroup.setLayout(new GridLayout(2, false));
-			buttonGroup.setLayoutData(GridDataFactory.fillDefaults().create());
-			                       
+			final Composite buttonGroup = new Composite(otherControls, SWT.NONE);
+			GridLayoutFactory.swtDefaults().numColumns(2).applyTo(buttonGroup);
+			
+			if (DEBUG_LAYOUT) {
+				buttonGroup.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW));
+			}
+			
+			DecimalFormat df = new DecimalFormat("###");
+			
 			plusLittleButton = createButton(buttonGroup, "+"+df.format(littleStep), null, data);
 			plusBigButton  = createButton(buttonGroup, "+"+df.format(bigStep), null, data);
 			minusLittleButton  = createButton(buttonGroup, "-"+df.format(littleStep), null, data);
 			minusBigButton  = createButton(buttonGroup, "-"+df.format(bigStep), null, data);
-
-		} else {
-			GridLayoutFactory.fillDefaults().applyTo(stepGroup);
 		}
-
-		Composite inOutButtonsComp = new Composite(stepGroup, SWT.NONE);
 		
-		if ((!showFixedSteps && ((style & SWT.SINGLE) != 0))) {
+		Composite inOutButtonsComp = new Composite(otherControls, SWT.NONE);
+		
+		if (DEBUG_LAYOUT) {
+			inOutButtonsComp.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_CYAN));
+		}
+		
+		if (!showFixedSteps && singleLineNudgeControls) {
 			inOutButtonsComp.setLayout(new GridLayout(3, false));
-			inOutButtonsComp.setLayoutData(GridDataFactory.fillDefaults().create());
 			data.widthHint = 40;
 			negNudgeButton  = createButton(inOutButtonsComp, "-", null, data);
 			posNudgeButton  = createButton(inOutButtonsComp, "+", null, data);
@@ -343,18 +390,25 @@ public class RotationViewer {
 			GridDataFactory.fillDefaults().align(GridData.END, GridData.CENTER).applyTo(nudgeSizeBox);
 		} else {
 			inOutButtonsComp.setLayout(new GridLayout(2, true));
-			inOutButtonsComp.setLayoutData(GridDataFactory.fillDefaults().create());
+			data.widthHint = 50;
 			posNudgeButton  = createButton(inOutButtonsComp, "+", null, data);
 			negNudgeButton  = createButton(inOutButtonsComp, "-", null, data);
-	
-			Label nudgeSizeLabel = new Label(inOutButtonsComp, SWT.NONE);
+			
+			Composite sizeComposite = new Composite(inOutButtonsComp, SWT.NONE);
+			GridLayoutFactory.swtDefaults().numColumns(2).margins(0, 0).applyTo(sizeComposite);
+			GridDataFactory.swtDefaults().span(2, 1).grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(sizeComposite);
+			
+			if (DEBUG_LAYOUT) {
+				sizeComposite.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_MAGENTA));
+			}
+			
+			Label nudgeSizeLabel = new Label(sizeComposite, SWT.NONE);
 			nudgeSizeLabel.setText("Size");
-			nudgeSizeBox = new ScaleBox(inOutButtonsComp, SWT.NONE);
-			GridDataFactory.createFrom(data).align(GridData.END, GridData.CENTER).applyTo(nudgeSizeLabel);
-			GridDataFactory.createFrom(data).applyTo(nudgeSizeBox);
+			nudgeSizeBox = new ScaleBox(sizeComposite, SWT.NONE);
+			GridDataFactory.swtDefaults().align(SWT.LEFT, SWT.CENTER).applyTo(nudgeSizeLabel);
+			GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(nudgeSizeBox);
 		}
 		nudgeSizeBox.setDecimalPlaces(nudgeSizeBoxDecimalPlaces);
-
 	}
 	
 	/**
