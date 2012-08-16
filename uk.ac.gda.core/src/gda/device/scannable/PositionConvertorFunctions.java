@@ -236,8 +236,7 @@ public class PositionConvertorFunctions {
 			return ((Number) object).doubleValue();
 		}
 		if (object instanceof PyString) {
-			// The next case fails with PyStrings
-			return ((PyString) object).asDouble();
+			return ((PyString) object).atof();
 		}
 		if (object instanceof PyObject) {
 			return (Double) ((PyObject) object).__tojava__(Double.class);
@@ -330,8 +329,7 @@ public class PositionConvertorFunctions {
 			return ((Number) object).intValue();
 		}
 		if (object instanceof PyString) {
-			// The next case fails with PyStrings
-			return ((PyString) object).asInt();
+			return ((PyString) object).atoi();
 		}
 		if (object instanceof PyObject) {
 			return (Integer) ((PyObject) object).__tojava__(Integer.class);

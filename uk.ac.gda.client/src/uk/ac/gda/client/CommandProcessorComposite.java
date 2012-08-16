@@ -60,9 +60,16 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.views.AsciiTextView;
 import uk.ac.gda.common.rcp.util.EclipseWidgetUtils;
+import uk.ac.gda.preferences.PreferenceConstants;
 
 public class CommandProcessorComposite extends Composite {
 	private static final Logger logger = LoggerFactory.getLogger(CommandProcessorComposite.class);
+	
+	final String strPause = "Pause Queue";
+	final String strRun = "Start Queue";
+	Boolean runPauseIsPaused = false;
+	Boolean showText = false;
+	
 	private IObserver processorObserver;
 	private Processor processor;
 	private Label txtCurrentDescription;
@@ -86,6 +93,9 @@ public class CommandProcessorComposite extends Composite {
 		this.iWorkbenchPartSite = iWorkbenchPartSite;
 
 		this.processor = processor;
+
+		showText = gda.rcp.GDAClientActivator.getDefault().getPreferenceStore()
+				.getBoolean(PreferenceConstants.GDA_COMMAND_QUEUE_SHOW_TEXT);
 
 		final ImageDescriptor forwardOneImage = GDAClientActivator.getImageDescriptor("icons/control_fastforward_blue.png");
 		pauseImage = GDAClientActivator.getImageDescriptor("icons/control_pause_blue.png");
@@ -114,11 +124,19 @@ public class CommandProcessorComposite extends Composite {
 		btnRunPause = new Action(null, SWT.NONE) {
 			@Override
 			public void run() {
-				setRun(btnRunPause.getImageDescriptor() == runImage);
+				if (btnRunPause.getImageDescriptor() == runImage || btnRunPause.getText().equals(strRun)) {
+					setRun(true);
+				} else {
+					setRun(false);
+				}
 			}
 		};
 		btnRunPause.setId(CommandQueueViewFactory.ID + ".runpause");
-		btnRunPause.setImageDescriptor(runImage);
+		if (showText){
+			btnRunPause.setText(strRun);
+		} else {
+			btnRunPause.setImageDescriptor(runImage);
+		}
 		ToolBarManager toolBarManager = (ToolBarManager) iWorkbenchPartSite.getActionBars().getToolBarManager();
 		toolBarManager.add(btnRunPause);
 
@@ -135,8 +153,12 @@ public class CommandProcessorComposite extends Composite {
 			}
 		};
 		btnSkip.setToolTipText("Stop current task and skip to start next - skip");
+		if (showText){
+			btnSkip.setText("Skip task");
+		} else {
+			btnSkip.setImageDescriptor(forwardOneImage);
+		}
 		btnSkip.setId(CommandQueueViewFactory.ID + ".skip");
-		btnSkip.setImageDescriptor(forwardOneImage);
 		toolBarManager.add(btnSkip);
 
 		btnStop = new Action(null, SWT.NONE) {
@@ -153,7 +175,11 @@ public class CommandProcessorComposite extends Composite {
 		};
 		btnStop.setToolTipText("Abort current task and pause queue");
 		btnStop.setId(CommandQueueViewFactory.ID + ".abort");
-		btnStop.setImageDescriptor(stopImage);
+		if (showText){
+			btnStop.setText("Stop Queue");
+		} else {
+			btnStop.setImageDescriptor(stopImage);
+		}
 		toolBarManager.add(btnStop);
 
 		btnStopAfterCurrent = new Action(null, SWT.NONE) {
@@ -332,7 +358,11 @@ public class CommandProcessorComposite extends Composite {
 
 				switch (state) {
 				case PROCESSING_ITEMS:
-					btnRunPause.setImageDescriptor(CommandProcessorComposite.this.pauseImage);
+					if (showText){
+						btnRunPause.setText(strPause);
+					} else {
+						btnRunPause.setImageDescriptor(CommandProcessorComposite.this.pauseImage);
+					}
 					btnRunPause.setToolTipText("Pause current task if possible. Stop queue");
 					btnRunPause.setEnabled(true);
 
@@ -345,7 +375,11 @@ public class CommandProcessorComposite extends Composite {
 					txtState.setText("Unknown");
 					break;
 				case WAITING_QUEUE:
-					btnRunPause.setImageDescriptor(CommandProcessorComposite.this.pauseImage);
+					if (showText){
+						btnRunPause.setText(strPause);
+					} else {
+						btnRunPause.setImageDescriptor(CommandProcessorComposite.this.pauseImage);
+					}
 					btnRunPause.setToolTipText("Pause current task if possible. Stop queue");
 					btnRunPause.setEnabled(true);
 
@@ -354,8 +388,11 @@ public class CommandProcessorComposite extends Composite {
 					txtState.setText("Queue is empty");
 					break;
 				case WAITING_START:
-					btnRunPause.setImageDescriptor(CommandProcessorComposite.this.runImage);
-					btnRunPause.setToolTipText("Run");
+					if (showText){
+						btnRunPause.setText(strRun);
+					} else {
+						btnRunPause.setImageDescriptor(CommandProcessorComposite.this.runImage);
+					}
 					btnRunPause.setToolTipText("Run current task if paused or start next task");
 					btnRunPause.setEnabled(true);
 
