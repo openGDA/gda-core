@@ -11,7 +11,7 @@ def configFluoDetector(beanGroup):
     detType = beanGroup.getDetector().getFluorescenceParameters().getDetectorType()
     fullFileName = str(beanGroup.getScriptFolder()) + str(beanGroup.getDetector().getFluorescenceParameters().getConfigFileName())
     outputParameters = beanGroup.getOutput()
-    print "configuring",detType,"detector using",fullFileName
+    #print "configuring",detType,"detector using",fullFileName
     if detType == "Germanium":
         from gda.device.detector.xspress import Xspress2DetectorConfiguration
         scanObj = beanGroup.getScan()
