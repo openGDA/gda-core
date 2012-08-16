@@ -84,7 +84,7 @@ public class ScalersMonitorViewData {
 			columns[i].setAlignment(SWT.CENTER);
 		}
 		for (int i = 0; i < titles.length; i++) {
-			table.getItem(0).setText(i, "                               "); // this string helps set the default width of the column
+			table.getItem(0).setText(i, "                 "); // this string helps set the default width of the column
 		}
 		for (int i = 0; i < titles.length; i++) {
 			table.getColumn(i).pack();
