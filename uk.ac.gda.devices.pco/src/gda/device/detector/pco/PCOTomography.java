@@ -29,6 +29,7 @@ import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.device.detector.areadetector.v17.NDROI;
 import gda.device.detector.areadetector.v17.NDStats;
+import gda.factory.Findable;
 
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -42,7 +43,9 @@ import uk.ac.gda.tomography.devices.ITomographyDetector;
 /**
  * Tomography implementation for the PCO camera.
  */
-public class PCOTomography implements ITomographyDetector {
+public class PCOTomography implements ITomographyDetector, Findable {
+	private String name;
+
 	private static final Logger logger = LoggerFactory.getLogger(PCOTomography.class);
 
 	private IPCODetector pcoDetector;
@@ -584,13 +587,14 @@ public class PCOTomography implements ITomographyDetector {
 	}
 
 	@Override
-	public String getName() {
+	public String getDetectorName() {
 		return pcoDetector.getName();
 	}
 
 	@Override
 	public boolean isAcquiring() throws DeviceException {
-		return pcoDetector.getStatus() == Detector.BUSY;
+//		pcoDetector.getController().getAreaDetector().getAcquire_RBV();
+		return pcoDetector.isBusy();
 	}
 
 	@Override
@@ -663,4 +667,13 @@ public class PCOTomography implements ITomographyDetector {
 		setProcOffset(offset);
 	}
 
+	@Override
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
 }
