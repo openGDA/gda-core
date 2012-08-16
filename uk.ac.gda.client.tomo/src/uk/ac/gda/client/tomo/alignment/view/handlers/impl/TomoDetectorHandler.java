@@ -796,7 +796,7 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 
 	@Override
 	public String getCameraName() {
-		return getCamera().getName();
+		return getCamera().getDetectorName();
 	}
 
 	@Override

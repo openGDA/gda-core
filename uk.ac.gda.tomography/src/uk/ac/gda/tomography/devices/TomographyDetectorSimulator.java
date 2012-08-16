@@ -165,7 +165,7 @@ public class TomographyDetectorSimulator implements ITomographyDetector {
 	}
 
 	@Override
-	public String getName() {
+	public String getDetectorName() {
 		return null;
 	}
 

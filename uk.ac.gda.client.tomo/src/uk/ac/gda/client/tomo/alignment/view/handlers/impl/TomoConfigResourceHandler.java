@@ -120,6 +120,8 @@ public class TomoConfigResourceHandler implements ITomoConfigResourceHandler, In
 					expConfiguration.setCreatedDateTime(new Date());
 					// sampleWeight
 					expConfiguration.setSampleWeight(getSampleWeight(saveableConfiguration.getSampleWeight()));
+					// Tomo rotation axis
+					expConfiguration.setTomoRotationAxis(saveableConfiguration.getTomoRotationAxis());
 					// stitching theta angle
 					expConfiguration.setStitchParameters(createStitchParameters(saveableConfiguration));
 					// add the configuration to the parameter set

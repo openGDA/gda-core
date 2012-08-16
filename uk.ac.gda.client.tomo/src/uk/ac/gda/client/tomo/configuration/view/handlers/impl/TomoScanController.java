@@ -120,7 +120,7 @@ public class TomoScanController implements ITomoScanController {
 					String isContinuous = isContinuousScan ? "True" : "False";
 					int desiredResolution = getDesiredResolution(alignmentConfiguration.getDetectorProperties()
 							.getDesired3DResolution());
-					double timeDivider = 0.8;
+					double timeDivider = 1.0;
 					double positionOfBaseAtFlat = alignmentConfiguration.getOutOfBeamPosition();
 					double positionOfBaseInBeam = alignmentConfiguration.getInBeamPosition();
 

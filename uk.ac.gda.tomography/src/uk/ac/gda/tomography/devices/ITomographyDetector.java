@@ -256,7 +256,7 @@ public interface ITomographyDetector {
 	/**
 	 * @return name - name of the detector.
 	 */
-	String getName();
+	String getDetectorName();
 
 	/**
 	 * @return true if the detector is busy; false otherwise.
