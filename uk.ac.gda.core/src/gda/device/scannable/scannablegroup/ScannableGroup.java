@@ -409,7 +409,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 			if (StringUtils.containsOnly(value, ":()") || value.isEmpty()) {
 				continue;
 			}
-			returnString += " " + StringUtils.rightPad(originalInputNames[nextNameIndex], longestName) + ": " + value
+			returnString += " " + StringUtils.rightPad(namesToSplitOn[nextNameIndex], longestName) + ": " + value
 					+ "\n";
 			nextNameIndex++;
 		}

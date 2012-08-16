@@ -288,7 +288,7 @@ where task can be:
 		self.get_commandlineArgs(argv)
 		# this file is  $gda_root/../<workspace>_git/gda-core.git/uk.ac.gda.core/bin/gda
 		# gda_root points to plugins folder
-		self.gda_root = os.path.realpath(abspath(os.path.dirname(__file__),"..","..","..","plugins").replace("_git",""))
+		self.gda_root = os.path.realpath(abspath(os.path.realpath(os.path.dirname(__file__)),"..","..","..","plugins").replace("_git",""))
 		self.subversion_checkout_parent = abspath(self.gda_root, "..")
 		self.git_checkout_parent = '%s_git' % (self.subversion_checkout_parent,)
 		if not os.path.isdir(self.git_checkout_parent):
@@ -850,7 +850,11 @@ where task can be:
 					# Further investigation is required.
 					self.append_to_class_path( jarPath )
 			else:
-				self.logger.critical("Cannot find dependent: %s" % (dependent,))
+				rcpclient_required_dependent=["org.python.pydev","org.python.pydev.core","org.python.pydev.debug","org.python.pydev.ast","org.python.pydev.customizations","org.python.pydev.help","org.python.pydev.jython","org.python.pydev.parser","org.python.pydev.refactoring","com.python.pydev","com.python.pydev.analysis","com.python.pydev.codecompletion","com.python.pydev.debug","com.python.pydev.fastparser","com.python.pydev.refactoring","ch.qos.logback.eclipse"]
+				#Only RCP client requires these bundles so become critial - a real hack, need a better solution.
+				if self.task != "rcpclient" and dependent not in rcpclient_required_dependent:
+					self.logger.critical("Cannot find dependent: %s" % (dependent,))
+
 
 
 	def addToLd_Library_Path(self, path):
