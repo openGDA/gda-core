@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -79,11 +79,6 @@ public class FileBox extends FieldComposite implements IFieldWidget, IFilterExte
 	private boolean isFolder=false;
 	private Dialog  dialog;
 
-	/**
-	 * @param parent
-	 * @param style
-	 */
-	@SuppressWarnings("unused")
 	public FileBox(final Composite parent, final int style) {
 
 		super(parent, style);
@@ -206,10 +201,12 @@ public class FileBox extends FieldComposite implements IFieldWidget, IFilterExte
 
 		if (getChoiceType() == ChoiceType.FULL_PATH || value.toString().contains(System.getProperty("file.separator"))) {
 			final File sel = new File(value.toString());
-			this.selectedFolder = sel.getParentFile();
-			this.text.setToolTipText(selectedFolder.getAbsolutePath());
-			this.text.setText(sel.getName());
-			this.text.setSelection(sel.getName().length());
+			if (!sel.getName().equals(this.text.getText())){
+				this.selectedFolder = sel.getParentFile();
+				this.text.setToolTipText(selectedFolder.getAbsolutePath());
+				this.text.setText(sel.getName());
+				this.text.setSelection(sel.getName().length());
+			}
 		} else {
 			if (selectedFolder != null){
 				this.text.setToolTipText(selectedFolder.getAbsolutePath());
@@ -246,9 +243,6 @@ public class FileBox extends FieldComposite implements IFieldWidget, IFilterExte
 	@Override
 	protected void checkSubclass() {
 	}
-
-	// Important to start with true!
-	private boolean active = true;
 
 	/**
 	 * @return the active
