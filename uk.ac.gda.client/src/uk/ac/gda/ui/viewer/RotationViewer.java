@@ -369,10 +369,10 @@ public class RotationViewer {
 			
 			DecimalFormat df = new DecimalFormat("###");
 			
-			plusLittleButton = createButton(buttonGroup, "+"+df.format(littleStep), null, data);
-			plusBigButton  = createButton(buttonGroup, "+"+df.format(bigStep), null, data);
 			minusLittleButton  = createButton(buttonGroup, "-"+df.format(littleStep), null, data);
+			plusLittleButton = createButton(buttonGroup, "+"+df.format(littleStep), null, data);
 			minusBigButton  = createButton(buttonGroup, "-"+df.format(bigStep), null, data);
+			plusBigButton  = createButton(buttonGroup, "+"+df.format(bigStep), null, data);
 		}
 		
 		Composite inOutButtonsComp = new Composite(otherControls, SWT.NONE);
@@ -391,8 +391,8 @@ public class RotationViewer {
 		} else {
 			inOutButtonsComp.setLayout(new GridLayout(2, true));
 			data.widthHint = 50;
-			posNudgeButton  = createButton(inOutButtonsComp, "+", null, data);
 			negNudgeButton  = createButton(inOutButtonsComp, "-", null, data);
+			posNudgeButton  = createButton(inOutButtonsComp, "+", null, data);
 			
 			Composite sizeComposite = new Composite(inOutButtonsComp, SWT.NONE);
 			GridLayoutFactory.swtDefaults().numColumns(2).margins(0, 0).applyTo(sizeComposite);
