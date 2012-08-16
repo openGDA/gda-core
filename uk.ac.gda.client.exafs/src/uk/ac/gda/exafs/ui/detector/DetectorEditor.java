@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -220,38 +220,17 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-
 		this.data = readStoredData();
-
-		// parent.setLayout(new GridLayout(1,true));
 		this.sashPlotForm = createSashPlot(parent);
-
 		sashPlotForm.addZoomListener(new IPropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent event) {
-
-				// Must be asyncExec as the plotter property event is fired
-				// before the the isZoomEnabled() boolean is set. Using
-				// event.newValue() is wrong because the property is fired
-				// first with true and then with false in the case where the user
-				// changes from one zoom mode to another.
 				getSite().getShell().getDisplay().asyncExec(new Runnable() {
 					@Override
 					public void run() {
 						isZooming = sashPlotForm.getPlotter().isZoomEnabled();
-						try {
-							//getDetectorElementComposite().setStartEnabled(!isZooming);
-							//getDetectorElementComposite().setEndEnabled(!isZooming);
-							if (currentOverlay != null) {
-								if (isZooming) {
-									sashPlotForm.getPlotter().unRegisterOverlay(currentOverlay);
-								} //else {
-									createOverlay(getDetectorList().getSelectedIndex());
-								//}
-							}
-
-						} catch (Exception e) {
-							logger.error("Cannot disable start or end", e);
+						if (currentOverlay != null) {
+							currentOverlay.setDraw(!isZooming);
 						}
 					}
 				});
@@ -700,11 +679,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		return total;
 	}
 
-	/**
-	 * Part of beans interface.
-	 * 
-	 * @return list
-	 */
 	public GridListEditor getDetectorList() {
 		return detectorListComposite.getDetectorList();
 	}
@@ -744,7 +718,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			createOverlay(getMin(data), getMax(data));
 		}
 
-		getDetectorElementComposite().setTotalCounts(getTotalCounts(data));
+		getDetectorElementComposite().setTotalCounts(getTotalCounts());
 		getDetectorElementComposite().setTotalElementCounts(getTotalElementCounts(data));
 	}
 
@@ -757,7 +731,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			return new Double(sum);
 	}
 
-	private Double getTotalCounts(Collection<AbstractDataset> d) {
+	private Double getTotalCounts() {
 		if (detectorData == null)
 			return Double.NaN;
 		double sum = 0;
@@ -768,7 +742,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 				}
 			}
 		}
-
 		return sum;
 	}
 
@@ -834,25 +807,30 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 				start != null ? (Integer) start : 0, end != null ? (Integer) end : 0);
 		currentOverlay.setDraw(getDetectorElementComposite().getRegionList().getListSize() > 0);
 		sashPlotForm.getPlotter().registerOverlay(currentOverlay);
-		
+
 		currentOverlay.addGraphSelectionListener(new GraphSelectionListener() {
 
 			@Override
 			public void graphSelectionPerformed(GraphSelectionEvent evt) {
+				
+				if (isZooming){
+					return;
+				}
+				
 				currentOverlay.setBusy(true);
 				try {
-//					double start = evt.getStart().getX();
-//					double end = evt.getEnd().getX();
-//					if (start > end) {
-//						double tmp = start;
-//						start = end;
-//						end = tmp;
-//					}
-//
-//					getDetectorElementComposite().getStart().setValue(start);
-//					getDetectorElementComposite().getEnd().setValue(end);
+					double start = evt.getStart().getX();
+					double end = evt.getEnd().getX();
+					if (start > end) {
+						double tmp = start;
+						start = end;
+						end = tmp;
+					}
 
-					// Select next element?
+					getDetectorElementComposite().getStart().setValue(start);
+					getDetectorElementComposite().getEnd().setValue(end);
+
+					// Select next element? Only if detector registered.
 					if (changeElement) {
 						IConfigurationElement[] config = Platform.getExtensionRegistry().getConfigurationElementsFor(
 								"uk.ac.gda.exafs.ui.detector");
@@ -864,7 +842,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 							logger.info("the mode is " + beanClass);
 							if (beanClass.equals("true")) {
 								int nextElement = getDetectorList().getSelectedIndex() + 1;
-								logger.info("the bnext selected index is " + nextElement);
+								logger.info("the next selected index is " + nextElement);
 								getDetectorList().setSelectedIndex(nextElement);
 								changeElement = false;
 							}

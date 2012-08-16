@@ -115,13 +115,23 @@ class XasScan(Scan):
 
         # give the beans to the xasdatawriter class to help define the folders/filenames 
         beanGroup = self._defineBeanGroup(folderName, validation, controller, xmlFolderName, sampleBean, scanBean, detectorBean, outputBean)
+        
+        self._doLooping(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
 
+    def _doLooping(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller):
+        #
+        # Insert sample environment looping logic here by subclassing
+        #
+        self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
+        
+    def _doScan(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller):
+        
         # reset the properties used to control repetition behaviour
         LocalProperties.set(RepetitionsProperties.HALT_AFTER_REP_PROPERTY,"false")
         LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
         LocalProperties.set(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY,str(numRepetitions))
         repetitionNumber = 0
-        
+
         try:
             while True:
                 repetitionNumber+= 1
@@ -139,10 +149,10 @@ class XasScan(Scan):
                 xas_scannable = self._configureScannable(beanGroup)
     
                 # send out initial messages for logging and display to user
-                outputFolder = outputBean.getAsciiDirectory()+ "/" + outputBean.getAsciiFileName()
-                logmsg = XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber + 1), str("0%"),str(0),scanBean,outputFolder)
+                outputFolder = beanGroup.getOutput().getAsciiDirectory()+ "/" + beanGroup.getOutput().getAsciiFileName()
+                logmsg = XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber + 1), str("0%"),str(0),beanGroup.getScan(),outputFolder)
                 self.loggingcontroller.update(None,logmsg)
-                self.loggingcontroller.update(None,ScanStartedMessage(scanBean,detectorBean)) # informs parts of the UI about current scan
+                self.loggingcontroller.update(None,ScanStartedMessage(beanGroup.getScan(),beanGroup.getDetector())) # informs parts of the UI about current scan
                 loggingbean = XasProgressUpdater(self.loggingcontroller,logmsg)
     
                 # work out which detectors to use (they will need to have been configured already by the GUI)
@@ -153,9 +163,9 @@ class XasScan(Scan):
                 signalParameters = self._getSignalList(beanGroup.getOutput())
                 
                 # run the beamline specific preparers            
-                self.detectorPreparer.prepare(detectorBean, outputBean, xmlFolderName)
-                sampleScannables = self.samplePreparer.prepare(sampleBean)
-                outputScannables = self.outputPreparer.prepare(outputBean)
+                self.detectorPreparer.prepare(beanGroup.getDetector(), beanGroup.getOutput(), xmlFolderName)
+                sampleScannables = self.samplePreparer.prepare(beanGroup.getSample())
+                outputScannables = self.outputPreparer.prepare(beanGroup.getOutput())
                
                 # run the before scan script
                 self._runScript(beanGroup.getOutput().getBeforeScriptName())
@@ -222,8 +232,9 @@ class XasScan(Scan):
             
             #remove added metadata from default metadata list to avoid multiple instances of the same metadata
             jython_mapper = JythonNameSpaceMapping()
-            original_header=jython_mapper.original_header[:]
-            Finder.getInstance().find("datawriterconfig").setHeader(original_header)
+            if (jython_mapper.original_header != None):
+                original_header=jython_mapper.original_header[:]
+                Finder.getInstance().find("datawriterconfig").setHeader(original_header)
     
     def _getSignalList(self, outputParameters):
         signalList = []
@@ -391,9 +402,10 @@ class QexafsScan(Scan):
             LocalProperties.set("gda.plot.ScanPlotSettings.fromUserList", "false")
             
             #remove added metadata from default metadata list to avoid multiple instances of the same metadata
-            jython_mapper = JythonNameSpaceMapping()
-            original_header=jython_mapper.original_header[:]
-            Finder.getInstance().find("datawriterconfig").setHeader(original_header)
+            if (jython_mapper.original_header != None):
+                jython_mapper = JythonNameSpaceMapping()
+                original_header=jython_mapper.original_header[:]
+                Finder.getInstance().find("datawriterconfig").setHeader(original_header)
 
  
     def _getNumberOfFrames(self, detectorBean, scanBean):

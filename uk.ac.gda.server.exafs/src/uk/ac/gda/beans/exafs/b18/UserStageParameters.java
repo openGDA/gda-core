@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2011 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -20,8 +20,6 @@ package uk.ac.gda.beans.exafs.b18;
 
 import java.io.Serializable;
 
-import org.apache.commons.beanutils.BeanUtils;
-
 public class UserStageParameters implements Serializable  {
 	double axis2;
 	double axis4;
@@ -30,6 +28,26 @@ public class UserStageParameters implements Serializable  {
 	double axis7;
 	double axis8;
 	
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		long temp;
+		temp = Double.doubleToLongBits(axis2);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(axis4);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(axis5);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(axis6);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(axis7);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(axis8);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		return result;
+	}
 
 	@Override
 	public boolean equals(Object obj) {
