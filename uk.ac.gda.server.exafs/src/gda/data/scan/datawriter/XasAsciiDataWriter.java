@@ -168,7 +168,7 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 
 	protected void determineFilename() {
 
-		String nameFrag = LocalProperties.get("gda.instrument", "I20");
+		String nameFrag = LocalProperties.get("gda.instrument");
 
 		dataDir = getDataDirectory();
 
@@ -187,8 +187,14 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 			if (group != null && group.getScanNumber() >= 0) {
 				final OutputParameters params = (OutputParameters) XasAsciiDataWriter.group.getOutput();
 				dataDir += params.getAsciiDirectory() + "/";
-				//this.setRepetitionNumber( group.getScanNumber());
-				filePrefix = params.getAsciiFileName() + "_" + group.getScanNumber() + "." + this.fileExtension;
+				final ISampleParameters sampleParams = XasAsciiDataWriter.group.getSample();
+				String sampleName = sampleParams.getName().trim().replaceAll(" ", "_");
+				filePrefix = sampleName + "_";
+				if (nameFrag != null && nameFrag.equals("i20")){
+					currentFileName = filePrefix + getFileNumber()+ "_" + group.getScanNumber() + "." + this.fileExtension;
+				} else {
+					currentFileName = getFileNumber()+ "_" + group.getScanNumber() +"_" + sampleName + "." + this.fileExtension;
+				}
 			} else {
 				dataDir += "ascii/";
 				filePrefix = nameFrag + "." + this.fileExtension;
@@ -198,6 +204,9 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 				return;
 			}
 			throw ne;
+		} catch (Exception e) {
+			logger.error("Exception getting next file number", e);
+			currentFileName = filePrefix + "." + this.fileExtension;
 		}
 	}
 

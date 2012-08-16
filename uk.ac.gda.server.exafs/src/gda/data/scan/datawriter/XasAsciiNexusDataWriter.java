@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.beans.exafs.ISampleParameters;
 import uk.ac.gda.beans.exafs.OutputParameters;
 import uk.ac.gda.util.io.FileUtils;
 
@@ -45,18 +46,12 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements DataWrite
 	private String xasDir;
 	private String nexusFileTemplate;
 
-	/**
-	 * @throws InstantiationException
-	 */
 	public XasAsciiNexusDataWriter() throws Exception {
 		super();
 		xasAscii = new XasAsciiDataWriter();
 		nexus = new XasNexusDataWriter(xasAscii.getFileNumber());
 		determineFilenames();
-		if(XasAsciiDataWriter.group!=null)
-			nexus.setNexusFileNameTemplate(nexusFileTemplate + "_" + XasAsciiDataWriter.group.getScanNumber() + ".nxs");
-		else
-			nexus.setNexusFileNameTemplate(nexusFileTemplate + ".nxs");
+		nexus.setNexusFileNameTemplate(nexusFileTemplate);
 		xasAscii.setNexusFilePath(getCurrentFileName());
 	}
 
@@ -124,7 +119,7 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements DataWrite
 	}
 
 	private void determineFilenames() {
-		String nameFrag = LocalProperties.get("gda.instrument","I20"); 
+		String nameFrag = LocalProperties.get("gda.instrument"); 
 
 		//get data directory
 		if (XasAsciiDataWriter.group != null && XasAsciiDataWriter.group.getExperimentFolderName() != null) {
@@ -146,16 +141,21 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements DataWrite
 			if (XasAsciiDataWriter.group != null && XasAsciiDataWriter.group.getScanNumber() >= 0) {
 				final OutputParameters params = (OutputParameters)XasAsciiDataWriter.group.getOutput();
 				xasDir += "/"+params.getAsciiDirectory();
-				nexusFileTemplate = XasAsciiDataWriter.group.getExperimentFolderName() + "/" + params.getNexusDirectory() + "/%d_"+ params.getAsciiFileName();
+				nexusFileTemplate = XasAsciiDataWriter.group.getExperimentFolderName() + "/" + params.getNexusDirectory() + "/%d";
+				if (nameFrag != null && !nameFrag.equals("i20")){
+					final ISampleParameters sampleParams = XasAsciiDataWriter.group.getSample();
+					String sampleName = sampleParams.getName().trim().replaceAll(" ", "_");
+					nexusFileTemplate += "_"+ sampleName;
+				}
+				nexusFileTemplate += "_" + XasAsciiDataWriter.group.getScanNumber() + ".nxs";
 			} else {
 				xasDir += "/ascii" ;
-				nexusFileTemplate = "nexus/%d_" + nameFrag;
-			}
-			
-			if (!xasDir.endsWith("/")){
-				xasDir += "/";
-			}
-			
+				nexusFileTemplate = "nexus/%d";
+				if (nameFrag != null && !nameFrag.equals("i20")){
+					nexusFileTemplate += "_" + nameFrag;
+				}
+				nexusFileTemplate += ".nxs";
+			}			
 		} catch (RuntimeException ne) {
 			if (XasAsciiDataWriter.group != null && XasAsciiDataWriter.group.isIncompleteDataAllowed()) {
 				return;

@@ -64,14 +64,18 @@ public class ExafsIncrementalFile extends IncrementalFile {
 			if (file != null) {
 				file.close();
 			}
-			currentFileName = getFileNumber() + "." + this.fileExtension;
-
-			// See if we want a file prefix...
-			if (filePrefix == null) {
-				this.filePrefix = LocalProperties.get("gda.data.scan.datawriter.filePrefix");
-			}
-			if (this.filePrefix != null) {
-				currentFileName = getFileNumber() + "_" + filePrefix;
+			
+			// do not create the filename if subclasses have set it already
+			if (this.currentFileName == null) {
+				currentFileName = getFileNumber() + "." + this.fileExtension;
+	
+				// See if we want a file prefix...
+				if (filePrefix == null) {
+					this.filePrefix = LocalProperties.get("gda.data.scan.datawriter.filePrefix");
+				}
+				if (this.filePrefix != null) {
+					currentFileName = getFileNumber() + "_" + filePrefix + "." + this.fileExtension;
+				}
 			}
 
 			fileName = currentFileName;
