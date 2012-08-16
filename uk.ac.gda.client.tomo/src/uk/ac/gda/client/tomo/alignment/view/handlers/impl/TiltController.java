@@ -129,15 +129,19 @@ public class TiltController implements ITiltController {
 							// 4. read output from matlab and move motors
 							// output= x,yz,z
 							Double[] motorsToMove = getTiltMotorPositions(result);
+							logger.debug("motorsto move:{}", motorsToMove);
 							if (!progress.isCanceled()) {
 								if (motorsToMove != null) {
-
+									logger.debug("Current rz is :{}", motorHandler.getSs1RzPosition());
+									logger.debug("Current rx is :{}", motorHandler.getSs1RxPosition());
 									double rz = motorsToMove[0];// roll
 									double rx = motorsToMove[1];// pitch
-									logger.debug("rz is {}", -rz);
-									logger.debug("rx is {}", -rx);
+									
 									motorHandler.moveSs1RzBy(progress, -rz);
 									motorHandler.moveSs1RxBy(progress, -rx);
+									
+									logger.debug("After move ss1_rz is :{}", motorHandler.getSs1RzPosition());
+									logger.debug("After move ss1_rx is :{}", motorHandler.getSs1RxPosition());
 								}
 							}
 

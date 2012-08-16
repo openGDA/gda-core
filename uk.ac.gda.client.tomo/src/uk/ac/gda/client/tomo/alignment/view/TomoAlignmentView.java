@@ -276,7 +276,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		public void partHidden(org.eclipse.ui.IWorkbenchPartReference partRef) {
 			stopStreamByCheckingIfOn();
 		}
-
 		@Override
 		public void partClosed(org.eclipse.ui.IWorkbenchPart part) {
 			stopStreamByCheckingIfOn();

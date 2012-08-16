@@ -48,6 +48,7 @@ import uk.ac.gda.client.tomo.composites.SWT2Dutil;
 import uk.ac.gda.ui.components.CameraControlComposite;
 import uk.ac.gda.ui.components.CameraControlComposite.RESOLUTION;
 import uk.ac.gda.ui.components.IMotionControlListener;
+import uk.ac.gda.ui.components.CameraControlComposite.RESOLUTION;
 import uk.ac.gda.ui.components.ModuleButtonComposite.CAMERA_MODULE;
 import uk.ac.gda.ui.components.MotionControlComposite;
 import uk.ac.gda.ui.components.MotionControlComposite.MotionControlCentring;
