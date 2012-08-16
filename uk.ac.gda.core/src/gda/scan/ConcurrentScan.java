@@ -152,6 +152,8 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 				command = command + " " + args[i];
 			}
 		}
+		
+		logger.info("Command to run: " +command);
 
 		try {
 			// the first argument should be a scannable else a syntax error
@@ -483,33 +485,28 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 
 	@Override
 	protected void endScan() throws DeviceException {
-		try {
-			if (!isChild && returnScannablesToOrginalPositions) {
-				// return all scannables to original positions
+		if (!isChild && returnScannablesToOrginalPositions) {
+			// return all scannables to original positions
+			try {
 				returnScannablesToOrginalPositions = false;
-
+				logger.info("End of scan, so returning scannables back to their initial positions.");
 				for (Scannable thisOne : allScannables) {
-					if (thisOne.getInputNames().length > 0){
+					if (thisOne.getInputNames().length > 0) {
 						thisOne.moveTo(this.scannablesOriginalPositions.get(thisOne));
 					}
 				}
+			} catch (Exception e) {
+				String message;
+				if (e instanceof PyException) {
+					message = e.toString();
+				} else {
+					message = e.getMessage();
+				}
+				logger.error("Exception whilst returning scannables back to original positions at end of scan: "
+						+ message);
+				logger.debug(message, e);
 			}
-		} catch (Exception e) {
-			String message;
-			if (e instanceof PyException) {
-				message = e.toString();
-			} else {
-				message = e.getMessage();
-			}
-			logger.error("Exception while returning scannables back to " +
-						 "original positions at end of scan: " + message);
-			logger.debug(message, e);
-			/*
-			logger.error("Exception while returning scannables back to original positions at end of scan: "
-					+ e.getMessage());
-			*/
 		}
-
 		super.endScan();
 	}
 

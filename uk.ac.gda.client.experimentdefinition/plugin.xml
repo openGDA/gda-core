@@ -571,7 +571,7 @@
          <command
                commandId="uk.ac.gda.client.experimentdefinition.AddScanCommand"
                icon="icons/chart_curve_add.png"
-               label="Add multi-scan"
+               label="Create new multi-scan"
                style="push">
             <visibleWhen
                   checkEnabled="true">
@@ -593,7 +593,7 @@
          <command
                commandId="uk.ac.gda.client.experimentdefinition.AddRunCommand"
                icon="icons/chart_line_add.png"
-               label="Add scan"
+               label="Create new scan"
                style="push">
          </command>
          <command
@@ -645,39 +645,7 @@
                name="uk.ac.gda.client.experimentdefinition.separator7">
          </separator>
       </menuContribution>
-      <menuContribution
-            locationURI="popup:uk.ac.gda.client.experimentdefinition.runcontrollerview">
-         <command
-               commandId="uk.ac.gda.client.experimentdefinition.RunSingleExperimentCommand"
-               icon="icons/control_play_blue.png"
-               label="Queue"
-               style="push"
-               tooltip="Add single scan to command queue">
-            <visibleWhen
-                  checkEnabled="true">
-               <with
-                     variable="activeMenuSelection">
-                  <iterate
-                        ifEmpty="true">
-                     <instanceof
-                           value="uk.ac.gda.client.experimentdefinition.IExperimentObject">
-                     </instanceof>
-                  </iterate>
-               </with>
-            </visibleWhen>
-         </command>
-      </menuContribution>
 
-      <menuContribution
-            locationURI="menu:uk.ac.gda.client.experimentdefinition.components.RunControllerView">
-         <command
-               commandId="uk.ac.gda.client.experimentdefinition.StopAllCommand"
-               icon="icons/stop.png"
-               label="Stop All"
-               style="push"
-               tooltip="Stop everything that ">
-         </command>
-      </menuContribution>
     </extension>
       <extension
          point="org.eclipse.ui.handlers">
