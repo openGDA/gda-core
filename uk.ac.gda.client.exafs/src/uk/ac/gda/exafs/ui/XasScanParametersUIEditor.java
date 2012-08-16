@@ -249,6 +249,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		exafsStep.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		exafsStep.setUnit("eV");
 		exafsStep.setMaximum(100d);
+		exafsStep.setDecimalPlaces(3);
 
 		final Label exafsTimeTypeLabel = new Label(edgeParametersGroup, SWT.NONE);
 		exafsTimeTypeLabel.setText("Exafs Time Type");
