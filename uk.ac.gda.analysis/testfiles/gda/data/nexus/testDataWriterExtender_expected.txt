@@ -223,25 +223,28 @@
 <values>
 <value>-1.0</value>
 </values>
+<Attr @name=units>
+<dimensions><dimension>2</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>mA</value>
+</Attr>
 </SDS>
-<SDS @name=frequency>
+<SDS @name=energy>
 <dimensions><dimension>1</dimension></dimensions>
 <type>NX_FLOAT64</type>
 <values>
 <value>-1.0</value>
 </values>
+<Attr @name=units>
+<dimensions><dimension>3</dimension></dimensions>
+<type>NX_CHAR</type>
+<value>GeV</value>
+</Attr>
 </SDS>
 <SDS @name=name>
 <dimensions><dimension>3</dimension></dimensions>
 <type>NX_CHAR</type>
 <value>DLS</value>
-</SDS>
-<SDS @name=power>
-<dimensions><dimension>1</dimension></dimensions>
-<type>NX_FLOAT64</type>
-<values>
-<value>-1.0</value>
-</values>
 </SDS>
 <SDS @name=probe>
 <dimensions><dimension>5</dimension></dimensions>
@@ -252,13 +255,6 @@
 <dimensions><dimension>24</dimension></dimensions>
 <type>NX_CHAR</type>
 <value>Synchrotron X-ray Source</value>
-</SDS>
-<SDS @name=voltage>
-<dimensions><dimension>1</dimension></dimensions>
-<type>NX_FLOAT64</type>
-<values>
-<value>-1000.0</value>
-</values>
 </SDS>
 </NXsource>
 </NXinstrument>

@@ -20,7 +20,6 @@
 package gda.data.nexus;
 
 import gda.TestHelpers;
-import gda.analysis.ScanFileHolder;
 import gda.configuration.properties.LocalProperties;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.GdaMetadata;
@@ -45,9 +44,6 @@ import java.util.LinkedList;
 import org.junit.Before;
 import org.junit.Test;
 import org.nexusformat.NexusFile;
-
-import uk.ac.diamond.scisoft.analysis.io.NexusLoader;
-import uk.ac.diamond.scisoft.analysis.io.SRSLoader;
 
 /**
  * Class to test writing of nexus files during a scan
@@ -115,8 +111,6 @@ public class ScanToNexusTest {
 		scan.getDataWriter().completeCollection();
 	}
 
-
-
 	@Before
 	public void beforeEachTest() {
 		// clear metadata
@@ -148,15 +142,6 @@ public class ScanToNexusTest {
 		// read nexus file
 		String filename = testScratchDirectoryName + "/Data/" + "1.nxs";
 
-//		NexusTreeNodeSelection metaDataSel = NexusTreeNodeSelection.createTreeForAllMetaData();
-//		INexusTree tree = NexusTreeBuilder.getNexusTree(filename, metaDataSel);
-//		String filename_expected = TestFileFolder + "testCreateScanFile_expected.nxs";
-//		INexusTree tree_expected = NexusTreeBuilder.getNexusTree(filename_expected, metaDataSel);
-//		tree.sort(NexusTreeNode.getNameComparator());
-//		tree_expected.sort(NexusTreeNode.getNameComparator());
-//		Assert.assertFalse("sorted trees are not the same: sort(" + filename_expected + ") NE (" + filename + ")",
-//				!tree_expected.equals(tree, true));
-
 		// now generate an SRS file with the SimpleScannable1 and SimpleScannable2 and meta data
 		LinkedList<String> datasetNames = new LinkedList<String>();
 		datasetNames.add("simpleScannable1");
@@ -174,13 +159,6 @@ public class ScanToNexusTest {
 		datasetNames.add("SimpleDetector2.data");
 		datasetNames.add("SimpleDetector3.data");
 
-		ScanFileHolder sfh = new ScanFileHolder();
-		sfh.load(new NexusLoader(filename, datasetNames));
-		String srsOutputFile = testScratchDirectoryName + "/srs.txt";
-		sfh.save(new SRSLoader(srsOutputFile));
-		junitx.framework.FileAssert.assertEquals(new File(TestFileFolder + "testCreateScanFile_srs_expected.txt"),
-				new File(srsOutputFile));
-
 		/* now save to ASCII file that caters for multi dimensional data */
 		String asciiOutputFile = testScratchDirectoryName + "/ascii.txt";
 		uk.ac.diamond.scisoft.analysis.io.NexusLoader.convertToAscii(filename, null, null, asciiOutputFile, datasetNames);
@@ -190,7 +168,6 @@ public class ScanToNexusTest {
 		String srsDataFile = testScratchDirectoryName + "/Data/" + "1.dat";
 		junitx.framework.FileAssert.assertEquals(new File(TestFileFolder + "testCreateScanFile_NexusWriterAscii_expected.dat"),
 				new File(srsDataFile));
-	
 	}
 
 	/**
@@ -364,22 +341,8 @@ public class ScanToNexusTest {
 	 */
 	@Test
 	public void testCreateNestedScanFile() throws Exception {
-//		String testScratchDirectoryName = TestHelpers.setUpTest(ScanToNexusTest.class, "testCreateNestedScanFile",
-//				true);
-
 		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "NexusDataWriter");
 		LocalProperties.set("gda.nexus.createSRS", "false");
 		runNestedScanToCreateFile(null);
-//		// read nexus file
-//		String filename = testScratchDirectoryName + "/Data/" + "1.nxs";
-//
-//		NexusTreeNodeSelection metaDataSel = NexusTreeNodeSelection.createTreeForAllMetaData();
-//		INexusTree tree = NexusTreeBuilder.getNexusTree(filename, metaDataSel);
-//		String filename_expected = TestFileFolder + "testCreateNestedScanFile_expected.nxs";
-//		INexusTree tree_expected = NexusTreeBuilder.getNexusTree(filename_expected, metaDataSel);
-//		tree.sort(NexusTreeNode.getNameComparator());
-//		tree_expected.sort(NexusTreeNode.getNameComparator());
-//		Assert.assertFalse("sorted trees are not the same: sort(" + filename_expected + ") NE (" + filename + ")",
-//				!tree_expected.equals(tree, true));
 	}
 }
