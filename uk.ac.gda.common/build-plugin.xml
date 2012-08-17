@@ -30,6 +30,7 @@
                 <pathelement location="${junitjar.loc}" />
                 <pathelement location="${GDA-plugin.basedir}/bin" />
                 <pathelement location="${workspace.git.loc}/diamond-springframework.git/uk.ac.diamond.org.springframework/jars/*" />
+                <pathelement path="${workspace.loc}/tp/plugins/com.springsource.slf4j.api_1.5.6.jar" />  <!--ensure that required org.slf4j.LoggerFactory appears first in classpath -->
                 <pathelement location="${workspace.loc}/tp/plugins/*" />
                 <path refid="libs.jars.path" />
             </classpath>
