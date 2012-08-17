@@ -251,8 +251,8 @@ public class XYPlotView extends ViewPart implements IAllScanDataPointsObserver {
 				public void run() {
 					try {
 						openFile(null, null);
-					} catch (Exception e) {
-						logger.warn("Error opening a file", e);
+					} catch (Throwable e) {
+						logger.error("Error opening a file", e);
 					}
 				}
 			};
