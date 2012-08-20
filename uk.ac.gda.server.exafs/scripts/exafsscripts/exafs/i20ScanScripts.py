@@ -4,9 +4,10 @@ from uk.ac.gda.beans.exafs import XanesScanParameters
 from uk.ac.gda.beans.exafs import XesScanParameters
 from uk.ac.gda.beans.exafs import XasScanParameters
 from uk.ac.gda.beans.exafs.i20 import I20SampleParameters
+from gda.device import DeviceException
+from gda.factory import Finder
 
 class I20XasScan(XasScan):
-    
     
     def _doLooping(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller):
         #
@@ -27,7 +28,34 @@ class I20XasScan(XasScan):
                 rotation = sampleStageParameters.getRotations()[i]
                 roll = sampleStageParameters.getRolls()[i]
                 pitch = sampleStageParameters.getPitches()[i]
-                print "would now move sample stage to",x,y,z,rotation,roll,pitch
+                
+                finder = Finder.getInstance()
+                samx = finder.find("sample_x")
+                samy = finder.find("sample_y")
+                samz = finder.find("sample_z")
+                samrot = finder.find("sample_rot")
+                samroll = finder.find("sample_roll")
+                sampitch = finder.find("sample_pitch")
+                
+                if samx == None or samy ==None or samz == None or samrot == None or samroll == None or sampitch == None:
+                    raise DeviceException("I20 scan script - could not find all sample stage motors!")
+                
+                
+                print "Moving sample stage to",x,y,z,rotation,roll,pitch,"..."
+                samx.asynchronousMoveTo(x)
+                samy.asynchronousMoveTo(y)
+                samz.asynchronousMoveTo(z)
+                samrot.asynchronousMoveTo(rotation)
+                samroll.asynchronousMoveTo(roll)
+                sampitch.asynchronousMoveTo(pitch)
+                samx.waitWhileBusy(20)
+                samy.waitWhileBusy(20)
+                samz.waitWhileBusy(20)
+                samrot.waitWhileBusy(20)
+                samroll.waitWhileBusy(20)
+                sampitch.waitWhileBusy(20)
+                print "Sample stage move complete.\n"
+                
                 #TODO add to metadata?
                 self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
                 
