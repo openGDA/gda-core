@@ -19,6 +19,7 @@
 package gda.device.enumpositioner;
 
 import gda.device.DeviceException;
+import gda.device.EditableEnumPositioner;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
@@ -29,14 +30,14 @@ import org.slf4j.LoggerFactory;
 /**
  * Version of EpicsPositionerCallback which enables the GDA user to edit the names of the positions in the positioner.
  */
-public class EpicsEditablePositionerCallback extends EpicsPositionerCallback {
+public class EpicsEditablePositionerCallback extends EpicsPositionerCallback implements EditableEnumPositioner{
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsEditablePositionerCallback.class);
 
 	final String[] epicsnamelist = { ".ZRST", ".ONST", ".TWST", ".THST", ".FRST", ".FVST", ".SXST", ".SVST", ".EIST",
 			".NIST", ".TEST", ".ELST", ".TVST", ".TTST", ".FTST", ".FFST" };
-	private String[] recordNames;
-	private Channel[] namesChannels;
+	private String[] recordNames = new String[epicsnamelist.length];
+	private Channel[] namesChannels = new Channel[epicsnamelist.length];
 
 	@Override
 	protected void setRecordNamesUsingBasePv(String recordName) {
