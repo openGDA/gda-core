@@ -25,9 +25,14 @@ public class TiltPlotPointsHolder {
 
 	private DoublePointList centers1;
 
+	private DoublePointList ellipse1;
+	
 	private DoublePointList centers2;
 
+	private DoublePointList ellipse2;
+	
 	private DoublePointList line2;
+	
 
 	public DoublePointList getCenters1() {
 		return centers1;
@@ -56,6 +61,22 @@ public class TiltPlotPointsHolder {
 	@Override
 	public String toString() {
 		return "Centres1:" + centers1 + "  Centers2: " + centers2 + "  Line2:" + line2;
+	}
+
+	public DoublePointList getEllipse1() {
+		return ellipse1;
+	}
+
+	public void setEllipse1(DoublePointList ellipse1) {
+		this.ellipse1 = ellipse1;
+	}
+
+	public DoublePointList getEllipse2() {
+		return ellipse2;
+	}
+
+	public void setEllipse2(DoublePointList ellipse2) {
+		this.ellipse2 = ellipse2;
 	}
 
 }

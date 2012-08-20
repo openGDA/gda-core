@@ -334,7 +334,7 @@ public class MotionControlListener implements IMotionControlListener {
 					SubMonitor progress = SubMonitor.convert(monitor);
 					try {
 
-						monitor.beginTask("", 100);
+						progress.beginTask("Tilt", 50);
 						TiltPlotPointsHolder tiltPoints = tomoAlignmentViewController.doTiltAlignment(progress,
 								selectedCameraModule, exposureTime);
 						if (tiltPoints != null) {
@@ -346,6 +346,7 @@ public class MotionControlListener implements IMotionControlListener {
 						throw new InvocationTargetException(ex, "Error while preparing for Tilt alignment:"
 								+ ex.getMessage());
 					} finally {
+						progress.done();
 						monitor.done();
 
 					}
