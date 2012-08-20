@@ -22,7 +22,8 @@ package uk.ac.gda.client.tomo.configuration.viewer;
  *
  */
 public interface TomoConfigTableConstants {
-	public static final int COL_SELECTION = 0;
+	public static final int COL_DRAG = 0;
+	public static final int COL_SELECTION = COL_DRAG + 1;
 	public static final int COL_PROPOSAL = COL_SELECTION + 1;
 	public static final int COL_SAMPLE_DESCRIPTION = COL_PROPOSAL + 1;
 	public static final int COL_MODULE = COL_SAMPLE_DESCRIPTION + 1;
@@ -56,5 +57,6 @@ public interface TomoConfigTableConstants {
 	public static final String TIME_DIVIDER = "Time divider";
 	public static final String PROGRESS = "Progress";
 	public static final String SELECTION = "Do";
+	public static final String DRAG = "";
 	public static final String SHOULD_DISPLAY = "Display";
 }

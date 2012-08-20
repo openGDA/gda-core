@@ -60,6 +60,15 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSource;
+import org.eclipse.swt.dnd.DragSourceAdapter;
+import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.DropTarget;
+import org.eclipse.swt.dnd.DropTargetAdapter;
+import org.eclipse.swt.dnd.DropTargetEvent;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.FontData;
@@ -143,21 +152,21 @@ public class TomoConfigurationView extends ViewPart {
 	private StitchedImageCanvas img90DegComposite;
 	private TomoConfigurationViewController tomoConfigViewController;
 	/**/
-	private final String columnHeaders[] = { TomoConfigTableConstants.SELECTION, TomoConfigTableConstants.PROPOSAL,
-			TomoConfigTableConstants.SAMPLE_DESCRIPTION, TomoConfigTableConstants.MODULE_NUMBER,
-			TomoConfigTableConstants.ACQUISITION_TIME, TomoConfigTableConstants.FLAT_ACQ_TIME,
-			TomoConfigTableConstants.DETECTOR_DISTANCE, TomoConfigTableConstants.ENERGY,
-			TomoConfigTableConstants.SAMPLE_WEIGHT, TomoConfigTableConstants.RESOLUTION,
-			TomoConfigTableConstants.FRAMES_PER_PROJECTION, TomoConfigTableConstants.CONTINUOUS_STEP,
-			TomoConfigTableConstants.RUN_TIME, TomoConfigTableConstants.EST_END_TIME,
-			TomoConfigTableConstants.TIME_DIVIDER, TomoConfigTableConstants.SHOULD_DISPLAY,
-			TomoConfigTableConstants.PROGRESS };
+	private final String columnHeaders[] = { TomoConfigTableConstants.DRAG, TomoConfigTableConstants.SELECTION,
+			TomoConfigTableConstants.PROPOSAL, TomoConfigTableConstants.SAMPLE_DESCRIPTION,
+			TomoConfigTableConstants.MODULE_NUMBER, TomoConfigTableConstants.ACQUISITION_TIME,
+			TomoConfigTableConstants.FLAT_ACQ_TIME, TomoConfigTableConstants.DETECTOR_DISTANCE,
+			TomoConfigTableConstants.ENERGY, TomoConfigTableConstants.SAMPLE_WEIGHT,
+			TomoConfigTableConstants.RESOLUTION, TomoConfigTableConstants.FRAMES_PER_PROJECTION,
+			TomoConfigTableConstants.CONTINUOUS_STEP, TomoConfigTableConstants.RUN_TIME,
+			TomoConfigTableConstants.EST_END_TIME, TomoConfigTableConstants.TIME_DIVIDER,
+			TomoConfigTableConstants.SHOULD_DISPLAY, TomoConfigTableConstants.PROGRESS };
 
-	private ColumnLayoutData columnLayouts[] = { new ColumnWeightData(10), new ColumnWeightData(60),
-			new ColumnWeightData(300), new ColumnWeightData(40), new ColumnWeightData(40), new ColumnWeightData(40),
-			new ColumnWeightData(60), new ColumnWeightData(60), new ColumnWeightData(60), new ColumnWeightData(40),
-			new ColumnWeightData(40), new ColumnWeightData(65), new ColumnWeightData(40), new ColumnWeightData(40),
-			new ColumnWeightData(40), new ColumnWeightData(40), new ColumnWeightData(40) };
+	private ColumnLayoutData columnLayouts[] = { new ColumnWeightData(1), new ColumnWeightData(10),
+			new ColumnWeightData(60), new ColumnWeightData(200), new ColumnWeightData(40), new ColumnWeightData(40),
+			new ColumnWeightData(40), new ColumnWeightData(60), new ColumnWeightData(60), new ColumnWeightData(60),
+			new ColumnWeightData(40), new ColumnWeightData(40), new ColumnWeightData(40), new ColumnWeightData(40),
+			new ColumnWeightData(40), new ColumnWeightData(40), new ColumnWeightData(40), new ColumnWeightData(40) };
 	// Fonts
 	private FontRegistry fontRegistry;
 
@@ -206,6 +215,82 @@ public class TomoConfigurationView extends ViewPart {
 		createColumns(configModelTableViewer);
 		configModelTableViewer.setContentProvider(new TomoConfigContentProvider());
 		configModelTableViewer.setLabelProvider(new TomoConfigLabelProvider());
+
+		Transfer[] types = new Transfer[] { TextTransfer.getInstance() };
+		DragSource source = new DragSource(configModelTableViewer.getTable(), DND.DROP_COPY);
+		source.setTransfer(types);
+
+		source.addDragListener(new DragSourceAdapter() {
+			@Override
+			public void dragSetData(DragSourceEvent event) {
+				// Get the selected items in the drag source
+				DragSource ds = (DragSource) event.widget;
+				Table table = (Table) ds.getControl();
+				TableItem[] selection = table.getSelection();
+
+				if (selection.length > 1) {
+					MessageDialog.openError(getViewSite().getShell(), "Cannot move multiple rows together",
+							"Cannot move multiple rows together");
+				} else {
+					StringBuffer buff = new StringBuffer();
+					for (int i = 0, n = selection.length; i < n; i++) {
+						buff.append(((TomoConfigContent) selection[i].getData()).getConfigId());
+					}
+
+					event.data = buff.toString();
+				}
+			}
+		});
+
+		// Create the drop target
+		DropTarget target = new DropTarget(configModelTableViewer.getTable(), DND.DROP_COPY | DND.DROP_DEFAULT);
+		target.setTransfer(types);
+		target.addDropListener(new DropTargetAdapter() {
+			@Override
+			public void dragEnter(DropTargetEvent event) {
+				if (event.detail == DND.DROP_DEFAULT) {
+					event.detail = (event.operations & DND.DROP_COPY) != 0 ? DND.DROP_COPY : DND.DROP_NONE;
+				}
+
+				// Allow dropping text only
+				for (int i = 0, n = event.dataTypes.length; i < n; i++) {
+					if (TextTransfer.getInstance().isSupportedType(event.dataTypes[i])) {
+						event.currentDataType = event.dataTypes[i];
+					}
+				}
+			}
+
+			@Override
+			public void dragOver(DropTargetEvent event) {
+				event.feedback = DND.FEEDBACK_SELECT | DND.FEEDBACK_SCROLL;
+			}
+
+			@Override
+			public void drop(DropTargetEvent event) {
+				if (TextTransfer.getInstance().isSupportedType(event.currentDataType)) {
+					// Get the dropped data
+					DropTarget target = (DropTarget) event.widget;
+					Table table = (Table) target.getControl();
+					TableItem ti = (TableItem) event.item;
+					String data = (String) event.data;
+
+					// Create a new item in the table to hold the dropped data
+					int newIndex = table.indexOf(ti);
+
+					Parameters parameters = getModel().getParameters();
+					AlignmentConfiguration alignmentConfiguration = parameters.getAlignmentConfiguration(data);
+
+					try {
+						runCommand(MoveCommand.create(getEditingDomain(), parameters,
+								TomoParametersPackage.eINSTANCE.getParameters_ConfigurationSet(),
+								alignmentConfiguration, newIndex));
+					} catch (IOException e) {
+						logger.error("TODO put description of error here", e);
+					}
+					refreshTable();
+				}
+			}
+		});
 
 		GridData tableLayoutData = new GridData(GridData.FILL_BOTH | GridData.HORIZONTAL_ALIGN_BEGINNING);
 		tableLayoutData.heightHint = 30;
@@ -388,6 +473,7 @@ public class TomoConfigurationView extends ViewPart {
 				if (selection instanceof IStructuredSelection) {
 					IStructuredSelection ssl = (IStructuredSelection) selection;
 					Object firstElement = ssl.getFirstElement();
+
 					if (firstElement instanceof TomoConfigContent) {
 						TomoConfigContent tcc = (TomoConfigContent) firstElement;
 						AlignmentConfiguration alignmentConfiguration = getAlignmentConfiguration(tcc);

@@ -57,7 +57,9 @@ public class TomoConfigLabelProvider extends LabelProvider implements ITableLabe
 	public String getColumnText(Object element, int columnIndex) {
 		if (element instanceof TomoConfigContent) {
 			TomoConfigContent configContent = (TomoConfigContent) element;
-			if (TomoConfigTableConstants.COL_PROPOSAL == columnIndex) {
+			if (TomoConfigTableConstants.COL_DRAG == columnIndex) {
+				return "::";
+			}else if (TomoConfigTableConstants.COL_PROPOSAL == columnIndex) {
 				return configContent.getProposalId();
 			} else if (TomoConfigTableConstants.COL_SAMPLE_DESCRIPTION == columnIndex) {
 				return configContent.getSampleDescription();
