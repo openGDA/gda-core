@@ -23,16 +23,17 @@ package uk.ac.gda.client.tomo;
  */
 public class TiltPlotPointsHolder {
 
+	private String tiltPointsTitle;
+	
 	private DoublePointList centers1;
 
 	private DoublePointList ellipse1;
-	
+
 	private DoublePointList centers2;
 
 	private DoublePointList ellipse2;
-	
+
 	private DoublePointList line2;
-	
 
 	public DoublePointList getCenters1() {
 		return centers1;
@@ -60,7 +61,8 @@ public class TiltPlotPointsHolder {
 
 	@Override
 	public String toString() {
-		return "Centres1:" + centers1 + "  Centers2: " + centers2 + "  Line2:" + line2;
+		return "Centres1:" + centers1 + "  Ellipse1:" + ellipse1 + "  Centers2: " + centers2 + "  Ellipse2: "
+				+ ellipse2 + "  Line2:" + line2;
 	}
 
 	public DoublePointList getEllipse1() {
@@ -77,6 +79,14 @@ public class TiltPlotPointsHolder {
 
 	public void setEllipse2(DoublePointList ellipse2) {
 		this.ellipse2 = ellipse2;
+	}
+
+	public String getTiltPointsTitle() {
+		return tiltPointsTitle;
+	}
+
+	public void setTiltPointsTitle(String tiltPointsTitle) {
+		this.tiltPointsTitle = tiltPointsTitle;
 	}
 
 }
