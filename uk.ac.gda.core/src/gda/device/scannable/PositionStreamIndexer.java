@@ -20,6 +20,10 @@ package gda.device.scannable;
 
 import gda.device.DeviceException;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 import java.util.concurrent.Callable;
@@ -34,31 +38,15 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class PositionStreamIndexer<T> implements PositionCallableProvider<T> {
 
-	public class PositionStreamIndexPuller<T2> implements Callable<T2> {
-
-		private final int index;
-
-		private final PositionStreamIndexer<T2> indexer;
-
-		public PositionStreamIndexPuller(int index, PositionStreamIndexer<T2> indexer) {
-			this.index = index;
-			this.indexer = indexer;
-		}
-
-		@Override
-		public T2 call() throws Exception {
-			return indexer.get(index);
-		}
-
-	}
-
 	private final PositionInputStream<T> stream;
 
 	private final int maxElementsToReadInOneGo;
 
-	Vector<T> entireStream = new Vector<T>();
+	Map<Integer, T> readValuesNotGot = new HashMap<Integer, T>();
 
 	private int lastIndexGivenOut = -1;
+	
+	private int lastIndexRead = -1;
 	
 	private Lock fairGetLock = new ReentrantLock(true);
 
@@ -70,15 +58,23 @@ public class PositionStreamIndexer<T> implements PositionCallableProvider<T> {
 		this.stream = stream;
 		this.maxElementsToReadInOneGo = maxElementsToReadInOneGo;
 	}
-
+	/**
+	 * Can only be called once for each index
+	 */
 	public T get(int index) throws NoSuchElementException, InterruptedException, DeviceException {
 		fairGetLock.lock();
 		// Keep reading until the indexed element is read from the stream.
-		while (index > entireStream.size() - 1) {
-			entireStream.addAll(stream.read(maxElementsToReadInOneGo));
+		while (index > readValuesNotGot.size() - 1) {
+			List<T> values = stream.read(maxElementsToReadInOneGo);
+			for (T value : values) {
+				readValuesNotGot.put(++lastIndexRead, value);
+				
+			}
 		}
-		T value = entireStream.get(index);
-		entireStream.set(index, null); // keep absolute indexes while reducing memory use
+		if (!readValuesNotGot.containsKey(index)) {
+			throw new IllegalStateException("Element " + index + " is not available. Values can only be got once (to avoid excessive memory use).");
+		}
+		T value = readValuesNotGot.remove(index);
 		fairGetLock.unlock();
 		return value;
 	}
@@ -87,6 +83,32 @@ public class PositionStreamIndexer<T> implements PositionCallableProvider<T> {
 	public Callable<T> getPositionCallable() throws DeviceException {
 		lastIndexGivenOut += 1;
 		return new PositionStreamIndexPuller<T>(lastIndexGivenOut, this);
+	}
+
+}
+
+class PositionStreamIndexPuller<T> implements Callable<T> {
+
+	private final int index;
+
+	private final PositionStreamIndexer<T> indexer;
+
+	private T value;
+	
+	private boolean called = false;
+
+	public PositionStreamIndexPuller(int index, PositionStreamIndexer<T> indexer) {
+		this.index = index;
+		this.indexer = indexer;
+	}
+
+	@Override
+	public T call() throws Exception {
+		if (!called) {
+			value = indexer.get(index);
+			called = true;
+		}
+		return value;
 	}
 
 }
