@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.tomo.TiltPlotPointsHolder;
+import uk.ac.gda.client.tomo.ViewerDisplayMode;
 import uk.ac.gda.client.tomo.alignment.view.TomoAlignmentView.LEFT_PAGE;
 import uk.ac.gda.client.tomo.alignment.view.TomoAlignmentView.RIGHT_PAGE;
 import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentViewController;
@@ -48,7 +49,6 @@ import uk.ac.gda.client.tomo.composites.SWT2Dutil;
 import uk.ac.gda.ui.components.CameraControlComposite;
 import uk.ac.gda.ui.components.CameraControlComposite.RESOLUTION;
 import uk.ac.gda.ui.components.IMotionControlListener;
-import uk.ac.gda.ui.components.CameraControlComposite.RESOLUTION;
 import uk.ac.gda.ui.components.ModuleButtonComposite.CAMERA_MODULE;
 import uk.ac.gda.ui.components.MotionControlComposite;
 import uk.ac.gda.ui.components.MotionControlComposite.MotionControlCentring;
@@ -202,6 +202,16 @@ public class MotionControlListener implements IMotionControlListener {
 			InvocationTargetException {
 		logger.debug("Module Changed to:" + newModule);
 
+		// start the stream button if not already streaming
+		ViewerDisplayMode leftWindowViewerDisplayMode = v.getLeftWindowViewerDisplayMode();
+		if (ViewerDisplayMode.SAMPLE_STREAM_LIVE != leftWindowViewerDisplayMode) {
+			try {
+				cameraControls.startSampleStreaming();
+			} catch (Exception ex) {
+				throw new InvocationTargetException(ex, "Unable to start streaming while module change");
+			}
+		}
+
 		try {
 			ACTIVE_WORKBENCH_WINDOW.run(true, true, new IRunnableWithProgress() {
 
@@ -322,37 +332,45 @@ public class MotionControlListener implements IMotionControlListener {
 			cameraControls.setZoom(ZOOM_LEVEL.NO_ZOOM);
 			cameraControls.profileStopped();
 			logger.debug("Switching off the zoom");
-			final CAMERA_MODULE selectedCameraModule = motionControlComposite.getSelectedCameraModule();
 			v.setLeftPage(LEFT_PAGE.IMAGE_VIEWER);
-			v.setRightPage(RIGHT_PAGE.PLOT);
-			final double exposureTime = cameraControls.getSampleExposureTime();
 
-			ACTIVE_WORKBENCH_WINDOW.run(true, false, new IRunnableWithProgress() {
-
-				@Override
-				public void run(IProgressMonitor monitor) throws InvocationTargetException {
-					SubMonitor progress = SubMonitor.convert(monitor);
-					try {
-
-						progress.beginTask("Tilt", 50);
-						TiltPlotPointsHolder tiltPoints = tomoAlignmentViewController.doTiltAlignment(progress,
-								selectedCameraModule, exposureTime);
-						if (tiltPoints != null) {
-							logger.debug("Tilt points: {}", tiltPoints);
-							v.tomoPlotComposite.updatePlotPoints(progress, tiltPoints);
-						}
-					} catch (Exception ex) {
-						logger.error("Error while preparing for Tilt alignment", ex);
-						throw new InvocationTargetException(ex, "Error while preparing for Tilt alignment:"
-								+ ex.getMessage());
-					} finally {
-						progress.done();
-						monitor.done();
-
-					}
-				}
-			});
+			// start the stream button if not already streaming
+			ViewerDisplayMode leftWindowViewerDisplayMode = v.getLeftWindowViewerDisplayMode();
+			if (ViewerDisplayMode.SAMPLE_STREAM_LIVE != leftWindowViewerDisplayMode) {
+				cameraControls.startSampleStreaming();
+			}
 			try {
+				ACTIVE_WORKBENCH_WINDOW.run(true, false, new IRunnableWithProgress() {
+
+					@Override
+					public void run(IProgressMonitor monitor) throws InvocationTargetException {
+						final CAMERA_MODULE selectedCameraModule = motionControlComposite.getSelectedCameraModule();
+						final double exposureTime = cameraControls.getSampleExposureTime();
+						SubMonitor progress = SubMonitor.convert(monitor);
+						try {
+							progress.beginTask("Tilt", 50);
+							TiltPlotPointsHolder tiltPoints = tomoAlignmentViewController.doTiltAlignment(progress,
+									selectedCameraModule, exposureTime);
+							if (tiltPoints != null) {
+								logger.debug("Tilt points: {}", tiltPoints);
+								v.tomoPlotComposite.updatePlotPoints(progress, tiltPoints);
+							}
+						} catch (Exception ex) {
+							logger.error("Error while preparing for Tilt alignment", ex);
+							throw new InvocationTargetException(ex, "Error while preparing for Tilt alignment:"
+									+ ex.getMessage());
+						} finally {
+							progress.done();
+							monitor.done();
+						}
+					}
+				});
+			} finally {
+				// in order to push the right size to the mjpeg
+				v.reset();
+			}
+			try {
+				v.setRightPage(RIGHT_PAGE.PLOT);
 				motionControlComposite.switchOff(MotionControlCentring.TILT);
 			} catch (Exception e) {
 				logger.error("Problem stopping switching off 'Tilt'", e);
