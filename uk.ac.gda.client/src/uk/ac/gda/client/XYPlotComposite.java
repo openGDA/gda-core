@@ -89,6 +89,8 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionComplexEvent;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionEvent;
 /**
  * Composite for displaying XY data from ScanDataPoints.
+ * 
+ * TODO This composite will be updated to use IPlottingSystem not DataSetPlotter
  */
 public class XYPlotComposite extends Composite {
 
