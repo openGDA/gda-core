@@ -31,12 +31,14 @@ import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDStats;
+import gda.device.scannable.MultiplePositionStreamIndexer;
 import gda.device.scannable.PositionCallableProvider;
+import gda.device.scannable.PositionInputStream;
 import gda.factory.FactoryException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
+import java.util.concurrent.Callable;
 
 // TODO Check for duplicate extraNames returned by the plugins
 // TODO Deliberate change: does not read arrays by default
@@ -49,6 +51,7 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 	private static final String REMOVED_FROM_PROVISIONAL_ADDETECTOR = "Not supported by provisional ADDetector";
 	private List<ADDetectorPlugin> additionalPluginList = new ArrayList<ADDetectorPlugin>();
 	private ADArrayPlugin adArrayPlugin;
+	private MultiplePositionStreamIndexer<NXDetectorDataAppender> pluginStreamsIndexer;
 
 	public ProvisionalADDetector(String name, ADBase adBase, ADTriggeringStrategy collectionStrategy,
 			FileWriter fileWriter) throws Exception {
@@ -285,6 +288,9 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 		} catch (Exception e) {
 			throw new DeviceException(e);
 		}
+		@SuppressWarnings("unchecked")
+		List<PositionInputStream<NXDetectorDataAppender>> plugins = (List<PositionInputStream<NXDetectorDataAppender>>) (List<?>) getPluginList();
+		pluginStreamsIndexer = new MultiplePositionStreamIndexer<NXDetectorDataAppender>(plugins);
 	}
 
 	boolean areCallbacksRequired() {
@@ -308,46 +314,38 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 	}
 
 	@Override
-	protected NXDetectorData createNXDetectorData() throws Exception, DeviceException {
-		NXDetectorData data;
+	public Callable<NexusTreeProvider> getPositionCallable() throws DeviceException {
+		// TODO inlcude this metadata!
+		// if (getMetaDataProvider() != null && firstReadoutInScan) {
+		// INexusTree nexusTree = getMetaDataProvider().getNexusTree();
+		// INexusTree detTree = data.getDetTree(getName());
+		// detTree.addChildNode(nexusTree);
+		// }
+		
+		if (pluginStreamsIndexer == null) {
+			throw new IllegalStateException("No pluginStreamsIndexer set --- atScanStart() must be called before getPositionCallable()");
+		}
+		Callable<List<NXDetectorDataAppender>> appendersCallable = pluginStreamsIndexer.getPositionCallable();
 
+		NXDetectorData emptyNXData;
 		if ((getFileWriter() != null) && !getFileWriter().isLinkFilepath()) {
 			if (getExtraNames().length == 0) {
-				data = new NXDetectorDataWithFilepathForSrs();
+				emptyNXData = new NXDetectorDataWithFilepathForSrs();
 			} else {
-				data = new NXDetectorDataWithFilepathForSrs(this);
+				emptyNXData = new NXDetectorDataWithFilepathForSrs(this);
 			}
 		} else {
 			if (getExtraNames().length == 0) {
-				data = new NXDetectorData();
+				emptyNXData = new NXDetectorData();
 			} else {
-				data = new NXDetectorData(this);
+				emptyNXData = new NXDetectorData(this);
 			}
 		}
 
-		appendNXDetectorData(getPluginList(), data);
-		return data;
+		Callable<NexusTreeProvider> callable = new NXDetectorDataCompletingCallable(emptyNXData, appendersCallable, getName());
+		return callable;
 	}
 
-	private void appendNXDetectorData(List<ADDetectorPlugin> plugins, NXDetectorData data) throws AssertionError,
-			DeviceException {
-		for (ADDetectorPlugin plugin : plugins) {
-			try {
-				List<NXDetectorDataAppender> dataAppenders = plugin.read(Integer.MAX_VALUE);
-				if (dataAppenders.size() == 0) {
-					throw new AssertionError(plugin.getName() + " input stream returned zero elements.");
-				}
-				if (dataAppenders.size() > 1) {
-					throw new AssertionError(plugin.getName()
-							+ " input stream returned >1 elements. Not supported yet!");
-				}
-				dataAppenders.get(0).appendTo(data, getName());
-			} catch (Exception e) {
-				throw new DeviceException(e);
-			}
-
-		}
-	}
 
 	@Override
 	public void atScanLineEnd() throws DeviceException {
@@ -370,6 +368,7 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 				throw new DeviceException(e);
 			}
 		}
+		pluginStreamsIndexer = null; // to avoid later confusion
 	}
 
 	@Override
@@ -394,4 +393,30 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 		}
 	}
 
+}
+
+class NXDetectorDataCompletingCallable implements Callable<NexusTreeProvider> {
+
+	private final NXDetectorData data;
+
+	private final Callable<List<NXDetectorDataAppender>> appendersCallable;
+	
+	private final String detectorName;
+
+	public NXDetectorDataCompletingCallable(NXDetectorData emptyNXDetectorData,
+			Callable<List<NXDetectorDataAppender>> appendersCallable, String detectorName) {
+		this.data = emptyNXDetectorData;
+		this.appendersCallable = appendersCallable;
+		this.detectorName = detectorName;
+	}
+
+	@Override
+	public NXDetectorData call() throws Exception {
+		List<NXDetectorDataAppender> appenderList = appendersCallable.call();
+		for (NXDetectorDataAppender appender : appenderList) {
+			appender.appendTo(data, detectorName);
+		}
+		return data;
+	}
+	
 }

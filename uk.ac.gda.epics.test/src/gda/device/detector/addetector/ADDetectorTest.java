@@ -431,8 +431,6 @@ public class ADDetectorTest {
 				.getBuffer(), .001);
 		assertArrayEquals(new double[] { 4. }, (double[]) rootNode.getChildNode("centroid_sigmaXY", "SDS").getData()
 				.getBuffer(), .001);
-		
-
 	}
 
 	@Test
@@ -443,6 +441,7 @@ public class ADDetectorTest {
 		enableFileWriter(true);
 
 		when(fileWriter.getFullFileName_RBV()).thenReturn("/full/path/to/file99.cbf");
+		det().atScanStart();
 		NXDetectorData readout = (NXDetectorData) det().readout();
 		Double[] doubleVals = readout.getDoubleVals();
 		assertArrayEquals(new Double[] { 0.0 }, doubleVals); 
@@ -458,10 +457,11 @@ public class ADDetectorTest {
 	@Test
 	public void testReadoutWithFilenameAndTimes() throws Exception {
 		setupForReadoutAndGetPositionWithFilenameAndTimes();
-
+		det().atScanStart();
 		NXDetectorData readout = (NXDetectorData) det().readout();
-		assertEquals("0.50\t0.55\t/full/path/to/file99.cbf", readout.toString());
+		assertArrayEquals(new String[] { "count_time", "period", "filepath" }, readout.getExtraNames());
 		assertArrayEquals(new Double[] { 0.5, 0.55, 0.0}, readout.getDoubleVals());
+		assertEquals("0.50\t0.55\t/full/path/to/file99.cbf", readout.toString());
 	}
 
 	protected void setupForReadoutAndGetPositionWithFilenameAndTimes() throws Exception {
