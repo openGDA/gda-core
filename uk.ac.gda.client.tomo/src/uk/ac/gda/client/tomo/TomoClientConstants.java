@@ -22,11 +22,7 @@ public interface TomoClientConstants {
 
 	public static final String TOMO_CONFIG_EDITING_DOMAIN = "uk.ac.gda.tomography.config.editingDomain";
 
-	public static final String MOVE_MODULE_COMMAND = "tomographyScani13.moveToModule(%d)";
+	public static final String MOVE_MODULE_COMMAND = "tomoAlignment.moveToModule(%d)";
 
-	public static final String MOVE_TOMO_ALIGNMENT_MOTORS_COMMAND = "tomographyScani13.moveTomoAlignmentMotors(%s)";
-
-	public static final String TOMOGRAPHY_SCAN_COMMAND = "tomographyScani13.tomoScani12(%1$.3g, %2$.3g, %3$d, %4$d, %5$s, %6$d, %7$.3g, %8$.3g, %9$.3g,%10$s)";
-	
-	public static final String TOMOGRAPHY_IS_RUNNING_CONFIG_CMD = "tomographyScani13.tomographyConfigurationManager.getRunningConfig()";
+	public static final String TOMOGRAPHY_IS_RUNNING_CONFIG_CMD = "tomoAlignment.tomographyConfigurationManager.getRunningConfig()";
 }
