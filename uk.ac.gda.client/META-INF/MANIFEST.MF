@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Require-Bundle: org.eclipse.help.ui,
  org.eclipse.ui.console,
- org.python.pydev;bundle-version="[2.5.0,3.0.0)",
- org.python.pydev.core;bundle-version="[2.5.0,3.0.0)",
- org.python.pydev.debug;bundle-version="[2.5.0,3.0.0)",
+ org.python.pydev;bundle-version="[2.5.0.2012060719,3.0.0)",
+ org.python.pydev.core;bundle-version="[2.5.0.2012060719,3.0.0)",
+ org.python.pydev.debug;bundle-version="[2.5.0.2012060719,3.0.0)",
  org.eclipse.jface.text,
  org.eclipse.ui.ide,
  org.eclipse.core.filesystem,
