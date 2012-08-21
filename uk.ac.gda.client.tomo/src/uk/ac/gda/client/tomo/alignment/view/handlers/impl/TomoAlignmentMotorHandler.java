@@ -667,4 +667,14 @@ public class TomoAlignmentMotorHandler implements IMotorHandler {
 		return ss1RzScannable.isBusy();
 	}
 
+	@Override
+	public String getSs1RzMotorName() {
+		return ss1RzScannable.getName();
+	}
+
+	@Override
+	public String getSs1RxMotorName() {
+		return ss1RxScannable.getName();
+	}
+
 }

@@ -820,8 +820,20 @@ public class TomoAlignmentViewController extends TomoViewController {
 
 	public TiltPlotPointsHolder doTiltAlignment(final IProgressMonitor monitor,
 			final CAMERA_MODULE selectedCameraModule, double exposureTime) throws Exception {
-		return tiltController.doTilt(monitor, selectedCameraModule, exposureTime);
-		// return tiltController.getPlottablePoint(firstScanFolder, secondScanFolder);
+		double ss1RzPosition = motorHandler.getSs1RzPosition();
+		double ss1RxPosition = motorHandler.getSs1RxPosition();
+
+		TiltPlotPointsHolder tiltPlotPointsHolder = tiltController.doTilt(monitor, selectedCameraModule, exposureTime);
+
+		double newSs1RzPosition = motorHandler.getSs1RzPosition();
+		double newSs1RxPosition = motorHandler.getSs1RxPosition();
+
+		String tiltPointsTitle = String.format("Tilt alignment (%s moved by %.3g and %s moved by %.3g)",
+				motorHandler.getSs1RxMotorName(), (ss1RxPosition - newSs1RxPosition), motorHandler.getSs1RzMotorName(),
+				(ss1RzPosition - newSs1RzPosition));
+		logger.debug("Tilt title :{}", tiltPointsTitle);
+		tiltPlotPointsHolder.setTiltPointsTitle(tiltPointsTitle);
+		return tiltPlotPointsHolder;
 	}
 
 	public void stopTiltPreparation() {

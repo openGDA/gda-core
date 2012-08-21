@@ -33,6 +33,7 @@ import org.dawb.common.ui.plot.region.IRegion.RegionType;
 import org.dawb.common.ui.plot.region.ROIEvent;
 import org.dawb.common.ui.plot.region.RegionUtils;
 import org.dawb.common.ui.plot.trace.ILineTrace;
+import org.dawb.common.ui.plot.trace.ILineTrace.PointStyle;
 import org.dawb.common.ui.plot.trace.ITrace;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.draw2d.ColorConstants;
@@ -52,7 +53,6 @@ import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.TIFFImageLoader;
-import uk.ac.diamond.scisoft.analysis.roi.EllipticalFitROI;
 import uk.ac.diamond.scisoft.analysis.roi.PolygonalROI;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.gda.client.tomo.DoublePointList;
@@ -278,15 +278,43 @@ public class TomoPlotComposite extends Composite {
 
 				final DoublePointList line2 = tiltPoints.getLine2();
 				DoubleDataset y3 = new DoubleDataset(line2.getYDoubleArray());
+				y3.setName("Line1");
 				DoubleDataset x3 = new DoubleDataset(line2.getXDoubleArray());
 				ArrayList<AbstractDataset> singletonList = new ArrayList<AbstractDataset>(1);
 				singletonList.add(y3);
 				plottingSystem.updatePlot1D(x3, singletonList, progress);
 
-				plottingSystem.setTitle("Tilt alignment");
 				plottingSystem.getSelectedYAxis().setFormatPattern("######.#");
 
 				try {
+
+					ITrace centers1Trace = plottingSystem.getTrace("Centers1");
+					if (centers1Trace != null) {
+						plottingSystem.removeTrace(centers1Trace);
+					}
+					DoubleDataset centers1Yds = new DoubleDataset(centers1.getYDoubleArray());
+					centers1Yds.setName("Centers1");
+					DoubleDataset centers1Xds = new DoubleDataset(centers1.getXDoubleArray());
+					ArrayList<AbstractDataset> dsList = new ArrayList<AbstractDataset>();
+					dsList.add(centers1Yds);
+					List<ITrace> traces1 = plottingSystem.updatePlot1D(centers1Xds, dsList, progress);
+					((ILineTrace) traces1.get(0)).setUserTrace(true);
+					((ILineTrace) traces1.get(0)).setPointStyle(PointStyle.CROSS);
+
+					ITrace centers2Trace = plottingSystem.getTrace("Centers2");
+					if (centers2Trace != null) {
+						plottingSystem.removeTrace(centers2Trace);
+					}
+					centers2Trace = plottingSystem.createLineTrace("Centers2");
+					centers2Trace.setUserTrace(true);
+					centers2Trace.setVisible(true);
+					DoubleDataset centers2Yds = new DoubleDataset(centers2.getYDoubleArray());
+					centers2Yds.setName("Centers2");
+					DoubleDataset centers2Xds = new DoubleDataset(centers2.getXDoubleArray());
+					dsList = new ArrayList<AbstractDataset>();
+					dsList.add(centers2Yds);
+					plottingSystem.updatePlot1D(centers2Xds, dsList, progress);
+
 					IRegion region1 = plottingSystem.getRegion("RegionFit1");
 					if (region1 != null) {
 						plottingSystem.removeRegion(region1);
@@ -294,16 +322,14 @@ public class TomoPlotComposite extends Composite {
 
 					region1 = plottingSystem.createRegion("RegionFit1", RegionType.ELLIPSEFIT);
 					region1.setLineWidth(1);
-					region1.setRegionColor(ColorConstants.black);
 
 					PolygonalROI roi1 = new PolygonalROI();
-					for (DoublePoint dp : centers1.getDoublePointList()) {
+					for (DoublePoint dp : tiltPoints.getEllipse1().getDoublePointList()) {
 						roi1.insertPoint(dp.getX(), dp.getY());
 					}
-					EllipticalFitROI roi = new EllipticalFitROI(roi1);
 
 					plottingSystem.addRegion(region1);
-					region1.setROI(roi);
+					region1.setROI(roi1);
 					region1.setMobile(false);
 
 					//
@@ -316,14 +342,16 @@ public class TomoPlotComposite extends Composite {
 					region2.setLineWidth(1);
 					region2.setRegionColor(ColorConstants.blue);
 					PolygonalROI roi2 = new PolygonalROI();
-					for (DoublePoint dp : centers2.getDoublePointList()) {
+					for (DoublePoint dp : tiltPoints.getEllipse2().getDoublePointList()) {
 						roi2.insertPoint(dp.getX(), dp.getY());
 					}
 
 					plottingSystem.addRegion(region2);
 					region2.setROI(roi2);
 					region2.setMobile(false);
-
+					if (tiltPoints.getTiltPointsTitle() != null) {
+						plottingSystem.setTitle(tiltPoints.getTiltPointsTitle());
+					}
 				} catch (Exception e) {
 					logger.error("Problem plotting tilt points.", e);
 				}
@@ -548,11 +576,11 @@ public class TomoPlotComposite extends Composite {
 				double maxValue = histogramTrace.getXData().max().doubleValue();
 				double endPoint = evt.getROI().getPointX();
 				logger.debug("distance ended:{}", endPoint);
-				
+
 				plottingSystem.removeRegion(region);
 				region.removeROIListener(this);
 				setShouldUpdatePlot(true);
-				
+
 				for (PlottingSystemActionListener lis : lineListeners) {
 					lis.histogramChangedRoi(minValue, maxValue, pointX, endPoint);
 				}

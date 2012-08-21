@@ -495,4 +495,14 @@ public interface IMotorHandler extends ITomoHandler {
 	 */
 	String getT3m1YMotorName();
 
+	/**
+	 * @return ss1_rz motor name
+	 */
+	String getSs1RzMotorName();
+
+	/**
+	 * @return ss1_rx motor name
+	 */
+	String getSs1RxMotorName();
+
 }

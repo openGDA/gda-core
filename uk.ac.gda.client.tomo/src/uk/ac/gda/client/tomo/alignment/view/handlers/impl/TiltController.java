@@ -82,17 +82,17 @@ public class TiltController implements ITiltController {
 	@Override
 	public TiltPlotPointsHolder doTilt(IProgressMonitor monitor, CAMERA_MODULE module, double exposureTime)
 			throws Exception {
+		final String[] folders = new String[2];
 		final SubMonitor progress = SubMonitor.convert(monitor, 70);
 		progress.beginTask(TILT_ALIGNMENT_TASK_NAME, 70);
 		isComplete = false;
-		final String[] folders = new String[2];
 		IScanDataPointObserver tiltObserver = new IScanDataPointObserver() {
 
 			@Override
 			public void update(Object source, Object arg) {
 				if (arg instanceof PyException || arg instanceof Exception) {
 					isComplete = true;
-					//TODO : handle exceptions
+					// TODO : handle exceptions
 				} else {
 					if (source.equals(tomoScriptController)) {
 						String msg = (String) arg;
@@ -132,10 +132,11 @@ public class TiltController implements ITiltController {
 		tomoScriptController.deleteIObserver(tiltObserver);
 		InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(tiltObserver);
 		progress.done();
+
 		//
 		// for testing
-		folders[0] = "/dls/i12/data/2012/cm5706-3/tmp/9108/projections";
-		folders[1] = "/dls/i12/data/2012/cm5706-3/tmp/9109/projections";
+		folders[0] = "/dls/i12/data/2012/cm5706-2/default/7740/projections";
+		folders[1] = "/dls/i12/data/2012/cm5706-2/default/7740/projections";
 		//
 		return getPlottablePoint(folders[0], folders[1]);
 	}
@@ -178,6 +179,8 @@ public class TiltController implements ITiltController {
 			fis.close();
 			br.close();
 			inpStreamReader.close();
+		} else {
+			throw new IOException("Unable to locate file:" + fileName);
 		}
 		return pointList;
 	}
