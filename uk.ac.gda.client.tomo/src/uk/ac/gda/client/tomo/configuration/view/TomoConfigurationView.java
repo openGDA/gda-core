@@ -93,6 +93,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.rcp.util.CommandExecutor;
 import uk.ac.gda.client.tomo.ImageConstants;
 import uk.ac.gda.client.tomo.TomoClientActivator;
 import uk.ac.gda.client.tomo.TomoClientConstants;
@@ -121,6 +122,10 @@ import uk.ac.gda.ui.components.CameraControlComposite.RESOLUTION;
  *
  */
 public class TomoConfigurationView extends ViewPart {
+	private static final String RESUME_SCAN = "Resume Scan";
+
+	private static final String INTERRUPT_TOMO_RUNS = "Interrupt Tomo Runs";
+
 	private static final String TOMOGRAPHY_SCAN_ALREADY_IN_PROGRESS_MSG = "Tomography Scan already in progress...";
 
 	private static final String ID_GET_RUNNING_CONFIG = "RunningConfig#";
@@ -151,6 +156,7 @@ public class TomoConfigurationView extends ViewPart {
 	private StitchedImageCanvas img0DegComposite;
 	private StitchedImageCanvas img90DegComposite;
 	private TomoConfigurationViewController tomoConfigViewController;
+	private boolean isScanRunning = false;
 	/**/
 	private final String columnHeaders[] = { TomoConfigTableConstants.DRAG, TomoConfigTableConstants.SELECTION,
 			TomoConfigTableConstants.PROPOSAL, TomoConfigTableConstants.SAMPLE_DESCRIPTION,
@@ -209,9 +215,8 @@ public class TomoConfigurationView extends ViewPart {
 		ld.heightHint = 60;
 		tableViewerContainer.setLayoutData(ld);
 
-		configModelTableViewer = new TableViewer(tableViewerContainer, SWT.MULTI | SWT.BORDER | SWT.FULL_SELECTION);
+		configModelTableViewer = new TableViewer(tableViewerContainer, SWT.BORDER | SWT.FULL_SELECTION);
 
-		// CheckboxTableViewer.newCheckList(tableViewerContainer, SWT.MULTI | SWT.BORDER | SWT.FULL_SELECTION);
 		createColumns(configModelTableViewer);
 		configModelTableViewer.setContentProvider(new TomoConfigContentProvider());
 		configModelTableViewer.setLabelProvider(new TomoConfigLabelProvider());
@@ -223,21 +228,23 @@ public class TomoConfigurationView extends ViewPart {
 		source.addDragListener(new DragSourceAdapter() {
 			@Override
 			public void dragSetData(DragSourceEvent event) {
-				// Get the selected items in the drag source
-				DragSource ds = (DragSource) event.widget;
-				Table table = (Table) ds.getControl();
-				TableItem[] selection = table.getSelection();
+				if (!isScanRunning) {
+					// Get the selected items in the drag source
+					DragSource ds = (DragSource) event.widget;
+					Table table = (Table) ds.getControl();
+					TableItem[] selection = table.getSelection();
 
-				if (selection.length > 1) {
-					MessageDialog.openError(getViewSite().getShell(), "Cannot move multiple rows together",
-							"Cannot move multiple rows together");
-				} else {
-					StringBuffer buff = new StringBuffer();
-					for (int i = 0, n = selection.length; i < n; i++) {
-						buff.append(((TomoConfigContent) selection[i].getData()).getConfigId());
+					if (selection.length > 1) {
+						MessageDialog.openError(getViewSite().getShell(), "Cannot move multiple rows together",
+								"Cannot move multiple rows together");
+					} else {
+						StringBuffer buff = new StringBuffer();
+						for (int i = 0, n = selection.length; i < n; i++) {
+							buff.append(((TomoConfigContent) selection[i].getData()).getConfigId());
+						}
+
+						event.data = buff.toString();
 					}
-
-					event.data = buff.toString();
 				}
 			}
 		});
@@ -376,10 +383,9 @@ public class TomoConfigurationView extends ViewPart {
 		btnStartTomoRuns.setLayoutData(new GridData(GridData.FILL_BOTH));
 		btnStartTomoRuns.addSelectionListener(btnSelListener);
 
-		// Interrupt Tomo Runs
-		Button btnInterruptTomoRuns = toolkit.createButton(middleRowComposite, "Interrupt Tomo Runs", SWT.PUSH);
+		btnInterruptTomoRuns = toolkit.createButton(middleRowComposite, INTERRUPT_TOMO_RUNS, SWT.PUSH);
 		btnInterruptTomoRuns.setLayoutData(new GridData(GridData.FILL_BOTH));
-
+		btnInterruptTomoRuns.addSelectionListener(btnSelListener);
 		// Interrupt Tomo Runs
 		Button btnStopTomoRuns = toolkit.createButton(middleRowComposite, "Stop Tomo Runs", SWT.PUSH);
 		btnStopTomoRuns.setLayoutData(new GridData(GridData.FILL_BOTH));
@@ -507,6 +513,19 @@ public class TomoConfigurationView extends ViewPart {
 				logger.debug("Calling start tomo runs");
 				configModelTableViewer.setSelection(null);
 				tomoConfigViewController.startScan(getModel());
+			} else if (e.getSource().equals(btnInterruptTomoRuns)) {
+				CommandExecutor.executeCommand(getViewSite(), "uk.ac.gda.client.jython.PauseScan");
+				getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						if (INTERRUPT_TOMO_RUNS.equals(btnInterruptTomoRuns.getText())) {
+							btnInterruptTomoRuns.setText(RESUME_SCAN);
+						} else if (RESUME_SCAN.equals(btnInterruptTomoRuns.getText())) {
+							btnInterruptTomoRuns.setText(INTERRUPT_TOMO_RUNS);
+						}
+					}
+				});
 			}
 		}
 	};
@@ -925,23 +944,25 @@ public class TomoConfigurationView extends ViewPart {
 
 		@Override
 		protected boolean canEdit(Object element) {
-			if (TomoConfigTableConstants.SAMPLE_DESCRIPTION.equals(columnIdentifier)) {
-				return true;
+			if (!isScanRunning) {
+				if (TomoConfigTableConstants.SAMPLE_DESCRIPTION.equals(columnIdentifier)) {
+					return true;
+				}
+				if (TomoConfigTableConstants.SAMPLE_DESCRIPTION.equals(columnIdentifier)) {
+					return true;
+				}
+				// else if (TomoConfigTableConstants.CONTINUOUS_STEP.equals(columnIdentifier)) {
+				// return true;
+				// }
+				else if (TomoConfigTableConstants.RESOLUTION.equals(columnIdentifier)) {
+					return true;
+				} else if (TomoConfigTableConstants.SHOULD_DISPLAY.equals(columnIdentifier)) {
+					return true;
+				} else if (TomoConfigTableConstants.SELECTION.equals(columnIdentifier)) {
+					return true;
+				}
+				logger.debug("canEdit:{}", element);
 			}
-			if (TomoConfigTableConstants.SAMPLE_DESCRIPTION.equals(columnIdentifier)) {
-				return true;
-			}
-			// else if (TomoConfigTableConstants.CONTINUOUS_STEP.equals(columnIdentifier)) {
-			// return true;
-			// }
-			else if (TomoConfigTableConstants.RESOLUTION.equals(columnIdentifier)) {
-				return true;
-			} else if (TomoConfigTableConstants.SHOULD_DISPLAY.equals(columnIdentifier)) {
-				return true;
-			} else if (TomoConfigTableConstants.SELECTION.equals(columnIdentifier)) {
-				return true;
-			}
-			logger.debug("canEdit:{}", element);
 			return false;
 		}
 	}
@@ -1001,7 +1022,11 @@ public class TomoConfigurationView extends ViewPart {
 				final String runningConfigId = message.substring(ID_GET_RUNNING_CONFIG.length());
 				if (runningConfigId.equals("None")) {
 					logger.debug("No configs are running");
+					enableControls();
+					isScanRunning = false;
 				} else {
+					isScanRunning = true;
+					disableControls();
 					final HashMap<String, CONFIG_STATUS> configStatusForTomoConfigContent = getConfigStatusForTomoConfigContent(runningConfigId);
 					final Shell shell = getSite().getShell();
 					shell.getDisplay().asyncExec(new Runnable() {
@@ -1057,5 +1082,39 @@ public class TomoConfigurationView extends ViewPart {
 			logger.error("Error from server:{}", exception);
 		}
 	};
+
+	private Button btnInterruptTomoRuns;
+
+	protected void disableControls() {
+		if (getViewSite().getShell() != null) {
+			getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					configModelTableViewer.getTable().setEnabled(true);
+					btnDeleteAll.setEnabled(false);
+					btnDeleteSelected.setEnabled(false);
+					btnMoveDown.setEnabled(false);
+					btnMoveUp.setEnabled(false);
+				}
+			});
+		}
+	}
+
+	protected void enableControls() {
+		if (getViewSite().getShell() != null) {
+			getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					configModelTableViewer.getTable().setEnabled(true);
+					btnDeleteAll.setEnabled(true);
+					btnDeleteSelected.setEnabled(true);
+					btnMoveDown.setEnabled(true);
+					btnMoveUp.setEnabled(true);
+				}
+			});
+		}
+	}
 
 }
