@@ -40,6 +40,10 @@ public interface ADTriggeringStrategy extends ADDetectorPlugin{
 	
 	public void waitWhileBusy() throws InterruptedException, Exception;
 	
+	public void setGenerateCallbacks(boolean b);
+
+	public boolean isGenerateCallbacks();
+	
 	/*
 	 * Returns the number of images required to achieve the desired collectionTime (seconds)
 	 * This is number of images per ScanDataPoint

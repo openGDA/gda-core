@@ -40,6 +40,8 @@ abstract public class AbstractADTriggeringStrategy implements ADTriggeringStrate
 	private boolean readAcquisitionTime = true;
 
 	private boolean readAcquisitionPeriod = false;
+
+	private Boolean generateCallbacks = null;
 	
 	AbstractADTriggeringStrategy(ADBase adBase) {
 		this.adBase = adBase;
@@ -64,6 +66,16 @@ abstract public class AbstractADTriggeringStrategy implements ADTriggeringStrate
 		this.readAcquisitionPeriod = readAcquisitionPeriod;
 	}
 
+	@Override
+	public void setGenerateCallbacks(boolean b) {
+		this.generateCallbacks = b;
+		
+	}
+
+	@Override
+	public boolean isGenerateCallbacks() {
+		return generateCallbacks;
+	}
 	/**
 	 * Get the required readout/dwell time (t_period - t_acquire).
 	 */
@@ -86,8 +98,22 @@ abstract public class AbstractADTriggeringStrategy implements ADTriggeringStrate
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection) throws Exception {
 		throw new UnsupportedOperationException("Must be operated via prepareForCollection(collectionTime, numberImagesPerCollection)");
-		
 	}
+
+	/**
+	 * IMPORTANT: Implementations must call enableOrDisableCallbacks()
+	 */
+	@Override
+	public void prepareForCollection(double collectionTime, int numImages) throws Exception {
+		enableOrDisableCallbacks();
+	}
+
+	protected final void enableOrDisableCallbacks() throws Exception {
+		if (generateCallbacks != null) {
+			getAdBase().setArrayCallbacks(isGenerateCallbacks() ? 1 : 0);
+		}
+	}
+	
 	@Override
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
 		if (getReadoutTime() < 0) {

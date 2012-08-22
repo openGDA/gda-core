@@ -32,6 +32,7 @@ public class SimpleAcquire extends AbstractADTriggeringStrategy {
 
 	@Override
 	public void prepareForCollection(double collectionTime, int numImages) throws Exception {
+		enableOrDisableCallbacks();
 		if (numImages != 1) {
 			throw new IllegalArgumentException("This single exposure triggering strategy expects to expose only 1 image");
 		}

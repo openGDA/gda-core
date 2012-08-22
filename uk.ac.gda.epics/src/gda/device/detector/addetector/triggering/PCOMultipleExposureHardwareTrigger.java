@@ -119,6 +119,7 @@ public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftware
 		// delay
 		getAdBase().setTriggerMode(PcoTriggerMode.EXTERNAL_AND_SOFTWARE.ordinal()); // exposure time set by camera
 																					// rather than trigger
+		enableOrDisableCallbacks();
 	}
 
 	@Override

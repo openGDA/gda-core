@@ -47,7 +47,8 @@ import org.mockito.MockitoAnnotations;
 public class ADDetectorTest {
 
 	private ADDetector adDet;
-	@Mock protected ADBase adBase;
+	@Mock
+	protected ADBase adBase;
 	@Mock protected ADTriggeringStrategy collectionStrategy;
 	@Mock protected FileWriter fileWriter;
 	@Mock protected NDArray ndArray;
@@ -63,7 +64,11 @@ public class ADDetectorTest {
 
 	protected double READOUT_TIME = 0.1;
 	
-	public ADDetector det() {
+	public Detector det() {
+		return adDet;
+	}
+
+	protected ADDetector adDet() {
 		return adDet;
 	}
 
@@ -72,17 +77,17 @@ public class ADDetectorTest {
 	public void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
 		setUpNoConfigure();
-		det().configure();
+		adDet().configure();
 	}
 
 	protected void setUpNoConfigure() throws Exception {
 		createDetector();
 		det().setName("testdet");
-		det().setAdBase(adBase);
-		det().setNdArray(ndArray);
-		det().setNdStats(ndStats);
-		det().setFileWriter(fileWriter);
-		det().afterPropertiesSet();
+		adDet().setAdBase(adBase);
+		adDet().setNdArray(ndArray);
+		adDet().setNdStats(ndStats);
+		adDet().setFileWriter(fileWriter);
+		adDet().afterPropertiesSet();
 		when(ndArray.getPluginBase()).thenReturn(ndArrayBase);
 		when(ndStats.getPluginBase()).thenReturn(ndStatsBase);
 	}
@@ -94,38 +99,38 @@ public class ADDetectorTest {
 	}
 
 	protected void enableStatsAndCentroid(boolean computeStats, boolean computeCentroid) {
-		det().setComputeStats(computeStats);
-		det().setComputeCentroid(computeCentroid);
+		adDet().setComputeStats(computeStats);
+		adDet().setComputeCentroid(computeCentroid);
 	}
 	
 	protected void enableArrayReadout(boolean enableArrayReadout) {
-		det().setReadArray(enableArrayReadout);
+		adDet().setReadArray(enableArrayReadout);
 	}
 	
 	protected void enableReadAcquisitionTimeAndPeriod(boolean enableTime, boolean enablePeriod) {
-		det().setReadAcquisitionTime(enableTime);
-		det().setReadAcquisitionPeriod(enablePeriod);
+		adDet().setReadAcquisitionTime(enableTime);
+		adDet().setReadAcquisitionPeriod(enablePeriod);
 	}
-	protected void enableFileWriter(boolean enableFileWriter) {
-		det().setReadFilepath(enableFileWriter);
+	protected void enableFileWriter(boolean enableFileWriter) throws Exception {
+		adDet().setReadFilepath(enableFileWriter);
 	}
 	
 	@Test
 	public void testConstructor() throws Exception {
 		setUpNoConfigure();
-		assertFalse(det().isComputeStats());
-		assertFalse(det().isComputeCentroid());
+		assertFalse(adDet().isComputeStats());
+		assertFalse(adDet().isComputeCentroid());
 		assertFalse(det().createsOwnFiles());
-		assertTrue(det().isLocal());
-		assertTrue(det().isReadAcquisitionTime());
-		assertFalse(det().isReadAcquisitionPeriod());
-		assertFalse(det().isReadFilepath());
+		assertTrue(adDet().isLocal());
+		assertTrue(adDet().isReadAcquisitionTime());
+		assertFalse(adDet().isReadAcquisitionPeriod());
+		assertFalse(adDet().isReadFilepath());
 	}
 	
 	@Test
 	public void testReadsArrayByDefault() throws Exception {
 		setUpNoConfigure();
-		assertTrue(det().isReadArray());
+		assertTrue(adDet().isReadArray());
 	}
 	
 	
@@ -140,14 +145,14 @@ public class ADDetectorTest {
 	}
 	
 	@Test(expected=RuntimeException.class)
-	public void testIsBusy() {
+	public void testIsBusy() throws DeviceException {
 		det().isBusy();
 	}
 
 	@Test
 	public void testConfigure() throws Exception {
 		setUpNoConfigure();
-		det().configure();
+		adDet().configure();
 		// duplicated below
 		verify(adBase, times(2)).reset();
 		verify(ndArray, times(2)).reset();
@@ -157,7 +162,7 @@ public class ADDetectorTest {
 	@Test
 	public void testReset() throws Exception {
 		setUpNoConfigure();
-		det().reset();
+		adDet().reset();
 		verify(adBase, times(2)).reset();
 		verify(ndArray, times(2)).reset();
 		verify(ndStats, times(2)).reset();
@@ -172,7 +177,7 @@ public class ADDetectorTest {
 	}
 
 	@Test
-	public void testGetExtraNamesNostats() {
+	public void testGetExtraNamesNostats() throws Exception {
 		enableStatsAndCentroid(false, false);
 		assertArrayEquals(new String[] {"count_time"}, det().getExtraNames());
 		enableReadAcquisitionTimeAndPeriod(true, true);
@@ -201,7 +206,7 @@ public class ADDetectorTest {
 	}
 
 	@Test
-	public void testGetOutputFormat() {
+	public void testGetOutputFormat() throws Exception {
 		enableReadAcquisitionTimeAndPeriod(false, false);
 		enableStatsAndCentroid(false, false);
 		assertArrayEquals(new String[] {}, det().getOutputFormat());
@@ -279,7 +284,7 @@ public class ADDetectorTest {
 	@Test
 	public void testAtScanStartAllOffDisableCallbacks() throws Exception {
 		enableArrayReadout(false);
-		det().setDisableCallbacks(true);
+		adDet().setDisableCallbacks(true);
 		det().atScanStart();
 		verify(adBase).setArrayCallbacks((short) 0);
 		verify(ndArrayBase).disableCallbacks();

@@ -18,67 +18,72 @@
 
 package gda.device.detector.addetectorprovisional;
 
-import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
+import gda.device.detector.DetectorBase;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.NXDetectorDataWithFilepathForSrs;
 import gda.device.detector.NexusDetector;
 import gda.device.detector.addetector.filewriter.FileWriter;
 import gda.device.detector.addetector.triggering.ADTriggeringStrategy;
-import gda.device.detector.addetector.triggering.SimpleAcquire;
-import gda.device.detector.areadetector.v17.ADBase;
-import gda.device.detector.areadetector.v17.NDArray;
-import gda.device.detector.areadetector.v17.NDFile;
-import gda.device.detector.areadetector.v17.NDStats;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.scannable.MultiplePositionStreamIndexer;
 import gda.device.scannable.PositionCallableProvider;
 import gda.device.scannable.PositionInputStream;
-import gda.factory.FactoryException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import org.springframework.beans.factory.InitializingBean;
+
 // TODO Check for duplicate extraNames returned by the plugins
 // TODO Deliberate change: does not read arrays by default
 // TODO Check for duplicate plugin names
-// TODO Move 'waiting for file' behaviour into plugin
 
-public class ProvisionalADDetector extends gda.device.detector.addetector.ADDetector implements NexusDetector,
-		PositionCallableProvider<NexusTreeProvider> {
+public class ProvisionalADDetector extends DetectorBase implements InitializingBean, NexusDetector, PositionCallableProvider<NexusTreeProvider> {
+	
+	protected static final String UNSUPPORTED_PART_OF_SCANNABLE_INTERFACE = "ADDetector does not support operation through its Scannable interface. Do not use pos until pos supports detectors as Detectors rather than Scannables";
 
-	private static final String REMOVED_FROM_PROVISIONAL_ADDETECTOR = "Not supported by provisional ADDetector";
+	private ADTriggeringStrategy collectionStrategy;
+
 	private List<ADDetectorPlugin> additionalPluginList = new ArrayList<ADDetectorPlugin>();
-	private ADArrayPlugin adArrayPlugin;
+	
+	// provides metadata about the detector. This is added as a child of the detector element of the tree
+	private NexusTreeProvider metadataProvider;
+
 	private MultiplePositionStreamIndexer<NXDetectorDataAppender> pluginStreamsIndexer;
-
-	public ProvisionalADDetector(String name, ADBase adBase, ADTriggeringStrategy collectionStrategy,
-			FileWriter fileWriter) throws Exception {
+	
+	public ProvisionalADDetector(String name, ADTriggeringStrategy collectionStrategy, List<ADDetectorPlugin> adDetectorPluginList) {
 		setName(name);
-		setAdBase(adBase);
 		setCollectionStrategy(collectionStrategy);
-		setFileWriter(fileWriter);
+		setAdditionalPluginList(adDetectorPluginList);
 		afterPropertiesSet();
-		configure();
 	}
+	
+	/**
+	 * Creates an ADDetector with name, collectionStrategy and probably additionalPluginList yet to configure.
+	 * A metadataProvider could also be provided.
+	 */
+	public ProvisionalADDetector() {
 
+	}
+	
 	@Override
-	public void afterPropertiesSet() throws Exception {
-		if (afterPropertiesSetCalled)
-			throw new RuntimeException("afterPropertiesSet already called");
-		if (getAdBase() == null)
-			throw new IllegalStateException("adBase is not defined");
-		if (getCollectionStrategy() == null) {
-			setCollectionStrategy(new SimpleAcquire(getAdBase(), 0.));
+	public void afterPropertiesSet() {
+		
+		if (getName() == null) {
+			throw new IllegalStateException("no name has been configured");
 		}
-		// TODO Removed FileWriter autocreation from ndFile
-		afterPropertiesSetCalled = true;
+		if (getCollectionStrategy() == null) {
+			throw new IllegalStateException("no colectionStrategy has been configured");
+		}
 	}
-
-	// Configuration options:
-
+	
+	public void setCollectionStrategy(ADTriggeringStrategy collectionStrategy) {
+		this.collectionStrategy = collectionStrategy;
+	}
+	
 	/**
 	 * Set plugins in addition to the collection-strategy, array and file-writer plugins.
 	 * 
@@ -88,145 +93,31 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 		this.additionalPluginList = adDetectorPluginList;
 	}
 
-	public void setAdArrayPlugin(ADArrayPlugin adArrayPlugin) {
-		this.adArrayPlugin = adArrayPlugin;
+	public void setMetadataProvider(NexusTreeProvider metaDataProvider) {
+		this.metadataProvider = metaDataProvider;
 	}
-
-	// public void setReadAcquisitionTime(boolean readAcquisitionTime) {
-
-	// public void setReadAcquisitionPeriod(boolean readAcquisitionPeriod) {
-
-	// public void setCheckFileExists(boolean checkFileExists) {
-
-	// public void setDescription(String description) {
-
-	// public void setDetectorType(String detectorType) {
-
-	// public void setDetectorID(String detectorID) {
-
-	// Getters:
-
+	
+	public ADTriggeringStrategy getCollectionStrategy() {
+		return collectionStrategy;
+	}
+	
 	public List<ADDetectorPlugin> getAdditionalPluginList() {
 		return additionalPluginList;
 	}
+	
+	public NexusTreeProvider getMetadataProvider() {
+		return metadataProvider;
+	}
+
 
 	/**
-	 * Return all plugins: collection-strategy, array, filewriter and then additional plugins
+	 * Return all plugins: collection-strategy and then additional plugins
 	 */
 	public List<ADDetectorPlugin> getPluginList() {
 		List<ADDetectorPlugin> allPlugins = new ArrayList<ADDetectorPlugin>();
-		if (getCollectionStrategy() != null) {
-			allPlugins.add(getCollectionStrategy());
-		}
-		if (getAdArrayPlugin() != null) {
-			allPlugins.add(getAdArrayPlugin());
-		}
-		if (getFileWriter() != null) {
-			allPlugins.add(getFileWriter());
-		}
+		allPlugins.add(getCollectionStrategy());
 		allPlugins.addAll(getAdditionalPluginList());
 		return allPlugins;
-	}
-
-	public ADArrayPlugin getAdArrayPlugin() {
-		return adArrayPlugin;
-	}
-
-	// return getAdBase();
-
-	// public ADTriggeringStrategy getCollectionStrategy() {
-
-	// public FileWriter getFileWriter() {
-
-	// public NDFile getNdFile() {
-
-	// public String getDescription() throws DeviceException {
-
-	// public String getDetectorID() throws DeviceException {
-
-	// public String getDetectorType() throws DeviceException {
-
-	// public boolean isCheckFileExists() {
-
-	// public boolean createsOwnFiles() throws DeviceException {
-
-	// Removed:
-
-	@Override
-	public void setNdStats(NDStats ndStats) {
-		throw new RuntimeException(REMOVED_FROM_PROVISIONAL_ADDETECTOR);
-	}
-
-	@Override
-	public void setNdArray(NDArray ndArray) {
-		throw new RuntimeException(REMOVED_FROM_PROVISIONAL_ADDETECTOR);
-	}
-
-	@Override
-	public NDArray getNdArray() {
-		throw new RuntimeException(REMOVED_FROM_PROVISIONAL_ADDETECTOR);
-	}
-
-	@Override
-	public void setComputeStats(boolean computeStats) {
-		throw new RuntimeException(REMOVED_FROM_PROVISIONAL_ADDETECTOR);
-	}
-
-	@Override
-	public void setComputeCentroid(boolean computeCentroid) {
-		throw new RuntimeException(REMOVED_FROM_PROVISIONAL_ADDETECTOR);
-	}
-
-	@Override
-	public void setReadArray(boolean readArray) {
-		throw new RuntimeException(REMOVED_FROM_PROVISIONAL_ADDETECTOR);
-	}
-
-	@Override
-	public void setReadFilepath(boolean readFilepath) {
-		throw new RuntimeException(REMOVED_FROM_PROVISIONAL_ADDETECTOR);
-	}
-
-	@Override
-	public void setDisableCallbacks(boolean disableCallbacks) {
-		throw new RuntimeException(REMOVED_FROM_PROVISIONAL_ADDETECTOR);
-	}
-
-	@Override
-	public void setUsePipeline(boolean usePipeline) {
-		throw new RuntimeException(REMOVED_FROM_PROVISIONAL_ADDETECTOR);
-	}
-
-	@Override
-	public void reset() throws Exception {
-		throw new RuntimeException(REMOVED_FROM_PROVISIONAL_ADDETECTOR);
-	}
-
-	@Override
-	public boolean isReadAcquisitionTime() {
-		throw new RuntimeException(REMOVED_FROM_PROVISIONAL_ADDETECTOR);
-	}
-
-	@Override
-	public boolean isReadAcquisitionPeriod() {
-		throw new RuntimeException(REMOVED_FROM_PROVISIONAL_ADDETECTOR);
-	}
-
-	@Override
-	public boolean isReadFilepath() {
-		throw new RuntimeException(REMOVED_FROM_PROVISIONAL_ADDETECTOR);
-	}
-
-	@Override
-	public void setNdFile(NDFile ndFile) {
-		throw new RuntimeException(REMOVED_FROM_PROVISIONAL_ADDETECTOR);
-	}
-
-	// ////
-
-	@Override
-	public void configure() throws FactoryException {
-		// Do nothing
 	}
 
 	@Override
@@ -245,10 +136,25 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 	}
 
 	@Override
-	protected void configureExtraNamesAndOutputFormat() {
-		// Not used in provisional version
+	public void asynchronousMoveTo(Object collectionTime) throws DeviceException {
+		throw new RuntimeException(UNSUPPORTED_PART_OF_SCANNABLE_INTERFACE);
 	}
 
+	@Override
+	public boolean isBusy() {
+		throw new RuntimeException(UNSUPPORTED_PART_OF_SCANNABLE_INTERFACE);
+	}
+
+	@Override
+	public Object getPosition() throws DeviceException {
+		throw new RuntimeException(UNSUPPORTED_PART_OF_SCANNABLE_INTERFACE);
+	}
+	
+	@Override
+	public boolean createsOwnFiles() throws DeviceException {
+		return false; // always return nexus data
+	}
+	
 	@Override
 	public String[] getInputNames() {
 		return new String[] {};
@@ -279,13 +185,13 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 		try {
 			for (ADDetectorPlugin plugin : getPluginList()) {
 				if (plugin instanceof ADTriggeringStrategy) {
+					((ADTriggeringStrategy) plugin).setGenerateCallbacks(areCallbacksRequired());
 					((ADTriggeringStrategy) plugin)
 							.prepareForCollection(getCollectionTime(), numberImagesPerCollection);
 				} else {
 					plugin.prepareForCollection(numberImagesPerCollection);
 				}
 			}
-			getAdBase().setArrayCallbacks(areCallbacksRequired() ? 1 : 0);
 		} catch (Exception e) {
 			throw new DeviceException(e);
 		}
@@ -315,6 +221,42 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 	}
 
 	@Override
+	public void collectData() throws DeviceException {
+		try {
+			getCollectionStrategy().collectData();
+		} catch (Exception e) {
+			throw new DeviceException(e);
+		}
+	}
+	
+	@Override
+	public int getStatus() throws DeviceException {
+		try {
+			return getCollectionStrategy().getStatus();
+		} catch (Exception e) {
+			throw new DeviceException(e);
+		}
+	}
+	
+	@Override
+	public void waitWhileBusy() throws InterruptedException, DeviceException {
+		try {
+			getCollectionStrategy().waitWhileBusy();
+		} catch (Exception e) {
+			throw new DeviceException(e);
+		}
+	}
+	
+	@Override
+	public NexusTreeProvider readout() throws DeviceException {
+		try {
+			return getPositionCallable().call();
+		} catch (Exception e) {
+			throw new DeviceException("Error during '"+ getName() +"' readout.", e);
+		}
+	}
+	
+	@Override
 	public Callable<NexusTreeProvider> getPositionCallable() throws DeviceException {
 		
 		if (pluginStreamsIndexer == null) {
@@ -323,7 +265,7 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 		Callable<List<NXDetectorDataAppender>> appendersCallable = pluginStreamsIndexer.getPositionCallable();
 
 		NXDetectorData nxdata;
-		if ((getFileWriter() != null) && !getFileWriter().isLinkFilepath()) {
+		if (isFilepathRequiredInNxDetectorData()) {
 			if (getExtraNames().length == 0) {
 				nxdata = new NXDetectorDataWithFilepathForSrs();
 			} else {
@@ -337,16 +279,21 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 			}
 		}
 
-		if (getMetaDataProvider() != null && firstReadoutInScan) {
-			INexusTree nexusTree = getMetaDataProvider().getNexusTree();
-			INexusTree detTree = nxdata.getDetTree(getName());
-			detTree.addChildNode(nexusTree);
-		}
-		
 		Callable<NexusTreeProvider> callable = new NXDetectorDataCompletingCallable(nxdata, appendersCallable, getName());
 		return callable;
 	}
 
+	private boolean isFilepathRequiredInNxDetectorData() {
+		for (ADDetectorPlugin plugin : getPluginList()) {
+			if (plugin instanceof FileWriter) {
+				FileWriter writer = (FileWriter) plugin;
+				if (!writer.isLinkFilepath() && writer.getEnable()) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 
 	@Override
 	public void atScanLineEnd() throws DeviceException {

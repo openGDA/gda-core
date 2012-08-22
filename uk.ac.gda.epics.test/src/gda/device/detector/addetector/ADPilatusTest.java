@@ -33,6 +33,7 @@ import static org.mockito.Mockito.when;
 import gda.TestHelpers;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
+import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.continuouscontroller.HardwareTriggerProvider;
 import gda.device.detector.NXDetectorData;
@@ -68,10 +69,15 @@ public class ADPilatusTest extends ADDetectorTest {
 	}
 
 	@Override
-	public ADDetector det() {
+	public Detector det() {
 		return adPilatus;
 	}
 
+	@Override
+	public ADDetector adDet() {
+		return adPilatus;
+	}
+	
 	public HardwareTriggerableADDetector pil() {
 		return adPilatus;
 	}

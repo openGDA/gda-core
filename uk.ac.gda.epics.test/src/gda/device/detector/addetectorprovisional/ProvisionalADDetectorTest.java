@@ -26,11 +26,11 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import gda.data.nexus.tree.INexusTree;
-import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.addetector.ADDetectorTest;
+import gda.device.detector.addetectorprovisional.plugin.ADArrayPlugin;
 import gda.device.detector.addetectorprovisional.plugin.ADBasicStats;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
@@ -71,37 +71,38 @@ public class ProvisionalADDetectorTest extends ADDetectorTest {
 	private static String[] PLUGIN2_NAMES = new String[] { "2a", "2b" };
 	private static String[] PLUGIN1_FORMATS = new String[] { "%.1f", "%.2f", "%.3f" };
 	private static String[] PLUGIN2_FORMATS = new String[] { "%.4f", "%.5f" };
+	private ADArrayPlugin adArrayPlugin;
 
 	@Override
-	public ProvisionalADDetector det() {
+	public Detector det() {
 		return adDet;
 	}
 
+	private ProvisionalADDetector provAdDet() {
+		return adDet;
+	}
 	@Override
 	@Before
 	public void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
 		adBasicStats = new ADBasicStats(ndStats);
 		when(ndStats.getPluginBase()).thenReturn(ndStatsBase);
-		adDet = new ProvisionalADDetector("testdet", adBase, collectionStrategy, fileWriter);
-		det().setAdArrayPlugin(new ADArrayPlugin(ndArray));
-		det().getAdArrayPlugin().setEnabled(true);
-		det().setAdditionalPluginList(Arrays.asList((ADDetectorPlugin) adBasicStats));
+		List<ADDetectorPlugin> additionalPlugins = new ArrayList<ADDetectorPlugin>();
+		adArrayPlugin = new ADArrayPlugin(ndArray);
+		additionalPlugins.add(adArrayPlugin);
+		additionalPlugins.add(fileWriter);
+		additionalPlugins.add(adBasicStats);
+		additionalPlugins.add(adDetectorPlugin1);
+		additionalPlugins.add(adDetectorPlugin2);
+		
+		adDet = new ProvisionalADDetector("testdet", collectionStrategy, additionalPlugins);
+		adArrayPlugin.setEnabled(true);
 
-		when(adDetectorPlugin1.getInputStreamExtraNames()).thenReturn(Arrays.asList(PLUGIN1_NAMES));
-		when(adDetectorPlugin2.getInputStreamExtraNames()).thenReturn(Arrays.asList(PLUGIN2_NAMES));
-		when(adDetectorPlugin1.getInputStreamFormats()).thenReturn(Arrays.asList(PLUGIN1_FORMATS));
-		when(adDetectorPlugin2.getInputStreamFormats()).thenReturn(Arrays.asList(PLUGIN2_FORMATS));
-
+		enableAdditionalPlugins(false, false);
 		when(statsPlugin.getInputStreamFormats()).thenReturn(Arrays.asList(STATS_FORMATS));
 		when(centroidPlugin.getInputStreamFormats()).thenReturn(Arrays.asList(CENTROID_FORMATS));
 		when(ndArray.getPluginBase()).thenReturn(ndArrayBase);
-		when(fileWriter.getInputStreamExtraNames()).thenReturn(Arrays.asList("filepath"));
-		when(fileWriter.getInputStreamFormats()).thenReturn(Arrays.asList("%.2f"));
-		Vector<NXDetectorDataAppender> dataAppenders = new Vector<NXDetectorDataAppender>();
-		dataAppenders.add(new NXDetectorDataNullAppender());
-		when(fileWriter.read(anyInt())).thenReturn(dataAppenders);
-
+		enableFileWriter(true);
 		when(collectionStrategy.getNumberImagesPerCollection(anyDouble())).thenReturn(1);
 
 		enableReadAcquisitionTimeAndPeriod(true, false);
@@ -151,17 +152,27 @@ public class ProvisionalADDetectorTest extends ADDetectorTest {
 	}
 
 	@Override
-	protected void enableFileWriter(boolean enableFileWriter) {
+	protected void enableFileWriter(boolean enableFileWriter) throws Exception {
 		if (enableFileWriter) {
-			det().setFileWriter(fileWriter);
+			when(fileWriter.getInputStreamExtraNames()).thenReturn(Arrays.asList("filepath"));
+			when(fileWriter.getInputStreamFormats()).thenReturn(Arrays.asList("%.2f"));
+			Vector<NXDetectorDataAppender> dataAppenders = new Vector<NXDetectorDataAppender>();
+			dataAppenders.add(new NXDetectorDataFileAppenderForSrs("/full/path/to/file99.cbf", "filepath"));
+			when(fileWriter.read(anyInt())).thenReturn(dataAppenders);
+			when(fileWriter.getEnable()).thenReturn(true);
 		} else {
-			det().setFileWriter(null);
+			when(fileWriter.getInputStreamExtraNames()).thenReturn(Arrays.asList(new String[]{}));
+			when(fileWriter.getInputStreamFormats()).thenReturn(Arrays.asList(new String[]{}));
+			Vector<NXDetectorDataAppender> dataAppenders = new Vector<NXDetectorDataAppender>();
+			dataAppenders.add(new NXDetectorDataNullAppender());
+			when(fileWriter.read(anyInt())).thenReturn(dataAppenders);
+			when(fileWriter.getEnable()).thenReturn(false);
 		}
 	}
 
 	@Override
 	protected void enableArrayReadout(boolean enableArrayReadout) {
-		det().getAdArrayPlugin().setEnabled(enableArrayReadout);
+		adArrayPlugin.setEnabled(enableArrayReadout);
 	}
 
 	@Override
@@ -203,7 +214,7 @@ public class ProvisionalADDetectorTest extends ADDetectorTest {
 	}
 
 	@Test
-	public void testGetExtraNamesNoPlugins() {
+	public void testGetExtraNamesNoPlugins() throws Exception {
 		assertArrayEquals(new String[] { "count_time" }, det().getExtraNames());
 		enableReadAcquisitionTimeAndPeriod(true, true);
 		assertArrayEquals(new String[] { "count_time", "period" }, det().getExtraNames());
@@ -212,22 +223,53 @@ public class ProvisionalADDetectorTest extends ADDetectorTest {
 	}
 
 	@Test
-	public void testGetExtraNamesOnePlugin() {
+	public void testGetExtraNamesOnePlugin() throws Exception {
 		enableReadAcquisitionTimeAndPeriod(false, false);
-		det().setAdditionalPluginList(asList(adDetectorPlugin1));
+		enableAdditionalPlugins(true, false);
 		assertArrayEquals(PLUGIN1_NAMES, det().getExtraNames());
+	}
+	
+	private void enableAdditionalPlugins(boolean enable1, boolean enable2) throws Exception {
+		
+		if (enable1) {
+			when(adDetectorPlugin1.getInputStreamExtraNames()).thenReturn(Arrays.asList(PLUGIN1_NAMES));
+			when(adDetectorPlugin1.getInputStreamFormats()).thenReturn(Arrays.asList(PLUGIN1_FORMATS));
+			Vector<NXDetectorDataAppender> dataAppenders = new Vector<NXDetectorDataAppender>();
+			dataAppenders.add(new NXDetectorDataDoubleAppender(Arrays.asList(PLUGIN1_NAMES), Arrays.asList(0., 1., 2.)));
+			when(adDetectorPlugin1.read(anyInt())).thenReturn(dataAppenders);
+		} else {
+			when(adDetectorPlugin1.getInputStreamExtraNames()).thenReturn(Arrays.asList(new String[0]));
+			when(adDetectorPlugin1.getInputStreamFormats()).thenReturn(Arrays.asList(new String[0]));
+			Vector<NXDetectorDataAppender> dataAppenders = new Vector<NXDetectorDataAppender>();
+			dataAppenders.add(new NXDetectorDataNullAppender());
+			when(adDetectorPlugin1.read(anyInt())).thenReturn(dataAppenders);
+		} 
+		if (enable2) {
+			when(adDetectorPlugin2.getInputStreamExtraNames()).thenReturn(Arrays.asList(PLUGIN2_NAMES));
+			when(adDetectorPlugin2.getInputStreamFormats()).thenReturn(Arrays.asList(PLUGIN2_FORMATS));
+			Vector<NXDetectorDataAppender> dataAppenders = new Vector<NXDetectorDataAppender>();
+			dataAppenders.add(new NXDetectorDataDoubleAppender(Arrays.asList(PLUGIN2_NAMES), Arrays.asList(3., 4.)));
+			when(adDetectorPlugin2.read(anyInt())).thenReturn(dataAppenders);
+		} else {
+			when(adDetectorPlugin2.getInputStreamExtraNames()).thenReturn(Arrays.asList(new String[0]));
+			when(adDetectorPlugin2.getInputStreamFormats()).thenReturn(Arrays.asList(new String[0]));
+			Vector<NXDetectorDataAppender> dataAppenders = new Vector<NXDetectorDataAppender>();
+			dataAppenders.add(new NXDetectorDataNullAppender());
+			when(adDetectorPlugin2.read(anyInt())).thenReturn(dataAppenders);
+		} 
+		
 	}
 
 	@Test
-	public void testGetExtraNamesTwoPluginAndCounttime() {
-		det().setAdditionalPluginList(asList(adDetectorPlugin1, adDetectorPlugin2));
+	public void testGetExtraNamesTwoPluginAndCounttime() throws Exception {
+		enableAdditionalPlugins(true, true);
 		String[] expected = (String[]) addAll(new String[] { "count_time" }, addAll(PLUGIN1_NAMES, PLUGIN2_NAMES));
 		assertArrayEquals(expected, det().getExtraNames());
 	}
 
 	@Test
-	public void testGetOutputFormatTwoPlugins() {
-		det().setAdditionalPluginList(asList(adDetectorPlugin1, adDetectorPlugin2));
+	public void testGetOutputFormatTwoPlugins() throws Exception {
+		enableAdditionalPlugins(true, true);
 		String[] PLUGIN_FORMATS = (String[]) addAll(PLUGIN1_FORMATS, PLUGIN2_FORMATS);
 
 		enableReadAcquisitionTimeAndPeriod(false, false);
@@ -255,11 +297,7 @@ public class ProvisionalADDetectorTest extends ADDetectorTest {
 	@Test
 	public void testReadoutOnePlugin() throws Exception { // TODO: Two next
 		enableReadAcquisitionTimeAndPeriod(false, false);
-		det().setAdditionalPluginList(asList(adDetectorPlugin1));
-
-		Vector<NXDetectorDataAppender> dataAppenders = new Vector<NXDetectorDataAppender>();
-		dataAppenders.add(new NXDetectorDataDoubleAppender(Arrays.asList(PLUGIN1_NAMES), Arrays.asList(0., 1., 2.)));
-		when(adDetectorPlugin1.read(anyInt())).thenReturn(dataAppenders);
+		enableAdditionalPlugins(true, false);
 
 		det().atScanStart();
 		NXDetectorData readout = (NXDetectorData) det().readout();
@@ -280,8 +318,8 @@ public class ProvisionalADDetectorTest extends ADDetectorTest {
 	@Test
 	public void testGetPositionCallableTwoPluginsReturningInChunks() throws Exception { // TODO: Two next
 		enableReadAcquisitionTimeAndPeriod(false, false);
-		det().setAdditionalPluginList(asList(adDetectorPlugin1, adDetectorPlugin2));
-
+		provAdDet().setAdditionalPluginList(asList(adDetectorPlugin1, adDetectorPlugin2));
+		enableAdditionalPlugins(true, true);
 		Vector<NXDetectorDataAppender> dataAppenders1 = new Vector<NXDetectorDataAppender>();
 		dataAppenders1.add(new NXDetectorDataDoubleAppender(Arrays.asList(PLUGIN1_NAMES), Arrays.asList(0., 1., 2.)));
 		dataAppenders1
@@ -299,13 +337,13 @@ public class ProvisionalADDetectorTest extends ADDetectorTest {
 		when(adDetectorPlugin2.read(anyInt())).thenReturn(dataAppenders2);
 
 		det().atScanStart();
-		Callable<NXDetectorData> readout0 = (Callable<NXDetectorData>) (Callable<?>) det().getPositionCallable();
+		Callable<NXDetectorData> readout0 = (Callable<NXDetectorData>) (Callable<?>) provAdDet().getPositionCallable();
 		assertArrayEquals(new Double[] { 0., 1., 2., 3., 4. }, readout0.call().getDoubleVals());
-		Callable<NXDetectorData> readout1 = (Callable<NXDetectorData>) (Callable<?>) det().getPositionCallable();
-		Callable<NXDetectorData> readout2 = (Callable<NXDetectorData>) (Callable<?>) det().getPositionCallable();
+		Callable<NXDetectorData> readout1 = (Callable<NXDetectorData>) (Callable<?>) provAdDet().getPositionCallable();
+		Callable<NXDetectorData> readout2 = (Callable<NXDetectorData>) (Callable<?>) provAdDet().getPositionCallable();
 		assertArrayEquals(new Double[] { 10., 11., 12., 13., 14. }, readout1.call().getDoubleVals());
 		assertArrayEquals(new Double[] { 20., 21., 22., 23., 24. }, readout2.call().getDoubleVals());
-		Callable<NXDetectorData> readout3 = (Callable<NXDetectorData>) (Callable<?>) det().getPositionCallable();
+		Callable<NXDetectorData> readout3 = (Callable<NXDetectorData>) (Callable<?>) provAdDet().getPositionCallable();
 		assertArrayEquals(new Double[] { 30., 31., 32., 33., 34. }, readout3.call().getDoubleVals());
 	}
 
@@ -336,17 +374,16 @@ public class ProvisionalADDetectorTest extends ADDetectorTest {
 	public void testConfigure() throws Exception {
 		// ProvisionalADDetector constructor also configures
 	}
+	
+	@Override
+	@Test
+	public void testReset() throws Exception {
+	}
 
 	@Override
 	@Test
 	public void testConstructor() throws Exception {
 		// TODO write testConstructor
-	}
-
-	@Override
-	@Test(expected = RuntimeException.class)
-	public void testReset() throws Exception {
-		det().reset();
 	}
 
 	@Override
@@ -364,7 +401,7 @@ public class ProvisionalADDetectorTest extends ADDetectorTest {
 		enableStatsAndCentroid(false, false);
 		enableArrayReadout(false);
 		det().atScanStart();
-		verify(adBase).setArrayCallbacks((short) 1);
+		verify(collectionStrategy).setGenerateCallbacks(true);
 		verify(ndArrayBase).disableCallbacks();
 		verify(ndArrayBase).setBlockingCallbacks((short) 0);
 		// verify(ndStats).setComputeStatistics((short) 0);
@@ -379,7 +416,7 @@ public class ProvisionalADDetectorTest extends ADDetectorTest {
 		enableArrayReadout(true);
 		det().setCollectionTime(1.);
 		det().atScanStart();
-		verify(adBase).setArrayCallbacks((short) 1);
+		verify(collectionStrategy).setGenerateCallbacks(true);
 		verify(ndArrayBase).enableCallbacks();
 		verify(ndArrayBase).setBlockingCallbacks((short) 1);
 		verify(collectionStrategy).prepareForCollection(1., 1);

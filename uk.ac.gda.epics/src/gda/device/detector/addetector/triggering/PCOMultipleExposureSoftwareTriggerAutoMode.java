@@ -39,12 +39,13 @@ public class PCOMultipleExposureSoftwareTriggerAutoMode extends MultipleExposure
 		super.prepareForCollection(collectionTime, numImagesIgnored);
 		getAdBase().setAcquirePeriod(0.0); //this is needed for PCO to make sure delay=0
 		getAdBase().setTriggerMode(PcoTriggerMode.SOFTWARE.ordinal());
-		adDriverPco.getArmModePV().putCallback(true);		
+		adDriverPco.getArmModePV().putCallback(true);
+		enableOrDisableCallbacks();
 	}
 
 	@Override
 	public void completeCollection() throws Exception {
-		adDriverPco.getArmModePV().putCallback(false);		
+		adDriverPco.getArmModePV().putCallback(false);
 		super.waitWhileBusy();
 		super.completeCollection();
 	}

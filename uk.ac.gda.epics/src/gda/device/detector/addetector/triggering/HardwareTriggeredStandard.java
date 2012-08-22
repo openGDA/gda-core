@@ -35,6 +35,7 @@ public class HardwareTriggeredStandard extends SimpleAcquire {
 		configureTriggerMode();
 		getAdBase().setImageModeWait(ImageMode.MULTIPLE);
 		getAdBase().setNumImages(numImages);
+		enableOrDisableCallbacks();
 	}
 	
 	protected void configureTriggerMode() throws Exception {

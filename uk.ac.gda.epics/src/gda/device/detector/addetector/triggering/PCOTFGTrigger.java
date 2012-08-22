@@ -166,7 +166,8 @@ public class PCOTFGTrigger extends SimpleAcquire {
 			ScanBase.checkForInterrupts();
 		}
 		expectedCycle = CYCLES;
-		
+		enableOrDisableCallbacks();
+
 	}
 
 	private MonitorListener getCameraUsageListener() {

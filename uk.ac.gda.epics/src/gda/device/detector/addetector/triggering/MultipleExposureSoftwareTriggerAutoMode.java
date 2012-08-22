@@ -99,6 +99,7 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 			ndProcess.getPluginBase().setArrayCounter(0);
 			ndProcess.getPluginBase().setDroppedArrays(0);
 		}
+		enableOrDisableCallbacks();
 	}
 
 	@Override

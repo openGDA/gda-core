@@ -16,10 +16,11 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.addetectorprovisional;
+package gda.device.detector.addetectorprovisional.plugin;
 
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
+import gda.device.detector.addetectorprovisional.ADDetectorPlugin;
 import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
@@ -112,7 +113,6 @@ public class ADArrayPlugin implements ADDetectorPlugin {
 	public boolean isEnabled() {
 		return enabled;
 	}
-	
 
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
@@ -130,7 +130,6 @@ class NXDetectorDataArrayAppender implements NXDetectorDataAppender {
 	NXDetectorDataArrayAppender(NDArray ndArray, boolean firstReadoutInScan) {
 		this.ndArray = ndArray;
 		this.firstReadoutInScan = firstReadoutInScan;
-		
 	}
 	
 	@Override
