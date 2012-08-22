@@ -64,7 +64,7 @@ public class SingleImagePerFileWriterTest {
 	
 	@Test
 	public void testGetFileTemplateDefault() {
-		assertEquals("%s%s%5.5d.jpg", writer.getFileTemplate());
+		assertEquals("%s%s%5.5d.tif", writer.getFileTemplate());
 	}
 
 	@Test

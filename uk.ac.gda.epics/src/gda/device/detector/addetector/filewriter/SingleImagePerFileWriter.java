@@ -19,10 +19,14 @@
 package gda.device.detector.addetector.filewriter;
 
 import gda.device.DeviceException;
+import gda.device.detector.NXDetectorDataWithFilepathForSrs;
+import gda.device.detector.addetector.ADDetector;
 import gda.device.detector.areadetector.v17.NDFile.FileWriteMode;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataFileAppenderForSrs;
 import gda.device.detectorfilemonitor.HighestExistingFileMonitor;
+import gda.jython.InterfaceProvider;
+import gda.scan.ScanBase;
 
 import java.io.File;
 import java.util.Arrays;
@@ -182,9 +186,32 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 		return Arrays.asList("%.2f");
 	}
 
+	/**
+	 * Returns a single NXDetectorDataAppender for the current image with each call. 
+	 */
 	@Override
 	public Vector<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
 			DeviceException {
+		
+//		if( detectorData instanceof NXDetectorDataWithFilepathForSrs){
+//			String filepath = ((NXDetectorDataWithFilepathForSrs)detectorData).getFilepath();
+//			if( data.checkFileExists && !filepath.equals(ADDetector.NullFileWriter.DUMMY_FILE_WRITER_GET_FULL_FILE_NAME_RBV)){
+//				File f = new File(filepath);
+//				long numChecks=0;
+//				while( !f.exists() ){
+//					numChecks++;
+//					Thread.sleep(1000);
+//					ScanBase.checkForInterrupts();
+//					if( numChecks> 10){
+//						//Inform user every 10 seconds
+//						InterfaceProvider.getTerminalPrinter().print("Waiting for file " + filepath + " to be created");
+//						numChecks=0;
+//					}
+//				}
+//			}
+//		}
+		
+		
 		NXDetectorDataAppender dataAppender;
 		try {
 			dataAppender = new NXDetectorDataFileAppenderForSrs(getFullFileName_RBV(), FILEPATH_EXTRANAME);

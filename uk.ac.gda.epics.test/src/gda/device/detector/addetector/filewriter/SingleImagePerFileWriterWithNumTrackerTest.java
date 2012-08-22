@@ -75,13 +75,14 @@ public class SingleImagePerFileWriterWithNumTrackerTest {
 	public void testGetFileTemplateDefault() throws Exception {
 		setGdaVarDir(TestUtils.setUpTest(this.getClass(), "testGetFileTemplateDefault", true));
 		createWriter();
-		assertEquals("%s%s%5.5d.jpg", writer.getFileTemplate());
+		assertEquals("%s%s%5.5d.tif", writer.getFileTemplate());
 	}
 
 
 	@Test
 	public void testGetFilePathDefault() throws Exception {
 		setGdaVarDir(TestUtils.setUpTest(this.getClass(), "testGetFilePathDefault", true));
+		createWriter();
 		assertEquals("path/to/datadir/snapped-data/detname", writer.getFilePath());
 	}
 	
