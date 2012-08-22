@@ -54,11 +54,20 @@ public class ADDetectorIntegrationWithSingleImagePerFileWriterTest {
 		adDetector.setReadArray(true);
 		adDetector.setNdArray(ndArraySimulator);
 		adDetector.setReadFilepath(true);
-		SingleImagePerFileWriter fileWriter = 
-				new SingleImagePerFileWriter(ndFileSimulator, "filename", 
-						templatesRequireScanNumber ? "%%s%%s%d-%%d.tif" : "%s%s-%d.tif", 
-								templatesRequireScanNumber ? "%s/%d/pco1/" : "%s/pco1",true,true);
-		fileWriter.setTemplatesRequireScanNumber(templatesRequireScanNumber);
+		// ndFile, fileTemplate, filePathTemplate, fileNameTemplate and
+		 // fileNumberAtScanStart
+		SingleImagePerFileWriter fileWriter = new SingleImagePerFileWriter();
+		fileWriter.setNdFile(ndFileSimulator);
+		fileWriter.setFileTemplate("%s%s-%d.tif");
+		if (templatesRequireScanNumber) {
+			fileWriter.setFilePathTemplate("$datadir$/$scan$/pco1/");
+			fileWriter.setFileNameTemplate("filename$scan$");
+		} else {
+			fileWriter.setFilePathTemplate("$datadir$/pco1/");
+			fileWriter.setFileNameTemplate("filename");
+		}
+		fileWriter.setFileNumberAtScanStart(0);
+		
 		adDetector.setFileWriter(fileWriter);
 		adDetector.setName(name);
 		adDetector.afterPropertiesSet();
@@ -84,6 +93,6 @@ public class ADDetectorIntegrationWithSingleImagePerFileWriterTest {
 		LocalProperties.setScanSetsScanNumber(false);
 		LocalProperties.set(NexusDataWriter.GDA_NEXUS_CREATE_SRS, "false");
 		String fileName = runTest(false);
-		Assert.assertEquals(dir+"/Data/pco1filename-0.tif", fileName);
+		Assert.assertEquals(dir+"/Data/pco1/filename-0.tif", fileName);
 	}
 }

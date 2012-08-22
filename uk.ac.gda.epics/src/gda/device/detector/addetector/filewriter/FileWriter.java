@@ -27,21 +27,17 @@ public interface FileWriter extends ADDetectorPlugin{
 	public boolean isSetFileNameAndNumber();
 
 	public void setSetFileNameAndNumber(boolean setFileWriterNameNumber);
-	
 
-	/*
-	 * Setup fileWriter if this and isReadFilePath are true
-	 */
-	public void setEnable(boolean enable); // TODO Why on interface?
-	public boolean getEnable();
+	public void setEnable(boolean enable);
 	
+	public boolean getEnable(); // TODO Rename isEnable to result in Jython enable boolean property
 	
-	void enableCallback(boolean enable) throws Exception;
+	void enableCallback(boolean enable) throws Exception;// TODO Required?
 
-	void disableFileWriter() throws Exception;// TODO Why on interface? and potential for confusion with setEnable;
+	void disableFileWriter() throws Exception;// TODO Required?
 
 	boolean isLinkFilepath();
 
-	public String getFullFileName_RBV()  throws Exception;
+	public String getFullFileName_RBV()  throws Exception; // TODO Rename getFullFileName
 	
 }

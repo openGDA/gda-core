@@ -25,6 +25,7 @@ import gda.device.detector.addetectorprovisional.data.NXDetectorDataAppender;
 import gda.device.detector.addetectorprovisional.data.NXDetectorDataFileLinkAppender;
 import gda.device.detector.addetectorprovisional.data.NXDetectorDataNullAppender;
 import gda.device.detector.areadetector.v17.NDFile.FileWriteMode;
+import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDFileHDF5;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanBase;
@@ -40,25 +41,37 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
+	
 	@SuppressWarnings("unused")
 	private static Logger logger = LoggerFactory.getLogger(MultipleImagesPerHDF5FileWriter.class);
 
-	NDFileHDF5 hdf5=null;
-	private boolean blocking= true;
-	private int rowChunks=1;
+	private NDFileHDF5 ndFileHDF5;
+	
+	private boolean blocking = true;
+	
+	private int rowChunks = 1;
 
 	private boolean firstReadoutInScan;
 	
-	public MultipleImagesPerHDF5FileWriter(NDFileHDF5 ndFileHDF5,String fileName, String fileTemplate, boolean setFileNameAndNumber) {
-		super(ndFileHDF5.getFile(), fileName, fileTemplate, false, setFileNameAndNumber);
-		hdf5 = ndFileHDF5;
+	@Override
+	public void setNdFile(NDFile ndFile) {
+		throw new RuntimeException("Configure ndFileHDF5 instead of ndFile");
+	}
+	
+	public void setNdFileHDF5(NDFileHDF5 ndFileHDF5) {
+		this.ndFileHDF5 = ndFileHDF5;
+	}
+	
+	public NDFileHDF5 getNdFileHDF5() {
+		return ndFileHDF5;
 	}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
+		if (ndFileHDF5 == null)
+			throw new IllegalStateException("ndFileHDF5 is null");
 		super.afterPropertiesSet();
 	}
-
 
 	public boolean isBlocking() {
 		return blocking;
@@ -110,24 +123,24 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 		if( actualDims.length > 3)
 			throw new Exception("Maximum dimensions for storing in hdf is currently 3. Value specified = " + actualDims.length);			
 		if( actualDims.length==1 ){
-			hdf5.setNumExtraDims(0); 
+			getNdFileHDF5().setNumExtraDims(0); 
 		} else	if( actualDims.length==2 ){
-			hdf5.setNumExtraDims(1); 
-			hdf5.setExtraDimSizeN(actualDims[1]);
-			hdf5.setExtraDimSizeX(actualDims[0]);
+			getNdFileHDF5().setNumExtraDims(1); 
+			getNdFileHDF5().setExtraDimSizeN(actualDims[1]);
+			getNdFileHDF5().setExtraDimSizeX(actualDims[0]);
 		} else	if( actualDims.length==3 ){
-			hdf5.setNumExtraDims(2); 
-			hdf5.setExtraDimSizeN(actualDims[2]);
-			hdf5.setExtraDimSizeX(actualDims[1]);
-			hdf5.setExtraDimSizeY(actualDims[0]);
+			getNdFileHDF5().setNumExtraDims(2); 
+			getNdFileHDF5().setExtraDimSizeN(actualDims[2]);
+			getNdFileHDF5().setExtraDimSizeX(actualDims[1]);
+			getNdFileHDF5().setExtraDimSizeY(actualDims[0]);
 		}
 		int numberOfAcquires=1;
 		for( int dim : actualDims ){
 			numberOfAcquires *= dim;
 		}
-		hdf5.setNumCapture(numberOfAcquires);
+		getNdFileHDF5().setNumCapture(numberOfAcquires);
 
-		hdf5.setNumRowChunks(rowChunks);
+		getNdFileHDF5().setNumRowChunks(rowChunks);
 	}
 	
 	private void setupFilename() throws Exception {
@@ -149,14 +162,14 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 	}
 	
 	private void startRecording() throws Exception {
-		if (hdf5.getCapture() == 1) 
+		if (getNdFileHDF5().getCapture() == 1) 
 				throw new DeviceException("detector found already saving data when it should not be");
 		
-		hdf5.startCapture();
+		getNdFileHDF5().startCapture();
 		int totalmillis = 60 * 1000;
 		int grain = 25;
 		for (int i = 0; i < totalmillis/grain; i++) {
-			if (hdf5.getCapture_RBV() == 1) return;
+			if (getNdFileHDF5().getCapture_RBV() == 1) return;
 			Thread.sleep(grain);
 		}
 		throw new TimeoutException("Timeout waiting for hdf file creation.");
@@ -183,20 +196,20 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 	public void completeCollection() throws Exception{
 		if(!getEnable())
 			return;
-		FileRegistrarHelper.registerFile(hdf5.getFullFileName_RBV());
+		FileRegistrarHelper.registerFile(getNdFileHDF5().getFullFileName_RBV());
 		endRecording();
 		disableFileWriter();
 	}
 	
 	private void endRecording() throws Exception {
-		while (hdf5.getFile().getCapture_RBV() != 0) {
+		while (getNdFileHDF5().getFile().getCapture_RBV() != 0) {
 			ScanBase.checkForInterrupts();
 			Thread.sleep(1000);
 		}
-		hdf5.stopCapture();
+		getNdFileHDF5().stopCapture();
 		
 //		logger.warn("Waited very long for hdf writing to finish, still not done. Hope all we be ok in the end.");
-		if (hdf5.getPluginBase().getDroppedArrays_RBV() > 0)
+		if (getNdFileHDF5().getPluginBase().getDroppedArrays_RBV() > 0)
 			throw new DeviceException("sorry, we missed some frames");
 	}
 	
@@ -209,7 +222,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 	public void stop() throws Exception {
 		if(!getEnable())
 			return;
-		hdf5.stopCapture();
+		getNdFileHDF5().stopCapture();
 		
 	}
 

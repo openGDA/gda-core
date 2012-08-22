@@ -18,19 +18,153 @@
 
 package gda.device.detector.addetector.filewriter;
 
+import gda.data.PathConstructor;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 
 public abstract class FileWriterBase implements FileWriter, InitializingBean{
 
-	private final NDFile ndFile;
+	private NDFile ndFile;
+	
 	protected String fileTemplate;
-	private final String fileName;
-	private boolean setFileNumberToZero=true;
+	
+	private String filePathTemplate;
+	
+	private String fileNameTemplate;
+	
+	private Long fileNumberAtScanStart;
+
 	private boolean enableDuringScan = true;
+
+	private boolean setFileNameAndNumber = true;
+	
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		if (ndFile == null)
+			throw new IllegalStateException("NDFile is null");
+		if (fileTemplate == null)
+			throw new IllegalStateException("fileTemplate is null");
+		if (filePathTemplate == null)
+			throw new IllegalStateException("filePathTemplate is null");
+		if (fileNameTemplate == null)
+			throw new IllegalStateException("fileNameTemplate is null");
+		if (fileNumberAtScanStart == null)
+			throw new IllegalStateException("fileNumberAtScanStart is null");
+	}
+	
+	public void setNdFile(NDFile ndFile) {
+		this.ndFile = ndFile;
+	}
+	
+	/**
+	 * File template to pass directly to AreaDetector. AreaDetector's NDFilePlugin
+	 * (http://cars.uchicago.edu/software/epics/NDPluginFile.html) will always apply arguments to the template in the
+	 * order filepath, filename, filenumber
+	 * 
+	 * @param fileTemplate
+	 */
+	public void setFileTemplate(String fileTemplate) {
+		this.fileTemplate = fileTemplate;
+	}
+	
+	/**
+	 * The file path to pass to AreadDetector, with $scan$ resolving to the currently running scan number, and $datadir$
+	 * to the current scan file's directory.
+	 * 
+	 * @param filePathTemplate
+	 */
+	public void setFilePathTemplate(String filePathTemplate) {
+		this.filePathTemplate = filePathTemplate;
+	}
+
+	/**
+	 * The file name to pass to AreadDetector, with $scan$ resolving to the currently running scan number, and $datadir$
+	 * to the current scan file's directory.
+	 * 
+	 * @param fileNameTemplate
+	 */
+	public void setFileNameTemplate(String fileNameTemplate) {
+		this.fileNameTemplate = fileNameTemplate;
+	}
+	
+	/**
+	 * If non-negative, the file number to preset in AreaDetector before staring the exposure
+	 * @param fileNumberAtScanStart
+	 */
+	public void setFileNumberAtScanStart(long fileNumberAtScanStart) {
+		this.fileNumberAtScanStart = fileNumberAtScanStart;
+	}
+
+	@Override
+	public void setSetFileNameAndNumber(boolean setFileNameAndNumber) {
+		this.setFileNameAndNumber = setFileNameAndNumber;
+	}
+	
+	public NDFile getNdFile(NDFile ndFile) {
+		return ndFile;
+	}
+	/**
+	 * @return the file template to configure in AreaDetector
+	 */
+	protected String getFileTemplate() {
+		return fileTemplate;
+	}
+
+
+	public String getFilePathTemplate() {
+		return filePathTemplate;
+	}
+	
+
+	public String getFileNameTemplate() {
+		return fileNameTemplate;
+	}
+
+	public long getFileNumberAtScanStart() {
+		return fileNumberAtScanStart;
+	}
+
+	@Override
+	public boolean isSetFileNameAndNumber() {
+		return setFileNameAndNumber;
+	}
+
+	
+	/**
+	 * @return the file path to configure in AreaDetector
+	 */
+	protected String getFilePath() {
+		return substituteDatadirAndScan(getFilePathTemplate());
+	}
+
+	private String substituteDatadirAndScan(String template) {
+		
+		if (StringUtils.contains(template, "$datadir$")) {
+			template = StringUtils.replace(template, "$datadir$", PathConstructor.createFromDefaultProperty());
+		}
+		
+		if (StringUtils.contains(template, "$scan$")) {
+			long scanNumber;
+			try {
+				scanNumber = getScanNumber();
+			} catch (Exception e) {
+				throw new IllegalStateException("Could not determine current scan number", e);
+			}
+			template = StringUtils.replace(template, "$scan$", String.valueOf(scanNumber));
+		}
+		return template;
+	}
+
+	/**
+	 * @return the file name to configure in AreaDetector
+	 */
+	protected String getFileName() {
+		return substituteDatadirAndScan(getFileNameTemplate());
+	}
 	
 	/**
 	 * Value of Input Array port in plugin
@@ -42,31 +176,19 @@ public abstract class FileWriterBase implements FileWriter, InitializingBean{
 		return ndArrayPortVal;
 	}
 
-
 	public void setNdArrayPortVal(String ndArrayPortVal) {
 		this.ndArrayPortVal = ndArrayPortVal;
 	}
 
-
 	protected NDFile getNdFile() {
 		return ndFile;
 	}
-
 	
-	public FileWriterBase(NDFile ndFile, String fileName, String fileTemplate, boolean setFileNumberToZero, boolean setFileNameAndNumber) {
-		this.ndFile = ndFile;
-		this.fileName = fileName;
-		this.fileTemplate = fileTemplate;
-		this.setFileNumberToZero = setFileNumberToZero;
-		this.setFileNameAndNumber = setFileNameAndNumber;
-	}
-
 	@Override
 	public void stop() throws Exception {
 		if(getEnable())
 			disableFileWriter();
 	}
-
 
 	@Override
 	public void atCommandFailure() throws Exception {
@@ -74,55 +196,10 @@ public abstract class FileWriterBase implements FileWriter, InitializingBean{
 			stop();
 	}
 	
-
-	protected boolean isSetFileWriterNameNumber() {
-		return setFileNameAndNumber;
-	}
-
-
-	protected void setSetFileWriterNameNumber(boolean setFileWriterNameNumber) {
-		this.setFileNameAndNumber = setFileWriterNameNumber;
-	}
-
-
-	protected String getFileTemplate() {
-		return fileTemplate;
-	}
-
-
-	protected String getFileName() {
-		return fileName;
-	}
-
-
-	protected boolean isSetFileNumberToZero() {
-		return setFileNumberToZero;
-	}
-
-
-	protected void setSetFileNumberToZero(boolean setFileNumberToZero) {
-		this.setFileNumberToZero = setFileNumberToZero;
-	}
-
-
-	// If true file writer name and number is configured in prepareCollection
-	private boolean setFileNameAndNumber = true;
-	
-	@Override
-	public boolean isSetFileNameAndNumber() {
-		return setFileNameAndNumber;
-	}
-
-	@Override
-	public void setSetFileNameAndNumber(boolean setFileWriterNameNumber) {
-		this.setFileNameAndNumber = setFileWriterNameNumber;
-	}
-
 	@Override
 	public void setEnable(boolean enableDuringScan) {
 		this.enableDuringScan = enableDuringScan;
 	}
-
 
 	/*
 	 * Setup fileWriter if this and isReadFilePath are true
@@ -130,12 +207,6 @@ public abstract class FileWriterBase implements FileWriter, InitializingBean{
 	@Override
 	public boolean getEnable() {
 		return enableDuringScan;
-	}
-
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		if( ndFile == null)
-			throw new IllegalStateException("NDFile is null");
 	}
 
 	@Override
@@ -159,7 +230,6 @@ public abstract class FileWriterBase implements FileWriter, InitializingBean{
 		return scanInformation.getScanNumber();
 
 	}
-
 
 	@Override
 	public String getFullFileName_RBV() throws Exception {

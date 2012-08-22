@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.addetectorprovisional.filewriter;
+package gda.device.detector.addetector.filewriter;
 
 import static org.junit.Assert.*;
 import gda.configuration.properties.LocalProperties;
@@ -48,7 +48,8 @@ public class SingleImagePerFileWriterTest {
 		mockNDPluginBase = mock(NDPluginBase.class);
 		mockNdFile = mock(NDFile.class);
 		when(mockNdFile.getPluginBase()).thenReturn(mockNDPluginBase);
-		writer = new SingleImagePerFileWriter(mockNdFile, "detname");
+		writer = new SingleImagePerFileWriter("detname");
+		writer.setNdFile(mockNdFile);
 		LocalProperties.set(PathConstructor.getDefaultPropertyName(), "path/to/datadir");
 		configureScanInformationHolder();
 	}

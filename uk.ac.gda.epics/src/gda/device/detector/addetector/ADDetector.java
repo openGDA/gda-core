@@ -111,7 +111,7 @@ import org.springframework.util.StringUtils;
  */
 public class ADDetector extends DetectorBase implements InitializingBean, NexusDetector, PositionCallableProvider<NexusTreeProvider> {
 
-	public class DummyFileWriter implements FileWriter { // TODO: Remove this as its just used as a mock in some tests
+	public class NullFileWriter implements FileWriter {
 
 		static final String DUMMY_FILE_WRITER_GET_FULL_FILE_NAME_RBV = "DummyFileWriter - getFullFileName_RBV";
 
@@ -419,15 +419,14 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 		}
 		if (fileWriter == null) {
 			if( ndFile != null){
-				SingleImagePerFileWriter fileW = new SingleImagePerFileWriter(getNdFile(), getName(), "%s%s-%d.tif","%s/"+getName()+"/",
-						true,true);
-				fileW.setTemplatesRequireScanNumber(false);
+				SingleImagePerFileWriter fileW = new SingleImagePerFileWriter(getName());
+				fileW.setNdFile(ndFile);
 				fileW.setEnable(true);
 				fileW.afterPropertiesSet();
 				fileWriter = fileW;
 			}
 			else
-				fileWriter = new DummyFileWriter();
+				fileWriter = new NullFileWriter();
 		}
 		afterPropertiesSetCalled = true;
 	}
@@ -991,7 +990,7 @@ class ADDetectorPositionCallable implements Callable<NexusTreeProvider> {
 		NXDetectorData detectorData = data.data;
 		if( detectorData instanceof NXDetectorDataWithFilepathForSrs){
 			String filepath = ((NXDetectorDataWithFilepathForSrs)detectorData).getFilepath();
-			if( data.checkFileExists && !filepath.equals(ADDetector.DummyFileWriter.DUMMY_FILE_WRITER_GET_FULL_FILE_NAME_RBV)){
+			if( data.checkFileExists && !filepath.equals(ADDetector.NullFileWriter.DUMMY_FILE_WRITER_GET_FULL_FILE_NAME_RBV)){
 				File f = new File(filepath);
 				long numChecks=0;
 				while( !f.exists() ){
