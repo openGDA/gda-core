@@ -19,8 +19,6 @@
 package gda.device.detector.addetector.filewriter;
 
 import gda.device.DeviceException;
-import gda.device.detector.NXDetectorDataWithFilepathForSrs;
-import gda.device.detector.addetector.ADDetector;
 import gda.device.detector.areadetector.v17.NDFile.FileWriteMode;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataFileAppenderForSrs;
@@ -29,6 +27,7 @@ import gda.jython.InterfaceProvider;
 import gda.scan.ScanBase;
 
 import java.io.File;
+import static java.text.MessageFormat.format;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -41,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * SingleImagePerFileWriter(ndFileSimulator, "detectorName", "%%s%d%%s-%%d-detname.tif",true,true);
  */
 public class SingleImagePerFileWriter extends FileWriterBase {
-	
+
 	protected static final String FILEPATH_EXTRANAME = "filepath";
 
 	private static Logger logger = LoggerFactory.getLogger(SingleImagePerFileWriter.class);
@@ -49,18 +48,31 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 	private boolean returnExpectedFileName = true;
 
 	private long nextExpectedFileNumber = 0;
-	
+
+	private int SECONDS_BETWEEN_SLOW_FILE_ARRIVAL_MESSAGES = 10;
+
+	private int MILLI_SECONDS_BETWEEN_POLLS = 500;
 	/*
 	 * Object that can be used observe the progress of the scan by looking for file - optional
 	 */
 	HighestExistingFileMonitor highestExistingFileMonitor = null;
+
+	private boolean waitForFileArrival = true;
 
 	/**
 	 * Creates a SingleImageFileWriter with ndFile, fileTemplate, filePathTemplate, fileNameTemplate and
 	 * fileNumberAtScanStart yet to be set.
 	 */
 	public SingleImagePerFileWriter() {
-	
+
+	}
+
+	public void setWaitForFileArrival(boolean waitForFileArrival) {
+		this.waitForFileArrival = waitForFileArrival;
+	}
+
+	public boolean isWaitForFileArrival() {
+		return waitForFileArrival;
 	}
 
 	/**
@@ -71,8 +83,7 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 	 * datadir
 	 *    123.dat
 	 *    123-pilatus100k-files
-	 *       00001.tif
-	 *
+	 * 00001.tif
 	 */
 	public SingleImagePerFileWriter(String detectorName) {
 		setFileTemplate("%s%s%5.5d.tif");
@@ -84,6 +95,7 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 	public void setReturnExpectedFullFileName(boolean returnExpectedFullFileName) {
 		this.returnExpectedFileName = returnExpectedFullFileName;
 	}
+
 	public void setHighestExistingFileMonitor(HighestExistingFileMonitor highestExistingFileMonitor) {
 		this.highestExistingFileMonitor = highestExistingFileMonitor;
 	}
@@ -187,37 +199,42 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 	}
 
 	/**
-	 * Returns a single NXDetectorDataAppender for the current image with each call. 
+	 * Returns a single NXDetectorDataAppender for the current image with each call. If isWaitForFileArrival is true,
+	 * then waits for the file to become visible before returning the appender.
 	 */
 	@Override
 	public Vector<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
 			DeviceException {
-		
-//		if( detectorData instanceof NXDetectorDataWithFilepathForSrs){
-//			String filepath = ((NXDetectorDataWithFilepathForSrs)detectorData).getFilepath();
-//			if( data.checkFileExists && !filepath.equals(ADDetector.NullFileWriter.DUMMY_FILE_WRITER_GET_FULL_FILE_NAME_RBV)){
-//				File f = new File(filepath);
-//				long numChecks=0;
-//				while( !f.exists() ){
-//					numChecks++;
-//					Thread.sleep(1000);
-//					ScanBase.checkForInterrupts();
-//					if( numChecks> 10){
-//						//Inform user every 10 seconds
-//						InterfaceProvider.getTerminalPrinter().print("Waiting for file " + filepath + " to be created");
-//						numChecks=0;
-//					}
-//				}
-//			}
-//		}
-		
-		
-		NXDetectorDataAppender dataAppender;
+
+		String filepath;
 		try {
-			dataAppender = new NXDetectorDataFileAppenderForSrs(getFullFileName_RBV(), FILEPATH_EXTRANAME);
+			filepath = getFullFileName_RBV();
 		} catch (Exception e) {
 			throw new DeviceException(e);
 		}
+
+		if (isWaitForFileArrival()) {
+			long numChecksSinceLastMessage = 0;
+			long totalNumChecks = 0;
+			File f = new File(filepath);
+			while (!f.exists()) {
+				numChecksSinceLastMessage++;
+				totalNumChecks++;
+				Thread.sleep(MILLI_SECONDS_BETWEEN_POLLS);
+				ScanBase.checkForInterrupts();
+				int numPollsPerMessage = SECONDS_BETWEEN_SLOW_FILE_ARRIVAL_MESSAGES / MILLI_SECONDS_BETWEEN_POLLS;
+				if (numChecksSinceLastMessage >= numPollsPerMessage) {
+					double totalSecondsPolling = totalNumChecks * MILLI_SECONDS_BETWEEN_POLLS / 1000.;
+					InterfaceProvider.getTerminalPrinter().print(
+							format("Waited {0}s for file '{0}' to be created.", filepath, totalSecondsPolling));
+					numChecksSinceLastMessage = 0;
+				}
+			}
+		}
+
+		NXDetectorDataAppender dataAppender;
+		dataAppender = new NXDetectorDataFileAppenderForSrs(filepath, FILEPATH_EXTRANAME);
+
 		Vector<NXDetectorDataAppender> appenders = new Vector<NXDetectorDataAppender>();
 		appenders.add(dataAppender);
 		return appenders;
