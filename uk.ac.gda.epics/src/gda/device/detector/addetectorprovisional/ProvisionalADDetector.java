@@ -322,27 +322,28 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 		}
 		Callable<List<NXDetectorDataAppender>> appendersCallable = pluginStreamsIndexer.getPositionCallable();
 
-		NXDetectorData emptyNXData;
+		NXDetectorData nxdata;
 		if ((getFileWriter() != null) && !getFileWriter().isLinkFilepath()) {
 			if (getExtraNames().length == 0) {
-				emptyNXData = new NXDetectorDataWithFilepathForSrs();
+				nxdata = new NXDetectorDataWithFilepathForSrs();
 			} else {
-				emptyNXData = new NXDetectorDataWithFilepathForSrs(this);
+				nxdata = new NXDetectorDataWithFilepathForSrs(this);
 			}
 		} else {
 			if (getExtraNames().length == 0) {
-				emptyNXData = new NXDetectorData();
+				nxdata = new NXDetectorData();
 			} else {
-				emptyNXData = new NXDetectorData(this);
+				nxdata = new NXDetectorData(this);
 			}
 		}
 
 		if (getMetaDataProvider() != null && firstReadoutInScan) {
 			INexusTree nexusTree = getMetaDataProvider().getNexusTree();
-			INexusTree detTree = emptyNXData.getDetTree(getName());
+			INexusTree detTree = nxdata.getDetTree(getName());
 			detTree.addChildNode(nexusTree);
 		}
-		Callable<NexusTreeProvider> callable = new NXDetectorDataCompletingCallable(emptyNXData, appendersCallable, getName());
+		
+		Callable<NexusTreeProvider> callable = new NXDetectorDataCompletingCallable(nxdata, appendersCallable, getName());
 		return callable;
 	}
 
