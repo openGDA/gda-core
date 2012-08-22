@@ -42,7 +42,7 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 
 	private static Logger logger = LoggerFactory.getLogger(SingleImagePerFileWriter.class);
 
-	private boolean returnExpectedFileName = false;
+	private boolean returnExpectedFileName = true;
 
 	private long nextExpectedFileNumber = 0;
 	
