@@ -255,7 +255,7 @@ public class SingleExposureEpicsShutter extends SimpleAcquire {
 	}
 
 	@Override
-	public void endCollection() throws Exception {
+	public void completeCollection() throws Exception {
 		logger.info("SingleExposureEpicsShutter:endCollection() start");
 
 		getAdBase().stopAcquiring();

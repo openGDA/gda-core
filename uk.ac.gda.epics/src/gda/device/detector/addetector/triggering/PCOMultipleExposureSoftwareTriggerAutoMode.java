@@ -43,10 +43,10 @@ public class PCOMultipleExposureSoftwareTriggerAutoMode extends MultipleExposure
 	}
 
 	@Override
-	public void endCollection() throws Exception {
+	public void completeCollection() throws Exception {
 		adDriverPco.getArmModePV().putCallback(false);		
 		super.waitWhileBusy();
-		super.endCollection();
+		super.completeCollection();
 	}
 
 }

@@ -21,6 +21,9 @@ package gda.device.detector.addetector.filewriter;
 import gda.data.PathConstructor;
 import gda.data.fileregistrar.FileRegistrarHelper;
 import gda.device.DeviceException;
+import gda.device.detector.addetectorprovisional.data.NXDetectorDataAppender;
+import gda.device.detector.addetectorprovisional.data.NXDetectorDataFileLinkAppender;
+import gda.device.detector.addetectorprovisional.data.NXDetectorDataNullAppender;
 import gda.device.detector.areadetector.v17.NDFile.FileWriteMode;
 import gda.device.detector.areadetector.v17.NDFileHDF5;
 import gda.jython.InterfaceProvider;
@@ -29,6 +32,9 @@ import gda.scan.ScanInformation;
 import gov.aps.jca.TimeoutException;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +46,8 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 	NDFileHDF5 hdf5=null;
 	private boolean blocking= true;
 	private int rowChunks=1;
+
+	private boolean firstReadoutInScan;
 	
 	public MultipleImagesPerHDF5FileWriter(NDFileHDF5 ndFileHDF5,String fileName, String fileTemplate, boolean setFileNameAndNumber) {
 		super(ndFileHDF5.getFile(), fileName, fileTemplate, false, setFileNameAndNumber);
@@ -90,6 +98,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 		resetCounters();
 		startRecording();
 		getNdFile().getPluginBase().enableCallbacks();
+		firstReadoutInScan = true;
 	}
 	
 	private void setScanDimensions(int[] dimensions, int numberImagesPerCollection) throws Exception {
@@ -171,7 +180,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 	
 	
 	@Override
-	public void endCollection() throws Exception{
+	public void completeCollection() throws Exception{
 		if(!getEnable())
 			return;
 		FileRegistrarHelper.registerFile(hdf5.getFullFileName_RBV());
@@ -196,8 +205,6 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 		return true;
 	}
 
-
-
 	@Override
 	public void stop() throws Exception {
 		if(!getEnable())
@@ -206,11 +213,42 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 		
 	}
 
-
 	@Override
 	public void atCommandFailure() throws Exception {
 		if(!getEnable())
 			return;
 		stop();
+	}
+	
+	@Override
+	public List<String> getInputStreamExtraNames() {
+		return Arrays.asList();
+	}
+
+	@Override
+	public List<String> getInputStreamFormats() {
+		return Arrays.asList();
+	}
+
+	@Override
+	public Vector<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
+			DeviceException {
+		NXDetectorDataAppender dataAppender;
+		if (firstReadoutInScan) {
+			String filepath;
+			try {
+				filepath = getFullFileName_RBV();
+			} catch (Exception e) {
+				throw new DeviceException(e);
+			}
+			dataAppender = new NXDetectorDataFileLinkAppender(filepath);
+		}
+		else {
+			dataAppender = new NXDetectorDataNullAppender();
+		}
+		firstReadoutInScan = false;
+		Vector<NXDetectorDataAppender> appenders = new Vector<NXDetectorDataAppender>();
+		appenders.add(dataAppender);
+		return appenders;
 	}
 }

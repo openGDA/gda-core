@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2011 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,21 +16,15 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.areadetector;
+package gda.device.detector.addetectorprovisional.data;
 
-import gda.device.detector.areadetector.v17.NDStats;
+import gda.device.detector.NXDetectorData;
 
+public class NXDetectorDataNullAppender implements NXDetectorDataAppender {
 
-public interface NDStatsGroup {
-	
-	String getName();
-	
-	String[] getFieldNames();
+	@Override
+	public void appendTo(NXDetectorData data, String detectorName) {
+		// do nothing
+	}
 
-	String[] getFieldFormats();
-
-	Double[] getCurrentDoubleVals() throws Exception;
-	
-	NDStats getNdStats();
-	
 }

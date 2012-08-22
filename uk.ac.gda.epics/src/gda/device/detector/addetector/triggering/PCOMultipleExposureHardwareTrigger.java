@@ -122,7 +122,7 @@ public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftware
 	}
 
 	@Override
-	public void endCollection() throws Exception {
+	public void completeCollection() throws Exception {
 		if( etfg != null)
 			etfg.stop();
 		getAdBase().stopAcquiring();

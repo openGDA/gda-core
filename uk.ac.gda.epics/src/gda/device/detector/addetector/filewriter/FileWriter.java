@@ -18,9 +18,11 @@
 
 package gda.device.detector.addetector.filewriter;
 
+import gda.device.detector.addetectorprovisional.ADDetectorPlugin;
 
 
-public interface FileWriter{
+
+public interface FileWriter extends ADDetectorPlugin{
 
 	public boolean isSetFileNameAndNumber();
 
@@ -30,30 +32,15 @@ public interface FileWriter{
 	/*
 	 * Setup fileWriter if this and isReadFilePath are true
 	 */
-	public void setEnable(boolean enable);
+	public void setEnable(boolean enable); // TODO Why on interface?
 	public boolean getEnable();
 	
-	/**
-	 * 
-	 * @param numberImagesPerCollection - number of images per scan data point
-	 * @throws Exception
-	 */
-	void prepareForCollection(int numberImagesPerCollection) throws Exception;
 	
 	void enableCallback(boolean enable) throws Exception;
 
-	void endCollection() throws Exception;
-
-	void disableFileWriter() throws Exception;
+	void disableFileWriter() throws Exception;// TODO Why on interface? and potential for confusion with setEnable;
 
 	boolean isLinkFilepath();
-
-	/*
-	 * Called to abort scan
-	 */
-	void stop() throws Exception;
-	
-	public void atCommandFailure() throws Exception;
 
 	public String getFullFileName_RBV()  throws Exception;
 	

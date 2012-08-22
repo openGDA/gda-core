@@ -51,8 +51,11 @@ public class NDStatsGroupFactory {
 
 		private final NDStats ndStats;
 
-		AbstractNDStatsGroup(String name, String[] fieldNames, NDStats ndStats) {
+		private final String[] fieldFormats;
+
+		AbstractNDStatsGroup(String name, String[] fieldNames, String[] fieldFormats, NDStats ndStats) {
 			this.ndStats = ndStats;
+			this.fieldFormats = fieldFormats;
 			this.name = name;
 			this.fieldNames = fieldNames;
 		}
@@ -68,6 +71,11 @@ public class NDStatsGroupFactory {
 		}
 
 		@Override
+		public final String[] getFieldFormats() {
+			return fieldFormats;
+		}
+
+		@Override
 		public NDStats getNdStats() {
 			return ndStats;
 		}
@@ -77,7 +85,7 @@ public class NDStatsGroupFactory {
 	private static class NDStatsStatsGroup extends AbstractNDStatsGroup {
 
 		public NDStatsStatsGroup(NDStats ndStats) {
-			super("Stats", new String[] { "min", "max", "total", "net", "mean", "sigma" }, ndStats);
+			super("Stats", new String[] { "min", "max", "total", "net", "mean", "sigma" }, new String[] { "%5.5g", "%5.5g", "%5.5g", "%5.5g", "%5.5g", "%5.5g" }, ndStats);
 		}
 
 		@Override
@@ -97,7 +105,8 @@ public class NDStatsGroupFactory {
 
 		public NDCentroidStatsGroup(NDStats ndStats) {
 			super("Centroid", new String[] { "centroidX", "centroidY", "centroid_sigmaX", "centroid_sigmaY",
-					"centroid_sigmaXY" }, ndStats);
+					"centroid_sigmaXY" }, new String[] { "%5.5g", "%5.5g", "%5.5g", "%5.5g",
+			"%5.5g" }, ndStats);
 		}
 
 		@Override

@@ -19,13 +19,20 @@
 package gda.device.detector.addetector.filewriter;
 
 import gda.data.PathConstructor;
+import gda.device.DeviceException;
 import gda.device.detector.addetector.ADDetector;
+import gda.device.detector.addetectorprovisional.data.NXDetectorDataAppender;
+import gda.device.detector.addetectorprovisional.data.NXDetectorDataFileAppenderForSrs;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDFile.FileWriteMode;
 import gda.device.detectorfilemonitor.HighestExistingFileMonitor;
 import gda.device.detectorfilemonitor.HighestExitingFileMonitorSettings;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +41,8 @@ import org.slf4j.LoggerFactory;
  * SingleImagePerFileWriter(ndFileSimulator, "detectorName", "%%s%d%%s-%%d-detname.tif",true,true);
  */
 public class SingleImagePerFileWriter extends FileWriterBase {
+	
+	protected static final String FILEPATH_EXTRANAME = "filepath";
 
 	private static Logger logger = LoggerFactory.getLogger(ADDetector.class);
 
@@ -177,7 +186,7 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 	}
 
 	@Override
-	public void endCollection() throws Exception {
+	public void completeCollection() throws Exception {
 		if (!getEnable())
 			return;
 		disableFileWriter();
@@ -195,4 +204,27 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 		return false;
 	}
 
+	@Override
+	public List<String> getInputStreamExtraNames() {
+		return Arrays.asList(FILEPATH_EXTRANAME);
+	}
+
+	@Override
+	public List<String> getInputStreamFormats() {
+		return Arrays.asList("%.2f");
+	}
+
+	@Override
+	public Vector<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
+			DeviceException {
+		NXDetectorDataAppender dataAppender;
+		try {
+			dataAppender = new NXDetectorDataFileAppenderForSrs(getFullFileName_RBV(), FILEPATH_EXTRANAME);
+		} catch (Exception e) {
+			throw new DeviceException(e);
+		}
+		Vector<NXDetectorDataAppender> appenders = new Vector<NXDetectorDataAppender>();
+		appenders.add(dataAppender);
+		return appenders;
+	}
 }

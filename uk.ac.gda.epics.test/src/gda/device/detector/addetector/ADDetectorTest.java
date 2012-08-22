@@ -102,6 +102,14 @@ public class ADDetectorTest {
 		det().setReadArray(enableArrayReadout);
 	}
 	
+	protected void enableReadAcquisitionTimeAndPeriod(boolean enableTime, boolean enablePeriod) {
+		det().setReadAcquisitionTime(enableTime);
+		det().setReadAcquisitionPeriod(enablePeriod);
+	}
+	protected void enableFileWriter(boolean enableFileWriter) {
+		det().setReadFilepath(enableFileWriter);
+	}
+	
 	@Test
 	public void testConstructor() throws Exception {
 		setUpNoConfigure();
@@ -158,7 +166,7 @@ public class ADDetectorTest {
 	@Test
 	public void testGetInputNames() {
 		assertArrayEquals(new String[] {}, det().getInputNames());
-		det().setReadAcquisitionTime(false);
+		enableReadAcquisitionTimeAndPeriod(false, false);
 		assertArrayEquals(new String[] {}, det().getInputNames());
 
 	}
@@ -167,9 +175,9 @@ public class ADDetectorTest {
 	public void testGetExtraNamesNostats() {
 		enableStatsAndCentroid(false, false);
 		assertArrayEquals(new String[] {"count_time"}, det().getExtraNames());
-		det().setReadAcquisitionPeriod(true);
+		enableReadAcquisitionTimeAndPeriod(true, true);
 		assertArrayEquals(new String[] {"count_time", "period" }, det().getExtraNames());
-		det().setReadFilepath(true);
+		enableFileWriter(true);
 		assertArrayEquals(new String[] {"count_time", "period", "filepath" }, det().getExtraNames());
 	}
 	
@@ -188,33 +196,32 @@ public class ADDetectorTest {
 	@Test
 	public void testGetExtraNamesStatsAndCentroidAndPeriod() {
 		enableStatsAndCentroid(true, true);
-		det().setReadAcquisitionPeriod(true);
+		enableReadAcquisitionTimeAndPeriod(true, true);
 		assertArrayEquals(addAll(new String[] { "count_time", "period" }, addAll(STATS_NAMES, CENTROID_NAMES)), det().getExtraNames());
 	}
 
 	@Test
 	public void testGetOutputFormat() {
-		det().setReadAcquisitionTime(false);
-		det().setReadAcquisitionPeriod(false);
+		enableReadAcquisitionTimeAndPeriod(false, false);
 		enableStatsAndCentroid(false, false);
 		assertArrayEquals(new String[] {}, det().getOutputFormat());
 
-		det().setReadAcquisitionTime(true);
+		enableReadAcquisitionTimeAndPeriod(true, false);
 		assertArrayEquals(new String[] { "%.2f" }, det().getOutputFormat());
 
-		det().setReadFilepath(true);
+		enableFileWriter(true);
 		//the 2nd value in position is a number that represents the file.
 		assertArrayEquals(new String[] { "%.2f", "%.2f" }, det().getOutputFormat());
-		det().setReadFilepath(false);
+		enableFileWriter(false);
 
-		det().setReadAcquisitionPeriod(true);
+		enableReadAcquisitionTimeAndPeriod(true, true);
 		assertArrayEquals(new String[] { "%.2f", "%.2f" }, det().getOutputFormat());
 
-		det().setReadFilepath(true);
-		det().setReadAcquisitionPeriod(true);
+		enableFileWriter(true);
+		enableReadAcquisitionTimeAndPeriod(true, true);
 		//the 3rd value in position is a number that represents the file.
 		assertArrayEquals(new String[] { "%.2f", "%.2f",  "%.2f" }, det().getOutputFormat());
-		det().setReadFilepath(false);
+		enableFileWriter(false);
 
 		enableStatsAndCentroid(true, false);
 		assertArrayEquals(new String[] { "%.2f", "%.2f", "%5.5g", "%5.5g", "%5.5g", "%5.5g", "%5.5g", "%5.5g" },
@@ -224,7 +231,7 @@ public class ADDetectorTest {
 		assertArrayEquals(new String[] { "%.2f", "%.2f", "%5.5g", "%5.5g", "%5.5g", "%5.5g", "%5.5g", "%5.5g", "%5.5g",
 				"%5.5g", "%5.5g", "%5.5g", "%5.5g" }, det().getOutputFormat());
 	}
-
+	
 	@Test
 	public void testStatus() throws Exception {
 		when(collectionStrategy.getStatus()).thenReturn(Detector.IDLE);
@@ -331,7 +338,7 @@ public class ADDetectorTest {
 	public void testReadoutNoArrayStatsOrCentroid() throws DeviceException {
 		enableStatsAndCentroid(false, false);
 		enableArrayReadout(false);
-		det().setReadAcquisitionTime(false);
+		enableReadAcquisitionTimeAndPeriod(false, false);
 		NXDetectorData data = (NXDetectorData) det().readout();
 		assertEquals("", data.toString());
 		Double[] doubleVals = data.getDoubleVals();
@@ -342,7 +349,7 @@ public class ADDetectorTest {
 	public void testReadoutArray() throws Exception {
 		enableStatsAndCentroid(false, false);
 		enableArrayReadout(true);
-		det().setReadAcquisitionTime(false);
+		enableReadAcquisitionTimeAndPeriod(false, false);
 		byte[] byteArray = new byte[] { 0, 1, 2, 3, 4, 6 };
 		when(ndArrayBase.getArraySize0_RBV()).thenReturn(2);
 		when(ndArrayBase.getArraySize1_RBV()).thenReturn(3);
@@ -358,7 +365,7 @@ public class ADDetectorTest {
 	public void testReadoutStats() throws Exception {
 		enableArrayReadout(false);
 		enableStatsAndCentroid(true, false);
-		det().setReadAcquisitionTime(false);
+		enableReadAcquisitionTimeAndPeriod(false, false);
 
 		when(ndStats.getMinValue_RBV()).thenReturn(0.);
 		when(ndStats.getMaxValue_RBV()).thenReturn(1.);
@@ -382,7 +389,7 @@ public class ADDetectorTest {
 
 	@Test
 	public void testReadoutTimes() throws Exception {
-		det().setReadAcquisitionPeriod(true);
+		enableReadAcquisitionTimeAndPeriod(true, true);
 		enableArrayReadout(false);
 		enableStatsAndCentroid(false, false);
 
@@ -405,7 +412,7 @@ public class ADDetectorTest {
 	public void testReadoutCentroid() throws Exception {
 		enableArrayReadout(false);
 		enableStatsAndCentroid(false, true);
-		det().setReadAcquisitionTime(false);
+		enableReadAcquisitionTimeAndPeriod(false, false);
 		when(ndStats.getCentroidX_RBV()).thenReturn(0.);
 		when(ndStats.getCentroidY_RBV()).thenReturn(1.);
 		when(ndStats.getSigmaX_RBV()).thenReturn(2.);
@@ -424,23 +431,21 @@ public class ADDetectorTest {
 				.getBuffer(), .001);
 		assertArrayEquals(new double[] { 4. }, (double[]) rootNode.getChildNode("centroid_sigmaXY", "SDS").getData()
 				.getBuffer(), .001);
-		
-
 	}
 
 	@Test
 	public void testReadoutWithFilename() throws Exception {
 		enableArrayReadout(false);
 		enableStatsAndCentroid(false, false);
-		det().setReadAcquisitionTime(false);
-		det().setReadFilepath(true);
+		enableReadAcquisitionTimeAndPeriod(false, false);
+		enableFileWriter(true);
 
 		when(fileWriter.getFullFileName_RBV()).thenReturn("/full/path/to/file99.cbf");
-
+		det().atScanStart();
 		NXDetectorData readout = (NXDetectorData) det().readout();
-		assertEquals("/full/path/to/file99.cbf", readout.toString());
 		Double[] doubleVals = readout.getDoubleVals();
 		assertArrayEquals(new Double[] { 0.0 }, doubleVals); 
+		assertEquals("/full/path/to/file99.cbf", readout.toString());
 		INexusTree rootNode = readout.getNexusTree().getChildNode(0);
 		assertEquals("testdet", rootNode.getName());
 		String actualPath = new String((byte[]) rootNode.getChildNode("data_file", "NXnote")
@@ -452,18 +457,18 @@ public class ADDetectorTest {
 	@Test
 	public void testReadoutWithFilenameAndTimes() throws Exception {
 		setupForReadoutAndGetPositionWithFilenameAndTimes();
-
+		det().atScanStart();
 		NXDetectorData readout = (NXDetectorData) det().readout();
-		assertEquals("0.50\t0.55\t/full/path/to/file99.cbf", readout.toString());
+		assertArrayEquals(new String[] { "count_time", "period", "filepath" }, readout.getExtraNames());
 		assertArrayEquals(new Double[] { 0.5, 0.55, 0.0}, readout.getDoubleVals());
+		assertEquals("0.50\t0.55\t/full/path/to/file99.cbf", readout.toString());
 	}
 
 	protected void setupForReadoutAndGetPositionWithFilenameAndTimes() throws Exception {
-		det().setReadAcquisitionTime(true);
-		det().setReadAcquisitionPeriod(true);
+		enableReadAcquisitionTimeAndPeriod(true, true);
 		enableArrayReadout(false);
 		enableStatsAndCentroid(false, false);
-		det().setReadFilepath(true);
+		enableFileWriter(true);
 
 		when(fileWriter.getFullFileName_RBV()).thenReturn("/full/path/to/file99.cbf");
 

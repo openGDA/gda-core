@@ -102,7 +102,7 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 	}
 
 	@Override
-	public void endCollection() throws Exception {
+	public void completeCollection() throws Exception {
 		getAdBase().stopAcquiring();
 		getAdBase().setImageModeWait(ImageMode.SINGLE);
 		getAdBase().setNumImages(1);
@@ -140,12 +140,12 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 	
 	@Override
 	public void stop() throws Exception {
-		endCollection();
+		completeCollection();
 	}
 	
 	@Override
 	public void atCommandFailure() throws Exception {
-		endCollection();
+		completeCollection();
 	}
 
 	protected int calcNumberImagesPerCollection(double collectionTime) {

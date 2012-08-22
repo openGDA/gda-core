@@ -48,7 +48,7 @@ public class SimpleAcquire extends AbstractADTriggeringStrategy {
 	public double getAcquirePeriod() throws Exception {
 		return getAdBase().getAcquirePeriod_RBV();
 	}
-	
+
 	@Override
 	public void collectData() throws Exception {
 		getAdBase().startAcquiring();
@@ -66,16 +66,16 @@ public class SimpleAcquire extends AbstractADTriggeringStrategy {
 	
 	@Override
 	public void stop() throws Exception {
-		endCollection();
+		completeCollection();
 	}
 	
 	@Override
 	public void atCommandFailure() throws Exception {
-		endCollection();
+		completeCollection();
 	}
 	
 	@Override
-	public void endCollection() throws Exception {
+	public void completeCollection() throws Exception {
 		getAdBase().stopAcquiring();
 	}
 

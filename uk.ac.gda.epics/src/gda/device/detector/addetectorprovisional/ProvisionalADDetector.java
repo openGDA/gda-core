@@ -18,78 +18,83 @@
 
 package gda.device.detector.addetectorprovisional;
 
+import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
+import gda.device.detector.NXDetectorDataWithFilepathForSrs;
 import gda.device.detector.NexusDetector;
 import gda.device.detector.addetector.filewriter.FileWriter;
 import gda.device.detector.addetector.triggering.ADTriggeringStrategy;
+import gda.device.detector.addetector.triggering.SimpleAcquire;
+import gda.device.detector.addetectorprovisional.data.NXDetectorDataAppender;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDStats;
+import gda.device.scannable.MultiplePositionStreamIndexer;
 import gda.device.scannable.PositionCallableProvider;
+import gda.device.scannable.PositionInputStream;
 import gda.factory.FactoryException;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Vector;
+import java.util.concurrent.Callable;
 
-// TODO FileWrite should be largely (or completely) operated via the ADPlugin interface
+// TODO Check for duplicate extraNames returned by the plugins
+// TODO Deliberate change: does not read arrays by default
+// TODO Check for duplicate plugin names
+// TODO Move 'waiting for file' behaviour into plugin
 
-/**
- * Creates an ADDetector and delegates to it. Everythin that is overriden in ADDetector is also ovveriden here except
- * for: hiding: <blockquote>
- * 
- * <pre>
- * 
- * 
- * - public void setAdBase(ADBase adBase) {
- * - public void configure() throws FactoryException {
- * - public NDStats getNdStats() {
- * - public NDArray getNdArray() {
- * - public boolean isComputeStats() {
- * - public boolean isComputeCentroid() {
- * - public boolean isReadArray() {
- * - public NexusTreeProvider getMetaDataProvider() {
- * - public void afterPropertiesSet() throws Exception {
- * - public boolean isUsePipeline() {
- * - public boolean isDisableCallbacks() {
- * </pre>
- * 
- * </blockquote> For now all components are set in the constructor. Could make this more spring friendly once stable.
- */
-
-public class ProvisionalADDetector extends gda.device.detector.addetector.ADDetector implements NexusDetector, PositionCallableProvider<NexusTreeProvider> {
+public class ProvisionalADDetector extends gda.device.detector.addetector.ADDetector implements NexusDetector,
+		PositionCallableProvider<NexusTreeProvider> {
 
 	private static final String REMOVED_FROM_PROVISIONAL_ADDETECTOR = "Not supported by provisional ADDetector";
-	private List<ADDetectorPlugin<Double[]>> pluginList = new ArrayList<ADDetectorPlugin<Double[]>>();
+	private List<ADDetectorPlugin> additionalPluginList = new ArrayList<ADDetectorPlugin>();
+	private ADArrayPlugin adArrayPlugin;
+	private MultiplePositionStreamIndexer<NXDetectorDataAppender> pluginStreamsIndexer;
 
-	public ProvisionalADDetector(String name, ADBase adBase, ADTriggeringStrategy collectionStrategy, FileWriter fileWriter) throws Exception {
+	public ProvisionalADDetector(String name, ADBase adBase, ADTriggeringStrategy collectionStrategy,
+			FileWriter fileWriter) throws Exception {
 		setName(name);
 		setAdBase(adBase);
 		setCollectionStrategy(collectionStrategy);
 		setFileWriter(fileWriter);
-
-		super.setReadArray(false);
-
 		afterPropertiesSet();
 		configure();
 	}
 
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		if (afterPropertiesSetCalled)
+			throw new RuntimeException("afterPropertiesSet already called");
+		if (getAdBase() == null)
+			throw new IllegalStateException("adBase is not defined");
+		if (getCollectionStrategy() == null) {
+			setCollectionStrategy(new SimpleAcquire(getAdBase(), 0.));
+		}
+		// TODO Removed FileWriter autocreation from ndFile
+		afterPropertiesSetCalled = true;
+	}
+
 	// Configuration options:
 
-	public void setPluginList(List<ADDetectorPlugin<Double[]>> adDetectorPluginList) {
-		this.pluginList = adDetectorPluginList;
+	/**
+	 * Set plugins in addition to the collection-strategy, array and file-writer plugins.
+	 * 
+	 * @param adDetectorPluginList
+	 */
+	public void setAdditionalPluginList(List<ADDetectorPlugin> adDetectorPluginList) {
+		this.additionalPluginList = adDetectorPluginList;
+	}
 
+	public void setAdArrayPlugin(ADArrayPlugin adArrayPlugin) {
+		this.adArrayPlugin = adArrayPlugin;
 	}
 
 	// public void setReadAcquisitionTime(boolean readAcquisitionTime) {
 
 	// public void setReadAcquisitionPeriod(boolean readAcquisitionPeriod) {
-
-	// public void setReadFilepath(boolean readFilepath) {
 
 	// public void setCheckFileExists(boolean checkFileExists) {
 
@@ -101,8 +106,30 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 
 	// Getters:
 
-	public List<ADDetectorPlugin<Double[]>> getPluginList() {
-		return pluginList;
+	public List<ADDetectorPlugin> getAdditionalPluginList() {
+		return additionalPluginList;
+	}
+
+	/**
+	 * Return all plugins: collection-strategy, array, filewriter and then additional plugins
+	 */
+	public List<ADDetectorPlugin> getPluginList() {
+		List<ADDetectorPlugin> allPlugins = new ArrayList<ADDetectorPlugin>();
+		if (getCollectionStrategy() != null) {
+			allPlugins.add(getCollectionStrategy());
+		}
+		if (getAdArrayPlugin() != null) {
+			allPlugins.add(getAdArrayPlugin());
+		}
+		if (getFileWriter() != null) {
+			allPlugins.add(getFileWriter());
+		}
+		allPlugins.addAll(getAdditionalPluginList());
+		return allPlugins;
+	}
+
+	public ADArrayPlugin getAdArrayPlugin() {
+		return adArrayPlugin;
 	}
 
 	// return getAdBase();
@@ -121,12 +148,6 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 
 	// public boolean isCheckFileExists() {
 
-	// public boolean isReadAcquisitionTime() {
-
-	// public boolean isReadAcquisitionPeriod() {
-
-	// public boolean isReadFilepath() {
-
 	// public boolean createsOwnFiles() throws DeviceException {
 
 	// Removed:
@@ -136,10 +157,15 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 		throw new RuntimeException(REMOVED_FROM_PROVISIONAL_ADDETECTOR);
 	}
 
-//	@Override
-//	public void setNdArray(NDArray ndArray) {
-//		throw new RuntimeException(REMOVED_FROM_PROVISIONAL_ADDETECTOR);
-//	}
+	@Override
+	public void setNdArray(NDArray ndArray) {
+		throw new RuntimeException(REMOVED_FROM_PROVISIONAL_ADDETECTOR);
+	}
+
+	@Override
+	public NDArray getNdArray() {
+		throw new RuntimeException(REMOVED_FROM_PROVISIONAL_ADDETECTOR);
+	}
 
 	@Override
 	public void setComputeStats(boolean computeStats) {
@@ -151,10 +177,15 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 		throw new RuntimeException(REMOVED_FROM_PROVISIONAL_ADDETECTOR);
 	}
 
-//	@Override
-//	public void setReadArray(boolean readArray) {
-//		throw new RuntimeException(REMOVED_FROM_PROVISIONAL_ADDETECTOR);
-//	}
+	@Override
+	public void setReadArray(boolean readArray) {
+		throw new RuntimeException(REMOVED_FROM_PROVISIONAL_ADDETECTOR);
+	}
+
+	@Override
+	public void setReadFilepath(boolean readFilepath) {
+		throw new RuntimeException(REMOVED_FROM_PROVISIONAL_ADDETECTOR);
+	}
 
 	@Override
 	public void setDisableCallbacks(boolean disableCallbacks) {
@@ -171,10 +202,25 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 		throw new RuntimeException(REMOVED_FROM_PROVISIONAL_ADDETECTOR);
 	}
 
-	// @Override
-	// public void setNdFile(NDFile ndFile) {
-	// throw new RuntimeException(REMOVED_FROM_PROVISIONAL_ADDETECTOR);
-	// }
+	@Override
+	public boolean isReadAcquisitionTime() {
+		throw new RuntimeException(REMOVED_FROM_PROVISIONAL_ADDETECTOR);
+	}
+
+	@Override
+	public boolean isReadAcquisitionPeriod() {
+		throw new RuntimeException(REMOVED_FROM_PROVISIONAL_ADDETECTOR);
+	}
+
+	@Override
+	public boolean isReadFilepath() {
+		throw new RuntimeException(REMOVED_FROM_PROVISIONAL_ADDETECTOR);
+	}
+
+	@Override
+	public void setNdFile(NDFile ndFile) {
+		throw new RuntimeException(REMOVED_FROM_PROVISIONAL_ADDETECTOR);
+	}
 
 	// ////
 
@@ -182,8 +228,7 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 	public void configure() throws FactoryException {
 		// Do nothing
 	}
-	
-	
+
 	@Override
 	public void setInputNames(String[] names) {
 		throw new RuntimeException(UNSUPPORTED_PART_OF_SCANNABLE_INTERFACE);
@@ -198,50 +243,30 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 	public void setOutputFormat(String[] names) {
 		throw new RuntimeException(UNSUPPORTED_PART_OF_SCANNABLE_INTERFACE);
 	}
-	
+
 	@Override
 	protected void configureExtraNamesAndOutputFormat() {
-		// Do nothing
+		// Not used in provisional version
 	}
-	
+
 	@Override
 	public String[] getInputNames() {
 		return new String[] {};
 	}
-	
+
 	@Override
 	public String[] getExtraNames() {
 		List<String> extraNames = new ArrayList<String>();
-		if (isReadAcquisitionTime()) {
-			extraNames.add("count_time");
-		}
-		if (isReadAcquisitionPeriod()) {
-			extraNames.add("period");
-		}
-		if (isReadFilepath() && !getFileWriter().isLinkFilepath()) {
-			extraNames.add(FILEPATH_EXTRANAME);
-		}
-		for (ADDetectorPlugin<Double[]> plugin : pluginList) {
-			extraNames.addAll(plugin.getInputStreamFieldNames());
+		for (ADDetectorPlugin plugin : getPluginList()) {
+			extraNames.addAll(plugin.getInputStreamExtraNames());
 		}
 		return extraNames.toArray(new String[] {});
-
 	}
 
 	@Override
 	public String[] getOutputFormat() {
 		List<String> formats = new ArrayList<String>();
-		if (isReadAcquisitionTime()) {
-			formats.add("%.2f");
-		}
-		if (isReadAcquisitionPeriod()) {
-			formats.add("%.2f");
-		}
-		if (isReadFilepath() && !getFileWriter().isLinkFilepath()) {
-			// used to format the double that is put into the doubleVals array in this case
-			formats.add("%.2f"); // TODO I don't follow this - RobW
-		}
-		for (ADDetectorPlugin<Double[]> plugin : pluginList) {
+		for (ADDetectorPlugin plugin : getPluginList()) {
 			formats.addAll(plugin.getInputStreamFormats());
 		}
 		return formats.toArray(new String[] {});
@@ -250,26 +275,27 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 	@Override
 	public void atScanStart() throws DeviceException {
 
-		super.atScanStart(); // may enable/disable array callbacks
-
+		int numberImagesPerCollection = getCollectionStrategy().getNumberImagesPerCollection(getCollectionTime());
 		try {
-
-			int numberImagesPerCollection = getCollectionStrategy().getNumberImagesPerCollection(getCollectionTime());
-			for (ADDetectorPlugin<?> plugin : pluginList) {
-				plugin.prepareForCollection(numberImagesPerCollection);
+			for (ADDetectorPlugin plugin : getPluginList()) {
+				if (plugin instanceof ADTriggeringStrategy) {
+					((ADTriggeringStrategy) plugin)
+							.prepareForCollection(getCollectionTime(), numberImagesPerCollection);
+				} else {
+					plugin.prepareForCollection(numberImagesPerCollection);
+				}
 			}
 			getAdBase().setArrayCallbacks(areCallbacksRequired() ? 1 : 0);
-
 		} catch (Exception e) {
 			throw new DeviceException(e);
 		}
+		@SuppressWarnings("unchecked")
+		List<PositionInputStream<NXDetectorDataAppender>> plugins = (List<PositionInputStream<NXDetectorDataAppender>>) (List<?>) getPluginList();
+		pluginStreamsIndexer = new MultiplePositionStreamIndexer<NXDetectorDataAppender>(plugins);
 	}
 
 	boolean areCallbacksRequired() {
-
-		// TODO If the file writer requires them return true
-
-		for (ADDetectorPlugin<?> chain : pluginList) {
+		for (ADDetectorPlugin chain : getPluginList()) {
 			if (chain.willRequireCallbacks()) {
 				return true;
 			}
@@ -279,7 +305,7 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 
 	@Override
 	public void atScanLineStart() throws DeviceException {
-		for (ADDetectorPlugin<?> plugin : pluginList) {
+		for (ADDetectorPlugin plugin : getPluginList()) {
 			try {
 				plugin.prepareForLine();
 			} catch (Exception e) {
@@ -289,29 +315,42 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 	}
 
 	@Override
-	protected void appendNXDetectorDataFromPlugins(NXDetectorData data) throws Exception {
+	public Callable<NexusTreeProvider> getPositionCallable() throws DeviceException {
 		
-		for (ADDetectorPlugin<Double[]> plugin : pluginList) {
-			Double[] doubleVals;
-			try {
-				List<Double[]> read = plugin.read(Integer.MAX_VALUE);
-				if (read.size() == 0) {
-					throw new AssertionError(plugin.getName() + " input stream returned zero elements.");
-				}
-				doubleVals = read.get(0);
-			} catch (Exception e) {
-				throw new DeviceException(e);
-			}
-			
-			addMultipleDoubleItemsToNXData(data, plugin.getInputStreamFieldNames().toArray(new String[0]), doubleVals);
+		if (pluginStreamsIndexer == null) {
+			throw new IllegalStateException("No pluginStreamsIndexer set --- atScanStart() must be called before getPositionCallable()");
 		}
+		Callable<List<NXDetectorDataAppender>> appendersCallable = pluginStreamsIndexer.getPositionCallable();
+
+		NXDetectorData nxdata;
+		if ((getFileWriter() != null) && !getFileWriter().isLinkFilepath()) {
+			if (getExtraNames().length == 0) {
+				nxdata = new NXDetectorDataWithFilepathForSrs();
+			} else {
+				nxdata = new NXDetectorDataWithFilepathForSrs(this);
+			}
+		} else {
+			if (getExtraNames().length == 0) {
+				nxdata = new NXDetectorData();
+			} else {
+				nxdata = new NXDetectorData(this);
+			}
+		}
+
+		if (getMetaDataProvider() != null && firstReadoutInScan) {
+			INexusTree nexusTree = getMetaDataProvider().getNexusTree();
+			INexusTree detTree = nxdata.getDetTree(getName());
+			detTree.addChildNode(nexusTree);
+		}
+		
+		Callable<NexusTreeProvider> callable = new NXDetectorDataCompletingCallable(nxdata, appendersCallable, getName());
+		return callable;
 	}
 
 
-	
 	@Override
 	public void atScanLineEnd() throws DeviceException {
-		for (ADDetectorPlugin<?> plugin : pluginList) {
+		for (ADDetectorPlugin plugin : getPluginList()) {
 			try {
 				plugin.completeLine();
 			} catch (Exception e) {
@@ -322,20 +361,20 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 
 	@Override
 	public void atScanEnd() throws DeviceException {
-		super.atScanEnd();
-		for (ADDetectorPlugin<?> plugin : pluginList) {
+		// TODO super runs: latestPositionCallable.call(), which I think is not necessary.
+		for (ADDetectorPlugin plugin : getPluginList()) {
 			try {
 				plugin.completeCollection();
 			} catch (Exception e) {
 				throw new DeviceException(e);
 			}
 		}
+		pluginStreamsIndexer = null; // to avoid later confusion
 	}
 
 	@Override
 	public void stop() throws DeviceException {
-		super.stop();
-		for (ADDetectorPlugin<?> plugin : pluginList) {
+		for (ADDetectorPlugin plugin : getPluginList()) {
 			try {
 				plugin.stop();
 			} catch (Exception e) {
@@ -346,8 +385,7 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 
 	@Override
 	public void atCommandFailure() throws DeviceException {
-		super.atCommandFailure();
-		for (ADDetectorPlugin<?> plugin : pluginList) {
+		for (ADDetectorPlugin plugin : getPluginList()) {
 			try {
 				plugin.atCommandFailure();
 			} catch (Exception e) {
@@ -356,4 +394,30 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 		}
 	}
 
+}
+
+class NXDetectorDataCompletingCallable implements Callable<NexusTreeProvider> {
+
+	private final NXDetectorData data;
+
+	private final Callable<List<NXDetectorDataAppender>> appendersCallable;
+	
+	private final String detectorName;
+
+	public NXDetectorDataCompletingCallable(NXDetectorData emptyNXDetectorData,
+			Callable<List<NXDetectorDataAppender>> appendersCallable, String detectorName) {
+		this.data = emptyNXDetectorData;
+		this.appendersCallable = appendersCallable;
+		this.detectorName = detectorName;
+	}
+
+	@Override
+	public NXDetectorData call() throws Exception {
+		List<NXDetectorDataAppender> appenderList = appendersCallable.call();
+		for (NXDetectorDataAppender appender : appenderList) {
+			appender.appendTo(data, detectorName);
+		}
+		return data;
+	}
+	
 }
