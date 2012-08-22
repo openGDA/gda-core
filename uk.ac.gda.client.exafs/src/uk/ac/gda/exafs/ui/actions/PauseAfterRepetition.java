@@ -31,7 +31,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
-public class HaltAfterRepetition extends AbstractHandler implements IWorkbenchWindowActionDelegate,
+public class PauseAfterRepetition extends AbstractHandler implements IWorkbenchWindowActionDelegate,
 		IEditorActionDelegate {
 	
 	@Override
@@ -45,9 +45,9 @@ public class HaltAfterRepetition extends AbstractHandler implements IWorkbenchWi
 	@Override
 	public Object execute(ExecutionEvent arg0) throws ExecutionException {
 		InterfaceProvider.getCommandRunner().runCommand(
-				"LocalProperties.set(\"" + RepetitionsProperties.HALT_AFTER_REP_PROPERTY + "\",\"true\")");
+				"LocalProperties.set(\"" + RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY + "\",\"true\")");
 		InterfaceProvider.getTerminalPrinter().print(
-				"Request made to halt the current scan once this repetition has completed.");
+				"Request made to pause the current scan once this repetition has completed.");
 		return null;
 	}
 
