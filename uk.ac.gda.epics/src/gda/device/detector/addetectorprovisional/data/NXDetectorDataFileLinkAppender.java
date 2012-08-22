@@ -23,7 +23,7 @@ import gda.device.detector.NXDetectorData;
 import org.springframework.util.StringUtils;
 
 /**
- * Adds a link to an external hdfFile. Use onloy at start of scan.
+ * Adds a link to an external hdfFile. Use only at start of scan.
  */
 public class NXDetectorDataFileLinkAppender implements NXDetectorDataAppender {
 

@@ -18,6 +18,7 @@
 
 package gda.device.detector.addetectorprovisional;
 
+import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
@@ -315,12 +316,6 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 
 	@Override
 	public Callable<NexusTreeProvider> getPositionCallable() throws DeviceException {
-		// TODO inlcude this metadata!
-		// if (getMetaDataProvider() != null && firstReadoutInScan) {
-		// INexusTree nexusTree = getMetaDataProvider().getNexusTree();
-		// INexusTree detTree = data.getDetTree(getName());
-		// detTree.addChildNode(nexusTree);
-		// }
 		
 		if (pluginStreamsIndexer == null) {
 			throw new IllegalStateException("No pluginStreamsIndexer set --- atScanStart() must be called before getPositionCallable()");
@@ -342,6 +337,11 @@ public class ProvisionalADDetector extends gda.device.detector.addetector.ADDete
 			}
 		}
 
+		if (getMetaDataProvider() != null && firstReadoutInScan) {
+			INexusTree nexusTree = getMetaDataProvider().getNexusTree();
+			INexusTree detTree = emptyNXData.getDetTree(getName());
+			detTree.addChildNode(nexusTree);
+		}
 		Callable<NexusTreeProvider> callable = new NXDetectorDataCompletingCallable(emptyNXData, appendersCallable, getName());
 		return callable;
 	}
