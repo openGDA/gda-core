@@ -154,7 +154,7 @@ public class CommandProcessorComposite extends Composite {
 		};
 		btnSkip.setToolTipText("Stop current task and skip to start next - skip");
 		if (showText){
-			btnSkip.setText("Skip task");
+			btnSkip.setText("Skip Task");
 		} else {
 			btnSkip.setImageDescriptor(forwardOneImage);
 		}
