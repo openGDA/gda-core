@@ -27,9 +27,9 @@ import org.apache.commons.lang.ArrayUtils;
 import org.springframework.beans.factory.InitializingBean;
 
 import gda.device.DeviceException;
-import gda.device.detector.addetectorprovisional.data.NXDetectorDataAppender;
-import gda.device.detector.addetectorprovisional.data.NXDetectorDataDoubleAppender;
 import gda.device.detector.areadetector.v17.ADBase;
+import gda.device.detector.nxdata.NXDetectorDataAppender;
+import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
 
 abstract public class AbstractADTriggeringStrategy implements ADTriggeringStrategy, InitializingBean{
 

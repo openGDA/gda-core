@@ -20,7 +20,7 @@ package gda.device.detector.addetectorprovisional;
 
 import java.util.List;
 
-import gda.device.detector.addetectorprovisional.data.NXDetectorDataAppender;
+import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.scannable.PositionInputStream;
 
 

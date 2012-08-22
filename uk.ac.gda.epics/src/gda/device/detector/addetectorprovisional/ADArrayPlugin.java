@@ -20,9 +20,9 @@ package gda.device.detector.addetectorprovisional;
 
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
-import gda.device.detector.addetectorprovisional.data.NXDetectorDataAppender;
-import gda.device.detector.addetectorprovisional.data.NXDetectorDataNullAppender;
 import gda.device.detector.areadetector.v17.NDArray;
+import gda.device.detector.nxdata.NXDetectorDataAppender;
+import gda.device.detector.nxdata.NXDetectorDataNullAppender;
 
 import java.util.Arrays;
 import java.util.List;

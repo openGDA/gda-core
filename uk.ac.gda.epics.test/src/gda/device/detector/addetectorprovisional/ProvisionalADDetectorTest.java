@@ -31,11 +31,11 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.addetector.ADDetectorTest;
-import gda.device.detector.addetectorprovisional.data.NXDetectorDataAppender;
-import gda.device.detector.addetectorprovisional.data.NXDetectorDataDoubleAppender;
-import gda.device.detector.addetectorprovisional.data.NXDetectorDataFileAppenderForSrs;
-import gda.device.detector.addetectorprovisional.data.NXDetectorDataNullAppender;
 import gda.device.detector.addetectorprovisional.plugin.ADBasicStats;
+import gda.device.detector.nxdata.NXDetectorDataAppender;
+import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
+import gda.device.detector.nxdata.NXDetectorDataFileAppenderForSrs;
+import gda.device.detector.nxdata.NXDetectorDataNullAppender;
 
 import java.util.ArrayList;
 import java.util.Arrays;

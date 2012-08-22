@@ -19,9 +19,9 @@
 package gda.device.detector.addetector.filewriter;
 
 import gda.device.DeviceException;
-import gda.device.detector.addetectorprovisional.data.NXDetectorDataAppender;
-import gda.device.detector.addetectorprovisional.data.NXDetectorDataFileAppenderForSrs;
 import gda.device.detector.areadetector.v17.NDFile.FileWriteMode;
+import gda.device.detector.nxdata.NXDetectorDataAppender;
+import gda.device.detector.nxdata.NXDetectorDataFileAppenderForSrs;
 import gda.device.detectorfilemonitor.HighestExistingFileMonitor;
 
 import java.io.File;
