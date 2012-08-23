@@ -178,7 +178,7 @@ public class NXDetectorTest {
 	public void testPositionCallableTypeWithLinkingFileWriter() throws Exception {
 
 		configureStreamsForSinglePoint();
-		when(fileWriter.isLinkFilepath()).thenReturn(true);
+		when(fileWriter.appendsFilepathStrings()).thenReturn(false);
 		when(fileWriter.isEnabled()).thenReturn(true);
 
 		det.atScanStart();
@@ -193,7 +193,7 @@ public class NXDetectorTest {
 	public void testPositionCallableTypeWithDisabledNoLinkingFileWriter() throws Exception {
 		
 		configureStreamsForSinglePoint();
-		when(fileWriter.isLinkFilepath()).thenReturn(false);
+		when(fileWriter.appendsFilepathStrings()).thenReturn(true);
 		when(fileWriter.isEnabled()).thenReturn(false);
 
 		det.atScanStart();
@@ -208,7 +208,7 @@ public class NXDetectorTest {
 	public void testPositionCallableTypeWithEnabledNoLinkingFileWiter() throws Exception {
 		
 		configureStreamsForSinglePoint();
-		when(fileWriter.isLinkFilepath()).thenReturn(false);
+		when(fileWriter.appendsFilepathStrings()).thenReturn(true);
 		when(fileWriter.isEnabled()).thenReturn(true);
 
 		det.atScanStart();

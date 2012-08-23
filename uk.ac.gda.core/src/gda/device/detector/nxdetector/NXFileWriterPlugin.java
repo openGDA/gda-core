@@ -33,7 +33,7 @@ public interface NXFileWriterPlugin extends NXPlugin{
 	
 	void enableCallback(boolean enable) throws Exception;// TODO Required?
 
-	boolean isLinkFilepath();
+	boolean appendsFilepathStrings();
 
 	public String getFullFileName()  throws Exception;
 	
