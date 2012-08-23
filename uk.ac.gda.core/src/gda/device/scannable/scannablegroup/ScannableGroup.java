@@ -358,6 +358,10 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 
 	@Override
 	public String toFormattedString() {
+		//TODO this method does not provide correct indentation level for a scannable group inside another scannable group
+		//TODO the regex parser is unreliable as described by FIXME below
+		// IT would be better to create format message by delegate to individual members directly, rather than re-parsing output again.
+		
 		//TODO this works if the toFormattedString method of the members conforms to a standard. But I don't think there is one!
 		//Rather use getPosition and format here.
 		String membersOutput = getName() + " ::\n";
@@ -372,14 +376,6 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 		
 		// FIXME regex-based splitting of membersOutput is broken if one group member name is a substring of another - e.g. "col_y" and "col_yaw"
 		
-		// find the longest name, to help with formatting the output
-		int longestName = 0;
-		for (String objName : originalInputNames){
-			if (objName.length() > longestName){
-				longestName = objName.length();
-			}
-		}
-
 		if (originalInputNames.length + extras.length == 0) {
 			return membersOutput;
 		}
@@ -388,6 +384,13 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 			namesToSplitOn = (String[]) ArrayUtils.addAll(namesToSplitOn, extras);
 		}
 
+		// find the longest name, to help with formatting the output
+		int longestName = 0;
+		for (String objName : namesToSplitOn){
+			if (objName.length() > longestName){
+				longestName = objName.length();
+			}
+		}
 		namesToSplitOn = (String[]) ArrayUtils.add(namesToSplitOn, getName());
 		namesToSplitOn = (String[]) ArrayUtils.addAll(namesToSplitOn, names);
 
