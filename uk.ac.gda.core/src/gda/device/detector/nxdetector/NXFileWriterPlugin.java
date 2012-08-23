@@ -18,17 +18,12 @@
 
 package gda.device.detector.nxdetector;
 
-
-
-
-public interface NXFileWriterPlugin extends NXPlugin{
-
-	void enableCallback(boolean enable) throws Exception;// TODO Required on all NXPlugins?
+public interface NXFileWriterPlugin extends NXPlugin {
 
 	boolean appendsFilepathStrings();
 
-	@Deprecated 
+	@Deprecated
 	// used by ADDetector to wait for files to appear, a task that SingleImageFileWriter can now perform.
-	public String getFullFileName()  throws Exception;
-	
+	public String getFullFileName() throws Exception;
+
 }
