@@ -209,8 +209,8 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 	}
 	
 	@Override
-	public boolean isLinkFilepath() {
-		return true;
+	public boolean appendsFilepathStrings() {
+		return false;
 	}
 
 	@Override

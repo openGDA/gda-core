@@ -116,8 +116,8 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 	}
 
 	@Override
-	public boolean isLinkFilepath() {
-		return false;
+	public boolean appendsFilepathStrings() {
+		return true;
 	}
 
 	@Override

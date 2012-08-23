@@ -120,8 +120,8 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 		}
 
 		@Override
-		public boolean isLinkFilepath() {
-			return false;
+		public boolean appendsFilepathStrings() {
+			return true;
 		}
 
 		@Override
@@ -481,7 +481,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 			formats.add("%.2f");
 			extraNames.add("period");
 		}
-		if (isReadFilepath() && !getFileWriter().isLinkFilepath()) {
+		if (isReadFilepath() && getFileWriter().appendsFilepathStrings()) {
 			extraNames.add(FILEPATH_EXTRANAME);
 			// used to format the double that is put into the doubleVals array in this case
 			formats.add("%.2f");
@@ -785,7 +785,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 
 	protected NXDetectorData createNXDetectorData() throws Exception, DeviceException {
 		NXDetectorData data;
-		if (isReadFilepath() && !getFileWriter().isLinkFilepath()) {
+		if (isReadFilepath() && getFileWriter().appendsFilepathStrings()) {
 			data = new NXDetectorDataWithFilepathForSrs(this);
 		} else {
 			data = new NXDetectorData(this);
@@ -921,7 +921,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 			if (!StringUtils.hasLength(filename))
 				throw new IllegalArgumentException("filename is null or zero length");
 			// add reference to external file
-			if( !getFileWriter().isLinkFilepath()){
+			if( getFileWriter().appendsFilepathStrings()){
 				assert(data instanceof NXDetectorDataWithFilepathForSrs); 
 				NXDetectorDataWithFilepathForSrs dataForSrs = (NXDetectorDataWithFilepathForSrs) data;
 
