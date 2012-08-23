@@ -179,7 +179,7 @@ public class NXDetectorTest {
 
 		configureStreamsForSinglePoint();
 		when(fileWriter.isLinkFilepath()).thenReturn(true);
-		when(fileWriter.getEnable()).thenReturn(true);
+		when(fileWriter.isEnabled()).thenReturn(true);
 
 		det.atScanStart();
 		NexusTreeProvider data = det.getPositionCallable().call();
@@ -194,7 +194,7 @@ public class NXDetectorTest {
 		
 		configureStreamsForSinglePoint();
 		when(fileWriter.isLinkFilepath()).thenReturn(false);
-		when(fileWriter.getEnable()).thenReturn(false);
+		when(fileWriter.isEnabled()).thenReturn(false);
 
 		det.atScanStart();
 		NexusTreeProvider data = det.getPositionCallable().call();
@@ -209,7 +209,7 @@ public class NXDetectorTest {
 		
 		configureStreamsForSinglePoint();
 		when(fileWriter.isLinkFilepath()).thenReturn(false);
-		when(fileWriter.getEnable()).thenReturn(true);
+		when(fileWriter.isEnabled()).thenReturn(true);
 
 		det.atScanStart();
 		NexusTreeProvider data = det.getPositionCallable().call();

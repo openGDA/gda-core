@@ -27,9 +27,9 @@ public interface NXFileWriterPlugin extends NXPlugin{
 
 	public void setSetFileNameAndNumber(boolean setFileWriterNameNumber);
 
-	public void setEnable(boolean enable);
+	public void setEnabled(boolean enable);
 	
-	public boolean getEnable(); // TODO Rename isEnable to result in Jython enable boolean property
+	public boolean isEnabled();
 	
 	void enableCallback(boolean enable) throws Exception;// TODO Required?
 
