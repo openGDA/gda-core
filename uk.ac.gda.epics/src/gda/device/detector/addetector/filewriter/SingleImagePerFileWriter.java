@@ -18,16 +18,17 @@
 
 package gda.device.detector.addetector.filewriter;
 
+import static java.text.MessageFormat.format;
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.NDFile.FileWriteMode;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataFileAppenderForSrs;
 import gda.device.detectorfilemonitor.HighestExistingFileMonitor;
+import gda.device.detectorfilemonitor.HighestExitingFileMonitorSettings;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanBase;
 
 import java.io.File;
-import static java.text.MessageFormat.format;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -46,7 +47,9 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 	private static Logger logger = LoggerFactory.getLogger(SingleImagePerFileWriter.class);
 
 	private boolean returnExpectedFileName = true;
-
+	private String fileNameUsed="";
+	private String filePathUsed="";
+	private String fileTemplateUsed="";
 	private long nextExpectedFileNumber = 0;
 
 	private int SECONDS_BETWEEN_SLOW_FILE_ARRIVAL_MESSAGES = 10;
@@ -83,10 +86,10 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 	 * datadir
 	 *    123.dat
 	 *    123-pilatus100k-files
-	 * 00001.tif
+	 * 		00001.tif
 	 */
 	public SingleImagePerFileWriter(String detectorName) {
-		setFileTemplate("%s%s%5.5d.tif");
+		setFileTemplate("%s%s%05d.tif");
 		setFilePathTemplate("$datadir$/$scan$-" + detectorName + "-files");
 		setFileNameTemplate("");
 		setFileNumberAtScanStart(1);
@@ -144,11 +147,22 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 
 	protected void configureNdFile() throws Exception {
 
-		getNdFile().setFileTemplate(getFileTemplate());
+		fileTemplateUsed = getFileTemplate();
+		getNdFile().setFileTemplate(fileTemplateUsed);
 
-		getNdFile().setFilePath(getFilePath());
+		filePathUsed = getFilePath();
+		if(!filePathUsed.endsWith(File.separator))
+			filePathUsed += File.separator;
+		File f = new File(filePathUsed);
+		if (!f.exists()){
+			if(!f.mkdirs())
+				throw new Exception("Folder does not exist and cannot be made:" + filePathUsed);
+		}		
+		getNdFile().setFilePath(filePathUsed);
 
-		getNdFile().setFileName(getFileName());
+		fileNameUsed = getFileName();
+		getNdFile().setFileName(fileNameUsed);
+
 
 		if (getFileNumberAtScanStart() >= 0) {
 			getNdFile().setFileNumber((int) getFileNumberAtScanStart());
@@ -161,6 +175,15 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 
 		getNdFile().setAutoSave((short) 1);
 
+		if( highestExistingFileMonitor != null){
+			//remove the 2 %s from the fileTemplate to get to part after fileNameUsed
+			String postFileName=fileTemplateUsed.replaceFirst("%s", "").replaceFirst("%s", "");
+			HighestExitingFileMonitorSettings highestExitingFileMonitorSettings = 
+					new HighestExitingFileMonitorSettings(filePathUsed,fileNameUsed+postFileName, (int) nextExpectedFileNumber);
+			highestExistingFileMonitor.setHighestExitingFileMonitorSettings(highestExitingFileMonitorSettings);
+			highestExistingFileMonitor.setRunning(true);
+		}		
+		
 	}
 
 	@Override
@@ -180,8 +203,7 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 	@Override
 	public String getFullFileName() throws Exception {
 		if (returnExpectedFileName) {
-			String fullFileName = String
-					.format(getFileTemplate(), getFilePath(), getFileName(), nextExpectedFileNumber);
+			String fullFileName = String.format( fileTemplateUsed,filePathUsed,fileNameUsed, nextExpectedFileNumber);			
 			nextExpectedFileNumber++;
 			return fullFileName;
 		}

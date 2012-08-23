@@ -18,11 +18,10 @@
 
 package gda.device.detector.addetector.filewriter;
 
-import gda.data.PathConstructor;
 import gda.data.fileregistrar.FileRegistrarHelper;
 import gda.device.DeviceException;
-import gda.device.detector.areadetector.v17.NDFile.FileWriteMode;
 import gda.device.detector.areadetector.v17.NDFile;
+import gda.device.detector.areadetector.v17.NDFile.FileWriteMode;
 import gda.device.detector.areadetector.v17.NDFileHDF5;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataFileLinkAppender;
@@ -60,6 +59,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 	
 	public void setNdFileHDF5(NDFileHDF5 ndFileHDF5) {
 		this.ndFileHDF5 = ndFileHDF5;
+		super.setNdFile(ndFileHDF5.getFile());
 	}
 	
 	public NDFileHDF5 getNdFileHDF5() {
@@ -146,11 +146,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 	private void setupFilename() throws Exception {
 		getNdFile().setFileName(getFileName());
 		getNdFile().setFileTemplate(getFileTemplate());
-		
-		// Check to see if the data directory has been defined.
-		String dataDir = PathConstructor.createFromDefaultProperty();
-
-		getNdFile().setFilePath(dataDir);
+		getNdFile().setFilePath(getFilePath());
 		
 		long scanNumber = getScanNumber();
 
