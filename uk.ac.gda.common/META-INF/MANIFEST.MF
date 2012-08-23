@@ -4,7 +4,7 @@ Bundle-Name: Common Plug-in
 Bundle-SymbolicName: uk.ac.gda.common;singleton:=true
 Eclipse-RegisterBuddy: uk.ac.gda.libs
 Eclipse-BuddyPolicy: registered
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.2.0.qualifier
 Bundle-Vendor: Diamond Light Source
 Export-Package: gda.configuration.properties,
  gda.doe,
