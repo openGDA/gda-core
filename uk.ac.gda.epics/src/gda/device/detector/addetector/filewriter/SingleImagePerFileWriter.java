@@ -190,11 +190,10 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 	public void completeCollection() throws Exception {
 		if (!isEnabled())
 			return;
-		disableFileWriter();
+		disableFileWriting();
 	}
 
-	@Override
-	public void disableFileWriter() throws Exception {
+	public void disableFileWriting() throws Exception {
 		getNdFile().getPluginBase().disableCallbacks();
 		getNdFile().getPluginBase().setBlockingCallbacks((short) 0);
 		getNdFile().setFileWriteMode(FileWriteMode.STREAM);

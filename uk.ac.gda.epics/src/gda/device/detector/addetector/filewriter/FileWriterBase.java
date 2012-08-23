@@ -43,6 +43,8 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 
 	private boolean setFileNameAndNumber = true;
 	
+	abstract void disableFileWriting() throws Exception;
+	
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if (ndFile == null)
@@ -188,7 +190,7 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 	@Override
 	public void stop() throws Exception {
 		if(isEnabled())
-			disableFileWriter();
+			disableFileWriting();
 	}
 
 	@Override

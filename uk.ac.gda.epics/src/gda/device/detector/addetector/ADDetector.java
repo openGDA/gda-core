@@ -120,10 +120,6 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 		}
 
 		@Override
-		public void disableFileWriter() throws Exception {
-		}
-
-		@Override
 		public boolean isLinkFilepath() {
 			return false;
 		}

@@ -180,8 +180,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 	
 	
 	
-	@Override
-	public void disableFileWriter() throws Exception {
+	public void disableFileWriting() throws Exception {
 		getNdFile().getPluginBase().disableCallbacks();
 		getNdFile().getPluginBase().setBlockingCallbacks((short) 0);
 //		getNdFile().setFileWriteMode(FileWriteMode.STREAM);
@@ -194,7 +193,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 			return;
 		FileRegistrarHelper.registerFile(getNdFileHDF5().getFullFileName_RBV());
 		endRecording();
-		disableFileWriter();
+		disableFileWriting();
 	}
 	
 	private void endRecording() throws Exception {
