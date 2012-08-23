@@ -28,8 +28,6 @@ import static org.mockito.Mockito.when;
 import gda.data.nexus.tree.INexusTree;
 import gda.device.Detector;
 import gda.device.DeviceException;
-import gda.device.detector.NXDetector;
-import gda.device.detector.NXDetectorData;
 import gda.device.detector.addetector.ADDetectorTest;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
@@ -161,14 +159,14 @@ public class NXDetectorAreaDetectorIntegrationTest extends ADDetectorTest {
 			Vector<NXDetectorDataAppender> dataAppenders = new Vector<NXDetectorDataAppender>();
 			dataAppenders.add(new NXDetectorDataFileAppenderForSrs("/full/path/to/file99.cbf", "filepath"));
 			when(fileWriter.read(anyInt())).thenReturn(dataAppenders);
-			when(fileWriter.isEnabled()).thenReturn(true);
+			when(fileWriter.appendsFilepathStrings()).thenReturn(true);
 		} else {
 			when(fileWriter.getInputStreamNames()).thenReturn(Arrays.asList(new String[]{}));
 			when(fileWriter.getInputStreamFormats()).thenReturn(Arrays.asList(new String[]{}));
 			Vector<NXDetectorDataAppender> dataAppenders = new Vector<NXDetectorDataAppender>();
 			dataAppenders.add(new NXDetectorDataNullAppender());
 			when(fileWriter.read(anyInt())).thenReturn(dataAppenders);
-			when(fileWriter.isEnabled()).thenReturn(false);
+			when(fileWriter.appendsFilepathStrings()).thenReturn(false);
 		}
 	}
 

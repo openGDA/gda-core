@@ -43,7 +43,7 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 
 	private boolean setFileNameAndNumber = true;
 	
-	abstract void disableFileWriting() throws Exception;
+	abstract protected void disableFileWriting() throws Exception;
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -199,15 +199,10 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 			stop();
 	}
 	
-	@Override
 	public void setEnabled(boolean enableDuringScan) {
 		this.enableDuringScan = enableDuringScan;
 	}
 
-	/*
-	 * Setup fileWriter if this and isReadFilePath are true
-	 */
-	@Override
 	public boolean isEnabled() {
 		return enableDuringScan;
 	}
@@ -252,7 +247,7 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 
 	@Override
 	public boolean willRequireCallbacks() {
-		return isEnabled();
+		return isEnabled(); // always requires callbacks if enabled
 	}
 
 	@Override

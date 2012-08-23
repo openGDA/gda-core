@@ -147,15 +147,6 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 		}
 
 		@Override
-		public void setEnabled(boolean enable) {
-		}
-
-		@Override
-		public boolean isEnabled() {
-			return false;
-		}
-
-		@Override
 		public void enableCallback(boolean enable) throws Exception {
 		}
 

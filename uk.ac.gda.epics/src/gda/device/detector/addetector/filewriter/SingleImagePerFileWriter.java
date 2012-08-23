@@ -117,7 +117,7 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 
 	@Override
 	public boolean appendsFilepathStrings() {
-		return true;
+		return isEnabled(); // will always append strings when enabled
 	}
 
 	@Override

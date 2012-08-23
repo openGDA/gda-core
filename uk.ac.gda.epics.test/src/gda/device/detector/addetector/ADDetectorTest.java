@@ -90,6 +90,7 @@ public class ADDetectorTest {
 		adDet().afterPropertiesSet();
 		when(ndArray.getPluginBase()).thenReturn(ndArrayBase);
 		when(ndStats.getPluginBase()).thenReturn(ndStatsBase);
+		when(fileWriter.appendsFilepathStrings()).thenReturn(true);
 	}
 
 	@SuppressWarnings("unused")
