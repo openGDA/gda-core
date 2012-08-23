@@ -20,12 +20,10 @@ package gda.device.scannable;
 
 import gda.device.DeviceException;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -64,7 +62,7 @@ public class PositionStreamIndexer<T> implements PositionCallableProvider<T> {
 	public T get(int index) throws NoSuchElementException, InterruptedException, DeviceException {
 		fairGetLock.lock();
 		// Keep reading until the indexed element is read from the stream.
-		while (index > readValuesNotGot.size() - 1) {
+		while (index > lastIndexRead) {
 			List<T> values = stream.read(maxElementsToReadInOneGo);
 			for (T value : values) {
 				readValuesNotGot.put(++lastIndexRead, value);

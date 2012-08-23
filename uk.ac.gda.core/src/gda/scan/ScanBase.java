@@ -994,7 +994,12 @@ public abstract class ScanBase implements Scan {
 				try {
 					doCollection();
 				} catch (InterruptedException e) {
-					throw e;   // need the correct exception type so wrapping code know its an interrupt
+					// need the correct exception type so wrapping code know its an interrupt
+					String message = "Scan interrupted";
+					if (interrupted){
+						message = "Scan aborted on request.";
+					}
+					throw new ScanInterruptedException(message,e.getStackTrace());
 				} catch (Exception e) {
 					throw new Exception("Exception during scan collection: " + createMessage(e), e);
 				}
@@ -1036,7 +1041,6 @@ public abstract class ScanBase implements Scan {
 			// Note: some subclasses override the run method so its code cannot
 			// be simply pulled into this method
 			run();
-
 		} finally {
 			
 			// Leaving interrupted true (if it is) allows jython scripts running
@@ -1052,7 +1056,7 @@ public abstract class ScanBase implements Scan {
 		}
 
 		if (interrupted) {
-			logger.info("Scan interuppted ScanBase.interupted flag");
+			logger.info("Scan interupted ScanBase.interupted flag");
 			throw new InterruptedException("Scan interrupted");
 		}
 	}
