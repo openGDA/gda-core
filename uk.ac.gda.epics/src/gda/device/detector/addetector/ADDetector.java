@@ -164,7 +164,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 		}
 
 		@Override
-		public String getFullFileName_RBV() throws Exception {
+		public String getFullFileName() throws Exception {
 			return DUMMY_FILE_WRITER_GET_FULL_FILE_NAME_RBV;
 		}
 
@@ -695,7 +695,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 	}
 
 	protected String createFileName() throws Exception {
-		return getFileWriter().getFullFileName_RBV();
+		return getFileWriter().getFullFileName();
 	}
 
 	static private int[] determineDataDimensions(NDArray ndArray) throws Exception {

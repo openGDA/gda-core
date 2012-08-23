@@ -250,7 +250,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 		if (firstReadoutInScan) {
 			String filepath;
 			try {
-				filepath = getFullFileName_RBV();
+				filepath = getFullFileName();
 			} catch (Exception e) {
 				throw new DeviceException(e);
 			}

@@ -445,7 +445,7 @@ public class ADDetectorTest {
 		enableReadAcquisitionTimeAndPeriod(false, false);
 		enableFileWriter(true);
 
-		when(fileWriter.getFullFileName_RBV()).thenReturn("/full/path/to/file99.cbf");
+		when(fileWriter.getFullFileName()).thenReturn("/full/path/to/file99.cbf");
 		det().atScanStart();
 		NXDetectorData readout = (NXDetectorData) det().readout();
 		Double[] doubleVals = readout.getDoubleVals();
@@ -475,7 +475,7 @@ public class ADDetectorTest {
 		enableStatsAndCentroid(false, false);
 		enableFileWriter(true);
 
-		when(fileWriter.getFullFileName_RBV()).thenReturn("/full/path/to/file99.cbf");
+		when(fileWriter.getFullFileName()).thenReturn("/full/path/to/file99.cbf");
 
 		when(collectionStrategy.getAcquireTime()).thenReturn(0.5);
 		when(collectionStrategy.getAcquirePeriod()).thenReturn(0.55);

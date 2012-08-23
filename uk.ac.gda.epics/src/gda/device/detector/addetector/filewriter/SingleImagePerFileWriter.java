@@ -178,14 +178,14 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 	}
 
 	@Override
-	public String getFullFileName_RBV() throws Exception {
+	public String getFullFileName() throws Exception {
 		if (returnExpectedFileName) {
 			String fullFileName = String
 					.format(getFileTemplate(), getFilePath(), getFileName(), nextExpectedFileNumber);
 			nextExpectedFileNumber++;
 			return fullFileName;
 		}
-		return super.getFullFileName_RBV();
+		return super.getFullFileName();
 	}
 
 	@Override
@@ -208,7 +208,7 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 
 		String filepath;
 		try {
-			filepath = getFullFileName_RBV();
+			filepath = getFullFileName();
 		} catch (Exception e) {
 			throw new DeviceException(e);
 		}

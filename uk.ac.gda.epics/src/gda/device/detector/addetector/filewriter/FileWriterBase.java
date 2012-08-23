@@ -233,7 +233,7 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 	}
 
 	@Override
-	public String getFullFileName_RBV() throws Exception {
+	public String getFullFileName() throws Exception {
 		return ndFile.getFullFileName_RBV();
 	}
 	
