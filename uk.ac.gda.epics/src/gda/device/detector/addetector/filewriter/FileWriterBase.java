@@ -205,7 +205,6 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 		return enableDuringScan;
 	}
 
-	@Override
 	public void enableCallback(boolean enable) throws Exception {
 		if( enable )
 			ndFile.getPluginBase().enableCallbacks();

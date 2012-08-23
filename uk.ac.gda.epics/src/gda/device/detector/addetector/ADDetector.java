@@ -138,10 +138,6 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 		}
 
 		@Override
-		public void enableCallback(boolean enable) throws Exception {
-		}
-
-		@Override
 		public String getFullFileName() throws Exception {
 			return DUMMY_FILE_WRITER_GET_FULL_FILE_NAME_RBV;
 		}

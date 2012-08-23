@@ -18,6 +18,8 @@
 
 package gda.device.detector.addetector;
 
+import gda.device.detector.addetector.filewriter.FileWriterBase;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,14 +33,14 @@ public class ADPco extends ADDetector {
 	
 	public void initialiseFileWriterPluginImageSizeByTakingExposure() throws Exception {
 		logger.info("Epics kludge: Exposing a single image to initialise image size in file writing plugin");
-		
+		// TODO if still required, move into FileWriters and add to interface
 		getFileWriter().completeCollection(); // ensure the thing is not recording!
-		getFileWriter().enableCallback(true);
+		((FileWriterBase) getFileWriter()).enableCallback(true);
 		getCollectionStrategy().prepareForCollection(.01, 1);
 		collectData();
 		waitWhileBusy();
 		endCollection();
-		getFileWriter().enableCallback(false);
+		((FileWriterBase) getFileWriter()).enableCallback(false);
 		logger.info("Epics kludge complete");
 	}
 
