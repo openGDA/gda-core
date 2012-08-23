@@ -187,18 +187,18 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 	
 	@Override
 	public void stop() throws Exception {
-		if(getEnable())
+		if(isEnabled())
 			disableFileWriter();
 	}
 
 	@Override
 	public void atCommandFailure() throws Exception {
-		if(getEnable())
+		if(isEnabled())
 			stop();
 	}
 	
 	@Override
-	public void setEnable(boolean enableDuringScan) {
+	public void setEnabled(boolean enableDuringScan) {
 		this.enableDuringScan = enableDuringScan;
 	}
 
@@ -206,7 +206,7 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 	 * Setup fileWriter if this and isReadFilePath are true
 	 */
 	@Override
-	public boolean getEnable() {
+	public boolean isEnabled() {
 		return enableDuringScan;
 	}
 
@@ -250,7 +250,7 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 
 	@Override
 	public boolean willRequireCallbacks() {
-		return getEnable();
+		return isEnabled();
 	}
 
 	@Override

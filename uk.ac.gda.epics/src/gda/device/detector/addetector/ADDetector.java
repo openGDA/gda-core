@@ -151,11 +151,11 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 		}
 
 		@Override
-		public void setEnable(boolean enable) {
+		public void setEnabled(boolean enable) {
 		}
 
 		@Override
-		public boolean getEnable() {
+		public boolean isEnabled() {
 			return false;
 		}
 
@@ -421,7 +421,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 			if( ndFile != null){
 				SingleImagePerFileWriter fileW = new SingleImagePerFileWriter(getName());
 				fileW.setNdFile(ndFile);
-				fileW.setEnable(true);
+				fileW.setEnabled(true);
 				fileW.afterPropertiesSet();
 				fileWriter = fileW;
 			}

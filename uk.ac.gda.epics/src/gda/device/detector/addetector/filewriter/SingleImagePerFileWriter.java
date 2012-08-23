@@ -120,7 +120,7 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection) throws Exception {
 
-		if (!getEnable())
+		if (!isEnabled())
 			return;
 
 		// Create filePath directory if required
@@ -165,7 +165,7 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 
 	@Override
 	public void completeCollection() throws Exception {
-		if (!getEnable())
+		if (!isEnabled())
 			return;
 		disableFileWriter();
 	}

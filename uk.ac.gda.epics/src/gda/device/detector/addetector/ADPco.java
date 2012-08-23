@@ -32,21 +32,21 @@ public class ADPco extends ADDetector {
 	public void initialiseFileWriterPluginImageSizeByTakingExposure() throws Exception {
 		logger.info("Epics kludge: Exposing a single image to initialise image size in file writing plugin");
 		
-		getFileWriter().setEnable(false);
+		getFileWriter().setEnabled(false);
 		getFileWriter().enableCallback(true);
 		getCollectionStrategy().prepareForCollection(.01, 1);
 		collectData();
 		waitWhileBusy();
 		endCollection();
 		getFileWriter().enableCallback(false);
-		getFileWriter().setEnable(true);
+		getFileWriter().setEnabled(true);
 		logger.info("Epics kludge complete");
 	}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		super.afterPropertiesSet();
-		getFileWriter().setEnable(true);
+		getFileWriter().setEnabled(true);
 	}
 	
 	

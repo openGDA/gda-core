@@ -161,14 +161,14 @@ public class NXDetectorAreaDetectorIntegrationTest extends ADDetectorTest {
 			Vector<NXDetectorDataAppender> dataAppenders = new Vector<NXDetectorDataAppender>();
 			dataAppenders.add(new NXDetectorDataFileAppenderForSrs("/full/path/to/file99.cbf", "filepath"));
 			when(fileWriter.read(anyInt())).thenReturn(dataAppenders);
-			when(fileWriter.getEnable()).thenReturn(true);
+			when(fileWriter.isEnabled()).thenReturn(true);
 		} else {
 			when(fileWriter.getInputStreamNames()).thenReturn(Arrays.asList(new String[]{}));
 			when(fileWriter.getInputStreamFormats()).thenReturn(Arrays.asList(new String[]{}));
 			Vector<NXDetectorDataAppender> dataAppenders = new Vector<NXDetectorDataAppender>();
 			dataAppenders.add(new NXDetectorDataNullAppender());
 			when(fileWriter.read(anyInt())).thenReturn(dataAppenders);
-			when(fileWriter.getEnable()).thenReturn(false);
+			when(fileWriter.isEnabled()).thenReturn(false);
 		}
 	}
 

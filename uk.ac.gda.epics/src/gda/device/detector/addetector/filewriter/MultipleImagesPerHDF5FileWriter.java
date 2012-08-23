@@ -96,7 +96,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection) throws Exception {
-		if(!getEnable())
+		if(!isEnabled())
 			return;
 		setNDArrayPortAndAddress();
 		getNdFile().getPluginBase().disableCallbacks();
@@ -194,7 +194,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 	
 	@Override
 	public void completeCollection() throws Exception{
-		if(!getEnable())
+		if(!isEnabled())
 			return;
 		FileRegistrarHelper.registerFile(getNdFileHDF5().getFullFileName_RBV());
 		endRecording();
@@ -220,7 +220,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 
 	@Override
 	public void stop() throws Exception {
-		if(!getEnable())
+		if(!isEnabled())
 			return;
 		getNdFileHDF5().stopCapture();
 		
@@ -228,7 +228,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 
 	@Override
 	public void atCommandFailure() throws Exception {
-		if(!getEnable())
+		if(!isEnabled())
 			return;
 		stop();
 	}
