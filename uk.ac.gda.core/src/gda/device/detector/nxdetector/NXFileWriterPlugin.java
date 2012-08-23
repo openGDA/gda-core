@@ -37,6 +37,6 @@ public interface NXFileWriterPlugin extends NXPlugin{
 
 	boolean isLinkFilepath();
 
-	public String getFullFileName_RBV()  throws Exception; // TODO Rename getFullFileName
+	public String getFullFileName()  throws Exception;
 	
 }
