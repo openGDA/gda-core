@@ -97,6 +97,12 @@ public class PreferenceConstants {
 	 * Default is TRUE
 	 */
 	public static final String GDA_OPEN_XYPLOT_ON_SCAN_START = "gda.open_xyplot_on_scan_start";
+
+	/**
+	 * Name of preference containing ID of view to open at the start of a scan
+	 * Default is empty - in which case XYPlotView is opened
+	 */
+	public static final String GDA_OPEN_XYPLOT_ON_SCAN_START_ID = "gda.open_xyplot_on_scan_start_id";
 	
 	/**
 	 * Comma separated list of the names of the LoggingScriptControllers whose logs are to be displayed in the

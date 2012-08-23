@@ -252,6 +252,8 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 
 			IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
 			if (preferenceStore.getBoolean(PreferenceConstants.GDA_OPEN_XYPLOT_ON_SCAN_START)){
+				String viewid = preferenceStore.getString(PreferenceConstants.GDA_OPEN_XYPLOT_ON_SCAN_START_ID);
+				final String viewIdFinal = viewid != "" ? viewid : XYPlotView.ID;
 				final IScanDataPointObserver openXYPlotOnScanStart = new IScanDataPointObserver() {
 					
 					@Override
@@ -264,9 +266,9 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 									@Override
 									public void run() {
 										try {
-											PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(XYPlotView.ID, null, IWorkbenchPage.VIEW_VISIBLE);
+											PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(viewIdFinal, null, IWorkbenchPage.VIEW_VISIBLE);
 										} catch (PartInitException e) {
-											logger.error("Error opening " + XYPlotView.ID, e);
+											logger.error("Error opening " + viewIdFinal, e);
 										}
 									}
 								});
