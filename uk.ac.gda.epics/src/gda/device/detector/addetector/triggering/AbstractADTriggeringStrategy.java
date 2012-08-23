@@ -150,7 +150,7 @@ abstract public class AbstractADTriggeringStrategy implements NXCollectionStrate
 	}
 	
 	@Override
-	public List<String> getInputStreamExtraNames() {
+	public List<String> getInputStreamNames() {
 		List<String> fieldNames = new ArrayList<String>();
 		if (isReadAcquisitionTime()) {
 			fieldNames.add("count_time");
@@ -191,7 +191,7 @@ abstract public class AbstractADTriggeringStrategy implements NXCollectionStrate
 			}
 		}
 		Vector<NXDetectorDataAppender> vector = new Vector<NXDetectorDataAppender>();
-		vector.add(new NXDetectorDataDoubleAppender(getInputStreamExtraNames(), times));
+		vector.add(new NXDetectorDataDoubleAppender(getInputStreamNames(), times));
 		return vector;
 	}
 

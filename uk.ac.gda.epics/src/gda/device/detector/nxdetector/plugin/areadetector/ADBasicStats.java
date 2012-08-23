@@ -122,7 +122,7 @@ public class ADBasicStats implements NXPlugin {
 	}
 
 	@Override
-	public List<String> getInputStreamExtraNames() {
+	public List<String> getInputStreamNames() {
 		List<String> fieldNames = new ArrayList<String>();
 		if (isComputeStats()) {
 			fieldNames.addAll(Arrays.asList(statsGroup.getFieldNames()));
@@ -164,7 +164,7 @@ public class ADBasicStats implements NXPlugin {
 			}
 		}
 		List<NXDetectorDataAppender> appenders = new ArrayList<NXDetectorDataAppender>();
-		appenders.add(new NXDetectorDataDoubleAppender(getInputStreamExtraNames(), values));
+		appenders.add(new NXDetectorDataDoubleAppender(getInputStreamNames(), values));
 		return appenders;
 	}
 

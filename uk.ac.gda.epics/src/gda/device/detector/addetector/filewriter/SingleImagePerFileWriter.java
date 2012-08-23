@@ -189,7 +189,7 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 	}
 
 	@Override
-	public List<String> getInputStreamExtraNames() {
+	public List<String> getInputStreamNames() {
 		return Arrays.asList(FILEPATH_EXTRANAME);
 	}
 

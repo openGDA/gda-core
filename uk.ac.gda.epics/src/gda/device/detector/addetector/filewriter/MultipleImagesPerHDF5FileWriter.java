@@ -234,7 +234,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 	}
 	
 	@Override
-	public List<String> getInputStreamExtraNames() {
+	public List<String> getInputStreamNames() {
 		return Arrays.asList();
 	}
 

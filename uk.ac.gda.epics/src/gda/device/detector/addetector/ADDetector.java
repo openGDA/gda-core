@@ -191,7 +191,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 		}
 
 		@Override
-		public List<String> getInputStreamExtraNames() {
+		public List<String> getInputStreamNames() {
 			return Arrays.asList();
 		}
 

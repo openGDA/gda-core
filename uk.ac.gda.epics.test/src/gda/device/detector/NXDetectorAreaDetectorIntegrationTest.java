@@ -144,7 +144,7 @@ public class NXDetectorAreaDetectorIntegrationTest extends ADDetectorTest {
 		}
 		Vector<NXDetectorDataAppender> dataAppenders = new Vector<NXDetectorDataAppender>();
 		dataAppenders.add(new NXDetectorDataDoubleAppender(fieldNames, times));
-		when(collectionStrategy.getInputStreamExtraNames()).thenReturn(fieldNames);
+		when(collectionStrategy.getInputStreamNames()).thenReturn(fieldNames);
 		when(collectionStrategy.getInputStreamFormats()).thenReturn(formats);
 		try {
 			when(collectionStrategy.read(anyInt())).thenReturn(dataAppenders);
@@ -156,14 +156,14 @@ public class NXDetectorAreaDetectorIntegrationTest extends ADDetectorTest {
 	@Override
 	protected void enableFileWriter(boolean enableFileWriter) throws Exception {
 		if (enableFileWriter) {
-			when(fileWriter.getInputStreamExtraNames()).thenReturn(Arrays.asList("filepath"));
+			when(fileWriter.getInputStreamNames()).thenReturn(Arrays.asList("filepath"));
 			when(fileWriter.getInputStreamFormats()).thenReturn(Arrays.asList("%.2f"));
 			Vector<NXDetectorDataAppender> dataAppenders = new Vector<NXDetectorDataAppender>();
 			dataAppenders.add(new NXDetectorDataFileAppenderForSrs("/full/path/to/file99.cbf", "filepath"));
 			when(fileWriter.read(anyInt())).thenReturn(dataAppenders);
 			when(fileWriter.getEnable()).thenReturn(true);
 		} else {
-			when(fileWriter.getInputStreamExtraNames()).thenReturn(Arrays.asList(new String[]{}));
+			when(fileWriter.getInputStreamNames()).thenReturn(Arrays.asList(new String[]{}));
 			when(fileWriter.getInputStreamFormats()).thenReturn(Arrays.asList(new String[]{}));
 			Vector<NXDetectorDataAppender> dataAppenders = new Vector<NXDetectorDataAppender>();
 			dataAppenders.add(new NXDetectorDataNullAppender());
@@ -234,26 +234,26 @@ public class NXDetectorAreaDetectorIntegrationTest extends ADDetectorTest {
 	private void enableAdditionalPlugins(boolean enable1, boolean enable2) throws Exception {
 		
 		if (enable1) {
-			when(adDetectorPlugin1.getInputStreamExtraNames()).thenReturn(Arrays.asList(PLUGIN1_NAMES));
+			when(adDetectorPlugin1.getInputStreamNames()).thenReturn(Arrays.asList(PLUGIN1_NAMES));
 			when(adDetectorPlugin1.getInputStreamFormats()).thenReturn(Arrays.asList(PLUGIN1_FORMATS));
 			Vector<NXDetectorDataAppender> dataAppenders = new Vector<NXDetectorDataAppender>();
 			dataAppenders.add(new NXDetectorDataDoubleAppender(Arrays.asList(PLUGIN1_NAMES), Arrays.asList(0., 1., 2.)));
 			when(adDetectorPlugin1.read(anyInt())).thenReturn(dataAppenders);
 		} else {
-			when(adDetectorPlugin1.getInputStreamExtraNames()).thenReturn(Arrays.asList(new String[0]));
+			when(adDetectorPlugin1.getInputStreamNames()).thenReturn(Arrays.asList(new String[0]));
 			when(adDetectorPlugin1.getInputStreamFormats()).thenReturn(Arrays.asList(new String[0]));
 			Vector<NXDetectorDataAppender> dataAppenders = new Vector<NXDetectorDataAppender>();
 			dataAppenders.add(new NXDetectorDataNullAppender());
 			when(adDetectorPlugin1.read(anyInt())).thenReturn(dataAppenders);
 		} 
 		if (enable2) {
-			when(adDetectorPlugin2.getInputStreamExtraNames()).thenReturn(Arrays.asList(PLUGIN2_NAMES));
+			when(adDetectorPlugin2.getInputStreamNames()).thenReturn(Arrays.asList(PLUGIN2_NAMES));
 			when(adDetectorPlugin2.getInputStreamFormats()).thenReturn(Arrays.asList(PLUGIN2_FORMATS));
 			Vector<NXDetectorDataAppender> dataAppenders = new Vector<NXDetectorDataAppender>();
 			dataAppenders.add(new NXDetectorDataDoubleAppender(Arrays.asList(PLUGIN2_NAMES), Arrays.asList(3., 4.)));
 			when(adDetectorPlugin2.read(anyInt())).thenReturn(dataAppenders);
 		} else {
-			when(adDetectorPlugin2.getInputStreamExtraNames()).thenReturn(Arrays.asList(new String[0]));
+			when(adDetectorPlugin2.getInputStreamNames()).thenReturn(Arrays.asList(new String[0]));
 			when(adDetectorPlugin2.getInputStreamFormats()).thenReturn(Arrays.asList(new String[0]));
 			Vector<NXDetectorDataAppender> dataAppenders = new Vector<NXDetectorDataAppender>();
 			dataAppenders.add(new NXDetectorDataNullAppender());

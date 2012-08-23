@@ -86,7 +86,7 @@ public class ADArrayPlugin implements NXPlugin {
 	}
 
 	@Override
-	public List<String> getInputStreamExtraNames() {
+	public List<String> getInputStreamNames() {
 		return Arrays.asList();
 	}
 
