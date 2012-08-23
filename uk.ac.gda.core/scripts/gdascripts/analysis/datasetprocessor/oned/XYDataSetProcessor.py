@@ -28,10 +28,17 @@ class XYDataSetProcessor(object):
 			if self.raise_process_exceptions:
 				raise e
 			return XYDataSetResult(self.name, results, self.labelList, self.keyxlabel, "Exception: %s" % `e`)
-
-		for (label, result) in zip(self.labelList, answer):
-			results[label] = result
-		return XYDataSetResult(self.name, results, self.labelList, self.keyxlabel, self.__getWordyResults(results))
+		if type(answer[0])==type(tuple()):
+			xydatasetResults=[]
+			for each in answer:
+				for (label, result) in zip(self.labelList, each):
+					results[label] = result
+				xydatasetResults.append(XYDataSetResult(self.name, results, self.labelList, self.keyxlabel, self.__getWordyResults(results)))
+			return xydatasetResults
+		else:
+			for (label, result) in zip(self.labelList, answer):
+				results[label] = result
+			return XYDataSetResult(self.name, results, self.labelList, self.keyxlabel, self.__getWordyResults(results))
 	
 	def __getWordyResults(self, resultsDict):
 		orderedResults = []
