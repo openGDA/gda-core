@@ -156,7 +156,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	public String[] getExtraNames() {
 		List<String> extraNames = new ArrayList<String>();
 		for (NXPlugin plugin : getPluginList()) {
-			extraNames.addAll(plugin.getInputStreamExtraNames());
+			extraNames.addAll(plugin.getInputStreamNames());
 		}
 		return extraNames.toArray(new String[] {});
 	}

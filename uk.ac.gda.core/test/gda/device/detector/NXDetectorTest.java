@@ -99,9 +99,9 @@ public class NXDetectorTest {
 
 	@Test
 	public void testGetExtraNames() {
-		when(collectionStrategy.getInputStreamExtraNames()).thenReturn(Arrays.asList("a", "b"));
-		when(fileWriter.getInputStreamExtraNames()).thenReturn(Arrays.asList("c"));
-		when(plugin.getInputStreamExtraNames()).thenReturn(Arrays.asList("d", "e"));
+		when(collectionStrategy.getInputStreamNames()).thenReturn(Arrays.asList("a", "b"));
+		when(fileWriter.getInputStreamNames()).thenReturn(Arrays.asList("c"));
+		when(plugin.getInputStreamNames()).thenReturn(Arrays.asList("d", "e"));
 		assertArrayEquals(new String[] { "a", "b", "c", "d", "e" }, det.getExtraNames());
 	}
 

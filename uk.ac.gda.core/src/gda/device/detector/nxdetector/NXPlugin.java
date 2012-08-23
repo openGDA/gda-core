@@ -42,7 +42,7 @@ public interface NXPlugin extends PositionInputStream<NXDetectorDataAppender> {
 
 	void stop() throws Exception;
 	
-	List<String> getInputStreamExtraNames();
+	List<String> getInputStreamNames();
 
 	List<String> getInputStreamFormats();
 
