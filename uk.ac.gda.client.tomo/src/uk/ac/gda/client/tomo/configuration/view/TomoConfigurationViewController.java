@@ -65,4 +65,8 @@ public class TomoConfigurationViewController extends TomoViewController {
 		tomoScan.schedule();
 	}
 
+	public void stopScan() {
+		getScanController().stopScan();
+	}
+
 }

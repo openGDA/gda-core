@@ -238,5 +238,10 @@ public class TomoScanController implements ITomoScanController {
 			isInitialised = true;
 		}
 	}
+	
+	@Override
+	public void stopScan() {
+		InterfaceProvider.getCommandRunner().evaluateCommand(TomoClientConstants.TOMOGRAPHY_STOP_SCAN);
+	}
 
 }

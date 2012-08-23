@@ -18,6 +18,11 @@
 
 package uk.ac.gda.client.tomo.configuration.view;
 
+import gda.commandqueue.Processor;
+import gda.commandqueue.ProcessorCurrentItem;
+import gda.commandqueue.QueuedCommandSummary;
+import gda.observable.IObserver;
+
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.DateFormat;
@@ -94,6 +99,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.util.CommandExecutor;
+import uk.ac.gda.client.CommandQueueContributionFactory;
+import uk.ac.gda.client.CommandQueueViewFactory;
 import uk.ac.gda.client.tomo.ImageConstants;
 import uk.ac.gda.client.tomo.TomoClientActivator;
 import uk.ac.gda.client.tomo.TomoClientConstants;
@@ -131,7 +138,7 @@ public class TomoConfigurationView extends ViewPart {
 	private static final String ID_GET_RUNNING_CONFIG = "RunningConfig#";
 
 	private static final Logger logger = LoggerFactory.getLogger(TomoConfigurationView.class);
-
+	private Button btnInterruptTomoRuns;
 	private static final String MOVE_DOWN = "Move Down";
 	private static final String MOVE_UP = "Move Up";
 	private static final String DELETE_SELECTED_CONFIGS = "Delete Selected Configuration(s)";
@@ -383,12 +390,14 @@ public class TomoConfigurationView extends ViewPart {
 		btnStartTomoRuns.setLayoutData(new GridData(GridData.FILL_BOTH));
 		btnStartTomoRuns.addSelectionListener(btnSelListener);
 
+		// Interrupt Tomo Runs
 		btnInterruptTomoRuns = toolkit.createButton(middleRowComposite, INTERRUPT_TOMO_RUNS, SWT.PUSH);
 		btnInterruptTomoRuns.setLayoutData(new GridData(GridData.FILL_BOTH));
 		btnInterruptTomoRuns.addSelectionListener(btnSelListener);
-		// Interrupt Tomo Runs
-		Button btnStopTomoRuns = toolkit.createButton(middleRowComposite, "Stop Tomo Runs", SWT.PUSH);
+		// Stop tomo runs
+		btnStopTomoRuns = toolkit.createButton(middleRowComposite, "Stop Tomo Runs", SWT.PUSH);
 		btnStopTomoRuns.setLayoutData(new GridData(GridData.FILL_BOTH));
+		btnStopTomoRuns.addSelectionListener(btnSelListener);
 
 		// Stats
 		Button btnStats = toolkit.createButton(middleRowComposite, "Display Stats", SWT.PUSH);
@@ -434,7 +443,81 @@ public class TomoConfigurationView extends ViewPart {
 		tomoConfigViewController.isScanRunning();
 		//
 		configModelTableViewer.getTable().layout();
+		final Processor processor = CommandQueueViewFactory.getProcessor();
+		CommandQueueViewFactory.getProcessor().addIObserver(queueObserver);
+		try {
+			queueObserver.update(null, processor.getState());
+		} catch (Exception e1) {
+			logger.error("Error getting state of processor", e1);
+		}
+
 	}
+
+	private IObserver queueObserver = new IObserver() {
+
+		private final Processor processor = CommandQueueViewFactory.getProcessor();
+
+		private ProcessorCurrentItem getProcessorCurrentItem() {
+			try {
+				return processor.getCurrentItem();
+			} catch (Exception e) {
+				logger.error("Error getting processor current item", e);
+			}
+			return null;
+		}
+
+		// update the GUI based on state of processor
+		void updateStatus(final Processor.STATE stateIn, final ProcessorCurrentItem item) {
+			Display.getDefault().asyncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					Processor.STATE state = stateIn;
+					if (state == null) {
+						state = getProcessorState();
+					}
+
+					switch (state) {
+					case PROCESSING_ITEMS:
+						btnInterruptTomoRuns.setText(INTERRUPT_TOMO_RUNS);
+						break;
+					case UNKNOWN:
+						break;
+					case WAITING_QUEUE:
+					case WAITING_START:
+						if (isScanRunning) {
+							btnInterruptTomoRuns.setText(RESUME_SCAN);
+						}
+						break;
+					}
+				}
+
+				private Processor.STATE getProcessorState() {
+					try {
+						return processor.getState();
+					} catch (Exception e) {
+						logger.error("Error getting processor state", e);
+					}
+					return Processor.STATE.UNKNOWN;
+				}
+
+			});
+
+		}
+
+		@Override
+		public void update(Object source, Object arg) {
+			ProcessorCurrentItem item = null;
+			if (arg instanceof Processor.STATE) {
+				if (((Processor.STATE) arg) == Processor.STATE.PROCESSING_ITEMS) {
+					item = getProcessorCurrentItem();
+				}
+				updateStatus((Processor.STATE) arg, item);
+			}
+
+		}
+
+	};
 
 	private SelectionListener btnSelListener = new SelectionAdapter() {
 		@SuppressWarnings("rawtypes")
@@ -453,7 +536,6 @@ public class TomoConfigurationView extends ViewPart {
 					if (alignmentConfiguration != null) {
 						configs.add(alignmentConfiguration);
 					}
-
 				}
 
 				Command rmCommand = RemoveCommand.create(getEditingDomain(), parameters,
@@ -513,19 +595,36 @@ public class TomoConfigurationView extends ViewPart {
 				logger.debug("Calling start tomo runs");
 				configModelTableViewer.setSelection(null);
 				tomoConfigViewController.startScan(getModel());
+				CommandExecutor.executeCommand(getViewSite(),
+						CommandQueueContributionFactory.UK_AC_GDA_CLIENT_START_COMMAND_QUEUE);
 			} else if (e.getSource().equals(btnInterruptTomoRuns)) {
-				CommandExecutor.executeCommand(getViewSite(), "uk.ac.gda.client.jython.PauseScan");
-				getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
+				if (btnInterruptTomoRuns.getText().equals(INTERRUPT_TOMO_RUNS)) {
+					CommandExecutor.executeCommand(getViewSite(),
+							CommandQueueContributionFactory.UK_AC_GDA_CLIENT_PAUSE_COMMAND_QUEUE);
+				} else if (btnInterruptTomoRuns.getText().equals(RESUME_SCAN)) {
+					CommandExecutor.executeCommand(getViewSite(),
+							CommandQueueContributionFactory.UK_AC_GDA_CLIENT_START_COMMAND_QUEUE);
+				}
 
-					@Override
-					public void run() {
-						if (INTERRUPT_TOMO_RUNS.equals(btnInterruptTomoRuns.getText())) {
-							btnInterruptTomoRuns.setText(RESUME_SCAN);
-						} else if (RESUME_SCAN.equals(btnInterruptTomoRuns.getText())) {
-							btnInterruptTomoRuns.setText(INTERRUPT_TOMO_RUNS);
+			} else if (e.getSource().equals(btnStopTomoRuns)) {
+				logger.debug("Calling stop tomo runs");
+				tomoConfigViewController.stopScan();
+				try {
+					CommandQueueViewFactory.getProcessor().stop(100);
+				} catch (Exception e1) {
+					logger.error("TODO put description of error here", e1);
+				}
+				try {
+					List<QueuedCommandSummary> summaryList = CommandQueueViewFactory.getQueue().getSummaryList();
+					for (QueuedCommandSummary queuedCommandSummary : summaryList) {
+						if (queuedCommandSummary.getDescription().matches("\\d*\\. [\\w|\\s|\\W]*")) {
+							CommandQueueViewFactory.getQueue().remove(queuedCommandSummary.id);
 						}
 					}
-				});
+
+				} catch (Exception e1) {
+					logger.error("TODO put description of error here", e1);
+				}
 			}
 		}
 	};
@@ -810,6 +909,7 @@ public class TomoConfigurationView extends ViewPart {
 				.removeOperationHistoryListener(historyListener);
 		tomoConfigViewController.removeScanControllerUpdateListener(scanControllerUpdateListener);
 		tomoConfigViewController.dispose();
+		CommandQueueViewFactory.getProcessor().deleteIObserver(queueObserver);
 		super.dispose();
 	}
 
@@ -1083,7 +1183,7 @@ public class TomoConfigurationView extends ViewPart {
 		}
 	};
 
-	private Button btnInterruptTomoRuns;
+	private Button btnStopTomoRuns;
 
 	protected void disableControls() {
 		if (getViewSite().getShell() != null) {

@@ -36,4 +36,6 @@ public interface ITomoScanController {
 
 	void initialize();
 
+	void stopScan();
+
 }

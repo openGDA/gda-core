@@ -25,4 +25,6 @@ public interface TomoClientConstants {
 	public static final String MOVE_MODULE_COMMAND = "tomoAlignment.moveToModule(%d)";
 
 	public static final String TOMOGRAPHY_IS_RUNNING_CONFIG_CMD = "tomoAlignment.tomographyConfigurationManager.getRunningConfig()";
+
+	public static final String TOMOGRAPHY_STOP_SCAN = "tomoAlignment.tomographyConfigurationManager.stopScan()";
 }
