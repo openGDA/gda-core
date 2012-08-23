@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.client;
+package uk.ac.gda.client.liveplot;
 
 import gda.gui.scanplot.ScanDataPointPlotter;
 import gda.plots.Marker;
@@ -39,16 +39,25 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.text.NumberFormat;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.tree.TreePath;
 
+import org.dawb.common.ui.plot.AbstractPlottingSystem;
+import org.dawb.common.ui.plot.PlotType;
+import org.dawb.common.ui.plot.PlottingFactory;
+import org.dawb.common.ui.plot.trace.ILineTrace;
+import org.dawb.common.ui.plot.trace.ITrace;
+import org.dawb.common.ui.plot.trace.ILineTrace.PointStyle;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -58,10 +67,12 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IMemento;
+import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
@@ -73,24 +84,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
+import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AxisValues;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DAppearance;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DGraphTable;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DUIAdapter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotAppearanceDialog;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotDataTableDialog;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.AxisMode;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.Plot1DStyles;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionComplexEvent;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionEvent;
+import uk.ac.gda.client.LineAppearanceProvider;
+import uk.ac.gda.common.rcp.util.GridUtils;
 /**
  * Composite for displaying XY data from ScanDataPoints.
+ * 
+ * Currently a copy of XYPlotView which uses the new plotting.
+ * 
+ * TODO FIXME DO NOT COPY THIS CLASS. THIS IS A TEMPORARY MEASURE TO ALLOW
+ * NEW PLOTTING TO WORK WITH VIEW SIMILAR TO XYPLOTVIEW. BECAUSE OF THE LIMITATIONS
+ * OF THE OLD PLOTTING, THIS CLASS HAS DEPARTED FROM A GOOD DESIGN RELATIVE TO THE 
+ * NEW PLOTTING. PLANNED IS A SIMPLER ABSTRACT CLASS OR TOOL TO MONITOR SCANS
  */
-public class XYPlotComposite extends Composite {
+public class LivePlotComposite extends Composite {
 
 	/**
 	 * Strings used to reference values stored in memento
@@ -104,12 +117,12 @@ public class XYPlotComposite extends Composite {
 	static public final String MEMENTO_XYDATA_DATAFILENAME = "xydata_datafilename";
 	static public final String MEMENTO_XYDATA_SCANNUMBER = "xydata_scannumber";
 
-	private static final Logger logger = LoggerFactory.getLogger(XYPlotComposite.class);
+	private static final Logger logger = LoggerFactory.getLogger(LivePlotComposite.class);
 
 	private static final int[] WEIGHTS_NORMAL = new int[] { 80, 20 };
 	private static final int[] WEIGHTS_NO_LEGEND = new int[] { 100, 0 };
-	SubXYPlotView plotView;
-	SWTXYDataHandlerLegend legend;
+	SubLivePlotView plotView;
+	LiveLegend legend;
 	ScanDataPointPlotter plotter = null;
 	private SashForm sashForm;
 
@@ -139,6 +152,46 @@ public class XYPlotComposite extends Composite {
 
 	private ActionGroup actionGroup;
 
+	/**
+	 * @param parent
+	 * @param actionBars
+	 * @param partName
+	 * @param toolbarActions
+	 */
+	void createAndRegisterPlotActions(final Composite parent, IActionBars actionBars, String partName,
+			                       final List<IAction> toolbarActions) {
+
+		for (IAction iAction : toolbarActions) {
+			actionBars.getToolBarManager().add(iAction);
+		}
+
+// TODO Get this working
+//			@Override
+//			public void plotActionPerformed(final PlotActionEvent event) {
+//				if (event instanceof PlotActionComplexEvent) {
+//					// if the event has come from right click then show the data table dialog.
+//					parent.getDisplay().asyncExec(new Runnable() {
+//						@Override
+//						public void run() {
+//							PlotDataTableDialog dataDialog = new PlotDataTableDialog(parent.getShell(),
+//									(PlotActionComplexEvent) event);
+//							dataDialog.open();
+//						}
+//					});
+//				} else {
+//					parent.getDisplay().asyncExec(new Runnable() {
+//						@Override
+//						public void run() {
+//							double x = event.getPosition()[0];
+//							double y = event.getPosition()[1];
+//							LivePlotComposite.this.plotView.setPositionLabel(String.format("X:%.6g Y:%.6g", x, y));
+//						}
+//					});
+//				}
+//			}
+
+
+	}
 	/*
 	 * Made final as the value is passed to members in constructors so a change at this level would be
 	 * invalid if not passed down to members as well.
@@ -250,14 +303,14 @@ public class XYPlotComposite extends Composite {
 	 * @param style
 	 * @param archiveFolder - folder into which data is to be archived during normal running of the composite
 	 */
-	public XYPlotComposite(Composite parent, int style, String archiveFolder) {
+	public LivePlotComposite(IWorkbenchPart parentPart, Composite parent, int style, String archiveFolder) {
 		super(parent, style);
 		this.archiveFolder = archiveFolder;
 		this.setLayout(new FillLayout());
 		sashForm = new SashForm(this, SWT.HORIZONTAL);
 		sashForm.setLayout(new FillLayout());
-		plotView = new SubXYPlotView(sashForm, SWT.NONE, archiveFolder);
-		legend = new SWTXYDataHandlerLegend(sashForm, SWT.NONE, plotView);
+		plotView = new SubLivePlotView(parentPart, sashForm, SWT.NONE, archiveFolder);
+		legend = new LiveLegend(sashForm, SWT.NONE, plotView);
 		showLenged(true);
 		sashForm.setWeights(WEIGHTS_NORMAL);
 		plotter = new ScanDataPointPlotter(plotView, legend, archiveFolder);
@@ -278,86 +331,6 @@ public class XYPlotComposite extends Composite {
 	 */
 	public Boolean getShowLegend() {
 		return showLegend;
-	}
-
-	/**
-	 * @param parent
-	 * @param actionBars
-	 * @param partName
-	 * @param toolbarActions
-	 */
-	void createAndRegisterPlotActions(final Composite parent, IActionBars actionBars, String partName,
-			final List<IAction> toolbarActions) {
-
-		Plot1DUIAdapter plotUI = new Plot1DUIAdapter(actionBars, plotView.datasetplotter, parent, partName) {
-
-			@Override
-			public void buildToolActions(IToolBarManager manager) {
-				manager.add(activateRegionZoom);
-				manager.add(activateAreaZoom);
-				manager.add(zoomAction);
-				manager.add(resetZoomAction);
-				// manager.add(changeColour); //do not add changeColor as this is done in the legend
-				manager.add(activateXgrid);
-				manager.add(activateYgrid);
-				// manager.add(displayPlotPos); //causes screen to flash
-				manager.add(saveGraph);
-				manager.add(copyGraph);
-				manager.add(printGraph);
-				manager.add(rightClickOnGraphAction);
-
-				for (IAction action : toolbarActions) {
-					manager.add(action);
-				}
-			}
-
-			/**
-			 * 
-			 */
-			@Override
-			public void buildMenuActions(IMenuManager manager) {
-				manager.add(yAxisScaleLinear);
-				manager.add(yAxisScaleLog);
-				manager.add(xLabelTypeRound);
-				manager.add(xLabelTypeFloat);
-				manager.add(xLabelTypeExponent);
-				manager.add(xLabelTypeSI);
-				manager.add(yLabelTypeRound);
-				manager.add(yLabelTypeFloat);
-				manager.add(yLabelTypeExponent);
-				manager.add(yLabelTypeSI);
-				
-				manager.add(addToHistory);
-				manager.add(removeFromHistory);
-			}
-
-			@Override
-			public void plotActionPerformed(final PlotActionEvent event) {
-				if (event instanceof PlotActionComplexEvent) {
-					// if the event has come from right click then show the data table dialog.
-					parent.getDisplay().asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							PlotDataTableDialog dataDialog = new PlotDataTableDialog(parent.getShell(),
-									(PlotActionComplexEvent) event);
-							dataDialog.open();
-						}
-					});
-				} else {
-					parent.getDisplay().asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							double x = event.getPosition()[0];
-							double y = event.getPosition()[1];
-							XYPlotComposite.this.plotView.setPositionLabel(String.format("X:%.6g Y:%.6g", x, y));
-						}
-					});
-				}
-			}
-
-		};
-		plotView.datasetplotter.registerUI(plotUI);
-
 	}
 
 	/**
@@ -410,7 +383,7 @@ public class XYPlotComposite extends Composite {
 					String xAxisHeader = thisScan.getString(MEMENTO_XYDATA_XAXISHEADER);
 					String yAxisHeader = thisScan.getString(MEMENTO_XTDATA_YAXISHEADER);
 
-					XYData scan = new XYData(0, uniquename, xAxisHeader, yAxisHeader, archiveFileName, dataFileName);
+					LiveData scan = new LiveData(0, uniquename, xAxisHeader, yAxisHeader, archiveFileName, dataFileName);
 					Vector<String> stepIds=new Vector<String>();
 					String [] parts = uniquename.split(",");
 					for(int i=1; i< parts.length-1;i++){
@@ -461,25 +434,31 @@ public class XYPlotComposite extends Composite {
 	String getArchiveFolder() {
 		return archiveFolder;
 	}
+
+	public Object getPlottingSystem() {
+		return this.plotView.plottingSystem;
+	}
 }
 
-class SubXYPlotView extends Composite implements XYDataHandler {
-	private static final Logger logger = LoggerFactory.getLogger(SubXYPlotView.class);
+/**
+ * TODO FIXME DO NOT COPY THIS CLASS. THIS IS A TEMPORARY MEASURE TO ALLOW
+ * NEW PLOTTING TO WORK WITH VIEW SIMILAR TO XYPLOTVIEW. BECAUSE OF THE LIMITATIONS
+ * OF THE OLD PLOTTING, THIS CLASS HAS DEPARTED FROM A GOOD DESIGN RELATIVE TO THE 
+ * NEW PLOTTING. PLANNED IS A SIMPLER ABSTRACT CLASS OR TOOL TO MONITOR SCANS
+ */
+class SubLivePlotView extends Composite implements XYDataHandler {
+	private static final Logger logger = LoggerFactory.getLogger(SubLivePlotView.class);
 	static public final String ID = "uk.ac.gda.client.xyplotview";
-	protected DataSetPlotter datasetplotter;
-	XYData dummy; // used when all other lines are invisible
-
-	/**
-	 * Label used to display the cursor position on the graph
-	 */
-	private Label positionLabel;
+	protected AbstractPlottingSystem plottingSystem;
+	LiveData dummy; // used when all other lines are invisible
 
 	private final String archiveFolder;
 
-	public SubXYPlotView(Composite parent, int style, String archiveFolder) {
+	public SubLivePlotView(IWorkbenchPart parentPart, Composite parent, int style, String archiveFolder) {
+		
 		super(parent, style);
 		this.archiveFolder = archiveFolder;
-		dummy = new XYData(1, "", "x", "y", null,null);
+		dummy = new LiveData(1, "", "x", "y", null,null);
 		dummy.addPointToLine(0., 0.);
 		dummy.addPointToLine(1., 1.);
 		dummy.setVisible(false, archiveFolder);
@@ -487,15 +466,8 @@ class SubXYPlotView extends Composite implements XYDataHandler {
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 1;
 		setLayout(layout);
+		GridUtils.removeMargins(this);
 
-		positionLabel = new Label(this, SWT.LEFT);
-		positionLabel.setText("");
-		{
-			GridData gridData = new GridData();
-			gridData.horizontalAlignment = SWT.FILL;
-			gridData.grabExcessHorizontalSpace = true;
-			positionLabel.setLayoutData(gridData);
-		}
 		Composite plotArea = new Composite(this, SWT.NONE);
 		plotArea.setLayout(new FillLayout());
 		{
@@ -507,16 +479,24 @@ class SubXYPlotView extends Composite implements XYDataHandler {
 			plotArea.setLayoutData(gridData);
 		}
 
-		this.datasetplotter = new DataSetPlotter(PlottingMode.ONED, plotArea, false);
-		datasetplotter.setAxisModes(AxisMode.CUSTOM, AxisMode.LINEAR, AxisMode.LINEAR);
-		datasetplotter.getColourTable().addEntryOnLegend(new Plot1DAppearance(Color.BLACK, "black"));
-		datasetplotter.setPlotActionEnabled(true);
-		datasetplotter.setPlotRightClickActionEnabled(true);
+		try {
+			// We always have a light weight one for this view as there is already 
+			// another using DatasetPlot.
+			this.plottingSystem = PlottingFactory.getLightWeightPlottingSystem();
+		} catch (Exception ne) {
+			logger.error("Cannot create a plotting system!", ne);
+			return;
+		}
+		IActionBars bars    = parentPart instanceof IViewPart
+				            ? ((IViewPart)parentPart).getViewSite().getActionBars()
+				            : null;
+		plottingSystem.createPlotPart(plotArea, parentPart.getTitle(), bars, PlotType.PT1D, parentPart);
+		plottingSystem.setXfirst(true);
 	}
 
 	void saveState(IMemento memento, String archiveFolder) {
 		Vector<String> archivedFiles=new Vector<String>();
-		for (XYData scan : scans){
+		for (LiveData scan : scans){
 			if (scan != null) {
 				try {
 					archivedFiles.add(scan.saveState(memento, archiveFolder));
@@ -539,18 +519,18 @@ class SubXYPlotView extends Composite implements XYDataHandler {
 
 	
 	void setPositionLabel(String label) {
-		positionLabel.setText(label);
+		//positionLabel.setText(label);
 	}
 
 	/**
 	 * Entry in scans array that is to contain the next XYData
 	 */
 	int nextUnInitialisedLine = 0;
-	XYData scans[] = new XYData[0];
+	LiveData scans[] = new LiveData[0];
 
 	private UpdatePlotQueue updateQueue = new UpdatePlotQueue();
 
-	XYData getXYData(int line) {
+	LiveData getXYData(int line) {
 		if (line > scans.length - 1)
 			throw new IllegalArgumentException("line > scans.length");
 		return scans[line];
@@ -567,7 +547,7 @@ class SubXYPlotView extends Composite implements XYDataHandler {
 	@Override
 	public void archive(boolean all, String archiveFolder) throws IOException {
 		if (!isDisposed()) {
-			for (XYData data : scans) {
+			for (LiveData data : scans) {
 				if (data != null && !data.isVisible())
 					data.archive(archiveFolder);
 			}
@@ -582,19 +562,18 @@ class SubXYPlotView extends Composite implements XYDataHandler {
 	@Override
 	public void deleteAllLines() {
 		if (!isDisposed()) {
-			scans = new XYData[0];
+			plottingSystem.clear();
+			scans = new LiveData[0];
 			nextUnInitialisedLine = 0;
-			updateQueue.update(this);
 		}
 	}
 
 	@Override
 	public void dispose() {
 		updateQueue.setKilled(true);
-		if (datasetplotter != null) {
-			deleteAllLines();
-			datasetplotter.cleanUp();
-			datasetplotter = null;
+		if (plottingSystem != null) {
+			plottingSystem.dispose();
+			plottingSystem = null;
 		}
 	}
 
@@ -626,7 +605,8 @@ class SubXYPlotView extends Composite implements XYDataHandler {
 	@Override
 	public void initializeLine(int which, int axis, String name, String xAxisHeader, String yAxisHeader, String dataFileName) {
 		checkScansArray(which);
-		scans[which] = new XYData(which, name, xAxisHeader, yAxisHeader, null, dataFileName);
+		//name = TraceUtils.getUniqueTrace(name, plottingSystem);
+		scans[which] = new LiveData(which, name, xAxisHeader, yAxisHeader, null, dataFileName);
 		nextUnInitialisedLine = which + 1;
 	}
 
@@ -663,11 +643,9 @@ class SubXYPlotView extends Composite implements XYDataHandler {
 	@Override
 	public void deleteLine(int which) {
 		if (!isDisposed()) {
-			if (which > scans.length - 1)
-				throw new IllegalArgumentException("which > scans.length");
-			XYData line = scans[which];
-			if(line != null)
-				line.deleteArchive(archiveFolder);
+			if (which > scans.length - 1) throw new IllegalArgumentException("which > scans.length");
+			LiveData line = scans[which];
+			if(line != null) line.deleteArchive(archiveFolder);
 			scans[which] = null;
 			updateQueue.update(this);
 		}
@@ -707,7 +685,7 @@ class SubXYPlotView extends Composite implements XYDataHandler {
 
 	@Override
 	public void setTitle(String title) {
-		datasetplotter.setTitle(title);
+		plottingSystem.setTitle(title);
 	}
 
 	@Override
@@ -741,7 +719,7 @@ class SubXYPlotView extends Composite implements XYDataHandler {
 		return Color.BLACK;
 	}
 
-	public Plot1DAppearance getAppearanceCopy(int which) {
+	protected Plot1DAppearance getAppearanceCopy(int which) {
 		if (!isDisposed())
 			return getXYData(which).getAppearanceCopy(archiveFolder);
 		return null;
@@ -753,24 +731,36 @@ class SubXYPlotView extends Composite implements XYDataHandler {
 		return null;
 	}
 
+	/**
+	 * This method is the incorrect design. It is called to replot all data
+	 * whenever one data changes. Instead information about which data changed
+	 * should not be lost and then the correct plot only updated.
+	 */
 	@Override
 	public void onUpdate(boolean force) {
-		if (datasetplotter == null)
-			return;
+		
+		if (plottingSystem == null) return;
 		try {
-			List<IDataset> y_dataSets = new Vector<IDataset>();
-			List<AxisValues> x_axes = new Vector<AxisValues>();
-			List<Plot1DAppearance> appearances = new Vector<Plot1DAppearance>();
+			/**
+			 * TODO FIXME This class taken from XYPlotComponent replots all the plots
+			 * if one point is added to the end of one plot. Instead it should just add the 
+			 * data to the one plot that is changing.
+			 */
+			List<AbstractDataset>    ys  = new Vector<AbstractDataset>();
+			List<AxisValues>      x_axes = new Vector<AxisValues>();
+			final List<String>     invis = new Vector<String>();
+			final Map<String,Plot1DAppearance> appearances = new HashMap<String, Plot1DAppearance>();
 			String xAxisHeader = null;
 			String yAxisHeader = null;
 			boolean xAxisIsVarious = false;
 			boolean yAxisIsVarious = false;
-			for (XYData sd : scans) {
+			for (LiveData sd : scans) {
 				if (sd != null  && sd.number > 1 ) {//do not show lines with only 1 point as the datasetplotter throws exceptions
 					if (sd.isVisible()) {
-						y_dataSets.add(sd.archive.getyVals());
+						
+						ys.add(sd.archive.getyVals());
 						x_axes.add(sd.archive.getxAxis());
-						appearances.add(sd.archive.getAppearance());
+						appearances.put(sd.archive.getyVals().getName(), sd.archive.getAppearance());
 						if (!xAxisIsVarious && StringUtils.hasLength(sd.xLabel)) {
 							if (xAxisHeader == null) {
 								xAxisHeader = sd.xLabel;
@@ -787,38 +777,75 @@ class SubXYPlotView extends Composite implements XYDataHandler {
 								yAxisIsVarious = true;
 							}
 						}
+					} else {
+						try {
+						    invis.add(sd.archive.getyVals().getName());
+						} catch (NullPointerException npe) {
+							continue;
+						}
 					}
 				}
 			}
-			if (y_dataSets.isEmpty()) {
-				y_dataSets.add(dummy.archive.getyVals());
-				x_axes.add(dummy.archive.getxAxis());
-				appearances.add(dummy.archive.getAppearance());
-				yAxisHeader="";
-				xAxisHeader="";
+			if (ys.isEmpty()) {
+				plottingSystem.clear();
+				return;
 			}
 			// always replace plots even if list is empty as they may be invisible
-			datasetplotter.getColourTable().clearLegend();
-			for (Plot1DAppearance appearance : appearances) {
-				datasetplotter.getColourTable().addEntryOnLegend(appearance);
-			}
-			datasetplotter.replaceAllPlots(y_dataSets, x_axes);
-			datasetplotter.setXAxisLabel(xAxisHeader);
-			datasetplotter.setYAxisLabel(yAxisHeader);
-			datasetplotter.setTitle(yAxisHeader + " / " + xAxisHeader);
-			datasetplotter.updateAllAppearance();
+			AbstractDataset x = x_axes.size()>0
+					          ? x_axes.get(0).toDataset()
+					          : null;
+		    if (x==null) {
+		    	x = ys.size()>0
+				          ? AbstractDataset.arange(ys.get(0).getSize(), AbstractDataset.INT32)
+				          : null;
+		    }
+		    
+		    // This horrendous way of doing it, results from the fact that we
+		    // reuse XYPlotComposite. A better way would be with updating and 
+		    // creating individual traces. TODO Convert to more logical design.
+			if (x!=null) {
+				// THIS METHOD MAKES THE TITLE AND COLOUR BLINK BUT IS THE BEST ONE TO USE WITH THE DATA DESIGN.
+				// Instead could use createLineTrace(...)  addTrace(...) etc.
+				final Collection<ITrace> plots = plottingSystem.updatePlot1D(x, ys, new NullProgressMonitor());
+			
+				final String title = yAxisHeader + " / " + xAxisHeader;
+				Display.getDefault().syncExec(new Runnable() {
+					@Override
+					public void run() {
+						plottingSystem.setTitle(title);
+						
+						/**
+						 *  BODGE WARNING There is no clear start of scan or start of new plot in
+						 *  XYDataHandler. Instead we deduce that anything not visible should be removed.
+						 */
+						for (String traceName : invis) {
+							ITrace trace = plottingSystem.getTrace(traceName);
+							if (trace!=null) plottingSystem.removeTrace(trace);
+						}
 
-			PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						if (datasetplotter != null)
-							datasetplotter.refresh(false);
-					} catch (Throwable e) {
-						logger.warn(e.getMessage(),e);
+						/**
+						 *  BODGE WARNING Not the ideal way of doing this, calls setTraceColor too much.
+						 *  The trace color should only be set once at the start.
+						 */
+						for (ITrace iTrace : plots) {
+							
+							ILineTrace lTrace = (ILineTrace)iTrace;
+							lTrace.setLineWidth(1);
+							lTrace.setPointSize(3);
+							lTrace.setPointStyle(PointStyle.POINT);
+							
+							if (!appearances.containsKey(iTrace.getName())) continue;
+							final Color color = appearances.get(iTrace.getName()).getColour();
+							((ILineTrace)iTrace).setTraceColor(new org.eclipse.swt.graphics.Color(null, color.getRed(), color.getGreen(), color.getBlue()));
+						}
+
+						
 					}
-				}
-			});
+				});
+			} else {
+				plottingSystem.reset();
+			}
+
 		} catch (Throwable e) {
 			logger.warn(e.getMessage(),e);
 		}
@@ -850,13 +877,18 @@ class SubXYPlotView extends Composite implements XYDataHandler {
  * The data can be archived to file, indicated by archiveFilename being non null
  * To allow mementos to be copied along with archive folders archiveFilename only holds the filename and not the
  * path. The unarchive, archive methods will need an archive folder.
+ * 
+ * TODO FIXME DO NOT COPY THIS CLASS. THIS IS A TEMPORARY MEASURE TO ALLOW
+ * NEW PLOTTING TO WORK WITH VIEW SIMILAR TO XYPLOTVIEW. BECAUSE OF THE LIMITATIONS
+ * OF THE OLD PLOTTING, THIS CLASS HAS DEPARTED FROM A GOOD DESIGN RELATIVE TO THE 
+ * NEW PLOTTING. PLANNED IS A SIMPLER ABSTRACT CLASS OR TOOL TO MONITOR SCANS
  */
-class XYData {
+class LiveData {
 
-	private static final Logger logger = LoggerFactory.getLogger(XYData.class);
+	private static final Logger logger = LoggerFactory.getLogger(LiveData.class);
 
 	int number = 0;
-	XYDataArchive archive; // data and appearance
+	LiveDataArchive archive; // data and appearance
 	String name; // a mix of the name of the group of plots (scan number) and the name of the line (column header)
 	String archiveFilename = null; // the file created by the archive() method and read by unarchive()
 	int which = 0;
@@ -877,7 +909,7 @@ class XYData {
 	 * @param archiveFilename - archive holding the data, only filename, you need to combine with the archive folder
 	 * @param dataFileName - the name of the file holding the scan data
 	 */
-	XYData(int which, String name, String xLabel, String yLabel, String archiveFilename,
+	LiveData(int which, String name, String xLabel, String yLabel, String archiveFilename,
 			String dataFileName) {
 		this.name = name;
 		this.which = which;
@@ -922,14 +954,14 @@ class XYData {
 		//note that the data may be archived at this point so archive==null
 		String archivedFilename = getArchiveFilename();
 		persistToFilePath(archiveFolder, archivedFilename);
-		IMemento child = memento.createChild(XYPlotComposite.MEMENTO_XY_DATA);
-		child.putString(XYPlotComposite.MEMENTO_XYDATA_NAME, name);
-		child.putString(XYPlotComposite.MEMENTO_ARCHIVEFILENAME, archivedFilename);//archivedFilePath);
-		child.putString(XYPlotComposite.MEMENTO_XYDATA_DATAFILENAME, dataFileName);
-		child.putString(XYPlotComposite.MEMENTO_XYDATA_SCANNUMBER, deriveScanIdentifier(name));
-		child.putString(XYPlotComposite.MEMENTO_XYDATA_XAXISHEADER, xLabel);
-		child.putString(XYPlotComposite.MEMENTO_XTDATA_YAXISHEADER, yLabel);
-		child.putBoolean(XYPlotComposite.MEMENTO_XYDATA_VISIBLE, archive != null ? archive.getAppearance().isVisible()
+		IMemento child = memento.createChild(LivePlotComposite.MEMENTO_XY_DATA);
+		child.putString(LivePlotComposite.MEMENTO_XYDATA_NAME, name);
+		child.putString(LivePlotComposite.MEMENTO_ARCHIVEFILENAME, archivedFilename);//archivedFilePath);
+		child.putString(LivePlotComposite.MEMENTO_XYDATA_DATAFILENAME, dataFileName);
+		child.putString(LivePlotComposite.MEMENTO_XYDATA_SCANNUMBER, deriveScanIdentifier(name));
+		child.putString(LivePlotComposite.MEMENTO_XYDATA_XAXISHEADER, xLabel);
+		child.putString(LivePlotComposite.MEMENTO_XTDATA_YAXISHEADER, yLabel);
+		child.putBoolean(LivePlotComposite.MEMENTO_XYDATA_VISIBLE, archive != null ? archive.getAppearance().isVisible()
 				: false);
 		return archivedFilename;
 	}
@@ -963,16 +995,21 @@ class XYData {
 					}
 				}
 			}
+			DoubleDataset dds = new DoubleDataset(ydata);
+			dds.setName(name);
 			archive.setData(new AxisValues(xdata), new DoubleDataset(ydata));
 			number = archive.getxAxis().size();
 		}
 	}
 
-	public Plot1DAppearance getAppearanceCopy(String archiveFolder) {
+	protected Plot1DAppearance getAppearanceCopy(String archiveFolder) {
 		unarchive(archiveFolder);
-		Plot1DAppearance appearance = archive.getAppearance();
-		return new Plot1DAppearance(appearance.getColour(), appearance.getStyle(), appearance.getLineWidth(),
-				appearance.getName());
+		if (archive!=null) {
+			Plot1DAppearance appearance = archive.getAppearance();
+			return new Plot1DAppearance(appearance.getColour(), appearance.getStyle(), appearance.getLineWidth(),
+					appearance.getName());
+		}
+		return null;
 	}
 
 	public void setVisible(boolean visibility, String archiveFolder) {
@@ -995,7 +1032,8 @@ class XYData {
 					f_in = new FileInputStream(archiveFilenameCopy);
 					obj_in = new ObjectInputStream(f_in);
 					Object obj = obj_in.readObject();
-					archive = (XYDataArchive) obj;
+					if (!(obj instanceof LiveDataArchive)) return; // From scan data view, cannot deal with
+					archive = (LiveDataArchive) obj;
 					number = archive.getxAxis().size();
 					archiveFilename = null;
 				} finally {
@@ -1032,9 +1070,10 @@ class XYData {
 	}
 
 	private void resetArchive(int which) {
-		Plot1DAppearance appearance = new Plot1DAppearance(XYPlotComposite.getColour(which),
-				XYPlotComposite.getStyle(which), XYPlotComposite.getLineWidth(), name);
-		archive = new XYDataArchive(appearance, new DoubleDataset(1), new AxisValues());
+		
+		Plot1DAppearance appearance = new Plot1DAppearance(LivePlotComposite.getColour(which),
+				LivePlotComposite.getStyle(which), LivePlotComposite.getLineWidth(), name);
+		archive = new LiveDataArchive(appearance, new DoubleDataset(1), new AxisValues());
 		archiveFilename=null;
 
 	}
@@ -1152,7 +1191,9 @@ class XYData {
 		}
 
 		// create new AxisValues and DataSet
-		archive.setData(new AxisValues(xvals_new), new DoubleDataset(yvals_new));
+		final DoubleDataset yds = new DoubleDataset(yvals_new);
+		yds.setName(name);
+		archive.setData(new AxisValues(xvals_new), yds);
 		number = xvals_new.length;
 	}
 
@@ -1162,7 +1203,13 @@ class XYData {
 	}
 }
 
-class XYDataArchive implements Serializable {
+/**
+ * TODO FIXME DO NOT COPY THIS CLASS. THIS IS A TEMPORARY MEASURE TO ALLOW
+ * NEW PLOTTING TO WORK WITH VIEW SIMILAR TO XYPLOTVIEW. BECAUSE OF THE LIMITATIONS
+ * OF THE OLD PLOTTING, THIS CLASS HAS DEPARTED FROM A GOOD DESIGN RELATIVE TO THE 
+ * NEW PLOTTING. PLANNED IS A SIMPLER ABSTRACT CLASS OR TOOL TO MONITOR SCANS
+ */
+class LiveDataArchive implements Serializable {
 	
 	/**
 	 * Change the value of serialVersionUID is items in this class change
@@ -1173,7 +1220,7 @@ class XYDataArchive implements Serializable {
 	private DoubleDataset yVals;
 	private AxisValues xAxis; 
 
-	public XYDataArchive(Plot1DAppearance appearance, DoubleDataset yVals, AxisValues xAxis) {
+	public LiveDataArchive(Plot1DAppearance appearance, DoubleDataset yVals, AxisValues xAxis) {
 		super();
 		if (appearance == null || yVals == null || xAxis == null )
 			throw new IllegalArgumentException("Invalid args");
@@ -1206,10 +1253,10 @@ class XYDataArchive implements Serializable {
 
 class XYLegendActionGroup extends ActionGroup {
 
-	private XYPlotComposite comp;
+	private LivePlotComposite comp;
 	IWorkbenchWindow window;
 
-	XYLegendActionGroup(IWorkbenchWindow window, XYPlotComposite comp) {
+	XYLegendActionGroup(IWorkbenchWindow window, LivePlotComposite comp) {
 		this.comp = comp;
 		this.window = window;
 	}
@@ -1255,9 +1302,9 @@ class EditAppearanceAction extends Action implements ActionFactory.IWorkbenchAct
 	private IWorkbenchWindow workbenchWindow;
 
 	private ScanPair pageInput;
-	XYPlotComposite comp;
+	LivePlotComposite comp;
 
-	public EditAppearanceAction(IWorkbenchWindow window, XYPlotComposite comp, ScanPair copy) {
+	public EditAppearanceAction(IWorkbenchWindow window, LivePlotComposite comp, ScanPair copy) {
 		super("Modify Appearance");
 		if (window == null) {
 			throw new IllegalArgumentException();
