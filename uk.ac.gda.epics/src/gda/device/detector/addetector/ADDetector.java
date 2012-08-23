@@ -133,15 +133,6 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 		}
 
 		@Override
-		public boolean isSetFileNameAndNumber() {
-			return false;
-		}
-
-		@Override
-		public void setSetFileNameAndNumber(boolean setFileWriterNameNumber) {
-		}
-
-		@Override
 		public String toString() {
 			return "DummyFileWriter";
 		}

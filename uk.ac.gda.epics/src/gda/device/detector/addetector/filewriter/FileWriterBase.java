@@ -102,7 +102,6 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 		this.fileNumberAtScanStart = fileNumberAtScanStart;
 	}
 
-	@Override
 	public void setSetFileNameAndNumber(boolean setFileNameAndNumber) {
 		this.setFileNameAndNumber = setFileNameAndNumber;
 	}
@@ -131,7 +130,6 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 		return fileNumberAtScanStart;
 	}
 
-	@Override
 	public boolean isSetFileNameAndNumber() {
 		return setFileNameAndNumber;
 	}
