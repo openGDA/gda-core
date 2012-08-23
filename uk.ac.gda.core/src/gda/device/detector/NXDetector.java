@@ -279,7 +279,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 		for (NXPlugin plugin : getPluginList()) {
 			if (plugin instanceof NXFileWriterPlugin) {
 				NXFileWriterPlugin writer = (NXFileWriterPlugin) plugin;
-				if (writer.appendsFilepathStrings() && writer.isEnabled()) {
+				if (writer.appendsFilepathStrings()) {
 					return true;
 				}
 			}

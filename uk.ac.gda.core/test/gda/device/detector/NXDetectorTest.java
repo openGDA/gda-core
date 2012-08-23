@@ -175,26 +175,10 @@ public class NXDetectorTest {
 	}
 
 	@Test
-	public void testPositionCallableTypeWithLinkingFileWriter() throws Exception {
-
+	public void testPositionCallableTypeWithFileWriterNotReturningFilepaths() throws Exception {
+		
 		configureStreamsForSinglePoint();
 		when(fileWriter.appendsFilepathStrings()).thenReturn(false);
-		when(fileWriter.isEnabled()).thenReturn(true);
-
-		det.atScanStart();
-		NexusTreeProvider data = det.getPositionCallable().call();
-
-		assertTrue(data instanceof NXDetectorData);
-		assertFalse(data instanceof NXDetectorDataWithFilepathForSrs);
-
-	}
-
-	@Test
-	public void testPositionCallableTypeWithDisabledNoLinkingFileWriter() throws Exception {
-		
-		configureStreamsForSinglePoint();
-		when(fileWriter.appendsFilepathStrings()).thenReturn(true);
-		when(fileWriter.isEnabled()).thenReturn(false);
 
 		det.atScanStart();
 		NexusTreeProvider data = det.getPositionCallable().call();
@@ -205,11 +189,10 @@ public class NXDetectorTest {
 	}
 
 	@Test
-	public void testPositionCallableTypeWithEnabledNoLinkingFileWiter() throws Exception {
+	public void testPositionCallableTypeWithFileWriterReturningFilepaths() throws Exception {
 		
 		configureStreamsForSinglePoint();
 		when(fileWriter.appendsFilepathStrings()).thenReturn(true);
-		when(fileWriter.isEnabled()).thenReturn(true);
 
 		det.atScanStart();
 		NexusTreeProvider data = det.getPositionCallable().call();
