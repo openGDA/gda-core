@@ -31,9 +31,7 @@ import gda.device.detector.GDANexusDetectorData;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.NXDetectorDataWithFilepathForSrs;
 import gda.device.detector.NexusDetector;
-import gda.device.detector.addetector.filewriter.FileWriter;
 import gda.device.detector.addetector.filewriter.SingleImagePerFileWriter;
-import gda.device.detector.addetector.triggering.ADTriggeringStrategy;
 import gda.device.detector.addetector.triggering.SimpleAcquire;
 import gda.device.detector.areadetector.NDStatsGroup;
 import gda.device.detector.areadetector.NDStatsGroupFactory;
@@ -44,6 +42,8 @@ import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDStats;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
+import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
+import gda.device.detector.nxdetector.NXFileWriterPlugin;
 import gda.device.scannable.PositionCallableProvider;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
@@ -95,9 +95,9 @@ import org.springframework.util.StringUtils;
  * 
  * This structure is represented in ADDetector by 3 main components:
  * 
- * {@link ADTriggeringStrategy} - used to handle the camera base
+ * {@link NXCollectionStrategyPlugin} - used to handle the camera base
  * {@link NDArray} - handles the PV to read the binary data
- * {@link FileWriter} - used to handle the file writer plugin
+ * {@link NXFileWriterPlugin} - used to handle the file writer plugin
  * 
  * The result of getPositionCallable is  the creation of an object that has sufficient information to allow creation of 
  * a NexusTreeProvider in its call method. This object can take data from:
@@ -111,7 +111,7 @@ import org.springframework.util.StringUtils;
  */
 public class ADDetector extends DetectorBase implements InitializingBean, NexusDetector, PositionCallableProvider<NexusTreeProvider> {
 
-	public class NullFileWriter implements FileWriter {
+	public class NullFileWriter implements NXFileWriterPlugin {
 
 		static final String DUMMY_FILE_WRITER_GET_FULL_FILE_NAME_RBV = "DummyFileWriter - getFullFileName_RBV";
 
@@ -227,7 +227,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 
 	private NDFile ndFile;
 
-	private ADTriggeringStrategy collectionStrategy;
+	private NXCollectionStrategyPlugin collectionStrategy;
 
 	private String description = "ADDetector";
 
@@ -262,7 +262,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 		setLocal(true);
 	}
 
-	public void setCollectionStrategy(ADTriggeringStrategy collectionStrategy) {
+	public void setCollectionStrategy(NXCollectionStrategyPlugin collectionStrategy) {
 		this.collectionStrategy = collectionStrategy;
 	}
 
@@ -319,7 +319,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 		configureExtraNamesAndOutputFormat();
 	}
 
-	public ADTriggeringStrategy getCollectionStrategy() {
+	public NXCollectionStrategyPlugin getCollectionStrategy() {
 		return collectionStrategy;
 	}
 
@@ -392,13 +392,13 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 		this.metaDataProvider = metaDataProvider;
 	}
 
-	private FileWriter fileWriter;
+	private NXFileWriterPlugin fileWriter;
 
-	public FileWriter getFileWriter() {
+	public NXFileWriterPlugin getFileWriter() {
 		return fileWriter;
 	}
 
-	public void setFileWriter(FileWriter fileWriter) {
+	public void setFileWriter(NXFileWriterPlugin fileWriter) {
 		this.fileWriter = fileWriter;
 	}
 

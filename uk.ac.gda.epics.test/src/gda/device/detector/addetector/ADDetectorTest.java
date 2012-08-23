@@ -30,12 +30,12 @@ import gda.data.nexus.tree.INexusTree;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
-import gda.device.detector.addetector.filewriter.FileWriter;
-import gda.device.detector.addetector.triggering.ADTriggeringStrategy;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDStats;
+import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
+import gda.device.detector.nxdetector.NXFileWriterPlugin;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.junit.Before;
@@ -49,8 +49,8 @@ public class ADDetectorTest {
 	private ADDetector adDet;
 	@Mock
 	protected ADBase adBase;
-	@Mock protected ADTriggeringStrategy collectionStrategy;
-	@Mock protected FileWriter fileWriter;
+	@Mock protected NXCollectionStrategyPlugin collectionStrategy;
+	@Mock protected NXFileWriterPlugin fileWriter;
 	@Mock protected NDArray ndArray;
 	@Mock protected NDStats ndStats;
 	@Mock protected NDPluginBase ndArrayBase;

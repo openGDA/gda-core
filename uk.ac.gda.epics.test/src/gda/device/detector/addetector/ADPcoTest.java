@@ -50,6 +50,11 @@ public class ADPcoTest extends ADDetectorTest {
 		return adPco;
 	}
 
+	@Override
+	public ADDetector adDet() {
+		return adPco;
+	}
+
 	public ADPco pco() {
 		return adPco;
 	}

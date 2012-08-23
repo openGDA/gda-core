@@ -23,8 +23,8 @@ import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.continuouscontroller.HardwareTriggerProvider;
 import gda.device.detector.NexusDetector;
-import gda.device.detector.addetector.triggering.ADTriggeringStrategy;
 import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetector;
+import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
 import gda.device.scannable.PositionCallableProvider;
 import gda.jython.InterfaceProvider;
 
@@ -45,9 +45,9 @@ public class HardwareTriggerableADDetector extends ADDetector implements Hardwar
 	
 	private HardwareTriggerProvider triggerProvider;
 
-	private ADTriggeringStrategy hardwareTriggeredCollectionStrategy;
+	private NXCollectionStrategyPlugin hardwareTriggeredCollectionStrategy;
 	
-	private ADTriggeringStrategy nonHardwareTriggeredCollectionStrategy;
+	private NXCollectionStrategyPlugin nonHardwareTriggeredCollectionStrategy;
 	
 	private boolean exposureCompleteWhenFileIsVisible = false;
 
@@ -278,19 +278,19 @@ public class HardwareTriggerableADDetector extends ADDetector implements Hardwar
 			throw new IllegalStateException("nonHardwareTriggeredCollectionStrategy is not defined");
 	}
 	
-	public ADTriggeringStrategy getHardwareTriggeredCollectionStrategy() {
+	public NXCollectionStrategyPlugin getHardwareTriggeredCollectionStrategy() {
 		return hardwareTriggeredCollectionStrategy;
 	}
 
-	public void setHardwareTriggeredCollectionStrategy(ADTriggeringStrategy hardwareTriggeredCollectionStrategy) {
+	public void setHardwareTriggeredCollectionStrategy(NXCollectionStrategyPlugin hardwareTriggeredCollectionStrategy) {
 		this.hardwareTriggeredCollectionStrategy = hardwareTriggeredCollectionStrategy;
 	}
 
-	public ADTriggeringStrategy getNonHardwareTriggeredCollectionStrategy() {
+	public NXCollectionStrategyPlugin getNonHardwareTriggeredCollectionStrategy() {
 		return nonHardwareTriggeredCollectionStrategy;
 	}
 
-	public void setNonHardwareTriggeredCollectionStrategy(ADTriggeringStrategy nonHardwareTriggeredCollectionStrategy) {
+	public void setNonHardwareTriggeredCollectionStrategy(NXCollectionStrategyPlugin nonHardwareTriggeredCollectionStrategy) {
 		this.nonHardwareTriggeredCollectionStrategy = nonHardwareTriggeredCollectionStrategy;
 		setCollectionStrategy(nonHardwareTriggeredCollectionStrategy);
 	}

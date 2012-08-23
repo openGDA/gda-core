@@ -16,14 +16,14 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.addetectorprovisional.plugin;
+package gda.device.detector.nxdetector.plugin.areadetector;
 
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
-import gda.device.detector.addetectorprovisional.ADDetectorPlugin;
 import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
+import gda.device.detector.nxdetector.NXPlugin;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,7 +31,7 @@ import java.util.NoSuchElementException;
 import java.util.Vector;
 import static gda.device.detector.addetector.ADDetector.readoutArrayIntoNXDetectorData;
 
-public class ADArrayPlugin implements ADDetectorPlugin {
+public class ADArrayPlugin implements NXPlugin {
 	
 	final private NDArray ndArray;
 

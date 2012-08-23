@@ -30,8 +30,9 @@ import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
+import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
 
-abstract public class AbstractADTriggeringStrategy implements ADTriggeringStrategy, InitializingBean{
+abstract public class AbstractADTriggeringStrategy implements NXCollectionStrategyPlugin, InitializingBean{
 
 	private final ADBase adBase;
 

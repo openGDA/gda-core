@@ -20,13 +20,14 @@ package gda.device.detector.addetector.filewriter;
 
 import gda.data.PathConstructor;
 import gda.device.detector.areadetector.v17.NDFile;
+import gda.device.detector.nxdetector.NXFileWriterPlugin;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 
-public abstract class FileWriterBase implements FileWriter, InitializingBean{
+public abstract class FileWriterBase implements NXFileWriterPlugin, InitializingBean{
 
 	private NDFile ndFile;
 	

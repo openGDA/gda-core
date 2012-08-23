@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.addetectorprovisional;
+package gda.device.detector;
 
 import static org.apache.commons.lang.ArrayUtils.addAll;
 import static org.junit.Assert.assertArrayEquals;
@@ -28,14 +28,16 @@ import static org.mockito.Mockito.when;
 import gda.data.nexus.tree.INexusTree;
 import gda.device.Detector;
 import gda.device.DeviceException;
+import gda.device.detector.NXDetector;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.addetector.ADDetectorTest;
-import gda.device.detector.addetectorprovisional.plugin.ADArrayPlugin;
-import gda.device.detector.addetectorprovisional.plugin.ADBasicStats;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
 import gda.device.detector.nxdata.NXDetectorDataFileAppenderForSrs;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
+import gda.device.detector.nxdetector.NXPlugin;
+import gda.device.detector.nxdetector.plugin.areadetector.ADArrayPlugin;
+import gda.device.detector.nxdetector.plugin.areadetector.ADBasicStats;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,21 +53,21 @@ import org.mockito.MockitoAnnotations;
 
 // TODO No tests for array readout!
 
-public class ProvisionalADDetectorTest extends ADDetectorTest {
+public class NXDetectorAreaDetectorIntegrationTest extends ADDetectorTest {
 
 	private static final double ACQUIRE_TIME = 0.5;
 	private static final double ACQUIRE_PERIOD = 0.55;
 	@Mock
-	private ADDetectorPlugin adDetectorPlugin1;
+	private NXPlugin adDetectorPlugin1;
 	@Mock
-	private ADDetectorPlugin adDetectorPlugin2;
+	private NXPlugin adDetectorPlugin2;
 	@Mock
-	private ADDetectorPlugin statsPlugin;
+	private NXPlugin statsPlugin;
 	@Mock
-	private ADDetectorPlugin centroidPlugin;
+	private NXPlugin centroidPlugin;
 	private ADBasicStats adBasicStats;
 
-	private ProvisionalADDetector adDet;
+	private NXDetector adDet;
 
 	private static String[] PLUGIN1_NAMES = new String[] { "1a", "1b", "1c" };
 	private static String[] PLUGIN2_NAMES = new String[] { "2a", "2b" };
@@ -78,7 +80,7 @@ public class ProvisionalADDetectorTest extends ADDetectorTest {
 		return adDet;
 	}
 
-	private ProvisionalADDetector provAdDet() {
+	private NXDetector provAdDet() {
 		return adDet;
 	}
 	@Override
@@ -87,7 +89,7 @@ public class ProvisionalADDetectorTest extends ADDetectorTest {
 		MockitoAnnotations.initMocks(this);
 		adBasicStats = new ADBasicStats(ndStats);
 		when(ndStats.getPluginBase()).thenReturn(ndStatsBase);
-		List<ADDetectorPlugin> additionalPlugins = new ArrayList<ADDetectorPlugin>();
+		List<NXPlugin> additionalPlugins = new ArrayList<NXPlugin>();
 		adArrayPlugin = new ADArrayPlugin(ndArray);
 		additionalPlugins.add(adArrayPlugin);
 		additionalPlugins.add(fileWriter);
@@ -95,7 +97,7 @@ public class ProvisionalADDetectorTest extends ADDetectorTest {
 		additionalPlugins.add(adDetectorPlugin1);
 		additionalPlugins.add(adDetectorPlugin2);
 		
-		adDet = new ProvisionalADDetector("testdet", collectionStrategy, additionalPlugins);
+		adDet = new NXDetector("testdet", collectionStrategy, additionalPlugins);
 		adArrayPlugin.setEnabled(true);
 
 		enableAdditionalPlugins(false, false);
