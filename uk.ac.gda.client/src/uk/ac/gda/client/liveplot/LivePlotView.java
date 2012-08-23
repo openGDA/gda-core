@@ -188,7 +188,7 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 	
 	private String getArchiveFolder(){
 		if( __archiveFolder == null){
-			String archiveFolder = getArchiveFilePath() + "_archive";
+			String archiveFolder = getArchiveFilePath() + "_livearchive";
 			File storeFolderFile = new File(archiveFolder);
 			storeFolderFile.mkdirs();
 			this.__archiveFolder = archiveFolder;

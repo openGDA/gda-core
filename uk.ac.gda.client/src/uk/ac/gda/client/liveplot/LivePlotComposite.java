@@ -809,7 +809,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 				final Collection<ITrace> plots = plottingSystem.updatePlot1D(x, ys, new NullProgressMonitor());
 			
 				final String title = yAxisHeader + " / " + xAxisHeader;
-				Display.getDefault().syncExec(new Runnable() {
+				if (plottingSystem!=null) Display.getDefault().syncExec(new Runnable() {
 					@Override
 					public void run() {
 						plottingSystem.setTitle(title);
