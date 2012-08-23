@@ -27,6 +27,8 @@ public interface NXFileWriterPlugin extends NXPlugin{
 
 	boolean appendsFilepathStrings();
 
+	@Deprecated 
+	// used by ADDetector to wait for files to appear, a task that SingleImageFileWriter can now perform.
 	public String getFullFileName()  throws Exception;
 	
 }
