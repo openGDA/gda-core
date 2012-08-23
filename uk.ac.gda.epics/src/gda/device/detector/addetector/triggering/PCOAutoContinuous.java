@@ -54,7 +54,7 @@ public class PCOAutoContinuous extends SimpleAcquire {
 	}
 
 	@Override
-	public void endCollection() throws Exception {
+	public void completeCollection() throws Exception {
 		getAdBase().stopAcquiring();
 		adDriverPco.getArmModePV().putCallback(false);
 
