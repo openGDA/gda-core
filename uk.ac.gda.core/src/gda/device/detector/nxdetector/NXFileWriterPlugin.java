@@ -23,10 +23,6 @@ package gda.device.detector.nxdetector;
 
 public interface NXFileWriterPlugin extends NXPlugin{
 
-	public boolean isSetFileNameAndNumber(); // TODO: Remove from interface
-
-	public void setSetFileNameAndNumber(boolean setFileWriterNameNumber); //TODO: Remove from interface
-	
 	void enableCallback(boolean enable) throws Exception;// TODO Required on all NXPlugins?
 
 	boolean appendsFilepathStrings();
