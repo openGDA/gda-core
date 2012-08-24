@@ -54,6 +54,7 @@ import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawb.common.ui.plot.trace.ILineTrace;
 import org.dawb.common.ui.plot.trace.ITrace;
 import org.dawb.common.ui.plot.trace.ILineTrace.PointStyle;
+import org.dawb.workbench.plotting.util.ColorUtility;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -761,6 +762,10 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 					if (sd.isVisible()) {
 						
 						ys.add(sd.archive.getyVals());
+						AbstractDataset y = sd.archive.getyVals();
+						if (y.getName()==null || "".equals(y.getName())) {
+							y.setName(sd.name);
+						}
 						x_axes.add(sd.archive.getxAxis());
 						appearances.put(sd.archive.getyVals().getName(), sd.archive.getAppearance());
 						if (!xAxisIsVarious && StringUtils.hasLength(sd.xLabel)) {
@@ -867,6 +872,9 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 				// We create the new ones and assign their new colour
 				for (final AbstractDataset y : unfoundYs) {
 			
+					if (y.getName()==null || "".equals(y.getName())) {
+						logger.error("y dataset is not named - it should be!");
+					}
 					ILineTrace trace = plottingSystem.createLineTrace(y.getName());
 					trace.setLineWidth(1);
 					trace.setPointSize(3);
@@ -875,6 +883,8 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 					if (appearances.containsKey(trace.getName())) {
 						final Color color = appearances.get(trace.getName()).getColour();
 						trace.setTraceColor(new org.eclipse.swt.graphics.Color(null, color.getRed(), color.getGreen(), color.getBlue()));
+					} else { // We still want a unique colour
+						trace.setTraceColor(ColorUtility.getSwtColour(ys.indexOf(y)));
 					}
 					trace.setData(x, y);
 					plottingSystem.addTrace(trace);
