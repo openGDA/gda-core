@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.python.core.Py;
 import org.python.core.PyException;
@@ -210,6 +211,16 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 		// should be operated only in a scan
 		throw new RuntimeException(UNSUPPORTED_PART_OF_SCANNABLE_INTERFACE);
 	}
+	
+	@Override
+	final public void prepareForCollection() throws DeviceException {
+		// atScanLineStart implemented instead
+	}
+
+	@Override
+	final public void endCollection() throws DeviceException {
+		// atScanLineEnd implemented instead
+	}
 
 	@Override
 	public boolean createsOwnFiles() throws DeviceException {
@@ -223,9 +234,14 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 
 	@Override
 	public String[] getExtraNames() {
+		// These are likely to change dynamically, although this value should probably be cached in atScanStart
 		List<String> extraNames = new ArrayList<String>();
 		for (NXPlugin plugin : getPluginList()) {
 			extraNames.addAll(plugin.getInputStreamNames());
+		}
+		if (new HashSet<String>(extraNames).size() < extraNames.size()) {
+			String namesString = StringUtils.join(extraNames.toArray(), ", ");
+			throw new IllegalStateException("The configured plugins returned duplicate extra names: '" + namesString + "'.");
 		}
 		return extraNames.toArray(new String[] {});
 	}
@@ -280,7 +296,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 			}
 		}
 	}
-
+	
 	@Override
 	public void collectData() throws DeviceException {
 		try {

@@ -148,6 +148,14 @@ public class NXDetectorTest {
 		assertArrayEquals(new String[] { "a", "b", "c", "d", "e" }, det.getExtraNames());
 	}
 
+	@Test(expected = IllegalStateException.class)
+	public void testGetExtraNamesWithDuplicate() {
+		when(collectionStrategy.getInputStreamNames()).thenReturn(Arrays.asList("a", "b"));
+		when(fileWriter.getInputStreamNames()).thenReturn(Arrays.asList("c"));
+		when(plugin.getInputStreamNames()).thenReturn(Arrays.asList("d", "a"));
+		det.getExtraNames();
+	}
+
 	@Test
 	public void testGetOutputFormat() {
 		when(collectionStrategy.getInputStreamFormats()).thenReturn(Arrays.asList("a", "b"));
