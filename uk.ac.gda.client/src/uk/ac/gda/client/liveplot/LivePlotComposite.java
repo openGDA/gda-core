@@ -38,6 +38,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -86,6 +87,7 @@ import org.springframework.util.StringUtils;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AxisValues;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DAppearance;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DGraphTable;
@@ -800,48 +802,9 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 				          : null;
 		    }
 		    
-		    // This horrendous way of doing it, results from the fact that we
-		    // reuse XYPlotComposite. A better way would be with updating and 
-		    // creating individual traces. TODO Convert to more logical design.
 			if (x!=null) {
-				// THIS METHOD MAKES THE TITLE AND COLOUR BLINK BUT IS THE BEST ONE TO USE WITH THE DATA DESIGN.
-				// Instead could use createLineTrace(...)  addTrace(...) etc.
-				final Collection<ITrace> plots = plottingSystem.updatePlot1D(x, ys, new NullProgressMonitor());
-			
 				final String title = yAxisHeader + " / " + xAxisHeader;
-				if (plottingSystem!=null) Display.getDefault().syncExec(new Runnable() {
-					@Override
-					public void run() {
-						plottingSystem.setTitle(title);
-						
-						/**
-						 *  BODGE WARNING There is no clear start of scan or start of new plot in
-						 *  XYDataHandler. Instead we deduce that anything not visible should be removed.
-						 */
-						for (String traceName : invis) {
-							ITrace trace = plottingSystem.getTrace(traceName);
-							if (trace!=null) plottingSystem.removeTrace(trace);
-						}
-
-						/**
-						 *  BODGE WARNING Not the ideal way of doing this, calls setTraceColor too much.
-						 *  The trace color should only be set once at the start.
-						 */
-						for (ITrace iTrace : plots) {
-							
-							ILineTrace lTrace = (ILineTrace)iTrace;
-							lTrace.setLineWidth(1);
-							lTrace.setPointSize(3);
-							lTrace.setPointStyle(PointStyle.POINT);
-							
-							if (!appearances.containsKey(iTrace.getName())) continue;
-							final Color color = appearances.get(iTrace.getName()).getColour();
-							((ILineTrace)iTrace).setTraceColor(new org.eclipse.swt.graphics.Color(null, color.getRed(), color.getGreen(), color.getBlue()));
-						}
-
-						
-					}
-				});
+				createUpdatePlot(title, x, ys, appearances, invis);
 			} else {
 				plottingSystem.reset();
 			}
@@ -849,6 +812,77 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 		} catch (Throwable e) {
 			logger.warn(e.getMessage(),e);
 		}
+	}
+
+	/** 
+	 * Updates the plot in the UI Thread, creates new traces where required.
+	 * 
+       This horrendous way of doing it, results from the fact that we
+       reuse XYPlotComposite. A better way would be with updating and 
+       creating individual traces. TODO Convert to more logical design.	
+		              
+	 * @param x
+	 * @param ys
+	 * @param appearances
+	 */
+	private void createUpdatePlot(final String                title, 
+			                      final AbstractDataset       x, 
+			                      final List<AbstractDataset> ys, 
+			                      final Map<String, Plot1DAppearance> appearances,
+			                      final List<String>          invis) {
+		
+		Display.getDefault().syncExec(new Runnable() {
+			@Override
+			public void run() {
+				
+				plottingSystem.setTitle(title);
+				
+				final List<AbstractDataset> unfoundYs = new ArrayList<AbstractDataset>(ys.size());
+				
+				/**
+				 * Update what we can, after that create new plots.
+				 */
+				for (final AbstractDataset y : ys) {
+					
+					final ITrace trace = plottingSystem.getTrace(y.getName());
+					if (trace!=null && trace instanceof ILineTrace) {
+						
+						final ILineTrace lineTrace = (ILineTrace)trace;
+						lineTrace.setData(x, y);
+					} else {
+						unfoundYs.add(y);
+					}
+				}
+				
+				// We create the new ones and assign their new colour
+				for (final AbstractDataset y : unfoundYs) {
+			
+					ILineTrace trace = plottingSystem.createLineTrace(y.getName());
+					trace.setLineWidth(1);
+					trace.setPointSize(3);
+					trace.setPointStyle(PointStyle.POINT);
+					
+					if (appearances.containsKey(trace.getName())) {
+						final Color color = appearances.get(trace.getName()).getColour();
+						trace.setTraceColor(new org.eclipse.swt.graphics.Color(null, color.getRed(), color.getGreen(), color.getBlue()));
+					}
+					trace.setData(x, y);
+					plottingSystem.addTrace(trace);
+				}
+				/**
+				 *  BODGE WARNING There is no clear start of scan or start of new plot in
+				 *  XYDataHandler. Instead we deduce that anything not visible should be removed.
+				 */
+				for (String traceName : invis) {
+					ITrace trace = plottingSystem.getTrace(traceName);
+					if (trace!=null) plottingSystem.removeTrace(trace);
+				}
+
+				if (plottingSystem.isRescale()) {
+					plottingSystem.autoscaleAxes();
+				}
+			}
+		});
 	}
 
 	@Override
