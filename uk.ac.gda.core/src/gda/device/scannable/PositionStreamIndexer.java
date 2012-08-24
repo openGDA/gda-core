@@ -64,9 +64,11 @@ public class PositionStreamIndexer<T> implements PositionCallableProvider<T> {
 		// Keep reading until the indexed element is read from the stream.
 		while (index > lastIndexRead) {
 			List<T> values = stream.read(maxElementsToReadInOneGo);
+			if (values.isEmpty()) {
+				throw new IllegalStateException("stream returned an empty list (lastIndexRead=" + lastIndexRead +")");
+			}
 			for (T value : values) {
 				readValuesNotGot.put(++lastIndexRead, value);
-				
 			}
 		}
 		if (!readValuesNotGot.containsKey(index)) {

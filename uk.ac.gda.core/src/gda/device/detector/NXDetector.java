@@ -49,10 +49,10 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	
 	private MultiplePositionStreamIndexer<NXDetectorDataAppender> pluginStreamsIndexer;
 	
-	public NXDetector(String name, NXCollectionStrategyPlugin collectionStrategy, List<NXPlugin> adDetectorPluginList) {
+	public NXDetector(String name, NXCollectionStrategyPlugin collectionStrategy, List<NXPlugin> additionalPluginList) {
 		setName(name);
 		setCollectionStrategy(collectionStrategy);
-		setAdditionalPluginList(adDetectorPluginList);
+		setAdditionalPluginList(additionalPluginList);
 		afterPropertiesSet();
 	}
 	
@@ -80,12 +80,12 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	}
 	
 	/**
-	 * Set plugins in addition to the collection-strategy, array and file-writer plugins.
+	 * Set plugins in addition to the collection-strategy plugin.
 	 * 
-	 * @param adDetectorPluginList
+	 * @param additionalPluginList
 	 */
-	public void setAdditionalPluginList(List<NXPlugin> adDetectorPluginList) {
-		this.additionalPluginList = adDetectorPluginList;
+	public void setAdditionalPluginList(List<NXPlugin> additionalPluginList) {
+		this.additionalPluginList = additionalPluginList;
 	}
 
 	public NXCollectionStrategyPlugin getCollectionStrategy() {
@@ -156,7 +156,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	public String[] getExtraNames() {
 		List<String> extraNames = new ArrayList<String>();
 		for (NXPlugin plugin : getPluginList()) {
-			extraNames.addAll(plugin.getInputStreamExtraNames());
+			extraNames.addAll(plugin.getInputStreamNames());
 		}
 		return extraNames.toArray(new String[] {});
 	}
@@ -193,7 +193,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	}
 
 	boolean areCallbacksRequired() {
-		for (NXPlugin chain : getPluginList()) {
+		for (NXPlugin chain : getAdditionalPluginList()) {
 			if (chain.willRequireCallbacks()) {
 				return true;
 			}
@@ -279,7 +279,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 		for (NXPlugin plugin : getPluginList()) {
 			if (plugin instanceof NXFileWriterPlugin) {
 				NXFileWriterPlugin writer = (NXFileWriterPlugin) plugin;
-				if (!writer.isLinkFilepath() && writer.getEnable()) {
+				if (writer.appendsFilepathStrings()) {
 					return true;
 				}
 			}

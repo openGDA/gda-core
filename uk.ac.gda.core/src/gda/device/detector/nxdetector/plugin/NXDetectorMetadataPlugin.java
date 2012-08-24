@@ -87,7 +87,7 @@ public class NXDetectorMetadataPlugin implements NXPlugin {
 	}
 	
 	@Override
-	public List<String> getInputStreamExtraNames() {
+	public List<String> getInputStreamNames() {
 		return Arrays.asList();
 	}
 

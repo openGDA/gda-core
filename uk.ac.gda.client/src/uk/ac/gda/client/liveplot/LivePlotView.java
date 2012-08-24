@@ -86,7 +86,7 @@ import uk.ac.gda.preferences.PreferenceConstants;
 @SuppressWarnings("deprecation")
 public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver {
 
-	private static final String MEMENTO_GROUP = "XYPlotView";
+	private static final String MEMENTO_GROUP = "LivePlotView";
 
 	static {
 		PlotServerProvider.getPlotServer().addIObserver(new IObserver() {
@@ -133,7 +133,7 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 	/**
 	 * The primary ID of the view (one per class)
 	 */
-	public static final String ID = "uk.ac.gda.client.xyplotview";
+	public static final String ID = "uk.ac.gda.client.liveplotview";
 	protected static int secondaryIdSuffix = 1;
 	private static final Logger logger = LoggerFactory.getLogger(LivePlotView.class);
 

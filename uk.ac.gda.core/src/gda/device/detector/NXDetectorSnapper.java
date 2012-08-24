@@ -87,7 +87,7 @@ public class NXDetectorSnapper implements DetectorSnapper {
 	@Override
 	public String[] acquire() throws Exception {
 		getCollectionStrategy().collectData();
-		return new String[] {getFileWriter().getFullFileName_RBV()};
+		return new String[] {getFileWriter().getFullFileName()};
 	}
 
 }

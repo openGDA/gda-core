@@ -18,25 +18,12 @@
 
 package gda.device.detector.nxdetector;
 
+public interface NXFileWriterPlugin extends NXPlugin {
 
+	boolean appendsFilepathStrings();
 
+	@Deprecated
+	// used by ADDetector to wait for files to appear, a task that SingleImageFileWriter can now perform.
+	public String getFullFileName() throws Exception;
 
-public interface NXFileWriterPlugin extends NXPlugin{
-
-	public boolean isSetFileNameAndNumber();
-
-	public void setSetFileNameAndNumber(boolean setFileWriterNameNumber);
-
-	public void setEnable(boolean enable);
-	
-	public boolean getEnable(); // TODO Rename isEnable to result in Jython enable boolean property
-	
-	void enableCallback(boolean enable) throws Exception;// TODO Required?
-
-	void disableFileWriter() throws Exception;// TODO Required?
-
-	boolean isLinkFilepath();
-
-	public String getFullFileName_RBV()  throws Exception; // TODO Rename getFullFileName
-	
 }
