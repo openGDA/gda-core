@@ -89,6 +89,10 @@ public class NXDetectorAreaDetectorIntegrationTest extends ADDetectorTest {
 		when(ndStats.getPluginBase()).thenReturn(ndStatsBase);
 		List<NXPlugin> additionalPlugins = new ArrayList<NXPlugin>();
 		adArrayPlugin = new ADArrayPlugin(ndArray);
+		when(adDetectorPlugin1.getName()).thenReturn("plugin1");
+		when(adDetectorPlugin2.getName()).thenReturn("plugin2");
+		when(collectionStrategy.getName()).thenReturn("collection");
+		
 		additionalPlugins.add(adArrayPlugin);
 		additionalPlugins.add(fileWriter);
 		additionalPlugins.add(adBasicStats);
