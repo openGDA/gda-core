@@ -94,7 +94,7 @@ public class CameraComposite extends Composite {
 		if (viewer != null)
 			viewer.zoomFit();
 	}
-	IDataset getDataset(){
+	public IDataset getDataset(){
 		return lastImage != null ? new SWTImageDataConverter(lastImage).toIDataset() : null;
 	}
 

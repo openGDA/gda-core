@@ -18,6 +18,10 @@
 
 package uk.ac.gda.client.tomo.view;
 
+import gda.epics.CAClient;
+import gda.factory.FactoryException;
+import gov.aps.jca.CAException;
+
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.jface.action.Action;
@@ -28,11 +32,18 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Stats;
+import uk.ac.diamond.scisoft.analysis.dataset.function.Downsample;
+import uk.ac.diamond.scisoft.analysis.dataset.function.DownsampleMode;
+import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.gda.client.tomo.TomoClientActivator;
 import uk.ac.gda.client.tomo.composites.CameraComposite;
 import uk.ac.gda.client.tomo.composites.NewImageListener;
@@ -74,23 +85,64 @@ public class CameraViewPart extends ViewPart implements NewImageListener {
 				zoomToFit();
 			}
 		};
+		Action autoBrightnessAction = new Action("Auto-Contrast") {
+			@Override
+			public void run() {
+				try {
+					autoBrightness();
+				} catch (Exception e) {
+					logger.error("Error performing auto-constrast", e);
+				}
+			}
+		};
 		imageKeyAction = new Action("Image Key", IAction.AS_CHECK_BOX) {
 			@Override
 			public void run() {
 				//this runs after the state has been changed
 				showImageKey(isChecked());
 			}
-
-
 		};
 		imageKeyAction.setChecked(false);//do not 
 		IActionBars actionBars = getViewSite().getActionBars();
 		IMenuManager dropDownMenu = actionBars.getMenuManager();
 		IToolBarManager toolBar = actionBars.getToolBarManager();
 		dropDownMenu.add(zoomFit);
+		dropDownMenu.add(autoBrightnessAction);
 		dropDownMenu.add(imageKeyAction);
 		// toolBar.add(action);
 
+	}
+	protected void autoBrightness() throws CAException, InterruptedException, FactoryException {
+		/*
+		 * get data and send to histogram code
+		 */
+		IDataset dataset = cameraComposite.getDataset();
+		if(dataset == null || dataset.getRank() != 2)
+			return;
+		if( ! (dataset instanceof AbstractDataset))
+			return ;
+		AbstractDataset data = (AbstractDataset)dataset;
+		double[] m;
+		final int[] shape = data.getShape();
+		if (shape[0] > 512 && shape[1] > 512) {
+			int yReduce = (int) Math.ceil(shape[0] / 512.0);
+			int xReduce = (int) Math.ceil(shape[1] / 512.0);
+			Downsample sample = new Downsample(DownsampleMode.MAXIMUM, xReduce, yReduce);
+			m = Stats.quantile(sample.value(data).get(0), 0., 255.);
+		} else
+			m = Stats.quantile(data, 0., 255.);
+		
+		if (Double.compare(m[1], m[0]) <= 0)
+			return;
+		
+		double max = m[1];
+		double min = m[0];
+		double offset = -min;
+		double scale = 255/(max-min);
+		
+		CAClient.put("BL13I-EA-DET-01:PRO1:Scale", scale);
+		CAClient.put("BL13I-EA-DET-01:PRO1:Offset", offset);
+		
 	}
 	private ImageKeyFigure imageKeyFigure;
 
