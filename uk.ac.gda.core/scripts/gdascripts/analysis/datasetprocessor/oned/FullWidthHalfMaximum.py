@@ -9,6 +9,9 @@ class FullWidthHalfMaximum(XYDataSetFunction):
 		XYDataSetFunction.__init__(self, name, labelList, 'peakpos', formatString)
 	
 	def _process(self,xDataSet, yDataSet):
+		return self.singlePeakProcess(xDataSet, yDataSet)
+
+	def multiplePeakProcess(self,xDataSet, yDataSet ):
 		smoothness=1
 		ymax=yDataSet.max()
 		ymin=yDataSet.min()
@@ -59,7 +62,10 @@ class FullWidthHalfMaximum(XYDataSetFunction):
 	def findPeaksAndTroughs(self, ydataset, delta, xdataset=None):
 		'''returns a list of peaks and troughs in tuple of (peak_position, peak_value). 
 		If x data set is not provided, it returns as tuple of (peak_index, peak_value)'''
-		peaks,troughs=peakdet(ydataset, delta, xdataset)
+		if xdataset != None:
+			peaks,troughs=peakdet(ydataset[:], delta, xdataset[:])
+		else:
+			peaks,troughs=peakdet(ydataset[:], delta)
 		return peaks, troughs
 	
 	def findBases(self, xdataset, ydataset, delta, smoothness):
