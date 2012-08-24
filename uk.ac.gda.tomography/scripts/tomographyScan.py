@@ -12,6 +12,7 @@ from gdascripts.messages import handle_messages
 from gda.scan import ScanPositionProvider
 from gda.device.scannable import ScannableBase, ScannableUtils
 from gda.device.scannable.scannablegroup import ScannableGroup
+from java.lang import InterruptedException
 
 class EnumPositionerDelegateScannable(ScannableBase):
     """
@@ -218,17 +219,20 @@ def tomoScan(inBeamPosition, outOfBeamPosition, exposureTime=1., start=0., stop=
                 index = index + 1        
         positionProvider = tomoScan_positions(start, stop, step, darkFieldInterval, imagesPerDark, flatFieldInterval, imagesPerFlat, \
                                                inBeamPosition, outOfBeamPosition, optimizeBeamInterval, scan_points) 
-        
         scan_args = [tomoScanDevice, positionProvider, tomography_time, tomography_beammonitor, tomography_detector, exposureTime ]
         for scannable in additionalScannables:
             scan_args.append(scannable)
-            
         scanObject = createConcurrentScan(scan_args)
         scanObject.runScan()
         return scanObject;
-    except :
+    except InterruptedException:
         exceptionType, exception, traceback = sys.exc_info()
-        handle_messages.log(None, "Error in tomoScan", exceptionType, exception, traceback, False)
+        handle_messages.log(None, "User interrupted the scan", exceptionType, exception, traceback, False)
+        raise InterruptedException("User interrupted the scan")
+    except:
+        exceptionType, exception, traceback = sys.exc_info()
+        handle_messages.log(None, "Error during tomography scan", exceptionType, exception, traceback, False)
+        raise Exception("Error during tomography scan", exception)
 
 def __test1_tomoScan():
     jns = beamline_parameters.JythonNameSpaceMapping()    

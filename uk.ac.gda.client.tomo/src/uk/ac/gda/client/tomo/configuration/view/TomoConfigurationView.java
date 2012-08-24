@@ -755,8 +755,8 @@ public class TomoConfigurationView extends ViewPart {
 			int eventType = notification.getEventType();
 			if (eventType == Notification.ADD) {
 				Object notifier = notification.getNotifier();
-				if (notifier instanceof AlignmentConfiguration) {
-					AlignmentConfiguration ac = (AlignmentConfiguration) notifier;
+				if (notifier instanceof Parameters && notification.getNewValue() instanceof AlignmentConfiguration) {
+					AlignmentConfiguration ac = (AlignmentConfiguration) notification.getNewValue();
 					if (!ac.eAdapters().contains(rowRefreshNotifyAdapter)) {
 						ac.eAdapters().add(rowRefreshNotifyAdapter);
 						ac.getDetectorProperties().eAdapters().add(rowRefreshNotifyAdapter);
@@ -1028,9 +1028,6 @@ public class TomoConfigurationView extends ViewPart {
 			Table table = ((TableViewer) getViewer()).getTable();
 			if (TomoConfigTableConstants.SAMPLE_DESCRIPTION.equals(columnIdentifier)) {
 				return new TextCellEditor(table);
-			} else if (TomoConfigTableConstants.CONTINUOUS_STEP.equals(columnIdentifier)) {
-				return new ComboBoxCellEditor(table, new String[] { ScanMode.CONTINUOUS.getName(),
-						ScanMode.STEP.getName() });
 			} else if (TomoConfigTableConstants.RESOLUTION.equals(columnIdentifier)) {
 				return new ComboBoxCellEditor(table, new String[] { RESOLUTION.FULL.toString(),
 						RESOLUTION.TWO_X.toString(), RESOLUTION.FOUR_X.toString(), RESOLUTION.EIGHT_X.toString() });
@@ -1047,14 +1044,7 @@ public class TomoConfigurationView extends ViewPart {
 			if (!isScanRunning) {
 				if (TomoConfigTableConstants.SAMPLE_DESCRIPTION.equals(columnIdentifier)) {
 					return true;
-				}
-				if (TomoConfigTableConstants.SAMPLE_DESCRIPTION.equals(columnIdentifier)) {
-					return true;
-				}
-				// else if (TomoConfigTableConstants.CONTINUOUS_STEP.equals(columnIdentifier)) {
-				// return true;
-				// }
-				else if (TomoConfigTableConstants.RESOLUTION.equals(columnIdentifier)) {
+				} else if (TomoConfigTableConstants.RESOLUTION.equals(columnIdentifier)) {
 					return true;
 				} else if (TomoConfigTableConstants.SHOULD_DISPLAY.equals(columnIdentifier)) {
 					return true;
@@ -1100,8 +1090,6 @@ public class TomoConfigurationView extends ViewPart {
 						TomoConfigContent c = (TomoConfigContent) tableItem.getData();
 						if (c.getStatus() == CONFIG_STATUS.RUNNING) {
 							c.setProgress(Math.round(progress));
-							logger.debug("desc:{}", c.getSampleDescription());
-							logger.debug("status:{}", c.getProgress());
 							refreshRow(c);
 							break;
 						}
