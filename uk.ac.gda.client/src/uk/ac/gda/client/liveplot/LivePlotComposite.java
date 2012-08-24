@@ -792,6 +792,13 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 				plottingSystem.clear();
 				return;
 			}
+			if (ys.isEmpty()) {
+				ys.add(dummy.archive.getyVals());
+				x_axes.add(dummy.archive.getxAxis());
+				appearances.put(dummy.archive.getyVals().getName(), dummy.archive.getAppearance());
+				yAxisHeader="";
+				xAxisHeader="";
+			}
 			// always replace plots even if list is empty as they may be invisible
 			AbstractDataset x = x_axes.size()>0
 					          ? x_axes.get(0).toDataset()
@@ -803,8 +810,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 		    }
 		    
 			if (x!=null) {
-				final String title = yAxisHeader + " / " + xAxisHeader;
-				createUpdatePlot(title, x, ys, appearances, invis);
+				createUpdatePlot(xAxisHeader, yAxisHeader, x, ys, appearances, invis);
 			} else {
 				plottingSystem.reset();
 			}
@@ -825,17 +831,21 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 	 * @param ys
 	 * @param appearances
 	 */
-	private void createUpdatePlot(final String                title, 
-			                      final AbstractDataset       x, 
+	private void createUpdatePlot(final String                xLabel, 
+			      				  final String                yLabel, 
+			      				  final AbstractDataset       x, 
 			                      final List<AbstractDataset> ys, 
 			                      final Map<String, Plot1DAppearance> appearances,
 			                      final List<String>          invis) {
 		
+		final String title = xLabel + " / " + yLabel;
 		Display.getDefault().syncExec(new Runnable() {
 			@Override
 			public void run() {
 				
 				plottingSystem.setTitle(title);
+				plottingSystem.getSelectedXAxis().setTitle(xLabel);
+				plottingSystem.getSelectedYAxis().setTitle(yLabel);
 				
 				final List<AbstractDataset> unfoundYs = new ArrayList<AbstractDataset>(ys.size());
 				
