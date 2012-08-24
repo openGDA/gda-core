@@ -39,14 +39,16 @@ class TestFWHM(Test):
 		self.p = FullWidthHalfMaximum()
 		
 	def test__init__(self):
-		self.check__init__('fwhm', ('maxpos','fwhm'), 'maxpos')
+		self.check__init__('peak', ('peakpos','peakvalue','peakbase','fwhm'), 'peakpos')
 		
 	def test_process(self):
-		pos = 18.0
+		peakpos = 18.0
+		peakvalue=11.0
+		peakbase=1.0
 		fwhm = 5.0
 
 		result = self.p._process(self.x, self.peak)
-		expected = (pos, fwhm)
+		expected = (peakpos,peakvalue,peakbase,fwhm)
 		self.assert_(close(result, expected),"%s\n is not close to expected:\n%s"%(`result`,`expected`))
 
 

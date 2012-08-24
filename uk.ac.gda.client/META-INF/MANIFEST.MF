@@ -79,6 +79,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.dawb.common.ui.plot,
  org.dawb.common.ui.plot.tool,
  org.dawb.common.ui.plot.trace,
+ org.dawb.workbench.plotting.util,
  org.eclipse.ui.forms.events,
  org.eclipse.ui.forms.widgets,
  org.slf4j;version="[1.5.0,2.0.0)",
