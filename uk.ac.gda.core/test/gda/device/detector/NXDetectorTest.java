@@ -39,7 +39,9 @@ import gda.device.detector.nxdetector.NXPlugin;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import org.junit.Before;
@@ -71,6 +73,11 @@ public class NXDetectorTest {
 	@Before
 	public void setUp() {
 		MockitoAnnotations.initMocks(this);
+		
+		when(collectionStrategy.getName()).thenReturn("a");
+		when(fileWriter.getName()).thenReturn("b");
+		when(plugin.getName()).thenReturn("c");
+		
 		appenderList0 = mockAppenderList(10);
 		appenderList1 = mockAppenderList(10);
 		appenderList2 = mockAppenderList(10);
@@ -92,6 +99,42 @@ public class NXDetectorTest {
 		assertEquals(Arrays.asList(collectionStrategy, fileWriter, plugin), det.getPluginList());
 	}
 
+	@Test
+	public void testGetPluginMap() {
+		
+		Map<String, NXPlugin> expected = new HashMap<String, NXPlugin>();
+		expected.put("a", collectionStrategy);
+		expected.put("b", fileWriter);
+		expected.put("c", plugin);
+		
+		assertEquals(expected, det.getPluginMap());
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testSetCollectionStrategyWithDuplicatePluginName() {
+		when(collectionStrategy.getName()).thenReturn("c");
+		det = new NXDetector();
+		det.setAdditionalPluginList(Arrays.asList(fileWriter, plugin));
+		det.setCollectionStrategy(collectionStrategy);
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void testSetAdditionalPluginListWithDuplicateCollectionStrategyName() {
+		when(collectionStrategy.getName()).thenReturn("b");
+		det = new NXDetector();
+		det.setCollectionStrategy(collectionStrategy);
+		det.setAdditionalPluginList(Arrays.asList(fileWriter, plugin));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testSetAdditionalPluginListWithDuplicateNames() {
+		when(plugin.getName()).thenReturn("b");
+		det = new NXDetector();
+		det.setAdditionalPluginList(Arrays.asList(fileWriter, plugin));
+	}
+
+	// Scannable
+	
 	@Test
 	public void testGetInputNames() {
 		assertArrayEquals(new String[0], det.getInputNames());
