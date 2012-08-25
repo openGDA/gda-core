@@ -45,6 +45,16 @@ public class CirrusState {
 	private Boolean isConnected = false;
 	private Boolean hasControl = false;
 	private Boolean scanStarted = false;
+	private Boolean pumpPressureResponseRecieved = false;
+	private Boolean filamentChangeResponseRecieved = false;
+	private Boolean heaterToWarmResponseRecieved = false;
+	private Boolean pumpPressureOffResponseRecieved = false;
+	private Boolean heaterToOffResponseRecieved = false;
+	private Boolean capillaryHeaterOn = false;
+	private Boolean cirrusHeaterOn = false;
+	private Boolean measurementCreationResponseRecieved;
+	private Boolean measurementCreationResult;	
+	
 	private JScan runningScan;
 	private JDegas lastDegasReading;
 	private JMeasurement lastMeasurement;
@@ -211,6 +221,78 @@ public class CirrusState {
 
 	public Boolean getControlResponseRecieved() {
 		return controlResponseRecieved;
+	}
+
+	public Boolean getPumpPressureResponseRecieved() {
+		return pumpPressureResponseRecieved;
+	}
+
+	public void setPumpPressureResponseRecieved(Boolean pumpPressureResponseRecieved) {
+		this.pumpPressureResponseRecieved = pumpPressureResponseRecieved;
+	}
+
+	public Boolean getFilamentChangeResponseRecieved() {
+		return filamentChangeResponseRecieved;
+	}
+
+	public void setFilamentChangeResponseRecieved(Boolean filamentChangeResponseRecieved) {
+		this.filamentChangeResponseRecieved = filamentChangeResponseRecieved;
+	}
+
+	public Boolean getHeaterToWarmResponseRecieved() {
+		return heaterToWarmResponseRecieved;
+	}
+
+	public void setHeaterToWarmResponseRecieved(Boolean heaterToWarmResponseRecieved) {
+		this.heaterToWarmResponseRecieved = heaterToWarmResponseRecieved;
+	}
+
+	public Boolean getPumpPressureOffResponseRecieved() {
+		return pumpPressureOffResponseRecieved;
+	}
+
+	public void setPumpPressureOffResponseRecieved(Boolean pumpPressureOffResponseRecieved) {
+		this.pumpPressureOffResponseRecieved = pumpPressureOffResponseRecieved;
+	}
+
+	public Boolean getHeaterToOffResponseRecieved() {
+		return heaterToOffResponseRecieved;
+	}
+
+	public void setHeaterToOffResponseRecieved(Boolean heaterToOffResponseRecieved) {
+		this.heaterToOffResponseRecieved = heaterToOffResponseRecieved;
+	}
+
+	public Boolean getMeasurementCreationResponseRecieved() {
+		return measurementCreationResponseRecieved;
+	}
+
+	public void setMeasurementCreationResponseRecieved(Boolean measurementCreationResponseRecieved) {
+		this.measurementCreationResponseRecieved = measurementCreationResponseRecieved;
+	}
+
+	public Boolean getMeasurementCreationResult() {
+		return measurementCreationResult;
+	}
+
+	public void setMeasurementCreationResult(Boolean measurementCreationResult) {
+		this.measurementCreationResult = measurementCreationResult;
+	}
+
+	public Boolean getCapillaryHeaterOn() {
+		return capillaryHeaterOn;
+	}
+
+	public void setCapillaryHeaterOn(Boolean capillaryHeaterOn) {
+		this.capillaryHeaterOn = capillaryHeaterOn;
+	}
+
+	public Boolean getCirrusHeaterOn() {
+		return cirrusHeaterOn;
+	}
+
+	public void setCirrusHeaterOn(Boolean cirrusHeaterOn) {
+		this.cirrusHeaterOn = cirrusHeaterOn;
 	}
 	
 }

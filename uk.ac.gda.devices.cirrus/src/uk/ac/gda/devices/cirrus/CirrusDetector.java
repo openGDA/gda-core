@@ -89,6 +89,11 @@ public class CirrusDetector extends DetectorBase implements NexusDetector {
 		// add the measurement to the scan and start it
 		getController().createAndRunScan(masses);
 	}
+	
+	@Override
+	public void atCommandFailure() throws DeviceException {
+		getController().getCurrentState().setStatus(new ScannableStatus("Cirrus", ScannableStatus.BUSY));
+	}
 
 	@Override
 	public int getStatus() throws DeviceException {
@@ -126,14 +131,12 @@ public class CirrusDetector extends DetectorBase implements NexusDetector {
 	public NexusTreeProvider readout() throws DeviceException {
 
 		JMeasurement measurements = getController().getCurrentState().getLastMeasurement();
-
 		if (measurements == null) {
 			// scan failed or not finished yet
 			return null;
 		}
 
 		JReadings pReadings = measurements.getData();
-
 		NXDetectorData nxdata = new NXDetectorData(this);
 		INexusTree detTree = nxdata.getDetTree(getName());
 		double[] results = new double[pReadings.getNumReadingsAvailable()];
@@ -142,12 +145,13 @@ public class CirrusDetector extends DetectorBase implements NexusDetector {
 		for (int i = 0; i < pReadings.getNumReadingsAvailable(); i++) {
 			double mass = this.getMasses()[i];
 			double counts = pReadings.getReading(i);
+			counts /= 100;  // to convert from Pa to mbar (1Pa = 10E-5bar = 0.01mbar)
 			nxdata.setPlottableValue(getExtraNames()[i], counts);
 			dblFullResults[i][1] = counts;
 			dblFullResults[i][0] = mass;
 		}
 		nxdata.addData(detTree, "masses", new int[] { results.length, 2 }, NexusFile.NX_FLOAT64, dblFullResults,
-				"counts", 1);
+				"mbar", 1);
 		
 		return nxdata;
 
@@ -164,6 +168,21 @@ public class CirrusDetector extends DetectorBase implements NexusDetector {
 		}
 		
 		return extranames;
+	}
+	
+	@Override
+	public String[] getOutputFormat() {
+		String[] extranames = new String[masses.length];
+		
+		for (int i = 0 ; i < masses.length; i++){
+			extranames[i] = "%.4f";
+		}
+		
+		return extranames;
+	}
+	
+	public float getChamberPressure(){
+		return getController().getPressure();
 	}
 	
 	public void turnOffHardware() throws DeviceException{
@@ -196,6 +215,22 @@ public class CirrusDetector extends DetectorBase implements NexusDetector {
 
 	public void setFilamentToUse(int filamentToUse) {
 		controller.setFilamentToUse(filamentToUse);
+	}
+	
+	public boolean isCapillaryHeaterOn() {
+		return controller.isCapillaryHeaterOn();
+	}
+
+	public void setCapillaryHeaterOn(boolean capillaryHeaterOn) {
+		controller.setCapillaryHeaterOn(capillaryHeaterOn);
+	}
+
+	public boolean isCirrusHeaterOn() {
+		return controller.isCirrusHeaterOn();
+	}
+
+	public void setCirrusHeaterOn(boolean cirrusHeaterOn) {
+		controller.setCirrusHeaterOn(cirrusHeaterOn);
 	}
 
 }

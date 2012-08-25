@@ -61,22 +61,12 @@ public class CirrusController implements IEvents {
 	private volatile CirrusState currentState;
 	// flag to tell the OnMeasurementCreated method to start data collection
 	private volatile Boolean startWhenMeasurementCreated = false;
-	private volatile Integer[] masses = new Integer[] {};
+//	private volatile Integer[] masses = new Integer[] {};
 	private String name = "Cirrus";
-//	private boolean heatWhenPumpRunning = false;
-//	private boolean waitForHardwareBeforeRunningMeasurement = false;
 
-	private boolean waitingForPumpPressure = false;
-	
-	private int filamentToUse;
+	private Integer filamentToUse;
 
-	private boolean waitingForFilamentChange;
-
-	private boolean waitForHeaterToWarm;
-
-	private boolean waitingForPumpPressureOff;
-
-	private boolean waitForHeaterToOff;
+	private JMeasurement newMeasurment;
 
 	public CirrusController() {
 		setCurrentState(new CirrusState());
@@ -88,7 +78,7 @@ public class CirrusController implements IEvents {
 		rgaConnection = new JRGAConnection(this);
 		rgaConnection.Connect(host);
 
-		long timeout = 10000; // 10s timeout in milliseconds
+		long timeout = 100000; // 10s timeout in milliseconds
 		long timeWaiting = 0;
 
 		try {
@@ -111,7 +101,7 @@ public class CirrusController implements IEvents {
 	}
 
 	public void disconnect() {
-		if (rgaConnection != null && getCurrentState().getHasControl()){
+		if (rgaConnection != null && getCurrentState().getHasControl() != null && getCurrentState().getHasControl()) {
 			rgaConnection.getSelectedSensor().setInControl(false);
 			rgaConnection = null;
 		}
@@ -119,12 +109,18 @@ public class CirrusController implements IEvents {
 
 	public void createAndRunScan(Integer[] masses) throws DeviceException {
 
-		checkCanControlHardware();
+		try {
+			checkCanControlHardware();
 
-		currentState.setStatus(new ScannableStatus(name, ScannableStatus.BUSY));
-		rgaConnection.getSelectedSensor().getMeasurements().RemoveAll();
-		startWhenMeasurementCreated = true;
-		createMeasurement(masses);
+			currentState.setStatus(new ScannableStatus(name, ScannableStatus.BUSY));
+			currentState.setStatusString("");
+			rgaConnection.getSelectedSensor().getMeasurements().RemoveAll();
+			createMeasurement(masses);
+		} catch (DeviceException e) {
+			// reset to idle and throw the exception
+			currentState.setStatus(new ScannableStatus(name, ScannableStatus.IDLE));
+			throw e;
+		}
 	}
 
 	private void checkCanControlHardware() throws DeviceException {
@@ -144,64 +140,188 @@ public class CirrusController implements IEvents {
 
 		prepareHardwareForMeasurement();
 
-		this.masses = masses;
+		currentState.setMeasurementCreationResponseRecieved(false);
+		String name = rgaConnection.getSensorName(0);
 		rgaConnection.getSelectedSensor().getMeasurements()
-				.AddPeakJump("GDA_measurement", rgaFilterModes.PeakAverage, 0, 0, 0, 0);
-		logger.info("new measurement defined in " + name);
+				.AddPeakJump("GDA_measurement", rgaFilterModes.PeakMaximum, 5, 0, 0, 1);
+		waitForMeasurementCreation();
+
+		if (!currentState.getMeasurementCreationResult()) {
+			currentState.setStatus(new ScannableStatus(name, ScannableStatus.FAULT));
+			currentState.setStatusString("Last attempt to define a measurement failed");
+			throw new DeviceException("measurment creation failed");
+		}
+
+		// assume that the created measurement is what we just sent
+		// JPeakJumpMeasurement measurement = (JPeakJumpMeasurement) arg1;
+
+		for (Integer mass : masses) {
+			((JPeakJumpMeasurement) newMeasurment).getMasses().AddMass(mass);
+		}
+
+		// Now add it to the scan and start the thing off
+
+		JRGASensor sensor = this.rgaConnection.getSelectedSensor();
+		sensor.getScan().getMeasurements().Add(newMeasurment);
+		startWhenMeasurementCreated = true;
+		sensor.getScan().Start(1);
+		waitForScanStart();
+	}
+
+	private void waitForScanStart() throws DeviceException {
+		int maxIterations = 300;
+		int iterations = 0;
+		while (startWhenMeasurementCreated) {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				throw new DeviceException("Interrupted whilst waiting for hardware change");
+			}
+			iterations++;
+			if (iterations > maxIterations) {
+				throw new DeviceException("Timeout whilst waiting for hardware change!");
+			}
+		}
+	}
+
+	private void waitForMeasurementCreation() throws DeviceException {
+		int maxIterations = 600;
+		int iterations = 0;
+		while (!currentState.getMeasurementCreationResponseRecieved()) {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				throw new DeviceException("Interrupted whilst waiting for hardware change");
+			}
+			iterations++;
+			if (iterations > maxIterations) {
+				throw new DeviceException("Timeout whilst waiting for hardware change!");
+			}
+		}
+
 	}
 
 	protected void prepareHardwareForMeasurement() throws DeviceException {
 		checkPumpOn();
 		checkPressure();
 		checkFilamentOn();
-		checkHeaterOn();
+		checkHeatersOn();
 	}
-	
-	private void checkHeaterOn() throws DeviceException {
+
+	private void checkHeatersOn() throws DeviceException {
 		JCirrus cirrus = rgaConnection.getSelectedSensor().getCirrus();
-		if (cirrus.getHeaterState() != JCirrus.cirrusHeaterWarm){
-			logger.info("Switching " + name + " heater on....");
-			waitForHeaterToWarm = true;
-			cirrus.setHeaterState(JCirrus.cirrusHeaterWarm);
-			waitForBooleanChange(waitForHeaterToWarm,180,1000);
+
+		if (currentState.getCapillaryHeaterOn() && !cirrus.isCapillaryHeaterOn()) {
+			logger.info("Switching " + name + " capillary heater on....");
+			cirrus.setCapillaryHeaterOn(true);
+			waitForCapillaryHeaterChange(true);
+		} else if (!currentState.getCapillaryHeaterOn() && cirrus.isCapillaryHeaterOn()) {
+			logger.info("Switching " + name + " capillary heater off....");
+			cirrus.setCapillaryHeaterOn(false);
+			waitForCapillaryHeaterChange(false);
 		}
-		
+
+		if (currentState.getCirrusHeaterOn() && cirrus.getHeaterState() != JCirrus.cirrusHeaterWarm) {
+			logger.info("Switching " + name + " heater on....");
+			currentState.setHeaterToWarmResponseRecieved(false);
+			cirrus.setHeaterState(JCirrus.cirrusHeaterWarm);
+			waitForHeaterToWarm();
+		} else if (!currentState.getCirrusHeaterOn() && cirrus.getHeaterState() != JCirrus.cirrusHeaterOff) {
+			switchHeaterOff(cirrus);
+		}
+
 	}
-	
+
+	private void waitForHeaterToWarm() throws DeviceException {
+		int maxIterations = 600;
+		int iterations = 0;
+		while (!currentState.getHeaterToWarmResponseRecieved()) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				throw new DeviceException("Interrupted whilst waiting for hardware change");
+			}
+			iterations++;
+			if (iterations > maxIterations) {
+				throw new DeviceException("Timeout whilst waiting for hardware change!");
+			}
+		}
+	}
+
+	private void waitForCapillaryHeaterChange(Boolean desiredState) throws DeviceException {
+		JCirrus cirrus = rgaConnection.getSelectedSensor().getCirrus();
+		int maxIterations = 600;
+		int iterations = 0;
+		while (true) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				throw new DeviceException("Interrupted whilst waiting for hardware change");
+			}
+			if (cirrus.isCapillaryHeaterOn() == desiredState) {
+				return;
+			}
+			iterations++;
+			if (iterations > maxIterations) {
+				throw new DeviceException("Timeout whilst waiting for hardware change!");
+			}
+		}
+	}
+
 	private void checkHeaterOff() throws DeviceException {
 		JCirrus cirrus = rgaConnection.getSelectedSensor().getCirrus();
-		if (cirrus.getHeaterState() != JCirrus.cirrusHeaterOff){
-			logger.info("Switching " + name + " heater off....");
-			waitForHeaterToOff = true;
-			cirrus.setHeaterState(JCirrus.cirrusHeaterOff);
-			waitForBooleanChange(waitForHeaterToOff,180,1000);
+		if (cirrus.getHeaterState() != JCirrus.cirrusHeaterOff) {
+			switchHeaterOff(cirrus);
 		}
-		
+	}
+
+	private void switchHeaterOff(JCirrus cirrus) throws DeviceException {
+		logger.info("Switching " + name + " heater off....");
+		currentState.setHeaterToOffResponseRecieved(false);
+		cirrus.setHeaterState(JCirrus.cirrusHeaterOff);
+		waitForHeaterToOff();
+	}
+
+	private void waitForHeaterToOff() throws DeviceException {
+		int maxIterations = 600;
+		int iterations = 0;
+		while (!currentState.getHeaterToOffResponseRecieved()) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				throw new DeviceException("Interrupted whilst waiting for hardware change");
+			}
+			iterations++;
+			if (iterations > maxIterations) {
+				throw new DeviceException("Timeout whilst waiting for hardware change!");
+			}
+		}
 	}
 
 	/**
 	 * Assumes the pump is on and the pressure is OK.
-	 * @throws DeviceException 
+	 * 
+	 * @throws DeviceException
 	 */
 	private void checkFilamentOn() throws DeviceException {
 		JRGASensor pSensor = rgaConnection.getSelectedSensor();
 		JFilaments filaments = pSensor.getFilaments();
-		if (filaments.getSelectedFilament() != getFilamentToUse()){
+		if (filaments.getSelectedFilament() != getFilamentToUse()) {
 			filaments = switchFilaments(pSensor, filaments);
 		}
-		
+
 		if (filaments.isFilamentOn() == false) {
 			filaments.setFilamentOn(true);
 		}
 	}
-	
+
 	private void checkFilamentOff() throws DeviceException {
 		JRGASensor pSensor = rgaConnection.getSelectedSensor();
 		JFilaments filaments = pSensor.getFilaments();
-		if (filaments.getSelectedFilament() != getFilamentToUse()){
+		if (filaments.getSelectedFilament() != getFilamentToUse()) {
 			filaments = switchFilaments(pSensor, filaments);
 		}
-		
+
 		if (filaments.isFilamentOn()) {
 			filaments.setFilamentOn(false);
 		}
@@ -209,60 +329,60 @@ public class CirrusController implements IEvents {
 
 	private JFilaments switchFilaments(JRGASensor pSensor, JFilaments filaments) throws DeviceException {
 		logger.warn("Current filament does not match configured filament in GDA. SWitching filaments");
-		waitingForFilamentChange = true;
+		currentState.setFilamentChangeResponseRecieved(false);
 		logger.info("Switching filament to " + getFilamentToUse());
 		filaments.setSelectedFilament(getFilamentToUse());
-		waitForBooleanChange(waitingForFilamentChange,30,250);
+		waitingForFilamentChange();
 		filaments = pSensor.getFilaments();
 		return filaments;
 	}
 
-
-	private void checkPumpOn(){
-		JCirrus cirrus = rgaConnection.getSelectedSensor().getCirrus();
-		if  (cirrus.getPumpState() != JCirrus.cirrusPumpOn){
-			logger.info("Switching " + name + " pump on....");
-			waitingForPumpPressure = true;
-			cirrus.setPumpState(JCirrus.cirrusPumpOn);
-		} 
-	}
-	
-	private void checkPumpOff(){
-		JCirrus cirrus = rgaConnection.getSelectedSensor().getCirrus();
-		if  (cirrus.getPumpState() != JCirrus.cirrusPumpOff){
-			logger.info("Switching " + name + " pump off....");
-			waitingForPumpPressureOff = true;
-			cirrus.setPumpState(JCirrus.cirrusPumpOff);
-		} 
-	}
-
-	
-	private void waitForBooleanChange(Boolean booleanToObserve, int timeoutInS, int loopTimeInms) throws DeviceException{
-		int maxIterations = Math.round(((timeoutInS * 1000) / loopTimeInms));
+	private void waitingForFilamentChange() throws DeviceException {
+		int maxIterations = 120;
 		int iterations = 0;
-		while (booleanToObserve){
+		while (!currentState.getFilamentChangeResponseRecieved()) {
 			try {
-				Thread.sleep(loopTimeInms);
+				Thread.sleep(250);
 			} catch (InterruptedException e) {
 				throw new DeviceException("Interrupted whilst waiting for hardware change");
 			}
 			iterations++;
-			if (iterations > maxIterations){
+			if (iterations > maxIterations) {
 				throw new DeviceException("Timeout whilst waiting for hardware change!");
 			}
 		}
 	}
-	
-	private static float PUMP_PRESSURE_THRESHOLD = new Float(0.00001); 
-	
-	private void checkPressure() throws DeviceException{
-		float currentPressure = getPressure();
-		
-		if (currentPressure > PUMP_PRESSURE_THRESHOLD && !waitingForPumpPressure) {
+
+	private void checkPumpOn() {
+		JCirrus cirrus = rgaConnection.getSelectedSensor().getCirrus();
+		if (cirrus.getPumpState() != JCirrus.cirrusPumpOn) {
+			logger.info("Switching " + name + " pump on....");
+			currentState.setPumpPressureResponseRecieved(false);
+			cirrus.setPumpState(JCirrus.cirrusPumpOn);
+		}
+//		float currentPressure = getPressure();
+	}
+
+	private void checkPumpOff() {
+		JCirrus cirrus = rgaConnection.getSelectedSensor().getCirrus();
+		if (cirrus.getPumpState() != JCirrus.cirrusPumpOff) {
+			logger.info("Switching " + name + " pump off....");
+			currentState.setPumpPressureOffResponseRecieved(false);
+			cirrus.setPumpState(JCirrus.cirrusPumpOff);
+		}
+	}
+
+	// want less than 1x10-5mbar or 0.001E-5bar
+	private static float PUMP_PRESSURE_THRESHOLD = new Float(0.0001); // in mbar
+
+	private void checkPressure() throws DeviceException {
+		float currentPressure = getPressure(); // returns 10E-5ubar
+//		return;
+		if (currentPressure > PUMP_PRESSURE_THRESHOLD && currentState.getPumpPressureResponseRecieved()) {
 			throw new DeviceException("Pump pressure too high!");
 		} else if (currentPressure < PUMP_PRESSURE_THRESHOLD) {
 			return;
-		} else if (currentPressure > PUMP_PRESSURE_THRESHOLD&& waitingForPumpPressure){
+		} else if (currentPressure > PUMP_PRESSURE_THRESHOLD && !currentState.getPumpPressureResponseRecieved()) {
 			waitForPump();
 		}
 	}
@@ -270,36 +390,35 @@ public class CirrusController implements IEvents {
 	private void waitForPump() throws DeviceException {
 		int timeout = 600;
 		int iterations = 0;
-		while (waitingForPumpPressure){
+		while (!currentState.getPumpPressureResponseRecieved()) {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				throw new DeviceException("Interrupted whilst waiting for pump pressure to go below threshold");
 			}
 			iterations++;
-			if (getPressure() < getPressure()){
+			if (getPressure() < getPressure()) {
 				return;
 			}
-			if (iterations > timeout){
+			if (iterations > timeout) {
 				throw new DeviceException("Timeout waitin for pump pressure to go below threshold");
 			}
 		}
-		
+
 	}
 
-	private float getPressure() {
-		JRGASensor pSensor = rgaConnection.getSelectedSensor();
-		JTotalPressure pressure = pSensor.getTotalPressure();
-		return pressure.getValue();
+	protected float getPressure() {
+		JCirrus cirrus = rgaConnection.getSelectedSensor().getCirrus();
+		float pressureInPascal = cirrus.getChamberPressure();
+		float pressureinmbar = pressureInPascal / 100;
+		return pressureinmbar;
 	}
-	
-	
+
 	public void turnOffHardware() throws DeviceException {
 		checkHeaterOff();
 		checkFilamentOff();
 		checkPumpOff();
 	}
-
 
 	public void stop() throws DeviceException {
 
@@ -323,9 +442,10 @@ public class CirrusController implements IEvents {
 
 	@Override
 	public void OnConnected(boolean arg0) {
-		currentState.setControlResponseRecieved(true);
 		currentState.setIsConnected(arg0);
 		if (arg0) {
+			rgaConnection.Select(1);
+			String name = rgaConnection.getSensorName(0);
 			JRGASensor sensor = rgaConnection.getSelectedSensor();
 			if (sensor == null) {
 				// If we connect to the 'server' and SelectedSensor is NULL it
@@ -397,14 +517,15 @@ public class CirrusController implements IEvents {
 									+ ", [Filament2] " + pDetector.getVoltage(2) + " V");
 						}
 
-						for (short e = 0; e < sensor.getEGainCount(); e++) {
-							if (pDetector.EGainUsable(e)) {
-								logger.info("\t\t\tEGainIndex " + e + " OK up to MaxPressure of "
-										+ pDetector.getMaxPressure(e, -1) + " Pascal on the current inlet");
-							} else {
-								logger.info("\t\t\tEGainIndex " + e + " not available for this source/detector");
-							}
-						}
+						// commented out as was not working: but this is from their test script??
+						// for (short e = 0; e < sensor.getEGainCount(); e++) {
+						// if (pDetector.EGainUsable(e)) {
+						// logger.info("\t\t\tEGainIndex " + e + " OK up to MaxPressure of "
+						// + pDetector.getMaxPressure(e, -1) + " Pascal on the current inlet");
+						// } else {
+						// logger.info("\t\t\tEGainIndex " + e + " not available for this source/detector");
+						// }
+						// }
 					}
 				}
 
@@ -426,7 +547,7 @@ public class CirrusController implements IEvents {
 				// be fired in the Controlling() event
 
 				// this will be updated by a call to OnControlling
-				currentState.setHasControl(false);
+				// currentState.setHasControl(false);
 
 				sensor.Control("GDA", Version.getReleaseVersion());
 
@@ -438,6 +559,7 @@ public class CirrusController implements IEvents {
 
 	@Override
 	public void OnControlling(boolean arg0) {
+		currentState.setControlResponseRecieved(true);
 		currentState.setHasControl(arg0);
 	}
 
@@ -458,6 +580,11 @@ public class CirrusController implements IEvents {
 
 	@Override
 	public void OnEndOfScan(JScan arg0) {
+		
+		if (arg0.getMeasurements().getItem(0) == null) {
+			logger.error("Null result from scan");
+		}
+		
 		currentState.setLastMeasurement(arg0.getMeasurements().getItem(0));
 		currentState.setRunningJScan(null);
 		currentState.setScanStarted(false);
@@ -474,7 +601,7 @@ public class CirrusController implements IEvents {
 	@Override
 	public void OnFilamentChange(JFilaments arg0) {
 		currentState.setLastFilamentState(arg0);
-		waitingForFilamentChange = false;
+		currentState.setFilamentChangeResponseRecieved(true);
 	}
 
 	@Override
@@ -497,31 +624,9 @@ public class CirrusController implements IEvents {
 
 	@Override
 	public void OnMeasurementCreated(boolean success, JMeasurement arg1) {
-		if (!success) {
-			currentState.setStatus(new ScannableStatus(name, ScannableStatus.FAULT));
-			currentState.setStatusString("Last attempt to define a measurement failed");
-		}
-
-		if (success && startWhenMeasurementCreated) {
-			// assume that the created measurement is what we just sent
-			JPeakJumpMeasurement measurement = (JPeakJumpMeasurement) arg1;
-
-			for (Integer mass : masses) {
-				measurement.getMasses().AddMass(mass);
-			}
-
-			// Now add it to the scan and start the thing off
-
-			JRGASensor sensor = this.rgaConnection.getSelectedSensor();
-
-			sensor.getScan().getMeasurements().Add(measurement);
-
-			currentState.setStatus(new ScannableStatus(name, ScannableStatus.BUSY));
-			currentState.setStatusString("");
-
-			logger.info("scan started in " + name);
-			sensor.getScan().Start(1);
-		}
+		currentState.setMeasurementCreationResult(success);
+		newMeasurment = arg1;
+		currentState.setMeasurementCreationResponseRecieved(true);
 	}
 
 	@Override
@@ -542,10 +647,10 @@ public class CirrusController implements IEvents {
 	@Override
 	public void OnRVCHeaterState(JRVC arg0) {
 		currentState.setLastRVCState(arg0);
-		if (waitForHeaterToWarm && arg0.getHeaterState() == JCirrus.cirrusHeaterWarm) {
-			waitForHeaterToWarm = false;
-		} else if (waitForHeaterToOff && arg0.getHeaterState() == JCirrus.cirrusHeaterOff) {
-			waitForHeaterToOff = false;
+		if (!currentState.getHeaterToWarmResponseRecieved() && arg0.getHeaterState() == JCirrus.cirrusHeaterWarm) {
+			currentState.setHeaterToWarmResponseRecieved(true);
+		} else if (!currentState.getHeaterToOffResponseRecieved() && arg0.getHeaterState() == JCirrus.cirrusHeaterOff) {
+			currentState.setHeaterToOffResponseRecieved(true);
 		}
 	}
 
@@ -557,10 +662,10 @@ public class CirrusController implements IEvents {
 	@Override
 	public void OnRVCPumpState(JRVC arg0) {
 		currentState.setLastRVCState(arg0);
-		if (waitingForPumpPressure && arg0.getPumpState() == JCirrus.cirrusPumpOn) {
-			waitingForPumpPressure = false;
-		} else if (waitingForPumpPressureOff&& arg0.getPumpState() == JCirrus.cirrusPumpOff) {
-			waitingForPumpPressure = false;
+		if (!currentState.getPumpPressureResponseRecieved() && arg0.getPumpState() == JCirrus.cirrusPumpOn) {
+			currentState.setPumpPressureResponseRecieved(true);
+		} else if (!currentState.getPumpPressureOffResponseRecieved() && arg0.getPumpState() == JCirrus.cirrusPumpOff) {
+			currentState.setPumpPressureOffResponseRecieved(true);
 		}
 	}
 
@@ -606,6 +711,22 @@ public class CirrusController implements IEvents {
 
 	public void setFilamentToUse(int filamentToUse) {
 		this.filamentToUse = filamentToUse;
+	}
+
+	public boolean isCapillaryHeaterOn() {
+		return currentState.getCapillaryHeaterOn();
+	}
+
+	public void setCapillaryHeaterOn(boolean capillaryHeaterOn) {
+		currentState.setCapillaryHeaterOn(capillaryHeaterOn);
+	}
+
+	public boolean isCirrusHeaterOn() {
+		return currentState.getCirrusHeaterOn();
+	}
+
+	public void setCirrusHeaterOn(boolean cirrusHeaterOn) {
+		currentState.setCirrusHeaterOn(cirrusHeaterOn);
 	}
 
 }
