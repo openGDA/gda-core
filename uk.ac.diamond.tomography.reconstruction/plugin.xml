@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Reconstruction"
+            id="uk.ac.diamond.tomography.reconstruction">
+      </category>
+      <view
+            name="Parameters"
+            icon="icons/sample.gif"
+            category="uk.ac.diamond.tomography.reconstruction"
+            class="uk.ac.diamond.tomography.reconstruction.views.ParameterView"
+            id="uk.ac.diamond.tomography.reconstruction.views.ParameterView">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.help.contexts">
+      <contexts
+            file="contexts.xml">
+      </contexts>
+   </extension>
+
+</plugin>
