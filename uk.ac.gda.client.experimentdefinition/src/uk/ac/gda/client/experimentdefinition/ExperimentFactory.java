@@ -62,6 +62,8 @@ public class ExperimentFactory {
 	 * @param runObjectManager
 	 */
 	public static void addManager(IExperimentObjectManager runObjectManager) {
+		if (managers == null)
+			managers = new ArrayList<IExperimentObjectManager>(3);
 		managers.add(runObjectManager);
 	}
 
@@ -384,6 +386,8 @@ public class ExperimentFactory {
 	}
 
 	public static void removeRunObjectListener(ExperimentObjectListener l) {
+		if (managers == null)
+			return;
 		for (IExperimentObjectManager man : managers)
 			man.removeExperimentObjectListener(l);
 	}
