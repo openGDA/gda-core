@@ -21,9 +21,6 @@ package uk.ac.gda.client.tomo;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
-import org.osgi.util.tracker.ServiceTracker;
-
-import uk.ac.gda.client.tomo.view.CameraViewPartConfig;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -50,8 +47,6 @@ public class TomoClientActivator extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
-		cameraConfigTracker = new ServiceTracker(context, CameraViewPartConfig.class.getName(), null);
-		cameraConfigTracker.open(true);
 
 		
 	}
@@ -64,7 +59,6 @@ public class TomoClientActivator extends AbstractUIPlugin {
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
 //		getImageRegistry().dispose();
-		cameraConfigTracker.close();		
 		super.stop(context);
 	}
 
@@ -83,15 +77,6 @@ public class TomoClientActivator extends AbstractUIPlugin {
 			reg.put(imgPath, imageDescriptorFromPlugin(PLUGIN_ID, imgPath));
 		}
 
-	}
-
-	private static ServiceTracker cameraConfigTracker;
-	
-	
-	public static CameraViewPartConfig getCameraConfig() {
-		if( cameraConfigTracker==null||cameraConfigTracker.isEmpty())
-			return null;
-		return (CameraViewPartConfig) cameraConfigTracker.getService();
 	}
 
 }

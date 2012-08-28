@@ -130,14 +130,6 @@
             name="Tomography Configuration"
             restorable="true">
       </view>
-      <view
-            allowMultiple="false"
-            category="uk.ac.gda.client.tomo.view.category"
-            class="uk.ac.gda.client.tomo.view.CameraViewPart"
-            id="uk.ac.gda.client.tomo.CameraView"
-            name="Tomography Camera View"
-            restorable="true">
-      </view>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">
