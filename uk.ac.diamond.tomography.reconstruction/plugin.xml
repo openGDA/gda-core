@@ -22,5 +22,13 @@
             file="contexts.xml">
       </contexts>
    </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="uk.ac.diamond.tomography.reconstruction.PerspectiveFactory"
+            id="uk.ac.diamond.tomography.reconstruction.perspective"
+            name="Tomo Recon">
+      </perspective>
+   </extension>
 
 </plugin>
