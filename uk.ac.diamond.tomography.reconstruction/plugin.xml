@@ -15,6 +15,12 @@
             class="uk.ac.diamond.tomography.reconstruction.views.ParameterView"
             id="uk.ac.diamond.tomography.reconstruction.views.ParameterView">
       </view>
+      <view
+            class="uk.ac.diamond.tomography.reconstruction.views.ProjectionsView"
+            id="uk.ac.diamond.tomography.reconstruction.view.projection"
+            name="Projections"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.help.contexts">

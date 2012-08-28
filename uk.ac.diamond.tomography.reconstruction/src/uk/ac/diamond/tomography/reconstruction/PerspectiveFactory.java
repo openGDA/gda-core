@@ -3,6 +3,8 @@ package uk.ac.diamond.tomography.reconstruction;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
+import uk.ac.diamond.tomography.reconstruction.views.ProjectionsView;
+
 public class PerspectiveFactory implements IPerspectiveFactory {
 
 	@Override
@@ -12,10 +14,10 @@ public class PerspectiveFactory implements IPerspectiveFactory {
 				IPageLayout.ID_EDITOR_AREA);
 		layout.addView("uk.ac.diamond.scisoft.analysis.rcp.plotView1",
 				IPageLayout.RIGHT, 0.5f, IPageLayout.ID_EDITOR_AREA);
-		layout.addView("uk.ac.diamond.scisoft.analysis.rcp.plotView2",
-				IPageLayout.BOTTOM, 0.3f, IPageLayout.ID_PROJECT_EXPLORER);
+		layout.addView(ProjectionsView.ID, IPageLayout.BOTTOM, 0.3f,
+				IPageLayout.ID_PROJECT_EXPLORER);
 		layout.addView(IPageLayout.ID_PROP_SHEET, IPageLayout.BOTTOM, 0.5f,
-				"uk.ac.diamond.scisoft.analysis.rcp.plotView2");
+				ProjectionsView.ID);
 		layout.addPlaceholder(
 				"org.dawb.workbench.plotting.views.toolPageView.1D_and_2D",
 				IPageLayout.RIGHT, 0.7f,
