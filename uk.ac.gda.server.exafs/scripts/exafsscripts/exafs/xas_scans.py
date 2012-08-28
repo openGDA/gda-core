@@ -256,6 +256,7 @@ def xes (sampleFileName, scanFileName, detectorFileName, outputFileName, folderN
             #check if halt after current repetition set to true
             if numRepetitions > 1 and LocalProperties.get(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY) == "true":
                     print "Paused scan after repetition",str(repetitionNumber),". To resume the scan, press the Start button in the Command Queue view. To abort this scan, press the Skip Task button."
+                    LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY,"false")
                     Finder.getInstance().find("commandQueueProcessor").pause(500);
                     ScriptBase.checkForPauses()
                 
@@ -470,6 +471,7 @@ def xas (sampleFileName, scanFileName, detectorFileName, outputFileName, folderN
             #check if halt after current repetition set to true
             if numRepetitions > 1 and LocalProperties.get(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY) == "true":
                     print "Paused scan after repetition",str(repetitionNumber),". To resume the scan, press the Start button in the Command Queue view. To abort this scan, press the Skip Task button."
+                    LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY,"false")
                     Finder.getInstance().find("commandQueueProcessor").pause(500);
                     ScriptBase.checkForPauses()
                 
