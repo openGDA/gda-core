@@ -25,7 +25,7 @@ public class ParameterViewTest {
 		waitForJobs();
 		delay(3000);		
 		
-		delay(15000); //time to 'play with the graph if wanted
+		delay(150000); //time to 'play with the graph if wanted
 	}
 
 	
