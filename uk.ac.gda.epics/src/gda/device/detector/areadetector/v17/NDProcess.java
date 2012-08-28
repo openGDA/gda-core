@@ -195,6 +195,17 @@ public interface NDProcess {
 	static final int FilterTypeV1_8_RecursiveAveDiff=4;
 	static final int FilterTypeV1_8_CopyToFilter=5;
 
+	//DataTypeOutput types
+	static final int DatatypeOut_Int8=0;
+	static final int DatatypeOut_UInt8=1;
+	static final int DatatypeOut_Int16=2;
+	static final int DatatypeOut_UInt16=3;
+	static final int DatatypeOut_Int32=4;
+	static final int DatatypeOut_UInt32=5;
+	static final int DatatypeOut_Float32=6;
+	static final int DatatypeOut_Float64=7;
+	static final int DatatypeOut_Automatic=8;
+	
 	
 	NDPluginBase getPluginBase();
 
