@@ -3,10 +3,12 @@ package uk.ac.diamond.tomography.reconstruction.views;
 import gda.util.OSCommandRunner;
 
 import java.io.File;
+import java.net.URL;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
-import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -16,9 +18,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.ide.FileStoreEditorInput;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.ViewPart;
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +53,6 @@ public class ParameterView extends ViewPart {
 
 	private String pathname = "/scratch/test.xml";
 
-
 	/**
 	 * The constructor.
 	 */
@@ -76,10 +77,10 @@ public class ParameterView extends ViewPart {
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e1) {
-					//do nothing
+					// do nothing
 				}
-				OSCommandRunner runner = new OSCommandRunner("cat "+pathname, true, null,
-						null);
+				OSCommandRunner runner = new OSCommandRunner("cat " + pathname,
+						true, null, null);
 				runner.logOutput();
 			}
 
@@ -91,18 +92,14 @@ public class ParameterView extends ViewPart {
 		// Read settings file from resource and copy to /tmp
 
 		try {
-			IFileStore fileStore = EFS
-					.getLocalFileSystem()
-					.getStore(
-							new File(
-									"/home2/gda_trunk/workspace_git/gda-tomography.git/uk.ac.diamond.tomography.reconstruction/resources/settings.xml")
-									.toURI());
-			IFileStore fileStore1 = EFS
-					.getLocalFileSystem()
-					.getStore(
-							new File(
-									pathname)
-									.toURI());
+
+			Bundle bundle = Platform
+					.getBundle("uk.ac.diamond.tomography.reconstruction");
+			URL fileURL = bundle.getEntry("resources/settings.xml");
+			File file = new File(FileLocator.resolve(fileURL).toURI());
+			IFileStore fileStore = EFS.getLocalFileSystem().getStore(file.toURI());
+			IFileStore fileStore1 = EFS.getLocalFileSystem().getStore(
+					new File(pathname).toURI());
 			fileStore.copy(fileStore1, EFS.OVERWRITE, null);
 			IWorkbenchPage page = PlatformUI.getWorkbench()
 					.getActiveWorkbenchWindow().getActivePage();
@@ -113,10 +110,6 @@ public class ParameterView extends ViewPart {
 
 	}
 
-	private void showMessage(String message) {
-		MessageDialog.openInformation(composite.getShell(), "Parameters",
-				message);
-	}
 
 	/**
 	 * Passing the focus request to the viewer's control.
