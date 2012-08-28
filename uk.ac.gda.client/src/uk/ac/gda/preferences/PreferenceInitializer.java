@@ -68,6 +68,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(PreferenceConstants.GDA_USE_SCANDATAPOINT_SERVICE, true);
 		store.setDefault(PreferenceConstants.GDA_DISABLE_LAUNCH_CONFIGS, true);
 		store.setDefault(PreferenceConstants.GDA_OPEN_XYPLOT_ON_SCAN_START, true);
+		store.setDefault(PreferenceConstants.GDA_OPEN_XYPLOT_ON_SCAN_START_ID, "");
 		store.setDefault(PreferenceConstants.GDA_CLIENT_PLOT_AUTOHIDE_LAST_SCAN, true);
 		
 		store.setDefault(PreferenceConstants.GDA_COMMAND_QUEUE_SHOW_TEXT, false);

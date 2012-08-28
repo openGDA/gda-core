@@ -49,7 +49,6 @@ public class PositionStreamIndexerTest {
 		public String toString() {
 			return name;
 		}
-
 	}
 	
 	private PositionInputStream<Object> stream;
@@ -65,6 +64,13 @@ public class PositionStreamIndexerTest {
 		}
 		indexer = new PositionStreamIndexer<Object>(stream);
 	}
+	
+	@Test(expected=IllegalStateException.class)
+	public void testExceptionWhenReadingEmptyList() throws Exception {
+		when(stream.read(anyInt())).thenReturn(new ArrayList<Object>());
+		indexer.getPositionCallable().call();
+	}
+
 	@Test
 	public void testGetInOneBigChunckWithCreateAllAndThenCallAll() throws Exception {
 		streamReturnOneBigChunk();

@@ -23,8 +23,8 @@
 		</constructor-arg>
 	</bean>
 	
-	<import resource="plot_server.xml" />
 	<import resource="commandQueueProcessor.xml"/>
+	<import resource="plot_server.xml" />
 
 	<bean id="MyLoggingScriptController" class="uk.ac.gda.remoting.client.GdaRmiProxyFactoryBean">
 		<property name="serviceUrl" value="${gda.rmi.prefix}MyLoggingScriptController" />
