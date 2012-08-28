@@ -197,7 +197,13 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 				}
 			} else {
 				dataDir += "ascii/";
-				filePrefix = nameFrag + "." + this.fileExtension;
+				if (nameFrag != null && nameFrag.equals("i20")){
+					filePrefix = Long.toString(getFileNumber());
+					currentFileName = filePrefix +"." + this.fileExtension;
+				} else {
+					filePrefix = nameFrag;
+					currentFileName = filePrefix + "_" + getFileNumber()+ "." + this.fileExtension;
+				}
 			}
 		} catch (RuntimeException ne) {
 			if (group != null && group.isIncompleteDataAllowed()) {

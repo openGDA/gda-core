@@ -1,4 +1,4 @@
-from b18ScanScripts import XasScan
+from b18ScanScripts import XasScan, ExafsEnvironment
 from BeamlineParameters import JythonNameSpaceMapping, FinderNameMapping
 from uk.ac.gda.beans.exafs import XanesScanParameters
 from uk.ac.gda.beans.exafs import XesScanParameters
@@ -6,6 +6,18 @@ from uk.ac.gda.beans.exafs import XasScanParameters
 from uk.ac.gda.beans.exafs.i20 import I20SampleParameters
 from gda.device import DeviceException
 from gda.factory import Finder
+from uk.ac.gda.beans import BeansFactory
+from gda.jython.scriptcontroller.logging import LoggingScriptController
+from gda.exafs.scan import BeanGroup, BeanGroups
+from gda.configuration.properties import LocalProperties
+from gda.jython.commands import ScannableCommands
+from gda.exafs.scan import RepetitionsProperties
+
+
+
+
+
+
 
 class I20XasScan(XasScan):
     
@@ -112,7 +124,7 @@ class I20XasScan(XasScan):
             print "Setting ionchambers dark current collectiom time to be",str(maxTime),"s"
             ct.setDarkCurrentCollectionTime(maxTime)
 
-class I20XesScan:
+class I20XesScan(XasScan):
     
     def __init__(self, loggingcontroller, detectorPreparer, samplePreparer, outputPreparer, beamlineReverter):
         self.detectorPreparer = detectorPreparer
@@ -122,10 +134,10 @@ class I20XesScan:
         self.beamlineReverter = beamlineReverter
 
         
-    def __call__ (sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, numRepetitions= 1, validation=True):
+    def __call__ (self,sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, numRepetitions= 1, validation=True):
     
         # Create the beans from the file names
-        xmlFolderName = ExafsEnvironment().getScriptFolder() + folderName + "/"
+        xmlFolderName = ExafsEnvironment().getXMLFolder() + folderName + "/"
         sampleBean = BeansFactory.getBeanObject(xmlFolderName, sampleFileName)
         xesScanBean = BeansFactory.getBeanObject(xmlFolderName, scanFileName)
         detectorBean = BeansFactory.getBeanObject(xmlFolderName, detectorFileName)
@@ -159,21 +171,21 @@ class I20XesScan:
 #    XasAsciiDataWriter.setBeanGroup(beanGroup)
 
         # work out which detectors to use (they will need to have been configured already by the GUI)
-        detectorList = getDetectors(beanGroup.getDetector(), beanGroup.getOutput(), beanGroup.getScan()) 
+        #detectorList = getDetectors(beanGroup.getDetector(), beanGroup.getOutput(), beanGroup.getScan()) 
 #    print "detectors to be used:", str(detectorList)
-    
+        detectorList = []
     # set up the sample 
-        setup(beanGroup)
+        #setup(beanGroup)
     
     # extract any signal parameters to add to the scan command
     # TODO need to add signal parameters to the qexafs scan, if possible
-        signalParameters = getSignalList(outputBean)
+        #signalParameters = getSignalList(outputBean)
         
         #  SHOULD I ADD THESE LINES???
         # run the beamline specific preparers            
-        self.detectorPreparer.prepare(beanGroup.getDetector(), beanGroup.getOutput(), xmlFolderName)
-        sampleScannables = self.samplePreparer.prepare(beanGroup.getSample())
-        outputScannables = self.outputPreparer.prepare(beanGroup.getOutput())
+        #self.detectorPreparer.prepare(beanGroup.getDetector(), beanGroup.getOutput(), xmlFolderName)
+        #sampleScannables = self.samplePreparer.prepare(beanGroup.getSample())
+        #outputScannables = self.outputPreparer.prepare(beanGroup.getOutput())
 
     
     # run the scan
@@ -245,15 +257,13 @@ class I20XesScan:
 
             xes_energy(xesScanBean.getXesEnergy())
             print "moving XES analyser stage to collect at", xesScanBean.getXesEnergy()
-            add_default(xes_energy)
-            add_default(analyserAngle)
+            ScannableCommands.add_default([xes_energy,analyserAngle])
 
             try:
-                xanes(sampleBean, xanes_scanfilename, detectorBean, outputBean, folderName, numRepetitions, validation)
+                jython_mapper.xanes(sampleBean, xanes_scanfilename, detectorBean, outputBean, folderName, numRepetitions, validation)
             finally:
                 print "cleaning up scan defaults"
-                remove_default(xes_energy)
-                remove_default(analyserAngle)
+                ScannableCommands.remove_default([xes_energy,analyserAngle])
             return
         else:
             raise "scan type in XES Scan Parameters bean/xml not acceptable"
@@ -266,6 +276,7 @@ class I20XesScan:
         args += [analyserAngle]
         args += detectorList 
         args += [xesScanBean.getXesIntegrationTime()]
+        signalParameters = self._getSignalList(beanGroup.getOutput())
         if len(signalParameters) > 0:
             args += signalParameters
 #    print args 
