@@ -60,6 +60,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.views.AsciiTextView;
 import uk.ac.gda.common.rcp.util.EclipseWidgetUtils;
+import uk.ac.gda.menu.JythonControlsFactory;
 import uk.ac.gda.preferences.PreferenceConstants;
 
 public class CommandProcessorComposite extends Composite {
@@ -154,7 +155,7 @@ public class CommandProcessorComposite extends Composite {
 		};
 		btnSkip.setToolTipText("Stop current task and skip to start next - skip");
 		if (showText){
-			btnSkip.setText("Skip task");
+			btnSkip.setText("Skip Task");
 		} else {
 			btnSkip.setImageDescriptor(forwardOneImage);
 		}
@@ -358,6 +359,7 @@ public class CommandProcessorComposite extends Composite {
 
 				switch (state) {
 				case PROCESSING_ITEMS:
+					JythonControlsFactory.disableUIControls();
 					if (showText){
 						btnRunPause.setText(strPause);
 					} else {
@@ -372,9 +374,11 @@ public class CommandProcessorComposite extends Composite {
 
 					break;
 				case UNKNOWN:
+					JythonControlsFactory.enableUIControls();
 					txtState.setText("Unknown");
 					break;
 				case WAITING_QUEUE:
+					JythonControlsFactory.disableUIControls();
 					if (showText){
 						btnRunPause.setText(strPause);
 					} else {
@@ -388,6 +392,7 @@ public class CommandProcessorComposite extends Composite {
 					txtState.setText("Queue is empty");
 					break;
 				case WAITING_START:
+					JythonControlsFactory.enableUIControls();
 					if (showText){
 						btnRunPause.setText(strRun);
 					} else {

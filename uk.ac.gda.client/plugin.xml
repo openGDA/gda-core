@@ -105,6 +105,15 @@
             restorable="true">
       </view>
       <view
+            allowMultiple="true"
+            category="uk.ac.gda.client.general.category"
+            class="uk.ac.gda.client.liveplot.LivePlotView"
+            icon="icons/chart_curve.png"
+            id="uk.ac.gda.client.liveplotview"
+            name="Scan Plot"
+            restorable="true">
+      </view>
+      <view
             category="uk.ac.gda.client.general.category"
             class="gda.rcp.views.dashboard.DashboardView"
             icon="icons/layout_content.png"

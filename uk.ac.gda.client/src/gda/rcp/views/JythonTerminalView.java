@@ -273,6 +273,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 		try {
 			outputDoc.set(text);
 			txtOutputLast = text;
+			outputBuffer.setLength(0);
 		} finally {
 			outputLock.unlock();
 		}

@@ -27,11 +27,12 @@ import org.junit.runners.Suite;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-	gda.device.detector.NXDetectorTest.class,
+	gda.device.detector.NexusDetectorWritingTest.class,
 	gda.device.detector.odccd.AllJUnitTests.class,
 	gda.device.detector.pco4000.AllJUnitTests.class,
 	gda.device.detector.countertimer.AllJUnitTests.class,
 	gda.device.detector.DummyHardwareTriggerableAreaDetectorTest.class,
-	gda.device.detector.DummyHardwareTriggerableDetectorTest.class})
+	gda.device.detector.DummyHardwareTriggerableDetectorTest.class,
+	gda.device.detector.NXDetectorTest.class})
 public class AllJUnitTests {
 }

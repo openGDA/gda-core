@@ -81,7 +81,7 @@ class showincrementaltimeClass(ScannableMotionBase):
 	def rawIsBusy(self):
 		return 0
 	
-	def atStart(self):
+	def atScanStart(self):
 		self.timer.reset()
 
 

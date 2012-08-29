@@ -36,6 +36,7 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -103,6 +104,7 @@ public class RotationViewer {
 	private Scannable scannable;
 	
 	private boolean showFixedSteps;
+	private boolean showResetToZero;
 	private boolean singleLineLayout = false;
 	private double standardStep;
 	private double littleStep;
@@ -114,9 +116,10 @@ public class RotationViewer {
 	private Button plusBigButton;
 	private Button plusLittleButton;
 	private Button minusBigButton;
-	private Button minusLittleButton;	
+	private Button minusLittleButton;
 	private Button posNudgeButton;
 	private Button negNudgeButton;
+	private Button resetToZeroButton;
 
 	private MotorPositionViewer motorPositionViewer;
 	
@@ -130,7 +133,6 @@ public class RotationViewer {
 	public RotationViewer (Scannable scannable){	
 		this(scannable, 10.0);
 	}
-	
 	/**
 	 * Creates a new rotation viewer for the given scannable.
 	 * 
@@ -146,8 +148,13 @@ public class RotationViewer {
 	}
 	
 	public RotationViewer(Scannable scannable, String motorLabel) {
+		this(scannable, motorLabel, false);
+	}
+	
+	public RotationViewer(Scannable scannable, String motorLabel, boolean showResetToZero) {
 		this(scannable);
 		this.motorLabel = motorLabel;
+		this.showResetToZero = showResetToZero;
 	}
 	
 	/**
@@ -369,6 +376,39 @@ public class RotationViewer {
 			
 			DecimalFormat df = new DecimalFormat("###");
 			
+			if (showResetToZero) {
+				GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
+				gridData.horizontalSpan = 2;
+				resetToZeroButton = createButton(buttonGroup, "Move to zero", null, gridData);
+				
+				resetToZeroButton.addSelectionListener(new SelectionListener() {
+					
+					@Override
+					public void widgetSelected(SelectionEvent e) {
+						final String msg = "Moving " + motor.getDescriptor().getLabelText() + " to 0.0";
+						motorPositionViewer.getDemandBox().setNumericValue(0);
+						motorPositionViewer.getDemandBox().demandBegin(0);
+
+						Job job = new Job(msg){
+							@Override
+							protected IStatus run(IProgressMonitor monitor) {
+								try {
+									((IPositionSource)motor).setPosition(0);
+								} catch (DeviceException e) {
+									logger.error("Exception when " + msg + ":" + e.getMessage(),e);
+								}
+								return Status.OK_STATUS; 
+							}			
+						};
+						job.setUser(true);
+						job.schedule();
+					}
+					
+					@Override
+					public void widgetDefaultSelected(SelectionEvent e) {}
+				});
+			}
+			
 			minusLittleButton  = createButton(buttonGroup, "-"+df.format(littleStep), null, data);
 			plusLittleButton = createButton(buttonGroup, "+"+df.format(littleStep), null, data);
 			minusBigButton  = createButton(buttonGroup, "-"+df.format(bigStep), null, data);
@@ -471,7 +511,8 @@ public class RotationViewer {
 		minusLittleButton.setEnabled(enabled);
 		posNudgeButton.setEnabled(enabled);
 		negNudgeButton.setEnabled(enabled);
-
+		resetToZeroButton.setEnabled(enabled);
+		
 		motorPositionViewer.setEnabled(enabled);
 	}
 }

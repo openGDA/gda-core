@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 public class Version {
 	private static final Logger logger = LoggerFactory.getLogger(Version.class);
 	// change these to release names used in SVN for DL tree
-	public static final String RELEASE_VER = "8.24.0";
+	public static final String RELEASE_VER = "8.26.0";
 	private static final String RELEASE = RELEASE_VER;
 
 	/**

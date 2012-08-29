@@ -38,7 +38,7 @@ public class LineAppearanceProvider {
 	
 	private static final Logger logger = LoggerFactory.getLogger(LineAppearanceProvider.class);
 
-	LineAppearanceProvider() {
+	public LineAppearanceProvider() {
 		GDAClientActivator.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
 
 			@Override

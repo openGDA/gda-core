@@ -477,6 +477,10 @@ public class BatonManager implements IBatonManager {
 	 * lose the baton.
 	 */
 	private class leaseRefresher extends Thread {
+		
+		public leaseRefresher(){
+			super("BatonManagerLeaseRefresher");
+		}
 
 		@Override
 		public void run() {
