@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Tomography Reconstruction-test
-Bundle-SymbolicName: uk.ac.diamond.tomography.reconstruction-test
+Bundle-Name: Tomography Reconstruction Test
+Bundle-SymbolicName: uk.ac.diamond.tomography.reconstruction.test
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond Light Source
 Fragment-Host: uk.ac.diamond.tomography.reconstruction;bundle-version="1.0.0"
