@@ -20,13 +20,11 @@ package uk.ac.diamond.tomography.reconstruction.views;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
@@ -39,6 +37,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.tomography.reconstruction.Activator;
 
 /**
  * @since 3.2
@@ -67,7 +67,7 @@ public class NxsNavigatorContentProvider extends WorkbenchContentProvider {
 				if (!allNexusFiles.isEmpty()) {
 					nxsFiles.addAll(allNexusFiles);
 				}
-			} else if (iResource instanceof IFile && iResource.getFileExtension().equals("nxs")) {
+			} else if (iResource instanceof IFile && Activator.NXS_FILE_EXTN.equals(iResource.getFileExtension())) {
 				nxsFiles.add((IFile) iResource);
 			}
 		}

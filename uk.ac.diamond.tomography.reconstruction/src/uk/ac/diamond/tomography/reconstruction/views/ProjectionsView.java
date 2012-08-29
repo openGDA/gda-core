@@ -53,10 +53,10 @@ import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
+import uk.ac.diamond.tomography.reconstruction.Activator;
 
 public class ProjectionsView extends ViewPart implements ISelectionListener {
 
-	private static final String NXS_FILE_EXTN = "nxs";
 	public static final String ID = "uk.ac.diamond.tomography.reconstruction.view.projection";
 	/**
 	 * Setup the logging facilities
@@ -207,7 +207,7 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 			IStructuredSelection iss = (IStructuredSelection) selection;
 			Object firstElement = iss.getFirstElement();
 			if (firstElement instanceof IFile
-					&& NXS_FILE_EXTN.equals(((IFile) firstElement)
+					&& Activator.NXS_FILE_EXTN.equals(((IFile) firstElement)
 							.getFileExtension())) {
 				logger.debug("Found nxs file, ready to call updateData");
 				nexusFile = (IFile)firstElement;
