@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Reconstruction"
+            id="uk.ac.diamond.tomography.reconstruction">
+      </category>
+      <view
+            name="Parameters"
+            icon="icons/sample.gif"
+            category="uk.ac.diamond.tomography.reconstruction"
+            class="uk.ac.diamond.tomography.reconstruction.views.ParameterView"
+            id="uk.ac.diamond.tomography.reconstruction.views.ParameterView">
+      </view>
+      <view
+            class="uk.ac.diamond.tomography.reconstruction.views.ProjectionsView"
+            id="uk.ac.diamond.tomography.reconstruction.view.projection"
+            name="Projections"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.help.contexts">
+      <contexts
+            file="contexts.xml">
+      </contexts>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="uk.ac.diamond.tomography.reconstruction.PerspectiveFactory"
+            id="uk.ac.diamond.tomography.reconstruction.perspective"
+            name="Tomo Recon">
+      </perspective>
+   </extension>
+
+</plugin>
