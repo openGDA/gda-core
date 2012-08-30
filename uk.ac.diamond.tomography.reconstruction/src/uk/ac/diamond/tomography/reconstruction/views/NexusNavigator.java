@@ -73,7 +73,6 @@ public class NexusNavigator extends CommonNavigator {
 
 		@Override
 		public void partOpened(IWorkbenchPart part) {
-			NexusNavigator.this.selectReveal(new StructuredSelection(Collections.emptyList()));
 		}
 
 		@Override
