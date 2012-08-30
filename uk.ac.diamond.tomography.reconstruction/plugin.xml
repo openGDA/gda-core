@@ -96,8 +96,8 @@
        <viewerContentBinding 
              viewerId="uk.ac.diamond.tomography.reconstruction.NexusNavigator">
           <includes>
-       	      <contentExtension pattern="uk.ac.diamond.tomo.recon.nxs.navigatorContent" />		       	      
-	          <contentExtension pattern="org.eclipse.ui.navigator.resources.filters.*"/>
+       	      <contentExtension pattern="uk.ac.diamond.tomo.recon.nxs.navigatorContent" />
+       	      <contentExtension pattern="org.eclipse.ui.navigator.resources.*" />
           </includes>
        </viewerContentBinding>
        <viewerActionBinding
@@ -138,9 +138,6 @@
            </possibleDropTargets>
         </dropAssistant>        
 
-        <actionProvider
-              class="org.eclipse.ui.internal.navigator.resources.actions.EditActionProvider"
-              id="org.eclipse.ui.navigator.resources.actions.EditActions"/>   
        </navigatorContent>
             
             

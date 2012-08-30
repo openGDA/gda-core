@@ -18,9 +18,7 @@
 package uk.ac.diamond.tomography.reconstruction;
 
 import org.eclipse.ui.IPageLayout;
-import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IPerspectiveFactory;
-import org.eclipse.ui.IWorkbenchPart;
 
 import uk.ac.diamond.tomography.reconstruction.views.NexusNavigator;
 import uk.ac.diamond.tomography.reconstruction.views.ParameterView;
@@ -45,6 +43,12 @@ public class TomoReconPerspective implements IPerspectiveFactory {
 				IPageLayout.RIGHT, 0.7f,
 				"uk.ac.diamond.scisoft.analysis.rcp.plotView1");
 		layout.setEditorAreaVisible(false);
+		
+		layout.addShowViewShortcut("uk.ac.diamond.scisoft.analysis.rcp.plotView1");
+		layout.addShowViewShortcut(NexusNavigator.ID);
+		layout.addShowViewShortcut(ProjectionsView.ID);
+		layout.addShowViewShortcut(ParameterView.ID);
+		
 	}
 
 }

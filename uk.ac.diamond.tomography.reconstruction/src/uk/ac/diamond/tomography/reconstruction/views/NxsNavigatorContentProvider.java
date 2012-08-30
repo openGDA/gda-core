@@ -82,13 +82,15 @@ public class NxsNavigatorContentProvider extends WorkbenchContentProvider {
 	public Object[] getElements(Object element) {
 		if (element instanceof IWorkspaceRoot) {
 			IProject[] projects = ((IWorkspaceRoot) element).getProjects();
+			ArrayList<IFile> allNexusFiles = new ArrayList<IFile>();
 			for (IProject iProject : projects) {
 				try {
-					return getAllNexusFiles(iProject).toArray();
+					allNexusFiles.addAll(getAllNexusFiles(iProject));
 				} catch (CoreException e) {
 					logger.error("TODO put description of error here", e);
 				}
 			}
+			return allNexusFiles.toArray();
 		}
 		return new Object[0];
 	}

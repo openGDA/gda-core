@@ -17,6 +17,8 @@
  */
 package uk.ac.diamond.tomography.reconstruction.views;
 
+import gda.analysis.io.ScanFileHolderException;
+
 import java.io.File;
 
 import org.dawb.common.ui.image.PaletteFactory;
@@ -30,21 +32,23 @@ import org.dawb.common.ui.plot.region.RegionUtils;
 import org.dawb.common.ui.plot.trace.IImageTrace;
 import org.dawb.common.ui.plot.trace.ITrace;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.IPageLayout;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.ui.progress.UIJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +58,9 @@ import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.diamond.tomography.reconstruction.Activator;
+import uk.ac.gda.ui.components.IStepperSelectionListener;
+import uk.ac.gda.ui.components.Stepper;
+import uk.ac.gda.ui.components.StepperChangedEvent;
 
 public class ProjectionsView extends ViewPart implements ISelectionListener {
 
@@ -61,17 +68,28 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 	/**
 	 * Setup the logging facilities
 	 */
-	transient private static final Logger logger = LoggerFactory
-			.getLogger(ProjectionsView.class);
+	transient private static final Logger logger = LoggerFactory.getLogger(ProjectionsView.class);
 
 	private AbstractPlottingSystem plottingSystem;
-	private Text textBox;
 
 	private IFile nexusFile;
-	
+
+	private Label fileName;
+
+	private Stepper slicingStepper;
+
 	public ProjectionsView() {
 		// TODO Auto-generated constructor stub
 	}
+
+	private IStepperSelectionListener slicingSelectionStepperListener = new IStepperSelectionListener() {
+
+		@Override
+		public void stepperChanged(StepperChangedEvent e) {
+			updateDataToPosition(e.getPosition());
+		}
+
+	};
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -79,22 +97,16 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 		// root.setBackground(ColorConstants.white);
 
 		GridLayout layout = new GridLayout();
+		layout.marginWidth = 0;
+		layout.marginHeight = 0;
+		layout.horizontalSpacing = 0;
+		layout.verticalSpacing = 0;
 		root.setLayout(layout);
-		textBox = new Text(root, SWT.NONE);
-		textBox.setText("20");
-		textBox.addModifyListener(new ModifyListener() {
-			
-			
 
-			@Override
-			public void modifyText(ModifyEvent e) {
-				if (nexusFile != null) {
-					updateData(nexusFile);
-				}
-			}
-		});
-		
-		
+		slicingStepper = new Stepper(root, SWT.None, false);
+		slicingStepper.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		slicingStepper.addStepperSelectionListener(slicingSelectionStepperListener);
+
 		Composite plotComposite = new Composite(root, SWT.None);
 		plotComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
 		plotComposite.setLayout(new FillLayout());
@@ -104,12 +116,15 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 		} catch (Exception e) {
 
 		}
-		plottingSystem.createPlotPart(plotComposite, "", null, PlotType.IMAGE,
-				null);
+		plottingSystem.createPlotPart(plotComposite, "Projections Plot", getViewSite().getActionBars(), PlotType.IMAGE,
+				this);
 		createMouseFollowLineRegion();
 
-		getViewSite().getWorkbenchWindow().getSelectionService()
-				.addSelectionListener(IPageLayout.ID_PROJECT_EXPLORER, this);
+		fileName = new Label(root, SWT.BORDER);
+		fileName.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		fileName.setText("File name");
+
+		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(this);
 	}
 
 	private void createMouseFollowLineRegion() {
@@ -118,10 +133,8 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 			return;
 		try {
 			IRegion xHair = null;
-			if (xHair == null
-					|| plottingSystem.getRegion(xHair.getName()) == null) {
-				xHair = plottingSystem.createRegion(
-						RegionUtils.getUniqueName("DragLine", plottingSystem),
+			if (xHair == null || plottingSystem.getRegion(xHair.getName()) == null) {
+				xHair = plottingSystem.createRegion(RegionUtils.getUniqueName("DragLine", plottingSystem),
 						IRegion.RegionType.YAXIS_LINE);
 
 				xHair.addROIListener(mouseFollowRoiListener);
@@ -161,6 +174,7 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 		}
 
 	};
+	private ILazyDataset dataset;
 
 	@Override
 	public void setFocus() {
@@ -168,37 +182,59 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 
 	}
 
-	public void updateData(IFile nexusFile) {
+	public void updateDataToPosition(final int pos) {
+		UIJob updateDataJob = new UIJob(getViewSite().getShell().getDisplay(), "Updating data") {
 
-		// Load the nexus file
-		try {
-			String path = nexusFile.getLocation().toOSString();
-			HDF5Loader hdf5Loader = new HDF5Loader(path);
-			DataHolder loadFile = hdf5Loader.loadFile();
-			ILazyDataset dataset = loadFile.getLazyDataset("/entry1/pco1_hw_tif/image_data");
-			int pos = 20;
-			try {
-				pos = Integer.parseInt(textBox.getText());
-			} catch (Exception e) {
-				logger.debug("Failed to get a posistion from the textbox");
-			}
-			int[] shape = dataset.getShape();
-			shape[0] = pos+1;
-			IDataset slice = dataset.getSlice(new int[] {pos,0,0}, shape, new int[] {1,1,1});
-			ILazyDataset squeeze = slice.squeeze();
-			plottingSystem.createPlot2D((AbstractDataset)squeeze, null, new NullProgressMonitor());
-			for (ITrace trace : plottingSystem.getTraces()) {
-				if (trace instanceof IImageTrace) {
-					IImageTrace imageTrace = (IImageTrace) trace;
-					imageTrace.setPaletteData(PaletteFactory.makeGrayScalePalette());
+			@Override
+			public IStatus runInUIThread(IProgressMonitor monitor) {
+				// Load the nexus file
+				String path = nexusFile.getLocation().toOSString();
+				HDF5Loader hdf5Loader = new HDF5Loader(path);
+				DataHolder loadFile;
+				if (dataset != null) {
+					int[] shape = dataset.getShape();
+					shape[0] = pos + 1;
+					IDataset slice = dataset.getSlice(new int[] { pos, 0, 0 }, shape, new int[] { 1, 1, 1 });
+					ILazyDataset squeeze = slice.squeeze();
+					plottingSystem.createPlot2D((AbstractDataset) squeeze, null, new NullProgressMonitor());
+					fileName.setText(nexusFile.getFullPath().toOSString());
+					for (ITrace trace : plottingSystem.getTraces()) {
+						if (trace instanceof IImageTrace) {
+							IImageTrace imageTrace = (IImageTrace) trace;
+							imageTrace.setPaletteData(PaletteFactory.makeGrayScalePalette());
+						}
+					}
+					logger.debug(dataset.getName());
+				} else {
+					throw new IllegalArgumentException("Unable to find dataset");
 				}
+
+				return Status.OK_STATUS;
 			}
-			logger.debug(dataset.getName());
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		};
+
+		//updateDataJob.setSystem(true);
+		updateDataJob.schedule();
+
+	}
+
+	public void updateData() {
+		String path = nexusFile.getLocation().toOSString();
+		HDF5Loader hdf5Loader = new HDF5Loader(path);
+		DataHolder loadFile;
+		try {
+			loadFile = hdf5Loader.loadFile();
+			dataset = loadFile.getLazyDataset("/entry1/pco1_hw_tif/image_data");
+			if (dataset != null) {
+				int[] shape = dataset.getShape();
+				slicingStepper.setSteps(shape[0]);
+			} else {
+				throw new IllegalArgumentException("Unable to find dataset");
+			}
+		} catch (ScanFileHolderException e1) {
+			showErrorMessage("Cannot load hdf file", e1);
 		}
-		
+		updateDataToPosition(0);
 	}
 
 	@Override
@@ -207,32 +243,36 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 			IStructuredSelection iss = (IStructuredSelection) selection;
 			Object firstElement = iss.getFirstElement();
 			if (firstElement instanceof IFile
-					&& Activator.NXS_FILE_EXTN.equals(((IFile) firstElement)
-							.getFileExtension())) {
-				logger.debug("Found nxs file, ready to call updateData");
-				nexusFile = (IFile)firstElement;
-				updateData(nexusFile);
+					&& Activator.NXS_FILE_EXTN.equals(((IFile) firstElement).getFileExtension())) {
+				nexusFile = (IFile) firstElement;
+				try {
+					getViewSite().getActionBars().getStatusLineManager().setMessage(String.format("Loading file %s ...", nexusFile.getFullPath().toOSString()));
+					updateData();
+					getViewSite().getActionBars().getStatusLineManager().setMessage(null);
+				} catch (Exception e) {
+					showErrorMessage("Problem with displaying dataset", e);
+				}
 			}
 		}
 	}
 
+	private void showErrorMessage(String string, Exception e) {
+		MessageDialog.openError(getViewSite().getShell(), "Problem with displaying dataset",
+				string + ":" + e.getMessage());
+	}
+
 	@Override
 	public void dispose() {
-		getViewSite().getWorkbenchWindow().getSelectionService()
-				.removeSelectionListener(IPageLayout.ID_PROJECT_EXPLORER, this);
+		getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(this);
 		super.dispose();
 	}
-	
-	
+
 	public void displayReconstruction(IFile nexusFile, int pixelPosition) {
-		
+
 		File path = new File(nexusFile.getLocation().toOSString());
-		File pathToRecon = new File(path.getParent(),"/processing/reconstruction/");
-		File pathToImages =  new File(pathToRecon, path.getName() + "_data" );
-		
-		
-		
+		File pathToRecon = new File(path.getParent(), "/processing/reconstruction/");
+		File pathToImages = new File(pathToRecon, path.getName() + "_data");
+
 	}
-	
 
 }
