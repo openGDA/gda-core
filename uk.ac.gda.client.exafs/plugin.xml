@@ -217,8 +217,8 @@
             name="name">
       </command>
       <command
-            id="uk.ac.gda.client.exafs.haltAfterRepetition"
-            name="Halt After Repetition">
+            id="uk.ac.gda.client.exafs.pauseAfterRepetition"
+            name="Pause After Repetition">
       </command>
       <command
             id="uk.ac.gda.client.exafs.skipRepetition"
@@ -268,8 +268,8 @@
             commandId="uk.ac.gda.client.exafs.ImportExperimentCommand">
       </handler>
      <handler
-            class="uk.ac.gda.exafs.ui.actions.HaltAfterRepetition"
-            commandId="uk.ac.gda.client.exafs.haltAfterRepetition">
+            class="uk.ac.gda.exafs.ui.actions.PauseAfterRepetition"
+            commandId="uk.ac.gda.client.exafs.pauseAfterRepetition">
      </handler>
      <handler
             class="uk.ac.gda.exafs.ui.actions.SkipRepetition"
@@ -311,11 +311,11 @@
                tooltip="Skips the current repetition and moves on to the next one">
          </command>
          <command
-               commandId="uk.ac.gda.client.exafs.haltAfterRepetition"
-               icon="icons/stepreturn.png"
-               label="Halt scan after repetition"
+               commandId="uk.ac.gda.client.exafs.pauseAfterRepetition"
+               icon="icons/stepover_bar.png"
+               label="Pause scan after repetition"
                style="push"
-               tooltip="Stops the current scan once the current repetition has completed">
+               tooltip="Pauses the current scan once the current repetition has completed">
          </command>
          <command
                commandId="uk.ac.gda.client.exafs.changenumberRepetitions"

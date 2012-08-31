@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Copyright © 2012 Diamond Light Source Ltd., Science and Technology
  * Facilities Council
  *
  * This file is part of GDA.
@@ -207,25 +207,21 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 
 	@Override
 	public boolean createsOwnFiles() throws DeviceException {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public String getDescription() throws DeviceException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String getDetectorID() throws DeviceException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String getDetectorType() throws DeviceException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -263,8 +259,6 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 
 	@Override
 	public void clear() throws DeviceException {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -482,8 +476,6 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 
 	@Override
 	public void update(Object theObserved, Object changeCode) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -664,8 +656,7 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 	 * @throws DeviceException
 	 */
 	private Object calculateLiveStats() throws DeviceException {
-		Double results[] = new Double[3 * this.getNumberOfMca()];// TODO Auto-generated method stub
-		int data[][] = this.getData();
+		Double results[] = new Double[3 * this.getNumberOfMca()];
 		int noOfMca = this.getNumberOfMca();
 		int nRois = this.getNumberOfROIs();
 		double[] inWindowCounts = new double[this.getNumberOfMca()];
@@ -677,10 +668,7 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 
 		}
 		for (int i = 0; i < noOfMca; i++) {
-			double totalCounts = 0;
-			for (int j = 0; j < data[i].length; j++)
-				totalCounts += data[i][j];
-			results[i * 3] = totalCounts;
+			results[i * 3] = controller.getICR(i);
 			results[i * 3 + 1] = getK(i);
 			results[i * 3 + 2] = inWindowCounts[i];
 		}

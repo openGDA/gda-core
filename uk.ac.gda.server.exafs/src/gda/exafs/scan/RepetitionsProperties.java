@@ -24,10 +24,10 @@ package gda.exafs.scan;
 public abstract class RepetitionsProperties {
 
 	/**
-	 * Set this to true to inform a script that the repetition loop should not proceed after the current repetition has
+	 * Set this to true to inform a script that the repetition loop should pause after the current repetition has
 	 * finished.
 	 */
-	public static String HALT_AFTER_REP_PROPERTY = "uk.ac.gda.exafs.haltafterrepetition";
+	public static String PAUSE_AFTER_REP_PROPERTY = "uk.ac.gda.exafs.pauseafterrepetition";
 
 	/**
 	 * Set to true before aborting the current scan. The scan script will then know that the scan has been aborted

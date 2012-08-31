@@ -14,12 +14,12 @@ from gda.device.scannable import JEPScannable
 from gda.exafs.scan import RepetitionsProperties
 from gda.factory import Finder
 from java.lang import InterruptedException
+from gda.jython import ScriptBase
 from gda.jython.commands.GeneralCommands import run
 from gda.jython.scriptcontroller.event import ScanCreationEvent, ScanFinishEvent, ScriptProgressEvent
 from gda.jython.scriptcontroller.logging import XasProgressUpdater
 from gda.jython.scriptcontroller.logging import LoggingScriptController
 from gda.jython.scriptcontroller.logging import XasLoggingMessage
-from gda.jython import ScriptBase
 from gda.scan import ScanBase, ContinuousScan, ConcurrentScan
 from uk.ac.gda.beans import BeansFactory
 from uk.ac.gda.beans.exafs import XanesScanParameters
@@ -124,7 +124,7 @@ class XasScan(Scan):
     def _doScan(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller):
         
         # reset the properties used to control repetition behaviour
-        LocalProperties.set(RepetitionsProperties.HALT_AFTER_REP_PROPERTY,"false")
+        LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY,"false")
         LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
         LocalProperties.set(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY,str(numRepetitions))
         repetitionNumber = 0
@@ -208,9 +208,11 @@ class XasScan(Scan):
                 self._runScript(beanGroup.getOutput().getAfterScriptName())
                 
                 #check if halt after current repetition set to true
-                if numRepetitions > 1 and LocalProperties.get(RepetitionsProperties.HALT_AFTER_REP_PROPERTY) == "true":
-                    print "The repetition loop was requested to be halted, so this scan has ended after", str(repetitionNumber), "repetition(s)."
-                    break
+                if numRepetitions > 1 and LocalProperties.get(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY) == "true":
+                    print "Paused scan after repetition",str(repetitionNumber),". To resume the scan, press the Start button in the Command Queue view. To abort this scan, press the Skip Task button."
+                    Finder.getInstance().find("commandQueueProcessor").pause(500);
+                    LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY,"false")
+                    ScriptBase.checkForPauses()
                 
                 #check if the number of repetitions has been altered and we should now end the loop
                 numRepsFromProperty = int(LocalProperties.get(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY))
@@ -303,7 +305,7 @@ class QexafsScan(Scan):
 
         
         # reset the properties used to control repetition behaviour
-        LocalProperties.set(RepetitionsProperties.HALT_AFTER_REP_PROPERTY,"false")
+        LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY,"false")
         LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
         LocalProperties.set(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY,str(numRepetitions))
         repetitionNumber = 0
@@ -379,9 +381,11 @@ class QexafsScan(Scan):
                 self._runScript(outputBean.getAfterScriptName())
                 
                 #check if halt after current repetition set to true
-                if numRepetitions > 1 and LocalProperties.get(RepetitionsProperties.HALT_AFTER_REP_PROPERTY) == "true":
-                    print "The repetition loop was requested to be halted, so this scan has ended after", str(repetitionNumber), "repetition(s)."
-                    break
+                if numRepetitions > 1 and LocalProperties.get(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY) == "true":
+                    print "Paused scan after repetition",str(repetitionNumber),". To resume the scan, press the Start button in the Command Queue view. To abort this scan, press the Skip Task button."
+                    LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY,"false")
+                    Finder.getInstance().find("commandQueueProcessor").pause(500);
+                    ScriptBase.checkForPauses()
                 
                 #check if the number of repetitions has been altered and we should now end the loop
                 numRepsFromProperty = int(LocalProperties.get(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY))
@@ -399,8 +403,8 @@ class QexafsScan(Scan):
             LocalProperties.set("gda.plot.ScanPlotSettings.fromUserList", "false")
             
             #remove added metadata from default metadata list to avoid multiple instances of the same metadata
+            jython_mapper = JythonNameSpaceMapping()
             if (jython_mapper.original_header != None):
-                jython_mapper = JythonNameSpaceMapping()
                 original_header=jython_mapper.original_header[:]
                 Finder.getInstance().find("datawriterconfig").setHeader(original_header)
 

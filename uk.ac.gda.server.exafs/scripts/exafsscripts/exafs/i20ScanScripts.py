@@ -285,7 +285,7 @@ class I20XesScan(XasScan):
     # now that the scan has been defined, run it in a loop
 
     # reset the properties used to control repetition behaviour
-        LocalProperties.set(RepetitionsProperties.HALT_AFTER_REP_PROPERTY,"false")
+        LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY,"false")
         LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
         LocalProperties.set(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY,str(numRepetitions))
         repetitionNumber = 0
@@ -333,9 +333,11 @@ class I20XesScan(XasScan):
                     run(scriptName)
 
             #check if halt after current repetition set to true
-                if numRepetitions > 1 and LocalProperties.get(RepetitionsProperties.HALT_AFTER_REP_PROPERTY) == "true":
-                    print "The repetition loop was requested to be halted, so this scan has ended after", str(repetitionNumber), "repetition(s)."
-                    break
+                if numRepetitions > 1 and LocalProperties.get(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY) == "true":
+                    print "Paused scan after repetition",str(repetitionNumber),". To resume the scan, press the Start button in the Command Queue view. To abort this scan, press the Skip Task button."
+                    LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY,"false")
+                    Finder.getInstance().find("commandQueueProcessor").pause(500);
+                    ScriptBase.checkForPauses()
                 
             #check if the number of repetitions has been altered and we should now end the loop
                 numRepsFromProperty = int(LocalProperties.get(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY))
