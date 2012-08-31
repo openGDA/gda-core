@@ -59,7 +59,7 @@ import org.eclipse.ui.progress.WorkbenchJob;
 import uk.ac.diamond.tomography.reconstruction.Activator;
 import uk.ac.diamond.tomography.reconstruction.ImageConstants;
 
-public class NexusNavigator extends CommonNavigator {
+public class NexusNavigator extends CommonNavigator { 
 
 	private static final int JOB_REFRESH_DELAY = 200;
 
