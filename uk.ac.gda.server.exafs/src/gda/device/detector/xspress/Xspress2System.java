@@ -83,9 +83,9 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 
 	// These are the objects this must know about.
 	private String daServerName;
-	private DAServer daServer = null;
+	protected DAServer daServer = null;
 	private String tfgName;
-	private Timer tfg = null;
+	protected Timer tfg = null;
 
 	// hold the parameters for this object
 	private XspressParameters xspressParameters;
@@ -107,7 +107,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 
 	private Double deadtimeEnergy = null;  // in keV NOT eV!
 
-	private int framesRead = 0;
+	protected int framesRead = 0;
 	// mode override property, when set to true the xspress is always set in SCAlers and MCA Mode
 	// does not change with the value in the parameters file, no rois are set
 	private boolean modeOverride = LocalProperties.check("gda.xspress.mode.override");
@@ -2418,5 +2418,63 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	public void setSaveRawSpectrum(Boolean saveRawSpectrum) {
 		this.saveRawSpectrum = saveRawSpectrum;
 	}
+	
+	public int getNumberFrames() throws DeviceException {
+
+		if (tfg.getAttribute("TotalFrames").equals(0)) {
+			return 0;
+		}
+
+		String[] cmds = new String[] { "status show-armed", "progress", "status", "full", "lap", "frame" };
+		HashMap<String, String> currentVals = new HashMap<String, String>();
+		for (String cmd : cmds) {
+			currentVals.put(cmd, runDAServerCommand("tfg read " + cmd).toString());
+			logger.info("tfg read " + cmd + ": " + currentVals.get(cmd));
+		}
+
+		if (currentVals.isEmpty()) {
+			return 0;
+		}
+
+		// else either scan not started (return -1) or has finished (return continuousParameters.getNumberDataPoints())
+
+		// if started but nothing collected yet
+		if (currentVals.get("status show-armed").equals("EXT-ARMED") /* && currentVals.get("status").equals("IDLE") */) {
+			return 0;
+		}
+
+		// if frame is non-0 then work out the current frame
+		if (!currentVals.get("frame").equals("0")) {
+			String numFrames = currentVals.get("frame");
+			return extractCurrentFrame(Integer.parseInt(numFrames));
+		}
+
+		return Integer.parseInt(tfg.getAttribute("TotalFrames").toString());
+	}
+
+	private int extractCurrentFrame(int frameValue) {
+		if (isEven(frameValue)) {
+			Integer numFrames = frameValue / 2;
+			return numFrames;
+		}
+		Integer numFrames = (frameValue - 1) / 2;
+		return numFrames;
+	}
+
+	private boolean isEven(int x) {
+		return (x % 2) == 0;
+	}
+
+	private Object runDAServerCommand(String command) throws DeviceException {
+		Object obj = null;
+		if (getDaServer() != null && getDaServer().isConnected()) {
+			if ((obj = getDaServer().sendCommand(command)) == null) {
+				throw new DeviceException("Null reply received from daserver during " + command);
+			}
+			return obj;
+		}
+		return null;
+	}
+
 
 }
