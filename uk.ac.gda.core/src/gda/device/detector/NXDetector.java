@@ -259,15 +259,11 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	public void atScanStart() throws DeviceException {
 
 		int numberImagesPerCollection = getCollectionStrategy().getNumberImagesPerCollection(getCollectionTime());
+
 		try {
-			for (NXPlugin plugin : getPluginList()) {
-				if (plugin instanceof NXCollectionStrategyPlugin) {
-					NXCollectionStrategyPlugin collectionStategy = (NXCollectionStrategyPlugin) plugin;
-					collectionStategy.setGenerateCallbacks(areCallbacksRequired());
-					collectionStategy.prepareForCollection(getCollectionTime(), numberImagesPerCollection);
-				} else {
-					plugin.prepareForCollection(numberImagesPerCollection);
-				}
+			prepareCollectionStrategyAtScanStart(numberImagesPerCollection);
+			for (NXPlugin plugin : getAdditionalPluginList()) {
+				plugin.prepareForCollection(numberImagesPerCollection);
 			}
 		} catch (Exception e) {
 			throw new DeviceException(e);
@@ -275,6 +271,11 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 		@SuppressWarnings("unchecked")
 		List<PositionInputStream<NXDetectorDataAppender>> plugins = (List<PositionInputStream<NXDetectorDataAppender>>) (List<?>) getPluginList();
 		pluginStreamsIndexer = new MultiplePositionStreamIndexer<NXDetectorDataAppender>(plugins);
+	}
+
+	protected void prepareCollectionStrategyAtScanStart(int numberImagesPerCollection) throws Exception, DeviceException {
+		getCollectionStrategy().setGenerateCallbacks(areCallbacksRequired());
+		getCollectionStrategy().prepareForCollection(getCollectionTime(), numberImagesPerCollection);
 	}
 
 	boolean areCallbacksRequired() {
