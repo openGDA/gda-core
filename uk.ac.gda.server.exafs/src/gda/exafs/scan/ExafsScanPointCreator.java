@@ -162,6 +162,15 @@ public class ExafsScanPointCreator {
 	public PyTuple getEnergies() throws Exception {
 		return convert2DDoubleArray(getScanEnergies(), numberDetectors);
 	}
+	
+	public Double[] getScanTimes() throws Exception {
+		double[][] energies = getScanEnergies();
+		Double[] times = new Double[energies.length];
+		for (int i = 0; i < energies.length; i++){
+			times[i] = energies[i][1];
+		}
+		return times;
+	}
 
 	protected static PyTuple convert2DDoubleArray(double[][] doublearray, int numDetectors) {
 
