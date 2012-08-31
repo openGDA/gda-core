@@ -40,7 +40,6 @@ import java.io.Serializable;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,9 +51,9 @@ import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawb.common.ui.plot.trace.ILineTrace;
-import org.dawb.common.ui.plot.trace.ITrace;
 import org.dawb.common.ui.plot.trace.ILineTrace.PointStyle;
-import org.eclipse.core.runtime.NullProgressMonitor;
+import org.dawb.common.ui.plot.trace.ITrace;
+import org.dawb.workbench.plotting.util.ColorUtility;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuListener;
@@ -87,7 +86,6 @@ import org.springframework.util.StringUtils;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AxisValues;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DAppearance;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DGraphTable;
@@ -761,6 +759,10 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 					if (sd.isVisible()) {
 						
 						ys.add(sd.archive.getyVals());
+						AbstractDataset y = sd.archive.getyVals();
+						if (y.getName()==null || "".equals(y.getName())) {
+							y.setName(sd.name);
+						}
 						x_axes.add(sd.archive.getxAxis());
 						appearances.put(sd.archive.getyVals().getName(), sd.archive.getAppearance());
 						if (!xAxisIsVarious && StringUtils.hasLength(sd.xLabel)) {
@@ -792,6 +794,13 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 				plottingSystem.clear();
 				return;
 			}
+			if (ys.isEmpty()) {
+				ys.add(dummy.archive.getyVals());
+				x_axes.add(dummy.archive.getxAxis());
+				appearances.put(dummy.archive.getyVals().getName(), dummy.archive.getAppearance());
+				yAxisHeader="";
+				xAxisHeader="";
+			}
 			// always replace plots even if list is empty as they may be invisible
 			AbstractDataset x = x_axes.size()>0
 					          ? x_axes.get(0).toDataset()
@@ -803,8 +812,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 		    }
 		    
 			if (x!=null) {
-				final String title = yAxisHeader + " / " + xAxisHeader;
-				createUpdatePlot(title, x, ys, appearances, invis);
+				createUpdatePlot(xAxisHeader, yAxisHeader, x, ys, appearances, invis);
 			} else {
 				plottingSystem.reset();
 			}
@@ -825,17 +833,21 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 	 * @param ys
 	 * @param appearances
 	 */
-	private void createUpdatePlot(final String                title, 
-			                      final AbstractDataset       x, 
+	private void createUpdatePlot(final String                xLabel, 
+			      				  final String                yLabel, 
+			      				  final AbstractDataset       x, 
 			                      final List<AbstractDataset> ys, 
 			                      final Map<String, Plot1DAppearance> appearances,
 			                      final List<String>          invis) {
 		
+		final String title = yLabel + " / " + xLabel;
 		Display.getDefault().syncExec(new Runnable() {
 			@Override
 			public void run() {
 				
 				plottingSystem.setTitle(title);
+				plottingSystem.getSelectedXAxis().setTitle(xLabel);
+				plottingSystem.getSelectedYAxis().setTitle(yLabel);
 				
 				final List<AbstractDataset> unfoundYs = new ArrayList<AbstractDataset>(ys.size());
 				
@@ -857,6 +869,9 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 				// We create the new ones and assign their new colour
 				for (final AbstractDataset y : unfoundYs) {
 			
+					if (y.getName()==null || "".equals(y.getName())) {
+						logger.error("y dataset is not named - it should be!");
+					}
 					ILineTrace trace = plottingSystem.createLineTrace(y.getName());
 					trace.setLineWidth(1);
 					trace.setPointSize(3);
@@ -865,6 +880,8 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 					if (appearances.containsKey(trace.getName())) {
 						final Color color = appearances.get(trace.getName()).getColour();
 						trace.setTraceColor(new org.eclipse.swt.graphics.Color(null, color.getRed(), color.getGreen(), color.getBlue()));
+					} else { // We still want a unique colour
+						trace.setTraceColor(ColorUtility.getSwtColour(ys.indexOf(y)));
 					}
 					trace.setData(x, y);
 					plottingSystem.addTrace(trace);
