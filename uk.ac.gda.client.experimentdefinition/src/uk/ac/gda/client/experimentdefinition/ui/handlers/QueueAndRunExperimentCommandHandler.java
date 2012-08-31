@@ -20,10 +20,13 @@ package uk.ac.gda.client.experimentdefinition.ui.handlers;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.CommandQueueViewFactory;
 
 public class QueueAndRunExperimentCommandHandler extends RunExperimentCommandHandler {
+
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(QueueAndRunExperimentCommandHandler.class);
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {

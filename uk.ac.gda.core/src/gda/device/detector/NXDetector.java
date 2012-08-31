@@ -20,7 +20,6 @@ package gda.device.detector;
 
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
-import gda.device.detector.NexusDetector;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
 import gda.device.detector.nxdetector.NXFileWriterPlugin;
@@ -30,43 +29,49 @@ import gda.device.scannable.PositionCallableProvider;
 import gda.device.scannable.PositionInputStream;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
+import org.python.core.Py;
+import org.python.core.PyException;
 import org.springframework.beans.factory.InitializingBean;
 
-// TODO Check for duplicate extraNames returned by the plugins
-// TODO Deliberate change: does not read arrays by default
-// TODO Check for duplicate plugin names
+public class NXDetector extends DetectorBase implements InitializingBean, NexusDetector,
+		PositionCallableProvider<NexusTreeProvider> {
 
-public class NXDetector extends DetectorBase implements InitializingBean, NexusDetector, PositionCallableProvider<NexusTreeProvider> {
-	
 	protected static final String UNSUPPORTED_PART_OF_SCANNABLE_INTERFACE = "ADDetector does not support operation through its Scannable interface. Do not use pos until pos supports detectors as Detectors rather than Scannables";
 
 	private NXCollectionStrategyPlugin collectionStrategy;
 
 	private List<NXPlugin> additionalPluginList = new ArrayList<NXPlugin>();
-	
+
+	private HashMap<String, NXPlugin> additionalPluginMap;
+
 	private MultiplePositionStreamIndexer<NXDetectorDataAppender> pluginStreamsIndexer;
-	
+
 	public NXDetector(String name, NXCollectionStrategyPlugin collectionStrategy, List<NXPlugin> additionalPluginList) {
 		setName(name);
 		setCollectionStrategy(collectionStrategy);
 		setAdditionalPluginList(additionalPluginList);
 		afterPropertiesSet();
 	}
-	
+
 	/**
-	 * Creates an ADDetector with name, collectionStrategy and probably additionalPluginList yet to configure.
-	 * A metadataProvider could also be provided.
+	 * Creates an ADDetector with name, collectionStrategy and probably additionalPluginList yet to configure. A
+	 * metadataProvider could also be provided.
 	 */
 	public NXDetector() {
 
 	}
-	
+
 	@Override
 	public void afterPropertiesSet() {
-		
+
 		if (getName() == null) {
 			throw new IllegalStateException("no name has been configured");
 		}
@@ -74,28 +79,47 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 			throw new IllegalStateException("no colectionStrategy has been configured");
 		}
 	}
-	
+
 	public void setCollectionStrategy(NXCollectionStrategyPlugin collectionStrategy) {
+		if (namesOf(getAdditionalPluginList()).contains(collectionStrategy.getName())) {
+			throw new IllegalArgumentException("The configured collectionStrategy named '" + collectionStrategy.getName()
+					+ "' duplicates the name of an additionalPlugin");
+		}
 		this.collectionStrategy = collectionStrategy;
 	}
-	
+
 	/**
 	 * Set plugins in addition to the collection-strategy plugin.
 	 * 
 	 * @param additionalPluginList
 	 */
 	public void setAdditionalPluginList(List<NXPlugin> additionalPluginList) {
+		if ((getCollectionStrategy() != null)
+				&& (namesOf(additionalPluginList).contains(getCollectionStrategy().getName()))) {
+			throw new IllegalArgumentException("The configured plugin '" + getCollectionStrategy().getName()
+					+ "' duplicates the name of the configured collectionStrategy");
+		}
+		if ((new HashSet<String>(namesOf(additionalPluginList))).size() < namesOf(additionalPluginList).size()) {
+			throw new IllegalArgumentException("The configured plugins contain duplicate names. Plugin names: "
+					+ StringUtils.join(namesOf(additionalPluginList), ", ") + ".");
+		}
+
 		this.additionalPluginList = additionalPluginList;
+
+		additionalPluginMap = new HashMap<String, NXPlugin>();
+		for (NXPlugin plugin : additionalPluginList) {
+			additionalPluginMap.put(plugin.getName(), plugin);
+		}
 	}
 
 	public NXCollectionStrategyPlugin getCollectionStrategy() {
 		return collectionStrategy;
 	}
-	
+
 	public List<NXPlugin> getAdditionalPluginList() {
 		return additionalPluginList;
 	}
-	
+
 	/**
 	 * Return all plugins: collection-strategy and then additional plugins
 	 */
@@ -104,6 +128,52 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 		allPlugins.add(getCollectionStrategy());
 		allPlugins.addAll(getAdditionalPluginList());
 		return allPlugins;
+	}
+
+	/**
+	 * Return map of all plugins: collection-strategy and then additional plugins
+	 */
+	public Map<String, NXPlugin> getPluginMap() {
+		Map<String, NXPlugin> pluginMap = new HashMap<String, NXPlugin>(additionalPluginMap);
+		if (getCollectionStrategy() != null) {
+			pluginMap.put(getCollectionStrategy().getName(), getCollectionStrategy());
+		}
+		return pluginMap;
+	}
+
+	/**
+	 * Return a plugin by its name (configuration methods will have prevented
+	 * duplicate plugin names).
+	 * @param name
+	 * @return plugin
+	 * @raises IllegalArgumentException if no plugin with specified name exists
+	 */
+	public NXPlugin getPlugin(String name) {
+		NXPlugin plugin = getPluginMap().get(name);
+		if (plugin == null) {
+			throw new IllegalArgumentException();
+		}
+		return plugin;
+	}
+	
+	/**
+	 * Returns the NXPlugin with the given name (configuration methods will have prevented
+	 * duplicate plugin names).
+	 * 
+	 * @param name
+	 */
+	public NXPlugin __getattr__(String name) {
+		
+		// As DetectorBase does not extend PyObject, it is an 'old style' class and the more
+		// appropriate __getattribute__ method won't get called. The problem with __getattr__
+		// is that defined methods (such as Scannable.a()) will block it. Then again, maybe
+		// this is not a problem!
+		NXPlugin plugin = getPluginMap().get(name);
+		if (plugin == null) {
+			throw new PyException(Py.AttributeError, "");
+		}
+		return plugin;
+
 	}
 
 	@Override
@@ -143,10 +213,20 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	}
 	
 	@Override
+	final public void prepareForCollection() throws DeviceException {
+		// atScanLineStart implemented instead
+	}
+
+	@Override
+	final public void endCollection() throws DeviceException {
+		// atScanLineEnd implemented instead
+	}
+
+	@Override
 	public boolean createsOwnFiles() throws DeviceException {
 		return false; // always return nexus data (name of method is misleading)
 	}
-	
+
 	@Override
 	public String[] getInputNames() {
 		return new String[] {};
@@ -154,9 +234,14 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 
 	@Override
 	public String[] getExtraNames() {
+		// These are likely to change dynamically, although this value should probably be cached in atScanStart
 		List<String> extraNames = new ArrayList<String>();
 		for (NXPlugin plugin : getPluginList()) {
 			extraNames.addAll(plugin.getInputStreamNames());
+		}
+		if (new HashSet<String>(extraNames).size() < extraNames.size()) {
+			String namesString = StringUtils.join(extraNames.toArray(), ", ");
+			throw new IllegalStateException("The configured plugins returned duplicate extra names: '" + namesString + "'.");
 		}
 		return extraNames.toArray(new String[] {});
 	}
@@ -211,7 +296,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 			}
 		}
 	}
-
+	
 	@Override
 	public void collectData() throws DeviceException {
 		try {
@@ -220,7 +305,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 			throw new DeviceException(e);
 		}
 	}
-	
+
 	@Override
 	public int getStatus() throws DeviceException {
 		try {
@@ -229,7 +314,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 			throw new DeviceException(e);
 		}
 	}
-	
+
 	@Override
 	public void waitWhileBusy() throws InterruptedException, DeviceException {
 		try {
@@ -238,21 +323,22 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 			throw new DeviceException(e);
 		}
 	}
-	
+
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
 		try {
 			return getPositionCallable().call();
 		} catch (Exception e) {
-			throw new DeviceException("Error during '"+ getName() +"' readout.", e);
+			throw new DeviceException("Error during '" + getName() + "' readout.", e);
 		}
 	}
-	
+
 	@Override
 	public Callable<NexusTreeProvider> getPositionCallable() throws DeviceException {
-		
+
 		if (pluginStreamsIndexer == null) {
-			throw new IllegalStateException("No pluginStreamsIndexer set --- atScanStart() must be called before getPositionCallable()");
+			throw new IllegalStateException(
+					"No pluginStreamsIndexer set --- atScanStart() must be called before getPositionCallable()");
 		}
 		Callable<List<NXDetectorDataAppender>> appendersCallable = pluginStreamsIndexer.getPositionCallable();
 
@@ -271,7 +357,8 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 			}
 		}
 
-		Callable<NexusTreeProvider> callable = new NXDetectorDataCompletingCallable(nxdata, appendersCallable, getName());
+		Callable<NexusTreeProvider> callable = new NXDetectorDataCompletingCallable(nxdata, appendersCallable,
+				getName());
 		return callable;
 	}
 
@@ -332,6 +419,14 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 		}
 	}
 
+	static private List<String> namesOf(List<NXPlugin> pluginList) {
+		List<String> pluginNames = new ArrayList<String>();
+		for (NXPlugin plugin : pluginList) {
+			pluginNames.add(plugin.getName());
+		}
+		return pluginNames;
+	}
+	
 }
 
 class NXDetectorDataCompletingCallable implements Callable<NexusTreeProvider> {
@@ -339,7 +434,7 @@ class NXDetectorDataCompletingCallable implements Callable<NexusTreeProvider> {
 	private final NXDetectorData data;
 
 	private final Callable<List<NXDetectorDataAppender>> appendersCallable;
-	
+
 	private final String detectorName;
 
 	public NXDetectorDataCompletingCallable(NXDetectorData emptyNXDetectorData,
@@ -357,5 +452,5 @@ class NXDetectorDataCompletingCallable implements Callable<NexusTreeProvider> {
 		}
 		return data;
 	}
-	
+
 }

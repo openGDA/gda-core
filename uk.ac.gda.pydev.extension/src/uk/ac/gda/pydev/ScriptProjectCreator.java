@@ -23,6 +23,7 @@ import gda.jython.JythonServerFacade;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -35,7 +36,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IPerspectiveListener;
 import org.eclipse.ui.IStartup;
@@ -75,66 +78,68 @@ import uk.ac.gda.ui.utils.ProjectUtils;
 public class ScriptProjectCreator implements IStartup {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScriptProjectCreator.class);
-	private static Map<String, IProject> pathProjectMap = new HashMap<String,IProject>();
+	private static Map<String, IProject> pathProjectMap = new HashMap<String, IProject>();
+
 	/**
-	 * Important configuration of pydev. The other place which this is done is when the
-	 * Jython interpreter is set from the client plugin before the workbench is started.
+	 * Important configuration of pydev. The other place which this is done is when the Jython interpreter is set from
+	 * the client plugin before the workbench is started.
 	 */
 	@Override
 	public void earlyStartup() {
-		
-		if (!ClientManager.isClient()) return;
 
+		if (!ClientManager.isClient())
+			return;
 
-		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()  {
+		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				// Attempt to refresh the pydev package explorer.
 				createPerspectiveListener();
-//				updateInput();
+				// Ravi S - Don't think the below line will be ever be executed - the workbench page is never ready during early
+				// startup - maybe a red-herring but don't want to risk removing it
+				refreshProjectExplorer();
 			}
 
 		});
 	}
-	
 
 	public static String getProjectNameXMLConfig() {
-		return getProjectName("gda.scripts.user.xml.project.name",  "XML - Config");
+		return getProjectName("gda.scripts.user.xml.project.name", "XML - Config");
 	}
 
 	private static String getProjectName(final String property, final String defaultValue) {
 		String projectName = LocalProperties.get(property);
-		if (projectName==null) projectName = defaultValue;
+		if (projectName == null)
+			projectName = defaultValue;
 		return projectName;
 	}
 
-	private void updateInput() {
+	private void refreshProjectExplorer() {
 		IWorkbenchPage defaultPage = EclipseUtils.getDefaultPage();
-		if( defaultPage != null){
-			final ProjectExplorer view = (ProjectExplorer)defaultPage.findView("org.eclipse.ui.navigator.ProjectExplorer");
-			if (view!=null&&view.getCommonViewer().getInput()==null) {
-				view.getCommonViewer().setInput(ResourcesPlugin.getWorkspace().getRoot());
+		if (defaultPage != null) {
+			final ProjectExplorer view = (ProjectExplorer) defaultPage.findView(IPageLayout.ID_PROJECT_EXPLORER);
+			if (view != null) {
+				view.selectReveal(new StructuredSelection(Collections.emptyList()));
 			}
-			if (view!=null) view.getCommonViewer().refresh();
 		}
 	}
 
-	static public void handleShowXMLConfig(IProgressMonitor monitor) throws CoreException{
+	static public void handleShowXMLConfig(IProgressMonitor monitor) throws CoreException {
 		final IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-		if( store.getBoolean(PreferenceConstants.SHOW_XML_CONFIG)){
-			ProjectUtils.createImportProjectAndFolder(getProjectNameXMLConfig(), "src", LocalProperties.get(LocalProperties.GDA_CONFIG)+"/xml", ConfigurationXMLNature.ID, 
-					null, monitor);				
+		if (store.getBoolean(PreferenceConstants.SHOW_XML_CONFIG)) {
+			ProjectUtils.createImportProjectAndFolder(getProjectNameXMLConfig(), "src",
+					LocalProperties.get(LocalProperties.GDA_CONFIG) + "/xml", ConfigurationXMLNature.ID, null, monitor);
 		} else {
 			final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 			final IProject project = root.getProject(getProjectNameXMLConfig());
-			if( project.exists() ){
-				//exists so delete
+			if (project.exists()) {
+				// exists so delete
 				project.delete(false, true, monitor);
 			}
 		}
-		
+
 	}
-	
+
 	/**
 	 * We programmatically create a Jython Interpreter so that the user does not have to.
 	 * 
@@ -215,35 +220,34 @@ public class ScriptProjectCreator implements IStartup {
 			final JythonInterpreterManager man = (JythonInterpreterManager) PydevPlugin.getJythonInterpreterManager();
 			HashSet<String> set = new HashSet<String>();
 			set.add(PydevConstants.INTERPRETER_NAME);
-			man.setInfos(new IInterpreterInfo[] {info},set, monitor);
+			man.setInfos(new IInterpreterInfo[] { info }, set, monitor);
 
 			logger.info("Jython interpreter registered: " + PydevConstants.INTERPRETER_NAME);
 		}
 	}
 
-	
-	static public void createProjects(IProgressMonitor monitor) throws CoreException{
-		monitor.subTask("Checking existence of projects");		
+	static public void createProjects(IProgressMonitor monitor) throws CoreException {
+		monitor.subTask("Checking existence of projects");
 		final IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 		boolean chkGDASyntax = store.getBoolean(PreferenceConstants.CHECK_SCRIPT_SYNTAX);
 
-		if( chkGDASyntax)
+		if (chkGDASyntax)
 			createInterpreter(monitor);
-		
+
 		List<IAdaptable> scriptProjects = new ArrayList<IAdaptable>();
-		
-		for(String path : JythonServerFacade.getInstance().getAllScriptProjectFolders()) {
+
+		for (String path : JythonServerFacade.getInstance().getAllScriptProjectFolders()) {
 			String projectName = JythonServerFacade.getInstance().getProjectNameForPath(path);
 			boolean shouldHideProject = shouldHideProject(path, store);
-			if( !shouldHideProject){
-				final IProject newProject = createJythonProject(projectName, path, chkGDASyntax,monitor);
+			if (!shouldHideProject) {
+				final IProject newProject = createJythonProject(projectName, path, chkGDASyntax, monitor);
 				scriptProjects.add(newProject);
 				pathProjectMap.put(path, newProject);
 			} else {
 				final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 				final IProject project = root.getProject(projectName);
-				if( project.exists() ){
-					//exists so delete rather than hide for efficiency reasons
+				if (project.exists()) {
+					// exists so delete rather than hide for efficiency reasons
 					try {
 						project.delete(false, true, monitor);
 					} catch (CoreException e) {
@@ -253,21 +257,21 @@ public class ScriptProjectCreator implements IStartup {
 				}
 			}
 		}
-		
+
 		IWorkingSetManager workingSetManager = PlatformUI.getWorkbench().getWorkingSetManager();
 		IWorkingSet workingSet = workingSetManager.getWorkingSet("Scripts");
-		if(workingSet==null){
-			monitor.subTask("Adding Scripts working set");		
-			workingSetManager.addWorkingSet(workingSetManager.createWorkingSet("Scripts", scriptProjects.toArray(new IAdaptable[]{})));
+		if (workingSet == null) {
+			monitor.subTask("Adding Scripts working set");
+			workingSetManager.addWorkingSet(workingSetManager.createWorkingSet("Scripts",
+					scriptProjects.toArray(new IAdaptable[] {})));
 		} else {
-			for( IAdaptable element : scriptProjects){
-				workingSetManager.addToWorkingSets(element, new IWorkingSet[]{workingSet});
+			for (IAdaptable element : scriptProjects) {
+				workingSetManager.addToWorkingSets(element, new IWorkingSet[] { workingSet });
 			}
 		}
 	}
 
-
-	public static boolean shouldHideProject(String path, IPreferenceStore store) throws RuntimeException{
+	public static boolean shouldHideProject(String path, IPreferenceStore store) throws RuntimeException {
 		if (JythonServerFacade.getInstance().projectIsUserType(path)) {
 			return false;
 		}
@@ -277,9 +281,9 @@ public class ScriptProjectCreator implements IStartup {
 		if (JythonServerFacade.getInstance().projectIsCoreType(path)) {
 			return !store.getBoolean(PreferenceConstants.SHOW_GDA_SCRIPTS);
 		}
-		throw new RuntimeException("Unknown type of Jython Script Project: " + path + " = " + JythonServerFacade.getInstance().getProjectNameForPath(path));
+		throw new RuntimeException("Unknown type of Jython Script Project: " + path + " = "
+				+ JythonServerFacade.getInstance().getProjectNameForPath(path));
 	}
-
 
 	private void createPerspectiveListener() {
 		PlatformUI.getWorkbench().getWorkbenchWindows()[0].addPerspectiveListener(new IPerspectiveListener() {
@@ -287,39 +291,39 @@ public class ScriptProjectCreator implements IStartup {
 			@Override
 			public void perspectiveChanged(IWorkbenchPage page, IPerspectiveDescriptor perspective, String changeId) {
 				if (perspective.getId().equals(JythonPerspective.ID)) {
-					updateInput();
+					refreshProjectExplorer();
 				}
 			}
-			
+
 			@Override
 			public void perspectiveActivated(IWorkbenchPage page, IPerspectiveDescriptor perspective) {
 				if (perspective.getId().equals(JythonPerspective.ID)) {
-					updateInput();
+					refreshProjectExplorer();
 					closeRichBeanEditors(page);
 				}
 			}
-			
+
 		});
 	}
 
-
 	protected void closeRichBeanEditors(final IWorkbenchPage page) {
-		
-		if (!Activator.getDefault().getPreferenceStore().getBoolean(PreferenceConstants.CLOSE_RICH_BEAN_EDITORS)) return;
-		
-		final IEditorReference[]     refs    = page.getEditorReferences();
+
+		if (!Activator.getDefault().getPreferenceStore().getBoolean(PreferenceConstants.CLOSE_RICH_BEAN_EDITORS))
+			return;
+
+		final IEditorReference[] refs = page.getEditorReferences();
 		final List<IEditorReference> toClose = new ArrayList<IEditorReference>(3);
 		for (int i = 0; i < refs.length; i++) {
-			if (refs[i].getPartProperty("RichBeanEditorPart")!=null) {
+			if (refs[i].getPartProperty("RichBeanEditorPart") != null) {
 				toClose.add(refs[i]);
 			}
 		}
-		
-		if (!toClose.isEmpty()) page.closeEditors(toClose.toArray(new IEditorReference[toClose.size()]), false);
+
+		if (!toClose.isEmpty())
+			page.closeEditors(toClose.toArray(new IEditorReference[toClose.size()]), false);
 	}
 
 	/**
-	 * 
 	 * @param projectName
 	 * @param importFolder
 	 * @param chkGDASyntax
@@ -327,43 +331,36 @@ public class ScriptProjectCreator implements IStartup {
 	 * @return IProject created
 	 * @throws CoreException
 	 */
-	static private IProject createJythonProject(final String projectName, final String importFolder, 
+	static private IProject createJythonProject(final String projectName, final String importFolder,
 			final boolean chkGDASyntax, IProgressMonitor monitor) throws CoreException {
-			
-		IProject project2 = ProjectUtils.createImportProjectAndFolder(projectName, "src", importFolder, null, 
-				null, monitor);
+
+		IProject project2 = ProjectUtils.createImportProjectAndFolder(projectName, "src", importFolder, null, null,
+				monitor);
 		ProjectUtils.addRemoveNature(project2, monitor, chkGDASyntax, ExtendedSyntaxNature.ID);
 		boolean hasPythonNature = PythonNature.getPythonNature(project2) != null;
-		
-		if( chkGDASyntax){
-			if( !hasPythonNature){
+
+		if (chkGDASyntax) {
+			if (!hasPythonNature) {
 				// Assumes that the interpreter named PydevConstants.INTERPRETER_NAME has been created.
-				PythonNature.addNature(project2, 
-						monitor,
-						IPythonNature.JYTHON_VERSION_2_5,
-						// NOTE Very important to start the name with a '/'
-						// or pydev creates the wrong kind of nature.
-						"/"+project2.getName()+"/src",
-						null,
-						PydevConstants.INTERPRETER_NAME,
-						null);	
+				PythonNature.addNature(project2, monitor, IPythonNature.JYTHON_VERSION_2_5,
+				// NOTE Very important to start the name with a '/'
+				// or pydev creates the wrong kind of nature.
+						"/" + project2.getName() + "/src", null, PydevConstants.INTERPRETER_NAME, null);
 			}
 		} else {
-			if(hasPythonNature){
-				//This should do the same as removing the Pydev config but neither
-				//prevent it being added when a python file is edited.
+			if (hasPythonNature) {
+				// This should do the same as removing the Pydev config but neither
+				// prevent it being added when a python file is edited.
 				PythonNature.removeNature(project2, monitor);
 			}
 		}
 		return project2;
 	}
-		
-
 
 	public static IProject projectForPath(String path) {
 		return pathProjectMap.get(path);
 	}
-	
+
 	/**
 	 * The method PydevPlugin.getJythonInterpreterManager().getInterpreterInfo(...) can never return in some
 	 * circumstances because of a bug in pydev.
@@ -393,8 +390,8 @@ public class ScriptProjectCreator implements IStartup {
 			return true;
 		return false;
 	}
-	
-}	
+
+}
 
 class InterpreterThread extends Thread {
 	private static final Logger logger = LoggerFactory.getLogger(InterpreterThread.class);
@@ -430,5 +427,3 @@ class InterpreterThread extends Thread {
 	}
 
 }
-
-
