@@ -2,13 +2,13 @@ import unittest
 
 import testXYDataSetProcessor
 import TestProcessors
-import TestFWHM
+import TestExtractPeakParameters
 
 def suite():
 	suite=  unittest.TestSuite()
 	suite.addTest(testXYDataSetProcessor.suite())
 	suite.addTest(TestProcessors.suite())
-	suite.addTest(TestFWHM.suite())
+	suite.addTest(TestExtractPeakParameters.suite())
 	return suite
 
 if __name__ == '__main__':

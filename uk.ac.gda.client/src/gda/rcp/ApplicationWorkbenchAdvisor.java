@@ -36,6 +36,7 @@ import gda.rcp.preferences.GdaRootPreferencePage;
 import gda.util.ObjectServer;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,10 +49,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.internal.core.LaunchManager;
@@ -61,8 +59,11 @@ import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.ToolBarManager;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
@@ -72,6 +73,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PerspectiveAdapter;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.WorkbenchException;
+import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.application.IWorkbenchConfigurer;
 import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchAdvisor;
@@ -332,33 +334,49 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 			}
 			
 			// should these two be done during initialize instead of now when Windows have been created?
-			
-			final Job job = new Job("Refreshing Projects") {
+			WorkspaceModifyOperation wkspaceModifyOperation = new WorkspaceModifyOperation() {
+
 				@Override
-				protected IStatus run(IProgressMonitor monitor) {
-					monitor.beginTask("Refreshing Projects",  IProgressMonitor.UNKNOWN);
+				protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException,
+						InterruptedException {
+					monitor.beginTask("Refreshing Projects", IProgressMonitor.UNKNOWN);
+					//
 					prepareJythonEnv(monitor);
+					//
 					IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
 					// we have to find the jars before we restore the compiled libs
 					if (preferenceStore.getBoolean(PreferenceConstants.GDA_DATA_PROJECT_CREATE_ON_STARTUP)) {
 						try {
-							createDataProject(monitor, preferenceStore.getString(PreferenceConstants.GDA_DATA_PROJECT_NAME),
+							createDataProject(monitor,
+									preferenceStore.getString(PreferenceConstants.GDA_DATA_PROJECT_NAME),
 									preferenceStore.getString(PreferenceConstants.GDA_DATA_PROJECT_FILTER),
 									preferenceStore.getBoolean(PreferenceConstants.GDA_DATA_PROJECT_FILTER_IS_EXCLUDE));
 						} catch (CoreException e) {
 							logger.error("Error creating data project", e);
 						}
 					}
-					refreshProjectExplorer(monitor);
+					// This is to reveal the projects in the project explorer - incidentally the project explorer
+					// doesn't reveal objects the first time when the workbench starts up - so this is like a shake-up
+					// for it. Basically, the problem was to solve the selection on the project explorer setting up the
+					// mode to WORKING SETS.
+					IViewPart projExpViewPart = workbenchWindow.getActivePage().findView(
+							IPageLayout.ID_PROJECT_EXPLORER);
+					if (projExpViewPart instanceof ProjectExplorer) {
+						ProjectExplorer projExp = (ProjectExplorer) projExpViewPart;
+						projExp.selectReveal(new StructuredSelection(Collections.emptyList()));
+					}
 					monitor.done();
-					return Status.OK_STATUS;
 				}
-
 			};
-			job.setUser(true);
-			job.setPriority(Job.DECORATE);
-			job.schedule(100);
 
+			try {
+				ProgressMonitorDialog dialog = new ProgressMonitorDialog(workbenchWindow.getShell());
+				dialog.run(true, false, wkspaceModifyOperation);
+			} catch (InvocationTargetException e) {
+				logger.error("Problem while creating GDA projects", e);
+			} catch (InterruptedException e) {
+				logger.error("Interrupted while creating GDA projects", e);
+			}
 		}
 	}
 
@@ -435,30 +453,6 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		}
 	}
 	
-
-	protected void refreshProjectExplorer(IProgressMonitor monitor) {
-		// this is a hack to force the Navigator to update on startup. A known and major Eclipse
-		// bug which has been around for a while:
-		// http://www.eclipse.org/forums/index.php?t=msg&goto=637175&S=b5cb32883bfe34a8f3eefb430dc5730c
-		
-		monitor.subTask("Refreshing Project Explorer");
-		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				IWorkbenchWindow[] workbenchs = PlatformUI.getWorkbench().getWorkbenchWindows();
-				ProjectExplorer view = null;
-				for (IWorkbenchWindow workbench : workbenchs) {
-					for (IWorkbenchPage page : workbench.getPages()) {
-						view = (ProjectExplorer) page.findView("org.eclipse.ui.navigator.ProjectExplorer");
-						break;
-					}
-				}
-				if( view != null)
-					view.getCommonViewer().setInput(ResourcesPlugin.getWorkspace().getRoot());
-			}
-		});
-	}
-
 	private void prepareJythonEnv(IProgressMonitor monitor) {
 		try {
 			monitor.subTask("Initialising script projects");
