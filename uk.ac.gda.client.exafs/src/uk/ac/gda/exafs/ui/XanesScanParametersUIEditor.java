@@ -56,11 +56,11 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 	private static final Logger logger = LoggerFactory.getLogger(XanesScanParametersUIEditor.class);
 
 	private ScaleBox finalEnergy;
-	XanesScanParameters editingBean;
+//	private XanesScanParameters editingBean;
 	private RegionComposite regionsEditor;
 	double edgeVal = 0;
 	private Button updateTable;
-	private double coreHole;
+//	private double coreHole;
 	private ELEMENT_EVENT_TYPE type;
 	/**
 	 * @param path
@@ -70,7 +70,7 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 	public XanesScanParametersUIEditor(final String path, final RichBeanMultiPageEditorPart containingEditor,
 			final Object xanesScanParameters) {
 		super(path, containingEditor.getMappingUrl(), containingEditor, xanesScanParameters);
-		editingBean = (XanesScanParameters) xanesScanParameters;
+		editingBean = xanesScanParameters;
 	}
 
 	/**
@@ -78,6 +78,7 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 	 * 
 	 * @param parent
 	 */
+	@SuppressWarnings("unused")
 	@Override
 	public void createPartControl(Composite parent) {
 
@@ -104,15 +105,15 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 		updateTable = new Button(exafsScanParametersGroup, SWT.NONE);
 		updateTable.setText("             Get Defaults            ");
 
-		regionsEditor = new RegionComposite(exafsScanParametersGroup, SWT.NONE, getSite(), editingBean, this);
+		regionsEditor = new RegionComposite(exafsScanParametersGroup, SWT.NONE, getSite(), (XanesScanParameters) editingBean, this);
 		regionsEditor.setLayoutData(new GridData(SWT.FILL, SWT.LEFT, false, false));
 
 		updateTable.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				for(int i=0;i<editingBean.getRegions().size();i++){
+				for(int i=0;i<((XanesScanParameters) editingBean).getRegions().size();i++){
 					if(i>4)
-						editingBean.getRegions().remove(i);
+						((XanesScanParameters) editingBean).getRegions().remove(i);
 				}
 				
 				Region obj = null;
@@ -143,7 +144,7 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 							}
 						}
 						getFinalEnergy().setValue(getFinalEnergyFromElement());
-						editingBean.setRegions(regions);
+						((XanesScanParameters) editingBean).setRegions(regions);
 						regionsEditor.updateTable();
 					}
 
@@ -229,7 +230,7 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 			this.type = type;
 			if (type != null) {
 				super.updateElement(type);
-				coreHole = getSelectedElement(type).getCoreHole(getEdgeUseBean());
+//				coreHole = getSelectedElement(type).getCoreHole(getEdgeUseBean());
 			}
 		} catch (Exception e) {
 		}
