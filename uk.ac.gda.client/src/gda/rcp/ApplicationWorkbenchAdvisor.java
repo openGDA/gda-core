@@ -45,11 +45,18 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.internal.core.LaunchManager;
@@ -62,8 +69,6 @@ import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
@@ -85,7 +90,6 @@ import org.eclipse.ui.internal.ide.IDEInternalWorkbenchImages;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 import org.eclipse.ui.internal.registry.IActionSetDescriptor;
 import org.eclipse.ui.menus.CommandContributionItem;
-import org.eclipse.ui.navigator.resources.ProjectExplorer;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,8 +108,6 @@ import uk.ac.gda.ui.utils.ResourceFilterWrapper;
  */
 @SuppressWarnings("restriction")
 public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
-
-
 
 	private static final Logger logger = LoggerFactory.getLogger(ApplicationWorkbenchAdvisor.class);
 
@@ -147,7 +149,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		declareDefaultImages(configurer);
 
 		IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
-		if( preferenceStore.getBoolean(PreferenceConstants.GDA_DISABLE_LAUNCH_CONFIGS))
+		if (preferenceStore.getBoolean(PreferenceConstants.GDA_DISABLE_LAUNCH_CONFIGS))
 			disableLaunchConfigs();
 	}
 
@@ -253,22 +255,23 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 			listener.perspectiveActivated(workbenchWindow.getActivePage(), null);
 
 			IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
-			if (preferenceStore.getBoolean(PreferenceConstants.GDA_OPEN_XYPLOT_ON_SCAN_START)){
+			if (preferenceStore.getBoolean(PreferenceConstants.GDA_OPEN_XYPLOT_ON_SCAN_START)) {
 				String viewid = preferenceStore.getString(PreferenceConstants.GDA_OPEN_XYPLOT_ON_SCAN_START_ID);
 				final String viewIdFinal = viewid != "" ? viewid : XYPlotView.ID;
 				final IScanDataPointObserver openXYPlotOnScanStart = new IScanDataPointObserver() {
-					
+
 					@Override
 					public void update(Object source, Object arg) {
 						if (arg instanceof JythonServerStatus) {
 							final JythonServerStatus status = (JythonServerStatus) arg;
 							if (status.scanStatus == Jython.RUNNING) {
-								//must run sync to ensure the view is opened before a scan data point arrives
+								// must run sync to ensure the view is opened before a scan data point arrives
 								PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 									@Override
 									public void run() {
 										try {
-											PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(viewIdFinal, null, IWorkbenchPage.VIEW_VISIBLE);
+											PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+													.showView(viewIdFinal, null, IWorkbenchPage.VIEW_VISIBLE);
 										} catch (PartInitException e) {
 											logger.error("Error opening " + viewIdFinal, e);
 										}
@@ -280,59 +283,63 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 				};
 				InterfaceProvider.getScanDataPointProvider().addIScanDataPointObserver(openXYPlotOnScanStart);
 				addCleanupWork(new CleanupWork() {
-					
+
 					@Override
 					public void cleanup() {
-						InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(openXYPlotOnScanStart);
+						InterfaceProvider.getScanDataPointProvider()
+								.deleteIScanDataPointObserver(openXYPlotOnScanStart);
 					}
 				});
 			}
-			
+
 			Findable obj = Finder.getInstance().findNoWarn(RCPControllerImpl.name);
-			if( obj != null){
-				final RCPController obs = (RCPController)obj;
+			if (obj != null) {
+				final RCPController obs = (RCPController) obj;
 				final IObserver rcpControllerObs = new IObserver() {
-					
+
 					@Override
 					public void update(Object source, final Object arg) {
-						if( arg instanceof RCPOpenViewCommand){
+						if (arg instanceof RCPOpenViewCommand) {
 							PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 								@Override
 								public void run() {
 									try {
-										PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(((RCPOpenViewCommand)arg).getId());
+										PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+												.showView(((RCPOpenViewCommand) arg).getId());
 									} catch (PartInitException e) {
 										logger.error("Error opening " + XYPlotView.ID, e);
 									}
 								}
-							});							
+							});
 						}
-						if( arg instanceof RCPOpenPerspectiveCommand){
+						if (arg instanceof RCPOpenPerspectiveCommand) {
 							PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 								@Override
 								public void run() {
 									try {
-										PlatformUI.getWorkbench().showPerspective(((RCPOpenPerspectiveCommand)arg).getId(), PlatformUI.getWorkbench().getActiveWorkbenchWindow());
+										PlatformUI.getWorkbench().showPerspective(
+												((RCPOpenPerspectiveCommand) arg).getId(),
+												PlatformUI.getWorkbench().getActiveWorkbenchWindow());
 									} catch (PartInitException e) {
-										logger.error("Error opening " + ((RCPOpenPerspectiveCommand)arg).getId(), e);
+										logger.error("Error opening " + ((RCPOpenPerspectiveCommand) arg).getId(), e);
 									} catch (WorkbenchException e) {
-										logger.error("Error opening " + ((RCPOpenPerspectiveCommand)arg).getId(), e);
+										logger.error("Error opening " + ((RCPOpenPerspectiveCommand) arg).getId(), e);
 									}
 								}
-							});							
+							});
 						}
 					}
 				};
 				obs.addIObserver(rcpControllerObs);
 				addCleanupWork(new CleanupWork() {
-					
+
 					@Override
 					public void cleanup() {
 						obs.deleteIObserver(rcpControllerObs);
 					}
 				});
 			}
-			
+
 			// should these two be done during initialize instead of now when Windows have been created?
 			WorkspaceModifyOperation wkspaceModifyOperation = new WorkspaceModifyOperation() {
 
@@ -355,20 +362,9 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 							logger.error("Error creating data project", e);
 						}
 					}
-					// This is to reveal the projects in the project explorer - incidentally the project explorer
-					// doesn't reveal objects the first time when the workbench starts up - so this is like a shake-up
-					// for it. Basically, the problem was to solve the selection on the project explorer setting up the
-					// mode to WORKING SETS.
-					IViewPart projExpViewPart = workbenchWindow.getActivePage().findView(
-							IPageLayout.ID_PROJECT_EXPLORER);
-					if (projExpViewPart instanceof ProjectExplorer) {
-						ProjectExplorer projExp = (ProjectExplorer) projExpViewPart;
-						projExp.selectReveal(new StructuredSelection(Collections.emptyList()));
-					}
 					monitor.done();
 				}
 			};
-
 			try {
 				ProgressMonitorDialog dialog = new ProgressMonitorDialog(workbenchWindow.getShell());
 				dialog.run(true, false, wkspaceModifyOperation);
@@ -377,7 +373,39 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 			} catch (InterruptedException e) {
 				logger.error("Interrupted while creating GDA projects", e);
 			}
+			try {
+				refreshFromLocal();
+			} finally {// Resume background jobs after we startup
+				Job.getJobManager().resume();
+
+			}
 		}
+	}
+
+	private void refreshFromLocal() {
+		String[] commandLineArgs = Platform.getCommandLineArgs();
+		boolean refresh = true;
+		if (!refresh) {
+			return;
+		}
+
+		// Do not refresh if it was already done by core on startup.
+		for (int i = 0; i < commandLineArgs.length; i++) {
+			if (commandLineArgs[i].equalsIgnoreCase("-refresh")) { //$NON-NLS-1$
+				return;
+			}
+		}
+
+		final IContainer root = ResourcesPlugin.getWorkspace().getRoot();
+		Job job = new WorkspaceJob("Refreshing workspace") {
+			@Override
+			public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
+				root.refreshLocal(IResource.DEPTH_INFINITE, monitor);
+				return Status.OK_STATUS;
+			}
+		};
+		job.setRule(root);
+		job.schedule();
 	}
 
 	/**
@@ -442,17 +470,17 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		if (!dataProject.exists()) {
 			monitor.subTask("Creating Data project");
 			List<ResourceFilterWrapper> resourceFilterWrapper = null;
-			if( filter != null && !filter.isEmpty()){
+			if (filter != null && !filter.isEmpty()) {
 				resourceFilterWrapper = new Vector<ResourceFilterWrapper>();
 				resourceFilterWrapper.add(ResourceFilterWrapper.createRegexFolderFilter(filter, true, excludes));
 				resourceFilterWrapper.add(ResourceFilterWrapper.createRegexFolderFilter(filter, false, excludes));
 			}
-			ProjectUtils.createImportProjectAndFolder(projName, "data", PathConstructor.createFromDefaultProperty(), GDADataNature.ID, 
-					resourceFilterWrapper, monitor);
-			
+			ProjectUtils.createImportProjectAndFolder(projName, "data", PathConstructor.createFromDefaultProperty(),
+					GDADataNature.ID, resourceFilterWrapper, monitor);
+
 		}
 	}
-	
+
 	private void prepareJythonEnv(IProgressMonitor monitor) {
 		try {
 			monitor.subTask("Initialising script projects");
@@ -462,7 +490,6 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 			logger.error("Error preparing Jython interpeter and projects", e);
 		}
 	}
-
 
 	/**
 	 *
@@ -543,4 +570,13 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		configurer.declareImage(symbolicName, desc, true);
 	}
 
+	/**
+	 * Return the root of the workspace so that the project explorer will be refreshed when a change in the workspace occurs.
+	 * This removes the problem seen when we added a working set causing the Project Explorer to switch to show Working Sets
+	 * rather than Projects.
+	 */
+	@Override
+	public IAdaptable getDefaultPageInput() {
+		return ResourcesPlugin.getWorkspace().getRoot();
+	}
 }

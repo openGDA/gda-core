@@ -637,14 +637,16 @@ public class DummyDAServer extends DAServer {
 		}
 
 		public void restart() {
+			// to break out of wait() calls in loop
 			runner.interrupt();
 		}
 
 		public void stop() {
-//			if ("RUNNING".equals(currentState)) {
-				stopRun = true;
+			stopRun = true;
+			// check OK to interrupt
+			if (runner != null && runner.isAlive() && !runner.isInterrupted()){
 				runner.interrupt();
-//			}
+			}
 		}
 
 		@Override

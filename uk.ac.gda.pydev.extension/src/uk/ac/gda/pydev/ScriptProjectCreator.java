@@ -23,7 +23,6 @@ import gda.jython.JythonServerFacade;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -36,9 +35,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.ui.IEditorReference;
-import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IPerspectiveListener;
 import org.eclipse.ui.IStartup;
@@ -46,7 +43,6 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.IWorkingSetManager;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.navigator.resources.ProjectExplorer;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPythonNature;
@@ -63,7 +59,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.ClientManager;
-import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.jython.PydevConstants;
 import uk.ac.gda.pydev.extension.Activator;
 import uk.ac.gda.pydev.extension.builder.ConfigurationXMLNature;
@@ -95,9 +90,6 @@ public class ScriptProjectCreator implements IStartup {
 			public void run() {
 				// Attempt to refresh the pydev package explorer.
 				createPerspectiveListener();
-				// Ravi S - Don't think the below line will be ever be executed - the workbench page is never ready during early
-				// startup - maybe a red-herring but don't want to risk removing it
-				refreshProjectExplorer();
 			}
 
 		});
@@ -112,16 +104,6 @@ public class ScriptProjectCreator implements IStartup {
 		if (projectName == null)
 			projectName = defaultValue;
 		return projectName;
-	}
-
-	private void refreshProjectExplorer() {
-		IWorkbenchPage defaultPage = EclipseUtils.getDefaultPage();
-		if (defaultPage != null) {
-			final ProjectExplorer view = (ProjectExplorer) defaultPage.findView(IPageLayout.ID_PROJECT_EXPLORER);
-			if (view != null) {
-				view.selectReveal(new StructuredSelection(Collections.emptyList()));
-			}
-		}
 	}
 
 	static public void handleShowXMLConfig(IProgressMonitor monitor) throws CoreException {
@@ -290,15 +272,11 @@ public class ScriptProjectCreator implements IStartup {
 
 			@Override
 			public void perspectiveChanged(IWorkbenchPage page, IPerspectiveDescriptor perspective, String changeId) {
-				if (perspective.getId().equals(JythonPerspective.ID)) {
-					refreshProjectExplorer();
-				}
 			}
 
 			@Override
 			public void perspectiveActivated(IWorkbenchPage page, IPerspectiveDescriptor perspective) {
 				if (perspective.getId().equals(JythonPerspective.ID)) {
-					refreshProjectExplorer();
 					closeRichBeanEditors(page);
 				}
 			}
