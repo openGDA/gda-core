@@ -242,7 +242,7 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 	@Override
 	public void atScanEnd() throws DeviceException{
 		// if this class was used to define framesets, then ensure they are cleared at the end of the scan
-		if (frameSets.size() > 0){
+		if (frameSets.size() > 0 || !timer.getAttribute("TotalFrames").equals(0)){
 			stop();  // stops the TFG - useful if scan aborted and so TFG still in a PAUSE state rather than an IDLE state
 			clearFrameSets();
 			framesRead = 0;
@@ -415,7 +415,7 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 				e.printStackTrace();
 			}
 		}
-		logger.debug("Current tfg frame is " + this.getCurrentFrame() + " and reading frame " + framesRead);
+		logger.info("Current tfg frame is " + this.getCurrentFrame() + " and reading frame " + framesRead);
 		return readoutFrames(framesRead, framesRead)[0];
 	}
 	
@@ -426,7 +426,8 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 		if (numChannelsToRead == null){
 			numberOfChannels = scaler.getDimension()[0];
 		}
-		double rawData[] = scaler.read(0, 0, startFrame, numberOfChannels, 1, numFrames);
+		double rawData[] = scaler.read(0, 0, startFrame, numberOfChannels + 1, 1, 1);
+//		double rawData2[] = scaler.read(0, 0, startFrame + 1, numberOfChannels + 1, 1, 1);
 		double[][] output = unpackRawDataToFrames(rawData,numFrames,numberOfChannels);
 
 		// if no change required to the raw data
