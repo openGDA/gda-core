@@ -406,7 +406,7 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 	 * @throws DeviceException
 	 */
 	public double[] readoutCurrentFrame() throws DeviceException {
-		if(minimumReadoutDelay!=0){
+		if (minimumReadoutDelay != 0) {
 			readoutTime = System.currentTimeMillis();
 			long delay = readoutTime - countAsyncTime + minimumReadoutDelay;
 			try {
@@ -415,42 +415,86 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 				e.printStackTrace();
 			}
 		}
-		logger.debug("Current tfg frame is " + this.getCurrentFrame() + " and reading frame " + framesRead);	
+		logger.debug("Current tfg frame is " + this.getCurrentFrame() + " and reading frame " + framesRead);
+		return readoutFrames(framesRead, framesRead)[0];
+	}
+	
+	public double[][] readoutFrames(int startFrame, int finalFrame) throws DeviceException {
 
-		double[] output;
+		int numFrames = finalFrame - startFrame + 1;
+		int numberOfChannels = numChannelsToRead;
 		if (numChannelsToRead == null){
-			output = scaler.read(0, 0, framesRead, scaler.getDimension()[0], 1, 1);
-		} else {
-			output = scaler.read(0, 0, framesRead, numChannelsToRead, 1, 1);
+			numberOfChannels = scaler.getDimension()[0];
 		}
-		
-		if (firstDataChannel != null && firstDataChannel != 0 && !timeChannelRequired) {
+		double rawData[] = scaler.read(0, 0, startFrame, numberOfChannels, 1, numFrames);
+		double[][] output = unpackRawDataToFrames(rawData,numFrames,numberOfChannels);
+
+		// if no change required to the raw data
+		if (firstDataChannel != null && firstDataChannel != 0 && !timeChannelRequired && !isTFGv2) {
 			return output;
 		}
-
+		
 		if (firstDataChannel != null){
-			double[] dataChannels = Arrays.copyOfRange(output, firstDataChannel, output.length);
-			if (timeChannelRequired) {
-				double[] time = new double[]{output[0]};
-				output = ArrayUtils.addAll(time, dataChannels);
-			} else {
-				output = dataChannels;
-			}
+			output = removeUnwantedChannels(output);
 		}
 
 		if (isTFGv2 && !timeChannelRequired){
 			// for TFGv2 always get the number of live time clock counts as the first scaler item
-			output = ArrayUtils.subarray(output, 1, output.length);
+			output = removeUnwantedTimeChannel(output);
 		} else if (isTFGv2 && timeChannelRequired){
 			//convert the live time clock counts into seconds (TFG has a 100MHz clock cycle)
-			output[0] = output[0] / 100000000;
+			for (int i = 0; i < output.length; i++) {
+				output[i][0] = output[i][0] / 100000000;
+			}
 		} else if (!isTFGv2 && timeChannelRequired){
-			double[] values = new double[1];
-			values[0] = getCollectionTime();
-			// prepend to output
-			output = ArrayUtils.addAll(values, output);	
+			double time = getCollectionTime();
+			double[][] framesWithTimeAdded = new double[output.length][];
+			for (int i = 0; i < output.length; i++) {
+				framesWithTimeAdded[i] = ArrayUtils.addAll(new double[]{time}, output[i]);
+			}
+			output = framesWithTimeAdded;
 		}
 		return output;
+	}
+
+	private double[][] removeUnwantedChannels(double[][] rawFrames) {
+		double[][] newoutput = new double[rawFrames.length][];
+		for (int i = 0; i < rawFrames.length; i++) {
+			double[] frame = rawFrames[i];
+			double[] dataChannels = Arrays.copyOfRange(frame, firstDataChannel, frame.length);
+			if (timeChannelRequired && isTFGv2) {
+				double[] time = new double[]{frame[0]};
+				dataChannels = ArrayUtils.addAll(time, dataChannels);
+			}
+			newoutput[i] = dataChannels;
+		}
+		rawFrames = newoutput;
+		return rawFrames;
+	}
+
+	private double[][] removeUnwantedTimeChannel(double[][] rawFrames) {
+		double[][] newoutput = new double[rawFrames.length][];
+		for (int i = 0; i < rawFrames.length; i++) {
+			double[] frame = rawFrames[i];
+			double[] dataChannels = Arrays.copyOfRange(frame, 1, frame.length);
+			newoutput[i] = dataChannels;
+		}
+		rawFrames = newoutput;
+		return rawFrames;
+	}
+
+	private double[][] unpackRawDataToFrames(double[] scalerData, int numFrames, int channelCount) {
+
+		double[][] unpacked = new double[numFrames][channelCount];
+		int iterator = 0;
+
+		for (int frame = 0; frame < numFrames; frame++) {
+			for (int datum = 0; datum < channelCount; datum++) {
+				unpacked[frame][datum] = scalerData[iterator];
+				iterator++;
+			}
+		}
+		return unpacked;
 	}
 
 	@Override

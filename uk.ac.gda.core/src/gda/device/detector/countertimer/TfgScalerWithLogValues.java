@@ -106,6 +106,10 @@ public class TfgScalerWithLogValues extends TfgScalerWithDarkCurrent implements 
 	public double[] readout() throws DeviceException {
 		double[] output = super.readout();
 		
+		return performCorrections(output);
+	}
+
+	protected double[] performCorrections(double[] output) throws DeviceException {
 		if (getDarkCurrent() != null) {
 			output = adjustForDarkCurrent(output, getCollectionTime());
 		}
@@ -114,6 +118,13 @@ public class TfgScalerWithLogValues extends TfgScalerWithDarkCurrent implements 
 			output = appendLogValues(output);
 		}
 		return output;
+	}
+	
+	@Override
+	public double[] readFrame(int frame) throws DeviceException {
+		// For legacy XAFS scans the time channel is in column 1
+		double[] output = super.readFrame(frame);
+		return performCorrections(output);
 	}
 
 	protected double[] appendLogValues(double[] output) {

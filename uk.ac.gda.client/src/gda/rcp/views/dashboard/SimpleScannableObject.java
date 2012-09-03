@@ -216,7 +216,7 @@ public class SimpleScannableObject extends ServerObject {
 		final Matcher mat = pattern.matcher(val);
 		if (mat.matches())
 			return mat.group(igroup);
-		final Pattern pattern1 = Pattern.compile(scannableName + " : \\s*(-?\\d*\\.?\\d*)(\\S*)\\s*");
+		final Pattern pattern1 = Pattern.compile(scannableName + " : \\s*(-?\\d*\\.?\\d*)(\\S*).*");
 		final Matcher mat1 = pattern1.matcher(val);
 		if (mat1.matches())
 			return mat1.group(igroup);
