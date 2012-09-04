@@ -363,6 +363,31 @@ public class FfmpegStreamImpl implements InitializingBean, FfmpegStream {
 	 * @param pvElementName
 	 * @param args
 	 * @return {@link Channel} to talk to the relevant PV.
+	 * @throws Exception 
+	 */
+	private String getFullPV(String pvElementName, String... args) throws Exception{
+		String pvPostFix = null;
+		if (args.length > 0) {
+			// PV element name is different from the pvPostFix
+			pvPostFix = args[0];
+		} else {
+			pvPostFix = pvElementName;
+		}
+
+		String fullPvName;
+		if (pvProvider != null) {
+			fullPvName = pvProvider.getPV(pvElementName);
+		} else {
+			fullPvName = basePVName + pvPostFix;
+		}
+		return fullPvName;
+	}
+	/**
+	 * This method allows to toggle between the method in which the PV is acquired.
+	 * 
+	 * @param pvElementName
+	 * @param args
+	 * @return {@link Channel} to talk to the relevant PV.
 	 * @throws Exception
 	 */
 	private Channel getChannel(String pvElementName, String... args) throws Exception {
@@ -450,6 +475,36 @@ public class FfmpegStreamImpl implements InitializingBean, FfmpegStream {
 		} else {
 			setFALSE_COL((short)0);
 		}
+	}
+
+
+
+	@Override
+	public void setMAXW(int maxw) throws Exception {
+		String pv = config != null ? config.getMAXW().getPv() : getFullPV(MAXW);
+		Channel ch = createChannel(pv);
+		EPICS_CONTROLLER.caput(ch, maxw);
+	}
+
+	@Override
+	public void setMAXH(int maxh) throws Exception {
+		String pv = config != null ? config.getMAXH().getPv() : getFullPV(MAXH);
+		Channel ch = createChannel(pv);
+		EPICS_CONTROLLER.caput(ch, maxh);
+	}
+
+	@Override
+	public int getMAXW_RBV() throws Exception {
+		String pv = config != null ? config.getMAXW().getPv() : getFullPV(MAXW_RBV);
+		Channel ch = createChannel(pv);
+		return EPICS_CONTROLLER.cagetInt(ch);
+	}
+
+	@Override
+	public int getMAXH_RBV() throws Exception {
+		String pv = config != null ? config.getMAXH().getPv() : getFullPV(MAXH_RBV);
+		Channel ch = createChannel(pv);
+		return EPICS_CONTROLLER.cagetInt(ch);
 	}
 
 }
