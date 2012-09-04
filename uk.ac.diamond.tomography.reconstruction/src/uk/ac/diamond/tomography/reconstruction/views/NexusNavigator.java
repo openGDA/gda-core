@@ -18,13 +18,10 @@
 
 package uk.ac.diamond.tomography.reconstruction.views;
 
-import java.util.Collections;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.draw2d.ColorConstants;
-import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.accessibility.AccessibleAdapter;
@@ -50,8 +47,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.TreeItem;
-import org.eclipse.ui.IPartListener;
-import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.navigator.CommonNavigator;
 import org.eclipse.ui.progress.WorkbenchJob;
@@ -59,7 +54,7 @@ import org.eclipse.ui.progress.WorkbenchJob;
 import uk.ac.diamond.tomography.reconstruction.Activator;
 import uk.ac.diamond.tomography.reconstruction.ImageConstants;
 
-public class NexusNavigator extends CommonNavigator { 
+public class NexusNavigator extends CommonNavigator {
 
 	private static final int JOB_REFRESH_DELAY = 200;
 
@@ -69,31 +64,6 @@ public class NexusNavigator extends CommonNavigator {
 
 	private static final long SOFT_MAX_EXPAND_TIME = 200;
 
-	private IPartListener partListener = new IPartListener() {
-
-		@Override
-		public void partOpened(IWorkbenchPart part) {
-		}
-
-		@Override
-		public void partDeactivated(IWorkbenchPart part) {
-			// Do nothing
-		}
-
-		@Override
-		public void partClosed(IWorkbenchPart part) {
-			// Do nothing
-		}
-
-		@Override
-		public void partBroughtToTop(IWorkbenchPart part) {
-		}
-
-		@Override
-		public void partActivated(IWorkbenchPart part) {
-			NexusNavigator.this.selectReveal(new StructuredSelection(Collections.emptyList()));
-		}
-	};
 
 	private Text filterText;
 
@@ -461,12 +431,10 @@ public class NexusNavigator extends CommonNavigator {
 		setupFilterText();
 		getCommonViewer().addFilter(patternFilter);
 		refreshJob = doCreateRefreshJob();
-		getSite().getPage().addPartListener(partListener);
 	}
 
 	@Override
 	public void dispose() {
-		getSite().getPage().removePartListener(partListener);
 		super.dispose();
 	}
 }

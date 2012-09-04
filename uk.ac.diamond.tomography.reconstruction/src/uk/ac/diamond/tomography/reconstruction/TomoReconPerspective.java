@@ -34,9 +34,9 @@ public class TomoReconPerspective implements IPerspectiveFactory {
 				IPageLayout.ID_EDITOR_AREA);
 		layout.addView("uk.ac.diamond.scisoft.analysis.rcp.plotView1",
 				IPageLayout.RIGHT, 0.5f, IPageLayout.ID_EDITOR_AREA);
-		layout.addView(ProjectionsView.ID, IPageLayout.BOTTOM, 0.3f,
+		layout.addView(ProjectionsView.ID, IPageLayout.BOTTOM, 0.2f,
 				NexusNavigator.ID);
-		layout.addView(ParameterView.ID, IPageLayout.BOTTOM, 0.5f,
+		layout.addView(ParameterView.ID, IPageLayout.BOTTOM, 0.7f,
 				ProjectionsView.ID);
 		layout.addPlaceholder(
 				"org.dawb.workbench.plotting.views.toolPageView.1D_and_2D",

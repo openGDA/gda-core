@@ -36,19 +36,27 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.draw2d.ColorConstants;
+import org.eclipse.draw2d.MouseListener;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
-import org.eclipse.ui.progress.UIJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +65,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
+import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.diamond.tomography.reconstruction.Activator;
 import uk.ac.gda.ui.components.IStepperSelectionListener;
 import uk.ac.gda.ui.components.Stepper;
@@ -64,7 +73,13 @@ import uk.ac.gda.ui.components.StepperChangedEvent;
 
 public class ProjectionsView extends ViewPart implements ISelectionListener {
 
+	private static final String FILE_NAME = "File name";
 	public static final String ID = "uk.ac.diamond.tomography.reconstruction.view.projection";
+
+	private final String LBL_PREVIOUS = "PREVIOUS";
+	private final String LBL_NEXT = "NEXT";
+
+	private final int SPLITS = 100;
 	/**
 	 * Setup the logging facilities
 	 */
@@ -74,9 +89,11 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 
 	private IFile nexusFile;
 
-	private Label fileName;
+	private Text fileName;
 
 	private Stepper slicingStepper;
+
+	private Job refreshJob;
 
 	public ProjectionsView() {
 		// TODO Auto-generated constructor stub
@@ -94,7 +111,6 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 	@Override
 	public void createPartControl(Composite parent) {
 		Composite root = new Composite(parent, SWT.None);
-		// root.setBackground(ColorConstants.white);
 
 		GridLayout layout = new GridLayout();
 		layout.marginWidth = 0;
@@ -102,12 +118,96 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 		layout.horizontalSpacing = 0;
 		layout.verticalSpacing = 0;
 		root.setLayout(layout);
-
+		// row 1
 		slicingStepper = new Stepper(root, SWT.None, false);
-		slicingStepper.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
+		slicingStepper.setLayoutData(layoutData);
 		slicingStepper.addStepperSelectionListener(slicingSelectionStepperListener);
 
-		Composite plotComposite = new Composite(root, SWT.None);
+		// row 2
+		Composite plotContainingComposite = new Composite(root, SWT.None);
+		layout = new GridLayout(2, false);
+		layout.marginWidth = 0;
+		layout.marginHeight = 0;
+		layout.horizontalSpacing = 0;
+		layout.verticalSpacing = 0;
+		plotContainingComposite.setLayout(layout);
+		plotContainingComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
+
+		Composite btnsComposite = new Composite(plotContainingComposite, SWT.None);
+		btnsComposite.setLayoutData(new GridData(GridData.FILL_VERTICAL));
+		layout = new GridLayout();
+		layout.marginWidth = 0;
+		layout.marginHeight = 0;
+		layout.horizontalSpacing = 0;
+		layout.verticalSpacing = 0;
+		root.setLayout(layout);
+		btnsComposite.setLayout(layout);
+
+		Button btnPrevious = new Button(btnsComposite, SWT.ARROW | SWT.PUSH | SWT.UP);
+		GridData layoutData2 = new GridData(GridData.FILL_VERTICAL);
+		layoutData2.widthHint = 30;
+		btnPrevious.setLayoutData(layoutData2);
+		btnPrevious.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (!xHair.isTrackMouse()) {
+					ROIBase roi = xHair.getROI();
+					if (roi.getPointY() >= SPLITS) {
+						roi.setPoint(roi.getPointX(), roi.getPointY() - SPLITS);
+						ROIBase roiModified = getYBounds(roi);
+						xHair.setROI(roiModified);
+						roiSet(roiModified.getPointY());
+					}
+
+				}
+			}
+		});
+
+		btnPrevious.addPaintListener(new PaintListener() {
+
+			@Override
+			public void paintControl(PaintEvent e) {
+				GC gc = e.gc;
+				int y = 8;
+				for (char c : LBL_PREVIOUS.toCharArray()) {
+					gc.drawText(new String(new char[] { c }), 10, y += 20, true);
+				}
+			}
+		});
+
+		Button btnNext = new Button(btnsComposite, SWT.ARROW | SWT.DOWN | SWT.PUSH);
+		GridData layoutData3 = new GridData(GridData.FILL_VERTICAL);
+		layoutData3.widthHint = 30;
+		btnNext.setLayoutData(layoutData3);
+		btnNext.addPaintListener(new PaintListener() {
+
+			@Override
+			public void paintControl(PaintEvent e) {
+				GC gc = e.gc;
+				int y = 8;
+				for (char c : LBL_NEXT.toCharArray()) {
+					gc.drawText(new String(new char[] { c }), 10, y += 20, true);
+				}
+			}
+		});
+		btnNext.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (!xHair.isTrackMouse() && dataset != null && dataset.getShape().length == 3) {
+					int max = dataset.getShape()[1];
+					ROIBase roi = xHair.getROI();
+					if (roi.getPointY() < max - SPLITS) {
+						roi.setPoint(roi.getPointX(), roi.getPointY() + SPLITS);
+						ROIBase roiModified = getYBounds(roi);
+						xHair.setROI(roiModified);
+						roiSet(roiModified.getPointY());
+					}
+
+				}
+			}
+		});
+		Composite plotComposite = new Composite(plotContainingComposite, SWT.None);
 		plotComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
 		plotComposite.setLayout(new FillLayout());
 
@@ -120,90 +220,58 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 				this);
 		createMouseFollowLineRegion();
 
-		fileName = new Label(root, SWT.BORDER);
+		// row 3
+		Composite extrasComposite = new Composite(root, SWT.BORDER);
+		layoutData = new GridData(GridData.FILL_HORIZONTAL);
+		extrasComposite.setLayoutData(layoutData);
+		layout = new GridLayout();
+		layout.marginWidth = 0;
+		layout.marginHeight = 0;
+		layout.horizontalSpacing = 0;
+		layout.verticalSpacing = 0;
+
+		extrasComposite.setLayout(layout);
+
+		fileName = new Text(extrasComposite, SWT.BORDER);
+		fileName.setEditable(false);
 		fileName.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		fileName.setText("File name");
+		fileName.setText(FILE_NAME);
 
 		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(this);
+		doCreateRefreshJob();
 	}
 
-	private void createMouseFollowLineRegion() {
+	private int position = -1;
 
-		if (plottingSystem == null)
-			return;
-		try {
-			IRegion xHair = null;
-			if (xHair == null || plottingSystem.getRegion(xHair.getName()) == null) {
-				xHair = plottingSystem.createRegion(RegionUtils.getUniqueName("DragLine", plottingSystem),
-						IRegion.RegionType.YAXIS_LINE);
-
-				xHair.addROIListener(mouseFollowRoiListener);
-
-				addMouseFollowLineRegion(xHair);
-			}
-
-		} catch (Exception ne) {
-			logger.error("Cannot create cross-hairs!", ne);
-		}
-	}
-
-	private void addMouseFollowLineRegion(IRegion region) {
-		region.setVisible(true);
-		region.setTrackMouse(true);
-		// region.setRegionColor(ColorConstants.red);
-		region.setUserRegion(false); // They cannot see preferences or change
-										// it!
-		plottingSystem.addRegion(region);
-	}
-
-	private IROIListener mouseFollowRoiListener = new IROIListener() {
-
-		private void update(ROIEvent evt) {
-			final IRegion region = (IRegion) evt.getSource();
-			logger.debug("Mouse clicked");
-		}
-
-		@Override
-		public void roiDragged(ROIEvent evt) {
-			// update(evt);
-		}
-
-		@Override
-		public void roiChanged(ROIEvent evt) {
-			update(evt);
-		}
-
-	};
-	private ILazyDataset dataset;
-
-	@Override
-	public void setFocus() {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void updateDataToPosition(final int pos) {
-		UIJob updateDataJob = new UIJob(getViewSite().getShell().getDisplay(), "Updating data") {
+	private void doCreateRefreshJob() {
+		refreshJob = new Job("Updating data") {
 
 			@Override
-			public IStatus runInUIThread(IProgressMonitor monitor) {
-				// Load the nexus file
-				String path = nexusFile.getLocation().toOSString();
-				HDF5Loader hdf5Loader = new HDF5Loader(path);
-				DataHolder loadFile;
+			public IStatus run(IProgressMonitor monitor) {
+				if (nexusFile == null) {
+					return Status.CANCEL_STATUS;
+				}
 				if (dataset != null) {
 					int[] shape = dataset.getShape();
-					shape[0] = pos + 1;
-					IDataset slice = dataset.getSlice(new int[] { pos, 0, 0 }, shape, new int[] { 1, 1, 1 });
-					ILazyDataset squeeze = slice.squeeze();
-					plottingSystem.createPlot2D((AbstractDataset) squeeze, null, new NullProgressMonitor());
-					fileName.setText(nexusFile.getFullPath().toOSString());
-					for (ITrace trace : plottingSystem.getTraces()) {
-						if (trace instanceof IImageTrace) {
-							IImageTrace imageTrace = (IImageTrace) trace;
-							imageTrace.setPaletteData(PaletteFactory.makeGrayScalePalette());
+					shape[0] = position + 1;
+					IDataset slice = dataset.getSlice(new int[] { position, 0, 0 }, shape, new int[] { 1, 1, 1 });
+					final ILazyDataset squeeze = slice.squeeze();
+
+					getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
+
+						@Override
+						public void run() {
+							plottingSystem.createPlot2D((AbstractDataset) squeeze, null, new NullProgressMonitor());
+							fileName.setText(nexusFile.getLocation().toOSString());
+							for (ITrace trace : plottingSystem.getTraces()) {
+								if (trace instanceof IImageTrace) {
+									IImageTrace imageTrace = (IImageTrace) trace;
+									imageTrace.setPaletteData(PaletteFactory.makeGrayScalePalette());
+								}
+							}
+
 						}
-					}
+					});
 					logger.debug(dataset.getName());
 				} else {
 					throw new IllegalArgumentException("Unable to find dataset");
@@ -211,11 +279,109 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 
 				return Status.OK_STATUS;
 			}
+
 		};
+	}
 
-		//updateDataJob.setSystem(true);
-		updateDataJob.schedule();
+	private void createMouseFollowLineRegion() {
 
+		if (plottingSystem == null)
+			return;
+		try {
+			xHair = null;
+			if (xHair == null || plottingSystem.getRegion(xHair.getName()) == null) {
+				xHair = plottingSystem.createRegion(RegionUtils.getUniqueName("DragLine", plottingSystem),
+						IRegion.RegionType.YAXIS_LINE);
+				xHair.setRegionColor(ColorConstants.red);
+				xHair.setVisible(true);
+				xHair.setTrackMouse(true);
+				xHair.setUserRegion(false); // They cannot see preferences or change
+											// it!
+				plottingSystem.addRegion(xHair);
+				xHair.addROIListener(mouseFollowRoiListener);
+
+				xHair.addMouseListener(mouseFollowRegionMouseListner);
+			}
+
+		} catch (Exception ne) {
+			logger.error("Cannot create cross-hairs!", ne);
+		}
+	}
+
+	private ROIBase yBounds;
+
+	private MouseListener mouseFollowRegionMouseListner = new MouseListener.Stub() {
+		@Override
+		public void mousePressed(org.eclipse.draw2d.MouseEvent me) {
+			try {
+				xHair.setTrackMouse(false);
+				ROIBase roi = getYBounds(yBounds);
+				xHair.setROI(roi);
+				roiSet(roi.getPointY());
+			} catch (Exception e) {
+				showErrorMessage("Problem creating region to plot", e);
+			}
+		}
+
+	};
+
+	private ROIBase getYBounds(ROIBase bounds) {
+		double pointY = bounds.getPointY();
+
+		double rem = pointY % SPLITS;
+		int q = (int) pointY / SPLITS;
+		int yPoint = q * SPLITS;
+		if (rem > ((0.5) * SPLITS)) {
+			yPoint = (q + 1) * SPLITS;
+		}
+
+		bounds.setPoint(bounds.getPointX(), yPoint);
+		return bounds;
+	}
+
+	private IROIListener mouseFollowRoiListener = new IROIListener() {
+
+		private boolean dragged = false;
+
+		private void update(ROIEvent evt) {
+			final IRegion region = (IRegion) evt.getSource();
+			ROIBase roi = region.getROI();
+			yBounds = roi;
+		}
+
+		@Override
+		public void roiDragged(ROIEvent evt) {
+			update(evt);
+			if (!xHair.isTrackMouse()) {
+				dragged = true;
+			}
+		}
+
+		@Override
+		public void roiChanged(ROIEvent evt) {
+			update(evt);
+			if (dragged && !(xHair.isTrackMouse())) {
+				dragged = false;
+				ROIBase roi = getYBounds(evt.getROI());
+				xHair.setROI(roi);
+				roiSet(roi.getPointY());
+
+			}
+		}
+
+	};
+	private ILazyDataset dataset;
+	private IRegion xHair = null;
+
+	@Override
+	public void setFocus() {
+
+	}
+
+	public void updateDataToPosition(final int pos) {
+		this.position = pos;
+		refreshJob.cancel();
+		refreshJob.schedule(200);
 	}
 
 	public void updateData() {
@@ -246,7 +412,8 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 					&& Activator.NXS_FILE_EXTN.equals(((IFile) firstElement).getFileExtension())) {
 				nexusFile = (IFile) firstElement;
 				try {
-					getViewSite().getActionBars().getStatusLineManager().setMessage(String.format("Loading file %s ...", nexusFile.getFullPath().toOSString()));
+					getViewSite().getActionBars().getStatusLineManager()
+							.setMessage(String.format("Loading file %s ...", nexusFile.getFullPath().toOSString()));
 					updateData();
 					getViewSite().getActionBars().getStatusLineManager().setMessage(null);
 				} catch (Exception e) {
@@ -273,6 +440,11 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 		File pathToRecon = new File(path.getParent(), "/processing/reconstruction/");
 		File pathToImages = new File(pathToRecon, path.getName() + "_data");
 
+	}
+
+	private void roiSet(double d) {
+		logger.debug("roi set:{}", d);
+		displayReconstruction(nexusFile, (int) d);
 	}
 
 }
