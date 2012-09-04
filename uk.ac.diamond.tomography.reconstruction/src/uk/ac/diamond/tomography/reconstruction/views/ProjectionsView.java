@@ -39,7 +39,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.MouseListener;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
@@ -60,11 +59,13 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
+import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.diamond.tomography.reconstruction.Activator;
 import uk.ac.gda.ui.components.IStepperSelectionListener;
@@ -169,7 +170,7 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 			@Override
 			public void paintControl(PaintEvent e) {
 				GC gc = e.gc;
-				int y = 8;
+				int y = 2;
 				for (char c : LBL_PREVIOUS.toCharArray()) {
 					gc.drawText(new String(new char[] { c }), 10, y += 20, true);
 				}
@@ -185,7 +186,7 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 			@Override
 			public void paintControl(PaintEvent e) {
 				GC gc = e.gc;
-				int y = 8;
+				int y = 2;
 				for (char c : LBL_NEXT.toCharArray()) {
 					gc.drawText(new String(new char[] { c }), 10, y += 20, true);
 				}
@@ -394,6 +395,7 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 			if (dataset != null) {
 				int[] shape = dataset.getShape();
 				slicingStepper.setSteps(shape[0]);
+				slicingStepper.setSelection(0);
 			} else {
 				throw new IllegalArgumentException("Unable to find dataset");
 			}
@@ -423,9 +425,12 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 		}
 	}
 
-	private void showErrorMessage(String string, Exception e) {
-		MessageDialog.openError(getViewSite().getShell(), "Problem with displaying dataset",
-				string + ":" + e.getMessage());
+	private void showErrorMessage(String message, Exception e) {
+		// MessageDialog.openError(getViewSite().getShell(), "Problem with displaying dataset",
+		// string + ":" + e.getMessage());
+
+		// Shouldn't be popping up a dialog if there is an error with this view as that is quite annoying
+		logger.error("Problem with displaying dataset:" + message, e);
 	}
 
 	@Override
@@ -434,11 +439,32 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 		super.dispose();
 	}
 
-	public void displayReconstruction(IFile nexusFile, int pixelPosition) {
+	public void displayReconstruction(final IFile nexusFile, final int pixelPosition) {
 
-		File path = new File(nexusFile.getLocation().toOSString());
-		File pathToRecon = new File(path.getParent(), "/processing/reconstruction/");
-		File pathToImages = new File(pathToRecon, path.getName() + "_data");
+		Job displayJob = new Job("Update Reconstruction Display") {
+
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				File path = new File(nexusFile.getLocation().toOSString());
+				File pathToRecon = new File(path.getParent(), "/processing/reconstruction/");
+				File pathToImages = new File(pathToRecon, path.getName().replace(".nxs", "") + "_data_quick");
+				File imageFile = new File(pathToImages, String.format("image_%05d.tif", pixelPosition));
+
+				try {
+					DataHolder data = LoaderFactory.getData(imageFile.getAbsolutePath());
+					AbstractDataset image = data.getDataset(0);
+					image.isubtract(image.min());
+					image.imultiply(1000.0);
+					SDAPlotter.imagePlot("Plot 1", image);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					logger.error("TODO cannot Load reconstruction for display", e);
+					return Status.CANCEL_STATUS;
+				}
+				return Status.OK_STATUS;
+			}
+		};
+		displayJob.schedule();
 
 	}
 

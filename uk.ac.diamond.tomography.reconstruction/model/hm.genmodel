@@ -1,0 +1,447 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/uk.ac.diamond.tomography.reconstruction/src"
+    modelPluginID="uk.ac.diamond.tomography.reconstruction" modelName="Hm" importerID="org.eclipse.xsd.ecore.importer"
+    complianceLevel="6.0" copyrightFields="false">
+  <foreignModel>hm.xsd</foreignModel>
+  <genPackages prefix="Hm" basePackage="uk.ac.diamond.tomography.reconstruction.parameters"
+      resource="XML" disposableProviderFactory="true" ecorePackage="Hm.ecore#/">
+    <genClasses ecoreClass="Hm.ecore#//BackprojectionType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//BackprojectionType/filter"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//BackprojectionType/imageCentre"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//BackprojectionType/clockwiseRotation"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//BackprojectionType/tilt"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//BackprojectionType/coordinateSystem"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//BackprojectionType/circles"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//BackprojectionType/rOI"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//BackprojectionType/polarCartesianInterpolation"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//BeamlineUserType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//BeamlineUserType/type"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//BeamlineUserType/beamlineName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//BeamlineUserType/year"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//BeamlineUserType/month"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//BeamlineUserType/date"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//BeamlineUserType/visitNumber"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//BeamlineUserType/inputDataFolder"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//BeamlineUserType/inputScanFolder"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//BeamlineUserType/outputDataFolder"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//BeamlineUserType/outputScanFolder"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//BeamlineUserType/done"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//BitsTypeType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//BitsTypeType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//BitsTypeType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//ByteOrderType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ByteOrderType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ByteOrderType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//CirclesType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//CirclesType/valueMin"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//CirclesType/valueMax"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//CirclesType/valueStep"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//CirclesType/comm"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//ClockwiseRotationType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ClockwiseRotationType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ClockwiseRotationType/done"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ClockwiseRotationType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//CoordinateSystemType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//CoordinateSystemType/type"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//CoordinateSystemType/slice"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//CoordinateSystemType/done"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//DarkFieldType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//DarkFieldType/type"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//DarkFieldType/valueBefore"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//DarkFieldType/valueAfter"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//DarkFieldType/fileBefore"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//DarkFieldType/fileAfter"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//DarkFieldType/profileType"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//DarkFieldType/fileProfile"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//DefaultXmlType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//DefaultXmlType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//DefaultXmlType/done"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//DocumentRoot">
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//DocumentRoot/mixed"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference Hm.ecore#//DocumentRoot/xMLNSPrefixMap"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference Hm.ecore#//DocumentRoot/xSISchemaLocation"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//DocumentRoot/hMxml"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//ExtrapolationTypeType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ExtrapolationTypeType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ExtrapolationTypeType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//FBPType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//FBPType/defaultXml"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//FBPType/gPUDeviceNumber"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//FBPType/beamlineUser"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//FBPType/logFile"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//FBPType/inputData"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//FBPType/flatDarkFields"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//FBPType/preprocessing"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//FBPType/transform"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//FBPType/backprojection"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//FBPType/outputData"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//FilterType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//FilterType/type"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//FilterType/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//FilterType/bandwidth"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//FilterType/windowName"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//FilterType/normalisation"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//FilterType/pixelSize"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//FirstImageIndexType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//FirstImageIndexType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//FirstImageIndexType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//FlatDarkFieldsType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//FlatDarkFieldsType/flatField"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//FlatDarkFieldsType/darkField"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//FlatFieldType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//FlatFieldType/type"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//FlatFieldType/valueBefore"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//FlatFieldType/valueAfter"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//FlatFieldType/fileBefore"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//FlatFieldType/fileAfter"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//FlatFieldType/profileType"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//FlatFieldType/fileProfile"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//GapType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//GapType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//GapType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//HighPeaksAfterColumnsType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//HighPeaksAfterColumnsType/type"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//HighPeaksAfterColumnsType/numberPixels"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//HighPeaksAfterColumnsType/jump"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//HighPeaksAfterRowsType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//HighPeaksAfterRowsType/type"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//HighPeaksAfterRowsType/numberPixels"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//HighPeaksAfterRowsType/jump"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//HighPeaksBeforeType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//HighPeaksBeforeType/type"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//HighPeaksBeforeType/numberPixels"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//HighPeaksBeforeType/jump"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//HMxmlType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//HMxmlType/fBP"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//ImageFirstType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ImageFirstType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ImageFirstType/done"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//ImageLastType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ImageLastType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ImageLastType/done"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//ImageStepType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ImageStepType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ImageStepType/done"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//InputDataType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//InputDataType/folder"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//InputDataType/prefix"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//InputDataType/suffix"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//InputDataType/extension"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//InputDataType/nOD"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//InputDataType/memorySizeMax"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//InputDataType/memorySizeMin"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//InputDataType/orientation"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//InputDataType/fileFirst"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//InputDataType/fileLast"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//InputDataType/fileStep"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//InputDataType/imageFirst"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//InputDataType/imageLast"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//InputDataType/imageStep"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//InputDataType/raw"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//InputDataType/firstImageIndex"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//InputDataType/imagesPerFile"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//InputDataType/restrictions"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//InputDataType/valueMin"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//InputDataType/valueMax"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//InputDataType/type"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//InputDataType/shape"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//InputDataType/pixelParam"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//IntensityType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//IntensityType/type"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//IntensityType/columnLeft"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//IntensityType/columnRight"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//IntensityType/zeroLeft"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//IntensityType/zeroRight"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//InterpolationType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//InterpolationType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//InterpolationType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//MemorySizeMaxType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//MemorySizeMaxType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//MemorySizeMaxType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//MemorySizeMinType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//MemorySizeMinType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//MemorySizeMinType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//MissedProjectionsType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//MissedProjectionsType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//MissedProjectionsType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//MissedProjectionsTypeType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//MissedProjectionsTypeType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//MissedProjectionsTypeType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//NameType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//NameType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//NameType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//NODType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//NODType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//NODType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//NormalisationType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//NormalisationType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//NormalisationType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//NumSeriesType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//NumSeriesType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//NumSeriesType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//OffsetType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//OffsetType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//OffsetType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//OrientationType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//OrientationType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//OrientationType/done"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//OrientationType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//OutputDataType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//OutputDataType/type"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//OutputDataType/state"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//OutputDataType/folder"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//OutputDataType/prefix"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//OutputDataType/suffix"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//OutputDataType/extension"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//OutputDataType/nOD"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//OutputDataType/fileFirst"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//OutputDataType/fileStep"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//OutputDataType/bitsType"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//OutputDataType/bits"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//OutputDataType/restrictions"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//OutputDataType/valueMin"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//OutputDataType/valueMax"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//OutputDataType/shape"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//OutputWidthTypeType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//OutputWidthTypeType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//OutputWidthTypeType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//PolarCartesianInterpolationType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//PolarCartesianInterpolationType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//PolarCartesianInterpolationType/done"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//PolarCartesianInterpolationType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//PreprocessingType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//PreprocessingType/highPeaksBefore"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//PreprocessingType/ringArtefacts"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//PreprocessingType/intensity"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//PreprocessingType/highPeaksAfterRows"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//PreprocessingType/highPeaksAfterColumns"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//ProfileTypeType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ProfileTypeType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ProfileTypeType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//ProfileTypeType1">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ProfileTypeType1/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ProfileTypeType1/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//RawType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//RawType/type"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//RawType/bits"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//RawType/offset"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//RawType/byteOrder"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//RawType/xlen"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//RawType/ylen"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//RawType/zlen"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//RawType/gap"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//RawType/done"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//RestrictionsType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//RestrictionsType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//RestrictionsType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//RestrictionsType1">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//RestrictionsType1/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//RestrictionsType1/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//RingArtefactsType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//RingArtefactsType/type"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//RingArtefactsType/parameterN"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//RingArtefactsType/parameterR"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//RingArtefactsType/numSeries"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//ROIType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//ROIType/type"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ROIType/xmin"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ROIType/xmax"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ROIType/ymin"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ROIType/ymax"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//ROIType/outputWidthType"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ROIType/outputWidth"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ROIType/angle"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//RotationAngleEndPointsType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//RotationAngleEndPointsType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//RotationAngleEndPointsType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//RotationAngleTypeType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//RotationAngleTypeType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//RotationAngleTypeType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//ScaleTypeType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ScaleTypeType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ScaleTypeType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//ShapeType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ShapeType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ShapeType/done"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ShapeType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//ShapeType1">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ShapeType1/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ShapeType1/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//StateType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//StateType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//StateType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//TiltType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//TiltType/type"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TiltType/xTilt"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TiltType/zTilt"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TiltType/done"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//TransformType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//TransformType/missedProjections"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//TransformType/missedProjectionsType"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//TransformType/rotationAngleType"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TransformType/rotationAngle"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//TransformType/rotationAngleEndPoints"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TransformType/reCentreAngle"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TransformType/reCentreRadius"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TransformType/cropTop"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TransformType/cropBottom"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TransformType/cropLeft"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TransformType/cropRight"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//TransformType/scaleType"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TransformType/scaleWidth"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TransformType/scaleHeight"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//TransformType/extrapolationType"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TransformType/extrapolationPixels"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TransformType/extrapolationWidth"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//TransformType/interpolation"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//TypeType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//TypeType1">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType1/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType1/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//TypeType2">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType2/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType2/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//TypeType3">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType3/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType3/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//TypeType4">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType4/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType4/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//TypeType5">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType5/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType5/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//TypeType6">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType6/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType6/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//TypeType7">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType7/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType7/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//TypeType8">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType8/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType8/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//TypeType9">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType9/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType9/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//TypeType10">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType10/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType10/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//TypeType11">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType11/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType11/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//TypeType12">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType12/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType12/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//TypeType13">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType13/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType13/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//TypeType14">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType14/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType14/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//TypeType15">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType15/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType15/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//TypeType16">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType16/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType16/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//TypeType17">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType17/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//TypeType17/info"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//ValueMaxType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//ValueMaxType/type"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ValueMaxType/percent"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ValueMaxType/pixel"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//ValueMinType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//ValueMinType/type"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ValueMinType/percent"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ValueMinType/pixel"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//ValueStepType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//ValueStepType/type"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ValueStepType/percent"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//ValueStepType/pixel"/>
+    </genClasses>
+    <genClasses ecoreClass="Hm.ecore#//WindowNameType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//WindowNameType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//WindowNameType/info"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>

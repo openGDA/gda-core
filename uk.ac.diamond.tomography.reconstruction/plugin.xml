@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?eclipse version="3.4"?>
-<plugin>
+<?eclipse version="3.0"?>
 
-   <extension
+<!--
+ <copyright>
+ </copyright>
+
+ $Id$
+-->
+
+<plugin>
+ <extension
          point="org.eclipse.ui.views">
       <category
             name="Reconstruction"
@@ -142,5 +149,28 @@
             
             
   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="uk.ac.diamond.tomography.reconstruction.editors.ParameterEditor"
+            contributorClass="uk.ac.diamond.tomography.reconstruction.editors.ParameterEditorContributor"
+            extensions="mpe"
+            icon="icons/sample.gif"
+            id="uk.ac.diamond.tomography.reconstruction.editors.ParameterEditor"
+            name="Parameter Multi-page Editor">
+      </editor>
+   </extension>
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <package
+            uri="platform:/resource/uk.ac.diamond.tomography.reconstruction/model/hm.xsd"
+            class="uk.ac.diamond.tomography.reconstruction.parameters.hm.HmPackage"
+            genModel="model/hm.genmodel"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.extension_parser">
+      <parser
+            type="hm"
+            class="uk.ac.diamond.tomography.reconstruction.parameters.hm.util.HmResourceFactoryImpl"/>
+   </extension>
 
 </plugin>

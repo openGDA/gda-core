@@ -80,6 +80,7 @@ public class ParameterView extends ViewPart {
 	 * This is a callback that will allow us to create the viewer and initialize
 	 * it.
 	 */
+	@Override
 	public void createPartControl(Composite parent) {
 		composite = new Composite(parent, SWT.NONE);
 		composite.setLayout(new org.eclipse.swt.layout.GridLayout());
@@ -131,6 +132,7 @@ public class ParameterView extends ViewPart {
 	/**
 	 * Passing the focus request to the viewer's control.
 	 */
+	@Override
 	public void setFocus() {
 		composite.setFocus();
 	}
