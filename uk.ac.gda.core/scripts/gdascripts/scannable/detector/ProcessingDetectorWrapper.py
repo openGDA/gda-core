@@ -17,6 +17,7 @@ from java.util.concurrent import Callable #@UnresolvedImport
 import time
 from gdascripts.analysis.io.DatasetProvider import LazyDataSetProvider, BasicDataSetProvider
 import gda.device.detector.NXDetectorData
+import gda.device.detector.NXDetectorDataWithFilepathForSrs
 from gda.device.detector.hardwaretriggerable import HardwareTriggerableDetector
 
 class FileRegistrar(object):
@@ -205,21 +206,14 @@ class ProcessingDetectorWrapper(PseudoDevice, PositionCallableProvider):
 			)
 	
 	def getFilepath(self):
-		if self.det.createsOwnFiles():
-			try:
-				# assume detector has read out an NXDetectorDataWithFilepathForSrs object
-				path_from_detector = self._readout().getFilepath()
-			except AttributeError:
-				path_from_detector = self._readout()
-			return self.replacePartOfPath(path_from_detector)
-		else:
-			try:
-				last_image_path = self.det.getLastImagePath()
-				if last_image_path is not None:
-					return last_image_path
-			except AttributeError:
-				pass # only some python detectors support this (and its a mess)
-			return time.strftime("%H%M%S", time.localtime()) # %Y%m%d% makes it too long!
+
+		try:
+			# assume detector has read out an NXDetectorDataWithFilepathForSrs object
+			path_from_detector = self._readout().getFilepath()
+		except AttributeError:
+			path_from_detector = self._readout()
+		return self.replacePartOfPath(path_from_detector)
+
 		
 	def _readout(self):
 		if self.cached_readout is None:
@@ -256,22 +250,29 @@ class ProcessingDetectorWrapper(PseudoDevice, PositionCallableProvider):
 ###
 	
 	def __configureNewDatasetProvider(self):
-		if self.det.createsOwnFiles():
-			path = self.getFilepath()
+		
+		def createDatasetProvider(path):
 			if path == '':
 				raise IOError("Could no load dataset: %s does not have a record of the last file saved" % self.name)
 			path = self.replacePartOfPath(path)
 			self.datasetProvider = LazyDataSetProvider(path, self.iFileLoader, self.fileLoadTimout, self.printNfsTimes)
+		
+		if self.det.createsOwnFiles():
+			path = self.getFilepath()
+			createDatasetProvider(path)
 		else:
 #			if not isinstance(dataset, DataSet, gda.device.detector.NXDetectorData):
 #				raise Exception("If a detector does not write its own files, ProcessingDetectorWrapper %s only works with detectors that readout DataSets.")
 			dataset = self._readout()
-			if isinstance(dataset, gda.device.detector.NXDetectorData):
+			if isinstance(dataset, gda.device.detector.NXDetectorDataWithFilepathForSrs):
+				path = dataset.getFilepath()
+				createDatasetProvider(path)
+				return
+			elif isinstance(dataset, gda.device.detector.NXDetectorData):
 				data = dataset.getNexusTree().getChildNode(1).getChildNode(1).getData()
 				dataset = DataSet(data.getBuffer())
 				dataset.setShape(data.dimensions)
 				dataset.squeeze()
-				
 			self.datasetProvider = BasicDataSetProvider(dataset)
 	
 	def replacePartOfPath(self, path):
