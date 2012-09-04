@@ -570,6 +570,11 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		configurer.declareImage(symbolicName, desc, true);
 	}
 
+	/**
+	 * Return the root of the workspace so that the project explorer will be refreshed when a change in the workspace occurs.
+	 * This removes the problem seen when we added a working set causing the Project Explorer to switch to show Working Sets
+	 * rather than Projects.
+	 */
 	@Override
 	public IAdaptable getDefaultPageInput() {
 		return ResourcesPlugin.getWorkspace().getRoot();
