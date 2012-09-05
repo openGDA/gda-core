@@ -62,7 +62,6 @@ import uk.ac.gda.util.ThreadManager;
  */
 public abstract class ScanBase implements Scan {
 
-
 	public static final String GDA_SCANBASE_FIRST_SCAN_NUMBER_FOR_TEST = "gda.scanbase.firstScanNumber";
 
 	static public volatile boolean explicitlyHalted = false;
@@ -150,14 +149,14 @@ public abstract class ScanBase implements Scan {
 
 	private int pointNumberAtLineBeginning;
 
-	private int positionCallableThreadPoolSize = 0;
+	private int positionCallableThreadPoolSize = 3;
 
 	/**
 	 * Used to broadcast points and to write them to a DataWriter. Created before a scan is run.
 	 */
 	protected ScanDataPointPipeline scanDataPointPipeline = null;
 
-	private int scanDataPointQueueLength = 0;
+	private int scanDataPointQueueLength = 3;
 
 	ScanPlotSettings scanPlotSettings;
 
