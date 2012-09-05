@@ -160,17 +160,5 @@
             name="Parameter Multi-page Editor">
       </editor>
    </extension>
-   <extension point="org.eclipse.emf.ecore.generated_package">
-      <package
-            uri="platform:/resource/uk.ac.diamond.tomography.reconstruction/model/hm.xsd"
-            class="uk.ac.diamond.tomography.reconstruction.parameters.hm.HmPackage"
-            genModel="model/hm.genmodel"/>
-   </extension>
-
-   <extension point="org.eclipse.emf.ecore.extension_parser">
-      <parser
-            type="hm"
-            class="uk.ac.diamond.tomography.reconstruction.parameters.hm.util.HmResourceFactoryImpl"/>
-   </extension>
 
 </plugin>
