@@ -24,6 +24,7 @@ import gda.data.PathConstructor;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.jython.ICurrentScanInformationHolder;
+import gda.jython.IJythonNamespace;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 
@@ -88,6 +89,34 @@ public class SingleImagePerFileWriterTest {
 		writer.setFileNumberAtScanStart(54321);
 		writer.prepareForCollection(1);
 		verify(mockNdFile).setFileNumber(54321);
+	}
+	
+	@Test
+	public void atScanStartConfiguresMetadataPathTemplate() throws Exception {
+		IJythonNamespace namespace = mock(IJythonNamespace.class);
+		InterfaceProvider.setJythonNamespaceForTesting(namespace);
+		when(namespace.getFromJythonNamespace("SRSWriteAtFileCreation")).thenReturn("existing");
+		
+		writer.setKeyNameForMetadataPathTemplate("detector_path_template");
+		writer.prepareForCollection(1);
+		
+		String expected = "existing\ndetector_path_template=path/to/datadir/12345-detname-files/%05d.tif";
+		verify(namespace).placeInJythonNamespace("SRSWriteAtFileCreation", expected);
+		
+	}
+
+	@Test
+	public void atScanStartConfiguresMetadataPathTemplateWithNoGlobalToAstart() throws Exception {
+		IJythonNamespace namespace = mock(IJythonNamespace.class);
+		InterfaceProvider.setJythonNamespaceForTesting(namespace);
+		when(namespace.getFromJythonNamespace("SRSWriteAtFileCreation")).thenReturn(null);
+		
+		writer.setKeyNameForMetadataPathTemplate("detector_path_template");
+		writer.prepareForCollection(1);
+		
+		String expected = "detector_path_template=path/to/datadir/12345-detname-files/%05d.tif";
+		verify(namespace).placeInJythonNamespace("SRSWriteAtFileCreation", expected);
+		
 	}
 	
 }

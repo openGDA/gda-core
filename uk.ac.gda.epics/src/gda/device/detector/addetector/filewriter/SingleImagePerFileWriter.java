@@ -19,12 +19,14 @@
 package gda.device.detector.addetector.filewriter;
 
 import static java.text.MessageFormat.format;
+import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.NDFile.FileWriteMode;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataFileAppenderForSrs;
 import gda.device.detectorfilemonitor.HighestExistingFileMonitor;
 import gda.device.detectorfilemonitor.HighestExitingFileMonitorSettings;
+import gda.jython.IJythonNamespace;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanBase;
 
@@ -34,6 +36,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,6 +64,8 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 	HighestExistingFileMonitor highestExistingFileMonitor = null;
 
 	private boolean waitForFileArrival = true;
+
+	private String keyNameForMetadataPathTemplate = "";
 
 	/**
 	 * Creates a SingleImageFileWriter with ndFile, fileTemplate, filePathTemplate, fileNameTemplate and
@@ -103,6 +108,10 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 		this.highestExistingFileMonitor = highestExistingFileMonitor;
 	}
 
+	public void setKeyNameForMetadataPathTemplate(String string) {
+		this.keyNameForMetadataPathTemplate = string;
+	}
+
 	/**
 	 * If true getFullFileName_RBV returns expected filename rather than value from ndfile plugin. Useful for example
 	 * with continuous scans.
@@ -115,6 +124,10 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 		return highestExistingFileMonitor;
 	}
 
+	public String getkeyNameForMetadataPathTemplate() {
+		return keyNameForMetadataPathTemplate;
+	}
+	
 	@Override
 	public boolean appendsFilepathStrings() {
 		return isEnabled(); // will always append strings when enabled
@@ -143,6 +156,22 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 		getNdFile().getPluginBase().setBlockingCallbacks((short) (returnExpectedFileName ? 1 : 1)); // always block
 
 		getNdFile().setFileWriteMode(FileWriteMode.SINGLE);
+		
+		if (!getkeyNameForMetadataPathTemplate().isEmpty()) {
+			IJythonNamespace jythonNamespace = InterfaceProvider.getJythonNamespace();
+			String existingMetadataString = (String) jythonNamespace.getFromJythonNamespace("SRSWriteAtFileCreation");
+			String newMetadataString;
+			if (existingMetadataString==null) {
+				newMetadataString = "";
+			} else {
+				newMetadataString = existingMetadataString + "\n";
+			}
+			
+			String newValue = StringUtils.replaceOnce(getFileTemplate(), "%s", getFilePath() + "/");
+			newValue = StringUtils.replaceOnce(newValue, "%s", getFileName());
+			String newKey = getkeyNameForMetadataPathTemplate();
+			jythonNamespace.placeInJythonNamespace("SRSWriteAtFileCreation", newMetadataString + newKey + "=" +newValue);
+		}
 	}
 
 	protected void configureNdFile() throws Exception {
