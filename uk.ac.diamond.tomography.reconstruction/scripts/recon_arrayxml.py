@@ -34,7 +34,8 @@ def main(argv, out=sys.stdout, err=sys.stderr):
 
 	rcn=ReconArrayXML()
 	rcn.parseOptions(argv, out, err)
-	rcn.run()
+	success, imfolder=rcn.run()
+	return success, imfolder
 
 class ReconArrayXML():
 
@@ -76,7 +77,7 @@ class ReconArrayXML():
 		self.interval=1 #time interval when checking for a resource in seconds - controlled by z 
 		self.lt=10 # timeout when checking for a resource in seconds - - controlled by Z
 
-		self.qsub_project="i12" # project name given to qsub		
+		self.qsub_project="i13" # project name given to qsub		
 		self.jobID=[]
 		self.copyright=\
 		"""
@@ -399,7 +400,11 @@ sed -i "s|^.*GPUDeviceNumber.*$|<GPUDeviceNumber>$mycuda</GPUDeviceNumber>|" $my
 
 		#execute job in current working directory
 		args+=["-cwd"]
-		args+=[ "-pe", "smp", "4"]
+		if self.qsub_project == "i12":
+			args+=[ "-pe", "smp", "4"]
+		else:
+			#i13
+			args+=[ "-l", "tesla64", "-pe", "smp", "6"]
 		args+=[ "-t", "%i-%i"%(self.firstchunk, self.nchunks)]
 
 		#script
@@ -581,7 +586,12 @@ sed -i "s|^.*GPUDeviceNumber.*$|<GPUDeviceNumber>$mycuda</GPUDeviceNumber>|" $my
 		self.createReconScript()
 		self.submitReconScript()
 		
-		self.monitorQueueJobs()
+		recon_success=self.monitorQueueJobs()
+		if recon_success:
+			print 'All reconstruction jobs appear to have completed successfully.'
+		else:
+			print 'This monitoring of reconstruction jobs has timed out: please continue monitoring the status of these jobs using qstat.'
+		return recon_success, self.imfolder
 	
 	
 	def dumpvalues(self):
