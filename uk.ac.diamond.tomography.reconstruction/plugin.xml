@@ -149,16 +149,4 @@
             
             
   </extension>
-   <extension
-         point="org.eclipse.ui.editors">
-      <editor
-            class="uk.ac.diamond.tomography.reconstruction.editors.ParameterEditor"
-            contributorClass="uk.ac.diamond.tomography.reconstruction.editors.ParameterEditorContributor"
-            extensions="mpe"
-            icon="icons/sample.gif"
-            id="uk.ac.diamond.tomography.reconstruction.editors.ParameterEditor"
-            name="Parameter Multi-page Editor">
-      </editor>
-   </extension>
-
 </plugin>
