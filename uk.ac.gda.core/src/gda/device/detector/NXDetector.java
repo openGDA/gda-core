@@ -54,6 +54,8 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 
 	private MultiplePositionStreamIndexer<NXDetectorDataAppender> pluginStreamsIndexer;
 
+	protected NexusTreeProvider lastReadoutValue = null;
+
 	public NXDetector(String name, NXCollectionStrategyPlugin collectionStrategy, List<NXPlugin> additionalPluginList) {
 		setName(name);
 		setCollectionStrategy(collectionStrategy);
@@ -259,6 +261,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	public void atScanStart() throws DeviceException {
 
 		int numberImagesPerCollection = getCollectionStrategy().getNumberImagesPerCollection(getCollectionTime());
+		lastReadoutValue = null;
 
 		try {
 			prepareCollectionStrategyAtScanStart(numberImagesPerCollection);
@@ -300,6 +303,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	
 	@Override
 	public void collectData() throws DeviceException {
+		lastReadoutValue  = null;
 		try {
 			getCollectionStrategy().collectData();
 		} catch (Exception e) {
@@ -327,11 +331,14 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
-		try {
-			return getPositionCallable().call();
-		} catch (Exception e) {
-			throw new DeviceException("Error during '" + getName() + "' readout.", e);
+		if (lastReadoutValue == null) {
+			try {
+				lastReadoutValue =  getPositionCallable().call();
+			} catch (Exception e) {
+				throw new DeviceException("Error during '" + getName() + "' readout.", e);
+			}
 		}
+		return lastReadoutValue;
 	}
 
 	@Override

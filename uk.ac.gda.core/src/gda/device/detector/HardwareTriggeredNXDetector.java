@@ -39,7 +39,7 @@ public class HardwareTriggeredNXDetector extends NXDetector implements HardwareT
 	
 	@Override
 	public void collectData() throws DeviceException {
-		// Do nothing
+		lastReadoutValue = null;
 	}
 	
 	@Override
