@@ -139,14 +139,34 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 	 * @return the file path to configure in AreaDetector
 	 */
 	protected String getFilePath() {
-		return substituteDatadirAndScan(getFilePathTemplate());
+		return substituteScan(substituteDatadir(getFilePathTemplate()));
 	}
 
-	private String substituteDatadirAndScan(String template) {
+	/** 
+	 * Only if the path template starts with the datadir, return a path relative to it, otherwise
+	 * return an absolute path.
+	 */
+	protected String getFilePathRelativeToDataDirIfPossible() {
+		String template = getFilePathTemplate();
+		if (StringUtils.startsWith(template, "$datadir$")) {
+			template = StringUtils.replace(template, "$datadir$","");
+			template = StringUtils.removeStart(template, "/");
+		} else {
+			template = substituteDatadir(template);
+		}
+		return substituteScan(template);
+	}
+
+	private String substituteDatadir(String template) {
 		
 		if (StringUtils.contains(template, "$datadir$")) {
 			template = StringUtils.replace(template, "$datadir$", PathConstructor.createFromDefaultProperty());
 		}
+
+		return template;
+	}
+	
+	private String substituteScan(String template) {
 		
 		if (StringUtils.contains(template, "$scan$")) {
 			long scanNumber;
@@ -164,7 +184,7 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 	 * @return the file name to configure in AreaDetector
 	 */
 	protected String getFileName() {
-		return substituteDatadirAndScan(getFileNameTemplate());
+		return substituteScan(substituteDatadir(getFileNameTemplate()));
 	}
 	
 	/**
