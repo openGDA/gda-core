@@ -179,7 +179,7 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 		String newValue = StringUtils.replaceOnce(getFileTemplate(), "%s", getFilePathRelativeToDataDirIfPossible() + "/");
 		newValue = StringUtils.replaceOnce(newValue, "%s", getFileName());
 		String newKey = getkeyNameForMetadataPathTemplate();
-		jythonNamespace.placeInJythonNamespace("SRSWriteAtFileCreation", newMetadataString + newKey + "=" +newValue);
+		jythonNamespace.placeInJythonNamespace("SRSWriteAtFileCreation", newMetadataString + newKey + "='" +newValue + "'");
 	}
 
 	protected void configureNdFile() throws Exception {
