@@ -44,6 +44,11 @@ public interface FfmpegStream {
 	static final String JPG_URL_RBV = "JPG_URL_RBV";
 
 	static final String MJPG_URL_RBV = "MJPG_URL_RBV";
+	
+	static final String MAXW ="MAXW";
+	static final String MAXH ="MAXH_RBV";
+	static final String MAXW_RBV ="MAXW";
+	static final String MAXH_RBV ="MAXH_RBV";
 
 	NDPluginBase getPluginBase();
 
@@ -82,9 +87,6 @@ public interface FfmpegStream {
 	 */
 	short getALWAYS_ON() throws Exception;
 
-	/**
-	 *
-	 */
 	void setALWAYS_ON(int always_on) throws Exception;
 
 	/**
@@ -121,5 +123,10 @@ public interface FfmpegStream {
 	 * 
 	 */
 	void reset() throws Exception;
+	
+	void setMAXW(int maxw) throws Exception;
+	void setMAXH(int maxh) throws Exception;
+	int getMAXW_RBV() throws Exception;
+	int getMAXH_RBV() throws Exception;
 
 }
