@@ -158,20 +158,24 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 		getNdFile().setFileWriteMode(FileWriteMode.SINGLE);
 		
 		if (!getkeyNameForMetadataPathTemplate().isEmpty()) {
-			IJythonNamespace jythonNamespace = InterfaceProvider.getJythonNamespace();
-			String existingMetadataString = (String) jythonNamespace.getFromJythonNamespace("SRSWriteAtFileCreation");
-			String newMetadataString;
-			if (existingMetadataString==null) {
-				newMetadataString = "";
-			} else {
-				newMetadataString = existingMetadataString + "\n";
-			}
-			
-			String newValue = StringUtils.replaceOnce(getFileTemplate(), "%s", getFilePath() + "/");
-			newValue = StringUtils.replaceOnce(newValue, "%s", getFileName());
-			String newKey = getkeyNameForMetadataPathTemplate();
-			jythonNamespace.placeInJythonNamespace("SRSWriteAtFileCreation", newMetadataString + newKey + "=" +newValue);
+			addPathTemplateToMetadata();
 		}
+	}
+
+	private void addPathTemplateToMetadata() {
+		IJythonNamespace jythonNamespace = InterfaceProvider.getJythonNamespace();
+		String existingMetadataString = (String) jythonNamespace.getFromJythonNamespace("SRSWriteAtFileCreation");
+		String newMetadataString;
+		if (existingMetadataString==null) {
+			newMetadataString = "";
+		} else {
+			newMetadataString = existingMetadataString + "\n";
+		}
+		
+		String newValue = StringUtils.replaceOnce(getFileTemplate(), "%s", getFilePathRelativeToDataDirIfPossible() + "/");
+		newValue = StringUtils.replaceOnce(newValue, "%s", getFileName());
+		String newKey = getkeyNameForMetadataPathTemplate();
+		jythonNamespace.placeInJythonNamespace("SRSWriteAtFileCreation", newMetadataString + newKey + "=" +newValue);
 	}
 
 	protected void configureNdFile() throws Exception {
