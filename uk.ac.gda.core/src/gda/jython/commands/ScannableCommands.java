@@ -21,6 +21,7 @@ package gda.jython.commands;
 import gda.configuration.properties.LocalProperties;
 import gda.data.scan.datawriter.DataWriter;
 import gda.device.Detector;
+import gda.device.DetectorSnapper;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.ScannableMotion;
@@ -133,8 +134,12 @@ public class ScannableCommands {
 						scn1.atLevelMoveStart();
 					}
 					// asynchronousMoveTo()
-					for (Scannable scn1: currentLevelScannables.getValue()){
-						if (scn1 instanceof Detector) {
+					for (Scannable scn1 : currentLevelScannables.getValue()) {
+						if (scn1 instanceof DetectorSnapper) {
+							Double collectionTime = PositionConvertorFunctions.toDouble(positionMap.get(scn1));
+							((DetectorSnapper) scn1).prepareForAcquisition(collectionTime);
+							((DetectorSnapper) scn1).acquire();
+						} else if (scn1 instanceof Detector) {
 							Double collectionTime = PositionConvertorFunctions.toDouble(positionMap.get(scn1));
 							((Detector) scn1).setCollectionTime(collectionTime);
 							((Detector) scn1).prepareForCollection();
