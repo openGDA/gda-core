@@ -84,7 +84,7 @@ abstract public class AbstractADTriggeringStrategy implements NXCollectionStrate
 		return readoutTime;
 	}
 	
-	protected ADBase getAdBase() {
+	public ADBase getAdBase() {
 		return adBase;
 	}
 	
