@@ -426,20 +426,25 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 		if (numChannelsToRead == null){
 			numberOfChannels = scaler.getDimension()[0];
 		}
-		double rawData[] = scaler.read(0, 0, startFrame, numberOfChannels + 1, 1, 1);
+		int firstChannel = 0;
+		if (firstDataChannel != null){
+			firstChannel = firstDataChannel;
+		}
+		if (isTFGv2 && firstChannel == 0){
+			numberOfChannels++;
+		}
+		double rawData[] = scaler.read(firstChannel, 0, startFrame, numberOfChannels, 1, 1);
 //		double rawData2[] = scaler.read(0, 0, startFrame + 1, numberOfChannels + 1, 1, 1);
 		double[][] output = unpackRawDataToFrames(rawData,numFrames,numberOfChannels);
 
 		// if no change required to the raw data
-		if (firstDataChannel != null && firstDataChannel != 0 && !timeChannelRequired && !isTFGv2) {
+		if (firstDataChannel != null || (!timeChannelRequired && !isTFGv2)) {
 			return output;
 		}
 		
-		if (firstDataChannel != null){
+		/*if (firstDataChannel != null){
 			output = removeUnwantedChannels(output);
-		}
-
-		if (isTFGv2 && !timeChannelRequired){
+		} else */if (isTFGv2 && !timeChannelRequired){
 			// for TFGv2 always get the number of live time clock counts as the first scaler item
 			output = removeUnwantedTimeChannel(output);
 		} else if (isTFGv2 && timeChannelRequired){

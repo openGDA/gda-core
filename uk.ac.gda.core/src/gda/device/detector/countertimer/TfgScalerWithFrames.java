@@ -28,10 +28,16 @@ import gda.device.timer.Tfg;
 public class TfgScalerWithFrames extends TfgScalerWithLogValues {
 	private Double[] times; // milliseconds
 
+	/**
+	 * @return Double[]
+	 */
 	public Double[] getTimes() {
 		return times;
 	}
 
+	/**
+	 * @param times - array of times of the upcoming scan in seconds.
+	 */
 	public void setTimes(Double[] times) {
 		this.times = times;
 	}
@@ -42,7 +48,8 @@ public class TfgScalerWithFrames extends TfgScalerWithLogValues {
 		if (times != null && times.length > 0) {
 			// create the time frames here
 			for (int i = 0; i < times.length; i++) {
-				addFrameSet(1, 0, times[i], 0, 0, -1, 0);
+				// convert times to milliseconds for da.server
+				addFrameSet(1, 0, times[i] * 1000, 0, 0, -1, 0);
 			}
 		}
 		timer.setAttribute(Tfg.SOFTWARE_START_AND_TRIG_ATTR_NAME, Boolean.TRUE);
