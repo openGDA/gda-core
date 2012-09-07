@@ -24,6 +24,7 @@ import gda.device.detector.DAServer;
 import gda.device.scannable.PositionCallableProvider;
 import gda.device.scannable.PositionInputStream;
 import gda.device.scannable.PositionStreamIndexer;
+import gda.device.timer.Tfg;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -81,6 +82,15 @@ public class PositionStreamingTfgScaler extends TfgScalerWithLogValues implement
 		nextFrameToRead = highestFrameNumAvailable + 1;
 		return listOfTress;
 	}
+	
+	@Override
+	public void collectData() throws DeviceException {
+		if (timer.getAttribute("TotalFrames").equals(0)) {
+			super.collectData();
+		} else {
+			daServer.sendCommand("tfg cont");
+		}
+	}
 
 	@Override
 	public Callable<double[]> getPositionCallable() throws DeviceException {
@@ -90,19 +100,27 @@ public class PositionStreamingTfgScaler extends TfgScalerWithLogValues implement
 	@Override
 	public void atScanLineStart() throws DeviceException {
 
-		timer.clearFrameSets();
+//		scaler.clear();
+//		scaler.start();
+//		timer.clearFrameSets();
+		clearFrameSets();
 		if (times != null && times.length > 0) {
 			// create the time frames here
 			for (int i = 0; i < times.length; i++) {
-				timer.addFrameSet(1, 0, times[i], 0, 0, -1, 0);
+				addFrameSet(1, 0, times[i], 0, 0, -1, 0);
+//				timer.addFrameSet(1, 0, times[i], 0, 0, -1, 0);
 			}
-			timer.loadFrameSets();
-			daServer.sendCommand("tfg arm");
-			daServer.sendCommand("tfg start");
+//			/*timer.*/loadFrameSets();
+//			daServer.sendCommand("tfg arm");
+//			daServer.sendCommand("tfg start");
 			nextFrameToRead = 0;
 		}
 		indexer = new PositionStreamIndexer<double[]>(this);
+		timer.setAttribute(Tfg.VME_START_ATTR_NAME,Boolean.FALSE);
+//		timer.setAttribute(Tfg.AUTO_REARM_ATTR_NAME,Boolean.TRUE);
 		super.atScanLineStart();
+//		daServer.sendCommand("tfg arm");
+		daServer.sendCommand("tfg start");  // this is the bit which is different, I want to arm and start before any data collection
 	}
 	
 	@Override
@@ -110,6 +128,7 @@ public class PositionStreamingTfgScaler extends TfgScalerWithLogValues implement
 		indexer = null;
 		times = new Double[0];
 		super.atScanLineEnd();
+//		timer.clearFrameSets(); // FIXME should be at scan end
 	}
 	
 	private int getNumberFrames() throws DeviceException {
