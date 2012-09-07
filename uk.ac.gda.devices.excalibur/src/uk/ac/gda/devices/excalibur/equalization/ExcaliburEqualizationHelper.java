@@ -23,6 +23,7 @@ import gda.analysis.numerical.straightline.Results;
 import gda.analysis.numerical.straightline.StraightLineFit;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -36,9 +37,12 @@ import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
 import uk.ac.diamond.scisoft.analysis.dataset.ShortDataset;
+import uk.ac.diamond.scisoft.analysis.fitting.functions.APeak;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.CompositeFunction;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.Gaussian;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.IPeak;
+import uk.ac.diamond.scisoft.analysis.fitting.functions.IdentifiedPeak;
+import uk.ac.diamond.scisoft.analysis.fitting.functions.Offset;
 import uk.ac.diamond.scisoft.analysis.optimize.GeneticAlg;
 import uk.ac.gda.analysis.hdf5.HDF5HelperLocations;
 import uk.ac.gda.analysis.hdf5.HDF5NexusLocation;
@@ -154,6 +158,7 @@ public class ExcaliburEqualizationHelper {
 	public static final String CHIP_THRESHOLD_GAUSSIAN_POSITION_DATASET = "chip_threshold_gaussian_position";
 	public static final String CHIP_THRESHOLD_GAUSSIAN_FWHM_DATASET = "chip_threshold_gaussian_fwhm";
 	public static final String CHIP_THRESHOLD_GAUSSIAN_OFFSETIN = "chip_threshold_gaussian_offsetin";
+	public static final String CHIP_THRESHOLD_GAUSSIAN_BACKGROUND = "chip_threshold_gaussian_background";
 	private static final ExcaliburEqualizationHelper INSTANCE = new ExcaliburEqualizationHelper();
 
 	public static ExcaliburEqualizationHelper getInstance() {
@@ -569,6 +574,7 @@ public class ExcaliburEqualizationHelper {
 		double[] positions = new double[numItems];
 		double[] fwhms = new double[numItems];
 		double[] offset = new double[numItems];
+		double[] background = new double[numItems];
 		Arrays.fill(fwhms, FIT_FAILED_WIDTH);
 		for (int i = 0; i < numItems; i++) {
 			present[i] = (short) (chipPresent[i] ? 1 : 0);
@@ -577,6 +583,7 @@ public class ExcaliburEqualizationHelper {
 					IPeak function = aPeaks[i].function.getPeak(0);
 					positions[i] = function.getPosition();
 					fwhms[i] = function.getFWHM();
+					background[i] = aPeaks[i].function.getParameter(3).getValue();
 				}
 				offset[i] = aPeaks[i].offset;
 			}
@@ -591,6 +598,8 @@ public class ExcaliburEqualizationHelper {
 				CHIP_THRESHOLD_GAUSSIAN_FWHM_DATASET);
 		hdf.writeToFileSimple(new Hdf5HelperData(dims, offset), resultFileName, getEqualisationLocation(),
 				CHIP_THRESHOLD_GAUSSIAN_OFFSETIN);
+		hdf.writeToFileSimple(new Hdf5HelperData(dims, background), resultFileName, getEqualisationLocation(),
+				CHIP_THRESHOLD_GAUSSIAN_BACKGROUND);
 	}
 
 	/**
@@ -659,11 +668,11 @@ public class ExcaliburEqualizationHelper {
 		double[] yvals = new double[population.length];
 		int numFound = 0;
 		for (int i = 0; i < population.length; i++) {
-			if (population[i] > 0) {
+//			if (population[i] > 0) {
 				xvals[numFound] = i + offset;
 				yvals[numFound] = population[i];
 				numFound += 1;
-			}
+//			}
 		}
 		xvals = Arrays.copyOf(xvals, numFound);
 		yvals = Arrays.copyOf(yvals, numFound);
@@ -679,14 +688,22 @@ public class ExcaliburEqualizationHelper {
 			double ymin = yvals_ds.min().doubleValue();
 			double xavg = (xmax + xmin) / 2;
 			double xfwhm = (xmax - xmin) / 4;
-			double yheight = ymax - ymin;
-			Gaussian peakFunction = new Gaussian(xavg, xfwhm, yheight * xfwhm);
-			peakFunction.getParameter(0).setLimits(xmin, xmax);
-			peakFunction.getParameter(1).setLimits(xfwhm/4, xfwhm*4);
-			GeneticAlg geneticAlg = new GeneticAlg(0.01); 
-			geneticAlg.optimize(new IDataset[]{xvals_ds}, yvals_ds, peakFunction);
+			
+			Gaussian peakFunction = new Gaussian(xavg, xfwhm, (Double)yvals_ds.sum());
+			peakFunction.getParameter(0).setLimits(0., xmax*2);
+			peakFunction.getParameter(1).setLimits(0., xfwhm*4);
+			peakFunction.getParameter(2).setLimits(-ymax*xfwhm*4*2, ymax*xfwhm*4*2);
+			
+			Offset background = new Offset(ymin, (Double)yvals_ds.mean());
+
+			
 			CompositeFunction cmpF = new CompositeFunction();
 			cmpF.addFunction(peakFunction);
+			cmpF.addFunction(background);
+			
+			GeneticAlg geneticAlg = new GeneticAlg(0.01); 
+			geneticAlg.optimize(new IDataset[]{xvals_ds}, yvals_ds, cmpF);
+			
 			return cmpF;
 		}
 		return null;
