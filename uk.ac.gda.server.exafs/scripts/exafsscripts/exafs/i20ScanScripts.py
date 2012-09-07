@@ -1,22 +1,26 @@
+from java.lang import InterruptedException
+
 from b18ScanScripts import XasScan, ExafsEnvironment
 from BeamlineParameters import JythonNameSpaceMapping, FinderNameMapping
+
+from gda.configuration.properties import LocalProperties
+from gda.data.scan.datawriter import  XasAsciiDataWriter
+from gda.device import DeviceException
+from gda.exafs.scan import BeanGroup, BeanGroups
+from gda.exafs.scan import RepetitionsProperties,ScanStartedMessage
+from gda.exafs.scan import ExafsScanPointCreator,XanesScanPointCreator
+from gda.factory import Finder
+from gda.jython.commands import ScannableCommands
+from gda.jython.scriptcontroller.event import ScanCreationEvent, ScanFinishEvent, ScriptProgressEvent
+from gda.jython.scriptcontroller.logging import LoggingScriptController
+from gda.jython.scriptcontroller.logging import XasLoggingMessage
+from gda.jython.scriptcontroller.logging import XasProgressUpdater
+from gda.scan import ScanBase, ContinuousScan, ConcurrentScan
+from uk.ac.gda.beans import BeansFactory
 from uk.ac.gda.beans.exafs import XanesScanParameters
 from uk.ac.gda.beans.exafs import XesScanParameters
 from uk.ac.gda.beans.exafs import XasScanParameters
 from uk.ac.gda.beans.exafs.i20 import I20SampleParameters
-from gda.device import DeviceException
-from gda.factory import Finder
-from uk.ac.gda.beans import BeansFactory
-from gda.jython.scriptcontroller.logging import LoggingScriptController
-from gda.exafs.scan import BeanGroup, BeanGroups
-from gda.configuration.properties import LocalProperties
-from gda.jython.commands import ScannableCommands
-from gda.exafs.scan import RepetitionsProperties
-
-
-
-
-
 
 
 class I20XasScan(XasScan):
@@ -69,17 +73,25 @@ class I20XasScan(XasScan):
                 print "Sample stage move complete.\n"
                 
                 #TODO add to metadata?
-                self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
-                
-                
+                self._runTheScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
         else :
-            self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
-        
-        
-        
+            self._runTheScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
+            
         # remove extra columns from ionchambers output
         jython_mapper = JythonNameSpaceMapping()
         jython_mapper.ionchambers.setOutputLogValues(False) 
+        
+    def _runTheScan(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller):
+        times = []
+        if isinstance(beanGroup.getScan(),XasScanParameters):
+            times = ExafsScanPointCreator.getScanTimeArray(beanGroup.getScan())
+        elif isinstance(beanGroup.getScan(),XanesScanParameters):
+            times = XanesScanPointCreator.getScanTimeArray(beanGroup.getScan())
+        if len(times) > 0:
+            print "Setting scan times, using array of length",len(times)
+            jython_mapper = JythonNameSpaceMapping()
+            jython_mapper.ionchambers.setTimes(times)
+        self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
         
 
     def setDetectorCorrectionParameters(self,beanGroup):
@@ -168,12 +180,9 @@ class I20XesScan(XasScan):
         beanGroup.setOutput(outputBean)
         beanGroup.setScan(xesScanBean)
 
-#    XasAsciiDataWriter.setBeanGroup(beanGroup)
-
         # work out which detectors to use (they will need to have been configured already by the GUI)
-        #detectorList = getDetectors(beanGroup.getDetector(), beanGroup.getOutput(), beanGroup.getScan()) 
-#    print "detectors to be used:", str(detectorList)
-        detectorList = []
+        detectorList = self._getDetectors(beanGroup.getDetector(), beanGroup.getScan()) 
+
     # set up the sample 
         #setup(beanGroup)
     
@@ -194,7 +203,7 @@ class I20XesScan(XasScan):
     
     # get the relevant objects from the namespace
         xes_energy = jython_mapper.XESEnergy
-        mono_energy = jython_mapper.test
+        mono_energy = jython_mapper.bragg1
         analyserAngle = jython_mapper.XESBragg
     #L = jython_mapper.xtal_x
     
@@ -222,7 +231,7 @@ class I20XesScan(XasScan):
             print "Scanning over the analyser and mono energies"
             print "switching data output format to XesAsciiNexusDataWriter"
             LocalProperties.set("gda.data.scan.datawriter.dataFormat","XesAsciiNexusDataWriter")
-            args += [mono_energy, xesScanBean.getMonoInitialEnergy(), xesScanBean.getMonoFinalEnergy(), xesScanBean.getMonoStepSize(), xes_energy, xesScanBean.getXesInitialEnergy(), xesScanBean.getXesFinalEnergy(), xesScanBean.getXesStepSize()]
+            args += [xes_energy, xesScanBean.getXesInitialEnergy(), xesScanBean.getXesFinalEnergy(), xesScanBean.getXesStepSize(), mono_energy, xesScanBean.getMonoInitialEnergy(), xesScanBean.getMonoFinalEnergy(), xesScanBean.getMonoStepSize()]
 
         # create scannable which will control 2D plotting in this mode
             jython_mapper.twodplotter.setX_colName(xes_energy.getInputNames()[0])
@@ -239,15 +248,15 @@ class I20XesScan(XasScan):
 
             print "moving XES analyser stage to collect at", xesScanBean.getXesEnergy()
             xes_energy(xesScanBean.getXesEnergy())
-            add_default(xes_energy)
-            add_default(analyserAngle)
+            ScannableCommands.add_default(xes_energy)
+            ScannableCommands.add_default(analyserAngle)
 
             try:
-                xas(sampleBean, xas_scanfilename, detectorBean, outputBean, folderName, numRepetitions, validation)
+                jython_mapper.xas(sampleBean, xas_scanfilename, detectorBean, outputBean, folderName, numRepetitions, validation)
             finally:
                 print "cleaning up scan defaults"
-                remove_default(xes_energy)
-                remove_default(analyserAngle)
+                ScannableCommands.remove_default(xes_energy)
+                ScannableCommands.remove_default(analyserAngle)
             return
     
         elif scanType == XesScanParameters.FIXED_XES_SCAN_XANES:
@@ -279,7 +288,7 @@ class I20XesScan(XasScan):
         signalParameters = self._getSignalList(beanGroup.getOutput())
         if len(signalParameters) > 0:
             args += signalParameters
-#    print args 
+        print args 
 
 
     # now that the scan has been defined, run it in a loop

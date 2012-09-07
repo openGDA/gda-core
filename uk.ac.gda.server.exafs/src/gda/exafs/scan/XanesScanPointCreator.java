@@ -32,6 +32,13 @@ import uk.ac.gda.beans.exafs.XanesScanParameters;
  */
 public class XanesScanPointCreator {
 	
+	public static Double[] getScanTimeArray(XanesScanParameters parameters) throws Exception {
+		XanesScanPointCreator creator = new XanesScanPointCreator();
+		setupScanPointCreator(parameters, creator);
+		creator.getEnergies();
+		return creator.getScanTimes();
+	}
+
 	/**
 	 * Operates this class when a bean (xml file from the gui) has been configured. This gives an example of how this
 	 * class should be driven in a more manual mode.
@@ -94,6 +101,15 @@ public class XanesScanPointCreator {
 	 */
 	public PyTuple getEnergies() throws Exception {
 		return ExafsScanPointCreator.convert2DDoubleArray(getScanEnergies(), numberDetectors);
+	}
+
+	public Double[] getScanTimes() throws Exception {
+		double[][] energies = getScanEnergies();
+		Double[] times = new Double[energies.length];
+		for (int i = 0; i < energies.length; i++){
+			times[i] = energies[i][1];
+		}
+		return times;
 	}
 
 	private double[][] getScanEnergies() throws Exception {

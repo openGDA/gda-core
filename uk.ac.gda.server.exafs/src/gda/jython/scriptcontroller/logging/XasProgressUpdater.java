@@ -41,7 +41,7 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 	private final String repetition;
 	private final String outputFolder;
 	private long timeStarted;
-	private String lastPercentComplete;
+	private String lastPercentComplete = "0%";
 	
 	public XasProgressUpdater(LoggingScriptController controller,XasLoggingMessage msg){
 		this.controller = controller;
