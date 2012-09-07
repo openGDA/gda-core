@@ -65,6 +65,18 @@ public class Hdf5HelperData {
 		this(dims, data, new H5Datatype(HDF5Constants.H5T_NATIVE_DOUBLE),HDF5Constants.H5T_NATIVE_DOUBLE);
 	}
 
+	public Hdf5HelperData(short[] data) {
+		this(new long[]{data.length}, data, new H5Datatype(HDF5Constants.H5T_NATIVE_INT16),HDF5Constants.H5T_NATIVE_INT16);
+	}
+	
+	public Hdf5HelperData( int[] data) {
+		this(new long[]{data.length}, data, new H5Datatype(HDF5Constants.H5T_NATIVE_INT32),HDF5Constants.H5T_NATIVE_INT32);
+	}
+
+	public Hdf5HelperData( double[] data) {
+		this(new long[]{data.length}, data, new H5Datatype(HDF5Constants.H5T_NATIVE_DOUBLE),HDF5Constants.H5T_NATIVE_DOUBLE);
+	}
+
 	static public Hdf5HelperData getInstance(String s) throws HDF5LibraryException {
 		byte[] bytes = s.getBytes();
 		int typeId = H5.H5Tcopy(HDF5Constants.H5T_C_S1);
