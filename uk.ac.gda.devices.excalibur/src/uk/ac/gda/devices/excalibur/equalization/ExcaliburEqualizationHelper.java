@@ -23,7 +23,6 @@ import gda.analysis.numerical.straightline.Results;
 import gda.analysis.numerical.straightline.StraightLineFit;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -37,12 +36,9 @@ import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
 import uk.ac.diamond.scisoft.analysis.dataset.ShortDataset;
-import uk.ac.diamond.scisoft.analysis.fitting.functions.APeak;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.CompositeFunction;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.Gaussian;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.IPeak;
-import uk.ac.diamond.scisoft.analysis.fitting.functions.IdentifiedPeak;
-import uk.ac.diamond.scisoft.analysis.fitting.functions.Offset;
 import uk.ac.diamond.scisoft.analysis.optimize.GeneticAlg;
 import uk.ac.gda.analysis.hdf5.HDF5HelperLocations;
 import uk.ac.gda.analysis.hdf5.HDF5NexusLocation;
@@ -59,6 +55,8 @@ import uk.ac.gda.devices.excalibur.MpxiiiChipReg;
  * 
  */
 public class ExcaliburEqualizationHelper {
+
+	private static final double FWHM_OVER_SIGMA = 2.3548;
 
 	/*
 	 * Name of attribute in hdf file for equalisation target used in generating THRESHOLD_NOPT and THRESHOLD_0OPT
@@ -156,9 +154,8 @@ public class ExcaliburEqualizationHelper {
 	public static final String THRESHOLD_DATASET = "edgeThresholds";
 	public static final String CHIP_PRESENT_DATASET = "chip_present";
 	public static final String CHIP_THRESHOLD_GAUSSIAN_POSITION_DATASET = "chip_threshold_gaussian_position";
-	public static final String CHIP_THRESHOLD_GAUSSIAN_FWHM_DATASET = "chip_threshold_gaussian_fwhm";
-	public static final String CHIP_THRESHOLD_GAUSSIAN_OFFSETIN = "chip_threshold_gaussian_offsetin";
-	public static final String CHIP_THRESHOLD_GAUSSIAN_BACKGROUND = "chip_threshold_gaussian_background";
+	public static final String CHIP_THRESHOLD_GAUSSIAN_SIGMA_DATASET = "chip_threshold_gaussian_sigma";
+	public static final String CHIP_THRESHOLD_GAUSSIAN_HEIGHT_DATASET = "chip_threshold_gaussian_height";
 	private static final ExcaliburEqualizationHelper INSTANCE = new ExcaliburEqualizationHelper();
 
 	public static ExcaliburEqualizationHelper getInstance() {
@@ -316,7 +313,9 @@ public class ExcaliburEqualizationHelper {
 			hdf.concatenateDataSetsFromFiles(edgeThresholdFiles, getEqualisationLocation(), CHIP_PRESENT_DATASET,
 					resultFile);
 			hdf.concatenateDataSetsFromFiles(edgeThresholdFiles, getEqualisationLocation(),
-					CHIP_THRESHOLD_GAUSSIAN_FWHM_DATASET, resultFile);
+					CHIP_THRESHOLD_GAUSSIAN_SIGMA_DATASET, resultFile);
+			hdf.concatenateDataSetsFromFiles(edgeThresholdFiles, getEqualisationLocation(),
+					CHIP_THRESHOLD_GAUSSIAN_HEIGHT_DATASET, resultFile);
 			hdf.concatenateDataSetsFromFiles(edgeThresholdFiles, getEqualisationLocation(),
 					CHIP_THRESHOLD_GAUSSIAN_POSITION_DATASET, resultFile);
 		}
@@ -572,34 +571,32 @@ public class ExcaliburEqualizationHelper {
 
 		short[] present = new short[numItems];
 		double[] positions = new double[numItems];
-		double[] fwhms = new double[numItems];
-		double[] offset = new double[numItems];
-		double[] background = new double[numItems];
-		Arrays.fill(fwhms, FIT_FAILED_WIDTH);
+		double[] sigmas = new double[numItems];
+		double[] height = new double[numItems];
+		Arrays.fill(sigmas, FIT_FAILED_WIDTH);
 		for (int i = 0; i < numItems; i++) {
 			present[i] = (short) (chipPresent[i] ? 1 : 0);
 			if (chipPresent[i]) {
 				if (aPeaks[i].function != null) { 
 					IPeak function = aPeaks[i].function.getPeak(0);
 					positions[i] = function.getPosition();
-					fwhms[i] = function.getFWHM();
-					background[i] = aPeaks[i].function.getParameter(3).getValue();
+					sigmas[i] = function.getFWHM()/FWHM_OVER_SIGMA;
+					height[i] = function.getHeight();
 				}
-				offset[i] = aPeaks[i].offset;
 			}
-			hdf.writeToFileSimple(aPeaks[i].population, resultFileName, getEqualisationLocation(),
-					"Population"+i);
+			hdf.writeToFileSimple(new Hdf5HelperData(aPeaks[i].xvals), resultFileName, getEqualisationLocation(),
+					"Population"+i+"_xvals");
+			hdf.writeToFileSimple(new Hdf5HelperData(aPeaks[i].yvals), resultFileName, getEqualisationLocation(),
+					"Population"+i+"_yvals");
 		}
 		hdf.writeToFileSimple(new Hdf5HelperData(dims, present), resultFileName, getEqualisationLocation(),
 				CHIP_PRESENT_DATASET);
 		hdf.writeToFileSimple(new Hdf5HelperData(dims, positions), resultFileName, getEqualisationLocation(),
 				CHIP_THRESHOLD_GAUSSIAN_POSITION_DATASET);
-		hdf.writeToFileSimple(new Hdf5HelperData(dims, fwhms), resultFileName, getEqualisationLocation(),
-				CHIP_THRESHOLD_GAUSSIAN_FWHM_DATASET);
-		hdf.writeToFileSimple(new Hdf5HelperData(dims, offset), resultFileName, getEqualisationLocation(),
-				CHIP_THRESHOLD_GAUSSIAN_OFFSETIN);
-		hdf.writeToFileSimple(new Hdf5HelperData(dims, background), resultFileName, getEqualisationLocation(),
-				CHIP_THRESHOLD_GAUSSIAN_BACKGROUND);
+		hdf.writeToFileSimple(new Hdf5HelperData(dims, sigmas), resultFileName, getEqualisationLocation(),
+				CHIP_THRESHOLD_GAUSSIAN_SIGMA_DATASET);
+		hdf.writeToFileSimple(new Hdf5HelperData(dims, height), resultFileName, getEqualisationLocation(),
+				CHIP_THRESHOLD_GAUSSIAN_HEIGHT_DATASET);
 	}
 
 	/**
@@ -628,12 +625,11 @@ public class ExcaliburEqualizationHelper {
 			AbstractDataset dataset = chip.getDataset(loader);
 			ShortDataset dataset2 = getDatasetWithValidPixels(dataset);
 			if (dataset2 != null) {
-				int offset = dataset2.min().intValue();
-				int[] population = createBinnedPopulation(dataset2);
+				double[][] xyvals = createBinnedPopulation(dataset2);
 				ChipAveragedResult chipAveragedResult = new ChipAveragedResult();
-				chipAveragedResult.function = fitGaussianToBinnedPopulation(population, offset);
-				chipAveragedResult.population = new Hdf5HelperData(new long[]{population.length},population);
-				chipAveragedResult.offset = offset;
+				chipAveragedResult.xvals = xyvals[0];
+				chipAveragedResult.yvals = xyvals[1];
+				chipAveragedResult.function = fitGaussianToBinnedPopulation(chipAveragedResult.xvals, chipAveragedResult.yvals);
 				aPeaks[chip.index] = chipAveragedResult;
 			}
 		}
@@ -660,32 +656,17 @@ public class ExcaliburEqualizationHelper {
 	}
 
 	/**
-	 * @return result of fitting gaussian over the population within the slice given by start, stop, step
+	 * @return result of fitting Gaussian over the population within the slice given by start, stop, step
 	 */
-	public CompositeFunction fitGaussianToBinnedPopulation(int[] population, int offset) {
+	public CompositeFunction fitGaussianToBinnedPopulation(double[] xvals, double [] yvals) {
 
-		double[] xvals = new double[population.length];
-		double[] yvals = new double[population.length];
-		int numFound = 0;
-		for (int i = 0; i < population.length; i++) {
-//			if (population[i] > 0) {
-				xvals[numFound] = i + offset;
-				yvals[numFound] = population[i];
-				numFound += 1;
-//			}
-		}
-		xvals = Arrays.copyOf(xvals, numFound);
-		yvals = Arrays.copyOf(yvals, numFound);
-		if (numFound > 0) {
-			xvals = Arrays.copyOf(xvals, numFound);
-			yvals = Arrays.copyOf(yvals, numFound);
+		if (xvals.length > 0 && xvals.length==yvals.length) {
 			DoubleDataset xvals_ds = new DoubleDataset(xvals);
 			DoubleDataset yvals_ds = new DoubleDataset(yvals);
 
 			double xmax = xvals_ds.max().doubleValue();
 			double xmin = xvals_ds.min().doubleValue();
 			double ymax = yvals_ds.max().doubleValue();
-			double ymin = yvals_ds.min().doubleValue();
 			double xavg = (xmax + xmin) / 2;
 			double xfwhm = (xmax - xmin) / 4;
 			
@@ -694,12 +675,10 @@ public class ExcaliburEqualizationHelper {
 			peakFunction.getParameter(1).setLimits(0., xfwhm*4);
 			peakFunction.getParameter(2).setLimits(-ymax*xfwhm*4*2, ymax*xfwhm*4*2);
 			
-			Offset background = new Offset(ymin, (Double)yvals_ds.mean());
 
 			
 			CompositeFunction cmpF = new CompositeFunction();
 			cmpF.addFunction(peakFunction);
-			cmpF.addFunction(background);
 			
 			GeneticAlg geneticAlg = new GeneticAlg(0.01); 
 			geneticAlg.optimize(new IDataset[]{xvals_ds}, yvals_ds, cmpF);
@@ -709,7 +688,7 @@ public class ExcaliburEqualizationHelper {
 		return null;
 	}
 
-	int[] createBinnedPopulation(AbstractDataset ids) {
+	double[][] createBinnedPopulation(AbstractDataset ids) {
 		int minVal = ids.min().intValue();
 		// range of values is from minVal to max. Num of bins is range +1
 		// first bin contains population with val = minVal
@@ -721,7 +700,21 @@ public class ExcaliburEqualizationHelper {
 			int value = (int) ids.getElementLongAbs(iter.index);
 			numInBins[value - minVal] += 1;
 		}
-		return numInBins;
+		
+		double[] xvals = new double[numInBins.length];
+		double[] yvals = new double[numInBins.length];
+		int numFound = 0;
+		for (int i = 0; i < numInBins.length; i++) {
+			if (numInBins[i] > 0) {
+				xvals[numFound] = i + minVal;
+				yvals[numFound] = numInBins[i];
+				numFound += 1;
+			}
+		}
+		xvals = Arrays.copyOf(xvals, numFound);
+		yvals = Arrays.copyOf(yvals, numFound);
+		double[][] xyvals = new double[][]{xvals, yvals};
+		return xyvals;
 	}
 
 	public void createThresholdNOpt(String thresholdNChipResponseFile, String thresholdN50ChipThresholdFile,
@@ -734,22 +727,23 @@ public class ExcaliburEqualizationHelper {
 				.getLocationForOpen(), THRESHOLD_RESPONSE_SLOPES_DATASET, true);
 
 		// read the fwhm for thresholdN=50
-		Hdf5HelperData fwhmData = hdf.readDataSetAll(thresholdN50ChipThresholdFile, getEqualisationLocation()
-				.getLocationForOpen(), CHIP_THRESHOLD_GAUSSIAN_FWHM_DATASET, true);
+		Hdf5HelperData sigmaData = hdf.readDataSetAll(thresholdN50ChipThresholdFile, getEqualisationLocation()
+				.getLocationForOpen(), CHIP_THRESHOLD_GAUSSIAN_SIGMA_DATASET, true);
 
 		long lenFromOffsetData = hdf.lenFromDims(offsetData.dims);
 		long lenFromSlopeData = hdf.lenFromDims(slopeData.dims);
-		long lenFromFwhmData = hdf.lenFromDims(fwhmData.dims);
+		long lenFromSigmaData = hdf.lenFromDims(sigmaData.dims);
 
-		if (lenFromOffsetData != lenFromSlopeData || lenFromSlopeData != lenFromFwhmData)
+		if (lenFromOffsetData != lenFromSlopeData || lenFromSlopeData != lenFromSigmaData)
 			throw new IllegalArgumentException(
-					"lenFromOffsetData !=  lenFromSlopeData || lenFromSlopeData != lenFromFwhmData");
+					"lenFromOffsetData !=  lenFromSlopeData || lenFromSlopeData != lenFromSigmaData");
 		short[] thresholdNOpt = new short[(int) lenFromOffsetData];
 		double[] threshold0opt = new double[(int) lenFromOffsetData];
 		for (int i = 0; i < lenFromOffsetData; i++) {
-			threshold0opt[i] = 3.2 * Array.getDouble(fwhmData.data, i)/2.35 + equalisationTarget;
-			thresholdNOpt[i] = (short) ((threshold0opt[i] - Array.getDouble(offsetData.data, i)) / (Array.getDouble(
-					slopeData.data, i)));
+			threshold0opt[i] = 3.2 * Array.getDouble(sigmaData.data, i) + equalisationTarget;
+			double val = (threshold0opt[i] - Array.getDouble(offsetData.data, i)) / (Array.getDouble(
+					slopeData.data, i));
+			thresholdNOpt[i] = (short) Math.round( val);
 		}
 		Hdf5HelperData data = new Hdf5HelperData(offsetData.dims, threshold0opt);
 		hdf.writeToFileSimple(data, resultFile, getEqualisationLocation(), THRESHOLD_0OPT);
@@ -896,17 +890,19 @@ public class ExcaliburEqualizationHelper {
 			AbstractDataset dataset = chip.getDataset(loader);
 			ShortDataset dataset2 = getDatasetWithValidPixels(dataset);
 			if (dataset2 != null) {
-				int offset = dataset2.min().intValue();
-				int[] population = createBinnedPopulation(dataset2);
+				double[][] xyvals = createBinnedPopulation(dataset2);
+				double [] xvals=xyvals[0];
+
+				double [] yvals=xyvals[1];
 				thresholdLimit[chip.index] = 0;
 				// go backwards until we have removed numPixelsOutSide
 				int numOutside = 0;
-				int i = population.length - 1;
+				int i = yvals.length - 1;
 				while (numOutside < numPixelsOutSide && i >= 0) {
-					numOutside += population[i];
+					numOutside += yvals[i];
 					i--;
 				}
-				short thresholdlimit = (short) (i + offset);
+				short thresholdlimit = (short) xvals[i];
 				thresholdLimit[chip.index] = thresholdlimit; // if numPixelsOutSide==0 then use all i=
 																// population.length-1
 			}
@@ -1078,6 +1074,6 @@ public class ExcaliburEqualizationHelper {
 }
 class ChipAveragedResult{
 	public CompositeFunction function;
-	public Hdf5HelperData population;
-	public int offset;
+	public double [] xvals;
+	public double [] yvals;
 }
