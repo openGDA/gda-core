@@ -109,14 +109,17 @@ public class StraightLineFit {
 				throw new IllegalArgumentException("data.get(i).length != numLines");
 			
 		}
-		double xAverage = getXAverage(x);
-		double x1 = getX(x, xAverage);
-		double[] y = new double[pointsPerLine];
+		
 		double [] slopes = new double[numLines];
 		double [] offsets = new double[numLines];
 		short [] fitoks = new short[numLines];
 		Arrays.fill(fitoks, (short)0);		
-		if( pointsPerLine >= 2){
+		if( pointsPerLine > 2){
+			double xAverage = getXAverage(x);
+			double x1 = getX(x, xAverage);
+			double[] y = new double[pointsPerLine];
+
+			
 			Arrays.fill(fitoks, (short)1);
 			for (int line = 0; line < numLines; line++) {
 				for( int point=0; point<pointsPerLine; point++){
@@ -125,6 +128,19 @@ public class StraightLineFit {
 				Result fit2 = fit2(y, x, xAverage, x1);
 				slopes[line] = fit2.getSlope();
 				offsets[line] = fit2.getOffset();
+			}
+		}
+		else if( pointsPerLine == 2){
+			
+			double[] y = new double[pointsPerLine];
+			Arrays.fill(fitoks, (short)1);
+			for (int line = 0; line < numLines; line++) {
+				for( int point=0; point<pointsPerLine; point++){
+					y[point] = Array.getDouble(data.get(point),line);
+				}
+				
+				slopes[line] = (y[1] - y[0])/(x[1]-x[0]);
+				offsets[line] = y[1] - slopes[line]*x[1];
 			}
 		}
 		return new Results(offsets, slopes, dims, fitoks);		
