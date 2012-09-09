@@ -97,22 +97,22 @@ public final class QEXAFSParametersComposite extends Composite {
 			String dcmCrystal = JythonServerFacade.getInstance().evaluateCommand("dcm_crystal()");
 			if (dcmCrystal.equals("Si(111)")) {
 				finalEnergy.setMinimum(2050.0);
-				finalEnergy.setMaximum(22000.0);
+				finalEnergy.setMaximum(26000.0);
 				initialEnergy.setMinimum(2050.0);
-				initialEnergy.setMaximum(22000.0);
+				initialEnergy.setMaximum(26000.0);
 				crystal = Quantity.valueOf(6.2695, NonSI.ANGSTROM);
 			} else if (dcmCrystal.equals("Si(311)")) {
 				finalEnergy.setMinimum(4000.0);
-				finalEnergy.setMaximum(36000.0);
+				finalEnergy.setMaximum(40000.0);
 				initialEnergy.setMinimum(4000.0);
-				initialEnergy.setMaximum(36000.0);
+				initialEnergy.setMaximum(40000.0);
 				crystal = Quantity.valueOf(3.275, NonSI.ANGSTROM);
 			}
 		} else {
 			Double max = ExafsActivator.getDefault().getPreferenceStore()
 					.getDouble(ExafsPreferenceConstants.XAS_MAX_ENERGY);
 			if (max == 0)
-				max = 35000.;
+				max = 40000.;
 		}
 
 		label = new Label(this, SWT.NONE);
