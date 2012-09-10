@@ -4482,8 +4482,8 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 
 		initEClass(darkFieldTypeEClass, DarkFieldType.class, "DarkFieldType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getDarkFieldType_Type(), this.getTypeType13(), null, "type", null, 0, 1, DarkFieldType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getDarkFieldType_ValueBefore(), theXMLTypePackage.getDecimal(), "valueBefore", null, 0, 1, DarkFieldType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getDarkFieldType_ValueAfter(), theXMLTypePackage.getDecimal(), "valueAfter", null, 0, 1, DarkFieldType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getDarkFieldType_ValueBefore(), ecorePackage.getEDoubleObject(), "valueBefore", null, 0, 1, DarkFieldType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getDarkFieldType_ValueAfter(), ecorePackage.getEDoubleObject(), "valueAfter", null, 0, 1, DarkFieldType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getDarkFieldType_FileBefore(), theXMLTypePackage.getNormalizedString(), "fileBefore", null, 0, 1, DarkFieldType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getDarkFieldType_FileAfter(), theXMLTypePackage.getNormalizedString(), "fileAfter", null, 0, 1, DarkFieldType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getDarkFieldType_ProfileType(), this.getProfileTypeType(), null, "profileType", null, 0, 1, DarkFieldType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -4533,8 +4533,8 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 
 		initEClass(flatFieldTypeEClass, FlatFieldType.class, "FlatFieldType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getFlatFieldType_Type(), this.getTypeType15(), null, "type", null, 0, 1, FlatFieldType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getFlatFieldType_ValueBefore(), theXMLTypePackage.getInt(), "valueBefore", null, 0, 1, FlatFieldType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getFlatFieldType_ValueAfter(), theXMLTypePackage.getInt(), "valueAfter", null, 0, 1, FlatFieldType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getFlatFieldType_ValueBefore(), ecorePackage.getEDoubleObject(), "valueBefore", null, 0, 1, FlatFieldType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getFlatFieldType_ValueAfter(), ecorePackage.getEDoubleObject(), "valueAfter", null, 0, 1, FlatFieldType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getFlatFieldType_FileBefore(), theXMLTypePackage.getNormalizedString(), "fileBefore", null, 0, 1, FlatFieldType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getFlatFieldType_FileAfter(), theXMLTypePackage.getString(), "fileAfter", null, 0, 1, FlatFieldType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getFlatFieldType_ProfileType(), this.getProfileTypeType1(), null, "profileType", null, 0, 1, FlatFieldType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);

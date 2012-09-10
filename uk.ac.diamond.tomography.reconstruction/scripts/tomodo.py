@@ -1334,6 +1334,14 @@ def makeLinksForNXSFile(\
 					else:
 						inSinoFoldername='sinograms'
 					
+					mydoc=parse(inSettings)
+					#print '\t mydoc',mydoc
+					#bptag=mydoc.getElementsByTagName("FBP")
+					backprojtag=mydoc.getElementsByTagName("Backprojection")
+					valtag=backprojtag[0].getElementsByTagName("ImageCentre")
+					CORx = valtag[0].childNodes[0].data
+					#print '\tCORx=',CORx
+		
 					recon_success, recon_imfolder=launchReconArray(outDir=reconDir, ctrCoord=CORx, inSinoFolder=inSinoFoldername, settingsfile=inSettings)
 				except Exception, ex:
 					recon_success=False

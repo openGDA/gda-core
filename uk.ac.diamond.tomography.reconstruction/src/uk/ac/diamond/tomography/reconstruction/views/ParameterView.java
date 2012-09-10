@@ -52,7 +52,9 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISelectionListener;
@@ -68,8 +70,15 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.tomography.reconstruction.Activator;
 import uk.ac.diamond.tomography.reconstruction.ReconUtil;
+import uk.ac.diamond.tomography.reconstruction.parameters.hm.BackprojectionType;
+import uk.ac.diamond.tomography.reconstruction.parameters.hm.DarkFieldType;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.DocumentRoot;
+import uk.ac.diamond.tomography.reconstruction.parameters.hm.FBPType;
+import uk.ac.diamond.tomography.reconstruction.parameters.hm.FlatDarkFieldsType;
+import uk.ac.diamond.tomography.reconstruction.parameters.hm.FlatFieldType;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.HMxmlType;
+import uk.ac.diamond.tomography.reconstruction.parameters.hm.ROIType;
+import uk.ac.diamond.tomography.reconstruction.parameters.hm.RingArtefactsType;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.presentation.HmEditor;
 import uk.ac.gda.util.io.FileUtils;
 
@@ -105,6 +114,38 @@ public class ParameterView extends ViewPart implements ISelectionListener {
 
 	private Text txtCenterOfRotation;
 
+	private Combo cmbAml;
+
+	private Text txtNumSeries;
+
+	private Text txtDarkField;
+
+	private Combo cmbFlatFieldType;
+
+	private Text txtFlatFieldValueBefore;
+
+	private Text txtFlatFieldValueAfter;
+
+	private Text txtFlatFieldFileBefore;
+
+	private Combo cmbDarkFieldType;
+
+	private Text txtDarkFieldValueBefore;
+
+	private Text txtDarkFieldFileBefore;
+
+	private Text txtDarkFieldValueAfter;
+
+	private Combo cmbRoiType;
+
+	private Text txtRoiXMin;
+
+	private Text txtRoiXMax;
+
+	private Text txtRoiYMin;
+
+	private Text txtRoiYMax;
+
 	/**
 	 * The constructor.
 	 */
@@ -126,11 +167,23 @@ public class ParameterView extends ViewPart implements ISelectionListener {
 		formComposite.setLayout(new GridLayout(2, false));
 
 		Label lblCenterOfRotation = new Label(formComposite, SWT.None);
-		lblCenterOfRotation.setText("Centre of Rotation");
+		lblCenterOfRotation.setText("Rotation Centre");
 		lblCenterOfRotation.setLayoutData(new GridData());
 
 		txtCenterOfRotation = new Text(formComposite, SWT.BORDER);
 		txtCenterOfRotation.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		// Ring Artefacts
+		createRingArtefacts(formComposite);
+
+		// Flat fields
+		createFlatFields(formComposite);
+
+		// Dark Fields
+		createDarkFields(formComposite);
+
+		// ROI
+		createRoi(formComposite);
 
 		Button btnPreview = new Button(composite, SWT.PUSH);
 		btnPreview.setText("Preview Reconstruction Settings");
@@ -199,22 +252,242 @@ public class ParameterView extends ViewPart implements ISelectionListener {
 
 	}
 
+	private void createRoi(Composite formComposite) {
+		GridData gd;
+		Group grpRoi = new Group(formComposite, SWT.None);
+		grpRoi.setLayout(new GridLayout(4, false));
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = 2;
+		grpRoi.setLayoutData(gd);
+		grpRoi.setText("Region of Interest");
+
+		Label lblRoiType = new Label(grpRoi, SWT.None);
+		lblRoiType.setText("Type");
+		lblRoiType.setLayoutData(new GridData());
+
+		cmbRoiType = new Combo(grpRoi, SWT.DROP_DOWN | SWT.READ_ONLY);
+		GridData layoutData2 = new GridData(GridData.FILL_HORIZONTAL);
+		layoutData2.horizontalSpan = 3;
+		cmbRoiType.setLayoutData(layoutData2);
+		cmbRoiType.setItems(new String[] { "Standard", "Rectangle" });
+
+		Label lblXmin = new Label(grpRoi, SWT.None);
+		lblXmin.setText("X min");
+		lblXmin.setLayoutData(new GridData());
+
+		txtRoiXMin = new Text(grpRoi, SWT.BORDER);
+		txtRoiXMin.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Label lblXmax = new Label(grpRoi, SWT.None);
+		lblXmax.setText("X max");
+		lblXmax.setLayoutData(new GridData());
+
+		txtRoiXMax = new Text(grpRoi, SWT.BORDER);
+		txtRoiXMax.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Label lblYmin = new Label(grpRoi, SWT.None);
+		lblYmin.setText("Y min");
+		lblYmin.setLayoutData(new GridData());
+
+		txtRoiYMin = new Text(grpRoi, SWT.BORDER);
+		txtRoiYMin.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Label lblYmax = new Label(grpRoi, SWT.None);
+		lblYmax.setText("Y max");
+		lblYmax.setLayoutData(new GridData());
+
+		txtRoiYMax = new Text(grpRoi, SWT.BORDER);
+		txtRoiYMax.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+	}
+
+	private void createDarkFields(Composite formComposite) {
+		GridData gd;
+		Group grpDark = new Group(formComposite, SWT.None);
+		grpDark.setLayout(new GridLayout(4, false));
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = 2;
+		grpDark.setLayoutData(gd);
+		grpDark.setText("Dark Fields");
+
+		Label lblDarkType = new Label(grpDark, SWT.None);
+		lblDarkType.setText("Type");
+		lblDarkType.setLayoutData(new GridData());
+
+		cmbDarkFieldType = new Combo(grpDark, SWT.DROP_DOWN | SWT.READ_ONLY);
+		cmbDarkFieldType.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		cmbDarkFieldType.setItems(new String[] { "User", "Row" });
+
+		Label lblDarkValueBefore = new Label(grpDark, SWT.None);
+		lblDarkValueBefore.setText("Value Before");
+		lblDarkValueBefore.setLayoutData(new GridData());
+
+		txtDarkFieldValueBefore = new Text(grpDark, SWT.BORDER);
+		txtDarkFieldValueBefore.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Label lblDarkFileBefore = new Label(grpDark, SWT.None);
+		lblDarkFileBefore.setText("File Before");
+		lblDarkFileBefore.setLayoutData(new GridData());
+
+		txtDarkFieldFileBefore = new Text(grpDark, SWT.BORDER);
+		txtDarkFieldFileBefore.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Label lblDarkValueAfter = new Label(grpDark, SWT.None);
+		lblDarkValueAfter.setText("Value After");
+		lblDarkValueAfter.setLayoutData(new GridData());
+
+		txtDarkFieldValueAfter = new Text(grpDark, SWT.BORDER);
+		txtDarkFieldValueAfter.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+	}
+
+	private void createFlatFields(Composite formComposite) {
+		Group grpFlat = new Group(formComposite, SWT.None);
+		grpFlat.setLayout(new GridLayout(4, false));
+		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = 2;
+		grpFlat.setLayoutData(gd);
+		grpFlat.setText("Flat Fields");
+
+		Label lblType = new Label(grpFlat, SWT.None);
+		lblType.setText("Type");
+		lblType.setLayoutData(new GridData());
+
+		cmbFlatFieldType = new Combo(grpFlat, SWT.DROP_DOWN | SWT.READ_ONLY);
+		cmbFlatFieldType.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		cmbFlatFieldType.setItems(new String[] { "User", "Row" });
+
+		Label lblValueBefore = new Label(grpFlat, SWT.None);
+		lblValueBefore.setText("Value Before");
+		lblValueBefore.setLayoutData(new GridData());
+
+		txtFlatFieldValueBefore = new Text(grpFlat, SWT.BORDER);
+		txtFlatFieldValueBefore.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Label lblFileBefore = new Label(grpFlat, SWT.None);
+		lblFileBefore.setText("File Before");
+		lblFileBefore.setLayoutData(new GridData());
+
+		txtFlatFieldFileBefore = new Text(grpFlat, SWT.BORDER);
+		txtFlatFieldFileBefore.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Label lblValueAfter = new Label(grpFlat, SWT.None);
+		lblValueAfter.setText("Value After");
+		lblValueAfter.setLayoutData(new GridData());
+
+		txtFlatFieldValueAfter = new Text(grpFlat, SWT.BORDER);
+		txtFlatFieldValueAfter.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+	}
+
+	private void createRingArtefacts(Composite formComposite) {
+		Group grpRingArtefacts = new Group(formComposite, SWT.None);
+		grpRingArtefacts.setLayout(new GridLayout(4, false));
+		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = 2;
+		grpRingArtefacts.setLayoutData(gd);
+		grpRingArtefacts.setText("Ring Artefacts");
+
+		Label lblAML = new Label(grpRingArtefacts, SWT.None);
+		lblAML.setText("Ring Artefacts");
+		lblAML.setLayoutData(new GridData());
+
+		cmbAml = new Combo(grpRingArtefacts, SWT.DROP_DOWN | SWT.READ_ONLY);
+		cmbAml.setItems(new String[] { "No", "Column", "AML" });
+		cmbAml.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Label lblNumSeries = new Label(grpRingArtefacts, SWT.None);
+		lblNumSeries.setText("Num Series");
+		lblNumSeries.setLayoutData(new GridData());
+
+		txtNumSeries = new Text(grpRingArtefacts, SWT.BORDER);
+		txtNumSeries.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+	}
+
 	protected void saveModel() {
 		HMxmlType model = getModel();
 		try {
-			model.getFBP().getBackprojection()
-					.setImageCentre(BigDecimal.valueOf(Double.parseDouble(txtCenterOfRotation.getText())));
+			FBPType fbp = model.getFBP();
+			BackprojectionType backprojection = fbp.getBackprojection();
+			//
+			backprojection.setImageCentre(BigDecimal.valueOf(Double.parseDouble(txtCenterOfRotation.getText())));
+			RingArtefactsType ringArtefacts = fbp.getPreprocessing().getRingArtefacts();
+
+			ringArtefacts.getType().setValue(cmbAml.getText());
+			ringArtefacts.getNumSeries().setValue(BigDecimal.valueOf(Double.parseDouble(txtNumSeries.getText())));
+
+			FlatDarkFieldsType flatDarkFields = fbp.getFlatDarkFields();
+
+			FlatFieldType flatField = flatDarkFields.getFlatField();
+
+			flatField.getType().setValue(cmbFlatFieldType.getText());
+
+			flatField.setValueBefore(Double.parseDouble(txtFlatFieldValueBefore.getText()));
+			flatField.setValueAfter(Double.parseDouble(txtFlatFieldValueAfter.getText()));
+			flatField.setFileBefore(txtFlatFieldFileBefore.getText());
+
+			DarkFieldType darkField = flatDarkFields.getDarkField();
+
+			darkField.getType().setValue(cmbDarkFieldType.getText());
+
+			darkField.setValueBefore(Double.parseDouble(txtDarkFieldValueBefore.getText()));
+			darkField.setValueAfter(Double.parseDouble(txtDarkFieldValueAfter.getText()));
+			darkField.setFileBefore(txtDarkFieldFileBefore.getText());
+
+			//
+			ROIType roi = backprojection.getROI();
+			roi.getType().setValue(cmbRoiType.getText());
+			roi.setXmin(Integer.parseInt(txtRoiXMin.getText()));
+			roi.setXmax(Integer.parseInt(txtRoiXMax.getText()));
+			roi.setYmin(Integer.parseInt(txtRoiYMin.getText()));
+			roi.setYmax(Integer.parseInt(txtRoiYMax.getText()));
+
 			model.eResource().save(Collections.emptyMap());
 		} catch (IOException e) {
 			logger.error("TODO put description of error here", e);
 		}
 	}
 
-	private void setInitialText() {
+	private void initializeView() {
 		HMxmlType hmxmlType = getModel();
 
-		float floatValue = hmxmlType.getFBP().getBackprojection().getImageCentre().floatValue();
+		FBPType fbp = hmxmlType.getFBP();
+		BackprojectionType backprojection = fbp.getBackprojection();
+
+		float floatValue = backprojection.getImageCentre().floatValue();
 		txtCenterOfRotation.setText(Float.toString(floatValue));
+
+		RingArtefactsType ringArtefacts = fbp.getPreprocessing().getRingArtefacts();
+		String amlValue = ringArtefacts.getType().getValue();
+		cmbAml.setText(amlValue);
+
+		float numSeriesVal = ringArtefacts.getNumSeries().getValue().floatValue();
+		txtNumSeries.setText(Float.toString(numSeriesVal));
+
+		FlatDarkFieldsType flatDarkFields = fbp.getFlatDarkFields();
+
+		FlatFieldType flatField = flatDarkFields.getFlatField();
+
+		cmbFlatFieldType.setText(flatField.getType().getValue());
+
+		txtFlatFieldValueBefore.setText(Double.toString(flatField.getValueBefore()));
+
+		txtFlatFieldValueAfter.setText(Double.toString(flatField.getValueAfter()));
+		txtFlatFieldFileBefore.setText(flatField.getFileBefore());
+
+		DarkFieldType darkField = flatDarkFields.getDarkField();
+
+		cmbDarkFieldType.setText(darkField.getType().getValue());
+
+		txtDarkFieldValueBefore.setText(Double.toString(darkField.getValueBefore()));
+
+		txtDarkFieldValueAfter.setText(Double.toString(darkField.getValueAfter()));
+		txtDarkFieldFileBefore.setText(darkField.getFileBefore());
+
+		//
+		ROIType roi = backprojection.getROI();
+		cmbRoiType.setText(roi.getType().getValue());
+		txtRoiXMin.setText(Integer.toString(roi.getXmin()));
+		txtRoiXMax.setText(Integer.toString(roi.getXmax()));
+		txtRoiYMin.setText(Integer.toString(roi.getYmin()));
+		txtRoiYMax.setText(Integer.toString(roi.getYmax()));
 
 	}
 
@@ -341,7 +614,7 @@ public class ParameterView extends ViewPart implements ISelectionListener {
 
 					@Override
 					public void run() {
-						setInitialText();
+						initializeView();
 					}
 				});
 			}

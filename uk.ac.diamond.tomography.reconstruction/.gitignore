@@ -8,5 +8,5 @@
 /temp.folder
 /test-reports
 /test-scratch
-
+*.pyc
 # Ignores that are specific to this Eclipse project

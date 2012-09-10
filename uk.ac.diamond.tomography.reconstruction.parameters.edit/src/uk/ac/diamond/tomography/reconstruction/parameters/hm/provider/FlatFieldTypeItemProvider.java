@@ -93,7 +93,7 @@ public class FlatFieldTypeItemProvider
 				 true,
 				 false,
 				 false,
-				 ItemPropertyDescriptor.INTEGRAL_VALUE_IMAGE,
+				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
 				 null,
 				 null));
 	}
@@ -115,7 +115,7 @@ public class FlatFieldTypeItemProvider
 				 true,
 				 false,
 				 false,
-				 ItemPropertyDescriptor.INTEGRAL_VALUE_IMAGE,
+				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
 				 null,
 				 null));
 	}
@@ -236,8 +236,11 @@ public class FlatFieldTypeItemProvider
 	 */
 	@Override
 	public String getText(Object object) {
-		FlatFieldType flatFieldType = (FlatFieldType)object;
-		return getString("_UI_FlatFieldType_type") + " " + flatFieldType.getValueBefore();
+		Double labelValue = ((FlatFieldType)object).getValueBefore();
+		String label = labelValue == null ? null : labelValue.toString();
+		return label == null || label.length() == 0 ?
+			getString("_UI_FlatFieldType_type") :
+			getString("_UI_FlatFieldType_type") + " " + label;
 	}
 
 	/**

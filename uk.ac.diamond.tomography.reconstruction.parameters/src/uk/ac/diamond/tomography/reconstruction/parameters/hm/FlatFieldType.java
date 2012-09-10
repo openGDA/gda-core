@@ -69,13 +69,13 @@ public interface FlatFieldType extends EObject {
 	 * @return the value of the '<em>Value Before</em>' attribute.
 	 * @see #isSetValueBefore()
 	 * @see #unsetValueBefore()
-	 * @see #setValueBefore(int)
+	 * @see #setValueBefore(Double)
 	 * @see uk.ac.diamond.tomography.reconstruction.parameters.hm.HmPackage#getFlatFieldType_ValueBefore()
-	 * @model unsettable="true" dataType="org.eclipse.emf.ecore.xml.type.Int"
+	 * @model unsettable="true"
 	 *        extendedMetaData="kind='element' name='ValueBefore' namespace='##targetNamespace'"
 	 * @generated
 	 */
-	int getValueBefore();
+	Double getValueBefore();
 
 	/**
 	 * Sets the value of the '{@link uk.ac.diamond.tomography.reconstruction.parameters.hm.FlatFieldType#getValueBefore <em>Value Before</em>}' attribute.
@@ -87,7 +87,7 @@ public interface FlatFieldType extends EObject {
 	 * @see #getValueBefore()
 	 * @generated
 	 */
-	void setValueBefore(int value);
+	void setValueBefore(Double value);
 
 	/**
 	 * Unsets the value of the '{@link uk.ac.diamond.tomography.reconstruction.parameters.hm.FlatFieldType#getValueBefore <em>Value Before</em>}' attribute.
@@ -95,7 +95,7 @@ public interface FlatFieldType extends EObject {
 	 * <!-- end-user-doc -->
 	 * @see #isSetValueBefore()
 	 * @see #getValueBefore()
-	 * @see #setValueBefore(int)
+	 * @see #setValueBefore(Double)
 	 * @generated
 	 */
 	void unsetValueBefore();
@@ -107,7 +107,7 @@ public interface FlatFieldType extends EObject {
 	 * @return whether the value of the '<em>Value Before</em>' attribute is set.
 	 * @see #unsetValueBefore()
 	 * @see #getValueBefore()
-	 * @see #setValueBefore(int)
+	 * @see #setValueBefore(Double)
 	 * @generated
 	 */
 	boolean isSetValueBefore();
@@ -123,13 +123,13 @@ public interface FlatFieldType extends EObject {
 	 * @return the value of the '<em>Value After</em>' attribute.
 	 * @see #isSetValueAfter()
 	 * @see #unsetValueAfter()
-	 * @see #setValueAfter(int)
+	 * @see #setValueAfter(Double)
 	 * @see uk.ac.diamond.tomography.reconstruction.parameters.hm.HmPackage#getFlatFieldType_ValueAfter()
-	 * @model unsettable="true" dataType="org.eclipse.emf.ecore.xml.type.Int"
+	 * @model unsettable="true"
 	 *        extendedMetaData="kind='element' name='ValueAfter' namespace='##targetNamespace'"
 	 * @generated
 	 */
-	int getValueAfter();
+	Double getValueAfter();
 
 	/**
 	 * Sets the value of the '{@link uk.ac.diamond.tomography.reconstruction.parameters.hm.FlatFieldType#getValueAfter <em>Value After</em>}' attribute.
@@ -141,7 +141,7 @@ public interface FlatFieldType extends EObject {
 	 * @see #getValueAfter()
 	 * @generated
 	 */
-	void setValueAfter(int value);
+	void setValueAfter(Double value);
 
 	/**
 	 * Unsets the value of the '{@link uk.ac.diamond.tomography.reconstruction.parameters.hm.FlatFieldType#getValueAfter <em>Value After</em>}' attribute.
@@ -149,7 +149,7 @@ public interface FlatFieldType extends EObject {
 	 * <!-- end-user-doc -->
 	 * @see #isSetValueAfter()
 	 * @see #getValueAfter()
-	 * @see #setValueAfter(int)
+	 * @see #setValueAfter(Double)
 	 * @generated
 	 */
 	void unsetValueAfter();
@@ -161,7 +161,7 @@ public interface FlatFieldType extends EObject {
 	 * @return whether the value of the '<em>Value After</em>' attribute is set.
 	 * @see #unsetValueAfter()
 	 * @see #getValueAfter()
-	 * @see #setValueAfter(int)
+	 * @see #setValueAfter(Double)
 	 * @generated
 	 */
 	boolean isSetValueAfter();

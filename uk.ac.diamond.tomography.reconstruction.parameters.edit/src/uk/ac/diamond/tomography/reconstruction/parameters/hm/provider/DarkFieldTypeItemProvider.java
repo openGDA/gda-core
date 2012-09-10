@@ -238,7 +238,7 @@ public class DarkFieldTypeItemProvider
 	 */
 	@Override
 	public String getText(Object object) {
-		BigDecimal labelValue = ((DarkFieldType)object).getValueBefore();
+		Double labelValue = ((DarkFieldType)object).getValueBefore();
 		String label = labelValue == null ? null : labelValue.toString();
 		return label == null || label.length() == 0 ?
 			getString("_UI_DarkFieldType_type") :

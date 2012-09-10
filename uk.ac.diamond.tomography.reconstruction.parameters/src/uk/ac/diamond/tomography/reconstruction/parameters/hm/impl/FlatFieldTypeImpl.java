@@ -58,7 +58,7 @@ public class FlatFieldTypeImpl extends EObjectImpl implements FlatFieldType {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final int VALUE_BEFORE_EDEFAULT = 0;
+	protected static final Double VALUE_BEFORE_EDEFAULT = null;
 
 	/**
 	 * The cached value of the '{@link #getValueBefore() <em>Value Before</em>}' attribute.
@@ -68,7 +68,7 @@ public class FlatFieldTypeImpl extends EObjectImpl implements FlatFieldType {
 	 * @generated
 	 * @ordered
 	 */
-	protected int valueBefore = VALUE_BEFORE_EDEFAULT;
+	protected Double valueBefore = VALUE_BEFORE_EDEFAULT;
 
 	/**
 	 * This is true if the Value Before attribute has been set.
@@ -87,7 +87,7 @@ public class FlatFieldTypeImpl extends EObjectImpl implements FlatFieldType {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final int VALUE_AFTER_EDEFAULT = 0;
+	protected static final Double VALUE_AFTER_EDEFAULT = null;
 
 	/**
 	 * The cached value of the '{@link #getValueAfter() <em>Value After</em>}' attribute.
@@ -97,7 +97,7 @@ public class FlatFieldTypeImpl extends EObjectImpl implements FlatFieldType {
 	 * @generated
 	 * @ordered
 	 */
-	protected int valueAfter = VALUE_AFTER_EDEFAULT;
+	protected Double valueAfter = VALUE_AFTER_EDEFAULT;
 
 	/**
 	 * This is true if the Value After attribute has been set.
@@ -245,7 +245,7 @@ public class FlatFieldTypeImpl extends EObjectImpl implements FlatFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public int getValueBefore() {
+	public Double getValueBefore() {
 		return valueBefore;
 	}
 
@@ -254,8 +254,8 @@ public class FlatFieldTypeImpl extends EObjectImpl implements FlatFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public void setValueBefore(int newValueBefore) {
-		int oldValueBefore = valueBefore;
+	public void setValueBefore(Double newValueBefore) {
+		Double oldValueBefore = valueBefore;
 		valueBefore = newValueBefore;
 		boolean oldValueBeforeESet = valueBeforeESet;
 		valueBeforeESet = true;
@@ -269,7 +269,7 @@ public class FlatFieldTypeImpl extends EObjectImpl implements FlatFieldType {
 	 * @generated
 	 */
 	public void unsetValueBefore() {
-		int oldValueBefore = valueBefore;
+		Double oldValueBefore = valueBefore;
 		boolean oldValueBeforeESet = valueBeforeESet;
 		valueBefore = VALUE_BEFORE_EDEFAULT;
 		valueBeforeESet = false;
@@ -291,7 +291,7 @@ public class FlatFieldTypeImpl extends EObjectImpl implements FlatFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public int getValueAfter() {
+	public Double getValueAfter() {
 		return valueAfter;
 	}
 
@@ -300,8 +300,8 @@ public class FlatFieldTypeImpl extends EObjectImpl implements FlatFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public void setValueAfter(int newValueAfter) {
-		int oldValueAfter = valueAfter;
+	public void setValueAfter(Double newValueAfter) {
+		Double oldValueAfter = valueAfter;
 		valueAfter = newValueAfter;
 		boolean oldValueAfterESet = valueAfterESet;
 		valueAfterESet = true;
@@ -315,7 +315,7 @@ public class FlatFieldTypeImpl extends EObjectImpl implements FlatFieldType {
 	 * @generated
 	 */
 	public void unsetValueAfter() {
-		int oldValueAfter = valueAfter;
+		Double oldValueAfter = valueAfter;
 		boolean oldValueAfterESet = valueAfterESet;
 		valueAfter = VALUE_AFTER_EDEFAULT;
 		valueAfterESet = false;
@@ -492,10 +492,10 @@ public class FlatFieldTypeImpl extends EObjectImpl implements FlatFieldType {
 				setType((TypeType15)newValue);
 				return;
 			case HmPackage.FLAT_FIELD_TYPE__VALUE_BEFORE:
-				setValueBefore((Integer)newValue);
+				setValueBefore((Double)newValue);
 				return;
 			case HmPackage.FLAT_FIELD_TYPE__VALUE_AFTER:
-				setValueAfter((Integer)newValue);
+				setValueAfter((Double)newValue);
 				return;
 			case HmPackage.FLAT_FIELD_TYPE__FILE_BEFORE:
 				setFileBefore((String)newValue);

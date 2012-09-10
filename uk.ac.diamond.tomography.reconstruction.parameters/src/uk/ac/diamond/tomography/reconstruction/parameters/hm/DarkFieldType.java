@@ -69,13 +69,12 @@ public interface DarkFieldType extends EObject {
 	 * </p>
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Value Before</em>' attribute.
-	 * @see #setValueBefore(BigDecimal)
+	 * @see #setValueBefore(Double)
 	 * @see uk.ac.diamond.tomography.reconstruction.parameters.hm.HmPackage#getDarkFieldType_ValueBefore()
-	 * @model dataType="org.eclipse.emf.ecore.xml.type.Decimal"
-	 *        extendedMetaData="kind='element' name='ValueBefore' namespace='##targetNamespace'"
+	 * @model extendedMetaData="kind='element' name='ValueBefore' namespace='##targetNamespace'"
 	 * @generated
 	 */
-	BigDecimal getValueBefore();
+	Double getValueBefore();
 
 	/**
 	 * Sets the value of the '{@link uk.ac.diamond.tomography.reconstruction.parameters.hm.DarkFieldType#getValueBefore <em>Value Before</em>}' attribute.
@@ -85,7 +84,7 @@ public interface DarkFieldType extends EObject {
 	 * @see #getValueBefore()
 	 * @generated
 	 */
-	void setValueBefore(BigDecimal value);
+	void setValueBefore(Double value);
 
 	/**
 	 * Returns the value of the '<em><b>Value After</b></em>' attribute.
@@ -96,13 +95,12 @@ public interface DarkFieldType extends EObject {
 	 * </p>
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Value After</em>' attribute.
-	 * @see #setValueAfter(BigDecimal)
+	 * @see #setValueAfter(Double)
 	 * @see uk.ac.diamond.tomography.reconstruction.parameters.hm.HmPackage#getDarkFieldType_ValueAfter()
-	 * @model dataType="org.eclipse.emf.ecore.xml.type.Decimal"
-	 *        extendedMetaData="kind='element' name='ValueAfter' namespace='##targetNamespace'"
+	 * @model extendedMetaData="kind='element' name='ValueAfter' namespace='##targetNamespace'"
 	 * @generated
 	 */
-	BigDecimal getValueAfter();
+	Double getValueAfter();
 
 	/**
 	 * Sets the value of the '{@link uk.ac.diamond.tomography.reconstruction.parameters.hm.DarkFieldType#getValueAfter <em>Value After</em>}' attribute.
@@ -112,7 +110,7 @@ public interface DarkFieldType extends EObject {
 	 * @see #getValueAfter()
 	 * @generated
 	 */
-	void setValueAfter(BigDecimal value);
+	void setValueAfter(Double value);
 
 	/**
 	 * Returns the value of the '<em><b>File Before</b></em>' attribute.

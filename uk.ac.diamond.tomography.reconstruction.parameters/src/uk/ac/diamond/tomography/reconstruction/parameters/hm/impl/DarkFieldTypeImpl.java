@@ -60,7 +60,7 @@ public class DarkFieldTypeImpl extends EObjectImpl implements DarkFieldType {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final BigDecimal VALUE_BEFORE_EDEFAULT = null;
+	protected static final Double VALUE_BEFORE_EDEFAULT = null;
 
 	/**
 	 * The cached value of the '{@link #getValueBefore() <em>Value Before</em>}' attribute.
@@ -70,7 +70,7 @@ public class DarkFieldTypeImpl extends EObjectImpl implements DarkFieldType {
 	 * @generated
 	 * @ordered
 	 */
-	protected BigDecimal valueBefore = VALUE_BEFORE_EDEFAULT;
+	protected Double valueBefore = VALUE_BEFORE_EDEFAULT;
 
 	/**
 	 * The default value of the '{@link #getValueAfter() <em>Value After</em>}' attribute.
@@ -80,7 +80,7 @@ public class DarkFieldTypeImpl extends EObjectImpl implements DarkFieldType {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final BigDecimal VALUE_AFTER_EDEFAULT = null;
+	protected static final Double VALUE_AFTER_EDEFAULT = null;
 
 	/**
 	 * The cached value of the '{@link #getValueAfter() <em>Value After</em>}' attribute.
@@ -90,7 +90,7 @@ public class DarkFieldTypeImpl extends EObjectImpl implements DarkFieldType {
 	 * @generated
 	 * @ordered
 	 */
-	protected BigDecimal valueAfter = VALUE_AFTER_EDEFAULT;
+	protected Double valueAfter = VALUE_AFTER_EDEFAULT;
 
 	/**
 	 * The default value of the '{@link #getFileBefore() <em>File Before</em>}' attribute.
@@ -229,7 +229,7 @@ public class DarkFieldTypeImpl extends EObjectImpl implements DarkFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public BigDecimal getValueBefore() {
+	public Double getValueBefore() {
 		return valueBefore;
 	}
 
@@ -238,8 +238,8 @@ public class DarkFieldTypeImpl extends EObjectImpl implements DarkFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public void setValueBefore(BigDecimal newValueBefore) {
-		BigDecimal oldValueBefore = valueBefore;
+	public void setValueBefore(Double newValueBefore) {
+		Double oldValueBefore = valueBefore;
 		valueBefore = newValueBefore;
 		if (eNotificationRequired())
 			eNotify(new ENotificationImpl(this, Notification.SET, HmPackage.DARK_FIELD_TYPE__VALUE_BEFORE, oldValueBefore, valueBefore));
@@ -250,7 +250,7 @@ public class DarkFieldTypeImpl extends EObjectImpl implements DarkFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public BigDecimal getValueAfter() {
+	public Double getValueAfter() {
 		return valueAfter;
 	}
 
@@ -259,8 +259,8 @@ public class DarkFieldTypeImpl extends EObjectImpl implements DarkFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public void setValueAfter(BigDecimal newValueAfter) {
-		BigDecimal oldValueAfter = valueAfter;
+	public void setValueAfter(Double newValueAfter) {
+		Double oldValueAfter = valueAfter;
 		valueAfter = newValueAfter;
 		if (eNotificationRequired())
 			eNotify(new ENotificationImpl(this, Notification.SET, HmPackage.DARK_FIELD_TYPE__VALUE_AFTER, oldValueAfter, valueAfter));
@@ -426,10 +426,10 @@ public class DarkFieldTypeImpl extends EObjectImpl implements DarkFieldType {
 				setType((TypeType13)newValue);
 				return;
 			case HmPackage.DARK_FIELD_TYPE__VALUE_BEFORE:
-				setValueBefore((BigDecimal)newValue);
+				setValueBefore((Double)newValue);
 				return;
 			case HmPackage.DARK_FIELD_TYPE__VALUE_AFTER:
-				setValueAfter((BigDecimal)newValue);
+				setValueAfter((Double)newValue);
 				return;
 			case HmPackage.DARK_FIELD_TYPE__FILE_BEFORE:
 				setFileBefore((String)newValue);
