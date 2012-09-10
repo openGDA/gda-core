@@ -32,6 +32,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.commands.operations.IOperationHistoryListener;
 import org.eclipse.core.commands.operations.IUndoContext;
@@ -129,6 +131,9 @@ import uk.ac.gda.ui.components.CameraControlComposite.RESOLUTION;
  *
  */
 public class TomoConfigurationView extends ViewPart {
+	private static final String TOMOALIGNMENT_DESC_REGEX = "\\d*\\. [\\w|\\s|\\W]*";
+	private final Pattern tomoAlignmentDescRegexPattern = Pattern.compile(TOMOALIGNMENT_DESC_REGEX);
+
 	private static final String RESUME_SCAN = "Resume Scan";
 
 	private static final String INTERRUPT_TOMO_RUNS = "Interrupt Tomo Runs";
@@ -595,8 +600,10 @@ public class TomoConfigurationView extends ViewPart {
 				logger.debug("Calling start tomo runs");
 				configModelTableViewer.setSelection(null);
 				tomoConfigViewController.startScan(getModel());
-				CommandExecutor.executeCommand(getViewSite(),
-						CommandQueueContributionFactory.UK_AC_GDA_CLIENT_START_COMMAND_QUEUE);
+				if (!isScanRunning) {
+					CommandExecutor.executeCommand(getViewSite(),
+							CommandQueueContributionFactory.UK_AC_GDA_CLIENT_START_COMMAND_QUEUE);
+				}
 			} else if (e.getSource().equals(btnInterruptTomoRuns)) {
 				if (btnInterruptTomoRuns.getText().equals(INTERRUPT_TOMO_RUNS)) {
 					CommandExecutor.executeCommand(getViewSite(),
@@ -617,14 +624,15 @@ public class TomoConfigurationView extends ViewPart {
 				try {
 					List<QueuedCommandSummary> summaryList = CommandQueueViewFactory.getQueue().getSummaryList();
 					for (QueuedCommandSummary queuedCommandSummary : summaryList) {
-						if (queuedCommandSummary.getDescription().matches("\\d*\\. [\\w|\\s|\\W]*")) {
+						if (tomoAlignmentDescRegexPattern.matcher(queuedCommandSummary.getDescription()).matches()) {
 							CommandQueueViewFactory.getQueue().remove(queuedCommandSummary.id);
 						}
 					}
-
 				} catch (Exception e1) {
 					logger.error("TODO put description of error here", e1);
 				}
+				CommandExecutor.executeCommand(getViewSite(),
+						CommandQueueContributionFactory.UK_AC_GDA_CLIENT_START_COMMAND_QUEUE);
 			}
 		}
 	};

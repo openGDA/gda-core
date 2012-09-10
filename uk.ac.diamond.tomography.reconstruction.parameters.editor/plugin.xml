@@ -1,0 +1,41 @@
+<plugin>
+
+   <extension point="org.eclipse.ui.newWizards">
+      <category
+            id="org.eclipse.emf.ecore.Wizard.category.ID"
+            name="%_UI_Wizard_category"/>
+      <wizard
+            id="uk.ac.diamond.tomography.reconstruction.parameters.hm.presentation.HmModelWizardID"
+            name="%_UI_HmModelWizard_label"
+            class="uk.ac.diamond.tomography.reconstruction.parameters.hm.presentation.HmModelWizard"
+            category="org.eclipse.emf.ecore.Wizard.category.ID"
+            icon="icons/full/obj16/HmModelFile.gif">
+         <description>%_UI_HmModelWizard_description</description>
+         <selection class="org.eclipse.core.resources.IResource"/>
+      </wizard>
+   </extension>
+
+   <extension point="org.eclipse.ui.editors">
+      <editor
+            class="uk.ac.diamond.tomography.reconstruction.parameters.hm.presentation.HmEditor"
+            contributorClass="uk.ac.diamond.tomography.reconstruction.parameters.hm.presentation.HmActionBarContributor"
+            extensions="hm"
+            icon="icons/full/obj16/HmModelFile.gif"
+            id="uk.ac.diamond.tomography.reconstruction.parameters.hm.presentation.HmEditorID"
+            name="%_UI_HmEditor_label">
+         <contentTypeBinding contentTypeId="uk.ac.diamond.reconstruction.parameters"/>
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <content-type
+            base-type="org.eclipse.core.runtime.xml"
+            describer="uk.ac.diamond.tomography.reconstruction.parameters.hm.presentation.TomoSettingsContentType"
+            file-extensions="*.hm"
+            id="uk.ac.diamond.reconstruction.parameters"
+            name="Tomo Settings Content Type"
+            priority="normal">
+      </content-type>
+   </extension>
+
+</plugin>

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<!--
+ <copyright>
+ </copyright>
+
+ $Id$
+-->
+
+<plugin>
+ <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Reconstruction"
+            id="uk.ac.diamond.tomography.reconstruction">
+      </category>
+      <view
+            name="Parameters"
+            icon="icons/parameters.gif"
+            category="uk.ac.diamond.tomography.reconstruction"
+            class="uk.ac.diamond.tomography.reconstruction.views.ParameterView"
+            id="uk.ac.diamond.tomography.reconstruction.views.ParameterView">
+      </view>
+      <view
+            category="uk.ac.diamond.tomography.reconstruction"
+            class="uk.ac.diamond.tomography.reconstruction.views.ProjectionsView"
+            icon="icons/projectionsView.gif"
+            id="uk.ac.diamond.tomography.reconstruction.view.projection"
+            name="Projections"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="false"
+            category="uk.ac.diamond.tomography.reconstruction"
+            class="uk.ac.diamond.tomography.reconstruction.views.NexusNavigator"
+            icon="icons/nxsNavigatorView.gif"
+            id="uk.ac.diamond.tomography.reconstruction.NexusNavigator"
+            name="Nexus Navigator"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.help.contexts">
+      <contexts
+            file="contexts.xml">
+      </contexts>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="uk.ac.diamond.tomography.reconstruction.TomoReconPerspective"
+            icon="icons/reconstrution.gif"
+            id="uk.ac.diamond.tomography.reconstruction.perspective"
+            name="Tomo Recon">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.navigator.viewer">
+      <viewer
+            viewerId="uk.ac.diamond.tomography.reconstruction.NexusNavigator">
+            <popupMenu
+                allowsPlatformContributions="true"
+                id="uk.ac.diamond.tomography.reconstruction.NexusNavigator#PopupMenu">  
+             <insertionPoint name="group.new"/>
+             <insertionPoint
+                   name="group.open"
+                   separator="true"/>
+             <insertionPoint name="group.openWith"/>   
+             <insertionPoint name="group.edit"
+                   separator="true"/>   
+             <insertionPoint name="group.reorganize" />         
+             <insertionPoint
+                   name="group.port"
+                   separator="true"/>     
+             <insertionPoint
+                   name="group.build"
+                   separator="true"/> 
+             <insertionPoint
+                   name="group.generate"
+                   separator="true"/> 
+             <insertionPoint
+                   name="group.search"
+                   separator="true"/>              
+             <insertionPoint
+                   name="additions"
+                   separator="true"/>              
+             <insertionPoint
+                   name="group.properties"
+                   separator="true"/>
+             
+          </popupMenu>
+          </viewer>
+          
+          <!--
+          <options>
+             <property
+                   name="org.eclipse.ui.navigator.customizeViewDialogHelpContext"
+                   value="org.eclipse.ui.project_explorer_customization_dialog">
+             </property>
+          </options>
+          -->
+       <viewerContentBinding 
+             viewerId="uk.ac.diamond.tomography.reconstruction.NexusNavigator">
+          <includes>
+       	      <contentExtension pattern="uk.ac.diamond.tomo.recon.nxs.navigatorContent" />
+       	      <contentExtension pattern="org.eclipse.ui.navigator.resources.*" />
+          </includes>
+       </viewerContentBinding>
+       <viewerActionBinding
+            viewerId="uk.ac.diamond.tomography.reconstruction.NexusNavigator">
+         <includes>
+             <actionExtension pattern="org.eclipse.ui.navigator.resources.*" />
+         </includes>
+       </viewerActionBinding>
+       <dragAssistant
+             class="org.eclipse.ui.navigator.resources.ResourceDragAdapterAssistant"
+             viewerId="uk.ac.diamond.tomography.reconstruction.NexusNavigator"/>
+   </extension>
+   
+   <extension  
+         point="org.eclipse.ui.navigator.navigatorContent">
+      <navigatorContent
+            name="Nexus File Content"
+            priority="low"
+            activeByDefault="true"
+			            contentProvider="uk.ac.diamond.tomography.reconstruction.views.NxsNavigatorContentProvider"
+            			labelProvider="uk.ac.diamond.tomography.reconstruction.views.NxsNavigatorLabelProvider"			
+            id="uk.ac.diamond.tomo.recon.nxs.navigatorContent">
+            <enablement>
+		         <or>         
+		            <instanceof 
+		                  	value="org.eclipse.core.resources.IResource" /> 
+		         </or>
+         </enablement>
+         <dropAssistant
+              class="org.eclipse.ui.navigator.resources.ResourceDropAdapterAssistant"
+              id="org.eclipse.ui.navigator.resources.resourceDropAdapter">
+           <possibleDropTargets>
+              <or>
+                 <adapt type="org.eclipse.core.resources.IProject"/>
+                 <adapt type="org.eclipse.core.resources.IFolder"/>
+                 <adapt type="org.eclipse.core.resources.IFile"/>
+              </or>
+           </possibleDropTargets>
+        </dropAssistant>        
+
+       </navigatorContent>
+            
+            
+  </extension>
+</plugin>

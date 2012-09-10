@@ -709,9 +709,6 @@ public class TomoAlignmentViewController extends TomoViewController {
 		if (tiltController == null) {
 			throw new IllegalArgumentException("'tiltController' should be provided");
 		}
-		if (moduleLookupTableHandler == null) {
-			throw new IllegalArgumentException("'moduleLookupTableHandler' should be provided");
-		}
 		if (saveHandler == null) {
 			throw new IllegalArgumentException("'saveHandler' should be provided");
 		}
