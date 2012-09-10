@@ -23,18 +23,12 @@ import gda.device.DeviceException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentViewController;
-import uk.ac.gda.client.tomo.alignment.view.handlers.IMotorHandler;
+import uk.ac.gda.client.tomo.alignment.view.handlers.ISampleStageMotorHandler;
 
 /**
  *
  */
-public class TomoAlignmentMotorHandlerSimulator implements IMotorHandler {
-
-	@Override
-	public void openShutter(IProgressMonitor progress) throws DeviceException {
-		// TODO Auto-generated method stub
-
-	}
+public class TomoAlignmentMotorHandlerSimulator implements ISampleStageMotorHandler {
 
 	@Override
 	public double getSampleBaseMotorPosition() throws DeviceException {
@@ -79,12 +73,6 @@ public class TomoAlignmentMotorHandlerSimulator implements IMotorHandler {
 	}
 
 	@Override
-	public void closeShutter(IProgressMonitor monitor) throws DeviceException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public double getSampleScannableSpeed() throws DeviceException {
 		// TODO Auto-generated method stub
 		return 0;
@@ -92,38 +80,6 @@ public class TomoAlignmentMotorHandlerSimulator implements IMotorHandler {
 
 	@Override
 	public double getDistanceToMoveSampleOut() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public void moveT3XTo(IProgressMonitor monitor, Double t3xMoveToPosition) throws DeviceException,
-			InterruptedException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void moveT3M1YTo(IProgressMonitor monitor, Double t3m1yMoveToPosition) throws DeviceException,
-			InterruptedException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public double getCam1XPosition() throws DeviceException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public double getCam1ZPosition() throws DeviceException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public double getCam1RollPosition() throws DeviceException {
 		// TODO Auto-generated method stub
 		return 0;
 	}
@@ -141,48 +97,6 @@ public class TomoAlignmentMotorHandlerSimulator implements IMotorHandler {
 	}
 
 	@Override
-	public Double getT3XPosition() throws DeviceException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Double getT3M1YPosition() throws DeviceException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public double getCam1XTolerance() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public double getCam1ZTolerance() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public double getCam1RollTolerance() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public double getT3XTolerance() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public double getT3M1YTolerance() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
 	public void aysncMoveSs1Rx(Double ss1RxMoveToPosition) throws DeviceException {
 		// TODO Auto-generated method stub
 
@@ -195,31 +109,7 @@ public class TomoAlignmentMotorHandlerSimulator implements IMotorHandler {
 	}
 
 	@Override
-	public void moveCam1Z(IProgressMonitor monitor, Double cam1zPos) throws DeviceException, InterruptedException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void moveCam1X(IProgressMonitor monitor, double cam1xPos) throws DeviceException, InterruptedException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void moveCam1Roll(IProgressMonitor monitor, double cam1RollPos) throws DeviceException, InterruptedException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void moveSs1Tz(IProgressMonitor monitor, Double ss1TzPosition) throws DeviceException, InterruptedException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void moveSs1Tx(IProgressMonitor monitor, Double ss1TxPosition) throws DeviceException, InterruptedException {
 		// TODO Auto-generated method stub
 
 	}
@@ -281,13 +171,6 @@ public class TomoAlignmentMotorHandlerSimulator implements IMotorHandler {
 	}
 
 	@Override
-	public void moveSs1TxBy(IProgressMonitor monitor, Double ss1TxPosition) throws DeviceException,
-			InterruptedException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void moveSs1TzBy(IProgressMonitor monitor, Double ss1TzPosition) throws DeviceException,
 			InterruptedException {
 		// TODO Auto-generated method stub
@@ -305,36 +188,6 @@ public class TomoAlignmentMotorHandlerSimulator implements IMotorHandler {
 	public double getSs1RzTolerance() {
 		// TODO Auto-generated method stub
 		return 0;
-	}
-
-	@Override
-	public Double getT3M1ZPosition() throws DeviceException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public double getT3xOffset() throws DeviceException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public double getT3m1zOffset() throws DeviceException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public double getT3m1yOffset() throws DeviceException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public void moveT3M1ZTo(IProgressMonitor monitor, double t3m1zValue) throws DeviceException, InterruptedException {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -404,30 +257,6 @@ public class TomoAlignmentMotorHandlerSimulator implements IMotorHandler {
 	}
 
 	@Override
-	public String getCameraStageZMotorName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getT3XMotorName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getT3m1ZMotorName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getT3m1YMotorName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public String getSs1RzMotorName() {
 		// TODO Auto-generated method stub
 		return null;
@@ -437,6 +266,19 @@ public class TomoAlignmentMotorHandlerSimulator implements IMotorHandler {
 	public String getSs1RxMotorName() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void moveSs1Tx(IProgressMonitor monitor, Double ss1TxPosition) throws DeviceException, InterruptedException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void moveSs1TxBy(IProgressMonitor monitor, Double ss1TxPosition) throws DeviceException,
+			InterruptedException {
+		// TODO Auto-generated method stub
+
 	}
 
 }

@@ -51,4 +51,42 @@ public interface ICameraModuleController extends ITomoHandler{
 	 */
 	void stopModuleChange() throws DeviceException;
 
+	/**
+	 * @return horizontal field of view units
+	 * @throws DeviceException 
+	 */
+	String lookupHFOVUnit() throws DeviceException;
+
+	/**
+	 * @param module
+	 * @return value of the object pixel size for the given module
+	 */
+	Double lookupObjectPixelSize(CAMERA_MODULE module) throws DeviceException;
+
+	/**
+	 * @return object pixel size units
+	 * @throws DeviceException 
+	 */
+	String lookupObjectPixelSizeUnits() throws DeviceException;
+
+	/**
+	 * @param module
+	 * @return horizontal field of view for the given module
+	 * @throws DeviceException 
+	 */
+	Double lookupHFOV(CAMERA_MODULE module) throws DeviceException;
+
+	/**
+	 * @param newModule
+	 * @return default exposure time for a given module
+	 * @throws DeviceException 
+	 */
+	Double lookupDefaultExposureTime(CAMERA_MODULE newModule) throws DeviceException;
+
+	/**
+	 * @param cameraModule
+	 * @return the object pixel size in milli-meters
+	 */
+	Double getObjectPixelSizeInMM(CAMERA_MODULE cameraModule);
+
 }

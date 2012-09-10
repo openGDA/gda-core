@@ -121,8 +121,12 @@ public class MotionControlListener implements IMotionControlListener {
 				}
 			}
 		});
-		double cameraMotionPosition = tomoAlignmentViewController.getCameraMotionMotorPosition();
-		motionControlComposite.setCameraMotionPosition(cameraMotionPosition);
+		
+		Double cameraMotionPosition = tomoAlignmentViewController.getCameraMotionMotorPosition();
+		if (cameraMotionPosition != null) {
+			motionControlComposite.setCameraMotionPosition(cameraMotionPosition);
+		}
+
 		cameraPositionDoNotResetFlag = false;
 	}
 
@@ -134,8 +138,10 @@ public class MotionControlListener implements IMotionControlListener {
 	@Override
 	public void resetCameraDistance() throws DeviceException {
 		if (!cameraPositionDoNotResetFlag) {
-			double cameraMotionPosition = tomoAlignmentViewController.getCameraMotionMotorPosition();
-			motionControlComposite.setCameraMotionPosition(cameraMotionPosition);
+			Double cameraMotionPosition = tomoAlignmentViewController.getCameraMotionMotorPosition();
+			if (cameraMotionPosition != null) {
+				motionControlComposite.setCameraMotionPosition(cameraMotionPosition);
+			}
 		}
 	}
 

@@ -57,10 +57,11 @@ import uk.ac.gda.client.tomo.alignment.view.controller.SaveableConfiguration.Mot
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraModuleController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraMotionController;
-import uk.ac.gda.client.tomo.alignment.view.handlers.IModuleLookupTableHandler;
-import uk.ac.gda.client.tomo.alignment.view.handlers.IMotorHandler;
+import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraStageMotorHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.IRoiHandler;
+import uk.ac.gda.client.tomo.alignment.view.handlers.ISampleStageMotorHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ISampleWeightRotationHandler;
+import uk.ac.gda.client.tomo.alignment.view.handlers.IShutterHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ITiltController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ITomoConfigResourceHandler;
 import uk.ac.gda.client.tomo.alignment.view.utils.ScaleDisplay;
@@ -75,11 +76,13 @@ import uk.ac.gda.ui.components.ZoomButtonComposite.ZOOM_LEVEL;
  */
 public class TomoAlignmentViewController extends TomoViewController {
 
-	private IMotorHandler motorHandler;
+	private ISampleStageMotorHandler sampleStageMotorHandler;
+
+	private IShutterHandler cameraShutterHandler;
+
+	private ICameraStageMotorHandler cameraStageMotorHandler;
 
 	private ICameraHandler cameraHandler;
-
-	private IModuleLookupTableHandler moduleLookupTableHandler;
 
 	private ITiltController tiltController;
 
@@ -97,6 +100,14 @@ public class TomoAlignmentViewController extends TomoViewController {
 
 	public enum SAMPLE_STAGE_STATE {
 		IN, OUT;
+	}
+
+	public void setCameraShutterHandler(IShutterHandler cameraShutterHandler) {
+		this.cameraShutterHandler = cameraShutterHandler;
+	}
+
+	public void setCameraStageMotorHandler(ICameraStageMotorHandler cameraStageMotorHandler) {
+		this.cameraStageMotorHandler = cameraStageMotorHandler;
 	}
 
 	private boolean darkImageSaved;
@@ -125,9 +136,9 @@ public class TomoAlignmentViewController extends TomoViewController {
 		this.cameraHandler.setViewController(this);
 	}
 
-	public void setMotorHandler(IMotorHandler motorHandler) {
-		this.motorHandler = motorHandler;
-		this.motorHandler.setTomoAlignmentViewController(this);
+	public void setMotorHandler(ISampleStageMotorHandler motorHandler) {
+		this.sampleStageMotorHandler = motorHandler;
+		this.sampleStageMotorHandler.setTomoAlignmentViewController(this);
 	}
 
 	public boolean addRotationMotorListener(IRotationMotorListener rotationMotorListener) {
@@ -222,7 +233,7 @@ public class TomoAlignmentViewController extends TomoViewController {
 		try {
 			logger.debug("Requesting for open shutter");
 			// 1. Open Experimental shutter
-			motorHandler.openShutter(progress.newChild(1));
+			cameraShutterHandler.openShutter(progress.newChild(1));
 		} catch (DeviceException e) {
 			logger.error("Failed to open shutter", e);
 			throw new InvocationTargetException(e, e.getMessage());
@@ -334,7 +345,7 @@ public class TomoAlignmentViewController extends TomoViewController {
 		@Override
 		public Boolean call() throws Exception {
 			try {
-				updateModuleButtonText(moduleLookupTableHandler.lookupHFOVUnit(),
+				updateModuleButtonText(cameraModuleController.lookupHFOVUnit(),
 						getModuleButtonTextFromModuleLookupTable());
 				// adbase model values update
 				logger.debug("Set up all data fields - expected to be called only during initialization");
@@ -347,18 +358,21 @@ public class TomoAlignmentViewController extends TomoViewController {
 				updateAcquireState(cameraHandler.getAcquireState());
 				cameraHandler.disableFlatCorrection();
 
-				updateRotationDegree(motorHandler.getRotationMotorDeg());
+				updateRotationDegree(sampleStageMotorHandler.getRotationMotorDeg());
 				updateProc1FlatFieldCorrection(cameraHandler.getProc1FlatFieldCorrection());
-				updateCameraMotionPosition(getCameraMotionMotorPosition());
-
+				
 				updateStatInfo();
 
-				updateSampleInOutState(motorHandler.getSampleBaseMotorPosition());
+				updateSampleInOutState(sampleStageMotorHandler.getSampleBaseMotorPosition());
 
 				updateEnergy(getEnergy());
 
 				updateResolutionPixelSize(getResolutionPixelSize(getModule()));
-
+				
+				Double cameraMotionMotorPosition = getCameraMotionMotorPosition();
+				if (cameraMotionMotorPosition != null) {
+					updateCameraMotionPosition(cameraMotionMotorPosition);
+				}
 			} catch (Exception ex) {
 				logger.error("Problem with loading the channel", ex);
 				throw ex;
@@ -381,8 +395,8 @@ public class TomoAlignmentViewController extends TomoViewController {
 	}
 
 	protected String getResolutionPixelSize(CAMERA_MODULE module) throws DeviceException {
-		Double lookupObjectPixelSize = moduleLookupTableHandler.lookupObjectPixelSize(module);
-		String objPixelSizeUnits = moduleLookupTableHandler.lookupObjectPixelSizeUnits();
+		Double lookupObjectPixelSize = cameraModuleController.lookupObjectPixelSize(module);
+		String objPixelSizeUnits = cameraModuleController.lookupObjectPixelSizeUnits();
 		if (lookupObjectPixelSize != null) {
 			return String.format("%.3g %s", lookupObjectPixelSize, objPixelSizeUnits);
 		}
@@ -402,11 +416,11 @@ public class TomoAlignmentViewController extends TomoViewController {
 
 	protected void updateSampleInOutState(double samplePosition) {
 
-		Double defaultSampleInPosition = motorHandler.getDefaultSampleInPosition();
+		Double defaultSampleInPosition = sampleStageMotorHandler.getDefaultSampleInPosition();
 		double sampleAbsoluteDifference = Math.abs(defaultSampleInPosition - samplePosition);
 		SAMPLE_STAGE_STATE sampleState = SAMPLE_STAGE_STATE.IN;
 
-		if (sampleAbsoluteDifference >= Math.abs(motorHandler.getDistanceToMoveSampleOut())) {
+		if (sampleAbsoluteDifference >= Math.abs(sampleStageMotorHandler.getDistanceToMoveSampleOut())) {
 			sampleState = SAMPLE_STAGE_STATE.OUT;
 		}
 		for (ITomoAlignmentView av : tomoalignmentViews) {
@@ -421,11 +435,11 @@ public class TomoAlignmentViewController extends TomoViewController {
 	}
 
 	protected Map<Integer, String> getModuleButtonTextFromModuleLookupTable() throws DeviceException {
-		if (moduleLookupTableHandler != null) {
+		if (cameraModuleController != null) {
 			HashMap<Integer, String> moduleBtnTextMap = new HashMap<Integer, String>();
 			for (CAMERA_MODULE module : CAMERA_MODULE.values()) {
 				if (module != CAMERA_MODULE.NO_MODULE) {
-					double lookupHFOV = moduleLookupTableHandler.lookupHFOV(module);
+					double lookupHFOV = cameraModuleController.lookupHFOV(module);
 					moduleBtnTextMap.put(module.getValue(), String.format("%.3g", lookupHFOV));
 				}
 			}
@@ -501,16 +515,12 @@ public class TomoAlignmentViewController extends TomoViewController {
 
 	@Override
 	public void dispose() {
-		if (motorHandler != null) {
-			motorHandler.dispose();
+		if (sampleStageMotorHandler != null) {
+			sampleStageMotorHandler.dispose();
 		}
 
 		if (cameraHandler != null) {
 			cameraHandler.dispose();
-		}
-
-		if (moduleLookupTableHandler != null) {
-			moduleLookupTableHandler.dispose();
 		}
 
 		if (tiltController != null) {
@@ -554,7 +564,7 @@ public class TomoAlignmentViewController extends TomoViewController {
 			monitor.subTask("Move motors");
 			cameraModuleController.moveModuleTo(newModule, monitor);
 
-			Double lookupDefaultExposureTime = moduleLookupTableHandler.lookupDefaultExposureTime(newModule);
+			Double lookupDefaultExposureTime = cameraModuleController.lookupDefaultExposureTime(newModule);
 			setExposureTime(lookupDefaultExposureTime, 1);
 			if (!monitor.isCanceled()) {
 				updateAdjustedPreferredExposureTime(lookupDefaultExposureTime);
@@ -594,12 +604,12 @@ public class TomoAlignmentViewController extends TomoViewController {
 			throws Exception {
 		try {
 			logger.debug("Moving vertical motor:" + difference);
-			double objectPixelSize = moduleLookupTableHandler.getObjectPixelSizeInMM(cameraModule);
+			double objectPixelSize = cameraModuleController.getObjectPixelSizeInMM(cameraModule);
 			// ObjectPixelSize * binValue gives the distance to move per pixel on the screen
 			double scale = objectPixelSize * cameraHandler.getRoi1BinValue();
 			double movement = -(difference.height) * scale;
-			double finalPosition = motorHandler.getVerticalPosition() + movement;
-			motorHandler.moveSs1Y2To(monitor, finalPosition);
+			double finalPosition = sampleStageMotorHandler.getVerticalPosition() + movement;
+			sampleStageMotorHandler.moveSs1Y2To(monitor, finalPosition);
 		} catch (DeviceException e) {
 			logger.error("Exception when moving y2 motor", e.getMessage());
 			throw e;
@@ -610,19 +620,19 @@ public class TomoAlignmentViewController extends TomoViewController {
 			throws Exception {
 		SubMonitor progress = SubMonitor.convert(monitor);
 		progress.beginTask("Moving Center Current Position", 2);
-		double objectPixelSize = moduleLookupTableHandler.getObjectPixelSizeInMM(cameraModule);
+		double objectPixelSize = cameraModuleController.getObjectPixelSizeInMM(cameraModule);
 		Integer roi1BinX = cameraHandler.getRoi1BinX();
 
 		double scaleNumber = objectPixelSize * roi1BinX;
 
-		double rotationDiff = motorHandler.getRotationMotorDeg() - motorHandler.getThethaOffset();
+		double rotationDiff = sampleStageMotorHandler.getRotationMotorDeg() - sampleStageMotorHandler.getThethaOffset();
 		double ss1TxMoveToPos = difference.width * scaleNumber * Math.cos(getRadianFromDegree(rotationDiff));
-		motorHandler.moveSs1TxBy(progress.newChild(1), ss1TxMoveToPos);
+		sampleStageMotorHandler.moveSs1TxBy(progress.newChild(1), ss1TxMoveToPos);
 		progress.worked(1);
 
 		if (!progress.isCanceled()) {
 			double ss1TzMoveToPos = (difference.width) * scaleNumber * Math.sin(getRadianFromDegree(rotationDiff));
-			motorHandler.moveSs1TzBy(progress.newChild(1), ss1TzMoveToPos);
+			sampleStageMotorHandler.moveSs1TzBy(progress.newChild(1), ss1TzMoveToPos);
 			progress.worked(1);
 		}
 		progress.done();
@@ -637,12 +647,12 @@ public class TomoAlignmentViewController extends TomoViewController {
 		SubMonitor progress = SubMonitor.convert(monitor);
 		progress.beginTask("Moving to align Center of Axis rotation", 5);
 
-		double objectPixelSize = moduleLookupTableHandler.getObjectPixelSizeInMM(cameraModule);
+		double objectPixelSize = cameraModuleController.getObjectPixelSizeInMM(cameraModule);
 		Integer roi1BinX = cameraHandler.getRoi1BinX();
 		double scaleNumber = objectPixelSize * roi1BinX;
 
 		double distanceToMove = differenceWidth * scaleNumber;
-		motorHandler.moveSampleScannableBy(monitor, distanceToMove);
+		sampleStageMotorHandler.moveSampleScannableBy(monitor, distanceToMove);
 		logger.debug("moveCenterAxisOfRotation: differenceWidth:{}", differenceWidth);
 		logger.debug("moveCenterAxisOfRotation: distanceToMove:{}", distanceToMove);
 
@@ -654,7 +664,7 @@ public class TomoAlignmentViewController extends TomoViewController {
 	public void moveTilt(IProgressMonitor monitor, CAMERA_MODULE cameraModule, Dimension difference) throws Exception {
 		try {
 			logger.debug("Moving tilt:" + difference);
-			double objectPixelSize = moduleLookupTableHandler.getObjectPixelSizeInMM(cameraModule);
+			double objectPixelSize = cameraModuleController.getObjectPixelSizeInMM(cameraModule);
 			Integer roi1BinX = cameraHandler.getRoi1BinX();
 			double scaleNumber = objectPixelSize * roi1BinX;
 			Thread.sleep(6000);
@@ -685,19 +695,19 @@ public class TomoAlignmentViewController extends TomoViewController {
 
 	public void moveRotationMotorBy(IProgressMonitor monitor, double deg) throws DeviceException, InterruptedException {
 		SubMonitor progress = SubMonitor.convert(monitor);
-		motorHandler.moveRotationMotorBy(progress.newChild(1), deg);
+		sampleStageMotorHandler.moveRotationMotorBy(progress.newChild(1), deg);
 	}
 
 	public void moveRotationMotorTo(IProgressMonitor monitor, double degree) throws DeviceException,
 			InterruptedException {
 		SubMonitor progress = SubMonitor.convert(monitor);
-		motorHandler.moveRotationMotorTo(progress.newChild(100), degree);
+		sampleStageMotorHandler.moveRotationMotorTo(progress.newChild(100), degree);
 	}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		super.afterPropertiesSet();
-		if (motorHandler == null) {
+		if (sampleStageMotorHandler == null) {
 			throw new IllegalArgumentException("'motorHandler' should be provided");
 		}
 		if (cameraHandler == null) {
@@ -731,13 +741,13 @@ public class TomoAlignmentViewController extends TomoViewController {
 		progress.beginTask("Taking dark images", 10);
 		logger.debug("Requesting for close shutter");
 		// 1. Close Experimental shutter
-		motorHandler.closeShutter(progress.newChild(2));
+		cameraShutterHandler.closeShutter(progress.newChild(2));
 
 		cameraHandler.takeDark(progress.newChild(8), acqTime);
 
 		logger.debug("Requesting for open shutter");
 		// . Open Experimental shutter
-		motorHandler.openShutter(progress.newChild(2));
+		cameraShutterHandler.openShutter(progress.newChild(2));
 		progress.done();
 		cameraHandler.resetFileFormat();
 	}
@@ -758,17 +768,17 @@ public class TomoAlignmentViewController extends TomoViewController {
 	}
 
 	public void stopMotors() throws DeviceException {
-		motorHandler.stopMotors();
+		sampleStageMotorHandler.stopMotors();
 	}
 
 	public ScaleDisplay getLeftBarLengthInPixel(int maxNumberOfPixels, CAMERA_MODULE selectedCameraModule) {
-		double objectPixelSize = moduleLookupTableHandler.getObjectPixelSizeInMM(selectedCameraModule);
+		double objectPixelSize = cameraModuleController.getObjectPixelSizeInMM(selectedCameraModule);
 		return ScaleDisplay.getScaleDisplay(maxNumberOfPixels, objectPixelSize, cameraHandler.getRoi1BinValue(), 1);
 	}
 
 	public ScaleDisplay getRightBarLengthInPixel(int maxNumberOfPixels, CAMERA_MODULE selectedCameraModule,
 			ZOOM_LEVEL zoomLevel) {
-		double objectPixelSize = moduleLookupTableHandler.getObjectPixelSizeInMM(selectedCameraModule);
+		double objectPixelSize = cameraModuleController.getObjectPixelSizeInMM(selectedCameraModule);
 		if (objectPixelSize != Double.NaN) {
 			return ScaleDisplay.getScaleDisplay(maxNumberOfPixels, objectPixelSize, 1, zoomLevel.getValue());
 		}
@@ -817,17 +827,17 @@ public class TomoAlignmentViewController extends TomoViewController {
 
 	public TiltPlotPointsHolder doTiltAlignment(final IProgressMonitor monitor,
 			final CAMERA_MODULE selectedCameraModule, double exposureTime) throws Exception {
-		double ss1RzPosition = motorHandler.getSs1RzPosition();
-		double ss1RxPosition = motorHandler.getSs1RxPosition();
+		double ss1RzPosition = sampleStageMotorHandler.getSs1RzPosition();
+		double ss1RxPosition = sampleStageMotorHandler.getSs1RxPosition();
 
 		TiltPlotPointsHolder tiltPlotPointsHolder = tiltController.doTilt(monitor, selectedCameraModule, exposureTime);
 
-		double newSs1RzPosition = motorHandler.getSs1RzPosition();
-		double newSs1RxPosition = motorHandler.getSs1RxPosition();
+		double newSs1RzPosition = sampleStageMotorHandler.getSs1RzPosition();
+		double newSs1RxPosition = sampleStageMotorHandler.getSs1RxPosition();
 
 		String tiltPointsTitle = String.format("Tilt alignment (%s moved by %.3g and %s moved by %.3g)",
-				motorHandler.getSs1RxMotorName(), (ss1RxPosition - newSs1RxPosition), motorHandler.getSs1RzMotorName(),
-				(ss1RzPosition - newSs1RzPosition));
+				sampleStageMotorHandler.getSs1RxMotorName(), (ss1RxPosition - newSs1RxPosition),
+				sampleStageMotorHandler.getSs1RzMotorName(), (ss1RzPosition - newSs1RzPosition));
 		logger.debug("Tilt title :{}", tiltPointsTitle);
 		tiltPlotPointsHolder.setTiltPointsTitle(tiltPointsTitle);
 		return tiltPlotPointsHolder;
@@ -848,10 +858,6 @@ public class TomoAlignmentViewController extends TomoViewController {
 		for (ITomoAlignmentView av : tomoalignmentViews) {
 			av.updateErrorAligningTilt(status);
 		}
-	}
-
-	public void setModuleLookupTableHandler(IModuleLookupTableHandler lookupTableHandler) {
-		this.moduleLookupTableHandler = lookupTableHandler;
 	}
 
 	public void setCameraModuleController(ICameraModuleController cameraModuleController) {
@@ -875,7 +881,7 @@ public class TomoAlignmentViewController extends TomoViewController {
 	}
 
 	public double getRotationMotorDeg() throws DeviceException {
-		return motorHandler.getRotationMotorDeg();
+		return sampleStageMotorHandler.getRotationMotorDeg();
 	}
 
 	public ITiltController getTiltController() {
@@ -919,8 +925,11 @@ public class TomoAlignmentViewController extends TomoViewController {
 		cameraMotionController.moveT3m1ZTo(monitor, module, t3m1zValue);
 	}
 
-	public double getCameraMotionMotorPosition() throws DeviceException {
-		return motorHandler.getT3M1ZPosition();
+	public Double getCameraMotionMotorPosition() throws DeviceException {
+		if (cameraStageMotorHandler != null) {
+			return cameraStageMotorHandler.getT3M1ZPosition();
+		}
+		return null;
 	}
 
 	public void setSampleWeight(SAMPLE_WEIGHT sampleWeight) throws Exception {
@@ -941,9 +950,9 @@ public class TomoAlignmentViewController extends TomoViewController {
 	public void moveSampleStageIn(IProgressMonitor monitor) throws DeviceException, InterruptedException {
 		SubMonitor progress = SubMonitor.convert(monitor);
 		if (samplePositionBeforeMovingOut != null) {
-			motorHandler.moveSampleScannable(progress, samplePositionBeforeMovingOut);
+			sampleStageMotorHandler.moveSampleScannable(progress, samplePositionBeforeMovingOut);
 		} else {
-			motorHandler.moveSampleScannable(progress, motorHandler.getDefaultSampleInPosition());
+			sampleStageMotorHandler.moveSampleScannable(progress, sampleStageMotorHandler.getDefaultSampleInPosition());
 		}
 	}
 
@@ -951,11 +960,11 @@ public class TomoAlignmentViewController extends TomoViewController {
 		SubMonitor progress = SubMonitor.convert(monitor);
 
 		progress.beginTask("Move Sample Stage out", 4);
-		samplePositionBeforeMovingOut = motorHandler.getSampleBaseMotorPosition();
+		samplePositionBeforeMovingOut = sampleStageMotorHandler.getSampleBaseMotorPosition();
 
-		double distanceToMoveSampleOut = motorHandler.getDistanceToMoveSampleOut();
+		double distanceToMoveSampleOut = sampleStageMotorHandler.getDistanceToMoveSampleOut();
 
-		motorHandler.moveSampleScannableBy(progress, distanceToMoveSampleOut);
+		sampleStageMotorHandler.moveSampleScannableBy(progress, distanceToMoveSampleOut);
 	}
 
 	public void setSampleWeightRotationHandler(ISampleWeightRotationHandler sampleWeightRotationHandler) {
@@ -1089,36 +1098,47 @@ public class TomoAlignmentViewController extends TomoViewController {
 		// module number - provided by view
 
 		// horizontalFieldOfView
-		Double horizontalFieldOfView = moduleLookupTableHandler.lookupHFOV(CAMERA_MODULE.getEnum(saveableConfiguration
+		Double horizontalFieldOfView = cameraModuleController.lookupHFOV(CAMERA_MODULE.getEnum(saveableConfiguration
 				.getModuleNumber()));
 		saveableConfiguration.setModuleHorizontalFieldOfView(horizontalFieldOfView);
 		// sample stage parameters
 		// basex
 		ArrayList<MotorPosition> motorPositions = saveableConfiguration.getMotorPositions();
 		// ss1_x
-		motorPositions.add(new MotorPosition(motorHandler.getSampleBaseMotorName(), motorHandler
+		motorPositions.add(new MotorPosition(sampleStageMotorHandler.getSampleBaseMotorName(), sampleStageMotorHandler
 				.getSampleBaseMotorPosition()));
 		// ss1_y
-		motorPositions.add(new MotorPosition(motorHandler.getVerticalMotorName(), motorHandler.getVerticalPosition()));
+		motorPositions.add(new MotorPosition(sampleStageMotorHandler.getVerticalMotorName(), sampleStageMotorHandler
+				.getVerticalPosition()));
 		// ss1_tx
-		motorPositions.add(new MotorPosition(motorHandler.getCentreXMotorName(), motorHandler.getSs1TxPosition()));
+		motorPositions.add(new MotorPosition(sampleStageMotorHandler.getCentreXMotorName(), sampleStageMotorHandler
+				.getSs1TxPosition()));
 		// ss1_tz
-		motorPositions.add(new MotorPosition(motorHandler.getCentreZMotorName(), motorHandler.getSs1TzPosition()));
+		motorPositions.add(new MotorPosition(sampleStageMotorHandler.getCentreZMotorName(), sampleStageMotorHandler
+				.getSs1TzPosition()));
 		// tilt x
-		motorPositions.add(new MotorPosition(motorHandler.getTiltXMotorName(), motorHandler.getSs1RxPosition()));
+		motorPositions.add(new MotorPosition(sampleStageMotorHandler.getTiltXMotorName(), sampleStageMotorHandler
+				.getSs1RxPosition()));
 		// tilt z
-		motorPositions.add(new MotorPosition(motorHandler.getTiltZMotorName(), motorHandler.getSs1RzPosition()));
+		motorPositions.add(new MotorPosition(sampleStageMotorHandler.getTiltZMotorName(), sampleStageMotorHandler
+				.getSs1RzPosition()));
 		//
 		// sample exposure time - provided by view
 		// flat exposure time - provided by view
 		// sampleWeight - provided by view
-		// detector stage parameters
-		// x
-		motorPositions.add(new MotorPosition(motorHandler.getT3XMotorName(), motorHandler.getT3XPosition()));
-		// y
-		motorPositions.add(new MotorPosition(motorHandler.getT3m1YMotorName(), motorHandler.getT3M1YPosition()));
-		// z
-		motorPositions.add(new MotorPosition(motorHandler.getT3m1ZMotorName(), motorHandler.getT3M1ZPosition()));
+
+		if (cameraStageMotorHandler != null) {
+			// detector stage parameters
+			// x
+			motorPositions.add(new MotorPosition(cameraStageMotorHandler.getT3XMotorName(), cameraStageMotorHandler
+					.getT3XPosition()));
+			// y
+			motorPositions.add(new MotorPosition(cameraStageMotorHandler.getT3m1YMotorName(), cameraStageMotorHandler
+					.getT3M1YPosition()));
+			// z
+			motorPositions.add(new MotorPosition(cameraStageMotorHandler.getT3m1ZMotorName(), cameraStageMotorHandler
+					.getT3M1ZPosition()));
+		}
 
 		// image location at theta - provided by view
 		// Image location at theta +90 - provided by view

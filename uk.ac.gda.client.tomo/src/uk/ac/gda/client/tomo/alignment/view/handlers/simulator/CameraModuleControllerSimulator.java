@@ -51,4 +51,40 @@ public class CameraModuleControllerSimulator implements ICameraModuleController 
 		
 	}
 
+	@Override
+	public String lookupHFOVUnit() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Double lookupObjectPixelSize(CAMERA_MODULE module) throws DeviceException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String lookupObjectPixelSizeUnits() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Double lookupHFOV(CAMERA_MODULE module) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Double lookupDefaultExposureTime(CAMERA_MODULE newModule) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Double getObjectPixelSizeInMM(CAMERA_MODULE cameraModule) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

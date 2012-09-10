@@ -33,7 +33,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraMotionController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraMotionLookupTableHandler;
-import uk.ac.gda.client.tomo.alignment.view.handlers.IMotorHandler;
+import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraStageMotorHandler;
 import uk.ac.gda.ui.components.ModuleButtonComposite.CAMERA_MODULE;
 
 /**
@@ -42,16 +42,16 @@ import uk.ac.gda.ui.components.ModuleButtonComposite.CAMERA_MODULE;
 public class CameraMotionController implements ICameraMotionController, InitializingBean {
 	private ICameraMotionLookupTableHandler cameraMotionLookupTableHandler;
 
-	private IMotorHandler motorHandler;
-
 	private IObservable tomoScriptController;
 
 	private static final Logger logger = LoggerFactory.getLogger(CameraMotionController.class);
 
 	private static final String MOVE_T3_M1_Z_COMMAND = "tomographyScani13.moveT3M1ZTo(%d, %f)";
 
-	public void setMotorHandler(IMotorHandler motorHandler) {
-		this.motorHandler = motorHandler;
+	private ICameraStageMotorHandler cameraStageMotorHandler;
+
+	public void setCameraStageMotorHandler(ICameraStageMotorHandler cameraStageMotorHandler) {
+		this.cameraStageMotorHandler = cameraStageMotorHandler;
 	}
 
 	public void setCameraMotionLookupTableHandler(ICameraMotionLookupTableHandler cameraMotionLookupTableHandler) {
@@ -91,10 +91,10 @@ public class CameraMotionController implements ICameraMotionController, Initiali
 
 	@Override
 	public double getT3M1y(CAMERA_MODULE module) throws TimeoutException, CAException, InterruptedException, Exception {
-		Double t3m1zPosition = motorHandler.getT3M1ZPosition();
+		Double t3m1zPosition = cameraStageMotorHandler.getT3M1ZPosition();
 		logger.debug("t3m1zPosition:{}", t3m1zPosition);
 
-		double t3m1zOffset = motorHandler.getT3m1zOffset();
+		double t3m1zOffset = cameraStageMotorHandler.getT3m1zOffset();
 		logger.debug("t3m1zOffset:{}", t3m1zOffset);
 
 		double t3m1ZToReadFromLookup = t3m1zPosition - t3m1zOffset;
@@ -103,7 +103,7 @@ public class CameraMotionController implements ICameraMotionController, Initiali
 		double lookupT3m1y = cameraMotionLookupTableHandler.lookupT3M1Y(module, t3m1ZToReadFromLookup);
 		logger.debug("lookupT3m1y:{}", lookupT3m1y);
 
-		double t3m1yOffset = motorHandler.getT3m1yOffset();
+		double t3m1yOffset = cameraStageMotorHandler.getT3m1yOffset();
 		logger.debug("t3m1yOffset:{}", t3m1yOffset);
 
 		logger.debug("lookupT3m1y + t3m1yOffset:{}", lookupT3m1y + t3m1yOffset);
@@ -112,10 +112,10 @@ public class CameraMotionController implements ICameraMotionController, Initiali
 
 	@Override
 	public double getT3X(CAMERA_MODULE module) throws TimeoutException, CAException, InterruptedException, Exception {
-		Double t3m1zPosition = motorHandler.getT3M1ZPosition();
+		Double t3m1zPosition = cameraStageMotorHandler.getT3M1ZPosition();
 		logger.debug("t3m1zPosition:{}", t3m1zPosition);
 
-		double t3m1zOffset = motorHandler.getT3m1zOffset();
+		double t3m1zOffset = cameraStageMotorHandler.getT3m1zOffset();
 		logger.debug("t3m1zOffset:{}", t3m1zOffset);
 
 		double t3m1ZToReadFromLookup = t3m1zPosition - t3m1zOffset;
@@ -124,7 +124,7 @@ public class CameraMotionController implements ICameraMotionController, Initiali
 		double lookupT3X = cameraMotionLookupTableHandler.lookupT3X(module, t3m1ZToReadFromLookup);
 		logger.debug("lookupT3X:{}", lookupT3X);
 
-		double t3xOffset = motorHandler.getT3xOffset();
+		double t3xOffset = cameraStageMotorHandler.getT3xOffset();
 		logger.debug("t3xOffset:{}", t3xOffset);
 
 		logger.debug("lookupT3X + t3xOffset:{}", lookupT3X + t3xOffset);
@@ -134,7 +134,7 @@ public class CameraMotionController implements ICameraMotionController, Initiali
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if (motorHandler == null) {
+		if (cameraStageMotorHandler == null) {
 			throw new IllegalArgumentException("'motorHandler' needs to be provided");
 		}
 		if (cameraMotionLookupTableHandler == null) {
