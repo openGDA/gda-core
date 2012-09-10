@@ -1,11 +1,15 @@
 from uk.ac.diamond.scisoft.analysis import SDAPlotter
 from gda.analysis import DataSet
+from gda.device import DetectorSnapper, DeviceException
+
 try:
 	from gda.analysis import Plotter
 except ImportError:
 	Plotter = None
 
 import java.lang.Long #@UnresolvedImport
+
+
 
 from gda.data.fileregistrar import IFileRegistrar
 from gda.device.Detector import BUSY
@@ -17,7 +21,22 @@ from java.util.concurrent import Callable #@UnresolvedImport
 import time
 from gdascripts.analysis.io.DatasetProvider import LazyDataSetProvider, BasicDataSetProvider
 import gda.device.detector.NXDetectorData
-from gda.device.detector.hardwaretriggerable import HardwareTriggerableDetector
+import gda.device.detector.NXDetectorDataWithFilepathForSrs
+from gda.device.detector.hardwaretriggerable import HardwareTriggerableDetector,\
+	HardwareTriggeredDetector
+
+
+ROOT_NAMESPACE_DICT = None
+"""If set a variable SRSWriteAtFileCreation will be appended with a file path template of the form e.g.:
+   pilatus100k_path_template='123-pilatus100k/%5i.cbf."""
+
+def _appendStringToSRSFileHeader(self, s):
+	"""Not thread safe"""
+	h = ROOT_NAMESPACE_DICT.get('SRSWriteAtFileCreation', '')
+	if h in (None,''):
+		h='\n'
+	ROOT_NAMESPACE_DICT['SRSWriteAtFileCreation'] = h + s
+
 
 class FileRegistrar(object):
 	
@@ -205,21 +224,14 @@ class ProcessingDetectorWrapper(PseudoDevice, PositionCallableProvider):
 			)
 	
 	def getFilepath(self):
-		if self.det.createsOwnFiles():
-			try:
-				# assume detector has read out an NXDetectorDataWithFilepathForSrs object
-				path_from_detector = self._readout().getFilepath()
-			except AttributeError:
-				path_from_detector = self._readout()
-			return self.replacePartOfPath(path_from_detector)
-		else:
-			try:
-				last_image_path = self.det.getLastImagePath()
-				if last_image_path is not None:
-					return last_image_path
-			except AttributeError:
-				pass # only some python detectors support this (and its a mess)
-			return time.strftime("%H%M%S", time.localtime()) # %Y%m%d% makes it too long!
+
+		try:
+			# assume detector has read out an NXDetectorDataWithFilepathForSrs object
+			path_from_detector = self._readout().getFilepath()
+		except AttributeError:
+			path_from_detector = self._readout()
+		return self.replacePartOfPath(path_from_detector)
+
 		
 	def _readout(self):
 		if self.cached_readout is None:
@@ -256,22 +268,29 @@ class ProcessingDetectorWrapper(PseudoDevice, PositionCallableProvider):
 ###
 	
 	def __configureNewDatasetProvider(self):
-		if self.det.createsOwnFiles():
-			path = self.getFilepath()
+		
+		def createDatasetProvider(path):
 			if path == '':
 				raise IOError("Could no load dataset: %s does not have a record of the last file saved" % self.name)
 			path = self.replacePartOfPath(path)
 			self.datasetProvider = LazyDataSetProvider(path, self.iFileLoader, self.fileLoadTimout, self.printNfsTimes)
+		
+		if self.det.createsOwnFiles():
+			path = self.getFilepath()
+			createDatasetProvider(path)
 		else:
 #			if not isinstance(dataset, DataSet, gda.device.detector.NXDetectorData):
 #				raise Exception("If a detector does not write its own files, ProcessingDetectorWrapper %s only works with detectors that readout DataSets.")
 			dataset = self._readout()
-			if isinstance(dataset, gda.device.detector.NXDetectorData):
+			if isinstance(dataset, gda.device.detector.NXDetectorDataWithFilepathForSrs):
+				path = dataset.getFilepath()
+				createDatasetProvider(path)
+				return
+			elif isinstance(dataset, gda.device.detector.NXDetectorData):
 				data = dataset.getNexusTree().getChildNode(1).getChildNode(1).getData()
 				dataset = DataSet(data.getBuffer())
 				dataset.setShape(data.dimensions)
 				dataset.squeeze()
-				
 			self.datasetProvider = BasicDataSetProvider(dataset)
 	
 	def replacePartOfPath(self, path):
@@ -298,6 +317,8 @@ class ProcessingDetectorWrapper(PseudoDevice, PositionCallableProvider):
 		try:
 			self.display(retryUntilTimeout)
 		except IOError, e:
+			print "Could not display ROI on ", self.getName(), " as: ", `e`
+		except DeviceException, e: # NXDetector will throw these if readout when not ready (catches too much)
 			print "Could not display ROI on ", self.getName(), " as: ", `e`
 	
 	def display(self, retryUntilTimeout = True):
@@ -413,3 +434,140 @@ class HardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorWrapper, Ha
 
 	def getDetectorType(self):
 		return self.det.getDetectorType()
+
+
+# Note should extend HardwareTriggerableProcessingDetectorWrapper, but Jython 2.5.1 fails for some reason
+
+class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorWrapper, HardwareTriggerableDetector, DetectorSnapper):
+	
+	def __init__(self, name,
+				detector,
+				hardware_triggered_detector,
+				detector_for_snaps,
+				processors=[],
+				panel_name=None,
+				toreplace=None,
+				replacement=None,
+				iFileLoader=None,
+				root_datadir=None,
+				fileLoadTimout=None,
+				printNfsTimes=False,
+				returnPathAsImageNumberOnly=False,
+				panel_name_rcp=None,
+				return_performance_metrics=False):
+		
+		ProcessingDetectorWrapper.__init__(self, name, detector, processors, panel_name, toreplace, replacement, iFileLoader,
+										 root_datadir, fileLoadTimout, printNfsTimes, returnPathAsImageNumberOnly, panel_name_rcp, return_performance_metrics)
+		self.inputNames = []
+		if hardware_triggered_detector is not None:
+			if not isinstance(hardware_triggered_detector, HardwareTriggeredDetector):
+				raise TypeError("expected hardware_triggered_detector to implement HardwareTriggeredDetector")
+		self.hardware_triggered_detector = hardware_triggered_detector
+		self.hardware_triggering = False
+		self.detector_for_snaps = detector_for_snaps
+	
+	def _setDetector(self, det):
+		self.detector = det
+		
+	@property
+	def det(self):
+		return self.hardware_triggered_detector if self.hardware_triggering else self.detector
+	
+#		return {'pilatus100k_path_template='123-pilatus100k/%5i.cbf.'}
+	
+	# Scannable
+	
+	def getExtraNames(self):
+		return ['t'] + ProcessingDetectorWrapper.getExtraNames(self)
+	
+	def asynchronousMoveTo(self, t):
+		raise Exception("This detector cannot be operated outside a scan. Try 'scan x 1 1 1 det <t_exp>'")
+
+	def __call__(self, *args):
+		raise Exception("This detector cannot yet be operated outside a scan.")
+		
+	# HardwareTriggerableDetector
+	
+	def getHardwareTriggerProvider(self):
+		return self.hardware_triggered_detector.getHardwareTriggerProvider()
+
+	def setHardwareTriggering(self, b):
+		self.hardware_triggering = b
+								
+	def isHardwareTriggering(self):
+		return self.hardware_triggering
+
+	def integratesBetweenPoints(self):
+		return self.hardware_triggered_detector.integratesBetweenPoints()
+
+	def arm(self):
+		self.hardware_triggered_detector.arm()
+
+	# Detector
+		
+	def setCollectionTime(self, t):
+		self.det.setCollectionTime(t)
+
+	def prepareForCollection(self):
+		self.det.prepareForCollection()
+
+	def atScanStart(self):
+		self.det.atScanStart()
+
+	def getCollectionTime(self):
+		return self.det.getCollectionTime()
+
+	def collectData(self):
+		self.clearLastAcquisitionState()
+		if not self.isHardwareTriggering():
+			self.det.collectData()
+		
+	def getStatus(self):
+		return self.det.getStatus()
+
+	def readout(self):
+		return self.getPositionCallable().call()
+		
+	def endCollection(self):
+		self.det.endCollection()
+
+	def atScanEnd(self):
+		self.det.atScanEnd()
+
+	def getDataDimensions(self):
+		return [len(self.getExtraNames())]
+
+	def createsOwnFiles(self):
+		return self.det.createsOwnFiles()
+
+	def getDescription(self):
+		return self.det.getDescription()
+
+	def getDetectorID(self):
+		return self.det.getDetectorID()
+
+	def getDetectorType(self):
+		return self.det.getDetectorType()
+	
+	def prepareForAcquisition(self, collection_time):
+		self.detector_for_snaps.setCollectionTime(collection_time)
+
+
+#	public double getAcquireTime() throws Exception;
+#
+#
+#	public double getAcquirePeriod() throws Exception;
+
+
+	def acquire(self):
+		
+		self.detector_for_snaps.atScanStart()
+		self.detector_for_snaps.atScanLineStart()
+		self.detector_for_snaps.collectData()
+		self.detector_for_snaps.waitWhileBusy()
+		self.cached_readout = self.detector_for_snaps.readout()
+		self.detector_for_snaps.atScanLineEnd()
+		self.detector_for_snaps.atScanEnd()
+
+
+#	
