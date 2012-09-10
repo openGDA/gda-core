@@ -1,192 +1,199 @@
-<?xml version="1.0" ?><HMxml>
-  <FBP>
-    <DefaultXml done="no"/>
-    <GPUDeviceNumber>0</GPUDeviceNumber>
-    <BeamlineUser done="no">
-      <Type info="yes, no">No</Type>
-      <BeamlineName/>
-      <Year/>
-      <Month/>
-      <Date/>
-      <VisitNumber/>
-      <InputDataFolder/>
-      <InputScanFolder/>
-      <OutputDataFolder/>
-      <OutputScanFolder/>
-    </BeamlineUser>
-    <LogFile>param_output/par_2011_0721_204730_files/log_011.xml</LogFile>
-    <InputData>
-       <Folder>sinograms</Folder>
+<?xml version="1.0" ?>
+<HMxml>
+	<FBP>
+		<DefaultXml done="no" />
+		<GPUDeviceNumber>0</GPUDeviceNumber>
+		<BeamlineUser done="no">
+			<Type info="yes, no">No</Type>
+			<BeamlineName />
+			<Year />
+			<Month />
+			<Date />
+			<VisitNumber />
+			<InputDataFolder />
+			<InputScanFolder />
+			<OutputDataFolder />
+			<OutputScanFolder />
+		</BeamlineUser>
+		<LogFile>param_output/par_2011_0721_204730_files/log_011.xml</LogFile>
+		<InputData>
+			<Folder>sinograms</Folder>
 
-      <Prefix>sino_</Prefix>
+			<Prefix>sino_</Prefix>
 
-      <Suffix/>
-      <Extension>tiff</Extension>
-      <NOD info="Number of digits">5</NOD>
-      <MemorySizeMax info="maximal size of input file (MB)">200.0</MemorySizeMax>
-      <MemorySizeMin info="maximal size of input file (bytes)">20</MemorySizeMin>
-      <Orientation done="no" info="Projection, Slice">Slice</Orientation>
-      <FileFirst>500</FileFirst>
-      <FileLast>500</FileLast>
-      <FileStep>1</FileStep>
-      <ImageFirst done="no">0</ImageFirst>
-      <ImageLast done="no">0</ImageLast>
-      <ImageStep done="no">1</ImageStep>
-      <Raw done="no">
-        <Type info="Yes, No">No</Type>
-        <Bits>16</Bits>
-        <Offset info="offset of the first chunk (bytes)">0</Offset>
-        <ByteOrder info="BE, LE">LE</ByteOrder>
-        <Xlen>1024</Xlen>
-        <Ylen>1024</Ylen>
-        <Zlen>10</Zlen>
-        <Gap info="gap between images (bytes)">0</Gap>
-      </Raw>
-      <FirstImageIndex info="Index of the first image">0</FirstImageIndex>
-      <ImagesPerFile>1</ImagesPerFile>
-      <Restrictions info="Yes, No">No</Restrictions>
-      <ValueMin>0.0</ValueMin>
-      <ValueMax>1.2</ValueMax>
-      <Type info="Intensity, Attenuation">Intensity</Type>
-      <Shape info="Point, Pixel">Point</Shape>
-      <PixelParam>1.0</PixelParam>
-    </InputData>
-    <FlatDarkFields>
-      <FlatField>
-        <Type info="User, Row">Row</Type>
-        <ValueBefore>33000</ValueBefore>
-        <ValueAfter>16000</ValueAfter>
-        <FileBefore>./flat/flat.tif</FileBefore>
-        <FileAfter/>
-        <ProfileType info="Constant, Linear, Profile">Constant</ProfileType>
-        <FileProfile/>
-      </FlatField>
-      <DarkField>
-        <Type info="User, Row">User</Type>
-        <ValueBefore>0.0</ValueBefore>
-        <ValueAfter>0.0</ValueAfter>
-        <FileBefore>./dark/dark.tif</FileBefore>
-        <FileAfter>C:\Temp\data\gr_core\dark.tif</FileAfter>
-        <ProfileType info="Constant, Linear, Profile">Constant</ProfileType>
-        <FileProfile/>
-      </DarkField>
-    </FlatDarkFields>
-    <Preprocessing>
-      <HighPeaksBefore>
-        <Type info="Yes, No">Yes</Type>
-        <NumberPixels>2</NumberPixels>
-        <Jump>0.05</Jump>
-      </HighPeaksBefore>
-      <RingArtefacts>
-        <Type info="No, Column, AML">AML</Type>
-        <ParameterN>0.000</ParameterN>
-        <ParameterR>0.0050</ParameterR>
-        <NumSeries info="1 - default, if greater, then nonlinear">1.0</NumSeries>
-      </RingArtefacts>
-      <Intensity>
-        <Type info="No, Row, Column, Zero">No</Type>
-        <ColumnLeft/>
-        <ColumnRight/>
-        <ZeroLeft>95</ZeroLeft>
-        <ZeroRight>105</ZeroRight>
-      </Intensity>
-      <HighPeaksAfterRows>
-        <Type info="Yes, No">Yes</Type>
-        <NumberPixels>1</NumberPixels>
-        <Jump>0.01</Jump>
-      </HighPeaksAfterRows>
-      <HighPeaksAfterColumns>
-        <Type info="Yes, No">Yes</Type>
-        <NumberPixels>2</NumberPixels>
-        <Jump>0.01</Jump>
-      </HighPeaksAfterColumns>
-    </Preprocessing>
-    <Transform>
-      <MissedProjections info="list of numbers"/>
-      <MissedProjectionsType info="No, Linear, Zero">no</MissedProjectionsType>
-      <RotationAngleType info="180, Other">180</RotationAngleType>
-      <RotationAngle>180</RotationAngle>
-      <RotationAngleEndPoints info="No, Yes">yes</RotationAngleEndPoints>
-      <ReCentreAngle>0.0</ReCentreAngle>
-      <ReCentreRadius>0.0</ReCentreRadius>
-      <CropTop>0</CropTop>
-      <CropBottom>0</CropBottom>
-      <CropLeft>0</CropLeft>
-      <CropRight>0</CropRight>
-      <ScaleType info="No, Yes">No</ScaleType>
-      <ScaleWidth>3048</ScaleWidth>
-      <ScaleHeight>2040</ScaleHeight>
-      <ExtrapolationType info="No, Zero, Constant">Constant</ExtrapolationType>
-      <ExtrapolationPixels>10</ExtrapolationPixels>
-      <ExtrapolationWidth>4096</ExtrapolationWidth>
-      <Interpolation info="NearestNeighbour, Linear, Cubic">Linear</Interpolation>
-    </Transform>
-    <Backprojection>
-      <Filter>
-        <Type info="Yes, No">Yes</Type>
-        <Name info="RL (Ram-Lak), SL (Shepp-Logan), Cos (cosine)">RL</Name>
-        <Bandwidth>0.8</Bandwidth>
-        <WindowName info="no, Hann, Hamming, Blackman">no</WindowName>
-        <Normalisation info="CC, CA, PC, PA, SC, SA (first = cylinder, pyramid, sphere; second  = centre, average)">PC</Normalisation>
-        <PixelSize>0.5</PixelSize>
-      </Filter>
-      <ImageCentre>1777.2</ImageCentre>
-      <ClockwiseRotation done="no" info="Yes, No">Yes</ClockwiseRotation>
-      <Tilt done="no">
-        <Type info="Yes, No">No</Type>
-        <X-tilt/>
-        <Z-tilt/>
-      </Tilt>
-      <CoordinateSystem done="no">
-        <Type info="Local, Global">Local</Type>
-        <Slice/>
-      </CoordinateSystem>
-      <Circles comm="not in used for gpu">
-        <ValueMin>
-          <Type info="Percent, Pixel">Percent</Type>
-          <Percent>0</Percent>
-          <Pixel>0</Pixel>
-        </ValueMin>
-        <ValueMax>
-          <Type info="Percent, Pixel">Percent</Type>
-          <Percent>100</Percent>
-          <Pixel>0</Pixel>
-        </ValueMax>
-        <ValueStep>
-          <Type info="Percent, Pixel">Pixel</Type>
-          <Percent>0</Percent>
-          <Pixel>1</Pixel>
-        </ValueStep>
-      </Circles>
-      <ROI>
-        <Type info="Standard, Rectangle">Standard</Type>
-        <Xmin>580</Xmin>
-        <Xmax>3000</Xmax>
-        <Ymin>1225</Ymin>
-        <Ymax>1725</Ymax>
-        <OutputWidthType info="Standard, Given">Standard</OutputWidthType>
-        <OutputWidth>500</OutputWidth>
-        <Angle>0.0</Angle>
-      </ROI>
-      <PolarCartesianInterpolation done="no" info="NearestNeighbour, Linear, Cubic">Linear</PolarCartesianInterpolation>
-    </Backprojection>
-    <OutputData>
-      <Type info="Solution, FFCorrection, Preprocessed, Transformed">Solution</Type>
-      <State info="Intensity, Attenuation">Attenuation</State>
-      <Folder>param_output/par_2011_0721_204730_images</Folder>
-      <Prefix>param_00000011_</Prefix>
-      <Suffix/>
-      <Extension>tif</Extension>
-      <NOD>5</NOD>
-      <FileFirst>400</FileFirst>
-      <FileStep>10</FileStep>
-      <BitsType info="Input, Given">Given</BitsType>
-      <Bits>32</Bits>
-      <Restrictions info="Yes, No">No</Restrictions>
-      <ValueMin>0.5</ValueMin>
-      <ValueMax>1.1</ValueMax>
-      <Shape done="no" info="Point, Pixel, Input">Input</Shape>
-    </OutputData>
-  </FBP>
+			<Suffix />
+			<Extension>tiff</Extension>
+			<NOD info="Number of digits">5</NOD>
+			<MemorySizeMax info="maximal size of input file (MB)">200.0</MemorySizeMax>
+			<MemorySizeMin info="maximal size of input file (bytes)">20</MemorySizeMin>
+			<Orientation done="no" info="Projection, Slice">Slice</Orientation>
+			<FileFirst>500</FileFirst>
+			<FileLast>500</FileLast>
+			<FileStep>1</FileStep>
+			<ImageFirst done="no">0</ImageFirst>
+			<ImageLast done="no">0</ImageLast>
+			<ImageStep done="no">1</ImageStep>
+			<Raw done="no">
+				<Type info="Yes, No">No</Type>
+				<Bits>16</Bits>
+				<Offset info="offset of the first chunk (bytes)">0</Offset>
+				<ByteOrder info="BE, LE">LE</ByteOrder>
+				<Xlen>1024</Xlen>
+				<Ylen>1024</Ylen>
+				<Zlen>10</Zlen>
+				<Gap info="gap between images (bytes)">0</Gap>
+			</Raw>
+			<FirstImageIndex info="Index of the first image">0</FirstImageIndex>
+			<ImagesPerFile>1</ImagesPerFile>
+			<Restrictions info="Yes, No">No</Restrictions>
+			<ValueMin>0.0</ValueMin>
+			<ValueMax>1.2</ValueMax>
+			<Type info="Intensity, Attenuation">Intensity</Type>
+			<Shape info="Point, Pixel">Point</Shape>
+			<PixelParam>1.0</PixelParam>
+		</InputData>
+		<FlatDarkFields>
+			<FlatField>
+				<Type info="User, Row">Row</Type>
+				<ValueBefore>33000</ValueBefore>
+				<ValueAfter>16000</ValueAfter>
+				<FileBefore>./flat/flat.tif</FileBefore>
+				<FileAfter />
+				<ProfileType info="Constant, Linear, Profile">Constant</ProfileType>
+				<FileProfile />
+			</FlatField>
+			<DarkField>
+				<Type info="User, Row">User</Type>
+				<ValueBefore>0.0</ValueBefore>
+				<ValueAfter>0.0</ValueAfter>
+				<FileBefore>./dark/dark.tif</FileBefore>
+				<FileAfter>C:\Temp\data\gr_core\dark.tif</FileAfter>
+				<ProfileType info="Constant, Linear, Profile">Constant</ProfileType>
+				<FileProfile />
+			</DarkField>
+		</FlatDarkFields>
+		<Preprocessing>
+			<HighPeaksBefore>
+				<Type info="Yes, No">Yes</Type>
+				<NumberPixels>2</NumberPixels>
+				<Jump>0.05</Jump>
+			</HighPeaksBefore>
+			<RingArtefacts>
+				<Type info="No, Column, AML">AML</Type>
+				<ParameterN>0.000</ParameterN>
+				<ParameterR>0.0050</ParameterR>
+				<NumSeries info="1 - default, if greater, then nonlinear">1.0</NumSeries>
+			</RingArtefacts>
+			<Intensity>
+				<Type info="No, Row, Column, Zero">No</Type>
+				<ColumnLeft />
+				<ColumnRight />
+				<ZeroLeft>95</ZeroLeft>
+				<ZeroRight>105</ZeroRight>
+			</Intensity>
+			<HighPeaksAfterRows>
+				<Type info="Yes, No">Yes</Type>
+				<NumberPixels>1</NumberPixels>
+				<Jump>0.01</Jump>
+			</HighPeaksAfterRows>
+			<HighPeaksAfterColumns>
+				<Type info="Yes, No">Yes</Type>
+				<NumberPixels>2</NumberPixels>
+				<Jump>0.01</Jump>
+			</HighPeaksAfterColumns>
+		</Preprocessing>
+		<Transform>
+			<MissedProjections info="list of numbers" />
+			<MissedProjectionsType info="No, Linear, Zero">no
+			</MissedProjectionsType>
+			<RotationAngleType info="180, Other">180</RotationAngleType>
+			<RotationAngle>180</RotationAngle>
+			<RotationAngleEndPoints info="No, Yes">yes
+			</RotationAngleEndPoints>
+			<ReCentreAngle>0.0</ReCentreAngle>
+			<ReCentreRadius>0.0</ReCentreRadius>
+			<CropTop>0</CropTop>
+			<CropBottom>0</CropBottom>
+			<CropLeft>0</CropLeft>
+			<CropRight>0</CropRight>
+			<ScaleType info="No, Yes">No</ScaleType>
+			<ScaleWidth>3048</ScaleWidth>
+			<ScaleHeight>2040</ScaleHeight>
+			<ExtrapolationType info="No, Zero, Constant">Constant
+			</ExtrapolationType>
+			<ExtrapolationPixels>10</ExtrapolationPixels>
+			<ExtrapolationWidth>4096</ExtrapolationWidth>
+			<Interpolation info="NearestNeighbour, Linear, Cubic">Linear</Interpolation>
+		</Transform>
+		<Backprojection>
+			<Filter>
+				<Type info="Yes, No">Yes</Type>
+				<Name info="RL (Ram-Lak), SL (Shepp-Logan), Cos (cosine)">RL</Name>
+				<Bandwidth>0.8</Bandwidth>
+				<WindowName info="no, Hann, Hamming, Blackman">no</WindowName>
+				<Normalisation
+					info="CC, CA, PC, PA, SC, SA (first = cylinder, pyramid, sphere; second  = centre, average)">PC</Normalisation>
+				<PixelSize>0.5</PixelSize>
+			</Filter>
+			<ImageCentre>1777.2</ImageCentre>
+			<ClockwiseRotation done="no" info="Yes, No">Yes
+			</ClockwiseRotation>
+			<Tilt done="no">
+				<Type info="Yes, No">No</Type>
+				<X-tilt />
+				<Z-tilt />
+			</Tilt>
+			<CoordinateSystem done="no">
+				<Type info="Local, Global">Local</Type>
+				<Slice />
+			</CoordinateSystem>
+			<Circles comm="not in used for gpu">
+				<ValueMin>
+					<Type info="Percent, Pixel">Percent</Type>
+					<Percent>0</Percent>
+					<Pixel>0</Pixel>
+				</ValueMin>
+				<ValueMax>
+					<Type info="Percent, Pixel">Percent</Type>
+					<Percent>100</Percent>
+					<Pixel>0</Pixel>
+				</ValueMax>
+				<ValueStep>
+					<Type info="Percent, Pixel">Pixel</Type>
+					<Percent>0</Percent>
+					<Pixel>1</Pixel>
+				</ValueStep>
+			</Circles>
+			<ROI>
+				<Type info="Standard, Rectangle">Standard</Type>
+				<Xmin>580</Xmin>
+				<Xmax>3000</Xmax>
+				<Ymin>1225</Ymin>
+				<Ymax>1725</Ymax>
+				<OutputWidthType info="Standard, Given">Standard</OutputWidthType>
+				<OutputWidth>500</OutputWidth>
+				<Angle>0.0</Angle>
+			</ROI>
+			<PolarCartesianInterpolation done="no"
+				info="NearestNeighbour, Linear, Cubic">Linear</PolarCartesianInterpolation>
+		</Backprojection>
+		<OutputData>
+			<Type info="Solution, FFCorrection, Preprocessed, Transformed">Solution</Type>
+			<State info="Intensity, Attenuation">Attenuation</State>
+			<Folder>param_output/par_2011_0721_204730_images</Folder>
+			<Prefix>param_00000011_</Prefix>
+			<Suffix />
+			<Extension>tif</Extension>
+			<NOD>5</NOD>
+			<FileFirst>400</FileFirst>
+			<FileStep>10</FileStep>
+			<BitsType info="Input, Given">Given</BitsType>
+			<Bits>32</Bits>
+			<Restrictions info="Yes, No">No</Restrictions>
+			<ValueMin>0.5</ValueMin>
+			<ValueMax>1.1</ValueMax>
+			<Shape done="no" info="Point, Pixel, Input">Input</Shape>
+		</OutputData>
+	</FBP>
 
 </HMxml>

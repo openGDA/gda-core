@@ -68,6 +68,7 @@ import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.diamond.tomography.reconstruction.Activator;
+import uk.ac.diamond.tomography.reconstruction.ReconUtil;
 import uk.ac.gda.ui.components.IStepperSelectionListener;
 import uk.ac.gda.ui.components.Stepper;
 import uk.ac.gda.ui.components.StepperChangedEvent;
@@ -446,7 +447,7 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				File path = new File(nexusFile.getLocation().toOSString());
-				File pathToRecon = new File(path.getParent(), "/processing/reconstruction/");
+				File pathToRecon = ReconUtil.getPathToWriteTo(nexusFile);
 				File pathToImages = new File(pathToRecon, path.getName().replace(".nxs", "") + "_data_quick");
 				File imageFile = new File(pathToImages, String.format("image_%05d.tif", pixelPosition));
 

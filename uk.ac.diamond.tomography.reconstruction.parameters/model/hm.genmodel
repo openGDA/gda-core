@@ -6,7 +6,8 @@
     importerID="org.eclipse.xsd.ecore.importer" complianceLevel="6.0" copyrightFields="false">
   <foreignModel>hm.xsd</foreignModel>
   <genPackages prefix="Hm" basePackage="uk.ac.diamond.tomography.reconstruction.parameters"
-      resource="XML" disposableProviderFactory="true" ecorePackage="Hm.ecore#/">
+      resource="XML" disposableProviderFactory="true" contentTypeIdentifier="uk.ac.diamond.reconstruction.parameters"
+      fileExtensions="hm" ecorePackage="Hm.ecore#/">
     <genClasses ecoreClass="Hm.ecore#//BackprojectionType">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Hm.ecore#//BackprojectionType/filter"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Hm.ecore#//BackprojectionType/imageCentre"/>

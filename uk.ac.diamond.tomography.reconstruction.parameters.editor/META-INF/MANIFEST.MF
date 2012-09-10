@@ -14,5 +14,13 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.diamond.tomography.reconstruction.parameters.edit;visibility:=reexport,
  org.eclipse.emf.ecore.xmi;visibility:=reexport,
  org.eclipse.emf.edit.ui;visibility:=reexport,
- org.eclipse.ui.ide;visibility:=reexport
+ org.eclipse.ui.ide;visibility:=reexport,
+ org.eclipse.wst.sse.ui;bundle-version="1.3.1",
+ org.eclipse.wst.sse.core;bundle-version="1.1.601",
+ org.eclipse.jface.text;bundle-version="3.7.2",
+ org.eclipse.wst.xml.core;bundle-version="1.1.601",
+ org.eclipse.wst.common.ui;bundle-version="1.1.500",
+ org.eclipse.wst.xml.ui;bundle-version="1.1.201"
 Bundle-ActivationPolicy: lazy
+Import-Package: org.slf4j;version="[1.5.6,2.0.0)"
+
