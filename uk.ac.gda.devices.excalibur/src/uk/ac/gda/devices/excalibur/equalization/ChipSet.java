@@ -134,6 +134,10 @@ public class ChipSet {
 		return new long[]{rows, columns};
 	}
 	
+	public long[] getPixelsDims(){
+		return new long[]{pixelsPerRow, pixelsPerCol};
+	}
+	
 }
 class Chip {
 
