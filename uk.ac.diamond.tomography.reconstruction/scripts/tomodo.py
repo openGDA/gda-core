@@ -66,7 +66,7 @@ def reindexLinks(inListOfIdx, outListOfIdx, indir="/dls/i13/data/2012/mt5811-1/5
 		#		raise Exception(msg)
 		else:
 			cmd="mv"+" "+fileToReindex+" "+filename_dst
-			#print 'cmd=', cmd
+			print 'cmd=', cmd
 			subprocess.call(cmd, shell=True)
 		j+=1
 
@@ -1348,6 +1348,7 @@ def makeLinksForNXSFile(\
 				recon_idx=range(0,2672)
 				recon_idx_stepped=[]
 				recon_idx_stepped=stepThrough(recon_idx, stepSize=quickStep)
+				recon_idx_stepped=range(0, len(sino_idx_stepped))
 				inFnameFmt="image_%05d.tif"
 				outFnameFmt="image_%05d.tif"
 				inDir=head+os.sep+recon_dir+os.sep+recon_imfolder
@@ -1368,7 +1369,9 @@ def makeLinksForNXSFile(\
 			for i in inListOfIdx:
 				outListOfIdx.append(i*ftor)
 		
-			#reindexLinks(inListOfIdx, outListOfIdx, indir=head+os.sep+sino_dir+os.sep+"sino_quick", outdir=head+os.sep+sino_dir+os.sep+"sino_quick", inFilenameFmt="sino_%05d.tiff", outFilenameFmt="sino_%05d.tiff")
+			reindexLinks(inListOfIdx, outListOfIdx, indir=head+os.sep+sino_dir+os.sep+"sino_quick", outdir=head+os.sep+sino_dir+os.sep+"sino_quick", inFilenameFmt="sino_%05d.tiff", outFilenameFmt="sino_%05d.tiff")
+			
+			reindexLinks(inListOfIdx, outListOfIdx, indir=head+os.sep+recon_dir+'_quick', outdir=head+os.sep+recon_dir+'_quick', inFilenameFmt="image_%05d.tif", outFilenameFmt="image_%05d.tif")
 	else:
 		print "\nLaunch of the sino_listener script was not requested at the end of makeLinksForNXSFile." 
 	
