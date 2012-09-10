@@ -64,7 +64,7 @@ def reindexLinks(inListOfIdx, outListOfIdx, indir="/dls/i13/data/2012/mt5811-1/5
 		#	if os.path.realpath(filename_dst)!=os.path.realpath(fileToReindex):
 		#		msg="Soft link already exists:"+`filename_dst`+" but not to the required destination "+`fileToReindex` 
 		#		raise Exception(msg)
-		else:
+		#else:
 			cmd="mv"+" "+fileToReindex+" "+filename_dst
 			print 'cmd=', cmd
 			subprocess.call(cmd, shell=True)
