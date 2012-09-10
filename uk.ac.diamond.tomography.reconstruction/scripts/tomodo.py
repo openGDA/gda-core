@@ -915,12 +915,13 @@ def estimateCOR(projFilename_0deg, flatFilename_0deg, darkFilename_0deg, projFil
 	return tomoaxis_x, tomoaxis_y
 
 
-def launchReconArray(outDir, ctrCoord, verbose=True, testing=False):
+def launchReconArray(outDir, ctrCoord, inSinoFolder='sinograms', settingsfile='/dls_sw/i12/software/tomography_scripts/settings.xml',verbose=True, testing=False):
 	print launchReconArray.__name__
 	args=["recon_arrayxml.py"]
 	#args+=[ "-h"]
-	#args+=[ "-I", "settings.xml"]
+	args+=[ "-I", settingsfile]
 	args+=[ "-o", outDir]
+	args+=[ "-d", inSinoFolder]
 	args+=[ "-C", str(ctrCoord)]
 	if verbose:
 		args+=[ "-v"]
@@ -934,6 +935,7 @@ def launchReconArray(outDir, ctrCoord, verbose=True, testing=False):
 
 def makeLinksForNXSFile(\
 					filename\
+					, settingsfile='/dls_sw/i12/software/tomography_scripts/settings.xml'
 					, shutterOpenPhys=1.0\
 					, shutterClosedPhys=0.0\
 					, stageInBeamPhys=0.0\
@@ -970,6 +972,7 @@ def makeLinksForNXSFile(\
 	if verbose:
 		print "\nInput arguments for makeLinksForNXSFile:"
 		print "filename=%s"%filename
+		print "settingsfile=%s"%settingsfile
 		print "shutterOpenPhys=%s"%shutterOpenPhys
 		print "shutterClosedPhys=%s"%shutterClosedPhys
 		print "stageInBeamPhys=%s"%stageInBeamPhys
@@ -1028,6 +1031,14 @@ def makeLinksForNXSFile(\
 		print "DARK. FLAT and PROJ definitions bundled together in a dictionary:"
 		print dfpDef
 	
+	
+	# check if the input template file exists
+	if not os.path.exists(settingsfile):
+		#msg = "The input NeXus file, %s, does NOT exist!"%filename
+		raise Exception("The input settings file does not exist or insufficient filesystem permissions: "+`filename`)
+
+	inSettings = settingsfile
+	quickStep = quickstep
 	
 	# check if the input NeXus file exists
 	if not os.path.exists(filename):
@@ -1256,7 +1267,7 @@ def makeLinksForNXSFile(\
 		if sino_success:
 			sino_idx=range(0,2672)
 			sino_idx_stepped=[]
-			sino_idx_stepped=stepThrough(sino_idx, stepSize=10)
+			sino_idx_stepped=stepThrough(sino_idx, stepSize=quickStep)
 			inFnameFmt="sino_%05d.tiff"
 			outFnameFmt="sino_%05d.tiff"
 			inDir=head+os.sep+sino_dir+os.sep+"sinograms"
@@ -1312,9 +1323,16 @@ def makeLinksForNXSFile(\
 					flatFilename_180deg = tif[ flat_idx[0] ][0]
 					darkFilename_180deg = tif[ dark_idx[0] ][0]
 
-					CORx, CORy=estimateCOR(projFilename_0deg, flatFilename_0deg, darkFilename_0deg, projFilename_180deg, flatFilename_180deg, darkFilename_180deg)
+					#CORx, CORy=estimateCOR(projFilename_0deg, flatFilename_0deg, darkFilename_0deg, projFilename_180deg, flatFilename_180deg, darkFilename_180deg)
 					#CORx=1557.8
-					recon_success, recon_imfolder=launchReconArray(outDir=reconDir, ctrCoord=CORx)
+					CORx=1320
+					if quick:
+						#reconDir=outDir=head+os.sep+recon_dir+'_quick'
+						inSinoFoldername='sino_quick'
+					else:
+						inSinoFoldername='sinograms'
+					
+					recon_success, recon_imfolder=launchReconArray(outDir=reconDir, ctrCoord=CORx, inSinoFolder=inSinoFoldername, inSettings)
 				except Exception, ex:
 					recon_success=False
 					raise Exception ("ERROR Spawning the recon_arrayxml script  "+str(ex))
@@ -1327,7 +1345,7 @@ def makeLinksForNXSFile(\
 			if recon_success:
 				recon_idx=range(0,2672)
 				recon_idx_stepped=[]
-				recon_idx_stepped=stepThrough(recon_idx, stepSize=10)
+				recon_idx_stepped=stepThrough(recon_idx, stepSize=quickStep)
 				inFnameFmt="image_%05d.tif"
 				outFnameFmt="image_%05d.tif"
 				inDir=head+os.sep+recon_dir+os.sep+recon_imfolder
@@ -1341,7 +1359,14 @@ def makeLinksForNXSFile(\
 									, inFilenameFmt=inFnameFmt\
 									, outdir=outDir\
 									, outFilenameFmt=outFnameFmt)
+		if quick:
+			inListOfIdx=range(0, len(sino_idx_stepped))
+			outListOfIdx=[]
+			ftor = quickStep
+			for i in inListOfIdx:
+				outListOfIdx.append(i*ftor)
 		
+			#reindexLinks(inListOfIdx, outListOfIdx, indir=head+os.sep+sino_dir+os.sep+"sino_quick", outdir=head+os.sep+sino_dir+os.sep+"sino_quick", inFilenameFmt="sino_%05d.tiff", outFilenameFmt="sino_%05d.tiff")
 	else:
 		print "\nLaunch of the sino_listener script was not requested at the end of makeLinksForNXSFile." 
 	
@@ -1357,17 +1382,19 @@ creates directories and links to projection, dark and flat images required for s
 	usage="%prog -f input_filename --shutterOpenPhys shutOpenPos --shutterClosedPhys shutClosedPos --stageInBeamPhys inBeamPos --stageOutOfBeamPhys outOfBeamPos -o outdir\n"+\
 				" or\n%prog --filename input_filename --shutterOpenPhys shutOpenPos --shutterClosedPhys shutClosedPos --stageInBeamPhys inBeamPos --stageOutOfBeamPhys outOfBeamPos --outdir outdir\n"+\
 				"\nExample usage:\n%prog -f /dls/i13/data/2012/mt5811-1/564.nxs --shutterOpenPhys 1.0 --shutterClosedPhys 0.0 --stageInBeamPhys 0.0 --stageOutOfBeamPhys 6.0\n"+\
-				"or:\n%prog --filename /dls/i13/data/2012/mt5811-1/564.nxs --shutterOpenPhys 1.0 --shutterClosedPhys 0.0 --stageInBeamPhys 0.0 --stageOutOfBeamPhys 6.0 --template filename"
+				"or:\n%prog --filename /dls/i13/data/2012/mt5811-1/564.nxs --shutterOpenPhys 1.0 --shutterClosedPhys 0.0 --stageInBeamPhys 0.0 --stageOutOfBeamPhys 6.0 --template settingsfile"
 	vers="%prog version 1.0"
 
 	parser=OptionParser(usage=usage, description=desc, version=vers, prog=argv[0])
 
 	parser.add_option("-f", "--filename", action="store", type="string", dest="filename", help="NeXus filename to be processed.")
+	parser.add_option("--template", action="store", type="string", dest="template", default="/dls_sw/i12/software/tomography_scripts/settings.xml", help="Settings filename to be used for reconstruction.")
 	parser.add_option("--shutterOpenPhys", action="store", type="float", dest="shutOpenPos", default=1.0, help="The shutter's PHYSICAL position when it was OPEN during the scan.")
 	parser.add_option("--shutterClosedPhys", action="store", type="float", dest="shutClosedPos", default=0.0, help="The shutter's PHYSICAL position when it was CLOSED during the scan. ")
 	parser.add_option("--stageInBeamPhys", action="store", type="float", dest="inBeamPos", help="The sample stage's PHYSICAL position when it was IN-BEAM during the scan. ")
 	parser.add_option("--stageOutOfBeamPhys", action="store", type="float", dest="outOfBeamPos", help="The sample stage's PHYSICAL position when it was OUT-OF-BEAM during the scan. ")
 	parser.add_option("--minProjs", action="store", type="int", dest="minProjs", default=129, help="The absolute minimum number of projections; default value is %default.")
+	parser.add_option("--quickstep", action="store", type="int", dest="quickstep", default=100, help="The step size to be used for GUI quick option; default value is %default.")
 	parser.add_option("--maxUnclassed", action="store", type="int", dest="maxUnclassed", default=0, help="The absolute maximum number of unclassified images; default value is %default.")
 	parser.add_option("-e", "--every", action="store", type="int", dest="decimationRate", default=1, help="Indicates that only every n-th projection image will be used for reconstruction; default value is %default.")
 	parser.add_option("--shutterNXSPath", action="store", type="string", dest="shutNXSPath", default="/entry1/instrument/tomoScanDevice/tomography_shutter", help="The path to the location of SHUTTER's physical positions inside the input NeXus file.")
@@ -1411,12 +1438,14 @@ creates directories and links to projection, dark and flat images required for s
 	maxUnclassed_loc=max(opts.maxUnclassed, 0)
 	makeLinksForNXSFile(\
 					filename=opts.filename\
+					, settingsfile=opts.template\
 					, shutterOpenPhys=opts.shutOpenPos\
 					, shutterClosedPhys=opts.shutClosedPos\
 					, stageInBeamPhys=opts.inBeamPos\
 					, stageOutOfBeamPhys=opts.outOfBeamPos\
 					, outdir=outdir_loc\
 					, minProjs=minProjs_loc\
+					, quickstep=opts.quickstep\
 					, maxUnclassed=maxUnclassed_loc\
 					, shutterNXSPath=opts.shutNXSPath\
 					, stagePosNXSPath=opts.stagePosNXSPath\
