@@ -1,13 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<?eclipse version="3.0"?>
-
-<!--
- <copyright>
- </copyright>
-
- $Id$
--->
-
 <plugin>
 
    <extension point="org.eclipse.ui.newWizards">
@@ -27,13 +17,25 @@
 
    <extension point="org.eclipse.ui.editors">
       <editor
-            id="uk.ac.diamond.tomography.reconstruction.parameters.hm.presentation.HmEditorID"
-            name="%_UI_HmEditor_label"
-            icon="icons/full/obj16/HmModelFile.gif"
-            extensions="hm"
             class="uk.ac.diamond.tomography.reconstruction.parameters.hm.presentation.HmEditor"
-            contributorClass="uk.ac.diamond.tomography.reconstruction.parameters.hm.presentation.HmActionBarContributor">
+            contributorClass="uk.ac.diamond.tomography.reconstruction.parameters.hm.presentation.HmActionBarContributor"
+            extensions="hm"
+            icon="icons/full/obj16/HmModelFile.gif"
+            id="uk.ac.diamond.tomography.reconstruction.parameters.hm.presentation.HmEditorID"
+            name="%_UI_HmEditor_label">
+         <contentTypeBinding contentTypeId="uk.ac.diamond.reconstruction.parameters"/>
       </editor>
+   </extension>
+   <extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <content-type
+            base-type="org.eclipse.core.runtime.xml"
+            describer="uk.ac.diamond.tomography.reconstruction.parameters.hm.presentation.TomoSettingsContentType"
+            file-extensions="*.hm"
+            id="uk.ac.diamond.reconstruction.parameters"
+            name="Tomo Settings Content Type"
+            priority="normal">
+      </content-type>
    </extension>
 
 </plugin>
