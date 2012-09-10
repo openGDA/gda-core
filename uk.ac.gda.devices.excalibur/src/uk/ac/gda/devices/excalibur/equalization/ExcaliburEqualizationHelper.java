@@ -422,9 +422,11 @@ public class ExcaliburEqualizationHelper {
 		hdf.writeToFileSimple(hd, resultfilename, equalisationLocation, THRESHOLD_DATASET);
 		hdf.writeAttribute(resultfilename, Hdf5Helper.TYPE.DATASET, getEdgeThresholdsLocation(), THRESHOLD_LIMIT_ATTR,
 				edgeThreshold);
-		Hdf5HelperData thresholdAValData = hdf.readDataSetAll(filename, detectorLocation, thresholdABNName, true);
-		hdf.writeAttribute(resultfilename, Hdf5Helper.TYPE.DATASET, getEdgeThresholdsLocation(), THRESHOLDABNVAL_ATTR,
-				((double[]) thresholdAValData.data)[0]);
+		if( thresholdABNName != null && thresholdABNName.length() > 0){
+			Hdf5HelperData thresholdAValData = hdf.readDataSetAll(filename, detectorLocation, thresholdABNName, true);
+			hdf.writeAttribute(resultfilename, Hdf5Helper.TYPE.DATASET, getEdgeThresholdsLocation(), THRESHOLDABNVAL_ATTR,
+					((double[]) thresholdAValData.data)[0]);
+		}
 	}
 
 	/**
@@ -867,6 +869,40 @@ public class ExcaliburEqualizationHelper {
 
 	}
 
+	public void createThresholdNOptMaskFromUnequalisedScan(String unequalisedThresholdNFile, 
+			int numChipsRows, int numChipsAcross, String resultFile) throws Exception {
+		Hdf5Helper hdf = Hdf5Helper.getInstance();
+		Hdf5HelperData hthresholdNotUsingThresholdN = hdf.readDataSetAll(unequalisedThresholdNFile,
+				getEqualisationLocation().getLocationForOpen(), THRESHOLD_DATASET, true);
+
+		if (hthresholdNotUsingThresholdN.dims.length != 2)
+			throw new IllegalArgumentException("hthresholdNotUsingThresholdN.dims.length!=2");
+
+		long totalHeight = hthresholdNotUsingThresholdN.dims[0];
+		long totalWidth = hthresholdNotUsingThresholdN.dims[1];
+		short[] notUsingThresholdN = (short[]) hthresholdNotUsingThresholdN.data;
+		short[] mask = new short[(int) (totalHeight * totalWidth)];
+		Arrays.fill(mask, (short)0); //fill with no mask by default
+		ChipSet chipset = new ChipSet(numChipsRows, numChipsAcross);
+
+		for (Chip chip : chipset.getChips()) {
+			Iterator<Long> iterator = chip.getPixelIndexIterator();
+			while (iterator.hasNext()) {
+				long index = iterator.next();
+				short using = notUsingThresholdN[(int) index];
+				short maskVal = 0;
+				if (!thresholdEdgePosIsValid(using))
+					mask[(int) index] = 1;
+			}
+
+		}
+
+		Hdf5HelperData hmask = new Hdf5HelperData(hthresholdNotUsingThresholdN.dims, mask);
+		hdf.writeToFileSimple(hmask, resultFile, getEqualisationLocation(), THRESHOLDN_MASK);
+
+	}
+
+	
 	/**
 	 * Gets the max threshold0 limit required so that all but numPixelsOutSide pixels have a value within the limit. The
 	 * threshold0 limit is chip specific. Write results into selectThresholdTargetThresholdFile as long[]. return max
