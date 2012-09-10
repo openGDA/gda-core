@@ -24,7 +24,6 @@ import gda.jython.InterfaceProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -83,6 +82,7 @@ public class ChangeNumberRepetitionsDialog extends TitleAreaDialog {
 	private void setLiveValue(int newValue) {
 		InterfaceProvider.getCommandRunner().runCommand(
 				"LocalProperties.set(\"" + RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY + "\",str(" + newValue + "))");
+		InterfaceProvider.getTerminalPrinter().print("Changed the number of repetitons of the scan currently running to "+ newValue);
 
 	}
 }
