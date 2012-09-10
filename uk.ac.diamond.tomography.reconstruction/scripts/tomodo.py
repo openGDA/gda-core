@@ -25,6 +25,49 @@ from numpy import *
 import numpy as np
 import PIL.Image
 
+def reindexLinks(inListOfIdx, outListOfIdx, indir="/dls/i13/data/2012/mt5811-1/564/pco1/", outdir="/dls/i13/data/2012/mt5811-1/564/pco1/", inFilenameFmt="p_%05d.tif", outFilenameFmt="p_%05d.tif"):
+	
+	#print "Fn: %s"%reindexLinks.__name__
+	#print '\tinListOfIdx=', inListOfIdx
+	#print '\toutListOfIdx=', outListOfIdx
+	#print '\tindir=', indir
+	#print '\toutdir=', outdir
+	#print '\tinFilenameFmt=', inFilenameFmt
+	#print '\toutFilenameFmt=', outFilenameFmt
+	
+	len_in =len(inListOfIdx)
+	len_out =len(outListOfIdx)
+	if len_in != len_out:
+		msg="The number of input and output indices are different: %s and %s:",(len_in, len_out)
+		raise Exception(msg)
+	
+	indir_loc=removeTrailingSlash(indir)
+	
+	if not os.path.isdir(indir_loc):
+		raise Exception("Input directory does not exist:"+`indir`)
+	
+	j = 0
+	for i in inListOfIdx:
+		k = outListOfIdx[j]
+		#print "loop j=%s"%j
+		#print "src i=%s"%i
+		#print "dst k=%s"%k
+		filename_src=inFilenameFmt%i
+		filename_dst=outFilenameFmt%k
+		fileToReindex=indir_loc+os.sep+filename_src
+		if not os.path.exists(fileToReindex):
+			raise Exception("File cannot be re-indexed as it does not exist:"+`fileToReindex`)
+		if not outdir is None:
+			filename_dst=outdir+os.sep+filename_dst
+		#if os.path.exists(filename_dst) and False:
+		#	if os.path.realpath(filename_dst)!=os.path.realpath(fileToReindex):
+		#		msg="Soft link already exists:"+`filename_dst`+" but not to the required destination "+`fileToReindex` 
+		#		raise Exception(msg)
+		else:
+			cmd="mv"+" "+fileToReindex+" "+filename_dst
+			#print 'cmd=', cmd
+			subprocess.call(cmd, shell=True)
+		j+=1
 
 @contextmanager
 def cd(path):
