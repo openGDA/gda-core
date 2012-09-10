@@ -42,6 +42,7 @@ import org.eclipse.draw2d.MouseListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -56,6 +57,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.ui.progress.UIJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,6 +68,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
+import uk.ac.diamond.scisoft.analysis.io.TIFFImageLoader;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.diamond.tomography.reconstruction.Activator;
 import uk.ac.diamond.tomography.reconstruction.ReconUtil;
@@ -95,7 +98,7 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 
 	private Stepper slicingStepper;
 
-	private Job refreshJob;
+	private UIJob refreshJob;
 
 	public ProjectionsView() {
 		// TODO Auto-generated constructor stub
@@ -246,38 +249,47 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 	private int position = -1;
 
 	private void doCreateRefreshJob() {
-		refreshJob = new Job("Updating data") {
+		refreshJob = new UIJob(getViewSite().getShell().getDisplay(), "Updating data") {
 
 			@Override
-			public IStatus run(IProgressMonitor monitor) {
-				if (nexusFile == null) {
-					return Status.CANCEL_STATUS;
-				}
-				if (dataset != null) {
-					int[] shape = dataset.getShape();
-					shape[0] = position + 1;
-					IDataset slice = dataset.getSlice(new int[] { position, 0, 0 }, shape, new int[] { 1, 1, 1 });
-					final ILazyDataset squeeze = slice.squeeze();
+			public IStatus runInUIThread(IProgressMonitor monitor) {
 
-					getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
+				BusyIndicator.showWhile(getDisplay(), new Runnable() {
 
-						@Override
-						public void run() {
-							plottingSystem.createPlot2D((AbstractDataset) squeeze, null, new NullProgressMonitor());
-							fileName.setText(nexusFile.getLocation().toOSString());
-							for (ITrace trace : plottingSystem.getTraces()) {
-								if (trace instanceof IImageTrace) {
-									IImageTrace imageTrace = (IImageTrace) trace;
-									imageTrace.setPaletteData(PaletteFactory.makeGrayScalePalette());
-								}
-							}
-
+					@Override
+					public void run() {
+						if (nexusFile == null) {
+							return;
 						}
-					});
-					logger.debug(dataset.getName());
-				} else {
-					throw new IllegalArgumentException("Unable to find dataset");
-				}
+						if (dataset != null) {
+							int[] shape = dataset.getShape();
+							shape[0] = position + 1;
+							IDataset slice = dataset.getSlice(new int[] { position, 0, 0 }, shape,
+									new int[] { 1, 1, 1 });
+							final ILazyDataset squeeze = slice.squeeze();
+
+							getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
+
+								@Override
+								public void run() {
+									plottingSystem.createPlot2D((AbstractDataset) squeeze, null,
+											new NullProgressMonitor());
+									fileName.setText(nexusFile.getLocation().toOSString());
+									for (ITrace trace : plottingSystem.getTraces()) {
+										if (trace instanceof IImageTrace) {
+											IImageTrace imageTrace = (IImageTrace) trace;
+											imageTrace.setPaletteData(PaletteFactory.makeGrayScalePalette());
+										}
+									}
+
+								}
+							});
+							logger.debug(dataset.getName());
+						} else {
+							throw new IllegalArgumentException("Unable to find dataset");
+						}
+					}
+				});
 
 				return Status.OK_STATUS;
 			}
@@ -442,17 +454,18 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 
 	public void displayReconstruction(final IFile nexusFile, final int pixelPosition) {
 
-		Job displayJob = new Job("Update Reconstruction Display") {
+		UIJob displayJob = new UIJob(getViewSite().getShell().getDisplay(), "Update Reconstruction Display") {
 
 			@Override
-			protected IStatus run(IProgressMonitor monitor) {
+			public IStatus runInUIThread(IProgressMonitor monitor) {
+
 				File path = new File(nexusFile.getLocation().toOSString());
 				File pathToRecon = ReconUtil.getPathToWriteTo(nexusFile);
 				File pathToImages = new File(pathToRecon, path.getName().replace(".nxs", "") + "_data_quick");
 				File imageFile = new File(pathToImages, String.format("image_%05d.tif", pixelPosition));
 
 				try {
-					DataHolder data = LoaderFactory.getData(imageFile.getAbsolutePath());
+					DataHolder data = new TIFFImageLoader(imageFile.getAbsolutePath()).loadFile();
 					AbstractDataset image = data.getDataset(0);
 					image.isubtract(image.min());
 					image.imultiply(1000.0);

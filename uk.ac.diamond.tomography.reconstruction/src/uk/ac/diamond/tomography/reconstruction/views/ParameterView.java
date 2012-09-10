@@ -622,7 +622,7 @@ public class ParameterView extends ViewPart implements ISelectionListener {
 	}
 
 	private void getHmSettingsInProcessingDir() {
-		IPath hmSettingsPath = new Path(ReconUtil.getPathToWriteTo(nexusFile).getAbsolutePath()).append(
+		IPath hmSettingsPath = new Path(ReconUtil.getSettingsFileLocation(nexusFile).getAbsolutePath()).append(
 				new Path(nexusFile.getName()).removeFileExtension().toString()).addFileExtension("hm");
 		if (hmSettingsInProcessingDir == null || !hmSettingsInProcessingDir.exists()) {
 			logger.debug("hm settings path:{}", hmSettingsPath);

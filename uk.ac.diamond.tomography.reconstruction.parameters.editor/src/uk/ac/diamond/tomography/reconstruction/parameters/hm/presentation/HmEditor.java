@@ -136,6 +136,7 @@ public class HmEditor extends MultiPageEditorPart implements IEditingDomainProvi
 	public static final String ID = "uk.ac.diamond.tomography.reconstruction.parameters.hm.presentation.HmEditorID";
 
 	private static final Logger logger = LoggerFactory.getLogger(HmEditor.class);
+
 	/**
 	 * This keeps track of the editing domain that is used to track all changes to the model.
 	 * <!-- begin-user-doc -->

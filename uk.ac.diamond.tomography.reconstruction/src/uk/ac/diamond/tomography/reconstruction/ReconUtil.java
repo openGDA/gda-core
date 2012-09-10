@@ -21,13 +21,21 @@ package uk.ac.diamond.tomography.reconstruction;
 import java.io.File;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.Path;
 
 public class ReconUtil {
 
-	
-	public static File getPathToWriteTo(IFile nexusFile){
+	public static File getPathToWriteTo(IFile nexusFile) {
 		File path = new File(nexusFile.getLocation().toOSString());
 		File pathToRecon = new File(path.getParent(), "/processing/reconstruction/");
+		return pathToRecon;
+	}
+
+	public static File getSettingsFileLocation(IFile nexusFile) {
+		File path = new File(nexusFile.getLocation().toOSString());
+		Path path2 = new Path(nexusFile.getName());
+		String fileNameWithoutExtension = path2.removeFileExtension().toOSString();
+		File pathToRecon = new File(path.getParent(), "/processing/sino/" + fileNameWithoutExtension + "_data/settings");
 		return pathToRecon;
 	}
 }
