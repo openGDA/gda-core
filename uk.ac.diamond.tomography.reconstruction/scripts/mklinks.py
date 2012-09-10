@@ -85,13 +85,13 @@ def makeLinksToOriginalFiles(listOfProjIdx, indir="/dls/i13/data/2012/mt5811-1/5
 		if not outdir is None:
 			filename_dst=outdir+os.sep+filename_dst
 		if os.path.exists(filename_dst):
-			msg="Soft link already exists:"+`filename_dst`
-			#print msg
-			raise Exception("Soft link already exists:"+`filename_dst`)
-		cmd="ln -s "+fileToLinkTo+" "+filename_dst
-		#print cmd
+			if os.path.realpath(filename_dst)!=os.path.realpath(fileToLinkTo):
+				msg="Soft link already exists:"+`filename_dst`+" but not to the required destination "+`fileToLinkTo` 
+				raise Exception(msg)
+		else:
+			cmd="ln -s "+fileToLinkTo+" "+filename_dst
+			subprocess.call(cmd, shell=True)
 		j+=1
-		subprocess.call(cmd, shell=True)
 
 
 def ndigits(N):
