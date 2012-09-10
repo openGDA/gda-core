@@ -80,6 +80,7 @@ import uk.ac.diamond.tomography.reconstruction.parameters.hm.provider.HmEditPlug
 
 import org.eclipse.core.runtime.Path;
 
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
 import org.eclipse.emf.ecore.util.EcoreUtil;
@@ -181,6 +182,7 @@ public class HmModelWizard extends Wizard implements INewWizard {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		this.workbench = workbench;
 		this.selection = selection;
@@ -257,7 +259,7 @@ public class HmModelWizard extends Wizard implements INewWizard {
 
 							// Create a resource for this file.
 							//
-							Resource resource = resourceSet.createResource(fileURI);
+							Resource resource = resourceSet.createResource(fileURI, HmPackage.eCONTENT_TYPE);
 
 							// Add the initial model object to the contents.
 							//
@@ -303,7 +305,9 @@ public class HmModelWizard extends Wizard implements INewWizard {
 			try {
 				page.openEditor
 					(new FileEditorInput(modelFile),
-					 workbench.getEditorRegistry().getDefaultEditor(modelFile.getFullPath().toString()).getId());					 	 
+					 workbench.getEditorRegistry().getDefaultEditor
+					 	(modelFile.getFullPath().toString(),
+					 	 Platform.getContentTypeManager().getContentType(HmPackage.eCONTENT_TYPE)).getId());					 	 
 			}
 			catch (PartInitException exception) {
 				MessageDialog.openError(workbenchWindow.getShell(), HmEditorPlugin.INSTANCE.getString("_UI_OpenEditorError_label"), exception.getMessage());
@@ -408,9 +412,9 @@ public class HmModelWizard extends Wizard implements INewWizard {
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
+		@Override
 		public void createControl(Composite parent) {
-			Composite composite = new Composite(parent, SWT.NONE);
-			{
+			Composite composite = new Composite(parent, SWT.NONE); {
 				GridLayout layout = new GridLayout();
 				layout.numColumns = 1;
 				layout.verticalSpacing = 12;

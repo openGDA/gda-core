@@ -23,8 +23,52 @@ from contextlib import contextmanager
 
 from numpy import *
 import numpy as np
-import PIL.Image
+#import PIL.Image as Image
+import Image
 
+def reindexLinks(inListOfIdx, outListOfIdx, indir="/dls/i13/data/2012/mt5811-1/564/pco1/", outdir="/dls/i13/data/2012/mt5811-1/564/pco1/", inFilenameFmt="p_%05d.tif", outFilenameFmt="p_%05d.tif"):
+	
+	#print "Fn: %s"%reindexLinks.__name__
+	#print '\tinListOfIdx=', inListOfIdx
+	#print '\toutListOfIdx=', outListOfIdx
+	#print '\tindir=', indir
+	#print '\toutdir=', outdir
+	#print '\tinFilenameFmt=', inFilenameFmt
+	#print '\toutFilenameFmt=', outFilenameFmt
+	
+	len_in =len(inListOfIdx)
+	len_out =len(outListOfIdx)
+	if len_in != len_out:
+		msg="The number of input and output indices are different: %s and %s:",(len_in, len_out)
+		raise Exception(msg)
+	
+	indir_loc=removeTrailingSlash(indir)
+	
+	if not os.path.isdir(indir_loc):
+		raise Exception("Input directory does not exist:"+`indir`)
+	
+	j = 0
+	for i in inListOfIdx:
+		k = outListOfIdx[j]
+		#print "loop j=%s"%j
+		#print "src i=%s"%i
+		#print "dst k=%s"%k
+		filename_src=inFilenameFmt%i
+		filename_dst=outFilenameFmt%k
+		fileToReindex=indir_loc+os.sep+filename_src
+		if not os.path.exists(fileToReindex):
+			raise Exception("File cannot be re-indexed as it does not exist:"+`fileToReindex`)
+		if not outdir is None:
+			filename_dst=outdir+os.sep+filename_dst
+		#if os.path.exists(filename_dst) and False:
+		#	if os.path.realpath(filename_dst)!=os.path.realpath(fileToReindex):
+		#		msg="Soft link already exists:"+`filename_dst`+" but not to the required destination "+`fileToReindex` 
+		#		raise Exception(msg)
+		#else:
+			cmd="mv"+" "+fileToReindex+" "+filename_dst
+			print 'cmd=', cmd
+			subprocess.call(cmd, shell=True)
+		j+=1
 
 @contextmanager
 def cd(path):
@@ -373,7 +417,7 @@ def readTIFF_u16(path):
 	"""Read 16bit TIFF"""
 	print '\treadTIFF_u16 START'
 	print 'filepath=', path
-	im=PIL.Image.open(path)
+	im=Image.open(path)
 	print "im.format", im.format
 	print "im.mode", im.mode
 	print 'im.size', im.size
@@ -477,7 +521,7 @@ def overwrite_timestamp(filename, dy=16+1, intensity=0):
 		for y in range(0, a0.shape[1]):
 			arr_ovr[x, y]=intensity
 			
-	im_ovr=PIL.Image.frombuffer("I;16", (w, h) , arr_ovr, "raw", "I;16", 0, 1)
+	im_ovr=Image.frombuffer("I;16", (w, h) , arr_ovr, "raw", "I;16", 0, 1)
 	filename_ovr=filename+'_ovr'+`dy`
 	fname_ovr=filename_ovr+'.tif'
 	file=open(fname_ovr, 'w')
@@ -595,8 +639,8 @@ def estimateCOR(projFilename_0deg, flatFilename_0deg, darkFilename_0deg, projFil
 					a180[x, y]=65535
 				#a180[x, y]=65535-a180[x, y]
 			
-		#im0_sub=im0.filter(PIL.ImageFilter.BLUR)
-		im0_sub=PIL.Image.frombuffer("I;16B", (w, h) , a0, "raw", "I;16B", 0, 1)
+		#im0_sub=im0.filter(ImageFilter.BLUR)
+		im0_sub=Image.frombuffer("I;16B", (w, h) , a0, "raw", "I;16B", 0, 1)
 		filename0_sub=filename0+'_sub'
 		fname0_sub=filename0+'_sub.tif'
 		file=open(fname0_sub, 'w')
@@ -605,7 +649,7 @@ def estimateCOR(projFilename_0deg, flatFilename_0deg, darkFilename_0deg, projFil
 		file.close()
 		print '>>im0: flat-subtracted'
 	
-		im180_sub=PIL.Image.frombuffer("I;16B", (w, h) , a180, "raw", "I;16B", 0, 1)
+		im180_sub=Image.frombuffer("I;16B", (w, h) , a180, "raw", "I;16B", 0, 1)
 		filename180_sub=filename180+'_sub'
 		fname180_sub=filename180+'_sub.tif'
 		file=open(fname180_sub, 'w')
@@ -623,7 +667,7 @@ def estimateCOR(projFilename_0deg, flatFilename_0deg, darkFilename_0deg, projFil
 			a180_flp[x, y]=a180[x, a180.shape[1]-y-1]
 	#		a180_flp[x, y]=a180[x, y]
 			
-	im180_flp=PIL.Image.frombuffer("I;16B", (w, h) , a180_flp, "raw", "I;16B", 0, 1)
+	im180_flp=Image.frombuffer("I;16B", (w, h) , a180_flp, "raw", "I;16B", 0, 1)
 	filename180_flp=filename180+'_flp'
 	fname180_flp=filename180+'_flp.tif'
 	if dbg_save:
@@ -645,7 +689,7 @@ def estimateCOR(projFilename_0deg, flatFilename_0deg, darkFilename_0deg, projFil
 			else:
 				a180_flp_inv[x, y]=a180_flp[x, y]
 			
-	im180_flp_inv=PIL.Image.frombuffer("I;16B", (w, h) , a180_flp_inv, "raw", "I;16B", 0, 1)
+	im180_flp_inv=Image.frombuffer("I;16B", (w, h) , a180_flp_inv, "raw", "I;16B", 0, 1)
 	filename180_flp_inv=filename180+'_flp_inv'
 	fname180_flp_inv=filename180+'_flp_inv.tif'
 	if dbg_save:
@@ -667,7 +711,7 @@ def estimateCOR(projFilename_0deg, flatFilename_0deg, darkFilename_0deg, projFil
 			else:
 				a0_inv[x, y]=a0[x, y]
 			
-	im0_inv=PIL.Image.frombuffer("I;16B", (w, h) , a0_inv, "raw", "I;16B", 0, 1)
+	im0_inv=Image.frombuffer("I;16B", (w, h) , a0_inv, "raw", "I;16B", 0, 1)
 	filename0_inv=filename0+'_inv'
 	fname0_inv=filename0+'_inv.tif'
 	if dbg_save:
@@ -700,7 +744,7 @@ def estimateCOR(projFilename_0deg, flatFilename_0deg, darkFilename_0deg, projFil
 			else:
 				a0_inv_thr_[x, y]=hi
 			
-	im0_inv_thr=PIL.Image.frombuffer("I;16", (w, h) , a0_inv_thr_, "raw", "I;16", 0, 1)
+	im0_inv_thr=Image.frombuffer("I;16", (w, h) , a0_inv_thr_, "raw", "I;16", 0, 1)
 	filename0_inv_thr=filename0+'_inv_thr'+`threshold0`
 	fname0_inv_thr=filename0_inv_thr+'.tif'
 	if dbg_save: 
@@ -744,7 +788,7 @@ def estimateCOR(projFilename_0deg, flatFilename_0deg, darkFilename_0deg, projFil
 			else:
 				a180_flp_inv_thr_[x, y]=hi
 			
-	im180_flp_inv_thr=PIL.Image.frombuffer("I;16", (w, h) , a180_flp_inv_thr_, "raw", "I;16", 0, 1)
+	im180_flp_inv_thr=Image.frombuffer("I;16", (w, h) , a180_flp_inv_thr_, "raw", "I;16", 0, 1)
 	filename180_flp_inv_thr=filename180+'_flp_inv_thr'+`threshold180`
 	fname180_flp_inv_thr=filename180_flp_inv_thr+'.tif'
 	if dbg_save:
@@ -788,7 +832,7 @@ def estimateCOR(projFilename_0deg, flatFilename_0deg, darkFilename_0deg, projFil
 	#	for y in range(a0_inv_thr_.shape[1]-256*3, a0_inv_thr_.shape[1]):
 	#		a0_inv_thr_ovr_[x, y]=intensity
 			
-	im0_inv_thr_ovr=PIL.Image.frombuffer("I;16", (w, h) , a0_inv_thr_ovr_, "raw", "I;16", 0, 1)
+	im0_inv_thr_ovr=Image.frombuffer("I;16", (w, h) , a0_inv_thr_ovr_, "raw", "I;16", 0, 1)
 	filename0_inv_thr_ovr=filename0+'_inv_thr'+`threshold0`+'_ovr'+`dy`
 	fname0_inv_thr_ovr=filename0_inv_thr_ovr+'.tif'
 	if dbg_save:
@@ -825,7 +869,7 @@ def estimateCOR(projFilename_0deg, flatFilename_0deg, darkFilename_0deg, projFil
 	#	for y in range(0, 256*3):
 	#		a180_flp_inv_thr_ovr_[x, y]=intensity
 			
-	im180_flp_inv_thr_ovr=PIL.Image.frombuffer("I;16", (w, h) , a180_flp_inv_thr_ovr_, "raw", "I;16", 0, 1)
+	im180_flp_inv_thr_ovr=Image.frombuffer("I;16", (w, h) , a180_flp_inv_thr_ovr_, "raw", "I;16", 0, 1)
 	filename180_flp_inv_thr_ovr=filename180+'_flp_inv_thr'+`threshold180`+'_ovr'+`dy`
 	fname180_flp_inv_thr_ovr=filename180_flp_inv_thr_ovr+'.tif'
 	if dbg_save:
@@ -872,12 +916,13 @@ def estimateCOR(projFilename_0deg, flatFilename_0deg, darkFilename_0deg, projFil
 	return tomoaxis_x, tomoaxis_y
 
 
-def launchReconArray(outDir, ctrCoord, verbose=True, testing=False):
+def launchReconArray(outDir, ctrCoord, inSinoFolder='sinograms', settingsfile='/dls_sw/i12/software/tomography_scripts/settings.xml',verbose=True, testing=False):
 	print launchReconArray.__name__
 	args=["recon_arrayxml.py"]
 	#args+=[ "-h"]
-	#args+=[ "-I", "settings.xml"]
+	args+=[ "-I", settingsfile]
 	args+=[ "-o", outDir]
+	args+=[ "-d", inSinoFolder]
 	args+=[ "-C", str(ctrCoord)]
 	if verbose:
 		args+=[ "-v"]
@@ -891,6 +936,7 @@ def launchReconArray(outDir, ctrCoord, verbose=True, testing=False):
 
 def makeLinksForNXSFile(\
 					filename\
+					, settingsfile='/dls_sw/i12/software/tomography_scripts/settings.xml'
 					, shutterOpenPhys=1.0\
 					, shutterClosedPhys=0.0\
 					, stageInBeamPhys=0.0\
@@ -901,6 +947,7 @@ def makeLinksForNXSFile(\
 					, tifNXSPath='/entry1/instrument/pco1_hw_tif/image_data'\
 					, outdir=None\
 					, minProjs=129\
+					, quickstep=100\
 					, maxUnclassed=0\
 					, decimationRate=1\
 					, sino=False\
@@ -927,6 +974,7 @@ def makeLinksForNXSFile(\
 	if verbose:
 		print "\nInput arguments for makeLinksForNXSFile:"
 		print "filename=%s"%filename
+		print "settingsfile=%s"%settingsfile
 		print "shutterOpenPhys=%s"%shutterOpenPhys
 		print "shutterClosedPhys=%s"%shutterClosedPhys
 		print "stageInBeamPhys=%s"%stageInBeamPhys
@@ -985,6 +1033,14 @@ def makeLinksForNXSFile(\
 		print "DARK. FLAT and PROJ definitions bundled together in a dictionary:"
 		print dfpDef
 	
+	
+	# check if the input template file exists
+	if not os.path.exists(settingsfile):
+		#msg = "The input NeXus file, %s, does NOT exist!"%filename
+		raise Exception("The input settings file does not exist or insufficient filesystem permissions: "+`filename`)
+
+	inSettings = settingsfile
+	quickStep = quickstep
 	
 	# check if the input NeXus file exists
 	if not os.path.exists(filename):
@@ -1213,7 +1269,7 @@ def makeLinksForNXSFile(\
 		if sino_success:
 			sino_idx=range(0,2672)
 			sino_idx_stepped=[]
-			sino_idx_stepped=stepThrough(sino_idx, stepSize=10)
+			sino_idx_stepped=stepThrough(sino_idx, stepSize=quickStep)
 			inFnameFmt="sino_%05d.tiff"
 			outFnameFmt="sino_%05d.tiff"
 			inDir=head+os.sep+sino_dir+os.sep+"sinograms"
@@ -1269,9 +1325,16 @@ def makeLinksForNXSFile(\
 					flatFilename_180deg = tif[ flat_idx[0] ][0]
 					darkFilename_180deg = tif[ dark_idx[0] ][0]
 
-					CORx, CORy=estimateCOR(projFilename_0deg, flatFilename_0deg, darkFilename_0deg, projFilename_180deg, flatFilename_180deg, darkFilename_180deg)
+					#CORx, CORy=estimateCOR(projFilename_0deg, flatFilename_0deg, darkFilename_0deg, projFilename_180deg, flatFilename_180deg, darkFilename_180deg)
 					#CORx=1557.8
-					recon_success, recon_imfolder=launchReconArray(outDir=reconDir, ctrCoord=CORx)
+					CORx=1320
+					if quick:
+						#reconDir=outDir=head+os.sep+recon_dir+'_quick'
+						inSinoFoldername='sino_quick'
+					else:
+						inSinoFoldername='sinograms'
+					
+					recon_success, recon_imfolder=launchReconArray(outDir=reconDir, ctrCoord=CORx, inSinoFolder=inSinoFoldername, settingsfile=inSettings)
 				except Exception, ex:
 					recon_success=False
 					raise Exception ("ERROR Spawning the recon_arrayxml script  "+str(ex))
@@ -1284,7 +1347,8 @@ def makeLinksForNXSFile(\
 			if recon_success:
 				recon_idx=range(0,2672)
 				recon_idx_stepped=[]
-				recon_idx_stepped=stepThrough(recon_idx, stepSize=10)
+				recon_idx_stepped=stepThrough(recon_idx, stepSize=quickStep)
+				recon_idx_stepped=range(0, len(sino_idx_stepped))
 				inFnameFmt="image_%05d.tif"
 				outFnameFmt="image_%05d.tif"
 				inDir=head+os.sep+recon_dir+os.sep+recon_imfolder
@@ -1298,7 +1362,16 @@ def makeLinksForNXSFile(\
 									, inFilenameFmt=inFnameFmt\
 									, outdir=outDir\
 									, outFilenameFmt=outFnameFmt)
+		if quick:
+			inListOfIdx=range(0, len(sino_idx_stepped))
+			outListOfIdx=[]
+			ftor = quickStep
+			for i in inListOfIdx:
+				outListOfIdx.append(i*ftor)
 		
+			reindexLinks(inListOfIdx, outListOfIdx, indir=head+os.sep+sino_dir+os.sep+"sino_quick", outdir=head+os.sep+sino_dir+os.sep+"sino_quick", inFilenameFmt="sino_%05d.tiff", outFilenameFmt="sino_%05d.tiff")
+			
+			reindexLinks(inListOfIdx, outListOfIdx, indir=head+os.sep+recon_dir+'_quick', outdir=head+os.sep+recon_dir+'_quick', inFilenameFmt="image_%05d.tif", outFilenameFmt="image_%05d.tif")
 	else:
 		print "\nLaunch of the sino_listener script was not requested at the end of makeLinksForNXSFile." 
 	
@@ -1314,17 +1387,19 @@ creates directories and links to projection, dark and flat images required for s
 	usage="%prog -f input_filename --shutterOpenPhys shutOpenPos --shutterClosedPhys shutClosedPos --stageInBeamPhys inBeamPos --stageOutOfBeamPhys outOfBeamPos -o outdir\n"+\
 				" or\n%prog --filename input_filename --shutterOpenPhys shutOpenPos --shutterClosedPhys shutClosedPos --stageInBeamPhys inBeamPos --stageOutOfBeamPhys outOfBeamPos --outdir outdir\n"+\
 				"\nExample usage:\n%prog -f /dls/i13/data/2012/mt5811-1/564.nxs --shutterOpenPhys 1.0 --shutterClosedPhys 0.0 --stageInBeamPhys 0.0 --stageOutOfBeamPhys 6.0\n"+\
-				"or:\n%prog --filename /dls/i13/data/2012/mt5811-1/564.nxs --shutterOpenPhys 1.0 --shutterClosedPhys 0.0 --stageInBeamPhys 0.0 --stageOutOfBeamPhys 6.0"
+				"or:\n%prog --filename /dls/i13/data/2012/mt5811-1/564.nxs --shutterOpenPhys 1.0 --shutterClosedPhys 0.0 --stageInBeamPhys 0.0 --stageOutOfBeamPhys 6.0 --template settingsfile"
 	vers="%prog version 1.0"
 
 	parser=OptionParser(usage=usage, description=desc, version=vers, prog=argv[0])
 
 	parser.add_option("-f", "--filename", action="store", type="string", dest="filename", help="NeXus filename to be processed.")
+	parser.add_option("--template", action="store", type="string", dest="template", default="/dls_sw/i12/software/tomography_scripts/settings.xml", help="Settings filename to be used for reconstruction.")
 	parser.add_option("--shutterOpenPhys", action="store", type="float", dest="shutOpenPos", default=1.0, help="The shutter's PHYSICAL position when it was OPEN during the scan.")
 	parser.add_option("--shutterClosedPhys", action="store", type="float", dest="shutClosedPos", default=0.0, help="The shutter's PHYSICAL position when it was CLOSED during the scan. ")
 	parser.add_option("--stageInBeamPhys", action="store", type="float", dest="inBeamPos", help="The sample stage's PHYSICAL position when it was IN-BEAM during the scan. ")
 	parser.add_option("--stageOutOfBeamPhys", action="store", type="float", dest="outOfBeamPos", help="The sample stage's PHYSICAL position when it was OUT-OF-BEAM during the scan. ")
 	parser.add_option("--minProjs", action="store", type="int", dest="minProjs", default=129, help="The absolute minimum number of projections; default value is %default.")
+	parser.add_option("--quickstep", action="store", type="int", dest="quickstep", default=100, help="The step size to be used for GUI quick option; default value is %default.")
 	parser.add_option("--maxUnclassed", action="store", type="int", dest="maxUnclassed", default=0, help="The absolute maximum number of unclassified images; default value is %default.")
 	parser.add_option("-e", "--every", action="store", type="int", dest="decimationRate", default=1, help="Indicates that only every n-th projection image will be used for reconstruction; default value is %default.")
 	parser.add_option("--shutterNXSPath", action="store", type="string", dest="shutNXSPath", default="/entry1/instrument/tomoScanDevice/tomography_shutter", help="The path to the location of SHUTTER's physical positions inside the input NeXus file.")
@@ -1368,12 +1443,14 @@ creates directories and links to projection, dark and flat images required for s
 	maxUnclassed_loc=max(opts.maxUnclassed, 0)
 	makeLinksForNXSFile(\
 					filename=opts.filename\
+					, settingsfile=opts.template\
 					, shutterOpenPhys=opts.shutOpenPos\
 					, shutterClosedPhys=opts.shutClosedPos\
 					, stageInBeamPhys=opts.inBeamPos\
 					, stageOutOfBeamPhys=opts.outOfBeamPos\
 					, outdir=outdir_loc\
 					, minProjs=minProjs_loc\
+					, quickstep=opts.quickstep\
 					, maxUnclassed=maxUnclassed_loc\
 					, shutterNXSPath=opts.shutNXSPath\
 					, stagePosNXSPath=opts.stagePosNXSPath\
