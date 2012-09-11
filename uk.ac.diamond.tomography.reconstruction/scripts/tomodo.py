@@ -175,7 +175,7 @@ def validateFDP(image_key):
 	return (sum==1)
 
 
-def createDirs(refFilename, outdir, mandatorydir="processing", verbose=False):
+def createDirs(refFilename, outdir, mandatorydir="processing", quick=False, verbose=False):
 
 	"""
 	In the processing folder create:
@@ -245,6 +245,7 @@ def createDirs(refFilename, outdir, mandatorydir="processing", verbose=False):
 	if quick:
 		dirnameToDelete = head+os.sep+recon_dir+'_quick'
 		if os.path.exists(dirnameToDelete):
+			print "Removing recon directory in the quick mode: %s"%dirnameToDelete
 			shutil.rmtree(dirnameToDelete)
 
 	for dirname in dirs:
@@ -1234,7 +1235,7 @@ def makeLinksForNXSFile(\
 	srcfile_proj=tif[ proj_idx[0] ][0]
 	mandatory_parent_foldername="processing"
 	
-	scanNumber_str, head, sino_dir, dark_dir, flat_dir, proj_dir, recon_dir=createDirs(refFilename=srcfile_proj, outdir=outdir, mandatorydir=mandatory_parent_foldername, verbose=verbose)
+	scanNumber_str, head, sino_dir, dark_dir, flat_dir, proj_dir, recon_dir=createDirs(refFilename=srcfile_proj, outdir=outdir, mandatorydir=mandatory_parent_foldername, quick=quick, verbose=verbose)
 	
 	len_proj_idx_decimated, detectorName=populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, tif, dark_idx, flat_idx, proj_idx, decimationRate, verbose=verbose)
 	
