@@ -160,7 +160,7 @@ public abstract class IncrementalFile extends DataWriterBase implements DataWrit
 				this.filePrefix = LocalProperties.get("gda.data.scan.datawriter.filePrefix");
 
 				if (this.filePrefix != null) {
-					currentFileName = this.filePrefix + "_" + currentFileName;
+					currentFileName = this.filePrefix + currentFileName;
 				}
 			}
 
