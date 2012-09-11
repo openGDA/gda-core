@@ -66,7 +66,7 @@ def reindexLinks(inListOfIdx, outListOfIdx, indir="/dls/i13/data/2012/mt5811-1/5
 		#		raise Exception(msg)
 		#else:
 		cmd="mv"+" "+fileToReindex+" "+filename_dst
-		print 'cmd=', cmd
+		#print 'cmd=', cmd
 		subprocess.call(cmd, shell=True)
 		j+=1
 
@@ -245,7 +245,7 @@ def createDirs(refFilename, outdir, mandatorydir="processing", quick=False, verb
 	if quick:
 		dirnameToDelete = head+os.sep+recon_dir+'_quick'
 		if os.path.exists(dirnameToDelete):
-			print "Removing recon directory in the quick mode: %s"%dirnameToDelete
+			print "Removing a reconstruction directory used in the quick mode: %s"%dirnameToDelete
 			shutil.rmtree(dirnameToDelete)
 
 	for dirname in dirs:
@@ -1333,7 +1333,7 @@ def makeLinksForNXSFile(\
 
 					#CORx, CORy=estimateCOR(projFilename_0deg, flatFilename_0deg, darkFilename_0deg, projFilename_180deg, flatFilename_180deg, darkFilename_180deg)
 					#CORx=1557.8
-					CORx=1620
+					CORx=1320
 					if quick:
 						#reconDir=outDir=head+os.sep+recon_dir+'_quick'
 						inSinoFoldername='sino_quick'
