@@ -448,7 +448,8 @@ public class EpicsChannelManager implements ConnectionListener, PutListener {
 		boolean notify = false;
 		// not needed since called from sync already, but here so that the method can be reused
 		synchronized (unconnectedCriticalChannels) {
-			if (!initialized && creationPhaseCompleted && checkAllChannelsConnected()) {
+			// channels are removed from unconnectedCriticalChannels by monitored ConnectionEvent changes 
+			if (!initialized && creationPhaseCompleted && unconnectedCriticalChannels.size() == 0) {
 				notify = true;
 				initialized = true;
 				unconnectedCriticalChannels.notifyAll();
@@ -458,35 +459,6 @@ public class EpicsChannelManager implements ConnectionListener, PutListener {
 		if (notify) {
 			notifyInitalizationCompleted();
 		}
-	}
-
-	private boolean checkAllChannelsConnected() {
-		if (unconnectedCriticalChannels.size() == 0){
-			return true;
-		}
-		
-		// can get to this point and the unconnected channels may have connected by now
-		for (Channel channel : unconnectedCriticalChannels){
-			if (channel.getConnectionState() != Channel.CONNECTED){
-				boolean connected = false;
-				// give it a chance to connect, but try to minimise the wait
-				for (int i = 0; i < 40; i++){
-					try {
-						Thread.sleep(50);
-					} catch (InterruptedException e) {
-						break;
-					}
-					if (channel.getConnectionState() == Channel.CONNECTED){
-						connected = true;
-						break;
-					}
-				}
-				if (!connected){
-					return false;
-				}
-			}
-		}
-		return true;
 	}
 
 	/**
