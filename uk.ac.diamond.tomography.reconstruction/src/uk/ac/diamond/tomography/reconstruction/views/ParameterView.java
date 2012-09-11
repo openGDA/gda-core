@@ -32,7 +32,9 @@ import java.net.URL;
 import java.util.Collections;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
@@ -47,14 +49,14 @@ import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISelectionListener;
@@ -62,7 +64,14 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
+import org.eclipse.ui.forms.events.ExpansionAdapter;
+import org.eclipse.ui.forms.events.ExpansionEvent;
+import org.eclipse.ui.forms.widgets.ExpandableComposite;
+import org.eclipse.ui.forms.widgets.Form;
+import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.ViewPart;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
@@ -94,13 +103,42 @@ import uk.ac.gda.util.io.FileUtils;
  */
 
 public class ParameterView extends ViewPart implements ISelectionListener {
+
+	private static final String SETTINGS = "Settings";
+	private static final String HM_FILE_EXTN = "hm";
+	private static final String DARK_FIELDS = "Dark Fields";
+	private static final String BLANK = "";
+	private static final String RECTANGLE = "Rectangle";
+	private static final String STANDARD = "Standard";
+	private static final String Y_MAX = "Y max";
+	private static final String Y_MIN = "Y min";
+	private static final String X_MAX = "X max";
+	private static final String X_MIN = "X min";
+	private static final String REGION_OF_INTEREST = "Region of Interest";
+	private static final String VALUE_AFTER = "Value After";
+	private static final String FILE_BEFORE = "File Before";
+	private static final String VALUE_BEFORE = "Value Before";
+	private static final String TYPE = "Type";
+	private static final String ROW = "Row";
+	private static final String USER = "User";
+	private static final String FLAT_FIELDS = "Flat Fields";
+	private static final String PREVIEW_RECONSTRUCTION_SETTINGS = "Preview Reconstruction Settings";
+	private static final String SCRIPTS_TOMODO_PY = "scripts/tomodo.py";
+	private static final String SCRIPTS_TOMODO_SH = "scripts/tomodo.sh";
+	private static final String NUM_SERIES = "Num Series";
+	private static final String AML = "AML";
+	private static final String AML_COLUMN = "Column";
+	private static final String AML_NO = "No";
+	private static final String RING_ARTEFACTS = "Ring Artefacts";
+	private static final String ROTATION_CENTRE = "Rotation Centre";
+
 	private static final Logger logger = LoggerFactory.getLogger(ParameterView.class);
 
+	private FormToolkit toolkit;
 	/**
 	 * The ID of the view as specified by the extension.
 	 */
 	public static final String ID = "uk.ac.diamond.tomography.reconstruction.views.ParameterView";
-	private Composite composite;
 
 	private String pathname = "tomoSettings.hm";
 
@@ -114,13 +152,11 @@ public class ParameterView extends ViewPart implements ISelectionListener {
 
 	private Text txtCenterOfRotation;
 
-	private Combo cmbAml;
+	private CCombo cmbAml;
 
 	private Text txtNumSeries;
 
-	private Text txtDarkField;
-
-	private Combo cmbFlatFieldType;
+	private CCombo cmbFlatFieldType;
 
 	private Text txtFlatFieldValueBefore;
 
@@ -128,7 +164,7 @@ public class ParameterView extends ViewPart implements ISelectionListener {
 
 	private Text txtFlatFieldFileBefore;
 
-	private Combo cmbDarkFieldType;
+	private CCombo cmbDarkFieldType;
 
 	private Text txtDarkFieldValueBefore;
 
@@ -136,7 +172,7 @@ public class ParameterView extends ViewPart implements ISelectionListener {
 
 	private Text txtDarkFieldValueAfter;
 
-	private Combo cmbRoiType;
+	private CCombo cmbRoiType;
 
 	private Text txtRoiXMin;
 
@@ -145,6 +181,8 @@ public class ParameterView extends ViewPart implements ISelectionListener {
 	private Text txtRoiYMin;
 
 	private Text txtRoiYMax;
+	private Text txtFileName;
+	private Text txtSettingsFileName;
 
 	/**
 	 * The constructor.
@@ -157,45 +195,100 @@ public class ParameterView extends ViewPart implements ISelectionListener {
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
-		composite = new Composite(parent, SWT.NONE);
-		composite.setLayout(new org.eclipse.swt.layout.GridLayout(3, false));
 
-		Composite formComposite = new Composite(composite, SWT.None);
-		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
-		layoutData.horizontalSpan = 3;
-		formComposite.setLayoutData(layoutData);
-		formComposite.setLayout(new GridLayout(2, false));
+		toolkit = new FormToolkit(parent.getDisplay());
+		toolkit.setBorderStyle(SWT.BORDER);
 
-		Label lblCenterOfRotation = new Label(formComposite, SWT.None);
-		lblCenterOfRotation.setText("Rotation Centre");
+		pgBook = new PageBook(parent, SWT.None);
+
+		emptyCmp = toolkit.createComposite(pgBook);
+		emptyCmp.setLayout(new FillLayout());
+
+		toolkit.createLabel(emptyCmp, "Parameters cannot be displayed for the current selection");
+
+		pgBook.showPage(emptyCmp);
+
+		mainForm = toolkit.createForm(pgBook);
+
+		Composite formComposite = mainForm.getBody();
+		GridLayout layout = new GridLayout();
+		layout.marginHeight = 0;
+		layout.marginWidth = 0;
+		formComposite.setLayout(layout);
+
+		Composite subFormContainer = toolkit.createComposite(formComposite);
+		subFormContainer.setLayoutData(new GridData(GridData.FILL_BOTH));
+		subFormContainer.setLayout(new FillLayout());
+
+		scrolledForm = toolkit.createScrolledForm(subFormContainer);
+		Composite scrolledCmp = scrolledForm.getBody();
+		scrolledCmp.setLayout(new FillLayout());
+		scrolledCmp.setLayoutData(new GridData(GridData.FILL_BOTH));
+
+		Composite topComposite = toolkit.createComposite(scrolledCmp);
+
+		topComposite.setLayout(new GridLayout());
+		Composite rotationCenterCmp = toolkit.createComposite(topComposite);
+		rotationCenterCmp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		rotationCenterCmp.setLayout(new GridLayout(2, false));
+
+		Label lblFileName = toolkit.createLabel(rotationCenterCmp, "File Name");
+		lblFileName.setLayoutData(new GridData());
+
+		txtFileName = toolkit.createText(rotationCenterCmp, BLANK);
+		txtFileName.setEditable(false);
+		txtFileName.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Label lblSettings = toolkit.createLabel(rotationCenterCmp, SETTINGS);
+		lblSettings.setLayoutData(new GridData());
+
+		txtSettingsFileName = toolkit.createText(rotationCenterCmp, BLANK);
+		txtSettingsFileName.setEditable(false);
+		txtSettingsFileName.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		//
+		Label lblCenterOfRotation = toolkit.createLabel(rotationCenterCmp, ROTATION_CENTRE);
 		lblCenterOfRotation.setLayoutData(new GridData());
 
-		txtCenterOfRotation = new Text(formComposite, SWT.BORDER);
+		txtCenterOfRotation = toolkit.createText(rotationCenterCmp, BLANK);
 		txtCenterOfRotation.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		// Ring Artefacts
-		createRingArtefacts(formComposite);
+		Composite ringArtefacts = createRingArtefacts(topComposite);
+		ringArtefacts.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		// Flat fields
-		createFlatFields(formComposite);
-
+		Composite flatFields = createFlatFields(topComposite);
+		flatFields.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		// Dark Fields
-		createDarkFields(formComposite);
+		Composite darkFields = createDarkFields(topComposite);
+		darkFields.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		// ROI
-		createRoi(formComposite);
+		Composite roiComp = createRoi(topComposite);
+		roiComp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		Button btnPreview = new Button(composite, SWT.PUSH);
-		btnPreview.setText("Preview Reconstruction Settings");
+		// scrolledCmp.setContent(topComposite);
+
+		Composite cmpButtons = toolkit.createComposite(formComposite);
+		GridData layoutData2 = new GridData(GridData.FILL_HORIZONTAL);
+		layoutData2.horizontalSpan = 2;
+		layoutData2.verticalAlignment = SWT.END;
+		cmpButtons.setLayoutData(layoutData2);
+		GridLayout layout2 = new GridLayout(3, false);
+		cmpButtons.setLayout(layout2);
+
+		Button btnPreview = new Button(cmpButtons, SWT.PUSH);
+		btnPreview.setText(PREVIEW_RECONSTRUCTION_SETTINGS);
+		btnPreview.setLayoutData(new GridData());
 		btnPreview.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e1) {
 
 				saveModel();
 
-				Bundle bundle = Platform.getBundle("uk.ac.diamond.tomography.reconstruction");
-				URL shFileURL = bundle.getEntry("scripts/tomodo.sh");
-				URL pyFileURL = bundle.getEntry("scripts/tomodo.py");
+				Bundle bundle = Platform.getBundle(Activator.PLUGIN_ID);
+				URL shFileURL = bundle.getEntry(SCRIPTS_TOMODO_SH);
+				URL pyFileURL = bundle.getEntry(SCRIPTS_TOMODO_PY);
 				File tomoDoPyScript = null;
 				File tomoDoShScript = null;
 				try {
@@ -226,21 +319,48 @@ public class ParameterView extends ViewPart implements ISelectionListener {
 			}
 		});
 
-		Button btnRunFullRecon = new Button(composite, SWT.PUSH);
+		Button btnRunFullRecon = new Button(cmpButtons, SWT.PUSH);
 		btnRunFullRecon.setText("Run Full Reconstruction");
+		btnRunFullRecon.setLayoutData(new GridData());
 
-		Button btnAdvanced = new Button(composite, SWT.PUSH);
+		Button btnAdvanced = new Button(cmpButtons, SWT.PUSH);
 		btnAdvanced.setText("Open Advanced Settings");
+		btnAdvanced.setLayoutData(new GridData());
 		btnAdvanced.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (defaultSettingFile.exists()) {
 					try {
-						URI fileUri = URI.create("file:" + hmSettingsInProcessingDir.getAbsolutePath());
-						IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), fileUri,
-								HmEditor.ID, true);
+						final String hmSettingsDir = hmSettingsInProcessingDir.getParent();
+
+						String replaced = hmSettingsDir.replace("/", "_");
+
+						IProject tomoSettingsProject = ResourcesPlugin.getWorkspace().getRoot()
+								.getProject(Activator.TOMOGRAPHY_SETTINGS);
+						final IFolder folder = tomoSettingsProject.getFolder(replaced);
+						if (!folder.exists()) {
+							new WorkspaceModifyOperation() {
+
+								@Override
+								protected void execute(IProgressMonitor monitor) throws CoreException,
+										InvocationTargetException, InterruptedException {
+									folder.createLink(new Path(hmSettingsDir), IResource.BACKGROUND_REFRESH, monitor);
+								}
+							}.run(null);
+						}
+						IFile settingsFileOnWkspace = folder.getFile(hmSettingsInProcessingDir.getName());
+						IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(),
+								settingsFileOnWkspace, HmEditor.ID);
 					} catch (PartInitException e1) {
 						logger.error("TODO put description of error here", e1);
+					} catch (InvocationTargetException inve) {
+						// TODO Auto-generated catch block
+						logger.error("TODO put description of error here", inve);
+					} catch (InterruptedException intre) {
+						// TODO Auto-generated catch block
+						logger.error("TODO put description of error here", intre);
+					}catch(Exception ex){
+						logger.error("TODO put description of error here", ex);
 					}
 				}
 			}
@@ -252,154 +372,166 @@ public class ParameterView extends ViewPart implements ISelectionListener {
 
 	}
 
-	private void createRoi(Composite formComposite) {
-		GridData gd;
-		Group grpRoi = new Group(formComposite, SWT.None);
-		grpRoi.setLayout(new GridLayout(4, false));
-		gd = new GridData(GridData.FILL_HORIZONTAL);
-		gd.horizontalSpan = 2;
-		grpRoi.setLayoutData(gd);
-		grpRoi.setText("Region of Interest");
+	private Composite createRoi(Composite formComposite) {
+		ExpandableComposite roiExpCmp = toolkit.createExpandableComposite(formComposite, ExpandableComposite.TWISTIE);
+		roiExpCmp.setText(REGION_OF_INTEREST);
+		roiExpCmp.addExpansionListener(expansionAdapter);
+		roiExpCmp.setLayout(new FillLayout());
 
-		Label lblRoiType = new Label(grpRoi, SWT.None);
-		lblRoiType.setText("Type");
+		Composite cmpRoi = toolkit.createComposite(roiExpCmp);
+		cmpRoi.setLayout(new GridLayout(4, false));
+
+		Label lblRoiType = toolkit.createLabel(cmpRoi, TYPE);
 		lblRoiType.setLayoutData(new GridData());
 
-		cmbRoiType = new Combo(grpRoi, SWT.DROP_DOWN | SWT.READ_ONLY);
+		cmbRoiType = new CCombo(cmpRoi, SWT.FLAT | SWT.DROP_DOWN | SWT.READ_ONLY | SWT.BORDER);
 		GridData layoutData2 = new GridData(GridData.FILL_HORIZONTAL);
 		layoutData2.horizontalSpan = 3;
 		cmbRoiType.setLayoutData(layoutData2);
-		cmbRoiType.setItems(new String[] { "Standard", "Rectangle" });
+		cmbRoiType.setItems(new String[] { STANDARD, RECTANGLE });
 
-		Label lblXmin = new Label(grpRoi, SWT.None);
-		lblXmin.setText("X min");
+		Label lblXmin = toolkit.createLabel(cmpRoi, X_MIN);
 		lblXmin.setLayoutData(new GridData());
 
-		txtRoiXMin = new Text(grpRoi, SWT.BORDER);
+		txtRoiXMin = toolkit.createText(cmpRoi, BLANK);
 		txtRoiXMin.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		Label lblXmax = new Label(grpRoi, SWT.None);
-		lblXmax.setText("X max");
+		Label lblXmax = toolkit.createLabel(cmpRoi, X_MAX);
 		lblXmax.setLayoutData(new GridData());
 
-		txtRoiXMax = new Text(grpRoi, SWT.BORDER);
+		txtRoiXMax = toolkit.createText(cmpRoi, BLANK);
 		txtRoiXMax.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		Label lblYmin = new Label(grpRoi, SWT.None);
-		lblYmin.setText("Y min");
+		Label lblYmin = toolkit.createLabel(cmpRoi, Y_MIN);
 		lblYmin.setLayoutData(new GridData());
 
-		txtRoiYMin = new Text(grpRoi, SWT.BORDER);
+		txtRoiYMin = toolkit.createText(cmpRoi, BLANK);
 		txtRoiYMin.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		Label lblYmax = new Label(grpRoi, SWT.None);
-		lblYmax.setText("Y max");
+		Label lblYmax = toolkit.createLabel(cmpRoi, Y_MAX);
 		lblYmax.setLayoutData(new GridData());
 
-		txtRoiYMax = new Text(grpRoi, SWT.BORDER);
+		txtRoiYMax = toolkit.createText(cmpRoi, BLANK);
 		txtRoiYMax.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		roiExpCmp.setClient(cmpRoi);
+		return roiExpCmp;
 	}
 
-	private void createDarkFields(Composite formComposite) {
-		GridData gd;
-		Group grpDark = new Group(formComposite, SWT.None);
-		grpDark.setLayout(new GridLayout(4, false));
-		gd = new GridData(GridData.FILL_HORIZONTAL);
-		gd.horizontalSpan = 2;
-		grpDark.setLayoutData(gd);
-		grpDark.setText("Dark Fields");
+	private Composite createDarkFields(Composite formComposite) {
+		ExpandableComposite darkFieldsExpCmp = toolkit.createExpandableComposite(formComposite,
+				ExpandableComposite.TWISTIE | ExpandableComposite.EXPANDED);
+		darkFieldsExpCmp.setText(DARK_FIELDS);
+		darkFieldsExpCmp.addExpansionListener(expansionAdapter);
+		darkFieldsExpCmp.setLayout(new FillLayout());
 
-		Label lblDarkType = new Label(grpDark, SWT.None);
-		lblDarkType.setText("Type");
+		Composite cmpDarkFields = toolkit.createComposite(darkFieldsExpCmp);
+		cmpDarkFields.setLayout(new GridLayout(4, false));
+
+		Label lblDarkType = toolkit.createLabel(cmpDarkFields, TYPE);
 		lblDarkType.setLayoutData(new GridData());
 
-		cmbDarkFieldType = new Combo(grpDark, SWT.DROP_DOWN | SWT.READ_ONLY);
+		cmbDarkFieldType = new CCombo(cmpDarkFields, SWT.FLAT | SWT.DROP_DOWN | SWT.READ_ONLY | SWT.BORDER);
 		cmbDarkFieldType.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		cmbDarkFieldType.setItems(new String[] { "User", "Row" });
+		cmbDarkFieldType.setItems(new String[] { USER, ROW });
 
-		Label lblDarkValueBefore = new Label(grpDark, SWT.None);
-		lblDarkValueBefore.setText("Value Before");
+		Label lblDarkValueBefore = toolkit.createLabel(cmpDarkFields, VALUE_BEFORE);
 		lblDarkValueBefore.setLayoutData(new GridData());
 
-		txtDarkFieldValueBefore = new Text(grpDark, SWT.BORDER);
+		txtDarkFieldValueBefore = toolkit.createText(cmpDarkFields, BLANK);
 		txtDarkFieldValueBefore.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		Label lblDarkFileBefore = new Label(grpDark, SWT.None);
-		lblDarkFileBefore.setText("File Before");
+		Label lblDarkFileBefore = toolkit.createLabel(cmpDarkFields, FILE_BEFORE);
 		lblDarkFileBefore.setLayoutData(new GridData());
 
-		txtDarkFieldFileBefore = new Text(grpDark, SWT.BORDER);
+		txtDarkFieldFileBefore = toolkit.createText(cmpDarkFields, BLANK);
 		txtDarkFieldFileBefore.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		Label lblDarkValueAfter = new Label(grpDark, SWT.None);
-		lblDarkValueAfter.setText("Value After");
+		Label lblDarkValueAfter = toolkit.createLabel(cmpDarkFields, VALUE_AFTER);
 		lblDarkValueAfter.setLayoutData(new GridData());
 
-		txtDarkFieldValueAfter = new Text(grpDark, SWT.BORDER);
+		txtDarkFieldValueAfter = toolkit.createText(cmpDarkFields, BLANK);
 		txtDarkFieldValueAfter.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		darkFieldsExpCmp.setClient(cmpDarkFields);
+		return darkFieldsExpCmp;
 	}
 
-	private void createFlatFields(Composite formComposite) {
-		Group grpFlat = new Group(formComposite, SWT.None);
-		grpFlat.setLayout(new GridLayout(4, false));
-		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
-		gd.horizontalSpan = 2;
-		grpFlat.setLayoutData(gd);
-		grpFlat.setText("Flat Fields");
+	private Composite createFlatFields(Composite formComposite) {
+		ExpandableComposite flatFieldsExpCmp = toolkit.createExpandableComposite(formComposite,
+				ExpandableComposite.TWISTIE | ExpandableComposite.EXPANDED);
+		flatFieldsExpCmp.setText(FLAT_FIELDS);
+		flatFieldsExpCmp.addExpansionListener(expansionAdapter);
+		flatFieldsExpCmp.setLayout(new FillLayout());
 
-		Label lblType = new Label(grpFlat, SWT.None);
-		lblType.setText("Type");
+		Composite cmpFlatFields = toolkit.createComposite(flatFieldsExpCmp);
+		cmpFlatFields.setLayout(new GridLayout(4, false));
+
+		Label lblType = toolkit.createLabel(cmpFlatFields, TYPE);
 		lblType.setLayoutData(new GridData());
 
-		cmbFlatFieldType = new Combo(grpFlat, SWT.DROP_DOWN | SWT.READ_ONLY);
+		cmbFlatFieldType = new CCombo(cmpFlatFields, SWT.FLAT | SWT.DROP_DOWN | SWT.READ_ONLY | SWT.BORDER);
 		cmbFlatFieldType.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		cmbFlatFieldType.setItems(new String[] { "User", "Row" });
+		cmbFlatFieldType.setItems(new String[] { USER, ROW });
 
-		Label lblValueBefore = new Label(grpFlat, SWT.None);
-		lblValueBefore.setText("Value Before");
+		Label lblValueBefore = toolkit.createLabel(cmpFlatFields, VALUE_BEFORE);
 		lblValueBefore.setLayoutData(new GridData());
 
-		txtFlatFieldValueBefore = new Text(grpFlat, SWT.BORDER);
+		txtFlatFieldValueBefore = toolkit.createText(cmpFlatFields, BLANK);
 		txtFlatFieldValueBefore.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		Label lblFileBefore = new Label(grpFlat, SWT.None);
-		lblFileBefore.setText("File Before");
+		Label lblFileBefore = toolkit.createLabel(cmpFlatFields, FILE_BEFORE);
 		lblFileBefore.setLayoutData(new GridData());
 
-		txtFlatFieldFileBefore = new Text(grpFlat, SWT.BORDER);
+		txtFlatFieldFileBefore = toolkit.createText(cmpFlatFields, BLANK);
 		txtFlatFieldFileBefore.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		Label lblValueAfter = new Label(grpFlat, SWT.None);
-		lblValueAfter.setText("Value After");
+		Label lblValueAfter = toolkit.createLabel(cmpFlatFields, VALUE_AFTER);
 		lblValueAfter.setLayoutData(new GridData());
 
-		txtFlatFieldValueAfter = new Text(grpFlat, SWT.BORDER);
+		txtFlatFieldValueAfter = toolkit.createText(cmpFlatFields, BLANK);
 		txtFlatFieldValueAfter.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		flatFieldsExpCmp.setClient(cmpFlatFields);
+		return flatFieldsExpCmp;
 	}
 
-	private void createRingArtefacts(Composite formComposite) {
-		Group grpRingArtefacts = new Group(formComposite, SWT.None);
-		grpRingArtefacts.setLayout(new GridLayout(4, false));
-		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
-		gd.horizontalSpan = 2;
-		grpRingArtefacts.setLayoutData(gd);
-		grpRingArtefacts.setText("Ring Artefacts");
+	private Composite createRingArtefacts(Composite formComposite) {
+		ExpandableComposite ringArtefactsExpCmp = toolkit.createExpandableComposite(formComposite,
+				ExpandableComposite.TWISTIE | ExpandableComposite.EXPANDED);
+		ringArtefactsExpCmp.setText(RING_ARTEFACTS);
+		ringArtefactsExpCmp.addExpansionListener(expansionAdapter);
+		ringArtefactsExpCmp.setLayout(new FillLayout());
 
-		Label lblAML = new Label(grpRingArtefacts, SWT.None);
-		lblAML.setText("Ring Artefacts");
+		Composite artefactsCmp = toolkit.createComposite(ringArtefactsExpCmp);
+		artefactsCmp.setLayout(new GridLayout(4, false));
+
+		Label lblAML = toolkit.createLabel(artefactsCmp, RING_ARTEFACTS);
 		lblAML.setLayoutData(new GridData());
 
-		cmbAml = new Combo(grpRingArtefacts, SWT.DROP_DOWN | SWT.READ_ONLY);
-		cmbAml.setItems(new String[] { "No", "Column", "AML" });
+		cmbAml = new CCombo(artefactsCmp, SWT.FLAT | SWT.DROP_DOWN | SWT.READ_ONLY | SWT.BORDER);
+		cmbAml.setItems(new String[] { AML_NO, AML_COLUMN, AML });
 		cmbAml.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		Label lblNumSeries = new Label(grpRingArtefacts, SWT.None);
-		lblNumSeries.setText("Num Series");
+		Label lblNumSeries = toolkit.createLabel(artefactsCmp, NUM_SERIES);
 		lblNumSeries.setLayoutData(new GridData());
 
-		txtNumSeries = new Text(grpRingArtefacts, SWT.BORDER);
+		txtNumSeries = toolkit.createText(artefactsCmp, BLANK);
 		txtNumSeries.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		ringArtefactsExpCmp.setClient(artefactsCmp);
+		return ringArtefactsExpCmp;
 	}
+
+	private ExpansionAdapter expansionAdapter = new ExpansionAdapter() {
+		@Override
+		public void expansionStateChanged(ExpansionEvent e) {
+			scrolledForm.reflow(true);
+		}
+	};
+	private ScrolledForm scrolledForm;
+	private Form mainForm;
+	private PageBook pgBook;
+	private Composite emptyCmp;
 
 	protected void saveModel() {
 		HMxmlType model = getModel();
@@ -446,10 +578,14 @@ public class ParameterView extends ViewPart implements ISelectionListener {
 	}
 
 	private void initializeView() {
+		pgBook.showPage(mainForm);
 		HMxmlType hmxmlType = getModel();
 
 		FBPType fbp = hmxmlType.getFBP();
 		BackprojectionType backprojection = fbp.getBackprojection();
+
+		txtFileName.setText(nexusFile.getLocation().toOSString());
+		txtSettingsFileName.setText(hmSettingsInProcessingDir.getAbsolutePath());
 
 		float floatValue = backprojection.getImageCentre().floatValue();
 		txtCenterOfRotation.setText(Float.toString(floatValue));
@@ -511,7 +647,7 @@ public class ParameterView extends ViewPart implements ISelectionListener {
 	}
 
 	private void createSettingsFile() {
-		Bundle bundle = Platform.getBundle("uk.ac.diamond.tomography.reconstruction");
+		Bundle bundle = Platform.getBundle(Activator.PLUGIN_ID);
 		URL fileURL = bundle.getEntry("resources/settings.xml");
 		fileOnFileSystem = null;
 		try {
@@ -596,7 +732,7 @@ public class ParameterView extends ViewPart implements ISelectionListener {
 	 */
 	@Override
 	public void setFocus() {
-		composite.setFocus();
+		scrolledForm.setFocus();
 	}
 
 	@Override
@@ -608,7 +744,7 @@ public class ParameterView extends ViewPart implements ISelectionListener {
 					&& Activator.NXS_FILE_EXTN.equals(((IFile) firstElement).getFileExtension())) {
 				nexusFile = (IFile) firstElement;
 
-				getHmSettingsInProcessingDir();
+				hmSettingsInProcessingDir = getHmSettingsInProcessingDir();
 
 				getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
 
@@ -617,24 +753,38 @@ public class ParameterView extends ViewPart implements ISelectionListener {
 						initializeView();
 					}
 				});
+
+				return;
 			}
 		}
+
+		getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				pgBook.showPage(emptyCmp);
+			}
+		});
 	}
 
-	private void getHmSettingsInProcessingDir() {
+	private File getHmSettingsInProcessingDir() {
 		IPath hmSettingsPath = new Path(ReconUtil.getSettingsFileLocation(nexusFile).getAbsolutePath()).append(
-				new Path(nexusFile.getName()).removeFileExtension().toString()).addFileExtension("hm");
-		if (hmSettingsInProcessingDir == null || !hmSettingsInProcessingDir.exists()) {
+				new Path(nexusFile.getName()).removeFileExtension().toString()).addFileExtension(HM_FILE_EXTN);
+
+		File hmSettingsFile = new File(hmSettingsPath.toOSString());
+		if (!hmSettingsFile.exists()) {
 			logger.debug("hm settings path:{}", hmSettingsPath);
 			try {
-				hmSettingsInProcessingDir = new File(hmSettingsPath.toString());
+				hmSettingsFile = new File(hmSettingsPath.toString());
 				File file = defaultSettingFile.getLocation().toFile();
-				FileUtils.copy(file, hmSettingsInProcessingDir);
+				FileUtils.copy(file, hmSettingsFile);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				logger.error("TODO put description of error here", e);
 			}
 		}
+
+		return hmSettingsFile;
 	}
 
 	@Override
