@@ -65,9 +65,9 @@ def reindexLinks(inListOfIdx, outListOfIdx, indir="/dls/i13/data/2012/mt5811-1/5
 		#		msg="Soft link already exists:"+`filename_dst`+" but not to the required destination "+`fileToReindex` 
 		#		raise Exception(msg)
 		#else:
-			cmd="mv"+" "+fileToReindex+" "+filename_dst
-			print 'cmd=', cmd
-			subprocess.call(cmd, shell=True)
+		cmd="mv"+" "+fileToReindex+" "+filename_dst
+		print 'cmd=', cmd
+		subprocess.call(cmd, shell=True)
 		j+=1
 
 @contextmanager
@@ -1327,20 +1327,17 @@ def makeLinksForNXSFile(\
 
 					#CORx, CORy=estimateCOR(projFilename_0deg, flatFilename_0deg, darkFilename_0deg, projFilename_180deg, flatFilename_180deg, darkFilename_180deg)
 					#CORx=1557.8
-					CORx=1320
+					CORx=1620
 					if quick:
 						#reconDir=outDir=head+os.sep+recon_dir+'_quick'
 						inSinoFoldername='sino_quick'
+						
+						mydoc=parse(inSettings)
+						backprojtag=mydoc.getElementsByTagName("Backprojection")
+						valtag=backprojtag[0].getElementsByTagName("ImageCentre")
+						CORx = valtag[0].childNodes[0].data
 					else:
 						inSinoFoldername='sinograms'
-					
-					mydoc=parse(inSettings)
-					#print '\t mydoc',mydoc
-					#bptag=mydoc.getElementsByTagName("FBP")
-					backprojtag=mydoc.getElementsByTagName("Backprojection")
-					valtag=backprojtag[0].getElementsByTagName("ImageCentre")
-					CORx = valtag[0].childNodes[0].data
-					#print '\tCORx=',CORx
 		
 					recon_success, recon_imfolder=launchReconArray(outDir=reconDir, ctrCoord=CORx, inSinoFolder=inSinoFoldername, settingsfile=inSettings)
 				except Exception, ex:
