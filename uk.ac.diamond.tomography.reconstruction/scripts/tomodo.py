@@ -241,6 +241,11 @@ def createDirs(refFilename, outdir, mandatorydir="processing", verbose=False):
 	recon_dir="reconstruction"+os.sep+scanNumber_str
 
 	dirs=[proj_dir, dark_dir, flat_dir, recon_dir]
+	
+	if quick:
+		dirnameToDelete = head+os.sep+recon_dir+'_quick'
+		if os.path.exists(dirnameToDelete):
+			shutil.rmtree(dirnameToDelete)
 
 	for dirname in dirs:
 		dirname=head+os.sep+dirname
@@ -1332,6 +1337,7 @@ def makeLinksForNXSFile(\
 						#reconDir=outDir=head+os.sep+recon_dir+'_quick'
 						inSinoFoldername='sino_quick'
 						
+						#
 						mydoc=parse(inSettings)
 						backprojtag=mydoc.getElementsByTagName("Backprojection")
 						valtag=backprojtag[0].getElementsByTagName("ImageCentre")
