@@ -21,9 +21,10 @@
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
             class="uk.ac.diamond.scisoft.analysis.rcp.preference.PreferencePage"
-            id="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
-            name="DAWN">
+            id="uk.ac.diamond.scisoft.analysis.rcp.preferencePage"
+            name="Dataset Viewing">
       </page>
    </extension>
    <extension
