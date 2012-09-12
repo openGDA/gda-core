@@ -563,13 +563,24 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 	}
 	
 	protected Object[] completePartialMoveTarget(Object[] externalTarget) throws DeviceException {
+		Object[] originalExternalTarget = Arrays.copyOf(externalTarget, externalTarget.length);
 		Object[] basePosition = (getPositionAtScanStart() != null) ? getPositionAtScanStart() : toObjectArray(getPosition());
 		for (int i = 0; i < externalTarget.length; i++) {
 			if (externalTarget[i] == null) {
-				externalTarget[i] = basePosition[i];
+				externalTarget[i] = PositionConvertorFunctions.toDouble(basePosition[i]);
 			}
 		}
+		// update the now badly named PositionAtScanStart
+		if (positionAtScanStart != null) {
+			for (int i = 0; i < originalExternalTarget.length; i++) {
+				if (originalExternalTarget[i] != null) {
+					positionAtScanStart[i] = PositionConvertorFunctions.toDouble(originalExternalTarget[i]);
+				}
+			}
+		}
+
 		return externalTarget;
+		
 	}
 
 	/**
