@@ -61,11 +61,12 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
+import uk.ac.diamond.scisoft.analysis.deprecated.rcp.Activator;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AxisValues;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
-import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
+import uk.ac.diamond.scisoft.analysis.rcp.preference.DeprecatedPreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.CSVUtils;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.common.rcp.util.GridUtils;
@@ -140,11 +141,11 @@ public class DataEditor extends EditorPart implements IReusableEditor, IPageChan
 		toolMan.update(false);
 		main.layout();
 		
-        AnalysisRCPActivator.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
+        Activator.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
 			
 			@Override
 			public void propertyChange(PropertyChangeEvent event) {
-				if (event.getProperty().equals(PreferenceConstants.DATA_FORMAT)) {
+				if (event.getProperty().equals(DeprecatedPreferenceConstants.DATA_FORMAT)) {
 					if (tableViewer!=null) tableViewer.refresh();
 				}
 			}
@@ -171,7 +172,7 @@ public class DataEditor extends EditorPart implements IReusableEditor, IPageChan
 				if (pref != null) pref.open();
 			}
 		};
-		format.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/application_view_list.png"));
+		format.setImageDescriptor(Activator.getImageDescriptor("icons/application_view_list.png"));
 		toolMan.add(format);
 	}
 
@@ -287,6 +288,7 @@ public class DataEditor extends EditorPart implements IReusableEditor, IPageChan
 		public Double get(int col) {
 			return rowValues.get(col);
 		}
+		@SuppressWarnings("unused")
 		public int getRow(){
 			return row;
 		}
@@ -307,7 +309,7 @@ public class DataEditor extends EditorPart implements IReusableEditor, IPageChan
 		}
 		
 		private String formatValue(final double val) {
-			final String formatString = AnalysisRCPActivator.getDefault().getPreferenceStore().getString(PreferenceConstants.DATA_FORMAT);
+			final String formatString = Activator.getDefault().getPreferenceStore().getString(DeprecatedPreferenceConstants.DATA_FORMAT);
 		    try {
 		    	DecimalFormat format = new DecimalFormat(formatString);
 				return format.format(val);

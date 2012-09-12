@@ -55,11 +55,12 @@ import org.eclipse.swt.widgets.Control;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.deprecated.rcp.Activator;
 import uk.ac.diamond.scisoft.analysis.io.SliceObject;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
-import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
+import uk.ac.diamond.scisoft.analysis.rcp.preference.DeprecatedPreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.SDAUtils;
 import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.richbeans.components.cell.CComboCellEditor;
@@ -359,7 +360,7 @@ public class SliceComponent {
 			}
 		});
 
-		editors[2] = new SpinnerCellEditorWithPlayButton(viewer, "Play through slices", AnalysisRCPActivator.getDefault().getPreferenceStore().getInt(PreferenceConstants.PLAY_SPEED));
+		editors[2] = new SpinnerCellEditorWithPlayButton(viewer, "Play through slices", Activator.getDefault().getPreferenceStore().getInt(DeprecatedPreferenceConstants.PLAY_SPEED));
 		((SpinnerCellEditorWithPlayButton)editors[2]).addValueListener(new ValueAdapter() {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {

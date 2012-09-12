@@ -87,13 +87,14 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
+import uk.ac.diamond.scisoft.analysis.deprecated.rcp.Activator;
 import uk.ac.diamond.scisoft.analysis.io.DataSetProvider;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
-import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
+import uk.ac.diamond.scisoft.analysis.rcp.preference.DeprecatedPreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.PlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.util.PlotUtils;
 import uk.ac.diamond.scisoft.analysis.rcp.util.SDAUtils;
@@ -153,10 +154,10 @@ public class DataSetPlotView extends ViewPart implements ICheckStateListener, Da
 		this.providerDeligate   = providerDeligate;
 		
 		// If they change the ignore filters activity, recompute the available data sets.
-		AnalysisRCPActivator.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
+		Activator.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent event) {
-				if (event.getProperty().equals(PreferenceConstants.IGNORE_DATASET_FILTERS)) {
+				if (event.getProperty().equals(DeprecatedPreferenceConstants.IGNORE_DATASET_FILTERS)) {
 					
 					if (filePath==null) return;
 					IProgressService service = (IProgressService)PlatformUI.getWorkbench().getService(IProgressService.class);
@@ -176,13 +177,13 @@ public class DataSetPlotView extends ViewPart implements ICheckStateListener, Da
 					} catch (Exception ne) {
 						logger.error("Unable to refresh data set list", ne);
 					}
-				} else if (event.getProperty().equals(PreferenceConstants.SHOW_XY_COLUMN)) {
+				} else if (event.getProperty().equals(DeprecatedPreferenceConstants.SHOW_XY_COLUMN)) {
 					setColumnVisible(1, 24, (Boolean)event.getNewValue());
-				} else if (event.getProperty().equals(PreferenceConstants.SHOW_DATA_SIZE)) {
+				} else if (event.getProperty().equals(DeprecatedPreferenceConstants.SHOW_DATA_SIZE)) {
 					setColumnVisible(2, 100, (Boolean)event.getNewValue());
-				} else if (event.getProperty().equals(PreferenceConstants.SHOW_DIMS)) {
+				} else if (event.getProperty().equals(DeprecatedPreferenceConstants.SHOW_DIMS)) {
 					setColumnVisible(3, 100, (Boolean)event.getNewValue());
-				} else if (event.getProperty().equals(PreferenceConstants.SHOW_SHAPE)) {
+				} else if (event.getProperty().equals(DeprecatedPreferenceConstants.SHOW_SHAPE)) {
 					setColumnVisible(4, 100, (Boolean)event.getNewValue());
 				}
 			}
@@ -256,10 +257,10 @@ public class DataSetPlotView extends ViewPart implements ICheckStateListener, Da
 		createRightClickMenu();
 		initializeToolBar();
 		
-		setColumnVisible(1, 24,  AnalysisRCPActivator.getDefault().getPreferenceStore().getBoolean(PreferenceConstants.SHOW_XY_COLUMN));
-		setColumnVisible(2, 100, AnalysisRCPActivator.getDefault().getPreferenceStore().getBoolean(PreferenceConstants.SHOW_DATA_SIZE));
-		setColumnVisible(3, 100, AnalysisRCPActivator.getDefault().getPreferenceStore().getBoolean(PreferenceConstants.SHOW_DIMS));
-		setColumnVisible(4, 100, AnalysisRCPActivator.getDefault().getPreferenceStore().getBoolean(PreferenceConstants.SHOW_SHAPE));
+		setColumnVisible(1, 24,  Activator.getDefault().getPreferenceStore().getBoolean(DeprecatedPreferenceConstants.SHOW_XY_COLUMN));
+		setColumnVisible(2, 100, Activator.getDefault().getPreferenceStore().getBoolean(DeprecatedPreferenceConstants.SHOW_DATA_SIZE));
+		setColumnVisible(3, 100, Activator.getDefault().getPreferenceStore().getBoolean(DeprecatedPreferenceConstants.SHOW_DIMS));
+		setColumnVisible(4, 100, Activator.getDefault().getPreferenceStore().getBoolean(DeprecatedPreferenceConstants.SHOW_SHAPE));
 	}
 	
 	private void saveExpressions() {
@@ -966,7 +967,7 @@ public class DataSetPlotView extends ViewPart implements ICheckStateListener, Da
 	
 	public static List<Pattern> getIgnored() {
 		
-		if (AnalysisRCPActivator.getDefault().getPreferenceStore().getBoolean(PreferenceConstants.IGNORE_DATASET_FILTERS)) return null;
+		if (Activator.getDefault().getPreferenceStore().getBoolean(DeprecatedPreferenceConstants.IGNORE_DATASET_FILTERS)) return null;
 		
 		final List<Pattern> patterns    = new ArrayList<Pattern>(5);
 

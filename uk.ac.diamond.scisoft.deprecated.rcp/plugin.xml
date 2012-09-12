@@ -13,6 +13,20 @@
       </editor>
    </extension>
    <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.DeprecatedPreferenceInitializer">
+      </initializer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.PreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            name="DAWN">
+      </page>
+   </extension>
+   <extension
          point="org.eclipse.ui.editorActions">
 <!--      <editorContribution
             id="uk.ac.diamond.scisoft.analysis.rcp.nexusEditorContribution"
