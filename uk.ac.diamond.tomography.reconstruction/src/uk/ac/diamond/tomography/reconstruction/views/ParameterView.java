@@ -26,7 +26,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collections;
@@ -329,47 +328,56 @@ public class ParameterView extends ViewPart implements ISelectionListener {
 		btnAdvanced.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if (defaultSettingFile.exists()) {
-					try {
-						final String hmSettingsDir = hmSettingsInProcessingDir.getParent();
-
-						String replaced = hmSettingsDir.replace("/", "_");
-
-						IProject tomoSettingsProject = ResourcesPlugin.getWorkspace().getRoot()
-								.getProject(Activator.TOMOGRAPHY_SETTINGS);
-						final IFolder folder = tomoSettingsProject.getFolder(replaced);
-						if (!folder.exists()) {
-							new WorkspaceModifyOperation() {
-
-								@Override
-								protected void execute(IProgressMonitor monitor) throws CoreException,
-										InvocationTargetException, InterruptedException {
-									folder.createLink(new Path(hmSettingsDir), IResource.BACKGROUND_REFRESH, monitor);
-								}
-							}.run(null);
-						}
-						IFile settingsFileOnWkspace = folder.getFile(hmSettingsInProcessingDir.getName());
-						IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(),
-								settingsFileOnWkspace, HmEditor.ID);
-					} catch (PartInitException e1) {
-						logger.error("TODO put description of error here", e1);
-					} catch (InvocationTargetException inve) {
-						// TODO Auto-generated catch block
-						logger.error("TODO put description of error here", inve);
-					} catch (InterruptedException intre) {
-						// TODO Auto-generated catch block
-						logger.error("TODO put description of error here", intre);
-					}catch(Exception ex){
-						logger.error("TODO put description of error here", ex);
-					}
-				}
+				openAdvancedSettings();
 			}
+
 		});
 
 		// Read settings file from resource and copy to /tmp
 		createSettingsFile();
 		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(this);
 
+	}
+
+	private void openAdvancedSettings() {
+		if (defaultSettingFile.exists()) {
+			try {
+				final String hmSettingsDir = hmSettingsInProcessingDir.getParent();
+
+				String replaced = hmSettingsDir.replace("/", "_");
+
+				IProject tomoSettingsProject = ResourcesPlugin.getWorkspace().getRoot()
+						.getProject(Activator.TOMOGRAPHY_SETTINGS);
+				final IFolder folder = tomoSettingsProject.getFolder(replaced);
+				if (!folder.exists()) {
+					new WorkspaceModifyOperation() {
+
+						@Override
+						protected void execute(IProgressMonitor monitor) throws CoreException,
+								InvocationTargetException, InterruptedException {
+							try {
+								folder.createLink(new Path(hmSettingsDir), IResource.HIDDEN, monitor);
+							} catch (IllegalArgumentException ex) {
+								logger.debug("Problem identified - eclipse doesn't refresh the right folder");
+							}
+						}
+					}.run(null);
+				}
+				IFile settingsFileOnWkspace = folder.getFile(hmSettingsInProcessingDir.getName());
+				IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(),
+						settingsFileOnWkspace, HmEditor.ID);
+			} catch (PartInitException e1) {
+				logger.error("TODO put description of error here", e1);
+			} catch (InvocationTargetException inve) {
+				// TODO Auto-generated catch block
+				logger.error("TODO put description of error here", inve);
+			} catch (InterruptedException intre) {
+				// TODO Auto-generated catch block
+				logger.error("TODO put description of error here", intre);
+			} catch (Exception ex) {
+				logger.error("TODO put description of error here", ex);
+			}
+		}
 	}
 
 	private Composite createRoi(Composite formComposite) {

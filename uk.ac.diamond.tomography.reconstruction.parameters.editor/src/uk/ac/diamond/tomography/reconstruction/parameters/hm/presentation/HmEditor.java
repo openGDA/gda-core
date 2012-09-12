@@ -1020,19 +1020,22 @@ public class HmEditor extends MultiPageEditorPart implements IEditingDomainProvi
 		}
 	}
 
-	@Override
-	protected IEditorSite createSite(IEditorPart editor) {
-		if (editor == xmlEditor) {
-			return new MultiPageEditorSite(this, editor) {
-				@Override
-				public String getId() {
-					// Sets this ID so nested editor is configured for XML source
-					return ContentTypeIdForXML.ContentTypeID_XML + ".source"; //$NON-NLS-1$;
-				}
-			};
-		}
-		return super.createSite(editor);
-	}
+//	@Override
+//	protected IEditorSite createSite(IEditorPart editor) {
+//		if (editor == xmlEditor) {
+//			return new MultiPageEditorSite(this, editor) {
+//				@Override
+//				public String getId() {
+//					// Sets this ID so nested editor is configured for XML source
+////					return ContentTypeIdForXML.ContentTypeID_XML + ".source"; //$NON-NLS-1$;
+////					return "org.eclipse.ui.examples.rcp.texteditor.editors.xml.XMLEditor";
+//					
+//					return "org.eclipse.wst.xml.ui.internal.tabletree.XMLMultiPageEditorPart";
+//				}
+//			};
+//		}
+//		return super.createSite(editor);
+//	}
 
 	/**
 	 * If there is just one page in the multi-page editor part, this hides the single tab at the bottom. <!--

@@ -28,14 +28,18 @@
    </extension>
    <extension
          point="org.eclipse.core.contenttype.contentTypes">
+          <file-association
+            content-type="org.eclipse.core.runtime.xml"
+            file-extensions="hm">
+      </file-association>
       <content-type
             base-type="org.eclipse.core.runtime.xml"
-            describer="uk.ac.diamond.tomography.reconstruction.parameters.hm.presentation.TomoSettingsContentType"
-            file-extensions="*.hm"
+            describer="uk.ac.diamond.tomography.reconstruction.parameters.hm.presentation.TomoSettingsContentTypeDescriber"
             id="uk.ac.diamond.reconstruction.parameters"
             name="Tomo Settings Content Type"
             priority="normal">
       </content-type>
+         
    </extension>
 
 </plugin>

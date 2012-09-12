@@ -253,43 +253,34 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
+				if (nexusFile == null) {
+					return Status.CANCEL_STATUS;
+				}
+				if (dataset != null) {
+					int[] shape = dataset.getShape();
+					shape[0] = position + 1;
+					IDataset slice = dataset.getSlice(new int[] { position, 0, 0 }, shape, new int[] { 1, 1, 1 });
+					final ILazyDataset squeeze = slice.squeeze();
 
-				BusyIndicator.showWhile(getDisplay(), new Runnable() {
+					getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
 
-					@Override
-					public void run() {
-						if (nexusFile == null) {
-							return;
-						}
-						if (dataset != null) {
-							int[] shape = dataset.getShape();
-							shape[0] = position + 1;
-							IDataset slice = dataset.getSlice(new int[] { position, 0, 0 }, shape,
-									new int[] { 1, 1, 1 });
-							final ILazyDataset squeeze = slice.squeeze();
-
-							getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
-
-								@Override
-								public void run() {
-									plottingSystem.createPlot2D((AbstractDataset) squeeze, null,
-											new NullProgressMonitor());
-									fileName.setText(nexusFile.getLocation().toOSString());
-									for (ITrace trace : plottingSystem.getTraces()) {
-										if (trace instanceof IImageTrace) {
-											IImageTrace imageTrace = (IImageTrace) trace;
-											imageTrace.setPaletteData(PaletteFactory.makeGrayScalePalette());
-										}
-									}
-
+						@Override
+						public void run() {
+							plottingSystem.createPlot2D((AbstractDataset) squeeze, null, new NullProgressMonitor());
+							fileName.setText(nexusFile.getLocation().toOSString());
+							for (ITrace trace : plottingSystem.getTraces()) {
+								if (trace instanceof IImageTrace) {
+									IImageTrace imageTrace = (IImageTrace) trace;
+									imageTrace.setPaletteData(PaletteFactory.makeGrayScalePalette());
 								}
-							});
-							logger.debug(dataset.getName());
-						} else {
-							throw new IllegalArgumentException("Unable to find dataset");
+							}
+
 						}
-					}
-				});
+					});
+					logger.debug(dataset.getName());
+				} else {
+					throw new IllegalArgumentException("Unable to find dataset");
+				}
 
 				return Status.OK_STATUS;
 			}

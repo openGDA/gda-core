@@ -29,11 +29,11 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.util.HmXMLProcessor;
 
-public class TomoSettingsContentType implements IContentDescriber {
+public class TomoSettingsContentTypeDescriber implements IContentDescriber {
 
-	private static final Logger logger = LoggerFactory.getLogger(TomoSettingsContentType.class);
+	private static final Logger logger = LoggerFactory.getLogger(TomoSettingsContentTypeDescriber.class);
 
-	public TomoSettingsContentType() {
+	public TomoSettingsContentTypeDescriber() {
 	}
 
 	@Override
