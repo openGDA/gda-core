@@ -19,8 +19,11 @@
 package uk.ac.diamond.tomography.reconstruction;
 
 import java.io.File;
+import java.net.URI;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
 public class ReconUtil {
@@ -37,5 +40,13 @@ public class ReconUtil {
 		String fileNameWithoutExtension = path2.removeFileExtension().toOSString();
 		File pathToRecon = new File(path.getParent(), "/processing/sino/" + fileNameWithoutExtension + "_data/settings");
 		return pathToRecon;
+	}
+
+	public static IFile getNexusFileFromHmFileLocation(String hmFileLocation) {
+		Path path = new Path(hmFileLocation);
+		Path path2 = new Path(new Path(hmFileLocation).lastSegment());
+		String fileNameWithoutExtension = path2.removeFileExtension().toOSString();
+		IPath nxsFilePath = path.removeLastSegments(5).append(fileNameWithoutExtension).addFileExtension("nxs").setDevice(null);
+		return ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(URI.create(nxsFilePath.toString()))[0];
 	}
 }

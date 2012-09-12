@@ -1088,7 +1088,7 @@ public class HmEditor extends MultiPageEditorPart implements IEditingDomainProvi
 	/**
 	 * This is how the framework determines which interfaces we implement.
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	@SuppressWarnings("rawtypes")
 	@Override
@@ -1101,6 +1101,8 @@ public class HmEditor extends MultiPageEditorPart implements IEditingDomainProvi
 		}
 		else if (key.equals(IGotoMarker.class)) {
 			return this;
+		}else if(key.equals(IParameterView.class)){
+			return ((FileEditorInput)getEditorInput()).getFile();
 		}
 		else {
 			return super.getAdapter(key);
@@ -1596,4 +1598,5 @@ public class HmEditor extends MultiPageEditorPart implements IEditingDomainProvi
 	protected boolean showOutlineView() {
 		return true;
 	}
+	
 }

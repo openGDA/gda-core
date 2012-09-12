@@ -36,13 +36,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.MouseListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -53,9 +51,11 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.UIJob;
 import org.slf4j.Logger;
@@ -67,7 +67,6 @@ import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
-import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.io.TIFFImageLoader;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.diamond.tomography.reconstruction.Activator;
@@ -100,6 +99,13 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 
 	private UIJob refreshJob;
 
+	private ILazyDataset dataset;
+	private IRegion xHair = null;
+	private PageBook pgBook;
+	private Composite emptyPage;
+	private Label lblEmptyPageLabel;
+	private Composite plotPage;
+
 	public ProjectionsView() {
 		// TODO Auto-generated constructor stub
 	}
@@ -115,22 +121,31 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		Composite root = new Composite(parent, SWT.None);
+
+		pgBook = new PageBook(parent, SWT.None);
+
+		emptyPage = new Composite(pgBook, SWT.None);
+		emptyPage.setLayout(new FillLayout());
+
+		lblEmptyPageLabel = new Label(emptyPage, SWT.None);
+		lblEmptyPageLabel.setText("Selection has no plot to display");
+
+		plotPage = new Composite(pgBook, SWT.None);
 
 		GridLayout layout = new GridLayout();
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
 		layout.horizontalSpacing = 0;
 		layout.verticalSpacing = 0;
-		root.setLayout(layout);
+		plotPage.setLayout(layout);
 		// row 1
-		slicingStepper = new Stepper(root, SWT.None, false);
+		slicingStepper = new Stepper(plotPage, SWT.None, false);
 		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
 		slicingStepper.setLayoutData(layoutData);
 		slicingStepper.addStepperSelectionListener(slicingSelectionStepperListener);
 
 		// row 2
-		Composite plotContainingComposite = new Composite(root, SWT.None);
+		Composite plotContainingComposite = new Composite(plotPage, SWT.None);
 		layout = new GridLayout(2, false);
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
@@ -146,7 +161,7 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 		layout.marginHeight = 0;
 		layout.horizontalSpacing = 0;
 		layout.verticalSpacing = 0;
-		root.setLayout(layout);
+		plotPage.setLayout(layout);
 		btnsComposite.setLayout(layout);
 
 		Button btnPrevious = new Button(btnsComposite, SWT.ARROW | SWT.PUSH | SWT.UP);
@@ -226,7 +241,7 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 		createMouseFollowLineRegion();
 
 		// row 3
-		Composite extrasComposite = new Composite(root, SWT.BORDER);
+		Composite extrasComposite = new Composite(plotPage, SWT.BORDER);
 		layoutData = new GridData(GridData.FILL_HORIZONTAL);
 		extrasComposite.setLayoutData(layoutData);
 		layout = new GridLayout();
@@ -279,7 +294,8 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 					});
 					logger.debug(dataset.getName());
 				} else {
-					throw new IllegalArgumentException("Unable to find dataset");
+//					throw new IllegalArgumentException("Unable to find dataset");
+					showErrorMessage("Error while displaying projections", new IllegalArgumentException("Unable to find dataset"));
 				}
 
 				return Status.OK_STATUS;
@@ -375,8 +391,6 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 		}
 
 	};
-	private ILazyDataset dataset;
-	private IRegion xHair = null;
 
 	@Override
 	public void setFocus() {
@@ -405,6 +419,8 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 			}
 		} catch (ScanFileHolderException e1) {
 			showErrorMessage("Cannot load hdf file", e1);
+		} catch (IllegalArgumentException e2) {
+			showErrorMessage(e2.getMessage(), e2);
 		}
 		updateDataToPosition(0);
 	}
@@ -421,20 +437,20 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 					getViewSite().getActionBars().getStatusLineManager()
 							.setMessage(String.format("Loading file %s ...", nexusFile.getFullPath().toOSString()));
 					updateData();
-					getViewSite().getActionBars().getStatusLineManager().setMessage(null);
+					pgBook.showPage(plotPage);
 				} catch (Exception e) {
 					showErrorMessage("Problem with displaying dataset", e);
+				} finally {
+					getViewSite().getActionBars().getStatusLineManager().setMessage(null);
 				}
 			}
 		}
 	}
 
 	private void showErrorMessage(String message, Exception e) {
-		// MessageDialog.openError(getViewSite().getShell(), "Problem with displaying dataset",
-		// string + ":" + e.getMessage());
-
-		// Shouldn't be popping up a dialog if there is an error with this view as that is quite annoying
 		logger.error("Problem with displaying dataset:" + message, e);
+		lblEmptyPageLabel.setText(message + ": " + e.getMessage());
+		pgBook.showPage(emptyPage);
 	}
 
 	@Override
@@ -462,7 +478,6 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 					image.imultiply(1000.0);
 					SDAPlotter.imagePlot("Plot 1", image);
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					logger.error("TODO cannot Load reconstruction for display", e);
 					return Status.CANCEL_STATUS;
 				}

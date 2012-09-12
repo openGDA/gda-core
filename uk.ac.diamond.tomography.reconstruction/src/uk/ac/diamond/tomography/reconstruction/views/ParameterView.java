@@ -31,7 +31,6 @@ import java.net.URL;
 import java.util.Collections;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -58,6 +57,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
@@ -88,6 +88,7 @@ import uk.ac.diamond.tomography.reconstruction.parameters.hm.HMxmlType;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.ROIType;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.RingArtefactsType;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.presentation.HmEditor;
+import uk.ac.diamond.tomography.reconstruction.parameters.hm.presentation.IParameterView;
 import uk.ac.gda.util.io.FileUtils;
 
 /**
@@ -101,9 +102,11 @@ import uk.ac.gda.util.io.FileUtils;
  * <p>
  */
 
-public class ParameterView extends ViewPart implements ISelectionListener {
+public class ParameterView extends ViewPart implements ISelectionListener, IParameterView {
 
-	private static final String SETTINGS = "Settings";
+	private static final String FULL_RECONSTRUCTION = "Full Reconstruction";
+	private static final String ADVANCED_SETTINGS = "Advanced Settings";
+	private static final String FILE_NAME = "File Name";
 	private static final String HM_FILE_EXTN = "hm";
 	private static final String DARK_FIELDS = "Dark Fields";
 	private static final String BLANK = "";
@@ -121,7 +124,7 @@ public class ParameterView extends ViewPart implements ISelectionListener {
 	private static final String ROW = "Row";
 	private static final String USER = "User";
 	private static final String FLAT_FIELDS = "Flat Fields";
-	private static final String PREVIEW_RECONSTRUCTION_SETTINGS = "Preview Reconstruction Settings";
+	private static final String PREVIEW_RECONSTRUCTION_SETTINGS = "Preview Recon";
 	private static final String SCRIPTS_TOMODO_PY = "scripts/tomodo.py";
 	private static final String SCRIPTS_TOMODO_SH = "scripts/tomodo.sh";
 	private static final String NUM_SERIES = "Num Series";
@@ -181,7 +184,6 @@ public class ParameterView extends ViewPart implements ISelectionListener {
 
 	private Text txtRoiYMax;
 	private Text txtFileName;
-	private Text txtSettingsFileName;
 
 	/**
 	 * The constructor.
@@ -231,19 +233,13 @@ public class ParameterView extends ViewPart implements ISelectionListener {
 		rotationCenterCmp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		rotationCenterCmp.setLayout(new GridLayout(2, false));
 
-		Label lblFileName = toolkit.createLabel(rotationCenterCmp, "File Name");
+		Label lblFileName = toolkit.createLabel(rotationCenterCmp, FILE_NAME);
 		lblFileName.setLayoutData(new GridData());
 
 		txtFileName = toolkit.createText(rotationCenterCmp, BLANK);
 		txtFileName.setEditable(false);
 		txtFileName.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		Label lblSettings = toolkit.createLabel(rotationCenterCmp, SETTINGS);
-		lblSettings.setLayoutData(new GridData());
-
-		txtSettingsFileName = toolkit.createText(rotationCenterCmp, BLANK);
-		txtSettingsFileName.setEditable(false);
-		txtSettingsFileName.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		//
 		Label lblCenterOfRotation = toolkit.createLabel(rotationCenterCmp, ROTATION_CENTRE);
 		lblCenterOfRotation.setLayoutData(new GridData());
@@ -278,7 +274,7 @@ public class ParameterView extends ViewPart implements ISelectionListener {
 
 		Button btnPreview = new Button(cmpButtons, SWT.PUSH);
 		btnPreview.setText(PREVIEW_RECONSTRUCTION_SETTINGS);
-		btnPreview.setLayoutData(new GridData());
+		btnPreview.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		btnPreview.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e1) {
@@ -319,12 +315,12 @@ public class ParameterView extends ViewPart implements ISelectionListener {
 		});
 
 		Button btnRunFullRecon = new Button(cmpButtons, SWT.PUSH);
-		btnRunFullRecon.setText("Run Full Reconstruction");
-		btnRunFullRecon.setLayoutData(new GridData());
+		btnRunFullRecon.setText(FULL_RECONSTRUCTION);
+		btnRunFullRecon.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		Button btnAdvanced = new Button(cmpButtons, SWT.PUSH);
-		btnAdvanced.setText("Open Advanced Settings");
-		btnAdvanced.setLayoutData(new GridData());
+		btnAdvanced.setText(ADVANCED_SETTINGS);
+		btnAdvanced.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		btnAdvanced.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -342,30 +338,27 @@ public class ParameterView extends ViewPart implements ISelectionListener {
 	private void openAdvancedSettings() {
 		if (defaultSettingFile.exists()) {
 			try {
-				final String hmSettingsDir = hmSettingsInProcessingDir.getParent();
-
-				String replaced = hmSettingsDir.replace("/", "_");
 
 				IProject tomoSettingsProject = ResourcesPlugin.getWorkspace().getRoot()
 						.getProject(Activator.TOMOGRAPHY_SETTINGS);
-				final IFolder folder = tomoSettingsProject.getFolder(replaced);
-				if (!folder.exists()) {
+				final IFile tomoSettingsFile = tomoSettingsProject.getFile(hmSettingsInProcessingDir.getName());
+				if (!tomoSettingsFile.exists()) {
 					new WorkspaceModifyOperation() {
 
 						@Override
 						protected void execute(IProgressMonitor monitor) throws CoreException,
 								InvocationTargetException, InterruptedException {
 							try {
-								folder.createLink(new Path(hmSettingsDir), IResource.HIDDEN, monitor);
+								tomoSettingsFile.createLink(new Path(hmSettingsInProcessingDir.getAbsolutePath()),
+										IResource.REPLACE, monitor);
 							} catch (IllegalArgumentException ex) {
 								logger.debug("Problem identified - eclipse doesn't refresh the right folder");
 							}
 						}
 					}.run(null);
 				}
-				IFile settingsFileOnWkspace = folder.getFile(hmSettingsInProcessingDir.getName());
-				IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(),
-						settingsFileOnWkspace, HmEditor.ID);
+				IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), tomoSettingsFile,
+						HmEditor.ID);
 			} catch (PartInitException e1) {
 				logger.error("TODO put description of error here", e1);
 			} catch (InvocationTargetException inve) {
@@ -593,7 +586,6 @@ public class ParameterView extends ViewPart implements ISelectionListener {
 		BackprojectionType backprojection = fbp.getBackprojection();
 
 		txtFileName.setText(nexusFile.getLocation().toOSString());
-		txtSettingsFileName.setText(hmSettingsInProcessingDir.getAbsolutePath());
 
 		float floatValue = backprojection.getImageCentre().floatValue();
 		txtCenterOfRotation.setText(Float.toString(floatValue));
@@ -748,10 +740,25 @@ public class ParameterView extends ViewPart implements ISelectionListener {
 		if (selection instanceof IStructuredSelection) {
 			IStructuredSelection iss = (IStructuredSelection) selection;
 			Object firstElement = iss.getFirstElement();
+			nexusFile=null;
 			if (firstElement instanceof IFile
 					&& Activator.NXS_FILE_EXTN.equals(((IFile) firstElement).getFileExtension())) {
 				nexusFile = (IFile) firstElement;
 
+			} else if (part instanceof IEditorPart) {
+				IEditorPart ed = (IEditorPart) part;
+				Object adapter = ed.getAdapter(IParameterView.class);
+				if (adapter != null) {
+					if (adapter instanceof IFile) {
+						IFile hmFile = (IFile) adapter;
+						if (hmFile.getFileExtension().equals("hm")) {
+							nexusFile = getNexusFileFromHmFileLocation(hmFile.getLocationURI().toString());
+						}
+					}
+				}
+			}
+
+			if (nexusFile != null) {
 				hmSettingsInProcessingDir = getHmSettingsInProcessingDir();
 
 				getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
@@ -761,7 +768,6 @@ public class ParameterView extends ViewPart implements ISelectionListener {
 						initializeView();
 					}
 				});
-
 				return;
 			}
 		}
@@ -773,6 +779,10 @@ public class ParameterView extends ViewPart implements ISelectionListener {
 				pgBook.showPage(emptyCmp);
 			}
 		});
+	}
+
+	private IFile getNexusFileFromHmFileLocation(String hmFileLocation) {
+		return ReconUtil.getNexusFileFromHmFileLocation(hmFileLocation);
 	}
 
 	private File getHmSettingsInProcessingDir() {
