@@ -126,6 +126,13 @@ public abstract class TfgScalerWithDarkCurrent extends TfgScaler {
 		}
 		super.atScanStart();
 	}
+	
+	@Override
+	public void atScanEnd() throws DeviceException {
+		// reset time to default
+		darkCurrentCollectionTime = 1.0;
+		super.atScanEnd();
+	}
 
 	public void setDarkCurrent(DarkCurrentResults darkCurrent) {
 		this.darkCurrent = darkCurrent;
