@@ -22,6 +22,7 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
 import gda.device.Detector;
 import gda.device.detector.DarkCurrentDetector;
+import gda.device.detector.DarkCurrentResults;
 import gda.exafs.scan.BeanGroup;
 import gda.scan.IScanDataPoint;
 
@@ -131,11 +132,13 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 				}
 
 				// write out dark current if a detector present is a DarkCurrentDetector
-				final Double[] da = getDarkCurrent(dataPoint);
-				if (da != null && da.length >= 3) {
+				final DarkCurrentResults da = getDarkCurrent(dataPoint);
+				if (da != null && da.getCounts().length >= 3) {
 					file.write("#\n");
-					file.write(String.format("# Dark current intensity (Hz): I0 %6.0f   It %6.0f   Iref %6.0f\n",
-							da[0], da[1], da[2]));
+					file.write(String.format(
+							"# Dark current intensity (Hz), collected over %4.2fs: I0 %6.0f   It %6.0f   Iref %6.0f\n",
+							da.getTimeInS(), da.getCounts()[0] / da.getTimeInS(), da.getCounts()[1] / da.getTimeInS(),
+							da.getCounts()[2] / da.getTimeInS()));
 					file.write("# Dark current has been automatically removed from counts in main scan (I0,It,Iref)\n");
 					file.write("#\n");
 				}
@@ -150,11 +153,11 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 		}
 	}
 
-	private Double[] getDarkCurrent(IScanDataPoint dataPoint) {
+	private DarkCurrentResults getDarkCurrent(IScanDataPoint dataPoint) {
 		final List<Detector> d = dataPoint.getDetectors();
 		for (Detector detector : d) {
 			if (detector instanceof DarkCurrentDetector) {
-				return ((DarkCurrentDetector) detector).getDarkCurrent();
+				return ((DarkCurrentDetector) detector).getDarkCurrentResults();
 			}
 		}
 		return null;

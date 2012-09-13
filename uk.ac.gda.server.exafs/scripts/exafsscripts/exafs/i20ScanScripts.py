@@ -10,6 +10,7 @@ from gda.exafs.scan import BeanGroup, BeanGroups
 from gda.exafs.scan import RepetitionsProperties,ScanStartedMessage
 from gda.exafs.scan import ExafsScanPointCreator,XanesScanPointCreator
 from gda.factory import Finder
+from gda.jython import ScriptBase
 from gda.jython.commands import ScannableCommands
 from gda.jython.scriptcontroller.event import ScanCreationEvent, ScanFinishEvent, ScriptProgressEvent
 from gda.jython.scriptcontroller.logging import LoggingScriptController
@@ -32,12 +33,17 @@ class I20XasScan(XasScan):
         # fluo detector, if in use
         if beanGroup.getDetector().getExperimentType() == 'Fluorescence':
             self.setDetectorCorrectionParameters(beanGroup)
-
+            ScriptBase.checkForPauses()
+            
+        # ion chambers
+        self.setUpIonChambers(beanGroup)
+        
         # reference (filter) wheel
         if beanGroup.getSample().getUseSampleWheel():
             filter = beanGroup.getSample().getSampleWheelPosition()
             print "Moving filter wheel to",filter,"..."
             jython_mapper.filterwheel(filter)
+            ScriptBase.checkForPauses()
         
         # sample environments
 
@@ -80,6 +86,7 @@ class I20XasScan(XasScan):
                 samroll.waitWhileBusy(20)
                 sampitch.waitWhileBusy(20)
                 print "Sample stage move complete.\n"
+                ScriptBase.checkForPauses()
                 
                 #TODO add to metadata?
                 self._runTheScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
@@ -88,6 +95,7 @@ class I20XasScan(XasScan):
             
         # remove extra columns from ionchambers output
         jython_mapper.ionchambers.setOutputLogValues(False) 
+        ScriptBase.checkForPauses()
         
     def _runTheScan(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller):
         times = []
@@ -99,6 +107,7 @@ class I20XasScan(XasScan):
             print "Setting scan times, using array of length",len(times)
             jython_mapper = JythonNameSpaceMapping()
             jython_mapper.ionchambers.setTimes(times)
+            ScriptBase.checkForPauses()
         self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
         
 
@@ -116,6 +125,8 @@ class I20XasScan(XasScan):
         jython_mapper.xspress2system.setDeadtimeCalculationEnergy(edgeEnergy)
  
     
+    def setUpIonChambers(self,beanGroup):
+        jython_mapper = JythonNameSpaceMapping()
         # get ion chmabers
         ct = jython_mapper.ionchambers
     
