@@ -104,6 +104,12 @@ public interface NDROI {
 
 	static final String DataTypeOut_RBV = "DataTypeOut_RBV";
 
+	static final String EnableX = "EnableX";
+
+	static final String EnableY = "EnableY";
+
+	static final String EnableZ = "EnableZ";
+
 	/**
 	 *
 	 */
@@ -378,6 +384,60 @@ public interface NDROI {
 	 *
 	 */
 	short getDataTypeOut_RBV() throws Exception;
+
+	/**
+	 * @return true if enabled
+	 * @throws Exception 
+	 */
+	boolean isEnableX() throws Exception;
+
+	/**
+	 * @return true if enabled
+	 * @throws Exception 
+	 */
+	boolean isEnableY() throws Exception;
+
+	/**
+	 * @return true if enabled
+	 * @throws Exception 
+	 */
+	boolean isEnableZ() throws Exception;
+
+	/**
+	 * @throws Exception 
+	 * 
+	 */
+	void enableX() throws Exception;
+
+	/**
+	 * @throws Exception 
+	 * 
+	 */
+	void disableX() throws Exception;
+
+	/**
+	 * @throws Exception 
+	 * 
+	 */
+	void enableY() throws Exception;
+
+	/**
+	 * @throws Exception 
+	 * 
+	 */
+	void disableY() throws Exception;
+
+	/**
+	 * @throws Exception 
+	 * 
+	 */
+	void enableZ() throws Exception;
+
+	/**
+	 * @throws Exception 
+	 * 
+	 */
+	void disableZ() throws Exception;
 
 	/**
 	 * @param areaDetectorROI

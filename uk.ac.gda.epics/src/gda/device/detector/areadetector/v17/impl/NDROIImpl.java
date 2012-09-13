@@ -75,6 +75,12 @@ public class NDROIImpl implements InitializingBean, NDROI {
 
 	private Integer initialScale;
 
+	private boolean initialEnableX;
+
+	private boolean initialEnableY;
+
+	private boolean initialEnableZ;
+
 	public String getDeviceName() {
 		return deviceName;
 	}
@@ -1111,6 +1117,24 @@ public class NDROIImpl implements InitializingBean, NDROI {
 			setBinning(initialBinX, initialBinY);
 		}
 
+		if (initialEnableX) {
+			enableX();
+		} else {
+			disableX();
+		}
+
+		if (initialEnableY) {
+			enableY();
+		} else {
+			disableY();
+		}
+
+		if (initialEnableZ) {
+			enableZ();
+		} else {
+			disableZ();
+		}
+
 	}
 
 	/**
@@ -1137,6 +1161,30 @@ public class NDROIImpl implements InitializingBean, NDROI {
 
 	public void setInitialEnableScale(boolean value) {
 		this.initialEnableScale = value;
+	}
+
+	public void setInitialEnableX(boolean initialEnableX) {
+		this.initialEnableX = initialEnableX;
+	}
+
+	public boolean isInitialEnableX() {
+		return initialEnableX;
+	}
+
+	public void setInitialEnableY(boolean initialEnableY) {
+		this.initialEnableY = initialEnableY;
+	}
+
+	public boolean isInitialEnableY() {
+		return initialEnableY;
+	}
+
+	public void setInitialEnableZ(boolean initialEnableZ) {
+		this.initialEnableZ = initialEnableZ;
+	}
+
+	public boolean isInitialEnableZ() {
+		return initialEnableZ;
 	}
 
 	public boolean isInitialEnableScale() {
@@ -1185,8 +1233,8 @@ public class NDROIImpl implements InitializingBean, NDROI {
 
 	public void setInitialDatatype(NDPluginBase.DataType datatype) {
 		this.initialDataType = datatype.ordinal();
-	}	
-	
+	}
+
 	/**
 	 * @param initialMinX
 	 *            The initialMinX to set.
@@ -1217,5 +1265,128 @@ public class NDROIImpl implements InitializingBean, NDROI {
 	 */
 	public void setInitialSizeY(Integer initialSizeY) {
 		this.initialSizeY = initialSizeY;
+	}
+
+	@Override
+	public boolean isEnableX() throws Exception {
+		short shortVal = 0;
+		try {
+			if (config != null) {
+				shortVal = EPICS_CONTROLLER.cagetShort(createChannel(config.getEnableX().getPv()));
+			} else {
+				shortVal = EPICS_CONTROLLER.cagetShort(getChannel(EnableX));
+			}
+		} catch (Exception ex) {
+			throw ex;
+		}
+		return shortVal == 1 ? true : false;
+	}
+
+	@Override
+	public boolean isEnableY() throws Exception {
+		short shortVal = 0;
+		try {
+			if (config != null) {
+				shortVal = EPICS_CONTROLLER.cagetShort(createChannel(config.getEnableY().getPv()));
+			} else {
+				shortVal = EPICS_CONTROLLER.cagetShort(getChannel(EnableY));
+			}
+		} catch (Exception ex) {
+			throw ex;
+		}
+		return shortVal == 1 ? true : false;
+	}
+
+	@Override
+	public boolean isEnableZ() throws Exception {
+		short shortVal = 0;
+		try {
+			if (config != null) {
+				shortVal = EPICS_CONTROLLER.cagetShort(createChannel(config.getEnableZ().getPv()));
+			} else {
+				shortVal = EPICS_CONTROLLER.cagetShort(getChannel(EnableZ));
+			}
+		} catch (Exception ex) {
+			throw ex;
+		}
+		return shortVal == 1 ? true : false;
+	}
+
+	@Override
+	public void enableX() throws Exception {
+		try {
+			if (config != null) {
+				EPICS_CONTROLLER.caput(createChannel(config.getEnableX().getPv()), 1);
+			} else {
+				EPICS_CONTROLLER.caput(getChannel(EnableX), 1);
+			}
+		} catch (Exception ex) {
+			throw ex;
+		}
+	}
+
+	@Override
+	public void disableX() throws Exception {
+		try {
+			if (config != null) {
+				EPICS_CONTROLLER.caput(createChannel(config.getEnableX().getPv()), 0);
+			} else {
+				EPICS_CONTROLLER.caput(getChannel(EnableX), 0);
+			}
+		} catch (Exception ex) {
+			throw ex;
+		}
+	}
+
+	@Override
+	public void enableY() throws Exception {
+		try {
+			if (config != null) {
+				EPICS_CONTROLLER.caput(createChannel(config.getEnableY().getPv()), 1);
+			} else {
+				EPICS_CONTROLLER.caput(getChannel(EnableY), 1);
+			}
+		} catch (Exception ex) {
+			throw ex;
+		}
+	}
+
+	@Override
+	public void disableY() throws Exception {
+		try {
+			if (config != null) {
+				EPICS_CONTROLLER.caput(createChannel(config.getEnableY().getPv()), 0);
+			} else {
+				EPICS_CONTROLLER.caput(getChannel(EnableY), 0);
+			}
+		} catch (Exception ex) {
+			throw ex;
+		}
+	}
+
+	@Override
+	public void enableZ() throws Exception {
+		try {
+			if (config != null) {
+				EPICS_CONTROLLER.caput(createChannel(config.getEnableZ().getPv()), 1);
+			} else {
+				EPICS_CONTROLLER.caput(getChannel(EnableZ), 1);
+			}
+		} catch (Exception ex) {
+			throw ex;
+		}
+	}
+
+	@Override
+	public void disableZ() throws Exception {
+		try {
+			if (config != null) {
+				EPICS_CONTROLLER.caput(createChannel(config.getEnableZ().getPv()), 0);
+			} else {
+				EPICS_CONTROLLER.caput(getChannel(EnableZ), 0);
+			}
+		} catch (Exception ex) {
+			throw ex;
+		}
 	}
 }
