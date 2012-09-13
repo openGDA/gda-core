@@ -26,13 +26,22 @@ from uk.ac.gda.beans.exafs.i20 import I20SampleParameters
 class I20XasScan(XasScan):
     
     def _doLooping(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller):
-        #
-        # Insert sample environment looping logic here by subclassing
-        #
-        
+
+        jython_mapper = JythonNameSpaceMapping()
+
+        # fluo detector, if in use
         if beanGroup.getDetector().getExperimentType() == 'Fluorescence':
             self.setDetectorCorrectionParameters(beanGroup)
+
+        # reference (filter) wheel
+        if beanGroup.getSample().getUseSampleWheel():
+            filter = beanGroup.getSample().getSampleWheelPosition()
+            print "Moving filter wheel to",filter,"..."
+            jython_mapper.filterwheel(filter)
         
+        # sample environments
+
+        # room temperature (sample stage)
         if beanGroup.getSample().getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[1] :
             
             sampleStageParameters = beanGroup.getSample().getRoomTemperatureParameters()
@@ -78,7 +87,6 @@ class I20XasScan(XasScan):
             self._runTheScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
             
         # remove extra columns from ionchambers output
-        jython_mapper = JythonNameSpaceMapping()
         jython_mapper.ionchambers.setOutputLogValues(False) 
         
     def _runTheScan(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller):
