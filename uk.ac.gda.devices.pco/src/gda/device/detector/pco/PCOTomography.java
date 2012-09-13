@@ -18,7 +18,6 @@
 
 package gda.device.detector.pco;
 
-import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.IPCOControllerV17;
 import gda.device.detector.IPCODetector;
@@ -602,8 +601,12 @@ public class PCOTomography implements ITomographyDetector, Findable {
 
 	@Override
 	public boolean isAcquiring() throws DeviceException {
-//		pcoDetector.getController().getAreaDetector().getAcquire_RBV();
-		return pcoDetector.isBusy();
+		try {
+			return pcoDetector.getController().getAreaDetector().getAcquireState() == 1;
+		} catch (Exception e) {
+			throw new DeviceException(e);
+		}
+//		return pcoDetector.isBusy();
 	}
 
 	@Override
