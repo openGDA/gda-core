@@ -99,8 +99,11 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 		else if (getMaterialType() == 1)
 			material =  germanium;
 		double bragg = XesUtils.getBragg(Double.parseDouble(position.toString()), material, getCrystalCut());
-		if (bragg >= 60.0 && bragg <= 85.0)
+		if (bragg >= 60.0 && bragg <= 85.0){
 			xes.asynchronousMoveTo(bragg);
+		} else {
+			throw new DeviceException("Move to " + bragg + "deg out of limits. Must be 60 to 80 deg.");
+		}
 	}
 
 	@Override
