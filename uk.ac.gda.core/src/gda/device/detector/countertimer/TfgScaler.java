@@ -216,6 +216,7 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 	public void clearFrameSets() throws DeviceException {
 		super.clearFrameSets();
 		frameSets.clear();
+		framesRead = 0;
 	}
 	
 	@Override
@@ -245,7 +246,6 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 		if (frameSets.size() > 0 || !timer.getAttribute("TotalFrames").equals(0)){
 			stop();  // stops the TFG - useful if scan aborted and so TFG still in a PAUSE state rather than an IDLE state
 			clearFrameSets();
-			framesRead = 0;
 		}
 	}
 
@@ -415,7 +415,7 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 				e.printStackTrace();
 			}
 		}
-		logger.info("Current tfg frame is " + this.getCurrentFrame() + " and reading frame " + framesRead);
+		logger.debug("Current tfg frame is " + this.getCurrentFrame() + " and reading frame " + framesRead);
 		return readoutFrames(framesRead, framesRead)[0];
 	}
 	

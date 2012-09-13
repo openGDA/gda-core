@@ -21,6 +21,8 @@ package gda.device.detector.countertimer;
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.device.detector.DarkCurrentDetector;
+import gda.device.detector.DarkCurrentResults;
 import gda.device.detector.DummyDAServer;
 import gda.device.timer.Tfg;
 import gda.factory.Finder;
@@ -29,7 +31,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class TfgScalerWithDarkCurrent extends TfgScaler {
+public abstract class TfgScalerWithDarkCurrent extends TfgScaler implements DarkCurrentDetector{
 
 	private static final Logger logger = LoggerFactory.getLogger(TfgScalerWithDarkCurrent.class);
 
@@ -70,14 +72,14 @@ public abstract class TfgScalerWithDarkCurrent extends TfgScaler {
 
 		// value.
 		this.darkCurrent = collectDarkCurrent(bean);
-		for (Double dkValue : getDarkCurrent()) {
+		for (Double dkValue : getDarkCurrentResults().getCounts()) {
 			String comment = String.format(getName() + " dark current measured to be: %.0f over %.1f s", dkValue,
 					getDarkCurrentCollectionTime());
 			logger.info(comment);
 		}
 	}
 
-	private gda.device.detector.countertimer.TfgScalerWithDarkCurrent.DarkCurrentResults collectDarkCurrent(
+	private DarkCurrentResults collectDarkCurrent(
 			final DarkCurrentBean bean) throws Exception {
 
 		final Scannable shutter = (Scannable) Finder.getInstance().find(bean.getShutterName());
@@ -141,11 +143,22 @@ public abstract class TfgScalerWithDarkCurrent extends TfgScaler {
 		this.darkCurrent = darkCurrent;
 	}
 
+	@Override
+	public DarkCurrentResults getDarkCurrentResults(){
+		return darkCurrent;
+	}
+	
 	public Double[] getDarkCurrent() {
 		if (darkCurrent == null){
 			return new Double[]{};
 		}
-		return darkCurrent.getCounts();
+		Double[] rawCounts = darkCurrent.getCounts();
+		Double dkCollectTime = darkCurrent.getTimeInS();
+		Double[] counts = new Double[rawCounts.length];
+		for (int i = 0; i < counts.length; i++){
+			counts[i] = rawCounts[i]/ dkCollectTime;
+		}
+		return counts;
 	}
 
 	public boolean isDarkCurrentRequired() {
@@ -179,7 +192,7 @@ public abstract class TfgScalerWithDarkCurrent extends TfgScaler {
 
 	protected double[] adjustForDarkCurrent(double[] values, Double collectionTime) {
 
-		if (!isDarkCurrentRequired() || darkCurrent == null || darkCurrent.timeInS <= 0.0) {
+		if (!isDarkCurrentRequired() || darkCurrent == null || darkCurrent.getTimeInS() <= 0.0) {
 			return values;
 		}
 
@@ -248,33 +261,5 @@ public abstract class TfgScalerWithDarkCurrent extends TfgScaler {
 			return darkCollectionTime;
 		}
 
-	}
-
-	public static final class DarkCurrentResults {
-
-		Double timeInS = 1d;
-		Double[] counts;
-
-		public DarkCurrentResults(Double timeInS, Double[] counts) {
-			super();
-			this.timeInS = timeInS;
-			this.counts = counts;
-		}
-
-		public Double getTimeInS() {
-			return timeInS;
-		}
-
-		public void setTimeInS(Double timeInS) {
-			this.timeInS = timeInS;
-		}
-
-		public Double[] getCounts() {
-			return counts;
-		}
-
-		public void setCounts(Double[] counts) {
-			this.counts = counts;
-		}
 	}
 }
