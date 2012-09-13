@@ -109,12 +109,12 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 		double targetL = XesUtils.getL(radius, bragg);
 		double targetXtalTheta = XesUtils.getCrystalRotation(bragg);
 
-		xtal_x.asynchronousMoveTo(targetL);
-		det_x.asynchronousMoveTo(targetDetX);
-		det_y.asynchronousMoveTo(targetDetY);
-		det_rot.asynchronousMoveTo(targetXtalTheta * 2);
+		checkPositionValid(xtal_x,targetL);
+		checkPositionValid(det_x,targetDetX);
+		checkPositionValid(det_y,targetDetY);
+		checkPositionValid(det_rot,targetXtalTheta * 2);
 
-		xtalbraggs[1].asynchronousMoveTo(targetXtalTheta);
+		checkPositionValid(xtalbraggs[1],targetXtalTheta);
 
 		double[] iTargets = XesUtils
 				.getAdditionalCrystalPositions(radius, bragg, additionalCrystalHorizontalOffsets[0]);
@@ -140,18 +140,47 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 		// TODO may need to handle case where there are 5 crystals in the future...
 
 		// the left hand xtal
+		checkPositionValid(xtalxs[0],iTargets[0]);
+		checkPositionValid(xtalys[0],iTargets[1]);
+		checkPositionValid(xtaltilts[0],iTargets[2]);
+		checkPositionValid(xtalbraggs[0],iTargets[3]);
+
+		// xtalxs[1].asynchronousMoveTo((targetL-iTargets[0])*-1);
+
+		// the right hand xtal
+		checkPositionValid(xtalxs[1],iTargets[0]);
+		checkPositionValid(xtalys[2],iTargets[1]);
+		checkPositionValid(xtaltilts[2],-iTargets[2]);
+		checkPositionValid(xtalbraggs[2],iTargets[3]);
+		
+		
+		// actual moves, once we know everything is OK.
+		xtal_x.asynchronousMoveTo(targetL);
+		det_x.asynchronousMoveTo(targetDetX);
+		det_y.asynchronousMoveTo(targetDetY);
+		det_rot.asynchronousMoveTo(targetXtalTheta * 2);
+
+		xtalbraggs[1].asynchronousMoveTo(targetXtalTheta);
 		xtalxs[0].asynchronousMoveTo(iTargets[0]);
 		xtalys[0].asynchronousMoveTo(iTargets[1]);
 		xtaltilts[0].asynchronousMoveTo(iTargets[2]);
 		xtalbraggs[0].asynchronousMoveTo(iTargets[3]);
 
-		// xtalxs[1].asynchronousMoveTo((targetL-iTargets[0])*-1);
 
-		// the right hand xtal
 		xtalxs[1].asynchronousMoveTo(iTargets[0]);
 		xtalys[2].asynchronousMoveTo(iTargets[1]);
 		xtaltilts[2].asynchronousMoveTo(-iTargets[2]);
 		xtalbraggs[2].asynchronousMoveTo(iTargets[3]);
+
+	}
+
+	private void checkPositionValid(ScannableMotor scannable, double target) throws DeviceException{
+		double min = scannable.getLowerMotorLimit();
+		double max  = scannable.getUpperMotorLimit();
+		
+		if (target > max || target < min){
+			throw new DeviceException("Move not valid. " + target + " outside of limits of " + scannable.getName() + " motor.");
+		}
 	}
 
 	@Override
