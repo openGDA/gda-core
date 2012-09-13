@@ -19,7 +19,6 @@
 package gda.device.detector.countertimer;
 
 import gda.device.DeviceException;
-import gda.device.detector.DarkCurrentDetector;
 
 import org.apache.commons.lang.ArrayUtils;
 
@@ -28,7 +27,7 @@ import org.apache.commons.lang.ArrayUtils;
  * <p>
  * It has optional additional channels ln(I0/It) and ln(I0/Iref) It also reads the dark current at the scan start.
  */
-public class TfgScalerWithLogValues extends TfgScalerWithDarkCurrent implements DarkCurrentDetector {
+public class TfgScalerWithLogValues extends TfgScalerWithDarkCurrent {
 
 	public static final String LNI0IT_LABEL = "lnI0It";
 	public static final String LNITIREF_LABEL = "lnItIref";
