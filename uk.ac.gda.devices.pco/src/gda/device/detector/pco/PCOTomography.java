@@ -110,6 +110,9 @@ public class PCOTomography implements ITomographyDetector, Findable {
 
 		roi1.enableScaling();
 		roi1.setScale(binX * binY);
+		
+		roi1.enableX();
+		roi1.enableY();
 
 		//
 		mJpeg1.getPluginBase().enableCallbacks();
@@ -124,6 +127,8 @@ public class PCOTomography implements ITomographyDetector, Findable {
 	@Override
 	public void setZoomRoiStart(Point roiStart) throws Exception {
 		NDROI roi2 = pcoDetector.getController().getRoi2();
+		roi2.enableX();
+		roi2.enableY();
 		roi2.setMinX(roiStart.x);
 		roi2.setMinY(roiStart.y);
 	}
@@ -139,6 +144,10 @@ public class PCOTomography implements ITomographyDetector, Findable {
 
 		roi2.getPluginBase().enableCallbacks();
 		roi2.getPluginBase().setNDArrayPort(areaDetector.getPortName_RBV());
+		
+		roi2.enableX();
+		roi2.enableY();
+		
 		roi2.setBinX(bin.x);
 		roi2.setBinY(bin.y);
 
