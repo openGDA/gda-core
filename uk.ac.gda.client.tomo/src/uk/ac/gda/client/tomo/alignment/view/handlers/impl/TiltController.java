@@ -90,6 +90,7 @@ public class TiltController implements ITiltController {
 
 			@Override
 			public void update(Object source, Object arg) {
+				logger.debug("Arg checking to see if exception:{}", arg);
 				if (arg instanceof PyException || arg instanceof Exception) {
 					isComplete = true;
 					// TODO : handle exceptions
@@ -135,8 +136,8 @@ public class TiltController implements ITiltController {
 
 		//
 		// for testing
-		folders[0] = "/dls/i12/data/2012/cm5706-2/default/7740/projections";
-		folders[1] = "/dls/i12/data/2012/cm5706-2/default/7740/projections";
+		// folders[0] = "/dls/i12/data/2012/cm5706-2/default/7740/projections";
+		// folders[1] = "/dls/i12/data/2012/cm5706-2/default/7740/projections";
 		//
 		return getPlottablePoint(folders[0], folders[1]);
 	}
