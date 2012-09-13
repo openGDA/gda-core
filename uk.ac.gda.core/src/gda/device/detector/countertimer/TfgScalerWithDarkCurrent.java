@@ -49,6 +49,9 @@ public abstract class TfgScalerWithDarkCurrent extends TfgScaler {
 	 */
 	public void acquireDarkCurrent() throws Exception {
 		darkCurrent = null;
+		
+		clearFrameSets(); 
+
 
 		// Deal with DummyDASever - Arg DummyDASever should
 		// have a way of reading dark currents but it does not.
