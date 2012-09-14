@@ -146,6 +146,12 @@ public class GeneralTranslatorTest {
 		translateTestRunner("poscommand.txt");
 	}
 
+	@Test
+	public void translateSemiColonSplitCommands() throws IOException {
+		translateTestRunner("semicolonSplitCommands.txt");
+	}
+	
+	
 	public void translateTestRunner(String testFileName) throws IOException {
 
 		String translatedFilename = testScratchDirectoryName + testFileName + ".translated";
