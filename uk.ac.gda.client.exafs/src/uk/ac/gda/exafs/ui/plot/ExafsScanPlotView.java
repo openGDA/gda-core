@@ -54,10 +54,12 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 
 	protected double a = Double.NaN;
 
-	protected final XafsFittingUtils xafsFittingUtils = new XafsFittingUtils();
+	protected final XafsFittingUtils xafsFittingUtils;
 
 	public ExafsScanPlotView() {
 		super();
+		xafsFittingUtils = new XafsFittingUtils();
+		xafsFittingUtils.setDoOversample(true);
 	}
 
 	@Override
