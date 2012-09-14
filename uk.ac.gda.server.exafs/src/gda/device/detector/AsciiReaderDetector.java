@@ -26,8 +26,6 @@ import java.util.ArrayList;
 
 import org.apache.commons.lang.ArrayUtils;
 
-import uk.ac.gda.common.rcp.util.EclipseUtils;
-
 /**
  * Reads an ascii data file written by the AsciiDataWriter class and returns the data there as its own. I hope this is
  * only used for simulations and GUI testing ;)
@@ -138,7 +136,7 @@ public class AsciiReaderDetector extends DetectorBase {
 	public Object readout() throws DeviceException {
 		try {
 			String line = dataLines.remove(0);
-			EclipseUtils.delay(delay);
+			Thread.sleep(delay);
 			
 			if (line == null) {
 				line = previousLine;
