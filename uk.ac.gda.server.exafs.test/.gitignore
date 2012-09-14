@@ -5,3 +5,7 @@
 *~
 *.tmp
 *.bak
+
+# ignore test output
+/test-reports
+/test-scratch

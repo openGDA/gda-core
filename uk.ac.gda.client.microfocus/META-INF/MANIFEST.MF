@@ -35,3 +35,4 @@ Import-Package: Jama,
  org.eclipse.draw2d,
  org.eclipse.draw2d.geometry,
  org.slf4j;version="[1.5.0,2.0.0)"
+Bundle-Vendor: Diamond Light Source
