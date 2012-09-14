@@ -175,7 +175,7 @@ public class GeneralTranslatorTest {
 		pw.flush();
 		pw.close();
 
-		FileAssert.assertEquals("translation NE expected: " + translatedFilename + " NE " + expectedFilename + "\n",
+		FileAssert.assertBinaryEquals(
 				new File(expectedFilename),
 				new File(translatedFilename));
 	}
