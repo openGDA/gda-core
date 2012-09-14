@@ -20,8 +20,8 @@ package uk.ac.gda.client.tomo.alignment.view.handlers.impl;
 
 import gda.function.Lookup;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ISampleWeightLookupTableHandler;
+import uk.ac.gda.client.tomo.composites.MotionControlComposite.SAMPLE_WEIGHT;
 import uk.ac.gda.client.tomo.i12.ThetaServoSet;
-import uk.ac.gda.ui.components.MotionControlComposite.SAMPLE_WEIGHT;
 
 public class SampleWeightLookupTableHandler implements ISampleWeightLookupTableHandler {
 	private static final String SMALL_STEP_ACCL = "SmallStepAccl";

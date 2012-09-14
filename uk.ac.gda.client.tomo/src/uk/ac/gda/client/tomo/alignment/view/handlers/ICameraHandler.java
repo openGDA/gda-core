@@ -25,7 +25,7 @@ import org.eclipse.swt.graphics.Point;
 
 import uk.ac.gda.client.tomo.TiffFileInfo;
 import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentViewController;
-import uk.ac.gda.ui.components.ZoomButtonComposite.ZOOM_LEVEL;
+import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
 
 /**
  * This interface mediates the communication between the GUI and the detector that is doing the tomography alignment.

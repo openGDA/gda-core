@@ -26,7 +26,7 @@ import org.eclipse.swt.graphics.Point;
 import uk.ac.gda.client.tomo.TiffFileInfo;
 import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentViewController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraHandler;
-import uk.ac.gda.ui.components.ZoomButtonComposite.ZOOM_LEVEL;
+import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
 
 /**
  *

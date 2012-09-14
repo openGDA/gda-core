@@ -43,17 +43,17 @@ import uk.ac.gda.client.tomo.alignment.view.TomoAlignmentView.RIGHT_PAGE;
 import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentViewController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.CrossWireMouseListener;
 import uk.ac.gda.client.tomo.alignment.view.handlers.CrossWireMouseListener.CrosswireListener;
+import uk.ac.gda.client.tomo.composites.CameraControlComposite;
+import uk.ac.gda.client.tomo.composites.CameraControlComposite.RESOLUTION;
 import uk.ac.gda.client.tomo.composites.FullImageComposite;
+import uk.ac.gda.client.tomo.composites.IMotionControlListener;
+import uk.ac.gda.client.tomo.composites.ModuleButtonComposite.CAMERA_MODULE;
+import uk.ac.gda.client.tomo.composites.MotionControlComposite;
+import uk.ac.gda.client.tomo.composites.MotionControlComposite.MotionControlCentring;
+import uk.ac.gda.client.tomo.composites.MotionControlComposite.SAMPLE_WEIGHT;
 import uk.ac.gda.client.tomo.composites.OverlayImageFigure.MOVE_AXIS;
 import uk.ac.gda.client.tomo.composites.SWT2Dutil;
-import uk.ac.gda.ui.components.CameraControlComposite;
-import uk.ac.gda.ui.components.CameraControlComposite.RESOLUTION;
-import uk.ac.gda.ui.components.IMotionControlListener;
-import uk.ac.gda.ui.components.ModuleButtonComposite.CAMERA_MODULE;
-import uk.ac.gda.ui.components.MotionControlComposite;
-import uk.ac.gda.ui.components.MotionControlComposite.MotionControlCentring;
-import uk.ac.gda.ui.components.MotionControlComposite.SAMPLE_WEIGHT;
-import uk.ac.gda.ui.components.ZoomButtonComposite.ZOOM_LEVEL;
+import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
 
 /**
  *

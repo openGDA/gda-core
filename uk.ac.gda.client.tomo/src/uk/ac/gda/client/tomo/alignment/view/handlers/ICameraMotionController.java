@@ -24,7 +24,7 @@ import gov.aps.jca.TimeoutException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import uk.ac.gda.ui.components.ModuleButtonComposite.CAMERA_MODULE;
+import uk.ac.gda.client.tomo.composites.ModuleButtonComposite.CAMERA_MODULE;
 
 /**
  *

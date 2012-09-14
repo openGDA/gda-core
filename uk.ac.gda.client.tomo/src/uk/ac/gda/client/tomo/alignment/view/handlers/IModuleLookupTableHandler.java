@@ -19,7 +19,7 @@
 package uk.ac.gda.client.tomo.alignment.view.handlers;
 
 import gda.device.DeviceException;
-import uk.ac.gda.ui.components.ModuleButtonComposite.CAMERA_MODULE;
+import uk.ac.gda.client.tomo.composites.ModuleButtonComposite.CAMERA_MODULE;
 
 /**
  * This looks up values from a lookup table. In i12 the lookup table is located in

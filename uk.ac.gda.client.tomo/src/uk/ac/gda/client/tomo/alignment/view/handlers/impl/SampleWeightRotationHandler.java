@@ -32,8 +32,8 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.tomo.alignment.view.handlers.ISampleWeightLookupTableHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ISampleWeightRotationHandler;
+import uk.ac.gda.client.tomo.composites.MotionControlComposite.SAMPLE_WEIGHT;
 import uk.ac.gda.client.tomo.i12.ThetaServoSet;
-import uk.ac.gda.ui.components.MotionControlComposite.SAMPLE_WEIGHT;
 
 /**
  * Sample weight rotation handler set for i12 - handles the setting of velocity, acceleration and SERVOSET attribute.

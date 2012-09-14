@@ -34,7 +34,7 @@ import org.springframework.beans.factory.InitializingBean;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraMotionController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraMotionLookupTableHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraStageMotorHandler;
-import uk.ac.gda.ui.components.ModuleButtonComposite.CAMERA_MODULE;
+import uk.ac.gda.client.tomo.composites.ModuleButtonComposite.CAMERA_MODULE;
 
 /**
  *

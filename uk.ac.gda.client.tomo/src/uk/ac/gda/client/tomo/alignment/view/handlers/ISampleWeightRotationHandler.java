@@ -18,7 +18,7 @@
 
 package uk.ac.gda.client.tomo.alignment.view.handlers;
 
-import uk.ac.gda.ui.components.MotionControlComposite.SAMPLE_WEIGHT;
+import uk.ac.gda.client.tomo.composites.MotionControlComposite.SAMPLE_WEIGHT;
 
 /**
  *

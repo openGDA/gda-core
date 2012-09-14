@@ -31,6 +31,8 @@ import uk.ac.gda.client.tomo.TiffFileInfo;
 import uk.ac.gda.client.tomo.TomoClientActivator;
 import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentViewController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraHandler;
+import uk.ac.gda.client.tomo.composites.ModuleButtonComposite.CAMERA_MODULE;
+import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
 import uk.ac.gda.client.tomo.preferences.TomoAlignmentPreferencePage;
 import uk.ac.gda.epics.client.views.controllers.IAdBaseViewController;
 import uk.ac.gda.epics.client.views.controllers.INDProcViewController;
@@ -42,8 +44,6 @@ import uk.ac.gda.epics.client.views.model.NdProcModel;
 import uk.ac.gda.epics.client.views.model.NdRoiModel;
 import uk.ac.gda.epics.client.views.model.NdStatModel;
 import uk.ac.gda.tomography.devices.ITomographyDetector;
-import uk.ac.gda.ui.components.ModuleButtonComposite.CAMERA_MODULE;
-import uk.ac.gda.ui.components.ZoomButtonComposite.ZOOM_LEVEL;
 
 /**
  * Invokes command to the server using Spring RMI.

@@ -46,6 +46,8 @@ import org.springframework.beans.factory.InitializingBean;
 
 import uk.ac.gda.client.tomo.alignment.view.controller.SaveableConfiguration;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ITomoConfigResourceHandler;
+import uk.ac.gda.client.tomo.composites.CameraControlComposite.RESOLUTION;
+import uk.ac.gda.client.tomo.composites.MotionControlComposite.SAMPLE_WEIGHT;
 import uk.ac.gda.tomography.parameters.AlignmentConfiguration;
 import uk.ac.gda.tomography.parameters.DetectorBin;
 import uk.ac.gda.tomography.parameters.DetectorProperties;
@@ -60,8 +62,6 @@ import uk.ac.gda.tomography.parameters.TomoExperiment;
 import uk.ac.gda.tomography.parameters.TomoParametersFactory;
 import uk.ac.gda.tomography.parameters.TomoParametersPackage;
 import uk.ac.gda.tomography.parameters.util.TomoParametersResourceFactoryImpl;
-import uk.ac.gda.ui.components.CameraControlComposite.RESOLUTION;
-import uk.ac.gda.ui.components.MotionControlComposite.SAMPLE_WEIGHT;
 
 /**
  *

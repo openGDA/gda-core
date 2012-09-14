@@ -65,10 +65,10 @@ import uk.ac.gda.client.tomo.alignment.view.handlers.IShutterHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ITiltController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ITomoConfigResourceHandler;
 import uk.ac.gda.client.tomo.alignment.view.utils.ScaleDisplay;
-import uk.ac.gda.ui.components.CameraControlComposite.RESOLUTION;
-import uk.ac.gda.ui.components.ModuleButtonComposite.CAMERA_MODULE;
-import uk.ac.gda.ui.components.MotionControlComposite.SAMPLE_WEIGHT;
-import uk.ac.gda.ui.components.ZoomButtonComposite.ZOOM_LEVEL;
+import uk.ac.gda.client.tomo.composites.CameraControlComposite.RESOLUTION;
+import uk.ac.gda.client.tomo.composites.ModuleButtonComposite.CAMERA_MODULE;
+import uk.ac.gda.client.tomo.composites.MotionControlComposite.SAMPLE_WEIGHT;
+import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
 
 /**
  * The Tomography alignment view controller - this controller communicates with the EPICS model and updates the relevant
@@ -136,7 +136,7 @@ public class TomoAlignmentViewController extends TomoViewController {
 		this.cameraHandler.setViewController(this);
 	}
 
-	public void setMotorHandler(ISampleStageMotorHandler motorHandler) {
+	public void setSampleStageMotorHandler(ISampleStageMotorHandler motorHandler) {
 		this.sampleStageMotorHandler = motorHandler;
 		this.sampleStageMotorHandler.setTomoAlignmentViewController(this);
 	}

@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.tomo.alignment.view.handlers.IModuleLookupTableHandler;
 import uk.ac.gda.client.tomo.alignment.view.utils.ModuleLookupTableConstants;
-import uk.ac.gda.ui.components.ModuleButtonComposite.CAMERA_MODULE;
+import uk.ac.gda.client.tomo.composites.ModuleButtonComposite.CAMERA_MODULE;
 
 /**
  *

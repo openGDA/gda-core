@@ -18,8 +18,8 @@
 
 package uk.ac.gda.client.tomo.alignment.view.handlers;
 
+import uk.ac.gda.client.tomo.composites.MotionControlComposite.SAMPLE_WEIGHT;
 import uk.ac.gda.client.tomo.i12.ThetaServoSet;
-import uk.ac.gda.ui.components.MotionControlComposite.SAMPLE_WEIGHT;
 
 /**
  * Interface that presents the owners of the objects of this class with the lookup table values.

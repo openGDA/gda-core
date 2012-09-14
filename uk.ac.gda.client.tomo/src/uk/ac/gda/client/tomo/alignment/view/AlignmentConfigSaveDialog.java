@@ -54,9 +54,9 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentViewController;
 import uk.ac.gda.client.tomo.composites.FixedImageViewerComposite;
-import uk.ac.gda.ui.components.RotationSliderComposite;
-import uk.ac.gda.ui.components.RotationSliderComposite.SliderSelectionListener;
-import uk.ac.gda.ui.components.TomoCoarseRotationComposite;
+import uk.ac.gda.client.tomo.composites.RotationSliderComposite;
+import uk.ac.gda.client.tomo.composites.RotationSliderComposite.SliderSelectionListener;
+import uk.ac.gda.client.tomo.composites.TomoCoarseRotationComposite;
 
 /**
  *

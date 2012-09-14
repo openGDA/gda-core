@@ -49,6 +49,7 @@ Export-Package: org.diamond.tomo.highrestomo.beans,
  uk.ac.gda.client.tomo.alignment.view.factory,
  uk.ac.gda.client.tomo.alignment.view.handlers,
  uk.ac.gda.client.tomo.alignment.view.handlers.simulator,
+ uk.ac.gda.client.tomo.composites,
  uk.ac.gda.client.tomo.handlers
 Bundle-Activator: uk.ac.gda.client.tomo.TomoClientActivator
 Bundle-ActivationPolicy: lazy

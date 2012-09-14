@@ -20,8 +20,8 @@ package uk.ac.gda.client.tomo.alignment.view.controller;
 
 import java.util.ArrayList;
 
-import uk.ac.gda.ui.components.CameraControlComposite.RESOLUTION;
-import uk.ac.gda.ui.components.MotionControlComposite.SAMPLE_WEIGHT;
+import uk.ac.gda.client.tomo.composites.CameraControlComposite.RESOLUTION;
+import uk.ac.gda.client.tomo.composites.MotionControlComposite.SAMPLE_WEIGHT;
 
 /**
  *

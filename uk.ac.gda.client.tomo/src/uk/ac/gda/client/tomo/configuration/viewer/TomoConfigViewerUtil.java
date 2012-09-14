@@ -18,11 +18,11 @@
 
 package uk.ac.gda.client.tomo.configuration.viewer;
 
+import uk.ac.gda.client.tomo.composites.CameraControlComposite;
+import uk.ac.gda.client.tomo.composites.MotionControlComposite.SAMPLE_WEIGHT;
 import uk.ac.gda.tomography.parameters.AlignmentConfiguration;
 import uk.ac.gda.tomography.parameters.Resolution;
 import uk.ac.gda.tomography.parameters.SampleWeight;
-import uk.ac.gda.ui.components.CameraControlComposite;
-import uk.ac.gda.ui.components.MotionControlComposite.SAMPLE_WEIGHT;
 
 public class TomoConfigViewerUtil {
 	/**

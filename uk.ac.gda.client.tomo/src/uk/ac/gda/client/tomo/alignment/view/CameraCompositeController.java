@@ -50,14 +50,14 @@ import uk.ac.gda.client.tomo.alignment.view.TomoAlignmentView.RIGHT_PAGE;
 import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentViewController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.IRoiHandler;
 import uk.ac.gda.client.tomo.alignment.view.utils.ScaleDisplay;
+import uk.ac.gda.client.tomo.composites.CameraControlComposite;
+import uk.ac.gda.client.tomo.composites.CameraControlComposite.STREAM_STATE;
 import uk.ac.gda.client.tomo.composites.FullImageComposite;
 import uk.ac.gda.client.tomo.composites.FullImageComposite.IRoiPointsListener;
+import uk.ac.gda.client.tomo.composites.ICameraControlListener;
+import uk.ac.gda.client.tomo.composites.ModuleButtonComposite.CAMERA_MODULE;
+import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
 import uk.ac.gda.ui.components.AmplifierStepperComposite.STEPPER;
-import uk.ac.gda.ui.components.CameraControlComposite;
-import uk.ac.gda.ui.components.CameraControlComposite.STREAM_STATE;
-import uk.ac.gda.ui.components.ICameraControlListener;
-import uk.ac.gda.ui.components.ModuleButtonComposite.CAMERA_MODULE;
-import uk.ac.gda.ui.components.ZoomButtonComposite.ZOOM_LEVEL;
 
 /**
  * Camera control composite's listener - advices the Tomoalignment view of the actions it has to take according to the

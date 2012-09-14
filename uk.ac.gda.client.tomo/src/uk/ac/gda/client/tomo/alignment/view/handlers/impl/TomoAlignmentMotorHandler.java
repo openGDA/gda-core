@@ -20,8 +20,6 @@ package uk.ac.gda.client.tomo.alignment.view.handlers.impl;
 
 import gda.device.DeviceException;
 import gda.device.IScannableMotor;
-import gda.device.Scannable;
-import gda.observable.IObserver;
 import gda.util.Sleep;
 
 import java.util.ArrayList;
@@ -33,28 +31,21 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.tomo.TomoClientActivator;
 import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentViewController;
-import uk.ac.gda.client.tomo.alignment.view.handlers.IMotorHandler;
+import uk.ac.gda.client.tomo.alignment.view.handlers.ISampleStageMotorHandler;
 import uk.ac.gda.client.tomo.preferences.TomoAlignmentPreferencePage;
 
 /**
  * Class which handles motors commands
  */
-public class TomoAlignmentMotorHandler implements IMotorHandler {
+public class TomoAlignmentMotorHandler implements ISampleStageMotorHandler {
 
-	private IScannableMotor cam1XScannable;
-	private IScannableMotor cam1ZScannable;
-	private IScannableMotor cam1RollScannable;
 	private IScannableMotor rotationScannable;
 	private IScannableMotor ss1TxScannable;
 	private IScannableMotor ss1TzScannable;
 	private IScannableMotor ss1Y2Scannable;
 	private IScannableMotor sampleHolderScannable;
-	private IScannableMotor t3xScannable;
-	private IScannableMotor t3m1zScannable;
-	private IScannableMotor t3m1yScannable;
 	private IScannableMotor ss1RxScannable;
 	private IScannableMotor ss1RzScannable;
-	private Scannable eh1shtr;
 	private static final Logger logger = LoggerFactory.getLogger(TomoAlignmentMotorHandler.class);
 	private TomoAlignmentViewController tomoAlignmentViewController;
 
@@ -135,30 +126,6 @@ public class TomoAlignmentMotorHandler implements IMotorHandler {
 		this.ss1Y2Scannable = y2Scannable;
 	}
 
-	public void setEh1shtr(Scannable eh1shtr) {
-		this.eh1shtr = eh1shtr;
-	}
-
-	public Scannable getEh1shtr() {
-		return eh1shtr;
-	}
-
-	@Override
-	public void openShutter(IProgressMonitor monitor) throws DeviceException {
-		final SubMonitor progress = SubMonitor.convert(monitor);
-		IObserver obs = new IObserver() {
-
-			@Override
-			public void update(Object source, Object arg) {
-				progress.worked(1);
-			}
-		};
-		progress.subTask("Opening shutter");
-		eh1shtr.addIObserver(obs);
-		eh1shtr.moveTo("Open");
-		eh1shtr.deleteIObserver(obs);
-		progress.worked(2);
-	}
 
 	public IScannableMotor getSampleHolderScannable() {
 		return sampleHolderScannable;
@@ -220,13 +187,6 @@ public class TomoAlignmentMotorHandler implements IMotorHandler {
 		this.tomoAlignmentViewController = tomoAlignmentViewController;
 	}
 
-	@Override
-	public void closeShutter(IProgressMonitor monitor) throws DeviceException {
-		SubMonitor progress = SubMonitor.convert(monitor);
-		progress.subTask("Closing Shutter");
-		eh1shtr.moveTo("Close");
-		progress.worked(2);
-	}
 
 	@Override
 	public double getSampleScannableSpeed() throws DeviceException {
@@ -272,55 +232,6 @@ public class TomoAlignmentMotorHandler implements IMotorHandler {
 		this.thethaOffset = thethaOffset;
 	}
 
-	public void setT3xScannable(IScannableMotor t3xScannable) {
-		this.t3xScannable = t3xScannable;
-		// this.t3xScannable.addIObserver(this);
-	}
-
-	public void setT3m1zScannable(IScannableMotor t3m1zScannable) {
-		this.t3m1zScannable = t3m1zScannable;
-		// this.t3m1zScannable.addIObserver(this);
-	}
-
-	public void setT3m1yScannable(IScannableMotor t3m1yScannable) {
-		this.t3m1yScannable = t3m1yScannable;
-		// this.t3m1yScannable.addIObserver(this);
-	}
-
-	/**
-	 * @param cam1ZScannable
-	 *            The cam1ZScannable to set.
-	 */
-	public void setCam1ZScannable(IScannableMotor cam1ZScannable) {
-		this.cam1ZScannable = cam1ZScannable;
-		// cam1ZScannable.addIObserver(this);
-	}
-
-	public void setCam1XScannable(IScannableMotor cam1xScannable) {
-		cam1XScannable = cam1xScannable;
-		// cam1xScannable.addIObserver(this);
-	}
-
-	public void setCam1RollScannable(IScannableMotor cam1RollScannable) {
-		this.cam1RollScannable = cam1RollScannable;
-		// cam1RollScannable.addIObserver(this);
-	}
-
-	@Override
-	public double getCam1XPosition() throws DeviceException {
-		return (Double) cam1XScannable.getPosition();
-	}
-
-	@Override
-	public double getCam1ZPosition() throws DeviceException {
-		return (Double) cam1ZScannable.getPosition();
-	}
-
-	@Override
-	public double getCam1RollPosition() throws DeviceException {
-		return (Double) cam1RollScannable.getPosition();
-	}
-
 	@Override
 	public double getSs1RxPosition() throws DeviceException {
 		return (Double) ss1RxScannable.getPosition();
@@ -347,46 +258,6 @@ public class TomoAlignmentMotorHandler implements IMotorHandler {
 	@Override
 	public void aysncMoveSs1Rz(Double ss1RzMoveToPosition) throws DeviceException {
 		ss1RzScannable.asynchronousMoveTo(ss1RzMoveToPosition);
-	}
-
-	@Override
-	public Double getT3XPosition() throws DeviceException {
-		return (Double) t3xScannable.getPosition();
-	}
-
-	@Override
-	public Double getT3M1ZPosition() throws DeviceException {
-		return (Double) t3m1zScannable.getPosition();
-	}
-
-	@Override
-	public Double getT3M1YPosition() throws DeviceException {
-		return (Double) t3m1yScannable.getPosition();
-	}
-
-	@Override
-	public double getCam1XTolerance() {
-		return cam1XScannable.getDemandPositionTolerance();
-	}
-
-	@Override
-	public double getCam1RollTolerance() {
-		return cam1RollScannable.getDemandPositionTolerance();
-	}
-
-	@Override
-	public double getCam1ZTolerance() {
-		return cam1ZScannable.getDemandPositionTolerance();
-	}
-
-	@Override
-	public double getT3M1YTolerance() {
-		return t3m1yScannable.getDemandPositionTolerance();
-	}
-
-	@Override
-	public double getT3XTolerance() {
-		return t3xScannable.getDemandPositionTolerance();
 	}
 
 	@Override
@@ -422,38 +293,6 @@ public class TomoAlignmentMotorHandler implements IMotorHandler {
 		}
 		tomoAlignmentViewController.setIsRotationMotorBusy(false);
 		motorsRunning.remove(rotationScannable);
-	}
-
-	@Override
-	public void moveT3XTo(IProgressMonitor monitor, Double t3xMoveToPosition) throws DeviceException,
-			InterruptedException {
-		moveMotor(monitor, t3xScannable, t3xMoveToPosition);
-	}
-
-	@Override
-	public void moveT3M1YTo(IProgressMonitor monitor, Double t3m1yMoveToPosition) throws DeviceException,
-			InterruptedException {
-		moveMotor(monitor, t3m1yScannable, t3m1yMoveToPosition);
-	}
-
-	@Override
-	public void moveT3M1ZTo(IProgressMonitor monitor, double t3m1zValue) throws DeviceException, InterruptedException {
-		moveMotor(monitor, t3m1zScannable, t3m1zValue);
-	}
-
-	@Override
-	public void moveCam1Roll(IProgressMonitor monitor, double cam1RollPos) throws DeviceException, InterruptedException {
-		moveMotor(monitor, cam1RollScannable, cam1RollPos);
-	}
-
-	@Override
-	public void moveCam1X(IProgressMonitor monitor, double cam1xPos) throws DeviceException, InterruptedException {
-		moveMotor(monitor, cam1XScannable, cam1xPos);
-	}
-
-	@Override
-	public void moveCam1Z(IProgressMonitor monitor, Double cam1zPos) throws DeviceException, InterruptedException {
-		moveMotor(monitor, cam1ZScannable, cam1zPos);
 	}
 
 	@Override
@@ -583,36 +422,6 @@ public class TomoAlignmentMotorHandler implements IMotorHandler {
 		return ss1RzScannable.getDemandPositionTolerance();
 	}
 
-	@Override
-	public double getT3m1yOffset() throws DeviceException {
-		return t3m1yScannable.getUserOffset();
-	}
-
-	@Override
-	public double getT3m1zOffset() throws DeviceException {
-		return t3m1zScannable.getUserOffset();
-	}
-
-	@Override
-	public double getT3xOffset() throws DeviceException {
-		return t3xScannable.getUserOffset();
-	}
-
-	@Override
-	public String getT3XMotorName() {
-		return t3xScannable.getName();
-	}
-
-	@Override
-	public String getT3m1ZMotorName() {
-		return t3m1zScannable.getName();
-	}
-
-	@Override
-	public String getT3m1YMotorName() {
-		return t3m1yScannable.getName();
-	}
-
 	public void setDefaultSampleInPosition(Double defaultSampleInPosition) {
 		this.defaultSampleInPosition = defaultSampleInPosition;
 	}
@@ -650,11 +459,6 @@ public class TomoAlignmentMotorHandler implements IMotorHandler {
 	@Override
 	public String getVerticalMotorName() {
 		return ss1Y2Scannable.getName();
-	}
-
-	@Override
-	public String getCameraStageZMotorName() {
-		return t3m1zScannable.getName();
 	}
 
 	@Override

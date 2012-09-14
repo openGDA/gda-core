@@ -22,7 +22,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 import uk.ac.gda.client.tomo.TiltPlotPointsHolder;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ITiltController;
-import uk.ac.gda.ui.components.ModuleButtonComposite.CAMERA_MODULE;
+import uk.ac.gda.client.tomo.composites.ModuleButtonComposite.CAMERA_MODULE;
 
 /**
  *

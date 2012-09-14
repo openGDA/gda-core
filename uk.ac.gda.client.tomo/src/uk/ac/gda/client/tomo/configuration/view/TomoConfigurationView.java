@@ -32,7 +32,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.commands.operations.IOperationHistoryListener;
@@ -108,6 +107,7 @@ import uk.ac.gda.client.tomo.TomoClientActivator;
 import uk.ac.gda.client.tomo.TomoClientConstants;
 import uk.ac.gda.client.tomo.alignment.view.ImageLocationRelTheta;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ITomoConfigResourceHandler;
+import uk.ac.gda.client.tomo.composites.CameraControlComposite.RESOLUTION;
 import uk.ac.gda.client.tomo.composites.StitchedImageCanvas;
 import uk.ac.gda.client.tomo.composites.StitchedImageCanvas.StitchConfig;
 import uk.ac.gda.client.tomo.configuration.view.handlers.IScanControllerUpdateListener;
@@ -125,7 +125,6 @@ import uk.ac.gda.tomography.parameters.ScanMode;
 import uk.ac.gda.tomography.parameters.StitchParameters;
 import uk.ac.gda.tomography.parameters.TomoExperiment;
 import uk.ac.gda.tomography.parameters.TomoParametersPackage;
-import uk.ac.gda.ui.components.CameraControlComposite.RESOLUTION;
 
 /**
  *

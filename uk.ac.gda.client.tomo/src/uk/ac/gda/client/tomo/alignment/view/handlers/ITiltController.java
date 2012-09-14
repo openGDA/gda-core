@@ -21,7 +21,7 @@ package uk.ac.gda.client.tomo.alignment.view.handlers;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import uk.ac.gda.client.tomo.TiltPlotPointsHolder;
-import uk.ac.gda.ui.components.ModuleButtonComposite.CAMERA_MODULE;
+import uk.ac.gda.client.tomo.composites.ModuleButtonComposite.CAMERA_MODULE;
 
 /**
  * The tilt controller handles the implementation for the tilt alignment. For i12 a special sample is placed on the

@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd.
+ * Copyright © 2011 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,21 +16,24 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.client.tomo.alignment.view.handlers.simulator;
+package uk.ac.gda.client.tomo.composites;
 
-import org.eclipse.core.runtime.IProgressMonitor;
+import java.lang.reflect.InvocationTargetException;
 
-import uk.ac.gda.client.tomo.TiltPlotPointsHolder;
-import uk.ac.gda.client.tomo.alignment.view.handlers.impl.TiltController;
 import uk.ac.gda.client.tomo.composites.ModuleButtonComposite.CAMERA_MODULE;
 
 /**
- *
+ * Change listener interface so that action can be taken upon change to the modules
  */
-public class TiltTestController extends TiltController {
-	@Override
-	public TiltPlotPointsHolder doTilt(IProgressMonitor monitor, CAMERA_MODULE module, double exposureTime)
-			throws Exception {
-		return getPlottablePoint("/dls/i12/data/2012/cm5706-2/default/5793/projections/", "/dls/i12/data/2012/cm5706-2/default/5793/projections/");
-	}
+public interface IModuleChangeListener {
+	/**
+	 * propagates the new module to all the module change listeners.
+	 * 
+	 * @param oldModule
+	 * @param newModule
+	 * @throws InterruptedException
+	 * @throws InvocationTargetException
+	 */
+	void moduleChanged(CAMERA_MODULE oldModule, CAMERA_MODULE newModule) throws InterruptedException,
+			InvocationTargetException;
 }
