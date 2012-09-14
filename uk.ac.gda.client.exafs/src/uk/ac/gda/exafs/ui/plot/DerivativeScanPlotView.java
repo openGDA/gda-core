@@ -18,7 +18,6 @@
 
 package uk.ac.gda.exafs.ui.plot;
 
-import gda.exafs.scan.ExafsScanPointCreator;
 import gda.scan.IScanDataPoint;
 
 import org.slf4j.Logger;
@@ -28,8 +27,6 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Maths;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.DataSetPlotData;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
-import uk.ac.gda.beans.exafs.IScanParameters;
-import uk.ac.gda.exafs.ui.data.ScanObjectManager;
 
 /**
  * This class assumes that the point with energy less than A are to be included in the pre-edge.
@@ -46,8 +43,6 @@ public class DerivativeScanPlotView extends ExafsScanPlotView {
 		setSampleRate(1000);
 	}
 
-	private double kStartEnergy;
-
 	/**
 	 * Assumes that the cachedLn and cachedX arrays are fully up to date
 	 */
@@ -55,43 +50,17 @@ public class DerivativeScanPlotView extends ExafsScanPlotView {
 	protected IPlotData getY(IScanDataPoint... points) {
 
 		if (cachedY.size() <= 3) {
-			return null; // cannot estimate edge
+			return null; // cannot estimate derivative
 		}
 
 		try {
 			final AbstractDataset energy = AbstractDataset.createFromList(cachedX);
 			final AbstractDataset lnI0It = AbstractDataset.createFromList(cachedY);
-			Double[] edgePos = xafsFittingUtils.estimateEdgePosition(energy, lnI0It);
-			if (edgePos != null && edgePos[0] > (edgePos[1] + 200.0)) {
-				AbstractDataset norm = xafsFittingUtils.getNormalisedIntensity(energy, lnI0It);
-				AbstractDataset derv = Maths.derivative(energy, norm, 1);
-				return new DataSetPlotData(getYAxis(), derv);
-			}
+			AbstractDataset derv = Maths.derivative(energy, lnI0It, 1);
+			return new DataSetPlotData(getYAxis(), derv);
 		} catch (Exception e) {
 			logger.warn("Exception in XafsFittingUtils calculating Derivative",e);
 			return null;
-		}
-		return null;
-	}
-
-	@Override
-	protected boolean calculateA() {
-		if (!super.calculateA())
-			return false;
-		this.kStartEnergy = getKStartEnergy();
-		return true;
-	}
-
-	private double getKStartEnergy() {
-		try {
-			IScanParameters currentScan = ScanObjectManager.getCurrentScan();
-			if (currentScan == null)
-				return kStartEnergy; // Leave as last calculated
-
-			// final Object params = currentScan.getScanParameters();
-			return ExafsScanPointCreator.getStartOfConstantKRegion(currentScan);
-		} catch (Exception e) {
-			return a + 300;
 		}
 	}
 
