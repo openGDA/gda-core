@@ -27,13 +27,11 @@ import gda.util.TestUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.IRichBean;
-import uk.ac.gda.util.PackageUtils;
-//@Ignore("2010/03/04 Test ignored as ScalerMFMappableDataProvider now calls getExtensionRegistry, so this needs to be converted to a Plug-in Test.")
+
 public class ScalerMFMappableDataProviderTest {
 	
 	
@@ -60,7 +58,7 @@ public class ScalerMFMappableDataProviderTest {
 		scalerDataProvider.setYScannableName("sc_MicroFocusSampleY");
 		scalerDataProvider.setZScannableName("sc_sample_z");
 		scalerDataProvider.setSelectedElement("I0");
-		scalerDataProvider.setBeanFilePath(PackageUtils.getTestPath(getClass(), "test")+"Detector_Parameters.xml");
+		scalerDataProvider.setBeanFilePath("testfiles/uk/ac/gda/client/microfocus/util/ScalerMFMappableDataProviderTest/Detector_Parameters.xml");
 		scalerDataProvider.loadBean();
 		
 	}
@@ -80,7 +78,7 @@ public class ScalerMFMappableDataProviderTest {
 	@Test
 	public void testLoadData() throws Exception
 	{
-		scalerDataProvider.loadData(PackageUtils.getTestPath(getClass(), "test")+"vortex_map_1_8472.nxs");
+		scalerDataProvider.loadData("testfiles/uk/ac/gda/client/microfocus/util/vortex_map_1_8472.nxs");
 		Double[] x = scalerDataProvider.getXarray();
 		assertEquals(11, x.length);
 		Double[] y = scalerDataProvider.getYarray();
@@ -95,7 +93,7 @@ public class ScalerMFMappableDataProviderTest {
 	@Test
 	public void testConstructMappableDatafromCounter() throws Exception
 	{
-		scalerDataProvider.loadData(PackageUtils.getTestPath(getClass(), "test")+"i18-284.nxs");
+		scalerDataProvider.loadData("testfiles/uk/ac/gda/client/microfocus/util/i18-284.nxs");
 		double d[][] = scalerDataProvider.constructMappableData();
 		assertEquals(99379.0, d[0][0], 0.0);
 		assertEquals(3, d.length);

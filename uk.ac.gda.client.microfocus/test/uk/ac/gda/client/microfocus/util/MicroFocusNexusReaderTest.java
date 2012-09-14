@@ -31,7 +31,6 @@ import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.vortex.RegionOfInterest;
 import uk.ac.gda.beans.xspress.XspressROI;
-import uk.ac.gda.util.PackageUtils;
 
 public class MicroFocusNexusReaderTest {
 	private static MicroFocusNexusReader rdr;
@@ -64,7 +63,7 @@ public class MicroFocusNexusReaderTest {
 	public void testGetWindowsfromBean() throws Exception
 	{
 		
-		List<XspressROI>[] rois = rdr.getWindowsfromBean(PackageUtils.getTestPath(getClass(), "test")+ "Xspress_Parameters.xml");
+		List<XspressROI>[] rois = rdr.getWindowsfromBean("testfiles/uk/ac/gda/client/microfocus/util/Xspress_Parameters.xml");
 		assertEquals(9, rois.length);
 		assertEquals("fe",rois[0].get(0).getRoiName());
 		assertEquals(3, rois[0].size());
@@ -74,7 +73,7 @@ public class MicroFocusNexusReaderTest {
 	@SuppressWarnings("unused")
 	public void testLoadData() throws Exception
 	{
-		rdr.loadData(PackageUtils.getTestPath(getClass(), "test")+"i18-284.nxs");
+		rdr.loadData("testfiles/uk/ac/gda/client/microfocus/util/i18-284.nxs");
 		Double[] x = rdr.getXValues();
 		assertEquals(5, x.length);
 		Double[] y = rdr.getYValues();
@@ -113,7 +112,7 @@ public class MicroFocusNexusReaderTest {
 	@Test
 	public void testLoadData2() throws Exception
 	{
-		rdr2.loadData(PackageUtils.getTestPath(getClass(), "test")+"i18-130.nxs");
+		rdr2.loadData("testfiles/uk/ac/gda/client/microfocus/util/i18-130.nxs");
 		Double[] x = rdr2.getXValues();
 		assertEquals(5, x.length);
 		Double[] y = rdr2.getYValues();
@@ -127,7 +126,7 @@ public class MicroFocusNexusReaderTest {
 	@Test
 	public void testConstructMappableDatafromCounter() throws Exception
 	{
-		rdr2.loadData(PackageUtils.getTestPath(getClass(), "test")+"i18-130.nxs");
+		rdr2.loadData("testfiles/uk/ac/gda/client/microfocus/util/i18-130.nxs");
 		double d[][] = rdr2.constructMappableDatafromCounter("I0");
 		assertEquals(134803.0, d[0][0], 0.0);
 		assertEquals(3, d.length);
@@ -139,7 +138,7 @@ public class MicroFocusNexusReaderTest {
 	@Test
 	public void testLoadData3() throws Exception
 	{
-		rdr3.loadData(PackageUtils.getTestPath(getClass(), "test")+"i18-173.nxs");
+		rdr3.loadData("testfiles/uk/ac/gda/client/microfocus/util/i18-173.nxs");
 		Double[] x = rdr3.getXValues();
 		assertEquals(6, x.length);
 		Double[] y = rdr3.getYValues();
@@ -153,8 +152,8 @@ public class MicroFocusNexusReaderTest {
 	@Test
 	public void testConstructMappableDatafromXmap() throws Exception
 	{
-		rdr3.loadData(PackageUtils.getTestPath(getClass(), "test")+"i18-173.nxs");
-		List<RegionOfInterest>[] roi = rdr3.getWindowsfromVortexBean(PackageUtils.getTestPath(getClass(), "test")+ "Vortex_Parameters.xml");
+		rdr3.loadData("testfiles/uk/ac/gda/client/microfocus/util/i18-173.nxs");
+		List<RegionOfInterest>[] roi = rdr3.getWindowsfromVortexBean("testfiles/uk/ac/gda/client/microfocus/util/Vortex_Parameters.xml");
 		assertEquals(roi.length, 4, 0);
 		double d[][] = rdr3.constructMappableDatafromXmap("Pb");
 		assertEquals(1.8190637E7, d[0][0], 0.0);

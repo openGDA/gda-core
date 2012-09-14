@@ -33,7 +33,7 @@ import org.junit.Test;
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.xspress.XspressROI;
-import uk.ac.gda.util.PackageUtils;
+
 @Ignore("2010/03/04 Test ignored as MicroFocusMappableDataProvider now calls getExtensionRegistry, so this needs to be converted to a Plug-in Test.")
 public class XspressMFMappableDataProviderTest {
 	final static String testScratchDirectoryName =
@@ -56,7 +56,7 @@ public class XspressMFMappableDataProviderTest {
 	@Test
 	public void testGetWindowsfromBean()
 	{
-		XspressDataProvider.setBeanFilePath(PackageUtils.getTestPath(getClass(), "test")+ "Xspress_Parameters.xml");
+		XspressDataProvider.setBeanFilePath("testfiles/uk/ac/gda/client/microfocus/util/Xspress_Parameters.xml");
 		XspressDataProvider.loadBean();
 		List<XspressROI>[] rois = XspressDataProvider.getElementRois();
 		assertEquals(9, rois.length);
@@ -69,7 +69,7 @@ public class XspressMFMappableDataProviderTest {
 	public void testLoadData()
 	{
 		//XspressDataProvider.loadData(PackageUtils.getTestPath(getClass(), "test")+"i18-284.nxs");
-		XspressDataProvider.loadData(PackageUtils.getTestPath(getClass(), "test")+"vortex_map_1_8472.nxs");
+		XspressDataProvider.loadData("testfiles/uk/ac/gda/client/microfocus/util/vortex_map_1_8472.nxs");
 		Double[] x = XspressDataProvider.getXarray();
 		assertEquals(11, x.length);
 		Double[] y = XspressDataProvider.getYarray();

@@ -45,7 +45,6 @@ import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.RegionOfInterest;
 import uk.ac.gda.beans.vortex.VortexParameters;
-import uk.ac.gda.util.PackageUtils;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class TwoWayMicroFocusWriterExtenderTest {
@@ -90,15 +89,15 @@ public class TwoWayMicroFocusWriterExtenderTest {
 		mfWriterExtender.setSelectedElement("I0");
 		mfWriterExtender.setDetectors(new Detector[]{scaler, xmapDet});
 		mfWriterExtender.setRoiNames(new String[]{"Fe_Ka", "Mn_Ka"});
-        mfWriterExtender.setDetectorBeanFileName(PackageUtils.getTestPath(getClass(), "test")+"Vortex_Parameters.xml");
+        mfWriterExtender.setDetectorBeanFileName("testfiles/uk/ac/gda/client/microfocus/scan/datawriter/Vortex_Parameters.xml");
         mfWriterExtender.getWindowsfromBean();
 	}
 	public void configureScanDataPoints() throws Exception{
 		numberOfScanDataPoints = 22;
 		numberOfXPoints= 11;
 		numberOfYPoints = 2;
-		vortexParameters = (VortexParameters) XMLHelpers.createFromXML(VortexParameters.mappingURL, VortexParameters.class, VortexParameters.schemaURL, (new File(PackageUtils.getTestPath(getClass(), "test")+"Vortex_Parameters.xml")));
-		fileLoader = new XmapNexusFileLoader(PackageUtils.getTestPath(getClass(), "test")+"i18-6931-0-raster_xmap.h5");
+		vortexParameters = (VortexParameters) XMLHelpers.createFromXML(VortexParameters.mappingURL, VortexParameters.class, VortexParameters.schemaURL, (new File("testfiles/uk/ac/gda/client/microfocus/scan/datawriter/Vortex_Parameters.xml")));
+		fileLoader = new XmapNexusFileLoader("testfiles/uk/ac/gda/client/microfocus/scan/datawriter/i18-6931-0-raster_xmap.h5");
 		fileLoader.loadFile();
 		pointsList = new ScanDataPoint[numberOfScanDataPoints];
 		for(int i =0 ; i < pointsList.length; i++){
@@ -107,7 +106,7 @@ public class TwoWayMicroFocusWriterExtenderTest {
 			pointsList[i].setNumberOfPoints(numberOfScanDataPoints);
 			pointsList[i].setCurrentPointNumber(i);
 			pointsList[i].addScannable(yScannable);
-			pointsList[i].addScannable(xScannable);			
+			pointsList[i].addScannable(xScannable);
 			pointsList[i].addDetector(scaler);
 			pointsList[i].addDetector(xmapDet);
 			
@@ -124,7 +123,7 @@ public class TwoWayMicroFocusWriterExtenderTest {
 			pointsList[i].addDetectorData(new double[]{100 +i,200+i, 300+i}, new String[]{"%9d","%9d","%9d"});
 			pointsList[i].addDetectorData(getXmapNXdata(i, fileLoader.getData(i)), new String[]{"%s"});
 			
-			pointsList[i].setCurrentFilename(PackageUtils.getTestPath(getClass(), "test")+"80_name_1.nxs");
+			pointsList[i].setCurrentFilename("testfiles/uk/ac/gda/client/microfocus/scan/datawriter/80_name_1.nxs");
 		}
 		
 	}
@@ -132,8 +131,8 @@ public class TwoWayMicroFocusWriterExtenderTest {
 		numberOfScanDataPoints = 22;
 		numberOfXPoints= 11;
 		numberOfYPoints = 2;
-		vortexParameters = (VortexParameters) XMLHelpers.createFromXML(VortexParameters.mappingURL, VortexParameters.class, VortexParameters.schemaURL, (new File(PackageUtils.getTestPath(getClass(), "test")+"Vortex_Parameters.xml")));
-		fileLoader = new XmapNexusFileLoader(PackageUtils.getTestPath(getClass(), "test")+"i18-6931-0-raster_xmap.h5");
+		vortexParameters = (VortexParameters) XMLHelpers.createFromXML(VortexParameters.mappingURL, VortexParameters.class, VortexParameters.schemaURL, (new File("testfiles/uk/ac/gda/client/microfocus/scan/datawriter/Vortex_Parameters.xml")));
+		fileLoader = new XmapNexusFileLoader("testfiles/uk/ac/gda/client/microfocus/scan/datawriter/i18-6931-0-raster_xmap.h5");
 		fileLoader.loadFile();
 		pointsList = new ScanDataPoint[numberOfScanDataPoints];
 		int reverseCounter =1;
@@ -143,7 +142,7 @@ public class TwoWayMicroFocusWriterExtenderTest {
 			pointsList[i].setNumberOfPoints(numberOfScanDataPoints);
 			pointsList[i].setCurrentPointNumber(i);
 			pointsList[i].addScannable(yScannable);
-			pointsList[i].addScannable(xScannable);			
+			pointsList[i].addScannable(xScannable);
 			pointsList[i].addDetector(scaler);
 			pointsList[i].addDetector(xmapDet);
 			
@@ -161,7 +160,7 @@ public class TwoWayMicroFocusWriterExtenderTest {
 			pointsList[i].addDetectorData(new double[]{100 +i,200+i, 300+i}, new String[]{"%9d","%9d","%9d"});
 			pointsList[i].addDetectorData(getXmapNXdata(i, fileLoader.getData(i)), new String[]{"%s"});
 			
-			pointsList[i].setCurrentFilename(PackageUtils.getTestPath(getClass(), "test")+"80_name_1.nxs");
+			pointsList[i].setCurrentFilename("testfiles/uk/ac/gda/client/microfocus/scan/datawriter/80_name_1.nxs");
 		}
 		
 	}

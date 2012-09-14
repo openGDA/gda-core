@@ -27,9 +27,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
-import uk.ac.gda.util.PackageUtils;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
-
 
 public class MicroFocusScanParametersTest {
 	final static String testScratchDirectoryName =
@@ -45,7 +43,7 @@ public class MicroFocusScanParametersTest {
 			final MicroFocusScanParameters s = (MicroFocusScanParameters)XMLHelpers.createFromXML(MicroFocusScanParameters.mappingURL, 
 					MicroFocusScanParameters.class, 
 					MicroFocusScanParameters.schemaUrl, 
-					new File(PackageUtils.getTestPath(getClass(), "test") + "MicroFocus_Parameters.xml"));
+					new File("testfiles/uk/ac/gda/microfocus/beans/MicroFocusScanParametersTest/MicroFocus_Parameters.xml"));
 			System.out.println(s);
 		} catch (Exception ex) {
 			fail("Invalid exception thrown - " + ex.getCause().getMessage());
@@ -73,7 +71,7 @@ public class MicroFocusScanParametersTest {
 		mfp.setContinuousScannableName("sc_sample_z");
 		mfp.setRaster(true);
 		mfp.setRowTime(10.0);
-		MicroFocusScanParameters s = MicroFocusScanParameters.createFromXML(PackageUtils.getTestPath(getClass(), "test") + "MFParameters_Valid.xml");
+		MicroFocusScanParameters s = MicroFocusScanParameters.createFromXML("testfiles/uk/ac/gda/microfocus/beans/MicroFocusScanParametersTest/MFParameters_Valid.xml");
 		if (!mfp.equals(s)) {
 			fail("Values read are incorrect - " + s.toString());
 		}

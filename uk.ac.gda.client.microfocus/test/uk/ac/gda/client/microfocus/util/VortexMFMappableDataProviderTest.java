@@ -29,15 +29,12 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.vortex.RegionOfInterest;
-import uk.ac.gda.util.PackageUtils;
 
-//@Ignore("2010/03/04 Test ignored as MicroFocusMappableDataProvider now calls getExtensionRegistry, so this needs to be converted to a Plug-in Test.")
 public class VortexMFMappableDataProviderTest {
 	final static String testScratchDirectoryName =
 		TestUtils.generateDirectorynameFromClassname(VortexMFMappableDataProviderTest.class.getCanonicalName());
@@ -61,7 +58,7 @@ public class VortexMFMappableDataProviderTest {
 		vortexDataProvider.setYScannableName("sc_MicroFocusSampleY");
 		vortexDataProvider.setZScannableName("sc_sample_z");
 		vortexDataProvider.setSelectedElement("Pb");
-		vortexDataProvider.setBeanFilePath(PackageUtils.getTestPath(getClass(), "test")+"Vortex_Parameters.xml");
+		vortexDataProvider.setBeanFilePath("testfiles/uk/ac/gda/client/microfocus/util/Vortex_Parameters.xml");
 		vortexDataProvider.loadBean();
 	}
 	
@@ -76,7 +73,7 @@ public class VortexMFMappableDataProviderTest {
 	@Test
 	public void testLoadData() throws Exception
 	{		
-		vortexDataProvider.loadData(PackageUtils.getTestPath(getClass(), "test")+"i18-286.nxs");
+		vortexDataProvider.loadData("testfiles/uk/ac/gda/client/microfocus/util/i18-286.nxs");
 		Double[] x = vortexDataProvider.getXarray();
 		assertEquals(4, x.length);
 		Double[] y = vortexDataProvider.getYarray();
@@ -91,7 +88,7 @@ public class VortexMFMappableDataProviderTest {
 	@Test
 	public void testConstructMappableDatafromXmap() throws Exception
 	{	
-		vortexDataProvider.loadData(PackageUtils.getTestPath(getClass(), "test")+"i18-286.nxs");		
+		vortexDataProvider.loadData("testfiles/uk/ac/gda/client/microfocus/util/i18-286.nxs");
 		
 		double d[][] = vortexDataProvider.constructMappableData();
 		assertEquals(6.295973882E9, d[0][0], 0.0);
@@ -106,7 +103,7 @@ public class VortexMFMappableDataProviderTest {
 	@Test
 	public void testConstructMappableDatafromXmap2() throws Exception
 	{	
-		vortexDataProvider.loadData(PackageUtils.getTestPath(getClass(), "test")+"i18-286.nxs");		
+		vortexDataProvider.loadData("testfiles/uk/ac/gda/client/microfocus/util/i18-286.nxs");
 		vortexDataProvider.setSelectedElement("Pb");
 		double d[][] = vortexDataProvider.constructMappableData();
 		assertEquals(6.295973882E9, d[0][0], 0.0);
@@ -124,9 +121,9 @@ public class VortexMFMappableDataProviderTest {
 	@Test
 	public void testGetSpectrum() throws Exception
 	{
-		vortexDataProvider.setBeanFilePath(PackageUtils.getTestPath(getClass(), "test")+"Vortex_Parameters.xml");
+		vortexDataProvider.setBeanFilePath("testfiles/uk/ac/gda/client/microfocus/util/Vortex_Parameters.xml");
 		vortexDataProvider.loadBean();
-		vortexDataProvider.loadData(PackageUtils.getTestPath(getClass(), "test")+"i18-286.nxs");
+		vortexDataProvider.loadData("testfiles/uk/ac/gda/client/microfocus/util/i18-286.nxs");
 		vortexDataProvider.setSelectedElement("Pb");
 		//vortexDataProvider.constructMappableData();
 		double[] d = vortexDataProvider.getSpectrum(0, 0, 0);
