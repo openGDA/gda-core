@@ -25,7 +25,6 @@ import java.io.FileReader;
 import org.junit.Test;
 
 import uk.ac.gda.util.CorrectionUtils;
-import uk.ac.gda.util.PackageUtils;
 import uk.ac.gda.util.number.DoubleUtils;
 
 /**
@@ -37,8 +36,8 @@ public class CorrectionTest {
 	@Test
 	public void testCorrectionFactorCalculation() throws Exception {
 		
-		final File data =  new File(PackageUtils.getTestPath(getClass(), "test") + "43490.dat");
-		final File corr =  new File(PackageUtils.getTestPath(getClass(), "test") + "43490_corr.dat");
+		final File data =  new File("testfiles/gda/util/CorrectionTest/43490.dat");
+		final File corr =  new File("testfiles/gda/util/CorrectionTest/43490_corr.dat");
 		
 		final BufferedReader dat = new BufferedReader(new FileReader(data));
 		final BufferedReader cor = new BufferedReader(new FileReader(corr));
