@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Common Plug-in
+Bundle-Name: GDA Common RCP
 Bundle-SymbolicName: uk.ac.gda.common.rcp;singleton:=true
 Eclipse-RegisterBuddy: uk.ac.gda.libs
 Bundle-Version: 1.2.0.qualifier
