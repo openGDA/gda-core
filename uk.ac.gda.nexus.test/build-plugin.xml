@@ -50,7 +50,7 @@
                 <pathelement location="${workspace.loc}/tp/plugins/*" />
             </classpath>
             <batchtest todir="@{report.dir}">
-                <fileset dir="${GDA-plugin.basedir}/test">
+                <fileset dir="${GDA-plugin.basedir}/src">
                     <include name="**/*Test.java" />
                     <exclude name="**/NexusExtractorTest.java${exclude_if_RH5}" />  <!-- doesn't always work on RedHat 5 -->
                     <exclude name="**/NexusReadinTest.java${exclude_if_RH5}" />  <!-- doesn't always work on RedHat 5 -->
