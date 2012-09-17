@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: GDA Core Analysis plugin
+Bundle-Name: GDA Core Analysis
 Bundle-SymbolicName: uk.ac.gda.analysis;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
