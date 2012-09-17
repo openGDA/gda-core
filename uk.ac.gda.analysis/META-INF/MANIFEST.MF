@@ -5,8 +5,7 @@ Bundle-SymbolicName: uk.ac.gda.analysis;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: Diamond Light Source
-Export-Package: gda,
- gda.analysis,
+Export-Package: gda.analysis,
  gda.analysis.datastructure,
  gda.analysis.datastructure.event,
  gda.analysis.datavector,
@@ -60,7 +59,6 @@ Require-Bundle: uk.ac.diamond.scisoft.analysis;bundle-version="1.0.0",
  uk.ac.gda.common,
  uk.ac.gda.nexus,
  uk.ac.gda.api,
- org.junit4;bundle-version="4.8.1",
  uk.ac.diamond.CBFlib;bundle-version="1.0.0",
  uk.ac.diamond.org.jfree.chart;bundle-version="1.0.0",
  ncsa.hdf;bundle-version="2.7.0"
