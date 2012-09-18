@@ -17,6 +17,7 @@
  */
 package uk.ac.diamond.tomography.reconstruction.views;
 
+import gda.analysis.io.ScanFileHolderException;
 import gda.util.OSCommandRunner;
 import gda.util.OSCommandRunner.LOGOPTION;
 
@@ -44,8 +45,10 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -55,7 +58,9 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.ISelectionListener;
@@ -76,6 +81,9 @@ import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
+import uk.ac.diamond.scisoft.analysis.io.DataHolder;
+import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.diamond.tomography.reconstruction.Activator;
 import uk.ac.diamond.tomography.reconstruction.ReconUtil;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.BackprojectionType;
@@ -278,46 +286,19 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 		btnPreview.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e1) {
-
-				saveModel();
-
-				Bundle bundle = Platform.getBundle(Activator.PLUGIN_ID);
-				URL shFileURL = bundle.getEntry(SCRIPTS_TOMODO_SH);
-				URL pyFileURL = bundle.getEntry(SCRIPTS_TOMODO_PY);
-				File tomoDoPyScript = null;
-				File tomoDoShScript = null;
-				try {
-					tomoDoPyScript = new File(FileLocator.resolve(pyFileURL).toURI());
-					tomoDoShScript = new File(FileLocator.resolve(shFileURL).toURI());
-
-					IPath fullPath = nexusFile.getLocation();
-					Path fullPathCp = new Path(fullPath.toOSString());
-					IPath pathWithoutLastSegment = fullPathCp.removeLastSegments(1);
-					IPath outdir = pathWithoutLastSegment.append("processing");
-
-					String fileName = fullPath.toOSString();
-
-					String pyScriptName = tomoDoPyScript.getAbsolutePath();
-					String shScriptName = tomoDoShScript.getAbsolutePath();
-					String templateFileName = hmSettingsInProcessingDir.getAbsolutePath();
-					String command = String
-							.format("%s %s -f %s --stageInBeamPhys -2.27 --stageOutOfBeamPhys -1.17 --outdir %s --sino --recon --quick --template %s",
-									shScriptName, pyScriptName, fileName, outdir, templateFileName);
-					logger.debug("Command that will be run:{}", command);
-					OSCommandRunner.runNoWait(command, LOGOPTION.ALWAYS, null);
-				} catch (URISyntaxException e) {
-					logger.error("TODO put description of error here", e);
-				} catch (IOException e) {
-					logger.error("TODO put description of error here", e);
-				}
-
+				runReconScript(true);
 			}
 		});
 
 		Button btnRunFullRecon = new Button(cmpButtons, SWT.PUSH);
 		btnRunFullRecon.setText(FULL_RECONSTRUCTION);
 		btnRunFullRecon.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
+		btnRunFullRecon.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e1) {
+				runReconScript(false);
+			}
+		});
 		Button btnAdvanced = new Button(cmpButtons, SWT.PUSH);
 		btnAdvanced.setText(ADVANCED_SETTINGS);
 		btnAdvanced.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -332,7 +313,155 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 		// Read settings file from resource and copy to /tmp
 		createSettingsFile();
 		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(this);
+	}
 
+	public static class SampleInOutBeamPosition extends Dialog {
+
+		private Text txtInBeamPos;
+		private Text txtOutBeamPos;
+		private Double inBeamPosition;
+		private Double outOfBeamPosition;
+
+		protected SampleInOutBeamPosition(Shell parentShell) {
+			super(parentShell);
+		}
+		
+		@Override
+		public void create() {
+			super.create();
+			getShell().setText("In/Out Beam positions");
+		}
+
+		@Override
+		protected Control createDialogArea(Composite parent) {
+			Composite cmp = new Composite(parent, SWT.None);
+			cmp.setLayout(new GridLayout(2, false));
+
+			Label lblErrStatus = new Label(cmp, SWT.None);
+			GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+			gd.horizontalSpan = 2;
+			lblErrStatus.setLayoutData(gd);
+
+			Label lblInBeamPos = new Label(cmp, SWT.None);
+			lblInBeamPos.setText("In Beam Position");
+			lblInBeamPos.setLayoutData(new GridData());
+
+			txtInBeamPos = new Text(cmp, SWT.BORDER);
+			txtInBeamPos.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+			Label lblOutBeamPos = new Label(cmp, SWT.None);
+			lblOutBeamPos.setText("Out of Beam Position");
+			lblOutBeamPos.setLayoutData(new GridData());
+
+			txtOutBeamPos = new Text(cmp, SWT.BORDER);
+			txtOutBeamPos.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+			return cmp;
+		}
+
+		@Override
+		protected void okPressed() {
+			if (isValid()) {
+				inBeamPosition = Double.parseDouble(txtInBeamPos.getText());
+				outOfBeamPosition = Double.parseDouble(txtOutBeamPos.getText());
+				super.okPressed();
+			}
+		}
+
+		private boolean isValid() {
+			return true;
+		}
+
+		public double getInBeamPosition() {
+			if (inBeamPosition != null) {
+				return inBeamPosition;
+			}
+			return Double.NaN;
+		}
+
+		public double getOutOfBeamPosition() {
+			if (outOfBeamPosition != null) {
+				return outOfBeamPosition;
+			}
+			return Double.NaN;
+		}
+	}
+
+	private void runReconScript(boolean quick) {
+		saveModel();
+
+		boolean isImageKeyAvailable = isImageKeyAvailable();
+		SampleInOutBeamPosition sampleInOutBeamPositionDialog = null;
+
+		if (!isImageKeyAvailable) {
+			// pop up a dialog and get values from it (in beam and out of beam physical positions
+			sampleInOutBeamPositionDialog = new SampleInOutBeamPosition(getSite().getShell());
+			int ret = sampleInOutBeamPositionDialog.open();
+
+			logger.debug("Image key is not available");
+			if (Window.CANCEL == ret) {
+				return;
+			}
+		}
+
+		Bundle bundle = Platform.getBundle(Activator.PLUGIN_ID);
+		URL shFileURL = bundle.getEntry(SCRIPTS_TOMODO_SH);
+		URL pyFileURL = bundle.getEntry(SCRIPTS_TOMODO_PY);
+		File tomoDoPyScript = null;
+		File tomoDoShScript = null;
+		try {
+			tomoDoPyScript = new File(FileLocator.resolve(pyFileURL).toURI());
+			tomoDoShScript = new File(FileLocator.resolve(shFileURL).toURI());
+
+			IPath fullPath = nexusFile.getLocation();
+			Path fullPathCp = new Path(fullPath.toOSString());
+			IPath pathWithoutLastSegment = fullPathCp.removeLastSegments(1);
+			IPath outdir = pathWithoutLastSegment.append("processing");
+
+			String fileName = fullPath.toOSString();
+
+			String pyScriptName = tomoDoPyScript.getAbsolutePath();
+			String shScriptName = tomoDoShScript.getAbsolutePath();
+			String templateFileName = hmSettingsInProcessingDir.getAbsolutePath();
+
+			StringBuffer command = new StringBuffer(String.format(
+					"%s %s -f %s --outdir %s --sino --recon --template %s", shScriptName, pyScriptName, fileName,
+					outdir, templateFileName));
+			if (quick) {
+				command.append(" --quick");
+			}
+
+			double inBeamVal = 0;
+			double outOfBeamVal = 0;
+
+			if (!isImageKeyAvailable && sampleInOutBeamPositionDialog != null) {
+				inBeamVal = sampleInOutBeamPositionDialog.getInBeamPosition();
+				outOfBeamVal = sampleInOutBeamPositionDialog.getOutOfBeamPosition();
+			}
+			command.append(String.format(" --stageInBeamPhys %s", inBeamVal));
+			command.append(String.format(" --stageOutOfBeamPhys %s", outOfBeamVal));
+			
+			logger.debug("Command that will be run:{}", command);
+			OSCommandRunner.runNoWait(command.toString(), LOGOPTION.ALWAYS, null);
+		} catch (URISyntaxException e) {
+			logger.error("TODO put description of error here", e);
+		} catch (IOException e) {
+			logger.error("TODO put description of error here", e);
+		}
+	}
+
+	private boolean isImageKeyAvailable() {
+		String path = nexusFile.getLocation().toOSString();
+		HDF5Loader hdf5Loader = new HDF5Loader(path);
+		DataHolder loadFile;
+		try {
+			loadFile = hdf5Loader.loadFile();
+			ILazyDataset dataset = loadFile.getLazyDataset("/entry1/instrument/tomoScanDevice/image_key");
+			return dataset != null;
+		} catch (ScanFileHolderException e1) {
+		} catch (IllegalArgumentException e2) {
+		}
+		return false;
 	}
 
 	private void openAdvancedSettings() {
@@ -740,7 +869,7 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 		if (selection instanceof IStructuredSelection) {
 			IStructuredSelection iss = (IStructuredSelection) selection;
 			Object firstElement = iss.getFirstElement();
-			nexusFile=null;
+			nexusFile = null;
 			if (firstElement instanceof IFile
 					&& Activator.NXS_FILE_EXTN.equals(((IFile) firstElement).getFileExtension())) {
 				nexusFile = (IFile) firstElement;
