@@ -439,6 +439,10 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 
 	private Object[] positionAtScanStart = null; // null indicates not operating in a scan
 
+	public void setPositionAtScanStart(Object[] positionAtScanStart) {
+		this.positionAtScanStart = positionAtScanStart;
+	}
+
 	private boolean usePositionAtScanStartWhenCompletingPartialMoves = true;
 
 	public boolean isUsePositionAtScanStartWhenCompletingPartialMoves() {
