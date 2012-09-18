@@ -473,8 +473,11 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 					throw new IOException("no sensible reply in ages");
 				}
 				if (multiline){
-					reply = reply.toString() + "\n" + parseReply(message).toString();
-					reply = reply.toString().trim();
+					Object replyObj = parseReply(message);
+					if (replyObj != null) {
+						reply = reply.toString() + "\n" + message.toString();
+						reply = reply.toString().trim();
+					}
 				} else {
 					reply = parseReply(message);
 				}
@@ -525,6 +528,9 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 			if (message.startsWith("* (null)")) {
 				return null;
 			} else if (message.charAt(2) == '"') {
+				if (message.charAt(3) == '#') {
+					return message.substring(4, message.length() - 1);
+				}
 				return message.substring(3, message.length() - 1);
 			} else {
 				try {

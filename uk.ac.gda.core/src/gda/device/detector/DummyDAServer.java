@@ -637,12 +637,14 @@ public class DummyDAServer extends DAServer {
 		}
 
 		public void restart() {
+			// to break out of wait() calls in loop
 			runner.interrupt();
 		}
 
 		public void stop() {
-			if ("RUNNING".equals(currentState)) {
-				stopRun = true;
+			stopRun = true;
+			// check OK to interrupt
+			if (runner != null && runner.isAlive() && !runner.isInterrupted()){
 				runner.interrupt();
 			}
 		}
@@ -658,7 +660,7 @@ public class DummyDAServer extends DAServer {
 							if (stopRun) {
 								throw new InterruptedException("Stopping run");
 							}
-							if (frameSet.getDeadPause() == 1) {
+							if (frameSet.getDeadPause() !=0) {
 								try {
 									currentState = "PAUSED";
 									wait();
@@ -709,6 +711,9 @@ public class DummyDAServer extends DAServer {
 	 * @throws InterruptedException
 	 */
 	private void waitDouble(double milliSeconds) throws InterruptedException {
+		if (milliSeconds == 0){
+			return;
+		}
 		double mS = Math.floor(milliSeconds);
 		double nS = (milliSeconds - mS) * 1.0E6;
 		synchronized (this) {

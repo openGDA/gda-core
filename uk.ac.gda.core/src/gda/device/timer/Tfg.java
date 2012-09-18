@@ -46,6 +46,8 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 	public static final String EXT_INHIBIT_ATTR_NAME = "Ext-Inhibit";
 
 	public static final String VME_START_ATTR_NAME = "VME-Start";
+	
+	public static final String SOFTWARE_START_AND_TRIG_ATTR_NAME = "software triggering";
 
 	private static final Logger logger = LoggerFactory.getLogger(Tfg.class);
 
@@ -58,6 +60,9 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 	protected boolean vmeStart = true;
 	//if true auto-rearm to added to the end of the setup-groups command rather than cycles
 	protected boolean autoReArm = false;
+	// if true then send tfg arm, tfg start. For the system to work correctly in 
+	// this situation then there must be a pause in every frame, including the first frame.
+	protected boolean softwareTriggering = false;
 	
 	protected boolean extInh = false;
 	protected int cycles = 1;
@@ -281,7 +286,7 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 	}
 
 	/**
-	 * Starts or arms a predefine frameset 
+	 * Starts or arms (or both) a predefine frameset 
 	 */
 	@Override
 	public synchronized void start() throws DeviceException {
@@ -290,7 +295,11 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 			throw new DeviceException(getName() + " no frames loaded");
 		}
 		
-		if (vmeStart) {
+		if (softwareTriggering){
+			daServer.sendCommand("tfg arm");
+			daServer.sendCommand("tfg start");
+			waitingForExtStart = false;
+		} else if (vmeStart) {
 			daServer.sendCommand("tfg start");
 		} else {
 			daServer.sendCommand("tfg arm");
@@ -460,6 +469,8 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 			autoReArm = ((Boolean) value).booleanValue();
 		} else if (VME_START_ATTR_NAME.equals(attributeName)) {
 			vmeStart = ((Boolean) value).booleanValue();
+		} else if (SOFTWARE_START_AND_TRIG_ATTR_NAME.equals(attributeName)) {
+			softwareTriggering = ((Boolean) value).booleanValue();
 		} else if (AUTO_CONTINUE_ATTR_NAME.equals(attributeName)) {
 			autoContinue = (Boolean) value ? 1 : 0;
 			checkOKToSendCommand();
@@ -495,6 +506,8 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 			obj = new Boolean(extInh);
 		} else if (AUTO_CONTINUE_ATTR_NAME.equals(attributeName)) {
 			obj = new Boolean((autoContinue == 1) ? true : false);
+		} else if (SOFTWARE_START_AND_TRIG_ATTR_NAME.equals(attributeName)) {
+			obj = new Boolean(softwareTriggering);
 		} else if ("User".equals(attributeName)) {
 			obj = user;
 		} else if ("Password".equals(attributeName)) {
