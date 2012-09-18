@@ -283,11 +283,11 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 				totalNumChecks++;
 				Thread.sleep(MILLI_SECONDS_BETWEEN_POLLS);
 				ScanBase.checkForInterrupts();
-				int numPollsPerMessage = SECONDS_BETWEEN_SLOW_FILE_ARRIVAL_MESSAGES / MILLI_SECONDS_BETWEEN_POLLS;
+				int numPollsPerMessage = SECONDS_BETWEEN_SLOW_FILE_ARRIVAL_MESSAGES *1000 / MILLI_SECONDS_BETWEEN_POLLS;
 				if (numChecksSinceLastMessage >= numPollsPerMessage) {
 					double totalSecondsPolling = totalNumChecks * MILLI_SECONDS_BETWEEN_POLLS / 1000.;
 					InterfaceProvider.getTerminalPrinter().print(
-							format("Waited {0}s for file '{0}' to be created.", filepath, totalSecondsPolling));
+							format("Waited " + totalSecondsPolling + "s for file '" + filepath + "' to be created."));
 					numChecksSinceLastMessage = 0;
 				}
 			}
