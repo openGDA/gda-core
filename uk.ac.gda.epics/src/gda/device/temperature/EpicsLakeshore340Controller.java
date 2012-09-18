@@ -20,6 +20,7 @@ package gda.device.temperature;
 
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
+import gda.configuration.epics.EpicsConfiguration;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.epics.connection.EpicsChannelManager;
@@ -46,6 +47,7 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 	/**
 	 * 
 	 */
+	@SuppressWarnings("unused")
 	private static final long serialVersionUID = 6189569607134958641L;
 
 	/**
@@ -125,7 +127,13 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 			if (getDeviceName() != null) {
 				Lakeshore340Type config;
 				try {
-					config = Configurator.getConfiguration(getDeviceName(), gda.epics.interfaces.Lakeshore340Type.class);
+					if (epicsConfiguration != null) {
+						logger.warn("EpicsLakeshore340Controller:configure:configure:epicsConfiguration != null {}", epicsConfiguration.toString());
+						config = epicsConfiguration.getConfiguration(getDeviceName(), gda.epics.interfaces.Lakeshore340Type.class);
+					} else {
+						config = Configurator.getConfiguration(getDeviceName(), gda.epics.interfaces.Lakeshore340Type.class);
+						logger.warn("EpicsLakeshore340Controller:configure:epicsConfiguration == null");
+					}
 					try {
 						createChannelAccess(config);
 						channelManager.tryInitialize(100);
@@ -363,6 +371,17 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 	 */
 	public String getConnectionState() {
 		return connState;
+	}
+
+	protected EpicsConfiguration epicsConfiguration;
+
+	/**
+	 * Sets the EpicsConfiguration to use when looking up PV from deviceName.
+	 * 
+	 * @param epicsConfiguration the EpicsConfiguration
+	 */
+	public void setEpicsConfiguration(EpicsConfiguration epicsConfiguration) {
+		this.epicsConfiguration = epicsConfiguration;
 	}
 
 	/**
