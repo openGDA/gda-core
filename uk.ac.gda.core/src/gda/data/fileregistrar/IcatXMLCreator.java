@@ -63,7 +63,7 @@ public class IcatXMLCreator {
 		String inv_type = "experiment";
 
 		IvestigationInfo() throws DeviceException {
-			instrument = metadata.getMetadataValue("instrument");
+			instrument = metadata.getMetadataValue("instrument", "gda.instrument", null);
 			instrument = xmlSanitze(instrument);
 			title = metadata.getMetadataValue("title");
 			title = xmlSanitze(title);

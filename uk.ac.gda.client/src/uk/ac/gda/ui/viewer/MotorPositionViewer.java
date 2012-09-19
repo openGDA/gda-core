@@ -201,6 +201,7 @@ public class MotorPositionViewer {
 				return Status.OK_STATUS;
 			}
 		};
+		refresh();//get initial values
 	}
 	
 

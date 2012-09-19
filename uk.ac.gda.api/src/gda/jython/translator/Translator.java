@@ -75,4 +75,5 @@ public interface Translator {
 	
 	public Vector<String> getAliasedVarargCommands();
 
+	public boolean ignoreRestOfLine(String thisGroup);
 }
