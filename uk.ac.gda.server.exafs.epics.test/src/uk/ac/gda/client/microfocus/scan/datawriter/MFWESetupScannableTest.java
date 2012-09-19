@@ -71,7 +71,7 @@ public class MFWESetupScannableTest {
 		tfg.configure();
 		XmapDetectorFromEpicsMca xmap = new XmapDetectorFromEpicsMca();
 		xmap.setName("xmap");
-		String filename = this.getClass().getResource("Vortex_Parameters.xml").getFile();
+		String filename = "testfiles/uk/ac/gda/client/microfocus/scan/datawriter/MFWESetupScannableTest/Vortex_Parameters.xml";
 		xmap.setConfigFileName(filename);
 		xmap.setAnalysers(Arrays.asList(new Analyser[]{mcaSimple}));
 		xmap.setPrefixExtraNameWithDetElement(false);
