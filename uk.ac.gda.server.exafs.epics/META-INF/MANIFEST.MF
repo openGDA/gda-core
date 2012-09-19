@@ -11,7 +11,6 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.epics;bundle-version="1.0.0",
  uk.ac.gda.libs;bundle-version="1.0.0",
  uk.ac.gda.nexus;bundle-version="1.0.0",
- org.junit4;bundle-version="4.8.1",
  uk.ac.gda.api,
  uk.ac.diamond.scisoft.analysis
 Bundle-ActivationPolicy: lazy

@@ -1,12 +1,11 @@
-# Ignores that are common to all Eclipse GDA plugin projects
-/@dot
-/@dot.log
+# ignore build output
 /bin
-/build.xml
-/javaCompiler...args
-/src/corba/
-/temp.folder
+
+# ignore backup and temporary files
+*~
+*.tmp
+*.bak
+
+# ignore test output
 /test-reports
 /test-scratch
-
-# Ignores that are specific to this Eclipse project

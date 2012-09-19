@@ -42,7 +42,7 @@ public class MFWESetupScannableTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void test() throws InterruptedException, Exception {
-		String testScratchDirectoryName = TestHelpers.setUpTest(MFWESetupScannableTest.class, "test", true);
+		TestHelpers.setUpTest(MFWESetupScannableTest.class, "test", true);
 		
 		SimpleScannable ix = new SimpleScannable();
 		ix.setName("ix");

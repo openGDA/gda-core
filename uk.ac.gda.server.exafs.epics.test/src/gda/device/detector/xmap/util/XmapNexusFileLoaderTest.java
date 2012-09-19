@@ -35,7 +35,7 @@ public class XmapNexusFileLoaderTest {
 	
 	}
 	@Test
-	public void testgetData() throws Exception {		
+	public void testgetData() {
 		short  [][]result = xMapLoader.getData(0);
 		assertEquals(result[0][513], (short)0);
 	}

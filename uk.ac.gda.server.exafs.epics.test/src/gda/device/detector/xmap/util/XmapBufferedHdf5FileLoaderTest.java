@@ -1,10 +1,3 @@
-package gda.device.detector.xmap.util;
-
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Before;
-import org.junit.Test;
-
 /*-
  * Copyright © 2012 Diamond Light Source Ltd.
  *
@@ -23,9 +16,14 @@ import org.junit.Test;
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
+package gda.device.detector.xmap.util;
+
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Before;
+import org.junit.Test;
+
 public class XmapBufferedHdf5FileLoaderTest {
-	
-	
 	
 	XmapBufferedHdf5FileLoader xMapLoader;
 	@Before
