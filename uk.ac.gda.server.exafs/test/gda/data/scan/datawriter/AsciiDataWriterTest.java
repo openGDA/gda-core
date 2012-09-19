@@ -142,7 +142,7 @@ public class AsciiDataWriterTest {
 			// test the file written
 			writer.completeCollection();
 			FileReader file = new FileReader(writer.fileUrl);
-			FileReader cfile = new FileReader(this.getClass().getResource("0.dat").getFile());
+			FileReader cfile = new FileReader("testfiles/gda/data/scan/datawriter/AsciiDataWriterTest/0.dat");
 
 			String contents = "";
 			String contents1 = "";

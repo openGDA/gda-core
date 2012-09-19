@@ -45,7 +45,7 @@ import uk.ac.gda.beans.xspress.XspressROI;
  */
 public class Xspress2SystemTest {
 	private static Xspress2System xspress = new Xspress2System();
-	final static String TestFileFolder = "test/gda/device/detector/xspress/TestFiles/";
+	final static String TestFileFolder = "testfiles/gda/device/detector/xspress";
 	static String testScratchDirectoryName = null;
 
 	/**
@@ -224,7 +224,7 @@ public class Xspress2SystemTest {
 	@Test
 	public void testSaveDetectors() {
 		xspress.saveDetectors(testScratchDirectoryName + "xspressConfig-saved.xml");
-		junitx.framework.FileAssert.assertEquals(new File(TestFileFolder + "xspressConfig.xml"), 
+		junitx.framework.FileAssert.assertEquals(new File(TestFileFolder + "/xspressConfig.xml"), 
 				new File(testScratchDirectoryName + "xspressConfig-saved.xml"));
 	}
 	

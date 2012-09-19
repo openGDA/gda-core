@@ -27,8 +27,6 @@ import gda.device.detector.DummyDAServer;
 import gda.device.timer.Etfg;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-import gda.util.TestUtils;
-import gda.util.exceptionUtils;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -43,21 +41,12 @@ public class Xspress2SystemOutputTest {
 
 	
 	private static Xspress2System xspress = new Xspress2System();
-	final static String TestFileFolder = "test/gda/device/detector/xspress/TestFiles/";
-	static String testScratchDirectoryName = null;
+	final static String TestFileFolder = "testfiles/gda/device/detector/xspress";
 
 	/**
 	 */
 	@BeforeClass
 	public static void setUpBeforeClass() {
-		testScratchDirectoryName = TestUtils.generateDirectorynameFromClassname(Xspress2SystemTest.class
-				.getCanonicalName());
-		try {
-			TestUtils.makeScratchDirectory(testScratchDirectoryName);
-		} catch (Exception e) {
-			fail(exceptionUtils.getFullStackMsg(e));
-		}
-
 		DummyDAServer daserver = new DummyDAServer();
 		daserver.setName("DummyDAServer");
 		daserver.setXspressMode(DUMMY_XSPRESS2_MODE.XSPRESS2_FULL_MCA);
