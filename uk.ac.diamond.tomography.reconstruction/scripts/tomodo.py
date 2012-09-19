@@ -357,6 +357,7 @@ def populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, tif_lst, da
 	detectorName=src_proj_split[7]
 	makeLinks_outdir=head+os.sep+proj_dir
 	print "makeLinks_outdir=%s"%makeLinks_outdir
+	print "makeLinks_beamlineID=%s"%makeLinks_arg['beamlineID']
 
 
 	proj_idx_decimated=decimate(proj_idx, decimationRate)
@@ -378,6 +379,8 @@ def populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, tif_lst, da
 
 	#filenameFmt=detectorName+scanNumber_str+"-"+"%05d.tif"
 	inFnameFmt="%05d.tif"
+	if makeLinks_arg['beamlineID'] == "i12":
+		inFnameFmt="p_%05d.tif"
 	outFnameFmt="p_%05d.tif"
 	makeLinksToOriginalFiles(\
 							proj_idx_decimated\
@@ -402,13 +405,14 @@ def createSoftLink(src, dst):
 		subprocess.call(cmd, shell=True)
 
 
-def launchSinoListener(inDir, inFilenameFmt, nProjs, outDir, verbose=False, testing=True):
+def launchSinoListener(inDir, inFilenameFmt, nProjs, outDir, qsub_proj='i13', verbose=False, testing=True):
 	print launchSinoListener.__name__
 	args=["sino_listener.py"]
 	args+=[ "-i", inDir]
 	args+=[ "-I", inFilenameFmt]
 	args+=[ "-p", str(nProjs)]
 	args+=[ "-o", outDir]
+	args+=[ "--qsub_project", qsub_proj]
 	if verbose:
 		args+=[ "-v"]
 	if testing:
@@ -922,7 +926,7 @@ def estimateCOR(projFilename_0deg, flatFilename_0deg, darkFilename_0deg, projFil
 	return tomoaxis_x, tomoaxis_y
 
 
-def launchReconArray(outDir, ctrCoord, inSinoFolder='sinograms', settingsfile='/dls_sw/i12/software/tomography_scripts/settings.xml',verbose=True, testing=False):
+def launchReconArray(outDir, ctrCoord, inSinoFolder='sinograms', settingsfile='/dls_sw/i12/software/tomography_scripts/settings.xml', qsub_proj='i13', verbose=True, testing=False):
 	print launchReconArray.__name__
 	args=["recon_arrayxml.py"]
 	#args+=[ "-h"]
@@ -930,6 +934,7 @@ def launchReconArray(outDir, ctrCoord, inSinoFolder='sinograms', settingsfile='/
 	args+=[ "-o", outDir]
 	args+=[ "-d", inSinoFolder]
 	args+=[ "-C", str(ctrCoord)]
+	args+=[ "--qsub_project", qsub_proj]
 	if verbose:
 		args+=[ "-v"]
 	if testing:
@@ -951,6 +956,9 @@ def makeLinksForNXSFile(\
 					, stagePosNXSPath='/entry1/instrument/tomoScanDevice/ss1_X'\
 					, stageRotNXSPath='/entry1/instrument/tomoScanDevice/ss1_rot'\
 					, tifNXSPath='/entry1/instrument/pco1_hw_tif/image_data'\
+					, imgkeyNXSPath='/entry1/instrument/tomoScanDevice/image_key'\
+					, inImgFilenameFmt='%05d.tif'\
+					, qsub_project='i13'\
 					, outdir=None\
 					, minProjs=129\
 					, quickstep=100\
@@ -989,6 +997,9 @@ def makeLinksForNXSFile(\
 		print "stagePosNXSPath=%s"%stagePosNXSPath
 		print "stageRotNXSPath=%s"%stageRotNXSPath
 		print "tifNXSPath=%s"%tifNXSPath
+		print "imgkeyNXSPath=%s"%imgkeyNXSPath
+		print "inImgFilenameFmt=%s"%inImgFilenameFmt
+		print "qsub_project=%s"%qsub_project
 		print "outdir=%s"%outdir
 		print "minProjs=%s"%minProjs
 		print "maxUnclassed=%s"%maxUnclassed
@@ -1072,13 +1083,13 @@ def makeLinksForNXSFile(\
 	try:
 		ss1_x=nxsFileHandle[stagePosNXSPath]
 	except Exception, ex:
-		raise Exception ("Error on trying to access  sample stage's translation data inside the input NeXus file: \n"+str(ex))
+		raise Exception ("Error on trying to access sample stage's translation data inside the input NeXus file: \n"+str(ex))
 	
 	try:
 		#ss1_rot=nxsFileHandle['/entry1/instrument/tomoScanDevice/ss1_rot']
 		ss1_rot=nxsFileHandle[stageRotNXSPath]
 	except Exception, ex:
-		raise Exception ("Error on trying to access  sample stage's angle data inside the input NeXus file: \n"+str(ex))
+		raise Exception ("Error on trying to access sample stage's angle data inside the input NeXus file: \n"+str(ex))
 	
 	try:
 		tif=nxsFileHandle[tifNXSPath]
@@ -1260,7 +1271,14 @@ def makeLinksForNXSFile(\
 				
 				zidx_last=len_proj_idx_decimated-1
 				#print 'zidx_last=', zidx_last
-				sino_success=launchSinoListener(head+os.sep+proj_dir, inProjFmt, zidx_last, head+os.sep+sino_dir, verbose=True, testing=False)
+				sino_success=launchSinoListener(\
+											head+os.sep+proj_dir\
+											, inProjFmt\
+											, zidx_last\
+											, head+os.sep+sino_dir\
+											, qsub_proj=qsub_project\
+											, verbose=True\
+											, testing=False)
 			except Exception, ex:
 				sino_success=False
 				raise Exception ("ERROR Spawning the sino_listener script  "+str(ex))
@@ -1346,7 +1364,12 @@ def makeLinksForNXSFile(\
 					else:
 						inSinoFoldername='sinograms'
 		
-					recon_success, recon_imfolder=launchReconArray(outDir=reconDir, ctrCoord=CORx, inSinoFolder=inSinoFoldername, settingsfile=inSettings)
+					recon_success, recon_imfolder=launchReconArray(\
+																outDir=reconDir\
+																, ctrCoord=CORx\
+																, inSinoFolder=inSinoFoldername\
+																, settingsfile=inSettings\
+																, qsub_proj=qsub_project)
 				except Exception, ex:
 					recon_success=False
 					raise Exception ("ERROR Spawning the recon_arrayxml script  "+str(ex))
@@ -1420,6 +1443,8 @@ creates directories and links to projection, dark and flat images required for s
 	parser.add_option("--tifNXSPath", action="store", type="string", dest="tifNXSPath", default="/entry1/instrument/pco1_hw_tif/image_data", help="The path to the location of TIFF filenames inside the input NeXus file.")
 	parser.add_option("--imgkeyNXSPath", action="store", type="string", dest="imgkeyNXSPath", default="/entry1/instrument/tomoScanDevice/image_key", help="The path to the location of image-key data inside the input NeXus file.")
 	parser.add_option("-o", "--outdir", action="store", type="string", dest="outdir", help="Path to folder in which directories and files are to be made. Default is current working folder")
+	parser.add_option("--qsub_proj", action="store", type="string", dest="qsub_proj", default="i13", help="Name of qsub project to be used on Diamond cluster; default value is %default.")
+	parser.add_option("--inImgFilenameFmt", action="store", type="string", dest="inImgFnameFmt", default="%05d.tif", help="TIF-image filename format or mask; default value is %default.")
 	parser.add_option("--verbose", action="store_true", dest="verbose", default=False, help="Verbose - useful for diagnosing the script")
 	parser.add_option("-s", "--sino", action="store_true", dest="sino", default=False, help="If present, then the sino_listener.py script will be launched to create sinograms.")
 	parser.add_option("-r", "--recon", action="store_true", dest="recon", default=False, help="If present, then the recon_arrayxml.py script will be launched to perform reconstruction.")
@@ -1468,6 +1493,9 @@ creates directories and links to projection, dark and flat images required for s
 					, stagePosNXSPath=opts.stagePosNXSPath\
 					, stageRotNXSPath=opts.stageRotNXSPath\
 					, tifNXSPath=opts.tifNXSPath\
+					, imgkeyNXSPath=opts.imgkeyNXSPath\
+					, inImgFilenameFmt=opts.inImgFnameFmt\
+					, qsub_project=opts.qsub_proj\
 					, decimationRate=opts.decimationRate\
 					, verbose=opts.verbose\
 					, sino=opts.sino\
