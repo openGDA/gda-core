@@ -12,8 +12,7 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.libs;bundle-version="1.0.0",
  uk.ac.gda.nexus;bundle-version="1.0.0",
  uk.ac.gda.api,
- uk.ac.diamond.scisoft.analysis,
- uk.ac.gda.client.microfocus;bundle-version="1.0.0"
+ uk.ac.diamond.scisoft.analysis
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: gda.device.detector,
