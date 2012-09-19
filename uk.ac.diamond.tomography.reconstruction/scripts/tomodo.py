@@ -26,6 +26,111 @@ import numpy as np
 #import PIL.Image as Image
 import Image
 
+def getBeamlineTomoConfig(inLocalTomoXML="localTomo.xml"):
+	# check if input file exists
+	if not os.path.exists(inLocalTomoXML):
+		msg = "Input beamline-specific localTomo file, %s, does not exist!"%inLocalTomoXML
+		raise Exception(msg)
+
+	mydoc=parse(inLocalTomoXML)
+	
+	# beamline
+	beamline_tag=mydoc.getElementsByTagName("beamline")
+
+	# beamline>ixx
+	val_tag=beamline_tag[0].getElementsByTagName("ixx")
+	ixx = val_tag[0].childNodes[0].data
+	print '\t ixx=', ixx
+
+	#tomodo
+	tomodo_tag=mydoc.getElementsByTagName("tomodo")
+	
+	#tomodo>shutter
+	mid_tag=tomodo_tag[0].getElementsByTagName("shutter")
+	val_tag=mid_tag[0].getElementsByTagName("shutterOpenPhys")
+	shutterOpenPhys = val_tag[0].childNodes[0].data
+	print '\t shutterOpenPhys=', shutterOpenPhys
+
+	val_tag=mid_tag[0].getElementsByTagName("shutterClosedPhys")
+	shutterClosedPhys = val_tag[0].childNodes[0].data
+	print '\t shutterClosedPhys=', shutterClosedPhys
+
+	#tomodo>tifimage
+	mid_tag=tomodo_tag[0].getElementsByTagName("tifimage")
+	
+	val_tag=mid_tag[0].getElementsByTagName("filenameFmt")
+	filenameFmt = val_tag[0].childNodes[0].data
+	print '\t filenameFmt=', filenameFmt
+
+	#tomodo>nexusfile
+	mid_tag=tomodo_tag[0].getElementsByTagName("nexusfile")
+	
+	val_tag=mid_tag[0].getElementsByTagName("shutterNXSPath")
+	shutterNXSPath = val_tag[0].childNodes[0].data
+	print '\t shutterNXSPath=', shutterNXSPath
+
+	val_tag=mid_tag[0].getElementsByTagName("stagePosNXSPath")
+	stagePosNXSPath = val_tag[0].childNodes[0].data
+	print '\t stagePosNXSPath=', stagePosNXSPath
+
+	val_tag=mid_tag[0].getElementsByTagName("stageRotNXSPath")
+	stageRotNXSPath = val_tag[0].childNodes[0].data
+	print '\t stageRotNXSPath=', stageRotNXSPath
+
+	val_tag=mid_tag[0].getElementsByTagName("tifNXSPath")
+	tifNXSPath = val_tag[0].childNodes[0].data
+	print '\t tifNXSPath=', tifNXSPath
+
+	val_tag=mid_tag[0].getElementsByTagName("imgkeyNXSPath")
+	imgkeyNXSPath = val_tag[0].childNodes[0].data
+	print '\t imgkeyNXSPath=', imgkeyNXSPath
+
+	#tomodo>settingsfile
+	mid_tag=tomodo_tag[0].getElementsByTagName("settingsfile")
+	
+	val_tag=mid_tag[0].getElementsByTagName("blueprint")
+	settings_blueprint = val_tag[0].childNodes[0].data
+	print '\t settings_blueprint=', settings_blueprint
+
+	#tomodo>imagekeyencoding
+	mid_tag=tomodo_tag[0].getElementsByTagName("imagekeyencoding")
+	
+	val_tag=mid_tag[0].getElementsByTagName("darkfield")
+	imgkey_darkfield = val_tag[0].childNodes[0].data
+	print '\t imgkey_darkfield=', imgkey_darkfield
+
+	val_tag=mid_tag[0].getElementsByTagName("flatfield")
+	imgkey_flatfield = val_tag[0].childNodes[0].data
+	print '\t imgkey_flatfield=', imgkey_flatfield
+
+	val_tag=mid_tag[0].getElementsByTagName("projection")
+	imgkey_projection = val_tag[0].childNodes[0].data
+	print '\t imgkey_projection=', imgkey_projection
+
+	#tomodo>cluster
+	cluster_tag=tomodo_tag[0].getElementsByTagName("cluster")
+
+	#tomodo>cluster>qsub
+	qsub_tag=cluster_tag[0].getElementsByTagName("qsub")
+
+	projectname_tag=qsub_tag[0].getElementsByTagName("projectname")
+	projectname = projectname_tag[0].childNodes[0].data
+	print '\t projectname=', projectname
+
+	args_tag=qsub_tag[0].getElementsByTagName("args")
+	args = args_tag[0].childNodes[0].data
+	print '\t args=', args
+	
+	sinoqueue_tag=qsub_tag[0].getElementsByTagName("sinoqueue")
+	sinoqueue = sinoqueue_tag[0].childNodes[0].data
+	print '\t sinoqueue=', sinoqueue
+
+	reconqueue_tag=qsub_tag[0].getElementsByTagName("reconqueue")
+	reconqueue = reconqueue_tag[0].childNodes[0].data
+	print '\t reconqueue=', reconqueue
+	
+	return filenameFmt, stagePosNXSPath, stageRotNXSPath, tifNXSPath, projectname, args
+	
 def reindexLinks(inListOfIdx, outListOfIdx, indir="/dls/i13/data/2012/mt5811-1/564/pco1/", outdir="/dls/i13/data/2012/mt5811-1/564/pco1/", inFilenameFmt="p_%05d.tif", outFilenameFmt="p_%05d.tif"):
 	
 	#print "Fn: %s"%reindexLinks.__name__
@@ -1064,6 +1169,11 @@ def makeLinksForNXSFile(\
 		#msg = "The input NeXus file, %s, does NOT exist!"%filename
 		raise Exception("The input NeXus file does not exist or insufficient filesystem permissions: "+`filename`)
 
+	dirNXS = os.getcwd()
+	# check if the input NeXus filepath is absolute
+	if os.path.isabs(filename):
+		dirNXS = os.path.dirname(filename)
+	print '\tdirNXS =', dirNXS
 
 	#open the input NeXus file for reading 
 	nxsFileHandle=h5py.File(filename, 'r')
@@ -1092,7 +1202,7 @@ def makeLinksForNXSFile(\
 		raise Exception ("Error on trying to access sample stage's angle data inside the input NeXus file: \n"+str(ex))
 	
 	try:
-		tif=nxsFileHandle[tifNXSPath]
+		tif_=nxsFileHandle[tifNXSPath]
 	except Exception, ex:
 		raise Exception ("Error on trying to access paths to TIF images inside the input NeXus file: \n"+str(ex))
 
@@ -1114,6 +1224,19 @@ def makeLinksForNXSFile(\
 		print msg2
 		pass
 
+	#take care of any relative paths to TIF images
+	tif=np.empty((len(tif_),1),dtype='object')
+	for i in range(0,len(tif_)):
+		s = tif_[i][0]
+		if s[:1]==".":
+			s1 = str(s[1:])
+			tif[i][0]=dirNXS + s1
+		else:
+			tif[i][0]=s
+	
+	if verbose:
+		print '\t Absolute path in tif[0][0]=',tif[0][0]
+	
 	len_ss1_x=len(ss1_x)
 	len_ss1_rot=len(ss1_rot)
 	len_tomography_shutter=len(tomography_shutter)
@@ -1427,7 +1550,7 @@ creates directories and links to projection, dark and flat images required for s
 
 	parser=OptionParser(usage=usage, description=desc, version=vers, prog=argv[0])
 
-	parser.add_option("-f", "--filename", action="store", type="string", dest="filename", help="NeXus filename to be processed.")
+	parser.add_option("-f", "--filename", action="store", type="string", dest="filename", help="Path to NeXus filename to be processed.")
 	parser.add_option("--template", action="store", type="string", dest="template", default="/dls_sw/i12/software/tomography_scripts/settings.xml", help="Settings filename to be used for reconstruction.")
 	parser.add_option("--shutterOpenPhys", action="store", type="float", dest="shutOpenPos", default=1.0, help="The shutter's PHYSICAL position when it was OPEN during the scan.")
 	parser.add_option("--shutterClosedPhys", action="store", type="float", dest="shutClosedPos", default=0.0, help="The shutter's PHYSICAL position when it was CLOSED during the scan. ")
@@ -1444,7 +1567,8 @@ creates directories and links to projection, dark and flat images required for s
 	parser.add_option("--imgkeyNXSPath", action="store", type="string", dest="imgkeyNXSPath", default="/entry1/instrument/tomoScanDevice/image_key", help="The path to the location of image-key data inside the input NeXus file.")
 	parser.add_option("-o", "--outdir", action="store", type="string", dest="outdir", help="Path to folder in which directories and files are to be made. Default is current working folder")
 	parser.add_option("--qsub_proj", action="store", type="string", dest="qsub_proj", default="i13", help="Name of qsub project to be used on Diamond cluster; default value is %default.")
-	parser.add_option("--inImgFilenameFmt", action="store", type="string", dest="inImgFnameFmt", default="%05d.tif", help="TIF-image filename format or mask; default value is %default.")
+	parser.add_option("--inImgFilenameFmt", action="store", type="string", dest="inImgFnameFmt", default="%05d.tif", help="Filename format (or mask) of TIF images; default value is %default.")
+	parser.add_option("-l", "--local", action="store", type="string", dest="inLocalTomoXML", help="Path to input localTomo.xml to be used; the values from that file override any other values supplied to this script using option-argument mechanism.")
 	parser.add_option("--verbose", action="store_true", dest="verbose", default=False, help="Verbose - useful for diagnosing the script")
 	parser.add_option("-s", "--sino", action="store_true", dest="sino", default=False, help="If present, then the sino_listener.py script will be launched to create sinograms.")
 	parser.add_option("-r", "--recon", action="store_true", dest="recon", default=False, help="If present, then the recon_arrayxml.py script will be launched to perform reconstruction.")
@@ -1465,8 +1589,8 @@ creates directories and links to projection, dark and flat images required for s
 	#parser.print_version()
 
 # Make sure all mandatory input variables have some values
-	mandatories=['filename', 'shutOpenPos', 'shutClosedPos', 'inBeamPos', 'outOfBeamPos', 'shutNXSPath', 'stagePosNXSPath', 'stageRotNXSPath', 'tifNXSPath']
-	for m in mandatories:
+	mandatory_var=['filename', 'shutOpenPos', 'shutClosedPos', 'inBeamPos', 'outOfBeamPos', 'shutNXSPath', 'stagePosNXSPath', 'stageRotNXSPath', 'tifNXSPath']
+	for m in mandatory_var:
 		#print opts_dict[m]
 		if opts_dict[m] is None:
 			msg="Mandatory input value, %s, is missing!"%m
@@ -1478,6 +1602,16 @@ creates directories and links to projection, dark and flat images required for s
 		
 	minProjs_loc=max(opts.minProjs, 1)
 	maxUnclassed_loc=max(opts.maxUnclassed, 0)
+	
+	inImgFilenameFmt_loc=opts.inImgFnameFmt
+	stagePosNXSPath_loc=opts.stagePosNXSPath
+	stageRotNXSPath_loc=opts.stageRotNXSPath
+	tifNXSPath_loc=opts.tifNXSPath
+	qsub_project_loc=opts.qsub_proj
+	
+	if not opts.inLocalTomoXML is None:
+		inImgFilenameFmt_loc, stagePosNXSPath_loc, stageRotNXSPath_loc, tifNXSPath_loc, qsub_project_loc, args = getBeamlineTomoConfig(opts.inLocalTomoXML)
+		
 	makeLinksForNXSFile(\
 					filename=opts.filename\
 					, settingsfile=opts.template\
@@ -1490,12 +1624,12 @@ creates directories and links to projection, dark and flat images required for s
 					, quickstep=opts.quickstep\
 					, maxUnclassed=maxUnclassed_loc\
 					, shutterNXSPath=opts.shutNXSPath\
-					, stagePosNXSPath=opts.stagePosNXSPath\
-					, stageRotNXSPath=opts.stageRotNXSPath\
-					, tifNXSPath=opts.tifNXSPath\
+					, stagePosNXSPath=stagePosNXSPath_loc\
+					, stageRotNXSPath=stageRotNXSPath_loc\
+					, tifNXSPath=tifNXSPath_loc\
 					, imgkeyNXSPath=opts.imgkeyNXSPath\
-					, inImgFilenameFmt=opts.inImgFnameFmt\
-					, qsub_project=opts.qsub_proj\
+					, inImgFilenameFmt=inImgFilenameFmt_loc\
+					, qsub_project=qsub_project_loc\
 					, decimationRate=opts.decimationRate\
 					, verbose=opts.verbose\
 					, sino=opts.sino\
