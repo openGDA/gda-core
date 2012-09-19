@@ -5,8 +5,8 @@
     modelPluginID="uk.ac.diamond.tomography.localtomo" modelName="LocalTomo" importerID="org.eclipse.xsd.ecore.importer"
     complianceLevel="6.0" copyrightFields="false">
   <foreignModel>localTomo.xsd</foreignModel>
-  <genPackages prefix="LocalTomo" basePackage="uk.ac.diamond.tomography.localtomo"
-      resource="XML" disposableProviderFactory="true" ecorePackage="LocalTomo.ecore#/">
+  <genPackages prefix="LocalTomo" basePackage="uk.ac.diamond.tomography" resource="XML"
+      disposableProviderFactory="true" ecorePackage="LocalTomo.ecore#/">
     <genClasses ecoreClass="LocalTomo.ecore#//BeamlineType">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference LocalTomo.ecore#//BeamlineType/ixx"/>
     </genClasses>

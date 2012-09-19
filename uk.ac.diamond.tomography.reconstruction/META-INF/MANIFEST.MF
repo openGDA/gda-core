@@ -21,7 +21,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.emf.ecore.xmi;bundle-version="2.7.0",
  org.eclipse.ui.editors;bundle-version="3.7.0",
  uk.ac.diamond.tomography.reconstruction.parameters.editor;bundle-version="1.0.0",
- org.eclipse.ui.forms;bundle-version="3.5.101"
+ org.eclipse.ui.forms;bundle-version="3.5.101",
+ uk.ac.diamond.tomography.localtomo;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Import-Package: org.slf4j;version="[1.5.6,2.0.0)"

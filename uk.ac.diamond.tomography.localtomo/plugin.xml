@@ -13,14 +13,14 @@
    <extension point="org.eclipse.emf.ecore.generated_package">
       <package
             uri="platform:/resource/uk.ac.diamond.tomography.localtomo/model/localTomo.xsd"
-            class="uk.ac.diamond.tomography.localtomo.LocalTomo.LocalTomoPackage"
+            class="uk.ac.diamond.tomography.localtomo.LocalTomoPackage"
             genModel="model/localTomo.genmodel"/>
    </extension>
 
    <extension point="org.eclipse.emf.ecore.extension_parser">
       <parser
             type="localtomo"
-            class="uk.ac.diamond.tomography.localtomo.LocalTomo.util.LocalTomoResourceFactoryImpl"/>
+            class="uk.ac.diamond.tomography.localtomo.util.LocalTomoResourceFactoryImpl"/>
    </extension>
 
 </plugin>

@@ -84,6 +84,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
+import uk.ac.diamond.tomography.localtomo.util.LocalTomoUtil;
 import uk.ac.diamond.tomography.reconstruction.Activator;
 import uk.ac.diamond.tomography.reconstruction.ReconUtil;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.BackprojectionType;
@@ -428,6 +429,10 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 					"%s %s -f %s --outdir %s --sino --recon --template %s", shScriptName, pyScriptName, fileName,
 					outdir, templateFileName));
 			if (quick) {
+				command.append(" --quick");
+			}
+			String localTomoUtilFileLocation = LocalTomoUtil.getLocalTomoUtilFileLocation();
+			if(localTomoUtilFileLocation != null){
 				command.append(" --quick");
 			}
 
