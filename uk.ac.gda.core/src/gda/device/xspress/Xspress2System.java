@@ -123,7 +123,7 @@ public class Xspress2System extends DeviceBase implements Findable, Xspress,Lock
 	private static final ReentrantLock deviceLock = new ReentrantLock();
 
 	@Override
-	public void configure() {
+	public void configure() throws FactoryException {
 		// A real system needs a connection to a real da.server via a DAServer
 		// object.
 		if (!isDummy()) {
@@ -141,7 +141,11 @@ public class Xspress2System extends DeviceBase implements Findable, Xspress,Lock
 
 		// If everything has been found send the open commands.
 		if (tfg != null && (daServer != null || isDummy())) {
-			open();
+			try {
+				open();
+			} catch (DeviceException e) {
+				throw new FactoryException(e.getMessage(),e);
+			}
 		}
 
 		detectorList = new ArrayList<Detector>();
@@ -281,8 +285,9 @@ public class Xspress2System extends DeviceBase implements Findable, Xspress,Lock
 	/**
 	 * Sends the daServer commands to clear the xspress system. Note that this is very time consuming and should only be
 	 * done when necessary.
+	 * @throws DeviceException 
 	 */
-	public void clear() {
+	public void clear() throws DeviceException {
 		Object obj;
 		if (mcaHandle < 0)
 			open();
@@ -297,8 +302,9 @@ public class Xspress2System extends DeviceBase implements Findable, Xspress,Lock
 
 	/**
 	 * Sends the daServer commands to start the xspress system counting.
+	 * @throws DeviceException 
 	 */
-	public void start() {
+	public void start() throws DeviceException {
 		if (mcaHandle < 0)
 			open();
 		if (mcaHandle >= 0 && daServer != null && daServer.isConnected())
@@ -307,8 +313,9 @@ public class Xspress2System extends DeviceBase implements Findable, Xspress,Lock
 
 	/**
 	 * Sends the daServer commands to stop the xspress system counting.
+	 * @throws DeviceException 
 	 */
-	public void stop() {
+	public void stop() throws DeviceException {
 		if (mcaHandle < 0)
 			open();
 		if (mcaHandle >= 0 && daServer != null && daServer.isConnected())
@@ -480,8 +487,9 @@ public class Xspress2System extends DeviceBase implements Findable, Xspress,Lock
 
 	/**
 	 * Opens the connections to daServer.
+	 * @throws DeviceException 
 	 */
-	private void open() {
+	private void open() throws DeviceException {
 		Object obj;
 		Integer reply;
 
@@ -662,30 +670,28 @@ public class Xspress2System extends DeviceBase implements Findable, Xspress,Lock
 			
 			}
 		} else {
-			long[] totalsData = readoutTotalCountsScaler();
-			long[] resetsData = readoutResetsScaler();
-			long[] windowsData = readoutWindowsCountsScaler();
+			try {
+				long[] totalsData = readoutTotalCountsScaler();
+				long[] resetsData = readoutResetsScaler();
+				long[] windowsData = readoutWindowsCountsScaler();
 
-			// Now lets create a DetectorReading object for each element.
-			for (int i = 0; i < numberOfDetectors; i++) {
-				// total = (int) data[i][0];
-				total = (int) totalsData[i];
+				// Now lets create a DetectorReading object for each element.
+				for (int i = 0; i < numberOfDetectors; i++) {
+					// total = (int) data[i][0];
+					total = (int) totalsData[i];
 
-				// logger.info("totals["+i+"]="+total);
+					// logger.info("totals["+i+"]="+total);
 
-				// resets = (int) data[i][1];
-				resets = (int) resetsData[i];
-				acc = 0; // dunno what this is!
-				// windowed = (int) data[i][2];
-				windowed = (int) windowsData[i];
+					// resets = (int) data[i][1];
+					resets = (int) resetsData[i];
+					acc = 0; // dunno what this is!
+					// windowed = (int) data[i][2];
+					windowed = (int) windowsData[i];
 
-				try {
 					detectorReadings[i] = new DetectorReading(this.getDetector(i), total, resets, acc, windowed);
-				} catch (DeviceException e) {
-					logger.error("Xspress2System.readDetectors(): Cannot read from XSPRESS2.");
-					
-				}catch (Exception e) {
-					logger.error("Xspress2System.readDetectors(): Cannot read from XSPRESS2." + e.getMessage());}
+				}
+			} catch (Exception e) {
+				throw new DeviceException(e.getMessage(), e);
 			}
 		}
 		} catch (InterruptedException e1) {
@@ -927,8 +933,9 @@ public class Xspress2System extends DeviceBase implements Findable, Xspress,Lock
 
 	/**
 	 * @return total counts
+	 * @throws Exception 
 	 */
-	public long[] readoutTotalCountsScaler() {
+	public long[] readoutTotalCountsScaler() throws Exception {
 		long[] data = new long[numberOfDetectors];
 		if (isDummy()) {
 			for (int i = 0; i < numberOfDetectors; i++) {
@@ -955,8 +962,9 @@ public class Xspress2System extends DeviceBase implements Findable, Xspress,Lock
 
 	/**
 	 * @return number of resets
+	 * @throws Exception 
 	 */
-	public long[] readoutResetsScaler() {
+	public long[] readoutResetsScaler() throws Exception {
 		long[] data = new long[numberOfDetectors];
 		if (isDummy()) {
 			for (int i = 0; i < numberOfDetectors; i++) {
@@ -980,8 +988,9 @@ public class Xspress2System extends DeviceBase implements Findable, Xspress,Lock
 
 	/**
 	 * @return windowed counts from scaler
+	 * @throws Exception 
 	 */
-	public long[] readoutWindowsCountsScaler() {
+	public long[] readoutWindowsCountsScaler() throws Exception {
 		long[] data = new long[numberOfDetectors];
 		if (isDummy()) {
 			for (int i = 0; i < numberOfDetectors; i++) {
@@ -1002,10 +1011,9 @@ public class Xspress2System extends DeviceBase implements Findable, Xspress,Lock
 
 	/**
 	 * @return scaler data
-	 * @throws DeviceException
+	 * @throws Exception 
 	 */
-	@SuppressWarnings("unused")
-	public Object readoutScalers() throws DeviceException {
+	public Object readoutScalers() throws Exception {
 		Object value = null;
 		String filename = "notcreated";
 		// int numberOfFrames = 1;
@@ -1115,8 +1123,9 @@ public class Xspress2System extends DeviceBase implements Findable, Xspress,Lock
 	 * @param channelCount
 	 * @param frame
 	 * @return filename
+	 * @throws DeviceException 
 	 */
-	public String readFrameFile(@SuppressWarnings("unused") int startChannel, @SuppressWarnings("unused") int channelCount, int frame) {
+	public String readFrameFile(@SuppressWarnings("unused") int startChannel, @SuppressWarnings("unused") int channelCount, int frame) throws DeviceException {
 		// Object value = null;
 
 		String filename = "notcreated";
@@ -1227,17 +1236,21 @@ public class Xspress2System extends DeviceBase implements Findable, Xspress,Lock
 
 	@Override
 	public void reconfigure() throws FactoryException {
-		// A real system needs a connection to a real da.server via a DAServer
-		// object.
-		if (!isDummy()) {
-			logger.debug("Xspress2System.reconfigure(): reconnecting to: " + daServerName);
-			daServer.reconnect();
-		}
-		// does not reconfigure the tfg -- need to check if it is needed
+		try {
+			// A real system needs a connection to a real da.server via a DAServer
+			// object.
+			if (!isDummy()) {
+				logger.debug("Xspress2System.reconfigure(): reconnecting to: " + daServerName);
+				daServer.reconnect();
+			}
+			// does not reconfigure the tfg -- need to check if it is needed
 
-		// If everything has been found send the open commands.
-		if (tfg != null && (daServer != null || isDummy())) {
-			open();
+			// If everything has been found send the open commands.
+			if (tfg != null && (daServer != null || isDummy())) {
+				open();
+			}
+		} catch (DeviceException e) {
+			throw new FactoryException(e.getMessage(),e);
 		}
 
 	}
