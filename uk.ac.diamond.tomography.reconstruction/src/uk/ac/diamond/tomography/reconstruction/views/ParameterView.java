@@ -415,9 +415,7 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 			tomoDoShScript = new File(FileLocator.resolve(shFileURL).toURI());
 
 			IPath fullPath = nexusFile.getLocation();
-			Path fullPathCp = new Path(fullPath.toOSString());
-			IPath pathWithoutLastSegment = fullPathCp.removeLastSegments(1);
-			IPath outdir = pathWithoutLastSegment.append("processing");
+			IPath outdir = ReconUtil.getProcessingDir(nexusFile);
 
 			String fileName = fullPath.toOSString();
 

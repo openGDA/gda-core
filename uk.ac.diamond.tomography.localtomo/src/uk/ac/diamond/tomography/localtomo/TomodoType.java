@@ -22,6 +22,7 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link uk.ac.diamond.tomography.localtomo.TomodoType#getSettingsfile <em>Settingsfile</em>}</li>
  *   <li>{@link uk.ac.diamond.tomography.localtomo.TomodoType#getImagekeyencoding <em>Imagekeyencoding</em>}</li>
  *   <li>{@link uk.ac.diamond.tomography.localtomo.TomodoType#getCluster <em>Cluster</em>}</li>
+ *   <li>{@link uk.ac.diamond.tomography.localtomo.TomodoType#getSegmentsToRemoveRelativeToNexusForOutdir <em>Segments To Remove Relative To Nexus For Outdir</em>}</li>
  * </ul>
  * </p>
  *
@@ -191,5 +192,59 @@ public interface TomodoType extends EObject {
 	 * @generated
 	 */
 	void setCluster(ClusterType value);
+
+	/**
+	 * Returns the value of the '<em><b>Segments To Remove Relative To Nexus For Outdir</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Segments To Remove Relative To Nexus For Outdir</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Segments To Remove Relative To Nexus For Outdir</em>' attribute.
+	 * @see #isSetSegmentsToRemoveRelativeToNexusForOutdir()
+	 * @see #unsetSegmentsToRemoveRelativeToNexusForOutdir()
+	 * @see #setSegmentsToRemoveRelativeToNexusForOutdir(int)
+	 * @see uk.ac.diamond.tomography.localtomo.LocalTomoPackage#getTomodoType_SegmentsToRemoveRelativeToNexusForOutdir()
+	 * @model unsettable="true" dataType="org.eclipse.emf.ecore.xml.type.Int"
+	 *        extendedMetaData="kind='element' name='segmentsToRemoveRelativeToNexusForOutdir' namespace='##targetNamespace'"
+	 * @generated
+	 */
+	int getSegmentsToRemoveRelativeToNexusForOutdir();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.diamond.tomography.localtomo.TomodoType#getSegmentsToRemoveRelativeToNexusForOutdir <em>Segments To Remove Relative To Nexus For Outdir</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Segments To Remove Relative To Nexus For Outdir</em>' attribute.
+	 * @see #isSetSegmentsToRemoveRelativeToNexusForOutdir()
+	 * @see #unsetSegmentsToRemoveRelativeToNexusForOutdir()
+	 * @see #getSegmentsToRemoveRelativeToNexusForOutdir()
+	 * @generated
+	 */
+	void setSegmentsToRemoveRelativeToNexusForOutdir(int value);
+
+	/**
+	 * Unsets the value of the '{@link uk.ac.diamond.tomography.localtomo.TomodoType#getSegmentsToRemoveRelativeToNexusForOutdir <em>Segments To Remove Relative To Nexus For Outdir</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isSetSegmentsToRemoveRelativeToNexusForOutdir()
+	 * @see #getSegmentsToRemoveRelativeToNexusForOutdir()
+	 * @see #setSegmentsToRemoveRelativeToNexusForOutdir(int)
+	 * @generated
+	 */
+	void unsetSegmentsToRemoveRelativeToNexusForOutdir();
+
+	/**
+	 * Returns whether the value of the '{@link uk.ac.diamond.tomography.localtomo.TomodoType#getSegmentsToRemoveRelativeToNexusForOutdir <em>Segments To Remove Relative To Nexus For Outdir</em>}' attribute is set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return whether the value of the '<em>Segments To Remove Relative To Nexus For Outdir</em>' attribute is set.
+	 * @see #unsetSegmentsToRemoveRelativeToNexusForOutdir()
+	 * @see #getSegmentsToRemoveRelativeToNexusForOutdir()
+	 * @see #setSegmentsToRemoveRelativeToNexusForOutdir(int)
+	 * @generated
+	 */
+	boolean isSetSegmentsToRemoveRelativeToNexusForOutdir();
 
 } // TomodoType

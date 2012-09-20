@@ -432,7 +432,7 @@ def stepThrough(inList, stepSize=1):
 		outList.append(inList[i])
 	return outList
 
-def populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, tif_lst, dark_idx, flat_idx, proj_idx, decimationRate=1, verbose=False):
+def populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, tif_lst, dark_idx, flat_idx, proj_idx, filenameFmt, decimationRate=1, verbose=False):
 
 	"""
 	Create:
@@ -462,21 +462,21 @@ def populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, tif_lst, da
 
 	#e.g. /dls/i13/data/2012/mt5811-1/564/pco1/pco1564-00002.tif
 	#Note that src_proj_split contains some empty strings, i.e.''
-	makeLinks_arg={}
-	makeLinks_arg['beamlineID']=src_proj_split[2]
-	makeLinks_arg['year']=int(src_proj_split[4])
-	makeLinks_arg['visit']=src_proj_split[5]
+	#makeLinks_arg={}
+	#makeLinks_arg['beamlineID']=src_proj_split[2]
+	#makeLinks_arg['year']=int(src_proj_split[4])
+	#makeLinks_arg['visit']=src_proj_split[5]
 	#makeLinks_arg['scanNumber']=int(src_proj_split[6])
-	makeLinks_arg['scanNumber']=src_proj_split[6]
-	makeLinks_arg['detector']=src_proj_split[7]
+	#makeLinks_arg['scanNumber']=src_proj_split[6]
+	#makeLinks_arg['detector']=src_proj_split[7]
 	
-	makeLinks_arg['firstImage']=proj_idx[0]
-	makeLinks_arg['lastImage']=proj_idx[len(proj_idx)-1]
+	#makeLinks_arg['firstImage']=proj_idx[0]
+	#makeLinks_arg['lastImage']=proj_idx[len(proj_idx)-1]
 
 	detectorName=src_proj_split[7]
 	makeLinks_outdir=head+os.sep+proj_dir
 	print "makeLinks_outdir=%s"%makeLinks_outdir
-	print "makeLinks_beamlineID=%s"%makeLinks_arg['beamlineID']
+	#print "makeLinks_beamlineID=%s"%makeLinks_arg['beamlineID']
 
 
 	proj_idx_decimated=decimate(proj_idx, decimationRate)
@@ -497,10 +497,11 @@ def populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, tif_lst, da
 #						, outdir=(head+os.sep+proj_dir))
 
 	#filenameFmt=detectorName+scanNumber_str+"-"+"%05d.tif"
-	inFnameFmt="%05d.tif"
-	if makeLinks_arg['beamlineID'] == "i12":
+	#inFnameFmt="%05d.tif"
+	#if makeLinks_arg['beamlineID'] == "i12":
 		#inFnameFmt=inImgFilenameFmt
-		inFnameFmt="p_%05d.tif"
+	#	inFnameFmt="p_%05d.tif"
+	inFnameFmt=filenameFmt
 	outFnameFmt="p_%05d.tif"
 	makeLinksToOriginalFiles(\
 							proj_idx_decimated\
@@ -1386,7 +1387,7 @@ def makeLinksForNXSFile(\
 	
 	scanNumber_str, head, sino_dir, dark_dir, flat_dir, proj_dir, recon_dir=createDirs(refFilename=srcfile_proj, outdir=outdir, mandatorydir=mandatory_parent_foldername, quick=quick, verbose=verbose)
 	
-	len_proj_idx_decimated, detectorName=populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, tif, dark_idx, flat_idx, proj_idx, decimationRate, verbose=verbose)
+	len_proj_idx_decimated, detectorName=populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, tif, dark_idx, flat_idx, proj_idx, inImgFilenameFmt, decimationRate, verbose=verbose)
 	
 	if sino:
 		#print "\n\tAbout to launch the sino_listener script from CWD = %s"%os.getcwd()

@@ -55,6 +55,7 @@
     </genClasses>
     <genClasses ecoreClass="LocalTomo.ecore#//SettingsfileType">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//SettingsfileType/blueprint"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//SettingsfileType/settingsDirPostfix"/>
     </genClasses>
     <genClasses ecoreClass="LocalTomo.ecore#//ShutterClosedPhysType">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//ShutterClosedPhysType/value"/>
@@ -94,6 +95,7 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference LocalTomo.ecore#//TomodoType/settingsfile"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference LocalTomo.ecore#//TomodoType/imagekeyencoding"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference LocalTomo.ecore#//TomodoType/cluster"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//TomodoType/segmentsToRemoveRelativeToNexusForOutdir"/>
     </genClasses>
   </genPackages>
 </genmodel:GenModel>

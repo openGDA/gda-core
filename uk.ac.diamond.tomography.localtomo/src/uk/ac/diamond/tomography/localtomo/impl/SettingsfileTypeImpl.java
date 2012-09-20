@@ -24,6 +24,7 @@ import uk.ac.diamond.tomography.localtomo.SettingsfileType;
  * The following features are implemented:
  * <ul>
  *   <li>{@link uk.ac.diamond.tomography.localtomo.impl.SettingsfileTypeImpl#getBlueprint <em>Blueprint</em>}</li>
+ *   <li>{@link uk.ac.diamond.tomography.localtomo.impl.SettingsfileTypeImpl#getSettingsDirPostfix <em>Settings Dir Postfix</em>}</li>
  * </ul>
  * </p>
  *
@@ -49,6 +50,26 @@ public class SettingsfileTypeImpl extends EObjectImpl implements SettingsfileTyp
 	 * @ordered
 	 */
 	protected String blueprint = BLUEPRINT_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getSettingsDirPostfix() <em>Settings Dir Postfix</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getSettingsDirPostfix()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String SETTINGS_DIR_POSTFIX_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getSettingsDirPostfix() <em>Settings Dir Postfix</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getSettingsDirPostfix()
+	 * @generated
+	 * @ordered
+	 */
+	protected String settingsDirPostfix = SETTINGS_DIR_POSTFIX_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -95,11 +116,34 @@ public class SettingsfileTypeImpl extends EObjectImpl implements SettingsfileTyp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public String getSettingsDirPostfix() {
+		return settingsDirPostfix;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setSettingsDirPostfix(String newSettingsDirPostfix) {
+		String oldSettingsDirPostfix = settingsDirPostfix;
+		settingsDirPostfix = newSettingsDirPostfix;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, LocalTomoPackage.SETTINGSFILE_TYPE__SETTINGS_DIR_POSTFIX, oldSettingsDirPostfix, settingsDirPostfix));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
 			case LocalTomoPackage.SETTINGSFILE_TYPE__BLUEPRINT:
 				return getBlueprint();
+			case LocalTomoPackage.SETTINGSFILE_TYPE__SETTINGS_DIR_POSTFIX:
+				return getSettingsDirPostfix();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -114,6 +158,9 @@ public class SettingsfileTypeImpl extends EObjectImpl implements SettingsfileTyp
 		switch (featureID) {
 			case LocalTomoPackage.SETTINGSFILE_TYPE__BLUEPRINT:
 				setBlueprint((String)newValue);
+				return;
+			case LocalTomoPackage.SETTINGSFILE_TYPE__SETTINGS_DIR_POSTFIX:
+				setSettingsDirPostfix((String)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -130,6 +177,9 @@ public class SettingsfileTypeImpl extends EObjectImpl implements SettingsfileTyp
 			case LocalTomoPackage.SETTINGSFILE_TYPE__BLUEPRINT:
 				setBlueprint(BLUEPRINT_EDEFAULT);
 				return;
+			case LocalTomoPackage.SETTINGSFILE_TYPE__SETTINGS_DIR_POSTFIX:
+				setSettingsDirPostfix(SETTINGS_DIR_POSTFIX_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -144,6 +194,8 @@ public class SettingsfileTypeImpl extends EObjectImpl implements SettingsfileTyp
 		switch (featureID) {
 			case LocalTomoPackage.SETTINGSFILE_TYPE__BLUEPRINT:
 				return BLUEPRINT_EDEFAULT == null ? blueprint != null : !BLUEPRINT_EDEFAULT.equals(blueprint);
+			case LocalTomoPackage.SETTINGSFILE_TYPE__SETTINGS_DIR_POSTFIX:
+				return SETTINGS_DIR_POSTFIX_EDEFAULT == null ? settingsDirPostfix != null : !SETTINGS_DIR_POSTFIX_EDEFAULT.equals(settingsDirPostfix);
 		}
 		return super.eIsSet(featureID);
 	}
@@ -160,6 +212,8 @@ public class SettingsfileTypeImpl extends EObjectImpl implements SettingsfileTyp
 		StringBuffer result = new StringBuffer(super.toString());
 		result.append(" (blueprint: ");
 		result.append(blueprint);
+		result.append(", settingsDirPostfix: ");
+		result.append(settingsDirPostfix);
 		result.append(')');
 		return result.toString();
 	}

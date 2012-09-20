@@ -596,6 +596,15 @@ public class LocalTomoPackageImpl extends EPackageImpl implements LocalTomoPacka
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EAttribute getSettingsfileType_SettingsDirPostfix() {
+		return (EAttribute)settingsfileTypeEClass.getEStructuralFeatures().get(1);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EClass getShutterClosedPhysType() {
 		return shutterClosedPhysTypeEClass;
 	}
@@ -866,6 +875,15 @@ public class LocalTomoPackageImpl extends EPackageImpl implements LocalTomoPacka
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EAttribute getTomodoType_SegmentsToRemoveRelativeToNexusForOutdir() {
+		return (EAttribute)tomodoTypeEClass.getEStructuralFeatures().get(6);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public LocalTomoFactory getLocalTomoFactory() {
 		return (LocalTomoFactory)getEFactoryInstance();
 	}
@@ -937,6 +955,7 @@ public class LocalTomoPackageImpl extends EPackageImpl implements LocalTomoPacka
 
 		settingsfileTypeEClass = createEClass(SETTINGSFILE_TYPE);
 		createEAttribute(settingsfileTypeEClass, SETTINGSFILE_TYPE__BLUEPRINT);
+		createEAttribute(settingsfileTypeEClass, SETTINGSFILE_TYPE__SETTINGS_DIR_POSTFIX);
 
 		shutterClosedPhysTypeEClass = createEClass(SHUTTER_CLOSED_PHYS_TYPE);
 		createEAttribute(shutterClosedPhysTypeEClass, SHUTTER_CLOSED_PHYS_TYPE__VALUE);
@@ -976,6 +995,7 @@ public class LocalTomoPackageImpl extends EPackageImpl implements LocalTomoPacka
 		createEReference(tomodoTypeEClass, TOMODO_TYPE__SETTINGSFILE);
 		createEReference(tomodoTypeEClass, TOMODO_TYPE__IMAGEKEYENCODING);
 		createEReference(tomodoTypeEClass, TOMODO_TYPE__CLUSTER);
+		createEAttribute(tomodoTypeEClass, TOMODO_TYPE__SEGMENTS_TO_REMOVE_RELATIVE_TO_NEXUS_FOR_OUTDIR);
 	}
 
 	/**
@@ -1059,6 +1079,7 @@ public class LocalTomoPackageImpl extends EPackageImpl implements LocalTomoPacka
 
 		initEClass(settingsfileTypeEClass, SettingsfileType.class, "SettingsfileType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getSettingsfileType_Blueprint(), theXMLTypePackage.getNormalizedString(), "blueprint", null, 0, 1, SettingsfileType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getSettingsfileType_SettingsDirPostfix(), theXMLTypePackage.getString(), "settingsDirPostfix", null, 0, 1, SettingsfileType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(shutterClosedPhysTypeEClass, ShutterClosedPhysType.class, "ShutterClosedPhysType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getShutterClosedPhysType_Value(), theXMLTypePackage.getDecimal(), "value", null, 0, 1, ShutterClosedPhysType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -1098,6 +1119,7 @@ public class LocalTomoPackageImpl extends EPackageImpl implements LocalTomoPacka
 		initEReference(getTomodoType_Settingsfile(), this.getSettingsfileType(), null, "settingsfile", null, 0, 1, TomodoType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getTomodoType_Imagekeyencoding(), this.getImagekeyencodingType(), null, "imagekeyencoding", null, 0, 1, TomodoType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getTomodoType_Cluster(), this.getClusterType(), null, "cluster", null, 0, 1, TomodoType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getTomodoType_SegmentsToRemoveRelativeToNexusForOutdir(), theXMLTypePackage.getInt(), "segmentsToRemoveRelativeToNexusForOutdir", null, 0, 1, TomodoType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		// Create resource
 		createResource(eNS_URI);
@@ -1409,6 +1431,14 @@ public class LocalTomoPackageImpl extends EPackageImpl implements LocalTomoPacka
 			 "namespace", "##targetNamespace"
 		   });		
 		addAnnotation
+		  (getSettingsfileType_SettingsDirPostfix(), 
+		   source, 
+		   new String[] {
+			 "kind", "element",
+			 "name", "settingsDirPostfix",
+			 "namespace", "##targetNamespace"
+		   });		
+		addAnnotation
 		  (shutterClosedPhysTypeEClass, 
 		   source, 
 		   new String[] {
@@ -1631,6 +1661,14 @@ public class LocalTomoPackageImpl extends EPackageImpl implements LocalTomoPacka
 		   new String[] {
 			 "kind", "element",
 			 "name", "cluster",
+			 "namespace", "##targetNamespace"
+		   });		
+		addAnnotation
+		  (getTomodoType_SegmentsToRemoveRelativeToNexusForOutdir(), 
+		   source, 
+		   new String[] {
+			 "kind", "element",
+			 "name", "segmentsToRemoveRelativeToNexusForOutdir",
 			 "namespace", "##targetNamespace"
 		   });
 	}

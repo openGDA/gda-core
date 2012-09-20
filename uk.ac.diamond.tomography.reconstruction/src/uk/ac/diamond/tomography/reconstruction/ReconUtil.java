@@ -26,19 +26,49 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
+import uk.ac.diamond.tomography.localtomo.LocalTomoType;
+import uk.ac.diamond.tomography.localtomo.util.LocalTomoUtil;
+
 public class ReconUtil {
 
 	public static File getPathToWriteTo(IFile nexusFile) {
-		File path = new File(nexusFile.getLocation().toOSString());
-		File pathToRecon = new File(path.getParent(), "/processing/reconstruction/");
+
+		String parentPath = getPathRelativeToNxsForProcessing(nexusFile.getLocation().toOSString());
+		File pathToRecon = new File(parentPath, "/processing/reconstruction/");
 		return pathToRecon;
 	}
 
+	private static String getPathRelativeToNxsForProcessing(String path) {
+		int segmentsToRemove = 0;
+
+		LocalTomoType localTomoObject = LocalTomoUtil.getLocalTomoObject();
+
+		if (localTomoObject != null) {
+			segmentsToRemove = localTomoObject.getTomodo().getSegmentsToRemoveRelativeToNexusForOutdir();
+		}
+
+		Path fileFullPath = new Path(path);
+		IPath parentPath = fileFullPath.removeLastSegments(1);
+		if (segmentsToRemove > 0) {
+			parentPath = parentPath.removeLastSegments(segmentsToRemove);
+		}
+		return parentPath.toOSString();
+	}
+
 	public static File getSettingsFileLocation(IFile nexusFile) {
-		File path = new File(nexusFile.getLocation().toOSString());
 		Path path2 = new Path(nexusFile.getName());
 		String fileNameWithoutExtension = path2.removeFileExtension().toOSString();
-		File pathToRecon = new File(path.getParent(), "/processing/sino/" + fileNameWithoutExtension + "_data/settings");
+		String parentPath = getPathRelativeToNxsForProcessing(nexusFile.getLocation().toOSString());
+
+		String postFixDir = "";
+		LocalTomoType localTomoObject = LocalTomoUtil.getLocalTomoObject();
+		if (localTomoObject != null) {
+			String postFixDirObj = localTomoObject.getTomodo().getSettingsfile().getSettingsDirPostfix();
+			if (postFixDirObj != null && postFixDirObj.length() > 0) {
+				postFixDir = postFixDirObj;
+			}
+		}
+		File pathToRecon = new File(parentPath, "/processing/sino/" + fileNameWithoutExtension + postFixDir);
 		return pathToRecon;
 	}
 
@@ -46,7 +76,13 @@ public class ReconUtil {
 		Path path = new Path(hmFileLocation);
 		Path path2 = new Path(new Path(hmFileLocation).lastSegment());
 		String fileNameWithoutExtension = path2.removeFileExtension().toOSString();
-		IPath nxsFilePath = path.removeLastSegments(5).append(fileNameWithoutExtension).addFileExtension("nxs").setDevice(null);
+		IPath nxsFilePath = path.removeLastSegments(5).append(fileNameWithoutExtension).addFileExtension("nxs")
+				.setDevice(null);
 		return ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(URI.create(nxsFilePath.toString()))[0];
+	}
+
+	public static IPath getProcessingDir(IFile nexusFile) {
+		String parentPath = getPathRelativeToNxsForProcessing(nexusFile.getLocation().toOSString());
+		return new Path(parentPath).append("processing");
 	}
 }

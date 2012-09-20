@@ -17,6 +17,7 @@ import org.eclipse.emf.ecore.EObject;
  * The following features are supported:
  * <ul>
  *   <li>{@link uk.ac.diamond.tomography.localtomo.SettingsfileType#getBlueprint <em>Blueprint</em>}</li>
+ *   <li>{@link uk.ac.diamond.tomography.localtomo.SettingsfileType#getSettingsDirPostfix <em>Settings Dir Postfix</em>}</li>
  * </ul>
  * </p>
  *
@@ -51,5 +52,32 @@ public interface SettingsfileType extends EObject {
 	 * @generated
 	 */
 	void setBlueprint(String value);
+
+	/**
+	 * Returns the value of the '<em><b>Settings Dir Postfix</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Settings Dir Postfix</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Settings Dir Postfix</em>' attribute.
+	 * @see #setSettingsDirPostfix(String)
+	 * @see uk.ac.diamond.tomography.localtomo.LocalTomoPackage#getSettingsfileType_SettingsDirPostfix()
+	 * @model dataType="org.eclipse.emf.ecore.xml.type.String"
+	 *        extendedMetaData="kind='element' name='settingsDirPostfix' namespace='##targetNamespace'"
+	 * @generated
+	 */
+	String getSettingsDirPostfix();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.diamond.tomography.localtomo.SettingsfileType#getSettingsDirPostfix <em>Settings Dir Postfix</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Settings Dir Postfix</em>' attribute.
+	 * @see #getSettingsDirPostfix()
+	 * @generated
+	 */
+	void setSettingsDirPostfix(String value);
 
 } // SettingsfileType

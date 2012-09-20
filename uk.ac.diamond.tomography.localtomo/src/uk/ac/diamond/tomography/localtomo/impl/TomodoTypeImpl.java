@@ -37,6 +37,7 @@ import uk.ac.diamond.tomography.localtomo.TomodoType;
  *   <li>{@link uk.ac.diamond.tomography.localtomo.impl.TomodoTypeImpl#getSettingsfile <em>Settingsfile</em>}</li>
  *   <li>{@link uk.ac.diamond.tomography.localtomo.impl.TomodoTypeImpl#getImagekeyencoding <em>Imagekeyencoding</em>}</li>
  *   <li>{@link uk.ac.diamond.tomography.localtomo.impl.TomodoTypeImpl#getCluster <em>Cluster</em>}</li>
+ *   <li>{@link uk.ac.diamond.tomography.localtomo.impl.TomodoTypeImpl#getSegmentsToRemoveRelativeToNexusForOutdir <em>Segments To Remove Relative To Nexus For Outdir</em>}</li>
  * </ul>
  * </p>
  *
@@ -102,6 +103,35 @@ public class TomodoTypeImpl extends EObjectImpl implements TomodoType {
 	 * @ordered
 	 */
 	protected ClusterType cluster;
+
+	/**
+	 * The default value of the '{@link #getSegmentsToRemoveRelativeToNexusForOutdir() <em>Segments To Remove Relative To Nexus For Outdir</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getSegmentsToRemoveRelativeToNexusForOutdir()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final int SEGMENTS_TO_REMOVE_RELATIVE_TO_NEXUS_FOR_OUTDIR_EDEFAULT = 0;
+
+	/**
+	 * The cached value of the '{@link #getSegmentsToRemoveRelativeToNexusForOutdir() <em>Segments To Remove Relative To Nexus For Outdir</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getSegmentsToRemoveRelativeToNexusForOutdir()
+	 * @generated
+	 * @ordered
+	 */
+	protected int segmentsToRemoveRelativeToNexusForOutdir = SEGMENTS_TO_REMOVE_RELATIVE_TO_NEXUS_FOR_OUTDIR_EDEFAULT;
+
+	/**
+	 * This is true if the Segments To Remove Relative To Nexus For Outdir attribute has been set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean segmentsToRemoveRelativeToNexusForOutdirESet;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -385,6 +415,52 @@ public class TomodoTypeImpl extends EObjectImpl implements TomodoType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public int getSegmentsToRemoveRelativeToNexusForOutdir() {
+		return segmentsToRemoveRelativeToNexusForOutdir;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setSegmentsToRemoveRelativeToNexusForOutdir(int newSegmentsToRemoveRelativeToNexusForOutdir) {
+		int oldSegmentsToRemoveRelativeToNexusForOutdir = segmentsToRemoveRelativeToNexusForOutdir;
+		segmentsToRemoveRelativeToNexusForOutdir = newSegmentsToRemoveRelativeToNexusForOutdir;
+		boolean oldSegmentsToRemoveRelativeToNexusForOutdirESet = segmentsToRemoveRelativeToNexusForOutdirESet;
+		segmentsToRemoveRelativeToNexusForOutdirESet = true;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, LocalTomoPackage.TOMODO_TYPE__SEGMENTS_TO_REMOVE_RELATIVE_TO_NEXUS_FOR_OUTDIR, oldSegmentsToRemoveRelativeToNexusForOutdir, segmentsToRemoveRelativeToNexusForOutdir, !oldSegmentsToRemoveRelativeToNexusForOutdirESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void unsetSegmentsToRemoveRelativeToNexusForOutdir() {
+		int oldSegmentsToRemoveRelativeToNexusForOutdir = segmentsToRemoveRelativeToNexusForOutdir;
+		boolean oldSegmentsToRemoveRelativeToNexusForOutdirESet = segmentsToRemoveRelativeToNexusForOutdirESet;
+		segmentsToRemoveRelativeToNexusForOutdir = SEGMENTS_TO_REMOVE_RELATIVE_TO_NEXUS_FOR_OUTDIR_EDEFAULT;
+		segmentsToRemoveRelativeToNexusForOutdirESet = false;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.UNSET, LocalTomoPackage.TOMODO_TYPE__SEGMENTS_TO_REMOVE_RELATIVE_TO_NEXUS_FOR_OUTDIR, oldSegmentsToRemoveRelativeToNexusForOutdir, SEGMENTS_TO_REMOVE_RELATIVE_TO_NEXUS_FOR_OUTDIR_EDEFAULT, oldSegmentsToRemoveRelativeToNexusForOutdirESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean isSetSegmentsToRemoveRelativeToNexusForOutdir() {
+		return segmentsToRemoveRelativeToNexusForOutdirESet;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
@@ -424,6 +500,8 @@ public class TomodoTypeImpl extends EObjectImpl implements TomodoType {
 				return getImagekeyencoding();
 			case LocalTomoPackage.TOMODO_TYPE__CLUSTER:
 				return getCluster();
+			case LocalTomoPackage.TOMODO_TYPE__SEGMENTS_TO_REMOVE_RELATIVE_TO_NEXUS_FOR_OUTDIR:
+				return getSegmentsToRemoveRelativeToNexusForOutdir();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -453,6 +531,9 @@ public class TomodoTypeImpl extends EObjectImpl implements TomodoType {
 				return;
 			case LocalTomoPackage.TOMODO_TYPE__CLUSTER:
 				setCluster((ClusterType)newValue);
+				return;
+			case LocalTomoPackage.TOMODO_TYPE__SEGMENTS_TO_REMOVE_RELATIVE_TO_NEXUS_FOR_OUTDIR:
+				setSegmentsToRemoveRelativeToNexusForOutdir((Integer)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -484,6 +565,9 @@ public class TomodoTypeImpl extends EObjectImpl implements TomodoType {
 			case LocalTomoPackage.TOMODO_TYPE__CLUSTER:
 				setCluster((ClusterType)null);
 				return;
+			case LocalTomoPackage.TOMODO_TYPE__SEGMENTS_TO_REMOVE_RELATIVE_TO_NEXUS_FOR_OUTDIR:
+				unsetSegmentsToRemoveRelativeToNexusForOutdir();
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -508,8 +592,26 @@ public class TomodoTypeImpl extends EObjectImpl implements TomodoType {
 				return imagekeyencoding != null;
 			case LocalTomoPackage.TOMODO_TYPE__CLUSTER:
 				return cluster != null;
+			case LocalTomoPackage.TOMODO_TYPE__SEGMENTS_TO_REMOVE_RELATIVE_TO_NEXUS_FOR_OUTDIR:
+				return isSetSegmentsToRemoveRelativeToNexusForOutdir();
 		}
 		return super.eIsSet(featureID);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public String toString() {
+		if (eIsProxy()) return super.toString();
+
+		StringBuffer result = new StringBuffer(super.toString());
+		result.append(" (segmentsToRemoveRelativeToNexusForOutdir: ");
+		if (segmentsToRemoveRelativeToNexusForOutdirESet) result.append(segmentsToRemoveRelativeToNexusForOutdir); else result.append("<unset>");
+		result.append(')');
+		return result.toString();
 	}
 
 } //TomodoTypeImpl

@@ -504,13 +504,22 @@ public interface LocalTomoPackage extends EPackage {
 	int SETTINGSFILE_TYPE__BLUEPRINT = 0;
 
 	/**
+	 * The feature id for the '<em><b>Settings Dir Postfix</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SETTINGSFILE_TYPE__SETTINGS_DIR_POSTFIX = 1;
+
+	/**
 	 * The number of structural features of the '<em>Settingsfile Type</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SETTINGSFILE_TYPE_FEATURE_COUNT = 1;
+	int SETTINGSFILE_TYPE_FEATURE_COUNT = 2;
 
 	/**
 	 * The meta object id for the '{@link uk.ac.diamond.tomography.localtomo.impl.ShutterClosedPhysTypeImpl <em>Shutter Closed Phys Type</em>}' class.
@@ -864,13 +873,22 @@ public interface LocalTomoPackage extends EPackage {
 	int TOMODO_TYPE__CLUSTER = 5;
 
 	/**
+	 * The feature id for the '<em><b>Segments To Remove Relative To Nexus For Outdir</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TOMODO_TYPE__SEGMENTS_TO_REMOVE_RELATIVE_TO_NEXUS_FOR_OUTDIR = 6;
+
+	/**
 	 * The number of structural features of the '<em>Tomodo Type</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int TOMODO_TYPE_FEATURE_COUNT = 6;
+	int TOMODO_TYPE_FEATURE_COUNT = 7;
 
 
 	/**
@@ -1281,6 +1299,17 @@ public interface LocalTomoPackage extends EPackage {
 	EAttribute getSettingsfileType_Blueprint();
 
 	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.diamond.tomography.localtomo.SettingsfileType#getSettingsDirPostfix <em>Settings Dir Postfix</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Settings Dir Postfix</em>'.
+	 * @see uk.ac.diamond.tomography.localtomo.SettingsfileType#getSettingsDirPostfix()
+	 * @see #getSettingsfileType()
+	 * @generated
+	 */
+	EAttribute getSettingsfileType_SettingsDirPostfix();
+
+	/**
 	 * Returns the meta object for class '{@link uk.ac.diamond.tomography.localtomo.ShutterClosedPhysType <em>Shutter Closed Phys Type</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -1600,6 +1629,17 @@ public interface LocalTomoPackage extends EPackage {
 	 * @generated
 	 */
 	EReference getTomodoType_Cluster();
+
+	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.diamond.tomography.localtomo.TomodoType#getSegmentsToRemoveRelativeToNexusForOutdir <em>Segments To Remove Relative To Nexus For Outdir</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Segments To Remove Relative To Nexus For Outdir</em>'.
+	 * @see uk.ac.diamond.tomography.localtomo.TomodoType#getSegmentsToRemoveRelativeToNexusForOutdir()
+	 * @see #getTomodoType()
+	 * @generated
+	 */
+	EAttribute getTomodoType_SegmentsToRemoveRelativeToNexusForOutdir();
 
 	/**
 	 * Returns the factory that creates the instances of the model.
@@ -1950,6 +1990,14 @@ public interface LocalTomoPackage extends EPackage {
 		EAttribute SETTINGSFILE_TYPE__BLUEPRINT = eINSTANCE.getSettingsfileType_Blueprint();
 
 		/**
+		 * The meta object literal for the '<em><b>Settings Dir Postfix</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute SETTINGSFILE_TYPE__SETTINGS_DIR_POSTFIX = eINSTANCE.getSettingsfileType_SettingsDirPostfix();
+
+		/**
 		 * The meta object literal for the '{@link uk.ac.diamond.tomography.localtomo.impl.ShutterClosedPhysTypeImpl <em>Shutter Closed Phys Type</em>}' class.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
@@ -2206,6 +2254,14 @@ public interface LocalTomoPackage extends EPackage {
 		 * @generated
 		 */
 		EReference TOMODO_TYPE__CLUSTER = eINSTANCE.getTomodoType_Cluster();
+
+		/**
+		 * The meta object literal for the '<em><b>Segments To Remove Relative To Nexus For Outdir</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute TOMODO_TYPE__SEGMENTS_TO_REMOVE_RELATIVE_TO_NEXUS_FOR_OUTDIR = eINSTANCE.getTomodoType_SegmentsToRemoveRelativeToNexusForOutdir();
 
 	}
 
