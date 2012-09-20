@@ -49,7 +49,7 @@ public class ExperimentCommand extends JythonScriptFileRunnerCommand implements 
 
 	@Override
 	public String getDescription() {
-		return experimentObject.getCommandSummaryString();
+		return experimentObject.getCommandSummaryString(hasAlreadyBeenRun);
 	}
 
 	@Override
