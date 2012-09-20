@@ -181,6 +181,12 @@ public class OSCommandRunner implements Serializable {
 	 */
 	public OSCommandRunner(List<String> _commands, boolean _keepOutput, Object stdInFile, String stdOutFileName, Map<? extends String, ? extends String> envPutAll,
 			List<String> envRemove, String directory) {
+		this(_commands, _keepOutput, stdInFile, stdOutFileName, envPutAll, envRemove, directory, -1);
+	}
+	
+	
+	public OSCommandRunner(List<String> _commands, boolean _keepOutput, Object stdInFile, String stdOutFileName, Map<? extends String, ? extends String> envPutAll,
+			List<String> envRemove, String directory, int timeoutInMs) {
 		this.commands = _commands;
 		this.keepOutput = _keepOutput;
 		Integer _exitValue = 0;
@@ -199,7 +205,14 @@ public class OSCommandRunner implements Serializable {
 			pb.command(commands);
 			if( directory != null && !directory.isEmpty())
 				pb.directory(new File(directory));
+			
 			final Process p = pb.start();
+			
+			if (timeoutInMs != -1) {
+				final ProcessKiller killer = new ProcessKiller(p, timeoutInMs);
+				killer.start();
+			}
+			
 			try {
 				if (stdInFile != null) {
 					// Copy the file to the process input
