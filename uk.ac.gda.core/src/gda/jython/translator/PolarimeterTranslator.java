@@ -672,6 +672,6 @@ public class PolarimeterTranslator extends TranslatorBase
 	
 	@Override
 	public boolean ignoreRestOfLine(String thisGroup) {
-		return thisGroup.contains("#");
-	}	
+		return thisGroup.trim().startsWith("#");
+	}
 }
