@@ -478,17 +478,35 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
 
+				monitor.beginTask("Showing Reconstruction", 5);
+				// Update monitor
+				monitor.worked(1);
+				
 				File path = new File(nexusFile.getLocation().toOSString());
 				File pathToRecon = ReconUtil.getPathToWriteTo(nexusFile);
 				File pathToImages = new File(pathToRecon, path.getName().replace(".nxs", "") + "_data_quick");
 				File imageFile = new File(pathToImages, String.format("image_%05d.tif", pixelPosition));
-
+				
+				// update monitor
+				monitor.worked(1);
+				
 				try {
 					DataHolder data = new TIFFImageLoader(imageFile.getAbsolutePath()).loadFile();
+					
+					// update monitor
+					monitor.worked(1);
+					
 					AbstractDataset image = data.getDataset(0);
 					image.isubtract(image.min());
 					image.imultiply(1000.0);
+					
+					// update monitor
+					monitor.worked(1);
+					
 					SDAPlotter.imagePlot("Plot 1", image);
+					
+					// update monitor
+					monitor.worked(1);
 				} catch (Exception e) {
 					logger.error("TODO cannot Load reconstruction for display", e);
 					return Status.CANCEL_STATUS;
@@ -496,6 +514,8 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 				return Status.OK_STATUS;
 			}
 		};
+		
+		displayJob.setUser(true);
 		displayJob.schedule();
 
 	}

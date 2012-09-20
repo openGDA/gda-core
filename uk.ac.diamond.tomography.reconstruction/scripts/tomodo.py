@@ -26,7 +26,19 @@ import numpy as np
 #import PIL.Image as Image
 import Image
 
-def getBeamlineTomoConfig(inLocalTomoXML="localTomo.xml"):
+def checkDirContentForFilesWithPrefix(inDir, filenameTemplate='sino_'):
+	
+	tot = 0
+	if not os.path.isdir(inDir):
+		raise Exception("checkDirContentForFilesWithPrefix: input directory does not exist or is not a directory:"+`inDir`)
+	
+	for n in os.listdir(inDir):
+		if os.path.isfile(os.path.join(inDir,n)) and n.startswith(filenameTemplate):
+			tot+=1
+	return tot
+	
+	
+def getBeamlineTomoConfig(inLocalTomoXML="localTomo.xml", verbose=True):
 	# check if input file exists
 	if not os.path.exists(inLocalTomoXML):
 		msg = "Input beamline-specific localTomo file, %s, does not exist!"%inLocalTomoXML
@@ -40,7 +52,6 @@ def getBeamlineTomoConfig(inLocalTomoXML="localTomo.xml"):
 	# beamline>ixx
 	val_tag=beamline_tag[0].getElementsByTagName("ixx")
 	ixx = val_tag[0].childNodes[0].data
-	print '\t ixx=', ixx
 
 	#tomodo
 	tomodo_tag=mydoc.getElementsByTagName("tomodo")
@@ -49,63 +60,51 @@ def getBeamlineTomoConfig(inLocalTomoXML="localTomo.xml"):
 	mid_tag=tomodo_tag[0].getElementsByTagName("shutter")
 	val_tag=mid_tag[0].getElementsByTagName("shutterOpenPhys")
 	shutterOpenPhys = val_tag[0].childNodes[0].data
-	print '\t shutterOpenPhys=', shutterOpenPhys
 
 	val_tag=mid_tag[0].getElementsByTagName("shutterClosedPhys")
 	shutterClosedPhys = val_tag[0].childNodes[0].data
-	print '\t shutterClosedPhys=', shutterClosedPhys
 
 	#tomodo>tifimage
 	mid_tag=tomodo_tag[0].getElementsByTagName("tifimage")
 	
 	val_tag=mid_tag[0].getElementsByTagName("filenameFmt")
 	filenameFmt = val_tag[0].childNodes[0].data
-	print '\t filenameFmt=', filenameFmt
 
 	#tomodo>nexusfile
 	mid_tag=tomodo_tag[0].getElementsByTagName("nexusfile")
 	
 	val_tag=mid_tag[0].getElementsByTagName("shutterNXSPath")
 	shutterNXSPath = val_tag[0].childNodes[0].data
-	print '\t shutterNXSPath=', shutterNXSPath
 
 	val_tag=mid_tag[0].getElementsByTagName("stagePosNXSPath")
 	stagePosNXSPath = val_tag[0].childNodes[0].data
-	print '\t stagePosNXSPath=', stagePosNXSPath
 
 	val_tag=mid_tag[0].getElementsByTagName("stageRotNXSPath")
 	stageRotNXSPath = val_tag[0].childNodes[0].data
-	print '\t stageRotNXSPath=', stageRotNXSPath
 
 	val_tag=mid_tag[0].getElementsByTagName("tifNXSPath")
 	tifNXSPath = val_tag[0].childNodes[0].data
-	print '\t tifNXSPath=', tifNXSPath
 
 	val_tag=mid_tag[0].getElementsByTagName("imgkeyNXSPath")
 	imgkeyNXSPath = val_tag[0].childNodes[0].data
-	print '\t imgkeyNXSPath=', imgkeyNXSPath
 
 	#tomodo>settingsfile
 	mid_tag=tomodo_tag[0].getElementsByTagName("settingsfile")
 	
 	val_tag=mid_tag[0].getElementsByTagName("blueprint")
 	settings_blueprint = val_tag[0].childNodes[0].data
-	print '\t settings_blueprint=', settings_blueprint
 
 	#tomodo>imagekeyencoding
 	mid_tag=tomodo_tag[0].getElementsByTagName("imagekeyencoding")
 	
 	val_tag=mid_tag[0].getElementsByTagName("darkfield")
 	imgkey_darkfield = val_tag[0].childNodes[0].data
-	print '\t imgkey_darkfield=', imgkey_darkfield
 
 	val_tag=mid_tag[0].getElementsByTagName("flatfield")
 	imgkey_flatfield = val_tag[0].childNodes[0].data
-	print '\t imgkey_flatfield=', imgkey_flatfield
 
 	val_tag=mid_tag[0].getElementsByTagName("projection")
 	imgkey_projection = val_tag[0].childNodes[0].data
-	print '\t imgkey_projection=', imgkey_projection
 
 	#tomodo>cluster
 	cluster_tag=tomodo_tag[0].getElementsByTagName("cluster")
@@ -115,20 +114,35 @@ def getBeamlineTomoConfig(inLocalTomoXML="localTomo.xml"):
 
 	projectname_tag=qsub_tag[0].getElementsByTagName("projectname")
 	projectname = projectname_tag[0].childNodes[0].data
-	print '\t projectname=', projectname
 
 	args_tag=qsub_tag[0].getElementsByTagName("args")
 	args = args_tag[0].childNodes[0].data
-	print '\t args=', args
 	
 	sinoqueue_tag=qsub_tag[0].getElementsByTagName("sinoqueue")
 	sinoqueue = sinoqueue_tag[0].childNodes[0].data
-	print '\t sinoqueue=', sinoqueue
 
 	reconqueue_tag=qsub_tag[0].getElementsByTagName("reconqueue")
 	reconqueue = reconqueue_tag[0].childNodes[0].data
-	print '\t reconqueue=', reconqueue
 	
+	if verbose:
+		print '\t ixx=', ixx
+		print '\t shutterOpenPhys=', shutterOpenPhys
+		print '\t shutterClosedPhys=', shutterClosedPhys
+		print '\t filenameFmt=', filenameFmt
+		print '\t shutterNXSPath=', shutterNXSPath
+		print '\t stagePosNXSPath=', stagePosNXSPath
+		print '\t stageRotNXSPath=', stageRotNXSPath
+		print '\t tifNXSPath=', tifNXSPath
+		print '\t imgkeyNXSPath=', imgkeyNXSPath
+		print '\t settings_blueprint=', settings_blueprint
+		print '\t imgkey_darkfield=', imgkey_darkfield
+		print '\t imgkey_flatfield=', imgkey_flatfield
+		print '\t imgkey_projection=', imgkey_projection
+		print '\t projectname=', projectname
+		print '\t args=', args
+		print '\t sinoqueue=', sinoqueue
+		print '\t reconqueue=', reconqueue
+		
 	return filenameFmt, stagePosNXSPath, stageRotNXSPath, tifNXSPath, projectname, args
 	
 def reindexLinks(inListOfIdx, outListOfIdx, indir="/dls/i13/data/2012/mt5811-1/564/pco1/", outdir="/dls/i13/data/2012/mt5811-1/564/pco1/", inFilenameFmt="p_%05d.tif", outFilenameFmt="p_%05d.tif"):
@@ -485,6 +499,7 @@ def populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, tif_lst, da
 	#filenameFmt=detectorName+scanNumber_str+"-"+"%05d.tif"
 	inFnameFmt="%05d.tif"
 	if makeLinks_arg['beamlineID'] == "i12":
+		#inFnameFmt=inImgFilenameFmt
 		inFnameFmt="p_%05d.tif"
 	outFnameFmt="p_%05d.tif"
 	makeLinksToOriginalFiles(\
@@ -1394,11 +1409,18 @@ def makeLinksForNXSFile(\
 				
 				zidx_last=len_proj_idx_decimated-1
 				#print 'zidx_last=', zidx_last
-				sino_success=launchSinoListener(\
-											head+os.sep+proj_dir\
-											, inProjFmt\
-											, zidx_last\
-											, head+os.sep+sino_dir\
+				sinoTot= checkDirContentForFilesWithPrefix(inDir=head+os.sep+sino_dir, filenameTemplate='sino_')
+				print '\t sinoTot=', sinoTot
+				if sinoTot > 0:
+					sino_success = True
+					msg="INFO: Using %s sinograms previously created in %s"%(sinoTot, head+os.sep+sino_dir)
+					print msg
+				else:
+					sino_success=launchSinoListener(\
+											inDir=head+os.sep+proj_dir\
+											, inFilenameFmt=inProjFmt\
+											, nProjs=zidx_last\
+											, outDir=head+os.sep+sino_dir\
 											, qsub_proj=qsub_project\
 											, verbose=True\
 											, testing=False)
