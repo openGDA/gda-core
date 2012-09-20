@@ -29,6 +29,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -37,32 +38,25 @@ import java.util.concurrent.ExecutorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * OSCommandRunner Class
- */
 public class OSCommandRunner implements Serializable {
 	
 	private static final Logger logger = LoggerFactory.getLogger(OSCommandRunner.class);
 
 	// TODO fields should be private and accessor methods used.
-	/**	 */
+	
 	public final Integer exitValue;
-	/**	 */
+	
 	public final Exception exception;
-	/**	 */
+	
 	public final Boolean succeeded;
-	/**	 */
+	
 	public final List<String> commands;
-	/**	 */
+	
 	public final boolean keepOutput;
 	
-	/**	 */
-	private final java.util.List<String> outputLines;
+	private final List<String> outputLines;
 	
-	/**
-	 * @return lines
-	 */
-	public final java.util.List<String> getOutputLines() {
+	public final List<String> getOutputLines() {
 		return outputLines;
 	}
 
@@ -70,58 +64,29 @@ public class OSCommandRunner implements Serializable {
 	 * if we want a constructor that accepts a command line we will need a method to break that into String[] of
 	 * commands
 	 */
-	/**
-	 * @param _commands
-	 * @param _keepOutput
-	 * @param stdInFileName
-	 * @param stdOutFileName
-	 */
 	public OSCommandRunner(String[] _commands, boolean _keepOutput, String stdInFileName, String stdOutFileName) {
-		this(java.util.Arrays.asList(_commands), _keepOutput, stdInFileName, stdOutFileName, null, null);
+		this(Arrays.asList(_commands), _keepOutput, stdInFileName, stdOutFileName, null, null);
 	}
 
-	/**
-	 * @param command
-	 * @param _keepOutput
-	 * @param stdInFileName
-	 * @param stdOutFileName
-	 */
 	public OSCommandRunner(String command, boolean _keepOutput, String stdInFileName, String stdOutFileName) {
-		this(java.util.Arrays.asList(command.split("[\\s]")), _keepOutput, stdInFileName, stdOutFileName, null, null);
+		this(Arrays.asList(command.split("[\\s]")), _keepOutput, stdInFileName, stdOutFileName, null, null);
 	}
 
-	/**
-	 * 
-	 */
 	public enum LOGOPTION {
-		/**
-		 * 
-		 */
-		NEVER, /**
-		 * 
-		 */
-		ALWAYS, /**
-		 * 
-		 */
+		
+		NEVER,
+		
+		ALWAYS,
+		
 		ONLY_ON_ERROR
 	}
 
-	/**
-	 * @param command
-	 * @param logOption
-	 * @param stdInFileName
-	 */
 	public static void runNoWait(String command, LOGOPTION logOption, String stdInFileName) {
-		runNoWait(java.util.Arrays.asList(command.split("[\\s]")), logOption, stdInFileName);
+		runNoWait(Arrays.asList(command.split("[\\s]")), logOption, stdInFileName);
 	}
 
-	/**
-	 * @param _commands
-	 * @param logOption
-	 * @param stdInFileName
-	 */
 	public static void runNoWait(String[] _commands, LOGOPTION logOption, String stdInFileName) {
-		runNoWait(java.util.Arrays.asList(_commands), logOption, stdInFileName);
+		runNoWait(Arrays.asList(_commands), logOption, stdInFileName);
 	}
 
 	/**
@@ -360,9 +325,6 @@ public class OSCommandRunner implements Serializable {
 	}
 	
 	
-	/**
-	 * @return command
-	 */
 	public String getCommandAsString() {
 		String msg = "";
 		for (String s : commands) {
