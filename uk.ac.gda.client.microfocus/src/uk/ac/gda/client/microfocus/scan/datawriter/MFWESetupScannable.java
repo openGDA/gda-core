@@ -20,7 +20,6 @@ package uk.ac.gda.client.microfocus.scan.datawriter;
 
 import gda.device.Detector;
 import gda.device.scannable.ScanDataListenerScannable;
-import gda.factory.Finder;
 import gda.scan.IScanDataPoint;
 
 /**

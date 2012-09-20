@@ -33,7 +33,6 @@
                 <pathelement location="${GDA-plugin.host.basedir}/bin" />
                 <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/bin" />
                 <pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.server.exafs/bin" />
-                <pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.client.microfocus/bin" />
                 <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.core/classes/main" />
                 <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.core/classes/test" />
                 <pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
