@@ -326,7 +326,7 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 		protected SampleInOutBeamPosition(Shell parentShell) {
 			super(parentShell);
 		}
-		
+
 		@Override
 		public void create() {
 			super.create();
@@ -432,8 +432,8 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 				command.append(" --quick");
 			}
 			String localTomoUtilFileLocation = LocalTomoUtil.getLocalTomoUtilFileLocation();
-			if(localTomoUtilFileLocation != null){
-				command.append(" --quick");
+			if (localTomoUtilFileLocation != null) {
+				command.append(" --local " + localTomoUtilFileLocation);
 			}
 
 			double inBeamVal = 0;
@@ -445,7 +445,7 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 			}
 			command.append(String.format(" --stageInBeamPhys %s", inBeamVal));
 			command.append(String.format(" --stageOutOfBeamPhys %s", outOfBeamVal));
-			
+
 			logger.debug("Command that will be run:{}", command);
 			OSCommandRunner.runNoWait(command.toString(), LOGOPTION.ALWAYS, null);
 		} catch (URISyntaxException e) {

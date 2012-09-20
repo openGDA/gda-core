@@ -419,6 +419,7 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 			if (localTomoObject != null) {
 				TifNXSPathType tifNXSPath = localTomoObject.getTomodo().getNexusfile().getTifNXSPath();
 				dataset = loadFile.getLazyDataset(tifNXSPath.getValue());
+				//dataset = loadFile.getLazyDataset("/entry1/instrument/pco1_hw_tif/image_data");
 			}
 
 			if (dataset != null) {
