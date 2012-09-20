@@ -99,7 +99,7 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 	}
 
 	@Override
-	public void setContinuousMode(boolean on) {
+	public void setContinuousMode(boolean on) throws DeviceException {
 		isContinuousMode = on;
 
 		if (!isSlave) {
@@ -111,11 +111,11 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 		}
 	}
 
-	private void switchOffExtTrigger() {
+	private void switchOffExtTrigger() throws DeviceException {
 		xspress2system.getDaServer().sendCommand("tfg setup-trig start"); // disables external triggering
 	}
 
-	private void setTimeFrames() {
+	private void setTimeFrames() throws DeviceException {
 		switchOnExtTrigger();
 		xspress2system.getDaServer().sendCommand("tfg setup-groups ext-start cycles 1");
 		xspress2system.getDaServer().sendCommand(
@@ -124,7 +124,7 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 		xspress2system.getDaServer().sendCommand("tfg arm");
 	}
 
-	private void switchOnExtTrigger() {
+	private void switchOnExtTrigger() throws DeviceException {
 		xspress2system.getDaServer().sendCommand("tfg setup-trig start ttl"+triggerSwitch);
 	}
 
