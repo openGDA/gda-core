@@ -70,20 +70,18 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	 * Property to control the file format. Defaults to {@link NexusGlobals#GDA_NX_DEFAULT}
 	 */
 	public static final String GDA_DATA_NEXUS_BACKEND = "gda.data.nexus.backend";
-	
+
 	/**
-	 * Property specifying whether SRS data files should be written in
-	 * addition to NeXus files. Default is {@code true}.
+	 * Property specifying whether SRS data files should be written in addition to NeXus files. Default is {@code true}.
 	 */
 	public static final String GDA_NEXUS_CREATE_SRS = "gda.nexus.createSRS";
-	
+
 	/**
-	 * Boolean property specifying whether nxs/dat filenames should be prefixed
-	 * with the beamline name; if {@code true}, files will be named (e.g.)
-	 * {@code "i23-999.nxs"} instead of just {@code "999.nxs"}
+	 * Boolean property specifying whether nxs/dat filenames should be prefixed with the beamline name; if {@code true},
+	 * files will be named (e.g.) {@code "i23-999.nxs"} instead of just {@code "999.nxs"}
 	 */
 	public static final String GDA_NEXUS_BEAMLINE_PREFIX = "gda.nexus.beamlinePrefix";
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(NexusDataWriter.class);
 
 	static final int MAX_DATAFILENAME = 255;
@@ -131,10 +129,11 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	 */
 	protected Long scanNumber;
 
-	Long getScanNumber() throws Exception{
-		configureScanNumber(null); //ensure it has been configured
+	Long getScanNumber() throws Exception {
+		configureScanNumber(null); // ensure it has been configured
 		return scanNumber;
 	}
+
 	protected Vector<SelfCreatingLink> scannableID;
 
 	boolean firstData = true;
@@ -145,37 +144,41 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 	protected Metadata metadata = null;
 
-	private boolean setupPropertiesDone=false;
+	private boolean setupPropertiesDone = false;
 
-	private boolean fileNumberConfigured=false;
+	private boolean fileNumberConfigured = false;
 
 	class SelfCreatingLink {
 		NXlink nxlink;
+
 		public SelfCreatingLink(NXlink nxlink) {
-			 this.nxlink = nxlink;
+			this.nxlink = nxlink;
 		}
+
 		void create(NeXusFileInterface file) throws NexusException {
 			file.makelink(nxlink);
 		}
 	}
-	
+
 	class ExteneralNXlink extends SelfCreatingLink {
 		String name, url;
+
 		public ExteneralNXlink(String name, String url) {
 			super(null);
 			this.name = name;
 			this.url = url;
 		}
+
 		@Override
 		void create(NeXusFileInterface file) throws NexusException {
 			file.linkexternaldataset(name, url);
 		}
 	}
-	
+
 	/**
-	 * Constructor. This attempts to read the java.property which defines the beamline name. 
+	 * Constructor. This attempts to read the java.property which defines the beamline name.
 	 */
-	public NexusDataWriter(){
+	public NexusDataWriter() {
 		super();
 	}
 
@@ -184,7 +187,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	}
 
 	protected void setupProperties() throws InstantiationException {
-		if( setupPropertiesDone)
+		if (setupPropertiesDone)
 			return;
 		metadata = GDAMetadataProvider.getInstance();
 
@@ -214,33 +217,34 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 		// Check to see if we want to create a text/SRS file as well.
 		createSrsFile = LocalProperties.check(GDA_NEXUS_CREATE_SRS, true);
-		
+
 		setupPropertiesDone = true;
 
 	}
 
 	@Override
 	public void configureScanNumber(Long _scanNumber) throws Exception {
-		if( !fileNumberConfigured){
-			if( _scanNumber != null ){
-				//the scan or other datawriter has set the id
+		if (!fileNumberConfigured) {
+			if (_scanNumber != null) {
+				// the scan or other datawriter has set the id
 				scanNumber = _scanNumber;
 			} else {
-				if( scanNumber == null){
+				if (scanNumber == null) {
 					setupProperties();
-					//not set in a constructor so get from num tracker
+					// not set in a constructor so get from num tracker
 					try {
 						NumTracker runNumber = new NumTracker(beamline);
 						// Get the next run number
 						scanNumber = runNumber.incrementNumber();
 					} catch (IOException e) {
 						logger.error("ERROR: Could not instantiate NumTracker in NexusDataWriter().", e);
-						throw new InstantiationException("ERROR: Could not instantiate NumTracker in NexusDataWriter()." + e.getMessage());
+						throw new InstantiationException(
+								"ERROR: Could not instantiate NumTracker in NexusDataWriter()." + e.getMessage());
 					}
 				}
 			}
 			fileNumberConfigured = true;
-		} 			
+		}
 	}
 
 	static private int[] generateStartPosPrefix(int currentPoint, int[] scanDimensions) {
@@ -278,21 +282,24 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	}
 
 	/**
-	 * calculate dimensionality of data to be written 
-	 * @param make if true calculate for pre-allocation (first Dim NX_UNLIMITED)
-	 * @param dataDimPrefix set to null if not point dependent
+	 * calculate dimensionality of data to be written
+	 * 
+	 * @param make
+	 *            if true calculate for pre-allocation (first Dim NX_UNLIMITED)
+	 * @param dataDimPrefix
+	 *            set to null if not point dependent
 	 * @param dataDimensions
 	 * @return dimensions
 	 */
 	static private int[] generateDataDim(boolean make, int[] dataDimPrefix, int[] dataDimensions) {
 		int[] dataDim = null;
 		if (dataDimPrefix != null) {
-			//do not attempt to add dataDimensions if not set or indicates single point
-			int dataDimensionToAdd = dataDimensions != null && (dataDimensions.length>1 || dataDimensions[0]>1) ?
-					dataDimensions.length : 0;
-				
+			// do not attempt to add dataDimensions if not set or indicates single point
+			int dataDimensionToAdd = dataDimensions != null && (dataDimensions.length > 1 || dataDimensions[0] > 1) ? dataDimensions.length
+					: 0;
+
 			dataDim = Arrays.copyOf(dataDimPrefix, dataDimPrefix.length + dataDimensionToAdd);
-			if( dataDimensionToAdd > 0 && dataDimensions != null){
+			if (dataDimensionToAdd > 0 && dataDimensions != null) {
 				for (int i = dataDimPrefix.length; i < dataDimPrefix.length + dataDimensionToAdd; i++) {
 					dataDim[i] = dataDimensions[i - dataDimPrefix.length];
 				}
@@ -370,7 +377,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			}
 
 			for (Detector detector : thisPoint.getDetectors()) {
-					writeDetector(detector);
+				writeDetector(detector);
 			}
 
 			file.flush();
@@ -427,8 +434,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 	private void writeDetector(Detector detector) throws DeviceException, NexusException {
 		if (detector.createsOwnFiles()) {
-			writeFileCreatorDetector(detector.getName(), extractFileName(detector.getName()), detector
-					.getDataDimensions());
+			writeFileCreatorDetector(detector.getName(), extractFileName(detector.getName()),
+					detector.getDataDimensions());
 		} else {
 			if (detector instanceof NexusDetector) {
 				writeNexusDetector((NexusDetector) detector);
@@ -441,22 +448,22 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 					writeCounterTimer(detector);
 				}
 			} else {
-				writeGenericDetector(detector.getName(), detector.getDataDimensions(), extractDoubleData(detector
-						.getName()));
+				writeGenericDetector(detector.getName(), detector.getDataDimensions(),
+						extractDoubleData(detector.getName()));
 			}
 		}
 	}
 
 	private static int getIntfromBuffer(Object buf) {
-		if (buf instanceof Object[]) 
+		if (buf instanceof Object[])
 			buf = ((Object[]) buf)[0];
-		if (buf instanceof Number) 
+		if (buf instanceof Number)
 			return ((Number) buf).intValue();
 		return Integer.parseInt(buf.toString());
 	}
-	
-	void writeHere(NeXusFileInterface file, INexusTree tree, boolean makeData, boolean attrOnly, List<SelfCreatingLink> links)
-			throws NexusException {
+
+	void writeHere(NeXusFileInterface file, INexusTree tree, boolean makeData, boolean attrOnly,
+			List<SelfCreatingLink> links) throws NexusException {
 		if (!tree.isPointDependent() && !makeData) {
 			return;
 		}
@@ -474,12 +481,13 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 				try {
 					String filePath = new String((byte[]) data.getBuffer(), "UTF-8");
 					File f = new File(filePath);
-					if ( ! f.exists())
+					if (!f.exists())
 						logger.warn("file " + filePath + " does not exist at time of adding link");
 					file.linkexternaldataset(name, filePath);
 					links.add(new ExteneralNXlink(name, filePath));
 				} catch (UnsupportedEncodingException e) {
-					throw new NexusException("supported encoding in creating string for external linking -- this should never happen");
+					throw new NexusException(
+							"supported encoding in creating string for external linking -- this should never happen");
 				}
 			}
 			return;
@@ -514,7 +522,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			if (sds != null) {
 				if (sds.dimensions != null) {
 					for (int i : sds.dimensions) {
-						if (i==0)
+						if (i == 0)
 							throw new NexusException("Data for " + name + " is invalid. SDS Dimension = 0");
 					}
 				}
@@ -663,7 +671,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 		if (index > -1) {
 			Object position = thisPoint.getPositions().get(index);
-			if (position != null){
+			if (position != null) {
 				return ScannableUtils.objectToArray(position);
 			}
 		}
@@ -672,7 +680,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 	/**
 	 * Perform any tasks that should be done at the end of a scan and close the file.
-	 * @throws Exception 
+	 * 
+	 * @throws Exception
 	 */
 	@Override
 	public void completeCollection() throws Exception {
@@ -753,11 +762,12 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	}
 
 	/**
-	 * Override to provide additional meta data, if required.
-	 * Does nothing otherwise.
-	 * @throws NexusException 
+	 * Override to provide additional meta data, if required. Does nothing otherwise.
+	 * 
+	 * @throws NexusException
 	 */
-	@SuppressWarnings("unused") // allow inheriting classes to throw this exception
+	@SuppressWarnings("unused")
+	// allow inheriting classes to throw this exception
 	protected void createCustomMetaData() throws NexusException {
 	}
 
@@ -793,7 +803,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 				// Get names
 				String[] inputNames = scannable.getInputNames();
 				String[] extraNames = scannable.getExtraNames();
-				
+
 				// Create (and open) group for the scannable
 				String groupName = getGroupNameFor(scannable);
 				file.makegroup(scannable.getName(), groupName);
@@ -812,18 +822,18 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 					// Get a link ID to this data set.
 					file.opendata(element);
-					
+
 					// assign axes
 					if (thisPoint.getScanDimensions().length > 0) {
-						// TODO 
+						// TODO
 						// in all likelihood this will not give the right axis assignment
 						// for scannables with multiple input names
 						// this is not solvable given the current data in SDP
-						
+
 						if ((thisPoint.getScanDimensions().length) > inputnameindex) {
-							file.putattr("label", String.format("%d",inputnameindex+1).getBytes(), NexusFile.NX_CHAR);
+							file.putattr("label", String.format("%d", inputnameindex + 1).getBytes(), NexusFile.NX_CHAR);
 							file.putattr("primary", "1".getBytes(), NexusFile.NX_CHAR);
-						} 
+						}
 						file.putattr("axis", axislist.getBytes(), NexusFile.NX_CHAR);
 					}
 
@@ -840,11 +850,11 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 					// Get a link ID to this data set.
 					file.opendata(element);
-					
+
 					if (thisPoint.getDetectorNames().isEmpty() && extranameindex == 0) {
 						file.putattr("signal", "1".getBytes(), NexusFile.NX_CHAR);
 					}
-					
+
 					scannableID.add(new SelfCreatingLink(file.getdataID()));
 					file.closedata();
 					extranameindex++;
@@ -877,8 +887,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			try {
 				id.create(file);
 			} catch (NexusException e) {
-				logger.warn("Error in makeLink (reported to NX group) for " + id.toString()
-						+ "with error" + e.getMessage());
+				logger.warn("Error in makeLink (reported to NX group) for " + id.toString() + "with error"
+						+ e.getMessage());
 			}
 		}
 
@@ -903,7 +913,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 			// create an NXdetector for each detector...
 			for (Detector detector : detectors) {
-					makeDetectorEntry(detector);
+				makeDetectorEntry(detector);
 			}
 		} catch (NexusException e) {
 			String error = "NeXus file creation failed during makeDetectors: ";
@@ -1005,7 +1015,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			filenameBytes[k] = (byte) dataFileName.charAt(k);
 		}
 		file.putslab(filenameBytes, dataStartPos, dataDim);
-
+		file.putattr("data_filename", new int[] { 1 }, NexusFile.NX_INT32);
 		// Close filename array.
 		file.closedata();
 
@@ -1224,10 +1234,10 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		}
 		int[] dataDim = generateDataDim(true, scanDimensions, null);
 
-		final String [] extraNames = detector.getExtraNames();
-		for (int j = 0; j <extraNames .length; j++) {
+		final String[] extraNames = detector.getExtraNames();
+		for (int j = 0; j < extraNames.length; j++) {
 
-			//this can fail if the list of names contains duplicates
+			// this can fail if the list of names contains duplicates
 			file.makedata(extraNames[j], NexusFile.NX_FLOAT64, dataDim.length, dataDim);
 
 			// Get a link ID to this data set
@@ -1342,8 +1352,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			}
 
 			// create nexus file and return handle
-			file = NexusFileFactory.createFile(nexusFileUrl, defaultNeXusBackend, LocalProperties
-					.check(GDA_NEXUS_INSTRUMENT_API));
+			file = NexusFileFactory.createFile(nexusFileUrl, defaultNeXusBackend,
+					LocalProperties.check(GDA_NEXUS_INSTRUMENT_API));
 			if (createSrsFile) {
 				// Check to see if the file(s) already exists!
 				final File textFile = new File(txtFileUrl);
@@ -1510,7 +1520,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	}
 
 	@Override
-	public String getCurrentScanIdentifier(){
+	public String getCurrentScanIdentifier() {
 		try {
 			return String.valueOf(getScanNumber());
 		} catch (Exception e) {
@@ -1530,7 +1540,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	/**
 	 * @param nexusFileNameTemplate
 	 *            the nexusFileNameTemplate to set
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public void setNexusFileNameTemplate(String nexusFileNameTemplate) throws Exception {
 		this.nexusFileNameTemplate = nexusFileNameTemplate;
@@ -1538,8 +1548,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		// file name and path are known should the intended file path
 		// be queried before being written. (NOTE this is happening in
 		// XasAsciiNexusDataWriter currently.
-		this.nexusFileName         = String.format(nexusFileNameTemplate, getScanNumber());
-		this.nexusFileUrl          = dataDir + nexusFileName;
+		this.nexusFileName = String.format(nexusFileNameTemplate, getScanNumber());
+		this.nexusFileUrl = dataDir + nexusFileName;
 	}
 
 	@Override
