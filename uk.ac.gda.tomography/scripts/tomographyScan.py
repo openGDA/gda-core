@@ -179,8 +179,8 @@ def tomoScan(inBeamPosition, outOfBeamPosition, exposureTime=1., start=0., stop=
             index = index + 1        
         scan_points.append((theta_pos, shutterOpen, inBeamPosition, optimizeBeamNo, image_key_project, index)) #first
         index = index + 1        
-        imageSinceDark = 0
-        imageSinceFlat = 0
+        imageSinceDark = 1
+        imageSinceFlat = 1
         optimizeBeam = 0
         for i in range(numberSteps):
             theta_pos = theta_points[i + 1]
