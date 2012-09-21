@@ -116,7 +116,6 @@ import uk.ac.gda.client.tomo.configuration.viewer.TomoConfigContent.CONFIG_STATU
 import uk.ac.gda.client.tomo.configuration.viewer.TomoConfigContentProvider;
 import uk.ac.gda.client.tomo.configuration.viewer.TomoConfigLabelProvider;
 import uk.ac.gda.client.tomo.configuration.viewer.TomoConfigTableConstants;
-import uk.ac.gda.client.tomo.configuration.viewer.TomoConfigViewerUtil;
 import uk.ac.gda.tomography.parameters.AlignmentConfiguration;
 import uk.ac.gda.tomography.parameters.DetectorProperties;
 import uk.ac.gda.tomography.parameters.Parameters;
@@ -145,7 +144,7 @@ public class TomoConfigurationView extends ViewPart {
 	private Button btnInterruptTomoRuns;
 	private static final String MOVE_DOWN = "Move Down";
 	private static final String MOVE_UP = "Move Up";
-	private static final String DELETE_SELECTED_CONFIGS = "Delete Selected Configuration(s)";
+	private static final String DELETE_SELECTED_CONFIGS = "Delete Configuration";
 	private static final String DELETE_ALL_CONFIGS = "Delete All Configurations";
 	private Button btnDeleteSelected;
 	private IUndoContext undoContext;
@@ -436,6 +435,7 @@ public class TomoConfigurationView extends ViewPart {
 				if (!display.isDisposed() && !lblDate.isDisposed()) {
 					lblDate.setText(dateFormat.format(new Date()));
 					lblTime.setText(timeFormat.format(new Date()));
+					updateTable();
 					display.timerExec(time, this);
 				}
 			}
@@ -455,6 +455,21 @@ public class TomoConfigurationView extends ViewPart {
 			logger.error("Error getting state of processor", e1);
 		}
 
+	}
+
+	protected void updateTable() {
+		if (!isScanRunning) {
+			TomoExperiment model = getModel();
+
+			List<AlignmentConfiguration> configurationSet = model.getParameters().getConfigurationSet();
+			for (AlignmentConfiguration alignmentConfiguration : configurationSet) {
+				if (alignmentConfiguration.getSelectedToRun()) {
+					configModelTableViewer.refresh(true);
+					break;
+				}
+			}
+
+		}
 	}
 
 	private IObserver queueObserver = new IObserver() {
@@ -728,12 +743,13 @@ public class TomoConfigurationView extends ViewPart {
 			}
 			if (ac != null) {
 				if (!configModelTableViewer.getTable().isDisposed()) {
-					Object elementAt = configModelTableViewer.getElementAt(getModel().getParameters().getIndex(ac));
-					if (elementAt instanceof TomoConfigContent) {
-						TomoConfigContent cc = (TomoConfigContent) elementAt;
-						TomoConfigViewerUtil.setupConfigContent(ac, cc);
-						refreshRow(cc);
-					}
+//					Object elementAt = configModelTableViewer.getElementAt(getModel().getParameters().getIndex(ac));
+//					if (elementAt instanceof TomoConfigContent) {
+//						TomoConfigContent cc = (TomoConfigContent) elementAt;
+//						TomoConfigViewerUtil.setupConfigContent(ac, cc, Collections.unmodifiableCollection(Arrays.asList(configModelTableViewer.getTable().getItems())));
+//						refreshRow(cc);
+//					}
+					refreshTable();
 				}
 			}
 		}
@@ -1004,6 +1020,21 @@ public class TomoConfigurationView extends ViewPart {
 					} catch (IOException e) {
 						logger.error("Error setting resolution", e);
 					}
+				} else if (TomoConfigTableConstants.TIME_DIVIDER.equals(columnIdentifier)) {
+					try {
+						double doubleVal = Double.parseDouble((String) value);
+
+						try {
+							runCommand(SetCommand.create(getEditingDomain(), getModel().getParameters()
+									.getAlignmentConfiguration(configContent.getConfigId()).getDetectorProperties(),
+									TomoParametersPackage.eINSTANCE.getDetectorProperties_AcquisitionTimeDivider(),
+									Double.valueOf(doubleVal)));
+						} catch (IOException e) {
+							logger.error("Error setting description", e);
+						}
+					} catch (NumberFormatException ex) {
+						logger.error("Invalid value", ex);
+					}
 				}
 			}
 
@@ -1024,6 +1055,8 @@ public class TomoConfigurationView extends ViewPart {
 					return configContent.isShouldDisplay();
 				} else if (TomoConfigTableConstants.SELECTION.equals(columnIdentifier)) {
 					return configContent.isSelectedToRun();
+				} else if (TomoConfigTableConstants.TIME_DIVIDER.equals(columnIdentifier)) {
+					return Double.toString(configContent.getTimeDivider());
 				}
 			}
 			return null;
@@ -1042,6 +1075,8 @@ public class TomoConfigurationView extends ViewPart {
 				return new CheckboxCellEditor(table);
 			} else if (TomoConfigTableConstants.SELECTION.equals(columnIdentifier)) {
 				return new CheckboxCellEditor(table);
+			} else if (TomoConfigTableConstants.TIME_DIVIDER.equals(columnIdentifier)) {
+				return new TextCellEditor(table);
 			}
 			return null;
 		}
@@ -1056,6 +1091,8 @@ public class TomoConfigurationView extends ViewPart {
 				} else if (TomoConfigTableConstants.SHOULD_DISPLAY.equals(columnIdentifier)) {
 					return true;
 				} else if (TomoConfigTableConstants.SELECTION.equals(columnIdentifier)) {
+					return true;
+				} else if (TomoConfigTableConstants.TIME_DIVIDER.equals(columnIdentifier)) {
 					return true;
 				}
 				logger.debug("canEdit:{}", element);

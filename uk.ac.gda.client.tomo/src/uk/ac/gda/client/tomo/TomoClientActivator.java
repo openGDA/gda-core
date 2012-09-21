@@ -18,6 +18,8 @@
 
 package uk.ac.gda.client.tomo;
 
+import java.util.HashMap;
+
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -32,7 +34,7 @@ public class TomoClientActivator extends AbstractUIPlugin {
 
 	// The shared instance
 	private static TomoClientActivator plugin;
-	
+
 	/**
 	 * The constructor
 	 */
@@ -48,7 +50,6 @@ public class TomoClientActivator extends AbstractUIPlugin {
 		super.start(context);
 		plugin = this;
 
-		
 	}
 
 	/*
@@ -58,25 +59,50 @@ public class TomoClientActivator extends AbstractUIPlugin {
 	@Override
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
-//		getImageRegistry().dispose();
+		// getImageRegistry().dispose();
 		super.stop(context);
 	}
 
 	/**
 	 * Returns the shared instance
-	 *
+	 * 
 	 * @return the shared instance
 	 */
 	public static TomoClientActivator getDefault() {
 		return plugin;
 	}
-	
+
 	@Override
 	protected void initializeImageRegistry(ImageRegistry reg) {
 		for (String imgPath : ImageConstants.IMAGES) {
 			reg.put(imgPath, imageDescriptorFromPlugin(PLUGIN_ID, imgPath));
 		}
+	}
 
+	private static HashMap<Integer, Integer> resolutionProjections;
+
+	public static HashMap<Integer, Integer> getResolutionProjections() {
+		if (resolutionProjections == null) {
+			resolutionProjections = new HashMap<Integer, Integer>();
+			resolutionProjections.put(1, 6000);
+			resolutionProjections.put(2, 3000);
+			resolutionProjections.put(4, 3000);
+			resolutionProjections.put(8, 1800);
+		}
+		return resolutionProjections;
+	}
+
+	private static HashMap<Integer, Integer> resolutionBinning;
+
+	public static HashMap<Integer, Integer> getResolutionBinning() {
+		if (resolutionBinning == null) {
+			resolutionBinning = new HashMap<Integer, Integer>();
+			resolutionBinning.put(1, 1);
+			resolutionBinning.put(2, 1);
+			resolutionBinning.put(4, 4);
+			resolutionBinning.put(8, 4);
+		}
+		return resolutionBinning;
 	}
 
 }

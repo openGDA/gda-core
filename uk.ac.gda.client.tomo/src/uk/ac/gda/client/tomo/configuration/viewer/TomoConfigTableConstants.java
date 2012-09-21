@@ -50,10 +50,10 @@ public interface TomoConfigTableConstants {
 	public static final String ENERGY = "Energy";
 	public static final String SAMPLE_WEIGHT = "Weight (kgs)";
 	public static final String RESOLUTION = "Res.";
-	public static final String FRAMES_PER_PROJECTION = "FpP";
+	public static final String FRAMES_PER_PROJECTION = "FperP";
 	public static final String CONTINUOUS_STEP = "C/S";
-	public static final String RUN_TIME = "Run time(s)";
-	public static final String EST_END_TIME = "Est. end time(s)";
+	public static final String RUN_TIME = "Duration(hh:mm:ss)";
+	public static final String EST_END_TIME = "Est. end time(hh:mm)";
 	public static final String TIME_DIVIDER = "Time divider";
 	public static final String PROGRESS = "Progress";
 	public static final String SELECTION = "Do";

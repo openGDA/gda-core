@@ -399,7 +399,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	 * @generated
 	 * @ordered
 	 */
-	protected static final Integer TOMO_ROTATION_AXIS_EDEFAULT = null;
+	protected static final Integer TOMO_ROTATION_AXIS_EDEFAULT = new Integer(0);
 
 	/**
 	 * The cached value of the '{@link #getTomoRotationAxis() <em>Tomo Rotation Axis</em>}' attribute.
