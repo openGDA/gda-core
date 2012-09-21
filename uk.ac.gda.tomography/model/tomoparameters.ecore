@@ -36,7 +36,8 @@
         eType="#//MotorPosition" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="inBeamPosition" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="outOfBeamPosition" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="tomoRotationAxis" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EIntegerObject"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="tomoRotationAxis" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EIntegerObject"
+        defaultValueLiteral="0"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="DetectorBin">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="binX" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EIntegerObject"
@@ -52,7 +53,7 @@
         unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="acquisitionTimeDivider"
         lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EIntegerObject"
-        unsettable="true"/>
+        defaultValueLiteral="1" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="detectorRoi" lowerBound="1"
         eType="#//DetectorRoi" unsettable="true" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="detectorBin" lowerBound="1"

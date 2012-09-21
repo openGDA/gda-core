@@ -622,6 +622,7 @@ public interface AlignmentConfiguration extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Tomo Rotation Axis</b></em>' attribute.
+	 * The default value is <code>"0"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Tomo Rotation Axis</em>' attribute isn't clear,
@@ -631,7 +632,7 @@ public interface AlignmentConfiguration extends EObject {
 	 * @return the value of the '<em>Tomo Rotation Axis</em>' attribute.
 	 * @see #setTomoRotationAxis(Integer)
 	 * @see uk.ac.gda.tomography.parameters.TomoParametersPackage#getAlignmentConfiguration_TomoRotationAxis()
-	 * @model
+	 * @model default="0"
 	 * @generated
 	 */
 	Integer getTomoRotationAxis();

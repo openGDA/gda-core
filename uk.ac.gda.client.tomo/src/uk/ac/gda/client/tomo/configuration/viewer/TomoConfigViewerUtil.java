@@ -45,6 +45,8 @@ public class TomoConfigViewerUtil {
 		configContent.setSampleWeight(getSampleWeightString(alignmentConfiguration.getSampleWeight()));
 		configContent.setResolution(getResolutionString(alignmentConfiguration.getDetectorProperties()
 				.getDesired3DResolution()));
+		configContent.setTimeDivider(Integer.toString(alignmentConfiguration.getDetectorProperties()
+				.getAcquisitionTimeDivider()));
 		configContent.setFramesPerProjection(alignmentConfiguration.getDetectorProperties()
 				.getNumberOfFramerPerProjection());
 		configContent.setScanMode(alignmentConfiguration.getScanMode().toString());
