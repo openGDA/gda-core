@@ -11,7 +11,7 @@ import org.eclipse.emf.ecore.EObject;
 /**
  * <!-- begin-user-doc -->
  * A representation of the model object '<em><b>Beamline Type</b></em>'.
- * <!-- end-user-doc -->
+ * <!-- end-user-doc --> 
  *
  * <p>
  * The following features are supported:
