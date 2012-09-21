@@ -2100,6 +2100,8 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 							configuration.setSampleWeight(motionControlComposite.getSampleWeight());
 							// number of projections
 							configuration.setNumProjections(cameraControls.getFramesPerProjection());
+							//
+							configuration.setTomoRotationAxis(leftWindowImageViewer.getCrossWire1XRelativeToImage()* tomoAlignmentViewController.getLeftWindowBinValue());
 
 //							String imgAtTheta = null;
 //							double theta = 0;

@@ -105,7 +105,7 @@ public class DetectorPropertiesImpl extends EObjectImpl implements DetectorPrope
 	 * @generated
 	 * @ordered
 	 */
-	protected static final Integer ACQUISITION_TIME_DIVIDER_EDEFAULT = null;
+	protected static final Integer ACQUISITION_TIME_DIVIDER_EDEFAULT = new Integer(1);
 
 	/**
 	 * The cached value of the '{@link #getAcquisitionTimeDivider() <em>Acquisition Time Divider</em>}' attribute.

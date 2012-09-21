@@ -142,6 +142,7 @@ public interface DetectorProperties extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Acquisition Time Divider</b></em>' attribute.
+	 * The default value is <code>"1"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Acquisition Time Divider</em>' attribute isn't clear,
@@ -153,7 +154,7 @@ public interface DetectorProperties extends EObject {
 	 * @see #unsetAcquisitionTimeDivider()
 	 * @see #setAcquisitionTimeDivider(Integer)
 	 * @see uk.ac.gda.tomography.parameters.TomoParametersPackage#getDetectorProperties_AcquisitionTimeDivider()
-	 * @model unsettable="true" required="true"
+	 * @model default="1" unsettable="true" required="true"
 	 * @generated
 	 */
 	Integer getAcquisitionTimeDivider();

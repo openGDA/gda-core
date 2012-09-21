@@ -145,7 +145,7 @@ public class TomoConfigurationView extends ViewPart {
 	private Button btnInterruptTomoRuns;
 	private static final String MOVE_DOWN = "Move Down";
 	private static final String MOVE_UP = "Move Up";
-	private static final String DELETE_SELECTED_CONFIGS = "Delete Selected Configuration(s)";
+	private static final String DELETE_SELECTED_CONFIGS = "Delete Configuration";
 	private static final String DELETE_ALL_CONFIGS = "Delete All Configurations";
 	private Button btnDeleteSelected;
 	private IUndoContext undoContext;
@@ -1024,6 +1024,8 @@ public class TomoConfigurationView extends ViewPart {
 					return configContent.isShouldDisplay();
 				} else if (TomoConfigTableConstants.SELECTION.equals(columnIdentifier)) {
 					return configContent.isSelectedToRun();
+				} else if (TomoConfigTableConstants.TIME_DIVIDER.equals(columnIdentifier)) {
+					return configContent.getTimeDivider();
 				}
 			}
 			return null;
@@ -1042,6 +1044,8 @@ public class TomoConfigurationView extends ViewPart {
 				return new CheckboxCellEditor(table);
 			} else if (TomoConfigTableConstants.SELECTION.equals(columnIdentifier)) {
 				return new CheckboxCellEditor(table);
+			} else if (TomoConfigTableConstants.TIME_DIVIDER.equals(columnIdentifier)) {
+				return new TextCellEditor(table);
 			}
 			return null;
 		}
@@ -1056,6 +1060,8 @@ public class TomoConfigurationView extends ViewPart {
 				} else if (TomoConfigTableConstants.SHOULD_DISPLAY.equals(columnIdentifier)) {
 					return true;
 				} else if (TomoConfigTableConstants.SELECTION.equals(columnIdentifier)) {
+					return true;
+				} else if (TomoConfigTableConstants.TIME_DIVIDER.equals(columnIdentifier)) {
 					return true;
 				}
 				logger.debug("canEdit:{}", element);
