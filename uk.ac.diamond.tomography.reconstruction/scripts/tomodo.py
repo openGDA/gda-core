@@ -158,7 +158,7 @@ def reindexLinks(inListOfIdx, outListOfIdx, indir="/dls/i13/data/2012/mt5811-1/5
 	len_in =len(inListOfIdx)
 	len_out =len(outListOfIdx)
 	if len_in != len_out:
-		msg="The number of input and output indices are different: %s and %s:",(len_in, len_out)
+		msg="The number of input and output indices are different: %s and %s:"%(len_in, len_out)
 		raise Exception(msg)
 	
 	indir_loc=removeTrailingSlash(indir)
@@ -196,7 +196,7 @@ def cd(path):
 		os.chdir(path)
 		yield path
 	except Exception, ex:
-		raise Exception ("ERROR changing directory: "+str(ex))
+		raise Exception ("cd: ERROR changing directory: "+str(ex))
 	finally:
 		os.chdir(saved_dir)
 
@@ -504,7 +504,7 @@ def populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, tif_lst, da
 	inFnameFmt=filenameFmt
 	outFnameFmt="p_%05d.tif"
 	makeLinksToOriginalFiles(\
-							proj_idx_decimated\
+							listOfProjIdx=proj_idx_decimated\
 							, indir=genAncestorPath(refFilename, 1)\
 							, inFilenameFmt=inFnameFmt\
 							, outdir=(head+os.sep+proj_dir)\
@@ -1287,6 +1287,10 @@ def makeLinksForNXSFile(\
 		N=min(10, N)
 
 	if not imgkeyNXS:
+		if (inBeamPos is None) or (outOfBeamPos is None):
+			msg="INFO: Image-key data are not available in input NeXus file - please re-run this script using the stageInBeamPhys and stageOutOfBeamPhys options accompanied by appropriate values (the latter can be found in scan_command recorded in scan's NeXus file)."
+			raise Exception(msg)
+		
 		image_key_curr={}
 	# identify each entry as DARK, FLAT, PROJ or UNCLASSIFIED image
 		for i in range(0, N):
@@ -1612,7 +1616,7 @@ creates directories and links to projection, dark and flat images required for s
 	#parser.print_version()
 
 # Make sure all mandatory input variables have some values
-	mandatory_var=['filename', 'shutOpenPos', 'shutClosedPos', 'inBeamPos', 'outOfBeamPos', 'shutNXSPath', 'stagePosNXSPath', 'stageRotNXSPath', 'tifNXSPath']
+	mandatory_var=['filename', 'shutOpenPos', 'shutClosedPos', 'shutNXSPath', 'stagePosNXSPath', 'stageRotNXSPath', 'tifNXSPath']
 	for m in mandatory_var:
 		#print opts_dict[m]
 		if opts_dict[m] is None:
