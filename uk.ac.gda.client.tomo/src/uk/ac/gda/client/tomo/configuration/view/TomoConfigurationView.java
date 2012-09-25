@@ -28,6 +28,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -129,6 +130,12 @@ import uk.ac.gda.tomography.parameters.TomoParametersPackage;
  *
  */
 public class TomoConfigurationView extends ViewPart {
+	private static final String DISPLAY_STATISTICS = "Display Statistics";
+	private static final String STOP_TOMO_RUNS = "Stop Tomo Runs";
+	private static final String START_TOMO_RUNS = "Start Tomo Runs";
+	private static final String BLANK = "";
+	private static final String ESTIMATED_END_TIME = "Estimated End Time";
+	private static final String CURRENT_DATE_AND_TIME = "Current Date and Time";
 	private static final String TOMOALIGNMENT_DESC_REGEX = "\\d*\\. [\\w|\\s|\\W]*";
 	private final Pattern tomoAlignmentDescRegexPattern = Pattern.compile(TOMOALIGNMENT_DESC_REGEX);
 
@@ -150,14 +157,12 @@ public class TomoConfigurationView extends ViewPart {
 	private IUndoContext undoContext;
 	private String viewPartName;
 	private FormToolkit toolkit;
-	private Label lblTime;
-	private Label lblDate;
+	private Label lblCurrentDateTime;
 	private TableViewer configModelTableViewer;
 	private ITomoConfigResourceHandler configFileHandler;
 	private ArrayList<StitchConfig> stitchConfigs = new ArrayList<StitchedImageCanvas.StitchConfig>();
 
-	private DateFormat timeFormat = new SimpleDateFormat("HH:mm");
-	private DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+	private DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy  HH:mm");
 	private UndoActionHandler fUndoAction;
 	private RedoActionHandler fRedoAction;
 	private Button btnDeleteAll;
@@ -188,6 +193,7 @@ public class TomoConfigurationView extends ViewPart {
 
 	private Button btnMoveUp;
 	private Button btnMoveDown;
+	private Label lblEstEndTime;
 
 	private static final String BOLD_9 = "bold_9";
 
@@ -351,45 +357,44 @@ public class TomoConfigurationView extends ViewPart {
 		timeNowCompositeContainer.setBackground(ColorConstants.black);
 
 		Composite innerCompositeTimeNow = toolkit.createComposite(timeNowCompositeContainer);
-		GridLayout gl1 = new GridLayout(2, true);
+		GridLayout gl1 = new GridLayout();
 		setLayoutSettings(gl1, 0, 0, 5, 0);
 		innerCompositeTimeNow.setLayout(gl1);
 		innerCompositeTimeNow.setLayoutData(new GridData(GridData.FILL_BOTH));
 
-		Label lblDateNow = toolkit.createLabel(innerCompositeTimeNow, "Current Date:", SWT.WRAP | SWT.RIGHT);
+		Label lblDateNow = toolkit.createLabel(innerCompositeTimeNow, CURRENT_DATE_AND_TIME, SWT.WRAP | SWT.CENTER);
 		GridData layoutData4 = new GridData(GridData.FILL_BOTH);
 		lblDateNow.setLayoutData(layoutData4);
 
-		lblDate = toolkit.createLabel(innerCompositeTimeNow, "", SWT.WRAP | SWT.LEFT);
-		lblDate.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		lblDate.setFont(fontRegistry.get(BOLD_9));
-
-		Label lblTimeNow = toolkit.createLabel(innerCompositeTimeNow, "Current Time:", SWT.WRAP | SWT.RIGHT);
-		layoutData4 = new GridData(GridData.FILL_BOTH);
-		lblTimeNow.setLayoutData(layoutData4);
-
-		lblTime = toolkit.createLabel(innerCompositeTimeNow, "", SWT.WRAP | SWT.LEFT);
-		lblTime.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		lblTime.setFont(fontRegistry.get(BOLD_9));
+		lblCurrentDateTime = toolkit.createLabel(innerCompositeTimeNow, BLANK, SWT.WRAP | SWT.CENTER);
+		lblCurrentDateTime.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		lblCurrentDateTime.setFont(fontRegistry.get(BOLD_9));
 
 		//
 		Composite estEndTimeCompositeContainer = toolkit.createComposite(middleRowComposite);
 		estEndTimeCompositeContainer.setLayoutData(new GridData(GridData.FILL_BOTH));
+
 		layout5 = new GridLayout();
 		setLayoutSettings(layout5, 2, 2, 2, 2);
 		estEndTimeCompositeContainer.setLayout(layout5);
 		estEndTimeCompositeContainer.setBackground(ColorConstants.black);
 		//
 		Composite innerCompositeEstEndTime = toolkit.createComposite(estEndTimeCompositeContainer);
-		innerCompositeEstEndTime.setLayout(new GridLayout());
+		gl1 = new GridLayout();
+		setLayoutSettings(gl1, 0, 0, 5, 0);
+		innerCompositeEstEndTime.setLayout(gl1);
 		innerCompositeEstEndTime.setLayoutData(new GridData(GridData.FILL_BOTH));
 
-		Label lblEstEndTime = toolkit
-				.createLabel(innerCompositeEstEndTime, "Estimated End Time", SWT.WRAP | SWT.CENTER);
+		Label lblEstEndTimeDisplayLbl = toolkit.createLabel(innerCompositeEstEndTime, ESTIMATED_END_TIME, SWT.WRAP
+				| SWT.CENTER);
+		lblEstEndTimeDisplayLbl.setLayoutData(new GridData(GridData.FILL_BOTH));
+
+		lblEstEndTime = toolkit.createLabel(innerCompositeEstEndTime, BLANK, SWT.WRAP | SWT.CENTER);
 		lblEstEndTime.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		lblEstEndTime.setFont(fontRegistry.get(BOLD_9));
 
 		// Start tomo runs
-		btnStartTomoRuns = toolkit.createButton(middleRowComposite, "Start Tomo Runs", SWT.PUSH);
+		btnStartTomoRuns = toolkit.createButton(middleRowComposite, START_TOMO_RUNS, SWT.PUSH);
 		btnStartTomoRuns.setLayoutData(new GridData(GridData.FILL_BOTH));
 		btnStartTomoRuns.addSelectionListener(btnSelListener);
 
@@ -398,12 +403,12 @@ public class TomoConfigurationView extends ViewPart {
 		btnInterruptTomoRuns.setLayoutData(new GridData(GridData.FILL_BOTH));
 		btnInterruptTomoRuns.addSelectionListener(btnSelListener);
 		// Stop tomo runs
-		btnStopTomoRuns = toolkit.createButton(middleRowComposite, "Stop Tomo Runs", SWT.PUSH);
+		btnStopTomoRuns = toolkit.createButton(middleRowComposite, STOP_TOMO_RUNS, SWT.PUSH);
 		btnStopTomoRuns.setLayoutData(new GridData(GridData.FILL_BOTH));
 		btnStopTomoRuns.addSelectionListener(btnSelListener);
 
 		// Stats
-		Button btnStats = toolkit.createButton(middleRowComposite, "Display Stats", SWT.PUSH);
+		Button btnStats = toolkit.createButton(middleRowComposite, DISPLAY_STATISTICS, SWT.PUSH);
 		btnStats.setLayoutData(new GridData(GridData.FILL_BOTH));
 
 		//
@@ -432,10 +437,10 @@ public class TomoConfigurationView extends ViewPart {
 
 			@Override
 			public void run() {
-				if (!display.isDisposed() && !lblDate.isDisposed()) {
-					lblDate.setText(dateFormat.format(new Date()));
-					lblTime.setText(timeFormat.format(new Date()));
-					updateTable();
+				if (!display.isDisposed() && !lblCurrentDateTime.isDisposed()) {
+					lblCurrentDateTime.setText(dateFormat.format(new Date()));
+					updateScanRunDateTime();
+
 					display.timerExec(time, this);
 				}
 			}
@@ -457,18 +462,35 @@ public class TomoConfigurationView extends ViewPart {
 
 	}
 
-	protected void updateTable() {
+	protected void updateScanRunDateTime() {
 		if (!isScanRunning) {
-			TomoExperiment model = getModel();
+			updateEstimatedEndTime(true);
+		}
+	}
 
-			List<AlignmentConfiguration> configurationSet = model.getParameters().getConfigurationSet();
-			for (AlignmentConfiguration alignmentConfiguration : configurationSet) {
-				if (alignmentConfiguration.getSelectedToRun()) {
-					configModelTableViewer.refresh(true);
-					break;
+	private void updateEstimatedEndTime(boolean refreshRow) {
+		TableItem[] items = configModelTableViewer.getTable().getItems();
+
+		double totalRunTime = 0;
+		for (TableItem tableItem : items) {
+			if (tableItem.getData() instanceof TomoConfigContent) {
+				TomoConfigContent cc = (TomoConfigContent) tableItem.getData();
+				if (cc.isSelectedToRun()) {
+					if (refreshRow) {
+						configModelTableViewer.refresh(cc);
+					}
+					totalRunTime = totalRunTime + cc.getRunTime();
 				}
 			}
-
+		}
+		if (totalRunTime > 0) {
+			Calendar now = Calendar.getInstance();
+			now.add(Calendar.SECOND, (int) totalRunTime);
+			lblEstEndTime.setText(String.format("%02d/%02d/%02d  %02d:%02d", now.get(Calendar.DAY_OF_MONTH),
+					now.get(Calendar.MONTH) + 1, now.get(Calendar.YEAR), now.get(Calendar.HOUR_OF_DAY),
+					now.get(Calendar.MINUTE)));
+		} else {
+			lblEstEndTime.setText("No scans selected");
 		}
 	}
 
@@ -743,12 +765,13 @@ public class TomoConfigurationView extends ViewPart {
 			}
 			if (ac != null) {
 				if (!configModelTableViewer.getTable().isDisposed()) {
-//					Object elementAt = configModelTableViewer.getElementAt(getModel().getParameters().getIndex(ac));
-//					if (elementAt instanceof TomoConfigContent) {
-//						TomoConfigContent cc = (TomoConfigContent) elementAt;
-//						TomoConfigViewerUtil.setupConfigContent(ac, cc, Collections.unmodifiableCollection(Arrays.asList(configModelTableViewer.getTable().getItems())));
-//						refreshRow(cc);
-//					}
+					// Object elementAt = configModelTableViewer.getElementAt(getModel().getParameters().getIndex(ac));
+					// if (elementAt instanceof TomoConfigContent) {
+					// TomoConfigContent cc = (TomoConfigContent) elementAt;
+					// TomoConfigViewerUtil.setupConfigContent(ac, cc,
+					// Collections.unmodifiableCollection(Arrays.asList(configModelTableViewer.getTable().getItems())));
+					// refreshRow(cc);
+					// }
 					refreshTable();
 				}
 			}
@@ -820,6 +843,7 @@ public class TomoConfigurationView extends ViewPart {
 				@Override
 				public void run() {
 					configModelTableViewer.refresh();
+					updateEstimatedEndTime(false);
 				}
 			});
 		}
@@ -1046,7 +1070,7 @@ public class TomoConfigurationView extends ViewPart {
 			if (element instanceof TomoConfigContent) {
 				TomoConfigContent configContent = (TomoConfigContent) element;
 				if (TomoConfigTableConstants.SAMPLE_DESCRIPTION.equals(columnIdentifier)) {
-					return configContent.getSampleDescription() != null ? configContent.getSampleDescription() : "";
+					return configContent.getSampleDescription() != null ? configContent.getSampleDescription() : BLANK;
 				} else if (TomoConfigTableConstants.CONTINUOUS_STEP.equals(columnIdentifier)) {
 					return ScanMode.get(configContent.getScanMode()).getValue();
 				} else if (TomoConfigTableConstants.RESOLUTION.equals(columnIdentifier)) {
@@ -1102,7 +1126,7 @@ public class TomoConfigurationView extends ViewPart {
 	}
 
 	private HashMap<String, CONFIG_STATUS> getConfigStatusForTomoConfigContent(String runningConfigId) {
-		String removedBraces = runningConfigId.replace("{", "").replace("}", "").replace("'", "");
+		String removedBraces = runningConfigId.replace("{", BLANK).replace("}", BLANK).replace("'", BLANK);
 		StringTokenizer strTokenizer = new StringTokenizer(removedBraces, ",");
 		HashMap<String, CONFIG_STATUS> map = new HashMap<String, CONFIG_STATUS>();
 		while (strTokenizer.hasMoreTokens()) {

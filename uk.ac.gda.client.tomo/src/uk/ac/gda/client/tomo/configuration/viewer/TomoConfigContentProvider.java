@@ -75,6 +75,7 @@ public class TomoConfigContentProvider implements IStructuredContentProvider {
 
 		ArrayList<ITomoConfigContent> configContents = new ArrayList<ITomoConfigContent>();
 
+		double estEndTime = 0;
 		// totalTimeTaken is used so that the estimated end time for a given configuration can be calculated.
 		for (AlignmentConfiguration alignmentConfiguration : configurationSet) {
 			TomoConfigContent configContent = new TomoConfigContent();
@@ -101,12 +102,7 @@ public class TomoConfigContentProvider implements IStructuredContentProvider {
 			double runTime = getRunTime(configContent);
 
 			if (configContent.isSelectedToRun()) {
-				double estEndTime = runTime;
-				for (ITomoConfigContent iTomoConfigContent : configContents) {
-					if (iTomoConfigContent.isSelectedToRun()) {
-						estEndTime = estEndTime + iTomoConfigContent.getRunTime();
-					}
-				}
+				estEndTime = estEndTime + runTime;
 				configContent.setEstEndTime(estEndTime);
 			} else {
 				configContent.setEstEndTime(0.0);
