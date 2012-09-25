@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="uk.ac.gda.client.tomo.feature"
-      label="Feature"
+      id="uk.ac.diamond.tomography.reconstruction.feature"
+      label="Tomo Reconstruction Feature"
       version="1.0.0.qualifier">
 
    <description url="http://www.example.com/description">
@@ -16,47 +16,29 @@
       [Enter License Description here.]
    </license>
 
-   <includes
-         id="uk.ac.diamond.tomography.reconstruction.feature"
-         version="0.0.0"/>
-
    <plugin
-         id="uk.ac.gda.client.tomo"
+         id="uk.ac.diamond.tomography.reconstruction"
          download-size="0"
          install-size="0"
          version="1.0.0.qualifier"
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.nebula.widgets.calendarcombo"
+         id="uk.ac.diamond.tomography.reconstruction.parameters"
          download-size="0"
          install-size="0"
-         version="1.0.0.201003261100"
+         version="1.0.0.qualifier"
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.nebula.widgets.grid"
+         id="uk.ac.diamond.tomography.reconstruction.parameters.edit"
          download-size="0"
          install-size="0"
-         version="1.0.0.201112071028"
+         version="1.0.0.qualifier"
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.nebula.widgets.tablecombo"
-         download-size="0"
-         install-size="0"
-         version="1.0.0.201003261100"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.nebula.widgets.xviewer"
-         download-size="0"
-         install-size="0"
-         version="1.0.0.201003261057"
-         unpack="false"/>
-
-   <plugin
-         id="uk.ac.gda.tomography"
+         id="uk.ac.diamond.tomography.reconstruction.parameters.editor"
          download-size="0"
          install-size="0"
          version="1.0.0.qualifier"
