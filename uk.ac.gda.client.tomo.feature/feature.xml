@@ -20,35 +20,77 @@
          id="uk.ac.gda.client.tomo"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.0.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.nebula.widgets.calendarcombo"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.0.0.201003261100"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.nebula.widgets.grid"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.0.0.201112071028"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.nebula.widgets.tablecombo"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.0.0.201003261100"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.nebula.widgets.xviewer"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.0.0.201003261057"
+         unpack="false"/>
+
+   <plugin
+         id="uk.ac.diamond.tomography.localtomo"
+         download-size="0"
+         install-size="0"
+         version="1.0.0.qualifier"
+         unpack="false"/>
+
+   <plugin
+         id="uk.ac.diamond.tomography.reconstruction"
+         download-size="0"
+         install-size="0"
+         version="1.0.0.qualifier"
+         unpack="false"/>
+
+   <plugin
+         id="uk.ac.diamond.tomography.reconstruction.parameters"
+         download-size="0"
+         install-size="0"
+         version="1.0.0.qualifier"
+         unpack="false"/>
+
+   <plugin
+         id="uk.ac.diamond.tomography.reconstruction.parameters.edit"
+         download-size="0"
+         install-size="0"
+         version="1.0.0.qualifier"
+         unpack="false"/>
+
+   <plugin
+         id="uk.ac.diamond.tomography.reconstruction.parameters.editor"
+         download-size="0"
+         install-size="0"
+         version="1.0.0.qualifier"
+         unpack="false"/>
+
+   <plugin
+         id="uk.ac.gda.tomography"
+         download-size="0"
+         install-size="0"
+         version="1.0.0.qualifier"
          unpack="false"/>
 
 </feature>
