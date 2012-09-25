@@ -20,12 +20,14 @@ package uk.ac.gda.client.tomo.alignment.view.handlers.impl;
 
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
-import gda.data.metadata.GdaMetadata;
 import gda.device.DeviceException;
 import gda.factory.Findable;
-import gda.factory.Finder;
 import gda.jython.IScanDataPointObserver;
+import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
+import gda.observable.IObservable;
+import gda.observable.IObserver;
+import gda.util.Sleep;
 
 import java.io.BufferedReader;
 import java.io.Closeable;
@@ -36,6 +38,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
@@ -46,6 +50,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.client.tomo.DoublePointList;
 import uk.ac.gda.client.tomo.ExternalFunction;
 import uk.ac.gda.client.tomo.TiltPlotPointsHolder;
+import uk.ac.gda.client.tomo.TomoClientConstants;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ISampleStageMotorHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ITiltBallLookupTableHandler;
@@ -58,6 +63,8 @@ import uk.ac.gda.client.tomo.view.handlers.exceptions.ExternalProcessingFailedEx
  */
 public class TiltController implements ITiltController {
 
+	private Pattern doublePattern = Pattern.compile("(\\d)*.?(\\d)*");
+	private static final String SUBDIRECTORY = "Subdirectory:";
 	private ExternalFunction externalProgram1;
 	private ExternalFunction externalProgram2;
 	private ITiltBallLookupTableHandler lookupTableHandler;
@@ -66,12 +73,18 @@ public class TiltController implements ITiltController {
 
 	private ICameraHandler cameraHandler;
 
+	private IObservable tomoScriptController;
+
 	private String result;
 
 	private boolean test = false;
 
 	public String getResult() {
 		return result;
+	}
+
+	public void setTomoScriptController(IObservable tomoScriptController) {
+		this.tomoScriptController = tomoScriptController;
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(TiltController.class);
@@ -113,10 +126,9 @@ public class TiltController implements ITiltController {
 			cameraHandler.setUpForTilt(minY, maxY, minX, maxX);
 			logger.debug("Set the camera minY at:" + minY + " and maxY at:" + maxY);
 			double txOffset = getTxOffset(module);
-			GdaMetadata gdaMetadata = (GdaMetadata) Finder.getInstance().find("GDAMetadata");
-			String subdir = gdaMetadata.getMetadataValue("subdirectory");
+			String subDir = getSubDir();
 			try {
-				gdaMetadata.setMetadataValue("subdirectory", "tmp");
+				changeSubDir("tmp");
 				// Move tx by offset
 				logger.debug("the tx offset is:{}", txOffset);
 				if (!monitor.isCanceled()) {
@@ -147,17 +159,19 @@ public class TiltController implements ITiltController {
 
 									logger.debug("After move ss1_rz is :{}", sampleStageMotorHandler.getSs1RzPosition());
 									logger.debug("After move ss1_rx is :{}", sampleStageMotorHandler.getSs1RxPosition());
+									if (!monitor.isCanceled()) {
+										// 5. scan 0 to 340 deg in steps of 20
+										scanThetha(progress, exposureTime);
+										if (!monitor.isCanceled()) {
+											// 6. call matlab
+											secondScanFolder = runExternalProcess(progress, 2);
+										}
+									}
+								} else {
+									throw new IllegalArgumentException("Matlab returned no values");
 								}
 							}
 
-							if (!monitor.isCanceled()) {
-								// 5. scan 0 to 340 deg in steps of 20
-								scanThetha(progress, exposureTime);
-								if (!monitor.isCanceled()) {
-									// 6. call matlab
-									secondScanFolder = runExternalProcess(progress, 2);
-								}
-							}
 						}
 					}
 				}
@@ -165,7 +179,7 @@ public class TiltController implements ITiltController {
 				throw ex;
 			} finally {
 				sampleStageMotorHandler.moveSs1TxBy(progress, -txOffset);
-				gdaMetadata.setMetadataValue("subdirectory", subdir);
+				changeSubDir(subDir);
 			}
 		} finally {
 			// - move the motor back
@@ -177,6 +191,71 @@ public class TiltController implements ITiltController {
 		}
 
 		return getPlottablePoint(firstScanFolder, secondScanFolder);
+	}
+
+	private String getSubDir() {
+		final boolean[] subdirChanged = new boolean[1];
+		final String[] subdir = new String[1];
+		IObserver observer = null;
+		if (tomoScriptController != null) {
+			observer = new IObserver() {
+
+				@Override
+				public void update(Object source, Object arg) {
+					if (arg instanceof String) {
+						String msg = (String) arg;
+						if (msg.startsWith(SUBDIRECTORY)) {
+							subdir[0] = msg.substring(SUBDIRECTORY.length());
+							subdirChanged[0] = true;
+						}
+
+					}
+				}
+			};
+			tomoScriptController.addIObserver(observer);
+		}
+
+		InterfaceProvider.getCommandRunner().evaluateCommand(TomoClientConstants.GET_SUBDIR);
+		while (!subdirChanged[0]) {
+			Sleep.sleep(5);
+		}
+
+		if (tomoScriptController != null && observer != null) {
+			tomoScriptController.deleteIObserver(observer);
+		}
+		logger.debug("Subdir is {}", subdir[0]);
+		return subdir[0];
+	}
+
+	private void changeSubDir(final String subdir) {
+		final boolean[] subdirChanged = new boolean[1];
+		IObserver observer = null;
+		if (tomoScriptController != null) {
+			observer = new IObserver() {
+
+				@Override
+				public void update(Object source, Object arg) {
+					if (arg instanceof String) {
+						String msg = (String) arg;
+						if (msg.equals("Subdirectory set to " + subdir)) {
+							subdirChanged[0] = true;
+						}
+
+					}
+				}
+			};
+			tomoScriptController.addIObserver(observer);
+		}
+
+		InterfaceProvider.getCommandRunner().evaluateCommand(String.format(TomoClientConstants.CHANGE_SUBDIR, subdir));
+		while (!subdirChanged[0]) {
+			Sleep.sleep(5);
+		}
+		if (tomoScriptController != null && observer != null) {
+			tomoScriptController.deleteIObserver(observer);
+		}
+
+		logger.debug("Subdirectory set to {}", subdir);
 	}
 
 	private void scanThetha(final IProgressMonitor progress, double exposureTime) {
@@ -392,6 +471,10 @@ public class TiltController implements ITiltController {
 			Double[] motorsToMove = new Double[tokenizer.countTokens()];
 			while (tokenizer.hasMoreElements()) {
 				String token = tokenizer.nextElement().toString();
+				Matcher doublePatternMatcher = doublePattern.matcher(token);
+				if (!doublePatternMatcher.matches()) {
+					return null;
+				}
 				motorsToMove[count++] = Double.parseDouble(token);
 			}
 			return motorsToMove;

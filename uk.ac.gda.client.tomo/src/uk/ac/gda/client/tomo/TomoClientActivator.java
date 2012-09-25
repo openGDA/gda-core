@@ -100,7 +100,7 @@ public class TomoClientActivator extends AbstractUIPlugin {
 			resolutionBinning.put(1, 1);
 			resolutionBinning.put(2, 1);
 			resolutionBinning.put(4, 4);
-			resolutionBinning.put(8, 4);
+			resolutionBinning.put(8, 8);
 		}
 		return resolutionBinning;
 	}

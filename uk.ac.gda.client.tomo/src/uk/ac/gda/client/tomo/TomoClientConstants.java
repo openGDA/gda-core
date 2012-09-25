@@ -27,4 +27,8 @@ public interface TomoClientConstants {
 	public static final String TOMOGRAPHY_IS_RUNNING_CONFIG_CMD = "tomoAlignment.tomographyConfigurationManager.getRunningConfig()";
 
 	public static final String TOMOGRAPHY_STOP_SCAN = "tomoAlignment.tomographyConfigurationManager.stopScan()";
+	
+	public static final String CHANGE_SUBDIR = "tomoAlignment.changeSubDir('%s')";
+
+	public static final String GET_SUBDIR = "tomoAlignment.getSubdir()";
 }

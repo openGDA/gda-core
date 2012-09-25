@@ -159,7 +159,7 @@ public class TomoConfigContentProvider implements IStructuredContentProvider {
 			return 1;
 		} else if (resolution.equals(RESOLUTION.TWO_X.toString())) {
 			return 2;
-		} else if (resolution.equals(RESOLUTION.TWO_X.toString())) {
+		} else if (resolution.equals(RESOLUTION.FOUR_X.toString())) {
 			return 4;
 		} else {
 			return 8;
