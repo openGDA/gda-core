@@ -887,7 +887,7 @@ class NeXus(object):
         Corresponds to NXmakedata(handle,name,type,rank,dims).
         """
         storage = _nxtype_code[str(dtype)]
-        
+        ; hope that 32/64 bit issues
         
         dims = numpy.array(shape,'i')
         if chunks == None:

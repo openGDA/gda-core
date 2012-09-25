@@ -39,7 +39,7 @@ public class GeneralTranslator extends TranslatorBase implements Translator {
 	
 	private static final Logger logger = LoggerFactory.getLogger(GeneralTranslator.class);
 
-	static private final String symbols = "-+*/%><=,[]()";
+	static private final String symbols = "-+*/%,[]()";
 
 	/**
 	 * Translates a command identified by the translate() method. This ignores any spaces at start or end of line - it
@@ -148,37 +148,32 @@ public class GeneralTranslator extends TranslatorBase implements Translator {
 
 				thisGroup += ")";
 			} else if (vararg_aliases.contains(args[0]) && args.length > 1) {
-				thisGroup = addBracketsToVarArgAlias(thisGroup);
+				args = splitGroup(removeTrailingComment(thisGroup));
+				thisGroup = args[0] + "([";
+
+				int i = 1;
+				for (; i < args.length; i++) {
+					thisGroup += args[i];
+					if (i < args.length - 1 && !thisGroup.endsWith("(") && !thisGroup.endsWith("[")){
+						if( i == args.length-2 ){
+							if( !args[i+1].startsWith(")") && !args[i+1].startsWith("]"))
+								thisGroup += ",";
+						}
+						else {
+							thisGroup += ",";
+						}
+					}
+				}
+
+				if (i == 1) {
+					thisGroup += "None";
+				}
+
+				thisGroup += "])";
 			} else if (vararg_aliases.contains(args[0]) && args.length == 1) {
 				args = splitGroup(removeTrailingComment(thisGroup));
 				thisGroup = args[0] + "()";
-			} else if (startsWithVarArgAlias(args[0])){
-				int bracketIndex = args[0].indexOf("(");
-				
-				if (!thisGroup.substring(bracketIndex + 1, bracketIndex + 2).equals("[")) {
-
-					String firstPart = args[0].substring(0, bracketIndex + 1);
-					String secondPart = "";
-					if (bracketIndex < args[0].length() + 1) {
-						secondPart = args[0].substring(bracketIndex + 1);
-					}
-					args[0] = firstPart + "[" + secondPart;
-
-					bracketIndex = args[args.length - 1].lastIndexOf(")");
-					firstPart = args[args.length - 1].substring(0, bracketIndex);
-					secondPart = args[args.length - 1].substring(bracketIndex);
-
-					args[args.length - 1] = firstPart + "]" + secondPart;
-
-					int i = 1;
-					thisGroup = args[0];
-					for (; i < args.length; i++) {
-						thisGroup += ",";
-						thisGroup += args[i];
-					}
-				}	
 			}
-			
 
 			if (thisGroup.startsWith("help(")) {
 				// this parses to a call to a Jython function defined in GDAJythonInterpreter.initialise
@@ -196,42 +191,6 @@ public class GeneralTranslator extends TranslatorBase implements Translator {
 			return originalGroup;
 		}
 		return prefix + thisGroup;
-	}
-
-	private String addBracketsToVarArgAlias(String thisGroup) {
-		String[] args;
-		args = splitGroup(removeTrailingComment(thisGroup));
-		thisGroup = args[0] + "([";
-
-		int i = 1;
-		for (; i < args.length; i++) {
-			thisGroup += args[i];
-			if (i < args.length - 1 && !thisGroup.endsWith("(") && !thisGroup.endsWith("[")){
-				if( i == args.length-2 ){
-					if( !args[i+1].startsWith(")") && !args[i+1].startsWith("]"))
-						thisGroup += ",";
-				}
-				else {
-					thisGroup += ",";
-				}
-			}
-		}
-
-		if (i == 1) {
-			thisGroup += "None";
-		}
-
-		thisGroup += "])";
-		return thisGroup;
-	}
-
-	private boolean startsWithVarArgAlias(String string) {
-		int index = string.indexOf("(");
-		if (index == -1){
-			return false;
-		}		
-		String firstPart = string.substring(0,index);
-		return vararg_aliases.contains(firstPart);
 	}
 
 	/**
@@ -273,12 +232,22 @@ public class GeneralTranslator extends TranslatorBase implements Translator {
 		String command = original_command;
 		String commasAdded = "";
 		try {
+			// replace commas and multiple spaces with single spaces
+			// command = command.replaceAll(" +", " ");
+			// ensure no trailing spaces after [(=,
+//			command = command.replaceAll("\\= *", "=");
+//			command = command.replaceAll("\\[ *", "[");
+//			command = command.replaceAll("\\( *", "(");
+//			command = command.replaceAll("\\, *", ",");
+//			// ensure no leading spaces before ])=,
+//			command = command.replaceAll(" \\=", "=");
+//			command = command.replaceAll(" \\]", "]");
+//			command = command.replaceAll("\\( *", "(");
+//			command = command.replaceAll("\\, *", ",");
+
 			int bracketDepth = 0;
-			// int braceDepth = 0; // too difficult to distinguish between operators, functions and variables inside()'s
-			// so do not auto add commas within these
+			// int braceDepth = 0;
 			boolean insideQuote = false;
-			boolean insideSingleQuote = false;
-			boolean insideDoubleQuote = false;
 			for (int i = 0; i < command.length(); i++) {
 				String thisElement = command.substring(i, i + 1);
 				// record if a pair of []s opens
@@ -293,10 +262,10 @@ public class GeneralTranslator extends TranslatorBase implements Translator {
 				}
 				// record if a pair of "s opens or closes
 				else if (thisElement.equals("\"")) {
-					if (insideDoubleQuote) {
-						insideDoubleQuote = false;
+					if (insideQuote) {
+						insideQuote = false;
 					} else {
-						insideDoubleQuote = true;
+						insideQuote = true;
 					}
 					commasAdded += thisElement;
 				}
@@ -311,24 +280,23 @@ public class GeneralTranslator extends TranslatorBase implements Translator {
 				}
 				// record if a pair of 's opens or closes
 				else if (thisElement.equals("'")) {
-					if (insideSingleQuote) {
-						insideSingleQuote = false;
+					if (insideQuote) {
+						insideQuote = false;
 					} else {
-						insideSingleQuote = true;
+						insideQuote = true;
 					}
 					commasAdded += thisElement;
 				}
 				// else if in []s but not in a quote and its a space
-				else if (!(insideQuote || insideSingleQuote || insideDoubleQuote)
-						&& (/* braceDepth >= 1 || */bracketDepth >= 1) && thisElement.equals(" ")) {
-
+				else if (!insideQuote && (/* braceDepth >= 1 || */bracketDepth >= 1)
+						&& thisElement.equals(" ")) {
+					
 					// if space is between ] and [, add a comma
 					if (previousPart(command, i) == ']' && nextPart(command, i) == '[') {
 						commasAdded += ",";
 					}
-
-					// ignoring spaces, if neither the previous nor next non-whitespace charactor is a comma or symbol,
-					// then add a comma
+					
+					// ignoring spaces, if neither the previous nor next non-whitespace charactor is a comma or symbol, then add a comma
 					else if (!isNextPartASymbol(command, i) && !isPreviousPartASymbol(command, i)) {
 						commasAdded += ",";
 					} else {
