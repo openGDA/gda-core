@@ -25,6 +25,7 @@ import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.device.detector.areadetector.v17.FfmpegStream;
 import gda.device.detector.areadetector.v17.NDFile;
+import gda.device.detector.areadetector.v17.NDFileHDF5;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.device.detector.areadetector.v17.NDROI;
 import gda.device.detector.areadetector.v17.NDStats;
@@ -109,7 +110,7 @@ public class PCOTomography implements ITomographyDetector, Findable {
 
 		roi1.enableScaling();
 		roi1.setScale(binX * binY);
-		
+
 		roi1.enableX();
 		roi1.enableY();
 
@@ -143,10 +144,10 @@ public class PCOTomography implements ITomographyDetector, Findable {
 
 		roi2.getPluginBase().enableCallbacks();
 		roi2.getPluginBase().setNDArrayPort(areaDetector.getPortName_RBV());
-		
+
 		roi2.enableX();
 		roi2.enableY();
-		
+
 		roi2.setBinX(bin.x);
 		roi2.setBinY(bin.y);
 
@@ -531,22 +532,31 @@ public class PCOTomography implements ITomographyDetector, Findable {
 	@Override
 	public void resetAll() throws Exception {
 		// Ensure that the camera is stopped before resetAll is called
-		if (pcoDetector.isBusy()) {
-			pcoDetector.stop();
-		}
+		pcoDetector.getController().disarmCamera();
 		pcoDetector.resetAll();
+		// HDF plugin is not used for the tomography alignment.
+		NDFileHDF5 hdf = pcoDetector.getController().getHdf();
+		if (hdf != null) {
+			hdf.getPluginBase().disableCallbacks();
+		}
 	}
 
 	@Override
 	public void setupForTilt(int minY, int maxY, int minX, int maxX) throws Exception {
 		IPCOControllerV17 controller = pcoDetector.getController();
-		ADBase areaDetector = controller.getAreaDetector();
+		// ADBase areaDetector = controller.getAreaDetector();
 		// Adding 1 as the detector starts counting pixels beginning from 1
-		areaDetector.setSizeY(maxY - minY + 1);
-		areaDetector.setMinY(minY);
+		// areaDetector.setSizeY(maxY - minY + 1);
+		NDROI roi2 = controller.getRoi2();
+		roi2.setSizeY(maxY - minY + 1);
+		// areaDetector.setMinY(minY);
+		roi2.setMinY(minY);
 
-		areaDetector.setSizeX(maxX - minX + 1);
-		areaDetector.setMinX(minX);
+		// areaDetector.setSizeX(maxX - minX + 1);
+		roi2.setSizeX(maxX - minX + 1);
+		// areaDetector.setMinX(minX);
+		roi2.setMinX(minX);
+		controller.getTiff().getPluginBase().setNDArrayPort(roi2.getPluginBase().getPortName_RBV());
 
 		controller.getTiff().getPluginBase().enableCallbacks();
 
@@ -554,12 +564,14 @@ public class PCOTomography implements ITomographyDetector, Findable {
 
 	@Override
 	public void resetAfterTiltToInitialValues() throws Exception {
-		ADBase adBase = pcoDetector.getController().getAreaDetector();
-		adBase.setMinY(adBase.getInitialMinY());
-		adBase.setSizeY(adBase.getInitialSizeY());
-		adBase.setMinX(adBase.getInitialMinX());
-		adBase.setSizeX(adBase.getInitialSizeX());
-
+		IPCOControllerV17 controller = pcoDetector.getController();
+		controller.getTiff().getPluginBase().setNDArrayPort(controller.getAreaDetector().getPortName_RBV());
+		controller.getTiff().getPluginBase().disableCallbacks();
+		// ADBase adBase = pcoDetector.getController().getAreaDetector();
+		// adBase.setMinY(adBase.getInitialMinY());
+		// adBase.setSizeY(adBase.getInitialSizeY());
+		// adBase.setMinX(adBase.getInitialMinX());
+		// adBase.setSizeX(adBase.getInitialSizeX());
 	}
 
 	@Override
@@ -606,7 +618,7 @@ public class PCOTomography implements ITomographyDetector, Findable {
 		} catch (Exception e) {
 			throw new DeviceException(e);
 		}
-//		return pcoDetector.isBusy();
+		// return pcoDetector.isBusy();
 	}
 
 	@Override

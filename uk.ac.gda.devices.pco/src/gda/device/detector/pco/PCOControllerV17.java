@@ -636,10 +636,9 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 					|| hdf.getPluginBase().getArraySize0_RBV() != getAreaDetector().getArraySizeX_RBV()) {
 				// dummy acquisition to ensure all plugin array dimensions are initialised,
 				// these must be called at least once after IOC restarts.
-				areaDetector.setTriggerMode((short) 0);
+				areaDetector.setTriggerMode(2);
 				areaDetector.setAcquireTime(0.01);
-				areaDetector.startAcquiring();
-				areaDetector.setTriggerMode((short) 2);
+				areaDetector.startAcquiringSynchronously();
 			}
 		}
 	}
