@@ -526,13 +526,15 @@ def createSoftLink(src, dst):
 		subprocess.call(cmd, shell=True)
 
 
-def launchSinoListener(inDir, inFilenameFmt, nProjs, outDir, qsub_proj='i13', verbose=False, testing=True):
+def launchSinoListener(inDir, inFilenameFmt, nProjs, outDir, inImgWidth=4008, inImgHeight=2672, qsub_proj='i13', verbose=False, testing=True):
 	print launchSinoListener.__name__
 	args=["sino_listener.py"]
 	args+=[ "-i", inDir]
 	args+=[ "-I", inFilenameFmt]
 	args+=[ "-p", str(nProjs)]
 	args+=[ "-o", outDir]
+	args+=[ "-w", inImgWidth]
+	args+=[ "-l", inImgHeight]
 	args+=[ "--qsub_project", qsub_proj]
 	if verbose:
 		args+=[ "-v"]
@@ -1082,6 +1084,8 @@ def makeLinksForNXSFile(\
 					, qsub_project='i13'\
 					, outdir=None\
 					, minProjs=129\
+					, inWidth=4008\
+					, inHeight=2672\
 					, quickstep=100\
 					, maxUnclassed=0\
 					, decimationRate=1\
@@ -1123,6 +1127,8 @@ def makeLinksForNXSFile(\
 		print "qsub_project=%s"%qsub_project
 		print "outdir=%s"%outdir
 		print "minProjs=%s"%minProjs
+		print "inWidth=%s"%inWidth
+		print "inHeight=%s"%inHeight
 		print "maxUnclassed=%s"%maxUnclassed
 		print "decimationRate=%s"%decimationRate
 		print "sino=%s"%str(sino)
@@ -1426,6 +1432,8 @@ def makeLinksForNXSFile(\
 											, inFilenameFmt=inProjFmt\
 											, nProjs=zidx_last\
 											, outDir=head+os.sep+sino_dir\
+											, inImgWidth=inWidth\
+											, inImgHeight=inHeight\
 											, qsub_proj=qsub_project\
 											, verbose=True\
 											, testing=False)
@@ -1584,6 +1592,8 @@ creates directories and links to projection, dark and flat images required for s
 	parser.add_option("--stageInBeamPhys", action="store", type="float", dest="inBeamPos", help="The sample stage's PHYSICAL position when it was IN-BEAM during the scan. ")
 	parser.add_option("--stageOutOfBeamPhys", action="store", type="float", dest="outOfBeamPos", help="The sample stage's PHYSICAL position when it was OUT-OF-BEAM during the scan. ")
 	parser.add_option("--minProjs", action="store", type="int", dest="minProjs", default=129, help="The absolute minimum number of projections; default value is %default.")
+	parser.add_option("-w","--width", action="store", type="int", dest="inWidth", default=4008, help="The width of all tomography images; default value is %default.")
+	parser.add_option("-h","--height", action="store", type="int", dest="inHeight", default=2672, help="The height of all tomography images; default value is %default.")
 	parser.add_option("--quickstep", action="store", type="int", dest="quickstep", default=100, help="The step size to be used for GUI quick option; default value is %default.")
 	parser.add_option("--maxUnclassed", action="store", type="int", dest="maxUnclassed", default=0, help="The absolute maximum number of unclassified images; default value is %default.")
 	parser.add_option("-e", "--every", action="store", type="int", dest="decimationRate", default=1, help="Indicates that only every n-th projection image will be used for reconstruction; default value is %default.")
@@ -1648,6 +1658,8 @@ creates directories and links to projection, dark and flat images required for s
 					, stageOutOfBeamPhys=opts.outOfBeamPos\
 					, outdir=outdir_loc\
 					, minProjs=minProjs_loc\
+					, inWidth=opts.inWidth\
+					, inHeight=opts.inHeight\
 					, quickstep=opts.quickstep\
 					, maxUnclassed=maxUnclassed_loc\
 					, shutterNXSPath=opts.shutNXSPath\
