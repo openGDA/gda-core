@@ -80,6 +80,8 @@ import uk.ac.gda.ui.components.StepperChangedEvent;
 
 public class ProjectionsView extends ViewPart implements ISelectionListener {
 
+	private static final String UPDATING_DATA = "Updating data";
+	private static final String PROJECTIONS_PLOT = "Projections Plot";
 	private static final String FILE_NAME = "File name";
 	public static final String ID = "uk.ac.diamond.tomography.reconstruction.view.projection";
 
@@ -239,7 +241,7 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 		} catch (Exception e) {
 
 		}
-		plottingSystem.createPlotPart(plotComposite, "Projections Plot", getViewSite().getActionBars(), PlotType.IMAGE,
+		plottingSystem.createPlotPart(plotComposite, PROJECTIONS_PLOT, getViewSite().getActionBars(), PlotType.IMAGE,
 				this);
 		createMouseFollowLineRegion();
 
@@ -267,7 +269,7 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 	private int position = -1;
 
 	private void doCreateRefreshJob() {
-		refreshJob = new UIJob(getViewSite().getShell().getDisplay(), "Updating data") {
+		refreshJob = new UIJob(getViewSite().getShell().getDisplay(), UPDATING_DATA) {
 
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
