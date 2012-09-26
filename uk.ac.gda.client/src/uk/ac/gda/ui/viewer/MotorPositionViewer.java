@@ -21,6 +21,7 @@ package uk.ac.gda.ui.viewer;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
+import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -65,6 +66,8 @@ public class MotorPositionViewer {
 
 	private Scannable scannable;
 	private double demandPrev;
+	
+	private String commandFormat;
 
 	private Job motorPositionJob;
 
@@ -83,6 +86,10 @@ public class MotorPositionViewer {
 		motor = positionSource;
 		this.parent = parent;
 		createControls(parent);
+	}
+	
+	public void setCommandFormat(String commandFormat) {
+		this.commandFormat = commandFormat;
 	}
 	
 	private void setDemandPrev() {
@@ -139,7 +146,15 @@ public class MotorPositionViewer {
 						@Override
 						protected IStatus run(IProgressMonitor monitor) {
 							try {
-								motor.setPosition(demand);
+								if (commandFormat == null) {
+									motor.setPosition(demand);
+								}
+								
+								else {
+									final String commandToRun = String.format(commandFormat, demand);
+									InterfaceProvider.getCommandRunner().evaluateCommand(commandToRun);
+								}
+								
 								demandPrev = demand;
 							} catch (DeviceException e) {
 								logger.error("Exception: " + msg + " " + e.getMessage(),e);
