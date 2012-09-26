@@ -84,6 +84,8 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
+import uk.ac.diamond.tomography.localtomo.LocalTomoType;
+import uk.ac.diamond.tomography.localtomo.TifNXSPathType;
 import uk.ac.diamond.tomography.localtomo.util.LocalTomoUtil;
 import uk.ac.diamond.tomography.reconstruction.Activator;
 import uk.ac.diamond.tomography.reconstruction.ReconUtil;
@@ -388,6 +390,42 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 		}
 	}
 
+	private int[] getImageWidthHeight() {
+		String path = nexusFile.getLocation().toOSString();
+		HDF5Loader hdf5Loader = new HDF5Loader(path);
+		DataHolder loadFile;
+		int[] widthHeight = null;
+		try {
+			loadFile = hdf5Loader.loadFile();
+
+			LocalTomoType localTomoObject = LocalTomoUtil.getLocalTomoObject();
+
+			ILazyDataset dataset = null;
+			if (localTomoObject != null) {
+				TifNXSPathType tifNXSPath = localTomoObject.getTomodo().getNexusfile().getTifNXSPath();
+				dataset = loadFile.getLazyDataset(tifNXSPath.getValue());
+			}
+
+			if (dataset != null) {
+				int[] shape = dataset.getShape();
+				if (shape.length == 3) {
+					widthHeight = new int[2];
+					//
+					widthHeight[0] = shape[1];
+					widthHeight[1] = shape[2];
+				}
+			} else {
+				throw new IllegalArgumentException("Unable to find dataset");
+			}
+		} catch (ScanFileHolderException e1) {
+			logger.error("TODO", e1);
+		} catch (IllegalArgumentException e2) {
+			logger.error("TODO", e2);
+		}
+		return widthHeight;
+
+	}
+
 	private void runReconScript(boolean quick) {
 		saveModel();
 
@@ -444,6 +482,12 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 			command.append(String.format(" --stageInBeamPhys %s", inBeamVal));
 			command.append(String.format(" --stageOutOfBeamPhys %s", outOfBeamVal));
 
+			int[] imageWidthHeight = getImageWidthHeight();
+			if (imageWidthHeight != null) {
+				command.append(String.format(" --width %d", imageWidthHeight[0]));
+				command.append(String.format(" --height %d", imageWidthHeight[1]));
+			}
+
 			logger.debug("Command that will be run:{}", command);
 			OSCommandRunner.runNoWait(command.toString(), LOGOPTION.ALWAYS, null);
 		} catch (URISyntaxException e) {
@@ -462,7 +506,9 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 			ILazyDataset dataset = loadFile.getLazyDataset("/entry1/instrument/tomoScanDevice/image_key");
 			return dataset != null;
 		} catch (ScanFileHolderException e1) {
+			logger.error("Image key not available", e1);
 		} catch (IllegalArgumentException e2) {
+			logger.error("Image key not available", e2);
 		}
 		return false;
 	}
