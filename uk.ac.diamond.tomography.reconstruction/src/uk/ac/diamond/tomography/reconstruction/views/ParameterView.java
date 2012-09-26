@@ -826,81 +826,86 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 
 	private void createSettingsFile() {
 		Bundle bundle = Platform.getBundle(Activator.PLUGIN_ID);
-		URL fileURL = bundle.getEntry("resources/settings.xml");
-		fileOnFileSystem = null;
-		try {
-			fileOnFileSystem = new File(FileLocator.resolve(fileURL).toURI());
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			logger.error("TODO put description of error here", e);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			logger.error("TODO put description of error here", e);
-		}
-		final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(Activator.TOMOGRAPHY_SETTINGS);
-		if (!project.exists()) {
-			WorkspaceModifyOperation workspaceModifyOperation = new WorkspaceModifyOperation() {
+		LocalTomoType localTomoObject = LocalTomoUtil.getLocalTomoObject();
+		if (localTomoObject != null) {
+			String blueprintFileLoc = localTomoObject.getTomodo().getSettingsfile().getBlueprint();
 
-				@Override
-				protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException,
-						InterruptedException {
-					project.create(monitor);
-					project.open(monitor);
-				}
-			};
+			fileOnFileSystem = null;
 			try {
-				workspaceModifyOperation.run(null);
-			} catch (InvocationTargetException e) {
+				URL fileURL = new URL(blueprintFileLoc);
+				fileOnFileSystem = new File(FileLocator.resolve(fileURL).toURI());
+			} catch (URISyntaxException e) {
 				// TODO Auto-generated catch block
 				logger.error("TODO put description of error here", e);
-			} catch (InterruptedException e) {
+			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				logger.error("TODO put description of error here", e);
 			}
-		} else if (!project.isAccessible()) {
+			final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(Activator.TOMOGRAPHY_SETTINGS);
+			if (!project.exists()) {
+				WorkspaceModifyOperation workspaceModifyOperation = new WorkspaceModifyOperation() {
 
-			WorkspaceModifyOperation workspaceModifyOperation = new WorkspaceModifyOperation() {
-
-				@Override
-				protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException,
-						InterruptedException {
-					project.open(monitor);
-				}
-			};
-			try {
-				workspaceModifyOperation.run(null);
-			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
-				logger.error("TODO put description of error here", e);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				logger.error("TODO put description of error here", e);
-			}
-
-		}
-
-		defaultSettingFile = project.getFile(pathname);
-		if (!defaultSettingFile.exists()) {
-			WorkspaceModifyOperation workspaceModifyOperation = new WorkspaceModifyOperation() {
-
-				@Override
-				protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException,
-						InterruptedException {
-					try {
-						defaultSettingFile.create(new FileInputStream(fileOnFileSystem), true, null);
-					} catch (FileNotFoundException e) {
-						logger.error("TODO put description of error here", e);
+					@Override
+					protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException,
+							InterruptedException {
+						project.create(monitor);
+						project.open(monitor);
 					}
+				};
+				try {
+					workspaceModifyOperation.run(null);
+				} catch (InvocationTargetException e) {
+					// TODO Auto-generated catch block
+					logger.error("TODO put description of error here", e);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					logger.error("TODO put description of error here", e);
 				}
-			};
-			try {
-				workspaceModifyOperation.run(null);
-			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
-				logger.error("TODO put description of error here", e);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				logger.error("TODO put description of error here", e);
+			} else if (!project.isAccessible()) {
+
+				WorkspaceModifyOperation workspaceModifyOperation = new WorkspaceModifyOperation() {
+
+					@Override
+					protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException,
+							InterruptedException {
+						project.open(monitor);
+					}
+				};
+				try {
+					workspaceModifyOperation.run(null);
+				} catch (InvocationTargetException e) {
+					// TODO Auto-generated catch block
+					logger.error("TODO put description of error here", e);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					logger.error("TODO put description of error here", e);
+				}
+
+			}
+
+			defaultSettingFile = project.getFile(pathname);
+			if (!defaultSettingFile.exists()) {
+				WorkspaceModifyOperation workspaceModifyOperation = new WorkspaceModifyOperation() {
+
+					@Override
+					protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException,
+							InterruptedException {
+						try {
+							defaultSettingFile.create(new FileInputStream(fileOnFileSystem), true, null);
+						} catch (FileNotFoundException e) {
+							logger.error("TODO put description of error here", e);
+						}
+					}
+				};
+				try {
+					workspaceModifyOperation.run(null);
+				} catch (InvocationTargetException e) {
+					// TODO Auto-generated catch block
+					logger.error("TODO put description of error here", e);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					logger.error("TODO put description of error here", e);
+				}
 			}
 		}
 	}
