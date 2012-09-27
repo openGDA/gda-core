@@ -75,6 +75,10 @@ public class SaveableConfiguration {
 
 	private int tomoRotationAxis;
 
+	private double inBeamPosition;
+
+	private double outOfBeamPosition;
+
 	public static class MotorPosition {
 		private String name;
 
@@ -385,6 +389,22 @@ public class SaveableConfiguration {
 
 	public int getTomoRotationAxis() {
 		return tomoRotationAxis;
+	}
+
+	public void setInBeamPosition(double sampleBaseMotorPosition) {
+		this.inBeamPosition = sampleBaseMotorPosition;
+	}
+	
+	public double getInBeamPosition() {
+		return inBeamPosition;
+	}
+
+	public void setOutOfBeamPosition(double outOfBeamPosition) {
+		this.outOfBeamPosition = outOfBeamPosition;
+	}
+
+	public double getOutOfBeamPosition() {
+		return outOfBeamPosition;
 	}
 
 }

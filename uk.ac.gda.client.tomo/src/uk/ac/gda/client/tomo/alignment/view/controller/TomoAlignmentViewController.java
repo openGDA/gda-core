@@ -360,7 +360,7 @@ public class TomoAlignmentViewController extends TomoViewController {
 
 				updateRotationDegree(sampleStageMotorHandler.getRotationMotorDeg());
 				updateProc1FlatFieldCorrection(cameraHandler.getProc1FlatFieldCorrection());
-				
+
 				updateStatInfo();
 
 				updateSampleInOutState(sampleStageMotorHandler.getSampleBaseMotorPosition());
@@ -368,7 +368,7 @@ public class TomoAlignmentViewController extends TomoViewController {
 				updateEnergy(getEnergy());
 
 				updateResolutionPixelSize(getResolutionPixelSize(getModule()));
-				
+
 				Double cameraMotionMotorPosition = getCameraMotionMotorPosition();
 				if (cameraMotionMotorPosition != null) {
 					updateCameraMotionPosition(cameraMotionMotorPosition);
@@ -1101,6 +1101,10 @@ public class TomoAlignmentViewController extends TomoViewController {
 		Double horizontalFieldOfView = cameraModuleController.lookupHFOV(CAMERA_MODULE.getEnum(saveableConfiguration
 				.getModuleNumber()));
 		saveableConfiguration.setModuleHorizontalFieldOfView(horizontalFieldOfView);
+
+		saveableConfiguration.setInBeamPosition(sampleStageMotorHandler.getSampleBaseMotorPosition());
+
+		saveableConfiguration.setOutOfBeamPosition(sampleStageMotorHandler.getSampleBaseMotorPosition()+sampleStageMotorHandler.getDistanceToMoveSampleOut());
 		// sample stage parameters
 		// basex
 		ArrayList<MotorPosition> motorPositions = saveableConfiguration.getMotorPositions();

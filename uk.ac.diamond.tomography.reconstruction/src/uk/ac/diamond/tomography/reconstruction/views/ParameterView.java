@@ -40,7 +40,6 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
@@ -77,7 +76,6 @@ import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.ViewPart;
-import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -443,14 +441,17 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 			}
 		}
 
-		Bundle bundle = Platform.getBundle(Activator.PLUGIN_ID);
-		URL shFileURL = bundle.getEntry(SCRIPTS_TOMODO_SH);
-		URL pyFileURL = bundle.getEntry(SCRIPTS_TOMODO_PY);
 		File tomoDoPyScript = null;
 		File tomoDoShScript = null;
 		try {
+			URL shFileURL = new URL("platform:/plugin/" + Activator.PLUGIN_ID + "/" + SCRIPTS_TOMODO_SH);
+			logger.debug("shFileURL:{}", shFileURL);
+			URL pyFileURL = new URL("platform:/plugin/" + Activator.PLUGIN_ID + "/" + SCRIPTS_TOMODO_PY);
+			logger.debug("pyFileURL:{}", pyFileURL);
 			tomoDoPyScript = new File(FileLocator.resolve(pyFileURL).toURI());
+			logger.debug("tomoDoPyScript:{}", tomoDoPyScript);
 			tomoDoShScript = new File(FileLocator.resolve(shFileURL).toURI());
+			logger.debug("tomoDoShScript:{}", tomoDoShScript);
 
 			IPath fullPath = nexusFile.getLocation();
 			IPath outdir = ReconUtil.getProcessingDir(nexusFile);
@@ -484,8 +485,8 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 
 			int[] imageWidthHeight = getImageWidthHeight();
 			if (imageWidthHeight != null) {
-				command.append(String.format(" --width %d", imageWidthHeight[0]));
-				command.append(String.format(" --height %d", imageWidthHeight[1]));
+				command.append(String.format(" --width %d", imageWidthHeight[1]));
+				command.append(String.format(" --height %d", imageWidthHeight[0]));
 			}
 
 			logger.debug("Command that will be run:{}", command);
@@ -825,10 +826,9 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 	}
 
 	private void createSettingsFile() {
-		Bundle bundle = Platform.getBundle(Activator.PLUGIN_ID);
 		LocalTomoType localTomoObject = LocalTomoUtil.getLocalTomoObject();
 		if (localTomoObject != null) {
-			String blueprintFileLoc = localTomoObject.getTomodo().getSettingsfile().getBlueprint();
+			String blueprintFileLoc = "file:" + localTomoObject.getTomodo().getSettingsfile().getBlueprint();
 
 			fileOnFileSystem = null;
 			try {
@@ -955,13 +955,13 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 			}
 		}
 
-		getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
-
-			@Override
-			public void run() {
-				pgBook.showPage(emptyCmp);
-			}
-		});
+		// getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
+		//
+		// @Override
+		// public void run() {
+		// pgBook.showPage(emptyCmp);
+		// }
+		// });
 	}
 
 	private IFile getNexusFileFromHmFileLocation(String hmFileLocation) {

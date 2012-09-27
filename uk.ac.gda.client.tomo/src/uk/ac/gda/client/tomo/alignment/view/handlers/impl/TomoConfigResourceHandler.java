@@ -98,6 +98,11 @@ public class TomoConfigResourceHandler implements ITomoConfigResourceHandler, In
 
 					AlignmentConfiguration expConfiguration = TomoParametersFactory.eINSTANCE
 							.createAlignmentConfiguration();
+
+					//in beam position
+					expConfiguration.setInBeamPosition(saveableConfiguration.getInBeamPosition());
+					//out of beam position
+					expConfiguration.setOutOfBeamPosition(saveableConfiguration.getOutOfBeamPosition());
 					// proposal = visit
 					expConfiguration.setProposalId(LocalProperties.get(LocalProperties.RCP_APP_VISIT));
 					// energy
