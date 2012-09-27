@@ -1,0 +1,27 @@
+<plugin>  
+<extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="uk.ac.gda.lookuptable.editor.LookupTableMultiPageEditor"
+            contributorClass="uk.ac.gda.lookuptable.editor.LookupTableEditorContributor"
+            extensions="txt"
+            icon="icons/h_vertical.gif"
+            id="uk.ac.gda.beamline.i12.editors.LookupTableEditor"
+            name="Lookup Table Editor">
+         <contentTypeBinding
+               contentTypeId="uk.ac.gda.beamline.lookuptable">
+         </contentTypeBinding>
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <content-type
+            describer="uk.ac.gda.lookuptable.editor.LookupTableContentTypeDescriber"
+            file-extensions="txt"
+            id="uk.ac.gda.beamline.lookuptable"
+            name="Lookup Table Content"
+            priority="normal">
+      </content-type>
+   </extension>
+
+</plugin>
