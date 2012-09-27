@@ -133,8 +133,9 @@ public class GDAJythonInterpreter extends ObservableComponent {
 
 	/**
 	 * Configures this interpreter.
+	 * @throws Exception 
 	 */
-	public void configure() {
+	public void configure() throws Exception {
 		// If not already specified, work out the Jython cache directory and
 		// create if required
 		if (cacheDir == null) {
@@ -150,7 +151,17 @@ public class GDAJythonInterpreter extends ObservableComponent {
 		Properties gdaCustomProperties = new Properties();
 		gdaCustomProperties.setProperty("python.console.encoding", "UTF-8");
 		gdaCustomProperties.setProperty("python.cachedir", cacheDir.getAbsolutePath());
+		
+		//until we remove the subversion copy of uk.ac.gda.libs we need to handle the case
+		//of the plugin being in workspace/plugins and workspae_git/plugins
 		String jythonRoot = LocalProperties.getInstallationWorkspaceDir() + "plugins/uk.ac.gda.libs/jython2.5.1/";
+
+		if( !(new File(jythonRoot)).exists()){
+			jythonRoot = LocalProperties.getParentGitDir() + "gda-libs.git/uk.ac.gda.libs/jython2.5.1/";
+		}
+		if( !(new File(jythonRoot)).exists()){
+			throw new Exception("Unable to locate jythonRoot");
+		}
 
 		// something sets path to jython lib already!
 		// gdaCustomProperties.setProperty("python.path", jythonRoot + "Lib");

@@ -343,9 +343,13 @@ public class JythonServer extends OutputStream implements Jython, LocalJython, C
 			// reset the defaultScannables array
 			defaultScannables = new Vector<Scannable>();
 
-			// create the objects references in the interpreter namespace
-			interp = createJythonInterpreter();
-			interp.configure();
+			try {
+				// create the objects references in the interpreter namespace
+				interp = createJythonInterpreter();
+				interp.configure();
+			} catch (Exception e) {
+				throw new FactoryException(e.getMessage(), e);
+			}
 
 			interp.placeInJythonNamespace("command_server", this);
 			runningLocalStation = true;
