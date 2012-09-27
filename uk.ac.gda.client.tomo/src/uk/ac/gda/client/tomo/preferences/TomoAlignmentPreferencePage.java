@@ -43,6 +43,7 @@ import uk.ac.gda.client.tomo.TomoClientActivator;
  */
 public class TomoAlignmentPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 
+	public static final String ID = "uk.ac.gda.client.tomo.tomoalignment.prefpage";
 	private static final String INVALID_VALUE_ERRMSG = "Invalid value - %1$s";
 	private static final String DARK = "Dark";
 	private static final String FLAT = "Flat";

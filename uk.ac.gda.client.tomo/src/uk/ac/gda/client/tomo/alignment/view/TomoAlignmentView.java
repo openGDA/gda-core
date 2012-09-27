@@ -40,6 +40,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
@@ -62,6 +63,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.ViewPart;
@@ -98,6 +100,7 @@ import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
 import uk.ac.gda.client.tomo.composites.ZoomedImageComposite;
 import uk.ac.gda.client.tomo.composites.ZoomedImgCanvas;
 import uk.ac.gda.client.tomo.configuration.view.handlers.IScanControllerUpdateListener;
+import uk.ac.gda.client.tomo.preferences.TomoAlignmentPreferencePage;
 import uk.ac.gda.epics.client.EPICSClientActivator;
 import uk.ac.gda.ui.components.AmplifierStepperComposite;
 import uk.ac.gda.ui.components.AmplifierStepperComposite.AmplifierStepperListener;
@@ -111,6 +114,10 @@ import uk.ac.gda.ui.event.PartAdapter2;
  * View for Tomography alignment, and scan
  */
 public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
+
+	private static final String ACTION_RESET_DETECTOR = "Reset Detector";
+	private static final String ACTION_OPEN_PREFERENCES = "Open Preferences";
+	
 
 	public enum RIGHT_PAGE {
 		NONE, PLOT, ZOOM_DEMAND_RAW, NO_ZOOM, ZOOM_STREAM
@@ -168,7 +175,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	private static final int LEFT_WINDOW_WIDTH = 530;
 	private static final int MOTION_COMPOSITE_HEIGHT = 140;
 	private static final int CONTROL_COMPOSITE_HEIGHT = 80;
-	private static final String RESET_DETECTOR = "Reset Detector";
+
 	private static final int IMAGE_FULL_WIDTH = 4008;
 	private static final String LBL_INTENSITY = "Intensity";
 	private static final String LBL_y = "y";
@@ -276,6 +283,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		public void partHidden(org.eclipse.ui.IWorkbenchPartReference partRef) {
 			stopStreamByCheckingIfOn();
 		}
+
 		@Override
 		public void partClosed(org.eclipse.ui.IWorkbenchPart part) {
 			stopStreamByCheckingIfOn();
@@ -786,8 +794,23 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	};
 
 	private void createActions() {
+		Action openPrefAction = new Action(ACTION_OPEN_PREFERENCES) {
+			@Override
+			public void runWithEvent(Event event) {
+				PreferenceDialog pref = PreferencesUtil.createPreferenceDialogOn(PlatformUI.getWorkbench()
+						.getActiveWorkbenchWindow().getShell(), TomoAlignmentPreferencePage.ID, null, null);
+				if (pref != null)
+					pref.open();
+			}
+		};
+		openPrefAction.setImageDescriptor(TomoClientActivator.getDefault().getImageRegistry()
+				.getDescriptor(ImageConstants.ICON_OPEN_PREF));
+		ActionContributionItem openPrefActionItem = new ActionContributionItem(openPrefAction);
+		openPrefActionItem.setMode(ActionContributionItem.MODE_FORCE_TEXT);
+		getViewSite().getActionBars().getToolBarManager().add(openPrefActionItem);
+
 		//
-		Action resetDetectorAction = new Action(RESET_DETECTOR) {
+		Action resetDetectorAction = new Action(ACTION_RESET_DETECTOR) {
 			@Override
 			public void runWithEvent(Event event) {
 				reset();
@@ -2063,101 +2086,100 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			// rsr31645 - Commented below code which opens the save dialog to show images at 0 and +90. This would be
 			// used for stitching images in the configuration view, however, the stitch feature will not be used for
 			// sometime now.
-//			AlignmentConfigSaveDialog configSaveDialog = new AlignmentConfigSaveDialog(getViewSite().getShell(),
-//					tomoAlignmentViewController, leftVideoReceiver);
-//			configSaveDialog.open();
-//
-//			int returnCode = configSaveDialog.getReturnCode();
-//			final ImageLocationRelTheta viewerBtnSelected = configSaveDialog.getViewerButtonSelected();
+			// AlignmentConfigSaveDialog configSaveDialog = new AlignmentConfigSaveDialog(getViewSite().getShell(),
+			// tomoAlignmentViewController, leftVideoReceiver);
+			// configSaveDialog.open();
+			//
+			// int returnCode = configSaveDialog.getReturnCode();
+			// final ImageLocationRelTheta viewerBtnSelected = configSaveDialog.getViewerButtonSelected();
 
-//			if (IDialogConstants.OK_ID == returnCode) {
+			// if (IDialogConstants.OK_ID == returnCode) {
 
-				ACTIVE_WORKBENCH_WINDOW.run(true, false, new IRunnableWithProgress() {
-					private final DecimalFormat threePrecision = new DecimalFormat("#.###");
+			ACTIVE_WORKBENCH_WINDOW.run(true, false, new IRunnableWithProgress() {
+				private final DecimalFormat threePrecision = new DecimalFormat("#.###");
 
-					@Override
-					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-						try {
-							monitor.setTaskName("Saving configuration...");
-							SaveableConfiguration configuration = new SaveableConfiguration();
-							// Module number
-							configuration.setModuleNumber(motionControlComposite.getSelectedCameraModule().getValue());
-							// Sample Acquisition time
-							configuration.setSampleAcquisitonTime(Double.valueOf(threePrecision.format(cameraControls
-									.getSampleExposureTime())));
-							// Flat Acquisition time
-							configuration.setFlatAcquisitionTime(Double.valueOf(threePrecision.format(cameraControls
-									.getFlatExposureTime())));
-							// Sample description
-							configuration.setSampleDescription(cameraControls.getSampleDescription());
-							// ROI points
-							configuration.setRoiPoints(leftWindowImageViewer.getRoiPoints());
-							// Energy
-							configuration.setEnergy(motionControlComposite.getEnergy());
-							// resolution
-							configuration.setResolution3D(cameraControls.getResolution());
-							// sample weight
-							configuration.setSampleWeight(motionControlComposite.getSampleWeight());
-							// number of projections
-							configuration.setNumProjections(cameraControls.getFramesPerProjection());
-							//
-							configuration.setTomoRotationAxis(leftWindowImageViewer.getCrossWire1XRelativeToImage()* tomoAlignmentViewController.getLeftWindowBinValue());
+				@Override
+				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+					try {
+						monitor.setTaskName("Saving configuration...");
+						SaveableConfiguration configuration = new SaveableConfiguration();
+						// Module number
+						configuration.setModuleNumber(motionControlComposite.getSelectedCameraModule().getValue());
+						// Sample Acquisition time
+						configuration.setSampleAcquisitonTime(Double.valueOf(threePrecision.format(cameraControls
+								.getSampleExposureTime())));
+						// Flat Acquisition time
+						configuration.setFlatAcquisitionTime(Double.valueOf(threePrecision.format(cameraControls
+								.getFlatExposureTime())));
+						// Sample description
+						configuration.setSampleDescription(cameraControls.getSampleDescription());
+						// ROI points
+						configuration.setRoiPoints(leftWindowImageViewer.getRoiPoints());
+						// Energy
+						configuration.setEnergy(motionControlComposite.getEnergy());
+						// resolution
+						configuration.setResolution3D(cameraControls.getResolution());
+						// sample weight
+						configuration.setSampleWeight(motionControlComposite.getSampleWeight());
+						// number of projections
+						configuration.setNumProjections(cameraControls.getFramesPerProjection());
+						//
+						configuration.setTomoRotationAxis(leftWindowImageViewer.getCrossWire1XRelativeToImage()
+								* tomoAlignmentViewController.getLeftWindowBinValue());
 
-//							String imgAtTheta = null;
-//							double theta = 0;
-//							String imgAtThetaPlus90 = null;
-//							try {
-//								switch (viewerBtnSelected) {
-//								case THETA:
-//									theta = tomoAlignmentViewController.getRotationMotorDeg();
-//									imgAtTheta = tomoAlignmentViewController.demandRawWithStreamOn(monitor, false);
-//									tomoAlignmentViewController.moveRotationMotorBy(monitor, 90);
-//									imgAtThetaPlus90 = tomoAlignmentViewController
-//											.demandRawWithStreamOn(monitor, false);
-//									tomoAlignmentViewController.moveRotationMotorBy(monitor, -90);
-//									break;
-//								case THETA_PLUS_90:
-//									theta = tomoAlignmentViewController.getRotationMotorDeg() - 90;
-//									imgAtThetaPlus90 = tomoAlignmentViewController
-//											.demandRawWithStreamOn(monitor, false);
-//									tomoAlignmentViewController.moveRotationMotorBy(monitor, -90);
-//									imgAtTheta = tomoAlignmentViewController.demandRawWithStreamOn(monitor, false);
-//									break;
-//								}
-//							} catch (Exception ex) {
-//								logger.error("Unable to save images at theta:{}", ex);
-//								throw new InvocationTargetException(ex, "Cannot save images at theta");
-//							}
-//							// stitching angle
-//							configuration.setStitchingAngle(theta);
-//							// image at theta
-//							configuration.setImageAtTheta(imgAtTheta);
-//							// image at theta+90
-//							configuration.setImageAtThetaPlus90(imgAtThetaPlus90);
-							
-							
-							if (leftWindowImageViewer.getCrossWire1Vertical().isVisible()) {
-								int x = leftWindowImageViewer.getCrossWire1Vertical().getPoints().getFirstPoint().x
-										- leftWindowImageViewer.getImageBounds().x;
-								logger.debug("Tomo rotation axis:{}", x);
-								configuration.setTomoRotationAxis(x
-										* tomoAlignmentViewController.getLeftWindowBinValue());
-							}
-							try {
-								tomoAlignmentViewController.saveConfiguration(monitor, configuration);
-							} catch (Exception e) {
-								logger.error("Unable to save configuration", e);
-								throw new InvocationTargetException(e, "Cannot save alignment configuration");
-							}
-						} catch (InvocationTargetException e) {
-							throw e;
-						} finally {
-							monitor.done();
+						// String imgAtTheta = null;
+						// double theta = 0;
+						// String imgAtThetaPlus90 = null;
+						// try {
+						// switch (viewerBtnSelected) {
+						// case THETA:
+						// theta = tomoAlignmentViewController.getRotationMotorDeg();
+						// imgAtTheta = tomoAlignmentViewController.demandRawWithStreamOn(monitor, false);
+						// tomoAlignmentViewController.moveRotationMotorBy(monitor, 90);
+						// imgAtThetaPlus90 = tomoAlignmentViewController
+						// .demandRawWithStreamOn(monitor, false);
+						// tomoAlignmentViewController.moveRotationMotorBy(monitor, -90);
+						// break;
+						// case THETA_PLUS_90:
+						// theta = tomoAlignmentViewController.getRotationMotorDeg() - 90;
+						// imgAtThetaPlus90 = tomoAlignmentViewController
+						// .demandRawWithStreamOn(monitor, false);
+						// tomoAlignmentViewController.moveRotationMotorBy(monitor, -90);
+						// imgAtTheta = tomoAlignmentViewController.demandRawWithStreamOn(monitor, false);
+						// break;
+						// }
+						// } catch (Exception ex) {
+						// logger.error("Unable to save images at theta:{}", ex);
+						// throw new InvocationTargetException(ex, "Cannot save images at theta");
+						// }
+						// // stitching angle
+						// configuration.setStitchingAngle(theta);
+						// // image at theta
+						// configuration.setImageAtTheta(imgAtTheta);
+						// // image at theta+90
+						// configuration.setImageAtThetaPlus90(imgAtThetaPlus90);
+
+						if (leftWindowImageViewer.getCrossWire1Vertical().isVisible()) {
+							int x = leftWindowImageViewer.getCrossWire1Vertical().getPoints().getFirstPoint().x
+									- leftWindowImageViewer.getImageBounds().x;
+							logger.debug("Tomo rotation axis:{}", x);
+							configuration.setTomoRotationAxis(x * tomoAlignmentViewController.getLeftWindowBinValue());
 						}
+						try {
+							tomoAlignmentViewController.saveConfiguration(monitor, configuration);
+						} catch (Exception e) {
+							logger.error("Unable to save configuration", e);
+							throw new InvocationTargetException(e, "Cannot save alignment configuration");
+						}
+					} catch (InvocationTargetException e) {
+						throw e;
+					} finally {
+						monitor.done();
 					}
-				});
-				cameraControls.clearSampleDescription();
-//			}
+				}
+			});
+			cameraControls.clearSampleDescription();
+			// }
 		} finally {
 			isSaving = false;
 		}

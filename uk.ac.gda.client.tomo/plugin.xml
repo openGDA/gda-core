@@ -136,7 +136,7 @@
       <page
             category="uk.ac.gda.client.preferences.gdaroot"
             class="uk.ac.gda.client.tomo.preferences.TomoAlignmentPreferencePage"
-            id="uk.ac.gda.client.tomo.tomoalignment"
+            id="uk.ac.gda.client.tomo.tomoalignment.prefpage"
             name="Tomo Alignment">
       </page>
    </extension>
