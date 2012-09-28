@@ -481,7 +481,7 @@ where task can be:
 				self.logger.critical('Use the --lib_subdir option to specify correct name')
 				sys.exit(1)
 			try:
-				target_arch = {'i686': 'x86', 'x86': 'x86', 'x86_64': 'x86_64'}[platform.machine()]
+				target_arch = {'i686': 'x86', 'x86': 'x86', 'x86_64': 'x86_64', "AMD64": 'x86_64'}[platform.machine()]
 			except KeyError:
 				self.logger.critical('Cannot determine platform from platform.machine()="%s"' % (platform.machine(),))
 				self.logger.critical('Use the --lib_subdir option to specify correct name')
