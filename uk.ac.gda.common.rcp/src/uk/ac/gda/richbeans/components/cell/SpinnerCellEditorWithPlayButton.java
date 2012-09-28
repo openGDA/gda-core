@@ -26,6 +26,7 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -56,6 +57,7 @@ public class SpinnerCellEditorWithPlayButton extends AppliableCellEditor {
 	private Button         play;
 	private RangeBox       rangeBox;
 	private SpinnerWrapper spinner;
+	private Composite area;
 
 	/**
 	 * 
@@ -76,7 +78,7 @@ public class SpinnerCellEditorWithPlayButton extends AppliableCellEditor {
 	@Override
 	protected Control createControl(Composite parent) {
 		
-		final Composite  area   = new Composite(parent, SWT.NONE);
+		this.area   = new Composite(parent, SWT.NONE);
 		area.setLayout(new GridLayout(3, false));
 		GridUtils.removeMargins(area);
 		
@@ -277,5 +279,14 @@ public class SpinnerCellEditorWithPlayButton extends AppliableCellEditor {
 		GridUtils.setVisible(play, isVisible);
 		play.getParent().layout(play.getParent().getChildren());
 	}
-
+	
+	public void setBackground(Color back) {
+		area.setBackground(back);
+		rangeBox.setBackground(back);
+	}
+	
+	@Override
+	protected int getDoubleClickTimeout() {
+		return 0;
+	}
 }
