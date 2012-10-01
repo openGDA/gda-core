@@ -448,9 +448,9 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 			logger.debug("shFileURL:{}", shFileURL);
 			URL pyFileURL = new URL("platform:/plugin/" + Activator.PLUGIN_ID + "/" + SCRIPTS_TOMODO_PY);
 			logger.debug("pyFileURL:{}", pyFileURL);
-			tomoDoPyScript = new File(FileLocator.resolve(pyFileURL).toURI());
+			tomoDoPyScript = new File(FileLocator.toFileURL(pyFileURL).toURI());
 			logger.debug("tomoDoPyScript:{}", tomoDoPyScript);
-			tomoDoShScript = new File(FileLocator.resolve(shFileURL).toURI());
+			tomoDoShScript = new File(FileLocator.toFileURL(shFileURL).toURI());
 			logger.debug("tomoDoShScript:{}", tomoDoShScript);
 
 			IPath fullPath = nexusFile.getLocation();
