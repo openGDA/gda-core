@@ -190,6 +190,18 @@ def reindexLinks(inListOfIdx, outListOfIdx, indir="/dls/i13/data/2012/mt5811-1/5
 		j+=1
 
 @contextmanager
+def opened_w_error(filename, mode="r"):
+	try:
+		f = open(filename, mode)
+	except IOError, err:
+		yield None, err
+	else:
+		try:
+			yield f, None
+		finally:
+			f.close()
+
+@contextmanager
 def cd(path):
 	saved_dir=os.getcwd()
 	try:
@@ -1393,6 +1405,31 @@ def makeLinksForNXSFile(\
 	
 	# use the path of the first PROJ image file as a reference file path for identifying the corresponding scanNumber, etc
 	srcfile_proj=tif[ proj_idx[0] ][0]
+	
+	try:
+		with opened_w_error(str(srcfile_proj), 'rb') as (f, err):
+			#print "Opened/read file: %s"%str(srcfile_proj)
+			if err:
+				print "IOError:", err
+			else:
+				try:
+					img = Image.open(f)
+				except StandardError:
+					print "Error on Image.open for file: %s:"%str(srcfile_proj)
+					f.close() # force close
+				else:
+					# process image
+					msg = "INFO: Using image width = %s and height = %s, which were automatically detected from: %s"%(img.size[0],img.size[1],str(srcfile_proj))
+					print msg
+					inWidth = img.size[0]
+					inHeight = img.size[1]
+					#print '\t\tinWidth= ',inWidth
+					#print '\t\tinHeight= ',inHeight
+	except IOError:
+		print "Could not open/read file: %s"%str(srcfile_proj)
+		msg = "INFO: Using default image width = %s and height = %s"%(inWidth,inHeight)
+		print msg
+	
 	mandatory_parent_foldername="processing"
 	
 	scanNumber_str, head, sino_dir, dark_dir, flat_dir, proj_dir, recon_dir=createDirs(refFilename=srcfile_proj, outdir=outdir, mandatorydir=mandatory_parent_foldername, quick=quick, verbose=verbose)

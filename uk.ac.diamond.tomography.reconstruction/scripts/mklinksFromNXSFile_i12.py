@@ -19,6 +19,20 @@ import sino_listener
 
 from contextlib import contextmanager
 
+import Image
+
+@contextmanager
+def opened_w_error(filename, mode="r"):
+	try:
+		f = open(filename, mode)
+	except IOError, err:
+		yield None, err
+	else:
+		try:
+			yield f, None
+		finally:
+			f.close()
+
 @contextmanager
 def cd(path):
 	saved_dir=os.getcwd()
@@ -290,7 +304,7 @@ def populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, tif_lst, da
 	#filenameFmt=detectorName+scanNumber_str+"-"+"%05d.tif"
 	filenameFmt="p_%05d.tif"
 	makeLinksToOriginalFiles(\
-							proj_idx_decimated\
+							listOfProjIdx=proj_idx_decimated\
 							, indir=genAncestorPath(refFilename, 1)\
 							, inFilenameFmt=filenameFmt\
 							, outdir=(head+os.sep+proj_dir)\
@@ -312,13 +326,15 @@ def createSoftLink(src, dst):
 		subprocess.call(cmd, shell=True)
 
 
-def launchSinoListener(inDir, inFilenameFmt, nProjs, outDir, qsub_proj='i12', verbose=False, testing=True):
+def launchSinoListener(inDir, inFilenameFmt, nProjs, outDir, inImgWidth=4008, inImgHeight=2672, qsub_proj='i13', verbose=False, testing=True):
 	print launchSinoListener.__name__
 	args=["sino_listener.py"]
 	args+=[ "-i", inDir]
 	args+=[ "-I", inFilenameFmt]
 	args+=[ "-p", str(nProjs)]
 	args+=[ "-o", outDir]
+	args+=[ "-w", inImgWidth]
+	args+=[ "-l", inImgHeight]
 	args+=[ "--qsub_project", qsub_proj]
 	if verbose:
 		args+=[ "-v"]
@@ -326,8 +342,9 @@ def launchSinoListener(inDir, inFilenameFmt, nProjs, outDir, qsub_proj='i12', ve
 		args+=[ "-t"]
 	
 	print args
-	sino_listener.main(args)
+	s_success=sino_listener.main(args)
 	#sino_listener.main(["sino_listener.py", "-i", "/home/vxu94780/processing/rawdata/564/projections", "-I", "pco1564-%05d.tif", "-p", "1200", "-t"])
+	return s_success
 
 
 def makeLinksForNXSFile(\
@@ -604,6 +621,35 @@ def makeLinksForNXSFile(\
 	
 	# use the path of the first PROJ image file as a reference file path for identifying the corresponding scanNumber, etc
 	srcfile_proj=tif[proj_idx[0]][0]
+	
+	inWidth = 4008
+	inHeight = 2672
+	try:
+		with opened_w_error(str(srcfile_proj), 'rb') as (f, err):
+			#print "Opened/read file: %s"%str(srcfile_proj)
+			if err:
+				print "IOError:", err
+			else:
+				try:
+					img = Image.open(f)
+				except StandardError:
+					print "Error on Image.open for file: %s:"%str(srcfile_proj)
+					f.close() # force close
+				else:
+					# process image
+					msg = "INFO: Using image width = %s and height = %s, which were automatically detected from: %s"%(img.size[0],img.size[1],str(srcfile_proj))
+					print msg
+					inWidth = img.size[0]
+					inHeight = img.size[1]
+					#print '\t\tinWidth= ',inWidth
+					#print '\t\tinHeight= ',inHeight
+	except IOError:
+		print "Could not open/read file: %s"%str(srcfile_proj)
+		msg = "INFO: Using default image width = %s and height = %s"%(inWidth,inHeight)
+		print msg
+	
+	#return 
+	
 	mandatory_parent_foldername="processing"
 	
 	scanNumber_str, head, sino_dir, dark_dir, flat_dir, proj_dir=createDirs(refFilename=srcfile_proj, outdir=outdir, mandatorydir=mandatory_parent_foldername, verbose=verbose)
@@ -630,7 +676,7 @@ def makeLinksForNXSFile(\
 				
 				zidx_last=len_proj_idx_decimated-1
 				#print 'zidx_last=', zidx_last
-				launchSinoListener(head+os.sep+proj_dir, inProjFmt, zidx_last, head+os.sep+sino_dir, qsub_proj='i12', verbose=True, testing=False)
+				launchSinoListener(head+os.sep+proj_dir, inProjFmt, zidx_last, head+os.sep+sino_dir, inWidth, inHeight, qsub_proj='i12', verbose=True, testing=False)
 			except Exception, ex:
 				raise Exception ("ERROR Spawning the sino_listener script  "+str(ex))
 		
