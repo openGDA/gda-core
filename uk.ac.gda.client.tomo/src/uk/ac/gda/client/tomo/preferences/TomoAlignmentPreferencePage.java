@@ -18,6 +18,8 @@
 
 package uk.ac.gda.client.tomo.preferences;
 
+import java.util.regex.Pattern;
+
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -43,6 +45,9 @@ import uk.ac.gda.client.tomo.TomoClientActivator;
  */
 public class TomoAlignmentPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 
+	private static final String DOUBLE_REGEX = "\\-?[0-9]*\\.?[0-9]*";
+	
+	private Pattern doubleRegexPattern = Pattern.compile(DOUBLE_REGEX);
 	public static final String ID = "uk.ac.gda.client.tomo.tomoalignment.prefpage";
 	private static final String INVALID_VALUE_ERRMSG = "Invalid value - %1$s";
 	private static final String DARK = "Dark";
@@ -226,7 +231,7 @@ public class TomoAlignmentPreferencePage extends PreferencePage implements IWork
 		if (txt == null || txt.length() < 1) {
 			setErrorMessage(String.format(INVALID_VALUE_ERRMSG, errMsgId));
 			result = false;
-		} else if (!txt.matches("(\\d)*.?(\\d)*")) {
+		} else if (!doubleRegexPattern.matcher(txt).matches()) {
 			setErrorMessage(String.format(INVALID_VALUE_ERRMSG, errMsgId));
 			result = false;
 		} else {
