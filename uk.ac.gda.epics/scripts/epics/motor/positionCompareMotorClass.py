@@ -26,6 +26,9 @@ class PositionCompareMotorClass(ScannableMotionBase):
         self.stopcli=CAClient(pvstopstring)
         self._tolerance=tolerance
         
+    def setTolerance(self, tolerance):
+        self._tolerance=tolerance
+        
     def atScanStart(self):
         if not self.incli.isConfigured():
             self.incli.configure()
