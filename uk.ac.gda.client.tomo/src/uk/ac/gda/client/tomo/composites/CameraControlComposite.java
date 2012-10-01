@@ -959,7 +959,8 @@ public class CameraControlComposite extends Composite {
 					setStreamState(STREAM_STATE.NO_STREAM);
 				}
 			} else if (sourceObj == btnFlatToSample) {
-				txtSampleExposureTime.setText(txtFlatExpTime.getText());
+//				txtSampleExposureTime.setText(txtFlatExpTime.getText());
+				setPreferredSampleExposureTime(Double.parseDouble(txtFlatExpTime.getText()));
 				try {
 					for (ICameraControlListener cl : cameraControlListeners) {
 						cl.sampleExposureTimeChanged(Double.parseDouble(txtSampleExposureTime.getText()));
@@ -968,7 +969,8 @@ public class CameraControlComposite extends Composite {
 					logger.debug("Error setting exposure time", e1);
 				}
 			} else if (sourceObj == btnSampleToFlat) {
-				txtFlatExpTime.setText(txtSampleExposureTime.getText());
+				//txtFlatExpTime.setText(txtSampleExposureTime.getText());
+				setPreferredFlatExposureTime(Double.parseDouble(txtSampleExposureTime.getText()));
 				try {
 					for (ICameraControlListener cl : cameraControlListeners) {
 						cl.flatExposureTimeChanged(Double.parseDouble(txtFlatExpTime.getText()));
