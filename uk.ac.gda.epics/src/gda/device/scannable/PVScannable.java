@@ -30,7 +30,6 @@ import gda.epics.CAClient;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
-import gda.epics.interfaces.SimpleMotorType;
 import gda.epics.interfaces.SimplePvType;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
@@ -58,7 +57,6 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 	 * The attribute to get to retrieve the units string from Epics.
 	 */
 	public static final String UNITSATTRIBUTE = "unitName";
-	private String name;
 	private double deadband = 0.0;
 	private double lastKnownValue = 0.0;
 	private boolean isBusy = false;
@@ -85,7 +83,7 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 	}
 
 	public PVScannable(String name, String pv) {
-		this.name=name;
+		setName(name);
 		this.pvName=pv;
 	}
 	/**
