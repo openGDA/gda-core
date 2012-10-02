@@ -664,13 +664,14 @@ public class PolarimeterTranslator extends TranslatorBase
 
 	@Override
 	public void addAliasedCommand(String commandName) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void addAliasedVarargCommand(String commandName) {
-		// TODO Auto-generated method stub
-		
 	}
+	
+	@Override
+	public boolean ignoreRestOfLine(String thisGroup) {
+		return thisGroup.contains("#");
+	}	
 }

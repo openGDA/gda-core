@@ -146,6 +146,12 @@ public class GeneralTranslatorTest {
 		translateTestRunner("poscommand.txt");
 	}
 
+	@Test
+	public void translateSemiColonSplitCommands() throws IOException {
+		translateTestRunner("semicolonSplitCommands.txt");
+	}
+	
+	
 	public void translateTestRunner(String testFileName) throws IOException {
 
 		String translatedFilename = testScratchDirectoryName + testFileName + ".translated";
@@ -169,7 +175,7 @@ public class GeneralTranslatorTest {
 		pw.flush();
 		pw.close();
 
-		FileAssert.assertEquals("translation NE expected: " + translatedFilename + " NE " + expectedFilename + "\n",
+		FileAssert.assertBinaryEquals(
 				new File(expectedFilename),
 				new File(translatedFilename));
 	}

@@ -142,11 +142,11 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 		}
 
 		// if limits not set, then set them to something useable during testing
-		if (this.minPosition == Double.NaN) {
+		if (Double.isNaN(minPosition)) {
 			this.minPosition = -Double.MAX_VALUE;
 		}
 		
-		if (this.maxPosition == Double.NaN) {
+		if (Double.isNaN(maxPosition)) {
 			this.maxPosition = Double.MAX_VALUE;
 		}
 

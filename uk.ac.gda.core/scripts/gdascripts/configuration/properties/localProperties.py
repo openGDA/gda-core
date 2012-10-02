@@ -21,6 +21,6 @@ class LocalProperties(LocalProperties):
         if (len(args)>=1):
             apply(self.get, (self,)+args)
         else:
-            print "No perperty name provided."
+            print "No property name provided."
             
             

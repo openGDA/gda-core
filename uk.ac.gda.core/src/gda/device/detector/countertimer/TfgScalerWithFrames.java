@@ -67,7 +67,7 @@ public class TfgScalerWithFrames extends TfgScalerWithLogValues {
 		times = null;
 		super.atScanEnd();
 	}
-	
+
 	@Override
 	public void atCommandFailure() throws DeviceException {
 		super.atCommandFailure();

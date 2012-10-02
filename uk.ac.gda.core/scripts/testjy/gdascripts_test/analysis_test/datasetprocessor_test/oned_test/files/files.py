@@ -9,3 +9,4 @@ WIRESCANFILE2 = replacePathSeparater(THISDIR + "dls_b16_data_2009_nt498-1_10998.
 DAT_31473 = replacePathSeparater(THISDIR + "31473.dat")
 DAT_31474 = replacePathSeparater(THISDIR + "31474.dat")
 DAT_31484 = replacePathSeparater(THISDIR + "31484.dat")
+SILICON_DIFFRACTION=replacePathSeparater(THISDIR+"silicon_diffraction.dat")
