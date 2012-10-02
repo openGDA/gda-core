@@ -489,9 +489,11 @@ fi
 			args += [ "-P", self.qsub_project]
 		if self.settingsfolder != None:
 			#add error stream
-			args += ["-e", self.settingsfolder+os.sep+'sge_err.txt']
+			#args += ["-e", self.settingsfolder+os.sep+'sge_err.txt']
+			args += ["-e", self.settingsfolder]
 			#add output stream
-			args += ["-o", self.settingsfolder+os.sep+'sge_out.txt']
+			#args += ["-o", self.settingsfolder+os.sep+'sge_out.txt']
+			args += ["-o", self.settingsfolder]
 		if self.myqueue != None:
 			#add queue
 			args += ["-q", self.myqueue]

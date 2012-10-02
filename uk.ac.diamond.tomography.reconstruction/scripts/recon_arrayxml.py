@@ -383,9 +383,11 @@ sed -i "s|^.*GPUDeviceNumber.*$|<GPUDeviceNumber>$mycuda</GPUDeviceNumber>|" $my
 			args+=[ "-P", self.qsub_project]
 		if self.mypath!=None:
 			#add error stream
-			args+=["-e", self.mypath+os.sep+'sge_err.txt']
+			#args+=["-e", self.mypath+os.sep+'sge_err.txt']
+			args+=["-e", self.mypath]
 			#add output stream
-			args+=["-o", self.mypath+os.sep+'sge_out.txt']
+			#args+=["-o", self.mypath+os.sep+'sge_out.txt']
+			args+=["-o", self.mypath]
 		if self.myqueue!=None:
 			#add queue
 			args+=["-q", self.myqueue]
