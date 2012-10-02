@@ -461,8 +461,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 		// (If the scan contains a detector this method will already have been called)
 		waitForDetectorReadoutAndPublishCompletion();
 
-		final String threadName = "ConcurrentScanChild.readoutDetectorsAndPublish(point '" + point.toString() + "')";
-		
+
 		detectorReadoutTask = new FutureTask<Void>(new Callable<Void>() {
 
 			List<Future<Object>> readoutTasks;
@@ -479,13 +478,12 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 					// if there are detectors then readout in parallel threads
 					if (detectors.size() != 0) {
 
-						readoutTasks = new ArrayList<Future<Object>>(detectors.size());
-						
+						ExecutorService threadPool = Executors.newFixedThreadPool(detectors.size());
+
 						// Start readout tasks
+						readoutTasks = new ArrayList<Future<Object>>(detectors.size());
 						for (Detector detector : point.getDetectors()) {
-							FutureTask<Object> readoutTask = new FutureTask<Object>(new ReadoutDetector(detector));
-							new Thread(readoutTask, threadName + ": readout '" + detector.getName() + "'").start();
-							readoutTasks.add(readoutTask);
+							readoutTasks.add(threadPool.submit(new ReadoutDetector(detector)));
 						}
 
 						// Wait for readout results and put into point
@@ -537,6 +535,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 
 		});
 		
+		String threadName = "ConcurrentScanChild.readoutDetectorsAndPublish(point '" + point.toString() + "')";
 		new Thread(detectorReadoutTask, threadName).start();
 	}
 

@@ -493,7 +493,7 @@ where task can be:
 		""" Determine Java profiler settings
 		"""
 
-		profiler_dir = os.getenv("PROFILER_DIR") or "/dls_sw/dasc/jprofiler4"
+		profiler_dir = os.getenv("PROFILER_DIR") or "/dls_sw/dasc/jprofiler5"
 
 		# find architecture of Java binary, to work out which JProfiler library dir to use
 		java_arch = platform.architecture(executable=self.javabin)[0]
