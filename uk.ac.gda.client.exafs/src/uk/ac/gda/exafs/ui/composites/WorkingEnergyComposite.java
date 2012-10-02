@@ -276,19 +276,20 @@ public class WorkingEnergyComposite extends FieldBeanComposite {
 
 	private void setWorkingEnergyUsingXes(ScanObject ob, final XesScanParameters params) throws Exception {
 		XesScanParameters xesparams = params;
-		
-		if (xesparams.getScanType() == XesScanParameters.SCAN_XES_FIXED_MONO
-				|| xesparams.getScanType() == XesScanParameters.SCAN_XES_SCAN_MONO) {
 
-			double init = xesparams.getXesInitialEnergy();
-			double fin = xesparams.getXesFinalEnergy();
+		if (xesparams.getScanType() == XesScanParameters.SCAN_XES_FIXED_MONO) {
+			double energy = xesparams.getMonoEnergy();
+			workingEnergy.setMinimum(energy);
+			workingEnergy.setMaximum(energy);
+			workingEnergy.setValue(energy);
+		} else if (xesparams.getScanType() == XesScanParameters.SCAN_XES_SCAN_MONO) {
+			double init = xesparams.getMonoInitialEnergy();
+			double fin = xesparams.getMonoFinalEnergy();
 			String energy = String.valueOf(init + ((fin - init) / 2.0));
 			workingEnergy.setMinimum(init);
 			workingEnergy.setMaximum(fin);
 			workingEnergy.setValue(energy);
-
 		} else {
-
 			String subscanFileName = xesparams.getScanFileName();
 			IFile subscanFile = ob.getFolder().getFile(subscanFileName);
 			IRichBean bean = BeansFactory.getBean(subscanFile.getLocation().toFile());
