@@ -240,6 +240,7 @@ class I20XesScan(XasScan):
         xes_energy.setCut2Val(xesScanBean.getAnalyserCut1())
         xes_energy.setCut3Val(xesScanBean.getAnalyserCut2())
 
+        
         if scanType == XesScanParameters.SCAN_XES_FIXED_MONO:
             print "Scanning the analyser scan with fixed mono"
             print "switching data output format to XesAsciiNexusDataWriter"
@@ -252,11 +253,11 @@ class I20XesScan(XasScan):
             LocalProperties.set("gda.data.scan.datawriter.dataFormat","XesAsciiNexusDataWriter")
             args += [xes_energy, xesScanBean.getXesInitialEnergy(), xesScanBean.getXesFinalEnergy(), xesScanBean.getXesStepSize(), mono_energy, xesScanBean.getMonoInitialEnergy(), xesScanBean.getMonoFinalEnergy(), xesScanBean.getMonoStepSize()]
 
-        # create scannable which will control 2D plotting in this mode
+             # create scannable which will control 2D plotting in this mode
             jython_mapper.twodplotter.setX_colName(xes_energy.getInputNames()[0])
             jython_mapper.twodplotter.setY_colName(mono_energy.getInputNames()[0])
             jython_mapper.twodplotter.setZ_colName(finder_mapper.xmapMca.getExtraNames()[0])
-        # note that users will have to open a 'plot 1' view or use the XESPlot perspective for this to work
+            # note that users will have to open a 'plot 1' view or use the XESPlot perspective for this to work
 
             detectorList = [jython_mapper.twodplotter] + detectorList
     
@@ -267,15 +268,13 @@ class I20XesScan(XasScan):
 
             print "moving XES analyser stage to collect at", xesScanBean.getXesEnergy()
             xes_energy(xesScanBean.getXesEnergy())
-            ScannableCommands.add_default(xes_energy)
-            ScannableCommands.add_default(analyserAngle)
+            ScannableCommands.add_default([xes_energy,analyserAngle])
 
             try:
                 jython_mapper.xas(sampleBean, xas_scanfilename, detectorBean, outputBean, folderName, numRepetitions, validation)
             finally:
                 print "cleaning up scan defaults"
-                ScannableCommands.remove_default(xes_energy)
-                ScannableCommands.remove_default(analyserAngle)
+                ScannableCommands.remove_default([xes_energy,analyserAngle])
             return
     
         elif scanType == XesScanParameters.FIXED_XES_SCAN_XANES:
@@ -283,8 +282,8 @@ class I20XesScan(XasScan):
             # add xes_energy, analyserAngle, to the signal parameters bean and then call the xanes command
             xanes_scanfilename = xesScanBean.getScanFileName()
 
-            xes_energy(xesScanBean.getXesEnergy())
             print "moving XES analyser stage to collect at", xesScanBean.getXesEnergy()
+            xes_energy(xesScanBean.getXesEnergy())
             ScannableCommands.add_default([xes_energy,analyserAngle])
 
             try:
@@ -296,7 +295,7 @@ class I20XesScan(XasScan):
         else:
             raise "scan type in XES Scan Parameters bean/xml not acceptable"
         
-    # run the script held in outputparameters
+    # run the script held in output parameters
         scriptName = beanGroup.getOutput().getBeforeScriptName()
         if scriptName != None and scriptName != "":
             InterfaceProvider.getCommandRunner().runScript(File(scriptName), None);
@@ -317,6 +316,12 @@ class I20XesScan(XasScan):
         LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
         LocalProperties.set(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY,str(numRepetitions))
         repetitionNumber = 0
+        
+        # set the dark current and integration time for all detectors
+        itime = xesScanBean.getXesIntegrationTime()
+        jython_mapper.I1.setDarkCurrentCollectionTime(itime);
+        for det in detectorList:
+            det.setCollectionTime(itime)
         
         try:
             while True:
@@ -377,4 +382,6 @@ class I20XesScan(XasScan):
 
         finally:
             LocalProperties.set("gda.data.scan.datawriter.dataFormat", originalDataFormat)
+            # make sure the plotter is switched off
+            jython_mapper.twodplotter.atScanEnd()
 
