@@ -114,19 +114,19 @@ public class LookupTableEditor extends EditorPart {
 		glayout.verticalSpacing = 0;
 		composite.setLayout(glayout);
 
-		Composite buttonsCmp = new Composite(composite, SWT.None);
-		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
-		layoutData.heightHint = 40;
-		buttonsCmp.setLayoutData(layoutData);
-		buttonsCmp.setLayout(new FillLayout());
-
-		Button btnAddRow = new Button(buttonsCmp, SWT.PUSH);
-		btnAddRow.setText("Add Row");
-		btnAddRow.setImage(Activator.getDefault().getImageRegistry().get(ImageConstants.IMG_ADD));
-
-		Button btnDelRow = new Button(buttonsCmp, SWT.PUSH);
-		btnDelRow.setText("Delete Row");
-		btnDelRow.setImage(Activator.getDefault().getImageRegistry().get(ImageConstants.IMG_DEL));
+//		Composite buttonsCmp = new Composite(composite, SWT.None);
+//		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
+//		layoutData.heightHint = 40;
+//		buttonsCmp.setLayoutData(layoutData);
+//		buttonsCmp.setLayout(new FillLayout());
+//
+//		Button btnAddRow = new Button(buttonsCmp, SWT.PUSH);
+//		btnAddRow.setText("Add Row");
+//		btnAddRow.setImage(Activator.getDefault().getImageRegistry().get(ImageConstants.IMG_ADD));
+//
+//		Button btnDelRow = new Button(buttonsCmp, SWT.PUSH);
+//		btnDelRow.setText("Delete Row");
+//		btnDelRow.setImage(Activator.getDefault().getImageRegistry().get(ImageConstants.IMG_DEL));
 
 		Composite tvCmp = new Composite(composite, SWT.None);
 		tvCmp.setLayoutData(new GridData(GridData.FILL_BOTH));
@@ -316,7 +316,8 @@ public class LookupTableEditor extends EditorPart {
 
 		@Override
 		protected boolean canEdit(Object element) {
-			return true;
+			//return true;
+			return false;
 		}
 
 		@Override
