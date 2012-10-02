@@ -182,6 +182,9 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 		return data;
 	}
 
+	public void addData(String detName, String dataName, NexusGroupData data_sds, String units, Integer signalVal) {
+		addData(detName, dataName, data_sds, units, signalVal, null);
+	}
 	/**
 	 * Adds the specified data to the named detector
 	 * @param detName The name of the detector to add data to
@@ -189,17 +192,21 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 	 * @param units  - if not null a units attribute is added
 	 * @param signalVal - if not null a signal attribute is added
 	 */
-	public void addData(String detName, String dataName, NexusGroupData data_sds, String units, Integer signalVal) {
+	public void addData(String detName, String dataName, NexusGroupData data_sds, String units, Integer signalVal, String interpretation) {
 		INexusTree detTree = getDetTree(detName);
 		NexusTreeNode data = new NexusTreeNode(dataName, NexusExtractor.SDSClassName, null, data_sds);
 		data.setIsPointDependent(data_sds.isDetectorEntryData);
-		if( units != null){
+		if (units != null) {
 			data.addChildNode(new NexusTreeNode("units",NexusExtractor.AttrClassName, data, new NexusGroupData(units)));
 		}
-		if( signalVal != null){
+		if (signalVal != null) {
 			Integer[] signalValArray = {signalVal};
 			data.addChildNode(new NexusTreeNode("signal",NexusExtractor.AttrClassName, data, 
 					new NexusGroupData(new int[] {signalValArray.length}, NexusFile.NX_INT32, signalValArray)));
+		}
+		if (interpretation != null) {
+			data.addChildNode(new NexusTreeNode("interpretation",NexusExtractor.AttrClassName, data, 
+					new NexusGroupData(interpretation)));
 		}
 		detTree.addChildNode(data);			
 	}
@@ -213,9 +220,20 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 	 */
 	public void addData(String detName, NexusGroupData data_sds, String units, Integer signalVal) {
 		data_sds.isDetectorEntryData = true;
-		addData(detName, "data", data_sds, units, signalVal);
+		addData(detName, "data", data_sds, units, signalVal, null);
 	}
 	
+	/**
+	 * Adds the specified data to the named detector
+	 * @param detName The name of the detector to add data to
+	 * @param data_sds The implementation of NexusGroupData to be reported as the data
+	 * @param units  - if not null a units attribute is added
+	 * @param signalVal - if not null a signal attribute is added
+	 */
+	public void addData(String detName, NexusGroupData data_sds, String units, Integer signalVal, String interpretation) {
+		data_sds.isDetectorEntryData = true;
+		addData(detName, "data", data_sds, units, signalVal, interpretation);
+	}
 	
 	/**
 	 * Add the string as a NXNote - used when the detector writes data to a file itself to be agglomerated into the NExus file later.
