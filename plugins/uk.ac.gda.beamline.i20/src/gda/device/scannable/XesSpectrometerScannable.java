@@ -175,10 +175,10 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 	}
 
 	private void checkPositionValid(ScannableMotor scannable, double target) throws DeviceException{
-		double min = scannable.getLowerMotorLimit();
-		double max  = scannable.getUpperMotorLimit();
+		Double min = scannable.getLowerMotorLimit();
+		Double max  = scannable.getUpperMotorLimit();
 		
-		if (target > max || target < min){
+		if (min != null && max != null  && (target > max || target < min)){
 			throw new DeviceException("Move not valid. " + target + " outside of limits of " + scannable.getName() + " motor.");
 		}
 	}
