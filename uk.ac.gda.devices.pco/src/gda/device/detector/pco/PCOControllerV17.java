@@ -24,6 +24,7 @@ import gda.device.DeviceException;
 import gda.device.detector.IPCOControllerV17;
 import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.ADBase;
+import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.device.detector.areadetector.v17.FfmpegStream;
 import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.areadetector.v17.NDFile;
@@ -636,9 +637,12 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 					|| hdf.getPluginBase().getArraySize0_RBV() != getAreaDetector().getArraySizeX_RBV()) {
 				// dummy acquisition to ensure all plugin array dimensions are initialised,
 				// these must be called at least once after IOC restarts.
-				areaDetector.setTriggerMode(2);
-				areaDetector.setAcquireTime(0.01);
+				int cachedImgMode = areaDetector.getImageMode();
+				
+				areaDetector.setImageMode(ImageMode.SINGLE.ordinal());
+				areaDetector.setAcquireTime(1);
 				areaDetector.startAcquiringSynchronously();
+				areaDetector.setImageMode(cachedImgMode);
 			}
 		}
 	}
