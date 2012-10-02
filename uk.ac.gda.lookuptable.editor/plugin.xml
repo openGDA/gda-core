@@ -23,5 +23,48 @@
             priority="normal">
       </content-type>
    </extension>
-
+	<extension
+         point="org.eclipse.ui.importWizards">
+      <wizard
+            category="uk.ac.gda.lookuptable.wizard.category"
+            class="uk.ac.gda.lookuptable.editor.importwizard.ImportLookupTableWizard"
+            icon="icons/h_vertical.gif"
+            id="uk.ac.gda.beamline.i12.lookuptable.import"
+            name="Lookup Table">
+      </wizard>
+      <category
+            id="uk.ac.gda.lookuptable.wizard.category"
+            name="Lookup">
+      </category>
+   </extension>
+ <extension
+       point="org.eclipse.ui.navigator.navigatorContent">
+    <commonWizard
+          menuGroupId="additions"
+          type="import"
+          wizardId="uk.ac.gda.beamline.i12.lookuptable.import">
+       <enablement>
+          <and>
+             <instanceof
+                   value="org.eclipse.core.resources.IFile">
+             </instanceof>
+             <count
+                   value="1">
+             </count>
+             <test
+                   property="uk.ac.gda.lookuptable.editor.isLookupTableFile">
+             </test>
+          </and></enablement>
+    </commonWizard>
+ </extension>
+ <extension
+       point="org.eclipse.core.expressions.propertyTesters">
+    <propertyTester
+          class="uk.ac.gda.lookuptable.editor.propertytester.LookupTablePropertyTester"
+          id="uk.ac.gda.lookuptable.editor.isLookupTableFile"
+          namespace="uk.ac.gda.lookuptable.editor"
+          properties="isLookupTableFile"
+          type="org.eclipse.core.resources.IFile">
+    </propertyTester>
+ </extension>
 </plugin>
