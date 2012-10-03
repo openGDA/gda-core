@@ -29,6 +29,9 @@ class PositionCompareMotorClass(ScannableMotionBase):
     def setTolerance(self, tolerance):
         self._tolerance=tolerance
         
+    def getTolerance(self):
+        return self._tolerance
+        
     def atScanStart(self):
         if not self.incli.isConfigured():
             self.incli.configure()
