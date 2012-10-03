@@ -55,6 +55,9 @@ public class DemandBox extends NumberBox {
 	boolean enabled = true;
 	boolean desiredEnabledState = true; //remember what state the GUI should have if disabled from higher levels (MotorPositionViewer)
 	
+	protected boolean restoreValueWhenFocusLost;
+	protected double previousValue;
+
 	public DemandBox(Composite parent, int style) {
 		this(parent, style, -1);
 	}
@@ -181,13 +184,35 @@ public class DemandBox extends NumberBox {
 		this.focusListener = new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
-				textUpdateAndFireListeners();
+				if (restoreValueWhenFocusLost) {
+					restoreText();
+				}
+				else {
+					textUpdateAndFireListeners();
+				}
 			}
 	    };
 	    text.addFocusListener(focusListener);
 	}
 
+	protected void restoreText() {
+		setValue(previousValue);
+	}
 	
+	@Override
+	public void setValue(Object value) {
+		if (value != null) {
+			previousValue = (Double)value;
+		}
+		super.setValue(value);
+	}
+	
+	public boolean isRestoreValueWhenFocusLost() {
+		return restoreValueWhenFocusLost;
+	}
+	public void setRestoreValueWhenFocusLost(boolean restoreValueWhenFocusLost) {
+		this.restoreValueWhenFocusLost = restoreValueWhenFocusLost;
+	}
 	/**
 	 * Testing use only.
 	 */
