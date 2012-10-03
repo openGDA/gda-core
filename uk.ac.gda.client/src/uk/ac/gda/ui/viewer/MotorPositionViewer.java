@@ -71,6 +71,8 @@ public class MotorPositionViewer {
 
 	private Job motorPositionJob;
 
+	private boolean restoreValueWhenFocusLost;
+
 	public MotorPositionViewer(Composite parent, Scannable scannable){
 		this(parent, scannable, null);
 	}
@@ -256,6 +258,13 @@ public class MotorPositionViewer {
 	
 	public void setEnabled(boolean enabled) {
 		if (motorBox != null) motorBox.setEnabled(enabled);
+	}
+	public boolean isRestoreValueWhenFocusLost() {
+		return restoreValueWhenFocusLost;
+	}
+	public void setRestoreValueWhenFocusLost(boolean restoreValueWhenFocusLost) {
+		this.restoreValueWhenFocusLost = restoreValueWhenFocusLost;
+		motorBox.setRestoreValueWhenFocusLost(restoreValueWhenFocusLost);
 	}
 }
 
