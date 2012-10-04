@@ -143,7 +143,7 @@ public class CameraControlComposite extends Composite {
 	private static final String INVALID_VALUE = "Invalid value";
 	private static final String ERROR_UPDATING_EXPOSURE_TIME = "Error updating exposure time";
 	// Default values
-	private static final String EXP_TIME_MEASURE = "sec(s)";
+	private static final String EXP_TIME_MEASURE = " s";
 	private static final String DEFAULT_EXP_TIME = "1.0";
 	// status messages
 
