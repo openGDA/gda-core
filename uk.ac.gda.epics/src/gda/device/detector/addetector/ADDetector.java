@@ -659,6 +659,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 			addDoubleItemToNXData(data, nameArray[i], valArray[i]);
 		}
 	}
+	
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
 		try {
@@ -672,7 +673,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 		return getFileWriter().getFullFileName();
 	}
 
-	static private int[] determineDataDimensions(NDArray ndArray) throws Exception {
+	public static int[] determineDataDimensions(NDArray ndArray) throws Exception {
 		// only called if configured to readArrays (and hence ndArray is set)
 		NDPluginBase pluginBase = ndArray.getPluginBase();
 		int nDimensions = pluginBase.getNDimensions_RBV();
@@ -769,8 +770,10 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 			data = new NXDetectorData(this);
 		}
 		if (isReadArray()) {
-			readoutArrayIntoNXDetectorData(data, ndArray, firstReadoutInScan, getName());
+			readoutArrayIntoNXDetectorData(data, ndArray, getName());
 		}
+		
+		appendDataAxes(data);
 		data.setDoubleVals(new Double[0]);
 		appendNXDetectorDataFromCollectionStrategy(data);
 		appendNXDetectorDataFromFileWriter(data);
@@ -778,109 +781,121 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 		return data;
 	}
 
-	public static void readoutArrayIntoNXDetectorData(NXDetectorData data, NDArray ndArray, boolean firstReadoutInScan, String detectorName) throws Exception, DeviceException {
-		int[] dims = determineDataDimensions(ndArray);
-
-		if (dims.length != 0) {
-			int expectedNumPixels = dims[0];
-			for (int i = 1; i < dims.length; i++) {
-				expectedNumPixels = expectedNumPixels * dims[i];
-			}
-			Serializable dataVals;
-			// TODO do only once per scan
-			short dataType = ndArray.getPluginBase().getDataType_RBV();
-			int nexusType;
-			switch (dataType) {
-			case NDPluginBase.UInt8: {
-				byte[] b = new byte[] {};
-				b = ndArray.getByteArrayData(expectedNumPixels);
-				if (expectedNumPixels > b.length)
-					throw new DeviceException("Data size is not valid");
-				{
-					short cd[] = new short[expectedNumPixels];
-					for (int i = 0; i < expectedNumPixels; i++) {
-						cd[i] = (short) (b[i] & 0xff);
-					}
-					dataVals = cd;
-					nexusType = NexusFile.NX_INT16;
+	/**
+	 * This stub adds rather stupid axes. Overriding classes are highly encouraged to do better.
+	 * 
+	 * @param data
+	 * @throws Exception
+	 */
+	@SuppressWarnings("unused")
+	protected void appendDataAxes(NXDetectorData data) throws Exception {
+		if (firstReadoutInScan)	{
+			for (int i = 0; i < dims.length; i++) {
+				int[] axis = new int[dims[i]];
+				for (int j = 1; j < dims[i]; j++) {
+					axis[j - 1] = j;
 				}
+				data.addAxis(getName(), getName() + "_axis" + (i + 1), new int[] { axis.length }, NexusFile.NX_INT32,
+						axis, i + 1, 1, "pixels", false);
 			}
-				break;
-			case NDPluginBase.Int8: {
-				byte[] b = ndArray.getByteArrayData(expectedNumPixels);
-				if (expectedNumPixels > b.length)
-					throw new DeviceException("Data size is not valid");
-				dataVals = b;
-				nexusType = NexusFile.NX_INT8;
-				break;
-			}
-			case NDPluginBase.Int16: {
-				short[] s = ndArray.getShortArrayData(expectedNumPixels);
-				if (expectedNumPixels > s.length)
-					throw new DeviceException("Data size is not valid length read:" + s.length + " expected:"
-							+ expectedNumPixels);
-
-				dataVals = s;
-				nexusType = NexusFile.NX_INT16;
-			}
-				break;
-			case NDPluginBase.UInt16: {
-				short[] s = ndArray.getShortArrayData(expectedNumPixels);
-				if (expectedNumPixels > s.length)
-					throw new DeviceException("Data size is not valid length read:" + s.length + " expected:"
-							+ expectedNumPixels);
-
-				int cd[] = new int[expectedNumPixels];
-				for (int i = 0; i < expectedNumPixels; i++) {
-					cd[i] = (s[i] & 0xffff);
-				}
-				dataVals = cd;
-				nexusType = NexusFile.NX_INT32;
-			}
-				break;
-			case NDPluginBase.UInt32: // TODO should convert to INT64 if any numbers are negative
-			case NDPluginBase.Int32: {
-				int[] s = ndArray.getIntArrayData(expectedNumPixels);
-				if (expectedNumPixels > s.length)
-					throw new DeviceException("Data size is not valid length read:" + s.length + " expected:"
-							+ expectedNumPixels);
-
-				dataVals = s;
-				nexusType = NexusFile.NX_INT32;
-			}
-				break;
-			case NDPluginBase.Float32:
-			case NDPluginBase.Float64: {
-				float[] s = ndArray.getFloatArrayData(expectedNumPixels);
-				if (expectedNumPixels > s.length)
-					throw new DeviceException("Data size is not valid length read:" + s.length + " expected:"
-							+ expectedNumPixels);
-
-				dataVals = s;
-				nexusType = NexusFile.NX_FLOAT32;
-			}
-				break;
-			default:
-				throw new DeviceException("Type of data is not understood :" + dataType);
-			}
-
-			data.addData(detectorName, "data", dims, nexusType, dataVals, ARRAY_DATA_NAME, 1);
-			if (firstReadoutInScan) {
-				for (int i = 0; i < dims.length; i++) {
-					int[] axis = new int[dims[i]];
-					for (int j = 1; j < dims[i]; j++) {
-						axis[j - 1] = j;
-					}
-					data.addAxis(detectorName, detectorName + "_axis" + (i + 1), new int[] { axis.length },
-							NexusFile.NX_INT32, axis, i + 1, 1, "pixels", false);
-				}
-			}
-		} else {
-			logger.warn("Dimensions of data from " + detectorName + " is zero length");
 		}
 	}
-	private void appendNXDetectorDataFromCollectionStrategy(NXDetectorData data) throws Exception {
+	
+	public static void readoutArrayIntoNXDetectorData(NXDetectorData data, NDArray ndArray, String detectorName)
+			throws Exception, DeviceException {
+		int[] dims = determineDataDimensions(ndArray);
 
+		if (dims.length == 0) {
+			logger.warn("Dimensions of data from " + detectorName + " are zero length");
+			return;
+		}
+
+		int expectedNumPixels = dims[0];
+		for (int i = 1; i < dims.length; i++) {
+			expectedNumPixels = expectedNumPixels * dims[i];
+		}
+		Serializable dataVals;
+		// TODO do only once per scan
+		short dataType = ndArray.getPluginBase().getDataType_RBV();
+		int nexusType;
+		switch (dataType) {
+		case NDPluginBase.UInt8: {
+			byte[] b = new byte[] {};
+			b = ndArray.getByteArrayData(expectedNumPixels);
+			if (expectedNumPixels > b.length)
+				throw new DeviceException("Data size is not valid");
+			{
+				short cd[] = new short[expectedNumPixels];
+				for (int i = 0; i < expectedNumPixels; i++) {
+					cd[i] = (short) (b[i] & 0xff);
+				}
+				dataVals = cd;
+				nexusType = NexusFile.NX_INT16;
+			}
+		}
+			break;
+		case NDPluginBase.Int8: {
+			byte[] b = ndArray.getByteArrayData(expectedNumPixels);
+			if (expectedNumPixels > b.length)
+				throw new DeviceException("Data size is not valid");
+			dataVals = b;
+			nexusType = NexusFile.NX_INT8;
+			break;
+		}
+		case NDPluginBase.Int16: {
+			short[] s = ndArray.getShortArrayData(expectedNumPixels);
+			if (expectedNumPixels > s.length)
+				throw new DeviceException("Data size is not valid length read:" + s.length + " expected:"
+						+ expectedNumPixels);
+
+			dataVals = s;
+			nexusType = NexusFile.NX_INT16;
+		}
+			break;
+		case NDPluginBase.UInt16: {
+			short[] s = ndArray.getShortArrayData(expectedNumPixels);
+			if (expectedNumPixels > s.length)
+				throw new DeviceException("Data size is not valid length read:" + s.length + " expected:"
+						+ expectedNumPixels);
+
+			int cd[] = new int[expectedNumPixels];
+			for (int i = 0; i < expectedNumPixels; i++) {
+				cd[i] = (s[i] & 0xffff);
+			}
+			dataVals = cd;
+			nexusType = NexusFile.NX_INT32;
+		}
+			break;
+		case NDPluginBase.UInt32: // TODO should convert to INT64 if any numbers are negative
+		case NDPluginBase.Int32: {
+			int[] s = ndArray.getIntArrayData(expectedNumPixels);
+			if (expectedNumPixels > s.length)
+				throw new DeviceException("Data size is not valid length read:" + s.length + " expected:"
+						+ expectedNumPixels);
+
+			dataVals = s;
+			nexusType = NexusFile.NX_INT32;
+		}
+			break;
+		case NDPluginBase.Float32:
+		case NDPluginBase.Float64: {
+			float[] s = ndArray.getFloatArrayData(expectedNumPixels);
+			if (expectedNumPixels > s.length)
+				throw new DeviceException("Data size is not valid length read:" + s.length + " expected:"
+						+ expectedNumPixels);
+
+			dataVals = s;
+			nexusType = NexusFile.NX_FLOAT32;
+		}
+			break;
+		default:
+			throw new DeviceException("Type of data is not understood :" + dataType);
+		}
+
+		data.addData(detectorName, "data", dims, nexusType, dataVals, ARRAY_DATA_NAME, 1);
+	}
+
+	private void appendNXDetectorDataFromCollectionStrategy(NXDetectorData data) throws Exception {
 		if (isReadAcquisitionTime()) {
 			double acquireTime_RBV = getCollectionStrategy().getAcquireTime(); // TODO: PERFORMANCE, cache or listen
 			addDoubleItemToNXData(data, "count_time", acquireTime_RBV);
@@ -891,7 +906,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 			addDoubleItemToNXData(data, "period", acquirePeriod_RBV);
 		}
 	}
-	
+
 	private void appendNXDetectorDataFromFileWriter(NXDetectorData data) throws Exception {
 		List<Double> doubleVals = new ArrayList<Double>(Arrays.asList(data.getDoubleVals()));
 		if (isReadFilepath()) {
@@ -899,7 +914,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 			if (!StringUtils.hasLength(filename))
 				throw new IllegalArgumentException("filename is null or zero length");
 			// add reference to external file
-			if( getFileWriter().appendsFilepathStrings()){
+			if (getFileWriter().appendsFilepathStrings()) {
 				assert(data instanceof NXDetectorDataWithFilepathForSrs); 
 				NXDetectorDataWithFilepathForSrs dataForSrs = (NXDetectorDataWithFilepathForSrs) data;
 
@@ -914,18 +929,16 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 
 				doubleVals.add(0.); // this is needed as we have added an entry in extraNames
 
-			}else {
+			} else {
 				if (firstReadoutInScan) {
 					data.addScanFileLink(getName(), "nxfile://" + filename + "#entry/instrument/detector/data");
 				}
 			}
 			data.setDoubleVals(doubleVals.toArray(new Double[] {}));
 		}
-
 	}
 	
 	private void appendNXDetectorDataFromPlugins(NXDetectorData data) throws Exception {
-
 		if (isComputeStats()) {
 			Double[] currentDoubleVals = statsGroup.getCurrentDoubleVals();
 			addMultipleDoubleItemsToNXData(data, statsGroup.getFieldNames(), currentDoubleVals);
@@ -935,11 +948,10 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 			Double[] currentDoubleVals = centroidGroup.getCurrentDoubleVals();
 			addMultipleDoubleItemsToNXData(data, centroidGroup.getFieldNames(), currentDoubleVals);
 		}
-
 	}
 }
 
-class PositionCallableData{
+class PositionCallableData {
 
 	final NXDetectorData data;
 	boolean checkFileExists=false;
@@ -948,16 +960,16 @@ class PositionCallableData{
 		this.data = data;
 		this.checkFileExists = checkFileExists;
 	}
-	
 }
 
 class ADDetectorPositionCallable implements Callable<NexusTreeProvider> {
 
 	private final PositionCallableData data;
+	
 	ADDetectorPositionCallable(PositionCallableData data){
 		this.data = data;
-		
 	}
+
 	@Override
 	public NexusTreeProvider call() throws Exception {
 		//if file given then check its existence
@@ -981,5 +993,4 @@ class ADDetectorPositionCallable implements Callable<NexusTreeProvider> {
 		}
 		return detectorData;
 	}
-
 }
