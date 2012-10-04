@@ -156,7 +156,12 @@ class MotorPositionViewerComposite extends Composite {
 		MotorPositionViewer mpv = new MotorPositionViewer(this, scannable, label);		
 		mpv.setCommandFormat(commandFormat);
 		mpv.setDecimalPlaces(2);
-		mpv.setRestoreValueWhenFocusLost(restoreValueWhenFocusLost);
+		if (restoreValueWhenFocusLost != null) {
+			mpv.setRestoreValueWhenFocusLost(restoreValueWhenFocusLost);
+		}
+		else {
+			mpv.setRestoreValueWhenFocusLost(false);
+		}
 
 		if (decimalPlaces != null) 
 			mpv.setDecimalPlaces(decimalPlaces.intValue());
