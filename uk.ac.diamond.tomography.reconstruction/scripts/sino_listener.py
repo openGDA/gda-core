@@ -572,10 +572,12 @@ fi
 		finishname = "f_%s" % self.jobname
 		self.out.write( "JOB NAME IS %s\n" % finishname )
 		if self.qsub_project == "i12":
-			args = ["qsub", "-P", self.qsub_project, "-e", self.settingsfolder+os.sep+'sge_err.txt', "-o", self.settingsfolder+os.sep+'sge_out.txt', "-q", "high.q", "-hold_jid", self.jobname, "-N", finishname, self.finishscript]
+			#args = ["qsub", "-P", self.qsub_project, "-e", self.settingsfolder+os.sep+'sge_err.txt', "-o", self.settingsfolder+os.sep+'sge_out.txt', "-q", "high.q", "-hold_jid", self.jobname, "-N", finishname, self.finishscript]
+			args = ["qsub", "-P", self.qsub_project, "-e", self.settingsfolder, "-o", self.settingsfolder, "-q", "high.q", "-hold_jid", self.jobname, "-N", finishname, self.finishscript]
 		else:
 			#i13
-			args = ["qsub", "-P", self.qsub_project, "-l", "tesla64", "-pe", "smp", "6","-e", self.settingsfolder+os.sep+'sge_err.txt', "-o", self.settingsfolder+os.sep+'sge_out.txt', "-q", "medium.q", "-hold_jid", self.jobname, "-N", finishname, self.finishscript]
+			#args = ["qsub", "-P", self.qsub_project, "-l", "tesla64", "-pe", "smp", "6","-e", self.settingsfolder+os.sep+'sge_err.txt', "-o", self.settingsfolder+os.sep+'sge_out.txt', "-q", "medium.q", "-hold_jid", self.jobname, "-N", finishname, self.finishscript]
+			args = ["qsub", "-P", self.qsub_project, "-l", "tesla64", "-pe", "smp", "6","-e", self.settingsfolder, "-o", self.settingsfolder, "-q", "medium.q", "-hold_jid", self.jobname, "-N", finishname, self.finishscript]
 
 		try:
 			self.PopenWait( args, env = qenviron )
