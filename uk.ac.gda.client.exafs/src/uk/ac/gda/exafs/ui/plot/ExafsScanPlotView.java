@@ -25,12 +25,18 @@ import gda.util.Element;
 
 import java.util.ArrayList;
 
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.PlotData;
 import uk.ac.diamond.scisoft.spectroscopy.fitting.XafsFittingUtils;
+import uk.ac.diamond.scisoft.spectroscopy.rcp.SpectroscopyRCPActivator;
+import uk.ac.diamond.scisoft.spectroscopy.rcp.preferences.XafsPreferences;
 import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
@@ -59,9 +65,35 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 	public ExafsScanPlotView() {
 		super();
 		xafsFittingUtils = new XafsFittingUtils();
-		xafsFittingUtils.setDoOversample(true);
 	}
 
+	@Override
+	public void createPartControl(Composite parent) {
+		super.createPartControl(parent);
+		
+		setXafsPreferences();
+		
+		SpectroscopyRCPActivator.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent event) {
+				if (event.getProperty() == XafsPreferences.CHEBYSHEV)
+					xafsFittingUtils.setUseChebyshevSeries((Boolean) event.getNewValue());
+				if (event.getProperty() == XafsPreferences.FILTER)
+					xafsFittingUtils.setDoFilter((Boolean) event.getNewValue());
+				if (event.getProperty() == XafsPreferences.KWEIGHT)
+					xafsFittingUtils.setKweight((Integer) event.getNewValue());
+				if (event.getProperty() == XafsPreferences.MAXORDER)
+					xafsFittingUtils.setMaxPolynomialOrder((Integer) event.getNewValue());
+				if (event.getProperty() == XafsPreferences.OVERSAMPLE)
+					xafsFittingUtils.setDoOversample((Boolean) event.getNewValue());
+				if (event.getProperty() == XafsPreferences.PRE_EDGE)
+					xafsFittingUtils.setPreEdgeGap((Double) event.getNewValue());
+				if (event.getProperty() == XafsPreferences.POST_EDGE)
+					xafsFittingUtils.setPostEdgeGap((Double) event.getNewValue());
+			}
+		});
+	}
+	
 	@Override
 	public void scanDataPointChanged(ScanDataPointEvent e) {
 		try {
@@ -182,6 +214,17 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 				continue;
 			}
 		}
+	}
+
+	private void setXafsPreferences() {
+		IPreferenceStore preferences = SpectroscopyRCPActivator.getDefault().getPreferenceStore();
+        xafsFittingUtils.setDoFilter(preferences.getBoolean(XafsPreferences.FILTER));
+        xafsFittingUtils.setDoOversample(preferences.getBoolean(XafsPreferences.OVERSAMPLE));
+        xafsFittingUtils.setKweight(preferences.getInt(XafsPreferences.KWEIGHT));
+        xafsFittingUtils.setMaxPolynomialOrder(preferences.getInt(XafsPreferences.MAXORDER));
+        xafsFittingUtils.setPostEdgeGap(preferences.getDouble(XafsPreferences.POST_EDGE));
+        xafsFittingUtils.setPreEdgeGap(preferences.getDouble(XafsPreferences.PRE_EDGE));
+        xafsFittingUtils.setUseChebyshevSeries(preferences.getBoolean(XafsPreferences.CHEBYSHEV));
 	}
 
 	@Override
