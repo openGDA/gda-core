@@ -61,6 +61,7 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 	protected double a = Double.NaN;
 
 	protected final XafsFittingUtils xafsFittingUtils;
+	protected final int minPlotPoints = 10;  // Minimal number of points needed to start plotting
 
 	public ExafsScanPlotView() {
 		super();
