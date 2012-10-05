@@ -18,6 +18,8 @@
 
 package uk.ac.gda.views.baton;
 
+import java.util.List;
+
 import gda.configuration.properties.LocalProperties;
 import gda.jython.InterfaceProvider;
 import gda.jython.UserMessage;
@@ -146,9 +148,18 @@ public class MessageView extends ViewPart implements IObserver {
 			sashForm.setWeights(new int[] {412, 38});
 		}
 		if(!LocalProperties.isBatonManagementEnabled()){
-			addUserMessageText("", "Baton control is not enabled for this beam line.");
+			UserMessage msg = new UserMessage(-1, "", "Baton control is not enabled for this beam line.");
+			addUserMessageText(msg);
 		}
-
+		
+		else {
+			List<UserMessage> oldMessages = InterfaceProvider.getBatonStateProvider().getMessageHistory();
+			if (oldMessages != null) {
+				for (UserMessage msg : oldMessages) {
+					addUserMessageText(msg);
+				}
+			}
+		}
 	}
 	
 	private void sendMessage() {
@@ -172,7 +183,10 @@ public class MessageView extends ViewPart implements IObserver {
 	}
 	
 
-	protected void addUserMessageText(final String userName, final String text) {
+	protected void addUserMessageText(UserMessage message) {
+		
+		final String userName = message.getSourceUsername();
+		final String text = message.getMessage();
 		
 		StyleRange style = new StyleRange();
 		style.start = history.getCharCount();
@@ -199,7 +213,7 @@ public class MessageView extends ViewPart implements IObserver {
 				@Override
 				public void run() {
 					UserMessage message = (UserMessage) changeCode;
-   				    addUserMessageText(message.getSourceUsername(), message.getMessage());
+					addUserMessageText(message);
 				}
 			});	
 		}
