@@ -27,6 +27,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -116,6 +118,12 @@ public class MessageView extends ViewPart implements IObserver {
 						}
 					};
 					text.addKeyListener(keyListener);
+					text.addDisposeListener(new DisposeListener() {
+						@Override
+						public void widgetDisposed(DisposeEvent e) {
+							text.removeKeyListener(keyListener);
+						}
+					});
 				}
 				{
 					this.btnSend = new Button(composite, SWT.NONE);
@@ -127,6 +135,12 @@ public class MessageView extends ViewPart implements IObserver {
 						}
 					};
 					btnSend.addSelectionListener(selectionListener);
+					btnSend.addDisposeListener(new DisposeListener() {
+						@Override
+						public void widgetDisposed(DisposeEvent e) {
+							btnSend.removeSelectionListener(selectionListener);
+						}
+					});
 				}
 			}
 			sashForm.setWeights(new int[] {412, 38});
@@ -149,10 +163,6 @@ public class MessageView extends ViewPart implements IObserver {
 	
 	@Override
 	public void dispose() {
-		text.removeKeyListener(keyListener);
-		text.dispose();
-		btnSend.removeSelectionListener(selectionListener);
-		btnSend.dispose();
 		try {
 			InterfaceProvider.getJSFObserver().deleteIObserver(this);
 		} catch (Exception e) {
