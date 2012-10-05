@@ -38,11 +38,14 @@ public class UserMessage implements Serializable{
 	 * @param message
 	 */
 	public UserMessage(int sourceClientNumber, String sourceUsername, String message) {
-		super();
+		this(sourceClientNumber, sourceUsername, message, System.currentTimeMillis());
+	}
+
+	UserMessage(int sourceClientNumber, String sourceUsername, String message, long timestamp) {
 		this.sourceClientNumber = sourceClientNumber;
 		this.sourceUsername = sourceUsername;
 		this.message = message;
-		this.timestamp = System.currentTimeMillis();
+		this.timestamp = timestamp;
 	}
 
 	/**
