@@ -117,7 +117,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 	private static final String ACTION_RESET_DETECTOR = "Reset Detector";
 	private static final String ACTION_OPEN_PREFERENCES = "Open Preferences";
-	
 
 	public enum RIGHT_PAGE {
 		NONE, PLOT, ZOOM_DEMAND_RAW, NO_ZOOM, ZOOM_STREAM
@@ -134,9 +133,9 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	private boolean isSaving;
 	public static final String STREAM_STOPPED = "STREAM STOPPED";
 	private ViewerDisplayMode leftWindowDisplayMode = ViewerDisplayMode.STREAM_STOPPED;
-	public static final int RIGHT_WINDOW_WIDTH = 320;
+	public static final int RIGHT_WINDOW_WIDTH = 300;
 	private HistogramAdjuster histogramAdjuster;
-	private AmplifierStepperComposite amplifierStepper;
+	// private AmplifierStepperComposite amplifierStepper;
 	private MotionControlComposite motionControlComposite;
 	/**/
 	Label lblLeftWindowDisplayModeStatus;
@@ -173,8 +172,8 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	private static final String EMPTY_STRING_VALUE = "-----";
 	public static final String NO_ZOOM_lbl = "NO ZOOM";
 	private static final int LEFT_WINDOW_WIDTH = 530;
-	private static final int MOTION_COMPOSITE_HEIGHT = 140;
-	private static final int CONTROL_COMPOSITE_HEIGHT = 80;
+	private static final int MOTION_COMPOSITE_HEIGHT = 110;
+	private static final int CONTROL_COMPOSITE_HEIGHT = 110;
 
 	private static final int IMAGE_FULL_WIDTH = 4008;
 	private static final String LBL_INTENSITY = "Intensity";
@@ -260,6 +259,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	private Composite page_rightInfo_nonProfile;
 	private Label lblProfileIntensityValue;
 	private final static DecimalFormat lblXDecimalFormat = new DecimalFormat("###");
+	private static final String BOLD_TEXT_10 = "bold_10";
 	private ColourSliderComposite histogramSliderComposite;
 	private Label lblPixelX;
 	private Label lblPixelY;
@@ -714,6 +714,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			String fontName = Display.getCurrent().getSystemFont().getFontData()[0].getName();
 			fontRegistry.put(BOLD_TEXT_11, new FontData[] { new FontData(fontName, 11, SWT.BOLD) });
 			fontRegistry.put(BOLD_TEXT_16, new FontData[] { new FontData(fontName, 16, SWT.BOLD) });
+			fontRegistry.put(BOLD_TEXT_10, new FontData[] { new FontData(fontName, 10, SWT.BOLD) });
 		}
 	}
 
@@ -859,13 +860,20 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	 */
 	private Composite createMainComposite(Composite root) throws Exception {
 		Composite mainComposite = toolkit.createComposite(root);
-		GridLayout layout = new GridLayout(2, false);
+		GridLayout layout = new GridLayout(3, false);
 		setDefaultLayoutSettings(layout);
 		mainComposite.setLayout(layout);
 
+		// Left panel
+		Composite leftPanel = createLeftPanel(mainComposite);
+		GridData layoutData = new GridData(GridData.FILL_VERTICAL);
+		layoutData.widthHint = 100;
+		;
+		leftPanel.setLayoutData(layoutData);
+
 		// Left window
 		Composite leftWindow = createLeftWindow(mainComposite);
-		GridData layoutData = new GridData(GridData.FILL_BOTH);
+		layoutData = new GridData(GridData.FILL_BOTH);
 		layoutData.widthHint = LEFT_WINDOW_WIDTH;
 		leftWindow.setLayoutData(layoutData);
 		// Right Window
@@ -876,6 +884,123 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 		return mainComposite;
 
+	}
+
+	private Composite createLeftPanel(Composite mainComposite) {
+		Composite leftPanelBorderComposite = toolkit.createComposite(mainComposite);
+		GridLayout gl = new GridLayout();
+		setDefaultLayoutSettings(gl);
+		gl.marginWidth = 2;
+		gl.marginHeight = 2;
+		leftPanelBorderComposite.setBackground(ColorConstants.black);
+		leftPanelBorderComposite.setLayout(gl);
+
+		Composite leftPanelComposite = toolkit.createComposite(leftPanelBorderComposite);
+		gl = new GridLayout();
+		setDefaultLayoutSettings(gl);
+		gl.verticalSpacing = 8;
+		gl.marginHeight = 2;
+		leftPanelComposite.setLayout(gl);
+		leftPanelComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
+
+		Button btnStream = toolkit.createButton(leftPanelComposite, "Stream", SWT.PUSH);
+		btnStream.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Button btnSingle = toolkit.createButton(leftPanelComposite, "Single", SWT.PUSH);
+		btnSingle.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Button btnFastPreview = toolkit.createButton(leftPanelComposite, "Fast Preview", SWT.PUSH);
+		btnFastPreview.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Composite zoomBorderCmp = toolkit.createComposite(leftPanelComposite);
+		zoomBorderCmp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		gl = new GridLayout();
+		setDefaultLayoutSettings(gl);
+		gl.marginHeight = 2;
+		zoomBorderCmp.setLayout(gl);
+		zoomBorderCmp.setBackground(ColorConstants.black);
+
+		Composite zoomCmp = toolkit.createComposite(zoomBorderCmp);
+		zoomCmp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		gl = new GridLayout(2, true);
+		setDefaultLayoutSettings(gl);
+		gl.horizontalSpacing = 2;
+		gl.marginHeight = 3;
+		zoomCmp.setLayout(gl);
+
+		Label lblZoom = toolkit.createLabel(zoomCmp, "Zoom", SWT.CENTER);
+		lblZoom.setFont(fontRegistry.get(BOLD_TEXT_10));
+		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
+		layoutData.horizontalSpan = 2;
+		lblZoom.setLayoutData(layoutData);
+
+		Button btnZoom4 = toolkit.createButton(zoomCmp, "4", SWT.PUSH);
+		btnZoom4.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Button btnZoom2 = toolkit.createButton(zoomCmp, "2", SWT.PUSH);
+		btnZoom2.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Button btnZoom1 = toolkit.createButton(zoomCmp, "1", SWT.PUSH);
+		btnZoom1.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Button btnZoomHalf = toolkit.createButton(zoomCmp, "0.5", SWT.PUSH);
+		btnZoomHalf.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Button btnHistogram = toolkit.createButton(leftPanelComposite, "Histogram", SWT.PUSH);
+		btnHistogram.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Button btnProfile = toolkit.createButton(leftPanelComposite, "Profile", SWT.PUSH);
+		btnProfile.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Button btnSaturation = toolkit.createButton(leftPanelComposite, "Saturation", SWT.PUSH);
+		btnSaturation.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Button btnCrossHair = toolkit.createButton(leftPanelComposite, "Crosshair", SWT.PUSH);
+		btnCrossHair.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Composite flatDarkCmp = toolkit.createComposite(leftPanelComposite);
+		flatDarkCmp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		gl = new GridLayout();
+		setDefaultLayoutSettings(gl);
+		gl.verticalSpacing = 8;
+		flatDarkCmp.setLayout(gl);
+
+		Composite cmpHorizontalSeparator = toolkit.createComposite(flatDarkCmp);
+		cmpHorizontalSeparator.setLayout(new GridLayout());
+		GridData layoutData2 = new GridData(GridData.FILL_HORIZONTAL);
+		layoutData2.heightHint = 2;
+		cmpHorizontalSeparator.setLayoutData(layoutData2);
+		cmpHorizontalSeparator.setBackground(ColorConstants.black);
+
+		Label lblFlatAndDark = toolkit.createLabel(flatDarkCmp, "Flat && Dark", SWT.CENTER);
+		lblFlatAndDark.setFont(fontRegistry.get(BOLD_TEXT_10));
+		lblFlatAndDark.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		
+		
+
+		Button btnSampleIn = toolkit.createButton(flatDarkCmp, "Sample In", SWT.PUSH | SWT.WRAP);
+		btnSampleIn.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Button btnSampleOut = toolkit.createButton(flatDarkCmp, "Sample Out", SWT.PUSH | SWT.WRAP);
+		btnSampleOut.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Button btnFlatAndDark = toolkit.createButton(flatDarkCmp, "Take Flat && Dark", SWT.PUSH | SWT.WRAP);
+		btnFlatAndDark.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Button btnCorrectFlatAndDark = toolkit.createButton(flatDarkCmp, "Correct Flat && Dark", SWT.PUSH | SWT.WRAP);
+		btnCorrectFlatAndDark.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Button btnShowFlat = toolkit.createButton(flatDarkCmp, "Show Flat", SWT.PUSH | SWT.WRAP);
+		btnShowFlat.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Button btnShowDark = toolkit.createButton(flatDarkCmp, "Show Dark", SWT.PUSH | SWT.WRAP);
+		btnShowDark.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Label lblFlatDarkExpTime = toolkit.createLabel(flatDarkCmp, "Exposure time: 0.05 s", SWT.PUSH | SWT.WRAP
+				| SWT.CENTER);
+		lblFlatDarkExpTime.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		return leftPanelComposite;
 	}
 
 	// This contains the right side of the main window
@@ -891,19 +1016,10 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		pageBook_rightWindow.setLayoutData(ld1);
 
 		page_rightWindow_nonProfile = toolkit.createComposite(pageBook_rightWindow);
-		GridLayout layout = new GridLayout(2, false);
+		GridLayout layout = new GridLayout();
 		setDefaultLayoutSettings(layout);
 		page_rightWindow_nonProfile.setLayout(layout);
 		page_rightWindow_nonProfile.setLayoutData(new GridData(GridData.FILL_BOTH));
-
-		amplifierStepper = new AmplifierStepperComposite(page_rightWindow_nonProfile, SWT.None);
-		GridData layoutData = new GridData(GridData.FILL_VERTICAL);
-		layoutData.widthHint = 35;
-		amplifierStepper.setLayoutData(layoutData);
-		// Setting default to ONE
-		amplifierStepper.moveStepperTo(STEPPER.ONE);
-
-		amplifierStepper.addAmplifierStepperListener(amplifierStepperListener);
 
 		/**/
 		Composite imgViewerComposite = toolkit.createComposite(page_rightWindow_nonProfile);
@@ -1406,9 +1522,11 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	}
 
 	private double getSteppedExposureTime(double acquisitionTime) {
-		int stepperVal = amplifierStepper.getSelectedStepper().getValue();
-		final double steppedAcqTime = acquisitionTime / stepperVal;
-		return steppedAcqTime;
+		// TODO - Ravi Fix
+		// int stepperVal = amplifierStepper.getSelectedStepper().getValue();
+		// final double steppedAcqTime = acquisitionTime / stepperVal;
+		// return steppedAcqTime;
+		return Double.NaN;
 	}
 
 	double getSteppedSampleExposureTime() {
@@ -1427,7 +1545,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 	@Override
 	public void resetAmplifier() throws Exception {
-		amplifierStepper.moveStepperTo(STEPPER.ONE);
+		// amplifierStepper.moveStepperTo(STEPPER.ONE);
 	}
 
 	/**
@@ -1672,9 +1790,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			cameraControlListener = null;
 
 			logger.debug("Disposing tomoalignment viewer");
-			amplifierStepper.removeAmplifierStepperListener(amplifierStepperListener);
-			amplifierStepperListener = null;
-			amplifierStepper.dispose();
 			// FIXME-Ravi
 			// fullImgProvider.removeJpegImageListener(fullImgListener);
 			// zoomedImgProvider.removeJpegImageListener(zoomImgListener);
@@ -1873,8 +1988,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-					tomoAlignmentViewController.startAcquiring(acquireTime, amplifierStepper.getSelectedStepper()
-							.getValue());
+					tomoAlignmentViewController.startAcquiring(acquireTime, 1);
 				}
 			});
 
@@ -1960,7 +2074,9 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	}
 
 	public STEPPER getSelectedAmplifierStepper() {
-		return amplifierStepper.getSelectedStepper();
+		// TODO - Ravi fix
+		// return amplifierStepper.getSelectedStepper();
+		return null;
 	}
 
 	public void setHistogramAdjusterImageData(ImageData imgData) {

@@ -38,18 +38,25 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.client.tomo.ImageConstants;
+import uk.ac.gda.client.tomo.TomoClientActivator;
+import uk.ac.gda.client.tomo.composites.MotionControlComposite.MotionControlCentring;
+import uk.ac.gda.client.tomo.composites.MotionControlComposite.SAMPLE_WEIGHT;
 import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
 
 /**
@@ -67,12 +74,17 @@ import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
  * <p>
  */
 public class CameraControlComposite extends Composite {
-
+	private static final String CAMERA_DISTANCE_lbl = "Camera distance \r  (mm)";
 	private static final String ERR_PROBLEM_SETTING_SAMPLE_DESCRIPTION = "Problem setting sample Description";
 	private static final String BLANK_STR = "";
 	private static final String SAVE_ALIGNMENT = "Save Alignment";
 	private static final String FLAT_EXP_TIME_CAPTURED_shortmsg = "Exposure time \r %.3g (s)";
 	private static final String FLAT_AND_DARK_UNAVAILABLE_shortdesc = "Flat and Dark Images have not been captured. Click 'Take Flat && Dark' to capture Flat and dark images";
+	private static final String FOR_FUTURE_USE = "For Future Use";
+	private static final String X_RAY_ENERGY_lbl = "X-ray energy \r (keV)";
+	private static final String ENERGY_DEFAULT_VALUE = "112";
+	private static final String ALIGN_TILT_lbl = "Align Tilt";
+	private static final String CAMERA_DIST_DEFAULT_VALUE = "341";
 
 	public enum STREAM_STATE {
 		FLAT_STREAM, SAMPLE_STREAM, NO_STREAM;
@@ -122,7 +134,7 @@ public class CameraControlComposite extends Composite {
 	private static final String FLAT = "Flat";
 	private static final String SAMPLE = "Sample";
 	private static final String SHOW_FLAT = "Show Flat";
-	private static final String RESET_ROI = "Reset";
+	private static final String RESET_ROI = "Remove";
 	private static final String DEFINE_ROI = "Define";
 	private static final String PROFILE = "Profile";
 	private static final String SATURATION = "Saturation";
@@ -153,6 +165,7 @@ public class CameraControlComposite extends Composite {
 	private static final String NORMAL_TEXT_8 = "normal_text_8";
 	private static final String NORMAL_TEXT_9 = "normal_text_9";
 	private static final String NORMAL_TEXT_7 = "normal_text_7";
+	private static final String BOLD_TEXT_11 = "bold_text_11";
 
 	//
 	private double flatExposureTime;
@@ -229,87 +242,33 @@ public class CameraControlComposite extends Composite {
 		super(parent, style);
 		initializeFontRegistry();
 
-		GridLayout layout = new GridLayout(7, true);
+		GridLayout layout = new GridLayout(8, true);
 		layout.horizontalSpacing = 2;
-		layout.verticalSpacing = 5;
 		layout.marginWidth = 0;
 		layout.marginHeight = 2;
 		this.setLayout(layout);
 		this.setBackground(ColorConstants.black);
+
 		// 1
 		Composite expStreamSingleHistoComposite = createExpStreamSingleHistoComposite(toolkit, this);
 		GridData ld = new GridData(GridData.FILL_BOTH);
-		ld.horizontalSpan = 3;
 		expStreamSingleHistoComposite.setLayoutData(ld);
 
-		Composite remainingComposites = toolkit.createComposite(this);
-		ld = new GridData(GridData.FILL_BOTH);
-		ld.horizontalSpan = 4;
-		remainingComposites.setLayoutData(ld);
-		remainingComposites.setBackground(ColorConstants.black);
-		layout = new GridLayout(8, true);
-		layout.horizontalSpacing = 2;
-		layout.verticalSpacing = 2;
-		layout.marginWidth = 0;
-		layout.marginHeight = 0;
-		remainingComposites.setLayout(layout);
-		flatAndDarkContainerComposite = toolkit.createComposite(remainingComposites);
-
-		GridData layoutData = new GridData(GridData.FILL_BOTH);
-
-		layoutData.horizontalSpan = 2;
-		flatAndDarkContainerComposite.setLayoutData(layoutData);
-
-		flatAndDarkCompositeStackLayout = new StackLayout();
-		flatAndDarkContainerComposite.setLayout(flatAndDarkCompositeStackLayout);
-
-		lblFlatDarkNotAvailable = toolkit.createLabel(flatAndDarkContainerComposite,
-				FLAT_AND_DARK_UNAVAILABLE_shortdesc, SWT.WRAP | SWT.CENTER);
-		lblFlatDarkNotAvailable.setBackground(ColorConstants.lightBlue);
-		lblFlatDarkNotAvailable.setForeground(ColorConstants.white);
 		//
-		flatDarkComposite = toolkit.createComposite(flatAndDarkContainerComposite);
+		Composite beamlineControlComposite = createBeamlineControlComposite(this, toolkit);
+		ld = new GridData(GridData.FILL_BOTH);
+		beamlineControlComposite.setLayoutData(ld);
 
-		layout = new GridLayout(2, true);
-		layout.horizontalSpacing = 2;
-		layout.verticalSpacing = 2;
-		layout.marginWidth = 0;
-		layout.marginHeight = 0;
-		flatDarkComposite.setLayout(layout);
-		flatDarkComposite.setBackground(ColorConstants.black);
+		//
+		Composite instrumentControlComposite = toolkit.createComposite(this);
+		GridData layoutData = new GridData(GridData.FILL_BOTH);
+		layoutData.horizontalSpan = 6;
+		instrumentControlComposite.setLayoutData(layoutData);
+		instrumentControlComposite.setLayout(new FillLayout());
 
-		flatAndDarkCompositeStackLayout.topControl = lblFlatDarkNotAvailable;
+		createExperimentInstrument(instrumentControlComposite, toolkit);
 
-		// 2
-		Composite flatComposite = createCorrectFlatDarkComposite(toolkit, flatDarkComposite);
-		flatComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
-
-		// 3
-		Composite darkComposite = createShowDarkFlatButtonComposite(toolkit, flatDarkComposite);
-		darkComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
-
-		// 4
-		Composite zoomComposite = createZoomBtnComposite(toolkit, remainingComposites);
-		zoomComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
-
-		// 5
-		Composite defineRoiComposite = createDefineRoiComposite(toolkit, remainingComposites);
-		defineRoiComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
-
-		// 6
-		Composite saturationProfileComposite = createSaturationProfileComposite(toolkit, remainingComposites);
-		saturationProfileComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
-
-		// 7
-		Composite resolutionComposite = createResolutionComposite(toolkit, remainingComposites);
-		GridData layoutData2 = new GridData(GridData.FILL_BOTH);
-		layoutData2.horizontalSpan = 2;
-		resolutionComposite.setLayoutData(layoutData2);
-
-		Composite saveBtnComposite = createSaveBtnComposite(toolkit, remainingComposites);
-		saveBtnComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
-
-		setResolution(RESOLUTION.FULL);
+		// setResolution(RESOLUTION.FULL);
 	}
 
 	private Composite createSaveBtnComposite(FormToolkit toolkit, Composite parent) {
@@ -322,21 +281,6 @@ public class CameraControlComposite extends Composite {
 		btnSaveAlignment.addSelectionListener(buttonSelectionListener);
 		//
 		return saveBtnComposite;
-	}
-
-	private Composite createShowDarkFlatButtonComposite(FormToolkit toolkit, Composite parent) {
-		Composite showDarkFlatComposite = toolkit.createComposite(parent);
-		showDarkFlatComposite.setLayout(getGridLayoutZeroSetting());
-
-		btnFlatShow = toolkit.createButton(showDarkFlatComposite, SHOW_FLAT, SWT.PUSH | SWT.WRAP);
-		btnFlatShow.setLayoutData(new GridData(GridData.FILL_BOTH));
-		btnFlatShow.addSelectionListener(buttonSelectionListener);
-		//
-		btnDarkShow = toolkit.createButton(showDarkFlatComposite, SHOW_DARK, SWT.PUSH);
-		btnDarkShow.setLayoutData(new GridData(GridData.FILL_BOTH));
-		btnDarkShow.addSelectionListener(buttonSelectionListener);
-
-		return showDarkFlatComposite;
 	}
 
 	private Composite createResolutionComposite(FormToolkit toolkit, Composite parent) {
@@ -423,29 +367,262 @@ public class CameraControlComposite extends Composite {
 		return resolutionComposite;
 	}
 
-	/**
-	 * Container for the Saturation and Profile buttons
-	 * 
-	 * @param toolkit
-	 * @param parent
-	 * @return {@link Composite}
-	 */
-	private Composite createSaturationProfileComposite(FormToolkit toolkit, Composite parent) {
-		Composite saturationProfileComposite = toolkit.createComposite(parent);
+	protected Composite createBeamlineControlComposite(Composite parent, FormToolkit toolkit) {
+		Composite beamlineControlComposite = toolkit.createComposite(parent);
+		GridLayout layout = new GridLayout(2, true);
+		layout.marginWidth = 2;
+		layout.marginHeight = 2;
+		beamlineControlComposite.setLayout(layout);
 
-		saturationProfileComposite.setLayout(getGridLayoutZeroSetting());
-		//
-		btnSaturation = toolkit.createButton(saturationProfileComposite, SATURATION, SWT.PUSH);
-		btnSaturation.setLayoutData(new GridData(GridData.FILL_BOTH));
-		btnSaturation.addSelectionListener(buttonSelectionListener);
+		Label lblBeamlineControl = toolkit.createLabel(beamlineControlComposite, "Beamline Control");
+		lblBeamlineControl.setFont(fontRegistry.get(BOLD_TEXT_11));
+		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = 2;
+		gd.horizontalAlignment = SWT.CENTER;
+		lblBeamlineControl.setLayoutData(gd);
 
-		//
-		btnProfile = toolkit.createButton(saturationProfileComposite, PROFILE, SWT.PUSH);
-		btnProfile.setLayoutData(new GridData(GridData.FILL_BOTH));
-		btnProfile.addSelectionListener(buttonSelectionListener);
+		Composite futureUseComposite = toolkit.createComposite(beamlineControlComposite);
+		futureUseComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
+		futureUseComposite.setLayout(new FillLayout());
 
-		return saturationProfileComposite;
+		Label lblFutureUse = toolkit.createLabel(futureUseComposite, FOR_FUTURE_USE);
+		lblFutureUse.setFont(fontRegistry.get(NORMAL_TEXT_9));
+		lblFutureUse.setBackground(ColorConstants.lightGray);
+
+		Composite xRayEnergyComposite = toolkit.createComposite(beamlineControlComposite);
+		xRayEnergyComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
+		layout = new GridLayout();
+		xRayEnergyComposite.setLayout(layout);
+		xRayEnergyComposite.setBackground(ColorConstants.lightGray);
+
+		Label lblXrayEnergy = toolkit.createLabel(xRayEnergyComposite, X_RAY_ENERGY_lbl, SWT.WRAP | SWT.CENTER);
+		lblXrayEnergy.setLayoutData(new GridData(GridData.FILL_BOTH));
+		lblXrayEnergy.setFont(fontRegistry.get(NORMAL_TEXT_9));
+		lblXrayEnergy.setBackground(ColorConstants.lightGray);
+
+		Text txtXrayEnergy = toolkit.createText(xRayEnergyComposite, ENERGY_DEFAULT_VALUE, SWT.CENTER);
+		txtXrayEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		txtXrayEnergy.addFocusListener(focusListener);
+		txtXrayEnergy.addKeyListener(txtKeyListener);
+		txtXrayEnergy.setEditable(false);
+		return beamlineControlComposite;
 	}
+
+	protected Composite createExperimentInstrument(Composite parent, FormToolkit toolkit) {
+		Composite tomoAlignmentComposite = toolkit.createComposite(parent);
+		int numCols = 5;
+		GridLayout layout = new GridLayout(numCols, true);
+		layout.verticalSpacing = 1;
+		layout.marginWidth = 2;
+		tomoAlignmentComposite.setLayout(layout);
+
+		Label lblTomoAlignment = toolkit.createLabel(tomoAlignmentComposite, "Experiment Instrument");
+		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = numCols;
+		gd.horizontalAlignment = SWT.CENTER;
+		lblTomoAlignment.setLayoutData(gd);
+		lblTomoAlignment.setFont(fontRegistry.get(BOLD_TEXT_11));
+
+		Button btnAutoFocus = toolkit.createButton(tomoAlignmentComposite, "Auto Focus", SWT.PUSH);
+		btnAutoFocus.setFont(fontRegistry.get(NORMAL_TEXT_9));
+		btnAutoFocus.setLayoutData(new GridData(GridData.FILL_BOTH));
+		btnAutoFocus.addListener(SWT.MouseDown, ctrlMouseListener);
+
+		// Buttons for align tilts
+		Button btnTilt = toolkit.createButton(tomoAlignmentComposite, ALIGN_TILT_lbl, SWT.PUSH);
+		btnTilt.setFont(fontRegistry.get(NORMAL_TEXT_9));
+		btnTilt.setLayoutData(new GridData(GridData.FILL_BOTH));
+		btnTilt.addListener(SWT.MouseDown, ctrlMouseListener);
+
+		//
+		Button btnFindAxisOfRotation = toolkit.createButton(tomoAlignmentComposite, "Find Tomo Axis", SWT.PUSH
+				| SWT.WRAP);
+		btnFindAxisOfRotation.setLayoutData(new GridData(GridData.FILL_BOTH));
+		btnFindAxisOfRotation.setFont(fontRegistry.get(NORMAL_TEXT_9));
+		btnFindAxisOfRotation.addListener(SWT.MouseDown, ctrlMouseListener);
+
+		// Label lblTiltLastSaved = toolkit.createLabel(tomoAlignmentComposite, LAST_SAVED_lbl, SWT.WRAP | SWT.CENTER);
+		// lblTiltLastSaved.setFont(fontRegistry.get(NORMAL_TEXT_9));
+		// lblTiltLastSaved.setLayoutData(new GridData(GridData.FILL_BOTH));
+		// lblTiltLastSaved.setBackground(ColorConstants.lightBlue);
+		// lblTiltLastSaved.setForeground(ColorConstants.white);
+
+		// moveAxisBtnComposite = toolkit.createComposite(tomoAlignmentComposite);
+		// moveAxisBtnComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
+		//
+		// moveAxisRotationCmpLayout = new StackLayout();
+		// moveAxisBtnComposite.setLayout(moveAxisRotationCmpLayout);
+
+		Button btnMoveAxisOfRotation = toolkit.createButton(tomoAlignmentComposite, "Move Tomo Axis", SWT.PUSH
+				| SWT.WRAP);
+		// btnMoveAxisOfRotation.setLayoutData(new GridData(GridData.FILL_BOTH));
+		btnMoveAxisOfRotation.setBackground(ColorConstants.green);
+		btnMoveAxisOfRotation.setFont(fontRegistry.get(NORMAL_TEXT_9));
+		btnMoveAxisOfRotation.addListener(SWT.MouseDown, ctrlMouseListener);
+		btnMoveAxisOfRotation.setLayoutData(new GridData(GridData.FILL_BOTH));
+		// lblRotationAxisNotFound = toolkit.createLabel(moveAxisBtnComposite, ROTATION_AXIS_NOT_DEFINED_shortdesc,
+		// SWT.WRAP | SWT.CENTER);
+		// lblRotationAxisNotFound.setBackground(ColorConstants.lightBlue);
+		// lblRotationAxisNotFound.setForeground(ColorConstants.white);
+
+		// moveAxisRotationCmpLayout.topControl = lblRotationAxisNotFound;
+
+		Composite cameraMotionControlComposite = createCameraMotionControlComposite(tomoAlignmentComposite, toolkit);
+		cameraMotionControlComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
+
+		return tomoAlignmentComposite;
+	}
+
+	protected Composite createCameraMotionControlComposite(Composite parent, FormToolkit toolkit) {
+		Composite cameraMotionComposite = toolkit.createComposite(parent);
+
+		GridLayout layout = new GridLayout(2, true);
+		layout.marginHeight = 2;
+		layout.marginWidth = 2;
+		cameraMotionComposite.setLayout(layout);
+
+		ModuleButtonComposite moduleButtonComposite = new ModuleButtonComposite(cameraMotionComposite, toolkit);
+		moduleButtonComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
+
+		Composite cameraDistanceComposite = toolkit.createComposite(cameraMotionComposite);
+		cameraDistanceComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
+
+		layout = new GridLayout();
+
+		cameraDistanceComposite.setLayout(layout);
+		cameraDistanceComposite.setBackground(ColorConstants.lightGray);
+
+		Label lblCameraDistance = toolkit.createLabel(cameraDistanceComposite, CAMERA_DISTANCE_lbl, SWT.WRAP
+				| SWT.CENTER);
+		lblCameraDistance.setFont(fontRegistry.get(NORMAL_TEXT_9));
+
+		GridData layoutData = new GridData(GridData.FILL_BOTH);
+		layoutData.horizontalSpan = 2;
+		layoutData.horizontalAlignment = SWT.CENTER;
+		lblCameraDistance.setLayoutData(layoutData);
+		lblCameraDistance.setBackground(ColorConstants.lightGray);
+
+		Text txtCameraDistance = toolkit.createText(cameraDistanceComposite, CAMERA_DIST_DEFAULT_VALUE, SWT.CENTER);
+		txtCameraDistance.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		txtCameraDistance.addFocusListener(focusListener);
+		txtCameraDistance.addKeyListener(txtKeyListener);
+
+		return cameraMotionComposite;
+	}
+
+	/**
+	 * listener for buttons and slider - but this is control masked - the "Ctrl" key needs to be pressed
+	 */
+	private Listener ctrlMouseListener = new Listener() {
+
+		@Override
+		public void handleEvent(Event event) {
+			// to check whether the control key is pressend along with the mouse button click
+			// if (event.stateMask == SWT.CTRL) {
+			// Object sourceObj = event.widget;
+			// try {
+			// if (sourceObj == btnHorizontal) {
+			// // Button - Center Current position
+			// if (!isSelected(btnHorizontal)) {
+			// try {
+			// switchOn(MotionControlCentring.HORIZONTAL);
+			// } catch (Exception ex) {
+			// switchOff(MotionControlCentring.HORIZONTAL);
+			// }
+			// } else {
+			// switchOff(MotionControlCentring.HORIZONTAL);
+			// }
+			// } else if (sourceObj == btnFindAxisOfRotation) {
+			// // Button - Half Rotation Tool
+			// if (!isSelected(btnFindAxisOfRotation)) {
+			// try {
+			// switchOn(MotionControlCentring.FIND_AXIS_ROTATION);
+			// } catch (Exception ex) {
+			// switchOff(MotionControlCentring.FIND_AXIS_ROTATION);
+			// }
+			// } else {
+			// switchOff(MotionControlCentring.FIND_AXIS_ROTATION);
+			//
+			// }
+			// } else if (sourceObj == btnMoveAxisOfRotation) {
+			// // Button - Half Rotation Tool
+			// if (!isSelected(btnMoveAxisOfRotation)) {
+			// try {
+			// switchOn(MotionControlCentring.MOVE_AXIS_OF_ROTATION);
+			// } catch (Exception ex) {
+			// switchOff(MotionControlCentring.MOVE_AXIS_OF_ROTATION);
+			// }
+			// } else {
+			// switchOff(MotionControlCentring.MOVE_AXIS_OF_ROTATION);
+			//
+			// }
+			// } else if (sourceObj == btnVertical) {
+			// // Button - Vertical
+			// if (!isSelected(btnVertical)) {
+			// try {
+			// switchOn(MotionControlCentring.VERTICAL);
+			// } catch (Exception ex) {
+			// switchOff(MotionControlCentring.VERTICAL);
+			// }
+			// } else {
+			// switchOff(MotionControlCentring.VERTICAL);
+			// }
+			// } else if (sourceObj == btnTilt) {
+			// // Button - Vertical
+			// if (!isSelected(btnTilt)) {
+			// try {
+			// switchOn(MotionControlCentring.TILT);
+			// } catch (Exception ex) {
+			// switchOff(MotionControlCentring.TILT);
+			// }
+			// } else {
+			// switchOff(MotionControlCentring.TILT);
+			// }
+			// } else if (sourceObj == btnSampleWeightLessThan1) {
+			// // Button - Vertical
+			// if (!isSelected(btnSampleWeightLessThan1)) {
+			// selectSampleWeightControlInUi(btnSampleWeightLessThan1);
+			// //
+			// for (IMotionControlListener mcl : motionControlListeners) {
+			// mcl.setSampleWeight(SAMPLE_WEIGHT.LESS_THAN_ONE);
+			// }
+			// }
+			// } else if (sourceObj == btnSampleWeight1to10) {
+			// // Button - Vertical
+			// if (!isSelected(btnSampleWeight1to10)) {
+			// selectSampleWeightControlInUi(btnSampleWeight1to10);
+			// //
+			// for (IMotionControlListener mcl : motionControlListeners) {
+			// mcl.setSampleWeight(SAMPLE_WEIGHT.ONE_TO_TEN);
+			// }
+			// }
+			// } else if (sourceObj == btnSampleWeight10to20) {
+			// // Button - Vertical
+			// if (!isSelected(btnSampleWeight10to20)) {
+			// selectSampleWeightControlInUi(btnSampleWeight10to20);
+			//
+			// //
+			// for (IMotionControlListener mcl : motionControlListeners) {
+			// mcl.setSampleWeight(SAMPLE_WEIGHT.TEN_TO_TWENTY);
+			// }
+			// }
+			// } else if (sourceObj == btnSampleWeight20to50) {
+			// // Button - Vertical
+			// if (!isSelected(btnSampleWeight20to50)) {
+			// selectSampleWeightControlInUi(btnSampleWeight20to50);
+			// //
+			// for (IMotionControlListener mcl : motionControlListeners) {
+			// mcl.setSampleWeight(SAMPLE_WEIGHT.TWENTY_TO_FIFTY);
+			// }
+			// }
+			// }
+			// } catch (Exception ex) {
+			// logger.error(((Button) sourceObj).getText() + ": problem switching off", ex);
+			// }
+			// }
+
+		}
+	};
 
 	/**
 	 * @param toolkit
@@ -479,27 +656,6 @@ public class CameraControlComposite extends Composite {
 	}
 
 	/**
-	 * @param toolkit
-	 * @param parent
-	 * @return {@link Composite} container for the "Correct Flat" and the "Show Flat" buttons
-	 */
-	private Composite createCorrectFlatDarkComposite(FormToolkit toolkit, Composite parent) {
-		Composite flatShowCorrectComposite = toolkit.createComposite(parent);
-		flatShowCorrectComposite.setLayout(getGridLayoutZeroSetting());
-
-		btnFlatCorrection = toolkit.createButton(flatShowCorrectComposite, CORRECT_FLAT_DARK, SWT.PUSH | SWT.WRAP);
-		btnFlatCorrection.setLayoutData(new GridData(GridData.FILL_BOTH));
-		btnFlatCorrection.addSelectionListener(buttonSelectionListener);
-
-		lblFlatExpTime = toolkit.createLabel(flatShowCorrectComposite,
-				String.format(FLAT_EXP_TIME_CAPTURED_shortmsg, flatCapturedExposureTime), SWT.CENTER | SWT.WRAP);
-		lblFlatExpTime.setLayoutData(new GridData(GridData.FILL_BOTH));
-		lblFlatExpTime.setBackground(ColorConstants.green);
-
-		return flatShowCorrectComposite;
-	}
-
-	/**
 	 * Method to create the two panels for Exposure time, Steam, Single and histogram
 	 * 
 	 * @param toolkit
@@ -507,17 +663,17 @@ public class CameraControlComposite extends Composite {
 	 */
 	private Composite createExpStreamSingleHistoComposite(FormToolkit toolkit, Composite parent) {
 		Composite expStreamSingleHistoComposite = toolkit.createComposite(parent);
-		GridLayout layout = new GridLayout(5, false);
-		layout.horizontalSpacing = 0;
+		GridLayout layout = new GridLayout(4, false);
+		layout.horizontalSpacing = 2;
 		layout.verticalSpacing = 5;
 		layout.marginWidth = 3;
-		layout.marginHeight = 0;
+		layout.marginHeight = 2;
 
 		expStreamSingleHistoComposite.setLayout(layout);
 
 		Composite lblComposite = toolkit.createComposite(expStreamSingleHistoComposite);
-		GridData layoutData = new GridData(GridData.FILL_VERTICAL);
-		layoutData.widthHint = 65;
+		GridData layoutData = new GridData(GridData.FILL_BOTH);
+		// layoutData.widthHint = 60;
 		lblComposite.setLayoutData(layoutData);
 		layout = new GridLayout();
 		layout.horizontalSpacing = 0;
@@ -526,8 +682,8 @@ public class CameraControlComposite extends Composite {
 		layout.marginHeight = 0;
 		lblComposite.setLayout(layout);
 		// 1. Sample Label
-		Label lblSample = toolkit.createLabel(lblComposite, SAMPLE);
-		GridData ld = new GridData(GridData.FILL_VERTICAL);
+		Button lblSample = toolkit.createButton(lblComposite, SAMPLE, SWT.PUSH);
+		GridData ld = new GridData(GridData.FILL_BOTH);
 		ld.verticalAlignment = SWT.CENTER;
 		lblSample.setLayoutData(ld);
 
@@ -537,20 +693,22 @@ public class CameraControlComposite extends Composite {
 		layoutData.heightHint = 2;
 		borderComposite.setLayoutData(layoutData);
 		// 1. Flat Label
-		Label lblFlatSample = toolkit.createLabel(lblComposite, FLAT);
+		Button lblFlatSample = toolkit.createButton(lblComposite, FLAT, SWT.PUSH);
 		ld = new GridData(GridData.FILL_BOTH);
 		ld.verticalAlignment = SWT.CENTER;
 		lblFlatSample.setLayoutData(ld);
 		//
-		btnFlatToSample = toolkit.createButton(expStreamSingleHistoComposite, null, SWT.ARROW | SWT.UP);
+		btnFlatToSample = toolkit.createButton(expStreamSingleHistoComposite, null, SWT.PUSH);
 		layoutData = new GridData(GridData.FILL_VERTICAL);
 		btnFlatToSample.setLayoutData(layoutData);
+		btnFlatToSample.setImage(TomoClientActivator.getDefault().getImageRegistry()
+				.get(ImageConstants.ICON_DOWN_TO_UP));
 		btnFlatToSample.addSelectionListener(buttonSelectionListener);
 		// 2
 
 		Composite txtBoxComposite = toolkit.createComposite(expStreamSingleHistoComposite);
 		ld = new GridData(GridData.FILL_VERTICAL);
-		ld.widthHint = 100;
+		// ld.widthHint = 80;
 		txtBoxComposite.setLayoutData(ld);
 
 		layout = new GridLayout(2, false);
@@ -563,7 +721,7 @@ public class CameraControlComposite extends Composite {
 		txtSampleExposureTime = toolkit.createText(txtBoxComposite, DEFAULT_EXP_TIME, SWT.CENTER);
 		ld = new GridData(GridData.FILL_BOTH);
 		ld.verticalAlignment = SWT.CENTER;
-		ld.widthHint = 45;
+		// ld.widthHint = 45;
 		txtSampleExposureTime.setLayoutData(ld);
 
 		txtSampleExposureTime.addKeyListener(txtKeyListener);
@@ -583,7 +741,7 @@ public class CameraControlComposite extends Composite {
 		//
 		txtFlatExpTime = toolkit.createText(txtBoxComposite, DEFAULT_EXP_TIME, SWT.CENTER);
 		ld = new GridData(GridData.FILL_BOTH);
-		ld.widthHint = 45;
+		// ld.widthHint = 45;
 		ld.verticalAlignment = SWT.CENTER;
 		txtFlatExpTime.setLayoutData(ld);
 		txtFlatExpTime.addKeyListener(txtKeyListener);
@@ -593,92 +751,13 @@ public class CameraControlComposite extends Composite {
 		ld = new GridData(GridData.FILL_BOTH);
 		ld.verticalAlignment = SWT.CENTER;
 		lblFlatExpTimeUnits.setLayoutData(ld);
-		btnSampleToFlat = toolkit.createButton(expStreamSingleHistoComposite, null, SWT.ARROW | SWT.DOWN);
+
+		btnSampleToFlat = toolkit.createButton(expStreamSingleHistoComposite, null, SWT.PUSH);
 		layoutData = new GridData(GridData.FILL_VERTICAL);
 		btnSampleToFlat.setLayoutData(layoutData);
 		btnSampleToFlat.addSelectionListener(buttonSelectionListener);
-
-		Composite remainingButtonsComposite = toolkit.createComposite(expStreamSingleHistoComposite);
-
-		layout = getGridLayoutZeroSetting();
-		layout.numColumns = 6;
-
-		layout.makeColumnsEqualWidth = false;
-		remainingButtonsComposite.setLayout(layout);
-		remainingButtonsComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
-		// 3
-		btnSampleStream = toolkit.createButton(remainingButtonsComposite, STREAM, SWT.FLAT | SWT.CENTER);
-		ld = new GridData(GridData.FILL_BOTH);
-		ld.verticalAlignment = SWT.CENTER;
-		btnSampleStream.setLayoutData(ld);
-		btnSampleStream.addSelectionListener(buttonSelectionListener);
-		// 4
-		btnSampleSingle = toolkit.createButton(remainingButtonsComposite, SINGLE, SWT.FLAT);
-		ld = new GridData(GridData.FILL_BOTH);
-		ld.verticalAlignment = SWT.CENTER;
-		btnSampleSingle.setLayoutData(ld);
-		btnSampleSingle.addSelectionListener(buttonSelectionListener);
-		// Sample Histogram
-		btnSampleHistogram = toolkit.createButton(remainingButtonsComposite, HISTOGRAM, SWT.PUSH);
-		ld = new GridData(GridData.FILL_BOTH);
-		ld.verticalAlignment = SWT.CENTER;
-		btnSampleHistogram.setLayoutData(ld);
-		btnSampleHistogram.addSelectionListener(buttonSelectionListener);
-		txtSampleDesc = toolkit.createText(remainingButtonsComposite, TYPE_DESCRIPTION);
-		layoutData = new GridData(GridData.FILL_BOTH);
-		layoutData.verticalAlignment = SWT.CENTER;
-		layoutData.horizontalSpan = 3;
-		txtSampleDesc.setLayoutData(layoutData);
-		txtSampleDesc.setForeground(ColorConstants.lightGray);
-		txtSampleDesc.addModifyListener(descModifyListener);
-		txtSampleDesc.addFocusListener(focusListener);
-		txtSampleDesc.addKeyListener(txtKeyListener);
-
-		//
-		borderComposite = toolkit.createComposite(remainingButtonsComposite);
-		borderComposite.setBackground(ColorConstants.black);
-		layoutData = new GridData(GridData.FILL_HORIZONTAL);
-		layoutData.heightHint = 2;
-		layoutData.horizontalSpan = 6;
-		borderComposite.setLayoutData(layoutData);
-
-		btnFlatStream = toolkit.createButton(remainingButtonsComposite, STREAM, SWT.PUSH);
-		ld = new GridData(GridData.FILL_BOTH);
-		ld.verticalAlignment = SWT.CENTER;
-		btnFlatStream.setLayoutData(ld);
-		btnFlatStream.addSelectionListener(buttonSelectionListener);
-		//
-		btnFlatSingle = toolkit.createButton(remainingButtonsComposite, SINGLE, SWT.PUSH);
-		ld = new GridData(GridData.FILL_BOTH);
-		ld.verticalAlignment = SWT.CENTER;
-		btnFlatSingle.setLayoutData(ld);
-		btnFlatSingle.addSelectionListener(buttonSelectionListener);
-		//
-		btnFlatHistogram = toolkit.createButton(remainingButtonsComposite, HISTOGRAM, SWT.PUSH);
-		ld = new GridData(GridData.FILL_BOTH);
-		ld.verticalAlignment = SWT.CENTER;
-		btnFlatHistogram.setLayoutData(ld);
-		btnFlatHistogram.addSelectionListener(buttonSelectionListener);
-		//
-		btnSampleIn = toolkit.createButton(remainingButtonsComposite, SAMPLE_IN, SWT.PUSH);
-		ld = new GridData(GridData.FILL_BOTH);
-		ld.verticalAlignment = SWT.CENTER;
-		btnSampleIn.setLayoutData(ld);
-		btnSampleIn.addSelectionListener(buttonSelectionListener);
-		//
-		btnSampleOut = toolkit.createButton(remainingButtonsComposite, SAMPLE_OUT, SWT.PUSH);
-		ld = new GridData(GridData.FILL_BOTH);
-		ld.verticalAlignment = SWT.CENTER;
-		btnSampleOut.setLayoutData(ld);
-		btnSampleOut.addSelectionListener(buttonSelectionListener);
-		// 8
-		btnTakeFlatAndDark = toolkit.createButton(remainingButtonsComposite, TAKE_F_AND_D, SWT.PUSH);
-		ld = new GridData(GridData.FILL_BOTH);
-		ld.verticalAlignment = SWT.CENTER;
-		btnTakeFlatAndDark.setLayoutData(ld);
-		btnTakeFlatAndDark.setToolTipText(SAVE_A_FLAT_AND_DARK_IMAGE_tooltip);
-		btnTakeFlatAndDark.addSelectionListener(buttonSelectionListener);
-
+		btnSampleToFlat.setImage(TomoClientActivator.getDefault().getImageRegistry()
+				.get(ImageConstants.ICON_UP_TO_DOWN));
 		return expStreamSingleHistoComposite;
 	}
 
@@ -701,6 +780,7 @@ public class CameraControlComposite extends Composite {
 			fontRegistry.put(NORMAL_TEXT_7, new FontData[] { new FontData(fontName, 7, SWT.NORMAL) });
 			fontRegistry.put(NORMAL_TEXT_8, new FontData[] { new FontData(fontName, 8, SWT.NORMAL) });
 			fontRegistry.put(NORMAL_TEXT_9, new FontData[] { new FontData(fontName, 9, SWT.NORMAL) });
+			fontRegistry.put(BOLD_TEXT_11, new FontData[] { new FontData(fontName, 11, SWT.BOLD) });
 		}
 	}
 
@@ -912,12 +992,13 @@ public class CameraControlComposite extends Composite {
 
 	public void addCamerControlListener(ICameraControlListener cameraControlListener) {
 		cameraControlListeners.add(cameraControlListener);
-		zoomComposite.addZoomButtonActionListener(cameraControlListener);
+
+		// zoomComposite.addZoomButtonActionListener(cameraControlListener);
 	}
 
 	public void removeCamerControlListener(ICameraControlListener cameraControlListener) {
 		cameraControlListeners.remove(cameraControlListener);
-		zoomComposite.removeZoomButtonActionListener(cameraControlListener);
+		// /zoomComposite.removeZoomButtonActionListener(cameraControlListener);
 	}
 
 	private void showError(final String dialogTitle, final Exception ex) {
@@ -959,7 +1040,7 @@ public class CameraControlComposite extends Composite {
 					setStreamState(STREAM_STATE.NO_STREAM);
 				}
 			} else if (sourceObj == btnFlatToSample) {
-//				txtSampleExposureTime.setText(txtFlatExpTime.getText());
+				// txtSampleExposureTime.setText(txtFlatExpTime.getText());
 				setPreferredSampleExposureTime(Double.parseDouble(txtFlatExpTime.getText()));
 				try {
 					for (ICameraControlListener cl : cameraControlListeners) {
@@ -969,7 +1050,7 @@ public class CameraControlComposite extends Composite {
 					logger.debug("Error setting exposure time", e1);
 				}
 			} else if (sourceObj == btnSampleToFlat) {
-				//txtFlatExpTime.setText(txtSampleExposureTime.getText());
+				// txtFlatExpTime.setText(txtSampleExposureTime.getText());
 				setPreferredFlatExposureTime(Double.parseDouble(txtSampleExposureTime.getText()));
 				try {
 					for (ICameraControlListener cl : cameraControlListeners) {

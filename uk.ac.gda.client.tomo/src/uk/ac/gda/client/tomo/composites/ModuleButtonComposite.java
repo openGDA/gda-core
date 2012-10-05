@@ -24,15 +24,16 @@ import java.util.List;
 
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.forms.widgets.FormToolkit;
@@ -45,13 +46,14 @@ import org.slf4j.LoggerFactory;
 public class ModuleButtonComposite extends Composite {
 
 	private static final Logger logger = LoggerFactory.getLogger(ModuleButtonComposite.class);
-
+	private FontRegistry fontRegistry;
 	private List<IModuleChangeListener> moduleChangeListeners = new ArrayList<IModuleChangeListener>();
 	private static final String MODULE_4 = "4";
 	private static final String MODULE_3 = "3";
 	private static final String MODULE_2 = "2";
 	private static final String MODULE_1 = "1";
 	private static final String MODULES_HEADER = "Modules";
+	private static final String NORMAL_TEXT_10 = "normal_10";
 	/* Module buttons */
 	private final Button btnModule1;
 	private final Button btnModule2;
@@ -164,37 +166,56 @@ public class ModuleButtonComposite extends Composite {
 		}
 	}
 
+	private void initializeFontRegistry() {
+		if (Display.getCurrent() != null) {
+			fontRegistry = new FontRegistry(Display.getCurrent());
+			String fontName = Display.getCurrent().getSystemFont().getFontData()[0].getName();
+			fontRegistry.put(NORMAL_TEXT_10, new FontData[] { new FontData(fontName, 8, SWT.NORMAL) });
+		}
+	}
+
 	public ModuleButtonComposite(Composite parent, FormToolkit toolkit) {
 		super(parent, SWT.None);
-		this.setLayout(new FillLayout());
-		modulesComposite = new Group(this, SWT.BORDER);
-		modulesComposite.setBackground(ColorConstants.white);
-		modulesComposite.setText(MODULES_HEADER);
-		modulesComposite.setLayout(new GridLayout(2, true));
+		initializeFontRegistry();
+		GridLayout layout = new GridLayout(2, true);
+		layout.marginHeight = 1;
+		layout.marginWidth = 1;
+		layout.horizontalSpacing = 2;
+		layout.verticalSpacing = 2;
+		this.setLayout(layout);
+
+		lblModulesHeader = toolkit.createLabel(this, MODULES_HEADER, SWT.CENTER);
+		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = 2;
+		lblModulesHeader.setLayoutData(gd);
 		/**/
-		btnModule1 = toolkit.createButton(modulesComposite, MODULE_1, SWT.PUSH);
+		btnModule1 = toolkit.createButton(this, MODULE_1, SWT.PUSH);
 		btnModule1.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		btnModule1.addListener(SWT.MouseDown, ctrlMouseListener);
 		btnModule1.addListener(SWT.MouseHover, mouseHoverListener);
 		btnModule1.addListener(SWT.MouseExit, mouseExitListener);
+		btnModule1.setFont(fontRegistry.get(NORMAL_TEXT_10));
 		/**/
-		btnModule2 = toolkit.createButton(modulesComposite, MODULE_2, SWT.PUSH);
+		btnModule2 = toolkit.createButton(this, MODULE_2, SWT.PUSH);
 		btnModule2.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		btnModule2.addListener(SWT.MouseDown, ctrlMouseListener);
 		btnModule2.addListener(SWT.MouseHover, mouseHoverListener);
 		btnModule2.addListener(SWT.MouseExit, mouseExitListener);
+		btnModule2.setFont(fontRegistry.get(NORMAL_TEXT_10));
 		/**/
-		btnModule3 = toolkit.createButton(modulesComposite, MODULE_3, SWT.PUSH);
+		btnModule3 = toolkit.createButton(this, MODULE_3, SWT.PUSH);
 		btnModule3.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		btnModule3.addListener(SWT.MouseDown, ctrlMouseListener);
 		btnModule3.addListener(SWT.MouseHover, mouseHoverListener);
 		btnModule3.addListener(SWT.MouseExit, mouseExitListener);
+		btnModule3.setFont(fontRegistry.get(NORMAL_TEXT_10));
 		/**/
-		btnModule4 = toolkit.createButton(modulesComposite, MODULE_4, SWT.PUSH);
+		btnModule4 = toolkit.createButton(this, MODULE_4, SWT.PUSH);
 		btnModule4.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		btnModule4.addListener(SWT.MouseDown, ctrlMouseListener);
 		btnModule4.addListener(SWT.MouseHover, mouseHoverListener);
 		btnModule4.addListener(SWT.MouseExit, mouseExitListener);
+		btnModule4.setFont(fontRegistry.get(NORMAL_TEXT_10));
 	}
 
 	/**
@@ -207,7 +228,7 @@ public class ModuleButtonComposite extends Composite {
 	 * @param btn4Text
 	 */
 	public void setModuleButtonText(String units, String btn1Text, String btn2Text, String btn3Text, String btn4Text) {
-		modulesComposite.setText(String.format("%1$s (%2$s)", MODULES_HEADER, units));
+		lblModulesHeader.setText(String.format("%1$s (%2$s)", MODULES_HEADER, units));
 		btnModule1.setText(btn1Text);
 		btnModule2.setText(btn2Text);
 		btnModule3.setText(btn3Text);
@@ -296,7 +317,7 @@ public class ModuleButtonComposite extends Composite {
 		}
 	};
 
-	private Group modulesComposite;
+	private Label lblModulesHeader;
 
 	public CAMERA_MODULE getModuleSelected() {
 		logger.debug("getModuleSelected#{}", selectedModule);

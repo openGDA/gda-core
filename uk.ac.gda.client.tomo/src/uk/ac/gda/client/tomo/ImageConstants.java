@@ -47,8 +47,15 @@ public class ImageConstants {
 
 	public static final String ICON_OPEN_PREF = "icons/open_pref.gif";
 
+	public static final String ICON_UP_TO_DOWN = "icons/uptodown.png";
+
+	public static final String ICON_DOWN_TO_UP = "icons/downtoup.png";
+	
+	public static final String ICON_SHOPPING_CART = "icons/shopping_cart.png";
+
 	public static String[] IMAGES = new String[] { ICON_RESET_DETECTOR, ICON_HORIZONTAL_FLIP, ICON_PITCH_ROTATE,
 			ICON_ROLL_ROTATE, ICON_VERTICAL_FLIP, ICON_RAW_IMAGE, ICON_TOMO_ALIGNMENT, ICON_SAVE_CONFIGURATION,
-			ICON_TOMO_CONFIG, ICON_CHECKED_STATE, ICON_UNCHECKED_STATE, ICON_OPEN_PREF };
+			ICON_TOMO_CONFIG, ICON_CHECKED_STATE, ICON_UNCHECKED_STATE, ICON_OPEN_PREF, ICON_UP_TO_DOWN,
+			ICON_DOWN_TO_UP, ICON_SHOPPING_CART};
 
 }
