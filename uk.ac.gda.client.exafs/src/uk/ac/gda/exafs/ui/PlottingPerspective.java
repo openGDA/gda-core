@@ -19,7 +19,6 @@
 package uk.ac.gda.exafs.ui;
 
 import gda.configuration.properties.LocalProperties;
-
 import gda.gui.scriptcontroller.logging.ScriptControllerLogView;
 import gda.rcp.views.JythonTerminalView;
 
@@ -37,6 +36,7 @@ import uk.ac.gda.exafs.ui.plot.SubtractedBackgroundScanPlotView;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.exafs.ui.views.scalersmonitor.B18ScalersMonitorView;
 import uk.ac.gda.exafs.ui.views.scalersmonitor.ScalersMonitorView;
+import uk.ac.gda.views.baton.BatonView;
 
 public class PlottingPerspective implements IPerspectiveFactory {
 
@@ -46,18 +46,37 @@ public class PlottingPerspective implements IPerspectiveFactory {
 	public void createInitialLayout(IPageLayout layout) {
 		String editorArea = layout.getEditorArea();
 		layout.setEditorAreaVisible(false);
+		
+		// yuck, but will do for now.
+		String nameFrag = LocalProperties.get("gda.instrument");
+		if (nameFrag.equals("i20")) {
+			IFolderLayout flTop = layout.createFolder("flTop", IPageLayout.LEFT, 1.0f, editorArea);
+			flTop.addView(XYPlotView.ID);
+			
+			IFolderLayout flBottomLeft = layout.createFolder("flBottomLeft", IPageLayout.BOTTOM, 0.7f, "flTop");
+			flBottomLeft.addView(CommandQueueViewFactory.ID);
+			flBottomLeft.addView(ScriptControllerLogView.ID);
 
+			IFolderLayout flBottom = layout.createFolder("flBottom", IPageLayout.RIGHT, 0.33f, "flBottomLeft");
+			flBottom.addView(JythonTerminalView.ID);
+			
+			IFolderLayout flBottomRight = layout.createFolder("flBottomRight", IPageLayout.RIGHT, 0.5f, "flBottom");
+			flBottomRight.addView(ScalersMonitorView.ID);
+			flBottomRight.addView(BatonView.ID);
+			
+			layout.addView(LnI0ItScanPlotView.ID, IPageLayout.RIGHT, 0.5f, "flTop");
+			layout.addView(SubtractedBackgroundScanPlotView.ID, IPageLayout.BOTTOM, 0.5f, LnI0ItScanPlotView.ID);
+			layout.addView(FourierScanPlotView.ID, IPageLayout.RIGHT, 0.5f, SubtractedBackgroundScanPlotView.ID);
+			layout.addView(DerivativeScanPlotView.ID, IPageLayout.RIGHT, 0.5f, LnI0ItScanPlotView.ID);
+
+			return;
+		}
+		
 		IFolderLayout folderLayout_0 = layout.createFolder("folder10", IPageLayout.LEFT, 0.7f, editorArea);
 		folderLayout_0.addView(XYPlotView.ID);
 		if (!ExafsActivator.getDefault().getPreferenceStore()
 				.getBoolean(ExafsPreferenceConstants.HIDE_LnI0ItScanPlotView)) {
 			folderLayout_0.addView(LnI0ItScanPlotView.ID);
-			String nameFrag = LocalProperties.get("gda.instrument");
-			if (nameFrag.equals("i20")) {
-				folderLayout_0.addView(DerivativeScanPlotView.ID);
-				folderLayout_0.addView(SubtractedBackgroundScanPlotView.ID);
-				folderLayout_0.addView(FourierScanPlotView.ID);
-			}
 		}
 
 		IFolderLayout folderLayout = layout.createFolder("folder", IPageLayout.BOTTOM, 0.5f, "folder1");
