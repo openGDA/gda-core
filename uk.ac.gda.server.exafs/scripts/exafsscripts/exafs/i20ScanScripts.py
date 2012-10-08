@@ -48,8 +48,7 @@ class I20XasScan(XasScan):
         # sample environments
 
         # room temperature (sample stage)
-        if beanGroup.getSample().getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[1] :
-            
+        if beanGroup.getDetector().getExperimentType() != 'XES' and beanGroup.getSample().getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[1] :
             sampleStageParameters = beanGroup.getSample().getRoomTemperatureParameters()
             numSamples = sampleStageParameters.getNumberOfSamples()
             for i in range(0,numSamples):
@@ -79,12 +78,12 @@ class I20XasScan(XasScan):
                 samrot.asynchronousMoveTo(rotation)
                 samroll.asynchronousMoveTo(roll)
                 sampitch.asynchronousMoveTo(pitch)
-                samx.waitWhileBusy(20)
-                samy.waitWhileBusy(20)
-                samz.waitWhileBusy(20)
-                samrot.waitWhileBusy(20)
-                samroll.waitWhileBusy(20)
-                sampitch.waitWhileBusy(20)
+                samx.waitWhileBusy()
+                samy.waitWhileBusy()
+                samz.waitWhileBusy()
+                samrot.waitWhileBusy()
+                samroll.waitWhileBusy()
+                sampitch.waitWhileBusy()
                 print "Sample stage move complete.\n"
                 ScriptBase.checkForPauses()
                 
@@ -166,14 +165,14 @@ class I20XesScan(XasScan):
 
         
     def __call__ (self,sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, numRepetitions= 1, validation=True):
-    
+
         # Create the beans from the file names
         xmlFolderName = ExafsEnvironment().getXMLFolder() + folderName + "/"
         sampleBean = BeansFactory.getBeanObject(xmlFolderName, sampleFileName)
         xesScanBean = BeansFactory.getBeanObject(xmlFolderName, scanFileName)
         detectorBean = BeansFactory.getBeanObject(xmlFolderName, detectorFileName)
         outputBean = BeansFactory.getBeanObject(xmlFolderName, outputFileName)
-     
+
         finder_mapper = FinderNameMapping()
         jython_mapper = JythonNameSpaceMapping()
         loggingcontroller = Finder.getInstance().find("XASLoggingScriptController")
@@ -193,65 +192,116 @@ class I20XesScan(XasScan):
         beanGroup.setController(Finder.getInstance().find("ExafsScriptObserver"))
         beanGroup.setScriptFolder(xmlFolderName)
         beanGroup.setExperimentFolderName(folderName)
-        beanGroup.setScanNumber(numRepetitions)
         beanGroup.setSample(sampleBean)
         beanGroup.setDetector(detectorBean)
         beanGroup.setOutput(outputBean)
         beanGroup.setScan(xesScanBean)
+        
+        # if get here then its an XES step scan
+        self._doLooping(beanGroup,folderName,numRepetitions, validation)
+        
+    def _doLooping(self,beanGroup,folderName,numRepetitions, validation):
 
-        # work out which detectors to use (they will need to have been configured already by the GUI)
+        finder_mapper = FinderNameMapping()
+        jython_mapper = JythonNameSpaceMapping()
+        loggingcontroller = Finder.getInstance().find("XASLoggingScriptController")
+
+        if beanGroup.getSample().getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV_XES[1] :
+            
+            sampleStageParameters = beanGroup.getSample().getRoomTemperatureParameters()
+            numSamples = sampleStageParameters.getNumberOfSamples()
+            for i in range(0,numSamples):
+                x = sampleStageParameters.getXs()[i]
+                y = sampleStageParameters.getYs()[i]
+                z = sampleStageParameters.getZs()[i]
+                rotation = sampleStageParameters.getRotations()[i]
+                finerotation = sampleStageParameters.getFineRotations()[i]
+                
+                finder = Finder.getInstance()
+                samx = finder.find("sample_x")
+                samy = finder.find("sample_y")
+                samz = finder.find("sample_z")
+                samrot = finder.find("sample_rot")
+                samfinerot = finder.find("sample_fine_rot")
+                
+                if samx == None or samy ==None or samz == None or samrot == None or samfinerot == None:
+                    raise DeviceException("I20 XES scan script - could not find all sample stage motors!")
+                
+                
+                print "Moving sample stage to",x,y,z,rotation,finerotation,"..."
+                samx.asynchronousMoveTo(x)
+                samy.asynchronousMoveTo(y)
+                samz.asynchronousMoveTo(z)
+                samrot.asynchronousMoveTo(rotation)
+                samfinerot.asynchronousMoveTo(finerotation)
+                samx.waitWhileBusy()
+                samy.waitWhileBusy()
+                samz.waitWhileBusy()
+                samrot.waitWhileBusy()
+                samfinerot.waitWhileBusy()
+                print "Sample stage move complete.\n"
+                ScriptBase.checkForPauses()
+                
+                self._doScan(beanGroup,folderName,numRepetitions, validation)
+                
+        else:
+            self._doScan(beanGroup,folderName,numRepetitions, validation)
+
+
+    def _doScan(self,beanGroup,folderName,numRepetitions, validation):
+
+        finder_mapper = FinderNameMapping()
+        jython_mapper = JythonNameSpaceMapping()
+        loggingcontroller = Finder.getInstance().find("XASLoggingScriptController")
+        # now that the scan has been defined, run it in a loop
+        
+        
+                # work out which detectors to use (they will need to have been configured already by the GUI)
         detectorList = self._getDetectors(beanGroup.getDetector(), beanGroup.getScan()) 
 
-    # set up the sample 
-        #setup(beanGroup)
-    
-    # extract any signal parameters to add to the scan command
-    # TODO need to add signal parameters to the qexafs scan, if possible
-        #signalParameters = getSignalList(outputBean)
-        
-        #  SHOULD I ADD THESE LINES???
-        # run the beamline specific preparers            
-        #self.detectorPreparer.prepare(beanGroup.getDetector(), beanGroup.getOutput(), xmlFolderName)
-        #sampleScannables = self.samplePreparer.prepare(beanGroup.getSample())
-        #outputScannables = self.outputPreparer.prepare(beanGroup.getOutput())
-
-    
-    # run the scan
-    #if len(signalParameters) > 0:
-#        print "signal list:",str(signalParameters)
-    
-    # get the relevant objects from the namespace
+        # get the relevant objects from the namespace
         xes_energy = jython_mapper.XESEnergy
         mono_energy = jython_mapper.bragg1
         analyserAngle = jython_mapper.XESBragg
-    #L = jython_mapper.xtal_x
-    
-        scanType = xesScanBean.getScanType()
+        #L = jython_mapper.xtal_x
+
+        scanType = beanGroup.getScan().getScanType()
         args = []
-    
+
         originalDataFormat = LocalProperties.get("gda.data.scan.datawriter.dataFormat")
-    
+
         from gda.exafs.xes.XesUtils import XesMaterial
         type = 1
-        if xesScanBean.getAnalyserType() == str("Si"):
+        if beanGroup.getScan().getAnalyserType() == str("Si"):
             type = 0
         xes_energy.setMaterialType(type)
-        xes_energy.setCut1Val(xesScanBean.getAnalyserCut0())
-        xes_energy.setCut2Val(xesScanBean.getAnalyserCut1())
-        xes_energy.setCut3Val(xesScanBean.getAnalyserCut2())
+        xes_energy.setCut1Val(beanGroup.getScan().getAnalyserCut0())
+        xes_energy.setCut2Val(beanGroup.getScan().getAnalyserCut1())
+        xes_energy.setCut3Val(beanGroup.getScan().getAnalyserCut2())
+        
 
+        # run the before scan script
+        self._runScript(beanGroup.getOutput().getBeforeScriptName())
+
+        args += [analyserAngle]
+        args += detectorList 
+        args += [beanGroup.getScan().getXesIntegrationTime()]
+        signalParameters = self._getSignalList(beanGroup.getOutput())
+        if len(signalParameters) > 0:
+            args += signalParameters
+        print args 
         
         if scanType == XesScanParameters.SCAN_XES_FIXED_MONO:
             print "Scanning the analyser scan with fixed mono"
             print "switching data output format to XesAsciiNexusDataWriter"
             LocalProperties.set("gda.data.scan.datawriter.dataFormat","XesAsciiNexusDataWriter")
-            args += [xes_energy, xesScanBean.getXesInitialEnergy(), xesScanBean.getXesFinalEnergy(), xesScanBean.getXesStepSize(), mono_energy, xesScanBean.getMonoEnergy()]
+            args += [xes_energy, beanGroup.getScan().getXesInitialEnergy(), beanGroup.getScan().getXesFinalEnergy(), beanGroup.getScan().getXesStepSize(), mono_energy, beanGroup.getScan().getMonoEnergy()]
     
         elif scanType == XesScanParameters.SCAN_XES_SCAN_MONO:
             print "Scanning over the analyser and mono energies"
             print "switching data output format to XesAsciiNexusDataWriter"
             LocalProperties.set("gda.data.scan.datawriter.dataFormat","XesAsciiNexusDataWriter")
-            args += [xes_energy, xesScanBean.getXesInitialEnergy(), xesScanBean.getXesFinalEnergy(), xesScanBean.getXesStepSize(), mono_energy, xesScanBean.getMonoInitialEnergy(), xesScanBean.getMonoFinalEnergy(), xesScanBean.getMonoStepSize()]
+            args += [xes_energy, beanGroup.getScan().getXesInitialEnergy(), beanGroup.getScan().getXesFinalEnergy(), beanGroup.getScan().getXesStepSize(), mono_energy, beanGroup.getScan().getMonoInitialEnergy(), beanGroup.getScan().getMonoFinalEnergy(), beanGroup.getScan().getMonoStepSize()]
 
              # create scannable which will control 2D plotting in this mode
             jython_mapper.twodplotter.setX_colName(xes_energy.getInputNames()[0])
@@ -260,65 +310,49 @@ class I20XesScan(XasScan):
             # note that users will have to open a 'plot 1' view or use the XESPlot perspective for this to work
 
             detectorList = [jython_mapper.twodplotter] + detectorList
-    
+
         elif scanType == XesScanParameters.FIXED_XES_SCAN_XAS:
             print "Doing an EXAFS scan with a fixed analyser energy"
-        # add xes_energy, analyserAngle to the defaults and then call the xas command
-            xas_scanfilename = xesScanBean.getScanFileName()
+            # add xes_energy, analyserAngle to the defaults and then call the xas command
+            xas_scanfilename = beanGroup.getScan().getScanFileName()
 
-            print "moving XES analyser stage to collect at", xesScanBean.getXesEnergy()
-            xes_energy(xesScanBean.getXesEnergy())
+            print "moving XES analyser stage to collect at", beanGroup.getScan().getXesEnergy()
+            xes_energy(beanGroup.getScan().getXesEnergy())
             ScannableCommands.add_default([xes_energy,analyserAngle])
 
             try:
-                jython_mapper.xas(sampleBean, xas_scanfilename, detectorBean, outputBean, folderName, numRepetitions, validation)
+                jython_mapper.xas(beanGroup.getSample(), xas_scanfilename, beanGroup.getDetector(), beanGroup.getOutput(), folderName, numRepetitions, validation)
             finally:
                 print "cleaning up scan defaults"
                 ScannableCommands.remove_default([xes_energy,analyserAngle])
             return
-    
+
         elif scanType == XesScanParameters.FIXED_XES_SCAN_XANES:
             print "Doing a XANES scan with a fixed analyser energy"
             # add xes_energy, analyserAngle, to the signal parameters bean and then call the xanes command
-            xanes_scanfilename = xesScanBean.getScanFileName()
+            xanes_scanfilename = beanGroup.getScan().getScanFileName()
 
-            print "moving XES analyser stage to collect at", xesScanBean.getXesEnergy()
-            xes_energy(xesScanBean.getXesEnergy())
+            print "moving XES analyser stage to collect at", beanGroup.getScan().getXesEnergy()
+            xes_energy(beanGroup.getScan().getXesEnergy())
             ScannableCommands.add_default([xes_energy,analyserAngle])
 
             try:
-                jython_mapper.xanes(sampleBean, xanes_scanfilename, detectorBean, outputBean, folderName, numRepetitions, validation)
+                jython_mapper.xanes(beanGroup.getSample(), xanes_scanfilename, beanGroup.getDetector(), beanGroup.getOutput(), folderName, numRepetitions, validation)
             finally:
                 print "cleaning up scan defaults"
                 ScannableCommands.remove_default([xes_energy,analyserAngle])
             return
         else:
             raise "scan type in XES Scan Parameters bean/xml not acceptable"
-        
-    # run the script held in output parameters
-        scriptName = beanGroup.getOutput().getBeforeScriptName()
-        if scriptName != None and scriptName != "":
-            InterfaceProvider.getCommandRunner().runScript(File(scriptName), None);
 
-        args += [analyserAngle]
-        args += detectorList 
-        args += [xesScanBean.getXesIntegrationTime()]
-        signalParameters = self._getSignalList(beanGroup.getOutput())
-        if len(signalParameters) > 0:
-            args += signalParameters
-        print args 
-
-
-    # now that the scan has been defined, run it in a loop
-
-    # reset the properties used to control repetition behaviour
+        # reset the properties used to control repetition behaviour
         LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY,"false")
         LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
         LocalProperties.set(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY,str(numRepetitions))
         repetitionNumber = 0
         
         # set the dark current and integration time for all detectors
-        itime = xesScanBean.getXesIntegrationTime()
+        itime = beanGroup.getScan().getXesIntegrationTime()
         jython_mapper.I1.setDarkCurrentCollectionTime(itime);
         for det in detectorList:
             det.setCollectionTime(itime)
@@ -330,10 +364,10 @@ class I20XesScan(XasScan):
                 XasAsciiDataWriter.setBeanGroup(beanGroup)
 
             # send out initial messages for logging and display to user
-                outputFolder = outputBean.getAsciiDirectory()+ "/" + outputBean.getAsciiFileName()
-                logmsg = XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str("0%"),str(0),xesScanBean,outputFolder)
+                outputFolder = beanGroup.getOutput().getAsciiDirectory()+ "/" + beanGroup.getOutput().getAsciiFileName()
+                logmsg = XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str("0%"),str(0),beanGroup.getScan(),outputFolder)
                 loggingcontroller.update(None,logmsg)
-                loggingcontroller.update(None,ScanStartedMessage(xesScanBean,detectorBean)) # informs parts of the UI about current scan
+                loggingcontroller.update(None,ScanStartedMessage(beanGroup.getScan(),beanGroup.getDetector())) # informs parts of the UI about current scan
                 loggingbean = XasProgressUpdater(loggingcontroller,logmsg)
                 args += [loggingbean]
                 try:
@@ -356,23 +390,20 @@ class I20XesScan(XasScan):
                         print e
                         raise # any other exception we are not expecting so raise whatever this is to abort the script
                        
-            #update observers
+                #update observers
                 loggingcontroller.update(None, ScanFinishEvent(thisscan.getName(), ScanFinishEvent.FinishType.OK));
 
-            # run post scan script
-                scriptName = beanGroup.getOutput().getAfterScriptName()
-                if scriptName != None and scriptName != "":
-                    scriptName = scriptName[scriptName.rfind("/") + 1:]
-                    run(scriptName)
+                # run the after scan script
+                self._runScript(beanGroup.getOutput().getAfterScriptName())
 
-            #check if halt after current repetition set to true
+                #check if halt after current repetition set to true
                 if numRepetitions > 1 and LocalProperties.get(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY) == "true":
                     print "Paused scan after repetition",str(repetitionNumber),". To resume the scan, press the Start button in the Command Queue view. To abort this scan, press the Skip Task button."
                     LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY,"false")
                     Finder.getInstance().find("commandQueueProcessor").pause(500);
                     ScriptBase.checkForPauses()
                 
-            #check if the number of repetitions has been altered and we should now end the loop
+                #check if the number of repetitions has been altered and we should now end the loop
                 numRepsFromProperty = int(LocalProperties.get(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY))
                 if numRepsFromProperty != numRepetitions and numRepsFromProperty <= (repetitionNumber):
                     print "The number of repetitions has been reset to",str(numRepsFromProperty), ". As",str(repetitionNumber),"repetitions have been completed this scan will now end."
@@ -384,4 +415,3 @@ class I20XesScan(XasScan):
             LocalProperties.set("gda.data.scan.datawriter.dataFormat", originalDataFormat)
             # make sure the plotter is switched off
             jython_mapper.twodplotter.atScanEnd()
-
