@@ -1,7 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: GDA Test Helpers
-Bundle-SymbolicName: uk.ac.gda.test.helpers
-Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Bundle-Vendor: Diamond Light Source
