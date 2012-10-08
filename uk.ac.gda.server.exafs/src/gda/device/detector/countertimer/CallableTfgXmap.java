@@ -25,7 +25,7 @@ import gda.device.scannable.PositionCallableProvider;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class CallableTfgXmap extends TfgXmap implements PositionCallableProvider<double[]>, DetectorWithReadout {
+public class CallableTfgXmap extends TfgXmap implements PositionCallableProvider<double[]> {
 
 	AtomicBoolean readingOut = new AtomicBoolean(false);
 	@Override
@@ -67,18 +67,4 @@ public class CallableTfgXmap extends TfgXmap implements PositionCallableProvider
 			this.readingOut.notifyAll();
 		}
 	}
-	@Override
-	public void waitForReadoutCompletion() throws InterruptedException {
-		synchronized (readingOut) {
-			while (readingOut.get()) {
-				try{
-				readingOut.wait();
-				}
-				catch (InterruptedException e) {
-					setReadingOut(false);
-				}
-			}
-		}
-	}
-
 }
