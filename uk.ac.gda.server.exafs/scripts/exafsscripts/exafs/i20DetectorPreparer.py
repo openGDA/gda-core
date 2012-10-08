@@ -11,10 +11,10 @@ class I20DetectorPreparer:
         Validates the bean which defines the detectors and then configures the vortex or xspress
         based on the xml file whose name is in the bean.
         """
-        if detectorParameters.getExperimentType == "Fluorescence" :
+        if detectorParameters.getExperimentType() == "Fluorescence" :
             detType = detectorParameters.getFluorescenceParameters().getDetectorType()
             fullFileName = str(scriptFolder) + str(detectorParameters.getFluorescenceParameters().getConfigFileName())
-            print "configuring",detType,"detector using",fullFileName
+            print "Configuring",detType,"detector using",fullFileName
             if detType == "Germanium":
                Xspress2DetectorConfiguration(self.ExafsScriptObserver,fullFileName,None,outputParameters).configure()
             else:
