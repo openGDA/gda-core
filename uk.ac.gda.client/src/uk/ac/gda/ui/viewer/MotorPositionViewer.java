@@ -33,7 +33,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,6 +74,8 @@ public class MotorPositionViewer {
 	private Job motorPositionJob;
 
 	private boolean restoreValueWhenFocusLost;
+	
+	private IPositionVerifierDialogCreator newPositionDialog;
 
 	public MotorPositionViewer(Composite parent, Scannable scannable){
 		this(parent, scannable, null);
@@ -140,6 +144,12 @@ public class MotorPositionViewer {
 					return;
 				}
 				
+				if (newPositionDialog != null) {
+					Shell shell = Display.getCurrent().getActiveShell();
+					if (!newPositionDialog.userAccepts(shell, demandPrev, demand)) {
+						return;
+					}
+				}
 				
 				if (demand != demandPrev){
 					motorBox.demandBegin(demandPrev);
@@ -265,6 +275,12 @@ public class MotorPositionViewer {
 	public void setRestoreValueWhenFocusLost(boolean restoreValueWhenFocusLost) {
 		this.restoreValueWhenFocusLost = restoreValueWhenFocusLost;
 		motorBox.setRestoreValueWhenFocusLost(restoreValueWhenFocusLost);
+	}
+	public IPositionVerifierDialogCreator getNewPositionDialog() {
+		return newPositionDialog;
+	}
+	public void setNewPositionDialog(IPositionVerifierDialogCreator newPositionDialog) {
+		this.newPositionDialog = newPositionDialog;
 	}
 }
 
