@@ -18,27 +18,27 @@
 
 package uk.ac.gda.exafs.ui.plot;
 
-import gda.scan.IScanDataPoint;
-
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.scan.IScanDataPoint;
+
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.Maths;
+import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.DataSetPlotData;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
+import uk.ac.diamond.scisoft.spectroscopy.rcp.SpectroscopyRCPActivator;
+import uk.ac.diamond.scisoft.spectroscopy.rcp.preferences.XafsPreferences;
 
-/**
- * This class assumes that the point with energy less than A are to be included in the pre-edge.
- */
-public class DerivativeScanPlotView extends ExafsScanPlotView {
+public class NoiseScanPlotView extends ExafsScanPlotView {
 
-	private static final Logger logger = LoggerFactory.getLogger(DerivativeScanPlotView.class);
+	private static final Logger logger = LoggerFactory.getLogger(NoiseScanPlotView.class);
 
 	@SuppressWarnings("hiding")
-	public static final String ID = "gda.rcp.views.scan.DerivativeScanPlotView"; //$NON-NLS-1$
+	public static final String ID = "gda.rcp.views.scan.NoiseScanPlotView"; //$NON-NLS-1$
 
-	public DerivativeScanPlotView() {
+	public NoiseScanPlotView() {
 		super();
 		setSampleRate(1000);
 	}
@@ -50,33 +50,37 @@ public class DerivativeScanPlotView extends ExafsScanPlotView {
 	protected IPlotData getY(IScanDataPoint... points) {
 
 		if (cachedY.size() <= 3) {
-			return null; // cannot estimate derivative
+			return null; // cannot estimate noise
 		}
 
 		try {
 			final AbstractDataset energy = AbstractDataset.createFromList(cachedX);
 			final AbstractDataset lnI0It = AbstractDataset.createFromList(cachedY);
-			AbstractDataset derv = Maths.derivative(energy, lnI0It, 1);
-			return new DataSetPlotData(getYAxis(), derv);
+			IPreferenceStore preferences = SpectroscopyRCPActivator.getDefault().getPreferenceStore();
+	        int windowSize = preferences.getInt(XafsPreferences.NOISE_WINDOW);
+	        int polyOrder = preferences.getInt(XafsPreferences.NOISE_ORDER);
+			final AbstractDataset medi = xafsFittingUtils.getPolynomialSmoothed(energy, lnI0It, windowSize, polyOrder);
+			final AbstractDataset noise = (new DoubleDataset(lnI0It)).isubtract(medi);
+			return new DataSetPlotData(getYAxis(), noise);
 		} catch (Exception e) {
-			logger.warn("Cannot normalise data", e);
+			logger.warn("Cannot calculate noise profile", e);
 			return null;
 		}
 	}
 
 	@Override
 	protected String getCurrentPlotName(int scanNumber) {
-		return "Scan " + scanNumber + " [First Derivative]";
+		return "Scan " + scanNumber + " [Noise Profile]";
 	}
 
 	@Override
 	protected String getYAxis() {
-		return "d(f[I0,It])/dE";
+		return "Noise";
 	}
 
 	@Override
 	protected String getGraphTitle() {
-		return "First Derivative";
+		return "Noise Profile";
 	}
 
 }
