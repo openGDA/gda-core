@@ -101,8 +101,7 @@ public class ScalersMonitorView extends MonitorViewBase {
 				displayData.setFFI0(xspressStats[8 * 3 + 2] / values[0]);
 				break;
 			case 64:
-				// TODO check that this is one of the higher rate elements in the 64Ge
-				displayData.setFFI0(xspressStats[16 * 3 + 2] / values[0]);
+				displayData.setFFI0(xspressStats[16 * 3 + 2] / values[36]);  // use element 37 as I think this is one of the more central ones
 				break;
 			default:
 				displayData.setFFI0(xspressStats[2] / values[0]);

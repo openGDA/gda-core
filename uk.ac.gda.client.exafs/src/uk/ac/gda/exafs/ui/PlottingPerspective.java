@@ -64,10 +64,15 @@ public class PlottingPerspective implements IPerspectiveFactory {
 			flBottomRight.addView(ScalersMonitorView.ID);
 			flBottomRight.addView(BatonView.ID);
 			
-			layout.addView(LnI0ItScanPlotView.ID, IPageLayout.RIGHT, 0.5f, "flTop");
-			layout.addView(SubtractedBackgroundScanPlotView.ID, IPageLayout.BOTTOM, 0.5f, LnI0ItScanPlotView.ID);
-			layout.addView(FourierScanPlotView.ID, IPageLayout.RIGHT, 0.5f, SubtractedBackgroundScanPlotView.ID);
-			layout.addView(DerivativeScanPlotView.ID, IPageLayout.RIGHT, 0.5f, LnI0ItScanPlotView.ID);
+			IFolderLayout flTopRight = layout.createFolder("flTopRight", IPageLayout.RIGHT, 0.5f, "flTop");
+			flTopRight.addView(LnI0ItScanPlotView.ID);
+			flTopRight.addView(SubtractedBackgroundScanPlotView.ID);
+			flTopRight.addView(FourierScanPlotView.ID);
+			flTopRight.addView(DerivativeScanPlotView.ID);
+//			layout.addView(LnI0ItScanPlotView.ID, IPageLayout.RIGHT, 0.5f, "flTop");
+//			layout.addView(SubtractedBackgroundScanPlotView.ID, IPageLayout.BOTTOM, 0.5f, LnI0ItScanPlotView.ID);
+//			layout.addView(FourierScanPlotView.ID, IPageLayout.RIGHT, 0.5f, SubtractedBackgroundScanPlotView.ID);
+//			layout.addView(DerivativeScanPlotView.ID, IPageLayout.RIGHT, 0.5f, LnI0ItScanPlotView.ID);
 
 			return;
 		}
