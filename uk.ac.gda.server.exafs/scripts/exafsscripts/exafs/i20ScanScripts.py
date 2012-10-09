@@ -198,9 +198,9 @@ class I20XesScan(XasScan):
         beanGroup.setScan(xesScanBean)
         
         # if get here then its an XES step scan
-        self._doLooping(beanGroup,folderName,numRepetitions, validation)
+        self._doLooping(beanGroup,folderName,numRepetitions, validation,scan_unique_id)
         
-    def _doLooping(self,beanGroup,folderName,numRepetitions, validation):
+    def _doLooping(self,beanGroup,folderName,numRepetitions, validation,scan_unique_id):
 
         finder_mapper = FinderNameMapping()
         jython_mapper = JythonNameSpaceMapping()
@@ -242,13 +242,13 @@ class I20XesScan(XasScan):
                 print "Sample stage move complete.\n"
                 ScriptBase.checkForPauses()
                 
-                self._doScan(beanGroup,folderName,numRepetitions, validation)
+                self._doScan(beanGroup,folderName,numRepetitions, validation,scan_unique_id)
                 
         else:
-            self._doScan(beanGroup,folderName,numRepetitions, validation)
+            self._doScan(beanGroup,folderName,numRepetitions, validation,scan_unique_id)
 
 
-    def _doScan(self,beanGroup,folderName,numRepetitions, validation):
+    def _doScan(self,beanGroup,folderName,numRepetitions, validation,scan_unique_id):
 
         finder_mapper = FinderNameMapping()
         jython_mapper = JythonNameSpaceMapping()
@@ -278,18 +278,6 @@ class I20XesScan(XasScan):
         xes_energy.setCut1Val(beanGroup.getScan().getAnalyserCut0())
         xes_energy.setCut2Val(beanGroup.getScan().getAnalyserCut1())
         xes_energy.setCut3Val(beanGroup.getScan().getAnalyserCut2())
-        
-
-        # run the before scan script
-        self._runScript(beanGroup.getOutput().getBeforeScriptName())
-
-        args += [analyserAngle]
-        args += detectorList 
-        args += [beanGroup.getScan().getXesIntegrationTime()]
-        signalParameters = self._getSignalList(beanGroup.getOutput())
-        if len(signalParameters) > 0:
-            args += signalParameters
-        print args 
         
         if scanType == XesScanParameters.SCAN_XES_FIXED_MONO:
             print "Scanning the analyser scan with fixed mono"
@@ -345,12 +333,22 @@ class I20XesScan(XasScan):
         else:
             raise "scan type in XES Scan Parameters bean/xml not acceptable"
 
+        # run the before scan script
+        self._runScript(beanGroup.getOutput().getBeforeScriptName())
+
+        args += [analyserAngle]
+        args += detectorList 
+        args += [beanGroup.getScan().getXesIntegrationTime()]
+        signalParameters = self._getSignalList(beanGroup.getOutput())
+        if len(signalParameters) > 0:
+            args += signalParameters
+
         # reset the properties used to control repetition behaviour
         LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY,"false")
         LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
         LocalProperties.set(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY,str(numRepetitions))
         repetitionNumber = 0
-        
+        scriptType = "Xes"
         # set the dark current and integration time for all detectors
         itime = beanGroup.getScan().getXesIntegrationTime()
         jython_mapper.I1.setDarkCurrentCollectionTime(itime);

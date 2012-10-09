@@ -239,7 +239,7 @@ class XasScan(Scan):
     
     def _getSignalList(self, outputParameters):
         signalList = []
-        for signal in outputParameters.getCheckedSignalList():
+        for signal in outputParameters.getSignalList():
              scannable = JEPScannable.createJEPScannable(signal.getLabel(), signal.getScannableName(), signal.getDataFormat(), signal.getName(), signal.getExpression())
              signalList.append(scannable)
         return signalList
