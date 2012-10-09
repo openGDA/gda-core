@@ -4408,8 +4408,6 @@
 	
 	<xsd:element name="TfgScaler" type="TfgScaler"/>
 	
-	<xsd:element name="TfgXspress" type="TfgXspress"/>
-	
 	<xsd:element name="TfgXspress2" type="TfgXspress2"/>
 	
 	<xsd:element name="TfgXmap" type="TfgXmap"/>
