@@ -52,6 +52,8 @@
 								maxOccurs="1" minOccurs="1" />
 							<xsd:element name="sample1_rotation" type="xsd:string"
 								maxOccurs="1" minOccurs="1" />
+							<xsd:element name="sample1_finerotation" type="xsd:string"
+								maxOccurs="1" minOccurs="1" />
 							<xsd:element name="sample1_roll" type="xsd:string"
 								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="sample1_pitch" type="xsd:string"
@@ -64,6 +66,8 @@
 								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="sample2_rotation" type="xsd:string"
 								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="sample2_finerotation" type="xsd:string"
+								maxOccurs="1" minOccurs="1" />
 							<xsd:element name="sample2_roll" type="xsd:string"
 								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="sample2_pitch" type="xsd:string"
@@ -76,6 +80,8 @@
 								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="sample3_rotation" type="xsd:string"
 								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="sample3_finerotation" type="xsd:string"
+								maxOccurs="1" minOccurs="1" />
 							<xsd:element name="sample3_roll" type="xsd:string"
 								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="sample3_pitch" type="xsd:string"
@@ -88,6 +94,8 @@
 								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="sample4_rotation" type="xsd:string"
 								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="sample4_finerotation" type="xsd:string"
+								maxOccurs="1" minOccurs="1" />
 							<xsd:element name="sample4_roll" type="xsd:string"
 								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="sample4_pitch" type="xsd:string"
