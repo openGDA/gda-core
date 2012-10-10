@@ -516,7 +516,7 @@ public abstract class ScanBase implements Scan {
 		}
 		logger.info(String.format(
 				"Creating MultithreadedScanDataPointPipeline which can hold %d points before blocking"
-						+ ", and that will on average process %.1f points simultaneousely using %d threads.",
+						+ ", and that will on average process %.1f points simultaneously using %d threads.",
 				getScanDataPointQueueLength(), estimatedPointsToComputeSimultaneousely,
 				getPositionCallableThreadPoolSize()));
 

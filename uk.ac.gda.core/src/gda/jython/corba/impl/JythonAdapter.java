@@ -26,6 +26,7 @@ import gda.factory.corba.util.EventSubscriber;
 import gda.factory.corba.util.NameFilter;
 import gda.factory.corba.util.NetService;
 import gda.jython.Jython;
+import gda.jython.UserMessage;
 import gda.jython.batoncontrol.ClientDetails;
 import gda.jython.corba.CorbaFacadeDetails;
 import gda.jython.corba.CorbaFacadeDetailsHelper;
@@ -823,6 +824,27 @@ public class JythonAdapter implements Jython, EventSubscriber {
 		}
 	}
 
+	@Override
+	public List<UserMessage> getMessageHistory(String myJSFIdentifier) {
+		for (int i = 0; i < NetService.RETRY; i++) {
+			try {
+				Any any = jythonServer.getMessageHistory(myJSFIdentifier);
+				@SuppressWarnings("unchecked")
+				List<UserMessage> messages = (List<UserMessage>) any.extract_Value();
+				return messages;
+			} catch (COMM_FAILURE cf) {
+				jythonServer = CorbaJythonHelper.narrow(netService.reconnect(name));
+			} catch (org.omg.CORBA.TRANSIENT ct) {
+				// This exception is thrown when the ORB failed to connect to
+				// the object primarily when the server has failed.
+				break;
+			} catch (CorbaDeviceException ex) {
+				// throw new DeviceException(ex.message);
+			}
+		}
+		return null;
+	}
+	
 	@Override
 	public Vector<String> getAliasedCommands(String JSFIdentifier) {
 		for (int i = 0; i < NetService.RETRY; i++) {

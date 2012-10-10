@@ -61,25 +61,32 @@ public abstract class TranslatorBase implements Translator {
 			// use regex to identify parts of the string between
 			// tabs and line breaks. These parts will be translated
 			// individually and then replaced into the command string.
-			Matcher m = Pattern.compile("([^\n]+)").matcher(full_command.subSequence(0, full_command.length()));
+			Matcher m = Pattern.compile("([^\n;]+)").matcher(full_command.subSequence(0, full_command.length()));
 			// for ticket #1675 a \t was removed from the above RE
 
 			int endOfPreviousGroup = 0;
 			String newCommand = new String();
-			while (m.find()) {
+			boolean ignoreRestOfLine=false;
+			while (m.find() && !ignoreRestOfLine) {
 				String thisGroup = m.group(1);
 				int startOfGroup = m.start();
 				int endOfGroup = m.end();
 
 				// translate thisGroup
+				ignoreRestOfLine = ignoreRestOfLine(thisGroup);
 				thisGroup = translateGroup(thisGroup);
-				// rebuild
-				if (startOfGroup == endOfPreviousGroup) {
+				if( ignoreRestOfLine){
 					newCommand += thisGroup;
+					endOfPreviousGroup = full_command.length();
 				} else {
-					newCommand += full_command.substring(endOfPreviousGroup, startOfGroup) + thisGroup;
+					// rebuild
+					if (startOfGroup == endOfPreviousGroup) {
+						newCommand += thisGroup;
+					} else {
+						newCommand += full_command.substring(endOfPreviousGroup, startOfGroup) + thisGroup;
+					}
+					endOfPreviousGroup = endOfGroup;
 				}
-				endOfPreviousGroup = endOfGroup;
 			}
 			if (endOfPreviousGroup != full_command.length()) {
 				newCommand += full_command.substring(endOfPreviousGroup);
@@ -104,6 +111,8 @@ public abstract class TranslatorBase implements Translator {
 			return original_command;
 		}
 	}
+
+
 	@Override
 	public Vector<String> getAliasedCommands(){
 		return aliases;

@@ -950,6 +950,11 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	public void sendMessage(String message) {
 		commandServer.sendMessage(name, message);
 	}
+	
+	@Override
+	public List<UserMessage> getMessageHistory() {
+		return commandServer.getMessageHistory(name);
+	}
 
 	@Override
 	public void addIScanDataPointObserver(IScanDataPointObserver anIObserver) {

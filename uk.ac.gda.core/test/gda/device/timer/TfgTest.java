@@ -104,9 +104,10 @@ public class TfgTest {
 
 	/**
 	 * Test method for {@link gda.device.timer.Tfg#getStatus()}.
+	 * @throws DeviceException 
 	 */
 	@Test
-	public void testGetStatus() {
+	public void testGetStatus() throws DeviceException {
 		assertEquals(Timer.IDLE, tfg.getStatus());
 		tfg.setFail();
 		assertEquals(Timer.IDLE, tfg.getStatus());
@@ -157,9 +158,10 @@ public class TfgTest {
 
 	/**
 	 * Test method for {@link gda.device.timer.Tfg#getCurrentFrame()}.
+	 * @throws DeviceException 
 	 */
 	@Test
-	public void testGetCurrentFrame() {
+	public void testGetCurrentFrame() throws DeviceException {
 		assertEquals(0, tfg.getCurrentFrame());
 		tfg.setFail();
 		assertEquals(-1, tfg.getCurrentFrame());
@@ -167,9 +169,10 @@ public class TfgTest {
 
 	/**
 	 * Test method for {@link gda.device.timer.Tfg#getCurrentCycle()}.
+	 * @throws DeviceException 
 	 */
 	@Test
-	public void testGetCurrentCycle() {
+	public void testGetCurrentCycle() throws DeviceException {
 		assertEquals(0, tfg.getCurrentCycle());
 		tfg.setFail();
 		assertEquals(-1, tfg.getCurrentCycle());

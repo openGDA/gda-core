@@ -519,4 +519,9 @@ public class GeneralTranslator extends TranslatorBase implements Translator {
 	public void addAliasedVarargCommand(String commandName) {
 		vararg_aliases.add(commandName);
 	}
+
+	@Override
+	public boolean ignoreRestOfLine(String thisGroup) {
+		return thisGroup.trim().startsWith("#");
+	}
 }

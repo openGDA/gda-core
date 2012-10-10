@@ -48,9 +48,9 @@ public abstract class ExperimentObject implements IExperimentObject {
 
 	private static final Logger logger = LoggerFactory.getLogger(ExperimentObject.class);
 	
-	public static String createCommandSummary(String folderName,String multiScanName, String scanName, int numberRepetitions){
+	public static String createCommandSummary(String folderName,String multiScanName, String scanName, int numberRepetitions, boolean hasBeenStarted){
 		String summary = folderName + "-" + multiScanName + "-" + scanName;
-		if (numberRepetitions > 1) {
+		if (numberRepetitions > 1 && !hasBeenStarted) {
 			summary += " [" + numberRepetitions + " repeats]";
 		}
 		return summary;
@@ -313,9 +313,9 @@ public abstract class ExperimentObject implements IExperimentObject {
 	}
 	
 	@Override
-	public String getCommandSummaryString() {
+	public String getCommandSummaryString(boolean hasBeenStarted) {
 		return createCommandSummary(folderName, getMultiScanName(),
-				getRunName(), getNumberRepetitions());
+				getRunName(), getNumberRepetitions(),hasBeenStarted);
 	}
 
 }

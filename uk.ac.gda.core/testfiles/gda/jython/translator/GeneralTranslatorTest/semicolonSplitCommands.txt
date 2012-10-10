@@ -1,0 +1,8 @@
+pos x 1; x
+
+pos mbs1ysize 10; pos mbs1ycentre 0
+
+pos x;pos y; pos z # this is a comment
+
+a=1;b=2 #comment
+

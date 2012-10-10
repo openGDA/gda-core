@@ -20,7 +20,8 @@ Require-Bundle: uk.ac.diamond.org.jacorb;bundle-version="2.2.0",
  uk.ac.diamond.jama;bundle-version="1.0.1",
  com.springsource.ch.qos.logback.classic;bundle-version="0.9.15",
  com.springsource.ch.qos.logback.core;bundle-version="0.9.15",
- uk.ac.diamond.org.springframework;bundle-version="1.0.0"
+ uk.ac.diamond.org.springframework;bundle-version="1.0.0",
+ uk.ac.diamond.guava;bundle-version="11.0.1"
 Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.diamond.scisoft.analysis,
  uk.ac.diamond.org.jacorb, uk.ac.gda.api, uk.ac.diamond.org.springframework
 Eclipse-BuddyPolicy: registered
@@ -120,8 +121,6 @@ Export-Package: gda,
  gda.device.temperature.corba.impl,
  gda.device.timer,
  gda.device.timer.corba.impl,
- gda.device.xspress,
- gda.device.xspress.corba.impl,
  gda.events.jms,
  gda.factory,
  gda.factory.corba.util,

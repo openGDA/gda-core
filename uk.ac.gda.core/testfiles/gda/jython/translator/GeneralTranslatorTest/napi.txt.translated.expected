@@ -158,7 +158,7 @@ MAXRANK=32
 MAXNAMELEN=64
 MAXPATHLEN=1024 
 
-# bogus groups; these groups are ignored in HDFView from NCSA.
+# bogus groups
 H4SKIP = ['CDF0.0','_HDF_CHK_TBL_','Attr0.0',
           'RIG0.0','RI0.0', 'RIATTR0.0N','RIATTR0.0C']
 

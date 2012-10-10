@@ -23,6 +23,7 @@ import gda.device.corba.CorbaDeviceException;
 import gda.factory.corba.util.EventDispatcher;
 import gda.factory.corba.util.EventService;
 import gda.jython.Jython;
+import gda.jython.UserMessage;
 import gda.jython.batoncontrol.ClientDetails;
 import gda.jython.corba.CorbaFacadeDetails;
 import gda.jython.corba.CorbaFacadeDetailsHelper;
@@ -32,6 +33,7 @@ import gda.scan.ScanDataPoint;
 import gda.scan.ScanDataPointServer;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Vector;
 
 import org.omg.CORBA.Any;
@@ -476,6 +478,18 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 	public void sendMessage(String arg0, String arg1) throws CorbaDeviceException {
 		try {
 			jythonServer.sendMessage(arg0, arg1);
+		} catch (Exception de) {
+			throw new CorbaDeviceException(de.getMessage());
+		}
+	}
+	
+	@Override
+	public Any getMessageHistory(String myJSFIdentifier) throws CorbaDeviceException {
+		try {
+			List<UserMessage> messages = jythonServer.getMessageHistory(myJSFIdentifier);
+			org.omg.CORBA.Any any = org.omg.CORBA.ORB.init().create_any();
+			any.insert_Value((Serializable) messages);
+			return any;
 		} catch (Exception de) {
 			throw new CorbaDeviceException(de.getMessage());
 		}
