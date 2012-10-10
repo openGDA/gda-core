@@ -29,6 +29,7 @@ import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.device.scannable.PositionConvertorFunctions;
 import gda.device.scannable.VariableCollectionTimeDetector;
 import gda.factory.FactoryException;
+import gda.jython.InterfaceProvider;
 import gda.jython.commands.ScannableCommands;
 import gda.observable.IObserver;
 
@@ -426,16 +427,9 @@ public abstract class AbtsractContinuousScanLine extends ConcurrentScan {
 	}
 	
 	@Override
-	public void doCollection() throws Exception {
-
-		logger.info("Starting TrajectoryScanLine for scan: '" + getName() + "' (" + getCommand() + ")" );
-		
-		getController().stopAndReset(); // should be ready anyway
-
+	protected void prepareDevicesForCollection() throws Exception {
 		try {
-
 			// 1. Prepare the Scannables and Detectors to be continuously operated
-
 			for (ContinuouslyScannableViaController scn : scannablesToMove) {
 				scn.setOperatingContinuously(true);
 			}
@@ -449,6 +443,28 @@ public abstract class AbtsractContinuousScanLine extends ConcurrentScan {
 			logger.info(MessageFormat
 					.format("Requests to collect data on Detectors ({0}) will be collected by the TrajectoryMoveController ({1})",
 							scannablesToString(detectors), getController().getName()));
+
+		} catch (Exception e) {
+			logger.info("problem in prepareDevicesForCollection()");
+			for (ContinuouslyScannableViaController scn : scannablesToMove) {
+				scn.setOperatingContinuously(false);
+			}
+			for (HardwareTriggerableDetector det : detectors) {
+				det.setHardwareTriggering(false);
+			}
+			throw e;
+		}
+		super.prepareDevicesForCollection();
+	}
+	
+	@Override
+	public void doCollection() throws Exception {
+
+		logger.info("Starting TrajectoryScanLine for scan: '" + getName() + "' (" + getCommand() + ")" );
+		
+		getController().stopAndReset(); // should be ready anyway
+
+		try {
 
 			// TODO: Check the controller is not moving
 
@@ -485,7 +501,9 @@ public abstract class AbtsractContinuousScanLine extends ConcurrentScan {
 				det.waitWhileBusy();
 			}
 		} catch (Exception e) {
-			logger.info("problem in doCollection() so calling " + getController().getName() + "stopAndReset");
+			String msg = "problem in doCollection() so calling " + getController().getName() + "stopAndReset";
+			logger.info(msg);
+			InterfaceProvider.getTerminalPrinter().print(msg);
 			getController().stopAndReset();
 			throw e;
 		} finally {
