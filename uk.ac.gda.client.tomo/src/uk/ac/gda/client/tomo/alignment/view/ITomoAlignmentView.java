@@ -21,9 +21,9 @@ package uk.ac.gda.client.tomo.alignment.view;
 import java.util.Map;
 
 import uk.ac.gda.client.tomo.StatInfo;
-import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentViewController.SAMPLE_STAGE_STATE;
-import uk.ac.gda.client.tomo.composites.CameraControlComposite.RESOLUTION;
+import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentController.SAMPLE_STAGE_STATE;
 import uk.ac.gda.client.tomo.composites.ModuleButtonComposite.CAMERA_MODULE;
+import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.RESOLUTION;
 
 /**
  * Interface by which the tomo alignment controller communicates with the tomo alignment view.

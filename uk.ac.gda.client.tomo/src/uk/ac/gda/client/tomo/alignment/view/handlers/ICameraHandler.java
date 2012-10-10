@@ -24,7 +24,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.graphics.Point;
 
 import uk.ac.gda.client.tomo.TiffFileInfo;
-import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentViewController;
+import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentController;
 import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
 
 /**
@@ -190,7 +190,7 @@ public interface ICameraHandler extends ITomoHandler {
 	 * 
 	 * @param tomoAlignmentViewController
 	 */
-	void setViewController(TomoAlignmentViewController tomoAlignmentViewController);
+	void setViewController(TomoAlignmentController tomoAlignmentViewController);
 
 	/**
 	 * @return the pixel size on the detector.

@@ -22,8 +22,11 @@ import static org.eclipse.swt.SWT.DOUBLE_BUFFERED;
 import gda.images.camera.ImageListener;
 import gda.images.camera.MotionJpegOverHttpReceiverSwt;
 
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -75,38 +78,29 @@ import uk.ac.gda.client.tomo.StatInfo;
 import uk.ac.gda.client.tomo.TomoClientActivator;
 import uk.ac.gda.client.tomo.ViewerDisplayMode;
 import uk.ac.gda.client.tomo.alignment.view.controller.SaveableConfiguration;
-import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentViewController;
-import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentViewController.SAMPLE_STAGE_STATE;
+import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentController;
+import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentController.SAMPLE_STAGE_STATE;
 import uk.ac.gda.client.tomo.alignment.view.utils.HistogramAdjuster;
 import uk.ac.gda.client.tomo.alignment.view.utils.ScaleDisplay;
-import uk.ac.gda.client.tomo.composites.CameraControlComposite;
-import uk.ac.gda.client.tomo.composites.CameraControlComposite.RESOLUTION;
-import uk.ac.gda.client.tomo.composites.CameraControlComposite.STREAM_STATE;
 import uk.ac.gda.client.tomo.composites.FixedImageViewerComposite;
-import uk.ac.gda.client.tomo.composites.FixedImageViewerComposite.ProfilePointListener;
-import uk.ac.gda.client.tomo.composites.FixedImageViewerComposite.ZoomRectangleListener;
 import uk.ac.gda.client.tomo.composites.FullImageComposite;
 import uk.ac.gda.client.tomo.composites.FullImageComposite.IRoiPointsListener;
-import uk.ac.gda.client.tomo.composites.ICameraControlListener;
 import uk.ac.gda.client.tomo.composites.ModuleButtonComposite.CAMERA_MODULE;
-import uk.ac.gda.client.tomo.composites.MotionControlComposite;
-import uk.ac.gda.client.tomo.composites.MotionControlComposite.MotionControlCentring;
-import uk.ac.gda.client.tomo.composites.OverlayImageFigure.OverlayImgFigureListener;
 import uk.ac.gda.client.tomo.composites.ScaleBarComposite;
 import uk.ac.gda.client.tomo.composites.StatInfoComposite;
+import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite;
+import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.MotionControlCentring;
+import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.RESOLUTION;
+import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.STREAM_STATE;
+import uk.ac.gda.client.tomo.composites.TomoAlignmentLeftPanelComposite;
 import uk.ac.gda.client.tomo.composites.TomoPlotComposite;
-import uk.ac.gda.client.tomo.composites.TomoPlotComposite.PlottingSystemActionListener;
 import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
 import uk.ac.gda.client.tomo.composites.ZoomedImageComposite;
 import uk.ac.gda.client.tomo.composites.ZoomedImgCanvas;
-import uk.ac.gda.client.tomo.configuration.view.handlers.IScanControllerUpdateListener;
 import uk.ac.gda.client.tomo.preferences.TomoAlignmentPreferencePage;
 import uk.ac.gda.epics.client.EPICSClientActivator;
-import uk.ac.gda.ui.components.AmplifierStepperComposite;
-import uk.ac.gda.ui.components.AmplifierStepperComposite.AmplifierStepperListener;
 import uk.ac.gda.ui.components.AmplifierStepperComposite.STEPPER;
 import uk.ac.gda.ui.components.ColourSliderComposite;
-import uk.ac.gda.ui.components.ColourSliderComposite.IColourSliderListener;
 import uk.ac.gda.ui.components.PointInDouble;
 import uk.ac.gda.ui.event.PartAdapter2;
 
@@ -114,9 +108,10 @@ import uk.ac.gda.ui.event.PartAdapter2;
  * View for Tomography alignment, and scan
  */
 public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
+	private static final Logger logger = LoggerFactory.getLogger(TomoAlignmentView.class);
 
-	private static final String ACTION_RESET_DETECTOR = "Reset Detector";
-	private static final String ACTION_OPEN_PREFERENCES = "Open Preferences";
+	private static final IWorkbenchWindow ACTIVE_WORKBENCH_WINDOW = PlatformUI.getWorkbench()
+			.getActiveWorkbenchWindow();
 
 	public enum RIGHT_PAGE {
 		NONE, PLOT, ZOOM_DEMAND_RAW, NO_ZOOM, ZOOM_STREAM
@@ -130,22 +125,49 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		NONE, PROFILE, HISTOGRAM;
 	}
 
-	private boolean isSaving;
-	public static final String STREAM_STOPPED = "STREAM STOPPED";
-	private ViewerDisplayMode leftWindowDisplayMode = ViewerDisplayMode.STREAM_STOPPED;
+	private TomoAlignmentLeftPanelComposite leftPanelComposite;
+
 	public static final int RIGHT_WINDOW_WIDTH = 300;
+	private static final String ACTION_RESET_DETECTOR = "Reset Detector";
+	private static final String ACTION_OPEN_PREFERENCES = "Open Preferences";
+	public static final String STREAM_STOPPED = "STREAM STOPPED";
+	private static final String EMPTY_STRING_VALUE = "-----";
+	public static final String NO_ZOOM_lbl = "NO ZOOM";
+	private static final int LEFT_WINDOW_WIDTH = 530;
+	private static final String LBL_INTENSITY = "Intensity";
+	private static final String LBL_y = "y";
+	private static final String LBL_x = "x";
+	private static final String LBL_X = "X :";
+	public static final String TIMESTAMP = "Timestamp :";
+	public static final String FILE_NAME = "FileName :";
+	public static final String BLANK_STR = "";
+	private static final String ZOOM_NOT_SELECTED_shortdesc = "ZOOM NOT SELECTED";
+	private static final String SET_EXPOSURE_TIME = "Apply Exposure Time";
+	private static final String PLAY_STREAM = "Play Stream";
+	public static final String SAMPLE_SINGLE = "SINGLE (SAMPLE)";
+	public static final String FLAT_SINGLE = "SINGLE (FLAT)";
+	public static final String SAMPLE_LIVE_STREAM = "LIVE (SAMPLE)";
+	public static final String FLAT_LIVE_STREAM = "LIVE (FLAT)";
+	public static final String STATIC_FLAT = "STATIC FLAT";
+	public static final String STATIC_DARK = "STATIC DARK";
+	private static final String DEFAULT_LEFT_WINDOW_INFO_SIZE = "27mm";
+	private static final String BOLD_TEXT_11 = "bold-text_11";
+	private static final String BOLD_TEXT_16 = "bold-text_16";
+
+	private ViewerDisplayMode leftWindowDisplayMode = ViewerDisplayMode.STREAM_STOPPED;
+	private static final int CONTROLLER_HEIGHT = 220;
+
+	private boolean isSaving;
 	private HistogramAdjuster histogramAdjuster;
-	// private AmplifierStepperComposite amplifierStepper;
-	private MotionControlComposite motionControlComposite;
+	private TomoAlignmentControlComposite tomoControlComposite;
 	/**/
-	Label lblLeftWindowDisplayModeStatus;
+	private Label lblLeftWindowDisplayModeStatus;
 	/**/
-	Label lblRightWindowInfoNumPixels;
+	private Label lblRightWindowInfoNumPixels;
 	/* Right Window Page Book Composites */
 	private Composite page_rightWindow_nonProfile;
 	/**/
-	MotionJpegOverHttpReceiverSwt leftVideoReceiver;
-	/**/
+	private MotionJpegOverHttpReceiverSwt leftVideoReceiver;
 	/**/
 	private ZoomedImageComposite page_nonProfile_streamZoom;
 
@@ -156,10 +178,10 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	/**/
 	private PageBook pageBook_leftWindow;
 	private PageBook pageBook_nonProfile_zoomImg;
-	ScaleBarComposite rightScaleBar;
-	Composite page_nonProfile_noZoom;
-	Label lblFileTimeStamp;
-	Label lblFileName;
+	private ScaleBarComposite rightScaleBar;
+	private Composite page_nonProfile_noZoom;
+	private Label lblFileTimeStamp;
+	private Label lblFileName;
 	private Composite page_rightInfo_profile;
 
 	private Composite page_rightInfo_histogram;
@@ -169,64 +191,16 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	private FullImageComposite leftWindowImageViewer;
 	private PageBook pageBook_rightWindow;
 
-	private static final String EMPTY_STRING_VALUE = "-----";
-	public static final String NO_ZOOM_lbl = "NO ZOOM";
-	private static final int LEFT_WINDOW_WIDTH = 530;
-	private static final int MOTION_COMPOSITE_HEIGHT = 110;
-	private static final int CONTROL_COMPOSITE_HEIGHT = 110;
-
-	private static final int IMAGE_FULL_WIDTH = 4008;
-	private static final String LBL_INTENSITY = "Intensity";
-	private static final String LBL_y = "y";
-	private static final String LBL_x = "x";
-	private static final IWorkbenchWindow ACTIVE_WORKBENCH_WINDOW = PlatformUI.getWorkbench()
-			.getActiveWorkbenchWindow();
-	private static final String LBL_X = "X :";
-	public static final String TIMESTAMP = "Timestamp :";
-	public static final String FILE_NAME = "FileName :";
-	public static final String BLANK_STR = "";
-	private static final String ZOOM_NOT_SELECTED_shortdesc = "ZOOM NOT SELECTED";
-
-	private static final String SET_EXPOSURE_TIME = "Apply Exposure Time";
-
-	//
-	private ICameraControlListener cameraControlListener;
-	private MotionControlListener motionControlListener;
-	/**
-	 * 
-	 */
-	public static final int SCALED_TO_Y = 668;
-	public static final int SCALED_TO_X = 1002;
 	/**/
 
-	private static final String PLAY_STREAM = "Play Stream";
-
-	public static final String SAMPLE_SINGLE = "SINGLE (SAMPLE)";
-
-	public static final String FLAT_SINGLE = "SINGLE (FLAT)";
-
-	public static final String SAMPLE_LIVE_STREAM = "LIVE (SAMPLE)";
-
-	public static final String FLAT_LIVE_STREAM = "LIVE (FLAT)";
-
-	public static final String STATIC_FLAT = "STATIC FLAT";
-
-	public static final String STATIC_DARK = "STATIC DARK";
-
 	/* Labels and default values */
-	private static final String DEFAULT_LEFT_WINDOW_INFO_SIZE = "27mm";
 	private boolean zoomReceiverStarted;
 	/**
 	 * Size of the screen pixel in mm.
 	 */
 	private Double screenPixelSize;
-	/**
-	 * listens to the moves on the overlay image. Overlay image movements are translated to motor movements.
-	 */
-	protected OverlayImageFigureListenerImpl overlayImageFigureListener = new OverlayImageFigureListenerImpl();
 
-	private TomoAlignmentViewController tomoAlignmentViewController;
-	private static final Logger logger = LoggerFactory.getLogger(TomoAlignmentView.class);
+	private TomoAlignmentController tomoAlignmentController;
 	private String viewPartName;
 	private boolean fullImgReceiverStarted;
 
@@ -235,9 +209,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	private MotionJpegOverHttpReceiverSwt rightVideoReceiver;
 	private VideoListener rightVideoListener;
 
-	private CameraControlComposite cameraControls;
-	private static final String BOLD_TEXT_11 = "bold-text_11";
-	private static final String BOLD_TEXT_16 = "bold-text_16";
 	//
 	private FormToolkit toolkit;
 	/* Left Window Info viewer */
@@ -253,17 +224,16 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 	protected TomoPlotComposite tomoPlotComposite;
 	private StatInfoComposite statInfo;
-
 	private Label lblYValue;
 	private Label lblXValue;
 	private Composite page_rightInfo_nonProfile;
 	private Label lblProfileIntensityValue;
-	private final static DecimalFormat lblXDecimalFormat = new DecimalFormat("###");
-	private static final String BOLD_TEXT_10 = "bold_10";
 	private ColourSliderComposite histogramSliderComposite;
 	private Label lblPixelX;
 	private Label lblPixelY;
 	private Label lblPixelIntensityVal;
+
+	private TomoAlignmentViewController tomoViewController;
 
 	private IPartListener tomoPartAdapter = new PartAdapter2() {
 		@Override
@@ -272,11 +242,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		}
 
 		private void stopStreamByCheckingIfOn() {
-			if (isStreamingSampleExposure()) {
-				cameraControls.stopSampleStream();
-			} else if (isStreamingFlatExposure()) {
-				cameraControls.stopFlatStream();
-			}
+			leftPanelComposite.stopStream();
 		}
 
 		@Override
@@ -288,32 +254,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		public void partClosed(org.eclipse.ui.IWorkbenchPart part) {
 			stopStreamByCheckingIfOn();
 		}
-	};
-
-	private IColourSliderListener histogramSliderListener = new IColourSliderListener() {
-
-		@SuppressWarnings("incomplete-switch")
-		@Override
-		public void colourSliderRegion(int upperLimit, int lowerLimit) {
-			logger.debug("Lower Limit:{}", lowerLimit);
-			logger.debug("Upper Limit:{}", upperLimit);
-			switch (leftWindowDisplayMode) {
-			case SAMPLE_SINGLE:
-				ImageData histAppliedImgData = histogramAdjuster.updateHistogramValues(lowerLimit, upperLimit);
-				loadImageInUIThread(leftWindowImageViewer, histAppliedImgData.scaledTo(SCALED_TO_X, SCALED_TO_Y));
-				break;
-			case SAMPLE_STREAM_LIVE:
-				double scale = ((histogramAdjuster.getMaxIntensity() - histogramAdjuster.getMinIntensity()) / (upperLimit - lowerLimit));
-				try {
-					tomoAlignmentViewController.applyScalingContrast(-lowerLimit, scale);
-				} catch (Exception e) {
-					logger.error("TODO put description of error here", e);
-					loadErrorInDisplay("Problem applying contrast", "Problem applying contrast:" + e.getMessage());
-				}
-				break;
-			}
-		}
-
 	};
 
 	public void setRightInfoPage(RIGHT_INFO rightInfo) {
@@ -330,174 +270,22 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		}
 	}
 
-	private PlottingSystemActionListener profileLineListener = new PlottingSystemActionListener() {
-		@Override
-		public void profileLineMovedTo(final double xVal, final long intensity) {
-			if (page_rightInfo_nonProfile != null && !page_rightInfo_nonProfile.isDisposed()) {
-				page_rightInfo_nonProfile.getDisplay().syncExec(new Runnable() {
-
-					@Override
-					public void run() {
-						setRightInfoPage(RIGHT_INFO.PROFILE);
-						String formattedXVal = lblXDecimalFormat.format(xVal);
-						lblXValue.setText(formattedXVal);
-						lblProfileIntensityValue.setText(Long.toString(intensity));
-						leftWindowImageViewer.showProfileHighlighter();
-						int leftWindowBinValue = tomoAlignmentViewController.getLeftWindowBinValue();
-						// FIXME - potential divide by zero problem
-						leftWindowImageViewer.moveProfileHighlighter(xVal / leftWindowBinValue);
-					}
-
-				});
-			}
-		}
-
-		@Override
-		public void histogramChangedRoi(double minValue, double maxValue, double from, double to) {
-			logger.debug("minValue:{}", minValue);
-			logger.debug("maxValue:{}", maxValue);
-			logger.debug("from:{}", from);
-			logger.debug("to:{}", to);
-
-			switch (leftWindowDisplayMode) {
-			case SAMPLE_STREAM_LIVE:
-			case FLAT_STREAM_LIVE:
-				try {
-					tomoAlignmentViewController.setAdjustedProc1ScaleValue(from, to);
-				} catch (Exception e) {
-					loadErrorInDisplay("Problem updating scale on the detector",
-							"Problem updating scale on the detector:" + e.getMessage());
-				}
-				break;
-			case SAMPLE_SINGLE:
-				try {
-					tomoAlignmentViewController.setAdjustedExposureTime(from, to);
-					cameraControls.startSampleSingle();
-					cameraControls.startSampleHistogram();
-				} catch (Exception e) {
-					loadErrorInDisplay("Problem updating scale on the detector",
-							"Problem updating scale on the detector:" + e.getMessage());
-					logger.error("TODO put description of error here", e);
-				}
-				break;
-			case FLAT_SINGLE:
-				try {
-					tomoAlignmentViewController.setAdjustedExposureTime(from, to);
-					cameraControls.startFlatSingle();
-					cameraControls.startFlatHistogram();
-				} catch (Exception e) {
-					loadErrorInDisplay("Problem updating scale on the detector",
-							"Problem updating scale on the detector:" + e.getMessage());
-					logger.error("TODO put description of error here", e);
-				}
-				break;
-			case DARK_SINGLE:
-			case STATIC_FLAT:
-			case STREAM_STOPPED:
-				// Do nothing
-				// Wont be applicable as the histogram only applies to single or stream
-				break;
-			}
-		}
-
-		@Override
-		public void applyExposureTimeButtonClicked() {
-			logger.debug("Apply exposure time button clicked:");
-			try {
-				tomoAlignmentViewController.applyHistogramToAdjustExposureTime();
-			} catch (Exception e) {
-				logger.error("TODO put description of error here", e);
-				loadErrorInDisplay("Cannot apply calculated exposure time", "Cannot apply calculated exposure time:"
-						+ e.getMessage());
-			}
-		}
-	};
-
-	private ZoomRectangleListener zoomRectListener = new ZoomRectangleListener() {
-
-		@Override
-		public void zoomRectMoved(Rectangle bounds, Dimension figureTopLeftRelativeImgBounds, Dimension distanceMoved) {
-			logger.debug("BoundX :" + bounds.x + " BoundY:" + bounds.y);
-			IProgressMonitor monitor = new NullProgressMonitor();
-			if (isStreamingSampleExposure() || isStreamingFlatExposure()) {
-				// change the ROI start only if 'Stream' is switched 'ON'
-				try {
-					tomoAlignmentViewController.handleZoomStartMoved(figureTopLeftRelativeImgBounds);
-				} catch (Exception e) {
-					logger.error("moving zoomed rectangle problem:", e);
-					loadErrorInDisplay("Problem moving zoom rectangle", e.getMessage());
-				}
-			} else {
-				ViewerDisplayMode displayMode = leftWindowDisplayMode;
-				if (displayMode == ViewerDisplayMode.FLAT_SINGLE || displayMode == ViewerDisplayMode.SAMPLE_SINGLE) {
-					int leftWindowBinValue = tomoAlignmentViewController.getLeftWindowBinValue();
-					if (cameraControls.isProfileSelected()) {
-						Rectangle leftWindowImgBounds = leftWindowImageViewer.getImageBounds();
-						Rectangle zoomFigureBounds = leftWindowImageViewer.getZoomFigureBounds().getTranslated(-1, 0);
-						Rectangle lineBounds = leftWindowImageViewer.getProfilerLineBounds().getTranslated(
-								leftWindowImgBounds.x + 1, 0);
-
-						if (zoomFigureBounds.intersects(lineBounds)) {
-							Rectangle zoomFigureBoundsCopy = zoomFigureBounds.getCopy();
-							Rectangle intersect = zoomFigureBoundsCopy.intersect(lineBounds);
-							Rectangle translatedIntersect = intersect.getTranslated(-leftWindowImgBounds.x,
-									-leftWindowImgBounds.y);
-
-							updatePlots(monitor, translatedIntersect.x * leftWindowBinValue,
-									(translatedIntersect.x + translatedIntersect.width) * leftWindowBinValue,
-									lineBounds.y);
-						} else {
-							updatePlots(monitor, 0, 4008, lineBounds.y);
-						}
-					} else {
-						ZOOM_LEVEL selectedZoomLevel = cameraControls.getSelectedZoomLevel();
-						double zoomDemandRawScaleX = selectedZoomLevel.getDemandRawScale().x;
-						logger.debug("Zoom demand Raw scale X:{}", zoomDemandRawScaleX);
-						logger.debug("dx:{}", distanceMoved.width);
-						logger.debug("dy:{}", distanceMoved.height);
-
-						Dimension scaled = distanceMoved.getCopy().getScaled(leftWindowBinValue * zoomDemandRawScaleX);
-						logger.debug("Scaled dx:{}", scaled.width);
-						logger.debug("Scaled dy:{}", scaled.height);
-
-						demandRawZoomCanvas.scroll(scaled);
-					}
-				}
-			}
-		}
-	};
-
-	void updatePlots(IProgressMonitor monitor, int xStart, int xEnd, int y) {
+	protected void updatePlots(IProgressMonitor monitor, int xStart, int xEnd, int y) {
 		tomoPlotComposite.updateProfilePlots(monitor, xStart, xEnd, y);
 		leftWindowImageViewer.hideProfileHighlighter();
 	}
-
-	private ProfilePointListener profilePointListener = new ProfilePointListener() {
-
-		IProgressMonitor monitor = new NullProgressMonitor();
-
-		@Override
-		public void profileLineMoved(int y) {
-			if (cameraControls.isProfileSelected()) {
-				updatePlots(monitor, 0, IMAGE_FULL_WIDTH, y * tomoAlignmentViewController.getLeftWindowBinValue());
-				lblYValue.setText(Integer.toString(y * tomoAlignmentViewController.getLeftWindowBinValue()));
-				lblXValue.setText(BLANK_STR);
-				lblProfileIntensityValue.setText(BLANK_STR);
-			}
-		}
-	};
 
 	@Override
 	public void setFocus() {
 		// Do nothing
 	}
 
-	public TomoAlignmentViewController getTomoAlignmentViewController() {
-		return tomoAlignmentViewController;
+	public TomoAlignmentController getTomoAlignmentController() {
+		return tomoAlignmentController;
 	}
 
-	public void setTomoAlignmentViewController(TomoAlignmentViewController tomoAlignmentViewController) {
-		this.tomoAlignmentViewController = tomoAlignmentViewController;
+	public void setTomoAlignmentController(TomoAlignmentController tomoAlignmentViewController) {
+		this.tomoAlignmentController = tomoAlignmentViewController;
 	}
 
 	public void setViewPartName(String viewPartName) {
@@ -520,13 +308,13 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	}
 
 	void switchOffCentring(final MotionControlCentring centring) {
-		leftWindowImageViewer.removeOverlayImageFigureListener(overlayImageFigureListener);
+		leftWindowImageViewer.removeOverlayImageFigureListener(tomoViewController);
 		if (!leftWindowImageViewer.isDisposed()) {
 			leftWindowImageViewer.getDisplay().syncExec(new Runnable() {
 				@Override
 				public void run() {
 					try {
-						motionControlComposite.switchOff(centring);
+						tomoControlComposite.switchOff(centring);
 						// setLeftWindowInfo(String.format("%1$s COMPLETE", centring.toString()));
 					} catch (Exception e) {
 						logger.error(centring.toString() + " failed ", e);
@@ -536,143 +324,25 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		}
 	}
 
-	protected class OverlayImageFigureListenerImpl implements OverlayImgFigureListener {
-
-		/**
-		 * Need to persist this here for the "Center Axis of Rotation operation" - This is recorded when the axis of
-		 * rotation is calculated using the half rotation tool
-		 */
-		private int calcOffset = -1;
-
-		public int getCalcOffset() {
-			return calcOffset;
-		}
-
-		@Override
-		public void performOverlayImgMoved(final Point initialPoint, final Point finalPoint, final Dimension difference) {
-			logger.debug("image figure overlay difference" + difference);
-			leftWindowImageViewer.setFeedbackCursor(SWT.CURSOR_NO);
-
-			try {
-				final MotionControlCentring selectedCentring = motionControlComposite.getSelectedCentring();
-				leftWindowImageViewer.removeOverlayImage();
-				// issue request to move the motor to the difference position
-				final CAMERA_MODULE cameraModule = motionControlComposite.getSelectedCameraModule();
-				cameraControls.startSampleStreaming();
-
-				ACTIVE_WORKBENCH_WINDOW.run(true, true, new IRunnableWithProgress() {
-
-					@Override
-					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-
-						switch (selectedCentring) {
-						case VERTICAL:
-							try {
-								tomoAlignmentViewController.moveVertical(monitor, cameraModule, difference);
-							} catch (InterruptedException e) {
-								logger.error("Action stopped by user");
-							} catch (Exception ex) {
-								logger.error("Problem with vertical centring", ex);
-								throw new InvocationTargetException(ex);
-							} finally {
-								switchOffCentring(selectedCentring);
-								monitor.done();
-							}
-							break;
-						case FIND_AXIS_ROTATION:
-							try {
-								leftWindowImageViewer.getDisplay().asyncExec(new Runnable() {
-
-									@Override
-									public void run() {
-										calcOffset = ((initialPoint.x - finalPoint.x) / 2);
-										int imageStart = (leftWindowImageViewer.getImageBounds().x);
-										int imageCenter = (leftWindowImageViewer.getImageBounds().width / 2);
-										int calcTomoAxis = imageCenter - calcOffset;
-										int newCrosshair = (leftWindowImageViewer.getImageBounds().x + calcTomoAxis);
-
-										logger.debug("Image start x {}", imageStart);
-										logger.debug("A = finalPoint.x = {}", finalPoint.x);
-										logger.debug("C = initialPoint.x = {}", initialPoint.x);
-										logger.debug("M = Image center =  {}", imageCenter);
-										logger.debug("T = {}", calcTomoAxis);
-										logger.debug("Setting crosshair to {}", newCrosshair);
-
-										leftWindowImageViewer.moveCrossHairTo(newCrosshair);
-										motionControlComposite.setTomoAxisFound(true);
-									}
-								});
-								//
-							} catch (Exception e) {
-								logger.error("Problem with Half Rotation tool", e);
-								throw new InvocationTargetException(e, "Problem with Half Rotation tool:"
-										+ e.getMessage());
-							} finally {
-								enableCameraControls();
-								switchOffCentring(selectedCentring);
-							}
-							break;
-						case MOVE_AXIS_OF_ROTATION:
-							// Do nothing
-							break;
-						case HORIZONTAL:
-							try {
-								tomoAlignmentViewController.moveHorizontal(monitor, cameraModule, difference);
-							} catch (InterruptedException e) {
-								logger.error("Action stopped by user");
-							} catch (Exception e) {
-								logger.error("Problem with Center Current Position", e);
-								throw new InvocationTargetException(e, "Problem with Center Current Position:"
-										+ e.getMessage());
-							} finally {
-								switchOffCentring(selectedCentring);
-								monitor.done();
-							}
-							break;
-
-						case TILT:
-							// Tilt does not have overlay layer added on top
-							break;
-						}
-					}
-				});
-			} catch (Exception e) {
-				logger.error("Problem streaming when overlay is removed.", e);
-				loadErrorInDisplay("Error while performing motor movement", e.getMessage());
-			}
-		}
-
-		@Override
-		public void cancelMove() {
-			final MotionControlCentring selectedCentring = motionControlComposite.getSelectedCentring();
-			switchOffCentring(selectedCentring);
-		}
-
-		@Override
-		public void mouseClicked() {
-			TomoAlignmentView.this.getViewSite().getActionBars().getStatusLineManager().setMessage(null);
-		}
-	}
-
-	protected void enableCameraControls() {
-		if (cameraControls != null && !cameraControls.isDisposed()) {
-			cameraControls.getDisplay().asyncExec(new Runnable() {
+	protected void enableLeftPanelControls() {
+		if (leftPanelComposite != null && !leftPanelComposite.isDisposed()) {
+			leftPanelComposite.getDisplay().asyncExec(new Runnable() {
 
 				@Override
 				public void run() {
-					cameraControls.enableAll();
+					leftPanelComposite.enableAll();
 				}
 			});
 		}
 	}
 
 	protected void disableCameraControls() {
-		if (cameraControls != null && !cameraControls.isDisposed()) {
-			cameraControls.getDisplay().asyncExec(new Runnable() {
+		if (leftPanelComposite != null && !leftPanelComposite.isDisposed()) {
+			leftPanelComposite.getDisplay().asyncExec(new Runnable() {
 
 				@Override
 				public void run() {
-					cameraControls.disableAll();
+					leftPanelComposite.disableAll();
 				}
 			});
 		}
@@ -693,7 +363,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 						imgViewer.loadMainImage(image);
 
 						//
-						if (ZOOM_LEVEL.NO_ZOOM.equals(cameraControls.getSelectedZoomLevel())) {
+						if (ZOOM_LEVEL.NO_ZOOM.equals(leftPanelComposite.getSelectedZoomLevel())) {
 							page_nonProfile_streamZoom.clearZoomWindow();
 						}
 					} catch (Exception ex) {
@@ -714,7 +384,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			String fontName = Display.getCurrent().getSystemFont().getFontData()[0].getName();
 			fontRegistry.put(BOLD_TEXT_11, new FontData[] { new FontData(fontName, 11, SWT.BOLD) });
 			fontRegistry.put(BOLD_TEXT_16, new FontData[] { new FontData(fontName, 16, SWT.BOLD) });
-			fontRegistry.put(BOLD_TEXT_10, new FontData[] { new FontData(fontName, 10, SWT.BOLD) });
 		}
 	}
 
@@ -738,61 +407,33 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			GridData gd = new GridData(GridData.FILL_BOTH);
 			cmpMainWindow.setLayoutData(gd);
 			//
-			Composite cmpControlBox = createControlBoxComposite(cmpRoot);
+			tomoControlComposite = new TomoAlignmentControlComposite(cmpRoot, toolkit, SWT.None);
 			gd = new GridData(GridData.FILL_HORIZONTAL);
-			gd.heightHint = CONTROL_COMPOSITE_HEIGHT;
-			cmpControlBox.setLayoutData(gd);
+			gd.heightHint = CONTROLLER_HEIGHT;
+			tomoControlComposite.setLayoutData(gd);
 			//
-			Composite cmpMotionBars = createMotionControlComposite(cmpRoot);
-			gd = new GridData(GridData.FILL_HORIZONTAL);
-			gd.heightHint = MOTION_COMPOSITE_HEIGHT;
-			cmpMotionBars.setLayoutData(gd);
-			//
-			tomoAlignmentViewController.registerTomoAlignmentView(this);
+			tomoAlignmentController.registerTomoAlignmentView(this);
 			/* Calls the update fields in a separate thread - so that the UI is not blocked. */
-			Future<Boolean> isSuccessful = tomoAlignmentViewController.init();
+			Future<Boolean> isSuccessful = tomoAlignmentController.init();
 			new Thread(new RunUpdateAllFields(isSuccessful)).start();
-			// Create toolbar actions
-			createActions();
 			/**/
-			cameraControlListener = new CameraCompositeController(this, cameraControls, tomoAlignmentViewController,
-					leftWindowImageViewer);
-			cameraControls.addCamerControlListener(cameraControlListener);
-
-			motionControlListener = new MotionControlListener(this, tomoAlignmentViewController,
-					motionControlComposite, cameraControls, leftWindowImageViewer);
-			motionControlComposite.addMotionControlListener(motionControlListener);
 
 			getSite().getPage().addPartListener(tomoPartAdapter);
-			tomoAlignmentViewController.addScanControllerUpdateListener(scanControllerUpdateListener);
-			tomoAlignmentViewController.isScanRunning();
+			//
+
+			tomoViewController = new TomoAlignmentViewController(this);
+
+			tomoControlComposite.addMotionControlListener(tomoViewController);
+
+			tomoAlignmentController.addScanControllerUpdateListener(tomoViewController);
+			tomoAlignmentController.isScanRunning();
+
+			createActions();
+
 		} catch (Exception ex) {
 			throw new RuntimeException("Error opening view", ex);
 		}
 	}
-
-	private IScanControllerUpdateListener scanControllerUpdateListener = new IScanControllerUpdateListener() {
-
-		@Override
-		public void updateScanProgress(double progress) {
-
-		}
-
-		@Override
-		public void updateMessage(String message) {
-
-		}
-
-		@Override
-		public void updateExposureTime(double exposureTime) {
-			setPreferredSampleExposureTimeToWidget(exposureTime);
-		}
-
-		@Override
-		public void updateError(Exception exception) {
-
-		}
-	};
 
 	private void createActions() {
 		Action openPrefAction = new Action(ACTION_OPEN_PREFERENCES) {
@@ -822,25 +463,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		ActionContributionItem resetDetectorActionContributionItem = new ActionContributionItem(resetDetectorAction);
 		resetDetectorActionContributionItem.setMode(ActionContributionItem.MODE_FORCE_TEXT);
 		getViewSite().getActionBars().getToolBarManager().add(resetDetectorActionContributionItem);
-
-	}
-
-	/**
-	 * @param root
-	 * @return {@link Composite} motion controls
-	 */
-	private Composite createMotionControlComposite(Composite root) {
-		motionControlComposite = new MotionControlComposite(root, toolkit, SWT.None);
-		return motionControlComposite;
-	}
-
-	/**
-	 * @param root
-	 * @return {@link Composite} that creates Control box
-	 */
-	private Composite createControlBoxComposite(Composite root) {
-		cameraControls = new CameraControlComposite(root, toolkit, SWT.None);
-		return cameraControls;
 	}
 
 	/**
@@ -868,7 +490,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		Composite leftPanel = createLeftPanel(mainComposite);
 		GridData layoutData = new GridData(GridData.FILL_VERTICAL);
 		layoutData.widthHint = 100;
-		;
 		leftPanel.setLayoutData(layoutData);
 
 		// Left window
@@ -887,119 +508,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	}
 
 	private Composite createLeftPanel(Composite mainComposite) {
-		Composite leftPanelBorderComposite = toolkit.createComposite(mainComposite);
-		GridLayout gl = new GridLayout();
-		setDefaultLayoutSettings(gl);
-		gl.marginWidth = 2;
-		gl.marginHeight = 2;
-		leftPanelBorderComposite.setBackground(ColorConstants.black);
-		leftPanelBorderComposite.setLayout(gl);
-
-		Composite leftPanelComposite = toolkit.createComposite(leftPanelBorderComposite);
-		gl = new GridLayout();
-		setDefaultLayoutSettings(gl);
-		gl.verticalSpacing = 8;
-		gl.marginHeight = 2;
-		leftPanelComposite.setLayout(gl);
-		leftPanelComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
-
-		Button btnStream = toolkit.createButton(leftPanelComposite, "Stream", SWT.PUSH);
-		btnStream.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		Button btnSingle = toolkit.createButton(leftPanelComposite, "Single", SWT.PUSH);
-		btnSingle.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		Button btnFastPreview = toolkit.createButton(leftPanelComposite, "Fast Preview", SWT.PUSH);
-		btnFastPreview.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		Composite zoomBorderCmp = toolkit.createComposite(leftPanelComposite);
-		zoomBorderCmp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		gl = new GridLayout();
-		setDefaultLayoutSettings(gl);
-		gl.marginHeight = 2;
-		zoomBorderCmp.setLayout(gl);
-		zoomBorderCmp.setBackground(ColorConstants.black);
-
-		Composite zoomCmp = toolkit.createComposite(zoomBorderCmp);
-		zoomCmp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		gl = new GridLayout(2, true);
-		setDefaultLayoutSettings(gl);
-		gl.horizontalSpacing = 2;
-		gl.marginHeight = 3;
-		zoomCmp.setLayout(gl);
-
-		Label lblZoom = toolkit.createLabel(zoomCmp, "Zoom", SWT.CENTER);
-		lblZoom.setFont(fontRegistry.get(BOLD_TEXT_10));
-		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
-		layoutData.horizontalSpan = 2;
-		lblZoom.setLayoutData(layoutData);
-
-		Button btnZoom4 = toolkit.createButton(zoomCmp, "4", SWT.PUSH);
-		btnZoom4.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		Button btnZoom2 = toolkit.createButton(zoomCmp, "2", SWT.PUSH);
-		btnZoom2.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		Button btnZoom1 = toolkit.createButton(zoomCmp, "1", SWT.PUSH);
-		btnZoom1.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		Button btnZoomHalf = toolkit.createButton(zoomCmp, "0.5", SWT.PUSH);
-		btnZoomHalf.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		Button btnHistogram = toolkit.createButton(leftPanelComposite, "Histogram", SWT.PUSH);
-		btnHistogram.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		Button btnProfile = toolkit.createButton(leftPanelComposite, "Profile", SWT.PUSH);
-		btnProfile.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		Button btnSaturation = toolkit.createButton(leftPanelComposite, "Saturation", SWT.PUSH);
-		btnSaturation.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		Button btnCrossHair = toolkit.createButton(leftPanelComposite, "Crosshair", SWT.PUSH);
-		btnCrossHair.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		Composite flatDarkCmp = toolkit.createComposite(leftPanelComposite);
-		flatDarkCmp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		gl = new GridLayout();
-		setDefaultLayoutSettings(gl);
-		gl.verticalSpacing = 8;
-		flatDarkCmp.setLayout(gl);
-
-		Composite cmpHorizontalSeparator = toolkit.createComposite(flatDarkCmp);
-		cmpHorizontalSeparator.setLayout(new GridLayout());
-		GridData layoutData2 = new GridData(GridData.FILL_HORIZONTAL);
-		layoutData2.heightHint = 2;
-		cmpHorizontalSeparator.setLayoutData(layoutData2);
-		cmpHorizontalSeparator.setBackground(ColorConstants.black);
-
-		Label lblFlatAndDark = toolkit.createLabel(flatDarkCmp, "Flat && Dark", SWT.CENTER);
-		lblFlatAndDark.setFont(fontRegistry.get(BOLD_TEXT_10));
-		lblFlatAndDark.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		
-		
-
-		Button btnSampleIn = toolkit.createButton(flatDarkCmp, "Sample In", SWT.PUSH | SWT.WRAP);
-		btnSampleIn.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		Button btnSampleOut = toolkit.createButton(flatDarkCmp, "Sample Out", SWT.PUSH | SWT.WRAP);
-		btnSampleOut.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		Button btnFlatAndDark = toolkit.createButton(flatDarkCmp, "Take Flat && Dark", SWT.PUSH | SWT.WRAP);
-		btnFlatAndDark.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		Button btnCorrectFlatAndDark = toolkit.createButton(flatDarkCmp, "Correct Flat && Dark", SWT.PUSH | SWT.WRAP);
-		btnCorrectFlatAndDark.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		Button btnShowFlat = toolkit.createButton(flatDarkCmp, "Show Flat", SWT.PUSH | SWT.WRAP);
-		btnShowFlat.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		Button btnShowDark = toolkit.createButton(flatDarkCmp, "Show Dark", SWT.PUSH | SWT.WRAP);
-		btnShowDark.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		Label lblFlatDarkExpTime = toolkit.createLabel(flatDarkCmp, "Exposure time: 0.05 s", SWT.PUSH | SWT.WRAP
-				| SWT.CENTER);
-		lblFlatDarkExpTime.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
+		leftPanelComposite = new TomoAlignmentLeftPanelComposite(mainComposite, SWT.None);
 		return leftPanelComposite;
 	}
 
@@ -1058,7 +567,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		//
 		Composite nonProfileInfoViewerComposite = createRightWindowNonProfileInfoViewComposite(rightWindowComposite);
 		GridData ld = new GridData(GridData.FILL_HORIZONTAL);
-		// ld.horizontalSpan = 2;
 		nonProfileInfoViewerComposite.setLayoutData(ld);
 
 		/* Profile composite */
@@ -1071,7 +579,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 		tomoPlotComposite = new TomoPlotComposite(page_rightWindow_plot, SWT.None);
 		tomoPlotComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
-		tomoPlotComposite.addOverlayLineListener(profileLineListener);
+		tomoPlotComposite.addOverlayLineListener(tomoViewController);
 		pageBook_rightWindow.showPage(page_rightWindow_nonProfile);
 		return rightWindowComposite;
 	}
@@ -1109,7 +617,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		histogramSliderComposite.setMaximum(70000);
 		histogramSliderComposite.setMarkerInterval(10000);
 		histogramSliderComposite.setMaximumLimit(histogramAdjuster.getMaxIntensity());
-		histogramSliderComposite.addColourSliderListener(histogramSliderListener);
+		histogramSliderComposite.addColourSliderListener(tomoViewController);
 
 		Composite infoComposite = createLeftWindowInfoViewComposite(page_leftWindow_imgViewer);
 		layoutData = new GridData(GridData.FILL_HORIZONTAL);
@@ -1149,7 +657,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 						loadErrorInDisplay("Module needs to be selected", "Please select a module before streaming");
 						return;
 					}
-					cameraControls.startSampleStreaming();
+					leftPanelComposite.startStreaming();
 				} catch (Exception e1) {
 					logger.error("error selecting play button", e1);
 				}
@@ -1171,7 +679,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 								"Please select a module before a raw image can be captured.");
 						return;
 					}
-					cameraControls.startSampleSingle();
+					leftPanelComposite.startSingle();
 					pageBook_leftWindow.showPage(page_leftWindow_imgViewer);
 				} catch (Exception e1) {
 					logger.error("Demand Raw problems", e1);
@@ -1190,8 +698,8 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		//
 		leftWindowImageViewer = new FullImageComposite(imageViewAndInfoBarComposite, SWT.DOUBLE_BUFFERED, true);
 		leftWindowImageViewer.setLayoutData(new GridData(GridData.FILL_BOTH));
-		leftWindowImageViewer.addZoomRectListener(zoomRectListener);
-		leftWindowImageViewer.addProfileListener(profilePointListener);
+		leftWindowImageViewer.addZoomRectListener(tomoViewController);
+		leftWindowImageViewer.addProfileListener(tomoViewController);
 		leftWindowImageViewer.getCanvas().addMouseTrackListener(mouseTrackAdapter);
 		leftWindowImageViewer.getCanvas().setBackground(
 				new Color(leftWindowImageViewer.getDisplay(), new RGB(255, 255, 240)));
@@ -1213,12 +721,13 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 			Integer roi1BinX = 1;
 			try {
-				roi1BinX = tomoAlignmentViewController.getRoi1BinX();
+				roi1BinX = tomoAlignmentController.getRoi1BinX();
 			} catch (Exception e1) {
 				logger.error("Problem getting Roi1 BinX", e1);
 			}
-			if (locWrtImageStart.width >= 0 && locWrtImageStart.height >= 0 && locWrtImageStart.width <= SCALED_TO_X
-					&& locWrtImageStart.height <= SCALED_TO_Y) {
+			if (locWrtImageStart.width >= 0 && locWrtImageStart.height >= 0
+					&& locWrtImageStart.width <= tomoAlignmentController.getScaledX()
+					&& locWrtImageStart.height <= tomoAlignmentController.getScaledY()) {
 				lblPixelX.setText(Integer.toString(locWrtImageStart.width * roi1BinX));
 				lblPixelY.setText(Integer.toString(locWrtImageStart.height * roi1BinX));
 				// Since the display is generally a 24 bit display and the image intensity values are understood in the
@@ -1439,7 +948,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				try {
-					tomoAlignmentViewController.applyHistogramToAdjustExposureTime();
+					tomoAlignmentController.applyHistogramToAdjustExposureTime();
 				} catch (Exception e1) {
 					logger.error("TODO put description of error here", e1);
 					loadErrorInDisplay("Problem applying histogram value to exposure time",
@@ -1470,15 +979,10 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	public void updateStreamWidget(int acquisitionState) {
 		if (fullImgReceiverStarted) {
 			if (acquisitionState == 0) {
-				cameraControls.deselectSampleAndFlatStream();
+				leftPanelComposite.deselectStream();
 				// stopFullVideoReceiver();
 			} else if (acquisitionState == 1) {
-				STREAM_STATE streamState = cameraControls.getStreamState();
-				if (STREAM_STATE.SAMPLE_STREAM.equals(streamState)) {
-					cameraControls.selectStreamButton();
-				} else if (STREAM_STATE.FLAT_STREAM.equals(streamState)) {
-					cameraControls.enableFlatStreamButton();
-				}
+				leftPanelComposite.selectStreamButton();
 			}
 		}
 	}
@@ -1498,9 +1002,9 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			try {
 				if (isSuccess.get()) {
 					try {
-						if (tomoAlignmentViewController.isStreaming()) {
+						if (tomoAlignmentController.isStreaming()) {
 							logger.debug("run->Stopping stream while updating all fields");
-							cameraControls.stopSampleStream();
+							leftPanelComposite.stopStream();
 						}
 					} catch (Exception e) {
 						logger.error("Problem identifying whether the streaming is switched on", e);
@@ -1521,57 +1025,17 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		statInfo.updateExposureTime(acqExposure);
 	}
 
-	private double getSteppedExposureTime(double acquisitionTime) {
-		// TODO - Ravi Fix
-		// int stepperVal = amplifierStepper.getSelectedStepper().getValue();
-		// final double steppedAcqTime = acquisitionTime / stepperVal;
-		// return steppedAcqTime;
-		return Double.NaN;
+	protected boolean isModuleSelected() {
+		return tomoControlComposite.getSelectedCameraModule() != CAMERA_MODULE.NO_MODULE;
 	}
 
-	double getSteppedSampleExposureTime() {
-		double acqTime = cameraControls.getSampleExposureTime();
-		return getSteppedExposureTime(acqTime);
-	}
-
-	double getSteppedFlatExposureTime() {
-		double acqTime = cameraControls.getFlatExposureTime();
-		return getSteppedExposureTime(acqTime);
-	}
-
-	boolean isModuleSelected() {
-		return motionControlComposite.getSelectedCameraModule() != CAMERA_MODULE.NO_MODULE;
-	}
-
+	/**
+	 * @deprecated
+	 */
 	@Override
 	public void resetAmplifier() throws Exception {
 		// amplifierStepper.moveStepperTo(STEPPER.ONE);
 	}
-
-	/**
-	 * Amplifier stepper listener.
-	 */
-	private AmplifierStepperListener amplifierStepperListener = new AmplifierStepperListener() {
-
-		@Override
-		public void performAction(STEPPER stepper) throws Exception {
-			try {
-				STREAM_STATE streamState = cameraControls.getStreamState();
-				double exposureTime = Double.NaN;
-				if (streamState.equals(STREAM_STATE.SAMPLE_STREAM)) {
-					exposureTime = cameraControls.getSampleExposureTime();
-				} else if (streamState.equals(STREAM_STATE.FLAT_STREAM)) {
-					exposureTime = cameraControls.getFlatExposureTime();
-				}
-				if (!streamState.equals(STREAM_STATE.NO_STREAM)) {
-					tomoAlignmentViewController.setAmplifierUpdate(exposureTime, stepper.getValue());
-				}
-			} catch (Exception e) {
-				logger.error("Unable to apply stepper value:", e);
-				throw e;
-			}
-		}
-	};
 
 	/**
 	 * VideoListener class to listen to image updates from the MotionMJPegreceiver.
@@ -1655,7 +1119,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			lblRightWindowInfoNumPixels.getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					if (!ZOOM_LEVEL.NO_ZOOM.equals(cameraControls.getSelectedZoomLevel())) {
+					if (!ZOOM_LEVEL.NO_ZOOM.equals(leftPanelComposite.getSelectedZoomLevel())) {
 						lblRightWindowInfoNumPixels.setText(cameraScaleBarDisplayText);
 
 						try {
@@ -1673,11 +1137,11 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 	@Override
 	public void setRotationDeg(final Double rotationMotorDeg) {
-		if (motionControlComposite != null && !motionControlComposite.isDisposed()) {
-			motionControlComposite.getDisplay().asyncExec(new Runnable() {
+		if (tomoControlComposite != null && !tomoControlComposite.isDisposed()) {
+			tomoControlComposite.getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					motionControlComposite.moveRotationSliderTo(rotationMotorDeg);
+					tomoControlComposite.moveRotationSliderTo(rotationMotorDeg);
 				}
 			});
 		}
@@ -1685,22 +1149,22 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 	@Override
 	public void setFlatFieldCorrection(boolean enabled) {
-		cameraControls.setFlatFieldCorrection(enabled);
+		leftPanelComposite.setFlatFieldCorrection(enabled);
 	}
 
 	@Override
 	public void setPreferredSampleExposureTimeToWidget(double preferredExposureTime) {
-		cameraControls.setPreferredSampleExposureTime(preferredExposureTime);
+		tomoControlComposite.setPreferredSampleExposureTime(preferredExposureTime);
 	}
 
 	@Override
 	public void setPreferredFlatExposureTimeToWidget(double preferredExposureTime) {
-		cameraControls.setPreferredFlatExposureTime(preferredExposureTime);
+		tomoControlComposite.setPreferredFlatExposureTime(preferredExposureTime);
 	}
 
 	@Override
 	public void setCameraModule(final CAMERA_MODULE module) {
-		motionControlComposite.setCameraModule(module);
+		tomoControlComposite.setCameraModule(module);
 		updateScaleBars(module);
 	}
 
@@ -1710,16 +1174,16 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 				@Override
 				public void run() {
-					ScaleDisplay leftBarLengthInPixel = tomoAlignmentViewController.getLeftBarLengthInPixel(
+					ScaleDisplay leftBarLengthInPixel = tomoAlignmentController.getLeftBarLengthInPixel(
 							leftWindowImageViewer.getBounds().width / 3, module);
 					if (leftBarLengthInPixel != null) {
 						updateLeftWindowNumPixelsLabel(leftBarLengthInPixel.toString(),
 								leftBarLengthInPixel.getBarLengthInPixel());
 					}
 					//
-					ScaleDisplay rightBarLengthInPixel = tomoAlignmentViewController.getRightBarLengthInPixel(
+					ScaleDisplay rightBarLengthInPixel = tomoAlignmentController.getRightBarLengthInPixel(
 							page_rightWindow_nonProfile.getBounds().width / 2 - 10, module,
-							cameraControls.getSelectedZoomLevel());
+							leftPanelComposite.getSelectedZoomLevel());
 					if (rightBarLengthInPixel != null) {
 						updateRightWindowNumPixelsLabel(rightBarLengthInPixel.toString(),
 								rightBarLengthInPixel.getBarLengthInPixel());
@@ -1749,7 +1213,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			try {
 				tomoPlotComposite.updateHistogramData(getLeftWindowViewerDisplayMode(), imageData);
 			} catch (Exception ex) {
-				cameraControls.stopSampleHistogram();
+				leftPanelComposite.stopHistogram();
 			}
 		}
 	};
@@ -1761,38 +1225,24 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			getSite().getPage().removePartListener(tomoPartAdapter);
 			if (leftWindowImageViewer != null) {
 				logger.debug("Removing zoom rect listener");
-				leftWindowImageViewer.removeZoomRectListener(zoomRectListener);
-				leftWindowImageViewer.removeProfileListener(profilePointListener);
-				leftWindowImageViewer.removeOverlayImageFigureListener(overlayImageFigureListener);
+				leftWindowImageViewer.removeZoomRectListener(tomoViewController);
+				leftWindowImageViewer.removeProfileListener(tomoViewController);
+				leftWindowImageViewer.removeOverlayImageFigureListener(tomoViewController);
 				leftWindowImageViewer.dispose();
 			}
-			histogramSliderComposite.removeColourSliderListener(histogramSliderListener);
+			histogramSliderComposite.removeColourSliderListener(tomoViewController);
 			histogramSliderComposite.dispose();
-			tomoPlotComposite.removeOverlayLineListener(profileLineListener);
-			zoomRectListener = null;
+			tomoPlotComposite.removeOverlayLineListener(tomoViewController);
 
 			stopFullVideoReceiver();
-			// leftVideoReceiver.removeImageListener(leftVideoListener);
-			// leftVideoReceiver.removeImageListener(tomoImageListener);
-			// rightVideoReceiver.removeImageListener(rightVideoListener);
 			leftVideoListener = null;
 			rightVideoListener = null;
 
 			leftVideoReceiver = null;
 			rightVideoReceiver = null;
 
-			overlayImageFigureListener = null;
-
-			motionControlComposite.removeMotionControlListener(motionControlListener);
-			motionControlListener = null;
-
-			cameraControls.removeCamerControlListener(cameraControlListener);
-			cameraControlListener = null;
-
+			tomoControlComposite.removeMotionControlListener(tomoViewController);
 			logger.debug("Disposing tomoalignment viewer");
-			// FIXME-Ravi
-			// fullImgProvider.removeJpegImageListener(fullImgListener);
-			// zoomedImgProvider.removeJpegImageListener(zoomImgListener);
 
 			page_nonProfile_streamZoom.dispose();
 			demandRawZoomCanvas.dispose();
@@ -1807,15 +1257,12 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			pageBook_leftWindow.dispose();
 			pageBook_rightWindow.dispose();
 			//
-			cameraControls.dispose();
-			//
-			motionControlComposite.dispose();
+			tomoControlComposite.dispose();
 			tomoPlotComposite.dispose();
 			//
-			tomoAlignmentViewController.unregisterTomoAlignmentView(this);
-			tomoAlignmentViewController.dispose();
+			tomoAlignmentController.unregisterTomoAlignmentView(this);
+			tomoAlignmentController.dispose();
 			toolkit.dispose();
-			// ACTIVE_WORKBENCH_WINDOW.getPartService().removePartListener(partListener);
 			histogramAdjuster.dispose();
 			super.dispose();
 		} catch (Exception ex) {
@@ -1830,7 +1277,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 	@Override
 	public void updateRotationMotorBusy(boolean isBusy) {
-		motionControlComposite.setRotationMotorBusy(isBusy);
+		tomoControlComposite.setRotationMotorBusy(isBusy);
 	}
 
 	@Override
@@ -1841,7 +1288,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	@Override
 	public void reset() {
 		try {
-			tomoAlignmentViewController.resetAll();
+			tomoAlignmentController.resetAll();
 		} catch (Exception e) {
 			logger.error("TODO put description of error here", e);
 			loadErrorInDisplay("Error while reseting the camera", "Connection with the camera IOC may be disrupted.");
@@ -1851,12 +1298,12 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	@Override
 	public void updateModuleButtonText(final String unit, final Map<Integer, String> moduleButtonText) {
 		if (moduleButtonText != null && !(moduleButtonText.isEmpty())) {
-			if (motionControlComposite != null && !motionControlComposite.isDisposed()) {
-				motionControlComposite.getDisplay().asyncExec(new Runnable() {
+			if (tomoControlComposite != null && !tomoControlComposite.isDisposed()) {
+				tomoControlComposite.getDisplay().asyncExec(new Runnable() {
 
 					@Override
 					public void run() {
-						motionControlComposite.setModuleButtonText(unit, moduleButtonText.get(1),
+						tomoControlComposite.setModuleButtonText(unit, moduleButtonText.get(1),
 								moduleButtonText.get(2), moduleButtonText.get(3), moduleButtonText.get(4));
 
 					}
@@ -1867,7 +1314,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 	@Override
 	public void setCameraMotionMotorPosition(double cameraMotionMotorPosition) {
-		motionControlComposite.setCameraMotionPosition(cameraMotionMotorPosition);
+		tomoControlComposite.setCameraMotionPosition(cameraMotionMotorPosition);
 	}
 
 	private void startFullVideoReceiver() {
@@ -1885,7 +1332,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	/**
 	 * Stops the video receiver.
 	 */
-	void stopFullVideoReceiver() {
+	protected void stopFullVideoReceiver() {
 		if (fullImgReceiverStarted) {
 			leftVideoReceiver.closeConnection();
 
@@ -1902,7 +1349,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	/**
 	 * Starts the zoom receiver.
 	 */
-	void startZoomVideoReceiver() {
+	protected void startZoomVideoReceiver() {
 		if (!zoomReceiverStarted) {
 			rightVideoReceiver.addImageListener(rightVideoListener);
 			rightVideoReceiver.createConnection();
@@ -1913,7 +1360,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	/**
 	 * Stops the zoom receiver.
 	 */
-	void stopZoomVideoReceiver() {
+	protected void stopZoomVideoReceiver() {
 		if (zoomReceiverStarted) {
 			rightVideoReceiver.closeConnection();
 			rightVideoReceiver.removeImageListener(rightVideoListener);
@@ -1925,7 +1372,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	/**
 	 * @param info
 	 */
-	void setLeftWindowInfo(final String info) {
+	protected void setLeftWindowInfo(final String info) {
 		leftWindowDisplayMode = ViewerDisplayMode.getDisplayMode(info);
 		setLeftWindowDisplayMode(leftWindowDisplayMode);
 		if (info != null && lblLeftWindowDisplayModeStatus != null && !lblLeftWindowDisplayModeStatus.isDisposed()) {
@@ -1942,16 +1389,16 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	/**
 	 * Set of procedures that need to be done when profiling is stopped.
 	 */
-	void stopProfiling() {
-		if (cameraControls.isProfileSelected()) {
-			cameraControls.profileStopped();
+	protected void stopProfiling() {
+		if (leftPanelComposite.isProfileSelected()) {
+			leftPanelComposite.deselectProfileButton();
 			leftWindowImageViewer.hideLineProfiler();
 			pageBook_rightWindow.showPage(page_rightWindow_nonProfile);
 			setRightInfoPage(RIGHT_INFO.NONE);
 			tomoPlotComposite.setImagesToPlot(null, null);
-			ZOOM_LEVEL selectedZoomLevel = cameraControls.getSelectedZoomLevel();
+			ZOOM_LEVEL selectedZoomLevel = leftPanelComposite.getSelectedZoomLevel();
 			if (!ZOOM_LEVEL.NO_ZOOM.equals(selectedZoomLevel)) {
-				cameraControls.setZoom(selectedZoomLevel);
+				leftPanelComposite.setZoom(selectedZoomLevel);
 			}
 		}
 	}
@@ -1959,13 +1406,13 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	/**
 	 * Set of procedures that need to run when streaming is stopped this needs to be called sparingly and does not cause
 	 * the Stream button on the screen to be toggled.<br>
-	 * the {@link CameraControlComposite#stopSampleStream()} should be called for that purpose
+	 * the {@link TomoAlignmentLeftPanelComposite#stopStream()} should be called for that purpose
 	 */
 	public void stopStreaming() {
 		logger.debug("stopStreaming -> Stop video receiver and call stop acquiring");
 		stopFullVideoReceiver();
 		try {
-			tomoAlignmentViewController.stopAcquiring();
+			tomoAlignmentController.stopAcquiring();
 		} catch (Exception e) {
 			logger.error("stopStreaming -> Problem stop acquiring", e);
 		} finally {
@@ -1974,7 +1421,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	}
 
 	/**
-	 * see {@link CameraControlComposite#startSampleStreaming()} to get the Stream button enabled
+	 * see {@link TomoAlignmentLeftPanelComposite#startStreaming()} to get the Stream button enabled
 	 * 
 	 * @throws InvocationTargetException
 	 */
@@ -1988,7 +1435,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-					tomoAlignmentViewController.startAcquiring(acquireTime, 1);
+					tomoAlignmentController.startAcquiring(acquireTime, 1);
 				}
 			});
 
@@ -1998,11 +1445,11 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			lblFileTimeStamp.setText(BLANK_STR);
 			lblFileName.setText(BLANK_STR);
 			// Need to stop profiling
-			cameraControls.deSelectSaturation();
+			leftPanelComposite.deSelectSaturationButton();
 			// If zoom is selected then update the zoomed window.
-			if (cameraControls.getSelectedZoomLevel() != ZOOM_LEVEL.NO_ZOOM) {
+			if (leftPanelComposite.getSelectedZoomLevel() != ZOOM_LEVEL.NO_ZOOM) {
 				setRightPage(RIGHT_PAGE.ZOOM_STREAM);
-				cameraControls.setZoom(cameraControls.getSelectedZoomLevel());
+				leftPanelComposite.setZoom(leftPanelComposite.getSelectedZoomLevel());
 			}
 			stopProfiling();
 			// Set the MJPeg Streamer URL
@@ -2012,7 +1459,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			if (leftVideoReceiver.isUrlSet()) {
 				startFullVideoReceiver();
 			}
-			updateScaleBars(motionControlComposite.getSelectedCameraModule());
+			updateScaleBars(tomoControlComposite.getSelectedCameraModule());
 		} catch (InvocationTargetException e) {
 			logger.error("startStreaming -> Problem acquiring FFMJpeg from the camera", e);
 			throw new InvocationTargetException(e, "Cannot start streaming: ");
@@ -2022,7 +1469,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	}
 
 	protected void setMJPegUrl() {
-		Future<Boolean> isSuccessful = tomoAlignmentViewController.getStreamUrl();
+		Future<Boolean> isSuccessful = tomoAlignmentController.getStreamUrl();
 		BusyIndicator.showWhile(leftWindowImageViewer.getDisplay(), new GetStreamURLThread(isSuccessful));
 	}
 
@@ -2049,16 +1496,14 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 				MessageDialog.openError(getViewSite().getShell(), ERROR_STARTING_STREAM_label,
 						ERROR_STREAM_START_shortdesc);
 				//
-				cameraControls.stopSampleStream();
-				cameraControls.stopFlatStream();
+				leftPanelComposite.stopStream();
 				//
 			} catch (ExecutionException e) {
 				logger.error("IOC May be down", e);
 				MessageDialog.openError(getViewSite().getShell(), ERROR_STARTING_STREAM_label,
 						ERROR_STREAM_START_shortdesc);
 				//
-				cameraControls.stopSampleStream();
-				cameraControls.stopFlatStream();
+				leftPanelComposite.stopStream();
 				stopFullVideoReceiver();
 			}
 
@@ -2066,11 +1511,12 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	}
 
 	public boolean isStreamingSampleExposure() {
-		return STREAM_STATE.SAMPLE_STREAM.equals(cameraControls.getStreamState());
+		// TODO - Fix Ravi
+		return STREAM_STATE.SAMPLE_STREAM.equals(tomoControlComposite.getStreamState());
 	}
 
 	public boolean isStreamingFlatExposure() {
-		return STREAM_STATE.FLAT_STREAM.equals(cameraControls.getStreamState());
+		return STREAM_STATE.FLAT_STREAM.equals(tomoControlComposite.getStreamState());
 	}
 
 	public STEPPER getSelectedAmplifierStepper() {
@@ -2084,7 +1530,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	}
 
 	public CAMERA_MODULE getSelectedCameraModule() {
-		return motionControlComposite.getSelectedCameraModule();
+		return tomoControlComposite.getSelectedCameraModule();
 	}
 
 	public void setRightPage(final RIGHT_PAGE page) {
@@ -2186,10 +1632,10 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	public void setSampleInOutState(SAMPLE_STAGE_STATE state) {
 		switch (state) {
 		case IN:
-			cameraControls.selectSampleIn();
+			leftPanelComposite.selectSampleInButton();
 			break;
 		case OUT:
-			cameraControls.selectSampleOut();
+			leftPanelComposite.selectSampleOutButton();
 			break;
 		}
 	}
@@ -2197,8 +1643,8 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	public void saveConfiguration() throws Exception {
 		try {
 			isSaving = true;
-			cameraControls.startSampleStreaming();
-			cameraControls.setZoom(ZOOM_LEVEL.NO_ZOOM);
+			leftPanelComposite.startStreaming();
+			leftPanelComposite.setZoom(ZOOM_LEVEL.NO_ZOOM);
 			// rsr31645 - Commented below code which opens the save dialog to show images at 0 and +90. This would be
 			// used for stitching images in the configuration view, however, the stitch feature will not be used for
 			// sometime now.
@@ -2220,28 +1666,28 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 						monitor.setTaskName("Saving configuration...");
 						SaveableConfiguration configuration = new SaveableConfiguration();
 						// Module number
-						configuration.setModuleNumber(motionControlComposite.getSelectedCameraModule().getValue());
+						configuration.setModuleNumber(tomoControlComposite.getSelectedCameraModule().getValue());
 						// Sample Acquisition time
-						configuration.setSampleAcquisitonTime(Double.valueOf(threePrecision.format(cameraControls
+						configuration.setSampleAcquisitonTime(Double.valueOf(threePrecision.format(tomoControlComposite
 								.getSampleExposureTime())));
 						// Flat Acquisition time
-						configuration.setFlatAcquisitionTime(Double.valueOf(threePrecision.format(cameraControls
+						configuration.setFlatAcquisitionTime(Double.valueOf(threePrecision.format(tomoControlComposite
 								.getFlatExposureTime())));
 						// Sample description
-						configuration.setSampleDescription(cameraControls.getSampleDescription());
+						configuration.setSampleDescription(tomoControlComposite.getSampleDescription());
 						// ROI points
 						configuration.setRoiPoints(leftWindowImageViewer.getRoiPoints());
 						// Energy
-						configuration.setEnergy(motionControlComposite.getEnergy());
+						configuration.setEnergy(tomoControlComposite.getEnergy());
 						// resolution
-						configuration.setResolution3D(cameraControls.getResolution());
+						configuration.setResolution3D(tomoControlComposite.getResolution());
 						// sample weight
-						configuration.setSampleWeight(motionControlComposite.getSampleWeight());
+						configuration.setSampleWeight(tomoControlComposite.getSampleWeight());
 						// number of projections
-						configuration.setNumProjections(cameraControls.getFramesPerProjection());
+						configuration.setNumProjections(tomoControlComposite.getFramesPerProjection());
 						//
 						configuration.setTomoRotationAxis(leftWindowImageViewer.getCrossWire1XRelativeToImage()
-								* tomoAlignmentViewController.getLeftWindowBinValue());
+								* tomoAlignmentController.getLeftWindowBinValue());
 
 						// String imgAtTheta = null;
 						// double theta = 0;
@@ -2279,10 +1725,10 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 							int x = leftWindowImageViewer.getCrossWire1Vertical().getPoints().getFirstPoint().x
 									- leftWindowImageViewer.getImageBounds().x;
 							logger.debug("Tomo rotation axis:{}", x);
-							configuration.setTomoRotationAxis(x * tomoAlignmentViewController.getLeftWindowBinValue());
+							configuration.setTomoRotationAxis(x * tomoAlignmentController.getLeftWindowBinValue());
 						}
 						try {
-							tomoAlignmentViewController.saveConfiguration(monitor, configuration);
+							tomoAlignmentController.saveConfiguration(monitor, configuration);
 						} catch (Exception e) {
 							logger.error("Unable to save configuration", e);
 							throw new InvocationTargetException(e, "Cannot save alignment configuration");
@@ -2294,7 +1740,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 					}
 				}
 			});
-			cameraControls.clearSampleDescription();
+			tomoControlComposite.clearSampleDescription();
 			// }
 		} finally {
 			isSaving = false;
@@ -2303,17 +1749,17 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 	@Override
 	public void setEnergy(double energy) {
-		motionControlComposite.setEnergyValue(energy);
+		tomoControlComposite.setEnergyValue(energy);
 	}
 
 	@Override
 	public void setResolutionPixelSize(String resolutionPixelSize) {
-		cameraControls.setResolutionPixelSize(resolutionPixelSize);
+		tomoControlComposite.setResolutionPixelSize(resolutionPixelSize);
 	}
 
 	@Override
 	public void setResolution(RESOLUTION res) {
-		cameraControls.setResolution(res);
+		tomoControlComposite.setResolution(res);
 	}
 
 	public void addLeftWindowTomoImageListener() {
@@ -2329,11 +1775,96 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		if (leftWindowDisplayMode == ViewerDisplayMode.SAMPLE_STREAM_LIVE
 				|| leftWindowDisplayMode == ViewerDisplayMode.SAMPLE_SINGLE) {
 			setPreferredSampleExposureTimeToWidget(preferredExposureTime);
-			tomoAlignmentViewController.setPreferredSampleExposureTime(preferredExposureTime);
+			tomoAlignmentController.setPreferredSampleExposureTime(preferredExposureTime);
 		} else if (leftWindowDisplayMode == ViewerDisplayMode.FLAT_STREAM_LIVE
 				|| leftWindowDisplayMode == ViewerDisplayMode.FLAT_SINGLE) {
 			setPreferredFlatExposureTimeToWidget(preferredExposureTime);
-			tomoAlignmentViewController.setPreferredFlatExposureTime(preferredExposureTime);
+			tomoAlignmentController.setPreferredFlatExposureTime(preferredExposureTime);
 		}
+	}
+
+	public TomoAlignmentLeftPanelComposite getLeftPanelComposite() {
+		return leftPanelComposite;
+	}
+
+	public TomoAlignmentControlComposite getTomoControlComposite() {
+		return tomoControlComposite;
+	}
+
+	public FullImageComposite getLeftWindowImageViewer() {
+		return leftWindowImageViewer;
+	}
+
+	public TomoPlotComposite getTomoPlotComposite() {
+		return tomoPlotComposite;
+	}
+
+	protected void unZoomInUI() {
+		if (page_nonProfile_noZoom != null && !page_nonProfile_noZoom.isDisposed()) {
+			leftPanelComposite.getDisplay().syncExec(new Runnable() {
+				@Override
+				public void run() {
+					leftWindowImageViewer.hideZoomRectangleFigure();
+					setRightPage(RIGHT_PAGE.NO_ZOOM);
+
+					rightScaleBar.setScaleWidth(0);
+					lblRightWindowInfoNumPixels.setText(TomoAlignmentView.NO_ZOOM_lbl);
+					if (leftPanelComposite.isProfileSelected()) {
+						Rectangle lineBounds = leftWindowImageViewer.getProfilerLineBounds();
+						int y = lineBounds.y - leftWindowImageViewer.getImageBounds().y;
+						updatePlots(new NullProgressMonitor(), 0, 4008,
+								y * tomoAlignmentController.getLeftWindowBinValue());
+					}
+				}
+			});
+		}
+	}
+
+	protected void displayFileDetails(ViewerDisplayMode viewDisplayMode) throws Exception {
+		String rawFileName = viewDisplayMode.getFileName(getTomoAlignmentController());
+		lblFileName.setText(String.format("%1$s %2$s", TomoAlignmentView.FILE_NAME, rawFileName));
+		if (rawFileName != null) {
+			File checkFile = new File(rawFileName);
+			if (checkFile.exists()) {
+				lblFileTimeStamp.setText(String.format("%1$s %2$s", TomoAlignmentView.TIMESTAMP,
+						getSimpleDateFormat(checkFile.lastModified())));
+			}
+		} else {
+			throw new IllegalArgumentException("Single image could not be loaded");
+		}
+	}
+
+	private String getSimpleDateFormat(double epoch) {
+		Date date = new Date((long) (epoch));
+		SimpleDateFormat simpleDatef = new SimpleDateFormat("dd/MM/yy hh:mm:ss.SSS");
+		return simpleDatef.format(date);
+	}
+
+	public ZoomedImgCanvas getDemandRawZoomCanvas() {
+		return demandRawZoomCanvas;
+	}
+
+	public HistogramAdjuster getHistogramAdjuster() {
+		return histogramAdjuster;
+	}
+
+	public void setRightWindowInfoNumPixels(String numPixels) {
+		lblRightWindowInfoNumPixels.setText(numPixels);
+	}
+
+	public void setRightScaleBarWidth(int barLengthInPixel) {
+		rightScaleBar.setScaleWidth(barLengthInPixel);
+	}
+
+	public void setYLabelValue(String yLblValue) {
+		lblYValue.setText(yLblValue);
+	}
+
+	public void setXLabelValue(String formattedXVal) {
+		lblXValue.setText(formattedXVal);
+	}
+
+	public void setProfileIntensityValue(String profileIntensityValue) {
+		lblProfileIntensityValue.setText(profileIntensityValue);
 	}
 }

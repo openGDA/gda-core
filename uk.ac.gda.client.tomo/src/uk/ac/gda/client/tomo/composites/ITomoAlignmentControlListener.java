@@ -20,12 +20,12 @@ package uk.ac.gda.client.tomo.composites;
 
 import java.lang.reflect.InvocationTargetException;
 
-import uk.ac.gda.client.tomo.composites.MotionControlComposite.SAMPLE_WEIGHT;
+import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.SAMPLE_WEIGHT;
 
 /**
  * Motion control listener interface.
  */
-public interface IMotionControlListener extends IModuleChangeListener {
+public interface ITomoAlignmentControlListener extends IModuleChangeListener {
 
 	/**
 	 * @throws Exception
@@ -77,6 +77,12 @@ public interface IMotionControlListener extends IModuleChangeListener {
 	void tilt(boolean selected) throws Exception;
 
 	/**
+	 * @param selected
+	 * @throws Exception
+	 */
+	void autoFocus(boolean selected) throws Exception;
+
+	/**
 	 * Method to let listeners know that they should reset the camera distance field
 	 * 
 	 * @throws Exception
@@ -109,7 +115,70 @@ public interface IMotionControlListener extends IModuleChangeListener {
 	 * to inform the listeners that the sample weight has changed.
 	 * 
 	 * @param sampleWeight
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	void setSampleWeight(SAMPLE_WEIGHT sampleWeight) throws Exception;
+
+	/**
+	 * When the exposure time for the sample is changed.
+	 * 
+	 * @param sampleExposureTime
+	 * @throws Exception
+	 */
+	void sampleExposureTimeChanged(double sampleExposureTime) throws Exception;
+
+	/**
+	 * When the exposure time for the flat is changed
+	 * 
+	 * @param flatExposureTime
+	 * @throws Exception
+	 */
+	void flatExposureTimeChanged(double flatExposureTime) throws Exception;
+
+	/**
+	 * Event fired to update the preferred sample exposure time.
+	 * 
+	 * @throws Exception
+	 */
+	void updatePreferredSampleExposureTime() throws Exception;
+
+	/**
+	 * * Event fired to update the preferred sample exposure time.
+	 * 
+	 * @throws Exception
+	 */
+	void updatePreferredFlatExposureTime() throws Exception;
+
+	/**
+	 * @throws Exception
+	 */
+	void sampleFlatTimeChanged() throws Exception;
+
+	/**
+	 * Save alignment configuration
+	 * 
+	 * @throws InterruptedException
+	 * @throws InvocationTargetException
+	 * @throws Exception
+	 */
+	void saveAlignmentConfiguration() throws InvocationTargetException, InterruptedException, Exception;
+
+	/**
+	 * Informs the listeners that the sample description has changed.
+	 * 
+	 * @param sampleDescription
+	 */
+	void sampleDescriptionChanged(String sampleDescription);
+
+	/**
+	 * Informs the listeners that "Define ROI" button has been selected.
+	 * 
+	 * @param selection
+	 */
+	void defineRoi(boolean selection);
+
+	/**
+	 * Informs the listeners to reset the ROI bounds
+	 */
+	void resetRoi();
 }

@@ -22,7 +22,7 @@ import gda.device.DeviceException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentViewController;
+import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ISampleStageMotorHandler;
 
 /**
@@ -55,7 +55,7 @@ public class TomoAlignmentMotorHandlerSimulator implements ISampleStageMotorHand
 	}
 
 	@Override
-	public void setTomoAlignmentViewController(TomoAlignmentViewController tomoAlignmentViewController) {
+	public void setTomoAlignmentViewController(TomoAlignmentController tomoAlignmentViewController) {
 		// TODO Auto-generated method stub
 
 	}

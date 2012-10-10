@@ -29,7 +29,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import uk.ac.gda.client.tomo.TiffFileInfo;
 import uk.ac.gda.client.tomo.TomoClientActivator;
-import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentViewController;
+import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraHandler;
 import uk.ac.gda.client.tomo.composites.ModuleButtonComposite.CAMERA_MODULE;
 import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
@@ -96,7 +96,7 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 
 	private static final Logger logger = LoggerFactory.getLogger(TomoDetectorHandler.class);
 
-	private TomoAlignmentViewController tomoAlignmentViewController;
+	private TomoAlignmentController tomoAlignmentViewController;
 	private Integer saturationThreshold;
 	private int leftWindowBinValue = 4;
 
@@ -319,7 +319,7 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 	};
 
 	@Override
-	public void setViewController(TomoAlignmentViewController tomoAlignmentViewController) {
+	public void setViewController(TomoAlignmentController tomoAlignmentViewController) {
 		this.tomoAlignmentViewController = tomoAlignmentViewController;
 
 	}

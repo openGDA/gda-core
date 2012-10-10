@@ -55,10 +55,10 @@ public class ModuleButtonComposite extends Composite {
 	private static final String MODULES_HEADER = "Modules";
 	private static final String NORMAL_TEXT_10 = "normal_10";
 	/* Module buttons */
-	private final Button btnModule1;
-	private final Button btnModule2;
-	private final Button btnModule3;
-	private final Button btnModule4;
+	private final ControlButton btnModule1;
+	private final ControlButton btnModule2;
+	private final ControlButton btnModule3;
+	private final ControlButton btnModule4;
 
 	private CAMERA_MODULE selectedModule;
 
@@ -170,7 +170,7 @@ public class ModuleButtonComposite extends Composite {
 		if (Display.getCurrent() != null) {
 			fontRegistry = new FontRegistry(Display.getCurrent());
 			String fontName = Display.getCurrent().getSystemFont().getFontData()[0].getName();
-			fontRegistry.put(NORMAL_TEXT_10, new FontData[] { new FontData(fontName, 8, SWT.NORMAL) });
+			fontRegistry.put(NORMAL_TEXT_10, new FontData[] { new FontData(fontName, 7, SWT.NORMAL) });
 		}
 	}
 
@@ -180,38 +180,39 @@ public class ModuleButtonComposite extends Composite {
 		GridLayout layout = new GridLayout(2, true);
 		layout.marginHeight = 1;
 		layout.marginWidth = 1;
-		layout.horizontalSpacing = 2;
-		layout.verticalSpacing = 2;
+		layout.horizontalSpacing = 1;
+		layout.verticalSpacing = 1;
 		this.setLayout(layout);
+		setBackground(ColorConstants.black);
 
 		lblModulesHeader = toolkit.createLabel(this, MODULES_HEADER, SWT.CENTER);
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 		gd.horizontalSpan = 2;
 		lblModulesHeader.setLayoutData(gd);
 		/**/
-		btnModule1 = toolkit.createButton(this, MODULE_1, SWT.PUSH);
-		btnModule1.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		btnModule1 = new ControlButton(toolkit, this, MODULE_1, SWT.PUSH);
+		btnModule1.setLayoutData(new GridData(GridData.FILL_BOTH));
 		btnModule1.addListener(SWT.MouseDown, ctrlMouseListener);
 		btnModule1.addListener(SWT.MouseHover, mouseHoverListener);
 		btnModule1.addListener(SWT.MouseExit, mouseExitListener);
 		btnModule1.setFont(fontRegistry.get(NORMAL_TEXT_10));
 		/**/
-		btnModule2 = toolkit.createButton(this, MODULE_2, SWT.PUSH);
-		btnModule2.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		btnModule2 = new ControlButton(toolkit, this, MODULE_2, SWT.PUSH);
+		btnModule2.setLayoutData(new GridData(GridData.FILL_BOTH));
 		btnModule2.addListener(SWT.MouseDown, ctrlMouseListener);
 		btnModule2.addListener(SWT.MouseHover, mouseHoverListener);
 		btnModule2.addListener(SWT.MouseExit, mouseExitListener);
 		btnModule2.setFont(fontRegistry.get(NORMAL_TEXT_10));
 		/**/
-		btnModule3 = toolkit.createButton(this, MODULE_3, SWT.PUSH);
-		btnModule3.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		btnModule3 = new ControlButton(toolkit, this, MODULE_3, SWT.PUSH);
+		btnModule3.setLayoutData(new GridData(GridData.FILL_BOTH));
 		btnModule3.addListener(SWT.MouseDown, ctrlMouseListener);
 		btnModule3.addListener(SWT.MouseHover, mouseHoverListener);
 		btnModule3.addListener(SWT.MouseExit, mouseExitListener);
 		btnModule3.setFont(fontRegistry.get(NORMAL_TEXT_10));
 		/**/
-		btnModule4 = toolkit.createButton(this, MODULE_4, SWT.PUSH);
-		btnModule4.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		btnModule4 = new ControlButton(toolkit, this, MODULE_4, SWT.PUSH);
+		btnModule4.setLayoutData(new GridData(GridData.FILL_BOTH));
 		btnModule4.addListener(SWT.MouseDown, ctrlMouseListener);
 		btnModule4.addListener(SWT.MouseHover, mouseHoverListener);
 		btnModule4.addListener(SWT.MouseExit, mouseExitListener);
@@ -337,12 +338,12 @@ public class ModuleButtonComposite extends Composite {
 		}
 	}
 
-	private static void selectControl(Button btnCntrl) {
+	private static void selectControl(Composite btnCntrl) {
 		btnCntrl.setForeground(ColorConstants.red);
 		btnCntrl.setBackground(ColorConstants.lightGray);
 	}
 
-	private static void deSelectControl(Button btnCntrl) {
+	private static void deSelectControl(ControlButton btnCntrl) {
 		btnCntrl.setForeground(btnCntrl.getDisplay().getSystemColor(SWT.COLOR_LIST_FOREGROUND));
 		btnCntrl.setBackground(btnCntrl.getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
 	}
@@ -363,6 +364,21 @@ public class ModuleButtonComposite extends Composite {
 	 *         widget was selected.
 	 */
 	private boolean isSelected(Button button) {
+		if (ColorConstants.red.equals(button.getForeground())
+				&& ColorConstants.lightGray.equals(button.getBackground())) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Returns <code>true</code> if the colors as set when selected.
+	 * 
+	 * @param button
+	 * @return true when background color is lightgray and foreground color is red - this is what was set when the
+	 *         widget was selected.
+	 */
+	private boolean isSelected(ControlButton button) {
 		if (ColorConstants.red.equals(button.getForeground())
 				&& ColorConstants.lightGray.equals(button.getBackground())) {
 			return true;

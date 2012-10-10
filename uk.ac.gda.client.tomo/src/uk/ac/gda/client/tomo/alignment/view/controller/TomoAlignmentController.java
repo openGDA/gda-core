@@ -65,16 +65,17 @@ import uk.ac.gda.client.tomo.alignment.view.handlers.IShutterHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ITiltController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ITomoConfigResourceHandler;
 import uk.ac.gda.client.tomo.alignment.view.utils.ScaleDisplay;
-import uk.ac.gda.client.tomo.composites.CameraControlComposite.RESOLUTION;
 import uk.ac.gda.client.tomo.composites.ModuleButtonComposite.CAMERA_MODULE;
-import uk.ac.gda.client.tomo.composites.MotionControlComposite.SAMPLE_WEIGHT;
+import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.RESOLUTION;
+import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.SAMPLE_WEIGHT;
 import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
 
 /**
  * The Tomography alignment view controller - this controller communicates with the EPICS model and updates the relevant
  * views.
  */
-public class TomoAlignmentViewController extends TomoViewController {
+public class TomoAlignmentController extends TomoViewController {
+	private static final int IMAGE_FULL_WIDTH = 4008;
 
 	private ISampleStageMotorHandler sampleStageMotorHandler;
 
@@ -120,7 +121,7 @@ public class TomoAlignmentViewController extends TomoViewController {
 
 	private Set<IRotationMotorListener> rotationMotorListeners = new HashSet<IRotationMotorListener>();
 
-	private static final Logger logger = LoggerFactory.getLogger(TomoAlignmentViewController.class);
+	private static final Logger logger = LoggerFactory.getLogger(TomoAlignmentController.class);
 
 	private Thread prepareAlignmentThread;
 
@@ -762,6 +763,12 @@ public class TomoAlignmentViewController extends TomoViewController {
 		return cameraHandler.getPreferredSampleExposureTime();
 	}
 
+	/**
+	 * @param exposureTime
+	 * @param factor
+	 * @throws Exception
+	 * @deprecated
+	 */
 	public void setAmplifierUpdate(double exposureTime, int factor) throws Exception {
 		double newExpTime = exposureTime;
 		cameraHandler.setAmplifiedValue(newExpTime, factor);
@@ -1104,7 +1111,8 @@ public class TomoAlignmentViewController extends TomoViewController {
 
 		saveableConfiguration.setInBeamPosition(sampleStageMotorHandler.getSampleBaseMotorPosition());
 
-		saveableConfiguration.setOutOfBeamPosition(sampleStageMotorHandler.getSampleBaseMotorPosition()+sampleStageMotorHandler.getDistanceToMoveSampleOut());
+		saveableConfiguration.setOutOfBeamPosition(sampleStageMotorHandler.getSampleBaseMotorPosition()
+				+ sampleStageMotorHandler.getDistanceToMoveSampleOut());
 		// sample stage parameters
 		// basex
 		ArrayList<MotorPosition> motorPositions = saveableConfiguration.getMotorPositions();
@@ -1153,4 +1161,15 @@ public class TomoAlignmentViewController extends TomoViewController {
 		saveHandler.saveConfiguration(monitor, saveableConfiguration);
 	}
 
+	public Integer getDetectorFullWidth() {
+		return cameraHandler.getFullImageWidth();
+	}
+
+	public int getScaledX() {
+		return getDetectorFullWidth() / getLeftWindowBinValue();
+	}
+
+	public int getScaledY() {
+		return cameraHandler.getFullImageHeight() / getLeftWindowBinValue();
+	}
 }

@@ -24,7 +24,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.graphics.Point;
 
 import uk.ac.gda.client.tomo.TiffFileInfo;
-import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentViewController;
+import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraHandler;
 import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
 
@@ -154,7 +154,7 @@ public class TomoDetectorHandlerSimulator implements ICameraHandler {
 	}
 
 	@Override
-	public void setViewController(TomoAlignmentViewController tomoAlignmentViewController) {
+	public void setViewController(TomoAlignmentController tomoAlignmentViewController) {
 		// TODO Auto-generated method stub
 
 	}

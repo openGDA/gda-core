@@ -20,7 +20,7 @@ package uk.ac.gda.client.tomo.alignment.view.handlers.impl;
 
 import gda.function.Lookup;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ISampleWeightLookupTableHandler;
-import uk.ac.gda.client.tomo.composites.MotionControlComposite.SAMPLE_WEIGHT;
+import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.SAMPLE_WEIGHT;
 import uk.ac.gda.client.tomo.i12.ThetaServoSet;
 
 public class SampleWeightLookupTableHandler implements ISampleWeightLookupTableHandler {

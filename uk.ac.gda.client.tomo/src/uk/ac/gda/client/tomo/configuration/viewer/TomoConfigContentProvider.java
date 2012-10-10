@@ -28,9 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.tomo.TomoClientActivator;
-import uk.ac.gda.client.tomo.composites.CameraControlComposite;
-import uk.ac.gda.client.tomo.composites.CameraControlComposite.RESOLUTION;
-import uk.ac.gda.client.tomo.composites.MotionControlComposite.SAMPLE_WEIGHT;
+import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.RESOLUTION;
+import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.SAMPLE_WEIGHT;
 import uk.ac.gda.tomography.parameters.AlignmentConfiguration;
 import uk.ac.gda.tomography.parameters.Resolution;
 import uk.ac.gda.tomography.parameters.SampleWeight;
@@ -117,13 +116,13 @@ public class TomoConfigContentProvider implements IStructuredContentProvider {
 	private String getResolutionString(Resolution desired3dResolution) {
 		switch (desired3dResolution) {
 		case FULL:
-			return CameraControlComposite.RESOLUTION.FULL.toString();
+			return RESOLUTION.FULL.toString();
 		case X2:
-			return CameraControlComposite.RESOLUTION.TWO_X.toString();
+			return RESOLUTION.TWO_X.toString();
 		case X4:
-			return CameraControlComposite.RESOLUTION.FOUR_X.toString();
+			return RESOLUTION.FOUR_X.toString();
 		case X8:
-			return CameraControlComposite.RESOLUTION.EIGHT_X.toString();
+			return RESOLUTION.EIGHT_X.toString();
 		}
 		return null;
 	}

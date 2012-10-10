@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.tomo.alignment.view.TomoAlignmentView;
-import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentViewController;
+import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentController;
 
 /**
  * Factory method that invokes the View object
@@ -40,7 +40,7 @@ public class TomoAlignmentViewFactoryFactory implements FindableExecutableExtens
 	 */
 	private Double screenPixelSize;
 
-	private TomoAlignmentViewController tomoAlignmentViewController;
+	private TomoAlignmentController tomoAlignmentController;
 
 	public String getViewPartName() {
 		return viewPartName;
@@ -66,16 +66,16 @@ public class TomoAlignmentViewFactoryFactory implements FindableExecutableExtens
 		TomoAlignmentView tomographyAlignmentView = new TomoAlignmentView();
 		tomographyAlignmentView.setViewPartName(viewPartName);
 		tomographyAlignmentView.setScreenPixelSize(screenPixelSize);
-		tomographyAlignmentView.setTomoAlignmentViewController(tomoAlignmentViewController);
+		tomographyAlignmentView.setTomoAlignmentController(tomoAlignmentController);
 		return tomographyAlignmentView;
 	}
 
-	public TomoAlignmentViewController getTomoAlignmentViewController() {
-		return tomoAlignmentViewController;
+	public TomoAlignmentController getTomoAlignmentController() {
+		return tomoAlignmentController;
 	}
 
-	public void setTomoAlignmentViewController(TomoAlignmentViewController tomoAlignmentViewController) {
-		this.tomoAlignmentViewController = tomoAlignmentViewController;
+	public void setTomoAlignmentController(TomoAlignmentController tomoAlignmentViewController) {
+		this.tomoAlignmentController = tomoAlignmentViewController;
 	}
 
 	@Override
