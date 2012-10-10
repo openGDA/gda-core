@@ -760,22 +760,6 @@
 			</xsd:extension>
 		</xsd:complexContent>
 	</xsd:complexType>
-	<xsd:annotation>
-		<xsd:documentation>
-			TfgXspress
-    </xsd:documentation>
-	</xsd:annotation>
-	<xsd:complexType name="TfgXspress">
-		<xsd:complexContent>
-			<xsd:extension base="CounterTimerBase">
-				<xsd:sequence>
-					<xsd:element ref="xspressSystemName"/>
-					<xsd:element ref="tfgName"/>
-					<xsd:element ref="slave"/>
-				</xsd:sequence>
-			</xsd:extension>
-		</xsd:complexContent>
-	</xsd:complexType>
 	<xsd:complexType name="TfgXspress2">
 		<xsd:complexContent>
 			<xsd:extension base="CounterTimerBase">
@@ -4591,7 +4575,6 @@
 					<xsd:element ref="Scaler"/>
 					<xsd:element ref="EncoderCounter"/>
 					<xsd:element ref="TfgScaler"/>
-					<xsd:element ref="TfgXspress"/>
 					<xsd:element ref="TfgXspress2"/>
 					<xsd:element ref="TfgXmap"/>
 					<xsd:element ref="TfgEncoderCounter"/>
