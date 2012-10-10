@@ -20,4 +20,11 @@ package gda.device.detector.nxdetector.plugin.areadetector.filewriter;
 
 public class SingleImagePerFileWriter extends gda.device.detector.addetector.filewriter.SingleImagePerFileWriter {
 	
+	public SingleImagePerFileWriter() {
+	}
+	
+	SingleImagePerFileWriter(String detectorName) {
+		super(detectorName);
+	}
+	
 }

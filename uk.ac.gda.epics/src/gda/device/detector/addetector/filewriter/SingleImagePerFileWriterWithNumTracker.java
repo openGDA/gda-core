@@ -39,7 +39,7 @@ public class SingleImagePerFileWriterWithNumTracker extends SingleImagePerFileWr
 	 * @param detectorName
 	 */
 	public SingleImagePerFileWriterWithNumTracker(String detectorName) {
-		setFileTemplate("%s%s%5.5d.tif");
+		setFileTemplate("%s%s%05d.tif");
 		setFilePathTemplate("$datadir$/snapped-data/" + detectorName);
 		setFileNameTemplate("");
 		setFileNumberAtScanStart(1);

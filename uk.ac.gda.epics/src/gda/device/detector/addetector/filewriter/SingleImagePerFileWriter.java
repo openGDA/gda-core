@@ -22,6 +22,7 @@ import static java.text.MessageFormat.format;
 import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.NDFile.FileWriteMode;
+import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataFileAppenderForSrs;
 import gda.device.detectorfilemonitor.HighestExistingFileMonitor;
@@ -151,9 +152,12 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 		}
 
 		setNDArrayPortAndAddress();
-		getNdFile().getPluginBase().enableCallbacks();
-		logger.warn("Detector will block the AreaDetectors acquisition thread while writing files");
-		getNdFile().getPluginBase().setBlockingCallbacks((short) (returnExpectedFileName ? 1 : 1)); // always block
+		NDPluginBase pluginBase = getNdFile().getPluginBase();
+		if (pluginBase != null) {
+			pluginBase.enableCallbacks();
+			logger.warn("Detector will block the AreaDetectors acquisition thread while writing files");
+			pluginBase.setBlockingCallbacks((short) (returnExpectedFileName ? 1 : 1)); // always block
+		}
 
 		getNdFile().setFileWriteMode(FileWriteMode.SINGLE);
 		
@@ -175,7 +179,7 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 		String newValue = StringUtils.replaceOnce(getFileTemplate(), "%s", getFilePathRelativeToDataDirIfPossible() + "/");
 		newValue = StringUtils.replaceOnce(newValue, "%s", getFileName());
 		String newKey = getkeyNameForMetadataPathTemplate();
-		jythonNamespace.placeInJythonNamespace("SRSWriteAtFileCreation", newMetadataString + newKey + "=" +newValue);
+		jythonNamespace.placeInJythonNamespace("SRSWriteAtFileCreation", newMetadataString + newKey + "='" +newValue + "'");
 	}
 
 	protected void configureNdFile() throws Exception {
@@ -227,8 +231,11 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 	}
 
 	public void disableFileWriting() throws Exception {
-		getNdFile().getPluginBase().disableCallbacks();
-		getNdFile().getPluginBase().setBlockingCallbacks((short) 0);
+		NDPluginBase filePluginBase = getNdFile().getPluginBase();
+		if (filePluginBase!=null) { // camserver filewriter has no base
+			filePluginBase.disableCallbacks();
+			filePluginBase.setBlockingCallbacks((short) 0);
+		}
 		getNdFile().setFileWriteMode(FileWriteMode.STREAM);
 	}
 
@@ -276,11 +283,11 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 				totalNumChecks++;
 				Thread.sleep(MILLI_SECONDS_BETWEEN_POLLS);
 				ScanBase.checkForInterrupts();
-				int numPollsPerMessage = SECONDS_BETWEEN_SLOW_FILE_ARRIVAL_MESSAGES / MILLI_SECONDS_BETWEEN_POLLS;
+				int numPollsPerMessage = SECONDS_BETWEEN_SLOW_FILE_ARRIVAL_MESSAGES *1000 / MILLI_SECONDS_BETWEEN_POLLS;
 				if (numChecksSinceLastMessage >= numPollsPerMessage) {
 					double totalSecondsPolling = totalNumChecks * MILLI_SECONDS_BETWEEN_POLLS / 1000.;
 					InterfaceProvider.getTerminalPrinter().print(
-							format("Waited {0}s for file '{0}' to be created.", filepath, totalSecondsPolling));
+							format("Waited " + totalSecondsPolling + "s for file '" + filepath + "' to be created."));
 					numChecksSinceLastMessage = 0;
 				}
 			}
