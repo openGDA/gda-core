@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -55,7 +55,6 @@ import uk.ac.gda.richbeans.components.ButtonComposite;
 import uk.ac.gda.richbeans.event.BoundsEvent;
 import uk.ac.gda.richbeans.event.BoundsEvent.Mode;
 import uk.ac.gda.richbeans.event.ValueEvent;
-import uk.ac.gda.ui.utils.StringUtils;
 
 /**
  * Base class for any box with a range and unit. Abstract class does not currently have abstract methods, but is not
@@ -270,11 +269,6 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 		return new Double(val);
 	}
 
-	/**
-	 * TODO Could probably save on Double
-	 * 
-	 * @param value
-	 */
 	@Override
 	public void setValue(final Object value) {
 		if (value != null) {
@@ -416,7 +410,12 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 
 		final Pattern pattern = getRegExpression();
 		final Matcher matcher = pattern.matcher(txt);
-		final StringBuilder buf = matcher.matches() ? null : StringUtils.keepDigits(txt, decimalPlaces);
+		final boolean matches = matcher.matches();
+		StringBuilder buf = null;
+		if (!matches) {
+			buf = new StringBuilder(String.format("%." + decimalPlaces + "f", Double.valueOf(txt)));
+		}
+
 		if (buf != null && "-".equals(buf.toString()))
 			return;
 
@@ -535,29 +534,29 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 			buf.append(getTooltipOveride());
 			buf.append("\n\n");
 		}
-		
+
 		if (getMinimum() == -Double.MAX_VALUE) {
 			buf.append("-∞");
 		} else {
 			buf.append(numberFormat.format(getMinimum()));
 		}
-		
+
 		if (unit != null)
 			buf.append(" " + unit);
 		buf.append(" < ");
 		final String field = getFieldName() != null ? getFieldName() : "value";
 		buf.append(field);
 		buf.append(" < ");
-		
+
 		if (getMaximum() == Double.MAX_VALUE) {
 			buf.append("∞");
 		} else {
 			buf.append(numberFormat.format(getMaximum()));
 		}
-		
+
 		if (unit != null)
 			buf.append(" " + unit);
-		
+
 		text.setToolTipText(buf.toString());
 	}
 
