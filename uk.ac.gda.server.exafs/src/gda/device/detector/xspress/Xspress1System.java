@@ -941,9 +941,6 @@ public class Xspress1System extends DetectorBase implements NexusDetector, Xspre
 		return output;
 	}
 
-	/**
-	 * For use by the TFGXspress class. This defines what is returned by the readoutScalers method.
-	 */
 	@Override
 	public ArrayList<String> getChannelLabels() {
 		ArrayList<String> channelLabels = new ArrayList<String>();

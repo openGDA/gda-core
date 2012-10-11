@@ -20,6 +20,14 @@
       </view>
       <view
             category="uk.ac.gda.client.exafs.category"
+            class="uk.ac.gda.exafs.ui.plot.NoiseScanPlotView"
+            icon="icons/chart_curve.png"
+            id="gda.rcp.views.scan.NoiseScanPlotView"
+            name="Noise Profile"
+            restorable="true">
+      </view>
+      <view
+            category="uk.ac.gda.client.exafs.category"
             class="uk.ac.gda.exafs.ui.plot.SubtractedBackgroundScanPlotView"
             icon="icons/chart_curve.png"
             id="gda.rcp.views.scan.SubtractedBackgroundScanPlotView"
