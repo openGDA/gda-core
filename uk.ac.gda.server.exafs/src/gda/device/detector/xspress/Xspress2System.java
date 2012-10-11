@@ -57,8 +57,7 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  * Represents a set of Xspress2 boards and detectors. It actually communicates with a DAServer object which is connected
  * to a da.server process running on a MVME computer.
  * <p>
- * This returns data as a Nexus tree from its readout method. If you wish for scaler data in an array of doubles, use a
- * TFGXspress object which references an instance of this class for communication with DAServer.
+ * This returns data as a Nexus tree from its readout method.
  * <p>
  * As this acts differently from the TFGv1 classes, some of the Xpress interface methods may not be implemented. This
  * needs resolving at some point.
@@ -454,9 +453,6 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		return getChannelLabels().toArray(new String[0]);
 	}
 
-	/**
-	 * For use by the TFGXspress class. This defines what is returned by the readoutScalers method.
-	 */
 	@Override
 	public ArrayList<String> getChannelLabels() {
 		ArrayList<String> channelLabels = new ArrayList<String>();
