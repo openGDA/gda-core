@@ -1,0 +1,6 @@
+# The install process does not preserve permissions, so set the execute permission where appropriate
+instructions.install = \
+chmod(targetDir:${artifact.location}/scripts,targetFile:tomodo.sh,permissions:+x);
+
+instructions.install.import= \
+org.eclipse.equinox.p2.touchpoint.natives.chmod
