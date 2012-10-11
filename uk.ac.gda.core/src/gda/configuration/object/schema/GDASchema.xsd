@@ -1560,33 +1560,6 @@
 			xspress
 	</xsd:documentation>
 	</xsd:annotation>
-	<xsd:complexType name="ExafsServer">
-		<xsd:complexContent>
-			<xsd:extension base="DeviceBase">
-				<xsd:sequence>
-					<xsd:element ref="host"/>
-					<xsd:element ref="port"/>
-					<!--
-						name field already exists in DeviceBase, but ExafsServer has a
-						"name" in mapping file?!
-					-->
-					<!--      <xsd:element ref="name" /> -->
-				</xsd:sequence>
-			</xsd:extension>
-		</xsd:complexContent>
-	</xsd:complexType>
-	<xsd:complexType name="DummyExafsServer">
-		<xsd:complexContent>
-			<xsd:extension base="ExafsServer"/>
-		</xsd:complexContent>
-	</xsd:complexType>
-	<xsd:complexType name="XspressSystem">
-		<xsd:sequence>
-			<xsd:element ref="name"/>
-			<xsd:element ref="ExafsServerName"/>
-			<xsd:element ref="numberOfDetectors"/>
-		</xsd:sequence>
-	</xsd:complexType>
 	<xsd:complexType name="Xspress1System">
 		<xsd:sequence>
 			<xsd:element ref="name"/>
@@ -3349,8 +3322,6 @@
 	
 	<xsd:element name="DummyCurrentAmplifier" type="DummyCurrentAmplifier"/>
 	
-	<xsd:element name="DummyExafsServer" type="DummyExafsServer"/>
-	
 	<xsd:element name="DummyFilterArray" type="DummyFilterArray"/>
 	
 	<xsd:element name="DummyGpib" type="DummyGpib"/>
@@ -3468,8 +3439,6 @@
 	<xsd:element name="evalUpperLimit" type="xsd:boolean"/>
 	
 	<xsd:element name="ExafsPanel" type="ExafsPanel"/>
-	
-	<xsd:element name="ExafsServer" type="ExafsServer"/>
 	
 	<xsd:element name="ExafsServerName" type="xsd:string"/>
 	
@@ -4533,8 +4502,6 @@
 	
 	<xsd:element name="XspressPanel" type="XspressPanel"/>
 	
-	<xsd:element name="XspressSystem" type="XspressSystem"/>
-	
 	<xsd:element name="xspressSystemCounterTimerName" type="xsd:string"/>
 	
 	<xsd:element name="xspressSystemName" type="xsd:string"/>
@@ -4605,8 +4572,6 @@
 					<xsd:element ref="EpicsAdc"/>
 					<xsd:element ref="PCO4000"/>
 					<xsd:element ref="EDXD"/>
-					<xsd:element ref="ExafsServer"/>
-					<xsd:element ref="DummyExafsServer"/>
 					<xsd:element ref="XspressSystem"/>
 					<xsd:element ref="Xspress1System"/>
 					<xsd:element ref="Xspress2System"/>
