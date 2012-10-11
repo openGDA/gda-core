@@ -30,6 +30,8 @@ public class XesScanParameters implements Serializable, IScanParameters {
 	static public final URL mappingURL = XesScanParameters.class.getResource("ExafsParameterMapping.xml");
 
 	static public final URL schemaURL = XesScanParameters.class.getResource("ExafsParameterMapping.xsd");
+	
+	public static String[] LOOPOPTIONS = new String []{"Ef outer, E0 inner","E0 outer, Ef inner"};
 
 	// The types of scan performed under XES
 	public static final int SCAN_XES_FIXED_MONO = 1;
@@ -77,6 +79,9 @@ public class XesScanParameters implements Serializable, IScanParameters {
 	private boolean additionalCrystal1;
 	private boolean additionalCrystal2;
 	private boolean additionalCrystal3;
+	
+	// order of the 2D scan
+	private String loopChoice;
 
 	/**
 	 * Must implement clear() method on beans being used with BeanUI.
@@ -132,142 +137,6 @@ public class XesScanParameters implements Serializable, IScanParameters {
 
 	public void setXesIntegrationTime(Double integrationTime) {
 		this.xesIntegrationTime = integrationTime;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (additionalCrystal0 ? 1231 : 1237);
-		result = prime * result + (additionalCrystal1 ? 1231 : 1237);
-		result = prime * result + (additionalCrystal2 ? 1231 : 1237);
-		result = prime * result + (additionalCrystal3 ? 1231 : 1237);
-		result = prime * result + analyserCut0;
-		result = prime * result + analyserCut1;
-		result = prime * result + analyserCut2;
-		result = prime * result + ((analyserType == null) ? 0 : analyserType.hashCode());
-		result = prime * result + ((edge == null) ? 0 : edge.hashCode());
-		result = prime * result + ((element == null) ? 0 : element.hashCode());
-		result = prime * result + ((monoEnergy == null) ? 0 : monoEnergy.hashCode());
-		result = prime * result + ((monoFinalEnergy == null) ? 0 : monoFinalEnergy.hashCode());
-		result = prime * result + ((monoInitialEnergy == null) ? 0 : monoInitialEnergy.hashCode());
-		result = prime * result + ((monoStepSize == null) ? 0 : monoStepSize.hashCode());
-		result = prime * result + ((radiusOfCurvature == null) ? 0 : radiusOfCurvature.hashCode());
-		result = prime * result + ((scanFileName == null) ? 0 : scanFileName.hashCode());
-		result = prime * result + scanType;
-		result = prime * result + ((scannableName == null) ? 0 : scannableName.hashCode());
-		result = prime * result + (shouldValidate ? 1231 : 1237);
-		result = prime * result + ((xesEnergy == null) ? 0 : xesEnergy.hashCode());
-		result = prime * result + ((xesFinalEnergy == null) ? 0 : xesFinalEnergy.hashCode());
-		result = prime * result + ((xesInitialEnergy == null) ? 0 : xesInitialEnergy.hashCode());
-		result = prime * result + ((xesIntegrationTime == null) ? 0 : xesIntegrationTime.hashCode());
-		result = prime * result + ((xesStepSize == null) ? 0 : xesStepSize.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		XesScanParameters other = (XesScanParameters) obj;
-		if (additionalCrystal0 != other.additionalCrystal0)
-			return false;
-		if (additionalCrystal1 != other.additionalCrystal1)
-			return false;
-		if (additionalCrystal2 != other.additionalCrystal2)
-			return false;
-		if (additionalCrystal3 != other.additionalCrystal3)
-			return false;
-		if (analyserCut0 != other.analyserCut0)
-			return false;
-		if (analyserCut1 != other.analyserCut1)
-			return false;
-		if (analyserCut2 != other.analyserCut2)
-			return false;
-		if (analyserType == null) {
-			if (other.analyserType != null)
-				return false;
-		} else if (!analyserType.equals(other.analyserType))
-			return false;
-		if (edge == null) {
-			if (other.edge != null)
-				return false;
-		} else if (!edge.equals(other.edge))
-			return false;
-		if (element == null) {
-			if (other.element != null)
-				return false;
-		} else if (!element.equals(other.element))
-			return false;
-		if (monoEnergy == null) {
-			if (other.monoEnergy != null)
-				return false;
-		} else if (!monoEnergy.equals(other.monoEnergy))
-			return false;
-		if (monoFinalEnergy == null) {
-			if (other.monoFinalEnergy != null)
-				return false;
-		} else if (!monoFinalEnergy.equals(other.monoFinalEnergy))
-			return false;
-		if (monoInitialEnergy == null) {
-			if (other.monoInitialEnergy != null)
-				return false;
-		} else if (!monoInitialEnergy.equals(other.monoInitialEnergy))
-			return false;
-		if (monoStepSize == null) {
-			if (other.monoStepSize != null)
-				return false;
-		} else if (!monoStepSize.equals(other.monoStepSize))
-			return false;
-		if (radiusOfCurvature == null) {
-			if (other.radiusOfCurvature != null)
-				return false;
-		} else if (!radiusOfCurvature.equals(other.radiusOfCurvature))
-			return false;
-		if (scanFileName == null) {
-			if (other.scanFileName != null)
-				return false;
-		} else if (!scanFileName.equals(other.scanFileName))
-			return false;
-		if (scanType != other.scanType)
-			return false;
-		if (scannableName == null) {
-			if (other.scannableName != null)
-				return false;
-		} else if (!scannableName.equals(other.scannableName))
-			return false;
-		if (shouldValidate != other.shouldValidate)
-			return false;
-		if (xesEnergy == null) {
-			if (other.xesEnergy != null)
-				return false;
-		} else if (!xesEnergy.equals(other.xesEnergy))
-			return false;
-		if (xesFinalEnergy == null) {
-			if (other.xesFinalEnergy != null)
-				return false;
-		} else if (!xesFinalEnergy.equals(other.xesFinalEnergy))
-			return false;
-		if (xesInitialEnergy == null) {
-			if (other.xesInitialEnergy != null)
-				return false;
-		} else if (!xesInitialEnergy.equals(other.xesInitialEnergy))
-			return false;
-		if (xesIntegrationTime == null) {
-			if (other.xesIntegrationTime != null)
-				return false;
-		} else if (!xesIntegrationTime.equals(other.xesIntegrationTime))
-			return false;
-		if (xesStepSize == null) {
-			if (other.xesStepSize != null)
-				return false;
-		} else if (!xesStepSize.equals(other.xesStepSize))
-			return false;
-		return true;
 	}
 
 	public static XesScanParameters createFromXML(String filename) throws Exception {
@@ -334,6 +203,14 @@ public class XesScanParameters implements Serializable, IScanParameters {
 
 	public void setXesStepSize(Double xesStepSize) {
 		this.xesStepSize = xesStepSize;
+	}
+
+	public String getLoopChoice() {
+		return loopChoice;
+	}
+
+	public void setLoopChoice(String loopChoice) {
+		this.loopChoice = loopChoice;
 	}
 
 	public Double getMonoInitialEnergy() {
@@ -432,4 +309,145 @@ public class XesScanParameters implements Serializable, IScanParameters {
 		this.additionalCrystal3 = additionalCrystal3;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (additionalCrystal0 ? 1231 : 1237);
+		result = prime * result + (additionalCrystal1 ? 1231 : 1237);
+		result = prime * result + (additionalCrystal2 ? 1231 : 1237);
+		result = prime * result + (additionalCrystal3 ? 1231 : 1237);
+		result = prime * result + analyserCut0;
+		result = prime * result + analyserCut1;
+		result = prime * result + analyserCut2;
+		result = prime * result + ((analyserType == null) ? 0 : analyserType.hashCode());
+		result = prime * result + ((edge == null) ? 0 : edge.hashCode());
+		result = prime * result + ((element == null) ? 0 : element.hashCode());
+		result = prime * result + ((loopChoice == null) ? 0 : loopChoice.hashCode());
+		result = prime * result + ((monoEnergy == null) ? 0 : monoEnergy.hashCode());
+		result = prime * result + ((monoFinalEnergy == null) ? 0 : monoFinalEnergy.hashCode());
+		result = prime * result + ((monoInitialEnergy == null) ? 0 : monoInitialEnergy.hashCode());
+		result = prime * result + ((monoStepSize == null) ? 0 : monoStepSize.hashCode());
+		result = prime * result + ((radiusOfCurvature == null) ? 0 : radiusOfCurvature.hashCode());
+		result = prime * result + ((scanFileName == null) ? 0 : scanFileName.hashCode());
+		result = prime * result + scanType;
+		result = prime * result + ((scannableName == null) ? 0 : scannableName.hashCode());
+		result = prime * result + (shouldValidate ? 1231 : 1237);
+		result = prime * result + ((xesEnergy == null) ? 0 : xesEnergy.hashCode());
+		result = prime * result + ((xesFinalEnergy == null) ? 0 : xesFinalEnergy.hashCode());
+		result = prime * result + ((xesInitialEnergy == null) ? 0 : xesInitialEnergy.hashCode());
+		result = prime * result + ((xesIntegrationTime == null) ? 0 : xesIntegrationTime.hashCode());
+		result = prime * result + ((xesStepSize == null) ? 0 : xesStepSize.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		XesScanParameters other = (XesScanParameters) obj;
+		if (additionalCrystal0 != other.additionalCrystal0)
+			return false;
+		if (additionalCrystal1 != other.additionalCrystal1)
+			return false;
+		if (additionalCrystal2 != other.additionalCrystal2)
+			return false;
+		if (additionalCrystal3 != other.additionalCrystal3)
+			return false;
+		if (analyserCut0 != other.analyserCut0)
+			return false;
+		if (analyserCut1 != other.analyserCut1)
+			return false;
+		if (analyserCut2 != other.analyserCut2)
+			return false;
+		if (analyserType == null) {
+			if (other.analyserType != null)
+				return false;
+		} else if (!analyserType.equals(other.analyserType))
+			return false;
+		if (edge == null) {
+			if (other.edge != null)
+				return false;
+		} else if (!edge.equals(other.edge))
+			return false;
+		if (element == null) {
+			if (other.element != null)
+				return false;
+		} else if (!element.equals(other.element))
+			return false;
+		if (loopChoice == null) {
+			if (other.loopChoice != null)
+				return false;
+		} else if (!loopChoice.equals(other.loopChoice))
+			return false;
+		if (monoEnergy == null) {
+			if (other.monoEnergy != null)
+				return false;
+		} else if (!monoEnergy.equals(other.monoEnergy))
+			return false;
+		if (monoFinalEnergy == null) {
+			if (other.monoFinalEnergy != null)
+				return false;
+		} else if (!monoFinalEnergy.equals(other.monoFinalEnergy))
+			return false;
+		if (monoInitialEnergy == null) {
+			if (other.monoInitialEnergy != null)
+				return false;
+		} else if (!monoInitialEnergy.equals(other.monoInitialEnergy))
+			return false;
+		if (monoStepSize == null) {
+			if (other.monoStepSize != null)
+				return false;
+		} else if (!monoStepSize.equals(other.monoStepSize))
+			return false;
+		if (radiusOfCurvature == null) {
+			if (other.radiusOfCurvature != null)
+				return false;
+		} else if (!radiusOfCurvature.equals(other.radiusOfCurvature))
+			return false;
+		if (scanFileName == null) {
+			if (other.scanFileName != null)
+				return false;
+		} else if (!scanFileName.equals(other.scanFileName))
+			return false;
+		if (scanType != other.scanType)
+			return false;
+		if (scannableName == null) {
+			if (other.scannableName != null)
+				return false;
+		} else if (!scannableName.equals(other.scannableName))
+			return false;
+		if (shouldValidate != other.shouldValidate)
+			return false;
+		if (xesEnergy == null) {
+			if (other.xesEnergy != null)
+				return false;
+		} else if (!xesEnergy.equals(other.xesEnergy))
+			return false;
+		if (xesFinalEnergy == null) {
+			if (other.xesFinalEnergy != null)
+				return false;
+		} else if (!xesFinalEnergy.equals(other.xesFinalEnergy))
+			return false;
+		if (xesInitialEnergy == null) {
+			if (other.xesInitialEnergy != null)
+				return false;
+		} else if (!xesInitialEnergy.equals(other.xesInitialEnergy))
+			return false;
+		if (xesIntegrationTime == null) {
+			if (other.xesIntegrationTime != null)
+				return false;
+		} else if (!xesIntegrationTime.equals(other.xesIntegrationTime))
+			return false;
+		if (xesStepSize == null) {
+			if (other.xesStepSize != null)
+				return false;
+		} else if (!xesStepSize.equals(other.xesStepSize))
+			return false;
+		return true;
+	}
 }

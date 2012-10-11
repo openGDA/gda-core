@@ -182,6 +182,9 @@
 		<field name="monoEnergy" type="double">
 			<bind-xml name="monoEnergy" node="element" />
 		</field>
+		<field name="loopChoice" type="string">
+			<bind-xml name="loopChoice" node="element" />
+		</field>
 		<field name="monoInitialEnergy" type="double">
 			<bind-xml name="monoInitialEnergy" node="element" />
 		</field>
