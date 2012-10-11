@@ -4572,7 +4572,6 @@
 					<xsd:element ref="EpicsAdc"/>
 					<xsd:element ref="PCO4000"/>
 					<xsd:element ref="EDXD"/>
-					<xsd:element ref="XspressSystem"/>
 					<xsd:element ref="Xspress1System"/>
 					<xsd:element ref="Xspress2System"/>
 					<xsd:element ref="Xspress2SystemPlus"/>
