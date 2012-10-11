@@ -574,14 +574,6 @@
 			<bind-xml name="timeChannelRequired" node="element" />
 		</field>
 	</class>
-	<!-- TfgXspress -->
-	<class extends="gda.device.detector.countertimer.CounterTimerBase"
-		identity="name" name="gda.device.detector.countertimer.TfgXspress">
-		<map-to xml="TfgXspress" />
-		<field name="xspressSystemName" type="string">
-			<bind-xml name="xspressSystemName" node="element" />
-		</field>
-	</class>
 	<class extends="gda.device.detector.countertimer.CounterTimerBase"
 		identity="name" name="gda.device.detector.countertimer.TfgXmap">
 		<map-to xml="TfgXmap" />
