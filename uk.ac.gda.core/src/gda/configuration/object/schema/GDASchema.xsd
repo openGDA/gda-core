@@ -3440,7 +3440,7 @@
 	
 	<xsd:element name="ExafsPanel" type="ExafsPanel"/>
 	
-	<xsd:element name="ExafsServerName" type="xsd:string"/>
+
 	
 	<xsd:element name="exceptionLevel" type="xsd:double"/>
 	
