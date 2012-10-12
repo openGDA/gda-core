@@ -120,6 +120,7 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 	private VerticalListEditor provider;
 
 	private Button fillGasButton;
+	private Button abortFillButton;
 
 	private DetectorParameters detParams;
 	private IonChamberParameters ionParams;
@@ -237,7 +238,6 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 
 		fillGasButton = new Button(composite, SWT.NONE);
 		fillGasButton.setToolTipText("Click to fill the gas into the ion chamber.");
-		fillGasButton.setImage(SWTResourceManager.getImage(IonChamberComposite.class, "/application_side_expand.png"));
 		fillGasButton.setText("Fill Gas");
 
 		fillGasButton.addSelectionListener(new SelectionListener() {
@@ -290,7 +290,22 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 					JythonServerFacade.getInstance().runCommand(command);
 				}
 			}
+		});
+		
+		abortFillButton = new Button(composite, SWT.NONE);
+		abortFillButton.setToolTipText("Click to abort the gas fill sequence.");
+		abortFillButton.setText("Abort");
 
+		abortFillButton.addSelectionListener(new SelectionListener(){
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				JythonServerFacade.getInstance().runCommand("ionc1_gas_injector.abort()");
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
 		});
 	}
 
