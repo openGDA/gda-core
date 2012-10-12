@@ -1560,44 +1560,6 @@
 			xspress
 	</xsd:documentation>
 	</xsd:annotation>
-	<xsd:complexType name="Xspress1System">
-		<xsd:sequence>
-			<xsd:element ref="name"/>
-			<xsd:element ref="daServerName"/>
-			<xsd:element ref="numberOfDetectors"/>
-			<xsd:element ref="xspressSystemName"/>
-			<xsd:element ref="mcaOpenCommand"/>
-			<xsd:element ref="scalerOpenCommand"/>
-			<xsd:element ref="dummy"/>
-		</xsd:sequence>
-	</xsd:complexType>
-	<xsd:complexType name="Xspress2System">
-		<xsd:sequence>
-			<xsd:element ref="name"/>
-			<xsd:element ref="daServerName"/>
-			<xsd:element ref="tfgName"/>
-			<xsd:element ref="mcaOpenCommand"/>
-			<xsd:element ref="scalerOpenCommand"/>
-			<xsd:element minOccurs="0" ref="startupScript"/>
-			<xsd:element ref="numberOfDetectors"/>
-			<xsd:element ref="dummy"/>
-		</xsd:sequence>
-	</xsd:complexType>
-	<xsd:complexType name="Xspress2SystemPlus">
-		<xsd:sequence>
-			<xsd:element ref="name"/>
-			<xsd:element ref="daServerName"/>
-			<xsd:element ref="tfgName"/>
-			<xsd:element ref="mcaOpenCommand"/>
-			<xsd:element ref="scalerOpenCommand"/>
-			<xsd:element minOccurs="0" ref="startupScript"/>
-			<xsd:element ref="numberOfDetectors"/>
-			<xsd:element ref="configFileName"/>
-			<xsd:element ref="readoutMode"/>
-			<xsd:element ref="xspressSystemName"/>
-			<xsd:element name="fullMCABits"/>
-		</xsd:sequence>
-	</xsd:complexType>
 	<xsd:annotation>
 		<xsd:documentation>
 			Digital I/O
@@ -3583,8 +3545,6 @@
 	
 	<xsd:element name="HPDataLogger" type="HPDataLogger"/>
 	
-	
-	
 	<xsd:element name="I18ExafsPanel" type="I18ExafsPanel"/>
 	
 	<xsd:element name="I18MicroFocusPanel" type="I18MicroFocusPanel"/>
@@ -4490,15 +4450,10 @@
 	
 	<xsd:element name="XpsPositionerName" type="xsd:string"/>
 	
-	<xsd:element name="Xspress1System" type="Xspress1System"/>
 	
 	<xsd:element name="Xspress2MonitorPanel" type="Xspress2MonitorPanel"/>
 	
 	<xsd:element name="Xspress2Panel" type="Xspress2Panel"/>
-	
-	<xsd:element name="Xspress2System" type="Xspress2System"/>
-	
-	<xsd:element name="Xspress2SystemPlus" type="Xspress2SystemPlus"/>
 	
 	<xsd:element name="XspressPanel" type="XspressPanel"/>
 	
@@ -4572,9 +4527,6 @@
 					<xsd:element ref="EpicsAdc"/>
 					<xsd:element ref="PCO4000"/>
 					<xsd:element ref="EDXD"/>
-					<xsd:element ref="Xspress1System"/>
-					<xsd:element ref="Xspress2System"/>
-					<xsd:element ref="Xspress2SystemPlus"/>
 					<xsd:element ref="ColumnDataFile"/>
 					<xsd:element ref="LookupTable"/>
 					<xsd:element ref="LookupTableConverter"/>
