@@ -184,6 +184,8 @@ class XasScan(Scan):
                     if numRepetitions > 1:
                         print ""
                         print "Starting repetition", str(repetitionNumber),"of",numRepetitions
+                    else:
+                        print "Starting scan..."
                     thisscan = ConcurrentScan(args)
                     controller.update(None, ScanCreationEvent(thisscan.getName()))
                     thisscan.runScan()
