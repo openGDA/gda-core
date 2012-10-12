@@ -91,6 +91,12 @@
             id="uk.ac.gda.exafs.ui.views.xmapi1monitor"
             name="XES Xmap Rates"
             restorable="true">
+      </view>
+      <view
+            class="uk.ac.gda.exafs.ui.ionchambers.IonChambersView"
+            id="uk.ac.gda.exafs.ui.ionchambers"
+            name="Ion Chambers"
+            restorable="true">
       </view> 
    </extension>
    <extension
