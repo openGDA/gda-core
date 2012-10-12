@@ -758,7 +758,9 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 
 	@Override
 	public void stopCapture() throws Exception {
-		file.stopCapture();
+		if (getPluginBase().isCallbackEnabled()) {
+			file.stopCapture();
+		}
 	}
 
 	@Override
@@ -866,7 +868,7 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	public int getNumCaptured_RBV() throws Exception {
 		return file.getNumCaptured_RBV();
 	}
-	
+
 	@Override
 	public String getArrayPort() throws Exception {
 		try {
