@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,19 +16,22 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.xspress;
+package gda.messages;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import java.util.List;
 
-/**
- * Runs all the tests in gda.device.xspress
- */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-	AsynchronousReaderWriterTest.class,
-	DummyExafsServerTest.class
-})
+import gda.jython.UserMessage;
 
-public class AllJUnitTests {
+public interface MessageHandler {
+	
+	/**
+	 * Save a message - e.g. to disk.
+	 */
+	public void saveMessage(String visit, UserMessage message);
+	
+	/**
+	 * Get previous messages for a visit.
+	 */
+	public List<UserMessage> getMessageHistory(String visit);
+
 }

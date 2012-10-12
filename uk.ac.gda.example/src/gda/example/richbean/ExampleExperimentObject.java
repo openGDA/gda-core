@@ -79,7 +79,7 @@ public class ExampleExperimentObject extends ExperimentObject {
 	}
 
 	@Override
-	public String getCommandSummaryString(boolean hasBeenRun) {
+	public String getCommandSummaryString(boolean hasBeenStarted) {
 		// TODO Auto-generated method stub
 		return null;
 	}

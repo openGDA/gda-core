@@ -18,8 +18,11 @@
 
 package uk.ac.gda.client.interfaces.impl;
 
+import java.util.List;
+
 import gda.jython.IBatonStateProvider;
 import gda.jython.InterfaceProvider;
+import gda.jython.UserMessage;
 import gda.jython.batoncontrol.ClientDetails;
 import gda.observable.IObserver;
 
@@ -94,6 +97,12 @@ public class BatonStateProviderBean implements IBatonStateProvider{
 	public void sendMessage(String message) {
 		getRunner().sendMessage(message);
 	}
+	
+	@Override
+	public List<UserMessage> getMessageHistory() {
+		return getRunner().getMessageHistory();
+	}
+	
 	@Override
 	public boolean switchUser(String username, String password) {
 		return getRunner().switchUser(username, password);
