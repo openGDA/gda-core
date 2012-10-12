@@ -38,6 +38,8 @@ import gda.jython.corba.impl.JythonImpl;
 import gda.jython.socket.SocketServer;
 import gda.jython.socket.SocketServer.ServerType;
 import gda.jython.translator.Translator;
+import gda.messages.InMemoryMessageHandler;
+import gda.messages.MessageHandler;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
@@ -333,6 +335,12 @@ public class JythonServer extends OutputStream implements Jython, LocalJython, C
 		return isLocal;
 	}
 
+	private MessageHandler messageHandler;
+	
+	public void setMessageHandler(MessageHandler messageHandler) {
+		this.messageHandler = messageHandler;
+	}
+	
 	// to fulfil the Configurable interface
 
 	@Override
@@ -340,6 +348,13 @@ public class JythonServer extends OutputStream implements Jython, LocalJython, C
 		if (!configured) {
 			// force garbage collect (useful if doing a restart)
 			System.gc();
+			
+			if (messageHandler == null) {
+				final InMemoryMessageHandler messageHandler = new InMemoryMessageHandler();
+				messageHandler.setMaxMessagesPerVisit(10);
+				setMessageHandler(messageHandler);
+			}
+			
 			// reset the defaultScannables array
 			defaultScannables = new Vector<Scannable>();
 
@@ -960,9 +975,33 @@ public class JythonServer extends OutputStream implements Jython, LocalJython, C
 	@Override
 	public void sendMessage(String myJSFIdentifier, String message) {
 		ClientDetails details = this.batonManager.getClientInformation(myJSFIdentifier);
-		updateIObservers(new UserMessage(details.getIndex(), details.getUserID(), message));
+		final UserMessage msg = new UserMessage(details.getIndex(), details.getUserID(), message);
+		
+		// Save message first...
+		saveMessage(details, msg);
+		
+		// ...before notifying clients
+		updateIObservers(msg);
 	}
-
+	
+	private void saveMessage(ClientDetails details, UserMessage message) {
+		final String visit = details.getVisitID();
+		if (StringUtils.hasText(visit)) {
+			messageHandler.saveMessage(visit, message);
+		}
+	}
+	
+	@Override
+	public List<UserMessage> getMessageHistory(String myJSFIdentifier) {
+		final ClientDetails details = this.batonManager.getClientInformation(myJSFIdentifier);
+		final String visit = details.getVisitID();
+		if (StringUtils.hasText(visit)) {
+			List<UserMessage> messages = messageHandler.getMessageHistory(visit);
+			return messages;
+		}
+		return null;
+	}
+	
 	private void updateIObservers(Object messageObject) {
 		// localFacade will be null during configure phase, and before implFactory made
 		if (localFacade != null) {

@@ -18,6 +18,9 @@
 
 package uk.ac.gda.views.baton;
 
+import java.text.SimpleDateFormat;
+import java.util.List;
+
 import gda.configuration.properties.LocalProperties;
 import gda.jython.InterfaceProvider;
 import gda.jython.UserMessage;
@@ -34,6 +37,7 @@ import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -146,9 +150,19 @@ public class MessageView extends ViewPart implements IObserver {
 			sashForm.setWeights(new int[] {412, 38});
 		}
 		if(!LocalProperties.isBatonManagementEnabled()){
-			addUserMessageText("", "Baton control is not enabled for this beam line.");
+			UserMessage msg = new UserMessage(-1, "", "Baton control is not enabled for this beam line.");
+			addUserMessageText(msg);
 		}
-
+		
+		else {
+			List<UserMessage> oldMessages = InterfaceProvider.getBatonStateProvider().getMessageHistory();
+			if (oldMessages != null) {
+				for (UserMessage msg : oldMessages) {
+					addUserMessageText(msg);
+				}
+				scrollToEndOfHistory();
+			}
+		}
 	}
 	
 	private void sendMessage() {
@@ -172,24 +186,42 @@ public class MessageView extends ViewPart implements IObserver {
 	}
 	
 
-	protected void addUserMessageText(final String userName, final String text) {
+	protected void addUserMessageText(UserMessage message) {
+		
+		if (history.getCharCount() > 0) {
+			// add newline to end of previous message - if there is one
+			history.append("\n");
+		}
 		
 		StyleRange style = new StyleRange();
+		style.font = new Font(history.getDisplay(), "Monospace", 0, SWT.NORMAL);
 		style.start = history.getCharCount();
-		style.length = userName.length() + 3;
-		history.append("\n");
-		history.append(userName);
-		history.append("> ");
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String dateTime = String.format("[%s]", dateFormat.format(message.getTimestamp()));
+		style.length = dateTime.length();
+		history.append(dateTime);
+		history.setStyleRange(style);
+		
+		style = new StyleRange();
+		style.fontStyle = SWT.BOLD;
+		style.start = history.getCharCount();
+		String prefix = String.format(" %s: ", message.getSourceUsername());
+		style.length = prefix.length();
+		history.append(prefix);
 		history.setStyleRange(style);
 
 		style = new StyleRange();
 		style.start = history.getCharCount();
-		style.length = text.length();
 		style.fontStyle = SWT.BOLD;
 		// CadetBlue from http://www.wilsonmar.com/1colors.htm#TopMenu
 		style.foreground = new Color(this.getSite().getShell().getDisplay(),95,158,160); 
-		history.append(text);
+		history.append(" "); history.append(message.getMessage());
+		style.length = 1 + message.getMessage().length();
 		history.setStyleRange(style);
+	}
+	
+	private void scrollToEndOfHistory() {
+		history.setTopIndex(history.getLineCount() - 1);
 	}
 
 	@Override
@@ -199,7 +231,8 @@ public class MessageView extends ViewPart implements IObserver {
 				@Override
 				public void run() {
 					UserMessage message = (UserMessage) changeCode;
-   				    addUserMessageText(message.getSourceUsername(), message.getMessage());
+					addUserMessageText(message);
+					scrollToEndOfHistory();
 				}
 			});	
 		}

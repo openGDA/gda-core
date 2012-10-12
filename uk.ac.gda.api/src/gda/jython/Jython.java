@@ -408,6 +408,10 @@ public interface Jython extends Findable {
 	 */
 	public void sendMessage(String myJSFIdentifier, String message);
 	
+	/**
+	 * Returns previous messages sent during this visit.
+	 */
+	public List<UserMessage> getMessageHistory(String myJSFIdentifier);
 	
 	// commands for aliasing methods in the Jython environment
 	/**

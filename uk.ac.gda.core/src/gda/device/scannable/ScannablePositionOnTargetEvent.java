@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,19 +16,20 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector;
+package gda.device.scannable;
 
-/**
- * A detector implementing this interface is capable of reading the
- * dark current in the atScanStart() method. This can be quered for 
- * real time maths on the count rate later on in the scan.
- */
-public interface DarkCurrentDetector {
+import java.io.Serializable;
 
-	/**
-	 * 
-	 * @return results from Dark Current reading, typically ordered I0, It, Iref
-	 */
-	public DarkCurrentResults getDarkCurrentResults();
-
+public class ScannablePositionOnTargetEvent implements Serializable{
+	
+	final public Serializable newPosition;
+	
+	public ScannablePositionOnTargetEvent(Serializable newPosition){
+		this.newPosition = newPosition;
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("%s(newPosition=%s)", getClass().getSimpleName(), newPosition);
+	}
 }

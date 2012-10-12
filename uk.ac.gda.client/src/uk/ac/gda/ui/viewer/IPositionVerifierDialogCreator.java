@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,19 +16,11 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector;
+package uk.ac.gda.ui.viewer;
 
-/**
- * A detector implementing this interface is capable of reading the
- * dark current in the atScanStart() method. This can be quered for 
- * real time maths on the count rate later on in the scan.
- */
-public interface DarkCurrentDetector {
+import org.eclipse.swt.widgets.Shell;
 
-	/**
-	 * 
-	 * @return results from Dark Current reading, typically ordered I0, It, Iref
-	 */
-	public DarkCurrentResults getDarkCurrentResults();
-
+public interface IPositionVerifierDialogCreator {
+	
+	boolean userAccepts(Shell shell, double currentPosition, double desiredPosition);
 }

@@ -145,6 +145,8 @@ interface CorbaJython : gda::_factory::corba::CorbaFindable
 	
 	void sendMessage(in string uniqueFacadeName, in string message) raises (device::corba::CorbaDeviceException);
 	
+	any getMessageHistory(in string uniqueFacadeName) raises (device::corba::CorbaDeviceException);
+	
 	string locateScript(in string scriptToRun) raises (device::corba::CorbaDeviceException);
 
     string getDefaultScriptProjectFolder() raises (device::corba::CorbaDeviceException);
