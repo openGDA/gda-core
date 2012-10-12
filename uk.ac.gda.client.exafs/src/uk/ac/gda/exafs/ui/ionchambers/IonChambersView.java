@@ -18,21 +18,22 @@
 
 package uk.ac.gda.exafs.ui.ionchambers;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.part.ViewPart;
 
-public class IonChamber extends Composite implements ViewEditor {
+public class IonChambersView extends ViewPart {
 
-	public IonChamber(Composite parent, int style) {
-		super(parent, style);
+	public IonChambersView() {
 	}
 
 	@Override
-	public boolean isInEditor() {
-		return false;
+	public void createPartControl(Composite parent) {
+		new GasFilling(parent, SWT.NONE);
 	}
 
 	@Override
-	public void setInEditor() {
+	public void setFocus() {
 	}
 
 }

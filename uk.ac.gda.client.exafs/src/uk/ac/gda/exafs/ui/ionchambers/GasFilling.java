@@ -112,6 +112,8 @@ public class GasFilling extends Composite implements ViewEditor {
 		
 		ExpandItem expandItemAdvanced = new ExpandItem(expandAdvanced, SWT.NONE);
 		expandItemAdvanced.setText("Advanced");
+		expandItemAdvanced.setHeight(300);
+		
 		
 		Composite compositeAdvanced = new Composite(expandAdvanced, SWT.NONE);
 		compositeAdvanced.setLayout(new GridLayout(2, false));
