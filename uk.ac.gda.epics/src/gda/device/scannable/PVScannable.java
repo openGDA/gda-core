@@ -23,11 +23,14 @@ import java.io.Serializable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.epics.ConfigurationNotFoundException;
+import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
 import gda.epics.CAClient;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
+import gda.epics.interfaces.SimplePvType;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
@@ -54,7 +57,6 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 	 * The attribute to get to retrieve the units string from Epics.
 	 */
 	public static final String UNITSATTRIBUTE = "unitName";
-
 	private double deadband = 0.0;
 	private double lastKnownValue = 0.0;
 	private boolean isBusy = false;
@@ -62,11 +64,28 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 	private String pvName = "";
 	private String unitsPvName = "";
 	private String units = "";
+	private String deviceName;
+
+	public String getDeviceName() {
+		return deviceName;
+	}
+
+	public void setDeviceName(String deviceName) {
+		this.deviceName = deviceName;
+	}
 
 	private Channel theChannel;
 	private EpicsController controller;
 	private EpicsChannelManager channelManager;
+	
+	public PVScannable() {
+		
+	}
 
+	public PVScannable(String name, String pv) {
+		setName(name);
+		this.pvName=pv;
+	}
 	/**
 	 * @see gda.device.DeviceBase#configure()
 	 */
@@ -77,6 +96,19 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 		// connect to PV
 		controller = EpicsController.getInstance();
 		channelManager = new EpicsChannelManager(this);
+		if (pvName==""){
+			SimplePvType config;
+			try {
+				config = Configurator.getConfiguration(getDeviceName(), SimplePvType.class);
+			} catch (ConfigurationNotFoundException e) {
+				logger.error(
+						"Can NOT find EPICS configuration for PV scannable " + getDeviceName() + "."
+								+ e.getMessage(), e);
+				throw new FactoryException("Can NOT find EPICS configuration for PV scannable " + getDeviceName()
+						+ "." + e.getMessage(), e);
+			}	
+			pvName=config.getRECORD().getPv();
+		}
 		try {
 			theChannel = channelManager.createChannel(pvName, this);
 			channelManager.creationPhaseCompleted();

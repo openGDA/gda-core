@@ -18,19 +18,18 @@
 
 package gda.device.detector.addetector.triggering;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Vector;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.springframework.beans.factory.InitializingBean;
-
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Vector;
+
+import org.springframework.beans.factory.InitializingBean;
 
 abstract public class AbstractADTriggeringStrategy implements NXCollectionStrategyPlugin, InitializingBean{
 
@@ -124,6 +123,7 @@ abstract public class AbstractADTriggeringStrategy implements NXCollectionStrate
 		}
 		getAdBase().setAcquireTime(collectionTime);
 	}
+	
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
