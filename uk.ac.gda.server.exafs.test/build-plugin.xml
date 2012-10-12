@@ -1,0 +1,55 @@
+<project name="plugin-uk.ac.gda.server.exafs.test" basedir=".">
+
+    <dirname property="GDA-plugin.basedir" file="${ant.file.${ant.project.name}}" />
+    <pathconvert property="workspace.loc" setonempty="false">
+        <regexpmapper from="(.*)_git/.+" to="\1"/>
+        <path><pathelement location="${GDA-plugin.basedir}" /></path>
+    </pathconvert>
+    <pathconvert property="workspace.loc" setonempty="false">
+        <regexpmapper from="(.*)/plugins/.+" to="\1"/>
+        <path><pathelement location="${GDA-plugin.basedir}" /></path>
+    </pathconvert>
+    <property name="workspace.git.loc" value="${workspace.loc}_git" />
+    <pathconvert property="GDA-plugin.host.basedir" setonempty="false">
+            <regexpmapper from="(.*).test" to="\1"/>
+            <path><pathelement location="${GDA-plugin.basedir}" /></path>
+    </pathconvert>
+    <import file="${workspace.loc}/builder/build-common.xml" />
+
+    <!-- ====================================================================
+           Invoke the tests
+         ==================================================================== -->
+
+    <target name="junit-tests" depends="toolCheck, set-test-base">
+        <junit-call description="${ant.project.name} Java JUnit tests">
+            <formatter type="xml" />
+            <classpath>
+                <pathelement location="${junitjar.loc}" />
+                <pathelement location="${jythonjar.loc}" />
+                <path refid="libs.jars.path" />
+                <pathelement location="${GDA-plugin.basedir}/bin" />
+                <pathelement location="${GDA-plugin.basedir}/testfiles/logging" />  <!-- to pick up logback-test.xml -->
+                <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.test.helpers/bin" />
+                <pathelement location="${GDA-plugin.host.basedir}/bin" />
+                <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/bin" />
+                <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.core/classes/main" />
+                <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.core/classes/test" />
+                <pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
+                <pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/bin" />
+                <pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/jars/*" />
+                <pathelement location="${workspace.git.loc}/diamond-springframework.git/uk.ac.diamond.org.springframework/jars/*" />
+                <pathelement path="${workspace.loc}/tp/plugins/uk.ac.diamond.org.jscience_2.0.2.jar" />  <!--ensure that 2.0.2 appears first in classpath -->
+                <pathelement path="${workspace.loc}/tp/plugins/com.springsource.slf4j.api_1.5.6.jar" />  <!--ensure that required org.slf4j.LoggerFactory appears first in classpath -->
+                <pathelement path="${workspace.loc}/tp/plugins/com.springsource.slf4j.org.apache.commons.logging_1.5.6.jar" />  <!--ensure that matching imp appears first in classpath -->
+                <pathelement location="${workspace.loc}/tp/plugins/*" />
+            </classpath>
+            <batchtest todir="@{report.dir}">
+                <fileset dir="${GDA-plugin.basedir}/src">
+                    <include name="**/*Test.java" />
+                    <exclude name="**/*PluginTest.java" />
+                </fileset>
+            </batchtest>
+        </junit-call>
+    </target>
+
+</project>

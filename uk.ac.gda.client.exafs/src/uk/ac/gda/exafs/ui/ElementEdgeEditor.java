@@ -385,14 +385,14 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 			String dcmCrystal = JythonServerFacade.getInstance().evaluateCommand("dcm_crystal()");
 
 			if (dcmCrystal.equals("Si(111)")) {
-				edgeEnergy_Label.setMaximum(22000.0);
+				edgeEnergy_Label.setMaximum(26000.0);
 				edgeEnergy_Label.setMinimum(2050.0);
 			} else if (dcmCrystal.equals("Si(311)")) {
-				edgeEnergy_Label.setMaximum(36000.0);
+				edgeEnergy_Label.setMaximum(40000.0);
 				edgeEnergy_Label.setMinimum(4000.0);
 			}
 		} else {
-			edgeEnergy_Label.setMaximum(35000.0);
+			edgeEnergy_Label.setMaximum(40000.0);
 		}
 		BeanUI.addBeanField(editingBean.getClass(), "EdgeEnergy", edgeEnergy_Label);
 

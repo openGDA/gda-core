@@ -25,7 +25,7 @@ import gda.device.scannable.PositionCallableProvider;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class CallableTfgXspress2 extends TfgXspress2 implements PositionCallableProvider<Object>, DetectorWithReadout {
+public class CallableTfgXspress2 extends TfgXspress2 implements PositionCallableProvider<Object> {
 
 	AtomicBoolean readingOut = new AtomicBoolean(false);
 	@Override
@@ -65,19 +65,6 @@ public class CallableTfgXspress2 extends TfgXspress2 implements PositionCallable
 		synchronized (this.readingOut) {
 			this.readingOut.set(readingOut);
 			this.readingOut.notifyAll();
-		}
-	}
-	@Override
-	public void waitForReadoutCompletion() throws InterruptedException {
-		synchronized (readingOut) {
-			while (readingOut.get()) {
-				try{
-				readingOut.wait();
-				}
-				catch (InterruptedException e) {
-					setReadingOut(false);
-				}
-			}
 		}
 	}
 }

@@ -82,6 +82,19 @@ public class ExafsScanPointCreator {
 		setupScanPointCreator(parameters, creator);
 		return creator.getEnergies();
 	}
+	
+	public static ArrayList<ExafsScanRegionTime> getScanTimes(XasScanParameters parameters) throws Exception{
+		ExafsScanPointCreator creator = new ExafsScanPointCreator();
+		setupScanPointCreator(parameters, creator);
+		creator.getEnergies();
+		return creator.scanTimes;
+	}
+
+	public static Double[] getScanTimeArray(XasScanParameters parameters) throws Exception {
+		ExafsScanPointCreator creator = new ExafsScanPointCreator();
+		setupScanPointCreator(parameters, creator);
+		return creator.getScanTimes();
+	}
 
 	private static void setupScanPointCreator(XasScanParameters parameters,ExafsScanPointCreator creator ) throws Exception
 	{
@@ -995,12 +1008,5 @@ public class ExafsScanPointCreator {
 		} else if (!preEdgeTime.equals(other.preEdgeTime))
 			return false;
 		return true;
-	}
-	
-	public static ArrayList<ExafsScanRegionTime> getScanTimes(XasScanParameters parameters) throws Exception{
-		ExafsScanPointCreator creator = new ExafsScanPointCreator();
-		setupScanPointCreator(parameters, creator);
-		creator.getEnergies();
-		return creator.scanTimes;
 	}
 }

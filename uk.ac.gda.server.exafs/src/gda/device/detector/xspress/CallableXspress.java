@@ -26,7 +26,7 @@ import gda.device.scannable.PositionCallableProvider;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class CallableXspress extends Xspress2System implements XspressDetector, PositionCallableProvider<NexusTreeProvider> , DetectorWithReadout {
+public class CallableXspress extends Xspress2System implements XspressDetector, PositionCallableProvider<NexusTreeProvider>  {
 
 	AtomicBoolean readingOut = new AtomicBoolean(false);
 
@@ -69,20 +69,4 @@ public class CallableXspress extends Xspress2System implements XspressDetector, 
 				this.readingOut.notifyAll();
 			}
 		}
-		@Override
-		public void waitForReadoutCompletion() throws InterruptedException {
-			synchronized (readingOut) {
-				while (readingOut.get()) {
-					try{
-					readingOut.wait();
-					}
-					catch (InterruptedException e) {
-						setReadingOut(false);
-					}
-				}
-			}
-		}
-
-	
-
 }

@@ -9,7 +9,6 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.nexus;bundle-version="1.0.0",
  uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.gda.libs;bundle-version="1.0.0",
- org.junit4;bundle-version="4.8.1",
  org.eclipse.core.resources;bundle-version="3.6.0",
  uk.ac.gda.common.rcp;bundle-version="1.0.0",
  org.eclipse.ui.workbench;bundle-version="3.6.1",
@@ -24,7 +23,6 @@ Export-Package: gda.data.scan.datawriter,
  gda.device.detector,
  gda.device.detector.countertimer,
  gda.device.detector.xspress,
- gda.device.detector.xspress.TestFiles,
  gda.device.detector.xspress.corba.impl,
  gda.device.scannable,
  gda.exafs.mucal,
@@ -44,3 +42,4 @@ Export-Package: gda.data.scan.datawriter,
  uk.ac.gda.server.exafs
 Eclipse-RegisterBuddy: uk.ac.gda.common, uk.ac.gda.core, uk.ac.gda.client
 Import-Package: org.slf4j;version="[1.5.0,2.0.0)"
+Bundle-Vendor: Diamond Light Source

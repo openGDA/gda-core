@@ -25,7 +25,7 @@ import gda.device.DeviceException;
 import gda.device.detector.DetectorWithReadout;
 import gda.device.scannable.PositionCallableProvider;
 
-public class CallableTfgScalerWithLogValues extends TfgScalerWithLogValues implements PositionCallableProvider<double[]>, DetectorWithReadout {
+public class CallableTfgScalerWithLogValues extends TfgScalerWithLogValues implements PositionCallableProvider<double[]> {
 
 	AtomicBoolean readingOut = new AtomicBoolean(false);
 	@Override
@@ -67,18 +67,4 @@ public class CallableTfgScalerWithLogValues extends TfgScalerWithLogValues imple
 			this.readingOut.notifyAll();
 		}
 	}
-	@Override
-	public void waitForReadoutCompletion() throws InterruptedException {
-		synchronized (readingOut) {
-			while (readingOut.get()) {
-				try{
-				readingOut.wait();
-				}
-				catch (InterruptedException e) {
-					setReadingOut(false);
-				}
-			}
-		}
-	}
-
 }

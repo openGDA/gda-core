@@ -99,12 +99,11 @@ public class XYThetaStageComposite extends FieldBeanComposite {
 			setMotorLimits("sam2x", x);
 			setMotorLimits("sam2y", y);
 			setMotorLimits("sam2rot", theta);
-			
+
 		} catch (Exception e) {
 			logger.warn("exception while fetching hardware limits: " + e.getMessage(), e);
 		}
-		
-		
+
 		btnGetCurrentValues.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
@@ -115,21 +114,23 @@ public class XYThetaStageComposite extends FieldBeanComposite {
 			}
 		});
 
-//		try {
-//			HardwareUI.setHardwareLimits(x, xName);
-//			HardwareUI.setHardwareLimits(y, yName);
-//			HardwareUI.setHardwareLimits(theta, thetaName);
-//		} catch (Exception e) {
-//			logger.warn("exception while fetching hardware limits: " + e.getMessage(), e);
-//		}
+		// try {
+		// HardwareUI.setHardwareLimits(x, xName);
+		// HardwareUI.setHardwareLimits(y, yName);
+		// HardwareUI.setHardwareLimits(theta, thetaName);
+		// } catch (Exception e) {
+		// logger.warn("exception while fetching hardware limits: " + e.getMessage(), e);
+		// }
 
 	}
-	
-	public void setMotorLimits(String motorName, ScaleBox box) throws Exception{
-		String lowerLimit = JythonServerFacade.getInstance().evaluateCommand(motorName+".getLowerMotorLimit()");
-		String upperLimit = JythonServerFacade.getInstance().evaluateCommand(motorName+".getUpperMotorLimit()");
-		box.setMinimum(Double.parseDouble(lowerLimit));
-		box.setMaximum(Double.parseDouble(upperLimit));
+
+	public void setMotorLimits(String motorName, ScaleBox box) throws Exception {
+		String lowerLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getLowerMotorLimit()");
+		String upperLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getUpperMotorLimit()");
+		if (!lowerLimit.equals("None") && lowerLimit != null && !lowerLimit.isEmpty())
+			box.setMinimum(Double.parseDouble(lowerLimit));
+		if (!upperLimit.equals("None") && upperLimit != null && !upperLimit.isEmpty())
+			box.setMaximum(Double.parseDouble(upperLimit));
 	}
 
 	@Override

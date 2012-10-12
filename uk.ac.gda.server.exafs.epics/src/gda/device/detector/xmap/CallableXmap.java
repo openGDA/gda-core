@@ -27,7 +27,7 @@ import gda.device.scannable.PositionCallableProvider;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class CallableXmap extends NexusXmap implements XmapDetector, PositionCallableProvider<NexusTreeProvider> , DetectorWithReadout {
+public class CallableXmap extends NexusXmap implements XmapDetector, PositionCallableProvider<NexusTreeProvider> {
 	AtomicBoolean readingOut = new AtomicBoolean(false);
 	@Override
 	public Callable<NexusTreeProvider> getPositionCallable() throws DeviceException {
@@ -67,19 +67,6 @@ public class CallableXmap extends NexusXmap implements XmapDetector, PositionCal
 		synchronized (this.readingOut) {
 			this.readingOut.set(readingOut);
 			this.readingOut.notifyAll();
-		}
-	}
-	@Override
-	public void waitForReadoutCompletion() throws InterruptedException {
-		synchronized (readingOut) {
-			while (readingOut.get()) {
-				try{
-				readingOut.wait();
-				}
-				catch (InterruptedException e) {
-					setReadingOut(false);
-				}
-			}
 		}
 	}
 }

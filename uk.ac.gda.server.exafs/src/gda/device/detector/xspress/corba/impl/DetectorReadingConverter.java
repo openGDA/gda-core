@@ -33,7 +33,6 @@ public class DetectorReadingConverter {
 	 * @param cdr
 	 *            corba detector reading
 	 * @return DetectorReading
-	 * @see gda.device.xspress.DetectorReading
 	 */
 	public static DetectorReading toDetectorReading(CorbaDetectorReading cdr) {
 		DetectorReading dr = new DetectorReading(DetectorElementConverter.toDetectorElement(cdr.detector), cdr.total, cdr.resets,

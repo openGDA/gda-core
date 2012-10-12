@@ -57,8 +57,7 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  * Represents a set of Xspress2 boards and detectors. It actually communicates with a DAServer object which is connected
  * to a da.server process running on a MVME computer.
  * <p>
- * This returns data as a Nexus tree from its readout method. If you wish for scaler data in an array of doubles, use a
- * TFGXspress object which references an instance of this class for communication with DAServer.
+ * This returns data as a Nexus tree from its readout method.
  * <p>
  * As this acts differently from the TFGv1 classes, some of the Xpress interface methods may not be implemented. This
  * needs resolving at some point.
@@ -454,9 +453,6 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		return getChannelLabels().toArray(new String[0]);
 	}
 
-	/**
-	 * For use by the TFGXspress class. This defines what is returned by the readoutScalers method.
-	 */
 	@Override
 	public ArrayList<String> getChannelLabels() {
 		ArrayList<String> channelLabels = new ArrayList<String>();
@@ -761,7 +757,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	}
 
 	@Override
-	public void close() {
+	public void close() throws DeviceException {
 		if (mcaHandle >= 0 && daServer != null && daServer.isConnected()) {
 			daServer.sendCommand("close " + mcaHandle);
 			mcaHandle = -1;
@@ -2091,9 +2087,13 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 			open();
 		}
 		if (mcaHandle >= 0 && daServer != null && daServer.isConnected()) {
-			value = daServer.getIntBinaryData("read 0 0 " + startFrame + " " + mcaSize + " " + numberOfDetectors
-					* mcaGrades + " " + numberOfFrames + " from " + mcaHandle + " raw motorola", numberOfDetectors
-					* mcaGrades * mcaSize * numberOfFrames);
+			try {
+				value = daServer.getIntBinaryData("read 0 0 " + startFrame + " " + mcaSize + " " + numberOfDetectors
+						* mcaGrades + " " + numberOfFrames + " from " + mcaHandle + " raw motorola", numberOfDetectors
+						* mcaGrades * mcaSize * numberOfFrames);
+			} catch (Exception e) {
+				throw new DeviceException(e.getMessage(),e);
+			}
 		}
 		return value;
 	}
@@ -2104,9 +2104,13 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 			open();
 		}
 		if (scalerHandle >= 0 && daServer != null && daServer.isConnected()) {
-			value = daServer.getIntBinaryData("read 0 0 " + startFrame + " " + numberOfScalers + " "
-					+ numberOfDetectors + " " + numberOfFrames + " from " + scalerHandle + " raw motorola",
-					numberOfDetectors * numberOfScalers * numberOfFrames);
+			try {
+				value = daServer.getIntBinaryData("read 0 0 " + startFrame + " " + numberOfScalers + " "
+						+ numberOfDetectors + " " + numberOfFrames + " from " + scalerHandle + " raw motorola",
+						numberOfDetectors * numberOfScalers * numberOfFrames);
+			} catch (Exception e) {
+				throw new DeviceException(e.getMessage(),e);
+			}
 		}
 		return value;
 	}
@@ -2115,18 +2119,17 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	public void reconfigure() throws FactoryException {
 		// A real system needs a connection to a real da.server via a DAServer object.
 		logger.debug("Xspress2System.reconfigure(): reconnecting to: " + daServerName);
-		daServer.reconnect();
+		try {
+			daServer.reconnect();
 
-		// does not reconfigure the tfg -- need to check if it is needed
-		// If everything has been found send the open commands.
-		if (tfg != null && (daServer != null)) {
-			try {
+			// does not reconfigure the tfg -- need to check if it is needed
+			// If everything has been found send the open commands.
+			if (tfg != null && (daServer != null)) {
 				open();
-			} catch (DeviceException e) {
-				throw new FactoryException(e.getMessage(), e);
 			}
+		} catch (DeviceException e) {
+			throw new FactoryException(e.getMessage(), e);
 		}
-
 	}
 
 	@Override
@@ -2171,8 +2174,9 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	// this method is only for Junit testing
 	/**
 	 * for use by junit tests
+	 * @throws DeviceException 
 	 */
-	protected void setFail() {
+	protected void setFail() throws DeviceException {
 		if (daServer != null && daServer.isConnected()) {
 			daServer.sendCommand("Fail");
 		}
