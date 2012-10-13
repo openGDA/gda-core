@@ -19,11 +19,49 @@
 package uk.ac.gda.exafs.ui.ionchambers;
 
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.layout.GridData;
 
 public class Amplifier extends Composite implements ViewEditor {
 
 	public Amplifier(Composite parent, int style) {
 		super(parent, style);
+		setLayout(new FormLayout());
+		
+		Group grpAmplifier = new Group(this, SWT.NONE);
+		grpAmplifier.setLayout(new GridLayout(1, false));
+		FormData fd_grpAmplifier = new FormData();
+		fd_grpAmplifier.top = new FormAttachment(0);
+		fd_grpAmplifier.left = new FormAttachment(0);
+		fd_grpAmplifier.bottom = new FormAttachment(0, 95);
+		fd_grpAmplifier.right = new FormAttachment(0, 268);
+		grpAmplifier.setLayoutData(fd_grpAmplifier);
+		grpAmplifier.setText("Amplifier");
+		
+		Button btnCheckButton = new Button(grpAmplifier, SWT.CHECK);
+		btnCheckButton.setText("Change Before Scan");
+		
+		Composite composite = new Composite(grpAmplifier, SWT.NONE);
+		composite.setLayout(new GridLayout(3, false));
+		
+		Label lblNewLabel = new Label(composite, SWT.NONE);
+		lblNewLabel.setText("Sensitivity");
+		
+		Combo combo = new Combo(composite, SWT.NONE);
+		GridData gd_combo = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_combo.widthHint = 139;
+		combo.setLayoutData(gd_combo);
+		
+		Button btnSet = new Button(composite, SWT.NONE);
+		btnSet.setText("Set");
 		// TODO Auto-generated constructor stub
 	}
 
@@ -38,5 +76,4 @@ public class Amplifier extends Composite implements ViewEditor {
 		// TODO Auto-generated method stub
 		
 	}
-
 }
