@@ -21,6 +21,7 @@ package uk.ac.gda.exafs.ui.ionchambers;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -42,7 +43,7 @@ public class GasFilling extends Composite implements ViewEditor {
 
 	public GasFilling(Composite parent, int style) {
 		super(parent, style);
-		
+		setLayout(new FormLayout());
 		Group grpGasFilling = new Group(this, SWT.NONE);
 		grpGasFilling.setText("Gas Filling");
 		grpGasFilling.setBounds(10, 10, 559, 233);
@@ -114,7 +115,6 @@ public class GasFilling extends Composite implements ViewEditor {
 		expandItemAdvanced.setText("Advanced");
 		expandItemAdvanced.setHeight(300);
 		
-		
 		Composite compositeAdvanced = new Composite(expandAdvanced, SWT.NONE);
 		compositeAdvanced.setLayout(new GridLayout(2, false));
 		
@@ -151,13 +151,10 @@ public class GasFilling extends Composite implements ViewEditor {
 
 	@Override
 	public boolean isInEditor() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public void setInEditor() {
-		// TODO Auto-generated method stub
-		
+	public void setInEditor() {		
 	}
 }
