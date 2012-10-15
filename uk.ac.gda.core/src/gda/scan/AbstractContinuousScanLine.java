@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
 /**
  * 
  */
-public abstract class AbtsractContinuousScanLine extends ConcurrentScan {
+public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 
 	static class PositionGrabbingAdapter implements ContinuouslyScannableViaController {
 		
@@ -327,8 +327,9 @@ public abstract class AbtsractContinuousScanLine extends ConcurrentScan {
 
 	private boolean detectorsIntegrateBetweenTriggers;
 	
-	public AbtsractContinuousScanLine(Object[] args) throws IllegalArgumentException {
+	public AbstractContinuousScanLine(Object[] args) throws IllegalArgumentException {
 		super(wrapContinuouslyScannables(args));
+		callCollectDataOnDetectors = false;
 		extractScannablesToScan();
 		extractDetectors();
 		if (detectors.size() == 0) {
@@ -440,9 +441,15 @@ public abstract class AbtsractContinuousScanLine extends ConcurrentScan {
 			for (HardwareTriggerableDetector det : detectors) {
 				det.setHardwareTriggering(true);
 			}
+			
+			for (HardwareTriggerableDetector det : detectors) {
+				det.setNumberImagesToCollect(getNumberPoints());
+			}
+
 			logger.info(MessageFormat
-					.format("Requests to collect data on Detectors ({0}) will be collected by the TrajectoryMoveController ({1})",
-							scannablesToString(detectors), getController().getName()));
+					.format("Detectors ({0}) configured for hardware triggering to collect {1} images",
+							scannablesToString(detectors)), getNumberPoints());
+			
 
 		} catch (Exception e) {
 			logger.info("problem in prepareDevicesForCollection()");
@@ -535,13 +542,6 @@ public abstract class AbtsractContinuousScanLine extends ConcurrentScan {
 	
 	protected abstract void configureControllerTriggerTimes() throws DeviceException ;
 
-	// TODO: Consider this change. It would make writing HTDs simpler
-//	@Override
-//	protected void triggerDetectorsAndWait() throws InterruptedException, DeviceException {
-//		// Don't trigger detectors through Detector.collectData();
-//	}
-	
-
 	List<Map<Scannable,double[]>> generateTrajectoryForDetectorsThatIntegrateBetweenTriggers() {
 		List<Map<Scannable, double[]>> triggers = 
 			new LinkedList<Map<Scannable, double[]>>();
@@ -619,7 +619,7 @@ public abstract class AbtsractContinuousScanLine extends ConcurrentScan {
 			@Override
 			public Void call() throws Exception {
 				try {
-					det.arm();
+					det.collectData();
 				} catch (Exception e) {
 					throw new Exception("Problem arming " + det.getName(), e);
 				}
