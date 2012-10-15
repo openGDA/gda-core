@@ -504,7 +504,9 @@ public interface ADBase  {
 	int getNumExposures() throws Exception;
 
 	/**
-	 *
+	 * From http://cars9.uchicago.edu/software/epics/areaDetectorDoc.html#ADDriver:
+	 * "Number of exposures per image to acquire". Contrast with {@link #setNumImages(int)}.
+	 * To quote Ulrik Pederson: "most detectors don't support this.
 	 */
 	void setNumExposures(int numexposures) throws Exception;
 
@@ -524,7 +526,8 @@ public interface ADBase  {
 	int getNumImages() throws Exception;
 
 	/**
-	 *
+	 * From http://cars9.uchicago.edu/software/epics/areaDetectorDoc.html#ADDriver:
+	 * "Number of images to acquire in one acquisition sequence". Contrast to {@link #setNumExposures(int)}.
 	 */
 	void setNumImages(int numimages) throws Exception;
 

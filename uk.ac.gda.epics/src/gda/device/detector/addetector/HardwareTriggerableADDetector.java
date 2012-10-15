@@ -70,6 +70,8 @@ public class HardwareTriggerableADDetector extends ADDetector implements Hardwar
 
 	private boolean integratesBetweenPoints;
 
+	private int numberImagesToCollect;
+
 	public void setIntegratesBetweenPoints(boolean integratesBetweenPoints) {
 		this.integratesBetweenPoints = integratesBetweenPoints;
 	}
@@ -128,6 +130,17 @@ public class HardwareTriggerableADDetector extends ADDetector implements Hardwar
 			setCollectionStrategy(getNonHardwareTriggeredCollectionStrategy());
 		}
 	}
+	
+	@Override
+	public void setNumberImagesToCollect(int numberImagesToCollect) {
+		this.numberImagesToCollect = numberImagesToCollect;
+	}
+
+	public int getNumberImagesToCollect() {
+		return numberImagesToCollect;
+	}
+	
+	
 	@Override
 	public void atScanStart() throws DeviceException 
 	{
@@ -165,20 +178,17 @@ public class HardwareTriggerableADDetector extends ADDetector implements Hardwar
 	public void collectData() throws DeviceException {
 		if (!isHardwareTriggering()) {
 			super.collectData();
-		}
-	}
-
-	@Override
-	public void arm() throws DeviceException {
-		// only called when in hardware triggering mode
-		try {
-			getCollectionStrategy().prepareForCollection(getCollectionTime(), getHardwareTriggerProvider().getNumberTriggers() - 1);
-			// Set number of images: the last trigger to end the exposure is superfluous
-			getCollectionStrategy().collectData();
-			nextPositionCallableExposureNumberToReturn = 0;
-		} catch (Exception e) {
-			throw new DeviceException(MessageFormat.format("{0} during {1} arm: {2}", e.getClass(), getName(),
-					e.getMessage()), e);
+		} else {
+			// only called when in hardware triggering mode
+			try {
+				getCollectionStrategy().prepareForCollection(getCollectionTime(), getNumberImagesToCollect());
+				// Set number of images: the last trigger to end the exposure is superfluous
+				getCollectionStrategy().collectData();
+				nextPositionCallableExposureNumberToReturn = 0;
+			} catch (Exception e) {
+				throw new DeviceException(MessageFormat.format("{0} during {1} arm: {2}", e.getClass(), getName(),
+						e.getMessage()), e);
+			}
 		}
 	}
 

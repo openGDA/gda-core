@@ -137,7 +137,7 @@ public class ADPilatusTest extends ADDetectorTest {
 		when(triggerProvider.getNumberTriggers()).thenReturn(11); // one to close at end
 		pil().setHardwareTriggering(true);
 		pil().setCollectionTime(1.);
-		pil().arm();
+		pil().collectData();
 		InOrder inOrder = inOrder(adBase, mockAdDriverPilatus);
 		inOrder.verify(adBase).setAcquirePeriod(1. + READOUT_TIME);
 		inOrder.verify(adBase).setAcquireTime(1);
@@ -175,7 +175,7 @@ public class ADPilatusTest extends ADDetectorTest {
 		when(ndFile.getFileNumber_RBV()).thenReturn(99);
 		pil().atScanLineStart();
 		pil().setHardwareTriggering(true);
-		pil().arm();
+		pil().collectData();
 	}
 
 	@Override
