@@ -30,50 +30,49 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.layout.GridData;
 
-public class Amplifier extends Composite implements ViewEditor {
-
-	public Amplifier(Composite parent, int style) {
+public class Amplifier extends Composite{
+	public Amplifier(Composite parent, int style, boolean inEditor) {
 		super(parent, style);
 		setLayout(new FormLayout());
-		
+
 		Group grpAmplifier = new Group(this, SWT.NONE);
 		grpAmplifier.setLayout(new GridLayout(1, false));
 		FormData fd_grpAmplifier = new FormData();
 		fd_grpAmplifier.top = new FormAttachment(0);
 		fd_grpAmplifier.left = new FormAttachment(0);
 		fd_grpAmplifier.bottom = new FormAttachment(0, 95);
-		fd_grpAmplifier.right = new FormAttachment(0, 268);
+		fd_grpAmplifier.right = new FormAttachment(0, 245);
 		grpAmplifier.setLayoutData(fd_grpAmplifier);
 		grpAmplifier.setText("Amplifier");
-		
-		Button btnCheckButton = new Button(grpAmplifier, SWT.CHECK);
-		btnCheckButton.setText("Change Before Scan");
-		
+
+
 		Composite composite = new Composite(grpAmplifier, SWT.NONE);
+		GridData gd_composite = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
+		gd_composite.widthHint = 231;
+		composite.setLayoutData(gd_composite);
 		composite.setLayout(new GridLayout(3, false));
-		
+
+
+
 		Label lblNewLabel = new Label(composite, SWT.NONE);
 		lblNewLabel.setText("Sensitivity");
-		
+
 		Combo combo = new Combo(composite, SWT.NONE);
 		GridData gd_combo = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_combo.widthHint = 139;
+		gd_combo.widthHint = 107;
 		combo.setLayoutData(gd_combo);
-		
-		Button btnSet = new Button(composite, SWT.NONE);
-		btnSet.setText("Set");
-		// TODO Auto-generated constructor stub
-	}
 
-	@Override
-	public boolean isInEditor() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void setInEditor() {
-		// TODO Auto-generated method stub
+		if (inEditor) {
+			Button btnCheckButton = new Button(composite, SWT.CHECK);
+			btnCheckButton.setText("Change Before Scan");
+			fd_grpAmplifier.bottom = new FormAttachment(0, 65);
+			fd_grpAmplifier.right = new FormAttachment(0, 370);
+			gd_composite.widthHint = 360;
+		}
 		
+		else {
+			Button btnSet = new Button(composite, SWT.NONE);
+			btnSet.setText("Set");
+		}
 	}
 }

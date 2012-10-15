@@ -29,8 +29,7 @@ public class IonChambersView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-	
-		new IonChamber(parent, SWT.NONE);
+		new IonChamber(parent, SWT.NONE, false);
 	}
 
 	@Override
