@@ -128,8 +128,6 @@ class I20XasScan(XasScan):
     
     def setUpIonChambers(self,beanGroup):
         jython_mapper = JythonNameSpaceMapping()
-        # get ion chmabers
-        ct = jython_mapper.ionchambers
     
         # determine max collection time
         scanBean = beanGroup.getScan()
@@ -154,7 +152,8 @@ class I20XasScan(XasScan):
         # set dark current time and handle any errors here
         if maxTime > 0:
             print "Setting ionchambers dark current collectiom time to be",str(maxTime),"s"
-            ct.setDarkCurrentCollectionTime(maxTime)
+            jython_mapper.ionchambers.setDarkCurrentCollectionTime(maxTime)
+            jython_mapper.I1.setDarkCurrentCollectionTime(maxTime)
 
 class I20XesScan(XasScan):
     
@@ -207,6 +206,9 @@ class I20XesScan(XasScan):
         finder_mapper = FinderNameMapping()
         jython_mapper = JythonNameSpaceMapping()
         loggingcontroller = Finder.getInstance().find("XASLoggingScriptController")
+        
+        # ion chambers
+        self.setUpIonChambers(beanGroup)
 
         if beanGroup.getSample().getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV_XES[1] :
             
@@ -364,7 +366,6 @@ class I20XesScan(XasScan):
         scriptType = "Xes"
         # set the dark current and integration time for all detectors
         itime = beanGroup.getScan().getXesIntegrationTime()
-        jython_mapper.I1.setDarkCurrentCollectionTime(itime);
         for det in detectorList:
             det.setCollectionTime(itime)
         
@@ -426,3 +427,10 @@ class I20XesScan(XasScan):
             LocalProperties.set("gda.data.scan.datawriter.dataFormat", originalDataFormat)
             # make sure the plotter is switched off
             jython_mapper.twodplotter.atScanEnd()
+
+    def setUpIonChambers(self,beanGroup):
+        jython_mapper = JythonNameSpaceMapping()
+        # get ion chmabers
+        ct = jython_mapper.I1
+        ct.setDarkCurrentCollectionTime(beanGroup.getScan().getXesIntegrationTime())
+

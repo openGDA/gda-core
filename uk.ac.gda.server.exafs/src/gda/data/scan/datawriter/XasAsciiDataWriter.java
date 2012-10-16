@@ -136,11 +136,24 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 				if (da != null && da.getCounts().length >= 3) {
 					file.write("#\n");
 					file.write(String.format(
-							"# Dark current intensity (Hz), collected over %.2fs: I0 %0.2f   It %0.2f   Iref %0.2f\n",
+							"# Dark current intensity (Hz), collected over %.2fs: I0 %.2f   It %.2f   Iref %.2f\n",
 							da.getTimeInS(), da.getCounts()[0] / da.getTimeInS(), da.getCounts()[1] / da.getTimeInS(),
 							da.getCounts()[2] / da.getTimeInS()));
 					file.write("# Dark current has been automatically removed from counts in main scan (I0,It,Iref)\n");
 					file.write("#\n");
+				}
+				try {
+					if (da != null && da.getCounts().length == 1) {
+						file.write("#\n");
+						file.write(String.format(
+								"# Dark current intensity (Hz), collected over %.2fs: I1 %.2f\n",
+								da.getTimeInS(), da.getCounts()[0] / da.getTimeInS()));
+						file.write("# Dark current has been automatically removed from counts in main scan (I1)\n");
+						file.write("#\n"); 
+					}
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					logger.error("TODO put description of error here", e);
 				}
 
 				columnHeader = dataPoint.getHeaderString(getScanDataPointFormatter());
