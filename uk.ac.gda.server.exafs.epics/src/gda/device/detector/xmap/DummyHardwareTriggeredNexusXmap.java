@@ -56,20 +56,12 @@ public class DummyHardwareTriggeredNexusXmap extends HardwareTriggerableDetector
 	}
 
 	@Override
-	public void arm() throws DeviceException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public boolean integratesBetweenPoints() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public void collectData() throws DeviceException {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -89,7 +81,6 @@ public class DummyHardwareTriggeredNexusXmap extends HardwareTriggerableDetector
 
 	@Override
 	public boolean createsOwnFiles() throws DeviceException {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -100,19 +91,16 @@ public class DummyHardwareTriggeredNexusXmap extends HardwareTriggerableDetector
 
 	@Override
 	public String getDetectorID() throws DeviceException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String getDetectorType() throws DeviceException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void update(Object source, Object arg) {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -263,7 +251,7 @@ public class DummyHardwareTriggeredNexusXmap extends HardwareTriggerableDetector
 
 	@Override
 	public void waitForFile(String fileName) throws DeviceException, InterruptedException {
-		double timeoutMilliSeconds = getCollectionTime() * getHardwareTriggerProvider().getNumberTriggers() * 1000;
+		double timeoutMilliSeconds = getCollectionTime() * getNumberImagesToCollect() * 1000;
 		double waitedSoFarMilliSeconds = 0;
 		int waitTime = 1000;
 		while (isStillWriting(fileName) || waitedSoFarMilliSeconds <= timeoutMilliSeconds) {

@@ -30,10 +30,9 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 
-public class VoltageSupply extends Composite implements ViewEditor {
+public class VoltageSupply extends Composite{
 	private Text text;
-
-	public VoltageSupply(Composite parent, int style) {
+	public VoltageSupply(Composite parent, int style, boolean inEditor) {
 		super(parent, style);
 		setLayout(new FormLayout());
 		
@@ -43,7 +42,7 @@ public class VoltageSupply extends Composite implements ViewEditor {
 		fd_grpVoltageSupply.top = new FormAttachment(0);
 		fd_grpVoltageSupply.left = new FormAttachment(0);
 		fd_grpVoltageSupply.bottom = new FormAttachment(0, 97);
-		fd_grpVoltageSupply.right = new FormAttachment(0, 276);
+		fd_grpVoltageSupply.right = new FormAttachment(0, 245);
 		grpVoltageSupply.setLayoutData(fd_grpVoltageSupply);
 		grpVoltageSupply.setText("Voltage Supply");
 		
@@ -60,22 +59,11 @@ public class VoltageSupply extends Composite implements ViewEditor {
 		lblNewLabel_1.setText("Demand Voltage");
 		
 		text = new Text(grpVoltageSupply, SWT.BORDER);
-		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_text.widthHint = 86;
+		text.setLayoutData(gd_text);
 		
 		Button btnSet = new Button(grpVoltageSupply, SWT.NONE);
 		btnSet.setText("Set");
-		// TODO Auto-generated constructor stub
-	}
-
-	@Override
-	public boolean isInEditor() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void setInEditor() {
-		// TODO Auto-generated method stub
-		
 	}
 }
