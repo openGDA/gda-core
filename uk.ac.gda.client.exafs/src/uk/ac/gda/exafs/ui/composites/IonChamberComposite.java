@@ -489,6 +489,10 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 			chambers = detParams.getTransmissionParameters().getIonChamberParameters();
 		} else if (detParams.getExperimentType().toString().equals("Fluorescence")) {
 			chambers = detParams.getFluorescenceParameters().getIonChamberParameters();
+		} else if (detParams.getExperimentType().toString().equals("XES")) {
+			chambers = detParams.getXesParameters().getIonChamberParameters();
+		} else {
+			return;
 		}
 		
 		if (workingE < 7000) {
@@ -506,7 +510,7 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 			chambers.get(2).setGasType("Kr");
 		}
 		
-		if (chamber.equals("I0")) {
+		if (chamber.equals("I0") || chamber.equals("I1")) {
 			this.percentAbsorption.setValue(15);
 			if (workingE < 7000) {
 				gasType.select(N);
@@ -581,18 +585,19 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 
 								int index = provider.getSelectedIndex();
 
-								TransmissionParameters transmissionParameters;
-								FluorescenceParameters fluoresenceParameters;
+//								TransmissionParameters transmissionParameters;
+//								FluorescenceParameters fluoresenceParameters;
 								List<IonChamberParameters> ionParamsList = null;
 
 								if (experimentType.equals("Transmission")) {
-									transmissionParameters = detParams.getTransmissionParameters();
-									ionParamsList = transmissionParameters.getIonChamberParameters();
-								}
-
-								else if (experimentType.equals("Fluorescence")) {
-									fluoresenceParameters = detParams.getFluorescenceParameters();
-									ionParamsList = fluoresenceParameters.getIonChamberParameters();
+									TransmissionParameters params = detParams.getTransmissionParameters();
+									ionParamsList = params.getIonChamberParameters();
+								} else if (experimentType.equals("Fluorescence")) {
+									FluorescenceParameters params = detParams.getFluorescenceParameters();
+									ionParamsList = params.getIonChamberParameters();
+								} else if (experimentType.equals("XES")) {
+									FluorescenceParameters params = detParams.getXesParameters();
+									ionParamsList = params.getIonChamberParameters();
 								}
 
 								if (ionParamsList != null) {
