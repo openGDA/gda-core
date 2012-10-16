@@ -507,9 +507,14 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 		
 	def setCollectionTime(self, t):
 		self.det.setCollectionTime(t)
+		if self.hardware_triggered_detector:
+			self.hardware_triggered_detector.setCollectionTime(t) # setCollectionTime is called before the detector knows it will be used in continuous mode
 
 	def prepareForCollection(self):
 		self.det.prepareForCollection()
+
+	def atScanLineStart(self):
+		self.det.atScanLineStart()
 
 	def atScanStart(self):
 		self.det.atScanStart()
@@ -526,10 +531,15 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 		return self.det.getStatus()
 
 	def readout(self):
+		if self.isHardwareTriggering():
+			self.clearLastAcquisitionState()
 		return self.getPositionCallable().call()
 		
 	def endCollection(self):
 		self.det.endCollection()
+
+	def atScanLineEnd(self):
+		self.det.atScanLineEnd()
 
 	def atScanEnd(self):
 		self.det.atScanEnd()
@@ -551,6 +561,12 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 	
 	def prepareForAcquisition(self, collection_time):
 		self.detector_for_snaps.setCollectionTime(collection_time)
+		
+	def getPositionCallable(self):
+		if self.isHardwareTriggering():
+			self.clearLastAcquisitionState()
+			self.hardware_triggered_detector.lastReadoutValue = None
+		return ProcessingDetectorWrapper.getPositionCallable(self)
 
 
 #	public double getAcquireTime() throws Exception;
@@ -560,7 +576,7 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 
 
 	def acquire(self):
-		
+		self.clearLastAcquisitionState()
 		self.detector_for_snaps.atScanStart()
 		self.detector_for_snaps.atScanLineStart()
 		self.detector_for_snaps.collectData()
