@@ -53,7 +53,7 @@ class I20OutputPreparer:
                     visibleAxes = []
                     invisibleAxes = []
                     for axis in axes:
-                        if str(axis).startswith("Element"):
+                        if str(axis).startswith("Element") and self._containsUnderbar(str(axis)):
                             invisibleAxes += [axis]
                         else:
                             visibleAxes += [axis]
@@ -64,6 +64,12 @@ class I20OutputPreparer:
                     return sps
 
         return None
+    
+    def _containsUnderbar(self,string):
+        for c in string:
+            if c == "_":
+                return True
+        return False
 
          
 def redefineNexusMetadata(beanGroup):
