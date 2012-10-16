@@ -60,6 +60,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.views.AsciiTextView;
 import uk.ac.gda.common.rcp.util.EclipseWidgetUtils;
+import uk.ac.gda.menu.JythonControlsFactory;
 import uk.ac.gda.preferences.PreferenceConstants;
 
 public class CommandProcessorComposite extends Composite {
@@ -78,6 +79,7 @@ public class CommandProcessorComposite extends Composite {
 	private Label txtState;
 	private Action btnSkip;
 	private Action btnRunPause;
+	private boolean btnRunPause_Run = false;
 	private Action btnStopAfterCurrent;
 	private Action btnStop;
 	private Action btnAddToQueue;
@@ -124,19 +126,11 @@ public class CommandProcessorComposite extends Composite {
 		btnRunPause = new Action(null, SWT.NONE) {
 			@Override
 			public void run() {
-				if (btnRunPause.getImageDescriptor() == runImage || btnRunPause.getText().equals(strRun)) {
-					setRun(true);
-				} else {
-					setRun(false);
-				}
+				setRun(btnRunPause_Run);
 			}
 		};
 		btnRunPause.setId(CommandQueueViewFactory.ID + ".runpause");
-		if (showText){
-			btnRunPause.setText(strRun);
-		} else {
-			btnRunPause.setImageDescriptor(runImage);
-		}
+		setRunBtnState(true);
 		ToolBarManager toolBarManager = (ToolBarManager) iWorkbenchPartSite.getActionBars().getToolBarManager();
 		toolBarManager.add(btnRunPause);
 
@@ -310,6 +304,25 @@ public class CommandProcessorComposite extends Composite {
 		updateStateAndDescription(null);
 	}
 
+	private void setRunBtnState(boolean run){
+		btnRunPause_Run = run;
+		if( run){
+			if (showText){
+				btnRunPause.setText(strRun);
+			} else {
+				btnRunPause.setImageDescriptor(CommandProcessorComposite.this.runImage);
+			}
+			btnRunPause.setToolTipText("Run current task if paused or start next task");
+		} else {
+			if (showText){
+				btnRunPause.setText(strPause);
+			} else {
+				btnRunPause.setImageDescriptor(CommandProcessorComposite.this.pauseImage);
+			}
+			btnRunPause.setToolTipText("Pause current task if possible. Stop queue");
+		}
+	}
+	
 	protected void setRun(boolean run) {
 		String commandId = run ? CommandQueueContributionFactory.UK_AC_GDA_CLIENT_START_COMMAND_QUEUE
 				: CommandQueueContributionFactory.UK_AC_GDA_CLIENT_PAUSE_COMMAND_QUEUE;
@@ -358,12 +371,14 @@ public class CommandProcessorComposite extends Composite {
 
 				switch (state) {
 				case PROCESSING_ITEMS:
+					JythonControlsFactory.disableUIControls();
 					if (showText){
 						btnRunPause.setText(strPause);
 					} else {
 						btnRunPause.setImageDescriptor(CommandProcessorComposite.this.pauseImage);
 					}
 					btnRunPause.setToolTipText("Pause current task if possible. Stop queue");
+					setRunBtnState(false);
 					btnRunPause.setEnabled(true);
 
 					btnSkip.setEnabled(true);
@@ -372,15 +387,18 @@ public class CommandProcessorComposite extends Composite {
 
 					break;
 				case UNKNOWN:
+					JythonControlsFactory.enableUIControls();
 					txtState.setText("Unknown");
 					break;
 				case WAITING_QUEUE:
+					JythonControlsFactory.disableUIControls();
 					if (showText){
 						btnRunPause.setText(strPause);
 					} else {
 						btnRunPause.setImageDescriptor(CommandProcessorComposite.this.pauseImage);
 					}
 					btnRunPause.setToolTipText("Pause current task if possible. Stop queue");
+					setRunBtnState(false);
 					btnRunPause.setEnabled(true);
 
 					btnSkip.setEnabled(false);
@@ -388,12 +406,14 @@ public class CommandProcessorComposite extends Composite {
 					txtState.setText("Queue is empty");
 					break;
 				case WAITING_START:
+					JythonControlsFactory.enableUIControls();
 					if (showText){
 						btnRunPause.setText(strRun);
 					} else {
 						btnRunPause.setImageDescriptor(CommandProcessorComposite.this.runImage);
 					}
 					btnRunPause.setToolTipText("Run current task if paused or start next task");
+					setRunBtnState(true);
 					btnRunPause.setEnabled(true);
 
 					btnSkip.setEnabled(currentItem != null);

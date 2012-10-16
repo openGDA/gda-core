@@ -19,7 +19,6 @@
 package gda.device.detector.countertimer;
 
 import gda.device.DeviceException;
-import gda.device.detector.DarkCurrentDetector;
 
 import org.apache.commons.lang.ArrayUtils;
 
@@ -28,7 +27,7 @@ import org.apache.commons.lang.ArrayUtils;
  * <p>
  * It has optional additional channels ln(I0/It) and ln(I0/Iref) It also reads the dark current at the scan start.
  */
-public class TfgScalerWithLogValues extends TfgScalerWithDarkCurrent implements DarkCurrentDetector {
+public class TfgScalerWithLogValues extends TfgScalerWithDarkCurrent {
 
 	public static final String LNI0IT_LABEL = "lnI0It";
 	public static final String LNITIREF_LABEL = "lnItIref";
@@ -70,15 +69,16 @@ public class TfgScalerWithLogValues extends TfgScalerWithDarkCurrent implements 
 				outputFormat = (String[]) ArrayUtils.add(outputFormat, "%.4g");
 			}
 		} else {
+			int numInputs = inputNames.length;
 			if (ArrayUtils.contains(extraNames, LNI0IT_LABEL)) {
 				int index = ArrayUtils.indexOf(extraNames, LNI0IT_LABEL);
 				extraNames = (String[]) ArrayUtils.remove(extraNames, index);
-				outputFormat = (String[]) ArrayUtils.remove(outputFormat, index);
+				outputFormat = (String[]) ArrayUtils.remove(outputFormat, index + numInputs);
 			}
 			if (ArrayUtils.contains(extraNames, LNITIREF_LABEL)) {
 				int index = ArrayUtils.indexOf(extraNames, LNITIREF_LABEL);
 				extraNames = (String[]) ArrayUtils.remove(extraNames, index);
-				outputFormat = (String[]) ArrayUtils.remove(outputFormat, index);
+				outputFormat = (String[]) ArrayUtils.remove(outputFormat, index + numInputs);
 			}
 
 		}
@@ -106,6 +106,10 @@ public class TfgScalerWithLogValues extends TfgScalerWithDarkCurrent implements 
 	public double[] readout() throws DeviceException {
 		double[] output = super.readout();
 		
+		return performCorrections(output);
+	}
+
+	protected double[] performCorrections(double[] output) throws DeviceException {
 		if (getDarkCurrent() != null) {
 			output = adjustForDarkCurrent(output, getCollectionTime());
 		}
@@ -114,6 +118,13 @@ public class TfgScalerWithLogValues extends TfgScalerWithDarkCurrent implements 
 			output = appendLogValues(output);
 		}
 		return output;
+	}
+	
+	@Override
+	public double[] readFrame(int frame) throws DeviceException {
+		// For legacy XAFS scans the time channel is in column 1
+		double[] output = super.readFrame(frame);
+		return performCorrections(output);
 	}
 
 	protected double[] appendLogValues(double[] output) {

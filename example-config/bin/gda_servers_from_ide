@@ -1,0 +1,5 @@
+export JAVA_OPTS="-Xms128m -Xmx1024m -XX:MaxPermSize=128m"
+echo $@
+echo python2.6  $1/bin/gda  --config=$2 --smart --trace servers -v --mode=$3 $4 $5
+python2.6  $1/bin/gda  --config=$2 --smart --trace servers -v --mode=$3 $4 $5 $6 $7
+#python2.6  $1/bin/gda  --config=$2 --smart --trace namemanager -v --mode=$3 $4 $5

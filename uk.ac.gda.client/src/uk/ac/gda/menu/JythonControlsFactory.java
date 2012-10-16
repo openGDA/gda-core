@@ -27,7 +27,6 @@ import org.eclipse.core.expressions.Expression;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Event;
@@ -45,24 +44,49 @@ import com.swtdesigner.ResourceManager;
  * have complex logic as to when they are enabled.
  */
 public class JythonControlsFactory extends ExtensionContributionFactory {
+	
+	private static ActionContributionItem pauseScan;
+	private static ActionContributionItem haltScan;
+	private static ActionContributionItem haltScript;
+	private static ActionContributionItem pauseScript;
+	private static Boolean controlsEnabled = true;
+	
+	public static void enableUIControls(){
+		controlsEnabled = true;
+		enableControls();
+	}
 
+	private static void enableControls(){
+		pauseScan.getAction().setEnabled(controlsEnabled);
+		haltScan.getAction().setEnabled(controlsEnabled);
+		haltScript.getAction().setEnabled(controlsEnabled);
+		pauseScript.getAction().setEnabled(controlsEnabled);
+		
+	}
+	
+	public static void disableUIControls(){
+		controlsEnabled = false;
+		enableControls();
+	}
+
+	
 	@Override
 	public void createContributionItems(final IServiceLocator serviceLocator, IContributionRoot additions) {
 		
 		additions.addContributionItem(new Separator(), Expression.TRUE);
 
-		final IContributionItem haltScan = createHaltAction(serviceLocator, "Interrupt Scan Gracefully", "uk.ac.gda.client.jython.HaltScan", "/control_stop_blue.png", true);
+		haltScan = createHaltAction(serviceLocator, "Interrupt Scan Gracefully", "uk.ac.gda.client.jython.HaltScan", "/control_stop_blue.png", true);
 		additions.addContributionItem(haltScan, Expression.TRUE);
 		
-        final IContributionItem pauseScan = createPauseAction(serviceLocator, "Pause Scan", "uk.ac.gda.client.jython.PauseScan", "/control_pause_blue.png", true);
+		pauseScan = createPauseAction(serviceLocator, "Pause Scan", "uk.ac.gda.client.jython.PauseScan", "/control_pause_blue.png", true);
 		additions.addContributionItem(pauseScan, Expression.TRUE);
 
 		additions.addContributionItem(new Separator(), Expression.TRUE);
 		
-	    final IContributionItem haltScript = createHaltAction(serviceLocator, "Stop Script", "uk.ac.gda.client.jython.HaltScript", "/script_delete.png", false);
+		haltScript = createHaltAction(serviceLocator, "Stop Script", "uk.ac.gda.client.jython.HaltScript", "/script_delete.png", false);
 		additions.addContributionItem(haltScript, Expression.TRUE);
 		
-        final IContributionItem pauseScript = createPauseAction(serviceLocator, "Pause Script", "uk.ac.gda.client.jython.PauseScript", "/script_pause.png", false);
+		pauseScript = createPauseAction(serviceLocator, "Pause Script", "uk.ac.gda.client.jython.PauseScript", "/script_pause.png", false);
 		additions.addContributionItem(pauseScript, Expression.TRUE);
 
 		additions.addContributionItem(new Separator(), Expression.TRUE);
@@ -74,8 +98,8 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 	}
 	
 
-	private IContributionItem createHaltAction(final IServiceLocator serviceLocator, final String label, final String commandId, final String iconPath, final boolean isScan) {
-		final ActionContributionItem halt = new HaltContributionItem(new Action(label, SWT.NONE) {
+	private HaltContributionItem createHaltAction(final IServiceLocator serviceLocator, final String label, final String commandId, final String iconPath, final boolean isScan) {
+		final HaltContributionItem halt = new HaltContributionItem(new Action(label, SWT.NONE) {
 			@Override
 			public void run() {
 				try {
@@ -90,8 +114,8 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 	}
 
 
-	private IContributionItem createPauseAction(final IServiceLocator serviceLocator, final String label, final String commandId, final String iconPath, final boolean isScan) {
-		final ActionContributionItem pause = new PauseContributionItem(new Action(label, SWT.TOGGLE) {
+	private PauseContributionItem createPauseAction(final IServiceLocator serviceLocator, final String label, final String commandId, final String iconPath, final boolean isScan) {
+		final PauseContributionItem pause = new PauseContributionItem(new Action(label, SWT.TOGGLE) {
 			@Override
 			public void run() {
 				try {
@@ -129,7 +153,7 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 		@Override
 		public void update(Object source, Object arg) {
 			super.update(source, arg);
-			if (arg instanceof JythonServerStatus) {
+			if (arg instanceof JythonServerStatus && controlsEnabled) {
 				JythonServerStatus status = (JythonServerStatus)arg;
 				getAction().setChecked(isPaused(status));
 			}
@@ -150,11 +174,13 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 		
 		@Override
 		public void update(Object source, Object arg) {
-			if (arg instanceof JythonServerStatus) {
+			if (arg instanceof JythonServerStatus && controlsEnabled) {
 				JythonServerStatus status = (JythonServerStatus)arg;
 				getAction().setEnabled(isRunning(status));
 			}
 		}
+		
+		
 		
 		@Override
 		public void dispose() {

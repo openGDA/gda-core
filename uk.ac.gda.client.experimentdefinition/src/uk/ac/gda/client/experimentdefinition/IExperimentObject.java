@@ -129,7 +129,7 @@ public interface IExperimentObject extends Serializable{
 	/**
 	 * @return the string to be displayed in the Command Queue View
 	 */
-	public String getCommandSummaryString();
+	public String getCommandSummaryString(boolean hasBeenStarted);
 
 	/**
 	 * When an experiment object is used in the Command Queue, it may be edited by the command string being written to a

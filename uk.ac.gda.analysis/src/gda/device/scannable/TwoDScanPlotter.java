@@ -152,7 +152,8 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 	}
 
 	public void plot() throws Exception {
-		SDAPlotter.surfacePlot(plotViewname, x, y, intensity);
+//		SDAPlotter.surfacePlot(plotViewname, x, y, intensity);
+		SDAPlotter.imagePlot(plotViewname, x, y, intensity);
 	}
 
 	@Override

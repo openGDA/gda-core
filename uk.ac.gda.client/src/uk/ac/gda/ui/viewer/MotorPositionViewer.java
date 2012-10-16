@@ -21,6 +21,7 @@ package uk.ac.gda.ui.viewer;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
+import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -32,7 +33,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,8 +68,14 @@ public class MotorPositionViewer {
 
 	private Scannable scannable;
 	private double demandPrev;
+	
+	private String commandFormat;
 
 	private Job motorPositionJob;
+
+	private boolean restoreValueWhenFocusLost;
+	
+	private IPositionVerifierDialogCreator newPositionDialog;
 
 	public MotorPositionViewer(Composite parent, Scannable scannable){
 		this(parent, scannable, null);
@@ -83,6 +92,10 @@ public class MotorPositionViewer {
 		motor = positionSource;
 		this.parent = parent;
 		createControls(parent);
+	}
+	
+	public void setCommandFormat(String commandFormat) {
+		this.commandFormat = commandFormat;
 	}
 	
 	private void setDemandPrev() {
@@ -131,6 +144,12 @@ public class MotorPositionViewer {
 					return;
 				}
 				
+				if (newPositionDialog != null) {
+					Shell shell = Display.getCurrent().getActiveShell();
+					if (!newPositionDialog.userAccepts(shell, demandPrev, demand)) {
+						return;
+					}
+				}
 				
 				if (demand != demandPrev){
 					motorBox.demandBegin(demandPrev);
@@ -139,7 +158,15 @@ public class MotorPositionViewer {
 						@Override
 						protected IStatus run(IProgressMonitor monitor) {
 							try {
-								motor.setPosition(demand);
+								if (commandFormat == null) {
+									motor.setPosition(demand);
+								}
+								
+								else {
+									final String commandToRun = String.format(commandFormat, demand);
+									InterfaceProvider.getCommandRunner().evaluateCommand(commandToRun);
+								}
+								
 								demandPrev = demand;
 							} catch (DeviceException e) {
 								logger.error("Exception: " + msg + " " + e.getMessage(),e);
@@ -201,6 +228,7 @@ public class MotorPositionViewer {
 				return Status.OK_STATUS;
 			}
 		};
+		refresh();//get initial values
 	}
 	
 
@@ -240,6 +268,19 @@ public class MotorPositionViewer {
 	
 	public void setEnabled(boolean enabled) {
 		if (motorBox != null) motorBox.setEnabled(enabled);
+	}
+	public boolean isRestoreValueWhenFocusLost() {
+		return restoreValueWhenFocusLost;
+	}
+	public void setRestoreValueWhenFocusLost(boolean restoreValueWhenFocusLost) {
+		this.restoreValueWhenFocusLost = restoreValueWhenFocusLost;
+		motorBox.setRestoreValueWhenFocusLost(restoreValueWhenFocusLost);
+	}
+	public IPositionVerifierDialogCreator getNewPositionDialog() {
+		return newPositionDialog;
+	}
+	public void setNewPositionDialog(IPositionVerifierDialogCreator newPositionDialog) {
+		this.newPositionDialog = newPositionDialog;
 	}
 }
 

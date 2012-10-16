@@ -27,7 +27,8 @@ public interface DarkCurrentDetector {
 
 	/**
 	 * 
-	 * @return the counts read for dark current, typically ordered I0, It, Iref
+	 * @return results from Dark Current reading, typically ordered I0, It, Iref
 	 */
-	public Double[] getDarkCurrent();
+	public DarkCurrentResults getDarkCurrentResults();
+
 }
