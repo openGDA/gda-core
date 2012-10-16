@@ -172,8 +172,7 @@ public class DummyXmapBufferedDetector extends DetectorBase implements BufferedD
 			// readSoFar = totalToRead;
 			return container;
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			logger.error("TODO put description of error here", e);
+			logger.error("Unable to load file " + fileName, e);
 			throw new DeviceException("Unable to load file " + fileName, e);
 		}
 	}

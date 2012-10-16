@@ -61,8 +61,7 @@ public class XmapBufferedHdf5FileLoader implements XmapFileLoader {
 		try {
 			loader.loadFile();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			logger.error("TODO put description of error here", e);
+			logger.error("Error loading xmap hdf5 file from /scratch/vortex-fast-raster-exp2.h5 *** this should not be hard coded!", e);
 		}
 	}
 

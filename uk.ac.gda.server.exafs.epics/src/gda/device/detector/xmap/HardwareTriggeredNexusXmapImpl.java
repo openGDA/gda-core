@@ -294,7 +294,7 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			armedForNewScan = false;
-			logger.error("TODO put description of error here", e);
+			logger.error("Error occurred arming the xmap detector", e);
 			throw new DeviceException("Error occurred arming the xmap detector", e);
 			
 		}
@@ -375,7 +375,7 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 			
 		} catch (Exception e) {
 			armedForNewScan = false;
-			logger.error("TODO put description of error here", e);
+			logger.error("Error occurred arming the xmap detector", e);
 			throw new DeviceException("Error occurred arming the xmap detector", e);
 		}
 		this.indexer  = new PositionStreamIndexer<NexusTreeProvider>(new XmapPositionInputStream(this, this.xmap.isSumAllElementData()));
@@ -422,9 +422,8 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 			xmap.stop();
 			controller.endRecording();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
-			logger.error("TODO put description of error here", e);
+			logger.error("Unalble to end hdf5 capture", e);
 			throw new DeviceException("Unalble to end hdf5 capture" , e);
 		}
 		controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
@@ -439,9 +438,8 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 			xmap.stop();
 			controller.endRecording();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
-			logger.error("TODO put description of error here", e);
+			logger.error("Unalble to end hdf5 capture", e);
 			throw new DeviceException("Unalble to end hdf5 capture" , e);
 		}
 		controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
@@ -492,9 +490,8 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 			if(controller.getHDFFileName().equals(fileName))
 				return controller.getCaptureStatus();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			logger.error("TODO put description of error here", e);
-			throw new DeviceException("CAnnot read the file capture status", e);
+			logger.error("Cannot read the file capture status", e);
+			throw new DeviceException("Cannot read the file capture status", e);
 		}
 		return false;
 	}
