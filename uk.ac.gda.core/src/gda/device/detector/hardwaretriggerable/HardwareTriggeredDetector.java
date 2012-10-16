@@ -18,10 +18,7 @@
 
 package gda.device.detector.hardwaretriggerable;
 
-import java.util.concurrent.Callable;
-
 import gda.device.Detector;
-import gda.device.DeviceException;
 import gda.device.continuouscontroller.ContinuousMoveController;
 import gda.device.continuouscontroller.HardwareTriggerProvider;
 import gda.device.scannable.PositionCallableProvider;
@@ -30,15 +27,18 @@ import gda.device.scannable.PositionStreamIndexer;
 import gda.device.scannable.VariableCollectionTimeDetector;
 import gda.scan.TrajectoryScanLine;
 
+import java.util.concurrent.Callable;
+
 /**
  * A hardware triggered detector can be configured to accept hardware triggers from a {@link HardwareTriggerProvider}
  * representing a controller that it is physically wired to (e.g. a {@link ContinuousMoveController}). To work with the
  * {@link TrajectoryScanLine} class, an implementation should behave as described here:
  * <p>
- * When configured to trigger from hardware an implementation should do nothing when asked to {@link #collectData()}. It
- * should instead wait for a call to {@link #arm()} during which it should prepare to respond to hardware triggers. When
- * asked to {@link #arm()} the {@link HardwareTriggerProvider#getNumberTriggers()} will indicate how many trigger should
- * be expected.
+ * An AbtsractContinuousScanLine will call {@link Detector#setCollectionTime(double)}, then
+ * {@link #setNumberImagesToCollect(int)} then {@link Detector#prepareForCollection()}. The implementation will then
+ * have {@link Detector}{@link #readout()} or if implemented {@link PositionCallableProvider#getPositionCallable()}
+ * called for each point that *will* be collected. A call to {@link Detector#collectData()} will then be made which should
+ * in this mode of operation arm the detector.
  * <p>
  * Most implementations should also implement {@link PositionCallableProvider} indicating that they will return data via
  * {@link Callable}s which block until the data is actually available. Implementing {@link PositionInputStream} and
@@ -57,11 +57,7 @@ public interface HardwareTriggeredDetector extends Detector {
 	 */
 	public HardwareTriggerProvider getHardwareTriggerProvider();
 
-	/**
-	 * Block while arming the detector in preparation to receive hardware triggers. At this point, if operated in a
-	 * {@link TrajectoryScanLine} the trigger provider knows how many triggers to expect and how these will be spaced.
-	 */
-	public void arm() throws DeviceException;
+	public void setNumberImagesToCollect(int numberImagesToCollect);
 	
 	/**
 	 * Detectors that sample some value at the time of a trigger should return False. Detectors such as counter timers

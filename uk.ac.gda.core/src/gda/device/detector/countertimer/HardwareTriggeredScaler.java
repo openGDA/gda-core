@@ -44,6 +44,7 @@ PositionCallableProvider<double[]> {
 	private boolean hardwareTriggering =true;
 
 	private PositionStreamIndexer<double[]> indexer;
+	private int numberImagesToCollect = 1;
 	
 	public void setHardwareTriggerProvider(HardwareTriggerProvider triggerProvider) {
 		this.triggerProvider = triggerProvider;
@@ -68,21 +69,22 @@ PositionCallableProvider<double[]> {
 	}
 
 	@Override
-	public void arm() throws DeviceException {
-		super.start();		
-		setTimeFrames();
-		
-	}
-
-	@Override
 	public boolean integratesBetweenPoints() {
 		return false;
+	}
+	
+	@Override
+	public void setNumberImagesToCollect(int numberImagesToCollect) {
+		this.numberImagesToCollect = numberImagesToCollect;
 	}
 	
 	@Override
 	public void collectData() throws DeviceException {
 		if (!isHardwareTriggering()) {
 			super.collectData();
+		} else {
+			super.start();		
+			setTimeFrames();
 		}
 	}
 
@@ -105,7 +107,7 @@ PositionCallableProvider<double[]> {
 		//Send as a single command. Otherwise DAServer reply timeouts are seen and the 3 commands take about 10s!
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("tfg setup-groups ext-start cycles 1"+"\n");
-		buffer.append(triggerProvider.getNumberTriggers() + " 0.000001 0.00000001 0 0 0 " + ttlSocket + 8+"\n");
+		buffer.append(numberImagesToCollect + " 0.000001 0.00000001 0 0 0 " + ttlSocket + 8+"\n");
 		buffer.append("-1 0 0 0 0 0 0");
 		daserver.sendCommand(buffer.toString());
 		daserver.sendCommand("tfg arm");
@@ -200,4 +202,5 @@ PositionCallableProvider<double[]> {
 		}
 	
 	}
+
 }

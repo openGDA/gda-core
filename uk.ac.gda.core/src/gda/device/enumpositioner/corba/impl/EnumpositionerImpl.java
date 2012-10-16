@@ -26,7 +26,6 @@ import org.omg.CORBA.Any;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.corba.CorbaDeviceException;
-import gda.device.corba.impl.DeviceImpl;
 import gda.device.enumpositioner.corba.CorbaEnumPositionerPOA;
 import gda.device.enumpositioner.corba.CorbaEnumPositionerStatus;
 import gda.device.scannable.corba.impl.ScannableImpl;
@@ -39,7 +38,6 @@ import gda.factory.corba.CorbaFactoryException;
 public class EnumpositionerImpl extends CorbaEnumPositionerPOA {
 	// reference to implementation objects.
 	private EnumPositioner enumpositioner;
-	private DeviceImpl deviceImpl;
 	private ScannableImpl scannableImpl;
 
 	private org.omg.PortableServer.POA poa;
@@ -55,7 +53,6 @@ public class EnumpositionerImpl extends CorbaEnumPositionerPOA {
 	public EnumpositionerImpl(EnumPositioner enumpositioner, org.omg.PortableServer.POA poa) {
 		this.enumpositioner = enumpositioner;
 		this.poa = poa;
-		deviceImpl = new DeviceImpl(enumpositioner, poa);
 		scannableImpl = new ScannableImpl(enumpositioner, poa);
 	}
 
@@ -266,32 +263,32 @@ public class EnumpositionerImpl extends CorbaEnumPositionerPOA {
 	// implement inherited Device interface methods delegation
 	@Override
 	public void reconfigure() throws CorbaFactoryException {
-		deviceImpl.reconfigure();
+		scannableImpl.reconfigure();
 	}
 
 	@Override
 	public void close() throws CorbaDeviceException {
-		deviceImpl.close();
+		scannableImpl.close();
 	}
 
 	@Override
 	public void setAttribute(String attributeName, org.omg.CORBA.Any value) throws CorbaDeviceException {
-		deviceImpl.setAttribute(attributeName, value);
+		scannableImpl.setAttribute(attributeName, value);
 	}
 
 	@Override
 	public org.omg.CORBA.Any getAttribute(String attributeName) throws CorbaDeviceException {
-		return deviceImpl.getAttribute(attributeName);
+		return scannableImpl.getAttribute(attributeName);
 	}
 
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
-		return deviceImpl.getProtectionLevel();
+		return scannableImpl.getProtectionLevel();
 	}
 
 	@Override
 	public void setProtectionLevel(int newLevel) throws CorbaDeviceException {
-		deviceImpl.setProtectionLevel(newLevel);
+		scannableImpl.setProtectionLevel(newLevel);
 	}
 	
 	@Override
