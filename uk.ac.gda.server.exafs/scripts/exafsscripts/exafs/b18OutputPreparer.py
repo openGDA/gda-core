@@ -9,6 +9,14 @@ class B18OutputPreparer:
         metadataActive = outputParameters.isMetadataActive()
         if metadataActive:
             self.add_to_metadata(outputParameters.getMetadataList())
+            
+    #
+    # For any specific plotting requirements based on all the options in this experiment
+    #
+    def getPlotSettings(self,beanGroup):
+        
+        return None
+
     
     def add_to_metadata(self, metadataList):
         for metadata in metadataList:
