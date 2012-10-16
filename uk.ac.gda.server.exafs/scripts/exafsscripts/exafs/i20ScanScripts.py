@@ -28,6 +28,7 @@ class I20XasScan(XasScan):
     
     def _doLooping(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller):
 
+        global jython_mapper
         jython_mapper = JythonNameSpaceMapping()
 
         # fluo detector, if in use
@@ -48,53 +49,54 @@ class I20XasScan(XasScan):
         # sample environments
 
         # room temperature (sample stage)
-        if beanGroup.getDetector().getExperimentType() != 'XES' and beanGroup.getSample().getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[1] :
-            sampleStageParameters = beanGroup.getSample().getRoomTemperatureParameters()
-            numSamples = sampleStageParameters.getNumberOfSamples()
-            for i in range(0,numSamples):
-                x = sampleStageParameters.getXs()[i]
-                y = sampleStageParameters.getYs()[i]
-                z = sampleStageParameters.getZs()[i]
-                rotation = sampleStageParameters.getRotations()[i]
-                roll = sampleStageParameters.getRolls()[i]
-                pitch = sampleStageParameters.getPitches()[i]
-                
-                finder = Finder.getInstance()
-                samx = finder.find("sample_x")
-                samy = finder.find("sample_y")
-                samz = finder.find("sample_z")
-                samrot = finder.find("sample_rot")
-                samroll = finder.find("sample_roll")
-                sampitch = finder.find("sample_pitch")
-                
-                if samx == None or samy ==None or samz == None or samrot == None or samroll == None or sampitch == None:
-                    raise DeviceException("I20 scan script - could not find all sample stage motors!")
-                
-                
-                print "Moving sample stage to",x,y,z,rotation,roll,pitch,"..."
-                samx.asynchronousMoveTo(x)
-                samy.asynchronousMoveTo(y)
-                samz.asynchronousMoveTo(z)
-                samrot.asynchronousMoveTo(rotation)
-                samroll.asynchronousMoveTo(roll)
-                sampitch.asynchronousMoveTo(pitch)
-                samx.waitWhileBusy()
-                samy.waitWhileBusy()
-                samz.waitWhileBusy()
-                samrot.waitWhileBusy()
-                samroll.waitWhileBusy()
-                sampitch.waitWhileBusy()
-                print "Sample stage move complete.\n"
-                ScriptBase.checkForPauses()
-                
-                #TODO add to metadata?
+        try:
+            if beanGroup.getDetector().getExperimentType() != 'XES' and beanGroup.getSample().getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[1] :
+                sampleStageParameters = beanGroup.getSample().getRoomTemperatureParameters()
+                numSamples = sampleStageParameters.getNumberOfSamples()
+                for i in range(0,numSamples):
+                    x = sampleStageParameters.getXs()[i]
+                    y = sampleStageParameters.getYs()[i]
+                    z = sampleStageParameters.getZs()[i]
+                    rotation = sampleStageParameters.getRotations()[i]
+                    roll = sampleStageParameters.getRolls()[i]
+                    pitch = sampleStageParameters.getPitches()[i]
+                    
+                    finder = Finder.getInstance()
+                    samx = finder.find("sample_x")
+                    samy = finder.find("sample_y")
+                    samz = finder.find("sample_z")
+                    samrot = finder.find("sample_rot")
+                    samroll = finder.find("sample_roll")
+                    sampitch = finder.find("sample_pitch")
+                    
+                    if samx == None or samy ==None or samz == None or samrot == None or samroll == None or sampitch == None:
+                        raise DeviceException("I20 scan script - could not find all sample stage motors!")
+                    
+                    
+                    print "Moving sample stage to",x,y,z,rotation,roll,pitch,"..."
+                    samx.asynchronousMoveTo(x)
+                    samy.asynchronousMoveTo(y)
+                    samz.asynchronousMoveTo(z)
+                    samrot.asynchronousMoveTo(rotation)
+                    samroll.asynchronousMoveTo(roll)
+                    sampitch.asynchronousMoveTo(pitch)
+                    samx.waitWhileBusy()
+                    samy.waitWhileBusy()
+                    samz.waitWhileBusy()
+                    samrot.waitWhileBusy()
+                    samroll.waitWhileBusy()
+                    sampitch.waitWhileBusy()
+                    print "Sample stage move complete.\n"
+                    ScriptBase.checkForPauses()
+                    
+                    #TODO add to metadata?
+                    self._runTheScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
+            else :
                 self._runTheScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
-        else :
-            self._runTheScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
-            
-        # remove extra columns from ionchambers output
-        jython_mapper.ionchambers.setOutputLogValues(False) 
-        ScriptBase.checkForPauses()
+        finally:
+            # remove extra columns from ionchambers output
+            jython_mapper.ionchambers.setOutputLogValues(False) 
+            ScriptBase.checkForPauses()
         
     def _runTheScan(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller):
         times = []
