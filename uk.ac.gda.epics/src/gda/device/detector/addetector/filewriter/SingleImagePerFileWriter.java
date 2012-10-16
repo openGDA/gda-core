@@ -68,6 +68,8 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 
 	private String keyNameForMetadataPathTemplate = "";
 
+	private String fileTemplateForReadout = null;
+
 	/**
 	 * Creates a SingleImageFileWriter with ndFile, fileTemplate, filePathTemplate, fileNameTemplate and
 	 * fileNumberAtScanStart yet to be set.
@@ -101,6 +103,10 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 		setFileNumberAtScanStart(1);
 	}
 
+	public void setFileTemplateForReadout(String fileTemplateForReadout) {
+		this.fileTemplateForReadout  = fileTemplateForReadout;
+	}
+	
 	public void setReturnExpectedFullFileName(boolean returnExpectedFullFileName) {
 		this.returnExpectedFileName = returnExpectedFullFileName;
 	}
@@ -112,7 +118,10 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 	public void setKeyNameForMetadataPathTemplate(String string) {
 		this.keyNameForMetadataPathTemplate = string;
 	}
-
+	
+	public String getFileTemplateForReadout() {
+		return this.fileTemplateForReadout;
+	}
 	/**
 	 * If true getFullFileName_RBV returns expected filename rather than value from ndfile plugin. Useful for example
 	 * with continuous scans.
@@ -230,6 +239,7 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 		disableFileWriting();
 	}
 
+	@Override
 	public void disableFileWriting() throws Exception {
 		NDPluginBase filePluginBase = getNdFile().getPluginBase();
 		if (filePluginBase!=null) { // camserver filewriter has no base
@@ -242,7 +252,8 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 	@Override
 	public String getFullFileName() throws Exception {
 		if (returnExpectedFileName) {
-			String fullFileName = String.format( fileTemplateUsed,filePathUsed,fileNameUsed, nextExpectedFileNumber);			
+			String template = (getFileTemplateForReadout() != null) ? getFileTemplateForReadout() : fileTemplateUsed;
+			String fullFileName = String.format(template, filePathUsed,fileNameUsed, nextExpectedFileNumber);
 			nextExpectedFileNumber++;
 			return fullFileName;
 		}
@@ -272,25 +283,6 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 			filepath = getFullFileName();
 		} catch (Exception e) {
 			throw new DeviceException(e);
-		}
-
-		if (isWaitForFileArrival()) {
-			long numChecksSinceLastMessage = 0;
-			long totalNumChecks = 0;
-			File f = new File(filepath);
-			while (!f.exists()) {
-				numChecksSinceLastMessage++;
-				totalNumChecks++;
-				Thread.sleep(MILLI_SECONDS_BETWEEN_POLLS);
-				ScanBase.checkForInterrupts();
-				int numPollsPerMessage = SECONDS_BETWEEN_SLOW_FILE_ARRIVAL_MESSAGES *1000 / MILLI_SECONDS_BETWEEN_POLLS;
-				if (numChecksSinceLastMessage >= numPollsPerMessage) {
-					double totalSecondsPolling = totalNumChecks * MILLI_SECONDS_BETWEEN_POLLS / 1000.;
-					InterfaceProvider.getTerminalPrinter().print(
-							format("Waited " + totalSecondsPolling + "s for file '" + filepath + "' to be created."));
-					numChecksSinceLastMessage = 0;
-				}
-			}
 		}
 
 		NXDetectorDataAppender dataAppender;
