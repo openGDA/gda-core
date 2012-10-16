@@ -4,7 +4,5 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="icons"/>
-	<classpathentry kind="lib" path="compositetable-1.0.0.jar" sourcepath="compositetable-1.0.0-src.zip"/>
-	<classpathentry kind="lib" path="grid-1.0.0.jar" sourcepath="grid-1.0.0-src.zip"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
