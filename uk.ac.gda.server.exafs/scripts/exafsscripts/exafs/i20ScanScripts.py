@@ -291,7 +291,6 @@ class I20XesScan(XasScan):
             print "Scanning over the analyser and mono energies"
             print "switching data output format to XesAsciiNexusDataWriter"
             LocalProperties.set("gda.data.scan.datawriter.dataFormat","XesAsciiNexusDataWriter")
-            args += [xes_energy, beanGroup.getScan().getXesInitialEnergy(), beanGroup.getScan().getXesFinalEnergy(), beanGroup.getScan().getXesStepSize(), mono_energy, beanGroup.getScan().getMonoInitialEnergy(), beanGroup.getScan().getMonoFinalEnergy(), beanGroup.getScan().getMonoStepSize()]
 
              # create scannable which will control 2D plotting in this mode
             jython_mapper.twodplotter.setX_colName(xes_energy.getInputNames()[0])
@@ -299,7 +298,14 @@ class I20XesScan(XasScan):
             jython_mapper.twodplotter.setZ_colName(finder_mapper.xmapMca.getExtraNames()[0])
             # note that users will have to open a 'plot 1' view or use the XESPlot perspective for this to work
 
-            detectorList = [jython_mapper.twodplotter] + detectorList
+            ef_args = [xes_energy, beanGroup.getScan().getXesInitialEnergy(), beanGroup.getScan().getXesFinalEnergy(), beanGroup.getScan().getXesStepSize()]
+            e0_args = [mono_energy, beanGroup.getScan().getMonoInitialEnergy(), beanGroup.getScan().getMonoFinalEnergy(), beanGroup.getScan().getMonoStepSize()]
+            
+            if beanGroup.getScan().getLoopChoice() == XesScanParameters.LOOPOPTIONS[0]:
+                args += ef_args + e0_args
+            else:
+                args += e0_args + ef_args
+            args += [jython_mapper.twodplotter]
 
         elif scanType == XesScanParameters.FIXED_XES_SCAN_XAS:
             print "Doing an EXAFS scan with a fixed analyser energy"
