@@ -50,8 +50,6 @@ Import-Package: gda.device.corba,
  org.python.core,
  org.slf4j;version="[1.5.0,2.0.0)",
  org.springframework.util;version="3.0.4",
- uk.ac.diamond.scisoft.spectroscopy.rcp,
- uk.ac.diamond.scisoft.spectroscopy.rcp.preferences,
  uk.ac.gda.pydev.extension.ui.perspective
 Require-Bundle: uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.gda.common.rcp;bundle-version="1.0.0",
@@ -66,7 +64,8 @@ Require-Bundle: uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.gda.server.exafs;bundle-version="1.0.0",
  uk.ac.diamond.org.nfunk.jep;bundle-version="2.4.1",
  uk.ac.gda.common.client,
- org.eclipse.jface
+ org.eclipse.jface,
+ uk.ac.diamond.scisoft.spectroscopy.rcp;bundle-version="1.2.0"
 Export-Package: gda.exafs.scan,
  uk.ac.gda.client.exafs,
  uk.ac.gda.exafs,
