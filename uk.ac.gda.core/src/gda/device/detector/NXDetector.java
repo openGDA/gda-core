@@ -54,7 +54,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 
 	private MultiplePositionStreamIndexer<NXDetectorDataAppender> pluginStreamsIndexer;
 
-	protected NexusTreeProvider lastReadoutValue = null;
+	public NexusTreeProvider lastReadoutValue = null;
 
 	public NXDetector(String name, NXCollectionStrategyPlugin collectionStrategy, List<NXPlugin> additionalPluginList) {
 		setName(name);
