@@ -130,6 +130,11 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 		}
 		return 0;
 	}
+	
+	@Override
+	public void stop() throws DeviceException {
+		xes.stop();
+	}
 
 	public XesSpectrometerScannable getXes() {
 		return xes;
