@@ -313,14 +313,17 @@ class I20XesScan(XasScan):
             xas_scanfilename = beanGroup.getScan().getScanFileName()
 
             print "moving XES analyser stage to collect at", beanGroup.getScan().getXesEnergy()
+            initialXESEnergy = xes_energy()
             xes_energy(beanGroup.getScan().getXesEnergy())
             ScannableCommands.add_default([xes_energy,analyserAngle])
+            
 
             try:
                 jython_mapper.xas(beanGroup.getSample(), xas_scanfilename, beanGroup.getDetector(), beanGroup.getOutput(), folderName, numRepetitions, validation)
             finally:
                 print "cleaning up scan defaults"
                 ScannableCommands.remove_default([xes_energy,analyserAngle])
+                xes_energy(initialXESEnergy)
             return
 
         elif scanType == XesScanParameters.FIXED_XES_SCAN_XANES:
@@ -329,6 +332,7 @@ class I20XesScan(XasScan):
             xanes_scanfilename = beanGroup.getScan().getScanFileName()
 
             print "moving XES analyser stage to collect at", beanGroup.getScan().getXesEnergy()
+            initialXESEnergy = xes_energy()
             xes_energy(beanGroup.getScan().getXesEnergy())
             ScannableCommands.add_default([xes_energy,analyserAngle])
 
@@ -337,6 +341,7 @@ class I20XesScan(XasScan):
             finally:
                 print "cleaning up scan defaults"
                 ScannableCommands.remove_default([xes_energy,analyserAngle])
+                xes_energy(initialXESEnergy)
             return
         else:
             raise "scan type in XES Scan Parameters bean/xml not acceptable"
