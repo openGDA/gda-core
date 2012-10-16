@@ -50,6 +50,9 @@
 
 	<class name="uk.ac.gda.beans.exafs.i20.CryostatParameters">
 		<map-to xml="cryostat" />
+		<field name="loopChoice" type="string">
+			<bind-xml name="loopChoice" node="element" />
+		</field>
 		<field name="temperature" type="double">
 			<bind-xml name="temperature" node="element" />
 		</field>

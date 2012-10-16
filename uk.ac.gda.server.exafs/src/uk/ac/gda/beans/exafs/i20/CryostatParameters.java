@@ -28,6 +28,7 @@ import org.apache.commons.beanutils.BeanUtils;
  */
 public class CryostatParameters implements Serializable {
 		
+	public static final String[] LOOP_OPTION = new String[]{"Loop over sample, then temperature", "Loop over temperature, then sample"};
 
 	private Double  temperature;
 	private Integer heaterRange;
@@ -49,6 +50,7 @@ public class CryostatParameters implements Serializable {
 	private Double  position4 = 0.0;
 	private Double  finePosition4 = 0.0;
 	private String  sampleDescription4 = "";
+	private String loopChoice;
 
 	public Double getTemperature() {
 		return temperature;
@@ -241,6 +243,14 @@ public class CryostatParameters implements Serializable {
 		this.sampleDescription4 = sampleDescription4;
 	}
 
+	public String getLoopChoice() {
+		return loopChoice;
+	}
+
+	public void setLoopChoice(String loopChoice) {
+		this.loopChoice = loopChoice;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -252,6 +262,7 @@ public class CryostatParameters implements Serializable {
 		result = prime * result + ((finePosition4 == null) ? 0 : finePosition4.hashCode());
 		result = prime * result + ((heaterRange == null) ? 0 : heaterRange.hashCode());
 		result = prime * result + ((i == null) ? 0 : i.hashCode());
+		result = prime * result + ((loopChoice == null) ? 0 : loopChoice.hashCode());
 		result = prime * result + ((p == null) ? 0 : p.hashCode());
 		result = prime * result + ((position1 == null) ? 0 : position1.hashCode());
 		result = prime * result + ((position2 == null) ? 0 : position2.hashCode());
@@ -314,6 +325,11 @@ public class CryostatParameters implements Serializable {
 			if (other.i != null)
 				return false;
 		} else if (!i.equals(other.i))
+			return false;
+		if (loopChoice == null) {
+			if (other.loopChoice != null)
+				return false;
+		} else if (!loopChoice.equals(other.loopChoice))
 			return false;
 		if (p == null) {
 			if (other.p != null)

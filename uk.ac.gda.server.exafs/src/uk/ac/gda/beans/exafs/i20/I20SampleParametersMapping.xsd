@@ -107,6 +107,15 @@
 				<xsd:element name="cryostat" maxOccurs="1" minOccurs="0">
 					<xsd:complexType>
 						<xsd:sequence>
+							<xsd:element name="loopChoice"
+								maxOccurs="1" minOccurs="1">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:enumeration value="Loop over sample, then temperature" />
+										<xsd:enumeration value="Loop over temperature, then sample" />
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
 							<xsd:element name="temperature" type="xsd:string"
 								maxOccurs="1" minOccurs="1" />
 							<xsd:element name="tolerance" type="xsd:double"
