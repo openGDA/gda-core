@@ -1,4 +1,9 @@
+from gda.configuration.properties import LocalProperties
 from gda.factory import Finder
+from gda.scan import ScanPlotSettings
+
+from uk.ac.gda.beans import BeansFactory
+
 from gdascripts.parameters import beamline_parameters
 
 from BeamlineParameters import JythonNameSpaceMapping
@@ -17,6 +22,48 @@ class I20OutputPreparer:
         jython_mapper.ionchambers.setOutputLogValues(True) 
         
         return []
+    
+    #
+    # For any specific plotting requirements based on all the options in this experiment
+    #
+    def getPlotSettings(self,beanGroup):
+        
+        if beanGroup.getDetector().getExperimentType() == "Fluorescence" :
+            detType = beanGroup.getDetector().getFluorescenceParameters().getDetectorType()
+            if detType == "Germanium" :
+                fluoDetBean = BeansFactory.getBeanObject(beanGroup.getScriptFolder(), beanGroup.getDetector().getFluorescenceParameters().getConfigFileName())
+                if fluoDetBean.isXspressShowDTRawValues():
+                    # create a filter for the DT columns and return itLocalProperties.set("gda.scan.useScanPlotSettings", "true")
+                    jython_mapper = JythonNameSpaceMapping()
+                    sps = ScanPlotSettings()
+                    sps.setXAxisName("Energy")  # column will be converted to this name
+                    
+                    fluoDetGroup = None
+                    listDetectorGroups = beanGroup.getDetector().getDetectorGroups()
+                    for detGroup in listDetectorGroups:
+                        if detGroup.getName() == "Germanium":
+                            fluoDetGroup = detGroup
+
+                    axes = []
+                    for det in fluoDetGroup.getDetector():
+                        thisDet =  jython_mapper.__getattr__(str(det))
+                        extraNames = thisDet.getExtraNames()
+                        axes += extraNames
+
+                    visibleAxes = []
+                    invisibleAxes = []
+                    for axis in axes:
+                        if str(axis).startswith("Element"):
+                            invisibleAxes += [axis]
+                        else:
+                            visibleAxes += [axis]
+                            
+                    sps.setYAxesShown(visibleAxes)
+                    sps.setYAxesNotShown([''])
+                    #print sps
+                    return sps
+
+        return None
 
          
 def redefineNexusMetadata(beanGroup):
