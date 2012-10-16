@@ -41,7 +41,7 @@ public abstract class EnumPositionerBase extends ScannableBase implements EnumPo
 	private static final Logger logger = LoggerFactory.getLogger(EnumPositionerBase.class);
 
 	protected Vector<String> positions = new Vector<String>();
-	protected volatile EnumPositionerStatus positionerStatus = EnumPositionerStatus.IDLE;
+	public volatile EnumPositionerStatus positionerStatus = EnumPositionerStatus.IDLE;
 	protected String name;
 	/**
 	 * sets the OutputFormat
