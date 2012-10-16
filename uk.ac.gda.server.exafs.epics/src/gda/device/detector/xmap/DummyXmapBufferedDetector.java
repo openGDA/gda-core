@@ -258,10 +258,8 @@ public class DummyXmapBufferedDetector extends DetectorBase implements BufferedD
 	public void atScanEnd() throws DeviceException {
 		try {
 			stop();
-			
 		} catch (Exception e) {
-			
-			logger.error("TODO put description of error here", e);
+			logger.error("Unalble to end hdf5 capture", e);
 			throw new DeviceException("Unalble to end hdf5 capture", e);
 		}
 	}
@@ -271,7 +269,7 @@ public class DummyXmapBufferedDetector extends DetectorBase implements BufferedD
 		try {
 			stop();
 		} catch (Exception e) {
-			logger.error("TODO put description of error here", e);
+			logger.error("Unalble to end hdf5 capture", e);
 			throw new DeviceException("Unalble to end hdf5 capture", e);
 		}
 	}
