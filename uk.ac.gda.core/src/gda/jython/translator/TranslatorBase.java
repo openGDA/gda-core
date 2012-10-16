@@ -61,7 +61,7 @@ public abstract class TranslatorBase implements Translator {
 			// use regex to identify parts of the string between
 			// tabs and line breaks. These parts will be translated
 			// individually and then replaced into the command string.
-			Matcher m = Pattern.compile("([^\n;]+)").matcher(full_command.subSequence(0, full_command.length()));
+			Matcher m = Pattern.compile("([^\n]+)").matcher(full_command.subSequence(0, full_command.length()));
 			// for ticket #1675 a \t was removed from the above RE
 
 			int endOfPreviousGroup = 0;
