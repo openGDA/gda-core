@@ -6,7 +6,6 @@
 <pydev_property name="org.python.pydev.PYTHON_PROJECT_INTERPRETER">Jython2.5.1</pydev_property>
 <pydev_pathproperty name="org.python.pydev.PROJECT_SOURCE_PATH">
 <path>/uk.ac.gda.nexus/src</path>
-<path>/uk.ac.gda.nexus/test</path>
 <path>/uk.ac.gda.nexus/bin</path>
 <path>/uk.ac.gda.nexus/jars/jnexus-4.3.jar</path>
 </pydev_pathproperty>
