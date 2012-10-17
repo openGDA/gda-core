@@ -26,9 +26,9 @@ import gda.device.scannable.PositionConvertorFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ConstantVelocityScanLine extends AbtsractContinuousScanLine {
+public class ConstantVelocityScanLine extends AbstractContinuousScanLine {
 
-	private static final Logger logger = LoggerFactory.getLogger(AbtsractContinuousScanLine.class);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractContinuousScanLine.class);
 	private Double start;
 	private Double stop;
 	private Double step;

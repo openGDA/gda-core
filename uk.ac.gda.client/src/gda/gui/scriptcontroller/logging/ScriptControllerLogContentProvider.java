@@ -66,8 +66,7 @@ public class ScriptControllerLogContentProvider implements ITreeContentProvider,
 				try {
 					newcontroller.addIObserver(new ScriptControllerLogHelper(this));
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					logger.error("TODO put description of error here", e);
+					logger.error("Error adding observer to LoggingScriptController", e);
 				}
 			} else {
 				logger.warn("ScriptControllerLogContentProvider could not find a LoggingScriptController called "
@@ -85,8 +84,7 @@ public class ScriptControllerLogContentProvider implements ITreeContentProvider,
 
 	@Override
 	public void inputChanged(Viewer arg0, Object arg1, Object arg2) {
-		//
-		System.out.println("inputChanged, dunno why");
+		System.out.println("inputChanged, dont know why - This message needs improving so please understand this problem");
 	}
 
 	@Override
@@ -102,8 +100,7 @@ public class ScriptControllerLogContentProvider implements ITreeContentProvider,
 					return new Object[] { details };
 				}
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				logger.error("TODO put description of error here", e);
+				logger.error("Error getting ILoggingScriptController or details from it", e);
 			}
 		}
 		return null;
@@ -155,8 +152,7 @@ public class ScriptControllerLogContentProvider implements ITreeContentProvider,
 		try {
 			Arrays.sort(results);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			logger.error("TODO put description of error here", e);
+			logger.error("Error sorting results", e);
 		}
 	}
 

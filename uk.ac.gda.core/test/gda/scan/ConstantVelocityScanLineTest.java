@@ -18,36 +18,24 @@
 
 package gda.scan;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import gda.MockFactory;
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
-import gda.device.ControlPoint;
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.device.continuouscontroller.ConstantVelocityMoveController;
-import gda.device.continuouscontroller.DummyTrajectoryMoveController;
-import gda.device.continuouscontroller.TrajectoryMoveController;
 import gda.device.detector.hardwaretriggerable.DummyHardwareTriggerableAreaDetector;
 import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetector;
 import gda.device.scannable.ContinuouslyScannableViaController;
-import gda.device.scannable.ScannableMotor;
-import gda.device.scannable.scannablegroup.DeferredAndTrajectoryScannableGroup;
-import gda.factory.FactoryException;
 import gda.jython.ITerminalPrinter;
 import gda.jython.InterfaceProvider;
-
-import java.util.List;
-import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
-
-import static org.mockito.Mockito.withSettings;
 
 
 /**
@@ -129,31 +117,29 @@ public class ConstantVelocityScanLineTest {
 		InOrder inOrder = inOrder(mockscn, mockedController, mockeddet1, mockeddet2);
 		
 		inOrder.verify(mockeddet1).setCollectionTime(2.); // must be called in constructor!
-		
-		inOrder.verify(mockedController).stopAndReset();
 		inOrder.verify(mockscn).setOperatingContinuously(true);
 		inOrder.verify(mockeddet1).setHardwareTriggering(true);
 		inOrder.verify(mockeddet2).setHardwareTriggering(true);
+		inOrder.verify(mockeddet1).setNumberImagesToCollect(3);
+
+
+		inOrder.verify(mockedController).stopAndReset();
 		inOrder.verify(mockscn).asynchronousMoveTo(0.);
-		inOrder.verify(mockeddet1).collectData();
-		inOrder.verify(mockeddet2).collectData();
 		inOrder.verify(mockscn).asynchronousMoveTo(1.);
-		inOrder.verify(mockeddet1).collectData();
-		inOrder.verify(mockeddet2).collectData();
 		inOrder.verify(mockscn).asynchronousMoveTo(2.);
-		inOrder.verify(mockeddet1).collectData();
-		inOrder.verify(mockeddet2).collectData();
-		
 		inOrder.verify(mockedController).setStart(0.);
 		inOrder.verify(mockedController).setEnd(2.);
 		inOrder.verify(mockedController).setStep(1.);
 		inOrder.verify(mockedController).prepareForMove();
 		
-		inOrder.verify(mockeddet1).arm(); // order unimportant
-		inOrder.verify(mockeddet2).arm(); // order unimportant
+		inOrder.verify(mockeddet1).collectData(); // order unimportant
+		inOrder.verify(mockeddet2).collectData(); // order unimportant
 		
 		inOrder.verify(mockedController).startMove();
 		inOrder.verify(mockedController).waitWhileMoving();
+		
+		verify(mockeddet1, times(1)).collectData();
+		verify(mockeddet2, times(1)).collectData();
 
 	}
 	
@@ -170,20 +156,16 @@ public class ConstantVelocityScanLineTest {
 		InOrder inOrder = inOrder(mockscn, mockedController, mockeddet1, mockeddet2);
 		
 		inOrder.verify(mockeddet1).setCollectionTime(2.); // must be called in constructor!
-		
-		inOrder.verify(mockedController).stopAndReset();
 		inOrder.verify(mockscn).setOperatingContinuously(true);
 		inOrder.verify(mockeddet1).setHardwareTriggering(true);
 		inOrder.verify(mockeddet2).setHardwareTriggering(true);
+		inOrder.verify(mockeddet1).setNumberImagesToCollect(3);
+
+		inOrder.verify(mockedController).stopAndReset();
+		
 		inOrder.verify(mockscn).asynchronousMoveTo(0.);
-		inOrder.verify(mockeddet1).collectData();
-		inOrder.verify(mockeddet2).collectData();
 		inOrder.verify(mockscn).asynchronousMoveTo(1.);
-		inOrder.verify(mockeddet1).collectData();
-		inOrder.verify(mockeddet2).collectData();
 		inOrder.verify(mockscn).asynchronousMoveTo(2.);
-		inOrder.verify(mockeddet1).collectData();
-		inOrder.verify(mockeddet2).collectData();
 		
 		inOrder.verify(mockedController).stopAndReset();
 		inOrder.verify(mockedController).setStart(-.5);
@@ -193,11 +175,14 @@ public class ConstantVelocityScanLineTest {
 		
 		inOrder.verify(mockedController).prepareForMove();
 		
-		inOrder.verify(mockeddet1).arm(); // order unimportant
-		inOrder.verify(mockeddet2).arm(); // order unimportant
+		inOrder.verify(mockeddet1).collectData(); // order unimportant
+		inOrder.verify(mockeddet2).collectData(); // order unimportant
 		
 		inOrder.verify(mockedController).startMove();
 		inOrder.verify(mockedController).waitWhileMoving();
+		
+		verify(mockeddet1, times(1)).collectData();
+		verify(mockeddet2, times(1)).collectData();
 	}
 
 	

@@ -77,18 +77,16 @@ public class DummyHardwareTriggerableAreaDetectorTest {
 		
 		det.atScanLineStart();
 		det.setCollectionTime(.2);
-		det.collectData();
 		assertEquals(Detector.IDLE, det.getStatus());
 		det.waitWhileBusy();
 		assertEquals("det/image1.img",  det.readout());	
 		det.setCollectionTime(.2);
-		det.collectData();
 		assertEquals(Detector.IDLE, det.getStatus());
 		det.waitWhileBusy();
 		assertEquals("det/image2.img",  det.readout());
 		det.atScanLineEnd();
 		
-		det.arm();
+		det.collectData();
 		assertEquals(det.getStatus(), Detector.BUSY);
 		det.update(null, null);
 		assertEquals(det.getStatus(), Detector.BUSY);
