@@ -113,6 +113,11 @@ public final class QEXAFSParametersComposite extends Composite {
 					.getDouble(ExafsPreferenceConstants.XAS_MAX_ENERGY);
 			if (max == 0)
 				max = 40000.;
+			finalEnergy.setMinimum(2050.0);
+			finalEnergy.setMaximum(22000.0);
+			initialEnergy.setMinimum(2050.0);
+			initialEnergy.setMaximum(22000.0);
+			crystal = Quantity.valueOf(6.2695, NonSI.ANGSTROM);
 		}
 
 		label = new Label(this, SWT.NONE);
