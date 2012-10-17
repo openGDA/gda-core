@@ -323,7 +323,7 @@ public final class SimpleScanComposite extends Composite {
 		double from = fromPos.getNumericValue();
 		double to = toPos.getNumericValue();
 		double step = stepSize.getNumericValue();
-		double acq = acqTime.getNumericValue();
+		Double acq = acqTime.getNumericValue();
 		
 		
 		
@@ -335,9 +335,11 @@ public final class SimpleScanComposite extends Composite {
 			List<DetectorManagerBean> detectors = bean.getDetectors();
 			String detList = "";
 			for(int i=0;i<detectors.size();i++){
-				detList += detectors.get(i).getDetectorName() + " ";
+				if(detectors.get(i).isEnabled())
+					detList += detectors.get(i).getDetectorName() + " ";
 			}
-			detList += acq;
+			if(!acq.isNaN() && !acqTime.getValue().toString().equals(""))
+				detList += acq;
 			String command = "scan "+ scannable_name + " " + from + " " + to + " " + step + " " + detList;
 			JythonServerFacade.getInstance().runCommand(command);
 		}
