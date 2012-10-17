@@ -126,7 +126,6 @@ public class TomoAlignmentMotorHandler implements ISampleStageMotorHandler {
 		this.ss1Y2Scannable = y2Scannable;
 	}
 
-
 	public IScannableMotor getSampleHolderScannable() {
 		return sampleHolderScannable;
 	}
@@ -186,7 +185,6 @@ public class TomoAlignmentMotorHandler implements ISampleStageMotorHandler {
 	public void setTomoAlignmentViewController(TomoAlignmentController tomoAlignmentViewController) {
 		this.tomoAlignmentViewController = tomoAlignmentViewController;
 	}
-
 
 	@Override
 	public double getSampleScannableSpeed() throws DeviceException {

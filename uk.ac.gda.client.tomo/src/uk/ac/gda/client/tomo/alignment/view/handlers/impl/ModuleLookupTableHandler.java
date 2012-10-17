@@ -169,4 +169,17 @@ public class ModuleLookupTableHandler implements IModuleLookupTableHandler {
 		}
 		return null;
 	}
+
+	@Override
+	public String lookupMagnificationUnit() throws DeviceException {
+		return "No.";//moduleTable.lookupUnitString(ModuleLookupTableConstants.MAGNIFICATION);
+	}
+
+	@Override
+	public Double lookupMagnification(CAMERA_MODULE module) throws DeviceException {
+		if (!CAMERA_MODULE.NO_MODULE.equals(module)) {
+			return moduleTable.lookupValue(module.getValue(), ModuleLookupTableConstants.MAGNIFICATION);
+		}
+		return Double.NaN;
+	}
 }

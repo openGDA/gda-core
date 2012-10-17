@@ -111,4 +111,16 @@ public class ModuleLookupTableHandlerSimulator implements IModuleLookupTableHand
 		return null;
 	}
 
+	@Override
+	public String lookupMagnificationUnit() throws DeviceException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Double lookupMagnification(CAMERA_MODULE module) throws DeviceException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

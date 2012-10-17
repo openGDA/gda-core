@@ -272,7 +272,7 @@ public class ModuleButtonComposite extends Composite {
 				Object sourceObj = event.widget;
 				CAMERA_MODULE oldModule = getModuleSelected();
 
-				if (sourceObj == btnModule1) {
+				if (btnModule1.equals(sourceObj)) {
 					if (!isSelected(btnModule1)) {
 						selectControl(btnModule1);
 
@@ -283,7 +283,7 @@ public class ModuleButtonComposite extends Composite {
 						selectedModule = CAMERA_MODULE.ONE;
 						updateModuleChangeListener(oldModule, CAMERA_MODULE.ONE);
 					}
-				} else if (sourceObj == btnModule2) {
+				} else if (btnModule2.equals(sourceObj)) {
 					if (!isSelected(btnModule2)) {
 						selectControl(btnModule2);
 						/**/
@@ -293,7 +293,7 @@ public class ModuleButtonComposite extends Composite {
 						selectedModule = CAMERA_MODULE.TWO;
 						updateModuleChangeListener(oldModule, CAMERA_MODULE.TWO);
 					}
-				} else if (sourceObj == btnModule3) {
+				} else if (btnModule3.equals(sourceObj)) {
 					if (!isSelected(btnModule3)) {
 						selectControl(btnModule3);
 						/**/
@@ -303,7 +303,7 @@ public class ModuleButtonComposite extends Composite {
 						selectedModule = CAMERA_MODULE.THREE;
 						updateModuleChangeListener(oldModule, CAMERA_MODULE.THREE);
 					}
-				} else if (sourceObj == btnModule4) {
+				} else if (btnModule4.equals(sourceObj)) {
 					if (!isSelected(btnModule4)) {
 						selectControl(btnModule4);
 						/**/

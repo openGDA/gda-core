@@ -237,28 +237,6 @@ public class FullImageComposite extends FixedImageViewerComposite {
 		crossWireVertical1.setVisible(false);
 		feedbackFigure.add(crossWireVertical1);
 
-		// Cross hair menu
-		Menu crossHairMenu = new Menu(getCanvas());
-		final MenuItem crossHairMenuItem = new MenuItem(crossHairMenu, SWT.PUSH);
-		crossHairMenuItem.setText(SHOW_CROSSHAIR);
-		crossHairMenuItem.addSelectionListener(new SelectionAdapter() {
-			private boolean crossHairVisible = false;
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if (crossHairVisible) {
-					hideCrossWire2();
-					crossHairMenuItem.setText(SHOW_CROSSHAIR);
-					crossHairVisible = false;
-				} else {
-					showCrossWire2();
-					crossHairMenuItem.setText(HIDE_CROSSHAIR);
-					crossHairVisible = true;
-				}
-			}
-
-		});
-		getCanvas().setMenu(crossHairMenu);
 	}
 
 	private class LinePointMouseListener implements MouseMotionListener, MouseListener {

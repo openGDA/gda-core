@@ -20,6 +20,7 @@ package uk.ac.gda.client.tomo.composites;
 
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
@@ -103,5 +104,27 @@ public class ControlButton extends Composite {
 			return btn.getBackground();
 		}
 		return super.getBackground();
+	}
+
+	public void addSelectionListener(SelectionListener buttonSelectionListener) {
+		if (btn != null) {
+			btn.addSelectionListener(buttonSelectionListener);
+		}
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (btn != null && obj instanceof Button) {
+			return this.btn.equals(obj);
+		}
+		return super.equals(obj);
+	}
+
+	@Override
+	public int hashCode() {
+		if (btn != null) {
+			return this.btn.hashCode();
+		}
+		return super.hashCode();
 	}
 }

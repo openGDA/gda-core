@@ -35,7 +35,9 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +46,8 @@ import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
 
 public class TomoAlignmentLeftPanelComposite extends Composite {
 
+	private static final String SHOW_FLAT = "Show Flat";
+	private static final String SHOW_DARK = "Show Dark";
 	private static final String FAST_PREVIEW = "Fast Preview";
 	private static final String SINGLE = "Single";
 	private static final String STREAM = "Stream";
@@ -55,6 +59,7 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 	//
 	private Button btnFlatDarkCorrection;
 	private Button btnFlatShow;
+	private Label lblFlatDarkExpTime;
 	//
 	private Button btnDarkShow;
 	//
@@ -72,6 +77,7 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 	private Button btnFastPreview;
 	private Button btnCrossHair;
 	private Button btnHistogram;
+	private boolean streamButtonSelected;
 
 	private static final String FLAT_EXP_TIME_CAPTURED_shortmsg = "Exposure time \r %.3g (s)";
 	private static final String FLAT_AND_DARK_UNAVAILABLE_shortdesc = "Flat and Dark Images have not been captured. Click 'Take Flat && Dark' to capture Flat and dark images";
@@ -100,12 +106,15 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 
 		btnStream = toolkit.createButton(leftPanelComposite, STREAM, SWT.PUSH);
 		btnStream.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		btnStream.addSelectionListener(buttonSelectionListener);
 
 		btnSingle = toolkit.createButton(leftPanelComposite, SINGLE, SWT.PUSH);
 		btnSingle.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		btnSingle.addSelectionListener(buttonSelectionListener);
 
 		btnFastPreview = toolkit.createButton(leftPanelComposite, FAST_PREVIEW, SWT.PUSH);
 		btnFastPreview.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		btnFastPreview.addSelectionListener(buttonSelectionListener);
 
 		Composite zoomBorderCmp = toolkit.createComposite(leftPanelComposite);
 		zoomBorderCmp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -115,20 +124,24 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 		zoomBorderCmp.setLayout(gl);
 		zoomBorderCmp.setBackground(ColorConstants.black);
 
-		Composite zoomCmp = new ZoomButtonComposite(zoomBorderCmp, toolkit);
-		zoomCmp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		zoomComposite = new ZoomButtonComposite(zoomBorderCmp, toolkit);
+		zoomComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		btnHistogram = toolkit.createButton(leftPanelComposite, "Histogram", SWT.PUSH);
 		btnHistogram.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		btnHistogram.addSelectionListener(buttonSelectionListener);
 
 		btnProfile = toolkit.createButton(leftPanelComposite, "Profile", SWT.PUSH);
 		btnProfile.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		btnProfile.addSelectionListener(buttonSelectionListener);
 
 		btnSaturation = toolkit.createButton(leftPanelComposite, "Saturation", SWT.PUSH);
 		btnSaturation.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		btnSaturation.addSelectionListener(buttonSelectionListener);
 
 		btnCrossHair = toolkit.createButton(leftPanelComposite, "Crosshair", SWT.PUSH);
 		btnCrossHair.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		btnCrossHair.addSelectionListener(buttonSelectionListener);
 
 		Composite flatDarkCmp = toolkit.createComposite(leftPanelComposite);
 		flatDarkCmp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -146,24 +159,30 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 
 		btnSampleIn = new ControlButton(toolkit, flatDarkCmp, "Sample In", SWT.WRAP);
 		btnSampleIn.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		btnSampleIn.addListener(SWT.MouseDown, ctrlMouseListener);
 
 		btnSampleOut = new ControlButton(toolkit, flatDarkCmp, "Sample Out", SWT.WRAP);
 		btnSampleOut.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		btnSampleOut.addListener(SWT.MouseDown, ctrlMouseListener);
 
 		btnTakeFlatAndDark = toolkit.createButton(flatDarkCmp, "Take Flat && Dark", SWT.PUSH | SWT.WRAP);
 		btnTakeFlatAndDark.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		btnTakeFlatAndDark.addSelectionListener(buttonSelectionListener);
 
 		btnFlatDarkCorrection = toolkit.createButton(flatDarkCmp, "Correct Flat && Dark", SWT.PUSH | SWT.WRAP);
 		btnFlatDarkCorrection.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		btnFlatDarkCorrection.addSelectionListener(buttonSelectionListener);
 
-		btnFlatShow = toolkit.createButton(flatDarkCmp, "Show Flat", SWT.PUSH | SWT.WRAP);
+		btnFlatShow = toolkit.createButton(flatDarkCmp, SHOW_FLAT, SWT.PUSH | SWT.WRAP);
 		btnFlatShow.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		btnFlatShow.addSelectionListener(buttonSelectionListener);
 
-		btnDarkShow = toolkit.createButton(flatDarkCmp, "Show Dark", SWT.PUSH | SWT.WRAP);
+		btnDarkShow = toolkit.createButton(flatDarkCmp, SHOW_DARK, SWT.PUSH | SWT.WRAP);
 		btnDarkShow.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		btnDarkShow.addSelectionListener(buttonSelectionListener);
 
-		Label lblFlatDarkExpTime = toolkit.createLabel(flatDarkCmp, "Exposure time: 0.05 s", SWT.PUSH | SWT.WRAP
-				| SWT.CENTER);
+		lblFlatDarkExpTime = toolkit
+				.createLabel(flatDarkCmp, "Exposure time: 0.05 s", SWT.PUSH | SWT.WRAP | SWT.CENTER);
 		lblFlatDarkExpTime.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		//
@@ -172,10 +191,12 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 
 	public void addLeftPanelListener(ITomoAlignmentLeftPanelListener listener) {
 		leftPanelListeners.add(listener);
+		zoomComposite.addZoomButtonActionListener(listener);
 	}
 
 	public void removeLeftPanelListener(ITomoAlignmentLeftPanelListener listener) {
 		leftPanelListeners.remove(listener);
+		zoomComposite.removeZoomButtonActionListener(listener);
 	}
 
 	private void initializeFontRegistry() {
@@ -223,7 +244,7 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 				@Override
 				public void run() {
 					try {
-						deSelectControl(btnStream);
+						deselectStreamButton();
 						for (ITomoAlignmentLeftPanelListener lpl : leftPanelListeners) {
 							lpl.stream(false);
 						}
@@ -329,7 +350,7 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 			}
 		} catch (Exception ex) {
 			logger.error("startStreaming:" + ex);
-			deSelectControl(btnStream);
+			deselectStreamButton();
 			throw new Exception("Unable to start streaming:", ex);
 		}
 	}
@@ -337,6 +358,7 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 	// Stream options
 	public void selectStreamButton() {
 		selectControl(btnStream);
+		streamButtonSelected = true;
 	}
 
 	/**
@@ -429,66 +451,34 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 					selectControl(btnStream);
 				} else {
 					logger.debug("'Stream' is de-selected");
-					deselectStream();
+					stopStream();
 				}
 			} else if (sourceObj == btnHistogram) {
 				if (!isSelected(btnHistogram)) {
 					startHistogram();
 				} else {
-					logger.debug("'btnSampleHistogram' is de-selected");
+					logger.debug("'btnHistogram' is de-selected");
 					stopHistogram();
 				}
 			} else if (sourceObj == btnSingle) {
-				if (!isSelected(btnSingle)) {
-					logger.debug("'Flat single' is selected");
-					try {
-						for (ITomoAlignmentLeftPanelListener lpl : leftPanelListeners) {
-							lpl.single(isFlatCorrectionSelected());
-						}
-					} catch (Exception e) {
-						showErrorDialog(e);
-						logger.error("Flat single capturing has problems", e);
+				logger.debug("'single' is selected");
+				try {
+					for (ITomoAlignmentLeftPanelListener lpl : leftPanelListeners) {
+						lpl.single(isFlatCorrectionSelected());
 					}
-				} else {
-					logger.debug("'Flat Single' is de-selected");
-					deSelectControl(btnSingle);
+				} catch (Exception e) {
+					showErrorDialog(e);
+					logger.error("single capturing has problems", e);
 				}
-			} else if (sourceObj == btnSampleIn) {
-				if (!isSelected(btnSampleIn)) {
-					logger.debug("'btnSampleIn' is selected");
-					selectSampleInButton();
-					try {
-						for (ITomoAlignmentLeftPanelListener lpl : leftPanelListeners) {
-							lpl.moveSampleIn();
-						}
-					} catch (IllegalStateException s) {
-						// showError("Cannot Move Sample In", s);
-						showErrorDialog(s);
-						selectSampleOutButton();
-					} catch (Exception e1) {
-						// showError("Cannot Move Sample In", e1);
-						showErrorDialog(e1);
-						selectSampleOutButton();
+			} else if (sourceObj == btnFastPreview) {
+				logger.debug("'single' is selected");
+				try {
+					for (ITomoAlignmentLeftPanelListener lpl : leftPanelListeners) {
+						lpl.fastPreview(isFlatCorrectionSelected());
 					}
-				}
-			} else if (sourceObj == btnSampleOut) {
-				if (!isSelected(btnSampleOut)) {
-					logger.debug("'btnSampleOut' is selected");
-					logger.debug("'btnSampleIn' is selected");
-					selectSampleOutButton();
-					try {
-						for (ITomoAlignmentLeftPanelListener lpl : leftPanelListeners) {
-							lpl.moveSampleOut();
-						}
-					} catch (IllegalStateException s) {
-						// showError("Cannot Move Sample In", s);
-						showErrorDialog(s);
-						selectSampleInButton();
-					} catch (Exception e1) {
-						// showError("Cannot Move Sample In", e1);
-						showErrorDialog(e1);
-						selectSampleInButton();
-					}
+				} catch (Exception e) {
+					showErrorDialog(e);
+					logger.error("single capturing has problems", e);
 				}
 			} else if (sourceObj == btnSaturation) {
 				if (!isSelected(btnSaturation)) {
@@ -592,6 +582,81 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 					}
 					deSelectControl(btnProfile);
 				}
+			} else if (sourceObj == btnCrossHair) {
+				if (!isSelected(btnCrossHair)) {
+					logger.debug("'btnCrossHair' is selected");
+					try {
+						selectControl(btnCrossHair);
+						for (ITomoAlignmentLeftPanelListener lpl : leftPanelListeners) {
+							lpl.crosshair(true);
+						}
+					} catch (Exception ex) {
+						deSelectControl(btnCrossHair);
+						showErrorDialog(ex);
+					}
+				} else {
+					try {
+						for (ITomoAlignmentLeftPanelListener lpl : leftPanelListeners) {
+							lpl.crosshair(false);
+						}
+						deSelectControl(btnCrossHair);
+					} catch (Exception e) {
+						logger.error("Error displaying crosshair ;{}", e.getMessage());
+					}
+				}
+
+			}
+		}
+	};
+
+	/**
+	 * listener for buttons and slider - but this is control masked - the "Ctrl" key needs to be pressed
+	 */
+	private Listener ctrlMouseListener = new Listener() {
+
+		@Override
+		public void handleEvent(Event event) {
+			// to check whether the control key is pressend along with the mouse button click
+			if (event.stateMask == SWT.CTRL) {
+				Object sourceObj = event.widget;
+				if (btnSampleIn.equals(sourceObj)) {
+					if (!isSelected(btnSampleIn)) {
+						logger.debug("'btnSampleIn' is selected");
+						selectSampleInButton();
+						try {
+							for (ITomoAlignmentLeftPanelListener lpl : leftPanelListeners) {
+								lpl.moveSampleIn();
+							}
+						} catch (IllegalStateException s) {
+							// showError("Cannot Move Sample In", s);
+							showErrorDialog(s);
+							selectSampleOutButton();
+						} catch (Exception e1) {
+							// showError("Cannot Move Sample In", e1);
+							showErrorDialog(e1);
+							selectSampleOutButton();
+						}
+					}
+				} else if (btnSampleOut.equals(sourceObj)) {
+					if (!isSelected(btnSampleOut)) {
+						logger.debug("'btnSampleOut' is selected");
+						logger.debug("'btnSampleIn' is selected");
+						selectSampleOutButton();
+						try {
+							for (ITomoAlignmentLeftPanelListener lpl : leftPanelListeners) {
+								lpl.moveSampleOut();
+							}
+						} catch (IllegalStateException s) {
+							// showError("Cannot Move Sample In", s);
+							showErrorDialog(s);
+							selectSampleInButton();
+						} catch (Exception e1) {
+							// showError("Cannot Move Sample In", e1);
+							showErrorDialog(e1);
+							selectSampleInButton();
+						}
+					}
+				}
 			}
 		}
 	};
@@ -639,8 +704,9 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 	/**
 	 * Deselects both the streams
 	 */
-	public void deselectStream() {
+	public void deselectStreamButton() {
 		deSelectControl(btnStream);
+		streamButtonSelected = false;
 	}
 
 	private void showErrorDialog(Exception ex) {
@@ -696,12 +762,16 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 			logger.error("Exception switching off saturation");
 		}
 	}
-	
+
 	/**
 	 * @return true if saturation button is selected else returns false.
 	 */
 	public boolean isSaturationSelected() {
 		return isSelected(btnSaturation);
+	}
+
+	public boolean isStreamButtonSelected() {
+		return streamButtonSelected;
 	}
 
 }

@@ -91,7 +91,7 @@ import uk.ac.gda.client.tomo.composites.StatInfoComposite;
 import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite;
 import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.MotionControlCentring;
 import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.RESOLUTION;
-import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.STREAM_STATE;
+import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.SAMPLE_OR_FLAT;
 import uk.ac.gda.client.tomo.composites.TomoAlignmentLeftPanelComposite;
 import uk.ac.gda.client.tomo.composites.TomoPlotComposite;
 import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
@@ -99,7 +99,6 @@ import uk.ac.gda.client.tomo.composites.ZoomedImageComposite;
 import uk.ac.gda.client.tomo.composites.ZoomedImgCanvas;
 import uk.ac.gda.client.tomo.preferences.TomoAlignmentPreferencePage;
 import uk.ac.gda.epics.client.EPICSClientActivator;
-import uk.ac.gda.ui.components.AmplifierStepperComposite.STEPPER;
 import uk.ac.gda.ui.components.ColourSliderComposite;
 import uk.ac.gda.ui.components.PointInDouble;
 import uk.ac.gda.ui.event.PartAdapter2;
@@ -302,7 +301,8 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 			@Override
 			public void run() {
-				MessageDialog.openError(leftWindowImageViewer.getShell(), dialogTitle, errorMsg);
+				MessageDialog.openError(leftWindowImageViewer.getShell(), dialogTitle,
+						"Problem with tomography alignment \n" + errorMsg);
 			}
 		});
 	}
@@ -398,6 +398,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			toolkit = new FormToolkit(parent.getDisplay());
 			toolkit.setBorderStyle(SWT.BORDER);
 
+			tomoViewController = new TomoAlignmentViewController(this);
 			Composite cmpRoot = toolkit.createComposite(parent);
 			GridLayout layout = new GridLayout();
 			setDefaultLayoutSettings(layout);
@@ -421,11 +422,10 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			getSite().getPage().addPartListener(tomoPartAdapter);
 			//
 
-			tomoViewController = new TomoAlignmentViewController(this);
-
 			tomoControlComposite.addMotionControlListener(tomoViewController);
 
 			tomoAlignmentController.addScanControllerUpdateListener(tomoViewController);
+			leftPanelComposite.addLeftPanelListener(tomoViewController);
 			tomoAlignmentController.isScanRunning();
 
 			createActions();
@@ -495,12 +495,12 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		// Left window
 		Composite leftWindow = createLeftWindow(mainComposite);
 		layoutData = new GridData(GridData.FILL_BOTH);
-		layoutData.widthHint = LEFT_WINDOW_WIDTH;
+		layoutData.widthHint = 530;
 		leftWindow.setLayoutData(layoutData);
 		// Right Window
 		Composite rightWindow = createRightWindow(mainComposite);
 		layoutData = new GridData(GridData.FILL_BOTH);
-		layoutData.widthHint = RIGHT_WINDOW_WIDTH;
+		layoutData.widthHint = 200;
 		rightWindow.setLayoutData(layoutData);
 
 		return mainComposite;
@@ -979,7 +979,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	public void updateStreamWidget(int acquisitionState) {
 		if (fullImgReceiverStarted) {
 			if (acquisitionState == 0) {
-				leftPanelComposite.deselectStream();
+				leftPanelComposite.deselectStreamButton();
 				// stopFullVideoReceiver();
 			} else if (acquisitionState == 1) {
 				leftPanelComposite.selectStreamButton();
@@ -1027,14 +1027,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 	protected boolean isModuleSelected() {
 		return tomoControlComposite.getSelectedCameraModule() != CAMERA_MODULE.NO_MODULE;
-	}
-
-	/**
-	 * @deprecated
-	 */
-	@Override
-	public void resetAmplifier() throws Exception {
-		// amplifierStepper.moveStepperTo(STEPPER.ONE);
 	}
 
 	/**
@@ -1234,6 +1226,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			histogramSliderComposite.dispose();
 			tomoPlotComposite.removeOverlayLineListener(tomoViewController);
 
+			leftPanelComposite.removeLeftPanelListener(tomoViewController);
 			stopFullVideoReceiver();
 			leftVideoListener = null;
 			rightVideoListener = null;
@@ -1511,18 +1504,13 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	}
 
 	public boolean isStreamingSampleExposure() {
-		// TODO - Fix Ravi
-		return STREAM_STATE.SAMPLE_STREAM.equals(tomoControlComposite.getStreamState());
+		return leftPanelComposite.isStreamButtonSelected()
+				&& SAMPLE_OR_FLAT.SAMPLE.equals(tomoControlComposite.getStreamState());
 	}
 
 	public boolean isStreamingFlatExposure() {
-		return STREAM_STATE.FLAT_STREAM.equals(tomoControlComposite.getStreamState());
-	}
-
-	public STEPPER getSelectedAmplifierStepper() {
-		// TODO - Ravi fix
-		// return amplifierStepper.getSelectedStepper();
-		return null;
+		return leftPanelComposite.isStreamButtonSelected()
+				&& SAMPLE_OR_FLAT.FLAT.equals(tomoControlComposite.getStreamState());
 	}
 
 	public void setHistogramAdjusterImageData(ImageData imgData) {

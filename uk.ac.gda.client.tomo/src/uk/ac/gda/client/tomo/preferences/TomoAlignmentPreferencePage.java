@@ -46,7 +46,7 @@ import uk.ac.gda.client.tomo.TomoClientActivator;
 public class TomoAlignmentPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 
 	private static final String DOUBLE_REGEX = "\\-?[0-9]*\\.?[0-9]*";
-	
+
 	private Pattern doubleRegexPattern = Pattern.compile(DOUBLE_REGEX);
 	public static final String ID = "uk.ac.gda.client.tomo.tomoalignment.prefpage";
 	private static final String INVALID_VALUE_ERRMSG = "Invalid value - %1$s";
@@ -56,17 +56,22 @@ public class TomoAlignmentPreferencePage extends PreferencePage implements IWork
 	private static final String SAMPLE_MOVE_DISTANCE = "Sample move Distance";
 	private static final String DISTANCE_TO_MOVE_SAMPLE = "Distance to move sample";
 	private static final String NUMBER_OF_IMAGES = "Number of Images";
+	private static final String FAST_PREVIEW_EXP_TIME = "Fast Preview exposure time threshold";
 	private static final String ERR_MSG_ID = "ERR_MSG_ID";
 	private static final Logger logger = LoggerFactory.getLogger(TomoAlignmentPreferencePage.class);
 	private IPreferenceStore preferenceStore;
 	private Text txtNumFlatImages;
 	private Text txtSampleMoveDist;
 	private Text txtNumDarkImages;
+
+	private Text txtFastPreviewExpTime;
 	public static final String TOMO_CLIENT_FLAT_NUM_IMG_PREF = "TOMO_CLIENT_FLAT_NUM_IMG_PREF";
 	public static final String TOMO_CLIENT_DARK_NUM_IMG_PREF = "TOMO_CLIENT_DARK_NUM_IMG_PREF";
 	public static final String TOMO_CLIENT_FLAT_DIST_MOVE_PREF = "TOMO_CLIENT_FLAT_DIST_MOVE_PREF";
 	public static final String TOMO_CLIENT_SAMPLE_EXPOSURE_TIME = "TOMO_CLIENT_SAMPLE_EXPOSURE_TIME";
 	public static final String TOMO_CLIENT_FLAT_EXPOSURE_TIME = "TOMO_CLIENT_FLAT_EXPOSURE_TIME";
+
+	public static final String TOMO_CLIENT_FAST_PREVIEW_EXP_TIME = "TOMO_CLIENT_FAST_PREVIEW_EXP_TIME";
 
 	/**
 	 * 
@@ -129,7 +134,7 @@ public class TomoAlignmentPreferencePage extends PreferencePage implements IWork
 		txtSampleMoveDist.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtSampleMoveDist.setText(Double.toString(preferenceStore.getDouble(TOMO_CLIENT_FLAT_DIST_MOVE_PREF)));
 		txtSampleMoveDist.setData(ERR_MSG_ID, SAMPLE_MOVE_DISTANCE);
-		txtSampleMoveDist.addModifyListener(sampleMoveDistanceValueVerifyListener);
+		txtSampleMoveDist.addModifyListener(doubleVerifyListener);
 
 		// Dark group
 		Group darkGroup = new Group(root, SWT.None);
@@ -151,7 +156,99 @@ public class TomoAlignmentPreferencePage extends PreferencePage implements IWork
 		txtNumDarkImages.addModifyListener(intVerifyListener);
 		txtNumDarkImages.setData(ERR_MSG_ID, NUMBER_OF_IMAGES);
 
+		// Fast Preview group
+		Group fastPreview = new Group(root, SWT.None);
+		fastPreview.setText(DARK);
+		gl = new GridLayout(2, true);
+
+		fastPreview.setLayout(gl);
+		fastPreview.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Label lblFastPreviewExpTime = new Label(fastPreview, SWT.None);
+		lblFastPreviewExpTime.setText("Exposure Time threshold (s)");
+		lblFastPreviewExpTime.setLayoutData(new GridData());
+
+		double fastPreviewExpTime = preferenceStore.getDouble(TOMO_CLIENT_FAST_PREVIEW_EXP_TIME);
+
+		txtFastPreviewExpTime = new Text(fastPreview, SWT.BORDER);
+		txtFastPreviewExpTime.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		txtFastPreviewExpTime.setText(Double.toString(fastPreviewExpTime));
+		txtFastPreviewExpTime.addModifyListener(doubleVerifyListener);
+		txtFastPreviewExpTime.setData(ERR_MSG_ID, FAST_PREVIEW_EXP_TIME);
+
 		return root;
+	}
+
+	private ModifyListener intVerifyListener = new ModifyListener() {
+
+		@Override
+		public void modifyText(ModifyEvent e) {
+			Object source = e.getSource();
+			if (source.equals(txtNumFlatImages)) {
+				validateIntegerText(txtNumFlatImages);
+			}
+			if (source.equals(txtNumDarkImages)) {
+				validateIntegerText(txtNumDarkImages);
+			}
+		}
+
+	};
+	private ModifyListener doubleVerifyListener = new ModifyListener() {
+
+		@Override
+		public void modifyText(ModifyEvent e) {
+			Object source = e.getSource();
+			if (source.equals(txtSampleMoveDist)) {
+				validateDoubleValue(txtSampleMoveDist);
+			} else if (source.equals(txtFastPreviewExpTime)) {
+				validateDoubleValue(txtFastPreviewExpTime);
+			}
+
+		}
+	};
+
+	@Override
+	public boolean performOk() {
+		if (validateDoubleValue(txtSampleMoveDist)) {
+			preferenceStore.setValue(TOMO_CLIENT_FLAT_DIST_MOVE_PREF, Double.parseDouble(txtSampleMoveDist.getText()));
+		}
+		if (validateIntegerText(txtNumFlatImages)) {
+			preferenceStore.setValue(TOMO_CLIENT_FLAT_NUM_IMG_PREF, Integer.parseInt(txtNumFlatImages.getText()));
+		}
+		if (validateIntegerText(txtNumDarkImages)) {
+			preferenceStore.setValue(TOMO_CLIENT_DARK_NUM_IMG_PREF, Integer.parseInt(txtNumDarkImages.getText()));
+		}
+		if (validateDoubleValue(txtFastPreviewExpTime)) {
+			preferenceStore.setValue(TOMO_CLIENT_FAST_PREVIEW_EXP_TIME,
+					Double.parseDouble(txtFastPreviewExpTime.getText()));
+		}
+		return true;
+	}
+
+	@Override
+	protected void performDefaults() {
+		txtSampleMoveDist.setText(Double.toString(preferenceStore.getDefaultDouble(TOMO_CLIENT_FLAT_DIST_MOVE_PREF)));
+		txtNumFlatImages.setText(Integer.toString(preferenceStore.getDefaultInt(TOMO_CLIENT_FLAT_NUM_IMG_PREF)));
+		txtNumDarkImages.setText(Integer.toString(preferenceStore.getDefaultInt(TOMO_CLIENT_DARK_NUM_IMG_PREF)));
+		txtFastPreviewExpTime
+				.setText(Double.toString(preferenceStore.getDefaultInt(TOMO_CLIENT_FAST_PREVIEW_EXP_TIME)));
+	}
+
+	private boolean validateDoubleValue(Text txtCtrl) {
+		String txt = txtCtrl.getText();
+		Object errMsgId = txtCtrl.getData(ERR_MSG_ID);
+		boolean result = true;
+
+		if (txt == null || txt.length() < 1) {
+			setErrorMessage(String.format(INVALID_VALUE_ERRMSG, errMsgId));
+			result = false;
+		} else if (!doubleRegexPattern.matcher(txt).matches()) {
+			setErrorMessage(String.format(INVALID_VALUE_ERRMSG, errMsgId));
+			result = false;
+		} else {
+			setErrorMessage(null);
+		}
+		return result;
 	}
 
 	private boolean validateIntegerText(Text txtCtrl) {
@@ -172,70 +269,6 @@ public class TomoAlignmentPreferencePage extends PreferencePage implements IWork
 			} else {
 				setErrorMessage(null);
 			}
-		}
-		return result;
-	}
-
-	private ModifyListener intVerifyListener = new ModifyListener() {
-
-		@Override
-		public void modifyText(ModifyEvent e) {
-			Object source = e.getSource();
-			if (source.equals(txtNumFlatImages)) {
-				validateIntegerText(txtNumFlatImages);
-			}
-			if (source.equals(txtNumDarkImages)) {
-				validateIntegerText(txtNumDarkImages);
-			}
-		}
-
-	};
-	private ModifyListener sampleMoveDistanceValueVerifyListener = new ModifyListener() {
-
-		@Override
-		public void modifyText(ModifyEvent e) {
-			Object source = e.getSource();
-			if (source.equals(txtSampleMoveDist)) {
-				validateDoubleValue(txtSampleMoveDist);
-			}
-
-		}
-	};
-
-	@Override
-	public boolean performOk() {
-		if (validateDoubleValue(txtSampleMoveDist)) {
-			preferenceStore.setValue(TOMO_CLIENT_FLAT_DIST_MOVE_PREF, Double.parseDouble(txtSampleMoveDist.getText()));
-		}
-		if (validateIntegerText(txtNumFlatImages)) {
-			preferenceStore.setValue(TOMO_CLIENT_FLAT_NUM_IMG_PREF, Integer.parseInt(txtNumFlatImages.getText()));
-		}
-		if (validateIntegerText(txtNumDarkImages)) {
-			preferenceStore.setValue(TOMO_CLIENT_DARK_NUM_IMG_PREF, Integer.parseInt(txtNumDarkImages.getText()));
-		}
-		return true;
-	}
-
-	@Override
-	protected void performDefaults() {
-		txtSampleMoveDist.setText(Double.toString(preferenceStore.getDefaultDouble(TOMO_CLIENT_FLAT_DIST_MOVE_PREF)));
-		txtNumFlatImages.setText(Integer.toString(preferenceStore.getDefaultInt(TOMO_CLIENT_FLAT_NUM_IMG_PREF)));
-		txtNumDarkImages.setText(Integer.toString(preferenceStore.getDefaultInt(TOMO_CLIENT_DARK_NUM_IMG_PREF)));
-	}
-
-	private boolean validateDoubleValue(Text txtCtrl) {
-		String txt = txtCtrl.getText();
-		Object errMsgId = txtCtrl.getData(ERR_MSG_ID);
-		boolean result = true;
-
-		if (txt == null || txt.length() < 1) {
-			setErrorMessage(String.format(INVALID_VALUE_ERRMSG, errMsgId));
-			result = false;
-		} else if (!doubleRegexPattern.matcher(txt).matches()) {
-			setErrorMessage(String.format(INVALID_VALUE_ERRMSG, errMsgId));
-			result = false;
-		} else {
-			setErrorMessage(null);
 		}
 		return result;
 	}

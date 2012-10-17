@@ -38,10 +38,9 @@ public interface ICameraHandler extends ITomoHandler {
 	/**
 	 * @param exposureTime
 	 *            - exposure time that needs to be set on the detector.
-	 * @param amplifierValue
 	 * @throws Exception
 	 */
-	void setExposureTime(double exposureTime, int amplifierValue) throws Exception;
+	void setExposureTime(double exposureTime) throws Exception;
 
 	/**
 	 * @param acqTime

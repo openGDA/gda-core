@@ -47,6 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.tomo.TiltPlotPointsHolder;
+import uk.ac.gda.client.tomo.TomoClientActivator;
 import uk.ac.gda.client.tomo.ViewerDisplayMode;
 import uk.ac.gda.client.tomo.alignment.view.TomoAlignmentView.LEFT_PAGE;
 import uk.ac.gda.client.tomo.alignment.view.TomoAlignmentView.RIGHT_INFO;
@@ -67,12 +68,12 @@ import uk.ac.gda.client.tomo.composites.OverlayImageFigure.OverlayImgFigureListe
 import uk.ac.gda.client.tomo.composites.SWT2Dutil;
 import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.MotionControlCentring;
 import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.RESOLUTION;
+import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.SAMPLE_OR_FLAT;
 import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.SAMPLE_WEIGHT;
-import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.STREAM_STATE;
 import uk.ac.gda.client.tomo.composites.TomoPlotComposite.PlottingSystemActionListener;
 import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
 import uk.ac.gda.client.tomo.configuration.view.handlers.IScanControllerUpdateListener;
-import uk.ac.gda.ui.components.AmplifierStepperComposite.STEPPER;
+import uk.ac.gda.client.tomo.preferences.TomoAlignmentPreferencePage;
 import uk.ac.gda.ui.components.ColourSliderComposite.IColourSliderListener;
 
 public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListener, ITomoAlignmentControlListener,
@@ -117,7 +118,6 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 							throw new InterruptedException();
 						}
 						tomoAlignmentView.getTomoAlignmentController().setModule(newModule, moduleChangeMonitor);
-						tomoAlignmentView.resetAmplifier();
 						tomoAlignmentView.setResolution(RESOLUTION.FULL);
 					} catch (InterruptedException ie) {
 						throw ie;
@@ -310,7 +310,9 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 	@Override
 	public void sampleFlatTimeChanged() throws Exception {
 		try {
-			tomoAlignmentView.resetAmplifier();
+			if (tomoAlignmentView.isStreamingFlatExposure()) {
+				setExposureTime(tomoAlignmentView.getTomoControlComposite().getFlatExposureTime());
+			}
 		} catch (Exception e) {
 			logger.error("Problem resetting amplifier dark or flat", e);
 			throw e;
@@ -320,10 +322,9 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 	@Override
 	public void sampleExposureTimeChanged(double sampleExposureTime) throws Exception {
 		try {
-			tomoAlignmentView.resetAmplifier();
 			tomoAlignmentView.getTomoAlignmentController().setPreferredSampleExposureTime(sampleExposureTime);
-			if (STREAM_STATE.SAMPLE_STREAM.equals(tomoAlignmentView.getTomoControlComposite().getStreamState())) {
-				tomoAlignmentView.getTomoAlignmentController().setExposureTime(sampleExposureTime, 1);
+			if (tomoAlignmentView.isStreamingSampleExposure()) {
+				tomoAlignmentView.getTomoAlignmentController().setExposureTime(sampleExposureTime);
 			}
 		} catch (Exception e) {
 			logger.error("Problem resetting amplifier dark or flat", e);
@@ -404,7 +405,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 
 	@Override
 	public void horizontal(boolean selected) throws Exception {
-		if (tomoAlignmentView.isModuleSelected()) {
+		if (!tomoAlignmentView.isModuleSelected()) {
 			throw new IllegalArgumentException("Camera module must be selected");
 		}
 		if (selected) {
@@ -418,10 +419,9 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 
 	@Override
 	public void flatExposureTimeChanged(double flatExposureTime) throws Exception {
-		tomoAlignmentView.resetAmplifier();
 		tomoAlignmentView.getTomoAlignmentController().setPreferredFlatExposureTime(flatExposureTime);
-		if (STREAM_STATE.FLAT_STREAM.equals(tomoAlignmentView.getTomoControlComposite().getStreamState())) {
-			tomoAlignmentView.getTomoAlignmentController().setExposureTime(flatExposureTime, 1);
+		if (tomoAlignmentView.isStreamingFlatExposure()) {
+			tomoAlignmentView.getTomoAlignmentController().setExposureTime(flatExposureTime);
 		}
 	}
 
@@ -483,12 +483,12 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 
 							tomoAlignmentView.loadImageInUIThread(tomoAlignmentView.getLeftWindowImageViewer(),
 									secondImgData.scaledTo(tomoAlignmentView.getTomoAlignmentController().getScaledX(),
-											tomoAlignmentView.getTomoAlignmentController().getScaledX()));
+											tomoAlignmentView.getTomoAlignmentController().getScaledY()));
 
 							ImageData horizontallyFlippedImageData = SWT2Dutil.flip(firstImgData, false);
 							loadOverlayImgInUIThread(horizontallyFlippedImageData.scaledTo(tomoAlignmentView
 									.getTomoAlignmentController().getScaledX(), tomoAlignmentView
-									.getTomoAlignmentController().getScaledX()));
+									.getTomoAlignmentController().getScaledY()));
 							tomoAlignmentView.getLeftWindowImageViewer().addOverlayImageFigureListener(
 									TomoAlignmentViewController.this);
 							tomoAlignmentView.getLeftWindowImageViewer().setOverLayImageMoveAxis(MOVE_AXIS.X_AXIS);
@@ -690,20 +690,16 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 	public void stream(boolean selected) throws Exception {
 		if (selected) {
 			tomoAlignmentView.getLeftPanelComposite().stopHistogram();
-			tomoAlignmentView.getLeftPanelComposite().deselectStream();
-			if (!STREAM_STATE.NO_STREAM.equals(tomoAlignmentView.getTomoControlComposite().getStreamState())) {
-				if (tomoAlignmentView.getTomoControlComposite().getSampleExposureTime() != tomoAlignmentView
-						.getTomoControlComposite().getFlatExposureTime()) {
-					setExposureTime(tomoAlignmentView.getTomoControlComposite().getSampleExposureTime());
-					tomoAlignmentView.getTomoControlComposite().setStreamState(STREAM_STATE.SAMPLE_STREAM);
-					tomoAlignmentView.setLeftWindowInfo(TomoAlignmentView.SAMPLE_LIVE_STREAM);
-				}
-			} else {
-				final double steppedAcqTime = tomoAlignmentView.getTomoControlComposite().getSampleExposureTime();
-				stream(selected, steppedAcqTime, TomoAlignmentView.SAMPLE_LIVE_STREAM);
+			double acqTime = tomoAlignmentView.getTomoControlComposite().getSampleExposureTime();
+			String streamMode = TomoAlignmentView.SAMPLE_LIVE_STREAM;
+			if (SAMPLE_OR_FLAT.FLAT.equals(tomoAlignmentView.getTomoControlComposite().getStreamState())) {
+				acqTime = tomoAlignmentView.getTomoControlComposite().getFlatExposureTime();
+				streamMode = TomoAlignmentView.FLAT_LIVE_STREAM;
 			}
+			setExposureTime(acqTime);
+			stream(selected, acqTime, streamMode);
 		} else {
-			tomoAlignmentView.getLeftPanelComposite().deselectStream();
+			tomoAlignmentView.getLeftPanelComposite().deselectStreamButton();
 			tomoAlignmentView.getLeftPanelComposite().stopHistogram();
 			stream(selected, Double.NaN, TomoAlignmentView.STREAM_STOPPED);
 		}
@@ -729,16 +725,33 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 			throw new IllegalArgumentException("Module should be selected");
 		}
 		tomoAlignmentView.setLeftPage(LEFT_PAGE.IMAGE_VIEWER);
-		final double acqTime = tomoAlignmentView.getTomoControlComposite().getSampleExposureTime();
-		final boolean isStreaming = tomoAlignmentView.isStreamingSampleExposure();
 
 		try {
 
 			tomoAlignmentView.getLeftPanelComposite().deSelectSaturationButton();
-			// TODO - Ravi fix
 
-			final RunnableWithProgress sampleSingleRunnable = new RunnableWithProgress(acqTime, true, isStreaming,
-					false);
+			boolean isStreamingSample = tomoAlignmentView.isStreamingSampleExposure();
+			boolean isStreamingFlat = tomoAlignmentView.isStreamingFlatExposure();
+			double acqTime = tomoAlignmentView.getTomoControlComposite().getSampleExposureTime();
+			double expTimeOnCamera = tomoAlignmentView.getTomoAlignmentController().getCameraExposureTime();
+			if (isStreamingSample) {
+				// if streaming sample, check if the fast preview is not on.
+				isStreamingSample = (acqTime == expTimeOnCamera);
+			} else if (isStreamingFlat) {
+				// else check if the flat is streaming
+				acqTime = tomoAlignmentView.getTomoControlComposite().getFlatExposureTime();
+				isStreamingFlat = (acqTime == expTimeOnCamera);
+			} else {
+				acqTime = SAMPLE_OR_FLAT.SAMPLE.equals(tomoAlignmentView.getTomoControlComposite().getStreamState()) ? tomoAlignmentView
+						.getTomoControlComposite().getSampleExposureTime() : tomoAlignmentView
+						.getTomoControlComposite().getFlatExposureTime();
+
+			}
+
+			boolean isStreaming = isStreamingFlat || isStreamingSample;
+
+			final SingleCaptureWithRunnableProgress sampleSingleRunnable = new SingleCaptureWithRunnableProgress(
+					acqTime, isStreaming, false);
 
 			ACTIVE_WORKBENCH_WINDOW.run(true, true, sampleSingleRunnable);
 
@@ -757,7 +770,6 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 			logger.error("Exception while taking single ", e);
 			throw e;
 		}
-
 	}
 
 	@Override
@@ -776,7 +788,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 					ImageData imgData = img.getImageData();
 					tomoAlignmentView.getLeftWindowImageViewer().loadMainImage(
 							imgData.scaledTo(tomoAlignmentView.getTomoAlignmentController().getScaledX(),
-									tomoAlignmentView.getTomoAlignmentController().getScaledX()));
+									tomoAlignmentView.getTomoAlignmentController().getScaledY()));
 					img.dispose();
 					tomoAlignmentView.displayFileDetails(ViewerDisplayMode.STATIC_FLAT);
 				} catch (Exception e) {
@@ -806,7 +818,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 					ImageData imgData = img.getImageData();
 					tomoAlignmentView.getLeftWindowImageViewer().loadMainImage(
 							imgData.scaledTo(tomoAlignmentView.getTomoAlignmentController().getScaledX(),
-									tomoAlignmentView.getTomoAlignmentController().getScaledX()));
+									tomoAlignmentView.getTomoAlignmentController().getScaledY()));
 					img.dispose();
 					tomoAlignmentView.displayFileDetails(ViewerDisplayMode.DARK_SINGLE);
 				} catch (Exception e) {
@@ -961,7 +973,6 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 	@Override
 	public void histogram(boolean selection) throws Exception {
 		logger.debug("sample histogram selected {}", selection);
-		double sampleExposureTime = tomoAlignmentView.getTomoControlComposite().getSampleExposureTime();
 
 		ViewerDisplayMode leftWindowViewerDisplayMode = tomoAlignmentView.getLeftWindowViewerDisplayMode();
 		if (selection) {
@@ -970,15 +981,9 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 
 				tomoAlignmentView.getLeftPanelComposite().setZoom(ZOOM_LEVEL.NO_ZOOM);
 				tomoAlignmentView.getLeftPanelComposite().stopHistogram();
-				tomoAlignmentView.getLeftPanelComposite().deselectStream();
+				tomoAlignmentView.getLeftPanelComposite().deselectStreamButton();
 				//
-				tomoAlignmentView.resetAmplifier();
 				tomoAlignmentView.getLeftPanelComposite().deSelectSaturationButton();
-
-				double cameraExposureTime = tomoAlignmentView.getTomoAlignmentController().getCameraExposureTime();
-				if (cameraExposureTime != sampleExposureTime) {
-					tomoAlignmentView.getTomoAlignmentController().setAmplifierUpdate(sampleExposureTime, 1);
-				}
 
 				tomoAlignmentView.setRightPage(RIGHT_PAGE.PLOT);
 				tomoAlignmentView.addLeftWindowTomoImageListener();
@@ -1010,14 +1015,57 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 
 	@Override
 	public void fastPreview(boolean isFlatCorrectionRequired) throws InvocationTargetException, Exception {
-		// TODO Auto-generated method stub
+		double cameraExposureTime = tomoAlignmentView.getTomoAlignmentController().getCameraExposureTime();
+		double thresholdExpTime = TomoClientActivator.getDefault().getPreferenceStore()
+				.getDouble(TomoAlignmentPreferencePage.TOMO_CLIENT_FAST_PREVIEW_EXP_TIME);
 
+		if (tomoAlignmentView.isStreamingSampleExposure()) {
+			double sampleExposureTime = tomoAlignmentView.getTomoControlComposite().getSampleExposureTime();
+
+			if (cameraExposureTime == sampleExposureTime) {
+				int ampFactor = (int) (sampleExposureTime / thresholdExpTime);
+				tomoAlignmentView.getTomoAlignmentController().setAmplifiedExposureTime(sampleExposureTime, ampFactor);
+			}
+		} else if (tomoAlignmentView.isStreamingFlatExposure()) {
+			double flatExposureTime = tomoAlignmentView.getTomoControlComposite().getFlatExposureTime();
+			if (cameraExposureTime == flatExposureTime) {
+				int ampFactor = (int) (flatExposureTime / thresholdExpTime);
+				tomoAlignmentView.getTomoAlignmentController().setAmplifiedExposureTime(flatExposureTime, ampFactor);
+			}
+		}
 	}
 
 	@Override
 	public void crosshair(boolean selection) throws Exception {
-		// TODO Auto-generated method stub
 
+		if (selection) {
+			if (tomoAlignmentView.getLeftWindowImageData() == null) {
+				throw new IllegalArgumentException("No image to display crosshair");
+			}
+			tomoAlignmentView.getLeftWindowImageViewer().showCrossWire2();
+		} else {
+			tomoAlignmentView.getLeftWindowImageViewer().hideCrossWire2();
+		}
+		// final MenuItem crossHairMenuItem = new MenuItem(crossHairMenu, SWT.PUSH);
+		// crossHairMenuItem.setText(SHOW_CROSSHAIR);
+		// crossHairMenuItem.addSelectionListener(new SelectionAdapter() {
+		// private boolean crossHairVisible = false;
+		//
+		// @Override
+		// public void widgetSelected(SelectionEvent e) {
+		// if (crossHairVisible) {
+		// hideCrossWire2();
+		// crossHairMenuItem.setText(SHOW_CROSSHAIR);
+		// crossHairVisible = false;
+		// } else {
+		// showCrossWire2();
+		// crossHairMenuItem.setText(HIDE_CROSSHAIR);
+		// crossHairVisible = true;
+		// }
+		// }
+		//
+		// });
+		// getCanvas().setMenu(crossHairMenu);
 	}
 
 	@Override
@@ -1157,15 +1205,16 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 	@Override
 	public void zoomButtonClicked(ZOOM_LEVEL zoomLevel) throws Exception {
 
-		if (!tomoAlignmentView.isModuleSelected()) {
-			throw new IllegalArgumentException("Module should be selected");
-		}
 		if (ZOOM_LEVEL.NO_ZOOM.equals(zoomLevel)) {
 			tomoAlignmentView.stopZoomVideoReceiver();
 			tomoAlignmentView.clearZoomWindow();
 			tomoAlignmentView.unZoomInUI();
 
 		} else {
+			if (!tomoAlignmentView.isModuleSelected()) {
+				throw new IllegalArgumentException("Module should be selected");
+			}
+
 			ViewerDisplayMode viewerDisplayMode = tomoAlignmentView.getLeftWindowViewerDisplayMode();
 			if (!ViewerDisplayMode.STREAM_STOPPED.equals(viewerDisplayMode)) {
 				CAMERA_MODULE selectedCameraModule = tomoAlignmentView.getSelectedCameraModule();
@@ -1287,27 +1336,23 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 
 	public void setExposureTime(double exposureTime) throws Exception {
 		try {
-			STEPPER selectedStepper = tomoAlignmentView.getSelectedAmplifierStepper();
-			tomoAlignmentView.getTomoAlignmentController().setExposureTime(exposureTime, selectedStepper.getValue());
+			tomoAlignmentView.getTomoAlignmentController().setExposureTime(exposureTime);
 		} catch (Exception e) {
 			logger.error("Cannot set exposure time", e);
 			throw e;
 		}
 	}
 
-	private class RunnableWithProgress implements IRunnableWithProgress {
+	private class SingleCaptureWithRunnableProgress implements IRunnableWithProgress {
 
 		private boolean isJobComplete = false;
 		private final boolean flatCorrectionSelected;
-		private final boolean isAmplifierAtOne;
 		private final boolean isStreaming;
 
 		private final double acqTime;
 
-		public RunnableWithProgress(double acqTime, boolean isAmplifierAtOne, boolean isStreaming,
-				boolean flatCorrectionSelected) {
+		public SingleCaptureWithRunnableProgress(double acqTime, boolean isStreaming, boolean flatCorrectionSelected) {
 			this.acqTime = acqTime;
-			this.isAmplifierAtOne = isAmplifierAtOne;
 			this.isStreaming = isStreaming;
 			this.flatCorrectionSelected = flatCorrectionSelected;
 		}
@@ -1345,7 +1390,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 
 				// Special case of taking single - when the amplifier is at "1" and the stream is switched
 				// on. This is to prevent the arming/disarming of the camera in order to save a few seconds
-				if (isAmplifierAtOne && isStreaming) {
+				if (isStreaming) {
 					fileLocation = tomoAlignmentView.getTomoAlignmentController().demandRawWithStreamOn(
 							progress.newChild(2), flatCorrectionSelected);
 					tomoAlignmentView.getLeftPanelComposite().stopStream();
@@ -1370,7 +1415,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 							imgData.palette.isDirect));
 					tomoAlignmentView.loadImageInUIThread(tomoAlignmentView.getLeftWindowImageViewer(), imgData
 							.scaledTo(tomoAlignmentView.getTomoAlignmentController().getScaledX(), tomoAlignmentView
-									.getTomoAlignmentController().getScaledX()));
+									.getTomoAlignmentController().getScaledY()));
 					tomoAlignmentView.setHistogramAdjusterImageData((ImageData) imgData.clone());
 					imgData.data = null;
 					imgData = null;
@@ -1807,5 +1852,18 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 	@Override
 	public void updateError(Exception exception) {
 
+	}
+
+	@Override
+	public void exposureStateChanged(SAMPLE_OR_FLAT sampleOrFlatState) throws Exception {
+		if (SAMPLE_OR_FLAT.SAMPLE.equals(sampleOrFlatState) && tomoAlignmentView.isStreamingFlatExposure()) {
+			tomoAlignmentView.getTomoAlignmentController().setExposureTime(
+					tomoAlignmentView.getTomoControlComposite().getSampleExposureTime());
+			tomoAlignmentView.setLeftWindowInfo(TomoAlignmentView.SAMPLE_LIVE_STREAM);
+		} else if (SAMPLE_OR_FLAT.FLAT.equals(sampleOrFlatState) && tomoAlignmentView.isStreamingSampleExposure()) {
+			tomoAlignmentView.getTomoAlignmentController().setExposureTime(
+					tomoAlignmentView.getTomoControlComposite().getFlatExposureTime());
+			tomoAlignmentView.setLeftWindowInfo(TomoAlignmentView.FLAT_LIVE_STREAM);
+		}
 	}
 }

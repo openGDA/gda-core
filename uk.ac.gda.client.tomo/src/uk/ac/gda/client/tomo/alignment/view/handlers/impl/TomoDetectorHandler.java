@@ -155,10 +155,12 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 	}
 
 	@Override
-	public void setExposureTime(double exposureTime, int amplifierValue) throws Exception {
+	public void setExposureTime(double exposureTime) throws Exception {
 		changingExposureTime = true;
 		try {
 			/**/
+			//
+			getCamera().setProcScale(1);
 			logger.info("setting exposure time:" + exposureTime);
 			boolean isCameraBusy = getCamera().isAcquiring();
 			if (isCameraBusy) {
@@ -169,8 +171,7 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 
 			if (isCameraBusy) {
 				// to put it back in the state it was.
-				getCamera().acquireMJpeg(exposureTime, defaultAcqPeriod, Double.valueOf(amplifierValue),
-						leftWindowBinValue, leftWindowBinValue);
+				getCamera().acquireMJpeg(exposureTime, defaultAcqPeriod, 1.0, leftWindowBinValue, leftWindowBinValue);
 			}
 		} finally {
 			changingExposureTime = false;
@@ -289,8 +290,8 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 		// y co-ordinate of the center of the image = 1336
 
 		Dimension rectSize = zoomLevel.getRectSize();
-		final int roiX = 0;//(int) (((double) imgWidth / 2) - rectSize.width / 2);
-		final int roiY = 0;//(int) (((double) imgHeight / 2) - rectSize.height / 2);
+		final int roiX = 0;// (int) (((double) imgWidth / 2) - rectSize.width / 2);
+		final int roiY = 0;// (int) (((double) imgHeight / 2) - rectSize.height / 2);
 		getCamera().setupZoomMJpeg(new Rectangle(roiX, roiY, zoomLevel.getRoiSize().x, zoomLevel.getRoiSize().y),
 				new java.awt.Point(zoomLevel.getBin().x, zoomLevel.getBin().y));
 	}
@@ -582,6 +583,7 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 			}
 		}
 	};
+	private Double defaultFastPreviewExposureTimeThreshold;
 
 	/**
 	 * @param ndProc1Model
@@ -776,7 +778,7 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 
 	@Override
 	public void setAmplifiedValue(double newExpTime, int factor) throws Exception {
-		setExposureTime(newExpTime / factor, factor);
+		setExposureTime(newExpTime / factor);
 		getCamera().setProcScale(factor);
 	}
 
@@ -916,4 +918,22 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 	public void applyScalingAndContrast(double offset, double scale) throws Exception {
 		camera.setOffsetAndScale(offset, scale);
 	}
+	
+	/**
+	 * @return Returns the defaultDistanceToMoveForFlat.
+	 */
+	public Double getDefaultFastPreviewExposureTimeThreshold() {
+		return defaultFastPreviewExposureTimeThreshold;
+	}
+
+	/**
+	 * @param defaultDistanceToMoveForFlat
+	 *            The defaultDistanceToMoveForFlat to set.
+	 */
+	public void setDefaultFastPreviewExposureTimeThreshold(Double defaultDistanceToMoveForFlat) {
+		this.defaultFastPreviewExposureTimeThreshold = defaultDistanceToMoveForFlat;
+		TomoClientActivator.getDefault().getPreferenceStore()
+				.setDefault(TomoAlignmentPreferencePage.TOMO_CLIENT_FAST_PREVIEW_EXP_TIME, defaultFastPreviewExposureTimeThreshold);
+	}
+
 }

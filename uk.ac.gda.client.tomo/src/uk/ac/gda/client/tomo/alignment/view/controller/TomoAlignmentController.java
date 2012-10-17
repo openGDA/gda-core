@@ -75,7 +75,6 @@ import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
  * views.
  */
 public class TomoAlignmentController extends TomoViewController {
-	private static final int IMAGE_FULL_WIDTH = 4008;
 
 	private ISampleStageMotorHandler sampleStageMotorHandler;
 
@@ -255,26 +254,13 @@ public class TomoAlignmentController extends TomoViewController {
 	}
 
 	/**
-	 * Flat fields to be reset - this may be invoked when the camera modules change on anything of the sort.
-	 * 
-	 * @throws Exception
-	 */
-	public void invalidateFlatField() throws Exception {
-		logger.debug("Flat fields needs to be reset");
-		for (ITomoAlignmentView av : tomoalignmentViews) {
-			av.resetAmplifier();
-		}
-	}
-
-	/**
 	 * @param exposureTime
 	 *            - the amplified exposure time
-	 * @param amplifiedValue
 	 * @throws Exception
 	 */
-	public void setExposureTime(final double exposureTime, final int amplifiedValue) throws Exception {
+	public void setExposureTime(final double exposureTime) throws Exception {
 		logger.debug("setting camera exposure time to -" + exposureTime);
-		cameraHandler.setExposureTime(exposureTime, amplifiedValue);
+		cameraHandler.setExposureTime(exposureTime);
 	}
 
 	public void setPreferredSampleExposureTime(final double exposureTime) {
@@ -346,7 +332,7 @@ public class TomoAlignmentController extends TomoViewController {
 		@Override
 		public Boolean call() throws Exception {
 			try {
-				updateModuleButtonText(cameraModuleController.lookupHFOVUnit(),
+				updateModuleButtonText(cameraModuleController.lookupMagnificationUnit(),
 						getModuleButtonTextFromModuleLookupTable());
 				// adbase model values update
 				logger.debug("Set up all data fields - expected to be called only during initialization");
@@ -440,8 +426,8 @@ public class TomoAlignmentController extends TomoViewController {
 			HashMap<Integer, String> moduleBtnTextMap = new HashMap<Integer, String>();
 			for (CAMERA_MODULE module : CAMERA_MODULE.values()) {
 				if (module != CAMERA_MODULE.NO_MODULE) {
-					double lookupHFOV = cameraModuleController.lookupHFOV(module);
-					moduleBtnTextMap.put(module.getValue(), String.format("%.3g", lookupHFOV));
+					double lookupMagnification = cameraModuleController.lookupMagnification(module);
+					moduleBtnTextMap.put(module.getValue(), String.format("%.3g", lookupMagnification));
 				}
 			}
 			return moduleBtnTextMap;
@@ -566,7 +552,7 @@ public class TomoAlignmentController extends TomoViewController {
 			cameraModuleController.moveModuleTo(newModule, monitor);
 
 			Double lookupDefaultExposureTime = cameraModuleController.lookupDefaultExposureTime(newModule);
-			setExposureTime(lookupDefaultExposureTime, 1);
+			setExposureTime(lookupDefaultExposureTime);
 			if (!monitor.isCanceled()) {
 				updateAdjustedPreferredExposureTime(lookupDefaultExposureTime);
 				updateModuleSelected(newModule);
@@ -761,17 +747,6 @@ public class TomoAlignmentController extends TomoViewController {
 
 	public double getPreferredSampleExposureTime() {
 		return cameraHandler.getPreferredSampleExposureTime();
-	}
-
-	/**
-	 * @param exposureTime
-	 * @param factor
-	 * @throws Exception
-	 * @deprecated
-	 */
-	public void setAmplifierUpdate(double exposureTime, int factor) throws Exception {
-		double newExpTime = exposureTime;
-		cameraHandler.setAmplifiedValue(newExpTime, factor);
 	}
 
 	public void stopMotors() throws DeviceException {
@@ -1034,7 +1009,7 @@ public class TomoAlignmentController extends TomoViewController {
 
 		setProc1ScaleValue(1);
 
-		setExposureTime(newExposureTime, 1);
+		setExposureTime(newExposureTime);
 
 		updateAdjustedPreferredExposureTime(newExposureTime);
 	}
@@ -1046,7 +1021,7 @@ public class TomoAlignmentController extends TomoViewController {
 			adjustedExposureTime = adjustedExposureTime * scaledFactor;
 		}
 		updateAdjustedPreferredExposureTime(adjustedExposureTime);
-		setExposureTime(adjustedExposureTime, 1);
+		setExposureTime(adjustedExposureTime);
 	}
 
 	protected void updateAdjustedPreferredExposureTime(double preferredExposureTime) {
@@ -1171,5 +1146,9 @@ public class TomoAlignmentController extends TomoViewController {
 
 	public int getScaledY() {
 		return cameraHandler.getFullImageHeight() / getLeftWindowBinValue();
+	}
+
+	public void setAmplifiedExposureTime(double actualExpTimeBeforeFactoring, int factor) throws Exception {
+		cameraHandler.setAmplifiedValue(actualExpTimeBeforeFactoring, factor);
 	}
 }

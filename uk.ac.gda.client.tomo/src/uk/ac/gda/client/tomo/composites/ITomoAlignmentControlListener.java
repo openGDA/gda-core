@@ -20,6 +20,7 @@ package uk.ac.gda.client.tomo.composites;
 
 import java.lang.reflect.InvocationTargetException;
 
+import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.SAMPLE_OR_FLAT;
 import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.SAMPLE_WEIGHT;
 
 /**
@@ -181,4 +182,12 @@ public interface ITomoAlignmentControlListener extends IModuleChangeListener {
 	 * Informs the listeners to reset the ROI bounds
 	 */
 	void resetRoi();
+
+	/**
+	 * Event published when the exposure time mode is changed.
+	 * 
+	 * @param sample
+	 * @throws Exception 
+	 */
+	void exposureStateChanged(SAMPLE_OR_FLAT sample) throws Exception;
 }

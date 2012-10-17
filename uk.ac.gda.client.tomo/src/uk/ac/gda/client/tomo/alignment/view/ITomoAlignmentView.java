@@ -48,8 +48,6 @@ public interface ITomoAlignmentView extends IRotationMotorListener {
 
 	void setPreferredFlatExposureTimeToWidget(double preferredExposureTime);
 
-	void resetAmplifier() throws Exception;
-
 	// void stopStreaming();
 
 	void setCameraModule(CAMERA_MODULE module);

@@ -398,6 +398,7 @@ public class ZoomButtonComposite extends Composite {
 	};
 
 	private ZOOM_LEVEL zoomLevel = ZOOM_LEVEL.NO_ZOOM;
+	
 	private static final String BOLD_TEXT_10 = "bold_10";
 	private FontRegistry fontRegistry;
 

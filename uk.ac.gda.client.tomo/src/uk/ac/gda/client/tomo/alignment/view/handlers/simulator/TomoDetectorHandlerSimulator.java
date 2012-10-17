@@ -34,7 +34,7 @@ import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
 public class TomoDetectorHandlerSimulator implements ICameraHandler {
 
 	@Override
-	public void setExposureTime(double exposureTime, int amplifierValue) throws Exception {
+	public void setExposureTime(double exposureTime) throws Exception {
 		// TODO Auto-generated method stub
 
 	}

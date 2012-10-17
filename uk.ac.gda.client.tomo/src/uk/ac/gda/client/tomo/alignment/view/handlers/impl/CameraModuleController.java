@@ -165,4 +165,14 @@ public class CameraModuleController implements InitializingBean, ICameraModuleCo
 			throw new IllegalStateException("'lookupTableHandler' needs to be provided");
 		}
 	}
+
+	@Override
+	public String lookupMagnificationUnit() throws DeviceException {
+		return lookupTableHandler.lookupMagnificationUnit();
+	}
+
+	@Override
+	public Double lookupMagnification(CAMERA_MODULE module) throws DeviceException {
+		return lookupTableHandler.lookupMagnification(module);
+	}
 }

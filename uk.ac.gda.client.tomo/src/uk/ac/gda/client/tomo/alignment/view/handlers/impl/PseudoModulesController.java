@@ -113,4 +113,16 @@ public class PseudoModulesController implements ICameraModuleController {
 		return objectPixelSizeInMm;
 	}
 
+	@Override
+	public String lookupMagnificationUnit() throws DeviceException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Double lookupMagnification(CAMERA_MODULE module) throws DeviceException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
