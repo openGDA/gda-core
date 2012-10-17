@@ -56,20 +56,12 @@ public class DummyHardwareTriggeredNexusXmap extends HardwareTriggerableDetector
 	}
 
 	@Override
-	public void arm() throws DeviceException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public boolean integratesBetweenPoints() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public void collectData() throws DeviceException {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -89,7 +81,6 @@ public class DummyHardwareTriggeredNexusXmap extends HardwareTriggerableDetector
 
 	@Override
 	public boolean createsOwnFiles() throws DeviceException {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -100,19 +91,16 @@ public class DummyHardwareTriggeredNexusXmap extends HardwareTriggerableDetector
 
 	@Override
 	public String getDetectorID() throws DeviceException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String getDetectorType() throws DeviceException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void update(Object source, Object arg) {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -263,22 +251,22 @@ public class DummyHardwareTriggeredNexusXmap extends HardwareTriggerableDetector
 
 	@Override
 	public void waitForFile(String fileName) throws DeviceException, InterruptedException {
-		double timeoutMilliSeconds = getCollectionTime() * getHardwareTriggerProvider().getNumberTriggers() * 1000;
+		double timeoutMilliSeconds = getCollectionTime() * getNumberImagesToCollect() * 1000;
 		double waitedSoFarMilliSeconds = 0;
 		int waitTime = 1000;
-		while (isStillWriting(fileName) || waitedSoFarMilliSeconds <= timeoutMilliSeconds) {
+		while (isStillWriting() || waitedSoFarMilliSeconds <= timeoutMilliSeconds) {
 			Thread.sleep(waitTime);
 			waitedSoFarMilliSeconds += waitTime;
 		}
 		
 	}
-		public boolean isStillWriting(String fileName)  {
+		public boolean isStillWriting()  {
 			currentTime = System.currentTimeMillis();
 			try {
 				if((currentTime - scanStartTime) <= (long)getHardwareTriggerProvider().getTotalTime())
 					return true;
 			} catch (DeviceException e) {
-				logger.error("TODO put description of error here", e);
+				logger.error("Error determining if still writing", e);
 			}
 			return false;
 		}

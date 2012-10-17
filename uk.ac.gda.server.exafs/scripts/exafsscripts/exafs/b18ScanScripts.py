@@ -15,6 +15,7 @@ from gda.exafs.scan import RepetitionsProperties
 from gda.factory import Finder
 from java.lang import InterruptedException
 from gda.jython import ScriptBase
+from gda.jython.commands import ScannableCommands
 from gda.jython.commands.GeneralCommands import run
 from gda.jython.scriptcontroller.event import ScanCreationEvent, ScanFinishEvent, ScriptProgressEvent
 from gda.jython.scriptcontroller.logging import XasProgressUpdater
@@ -163,7 +164,8 @@ class XasScan(Scan):
                 self.detectorPreparer.prepare(beanGroup.getDetector(), beanGroup.getOutput(), xmlFolderName)
                 sampleScannables = self.samplePreparer.prepare(beanGroup.getSample())
                 outputScannables = self.outputPreparer.prepare(beanGroup.getOutput())
-               
+                scanPlotSettings = self.outputPreparer.getPlotSettings(beanGroup)
+                print scanPlotSettings
                 # run the before scan script
                 self._runScript(beanGroup.getOutput().getBeforeScriptName())
      
@@ -188,6 +190,9 @@ class XasScan(Scan):
                         print "Starting scan..."
                     thisscan = ConcurrentScan(args)
                     controller.update(None, ScanCreationEvent(thisscan.getName()))
+                    if (scanPlotSettings != None):
+                        print "Setting the filer for columns to plot"
+                        thisscan.setScanPlotSettings(scanPlotSettings)
                     thisscan.runScan()
                 except InterruptedException, e:
                     if LocalProperties.get(RepetitionsProperties.SKIP_REPETITION_PROPERTY) == "true":

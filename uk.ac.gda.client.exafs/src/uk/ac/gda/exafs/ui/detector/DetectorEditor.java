@@ -1063,8 +1063,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			newwrapper.setValue(elements);
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			logger.error("TODO put description of error here", e);
+			logger.error("Error reading data from xml", e);
 		}
 
 		return newwrapper;
@@ -1080,8 +1079,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			}
 			out.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			logger.error("TODO put description of error here", e);
+			logger.error("Error writing data to xml", e);
 		}
 	}
 

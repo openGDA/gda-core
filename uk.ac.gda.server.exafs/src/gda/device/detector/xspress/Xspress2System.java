@@ -722,7 +722,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
-				logger.error("TODO put description of error here", e);
+				logger.error("Error sleeping for 100ms", e);
 			}
 			sendCommand("enable ", mcaHandle);
 		}

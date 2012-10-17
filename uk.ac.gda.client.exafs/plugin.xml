@@ -565,42 +565,6 @@
          </run>
       </runtime>
    </extension>
-   
-    <extension
-         point="uk.ac.common.beans.factory">
-      <bean
-            class="uk.ac.gda.beans.exafs.XasScanParameters"
-            describer="uk.ac.gda.exafs.ui.describers.XasDescriber">
-      </bean>
-      <bean
-            class="uk.ac.gda.beans.exafs.XanesScanParameters"
-            describer="uk.ac.gda.exafs.ui.describers.XanesDescriber">
-      </bean>
-
-      <bean
-            class="uk.ac.gda.beans.exafs.b18.B18SampleParameters"
-            describer="uk.ac.gda.exafs.ui.describers.B18SampleParametersDescriber">
-      </bean>
-      <bean
-            class="uk.ac.gda.beans.exafs.DetectorParameters"
-            describer="uk.ac.gda.exafs.ui.describers.DetectorDescriber">
-      </bean>
-      <bean
-            class="uk.ac.gda.beans.exafs.OutputParameters"
-            describer="uk.ac.gda.exafs.ui.describers.OutputDescriber">
-      </bean>
-      <bean
-            class="uk.ac.gda.beans.exafs.SampleElements">
-      </bean>
-      <bean
-            class="uk.ac.gda.beans.vortex.VortexParameters"
-            describer="uk.ac.gda.exafs.ui.describers.VortexDescriber">
-      </bean>
-      <bean
-            class="uk.ac.gda.beans.xspress.XspressParameters"
-            describer="uk.ac.gda.exafs.ui.describers.XspressDescriber">
-      </bean>
-   </extension>
 
    <extension
          point="uk.ac.gda.richbeans.beantypes">

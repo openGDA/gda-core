@@ -28,6 +28,8 @@ import gda.rcp.GDAClientActivator;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IScanParameters;
@@ -43,7 +45,7 @@ public final class ScanObjectManager extends ExperimentObjectManager implements 
 	private static IScanParameters currentScan;
 	private static IDetectorParameters currentDetectorParameters;
 	private static LoggingScriptController messageController;
-	
+	private static final Logger logger = LoggerFactory.getLogger(ScanObjectManager.class);
 	
 	public ScanObjectManager() {
 		String controllers = GDAClientActivator.getDefault().getPreferenceStore()
@@ -57,8 +59,7 @@ public final class ScanObjectManager extends ExperimentObjectManager implements 
 				try {
 					newcontroller.addIObserver(this);
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
-//					logger.error("TODO put description of error here", e);
+					logger.error("Error adding Observer to LoggingScriptController", e);
 				}
 			}
 		}

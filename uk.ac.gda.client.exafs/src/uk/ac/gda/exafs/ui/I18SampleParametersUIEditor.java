@@ -81,7 +81,7 @@ public final class I18SampleParametersUIEditor extends RichBeanEditorPart {
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			logger.error("TODO put description of error here", e);
+			logger.error("Error enabling/disabling sample", e);
 		}
 		((GridData) beanComposite.getSampleStageParameters().getZ().getLayoutData()).widthHint = 544;
 		fillAttenuatorPositions();
@@ -222,8 +222,7 @@ public final class I18SampleParametersUIEditor extends RichBeanEditorPart {
 				this.beanComposite.enableSample();
 			
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			logger.error("TODO put description of error here", e);
+			logger.error("Error while trying to enable/disable sample on the bean for sample parameters", e);
 		}
 	}
 	
