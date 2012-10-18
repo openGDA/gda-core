@@ -42,14 +42,14 @@ class TestTwodGaussianPeak(unittest.TestCase):
 	def test_process(self):
 		dsyaxis = dsxaxis = 0# None # STUB
 		result = self.p._process(self.ds, dsxaxis, dsyaxis)
-		expected = [2.2549502730080174E-13,
-				 455.429215942832,
-				 401.3221935111784,
-				 236.83348373626833,
-				 230.97855129960493,
-				 188.05936891187554,
-				 110.05648002510901,
-				 16255.505308303551]
+		expected = [2.2549502730080174E-13,  # background
+				 455.429215942832,  # peakx
+				 401.3221935111784,  # peaky
+				 20457.29,  # topx
+				 34128.17,  # topyy
+				 188.05936891187554,  # fwhmx
+				 110.05648002510901,  # fwhmy
+				 16255.505308303551]  # fwhmarea
 		self.assert_(close(result, expected),"%s\n is not close to expected:\n%s"%(`result`,`expected`))
 
 
