@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -499,8 +499,9 @@ public class VortexParametersUIEditor extends DetectorEditor {
 		@SuppressWarnings("unchecked")
 		final FluorescenceComposite comp = (FluorescenceComposite) BeanUI.getBeanField("fluorescenceParameters",
 				DetectorParameters.class);
-		if (comp == null)
+		if (comp == null || comp.isDisposed()) {
 			return;
+		}
 		comp.getDetectorType().setValue("Silicon");
 		comp.getConfigFileName().setValue(file.getAbsolutePath());
 	}
