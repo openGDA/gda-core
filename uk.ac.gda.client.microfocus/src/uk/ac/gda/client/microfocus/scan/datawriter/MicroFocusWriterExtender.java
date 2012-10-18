@@ -105,7 +105,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	public String[] getRoiNames() {
 		return roiNames;
 	}
-
+	
 	public void setRoiNames(String[] roiNames) {
 		this.roiNames = roiNames;
 	}
@@ -321,7 +321,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 							for (XspressROI roi : roiList) {
 								String key = roi.getRoiName();
 								if (roiTable.containsKey(key)) {
-									this.setWindows(roi.getRegionStart(), roi.getRegionEnd());
+									this.setWindows(roi.getRoiStart(), roi.getRoiEnd());
 									if (detectorValues[roiNameMap.get(key)] == null)
 										detectorValues[roiNameMap.get(key)] = new double[totalPoints];
 									windowTotal = getWindowedData(dataArray[i]);

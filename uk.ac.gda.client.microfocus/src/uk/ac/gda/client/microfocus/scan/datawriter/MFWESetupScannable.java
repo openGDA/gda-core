@@ -90,7 +90,7 @@ public class MFWESetupScannable extends ScanDataListenerScannable {
 		ext.setDetectorBeanFileName(detectorBeanFileName);
 		ext.setDetectors(detectors);
 		ext.getWindowsfromBean();
-		ext.setRoiFromBean();
+//		ext.setRoiFromBean();
 //		ext.setSelectedElement(initialSelectedElement);
 		ext.setEnergyValue(1.0);
 		ext.setZValue(0.);
