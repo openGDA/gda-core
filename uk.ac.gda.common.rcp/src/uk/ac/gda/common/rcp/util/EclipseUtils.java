@@ -562,6 +562,7 @@ public class EclipseUtils {
 	/**
 	 * Activate the view @ID if it exists, nothing if it does not
 	 */
+	@SuppressWarnings("unused")
 	public static void activateView(String ID){
 		IViewReference[] viewReferences = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
 				.getViewReferences();
@@ -592,6 +593,7 @@ public class EclipseUtils {
 		if (display==null || display.isDisposed()) return;
 
 		display.syncExec(new Runnable() {
+			@Override
 			public void run() {
 				Cursor cursor  = display.getSystemCursor(SWT.CURSOR_WAIT);
 				Shell[] shells = display.getShells();
