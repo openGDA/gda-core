@@ -35,6 +35,9 @@ def rastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, f
     map sampleFileName scanFileName detectorFileName outputFileName [experiment name (_script)] [scan index (1)] [validation required (True)]
     
     """
+    
+    print "running rastermap.py"
+    
     origScanPlotSettings = LocalProperties.check("gda.scan.useScanPlotSettings")
     print detectorFileName
     origScanPlotSettings = LocalProperties.check("gda.scan.useScanPlotSettings")
@@ -59,13 +62,11 @@ def rastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, f
         
     scanBean     = BeansFactory.getBeanObject(xmlFolderName, scanFileName)
     detectorBean = BeansFactory.getBeanObject(xmlFolderName, detectorFileName)
+    #FOR NORMAL TRAJECTORY SCAN WITH VORTEX COMMENT THE FOLLOWING THREE LINES
+    # 24July2012 three lines commented out by RW 
     #if(detectorBean.getFluorescenceParameters().getDetectorType() == "Silicon"):
     #    vortexRastermap(sampleFileName, scanFileName, detectorFileName, outputFileName, folderName, scanNumber, validation)
-    #FOR NORMAL TRAJECTORY SCAN WITH VORTEX COMMENT THE FOLLOWING THREE LINES
-    if(detectorBean.getFluorescenceParameters().getDetectorType() == "Silicon"):
-        vortexRastermap(sampleFileName, scanFileName, detectorFileName, outputFileName, folderName, scanNumber, validation)
-        return
-
+    #    return
     outputBean   = BeansFactory.getBeanObject(xmlFolderName, outputFileName)
      
     # give the beans to the xasdatawriter class to help define the folders/filenames 
@@ -158,8 +159,6 @@ def rastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, f
         energyScannable = Finder.getInstance().find(scanBean.getEnergyScannableName())
         zScannable = Finder.getInstance().find(scanBean.getZScannableName())
         print "energy is ", str(energy)
-        print "energy scannable is " 
-        #print energyScannable  
         print detectorList
         energyScannable.moveTo(energy) 
         zScannable.moveTo(zScannablePos)
@@ -179,12 +178,17 @@ def rastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, f
             ##ContinuousScan(trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [raster_xspress,]).runScan();##rowTIme in the Scan bean is in seconds
             detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
             
-            if(detectorType == "Silicon"):
-                print "Xmap Raster Scan"
+            
+            if(detectorType == "Silicon"):                
                 cs = ContinuousScan(trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [raster_counterTimer01, raster_xmap]) 
                 xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),cs,realX])
                 xmapRasterscan.getScanPlotSettings().setIgnore(1)
                 xasWriter = XasAsciiNexusDatapointCompletingDataWriter()
+                #rowR = TwoDScanRowReverser()
+                #rowR.setNoOfColumns(nx)
+                #rowR.setNoOfRows(ny)
+                #rowR.setReverseOdd(True)
+                #xasWriter.setIndexer(rowR)
                 xasWriter.addDataWriterExtender(mfd)
                 xmapRasterscan.setDataWriter(xasWriter)
                 xmapRasterscan.runScan()
@@ -211,7 +215,7 @@ def rastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, f
 
 def setupForRaster(beanGroup):
     
-    print "setting up raster scan 4"
+    print "setting up raster scan"
     rasterscan = beanGroup.getScan()
     print "collection time is " , str(rasterscan.getRowTime())   
     ##rowtime from the gui is in seconds

@@ -36,82 +36,84 @@ import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 
 public abstract class MicroFocusMappableDataProvider {
 
+	protected INexusTree mainTree;
+	protected String xScannableName;
+	protected String[] trajectoryScannableName = null;
+	protected String trajectoryCounterTimerName = null;
+	protected int yAxisLengthFromFile = 0;
+	protected int xAxisLengthFromFile = 0;
+	protected HDF5Loader hdf5Loader;
+	protected DataHolder dataHolder;
+	protected ILazyDataset lazyDataset;
+	protected Double[] xarray;
+	protected Double[] yarray;
+	protected String selectedElement;
+	protected String yScannableName;
+	protected double zValue;
+	protected String zScannableName = "sc_sample_z";
+
+	public abstract boolean hasPlotData(String elementName);
+
+	public abstract double[][] constructMappableData();
+
+	public abstract void loadBean();
+
+	public abstract double[] getSpectrum(int detectorNo, int y, int x);
+
+	protected String detectorName;
+	protected INexusTree detectorNode;
+	protected String beanFile;
+	private static final Logger logger = LoggerFactory.getLogger(MicroFocusMappableDataProvider.class);
+
 	public MicroFocusMappableDataProvider() {
 		super();
 		try {
-			if (LocalProperties.get("gda.factory.factoryName").equals("b16server")	|| LocalProperties.get("gda.factory.factoryName").equals("b16")) {
-				
-					zScannableName = "z";
+			if (LocalProperties.get("gda.factory.factoryName").equals("b16server")
+					|| LocalProperties.get("gda.factory.factoryName").equals("b16")) {
+
+				zScannableName = "z";
 			}
 		} catch (Exception e) {
-				logger.warn("Error finding the Local Propertues for Z scannable name", e);
+			logger.warn("Error finding the Local Propertues for Z scannable name", e);
 		}
-		
+
 	}
 
-	protected INexusTree mainTree;
-	protected String xScannableName;
-	protected String[] trajectoryScannableName =  null;
-	protected String trajectoryCounterTimerName = null;
-	protected int yAxisLengthFromFile =0;
-	protected int xAxisLengthFromFile =0;
-	protected HDF5Loader hdf5Loader ;
-	protected DataHolder dataHolder ;
-	protected ILazyDataset  lazyDataset;
-	
 	public String getTrajectoryCounterTimerName() {
 		return trajectoryCounterTimerName;
 	}
-
-
 
 	public void setTrajectoryCounterTimerName(String trajectoryCounterTimerName) {
 		this.trajectoryCounterTimerName = trajectoryCounterTimerName;
 	}
 
-
-
 	public String[] getTrajectoryScannableName() {
 		return trajectoryScannableName;
 	}
-
-
 
 	public void setTrajectoryScannableName(String trajectoryScannableName[]) {
 		this.trajectoryScannableName = trajectoryScannableName;
 	}
 
-	protected double zValue;
-	protected String zScannableName = "sc_sample_z";
 	public double getZValue() {
 		return zValue;
 	}
-
-
 
 	public void setZValue(double zValue) {
 		this.zValue = zValue;
 	}
 
-
-
 	public String getZScannableName() {
 		return zScannableName;
 	}
-
-
 
 	public void setZScannableName(String zScannableValue) {
 		this.zScannableName = zScannableValue;
 	}
 
-
-
 	public String getXScannableName() {
 		return xScannableName;
-		}
-	
-	
+	}
 
 	public void setXScannableName(String xScannableName) {
 		this.xScannableName = xScannableName;
@@ -125,8 +127,6 @@ public abstract class MicroFocusMappableDataProvider {
 		this.yScannableName = yScannableName;
 	}
 
-	protected String yScannableName;
-	protected Double[] xarray;
 	public Double[] getXarray() {
 		return xarray;
 	}
@@ -135,8 +135,6 @@ public abstract class MicroFocusMappableDataProvider {
 		return yarray;
 	}
 
-	protected Double[] yarray;
-	protected String selectedElement;
 	public String getSelectedElement() {
 		return selectedElement;
 	}
@@ -156,114 +154,94 @@ public abstract class MicroFocusMappableDataProvider {
 	protected IDataset getDatasetFromLazyDataset(ILazyDataset xscannableDS) {
 		int shape[] = xscannableDS.getShape();
 		int startShape[] = new int[shape.length];
-		int step [] = new int [shape.length];
-		for(int i =0; i< step.length;i++)
-		{
+		int step[] = new int[shape.length];
+		for (int i = 0; i < step.length; i++) {
 			step[i] = 1;
 		}
 		return xscannableDS.getSlice(startShape, shape, step);
 	}
-	protected String detectorName;
-	protected INexusTree detectorNode;
-	protected String beanFile;
-	private static final Logger logger = LoggerFactory.getLogger(MicroFocusMappableDataProvider.class);
-	
+
 	/**
 	 * Load a MicroFocus Nexus file and read in the x and y axis values
 	 */
 	public void loadData(String fileName) {
 		try {
 			hdf5Loader = new HDF5Loader(fileName);
-			dataHolder = hdf5Loader.loadFile();			
-			ILazyDataset xscannableDS = dataHolder.getLazyDataset("/entry1/instrument/"+ xScannableName+"/"+xScannableName);
-
-			 if(xscannableDS == null && trajectoryScannableName != null)
-			 {
-				 for(int i =0 ; i < trajectoryScannableName.length; i++){
-					 xscannableDS =dataHolder.getLazyDataset("/entry1/instrument/"+trajectoryScannableName[i]+"/"+trajectoryScannableName[i]);
-					 if(xscannableDS != null)
-						 break;
-				 }
-			 }
-			 
-			 AbstractDataset xdata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(xscannableDS));
-			 xAxisLengthFromFile = xdata.getShape()[1];
+			dataHolder = hdf5Loader.loadFile();
 			
-			 ILazyDataset yscannableDS = dataHolder.getLazyDataset("/entry1/instrument/"+ yScannableName+"/"+yScannableName);
-			 AbstractDataset ydata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(yscannableDS));
-			 yAxisLengthFromFile = ydata.getShape()[0];
-				double[] x = ((double[]) xdata.getBuffer());
-				double[] y = (double[]) ydata.getBuffer();
-				ILazyDataset zscannableDS = dataHolder.getLazyDataset("/entry1/instrument/"+ zScannableName+"/"+zScannableName);
-				//zValue is included as part of the scan
-				if(zscannableDS != null)
-				{
+			String location = "/entry1/instrument/" + xScannableName + "/" + xScannableName;
+			ILazyDataset xscannableDS = dataHolder.getLazyDataset(location);
+
+			if (xscannableDS == null) {
+				location = "/entry1/instrument/trajectoryX/value";
+				xscannableDS = dataHolder.getLazyDataset(location);
+			}
+
+			AbstractDataset xdata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(xscannableDS));
+			xAxisLengthFromFile = xdata.getShape()[1];
+
+			ILazyDataset yscannableDS = dataHolder.getLazyDataset("/entry1/instrument/" + yScannableName + "/"
+					+ yScannableName);
+			AbstractDataset ydata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(yscannableDS));
+			yAxisLengthFromFile = ydata.getShape()[0];
+			double[] x = ((double[]) xdata.getBuffer());
+			double[] y = (double[]) ydata.getBuffer();
+			ILazyDataset zscannableDS = dataHolder.getLazyDataset("/entry1/instrument/" + zScannableName + "/"
+					+ zScannableName);
+			// zValue is included as part of the scan
+			if (zscannableDS != null) {
 				AbstractDataset zdata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(zscannableDS));
-				double[] z = (double[])zdata.getBuffer();
-				if(null != z)
+				double[] z = (double[]) zdata.getBuffer();
+				if (null != z)
 					zValue = z[0];
+			} else {
+				// Read the zvalue from the metadata
+				zscannableDS = dataHolder.getLazyDataset("/entry1/instrument/Sample_Stage" + "/" + zScannableName);
+				if (zscannableDS != null) {
+					AbstractDataset zdata = DatasetUtils
+							.convertToAbstractDataset(getDatasetFromLazyDataset(zscannableDS));
+					String[] z = (String[]) zdata.getBuffer();
+					if (null != z)
+						zValue = Double.parseDouble(z[0]);
 				}
-				else
-				{
-					//Read the zvalue from the metadata
-					zscannableDS = dataHolder.getLazyDataset("/entry1/instrument/Sample_Stage"+"/"+zScannableName);
-					if(zscannableDS != null)
-					{
-						AbstractDataset zdata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(zscannableDS));
-						String[] z = (String[])zdata.getBuffer();
-						if(null != z)
-							zValue = Double.parseDouble(z[0]);
-					}
+			}
+			// x and y values from file will be
+			// x = {0.0, 2.0, 4.0,6.0, 0.0, 2.0, 4.0,6.0,0.0, 2.0, 4.0,6.0}
+			// y = { 0.0,0.0,0.0,0.0, 2.0 , 2.0 , 2.0 , 2.0 , 4.0, 4.0, 4.0}
+			ArrayList<Double> xList = new ArrayList<Double>();
+			ArrayList<Double> yList = new ArrayList<Double>();
+			double xtmp = x[0];
+			xList.add(xtmp);
+			for (int i = 1; i < xAxisLengthFromFile; i++) {
+
+				// if(x[i] == xtmp || Math.abs((x[i]- xtmp)) <= 0.000000000000001)
+				// break;
+				xList.add(x[i]);
+			}
+			double ytmp = y[0];
+			yList.add(ytmp);
+			for (int j = 1; j < y.length; j++) {
+				if (y[j] != ytmp) {
+					yList.add(y[j]);
+					ytmp = y[j];
 				}
-				//x and y values from file will be
-				//x = {0.0, 2.0, 4.0,6.0, 0.0, 2.0, 4.0,6.0,0.0, 2.0, 4.0,6.0}
-				//y = { 0.0,0.0,0.0,0.0, 2.0 , 2.0 , 2.0 , 2.0 , 4.0, 4.0, 4.0}
-				ArrayList<Double> xList = new ArrayList<Double>();
-				ArrayList<Double> yList = new ArrayList<Double>();
-				double xtmp = x[0];
-				xList.add(xtmp);
-				for(int i =1; i<xAxisLengthFromFile; i++)
-				{
-					
-					if(x[i] == xtmp || Math.abs((x[i]- xtmp)) <= 0.000000000000001)
-						break;
-					xList.add(x[i]);
-				}
-				double ytmp = y[0];
-				yList.add(ytmp);
-				for(int j =1; j < y.length; j++)
-				{
-					if(y[j] != ytmp)
-					{
-						yList.add(y[j]);
-						ytmp = y[j];
-					}
-					
-				}
-				xarray = new Double[xList.size()];
-				yarray =new Double[yList.size()];
-				xarray = xList.toArray(xarray);
-				yarray = yList.toArray(yarray);
-				if(yarray.length > yAxisLengthFromFile)
-				{
-					yarray = (Double[]) ArrayUtils.subarray(yarray, 0, yAxisLengthFromFile);
-				}
-		
+
+			}
+			xarray = new Double[xList.size()];
+			yarray = new Double[yList.size()];
+			xarray = xList.toArray(xarray);
+			yarray = yList.toArray(yarray);
+			if (yarray.length > yAxisLengthFromFile) {
+				yarray = (Double[]) ArrayUtils.subarray(yarray, 0, yAxisLengthFromFile);
+			}
+
 		} catch (Exception ed) {
-			logger.error("Error Reading the Nexus file",ed);
+			logger.error("Error Reading the Nexus file", ed);
 		}
 
 	}
-	
-	public void setBeanFilePath(String file)
-	{
+
+	public void setBeanFilePath(String file) {
 		beanFile = file;
 	}
-
-	
-
-	public abstract boolean hasPlotData(String elementName);
-	public abstract double[][] constructMappableData();
-	public abstract void loadBean();
-	public abstract double[] getSpectrum(int detectorNo, int y, int x);
 }
