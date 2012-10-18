@@ -1046,7 +1046,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		try {
 			File dataFile = new File(getDataXMLName());
 			if (!dataFile.exists()) {
-				return new DataWrapper();
+				return newwrapper;
 			}
 			BufferedReader in = new BufferedReader(new FileReader(dataFile));
 			ElementCountsData[] elements = new ElementCountsData[0];
@@ -1059,12 +1059,16 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			}
 			// Close the input stream
 			in.close();
+			
+			if (elements.length == 0){
+				return newwrapper;
+			}
 
 			newwrapper.setValue(elements);
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			logger.error("TODO put description of error here", e);
+			logger.error("IOException whilst reading stored detector editor data from file " + getDataXMLName());
+			return newwrapper;
 		}
 
 		return newwrapper;
@@ -1080,8 +1084,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			}
 			out.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			logger.error("TODO put description of error here", e);
+			logger.error("IOException whilst writing stored detector editor data from file " + getDataXMLName());
 		}
 	}
 
