@@ -20,6 +20,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.dawnsci.plotting.jreality.tool.PlotActionEvent;
+import org.dawnsci.plotting.jreality.tool.PlotActionEventListener;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
@@ -69,8 +71,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DUIAdapter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PydevConsoleAction;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionEvent;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionEventListener;
 import uk.ac.diamond.scisoft.analysis.rcp.util.PlotUtils;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotServerConnection;
 import uk.ac.diamond.scisoft.analysis.rcp.views.nexus.DataSetPlotView;

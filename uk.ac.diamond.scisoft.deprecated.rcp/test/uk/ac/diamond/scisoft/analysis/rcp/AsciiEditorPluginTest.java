@@ -21,6 +21,8 @@ import java.util.ArrayList;
 
 import junit.framework.Assert;
 
+import org.dawnsci.plotting.jreality.tool.AreaSelectEvent;
+import org.dawnsci.plotting.jreality.tool.AreaSelectTool;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -37,8 +39,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.editors.AsciiEditor;
 import uk.ac.diamond.scisoft.analysis.rcp.editors.DataSetPlotEditor;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.FitData;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.Fitting1D;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.AreaSelectEvent;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.AreaSelectTool;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 
 // FIXME - make this work!
