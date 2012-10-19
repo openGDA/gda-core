@@ -22,6 +22,8 @@ import java.io.File;
 import java.net.URL;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchPart;
@@ -38,7 +40,8 @@ public class SimpleScanView extends ViewPart {
 	private String path;
 	SimpleScan editingBean = null;
 	SimpleScanComposite simpleScanComposite;
-
+	PosComposite posComposite;
+	
 	private IPartListener partListener = new IPartListener() {
 		@Override
 		public void partActivated(IWorkbenchPart part) {}
@@ -75,7 +78,17 @@ public class SimpleScanView extends ViewPart {
 		} catch (Exception e) {
 			logger.error("Could not load xml " + path + " into bean", e);
 		}
-		simpleScanComposite = new SimpleScanComposite(parent, SWT.NONE, editingBean, null);
+        
+		Composite posComposite = new Composite(parent, SWT.NONE);
+		GridData gd_posComposite = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
+		gd_posComposite.widthHint = 900;
+		posComposite.setLayoutData(gd_posComposite);
+		GridLayout gl_posComposite = new GridLayout(1, false);
+		posComposite.setLayout(gl_posComposite);
+        
+        posComposite = new PosComposite(posComposite, SWT.NONE, editingBean);
+		simpleScanComposite = new SimpleScanComposite(posComposite, SWT.NONE, editingBean, null);
+		
 		getSite().getPage().addPartListener(partListener);
 	}
 
