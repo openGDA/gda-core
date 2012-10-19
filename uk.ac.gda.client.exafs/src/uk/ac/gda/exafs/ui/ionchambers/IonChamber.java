@@ -19,17 +19,14 @@
 package uk.ac.gda.exafs.ui.ionchambers;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.List;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.layout.RowData;
 
 public class IonChamber extends Composite{
 	private Text text;
@@ -48,7 +45,7 @@ public class IonChamber extends Composite{
 		composite_1.setLayout(gl_composite_1);
 		GridData gd_composite_1 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_composite_1.heightHint = 114;
-		gd_composite_1.widthHint = 496;
+		gd_composite_1.widthHint = 489;
 		composite_1.setLayoutData(gd_composite_1);
 		
 		List list = new List(composite_1, SWT.BORDER);
@@ -60,13 +57,15 @@ public class IonChamber extends Composite{
 		text = new Text(composite_1, SWT.BORDER);
 		GridData gd_text = new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1);
 		gd_text.heightHint = 100;
-		gd_text.widthHint = 387;
+		gd_text.widthHint = 379;
 		text.setLayoutData(gd_text);
 		
 		Composite composite = new Composite(grpIonChambers, SWT.NONE);
-		composite.setLayout(new GridLayout(2, false));
+		GridLayout gl_composite = new GridLayout(2, false);
+		gl_composite.marginWidth = 0;
+		composite.setLayout(gl_composite);
 		GridData gd_composite = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_composite.widthHint = 524;
+		gd_composite.widthHint = 488;
 		composite.setLayoutData(gd_composite);
 		
 		new Amplifier(composite, SWT.NONE, inEditor);
@@ -76,7 +75,7 @@ public class IonChamber extends Composite{
 		
 		GasFilling gasFilling = new GasFilling(grpIonChambers, SWT.NONE, inEditor);
 		GridData gd_gasFilling = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_gasFilling.widthHint = 524;
+		gd_gasFilling.widthHint = 491;
 		gasFilling.setLayoutData(gd_gasFilling);
 	}
 }
