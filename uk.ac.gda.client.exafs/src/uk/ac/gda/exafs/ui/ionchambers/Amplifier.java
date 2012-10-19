@@ -41,14 +41,14 @@ public class Amplifier extends Composite{
 		fd_grpAmplifier.top = new FormAttachment(0);
 		fd_grpAmplifier.left = new FormAttachment(0);
 		fd_grpAmplifier.bottom = new FormAttachment(0, 95);
-		fd_grpAmplifier.right = new FormAttachment(0, 245);
+		fd_grpAmplifier.right = new FormAttachment(0, 239);
 		grpAmplifier.setLayoutData(fd_grpAmplifier);
 		grpAmplifier.setText("Amplifier");
 
 
 		Composite composite = new Composite(grpAmplifier, SWT.NONE);
 		GridData gd_composite = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
-		gd_composite.widthHint = 231;
+		gd_composite.widthHint = 230;
 		composite.setLayoutData(gd_composite);
 		composite.setLayout(new GridLayout(3, false));
 

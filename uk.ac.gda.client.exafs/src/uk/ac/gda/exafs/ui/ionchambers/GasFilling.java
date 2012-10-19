@@ -33,6 +33,7 @@ import org.eclipse.swt.widgets.ExpandBar;
 import org.eclipse.swt.widgets.ExpandItem;
 import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormAttachment;
 
 public class GasFilling extends Composite{
 	private Text textEnergy;
@@ -46,7 +47,11 @@ public class GasFilling extends Composite{
 		super(parent, style);
 		setLayout(new FormLayout());
 		Group grpGasFilling = new Group(this, SWT.NONE);
-		grpGasFilling.setLayoutData(new FormData());
+		FormData fd_grpGasFilling = new FormData();
+		fd_grpGasFilling.right = new FormAttachment(0, 487);
+		fd_grpGasFilling.top = new FormAttachment(0);
+		fd_grpGasFilling.left = new FormAttachment(0);
+		grpGasFilling.setLayoutData(fd_grpGasFilling);
 		grpGasFilling.setText("Gas Filling");
 		grpGasFilling.setBounds(10, 10, 559, 233);
 		grpGasFilling.setLayout(new GridLayout(1, false));
@@ -70,7 +75,9 @@ public class GasFilling extends Composite{
 		btnSetDefaultMix.setText("Set Default Mixture");
 			
 		Composite composite = new Composite(grpGasFilling, SWT.NONE);
-		composite.setLayout(new GridLayout(2, false));
+		GridLayout gl_composite = new GridLayout(2, false);
+		gl_composite.marginWidth = 0;
+		composite.setLayout(gl_composite);
 		GridData gd_composite = new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1);
 		gd_composite.heightHint = 160;
 		gd_composite.widthHint = 455;
@@ -124,7 +131,6 @@ public class GasFilling extends Composite{
 			Button checkFillBeforeScan = new Button(compositeGas, SWT.CHECK);
 			checkFillBeforeScan.setText("Fill before Scan");
 		}
-
 
 		ExpandBar expandAdvanced = new ExpandBar(composite, SWT.NONE);
 		GridData gd_expandAdvanced = new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1);
