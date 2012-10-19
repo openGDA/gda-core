@@ -104,12 +104,12 @@ public abstract class TfgScalerWithDarkCurrent extends TfgScaler implements Dark
 
 		double[] countsDbl = super.readout();
 		Double[] counts = ArrayUtils.toObject(countsDbl);
-		if (openAtEnd) {
+//		if (openAtEnd) {
 			if (useReset) {
 				shutter.moveTo("Reset");
 			}
 			shutter.moveTo("Open");
-		}
+//		}
 
 		setCollectionTime(bean.getOriginalCollectionTime());
 
