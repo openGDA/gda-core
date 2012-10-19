@@ -341,6 +341,7 @@ public class TomoAlignmentController extends TomoViewController {
 
 				updateAcqExposure(cameraHandler.getAcqExposureRBV());
 				updatePreferredSampleExposureTime(cameraHandler.getPreferredSampleExposureTime());
+				cameraHandler.setPreferredFlatExposureTime(cameraHandler.getPreferredSampleExposureTime());
 				updatePreferredFlatExposureTime(cameraHandler.getPreferredFlatExposureTime());
 				updateAcquireState(cameraHandler.getAcquireState());
 				cameraHandler.disableFlatCorrection();

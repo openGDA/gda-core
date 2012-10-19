@@ -101,7 +101,6 @@
       <perspective
             class="uk.ac.gda.client.tomo.perspective.TomographyPerspective"
             fixed="false"
-            icon="icons/tomoPerspective.gif"
             id="uk.ac.gda.client.tomo.perspective"
             name="Tomo">
       </perspective>
@@ -116,7 +115,6 @@
             allowMultiple="false"
             category="uk.ac.gda.client.tomo.view.category"
             class="uk.ac.gda.client.tomo.alignment.view.factory.TomoAlignmentViewFactory:tomoAlignmentViewHolder"
-            icon="icons/tomoAlignment.gif"
             id="uk.ac.gda.client.tomo.alignment.view"
             name="Tomography Alignment"
             restorable="true">
@@ -125,7 +123,6 @@
             allowMultiple="false"
             category="uk.ac.gda.client.tomo.view.category"
             class="uk.ac.gda.client.tomo.configuration.view.factory.TomoConfigurationViewFactory:tomoConfigurationViewHolder"
-            icon="icons/tomoConfig.gif"
             id="uk.ac.gda.client.tomo.configuration.view"
             name="Tomography Configuration"
             restorable="true">
@@ -147,4 +144,12 @@
             id="uk.ac.gda.tomography.config.editingDomain">
       </editingDomain>
    </extension>
+    <extension
+          point="org.eclipse.ui.contexts">
+       <context
+             description="Multiple Vertical Motor Context"
+             id="uk.ac.gda.tomography.multiple.vertical.motors.context"
+             name="Multiple Vertical Motor Context">
+       </context>
+    </extension>
 </plugin>

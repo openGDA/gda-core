@@ -52,13 +52,13 @@ public class ModuleButtonComposite extends Composite {
 	private static final String MODULE_3 = "3";
 	private static final String MODULE_2 = "2";
 	private static final String MODULE_1 = "1";
-	private static final String MODULES_HEADER = "Modules";
+	private static final String MODULES_HEADER = "Camera Magnification";
 	private static final String NORMAL_TEXT_10 = "normal_10";
 	/* Module buttons */
-	private final ControlButton btnModule1;
-	private final ControlButton btnModule2;
-	private final ControlButton btnModule3;
-	private final ControlButton btnModule4;
+	private final Button btnModule1;
+	private final Button btnModule2;
+	private final Button btnModule3;
+	private final Button btnModule4;
 
 	private CAMERA_MODULE selectedModule;
 
@@ -74,10 +74,10 @@ public class ModuleButtonComposite extends Composite {
 
 			@Override
 			public void select(ModuleButtonComposite mB) {
-				selectControl(mB.btnModule1);
-				deSelectControl(mB.btnModule2);
-				deSelectControl(mB.btnModule3);
-				deSelectControl(mB.btnModule4);
+				ButtonSelectionUtil.setControlButtonSelected(mB.btnModule1);
+				ButtonSelectionUtil.setControlButtonDeselected(mB.btnModule2);
+				ButtonSelectionUtil.setControlButtonDeselected(mB.btnModule3);
+				ButtonSelectionUtil.setControlButtonDeselected(mB.btnModule4);
 			}
 
 		},
@@ -89,10 +89,10 @@ public class ModuleButtonComposite extends Composite {
 
 			@Override
 			public void select(ModuleButtonComposite mB) {
-				deSelectControl(mB.btnModule1);
-				selectControl(mB.btnModule2);
-				deSelectControl(mB.btnModule3);
-				deSelectControl(mB.btnModule4);
+				ButtonSelectionUtil.setControlButtonDeselected(mB.btnModule1);
+				ButtonSelectionUtil.setControlButtonSelected(mB.btnModule2);
+				ButtonSelectionUtil.setControlButtonDeselected(mB.btnModule3);
+				ButtonSelectionUtil.setControlButtonDeselected(mB.btnModule4);
 			}
 
 		},
@@ -104,10 +104,10 @@ public class ModuleButtonComposite extends Composite {
 
 			@Override
 			public void select(ModuleButtonComposite mB) {
-				deSelectControl(mB.btnModule1);
-				deSelectControl(mB.btnModule2);
-				selectControl(mB.btnModule3);
-				deSelectControl(mB.btnModule4);
+				ButtonSelectionUtil.setControlButtonDeselected(mB.btnModule1);
+				ButtonSelectionUtil.setControlButtonDeselected(mB.btnModule2);
+				ButtonSelectionUtil.setControlButtonSelected(mB.btnModule3);
+				ButtonSelectionUtil.setControlButtonDeselected(mB.btnModule4);
 			}
 
 		},
@@ -119,10 +119,10 @@ public class ModuleButtonComposite extends Composite {
 
 			@Override
 			public void select(ModuleButtonComposite mB) {
-				deSelectControl(mB.btnModule1);
-				deSelectControl(mB.btnModule2);
-				deSelectControl(mB.btnModule3);
-				selectControl(mB.btnModule4);
+				ButtonSelectionUtil.setControlButtonDeselected(mB.btnModule1);
+				ButtonSelectionUtil.setControlButtonDeselected(mB.btnModule2);
+				ButtonSelectionUtil.setControlButtonDeselected(mB.btnModule3);
+				ButtonSelectionUtil.setControlButtonSelected(mB.btnModule4);
 			}
 		},
 		NO_MODULE {
@@ -174,6 +174,10 @@ public class ModuleButtonComposite extends Composite {
 		}
 	}
 
+	public ModuleButtonComposite(Composite parent) {
+		this(parent, new FormToolkit(Display.getCurrent()));
+	}
+
 	public ModuleButtonComposite(Composite parent, FormToolkit toolkit) {
 		super(parent, SWT.None);
 		initializeFontRegistry();
@@ -190,33 +194,37 @@ public class ModuleButtonComposite extends Composite {
 		gd.horizontalSpan = 2;
 		lblModulesHeader.setLayoutData(gd);
 		/**/
-		btnModule1 = new ControlButton(toolkit, this, MODULE_1, SWT.PUSH);
+		btnModule1 = toolkit.createButton(this, MODULE_1, SWT.PUSH);
 		btnModule1.setLayoutData(new GridData(GridData.FILL_BOTH));
 		btnModule1.addListener(SWT.MouseDown, ctrlMouseListener);
 		btnModule1.addListener(SWT.MouseHover, mouseHoverListener);
 		btnModule1.addListener(SWT.MouseExit, mouseExitListener);
 		btnModule1.setFont(fontRegistry.get(NORMAL_TEXT_10));
+		ButtonSelectionUtil.decorateControlButton(btnModule1);
 		/**/
-		btnModule2 = new ControlButton(toolkit, this, MODULE_2, SWT.PUSH);
+		btnModule2 = toolkit.createButton(this, MODULE_2, SWT.PUSH);
 		btnModule2.setLayoutData(new GridData(GridData.FILL_BOTH));
 		btnModule2.addListener(SWT.MouseDown, ctrlMouseListener);
 		btnModule2.addListener(SWT.MouseHover, mouseHoverListener);
 		btnModule2.addListener(SWT.MouseExit, mouseExitListener);
 		btnModule2.setFont(fontRegistry.get(NORMAL_TEXT_10));
+		ButtonSelectionUtil.decorateControlButton(btnModule2);
 		/**/
-		btnModule3 = new ControlButton(toolkit, this, MODULE_3, SWT.PUSH);
+		btnModule3 = toolkit.createButton(this, MODULE_3, SWT.PUSH);
 		btnModule3.setLayoutData(new GridData(GridData.FILL_BOTH));
 		btnModule3.addListener(SWT.MouseDown, ctrlMouseListener);
 		btnModule3.addListener(SWT.MouseHover, mouseHoverListener);
 		btnModule3.addListener(SWT.MouseExit, mouseExitListener);
 		btnModule3.setFont(fontRegistry.get(NORMAL_TEXT_10));
+		ButtonSelectionUtil.decorateControlButton(btnModule3);
 		/**/
-		btnModule4 = new ControlButton(toolkit, this, MODULE_4, SWT.PUSH);
+		btnModule4 = toolkit.createButton(this, MODULE_4, SWT.PUSH);
 		btnModule4.setLayoutData(new GridData(GridData.FILL_BOTH));
 		btnModule4.addListener(SWT.MouseDown, ctrlMouseListener);
 		btnModule4.addListener(SWT.MouseHover, mouseHoverListener);
 		btnModule4.addListener(SWT.MouseExit, mouseExitListener);
 		btnModule4.setFont(fontRegistry.get(NORMAL_TEXT_10));
+		ButtonSelectionUtil.decorateControlButton(btnModule4);
 	}
 
 	/**
@@ -229,7 +237,7 @@ public class ModuleButtonComposite extends Composite {
 	 * @param btn4Text
 	 */
 	public void setModuleButtonText(String units, String btn1Text, String btn2Text, String btn3Text, String btn4Text) {
-		lblModulesHeader.setText(String.format("%1$s (%2$s)", MODULES_HEADER, units));
+		//lblModulesHeader.setText(String.format("%1$s (%2$s)", MODULES_HEADER, units));
 		btnModule1.setText(btn1Text);
 		btnModule2.setText(btn2Text);
 		btnModule3.setText(btn3Text);
@@ -241,7 +249,7 @@ public class ModuleButtonComposite extends Composite {
 		public void handleEvent(Event event) {
 
 			Button btn = (Button) event.widget;
-			if (!isSelected(btn)) {
+			if (!ButtonSelectionUtil.isCtrlButtonSelected(btn)) {
 				btn.setForeground(ColorConstants.black);
 			}
 		}
@@ -254,7 +262,7 @@ public class ModuleButtonComposite extends Composite {
 		public void handleEvent(Event event) {
 			if (event.stateMask == SWT.CTRL) {
 				Button btn = (Button) event.widget;
-				if (!isSelected(btn)) {
+				if (!ButtonSelectionUtil.isCtrlButtonSelected(btn)) {
 					btn.setForeground(ColorConstants.red);
 				}
 			}
@@ -273,43 +281,43 @@ public class ModuleButtonComposite extends Composite {
 				CAMERA_MODULE oldModule = getModuleSelected();
 
 				if (btnModule1.equals(sourceObj)) {
-					if (!isSelected(btnModule1)) {
-						selectControl(btnModule1);
+					if (!ButtonSelectionUtil.isCtrlButtonSelected(btnModule1)) {
+						ButtonSelectionUtil.setControlButtonSelected(btnModule1);
 
 						/**/
-						deSelectControl(btnModule2);
-						deSelectControl(btnModule3);
-						deSelectControl(btnModule4);
+						ButtonSelectionUtil.setControlButtonDeselected(btnModule2);
+						ButtonSelectionUtil.setControlButtonDeselected(btnModule3);
+						ButtonSelectionUtil.setControlButtonDeselected(btnModule4);
 						selectedModule = CAMERA_MODULE.ONE;
 						updateModuleChangeListener(oldModule, CAMERA_MODULE.ONE);
 					}
 				} else if (btnModule2.equals(sourceObj)) {
-					if (!isSelected(btnModule2)) {
-						selectControl(btnModule2);
+					if (!ButtonSelectionUtil.isCtrlButtonSelected(btnModule2)) {
+						ButtonSelectionUtil.setControlButtonSelected(btnModule2);
 						/**/
-						deSelectControl(btnModule1);
-						deSelectControl(btnModule3);
-						deSelectControl(btnModule4);
+						ButtonSelectionUtil.setControlButtonDeselected(btnModule1);
+						ButtonSelectionUtil.setControlButtonDeselected(btnModule3);
+						ButtonSelectionUtil.setControlButtonDeselected(btnModule4);
 						selectedModule = CAMERA_MODULE.TWO;
 						updateModuleChangeListener(oldModule, CAMERA_MODULE.TWO);
 					}
 				} else if (btnModule3.equals(sourceObj)) {
-					if (!isSelected(btnModule3)) {
-						selectControl(btnModule3);
+					if (!ButtonSelectionUtil.isCtrlButtonSelected(btnModule3)) {
+						ButtonSelectionUtil.setControlButtonSelected(btnModule3);
 						/**/
-						deSelectControl(btnModule2);
-						deSelectControl(btnModule1);
-						deSelectControl(btnModule4);
+						ButtonSelectionUtil.setControlButtonDeselected(btnModule2);
+						ButtonSelectionUtil.setControlButtonDeselected(btnModule1);
+						ButtonSelectionUtil.setControlButtonDeselected(btnModule4);
 						selectedModule = CAMERA_MODULE.THREE;
 						updateModuleChangeListener(oldModule, CAMERA_MODULE.THREE);
 					}
 				} else if (btnModule4.equals(sourceObj)) {
-					if (!isSelected(btnModule4)) {
-						selectControl(btnModule4);
+					if (!ButtonSelectionUtil.isCtrlButtonSelected(btnModule4)) {
+						ButtonSelectionUtil.setControlButtonSelected(btnModule4);
 						/**/
-						deSelectControl(btnModule2);
-						deSelectControl(btnModule3);
-						deSelectControl(btnModule1);
+						ButtonSelectionUtil.setControlButtonDeselected(btnModule2);
+						ButtonSelectionUtil.setControlButtonDeselected(btnModule3);
+						ButtonSelectionUtil.setControlButtonDeselected(btnModule1);
 						selectedModule = CAMERA_MODULE.FOUR;
 						updateModuleChangeListener(oldModule, CAMERA_MODULE.FOUR);
 					}
@@ -338,16 +346,6 @@ public class ModuleButtonComposite extends Composite {
 		}
 	}
 
-	private static void selectControl(Composite btnCntrl) {
-		btnCntrl.setForeground(ColorConstants.red);
-		btnCntrl.setBackground(ColorConstants.lightGray);
-	}
-
-	private static void deSelectControl(ControlButton btnCntrl) {
-		btnCntrl.setForeground(btnCntrl.getDisplay().getSystemColor(SWT.COLOR_LIST_FOREGROUND));
-		btnCntrl.setBackground(btnCntrl.getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
-	}
-
 	public boolean addModuleChangeListener(IModuleChangeListener moduleChangeListener) {
 		return moduleChangeListeners.add(moduleChangeListener);
 	}
@@ -356,37 +354,6 @@ public class ModuleButtonComposite extends Composite {
 		return moduleChangeListeners.remove(moduleChangeListener);
 	}
 
-	/**
-	 * Returns <code>true</code> if the colors as set when selected.
-	 * 
-	 * @param button
-	 * @return true when background color is lightgray and foreground color is red - this is what was set when the
-	 *         widget was selected.
-	 */
-	private boolean isSelected(Button button) {
-		if (ColorConstants.red.equals(button.getForeground())
-				&& ColorConstants.lightGray.equals(button.getBackground())) {
-			return true;
-		}
-		return false;
-	}
-
-	/**
-	 * Returns <code>true</code> if the colors as set when selected.
-	 * 
-	 * @param button
-	 * @return true when background color is lightgray and foreground color is red - this is what was set when the
-	 *         widget was selected.
-	 */
-	private boolean isSelected(ControlButton button) {
-		if (ColorConstants.red.equals(button.getForeground())
-				&& ColorConstants.lightGray.equals(button.getBackground())) {
-			return true;
-		}
-		return false;
-	}
-
-	// TODO
 	@Override
 	public void setEnabled(boolean enabled) {
 		btnModule1.setEnabled(enabled);
@@ -416,10 +383,10 @@ public class ModuleButtonComposite extends Composite {
 
 				@Override
 				public void run() {
-					deSelectControl(btnModule1);
-					deSelectControl(btnModule2);
-					deSelectControl(btnModule3);
-					deSelectControl(btnModule4);
+					ButtonSelectionUtil.setControlButtonDeselected(btnModule1);
+					ButtonSelectionUtil.setControlButtonDeselected(btnModule2);
+					ButtonSelectionUtil.setControlButtonDeselected(btnModule3);
+					ButtonSelectionUtil.setControlButtonDeselected(btnModule4);
 				}
 			});
 		}

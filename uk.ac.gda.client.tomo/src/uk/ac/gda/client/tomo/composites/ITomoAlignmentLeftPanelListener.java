@@ -20,9 +20,10 @@ package uk.ac.gda.client.tomo.composites;
 
 import java.lang.reflect.InvocationTargetException;
 
+import uk.ac.gda.client.tomo.composites.TomoAlignmentLeftPanelComposite.SAMPLE_OR_FLAT;
 import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZoomButtonActionListener;
 
-public interface ITomoAlignmentLeftPanelListener extends ZoomButtonActionListener{
+public interface ITomoAlignmentLeftPanelListener extends ZoomButtonActionListener {
 
 	/**
 	 * When the sample stream button is called
@@ -128,4 +129,29 @@ public interface ITomoAlignmentLeftPanelListener extends ZoomButtonActionListene
 	 * @throws Exception
 	 */
 	void crosshair(boolean selection) throws Exception;
+
+	/**
+	 * When the exposure time for the sample is changed.
+	 * 
+	 * @param sampleExposureTime
+	 * @throws Exception
+	 */
+	void sampleExposureTimeChanged(double sampleExposureTime) throws Exception;
+
+	/**
+	 * When the exposure time for the flat is changed
+	 * 
+	 * @param flatExposureTime
+	 * @throws Exception
+	 */
+	void flatExposureTimeChanged(double flatExposureTime) throws Exception;
+
+	/**
+	 * Event published when the exposure time mode is changed.
+	 * 
+	 * @param sample
+	 * @throws Exception
+	 */
+	void exposureStateChanged(SAMPLE_OR_FLAT sample) throws Exception;
+
 }

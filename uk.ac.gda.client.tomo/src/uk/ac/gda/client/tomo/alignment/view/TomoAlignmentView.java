@@ -91,14 +91,13 @@ import uk.ac.gda.client.tomo.composites.StatInfoComposite;
 import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite;
 import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.MotionControlCentring;
 import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.RESOLUTION;
-import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.SAMPLE_OR_FLAT;
 import uk.ac.gda.client.tomo.composites.TomoAlignmentLeftPanelComposite;
+import uk.ac.gda.client.tomo.composites.TomoAlignmentLeftPanelComposite.SAMPLE_OR_FLAT;
 import uk.ac.gda.client.tomo.composites.TomoPlotComposite;
 import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
 import uk.ac.gda.client.tomo.composites.ZoomedImageComposite;
 import uk.ac.gda.client.tomo.composites.ZoomedImgCanvas;
 import uk.ac.gda.client.tomo.preferences.TomoAlignmentPreferencePage;
-import uk.ac.gda.epics.client.EPICSClientActivator;
 import uk.ac.gda.ui.components.ColourSliderComposite;
 import uk.ac.gda.ui.components.PointInDouble;
 import uk.ac.gda.ui.event.PartAdapter2;
@@ -175,7 +174,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	private Composite page_leftWindow_imgViewer;
 	private Composite page_nonProfile_demandRaw;
 	/**/
-	private PageBook pageBook_leftWindow;
 	private PageBook pageBook_nonProfile_zoomImg;
 	private ScaleBarComposite rightScaleBar;
 	private Composite page_nonProfile_noZoom;
@@ -216,8 +214,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	private FontRegistry fontRegistry;
 	/**/
 	private Composite page_rightWindow_plot;
-	/**/
-	private Composite page_leftWindow_introComposite;
 	/**/
 	private ScaleBarComposite leftScaleBar;
 
@@ -388,11 +384,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	}
 
 	@Override
-	public Image getTitleImage() {
-		return TomoClientActivator.getDefault().getImageRegistry().get(ImageConstants.ICON_TOMO_ALIGNMENT);
-	}
-
-	@Override
 	public void createPartControl(Composite parent) {
 		try {
 			toolkit = new FormToolkit(parent.getDisplay());
@@ -489,7 +480,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		// Left panel
 		Composite leftPanel = createLeftPanel(mainComposite);
 		GridData layoutData = new GridData(GridData.FILL_VERTICAL);
-		layoutData.widthHint = 100;
+		layoutData.widthHint = 105;
 		leftPanel.setLayoutData(layoutData);
 
 		// Left window
@@ -529,7 +520,8 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		setDefaultLayoutSettings(layout);
 		page_rightWindow_nonProfile.setLayout(layout);
 		page_rightWindow_nonProfile.setLayoutData(new GridData(GridData.FILL_BOTH));
-
+		page_rightWindow_nonProfile.setBackground(
+				new Color(page_rightWindow_nonProfile.getDisplay(), new RGB(242, 242, 242)));
 		/**/
 		Composite imgViewerComposite = toolkit.createComposite(page_rightWindow_nonProfile);
 		imgViewerComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
@@ -545,7 +537,9 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		pageBook_nonProfile_zoomImg.setLayoutData(gd);
 
 		page_nonProfile_streamZoom = new ZoomedImageComposite(pageBook_nonProfile_zoomImg, SWT.DOUBLE_BUFFERED);
-
+		page_nonProfile_streamZoom.setBackground(
+				new Color(page_nonProfile_streamZoom.getDisplay(), new RGB(242, 242, 242)));
+		
 		page_nonProfile_demandRaw = toolkit.createComposite(pageBook_nonProfile_zoomImg);
 		gl = new GridLayout();
 		setDefaultLayoutSettings(gl);
@@ -594,12 +588,8 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		setDefaultLayoutSettings(layout);
 		leftWindowComposite.setLayout(layout);
 
-		pageBook_leftWindow = new PageBook(leftWindowComposite, SWT.None);
-		pageBook_leftWindow.setLayoutData(new GridData(GridData.FILL_BOTH));
-
-		page_leftWindow_introComposite = createIntroComposite(pageBook_leftWindow);
-
-		page_leftWindow_imgViewer = toolkit.createComposite(pageBook_leftWindow);
+		page_leftWindow_imgViewer = toolkit.createComposite(leftWindowComposite);
+		page_leftWindow_imgViewer.setLayoutData(new GridData(GridData.FILL_BOTH));
 		layout = new GridLayout(2, false);
 		setDefaultLayoutSettings(layout);
 		page_leftWindow_imgViewer.setLayout(layout);
@@ -625,68 +615,8 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		infoComposite.setLayoutData(layoutData);
 
 		/**/
-		pageBook_leftWindow.showPage(page_leftWindow_introComposite);
 		/**/
 		return leftWindowComposite;
-	}
-
-	/**
-	 * Creates an intro(dashboard) kind of composite - providing options to either start a video stream or demand raw
-	 * 
-	 * @param leftWindowPageBook
-	 * @return {@link Composite}
-	 */
-	private Composite createIntroComposite(final PageBook leftWindowPageBook) {
-		Composite introComposite = toolkit.createComposite(leftWindowPageBook, SWT.BORDER);
-
-		GridLayout layout = new GridLayout();
-		introComposite.setLayout(layout);
-
-		Button btnPlayStream = toolkit.createButton(introComposite, PLAY_STREAM, SWT.PUSH);
-		btnPlayStream.setFont(fontRegistry.get(BOLD_TEXT_11));
-		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
-		layoutData.heightHint = 40;
-		btnPlayStream.setLayoutData(layoutData);
-		btnPlayStream.setImage(EPICSClientActivator.getDefault().getImageRegistry()
-				.get(uk.ac.gda.epics.client.ImageConstants.IMG_PLAY_STREAM));
-		btnPlayStream.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				try {
-					if (!isModuleSelected()) {
-						loadErrorInDisplay("Module needs to be selected", "Please select a module before streaming");
-						return;
-					}
-					leftPanelComposite.startStreaming();
-				} catch (Exception e1) {
-					logger.error("error selecting play button", e1);
-				}
-			}
-		});
-
-		Button btnDemandRaw = toolkit.createButton(introComposite, "Take Single", SWT.PUSH);
-		btnDemandRaw.setFont(fontRegistry.get(BOLD_TEXT_11));
-		GridData layoutData2 = new GridData(GridData.FILL_HORIZONTAL);
-		layoutData2.heightHint = 40;
-		btnDemandRaw.setLayoutData(layoutData2);
-		btnDemandRaw.setImage(TomoClientActivator.getDefault().getImageRegistry().get(ImageConstants.ICON_RAW_IMAGE));
-		btnDemandRaw.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				try {
-					if (!isModuleSelected()) {
-						loadErrorInDisplay("Module needs to be selected",
-								"Please select a module before a raw image can be captured.");
-						return;
-					}
-					leftPanelComposite.startSingle();
-					pageBook_leftWindow.showPage(page_leftWindow_imgViewer);
-				} catch (Exception e1) {
-					logger.error("Demand Raw problems", e1);
-				}
-			}
-		});
-		return introComposite;
 	}
 
 	private Composite createLeftWindowImageViewerComposite(Composite leftWindowComposite) {
@@ -702,7 +632,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		leftWindowImageViewer.addProfileListener(tomoViewController);
 		leftWindowImageViewer.getCanvas().addMouseTrackListener(mouseTrackAdapter);
 		leftWindowImageViewer.getCanvas().setBackground(
-				new Color(leftWindowImageViewer.getDisplay(), new RGB(255, 255, 240)));
+				new Color(leftWindowImageViewer.getDisplay(), new RGB(242, 242, 242)));
 		//
 		leftVideoReceiver = new MotionJpegOverHttpReceiverSwt();
 		leftVideoListener = new VideoListener(leftWindowImageViewer);
@@ -794,7 +724,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		scaleBarComposite.setLayout(gridLayout);
 		leftScaleBar = new ScaleBarComposite(scaleBarComposite, SWT.None);
 		leftScaleBar.setLayoutData(new GridData(GridData.VERTICAL_ALIGN_CENTER));
-		leftScaleBar.setBackground(ColorConstants.blue);
+		leftScaleBar.setBackground(ColorConstants.black);
 
 		Composite imagePixelValueComposite = new Composite(lowerBarComposite, SWT.None);
 		imagePixelValueComposite.setBackground(ColorConstants.white);
@@ -1146,12 +1076,12 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 	@Override
 	public void setPreferredSampleExposureTimeToWidget(double preferredExposureTime) {
-		tomoControlComposite.setPreferredSampleExposureTime(preferredExposureTime);
+		leftPanelComposite.setPreferredSampleExposureTime(preferredExposureTime);
 	}
 
 	@Override
 	public void setPreferredFlatExposureTimeToWidget(double preferredExposureTime) {
-		tomoControlComposite.setPreferredFlatExposureTime(preferredExposureTime);
+		leftPanelComposite.setPreferredFlatExposureTime(preferredExposureTime);
 	}
 
 	@Override
@@ -1245,9 +1175,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			page_rightWindow_plot.dispose();
 			page_rightWindow_nonProfile.dispose();
 			page_leftWindow_imgViewer.dispose();
-			page_leftWindow_introComposite.dispose();
 
-			pageBook_leftWindow.dispose();
 			pageBook_rightWindow.dispose();
 			//
 			tomoControlComposite.dispose();
@@ -1432,8 +1360,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 				}
 			});
 
-			pageBook_leftWindow.showPage(page_leftWindow_imgViewer);
-
 			// Shouldn't be showing the file name and the file timestamp while streaming imgs.
 			lblFileTimeStamp.setText(BLANK_STR);
 			lblFileName.setText(BLANK_STR);
@@ -1505,12 +1431,12 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 	public boolean isStreamingSampleExposure() {
 		return leftPanelComposite.isStreamButtonSelected()
-				&& SAMPLE_OR_FLAT.SAMPLE.equals(tomoControlComposite.getStreamState());
+				&& SAMPLE_OR_FLAT.SAMPLE.equals(leftPanelComposite.getStreamState());
 	}
 
 	public boolean isStreamingFlatExposure() {
 		return leftPanelComposite.isStreamButtonSelected()
-				&& SAMPLE_OR_FLAT.FLAT.equals(tomoControlComposite.getStreamState());
+				&& SAMPLE_OR_FLAT.FLAT.equals(leftPanelComposite.getStreamState());
 	}
 
 	public void setHistogramAdjusterImageData(ImageData imgData) {
@@ -1545,21 +1471,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 					case ZOOM_STREAM:
 						pageBook_rightWindow.showPage(page_rightInfo_nonProfile);
 						pageBook_nonProfile_zoomImg.showPage(page_nonProfile_streamZoom);
-					}
-				}
-			});
-		}
-	}
-
-	public void setLeftPage(final LEFT_PAGE page) {
-		if (pageBook_leftWindow.getDisplay() != null && !pageBook_leftWindow.getDisplay().isDisposed()) {
-			pageBook_leftWindow.getDisplay().syncExec(new Runnable() {
-
-				@Override
-				public void run() {
-					switch (page) {
-					case IMAGE_VIEWER:
-						pageBook_leftWindow.showPage(page_leftWindow_imgViewer);
 					}
 				}
 			});
@@ -1656,10 +1567,10 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 						// Module number
 						configuration.setModuleNumber(tomoControlComposite.getSelectedCameraModule().getValue());
 						// Sample Acquisition time
-						configuration.setSampleAcquisitonTime(Double.valueOf(threePrecision.format(tomoControlComposite
+						configuration.setSampleAcquisitonTime(Double.valueOf(threePrecision.format(leftPanelComposite
 								.getSampleExposureTime())));
 						// Flat Acquisition time
-						configuration.setFlatAcquisitionTime(Double.valueOf(threePrecision.format(tomoControlComposite
+						configuration.setFlatAcquisitionTime(Double.valueOf(threePrecision.format(leftPanelComposite
 								.getFlatExposureTime())));
 						// Sample description
 						configuration.setSampleDescription(tomoControlComposite.getSampleDescription());

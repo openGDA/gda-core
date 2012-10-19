@@ -932,11 +932,6 @@ public class TomoConfigurationView extends ViewPart {
 		return super.getPartName();
 	}
 
-	@Override
-	public Image getTitleImage() {
-		return TomoClientActivator.getDefault().getImageRegistry().get(ImageConstants.ICON_TOMO_CONFIG);
-	}
-
 	public void setConfigFileHandler(ITomoConfigResourceHandler configFileHandler) {
 		this.configFileHandler = configFileHandler;
 	}

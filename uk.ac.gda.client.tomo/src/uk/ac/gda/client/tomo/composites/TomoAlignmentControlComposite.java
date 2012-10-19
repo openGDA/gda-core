@@ -77,9 +77,10 @@ public class TomoAlignmentControlComposite extends Composite {
 
 	private static final String AUTO_FOCUS = "Auto Focus";
 	private static final String RESOLUTION_PIXEL_SIZE = "Resolution : Pixel Size = ";
-	private static final String SAMPLE_CENTRING_lbl = "Sample Centring";
+	private static final String SAMPLE_CENTRING_lbl = "Sample Alignment";
 	private static final String REGION_OF_INTEREST_lbl = "ROI";
 	private static final String TOMOGRAPHY_PARAMETERS_lbl = "Tomography Parameters";
+	private Button btnAutoFocus;
 
 	/**
 	 * Enum that caters to the motion control composite
@@ -120,11 +121,6 @@ public class TomoAlignmentControlComposite extends Composite {
 		}
 	}
 
-	public enum SAMPLE_OR_FLAT {
-		SAMPLE, FLAT;
-	}
-
-	private SAMPLE_OR_FLAT streamState = SAMPLE_OR_FLAT.SAMPLE;
 	private static final int MOTION_COMPOSITE_HEIGHT = 120;
 	private static final int CONTROL_COMPOSITE_HEIGHT = 100;
 
@@ -227,19 +223,16 @@ public class TomoAlignmentControlComposite extends Composite {
 
 	private static final String FRAMES_PER_PROJECTION_DEFAULT_VAL = "1";
 
-	private Button btnSample;
-	private Button btnFlat;
-
 	private Label lblRotationAxisNotFound;
 
-	protected ControlButton btnHorizontal;
+	protected Button btnHorizontal;
 	protected Label lblFindRotationAxis;
-	protected ControlButton btnTilt;
-	protected ControlButton btnFindAxisOfRotation;
+	protected Button btnTilt;
+	protected Button btnFindAxisOfRotation;
 
-	private ControlButton btnVertical;
+	private Button btnVertical;
 
-	protected ControlButton btnMoveAxisOfRotation;
+	protected Button btnMoveAxisOfRotation;
 
 	protected ModuleButtonComposite moduleButtonComposite;
 
@@ -268,14 +261,6 @@ public class TomoAlignmentControlComposite extends Composite {
 
 	private StackLayout moveAxisRotationCmpLayout;
 	/* Control Box Buttons */
-	// Set for sample
-	private Text txtSampleExposureTime;
-	private Button btnSampleToFlat;
-	// Set for flat
-	private Text txtFlatExpTime;
-
-	//
-	private Button btnFlatToSample;
 
 	private Button btnDefineRoi;
 	private Button btnResetRoi;
@@ -294,12 +279,10 @@ public class TomoAlignmentControlComposite extends Composite {
 
 	private Label lblFlatExpTime;
 	private Button btnSaveAlignment;
-	private double flatExposureTime;
 
 	private Label lblObjectPixelSize;
 
 	private RESOLUTION resolution = RESOLUTION.FULL;
-	private double sampleExposureTime;
 
 	public enum SAMPLE_WEIGHT {
 		LESS_THAN_ONE(SAMPLE_WEIGHT_LESS_THAN_1_lbl), ONE_TO_TEN(SAMPLE_WEIGHT_ONE_TO_TEN_lbl), TEN_TO_TWENTY(
@@ -349,41 +332,7 @@ public class TomoAlignmentControlComposite extends Composite {
 	private KeyAdapter txtKeyListener = new KeyAdapter() {
 		@Override
 		public void keyPressed(KeyEvent e) {
-			// Sample exposure time
-			if (e.getSource().equals(txtSampleExposureTime)) {
-				if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
-					if (isValid(Double.class, txtSampleExposureTime.getText())) {
-						sampleExposureTime = Double.parseDouble(txtSampleExposureTime.getText());
-						try {
-							for (ITomoAlignmentControlListener ml : tomoAlignmentControlListeners) {
-								ml.sampleExposureTimeChanged(Double.parseDouble(txtSampleExposureTime.getText()));
-							}
-						} catch (Exception e1) {
-							logger.debug("Error setting exposure time", e1);
-						}
-						btnSample.setFocus();
-					} else {
-						showErrorDialog(new IllegalArgumentException("Invalid value "));
-					}
-				}
-			} else if (e.getSource().equals(txtFlatExpTime)) {
-				// Flat exposure time
-				if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
-					if (isValid(Double.class, txtFlatExpTime.getText())) {
-						flatExposureTime = Double.parseDouble(txtFlatExpTime.getText());
-						try {
-							for (ITomoAlignmentControlListener ml : tomoAlignmentControlListeners) {
-								ml.flatExposureTimeChanged(Double.parseDouble(txtFlatExpTime.getText()));
-							}
-						} catch (Exception e1) {
-							logger.error("Error setting exposure time", e1);
-						}
-						btnFlat.setFocus();
-					} else {
-						showErrorDialog(new IllegalArgumentException("Invalid value "));
-					}
-				}
-			} else if (e.getSource().equals(txtCameraDistance)) {
+			if (e.getSource().equals(txtCameraDistance)) {
 				// Camera distance
 				if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
 					if (isValid(Double.class, txtCameraDistance.getText())) {
@@ -503,7 +452,6 @@ public class TomoAlignmentControlComposite extends Composite {
 			}
 		}
 	};
-	private ControlButton btnAutoFocus;
 
 	public void addMotionControlListener(ITomoAlignmentControlListener motionControlListener) {
 		logger.debug("Registering motion control listener");
@@ -567,19 +515,19 @@ public class TomoAlignmentControlComposite extends Composite {
 		upperPanel.setBackground(ColorConstants.black);
 
 		// 1
-		Composite expStreamSingleHistoComposite = createSampleFlatButtons(toolkit, upperPanel);
-		GridData ld = new GridData(GridData.FILL_BOTH);
-		expStreamSingleHistoComposite.setLayoutData(ld);
+		// Composite expStreamSingleHistoComposite = createSampleFlatButtons(toolkit, upperPanel);
+		// GridData ld = new GridData(GridData.FILL_BOTH);
+		// expStreamSingleHistoComposite.setLayoutData(ld);
 
 		//
 		Composite beamlineControlComposite = createBeamlineControlComposite(upperPanel, toolkit);
-		ld = new GridData(GridData.FILL_BOTH);
+		GridData ld = new GridData(GridData.FILL_BOTH);
 		beamlineControlComposite.setLayoutData(ld);
 
 		//
 		Composite instrumentControlComposite = createExperimentInstrument(upperPanel, toolkit);
 		GridData layoutData = new GridData(GridData.FILL_BOTH);
-		layoutData.horizontalSpan = 6;
+		layoutData.horizontalSpan = 7;
 		instrumentControlComposite.setLayoutData(layoutData);
 
 		return upperPanel;
@@ -667,10 +615,11 @@ public class TomoAlignmentControlComposite extends Composite {
 		gl.marginHeight = 0;
 		cmpAutoFocus.setLayout(gl);
 
-		btnAutoFocus = new ControlButton(toolkit, cmpAutoFocus, AUTO_FOCUS);
+		btnAutoFocus = toolkit.createButton(cmpAutoFocus, AUTO_FOCUS, SWT.PUSH);
 		btnAutoFocus.setFont(fontRegistry.get(NORMAL_TEXT_9));
 		btnAutoFocus.setLayoutData(new GridData(GridData.FILL_BOTH));
 		btnAutoFocus.addListener(SWT.MouseDown, ctrlMouseListener);
+		ButtonSelectionUtil.decorateControlButton(btnAutoFocus);
 
 		Label lblAutoFocusLastDone = toolkit.createLabel(cmpAutoFocus, LAST_SAVED_lbl);
 		lblAutoFocusLastDone.setLayoutData(new GridData(GridData.FILL_BOTH));
@@ -686,29 +635,31 @@ public class TomoAlignmentControlComposite extends Composite {
 		gl.marginHeight = 0;
 		cmpTilt.setLayout(gl);
 		// Buttons for align tilts
-		btnTilt = new ControlButton(toolkit, cmpTilt, ALIGN_TILT_lbl);
+		btnTilt = toolkit.createButton(cmpTilt, ALIGN_TILT_lbl, SWT.PUSH);
 		btnTilt.setFont(fontRegistry.get(NORMAL_TEXT_9));
 		btnTilt.setLayoutData(new GridData(GridData.FILL_BOTH));
 		btnTilt.addListener(SWT.MouseDown, ctrlMouseListener);
+		ButtonSelectionUtil.decorateControlButton(btnTilt);
 
 		Label lblTiltLastDone = toolkit.createLabel(cmpTilt, "Last Saved:");
 		lblTiltLastDone.setLayoutData(new GridData(GridData.FILL_BOTH));
 		//
-		btnFindAxisOfRotation = new ControlButton(toolkit, tomoAlignmentComposite, FIND_TOMO_AXIS_lbl, SWT.PUSH);
+		btnFindAxisOfRotation = toolkit.createButton(tomoAlignmentComposite, FIND_TOMO_AXIS_lbl, SWT.PUSH);
 		GridData layoutData3 = new GridData(GridData.FILL_BOTH);
 		layoutData3.horizontalSpan = 2;
 		btnFindAxisOfRotation.setLayoutData(layoutData3);
 		btnFindAxisOfRotation.setFont(fontRegistry.get(NORMAL_TEXT_9));
 		btnFindAxisOfRotation.addListener(SWT.MouseDown, ctrlMouseListener);
+		ButtonSelectionUtil.decorateControlButton(btnFindAxisOfRotation);
 
-		btnMoveAxisOfRotation = new ControlButton(toolkit, tomoAlignmentComposite, MOVE_TOMO_AXIS_lbl, SWT.PUSH
-				| SWT.WRAP);
+		btnMoveAxisOfRotation = toolkit.createButton(tomoAlignmentComposite, MOVE_TOMO_AXIS_lbl, SWT.PUSH | SWT.WRAP);
 		// btnMoveAxisOfRotation.setBackground(ColorConstants.green);
 		btnMoveAxisOfRotation.setFont(fontRegistry.get(NORMAL_TEXT_9));
 		btnMoveAxisOfRotation.addListener(SWT.MouseDown, ctrlMouseListener);
 		GridData layoutData4 = new GridData(GridData.FILL_BOTH);
 		layoutData4.horizontalSpan = 2;
 		btnMoveAxisOfRotation.setLayoutData(layoutData4);
+		ButtonSelectionUtil.decorateControlButton(btnMoveAxisOfRotation);
 
 		Composite cameraDistanceComposite = toolkit.createComposite(tomoAlignmentComposite);
 		cameraDistanceComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
@@ -734,114 +685,6 @@ public class TomoAlignmentControlComposite extends Composite {
 		txtCameraDistance.addKeyListener(txtKeyListener);
 
 		return tomoAlignmentComposite;
-	}
-
-	/**
-	 * Method to create the two panels for Exposure time, Steam, Single and histogram
-	 * 
-	 * @param toolkit
-	 * @return composite
-	 */
-	private Composite createSampleFlatButtons(FormToolkit toolkit, Composite parent) {
-		Composite expStreamSingleHistoComposite = toolkit.createComposite(parent);
-		GridLayout layout = new GridLayout(4, false);
-		layout.horizontalSpacing = 2;
-		layout.verticalSpacing = 5;
-		layout.marginWidth = 3;
-		layout.marginHeight = 2;
-
-		expStreamSingleHistoComposite.setLayout(layout);
-
-		Composite lblComposite = toolkit.createComposite(expStreamSingleHistoComposite);
-		GridData layoutData = new GridData(GridData.FILL_BOTH);
-		lblComposite.setLayoutData(layoutData);
-		layout = new GridLayout();
-		layout.horizontalSpacing = 0;
-		layout.verticalSpacing = 0;
-		layout.marginWidth = 0;
-		layout.marginHeight = 0;
-		lblComposite.setLayout(layout);
-		btnSample = toolkit.createButton(lblComposite, SAMPLE_lbl, SWT.PUSH);
-		GridData ld = new GridData(GridData.FILL_BOTH);
-		ld.verticalAlignment = SWT.CENTER;
-		btnSample.setLayoutData(ld);
-		btnSample.addSelectionListener(buttonSelectionListener);
-		selectControl(btnSample);
-
-		Composite borderComposite = toolkit.createComposite(lblComposite);
-		borderComposite.setBackground(ColorConstants.black);
-		layoutData = new GridData(GridData.FILL_HORIZONTAL);
-		layoutData.heightHint = 2;
-		borderComposite.setLayoutData(layoutData);
-		btnFlat = toolkit.createButton(lblComposite, FLAT_lbl, SWT.PUSH);
-		ld = new GridData(GridData.FILL_BOTH);
-		ld.verticalAlignment = SWT.CENTER;
-		btnFlat.setLayoutData(ld);
-		btnFlat.addSelectionListener(buttonSelectionListener);
-		//
-		btnFlatToSample = toolkit.createButton(expStreamSingleHistoComposite, null, SWT.PUSH);
-		layoutData = new GridData(GridData.FILL_VERTICAL);
-		btnFlatToSample.setLayoutData(layoutData);
-
-		TomoClientActivator tomoClientActivator = TomoClientActivator.getDefault();
-		if (tomoClientActivator != null) {
-			btnFlatToSample.setImage(tomoClientActivator.getImageRegistry().get(ImageConstants.ICON_DOWN_TO_UP));
-		}
-		btnFlatToSample.addSelectionListener(buttonSelectionListener);
-		// 2
-
-		Composite txtBoxComposite = toolkit.createComposite(expStreamSingleHistoComposite);
-		ld = new GridData(GridData.FILL_BOTH);
-		txtBoxComposite.setLayoutData(ld);
-
-		layout = new GridLayout(2, false);
-		layout.horizontalSpacing = 0;
-		layout.verticalSpacing = 3;
-		layout.marginWidth = 0;
-		layout.marginHeight = 0;
-		txtBoxComposite.setLayout(layout);
-
-		txtSampleExposureTime = toolkit.createText(txtBoxComposite, DEFAULT_EXP_TIME, SWT.CENTER);
-		ld = new GridData(GridData.FILL_BOTH);
-		ld.verticalAlignment = SWT.CENTER;
-		txtSampleExposureTime.setLayoutData(ld);
-
-		txtSampleExposureTime.addKeyListener(txtKeyListener);
-		txtSampleExposureTime.addFocusListener(focusListener);
-
-		Label lblSampleExpTimeUnits = toolkit.createLabel(txtBoxComposite, EXP_TIME_MEASURE);
-		ld = new GridData();
-		ld.verticalAlignment = SWT.CENTER;
-		lblSampleExpTimeUnits.setLayoutData(ld);
-		//
-		borderComposite = toolkit.createComposite(txtBoxComposite);
-		borderComposite.setBackground(ColorConstants.black);
-		layoutData = new GridData(GridData.FILL_HORIZONTAL);
-		layoutData.heightHint = 2;
-		layoutData.horizontalSpan = 2;
-		borderComposite.setLayoutData(layoutData);
-		//
-		txtFlatExpTime = toolkit.createText(txtBoxComposite, DEFAULT_EXP_TIME, SWT.CENTER);
-		ld = new GridData(GridData.FILL_BOTH);
-		ld.verticalAlignment = SWT.CENTER;
-		txtFlatExpTime.setLayoutData(ld);
-		txtFlatExpTime.addKeyListener(txtKeyListener);
-		txtFlatExpTime.addFocusListener(focusListener);
-		//
-		Label lblFlatExpTimeUnits = toolkit.createLabel(txtBoxComposite, EXP_TIME_MEASURE);
-		ld = new GridData();
-		ld.verticalAlignment = SWT.CENTER;
-		lblFlatExpTimeUnits.setLayoutData(ld);
-
-		btnSampleToFlat = toolkit.createButton(expStreamSingleHistoComposite, null, SWT.PUSH);
-		layoutData = new GridData(GridData.FILL_VERTICAL);
-		btnSampleToFlat.setLayoutData(layoutData);
-		btnSampleToFlat.addSelectionListener(buttonSelectionListener);
-		if (tomoClientActivator != null) {
-			btnSampleToFlat.setImage(TomoClientActivator.getDefault().getImageRegistry()
-					.get(ImageConstants.ICON_UP_TO_DOWN));
-		}
-		return expStreamSingleHistoComposite;
 	}
 
 	private Composite createLowerPanel(FormToolkit toolkit) {
@@ -1003,10 +846,11 @@ public class TomoAlignmentControlComposite extends Composite {
 		layoutData.horizontalSpan = 3;
 		lblCentring.setLayoutData(layoutData);
 
-		btnHorizontal = new ControlButton(toolkit, centringCmp, HORIZONTAL_lbl, SWT.PUSH);
+		btnHorizontal = toolkit.createButton(centringCmp, HORIZONTAL_lbl, SWT.PUSH);
 		btnHorizontal.setFont(fontRegistry.get(NORMAL_TEXT_9));
 		btnHorizontal.setLayoutData(new GridData(GridData.FILL_BOTH));
 		btnHorizontal.addListener(SWT.MouseDown, ctrlMouseListener);
+		ButtonSelectionUtil.decorateControlButton(btnHorizontal);
 
 		Composite tomoRotationComposite = createAxisRotationComposite(centringCmp, toolkit);
 		GridData gd = new GridData(GridData.FILL_VERTICAL);
@@ -1021,10 +865,11 @@ public class TomoAlignmentControlComposite extends Composite {
 		// gd1.widthHint = 105;
 		rotationStageComposite.setLayoutData(gd1);
 
-		btnVertical = new ControlButton(toolkit, centringCmp, VERTICAL_lbl, SWT.PUSH);
+		btnVertical = toolkit.createButton(centringCmp, VERTICAL_lbl, SWT.PUSH);
 		btnVertical.setFont(fontRegistry.get(NORMAL_TEXT_9));
 		btnVertical.setLayoutData(new GridData(GridData.FILL_BOTH));
 		btnVertical.addListener(SWT.MouseDown, ctrlMouseListener);
+		ButtonSelectionUtil.decorateControlButton(btnVertical);
 
 		return centringCmp;
 
@@ -1065,7 +910,7 @@ public class TomoAlignmentControlComposite extends Composite {
 		btnResFull.setLayoutData(new GridData(GridData.FILL_BOTH));
 		btnResFull.addSelectionListener(buttonSelectionListener);
 		btnResFull.setFont(fontRegistry.get(NORMAL_TEXT_7));
-		selectControl(btnResFull);
+		ButtonSelectionUtil.setButtonSelected(btnResFull);
 
 		btnRes2x = toolkit.createButton(upperRowComposite, RESOLUTION_2x, SWT.PUSH);
 		btnRes2x.setLayoutData(new GridData(GridData.FILL_BOTH));
@@ -1130,8 +975,6 @@ public class TomoAlignmentControlComposite extends Composite {
 		lblSampleWeight.setFont(fontRegistry.get(BOLD_TEXT_11));
 		lblSampleWeight.setLayoutData(gd);
 
-		sampleWeightComposite.setBackground(ColorConstants.lightGreen);
-		lblSampleWeight.setBackground(ColorConstants.lightGreen);
 		//
 		btnSampleWeightLessThan1 = toolkit.createButton(sampleWeightComposite, SAMPLE_WEIGHT_LESS_THAN_1_lbl, SWT.PUSH);
 		btnSampleWeightLessThan1.setLayoutData(new GridData(GridData.FILL_BOTH));
@@ -1274,7 +1117,7 @@ public class TomoAlignmentControlComposite extends Composite {
 				try {
 					if (btnHorizontal.equals(sourceObj)) {
 						// Button - Center Current position
-						if (!isSelected(btnHorizontal)) {
+						if (!ButtonSelectionUtil.isButtonSelected(btnHorizontal)) {
 							try {
 								switchOn(MotionControlCentring.HORIZONTAL);
 							} catch (Exception ex) {
@@ -1285,7 +1128,7 @@ public class TomoAlignmentControlComposite extends Composite {
 						}
 					} else if (btnFindAxisOfRotation.equals(sourceObj)) {
 						// Button - Half Rotation Tool
-						if (!isSelected(btnFindAxisOfRotation)) {
+						if (!ButtonSelectionUtil.isButtonSelected(btnFindAxisOfRotation)) {
 							try {
 								switchOn(MotionControlCentring.FIND_AXIS_ROTATION);
 							} catch (Exception ex) {
@@ -1297,7 +1140,7 @@ public class TomoAlignmentControlComposite extends Composite {
 						}
 					} else if (btnMoveAxisOfRotation.equals(sourceObj)) {
 						// Button - Half Rotation Tool
-						if (!isSelected(btnMoveAxisOfRotation)) {
+						if (!ButtonSelectionUtil.isButtonSelected(btnMoveAxisOfRotation)) {
 							try {
 								switchOn(MotionControlCentring.MOVE_AXIS_OF_ROTATION);
 							} catch (Exception ex) {
@@ -1309,7 +1152,7 @@ public class TomoAlignmentControlComposite extends Composite {
 						}
 					} else if (btnVertical.equals(sourceObj)) {
 						// Button - Vertical
-						if (!isSelected(btnVertical)) {
+						if (!ButtonSelectionUtil.isButtonSelected(btnVertical)) {
 							try {
 								switchOn(MotionControlCentring.VERTICAL);
 							} catch (Exception ex) {
@@ -1320,7 +1163,7 @@ public class TomoAlignmentControlComposite extends Composite {
 						}
 					} else if (btnTilt.equals(sourceObj)) {
 						// Button - Vertical
-						if (!isSelected(btnTilt)) {
+						if (!ButtonSelectionUtil.isCtrlButtonSelected(btnTilt)) {
 							try {
 								switchOn(MotionControlCentring.TILT);
 							} catch (Exception ex) {
@@ -1331,7 +1174,7 @@ public class TomoAlignmentControlComposite extends Composite {
 						}
 					} else if (sourceObj == btnSampleWeightLessThan1) {
 						// Button - Vertical
-						if (!isSelected(btnSampleWeightLessThan1)) {
+						if (!ButtonSelectionUtil.isButtonSelected(btnSampleWeightLessThan1)) {
 							selectSampleWeightControlInUi(btnSampleWeightLessThan1);
 							//
 							for (ITomoAlignmentControlListener mcl : tomoAlignmentControlListeners) {
@@ -1340,7 +1183,7 @@ public class TomoAlignmentControlComposite extends Composite {
 						}
 					} else if (sourceObj == btnSampleWeight1to10) {
 						// Button - Vertical
-						if (!isSelected(btnSampleWeight1to10)) {
+						if (!ButtonSelectionUtil.isButtonSelected(btnSampleWeight1to10)) {
 							selectSampleWeightControlInUi(btnSampleWeight1to10);
 							//
 							for (ITomoAlignmentControlListener mcl : tomoAlignmentControlListeners) {
@@ -1349,7 +1192,7 @@ public class TomoAlignmentControlComposite extends Composite {
 						}
 					} else if (sourceObj == btnSampleWeight10to20) {
 						// Button - Vertical
-						if (!isSelected(btnSampleWeight10to20)) {
+						if (!ButtonSelectionUtil.isButtonSelected(btnSampleWeight10to20)) {
 							selectSampleWeightControlInUi(btnSampleWeight10to20);
 
 							//
@@ -1359,7 +1202,7 @@ public class TomoAlignmentControlComposite extends Composite {
 						}
 					} else if (sourceObj == btnSampleWeight20to50) {
 						// Button - Vertical
-						if (!isSelected(btnSampleWeight20to50)) {
+						if (!ButtonSelectionUtil.isButtonSelected(btnSampleWeight20to50)) {
 							selectSampleWeightControlInUi(btnSampleWeight20to50);
 							//
 							for (ITomoAlignmentControlListener mcl : tomoAlignmentControlListeners) {
@@ -1380,118 +1223,18 @@ public class TomoAlignmentControlComposite extends Composite {
 	private Label lblCameraDistance;
 
 	/**
-	 * Returns <code>true</code> if the colors as set when selected.
-	 * 
-	 * @param button
-	 * @return true when background color is lightgray and foreground color is red - this is what was set when the
-	 *         widget was selected.
-	 */
-	public static boolean isSelected(Button button) {
-		if (ColorConstants.red.equals(button.getForeground())
-				&& ColorConstants.lightGray.equals(button.getBackground())) {
-			return true;
-		}
-		return false;
-	}
-
-	/**
-	 * Returns <code>true</code> if the colors as set when selected.
-	 * 
-	 * @param button
-	 * @return true when background color is lightgray and foreground color is red - this is what was set when the
-	 *         widget was selected.
-	 */
-	public static boolean isSelected(ControlButton button) {
-		if (ColorConstants.red.equals(button.getForeground())
-				&& ColorConstants.lightGray.equals(button.getBackground())) {
-			return true;
-		}
-		return false;
-	}
-
-	/**
-	 * Method to run in the UI thread to set the colors to show the button selected
-	 * 
-	 * @param btnCntrl
-	 */
-	private static void selectControl(final Button btnCntrl) {
-		btnCntrl.getDisplay().asyncExec(new Runnable() {
-
-			@Override
-			public void run() {
-				btnCntrl.setForeground(ColorConstants.red);
-				btnCntrl.setBackground(ColorConstants.lightGray);
-
-			}
-		});
-	}
-
-	/**
-	 * Method to run in the UI thread to set the colors to show the button selected
-	 * 
-	 * @param btnCntrl
-	 */
-	private static void selectControl(final ControlButton btnCntrl) {
-		btnCntrl.getDisplay().asyncExec(new Runnable() {
-
-			@Override
-			public void run() {
-				btnCntrl.setForeground(ColorConstants.red);
-				btnCntrl.setBackground(ColorConstants.lightGray);
-
-			}
-		});
-	}
-
-	/**
-	 * Method to run in the UI thread to set the colors to show the button de-selected
-	 * 
-	 * @param btnCntrl
-	 */
-	private static void deSelectControl(final Button btnCntrl) {
-		if (btnCntrl != null && !btnCntrl.isDisposed()) {
-			btnCntrl.getDisplay().asyncExec(new Runnable() {
-
-				@Override
-				public void run() {
-					btnCntrl.setForeground(btnCntrl.getDisplay().getSystemColor(SWT.COLOR_LIST_FOREGROUND));
-					btnCntrl.setBackground(btnCntrl.getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
-				}
-			});
-		}
-	}
-
-	/**
-	 * Method to run in the UI thread to set the colors to show the button de-selected
-	 * 
-	 * @param btnCntrl
-	 */
-	private static void deSelectControl(final ControlButton btnCntrl) {
-		if (btnCntrl != null && !btnCntrl.isDisposed()) {
-			btnCntrl.getDisplay().asyncExec(new Runnable() {
-
-				@Override
-				public void run() {
-					btnCntrl.setForeground(btnCntrl.getDisplay().getSystemColor(SWT.COLOR_LIST_FOREGROUND));
-					btnCntrl.setBackground(btnCntrl.getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
-				}
-			});
-		}
-	}
-
-	/**
 	 * @return the selected {@link MotionControlCentring} button
 	 */
 	public MotionControlCentring getSelectedCentring() {
-		if (isSelected(btnHorizontal)) {
+		if (ButtonSelectionUtil.isCtrlButtonSelected(btnHorizontal)) {
 			return MotionControlCentring.HORIZONTAL;
-		} else if (isSelected(btnFindAxisOfRotation)) {
+		} else if (ButtonSelectionUtil.isCtrlButtonSelected(btnFindAxisOfRotation)) {
 			return MotionControlCentring.FIND_AXIS_ROTATION;
-		} else if (isSelected(btnMoveAxisOfRotation)) {
+		} else if (ButtonSelectionUtil.isCtrlButtonSelected(btnMoveAxisOfRotation)) {
 			return MotionControlCentring.MOVE_AXIS_OF_ROTATION;
-		} else if (isSelected(btnVertical)) {
+		} else if (ButtonSelectionUtil.isCtrlButtonSelected(btnVertical)) {
 			return MotionControlCentring.VERTICAL;
-		} else if (isSelected(btnTilt)) {
+		} else if (ButtonSelectionUtil.isCtrlButtonSelected(btnTilt)) {
 			return MotionControlCentring.TILT;
 		}
 		return null;
@@ -1719,9 +1462,9 @@ public class TomoAlignmentControlComposite extends Composite {
 				btnSampleWeight20to50 };
 		for (Button button : btns) {
 			if (btnSampleWt.equals(button)) {
-				selectControl(button);
+				ButtonSelectionUtil.setButtonSelected(button);
 			} else {
-				deSelectControl(button);
+				ButtonSelectionUtil.setButtonDeselected(button);
 			}
 		}
 	}
@@ -1730,26 +1473,26 @@ public class TomoAlignmentControlComposite extends Composite {
 		return sampleWeight;
 	}
 
-	private void switchMotionCentring(boolean switchOn, ControlButton btnSelected) {
+	private void switchMotionCentring(boolean switchOn, Button btnSelected) {
 		// TODO - Ravi fix
-		ControlButton[] selectableBtns = new ControlButton[] { btnTilt, btnVertical, btnHorizontal,
-				btnMoveAxisOfRotation, btnFindAxisOfRotation };
+		Button[] selectableBtns = new Button[] { btnTilt, btnVertical, btnHorizontal, btnMoveAxisOfRotation,
+				btnFindAxisOfRotation };
 
 		if (switchOn) {
-			for (ControlButton button : selectableBtns) {
+			for (Button button : selectableBtns) {
 				if (button.equals(btnSelected)) {
-					selectControl(button);
+					ButtonSelectionUtil.setControlButtonSelected(button);
 				} else {
-					deSelectControl(button);
+					ButtonSelectionUtil.setControlButtonDeselected(button);
 					disable(button);
 				}
 			}
 
 			disableCommonControls();
 		} else {
-			for (ControlButton button : selectableBtns) {
+			for (Button button : selectableBtns) {
 				if (button.equals(btnSelected)) {
-					deSelectControl(button);
+					ButtonSelectionUtil.setControlButtonDeselected(button);
 				} else {
 					enable(button);
 				}
@@ -1862,14 +1605,6 @@ public class TomoAlignmentControlComposite extends Composite {
 		control.setEnabled(false);
 	}
 
-	public SAMPLE_OR_FLAT getStreamState() {
-		return streamState;
-	}
-
-	public synchronized void setStreamState(SAMPLE_OR_FLAT streamState) {
-		this.streamState = streamState;
-	}
-
 	/**
 	 * selection listener for the buttons
 	 */
@@ -1877,56 +1612,10 @@ public class TomoAlignmentControlComposite extends Composite {
 		@Override
 		public void widgetSelected(SelectionEvent event) {
 			Object sourceObj = event.getSource();
-			if (sourceObj == btnSample) {
-				if (streamState != SAMPLE_OR_FLAT.SAMPLE) {
-					selectControl(btnSample);
-					deSelectControl(btnFlat);
-					try {
-
-						for (ITomoAlignmentControlListener lis : getTomoControlListeners()) {
-							lis.exposureStateChanged(SAMPLE_OR_FLAT.SAMPLE);
-						}
-						streamState = SAMPLE_OR_FLAT.SAMPLE;
-					} catch (Exception e1) {
-						logger.error("Error setting state", e1);
-					}
-				}
-			} else if (sourceObj == btnFlat) {
-				if (streamState != SAMPLE_OR_FLAT.FLAT) {
-					selectControl(btnFlat);
-					deSelectControl(btnSample);
-					try {
-
-						for (ITomoAlignmentControlListener lis : getTomoControlListeners()) {
-							lis.exposureStateChanged(SAMPLE_OR_FLAT.FLAT);
-						}
-						streamState = SAMPLE_OR_FLAT.FLAT;
-					} catch (Exception e1) {
-						logger.error("Error setting state", e1);
-					}
-				}
-			} else if (sourceObj == btnFlatToSample) {
-				setPreferredSampleExposureTime(Double.parseDouble(txtFlatExpTime.getText()));
-				try {
-					for (ITomoAlignmentControlListener lis : getTomoControlListeners()) {
-						lis.sampleExposureTimeChanged(Double.parseDouble(txtSampleExposureTime.getText()));
-					}
-				} catch (Exception e1) {
-					logger.debug("Error setting exposure time", e1);
-				}
-			} else if (sourceObj == btnSampleToFlat) {
-				setPreferredFlatExposureTime(Double.parseDouble(txtSampleExposureTime.getText()));
-				try {
-					for (ITomoAlignmentControlListener lis : getTomoControlListeners()) {
-						lis.flatExposureTimeChanged(Double.parseDouble(txtFlatExpTime.getText()));
-					}
-				} catch (Exception e1) {
-					logger.debug("Error setting exposure time", e1);
-				}
-			} else if (sourceObj == btnDefineRoi) {
-				if (!isSelected(btnDefineRoi)) {
+			if (sourceObj == btnDefineRoi) {
+				if (!ButtonSelectionUtil.isButtonSelected(btnDefineRoi)) {
 					logger.debug("'btnDefineRoi' is selected");
-					selectControl(btnDefineRoi);
+					ButtonSelectionUtil.setButtonSelected(btnDefineRoi);
 					try {
 						for (ITomoAlignmentControlListener tcl : getTomoControlListeners()) {
 							tcl.defineRoi(true);
@@ -1934,7 +1623,7 @@ public class TomoAlignmentControlComposite extends Composite {
 					} catch (IllegalStateException s) {
 						// showError("Cannot Define ROI", s);
 						showErrorDialog(s);
-						deSelectControl(btnDefineRoi);
+						ButtonSelectionUtil.setButtonDeselected(btnDefineRoi);
 					} catch (Exception e1) {
 						logger.debug("Error setting exposure time", e1);
 						// showError("Cannot Define ROI", e1);
@@ -1942,7 +1631,7 @@ public class TomoAlignmentControlComposite extends Composite {
 					}
 				} else {
 					logger.debug("'btnDefineRoi' is de-selected");
-					deSelectControl(btnDefineRoi);
+					ButtonSelectionUtil.setButtonDeselected(btnDefineRoi);
 					try {
 						for (ITomoAlignmentControlListener tcl : getTomoControlListeners()) {
 							tcl.defineRoi(false);
@@ -1966,25 +1655,25 @@ public class TomoAlignmentControlComposite extends Composite {
 					showErrorDialog(e1);
 				}
 			} else if (sourceObj == btnResFull) {
-				if (!isSelected(btnResFull)) {
+				if (!ButtonSelectionUtil.isButtonSelected(btnResFull)) {
 					logger.debug("'btnResFull' is selected");
 					resolution = RESOLUTION.FULL;
 					selectRes(btnResFull);
 				}
 			} else if (sourceObj == btnRes2x) {
-				if (!isSelected(btnRes2x)) {
+				if (!ButtonSelectionUtil.isButtonSelected(btnRes2x)) {
 					logger.debug("'btnRes2x' is selected");
 					resolution = RESOLUTION.TWO_X;
 					selectRes(btnRes2x);
 				}
 			} else if (sourceObj == btnRes4x) {
-				if (!isSelected(btnRes4x)) {
+				if (!ButtonSelectionUtil.isButtonSelected(btnRes4x)) {
 					logger.debug("'btnRes4x' is selected");
 					resolution = RESOLUTION.FOUR_X;
 					selectRes(btnRes4x);
 				}
 			} else if (sourceObj == btnRes8x) {
-				if (!isSelected(btnRes8x)) {
+				if (!ButtonSelectionUtil.isButtonSelected(btnRes8x)) {
 					logger.debug("'btnRes8x' is selected");
 					resolution = RESOLUTION.EIGHT_X;
 					selectRes(btnRes8x);
@@ -2003,40 +1692,16 @@ public class TomoAlignmentControlComposite extends Composite {
 
 	};
 
-	public void setPreferredFlatExposureTime(final double preferredFlatExposureTime) {
-		flatExposureTime = preferredFlatExposureTime;
-		if (txtFlatExpTime != null && !txtFlatExpTime.isDisposed()) {
-			txtFlatExpTime.getDisplay().syncExec(new Runnable() {
-				@Override
-				public void run() {
-					txtFlatExpTime.setText(String.format("%.3g", preferredFlatExposureTime));
-				}
-			});
-		}
-	}
-
 	protected void selectRes(Button btnRes) {
 		Button[] buttons = new Button[] { btnResFull, btnRes2x, btnRes4x, btnRes8x };
 		for (Button button : buttons) {
 			if (button.equals(btnRes)) {
-				selectControl(button);
+				ButtonSelectionUtil.setButtonSelected(button);
 			} else {
-				deSelectControl(button);
+				ButtonSelectionUtil.setButtonDeselected(button);
 			}
 		}
 
-	}
-
-	public void setPreferredSampleExposureTime(final double preferredExposureTime) {
-		sampleExposureTime = preferredExposureTime;
-		if (txtSampleExposureTime != null && !txtSampleExposureTime.isDisposed()) {
-			txtSampleExposureTime.getDisplay().syncExec(new Runnable() {
-				@Override
-				public void run() {
-					txtSampleExposureTime.setText(String.format("%.3g", preferredExposureTime));
-				}
-			});
-		}
 	}
 
 	public void setResolutionPixelSize(final String resolutionPixelSize) {
@@ -2053,14 +1718,6 @@ public class TomoAlignmentControlComposite extends Composite {
 
 	public void clearSampleDescription() {
 
-	}
-
-	public double getSampleExposureTime() {
-		return sampleExposureTime;
-	}
-
-	public double getFlatExposureTime() {
-		return flatExposureTime;
 	}
 
 	public String getSampleDescription() {
