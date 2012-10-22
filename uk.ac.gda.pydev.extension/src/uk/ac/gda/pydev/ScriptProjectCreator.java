@@ -148,8 +148,9 @@ public class ScriptProjectCreator implements IStartup {
 			}
 			monitor.subTask("Creating interpreter");
 			// gets the info for the python side
+			String encoding=null;
 			Tuple<String, String> outTup = new SimpleJythonRunner().runAndGetOutputWithJar(
-					REF.getFileAbsolutePath(script), executable, null, null, null, monitor);
+					REF.getFileAbsolutePath(script), executable, null, null, null, monitor, encoding);
 
 			InterpreterInfo info = null;
 			try {

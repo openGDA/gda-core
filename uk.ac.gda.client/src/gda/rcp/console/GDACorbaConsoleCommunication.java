@@ -113,7 +113,6 @@ public class GDACorbaConsoleCommunication implements IScriptConsoleCommunication
 	
 	@Override
 	public String getDescription(String text) throws Exception {
-		// TODO
 		return "";
 	}
 
@@ -184,7 +183,7 @@ public class GDACorbaConsoleCommunication implements IScriptConsoleCommunication
 			int cursorPos = name.length();
 			if (args.length() > 1) {
 				cursorPos += 1;
-			}
+			}		// TODO
 
 			int replacementOffset = offset - length;
 			PyCalltipsContextInformation pyContextInformation = null;
@@ -207,7 +206,6 @@ public class GDACorbaConsoleCommunication implements IScriptConsoleCommunication
 
 	@Override
 	public void update(Object theObserved, Object changeCode) {
-		// TODO
 	}
 
 	@Override
@@ -215,7 +213,6 @@ public class GDACorbaConsoleCommunication implements IScriptConsoleCommunication
 		try {
 			newData += new String(output, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -243,5 +240,10 @@ public class GDACorbaConsoleCommunication implements IScriptConsoleCommunication
 			commandInProgress = "";
 		}
 		arg1.call(x);
+	}
+
+	@Override
+	public void linkWithDebugSelection(boolean arg0) {
+		//not sure what to do here so provide default implementation
 	}
 }
