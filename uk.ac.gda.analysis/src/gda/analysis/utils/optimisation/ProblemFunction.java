@@ -18,12 +18,11 @@
 
 package gda.analysis.utils.optimisation;
 
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import gda.analysis.DataSet;
-import gda.analysis.TerminalPrinter;
 import gda.analysis.functions.IFunction;
 import gda.analysis.functions.Parameter;
+import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 
 public class ProblemFunction implements IFunction {
 
@@ -115,6 +114,29 @@ public class ProblemFunction implements IFunction {
 	@Override
 	public void disp() {
 //		TerminalPrinter.print(toString());
+	}
+
+	String description= "default";
+	@Override
+	public String getDescription() {
+		return description;
+	}
+
+	@Override
+	public void setDescription(String newDescription) {
+		this.description = newDescription;
+		
+	}
+
+	@Override
+	public String getParameterName(int index) {
+		return getParameter(index).getName();
+	}
+
+	@Override
+	public void setParameterName(String name, int index) {
+		getParameter(index).setName(name);
+		
 	}
 
 }
