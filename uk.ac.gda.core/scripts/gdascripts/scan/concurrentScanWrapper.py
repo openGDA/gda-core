@@ -254,8 +254,11 @@ class ConcurrentScanWrapper(object):
                 currentList[2] = add(currentList[2], initialPos)
         return argStruct
 
-    def returnToInitialPositions(self, initalPositionsDict):
-        posargs = reduce(operator.add, initalPositionsDict.items())
+    def returnToInitialPositions(self, initialPositionsDict):
+        for scannable in initialPositionsDict.keys():
+            # to ensure nothing is moving even in case the scan is interrupted
+            scannable.waitWhileBusy()
+        posargs = reduce(operator.add, initialPositionsDict.items())
         pos(posargs)
 
     def prepareScanListeners(self):

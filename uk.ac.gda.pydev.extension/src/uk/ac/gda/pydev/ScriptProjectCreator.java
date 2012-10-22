@@ -157,8 +157,7 @@ public class ScriptProjectCreator implements IStartup {
 				ModulesManagerWithBuild.IN_TESTS = true;
 				info = InterpreterInfo.fromString(outTup.o1, false);
 			} catch (Exception e) {
-				logger.error(
-						"gda.root is defined incorrectly. It should be the plugins folder not the top level of GDA.", e);
+				logger.error("Something went wrong creating the InterpreterInfo.", e);
 			} finally {
 				ModulesManagerWithBuild.IN_TESTS = false;
 			}

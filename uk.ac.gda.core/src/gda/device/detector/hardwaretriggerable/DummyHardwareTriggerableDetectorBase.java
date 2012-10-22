@@ -42,12 +42,12 @@ public abstract class DummyHardwareTriggerableDetectorBase extends HardwareTrigg
 	private boolean integrating = false;
 	
 	@Override
-	public void arm() throws DeviceException {
+	public void collectData() throws DeviceException {
 		if (simulate) {
 			status = Detector.BUSY;
 			terminal.print(MessageFormat.format("{0}.arm() collecting {1} hardware triggered images ...\n", getName(),
-					getHardwareTriggerProvider().getNumberTriggers()));
-			simulatedCollectionComplete = new CountDownLatch(getHardwareTriggerProvider().getNumberTriggers());
+					getNumberImagesToCollect()));
+			simulatedCollectionComplete = new CountDownLatch(getNumberImagesToCollect());
 			new Thread(new MakeIdleWhenSimulatedCollectionComplete(getName())).start();
 		} else {
 			terminal.print(MessageFormat.format(

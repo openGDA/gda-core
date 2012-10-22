@@ -30,7 +30,7 @@ import gda.device.scannable.PositionConvertorFunctions;
 import gda.device.scannable.VariableCollectionTimeDetector;
 import gda.jython.commands.ScannableCommands;
 
-public class TrajectoryScanLine extends AbtsractContinuousScanLine {
+public class TrajectoryScanLine extends AbstractContinuousScanLine {
 
 	public TrajectoryScanLine(Object[] args) throws IllegalArgumentException {
 		super(args);

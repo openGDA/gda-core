@@ -57,10 +57,30 @@ public class ScanPlotSettings implements Serializable {
 		xMax = max;
 	}
 
+	/**
+	 * The list of y-axes to plot and make visible
+	 * <p>
+	 * If you do not want anything plotted and visible, then give this an empty list.
+	 * <p>
+	 * If this is null, or not set, then anything outside of the yAxesShown and yAxesNotShown lists will be plotted and
+	 * visible.
+	 * 
+	 * @param yAxesShown
+	 */
 	public void setYAxesShown(String[] yAxesShown) {
 		this.yAxesShown = yAxesShown;
 	}
 
+	/**
+	 * The list of y-axes to plot but make invisible.
+	 * <p>
+	 * Give this an empty list to ensure anything outside of the yAxesShown list is not plotted.
+	 * <p>
+	 * If this is null, or not set, then anything outside of the yAxesShown and yAxesNotShown lists will be plotted and
+	 * invisible.
+	 * 
+	 * @param yAxesNotShown
+	 */
 	public void setYAxesNotShown(String[] yAxesNotShown) {
 		this.yAxesNotShown = yAxesNotShown;
 	}
@@ -72,6 +92,7 @@ public class ScanPlotSettings implements Serializable {
 	public String[] getYAxesNotShown() {
 		return yAxesNotShown;
 	}
+
 	public boolean isIgnore() {
 		return ignore;
 	}
@@ -142,6 +163,5 @@ public class ScanPlotSettings implements Serializable {
 				+ listToString(yAxesShown) + ", yAxesNotShown = " + listToString(yAxesNotShown) + ", xMin = "
 				+ (xMin != null ? xMin.toString() : "null") + ", xMax = " + (xMax != null ? xMax.toString() : "null");
 	}
-
 
 }

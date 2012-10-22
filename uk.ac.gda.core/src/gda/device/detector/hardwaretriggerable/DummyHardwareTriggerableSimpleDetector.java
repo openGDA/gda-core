@@ -77,7 +77,7 @@ public class DummyHardwareTriggerableSimpleDetector extends DummyHardwareTrigger
 	@Override
 	public void collectData() throws DeviceException {
 		if (isHardwareTriggering()) {
-			// do nothing
+			super.collectData();
 		} else {
 			collectSingleReadoutValue();
 		}
