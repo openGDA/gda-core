@@ -32,6 +32,11 @@ import java.util.TreeMap;
 
 import javax.swing.SwingConstants;
 
+import org.dawnsci.plotting.jreality.overlay.Overlay2DProvider;
+import org.dawnsci.plotting.jreality.overlay.OverlayType;
+import org.dawnsci.plotting.jreality.overlay.VectorOverlayStyles;
+import org.dawnsci.plotting.jreality.overlay.enums.LabelOrientation;
+import org.dawnsci.plotting.jreality.overlay.primitives.PrimitiveType;
 import org.eclipse.draw2d.Ellipse;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.ImageFigure;
@@ -48,12 +53,6 @@ import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
-
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.OverlayType;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.PrimitiveType;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.VectorOverlayStyles;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.Overlay2DProvider;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.enums.LabelOrientation;
 
 public class SWT2DOverlayProvider implements Overlay2DProvider {
 

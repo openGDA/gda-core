@@ -20,7 +20,7 @@ package uk.ac.gda.client.viewer;
 
 import java.util.List;
 
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.IImagePositionEvent;
+import org.dawnsci.plotting.jreality.tool.IImagePositionEvent;
 
 
 public class SwtImagePositionEvent implements IImagePositionEvent {
