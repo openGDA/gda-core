@@ -1747,28 +1747,34 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		return out;
 	}
 
-//	/**
-//	 * When only one res garde, removes the single dimension to convert [element][resGrade][mca] into a true 2D array of
-//	 * [element][mca]
-//	 * 
-//	 * @param correctedMCAArrays
-//	 * @return double[][]
-//	 */
-//	private double[][] removeSingleDimensionFromArray(int[][][] correctedMCAArrays) {
-//		double[][] out = new double[correctedMCAArrays.length][correctedMCAArrays[0][0].length];
-//
-//		for (int element = 0; element < correctedMCAArrays.length; element++) {
-//			for (int mcaChannel = 0; mcaChannel < correctedMCAArrays[0][0].length; mcaChannel++) {
-//				out[element][mcaChannel] = correctedMCAArrays[element][0][mcaChannel];
-//			}
-//		}
-//		return out;
-//	}
-
 	private NXDetectorData addDTValuesToNXDetectorData(NXDetectorData thisFrame, int[] unpackedScalerData) {
 		// always add raw scaler values to nexus data
-		thisFrame.addData(thisFrame.getDetTree(getName()), "raw scaler values",
-				new int[] { unpackedScalerData.length }, NexusFile.NX_INT32, unpackedScalerData, "counts", 1);
+		
+		if (unpackedScalerData.length != numberOfDetectors * 4){
+			logger.warn("Amount of scaler data inconsistent with the number of elements in Xspress2 detector. Raw scaler data will not be recorded.");
+			return thisFrame;
+		}
+		
+		int[] totalCounts = new int[numberOfDetectors];
+		int[] numResets = new int[numberOfDetectors];
+		int[] inWinCounts = new int[numberOfDetectors];
+		int[] numClockCounts = new int[numberOfDetectors];
+		
+		for (int i = 0; i < numberOfDetectors; i++){
+			totalCounts[i] = unpackedScalerData[i*4];
+			numResets[i] = unpackedScalerData[i*4 + 1];
+			inWinCounts[i] = unpackedScalerData[i*4 + 2];
+			numClockCounts[i] = unpackedScalerData[i*4 + 3];
+		}
+		
+		thisFrame.addData(thisFrame.getDetTree(getName()), "raw scaler total",
+				new int[] { numberOfDetectors }, NexusFile.NX_INT32, totalCounts, "counts", 1);
+		thisFrame.addData(thisFrame.getDetTree(getName()), "tfg resets",
+				new int[] { numberOfDetectors }, NexusFile.NX_INT32, numResets, "counts", 1);
+		thisFrame.addData(thisFrame.getDetTree(getName()), "raw scaler in-window",
+				new int[] { numberOfDetectors }, NexusFile.NX_INT32, inWinCounts, "counts", 1);
+		thisFrame.addData(thisFrame.getDetTree(getName()), "tfg clock cycles",
+				new int[] { numberOfDetectors }, NexusFile.NX_INT32, numClockCounts, "counts", 1);
 
 		return thisFrame;
 	}
