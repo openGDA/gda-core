@@ -55,6 +55,7 @@ import uk.ac.gda.richbeans.components.ButtonComposite;
 import uk.ac.gda.richbeans.event.BoundsEvent;
 import uk.ac.gda.richbeans.event.BoundsEvent.Mode;
 import uk.ac.gda.richbeans.event.ValueEvent;
+import uk.ac.gda.ui.utils.StringUtils;
 
 /**
  * Base class for any box with a range and unit. Abstract class does not currently have abstract methods, but is not
@@ -410,14 +411,7 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 
 		final Pattern pattern = getRegExpression();
 		final Matcher matcher = pattern.matcher(txt);
-		final boolean matches = matcher.matches();
-		StringBuilder buf = null;
-		if (!matches) {
-			buf = new StringBuilder(String.format("%." + decimalPlaces + "f", Double.valueOf(txt)));
-		}
-
-		if (buf != null && "-".equals(buf.toString()))
-			return;
+		final StringBuilder buf = matcher.matches() ? null : StringUtils.keepDigits(txt, decimalPlaces);
 
 		// An exception here is a fatal error so we do not catch it but throw it up.
 		double numericalValue = Double.NaN;
@@ -501,13 +495,15 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 					if (!black.isDisposed())
 						text.setForeground(black);
 				}
-			} else {
-				if (grey == null)
-					grey = getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY);
-				if (!grey.isDisposed())
-					text.setForeground(grey);
 			}
 			evt.setMode(Mode.LEGAL);
+		}
+		
+		if (!isEditable()) {
+			if (grey == null)
+				grey = getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY);
+			if (!grey.isDisposed())
+				text.setForeground(grey);
 		}
 
 		try {
@@ -702,6 +698,7 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 	public void setEnabled(final boolean isEnabled) {
 		setEditable(isEnabled);
 		text.setEnabled(isEnabled);
+		checkBounds();
 	}
 
 	/**
