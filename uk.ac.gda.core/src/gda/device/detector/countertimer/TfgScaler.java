@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Copyright © 2012 Diamond Light Source Ltd., Science and Technology
  * Facilities Council Daresbury Laboratory
  *
  * This file is part of GDA.
@@ -27,7 +27,6 @@ import gda.factory.FactoryException;
 import gda.factory.Finder;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
@@ -39,27 +38,28 @@ import org.slf4j.LoggerFactory;
  */
 public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 
+	private class ScalerFrame {
+		double time;
+		double[] data;
+	}
+
 	private static final Logger logger = LoggerFactory.getLogger(TfgScaler.class);
 
 	protected Memory scaler = null;
 
-	private String scalerName;
-
-	/**
+	/*
 	 * The first channel of output should always be livetime. For TFGv2 this is always supplied from DAServer, but for
 	 * older v1 systems this must be explicitly added to the output.
 	 * <p>
 	 * So this is effectively a TFG version flag: set to true if TFGv1 and need to calculate and add the livetime.
 	 */
 	protected boolean timeChannelRequired;
-	
-	private int framesRead = 0;
-	
+
 	// if there are more channels in the TFG which this class is to read out. If this property is null then all will be
 	// read, i.e. the full width of the Memory object
 	protected Integer numChannelsToRead = null;
-	
-	// to optionally not start reading from the first channel. If null then data will be read from which ever is 
+
+	// to optionally not start reading from the first channel. If null then data will be read from which ever is
 	// the first channel of actual data.
 	private Integer firstDataChannel = null;
 
@@ -67,14 +67,13 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 	// the correct counting time can be put into the values array returned
 	// by readFrame(int, int, int).
 	private ArrayList<FrameSet> frameSets;
-	
+
+	private String scalerName;
 	private int minimumReadoutDelay = 0;
+	private int framesRead = 0;
 	private long countAsyncTime = 0;
 	private long readoutTime = 0;
 
-	/**
-	 * 
-	 */
 	public TfgScaler() {
 		super();
 	}
@@ -99,7 +98,7 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 	 * @param scalerName
 	 */
 	public void setScalerName(String scalerName) {
-		this.scalerName = scalerName;	
+		this.scalerName = scalerName;
 	}
 
 	/**
@@ -111,32 +110,18 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 		return scalerName;
 	}
 
-	/**
-	 * @return Returns the scaler.
-	 */
 	public Memory getScaler() {
 		return scaler;
 	}
 
-	/**
-	 * @param scaler
-	 *            The scaler to set.
-	 */
 	public void setScaler(Memory scaler) {
 		this.scaler = scaler;
 	}
 
-	/**
-	 * @return Returns the timeChannelRequired.
-	 */
 	public boolean isTimeChannelRequired() {
 		return timeChannelRequired;
 	}
 
-	/**
-	 * @param timeChannelRequired
-	 *            The timeChannelRequired to set.
-	 */
 	public void setTimeChannelRequired(boolean timeChannelRequired) {
 		this.timeChannelRequired = timeChannelRequired;
 	}
@@ -151,7 +136,7 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 	 */
 	public int getTotalChans() throws DeviceException {
 		int cols = scaler.getDimension()[0];
-		if (numChannelsToRead != null){
+		if (numChannelsToRead != null) {
 			cols = numChannelsToRead;
 		}
 		if (timeChannelRequired) {
@@ -170,7 +155,7 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 	 */
 	public void countAsync(double time) throws DeviceException {
 		// if using time frames then simply call "tfg cont", else clear
-		if (frameSets.size() > 0){
+		if (frameSets.size() > 0) {
 			timer.restart();
 		} else {
 			scaler.clear();
@@ -187,12 +172,6 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 		super.start();
 	}
 
-	/**
-	 * Aborts any current counter-timing operations and returns it to an idle state. This should not register errors if
-	 * there are no current operations in progress. All counter-timers must fully implement this.
-	 * 
-	 * @throws DeviceException
-	 */
 	@Override
 	public void stop() throws DeviceException {
 		super.stop();
@@ -200,15 +179,15 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 	}
 
 	@Override
-	public void addFrameSet(int frameCount, double requestedDeadTime,  double requestedLiveTime) throws DeviceException {
+	public void addFrameSet(int frameCount, double requestedDeadTime, double requestedLiveTime) throws DeviceException {
 		super.addFrameSet(frameCount, requestedDeadTime, requestedLiveTime);
 		frameSets.add(new FrameSet(frameCount, requestedDeadTime, requestedLiveTime));
 	}
 
 	@Override
-	public void addFrameSet(int frameCount, double requestedDeadTime, double requestedLiveTime,  int deadPort,
+	public void addFrameSet(int frameCount, double requestedDeadTime, double requestedLiveTime, int deadPort,
 			int livePort, int deadPause, int livePause) throws DeviceException {
-		super.addFrameSet(frameCount, requestedLiveTime,requestedDeadTime,  deadPort, livePort, deadPause, livePause);
+		super.addFrameSet(frameCount, requestedLiveTime, requestedDeadTime, deadPort, livePort, deadPause, livePause);
 		frameSets.add(new FrameSet(frameCount, requestedDeadTime, requestedLiveTime));
 	}
 
@@ -218,33 +197,32 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 		frameSets.clear();
 		framesRead = 0;
 	}
-	
+
 	@Override
-	public void atScanLineStart() throws DeviceException{
+	public void atScanLineStart() throws DeviceException {
 		// if this class was used to define framesets, then memeory is only cleared at the start of the scan
-		if (frameSets.size() > 0){
+		if (frameSets.size() > 0) {
 			scaler.clear();
 			scaler.start();
-			loadFrameSets(); //?? this should be needed I think
+			loadFrameSets(); // ?? this should be needed I think
 			timer.start();
 		}
 		framesRead = 0;
 	}
-	
+
 	@Override
-	public void atCommandFailure() throws DeviceException
-	{
-		if(frameSets.size() > 0)
-		{
+	public void atCommandFailure() throws DeviceException {
+		if (frameSets.size() > 0) {
 			clearFrameSets();
 		}
 	}
-	
+
 	@Override
-	public void atScanEnd() throws DeviceException{
+	public void atScanEnd() throws DeviceException {
 		// if this class was used to define framesets, then ensure they are cleared at the end of the scan
-		if (frameSets.size() > 0 || !timer.getAttribute("TotalFrames").equals(0)){
-			stop();  // stops the TFG - useful if scan aborted and so TFG still in a PAUSE state rather than an IDLE state
+		if (frameSets.size() > 0 || !timer.getAttribute("TotalFrames").equals(0)) {
+			stop(); // stops the TFG - useful if scan aborted and so TFG still in a PAUSE state rather than an IDLE
+					// state
 			clearFrameSets();
 		}
 	}
@@ -258,99 +236,35 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 	 * @throws DeviceException
 	 */
 	public double[] readChans() throws DeviceException {
-		// NB do not change this scaler.getDimension().width to getTotalChans(),
-		// getTotalChans() may add on 1 for the fake time channel.
+		// returns rawdata only. See readFrame for proper inclusion of time etc.
 		return scaler.read(0, 0, 0, scaler.getDimension()[0], 1, 1);
 	}
 
-	/**
-	 * For a time framing counter-timer, read out a specified channel beginning from the specified start frame number
-	 * using the requested frame count.
-	 * 
-	 * @return array of requested readout counter-timer data
-	 * @param startFrame
-	 *            starting frame number (1st=0)
-	 * @param frameCount
-	 *            number of frames to read the counter data out from
-	 * @param channel
-	 *            read this channel
-	 * @throws DeviceException
-	 */
 	@Override
 	public double[] readChannel(int startFrame, int frameCount, int channel) throws DeviceException {
+		// returns rawdata only. See readFrame for proper inclusion of time etc.
 		return scaler.read(channel, 0, startFrame, 1, 1, frameCount);
 	}
 
-	/**
-	 * For a time framing counter-timer, read out a specified channel beginning from the specified start frame number
-	 * using the requested frame count.
-	 * 
-	 * @return array of requested readout counter-timer data
-	 * @param startChannel
-	 *            starting channel number (1st=0)
-	 * @param channelCount
-	 *            number of channels to read the counter data out from
-	 * @param frame
-	 *            read this frame
-	 * @throws DeviceException
-	 */
 	@Override
 	public double[] readFrame(int startChannel, int channelCount, int frame) throws DeviceException {
-		// For legacy XAFS scans the time channel is in column 1
-		if (timeChannelRequired) {
-			double[] scalerReadings = scaler.read(startChannel, 0, frame, channelCount - 1, 1, 1);
-			double[] values = new double[scalerReadings.length + 1];
-			int whichFrameSet = 0;
-			int frameCopy = frame;
-			for (FrameSet fs : frameSets) {
-				if (frameCopy <= fs.getFrameCount()) {
-					break;
-				}
-				whichFrameSet++;
-				frameCopy -= fs.getFrameCount();
-			}
-			if (frameSets.size() > 0){
-				values[0] = frameSets.get(whichFrameSet).getRequestedLiveTime();
-			}
-			else {
-				values[0] = collectionTime;
-			}
-			for (int i = 1; i < values.length; i++) {
-				values[i] = scalerReadings[i - 1];
-			}
-			return values;
-		}
-
+		// returns rawdata only. See readFrame for proper inclusion of time etc.
 		double[] values = scaler.read(startChannel, 0, frame, channelCount, 1, 1);
 		return values;
-
 	}
-	
+
 	/**
-	 * For a time framing counter-timer, read out from channel 0 beginning from the specified start frame number
-	 * using all the scaler dimensions.
+	 * For a time framing counter-timer, read out from channel 0 beginning from the specified start frame number using
+	 * all the scaler dimensions.
+	 * 
 	 * @param frame
 	 *            read this frame
 	 * @return array of requested readout counter-timer data
 	 * @throws DeviceException
 	 */
 	public double[] readFrame(int frame) throws DeviceException {
-		// For legacy XAFS scans the time channel is in column 1
-		int startChannel = 0;
-		if (firstDataChannel != null) {
-			startChannel = firstDataChannel;
-		}
-		int channelCount = scaler.getDimension()[0];
-		if (numChannelsToRead != null){
-			channelCount = numChannelsToRead;
-		}
-		double[]values =  readFrame(startChannel, channelCount, frame);
-		if(isTFGv2() && !timeChannelRequired)
-			values = ArrayUtils.subarray(values, 1, values.length);
-		return values;
-
+		return readoutFrames(frame,frame)[0];
 	}
-
 
 	@Override
 	public void setAttribute(String attributeName, Object value) throws DeviceException {
@@ -360,16 +274,16 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 
 	@Override
 	public Object getAttribute(String attributeName) throws DeviceException {
-		
-		if (attributeName.equals("collectionTime")){
+
+		if (attributeName.equals("collectionTime")) {
 			return collectionTime;
 		}
-		
+
 		Object obj;
-		if ((obj = timer.getAttribute(attributeName)) == null){
+		if ((obj = timer.getAttribute(attributeName)) == null) {
 			obj = scaler.getAttribute(attributeName);
 		}
-		if (obj == null){
+		if (obj == null) {
 			obj = super.getAttribute(attributeName);
 		}
 		return obj;
@@ -380,7 +294,8 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 	 */
 	@Override
 	public void collectData() throws DeviceException {
-		countAsync(collectionTime * 1000); // convert from seconds (Detector interface) to milliseconds (CounterTimer interface)
+		countAsync(collectionTime * 1000); // convert from seconds (Detector interface) to milliseconds (CounterTimer
+											// interface)
 	}
 
 	/**
@@ -388,12 +303,12 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 	 */
 	@Override
 	public double[] readout() throws DeviceException {
-		
+
 		double[] output = readoutCurrentFrame();
 
-		//increment the frame counter if framing is being used
-		if (frameSets.size() > 0){
-			framesRead ++;
+		// increment the frame counter if framing is being used
+		if (frameSets.size() > 0) {
+			framesRead++;
 		}
 
 		return output;
@@ -412,81 +327,95 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 			try {
 				Thread.sleep(delay);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				throw new DeviceException("InterruptedException during minimumReadoutDelay",e);
 			}
 		}
 		logger.debug("Current tfg frame is " + this.getCurrentFrame() + " and reading frame " + framesRead);
 		return readoutFrames(framesRead, framesRead)[0];
 	}
-	
+
 	public double[][] readoutFrames(int startFrame, int finalFrame) throws DeviceException {
 
+		// read the lot
 		int numFrames = finalFrame - startFrame + 1;
-		int numberOfChannels = numChannelsToRead;
-		if (numChannelsToRead == null){
-			numberOfChannels = scaler.getDimension()[0];
-		}
-		int firstChannel = 0;
-		if (firstDataChannel != null){
-			firstChannel = firstDataChannel;
-		}
-		if (isTFGv2 && firstChannel == 0){
-			numberOfChannels++;
-		}
-		double rawData[] = scaler.read(firstChannel, 0, startFrame, numberOfChannels, 1, 1);
-//		double rawData2[] = scaler.read(0, 0, startFrame + 1, numberOfChannels + 1, 1, 1);
-		double[][] output = unpackRawDataToFrames(rawData,numFrames,numberOfChannels);
+		int width = scaler.getDimension()[0];
+		double rawData[] = scaler.read(0, 0, startFrame, width, 1, numFrames);
+		double[][] rawDataAsFrames = unpackRawDataToFrames(rawData, numFrames, width);
 
 		// if no change required to the raw data
-		if (firstDataChannel != null || (!timeChannelRequired && !isTFGv2)) {
-			return output;
+		if ((firstDataChannel == null || firstDataChannel == 0) && !timeChannelRequired && !isTFGv2
+				&& (numChannelsToRead == null || numChannelsToRead == width)) {
+			return rawDataAsFrames;
 		}
-		
-		/*if (firstDataChannel != null){
-			output = removeUnwantedChannels(output);
-		} else */if (isTFGv2 && !timeChannelRequired){
-			// for TFGv2 always get the number of live time clock counts as the first scaler item
-			output = removeUnwantedTimeChannel(output);
-		} else if (isTFGv2 && timeChannelRequired){
-			//convert the live time clock counts into seconds (TFG has a 100MHz clock cycle)
-			for (int i = 0; i < output.length; i++) {
-				output[i][0] = output[i][0] / 100000000;
+
+		// convert to frame objects
+		ScalerFrame[] frames = convertToFrames(rawDataAsFrames);
+
+		// remove unwanted channels based on firstDataChannel and numChannelsToRead
+		frames = reduceFrames(frames);
+
+		// output basic 2D array
+		double[][] output = new double[numFrames][];
+		for (int i = 0; i < numFrames; i++) {
+			if (timeChannelRequired) {
+				output[i] = ArrayUtils.add(frames[i].data, 0, frames[i].time);
+			} else {
+				output[i] = frames[i].data;
 			}
-		} else if (!isTFGv2 && timeChannelRequired){
-			double time = getCollectionTime();
-			double[][] framesWithTimeAdded = new double[output.length][];
-			for (int i = 0; i < output.length; i++) {
-				framesWithTimeAdded[i] = ArrayUtils.addAll(new double[]{time}, output[i]);
-			}
-			output = framesWithTimeAdded;
 		}
 		return output;
 	}
 
-	private double[][] removeUnwantedChannels(double[][] rawFrames) {
-		double[][] newoutput = new double[rawFrames.length][];
-		for (int i = 0; i < rawFrames.length; i++) {
-			double[] frame = rawFrames[i];
-			double[] dataChannels = Arrays.copyOfRange(frame, firstDataChannel, frame.length);
-			if (timeChannelRequired && isTFGv2) {
-				double[] time = new double[]{frame[0]};
-				dataChannels = ArrayUtils.addAll(time, dataChannels);
-			}
-			newoutput[i] = dataChannels;
+	/*
+	 * remove unwanted channels based on firstDataChannel and numChannelsToRead
+	 */
+	private ScalerFrame[] reduceFrames(ScalerFrame[] frames) {
+
+		int firstChannel = 0;
+		if (firstDataChannel != null) {
+			firstChannel = firstDataChannel;
 		}
-		rawFrames = newoutput;
-		return rawFrames;
+
+		ScalerFrame[] reducedFrames = new ScalerFrame[frames.length];
+		for (int i = 0; i < frames.length; i++) {
+			reducedFrames[i] = new ScalerFrame();
+			reducedFrames[i].time = frames[i].time;
+			if (numChannelsToRead == null) {
+				reducedFrames[i].data = ArrayUtils.subarray(frames[i].data, firstChannel, frames[i].data.length);
+			} else {
+				reducedFrames[i].data = ArrayUtils.subarray(frames[i].data, firstChannel, firstChannel
+						+ numChannelsToRead);
+			}
+		}
+		return reducedFrames;
 	}
 
-	private double[][] removeUnwantedTimeChannel(double[][] rawFrames) {
-		double[][] newoutput = new double[rawFrames.length][];
-		for (int i = 0; i < rawFrames.length; i++) {
-			double[] frame = rawFrames[i];
-			double[] dataChannels = Arrays.copyOfRange(frame, 1, frame.length);
-			newoutput[i] = dataChannels;
+	/*
+	 * Convert the raw double data to internal structure
+	 */
+	private ScalerFrame[] convertToFrames(double[][] output) {
+		ScalerFrame[] frames = new ScalerFrame[output.length];
+		for (int i = 0; i < output.length; i++) {
+			frames[i] = new ScalerFrame();
+			
+			if (isTFGv2) {
+				// TFG2 always returns first channel as #clock counts (TFG has a 100MHz clock cycle)
+				frames[i].time = output[i][0] / 100000000;
+			} else {
+				if (frameSets == null || frameSets.size() == 0) {
+					frames[i].time = collectionTime;
+				} else {
+					frames[i].time = frameSets.get(i).requestedLiveTime / 1000.0;
+				}
+			}
+
+			if (isTFGv2) {
+				frames[i].data = ArrayUtils.subarray(output[i], 1, output[i].length);
+			} else {
+				frames[i].data = output[i];
+			}
 		}
-		rawFrames = newoutput;
-		return rawFrames;
+		return frames;
 	}
 
 	private double[][] unpackRawDataToFrames(double[] scalerData, int numFrames, int channelCount) {
