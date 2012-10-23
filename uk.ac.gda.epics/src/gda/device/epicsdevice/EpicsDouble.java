@@ -21,6 +21,7 @@ package gda.device.epicsdevice;
 import gda.device.DeviceException;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.ScannablePositionChangeEvent;
+import gda.device.scannable.ScannableUtils;
 import gda.device.scannable.corba.impl.ScannableAdapter;
 import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.epics.connection.EpicsChannelManager;
@@ -104,12 +105,8 @@ public class EpicsDouble extends ScannableBase implements Configurable, Initiali
 	
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
-		if (position instanceof Number) {
-			Number n = (Number) position;
-			setValue(n.doubleValue());
-		} else {
-			throw new DeviceException("Cannot move " + StringUtils.quote(getName()) + " to position " + StringUtils.quoteIfString(position) + " (class: " + position.getClass() + ")");
-		}
+		final double target = ScannableUtils.objectToArray(position)[0];
+		setValue(target);
 	}
 	
 	private void setValue(double d) throws DeviceException {
