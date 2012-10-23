@@ -20,6 +20,7 @@ package uk.ac.gda.common.rcp.util;
 import java.io.File;
 import java.io.IOException;
 
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 
@@ -66,7 +67,7 @@ public class BundleUtils {
 				if (file.getName().startsWith(bundle.getSymbolicName()+"_")) return file;
 			}
         }
-        throw new IOException("Cannot locate bundle "+bundle.getSymbolicName());
+        return FileLocator.getBundleFile(bundle);
 	}
 
 	private static String cleanPath(String loc) {
