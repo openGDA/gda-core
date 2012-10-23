@@ -15,7 +15,8 @@ Require-Bundle: uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.gda.api,
  uk.ac.gda.common.client;bundle-version="1.0.0",
  uk.ac.gda.client;bundle-version="1.0.0",
- uk.ac.gda.analysis;bundle-version="1.0.0"
+ uk.ac.gda.analysis;bundle-version="1.0.0",
+ uk.ac.diamond.jython;bundle-version="2.5.3"
 Export-Package: com.cosylab.epics.caj,
  com.cosylab.epics.caj.cas,
  com.cosylab.epics.caj.cas.handlers,
