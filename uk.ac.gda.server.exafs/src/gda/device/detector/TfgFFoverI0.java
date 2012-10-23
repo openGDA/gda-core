@@ -89,8 +89,10 @@ public class TfgFFoverI0 extends DetectorBase implements NexusDetector {
 	}
 
 	private Double getFF() throws DeviceException {
-		double[] values = (double[]) xspress.readoutScalerData();
-		String[] names = xspress.getExtraNames();
+		NXDetectorData data = (NXDetectorData) xspress.readout();
+		Double[] vals = data.getDoubleVals();
+
+		String[] names = data.getExtraNames();
 		int column = 0;
 		for (int i = 0; i < names.length; i++) {
 			if (names[i].equals("FF")) {
@@ -98,7 +100,7 @@ public class TfgFFoverI0 extends DetectorBase implements NexusDetector {
 				break;
 			}
 		}
-		return values[column];
+		return vals[column];
 	}
 
 	private Double getI0() throws DeviceException {
