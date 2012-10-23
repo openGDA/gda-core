@@ -53,7 +53,7 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 	 */
 	protected boolean timeChannelRequired;
 	
-	private int lastFrameCollected = 0;
+	private int framesRead = 0;
 	
 	// if there are more channels in the TFG which this class is to read out. If this property is null then all will be
 	// read, i.e. the full width of the Memory object
@@ -216,7 +216,7 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 	public void clearFrameSets() throws DeviceException {
 		super.clearFrameSets();
 		frameSets.clear();
-		lastFrameCollected = -1;
+		framesRead = 0;
 	}
 	
 	@Override
@@ -228,7 +228,7 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 			loadFrameSets(); //?? this should be needed I think
 			timer.start();
 		}
-		lastFrameCollected = -1;
+		framesRead = 0;
 	}
 	
 	@Override
@@ -381,12 +381,6 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 	@Override
 	public void collectData() throws DeviceException {
 		countAsync(collectionTime * 1000); // convert from seconds (Detector interface) to milliseconds (CounterTimer interface)
-		//increment the frame counter if framing is being used
-		if (frameSets.size() > 0){
-			lastFrameCollected ++;
-		} else {
-			lastFrameCollected = 0;
-		}
 	}
 
 	/**
@@ -394,9 +388,15 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 	 */
 	@Override
 	public double[] readout() throws DeviceException {
-		double[] output = readoutCurrentFrame(); 
-//		logger.info("I0 measured to be"+output[0]+" for frame  "+ lastFrameCollected);
-		return output;		
+		
+		double[] output = readoutCurrentFrame();
+
+		//increment the frame counter if framing is being used
+		if (frameSets.size() > 0){
+			framesRead ++;
+		}
+
+		return output;
 	}
 
 	/**
@@ -415,8 +415,8 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 				e.printStackTrace();
 			}
 		}
-		logger.debug("Current tfg frame is " + this.getCurrentFrame() + " and reading frame " + lastFrameCollected);
-		return readoutFrames(lastFrameCollected, lastFrameCollected)[0];
+		logger.debug("Current tfg frame is " + this.getCurrentFrame() + " and reading frame " + framesRead);
+		return readoutFrames(framesRead, framesRead)[0];
 	}
 	
 	public double[][] readoutFrames(int startFrame, int finalFrame) throws DeviceException {
