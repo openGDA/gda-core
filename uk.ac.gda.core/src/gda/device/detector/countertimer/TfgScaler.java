@@ -395,7 +395,7 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 	@Override
 	public double[] readout() throws DeviceException {
 		double[] output = readoutCurrentFrame(); 
-		logger.info("I0 measured to be"+output[0]+" for frame  "+ lastFrameCollected);
+//		logger.info("I0 measured to be"+output[0]+" for frame  "+ lastFrameCollected);
 		return output;		
 	}
 
