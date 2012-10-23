@@ -528,7 +528,12 @@ public class ExafsScanPointCreator {
 		double value = getInitialEnergy();
 		double ret = value;
 		while (value < getaEnergy()) {
-			value += getPreEdgeStep();
+			double step = getPreEdgeStep();
+			// avoid infinite loop
+			if (step <= 0.0){
+				step = 1.0;
+			}
+			value += step;
 			if (value > getaEnergy())
 				break;
 			ret = value;

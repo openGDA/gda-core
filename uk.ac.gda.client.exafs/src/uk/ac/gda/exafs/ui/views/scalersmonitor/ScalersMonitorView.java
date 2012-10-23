@@ -181,6 +181,7 @@ public class ScalersMonitorView extends MonitorViewBase {
 		}
 
 		int numChannels = ionchambers.getExtraNames().length;
+		// works for TFG2 only where time if the first channel
 		double[] ion_results = ionchambers.readFrame(1, numChannels, currentFrame);
 
 		Double collectionTime = (Double) ionchambers.getAttribute("collectionTime");
