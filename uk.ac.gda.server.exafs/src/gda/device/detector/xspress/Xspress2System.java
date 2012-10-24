@@ -1893,10 +1893,8 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	 * @return an array of doubles of dead time corrected 'in window' counts and the sum of all the dead time corrected
 	 *         data.
 	 * @throws DeviceException
-	 * @Deprecated since 8.26 do not use this as the array of doubles does not necessarily match to the outputNames
 	 */
 	@Override
-	@Deprecated
 	public double[] readoutScalerData() throws DeviceException {
 		if (tfg.getAttribute("TotalFrames").equals(0)) {
 			return readoutScalerData(0, 0, true)[0];
