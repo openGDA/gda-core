@@ -1,5 +1,5 @@
 /*-
-O * Copyright © 2011 Diamond Light Source Ltd.
+ * Copyright © 2011 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -39,11 +39,8 @@ import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.PointList;
 import org.eclipse.draw2d.geometry.Rectangle;
-import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
@@ -52,7 +49,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.FillLayout;
@@ -61,21 +57,16 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.client.tomo.ImageConstants;
-import uk.ac.gda.client.tomo.StatInfo;
-import uk.ac.gda.client.tomo.TomoClientActivator;
 import uk.ac.gda.client.tomo.ViewerDisplayMode;
 import uk.ac.gda.client.tomo.alignment.view.controller.SaveableConfiguration;
 import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentController;
@@ -87,7 +78,6 @@ import uk.ac.gda.client.tomo.composites.FullImageComposite;
 import uk.ac.gda.client.tomo.composites.FullImageComposite.IRoiPointsListener;
 import uk.ac.gda.client.tomo.composites.ModuleButtonComposite.CAMERA_MODULE;
 import uk.ac.gda.client.tomo.composites.ScaleBarComposite;
-import uk.ac.gda.client.tomo.composites.StatInfoComposite;
 import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite;
 import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.MotionControlCentring;
 import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.RESOLUTION;
@@ -97,7 +87,6 @@ import uk.ac.gda.client.tomo.composites.TomoPlotComposite;
 import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
 import uk.ac.gda.client.tomo.composites.ZoomedImageComposite;
 import uk.ac.gda.client.tomo.composites.ZoomedImgCanvas;
-import uk.ac.gda.client.tomo.preferences.TomoAlignmentPreferencePage;
 import uk.ac.gda.ui.components.ColourSliderComposite;
 import uk.ac.gda.ui.components.PointInDouble;
 import uk.ac.gda.ui.event.PartAdapter2;
@@ -110,6 +99,8 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 	private static final IWorkbenchWindow ACTIVE_WORKBENCH_WINDOW = PlatformUI.getWorkbench()
 			.getActiveWorkbenchWindow();
+
+	private static Color BACKGROUND_COLOR = ColorConstants.white;
 
 	public enum RIGHT_PAGE {
 		NONE, PLOT, ZOOM_DEMAND_RAW, NO_ZOOM, ZOOM_STREAM
@@ -126,12 +117,8 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	private TomoAlignmentLeftPanelComposite leftPanelComposite;
 
 	public static final int RIGHT_WINDOW_WIDTH = 300;
-	private static final String ACTION_RESET_DETECTOR = "Reset Detector";
-	private static final String ACTION_OPEN_PREFERENCES = "Open Preferences";
-	public static final String STREAM_STOPPED = "STREAM STOPPED";
+	public static final String STREAM_STOPPED = "";
 	private static final String EMPTY_STRING_VALUE = "-----";
-	public static final String NO_ZOOM_lbl = "NO ZOOM";
-	private static final int LEFT_WINDOW_WIDTH = 530;
 	private static final String LBL_INTENSITY = "Intensity";
 	private static final String LBL_y = "y";
 	private static final String LBL_x = "x";
@@ -139,13 +126,12 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	public static final String TIMESTAMP = "Timestamp :";
 	public static final String FILE_NAME = "FileName :";
 	public static final String BLANK_STR = "";
-	private static final String ZOOM_NOT_SELECTED_shortdesc = "ZOOM NOT SELECTED";
 	private static final String SET_EXPOSURE_TIME = "Apply Exposure Time";
-	private static final String PLAY_STREAM = "Play Stream";
-	public static final String SAMPLE_SINGLE = "SINGLE (SAMPLE)";
-	public static final String FLAT_SINGLE = "SINGLE (FLAT)";
-	public static final String SAMPLE_LIVE_STREAM = "LIVE (SAMPLE)";
-	public static final String FLAT_LIVE_STREAM = "LIVE (FLAT)";
+	public static final String SAMPLE_SINGLE = "SINGLE";
+	public static final String FLAT_SINGLE = SAMPLE_SINGLE;
+	public static final String SAMPLE_LIVE_STREAM = "LIVE";
+	public static final String FLAT_LIVE_STREAM = SAMPLE_LIVE_STREAM;
+
 	public static final String STATIC_FLAT = "STATIC FLAT";
 	public static final String STATIC_DARK = "STATIC DARK";
 	private static final String DEFAULT_LEFT_WINDOW_INFO_SIZE = "27mm";
@@ -154,6 +140,8 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 	private ViewerDisplayMode leftWindowDisplayMode = ViewerDisplayMode.STREAM_STOPPED;
 	private static final int CONTROLLER_HEIGHT = 220;
+
+	private static final RGB BACKGROUND_COLOUR_RGB = new RGB(242, 242, 242);
 
 	private boolean isSaving;
 	private HistogramAdjuster histogramAdjuster;
@@ -174,7 +162,10 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	private Composite page_leftWindow_imgViewer;
 	private Composite page_nonProfile_demandRaw;
 	/**/
-	private PageBook pageBook_nonProfile_zoomImg;
+	private PageBook pageBook_zoomImg;
+	private PageBook pageBook_rightInfo;
+	private PageBook pageBook_rightWindow;
+
 	private ScaleBarComposite rightScaleBar;
 	private Composite page_nonProfile_noZoom;
 	private Label lblFileTimeStamp;
@@ -183,10 +174,8 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 	private Composite page_rightInfo_histogram;
 
-	private PageBook pageBook_rightInfo;
 	/**/
 	private FullImageComposite leftWindowImageViewer;
-	private PageBook pageBook_rightWindow;
 
 	/**/
 
@@ -218,7 +207,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	private ScaleBarComposite leftScaleBar;
 
 	protected TomoPlotComposite tomoPlotComposite;
-	private StatInfoComposite statInfo;
 	private Label lblYValue;
 	private Label lblXValue;
 	private Composite page_rightInfo_nonProfile;
@@ -303,7 +291,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		});
 	}
 
-	void switchOffCentring(final MotionControlCentring centring) {
+	protected void switchOffCentring(final MotionControlCentring centring) {
 		leftWindowImageViewer.removeOverlayImageFigureListener(tomoViewController);
 		if (!leftWindowImageViewer.isDisposed()) {
 			leftWindowImageViewer.getDisplay().syncExec(new Runnable() {
@@ -419,41 +407,11 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			leftPanelComposite.addLeftPanelListener(tomoViewController);
 			tomoAlignmentController.isScanRunning();
 
-			createActions();
+			BACKGROUND_COLOR = new Color(getViewSite().getShell().getDisplay(), BACKGROUND_COLOUR_RGB);
 
 		} catch (Exception ex) {
 			throw new RuntimeException("Error opening view", ex);
 		}
-	}
-
-	private void createActions() {
-		Action openPrefAction = new Action(ACTION_OPEN_PREFERENCES) {
-			@Override
-			public void runWithEvent(Event event) {
-				PreferenceDialog pref = PreferencesUtil.createPreferenceDialogOn(PlatformUI.getWorkbench()
-						.getActiveWorkbenchWindow().getShell(), TomoAlignmentPreferencePage.ID, null, null);
-				if (pref != null)
-					pref.open();
-			}
-		};
-		openPrefAction.setImageDescriptor(TomoClientActivator.getDefault().getImageRegistry()
-				.getDescriptor(ImageConstants.ICON_OPEN_PREF));
-		ActionContributionItem openPrefActionItem = new ActionContributionItem(openPrefAction);
-		openPrefActionItem.setMode(ActionContributionItem.MODE_FORCE_TEXT);
-		getViewSite().getActionBars().getToolBarManager().add(openPrefActionItem);
-
-		//
-		Action resetDetectorAction = new Action(ACTION_RESET_DETECTOR) {
-			@Override
-			public void runWithEvent(Event event) {
-				reset();
-			}
-		};
-		resetDetectorAction.setImageDescriptor(TomoClientActivator.getDefault().getImageRegistry()
-				.getDescriptor(ImageConstants.ICON_RESET_DETECTOR));
-		ActionContributionItem resetDetectorActionContributionItem = new ActionContributionItem(resetDetectorAction);
-		resetDetectorActionContributionItem.setMode(ActionContributionItem.MODE_FORCE_TEXT);
-		getViewSite().getActionBars().getToolBarManager().add(resetDetectorActionContributionItem);
 	}
 
 	/**
@@ -520,8 +478,8 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		setDefaultLayoutSettings(layout);
 		page_rightWindow_nonProfile.setLayout(layout);
 		page_rightWindow_nonProfile.setLayoutData(new GridData(GridData.FILL_BOTH));
-		page_rightWindow_nonProfile.setBackground(
-				new Color(page_rightWindow_nonProfile.getDisplay(), new RGB(242, 242, 242)));
+		page_rightWindow_nonProfile.setBackground(new Color(page_rightWindow_nonProfile.getDisplay(), new RGB(242, 242,
+				242)));
 		/**/
 		Composite imgViewerComposite = toolkit.createComposite(page_rightWindow_nonProfile);
 		imgViewerComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
@@ -530,17 +488,17 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		setDefaultLayoutSettings(gridlayout);
 		imgViewerComposite.setLayout(gridlayout);
 
-		pageBook_nonProfile_zoomImg = new PageBook(imgViewerComposite, SWT.None);
+		pageBook_zoomImg = new PageBook(imgViewerComposite, SWT.None);
 
 		GridData gd = new GridData(GridData.FILL_BOTH);
 		gd.heightHint = 100;
-		pageBook_nonProfile_zoomImg.setLayoutData(gd);
+		pageBook_zoomImg.setLayoutData(gd);
 
-		page_nonProfile_streamZoom = new ZoomedImageComposite(pageBook_nonProfile_zoomImg, SWT.DOUBLE_BUFFERED);
-		page_nonProfile_streamZoom.setBackground(
-				new Color(page_nonProfile_streamZoom.getDisplay(), new RGB(242, 242, 242)));
-		
-		page_nonProfile_demandRaw = toolkit.createComposite(pageBook_nonProfile_zoomImg);
+		page_nonProfile_streamZoom = new ZoomedImageComposite(pageBook_zoomImg, SWT.DOUBLE_BUFFERED);
+
+		page_nonProfile_streamZoom.setBackground(BACKGROUND_COLOR);
+
+		page_nonProfile_demandRaw = toolkit.createComposite(pageBook_zoomImg);
 		gl = new GridLayout();
 		setDefaultLayoutSettings(gl);
 		page_nonProfile_demandRaw.setLayout(gl);
@@ -548,18 +506,18 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		GridData layoutData2 = new GridData(GridData.FILL_BOTH);
 		demandRawZoomCanvas.setLayoutData(layoutData2);
 		//
-		page_nonProfile_noZoom = new Composite(pageBook_nonProfile_zoomImg, SWT.None);
+		page_nonProfile_noZoom = new Composite(pageBook_zoomImg, SWT.None);
 		page_nonProfile_noZoom.setLayout(new FillLayout());
 
-		toolkit.createLabel(page_nonProfile_noZoom, ZOOM_NOT_SELECTED_shortdesc)
-				.setFont(fontRegistry.get(BOLD_TEXT_16));
+		page_nonProfile_noZoom.setBackground(BACKGROUND_COLOR);
+		pageBook_zoomImg.showPage(page_nonProfile_noZoom);
 
 		//
 		rightVideoReceiver = new MotionJpegOverHttpReceiverSwt();
 		rightVideoListener = new VideoListener(page_nonProfile_streamZoom);
 
 		//
-		Composite nonProfileInfoViewerComposite = createRightWindowNonProfileInfoViewComposite(rightWindowComposite);
+		Composite nonProfileInfoViewerComposite = createRightWindowInfoViewComposite(rightWindowComposite);
 		GridData ld = new GridData(GridData.FILL_HORIZONTAL);
 		nonProfileInfoViewerComposite.setLayoutData(ld);
 
@@ -674,6 +632,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	};
 
 	private Composite createLeftWindowInfoViewComposite(final Composite imageViewAndInfoBarComposite) {
+
 		// Border composite used to make the borders thick
 		Composite borderComposite = toolkit.createComposite(imageViewAndInfoBarComposite, SWT.BORDER);
 		borderComposite.setBackground(ColorConstants.black);
@@ -686,7 +645,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		borderComposite.setLayout(layout);
 
 		Composite infoViewerComposite = toolkit.createComposite(borderComposite);
-		GridLayout gridLayout = new GridLayout(7, true);
+		GridLayout gridLayout = new GridLayout(2, true);
 		gridLayout.horizontalSpacing = 0;
 		gridLayout.verticalSpacing = 0;
 		infoViewerComposite.setLayout(gridLayout);
@@ -694,39 +653,30 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		layoutData.heightHint = 55;
 		infoViewerComposite.setLayoutData(layoutData);
 
-		lblLeftWindowInfoNumPixels = toolkit.createLabel(infoViewerComposite, DEFAULT_LEFT_WINDOW_INFO_SIZE, SWT.LEFT);
-		lblLeftWindowInfoNumPixels.setFont(fontRegistry.get(BOLD_TEXT_11));
-		lblLeftWindowInfoNumPixels.setLayoutData(new GridData());
-		//
-		statInfo = new StatInfoComposite(infoViewerComposite, SWT.None);
-		GridData layoutData2 = new GridData(GridData.FILL_HORIZONTAL);
-		layoutData2.horizontalSpan = 5;
-		statInfo.setLayoutData(layoutData2);
-		//
-		lblLeftWindowDisplayModeStatus = toolkit.createLabel(infoViewerComposite, STREAM_STOPPED, SWT.None);
-		lblLeftWindowDisplayModeStatus.setFont(fontRegistry.get(BOLD_TEXT_11));
-		lblLeftWindowDisplayModeStatus.setForeground(ColorConstants.darkBlue);
-		lblLeftWindowDisplayModeStatus.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		Composite lowerBarComposite = toolkit.createComposite(infoViewerComposite);
-		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
-		gd.horizontalSpan = 7;
-		lowerBarComposite.setLayoutData(gd);
-		//
-
-		lowerBarComposite.setLayout(new FillLayout());
-
-		Composite scaleBarComposite = new Composite(lowerBarComposite, SWT.None);
+		Composite scaleBarComposite = new Composite(infoViewerComposite, SWT.None);
 		scaleBarComposite.setBackground(ColorConstants.white);
 		gridLayout = new GridLayout();
 		setDefaultLayoutSettings(gridLayout);
 		gridLayout.marginHeight = 10;
 		scaleBarComposite.setLayout(gridLayout);
+
+		GridData gd = new GridData(GridData.FILL_BOTH);
+		scaleBarComposite.setLayoutData(gd);
+
 		leftScaleBar = new ScaleBarComposite(scaleBarComposite, SWT.None);
-		leftScaleBar.setLayoutData(new GridData(GridData.VERTICAL_ALIGN_CENTER));
+		GridData layoutData2 = new GridData(GridData.VERTICAL_ALIGN_CENTER);
+		leftScaleBar.setLayoutData(layoutData2);
 		leftScaleBar.setBackground(ColorConstants.black);
 
-		Composite imagePixelValueComposite = new Composite(lowerBarComposite, SWT.None);
+		lblLeftWindowDisplayModeStatus = toolkit.createLabel(infoViewerComposite, "", SWT.CENTER);
+		lblLeftWindowDisplayModeStatus.setFont(fontRegistry.get(BOLD_TEXT_11));
+		lblLeftWindowDisplayModeStatus.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		lblLeftWindowInfoNumPixels = toolkit.createLabel(infoViewerComposite, DEFAULT_LEFT_WINDOW_INFO_SIZE, SWT.LEFT);
+		lblLeftWindowInfoNumPixels.setFont(fontRegistry.get(BOLD_TEXT_11));
+		lblLeftWindowInfoNumPixels.setLayoutData(new GridData());
+
+		Composite imagePixelValueComposite = new Composite(infoViewerComposite, SWT.None);
 		imagePixelValueComposite.setBackground(ColorConstants.white);
 		gridLayout = new GridLayout(6, true);
 		gridLayout.marginHeight = 2;
@@ -734,6 +684,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		gridLayout.horizontalSpacing = 5;
 		gridLayout.verticalSpacing = 2;
 		imagePixelValueComposite.setLayout(gridLayout);
+		imagePixelValueComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		Label lblX = new Label(imagePixelValueComposite, SWT.RIGHT);
 		lblX.setBackground(ColorConstants.white);
@@ -768,7 +719,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		return borderComposite;
 	}
 
-	private Composite createRightWindowNonProfileInfoViewComposite(Composite imageViewAndInfoBarComposite) {
+	private Composite createRightWindowInfoViewComposite(Composite imageViewAndInfoBarComposite) {
 		// Border composite used to make the borders thick
 		Composite borderComposite = toolkit.createComposite(imageViewAndInfoBarComposite, SWT.BORDER);
 		borderComposite.setBackground(ColorConstants.black);
@@ -810,20 +761,11 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		// Non profile page -
 		page_rightInfo_nonProfile = toolkit.createComposite(pageBook_rightInfo);
 		GridLayout layout2 = new GridLayout();
-		layout2.marginHeight = 2;
-		layout2.marginWidth = 2;
-		layout2.horizontalSpacing = 2;
-		layout2.verticalSpacing = 2;
+		setDefaultLayoutSettings(layout2);
 		page_rightInfo_nonProfile.setLayout(layout2);
 
-		lblRightWindowInfoNumPixels = toolkit.createLabel(page_rightInfo_nonProfile, NO_ZOOM_lbl, SWT.RIGHT);
-		lblRightWindowInfoNumPixels.setFont(fontRegistry.get(BOLD_TEXT_11));
-		layoutData = new GridData(GridData.FILL_HORIZONTAL);
-		lblRightWindowInfoNumPixels.setLayoutData(layoutData);
-
-		/* TODO-Ravi */
 		Composite scalebarComposite = toolkit.createComposite(page_rightInfo_nonProfile, SWT.RIGHT_TO_LEFT);
-		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+		GridData gd = new GridData(GridData.FILL_BOTH);
 		scalebarComposite.setLayoutData(gd);
 		//
 		gridLayout = new GridLayout();
@@ -832,7 +774,14 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		scalebarComposite.setLayout(gridLayout);
 
 		rightScaleBar = new ScaleBarComposite(scalebarComposite, SWT.RIGHT);
-		rightScaleBar.setLayoutData(new GridData());
+		GridData gd2 = new GridData(GridData.VERTICAL_ALIGN_CENTER);
+		rightScaleBar.setLayoutData(gd2);
+
+		lblRightWindowInfoNumPixels = toolkit.createLabel(page_rightInfo_nonProfile, BLANK_STR, SWT.RIGHT);
+		lblRightWindowInfoNumPixels.setFont(fontRegistry.get(BOLD_TEXT_11));
+		layoutData = new GridData(GridData.FILL_HORIZONTAL);
+		layoutData.verticalAlignment = SWT.BEGINNING;
+		lblRightWindowInfoNumPixels.setLayoutData(layoutData);
 
 		// Profile page.
 		page_rightInfo_profile = toolkit.createComposite(pageBook_rightInfo);
@@ -948,11 +897,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 				logger.error("IOC May be down", e);
 			}
 		}
-	}
-
-	@Override
-	public void updateExposureTimeToWidget(final double acqExposure) {
-		statInfo.updateExposureTime(acqExposure);
 	}
 
 	protected boolean isModuleSelected() {
@@ -1170,7 +1114,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			page_nonProfile_streamZoom.dispose();
 			demandRawZoomCanvas.dispose();
 
-			pageBook_nonProfile_zoomImg.dispose();
+			pageBook_zoomImg.dispose();
 			//
 			page_rightWindow_plot.dispose();
 			page_rightWindow_nonProfile.dispose();
@@ -1185,15 +1129,11 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			tomoAlignmentController.dispose();
 			toolkit.dispose();
 			histogramAdjuster.dispose();
+
 			super.dispose();
 		} catch (Exception ex) {
 			logger.error("Exception in dispose", ex);
 		}
-	}
-
-	@Override
-	public void updateStatInfo(StatInfo statInfoEnum, String val) {
-		this.statInfo.updateValue(statInfoEnum, val);
 	}
 
 	@Override
@@ -1302,8 +1242,22 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 				@Override
 				public void run() {
 					lblLeftWindowDisplayModeStatus.setText(info.toUpperCase());
+					switchOffLeftWindowDisplayImage();
 				}
+
 			});
+		}
+	}
+
+	private void switchOffLeftWindowDisplayImage() {
+		if (tomoControlComposite.getSelectedCentring() == null) {
+			if (leftWindowDisplayMode == ViewerDisplayMode.STREAM_STOPPED) {
+				loadImageInUIThread(leftWindowImageViewer, null);
+				leftPanelComposite.switchOffCrosshair();
+				lblPixelX.setText(EMPTY_STRING_VALUE);
+				lblPixelY.setText(EMPTY_STRING_VALUE);
+				lblPixelIntensityVal.setText(EMPTY_STRING_VALUE);
+			}
 		}
 	}
 
@@ -1462,15 +1416,15 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 						break;
 					case ZOOM_DEMAND_RAW:
 						pageBook_rightWindow.showPage(page_rightInfo_nonProfile);
-						pageBook_nonProfile_zoomImg.showPage(page_nonProfile_demandRaw);
+						pageBook_zoomImg.showPage(page_nonProfile_demandRaw);
 						break;
 					case NO_ZOOM:
 						pageBook_rightWindow.showPage(page_rightInfo_nonProfile);
-						pageBook_nonProfile_zoomImg.showPage(page_nonProfile_noZoom);
+						pageBook_zoomImg.showPage(page_nonProfile_noZoom);
 						break;
 					case ZOOM_STREAM:
 						pageBook_rightWindow.showPage(page_rightInfo_nonProfile);
-						pageBook_nonProfile_zoomImg.showPage(page_nonProfile_streamZoom);
+						pageBook_zoomImg.showPage(page_nonProfile_streamZoom);
 					}
 				}
 			});
@@ -1707,7 +1661,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 					setRightPage(RIGHT_PAGE.NO_ZOOM);
 
 					rightScaleBar.setScaleWidth(0);
-					lblRightWindowInfoNumPixels.setText(TomoAlignmentView.NO_ZOOM_lbl);
+					lblRightWindowInfoNumPixels.setText(BLANK_STR);
 					if (leftPanelComposite.isProfileSelected()) {
 						Rectangle lineBounds = leftWindowImageViewer.getProfilerLineBounds();
 						int y = lineBounds.y - leftWindowImageViewer.getImageBounds().y;
@@ -1766,4 +1720,5 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	public void setProfileIntensityValue(String profileIntensityValue) {
 		lblProfileIntensityValue.setText(profileIntensityValue);
 	}
+
 }

@@ -20,7 +20,8 @@ package uk.ac.gda.client.tomo.alignment.view;
 
 import java.util.Map;
 
-import uk.ac.gda.client.tomo.StatInfo;
+import org.eclipse.ui.IViewPart;
+
 import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentController.SAMPLE_STAGE_STATE;
 import uk.ac.gda.client.tomo.composites.ModuleButtonComposite.CAMERA_MODULE;
 import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.RESOLUTION;
@@ -28,13 +29,11 @@ import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.RESOLUTION
 /**
  * Interface by which the tomo alignment controller communicates with the tomo alignment view.
  */
-public interface ITomoAlignmentView extends IRotationMotorListener {
+public interface ITomoAlignmentView extends IRotationMotorListener, IViewPart {
 
 	void updateFullImgStreamUrl(String mjPegURL);
 
 	void updateStreamWidget(int acquisitionState);
-
-	void updateExposureTimeToWidget(double acqExposure);
 
 	void updateZoomImgStreamUrl(String zoomImgJpegURL);
 
@@ -48,11 +47,7 @@ public interface ITomoAlignmentView extends IRotationMotorListener {
 
 	void setPreferredFlatExposureTimeToWidget(double preferredExposureTime);
 
-	// void stopStreaming();
-
 	void setCameraModule(CAMERA_MODULE module);
-
-	void updateStatInfo(StatInfo statInfo, String val);
 
 	void updateRightWindowNumPixelsLabel(String cameraScaleBarDisplayText, int barLengthInPixel);
 

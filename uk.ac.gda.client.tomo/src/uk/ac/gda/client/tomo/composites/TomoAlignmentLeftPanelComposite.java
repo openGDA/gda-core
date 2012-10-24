@@ -35,6 +35,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -45,6 +46,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.eclipse.ui.part.PageBook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +54,9 @@ import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
 
 public class TomoAlignmentLeftPanelComposite extends Composite {
 
+	private static final String EXPOSURE_TIME_lbl = "EXPOSURE TIME";
+	private static final String FLAT_lbl = "Flat";
+	private static final String SAMPLE_lbl = "Sample";
 	private static final String SAMPLE_OUT = "Sample Out";
 	private static final String SAMPLE_IN = "Sample In";
 	private static final String SHOW_FLAT = "Show Flat";
@@ -104,6 +109,15 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 	private static final String FLAT_AND_DARK_UNAVAILABLE_shortdesc = "Flat and Dark Images have not been captured. Click 'Take Flat && Dark' to capture Flat and dark images";
 
 	private boolean isDifferentFlatExposureTime = false;
+	private Label lblSample;
+
+	private Composite pgLblSampleCmp;
+	private Composite pgBtnSampleCmp;
+	private PageBook pgBook_sampleBtnLbl;
+	private PageBook pgBook_flatBtnLbl;
+	private Label lblFlat;
+	private Composite pgLblFlatCmp;
+	private Composite pgBtnFlatCmp;
 
 	public enum SAMPLE_OR_FLAT {
 		SAMPLE, FLAT;
@@ -244,14 +258,34 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 		cmpHorizontalSeparator.setLayoutData(layoutData2);
 		cmpHorizontalSeparator.setBackground(ColorConstants.black);
 
-		Label lblExposureTime = toolkit.createLabel(leftPanelComposite, "EXPOSURE TIME", SWT.WRAP | SWT.CENTER);
+		Label lblExposureTime = toolkit.createLabel(leftPanelComposite, EXPOSURE_TIME_lbl, SWT.WRAP | SWT.CENTER);
 		lblExposureTime.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		lblExposureTime.setFont(fontRegistry.get(BOLD_TEXT_10));
 
-		btnSample = toolkit.createButton(leftPanelComposite, "Sample", SWT.WRAP | SWT.CENTER);
-		btnSample.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		pgBook_sampleBtnLbl = new PageBook(leftPanelComposite, SWT.None);
+
+		pgBtnSampleCmp = toolkit.createComposite(pgBook_sampleBtnLbl);
+		pgBtnSampleCmp.setLayout(new FillLayout());
+
+		btnSample = toolkit.createButton(pgBtnSampleCmp, SAMPLE_lbl, SWT.WRAP | SWT.CENTER);
 		btnSample.addSelectionListener(buttonSelectionListener);
 		ButtonSelectionUtil.setButtonSelected(btnSample);
+
+		pgLblSampleCmp = toolkit.createComposite(pgBook_sampleBtnLbl);
+		GridLayout gridLayout = new GridLayout();
+		setDefaultLayoutSettings(gridLayout);
+		pgLblSampleCmp.setLayout(gridLayout);
+
+		lblSample = toolkit.createLabel(pgLblSampleCmp, SAMPLE_lbl, SWT.CENTER);
+		lblSample.setFont(fontRegistry.get(BOLD_TEXT_10));
+		lblSample.setLayoutData(new GridData(GridData.VERTICAL_ALIGN_END | GridData.FILL_BOTH));
+
+		pgBook_sampleBtnLbl.showPage(pgLblSampleCmp);
+
+		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
+		layoutData.heightHint = btnSample.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
+		pgBook_sampleBtnLbl.setLayoutData(layoutData);
+
 		//
 		Composite cmpSampleExpTime = toolkit.createComposite(leftPanelComposite);
 		cmpSampleExpTime.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -269,10 +303,30 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 
 		toolkit.createLabel(cmpSampleExpTime, "s", SWT.WRAP | SWT.CENTER).setLayoutData(new GridData());
 
-		btnFlat = toolkit.createButton(leftPanelComposite, "Flat", SWT.WRAP | SWT.CENTER);
-		btnFlat.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		btnFlat.setEnabled(false);
+		pgBook_flatBtnLbl = new PageBook(leftPanelComposite, SWT.None);
+		pgBtnFlatCmp = toolkit.createComposite(pgBook_flatBtnLbl);
+		pgBtnFlatCmp.setLayout(new FillLayout());
+
+		btnFlat = toolkit.createButton(pgBtnFlatCmp, FLAT_lbl, SWT.WRAP | SWT.CENTER);
 		btnFlat.addSelectionListener(buttonSelectionListener);
+		btnFlat.setEnabled(false);
+		ButtonSelectionUtil.setButtonSelected(btnFlat);
+
+		pgLblFlatCmp = toolkit.createComposite(pgBook_flatBtnLbl);
+		gridLayout = new GridLayout();
+		setDefaultLayoutSettings(gridLayout);
+		pgLblFlatCmp.setLayout(gridLayout);
+
+		lblFlat = toolkit.createLabel(pgLblFlatCmp, FLAT_lbl, SWT.CENTER);
+		lblFlat.setFont(fontRegistry.get(BOLD_TEXT_10));
+		lblFlat.setLayoutData(new GridData(GridData.VERTICAL_ALIGN_END | GridData.FILL_BOTH));
+
+		layoutData = new GridData(GridData.FILL_HORIZONTAL);
+		layoutData.heightHint = btnFlat.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
+		pgBook_flatBtnLbl.setLayoutData(layoutData);
+
+		pgBook_sampleBtnLbl.showPage(pgLblSampleCmp);
+		pgBook_flatBtnLbl.showPage(pgLblFlatCmp);
 
 		//
 		Composite cmpFlatExpTime = toolkit.createComposite(leftPanelComposite);
@@ -698,14 +752,7 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 						showErrorDialog(ex);
 					}
 				} else {
-					try {
-						for (ITomoAlignmentLeftPanelListener lpl : leftPanelListeners) {
-							lpl.crosshair(false);
-						}
-						ButtonSelectionUtil.setButtonDeselected(btnCrossHair);
-					} catch (Exception e) {
-						logger.error("Error displaying crosshair ;{}", e.getMessage());
-					}
+					switchOffCrosshair();
 				}
 
 			} else if (sourceObj == btnDifferentFlatExpTime) {
@@ -715,7 +762,11 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 					btnFlat.setEnabled(true);
 					txtFlatExpTime.setEnabled(true);
 					isDifferentFlatExposureTime = true;
+
+					pgBook_sampleBtnLbl.showPage(pgBtnSampleCmp);
+					pgBook_flatBtnLbl.showPage(pgBtnFlatCmp);
 				} else {
+					logger.debug("'btnDifferentFlatExpTime' is deselected");
 					ButtonSelectionUtil.setButtonDeselected(btnDifferentFlatExpTime);
 					btnFlat.setEnabled(false);
 					txtFlatExpTime.setEnabled(false);
@@ -732,6 +783,8 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 					if (ButtonSelectionUtil.isButtonSelected(btnFlat)) {
 						selectSampleButton();
 					}
+					pgBook_sampleBtnLbl.showPage(pgLblSampleCmp);
+					pgBook_flatBtnLbl.showPage(pgLblFlatCmp);
 					isDifferentFlatExposureTime = false;
 				}
 			}
@@ -947,6 +1000,17 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 
 	public boolean isStreamButtonSelected() {
 		return streamButtonSelected;
+	}
+
+	public void switchOffCrosshair() {
+		try {
+			for (ITomoAlignmentLeftPanelListener lpl : leftPanelListeners) {
+				lpl.crosshair(false);
+			}
+			ButtonSelectionUtil.setButtonDeselected(btnCrossHair);
+		} catch (Exception e) {
+			logger.error("Error displaying crosshair ;{}", e.getMessage());
+		}
 	}
 
 }

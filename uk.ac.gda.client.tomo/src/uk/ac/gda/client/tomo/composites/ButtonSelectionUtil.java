@@ -80,13 +80,12 @@ public class ButtonSelectionUtil {
 	 * @param btnCntrl
 	 */
 	public static void setControlButtonSelected(final Button btnCntrl) {
-		btnCntrl.getDisplay().asyncExec(new Runnable() {
+		btnCntrl.getDisplay().syncExec(new Runnable() {
 
 			@Override
 			public void run() {
 				btnCntrl.setForeground(CTRL_BUTTON_SELECTION_FOREGROUND);
 				btnCntrl.setBackground(CTRL_BUTTON_SELECTION_BACKGROUND);
-
 			}
 		});
 	}
@@ -98,7 +97,7 @@ public class ButtonSelectionUtil {
 	 */
 	public static void setControlButtonDeselected(final Button btnCntrl) {
 		if (btnCntrl != null && !btnCntrl.isDisposed()) {
-			btnCntrl.getDisplay().asyncExec(new Runnable() {
+			btnCntrl.getDisplay().syncExec(new Runnable() {
 
 				@Override
 				public void run() {

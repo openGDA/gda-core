@@ -152,4 +152,31 @@
              name="Multiple Vertical Motor Context">
        </context>
     </extension>
+    <extension
+          point="org.eclipse.ui.commands">
+       <command
+             defaultHandler="uk.ac.gda.client.tomo.alignment.view.command.handlers.OpenTomoAlignmentPrefCommandHandler"
+             id="uk.ac.gda.client.tomo.alignment.pref.open"
+             name="Tomo Alignment Open Preferences">
+       </command>
+       <command
+             defaultHandler="uk.ac.gda.client.tomo.alignment.view.command.handlers.ResetDetectorCommandHandler"
+             id="uk.ac.gda.client.tomo.alignment.detector.reset"
+             name="Reset Detector">
+       </command>
+    </extension>
+    <extension
+          point="org.eclipse.ui.menus">
+       <menuContribution
+             allPopups="false"
+             locationURI="toolbar:uk.ac.gda.client.tomo.alignment.view">
+          <control
+                class="uk.ac.gda.client.tomo.composites.TomoAlignmentToolbarComposite">
+             <visibleWhen
+                   checkEnabled="true">
+             </visibleWhen>
+          </control>
+       </menuContribution>
+    </extension>
+   
 </plugin>

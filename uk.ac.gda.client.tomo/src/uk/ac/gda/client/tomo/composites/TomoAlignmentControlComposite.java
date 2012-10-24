@@ -75,7 +75,7 @@ import uk.ac.gda.client.tomo.composites.RotationSliderComposite.SliderSelectionL
  */
 public class TomoAlignmentControlComposite extends Composite {
 
-	private static final String AUTO_FOCUS = "Auto Focus";
+	private static final String AUTO_FOCUS_lbl = "Auto Focus";
 	private static final String RESOLUTION_PIXEL_SIZE = "Resolution : Pixel Size = ";
 	private static final String SAMPLE_CENTRING_lbl = "Sample Alignment";
 	private static final String REGION_OF_INTEREST_lbl = "ROI";
@@ -88,7 +88,7 @@ public class TomoAlignmentControlComposite extends Composite {
 	public enum MotionControlCentring {
 		TILT, HORIZONTAL,
 
-		FIND_AXIS_ROTATION, VERTICAL, MOVE_AXIS_OF_ROTATION
+		FIND_AXIS_ROTATION, VERTICAL, MOVE_AXIS_OF_ROTATION, AUTO_FOCUS
 	}
 
 	public enum RESOLUTION {
@@ -124,13 +124,10 @@ public class TomoAlignmentControlComposite extends Composite {
 	private static final int MOTION_COMPOSITE_HEIGHT = 120;
 	private static final int CONTROL_COMPOSITE_HEIGHT = 100;
 
-	private static final String ERR_PROBLEM_SETTING_SAMPLE_DESCRIPTION = "Problem setting sample Description";
 	private static final String SAVE_ALIGNMENT_lbl = "Save Alignment";
 	private static final String FOR_FUTURE_USE = "For Future Use";
 	private static final String X_RAY_ENERGY_lbl = "X-ray energy \r (keV)";
 	private static final String ENERGY_DEFAULT_VALUE = "112";
-	private static final String EXP_TIME_MEASURE = " s";
-	private static final String DEFAULT_EXP_TIME = "1.0";
 
 	private static final String BLANK_STR = "";
 
@@ -139,8 +136,6 @@ public class TomoAlignmentControlComposite extends Composite {
 	private static final String RESET_ROI = "Remove";
 
 	private static final String DEFINE_ROI = "Define";
-
-	private static final String ROTATION_AXIS_NOT_DEFINED_shortdesc = "Rotation Axis Not Defined";
 
 	private static final String CAMERA_DIST_DEFAULT_VALUE = "341";
 
@@ -152,10 +147,6 @@ public class TomoAlignmentControlComposite extends Composite {
 
 	private static final String ALIGN_TILT_lbl = "Align Tilt";
 
-	private static final String TOMO_ALIGNMENT_lbl = "Tomo Alignment";
-
-	private static final String BEAMLINE_CONTROL_lbl = "Beamline Control";
-
 	private static final String SAMPLE_WEIGHT_TWENTY_TO_FIFTY_lbl = "20 - 50";
 
 	private static final String SAMPLE_WEIGHT_ONE_TO_TEN_lbl = "1 - 10";
@@ -166,15 +157,7 @@ public class TomoAlignmentControlComposite extends Composite {
 
 	private static final String SAMPLE_WEIGHT_KG_lbl = "Sample Weight (kg)";
 
-	private static final String SAMPLE_MOTION_CONTROL_lbl = "Sample Motion Control";
-
 	private static final String HORIZONTAL_lbl = "Move Horizontal";
-
-	private static final String MOVE_AXIS_OF_ROTATION_lbl = "Move Axis of Rotation";
-
-	private static final String TOMO_ROTATION_AXIS_SPECIFIC = "Tomo Rotation Axis Specific";
-
-	private static final String NOT_FOUND_key = "N O T     F O U N D";
 
 	private List<ITomoAlignmentControlListener> tomoAlignmentControlListeners;
 
@@ -193,7 +176,6 @@ public class TomoAlignmentControlComposite extends Composite {
 	private static final String RESOLUTION_2x = "2x";
 
 	private static final String RESOLUTION_FULL = "Full";
-	private static final String FLAT_lbl = "Flat";
 
 	private int framesPerProjection = Integer.parseInt(FRAMES_PER_PROJECTION_DEFAULT_VAL);
 	// Fonts
@@ -216,14 +198,10 @@ public class TomoAlignmentControlComposite extends Composite {
 	private static final String PLUS_ONE_EIGHTY_DEG = "+180°";
 	private static final String ZERO_DEG = "0°";
 	private static final String MINUS_ONE_EIGHTY_DEG = "-180°";
-	private static final String FIND_AXIS_OF_ROTATION_label = "Find Rotation Axis";
 	private static final String VERTICAL_lbl = "Move Vertical";
-	private static final String SAMPLE_lbl = "Sample";
 	private static final String MOVE_TOMO_AXIS_lbl = "Move Tomo Axis";
 
 	private static final String FRAMES_PER_PROJECTION_DEFAULT_VAL = "1";
-
-	private Label lblRotationAxisNotFound;
 
 	protected Button btnHorizontal;
 	protected Label lblFindRotationAxis;
@@ -271,13 +249,6 @@ public class TomoAlignmentControlComposite extends Composite {
 	private Button btnRes8x;
 
 	private Text txtResFramesPerProjection;
-
-	private Composite flatDarkComposite;
-	private StackLayout flatAndDarkCompositeStackLayout;
-	private Composite flatAndDarkContainerComposite;
-	private Label lblFlatDarkNotAvailable;
-
-	private Label lblFlatExpTime;
 	private Button btnSaveAlignment;
 
 	private Label lblObjectPixelSize;
@@ -575,7 +546,8 @@ public class TomoAlignmentControlComposite extends Composite {
 		txtXrayEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtXrayEnergy.addFocusListener(focusListener);
 		txtXrayEnergy.addKeyListener(txtKeyListener);
-		txtXrayEnergy.setEditable(false);
+		txtXrayEnergy.setEnabled(false);
+		
 		return beamlineControlComposite;
 	}
 
@@ -615,7 +587,7 @@ public class TomoAlignmentControlComposite extends Composite {
 		gl.marginHeight = 0;
 		cmpAutoFocus.setLayout(gl);
 
-		btnAutoFocus = toolkit.createButton(cmpAutoFocus, AUTO_FOCUS, SWT.PUSH);
+		btnAutoFocus = toolkit.createButton(cmpAutoFocus, AUTO_FOCUS_lbl, SWT.PUSH);
 		btnAutoFocus.setFont(fontRegistry.get(NORMAL_TEXT_9));
 		btnAutoFocus.setLayoutData(new GridData(GridData.FILL_BOTH));
 		btnAutoFocus.addListener(SWT.MouseDown, ctrlMouseListener);
@@ -1162,7 +1134,7 @@ public class TomoAlignmentControlComposite extends Composite {
 							switchOff(MotionControlCentring.VERTICAL);
 						}
 					} else if (btnTilt.equals(sourceObj)) {
-						// Button - Vertical
+						// Button - Tilt
 						if (!ButtonSelectionUtil.isCtrlButtonSelected(btnTilt)) {
 							try {
 								switchOn(MotionControlCentring.TILT);
@@ -1171,6 +1143,17 @@ public class TomoAlignmentControlComposite extends Composite {
 							}
 						} else {
 							switchOff(MotionControlCentring.TILT);
+						}
+					} else if (btnAutoFocus.equals(sourceObj)) {
+						// Button - Auto-focus
+						if (!ButtonSelectionUtil.isCtrlButtonSelected(btnAutoFocus)) {
+							try {
+								switchOn(MotionControlCentring.AUTO_FOCUS);
+							} catch (Exception ex) {
+								switchOff(MotionControlCentring.AUTO_FOCUS);
+							}
+						} else {
+							switchOff(MotionControlCentring.AUTO_FOCUS);
 						}
 					} else if (sourceObj == btnSampleWeightLessThan1) {
 						// Button - Vertical
@@ -1220,8 +1203,6 @@ public class TomoAlignmentControlComposite extends Composite {
 
 	private Composite moveAxisBtnComposite;
 
-	private Label lblCameraDistance;
-
 	/**
 	 * @return the selected {@link MotionControlCentring} button
 	 */
@@ -1236,6 +1217,8 @@ public class TomoAlignmentControlComposite extends Composite {
 			return MotionControlCentring.VERTICAL;
 		} else if (ButtonSelectionUtil.isCtrlButtonSelected(btnTilt)) {
 			return MotionControlCentring.TILT;
+		} else if (ButtonSelectionUtil.isCtrlButtonSelected(btnAutoFocus)) {
+			return MotionControlCentring.AUTO_FOCUS;
 		}
 		return null;
 	}
@@ -1263,17 +1246,31 @@ public class TomoAlignmentControlComposite extends Composite {
 		case VERTICAL:
 			doVertical(true);
 			break;
+		case AUTO_FOCUS:
+			doAutoFocus(true);
+			break;
 		}
 
+	}
+
+	private void doAutoFocus(boolean switchOn) throws Exception {
+		switchMotionCentring(switchOn, btnAutoFocus);
+		try {
+			for (ITomoAlignmentControlListener mcl : getTomoControlListeners()) {
+				mcl.autoFocus(switchOn);
+			}
+		} catch (Exception ex) {
+			showErrorDialog(ex);
+			throw ex;
+		}
 	}
 
 	/**
 	 * Method to switch OFF the specific Centring button
 	 * 
 	 * @param centringButton
-	 * @throws Exception
 	 */
-	public void switchOff(final MotionControlCentring centringButton) throws Exception {
+	public void switchOff(final MotionControlCentring centringButton) {
 		if (getDisplay() != null && !getDisplay().isDisposed()) {
 			getDisplay().syncExec(new Runnable() {
 
@@ -1296,8 +1293,12 @@ public class TomoAlignmentControlComposite extends Composite {
 						case VERTICAL:
 							doVertical(false);
 							break;
+						case AUTO_FOCUS:
+							doAutoFocus(false);
+							break;
 						}
 					} catch (Exception e) {
+						showErrorDialog(e);
 						logger.error("Problem switching of centring", e);
 					}
 				}
@@ -1476,7 +1477,7 @@ public class TomoAlignmentControlComposite extends Composite {
 	private void switchMotionCentring(boolean switchOn, Button btnSelected) {
 		// TODO - Ravi fix
 		Button[] selectableBtns = new Button[] { btnTilt, btnVertical, btnHorizontal, btnMoveAxisOfRotation,
-				btnFindAxisOfRotation };
+				btnFindAxisOfRotation, btnAutoFocus };
 
 		if (switchOn) {
 			for (Button button : selectableBtns) {

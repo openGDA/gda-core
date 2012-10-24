@@ -34,6 +34,7 @@ import org.eclipse.draw2d.MouseListener;
 import org.eclipse.draw2d.Panel;
 import org.eclipse.draw2d.ToolbarLayout;
 import org.eclipse.draw2d.XYLayout;
+import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
@@ -42,13 +43,16 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
+import uk.ac.gda.client.tomo.ImageConstants;
+import uk.ac.gda.client.tomo.TomoClientActivator;
+
 /**
  * Triangle buttons used in the Tomography view to represent 90° rotations.
  */
 public class RotationButtonComposite extends Composite {
 	private static final Color BUSY_COLOUR = ColorConstants.yellow;
 	private static final Color DIABLED_COLOUR = ColorConstants.gray;
-	private static final Color READY_COLOUR = ColorConstants.darkGreen;
+	private static final Color READY_COLOUR = ColorConstants.listBackground;
 	private final int direction;
 	private FigureCanvas figCanvas;
 	private ArrowButton arrowButton;
@@ -141,15 +145,22 @@ public class RotationButtonComposite extends Composite {
 	private IFigure getContents() {
 		IFigure panel = new Panel();
 		BorderLayout lm = new BorderLayout();
-		
+
 		panel.setLayoutManager(lm);
 		arrowButton = new ArrowButton(direction);
 		arrowButton.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_HAND));
 		arrowButton.setBackgroundColor(ColorConstants.white);
+
 		Label lbl = new Label(lblText);
 		lbl.setBackgroundColor(ColorConstants.black);
 		lbl.setForegroundColor(ColorConstants.black);
 		setTriangleColor(READY_COLOUR);
+
+		Label imgLblFigure = new Label(TomoClientActivator.getDefault().getImageRegistry()
+				.get(ImageConstants.ICON_CTRL_BTN));
+		panel.setBackgroundColor(ColorConstants.white);
+		panel.add(imgLblFigure);
+		panel.setConstraint(imgLblFigure, BorderLayout.TOP);
 		
 		arrowButton.add(lbl);
 		panel.add(arrowButton);
@@ -164,7 +175,6 @@ public class RotationButtonComposite extends Composite {
 			((IFigure) object).setBackgroundColor(color);
 		}
 	}
-
 
 	public static void main(String[] args) {
 		final Display display = new Display();

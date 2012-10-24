@@ -313,9 +313,9 @@ public class TomoAlignmentController extends TomoViewController {
 	}
 
 	public void updateAcqExposure(double acqExposure) {
-		for (ITomoAlignmentView av : tomoalignmentViews) {
-			av.updateExposureTimeToWidget(acqExposure);
-		}
+//		for (ITomoAlignmentView av : tomoalignmentViews) {
+			//av.updateExposureTimeToWidget(acqExposure);
+//		}
 	}
 
 	public Future<Boolean> init() {
@@ -444,12 +444,12 @@ public class TomoAlignmentController extends TomoViewController {
 	}
 
 	protected void updateStatInfo() throws Exception {
-		for (ITomoAlignmentView av : tomoalignmentViews) {
-			av.updateStatInfo(StatInfo.MAX, df.format(cameraHandler.getStatMax()));
-			av.updateStatInfo(StatInfo.MIN, df.format(cameraHandler.getStatMin()));
-			av.updateStatInfo(StatInfo.MEAN, df.format(cameraHandler.getStatMean()));
-			av.updateStatInfo(StatInfo.SIGMA, df.format(cameraHandler.getStatSigma()));
-		}
+//		for (ITomoAlignmentView av : tomoalignmentViews) {
+//			av.updateStatInfo(StatInfo.MAX, df.format(cameraHandler.getStatMax()));
+//			av.updateStatInfo(StatInfo.MIN, df.format(cameraHandler.getStatMin()));
+//			av.updateStatInfo(StatInfo.MEAN, df.format(cameraHandler.getStatMean()));
+//			av.updateStatInfo(StatInfo.SIGMA, df.format(cameraHandler.getStatSigma()));
+//		}
 	}
 
 	protected void updateModuleSelected(CAMERA_MODULE module) {
@@ -785,27 +785,27 @@ public class TomoAlignmentController extends TomoViewController {
 	}
 
 	public void updateStatMax(double max) {
-		for (ITomoAlignmentView av : tomoalignmentViews) {
-			av.updateStatInfo(StatInfo.MAX, df.format(max));
-		}
+//		for (ITomoAlignmentView av : tomoalignmentViews) {
+//			av.updateStatInfo(StatInfo.MAX, df.format(max));
+//		}
 	}
 
 	public void updateStatMin(double min) {
-		for (ITomoAlignmentView av : tomoalignmentViews) {
-			av.updateStatInfo(StatInfo.MIN, df.format(min));
-		}
+//		for (ITomoAlignmentView av : tomoalignmentViews) {
+//			av.updateStatInfo(StatInfo.MIN, df.format(min));
+//		}
 	}
 
 	public void updateStatMean(double mean) {
-		for (ITomoAlignmentView av : tomoalignmentViews) {
-			av.updateStatInfo(StatInfo.MEAN, df.format(mean));
-		}
+//		for (ITomoAlignmentView av : tomoalignmentViews) {
+//			av.updateStatInfo(StatInfo.MEAN, df.format(mean));
+//		}
 	}
 
 	public void updateStatSigma(double sigma) {
-		for (ITomoAlignmentView av : tomoalignmentViews) {
-			av.updateStatInfo(StatInfo.SIGMA, df.format(sigma));
-		}
+//		for (ITomoAlignmentView av : tomoalignmentViews) {
+//			av.updateStatInfo(StatInfo.SIGMA, df.format(sigma));
+//		}
 	}
 
 	public TiltPlotPointsHolder doTiltAlignment(final IProgressMonitor monitor,

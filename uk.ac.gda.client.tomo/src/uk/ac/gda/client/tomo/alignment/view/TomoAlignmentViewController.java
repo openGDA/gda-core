@@ -618,7 +618,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 	@Override
 	public void autoFocus(boolean selected) throws Exception {
 		// TODO Auto-generated method stub
-
+		logger.debug("auto focus to be invoked");
 	}
 
 	@Override
