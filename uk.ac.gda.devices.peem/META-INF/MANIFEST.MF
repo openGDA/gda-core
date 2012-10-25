@@ -5,15 +5,14 @@ Bundle-SymbolicName: uk.ac.gda.devices.peem; singleton:=true
 Bundle-Version: 1.2.0.qualifier
 Bundle-Activator: gda.devices.peem.Activator
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.5.0",
- org.junit4,
  uk.ac.gda.core;bundle-version="8.26.0",
  uk.ac.gda.common;bundle-version="1.2.0",
- uk.ac.gda.libs;bundle-version="1.0.0",
  uk.ac.diamond.scisoft.analysis;bundle-version="1.0.0",
  uk.ac.gda.devices.pco;bundle-version="[1.0.0,2.0.0)",
  uk.ac.gda.epics;bundle-version="1.0.0",
  uk.ac.gda.api;bundle-version="8.26.0",
- uk.ac.gda.swingclient;bundle-version="1.0.0"
+ uk.ac.gda.swingclient;bundle-version="1.0.0",
+ uk.ac.diamond.jython;bundle-version="[2.5.3,3.0.0)"
 Eclipse-RegisterBuddy: uk.ac.gda.libs
 Eclipse-BuddyPolicy: registered
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
