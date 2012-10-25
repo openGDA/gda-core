@@ -22,7 +22,7 @@ Require-Bundle: uk.ac.diamond.org.jacorb;bundle-version="2.2.0",
  com.springsource.ch.qos.logback.core;bundle-version="0.9.15",
  uk.ac.diamond.org.springframework;bundle-version="1.0.0",
  uk.ac.diamond.guava;bundle-version="11.0.1",
- uk.ac.diamond.jython;bundle-version="2.5.3"
+ uk.ac.diamond.jython;bundle-version="[2.5.3,3.0.0)"
 Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.diamond.scisoft.analysis,
  uk.ac.diamond.org.jacorb, uk.ac.gda.api, uk.ac.diamond.org.springframework
 Eclipse-BuddyPolicy: registered
