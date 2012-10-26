@@ -23,6 +23,8 @@ import gda.analysis.DataSet;
 import java.util.Collections;
 import java.util.List;
 
+import org.dawnsci.plotting.jreality.impl.PlotException;
+import org.dawnsci.plotting.jreality.impl.SurfPlotStyles;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -30,13 +32,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
-import uk.ac.diamond.scisoft.analysis.rcp.histogram.mapfunctions.AbstractMapFunction;
-import uk.ac.diamond.scisoft.analysis.rcp.histogram.mapfunctions.ConstMapFunction;
-import uk.ac.diamond.scisoft.analysis.rcp.histogram.mapfunctions.SquareRootMapFunction;
+import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.AbstractMapFunction;
+import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.ConstMapFunction;
+import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.SquareRootMapFunction;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotException;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.SurfPlotStyles;
 
 public class MythenDataView extends ViewPart {
 

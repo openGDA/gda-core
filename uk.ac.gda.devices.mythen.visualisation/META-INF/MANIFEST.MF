@@ -13,5 +13,6 @@ Require-Bundle: uk.ac.diamond.scisoft.analysis.rcp;bundle-version="1.0.0",
  uk.ac.gda.libs;bundle-version="1.0.0",
  uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.gda.core;bundle-version="1.0.0",
- uk.ac.gda.analysis;bundle-version="1.0.0"
+ uk.ac.gda.analysis;bundle-version="1.0.0",
+ org.dawnsci.plotting.jreality;bundle-version="1.0.0"
 Import-Package: org.springframework.util;version="3.0.4"
