@@ -24,7 +24,6 @@ import gda.jython.UserMessage;
 import gda.observable.IObserver;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.DisposeEvent;
@@ -84,71 +83,67 @@ public class MessageView extends ViewPart implements IObserver {
 			return;
 		}*/
 		
+
+		
 		Composite container = new Composite(parent, SWT.NONE);
 		container.setLayout(new GridLayout());
-		{
-			SashForm sashForm = new SashForm(container, SWT.NONE);
-			sashForm.setOrientation(SWT.VERTICAL);
-			sashForm.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-			{
-				history = new StyledText(sashForm, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.SEARCH | SWT.CANCEL | SWT.MULTI);
-				history.setEditable(false);
-			}
-			{
-				Composite composite = new Composite(sashForm, SWT.NONE);
-				composite.setLayout(new GridLayout(2, false));
-				{
-					text = new Text(composite, SWT.BORDER | SWT.MULTI);
-					text.setToolTipText("Enter message and ENTER to send.");
-					text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-					this.keyListener = new KeyListener() {
-						
-						@Override
-						public void keyReleased(KeyEvent e) {
-							// TODO Auto-generated method stub
-							
-						}
-						
-						@Override
-						public void keyPressed(KeyEvent e) {
-							if (e.character=='\r') {
-								sendMessage();
-								e.doit = false;
-							}
-						}
-					};
-					text.addKeyListener(keyListener);
-					text.addDisposeListener(new DisposeListener() {
-						@Override
-						public void widgetDisposed(DisposeEvent e) {
-							text.removeKeyListener(keyListener);
-						}
-					});
-				}
-				{
-					this.btnSend = new Button(composite, SWT.NONE);
-					btnSend.setText("Send");
-					this.selectionListener = new SelectionAdapter() {
-						@Override
-						public void widgetSelected(SelectionEvent e) {
-							sendMessage();
-						}
-					};
-					btnSend.addSelectionListener(selectionListener);
-					btnSend.addDisposeListener(new DisposeListener() {
-						@Override
-						public void widgetDisposed(DisposeEvent e) {
-							btnSend.removeSelectionListener(selectionListener);
-						}
-					});
+		
+		history = new StyledText(container, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.SEARCH | SWT.CANCEL | SWT.MULTI);
+		history.setEditable(false);
+		history.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		
+		Composite composite = new Composite(container, SWT.NONE);
+		composite.setLayout(new GridLayout(2, false));
+		GridData textCompositeData = new GridData(SWT.FILL, SWT.BOTTOM, true, false);
+		textCompositeData.minimumHeight = 35;
+		textCompositeData.heightHint = 35;
+		composite.setLayoutData(textCompositeData);
+		
+		text = new Text(composite, SWT.BORDER | SWT.MULTI);
+		text.setToolTipText("Enter message and ENTER to send.");
+		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		keyListener = new KeyListener() {
+			
+			@Override
+			public void keyReleased(KeyEvent e) {}
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.character=='\r') {
+					sendMessage();
+					e.doit = false;
 				}
 			}
-			sashForm.setWeights(new int[] {412, 38});
-		}
+		};
+		text.addKeyListener(keyListener);
+		text.addDisposeListener(new DisposeListener() {
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				text.removeKeyListener(keyListener);
+			}
+		});
+		
+		btnSend = new Button(composite, SWT.NONE);
+		btnSend.setText("Send");
+		selectionListener = new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				sendMessage();
+			}
+		};
+		
+		btnSend.addSelectionListener(selectionListener);
+		
+		btnSend.addDisposeListener(new DisposeListener() {
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				btnSend.removeSelectionListener(selectionListener);
+			}
+		});
+		
 		if(!LocalProperties.isBatonManagementEnabled()){
 			addUserMessageText("", "Baton control is not enabled for this beam line.");
 		}
-
 	}
 	
 	private void sendMessage() {
