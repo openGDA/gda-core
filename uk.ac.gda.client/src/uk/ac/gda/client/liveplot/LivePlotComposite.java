@@ -490,7 +490,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 		IActionBars bars    = parentPart instanceof IViewPart
 				            ? ((IViewPart)parentPart).getViewSite().getActionBars()
 				            : null;
-		plottingSystem.createPlotPart(plotArea, parentPart.getTitle(), bars, PlotType.PT1D, parentPart);
+		plottingSystem.createPlotPart(plotArea, parentPart.getTitle(), bars, PlotType.XY, parentPart);
 		plottingSystem.setXfirst(true);
 	}
 
