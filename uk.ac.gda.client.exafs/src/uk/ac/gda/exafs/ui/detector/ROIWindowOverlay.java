@@ -18,14 +18,13 @@
 
 package uk.ac.gda.exafs.ui.detector;
 
+import org.dawnsci.plotting.jreality.overlay.Overlay1DProvider;
+import org.dawnsci.plotting.jreality.overlay.OverlayProvider;
+import org.dawnsci.plotting.jreality.overlay.OverlayType;
+import org.dawnsci.plotting.jreality.overlay.events.AbstractOverlayConsumer;
+import org.dawnsci.plotting.jreality.overlay.events.OverlayDrawingEvent;
+import org.dawnsci.plotting.jreality.overlay.primitives.PrimitiveType;
 import org.eclipse.swt.widgets.Display;
-
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.OverlayType;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.PrimitiveType;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.Overlay1DProvider;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.OverlayProvider;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.events.AbstractOverlayConsumer;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.events.OverlayDrawingEvent;
 
 /**
  *

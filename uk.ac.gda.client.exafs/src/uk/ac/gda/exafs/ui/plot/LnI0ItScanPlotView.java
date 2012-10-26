@@ -23,8 +23,9 @@ import gda.scan.IScanDataPoint;
 
 import java.util.ArrayList;
 
+import org.dawnsci.plotting.jreality.core.AxisMode;
+
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.AxisMode;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.PlotData;
 
 public class LnI0ItScanPlotView extends AbstractCachedScanPlotView {

@@ -18,6 +18,10 @@
 
 package uk.ac.gda.exafs.ui;
 
+import org.dawnsci.plotting.jreality.overlay.Overlay1DConsumer;
+import org.dawnsci.plotting.jreality.overlay.Overlay1DProvider;
+import org.dawnsci.plotting.jreality.overlay.OverlayProvider;
+import org.dawnsci.plotting.jreality.tool.AreaSelectEvent;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -25,10 +29,6 @@ import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.ui.progress.UIJob;
 
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.Overlay1DConsumer;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.Overlay1DProvider;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.OverlayProvider;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.AreaSelectEvent;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 

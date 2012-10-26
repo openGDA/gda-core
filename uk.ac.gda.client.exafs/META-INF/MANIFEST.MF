@@ -65,7 +65,8 @@ Require-Bundle: uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.diamond.org.nfunk.jep;bundle-version="2.4.1",
  uk.ac.gda.common.client,
  org.eclipse.jface,
- uk.ac.diamond.scisoft.spectroscopy.rcp;bundle-version="1.2.0"
+ uk.ac.diamond.scisoft.spectroscopy.rcp;bundle-version="1.2.0",
+ org.dawnsci.plotting.jreality;bundle-version="1.0.0"
 Export-Package: gda.exafs.scan,
  uk.ac.gda.client.exafs,
  uk.ac.gda.exafs,

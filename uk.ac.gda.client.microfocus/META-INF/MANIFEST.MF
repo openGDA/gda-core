@@ -21,7 +21,8 @@ Require-Bundle: org.eclipse.ui;bundle-version="3.5.1",
  uk.ac.gda.client.experimentdefinition;bundle-version="1.0.0",
  uk.ac.gda.server.exafs;bundle-version="1.0.0",
  uk.ac.gda.server.exafs.epics;bundle-version="1.0.0",
- uk.ac.gda.analysis;bundle-version="1.0.0"
+ uk.ac.gda.analysis;bundle-version="1.0.0",
+ org.dawnsci.plotting.jreality;bundle-version="1.0.0"
 Export-Package: uk.ac.gda.client.microfocus.scan.datawriter,
  uk.ac.gda.client.microfocus.ui,
  uk.ac.gda.client.microfocus.ui.editors,
