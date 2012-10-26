@@ -147,7 +147,7 @@ public class TomoPlotComposite extends Composite {
 		plotComposite.setLayout(new FillLayout());
 
 		plottingSystem = PlottingFactory.createPlottingSystem();
-		plottingSystem.createPlotPart(plotComposite, "", null, PlotType.PT1D_MULTI, null);
+		plottingSystem.createPlotPart(plotComposite, "", null, PlotType.XY, null);
 		lineListeners = new ArrayList<TomoPlotComposite.PlottingSystemActionListener>();
 		//
 	}
