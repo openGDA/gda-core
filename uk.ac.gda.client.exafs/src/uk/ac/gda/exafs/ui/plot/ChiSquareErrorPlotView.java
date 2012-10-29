@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.DataSetPlotData;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
 
@@ -48,6 +49,7 @@ public class ChiSquareErrorPlotView extends ExafsScanPlotView {
 	@Override
 	public void scanStarted() {
 		super.scanStarted();
+		scanning = true; //FIXME: should be set by a superclass but isn't
 
 		if (cachedE == null)
 			cachedE = new ArrayList<Double>(89);
@@ -72,9 +74,11 @@ public class ChiSquareErrorPlotView extends ExafsScanPlotView {
 		try {
 			Double[] edgePos = xafsFittingUtils.estimateEdgePosition(energy, lnI0It);
 
-			if (edgePos != null)
-				if (edgePos[0] > (edgePos[1] + 200.0)) {
-					xafsFittingUtils.setDoFilter(false);
+			if (edgePos != null) {
+				double postEdgeStart = xafsFittingUtils.getPostEdgeGap();
+				int idxStart = DatasetUtils.findIndexGreaterThanorEqualTo(energy, edgePos[1] + postEdgeStart);
+
+				if (lnI0It.getSize() > (idxStart + minPlotPoints)) {
 					Double[]  chi2result = xafsFittingUtils.getChi2Error(energy, lnI0It, 15.0, 25.0);
 					if (!(Double.isNaN(chi2result[0])) && !(Double.isNaN(chi2result[1]))) {
 						cachedE.add(chi2result[0]);
@@ -82,6 +86,7 @@ public class ChiSquareErrorPlotView extends ExafsScanPlotView {
 					}
 					return new DataSetPlotData(getYAxis(), AbstractDataset.createFromList(cachedChi2));
 				}
+			}
 			cachedE.clear();
 			cachedChi2.clear();
 			return null;
