@@ -63,13 +63,13 @@ public class TfgFFoverI0 extends DetectorBase implements NexusDetector {
 		this.setExtraNames(new String[] { "FFI0" });
 		this.setInputNames(new String[0]);
 		if (outputFormat == null || outputFormat.length != 1)
-			this.setOutputFormat(new String[] { "%.6f" });
+			this.setOutputFormat(new String[] { "%.5f" });
 
 	}
 
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
-		Double i0 = getI0();
+		Double i0 = getI0(); 
 		Double ff = getFF();
 
 		NXDetectorData thisFrame = new NXDetectorData(this);
@@ -79,7 +79,8 @@ public class TfgFFoverI0 extends DetectorBase implements NexusDetector {
 		if (i0 == 0.0 || ff == 0.0 || i0.isInfinite() || i0.isNaN() || ff.isInfinite() || ff.isNaN()) {
 			ffio = 0.0;
 		}
-
+//		logger.info("FFI0 calculated based on I0 "+i0+" and FF "+ ff);
+		
 		thisFrame.addData(detTree, "FFI0", new int[] { 1 }, NexusFile.NX_FLOAT64, new Double[] { ffio }, "counts", 1);
 		thisFrame.setPlottableValue("FFI0", ffio);
 
@@ -88,8 +89,10 @@ public class TfgFFoverI0 extends DetectorBase implements NexusDetector {
 	}
 
 	private Double getFF() throws DeviceException {
-		double[] values = (double[]) xspress.readoutScalerData();
-		String[] names = xspress.getExtraNames();
+		NXDetectorData data = (NXDetectorData) xspress.readout();
+		Double[] vals = data.getDoubleVals();
+
+		String[] names = data.getExtraNames();
 		int column = 0;
 		for (int i = 0; i < names.length; i++) {
 			if (names[i].equals("FF")) {
@@ -97,13 +100,13 @@ public class TfgFFoverI0 extends DetectorBase implements NexusDetector {
 				break;
 			}
 		}
-		return values[column];
+		return vals[column];
 	}
 
 	private Double getI0() throws DeviceException {
 		// assume that this is a TFv2 behind where the first column is always the live time, so the next channel will be
 		// the I0
-		Object out = ct.readoutCurrentFrame();
+		Object out = ct.readout();
 		return ((double[]) out)[i0_channel];
 	}
 

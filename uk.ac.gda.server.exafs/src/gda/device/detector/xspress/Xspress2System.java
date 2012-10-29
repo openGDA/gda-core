@@ -107,7 +107,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 
 	private Double deadtimeEnergy = null;  // in keV NOT eV!
 
-	protected int framesRead = 0;
+	protected int lastFrameCollected = 0;
 	// mode override property, when set to true the xspress is always set in SCAlers and MCA Mode
 	// does not change with the value in the parameters file, no rois are set
 	private boolean modeOverride = LocalProperties.check("gda.xspress.mode.override");
@@ -400,7 +400,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 			clear();
 			start();
 		}
-		framesRead = 0;
+		lastFrameCollected = -1;
 	}
 
 	@Override
@@ -411,7 +411,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		stop();
 		clear();
 		start();
-		framesRead = 0;
+		lastFrameCollected = -1;
 	}
 
 	@Override
@@ -1509,10 +1509,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	 */
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
-		NexusTreeProvider out = readout(framesRead, framesRead)[0];
-		if (!tfg.getAttribute("TotalFrames").equals(0)) {
-			framesRead++;
-		}
+		NexusTreeProvider out = readout(lastFrameCollected, lastFrameCollected)[0];
 		return out;
 	}
 
@@ -1790,6 +1787,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		if (elementNames.size() == ds.length && ffColumn > -1) {
 			thisFrame.addData(detTree, "FF", new int[] { 1 }, NexusFile.NX_FLOAT64, new double[] { ds[ffColumn] },
 					"counts", 1);
+//			logger.info("FF measured to be"+ds[ffColumn]+" for frame  "+ lastFrameCollected);
 		}
 
 		if (mcaGrades == RES_THRES) {
@@ -1901,20 +1899,22 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	 * @return an array of doubles of dead time corrected 'in window' counts and the sum of all the dead time corrected
 	 *         data.
 	 * @throws DeviceException
+	 * @Deprecated since 8.26 do not use this as the array of doubles does not necessarily match to the outputNames
 	 */
 	@Override
+	@Deprecated
 	public double[] readoutScalerData() throws DeviceException {
 		if (tfg.getAttribute("TotalFrames").equals(0)) {
 			return readoutScalerData(0, 0, true)[0];
 		}
-		return readoutScalerData(framesRead, framesRead, true)[0];
+		return readoutScalerData(lastFrameCollected, lastFrameCollected, true)[0];
 	}
 
 	public double[] readoutScalerDataNoCorrection() throws DeviceException {
 		if (tfg.getAttribute("TotalFrames").equals(0)) {
 			return readoutScalerData(0, 0, false)[0];
 		}
-		return readoutScalerData(framesRead, framesRead, false)[0];
+		return readoutScalerData(lastFrameCollected, lastFrameCollected, false)[0];
 	}
 
 	private double[][] readoutScalerData(int startFrame, int finalFrame, boolean performCorrections)
@@ -2146,6 +2146,10 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		if (tfg.getAttribute("TotalFrames").equals(0)) {
 			clear();
 			start();
+			lastFrameCollected = 0;
+		} else {
+			// so all readout methods will read from the same frame
+			lastFrameCollected++;
 		}
 	}
 

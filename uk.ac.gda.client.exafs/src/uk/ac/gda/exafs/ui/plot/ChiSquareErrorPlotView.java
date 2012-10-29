@@ -86,7 +86,7 @@ public class ChiSquareErrorPlotView extends ExafsScanPlotView {
 			cachedChi2.clear();
 			return null;
 		} catch (Exception e) {
-			logger.warn("Cannot calculate Chi^2 error", e);
+			logger.warn("Exception in XafsFittingUtils calculating Chi^2 error", e);
 			return null;
 		}
 	}

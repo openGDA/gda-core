@@ -64,14 +64,9 @@ public class LnI0ItScanPlotView extends AbstractCachedScanPlotView {
 			cachedX = new ArrayList<Double>(89);
 		if (cachedY == null)
 			cachedY = new ArrayList<Double>(89);
-//		synchronized(sdpArray){
-//			Iterator<IScanDataPoint> iterator = sdpArray.iterator();
-//		for (final IScanDataPoint point : sdpArray) {
-//		while(iterator.hasNext()){
 		for (int i = startIndex; i < collection.size(); i++){
 			IScanDataPoint point = collection.get(i);
 			double x = point.getAllValuesAsDoubles()[0];
-//			final IScanDataPoint point = sdpArray.get(i);
 			double ff = ScanDataPointUtils.getFF(point);
 			double i0 = ScanDataPointUtils.getI0(point);
 			double it = ScanDataPointUtils.getIt(point);
@@ -90,7 +85,6 @@ public class LnI0ItScanPlotView extends AbstractCachedScanPlotView {
 			} else
 				continue;
 		}
-//		}
 	}
 
 	@Override

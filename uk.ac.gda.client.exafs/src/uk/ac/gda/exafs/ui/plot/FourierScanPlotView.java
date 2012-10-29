@@ -18,6 +18,9 @@
 
 package uk.ac.gda.exafs.ui.plot;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.exafs.scan.ExafsScanPointCreator;
 import gda.scan.IScanDataPoint;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
@@ -30,6 +33,8 @@ import uk.ac.gda.exafs.ui.data.ScanObjectManager;
  * This class assumes that the point with energy less than A are to be included in the pre-edge.
  */
 public class FourierScanPlotView extends ExafsScanPlotView {
+	
+	private static final Logger logger = LoggerFactory.getLogger(FourierScanPlotView.class);
 
 	@SuppressWarnings("hiding")
 	public static final String ID = "gda.rcp.views.scan.FourierScanPlotView"; //$NON-NLS-1$
@@ -64,6 +69,7 @@ public class FourierScanPlotView extends ExafsScanPlotView {
 			}
 			return null;
 		} catch (Exception e) {
+			logger.warn("Exception in XafsFittingUtils calculating FFT",e);
 			return null;
 		}
 	}

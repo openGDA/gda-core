@@ -157,21 +157,28 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 	@Override
 	protected void updateCache(ArrayList<IScanDataPoint> collection, int startIndex) {
 		calculateA();
+		
 		if (cachedX == null)
 			cachedX = new ArrayList<Double>(89);
 		if (cachedY == null)
 			cachedY = new ArrayList<Double>(89);
-		for (int i = startIndex; i < collection.size(); i++){
+		for (int i = startIndex; i < collection.size(); i++) {
 			IScanDataPoint point = collection.get(i);
-			final double i0 = ScanDataPointUtils.getI0(point);
-			final double it = ScanDataPointUtils.getIt(point);
-			final double ln = Math.log(i0 / it);
-			if (Double.isNaN(ln))
+			double x = point.getAllValuesAsDoubles()[0];
+			double ff = ScanDataPointUtils.getFF(point);
+			double i0 = ScanDataPointUtils.getI0(point);
+			double it = ScanDataPointUtils.getIt(point);
+			if (Double.isNaN(i0))
 				continue;
-			if (Double.isNaN(point.getAllValuesAsDoubles()[0]))
+			if (!Double.isNaN(ff)) {
+				cachedY.add(ff / i0);
+				cachedX.add(x);
+			} else if (!Double.isNaN(it)) {
+				cachedY.add(Math.log(i0 / it));
+				cachedX.add(x);
+			} else {
 				continue;
-			cachedY.add(ln);
-			cachedX.add(point.getAllValuesAsDoubles()[0]);
+			}
 		}
 	}
 
