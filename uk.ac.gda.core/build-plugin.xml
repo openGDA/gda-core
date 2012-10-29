@@ -28,6 +28,8 @@
     <target name="_junit-tests" depends="toolCheck, set-test-base">
         <junit-call description="${ant.project.name} Java JUnit tests" maxmemory="1024m"
         Xvfb-display-name="${Xvfb-display-name}" Xvfb-display-number="${Xvfb-display-number}">
+            <jvmarg value="-Dgda.install.workspace.loc=${workspace.loc}" />
+            <jvmarg value="-Dgda.install.git.loc=${workspace.git.loc}" />
             <sysproperty key="basedir" value="${GDA-plugin.basedir}" />
             <sysproperty key="gda.tests" value = "${GDA-plugin.basedir}/test"/>  <!-- read by plugins/uk.ac.gda.core/src/gda/util/TestsUtil.java -->
             <sysproperty key="gda.propertiesFiles" value = "${GDA-plugin.basedir}/test/java.properties"/>
