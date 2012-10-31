@@ -45,11 +45,12 @@ public interface ITomoAlignmentLeftPanelListener extends ZoomButtonActionListene
 	/**
 	 * fast preview is requested.
 	 * 
-	 * @param isFlatCorrectionRequired
+	 * @param selection
+	 * @param flatCorrection 
 	 * @throws InvocationTargetException
 	 * @throws Exception
 	 */
-	void fastPreview(boolean isFlatCorrectionRequired) throws InvocationTargetException, Exception;
+	void fastPreview(boolean selection, boolean flatCorrection) throws InvocationTargetException, Exception;
 
 	/**
 	 * When the saturation button is pressed

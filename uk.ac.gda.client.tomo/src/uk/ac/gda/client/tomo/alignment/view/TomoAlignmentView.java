@@ -206,12 +206,12 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	/**/
 	private ScaleBarComposite leftScaleBar;
 
-	protected TomoPlotComposite tomoPlotComposite;
+	private TomoPlotComposite tomoPlotComposite;
 	private Label lblYValue;
 	private Label lblXValue;
 	private Composite page_rightInfo_nonProfile;
 	private Label lblProfileIntensityValue;
-	private ColourSliderComposite histogramSliderComposite;
+	private ColourSliderComposite contrastSliderComposite;
 	private Label lblPixelX;
 	private Label lblPixelY;
 	private Label lblPixelIntensityVal;
@@ -374,6 +374,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	@Override
 	public void createPartControl(Composite parent) {
 		try {
+			BACKGROUND_COLOR = new Color(getViewSite().getShell().getDisplay(), BACKGROUND_COLOUR_RGB);
 			toolkit = new FormToolkit(parent.getDisplay());
 			toolkit.setBorderStyle(SWT.BORDER);
 
@@ -406,8 +407,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			tomoAlignmentController.addScanControllerUpdateListener(tomoViewController);
 			leftPanelComposite.addLeftPanelListener(tomoViewController);
 			tomoAlignmentController.isScanRunning();
-
-			BACKGROUND_COLOR = new Color(getViewSite().getShell().getDisplay(), BACKGROUND_COLOUR_RGB);
 
 		} catch (Exception ex) {
 			throw new RuntimeException("Error opening view", ex);
@@ -558,14 +557,14 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		//
 		histogramAdjuster = new HistogramAdjuster();
 		//
-		histogramSliderComposite = new ColourSliderComposite(page_leftWindow_imgViewer, SWT.None);
+		contrastSliderComposite = new ColourSliderComposite(page_leftWindow_imgViewer, SWT.None);
 		layoutData = new GridData(GridData.FILL_VERTICAL);
 		layoutData.widthHint = 30;
-		histogramSliderComposite.setLayoutData(layoutData);
-		histogramSliderComposite.setMaximum(70000);
-		histogramSliderComposite.setMarkerInterval(10000);
-		histogramSliderComposite.setMaximumLimit(histogramAdjuster.getMaxIntensity());
-		histogramSliderComposite.addColourSliderListener(tomoViewController);
+		contrastSliderComposite.setLayoutData(layoutData);
+		contrastSliderComposite.setMaximum(70000);
+		contrastSliderComposite.setMarkerInterval(10000);
+		contrastSliderComposite.setMaximumLimit(histogramAdjuster.getMaxIntensity());
+		contrastSliderComposite.addColourSliderListener(tomoViewController);
 
 		Composite infoComposite = createLeftWindowInfoViewComposite(page_leftWindow_imgViewer);
 		layoutData = new GridData(GridData.FILL_HORIZONTAL);
@@ -827,7 +826,8 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				try {
-					tomoAlignmentController.applyHistogramToAdjustExposureTime();
+					tomoAlignmentController.applyHistogramToAdjustExposureTime(leftPanelComposite.isAmplified(),
+							getContrastLower(), getContrastUpper());
 				} catch (Exception e1) {
 					logger.error("TODO put description of error here", e1);
 					loadErrorInDisplay("Problem applying histogram value to exposure time",
@@ -1060,30 +1060,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		}
 	}
 
-	private ImageListener<ImageData> tomoImageListener = new ImageListener<ImageData>() {
-
-		private String name;
-
-		@Override
-		public void setName(String name) {
-			this.name = name;
-		}
-
-		@Override
-		public String getName() {
-			return name;
-		}
-
-		@Override
-		public void processImage(final ImageData imageData) {
-			try {
-				tomoPlotComposite.updateHistogramData(getLeftWindowViewerDisplayMode(), imageData);
-			} catch (Exception ex) {
-				leftPanelComposite.stopHistogram();
-			}
-		}
-	};
-
 	@Override
 	public void dispose() {
 
@@ -1096,8 +1072,8 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 				leftWindowImageViewer.removeOverlayImageFigureListener(tomoViewController);
 				leftWindowImageViewer.dispose();
 			}
-			histogramSliderComposite.removeColourSliderListener(tomoViewController);
-			histogramSliderComposite.dispose();
+			contrastSliderComposite.removeColourSliderListener(tomoViewController);
+			contrastSliderComposite.dispose();
 			tomoPlotComposite.removeOverlayLineListener(tomoViewController);
 
 			leftPanelComposite.removeLeftPanelListener(tomoViewController);
@@ -1198,7 +1174,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			leftVideoReceiver.closeConnection();
 
 			leftVideoReceiver.removeImageListener(leftVideoListener);
-			leftVideoReceiver.removeImageListener(tomoImageListener);
 			fullImgReceiverStarted = false;
 
 			if (zoomReceiverStarted) {
@@ -1310,7 +1285,10 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-					tomoAlignmentController.startAcquiring(acquireTime, 1);
+					boolean isAmplified = leftPanelComposite.isAmplified();
+					double lower = getContrastLower();
+					double upper = getContrastUpper();
+					tomoAlignmentController.startAcquiring(acquireTime, isAmplified, lower, upper);
 				}
 			});
 
@@ -1615,14 +1593,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		tomoControlComposite.setResolution(res);
 	}
 
-	public void addLeftWindowTomoImageListener() {
-		leftVideoReceiver.addImageListener(tomoImageListener);
-	}
-
-	public void removeLeftWindowTomoImageListener() {
-		leftVideoReceiver.removeImageListener(tomoImageListener);
-	}
-
 	@Override
 	public void setAdjustedPreferredExposureTimeToWidget(double preferredExposureTime) {
 		if (leftWindowDisplayMode == ViewerDisplayMode.SAMPLE_STREAM_LIVE
@@ -1719,6 +1689,14 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 	public void setProfileIntensityValue(String profileIntensityValue) {
 		lblProfileIntensityValue.setText(profileIntensityValue);
+	}
+
+	protected int getContrastLower() {
+		return (int) contrastSliderComposite.getLowerValue();
+	}
+
+	protected int getContrastUpper() {
+		return (int) contrastSliderComposite.getUpperValue();
 	}
 
 }

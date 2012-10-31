@@ -19,6 +19,7 @@
 package uk.ac.gda.client.tomo.composites;
 
 import java.lang.reflect.InvocationTargetException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,12 +54,10 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
 
 public class TomoAlignmentLeftPanelComposite extends Composite {
-
+	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.##");
 	private static final String EXPOSURE_TIME_lbl = "EXPOSURE TIME";
 	private static final String FLAT_lbl = "Flat";
 	private static final String SAMPLE_lbl = "Sample";
-	private static final String SAMPLE_OUT = "Sample Out";
-	private static final String SAMPLE_IN = "Sample In";
 	private static final String SHOW_FLAT = "Show Flat";
 	private static final String SHOW_DARK = "Show Dark";
 	private static final String FAST_PREVIEW = "Fast Preview";
@@ -74,7 +73,6 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 	//
 	private Button btnFlatDarkCorrection;
 	private Button btnFlatShow;
-	private Label lblFlatDarkExpTime;
 	//
 	private Button btnDarkShow;
 	//
@@ -118,6 +116,8 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 	private Label lblFlat;
 	private Composite pgLblFlatCmp;
 	private Composite pgBtnFlatCmp;
+
+	private boolean ampFactor = false;
 
 	public enum SAMPLE_OR_FLAT {
 		SAMPLE, FLAT;
@@ -310,7 +310,6 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 		btnFlat = toolkit.createButton(pgBtnFlatCmp, FLAT_lbl, SWT.WRAP | SWT.CENTER);
 		btnFlat.addSelectionListener(buttonSelectionListener);
 		btnFlat.setEnabled(false);
-		ButtonSelectionUtil.setButtonSelected(btnFlat);
 
 		pgLblFlatCmp = toolkit.createComposite(pgBook_flatBtnLbl);
 		gridLayout = new GridLayout();
@@ -362,7 +361,9 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 			if (e.getSource().equals(txtSampleExposureTime)) {
 				if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
 					if (isValid(Double.class, txtSampleExposureTime.getText())) {
+
 						sampleExposureTime = Double.parseDouble(txtSampleExposureTime.getText());
+						txtSampleExposureTime.setText(DECIMAL_FORMAT.format(sampleExposureTime));
 						try {
 							for (ITomoAlignmentLeftPanelListener leftPanelLis : leftPanelListeners) {
 								leftPanelLis.sampleExposureTimeChanged(sampleExposureTime);
@@ -381,6 +382,7 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 						}
 					} else {
 						showErrorDialog(new IllegalArgumentException("Invalid value "));
+						txtSampleExposureTime.setText(DECIMAL_FORMAT.format(sampleExposureTime));
 					}
 				}
 			} else if (e.getSource().equals(txtFlatExpTime)) {
@@ -388,6 +390,7 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 				if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
 					if (isValid(Double.class, txtFlatExpTime.getText())) {
 						flatExposureTime = Double.parseDouble(txtFlatExpTime.getText());
+						txtFlatExpTime.setText(DECIMAL_FORMAT.format(flatExposureTime));
 						try {
 							for (ITomoAlignmentLeftPanelListener leftPanelLis : leftPanelListeners) {
 								leftPanelLis.flatExposureTimeChanged(Double.parseDouble(txtFlatExpTime.getText()));
@@ -398,6 +401,7 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 						btnFlat.setFocus();
 					} else {
 						showErrorDialog(new IllegalArgumentException("Invalid value "));
+						txtFlatExpTime.setText(DECIMAL_FORMAT.format(flatExposureTime));
 					}
 				}
 			}
@@ -428,25 +432,13 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 	private FocusListener focusListener = new FocusAdapter() {
 		@Override
 		public void focusLost(FocusEvent focusEvent) {
-			// if (focusEvent.getSource().equals(txtSampleExposureTime)) {
-			// logger.debug("Sample exposure time focus lost");
-			// try {
-			// for (ITomoAlignmentControlListener ml : tomoAlignmentControlListeners) {
-			// ml.resetCameraDistance();
-			// }
-			// } catch (Exception e) {
-			// showErrorDialog(new IllegalArgumentException("Error reseting camera distance", e));
-			// }
-			// } else if (focusEvent.getSource().equals(txtFlatExpTime)) {
-			// logger.debug("Focus exposure time focus lost");
-			// try {
-			// for (ITomoAlignmentControlListener ml : tomoAlignmentControlListeners) {
-			// ml.resetXrayEnergy();
-			// }
-			// } catch (Exception e) {
-			// showErrorDialog(new IllegalArgumentException("Error reseting X-ray energy", e));
-			// }
-			// }
+			if (focusEvent.getSource().equals(txtSampleExposureTime)) {
+				logger.debug("sample exposure time focus lost");
+				txtSampleExposureTime.setText(DECIMAL_FORMAT.format(sampleExposureTime));
+			} else if (focusEvent.getSource().equals(txtFlatExpTime)) {
+				logger.debug("flat exposure time focus lost");
+				txtFlatExpTime.setText(DECIMAL_FORMAT.format(flatExposureTime));
+			}
 		}
 	};
 
@@ -629,14 +621,10 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 					logger.error("single capturing has problems", e);
 				}
 			} else if (sourceObj == btnFastPreview) {
-				logger.debug("'single' is selected");
-				try {
-					for (ITomoAlignmentLeftPanelListener lpl : leftPanelListeners) {
-						lpl.fastPreview(isFlatCorrectionSelected());
-					}
-				} catch (Exception e) {
-					showErrorDialog(e);
-					logger.error("single capturing has problems", e);
+				if (!ButtonSelectionUtil.isButtonSelected(btnFastPreview)) {
+					switchOnFastPreview();
+				} else {
+					switchOffFastPreview();
 				}
 			} else if (sourceObj == btnSaturation) {
 				if (!ButtonSelectionUtil.isButtonSelected(btnSaturation)) {
@@ -790,20 +778,49 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 			}
 		}
 
-		private void selectSampleButton() {
-			ButtonSelectionUtil.setButtonSelected(btnSample);
-			ButtonSelectionUtil.setButtonDeselected(btnFlat);
-			try {
-
-				for (ITomoAlignmentLeftPanelListener lis : leftPanelListeners) {
-					lis.exposureStateChanged(SAMPLE_OR_FLAT.SAMPLE);
-				}
-				streamState = SAMPLE_OR_FLAT.SAMPLE;
-			} catch (Exception e1) {
-				logger.error("Error setting state", e1);
-			}
-		}
 	};
+
+	private void switchOffFastPreview() {
+		ButtonSelectionUtil.setButtonDeselected(btnFastPreview);
+		logger.debug("'fast preview' is selected");
+		try {
+			for (ITomoAlignmentLeftPanelListener lpl : leftPanelListeners) {
+				lpl.fastPreview(false, isFlatCorrectionSelected());
+			}
+		} catch (Exception e) {
+			showErrorDialog(e);
+			logger.error("single capturing has problems", e);
+		}
+		ampFactor = false;
+	}
+
+	private void switchOnFastPreview() {
+		ButtonSelectionUtil.setButtonSelected(btnFastPreview);
+		logger.debug("'fast preview' is selected");
+		try {
+			for (ITomoAlignmentLeftPanelListener lpl : leftPanelListeners) {
+				lpl.fastPreview(true, isFlatCorrectionSelected());
+			}
+		} catch (Exception e) {
+			showErrorDialog(e);
+			logger.error("single capturing has problems", e);
+		}
+		ampFactor = true;
+	}
+
+	private void selectSampleButton() {
+		ButtonSelectionUtil.setButtonSelected(btnSample);
+		ButtonSelectionUtil.setButtonDeselected(btnFlat);
+		try {
+
+			for (ITomoAlignmentLeftPanelListener lis : leftPanelListeners) {
+				lis.exposureStateChanged(SAMPLE_OR_FLAT.SAMPLE);
+			}
+			streamState = SAMPLE_OR_FLAT.SAMPLE;
+		} catch (Exception e1) {
+			logger.error("Error setting state", e1);
+		}
+	}
 
 	public void setPreferredFlatExposureTime(final double preferredFlatExposureTime) {
 		flatExposureTime = preferredFlatExposureTime;
@@ -897,11 +914,23 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 				lpl.histogram(true);
 			}
 		} catch (Exception e1) {
-			logger.debug("Error setting exposure time", e1);
+			logger.debug("Error starting histogram", e1);
+			showErrorDialog(e1);
 		}
 	}
 
 	public void stopHistogram() {
+		if (ButtonSelectionUtil.isButtonSelected(btnHistogram)) {
+			ButtonSelectionUtil.setButtonDeselected(btnHistogram);
+			for (ITomoAlignmentLeftPanelListener lpl : leftPanelListeners) {
+				try {
+					lpl.histogram(false);
+				} catch (Exception e) {
+					logger.error("Error switching off histogram", e);
+					showErrorDialog(e);
+				}
+			}
+		}
 
 	}
 
@@ -1011,6 +1040,10 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 		} catch (Exception e) {
 			logger.error("Error displaying crosshair ;{}", e.getMessage());
 		}
+	}
+
+	public boolean isAmplified() {
+		return ampFactor;
 	}
 
 }

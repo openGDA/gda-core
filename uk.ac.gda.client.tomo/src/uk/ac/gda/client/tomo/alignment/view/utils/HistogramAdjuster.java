@@ -72,9 +72,9 @@ public class HistogramAdjuster {
 		return imgData;
 	}
 
-	public ImageData updateHistogramValues(int lowValue, int highValue) {
-		this.lowValue = lowValue;
-		this.highValue = highValue;
+	public ImageData updateHistogramValues(double lowValue, double highValue) {
+		this.lowValue = (int) lowValue;
+		this.highValue = (int) highValue;
 		ImageData imgData = updateHistogram();
 		return imgData;
 	}
@@ -133,8 +133,8 @@ public class HistogramAdjuster {
 	public double getMaxIntensity() {
 		return maxIntensity;
 	}
-	
-	public double getMinIntensity(){
+
+	public double getMinIntensity() {
 		return 0;
 	}
 }

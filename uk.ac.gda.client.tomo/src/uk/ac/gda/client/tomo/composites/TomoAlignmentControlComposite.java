@@ -143,7 +143,7 @@ public class TomoAlignmentControlComposite extends Composite {
 
 	private static final String LAST_SAVED_lbl = "Last Saved: ";
 
-	private static final String FIND_TOMO_AXIS_lbl = "Find Tomo Axis";
+	private static final String FIND_TOMO_AXIS_lbl = "Find Rotation Axis";
 
 	private static final String ALIGN_TILT_lbl = "Align Tilt";
 
@@ -199,7 +199,7 @@ public class TomoAlignmentControlComposite extends Composite {
 	private static final String ZERO_DEG = "0°";
 	private static final String MINUS_ONE_EIGHTY_DEG = "-180°";
 	private static final String VERTICAL_lbl = "Move Vertical";
-	private static final String MOVE_TOMO_AXIS_lbl = "Move Tomo Axis";
+	private static final String MOVE_TOMO_AXIS_lbl = "Move Rotation Axis";
 
 	private static final String FRAMES_PER_PROJECTION_DEFAULT_VAL = "1";
 
@@ -547,7 +547,7 @@ public class TomoAlignmentControlComposite extends Composite {
 		txtXrayEnergy.addFocusListener(focusListener);
 		txtXrayEnergy.addKeyListener(txtKeyListener);
 		txtXrayEnergy.setEnabled(false);
-		
+
 		return beamlineControlComposite;
 	}
 
@@ -624,7 +624,7 @@ public class TomoAlignmentControlComposite extends Composite {
 		btnFindAxisOfRotation.addListener(SWT.MouseDown, ctrlMouseListener);
 		ButtonSelectionUtil.decorateControlButton(btnFindAxisOfRotation);
 
-		btnMoveAxisOfRotation = toolkit.createButton(tomoAlignmentComposite, MOVE_TOMO_AXIS_lbl, SWT.PUSH | SWT.WRAP);
+		btnMoveAxisOfRotation = toolkit.createButton(tomoAlignmentComposite, MOVE_TOMO_AXIS_lbl, SWT.PUSH);
 		// btnMoveAxisOfRotation.setBackground(ColorConstants.green);
 		btnMoveAxisOfRotation.setFont(fontRegistry.get(NORMAL_TEXT_9));
 		btnMoveAxisOfRotation.addListener(SWT.MouseDown, ctrlMouseListener);

@@ -32,12 +32,12 @@ public class TomographyDetectorSimulator implements ITomographyDetector {
 	public void setExposureTime(double collectionTime) throws Exception {
 
 	}
-
+	
 	@Override
-	public void acquireMJpeg(Double acqTime, Double acqPeriod, Double procScaleFactor, int binX, int binY)
+	public void acquireMJpeg(Double acqTime, Double acqPeriod, int binX, int binY, Double scale, Double offset)
 			throws Exception {
 		// TODO Auto-generated method stub
-
+		
 	}
 
 	@Override
@@ -220,11 +220,23 @@ public class TomographyDetectorSimulator implements ITomographyDetector {
 	@Override
 	public void setProcScale(double factor) throws Exception {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setOffsetAndScale(double offset, double scale) throws Exception {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void resumeAcquisition() throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setupHistoStatCollection(int binSize) throws Exception {
 		// TODO Auto-generated method stub
 		
 	}

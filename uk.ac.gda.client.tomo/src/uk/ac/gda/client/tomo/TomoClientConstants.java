@@ -33,4 +33,6 @@ public interface TomoClientConstants {
 	public static final String CHANGE_SUBDIR = "tomoAlignment.changeSubDir('%s')";
 
 	public static final String GET_SUBDIR = "tomoAlignment.getSubdir()";
+
+	public static double MAX_INTENSITY = 65535;
 }

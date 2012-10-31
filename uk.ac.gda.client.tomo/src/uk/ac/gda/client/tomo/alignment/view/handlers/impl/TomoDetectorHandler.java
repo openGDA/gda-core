@@ -29,6 +29,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import uk.ac.gda.client.tomo.TiffFileInfo;
 import uk.ac.gda.client.tomo.TomoClientActivator;
+import uk.ac.gda.client.tomo.TomoClientConstants;
 import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraHandler;
 import uk.ac.gda.client.tomo.composites.ModuleButtonComposite.CAMERA_MODULE;
@@ -154,13 +155,13 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 		this.ffmjpegModel2 = ffmjpegModel2;
 	}
 
-	@Override
+	// @Override
 	public void setExposureTime(double exposureTime) throws Exception {
 		changingExposureTime = true;
 		try {
 			/**/
 			//
-			getCamera().setProcScale(1);
+			// getCamera().setProcScale(1);
 			logger.info("setting exposure time:" + exposureTime);
 			boolean isCameraBusy = getCamera().isAcquiring();
 			if (isCameraBusy) {
@@ -171,7 +172,7 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 
 			if (isCameraBusy) {
 				// to put it back in the state it was.
-				getCamera().acquireMJpeg(exposureTime, defaultAcqPeriod, 1.0, leftWindowBinValue, leftWindowBinValue);
+				getCamera().resumeAcquisition();
 			}
 		} finally {
 			changingExposureTime = false;
@@ -179,11 +180,41 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 	}
 
 	@Override
-	public void startAcquiring(double acqTime, int amplifierValue) throws Exception {
+	public void startAcquiring(double acqTime, boolean isAmplified, double lower, double upper) throws Exception {
 		/**/
 		logger.info("Starting to acquire");
-		getCamera().acquireMJpeg(acqTime, defaultAcqPeriod, Double.valueOf(amplifierValue), leftWindowBinValue,
-				leftWindowBinValue);
+		double amplifierValue = getAmpFactor(acqTime, isAmplified);
+		double exposureTime = acqTime / amplifierValue;
+		double scale = getScale(acqTime, isAmplified, lower, upper);
+		double offset = getOffset(acqTime, isAmplified, lower, upper);
+		getCamera().acquireMJpeg(exposureTime, defaultAcqPeriod, leftWindowBinValue, leftWindowBinValue, scale, offset);
+	}
+
+	private double getOffset(double acqTime, boolean isAmplified, double lower, double upper) {
+		double ampFactor = getAmpFactor(acqTime, isAmplified);
+		logger.debug("getOffset:amp factor->{}", ampFactor);
+		logger.debug("getOffset:lower->{}", lower);
+
+		// offset is -(lower/ampfactor)
+		double offset = -(lower / ampFactor);
+		logger.debug("getOffset :offset->{}", offset);
+		return offset;
+	}
+
+	private double getScale(double acqTime, boolean isAmplified, double lower, double upper) {
+		double ampFactor = getAmpFactor(acqTime, isAmplified);
+
+		double maxIntensity = TomoClientConstants.MAX_INTENSITY;
+		logger.debug("getScale :exposure time->{}", acqTime);
+		logger.debug("getScale :amp factor->{}", ampFactor);
+		logger.debug("getScale :lower->{}", lower);
+		logger.debug("getScale :upper->{}", upper);
+
+		// S = S(lower/ampfactor, upper/ampfactor)
+		// S(L,U) = maxIntensity/(U-L)
+		double scale = maxIntensity / ((upper / ampFactor) - (lower / ampFactor));
+		logger.debug("getScale :scale->{}", scale);
+		return scale;
 	}
 
 	@Override
@@ -777,9 +808,27 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 	}
 
 	@Override
-	public void setAmplifiedValue(double newExpTime, int factor) throws Exception {
-		setExposureTime(newExpTime / factor);
-		getCamera().setProcScale(factor);
+	public void setAmplifiedValue(double newExpTime, boolean isAmplified, double lower, double upper) throws Exception {
+		double factor = getAmpFactor(newExpTime, isAmplified);
+		double exposureTime = newExpTime / factor;
+		if (getAcqExposureRBV() != exposureTime) {
+			setExposureTime(exposureTime);
+		}
+
+		double scale = getScale(newExpTime, isAmplified, lower, upper);
+		double offset = getOffset(newExpTime, isAmplified, lower, upper);
+
+		getCamera().setOffsetAndScale(offset, scale);
+	}
+
+	private double getAmpFactor(double newExpTime, boolean isAmplified) {
+		double factor = 1;
+		if (isAmplified) {
+			double thresholdExpTime = TomoClientActivator.getDefault().getPreferenceStore()
+					.getDouble(TomoAlignmentPreferencePage.TOMO_CLIENT_FAST_PREVIEW_EXP_TIME);
+			factor = (newExpTime / thresholdExpTime);
+		}
+		return factor;
 	}
 
 	/**
@@ -918,7 +967,7 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 	public void applyScalingAndContrast(double offset, double scale) throws Exception {
 		camera.setOffsetAndScale(offset, scale);
 	}
-	
+
 	/**
 	 * @return Returns the defaultDistanceToMoveForFlat.
 	 */
@@ -932,8 +981,21 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 	 */
 	public void setDefaultFastPreviewExposureTimeThreshold(Double defaultDistanceToMoveForFlat) {
 		this.defaultFastPreviewExposureTimeThreshold = defaultDistanceToMoveForFlat;
-		TomoClientActivator.getDefault().getPreferenceStore()
-				.setDefault(TomoAlignmentPreferencePage.TOMO_CLIENT_FAST_PREVIEW_EXP_TIME, defaultFastPreviewExposureTimeThreshold);
+		TomoClientActivator
+				.getDefault()
+				.getPreferenceStore()
+				.setDefault(TomoAlignmentPreferencePage.TOMO_CLIENT_FAST_PREVIEW_EXP_TIME,
+						defaultFastPreviewExposureTimeThreshold);
+	}
+
+	@Override
+	public double[] getHistogramData() throws Exception {
+		return ndStatModel.getHistogram();
+	}
+
+	@Override
+	public void setupHistoStatCollection() throws Exception {
+		camera.setupHistoStatCollection(1024);
 	}
 
 }
