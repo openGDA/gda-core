@@ -18,7 +18,6 @@
  */
 
 package gda.plots;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -30,7 +29,6 @@ import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
-import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -42,7 +40,6 @@ import javax.swing.SwingConstants;
 
 import org.jfree.data.general.SeriesChangeEvent;
 import org.jfree.data.general.SeriesChangeListener;
-import gda.plots.Type;
 
 /**
  * JDialog that provides utilities to enable editing of line properties
@@ -63,13 +60,13 @@ public class LinePropertiesEditor extends JDialog implements ActionListener, Ser
 
 	private boolean settingMarkerColour = false;
 
-	private JComboBox typesCombo;
+	private EnumChooser typesCombo;
 
 	private JButton markerColourButton;
 
-	private JComboBox patternsCombo;
+	private EnumChooser patternsCombo;
 
-	private JComboBox markersCombo;
+	private EnumChooser markersCombo;
 
 	private JSpinner markerSizeSpinner;
 
@@ -148,11 +145,11 @@ public class LinePropertiesEditor extends JDialog implements ActionListener, Ser
 			widgets.add(lineThicknessSpinner);
 
 			labels.add(new JLabel("Line Type"));
-			typesCombo = new EnumChooser(Type.class);
+			typesCombo = new EnumChooser(gda.plots.Type.class);
 			widgets.add(typesCombo);
 
 			labels.add(new JLabel("Line Pattern"));
-			patternsCombo = new EnumChooser(Pattern.class);
+			patternsCombo = new EnumChooser(gda.plots.Pattern.class);
 			widgets.add(patternsCombo);
 
 			labels.add(new JLabel("MarkerColour"));
@@ -172,7 +169,7 @@ public class LinePropertiesEditor extends JDialog implements ActionListener, Ser
 		}
 
 		labels.add(new JLabel("Marker"));
-		markersCombo = new EnumChooser(Marker.class);
+		markersCombo = new EnumChooser(gda.plots.Marker.class);
 		widgets.add(markersCombo);
 
 		if (allProperties) {
@@ -281,7 +278,7 @@ public class LinePropertiesEditor extends JDialog implements ActionListener, Ser
 		if (lineThicknessSpinner != null)
 			currentLine.setLineWidth((Integer) lineThicknessSpinner.getValue());
 		if (typesCombo != null)
-			currentLine.setType((Type) typesCombo.getSelectedItem());
+			currentLine.setType((gda.plots.Type) typesCombo.getSelectedItem());
 		if (patternsCombo != null)
 			currentLine.setPattern((Pattern) patternsCombo.getSelectedItem());
 		if (markerColourButton != null)
