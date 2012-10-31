@@ -75,6 +75,8 @@ import uk.ac.gda.client.tomo.composites.RotationSliderComposite.SliderSelectionL
  */
 public class TomoAlignmentControlComposite extends Composite {
 
+	private static final String INSTRUMENT = "Instrument";
+	private static final String BEAMLINE_CONTROL = "Beamline Control";
 	private static final String AUTO_FOCUS_lbl = "Auto Focus";
 	private static final String RESOLUTION_PIXEL_SIZE = "Resolution : Pixel Size = ";
 	private static final String SAMPLE_CENTRING_lbl = "Sample Alignment";
@@ -252,6 +254,11 @@ public class TomoAlignmentControlComposite extends Composite {
 	private Button btnSaveAlignment;
 
 	private Label lblObjectPixelSize;
+
+	private Button chkTomoParameters;
+	private Button chkInstrument;
+	private Button chkSampleAlignment;
+	private Button chkSampleWeight;
 
 	private RESOLUTION resolution = RESOLUTION.FULL;
 
@@ -516,8 +523,19 @@ public class TomoAlignmentControlComposite extends Composite {
 		layout.marginHeight = 2;
 		beamlineControlComposite.setLayout(layout);
 
-		Label lblBeamlineControl = toolkit.createLabel(beamlineControlComposite, "Beamline Control");
+		final Button lblBeamlineControl = toolkit.createButton(beamlineControlComposite, BEAMLINE_CONTROL, SWT.CHECK);
 		lblBeamlineControl.setFont(fontRegistry.get(BOLD_TEXT_11));
+		lblBeamlineControl.setSelection(true);
+		lblBeamlineControl.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				super.widgetSelected(e);
+				if (!lblBeamlineControl.getSelection()) {
+					lblBeamlineControl.setSelection(true);
+				}
+			}
+		});
+
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 		gd.horizontalSpan = 2;
 		gd.horizontalAlignment = SWT.CENTER;
@@ -534,6 +552,7 @@ public class TomoAlignmentControlComposite extends Composite {
 		Composite xRayEnergyComposite = toolkit.createComposite(beamlineControlComposite);
 		xRayEnergyComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
 		layout = new GridLayout();
+		setDefaultLayoutSettings(layout);
 		xRayEnergyComposite.setLayout(layout);
 		xRayEnergyComposite.setBackground(ColorConstants.lightGray);
 
@@ -566,12 +585,12 @@ public class TomoAlignmentControlComposite extends Composite {
 		layout.marginHeight = 0;
 		tomoAlignmentComposite.setLayout(layout);
 
-		Label lblInstrument = toolkit.createLabel(tomoAlignmentComposite, "Instrument");
+		chkInstrument = toolkit.createButton(tomoAlignmentComposite, INSTRUMENT, SWT.CHECK);
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 		gd.horizontalSpan = numCols;
 		gd.horizontalAlignment = SWT.CENTER;
-		lblInstrument.setLayoutData(gd);
-		lblInstrument.setFont(fontRegistry.get(BOLD_TEXT_11));
+		chkInstrument.setLayoutData(gd);
+		chkInstrument.setFont(fontRegistry.get(BOLD_TEXT_11));
 
 		moduleButtonComposite = new ModuleButtonComposite(tomoAlignmentComposite, toolkit);
 		moduleButtonComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
@@ -692,11 +711,12 @@ public class TomoAlignmentControlComposite extends Composite {
 		gl.verticalSpacing = 2;
 		tomoParametersCmp.setLayout(gl);
 
-		Label lblTomoParameters = toolkit.createLabel(tomoParametersCmp, TOMOGRAPHY_PARAMETERS_lbl, SWT.CENTER);
-		lblTomoParameters.setFont(fontRegistry.get(BOLD_TEXT_11));
+		chkTomoParameters = toolkit.createButton(tomoParametersCmp, TOMOGRAPHY_PARAMETERS_lbl, SWT.CHECK);
+		chkTomoParameters.setFont(fontRegistry.get(BOLD_TEXT_11));
 		GridData layoutData3 = new GridData(GridData.FILL_HORIZONTAL);
 		layoutData3.horizontalSpan = numCols;
-		lblTomoParameters.setLayoutData(layoutData3);
+		layoutData3.horizontalAlignment = SWT.CENTER;
+		chkTomoParameters.setLayoutData(layoutData3);
 
 		Composite cmpHorizontalLine = toolkit.createComposite(tomoParametersCmp);
 		layoutData = new GridData(GridData.FILL_HORIZONTAL);
@@ -749,6 +769,7 @@ public class TomoAlignmentControlComposite extends Composite {
 		layoutData.verticalAlignment = SWT.TOP;
 		txtSampleDesc.setLayoutData(layoutData);
 		txtSampleDesc.setForeground(ColorConstants.lightGray);
+
 		txtSampleDesc.addModifyListener(descModifyListener);
 		txtSampleDesc.addFocusListener(focusListener);
 		txtSampleDesc.addKeyListener(txtKeyListener);
@@ -812,11 +833,19 @@ public class TomoAlignmentControlComposite extends Composite {
 		centringCmp.setLayout(layout);
 		centringCmp.setBackground(ColorConstants.black);
 
-		Label lblCentring = toolkit.createLabel(centringCmp, SAMPLE_CENTRING_lbl, SWT.CENTER);
-		lblCentring.setFont(fontRegistry.get(BOLD_TEXT_11));
+		Composite lblCmp = toolkit.createComposite(centringCmp);
 		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
 		layoutData.horizontalSpan = 3;
-		lblCentring.setLayoutData(layoutData);
+		layout = new GridLayout();
+		setDefaultLayoutSettings(layout);
+		lblCmp.setLayout(layout);
+		lblCmp.setLayoutData(layoutData);
+
+		chkSampleAlignment = toolkit.createButton(lblCmp, SAMPLE_CENTRING_lbl, SWT.CHECK);
+		chkSampleAlignment.setFont(fontRegistry.get(BOLD_TEXT_11));
+		layoutData = new GridData(GridData.FILL_HORIZONTAL);
+		layoutData.horizontalAlignment = SWT.CENTER;
+		chkSampleAlignment.setLayoutData(layoutData);
 
 		btnHorizontal = toolkit.createButton(centringCmp, HORIZONTAL_lbl, SWT.PUSH);
 		btnHorizontal.setFont(fontRegistry.get(NORMAL_TEXT_9));
@@ -938,14 +967,15 @@ public class TomoAlignmentControlComposite extends Composite {
 		Composite sampleWeightComposite = toolkit.createComposite(motionControlCmp);
 
 		GridLayout layout = new GridLayout(2, true);
+		setDefaultLayoutSettings(layout);
 		sampleWeightComposite.setLayout(layout);
 
-		Label lblSampleWeight = toolkit.createLabel(sampleWeightComposite, SAMPLE_WEIGHT_KG_lbl);
+		chkSampleWeight = toolkit.createButton(sampleWeightComposite, SAMPLE_WEIGHT_KG_lbl, SWT.CHECK);
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 		gd.horizontalSpan = 2;
 		gd.horizontalAlignment = SWT.CENTER;
-		lblSampleWeight.setFont(fontRegistry.get(BOLD_TEXT_11));
-		lblSampleWeight.setLayoutData(gd);
+		chkSampleWeight.setFont(fontRegistry.get(BOLD_TEXT_9));
+		chkSampleWeight.setLayoutData(gd);
 
 		//
 		btnSampleWeightLessThan1 = toolkit.createButton(sampleWeightComposite, SAMPLE_WEIGHT_LESS_THAN_1_lbl, SWT.PUSH);
@@ -1680,14 +1710,38 @@ public class TomoAlignmentControlComposite extends Composite {
 					selectRes(btnRes8x);
 				}
 			} else if (sourceObj == btnSaveAlignment) {
-				logger.debug("Save alignment clicked");
-				try {
-					for (ITomoAlignmentControlListener tcl : getTomoControlListeners()) {
-						tcl.saveAlignmentConfiguration();
-					}
-				} catch (Exception e) {
-					logger.error("Error Saving:{}", e.getMessage());
+				boolean canSave = true;
+				if (!chkInstrument.getSelection()) {
+					canSave = false;
+				} else if (!chkSampleWeight.getSelection()) {
+					canSave = false;
+				} else if (!chkSampleAlignment.getSelection()) {
+					canSave = false;
+				} else if (!chkTomoParameters.getSelection()
+						|| (chkTomoParameters.getSelection() && txtSampleDesc.getText().equals(TYPE_DESCRIPTION))) {
+					canSave = false;
 				}
+				if (canSave) {
+					logger.debug("Save alignment clicked");
+					try {
+						for (ITomoAlignmentControlListener tcl : getTomoControlListeners()) {
+							tcl.saveAlignmentConfiguration();
+						}
+					} catch (Exception e) {
+						logger.error("Error Saving:{}", e.getMessage());
+					}
+
+					chkInstrument.setSelection(false);
+					chkSampleWeight.setSelection(false);
+					chkSampleAlignment.setSelection(false);
+					chkTomoParameters.setSelection(false);
+					
+					MessageDialog.openInformation(getShell(), "Tomography Alignment Saved",
+							"The tomography alignment details are saved as part of the experiment configuration");
+				} else {
+
+				}
+
 			}
 		}
 
