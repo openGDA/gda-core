@@ -42,6 +42,7 @@ import javax.swing.SwingConstants;
 
 import org.jfree.data.general.SeriesChangeEvent;
 import org.jfree.data.general.SeriesChangeListener;
+import gda.plots.Type;
 
 /**
  * JDialog that provides utilities to enable editing of line properties
