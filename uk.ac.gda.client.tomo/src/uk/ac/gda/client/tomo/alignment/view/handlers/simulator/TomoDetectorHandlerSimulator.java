@@ -34,18 +34,6 @@ import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
 public class TomoDetectorHandlerSimulator implements ICameraHandler {
 
 	@Override
-	public void setExposureTime(double exposureTime) throws Exception {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void startAcquiring(double acqTime, int amplifierValue) throws Exception {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void stopAcquiring() throws DeviceException, Exception {
 		// TODO Auto-generated method stub
 
@@ -262,12 +250,6 @@ public class TomoDetectorHandlerSimulator implements ICameraHandler {
 	}
 
 	@Override
-	public void setAmplifiedValue(double newExpTime, int factor) throws Exception {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void stopDemandRaw() throws Exception {
 		// TODO Auto-generated method stub
 
@@ -397,6 +379,30 @@ public class TomoDetectorHandlerSimulator implements ICameraHandler {
 	public void applyScalingAndContrast(double offset, double scale) throws Exception {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public double[] getHistogramData() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void startAcquiring(double acqTime, boolean isAmplified, double lower, double upper) throws Exception {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void setupHistoStatCollection() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setAmplifiedValue(double newExpTime, boolean isAmplified, double lower, double upper) throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

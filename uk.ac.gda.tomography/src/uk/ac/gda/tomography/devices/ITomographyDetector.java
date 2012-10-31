@@ -45,12 +45,14 @@ public interface ITomographyDetector {
 	 * 
 	 * @param acqTime
 	 * @param acqPeriod
-	 * @param procScaleFactor
 	 * @param binX
 	 * @param binY
+	 * @param scale
+	 * @param offset
 	 * @throws Exception
 	 */
-	void acquireMJpeg(Double acqTime, Double acqPeriod, Double procScaleFactor, int binX, int binY) throws Exception;
+	void acquireMJpeg(Double acqTime, Double acqPeriod, int binX, int binY, Double scale, Double offset)
+			throws Exception;
 
 	/**
 	 * Set roi2 roiStart to the values provided.
@@ -313,7 +315,21 @@ public interface ITomographyDetector {
 	 * 
 	 * @param offset
 	 * @param scale
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	void setOffsetAndScale(double offset, double scale) throws Exception;
+
+	/**
+	 * method called when acquisition is stopped to update exposure time - should continue where it left off
+	 * 
+	 * @throws Exception
+	 */
+	void resumeAcquisition() throws Exception;
+
+	/**
+	 * method invoked to call histogram stat collection
+	 * 
+	 * @throws Exception
+	 */
+	void setupHistoStatCollection(int binSize) throws Exception;
 }

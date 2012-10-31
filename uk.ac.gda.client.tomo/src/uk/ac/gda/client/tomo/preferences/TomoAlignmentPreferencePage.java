@@ -18,7 +18,6 @@
 
 package uk.ac.gda.client.tomo.preferences;
 
-import java.util.Collection;
 import java.util.regex.Pattern;
 
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -36,18 +35,16 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.contexts.IContextService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.tomo.TomoClientActivator;
-import uk.ac.gda.client.tomo.TomoClientConstants;
 
 /**
  * Preference page for tomography alignment.
  */
 public class TomoAlignmentPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
+
 
 	private static final String DOUBLE_REGEX = "\\-?[0-9]*\\.?[0-9]*";
 
@@ -56,6 +53,7 @@ public class TomoAlignmentPreferencePage extends PreferencePage implements IWork
 	private static final String INVALID_VALUE_ERRMSG = "Invalid value - %1$s";
 	private static final String DARK = "Dark";
 	private static final String FLAT = "Flat";
+	private static final String FAST_PREVIEW = "Fast Preview";
 	private static final String PREFERENCES_FOR_TOMOGRAPHY_ALIGNMENT = "Preferences for tomography alignment";
 	private static final String SAMPLE_MOVE_DISTANCE = "Sample move Distance";
 	private static final String DISTANCE_TO_MOVE_SAMPLE = "Distance to move sample";
@@ -162,7 +160,7 @@ public class TomoAlignmentPreferencePage extends PreferencePage implements IWork
 
 		// Fast Preview group
 		Group fastPreview = new Group(root, SWT.None);
-		fastPreview.setText(DARK);
+		fastPreview.setText(FAST_PREVIEW);
 		gl = new GridLayout(2, true);
 
 		fastPreview.setLayout(gl);

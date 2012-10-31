@@ -26,9 +26,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.ui.PlatformUI;
@@ -56,10 +59,14 @@ public class TomoAlignmentToolbarComposite extends WorkbenchWindowControlContrib
 	@Override
 	protected Control createControl(Composite parent) {
 		Composite cmp = new Composite(parent, SWT.None);
-		cmp.setLayout(new FillLayout());
+		GridLayout layout = new GridLayout();
+		layout.marginWidth = 0;
+		layout.marginHeight = 0;
+		layout.verticalSpacing = 0;
+		layout.horizontalSpacing = 0;
+		cmp.setLayout(layout);
 
 		ToolBar toolbar = new ToolBar(cmp, SWT.FLAT | SWT.RIGHT);
-
 		ToolItem openPrefToolItem = new ToolItem(toolbar, SWT.None);
 		openPrefToolItem.setText("Open Preferences");
 		openPrefToolItem.setImage(TomoClientActivator.getDefault().getImageRegistry()
@@ -114,7 +121,7 @@ public class TomoAlignmentToolbarComposite extends WorkbenchWindowControlContrib
 
 			}
 		});
-
+		toolbar.setLayoutData(new GridData(GridData.FILL_BOTH));
 		return cmp;
 	}
 
