@@ -23,13 +23,13 @@ import java.util.List;
 import org.eclipse.draw2d.Button;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.IFigure;
-import org.eclipse.draw2d.InputEvent;
 import org.eclipse.draw2d.Label;
 import org.eclipse.draw2d.LineBorder;
 import org.eclipse.draw2d.MouseEvent;
 import org.eclipse.draw2d.MouseListener;
 import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Point;
+import org.eclipse.draw2d.geometry.PrecisionPoint;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -171,7 +171,7 @@ public class TomoCoarseRotationComposite extends RotationSliderComposite {
 			btnLeftCenter.setSize(buttonSize);
 			double x = sliderBoundary.getBounds().width / 4.0 + sliderTriangle.getBounds().width / 2.0
 					- buttonSize.width / 2.0;
-			btnLeftCenter.setLocation(new Point(x, labelY));
+			btnLeftCenter.setLocation(new PrecisionPoint(x, labelY));
 		}
 		if (btnCenter != null) {
 			Label lblCenter = getButtonLabel(btnCenter);
@@ -192,7 +192,7 @@ public class TomoCoarseRotationComposite extends RotationSliderComposite {
 			btnRightCenter.setSize(buttonSize);
 			double x = (3.0 * sliderBoundary.getBounds().width) / 4.0 + sliderTriangle.getBounds().width / 2.0
 					- buttonSize.width / 2.0;
-			btnRightCenter.setLocation(new Point(x, labelY));
+			btnRightCenter.setLocation(new PrecisionPoint(x, labelY));
 		}
 		if (btnRight != null) {
 			Label lblRight = getButtonLabel(btnRight);
@@ -226,7 +226,6 @@ public class TomoCoarseRotationComposite extends RotationSliderComposite {
 		}
 
 		private void performButtonPressedAction(Button btn) {
-			double initialSliderDegree = getCurrentSliderDegree();
 			double degreeMovedTo = 0;
 			if (btnCenter.equals(btn)) {
 				// Button Center is pressed. Move the slider to the center position
@@ -250,7 +249,7 @@ public class TomoCoarseRotationComposite extends RotationSliderComposite {
 
 		@Override
 		public void mouseReleased(MouseEvent mouseEvent) {
-			if ((mouseEvent.getState() & InputEvent.CONTROL) == 0) {
+			if ((mouseEvent.getState() & SWT.CONTROL) == 0) {
 				return;
 			}
 			Label lbl = (Label) mouseEvent.getSource();
@@ -387,9 +386,9 @@ public class TomoCoarseRotationComposite extends RotationSliderComposite {
 				@Override
 				public void run() {
 					if (isBusy) {
-						sliderTriangle.setBackgroundColor(ColorConstants.yellow);
+						sliderTriangle.setBackgroundColor(COLOUR_BUSY);
 					} else {
-						sliderTriangle.setBackgroundColor(ColorConstants.darkGreen);
+						sliderTriangle.setBackgroundColor(COLOUR_NOT_BUSY);
 					}
 				}
 			});

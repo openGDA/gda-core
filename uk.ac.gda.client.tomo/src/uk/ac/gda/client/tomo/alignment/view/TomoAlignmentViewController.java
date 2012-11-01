@@ -339,11 +339,6 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 	}
 
 	@Override
-	public void sampleDescriptionChanged(String sampleDescription) {
-		logger.debug("The sample description has changed to: {}", sampleDescription);
-	}
-
-	@Override
 	public void rotateRight90() throws Exception {
 		logger.debug("Rotating the motor right by 90°");
 		moveRotationMotor(90);
@@ -1444,10 +1439,14 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 
 					logger.debug(String.format("demandRaw() imageData depth#%d  palete is direct# %s", imgData.depth,
 							imgData.palette.isDirect));
-					tomoAlignmentView.loadImageInUIThread(tomoAlignmentView.getLeftWindowImageViewer(), imgData
-							.scaledTo(tomoAlignmentView.getTomoAlignmentController().getScaledX(), tomoAlignmentView
-									.getTomoAlignmentController().getScaledY()));
+
 					tomoAlignmentView.setHistogramAdjusterImageData((ImageData) imgData.clone());
+					
+					tomoAlignmentView.getHistogramAdjuster().updateHistogramValues(
+							tomoAlignmentView.getLeftWindowImageViewer(),
+							tomoAlignmentView.getTomoAlignmentController().getScaledX(),
+							tomoAlignmentView.getTomoAlignmentController().getScaledY(),
+							tomoAlignmentView.getContrastLower(), tomoAlignmentView.getContrastUpper());
 					imgData.data = null;
 					imgData = null;
 					img.dispose();
@@ -1466,7 +1465,6 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 				}
 			}
 		}
-
 	}
 
 	private IRoiPointsListener roiPointsListener = new IRoiPointsListener() {
@@ -1846,11 +1844,10 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 		TomoAlignmentLeftPanelComposite leftPanelComposite = tomoAlignmentView.getLeftPanelComposite();
 		switch (tomoAlignmentView.getLeftWindowViewerDisplayMode()) {
 		case SAMPLE_SINGLE:
-			ImageData histAppliedImgData = tomoAlignmentView.getHistogramAdjuster().updateHistogramValues(lowerLimit,
-					upperLimit);
-			tomoAlignmentView.loadImageInUIThread(tomoAlignmentView.getLeftWindowImageViewer(), histAppliedImgData
-					.scaledTo(tomoAlignmentView.getTomoAlignmentController().getScaledX(), tomoAlignmentView
-							.getTomoAlignmentController().getScaledY()));
+			int scaledX = tomoAlignmentView.getTomoAlignmentController().getScaledX();
+			int scaledY = tomoAlignmentView.getTomoAlignmentController().getScaledY();
+			tomoAlignmentView.getHistogramAdjuster().updateHistogramValues(
+					tomoAlignmentView.getLeftWindowImageViewer(), scaledX, scaledY, lowerLimit, upperLimit);
 			break;
 		case SAMPLE_STREAM_LIVE:
 			try {

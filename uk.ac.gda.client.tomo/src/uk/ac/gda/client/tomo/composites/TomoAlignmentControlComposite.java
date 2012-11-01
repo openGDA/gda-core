@@ -39,6 +39,7 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -75,6 +76,8 @@ import uk.ac.gda.client.tomo.composites.RotationSliderComposite.SliderSelectionL
  */
 public class TomoAlignmentControlComposite extends Composite {
 
+	private static final Color NORMAL_COLOR = ColorConstants.black;
+	private static final Color ERROR_COLOR = ColorConstants.red;
 	private static final String INSTRUMENT = "Instrument";
 	private static final String BEAMLINE_CONTROL = "Beamline Control";
 	private static final String AUTO_FOCUS_lbl = "Auto Focus";
@@ -279,6 +282,16 @@ public class TomoAlignmentControlComposite extends Composite {
 	}
 
 	private FocusListener focusListener = new FocusAdapter() {
+
+		@Override
+		public void focusGained(FocusEvent focusEvent) {
+			if (focusEvent.getSource().equals(txtSampleDesc)) {
+				if (TYPE_DESCRIPTION.equals(txtSampleDesc.getText())) {
+					txtSampleDesc.setText(BLANK_STR);
+				}
+			}
+		}
+
 		@Override
 		public void focusLost(FocusEvent focusEvent) {
 			if (focusEvent.getSource().equals(txtCameraDistance)) {
@@ -302,6 +315,8 @@ public class TomoAlignmentControlComposite extends Composite {
 			} else if (focusEvent.getSource().equals(txtSampleDesc)) {
 				if (BLANK_STR.equals(txtSampleDesc.getText())) {
 					txtSampleDesc.setText(TYPE_DESCRIPTION);
+				} else {
+					sampleDescription = txtSampleDesc.getText();
 				}
 			}
 		}
@@ -342,6 +357,16 @@ public class TomoAlignmentControlComposite extends Composite {
 						}
 					} else {
 						showErrorDialog(new IllegalArgumentException("Invalid value to be set as X-ray energy"));
+					}
+				}
+			} else if (e.getSource().equals(txtSampleDesc)) {
+				// Sample description
+				if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
+					if (!TYPE_DESCRIPTION.equals(txtSampleDesc.getText())) {
+						sampleDescription = txtSampleDesc.getText();
+						chkTomoParameters.setFocus();
+					} else {
+						showErrorDialog(new IllegalArgumentException("Problem setting description"));
 					}
 				}
 			}
@@ -490,7 +515,7 @@ public class TomoAlignmentControlComposite extends Composite {
 		layout.marginWidth = 0;
 		layout.marginHeight = 2;
 		upperPanel.setLayout(layout);
-		upperPanel.setBackground(ColorConstants.black);
+		upperPanel.setBackground(NORMAL_COLOR);
 
 		// 1
 		// Composite expStreamSingleHistoComposite = createSampleFlatButtons(toolkit, upperPanel);
@@ -591,6 +616,7 @@ public class TomoAlignmentControlComposite extends Composite {
 		gd.horizontalAlignment = SWT.CENTER;
 		chkInstrument.setLayoutData(gd);
 		chkInstrument.setFont(fontRegistry.get(BOLD_TEXT_11));
+		chkInstrument.addSelectionListener(chkboxSelection);
 
 		moduleButtonComposite = new ModuleButtonComposite(tomoAlignmentComposite, toolkit);
 		moduleButtonComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
@@ -717,12 +743,13 @@ public class TomoAlignmentControlComposite extends Composite {
 		layoutData3.horizontalSpan = numCols;
 		layoutData3.horizontalAlignment = SWT.CENTER;
 		chkTomoParameters.setLayoutData(layoutData3);
+		chkTomoParameters.addSelectionListener(chkboxSelection);
 
 		Composite cmpHorizontalLine = toolkit.createComposite(tomoParametersCmp);
 		layoutData = new GridData(GridData.FILL_HORIZONTAL);
 		layoutData.horizontalSpan = numCols;
 		layoutData.heightHint = 1;
-		cmpHorizontalLine.setBackground(ColorConstants.black);
+		cmpHorizontalLine.setBackground(NORMAL_COLOR);
 		cmpHorizontalLine.setLayoutData(layoutData);
 
 		// ROI
@@ -788,7 +815,7 @@ public class TomoAlignmentControlComposite extends Composite {
 		@Override
 		public void modifyText(ModifyEvent e) {
 			if (!TYPE_DESCRIPTION.equals(txtSampleDesc.getText())) {
-				txtSampleDesc.setForeground(ColorConstants.black);
+				txtSampleDesc.setForeground(NORMAL_COLOR);
 			} else {
 				txtSampleDesc.setForeground(ColorConstants.lightGray);
 			}
@@ -831,7 +858,7 @@ public class TomoAlignmentControlComposite extends Composite {
 		layout.horizontalSpacing = 0;
 		layout.verticalSpacing = 0;
 		centringCmp.setLayout(layout);
-		centringCmp.setBackground(ColorConstants.black);
+		centringCmp.setBackground(NORMAL_COLOR);
 
 		Composite lblCmp = toolkit.createComposite(centringCmp);
 		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
@@ -846,6 +873,7 @@ public class TomoAlignmentControlComposite extends Composite {
 		layoutData = new GridData(GridData.FILL_HORIZONTAL);
 		layoutData.horizontalAlignment = SWT.CENTER;
 		chkSampleAlignment.setLayoutData(layoutData);
+		chkSampleAlignment.addSelectionListener(chkboxSelection);
 
 		btnHorizontal = toolkit.createButton(centringCmp, HORIZONTAL_lbl, SWT.PUSH);
 		btnHorizontal.setFont(fontRegistry.get(NORMAL_TEXT_9));
@@ -930,7 +958,7 @@ public class TomoAlignmentControlComposite extends Composite {
 
 		Composite horizontalBar = toolkit.createComposite(resolutionComposite);
 		layoutData = new GridData(GridData.FILL_HORIZONTAL);
-		horizontalBar.setBackground(ColorConstants.black);
+		horizontalBar.setBackground(NORMAL_COLOR);
 		layoutData.heightHint = 1;
 		layoutData.horizontalSpan = 2;
 		horizontalBar.setLayoutData(layoutData);
@@ -976,6 +1004,7 @@ public class TomoAlignmentControlComposite extends Composite {
 		gd.horizontalAlignment = SWT.CENTER;
 		chkSampleWeight.setFont(fontRegistry.get(BOLD_TEXT_9));
 		chkSampleWeight.setLayoutData(gd);
+		chkSampleWeight.addSelectionListener(chkboxSelection);
 
 		//
 		btnSampleWeightLessThan1 = toolkit.createButton(sampleWeightComposite, SAMPLE_WEIGHT_LESS_THAN_1_lbl, SWT.PUSH);
@@ -1342,7 +1371,7 @@ public class TomoAlignmentControlComposite extends Composite {
 		final Shell shell = new Shell(display, SWT.SHELL_TRIM);
 		shell.setBounds(new org.eclipse.swt.graphics.Rectangle(0, 0, 100, 400));
 		shell.setLayout(new GridLayout());
-		shell.setBackground(ColorConstants.black);
+		shell.setBackground(NORMAL_COLOR);
 		TomoAlignmentControlComposite motionControlComposite = new TomoAlignmentControlComposite(shell,
 				new FormToolkit(display), SWT.None);
 
@@ -1713,12 +1742,28 @@ public class TomoAlignmentControlComposite extends Composite {
 				boolean canSave = true;
 				if (!chkInstrument.getSelection()) {
 					canSave = false;
+					chkInstrument.setFocus();
+					chkInstrument.setForeground(ERROR_COLOR);
+					showSaveProblemDialog("The checkbox next to 'Instrument' needs to be checked before you can save the tomography alignment.");
 				} else if (!chkSampleWeight.getSelection()) {
 					canSave = false;
+					chkSampleWeight.setFocus();
+					chkSampleWeight.setForeground(ERROR_COLOR);
+					showSaveProblemDialog("The checkbox next to 'Sample Weight' needs to be checked before you can save the tomography alignment.");
 				} else if (!chkSampleAlignment.getSelection()) {
+					chkSampleAlignment.setFocus();
+					chkSampleAlignment.setForeground(ERROR_COLOR);
+					showSaveProblemDialog("The checkbox next to 'Sample Alignment' needs to be checked before you can save the tomography alignment.");
 					canSave = false;
 				} else if (!chkTomoParameters.getSelection()
 						|| (chkTomoParameters.getSelection() && txtSampleDesc.getText().equals(TYPE_DESCRIPTION))) {
+					if (txtSampleDesc.getText().equals(TYPE_DESCRIPTION)) {
+						showSaveProblemDialog("'Description' is required to save tomography alignment");
+					} else if (!chkTomoParameters.getSelection()) {
+						chkTomoParameters.setFocus();
+						chkTomoParameters.setForeground(ERROR_COLOR);
+						showSaveProblemDialog("The checkbox next to 'Tomography Parameters' needs to be checked before you can save the tomography alignment.");
+					}
 					canSave = false;
 				}
 				if (canSave) {
@@ -1735,7 +1780,7 @@ public class TomoAlignmentControlComposite extends Composite {
 					chkSampleWeight.setSelection(false);
 					chkSampleAlignment.setSelection(false);
 					chkTomoParameters.setSelection(false);
-					
+
 					MessageDialog.openInformation(getShell(), "Tomography Alignment Saved",
 							"The tomography alignment details are saved as part of the experiment configuration");
 				} else {
@@ -1746,6 +1791,38 @@ public class TomoAlignmentControlComposite extends Composite {
 		}
 
 	};
+
+	private SelectionAdapter chkboxSelection = new SelectionAdapter() {
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			if (e.getSource().equals(chkTomoParameters)) {
+				if (txtSampleDesc.getText().equals(TYPE_DESCRIPTION)) {
+					chkTomoParameters.setSelection(false);
+					MessageDialog.openError(getShell(), "Cannot enable Tomography parameters for saving",
+							"Please enter a 'Sample description' to enable the tomography parameters.");
+				}
+			}
+			if (e.getSource().equals(chkInstrument) && chkInstrument.getForeground().equals(ERROR_COLOR)) {
+				if (chkInstrument.getSelection()) {
+					chkInstrument.setForeground(NORMAL_COLOR);
+				}
+			}
+			if (e.getSource().equals(chkSampleAlignment) && chkSampleAlignment.getForeground().equals(ERROR_COLOR)) {
+				if (chkSampleAlignment.getSelection()) {
+					chkSampleAlignment.setForeground(NORMAL_COLOR);
+				}
+			}
+			if (e.getSource().equals(chkSampleWeight) && chkSampleWeight.getForeground().equals(ERROR_COLOR)) {
+				if (chkSampleWeight.getSelection()) {
+					chkSampleWeight.setForeground(NORMAL_COLOR);
+				}
+			}
+		}
+	};
+
+	private void showSaveProblemDialog(String message) {
+		MessageDialog.openError(getShell(), "Saving Tomography Alignment", message);
+	}
 
 	protected void selectRes(Button btnRes) {
 		Button[] buttons = new Button[] { btnResFull, btnRes2x, btnRes4x, btnRes8x };
@@ -1772,6 +1849,14 @@ public class TomoAlignmentControlComposite extends Composite {
 	}
 
 	public void clearSampleDescription() {
+		sampleDescription = null;
+		getDisplay().asyncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				txtSampleDesc.setText(TYPE_DESCRIPTION);
+			}
+		});
 
 	}
 

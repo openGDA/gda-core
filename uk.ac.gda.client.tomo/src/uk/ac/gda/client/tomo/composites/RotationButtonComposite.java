@@ -26,15 +26,11 @@ import org.eclipse.draw2d.BorderLayout;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.FigureCanvas;
 import org.eclipse.draw2d.IFigure;
-import org.eclipse.draw2d.InputEvent;
 import org.eclipse.draw2d.Label;
 import org.eclipse.draw2d.LineBorder;
 import org.eclipse.draw2d.MouseEvent;
 import org.eclipse.draw2d.MouseListener;
 import org.eclipse.draw2d.Panel;
-import org.eclipse.draw2d.ToolbarLayout;
-import org.eclipse.draw2d.XYLayout;
-import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
@@ -80,7 +76,7 @@ public class RotationButtonComposite extends Composite {
 		@Override
 		public void mouseReleased(MouseEvent me) {
 			if (ctrlPressRequired) {
-				if ((me.getState() & InputEvent.CONTROL) == 0) {
+				if ((me.getState() & SWT.CONTROL) == 0) {
 					return;
 				}
 			}

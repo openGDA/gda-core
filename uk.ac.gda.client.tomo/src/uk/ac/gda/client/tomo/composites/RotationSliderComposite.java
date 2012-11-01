@@ -26,7 +26,6 @@ import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.FigureCanvas;
 import org.eclipse.draw2d.IFigure;
-import org.eclipse.draw2d.InputEvent;
 import org.eclipse.draw2d.Label;
 import org.eclipse.draw2d.LineBorder;
 import org.eclipse.draw2d.MouseEvent;
@@ -43,6 +42,7 @@ import org.eclipse.draw2d.geometry.PrecisionPoint;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -55,6 +55,10 @@ import org.eclipse.swt.widgets.Display;
  * Contains a triangle which can be dragged along.
  */
 public abstract class RotationSliderComposite extends Composite {
+	private static final Color COLOUR_DISABLED = ColorConstants.gray;
+	protected static final Color COLOUR_NOT_BUSY = ColorConstants.listBackground;
+	protected static final Color COLOUR_BUSY = ColorConstants.lightGray;
+
 	public interface SliderSelectionListener {
 		/**
 		 * @param sliderComposite
@@ -72,7 +76,7 @@ public abstract class RotationSliderComposite extends Composite {
 		void sliderMovedTo(double deg);
 	}
 
-	private final static DecimalFormat df = new DecimalFormat("#.###");
+	private final static DecimalFormat df = new DecimalFormat("#.##");
 	protected static final String TEXT_SMALL_7 = "bold-text_small-7";
 	private static final double SLIDER_START_TOLERANCE = 1;
 	private FigureCanvas figCanvas;
@@ -213,7 +217,7 @@ public abstract class RotationSliderComposite extends Composite {
 
 		panel.setLayoutManager(new SliderLayout());
 		LineBorder border = new LineBorder(2);
-		border.setColor(ColorConstants.gray);
+		border.setColor(COLOUR_DISABLED);
 		panel.setBorder(border);
 		sliderTriangle = new Triangle();
 		sliderTriangle.setFill(true);
@@ -229,7 +233,7 @@ public abstract class RotationSliderComposite extends Composite {
 			sliderTriangle.setDirection(PositionConstants.SOUTH);
 		}
 
-		sliderTriangle.setBackgroundColor(ColorConstants.darkGreen);
+		sliderTriangle.setBackgroundColor(COLOUR_NOT_BUSY);
 		sliderTriangle.setSize(getSliderTriangleDimension());
 
 		new Dragger(sliderTriangle);
@@ -339,7 +343,7 @@ public abstract class RotationSliderComposite extends Composite {
 		@Override
 		public void mouseReleased(MouseEvent e) {
 			if (ctrlPressRequired) {
-				if ((e.getState() & InputEvent.CONTROL) == 0) {
+				if ((e.getState() & SWT.CONTROL) == 0) {
 					return;
 				}
 			}
@@ -353,7 +357,7 @@ public abstract class RotationSliderComposite extends Composite {
 		@Override
 		public void mousePressed(MouseEvent e) {
 			if (ctrlPressRequired) {
-				if (e.getState() != InputEvent.CONTROL) {
+				if (e.getState() != SWT.CONTROL) {
 					return;
 				}
 			}
@@ -365,7 +369,7 @@ public abstract class RotationSliderComposite extends Composite {
 		@Override
 		public void mouseDragged(MouseEvent e) {
 			if (ctrlPressRequired) {
-				if ((e.getState() & InputEvent.CONTROL) == 0) {
+				if ((e.getState() & SWT.CONTROL) == 0) {
 					return;
 				}
 			}
@@ -428,9 +432,9 @@ public abstract class RotationSliderComposite extends Composite {
 	@Override
 	public void setEnabled(boolean enabled) {
 		if (!enabled) {
-			sliderTriangle.setBackgroundColor(ColorConstants.gray);
+			sliderTriangle.setBackgroundColor(COLOUR_DISABLED);
 		} else {
-			sliderTriangle.setBackgroundColor(ColorConstants.darkGreen);
+			sliderTriangle.setBackgroundColor(COLOUR_NOT_BUSY);
 		}
 		super.setEnabled(enabled);
 	}

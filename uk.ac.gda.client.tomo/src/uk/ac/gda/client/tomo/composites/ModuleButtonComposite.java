@@ -236,7 +236,7 @@ public class ModuleButtonComposite extends Composite {
 	 * @param btn3Text
 	 * @param btn4Text
 	 */
-	public void setModuleButtonText(String units, String btn1Text, String btn2Text, String btn3Text, String btn4Text) {
+	public void setModuleButtonText(@SuppressWarnings("unused") String units, String btn1Text, String btn2Text, String btn3Text, String btn4Text) {
 		//lblModulesHeader.setText(String.format("%1$s (%2$s)", MODULES_HEADER, units));
 		btnModule1.setText(btn1Text);
 		btnModule2.setText(btn2Text);

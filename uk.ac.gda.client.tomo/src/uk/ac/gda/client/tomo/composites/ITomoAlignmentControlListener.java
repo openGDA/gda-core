@@ -148,13 +148,6 @@ public interface ITomoAlignmentControlListener extends IModuleChangeListener {
 	void saveAlignmentConfiguration() throws InvocationTargetException, InterruptedException, Exception;
 
 	/**
-	 * Informs the listeners that the sample description has changed.
-	 * 
-	 * @param sampleDescription
-	 */
-	void sampleDescriptionChanged(String sampleDescription);
-
-	/**
 	 * Informs the listeners that "Define ROI" button has been selected.
 	 * 
 	 * @param selection
