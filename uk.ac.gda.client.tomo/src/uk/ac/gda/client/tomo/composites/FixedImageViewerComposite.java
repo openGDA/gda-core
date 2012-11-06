@@ -28,16 +28,13 @@ import org.eclipse.draw2d.EventDispatcher;
 import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.FlowLayout;
 import org.eclipse.draw2d.FreeformLayer;
-import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.ImageFigure;
-import org.eclipse.draw2d.Label;
 import org.eclipse.draw2d.LightweightSystem;
 import org.eclipse.draw2d.MouseListener;
 import org.eclipse.draw2d.Polyline;
 import org.eclipse.draw2d.RectangleFigure;
 import org.eclipse.draw2d.SWTEventDispatcher;
-import org.eclipse.draw2d.StackLayout;
 import org.eclipse.draw2d.ToolTipHelper;
 import org.eclipse.draw2d.XYLayout;
 import org.eclipse.draw2d.geometry.Dimension;
@@ -77,7 +74,7 @@ import uk.ac.gda.client.viewer.SwtImagePositionTool;
 public class FixedImageViewerComposite extends Composite {
 
 	private final static Logger logger = LoggerFactory.getLogger(FixedImageViewerComposite.class);
-	
+
 	protected Polyline profilerLine;
 	private List<IColourChangeListener> colourChangeListeners = new ArrayList<IColourChangeListener>();
 
@@ -101,9 +98,7 @@ public class FixedImageViewerComposite extends Composite {
 
 	private ToolTipHelper toolTipHelper;
 
-	private LeftWindowTipFigure tooltipFigure;
 	private Set<ProfilePointListener> profileListeners;
-	private LeftWindowTipFigure leftWindowTipFigure;
 
 	private LightweightSystem lightWeightSystem;
 	private List<ZoomRectangleListener> zoomRectListeners = new ArrayList<FullImageComposite.ZoomRectangleListener>();
@@ -371,9 +366,6 @@ public class FixedImageViewerComposite extends Composite {
 		lightWeightSystem.setContents(fig);
 
 		//
-		tooltipFigure = new LeftWindowTipFigure();
-		tooltipFigure.setSize(20, 20);
-		//
 		canvas.addListener(SWT.Resize, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
@@ -404,11 +396,6 @@ public class FixedImageViewerComposite extends Composite {
 		};
 
 		feedbackFigure.setBackgroundColor(ColorConstants.orange);
-		
-
-		leftWindowTipFigure = new LeftWindowTipFigure();
-		leftWindowTipFigure.setVisible(false);
-		feedbackFigure.add(leftWindowTipFigure, new Rectangle(20, 20, 400, 60));
 
 		/**/
 		getZoomRectFigure().setVisible(false);
@@ -437,57 +424,11 @@ public class FixedImageViewerComposite extends Composite {
 
 	public void showWindowTip(String tip) {
 
-		leftWindowTipFigure.showUp(tip);
 		feedbackFigure.repaint();
 	}
 
 	protected void addCustomListeners() {
 		// do nothing in the base class
-	}
-
-	private class LeftWindowTipFigure extends RectangleFigure {
-
-		@SuppressWarnings("unused")
-		private final static int MAX_WAIT = 10;
-
-		public LeftWindowTipFigure() {
-			setLayoutManager(new StackLayout());
-			lbl = new Label("Please click here");
-			this.add(lbl);
-		}
-
-		private int alpha = 255;
-
-		@SuppressWarnings("unused")
-		private String tip;
-		private Label lbl;
-
-		private int delay = 35;
-
-		public void showUp(String tip) {
-			this.tip = tip;
-			repaint();
-			alpha = 255;
-
-		}
-
-		@Override
-		public void paint(Graphics graphics) {
-			super.paint(graphics);
-			if (alpha != 0) {
-
-				if (delay == 0) {
-					alpha = alpha - 1;
-
-					setAlpha(alpha);
-					delay = 35;
-				}
-				repaint();
-				delay = delay - 1;
-			} else if (alpha < 5) {
-				lbl.setVisible(false);
-			}
-		}
 	}
 
 	/**
@@ -533,8 +474,6 @@ public class FixedImageViewerComposite extends Composite {
 		// new Point(getImageBounds().x, getImageBounds().y));
 		getZoomRectFigure().setSize(dimension.width, dimension.height);
 	}
-
-	
 
 	/**
 	 * @param colourChangeListener
@@ -601,7 +540,9 @@ public class FixedImageViewerComposite extends Composite {
 		try {
 			if (!canvas.isDisposed()) {
 				Image newImage = null;
-				newImage = new Image(getDisplay(), imageDataIn);
+				if (imageDataIn != null) {
+					newImage = new Image(getDisplay(), imageDataIn);
+				}
 				if (!canvas.isDisposed()) {
 					if (mainImage != null && !mainImage.isDisposed()) {
 						mainImage.dispose();

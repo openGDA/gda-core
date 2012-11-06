@@ -124,8 +124,22 @@ public interface IModuleLookupTableHandler extends ITomoHandler {
 	/**
 	 * @param newModule
 	 * @return the default exposure time for a given module
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	Double lookupDefaultExposureTime(CAMERA_MODULE newModule) throws DeviceException;
+
+	/**
+	 * @return the units of the magnification field in the lookup table
+	 * @throws DeviceException
+	 */
+	String lookupMagnificationUnit() throws DeviceException;
+
+	/**
+	 * @param module
+	 * @return the magnification for the given module. If module is {@link CAMERA_MODULE}.NO_MODULE then returns
+	 *         {@link Double}.NaN
+	 * @throws DeviceException
+	 */
+	Double lookupMagnification(CAMERA_MODULE module) throws DeviceException;
 
 }

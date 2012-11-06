@@ -26,14 +26,17 @@ import javax.jms.IllegalStateException;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.slf4j.Logger;
@@ -395,12 +398,25 @@ public class ZoomButtonComposite extends Composite {
 	};
 
 	private ZOOM_LEVEL zoomLevel = ZOOM_LEVEL.NO_ZOOM;
+	
+	private static final String BOLD_TEXT_10 = "bold_10";
+	private FontRegistry fontRegistry;
 
+	private void initializeFontRegistry() {
+		if (getDisplay() != null) {
+			fontRegistry = new FontRegistry(Display.getCurrent());
+			String fontName = Display.getCurrent().getSystemFont().getFontData()[0].getName();
+			fontRegistry.put(BOLD_TEXT_10, new FontData[] { new FontData(fontName, 10, SWT.BOLD) });
+		}
+	}
+
+	//
 	/**
 	 * @param parent
 	 */
 	public ZoomButtonComposite(Composite parent, FormToolkit toolkit) {
 		super(parent, SWT.None);
+		initializeFontRegistry();
 		GridLayout layout = new GridLayout(2, true);
 		layout.horizontalSpacing = 0;
 		layout.verticalSpacing = 0;
@@ -411,30 +427,27 @@ public class ZoomButtonComposite extends Composite {
 		Label lblZoom = toolkit.createLabel(this, ZOOM_HEADER_LBL, SWT.CENTER);
 		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
 		layoutData.horizontalSpan = 2;
+		lblZoom.setFont(fontRegistry.get(BOLD_TEXT_10));
 		lblZoom.setLayoutData(layoutData);
 
 		/**/
 		btnZoom4 = toolkit.createButton(this, ZOOM_4, SWT.PUSH);
 		GridData ld = new GridData(GridData.FILL_HORIZONTAL);
-		ld.widthHint = 30;
 		btnZoom4.setLayoutData(ld);
 		btnZoom4.addSelectionListener(buttonSelectionListener);
 		/**/
 		btnZoom2 = toolkit.createButton(this, ZOOM_2, SWT.PUSH);
 		ld = new GridData(GridData.FILL_HORIZONTAL);
-		ld.widthHint = 30;
 		btnZoom2.setLayoutData(ld);
 		btnZoom2.addSelectionListener(buttonSelectionListener);
 		/**/
 		btnZoom1 = toolkit.createButton(this, ZOOM_1, SWT.PUSH);
 		ld = new GridData(GridData.FILL_HORIZONTAL);
-		ld.widthHint = 30;
 		btnZoom1.setLayoutData(ld);
 		btnZoom1.addSelectionListener(buttonSelectionListener);
 		/**/
 		btnZoomHalf = toolkit.createButton(this, ZOOM_HALF, SWT.PUSH);
 		ld = new GridData(GridData.FILL_HORIZONTAL);
-		ld.widthHint = 30;
 		btnZoomHalf.setLayoutData(ld);
 		btnZoomHalf.addSelectionListener(buttonSelectionListener);
 	}

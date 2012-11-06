@@ -19,6 +19,8 @@
 package uk.ac.gda.client.tomo;
 
 public interface TomoClientConstants {
+	
+	public static final String TOMO_MULTIPLE_VERTICAL_MOTORS_CONTEXT = "uk.ac.gda.tomography.multiple.vertical.motors.context";
 
 	public static final String TOMO_CONFIG_EDITING_DOMAIN = "uk.ac.gda.tomography.config.editingDomain";
 
@@ -31,4 +33,6 @@ public interface TomoClientConstants {
 	public static final String CHANGE_SUBDIR = "tomoAlignment.changeSubDir('%s')";
 
 	public static final String GET_SUBDIR = "tomoAlignment.getSubdir()";
+
+	public static double MAX_INTENSITY = 65535;
 }

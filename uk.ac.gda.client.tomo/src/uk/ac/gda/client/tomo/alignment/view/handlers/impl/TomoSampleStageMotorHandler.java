@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.tomo.TomoClientActivator;
-import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentViewController;
+import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ISampleStageMotorHandler;
 import uk.ac.gda.client.tomo.preferences.TomoAlignmentPreferencePage;
 
@@ -43,7 +43,7 @@ public class TomoSampleStageMotorHandler extends BaseMotorHandler implements ISa
 	private IScannableMotor ss1RxScannable;
 	private IScannableMotor ss1RzScannable;
 	private static final Logger logger = LoggerFactory.getLogger(TomoSampleStageMotorHandler.class);
-	private TomoAlignmentViewController tomoAlignmentViewController;
+	private TomoAlignmentController tomoAlignmentViewController;
 
 
 	/**
@@ -176,7 +176,7 @@ public class TomoSampleStageMotorHandler extends BaseMotorHandler implements ISa
 	 *            The tomoAlignmentViewController to set.
 	 */
 	@Override
-	public void setTomoAlignmentViewController(TomoAlignmentViewController tomoAlignmentViewController) {
+	public void setTomoAlignmentViewController(TomoAlignmentController tomoAlignmentViewController) {
 		this.tomoAlignmentViewController = tomoAlignmentViewController;
 	}
 

@@ -24,7 +24,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.graphics.Point;
 
 import uk.ac.gda.client.tomo.TiffFileInfo;
-import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentViewController;
+import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentController;
 import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
 
 /**
@@ -38,19 +38,21 @@ public interface ICameraHandler extends ITomoHandler {
 	/**
 	 * @param exposureTime
 	 *            - exposure time that needs to be set on the detector.
-	 * @param amplifierValue
+	 * @param ampFactor
 	 * @throws Exception
 	 */
-	void setExposureTime(double exposureTime, int amplifierValue) throws Exception;
+	// void setExposureTime(double exposureTime, double ampFactor) throws Exception;
 
 	/**
 	 * @param acqTime
 	 *            - the exposure time the acquisition needs to start with
-	 * @param amplifierValue
+	 * @param isAmplified
 	 *            - the exposure time set on the detector is the value of the <code>acqTime/amplifierValue</code>
+	 * @param lower
+	 * @param upper
 	 * @throws Exception
 	 */
-	void startAcquiring(double acqTime, int amplifierValue) throws Exception;
+	void startAcquiring(double acqTime, boolean isAmplified, double lower, double upper) throws Exception;
 
 	/**
 	 * Stops the acquisition and any captures.
@@ -190,7 +192,7 @@ public interface ICameraHandler extends ITomoHandler {
 	 * 
 	 * @param tomoAlignmentViewController
 	 */
-	void setViewController(TomoAlignmentViewController tomoAlignmentViewController);
+	void setViewController(TomoAlignmentController tomoAlignmentViewController);
 
 	/**
 	 * @return the pixel size on the detector.
@@ -327,11 +329,13 @@ public interface ICameraHandler extends ITomoHandler {
 	 * 
 	 * @param newExpTime
 	 *            - the preferred exposure time divided by the amplification factor
-	 * @param factor
-	 *            - the amplification factor that is set on the proc plug-in of the detector.
+	 * @param isAmplified
+	 *            - whether amplification is on.
+	 * @param lower
+	 * @param upper
 	 * @throws Exception
 	 */
-	void setAmplifiedValue(double newExpTime, int factor) throws Exception;
+	void setAmplifiedValue(double newExpTime, boolean isAmplified, double lower, double upper) throws Exception;
 
 	/**
 	 * Stop capturing and acquisition.
@@ -455,7 +459,20 @@ public interface ICameraHandler extends ITomoHandler {
 	 * 
 	 * @param offset
 	 * @param scale
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	void applyScalingAndContrast(double offset, double scale) throws Exception;
+
+	/**
+	 * @return histogram data
+	 * @throws Exception
+	 */
+	double[] getHistogramData() throws Exception;
+
+	/**
+	 * Method to setup histogram stat collection
+	 * 
+	 * @throws Exception
+	 */
+	void setupHistoStatCollection() throws Exception;
 }

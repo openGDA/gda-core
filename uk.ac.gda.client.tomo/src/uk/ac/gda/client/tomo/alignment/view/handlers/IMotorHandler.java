@@ -22,7 +22,7 @@ import gda.device.DeviceException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentViewController;
+import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentController;
 
 /**
  * Interface that is called by the controller - this handles all the stage motors and most of the movements and position
@@ -83,11 +83,11 @@ public interface IMotorHandler extends ITomoHandler {
 	Double getRotationMotorDeg() throws DeviceException;
 
 	/**
-	 * The {@link TomoAlignmentViewController} controls the GUI with the backend.
+	 * The {@link TomoAlignmentController} controls the GUI with the backend.
 	 * 
 	 * @param tomoAlignmentViewController
 	 */
-	void setTomoAlignmentViewController(TomoAlignmentViewController tomoAlignmentViewController);
+	void setTomoAlignmentViewController(TomoAlignmentController tomoAlignmentViewController);
 
 	/**
 	 * @return thetha value - considered as offset when calculating the horizontal distance to move to. [on I12 -
