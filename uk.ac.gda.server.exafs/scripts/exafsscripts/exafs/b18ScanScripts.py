@@ -192,7 +192,7 @@ class XasScan(Scan):
                     thisscan = self._setUpDataWriter(thisscan,beanGroup)
                     controller.update(None, ScanCreationEvent(thisscan.getName()))
                     if (scanPlotSettings != None):
-                        print "Setting the filer for columns to plot"
+                        print "Setting the filter for columns to plot"
                         thisscan.setScanPlotSettings(scanPlotSettings)
                     thisscan.runScan()
                 except InterruptedException, e:
@@ -282,7 +282,6 @@ class XasScan(Scan):
         if asciidatawriterconfig != None:
             dataWriter = DefaultDataWriterFactory.createDataWriterFromFactory()
             if isinstance(dataWriter,ConfigurableAsciiFormat):
-                print "Setting the details of the AsciiDataWriter format"
                 dataWriter.setConfiguration(asciidatawriterconfig)
             thisscan.setDataWriter(dataWriter)
         return thisscan

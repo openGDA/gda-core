@@ -55,6 +55,13 @@ public class XasAsciiDataWriter extends AsciiDataWriter{
 		return group;
 	}
 
+	public static String getDataDirectory() {
+		if (group != null && group.getExperimentFolderName() != null) {
+			return PathConstructor.createFromDefaultProperty() + group.getExperimentFolderName() + "/";
+		}
+		return PathConstructor.createFromDefaultProperty();
+	}
+
 	private String nexusFilePath;
 
 	public XasAsciiDataWriter() throws InstantiationException {
@@ -142,18 +149,13 @@ public class XasAsciiDataWriter extends AsciiDataWriter{
 					file.write("# Dark current has been automatically removed from counts in main scan (I0,It,Iref)\n");
 					file.write("#\n");
 				}
-				try {
-					if (da != null && da.getCounts().length == 1) {
-						file.write("#\n");
-						file.write(String.format(
-								"# Dark current intensity (Hz), collected over %.2fs: I1 %.2f\n",
-								da.getTimeInS(), da.getCounts()[0] / da.getTimeInS()));
-						file.write("# Dark current has been automatically removed from counts in main scan (I1)\n");
-						file.write("#\n"); 
-					}
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					logger.error("TODO put description of error here", e);
+
+				if (da != null && da.getCounts().length == 1) {
+					file.write("#\n");
+					file.write(String.format("# Dark current intensity (Hz), collected over %.2fs: I1 %.2f\n",
+							da.getTimeInS(), da.getCounts()[0] / da.getTimeInS()));
+					file.write("# Dark current has been automatically removed from counts in main scan (I1)\n");
+					file.write("#\n");
 				}
 
 				columnHeader = dataPoint.getHeaderString(getScanDataPointFormatter());
@@ -232,12 +234,6 @@ public class XasAsciiDataWriter extends AsciiDataWriter{
 		}
 	}
 
-	public static String getDataDirectory() {
-		if (group != null && group.getExperimentFolderName() != null) {
-			return PathConstructor.createFromDefaultProperty() + group.getExperimentFolderName() + "/";
-		}
-		return PathConstructor.createFromDefaultProperty();
-	}
 
 	protected Object getBean(final Object var) {
 		try {

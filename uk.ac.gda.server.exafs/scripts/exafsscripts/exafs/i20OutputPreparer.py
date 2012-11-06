@@ -33,11 +33,9 @@ class I20OutputPreparer:
         scan = beanGroup.getScan()
         if isinstance(scan,XesScanParameters):
             # will return None if not found
-            print "Finding XES Ascii format"
             return Finder.getInstance().find("datawriterconfig_xes")
         else:
             # will return None if not found
-            print "Finding XAS/XANES Ascii format"
             return Finder.getInstance().find("datawriterconfig")
 
     #
