@@ -402,7 +402,7 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 		checkBounds(numericalValue);
 	}
 
-	private void processAsNumber(String txt) {
+	private void processAsNumber(final String txt) {
 
 		if (expressionManager != null)
 			this.expressionManager.setExpression(null);
@@ -411,11 +411,21 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 
 		final Pattern pattern = getRegExpression();
 		final Matcher matcher = pattern.matcher(txt);
-		final StringBuilder buf = matcher.matches() ? null : StringUtils.keepDigits(txt, decimalPlaces);
+		StringBuilder buf = matcher.matches() ? null : StringUtils.keepDigits(txt, decimalPlaces);
 
 		// An exception here is a fatal error so we do not catch it but throw it up.
 		double numericalValue = Double.NaN;
-		try {
+		PARSE_BLOCK: try {
+			if (String.valueOf(Double.POSITIVE_INFINITY).equals(txt)) {
+				numericalValue = Double.POSITIVE_INFINITY;
+				buf = new StringBuilder(String.valueOf(Double.POSITIVE_INFINITY));
+				break PARSE_BLOCK;
+			}
+			if (String.valueOf(Double.NEGATIVE_INFINITY).equals(txt)) {
+				numericalValue = Double.NEGATIVE_INFINITY;
+				buf = new StringBuilder(String.valueOf(Double.NEGATIVE_INFINITY));
+				break PARSE_BLOCK;
+			}
 			numericalValue = (buf != null && buf.length() > 0) ? Double.parseDouble(buf.toString()) : Double
 					.parseDouble(matcher.group(1));
 		} catch (Exception ignored) {
