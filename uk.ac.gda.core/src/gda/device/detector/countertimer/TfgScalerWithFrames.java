@@ -70,7 +70,14 @@ public class TfgScalerWithFrames extends TfgScalerWithLogValues {
 
 	@Override
 	public void atCommandFailure() throws DeviceException {
+		times = null;
 		super.atCommandFailure();
 		stop();
+	}
+	
+	@Override
+	public void clearFrameSets() throws DeviceException {
+//		times = null;
+		super.clearFrameSets();
 	}
 }
