@@ -3,6 +3,7 @@ from gda.factory import Finder
 from gda.scan import ScanPlotSettings
 
 from uk.ac.gda.beans import BeansFactory
+from uk.ac.gda.beans.exafs import XesScanParameters
 
 from gdascripts.parameters import beamline_parameters
 
@@ -29,9 +30,8 @@ class I20OutputPreparer:
     # If this returns None, then let the Ascii Data Writer class find the config for itself.
     #
     def getAsciiDataWriterConfig(self,beanGroup):
-        scantype = beanGroup.getScan().getScanType()
-        print scantype
-        if isinstance(scantype,int):
+        scan = beanGroup.getScan()
+        if isinstance(scan,XesScanParameters):
             # will return None if not found
             print "Finding XES Ascii format"
             return Finder.getInstance().find("datawriterconfig_xes")
