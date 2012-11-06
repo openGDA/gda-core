@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -41,7 +41,7 @@ import uk.ac.gda.util.io.FileUtils;
  * Extension to the asciidatawriter which uses xml files if defined which have more options specific to the exafs RCP
  * GUI as used on spectroscopy beamlines
  */
-public class XasAsciiDataWriter extends AsciiDataWriter {
+public class XasAsciiDataWriter extends AsciiDataWriter{
 
 	private static Logger logger = LoggerFactory.getLogger(XasAsciiDataWriter.class);
 

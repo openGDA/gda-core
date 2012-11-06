@@ -388,7 +388,8 @@ class I20XesScan(XasScan):
                     if numRepetitions > 1:
                         print ""
                         print "Starting repetition", str(repetitionNumber),"of",numRepetitions
-                    thisscan  = ConcurrentScan(args)
+                    thisscan = ConcurrentScan(args)
+                    thisscan = self._setUpDataWriter(thisscan,beanGroup)
                     loggingcontroller.update(None, ScanCreationEvent(thisscan.getName()))
                     thisscan.runScan()
                 except InterruptedException, e:
@@ -427,6 +428,8 @@ class I20XesScan(XasScan):
             LocalProperties.set("gda.data.scan.datawriter.dataFormat", originalDataFormat)
             # make sure the plotter is switched off
             jython_mapper.twodplotter.atScanEnd()
+            
+            
 
     def setUpIonChambers(self,beanGroup):
         jython_mapper = JythonNameSpaceMapping()

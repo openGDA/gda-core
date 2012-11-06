@@ -189,6 +189,7 @@ class XasScan(Scan):
                     else:
                         print "Starting scan..."
                     thisscan = ConcurrentScan(args)
+                    thisscan = self._setUpDataWriter(thisscan,beanGroup)
                     controller.update(None, ScanCreationEvent(thisscan.getName()))
                     if (scanPlotSettings != None):
                         print "Setting the filer for columns to plot"
@@ -270,6 +271,21 @@ class XasScan(Scan):
                 if group.getName() == detectorBean.getFluorescenceParameters().getDetectorType():
                     #print detectorBean.getFluorescenceParameters().getDetectorType(), "experiment"
                     return self._createDetArray(group.getDetector(), scanBean)
+
+    """
+    Get the relevant datawriter config, create a datawriter and if it of the correct type then give it the config.
+    Give the datawriter to the scan.
+    """
+    def _setUpDataWriter(self,thisscan,beanGroup):
+        from gda.data.scan.datawriter import  DefaultDataWriterFactory,ConfigurableAsciiFormat
+        asciidatawriterconfig = self.outputPreparer.getAsciiDataWriterConfig(beanGroup)
+        if asciidatawriterconfig != None:
+            dataWriter = DefaultDataWriterFactory.createDataWriterFromFactory()
+            if isinstance(dataWriter,ConfigurableAsciiFormat):
+                print "Setting the details of the AsciiDataWriter format"
+                dataWriter.setConfiguration(asciidatawriterconfig)
+            thisscan.setDataWriter(dataWriter)
+        return thisscan
 
    
 class QexafsScan(Scan):

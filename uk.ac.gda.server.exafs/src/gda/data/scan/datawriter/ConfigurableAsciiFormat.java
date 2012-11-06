@@ -18,9 +18,18 @@
 
 package gda.data.scan.datawriter;
 
-public class XesAsciiNexusDataWriter extends XasAsciiNexusDataWriter {
+/**
+ * A type of DataWriter which writes Ascii format files, and whose format is defined by an AsciiDataWriterConfiguration
+ * object.
+ */
+public interface ConfigurableAsciiFormat extends DataWriter {
 
-	public XesAsciiNexusDataWriter() throws Exception {
-		super();
-	}
+	public AsciiDataWriterConfiguration getConfiguration();
+
+	/**
+	 * Must be called before the first time addData is called (obviously?)
+	 * 
+	 * @param configuration
+	 */
+	public void setConfiguration(AsciiDataWriterConfiguration configuration);
 }

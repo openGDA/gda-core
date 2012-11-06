@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -36,7 +36,7 @@ import uk.ac.gda.util.io.FileUtils;
 /**
  * Write to an Xas and a Nexus file simultaneously
  */
-public class XasAsciiNexusDataWriter extends DataWriterBase implements DataWriter {
+public class XasAsciiNexusDataWriter extends DataWriterBase implements ConfigurableAsciiFormat {
 
 	private static Logger logger = LoggerFactory.getLogger(XasAsciiNexusDataWriter.class);
 
@@ -45,7 +45,7 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements DataWrite
 	
 	private String xasDir;
 	private String nexusFileTemplate;
-
+	
 	public XasAsciiNexusDataWriter() throws Exception {
 		super();
 		xasAscii = new XasAsciiDataWriter();
@@ -166,14 +166,22 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements DataWrite
 	
 	@Override
 	public void addDataWriterExtender(IDataWriterExtender dataWriterExtender) {
-		nexus.addDataWriterExtender(dataWriterExtender);
-		xasAscii.addDataWriterExtender(dataWriterExtender);
+		super.addDataWriterExtender(dataWriterExtender);
 	}
 	
 
 	@Override
 	public void removeDataWriterExtender(IDataWriterExtender dataWriterExtender) {
-		nexus.removeDataWriterExtender(dataWriterExtender);	
-		xasAscii.removeDataWriterExtender(dataWriterExtender);
+		super.removeDataWriterExtender(dataWriterExtender);
+	}
+
+	@Override
+	public AsciiDataWriterConfiguration getConfiguration() {
+		return xasAscii.getConfiguration();
+	}
+
+	@Override
+	public void setConfiguration(AsciiDataWriterConfiguration configuration) {
+		xasAscii.setConfiguration(configuration);
 	}
 }
