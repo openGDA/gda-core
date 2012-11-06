@@ -1817,6 +1817,11 @@ public class TomoAlignmentControlComposite extends Composite {
 					chkSampleWeight.setForeground(NORMAL_COLOR);
 				}
 			}
+			if (e.getSource().equals(chkTomoParameters) && chkTomoParameters.getForeground().equals(ERROR_COLOR)) {
+				if (chkTomoParameters.getSelection()) {
+					chkTomoParameters.setForeground(NORMAL_COLOR);
+				}
+			}
 		}
 	};
 

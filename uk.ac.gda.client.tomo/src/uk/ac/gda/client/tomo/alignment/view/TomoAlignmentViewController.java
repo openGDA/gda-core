@@ -1030,8 +1030,11 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 				tomoAlignmentView.setRightPage(RIGHT_PAGE.PLOT);
 				tomoAlignmentView.setRightInfoPage(RIGHT_INFO.NONE);
 			} else {
-				MessageDialog.openError(tomoAlignmentView.getLeftPanelComposite().getShell(),
-						"Histogram cannot be displayed", "Histogram can only be displayed for Sample Stream or Single");
+				MessageDialog
+						.openError(
+								tomoAlignmentView.getLeftPanelComposite().getShell(),
+								"Histogram cannot be displayed",
+								"Histogram can only be displayed for Stream or Single.\nSwitch on 'Stream' or capture a 'Single' image to view the histogram");
 				tomoAlignmentView.getLeftPanelComposite().stopHistogram();
 				tomoAlignmentView.setRightInfoPage(RIGHT_INFO.NONE);
 			}
@@ -1441,7 +1444,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 							imgData.palette.isDirect));
 
 					tomoAlignmentView.setHistogramAdjusterImageData((ImageData) imgData.clone());
-					
+
 					tomoAlignmentView.getHistogramAdjuster().updateHistogramValues(
 							tomoAlignmentView.getLeftWindowImageViewer(),
 							tomoAlignmentView.getTomoAlignmentController().getScaledX(),

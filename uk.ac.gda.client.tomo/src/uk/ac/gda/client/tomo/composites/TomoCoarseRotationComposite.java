@@ -20,6 +20,7 @@ package uk.ac.gda.client.tomo.composites;
 
 import java.util.List;
 
+import org.eclipse.draw2d.BorderLayout;
 import org.eclipse.draw2d.Button;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.IFigure;
@@ -37,6 +38,9 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+
+import uk.ac.gda.client.tomo.ImageConstants;
+import uk.ac.gda.client.tomo.TomoClientActivator;
 
 /**
  * Class that inherits its functionality from the {@link TomoFineRotationComposite} but display buttons instead of
@@ -77,7 +81,7 @@ public class TomoCoarseRotationComposite extends RotationSliderComposite {
 
 	@Override
 	protected Dimension getSliderTriangleDimension() {
-		return new Dimension(60, 30);
+		return new Dimension(65, 30);
 	}
 
 	@Override
@@ -141,8 +145,17 @@ public class TomoCoarseRotationComposite extends RotationSliderComposite {
 	}
 
 	private Button addButton(IFigure panel, String btnLabel) {
-		Button btn = new Button(btnLabel);
+		Button btn = new Button();
+		btn.setLayoutManager(new BorderLayout());
+		Label lblImg = new Label(TomoClientActivator.getDefault().getImageRegistry().get(ImageConstants.ICON_CTRL_BTN));
+		lblImg.setOpaque(true);
+		btn.add(lblImg, BorderLayout.LEFT);
+
+		Label lblText = new Label(btnLabel);
+		lblText.setOpaque(true);
+		btn.add(lblText, BorderLayout.CENTER);
 		btn.setBorder(new LineBorder(1));
+
 		panel.add(btn);
 		return btn;
 	}
@@ -151,13 +164,13 @@ public class TomoCoarseRotationComposite extends RotationSliderComposite {
 	protected void layoutDownSliderMarkers(Rectangle parentBounds) {
 		Dimension textExtents = null;
 
-		int labelY = sliderBoundary.getLocation().y + 3;
+		int labelY = sliderBoundary.getLocation().y + 4;
+		Dimension buttonSize = new Dimension(55, 18);
+
 		if (btnLeft != null) {
 			Label lblLeft = getButtonLabel(btnLeft);
 			textExtents = lblLeft.getTextUtilities().getTextExtents(lblLeft.getText(), getFont());
 			lblLeft.setSize(textExtents);
-			Dimension buttonSize = new Dimension(textExtents.width, textExtents.height);
-
 			btnLeft.setSize(buttonSize);
 
 			btnLeft.setLocation(new Point(3, labelY));
@@ -166,8 +179,6 @@ public class TomoCoarseRotationComposite extends RotationSliderComposite {
 			Label lblLeftCenter = getButtonLabel(btnLeftCenter);
 			textExtents = lblLeftCenter.getTextUtilities().getTextExtents(lblLeftCenter.getText(), getFont());
 			lblLeftCenter.setSize(textExtents);
-			Dimension buttonSize = new Dimension(textExtents.width, textExtents.height);
-
 			btnLeftCenter.setSize(buttonSize);
 			double x = sliderBoundary.getBounds().width / 4.0 + sliderTriangle.getBounds().width / 2.0
 					- buttonSize.width / 2.0;
@@ -175,10 +186,7 @@ public class TomoCoarseRotationComposite extends RotationSliderComposite {
 		}
 		if (btnCenter != null) {
 			Label lblCenter = getButtonLabel(btnCenter);
-			textExtents = lblCenter.getTextUtilities().getTextExtents(lblCenter.getText(), getFont());
-			lblCenter.setSize(textExtents);
-			Dimension buttonSize = new Dimension(textExtents.width, textExtents.height);
-
+			lblCenter.setSize(new Dimension(45, lblCenter.getSize().height));
 			btnCenter.setSize(buttonSize);
 			int x = (parentBounds.width / 2) - buttonSize.width / 2;
 			btnCenter.setLocation(new Point(x, labelY));
@@ -186,9 +194,7 @@ public class TomoCoarseRotationComposite extends RotationSliderComposite {
 		if (btnRightCenter != null) {
 			Label lblRightCenter = getButtonLabel(btnRightCenter);
 			textExtents = lblRightCenter.getTextUtilities().getTextExtents(lblRightCenter.getText(), getFont());
-			lblRightCenter.setSize(textExtents);
-			Dimension buttonSize = new Dimension(textExtents.width, textExtents.height);
-
+			lblRightCenter.setSize(new Dimension(45, lblRightCenter.getSize().height));
 			btnRightCenter.setSize(buttonSize);
 			double x = (3.0 * sliderBoundary.getBounds().width) / 4.0 + sliderTriangle.getBounds().width / 2.0
 					- buttonSize.width / 2.0;
@@ -198,10 +204,9 @@ public class TomoCoarseRotationComposite extends RotationSliderComposite {
 			Label lblRight = getButtonLabel(btnRight);
 			textExtents = lblRight.getTextUtilities().getTextExtents(lblRight.getText(), getFont());
 			lblRight.setSize(textExtents);
-			Dimension buttonSize = new Dimension(textExtents.width, textExtents.height);
 
 			btnRight.setSize(buttonSize);
-			btnRight.setLocation(new Point(parentBounds.width - (textExtents.width + 2), labelY));
+			btnRight.setLocation(new Point(parentBounds.width - (60), labelY));
 		}
 	}
 
@@ -212,10 +217,12 @@ public class TomoCoarseRotationComposite extends RotationSliderComposite {
 	 */
 	private void setButtonProperties(Button button) {
 		getButtonLabel(button).setFont(fontRegistry.get(TEXT_SMALL_7));
-		button.setBackgroundColor(ColorConstants.black);
-		button.setForegroundColor(ColorConstants.white);
+		button.setBackgroundColor(ColorConstants.white);
+		button.setForegroundColor(ColorConstants.black);
 		button.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_HAND));
 		getButtonLabel(button).addMouseListener(ml);
+		getButtonIcon(button).addMouseListener(ml);
+		// button.addMouseListener(ml);
 	}
 
 	private class SliderButtonMouseListener implements MouseListener {
@@ -319,7 +326,8 @@ public class TomoCoarseRotationComposite extends RotationSliderComposite {
 	}
 
 	protected void showButtonSelected(Button btn) {
-		btn.setBackgroundColor(ColorConstants.red);
+		btn.setBackgroundColor(ButtonSelectionUtil.BUTTON_SELECTION_BACKGROUND);
+		btn.setForegroundColor(ButtonSelectionUtil.BUTTON_SELECTION_FOREGROUND);
 	}
 
 	public void showButtonDeSelected() {
@@ -350,7 +358,18 @@ public class TomoCoarseRotationComposite extends RotationSliderComposite {
 	private Label getButtonLabel(Button btn) {
 		List children = btn.getChildren();
 		for (Object child : children) {
-			if (child instanceof Label) {
+			if (child instanceof Label && ((Label) child).getText().length() > 0) {
+				return (Label) child;
+			}
+		}
+		return null;
+	}
+
+	@SuppressWarnings("rawtypes")
+	private Label getButtonIcon(Button btn) {
+		List children = btn.getChildren();
+		for (Object child : children) {
+			if (child instanceof Label && ((Label) child).getIcon() != null) {
 				return (Label) child;
 			}
 		}

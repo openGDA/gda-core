@@ -37,9 +37,6 @@ import org.eclipse.swt.widgets.Shell;
  * <br>
  * Run this as a Java application to see the slider in action.
  */
-/**
- *
- */
 public class TomoFineRotationComposite extends RotationSliderComposite {
 
 	private Label lblLeft;
@@ -241,7 +238,7 @@ public class TomoFineRotationComposite extends RotationSliderComposite {
 
 	@Override
 	protected Dimension getSliderTriangleDimension() {
-		return new Dimension(60, 30);
+		return new Dimension(50, 30);
 	}
 
 	@Override

@@ -34,7 +34,6 @@ import org.eclipse.draw2d.MouseMotionListener;
 import org.eclipse.draw2d.Panel;
 import org.eclipse.draw2d.PositionConstants;
 import org.eclipse.draw2d.RectangleFigure;
-import org.eclipse.draw2d.Triangle;
 import org.eclipse.draw2d.XYLayout;
 import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Point;
@@ -48,6 +47,9 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+
+import uk.ac.gda.client.tomo.ImageConstants;
+import uk.ac.gda.client.tomo.TomoClientActivator;
 
 /**
  * Abstract class that defines the rotation slider composite. Implementations of these are
@@ -76,14 +78,14 @@ public abstract class RotationSliderComposite extends Composite {
 		void sliderMovedTo(double deg);
 	}
 
-	private final static DecimalFormat df = new DecimalFormat("#.##");
+	private final static DecimalFormat df = new DecimalFormat("#.#");
 	protected static final String TEXT_SMALL_7 = "bold-text_small-7";
 	private static final double SLIDER_START_TOLERANCE = 1;
 	private FigureCanvas figCanvas;
 	private List<SliderSelectionListener> sliderListeners = new ArrayList<SliderSelectionListener>();
 	private final int direction;
 	protected RectangleFigure sliderBoundary;
-	protected Triangle sliderTriangle;
+	protected RotationSliderShape sliderTriangle;
 	private Label triangleLblFigure;
 	/**
 	 * labels that appear along the slider.
@@ -118,7 +120,7 @@ public abstract class RotationSliderComposite extends Composite {
 		if (Display.getCurrent() != null) {
 			fontRegistry = new FontRegistry(Display.getCurrent());
 			String fontName = Display.getCurrent().getSystemFont().getFontData()[0].getName();
-			fontRegistry.put(TEXT_SMALL_7, new FontData[] { new FontData(fontName, 7, SWT.BOLD) });
+			fontRegistry.put(TEXT_SMALL_7, new FontData[] { new FontData(fontName, 7, SWT.NORMAL) });
 		}
 		initialize();
 		direction = style;
@@ -214,12 +216,11 @@ public abstract class RotationSliderComposite extends Composite {
 	@SuppressWarnings("unused")
 	protected IFigure getContents() {
 		IFigure panel = new Panel();
-
 		panel.setLayoutManager(new SliderLayout());
 		LineBorder border = new LineBorder(2);
 		border.setColor(COLOUR_DISABLED);
 		panel.setBorder(border);
-		sliderTriangle = new Triangle();
+		sliderTriangle = new RotationSliderShape();
 		sliderTriangle.setFill(true);
 		sliderTriangle.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_SIZEWE));
 
@@ -254,10 +255,15 @@ public abstract class RotationSliderComposite extends Composite {
 		sliderTriangle.setLayoutManager(new XYLayout());
 		triangleLblFigure = new Label("0°");
 		triangleLblFigure.setBackgroundColor(ColorConstants.white);
+		triangleLblFigure.setIcon(TomoClientActivator.getDefault().getImageRegistry().get(ImageConstants.ICON_CTRL_BTN));
 		//
 
-		int x = getSliderTriangleDimension().width / 4 - 1;
+		int x = getSliderTriangleDimension().width / 4 - 14;
 		int y = getSliderTriangleDimension().height / 4 - 1;
+		
+		if(direction == SWT.UP){
+			y = getSliderTriangleDimension().height / 4 - 6;
+		}
 		sliderTriangle.add(triangleLblFigure, new Rectangle(x, y, -1, -1));
 	}
 
@@ -309,7 +315,7 @@ public abstract class RotationSliderComposite extends Composite {
 					xVal = parentBounds.width / 2 - sliderTriangle.getBounds().width / 2;
 				}
 				sliderTriangle.setLocation(new Point(xVal, parentBounds.height - 20));
-				sliderBoundary.setBounds(new Rectangle(sliderTriangle.getBounds().width / 2, parentBounds.height - 23,
+				sliderBoundary.setBounds(new Rectangle(sliderTriangle.getBounds().width / 2, parentBounds.height - 26,
 						parentBounds.width - sliderTriangle.getBounds().width, 3));
 				/* labels */
 				layoutUpSliderMarkers(parentBounds);
