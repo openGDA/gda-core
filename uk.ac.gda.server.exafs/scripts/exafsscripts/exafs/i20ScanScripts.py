@@ -272,7 +272,7 @@ class I20XesScan(XasScan):
         scanType = beanGroup.getScan().getScanType()
         args = []
 
-        originalDataFormat = LocalProperties.get("gda.data.scan.datawriter.dataFormat")
+#        originalDataFormat = LocalProperties.get("gda.data.scan.datawriter.dataFormat")
 
         from gda.exafs.xes.XesUtils import XesMaterial
         type = 1
@@ -285,14 +285,14 @@ class I20XesScan(XasScan):
         
         if scanType == XesScanParameters.SCAN_XES_FIXED_MONO:
             print "Scanning the analyser scan with fixed mono"
-            print "switching data output format to XesAsciiNexusDataWriter"
-            LocalProperties.set("gda.data.scan.datawriter.dataFormat","XesAsciiNexusDataWriter")
+#            print "switching data output format to XesAsciiNexusDataWriter"
+#            LocalProperties.set("gda.data.scan.datawriter.dataFormat","XesAsciiNexusDataWriter")
             args += [xes_energy, beanGroup.getScan().getXesInitialEnergy(), beanGroup.getScan().getXesFinalEnergy(), beanGroup.getScan().getXesStepSize(), mono_energy, beanGroup.getScan().getMonoEnergy()]
     
         elif scanType == XesScanParameters.SCAN_XES_SCAN_MONO:
             print "Scanning over the analyser and mono energies"
-            print "switching data output format to XesAsciiNexusDataWriter"
-            LocalProperties.set("gda.data.scan.datawriter.dataFormat","XesAsciiNexusDataWriter")
+#            print "switching data output format to XesAsciiNexusDataWriter"
+#            LocalProperties.set("gda.data.scan.datawriter.dataFormat","XesAsciiNexusDataWriter")
 
              # create scannable which will control 2D plotting in this mode
             jython_mapper.twodplotter.setX_colName(xes_energy.getInputNames()[0])
@@ -425,7 +425,7 @@ class I20XesScan(XasScan):
                     break
 
         finally:
-            LocalProperties.set("gda.data.scan.datawriter.dataFormat", originalDataFormat)
+#            LocalProperties.set("gda.data.scan.datawriter.dataFormat", originalDataFormat)
             # make sure the plotter is switched off
             jython_mapper.twodplotter.atScanEnd()
             
