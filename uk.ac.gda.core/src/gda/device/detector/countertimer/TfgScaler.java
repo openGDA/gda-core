@@ -49,9 +49,8 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 
 	/*
 	 * The first channel of output should always be livetime. For TFGv2 this is always supplied from DAServer, but for
-	 * older v1 systems this must be explicitly added to the output.
-	 * <p>
-	 * So this is effectively a TFG version flag: set to true if TFGv1 and need to calculate and add the livetime.
+	 * older v1 systems this must be explicitly added to the output. <p> So this is effectively a TFG version flag: set
+	 * to true if TFGv1 and need to calculate and add the livetime.
 	 */
 	protected boolean timeChannelRequired;
 
@@ -70,7 +69,7 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 
 	private String scalerName;
 	private int minimumReadoutDelay = 0;
-	private int framesRead = 0;
+	private int lastFrameCollected = 0;
 	private long countAsyncTime = 0;
 	private long readoutTime = 0;
 
@@ -195,7 +194,7 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 	public void clearFrameSets() throws DeviceException {
 		super.clearFrameSets();
 		frameSets.clear();
-		framesRead = 0;
+		lastFrameCollected = -1;
 	}
 
 	@Override
@@ -207,7 +206,7 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 			loadFrameSets(); // ?? this should be needed I think
 			timer.start();
 		}
-		framesRead = 0;
+		lastFrameCollected = -1;
 	}
 
 	@Override
@@ -263,7 +262,7 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 	 * @throws DeviceException
 	 */
 	public double[] readFrame(int frame) throws DeviceException {
-		return readoutFrames(frame,frame)[0];
+		return readoutFrames(frame, frame)[0];
 	}
 
 	@Override
@@ -296,6 +295,12 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 	public void collectData() throws DeviceException {
 		countAsync(collectionTime * 1000); // convert from seconds (Detector interface) to milliseconds (CounterTimer
 											// interface)
+		// increment the frame counter if framing is being used
+		if (frameSets.size() > 0) {
+			lastFrameCollected++;
+		} else {
+			lastFrameCollected = 0;
+		}
 	}
 
 	/**
@@ -303,14 +308,7 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 	 */
 	@Override
 	public double[] readout() throws DeviceException {
-
 		double[] output = readoutCurrentFrame();
-
-		// increment the frame counter if framing is being used
-		if (frameSets.size() > 0) {
-			framesRead++;
-		}
-
 		return output;
 	}
 
@@ -327,11 +325,13 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 			try {
 				Thread.sleep(delay);
 			} catch (InterruptedException e) {
-				throw new DeviceException("InterruptedException during minimumReadoutDelay",e);
+				throw new DeviceException("InterruptedException during minimumReadoutDelay", e);
 			}
 		}
-		logger.debug("Current tfg frame is " + this.getCurrentFrame() + " and reading frame " + framesRead);
-		return readoutFrames(framesRead, framesRead)[0];
+		// logger.debug("Current tfg frame is " + this.getCurrentFrame() + " and reading frame " + framesRead);
+		// return readoutFrames(framesRead, framesRead)[0];
+		logger.info("Reading frame " + lastFrameCollected + ". Current tfg frame is " + this.getCurrentFrame());
+		return readoutFrames(lastFrameCollected, lastFrameCollected)[0];
 	}
 
 	public double[][] readoutFrames(int startFrame, int finalFrame) throws DeviceException {
@@ -397,7 +397,7 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 		ScalerFrame[] frames = new ScalerFrame[output.length];
 		for (int i = 0; i < output.length; i++) {
 			frames[i] = new ScalerFrame();
-			
+
 			if (isTFGv2) {
 				// TFG2 always returns first channel as #clock counts (TFG has a 100MHz clock cycle)
 				frames[i].time = output[i][0] / 100000000;
