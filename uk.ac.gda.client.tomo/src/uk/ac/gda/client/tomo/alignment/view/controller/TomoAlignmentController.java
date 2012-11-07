@@ -25,7 +25,6 @@ import gov.aps.jca.TimeoutException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -110,8 +109,6 @@ public class TomoAlignmentController extends TomoViewController {
 	}
 
 	private boolean darkImageSaved;
-
-	private final static DecimalFormat df = new DecimalFormat("#.##");
 
 	private Set<ITomoAlignmentView> tomoalignmentViews = new HashSet<ITomoAlignmentView>();
 
@@ -581,8 +578,7 @@ public class TomoAlignmentController extends TomoViewController {
 			// ObjectPixelSize * binValue gives the distance to move per pixel on the screen
 			double scale = objectPixelSize * cameraHandler.getRoi1BinValue();
 			double movement = -(difference.height) * scale;
-			double finalPosition = sampleStageMotorHandler.getVerticalPosition() + movement;
-			sampleStageMotorHandler.moveSs1Y2To(monitor, finalPosition);
+			sampleStageMotorHandler.moveVerticalBy(monitor, movement);
 		} catch (DeviceException e) {
 			logger.error("Exception when moving y2 motor", e.getMessage());
 			throw e;
@@ -997,7 +993,8 @@ public class TomoAlignmentController extends TomoViewController {
 
 	}
 
-	public void setAdjustedExposureTime(boolean isAmplified, double from, double to, int lower, int upper) throws Exception {
+	public void setAdjustedExposureTime(boolean isAmplified, double from, double to, int lower, int upper)
+			throws Exception {
 		double scaledFactor = getScaledFactor(from, to);
 		double adjustedExposureTime = getCameraExposureTime();
 		if (scaledFactor != 0) {
@@ -1077,9 +1074,13 @@ public class TomoAlignmentController extends TomoViewController {
 		// ss1_x
 		motorPositions.add(new MotorPosition(sampleStageMotorHandler.getSampleBaseMotorName(), sampleStageMotorHandler
 				.getSampleBaseMotorPosition()));
-		// ss1_y
-		motorPositions.add(new MotorPosition(sampleStageMotorHandler.getVerticalMotorName(), sampleStageMotorHandler
-				.getVerticalPosition()));
+		// Vertical Positions
+		Map<String, Double> verticalMotorPositions = sampleStageMotorHandler.getVerticalMotorPositions();
+
+		for (String motorName : verticalMotorPositions.keySet()) {
+			motorPositions.add(new MotorPosition(motorName, verticalMotorPositions.get(motorName)));
+		}
+
 		// ss1_tx
 		motorPositions.add(new MotorPosition(sampleStageMotorHandler.getCentreXMotorName(), sampleStageMotorHandler
 				.getSs1TxPosition()));

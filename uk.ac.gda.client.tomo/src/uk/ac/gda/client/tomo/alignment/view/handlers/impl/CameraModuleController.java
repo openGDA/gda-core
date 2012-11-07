@@ -25,6 +25,7 @@ import gda.observable.IObserver;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
+import org.python.core.PyBaseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -62,7 +63,7 @@ public class CameraModuleController implements InitializingBean, ICameraModuleCo
 
 	@Override
 	public void moveModuleTo(CAMERA_MODULE module, final IProgressMonitor monitor) throws Exception {
-		final Exception[] exceptions = new Exception[1];
+		final PyBaseException[] exceptions = new PyBaseException[1];
 		final SubMonitor progress = SubMonitor.convert(monitor);
 		progress.beginTask("Module change", 5);
 		String moveModuleCmd = String.format(TomoClientConstants.MOVE_MODULE_COMMAND, module.getValue().intValue());
@@ -73,8 +74,8 @@ public class CameraModuleController implements InitializingBean, ICameraModuleCo
 				if (source.equals(tomoScriptController)) {
 					logger.debug("Observing source:{}", source);
 					logger.debug("Observing arg:{}", arg);
-					if (arg instanceof Exception) {
-						Exception ex = (Exception) arg;
+					if (arg instanceof PyBaseException) {
+						PyBaseException ex = (PyBaseException) arg;
 						exceptions[0] = ex;
 					} else {
 						progress.subTask(arg.toString());
@@ -86,7 +87,7 @@ public class CameraModuleController implements InitializingBean, ICameraModuleCo
 		JythonServerFacade.getInstance().evaluateCommand(moveModuleCmd);
 		tomoScriptController.deleteIObserver(observer);
 		if (exceptions[0] != null) {
-			throw exceptions[0];
+			throw new IllegalStateException(exceptions[0].message.toString());
 		}
 	}
 

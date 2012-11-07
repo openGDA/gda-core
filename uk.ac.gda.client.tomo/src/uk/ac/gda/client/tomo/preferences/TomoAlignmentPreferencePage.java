@@ -28,6 +28,7 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
@@ -44,7 +45,6 @@ import uk.ac.gda.client.tomo.TomoClientActivator;
  * Preference page for tomography alignment.
  */
 public class TomoAlignmentPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
-
 
 	private static final String DOUBLE_REGEX = "\\-?[0-9]*\\.?[0-9]*";
 
@@ -177,6 +177,22 @@ public class TomoAlignmentPreferencePage extends PreferencePage implements IWork
 		txtFastPreviewExpTime.setText(Double.toString(fastPreviewExpTime));
 		txtFastPreviewExpTime.addModifyListener(doubleVerifyListener);
 		txtFastPreviewExpTime.setData(ERR_MSG_ID, FAST_PREVIEW_EXP_TIME);
+
+		// Dark group
+		Group verticalStageGroup = new Group(root, SWT.None);
+		verticalStageGroup.setText("Vertical Stage");
+		gl = new GridLayout();
+
+		verticalStageGroup.setLayout(gl);
+		verticalStageGroup.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Button chkShouldUseY1 = new Button(verticalStageGroup, SWT.CHECK | SWT.WRAP);
+		chkShouldUseY1.setText("Use Y1 motor while aligning vertical stage");
+		chkShouldUseY1.setLayoutData(new GridData());
+		Button chkUseY2BeforeY3 = new Button(verticalStageGroup, SWT.CHECK | SWT.WRAP);
+		chkUseY2BeforeY3
+				.setText("Move Y2 motor to limits before moving \nY3 motors while moving up \n(the motor usage will be inverted while moving down)");
+		chkUseY2BeforeY3.setLayoutData(new GridData());
 
 		return root;
 	}

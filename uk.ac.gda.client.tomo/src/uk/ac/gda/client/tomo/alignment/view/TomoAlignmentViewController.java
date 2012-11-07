@@ -1738,7 +1738,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 							logger.error("Action stopped by user");
 						} catch (Exception ex) {
 							logger.error("Problem with vertical centring", ex);
-							throw new InvocationTargetException(ex);
+							throw new InvocationTargetException(ex, ex.getMessage());
 						} finally {
 							try {
 								tomoAlignmentView.getTomoControlComposite().switchOff(selectedCentring);
