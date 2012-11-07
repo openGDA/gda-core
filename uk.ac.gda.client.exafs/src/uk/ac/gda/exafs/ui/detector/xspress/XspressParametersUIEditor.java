@@ -144,7 +144,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	private FileDialog openDialog;
 
 	private Button autoSave;
-	private boolean isAutoSave;
 
 	Label acquireFileLabel;
 
@@ -307,13 +306,12 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		autoSave = new Button(acquire, SWT.CHECK);
 		autoSave.setText("Save on Acquire");
 		autoSave.setSelection(writeToDisk);
-		isAutoSave = writeToDisk;
 		autoSave.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1));
 		autoSave.addSelectionListener(new SelectionListener() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				isAutoSave = autoSave.getSelection();
+				writeToDisk = autoSave.getSelection();
 			}
 
 			@Override
@@ -321,6 +319,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 
 			}
 		});
+		autoSave.setSelection(writeToDisk);
 
 		acquireFileLabel = new Label(grpAcquire, SWT.NONE);
 		acquireFileLabel.setText("										");
@@ -785,7 +784,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 				}
 			});
 
-			if (isAutoSave) {
+			if (writeToDisk) {
 				String spoolDirPath = PathConstructor.createFromProperty("gda.device.xspress.spoolDir");
 				final File filePath = File.createTempFile("mca", ".xsp", new File(spoolDirPath));
 				save(detectorData, filePath.getAbsolutePath());

@@ -722,6 +722,9 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 		getDetectorElementComposite().setTotalCounts(getTotalCounts());
 		getDetectorElementComposite().setTotalElementCounts(getTotalElementCounts(data));
+		
+		// always refresh the ROI/window values when replotting
+		calculateCounts(null);
 	}
 
 	private Double getTotalElementCounts(Collection<AbstractDataset> d) {

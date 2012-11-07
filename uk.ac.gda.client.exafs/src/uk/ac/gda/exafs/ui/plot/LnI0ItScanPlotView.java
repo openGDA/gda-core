@@ -67,16 +67,22 @@ public class LnI0ItScanPlotView extends AbstractCachedScanPlotView {
 		for (int i = startIndex; i < collection.size(); i++){
 			IScanDataPoint point = collection.get(i);
 			double x = point.getAllValuesAsDoubles()[0];
+			double ffi0 = ScanDataPointUtils.getFFI0(point);
 			double ff = ScanDataPointUtils.getFF(point);
 			double i0 = ScanDataPointUtils.getI0(point);
 			double it = ScanDataPointUtils.getIt(point);
 			if (Double.isNaN(i0))
 				continue;
-			if (!Double.isNaN(ff)) {
+			if (!Double.isNaN(ffi0)) {
+				cachedY.add(ffi0);
+				cachedX.add(x);
+				yAxis = "FF/I0";
+				graphTitle = "Fluorescence  -  FF/I0 vs. Energy";
+			} else if (!Double.isNaN(ff)) {
 				cachedY.add(ff / i0);
 				cachedX.add(x);
 				yAxis = "FF/I0";
-				graphTitle = "Absorption  -  FF/I0 vs. Energy";
+				graphTitle = "Fluorescence  -  FF/I0 vs. Energy";
 			} else if (!Double.isNaN(it)) {
 				cachedY.add(Math.log(i0 / it));
 				cachedX.add(x);
