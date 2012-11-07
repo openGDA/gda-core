@@ -37,16 +37,20 @@ import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import uk.ac.gda.ui.event.PartAdapter2;
 
 /**
  * Composite that has two slider which can be slided towards each other or away - this is used as a histogram control
@@ -56,7 +60,6 @@ public class ColourSliderComposite extends Composite {
 
 	private int maximum = 100000;
 
-	private int markerInterval = 10000;
 	private FigureCanvas figCanvas;
 	private Panel topSliderHolder;
 	private Triangle topTriangleFigure;
@@ -95,15 +98,11 @@ public class ColourSliderComposite extends Composite {
 		this.maximum = maximum;
 	}
 
-	public void setMarkerInterval(int markerInterval) {
-		this.markerInterval = markerInterval;
-	}
-
 	/**
 	 * Slider listener which propagates the events to the composites listening to the colour slider.
 	 */
 	public interface IColourSliderListener {
-		void colourSliderRegion(int upperLimit, int lowerLimit);
+		void colourSliderRegion(double upperLimit, double lowerLimit);
 	}
 
 	public ColourSliderComposite(Composite parent, int style) {
@@ -114,6 +113,36 @@ public class ColourSliderComposite extends Composite {
 		layout.verticalSpacing = 0;
 		layout.horizontalSpacing = 0;
 		setLayout(layout);
+		Button btnReset = new Button(this, SWT.WRAP);
+
+		GridData gd = new GridData();
+		gd.widthHint = 30;
+		gd.heightHint = 90;
+		btnReset.setLayoutData(gd);
+		btnReset.setBackground(ColorConstants.white);
+		btnReset.addPaintListener(new PaintListener() {
+
+			@Override
+			public void paintControl(PaintEvent e) {
+				GC gc = e.gc;
+				int y = 0;
+				for (char c : "R E S E T".toCharArray()) {
+					gc.drawText(new String(new char[] { c }), 10, y += 7, true);
+				}
+			}
+		});
+		btnReset.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				bottomSliderMoved = false;
+				topSliderMoved = false;
+
+				organizeFigures(figCanvas.getContents());
+
+				notifyListeners();
+			}
+		});
+
 		figCanvas = new FigureCanvas(this);
 		figCanvas.setContents(getContents());
 		figCanvas.getViewport().setContentsTracksHeight(true);
@@ -122,16 +151,13 @@ public class ColourSliderComposite extends Composite {
 		colourSliderListeners = new ArrayList<ColourSliderComposite.IColourSliderListener>();
 	}
 
-	public int getCountForPixel(int pixel) {
+	public double getCountForPixel(int pixel) {
 		double pixel0 = getPixelLocation(0);
-		// logger.debug("Pixel at 0 count:{}", pixel0);
 		double pixelMax = getPixelLocation(maximum);
-		// logger.debug("Pixel at pixelMax:{}", pixelMax);
 		double pixelProportion = maximum / (pixel0 - pixelMax);
 
 		double countAtPixel = (pixel0 - pixel) * pixelProportion;
-		// logger.debug("Pixel at countAtPixel:{}", countAtPixel);
-		return (int) countAtPixel;
+		return countAtPixel;
 	}
 
 	private IFigure getContents() {
@@ -140,23 +166,8 @@ public class ColourSliderComposite extends Composite {
 			public void paint(Graphics graphics) {
 				super.paint(graphics);
 
-				// graphics.drawLine(0, topLimitInPixel, 30, topLimitInPixel);
 				graphics.drawLine(0, bottomLimitInPixel, 30, bottomLimitInPixel);
 
-				// logger.debug("maximum:{}", maximum);
-				// logger.debug("markerInterval{}", markerInterval);
-				int numMarkerIntervals = maximum / markerInterval;
-				// logger.debug("numMarkerIntervals:{}", numMarkerIntervals);
-				int totalDistanceBetweenLowestAndHighestPoint = bottomLimitInPixel - topLimitInPixel;
-				// logger.debug("totalDistanceBetweenLowestAndHighestPoint:{}",
-				// totalDistanceBetweenLowestAndHighestPoint);
-				int individualInterval = totalDistanceBetweenLowestAndHighestPoint / numMarkerIntervals;
-				// logger.debug("individualInterval:{}", individualInterval);
-
-				for (int count = bottomLimitInPixel - individualInterval; count > topLimitInPixel; count = count
-						- individualInterval) {
-					graphics.drawLine(0, count, 30, count);
-				}
 			}
 		};
 		boundaryFigure.setLayoutManager(new ColourSliderCompositeLayout());
@@ -168,21 +179,23 @@ public class ColourSliderComposite extends Composite {
 		topTriangleFigure = new Triangle();
 		topTriangleFigure.setDirection(PositionConstants.SOUTH);
 		topTriangleFigure.setFill(true);
-		topTriangleFigure.setBackgroundColor(ColorConstants.red);
-		topTriangleFigure.setForegroundColor(ColorConstants.red);
+		topTriangleFigure.setBackgroundColor(ColorConstants.buttonDarker);
+		topTriangleFigure.setForegroundColor(ColorConstants.black);
 		topTriangleFigure.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_HAND));
 
 		topClosureFigure = new RectangleFigure();
-		topClosureFigure.setBackgroundColor(ColorConstants.red);
-		topClosureFigure.setForegroundColor(ColorConstants.red);
+		topClosureFigure.setBackgroundColor(ColorConstants.black);
+		topClosureFigure.setForegroundColor(ColorConstants.black);
+		topClosureFigure.setOpaque(true);
 		topClosureFigure.setFill(true);
 
 		topSliderHolder.add(topTriangleFigure, new Rectangle(0, 0, 20, 15));
-		topSliderHolder.add(topClosureFigure, new Rectangle(0, 20, 20, 1));
+		topSliderHolder.add(topClosureFigure, new Rectangle(0, 13, 20, 1));
 		topSliderDragger = new Dragger();
 		topSliderHolder.addMouseMotionListener(topSliderDragger);
 		topSliderHolder.addMouseListener(topSliderDragger);
 		topSliderHolder.setBounds(new Rectangle(5, 5, 20, 15));
+
 		// Bottom slider figure
 		bottomSliderHolder = new Panel();
 		bottomSliderHolder.setLayoutManager(new XYLayout());
@@ -190,16 +203,14 @@ public class ColourSliderComposite extends Composite {
 		bottomTriangleFigure = new Triangle();
 		bottomTriangleFigure.setDirection(PositionConstants.NORTH);
 		bottomTriangleFigure.setFill(true);
-		bottomTriangleFigure.setBackgroundColor(ColorConstants.blue);
+		bottomTriangleFigure.setBackgroundColor(ColorConstants.buttonDarker);
+		bottomTriangleFigure.setForegroundColor(ColorConstants.black);
 		bottomTriangleFigure.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_HAND));
-		bottomTriangleFigure.setBackgroundColor(ColorConstants.blue);
-		bottomTriangleFigure.setForegroundColor(ColorConstants.blue);
 
 		bottomClosureFigure = new RectangleFigure();
-		bottomClosureFigure.setBackgroundColor(ColorConstants.blue);
 		bottomClosureFigure.setFill(true);
-		bottomClosureFigure.setBackgroundColor(ColorConstants.blue);
-		bottomClosureFigure.setForegroundColor(ColorConstants.blue);
+		bottomClosureFigure.setBackgroundColor(ColorConstants.black);
+		bottomClosureFigure.setForegroundColor(ColorConstants.black);
 
 		bottomSliderHolder.add(bottomTriangleFigure);
 		bottomSliderHolder.add(bottomClosureFigure);
@@ -208,12 +219,12 @@ public class ColourSliderComposite extends Composite {
 		bottomSliderHolder.addMouseListener(bottomSliderDragger);
 		bottomSliderHolder.setBounds(new Rectangle(5, 5, 20, 15));
 		//
-		upperGradientedFigure = new ColorGradientedFigure(ColorConstants.gray, ColorConstants.white);
+		upperGradientedFigure = new ColorGradientedFigure(ColorConstants.white, ColorConstants.white);
 
 		//
-		lowerGradientedFigure = new ColorGradientedFigure(ColorConstants.white, ColorConstants.gray);
+		lowerGradientedFigure = new ColorGradientedFigure(ColorConstants.white, ColorConstants.white);
 
-		histogramRect = new ColorGradientedFigure(ColorConstants.red, ColorConstants.blue);
+		histogramRect = new ColorGradientedFigure(ColorConstants.black, ColorConstants.white);
 
 		boundaryFigure.add(upperGradientedFigure);
 		boundaryFigure.add(lowerGradientedFigure);
@@ -241,56 +252,10 @@ public class ColourSliderComposite extends Composite {
 		@Override
 		public void layout(IFigure parent) {
 			super.layout(parent);
-			Dimension size = new Dimension(getBounds().width, getBounds().height);
-			bottomLimitInPixel = size.height - topSliderHolder.getSize().height - 50;
-			topLimitInPixel = 90;
-
 			// Parent is the rectangle that holds both the triangles.
 			Rectangle parentBounds = parent.getBounds();
 			parent.setSize(30, parentBounds.height);
-			//
-			Rectangle topSliderHolderBounds = topSliderHolder.getBounds();
-			int maxLimitPixelLoc = getPixelLocation(maximumLimit);
-			int xStart = topSliderHolderBounds.x;
-
-			if (!topSliderMoved) {
-				int topSliderStart = maxLimitPixelLoc;
-				if (maxLimitPixelLoc != 0) {
-					topSliderStart = maxLimitPixelLoc - topSliderHolderBounds.height;
-				}
-				// logger.debug("topSliderStart:{}", topSliderStart);
-				topSliderHolder.setLocation(new Point(xStart, topSliderStart));
-
-				topTriangleFigure.setLocation(new Point(5, topSliderHolderBounds.y - 1));
-				topClosureFigure.setLocation(new Point(5, topSliderHolderBounds.y + 15 - 1));
-			}
-			/**/
-			if (!bottomSliderMoved) {
-				int bottomSliderStart = bottomLimitInPixel;// + bottomSliderHolder.getSize().height;
-				Rectangle bottomSliderHolderBounds = bottomSliderHolder.getBounds();
-				bottomSliderHolder.setLocation(new Point(xStart, bottomSliderStart));
-
-				if (bottomSliderHolderBounds.y < topSliderHolderBounds.y + 25) {
-					bottomSliderHolderBounds.setLocation(5, parentBounds.height - 50);
-				}
-				bottomTriangleFigure.setBounds(new Rectangle(5, bottomSliderHolderBounds.y, 20, 15));
-				bottomClosureFigure.setBounds(new Rectangle(5, bottomSliderHolderBounds.y, 20, 1));
-			}
-			//
-			int histogramHeight = bottomSliderHolder.getBounds().y
-					- (topSliderHolder.getBounds().y + topSliderHolder.getBounds().height);
-			histogramRect.setBounds(new Rectangle(1,
-					topSliderHolder.getBounds().y + topSliderHolder.getBounds().height, OUTER_GRADIENT_WIDTH,
-					histogramHeight));
-
-			//
-			int upperGradientHeight = topSliderHolderBounds.y;
-			upperGradientedFigure.setBounds(new Rectangle(1, 5, OUTER_GRADIENT_WIDTH, upperGradientHeight - 5));
-			//
-			int lowerGradientY = bottomSliderHolder.getLocation().y + bottomSliderHolder.getSize().height;
-			int lowerGradientHeight = parentBounds.height - lowerGradientY - 5;
-			lowerGradientedFigure
-					.setBounds(new Rectangle(1, lowerGradientY, OUTER_GRADIENT_WIDTH, lowerGradientHeight));
+			organizeFigures(parent);
 		}
 	}
 
@@ -336,10 +301,7 @@ public class ColourSliderComposite extends Composite {
 				topSliderHolder.setLocation(new Point(xStart, movedY));
 				upperGradientedFigure.setBounds(new Rectangle(1, 0, OUTER_GRADIENT_WIDTH, topSliderBounds.y));
 
-				for (IColourSliderListener lis : colourSliderListeners) {
-					lis.colourSliderRegion(getCountForPixel(topSliderBounds.y + topSliderBounds.height),
-							getCountForPixel(bottomSliderBounds.y));
-				}
+				notifyListeners();
 
 			} else if (e.getSource() == bottomSliderHolder) {
 				// Restrict the bottom slider to go beyond the height of the parent panel
@@ -359,16 +321,24 @@ public class ColourSliderComposite extends Composite {
 				lowerGradientedFigure.setBounds(new Rectangle(1, bottomSliderBounds.y + bottomSliderBounds.height,
 						OUTER_GRADIENT_WIDTH, ColourSliderComposite.this.getSize().y));
 
-				for (IColourSliderListener lis : colourSliderListeners) {
-					lis.colourSliderRegion(getCountForPixel(topSliderBounds.y + topSliderBounds.height),
-							getCountForPixel(bottomSliderBounds.y));
-				}
+				notifyListeners();
 			}
 			int histogramHeight = bottomSliderBounds.y - (topSliderBounds.y + topSliderBounds.height);
 			histogramRect.setBounds(new Rectangle(1, topSliderBounds.y + topSliderBounds.height, OUTER_GRADIENT_WIDTH,
 					histogramHeight));
 			last = p;
 		}
+
+	}
+
+	public double getLowerValue() {
+		Rectangle bottomSliderBounds = bottomSliderHolder.getBounds();
+		return getCountForPixel(bottomSliderBounds.y);
+	}
+
+	public double getUpperValue() {
+		Rectangle topSliderBounds = topSliderHolder.getBounds();
+		return getCountForPixel(topSliderBounds.y + topSliderBounds.height);
 	}
 
 	public static void main(String[] args) {
@@ -380,13 +350,13 @@ public class ColourSliderComposite extends Composite {
 		ColourSliderComposite sliderComposite = new ColourSliderComposite(shell, SWT.DOWN);
 		shell.setText(sliderComposite.getClass().getName());
 		sliderComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
-		sliderComposite.setMaximum(70000);
+		sliderComposite.setMaximum(65534);
 		sliderComposite.setMaximumLimit(65534);
 
 		IColourSliderListener lis = new IColourSliderListener() {
 
 			@Override
-			public void colourSliderRegion(int upperLimit, int lowerLimit) {
+			public void colourSliderRegion(double upperLimit, double lowerLimit) {
 				System.out.println("Upper Limit:" + upperLimit);
 				System.out.println("Lower Limit:" + lowerLimit);
 			}
@@ -432,5 +402,68 @@ public class ColourSliderComposite extends Composite {
 		bottomSliderHolder.removeMouseMotionListener(bottomSliderDragger);
 		colourSliderListeners.clear();
 		super.dispose();
+	}
+
+	private void notifyListeners() {
+		for (final IColourSliderListener lis : colourSliderListeners) {
+			logger.debug("Upper value:{}", getUpperValue());
+			logger.debug("Lower value:{}", getLowerValue());
+			new Thread(new Runnable() {
+
+				@Override
+				public void run() {
+					lis.colourSliderRegion(getUpperValue(), getLowerValue());
+				}
+			}).start();
+		}
+	}
+
+	private void organizeFigures(IFigure parent) {
+		// Parent is the rectangle that holds both the triangles.
+		Rectangle parentBounds = parent.getBounds();
+		topLimitInPixel = 40;
+		bottomLimitInPixel = parentBounds.height - 40;
+		//
+		Rectangle topSliderHolderBounds = topSliderHolder.getBounds();
+		int xStart = topSliderHolderBounds.x;
+
+		if (!topSliderMoved) {
+			int maxLimitPixelLoc = getPixelLocation(maximumLimit);
+			int topSliderStart = maxLimitPixelLoc;
+			if (maxLimitPixelLoc != 0) {
+				topSliderStart = maxLimitPixelLoc - topSliderHolderBounds.height;
+			}
+			// logger.debug("topSliderStart:{}", topSliderStart);
+			topSliderHolder.setLocation(new Point(xStart, topSliderStart));
+
+			topTriangleFigure.setLocation(new Point(5, topSliderHolderBounds.y - 1));
+			topClosureFigure.setLocation(new Point(5, (topSliderHolderBounds.y + topSliderHolderBounds.height) - 3));
+		}
+		/**/
+		if (!bottomSliderMoved) {
+			Rectangle bottomSliderHolderBounds = bottomSliderHolder.getBounds();
+			bottomSliderHolder.setLocation(new Point(xStart, 0));
+
+			if (bottomSliderHolderBounds.y < topSliderHolderBounds.y + 25) {
+				bottomSliderHolderBounds.setLocation(5, parentBounds.height - 40);
+			}
+			bottomTriangleFigure.setBounds(new Rectangle(5, bottomSliderHolderBounds.y, 20, 15));
+			bottomClosureFigure.setBounds(new Rectangle(5, bottomSliderHolderBounds.y, 20, 1));
+		}
+		//
+		int histogramHeight = bottomSliderHolder.getBounds().y
+				- (topSliderHolder.getBounds().y + topSliderHolder.getBounds().height);
+		histogramRect.setBounds(new Rectangle(1, topSliderHolder.getBounds().y + topSliderHolder.getBounds().height,
+				OUTER_GRADIENT_WIDTH, histogramHeight));
+
+		//
+		int upperGradientHeight = topSliderHolderBounds.y;
+		upperGradientedFigure.setBounds(new Rectangle(1, 5, OUTER_GRADIENT_WIDTH, upperGradientHeight - 5));
+		//
+		int lowerGradientY = bottomSliderHolder.getLocation().y + bottomSliderHolder.getSize().height;
+		int lowerGradientHeight = parentBounds.height - lowerGradientY - 5;
+		lowerGradientedFigure.setBounds(new Rectangle(1, lowerGradientY, OUTER_GRADIENT_WIDTH, lowerGradientHeight));
+		//
+		
 	}
 }
