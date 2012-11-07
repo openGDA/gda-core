@@ -186,11 +186,11 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 		double amplifierValue = getAmpFactor(acqTime, isAmplified);
 		double exposureTime = acqTime / amplifierValue;
 		double scale = getScale(acqTime, isAmplified, lower, upper);
-		double offset = getOffset(acqTime, isAmplified, lower, upper);
+		double offset = getOffset(acqTime, isAmplified, lower);
 		getCamera().acquireMJpeg(exposureTime, defaultAcqPeriod, leftWindowBinValue, leftWindowBinValue, scale, offset);
 	}
 
-	private double getOffset(double acqTime, boolean isAmplified, double lower, double upper) {
+	private double getOffset(double acqTime, boolean isAmplified, double lower) {
 		double ampFactor = getAmpFactor(acqTime, isAmplified);
 		logger.debug("getOffset:amp factor->{}", ampFactor);
 		logger.debug("getOffset:lower->{}", lower);
@@ -816,7 +816,7 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 		}
 
 		double scale = getScale(newExpTime, isAmplified, lower, upper);
-		double offset = getOffset(newExpTime, isAmplified, lower, upper);
+		double offset = getOffset(newExpTime, isAmplified, lower);
 
 		getCamera().setOffsetAndScale(offset, scale);
 	}

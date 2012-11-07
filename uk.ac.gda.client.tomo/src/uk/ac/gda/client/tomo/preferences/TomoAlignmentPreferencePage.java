@@ -20,6 +20,7 @@ package uk.ac.gda.client.tomo.preferences;
 
 import java.util.regex.Pattern;
 
+import org.eclipse.core.internal.preferences.PreferencesOSGiUtils;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -74,6 +75,12 @@ public class TomoAlignmentPreferencePage extends PreferencePage implements IWork
 	public static final String TOMO_CLIENT_FLAT_EXPOSURE_TIME = "TOMO_CLIENT_FLAT_EXPOSURE_TIME";
 
 	public static final String TOMO_CLIENT_FAST_PREVIEW_EXP_TIME = "TOMO_CLIENT_FAST_PREVIEW_EXP_TIME";
+	public static final String TOMO_CLIENT_VERTICAL_STAGE_USE_Y1 = "TOMO_CLIENT_VERTICAL_STAGE_USE_Y1";
+	public static final String TOMO_CLIENT_VERTICAL_STAGE_Y2_BEFORE_Y3 = "TOMO_CLIENT_VERTICAL_STAGE_Y2_BEFORE_Y3";
+
+	private Button chkShouldUseY1;
+
+	private Button chkUseY2BeforeY3;
 
 	/**
 	 * 
@@ -186,13 +193,16 @@ public class TomoAlignmentPreferencePage extends PreferencePage implements IWork
 		verticalStageGroup.setLayout(gl);
 		verticalStageGroup.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		Button chkShouldUseY1 = new Button(verticalStageGroup, SWT.CHECK | SWT.WRAP);
+		chkShouldUseY1 = new Button(verticalStageGroup, SWT.CHECK | SWT.WRAP);
 		chkShouldUseY1.setText("Use Y1 motor while aligning vertical stage");
 		chkShouldUseY1.setLayoutData(new GridData());
-		Button chkUseY2BeforeY3 = new Button(verticalStageGroup, SWT.CHECK | SWT.WRAP);
+		chkShouldUseY1.setSelection(preferenceStore.getBoolean(TOMO_CLIENT_VERTICAL_STAGE_USE_Y1));
+
+		chkUseY2BeforeY3 = new Button(verticalStageGroup, SWT.CHECK | SWT.WRAP);
 		chkUseY2BeforeY3
 				.setText("Move Y2 motor to limits before moving \nY3 motors while moving up \n(the motor usage will be inverted while moving down)");
 		chkUseY2BeforeY3.setLayoutData(new GridData());
+		chkUseY2BeforeY3.setSelection(preferenceStore.getBoolean(TOMO_CLIENT_VERTICAL_STAGE_Y2_BEFORE_Y3));
 
 		return root;
 	}
@@ -240,6 +250,10 @@ public class TomoAlignmentPreferencePage extends PreferencePage implements IWork
 			preferenceStore.setValue(TOMO_CLIENT_FAST_PREVIEW_EXP_TIME,
 					Double.parseDouble(txtFastPreviewExpTime.getText()));
 		}
+
+		preferenceStore.setValue(TOMO_CLIENT_VERTICAL_STAGE_USE_Y1, chkShouldUseY1.getSelection());
+		preferenceStore.setValue(TOMO_CLIENT_VERTICAL_STAGE_Y2_BEFORE_Y3, chkUseY2BeforeY3.getSelection());
+
 		return true;
 	}
 

@@ -1645,6 +1645,9 @@ public class TomoAlignmentControlComposite extends Composite {
 		Control[] enableControlList = getCommonControlList();
 
 		for (Control control : enableControlList) {
+			if (control.equals(txtXrayEnergy)) {
+				continue;
+			}
 			enable(control);
 		}
 	}
@@ -1681,12 +1684,10 @@ public class TomoAlignmentControlComposite extends Composite {
 							tcl.defineRoi(true);
 						}
 					} catch (IllegalStateException s) {
-						// showError("Cannot Define ROI", s);
 						showErrorDialog(s);
 						ButtonSelectionUtil.setButtonDeselected(btnDefineRoi);
 					} catch (Exception e1) {
 						logger.debug("Error setting exposure time", e1);
-						// showError("Cannot Define ROI", e1);
 						showErrorDialog(e1);
 					}
 				} else {
