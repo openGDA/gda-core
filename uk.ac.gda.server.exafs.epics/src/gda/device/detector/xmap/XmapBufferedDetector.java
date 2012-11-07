@@ -123,8 +123,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		try {
 			fileName = controller.getHDFFileName();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			logger.error("TODO put description of error here", e);
+			logger.error("Error retreiving hdf5 filename", e);
 		}
 		if (fileName != null && isStillWriting(fileName))
 			return -1;
@@ -132,8 +131,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		try {
 			Thread.sleep(3000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			logger.error("TODO put description of error here", e);
+			logger.error("Error sleeping for 3seconds", e);
 		}
 		return continuousParameters.getNumberDataPoints();
 	}
@@ -205,14 +203,13 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 			return container;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			logger.error("TODO put description of error here", e);
+			logger.error("Error reading frames from xmap", e);
 			try {
 				stop();
 				controller.endRecording();
 			} catch (Exception e1) {
-				// TODO Auto-generated catch block
 				controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
-				logger.error("TODO put description of error here", e1);
+				logger.error("Error stopping xmap controller recording and stop", e1);
 				throw new DeviceException("Unalble to end hdf5 capture", e1);
 			}
 			controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
@@ -313,7 +310,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
-			logger.error("TODO put description of error here", e);
+			logger.error("Error stopping xmap controller recording and stop at scan end", e);
 			throw new DeviceException("Unalble to end hdf5 capture", e);
 		}
 		controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
@@ -327,7 +324,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
-			logger.error("TODO put description of error here", e);
+			logger.error("Error stopping xmap controller recording and stop after command failure", e);
 			throw new DeviceException("Unalble to end hdf5 capture", e);
 		}
 		controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
@@ -398,8 +395,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 			// controller.setNexusCapture(1);
 			controller.startRecording();
 		} catch (Exception e) {
-
-			logger.error("TODO put description of error here", e);
+			logger.error("Error setting up continious operation", e);
 			throw new DeviceException("Error occurred arming the xmap detector", e);
 		}
 		//this.clearMemory();
@@ -425,8 +421,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 			if (controller.getHDFFileName().equals(fileName))
 				return controller.getCaptureStatus();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			logger.error("TODO put description of error here", e);
+			logger.error("Error getting file writing status from xmap", e);
 			throw new DeviceException("CAnnot read the file capture status", e);
 		}
 		return false;

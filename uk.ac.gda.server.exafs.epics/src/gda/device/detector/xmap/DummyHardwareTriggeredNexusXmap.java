@@ -266,19 +266,19 @@ public class DummyHardwareTriggeredNexusXmap extends HardwareTriggerableDetector
 		double timeoutMilliSeconds = getCollectionTime() * getHardwareTriggerProvider().getNumberTriggers() * 1000;
 		double waitedSoFarMilliSeconds = 0;
 		int waitTime = 1000;
-		while (isStillWriting(fileName) || waitedSoFarMilliSeconds <= timeoutMilliSeconds) {
+		while (isStillWriting() || waitedSoFarMilliSeconds <= timeoutMilliSeconds) {
 			Thread.sleep(waitTime);
 			waitedSoFarMilliSeconds += waitTime;
 		}
 		
 	}
-		public boolean isStillWriting(String fileName)  {
+		public boolean isStillWriting()  {
 			currentTime = System.currentTimeMillis();
 			try {
 				if((currentTime - scanStartTime) <= (long)getHardwareTriggerProvider().getTotalTime())
 					return true;
 			} catch (DeviceException e) {
-				logger.error("TODO put description of error here", e);
+				logger.error("Error determining if still writing", e);
 			}
 			return false;
 		}
