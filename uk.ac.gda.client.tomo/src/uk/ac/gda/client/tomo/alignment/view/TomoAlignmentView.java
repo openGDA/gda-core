@@ -562,7 +562,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		layoutData.widthHint = 30;
 		contrastSliderComposite.setLayoutData(layoutData);
 		contrastSliderComposite.setMaximum(70000);
-		contrastSliderComposite.setMarkerInterval(10000);
 		contrastSliderComposite.setMaximumLimit(histogramAdjuster.getMaxIntensity());
 		contrastSliderComposite.addColourSliderListener(tomoViewController);
 
