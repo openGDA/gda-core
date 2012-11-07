@@ -1698,4 +1698,8 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		return (int) contrastSliderComposite.getUpperValue();
 	}
 
+	protected void setTiltLastSaveDateTime() {
+		String tiltLastSaved = getSimpleDateFormat(System.currentTimeMillis());
+		tomoControlComposite.setTiltLastDoneLabel(tiltLastSaved);
+	}
 }

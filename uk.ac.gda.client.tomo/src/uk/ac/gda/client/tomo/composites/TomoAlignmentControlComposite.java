@@ -18,6 +18,7 @@
 
 package uk.ac.gda.client.tomo.composites;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -658,7 +659,7 @@ public class TomoAlignmentControlComposite extends Composite {
 		btnTilt.addListener(SWT.MouseDown, ctrlMouseListener);
 		ButtonSelectionUtil.decorateControlButton(btnTilt);
 
-		Label lblTiltLastDone = toolkit.createLabel(cmpTilt, "Last Saved:");
+		lblTiltLastDone = toolkit.createLabel(cmpTilt, "Last Saved:");
 		lblTiltLastDone.setLayoutData(new GridData(GridData.FILL_BOTH));
 		//
 		btnFindAxisOfRotation = toolkit.createButton(tomoAlignmentComposite, FIND_TOMO_AXIS_lbl, SWT.PUSH);
@@ -1825,6 +1826,7 @@ public class TomoAlignmentControlComposite extends Composite {
 			}
 		}
 	};
+	private Label lblTiltLastDone;
 
 	private void showSaveProblemDialog(String message) {
 		MessageDialog.openError(getShell(), "Saving Tomography Alignment", message);
@@ -1893,6 +1895,19 @@ public class TomoAlignmentControlComposite extends Composite {
 		case EIGHT_X:
 			selectRes(btnRes8x);
 			break;
+		}
+	}
+	
+	
+	public void setTiltLastDoneLabel(final String formattedDateTime){
+		if(lblTiltLastDone!=null && !lblTiltLastDone.isDisposed()){
+			lblTiltLastDone.getDisplay().asyncExec(new Runnable() {
+				
+				@Override
+				public void run() {
+					lblTiltLastDone.setText(String.format("%1$s %2$s", LAST_SAVED_lbl, formattedDateTime));
+				}
+			});
 		}
 	}
 

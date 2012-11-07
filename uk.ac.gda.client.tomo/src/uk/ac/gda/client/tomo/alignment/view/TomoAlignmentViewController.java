@@ -272,6 +272,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 							if (tiltPoints != null) {
 								logger.debug("Tilt points: {}", tiltPoints);
 								tomoAlignmentView.getTomoPlotComposite().updatePlotPoints(progress, tiltPoints);
+								tomoAlignmentView.setTiltLastSaveDateTime();
 							}
 						} catch (Exception ex) {
 							logger.error("Error while preparing for Tilt alignment", ex);

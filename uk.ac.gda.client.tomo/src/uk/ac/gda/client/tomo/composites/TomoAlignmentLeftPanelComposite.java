@@ -238,18 +238,39 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 		btnTakeFlatAndDark = toolkit.createButton(flatDarkCmp, "Take Flat && Dark", SWT.PUSH | SWT.WRAP);
 		btnTakeFlatAndDark.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		btnTakeFlatAndDark.addSelectionListener(buttonSelectionListener);
+		btnTakeFlatAndDark.setEnabled(false);
 
-		btnFlatDarkCorrection = toolkit.createButton(flatDarkCmp, "Correct Flat && Dark", SWT.PUSH | SWT.WRAP);
+		PageBook pgBook_flatDark = new PageBook(flatDarkCmp, SWT.None);
+
+		Composite pg_flatDark_Blank = toolkit.createComposite(pgBook_flatDark);
+		pg_flatDark_Blank.setLayout(new GridLayout());
+		Label lblFlatDarkNotTaken = toolkit.createLabel(pg_flatDark_Blank, "Flat and Dark images not taken yet.",
+				SWT.CENTER | SWT.WRAP);
+		lblFlatDarkNotTaken.setLayoutData(new GridData(GridData.FILL_BOTH));
+
+		Composite pg_flatDark_Buttons = toolkit.createComposite(pgBook_flatDark);
+		gl = new GridLayout();
+		setDefaultLayoutSettings(gl);
+		gl.verticalSpacing = 1;
+		pg_flatDark_Buttons.setLayout(gl);
+
+		btnFlatDarkCorrection = toolkit.createButton(pg_flatDark_Buttons, "Correct Flat && Dark", SWT.PUSH | SWT.WRAP);
 		btnFlatDarkCorrection.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		btnFlatDarkCorrection.addSelectionListener(buttonSelectionListener);
 
-		btnFlatShow = toolkit.createButton(flatDarkCmp, SHOW_FLAT, SWT.PUSH | SWT.WRAP);
+		btnFlatShow = toolkit.createButton(pg_flatDark_Buttons, SHOW_FLAT, SWT.PUSH | SWT.WRAP);
 		btnFlatShow.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		btnFlatShow.addSelectionListener(buttonSelectionListener);
 
-		btnDarkShow = toolkit.createButton(flatDarkCmp, SHOW_DARK, SWT.PUSH | SWT.WRAP);
+		btnDarkShow = toolkit.createButton(pg_flatDark_Buttons, SHOW_DARK, SWT.PUSH | SWT.WRAP);
 		btnDarkShow.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		btnDarkShow.addSelectionListener(buttonSelectionListener);
+
+		GridData layoutData = new GridData(GridData.FILL_BOTH);
+		layoutData.heightHint = pg_flatDark_Buttons.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
+
+		pgBook_flatDark.setLayoutData(layoutData);
+		pgBook_flatDark.showPage(pg_flatDark_Blank);
 
 		cmpHorizontalSeparator = toolkit.createComposite(flatDarkCmp);
 		cmpHorizontalSeparator.setLayout(new GridLayout());
@@ -282,9 +303,9 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 
 		pgBook_sampleBtnLbl.showPage(pgLblSampleCmp);
 
-		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
-		layoutData.heightHint = btnSample.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
-		pgBook_sampleBtnLbl.setLayoutData(layoutData);
+		GridData layoutData1 = new GridData(GridData.FILL_HORIZONTAL);
+		layoutData1.heightHint = btnSample.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
+		pgBook_sampleBtnLbl.setLayoutData(layoutData1);
 
 		//
 		Composite cmpSampleExpTime = toolkit.createComposite(leftPanelComposite);
