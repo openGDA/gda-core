@@ -297,7 +297,7 @@ public class TwoWayMicroFocusWriterExtender extends DataWriterExtenderBase {
 					rgbLine.append(" ");
 				}
 				scalerValues[correctedDataPointNumber] = scalerData;
-				logger.info("The rgb Line with scaler values is " + rgbLine.toString());
+				//logger.info("The rgb Line with scaler values is " + rgbLine.toString());
 
 			} else if (obj instanceof NXDetectorData) {
 				if (roiTable == null || roiTable.size() == 0) {

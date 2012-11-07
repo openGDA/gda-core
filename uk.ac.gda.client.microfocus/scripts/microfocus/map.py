@@ -23,6 +23,7 @@ from gdascripts.messages import handle_messages
 from gda.jython.commands import ScannableCommands
 from BeamlineParameters import JythonNameSpaceMapping
 from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
+from gda.device.scannable import ScannableUtils
 rootnamespace = {}
 def map (sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, scanNumber= -1, validation=True):
     #print globals()
@@ -91,15 +92,33 @@ def map (sampleFileName, scanFileName, detectorFileName, outputFileName, folderN
     #signalParameters = getSignalList(outputBean)
     finder = Finder.getInstance()
     dataWriter = finder.find("DataWriterFactory")
-    nx = abs(scanBean.getXEnd() - scanBean.getXStart()) / scanBean.getXStepSize()
-    ny = abs(scanBean.getYEnd() - scanBean.getYStart()) / scanBean.getYStepSize()
+    #nx = abs(scanBean.getXEnd() - scanBean.getXStart()) / scanBean.getXStepSize()
+    #ny = abs(scanBean.getYEnd() - scanBean.getYStart()) / scanBean.getYStepSize()
     
   
-    print "number of x points is ", str(nx)
-    print "number of y points is ", str(ny)
+    #print "number of x points is ", str(nx)
+    #print "number of y points is ", str(ny)
     # Determine no of points
-    nx = int(round(nx + 1.0))
-    ny = int(round(ny + 1.0))
+    
+    scannablex = Finder.getInstance().find(scanBean.getXScannableName())
+    scannabley = Finder.getInstance().find(scanBean.getYScannableName())
+    
+    if scannablex==None:
+        from gdascripts.parameters import beamline_parameters
+        jythonNameMap = beamline_parameters.JythonNameSpaceMapping()
+        scannablex=jythonNameMap.__getitem__(scanBean.getXScannableName())
+        scannabley=jythonNameMap.__getitem__(scanBean.getYScannableName())
+    
+    nx = ScannableUtils.getNumberSteps(scannablex,scanBean.getXStart(), scanBean.getXEnd(),scanBean.getXStepSize()) + 1
+    ny = ScannableUtils.getNumberSteps(scannabley,scanBean.getYStart(), scanBean.getYEnd(),scanBean.getYStepSize()) + 1
+    
+
+    
+    #nx = ScannableUtils.getNumberSteps(Finder.getInstance().find(scanBean.getXScannableName()),scanBean.getXStart(), scanBean.getXEnd(),scanBean.getXStepSize()) + 1
+    #ny = ScannableUtils.getNumberSteps(Finder.getInstance().find(scanBean.getYScannableName()),scanBean.getYStart(), scanBean.getYEnd(),scanBean.getYStepSize()) + 1
+    
+    
+    
     print "number of x points is ", str(nx)
     print "number of y points is ", str(ny)
     energyList = [scanBean.getEnergy()]
@@ -277,6 +296,8 @@ def redefineNexusMetadataForMaps(beanGroup):
     if (LocalProperties.get("gda.mode") == 'dummy'):
         return
     
+    NexusExtraMetadataDataWriter.removeAllMetadataEntries()
+    
     # primary slits
     NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("s1ygap", str(jython_mapper.s1ygap()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXaperture, "primary_slits"))
     NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("s1xgap", str(jython_mapper.s1xgap()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXaperture, "primary_slits"))
@@ -304,10 +325,9 @@ def redefineNexusMetadataForMaps(beanGroup):
     
     NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("D7A", str(jython_mapper.D7A()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXattenuator, "Attenuators"))
     NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("D7B", str(jython_mapper.D7B()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXattenuator, "Attenuators"))
-    
-    #energy
+
     NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("energy", str(jython_mapper.energy()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXmonochromator, "DCM_energy"))
-    
+  
 class MicroFocusEnvironment:
     testScriptFolder=None
     def getScriptFolder(self):

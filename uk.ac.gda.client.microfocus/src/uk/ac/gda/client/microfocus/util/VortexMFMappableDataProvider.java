@@ -89,7 +89,12 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 									int windowEnd = roi.getRoiEnd();
 									for(int k = roi.getRoiStart(); k <= windowEnd; k++)
 									{
-										mapData[i][j] += dataSliceFromFile[j][detectorNo][k];
+										try {
+											mapData[i][j] += dataSliceFromFile[j][detectorNo][k];
+										} catch (Exception e) {
+											logger.error("******************map**********************  k=" + k + " i="
+													+ i + " j=" + j);
+										}
 									}
 									//break;
 		

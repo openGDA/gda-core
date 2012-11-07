@@ -135,6 +135,7 @@ def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileN
         mfd.setEnergyValue(energy)
         mfd.setZValue(zScannablePos)
         #dataWriter.addDataWriterExtender(mfd)
+        
         xScannable = finder.find(scanBean.getXScannableName())
         yScannable = finder.find(scanBean.getYScannableName())
         ##useFrames = LocalProperties.check("gda.microfocus.scans.useFrames")
@@ -157,12 +158,15 @@ def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileN
         #    args.append(scanBean.getCollectionTime())
         # print args
         #=======================================================================
+        #command_server = Finder.getInstance().find("command_server")    
+        #topupmonitor = command_server.getFromJythonNamespace("topupMonitor", None)    
+        #original_topuptime = topupmonitor.getCollectionTime()
         scanStart = time.asctime()
         try:
             numberPoints = abs(scanBean.getXEnd()- scanBean.getXStart())/scanBean.getXStepSize()
             ##ContinuousScan(trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [raster_xspress,]).runScan();##rowTIme in the Scan bean is in milliseconds
             if(detectorType == "Silicon"):
-                print "Xmap Raster Scan"
+                print "***************************************** vortex_rastermap.py"
                 HTScaler.setIntegrateBetweenPoints(True)
                 HTXmapMca.setIntegrateBetweenPoints(True)
                 HTScaler.setCollectionTime(scanBean.getRowTime() / nx)
@@ -171,11 +175,19 @@ def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileN
                 HTXmapMca.setScanNumberOfPoints(nx)                
                 #tsl = TrajectoryScanLine([continuousSampleX, scanBean.getXStart(), scanBean.getXEnd(), scanBean.getXStepSize(), HTScaler, HTXmapMca ,scanBean.getRowTime()/(nx)] )
                 
+                # make sure we pause if a topup during the next row
+                # topupmonitor.setCollectionTime(scanBean.getRowTime())
                 tsl = TrajectoryScanLine([continuousSampleX, ScanPositionsTwoWay(continuousSampleX,scanBean.getXStart(), scanBean.getXEnd(), scanBean.getXStepSize()),  HTScaler, HTXmapMca, scanBean.getRowTime()/(nx)] )
                 tsl.setScanDataPointQueueLength(10000);tsl.setPositionCallableThreadPoolSize(10)
                 #scan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),tsl,energyScannable, zScannable,realX])
+                
+                print "just for debugging: realx.class",realX.__class__
+                print "scanBean.getYStart()",scanBean.getYStart()
+                print "scanBean.getYEnd()",scanBean.getYEnd()
+                print "scanBean.getYStepSize()",scanBean.getYStepSize()
                 xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),tsl, realX])
                 xmapRasterscan.getScanPlotSettings().setIgnore(1)
+                
                 xasWriter = XasAsciiNexusDatapointCompletingDataWriter()
                 rowR = TwoDScanRowReverser()
                 rowR.setNoOfColumns(nx)
@@ -192,6 +204,7 @@ def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileN
                 xspressRasterscan.runScan()
 
         finally:
+            #topupmonitor.setCollectionTme(original_topuptime)
             scanEnd = time.asctime()
             if(origScanPlotSettings):
                 LocalProperties.set("gda.scan.useScanPlotSettings", "true")
@@ -212,7 +225,7 @@ def finish():
 def setupForVortexRaster(beanGroup):
     rasterscan = beanGroup.getScan()
     print "collection time is " , str(rasterscan.getRowTime())   
-    collectionTime = rasterscan.getRowTime()/ 1000.0
+    collectionTime = rasterscan.getRowTime()
     print "1setting collection time to" , str(collectionTime)  
     command_server = Finder.getInstance().find("command_server")    
     topupMonitor = command_server.getFromJythonNamespace("topupMonitor", None)    
