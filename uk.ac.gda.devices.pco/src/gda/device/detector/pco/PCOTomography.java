@@ -66,7 +66,7 @@ public class PCOTomography implements ITomographyDetector, Findable {
 	private double maxIntensity = 65000;
 
 	@Override
-	public void acquireMJpeg(Double expTime, Double acqPeriod, Double procScaleFactor, int binX, int binY)
+	public void acquireMJpeg(Double expTime, Double acqPeriod, int binX, int binY, Double scale, Double offset)
 			throws Exception {
 		// plugins arranged - cam -> proc -> roi ->mjpeg
 		IPCOControllerV17 controller = pcoDetector.getController();
@@ -96,8 +96,9 @@ public class PCOTomography implements ITomographyDetector, Findable {
 		proc1.getPluginBase().enableCallbacks();
 		proc1.setEnableFilter(0);
 		proc1.setEnableOffsetScale(1);
-		proc1.setScale(procScaleFactor);
 
+		proc1.setScale(scale);
+		proc1.setOffset(offset);
 		//
 		roi1.getPluginBase().enableCallbacks();
 		roi1.getPluginBase().setNDArrayPort(proc1.getPluginBase().getPortName_RBV());
@@ -121,6 +122,12 @@ public class PCOTomography implements ITomographyDetector, Findable {
 		/* Disable tiff */
 		tiff.getPluginBase().disableCallbacks();
 
+		controller.acquire();
+	}
+
+	@Override
+	public void resumeAcquisition() throws Exception {
+		IPCOControllerV17 controller = pcoDetector.getController();
 		controller.acquire();
 	}
 
@@ -544,18 +551,19 @@ public class PCOTomography implements ITomographyDetector, Findable {
 	@Override
 	public void setupForTilt(int minY, int maxY, int minX, int maxX) throws Exception {
 		IPCOControllerV17 controller = pcoDetector.getController();
-		// ADBase areaDetector = controller.getAreaDetector();
+		ADBase areaDetector = controller.getAreaDetector();
 		// Adding 1 as the detector starts counting pixels beginning from 1
-		// areaDetector.setSizeY(maxY - minY + 1);
 		NDROI roi2 = controller.getRoi2();
 		roi2.setSizeY(maxY - minY + 1);
-		// areaDetector.setMinY(minY);
 		roi2.setMinY(minY);
 
-		// areaDetector.setSizeX(maxX - minX + 1);
 		roi2.setSizeX(maxX - minX + 1);
-		// areaDetector.setMinX(minX);
 		roi2.setMinX(minX);
+
+		roi2.getPluginBase().enableCallbacks();
+
+		roi2.getPluginBase().setNDArrayPort(areaDetector.getPortName_RBV());
+
 		controller.getTiff().getPluginBase().setNDArrayPort(roi2.getPluginBase().getPortName_RBV());
 
 		controller.getTiff().getPluginBase().enableCallbacks();
@@ -699,5 +707,13 @@ public class PCOTomography implements ITomographyDetector, Findable {
 	@Override
 	public String getName() {
 		return name;
+	}
+
+	@Override
+	public void setupHistoStatCollection(int binSize) throws Exception {
+		NDStats stat = pcoDetector.getController().getStat();
+		stat.getPluginBase().enableCallbacks();
+		stat.setComputeHistogram(1);
+		stat.setHistSize(binSize);
 	}
 }
