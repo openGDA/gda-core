@@ -67,6 +67,9 @@ public class BatonRequestDialog extends Dialog {
 	 */
 	@Override
 	protected Control createDialogArea(Composite parent) {
+		
+		getShell().setText(String.format("%s has requested the baton", request.getUserID()));
+		
 		Composite container = (Composite) super.createDialogArea(parent);
 		{
 			lblARequestFor = new Label(container, SWT.NONE);
