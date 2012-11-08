@@ -62,4 +62,10 @@ public class NdStatModelSimulator implements NdStatModel {
 		return 0;
 	}
 
+	@Override
+	public double[] getHistogram() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
