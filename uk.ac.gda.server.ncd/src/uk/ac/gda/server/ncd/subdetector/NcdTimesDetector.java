@@ -68,7 +68,7 @@ public class NcdTimesDetector extends NcdWireDetector {
 		for (String info : timeinfo.keySet()) {
 			int where = timeinfo.get(info);
 			NexusGroupData data_sds = new NexusGroupData(new int[] { frames }, NexusFile.NX_FLOAT32, 
-					readFloat(0, where, 0, 1, 1, frames));
+					readFloat(0,	where, 0, 1, where + 1, frames));
 			NexusTreeNode data = new NexusTreeNode(info, NexusExtractor.SDSClassName, null, data_sds);
 			data.setIsPointDependent(true);
 			data.addChildNode(new NexusTreeNode("units", NexusExtractor.AttrClassName, data,
@@ -84,7 +84,7 @@ public class NcdTimesDetector extends NcdWireDetector {
 		// record as stand alone detector as well for dead time correction and BSL back conversion
 		// TODO check with William if we have to transpose the data ourselves
 		
-		float[] raw = readFloat(0, 0, 0, 1, 8, frames);
+		float[] raw = readFloat(0, 0, 0, 1, 8,	frames);
 		float[] cooked = new float[frames*8];
 		int i = 0;
 		for (int chan = 0; chan < 8; chan++) {

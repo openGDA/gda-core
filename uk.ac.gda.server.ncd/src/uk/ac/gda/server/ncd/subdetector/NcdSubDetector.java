@@ -68,9 +68,7 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 	public void configure() throws FactoryException {
 		if (detector != null) {
 			detector.reconfigure();
-			configured = ((DeviceBase)detector).isConfigured();
 		} else {
-			configured = false;
 			throw new FactoryException("no detector configured!");
 		}
 	}

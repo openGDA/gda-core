@@ -20,7 +20,7 @@
 
    <xsd:complexType name="TemperatureProfile">
       <xsd:sequence>
-<!--         <xsd:element name="name" type="xsd:string" maxOccurs="1" minOccurs="1"/>-->
+         <xsd:element name="name" type="xsd:string" maxOccurs="1" minOccurs="1"/>
           <xsd:element name="Ramp" type="Ramp" maxOccurs="unbounded" minOccurs="1"/>
       </xsd:sequence>
    </xsd:complexType>

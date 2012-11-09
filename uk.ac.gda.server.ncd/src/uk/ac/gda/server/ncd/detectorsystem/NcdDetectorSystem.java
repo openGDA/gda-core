@@ -43,7 +43,7 @@ import uk.ac.gda.server.ncd.subdetector.INcdSubDetector;
 /**
  * Detector system of non crystalline diffraction to allow scans to take time series at each point.
  */
-public class NcdDetectorSystem extends DetectorBase implements NcdDetector, PositionCallableProvider<NexusTreeProvider> {
+public class NcdDetectorSystem extends DetectorBase implements NcdDetector, PositionCallableProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(NcdDetectorSystem.class);
 
