@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<!--
+		N.B. this stuff breaks Xerlin
+		targetNamespace="http://www.dl.ac.uk/GDASchema"
+		xmlns="http://www.dl.ac.uk/GDASchema">
+	-->
+
+
+ 	<xsd:complexType name="Ramp">
+      <xsd:sequence>
+         <xsd:element name="rampNumber" type="xsd:integer" maxOccurs="1" minOccurs="1"/>
+         <xsd:element name="startTemperature" type="xsd:double" maxOccurs="1" minOccurs="1"/>
+         <xsd:element name="endTemperature" type="xsd:double" maxOccurs="1" minOccurs="1"/>
+         <xsd:element name="rate" type="xsd:double" maxOccurs="1" minOccurs="1"/>
+         <xsd:element name="dwellTime" type="xsd:double" maxOccurs="1" minOccurs="1"/>
+         <xsd:element name="coolingSpeed" type="xsd:integer" maxOccurs="1" minOccurs="1"/>
+      </xsd:sequence>
+   </xsd:complexType>
+
+   <xsd:complexType name="TemperatureProfile">
+      <xsd:sequence>
+         <xsd:element name="name" type="xsd:string" maxOccurs="1" minOccurs="1"/>
+          <xsd:element name="Ramp" type="Ramp" maxOccurs="unbounded" minOccurs="1"/>
+      </xsd:sequence>
+   </xsd:complexType>
+
+	<xsd:element name="Ramp" type="Ramp"/>
+	<xsd:element name="TemperatureProfile" type="TemperatureProfile"/>
+
+
+</xsd:schema>

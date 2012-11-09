@@ -1,0 +1,52 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _NCDDETECTORSYSTEM_IDL_
+#define _NCDDETECTORSYSTEM_IDL_
+
+#include <detector.idl>
+
+module uk {
+module ac {
+module gda {
+module server {
+module ncd {
+module detectorsystem {
+module corba {
+
+/**
+ *  An interface for a distributed NCD Detector class
+ */
+interface CorbaNcdDetectorsystem : ::gda::device::detector::corba::CorbaDetector {
+
+   void start()
+      raises (::gda::device::corba::CorbaDeviceException);
+
+   void clear()
+      raises (::gda::device::corba::CorbaDeviceException);
+
+   long getNumberOfFrames()
+      raises (::gda::device::corba::CorbaDeviceException);
+      
+   string getTfgName()
+      raises (::gda::device::corba::CorbaDeviceException);
+
+};};};};};};};};
+
+#endif

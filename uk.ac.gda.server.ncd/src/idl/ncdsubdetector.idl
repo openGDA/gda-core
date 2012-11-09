@@ -1,0 +1,78 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Facilities Council Daresbury Laboratory
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _NCDSUBDETECTOR_IDL_
+#define _NCDSUBDETECTOR_IDL_
+
+#include <device.idl>
+
+module uk {
+module ac {
+module gda {
+module server {
+module ncd {
+module subdetector {
+module corba {
+
+typedef sequence<double> doubleArray;
+typedef sequence<long> integerArray;
+
+/**
+ *  An interface for a distributed NCD Detector class
+ */
+interface CorbaNcdsubDetector : ::gda::device::corba::CorbaDevice
+{
+   typedef sequence<long> longArray;
+
+   void start()
+      raises (::gda::device::corba::CorbaDeviceException);
+      
+   void stop()
+      raises (::gda::device::corba::CorbaDeviceException);
+
+   void clear()
+      raises (::gda::device::corba::CorbaDeviceException);
+
+   long getMemorySize()
+      raises (::gda::device::corba::CorbaDeviceException);
+      
+   void setDataDimensions(in longArray d)
+      raises (::gda::device::corba::CorbaDeviceException);
+      
+   longArray getDataDimensions()
+      raises (::gda::device::corba::CorbaDeviceException);
+            
+   any getSupportedDimensions()
+      raises (::gda::device::corba::CorbaDeviceException);
+      
+   string getDetectorType()
+      raises (::gda::device::corba::CorbaDeviceException);
+      
+   double getPixelSize()
+      raises (::gda::device::corba::CorbaDeviceException);
+
+   void atScanStart()
+      raises (::gda::device::corba::CorbaDeviceException);
+
+   void atScanEnd()
+      raises (::gda::device::corba::CorbaDeviceException);
+};
+};};};};};};};
+
+#endif
