@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: BioSAXS Sample Changer Control Software Plugin
+Bundle-SymbolicName: uk.ac.gda.devices.bssc;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-ActivationPolicy: lazy
+Bundle-Activator: uk.ac.gda.devices.bssc.Activator
+Bundle-Vendor: Diamond Light Source
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ uk.ac.gda.core;bundle-version="1.0.0",
+ uk.ac.gda.libs;bundle-version="1.0.0",
+ uk.ac.gda.common,
+ uk.ac.gda.common.rcp,
+ uk.ac.gda.client,
+ uk.ac.gda.client.experimentdefinition
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: uk.ac.gda.devices.bssc,
+ uk.ac.gda.devices.bssc.beans,
+ uk.ac.gda.devices.bssc.ui
+Import-Package: org.slf4j
+Bundle-ClassPath: jars/BSSC.jar,
+ jars/JLib.jar,
+ .
