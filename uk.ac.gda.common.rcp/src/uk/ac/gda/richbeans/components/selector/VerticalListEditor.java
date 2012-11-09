@@ -19,6 +19,8 @@
 package uk.ac.gda.richbeans.components.selector;
 
 import java.lang.reflect.Method;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -137,7 +139,6 @@ public final class VerticalListEditor extends ListEditor {
 		delete.addSelectionListener(deleteListener);
 
 		up = new Button(buttonsPanel, SWT.ARROW);
-		up.setText("button");
 		this.upListener = new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -150,7 +151,6 @@ public final class VerticalListEditor extends ListEditor {
 		up.addSelectionListener(upListener);
 
 		down = new Button(buttonsPanel, SWT.ARROW | SWT.DOWN);
-		down.setText("button");
 		this.downListener = new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -179,6 +179,13 @@ public final class VerticalListEditor extends ListEditor {
 		// Must set this rather than subclassing (if do not
 		// set to null default is this).
 		editorUI = null;
+	}
+	
+	public void setAddButtonText(String label) {
+		add.setText(label);
+	}
+	public void setRemoveButtonText(String label) {
+		delete.setText(label);
 	}
 
 	@Override
@@ -430,9 +437,17 @@ public final class VerticalListEditor extends ListEditor {
 	 * 
 	 * @param widths
 	 */
-	public void setColumnWidths(final int[] widths) {
+	public void setColumnWidths(final int... widths) {
 		this.columnWidths = widths;
 	}
+	private String[] columnNames;
+	/**
+	 * @param columnNames
+	 */
+	public void setColumnNames(final String... columnNames) {
+		this.columnNames = columnNames;
+	}
+
 
 	protected boolean labelProivderAdded = false;
 	protected List<TableViewerColumn> extraColumns;
@@ -450,6 +465,10 @@ public final class VerticalListEditor extends ListEditor {
 		} else {
 			name.getColumn().setText("Name");
 		}
+		if (columnNames!=null) try {
+			name.getColumn().setText(columnNames[0]);
+		} catch (Throwable ignored) {}
+		
 		name.getColumn().setWidth(columnWidths[0]);
 
 		name.setLabelProvider(new ColumnLabelProvider() {
@@ -483,7 +502,12 @@ public final class VerticalListEditor extends ListEditor {
 						final Object ob = bean.getBean();
 						try {
 							Method method = ob.getClass().getMethod("get" + additionalField);
-							return method.invoke(ob).toString();
+							Object val = method.invoke(ob);
+							if (val instanceof Double && columnFormat!=null) {
+								val = columnFormat.format(((Number)val).doubleValue());
+							}
+							return val.toString();
+
 						} catch (Exception e) {
 							return e.getMessage();
 						}
@@ -494,6 +518,20 @@ public final class VerticalListEditor extends ListEditor {
 		}
 
 		labelProivderAdded = true;
+	}
+	
+	private NumberFormat columnFormat = new DecimalFormat("#0.###");
+
+	public NumberFormat getColumnFormat() {
+		return columnFormat;
+	}
+
+	/**
+	 * 
+	 * @param columnFormat DecimalFormat string e.g. #0.###
+	 */
+	public void setColumnFormat(String columnFormat) {
+		this.columnFormat = new DecimalFormat(columnFormat);
 	}
 
 	private boolean isShowingAdditionalFields = false;
@@ -511,6 +549,11 @@ public final class VerticalListEditor extends ListEditor {
 			} else {
 				col.getColumn().setWidth(0);
 			}
+			
+			if (columnNames!=null) try {
+				col.getColumn().setText(columnNames[colIndex]);
+			} catch (Throwable ignored) {}
+
 			++colIndex;
 		}
 	}
