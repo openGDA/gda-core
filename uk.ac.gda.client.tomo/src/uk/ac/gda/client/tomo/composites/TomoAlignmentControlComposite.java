@@ -18,7 +18,6 @@
 
 package uk.ac.gda.client.tomo.composites;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -77,6 +76,7 @@ import uk.ac.gda.client.tomo.composites.RotationSliderComposite.SliderSelectionL
  */
 public class TomoAlignmentControlComposite extends Composite {
 
+	private static final String DEFAULT_OBJECT_PIXEL_SIZE = "0.000 mm";
 	private static final Color NORMAL_COLOR = ColorConstants.black;
 	private static final Color ERROR_COLOR = ColorConstants.red;
 	private static final String INSTRUMENT = "Instrument";
@@ -671,7 +671,6 @@ public class TomoAlignmentControlComposite extends Composite {
 		ButtonSelectionUtil.decorateControlButton(btnFindAxisOfRotation);
 
 		btnMoveAxisOfRotation = toolkit.createButton(tomoAlignmentComposite, MOVE_TOMO_AXIS_lbl, SWT.PUSH);
-		// btnMoveAxisOfRotation.setBackground(ColorConstants.green);
 		btnMoveAxisOfRotation.setFont(fontRegistry.get(NORMAL_TEXT_9));
 		btnMoveAxisOfRotation.addListener(SWT.MouseDown, ctrlMouseListener);
 		GridData layoutData4 = new GridData(GridData.FILL_BOTH);
@@ -920,7 +919,7 @@ public class TomoAlignmentControlComposite extends Composite {
 		Label lblTomoResolution = toolkit.createLabel(resolutionComposite, RESOLUTION_PIXEL_SIZE, SWT.LEFT);
 		lblTomoResolution.setLayoutData(new GridData(GridData.FILL_BOTH));
 
-		lblObjectPixelSize = toolkit.createLabel(resolutionComposite, "0.000 mm", SWT.LEFT_TO_RIGHT);
+		lblObjectPixelSize = toolkit.createLabel(resolutionComposite, DEFAULT_OBJECT_PIXEL_SIZE, SWT.LEFT_TO_RIGHT);
 		lblObjectPixelSize.setLayoutData(new GridData(GridData.FILL_BOTH));
 
 		//

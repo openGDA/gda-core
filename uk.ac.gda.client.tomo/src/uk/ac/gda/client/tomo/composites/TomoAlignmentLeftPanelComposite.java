@@ -54,6 +54,10 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
 
 public class TomoAlignmentLeftPanelComposite extends Composite {
+	private static final String INVALID_VALUE = "Invalid value ";
+	private static final String DIFFERENT_FLAT_EXPOSURE_TIME_lbl = "Different Flat Exposure Time";
+	private static final String SECONDS_lbl = "s";
+	private static final String BLANK = "";
 	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.##");
 	private static final String EXPOSURE_TIME_lbl = "EXPOSURE TIME";
 	private static final String FLAT_lbl = "Flat";
@@ -317,12 +321,12 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 		layout.verticalSpacing = 0;
 		cmpSampleExpTime.setLayout(layout);
 
-		txtSampleExposureTime = toolkit.createText(cmpSampleExpTime, "", SWT.WRAP | SWT.CENTER | SWT.SINGLE);
+		txtSampleExposureTime = toolkit.createText(cmpSampleExpTime, BLANK, SWT.WRAP | SWT.CENTER | SWT.SINGLE);
 		txtSampleExposureTime.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtSampleExposureTime.addKeyListener(textboxKeyListener);
 		txtSampleExposureTime.addFocusListener(focusListener);
 
-		toolkit.createLabel(cmpSampleExpTime, "s", SWT.WRAP | SWT.CENTER).setLayoutData(new GridData());
+		toolkit.createLabel(cmpSampleExpTime, SECONDS_lbl, SWT.WRAP | SWT.CENTER).setLayoutData(new GridData());
 
 		pgBook_flatBtnLbl = new PageBook(leftPanelComposite, SWT.None);
 		pgBtnFlatCmp = toolkit.createComposite(pgBook_flatBtnLbl);
@@ -358,15 +362,15 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 		layout.verticalSpacing = 0;
 		cmpFlatExpTime.setLayout(layout);
 
-		txtFlatExpTime = toolkit.createText(cmpFlatExpTime, "", SWT.WRAP | SWT.CENTER | SWT.SINGLE);
+		txtFlatExpTime = toolkit.createText(cmpFlatExpTime, BLANK, SWT.WRAP | SWT.CENTER | SWT.SINGLE);
 		txtFlatExpTime.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtFlatExpTime.setEnabled(false);
 		txtFlatExpTime.addKeyListener(textboxKeyListener);
 		txtFlatExpTime.addFocusListener(focusListener);
 
-		toolkit.createLabel(cmpFlatExpTime, "s", SWT.WRAP | SWT.CENTER).setLayoutData(new GridData());
+		toolkit.createLabel(cmpFlatExpTime, SECONDS_lbl, SWT.WRAP | SWT.CENTER).setLayoutData(new GridData());
 
-		btnDifferentFlatExpTime = toolkit.createButton(leftPanelComposite, "Different Flat Exposure Time", SWT.PUSH
+		btnDifferentFlatExpTime = toolkit.createButton(leftPanelComposite, DIFFERENT_FLAT_EXPOSURE_TIME_lbl, SWT.PUSH
 				| SWT.CENTER | SWT.WRAP);
 		btnDifferentFlatExpTime.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		btnDifferentFlatExpTime.setFont(fontRegistry.get(NORMAL_TEXT_7));
@@ -402,7 +406,7 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 							logger.debug("Error setting exposure time", e1);
 						}
 					} else {
-						showErrorDialog(new IllegalArgumentException("Invalid value "));
+						showErrorDialog(new IllegalArgumentException(INVALID_VALUE));
 						txtSampleExposureTime.setText(DECIMAL_FORMAT.format(sampleExposureTime));
 					}
 				}
@@ -421,7 +425,7 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 						}
 						btnFlat.setFocus();
 					} else {
-						showErrorDialog(new IllegalArgumentException("Invalid value "));
+						showErrorDialog(new IllegalArgumentException(INVALID_VALUE));
 						txtFlatExpTime.setText(DECIMAL_FORMAT.format(flatExposureTime));
 					}
 				}
@@ -579,7 +583,6 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 	}
 
 	public void disableAll() {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -615,7 +618,6 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 					try {
 						startStreaming();
 					} catch (Exception e) {
-						// showError(ERR_START_STREAM, e);
 						showErrorDialog(e);
 						logger.error("exception selecting stream", e);
 					}
@@ -679,10 +681,8 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 						lpl.takeFlatAndDark();
 					}
 				} catch (InvocationTargetException ex) {
-					// showError("Error while taking flat images", ex);
 					showErrorDialog(ex);
 				} catch (InterruptedException e) {
-					// showError("Error while taking flat images", e);
 					showErrorDialog(e);
 				}
 			} else if (sourceObj == btnFlatDarkCorrection) {
@@ -894,11 +894,9 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 								lpl.moveSampleIn();
 							}
 						} catch (IllegalStateException s) {
-							// showError("Cannot Move Sample In", s);
 							showErrorDialog(s);
 							selectSampleOutButton();
 						} catch (Exception e1) {
-							// showError("Cannot Move Sample In", e1);
 							showErrorDialog(e1);
 							selectSampleOutButton();
 						}
@@ -913,11 +911,9 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 								lpl.moveSampleOut();
 							}
 						} catch (IllegalStateException s) {
-							// showError("Cannot Move Sample In", s);
 							showErrorDialog(s);
 							selectSampleInButton();
 						} catch (Exception e1) {
-							// showError("Cannot Move Sample In", e1);
 							showErrorDialog(e1);
 							selectSampleInButton();
 						}

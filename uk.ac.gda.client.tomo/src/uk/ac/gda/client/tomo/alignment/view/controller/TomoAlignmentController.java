@@ -297,12 +297,6 @@ public class TomoAlignmentController extends TomoViewController {
 		}
 	}
 
-	public void updateAcqExposure(double acqExposure) {
-		// for (ITomoAlignmentView av : tomoalignmentViews) {
-		// av.updateExposureTimeToWidget(acqExposure);
-		// }
-	}
-
 	public Future<Boolean> init() {
 		super.initialize();
 		ExecutorService executorService = Executors.newFixedThreadPool(3);
@@ -324,7 +318,6 @@ public class TomoAlignmentController extends TomoViewController {
 				cameraHandler.init();
 				updateModuleSelected(getModule());
 
-				updateAcqExposure(cameraHandler.getAcqExposureRBV());
 				updatePreferredSampleExposureTime(cameraHandler.getPreferredSampleExposureTime());
 				cameraHandler.setPreferredFlatExposureTime(cameraHandler.getPreferredSampleExposureTime());
 				updatePreferredFlatExposureTime(cameraHandler.getPreferredFlatExposureTime());
@@ -333,8 +326,6 @@ public class TomoAlignmentController extends TomoViewController {
 
 				updateRotationDegree(sampleStageMotorHandler.getRotationMotorDeg());
 				updateProc1FlatFieldCorrection(cameraHandler.getProc1FlatFieldCorrection());
-
-				updateStatInfo();
 
 				updateSampleInOutState(sampleStageMotorHandler.getSampleBaseMotorPosition());
 
@@ -426,15 +417,6 @@ public class TomoAlignmentController extends TomoViewController {
 			av.updateModuleButtonText(unitsToBeDisplayed, moduleButtonTextMap);
 		}
 
-	}
-
-	protected void updateStatInfo() throws Exception {
-		// for (ITomoAlignmentView av : tomoalignmentViews) {
-		// av.updateStatInfo(StatInfo.MAX, df.format(cameraHandler.getStatMax()));
-		// av.updateStatInfo(StatInfo.MIN, df.format(cameraHandler.getStatMin()));
-		// av.updateStatInfo(StatInfo.MEAN, df.format(cameraHandler.getStatMean()));
-		// av.updateStatInfo(StatInfo.SIGMA, df.format(cameraHandler.getStatSigma()));
-		// }
 	}
 
 	protected void updateModuleSelected(CAMERA_MODULE module) {
@@ -531,8 +513,7 @@ public class TomoAlignmentController extends TomoViewController {
 	 * @param monitor
 	 * @throws Exception
 	 */
-	public void setModule(final CAMERA_MODULE newModule, boolean isAmplified, IProgressMonitor monitor)
-			throws Exception {
+	public void setModule(final CAMERA_MODULE newModule, IProgressMonitor monitor) throws Exception {
 		logger.debug("Setting module on the camera using the camera modules lookuptable:" + newModule);
 		try {
 			monitor.subTask("Move motors");
@@ -765,30 +746,6 @@ public class TomoAlignmentController extends TomoViewController {
 
 	}
 
-	public void updateStatMax(double max) {
-		// for (ITomoAlignmentView av : tomoalignmentViews) {
-		// av.updateStatInfo(StatInfo.MAX, df.format(max));
-		// }
-	}
-
-	public void updateStatMin(double min) {
-		// for (ITomoAlignmentView av : tomoalignmentViews) {
-		// av.updateStatInfo(StatInfo.MIN, df.format(min));
-		// }
-	}
-
-	public void updateStatMean(double mean) {
-		// for (ITomoAlignmentView av : tomoalignmentViews) {
-		// av.updateStatInfo(StatInfo.MEAN, df.format(mean));
-		// }
-	}
-
-	public void updateStatSigma(double sigma) {
-		// for (ITomoAlignmentView av : tomoalignmentViews) {
-		// av.updateStatInfo(StatInfo.SIGMA, df.format(sigma));
-		// }
-	}
-
 	public TiltPlotPointsHolder doTiltAlignment(final IProgressMonitor monitor,
 			final CAMERA_MODULE selectedCameraModule, double exposureTime) throws Exception {
 		double ss1RzPosition = sampleStageMotorHandler.getSs1RzPosition();
@@ -935,30 +892,15 @@ public class TomoAlignmentController extends TomoViewController {
 		this.sampleWeightRotationHandler = sampleWeightRotationHandler;
 	}
 
-	public void setAdjustedProc1ScaleValue(double from, double to) throws Exception {
+	public void setHistogramScaleOffsetValue(double acqTime, int lower, int upper, boolean isAmplified, double from,
+			double to) throws Exception {
 
-		double scaledValue = getScaledFactor(from, to);
+		double histogramFactor = getScaledFactor(from, to);
 
-		double proc1Scale = cameraHandler.getProc1Scale();
-		double newScale = scaledValue;
-
-		if (proc1Scale != 0) {
-			newScale = proc1Scale * scaledValue;
-		}
-		cameraHandler.setProc1ScaleValue(newScale);
+		cameraHandler.setAmplifiedValue(acqTime, isAmplified, lower, upper, histogramFactor);
 	}
 
 	private double getScaledFactor(double from, double to) {
-		// double scaledValue = (to - from) / (maxValue - minValue);
-		//
-		// scaledValue = scaledValue + 1;
-		//
-		// if (scaledValue < 0) {
-		// scaledValue = 0;
-		// } else if (scaledValue > 2) {
-		// scaledValue = 2;
-		// }
-
 		// slight guard
 		if (to < 0) {
 			to = 0.001;
@@ -977,7 +919,8 @@ public class TomoAlignmentController extends TomoViewController {
 	 * 
 	 * @throws Exception
 	 */
-	public void applyHistogramToAdjustExposureTime(boolean isAmplified, double lower, double upper) throws Exception {
+	public void applyHistogramToAdjustExposureTime(boolean isAmplified, double lower, double upper, double histoFrom,
+			double histoTo) throws Exception {
 		double exposureTime = getCameraExposureTime();
 
 		double proc1Scale = cameraHandler.getProc1Scale();
@@ -988,20 +931,21 @@ public class TomoAlignmentController extends TomoViewController {
 		if (proc1Scale != 0) {
 			newExposureTime = newExposureTime * proc1Scale;
 		}
-		setExposureTime(newExposureTime, isAmplified, lower, upper);
+		setExposureTime(newExposureTime, isAmplified, lower, upper, histoFrom, histoTo);
 		updateAdjustedPreferredExposureTime(newExposureTime);
 
 	}
 
-	public void setAdjustedExposureTime(boolean isAmplified, double from, double to, int lower, int upper)
-			throws Exception {
+	public void setAdjustedExposureTime(boolean isAmplified, double from, double to, int lower, int upper,
+			double histoFrom, double histoTo) throws Exception {
 		double scaledFactor = getScaledFactor(from, to);
 		double adjustedExposureTime = getCameraExposureTime();
 		if (scaledFactor != 0) {
 			adjustedExposureTime = adjustedExposureTime * scaledFactor;
 		}
 		updateAdjustedPreferredExposureTime(adjustedExposureTime);
-		setExposureTime(adjustedExposureTime, isAmplified, lower, upper);
+		// FIXME -
+		setExposureTime(adjustedExposureTime, isAmplified, lower, upper, histoFrom, histoTo);
 	}
 
 	protected void updateAdjustedPreferredExposureTime(double preferredExposureTime) {
@@ -1010,20 +954,12 @@ public class TomoAlignmentController extends TomoViewController {
 		}
 	}
 
-	public void applyScalingContrast(double offset, double scale) throws Exception {
-		cameraHandler.applyScalingAndContrast(offset, scale);
-	}
-
 	public ITomoConfigResourceHandler getSaveHandler() {
 		return saveHandler;
 	}
 
 	public void setSaveHandler(ITomoConfigResourceHandler saveHandler) {
 		this.saveHandler = saveHandler;
-	}
-
-	public void setProc1ScaleValue(double scale) throws Exception {
-		cameraHandler.setProc1ScaleValue(scale);
 	}
 
 	/**
@@ -1132,9 +1068,10 @@ public class TomoAlignmentController extends TomoViewController {
 		return cameraHandler.getFullImageHeight() / getLeftWindowBinValue();
 	}
 
-	public void setExposureTime(double actualExpTimeBeforeFactoring, boolean isAmplified, double lower, double upper)
-			throws Exception {
-		cameraHandler.setAmplifiedValue(actualExpTimeBeforeFactoring, isAmplified, lower, upper);
+	public void setExposureTime(double actualExpTimeBeforeFactoring, boolean isAmplified, double lower, double upper,
+			double histogramFrom, double histogramTo) throws Exception {
+		cameraHandler.setAmplifiedValue(actualExpTimeBeforeFactoring, isAmplified, (int) lower, (int) upper,
+				getScaledFactor(histogramFrom, histogramTo));
 	}
 
 	public double[] getHistogramFromStats() throws Exception {

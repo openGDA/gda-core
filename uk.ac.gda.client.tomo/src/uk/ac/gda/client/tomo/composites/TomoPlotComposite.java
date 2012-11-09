@@ -597,6 +597,9 @@ public class TomoPlotComposite extends Composite {
 		}
 	}
 
+	private Double histogramFrom;
+	private Double histogramTo;
+
 	private IRegion createStaticRegion(String nameStub, final ROIBase bounds, final Color snapShotColor,
 			final RegionType regionType) throws Exception {
 
@@ -605,16 +608,14 @@ public class TomoPlotComposite extends Composite {
 		region.setRegionColor(snapShotColor);
 		plottingSystem.addRegion(region);
 		region.setROI(bounds);
-
+		histogramFrom = null;
 		region.addROIListener(new IROIListener() {
-
-			private Double pointX;
 
 			@Override
 			public void roiDragged(ROIEvent evt) {
-				if (pointX == null) {
-					pointX = evt.getROI().getPointX();
-					logger.debug("distance started:{}", pointX);
+				if (histogramFrom == null) {
+					histogramFrom = evt.getROI().getPointX();
+					logger.debug("distance started:{}", histogramFrom);
 				}
 			}
 
@@ -623,15 +624,15 @@ public class TomoPlotComposite extends Composite {
 				// need to introspect the movement and propagate the change to hardware.
 				double minValue = histogramTrace.getXData().min().doubleValue();
 				double maxValue = histogramTrace.getXData().max().doubleValue();
-				double endPoint = evt.getROI().getPointX();
-				logger.debug("distance ended:{}", endPoint);
+				double histogramTo = evt.getROI().getPointX();
+				logger.debug("distance ended:{}", histogramTo);
 
 				plottingSystem.removeRegion(region);
 				region.removeROIListener(this);
 				setShouldUpdatePlot(true);
 
 				for (PlottingSystemActionListener lis : lineListeners) {
-					lis.histogramChangedRoi(minValue, maxValue, pointX, endPoint);
+					lis.histogramChangedRoi(minValue, maxValue, histogramFrom, histogramTo);
 				}
 
 			}
@@ -661,4 +662,17 @@ public class TomoPlotComposite extends Composite {
 
 	}
 
+	public double getHistogramFrom() {
+		if (!shouldUpdatePlot && (mode == MODE.HISTOGRAM)) {
+			return histogramFrom;
+		}
+		return 1;
+	}
+
+	public double getHistogramTo() {
+		if (!shouldUpdatePlot && (mode == MODE.HISTOGRAM)) {
+			return histogramTo;
+		}
+		return 1;
+	}
 }

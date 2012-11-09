@@ -364,21 +364,9 @@ public class TomoDetectorHandlerSimulator implements ICameraHandler {
 	}
 
 	@Override
-	public void setProc1ScaleValue(double scaledValue) throws Exception {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public double getProc1Scale() throws Exception {
 		// TODO Auto-generated method stub
 		return 0;
-	}
-
-	@Override
-	public void applyScalingAndContrast(double offset, double scale) throws Exception {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -400,7 +388,8 @@ public class TomoDetectorHandlerSimulator implements ICameraHandler {
 	}
 
 	@Override
-	public void setAmplifiedValue(double newExpTime, boolean isAmplified, double lower, double upper) throws Exception {
+	public void setAmplifiedValue(double acqTime, boolean isAmplified, int lower, int upper, double scaledFactor)
+			throws Exception {
 		// TODO Auto-generated method stub
 		
 	}

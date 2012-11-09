@@ -826,7 +826,8 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			public void widgetSelected(SelectionEvent e) {
 				try {
 					tomoAlignmentController.applyHistogramToAdjustExposureTime(leftPanelComposite.isAmplified(),
-							getContrastLower(), getContrastUpper());
+							getContrastLower(), getContrastUpper(), tomoPlotComposite.getHistogramFrom(),
+							tomoPlotComposite.getHistogramTo());
 				} catch (Exception e1) {
 					logger.error("TODO put description of error here", e1);
 					loadErrorInDisplay("Problem applying histogram value to exposure time",

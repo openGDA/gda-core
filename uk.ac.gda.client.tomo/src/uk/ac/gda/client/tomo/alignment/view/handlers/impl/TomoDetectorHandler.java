@@ -22,7 +22,6 @@ import java.awt.Rectangle;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.draw2d.geometry.Dimension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -37,7 +36,6 @@ import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
 import uk.ac.gda.client.tomo.preferences.TomoAlignmentPreferencePage;
 import uk.ac.gda.epics.client.views.controllers.IAdBaseViewController;
 import uk.ac.gda.epics.client.views.controllers.INDProcViewController;
-import uk.ac.gda.epics.client.views.controllers.INDStatModelViewController;
 import uk.ac.gda.epics.client.views.model.AdBaseModel;
 import uk.ac.gda.epics.client.views.model.FfMpegModel;
 import uk.ac.gda.epics.client.views.model.NdArrayModel;
@@ -110,28 +108,6 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 		this.leftWindowBinValue = leftWindowBinValue;
 	}
 
-	private INDStatModelViewController ndStatViewController = new INDStatModelViewController.Stub() {
-		@Override
-		public void updateMax(double max) {
-			tomoAlignmentViewController.updateStatMax(max);
-		}
-
-		@Override
-		public void updateMin(double min) {
-			tomoAlignmentViewController.updateStatMin(min);
-		}
-
-		@Override
-		public void updateMean(double mean) {
-			tomoAlignmentViewController.updateStatMean(mean);
-		}
-
-		@Override
-		public void updateSigma(double sigma) {
-			tomoAlignmentViewController.updateStatSigma(sigma);
-		}
-	};
-
 	public FfMpegModel getFfmjpegModel1() {
 		return ffmjpegModel1;
 	}
@@ -185,23 +161,23 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 		logger.info("Starting to acquire");
 		double amplifierValue = getAmpFactor(acqTime, isAmplified);
 		double exposureTime = acqTime / amplifierValue;
-		double scale = getScale(acqTime, isAmplified, lower, upper);
-		double offset = getOffset(acqTime, isAmplified, lower);
+		double scale = getScale(acqTime, isAmplified, lower, upper, 1);
+		double offset = getOffset(acqTime, isAmplified, lower, 1);
 		getCamera().acquireMJpeg(exposureTime, defaultAcqPeriod, leftWindowBinValue, leftWindowBinValue, scale, offset);
 	}
 
-	private double getOffset(double acqTime, boolean isAmplified, double lower) {
+	private double getOffset(double acqTime, boolean isAmplified, double lower, double scaledFactor) {
 		double ampFactor = getAmpFactor(acqTime, isAmplified);
 		logger.debug("getOffset:amp factor->{}", ampFactor);
 		logger.debug("getOffset:lower->{}", lower);
 
 		// offset is -(lower/ampfactor)
-		double offset = -(lower / ampFactor);
+		double offset = -(scaledFactor * lower / ampFactor);
 		logger.debug("getOffset :offset->{}", offset);
 		return offset;
 	}
 
-	private double getScale(double acqTime, boolean isAmplified, double lower, double upper) {
+	private double getScale(double acqTime, boolean isAmplified, double lower, double upper, double scaledFactor) {
 		double ampFactor = getAmpFactor(acqTime, isAmplified);
 
 		double maxIntensity = TomoClientConstants.MAX_INTENSITY;
@@ -212,7 +188,7 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 
 		// S = S(lower/ampfactor, upper/ampfactor)
 		// S(L,U) = maxIntensity/(U-L)
-		double scale = maxIntensity / ((upper / ampFactor) - (lower / ampFactor));
+		double scale = maxIntensity / ((scaledFactor * upper / ampFactor) - (scaledFactor * lower / ampFactor));
 		logger.debug("getScale :scale->{}", scale);
 		return scale;
 	}
@@ -252,12 +228,6 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 
 		adBaseModel.removeAdBaseViewController(adBaseViewController);
 		ndProc1Model.removeProcViewController(proc1ModelListener);
-		ndStatModel.removeStatViewController(ndStatViewController);
-		// ffmjpegModel1.dispose();
-		// ffmjpegModel2.dispose();
-		// adBaseModel.dispose();
-		// ndRoi1Model.dispose();
-		// ndProc1Model.dispose();
 	}
 
 	@Override
@@ -316,13 +286,8 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 
 	@Override
 	public void setupZoom(ZOOM_LEVEL zoomLevel) throws Exception {
-		// FIXME-Ravi - need to evaluate these values.
-		// x coordinate of the center of the image - 2004
-		// y co-ordinate of the center of the image = 1336
-
-		Dimension rectSize = zoomLevel.getRectSize();
-		final int roiX = 0;// (int) (((double) imgWidth / 2) - rectSize.width / 2);
-		final int roiY = 0;// (int) (((double) imgHeight / 2) - rectSize.height / 2);
+		final int roiX = 0;
+		final int roiY = 0;
 		getCamera().setupZoomMJpeg(new Rectangle(roiX, roiY, zoomLevel.getRoiSize().x, zoomLevel.getRoiSize().y),
 				new java.awt.Point(zoomLevel.getBin().x, zoomLevel.getBin().y));
 	}
@@ -344,10 +309,6 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 			}
 		}
 
-		@Override
-		public void updateAcqExposure(double acqExposure) {
-			tomoAlignmentViewController.updateAcqExposure(acqExposure);
-		}
 	};
 
 	@Override
@@ -796,29 +757,12 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 
 	@Override
 	public void init() {
-		if (this.ndStatModel != null) {
-			this.ndStatModel.registerStatViewController(ndStatViewController);
-		}
 		if (this.adBaseModel != null) {
 			this.adBaseModel.registerAdBaseViewController(adBaseViewController);
 		}
 		if (this.ndProc1Model != null) {
 			this.ndProc1Model.registerProcViewController(proc1ModelListener);
 		}
-	}
-
-	@Override
-	public void setAmplifiedValue(double newExpTime, boolean isAmplified, double lower, double upper) throws Exception {
-		double factor = getAmpFactor(newExpTime, isAmplified);
-		double exposureTime = newExpTime / factor;
-		if (getAcqExposureRBV() != exposureTime) {
-			setExposureTime(exposureTime);
-		}
-
-		double scale = getScale(newExpTime, isAmplified, lower, upper);
-		double offset = getOffset(newExpTime, isAmplified, lower);
-
-		getCamera().setOffsetAndScale(offset, scale);
 	}
 
 	private double getAmpFactor(double newExpTime, boolean isAmplified) {
@@ -954,18 +898,8 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 	}
 
 	@Override
-	public void setProc1ScaleValue(double newScale) throws Exception {
-		camera.setProc1Scale(newScale);
-	}
-
-	@Override
 	public double getProc1Scale() throws Exception {
 		return camera.getProc1Scale();
-	}
-
-	@Override
-	public void applyScalingAndContrast(double offset, double scale) throws Exception {
-		camera.setOffsetAndScale(offset, scale);
 	}
 
 	/**
@@ -996,6 +930,21 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 	@Override
 	public void setupHistoStatCollection() throws Exception {
 		camera.setupHistoStatCollection(1024);
+	}
+
+	@Override
+	public void setAmplifiedValue(double acqTime, boolean isAmplified, int lower, int upper, double scaledFactor)
+			throws Exception {
+		double factor = getAmpFactor(acqTime, isAmplified);
+		double exposureTime = acqTime / factor;
+		if (getAcqExposureRBV() != exposureTime) {
+			setExposureTime(exposureTime);
+		}
+
+		double scale = getScale(acqTime, isAmplified, lower, upper, scaledFactor);
+		double offset = getOffset(acqTime, isAmplified, lower, scaledFactor);
+
+		getCamera().setOffsetAndScale(offset, scale);
 	}
 
 }

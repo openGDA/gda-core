@@ -325,17 +325,15 @@ public interface ICameraHandler extends ITomoHandler {
 	Integer getRoi2BinX() throws Exception;
 
 	/**
-	 * This sets the exposure time and the scaling factor on the proc plug-in to the value as mentioned by the factor.
-	 * 
-	 * @param newExpTime
-	 *            - the preferred exposure time divided by the amplification factor
+	 * @param acqTime
 	 * @param isAmplified
-	 *            - whether amplification is on.
 	 * @param lower
 	 * @param upper
-	 * @throws Exception
+	 * @param scaledFactor
+	 *            - scaled factor
+	 * @throws Exception 
 	 */
-	void setAmplifiedValue(double newExpTime, boolean isAmplified, double lower, double upper) throws Exception;
+	void setAmplifiedValue(double acqTime, boolean isAmplified, int lower, int upper, double scaledFactor) throws Exception;
 
 	/**
 	 * Stop capturing and acquisition.
@@ -441,27 +439,10 @@ public interface ICameraHandler extends ITomoHandler {
 	int getFullImageHeight();
 
 	/**
-	 * Update the proc scale value
-	 * 
-	 * @param scaledValue
-	 * @throws Exception
-	 */
-	void setProc1ScaleValue(double scaledValue) throws Exception;
-
-	/**
 	 * @return proc1 scale value
 	 * @throws Exception
 	 */
 	double getProc1Scale() throws Exception;
-
-	/**
-	 * Apply scale and offset on the detector
-	 * 
-	 * @param offset
-	 * @param scale
-	 * @throws Exception
-	 */
-	void applyScalingAndContrast(double offset, double scale) throws Exception;
 
 	/**
 	 * @return histogram data
@@ -475,4 +456,5 @@ public interface ICameraHandler extends ITomoHandler {
 	 * @throws Exception
 	 */
 	void setupHistoStatCollection() throws Exception;
+
 }
