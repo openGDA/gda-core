@@ -18,11 +18,13 @@
 
 package uk.ac.gda.client.tomo.alignment.view.handlers.simulator;
 
+import java.util.Map;
+
 import gda.device.DeviceException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentViewController;
+import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ISampleStageMotorHandler;
 
 /**
@@ -55,7 +57,7 @@ public class TomoAlignmentMotorHandlerSimulator implements ISampleStageMotorHand
 	}
 
 	@Override
-	public void setTomoAlignmentViewController(TomoAlignmentViewController tomoAlignmentViewController) {
+	public void setTomoAlignmentViewController(TomoAlignmentController tomoAlignmentViewController) {
 		// TODO Auto-generated method stub
 
 	}
@@ -152,14 +154,9 @@ public class TomoAlignmentMotorHandlerSimulator implements ISampleStageMotorHand
 
 	}
 
-	@Override
-	public double getVerticalPosition() throws DeviceException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
 
 	@Override
-	public void moveSs1Y2To(IProgressMonitor monitor, double position) throws DeviceException, InterruptedException {
+	public void moveVerticalBy(IProgressMonitor monitor, double position) throws DeviceException, InterruptedException {
 		// TODO Auto-generated method stub
 
 	}
@@ -251,12 +248,6 @@ public class TomoAlignmentMotorHandlerSimulator implements ISampleStageMotorHand
 	}
 
 	@Override
-	public String getVerticalMotorName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public String getSs1RzMotorName() {
 		// TODO Auto-generated method stub
 		return null;
@@ -279,6 +270,12 @@ public class TomoAlignmentMotorHandlerSimulator implements ISampleStageMotorHand
 			InterruptedException {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public Map<String, Double> getVerticalMotorPositions() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

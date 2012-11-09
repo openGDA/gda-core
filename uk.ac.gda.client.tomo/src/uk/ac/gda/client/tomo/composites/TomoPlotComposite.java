@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
@@ -58,7 +59,6 @@ import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.gda.client.tomo.DoublePointList;
 import uk.ac.gda.client.tomo.DoublePointList.DoublePoint;
 import uk.ac.gda.client.tomo.TiltPlotPointsHolder;
-import uk.ac.gda.client.tomo.ViewerDisplayMode;
 
 /**
  *
@@ -242,6 +242,7 @@ public class TomoPlotComposite extends Composite {
 			rawImgDs = loadDatasetForTiffImg(rawPlotImageFilename, INTENSITY);
 		} else {
 			rawImgDs = null;
+			clearPlots();
 		}
 		if (darkImgFileName != null) {
 			darkImgDs = loadDatasetForTiffImg(darkImgFileName, DARK);
@@ -364,7 +365,55 @@ public class TomoPlotComposite extends Composite {
 		this.shouldUpdatePlot = updatePlot;
 	}
 
-	public void updateHistogramData(final ViewerDisplayMode displayMode, final ImageData image) {
+	public void updateHistogramData(final double[] histogramFromStats) {
+		if (shouldUpdatePlot) {
+			getDisplay().syncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					if (mode != MODE.HISTOGRAM) {
+						histogramTrace = null;
+						removeXHairListeners();
+						removeOtherRegions();
+						xHair = null;
+					}
+					// show the apply button if streaming is happening in the left window.
+					mode = MODE.HISTOGRAM;
+					createMouseFollowLineRegion();
+					if (plottingSystem.getTrace("Histogram") == null) {
+						plottingSystem.clear();
+					}
+
+					double[] subarray = ArrayUtils.subarray(histogramFromStats, 0, 1024);
+					logger.debug("subarrya size:{}", subarray.length);
+					DoubleDataset ds = new DoubleDataset(subarray, 1024);
+
+					int min = 0;
+					ds.setName("Histogram Dataset");
+
+					IntegerDataset xaxisRange = IntegerDataset.arange(min, 65536, 64);
+					xaxisRange.setName("Intensities");
+
+					if (histogramTrace == null) {
+						histogramTrace = plottingSystem.createLineTrace("Histogram");
+					}
+
+					histogramTrace.setData(xaxisRange, ds);
+
+					if (plottingSystem.getTrace("Histogram") == null) {
+						plottingSystem.addTrace(histogramTrace);
+					}
+					plottingSystem.repaint();
+
+					plottingSystem.setTitle("Histogram Plot");
+					plottingSystem.getSelectedYAxis().setFormatPattern("#####");
+					plottingSystem.getSelectedXAxis().setFormatPattern("#####");
+				}
+			});
+		}
+	}
+
+	public void updateHistogramData(final ImageData imageData) {
 		if (shouldUpdatePlot) {
 			getDisplay().syncExec(new Runnable() {
 
@@ -388,10 +437,10 @@ public class TomoPlotComposite extends Composite {
 						histogram = new uk.ac.diamond.scisoft.analysis.dataset.function.Histogram(256);
 					}
 
-					ImageData imgD = (ImageData) image.clone();
+					ImageData imgD = (ImageData) imageData.clone();
 					int intensities[] = new int[imgD.width * imgD.height];
 					int i = 0;
-					if (image.depth > 16) {
+					if (imageData.depth > 16) {
 						for (int h = 0; h < imgD.height; h++) {
 							for (int w = 0; w < imgD.width; w++) {
 								int pixel = imgD.getPixel(w, h);
@@ -548,6 +597,9 @@ public class TomoPlotComposite extends Composite {
 		}
 	}
 
+	private Double histogramFrom;
+	private Double histogramTo;
+
 	private IRegion createStaticRegion(String nameStub, final ROIBase bounds, final Color snapShotColor,
 			final RegionType regionType) throws Exception {
 
@@ -556,16 +608,14 @@ public class TomoPlotComposite extends Composite {
 		region.setRegionColor(snapShotColor);
 		plottingSystem.addRegion(region);
 		region.setROI(bounds);
-
+		histogramFrom = null;
 		region.addROIListener(new IROIListener() {
-
-			private Double pointX;
 
 			@Override
 			public void roiDragged(ROIEvent evt) {
-				if (pointX == null) {
-					pointX = evt.getROI().getPointX();
-					logger.debug("distance started:{}", pointX);
+				if (histogramFrom == null) {
+					histogramFrom = evt.getROI().getPointX();
+					logger.debug("distance started:{}", histogramFrom);
 				}
 			}
 
@@ -574,15 +624,15 @@ public class TomoPlotComposite extends Composite {
 				// need to introspect the movement and propagate the change to hardware.
 				double minValue = histogramTrace.getXData().min().doubleValue();
 				double maxValue = histogramTrace.getXData().max().doubleValue();
-				double endPoint = evt.getROI().getPointX();
-				logger.debug("distance ended:{}", endPoint);
+				double histogramTo = evt.getROI().getPointX();
+				logger.debug("distance ended:{}", histogramTo);
 
 				plottingSystem.removeRegion(region);
 				region.removeROIListener(this);
 				setShouldUpdatePlot(true);
 
 				for (PlottingSystemActionListener lis : lineListeners) {
-					lis.histogramChangedRoi(minValue, maxValue, pointX, endPoint);
+					lis.histogramChangedRoi(minValue, maxValue, histogramFrom, histogramTo);
 				}
 
 			}
@@ -599,4 +649,30 @@ public class TomoPlotComposite extends Composite {
 		plottingSystem.addRegion(region);
 	}
 
+	public void clearPlots() {
+		getDisplay().syncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				// plottingSystem.clearRegions();
+				plottingSystem.reset();
+				histogramTrace = null;
+			}
+		});
+
+	}
+
+	public double getHistogramFrom() {
+		if (!shouldUpdatePlot && (mode == MODE.HISTOGRAM)) {
+			return histogramFrom;
+		}
+		return 1;
+	}
+
+	public double getHistogramTo() {
+		if (!shouldUpdatePlot && (mode == MODE.HISTOGRAM)) {
+			return histogramTo;
+		}
+		return 1;
+	}
 }

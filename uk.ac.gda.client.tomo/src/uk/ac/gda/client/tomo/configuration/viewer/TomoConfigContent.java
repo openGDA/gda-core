@@ -35,9 +35,9 @@ public class TomoConfigContent implements ITomoConfigContent {
 	private String resolution;
 	private int framesPerProjection;
 	private String scanMode;
-	private String runTime;
-	private String estEndTime;
-	private String timeDivider;
+	private double runTime;
+	private double estEndTime;
+	private double timeDivider;
 	private boolean shouldDisplay = false;
 	private double objectPixelSize;
 	private double progress;
@@ -161,27 +161,28 @@ public class TomoConfigContent implements ITomoConfigContent {
 		this.scanMode = scanMode;
 	}
 
-	public String getRunTime() {
+	@Override
+	public double getRunTime() {
 		return runTime;
 	}
 
-	public void setRunTime(String runTime) {
+	public void setRunTime(double runTime) {
 		this.runTime = runTime;
 	}
 
-	public String getEstEndTime() {
+	public double getEstEndTime() {
 		return estEndTime;
 	}
 
-	public void setEstEndTime(String estEndTime) {
+	public void setEstEndTime(double estEndTime) {
 		this.estEndTime = estEndTime;
 	}
 
-	public String getTimeDivider() {
+	public double getTimeDivider() {
 		return timeDivider;
 	}
 
-	public void setTimeDivider(String timeDivider) {
+	public void setTimeDivider(double timeDivider) {
 		this.timeDivider = timeDivider;
 	}
 
@@ -201,6 +202,7 @@ public class TomoConfigContent implements ITomoConfigContent {
 		return objectPixelSize;
 	}
 
+	@Override
 	public boolean isSelectedToRun() {
 		return isSelectedToRun;
 	}

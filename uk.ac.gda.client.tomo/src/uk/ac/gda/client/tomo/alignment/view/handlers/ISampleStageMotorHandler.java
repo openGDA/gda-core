@@ -18,11 +18,13 @@
 
 package uk.ac.gda.client.tomo.alignment.view.handlers;
 
+import java.util.Map;
+
 import gda.device.DeviceException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentViewController;
+import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentController;
 
 /**
  * Interface that is called by the controller - this handles all the stage motors and most of the movements and position
@@ -67,11 +69,11 @@ public interface ISampleStageMotorHandler extends ITomoHandler {
 	Double getRotationMotorDeg() throws DeviceException;
 
 	/**
-	 * The {@link TomoAlignmentViewController} controls the GUI with the backend.
+	 * The {@link TomoAlignmentController} controls the GUI with the backend.
 	 * 
 	 * @param tomoAlignmentViewController
 	 */
-	void setTomoAlignmentViewController(TomoAlignmentViewController tomoAlignmentViewController);
+	void setTomoAlignmentViewController(TomoAlignmentController tomoAlignmentViewController);
 
 	/**
 	 * @return thetha value - considered as offset when calculating the horizontal distance to move to. [on I12 -
@@ -207,12 +209,6 @@ public interface ISampleStageMotorHandler extends ITomoHandler {
 	void aysncMoveSs1Rz(Double ss1RzMoveToPosition) throws DeviceException;
 
 	/**
-	 * @return the motor position of Y2B motor [on i12 ss1.y2 on the Huber sample stage]
-	 * @throws DeviceException
-	 */
-	double getVerticalPosition() throws DeviceException;
-
-	/**
 	 * Move the Y2B motor by the given position [on i12 ss1.y2 on the Huber sample stage]
 	 * 
 	 * @param monitor
@@ -220,7 +216,7 @@ public interface ISampleStageMotorHandler extends ITomoHandler {
 	 * @throws DeviceException
 	 * @throws InterruptedException
 	 */
-	void moveSs1Y2To(IProgressMonitor monitor, double position) throws DeviceException, InterruptedException;
+	void moveVerticalBy(IProgressMonitor monitor, double position) throws DeviceException, InterruptedException;
 
 	/**
 	 * Method to stop all motor motions.
@@ -291,11 +287,6 @@ public interface ISampleStageMotorHandler extends ITomoHandler {
 	String getSampleBaseMotorName();
 
 	/**
-	 * @return name of the motor responsible for vertical motor - (on i12 it is ss1_y2)
-	 */
-	String getVerticalMotorName();
-
-	/**
 	 * @return ss1_rz motor name
 	 */
 	String getSs1RzMotorName();
@@ -324,5 +315,10 @@ public interface ISampleStageMotorHandler extends ITomoHandler {
 	 * @throws InterruptedException
 	 */
 	void moveSs1TxBy(IProgressMonitor monitor, Double ss1TxPosition) throws DeviceException, InterruptedException;
+
+	/**
+	 * @return map of the vertical motor names against its positions
+	 */
+	Map<String, Double> getVerticalMotorPositions();
 
 }

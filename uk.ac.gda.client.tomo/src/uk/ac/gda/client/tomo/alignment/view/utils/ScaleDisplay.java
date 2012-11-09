@@ -82,7 +82,7 @@ public class ScaleDisplay {
 
 	@Override
 	public String toString() {
-		return String.format("%1$s%2$s (%3$s %4$s)", decFormat.format(scaleLengthMeasurement.getMeasurementValue()),
+		return String.format("%1$s%2$s / %3$s %4$s", decFormat.format(scaleLengthMeasurement.getMeasurementValue()),
 				scaleLengthMeasurement.getMeasurementUnit(), decFormat.format(pixelMeasurement.getMeasurementValue()),
 				pixelMeasurement.getMeasurementUnit());
 	}

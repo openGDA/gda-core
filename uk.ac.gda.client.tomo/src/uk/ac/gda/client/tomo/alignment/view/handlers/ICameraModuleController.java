@@ -56,7 +56,11 @@ public interface ICameraModuleController extends ITomoHandler{
 	 * @throws DeviceException 
 	 */
 	String lookupHFOVUnit() throws DeviceException;
-
+	/**
+	 * @return horizontal field of view units
+	 * @throws DeviceException 
+	 */
+	String lookupMagnificationUnit() throws DeviceException;
 	/**
 	 * @param module
 	 * @return value of the object pixel size for the given module
@@ -75,6 +79,12 @@ public interface ICameraModuleController extends ITomoHandler{
 	 * @throws DeviceException 
 	 */
 	Double lookupHFOV(CAMERA_MODULE module) throws DeviceException;
+	/**
+	 * @param module
+	 * @return horizontal field of view for the given module
+	 * @throws DeviceException 
+	 */
+	Double lookupMagnification(CAMERA_MODULE module) throws DeviceException;
 
 	/**
 	 * @param newModule

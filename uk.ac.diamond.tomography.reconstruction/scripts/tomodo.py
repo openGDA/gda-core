@@ -158,7 +158,7 @@ def reindexLinks(inListOfIdx, outListOfIdx, indir="/dls/i13/data/2012/mt5811-1/5
 	len_in =len(inListOfIdx)
 	len_out =len(outListOfIdx)
 	if len_in != len_out:
-		msg="The number of input and output indices are different: %s and %s:",(len_in, len_out)
+		msg="The number of input and output indices are different: %s and %s:"%(len_in, len_out)
 		raise Exception(msg)
 	
 	indir_loc=removeTrailingSlash(indir)
@@ -190,13 +190,25 @@ def reindexLinks(inListOfIdx, outListOfIdx, indir="/dls/i13/data/2012/mt5811-1/5
 		j+=1
 
 @contextmanager
+def opened_w_error(filename, mode="r"):
+	try:
+		f = open(filename, mode)
+	except IOError, err:
+		yield None, err
+	else:
+		try:
+			yield f, None
+		finally:
+			f.close()
+
+@contextmanager
 def cd(path):
 	saved_dir=os.getcwd()
 	try:
 		os.chdir(path)
 		yield path
 	except Exception, ex:
-		raise Exception ("ERROR changing directory: "+str(ex))
+		raise Exception ("cd: ERROR changing directory: "+str(ex))
 	finally:
 		os.chdir(saved_dir)
 
@@ -432,7 +444,7 @@ def stepThrough(inList, stepSize=1):
 		outList.append(inList[i])
 	return outList
 
-def populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, tif_lst, dark_idx, flat_idx, proj_idx, decimationRate=1, verbose=False):
+def populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, tif_lst, dark_idx, flat_idx, proj_idx, filenameFmt, decimationRate=1, verbose=False):
 
 	"""
 	Create:
@@ -462,21 +474,21 @@ def populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, tif_lst, da
 
 	#e.g. /dls/i13/data/2012/mt5811-1/564/pco1/pco1564-00002.tif
 	#Note that src_proj_split contains some empty strings, i.e.''
-	makeLinks_arg={}
-	makeLinks_arg['beamlineID']=src_proj_split[2]
-	makeLinks_arg['year']=int(src_proj_split[4])
-	makeLinks_arg['visit']=src_proj_split[5]
+	#makeLinks_arg={}
+	#makeLinks_arg['beamlineID']=src_proj_split[2]
+	#makeLinks_arg['year']=int(src_proj_split[4])
+	#makeLinks_arg['visit']=src_proj_split[5]
 	#makeLinks_arg['scanNumber']=int(src_proj_split[6])
-	makeLinks_arg['scanNumber']=src_proj_split[6]
-	makeLinks_arg['detector']=src_proj_split[7]
+	#makeLinks_arg['scanNumber']=src_proj_split[6]
+	#makeLinks_arg['detector']=src_proj_split[7]
 	
-	makeLinks_arg['firstImage']=proj_idx[0]
-	makeLinks_arg['lastImage']=proj_idx[len(proj_idx)-1]
+	#makeLinks_arg['firstImage']=proj_idx[0]
+	#makeLinks_arg['lastImage']=proj_idx[len(proj_idx)-1]
 
 	detectorName=src_proj_split[7]
 	makeLinks_outdir=head+os.sep+proj_dir
 	print "makeLinks_outdir=%s"%makeLinks_outdir
-	print "makeLinks_beamlineID=%s"%makeLinks_arg['beamlineID']
+	#print "makeLinks_beamlineID=%s"%makeLinks_arg['beamlineID']
 
 
 	proj_idx_decimated=decimate(proj_idx, decimationRate)
@@ -497,13 +509,14 @@ def populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, tif_lst, da
 #						, outdir=(head+os.sep+proj_dir))
 
 	#filenameFmt=detectorName+scanNumber_str+"-"+"%05d.tif"
-	inFnameFmt="%05d.tif"
-	if makeLinks_arg['beamlineID'] == "i12":
+	#inFnameFmt="%05d.tif"
+	#if makeLinks_arg['beamlineID'] == "i12":
 		#inFnameFmt=inImgFilenameFmt
-		inFnameFmt="p_%05d.tif"
+	#	inFnameFmt="p_%05d.tif"
+	inFnameFmt=filenameFmt
 	outFnameFmt="p_%05d.tif"
 	makeLinksToOriginalFiles(\
-							proj_idx_decimated\
+							listOfProjIdx=proj_idx_decimated\
 							, indir=genAncestorPath(refFilename, 1)\
 							, inFilenameFmt=inFnameFmt\
 							, outdir=(head+os.sep+proj_dir)\
@@ -525,13 +538,15 @@ def createSoftLink(src, dst):
 		subprocess.call(cmd, shell=True)
 
 
-def launchSinoListener(inDir, inFilenameFmt, nProjs, outDir, qsub_proj='i13', verbose=False, testing=True):
+def launchSinoListener(inDir, inFilenameFmt, nProjs, outDir, inImgWidth=4008, inImgHeight=2672, qsub_proj='i13', verbose=False, testing=True):
 	print launchSinoListener.__name__
 	args=["sino_listener.py"]
 	args+=[ "-i", inDir]
 	args+=[ "-I", inFilenameFmt]
 	args+=[ "-p", str(nProjs)]
 	args+=[ "-o", outDir]
+	args+=[ "-w", inImgWidth]
+	args+=[ "-l", inImgHeight]
 	args+=[ "--qsub_project", qsub_proj]
 	if verbose:
 		args+=[ "-v"]
@@ -1081,6 +1096,8 @@ def makeLinksForNXSFile(\
 					, qsub_project='i13'\
 					, outdir=None\
 					, minProjs=129\
+					, inWidth=4008\
+					, inHeight=2672\
 					, quickstep=100\
 					, maxUnclassed=0\
 					, decimationRate=1\
@@ -1122,6 +1139,8 @@ def makeLinksForNXSFile(\
 		print "qsub_project=%s"%qsub_project
 		print "outdir=%s"%outdir
 		print "minProjs=%s"%minProjs
+		print "inWidth=%s"%inWidth
+		print "inHeight=%s"%inHeight
 		print "maxUnclassed=%s"%maxUnclassed
 		print "decimationRate=%s"%decimationRate
 		print "sino=%s"%str(sino)
@@ -1286,6 +1305,10 @@ def makeLinksForNXSFile(\
 		N=min(10, N)
 
 	if not imgkeyNXS:
+		if (inBeamPos is None) or (outOfBeamPos is None):
+			msg="INFO: Image-key data are not available in input NeXus file - please re-run this script using the stageInBeamPhys and stageOutOfBeamPhys options accompanied by appropriate values (the latter can be found in scan_command recorded in scan's NeXus file)."
+			raise Exception(msg)
+		
 		image_key_curr={}
 	# identify each entry as DARK, FLAT, PROJ or UNCLASSIFIED image
 		for i in range(0, N):
@@ -1382,11 +1405,36 @@ def makeLinksForNXSFile(\
 	
 	# use the path of the first PROJ image file as a reference file path for identifying the corresponding scanNumber, etc
 	srcfile_proj=tif[ proj_idx[0] ][0]
+	
+	try:
+		with opened_w_error(str(srcfile_proj), 'rb') as (f, err):
+			#print "Opened/read file: %s"%str(srcfile_proj)
+			if err:
+				print "IOError:", err
+			else:
+				try:
+					img = Image.open(f)
+				except StandardError:
+					print "Error on Image.open for file: %s:"%str(srcfile_proj)
+					f.close() # force close
+				else:
+					# process image
+					msg = "INFO: Using image width = %s and height = %s, which were automatically detected from: %s"%(img.size[0],img.size[1],str(srcfile_proj))
+					print msg
+					inWidth = img.size[0]
+					inHeight = img.size[1]
+					#print '\t\tinWidth= ',inWidth
+					#print '\t\tinHeight= ',inHeight
+	except IOError:
+		print "Could not open/read file: %s"%str(srcfile_proj)
+		msg = "INFO: Using default image width = %s and height = %s"%(inWidth,inHeight)
+		print msg
+	
 	mandatory_parent_foldername="processing"
 	
 	scanNumber_str, head, sino_dir, dark_dir, flat_dir, proj_dir, recon_dir=createDirs(refFilename=srcfile_proj, outdir=outdir, mandatorydir=mandatory_parent_foldername, quick=quick, verbose=verbose)
 	
-	len_proj_idx_decimated, detectorName=populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, tif, dark_idx, flat_idx, proj_idx, decimationRate, verbose=verbose)
+	len_proj_idx_decimated, detectorName=populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, tif, dark_idx, flat_idx, proj_idx, inImgFilenameFmt, decimationRate, verbose=verbose)
 	
 	if sino:
 		#print "\n\tAbout to launch the sino_listener script from CWD = %s"%os.getcwd()
@@ -1421,6 +1469,8 @@ def makeLinksForNXSFile(\
 											, inFilenameFmt=inProjFmt\
 											, nProjs=zidx_last\
 											, outDir=head+os.sep+sino_dir\
+											, inImgWidth=inWidth\
+											, inImgHeight=inHeight\
 											, qsub_proj=qsub_project\
 											, verbose=True\
 											, testing=False)
@@ -1579,6 +1629,8 @@ creates directories and links to projection, dark and flat images required for s
 	parser.add_option("--stageInBeamPhys", action="store", type="float", dest="inBeamPos", help="The sample stage's PHYSICAL position when it was IN-BEAM during the scan. ")
 	parser.add_option("--stageOutOfBeamPhys", action="store", type="float", dest="outOfBeamPos", help="The sample stage's PHYSICAL position when it was OUT-OF-BEAM during the scan. ")
 	parser.add_option("--minProjs", action="store", type="int", dest="minProjs", default=129, help="The absolute minimum number of projections; default value is %default.")
+	parser.add_option("--width", action="store", type="int", dest="inWidth", default=4008, help="The width of all tomography images; default value is %default.")
+	parser.add_option("--height", action="store", type="int", dest="inHeight", default=2672, help="The height of all tomography images; default value is %default.")
 	parser.add_option("--quickstep", action="store", type="int", dest="quickstep", default=100, help="The step size to be used for GUI quick option; default value is %default.")
 	parser.add_option("--maxUnclassed", action="store", type="int", dest="maxUnclassed", default=0, help="The absolute maximum number of unclassified images; default value is %default.")
 	parser.add_option("-e", "--every", action="store", type="int", dest="decimationRate", default=1, help="Indicates that only every n-th projection image will be used for reconstruction; default value is %default.")
@@ -1611,7 +1663,7 @@ creates directories and links to projection, dark and flat images required for s
 	#parser.print_version()
 
 # Make sure all mandatory input variables have some values
-	mandatory_var=['filename', 'shutOpenPos', 'shutClosedPos', 'inBeamPos', 'outOfBeamPos', 'shutNXSPath', 'stagePosNXSPath', 'stageRotNXSPath', 'tifNXSPath']
+	mandatory_var=['filename', 'shutOpenPos', 'shutClosedPos', 'shutNXSPath', 'stagePosNXSPath', 'stageRotNXSPath', 'tifNXSPath']
 	for m in mandatory_var:
 		#print opts_dict[m]
 		if opts_dict[m] is None:
@@ -1643,6 +1695,8 @@ creates directories and links to projection, dark and flat images required for s
 					, stageOutOfBeamPhys=opts.outOfBeamPos\
 					, outdir=outdir_loc\
 					, minProjs=minProjs_loc\
+					, inWidth=opts.inWidth\
+					, inHeight=opts.inHeight\
 					, quickstep=opts.quickstep\
 					, maxUnclassed=maxUnclassed_loc\
 					, shutterNXSPath=opts.shutNXSPath\

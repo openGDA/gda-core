@@ -18,6 +18,8 @@
 
 package uk.ac.gda.client.tomo.alignment.view.handlers.impl;
 
+import java.util.Map;
+
 import gda.device.DeviceException;
 import gda.device.IScannableMotor;
 
@@ -26,8 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.tomo.TomoClientActivator;
-import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentViewController;
+import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ISampleStageMotorHandler;
+import uk.ac.gda.client.tomo.alignment.view.handlers.IVerticalMotorMotionHandler;
 import uk.ac.gda.client.tomo.preferences.TomoAlignmentPreferencePage;
 
 /**
@@ -35,16 +38,16 @@ import uk.ac.gda.client.tomo.preferences.TomoAlignmentPreferencePage;
  */
 public class TomoSampleStageMotorHandler extends BaseMotorHandler implements ISampleStageMotorHandler {
 
+	private IVerticalMotorMotionHandler verticalMotorMotionHandler;
+
 	private IScannableMotor rotationScannable;
 	private IScannableMotor ss1TxScannable;
 	private IScannableMotor ss1TzScannable;
-	private IScannableMotor ss1Y2Scannable;
 	private IScannableMotor sampleHolderScannable;
 	private IScannableMotor ss1RxScannable;
 	private IScannableMotor ss1RzScannable;
 	private static final Logger logger = LoggerFactory.getLogger(TomoSampleStageMotorHandler.class);
-	private TomoAlignmentViewController tomoAlignmentViewController;
-
+	private TomoAlignmentController tomoAlignmentViewController;
 
 	/**
 	 * Generally expected to be zero but this may be the initial angle of the 'theta' motor
@@ -57,7 +60,7 @@ public class TomoSampleStageMotorHandler extends BaseMotorHandler implements ISa
 	private Double defaultSampleInPosition;
 
 	public TomoSampleStageMotorHandler() {
-	
+
 	}
 
 	/**
@@ -105,21 +108,6 @@ public class TomoSampleStageMotorHandler extends BaseMotorHandler implements ISa
 		this.ss1TzScannable = tzScannable;
 	}
 
-	/**
-	 * @return Returns the y2Scannable.
-	 */
-	public IScannableMotor getSs1Y2Scannable() {
-		return ss1Y2Scannable;
-	}
-
-	/**
-	 * @param y2Scannable
-	 *            The y2Scannable to set.
-	 */
-	public void setSs1Y2Scannable(IScannableMotor y2Scannable) {
-		this.ss1Y2Scannable = y2Scannable;
-	}
-
 	public IScannableMotor getSampleHolderScannable() {
 		return sampleHolderScannable;
 	}
@@ -140,11 +128,6 @@ public class TomoSampleStageMotorHandler extends BaseMotorHandler implements ISa
 	@Override
 	public void dispose() {
 		logger.debug("Disposing TomoAlignmentMotorHandler");
-	}
-
-	@Override
-	public double getVerticalPosition() throws DeviceException {
-		return (Double) ss1Y2Scannable.getPosition();
 	}
 
 	@Override
@@ -176,7 +159,7 @@ public class TomoSampleStageMotorHandler extends BaseMotorHandler implements ISa
 	 *            The tomoAlignmentViewController to set.
 	 */
 	@Override
-	public void setTomoAlignmentViewController(TomoAlignmentViewController tomoAlignmentViewController) {
+	public void setTomoAlignmentViewController(TomoAlignmentController tomoAlignmentViewController) {
 		this.tomoAlignmentViewController = tomoAlignmentViewController;
 	}
 
@@ -224,9 +207,6 @@ public class TomoSampleStageMotorHandler extends BaseMotorHandler implements ISa
 		this.thethaOffset = thethaOffset;
 	}
 
-	
-
-
 	@Override
 	public double getSs1RxPosition() throws DeviceException {
 		return (Double) ss1RxScannable.getPosition();
@@ -255,9 +235,6 @@ public class TomoSampleStageMotorHandler extends BaseMotorHandler implements ISa
 		ss1RzScannable.asynchronousMoveTo(ss1RzMoveToPosition);
 	}
 
-
-	
-
 	@Override
 	public void moveSampleScannable(IProgressMonitor monitor, final double moveToLocation) throws DeviceException,
 			InterruptedException {
@@ -282,8 +259,8 @@ public class TomoSampleStageMotorHandler extends BaseMotorHandler implements ISa
 	public void moveRotationMotorTo(IProgressMonitor monitor, double deg) throws DeviceException, InterruptedException {
 		// Dont call move motor for rotation motor because there is a GUI element on this. The IObserver will pick up
 		// the status and keep it on wait.
-		//XXX - Check
-//		motorsRunning.add(rotationScannable);
+		// XXX - Check
+		// motorsRunning.add(rotationScannable);
 		rotationScannable.asynchronousMoveTo(deg);
 		while (rotationScannable.isBusy()) {
 			tomoAlignmentViewController.setIsRotationMotorBusy(true);
@@ -291,7 +268,7 @@ public class TomoSampleStageMotorHandler extends BaseMotorHandler implements ISa
 			Thread.sleep(10);
 		}
 		tomoAlignmentViewController.setIsRotationMotorBusy(false);
-		//motorsRunning.remove(rotationScannable);
+		// motorsRunning.remove(rotationScannable);
 	}
 
 	@Override
@@ -356,8 +333,9 @@ public class TomoSampleStageMotorHandler extends BaseMotorHandler implements ISa
 	}
 
 	@Override
-	public void moveSs1Y2To(IProgressMonitor monitor, double position) throws DeviceException, InterruptedException {
-		moveMotor(monitor, ss1Y2Scannable, position);
+	public void moveVerticalBy(IProgressMonitor monitor, double position) throws DeviceException, InterruptedException {
+		// moveMotor(monitor, ss1Y2Scannable, position);
+		verticalMotorMotionHandler.moveVerticalMotorBy(monitor, position);
 	}
 
 	@Override
@@ -365,16 +343,10 @@ public class TomoSampleStageMotorHandler extends BaseMotorHandler implements ISa
 		return rotationScannable.getName();
 	}
 
-	
-
-
-
 	@Override
 	public double getSs1RzTolerance() {
 		return ss1RzScannable.getDemandPositionTolerance();
 	}
-
-	
 
 	public void setDefaultSampleInPosition(Double defaultSampleInPosition) {
 		this.defaultSampleInPosition = defaultSampleInPosition;
@@ -411,8 +383,8 @@ public class TomoSampleStageMotorHandler extends BaseMotorHandler implements ISa
 	}
 
 	@Override
-	public String getVerticalMotorName() {
-		return ss1Y2Scannable.getName();
+	public Map<String, Double> getVerticalMotorPositions() {
+		return verticalMotorMotionHandler.getVerticalMotorPositions();
 	}
 
 	@Override
@@ -434,9 +406,13 @@ public class TomoSampleStageMotorHandler extends BaseMotorHandler implements ISa
 	public String getSs1RxMotorName() {
 		return ss1RxScannable.getName();
 	}
-	
+
 	@Override
 	public void stopMotors() throws DeviceException {
 		stopAllMotors();
+	}
+
+	public void setVerticalMotorMotionHandler(IVerticalMotorMotionHandler verticalMotorMotionHandler) {
+		this.verticalMotorMotionHandler = verticalMotorMotionHandler;
 	}
 }

@@ -25,7 +25,6 @@ import gov.aps.jca.TimeoutException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -47,7 +46,6 @@ import org.eclipse.swt.graphics.RGB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.client.tomo.StatInfo;
 import uk.ac.gda.client.tomo.TiltPlotPointsHolder;
 import uk.ac.gda.client.tomo.TomoViewController;
 import uk.ac.gda.client.tomo.alignment.view.IRotationMotorListener;
@@ -65,16 +63,16 @@ import uk.ac.gda.client.tomo.alignment.view.handlers.IShutterHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ITiltController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ITomoConfigResourceHandler;
 import uk.ac.gda.client.tomo.alignment.view.utils.ScaleDisplay;
-import uk.ac.gda.client.tomo.composites.CameraControlComposite.RESOLUTION;
 import uk.ac.gda.client.tomo.composites.ModuleButtonComposite.CAMERA_MODULE;
-import uk.ac.gda.client.tomo.composites.MotionControlComposite.SAMPLE_WEIGHT;
+import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.RESOLUTION;
+import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.SAMPLE_WEIGHT;
 import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
 
 /**
  * The Tomography alignment view controller - this controller communicates with the EPICS model and updates the relevant
  * views.
  */
-public class TomoAlignmentViewController extends TomoViewController {
+public class TomoAlignmentController extends TomoViewController {
 
 	private ISampleStageMotorHandler sampleStageMotorHandler;
 
@@ -112,15 +110,11 @@ public class TomoAlignmentViewController extends TomoViewController {
 
 	private boolean darkImageSaved;
 
-	private final static DecimalFormat df = new DecimalFormat("#.##");
-
-	public static double MAX_INTENSITY = 65535;
-
 	private Set<ITomoAlignmentView> tomoalignmentViews = new HashSet<ITomoAlignmentView>();
 
 	private Set<IRotationMotorListener> rotationMotorListeners = new HashSet<IRotationMotorListener>();
 
-	private static final Logger logger = LoggerFactory.getLogger(TomoAlignmentViewController.class);
+	private static final Logger logger = LoggerFactory.getLogger(TomoAlignmentController.class);
 
 	private Thread prepareAlignmentThread;
 
@@ -253,29 +247,6 @@ public class TomoAlignmentViewController extends TomoViewController {
 		return cameraHandler.getTakeFlatNumImages();
 	}
 
-	/**
-	 * Flat fields to be reset - this may be invoked when the camera modules change on anything of the sort.
-	 * 
-	 * @throws Exception
-	 */
-	public void invalidateFlatField() throws Exception {
-		logger.debug("Flat fields needs to be reset");
-		for (ITomoAlignmentView av : tomoalignmentViews) {
-			av.resetAmplifier();
-		}
-	}
-
-	/**
-	 * @param exposureTime
-	 *            - the amplified exposure time
-	 * @param amplifiedValue
-	 * @throws Exception
-	 */
-	public void setExposureTime(final double exposureTime, final int amplifiedValue) throws Exception {
-		logger.debug("setting camera exposure time to -" + exposureTime);
-		cameraHandler.setExposureTime(exposureTime, amplifiedValue);
-	}
-
 	public void setPreferredSampleExposureTime(final double exposureTime) {
 		cameraHandler.setPreferredSampleExposureTime(exposureTime);
 	}
@@ -286,10 +257,11 @@ public class TomoAlignmentViewController extends TomoViewController {
 		return acqExposureRBV;
 	}
 
-	public void startAcquiring(final double acqTime, final int amplifiedValue) throws InvocationTargetException {
+	public void startAcquiring(final double acqTime, final boolean isAmplified, double lower, double upper)
+			throws InvocationTargetException {
 		logger.debug("Start acquisition request");
 		try {
-			cameraHandler.startAcquiring(acqTime, amplifiedValue);
+			cameraHandler.startAcquiring(acqTime, isAmplified, lower, upper);
 			iocDownException = null;
 		} catch (Exception e) {
 			iocDownException = e;
@@ -325,12 +297,6 @@ public class TomoAlignmentViewController extends TomoViewController {
 		}
 	}
 
-	public void updateAcqExposure(double acqExposure) {
-		for (ITomoAlignmentView av : tomoalignmentViews) {
-			av.updateExposureTimeToWidget(acqExposure);
-		}
-	}
-
 	public Future<Boolean> init() {
 		super.initialize();
 		ExecutorService executorService = Executors.newFixedThreadPool(3);
@@ -345,30 +311,28 @@ public class TomoAlignmentViewController extends TomoViewController {
 		@Override
 		public Boolean call() throws Exception {
 			try {
-				updateModuleButtonText(cameraModuleController.lookupHFOVUnit(),
+				updateModuleButtonText(cameraModuleController.lookupMagnificationUnit(),
 						getModuleButtonTextFromModuleLookupTable());
 				// adbase model values update
 				logger.debug("Set up all data fields - expected to be called only during initialization");
 				cameraHandler.init();
 				updateModuleSelected(getModule());
 
-				updateAcqExposure(cameraHandler.getAcqExposureRBV());
 				updatePreferredSampleExposureTime(cameraHandler.getPreferredSampleExposureTime());
+				cameraHandler.setPreferredFlatExposureTime(cameraHandler.getPreferredSampleExposureTime());
 				updatePreferredFlatExposureTime(cameraHandler.getPreferredFlatExposureTime());
 				updateAcquireState(cameraHandler.getAcquireState());
 				cameraHandler.disableFlatCorrection();
 
 				updateRotationDegree(sampleStageMotorHandler.getRotationMotorDeg());
 				updateProc1FlatFieldCorrection(cameraHandler.getProc1FlatFieldCorrection());
-				
-				updateStatInfo();
 
 				updateSampleInOutState(sampleStageMotorHandler.getSampleBaseMotorPosition());
 
 				updateEnergy(getEnergy());
 
 				updateResolutionPixelSize(getResolutionPixelSize(getModule()));
-				
+
 				Double cameraMotionMotorPosition = getCameraMotionMotorPosition();
 				if (cameraMotionMotorPosition != null) {
 					updateCameraMotionPosition(cameraMotionMotorPosition);
@@ -439,8 +403,8 @@ public class TomoAlignmentViewController extends TomoViewController {
 			HashMap<Integer, String> moduleBtnTextMap = new HashMap<Integer, String>();
 			for (CAMERA_MODULE module : CAMERA_MODULE.values()) {
 				if (module != CAMERA_MODULE.NO_MODULE) {
-					double lookupHFOV = cameraModuleController.lookupHFOV(module);
-					moduleBtnTextMap.put(module.getValue(), String.format("%.3g", lookupHFOV));
+					double lookupMagnification = cameraModuleController.lookupMagnification(module);
+					moduleBtnTextMap.put(module.getValue(), String.format("%.3g", lookupMagnification));
 				}
 			}
 			return moduleBtnTextMap;
@@ -453,15 +417,6 @@ public class TomoAlignmentViewController extends TomoViewController {
 			av.updateModuleButtonText(unitsToBeDisplayed, moduleButtonTextMap);
 		}
 
-	}
-
-	protected void updateStatInfo() throws Exception {
-		for (ITomoAlignmentView av : tomoalignmentViews) {
-			av.updateStatInfo(StatInfo.MAX, df.format(cameraHandler.getStatMax()));
-			av.updateStatInfo(StatInfo.MIN, df.format(cameraHandler.getStatMin()));
-			av.updateStatInfo(StatInfo.MEAN, df.format(cameraHandler.getStatMean()));
-			av.updateStatInfo(StatInfo.SIGMA, df.format(cameraHandler.getStatSigma()));
-		}
 	}
 
 	protected void updateModuleSelected(CAMERA_MODULE module) {
@@ -563,11 +518,7 @@ public class TomoAlignmentViewController extends TomoViewController {
 		try {
 			monitor.subTask("Move motors");
 			cameraModuleController.moveModuleTo(newModule, monitor);
-
-			Double lookupDefaultExposureTime = cameraModuleController.lookupDefaultExposureTime(newModule);
-			setExposureTime(lookupDefaultExposureTime, 1);
 			if (!monitor.isCanceled()) {
-				updateAdjustedPreferredExposureTime(lookupDefaultExposureTime);
 				updateModuleSelected(newModule);
 				updateResolutionPixelSize(getResolutionPixelSize(newModule));
 				updateResolution(RESOLUTION.FULL);
@@ -608,8 +559,7 @@ public class TomoAlignmentViewController extends TomoViewController {
 			// ObjectPixelSize * binValue gives the distance to move per pixel on the screen
 			double scale = objectPixelSize * cameraHandler.getRoi1BinValue();
 			double movement = -(difference.height) * scale;
-			double finalPosition = sampleStageMotorHandler.getVerticalPosition() + movement;
-			sampleStageMotorHandler.moveSs1Y2To(monitor, finalPosition);
+			sampleStageMotorHandler.moveVerticalBy(monitor, movement);
 		} catch (DeviceException e) {
 			logger.error("Exception when moving y2 motor", e.getMessage());
 			throw e;
@@ -762,11 +712,6 @@ public class TomoAlignmentViewController extends TomoViewController {
 		return cameraHandler.getPreferredSampleExposureTime();
 	}
 
-	public void setAmplifierUpdate(double exposureTime, int factor) throws Exception {
-		double newExpTime = exposureTime;
-		cameraHandler.setAmplifiedValue(newExpTime, factor);
-	}
-
 	public void stopMotors() throws DeviceException {
 		sampleStageMotorHandler.stopMotors();
 	}
@@ -799,30 +744,6 @@ public class TomoAlignmentViewController extends TomoViewController {
 		}
 		return imgData;
 
-	}
-
-	public void updateStatMax(double max) {
-		for (ITomoAlignmentView av : tomoalignmentViews) {
-			av.updateStatInfo(StatInfo.MAX, df.format(max));
-		}
-	}
-
-	public void updateStatMin(double min) {
-		for (ITomoAlignmentView av : tomoalignmentViews) {
-			av.updateStatInfo(StatInfo.MIN, df.format(min));
-		}
-	}
-
-	public void updateStatMean(double mean) {
-		for (ITomoAlignmentView av : tomoalignmentViews) {
-			av.updateStatInfo(StatInfo.MEAN, df.format(mean));
-		}
-	}
-
-	public void updateStatSigma(double sigma) {
-		for (ITomoAlignmentView av : tomoalignmentViews) {
-			av.updateStatInfo(StatInfo.SIGMA, df.format(sigma));
-		}
 	}
 
 	public TiltPlotPointsHolder doTiltAlignment(final IProgressMonitor monitor,
@@ -971,30 +892,15 @@ public class TomoAlignmentViewController extends TomoViewController {
 		this.sampleWeightRotationHandler = sampleWeightRotationHandler;
 	}
 
-	public void setAdjustedProc1ScaleValue(double from, double to) throws Exception {
+	public void setHistogramScaleOffsetValue(double acqTime, int lower, int upper, boolean isAmplified, double from,
+			double to) throws Exception {
 
-		double scaledValue = getScaledFactor(from, to);
+		double histogramFactor = getScaledFactor(from, to);
 
-		double proc1Scale = cameraHandler.getProc1Scale();
-		double newScale = scaledValue;
-
-		if (proc1Scale != 0) {
-			newScale = proc1Scale * scaledValue;
-		}
-		cameraHandler.setProc1ScaleValue(newScale);
+		cameraHandler.setAmplifiedValue(acqTime, isAmplified, lower, upper, histogramFactor);
 	}
 
 	private double getScaledFactor(double from, double to) {
-		// double scaledValue = (to - from) / (maxValue - minValue);
-		//
-		// scaledValue = scaledValue + 1;
-		//
-		// if (scaledValue < 0) {
-		// scaledValue = 0;
-		// } else if (scaledValue > 2) {
-		// scaledValue = 2;
-		// }
-
 		// slight guard
 		if (to < 0) {
 			to = 0.001;
@@ -1013,7 +919,8 @@ public class TomoAlignmentViewController extends TomoViewController {
 	 * 
 	 * @throws Exception
 	 */
-	public void applyHistogramToAdjustExposureTime() throws Exception {
+	public void applyHistogramToAdjustExposureTime(boolean isAmplified, double lower, double upper, double histoFrom,
+			double histoTo) throws Exception {
 		double exposureTime = getCameraExposureTime();
 
 		double proc1Scale = cameraHandler.getProc1Scale();
@@ -1024,22 +931,21 @@ public class TomoAlignmentViewController extends TomoViewController {
 		if (proc1Scale != 0) {
 			newExposureTime = newExposureTime * proc1Scale;
 		}
-
-		setProc1ScaleValue(1);
-
-		setExposureTime(newExposureTime, 1);
-
+		setExposureTime(newExposureTime, isAmplified, lower, upper, histoFrom, histoTo);
 		updateAdjustedPreferredExposureTime(newExposureTime);
+
 	}
 
-	public void setAdjustedExposureTime(double from, double to) throws Exception {
+	public void setAdjustedExposureTime(boolean isAmplified, double from, double to, int lower, int upper,
+			double histoFrom, double histoTo) throws Exception {
 		double scaledFactor = getScaledFactor(from, to);
 		double adjustedExposureTime = getCameraExposureTime();
 		if (scaledFactor != 0) {
 			adjustedExposureTime = adjustedExposureTime * scaledFactor;
 		}
 		updateAdjustedPreferredExposureTime(adjustedExposureTime);
-		setExposureTime(adjustedExposureTime, 1);
+		// FIXME -
+		setExposureTime(adjustedExposureTime, isAmplified, lower, upper, histoFrom, histoTo);
 	}
 
 	protected void updateAdjustedPreferredExposureTime(double preferredExposureTime) {
@@ -1048,20 +954,12 @@ public class TomoAlignmentViewController extends TomoViewController {
 		}
 	}
 
-	public void applyScalingContrast(double offset, double scale) throws Exception {
-		cameraHandler.applyScalingAndContrast(offset, scale);
-	}
-
 	public ITomoConfigResourceHandler getSaveHandler() {
 		return saveHandler;
 	}
 
 	public void setSaveHandler(ITomoConfigResourceHandler saveHandler) {
 		this.saveHandler = saveHandler;
-	}
-
-	public void setProc1ScaleValue(double scale) throws Exception {
-		cameraHandler.setProc1ScaleValue(scale);
 	}
 
 	/**
@@ -1101,15 +999,24 @@ public class TomoAlignmentViewController extends TomoViewController {
 		Double horizontalFieldOfView = cameraModuleController.lookupHFOV(CAMERA_MODULE.getEnum(saveableConfiguration
 				.getModuleNumber()));
 		saveableConfiguration.setModuleHorizontalFieldOfView(horizontalFieldOfView);
+
+		saveableConfiguration.setInBeamPosition(sampleStageMotorHandler.getSampleBaseMotorPosition());
+
+		saveableConfiguration.setOutOfBeamPosition(sampleStageMotorHandler.getSampleBaseMotorPosition()
+				+ sampleStageMotorHandler.getDistanceToMoveSampleOut());
 		// sample stage parameters
 		// basex
 		ArrayList<MotorPosition> motorPositions = saveableConfiguration.getMotorPositions();
 		// ss1_x
 		motorPositions.add(new MotorPosition(sampleStageMotorHandler.getSampleBaseMotorName(), sampleStageMotorHandler
 				.getSampleBaseMotorPosition()));
-		// ss1_y
-		motorPositions.add(new MotorPosition(sampleStageMotorHandler.getVerticalMotorName(), sampleStageMotorHandler
-				.getVerticalPosition()));
+		// Vertical Positions
+		Map<String, Double> verticalMotorPositions = sampleStageMotorHandler.getVerticalMotorPositions();
+
+		for (String motorName : verticalMotorPositions.keySet()) {
+			motorPositions.add(new MotorPosition(motorName, verticalMotorPositions.get(motorName)));
+		}
+
 		// ss1_tx
 		motorPositions.add(new MotorPosition(sampleStageMotorHandler.getCentreXMotorName(), sampleStageMotorHandler
 				.getSs1TxPosition()));
@@ -1149,4 +1056,33 @@ public class TomoAlignmentViewController extends TomoViewController {
 		saveHandler.saveConfiguration(monitor, saveableConfiguration);
 	}
 
+	public Integer getDetectorFullWidth() {
+		return cameraHandler.getFullImageWidth();
+	}
+
+	public int getScaledX() {
+		return getDetectorFullWidth() / getLeftWindowBinValue();
+	}
+
+	public int getScaledY() {
+		return cameraHandler.getFullImageHeight() / getLeftWindowBinValue();
+	}
+
+	public void setExposureTime(double actualExpTimeBeforeFactoring, boolean isAmplified, double lower, double upper,
+			double histogramFrom, double histogramTo) throws Exception {
+		cameraHandler.setAmplifiedValue(actualExpTimeBeforeFactoring, isAmplified, (int) lower, (int) upper,
+				getScaledFactor(histogramFrom, histogramTo));
+	}
+
+	public double[] getHistogramFromStats() throws Exception {
+		return cameraHandler.getHistogramData();
+	}
+
+	public void setupHistoStatCollection() throws Exception {
+		cameraHandler.setupHistoStatCollection();
+	}
+
+	public Double getDefaultExpTimeForModule(CAMERA_MODULE newModule) throws DeviceException {
+		return cameraModuleController.lookupDefaultExposureTime(newModule);
+	}
 }

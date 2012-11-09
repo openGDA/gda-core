@@ -24,7 +24,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.graphics.Point;
 
 import uk.ac.gda.client.tomo.TiffFileInfo;
-import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentViewController;
+import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraHandler;
 import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
 
@@ -32,18 +32,6 @@ import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
  *
  */
 public class TomoDetectorHandlerSimulator implements ICameraHandler {
-
-	@Override
-	public void setExposureTime(double exposureTime, int amplifierValue) throws Exception {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void startAcquiring(double acqTime, int amplifierValue) throws Exception {
-		// TODO Auto-generated method stub
-
-	}
 
 	@Override
 	public void stopAcquiring() throws DeviceException, Exception {
@@ -154,7 +142,7 @@ public class TomoDetectorHandlerSimulator implements ICameraHandler {
 	}
 
 	@Override
-	public void setViewController(TomoAlignmentViewController tomoAlignmentViewController) {
+	public void setViewController(TomoAlignmentController tomoAlignmentViewController) {
 		// TODO Auto-generated method stub
 
 	}
@@ -259,12 +247,6 @@ public class TomoDetectorHandlerSimulator implements ICameraHandler {
 	public Integer getRoi2BinX() throws Exception {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	@Override
-	public void setAmplifiedValue(double newExpTime, int factor) throws Exception {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -382,21 +364,34 @@ public class TomoDetectorHandlerSimulator implements ICameraHandler {
 	}
 
 	@Override
-	public void setProc1ScaleValue(double scaledValue) throws Exception {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public double getProc1Scale() throws Exception {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public void applyScalingAndContrast(double offset, double scale) throws Exception {
+	public double[] getHistogramData() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void startAcquiring(double acqTime, boolean isAmplified, double lower, double upper) throws Exception {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void setupHistoStatCollection() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setAmplifiedValue(double acqTime, boolean isAmplified, int lower, int upper, double scaledFactor)
+			throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

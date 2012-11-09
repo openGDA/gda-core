@@ -22,16 +22,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.draw2d.ArrowButton;
+import org.eclipse.draw2d.BorderLayout;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.FigureCanvas;
 import org.eclipse.draw2d.IFigure;
-import org.eclipse.draw2d.InputEvent;
 import org.eclipse.draw2d.Label;
 import org.eclipse.draw2d.LineBorder;
 import org.eclipse.draw2d.MouseEvent;
 import org.eclipse.draw2d.MouseListener;
 import org.eclipse.draw2d.Panel;
-import org.eclipse.draw2d.XYLayout;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
@@ -40,13 +39,16 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
+import uk.ac.gda.client.tomo.ImageConstants;
+import uk.ac.gda.client.tomo.TomoClientActivator;
+
 /**
  * Triangle buttons used in the Tomography view to represent 90° rotations.
  */
 public class RotationButtonComposite extends Composite {
 	private static final Color BUSY_COLOUR = ColorConstants.yellow;
 	private static final Color DIABLED_COLOUR = ColorConstants.gray;
-	private static final Color READY_COLOUR = ColorConstants.darkGreen;
+	private static final Color READY_COLOUR = ColorConstants.listBackground;
 	private final int direction;
 	private FigureCanvas figCanvas;
 	private ArrowButton arrowButton;
@@ -74,7 +76,7 @@ public class RotationButtonComposite extends Composite {
 		@Override
 		public void mouseReleased(MouseEvent me) {
 			if (ctrlPressRequired) {
-				if ((me.getState() & InputEvent.CONTROL) == 0) {
+				if ((me.getState() & SWT.CONTROL) == 0) {
 					return;
 				}
 			}
@@ -124,9 +126,8 @@ public class RotationButtonComposite extends Composite {
 		this.lblText = lblText;
 		this.ctrlPressRequired = ctrlPressRequired;
 		GridLayout layout = new GridLayout();
-		// layout.verticalSpacing = 1;
-		// layout.marginWidth = 2;
 		layout.marginHeight = 0;
+		layout.marginWidth = 0;
 		setLayout(layout);
 		this.setBackground(ColorConstants.white);
 		figCanvas = new FigureCanvas(this);
@@ -134,13 +135,14 @@ public class RotationButtonComposite extends Composite {
 		figCanvas.getViewport().setContentsTracksHeight(true);
 		figCanvas.getViewport().setContentsTracksWidth(true);
 		figCanvas.setLayoutData(new GridData(GridData.FILL_BOTH));
-		figCanvas.setBorder(new LineBorder(2));
+		figCanvas.setBorder(new LineBorder(1));
 	}
 
 	private IFigure getContents() {
 		IFigure panel = new Panel();
-		panel.setLayoutManager(new ButtonLayout());
+		BorderLayout lm = new BorderLayout();
 
+		panel.setLayoutManager(lm);
 		arrowButton = new ArrowButton(direction);
 		arrowButton.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_HAND));
 		arrowButton.setBackgroundColor(ColorConstants.white);
@@ -149,8 +151,16 @@ public class RotationButtonComposite extends Composite {
 		lbl.setBackgroundColor(ColorConstants.black);
 		lbl.setForegroundColor(ColorConstants.black);
 		setTriangleColor(READY_COLOUR);
+
+		Label imgLblFigure = new Label(TomoClientActivator.getDefault().getImageRegistry()
+				.get(ImageConstants.ICON_CTRL_BTN));
+		panel.setBackgroundColor(ColorConstants.white);
+		panel.add(imgLblFigure);
+		panel.setConstraint(imgLblFigure, BorderLayout.TOP);
+		
 		arrowButton.add(lbl);
 		panel.add(arrowButton);
+		panel.setConstraint(arrowButton, BorderLayout.CENTER);
 		lbl.addMouseListener(mousePressListener);
 		return panel;
 	}
@@ -159,14 +169,6 @@ public class RotationButtonComposite extends Composite {
 		Object object = arrowButton.getChildren().get(0);
 		if (object instanceof IFigure) {
 			((IFigure) object).setBackgroundColor(color);
-		}
-	}
-
-	private class ButtonLayout extends XYLayout {
-		@Override
-		public void layout(IFigure parent) {
-			super.layout(parent);
-			arrowButton.setSize(parent.getSize());
 		}
 	}
 

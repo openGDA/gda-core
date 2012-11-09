@@ -20,8 +20,8 @@ package uk.ac.gda.client.tomo.alignment.view.controller;
 
 import java.util.ArrayList;
 
-import uk.ac.gda.client.tomo.composites.CameraControlComposite.RESOLUTION;
-import uk.ac.gda.client.tomo.composites.MotionControlComposite.SAMPLE_WEIGHT;
+import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.RESOLUTION;
+import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.SAMPLE_WEIGHT;
 
 /**
  *
@@ -74,6 +74,10 @@ public class SaveableConfiguration {
 	private ArrayList<MotorPosition> motorPositions = new ArrayList<SaveableConfiguration.MotorPosition>();
 
 	private int tomoRotationAxis;
+
+	private double inBeamPosition;
+
+	private double outOfBeamPosition;
 
 	public static class MotorPosition {
 		private String name;
@@ -385,6 +389,22 @@ public class SaveableConfiguration {
 
 	public int getTomoRotationAxis() {
 		return tomoRotationAxis;
+	}
+
+	public void setInBeamPosition(double sampleBaseMotorPosition) {
+		this.inBeamPosition = sampleBaseMotorPosition;
+	}
+	
+	public double getInBeamPosition() {
+		return inBeamPosition;
+	}
+
+	public void setOutOfBeamPosition(double outOfBeamPosition) {
+		this.outOfBeamPosition = outOfBeamPosition;
+	}
+
+	public double getOutOfBeamPosition() {
+		return outOfBeamPosition;
 	}
 
 }

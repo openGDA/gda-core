@@ -31,11 +31,7 @@ import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.PointList;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -237,28 +233,6 @@ public class FullImageComposite extends FixedImageViewerComposite {
 		crossWireVertical1.setVisible(false);
 		feedbackFigure.add(crossWireVertical1);
 
-		// Cross hair menu
-		Menu crossHairMenu = new Menu(getCanvas());
-		final MenuItem crossHairMenuItem = new MenuItem(crossHairMenu, SWT.PUSH);
-		crossHairMenuItem.setText(SHOW_CROSSHAIR);
-		crossHairMenuItem.addSelectionListener(new SelectionAdapter() {
-			private boolean crossHairVisible = false;
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if (crossHairVisible) {
-					hideCrossWire2();
-					crossHairMenuItem.setText(SHOW_CROSSHAIR);
-					crossHairVisible = false;
-				} else {
-					showCrossWire2();
-					crossHairMenuItem.setText(HIDE_CROSSHAIR);
-					crossHairVisible = true;
-				}
-			}
-
-		});
-		getCanvas().setMenu(crossHairMenu);
 	}
 
 	private class LinePointMouseListener implements MouseMotionListener, MouseListener {

@@ -36,7 +36,7 @@ public class ScaleBarComposite extends Composite {
 
 	@Override
 	public Point computeSize(int wHint, int hHint, boolean changed) {
-		return new Point(scaleWidth, 5);
+		return new Point(scaleWidth, 12);
 	}
 
 	/**

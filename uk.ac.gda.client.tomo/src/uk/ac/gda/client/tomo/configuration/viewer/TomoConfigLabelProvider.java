@@ -17,6 +17,8 @@
  */
 package uk.ac.gda.client.tomo.configuration.viewer;
 
+import java.util.Calendar;
+
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.jface.viewers.ITableColorProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
@@ -28,6 +30,7 @@ import uk.ac.gda.client.tomo.ImageConstants;
 import uk.ac.gda.client.tomo.TomoClientActivator;
 
 public class TomoConfigLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider {
+
 	@Override
 	public Image getColumnImage(Object element, int columnIndex) {
 		boolean isChecked = false;
@@ -59,7 +62,7 @@ public class TomoConfigLabelProvider extends LabelProvider implements ITableLabe
 			TomoConfigContent configContent = (TomoConfigContent) element;
 			if (TomoConfigTableConstants.COL_DRAG == columnIndex) {
 				return "::";
-			}else if (TomoConfigTableConstants.COL_PROPOSAL == columnIndex) {
+			} else if (TomoConfigTableConstants.COL_PROPOSAL == columnIndex) {
 				return configContent.getProposalId();
 			} else if (TomoConfigTableConstants.COL_SAMPLE_DESCRIPTION == columnIndex) {
 				return configContent.getSampleDescription();
@@ -82,11 +85,21 @@ public class TomoConfigLabelProvider extends LabelProvider implements ITableLabe
 			} else if (TomoConfigTableConstants.COL_CONTINUOUS_STEP == columnIndex) {
 				return configContent.getScanMode();
 			} else if (TomoConfigTableConstants.COL_RUN_TIME == columnIndex) {
-				return configContent.getRunTime();
+				double runTime = configContent.getRunTime();
+				int hours = (int) (runTime / 3600); // since both are ints, you get an int
+				int minutes = (int) ((runTime / 60) % 60);
+				int seconds = (int) (runTime % 60);
+				return String.format("%d:%02d:%02d", hours, minutes, seconds);
 			} else if (TomoConfigTableConstants.COL_EST_END_TIME == columnIndex) {
-				return configContent.getEstEndTime();
+				double estEndTime = configContent.getEstEndTime();
+				if (estEndTime == 0) {
+					return "";
+				}
+				Calendar now = Calendar.getInstance();
+				now.add(Calendar.SECOND, (int) estEndTime);
+				return String.format("%02d:%02d", now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE));
 			} else if (TomoConfigTableConstants.COL_TIME_DIVIDER == columnIndex) {
-				return configContent.getTimeDivider();
+				return Double.toString(configContent.getTimeDivider());
 			} else if (TomoConfigTableConstants.COL_PROGRESS == columnIndex) {
 				return Double.toString(configContent.getProgress()) + " %";
 			}

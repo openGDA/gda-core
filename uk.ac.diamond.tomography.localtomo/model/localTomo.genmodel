@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/uk.ac.diamond.tomography.localtomo/src"
+    modelPluginID="uk.ac.diamond.tomography.localtomo" modelName="LocalTomo" importerID="org.eclipse.xsd.ecore.importer"
+    complianceLevel="6.0" copyrightFields="false">
+  <foreignModel>localTomo.xsd</foreignModel>
+  <genPackages prefix="LocalTomo" basePackage="uk.ac.diamond.tomography" resource="XML"
+      disposableProviderFactory="true" ecorePackage="LocalTomo.ecore#/">
+    <genClasses ecoreClass="LocalTomo.ecore#//BeamlineType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference LocalTomo.ecore#//BeamlineType/ixx"/>
+    </genClasses>
+    <genClasses ecoreClass="LocalTomo.ecore#//ClusterType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference LocalTomo.ecore#//ClusterType/qsub"/>
+    </genClasses>
+    <genClasses ecoreClass="LocalTomo.ecore#//DocumentRoot">
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//DocumentRoot/mixed"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference LocalTomo.ecore#//DocumentRoot/xMLNSPrefixMap"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference LocalTomo.ecore#//DocumentRoot/xSISchemaLocation"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference LocalTomo.ecore#//DocumentRoot/localTomo"/>
+    </genClasses>
+    <genClasses ecoreClass="LocalTomo.ecore#//FilenameFmtType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//FilenameFmtType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//FilenameFmtType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="LocalTomo.ecore#//ImagekeyencodingType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//ImagekeyencodingType/darkfield"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//ImagekeyencodingType/flatfield"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//ImagekeyencodingType/projection"/>
+    </genClasses>
+    <genClasses ecoreClass="LocalTomo.ecore#//ImgkeyNXSPathType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//ImgkeyNXSPathType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//ImgkeyNXSPathType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="LocalTomo.ecore#//IxxType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//IxxType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//IxxType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="LocalTomo.ecore#//LocalTomoType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference LocalTomo.ecore#//LocalTomoType/beamline"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference LocalTomo.ecore#//LocalTomoType/tomodo"/>
+    </genClasses>
+    <genClasses ecoreClass="LocalTomo.ecore#//NexusfileType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference LocalTomo.ecore#//NexusfileType/shutterNXSPath"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference LocalTomo.ecore#//NexusfileType/stagePosNXSPath"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference LocalTomo.ecore#//NexusfileType/stageRotNXSPath"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference LocalTomo.ecore#//NexusfileType/tifNXSPath"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference LocalTomo.ecore#//NexusfileType/imgkeyNXSPath"/>
+    </genClasses>
+    <genClasses ecoreClass="LocalTomo.ecore#//QsubType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//QsubType/projectname"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//QsubType/args"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//QsubType/sinoqueue"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//QsubType/reconqueue"/>
+    </genClasses>
+    <genClasses ecoreClass="LocalTomo.ecore#//SettingsfileType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//SettingsfileType/blueprint"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//SettingsfileType/settingsDirPostfix"/>
+    </genClasses>
+    <genClasses ecoreClass="LocalTomo.ecore#//ShutterClosedPhysType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//ShutterClosedPhysType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//ShutterClosedPhysType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="LocalTomo.ecore#//ShutterNXSPathType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//ShutterNXSPathType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//ShutterNXSPathType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="LocalTomo.ecore#//ShutterOpenPhysType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//ShutterOpenPhysType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//ShutterOpenPhysType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="LocalTomo.ecore#//ShutterType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference LocalTomo.ecore#//ShutterType/shutterOpenPhys"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference LocalTomo.ecore#//ShutterType/shutterClosedPhys"/>
+    </genClasses>
+    <genClasses ecoreClass="LocalTomo.ecore#//StagePosNXSPathType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//StagePosNXSPathType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//StagePosNXSPathType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="LocalTomo.ecore#//StageRotNXSPathType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//StageRotNXSPathType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//StageRotNXSPathType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="LocalTomo.ecore#//TifimageType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference LocalTomo.ecore#//TifimageType/filenameFmt"/>
+    </genClasses>
+    <genClasses ecoreClass="LocalTomo.ecore#//TifNXSPathType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//TifNXSPathType/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//TifNXSPathType/info"/>
+    </genClasses>
+    <genClasses ecoreClass="LocalTomo.ecore#//TomodoType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference LocalTomo.ecore#//TomodoType/shutter"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference LocalTomo.ecore#//TomodoType/tifimage"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference LocalTomo.ecore#//TomodoType/nexusfile"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference LocalTomo.ecore#//TomodoType/settingsfile"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference LocalTomo.ecore#//TomodoType/imagekeyencoding"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference LocalTomo.ecore#//TomodoType/cluster"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute LocalTomo.ecore#//TomodoType/segmentsToRemoveRelativeToNexusForOutdir"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>

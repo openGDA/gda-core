@@ -30,4 +30,8 @@ public interface ITomoConfigContent {
 	double getSampleDetectorDistance();
 	
 	String getSampleDescription();
+
+	boolean isSelectedToRun();
+
+	double getRunTime();
 }

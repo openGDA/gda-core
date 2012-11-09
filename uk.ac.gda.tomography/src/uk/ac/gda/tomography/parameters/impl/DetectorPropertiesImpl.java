@@ -105,7 +105,7 @@ public class DetectorPropertiesImpl extends EObjectImpl implements DetectorPrope
 	 * @generated
 	 * @ordered
 	 */
-	protected static final Integer ACQUISITION_TIME_DIVIDER_EDEFAULT = null;
+	protected static final double ACQUISITION_TIME_DIVIDER_EDEFAULT = 1.0;
 
 	/**
 	 * The cached value of the '{@link #getAcquisitionTimeDivider() <em>Acquisition Time Divider</em>}' attribute.
@@ -115,7 +115,7 @@ public class DetectorPropertiesImpl extends EObjectImpl implements DetectorPrope
 	 * @generated
 	 * @ordered
 	 */
-	protected Integer acquisitionTimeDivider = ACQUISITION_TIME_DIVIDER_EDEFAULT;
+	protected double acquisitionTimeDivider = ACQUISITION_TIME_DIVIDER_EDEFAULT;
 
 	/**
 	 * This is true if the Acquisition Time Divider attribute has been set.
@@ -308,7 +308,7 @@ public class DetectorPropertiesImpl extends EObjectImpl implements DetectorPrope
 	 * @generated
 	 */
 	@Override
-	public Integer getAcquisitionTimeDivider() {
+	public double getAcquisitionTimeDivider() {
 		return acquisitionTimeDivider;
 	}
 
@@ -317,9 +317,8 @@ public class DetectorPropertiesImpl extends EObjectImpl implements DetectorPrope
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	@Override
-	public void setAcquisitionTimeDivider(Integer newAcquisitionTimeDivider) {
-		Integer oldAcquisitionTimeDivider = acquisitionTimeDivider;
+	public void setAcquisitionTimeDivider(double newAcquisitionTimeDivider) {
+		double oldAcquisitionTimeDivider = acquisitionTimeDivider;
 		acquisitionTimeDivider = newAcquisitionTimeDivider;
 		boolean oldAcquisitionTimeDividerESet = acquisitionTimeDividerESet;
 		acquisitionTimeDividerESet = true;
@@ -334,7 +333,7 @@ public class DetectorPropertiesImpl extends EObjectImpl implements DetectorPrope
 	 */
 	@Override
 	public void unsetAcquisitionTimeDivider() {
-		Integer oldAcquisitionTimeDivider = acquisitionTimeDivider;
+		double oldAcquisitionTimeDivider = acquisitionTimeDivider;
 		boolean oldAcquisitionTimeDividerESet = acquisitionTimeDividerESet;
 		acquisitionTimeDivider = ACQUISITION_TIME_DIVIDER_EDEFAULT;
 		acquisitionTimeDividerESet = false;
@@ -706,7 +705,7 @@ public class DetectorPropertiesImpl extends EObjectImpl implements DetectorPrope
 				setNumberOfFramerPerProjection((Integer)newValue);
 				return;
 			case TomoParametersPackage.DETECTOR_PROPERTIES__ACQUISITION_TIME_DIVIDER:
-				setAcquisitionTimeDivider((Integer)newValue);
+				setAcquisitionTimeDivider((Double)newValue);
 				return;
 			case TomoParametersPackage.DETECTOR_PROPERTIES__DETECTOR_ROI:
 				setDetectorRoi((DetectorRoi)newValue);

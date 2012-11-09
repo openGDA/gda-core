@@ -42,10 +42,13 @@ import uk.ac.gda.client.tomo.alignment.view.ImageLocationRelTheta;
 public class StitchedImageCanvas extends Canvas {
 
 	private Image screenImage;
+	@SuppressWarnings("unused")
 	private double scaleX;
+	@SuppressWarnings("unused")
 	private double scaleY;
 
 	private static final Logger logger = LoggerFactory.getLogger(StitchedImageCanvas.class);
+	@SuppressWarnings("unused")
 	private List<StitchConfig> stitchConfig;
 	private final ImageLocationRelTheta imgLocRelTheta;
 	private ArrayList<StitchConfig> stitchConfigs = new ArrayList<StitchedImageCanvas.StitchConfig>(1);
@@ -70,6 +73,7 @@ public class StitchedImageCanvas extends Canvas {
 	}
 
 	/* Paint function */
+	@SuppressWarnings("unused")
 	private void paint(GC gc) {
 		Rectangle clientRect = getClientArea();
 		if (!stitchConfigs.isEmpty()) {

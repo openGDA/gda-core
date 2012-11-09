@@ -142,6 +142,7 @@ public interface DetectorProperties extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Acquisition Time Divider</b></em>' attribute.
+	 * The default value is <code>"1"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Acquisition Time Divider</em>' attribute isn't clear,
@@ -151,12 +152,12 @@ public interface DetectorProperties extends EObject {
 	 * @return the value of the '<em>Acquisition Time Divider</em>' attribute.
 	 * @see #isSetAcquisitionTimeDivider()
 	 * @see #unsetAcquisitionTimeDivider()
-	 * @see #setAcquisitionTimeDivider(Integer)
+	 * @see #setAcquisitionTimeDivider(double)
 	 * @see uk.ac.gda.tomography.parameters.TomoParametersPackage#getDetectorProperties_AcquisitionTimeDivider()
-	 * @model unsettable="true" required="true"
+	 * @model default="1" unsettable="true" required="true"
 	 * @generated
 	 */
-	Integer getAcquisitionTimeDivider();
+	double getAcquisitionTimeDivider();
 
 	/**
 	 * Sets the value of the '{@link uk.ac.gda.tomography.parameters.DetectorProperties#getAcquisitionTimeDivider <em>Acquisition Time Divider</em>}' attribute.
@@ -168,7 +169,7 @@ public interface DetectorProperties extends EObject {
 	 * @see #getAcquisitionTimeDivider()
 	 * @generated
 	 */
-	void setAcquisitionTimeDivider(Integer value);
+	void setAcquisitionTimeDivider(double value);
 
 	/**
 	 * Unsets the value of the '{@link uk.ac.gda.tomography.parameters.DetectorProperties#getAcquisitionTimeDivider <em>Acquisition Time Divider</em>}' attribute.
@@ -176,7 +177,7 @@ public interface DetectorProperties extends EObject {
 	 * <!-- end-user-doc -->
 	 * @see #isSetAcquisitionTimeDivider()
 	 * @see #getAcquisitionTimeDivider()
-	 * @see #setAcquisitionTimeDivider(Integer)
+	 * @see #setAcquisitionTimeDivider(double)
 	 * @generated
 	 */
 	void unsetAcquisitionTimeDivider();
@@ -188,7 +189,7 @@ public interface DetectorProperties extends EObject {
 	 * @return whether the value of the '<em>Acquisition Time Divider</em>' attribute is set.
 	 * @see #unsetAcquisitionTimeDivider()
 	 * @see #getAcquisitionTimeDivider()
-	 * @see #setAcquisitionTimeDivider(Integer)
+	 * @see #setAcquisitionTimeDivider(double)
 	 * @generated
 	 */
 	boolean isSetAcquisitionTimeDivider();

@@ -78,6 +78,7 @@ public class TomoScanController implements ITomoScanController {
 		ArrayList<Double> timeDividerList = new ArrayList<Double>();
 		ArrayList<Double> positionOfBaseAtFlatList = new ArrayList<Double>();
 		ArrayList<Double> positionOfBaseInBeamList = new ArrayList<Double>();
+		ArrayList<Integer> tomoRotationAxisList = new ArrayList<Integer>();
 
 		for (AlignmentConfiguration alignmentConfiguration : configurationSet) {
 			if (alignmentConfiguration.getSelectedToRun()) {
@@ -113,6 +114,7 @@ public class TomoScanController implements ITomoScanController {
 					// 5. isContinuousScan, 6. desiredResolution, 7. timeDivider, 8. positionOfBaseAtFlat,
 					// 9. positionOfBaseInBeam, 10. mapOfScannablesTobeAddedAsMetaData):
 					double sampleAcq = alignmentConfiguration.getSampleExposureTime();
+					double timeDivider = alignmentConfiguration.getDetectorProperties().getAcquisitionTimeDivider();
 					double flatAcq = alignmentConfiguration.getFlatExposureTime();
 					int numFramesPerPr = alignmentConfiguration.getDetectorProperties()
 							.getNumberOfFramerPerProjection();
@@ -120,7 +122,6 @@ public class TomoScanController implements ITomoScanController {
 					String isContinuous = isContinuousScan ? "True" : "False";
 					int desiredResolution = getDesiredResolution(alignmentConfiguration.getDetectorProperties()
 							.getDesired3DResolution());
-					double timeDivider = 1.0;
 					double positionOfBaseAtFlat = alignmentConfiguration.getOutOfBeamPosition();
 					double positionOfBaseInBeam = alignmentConfiguration.getInBeamPosition();
 
@@ -133,8 +134,7 @@ public class TomoScanController implements ITomoScanController {
 					timeDividerList.add(timeDivider);
 					positionOfBaseAtFlatList.add(positionOfBaseAtFlat);
 					positionOfBaseInBeamList.add(positionOfBaseInBeam);
-					int tomoAxisOfRotation = alignmentConfiguration.getTomoRotationAxis();
-
+					tomoRotationAxisList.add(alignmentConfiguration.getTomoRotationAxis());
 				} catch (Exception e) {
 					logger.error("TODO put description of error here", e);
 				}
@@ -144,10 +144,10 @@ public class TomoScanController implements ITomoScanController {
 		// numberOfFramesPerProjection, numberofProjections,
 		// isContinuousScan, desiredResolution, timeDivider, positionOfBaseAtFlat, positionOfBaseInBeam
 		String setupTomoScanCmd = String
-				.format("tomoAlignment.tomographyConfigurationManager.setupTomoScan(%1$d, %2$s, %3$s, %4$s, %5$s, %6$s, %7$s, %8$s, %9$s, %10$s, %11$s, %12$s, %13$s, %14$s)",
+				.format("tomoAlignment.tomographyConfigurationManager.setupTomoScan(%1$d, %2$s, %3$s, %4$s, %5$s, %6$s, %7$s, %8$s, %9$s, %10$s, %11$s, %12$s, %13$s, %14$s, %15$s)",
 						length, configIds, descriptions, moduleNumbers, motorMoveMaps, sampleAcqTimeList,
 						flatAcqTimesList, numFramesPerPrList, numProjList, isContinuousList, desiredResolutionList,
-						timeDividerList, positionOfBaseAtFlatList, positionOfBaseInBeamList);
+						timeDividerList, positionOfBaseAtFlatList, positionOfBaseInBeamList, tomoRotationAxisList);
 		logger.debug("Setup:{}", setupTomoScanCmd);
 		JythonServerFacade.getInstance().runCommand(setupTomoScanCmd);
 	}
@@ -238,7 +238,7 @@ public class TomoScanController implements ITomoScanController {
 			isInitialised = true;
 		}
 	}
-	
+
 	@Override
 	public void stopScan() {
 		InterfaceProvider.getCommandRunner().evaluateCommand(TomoClientConstants.TOMOGRAPHY_STOP_SCAN);

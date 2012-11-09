@@ -21,6 +21,7 @@ package uk.ac.gda.client.tomo.composites;
 import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,8 +68,13 @@ public class ZoomedImageComposite extends FixedImageViewerComposite {
 	public void loadMainImage(final ImageData imageDataIn) {
 		try {
 			if (!getCanvas().isDisposed()) {
-				
-				final Image newImage = new Image(getCanvas().getDisplay(), imageDataIn.scaledTo(728, 728));
+				Rectangle bounds = getCanvas().getBounds();
+				int sqx = bounds.width;
+				if (bounds.height < sqx) {
+					sqx = bounds.height;
+				}
+
+				final Image newImage = new Image(getCanvas().getDisplay(), imageDataIn);//.scaledTo(sqx, sqx));
 				if (!getCanvas().isDisposed()) {
 					if (mainImage != null && !mainImage.isDisposed()) {
 						mainImage.dispose();

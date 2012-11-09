@@ -52,7 +52,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentViewController;
+import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentController;
 import uk.ac.gda.client.tomo.composites.FixedImageViewerComposite;
 import uk.ac.gda.client.tomo.composites.RotationSliderComposite;
 import uk.ac.gda.client.tomo.composites.RotationSliderComposite.SliderSelectionListener;
@@ -85,7 +85,7 @@ public class AlignmentConfigSaveDialog extends Dialog {
 
 	private FormToolkit toolkit;
 
-	private final TomoAlignmentViewController tomoAlignmentViewController;
+	private final TomoAlignmentController tomoAlignmentViewController;
 
 	private TomoCoarseRotationComposite coarseRotation;
 
@@ -102,7 +102,7 @@ public class AlignmentConfigSaveDialog extends Dialog {
 	private static final Color ENABLED = ColorConstants.lightGray;
 	private static final Color DISABLED = ColorConstants.darkGray;
 
-	protected AlignmentConfigSaveDialog(Shell parentShell, TomoAlignmentViewController tomoAlignmentViewController,
+	protected AlignmentConfigSaveDialog(Shell parentShell, TomoAlignmentController tomoAlignmentViewController,
 			MotionJpegOverHttpReceiverSwt leftVideoReceiver) {
 		super(parentShell);
 		this.tomoAlignmentViewController = tomoAlignmentViewController;

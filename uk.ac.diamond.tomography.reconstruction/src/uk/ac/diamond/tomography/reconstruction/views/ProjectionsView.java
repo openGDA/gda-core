@@ -69,6 +69,9 @@ import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.diamond.scisoft.analysis.io.TIFFImageLoader;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
+import uk.ac.diamond.tomography.localtomo.LocalTomoType;
+import uk.ac.diamond.tomography.localtomo.TifNXSPathType;
+import uk.ac.diamond.tomography.localtomo.util.LocalTomoUtil;
 import uk.ac.diamond.tomography.reconstruction.Activator;
 import uk.ac.diamond.tomography.reconstruction.ReconUtil;
 import uk.ac.gda.ui.components.IStepperSelectionListener;
@@ -77,6 +80,8 @@ import uk.ac.gda.ui.components.StepperChangedEvent;
 
 public class ProjectionsView extends ViewPart implements ISelectionListener {
 
+	private static final String UPDATING_DATA = "Updating data";
+	private static final String PROJECTIONS_PLOT = "Projections Plot";
 	private static final String FILE_NAME = "File name";
 	public static final String ID = "uk.ac.diamond.tomography.reconstruction.view.projection";
 
@@ -236,7 +241,7 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 		} catch (Exception e) {
 
 		}
-		plottingSystem.createPlotPart(plotComposite, "Projections Plot", getViewSite().getActionBars(), PlotType.IMAGE,
+		plottingSystem.createPlotPart(plotComposite, PROJECTIONS_PLOT, getViewSite().getActionBars(), PlotType.IMAGE,
 				this);
 		createMouseFollowLineRegion();
 
@@ -264,7 +269,7 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 	private int position = -1;
 
 	private void doCreateRefreshJob() {
-		refreshJob = new UIJob(getViewSite().getShell().getDisplay(), "Updating data") {
+		refreshJob = new UIJob(getViewSite().getShell().getDisplay(), UPDATING_DATA) {
 
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
@@ -294,8 +299,9 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 					});
 					logger.debug(dataset.getName());
 				} else {
-//					throw new IllegalArgumentException("Unable to find dataset");
-					showErrorMessage("Error while displaying projections", new IllegalArgumentException("Unable to find dataset"));
+					// throw new IllegalArgumentException("Unable to find dataset");
+					showErrorMessage("Error while displaying projections", new IllegalArgumentException(
+							"Unable to find dataset"));
 				}
 
 				return Status.OK_STATUS;
@@ -409,7 +415,15 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 		DataHolder loadFile;
 		try {
 			loadFile = hdf5Loader.loadFile();
-			dataset = loadFile.getLazyDataset("/entry1/pco1_hw_tif/image_data");
+
+			LocalTomoType localTomoObject = LocalTomoUtil.getLocalTomoObject();
+
+			if (localTomoObject != null) {
+				TifNXSPathType tifNXSPath = localTomoObject.getTomodo().getNexusfile().getTifNXSPath();
+				dataset = loadFile.getLazyDataset(tifNXSPath.getValue());
+				//dataset = loadFile.getLazyDataset("/entry1/instrument/pco1_hw_tif/image_data");
+			}
+
 			if (dataset != null) {
 				int[] shape = dataset.getShape();
 				slicingStepper.setSteps(shape[0]);

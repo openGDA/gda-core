@@ -88,7 +88,7 @@ image_key_project = 0 # also known as sample
 perform a simple tomography scan
 """
 def tomoScan(inBeamPosition, outOfBeamPosition, exposureTime=1., start=0., stop=180., step=0.1, darkFieldInterval=0, flatFieldInterval=0,
-              imagesPerDark=5, imagesPerFlat=5, optimizeBeamInterval=0, additionalScannables=[]):
+              imagesPerDark=10, imagesPerFlat=10, optimizeBeamInterval=0, additionalScannables=[]):
     """
     Function to collect a tomogram
     Arguments:
@@ -100,8 +100,8 @@ def tomoScan(inBeamPosition, outOfBeamPosition, exposureTime=1., start=0., stop=
     step - rotation step size (default = 0.1)
     darkFieldInterval - number of projections between each dark-field sub-sequence. NOTE: at least 1 dark is ALWAYS taken both at the start and end of a tomogram (default=0: use this value if you DON'T want to take any darks between projections)
     flatFieldInterval - number of projections between each flat-field sub-sequence. NOTE: at least 1 flat is ALWAYS taken both at the start and end of a tomogram (default=0: use this value if you DON'T want to take any flats between projections)
-    imagesPerDark - number of images to be taken for each dark-field sub-sequence (default=5)
-    imagesPerFlat - number of images to be taken for each flat-field sub-sequence (default=5)
+    imagesPerDark - number of images to be taken for each dark-field sub-sequence (default=10)
+    imagesPerFlat - number of images to be taken for each flat-field sub-sequence (default=10)
     
     General scan sequence is: D, F, P,..., P, F, D
     where D stands for dark field, F - for flat field, and P - for projection.
@@ -179,8 +179,8 @@ def tomoScan(inBeamPosition, outOfBeamPosition, exposureTime=1., start=0., stop=
             index = index + 1        
         scan_points.append((theta_pos, shutterOpen, inBeamPosition, optimizeBeamNo, image_key_project, index)) #first
         index = index + 1        
-        imageSinceDark = 0
-        imageSinceFlat = 0
+        imageSinceDark = 1
+        imageSinceFlat = 1
         optimizeBeam = 0
         for i in range(numberSteps):
             theta_pos = theta_points[i + 1]
