@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+	
+	<class name="uk.ac.gda.server.ncd.beans.TemperatureProfileParameters">
+		<map-to xml="TemperatureProfile" />
+<!--		<field name="name" type="string">
+			<bind-xml name="name" node="element" />
+		</field>-->
+		<field name="Ramp" type="gda.device.TemperatureRamp"
+			collection="collection" set-method="addTemperatureRamp" get-method="getTemperatureRampList">
+			<bind-xml name="Ramp" node="element"/>
+		</field>
+ 	</class>
+
+	<class name="gda.device.TemperatureRamp">
+		<map-to xml="Ramp" />
+		<field name="rampNumber" type="integer">
+			<bind-xml name="rampNumber" node="element" />
+		</field>
+		<field name="startTemperature" type="double">
+			<bind-xml name="startTemperature" node="element" />
+		</field>
+		<field name="endTemperature" type="double">
+			<bind-xml name="endTemperature" node="element" />
+		</field>
+		<field name="rate" type="double">
+			<bind-xml name="rate" node="element" />
+		</field>
+		<field name="dwellTime" type="double">
+			<bind-xml name="dwellTime" node="element" />
+		</field>
+		<field name="coolingSpeed" type="integer">
+			<bind-xml name="coolingSpeed" node="element" />
+		</field>
+ 	</class>
+
+</mapping>

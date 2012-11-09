@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+	
+	<class name="uk.ac.gda.server.ncd.beans.CalibrationLabels">
+		<map-to xml="CalibrationLabels" />
+		<field name="name" type="string">
+			<bind-xml name="name" node="element" />
+		</field>
+ 		<field name="calibLabel" type="uk.ac.gda.server.ncd.beans.CalibLabel"
+			collection="collection" set-method="addCalibLabel" get-method="getCalibrationLabels">
+			<bind-xml name="calibLabel" node="element"/>
+		</field>
+ 	</class>
+
+	<class name="uk.ac.gda.server.ncd.beans.CalibLabel">
+		<map-to xml="calibLabel" />
+		<field name="channel" type="string">
+			<bind-xml name="channel" node="element" />
+		</field>
+		<field name="source" type="string">
+			<bind-xml name="source" node="element" />
+		</field>
+ 	</class>
+
+</mapping>
