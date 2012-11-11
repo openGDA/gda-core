@@ -18,7 +18,10 @@
 
 package gda.rcp.ncd.views;
 
+import javax.measure.quantity.Length;
+
 import org.eclipse.swt.widgets.Composite;
+import org.jscience.physics.amount.Amount;
 
 import uk.ac.diamond.scisoft.ncd.rcp.views.NcdQAxisCalibration;
 
@@ -39,13 +42,13 @@ public class QAxisCalibration extends NcdQAxisCalibration {
 		return null;
 	}
 	@Override
-	protected Double getLambda() {
+	protected Amount<Length> getLambda() {
 		// TODO Auto-generated method stub
 		return super.getLambda();
 	}
 	
 	@Override
-	protected Double getPixel(boolean b) {
+	protected Amount<Length> getPixel(boolean b) {
 		// TODO Auto-generated method stub
 		return super.getPixel(b);
 	}
