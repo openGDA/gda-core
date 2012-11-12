@@ -57,7 +57,7 @@ public class XmapI1MonitorView extends ViewPart implements Runnable, IPartListen
 
 	protected volatile boolean runMonitoring = false;
 	protected volatile boolean keepOnTrucking = true;
-	protected volatile double refreshRate = 1.0; // seconds
+	protected volatile double refreshRate = 0.1; // seconds
 
 	protected boolean amVisible = true;
 	protected XmapI1MonitorViewData displayData;
@@ -161,7 +161,7 @@ public class XmapI1MonitorView extends ViewPart implements Runnable, IPartListen
 				try {
 					i1 = updateValues();
 					xmapStats = getXmapCountRatesAndDeadTimes();
-				} catch (DeviceException e1) {
+				} catch (Exception e1) {
 					logger.error(e1.getMessage(), e1);
 					runMonitoring = false;
 					continue;
@@ -196,11 +196,11 @@ public class XmapI1MonitorView extends ViewPart implements Runnable, IPartListen
 
 		double rate = xmapStats[0]; // Hz
 		double dt = (xmapStats[1] - 1) * 100; // %
-		Double FF = xmapStats[0];
+		Double FF = xmapStats[2] * xmapStats[1];
 		displayData.setDeadTime(dt);
-		displayData.setRate(rate);
-		displayData.setTotalCounts(FF);
-		displayData.setFFI1(xmapStats[2] / i1);
+		displayData.setFF(FF);
+		displayData.setICR(rate);
+		displayData.setFFI1(FF / i1);
 	}
 
 	protected Double[] getXmapCountRatesAndDeadTimes() throws DeviceException {
@@ -208,7 +208,7 @@ public class XmapI1MonitorView extends ViewPart implements Runnable, IPartListen
 		return (Double[]) xmap.getAttribute("liveStats");
 	}
 
-	protected Double updateValues() throws DeviceException {
+	protected Double updateValues() throws Exception {
 
 		String xmapName = LocalProperties.get("gda.exafs.xmapName", "xmapMca");
 		XmapDetector xmap = (XmapDetector) Finder.getInstance().find(xmapName);
@@ -222,9 +222,11 @@ public class XmapI1MonitorView extends ViewPart implements Runnable, IPartListen
 				xmap.collectData();
 				ionchambers.setCollectionTime(1);
 				ionchambers.collectData();
+				ionchambers.waitWhileBusy();
+				xmap.stop();
 			}
 			xmap.waitWhileBusy();
-			ionchambers.waitWhileBusy();
+//			Thread.sleep(200);
 		} catch (InterruptedException e) {
 			throw new DeviceException(e);
 		}
@@ -241,7 +243,14 @@ public class XmapI1MonitorView extends ViewPart implements Runnable, IPartListen
 
 		double[] ion_results = (double[]) ionchambers.readout();
 		Double collectionTime = (Double) ionchambers.getAttribute("collectionTime");
-		return ion_results[0] /= collectionTime;
+		int dataCol = 0;
+		for (int i  = 0; i < ionchambers.getExtraNames().length; i++){
+			String extraName = ionchambers.getExtraNames()[i];
+			if (extraName.equalsIgnoreCase("i1")){
+				dataCol = i;
+			}
+		}
+		return ion_results[dataCol] /= collectionTime;
 	}
 
 	@Override
