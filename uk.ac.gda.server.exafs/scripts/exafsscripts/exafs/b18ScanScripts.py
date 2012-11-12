@@ -1,7 +1,5 @@
 from BeamlineParameters import JythonNameSpaceMapping
 
-from exafsscripts.exafs.setupBeamline import setup,finish
-
 from gda.configuration.properties import LocalProperties
 from gda.data import PathConstructor
 from gda.data.scan.datawriter import XasAsciiDataWriter, NexusExtraMetadataDataWriter

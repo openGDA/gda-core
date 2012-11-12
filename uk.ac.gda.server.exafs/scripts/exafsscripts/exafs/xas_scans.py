@@ -41,25 +41,81 @@ from uk.ac.gda.beans.exafs import XesScanParameters, SignalParameters
 from gdascripts.messages.handle_messages import simpleLog
 from exafsscripts.exafs.setupBeamline import setup,finish
 
+def qexafs (sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, scanNumber= -1, validation=True):
 
-def estimateXas(scanFileName, nosOfScans=1, timeEstimation=False):
-    """
-    Returns how many points would result from a given XAS XML file.
-    """
-    scanBean = BeansFactory.getBeanObject(ExafsEnvironment().getScriptFolder(), scanFileName)
-    points = ExafsScanPointCreator.calculateEnergies(scanBean)
-    # TODO Get time from points if timeEstimation==True
-    return len(points)
+   xmlFolderName = ExafsEnvironment().getScriptFolder() + folderName + "/"
+   
+   # Create the beans from the file names
+   sampleBean = BeansFactory.getBeanObject(xmlFolderName, sampleFileName)
+   # this should be the qexafs bean
+   scanBean = BeansFactory.getBeanObject(xmlFolderName, scanFileName)
+   detectorBean = BeansFactory.getBeanObject(xmlFolderName, detectorFileName)
+   outputBean = BeansFactory.getBeanObject(xmlFolderName, outputFileName)
+    
+   finder_mapper = FinderNameMapping()
+   jython_mapper = JythonNameSpaceMapping()
+   controller = Finder.getInstance().find("ExafsScriptObserver")
+    
+   # give the beans to the xasdatawriter class to help define the folders/filenames 
+   beanGroup = BeanGroup()
+   beanGroup.setController(controller)
+   beanGroup.setScriptFolder(xmlFolderName)
+   beanGroup.setExperimentFolderName(folderName)
+   beanGroup.setScanNumber(scanNumber)
+   beanGroup.setSample(sampleBean)
+   beanGroup.setDetector(detectorBean)
+   beanGroup.setOutput(outputBean)
+   beanGroup.setScan(scanBean)
+   
+   XasAsciiDataWriter.setBeanGroup(beanGroup)
 
+   # work out which detectors to use (they will need to have been configured already by the GUI)
+   detectorList = getQEXAFSDetectors(beanGroup.getDetector(), beanGroup.getOutput(), beanGroup.getScan()) 
+   print "detectors to be used:", str(detectorList)
+   
+   # set up the sample 
+   temp = setup(beanGroup)
+   
+   # no signal parameters
+   if len(outputBean.getCheckedSignalList()) > 0:
+       print "Signal parameters not available with QEXAFS"
+   
+   
+   # energy controller
+   energyController = jython_mapper.qexafs_energy
+#    if energyController == None:
+#        energyController = jython_mapper.qexafs_energy
+   if energyController == None:
+       raise "No object for controlling energy during QEXAFS found! Expected qexafs_energy (or scannable1 for testing)"
+   
+   
+   initial_energy = scanBean.getInitialEnergy()
+   final_energy = scanBean.getFinalEnergy()
+   step_size = scanBean.getStepSize()
+   import math
+   numberPoints = int(math.ceil((final_energy-initial_energy)/step_size))
+   
+           
+   # run the script held in outputparameters
+   scriptName = beanGroup.getOutput().getBeforeScriptName()
+   if scriptName != None and scriptName != "":
+       scriptName = scriptName[scriptName.rfind("/") + 1:]
+       run(scriptName)           
 
-def estimateXanes(scanFileName, nosOfScans=1, timeEstimation=False):
-    """
-    Returns how many points would result from a given XANES XML file.
-    """
-    scanBean = BeansFactory.getBeanObject(ExafsEnvironment().getScriptFolder(), scanFileName)
-    points = XanesScanPointCreator.calculateEnergies(scanBean)
-    # TODO Get time from points if timeEstimation==True
-    return len(points)
+   print "running QEXAFS scan:", energyController.getName(), scanBean.getInitialEnergy(), scanBean.getFinalEnergy(), numberPoints, scanBean.getTime(), detectorList
+   
+   controller.update(None, ScriptProgressEvent("Running QEXAFS scan"))
+   thisscan = ContinuousScan(energyController, scanBean.getInitialEnergy(), scanBean.getFinalEnergy(), numberPoints, scanBean.getTime(), detectorList)
+
+   controller.update(None,ScanCreationEvent(thisscan.getName()))
+   thisscan.runScan()  
+   controller.update(None,ScanFinishEvent(thisscan.getName(),ScanFinishEvent.FinishType.OK));
+
+   
+   scriptName = beanGroup.getOutput().getAfterScriptName()
+   if scriptName != None and scriptName != "":
+       scriptName = scriptName[scriptName.rfind("/") + 1:]
+       run(scriptName)
 
 def xes (sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, numRepetitions= 1, validation=True):
     

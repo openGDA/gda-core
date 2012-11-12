@@ -17,8 +17,6 @@ from uk.ac.gda.beans import BeansFactory
 from java.io import File
 from gda.device.detector.xspress import XspressDetector
 from gda.device.detector.xspress import ResGrades
-#import rastermap.rastermap
-#import microfocus.microfocus_elements
 from gdascripts.messages import handle_messages
 from gda.jython.commands import ScannableCommands
 from BeamlineParameters import JythonNameSpaceMapping
@@ -26,30 +24,11 @@ from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
 from gda.device.scannable import ScannableUtils
 rootnamespace = {}
 def map (sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, scanNumber= -1, validation=True):
-    #print globals()
-    """
-    main map data collection command. 
-    usage:-
-    
-    map sampleFileName scanFileName detectorFileName outputFileName [experiment name (_script)] [scan index (1)] [validation required (True)]
-    
-    """
-    print detectorFileName
+
     origScanPlotSettings = LocalProperties.check("gda.scan.useScanPlotSettings")
     
-    if False:# Turn on debugging here
-        print "Values sent to script:"
-        print "sampleFileName", sampleFileName
-        print "scanFileName", scanFileName
-        print "detectorFileName", detectorFileName
-        print "outputFileName", outputFileName
-        print "folderName", folderName
-        print "scanNumber", scanNumber
-        print "validation", validation
-
-     # Create the beans from the file names
     xmlFolderName = MicroFocusEnvironment().getScriptFolder() + folderName + "/"
-    # Create the beans from the file names
+
     if(sampleFileName == None or sampleFileName == 'None'):
         sampleBean = None
     else:
@@ -61,9 +40,7 @@ def map (sampleFileName, scanFileName, detectorFileName, outputFileName, folderN
         return
     detectorBean = BeansFactory.getBeanObject(xmlFolderName, detectorFileName)
     outputBean   = BeansFactory.getBeanObject(xmlFolderName, outputFileName)
-     
-    # give the beans to the xasdatawriter class to help define the folders/filenames 
-   
+
     beanGroup = BeanGroup()
     beanGroup.setController(Finder.getInstance().find("ExafsScriptObserver"))
     beanGroup.setScriptFolder(xmlFolderName)
@@ -79,27 +56,16 @@ def map (sampleFileName, scanFileName, detectorFileName, outputFileName, folderN
     XasAsciiDataWriter.setBeanGroup(beanGroup)
     handle_messages.simpleLog("XasAsciiDataWriter.setBeanGroup(beanGroup)")
       
-    # work out which detectors to use (they will need to have been configured already by the GUI)
-    #sendinf None for scanbean , this does not set the dead time calculation energy for Xspress
     detectorList = getDetectors(detectorBean, outputBean, None) 
     handle_messages.simpleLog("detectorList")
     print detectorList
-    # set up the sample 
+
     setupForMap(beanGroup)
     handle_messages.simpleLog("setupForMap")
     
-    # extract any signal parameters to add to the scan command
-    #signalParameters = getSignalList(outputBean)
     finder = Finder.getInstance()
     dataWriter = finder.find("DataWriterFactory")
-    #nx = abs(scanBean.getXEnd() - scanBean.getXStart()) / scanBean.getXStepSize()
-    #ny = abs(scanBean.getYEnd() - scanBean.getYStart()) / scanBean.getYStepSize()
-    
-  
-    #print "number of x points is ", str(nx)
-    #print "number of y points is ", str(ny)
-    # Determine no of points
-    
+
     scannablex = Finder.getInstance().find(scanBean.getXScannableName())
     scannabley = Finder.getInstance().find(scanBean.getYScannableName())
     
@@ -111,14 +77,7 @@ def map (sampleFileName, scanFileName, detectorFileName, outputFileName, folderN
     
     nx = ScannableUtils.getNumberSteps(scannablex,scanBean.getXStart(), scanBean.getXEnd(),scanBean.getXStepSize()) + 1
     ny = ScannableUtils.getNumberSteps(scannabley,scanBean.getYStart(), scanBean.getYEnd(),scanBean.getYStepSize()) + 1
-    
 
-    
-    #nx = ScannableUtils.getNumberSteps(Finder.getInstance().find(scanBean.getXScannableName()),scanBean.getXStart(), scanBean.getXEnd(),scanBean.getXStepSize()) + 1
-    #ny = ScannableUtils.getNumberSteps(Finder.getInstance().find(scanBean.getYScannableName()),scanBean.getYStart(), scanBean.getYEnd(),scanBean.getYStepSize()) + 1
-    
-    
-    
     print "number of x points is ", str(nx)
     print "number of y points is ", str(ny)
     energyList = [scanBean.getEnergy()]
@@ -126,7 +85,6 @@ def map (sampleFileName, scanFileName, detectorFileName, outputFileName, folderN
     for energy in energyList:
         mfd = MicroFocusWriterExtender(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize())
         zScannable = Finder.getInstance().find(scanBean.getZScannableName())
-        ##put the data writer in the globals to retreive the plot and spectrum info later from the gui
         globals()["microfocusScanWriter"] = mfd
         mfd.setPlotName("MapPlot")
         print " the detector is " 
@@ -138,24 +96,14 @@ def map (sampleFileName, scanFileName, detectorFileName, outputFileName, folderN
             mfd.setDetectors(array(detectorList, gda.device.Detector))
         else:   
             detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
-            #should get the bean file name from detector parametrs
             if(folderName != None):
                 detectorBeanFileName =MicroFocusEnvironment().getScriptFolder()+File.separator +folderName +File.separator+detectorBean.getFluorescenceParameters().getConfigFileName()
             else:
                 detectorBeanFileName =MicroFocusEnvironment().getScriptFolder()+detectorBean.getFluorescenceParameters().getConfigFileName()
             print detectorBeanFileName
             elements = showElementsList(detectorBeanFileName)
-            ##this should be the element selected in the gui
             selectedElement = elements[0]
             mfd.setRoiNames(array(elements, java.lang.String))
-           # if(detectorType == "Silicon"):
-             #   detectorBeanFileName = System.getProperty("gda.config")+ "/templates/Vortex_Parameters.xml"
-             #   mfd.setRoiNames(array(showElementsList(detectorBeanFileName), java.lang.String))
-           #     selectedElement = "Pb"
-           # else:
-           #     detectorBeanFileName = System.getProperty("gda.config")+ "/templates/Xspress_Parameters.xml"
-          #      mfd.setRoiNames(array(showElementsList(detectorBeanFileName), java.lang.String))
-          #      selectedElement = "Pb"
             mfd.setDetectorBeanFileName(detectorBeanFileName)
             bean = BeansFactory.getBean(File(detectorBeanFileName))   
             detector = finder.find(bean.getDetectorName())   
@@ -190,22 +138,18 @@ def map (sampleFileName, scanFileName, detectorFileName, outputFileName, folderN
         energyScannable = Finder.getInstance().find(scanBean.getEnergyScannableName())
         
         print "energy is ", str(energy)
-        print "energy scannable is " 
-        #print energyScannable  
+
         print detectorList
         energyScannable.moveTo(energy) 
         print zScannable
         if(zScannablePos != None):
             zScannable.moveTo(zScannablePos)
-        ##in mf scans collection time is in seconds  consistent with xas scans
         scanBean.setCollectionTime(scanBean.getCollectionTime())
         args=[yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),  xScannable, scanBean.getXStart(), scanBean.getXEnd(),  scanBean.getXStepSize()]
         
-        #if(detectorBean.getExperimentType() == "Fluorescence" and detectorBean.getFluorescenceParameters().getDetectorType() == "Germanium" and useFrames):
         if(detectorBean.getExperimentType() == "Fluorescence" and useFrames):
             args+= detectorList
             counterTimer01.clearFrameSets()
-            #collection time in the scan bean is in seconds
             print "setting the collection time for frames as ", str(scanBean.getCollectionTime()*1000.0)
             counterTimer01.addFrameSet(int(nx),1.0E-4,scanBean.getCollectionTime()*1000.0,0,7,-1,0)
         else:
@@ -237,7 +181,7 @@ def finish():
     detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
     remove_default(beam)
     remove_default(detectorFillingMonitor)
-    #pass
+
 def setupForMap(beanGroup):
     if beanGroup.getDetector().getExperimentType() == "Fluorescence":
         if (beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium" ):
@@ -252,7 +196,7 @@ def setupForMap(beanGroup):
             BeansFactory.saveBean(File(fullFileName), bean)
         configFluoDetector(beanGroup)
     scan = beanGroup.getScan()
-    #collection time from the gui is in seconds
+
     collectionTime = scan.getCollectionTime()
     command_server = Finder.getInstance().find("command_server")    
     topupMonitor = command_server.getFromJythonNamespace("topupMonitor", None)    
@@ -275,7 +219,7 @@ def setupForMap(beanGroup):
         detectorFillingMonitor.setPauseBeforeLine(False)
         detectorFillingMonitor.setCollectionTime(collectionTime)
     trajBeamMonitor.setActive(False)
-    ##set the file name for the output parameters
+
     outputBean=beanGroup.getOutput()
     sampleParameters = beanGroup.getSample()
     outputBean.setAsciiFileName(sampleParameters.getName())
@@ -322,7 +266,6 @@ def redefineNexusMetadataForMaps(beanGroup):
     NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("sc_sample_thetafine", str(jython_mapper.sc_sample_thetafine()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXsample_stage, "Sample_Stage"))
 
     #attenustors
-    
     NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("D7A", str(jython_mapper.D7A()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXattenuator, "Attenuators"))
     NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("D7B", str(jython_mapper.D7B()), EntryTypes.NXinstrument, NXinstrumentSubTypes.NXattenuator, "Attenuators"))
 
@@ -340,7 +283,4 @@ class MicroFocusEnvironment:
     def getScannable(self):
         if MicroFocusEnvironment.testScannable != None:
             return MicroFocusEnvironment.testScannable
-        # The scannable name is defined in the XML when not in testing mode.
-        # Therefore the scannable argument is omitted from the bean
-  
         return None

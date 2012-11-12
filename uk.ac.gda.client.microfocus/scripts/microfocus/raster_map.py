@@ -25,40 +25,20 @@ from gda.device.scannable import ScannableUtils
 from gda.data.scan.datawriter import TwoDScanRowReverser
 from gda.data.scan.datawriter import XasAsciiNexusDatapointCompletingDataWriter
 from gda.device.scannable import ScannableUtils
-#import microfocus.microfocus_elements
+
 rootnamespace = {}
+
 def rastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, scanNumber= -1, validation=True):
-    """
-    main map data collection command. 
-    usage:-
-    
-    map sampleFileName scanFileName detectorFileName outputFileName [experiment name (_script)] [scan index (1)] [validation required (True)]
-    
-    """
-    
-    print "running rastermap.py"
-    
+
     origScanPlotSettings = LocalProperties.check("gda.scan.useScanPlotSettings")
     print detectorFileName
     origScanPlotSettings = LocalProperties.check("gda.scan.useScanPlotSettings")
-    if False:# Turn on debugging here
-        print "Values sent to script:"
-        print "sampleFileName", sampleFileName
-        print "scanFileName", scanFileName
-        print "detectorFileName", detectorFileName
-        print "outputFileName", outputFileName
-        print "folderName", folderName
-        print "scanNumber", scanNumber
-        print "validation", validation
-
-    # Create the beans from the file names
+ 
     xmlFolderName = MicroFocusEnvironment().getScriptFolder() + folderName + "/"
-    # Create the beans from the file names
     if(sampleFileName == None or sampleFileName == 'None'):
         sampleBean = None
     else:
         sampleBean   = BeansFactory.getBeanObject(xmlFolderName, sampleFileName)
-        #sampleBean = None
         
     scanBean     = BeansFactory.getBeanObject(xmlFolderName, scanFileName)
     detectorBean = BeansFactory.getBeanObject(xmlFolderName, detectorFileName)
@@ -68,8 +48,7 @@ def rastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, f
     #    vortexRastermap(sampleFileName, scanFileName, detectorFileName, outputFileName, folderName, scanNumber, validation)
     #    return
     outputBean   = BeansFactory.getBeanObject(xmlFolderName, outputFileName)
-     
-    # give the beans to the xasdatawriter class to help define the folders/filenames 
+
     beanGroup = BeanGroup()
     beanGroup.setController(Finder.getInstance().find("ExafsScriptObserver"))
     beanGroup.setScriptFolder(xmlFolderName)
@@ -84,24 +63,13 @@ def rastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, f
     beanGroup.setScan(scanBean)
     XasAsciiDataWriter.setBeanGroup(beanGroup)
     
-      
-    # work out which detectors to use (they will need to have been configured already by the GUI)
-    #sendinf None for scanbean , this does not set the dead time calculation energy for Xspress
     detectorList = getDetectors(detectorBean, outputBean, None) 
-   
-    # set up the sample 
+
     print "about to setup"
     setupForRaster(beanGroup)
     print "after setup of raster"
-    # extract any signal parameters to add to the scan command
-    #signalParameters = getSignalList(outputBean)
-    finder = Finder.getInstance()
     dataWriter = finder.find("DataWriterFactory")
-    #nx = abs(scanBean.getXEnd() - scanBean.getXStart()) / scanBean.getXStepSize()
-    #ny = abs(scanBean.getYEnd() - scanBean.getYStart()) / scanBean.getYStepSize()
-    
-  #
-    # Determine no of points
+
     nx = ScannableUtils.getNumberSteps(Finder.getInstance().find(scanBean.getXScannableName()),scanBean.getXStart(), scanBean.getXEnd(),scanBean.getXStepSize()) + 1
     ny = ScannableUtils.getNumberSteps(Finder.getInstance().find(scanBean.getYScannableName()),scanBean.getYStart(), scanBean.getYEnd(),scanBean.getYStepSize()) + 1
     print "number of x points is ", str(nx)
@@ -119,24 +87,14 @@ def rastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, f
             mfd.setDetectors(array(detectorList, gda.device.Detector))
         else:   
             detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
-            #should get the bean file name from detector parametrs
             if(folderName != None):
                 detectorBeanFileName =MicroFocusEnvironment().getScriptFolder()+File.separator +folderName +File.separator+detectorBean.getFluorescenceParameters().getConfigFileName()
             else:
                 detectorBeanFileName =MicroFocusEnvironment().getScriptFolder()+detectorBean.getFluorescenceParameters().getConfigFileName()
             print detectorBeanFileName
             elements = showElementsList(detectorBeanFileName)
-            ##this should be the element selected in the gui
             selectedElement = elements[0]
             mfd.setRoiNames(array(elements, java.lang.String))
-           # if(detectorType == "Silicon"):
-             #   detectorBeanFileName = System.getProperty("gda.config")+ "/templates/Vortex_Parameters.xml"
-             #   mfd.setRoiNames(array(showElementsList(detectorBeanFileName), java.lang.String))
-           #     selectedElement = "Pb"
-           # else:
-           #     detectorBeanFileName = System.getProperty("gda.config")+ "/templates/Xspress_Parameters.xml"
-          #      mfd.setRoiNames(array(showElementsList(detectorBeanFileName), java.lang.String))
-          #      selectedElement = "Pb"
             mfd.setDetectorBeanFileName(detectorBeanFileName)
             bean = BeansFactory.getBean(File(detectorBeanFileName))   
             detector = finder.find(bean.getDetectorName())   
@@ -149,12 +107,8 @@ def rastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, f
             mfd.getWindowsfromBean()
         mfd.setEnergyValue(energy)
         mfd.setZValue(zScannablePos)
-        #mfd.setNormalise(True)
-        #mfd.setNormaliseElement("I0")
-        #dataWriter.addDataWriterExtender(mfd)
         xScannable = finder.find(scanBean.getXScannableName())
         yScannable = finder.find(scanBean.getYScannableName())
-        ##useFrames = LocalProperties.check("gda.microfocus.scans.useFrames")
         useFrames = False
         energyScannable = Finder.getInstance().find(scanBean.getEnergyScannableName())
         zScannable = Finder.getInstance().find(scanBean.getZScannableName())
@@ -162,33 +116,17 @@ def rastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, f
         print detectorList
         energyScannable.moveTo(energy) 
         zScannable.moveTo(zScannablePos)
-        #=======================================================================
-        # args=[yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),  xScannable, scanBean.getXStart(), scanBean.getXEnd(),  scanBean.getXStepSize(),energyScannable, zScannable]
-        # args+= detectorList
-        # if(useFrames):
-        #    noOfXPoints = (scanBean.getXEnd() - scanBean.getXStart()) + 1
-        #    counterTimer01.addFrameSet(noOfXPoints,0.0001,scanBean.getCollectionTime(),0,0,-1,0)
-        # else:        
-        #    args.append(scanBean.getCollectionTime())
-        # print args
-        #=======================================================================
         scanStart = time.asctime()
         try:
             numberPoints = abs(scanBean.getXEnd()- scanBean.getXStart())/scanBean.getXStepSize()
-            ##ContinuousScan(trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [raster_xspress,]).runScan();##rowTIme in the Scan bean is in seconds
-            detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
             
+            detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
             
             if(detectorType == "Silicon"):                
                 cs = ContinuousScan(trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [raster_counterTimer01, raster_xmap]) 
                 xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),cs,realX])
                 xmapRasterscan.getScanPlotSettings().setIgnore(1)
                 xasWriter = XasAsciiNexusDatapointCompletingDataWriter()
-                #rowR = TwoDScanRowReverser()
-                #rowR.setNoOfColumns(nx)
-                #rowR.setNoOfRows(ny)
-                #rowR.setReverseOdd(True)
-                #xasWriter.setIndexer(rowR)
                 xasWriter.addDataWriterExtender(mfd)
                 xmapRasterscan.setDataWriter(xasWriter)
                 xmapRasterscan.runScan()
@@ -201,7 +139,6 @@ def rastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, f
                 xspressRasterscan.setDataWriter(xasWriter)
                 xspressRasterscan.runScan()
 
-
         finally:
             scanEnd = time.asctime()
             if(origScanPlotSettings):
@@ -210,15 +147,13 @@ def rastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, f
                 LocalProperties.set("gda.scan.useScanPlotSettings", "false")
             handle_messages.simpleLog("map start time " + str(scanStart))
             handle_messages.simpleLog("map end time " + str(scanEnd))
-            #dataWriter.removeDataWriterExtender(mfd)
             finish()
 
 def setupForRaster(beanGroup):
     
     print "setting up raster scan"
     rasterscan = beanGroup.getScan()
-    print "collection time is " , str(rasterscan.getRowTime())   
-    ##rowtime from the gui is in seconds
+    print "collection time is " , str(rasterscan.getRowTime())
     collectionTime = rasterscan.getRowTime()
     print "1setting collection time to" , str(collectionTime)  
     command_server = Finder.getInstance().find("command_server")    
@@ -250,7 +185,6 @@ def setupForRaster(beanGroup):
             rois = element.getRegionList();
             element.setWindow(rois.get(0).getRegionStart(), rois.get(0).getRegionEnd())
         BeansFactory.saveBean(File(fullFileName), bean)
-    ##set the file name for the output parameters
     outputBean=beanGroup.getOutput()
     sampleParameters = beanGroup.getSample()
     outputBean.setAsciiFileName(sampleParameters.getName())
@@ -277,7 +211,6 @@ def finish():
     detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
     remove_default(beam)
     remove_default(detectorFillingMonitor)
-    #pass
 
 class MicroFocusEnvironment:
     testScriptFolder=None
@@ -291,7 +224,4 @@ class MicroFocusEnvironment:
     def getScannable(self):
         if MicroFocusEnvironment.testScannable != None:
             return MicroFocusEnvironment.testScannable
-        # The scannable name is defined in the XML when not in testing mode.
-        # Therefore the scannable argument is omitted from the bean
-  
         return None
