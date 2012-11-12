@@ -149,7 +149,7 @@ public class ScalersMonitorView extends MonitorViewBase {
 	}
 
 	@Override
-	protected Double[] getIonChamberValues() throws DeviceException {
+	protected Double[] getIonChamberValues() throws Exception {
 
 		String xspressName = LocalProperties.get("gda.exafs.xspressName", "xspress2system");
 		XspressDetector xspress = (XspressDetector) Finder.getInstance().find(xspressName);
@@ -157,18 +157,18 @@ public class ScalersMonitorView extends MonitorViewBase {
 		CounterTimer ionchambers = (CounterTimer) Finder.getInstance().find(ionchambersName);
 
 		// only collect new data outside of scans else will readout the last data collected
-		try {
-			if (JythonServerFacade.getInstance().getScanStatus() == Jython.IDLE && !xspress.isBusy()
-					&& !ionchambers.isBusy()) {
-				xspress.collectData();
-				ionchambers.setCollectionTime(1);
-				ionchambers.collectData();
-			}
+		if (JythonServerFacade.getInstance().getScanStatus() == Jython.IDLE && !xspress.isBusy()
+				&& !ionchambers.isBusy()) {
+			xspress.collectData();
+			ionchambers.setCollectionTime(1);
+			ionchambers.collectData();
+
 			xspress.waitWhileBusy();
 			ionchambers.waitWhileBusy();
-		} catch (InterruptedException e) {
-			// ignore
+		} else {
+			throw new Exception("Scan and/or detectors already running, so stop the loop");
 		}
+
 
 		// read the latest frame
 		int currentFrame = ionchambers.getCurrentFrame();

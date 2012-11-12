@@ -162,8 +162,14 @@ public class XmapI1MonitorView extends ViewPart implements Runnable, IPartListen
 					i1 = updateValues();
 					xmapStats = getXmapCountRatesAndDeadTimes();
 				} catch (Exception e1) {
-					logger.error(e1.getMessage(), e1);
-					runMonitoring = false;
+					logger.debug(e1.getMessage(), e1);
+					setRunMonitoring(false);
+					PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							btnRunPause.setImageDescriptor(runImage);
+						}
+					});
 					continue;
 				}
 
@@ -216,20 +222,18 @@ public class XmapI1MonitorView extends ViewPart implements Runnable, IPartListen
 		CounterTimer ionchambers = (CounterTimer) Finder.getInstance().find(ionchambersName);
 
 		// only collect new data outside of scans else will readout the last data collected
-		try {
-			if (JythonServerFacade.getInstance().getScanStatus() == Jython.IDLE && !xmap.isBusy()
-					&& !ionchambers.isBusy()) {
-				xmap.collectData();
-				ionchambers.setCollectionTime(1);
-				ionchambers.collectData();
-				ionchambers.waitWhileBusy();
-				xmap.stop();
-			}
+		if (JythonServerFacade.getInstance().getScanStatus() == Jython.IDLE && !xmap.isBusy()
+				&& !ionchambers.isBusy()) {
+			xmap.collectData();
+			ionchambers.setCollectionTime(1);
+			ionchambers.collectData();
+			ionchambers.waitWhileBusy();
+			xmap.stop();
 			xmap.waitWhileBusy();
-//			Thread.sleep(200);
-		} catch (InterruptedException e) {
-			throw new DeviceException(e);
+		} else {
+			throw new Exception("Scan and/or detectors already running, so stop the loop");
 		}
+
 
 		// read the latest frame
 		int currentFrame = ionchambers.getCurrentFrame();
