@@ -20,7 +20,6 @@ from gda.device.detector.xspress import ResGrades
 from gda.jython.commands import ScannableCommands
 from gdascripts.messages import handle_messages
 import time
-from fast_scan import ScanPositionsTwoWay
 from gda.device.scannable import ScannableUtils
 from gda.data.scan.datawriter import TwoDScanRowReverser
 from gda.data.scan.datawriter import XasAsciiNexusDatapointCompletingDataWriter
