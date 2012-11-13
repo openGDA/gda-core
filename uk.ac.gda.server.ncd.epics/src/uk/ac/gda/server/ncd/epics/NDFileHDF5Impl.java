@@ -44,7 +44,7 @@ public class NDFileHDF5Impl extends gda.device.detector.areadetector.v17.impl.ND
 			setColumnsPerChunk(initialColumnsPerChunk);
 		}
 		if (initialFramesPerChunk != null) {
-			setFramessPerChunk(initialFramesPerChunk);
+			setFramesPerChunk(initialFramesPerChunk);
 		}
 		if (initialChunkAlignment != null) {
 			setChunkAlignment(initialChunkAlignment);
@@ -68,7 +68,7 @@ public class NDFileHDF5Impl extends gda.device.detector.areadetector.v17.impl.ND
 			throw ex;
 		}
 	}
-	public int getFramessPerChunk() throws Exception {
+	public int getFramesPerChunk() throws Exception {
 		try {
 			return EPICS_CONTROLLER.cagetInt(getChannel(FramessPerChunk_RBV));
 		} catch (Exception ex) {
@@ -77,7 +77,7 @@ public class NDFileHDF5Impl extends gda.device.detector.areadetector.v17.impl.ND
 		}
 	}
 
-	public void setFramessPerChunk(int value) throws Exception {
+	public void setFramesPerChunk(int value) throws Exception {
 		try {
 			EPICS_CONTROLLER.caput(getChannel(FramessPerChunk), value);
 		} catch (Exception ex) {
