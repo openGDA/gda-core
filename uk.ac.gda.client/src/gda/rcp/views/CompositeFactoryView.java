@@ -21,6 +21,7 @@ package gda.rcp.views;
 import java.util.List;
 
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -56,6 +57,9 @@ public class CompositeFactoryView extends ViewPart implements InitializingBean{
 	
 	@Override
 	public void createPartControl(Composite parent) {
+		
+		GridLayoutFactory.swtDefaults().applyTo(parent);
+		
 		setPartName(viewTitle);
 		Group grp= new Group(parent, SWT.NONE);
 		GridLayout statusLayout = new GridLayout(compositeFactories.size(), false);
