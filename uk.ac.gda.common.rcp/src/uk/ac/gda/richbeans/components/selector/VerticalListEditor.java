@@ -543,7 +543,7 @@ public final class VerticalListEditor extends ListEditor {
 		isShowingAdditionalFields = b;
 		listViewer.getTable().setHeaderVisible(b);
 		int colIndex = 1; // intentional 1 based
-		for (TableViewerColumn col : extraColumns) {
+		if (extraColumns!=null) for (TableViewerColumn col : extraColumns) {
 			if (b) {
 				col.getColumn().setWidth((colIndex < columnWidths.length) ? columnWidths[colIndex] : 200);
 			} else {
