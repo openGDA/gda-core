@@ -175,8 +175,12 @@ public class EpicsXmapController3ROI extends DeviceBase implements XmapControlle
 		int[] mcaData = data[mcaNumber];
 		double[] roiSums = new double[controlRois[mcaNumber].length];
 
+		
+		
 		for (int i = 0; i < controlRois[mcaNumber].length; i++) {
-			roiSums[i] = calcROICounts((int)controlRois[mcaNumber][i][0], (int)controlRois[mcaNumber][i][1], mcaData);
+			int min = (int)controlRois[mcaNumber][i][0];
+			int max = (int)controlRois[mcaNumber][i][1];
+			roiSums[i] = calcROICounts(min, max, mcaData);
 		}
 		return roiSums;
 	}

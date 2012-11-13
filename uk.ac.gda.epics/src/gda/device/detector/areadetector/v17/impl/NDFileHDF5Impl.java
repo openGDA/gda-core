@@ -41,7 +41,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 
-	private final static EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
+	protected final static EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 
 	private String basePVName;
 
@@ -635,7 +635,7 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	 * @return {@link Channel} to talk to the relevant PV.
 	 * @throws Exception
 	 */
-	private Channel getChannel(String pvElementName, String... args) throws Exception {
+	protected Channel getChannel(String pvElementName, String... args) throws Exception {
 		try {
 			String pvPostFix = null;
 			if (args.length > 0) {
@@ -758,7 +758,9 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 
 	@Override
 	public void stopCapture() throws Exception {
-		file.stopCapture();
+		if (getPluginBase().isCallbackEnabled()) {
+			file.stopCapture();
+		}
 	}
 
 	@Override
@@ -866,7 +868,7 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	public int getNumCaptured_RBV() throws Exception {
 		return file.getNumCaptured_RBV();
 	}
-	
+
 	@Override
 	public String getArrayPort() throws Exception {
 		try {

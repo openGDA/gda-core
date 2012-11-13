@@ -135,11 +135,12 @@ class NXDetectorDataArrayAppender implements NXDetectorDataAppender {
 	@Override
 	public void appendTo(NXDetectorData data, String detectorName) throws DeviceException{
 		try {
-			readoutArrayIntoNXDetectorData(data, ndArray, firstReadoutInScan, detectorName);
+			readoutArrayIntoNXDetectorData(data, ndArray, detectorName);
+			if (firstReadoutInScan) {
+				// TODO add sensible axes
+			}
 		} catch (Exception e) {
 			throw new DeviceException(e);
 		}
-		
 	}
-	
 }
