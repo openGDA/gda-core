@@ -3,7 +3,7 @@ from uk.ac.gda.client.microfocus.scan.datawriter import MicroFocusWriterExtender
 from uk.ac.gda.beans import BeansFactory
 from gda.factory import Finder
 from gda.exafs.scan import BeanGroup
-from exafsscripts.exafs.xas_scans import getDetectors
+from exafsscripts.exafs.i18ScanScripts import getDetectors
 from gda.jython.commands.ScannableCommands import scan, add_default, remove_default
 from java.io import File
 from java.lang import System
