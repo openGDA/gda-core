@@ -62,7 +62,8 @@ public class ShutterGroup implements IObserver, Runnable {
 	private final Label label;
 	final Color red;
 	final Color defaultColor;
-
+	final Color green;
+	
 	public ShutterGroup(Composite parent, int style, final EnumPositioner shutter) {
 
 		Group group = new Group(parent, style);
@@ -76,6 +77,7 @@ public class ShutterGroup implements IObserver, Runnable {
 
 		label = new Label(group, SWT.NONE);
 		label.setText("  Fault  ");
+		label.setSize(100, 20);
 
 		button = new org.eclipse.swt.widgets.Button(group, SWT.NONE);
 		button.setText("  Wait  ");
@@ -109,6 +111,7 @@ public class ShutterGroup implements IObserver, Runnable {
 		});
 
 		red = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
+		green = Display.getCurrent().getSystemColor(SWT.COLOR_GREEN);
 		defaultColor = label.getBackground();
 		shutter.addIObserver(this);
 		update(null, null);
@@ -125,11 +128,16 @@ public class ShutterGroup implements IObserver, Runnable {
 			Display.getDefault().asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					label.setText(status);
-					if (!"Open".equals(status)) {
+					if ("Close".equals(status)) {
+						label.setText("Closed");
+						label.setBackground(red);
+					} else if ("FAULT".equals(status)) {
+						label.setText("FAULT");
 						label.setBackground(red);
 					} else {
-						label.setBackground(defaultColor);
+						label.setBackground(green);
+						label.setText(status);
+//						label.setBackground(defaultColor);
 					}
 
 					if (nextaction != null) {

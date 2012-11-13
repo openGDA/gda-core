@@ -40,11 +40,8 @@ import uk.ac.gda.server.ncd.subdetector.INcdSubDetector;
  */
 public class NcdController {
 	private static final Logger logger = LoggerFactory.getLogger(NcdController.class);
-
 	private static NcdController instance = new NcdController();
-
 	private NcdDetector ncdDetectorSystem;
-
 	private Finder finder;
 
 	/**
@@ -176,5 +173,14 @@ public class NcdController {
 		script = String.format(script, ncdDetectorSystem.getName(), type, ncdDetectorSystem.getName());
 		JythonServerFacade.getInstance().runsource(script, "");
 		addDetector(name);
+	}
+	
+	public boolean isDetectorConfigured(String name) {
+		if (name != null && !"None".equalsIgnoreCase(name)) {
+			String result = JythonServerFacade.getInstance().evaluateCommand(
+					String.format("finder.find(\"%s\").isConfigured()", name));
+			return Boolean.valueOf(result);
+		}
+		return false;
 	}
 }

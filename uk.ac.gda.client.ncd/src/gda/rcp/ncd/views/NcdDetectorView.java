@@ -110,11 +110,18 @@ public class NcdDetectorView extends ViewPart {
 			this.detectorName = ncdController.getDetectorName(type);
 			this.detector = getDetectorByName(detectorName);
 
-			detectorChoice.removeAll();
+			detectorChoice.removeAll();			
 			for (String name : availableDetectors) {
 				detectorChoice.add(name);
 				if (name.equals(detectorName)) {
-					detectorChoice.select(index);
+					if (!NODETECTOR.equals(detectorName)  && ncdController.isDetectorConfigured(detectorName)) {
+						detectorChoice.select(index);
+					} else {
+						if (detector != null)
+							ncdController.removeDetector(detectorName);
+						detectorChoice.select(0);
+						detector= null;
+					}
 				}
 				index++;
 			}
@@ -135,9 +142,9 @@ public class NcdDetectorView extends ViewPart {
 				List<String> items = new Vector<String>();
 
 				if (supportedDimensions != null && supportedDimensions.size() > 0) {
-                    for (DataDimension d : supportedDimensions) {
-                        items.add(d.pixels + "x" + d.rasters);
-                    }
+					for (DataDimension d : supportedDimensions) {
+						items.add(d.pixels + "x" + d.rasters);
+					}
 				} else {
 					items.add(selected);
 				}
@@ -159,7 +166,6 @@ public class NcdDetectorView extends ViewPart {
 		void setDetector(String newDetectorName) {
 			if (detector != null) {
 				try {
-//					ncdController.removeDetector(detector.getName());
 					detector.close();
 					detector = null;
 				} catch (DeviceException de) {
