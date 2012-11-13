@@ -104,7 +104,7 @@ public class TfgScalerWithLogValues extends TfgScalerWithDarkCurrent {
 
 	@Override
 	public double[] readout() throws DeviceException {
-		double[] output = super.readout();
+		double[] output = super.readout(); 
 		
 		return performCorrections(output);
 	}
