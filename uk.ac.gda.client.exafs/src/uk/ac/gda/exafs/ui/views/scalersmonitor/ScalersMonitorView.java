@@ -40,7 +40,6 @@ import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DAppearance;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DGraphTable;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotException;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.Plot1DStyles;
 
@@ -101,7 +100,7 @@ public class ScalersMonitorView extends MonitorViewBase {
 				displayData.setFFI0(xspressStats[8 * 3 + 2] / values[0]);
 				break;
 			case 64:
-				displayData.setFFI0(xspressStats[16 * 3 + 2] / values[36]);  // use element 37 as I think this is one of the more central ones
+				displayData.setFFI0(xspressStats[36 * 3 + 2] / values[0]);  // use element 37 as I think this is one of the more central ones
 				break;
 			default:
 				displayData.setFFI0(xspressStats[2] / values[0]);
@@ -132,7 +131,7 @@ public class ScalersMonitorView extends MonitorViewBase {
 
 			myPlotter.updateAllAppearance();
 			myPlotter.refresh(true);
-		} catch (PlotException e) {
+		} catch (Exception e) {
 			// log and stop plotting
 			runMonitoring = false;
 			logger.error("Exception trying to plot Xspress statistics " + e.getMessage());
