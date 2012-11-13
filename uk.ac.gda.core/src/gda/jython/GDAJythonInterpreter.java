@@ -281,19 +281,18 @@ public class GDAJythonInterpreter extends ObservableComponent {
 				interp.setOut(output);
 				interp.setErr(output);
 
-				// install our own displayhook that knows how to print unicode
-				java.lang.reflect.Method meth = GDAInteractiveConsole.class.getDeclaredMethod("displayhook", PyObject.class);
-
 				// dynamic configuration using Castor
 				logger.info("performing standard Jython interpreter imports...");
 
+				this.interp.runsource("import sys");
+				this.interp.runsource("import gda.jython");
+				this.interp.runsource("sys.displayhook=gda.jython.GDAInteractiveConsole.displayhook");
+				
 				// give Jython the reference to this wrapper object
 				this.interp.set("GDAJythonInterpreter", this);
 				
 				this.interp.set("command_server", output);
-				this.interp.runsource("import sys");
 				this.interp.runsource("import gda.jython");
-				this.interp.runsource("sys.displayhook="+meth.getName());
 
 				// site import
 				this.interp.runsource("import site");
