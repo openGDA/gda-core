@@ -289,7 +289,7 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 
 	protected String getRegExpressionString() {
 		final String ndec = decimalPlaces > 0 ? "\\d*\\.?\\d{0," + decimalPlaces + "})" : ")";
-		final String digitExpr = "(\\-?\\d*" + ndec;
+		final String digitExpr = "^(\\-?\\d*" + ndec;
 
 		if (unit == null) {
 			return digitExpr;
