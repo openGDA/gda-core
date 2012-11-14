@@ -27,7 +27,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 
 public class XmapI1MonitorViewData {
-	private String[] titles = { "I1", "Total Counts", "FF / I1", "FF Rate", "Dead Time" };
+	private String[] titles = { "I1", "Input Count Rate", "Dead Time(%)", "FF Rate", "FF / I1"};
 	private String[] formats = { "%.0f", "%.0f", "%.4f", "%.4f", "%.4f" };
 	private Table table;
 
@@ -36,24 +36,24 @@ public class XmapI1MonitorViewData {
 		table.getItem(0).setText(0, txt);
 	}
 
-	public void setTotalCounts(double val) {
+	public void setICR(double val) {
 		String txt = String.format(formats[1], val);
 		table.getItem(0).setText(1, txt);
 	}
 
 	public void setFFI1(double val) {
-		String txt = String.format(formats[2], val);
-		table.getItem(0).setText(2, txt);
+		String txt = String.format(formats[4], val);
+		table.getItem(0).setText(4, txt);
 	}
 
-	public void setRate(double val) {
+	public void setFF(double val) {
 		String txt = String.format(formats[3], val);
 		table.getItem(0).setText(3, txt);
 	}
 
 	public void setDeadTime(double val) {
-		String txt = String.format(formats[4], val);
-		table.getItem(0).setText(4, txt);
+		String txt = String.format(formats[2], val);
+		table.getItem(0).setText(2, txt);
 	}
 
 	public XmapI1MonitorViewData(Composite parent) {
