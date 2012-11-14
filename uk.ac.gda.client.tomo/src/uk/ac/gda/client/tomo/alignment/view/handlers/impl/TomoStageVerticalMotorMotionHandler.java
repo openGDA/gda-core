@@ -72,7 +72,6 @@ public class TomoStageVerticalMotorMotionHandler implements IVerticalMotorMotion
 		};
 
 		tomoScriptController.addIObserver(obs);
-		// FIXME _ get these values from the preferences
 		boolean useY1 = TomoClientActivator.getDefault().getPreferenceStore()
 				.getBoolean(TomoAlignmentPreferencePage.TOMO_CLIENT_VERTICAL_STAGE_USE_Y1);
 

@@ -1558,7 +1558,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 							img.dispose();
 							tomoAlignmentView.loadImageInUIThread(tomoAlignmentView.getLeftWindowImageViewer(),
 									imageData.scaledTo(tomoAlignmentView.getTomoAlignmentController().getScaledX(),
-											tomoAlignmentView.getTomoAlignmentController().getScaledX()));
+											tomoAlignmentView.getTomoAlignmentController().getScaledY()));
 							imageData.data = null;
 							imageData = null;
 							loadZoomImageInUI();

@@ -115,6 +115,18 @@ public final class RotationSliderShape extends Shape implements Orientable {
 		Point p6 = new Point(head.x + size, head.y + 5);
 		Point p7 = new Point(r.x + r.width / 2, head.y + 5);
 
+		/*
+		 * 
+		 *     p4---------p5
+		 *     -          -
+		 *     -          -
+		 *     p3--p2/7---p6 
+		 *           -
+		 *           -
+		 *           -       head
+		 * 
+		 * 
+		 */
 		if (direction == SOUTH) {
 			// Coarse is south
 			head = new Point(r.x + r.width / 2, r.y + size + 2);

@@ -206,6 +206,20 @@ public class TomoPlotComposite extends Composite {
 			DoubleDataset axis = DoubleDataset.arange(4008);
 
 			if (rawImgDs != null) {
+				// IntegerDataset interimRawDataSlice = (IntegerDataset) rawImgDs.getSlice(new int[] { y - 1, 0 },
+				// new int[] { y, 4008 }, new int[] { 1, 1 });
+				//
+				// double[] logData = new double[interimRawDataSlice.getData().length];
+				// int count = 0;
+				// for (int d : interimRawDataSlice.getData()) {
+				// if (d != 0) {
+				// logData[count++] = Math.log10(d);
+				// }
+				// }
+				// DoubleDataset ds = new DoubleDataset(logData, interimRawDataSlice.getShape());
+				// ds.squeeze();
+				// plotDataSets.add(ds);
+				
 				rawDataSlice = (IntegerDataset) rawImgDs.getSlice(new int[] { y - 1, 0 }, new int[] { y, 4008 },
 						new int[] { 1, 1 });
 				rawDataSlice.squeeze();
@@ -227,8 +241,9 @@ public class TomoPlotComposite extends Composite {
 				public void run() {
 					plottingSystem.setTitle(INTENSITY_PLOT);
 					plottingSystem.getSelectedYAxis().setFormatPattern("######.#");
-					plottingSystem.getSelectedYAxis().setRange(0, 65600);
-
+//					plottingSystem.getSelectedYAxis().setRange(0, 5);
+					plottingSystem.getSelectedYAxis().setVisible(false);
+					plottingSystem.getSelectedXAxis().setRange(0, 4008);
 					createMouseFollowLineRegion();
 
 				}
@@ -663,14 +678,14 @@ public class TomoPlotComposite extends Composite {
 	}
 
 	public double getHistogramFrom() {
-		if (!shouldUpdatePlot && (mode == MODE.HISTOGRAM)) {
+		if (!shouldUpdatePlot && (mode == MODE.HISTOGRAM) && histogramFrom != null) {
 			return histogramFrom;
 		}
 		return 1;
 	}
 
 	public double getHistogramTo() {
-		if (!shouldUpdatePlot && (mode == MODE.HISTOGRAM)) {
+		if (!shouldUpdatePlot && (mode == MODE.HISTOGRAM) && histogramTo != null) {
 			return histogramTo;
 		}
 		return 1;

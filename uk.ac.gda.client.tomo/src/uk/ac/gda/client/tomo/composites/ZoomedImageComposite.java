@@ -74,7 +74,7 @@ public class ZoomedImageComposite extends FixedImageViewerComposite {
 					sqx = bounds.height;
 				}
 
-				final Image newImage = new Image(getCanvas().getDisplay(), imageDataIn);//.scaledTo(sqx, sqx));
+				final Image newImage = new Image(getCanvas().getDisplay(), imageDataIn.scaledTo(sqx, sqx));
 				if (!getCanvas().isDisposed()) {
 					if (mainImage != null && !mainImage.isDisposed()) {
 						mainImage.dispose();
