@@ -178,4 +178,16 @@ public class NDStatModelImpl extends EPICSBaseModel<NDStatsType> implements NdSt
 		}
 
 	}
+
+	@Override
+	public double[] getHistogram() throws Exception {
+		try {
+			if (config != null) {
+				return EPICS_CONTROLLER.cagetDoubleArray(createChannel(config.getHistogram_RBV().getPv(), null));
+			}
+			return EPICS_CONTROLLER.cagetDoubleArray(getChannel(NDStats.Histogram_RBV, null));
+		} catch (Exception ex) {
+			throw ex;
+		}
+	}
 }

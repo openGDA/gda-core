@@ -33,5 +33,7 @@ public interface NdStatModel {
 	double getMean() throws Exception;
 
 	double getSigma() throws Exception;
+	
+	double[] getHistogram() throws Exception;
 
 }

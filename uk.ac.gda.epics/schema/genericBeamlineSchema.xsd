@@ -16,6 +16,8 @@
 		<xs:attribute name="ro" type="xs:boolean" use="required"/>
 		<!-- type value must be one of: "motor","scaler","mbbinary","binary","pv","mca","array" -->
 		<xs:attribute name="type" type="xs:string" use="required"/>
+		<!-- optional element that says which IOC the record is in -->
+		<xs:attribute name="IOC" type="xs:string" use="optional"/>
 	</xs:attributeGroup>
 	<!-- All elements defined in template types below should have this type -->
 	<xs:complexType name="elementType">
@@ -943,6 +945,7 @@
 		<xs:all>
 			<xs:element name="FilePath" type="elementType"/>
 			<xs:element name="FilePath_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="FilePathExists" type="elementType"/>
 			<xs:element name="FileName" type="elementType"/>
 			<xs:element name="FileName_RBV" type="elementType"/>
 			<xs:element name="FileNumber" type="elementType"/>
@@ -967,6 +970,8 @@
 			<xs:element name="NumCapture" type="elementType"/>
 			<xs:element name="NumCapture_RBV" type="elementType"/>
 			<xs:element name="NumCaptured_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="WriteStatus" type="elementType"/>
+			<xs:element minOccurs="0" name="WriteMessage" type="elementType"/>
 		</xs:all>
 		<xs:attributeGroup ref="deviceAttributes"/>
 	</xs:complexType>
@@ -1006,6 +1011,10 @@
 		<xs:all>
 			<xs:element name="NumRowChunks" type="elementType"/>
 			<xs:element name="NumRowChunks_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="NumColChunks" type="elementType"/>
+			<xs:element minOccurs="0" name="NumColChunks_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="NumFramesChunks" type="elementType"/>
+			<xs:element minOccurs="0" name="NumFramesChunks_RBV" type="elementType"/>
 			<xs:element name="NumExtraDims" type="elementType"/>
 			<xs:element name="NumExtraDims_RBV" type="elementType"/>
 			<xs:element name="ExtraDimSizeN" type="elementType"/>
@@ -1016,6 +1025,8 @@
 			<xs:element name="ExtraDimSizeY_RBV" type="elementType"/>
 			<xs:element name="runtime" type="elementType"/>
 			<xs:element name="IOSpeed" type="elementType"/>
+			<xs:element minOccurs="0" name="NumFramesFlush" type="elementType"/>
+			<xs:element minOccurs="0" name="NumFramesFlush_RBV" type="elementType"/>
 			<xs:element name="Compression" type="elementType"/>
 			<xs:element name="Compression_RBV" type="elementType"/>
 			<xs:element name="NumBitOffset_RBV" type="elementType"/>
@@ -1296,6 +1307,7 @@
 			<xs:element name="ScaleFlatField_RBV" type="elementType"/>
 			<xs:element name="EnableOffsetScale" type="elementType"/>
 			<xs:element name="EnableOffsetScale_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="AutoOffsetScale" type="elementType"/>			
 			<xs:element name="Offset" type="elementType"/>
 			<xs:element name="Offset_RBV" type="elementType"/>
 			<xs:element name="Scale" type="elementType"/>
@@ -1312,6 +1324,10 @@
 			<xs:element name="EnableFilter_RBV" type="elementType"/>
 			<xs:element name="ResetFilter" type="elementType"/>
 			<xs:element name="ResetFilter_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="AutoResetFilter" type="elementType"/>
+			<xs:element minOccurs="0" name="AutoResetFilter_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="FilterCallbacks" type="elementType"/>
+			<xs:element minOccurs="0" name="FilterCallbacks_RBV" type="elementType"/>
 			<xs:element name="NumFilter" type="elementType"/>
 			<xs:element name="NumFilter_RBV" type="elementType"/>
 			<xs:element name="NumFilterRecip" type="elementType"/>
@@ -1412,7 +1428,11 @@
 			<xs:element name="BgdWidth" type="elementType"/>
 			<xs:element name="BgdWidth_RBV" type="elementType"/>
 			<xs:element name="MinValue_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="MinX_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="MinY_RBV" type="elementType"/>			
 			<xs:element name="MaxValue_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="MaxX_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="MaxY_RBV" type="elementType"/>			
 			<xs:element name="MeanValue_RBV" type="elementType"/>
 			<xs:element name="Sigma_RBV" type="elementType"/>
 			<xs:element name="Total_RBV" type="elementType"/>
@@ -1426,6 +1446,25 @@
 			<xs:element name="SigmaX_RBV" type="elementType"/>
 			<xs:element name="SigmaY_RBV" type="elementType"/>
 			<xs:element name="SigmaXY_RBV" type="elementType"/>
+			<xs:element minOccurs="0" name="TSControl" type="elementType"/>
+			<xs:element minOccurs="0" name="TSNumPoints" type="elementType"/>
+			<xs:element minOccurs="0" name="TSCurrentPoint" type="elementType"/>
+			<xs:element minOccurs="0" name="TSAcquiring" type="elementType"/>
+			<xs:element minOccurs="0" name="TSMinValue" type="elementType"/>
+			<xs:element minOccurs="0" name="TSMinX" type="elementType"/>
+			<xs:element minOccurs="0" name="TSMinY" type="elementType"/>
+			<xs:element minOccurs="0" name="TSMaxValue" type="elementType"/>
+			<xs:element minOccurs="0" name="TSMaxX" type="elementType"/>
+			<xs:element minOccurs="0" name="TSMaxY" type="elementType"/>
+			<xs:element minOccurs="0" name="TSMeanValue" type="elementType"/>
+			<xs:element minOccurs="0" name="TSSigma" type="elementType"/>
+			<xs:element minOccurs="0" name="TSTotal" type="elementType"/>
+			<xs:element minOccurs="0" name="TSNet" type="elementType"/>
+			<xs:element minOccurs="0" name="TSCentroidX" type="elementType"/>
+			<xs:element minOccurs="0" name="TSCentroidY" type="elementType"/>
+			<xs:element minOccurs="0" name="TSSigmaX" type="elementType"/>
+			<xs:element minOccurs="0" name="TSSigmaY" type="elementType"/>
+			<xs:element minOccurs="0" name="TSSigmaXY" type="elementType"/>
 			<xs:element name="ComputeProfiles" type="elementType"/>
 			<xs:element name="ComputeProfiles_RBV" type="elementType"/>
 			<xs:element name="ProfileSizeX_RBV" type="elementType"/>

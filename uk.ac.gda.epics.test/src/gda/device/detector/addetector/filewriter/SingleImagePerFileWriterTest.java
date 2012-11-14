@@ -100,7 +100,7 @@ public class SingleImagePerFileWriterTest {
 		writer.setKeyNameForMetadataPathTemplate("detector_path_template");
 		writer.prepareForCollection(1);
 		
-		String expected = "existing\ndetector_path_template=12345-detname-files/%05d.tif";
+		String expected = "existing\ndetector_path_template='12345-detname-files/%05d.tif'";
 		verify(namespace).placeInJythonNamespace("SRSWriteAtFileCreation", expected);
 		
 	}
@@ -114,7 +114,7 @@ public class SingleImagePerFileWriterTest {
 		writer.setKeyNameForMetadataPathTemplate("detector_path_template");
 		writer.prepareForCollection(1);
 		
-		String expected = "detector_path_template=12345-detname-files/%05d.tif";
+		String expected = "detector_path_template='12345-detname-files/%05d.tif'";
 		verify(namespace).placeInJythonNamespace("SRSWriteAtFileCreation", expected);
 		
 	}
