@@ -330,7 +330,7 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 		}
 		// logger.debug("Current tfg frame is " + this.getCurrentFrame() + " and reading frame " + framesRead);
 		// return readoutFrames(framesRead, framesRead)[0];
-		logger.info("Reading frame " + lastFrameCollected + ". Current tfg frame is " + this.getCurrentFrame());
+		logger.debug("Reading frame " + lastFrameCollected + ". Current tfg frame is " + this.getCurrentFrame());
 		return readoutFrames(lastFrameCollected, lastFrameCollected)[0];
 	}
 
