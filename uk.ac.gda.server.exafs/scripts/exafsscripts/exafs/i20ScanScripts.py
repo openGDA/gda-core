@@ -90,15 +90,15 @@ class I20XasScan(XasScan):
                     ScriptBase.checkForPauses()
                     
                     #TODO add to metadata?
-                    self._runTheScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
+                    self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
             else :
-                self._runTheScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
+                self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
         finally:
             # remove extra columns from ionchambers output
             jython_mapper.ionchambers.setOutputLogValues(False) 
             ScriptBase.checkForPauses()
         
-    def _runTheScan(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller):
+    def _beforeEachRepetition(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller, repNum):
         times = []
         if isinstance(beanGroup.getScan(),XasScanParameters):
             times = ExafsScanPointCreator.getScanTimeArray(beanGroup.getScan())
@@ -109,7 +109,7 @@ class I20XasScan(XasScan):
             jython_mapper = JythonNameSpaceMapping()
             jython_mapper.ionchambers.setTimes(times)
             ScriptBase.checkForPauses()
-        self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
+        return
         
 
     def setDetectorCorrectionParameters(self,beanGroup):

@@ -133,6 +133,7 @@ class XasScan(Scan):
                 repetitionNumber+= 1
                 beanGroup.setScanNumber(repetitionNumber)
                 XasAsciiDataWriter.setBeanGroup(beanGroup)
+                self._beforeEachRepetition(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller,repetitionNumber)
         
                 # create the list of scan points
                 points = ()
@@ -241,6 +242,9 @@ class XasScan(Scan):
                 original_header=jython_mapper.original_header[:]
                 Finder.getInstance().find("datawriterconfig").setHeader(original_header)
     
+    def _beforeEachRepetition(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller, repNum):
+        return
+
     def _getSignalList(self, outputParameters):
         signalList = []
         for signal in outputParameters.getSignalList():
