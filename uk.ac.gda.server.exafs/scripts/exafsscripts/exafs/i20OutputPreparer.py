@@ -10,7 +10,9 @@ from gdascripts.parameters import beamline_parameters
 from BeamlineParameters import JythonNameSpaceMapping
 
 class I20OutputPreparer:
+    
     def __init__(self):
+        self.mode = "xas"
         pass
     
     def prepare(self, outputParameters):
@@ -31,11 +33,13 @@ class I20OutputPreparer:
     #
     def getAsciiDataWriterConfig(self,beanGroup):
         scan = beanGroup.getScan()
-        if isinstance(scan,XesScanParameters):
+        if self.mode == "xes" or isinstance(scan,XesScanParameters):
             # will return None if not found
+            print "will write XES format ascii files"
             return Finder.getInstance().find("datawriterconfig_xes")
         else:
             # will return None if not found
+            print "will write XAS format ascii files"
             return Finder.getInstance().find("datawriterconfig")
 
     #
