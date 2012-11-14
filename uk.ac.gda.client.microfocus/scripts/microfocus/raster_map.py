@@ -44,7 +44,7 @@ def rastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, f
     #FOR NORMAL TRAJECTORY SCAN WITH VORTEX COMMENT THE FOLLOWING THREE LINES
     # 24July2012 three lines commented out by RW 
     #if(detectorBean.getFluorescenceParameters().getDetectorType() == "Silicon"):
-    #    vortexRastermap(sampleFileName, scanFileName, detectorFileName, outputFileName, folderName, scanNumber, validation)
+    #    raster_map_return_write(sampleFileName, scanFileName, detectorFileName, outputFileName, folderName, scanNumber, validation)
     #    return
     outputBean   = BeansFactory.getBeanObject(xmlFolderName, outputFileName)
 
@@ -116,6 +116,9 @@ def rastermap (sampleFileName, scanFileName, detectorFileName, outputFileName, f
         energyScannable.moveTo(energy) 
         zScannable.moveTo(zScannablePos)
         scanStart = time.asctime()
+        
+        redefineNexusMetadataForMaps(beanGroup)
+        
         try:
             numberPoints = abs(scanBean.getXEnd()- scanBean.getXStart())/scanBean.getXStepSize()
             
@@ -200,7 +203,6 @@ def setupForRaster(beanGroup):
     LocalProperties.set("gda.scan.useScanPlotSettings", "true")
     if not (trajBeamMonitor1 == None):
         trajBeamMonitor1.setActive(True)
-    redefineNexusMetadataForMaps(beanGroup)
     finder.find("RCPController").openPesrpective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")
     
 

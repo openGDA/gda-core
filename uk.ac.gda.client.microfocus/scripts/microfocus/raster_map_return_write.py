@@ -109,6 +109,8 @@ def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileN
         energyScannable.moveTo(energy) 
         zScannable.moveTo(zScannablePos)
 
+        redefineNexusMetadataForMaps(beanGroup)
+
         scanStart = time.asctime()
         try:
             numberPoints = abs(scanBean.getXEnd()- scanBean.getXStart())/scanBean.getXStepSize()
@@ -193,7 +195,6 @@ def setupForVortexRaster(beanGroup):
     pos([rootnamespace['D7A'], att1.getSelectedPosition(), rootnamespace['D7B'], att2.getSelectedPosition()])
     configFluoDetector(beanGroup)
     LocalProperties.set("gda.scan.useScanPlotSettings", "true")
-    redefineNexusMetadataForMaps(beanGroup)
     finder.find("RCPController").openPesrpective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")
     
 class MicroFocusEnvironment:

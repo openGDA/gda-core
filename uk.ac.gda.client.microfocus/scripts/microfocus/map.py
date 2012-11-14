@@ -158,6 +158,9 @@ def map (sampleFileName, scanFileName, detectorFileName, outputFileName, folderN
                 args.append(scanBean.getCollectionTime())
         print args
         scanStart = time.asctime()
+        
+        redefineNexusMetadataForMaps(beanGroup)
+        
         try:
             mapscan= ScannableCommands.createConcurrentScan(args)
             print mapscan.getScanDataPointQueueLength()
@@ -228,7 +231,6 @@ def setupForMap(beanGroup):
     att2 = sampleParameters.getAttenuatorParameter2()
     pos([rootnamespace['D7A'], att1.getSelectedPosition(), rootnamespace['D7B'], att2.getSelectedPosition()])
     LocalProperties.set("gda.scan.useScanPlotSettings", "true")
-    redefineNexusMetadataForMaps(beanGroup)
     finder.find("RCPController").openPesrpective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")
     
 def redefineNexusMetadataForMaps(beanGroup):
