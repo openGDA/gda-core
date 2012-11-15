@@ -3,7 +3,7 @@ from uk.ac.gda.client.microfocus.scan.datawriter import MicroFocusWriterExtender
 from uk.ac.gda.beans import BeansFactory
 from gda.factory import Finder
 from gda.exafs.scan import BeanGroup
-from exafsscripts.exafs.i18ScanScripts import getDetectors
+from exafsscripts.exafs.xas_scan import XasScan
 from gda.jython.commands.ScannableCommands import scan, add_default, remove_default
 from java.io import File
 from java.lang import System
@@ -56,7 +56,7 @@ def map (sampleFileName, scanFileName, detectorFileName, outputFileName, folderN
     XasAsciiDataWriter.setBeanGroup(beanGroup)
     handle_messages.simpleLog("XasAsciiDataWriter.setBeanGroup(beanGroup)")
       
-    detectorList = getDetectors(detectorBean, outputBean, None) 
+    detectorList = XasScan.getDetectors(detectorBean, outputBean, None) 
     handle_messages.simpleLog("detectorList")
     print detectorList
 

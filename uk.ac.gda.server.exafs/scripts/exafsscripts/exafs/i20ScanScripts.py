@@ -1,6 +1,6 @@
 from java.lang import InterruptedException
-
-from b18ScanScripts import XasScan, ExafsEnvironment
+from xas_scan import XasScan
+from exafs_environment import ExafsEnvironment
 from BeamlineParameters import JythonNameSpaceMapping, FinderNameMapping
 
 from gda.configuration.properties import LocalProperties

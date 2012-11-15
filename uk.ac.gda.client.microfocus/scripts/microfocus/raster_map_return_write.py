@@ -1,7 +1,7 @@
 from uk.ac.gda.client.microfocus.scan.datawriter import TwoWayMicroFocusWriterExtender
 from uk.ac.gda.beans import BeansFactory
 from gda.exafs.scan import BeanGroup
-from exafsscripts.exafs.i18ScanScripts import getDetectors
+from exafsscripts.exafs.xas_scan import XasScan
 from gda.jython.commands.ScannableCommands import add_default
 from java.io import File
 from gda.configuration.properties import LocalProperties
@@ -48,7 +48,7 @@ def vortexRastermap (sampleFileName, scanFileName, detectorFileName, outputFileN
     beanGroup.setScan(scanBean)
     XasAsciiDataWriter.setBeanGroup(beanGroup)
 
-    detectorList = getDetectors(detectorBean, outputBean, None) 
+    detectorList = XasScan.getDetectors(detectorBean, outputBean, None) 
    
     setupForVortexRaster(beanGroup)
     
