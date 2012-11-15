@@ -72,7 +72,15 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 	protected BoundsProvider minProvider, maxProvider;
 	protected boolean isIntegerBox = false;
 	protected boolean validBounds = true;
+	protected boolean doNotUseExpressions = false;
+	protected boolean isEditable = true;
 	protected String tooltipOveride;
+	protected String minFieldName;
+	protected Class<?> minClass;
+	protected Mode currentBoundsMode = Mode.LEGAL;
+	protected Color red, black, grey, blue;
+	protected String maxFieldName;
+	protected Class<?> maxClass;
 
 	protected NumberFormat numberFormat;
 	protected MouseTrackAdapter mouseTrackListener;
@@ -81,6 +89,9 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 	protected VerifyKeyListener verifyListener;
 	protected SelectionListener selectionListener;
 	protected IExpressionManager expressionManager;
+
+	private ACTIVE_MODE activeMode = ACTIVE_MODE.SET_VISIBLE_AND_ACTIVE;
+	private String boundsKey;
 
 	public NumberBox(Composite parent, int style) {
 
@@ -288,7 +299,7 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 	}
 
 	protected String getRegExpressionString() {
-		final String ndec = decimalPlaces > 0 ? "\\d*\\.?\\d{0," + decimalPlaces + "})" : ")";
+		final String ndec = decimalPlaces > 0 ? "\\.?\\d{0," + decimalPlaces + "})" : ")";
 		final String digitExpr = "^(\\-?\\d*" + ndec;
 
 		if (unit == null) {
@@ -453,9 +464,6 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 		checkBounds(getNumericValue());
 	}
 
-	protected Mode currentBoundsMode = Mode.LEGAL;
-	protected Color red, black, grey, blue;
-
 	/**
 	 * Called to update the bounds state and notify bounds listeners.
 	 * 
@@ -577,9 +585,6 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 		return isIntegerBox;
 	}
 
-	/**
-	 * 
-	 */
 	protected double numericValue;
 
 	/**
@@ -653,8 +658,6 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 	public void setIntegerValue(final int value) {
 		checkValue("" + value);
 	}
-
-	protected boolean isEditable = true;
 
 	/**
 	 * Disable and enable the widget.
@@ -757,9 +760,6 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 		checkBounds();
 	}
 
-	protected String maxFieldName;
-	protected Class<?> maxClass;
-
 	/**
 	 * Will check passed in maximum if field not available and check for field when checking bounds.
 	 * 
@@ -835,9 +835,6 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 		});
 	}
 
-	protected String minFieldName;
-	protected Class<?> minClass;
-
 	/**
 	 * Will check passed in maximum if field not available and check for field when checking bounds.
 	 * 
@@ -871,9 +868,6 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 		data.widthHint = width;
 	}
 
-	/**
-	 * @return the unit
-	 */
 	public String getUnit() {
 		return unit;
 	}
@@ -922,10 +916,6 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 		return getNumericValue();
 	}
 
-	/**
-	 * @param active
-	 *            the active to set
-	 */
 	@Override
 	public void setActive(boolean active) {
 		super.setActive(active);
@@ -936,26 +926,34 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 		}
 	}
 
-	private ACTIVE_MODE activeMode = ACTIVE_MODE.SET_VISIBLE_AND_ACTIVE;
-
-	/**
-	 * @return the activeMode
-	 */
 	public ACTIVE_MODE getActiveMode() {
 		return activeMode;
 	}
 
-	/**
-	 * @param activeMode
-	 *            the activeMode to set
-	 */
 	public void setActiveMode(ACTIVE_MODE activeMode) {
 		this.activeMode = activeMode;
 	}
 
 	/**
-	 * @return true if bounds valid
+	 * The widget will want an expression manager to handle its units, but this will return true if the widget should
+	 * not handle an expression based on the values of the fileds in the underlying bean.
+	 * 
+	 * @return boolean - if true then this widget should use expressions
 	 */
+	public boolean getDoNotUseExpressions() {
+		return doNotUseExpressions;
+	}
+
+	/**
+	 * Set to true after construction so that isExpressionAllowed will always return false and so prevent expressions
+	 * being used when typed into the widgets control.
+	 * 
+	 * @param doNotUseExpressions
+	 */
+	public void setDoNotUseExpressions(boolean doNotUseExpressions) {
+		this.doNotUseExpressions = doNotUseExpressions;
+	}
+
 	public boolean isValidBounds() {
 		return validBounds;
 	}
@@ -974,21 +972,19 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 		this.decimalPlaces = numBox.decimalPlaces;
 	}
 
-	/**
-	 * @return Returns the tooltipOveride.
-	 */
 	public String getTooltipOveride() {
 		return tooltipOveride;
 	}
 
-	/**
-	 * @param tooltipOveride
-	 *            The tooltipOveride to set.
-	 */
 	public void setTooltipOveride(String tooltipOveride) {
 		this.tooltipOveride = tooltipOveride;
 	}
 
+	/**
+	 * Set this to null if no expressions are expected or allowed for this NumberBox.
+	 * <p>
+	 * RichBeanEditors will automatically create ExpressionManagers for IFieldWidgets.
+	 */
 	@Override
 	public void setExpressionManager(IExpressionManager man) {
 		this.expressionManager = man;
@@ -997,7 +993,7 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 
 	@Override
 	public boolean isExpressionAllowed() {
-		return expressionManager != null;
+		return !getDoNotUseExpressions() && expressionManager != null;
 	}
 
 	@Override
@@ -1020,8 +1016,6 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 
 		return true;
 	}
-
-	private String boundsKey;
 
 	/**
 	 * The bounds key for this instance can be the field name or if a field name has not been set, it will be a unique
