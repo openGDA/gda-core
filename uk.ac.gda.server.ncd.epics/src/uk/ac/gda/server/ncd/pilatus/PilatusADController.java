@@ -266,10 +266,11 @@ public class PilatusADController implements InitializingBean {
 	}
 
 	public void stopAcquiringWithTimeout() throws Exception {
-		int totalmillis = 2 * 1000;
+		int totalmillis = 10 * 1000;
 		int grain = 25;
 		for (int i = 0; i < totalmillis/grain; i++) {
-			if (areaDetector.getAcquireState() == 0) break;
+			if (areaDetector.getAcquireState() == 0) 
+				return;
 			Thread.sleep(grain);
 		}
 		stopAcquiring();
@@ -398,7 +399,7 @@ public class PilatusADController implements InitializingBean {
 		
 		int totalFramesCollected = areaDetector.getArrayCounter();
 		
-		int totalmillis = 10 * 1000;
+		int totalmillis = 30 * 1000;
 		int grain = 25;
 		for (int i = 0; i < totalmillis/grain; i++) {
 			
