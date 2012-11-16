@@ -186,6 +186,7 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 
 		finalEnergy.setUnit("eV");
 		finalEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		finalEnergy.setDoNotUseExpressions(true);
 
 		expandContainer = container;
 		createEstimationComposite(container);
