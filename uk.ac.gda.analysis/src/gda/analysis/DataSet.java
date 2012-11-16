@@ -57,24 +57,34 @@ public class DataSet extends DoubleDataset {
 	/**
 	 * Setup the logging facilities
 	 */
-	transient private static final Logger logger = LoggerFactory.getLogger(DataSet.class);
+	private static final Logger logger = LoggerFactory.getLogger(DataSet.class);
+
+	private static final long updateInterval = 100; // period in milliseconds between issuing log info
+	transient private static long nextTime = 0;
 
 	transient public static int warnEverySoMany = 1000;
 	transient public static int warningNo = 0;
+
 	private static void issueDeprecatedWarning() {
 		if (warningNo++ % warnEverySoMany == 0) {
-			Throwable e = new Throwable();
-			StackTraceElement[] trace = e.getStackTrace();
-			StackTraceElement[] newtrace = new StackTraceElement[trace.length - 1];
-			for (int i = 1; i < trace.length; i++) {
-				newtrace[i-1] = trace[i];
+			warningNo = 1; // reset to prevent overflow
+			if (System.currentTimeMillis() >= nextTime) {
+				nextTime = System.currentTimeMillis() + updateInterval;
+
+				Throwable e = new Throwable();
+				StackTraceElement[] trace = e.getStackTrace();
+				StackTraceElement[] newtrace = new StackTraceElement[trace.length - 1];
+				for (int i = 1; i < trace.length; i++) {
+					newtrace[i-1] = trace[i];
+				}
+				e.setStackTrace(newtrace);
+				logger.info("gda.analysis.DataSet is deprecated - use an AbstractDataset", e);
+				if (warnEverySoMany > 1)
+					logger.info(String.format("this is throttled (and rate-limited) - you are only seeing one message out of %d", warnEverySoMany));
 			}
-			e.setStackTrace(newtrace);
-			logger.info("gda.analysis.DataSet is deprecated - use an AbstractDataset", e);
-			if (warnEverySoMany > 1)
-				logger.info(String.format("this is throttled - you are only seeing one message out of %d", warnEverySoMany));
 		}
 	}
+
 	/**
 	 * @deprecated Use {@link DoubleDataset#DoubleDataset()}
 	 */
