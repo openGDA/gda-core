@@ -4,8 +4,14 @@ from gda.data.scan.datawriter.NexusFileMetadata import EntryTypes, NXinstrumentS
 from time import sleep
 
 class I18SamplePreparer:
-	def __init__(self):
+	def __init__(self, rcpController, sc_MicroFocusSampleX, sc_MicroFocusSampleY, sc_sample_z, D7A, D7B):
 		self.logging_enabled = True
+		self.rcpController = rcpController
+		self.sc_MicroFocusSampleX = sc_MicroFocusSampleX
+		self.sc_MicroFocusSampleY = sc_MicroFocusSampleY
+		self.sc_sample_z = sc_sample_z
+		self.D7A = D7A
+		self.D7B = D7B
 	
 	def setLoggingEnabled(self, enabled):
 		self.logging_enabled = enabled
@@ -17,11 +23,16 @@ class I18SamplePreparer:
 			print msg
 	
 	def prepare(self, sampleParameters):
-		Finder.getInstance().find("RCPController").openPesrpective("org.diamond.exafs.ui.PlottingPerspective")
+		
+		self.rcpController.openPesrpective("org.diamond.exafs.ui.PlottingPerspective")
 
 		stage = sampleParameters.getSampleStageParameters()
-		pos([rootnamespace['sc_MicroFocusSampleX'], stage.getX(), rootnamespace['sc_MicroFocusSampleY'], stage.getY(), rootnamespace['sc_sample_z'], stage.getZ()])
+		self.sc_MicroFocusSampleX(stage.getX())
+		self.sc_MicroFocusSampleY(stage.getY())
+		self.sc_sample_z(stage.getZ())
 
 		att2 = sampleParameters.getAttenuatorParameter2()
 		att1 = sampleParameters.getAttenuatorParameter1()
-		pos([rootnamespace['D7A'], att1.getSelectedPosition(), rootnamespace['D7B'], att2.getSelectedPosition()])
+		
+		self.D7A(att1.getSelectedPosition())
+		self.D7B(att2.getSelectedPosition())

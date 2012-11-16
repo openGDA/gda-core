@@ -11,7 +11,7 @@ class I18DetectorPreparer:
     def __init__(self):
         pass
         
-    def prepare(self, detectorParameters, outputParameters, scriptFolder, beanGroup):
+    def prepare(self, detectorParameters, outputParameters, scriptFolder):
         if detectorParameters.getExperimentType() == "Fluorescence":
             if (detectorParameters.getDetectorType() == "Germanium"):
                 fullFileName = scriptFolder + detectorParameters.getConfigFileName()
@@ -24,43 +24,6 @@ class I18DetectorPreparer:
                     element.setWindow(rois.get(0).getRoiStart(), rois.get(0).getRoiEnd())
                 BeansFactory.saveBean(File(fullFileName), bean)
             self.configFluoDetector(detectorParameters, outputParameters, scriptFolder)
-            
-        scan = beanGroup.getScan()
-        collectionTime = 0.0
-        if isinstance(scan, XanesScanParameters):
-            regions = scan.getRegions()        
-            for region in regions:
-                if(collectionTime < region.getTime()):
-                    collectionTime = region.getTime()
-        elif isinstance(scan, QEXAFSParameters):
-            pass
-        else:
-            collectionTime = scan.getExafsTime()
-            if(scan.getExafsToTime() > collectionTime):
-                collectionTime = scan.getExafsToTime()
-        print "setting collection time to" , str(collectionTime)
-        
-        command_server = Finder.getInstance().find("command_server")
-
-        topupMonitor = command_server.getFromJythonNamespace("topupMonitor", None)
-        topupMonitor.setPauseBeforePoint(True)
-        topupMonitor.setPauseBeforeLine(False)
-        topupMonitor.setCollectionTime(collectionTime)
-
-        beam = command_server.getFromJythonNamespace("beam", None)
-        beam.setPauseBeforePoint(True)
-        beam.setPauseBeforeLine(True)
-        add_default(beam)
-
-        detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
-        if(beanGroup.getDetector().getExperimentType() == "Fluorescence" and beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium"): 
-            add_default(detectorFillingMonitor)
-            detectorFillingMonitor.setPauseBeforePoint(True)
-            detectorFillingMonitor.setPauseBeforeLine(False)
-            detectorFillingMonitor.setCollectionTime(collectionTime)
-
-        trajBeamMonitor = command_server.getFromJythonNamespace("trajBeamMonitor", None)
-        trajBeamMonitor.setActive(False)
 
     """
     Validates the bean which defines the detectors and then configures the vortex or xspress
