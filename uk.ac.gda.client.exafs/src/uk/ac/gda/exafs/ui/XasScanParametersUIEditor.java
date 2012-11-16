@@ -206,7 +206,6 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		preEdgeStep.setMinimum(0.1);
 		preEdgeStep.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		preEdgeStep.setUnit("eV");
-		preEdgeStep.setDoNotUseExpressions(true);
 
 		final Label preedgeStepTimeLabel = new Label(edgeParametersGroup, SWT.NONE);
 		preedgeStepTimeLabel.setText("Pre-Edge Time Step");
@@ -216,7 +215,6 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		preEdgeTime.setUnit("s");
 		preEdgeTime.setMaximum(20);
 		preEdgeTime.setMinimum(0.1);
-		preEdgeTime.setDoNotUseExpressions(true);
 		
 		final Label stepLabel_1 = new Label(edgeParametersGroup, SWT.NONE);
 		stepLabel_1.setText("Edge Energy Step");
@@ -226,7 +224,6 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		edgeStep.setMaximum(20);
 		edgeStep.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		edgeStep.setUnit("eV");
-		edgeStep.setDoNotUseExpressions(true);
 		
 		final Label edgeStepTimeLabel = new Label(edgeParametersGroup, SWT.NONE);
 		edgeStepTimeLabel.setText("Edge Time Step");
@@ -236,7 +233,6 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		edgeTime.setMaximum(20);
 		edgeTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		edgeTime.setUnit("s");
-		edgeTime.setDoNotUseExpressions(true);
 		
 		final Label scanTypeLabel = new Label(edgeParametersGroup, SWT.NONE);
 		scanTypeLabel.setText("Exafs Step Type");
@@ -254,7 +250,6 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		exafsStep.setUnit("eV");
 		exafsStep.setMaximum(100d);
 		exafsStep.setDecimalPlaces(3);
-		exafsStep.setDoNotUseExpressions(true);
 		
 		final Label exafsTimeTypeLabel = new Label(edgeParametersGroup, SWT.NONE);
 		exafsTimeTypeLabel.setText("Exafs Time Type");
@@ -280,7 +275,6 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		exafsFromTime.setMaximum(20);
 		exafsFromTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		exafsFromTime.setUnit("s");
-		exafsFromTime.setDoNotUseExpressions(true);
 		
 		this.exafsToLabel = new Label(edgeParametersGroup, SWT.NONE);
 		exafsToLabel.setText("Exafs To Time");
@@ -290,7 +284,6 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		exafsToTime.setMaximum(20);
 		exafsToTime.setMinimum(exafsFromTime);
 		exafsToTime.setUnit("s");
-		exafsToTime.setDoNotUseExpressions(true);
 		
 		this.kWeightingLabel = new Label(edgeParametersGroup, SWT.NONE);
 		kWeightingLabel.setText("K Weighting");
@@ -299,7 +292,6 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		this.kWeighting.setValue("1");
 		kWeighting.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		kWeighting.setMaximum(3);
-		kWeighting.setDoNotUseExpressions(true);
 	}
 
 	private void createScanParameters(Composite centre) {

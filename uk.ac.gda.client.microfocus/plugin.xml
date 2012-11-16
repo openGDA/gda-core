@@ -32,7 +32,7 @@
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
-            class="uk.ac.gda.client.microfocus.ui.MicroFocusPespective"
+            class="uk.ac.gda.client.microfocus.ui.MicroFocusPerspective"
             id="uk.ac.gda.microfocus.ui.MicroFocusPerspective"
             name="Microfocus">
       </perspective>
