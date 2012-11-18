@@ -44,16 +44,16 @@ import org.eclipse.swt.widgets.TableColumn;
 
 import uk.ac.gda.richbeans.components.FieldComposite;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
-import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
-import uk.ac.gda.richbeans.event.ValueEvent;
-import uk.ac.gda.richbeans.event.ValueListener;
+import uk.ac.gda.richbeans.components.wrappers.ComboWrapperWithGetCombo;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 
 /**
  *
  */
 public final class SimpleScanComposite extends Composite {
 
-	private ComboWrapper scannableName;
+	private ComboWrapperWithGetCombo scannableName;
 	private ScaleBox fromPos;
 	private ScaleBox toPos;
 	private ScaleBox stepSize;
@@ -107,12 +107,32 @@ public final class SimpleScanComposite extends Composite {
 
 		setLayout(new GridLayout(1, false));
 		this.fromPos = new ScaleBox(composite, SWT.NONE);
+		fromPos.getControl().addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				bean.setScannableName(scannableName.getItem(scannableName.getSelectionIndex()));
+				try {
+					setMotorLimits(bean.getScannableName(), fromPos);
+				} catch (Exception e1) {
+				}
+			}
+		});
 		fromPos.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
 		lblTo = new Label(composite, SWT.NONE);
 		lblTo.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblTo.setText("To");
 		this.toPos = new ScaleBox(composite, SWT.NONE);
+		toPos.getControl().addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				bean.setScannableName(scannableName.getItem(scannableName.getSelectionIndex()));
+				try {
+					setMotorLimits(bean.getScannableName(), toPos);
+				} catch (Exception e1) {
+				}
+			}
+		});
 		toPos.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
 		try {
@@ -147,8 +167,11 @@ public final class SimpleScanComposite extends Composite {
 		createScanButton(this);
 
 		this.fromPos.setValue(bean.getFromPos());
+		new Label(fromPos, SWT.NONE);
 		this.toPos.setValue(bean.getToPos());
+		new Label(toPos, SWT.NONE);
 		this.stepSize.setValue(bean.getStepSize());
+		new Label(stepSize, SWT.NONE);
 		this.acqTime.setValue(bean.getAcqTime());
 
 		scannables = bean.getScannables();
@@ -256,21 +279,20 @@ public final class SimpleScanComposite extends Composite {
 	}
 
 	public void createScannables(Composite comp) {
-		this.scannableName = new ComboWrapper(comp, SWT.NONE);
-		scannableName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		scannableName.addValueListener(new ValueListener() {
+		this.scannableName = new ComboWrapperWithGetCombo(comp, SWT.NONE);
+		scannableName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));	
+		scannableName.getCombo().addSelectionListener(new SelectionListener() {
 			@Override
-			public void valueChangePerformed(ValueEvent e) {
+			public void widgetSelected(SelectionEvent e) {
 				try {
+					bean.setScannableName(scannableName.getItem(scannableName.getSelectionIndex()));
 					setMotorLimits(bean.getScannableName(), fromPos);
 					setMotorLimits(bean.getScannableName(), toPos);
 				} catch (Exception e1) {
 				}
 			}
-
 			@Override
-			public String getValueListenerName() {
-				return null;
+			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});
 	}
@@ -400,5 +422,9 @@ public final class SimpleScanComposite extends Composite {
 
 	public FieldComposite getScannableName() {
 		return scannableName;
+	}
+	
+	public void setBean(SimpleScan bean) {
+		this.bean = bean;
 	}
 }

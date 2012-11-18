@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -42,7 +44,7 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
 public class SimpleScanView extends ViewPart {
 	private static final Logger logger = LoggerFactory.getLogger(XMLHelpers.class);
 	private String path;
-	SimpleScan editingBean = null;
+	SimpleScan bean = null;
 	SimpleScanComposite simpleScanComposite;
 	PosComposite posComposite;
 	AddDevicesComposite addDevicesComposite;
@@ -58,8 +60,8 @@ public class SimpleScanView extends ViewPart {
 		public void partDeactivated(IWorkbenchPart part) {
 			if(part instanceof SimpleScanView){
 			try {
-				BeanUI.uiToBean(simpleScanComposite, editingBean);
-				XMLHelpers.writeToXML(SimpleScan.mappingURL, editingBean, path);
+				BeanUI.uiToBean(simpleScanComposite, bean);
+				XMLHelpers.writeToXML(SimpleScan.mappingURL, bean, path);
 			} catch (Exception e) {
 			}
 			}
@@ -77,7 +79,7 @@ public class SimpleScanView extends ViewPart {
 	public void createPartControl(Composite parent) {
         path = LocalProperties.getConfigDir() + File.separator+ "templates" + File.separator+ "simpleScan.xml";
         try {
-			editingBean = (SimpleScan) XMLHelpers.createFromXML(SimpleScan.mappingURL, SimpleScan.class,
+			bean = (SimpleScan) XMLHelpers.createFromXML(SimpleScan.mappingURL, SimpleScan.class,
 					SimpleScan.schemaURL, path);
 		} catch (Exception e) {
 			logger.error("Could not load xml " + path + " into bean", e);
@@ -98,14 +100,82 @@ public class SimpleScanView extends ViewPart {
 		GridLayout gl_composite = new GridLayout(2, false);
 		composite.setLayout(gl_composite);
         
-        posComposite = new PosComposite(composite, SWT.NONE, editingBean);
-        addDevicesComposite = new AddDevicesComposite(composite, SWT.NONE, editingBean);
+        posComposite = new PosComposite(composite, SWT.NONE, bean);
+        addDevicesComposite = new AddDevicesComposite(composite, SWT.NONE, bean);
+		simpleScanComposite = new SimpleScanComposite(parent, SWT.NONE, bean);
+		
+		
+		addDevicesComposite.getAddScannable().addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				String foundScannableName = addDevicesComposite.getScannableManagerComposite().getScannableName().getText();
+				ScannableManagerBean smb = new ScannableManagerBean();
+				smb.setScannableName(foundScannableName);
+				if (addDevicesComposite.getScannableManagerComposite().getScannableName().isFound()) {
+					bean.addScannable(smb);
+				}
+				updateBeans();
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+			}
+		});
 
-		simpleScanComposite = new SimpleScanComposite(parent, SWT.NONE, editingBean);
+		addDevicesComposite.getRemoveScannable().addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				bean.removeScannable(addDevicesComposite.getScannables().getSelected());
+				updateBeans();
+			}
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+			}
+		});
+		
+
+		addDevicesComposite.getAddDetector().addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				String foundDetectorName = addDevicesComposite.getDetectorManagerComposite().getDetectorName().getText();
+				DetectorManagerBean smb = new DetectorManagerBean();
+				smb.setDetectorName(foundDetectorName);
+				smb.setDetectorDescription("");
+				if (addDevicesComposite.getDetectorManagerComposite().getDetectorName().isFound()) {
+					bean.addDetector(smb);
+					updateBeans();
+				}
+			}
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+			}
+		});
+		
+		addDevicesComposite.getRemoveDetector().addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				bean.removeDetector(addDevicesComposite.getDetectors().getSelected());
+				updateBeans();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+			}
+		});
 		
 		getSite().getPage().addPartListener(partListener);
 	}
 
+	private void updateBeans(){
+		posComposite.setBean(bean);
+		addDevicesComposite.setBean(bean);
+		simpleScanComposite.setBean(bean);
+		
+		addDevicesComposite.updateScannables();
+		posComposite.updateScannables();
+		simpleScanComposite.updateScannables();
+	}
+	
 	@Override
 	public void setFocus() {
 	}
