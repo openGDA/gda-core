@@ -93,13 +93,13 @@ public class GasFilling extends Composite {
 
 		textEnergy = new Text(compositeEnergy, SWT.BORDER);
 		GridData gd_textEnergy = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_textEnergy.widthHint = 72;
+		gd_textEnergy.widthHint = 61;
 		textEnergy.setLayoutData(gd_textEnergy);
 		textEnergy.setText("10500ev");
 
 		Button btnSetDefaultMix = new Button(compositeEnergy, SWT.NONE);
 		GridData gd_btnSetDefaultMix = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
-		gd_btnSetDefaultMix.widthHint = 128;
+		gd_btnSetDefaultMix.widthHint = 125;
 		btnSetDefaultMix.setLayoutData(gd_btnSetDefaultMix);
 		btnSetDefaultMix.setText("Set Default Mix");
 		new Label(compositeEnergy, SWT.NONE);
