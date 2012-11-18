@@ -27,13 +27,11 @@ import org.eclipse.swt.SWT;
 public class EnabledEditingSupport extends EditingSupport {
 	private TableViewer viewer;
 	private SimpleScan bean;
-	private SimpleScanUIEditor editor;
 	
-	public EnabledEditingSupport(TableViewer viewer, SimpleScan bean, SimpleScanUIEditor editor) {
+	public EnabledEditingSupport(TableViewer viewer, SimpleScan bean) {
 		super(viewer);
 		this.viewer = viewer;
 		this.bean = bean;
-		this.editor = editor;
 	}
 
 	@Override
