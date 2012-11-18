@@ -179,21 +179,25 @@ public class GasFilling extends Composite {
 		lblTotalPressure.setText("Total Pressure");
 
 		textTotalPressure = new Text(compositeAdvanced, SWT.BORDER);
+		textTotalPressure.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
 
 		Label lblNewLabel = new Label(compositeAdvanced, SWT.NONE);
 		lblNewLabel.setText("Chamber Length");
 
 		textIonChamberLength = new Text(compositeAdvanced, SWT.BORDER);
+		textIonChamberLength.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
 
 		Label lblNewLabel_1 = new Label(compositeAdvanced, SWT.NONE);
 		lblNewLabel_1.setText("Fill 1 Period");
 
 		textFill1Period = new Text(compositeAdvanced, SWT.BORDER);
+		textFill1Period.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
 
 		Label lblFillPeriod = new Label(compositeAdvanced, SWT.NONE);
 		lblFillPeriod.setText("Fill 2 Period");
 
 		textFill2Period = new Text(compositeAdvanced, SWT.BORDER);
+		textFill2Period.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
 
 		expandItemAdvanced.setControl(compositeAdvanced);
 	}

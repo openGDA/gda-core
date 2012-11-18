@@ -57,6 +57,7 @@ public class VoltageSupply extends Composite{
 		lblNewLabel.setText("Current Voltage");
 		
 		Label lblNewLabel_2 = new Label(grpVoltageSupply, SWT.NONE);
+		lblNewLabel_2.setText("1200 V");
 		
 		Button btnNewButton = new Button(grpVoltageSupply, SWT.NONE);
 		btnNewButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
