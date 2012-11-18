@@ -41,32 +41,17 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.ui.forms.events.ExpansionAdapter;
-import org.eclipse.ui.forms.events.ExpansionEvent;
-import org.eclipse.ui.forms.widgets.ExpandableComposite;
 
-import uk.ac.gda.common.rcp.util.GridUtils;
-import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.components.FieldComposite;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
-import uk.ac.gda.richbeans.components.selector.BeanSelectionEvent;
-import uk.ac.gda.richbeans.components.selector.BeanSelectionListener;
 import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.event.ValueEvent;
 import uk.ac.gda.richbeans.event.ValueListener;
-import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 /**
  *
  */
 public final class SimpleScanComposite extends Composite {
-
-	private Group grpPos;
-	private ScaleBox textTo;
-	private Label lblReadback;
-	private Label lblReadbackVal;
-	private Button btnTo;
-	private Button btnReadback;
 	
 	private ScaleBox fromPos;
 	private ScaleBox toPos;
@@ -74,51 +59,35 @@ public final class SimpleScanComposite extends Composite {
 	private ScaleBox acqTime;
 	private Group grpScannable;
 	private Composite composite;
-	private Composite posComposite;
 	private Label lblScannable;
 	private Label lblFrom;
 	private Label lblTo;
 	private Label lblStep;
 	private SimpleScan bean;
 	private Composite detComposite;
-	private ExpandableComposite configureDevicesExpandableComposite;
 	private ComboWrapper scannableName;
-	private ObjectListEditor scannableList;
-	private ObjectListEditor detectorList;
-	private ScannableManagerComposite scannableManagerComposite;
-	private DetectorManagerComposite detectorManagerComposite;
-	private Button addScannable;
-	private Button removeScannable;
-	private Button addDetector;
-	private Button removeDetector;
 	private Label lblAcqTime_1;
 	protected TableViewer viewer;
 	private Image CHECKED;
 	private Image UNCHECKED;
 	private DescriptionEditingSupport des;
 	private EnabledEditingSupport detEnabled;
-	private SimpleScanUIEditor editor;
-	private String path;
 	
-	public SimpleScanComposite(Composite parent, int style, Object editingBean, SimpleScanUIEditor editor) {
+	
+	public SimpleScanComposite(Composite parent, int style, Object editingBean) {
 		super(parent, style);
-		path = "/uk.ac.gda.client/src/gda/simplescan/simpleScan.xml";
+		
 		CHECKED = GDAClientActivator.getImageDescriptor("icons/checked.gif").createImage();
 		UNCHECKED = GDAClientActivator.getImageDescriptor("icons/unchecked.gif").createImage();
 
 		bean = (SimpleScan) editingBean;
-		this.editor = editor;
 		
 		grpScannable = new Group(this, SWT.NONE);
 		GridData gd_grpScannable = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_grpScannable.widthHint = 597;
 		grpScannable.setLayoutData(gd_grpScannable);
 		grpScannable.setText("Scan");
-		GridData gd_grpDetectors = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_grpDetectors.widthHint = 597;
-		grpScannable.setLayoutData(gd_grpDetectors);
 		grpScannable.setLayout(new GridLayout(1, false));
-		
 		
 		composite = new Composite(grpScannable, SWT.NONE);
 		GridData gd_composite = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
@@ -138,14 +107,14 @@ public final class SimpleScanComposite extends Composite {
 		this.fromPos = new ScaleBox(composite, SWT.NONE);
 		fromPos.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
-		new Label(fromPos, SWT.NONE);
+
 		
 		lblTo = new Label(composite, SWT.NONE);
 		lblTo.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblTo.setText("To");
 		this.toPos = new ScaleBox(composite, SWT.NONE);
 		toPos.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		new Label(toPos, SWT.NONE);
+
 
 		try {
 			setMotorLimits(bean.getScannableName(), fromPos);
@@ -158,9 +127,8 @@ public final class SimpleScanComposite extends Composite {
 		lblStep.setText("Step");
 		this.stepSize = new ScaleBox(composite, SWT.NONE);
 		stepSize.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		new Label(stepSize, SWT.NONE);
-		new Label(composite, SWT.NONE);
 
+		new Label(composite, SWT.NONE);
 
 		detComposite = new Composite(grpScannable, SWT.NONE);
 		GridLayout gl_detComposite = new GridLayout(1, false);
@@ -176,57 +144,6 @@ public final class SimpleScanComposite extends Composite {
 		createDetectors(detComposite);
 
 		createScanButton(this);
-		
-		configureDevicesExpandableComposite = new ExpandableComposite(this, SWT.NONE);
-		configureDevicesExpandableComposite.setText("Scannable/Detector List");
-		configureDevicesExpandableComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
-
-		final Composite configDevicesComp = new Composite(configureDevicesExpandableComposite, SWT.NONE);
-		GridLayout gridLayout = new GridLayout();
-		gridLayout.numColumns = 2;
-		configDevicesComp.setLayout(gridLayout);
-		
-		addDevices(configDevicesComp);
-		
-		updateScannables();
-
-		addScannable.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				String foundScannableName = scannableManagerComposite.getScannableName().getText();
-				ScannableManagerBean smb = new ScannableManagerBean();
-				smb.setScannableName(foundScannableName);
-				if (scannableManagerComposite.getScannableName().isFound()) {
-					bean.addScannable(smb);
-					updateScannables();
-				}
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent arg0) {
-			}
-		});
-		
-		updateDetectors();
-
-		addDetector.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				String foundDetectorName = detectorManagerComposite.getDetectorName().getText();
-				DetectorManagerBean smb = new DetectorManagerBean();
-				smb.setDetectorName(foundDetectorName);
-				smb.setDetectorDescription("");
-
-				if (detectorManagerComposite.getDetectorName().isFound()) {
-					bean.addDetector(smb);
-					updateDetectors();
-				}
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent arg0) {
-			}
-		});
 		
 		this.fromPos.setValue(bean.getFromPos());
 		this.toPos.setValue(bean.getToPos());
@@ -292,8 +209,6 @@ public final class SimpleScanComposite extends Composite {
 		double step = stepSize.getNumericValue();
 		Double acq = acqTime.getNumericValue();
 		
-		
-		
 		if(bean.getDetectors().size()==0){
 			String command = "scan "+ scannable_name + " " + from + " " + to + " " + step;
 			JythonServerFacade.getInstance().runCommand(command);
@@ -325,46 +240,6 @@ public final class SimpleScanComposite extends Composite {
 			box.setMaximum(99999);
 	}
 
-	public void updateScannables() {
-		List<String> names = new ArrayList<String>(bean.getScannables().size());
-		String[] comboNames = new String[bean.getScannables().size()+1];
-		comboNames[0] = "";
-		for (int i = 1; i < bean.getScannables().size()+1; i++) {
-			names.add(bean.getScannables().get(i-1).getScannableName());
-			comboNames[i] = bean.getScannables().get(i-1).getScannableName();
-		}
-
-		scannableList.addItem(names);
-		scannableName.setItems(comboNames);
-		
-		List<ScannableManagerBean> scannables = bean.getScannables();
-		boolean found=false;
-		
-		for(int i=0;i<scannables.size();i++){
-			if(scannables.get(i).getScannableName().equals(bean.getScannableName())){
-				scannableName.select(i+1);
-				found=true;
-			}
-		}
-		if(!found)
-			scannableName.select(0);
-		
-	}
-
-	public void updateDetectors() {
-		List<String> names = new ArrayList<String>(bean.getDetectors().size());
-		String[] comboNames = new String[bean.getDetectors().size()];
-		for (int i = 0; i < bean.getDetectors().size(); i++) {
-			names.add(bean.getDetectors().get(i).getDetectorName());
-			comboNames[i] = bean.getDetectors().get(i).getDetectorName();
-		}
-		if (names.size() > 0) {
-			detectorList.addItem(names);
-			viewer.setInput(names);
-			viewer.refresh();
-		}
-	}	
-	
 	public void createScannables(Composite comp) {
 		this.scannableName = new ComboWrapper(comp, SWT.NONE);
 		scannableName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -383,7 +258,6 @@ public final class SimpleScanComposite extends Composite {
 				return null;
 			}
 		});
-
 	}
 
 	public void createDetectors(Composite comp) {
@@ -425,8 +299,7 @@ public final class SimpleScanComposite extends Composite {
 		enabledColumn.setResizable(true);
 		enabledColumn.setMoveable(true);
 		
-
-		detEnabled = new EnabledEditingSupport(viewer, bean, editor);
+		detEnabled = new EnabledEditingSupport(viewer, bean);
 
 		enabledCol.setLabelProvider(new CellLabelProvider() {
 			@Override
@@ -464,7 +337,7 @@ public final class SimpleScanComposite extends Composite {
 		descriptionColumn.setWidth(150);
 		descriptionColumn.setResizable(true);
 		descriptionColumn.setMoveable(true);
-		des = new DescriptionEditingSupport(viewer, bean, editor);
+		des = new DescriptionEditingSupport(viewer, bean);
 
 		descriptionCol.setLabelProvider(new CellLabelProvider() {
 			@Override
@@ -491,110 +364,7 @@ public final class SimpleScanComposite extends Composite {
 
 	}
 
-	private void addDevices(final Composite composite) {
-		final Group addScannableGroup = new Group(composite, SWT.NONE);
-		addScannableGroup.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false));
-		GridLayout gridLayout = new GridLayout();
-		gridLayout.numColumns = 1;
-		addScannableGroup.setLayout(gridLayout);
 
-		Composite findScannableComp = new Composite(addScannableGroup, SWT.NONE);
-		GridLayout gl_findScannableComp = new GridLayout(2, false);
-		gl_findScannableComp.marginWidth = 0;
-		gl_findScannableComp.verticalSpacing = 0;
-		findScannableComp.setLayout(gl_findScannableComp);
-		findScannableComp.setLayoutData(new GridData(SWT.CENTER, SWT.TOP, false, false));
-
-		scannableList = new ObjectListEditor(addScannableGroup, SWT.NONE, "Scannables");
-
-		scannableManagerComposite = new ScannableManagerComposite(findScannableComp, SWT.NONE);
-
-		scannableList.setEditorClass(ScannableManagerBean.class);
-		scannableList.setEditorUI(scannableManagerComposite);
-		scannableList.addBeanSelectionListener(new BeanSelectionListener() {
-			@Override
-			public void selectionChanged(BeanSelectionEvent evt) {
-				scannableManagerComposite.selectionChanged((ScannableManagerBean) evt.getSelectedBean());
-			}
-		});
-
-		addScannable = new Button(findScannableComp, SWT.PUSH);
-		addScannable.setText("Add Scannable");
-
-		removeScannable = new Button(addScannableGroup, SWT.PUSH);
-		removeScannable.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-		removeScannable.setText("Remove Scannable");
-
-		removeScannable.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				bean.removeScannable(scannableList.getSelected());
-				updateScannables();
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent arg0) {
-			}
-		});
-		
-		final Group addDetectorGroup = new Group(composite, SWT.NONE);
-		addDetectorGroup.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false));
-		gridLayout = new GridLayout();
-		gridLayout.numColumns = 1;
-		gridLayout.marginWidth=0;
-		gridLayout.horizontalSpacing=0;
-		
-		addDetectorGroup.setLayout(gridLayout);
-
-		Composite findDetectorComp = new Composite(addDetectorGroup, SWT.NONE);
-		GridLayout gl = new GridLayout(2, false);
-		gl.marginWidth = 0;
-		gl.verticalSpacing = 0;
-		findDetectorComp.setLayout(gl);
-		findDetectorComp.setLayoutData(new GridData(SWT.CENTER, SWT.TOP, false, false));
-
-		detectorList = new ObjectListEditor(addDetectorGroup, SWT.NONE, "Detectors");
-
-		detectorManagerComposite = new DetectorManagerComposite(findDetectorComp, SWT.NONE);
-
-		detectorList.setEditorClass(DetectorManagerBean.class);
-		detectorList.setEditorUI(detectorManagerComposite);
-		detectorList.addBeanSelectionListener(new BeanSelectionListener() {
-			@Override
-			public void selectionChanged(BeanSelectionEvent evt) {
-				detectorManagerComposite.selectionChanged((DetectorManagerBean) evt.getSelectedBean());
-			}
-		});
-
-		addDetector = new Button(findDetectorComp, SWT.PUSH);
-		addDetector.setText("Add Detector ");
-
-		removeDetector = new Button(addDetectorGroup, SWT.PUSH);
-		removeDetector.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-		removeDetector.setText("Remove Detector");
-		
-		removeDetector.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				bean.removeDetector(detectorList.getSelected());
-				updateDetectors();
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent arg0) {
-			}
-		});
-		
-		configureDevicesExpandableComposite.setClient(composite);
-
-		ExpansionAdapter addScannableExpansionListener = new ExpansionAdapter() {
-			@Override
-			public void expansionStateChanged(ExpansionEvent e) {
-				GridUtils.layoutFull(composite.getParent());
-			}
-		};
-		configureDevicesExpandableComposite.addExpansionListener(addScannableExpansionListener);
-	}
 	
 	public SimpleScan getBean(){
 		return bean;
@@ -614,14 +384,6 @@ public final class SimpleScanComposite extends Composite {
 
 	public ScaleBox getAcqTime() {
 		return acqTime;
-	}
-
-	public ObjectListEditor getScannables() {
-		return scannableList;
-	}
-
-	public ObjectListEditor getDetectors() {
-		return detectorList;
 	}
 	
 	public FieldComposite getScannableName(){

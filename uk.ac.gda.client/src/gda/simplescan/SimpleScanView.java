@@ -18,8 +18,12 @@
 
 package gda.simplescan;
 
+import gda.configuration.properties.LocalProperties;
+
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -41,6 +45,7 @@ public class SimpleScanView extends ViewPart {
 	SimpleScan editingBean = null;
 	SimpleScanComposite simpleScanComposite;
 	PosComposite posComposite;
+	AddDevicesComposite addDevicesComposite;
 	
 	private IPartListener partListener = new IPartListener() {
 		@Override
@@ -70,27 +75,78 @@ public class SimpleScanView extends ViewPart {
 	
 	@Override
 	public void createPartControl(Composite parent) {
-		URL url = SimpleScan.class.getResource("simpleScan.xml");
-		String dir = (new File(EclipseUtils.getAbsoluteUrl(url).getFile())).getAbsolutePath();
+        path = LocalProperties.getConfigDir() + File.separator+ "templates" + File.separator+ "simpleScan.xml";
         try {
 			editingBean = (SimpleScan) XMLHelpers.createFromXML(SimpleScan.mappingURL, SimpleScan.class,
-					SimpleScan.schemaURL, dir);
+					SimpleScan.schemaURL, path);
 		} catch (Exception e) {
 			logger.error("Could not load xml " + path + " into bean", e);
 		}
         
-		Composite posComposite = new Composite(parent, SWT.NONE);
-		GridData gd_posComposite = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
-		gd_posComposite.widthHint = 900;
-		posComposite.setLayoutData(gd_posComposite);
-		GridLayout gl_posComposite = new GridLayout(1, false);
-		posComposite.setLayout(gl_posComposite);
         
-        posComposite = new PosComposite(posComposite, SWT.NONE, editingBean);
-		simpleScanComposite = new SimpleScanComposite(posComposite, SWT.NONE, editingBean, null);
+        GridLayout gl = new GridLayout(1, false);
+        parent.setLayout(gl);
+        GridData gd = new GridData(SWT.LEFT, SWT.TOP, true, false, 1, 1);
+        gd.horizontalIndent=0;
+        gd.verticalIndent=0;
+        
+        parent.setLayoutData(gd);
+		
+		Composite composite = new Composite(parent, SWT.NONE);
+		GridData gd_composite = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
+		gd_composite.widthHint = 900;
+		composite.setLayoutData(gd_composite);
+		GridLayout gl_composite = new GridLayout(2, false);
+		composite.setLayout(gl_composite);
+        
+        posComposite = new PosComposite(composite, SWT.NONE, editingBean);
+        addDevicesComposite = new AddDevicesComposite(composite, SWT.NONE);
+
+		simpleScanComposite = new SimpleScanComposite(parent, SWT.NONE, editingBean);
 		
 		getSite().getPage().addPartListener(partListener);
 	}
+	
+
+	
+	public void updateScannables() {
+//		List<String> names = new ArrayList<String>(bean.getScannables().size());
+//		String[] comboNames = new String[bean.getScannables().size()+1];
+//		comboNames[0] = "";
+//		for (int i = 1; i < bean.getScannables().size()+1; i++) {
+//			names.add(bean.getScannables().get(i-1).getScannableName());
+//			comboNames[i] = bean.getScannables().get(i-1).getScannableName();
+//		}
+//
+//		scannableList.addItem(names);
+//		scannableName.setItems(comboNames);
+//		
+//		List<ScannableManagerBean> scannables = bean.getScannables();
+//		boolean found=false;
+//		
+//		for(int i=0;i<scannables.size();i++){
+//			if(scannables.get(i).getScannableName().equals(bean.getScannableName())){
+//				scannableName.select(i+1);
+//				found=true;
+//			}
+//		}
+//		if(!found)
+//			scannableName.select(0);
+	}
+
+	public void updateDetectors() {
+//		List<String> names = new ArrayList<String>(bean.getDetectors().size());
+//		String[] comboNames = new String[bean.getDetectors().size()];
+//		for (int i = 0; i < bean.getDetectors().size(); i++) {
+//			names.add(bean.getDetectors().get(i).getDetectorName());
+//			comboNames[i] = bean.getDetectors().get(i).getDetectorName();
+//		}
+//		if (names.size() > 0) {
+//			detectorList.addItem(names);
+//			viewer.setInput(names);
+//			viewer.refresh();
+//		}
+	}	
 
 	@Override
 	public void setFocus() {

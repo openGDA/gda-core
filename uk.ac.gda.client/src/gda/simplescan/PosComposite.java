@@ -18,6 +18,8 @@
 
 package gda.simplescan;
 
+import gda.jython.JythonServerFacade;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -38,86 +40,82 @@ public class PosComposite extends Composite {
 	private ComboWrapper scannableName;
 	SimpleScan bean;
 	private Text text;
-
+	ScaleBox textTo;
+	
 	public PosComposite(Composite parent, int style, Object editingBean) {
 		super(parent, style);
-
+		setLayout(new GridLayout(1, false));
 		bean = (SimpleScan) editingBean;
 
 		Group grpPos = new Group(this, SWT.NONE);
-		grpPos.setBounds(0, 0, 232, 174);
-		GridData gd_grpScannable = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_grpScannable.widthHint = 597;
-		grpPos.setLayoutData(gd_grpScannable);
+		GridData gd_grpPos = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_grpPos.widthHint = 231;
+		grpPos.setLayoutData(gd_grpPos);
 		grpPos.setText("Pos");
 		grpPos.setLayout(new GridLayout(1, false));
-
+		
 		Composite posComposite = new Composite(grpPos, SWT.NONE);
-		GridData gd_posComposite = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
-		gd_posComposite.widthHint = 218;
+		GridData gd_posComposite = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_posComposite.widthHint = 197;
 		posComposite.setLayoutData(gd_posComposite);
-		GridLayout gl_posComposite = new GridLayout(2, false);
-		gl_posComposite.horizontalSpacing = 3;
-		posComposite.setLayout(gl_posComposite);
+		posComposite.setLayout(new GridLayout(2, false));
 
 		Label lblScannable = new Label(posComposite, SWT.NONE);
 		lblScannable.setText("Scannable");
 
 		createScannables(posComposite);
-		
-		
-		
+
 		Composite composite_2 = new Composite(grpPos, SWT.NONE);
 		GridData gd_composite_2 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_composite_2.widthHint = 218;
 		composite_2.setLayoutData(gd_composite_2);
 		composite_2.setLayout(new GridLayout(3, false));
-		
-				Label lblTo = new Label(composite_2, SWT.NONE);
-				lblTo.setText("Demand");
-				ScaleBox textTo = new ScaleBox(composite_2, SWT.NONE);
-				((GridData) textTo.getControl().getLayoutData()).widthHint = 75;
-				textTo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-				new Label(textTo, SWT.NONE);
-				
-				Label lblIdle = new Label(composite_2, SWT.NONE);
-				lblIdle.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-				lblIdle.setText("Idle");
-				
-						Label lblReadback = new Label(composite_2, SWT.NONE);
-						lblReadback.setText("Readback");
-						Label lblReadbackVal = new Label(composite_2, SWT.NONE);
-						lblReadbackVal.setText("2.335mm");
-						
-						Button btnStop = new Button(composite_2, SWT.NONE);
-						btnStop.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-						btnStop.setText("Stop");
-						
-						Label lblIncrement = new Label(composite_2, SWT.NONE);
-						lblIncrement.setText("Increment");
-						
-						text = new Text(composite_2, SWT.BORDER);
-						
-						Composite composite = new Composite(composite_2, SWT.NONE);
-						GridLayout gl_composite = new GridLayout(2, false);
-						gl_composite.marginHeight = 0;
-						gl_composite.horizontalSpacing = 0;
-						gl_composite.marginWidth = 0;
-						composite.setLayout(gl_composite);
-						
-						Button btnNewButton = new Button(composite, SWT.NONE);
-						btnNewButton.setText("-");
-						GridData gd_btnNewButton = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
-						gd_btnNewButton.widthHint = 30;
-						btnNewButton.setLayoutData(gd_btnNewButton);
-						btnNewButton.setFont(SWTResourceManager.getFont("Sans", 12, SWT.BOLD));
-						
-						Button btnNewButton_1 = new Button(composite, SWT.NONE);
-						btnNewButton_1.setText("+");
-						GridData gd_btnNewButton_1 = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
-						gd_btnNewButton_1.widthHint = 30;
-						btnNewButton_1.setLayoutData(gd_btnNewButton_1);
-						btnNewButton_1.setFont(SWTResourceManager.getFont("Sans", 12, SWT.BOLD));
+
+		Label lblTo = new Label(composite_2, SWT.NONE);
+		lblTo.setText("Demand");
+		textTo = new ScaleBox(composite_2, SWT.NONE);
+		((GridData) textTo.getControl().getLayoutData()).widthHint = 75;
+		textTo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		new Label(textTo, SWT.NONE);
+
+		Label lblIdle = new Label(composite_2, SWT.NONE);
+		lblIdle.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+		lblIdle.setText("Idle");
+
+		Label lblReadback = new Label(composite_2, SWT.NONE);
+		lblReadback.setText("Readback");
+		Label lblReadbackVal = new Label(composite_2, SWT.NONE);
+		lblReadbackVal.setText("2.335mm");
+
+		Button btnStop = new Button(composite_2, SWT.NONE);
+		btnStop.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnStop.setText("Stop");
+
+		Label lblIncrement = new Label(composite_2, SWT.NONE);
+		lblIncrement.setText("Increment");
+
+		text = new Text(composite_2, SWT.BORDER);
+
+		Composite composite = new Composite(composite_2, SWT.NONE);
+		GridLayout gl_composite = new GridLayout(2, false);
+		gl_composite.marginHeight = 0;
+		gl_composite.horizontalSpacing = 0;
+		gl_composite.marginWidth = 0;
+		composite.setLayout(gl_composite);
+
+		Button btnNewButton = new Button(composite, SWT.NONE);
+		btnNewButton.setText("-");
+		GridData gd_btnNewButton = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
+		gd_btnNewButton.widthHint = 30;
+		btnNewButton.setLayoutData(gd_btnNewButton);
+		btnNewButton.setFont(SWTResourceManager.getFont("Sans", 12, SWT.BOLD));
+
+		Button btnNewButton_1 = new Button(composite, SWT.NONE);
+		btnNewButton_1.setText("+");
+		GridData gd_btnNewButton_1 = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+		gd_btnNewButton_1.widthHint = 30;
+		btnNewButton_1.setLayoutData(gd_btnNewButton_1);
+		btnNewButton_1.setFont(SWTResourceManager.getFont("Sans", 12, SWT.BOLD));
 	}
 
 	public void createScannables(Composite comp) {
@@ -127,8 +125,7 @@ public class PosComposite extends Composite {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
 				try {
-					// setMotorLimits(bean.getScannableName(), fromPos);
-					// setMotorLimits(bean.getScannableName(), toPos);
+					 setMotorLimits(bean.getScannableName(), textTo);
 				} catch (Exception e1) {
 				}
 			}
@@ -138,5 +135,18 @@ public class PosComposite extends Composite {
 				return null;
 			}
 		});
+	}
+	
+	public void setMotorLimits(String motorName, ScaleBox box) throws Exception {
+		String lowerLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getLowerInnerLimit()");
+		String upperLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getUpperInnerLimit()");
+		if(!lowerLimit.equals("None"))
+			box.setMinimum(Double.parseDouble(lowerLimit));
+		else
+			box.setMinimum(-99999);
+		if(!upperLimit.equals("None"))
+			box.setMaximum(Double.parseDouble(upperLimit));
+		else
+			box.setMaximum(99999);
 	}
 }
