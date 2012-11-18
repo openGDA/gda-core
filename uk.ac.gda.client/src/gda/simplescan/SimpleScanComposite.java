@@ -52,7 +52,8 @@ import uk.ac.gda.richbeans.event.ValueListener;
  *
  */
 public final class SimpleScanComposite extends Composite {
-	
+
+	private ComboWrapper scannableName;
 	private ScaleBox fromPos;
 	private ScaleBox toPos;
 	private ScaleBox stepSize;
@@ -65,30 +66,29 @@ public final class SimpleScanComposite extends Composite {
 	private Label lblStep;
 	private SimpleScan bean;
 	private Composite detComposite;
-	private ComboWrapper scannableName;
 	private Label lblAcqTime_1;
 	protected TableViewer viewer;
 	private Image CHECKED;
 	private Image UNCHECKED;
 	private DescriptionEditingSupport des;
 	private EnabledEditingSupport detEnabled;
-	
-	
+	private List<ScannableManagerBean> scannables;
+
 	public SimpleScanComposite(Composite parent, int style, Object editingBean) {
 		super(parent, style);
-		
+
 		CHECKED = GDAClientActivator.getImageDescriptor("icons/checked.gif").createImage();
 		UNCHECKED = GDAClientActivator.getImageDescriptor("icons/unchecked.gif").createImage();
 
 		bean = (SimpleScan) editingBean;
-		
+
 		grpScannable = new Group(this, SWT.NONE);
 		GridData gd_grpScannable = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_grpScannable.widthHint = 597;
 		grpScannable.setLayoutData(gd_grpScannable);
 		grpScannable.setText("Scan");
 		grpScannable.setLayout(new GridLayout(1, false));
-		
+
 		composite = new Composite(grpScannable, SWT.NONE);
 		GridData gd_composite = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_composite.widthHint = 580;
@@ -100,6 +100,8 @@ public final class SimpleScanComposite extends Composite {
 
 		createScannables(composite);
 
+		updateScannables();
+
 		lblFrom = new Label(composite, SWT.NONE);
 		lblFrom.setText("From");
 
@@ -107,21 +109,18 @@ public final class SimpleScanComposite extends Composite {
 		this.fromPos = new ScaleBox(composite, SWT.NONE);
 		fromPos.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
-
-		
 		lblTo = new Label(composite, SWT.NONE);
 		lblTo.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblTo.setText("To");
 		this.toPos = new ScaleBox(composite, SWT.NONE);
 		toPos.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
-
 		try {
 			setMotorLimits(bean.getScannableName(), fromPos);
 			setMotorLimits(bean.getScannableName(), toPos);
 		} catch (Exception e1) {
 		}
-		
+
 		lblStep = new Label(composite, SWT.NONE);
 		lblStep.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblStep.setText("Step");
@@ -143,86 +142,102 @@ public final class SimpleScanComposite extends Composite {
 
 		createDetectors(detComposite);
 
+		updateDetectors();
+
 		createScanButton(this);
-		
+
 		this.fromPos.setValue(bean.getFromPos());
 		this.toPos.setValue(bean.getToPos());
 		this.stepSize.setValue(bean.getStepSize());
 		this.acqTime.setValue(bean.getAcqTime());
-		
-		List<ScannableManagerBean> scannables = bean.getScannables();
+
+		scannables = bean.getScannables();
 		boolean found = false;
-		for(int i=0;i<scannables.size();i++){
-			if(scannables.get(i).getScannableName().equals(bean.getScannableName())){
-				this.scannableName.select(i+1);
-				found=true;
-			}	
+		for (int i = 0; i < scannables.size(); i++) {
+			if (scannables.get(i).getScannableName().equals(bean.getScannableName())) {
+				this.scannableName.select(i + 1);
+				found = true;
+			}
 		}
-		if(!found)
+		if (!found)
 			this.scannableName.select(0);
 	}
 
-	public void createPos(Composite comp) {
-		this.scannableName = new ComboWrapper(comp, SWT.NONE);
-		scannableName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		scannableName.addValueListener(new ValueListener() {
-			@Override
-			public void valueChangePerformed(ValueEvent e) {
-				try {
-					setMotorLimits(bean.getScannableName(), fromPos);
-					setMotorLimits(bean.getScannableName(), toPos);
-				} catch (Exception e1) {
-				}
-			}
-			
-			@Override
-			public String getValueListenerName() {
-				return null;
-			}
-		});
+	public void updateScannables() {
+		List<String> names = new ArrayList<String>(bean.getScannables().size());
+		String[] comboNames = new String[bean.getScannables().size() + 1];
+		comboNames[0] = "";
+		for (int i = 1; i < bean.getScannables().size() + 1; i++) {
+			names.add(bean.getScannables().get(i - 1).getScannableName());
+			comboNames[i] = bean.getScannables().get(i - 1).getScannableName();
+		}
+		scannableName.setItems(comboNames);
 
+		List<ScannableManagerBean> scannables = bean.getScannables();
+		boolean found = false;
+
+		for (int i = 0; i < scannables.size(); i++) {
+			if (scannables.get(i).getScannableName().equals(bean.getScannableName())) {
+				scannableName.select(i + 1);
+				found = true;
+			}
+		}
+		if (!found)
+			scannableName.select(0);
 	}
-	
+
+	public void updateDetectors() {
+		List<String> names = new ArrayList<String>(bean.getDetectors().size());
+		String[] comboNames = new String[bean.getDetectors().size()];
+		for (int i = 0; i < bean.getDetectors().size(); i++) {
+			names.add(bean.getDetectors().get(i).getDetectorName());
+			comboNames[i] = bean.getDetectors().get(i).getDetectorName();
+		}
+		if (names.size() > 0) {
+			viewer.setInput(names);
+			viewer.refresh();
+		}
+	}
+
 	public void createScanButton(Composite comp) {
 		Button scan = new Button(comp, SWT.NONE);
 		GridData gd_scan = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_scan.widthHint = 92;
 		scan.setLayoutData(gd_scan);
 		scan.setText("Scan");
-		scan.addSelectionListener(new SelectionListener() {	
+		scan.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
 				performScan();
 			}
-			
+
 			@Override
 			public void widgetDefaultSelected(SelectionEvent arg0) {
 			}
 		});
 	}
-	
-	private void performScan(){
-		
+
+	private void performScan() {
+
 		String scannable_name = scannableName.getItem(scannableName.getSelectionIndex());
 		double from = fromPos.getNumericValue();
 		double to = toPos.getNumericValue();
 		double step = stepSize.getNumericValue();
 		Double acq = acqTime.getNumericValue();
-		
-		if(bean.getDetectors().size()==0){
-			String command = "scan "+ scannable_name + " " + from + " " + to + " " + step;
+
+		if (bean.getDetectors().size() == 0) {
+			String command = "scan " + scannable_name + " " + from + " " + to + " " + step;
 			JythonServerFacade.getInstance().runCommand(command);
-		}
-		else{
+		} else {
 			List<DetectorManagerBean> detectors = bean.getDetectors();
 			String detList = "";
-			for(int i=0;i<detectors.size();i++){
-				if(detectors.get(i).isEnabled())
+			for (int i = 0; i < detectors.size(); i++) {
+				if (detectors.get(i).isEnabled())
 					detList += detectors.get(i).getDetectorName() + " ";
 			}
-			if(!acq.isNaN() && !acqTime.getValue().toString().equals(""))
+			if (!acq.isNaN() && !acqTime.getValue().toString().equals(""))
 				detList += acq;
-			String command = "scan "+ scannable_name + " " + from + " " + to + " " + step + " " + detList;
+			String command = "scan " + scannable_name + " " + from + " " + to + " " + step + " " + detList;
 			JythonServerFacade.getInstance().runCommand(command);
 		}
 	}
@@ -230,11 +245,11 @@ public final class SimpleScanComposite extends Composite {
 	public void setMotorLimits(String motorName, ScaleBox box) throws Exception {
 		String lowerLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getLowerInnerLimit()");
 		String upperLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getUpperInnerLimit()");
-		if(!lowerLimit.equals("None"))
+		if (!lowerLimit.equals("None"))
 			box.setMinimum(Double.parseDouble(lowerLimit));
 		else
 			box.setMinimum(-99999);
-		if(!upperLimit.equals("None"))
+		if (!upperLimit.equals("None"))
 			box.setMaximum(Double.parseDouble(upperLimit));
 		else
 			box.setMaximum(99999);
@@ -252,7 +267,7 @@ public final class SimpleScanComposite extends Composite {
 				} catch (Exception e1) {
 				}
 			}
-			
+
 			@Override
 			public String getValueListenerName() {
 				return null;
@@ -298,7 +313,7 @@ public final class SimpleScanComposite extends Composite {
 		enabledColumn.setWidth(65);
 		enabledColumn.setResizable(true);
 		enabledColumn.setMoveable(true);
-		
+
 		detEnabled = new EnabledEditingSupport(viewer, bean);
 
 		enabledCol.setLabelProvider(new CellLabelProvider() {
@@ -313,7 +328,7 @@ public final class SimpleScanComposite extends Composite {
 							cell.setImage(UNCHECKED);
 					}
 				}
-				
+
 			}
 		});
 		enabledCol.setEditingSupport(detEnabled);
@@ -361,12 +376,9 @@ public final class SimpleScanComposite extends Composite {
 		gridData.heightHint = 200;
 		gridData.widthHint = 465;
 		viewer.getControl().setLayoutData(gridData);
-
 	}
 
-
-	
-	public SimpleScan getBean(){
+	public SimpleScan getBean() {
 		return bean;
 	}
 
@@ -385,8 +397,8 @@ public final class SimpleScanComposite extends Composite {
 	public ScaleBox getAcqTime() {
 		return acqTime;
 	}
-	
-	public FieldComposite getScannableName(){
+
+	public FieldComposite getScannableName() {
 		return scannableName;
 	}
 }

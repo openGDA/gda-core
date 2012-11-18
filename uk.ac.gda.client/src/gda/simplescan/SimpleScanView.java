@@ -83,7 +83,6 @@ public class SimpleScanView extends ViewPart {
 			logger.error("Could not load xml " + path + " into bean", e);
 		}
         
-        
         GridLayout gl = new GridLayout(1, false);
         parent.setLayout(gl);
         GridData gd = new GridData(SWT.LEFT, SWT.TOP, true, false, 1, 1);
@@ -100,53 +99,12 @@ public class SimpleScanView extends ViewPart {
 		composite.setLayout(gl_composite);
         
         posComposite = new PosComposite(composite, SWT.NONE, editingBean);
-        addDevicesComposite = new AddDevicesComposite(composite, SWT.NONE);
+        addDevicesComposite = new AddDevicesComposite(composite, SWT.NONE, editingBean);
 
 		simpleScanComposite = new SimpleScanComposite(parent, SWT.NONE, editingBean);
 		
 		getSite().getPage().addPartListener(partListener);
 	}
-	
-
-	
-	public void updateScannables() {
-//		List<String> names = new ArrayList<String>(bean.getScannables().size());
-//		String[] comboNames = new String[bean.getScannables().size()+1];
-//		comboNames[0] = "";
-//		for (int i = 1; i < bean.getScannables().size()+1; i++) {
-//			names.add(bean.getScannables().get(i-1).getScannableName());
-//			comboNames[i] = bean.getScannables().get(i-1).getScannableName();
-//		}
-//
-//		scannableList.addItem(names);
-//		scannableName.setItems(comboNames);
-//		
-//		List<ScannableManagerBean> scannables = bean.getScannables();
-//		boolean found=false;
-//		
-//		for(int i=0;i<scannables.size();i++){
-//			if(scannables.get(i).getScannableName().equals(bean.getScannableName())){
-//				scannableName.select(i+1);
-//				found=true;
-//			}
-//		}
-//		if(!found)
-//			scannableName.select(0);
-	}
-
-	public void updateDetectors() {
-//		List<String> names = new ArrayList<String>(bean.getDetectors().size());
-//		String[] comboNames = new String[bean.getDetectors().size()];
-//		for (int i = 0; i < bean.getDetectors().size(); i++) {
-//			names.add(bean.getDetectors().get(i).getDetectorName());
-//			comboNames[i] = bean.getDetectors().get(i).getDetectorName();
-//		}
-//		if (names.size() > 0) {
-//			detectorList.addItem(names);
-//			viewer.setInput(names);
-//			viewer.refresh();
-//		}
-	}	
 
 	@Override
 	public void setFocus() {

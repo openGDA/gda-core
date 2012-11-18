@@ -40,7 +40,6 @@ public class ObjectListEditor extends FieldBeanComposite {
 		viewer.setContentProvider(new ArrayContentProvider());
 		GridData gridData = new GridData();
 		viewer.getControl().setLayoutData(gridData);
-		
 	}
 
 	private TableViewerColumn createTableViewerColumn(String title, int bound) {
@@ -54,8 +53,8 @@ public class ObjectListEditor extends FieldBeanComposite {
 	}
 
 	private void createColumns() {
-		TableViewerColumn col = createTableViewerColumn(title, 110);
-		col.setLabelProvider(new CellLabelProvider() {
+		TableViewerColumn col1 = createTableViewerColumn(title, 110);
+		col1.setLabelProvider(new CellLabelProvider() {
 			@Override
 			public void update(ViewerCell cell) {
 				cell.setText(cell.getItem().getData().toString());
