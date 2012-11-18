@@ -18,6 +18,8 @@
 
 package uk.ac.gda.client.viewer;
 
+import org.dawnsci.plotting.jreality.tool.IImagePositionEvent;
+import org.dawnsci.plotting.jreality.tool.ImagePositionListener;
 import org.eclipse.draw2d.BorderLayout;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.Figure;
@@ -59,9 +61,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.IImagePositionEvent;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.ImagePositionListener;
 
 /**
  * An image viewer that supports zooming and panning of the image implemented using SWT and draw2d

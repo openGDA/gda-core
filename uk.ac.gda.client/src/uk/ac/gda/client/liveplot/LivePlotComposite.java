@@ -54,6 +54,9 @@ import org.dawb.common.ui.plot.trace.ILineTrace;
 import org.dawb.common.ui.plot.trace.ILineTrace.PointStyle;
 import org.dawb.common.ui.plot.trace.ITrace;
 import org.dawb.workbench.plotting.util.ColorUtility;
+import org.dawnsci.plotting.jreality.impl.Plot1DAppearance;
+import org.dawnsci.plotting.jreality.impl.Plot1DGraphTable;
+import org.dawnsci.plotting.jreality.impl.Plot1DStyles;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuListener;
@@ -84,13 +87,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
+import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.AxisValues;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DAppearance;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DGraphTable;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotAppearanceDialog;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.Plot1DStyles;
 import uk.ac.gda.client.LineAppearanceProvider;
 import uk.ac.gda.common.rcp.util.GridUtils;
 /**
@@ -490,7 +490,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 		IActionBars bars    = parentPart instanceof IViewPart
 				            ? ((IViewPart)parentPart).getViewSite().getActionBars()
 				            : null;
-		plottingSystem.createPlotPart(plotArea, parentPart.getTitle(), bars, PlotType.PT1D, parentPart);
+		plottingSystem.createPlotPart(plotArea, parentPart.getTitle(), bars, PlotType.XY, parentPart);
 		plottingSystem.setXfirst(true);
 	}
 

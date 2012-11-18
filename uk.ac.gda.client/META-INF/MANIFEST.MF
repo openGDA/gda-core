@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Require-Bundle: org.eclipse.help.ui,
  org.eclipse.ui.console,
- org.python.pydev;bundle-version="[2.5.0.2012060719,3.0.0)",
- org.python.pydev.core;bundle-version="[2.5.0.2012060719,3.0.0)",
- org.python.pydev.debug;bundle-version="[2.5.0.2012060719,3.0.0)",
+ org.python.pydev;bundle-version="[2.6.0.2012080908,2.7.0)",
+ org.python.pydev.core;bundle-version="[2.6.0.2012080908,2.7.0)",
+ org.python.pydev.debug;bundle-version="[2.6.0.2012080908,2.7.0)",
  org.eclipse.jface.text,
  org.eclipse.ui.ide,
  org.eclipse.core.filesystem,
@@ -29,7 +29,8 @@ Require-Bundle: org.eclipse.help.ui,
  uk.ac.gda.analysis;bundle-version="1.0.0",
  uk.ac.diamond.scisoft.analysis,
  uk.ac.diamond.scisoft.deprecated,
- org.eclipse.ui.editors;bundle-version="3.7.0"
+ org.eclipse.ui.editors;bundle-version="3.7.0",
+ org.dawnsci.plotting.jreality;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-Version: 1.0.0.qualifier
 Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.gda.core
@@ -77,6 +78,7 @@ Bundle-ClassPath: .
 Bundle-Vendor: Diamond Light Source
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.dawb.common.ui.plot,
+ org.dawb.common.ui.plot.axis,
  org.dawb.common.ui.plot.tool,
  org.dawb.common.ui.plot.trace,
  org.dawb.workbench.plotting.util,

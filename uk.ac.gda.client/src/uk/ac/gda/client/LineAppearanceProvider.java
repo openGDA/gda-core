@@ -23,6 +23,8 @@ import gda.rcp.GDAClientActivator;
 import java.awt.Color;
 import java.util.Vector;
 
+import org.dawnsci.plotting.jreality.impl.Plot1DStyles;
+import org.dawnsci.plotting.jreality.util.PlotColorUtility;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -30,8 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotColorUtility;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.Plot1DStyles;
 import uk.ac.gda.preferences.PreferenceConstants;
 
 public class LineAppearanceProvider {

@@ -39,6 +39,7 @@ public class TakeAction extends AbstractHandler {
 			MessageBox messageBox = new MessageBox(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), SWT.OK | SWT.ICON_WARNING);
 			messageBox.setMessage("You do not have enough authorisation to take the baton from the current holder.\n\n"+
 					              "The current holder is aware of your request and will normally release within two minutes.");
+			messageBox.setText("Baton requested");
 			messageBox.open();
 			return Boolean.FALSE;
 		}

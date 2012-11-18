@@ -514,7 +514,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 			monitor.subTask("Initialising script projects");
 			ScriptProjectCreator.handleShowXMLConfig(monitor);
 			ScriptProjectCreator.createProjects(monitor);
-		} catch (CoreException e) {
+		} catch (Exception e) {
 			logger.error("Error preparing Jython interpeter and projects", e);
 		}
 	}

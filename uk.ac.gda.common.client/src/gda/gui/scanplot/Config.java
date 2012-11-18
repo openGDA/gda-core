@@ -52,6 +52,8 @@ public class Config {
 			return false;
 		if (prevConfig.xAxisIndex != xAxisIndex)
 			return false;
+		if (prevConfig.xAxisHeader == null)
+			return false;
 		if (!prevConfig.xAxisHeader.equals(xAxisHeader))
 			return false;
 		if (prevConfig.numberofChildScans != numberofChildScans)
