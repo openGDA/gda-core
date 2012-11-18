@@ -34,16 +34,23 @@ public class VoltageSupply extends Composite{
 	private Text text;
 	public VoltageSupply(Composite parent, int style, boolean inEditor) {
 		super(parent, style);
-		setLayout(new FormLayout());
+		GridLayout gridLayout = new GridLayout(1, false);
+		gridLayout.verticalSpacing = 0;
+		gridLayout.marginWidth = 0;
+		gridLayout.marginHeight = 0;
+		gridLayout.horizontalSpacing = 0;
+		setLayout(gridLayout);
 		
 		Group grpVoltageSupply = new Group(this, SWT.NONE);
-		grpVoltageSupply.setLayout(new GridLayout(3, false));
-		FormData fd_grpVoltageSupply = new FormData();
-		fd_grpVoltageSupply.top = new FormAttachment(0);
-		fd_grpVoltageSupply.left = new FormAttachment(0);
-		fd_grpVoltageSupply.bottom = new FormAttachment(0, 97);
-		fd_grpVoltageSupply.right = new FormAttachment(0, 245);
-		grpVoltageSupply.setLayoutData(fd_grpVoltageSupply);
+		GridData gd_grpVoltageSupply = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_grpVoltageSupply.widthHint = 250;
+		grpVoltageSupply.setLayoutData(gd_grpVoltageSupply);
+		GridLayout gl_grpVoltageSupply = new GridLayout(3, false);
+		gl_grpVoltageSupply.verticalSpacing = 3;
+		gl_grpVoltageSupply.marginWidth = 3;
+		gl_grpVoltageSupply.marginHeight = 3;
+		gl_grpVoltageSupply.horizontalSpacing = 3;
+		grpVoltageSupply.setLayout(gl_grpVoltageSupply);
 		grpVoltageSupply.setText("Voltage Supply");
 		
 		Label lblNewLabel = new Label(grpVoltageSupply, SWT.NONE);
@@ -52,6 +59,7 @@ public class VoltageSupply extends Composite{
 		Label lblNewLabel_2 = new Label(grpVoltageSupply, SWT.NONE);
 		
 		Button btnNewButton = new Button(grpVoltageSupply, SWT.NONE);
+		btnNewButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		btnNewButton.setText("Get");
 		
 		Label lblNewLabel_1 = new Label(grpVoltageSupply, SWT.NONE);
@@ -60,10 +68,11 @@ public class VoltageSupply extends Composite{
 		
 		text = new Text(grpVoltageSupply, SWT.BORDER);
 		GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-		gd_text.widthHint = 86;
+		gd_text.widthHint = 75;
 		text.setLayoutData(gd_text);
 		
 		Button btnSet = new Button(grpVoltageSupply, SWT.NONE);
+		btnSet.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		btnSet.setText("Set");
 	}
 }

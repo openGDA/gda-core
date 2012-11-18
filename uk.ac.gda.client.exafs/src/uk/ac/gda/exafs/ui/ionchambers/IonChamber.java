@@ -27,6 +27,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Label;
 
 public class IonChamber extends Composite{
 	private Text text;
@@ -35,7 +36,12 @@ public class IonChamber extends Composite{
 		setLayout(new FormLayout());
 		Group grpIonChambers = new Group(this, SWT.NONE);
 		grpIonChambers.setLayoutData(new FormData());
-		grpIonChambers.setLayout(new GridLayout(1, false));
+		GridLayout gl_grpIonChambers = new GridLayout(1, false);
+		gl_grpIonChambers.verticalSpacing = 3;
+		gl_grpIonChambers.horizontalSpacing = 3;
+		gl_grpIonChambers.marginWidth = 3;
+		gl_grpIonChambers.marginHeight = 3;
+		grpIonChambers.setLayout(gl_grpIonChambers);
 		grpIonChambers.setText("Ion Chambers");
 		
 		Composite composite_1 = new Composite(grpIonChambers, SWT.NONE);
@@ -44,38 +50,44 @@ public class IonChamber extends Composite{
 		gl_composite_1.marginHeight = 0;
 		composite_1.setLayout(gl_composite_1);
 		GridData gd_composite_1 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_composite_1.heightHint = 114;
+		gd_composite_1.heightHint = 72;
 		gd_composite_1.widthHint = 489;
 		composite_1.setLayoutData(gd_composite_1);
 		
 		List list = new List(composite_1, SWT.BORDER);
-		GridData gd_list = new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1);
+		list.setItems(new String[] {"I0", "It", "Iref"});
+		GridData gd_list = new GridData(SWT.LEFT, SWT.FILL, false, true, 1, 1);
 		gd_list.widthHint = 90;
-		gd_list.heightHint = 105;
 		list.setLayoutData(gd_list);
 		
 		text = new Text(composite_1, SWT.BORDER);
-		GridData gd_text = new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1);
-		gd_text.heightHint = 100;
+		GridData gd_text = new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1);
 		gd_text.widthHint = 379;
 		text.setLayoutData(gd_text);
 		
 		Composite composite = new Composite(grpIonChambers, SWT.NONE);
 		GridLayout gl_composite = new GridLayout(2, false);
+		gl_composite.verticalSpacing = 0;
+		gl_composite.marginHeight = 0;
+		gl_composite.horizontalSpacing = 3;
 		gl_composite.marginWidth = 0;
 		composite.setLayout(gl_composite);
 		GridData gd_composite = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_composite.widthHint = 488;
 		composite.setLayoutData(gd_composite);
 		
-		new Amplifier(composite, SWT.NONE, inEditor);
+		Amplifier amplifier = new Amplifier(composite, SWT.NONE, inEditor);
+		amplifier.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false, 1, 1));
 		
-		if(!inEditor)
-			new VoltageSupply(composite, SWT.NONE, inEditor);
+		//if(!inEditor)
+			VoltageSupply voltageSupply = new VoltageSupply(composite, SWT.NONE, inEditor);
+			voltageSupply.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false, 1, 1));
 		
 		GasFilling gasFilling = new GasFilling(grpIonChambers, SWT.NONE, inEditor);
-		GridData gd_gasFilling = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_gasFilling.widthHint = 491;
-		gasFilling.setLayoutData(gd_gasFilling);
+		GridLayout gridLayout = (GridLayout) gasFilling.getLayout();
+		gridLayout.verticalSpacing = 0;
+		gridLayout.marginWidth = 0;
+		gridLayout.marginHeight = 0;
+		gridLayout.horizontalSpacing = 0;
 	}
 }
