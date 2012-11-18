@@ -73,7 +73,6 @@ public final class SimpleScanComposite extends Composite {
 	private ScaleBox stepSize;
 	private ScaleBox acqTime;
 	private Group grpScannable;
-	private Group grpDetectors;
 	private Composite composite;
 	private Composite posComposite;
 	private Label lblScannable;
@@ -110,51 +109,25 @@ public final class SimpleScanComposite extends Composite {
 		bean = (SimpleScan) editingBean;
 		this.editor = editor;
 		
-		grpPos = new Group(this, SWT.NONE);
+		grpScannable = new Group(this, SWT.NONE);
 		GridData gd_grpScannable = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_grpScannable.widthHint = 597;
-		grpPos.setLayoutData(gd_grpScannable);
-		grpPos.setText("Pos");
-		grpPos.setLayout(new GridLayout(1, false));
-		
-		posComposite = new Composite(grpPos, SWT.NONE);
-		GridData gd_composite = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_composite.widthHint = 580;
-		posComposite.setLayoutData(gd_composite);
-		posComposite.setLayout(new GridLayout(8, false));
-		
-		lblScannable = new Label(posComposite, SWT.NONE);
-		lblScannable.setText("Scannable");
-
-		createScannables(posComposite);
-
-		lblTo = new Label(posComposite, SWT.NONE);
-		lblTo.setText("To");
-		this.textTo = new ScaleBox(posComposite, SWT.NONE);
-		textTo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		btnTo = new Button(posComposite, SWT.PUSH);
-		btnTo.setText("Go");
-		
-		lblReadback = new Label(posComposite, SWT.NONE);
-		lblReadback.setText("Readback");
-		lblReadbackVal = new Label(posComposite, SWT.NONE);
-		lblReadbackVal.setText("2.335mm");
-		btnReadback = new Button(posComposite, SWT.PUSH);
-		btnReadback.setText("Get");
-
-		grpScannable = new Group(this, SWT.NONE);
 		grpScannable.setLayoutData(gd_grpScannable);
-		grpScannable.setText("Scannable");
+		grpScannable.setText("Scan");
+		GridData gd_grpDetectors = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_grpDetectors.widthHint = 597;
+		grpScannable.setLayoutData(gd_grpDetectors);
 		grpScannable.setLayout(new GridLayout(1, false));
-
+		
+		
 		composite = new Composite(grpScannable, SWT.NONE);
-		gd_composite = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		GridData gd_composite = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_composite.widthHint = 580;
 		composite.setLayoutData(gd_composite);
 		composite.setLayout(new GridLayout(9, false));
 
 		lblScannable = new Label(composite, SWT.NONE);
-		lblScannable.setText("Name");
+		lblScannable.setText("Scannable");
 
 		createScannables(composite);
 
@@ -188,14 +161,8 @@ public final class SimpleScanComposite extends Composite {
 		new Label(stepSize, SWT.NONE);
 		new Label(composite, SWT.NONE);
 
-		grpDetectors = new Group(this, SWT.NONE);
-		GridData gd_grpDetectors = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_grpDetectors.widthHint = 597;
-		grpDetectors.setLayoutData(gd_grpDetectors);
-		grpDetectors.setText("Detectors");
-		grpDetectors.setLayout(new GridLayout(1, false));
 
-		detComposite = new Composite(grpDetectors, SWT.NONE);
+		detComposite = new Composite(grpScannable, SWT.NONE);
 		GridLayout gl_detComposite = new GridLayout(1, false);
 		gl_detComposite.marginHeight = 0;
 		gl_detComposite.verticalSpacing = 0;
@@ -208,6 +175,8 @@ public final class SimpleScanComposite extends Composite {
 
 		createDetectors(detComposite);
 
+		createScanButton(this);
+		
 		configureDevicesExpandableComposite = new ExpandableComposite(this, SWT.NONE);
 		configureDevicesExpandableComposite.setText("Scannable/Detector List");
 		configureDevicesExpandableComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
@@ -258,8 +227,6 @@ public final class SimpleScanComposite extends Composite {
 			public void widgetDefaultSelected(SelectionEvent arg0) {
 			}
 		});
-		
-		createScanButton(this);
 		
 		this.fromPos.setValue(bean.getFromPos());
 		this.toPos.setValue(bean.getToPos());
