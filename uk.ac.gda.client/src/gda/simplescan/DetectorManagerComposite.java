@@ -45,7 +45,8 @@ public class DetectorManagerComposite extends Composite {
 		setLayout(gridLayout);
 		detectorName = new FindableNameWrapper(this, SWT.BORDER, Detector.class, false);
 		detectorName.on();
-		detectorName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
+		GridData gd_scannableName = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		detectorName.setLayoutData(gd_scannableName);
 		detectorName.addValueListener(new ValueAdapter() {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
