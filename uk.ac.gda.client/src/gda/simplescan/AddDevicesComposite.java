@@ -33,11 +33,11 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.richbeans.components.selector.BeanSelectionEvent;
 import uk.ac.gda.richbeans.components.selector.BeanSelectionListener;
-import org.eclipse.wb.swt.ResourceManager;
 
 public class AddDevicesComposite extends Composite {
 	private Button removeScannable;
@@ -140,10 +140,10 @@ public class AddDevicesComposite extends Composite {
 		scannableManagerComposite.setLayoutData(gd_scannableManagerComposite);
 
 		addScannable = new Button(buttons, SWT.PUSH);
-		addScannable.setImage(ResourceManager.getPluginImage("uk.ac.gda.client", "icons/add.png"));
+		addScannable.setImage(SWTResourceManager.getImage(getClass(), "icons/add.png"));
 
 		removeScannable = new Button(buttons, SWT.PUSH);
-		removeScannable.setImage(ResourceManager.getPluginImage("uk.ac.gda.client", "icons/delete.png"));
+		addScannable.setImage(SWTResourceManager.getImage(getClass(), "icons/delete.png"));
 
 		scannableList = new ObjectListEditor(addScannableGroup, SWT.NONE, "");
 		Table table_2 = scannableList.viewer.getTable();
@@ -223,10 +223,10 @@ public class AddDevicesComposite extends Composite {
 		detectorManagerComposite.setLayoutData(gd_detectorManagerComposite);
 
 		addDetector = new Button(buttons, SWT.PUSH);
-		addDetector.setImage(ResourceManager.getPluginImage("uk.ac.gda.client", "icons/add.png"));
+		addScannable.setImage(SWTResourceManager.getImage(getClass(), "icons/add.png"));
 
 		removeDetector = new Button(buttons, SWT.PUSH);
-		removeDetector.setImage(ResourceManager.getPluginImage("uk.ac.gda.client", "icons/delete.png"));
+		addScannable.setImage(SWTResourceManager.getImage(getClass(), "icons/delete.png"));
 
 		detectorList = new ObjectListEditor(addDetectorGroup, SWT.NONE, "");
 		Table table_2 = detectorList.viewer.getTable();
