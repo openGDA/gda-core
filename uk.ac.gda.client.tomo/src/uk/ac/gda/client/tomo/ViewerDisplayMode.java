@@ -28,21 +28,21 @@ public enum ViewerDisplayMode {
 	SAMPLE_STREAM_LIVE(TomoAlignmentView.SAMPLE_LIVE_STREAM) {
 
 		@Override
-		public String getFileName(TomoAlignmentController tomoAlignmentViewController) throws Exception {
+		public String getFileName(TomoAlignmentController tomoAlignmentController) throws Exception {
 			return null;
 		}
 	},
 	FLAT_STREAM_LIVE(TomoAlignmentView.FLAT_LIVE_STREAM) {
 
 		@Override
-		public String getFileName(TomoAlignmentController tomoAlignmentViewController) throws Exception {
+		public String getFileName(TomoAlignmentController tomoAlignmentController) throws Exception {
 			return null;
 		}
 	},
 	SAMPLE_SINGLE(TomoAlignmentView.SAMPLE_SINGLE) {
 		@Override
-		public String getFileName(TomoAlignmentController tomoAlignmentViewController) throws Exception {
-			return tomoAlignmentViewController.getDemandRawTiffFullFileName();
+		public String getFileName(TomoAlignmentController tomoAlignmentController) throws Exception {
+			return tomoAlignmentController.getDemandRawTiffFullFileName();
 //			return "/dls_sw/dasc/tomo/ravi.tif";
 
 		}
@@ -50,27 +50,27 @@ public enum ViewerDisplayMode {
 	},
 	STATIC_FLAT(TomoAlignmentView.STATIC_FLAT) {
 		@Override
-		public String getFileName(TomoAlignmentController tomoAlignmentViewController) {
-			return tomoAlignmentViewController.getFlatImageFullFileName();
+		public String getFileName(TomoAlignmentController tomoAlignmentController) {
+			return tomoAlignmentController.getFlatImageFullFileName();
 		}
 
 	},
 	FLAT_SINGLE(TomoAlignmentView.FLAT_SINGLE) {
 		@Override
-		public String getFileName(TomoAlignmentController tomoAlignmentViewController) throws Exception {
-			return tomoAlignmentViewController.getDemandRawTiffFullFileName();
+		public String getFileName(TomoAlignmentController tomoAlignmentController) throws Exception {
+			return tomoAlignmentController.getDemandRawTiffFullFileName();
 		}
 
 	},
 	DARK_SINGLE(TomoAlignmentView.STATIC_DARK) {
 		@Override
-		public String getFileName(TomoAlignmentController tomoAlignmentViewController) throws Exception {
-			return tomoAlignmentViewController.getDarkFieldImageFullFileName();
+		public String getFileName(TomoAlignmentController tomoAlignmentController) throws Exception {
+			return tomoAlignmentController.getDarkFieldImageFullFileName();
 		}
 	},
 	STREAM_STOPPED(TomoAlignmentView.STREAM_STOPPED) {
 		@Override
-		public String getFileName(TomoAlignmentController tomoAlignmentViewController) throws Exception {
+		public String getFileName(TomoAlignmentController tomoAlignmentController) throws Exception {
 			return null;
 		}
 	};
@@ -97,7 +97,7 @@ public enum ViewerDisplayMode {
 	// return null;
 	// }
 
-	public abstract String getFileName(TomoAlignmentController tomoAlignmentViewController) throws Exception;
+	public abstract String getFileName(TomoAlignmentController tomoAlignmentController) throws Exception;
 
 	public static ViewerDisplayMode getDisplayMode(String info) {
 		for (ViewerDisplayMode mode : values()) {

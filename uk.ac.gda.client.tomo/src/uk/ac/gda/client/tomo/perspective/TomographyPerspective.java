@@ -34,7 +34,7 @@ public class TomographyPerspective implements IPerspectiveFactory {
 	@Override
 	public void createInitialLayout(IPageLayout layout) {
 		layout.setEditorAreaVisible(false);
-		layout.setFixed(true);
+		layout.setFixed(false);
 		IFolderLayout mainFolder = layout.createFolder("MAIN_FOLDER", IPageLayout.TOP, IPageLayout.RATIO_MAX, null);
 		mainFolder.addView(TomoAlignmentViewFactory.ID);
 		mainFolder.addView(TomoConfigurationViewFactory.ID);

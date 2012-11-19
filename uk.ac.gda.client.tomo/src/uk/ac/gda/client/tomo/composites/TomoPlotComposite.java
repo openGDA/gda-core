@@ -39,18 +39,28 @@ import org.dawb.common.ui.plot.trace.ITrace;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.MouseListener;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.ui.part.PageBook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.TIFFImageLoader;
@@ -64,6 +74,28 @@ import uk.ac.gda.client.tomo.TiltPlotPointsHolder;
  *
  */
 public class TomoPlotComposite extends Composite {
+	private List<ITomoPlotListener> tomoPlotListeners = new ArrayList<TomoPlotComposite.ITomoPlotListener>();
+
+	private FontRegistry fontRegistry;
+	private static final String LOG_lbl = "Log";
+
+	private static final String Y_lbl = "y";
+	private static final String X_lbl = "x";
+
+	private Label lblYValue;
+	private Label lblXValue;
+	private Label lblProfileIntensityValue;
+	private Button btnLogData;
+
+	private static final String SET_EXPOSURE_TIME = "Apply Exposure Time";
+
+	private static final String INTENSITIES_lbl = "Intensities";
+
+	private static final String HISTOGRAM_DATASET_lbl = "Histogram Dataset";
+
+	private static final String HISTOGRAM_PLOT_TITLE_lbl = "Histogram Plot";
+
+	private static final String HISTOGRAM_TRACE = "Histogram";
 
 	private static final String DARK = "DARK";
 
@@ -71,8 +103,12 @@ public class TomoPlotComposite extends Composite {
 
 	private static final String INTENSITY_PLOT = "Intensity plot";
 
+	private static final String BOLD_TEXT_11 = "bold-text_11";
+
+	private static final String BOLD_TEXT_9 = "bold-text_9";
+
 	public enum MODE {
-		HISTOGRAM, PROFILE, TILT, NONE;
+		HISTOGRAM_SINGLE, HISTOGRAM_STREAM, PROFILE, TILT, NONE;
 	}
 
 	private IRegion xHair;
@@ -103,6 +139,16 @@ public class TomoPlotComposite extends Composite {
 
 	private ILineTrace profileLineTrace;
 
+	private boolean streamLog = false;
+
+	private boolean singleLog = false;
+
+	private Composite pg_plotinfo_histo;
+
+	private Composite pg_plotinfo_tilt;
+
+	private Composite pg_plotinfo_none;
+
 	public interface PlottingSystemActionListener {
 
 		/**
@@ -131,6 +177,29 @@ public class TomoPlotComposite extends Composite {
 		void applyExposureTimeButtonClicked();
 	}
 
+	public interface ITomoPlotListener {
+		/**
+		 * Initiate the logic to apply the histogram to the exposure time
+		 */
+		void applyHistogram();
+
+		/**
+		 * Informs listeners that the log button has been pressed.
+		 * 
+		 * @param isSwitchedOn
+		 * @throws Exception
+		 */
+		void log(boolean isSwitchedOn) throws Exception;
+	}
+
+	public void addTomoPlotListener(ITomoPlotListener tpl) {
+		tomoPlotListeners.add(tpl);
+	}
+
+	public void removeTomoPlotListener(ITomoPlotListener tpl) {
+		tomoPlotListeners.remove(tpl);
+	}
+
 	/**
 	 * @param parent
 	 * @param style
@@ -138,6 +207,12 @@ public class TomoPlotComposite extends Composite {
 	 */
 	public TomoPlotComposite(Composite parent, int style) throws Exception {
 		super(parent, style);
+		if (Display.getCurrent() != null) {
+			fontRegistry = new FontRegistry(Display.getCurrent());
+			String fontName = Display.getCurrent().getSystemFont().getFontData()[0].getName();
+			fontRegistry.put(BOLD_TEXT_11, new FontData[] { new FontData(fontName, 11, SWT.BOLD) });
+			fontRegistry.put(BOLD_TEXT_9, new FontData[] { new FontData(fontName, 9, SWT.BOLD) });
+		}
 		this.setBackground(ColorConstants.white);
 
 		GridLayout layout = getGridLayoutZeroSettings();
@@ -148,8 +223,126 @@ public class TomoPlotComposite extends Composite {
 
 		plottingSystem = PlottingFactory.createPlottingSystem();
 		plottingSystem.createPlotPart(plotComposite, "", null, PlotType.PT1D_MULTI, null);
+		// FIXME - The below statement is not available in Dawn1.2 - needs to be used in the new release.
+		// plottingSystem.setShowLegend(false);
 		lineListeners = new ArrayList<TomoPlotComposite.PlottingSystemActionListener>();
 		//
+
+		pgBook_plotinfo = new PageBook(this, SWT.None);
+		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
+		layoutData.heightHint = 30;
+		pgBook_plotinfo.setLayoutData(layoutData);
+
+		pg_plotinfo_profile = new Composite(pgBook_plotinfo, SWT.None);
+		pg_plotinfo_profile.setBackground(ColorConstants.white);
+		GridLayout layout3 = new GridLayout(6, true);
+		layout3.marginHeight = 2;
+		layout3.marginWidth = 2;
+		layout3.horizontalSpacing = 2;
+		layout3.verticalSpacing = 2;
+		pg_plotinfo_profile.setLayout(layout3);
+
+		Label lblY = new Label(pg_plotinfo_profile, SWT.RIGHT);
+		lblY.setText(Y_lbl);
+		lblY.setBackground(ColorConstants.white);
+		lblY.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		lblYValue = new Label(pg_plotinfo_profile, SWT.LEFT);
+		lblYValue.setText("0");
+		lblYValue.setFont(fontRegistry.get(BOLD_TEXT_11));
+		lblYValue.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		lblYValue.setBackground(ColorConstants.white);
+
+		Label lblX = new Label(pg_plotinfo_profile, SWT.RIGHT);
+		lblX.setText(X_lbl);
+		lblX.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		lblX.setBackground(ColorConstants.white);
+
+		lblXValue = new Label(pg_plotinfo_profile, SWT.LEFT);
+		lblXValue.setText("0");
+		lblXValue.setFont(fontRegistry.get(BOLD_TEXT_11));
+		lblXValue.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		lblXValue.setBackground(ColorConstants.white);
+
+		Label lblIntensity = new Label(pg_plotinfo_profile, SWT.RIGHT);
+		lblIntensity.setText("Intensity:");
+		lblIntensity.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		lblIntensity.setBackground(ColorConstants.white);
+
+		lblProfileIntensityValue = new Label(pg_plotinfo_profile, SWT.LEFT);
+		lblProfileIntensityValue.setText("0");
+		lblProfileIntensityValue.setFont(fontRegistry.get(BOLD_TEXT_11));
+		GridData ld2 = new GridData(GridData.FILL_HORIZONTAL);
+		lblProfileIntensityValue.setLayoutData(ld2);
+		lblProfileIntensityValue.setBackground(ColorConstants.white);
+
+		pg_plotinfo_histo = new Composite(pgBook_plotinfo, SWT.None);
+		pg_plotinfo_histo.setBackground(ColorConstants.white);
+		layout3 = new GridLayout(4, true);
+		layout3.marginHeight = 0;
+		layout3.marginWidth = 0;
+		layout3.horizontalSpacing = 0;
+		layout3.verticalSpacing = 0;
+		pg_plotinfo_histo.setLayout(layout3);
+
+		Label lblEmpty = new Label(pg_plotinfo_histo, SWT.None);
+		GridData layoutData2 = new GridData(GridData.FILL_HORIZONTAL);
+		layoutData2.horizontalSpan = 2;
+		lblEmpty.setLayoutData(layoutData2);
+		lblEmpty.setBackground(ColorConstants.white);
+
+		btnApplyExposureSettings = new Button(pg_plotinfo_histo, SWT.PUSH);
+		btnApplyExposureSettings.setText(SET_EXPOSURE_TIME);
+		btnApplyExposureSettings.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				for (ITomoPlotListener tpl : tomoPlotListeners) {
+					tpl.applyHistogram();
+				}
+			}
+		});
+		btnApplyExposureSettings.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		btnLogData = new Button(pg_plotinfo_histo, SWT.PUSH);
+		btnLogData.setText(LOG_lbl);
+
+		btnLogData.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (e.getSource().equals(btnLogData) && !ButtonSelectionUtil.isButtonSelected(btnLogData)) {
+					try {
+						ButtonSelectionUtil.setButtonSelected(btnLogData);
+						for (ITomoPlotListener tpl : tomoPlotListeners) {
+							tpl.log(true);
+						}
+					} catch (Exception e1) {
+						logger.error("Problem evaluating log", e1);
+						loadErrorInDisplay("Problem evaluating log of histogram data",
+								"Problem evaluating log of histogram data:" + e1.getMessage());
+					}
+				} else {
+					try {
+						ButtonSelectionUtil.setButtonDeselected(btnLogData);
+						for (ITomoPlotListener tpl : tomoPlotListeners) {
+							tpl.log(false);
+						}
+					} catch (Exception e1) {
+						logger.error("Problem evaluating log", e1);
+						loadErrorInDisplay("Problem evaluating log of histogram data",
+								"Problem evaluating log of histogram data:" + e1.getMessage());
+					}
+				}
+			}
+		});
+		btnLogData.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		pg_plotinfo_tilt = new Composite(pgBook_plotinfo, SWT.None);
+		pg_plotinfo_tilt.setBackground(ColorConstants.white);
+
+		pg_plotinfo_none = new Composite(pgBook_plotinfo, SWT.None);
+		pg_plotinfo_none.setBackground(ColorConstants.white);
+
+		pgBook_plotinfo.showPage(pg_plotinfo_none);
 	}
 
 	private GridLayout getGridLayoutZeroSettings() {
@@ -163,6 +356,19 @@ public class TomoPlotComposite extends Composite {
 		return layout;
 	}
 
+	public void loadErrorInDisplay(final String dialogTitle, final String errorMsg) {
+		if (!this.getDisplay().isDisposed()) {
+			this.getDisplay().asyncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					MessageDialog.openError(TomoPlotComposite.this.getShell(), dialogTitle,
+							"Problem with tomography alignment \n" + errorMsg);
+				}
+			});
+		}
+	}
+
 	private ArrayList<PlottingSystemActionListener> lineListeners;
 
 	public boolean addOverlayLineListener(PlottingSystemActionListener overlayLineListener) {
@@ -173,7 +379,7 @@ public class TomoPlotComposite extends Composite {
 		return lineListeners.remove(overlayLineListener);
 	}
 
-	public void updateProfilePlots(IProgressMonitor monitor, final int xStart, final int xEnd, final int y) {
+	public void updateProfilePlots(IProgressMonitor monitor, final int y) {
 		if (mode != MODE.PROFILE) {
 			plottingSystem.clear();
 		}
@@ -184,6 +390,7 @@ public class TomoPlotComposite extends Composite {
 
 				@Override
 				public void run() {
+					pgBook_plotinfo.showPage(pg_plotinfo_profile);
 					if (xHair != null) {
 						removeOtherRegions(xHair.getName());
 					} else {
@@ -206,20 +413,6 @@ public class TomoPlotComposite extends Composite {
 			DoubleDataset axis = DoubleDataset.arange(4008);
 
 			if (rawImgDs != null) {
-				// IntegerDataset interimRawDataSlice = (IntegerDataset) rawImgDs.getSlice(new int[] { y - 1, 0 },
-				// new int[] { y, 4008 }, new int[] { 1, 1 });
-				//
-				// double[] logData = new double[interimRawDataSlice.getData().length];
-				// int count = 0;
-				// for (int d : interimRawDataSlice.getData()) {
-				// if (d != 0) {
-				// logData[count++] = Math.log10(d);
-				// }
-				// }
-				// DoubleDataset ds = new DoubleDataset(logData, interimRawDataSlice.getShape());
-				// ds.squeeze();
-				// plotDataSets.add(ds);
-				
 				rawDataSlice = (IntegerDataset) rawImgDs.getSlice(new int[] { y - 1, 0 }, new int[] { y, 4008 },
 						new int[] { 1, 1 });
 				rawDataSlice.squeeze();
@@ -233,21 +426,23 @@ public class TomoPlotComposite extends Composite {
 			}
 
 			List<ITrace> profileLineTraces = plottingSystem.updatePlot1D(axis, plotDataSets, monitor);
+
 			if (!profileLineTraces.isEmpty()) {
 				profileLineTrace = (ILineTrace) profileLineTraces.get(0);
 			}
-			getDisplay().syncExec(new Runnable() {
-				@Override
-				public void run() {
-					plottingSystem.setTitle(INTENSITY_PLOT);
-					plottingSystem.getSelectedYAxis().setFormatPattern("######.#");
-//					plottingSystem.getSelectedYAxis().setRange(0, 5);
-					plottingSystem.getSelectedYAxis().setVisible(false);
-					plottingSystem.getSelectedXAxis().setRange(0, 4008);
-					createMouseFollowLineRegion();
+			if (!getDisplay().isDisposed()) {
+				getDisplay().syncExec(new Runnable() {
+					@Override
+					public void run() {
+						plottingSystem.setTitle(INTENSITY_PLOT);
+						plottingSystem.getSelectedYAxis().setFormatPattern("######.#");
+						// plottingSystem.getSelectedYAxis().setRange(0, 5);
+						// plottingSystem.getSelectedXAxis().setRange(0, 4008);
+						createMouseFollowLineRegion();
 
-				}
-			});
+					}
+				});
+			}
 		}
 
 	}
@@ -284,6 +479,7 @@ public class TomoPlotComposite extends Composite {
 
 	public void updatePlotPoints(final IProgressMonitor progress, final TiltPlotPointsHolder tiltPoints) {
 		mode = MODE.TILT;
+		pgBook_plotinfo.showPage(pg_plotinfo_tilt);
 		getDisplay().syncExec(new Runnable() {
 
 			@Override
@@ -380,47 +576,68 @@ public class TomoPlotComposite extends Composite {
 		this.shouldUpdatePlot = updatePlot;
 	}
 
+	/**
+	 * Updates the histogram data for stream
+	 * 
+	 * @param histogramFromStats
+	 */
 	public void updateHistogramData(final double[] histogramFromStats) {
-		if (shouldUpdatePlot) {
+		if (shouldUpdatePlot && !getDisplay().isDisposed()) {
 			getDisplay().syncExec(new Runnable() {
 
 				@Override
 				public void run() {
-					if (mode != MODE.HISTOGRAM) {
+					if (mode != MODE.HISTOGRAM_STREAM) {
 						histogramTrace = null;
+						pgBook_plotinfo.showPage(pg_plotinfo_histo);
+						if (!btnApplyExposureSettings.isDisposed()) {
+							btnApplyExposureSettings.setVisible(true);
+						}
 						removeXHairListeners();
 						removeOtherRegions();
 						xHair = null;
+						streamLog = false;
 					}
 					// show the apply button if streaming is happening in the left window.
-					mode = MODE.HISTOGRAM;
+					mode = MODE.HISTOGRAM_STREAM;
 					createMouseFollowLineRegion();
-					if (plottingSystem.getTrace("Histogram") == null) {
+					if (plottingSystem.getTrace(HISTOGRAM_TRACE) == null && !getDisplay().isDisposed()) {
 						plottingSystem.clear();
 					}
 
 					double[] subarray = ArrayUtils.subarray(histogramFromStats, 0, 1024);
-					logger.debug("subarrya size:{}", subarray.length);
+					logger.debug("subarray size:{}", subarray.length);
+
+					if (streamLog) {
+						int count = 0;
+						for (double d : histogramFromStats) {
+							if (d != 0) {
+								subarray[count] = Math.log10(d);
+							}
+							count++;
+						}
+					}
+
 					DoubleDataset ds = new DoubleDataset(subarray, 1024);
 
 					int min = 0;
-					ds.setName("Histogram Dataset");
+					ds.setName(HISTOGRAM_DATASET_lbl);
 
 					IntegerDataset xaxisRange = IntegerDataset.arange(min, 65536, 64);
-					xaxisRange.setName("Intensities");
+					xaxisRange.setName(INTENSITIES_lbl);
 
 					if (histogramTrace == null) {
-						histogramTrace = plottingSystem.createLineTrace("Histogram");
+						histogramTrace = plottingSystem.createLineTrace(HISTOGRAM_TRACE);
 					}
 
 					histogramTrace.setData(xaxisRange, ds);
-
-					if (plottingSystem.getTrace("Histogram") == null) {
+					histogramTrace.setTraceColor(ColorConstants.blue);
+					if (plottingSystem.getTrace(HISTOGRAM_TRACE) == null) {
 						plottingSystem.addTrace(histogramTrace);
 					}
 					plottingSystem.repaint();
 
-					plottingSystem.setTitle("Histogram Plot");
+					plottingSystem.setTitle(HISTOGRAM_PLOT_TITLE_lbl);
 					plottingSystem.getSelectedYAxis().setFormatPattern("#####");
 					plottingSystem.getSelectedXAxis().setFormatPattern("#####");
 				}
@@ -428,22 +645,39 @@ public class TomoPlotComposite extends Composite {
 		}
 	}
 
+	public void applyLog(boolean log, ImageData imgData) {
+		singleLog = log;
+		updateHistogramData(imgData);
+	}
+
+	public void applyLog(boolean log) {
+		streamLog = log;
+	}
+
+	/**
+	 * Update histogram data for single.
+	 * 
+	 * @param imageData
+	 */
 	public void updateHistogramData(final ImageData imageData) {
 		if (shouldUpdatePlot) {
 			getDisplay().syncExec(new Runnable() {
 
 				@Override
 				public void run() {
-					if (mode != MODE.HISTOGRAM) {
+					if (mode != MODE.HISTOGRAM_SINGLE) {
 						histogramTrace = null;
 						removeXHairListeners();
 						removeOtherRegions();
 						xHair = null;
+						singleLog = false;
+						pgBook_plotinfo.showPage(pg_plotinfo_histo);
+						btnApplyExposureSettings.setVisible(false);
 					}
 					// show the apply button if streaming is happening in the left window.
-					mode = MODE.HISTOGRAM;
+					mode = MODE.HISTOGRAM_SINGLE;
 					createMouseFollowLineRegion();
-					if (plottingSystem.getTrace("Histogram") == null) {
+					if (plottingSystem.getTrace(HISTOGRAM_TRACE) == null) {
 						plottingSystem.clear();
 					}
 
@@ -476,31 +710,49 @@ public class TomoPlotComposite extends Composite {
 
 					}
 
-					IntegerDataset ds = new IntegerDataset(intensities, imgD.width, imgD.height);
+					IDataset ds = new IntegerDataset(intensities, imgD.width, imgD.height);
 
 					int max = ds.max().intValue();
 					int min = ds.min().intValue();
 					histogram.setMinMax(min, max);
-					ds.setName("Histogram Dataset");
+					ds.setName(HISTOGRAM_DATASET_lbl);
+
 					AbstractDataset histogramDs = histogram.value(ds).get(0);
-					histogramDs.setName("Histogram Dataset");
+					histogramDs.setName(HISTOGRAM_DATASET_lbl);
+					if (singleLog) {
+						int shape = histogramDs.getShape()[0];
+						double[] logData = new double[shape];
+						int count = 0;
+						if (histogramDs instanceof IntegerDataset) {
+							IntegerDataset iDs = (IntegerDataset) histogramDs;
+							for (int intensity : iDs.getData()) {
+								if (intensity != 0) {
+									logData[count] = Math.log10(intensity);
+								}
+								count++;
+							}
+							histogramDs = new DoubleDataset(logData, shape);
+						}
+
+					}
 
 					IntegerDataset xaxisRange = IntegerDataset.arange(min, max, 255);
-					xaxisRange.setName("Intensities");
+					xaxisRange.setName(INTENSITIES_lbl);
 
 					if (histogramTrace == null) {
-						histogramTrace = plottingSystem.createLineTrace("Histogram");
+						histogramTrace = plottingSystem.createLineTrace(HISTOGRAM_TRACE);
 					}
 
 					histogramTrace.setData(xaxisRange, histogramDs);
-
-					if (plottingSystem.getTrace("Histogram") == null) {
+					histogramTrace.setTraceColor(ColorConstants.darkBlue);
+					if (plottingSystem.getTrace(HISTOGRAM_TRACE) == null) {
 						plottingSystem.addTrace(histogramTrace);
 					}
 					plottingSystem.repaint();
 
 					// plottingSystem.updatePlot1D(xaxisRange, dsHisto, null);
-					plottingSystem.setTitle("Histogram Plot");
+					plottingSystem.setTitle(HISTOGRAM_PLOT_TITLE_lbl);
+
 					plottingSystem.getSelectedYAxis().setFormatPattern("#####");
 					plottingSystem.getSelectedXAxis().setFormatPattern("#####");
 				}
@@ -548,7 +800,7 @@ public class TomoPlotComposite extends Composite {
 				xHair.addROIListener(mouseFollowRoiListener);
 
 				addMouseFollowLineRegion(xHair);
-				if (mode == MODE.HISTOGRAM) {
+				if (mode == MODE.HISTOGRAM_SINGLE || mode == MODE.HISTOGRAM_STREAM) {
 					xHair.addMouseListener(mouseFollowRegionMouseListner);
 				}
 			}
@@ -587,7 +839,7 @@ public class TomoPlotComposite extends Composite {
 	private MouseListener mouseFollowRegionMouseListner = new MouseListener.Stub() {
 		@Override
 		public void mousePressed(org.eclipse.draw2d.MouseEvent me) {
-			if (mode == MODE.HISTOGRAM) {
+			if (mode == MODE.HISTOGRAM_SINGLE || mode == MODE.HISTOGRAM_STREAM) {
 				try {
 
 					final Color snapShotColor = ColorConstants.blue;
@@ -614,6 +866,12 @@ public class TomoPlotComposite extends Composite {
 
 	private Double histogramFrom;
 	private Double histogramTo;
+
+	private Composite pg_plotinfo_profile;
+
+	private PageBook pgBook_plotinfo;
+
+	private Button btnApplyExposureSettings;
 
 	private IRegion createStaticRegion(String nameStub, final ROIBase bounds, final Color snapShotColor,
 			final RegionType regionType) throws Exception {
@@ -669,25 +927,64 @@ public class TomoPlotComposite extends Composite {
 
 			@Override
 			public void run() {
-				// plottingSystem.clearRegions();
+				plottingSystem.setTitle("");
+				pgBook_plotinfo.showPage(pg_plotinfo_none);
 				plottingSystem.reset();
 				histogramTrace = null;
+				mode = MODE.NONE;
 			}
 		});
 
 	}
 
 	public double getHistogramFrom() {
-		if (!shouldUpdatePlot && (mode == MODE.HISTOGRAM) && histogramFrom != null) {
+		if (!shouldUpdatePlot && (mode == MODE.HISTOGRAM_STREAM) && histogramFrom != null) {
 			return histogramFrom;
 		}
 		return 1;
 	}
 
 	public double getHistogramTo() {
-		if (!shouldUpdatePlot && (mode == MODE.HISTOGRAM) && histogramTo != null) {
+		if (!shouldUpdatePlot && (mode == MODE.HISTOGRAM_STREAM) && histogramTo != null) {
 			return histogramTo;
 		}
 		return 1;
 	}
+
+	public void setYLabelValue(final String yLblValue) {
+		if (!getDisplay().isDisposed()) {
+			getDisplay().asyncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					lblYValue.setText(yLblValue);
+				}
+			});
+		}
+	}
+
+	public void setXLabelValue(final String formattedXVal) {
+		if (!getDisplay().isDisposed()) {
+			getDisplay().asyncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					lblXValue.setText(formattedXVal);
+				}
+			});
+		}
+	}
+
+	public void setProfileIntensityValue(final String profileIntensityValue) {
+		if (!getDisplay().isDisposed()) {
+			getDisplay().asyncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					lblProfileIntensityValue.setText(profileIntensityValue);
+				}
+			});
+		}
+	}
+
 }
