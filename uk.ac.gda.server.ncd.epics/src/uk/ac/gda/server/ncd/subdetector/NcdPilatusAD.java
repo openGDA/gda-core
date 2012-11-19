@@ -334,6 +334,8 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 		try {
 			dataTree.addScanFileLink(getName(), "nxfile://" + controller.getHDFFileName()
 					+ "#entry/instrument/detector/data");
+		} catch (DeviceException e) {
+			throw e;
 		} catch (Exception e) {
 			throw new DeviceException("error getting HDF file name", e);
 		}

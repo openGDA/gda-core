@@ -30,14 +30,18 @@ public class NDFileHDF5Impl extends gda.device.detector.areadetector.v17.impl.ND
 	public final String ColumnsPerChunk_RBV = "NumColChunks_RBV";
 	public final String FramessPerChunk_RBV = "NumFramesChunks_RBV";
 	public final String ChunkAlignment_RBV = "BoundaryAlign_RBV";
-	
+	public final String NumFramesFlush = "NumFramesFlush";
+	public final String NumFramesFlush_RBV = "NumFramesFlush_RBV";
+	public final String QueueUse = "QueueUse";
+	public final String WriteStatus = "WriteStatus";
+	public final String WriteMessage = "WriteMessage";
+
 	private Integer initialColumnsPerChunk;
 	private Integer initialFramesPerChunk;
 	private Integer initialChunkAlignment;
 	
 	@Override
 	public void reset() throws Exception {
-		// TODO Auto-generated method stub
 		super.reset();
 		
 		if (initialColumnsPerChunk != null) {
@@ -125,5 +129,50 @@ public class NDFileHDF5Impl extends gda.device.detector.areadetector.v17.impl.ND
 
 	public void setInitialChunkAlignment(Integer initialChunkAlignment) {
 		this.initialChunkAlignment = initialChunkAlignment;
+	}
+
+	public int getNumFramesFlush() throws Exception {
+		try {
+			return EPICS_CONTROLLER.cagetInt(getChannel(NumFramesFlush_RBV));
+		} catch (Exception ex) {
+			logger.warn("Cannot getNumFramesFlush", ex);
+			throw ex;
+		}
+	}
+
+	public void setNumFramesFlush(int value) throws Exception {
+		try {
+			EPICS_CONTROLLER.caput(getChannel(NumFramesFlush), value);
+		} catch (Exception ex) {
+			logger.warn("Cannot setNumFramesFlush", ex);
+			throw ex;
+		}
+	}
+	
+	public int getQueueUse() throws Exception {
+		try {
+			return EPICS_CONTROLLER.cagetInt(getChannel(QueueUse));
+		} catch (Exception ex) {
+			logger.warn("Cannot getNumFramesFlush", ex);
+			throw ex;
+		}
+	}
+	
+	public int getWriteStatus() throws Exception {
+		try {
+			return EPICS_CONTROLLER.cagetInt(getChannel(WriteStatus));
+		} catch (Exception ex) {
+			logger.warn("Cannot getNumFramesFlush", ex);
+			throw ex;
+		}
+	}
+	
+	public String getWriteMessage() throws Exception {
+		try {
+			return new String(EPICS_CONTROLLER.cagetByteArray(getChannel(WriteMessage))).trim();
+		} catch (Exception ex) {
+			logger.warn("Cannot getNumFramesFlush", ex);
+			throw ex;
+		}
 	}
 }
