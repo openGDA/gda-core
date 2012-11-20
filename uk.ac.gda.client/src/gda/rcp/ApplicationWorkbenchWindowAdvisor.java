@@ -39,12 +39,18 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 
 	@Override
 	public void preWindowOpen() {
+		
+		boolean useToolBar = LocalProperties.check(LocalProperties.GDA_GUI_USE_TOOL_BAR,true);
+		boolean usePerspectiveBar = LocalProperties.check(LocalProperties.GDA_GUI_USE_PERSPECTIVE_BAR,true);
+		int width = LocalProperties.getAsInt(LocalProperties.GDA_GUI_START_WIDTH,1450);
+		int height = LocalProperties.getAsInt(LocalProperties.GDA_GUI_START_HEIGHT,900);
+
 		IWorkbenchWindowConfigurer configurer = getWindowConfigurer();
-		configurer.setInitialSize(new Point(1450, 900));
-		configurer.setShowCoolBar(true);
+		configurer.setInitialSize(new Point(width,height));
+		configurer.setShowCoolBar(useToolBar);
 		configurer.setShowStatusLine(true);
 		configurer.setShowProgressIndicator(true);
-		configurer.setShowPerspectiveBar(true);
+		configurer.setShowPerspectiveBar(usePerspectiveBar);
 		final String prefix = LocalProperties.get(LocalProperties.GDA_GUI_TITLEBAR_PREFIX);
 		String title;
 		if (prefix != null) {
@@ -55,7 +61,6 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 					beamLineName == null ? "Unknown" : beamLineName.toUpperCase(),
 				gda.util.Version.getRelease());
 		}
-		
 		configurer.setTitle(title);
 	}
 }
