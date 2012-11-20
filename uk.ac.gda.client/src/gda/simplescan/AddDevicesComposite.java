@@ -58,7 +58,7 @@ public class AddDevicesComposite extends Composite {
 		bean = (SimpleScan) editingBean;
 
 		configureDevicesExpandableComposite = new ExpandableComposite(this, SWT.NONE);
-		configureDevicesExpandableComposite.setText("Scannable/Detector List");
+		configureDevicesExpandableComposite.setText("Set Available Scannables/Detectors");
 		GridData gd_configureDevicesExpandableComposite = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
 		gd_configureDevicesExpandableComposite.widthHint = 378;
 		gd_configureDevicesExpandableComposite.heightHint = 170;
