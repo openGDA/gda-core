@@ -17,6 +17,8 @@ package uk.ac.gda.server.ncd.epics;
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import java.util.Map;
+
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableBase;
@@ -36,6 +38,7 @@ import gov.aps.jca.event.MonitorListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.server.ncd.subdetector.ScalingAndOffsetParameters;
 import uk.ac.gda.server.ncd.subdetector.ScalingAndOffset;
 
 @CorbaAdapterClass(ScannableAdapter.class)
@@ -43,6 +46,7 @@ import uk.ac.gda.server.ncd.subdetector.ScalingAndOffset;
 public class ScalingAndOffsetFromCurrAmp extends ScannableBase implements Scannable, Findable, ScalingAndOffset, MonitorListener {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ScalingAndOffsetFromCurrAmp.class);  		
+	
 	private String pvName;
 	public static final String[] epicsnamelist = {".ZRST", ".ONST", ".TWST", ".THST", ".FRST", ".FVST", ".SXST", ".SVST", ".EIST", ".NIST", ".TEST", ".ELST", ".TVST", ".TTST", ".FFST"};
 	private String[] labellist;
@@ -50,6 +54,7 @@ public class ScalingAndOffsetFromCurrAmp extends ScannableBase implements Scanna
 	private EpicsController ec;
 	private Channel channel; 
 	private boolean busy = false;
+	private Map<Integer, ScalingAndOffsetParameters> gaintosando;
 	
 	@Override
 	public void configure() throws FactoryException {
@@ -90,7 +95,7 @@ public class ScalingAndOffsetFromCurrAmp extends ScannableBase implements Scanna
 	}
 	
 	@Override
-	public Object rawGetPosition() throws DeviceException {
+	public String rawGetPosition() {
 		return labellist[gain];
 	}
 	
@@ -112,33 +117,46 @@ public class ScalingAndOffsetFromCurrAmp extends ScannableBase implements Scanna
 
 	@Override
 	public Double getScaling() {
-		// TODO Auto-generated method stub
-		return null;
+		if (gaintosando == null || !gaintosando.containsKey(gain))
+			return 1.0;
+		
+		return gaintosando.get(gain).scaling;
 	}
 
 	@Override
 	public Double getOffset() {
-		// TODO Auto-generated method stub
-		return null;
+		if (gaintosando == null || !gaintosando.containsKey(gain))
+			return 0.0;
+		
+		return gaintosando.get(gain).offset;
 	}
 
 	@Override
 	public String getDescription() {
-		// TODO Auto-generated method stub
-		return null;
+		if (gaintosando == null || !gaintosando.containsKey(gain))
+			return String.format("Unknown gain setting \"%s\": defaulting to raw data.", rawGetPosition());
+		
+		return String.format("Data scaled by %5.5g and offset by %5.5g for gainsetting \"%s\".", getScaling(), getOffset(), rawGetPosition());
 	}
+	
 	@Override
 	public void monitorChanged(MonitorEvent mev) {
-		DBR dbr = mev.getDBR();
-		if (dbr.isENUM()) {
+		try { 
+			DBR dbr = mev.getDBR();
 			gain = ((DBR_Enum) dbr).getEnumValue()[0];
-		} else {
-			logger.error("Gain does not return Enum type.");
+		} catch (Exception e) {
+			logger.error("unexpected problems processing monitor updates on gain PV", e);
 		}
 		busy = false;
 	}
 	
 	public String[] getPositions() {
 		return labellist;
+	}
+	public Map<Integer, ScalingAndOffsetParameters> getGaintosando() {
+		return gaintosando;
+	}
+	public void setGaintosando(Map<Integer, ScalingAndOffsetParameters> gaintosando) {
+		this.gaintosando = gaintosando;
 	}
 }
