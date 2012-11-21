@@ -901,6 +901,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 							public void run() {
 
 								try {
+									tomoAlignmentView.getTomoPlotComposite().clearPlots();
 									tomoAlignmentView.getLeftPanelComposite().startSingle();
 								} catch (Exception e) {
 									logger.error("Problem with switching on Profile", e);

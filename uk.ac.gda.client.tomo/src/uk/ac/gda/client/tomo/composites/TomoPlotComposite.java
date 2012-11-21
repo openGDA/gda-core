@@ -380,10 +380,6 @@ public class TomoPlotComposite extends Composite {
 	}
 
 	public void updateProfilePlots(IProgressMonitor monitor, final int y) {
-		if (mode != MODE.PROFILE) {
-			plottingSystem.clear();
-		}
-
 		mode = MODE.PROFILE;
 		if (getDisplay() != null && !getDisplay().isDisposed()) {
 			getDisplay().syncExec(new Runnable() {
@@ -601,7 +597,7 @@ public class TomoPlotComposite extends Composite {
 					// show the apply button if streaming is happening in the left window.
 					mode = MODE.HISTOGRAM_STREAM;
 					createMouseFollowLineRegion();
-					if (plottingSystem.getTrace(HISTOGRAM_TRACE) == null && !getDisplay().isDisposed()) {
+					if (!getDisplay().isDisposed() && plottingSystem.getTrace(HISTOGRAM_TRACE) == null) {
 						plottingSystem.clear();
 					}
 

@@ -908,7 +908,7 @@ public class TomoAlignmentController extends TomoViewController {
 		if (from < 0) {
 			from = 0.001;
 		}
-		double scaledValue = to / from;
+		double scaledValue = from / to;
 
 		logger.debug("Scaled value:{}", scaledValue);
 		return scaledValue;
