@@ -73,8 +73,8 @@ class TwodGaussianPeak(TwodDataSetProcessor):
 		
 		background = (offsetx+offsety)/2.
 		fwhmarea = fwhmy*fwhmx*pi/4
-		topy = areay / fwhmarea
-		topx = areax / fwhmarea
+		topy = areay / fwhmy
+		topx = areax / fwhmx
 		
 		if xoffset==None:
 			xoffset=0

@@ -88,6 +88,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
+import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotAppearanceDialog;
@@ -746,10 +747,8 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 			 * if one point is added to the end of one plot. Instead it should just add the 
 			 * data to the one plot that is changing.
 			 */
-			List<AbstractDataset>    ys  = new Vector<AbstractDataset>();
-			List<AxisValues>      x_axes = new Vector<AxisValues>();
+			List<LineData>    xys  = new Vector<LineData>();
 			final List<String>     invis = new Vector<String>();
-			final Map<String,Plot1DAppearance> appearances = new HashMap<String, Plot1DAppearance>();
 			String xAxisHeader = null;
 			String yAxisHeader = null;
 			boolean xAxisIsVarious = false;
@@ -758,13 +757,11 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 				if (sd != null  && sd.number > 1 ) {//do not show lines with only 1 point as the datasetplotter throws exceptions
 					if (sd.isVisible()) {
 						
-						ys.add(sd.archive.getyVals());
+						xys.add( new LineData(sd.archive.getAppearance(), sd.archive.getxAxis().toDataset(),sd.archive.getyVals() ));
 						AbstractDataset y = sd.archive.getyVals();
 						if (y.getName()==null || "".equals(y.getName())) {
 							y.setName(sd.name);
 						}
-						x_axes.add(sd.archive.getxAxis());
-						appearances.put(sd.archive.getyVals().getName(), sd.archive.getAppearance());
 						if (!xAxisIsVarious && StringUtils.hasLength(sd.xLabel)) {
 							if (xAxisHeader == null) {
 								xAxisHeader = sd.xLabel;
@@ -790,32 +787,11 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 					}
 				}
 			}
-			if (ys.isEmpty()) {
+			if (xys.isEmpty()) {
 				plottingSystem.clear();
 				return;
 			}
-			if (ys.isEmpty()) {
-				ys.add(dummy.archive.getyVals());
-				x_axes.add(dummy.archive.getxAxis());
-				appearances.put(dummy.archive.getyVals().getName(), dummy.archive.getAppearance());
-				yAxisHeader="";
-				xAxisHeader="";
-			}
-			// always replace plots even if list is empty as they may be invisible
-			AbstractDataset x = x_axes.size()>0
-					          ? x_axes.get(0).toDataset()
-					          : null;
-		    if (x==null) {
-		    	x = ys.size()>0
-				          ? AbstractDataset.arange(ys.get(0).getSize(), AbstractDataset.INT32)
-				          : null;
-		    }
-		    
-			if (x!=null) {
-				createUpdatePlot(xAxisHeader, yAxisHeader, x, ys, appearances, invis);
-			} else {
-				plottingSystem.reset();
-			}
+			createUpdatePlot(xAxisHeader, yAxisHeader, xys, invis);
 
 		} catch (Throwable e) {
 			logger.warn(e.getMessage(),e);
@@ -828,16 +804,10 @@ class SubLivePlotView extends Composite implements XYDataHandler {
        This horrendous way of doing it, results from the fact that we
        reuse XYPlotComposite. A better way would be with updating and 
        creating individual traces. TODO Convert to more logical design.	
-		              
-	 * @param x
-	 * @param ys
-	 * @param appearances
 	 */
 	private void createUpdatePlot(final String                xLabel, 
 			      				  final String                yLabel, 
-			      				  final AbstractDataset       x, 
-			                      final List<AbstractDataset> ys, 
-			                      final Map<String, Plot1DAppearance> appearances,
+			                      final List<LineData> xys, 
 			                      final List<String>          invis) {
 		
 		final String title = yLabel + " / " + xLabel;
@@ -849,26 +819,26 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 				plottingSystem.getSelectedXAxis().setTitle(xLabel);
 				plottingSystem.getSelectedYAxis().setTitle(yLabel);
 				
-				final List<AbstractDataset> unfoundYs = new ArrayList<AbstractDataset>(ys.size());
+				final List<LineData> unfoundYs = new ArrayList<LineData>(xys.size());
 				
 				/**
 				 * Update what we can, after that create new plots.
 				 */
-				for (final AbstractDataset y : ys) {
+				for (final LineData ld : xys) {
 					
-					final ITrace trace = plottingSystem.getTrace(y.getName());
+					final ITrace trace = plottingSystem.getTrace(ld.getY().getName());
 					if (trace!=null && trace instanceof ILineTrace) {
 						
 						final ILineTrace lineTrace = (ILineTrace)trace;
-						lineTrace.setData(x, y);
+						lineTrace.setData(ld.getX(), ld.getY());
 					} else {
-						unfoundYs.add(y);
+						unfoundYs.add(ld);
 					}
 				}
 				
 				// We create the new ones and assign their new colour
-				for (final AbstractDataset y : unfoundYs) {
-			
+				for (final LineData ld : unfoundYs) {
+					AbstractDataset y = ld.getY();
 					if (y.getName()==null || "".equals(y.getName())) {
 						logger.error("y dataset is not named - it should be!");
 					}
@@ -877,13 +847,9 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 					trace.setPointSize(3);
 					trace.setPointStyle(PointStyle.POINT);
 					
-					if (appearances.containsKey(trace.getName())) {
-						final Color color = appearances.get(trace.getName()).getColour();
-						trace.setTraceColor(new org.eclipse.swt.graphics.Color(null, color.getRed(), color.getGreen(), color.getBlue()));
-					} else { // We still want a unique colour
-						trace.setTraceColor(ColorUtility.getSwtColour(ys.indexOf(y)));
-					}
-					trace.setData(x, y);
+					final Color color = ld.getAppearance().getColour();
+					trace.setTraceColor(new org.eclipse.swt.graphics.Color(null, color.getRed(), color.getGreen(), color.getBlue()));
+					trace.setData(ld.getX(), ld.getY());
 					plottingSystem.addTrace(trace);
 				}
 				/**

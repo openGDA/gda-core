@@ -786,10 +786,10 @@ public class DummyDAServer extends DAServer {
 			}
 
 			long[] data;
-			if (dt != 3 && dt != 4) {
-				// cannot use data files then...
-				return createDummyArray(x, y, t, dx, dy, dt);
-			}
+//			if (dt != 3 && dt != 4) {
+//				// cannot use data files then...
+//				return createDummyArray(x, y, t, dx, dy, dt);
+//			}
 			if (scanPointDataFileContent == null) {
 				scanPointDataFileContent = readScanDataFile();
 			}
@@ -827,7 +827,12 @@ public class DummyDAServer extends DAServer {
 	}
 
 	private long[][] readScanDataFile() {
-		final File file = new File(LocalProperties.get(LocalProperties.GDA_CONFIG) + "/testing/" + dataFile);
+		File file;
+		if (dataFile.contains("/")) {
+			file = new File(dataFile);
+		} else {
+			file = new File(LocalProperties.get(LocalProperties.GDA_CONFIG) + "/testing/" + dataFile);
+		}
 		try {
 			final List<String> lines = FileUtils.readFileAsList(file);
 			final List<long[]> data = new ArrayList<long[]>(31);
@@ -839,10 +844,11 @@ public class DummyDAServer extends DAServer {
 				if ("".equals(line.trim()))
 					continue;
 				final String[] dataLine = line.split(" ");
-				final long I0 = Long.parseLong(dataLine[2]);
-				final long It = Long.parseLong(dataLine[3]);
-				final long Iref = Long.parseLong(dataLine[4]);
-				data.add(new long[] { I0, It, Iref });
+				long[] dblData = new long[dataLine.length];
+				for (int i = 0; i < dataLine.length; i++){
+					dblData[i] = Math.round(Double.parseDouble(dataLine[i]));
+				}
+				data.add(dblData);
 			}
 			return data.toArray(new long[data.size()][3]);
 		} catch (Exception e) {
