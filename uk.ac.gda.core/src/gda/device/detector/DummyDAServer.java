@@ -519,17 +519,17 @@ public class DummyDAServer extends DAServer {
 
 		String memoryType = handles.get(handle);
 
-		if ("scaler".equals(memoryType) && scalerCommandReceived == false) {
+		if ("scaler".equals(memoryType)) {
 			scalerData = createDummyScalerData(x, y, t, dx, dy, dt);
 			scalerCommandReceived = true;
 		}
 
-		else if ("gdhist".equals(memoryType) && gdhistCommandReceived == false) {
+		else if ("gdhist".equals(memoryType)) {
 			scalerData = createDummyHistData(x, y, t, dx, dy, dt);
 			gdhistCommandReceived = true;
 		}
 
-		else if ("vvhist".equals(memoryType) && vvhistCommandReceived == false) {
+		else if ("vvhist".equals(memoryType)) {
 			scalerData = createDummyHistData(x, y, t, dx, dy, dt);
 			vvhistCommandReceived = true;
 		}
@@ -1050,9 +1050,10 @@ public class DummyDAServer extends DAServer {
 	public float[] getFloatBinaryData(String message, int ndata) {
 		long[] binaryData = getLongBinaryData(message, ndata);
 		float[] floatbd = new float[ndata];
-		int i = 0;
-		for (double d : binaryData)
-			floatbd[i++] = (float) d;
+		if (binaryData.length < floatbd.length)
+			logger.error(String.format("command %s did not deliver %d values", message, ndata));
+		for (int j = 0; j < floatbd.length; j++)
+			floatbd[j] =  binaryData[j];
 		return floatbd;
 	}
 }
