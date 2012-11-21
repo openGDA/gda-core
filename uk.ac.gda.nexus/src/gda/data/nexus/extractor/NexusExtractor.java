@@ -52,6 +52,7 @@ final public class NexusExtractor implements INexusDataGetter {
 	public final static String NXPositionerClassName = "NXpositioner";
 	public final static String NXNoteClassName = "NXnote";
 	public final static String NXDetectorClassName = "NXdetector";
+	public final static String NXMonitorClassName = "NXmonitor";
 	public final static String SDSClassName = "SDS";
 	public final static String AttrClassName = "Attr";
 	public static final String ExternalSDSLink = "ExternalSDSLink";
