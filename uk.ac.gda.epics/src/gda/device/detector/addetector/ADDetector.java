@@ -232,7 +232,6 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 	private NDStatsGroup centroidGroup;
 
 	public ADDetector() {
-		logger.warn("DASC developer WARNING ADDetector is under development. The way it is configured is likely to change until at least GDA 8.20. See javadoc.");
 		setLocal(true);
 	}
 
