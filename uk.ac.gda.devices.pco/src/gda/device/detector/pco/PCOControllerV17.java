@@ -24,6 +24,7 @@ import gda.device.DeviceException;
 import gda.device.detector.IPCOControllerV17;
 import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.ADBase;
+import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.device.detector.areadetector.v17.FfmpegStream;
 import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.areadetector.v17.NDFile;
@@ -79,6 +80,8 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	private static final String ARM_MODE_RBV = "ARM_MODE_RBV";
 	private static final String DELAY_TIME = "DELAY_TIME";
 	private static final String DELAY_TIME_RBV = "DELAY_TIME_RBV";
+
+	private int initialTimestampMode = 0;
 
 	/**
 	 * Mark Basham's calibrated readout time for each ADC mode. These are set in Spring configuration.
@@ -472,7 +475,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 		if (!isLive) {
 			return;
 		}
-		
+
 		if (value < 0 && value > 2) {
 			throw new IllegalArgumentException(getName()
 					+ ": Input must be 0 - Auto, 1 - Ext. enable, and 2 - Ext. trigger");
@@ -592,6 +595,8 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 			if (isArmed()) {
 				disarmCamera();
 			}
+			// Set the timestamp mode to the initial time stamp mode
+			setTimestampMode(initialTimestampMode);
 		}
 		if (areaDetector != null)
 			areaDetector.reset();
@@ -620,6 +625,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 		if (tiff != null)
 			tiff.reset();
 		// initialise area detector and all its plugins
+
 		hdf.setNumRowChunks(areaDetector.getArraySizeY_RBV());
 		if (areaDetector.getAcquireState() == 1) {
 			areaDetector.stopAcquiring(); // force stop any active camera acquisition on reset, this will disarm camera
@@ -636,9 +642,12 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 					|| hdf.getPluginBase().getArraySize0_RBV() != getAreaDetector().getArraySizeX_RBV()) {
 				// dummy acquisition to ensure all plugin array dimensions are initialised,
 				// these must be called at least once after IOC restarts.
-				areaDetector.setTriggerMode(2);
+				int cachedImgMode = areaDetector.getImageMode();
+				
+				areaDetector.setImageMode(ImageMode.SINGLE.ordinal());
 				areaDetector.setAcquireTime(0.01);
 				areaDetector.startAcquiringSynchronously();
+				areaDetector.setImageMode(cachedImgMode);
 			}
 		}
 	}
@@ -1079,6 +1088,10 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	@Override
 	public boolean isArmed() throws Exception {
 		return getArmMode() == 1;
+	}
+
+	public void setInitialTimestampMode(int initialTimestampMode) {
+		this.initialTimestampMode = initialTimestampMode;
 	}
 
 }
