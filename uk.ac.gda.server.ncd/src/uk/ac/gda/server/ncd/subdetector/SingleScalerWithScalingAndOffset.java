@@ -18,7 +18,10 @@
 
 package uk.ac.gda.server.ncd.subdetector;
 
+import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
+import gda.data.nexus.tree.INexusTree;
+import gda.data.nexus.tree.NexusTreeNode;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
 
@@ -53,11 +56,56 @@ public class SingleScalerWithScalingAndOffset extends NcdScalerDetector {
 		
 		ngd = new NexusGroupData(datadims, NexusFile.NX_FLOAT32, tweakeddata);
 		ngd.isDetectorEntryData = true;
-		nxdata.addData(getName(), label, ngd, units, 1);
-		scalingAndOffset.getDescription(); // FIXME this should go somewhere
+		addMonitorData(nxdata, getName(), label, ngd, units, 1,	scalingAndOffset.getDescription());
 		//FIXME add frame axis
 	}
 
+	/**
+	 * Adds the specified data to the named detector
+	 * @param monitorName The name of the detector to add data to
+	 * @param data_sds The implementation of NexusGroupData to be reported as the data
+	 * @param units  - if not null a units attribute is added
+	 * @param signalVal - if not null a signal attribute is added
+	 */
+	public static void addMonitorData(NXDetectorData nxdata, String monitorName, String dataName, NexusGroupData data_sds, String units, Integer signalVal, String description) {
+		INexusTree monTree = getMonitorTree(nxdata, monitorName);
+		NexusTreeNode data = new NexusTreeNode(dataName, NexusExtractor.SDSClassName, null, data_sds);
+		data.setIsPointDependent(data_sds.isDetectorEntryData);
+		if (units != null) {
+			data.addChildNode(new NexusTreeNode("units",NexusExtractor.AttrClassName, data, new NexusGroupData(units)));
+		}
+		if (signalVal != null) {
+			Integer[] signalValArray = {signalVal};
+			data.addChildNode(new NexusTreeNode("signal",NexusExtractor.AttrClassName, data, 
+					new NexusGroupData(new int[] {signalValArray.length}, NexusFile.NX_INT32, signalValArray)));
+		}
+		if (description != null) {
+			monTree.addChildNode(new NexusTreeNode("description",NexusExtractor.SDSClassName, monTree, 
+					new NexusGroupData(description)));
+		}
+		monTree.addChildNode(data);			
+	}
+	
+	/**
+	 * returns the names detectors tree
+	 * @param monitorName if null or empty it returns the first 
+	 * @return the NexusTree associated with the named detector
+	 */
+	public static INexusTree getMonitorTree(NXDetectorData nxdata, String monitorName) {
+		for (INexusTree branch : nxdata.getNexusTree()) {
+			if (branch.getNxClass().equals(NexusExtractor.NXMonitorClassName)) {
+				if (branch.getName().equals(monitorName)){
+					return branch;
+				}
+			}
+		}
+		//else add item and return
+		NexusTreeNode detTree = new NexusTreeNode(monitorName, NexusExtractor.NXMonitorClassName, null);
+		detTree.setIsPointDependent(true);
+		nxdata.getNexusTree().addChildNode(detTree);
+		return detTree;
+	}
+	
 	public String getLabel() {
 		return label;
 	}
