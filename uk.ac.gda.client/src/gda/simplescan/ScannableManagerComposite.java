@@ -37,14 +37,16 @@ public class ScannableManagerComposite extends Composite {
 	public ScannableManagerComposite(Composite parent, int style) {
 		super(parent, style);
 		final GridLayout gridLayout = new GridLayout();
+		gridLayout.verticalSpacing = 0;
+		gridLayout.horizontalSpacing = 0;
+		gridLayout.marginHeight = 0;
+		gridLayout.marginWidth = 0;
 		gridLayout.numColumns = 1;
 		setLayout(gridLayout);
-
-		scannableName = new FindableNameWrapper(this, SWT.BORDER, Scannable.class);
+		scannableName = new FindableNameWrapper(this, SWT.BORDER, Scannable.class, false);
 		scannableName.on();
-		GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		gd.widthHint=129;
-		scannableName.setLayoutData(gd);
+		GridData gd_scannableName = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		scannableName.setLayoutData(gd_scannableName);
 		scannableName.addValueListener(new ValueAdapter() {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {

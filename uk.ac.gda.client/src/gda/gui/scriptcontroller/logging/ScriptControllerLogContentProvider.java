@@ -85,7 +85,6 @@ public class ScriptControllerLogContentProvider implements ITreeContentProvider,
 
 	@Override
 	public void inputChanged(Viewer arg0, Object arg1, Object arg2) {
-		//
 		System.out.println("inputChanged, dunno why");
 	}
 
