@@ -269,6 +269,11 @@ public class LocalProperties {
 	public static final String GDA_GUI_START_HEIGHT = "gda.gui.window.start.height";
 
 	/**
+	 * Maximise the application window at startup
+	 */
+	public static final String GDA_GUI_START_MAXIMISE = "gda.gui.window.start.maximise";
+
+	/**
 	 * Prefix for the title of the GDA window
 	 */
 	public static final String GDA_GUI_TITLEBAR_PREFIX = "gda.gui.titlebar.prefix";
