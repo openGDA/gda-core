@@ -33,7 +33,7 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 	/**
 	 * Valid sample stages.
 	 */
-	public static final String[] SAMPLE_ENV = new String[] { "None", "Room Temperature"/*, "Cryostat", "Furnace", "Microreactor",
+	public static final String[] SAMPLE_ENV = new String[] { "None", "Room Temperature", "Cryostat"/*, "Furnace", "Microreactor",
 			"Custom (XYZ)", "Custom" */};
 
 	public static final String[] SAMPLE_ENV_XES = new String[] { "None", "Room Temperature"/*, "Custom (XYZ)", "Custom" */};
