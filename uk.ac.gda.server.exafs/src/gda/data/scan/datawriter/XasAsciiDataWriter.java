@@ -143,7 +143,7 @@ public class XasAsciiDataWriter extends AsciiDataWriter{
 				if (da != null && da.getCounts().length >= 3) {
 					file.write("#\n");
 					file.write(String.format(
-							"# Dark current intensity (Hz), collected over %.2fs: I0 %.2f   It %.2f   Iref %.2f\n",
+							"# Dark current intensity was collected over %.2fs. Average counts per second: I0 %.2f   It %.2f   Iref %.2f\n",
 							da.getTimeInS(), da.getCounts()[0] / da.getTimeInS(), da.getCounts()[1] / da.getTimeInS(),
 							da.getCounts()[2] / da.getTimeInS()));
 					file.write("# Dark current has been automatically removed from counts in main scan (I0,It,Iref)\n");
