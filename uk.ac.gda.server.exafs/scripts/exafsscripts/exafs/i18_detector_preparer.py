@@ -13,7 +13,7 @@ class I18DetectorPreparer:
         
     def prepare(self, detectorParameters, outputParameters, scriptFolder):
         if detectorParameters.getExperimentType() == "Fluorescence":
-            if (detectorParameters.getDetectorType() == "Germanium"):
+            if (detectorParameters.getFluorescenceParameters().getDetectorType() == "Germanium"):
                 fullFileName = scriptFolder + detectorParameters.getConfigFileName()
                 bean = BeansFactory.getBean(File(fullFileName))
                 bean.setReadoutMode(XspressDetector.READOUT_MCA)
