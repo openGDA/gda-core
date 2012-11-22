@@ -21,6 +21,7 @@ package gda.device.detector.addetector.triggering;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADDriverPco;
 import gda.device.detector.areadetector.v17.ADDriverPco.PcoTriggerMode;
+import gda.util.LiveModeUtil;
 
 public class SingleExposurePco extends SingleExposureStandard {
 
@@ -34,22 +35,24 @@ public class SingleExposurePco extends SingleExposureStandard {
 	@Override
 	public void prepareForCollection(double collectionTime, int numImages) throws Exception {
 		super.prepareForCollection(collectionTime, numImages);
-		getAdBase().setAcquirePeriod(0.); //for pco always set acq period to 0 to force delay to 0.
-		adDriverPco.getArmModePV().putCallback(true);
+		getAdBase().setAcquirePeriod(0.); // for pco always set acq period to 0 to force delay to 0.
+		if (LiveModeUtil.isLiveMode()) {
+			adDriverPco.getArmModePV().putCallback(true);
+		}
 	}
 
 	@Override
 	public void completeCollection() throws Exception {
 		super.completeCollection();
-		adDriverPco.getArmModePV().putCallback(false);
+		if (LiveModeUtil.isLiveMode()) {
+			adDriverPco.getArmModePV().putCallback(false);
+		}
 	}
-	
-	
 
 	@Override
 	protected void configureTriggerMode() throws Exception {
 		// Reported Epics bug: changing mode while acquiring causes an IOC crash (28oct2011 RobW)
-		getAdBase().stopAcquiring(); 
+		getAdBase().stopAcquiring();
 		getAdBase().setTriggerMode(PcoTriggerMode.SOFTWARE.ordinal());
 	}
 
