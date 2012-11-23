@@ -677,12 +677,15 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 							}
 							tomoAlignmentView.getTomoAlignmentController().takeFlat(progress.newChild(9), numFlat,
 									expTime);
+							tomoAlignmentView.getLeftPanelComposite().flatDarkTaken(true);
 						} else {
 							throw new InterruptedException("Operation was cancelled");
 						}
 					} catch (InterruptedException e) {
+						tomoAlignmentView.getLeftPanelComposite().flatDarkTaken(false);
 						throw new InvocationTargetException(e, "Operation Interrupted");
 					} catch (Exception e1) {
+						tomoAlignmentView.getLeftPanelComposite().flatDarkTaken(false);
 						throw new InvocationTargetException(e1, e1.getMessage());
 					} finally {
 						monitor.done();
@@ -690,15 +693,11 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 				}
 			});
 
-			tomoAlignmentView.getLeftPanelComposite().setFlatCaptured(true,
-					tomoAlignmentView.getLeftPanelComposite().getFlatExposureTime());
 		} catch (InvocationTargetException e) {
 			logger.error("Error in takeflat", e);
-			tomoAlignmentView.getLeftPanelComposite().setFlatCaptured(false, Double.NaN);
 			throw e;
 		} catch (InterruptedException e) {
 			logger.error("Error in takeflat", e);
-			tomoAlignmentView.getLeftPanelComposite().setFlatCaptured(false, Double.NaN);
 			throw e;
 		}
 	}
