@@ -33,6 +33,20 @@ class TestCOM(unittest.TestCase):
 		self.assertAlmostEqual(height, 1.000000001)
 		self.assertAlmostEqual(width, 5)
 
+	def test_process_ones_max_at_left_edge(self):
+		y = DataSet.array([1.000000001, 1, 1, 0, 0, 0, 0, 0, 0, 0])
+		cen, height, width = self.p._process(self.x, y)
+		self.assertAlmostEqual(cen, 11)
+		self.assertAlmostEqual(height, 1.000000001)
+		self.assertAlmostEqual(width, 3)
+
+	def test_process_ones_max_at_right_edge(self):
+		y = DataSet.array([0, 0, 0, 0, 0, 0, 0, 1, 1, 1.000000001])
+		cen, height, width = self.p._process(self.x, y)
+		self.assertAlmostEqual(cen, 18)
+		self.assertAlmostEqual(height, 1.000000001)
+		self.assertAlmostEqual(width, 3)
+
 	def test_process(self):
 		y = DataSet.array([0, 0, 1, 1.000000001, 1, 1, 0, 1, 0, 0])
 		cen, height, width = self.p._process(self.x, y)
@@ -40,6 +54,12 @@ class TestCOM(unittest.TestCase):
 		self.assertAlmostEqual(height, 1.000000001)
 		self.assertAlmostEqual(width, 5)
 		
+	def test_interp_minus1(self):
+		self.assertEqual(interp(self.l, -1), -10)
+
+	def test_interp_minus05(self):
+		self.assertEqual(interp(self.l, -.5), -5)
+
 	def test_interp_0(self):
 		self.assertEqual(interp(self.l, 0), 0)
 		
