@@ -213,6 +213,8 @@ public class ExcaliburConfigModelHelper {
 		chipRegModel.setAnper(getAnperModel(chip.getAnper()));
 		chipRegModel.setPixel(getPixelModel(chip.getPixel()));
 		chipRegModel.setChipDisable(!chip.isChipEnabled());
+		chipRegModel.setDacIntoMpx(chip.getDacIntoMpx());
+		chipRegModel.setDacOutFromMpx(chip.getDacOutFromMpx());
 
 		return chipRegModel;
 	}
@@ -265,6 +267,7 @@ public class ExcaliburConfigModelHelper {
 	 */
 	public ExcaliburConfig getExcaliburConfigFromFile(String filename) {
 		Resource resource = getResource(filename);
+		//TODO need to handle external change to the file
 		EObject eObject = resource.getContents().get(0);
 		if (eObject instanceof ExcaliburConfig) {
 			ExcaliburConfig excaliburConfig = (ExcaliburConfig) eObject;
@@ -309,6 +312,7 @@ public class ExcaliburConfigModelHelper {
 		} else {
 			detectorChip.enableChip();
 		}
+		detectorChip.setDacIntoMpx(modelChipReg.getDacIntoMpx());
 		setDetectorPixel(detectorChip.getPixel(), modelChipReg.getPixel());
 		detectorChip.loadPixelConfig();
 		setDetectorAnper(detectorChip.getAnper(), modelChipReg.getAnper());

@@ -20,7 +20,9 @@ package uk.ac.gda.devices.excalibur.impl;
 
 import gda.device.detector.areadetector.IPVProvider;
 import gda.epics.connection.EpicsController;
+import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
+import gov.aps.jca.TimeoutException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,6 +43,9 @@ public class MpxiiiChipRegImpl implements MpxiiiChipReg, InitializingBean {
 	private static final String LoadDacConfig = "LoadDacConfig";
 	private static final String LoadPixelConfig = "LoadPixelConfig";
 
+	private static final String DAC_INTO_MPX = "DAC_IN_TO_MPX";
+	private static final String DAC_OUT_FROM_MPX = "DAC_OUT_FROM_MPX";
+	
 	/**
 	 * Map that stores the channel against the PV name
 	 */
@@ -162,4 +167,20 @@ public class MpxiiiChipRegImpl implements MpxiiiChipReg, InitializingBean {
 	public void loadPixelConfig() throws Exception {
 		EPICS_CONTROLLER.caputWait(getChannel(LoadPixelConfig), 1);
 	}
+
+	@Override
+	public double getDacIntoMpx() throws Exception {
+		return EPICS_CONTROLLER.cagetDouble(getChannel(DAC_INTO_MPX));
+	}
+
+	@Override
+	public void setDacIntoMpx(double dacIntoMPX) throws  Exception {
+		EPICS_CONTROLLER.caputWait(getChannel(DAC_INTO_MPX), dacIntoMPX);
+	}
+
+	@Override
+	public double getDacOutFromMpx() throws Exception {
+		return EPICS_CONTROLLER.cagetDouble(getChannel(DAC_OUT_FROM_MPX));
+	}
+
 }

@@ -664,13 +664,31 @@ public interface ExcaliburConfigPackage extends EPackage {
 	int MPXIII_CHIP_REG_MODEL__CHIP_DISABLE = 2;
 
 	/**
+	 * The feature id for the '<em><b>Dac Into Mpx</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int MPXIII_CHIP_REG_MODEL__DAC_INTO_MPX = 3;
+
+	/**
+	 * The feature id for the '<em><b>Dac Out From Mpx</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int MPXIII_CHIP_REG_MODEL__DAC_OUT_FROM_MPX = 4;
+
+	/**
 	 * The number of structural features of the '<em>Mpxiii Chip Reg Model</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int MPXIII_CHIP_REG_MODEL_FEATURE_COUNT = 3;
+	int MPXIII_CHIP_REG_MODEL_FEATURE_COUNT = 5;
 
 	/**
 	 * The meta object id for the '{@link uk.ac.gda.excalibur.config.model.impl.MpxiiiGlobalRegModelImpl <em>Mpxiii Global Reg Model</em>}' class.
@@ -1818,6 +1836,28 @@ public interface ExcaliburConfigPackage extends EPackage {
 	EAttribute getMpxiiiChipRegModel_ChipDisable();
 
 	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.excalibur.config.model.MpxiiiChipRegModel#getDacIntoMpx <em>Dac Into Mpx</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Dac Into Mpx</em>'.
+	 * @see uk.ac.gda.excalibur.config.model.MpxiiiChipRegModel#getDacIntoMpx()
+	 * @see #getMpxiiiChipRegModel()
+	 * @generated
+	 */
+	EAttribute getMpxiiiChipRegModel_DacIntoMpx();
+
+	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.excalibur.config.model.MpxiiiChipRegModel#getDacOutFromMpx <em>Dac Out From Mpx</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Dac Out From Mpx</em>'.
+	 * @see uk.ac.gda.excalibur.config.model.MpxiiiChipRegModel#getDacOutFromMpx()
+	 * @see #getMpxiiiChipRegModel()
+	 * @generated
+	 */
+	EAttribute getMpxiiiChipRegModel_DacOutFromMpx();
+
+	/**
 	 * Returns the meta object for class '{@link uk.ac.gda.excalibur.config.model.MpxiiiGlobalRegModel <em>Mpxiii Global Reg Model</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -2838,6 +2878,22 @@ public interface ExcaliburConfigPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute MPXIII_CHIP_REG_MODEL__CHIP_DISABLE = eINSTANCE.getMpxiiiChipRegModel_ChipDisable();
+
+		/**
+		 * The meta object literal for the '<em><b>Dac Into Mpx</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute MPXIII_CHIP_REG_MODEL__DAC_INTO_MPX = eINSTANCE.getMpxiiiChipRegModel_DacIntoMpx();
+
+		/**
+		 * The meta object literal for the '<em><b>Dac Out From Mpx</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute MPXIII_CHIP_REG_MODEL__DAC_OUT_FROM_MPX = eINSTANCE.getMpxiiiChipRegModel_DacOutFromMpx();
 
 		/**
 		 * The meta object literal for the '{@link uk.ac.gda.excalibur.config.model.impl.MpxiiiGlobalRegModelImpl <em>Mpxiii Global Reg Model</em>}' class.

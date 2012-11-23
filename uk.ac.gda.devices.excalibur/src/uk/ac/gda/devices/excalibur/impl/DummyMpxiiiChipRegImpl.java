@@ -91,5 +91,21 @@ public class DummyMpxiiiChipRegImpl implements MpxiiiChipReg, InitializingBean {
 	@Override
 	public void loadPixelConfig() throws Exception {
 		// do nothing
-	}	
+	}
+
+	@Override
+	public double getDacIntoMpx() {
+		return 0;
+	}
+
+	@Override
+	public void setDacIntoMpx(double dacIntoMPX) {
+		// do nothing
+	}
+
+	@Override
+	public double getDacOutFromMpx() {
+		return 0;
+	}
+
 }

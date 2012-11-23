@@ -699,6 +699,7 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getDacExternal() {
 		return dacExternal;
 	}
@@ -708,6 +709,7 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDacExternal(int newDacExternal) {
 		int oldDacExternal = dacExternal;
 		dacExternal = newDacExternal;
