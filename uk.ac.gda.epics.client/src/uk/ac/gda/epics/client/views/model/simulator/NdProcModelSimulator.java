@@ -68,4 +68,10 @@ public class NdProcModelSimulator implements NdProcModel {
 		return false;
 	}
 
+	@Override
+	public int getNumFiltered() throws Exception {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }
