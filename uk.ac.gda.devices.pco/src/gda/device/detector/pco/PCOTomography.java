@@ -66,7 +66,7 @@ public class PCOTomography implements ITomographyDetector, Findable {
 	private double maxIntensity = 65000;
 
 	@Override
-	public void acquireMJpeg(Double expTime, Double acqPeriod, int binX, int binY, Double scale, Double offset)
+	public void acquireMJpeg(Double expTime, int binX, int binY, Double scale, Double offset)
 			throws Exception {
 		// plugins arranged - cam -> proc -> roi ->mjpeg
 		IPCOControllerV17 controller = pcoDetector.getController();
@@ -85,7 +85,6 @@ public class PCOTomography implements ITomographyDetector, Findable {
 
 		areaDetector.setTriggerMode(2);
 		setExposureTime(expTime);
-		areaDetector.setAcquirePeriod(acqPeriod);
 		// enabling stat
 		stat.getPluginBase().enableCallbacks();
 		stat.setComputeStatistics(1);
