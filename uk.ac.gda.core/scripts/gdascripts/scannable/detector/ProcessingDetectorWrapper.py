@@ -560,7 +560,7 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 
 
 	def acquire(self):
-		
+		self.clearLastAcquisitionState()
 		self.detector_for_snaps.atScanStart()
 		self.detector_for_snaps.atScanLineStart()
 		self.detector_for_snaps.collectData()
