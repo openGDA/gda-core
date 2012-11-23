@@ -36,6 +36,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -120,6 +121,10 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 	private Label lblFlat;
 	private Composite pgLblFlatCmp;
 	private Composite pgBtnFlatCmp;
+
+	private PageBook pgBook_flatDark;
+	private Composite pg_flatDark_Blank;
+	private Composite pg_flatDark_Buttons;
 
 	private boolean ampFactor = false;
 
@@ -242,17 +247,16 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 		btnTakeFlatAndDark = toolkit.createButton(flatDarkCmp, "Take Flat && Dark", SWT.PUSH | SWT.WRAP);
 		btnTakeFlatAndDark.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		btnTakeFlatAndDark.addSelectionListener(buttonSelectionListener);
-		btnTakeFlatAndDark.setEnabled(false);
 
-		PageBook pgBook_flatDark = new PageBook(flatDarkCmp, SWT.None);
+		pgBook_flatDark = new PageBook(flatDarkCmp, SWT.None);
 
-		Composite pg_flatDark_Blank = toolkit.createComposite(pgBook_flatDark);
+		pg_flatDark_Blank = toolkit.createComposite(pgBook_flatDark);
 		pg_flatDark_Blank.setLayout(new GridLayout());
 		Label lblFlatDarkNotTaken = toolkit.createLabel(pg_flatDark_Blank, "Flat and Dark images not taken yet.",
 				SWT.CENTER | SWT.WRAP);
 		lblFlatDarkNotTaken.setLayoutData(new GridData(GridData.FILL_BOTH));
 
-		Composite pg_flatDark_Buttons = toolkit.createComposite(pgBook_flatDark);
+		pg_flatDark_Buttons = toolkit.createComposite(pgBook_flatDark);
 		gl = new GridLayout();
 		setDefaultLayoutSettings(gl);
 		gl.verticalSpacing = 1;
@@ -261,17 +265,20 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 		btnFlatDarkCorrection = toolkit.createButton(pg_flatDark_Buttons, "Correct Flat && Dark", SWT.PUSH | SWT.WRAP);
 		btnFlatDarkCorrection.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		btnFlatDarkCorrection.addSelectionListener(buttonSelectionListener);
+		int heightHint = btnFlatDarkCorrection.computeSize(SWT.DEFAULT, 60).y;
 
 		btnFlatShow = toolkit.createButton(pg_flatDark_Buttons, SHOW_FLAT, SWT.PUSH | SWT.WRAP);
 		btnFlatShow.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		btnFlatShow.addSelectionListener(buttonSelectionListener);
-
+		heightHint += btnFlatShow.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
+		
 		btnDarkShow = toolkit.createButton(pg_flatDark_Buttons, SHOW_DARK, SWT.PUSH | SWT.WRAP);
 		btnDarkShow.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		btnDarkShow.addSelectionListener(buttonSelectionListener);
+		heightHint += btnDarkShow.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
 
 		GridData layoutData = new GridData(GridData.FILL_BOTH);
-		layoutData.heightHint = pg_flatDark_Buttons.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
+		layoutData.heightHint = heightHint;
 
 		pgBook_flatDark.setLayoutData(layoutData);
 		pgBook_flatDark.showPage(pg_flatDark_Blank);
@@ -398,8 +405,9 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 							// If the flat exposure time is expected to be the same as the sample exposure time
 							if (!isDifferentFlatExposureTime) {
 								txtFlatExpTime.setText(txtSampleExposureTime.getText());
+								flatExposureTime = sampleExposureTime;
 								for (ITomoAlignmentLeftPanelListener leftPanelLis : leftPanelListeners) {
-									leftPanelLis.flatExposureTimeChanged(Double.parseDouble(txtFlatExpTime.getText()));
+									leftPanelLis.flatExposureTimeChanged(flatExposureTime);
 								}
 							}
 						} catch (Exception e1) {
@@ -1010,18 +1018,6 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 		ButtonSelectionUtil.setButtonDeselected(btnSaturation);
 	}
 
-	public void setFlatCaptured(boolean flatCaptured, double flatCapturedExposureTime) {
-		// if (flatCaptured) {
-		// // relayout the flat dark composite to show the 'show/correct flat/dark button'
-		// lblFlatExpTime.setText(String.format(FLAT_EXP_TIME_CAPTURED_shortmsg, flatCapturedExposureTime));
-		// this.flatCapturedExposureTime = flatCapturedExposureTime;
-		// } else {
-		// flatAndDarkCompositeStackLayout.topControl = lblFlatDarkNotAvailable;
-		// flatCapturedExposureTime = -1;
-		// }
-		// flatAndDarkContainerComposite.layout();
-	}
-
 	/**
 	 * To be called if the saturation button has to be shown de-selected and further processing needs to be done on the
 	 * image in the image displayed window.
@@ -1061,6 +1057,23 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 
 	public boolean isAmplified() {
 		return ampFactor;
+	}
+
+	public void flatDarkTaken(final boolean flatDarkTaken) {
+		if (pgBook_flatDark != null && !pgBook_flatDark.isDisposed()) {
+			pgBook_flatDark.getDisplay().asyncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					if (flatDarkTaken) {
+						pgBook_flatDark.showPage(pg_flatDark_Buttons);
+					} else {
+						pgBook_flatDark.showPage(pg_flatDark_Blank);
+					}
+				}
+			});
+		}
+
 	}
 
 }

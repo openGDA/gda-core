@@ -91,8 +91,6 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 
 	private NdStatModel ndStatModel;
 
-	private Double defaultAcqPeriod;
-
 	private static final Logger logger = LoggerFactory.getLogger(TomoDetectorHandler.class);
 
 	private TomoAlignmentController tomoAlignmentViewController;
@@ -163,7 +161,7 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 		double exposureTime = acqTime / amplifierValue;
 		double scale = getScale(acqTime, isAmplified, lower, upper, 1);
 		double offset = getOffset(acqTime, isAmplified, lower, 1);
-		getCamera().acquireMJpeg(exposureTime, defaultAcqPeriod, leftWindowBinValue, leftWindowBinValue, scale, offset);
+		getCamera().acquireMJpeg(exposureTime, leftWindowBinValue, leftWindowBinValue, scale, offset);
 	}
 
 	private double getOffset(double acqTime, boolean isAmplified, double lower, double scaledFactor) {
@@ -203,22 +201,22 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 	public void takeFlat(IProgressMonitor monitor, int numOfImages, double expTime) throws Exception {
 		final SubMonitor progress = SubMonitor.convert(monitor);
 		progress.beginTask(lbl_PROGRESS_TAKING_FLAT, numOfImages);
-		final int arrayCounterInitial = adBaseModel.getArrayCounter_RBV();
 
-		IAdBaseViewController takeFlatController = new IAdBaseViewController.Stub() {
-
+		ndProc1Model.getNumFiltered();
+		
+		INDProcViewController.Stub procViewListener = new INDProcViewController.Stub() {
 			@Override
-			public void updateArrayCounter(int arrayCounter) {
-				progress.subTask(String.format("Flat image taken:%d", new Integer(arrayCounter - arrayCounterInitial)));
+			public void updateNumFiltered(int numFiltered) {
+				progress.subTask(String.format("Flat image taken:%d", numFiltered));
 				progress.worked(1);
 			}
 		};
-		adBaseModel.registerAdBaseViewController(takeFlatController);
+		ndProc1Model.registerProcViewController(procViewListener);
 		logger.info("Take {} flat", numOfImages);
 		try {
 			getCamera().takeFlat(expTime, numOfImages, getImageFilePath(), flatImageFileName, flatFileTemplate);
 		} finally {
-			adBaseModel.removeAdBaseViewController(takeFlatController);
+			ndProc1Model.removeProcViewController(procViewListener);
 		}
 	}
 
@@ -484,31 +482,24 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 		int numberOfImages = TomoClientActivator.getDefault().getPreferenceStore()
 				.getInt(TomoAlignmentPreferencePage.TOMO_CLIENT_DARK_NUM_IMG_PREF);
 
-		// Just so that the recursive average is for a minimum of 2 images. it is better to do it this way rather than
-		// limit the user to enter numbers greater than or equal to 2
-		if (numberOfImages == 1) {
-			numberOfImages = numberOfImages + 1;
-		}
 		final SubMonitor progress = SubMonitor.convert(monitor);
 		progress.beginTask(lbl_PROGRESS_TAKING_DARK, numberOfImages);
 		logger.info("Take {} dark images", numberOfImages);
-		final int arrayCounterInitial = adBaseModel.getArrayCounter_RBV();
 
-		IAdBaseViewController takeFlatController = new IAdBaseViewController.Stub() {
-
+		ndProc1Model.getNumFiltered();
+		INDProcViewController.Stub procViewListener = new INDProcViewController.Stub() {
 			@Override
-			public void updateArrayCounter(int arrayCounter) {
-				progress.subTask(String.format(lbl_PROGRESS_DARK_IMAGE_TAKEN_D, new Integer(arrayCounter
-						- arrayCounterInitial)));
+			public void updateNumFiltered(int numFiltered) {
+				progress.subTask(String.format("Dark image taken:%d", numFiltered));
 				progress.worked(1);
 			}
 		};
-		adBaseModel.registerAdBaseViewController(takeFlatController);
-
+		ndProc1Model.registerProcViewController(procViewListener);
+		logger.info("Take {} flat", numberOfImages);
 		try {
 			getCamera().takeDark(numberOfImages, acqTime, darkFilePath, darkImageFileName, darkFileTemplate);
 		} finally {
-			adBaseModel.removeAdBaseViewController(takeFlatController);
+			ndProc1Model.removeProcViewController(procViewListener);
 		}
 
 	}
@@ -686,21 +677,6 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 	 */
 	public void setDefaultModule(Integer defaultModule) {
 		this.defaultModule = defaultModule;
-	}
-
-	/**
-	 * @return Returns the defaultAcqPeriod.
-	 */
-	public Double getDefaultAcqPeriod() {
-		return defaultAcqPeriod;
-	}
-
-	/**
-	 * @param defaultAcqPeriod
-	 *            The defaultAcqPeriod to set.
-	 */
-	public void setDefaultAcqPeriod(Double defaultAcqPeriod) {
-		this.defaultAcqPeriod = defaultAcqPeriod;
 	}
 
 	/**

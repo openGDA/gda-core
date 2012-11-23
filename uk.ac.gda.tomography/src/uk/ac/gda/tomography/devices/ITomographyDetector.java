@@ -44,14 +44,13 @@ public interface ITomographyDetector {
 	 * scale factor is set on the proc plugin
 	 * 
 	 * @param acqTime
-	 * @param acqPeriod
 	 * @param binX
 	 * @param binY
 	 * @param scale
 	 * @param offset
 	 * @throws Exception
 	 */
-	void acquireMJpeg(Double acqTime, Double acqPeriod, int binX, int binY, Double scale, Double offset)
+	void acquireMJpeg(Double acqTime, int binX, int binY, Double scale, Double offset)
 			throws Exception;
 
 	/**

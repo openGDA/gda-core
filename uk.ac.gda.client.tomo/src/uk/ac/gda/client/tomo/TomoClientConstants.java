@@ -25,6 +25,8 @@ public interface TomoClientConstants {
 	public static final String TOMO_CONFIG_EDITING_DOMAIN = "uk.ac.gda.tomography.config.editingDomain";
 
 	public static final String MOVE_MODULE_COMMAND = "tomoAlignment.moveToModule(%d)";
+	
+	public static final String GET_MODULE_COMMAND = "tomoAlignment.getModule()";
 
 	public static final String TOMOGRAPHY_IS_RUNNING_CONFIG_CMD = "tomoAlignment.tomographyConfigurationManager.getRunningConfig()";
 

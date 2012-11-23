@@ -22,6 +22,7 @@ import gda.device.DeviceException;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
+import gda.util.Sleep;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
@@ -93,20 +94,35 @@ public class CameraModuleController implements InitializingBean, ICameraModuleCo
 
 	@Override
 	public CAMERA_MODULE getModule() throws DeviceException {
-		Double cam1XPosition = cameraModuleMotorHandler.getCam1XPosition();
-		// these two are constant set in the script - for some reason unknown to RS and FY these motor need to be in
-		// these positions.
-		for (final CAMERA_MODULE module : CAMERA_MODULE.values()) {
-			if (CAMERA_MODULE.NO_MODULE != module) {
-				double cam1x = lookupTableHandler.lookupCam1X(module);
-				if (Math.abs(cam1XPosition - cam1x) <= cameraModuleMotorHandler.getCam1XTolerance()) {
-					logger.info("Matched cam1x postion");
-					return module;
-				}
+		final Integer[] moduleNumArr = new Integer[1];
+		IObserver observer = new IObserver() {
 
+			@Override
+			public void update(Object source, Object arg) {
+				if (source.equals(tomoScriptController)) {
+					logger.debug("Observing source:{}", source);
+					logger.debug("Observing arg:{}", arg);
+					if (arg instanceof PyBaseException) {
+						PyBaseException ex = (PyBaseException) arg;
+						// exceptions[0] = ex;
+					} else if (arg.toString().startsWith("Module:")) {
+						String md = arg.toString().substring("Module:".length());
+						moduleNumArr[0] = Integer.parseInt(md.trim());
+					}
+				}
 			}
+		};
+		tomoScriptController.addIObserver(observer);
+		JythonServerFacade.getInstance().evaluateCommand(TomoClientConstants.GET_MODULE_COMMAND);
+		// if (exceptions[0] != null) {
+		// throw new IllegalStateException(exceptions[0].message.toString());
+		// }
+		while (moduleNumArr[0] == null) {
+			Sleep.sleep(100);
 		}
-		return CAMERA_MODULE.NO_MODULE;
+		tomoScriptController.deleteIObserver(observer);
+
+		return CAMERA_MODULE.getEnum(moduleNumArr[0]);
 	}
 
 	public IObservable getTomoScriptController() {

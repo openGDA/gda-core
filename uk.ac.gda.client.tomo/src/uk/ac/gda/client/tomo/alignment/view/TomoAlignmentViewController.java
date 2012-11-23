@@ -71,6 +71,7 @@ import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.SAMPLE_WEI
 import uk.ac.gda.client.tomo.composites.TomoAlignmentLeftPanelComposite;
 import uk.ac.gda.client.tomo.composites.TomoAlignmentLeftPanelComposite.SAMPLE_OR_FLAT;
 import uk.ac.gda.client.tomo.composites.TomoPlotComposite;
+import uk.ac.gda.client.tomo.composites.TomoPlotComposite.ITomoPlotListener;
 import uk.ac.gda.client.tomo.composites.TomoPlotComposite.PlottingSystemActionListener;
 import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
 import uk.ac.gda.client.tomo.configuration.view.handlers.IScanControllerUpdateListener;
@@ -78,7 +79,7 @@ import uk.ac.gda.ui.components.ColourSliderComposite.IColourSliderListener;
 
 public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListener, ITomoAlignmentControlListener,
 		PlottingSystemActionListener, ZoomRectangleListener, ProfilePointListener, OverlayImgFigureListener,
-		IColourSliderListener, IScanControllerUpdateListener {
+		IColourSliderListener, IScanControllerUpdateListener, ITomoPlotListener {
 	private static final IWorkbenchWindow ACTIVE_WORKBENCH_WINDOW = PlatformUI.getWorkbench()
 			.getActiveWorkbenchWindow();
 	private static final Logger logger = LoggerFactory.getLogger(TomoAlignmentViewController.class);
@@ -676,12 +677,15 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 							}
 							tomoAlignmentView.getTomoAlignmentController().takeFlat(progress.newChild(9), numFlat,
 									expTime);
+							tomoAlignmentView.getLeftPanelComposite().flatDarkTaken(true);
 						} else {
 							throw new InterruptedException("Operation was cancelled");
 						}
 					} catch (InterruptedException e) {
+						tomoAlignmentView.getLeftPanelComposite().flatDarkTaken(false);
 						throw new InvocationTargetException(e, "Operation Interrupted");
 					} catch (Exception e1) {
+						tomoAlignmentView.getLeftPanelComposite().flatDarkTaken(false);
 						throw new InvocationTargetException(e1, e1.getMessage());
 					} finally {
 						monitor.done();
@@ -689,15 +693,11 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 				}
 			});
 
-			tomoAlignmentView.getLeftPanelComposite().setFlatCaptured(true,
-					tomoAlignmentView.getLeftPanelComposite().getFlatExposureTime());
 		} catch (InvocationTargetException e) {
 			logger.error("Error in takeflat", e);
-			tomoAlignmentView.getLeftPanelComposite().setFlatCaptured(false, Double.NaN);
 			throw e;
 		} catch (InterruptedException e) {
 			logger.error("Error in takeflat", e);
-			tomoAlignmentView.getLeftPanelComposite().setFlatCaptured(false, Double.NaN);
 			throw e;
 		}
 	}
@@ -900,6 +900,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 							public void run() {
 
 								try {
+									tomoAlignmentView.getTomoPlotComposite().clearPlots();
 									tomoAlignmentView.getLeftPanelComposite().startSingle();
 								} catch (Exception e) {
 									logger.error("Problem with switching on Profile", e);
@@ -924,7 +925,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 							}
 							tomoAlignmentView.getTomoPlotComposite().setImagesToPlot(rawFileName, darkImgFileName);
 
-							tomoAlignmentView.updatePlots(monitor, 0, 4008, 1);
+							tomoAlignmentView.updatePlots(monitor, 1);
 							monitor.done();
 
 						}
@@ -1303,11 +1304,9 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 							Rectangle zoomFigureBoundsCopy = zoomFigureBounds.getCopy();
 							Rectangle intersect = zoomFigureBoundsCopy.intersect(lineBounds);
 
-							tomoAlignmentView.updatePlots(new NullProgressMonitor(), intersect.x, intersect.x
-									+ (intersect.width * tomoAlignmentView.getTomoAlignmentController()
-											.getLeftWindowBinValue()), intersect.y);
+							tomoAlignmentView.updatePlots(new NullProgressMonitor(), intersect.y);
 						} else {
-							tomoAlignmentView.updatePlots(new NullProgressMonitor(), 0, 4008, lineBounds.y);
+							tomoAlignmentView.updatePlots(new NullProgressMonitor(), lineBounds.y);
 						}
 					} else {
 						// If profile is switched OFF
@@ -1558,7 +1557,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 							img.dispose();
 							tomoAlignmentView.loadImageInUIThread(tomoAlignmentView.getLeftWindowImageViewer(),
 									imageData.scaledTo(tomoAlignmentView.getTomoAlignmentController().getScaledX(),
-											tomoAlignmentView.getTomoAlignmentController().getScaledX()));
+											tomoAlignmentView.getTomoAlignmentController().getScaledY()));
 							imageData.data = null;
 							imageData = null;
 							loadZoomImageInUI();
@@ -1688,10 +1687,9 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 						Rectangle translatedIntersect = intersect.getTranslated(-leftWindowImgBounds.x,
 								-leftWindowImgBounds.y);
 
-						tomoAlignmentView.updatePlots(monitor, translatedIntersect.x * leftWindowBinValue,
-								(translatedIntersect.x + translatedIntersect.width) * leftWindowBinValue, lineBounds.y);
+						tomoAlignmentView.updatePlots(monitor, lineBounds.y);
 					} else {
-						tomoAlignmentView.updatePlots(monitor, 0, 4008, lineBounds.y);
+						tomoAlignmentView.updatePlots(monitor, lineBounds.y);
 					}
 				} else {
 					ZOOM_LEVEL selectedZoomLevel = tomoAlignmentView.getLeftPanelComposite().getSelectedZoomLevel();
@@ -1713,10 +1711,8 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 	@Override
 	public void profileLineMoved(int y) {
 		if (tomoAlignmentView.getLeftPanelComposite().isProfileSelected()) {
-			tomoAlignmentView
-					.updatePlots(new NullProgressMonitor(), 0, tomoAlignmentView.getTomoAlignmentController()
-							.getDetectorFullWidth(), y
-							* tomoAlignmentView.getTomoAlignmentController().getLeftWindowBinValue());
+			tomoAlignmentView.updatePlots(new NullProgressMonitor(), y
+					* tomoAlignmentView.getTomoAlignmentController().getLeftWindowBinValue());
 			tomoAlignmentView.setYLabelValue(Integer.toString(y
 					* tomoAlignmentView.getTomoAlignmentController().getLeftWindowBinValue()));
 			tomoAlignmentView.setXLabelValue(BLANK_STR);
@@ -1928,5 +1924,51 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 					getHistoTo());
 			tomoAlignmentView.setLeftWindowInfo(TomoAlignmentView.FLAT_LIVE_STREAM);
 		}
+	}
+
+	@Override
+	public void applyHistogram() {
+		try {
+			tomoAlignmentView.getTomoAlignmentController().applyHistogramToAdjustExposureTime(
+					tomoAlignmentView.getLeftPanelComposite().isAmplified(), tomoAlignmentView.getContrastLower(),
+					tomoAlignmentView.getContrastUpper(), tomoAlignmentView.getTomoPlotComposite().getHistogramFrom(),
+					tomoAlignmentView.getTomoPlotComposite().getHistogramTo());
+		} catch (Exception e1) {
+			logger.error("Problem updating exposure time", e1);
+			tomoAlignmentView.loadErrorInDisplay("Problem applying histogram value to exposure time",
+					"Problem applying histogram value to exposure time:" + e1.getMessage());
+		}
+	}
+
+	@Override
+	public void log(boolean isSwitchedOn) throws Exception {
+		ViewerDisplayMode leftWindowViewerDisplayMode = tomoAlignmentView.getLeftWindowViewerDisplayMode();
+		if (isSwitchedOn) {
+			if (ViewerDisplayMode.SAMPLE_STREAM_LIVE.equals(leftWindowViewerDisplayMode)
+					|| ViewerDisplayMode.FLAT_STREAM_LIVE.equals(leftWindowViewerDisplayMode)) {
+				tomoAlignmentView.getTomoPlotComposite().applyLog(true);
+			} else if (ViewerDisplayMode.SAMPLE_SINGLE.equals(leftWindowViewerDisplayMode)
+					|| ViewerDisplayMode.FLAT_SINGLE.equals(leftWindowViewerDisplayMode)) {
+				ImageData imgData = new ImageData(leftWindowViewerDisplayMode.getFileName(tomoAlignmentView
+						.getTomoAlignmentController()));
+				tomoAlignmentView.getTomoPlotComposite().applyLog(true, imgData);
+			}
+		} else {
+			try {
+
+				if (ViewerDisplayMode.SAMPLE_STREAM_LIVE.equals(leftWindowViewerDisplayMode)
+						|| ViewerDisplayMode.FLAT_STREAM_LIVE.equals(leftWindowViewerDisplayMode)) {
+					tomoAlignmentView.getTomoPlotComposite().applyLog(false);
+				} else if (ViewerDisplayMode.SAMPLE_SINGLE.equals(leftWindowViewerDisplayMode)
+						|| ViewerDisplayMode.FLAT_SINGLE.equals(leftWindowViewerDisplayMode)) {
+					ImageData imgData = new ImageData(leftWindowViewerDisplayMode.getFileName(tomoAlignmentView
+							.getTomoAlignmentController()));
+					tomoAlignmentView.getTomoPlotComposite().applyLog(false, imgData);
+				}
+			} catch (Exception e1) {
+				logger.error("Problem turning off 'Log'", e1);
+			}
+		}
+
 	}
 }

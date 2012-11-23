@@ -45,8 +45,6 @@ import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.MouseTrackAdapter;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.ImageData;
@@ -54,7 +52,6 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
@@ -120,13 +117,11 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	public static final String STREAM_STOPPED = "";
 	private static final String EMPTY_STRING_VALUE = "-----";
 	private static final String LBL_INTENSITY = "Intensity";
-	private static final String LBL_y = "y";
-	private static final String LBL_x = "x";
-	private static final String LBL_X = "X :";
+	private static final String Y_lbl = "y";
+	private static final String X_lbl = "x";
 	public static final String TIMESTAMP = "Timestamp :";
 	public static final String FILE_NAME = "FileName :";
 	public static final String BLANK_STR = "";
-	private static final String SET_EXPOSURE_TIME = "Apply Exposure Time";
 	public static final String SAMPLE_SINGLE = "SINGLE";
 	public static final String FLAT_SINGLE = SAMPLE_SINGLE;
 	public static final String SAMPLE_LIVE_STREAM = "LIVE";
@@ -171,7 +166,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	private Label lblFileTimeStamp;
 	private Label lblFileName;
 	private Composite page_rightInfo_profile;
-
 	private Composite page_rightInfo_histogram;
 
 	/**/
@@ -207,10 +201,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	private ScaleBarComposite leftScaleBar;
 
 	private TomoPlotComposite tomoPlotComposite;
-	private Label lblYValue;
-	private Label lblXValue;
 	private Composite page_rightInfo_nonProfile;
-	private Label lblProfileIntensityValue;
 	private ColourSliderComposite contrastSliderComposite;
 	private Label lblPixelX;
 	private Label lblPixelY;
@@ -253,8 +244,8 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		}
 	}
 
-	protected void updatePlots(IProgressMonitor monitor, int xStart, int xEnd, int y) {
-		tomoPlotComposite.updateProfilePlots(monitor, xStart, xEnd, y);
+	protected void updatePlots(IProgressMonitor monitor, int y) {
+		tomoPlotComposite.updateProfilePlots(monitor, y);
 		leftWindowImageViewer.hideProfileHighlighter();
 	}
 
@@ -531,6 +522,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		tomoPlotComposite = new TomoPlotComposite(page_rightWindow_plot, SWT.None);
 		tomoPlotComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
 		tomoPlotComposite.addOverlayLineListener(tomoViewController);
+		tomoPlotComposite.addTomoPlotListener(tomoViewController);
 		pageBook_rightWindow.showPage(page_rightWindow_nonProfile);
 		return rightWindowComposite;
 	}
@@ -686,7 +678,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 		Label lblX = new Label(imagePixelValueComposite, SWT.RIGHT);
 		lblX.setBackground(ColorConstants.white);
-		lblX.setText(LBL_x);
+		lblX.setText(X_lbl);
 		lblX.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		lblPixelX = new Label(imagePixelValueComposite, SWT.LEFT);
 		lblPixelX.setBackground(ColorConstants.white);
@@ -696,7 +688,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 		Label lblY = new Label(imagePixelValueComposite, SWT.RIGHT);
 		lblY.setBackground(ColorConstants.white);
-		lblY.setText(LBL_y);
+		lblY.setText(Y_lbl);
 		lblY.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		lblPixelY = new Label(imagePixelValueComposite, SWT.LEFT);
 		lblPixelY.setBackground(ColorConstants.white);
@@ -754,7 +746,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		lblFileTimeStamp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		pageBook_rightInfo = new PageBook(baseInfoViewerComposite, SWT.None);
-		pageBook_rightInfo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		pageBook_rightInfo.setLayoutData(new GridData(GridData.FILL_BOTH));
 
 		// Non profile page -
 		page_rightInfo_nonProfile = toolkit.createComposite(pageBook_rightInfo);
@@ -790,53 +782,11 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		layout3.verticalSpacing = 2;
 		page_rightInfo_profile.setLayout(layout3);
 
-		Label lblY = toolkit.createLabel(page_rightInfo_profile, LBL_y, SWT.RIGHT);
-		lblY.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		lblYValue = toolkit.createLabel(page_rightInfo_profile, "0", SWT.LEFT);
-		lblYValue.setFont(fontRegistry.get(BOLD_TEXT_11));
-		lblYValue.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		Label lblX = toolkit.createLabel(page_rightInfo_profile, LBL_X, SWT.RIGHT);
-		lblX.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		lblXValue = toolkit.createLabel(page_rightInfo_profile, "0", SWT.LEFT);
-		lblXValue.setFont(fontRegistry.get(BOLD_TEXT_11));
-		lblXValue.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		Label lblIntensity = toolkit.createLabel(page_rightInfo_profile, "Intensity:", SWT.RIGHT);
-		lblIntensity.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		lblProfileIntensityValue = toolkit.createLabel(page_rightInfo_profile, "0", SWT.LEFT);
-		lblProfileIntensityValue.setFont(fontRegistry.get(BOLD_TEXT_11));
-		GridData ld2 = new GridData(GridData.FILL_HORIZONTAL);
-		ld2.horizontalSpan = 3;
-		lblProfileIntensityValue.setLayoutData(ld2);
-
 		// Histogram Page
 		page_rightInfo_histogram = toolkit.createComposite(pageBook_rightInfo);
 		GridLayout gl = new GridLayout();
 		setDefaultLayoutSettings(gl);
 		page_rightInfo_histogram.setLayout(gl);
-
-		Button btnApplyExposureSettings = new Button(page_rightInfo_histogram, SWT.PUSH);
-		btnApplyExposureSettings.setText(SET_EXPOSURE_TIME);
-		btnApplyExposureSettings.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				try {
-					tomoAlignmentController.applyHistogramToAdjustExposureTime(leftPanelComposite.isAmplified(),
-							getContrastLower(), getContrastUpper(), tomoPlotComposite.getHistogramFrom(),
-							tomoPlotComposite.getHistogramTo());
-				} catch (Exception e1) {
-					logger.error("TODO put description of error here", e1);
-					loadErrorInDisplay("Problem applying histogram value to exposure time",
-							"Problem applying histogram value to exposure time:" + e1.getMessage());
-				}
-			}
-		});
-		layoutData = new GridData(GridData.FILL_BOTH);
-		btnApplyExposureSettings.setLayoutData(layoutData);
 
 		setRightInfoPage(RIGHT_INFO.NONE);
 
@@ -1099,6 +1049,9 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			pageBook_rightWindow.dispose();
 			//
 			tomoControlComposite.dispose();
+			//
+			tomoPlotComposite.removeTomoPlotListener(tomoViewController);
+			tomoPlotComposite.removeOverlayLineListener(tomoViewController);
 			tomoPlotComposite.dispose();
 			//
 			tomoAlignmentController.unregisterTomoAlignmentView(this);
@@ -1635,8 +1588,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 					if (leftPanelComposite.isProfileSelected()) {
 						Rectangle lineBounds = leftWindowImageViewer.getProfilerLineBounds();
 						int y = lineBounds.y - leftWindowImageViewer.getImageBounds().y;
-						updatePlots(new NullProgressMonitor(), 0, 4008,
-								y * tomoAlignmentController.getLeftWindowBinValue());
+						updatePlots(new NullProgressMonitor(), y * tomoAlignmentController.getLeftWindowBinValue());
 					}
 				}
 			});
@@ -1680,15 +1632,15 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	}
 
 	public void setYLabelValue(String yLblValue) {
-		lblYValue.setText(yLblValue);
+		tomoPlotComposite.setYLabelValue(yLblValue);
 	}
 
 	public void setXLabelValue(String formattedXVal) {
-		lblXValue.setText(formattedXVal);
+		tomoPlotComposite.setXLabelValue(formattedXVal);
 	}
 
 	public void setProfileIntensityValue(String profileIntensityValue) {
-		lblProfileIntensityValue.setText(profileIntensityValue);
+		tomoPlotComposite.setProfileIntensityValue(profileIntensityValue);
 	}
 
 	protected int getContrastLower() {
