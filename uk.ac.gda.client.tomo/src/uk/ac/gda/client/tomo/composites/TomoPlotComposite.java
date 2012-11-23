@@ -222,7 +222,9 @@ public class TomoPlotComposite extends Composite {
 		plotComposite.setLayout(new FillLayout());
 
 		plottingSystem = PlottingFactory.createPlottingSystem();
-		plottingSystem.createPlotPart(plotComposite, "", null, PlotType.PT1D_MULTI, null);
+		//FIXME - DAWN API Changed and cannot map to old API.
+//		plottingSystem.createPlotPart(plotComposite, "", null, PlotType.PT1D_MULTI, null);
+		plottingSystem.createPlotPart(plotComposite, "", null, PlotType.XY_STACKED, null);
 		lineListeners = new ArrayList<TomoPlotComposite.PlottingSystemActionListener>();
 		//
 
