@@ -23,6 +23,7 @@ import gda.epics.interfaces.NDProcessType;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.dbr.DBR_Enum;
+import gov.aps.jca.dbr.DBR_Int;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
@@ -43,6 +44,7 @@ public class NDProcModelImpl extends EPICSBaseModel<NDProcessType> implements Nd
 	private ScaleMonitorListener scaleMonitorListener;
 	private OffsetMonitorListener offsetMonitorListener;
 	private EnableFlatFieldListener enableFlatFieldListener;
+	private NumFilteredListener numFilteredListener;
 	private Set<INDProcViewController> viewControllers = new HashSet<INDProcViewController>();
 
 	@Override
@@ -59,6 +61,7 @@ public class NDProcModelImpl extends EPICSBaseModel<NDProcessType> implements Nd
 		scaleMonitorListener = new ScaleMonitorListener();
 		offsetMonitorListener = new OffsetMonitorListener();
 		enableFlatFieldListener = new EnableFlatFieldListener();
+		numFilteredListener = new NumFilteredListener();
 	}
 
 	@Override
@@ -83,6 +86,18 @@ public class NDProcModelImpl extends EPICSBaseModel<NDProcessType> implements Nd
 		}
 	}
 
+	private class NumFilteredListener implements MonitorListener {
+		@Override
+		public void monitorChanged(MonitorEvent arg0) {
+			DBR dbr = arg0.getDBR();
+			if (dbr != null && dbr.isINT()) {
+				for (INDProcViewController controller : viewControllers) {
+					controller.updateNumFiltered(((DBR_Int) dbr).getIntValue()[0]);
+				}
+			}
+		}
+	}
+
 	private class ScaleMonitorListener implements MonitorListener {
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
@@ -102,6 +117,19 @@ public class NDProcModelImpl extends EPICSBaseModel<NDProcessType> implements Nd
 				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getScale_RBV().getPv(), scaleMonitorListener));
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(NDProcess.Scale_RBV, scaleMonitorListener));
+		} catch (Exception ex) {
+			throw ex;
+		}
+	}
+
+	@Override
+	public int getNumFiltered() throws Exception {
+		try {
+			if (config != null) {
+				return EPICS_CONTROLLER
+						.cagetInt(createChannel(config.getNumFiltered_RBV().getPv(), numFilteredListener));
+			}
+			return EPICS_CONTROLLER.cagetInt(getChannel(NDProcess.NumFiltered_RBV, numFilteredListener));
 		} catch (Exception ex) {
 			throw ex;
 		}

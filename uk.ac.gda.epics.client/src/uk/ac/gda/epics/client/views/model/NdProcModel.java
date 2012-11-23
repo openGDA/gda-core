@@ -42,4 +42,6 @@ public interface NdProcModel {
 
 	boolean removeProcViewController(INDProcViewController viewController);
 
+	int getNumFiltered() throws Exception;
+
 }
