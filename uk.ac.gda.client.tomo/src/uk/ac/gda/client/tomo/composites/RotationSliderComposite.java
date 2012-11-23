@@ -85,7 +85,7 @@ public abstract class RotationSliderComposite extends Composite {
 	private List<SliderSelectionListener> sliderListeners = new ArrayList<SliderSelectionListener>();
 	private final int direction;
 	protected RectangleFigure sliderBoundary;
-	protected RotationSliderShape sliderTriangle;
+	protected RotationSliderShape rotationSlider;
 	private Label triangleLblFigure;
 	/**
 	 * labels that appear along the slider.
@@ -178,7 +178,7 @@ public abstract class RotationSliderComposite extends Composite {
 		double numPixelPerDeg = sliderBoundary.getBounds().width / getTotalSliderDegree();
 		/**/
 		double newX = SLIDER_START_TOLERANCE + (newPosition * numPixelPerDeg);
-		sliderTriangle.setLocation(new PrecisionPoint(newX, sliderTriangle.getLocation().y));
+		rotationSlider.setLocation(new PrecisionPoint(newX, rotationSlider.getLocation().y));
 
 		// Labels inside the label
 		updateSliderLabel();
@@ -201,10 +201,9 @@ public abstract class RotationSliderComposite extends Composite {
 	 */
 	public double getCurrentSliderDegree() {
 
-		double sliderX = (sliderTriangle.getBounds().x + sliderTriangle.getBounds().width / 2)
-				- (sliderTriangle.getBounds().width / 2 + 1);
+		double sliderX = rotationSlider.getBounds().x;
 
-		double parentX = sliderBoundary.getBounds().width;
+		double parentX = sliderBoundary.getBounds().width + 1;
 
 		double xRatio = sliderX / parentX;
 
@@ -220,26 +219,26 @@ public abstract class RotationSliderComposite extends Composite {
 		LineBorder border = new LineBorder(2);
 		border.setColor(COLOUR_DISABLED);
 		panel.setBorder(border);
-		sliderTriangle = new RotationSliderShape();
-		sliderTriangle.setFill(true);
-		sliderTriangle.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_SIZEWE));
+		rotationSlider = new RotationSliderShape();
+		rotationSlider.setFill(true);
+		rotationSlider.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_SIZEWE));
 
 		addLabelToTriangle();
 		sliderBoundary = new RectangleFigure();
 		sliderBoundary.setBackgroundColor(ColorConstants.black);
 
 		if (direction == SWT.UP) {
-			sliderTriangle.setDirection(PositionConstants.NORTH);
+			rotationSlider.setDirection(PositionConstants.NORTH);
 		} else {
-			sliderTriangle.setDirection(PositionConstants.SOUTH);
+			rotationSlider.setDirection(PositionConstants.SOUTH);
 		}
 
-		sliderTriangle.setBackgroundColor(COLOUR_NOT_BUSY);
-		sliderTriangle.setSize(getSliderTriangleDimension());
+		rotationSlider.setBackgroundColor(COLOUR_NOT_BUSY);
+		rotationSlider.setSize(getSliderTriangleDimension());
 
-		new Dragger(sliderTriangle);
+		new Dragger(rotationSlider);
 
-		panel.add(sliderTriangle);
+		panel.add(rotationSlider);
 		panel.add(sliderBoundary);
 
 		addSliderMarkers(panel);
@@ -252,19 +251,20 @@ public abstract class RotationSliderComposite extends Composite {
 	 * @see TomoCoarseRotationComposite#addLabelToTriangle()
 	 */
 	protected void addLabelToTriangle() {
-		sliderTriangle.setLayoutManager(new XYLayout());
+		rotationSlider.setLayoutManager(new XYLayout());
 		triangleLblFigure = new Label("0°");
 		triangleLblFigure.setBackgroundColor(ColorConstants.white);
-		triangleLblFigure.setIcon(TomoClientActivator.getDefault().getImageRegistry().get(ImageConstants.ICON_CTRL_BTN));
+		triangleLblFigure
+				.setIcon(TomoClientActivator.getDefault().getImageRegistry().get(ImageConstants.ICON_CTRL_BTN));
 		//
 
 		int x = getSliderTriangleDimension().width / 4 - 14;
 		int y = getSliderTriangleDimension().height / 4 - 1;
-		
-		if(direction == SWT.UP){
+
+		if (direction == SWT.UP) {
 			y = getSliderTriangleDimension().height / 4 - 6;
 		}
-		sliderTriangle.add(triangleLblFigure, new Rectangle(x, y, -1, -1));
+		rotationSlider.add(triangleLblFigure, new Rectangle(x, y, -1, -1));
 	}
 
 	protected abstract Dimension getSliderTriangleDimension();
@@ -295,28 +295,28 @@ public abstract class RotationSliderComposite extends Composite {
 			Rectangle parentBounds = parent.getBounds();
 			sliderBoundary.setFill(true);
 			if (SWT.DOWN == direction) {
-				int xVal = sliderTriangle.getLocation().x;
+				int xVal = rotationSlider.getLocation().x;
 				if (!moved) {
-					xVal = parentBounds.width / 2 - sliderTriangle.getBounds().width / 2;
+					xVal = parentBounds.width / 2 - rotationSlider.getBounds().width / 2;
 				}
-				sliderTriangle.setLocation(new Point(xVal, 0));
+				rotationSlider.setLocation(new Point(xVal, 0));
 				//
-				int sliderBoundaryX = sliderTriangle.getBounds().width / 2;
-				int sliderBoundaryY = sliderTriangle.getLocation().y + sliderTriangle.getSize().height;
-				int sliderBoundaryWidth = parentBounds.width - sliderTriangle.getBounds().width;
+				int sliderBoundaryX = rotationSlider.getBounds().width / 2;
+				int sliderBoundaryY = rotationSlider.getLocation().y + rotationSlider.getSize().height;
+				int sliderBoundaryWidth = parentBounds.width - rotationSlider.getBounds().width;
 				int sliderBoundaryHeight = 3;
 				sliderBoundary.setBounds(new Rectangle(sliderBoundaryX, sliderBoundaryY, sliderBoundaryWidth,
 						sliderBoundaryHeight));
 
 				layoutDownSliderMarkers(parentBounds);
 			} else if (SWT.UP == direction) {
-				int xVal = sliderTriangle.getLocation().x;
+				int xVal = rotationSlider.getLocation().x;
 				if (!moved) {
-					xVal = parentBounds.width / 2 - sliderTriangle.getBounds().width / 2;
+					xVal = parentBounds.width / 2 - rotationSlider.getBounds().width / 2;
 				}
-				sliderTriangle.setLocation(new Point(xVal, parentBounds.height - 20));
-				sliderBoundary.setBounds(new Rectangle(sliderTriangle.getBounds().width / 2, parentBounds.height - 26,
-						parentBounds.width - sliderTriangle.getBounds().width, 3));
+				rotationSlider.setLocation(new Point(xVal, parentBounds.height - 20));
+				sliderBoundary.setBounds(new Rectangle(rotationSlider.getBounds().width / 2, parentBounds.height - 26,
+						parentBounds.width - rotationSlider.getBounds().width, 3));
 				/* labels */
 				layoutUpSliderMarkers(parentBounds);
 			}
@@ -438,9 +438,9 @@ public abstract class RotationSliderComposite extends Composite {
 	@Override
 	public void setEnabled(boolean enabled) {
 		if (!enabled) {
-			sliderTriangle.setBackgroundColor(COLOUR_DISABLED);
+			rotationSlider.setBackgroundColor(COLOUR_DISABLED);
 		} else {
-			sliderTriangle.setBackgroundColor(COLOUR_NOT_BUSY);
+			rotationSlider.setBackgroundColor(COLOUR_NOT_BUSY);
 		}
 		super.setEnabled(enabled);
 	}

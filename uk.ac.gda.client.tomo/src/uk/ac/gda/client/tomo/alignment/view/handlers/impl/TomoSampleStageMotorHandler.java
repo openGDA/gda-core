@@ -268,6 +268,7 @@ public class TomoSampleStageMotorHandler extends BaseMotorHandler implements ISa
 			Thread.sleep(10);
 		}
 		tomoAlignmentViewController.setIsRotationMotorBusy(false);
+		tomoAlignmentViewController.updateRotationDegree((Double) rotationScannable.getPosition());
 		// motorsRunning.remove(rotationScannable);
 	}
 
