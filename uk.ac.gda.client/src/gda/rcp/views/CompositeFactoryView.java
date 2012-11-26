@@ -23,10 +23,7 @@ import java.util.List;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.ui.part.ViewPart;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -61,13 +58,13 @@ public class CompositeFactoryView extends ViewPart implements InitializingBean{
 		GridLayoutFactory.swtDefaults().applyTo(parent);
 		
 		setPartName(viewTitle);
-		Group grp= new Group(parent, SWT.NONE);
-		GridLayout statusLayout = new GridLayout(compositeFactories.size(), false);
-		grp.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true));
-		grp.setLayout(statusLayout);
+		
+		Composite top = new Composite(parent, SWT.NONE);
+		GridLayoutFactory.swtDefaults().margins(0, 0).numColumns(compositeFactories.size()).applyTo(top);
+		GridDataFactory.swtDefaults().align(SWT.LEFT, SWT.CENTER).grab(true, true).applyTo(top);
 
 		for(CompositeFactory compositeFactory : compositeFactories){
-			Composite composite = compositeFactory.createComposite(grp, SWT.NONE, this.getSite());
+			Composite composite = compositeFactory.createComposite(top, SWT.NONE, this.getSite());
 			GridDataFactory.fillDefaults().applyTo(composite);
 		}
 	}
