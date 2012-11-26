@@ -80,7 +80,7 @@ public class TomoCoarseRotationComposite extends RotationSliderComposite {
 	}
 
 	@Override
-	protected Dimension getSliderTriangleDimension() {
+	protected Dimension getSliderDimension() {
 		return new Dimension(65, 30);
 	}
 
@@ -147,7 +147,7 @@ public class TomoCoarseRotationComposite extends RotationSliderComposite {
 	private Button addButton(IFigure panel, String btnLabel) {
 		Button btn = new Button();
 		btn.setLayoutManager(new BorderLayout());
-		Label lblImg = new Label(TomoClientActivator.getDefault().getImageRegistry().get(ImageConstants.ICON_CTRL_BTN));
+		Label lblImg = new Label(TomoClientActivator.getDefault().getImageRegistry().get(ImageConstants.ICON_CTRL_BTN_12x12));
 		lblImg.setOpaque(true);
 		btn.add(lblImg, BorderLayout.LEFT);
 

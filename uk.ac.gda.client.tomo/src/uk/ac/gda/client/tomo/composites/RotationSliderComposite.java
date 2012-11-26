@@ -54,7 +54,7 @@ import uk.ac.gda.client.tomo.TomoClientActivator;
 /**
  * Abstract class that defines the rotation slider composite. Implementations of these are
  * {@link TomoCoarseRotationComposite} and {@link TomoFineRotationComposite}.<br>
- * Contains a triangle which can be dragged along.
+ * Contains a slider which can be dragged along.
  */
 public abstract class RotationSliderComposite extends Composite {
 	private static final Color COLOUR_DISABLED = ColorConstants.gray;
@@ -80,13 +80,13 @@ public abstract class RotationSliderComposite extends Composite {
 
 	private final static DecimalFormat df = new DecimalFormat("#.#");
 	protected static final String TEXT_SMALL_7 = "bold-text_small-7";
-	private static final double SLIDER_START_TOLERANCE = 1;
+	private static final double SLIDER_START_TOLERANCE = 0;
 	private FigureCanvas figCanvas;
 	private List<SliderSelectionListener> sliderListeners = new ArrayList<SliderSelectionListener>();
 	private final int direction;
 	protected RectangleFigure sliderBoundary;
 	protected RotationSliderShape rotationSlider;
-	private Label triangleLblFigure;
+	private Label sliderLblFigure;
 	/**
 	 * labels that appear along the slider.
 	 */
@@ -200,8 +200,11 @@ public abstract class RotationSliderComposite extends Composite {
 	 *         base {@link #getDegreeBase()}
 	 */
 	public double getCurrentSliderDegree() {
-
-		double sliderX = rotationSlider.getBounds().x;
+		int boundsX = rotationSlider.getBounds().x;
+		double sliderX = boundsX;
+		if (boundsX != 0) {
+			sliderX = rotationSlider.getBounds().x + 1;
+		}
 
 		double parentX = sliderBoundary.getBounds().width + 1;
 
@@ -223,7 +226,7 @@ public abstract class RotationSliderComposite extends Composite {
 		rotationSlider.setFill(true);
 		rotationSlider.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_SIZEWE));
 
-		addLabelToTriangle();
+		addLabelToSlider();
 		sliderBoundary = new RectangleFigure();
 		sliderBoundary.setBackgroundColor(ColorConstants.black);
 
@@ -234,7 +237,7 @@ public abstract class RotationSliderComposite extends Composite {
 		}
 
 		rotationSlider.setBackgroundColor(COLOUR_NOT_BUSY);
-		rotationSlider.setSize(getSliderTriangleDimension());
+		rotationSlider.setSize(getSliderDimension());
 
 		new Dragger(rotationSlider);
 
@@ -248,26 +251,26 @@ public abstract class RotationSliderComposite extends Composite {
 	/**
 	 * To be implemented by concrete class that requires to add label to the slider figure.
 	 * 
-	 * @see TomoCoarseRotationComposite#addLabelToTriangle()
+	 * @see TomoCoarseRotationComposite#addLabelToSlider()
 	 */
-	protected void addLabelToTriangle() {
+	protected void addLabelToSlider() {
 		rotationSlider.setLayoutManager(new XYLayout());
-		triangleLblFigure = new Label("0°");
-		triangleLblFigure.setBackgroundColor(ColorConstants.white);
-		triangleLblFigure
-				.setIcon(TomoClientActivator.getDefault().getImageRegistry().get(ImageConstants.ICON_CTRL_BTN));
+		sliderLblFigure = new Label("0°");
+		sliderLblFigure.setBackgroundColor(ColorConstants.white);
+		sliderLblFigure
+				.setIcon(TomoClientActivator.getDefault().getImageRegistry().get(ImageConstants.ICON_CTRL_BTN_12x12));
 		//
 
-		int x = getSliderTriangleDimension().width / 4 - 14;
-		int y = getSliderTriangleDimension().height / 4 - 1;
+		int x = getSliderDimension().width / 4 - 10;
+		int y = getSliderDimension().height / 4 - 1;
 
 		if (direction == SWT.UP) {
-			y = getSliderTriangleDimension().height / 4 - 6;
+			y = getSliderDimension().height / 4 - 2;
 		}
-		rotationSlider.add(triangleLblFigure, new Rectangle(x, y, -1, -1));
+		rotationSlider.add(sliderLblFigure, new Rectangle(x, y, -1, -1));
 	}
 
-	protected abstract Dimension getSliderTriangleDimension();
+	protected abstract Dimension getSliderDimension();
 
 	/**
 	 * @return labels
@@ -314,15 +317,15 @@ public abstract class RotationSliderComposite extends Composite {
 				if (!moved) {
 					xVal = parentBounds.width / 2 - rotationSlider.getBounds().width / 2;
 				}
-				rotationSlider.setLocation(new Point(xVal, parentBounds.height - 20));
+				rotationSlider.setLocation(new Point(xVal, parentBounds.height - 23));
 				sliderBoundary.setBounds(new Rectangle(rotationSlider.getBounds().width / 2, parentBounds.height - 26,
 						parentBounds.width - rotationSlider.getBounds().width, 3));
 				/* labels */
 				layoutUpSliderMarkers(parentBounds);
 			}
-			if (triangleLblFigure != null) {
-				triangleLblFigure.setFont(fontRegistry.get(TEXT_SMALL_7));
-				triangleLblFigure.getParent().repaint();
+			if (sliderLblFigure != null) {
+				sliderLblFigure.setFont(fontRegistry.get(TEXT_SMALL_7));
+				sliderLblFigure.getParent().repaint();
 			}
 		}
 	}
@@ -384,7 +387,7 @@ public abstract class RotationSliderComposite extends Composite {
 			if (p != null) {
 				Dimension delta = p.getDifference(movedPoint);
 				Figure f = ((Figure) e.getSource());
-				// Restricted drag movement for the triangle
+				// Restricted drag movement for the slider
 				if (delta.width + f.getBounds().x >= 1) {
 					if (f.getBounds().width + f.getBounds().x + delta.width <= f.getParent().getBounds().width + 1) {
 						f.setBounds(f.getBounds().getTranslated(delta.width, 0));
@@ -404,7 +407,7 @@ public abstract class RotationSliderComposite extends Composite {
 	 */
 	protected void updateSliderLabel() {
 		double currentSliderDegree = getCurrentSliderDegree();
-		triangleLblFigure.setText(df.format(currentSliderDegree) + "°");
+		sliderLblFigure.setText(df.format(currentSliderDegree) + "°");
 	}
 
 	public void addSliderEventListener(SliderSelectionListener listener) {

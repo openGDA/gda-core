@@ -237,7 +237,7 @@ public class TomoFineRotationComposite extends RotationSliderComposite {
 	}
 
 	@Override
-	protected Dimension getSliderTriangleDimension() {
+	protected Dimension getSliderDimension() {
 		return new Dimension(50, 30);
 	}
 

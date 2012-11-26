@@ -197,13 +197,13 @@ public class TomoAlignmentControlComposite extends Composite {
 
 	//
 	private static final Logger logger = LoggerFactory.getLogger(TomoAlignmentControlComposite.class);
-	private static final String PLUS_90_DEG = "+90°";
-	private static final String MINUS_90_DEG = "-90°";
+	private static final String PLUS_90_DEG = " + 90°";
+	private static final String MINUS_90_DEG = "   - 90°";
 	private static final String PLUS_DELTA_5 = "▲+5°";
 	private static final String MINUS_DELTA_5 = "▲-5°";
-	private static final String PLUS_ONE_EIGHTY_DEG = "+180°";
+	private static final String PLUS_ONE_EIGHTY_DEG = "+ 180°";
 	private static final String ZERO_DEG = "0°";
-	private static final String MINUS_ONE_EIGHTY_DEG = "-180°";
+	private static final String MINUS_ONE_EIGHTY_DEG = " -  180°";
 	private static final String VERTICAL_lbl = "Move Vertical";
 	private static final String MOVE_TOMO_AXIS_lbl = "Move Rotation Axis";
 
@@ -1039,13 +1039,13 @@ public class TomoAlignmentControlComposite extends Composite {
 		setDefaultLayoutSettings(layout);
 		rotationStageComposite.setLayout(layout);
 
-		btnLeftRotate = new RotationButtonComposite(rotationStageComposite, PositionConstants.WEST, MINUS_90_DEG, true);
+		btnLeftRotate = new RotationButtonComposite(rotationStageComposite, PositionConstants.WEST, "-90°", true);
 		btnLeftRotate.addSelectionListener(rotationButtonListener);
 
 		GridData layoutData = new GridData(GridData.FILL_BOTH);
 		btnLeftRotate.setLayoutData(layoutData);
 
-		btnRightRotate = new RotationButtonComposite(rotationStageComposite, PositionConstants.EAST, PLUS_90_DEG, true);
+		btnRightRotate = new RotationButtonComposite(rotationStageComposite, PositionConstants.EAST, "+90°", true);
 		btnRightRotate.addSelectionListener(rotationButtonListener);
 
 		layoutData = new GridData(GridData.FILL_BOTH);
