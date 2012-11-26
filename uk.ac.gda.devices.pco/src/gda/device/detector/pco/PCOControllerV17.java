@@ -81,7 +81,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	private static final String DELAY_TIME = "DELAY_TIME";
 	private static final String DELAY_TIME_RBV = "DELAY_TIME_RBV";
 
-	private int initialTimestampMode = 0;
+	private int initialTimestampMode = 1;
 
 	/**
 	 * Mark Basham's calibrated readout time for each ADC mode. These are set in Spring configuration.
@@ -645,7 +645,8 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 				int cachedImgMode = areaDetector.getImageMode();
 
 				areaDetector.setImageMode(ImageMode.SINGLE.ordinal());
-				areaDetector.setAcquireTime(1);
+				areaDetector.setAcquireTime(0.01);
+
 				areaDetector.startAcquiringSynchronously();
 				areaDetector.setImageMode(cachedImgMode);
 			}
