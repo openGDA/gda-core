@@ -29,8 +29,16 @@ class I20DetectorPreparer:
             else:
                 from gda.device.detector import VortexDetectorConfiguration
                 VortexDetectorConfiguration(self.ExafsScriptObserver,fullFileName,None,outputParameters).configure()
-            
-        for ionChamberParams in detectorParameters.getTransmissionParameters().getIonChamberParameters():
+        
+        ionChamberParamsArray = None
+        if detectorParameters.getExperimentType() == "Fluorescence" :
+            ionChamberParamsArray = detectorParameters.getFluorescenceParameters().getIonChamberParameters()
+        elif detectorParameters.getExperimentType() == "Transmission" :
+            ionChamberParamsArray = detectorParameters.getTransmissionParameters().getIonChamberParameters()
+        elif detectorParameters.getExperimentType() == "XES" :
+            ionChamberParamsArray = detectorParameters.getXesParameters().getIonChamberParameters()
+        
+        for ionChamberParams in ionChamberParamsArray:
             if ionChamberParams.getChangeSensitivity():
                 ionChamberName = ionChamberParams.getName()
                 if ionChamberParams.getGain() == None or ionChamberParams.getGain() == "":
