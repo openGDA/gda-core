@@ -620,13 +620,15 @@ public class ExcaliburEqualizationHelper {
 		for (Chip chip : chipset.getChips()) {
 			AbstractDataset dataset = chip.getDataset(loader);
 			ShortDataset dataset2 = getDatasetWithValidPixels(dataset);
-			double[][] xyvals = createBinnedPopulation(dataset2);
-			double [] xvals = xyvals[0];
-			double [] yvals = xyvals[1];
-			hdf.writeToFileSimple(new Hdf5HelperData(xvals), resultFileName, getEqualisationLocation(),
-					POPULATION+chip.index+"_xvals");
-			hdf.writeToFileSimple(new Hdf5HelperData(yvals), resultFileName, getEqualisationLocation(),
-					POPULATION+chip.index+"_yvals");
+			if( dataset2 != null){
+				double[][] xyvals = createBinnedPopulation(dataset2);
+				double [] xvals = xyvals[0];
+				double [] yvals = xyvals[1];
+				hdf.writeToFileSimple(new Hdf5HelperData(xvals), resultFileName, getEqualisationLocation(),
+						POPULATION+chip.index+"_xvals");
+				hdf.writeToFileSimple(new Hdf5HelperData(yvals), resultFileName, getEqualisationLocation(),
+						POPULATION+chip.index+"_yvals");
+			}
 		}
 		
 	}
@@ -971,10 +973,10 @@ public class ExcaliburEqualizationHelper {
 
 	}
 
-	public void createThresholdNOptMaskFromUnequalisedScan(String unequalisedThresholdNFile, 
+	public void createMaskFromEdgePositionValidData(String edgeFile, 
 			int numChipsRows, int numChipsAcross, String resultFile) throws Exception {
 		Hdf5Helper hdf = Hdf5Helper.getInstance();
-		Hdf5HelperData hthresholdNotUsingThresholdN = hdf.readDataSetAll(unequalisedThresholdNFile,
+		Hdf5HelperData hthresholdNotUsingThresholdN = hdf.readDataSetAll(edgeFile,
 				getEqualisationLocation().getLocationForOpen(), THRESHOLD_DATASET, true);
 
 		if (hthresholdNotUsingThresholdN.dims.length != 2)

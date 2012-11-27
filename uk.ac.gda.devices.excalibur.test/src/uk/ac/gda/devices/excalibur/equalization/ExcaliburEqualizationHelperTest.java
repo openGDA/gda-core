@@ -24,6 +24,7 @@ import gda.analysis.numerical.straightline.Results;
 import gda.util.TestUtils;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.Vector;
 
@@ -46,11 +47,11 @@ public class ExcaliburEqualizationHelperTest {
 
 	@BeforeClass
 	static public void setUpClass() {
-		TestFileFolder = TestUtils.getGDALargeTestFilesLocation();
+/*		TestFileFolder = TestUtils.getGDALargeTestFilesLocation();
 		if (TestFileFolder == null) {
 			Assert.fail("TestUtils.getGDALargeTestFilesLocation() returned null - test aborted");
 		}
-	}
+*/	}
 
 	@Test
 	public void testGetEqualizedDataForwards() throws Exception {
@@ -354,5 +355,24 @@ public class ExcaliburEqualizationHelperTest {
 		assertEquals(0,((short[])mask.data)[41]);
 		assertEquals(1,((short[])mask.data)[42]);
 	
+	}
+	
+	/**
+	 * Check that use of iterators means that we cover all pixels and the index returned takes account fo spaces between chips
+	 */
+	@Test
+	public void testPixelIterator(){
+		ChipSet cs2 = new ChipSet(2, 2);
+		long maxIndex=-1;
+		long numPixels=0;
+		for( Chip chip : cs2.getChips()){
+			Iterator<Long> pixelIndexIterator = chip.getPixelIndexIterator();
+			while( pixelIndexIterator.hasNext()){
+				maxIndex = Math.max(maxIndex, pixelIndexIterator.next());
+				numPixels ++;
+			}
+		}
+		assertEquals(265224, maxIndex); // 4 chips with layout given by chipset spacing
+		assertEquals(262144, numPixels); // 4 chips * 256 *256
 	}
 }
