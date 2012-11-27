@@ -43,7 +43,6 @@ import uk.ac.diamond.scisoft.analysis.optimize.GeneticAlg;
 import uk.ac.gda.analysis.hdf5.HDF5HelperLocations;
 import uk.ac.gda.analysis.hdf5.HDF5NexusLocation;
 import uk.ac.gda.analysis.hdf5.Hdf5Helper;
-import uk.ac.gda.analysis.hdf5.Hdf5Helper.TYPE;
 import uk.ac.gda.analysis.hdf5.Hdf5HelperData;
 import uk.ac.gda.analysis.hdf5.Hdf5HelperLazyLoader;
 import uk.ac.gda.devices.excalibur.ExcaliburReadoutNodeFem;
@@ -174,9 +173,9 @@ public class ExcaliburEqualizationHelper {
 	 * set of slope values in dataset EDGE_THRESHOLD_RESPONSE_SLOPES_DATASET and a set of offset values in dataset
 	 * EDGE_THRESHOLD_RESPONSE_OFFSETS_DATASET
 	 */
-	public void createEdgeThresholdABResponseFromThresholdFiles(List<String> edgeThresholdFilenames, String resultFile)
+	public void createEdgeThresholdABResponseFromThresholdFiles(List<String> edgeThresholdFilenames, double [] axisValues, String resultFile)
 			throws Exception {
-		Results responses = getEdgeThresholdABResponseFromThresholdFiles(edgeThresholdFilenames);
+		Results responses = getEdgeThresholdABResponseFromThresholdFiles(edgeThresholdFilenames, axisValues);
 		Hdf5HelperData hdSlopes = new Hdf5HelperData(responses.getDims(), responses.getSlopes());
 		Hdf5Helper.getInstance().writeToFileSimple(hdSlopes, resultFile, getEqualisationLocation(),
 				THRESHOLD_RESPONSE_SLOPES_DATASET);
@@ -195,9 +194,9 @@ public class ExcaliburEqualizationHelper {
 	 * @param edgeThresholdFilenames
 	 * @throws Exception
 	 */
-	public Results getEdgeThresholdABResponseFromThresholdFiles(List<String> edgeThresholdFilenames) throws Exception {
+	public Results getEdgeThresholdABResponseFromThresholdFiles(List<String> edgeThresholdFilenames,  double[] axisValues) throws Exception {
 
-		return getStraightLineFit(edgeThresholdFilenames, THRESHOLDABNVAL_ATTR, THRESHOLD_DATASET);
+		return getStraightLineFit(edgeThresholdFilenames, axisValues, THRESHOLD_DATASET);
 	}
 
 	/**
@@ -205,9 +204,9 @@ public class ExcaliburEqualizationHelper {
 	 * of slope values in dataset EDGE_THRESHOLD_RESPONSE_SLOPES_DATASET and a set of offset values in dataset
 	 * EDGE_THRESHOLD_RESPONSE_OFFSETS_DATASET
 	 */
-	public void createDACResponseFromThresholdFiles(List<String> edgeThresholdFilenames, String resultFile)
+	public void createDACResponseFromThresholdFiles(List<String> edgeThresholdFilenames, double[] axisValues, String resultFile)
 			throws Exception {
-		Results responses = getDACResponseFromThresholdFiles(edgeThresholdFilenames);
+		Results responses = getDACResponseFromThresholdFiles(edgeThresholdFilenames, axisValues);
 		Hdf5HelperData hdSlopes = new Hdf5HelperData(responses.getDims(), responses.getSlopes());
 		Hdf5Helper.getInstance().writeToFileSimple(hdSlopes, resultFile, getEqualisationLocation(),
 				THRESHOLD_RESPONSE_SLOPES_DATASET);
@@ -225,11 +224,12 @@ public class ExcaliburEqualizationHelper {
 	 * attribute THRESHOLDABVAL_ATTR
 	 * 
 	 * @param edgeThresholdFilenames
+	 * @param axisValues 
 	 * @throws Exception
 	 */
-	public Results getDACResponseFromThresholdFiles(List<String> edgeThresholdFilenames) throws Exception {
+	public Results getDACResponseFromThresholdFiles(List<String> edgeThresholdFilenames, double[] axisValues) throws Exception {
 
-		return getStraightLineFit(edgeThresholdFilenames, THRESHOLDABNVAL_ATTR,
+		return getStraightLineFit(edgeThresholdFilenames, axisValues,
 				CHIP_THRESHOLD_GAUSSIAN_POSITION_DATASET);
 	}
 
@@ -276,17 +276,13 @@ public class ExcaliburEqualizationHelper {
 		}
 		return new Results(offsets, slopes, dims, fitoks);				
 	}
-	public Results getStraightLineFit(List<String> datasetFileNames, String axisAttributeName, String datasetName)
+	public Results getStraightLineFit(List<String> datasetFileNames, double[] axisValues, String datasetName)
 			throws Exception {
 
-		double[] thresholdABArray = new double[datasetFileNames.size()];
 		Vector<Object> data = new Vector<Object>();
 		long[] dims = null;
 		for (int i = 0; i < datasetFileNames.size(); i++) {
 			// get data for filename
-			Hdf5HelperData readAttribute = Hdf5Helper.getInstance().readAttribute(datasetFileNames.get(i),
-					TYPE.DATASET, getEdgeThresholdsLocation().getLocationForOpen(), axisAttributeName);
-			thresholdABArray[i] = ((double[]) readAttribute.data)[0];
 			Hdf5HelperData edgeThresholds = Hdf5Helper.getInstance().readDataSetAll(datasetFileNames.get(i),
 					getEqualisationLocation().getLocationForOpen(), datasetName, true);
 
@@ -297,7 +293,7 @@ public class ExcaliburEqualizationHelper {
 		}
 		boolean removeInvalids = ( data.get(0) instanceof short[]);
 
-		return removeInvalids? getStraightLineFitValidsOnly(data, dims, thresholdABArray): StraightLineFit.fitInt(data, dims, thresholdABArray);
+		return removeInvalids? getStraightLineFitValidsOnly(data, dims, axisValues): StraightLineFit.fitInt(data, dims, axisValues);
 	}
 
 	/**
@@ -483,7 +479,7 @@ public class ExcaliburEqualizationHelper {
 		if( thresholdABNName != null && thresholdABNName.length() > 0){
 			Hdf5HelperData thresholdAValData = hdf.readDataSetAll(filename, detectorLocation, thresholdABNName, true);
 			hdf.writeAttribute(resultfilename, Hdf5Helper.TYPE.DATASET, getEdgeThresholdsLocation(), THRESHOLDABNVAL_ATTR,
-					((double[]) thresholdAValData.data)[0]);
+					((int[]) thresholdAValData.data)[0]);
 		}
 	}
 
