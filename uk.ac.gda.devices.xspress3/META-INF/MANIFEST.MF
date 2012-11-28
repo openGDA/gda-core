@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Xspress3
+Bundle-SymbolicName: uk.ac.gda.devices.xspress3
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: uk.ac.gda.api;bundle-version="8.26.0",
+ uk.ac.gda.nexus;bundle-version="1.0.0",
+ uk.ac.gda.epics;bundle-version="1.0.0",
+ uk.ac.gda.core;bundle-version="8.26.0",
+ org.junit,
+ uk.ac.gda.libs;bundle-version="1.0.0"
