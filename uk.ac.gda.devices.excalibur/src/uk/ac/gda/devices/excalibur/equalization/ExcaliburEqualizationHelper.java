@@ -861,9 +861,12 @@ public class ExcaliburEqualizationHelper {
 				.getLocationForOpen(), THRESHOLD_NOPT, true);
 		if (hdata.dims.length != 2)
 			throw new IllegalArgumentException("data.dims.length!=2");
-		if (hdata.dims[0] != readoutFems.size())
+/*		
+ 		We check that there is a fem for the chip later so no need to check here
+ 		if (hdata.dims[0] != readoutFems.size())
 			throw new IllegalArgumentException("hdata.dims[0]!= readoutFems.size()(" + hdata.dims[0] + " != "
 					+ readoutFems.size());
+*/
 		if (hdata.dims[1] != ExcaliburReadoutNodeFem.CHIPS_PER_FEM)
 			throw new IllegalArgumentException("data.dims[1]!=CHIPS_PER_FEM");
 
