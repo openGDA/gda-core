@@ -583,7 +583,13 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		try {
 			INexusTree tree = extractNexusTree(detector.getName());
 			for (INexusTree subTree : tree) {
-				writeHere(file, subTree, false, false, null);
+				if (subTree.getNxClass().equals(NexusExtractor.NXDetectorClassName))
+					writeHere(file, subTree, false, false, null);
+				else if (subTree.getNxClass().equals(NexusExtractor.NXMonitorClassName)) {
+					file.closegroup();
+					writeHere(file, subTree, false, false, null);
+					file.opengroup("instrument", "NXinstrument");
+				}
 			}
 		} finally {
 			file.closegroup();
@@ -942,6 +948,14 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			for (INexusTree det : detTree) {
 				if (det.getNxClass().equals(NexusExtractor.NXDetectorClassName)) {
 					makeGenericDetector(det.getName(), null, 0, detector, det);
+				} else if (det.getNxClass().equals(NexusExtractor.NXMonitorClassName)) {
+					// FIXME -- if this doesn't explode I am truly surprised
+					file.opengroup(this.entryName, NexusExtractor.NXEntryClassName);
+					try {
+						writeHere(file, det, firstData, false, null);
+					} finally {
+						file.closegroup();
+					}
 				}
 			}
 		} else if (detector.createsOwnFiles()) {
