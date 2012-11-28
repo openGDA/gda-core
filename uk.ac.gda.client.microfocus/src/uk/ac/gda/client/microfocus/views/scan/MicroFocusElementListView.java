@@ -61,9 +61,15 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.Overlay2DProvider;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.OverlayProvider;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.IImagePositionEvent;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
+import uk.ac.gda.beans.BeansFactory;
+import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
+import uk.ac.gda.beans.vortex.RegionOfInterest;
+import uk.ac.gda.beans.vortex.VortexParameters;
+import uk.ac.gda.beans.xspress.XspressParameters;
+import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentEditorManager;
 import uk.ac.gda.client.microfocus.controller.MicroFocusDisplayController;
@@ -96,6 +102,8 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 	private boolean loadMapForScan = false;
 	private int plotX = 0;
 	private int plotY = 0;
+	private PlotView plotView;
+	private String selectedElement;
 
 	public boolean isLoadMapForScan() {
 		return loadMapForScan;
@@ -133,25 +141,12 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 		 * xspressLoad = new Button(xspressComposite, SWT.BORDER); xspressLoad.setText("Load File");
 		 */
 		getDetectorFiles();
-		populateLists(detectorFileName, defaultDetectorFileName);
+		populateLists(detectorFileName);
 		openDialog = new FileDialog(parent.getShell(), SWT.OPEN);
 		openDialog.setFilterPath(LocalProperties.get("gda.data.scan.datawriter.datadir"));
 		selectedElement = xspressList.getItemCount() > 0 ? xspressList.getItem(0) : null;
 		xspressList.addSelectionListener(this);
 		xspressList.setToolTipText(loadedDetectorFileName);
-		Label elementLabel = new Label(xspressComposite, SWT.NONE);
-		elementLabel.setText("Detector Element:");
-		elementSpinner = new Spinner(xspressComposite, SWT.BORDER);
-		{
-			GridData gridData1 = new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1);
-			gridData1.widthHint = 22;
-			gridData1.heightHint = 27;
-			elementSpinner.setLayoutData(gridData1);
-		}
-		
-		elementSpinner.setMinimum(0);
-		populateElementSpinner(detectorFileName);
-		elementSpinner.addSelectionListener(this);
 
 		// xspressLoad.addSelectionListener(this);
 		this.setTitleToolTip(getTitle() + "Dectector Elements list");
@@ -217,59 +212,56 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 		}
 		return fileName;
 	}
-
-	private void populateLists(String xmlfile, String defaultXmlFile) {
-		// Run command and block.
-		final JythonServerFacade jythonServerFacade = JythonServerFacade.getInstance();
-		String result = jythonServerFacade.evaluateCommand("showElementsListString(\"" + xmlfile + "\")");
-		if (result != null && !result.isEmpty()) {
-			StringTokenizer s = new StringTokenizer(result.trim(), ",");
-			if (xspressList.getItemCount() != 0) {
-				xspressList.removeAll();
-			}
-			while (s.hasMoreElements()) {
-				xspressList.add(new String(s.nextToken()));
-			}
-			// now add the default list
-			String defaultsResult = jythonServerFacade.evaluateCommand("showElementsListString(\"" + defaultXmlFile
-					+ "\")");
-			if (defaultsResult != null && !defaultsResult.isEmpty()) {
-				s = new StringTokenizer(defaultsResult.trim(), ",");
-				while (s.hasMoreElements()) {
-					xspressList.add(new String(s.nextToken()));
-				}
-			}
-			xspressList.setSelection(0);
+	
+	private void populateLists(String xmlfile) {
+		String location = xmlfile.substring(0, xmlfile.lastIndexOf('/'))+"/";
+		String filename = xmlfile.substring(xmlfile.lastIndexOf('/')+1);
+		IRichBean beanObject = null;
+		
+		xspressList.removeAll();
+		
+		try {
+			beanObject = BeansFactory.getBeanObject(location, filename);
+		} catch (Exception e) {
+			logger.error("Could not create beans from xml file " + xmlfile, e);
 		}
+		
+		
+		if(beanObject instanceof XspressParameters){
+			XspressParameters xspress = (XspressParameters)beanObject;
+			java.util.List<XspressROI> regionList = xspress.getDetector(0).getRegionList();
+			for(int i=0; i<regionList.size();i++){
+				xspressList.add(regionList.get(i).getRoiName());
+				
+			}
+		}
+		
+		else if(beanObject instanceof VortexParameters){
+			VortexParameters vortex = (VortexParameters)beanObject;
+			java.util.List<RegionOfInterest> regionList = vortex.getDetector(0).getRegionList();
+			for(int i=0; i<regionList.size();i++){
+				xspressList.add(regionList.get(i).getRoiName());
+				
+			}
+		}
+		
 		loadedDetectorFileName = xmlfile;
-	}
-
-	private void populateElementSpinner(String xmlfile) {
-		// Run command and block.
-		final JythonServerFacade jythonServerFacade = JythonServerFacade.getInstance();
-		String command = "getNumberOfDetectors(\"" + xmlfile + "\")";
-		String reply = jythonServerFacade.evaluateCommand(command);
-		elementSpinner.setMaximum( reply!=null ? (Integer.parseInt(reply) - 1) : 0);
 	}
 
 	public void refresh() {
 		String currentDetectorFile = null;
-		//if(!isScanRunning()){
 			try {
 				currentDetectorFile = findCurrentDetectorFile();
 			} catch (Exception e) {
 				logger.warn("Unable to refresh the elements list, using default config ");
 			}
 		if (currentDetectorFile != null)
-				populateLists(currentDetectorFile, defaultDetectorFileName);
-		//}
-	
+				populateLists(currentDetectorFile);
 	}
 
 	private boolean isScanRunning() {
 		if(JythonServerFacade.getInstance().getScanStatus() == Jython.RUNNING)
 		{
-			//ExperimentFactory.getScanController().getCurrentScan().
 			return true;
 		}
 		return false;
@@ -309,9 +301,6 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 
 	}
 
-	private PlotView plotView;
-	private String selectedElement;
-//	private boolean scanRunning;
 
 	@Override
 	public void hideOverlays() {
