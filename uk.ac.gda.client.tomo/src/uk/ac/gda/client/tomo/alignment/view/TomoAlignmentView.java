@@ -1655,4 +1655,30 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		String tiltLastSaved = getSimpleDateFormat(System.currentTimeMillis());
 		tomoControlComposite.setTiltLastDoneLabel(tiltLastSaved);
 	}
+
+	public void moveHigherContrastSliderTo(final int value) {
+		if (getViewSite().getShell().getDisplay() != null && !getViewSite().getShell().getDisplay().isDisposed()) {
+			getViewSite().getShell().getDisplay().syncExec(new Runnable() {
+
+				@Override
+				public void run() {
+
+					contrastSliderComposite.moveTopSliderTo(value);
+				}
+			});
+		}
+	}
+
+	public void moveLowerContrastSliderTo(final int value) {
+		if (getViewSite().getShell().getDisplay() != null && !getViewSite().getShell().getDisplay().isDisposed()) {
+			getViewSite().getShell().getDisplay().syncExec(new Runnable() {
+
+				@Override
+				public void run() {
+
+					contrastSliderComposite.moveBottomSliderTo(value);
+				}
+			});
+		}
+	}
 }

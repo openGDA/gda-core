@@ -36,7 +36,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -73,6 +72,8 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 	// font
 	private static final String BOLD_TEXT_10 = "bold_10";
 	private static final String NORMAL_TEXT_7 = "normal_7";
+
+	private boolean flatDarkTaken = false;
 
 	private FontRegistry fontRegistry;
 	//
@@ -271,7 +272,7 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 		btnFlatShow.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		btnFlatShow.addSelectionListener(buttonSelectionListener);
 		heightHint += btnFlatShow.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
-		
+
 		btnDarkShow = toolkit.createButton(pg_flatDark_Buttons, SHOW_DARK, SWT.PUSH | SWT.WRAP);
 		btnDarkShow.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		btnDarkShow.addSelectionListener(buttonSelectionListener);
@@ -873,6 +874,9 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 				}
 			});
 		}
+		if (!isDifferentFlatExposureTime) {
+			setPreferredFlatExposureTime(preferredExposureTime);
+		}
 	}
 
 	public double getSampleExposureTime() {
@@ -980,7 +984,7 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 	}
 
 	public boolean isFlatCorrectionSelected() {
-		return ButtonSelectionUtil.isButtonSelected(btnFlatDarkCorrection);
+		return isFlatDarkTaken() && ButtonSelectionUtil.isButtonSelected(btnFlatDarkCorrection);
 	}
 
 	/**
@@ -1060,6 +1064,8 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 	}
 
 	public void flatDarkTaken(final boolean flatDarkTaken) {
+
+		this.flatDarkTaken = flatDarkTaken;
 		if (pgBook_flatDark != null && !pgBook_flatDark.isDisposed()) {
 			pgBook_flatDark.getDisplay().asyncExec(new Runnable() {
 
@@ -1074,6 +1080,10 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 			});
 		}
 
+	}
+
+	public boolean isFlatDarkTaken() {
+		return flatDarkTaken;
 	}
 
 }

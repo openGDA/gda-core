@@ -693,7 +693,13 @@ public class TomoAlignmentController extends TomoViewController {
 		// 1. Close Experimental shutter
 		cameraShutterHandler.closeShutter(progress.newChild(2));
 
-		cameraHandler.takeDark(progress.newChild(8), acqTime);
+		try {
+			cameraHandler.takeDark(progress.newChild(8), acqTime);
+			darkImageSaved = true;
+		} catch (Exception e) {
+			darkImageSaved = false;
+			throw e;
+		}
 
 		logger.debug("Requesting for open shutter");
 		// . Open Experimental shutter
@@ -914,30 +920,8 @@ public class TomoAlignmentController extends TomoViewController {
 		return scaledValue;
 	}
 
-	/**
-	 * The histogram value evaluated is adjusted towards setting a more appropriate exposure time value.
-	 * 
-	 * @throws Exception
-	 */
-	public void applyHistogramToAdjustExposureTime(boolean isAmplified, double lower, double upper, double histoFrom,
-			double histoTo) throws Exception {
-		double exposureTime = getCameraExposureTime();
-
-		double proc1Scale = cameraHandler.getProc1Scale();
-		double newExposureTime = exposureTime;
-		// If the proc1Scale is 0 which can be likely - then we set the scale back to 1 and leave the exposure time as
-		// it is.
-
-		if (proc1Scale != 0) {
-			newExposureTime = newExposureTime * proc1Scale;
-		}
-		setExposureTime(newExposureTime, isAmplified, lower, upper, histoFrom, histoTo);
-		updateAdjustedPreferredExposureTime(newExposureTime);
-
-	}
-
 	public void setAdjustedExposureTime(boolean isAmplified, double from, double to, int lower, int upper,
-			double histoFrom, double histoTo) throws Exception {
+			double histogramFactor) throws Exception {
 		double scaledFactor = getScaledFactor(from, to);
 		double adjustedExposureTime = getCameraExposureTime();
 		if (scaledFactor != 0) {
@@ -945,7 +929,7 @@ public class TomoAlignmentController extends TomoViewController {
 		}
 		updateAdjustedPreferredExposureTime(adjustedExposureTime);
 		// FIXME -
-		setExposureTime(adjustedExposureTime, isAmplified, lower, upper, histoFrom, histoTo);
+		setExposureTime(adjustedExposureTime, isAmplified, lower, upper, histogramFactor);
 	}
 
 	protected void updateAdjustedPreferredExposureTime(double preferredExposureTime) {
@@ -1069,9 +1053,9 @@ public class TomoAlignmentController extends TomoViewController {
 	}
 
 	public void setExposureTime(double actualExpTimeBeforeFactoring, boolean isAmplified, double lower, double upper,
-			double histogramFrom, double histogramTo) throws Exception {
+			double histogramFactor) throws Exception {
 		cameraHandler.setAmplifiedValue(actualExpTimeBeforeFactoring, isAmplified, (int) lower, (int) upper,
-				getScaledFactor(histogramFrom, histogramTo));
+				histogramFactor);
 	}
 
 	public double[] getHistogramFromStats() throws Exception {

@@ -28,7 +28,6 @@ import org.eclipse.draw2d.PositionConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
@@ -54,6 +53,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.eclipse.ui.part.PageBook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,6 +87,11 @@ public class TomoAlignmentControlComposite extends Composite {
 	private static final String REGION_OF_INTEREST_lbl = "ROI";
 	private static final String TOMOGRAPHY_PARAMETERS_lbl = "Tomography Parameters";
 	private Button btnAutoFocus;
+
+	private Label lblTiltLastDone;
+	private PageBook pgBook_MoveAxisOfRotation;
+	private Composite pg_MoveAxisOfRotation_NotFound;
+	private Composite pg_MoveAxisOfRotation_Found;
 
 	/**
 	 * Enum that caters to the motion control composite
@@ -243,7 +248,6 @@ public class TomoAlignmentControlComposite extends Composite {
 	private Text txtSampleDesc;
 	private String sampleDescription;
 
-	private StackLayout moveAxisRotationCmpLayout;
 	/* Control Box Buttons */
 
 	private Button btnDefineRoi;
@@ -670,13 +674,35 @@ public class TomoAlignmentControlComposite extends Composite {
 		btnFindAxisOfRotation.addListener(SWT.MouseDown, ctrlMouseListener);
 		ButtonSelectionUtil.decorateControlButton(btnFindAxisOfRotation);
 
-		btnMoveAxisOfRotation = toolkit.createButton(tomoAlignmentComposite, MOVE_TOMO_AXIS_lbl, SWT.PUSH);
-		btnMoveAxisOfRotation.setFont(fontRegistry.get(NORMAL_TEXT_9));
-		btnMoveAxisOfRotation.addListener(SWT.MouseDown, ctrlMouseListener);
+		pgBook_MoveAxisOfRotation = new PageBook(tomoAlignmentComposite, SWT.None);
 		GridData layoutData4 = new GridData(GridData.FILL_BOTH);
 		layoutData4.horizontalSpan = 2;
+		pgBook_MoveAxisOfRotation.setLayoutData(layoutData4);
+
+		pg_MoveAxisOfRotation_NotFound = toolkit.createComposite(pgBook_MoveAxisOfRotation);
+		GridLayout gridLayout = new GridLayout();
+		setDefaultLayoutSettings(gridLayout);
+		pg_MoveAxisOfRotation_NotFound.setLayout(gridLayout);
+		Label lblTomoRotAxisNotFound = toolkit.createLabel(pg_MoveAxisOfRotation_NotFound,
+				"Tomography Rotation Axis not determined yet.", SWT.CENTER);
+		GridData layoutData5 = new GridData(GridData.FILL_BOTH);
+		layoutData5.verticalAlignment = GridData.VERTICAL_ALIGN_CENTER;
+		lblTomoRotAxisNotFound.setLayoutData(layoutData5);
+
+		pg_MoveAxisOfRotation_Found = toolkit.createComposite(pgBook_MoveAxisOfRotation);
+		gridLayout = new GridLayout();
+		setDefaultLayoutSettings(gridLayout);
+		pg_MoveAxisOfRotation_Found.setLayout(gridLayout);
+
+		btnMoveAxisOfRotation = toolkit.createButton(pg_MoveAxisOfRotation_Found, MOVE_TOMO_AXIS_lbl, SWT.PUSH);
+		btnMoveAxisOfRotation.setFont(fontRegistry.get(NORMAL_TEXT_9));
+		btnMoveAxisOfRotation.addListener(SWT.MouseDown, ctrlMouseListener);
+		layoutData4 = new GridData(GridData.FILL_BOTH);
 		btnMoveAxisOfRotation.setLayoutData(layoutData4);
 		ButtonSelectionUtil.decorateControlButton(btnMoveAxisOfRotation);
+
+		pgBook_MoveAxisOfRotation.showPage(pg_MoveAxisOfRotation_NotFound);
+		//
 
 		Composite cameraDistanceComposite = toolkit.createComposite(tomoAlignmentComposite);
 		cameraDistanceComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
@@ -804,8 +830,21 @@ public class TomoAlignmentControlComposite extends Composite {
 		Composite infoCmp = toolkit.createComposite(tomoScanComposite);
 		GridData layoutData2 = new GridData(GridData.FILL_BOTH);
 		infoCmp.setLayoutData(layoutData2);
-		infoCmp.setLayout(new FillLayout());
-		toolkit.createLabel(infoCmp, "Information space");
+		GridLayout gl = new GridLayout(2, false);
+		setDefaultLayoutSettings(gl);
+		infoCmp.setLayout(gl);
+
+		Label numProjec = toolkit.createLabel(infoCmp, "Number Of Projections:");
+		numProjec.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Label lblNumProjections = toolkit.createLabel(infoCmp, "6000");
+		lblNumProjections.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Label estDuration = toolkit.createLabel(infoCmp, "Estimated Duration");
+		estDuration.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Label lblEstDuration = toolkit.createLabel(infoCmp, "6000");
+		lblEstDuration.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		return tomoScanComposite;
 	}
@@ -1445,11 +1484,12 @@ public class TomoAlignmentControlComposite extends Composite {
 		}
 	}
 
-	public void setTomoAxisFound(boolean found) {
+	public void setRotationAxisFound(boolean found) {
+		rotationAxisFound = found;
 		if (found) {
-			rotationAxisFound = true;
-			moveAxisRotationCmpLayout.topControl = btnMoveAxisOfRotation;
-			moveAxisBtnComposite.layout();
+			pgBook_MoveAxisOfRotation.showPage(pg_MoveAxisOfRotation_Found);
+		} else {
+			pgBook_MoveAxisOfRotation.showPage(pg_MoveAxisOfRotation_NotFound);
 		}
 	}
 
@@ -1825,7 +1865,6 @@ public class TomoAlignmentControlComposite extends Composite {
 			}
 		}
 	};
-	private Label lblTiltLastDone;
 
 	private void showSaveProblemDialog(String message) {
 		MessageDialog.openError(getShell(), "Saving Tomography Alignment", message);
@@ -1896,12 +1935,11 @@ public class TomoAlignmentControlComposite extends Composite {
 			break;
 		}
 	}
-	
-	
-	public void setTiltLastDoneLabel(final String formattedDateTime){
-		if(lblTiltLastDone!=null && !lblTiltLastDone.isDisposed()){
+
+	public void setTiltLastDoneLabel(final String formattedDateTime) {
+		if (lblTiltLastDone != null && !lblTiltLastDone.isDisposed()) {
 			lblTiltLastDone.getDisplay().asyncExec(new Runnable() {
-				
+
 				@Override
 				public void run() {
 					lblTiltLastDone.setText(String.format("%1$s %2$s", LAST_SAVED_lbl, formattedDateTime));

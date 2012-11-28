@@ -179,10 +179,6 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 		double ampFactor = getAmpFactor(acqTime, isAmplified);
 
 		double maxIntensity = TomoClientConstants.MAX_INTENSITY;
-		logger.debug("getScale :exposure time->{}", acqTime);
-		logger.debug("getScale :amp factor->{}", ampFactor);
-		logger.debug("getScale :lower->{}", lower);
-		logger.debug("getScale :upper->{}", upper);
 
 		// S = S(lower/ampfactor, upper/ampfactor)
 		// S(L,U) = maxIntensity/(U-L)
@@ -919,6 +915,10 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 
 		double scale = getScale(acqTime, isAmplified, lower, upper, scaledFactor);
 		double offset = getOffset(acqTime, isAmplified, lower, scaledFactor);
+		
+		logger.debug("Scale:{}", scale);
+		logger.debug("Offset:{}", offset);
+		
 
 		getCamera().setOffsetAndScale(offset, scale);
 	}

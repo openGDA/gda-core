@@ -74,6 +74,8 @@ import uk.ac.gda.client.tomo.TiltPlotPointsHolder;
  *
  */
 public class TomoPlotComposite extends Composite {
+	private static final Double DEFAULT_HISTOGRAM_FACTOR = 1.0;
+
 	private List<ITomoPlotListener> tomoPlotListeners = new ArrayList<TomoPlotComposite.ITomoPlotListener>();
 
 	private FontRegistry fontRegistry;
@@ -121,7 +123,7 @@ public class TomoPlotComposite extends Composite {
 
 	private AbstractPlottingSystem plottingSystem;
 
-	private IntegerDataset rawDataSlice;
+	private AbstractDataset rawDataSlice;
 
 	private long timeSinceLastUpdate = 0;
 
@@ -171,17 +173,13 @@ public class TomoPlotComposite extends Composite {
 		 */
 		void histogramChangedRoi(double minValue, double maxValue, double from, double to);
 
-		/**
-		 * Informs the listener when the apply histogram button is clicked.
-		 */
-		void applyExposureTimeButtonClicked();
 	}
 
 	public interface ITomoPlotListener {
 		/**
 		 * Initiate the logic to apply the histogram to the exposure time
 		 */
-		void applyHistogram();
+		void applyExposureButtonClicked(double histogramFactor);
 
 		/**
 		 * Informs listeners that the log button has been pressed.
@@ -297,8 +295,9 @@ public class TomoPlotComposite extends Composite {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				for (ITomoPlotListener tpl : tomoPlotListeners) {
-					tpl.applyHistogram();
+					tpl.applyExposureButtonClicked(getHistogramFactor());
 				}
+				resetHistogramFactor();
 			}
 		});
 		btnApplyExposureSettings.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -379,7 +378,7 @@ public class TomoPlotComposite extends Composite {
 		return lineListeners.remove(overlayLineListener);
 	}
 
-	public void updateProfilePlots(IProgressMonitor monitor, final int y) {
+	public void updateProfilePlots(final IProgressMonitor monitor, final int y) {
 		mode = MODE.PROFILE;
 		if (getDisplay() != null && !getDisplay().isDisposed()) {
 			getDisplay().syncExec(new Runnable() {
@@ -406,30 +405,37 @@ public class TomoPlotComposite extends Composite {
 			final ArrayList<AbstractDataset> plotDataSets = new ArrayList<AbstractDataset>();
 
 			// DoubleDataset axis = DoubleDataset.arange(xStart, xEnd, 1);
-			DoubleDataset axis = DoubleDataset.arange(4008);
+			final DoubleDataset axis = DoubleDataset.arange(4008);
 
 			if (rawImgDs != null) {
-				rawDataSlice = (IntegerDataset) rawImgDs.getSlice(new int[] { y - 1, 0 }, new int[] { y, 4008 },
-						new int[] { 1, 1 });
+				rawDataSlice = rawImgDs.getSlice(new int[] { y - 1, 0 }, new int[] { y, 4008 }, new int[] { 1, 1 });
 				rawDataSlice.squeeze();
 				plotDataSets.add(rawDataSlice);
 			}
 			if (darkImgDs != null) {
-				IntegerDataset darkDataSlice = (IntegerDataset) darkImgDs.getSlice(new int[] { y - 1, 0 }, new int[] {
-						y, 4008 }, new int[] { 1, 1 });
+				AbstractDataset darkDataSlice = darkImgDs.getSlice(new int[] { y - 1, 0 }, new int[] { y, 4008 },
+						new int[] { 1, 1 });
 				darkDataSlice.squeeze();
 				plotDataSets.add(darkDataSlice);
 			}
 
-			List<ITrace> profileLineTraces = plottingSystem.updatePlot1D(axis, plotDataSets, monitor);
-
-			if (!profileLineTraces.isEmpty()) {
-				profileLineTrace = (ILineTrace) profileLineTraces.get(0);
-			}
 			if (!getDisplay().isDisposed()) {
 				getDisplay().syncExec(new Runnable() {
 					@Override
 					public void run() {
+						final List<ITrace> profileLineTraces = plottingSystem.updatePlot1D(axis, plotDataSets, monitor);
+
+						if (!profileLineTraces.isEmpty()) {
+							profileLineTrace = (ILineTrace) profileLineTraces.get(0);
+							profileLineTrace.setTraceColor(ColorConstants.blue);
+
+							if (profileLineTraces.size() > 1) {
+								ILineTrace darkLineTrace = (ILineTrace) profileLineTraces.get(1);
+								darkLineTrace.setTraceColor(ColorConstants.gray);
+
+							}
+						}
+
 						plottingSystem.setTitle(INTENSITY_PLOT);
 						plottingSystem.getSelectedYAxis().setFormatPattern("######.#");
 						// plottingSystem.getSelectedYAxis().setRange(0, 5);
@@ -578,8 +584,8 @@ public class TomoPlotComposite extends Composite {
 	 * @param histogramFromStats
 	 */
 	public void updateHistogramData(final double[] histogramFromStats) {
-		if (shouldUpdatePlot && !getDisplay().isDisposed()) {
-			getDisplay().syncExec(new Runnable() {
+		if (shouldUpdatePlot && !this.isDisposed()) {
+			this.getDisplay().syncExec(new Runnable() {
 
 				@Override
 				public void run() {
@@ -597,12 +603,11 @@ public class TomoPlotComposite extends Composite {
 					// show the apply button if streaming is happening in the left window.
 					mode = MODE.HISTOGRAM_STREAM;
 					createMouseFollowLineRegion();
-					if (!getDisplay().isDisposed() && plottingSystem.getTrace(HISTOGRAM_TRACE) == null) {
+					if (!TomoPlotComposite.this.isDisposed() && plottingSystem.getTrace(HISTOGRAM_TRACE) == null) {
 						plottingSystem.clear();
 					}
 
 					double[] subarray = ArrayUtils.subarray(histogramFromStats, 0, 1024);
-					logger.debug("subarray size:{}", subarray.length);
 
 					if (streamLog) {
 						int count = 0;
@@ -860,8 +865,7 @@ public class TomoPlotComposite extends Composite {
 		}
 	}
 
-	private Double histogramFrom;
-	private Double histogramTo;
+	private Double histogramFactor = DEFAULT_HISTOGRAM_FACTOR;
 
 	private Composite pg_plotinfo_profile;
 
@@ -877,8 +881,9 @@ public class TomoPlotComposite extends Composite {
 		region.setRegionColor(snapShotColor);
 		plottingSystem.addRegion(region);
 		region.setROI(bounds);
-		histogramFrom = null;
 		region.addROIListener(new IROIListener() {
+
+			Double histogramFrom = null;
 
 			@Override
 			public void roiDragged(ROIEvent evt) {
@@ -900,6 +905,7 @@ public class TomoPlotComposite extends Composite {
 				region.removeROIListener(this);
 				setShouldUpdatePlot(true);
 
+				histogramFactor = histogramFactor * histogramTo / histogramFrom;
 				for (PlottingSystemActionListener lis : lineListeners) {
 					lis.histogramChangedRoi(minValue, maxValue, histogramFrom, histogramTo);
 				}
@@ -919,32 +925,19 @@ public class TomoPlotComposite extends Composite {
 	}
 
 	public void clearPlots() {
+		histogramFactor = DEFAULT_HISTOGRAM_FACTOR;
 		getDisplay().syncExec(new Runnable() {
 
 			@Override
 			public void run() {
+				mode = MODE.NONE;
 				plottingSystem.setTitle("");
 				pgBook_plotinfo.showPage(pg_plotinfo_none);
 				plottingSystem.reset();
 				histogramTrace = null;
-				mode = MODE.NONE;
 			}
 		});
 
-	}
-
-	public double getHistogramFrom() {
-		if (!shouldUpdatePlot && (mode == MODE.HISTOGRAM_STREAM) && histogramFrom != null) {
-			return histogramFrom;
-		}
-		return 1;
-	}
-
-	public double getHistogramTo() {
-		if (!shouldUpdatePlot && (mode == MODE.HISTOGRAM_STREAM) && histogramTo != null) {
-			return histogramTo;
-		}
-		return 1;
 	}
 
 	public void setYLabelValue(final String yLblValue) {
@@ -983,4 +976,14 @@ public class TomoPlotComposite extends Composite {
 		}
 	}
 
+	public Double getHistogramFactor() {
+		if (mode == MODE.HISTOGRAM_STREAM) {
+			return histogramFactor;
+		}
+		return DEFAULT_HISTOGRAM_FACTOR;
+	}
+
+	private void resetHistogramFactor() {
+		histogramFactor = DEFAULT_HISTOGRAM_FACTOR;
+	}
 }
