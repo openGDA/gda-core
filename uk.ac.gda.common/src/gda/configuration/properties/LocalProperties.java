@@ -279,6 +279,12 @@ public class LocalProperties {
 	public static final String GDA_GUI_TITLEBAR_PREFIX = "gda.gui.titlebar.prefix";
 
 	/**
+	 * Option to display RCP Workbench default menus (default usually true)
+	 */
+	public static final String GDA_GUI_USE_ACTIONS_SEARCH = "gda.gui.useSearchActions";
+	public static final String GDA_GUI_USE_ACTIONS_RUN = "gda.gui.useRunActions";
+
+	/**
 	 * Option to display the RCP Perspective bar
 	 */
 	public static final String GDA_GUI_USE_PERSPECTIVE_BAR = "gda.gui.usePerspectiveBar";
