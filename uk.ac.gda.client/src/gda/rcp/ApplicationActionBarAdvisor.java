@@ -21,6 +21,7 @@ package gda.rcp;
 import gda.commandqueue.Processor;
 import gda.commandqueue.ProcessorCurrentItem;
 import gda.commandqueue.Queue;
+import gda.configuration.properties.LocalProperties;
 import gda.jython.InterfaceProvider;
 import gda.jython.Jython;
 import gda.jython.JythonServerStatus;
@@ -30,6 +31,7 @@ import gda.jython.batoncontrol.ClientDetails;
 import gda.observable.IObserver;
 import gda.rcp.views.GdaImages;
 
+import org.eclipse.core.runtime.IExtension;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.GroupMarker;
@@ -59,10 +61,13 @@ import org.eclipse.ui.application.IActionBarConfigurer;
 import org.eclipse.ui.internal.IWorkbenchHelpContextIds;
 import org.eclipse.ui.internal.Workbench;
 import org.eclipse.ui.internal.WorkbenchMessages;
+import org.eclipse.ui.internal.WorkbenchPlugin;
 import org.eclipse.ui.internal.handlers.IActionCommandMappingService;
 import org.eclipse.ui.internal.ide.IDEWorkbenchMessages;
 import org.eclipse.ui.internal.intro.IntroDescriptor;
 import org.eclipse.ui.internal.provisional.application.IActionBarConfigurer2;
+import org.eclipse.ui.internal.registry.ActionSetRegistry;
+import org.eclipse.ui.internal.registry.IActionSetDescriptor;
 import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.texteditor.StatusLineContributionItem;
@@ -84,12 +89,13 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	/** Flag to add a developer test item to the File menu. The Action can be modified below. */
 	private static final boolean USE_TEST_ACTION = false;
 	private static final Logger logger = LoggerFactory.getLogger(ApplicationActionBarAdvisor.class);
-	/**
-     * 
-     */
 	public static final String NEW_GDA_EXT = "new.gda.ext"; // Group. //$NON-NLS-1$
+	
+	private static final String SEARCH_ACTION_SET = "org.eclipse.ui.externaltools.ExternalToolsSet";
+	private static final String RUN_ACTION_SET = "org.eclipse.debug.ui.launchActionSet";
 
 	private IWorkbenchWindow window;
+	private ActionSetRegistry registry;
 
 	// predefined actions
 	private IWorkbenchAction closeAction;
@@ -132,6 +138,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	public ApplicationActionBarAdvisor(IActionBarConfigurer configurer) {
 		super(configurer);
 		window = configurer.getWindowConfigurer().getWindow();
+		registry = WorkbenchPlugin.getDefault().getActionSetRegistry();
 	}
 
 	@Override
@@ -142,6 +149,64 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		// Registering also provides automatic disposal of the actions when
 		// the window is closed.
 
+		makeFileActions(window);
+		makeEditActions(window);
+		makeWindowActions(window);
+		makeHelpActions(window);
+		makeTestActions(window);
+		
+		// Some platform menus appear by default when certain workbench plug-ins are loaded
+		// Here we manually remove an action sets if a use property is set to false for it
+		testActionSetProperty(LocalProperties.GDA_GUI_USE_ACTIONS_SEARCH,SEARCH_ACTION_SET,true,true);
+		testActionSetProperty(LocalProperties.GDA_GUI_USE_ACTIONS_RUN,RUN_ACTION_SET,true,true);
+	}
+
+	private void removeActionSet(String actionSetId) {
+		IActionSetDescriptor actionSet = registry.findActionSet(actionSetId);
+		if(null!=actionSet) {
+			IExtension extension = actionSet.getConfigurationElement().getDeclaringExtension();
+			if(null!=extension) {
+				registry.removeExtension(extension,new Object[]{actionSet});
+			}
+		}
+	}
+	
+	private boolean testActionSetProperty(String propertyId, String actionSetId, boolean bDefault, boolean doRemove) {
+		boolean useActionSet = LocalProperties.check(propertyId,bDefault);
+		if(doRemove && !useActionSet) {
+			removeActionSet(actionSetId);
+		}
+		return useActionSet;
+	}
+	
+	private void makeHelpActions(final IWorkbenchWindow window) {
+		IntroDescriptor introDescriptor = ((Workbench) window.getWorkbench()).getIntroDescriptor();
+		if (introDescriptor == null)
+			logger.warn("The Intro Action is not available. There doesn't appear to be a product/intro binding using the org.eclipse.ui.intro");
+		else {
+			introAction = ActionFactory.INTRO.create(window);
+			register(introAction);
+		}
+
+		helpAction = ActionFactory.HELP_CONTENTS.create(window);
+		register(helpAction);
+
+		aboutAction = ActionFactory.ABOUT.create(window);
+		register(aboutAction);
+	}
+
+	private void makeEditActions(final IWorkbenchWindow window) {
+		undoAction = ActionFactory.UNDO.create(window);
+		register(undoAction);
+
+		redoAction = ActionFactory.REDO.create(window);
+		register(redoAction);
+
+		perspectiveCustomizeAction = ActionFactory.EDIT_ACTION_SETS.create(window);
+		register(perspectiveCustomizeAction);
+	}
+	
+	private void makeFileActions(final IWorkbenchWindow window) {
 		closeAction = ActionFactory.CLOSE.create(window);
 		register(closeAction);
 
@@ -160,61 +225,17 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		exitAction = ActionFactory.QUIT.create(window);
 		register(exitAction);
 
-		undoAction = ActionFactory.UNDO.create(window);
-		register(undoAction);
-
-		redoAction = ActionFactory.REDO.create(window);
-		register(redoAction);
-
 		exportWizardAction = ActionFactory.EXPORT.create(window);
 		register(exportWizardAction);
 		
 		importWizardAction = ActionFactory.IMPORT.create(window);
 		register(importWizardAction);
-		
-		newWindowAction = ActionFactory.OPEN_NEW_WINDOW.create(getWindow());
-		newWindowAction.setText("New Window");
-		register(newWindowAction);
-
-		newEditorAction = ActionFactory.NEW_EDITOR.create(window);
-		register(newEditorAction);
-
-		IntroDescriptor introDescriptor = ((Workbench) window.getWorkbench()).getIntroDescriptor();
-		if (introDescriptor == null)
-			logger
-					.warn("The Intro Action is not available. There doesn't appear to be a product/intro binding using the org.eclipse.ui.intro");
-		else {
-			introAction = ActionFactory.INTRO.create(window);
-			register(introAction);
-		}
-
-		helpAction = ActionFactory.HELP_CONTENTS.create(window);
-		register(helpAction);
-
-		aboutAction = ActionFactory.ABOUT.create(window);
-		register(aboutAction);
-
-		openPreferencesAction = ActionFactory.PREFERENCES.create(window);
-		register(openPreferencesAction);
 
 		newWizardAction = ActionFactory.NEW.create(window);
 		register(newWizardAction);
-
-		perspectiveCustomizeAction = ActionFactory.EDIT_ACTION_SETS.create(window);
-		register(perspectiveCustomizeAction);
-
-		perspectiveSaveAsAction = ActionFactory.SAVE_PERSPECTIVE.create(window);
-		register(perspectiveSaveAsAction);
-
-		perspectiveResetAction = ActionFactory.RESET_PERSPECTIVE.create(window);
-		register(perspectiveResetAction);
-
-		perspectiveCloseAction = ActionFactory.CLOSE_PERSPECTIVE.create(window);
-		register(perspectiveCloseAction);
-
-		perspectiveCloseAllAction = ActionFactory.CLOSE_ALL_PERSPECTIVES.create(window);
-		register(perspectiveCloseAllAction);
-
+	}
+	
+	private void makeTestActions(final IWorkbenchWindow window) {
 		// Action to use for testing. Modify it as needed.
 		if (USE_TEST_ACTION) {
 			testAction = new Action() {
@@ -238,9 +259,32 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 			};
 			testAction.setText("Test...");
 		}
-
 	}
+	
+	private void makeWindowActions(final IWorkbenchWindow window) {
+		newWindowAction = ActionFactory.OPEN_NEW_WINDOW.create(getWindow());
+		newWindowAction.setText("New Window");
+		register(newWindowAction);
 
+		newEditorAction = ActionFactory.NEW_EDITOR.create(window);
+		register(newEditorAction);
+
+		openPreferencesAction = ActionFactory.PREFERENCES.create(window);
+		register(openPreferencesAction);
+
+		perspectiveSaveAsAction = ActionFactory.SAVE_PERSPECTIVE.create(window);
+		register(perspectiveSaveAsAction);
+
+		perspectiveResetAction = ActionFactory.RESET_PERSPECTIVE.create(window);
+		register(perspectiveResetAction);
+
+		perspectiveCloseAction = ActionFactory.CLOSE_PERSPECTIVE.create(window);
+		register(perspectiveCloseAction);
+
+		perspectiveCloseAllAction = ActionFactory.CLOSE_ALL_PERSPECTIVES.create(window);
+		register(perspectiveCloseAllAction);
+	}
+	
 	/**
 	 * Fills the coolbar with the workbench actions.
 	 */
