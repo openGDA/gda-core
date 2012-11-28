@@ -21,11 +21,14 @@ package uk.ac.gda.client.microfocus.views;
 import gda.device.ScannableMotionUnits;
 import gda.factory.Finder;
 
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
@@ -54,10 +57,9 @@ public class SampleStagePositionControlView extends ViewPart  {
 
 		
 		Group sampleGroup = new Group(scrolledComposite, SWT.BORDER);	
-		sampleGroup.setLayout(new GridLayout(2, true));
+		GridLayoutFactory.fillDefaults().numColumns(2).spacing(25, 25).applyTo(sampleGroup);
 		GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
 		sampleGroup.setLayoutData(data);
-		
 		
 		samplexViewer = new RotationViewer((ScannableMotionUnits)Finder.getInstance().find("sc_MicroFocusSampleX"), 1.0);
 		samplexViewer.createControls(sampleGroup, SWT.SINGLE);
@@ -78,8 +80,11 @@ public class SampleStagePositionControlView extends ViewPart  {
 		energyViewer.createControls(sampleGroup, SWT.SINGLE);
 		energyViewer.setMotorPositionViewerDecimalPlaces(4);
 		
+		for (Control c : sampleGroup.getChildren()) {
+			GridDataFactory.fillDefaults().applyTo(c);
+		}
+		
 		scrolledComposite.setContent(sampleGroup);
-		//getSite().getPage().addPartListener(this);
 	}
 
 	@Override
