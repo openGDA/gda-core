@@ -125,8 +125,6 @@ public class BatonRequestDialog extends Dialog {
 					} catch (Exception ne) {
 						logger.error("Cannot process dialog kill", ne);
 						return  new Status(IStatus.ERROR, BatonView.ID, "Choosing ok for the user.");
-					} finally {
-	 					doPass(request, true);
 					}
 				}
 			};
