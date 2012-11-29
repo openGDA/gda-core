@@ -64,8 +64,8 @@ public class BatonView extends ViewPart implements IObserver{
 	
 	protected TableViewer userTable;
 
-	private static enum columnType {CLIENT_NUMBER, USER, HOSTNAME, VISIT, HOLDING_BATON}
-	private static String[] columnToolTip = {"Client Number", "User", "Hostname", "Visit", "Holding Baton"};
+	private static enum columnType {CLIENT_NUMBER, USER, HOSTNAME, VISIT, HOLDING_BATON, AUTH_LEVEL}
+	private static String[] columnToolTip = {"Client\nNumber", "User", "Hostname", "Visit", "Holding\nBaton", "Authorisation\nLevel"};
 	
 	public BatonView() {
 		try {
@@ -192,6 +192,11 @@ public class BatonView extends ViewPart implements IObserver{
 		hasBaton.getColumn().setWidth(100);
 		hasBaton.setLabelProvider(new BatonColumnLabelProvider(fifth));
 		
+		int sixth = columnType.AUTH_LEVEL.ordinal();
+		final TableViewerColumn authLevel = new TableViewerColumn(userTable, SWT.NONE, sixth);
+		authLevel.getColumn().setText(columnToolTip[sixth]);
+		authLevel.getColumn().setWidth(150);
+		authLevel.setLabelProvider(new BatonColumnLabelProvider(sixth));
 	}
 
 	private class BatonColumnLabelProvider extends ColumnLabelProvider {
@@ -232,6 +237,8 @@ public class BatonView extends ViewPart implements IObserver{
 				return detail.getVisitID();
 			} else if (columnIndex==columnType.HOLDING_BATON.ordinal()) {
 				return "";
+			} else if (columnIndex == columnType.AUTH_LEVEL.ordinal()) {
+				return Integer.toString(detail.getAuthorisationLevel());
 			}
 			return null;
 		}
@@ -254,6 +261,8 @@ public class BatonView extends ViewPart implements IObserver{
 				return "The visit in current use.";
 			} else if (columnIndex==columnType.HOLDING_BATON.ordinal()) {
 				return "A green flag represents ownership of the baton.";
+			} else if (columnIndex == columnType.AUTH_LEVEL.ordinal()) {
+				return "Authorisation level of this client.";
 			}
 			return null;
 		}
