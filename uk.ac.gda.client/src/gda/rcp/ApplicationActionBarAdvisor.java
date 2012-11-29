@@ -86,11 +86,11 @@ import uk.ac.gda.views.baton.BatonView;
 // and need access to IDEWorkbenchMessages
 @SuppressWarnings("restriction")
 public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
+	public static final String NEW_GDA_EXT = "new.gda.ext"; // Group. //$NON-NLS-1$
+	private static final Logger logger = LoggerFactory.getLogger(ApplicationActionBarAdvisor.class);
+	
 	/** Flag to add a developer test item to the File menu. The Action can be modified below. */
 	private static final boolean USE_TEST_ACTION = false;
-	private static final Logger logger = LoggerFactory.getLogger(ApplicationActionBarAdvisor.class);
-	public static final String NEW_GDA_EXT = "new.gda.ext"; // Group. //$NON-NLS-1$
-	
 	private static final String SEARCH_ACTION_SET = "org.eclipse.ui.externaltools.ExternalToolsSet";
 	private static final String RUN_ACTION_SET = "org.eclipse.debug.ui.launchActionSet";
 
@@ -157,8 +157,9 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		
 		// Some platform menus appear by default when certain workbench plug-ins are loaded
 		// Here we manually remove an action sets if a use property is set to false for it
-		testActionSetProperty(LocalProperties.GDA_GUI_USE_ACTIONS_SEARCH,SEARCH_ACTION_SET,true,true);
-		testActionSetProperty(LocalProperties.GDA_GUI_USE_ACTIONS_RUN,RUN_ACTION_SET,true,true);
+
+		// RUN_ACTION_SET may be required by pydev/jython perspective
+		// testActionSetProperty(LocalProperties.GDA_GUI_USE_ACTIONS_RUN,RUN_ACTION_SET,true,true);
 	}
 
 	private void removeActionSet(String actionSetId) {
@@ -171,6 +172,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	private boolean testActionSetProperty(String propertyId, String actionSetId, boolean bDefault, boolean doRemove) {
 		boolean useActionSet = LocalProperties.check(propertyId,bDefault);
 		if(doRemove && !useActionSet) {
@@ -327,7 +329,6 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		}
 
 		// coolBar.add(new GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
-
 		// coolBar.add(new GroupMarker(IIDEActionConstants.GROUP_NAV));
 		// { // Navigate group
 		// IToolBarManager navToolBar = actionBarConfigurer.createToolBarManager();
@@ -646,7 +647,6 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		menu.add(new GroupMarker(NEW_GDA_EXT));
 
 		menu.add(new Separator());
-
 		menu.add(closeAction);
 		menu.add(closeAllAction);
 		// menu.add(closeAllSavedAction);
@@ -671,6 +671,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		// menu.add(new Separator());
 		// menu.add(importResourcesAction);
 		// menu.add(exportResourcesAction);
+		
 		menu.add(new GroupMarker(IWorkbenchActionConstants.IMPORT_EXT));
 		menu.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 
@@ -680,9 +681,23 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		menu.add(ContributionItemFactory.REOPEN_EDITORS.create(getWindow()));
 		menu.add(new GroupMarker(IWorkbenchActionConstants.MRU));
 		menu.add(new Separator());
-		menu.add(exportWizardAction);
-		menu.add(importWizardAction);
+		if(LocalProperties.check(LocalProperties.GDA_GUI_USE_ACTIONS_EXPORT,true)) {
+			menu.add(exportWizardAction);
+		}
+		if(LocalProperties.check(LocalProperties.GDA_GUI_USE_ACTIONS_IMPORT,true)) {
+			menu.add(importWizardAction);
+		}
+		
 		menu.add(new Separator());
+		// Add the test action here
+		if (USE_TEST_ACTION) {
+			menu.add(new Separator());
+			menu.add(testAction);
+		}
+		// Add NewWizardAction, appears as  "Other..." on menu
+		if(LocalProperties.check(LocalProperties.GDA_GUI_USE_ACTIONS_NEW,true)) {
+			menu.add(newWizardAction);
+		}
 
 		// If we're on OS X we shouldn't show this command in the File menu. It
 		// should be invisible to the user. However, we should not remove it -
@@ -691,15 +706,10 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		// application menu.
 		ActionContributionItem quitItem = new ActionContributionItem(exitAction);
 		quitItem.setVisible(!"carbon".equals(SWT.getPlatform())); //$NON-NLS-1$
+		menu.add(new Separator());
 		menu.add(quitItem);
 		menu.add(new GroupMarker(IWorkbenchActionConstants.FILE_END));
 
-		// Add the test action here
-		if (USE_TEST_ACTION) {
-			menu.add(new Separator());
-			menu.add(testAction);
-		}
-		menu.add(newWizardAction);
 		return menu;
 	}
 
@@ -746,8 +756,12 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	private MenuManager createWindowMenu() {
 		MenuManager menu = new MenuManager("&Window", IWorkbenchActionConstants.M_WINDOW);
 
-		menu.add(newWindowAction);
-		// menu.add(newEditorAction);
+		if(LocalProperties.check(LocalProperties.GDA_GUI_USE_ACTIONS_NEW_WINDOW,true)) {
+			menu.add(newWindowAction);
+		}
+		if(LocalProperties.check(LocalProperties.GDA_GUI_USE_ACTIONS_NEW_EDITOR,false)) {
+			menu.add(newEditorAction);
+		}
 
 		menu.add(new Separator());
 		addPerspectiveActions(menu);
@@ -787,12 +801,13 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		}
 
 		menu.add(new Separator());
-
-		menu.add(perspectiveCustomizeAction);
-		menu.add(perspectiveSaveAsAction);
 		menu.add(perspectiveResetAction);
-		menu.add(perspectiveCloseAction);
-		menu.add(perspectiveCloseAllAction);
+		if(LocalProperties.check(LocalProperties.GDA_GUI_USE_ACTIONS_PERSPECTIVE_CUSTOM,true)) {
+			menu.add(perspectiveCustomizeAction);
+			menu.add(perspectiveSaveAsAction);
+			menu.add(perspectiveCloseAction);
+			menu.add(perspectiveCloseAllAction);
+		}
 
 	}
 
