@@ -138,9 +138,9 @@ public class BatonRequestDialog extends Dialog {
 			job.schedule(minutes*60*1000);// 2 minutes.
 		}
  		
-		final int ok = currentOpenDialog.open();
-		currentOpenDialog.setOk(ok==OK);
-		doPass(request, ok==OK);
+		final int returnCode = currentOpenDialog.open();
+		currentOpenDialog.setOk(returnCode == OK);
+		doPass(request, returnCode == OK);
 
 	}
 
