@@ -281,8 +281,14 @@ public class LocalProperties {
 	/**
 	 * Option to display RCP Workbench default menus (default usually true)
 	 */
+	public static final String GDA_GUI_USE_ACTIONS_NEW = "gda.gui.useNewActions";
 	public static final String GDA_GUI_USE_ACTIONS_SEARCH = "gda.gui.useSearchActions";
 	public static final String GDA_GUI_USE_ACTIONS_RUN = "gda.gui.useRunActions";
+	public static final String GDA_GUI_USE_ACTIONS_PERSPECTIVE_CUSTOM = "gda.gui.usePerspectiveCustomActions";
+	public static final String GDA_GUI_USE_ACTIONS_NEW_EDITOR = "gda.gui.useNewEditorActions";
+	public static final String GDA_GUI_USE_ACTIONS_NEW_WINDOW = "gda.gui.useNewWindowActions";
+	public static final String GDA_GUI_USE_ACTIONS_EXPORT = "gda.gui.useExportActions";
+	public static final String GDA_GUI_USE_ACTIONS_IMPORT = "gda.gui.useImportActions";
 
 	/**
 	 * Option to display the RCP Perspective bar
