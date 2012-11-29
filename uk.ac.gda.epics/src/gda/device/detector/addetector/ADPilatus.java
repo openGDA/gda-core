@@ -47,6 +47,44 @@ public class ADPilatus extends HardwareTriggerableADDetector {
 			}
 		}
 
+	public void setFilePath(String filepath) throws Exception {
+		getNdFile().setFilePath(filepath);
+	}
 	
-	
+	public void setFileName(String filename) throws Exception {
+		getNdFile().setFileName(filename);
+	}
+
+	public void setFileTemplate(String fileTemplate) throws Exception {
+		getNdFile().setFileTemplate(fileTemplate);
+	}
+
+	public void setFileNumber(int fileNumber) throws Exception {
+		getNdFile().setFileNumber(fileNumber);
+	}
+
+	public int getFileNumber() throws Exception {
+		return getNdFile().getFileNumber();
+	}
+
+	public void setAutoIncrement(boolean autoIncrement) throws Exception {
+		getNdFile().setAutoIncrement((short) (autoIncrement ? 1 : 0));
+	}
+
+	public String getFilePath() throws Exception {
+		return getNdFile().getFilePath_RBV();
+	}
+
+	public String getFileName() throws Exception {
+		return getNdFile().getFileName_RBV();
+	}
+
+	public String getFileTemplate() throws Exception {
+		return getNdFile().getFileTemplate_RBV();
+	}
+
+	public boolean getAutoIncrement() throws Exception {
+		return getNdFile().getAutoIncrement_RBV() == ((short) 1);
+	}
+
 }

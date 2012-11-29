@@ -28,25 +28,31 @@ public interface INDProcViewController {
 	void updateProcOffset(double procOffset);
 
 	void updateEnableFlatField(short flatFieldEnabled);
-	
-	public class Stub implements INDProcViewController{
+
+	void updateNumFiltered(int numFiltered);
+
+	public class Stub implements INDProcViewController {
 
 		@Override
 		public void updateProcScale(double procScale) {
-			
+
 		}
 
 		@Override
 		public void updateProcOffset(double procOffset) {
-			
+
 		}
 
 		@Override
 		public void updateEnableFlatField(short flatFieldEnabled) {
-			
+
 		}
-		
-		
+
+		@Override
+		public void updateNumFiltered(int numFiltered) {
+
+		}
+
 	}
 
 }

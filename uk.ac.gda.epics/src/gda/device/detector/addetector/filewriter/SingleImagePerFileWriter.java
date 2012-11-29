@@ -50,7 +50,7 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 
 	private static Logger logger = LoggerFactory.getLogger(SingleImagePerFileWriter.class);
 
-	private boolean returnExpectedFileName = true;
+	private boolean returnExpectedFileName = false;
 	private String fileNameUsed="";
 	private String filePathUsed="";
 	private String fileTemplateUsed="";
