@@ -56,25 +56,17 @@ import uk.ac.gda.views.baton.dialogs.BatonRequestDialog;
 
 import com.swtdesigner.SWTResourceManager;
 
-/**
- *
- */
 public class BatonView extends ViewPart implements IObserver{
 
 	private static final Logger logger = LoggerFactory.getLogger(BatonView.class);
 	
-	/**
-	 * 
-	 */
 	public static final String ID = "gda.rcp.views.baton.BatonView"; //$NON-NLS-1$
 	
 	protected TableViewer userTable;
 
 	private static enum columnType {CLIENT_NUMBER, USER, HOSTNAME, VISIT, HOLDING_BATON}
 	private static String[] columnToolTip = {"Client Number", "User", "Hostname", "Visit", "Holding Baton"};
-	/**
-	 * 
-	 */
+	
 	public BatonView() {
 		try {
 			GDAClientActivator.getDefault().getPreferenceStore().getBoolean(PreferenceConstants.KEEP_BATON);
@@ -96,7 +88,6 @@ public class BatonView extends ViewPart implements IObserver{
 
 	/**
 	 * Create contents of the view part.
-	 * @param parent
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
@@ -132,7 +123,6 @@ public class BatonView extends ViewPart implements IObserver{
 		}
 		
 		createRightClickMenu();
-		createActions();
 		initializeToolBar();
 		initializeMenu();
 	}
@@ -270,25 +260,12 @@ public class BatonView extends ViewPart implements IObserver{
 
 	}
 	
-	/**
-	 * Create the actions.
-	 */
-	private void createActions() {
-		// Create the actions
-	}
-
-	/**
-	 * Initialize the toolbar.
-	 */
 	private void initializeToolBar() {
 		@SuppressWarnings("unused")
 		IToolBarManager toolbarManager = getViewSite().getActionBars()
 				.getToolBarManager();
 	}
 
-	/**
-	 * Initialize the menu.
-	 */
 	private void initializeMenu() {
 		@SuppressWarnings("unused")
 		IMenuManager menuManager = getViewSite().getActionBars()
@@ -333,7 +310,6 @@ public class BatonView extends ViewPart implements IObserver{
 
 	@Override
 	public void dispose() {
-		// by the time we get to this point, 
 		try {
 			InterfaceProvider.getJSFObserver().deleteIObserver(this);
 			if(userTable != null && userTable.getTable() != null)
@@ -343,9 +319,6 @@ public class BatonView extends ViewPart implements IObserver{
 		}
 	}
 
-	/**
-	 * 
-	 */
 	public void refresh() {
 		userTable.refresh();
 	}
