@@ -341,7 +341,7 @@ public class ColourSliderComposite extends Composite {
 		return getCountForPixel(topSliderBounds.y + topSliderBounds.height);
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
 		final Display display = new Display();
 		final Shell shell = new Shell(display, SWT.SHELL_TRIM);
 		shell.setBounds(new org.eclipse.swt.graphics.Rectangle(0, 0, 100, 800));
@@ -363,7 +363,18 @@ public class ColourSliderComposite extends Composite {
 		};
 
 		sliderComposite.addColourSliderListener(lis);
+
 		shell.open();
+		sliderComposite.moveBottomSliderTo(10000);
+
+//		Thread.sleep(7000);
+		// sliderComposite.moveTopSliderTo(50000);
+		//
+		// Thread.sleep(5000);
+		// sliderComposite.moveTopSliderTo(65534);
+		//
+		// Thread.sleep(3000);
+		// sliderComposite.moveTopSliderTo(80000);
 
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch()) {
@@ -451,6 +462,13 @@ public class ColourSliderComposite extends Composite {
 			bottomClosureFigure.setBounds(new Rectangle(5, bottomSliderHolderBounds.y, 20, 1));
 		}
 		//
+		repaintBorderGradient(parentBounds);
+		//
+
+	}
+
+	private void repaintBorderGradient(Rectangle parentBounds) {
+		Rectangle topSliderHolderBounds = topSliderHolder.getBounds();
 		int histogramHeight = bottomSliderHolder.getBounds().y
 				- (topSliderHolder.getBounds().y + topSliderHolder.getBounds().height);
 		histogramRect.setBounds(new Rectangle(1, topSliderHolder.getBounds().y + topSliderHolder.getBounds().height,
@@ -463,7 +481,51 @@ public class ColourSliderComposite extends Composite {
 		int lowerGradientY = bottomSliderHolder.getLocation().y + bottomSliderHolder.getSize().height;
 		int lowerGradientHeight = parentBounds.height - lowerGradientY - 5;
 		lowerGradientedFigure.setBounds(new Rectangle(1, lowerGradientY, OUTER_GRADIENT_WIDTH, lowerGradientHeight));
-		//
-		
+	}
+
+	public void moveTopSliderTo(int value) {
+		if (value > maximumLimit) {
+			throw new IllegalArgumentException("Requested value greater than the maximum limit");
+		}
+		if (bottomLimitInPixel - topLimitInPixel > 0) {
+			topSliderMoved = true;
+			double valPerPixel = ((double) bottomLimitInPixel - topLimitInPixel) / maximum;
+			logger.debug("Value per pixel:{}", valPerPixel);
+			logger.debug("Value :{}", value);
+			Rectangle topSliderHolderBounds = topSliderHolder.getBounds();
+
+			int topSliderYPos = (int) (bottomLimitInPixel - (value * valPerPixel));
+			int xStart = topSliderHolderBounds.x;
+			topSliderHolder.setLocation(new Point(xStart, topSliderYPos));
+			logger.debug("Top slider Y new position:{}", topSliderYPos);
+
+			topTriangleFigure.setLocation(new Point(5, topSliderHolderBounds.y - 1));
+			topClosureFigure.setLocation(new Point(5,
+					(topSliderHolder.getLocation().y + topSliderHolderBounds.height) - 3));
+			repaintBorderGradient(figCanvas.getContents().getBounds());
+		}
+	}
+
+	public void moveBottomSliderTo(int value) {
+		if (value < 0) {
+			throw new IllegalArgumentException("Requested value greater than the maximum limit");
+		}
+		if (bottomLimitInPixel - topLimitInPixel > 0) {
+			bottomSliderMoved = true;
+			double valPerPixel = ((double) bottomLimitInPixel - topLimitInPixel) / maximum;
+			logger.debug("Value per pixel:{}", valPerPixel);
+			logger.debug("Value :{}", value);
+			Rectangle bottomSliderHolderBounds = bottomSliderHolder.getBounds();
+
+			int bottomSliderYPos = (int) (bottomLimitInPixel - (value * valPerPixel));
+			int xStart = bottomSliderHolderBounds.x;
+			bottomSliderHolder.setLocation(new Point(xStart, bottomSliderYPos));
+			logger.debug("Top slider Y new position:{}", bottomSliderYPos);
+
+			bottomTriangleFigure.setLocation(new Point(5, bottomSliderHolderBounds.y - 1));
+			bottomClosureFigure.setLocation(new Point(5,
+					(topSliderHolder.getLocation().y + bottomSliderHolderBounds.height) - 3));
+			repaintBorderGradient(figCanvas.getContents().getBounds());
+		}
 	}
 }
