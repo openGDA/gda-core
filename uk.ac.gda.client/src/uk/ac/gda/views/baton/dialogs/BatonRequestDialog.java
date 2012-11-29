@@ -50,7 +50,7 @@ public class BatonRequestDialog extends Dialog {
 	
 	private Label lblARequestFor;
 	private ClientDetails request;
-	private boolean ok = true;
+	private boolean open = true;
 
 	/**
 	 * Create the dialog.
@@ -107,7 +107,7 @@ public class BatonRequestDialog extends Dialog {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
  					
-					if (!currentOpenDialog.isOk()) {
+					if (!currentOpenDialog.isOpen()) {
 						return new Status(IStatus.OK, BatonView.ID, "Choosing ok for the user.");
 					}
 					try {
@@ -139,7 +139,7 @@ public class BatonRequestDialog extends Dialog {
 		}
  		
 		final int returnCode = currentOpenDialog.open();
-		currentOpenDialog.setOk(returnCode == OK);
+		currentOpenDialog.setOpen(false);
 		doPass(request, returnCode == OK);
 
 	}
@@ -152,17 +152,11 @@ public class BatonRequestDialog extends Dialog {
 		}
 	}
 
-	/**
-	 * @return Returns the ok.
-	 */
-	public boolean isOk() {
-		return ok;
+	public boolean isOpen() {
+		return open;
 	}
 
-	/**
-	 * @param ok The ok to set.
-	 */
-	public void setOk(boolean ok) {
-		this.ok = ok;
+	public void setOpen(boolean open) {
+		this.open = open;
 	}
 }
