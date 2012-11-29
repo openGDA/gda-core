@@ -58,7 +58,7 @@ public class ClientInfo implements Serializable {
 
 	@Override
 	public String toString() {
-		return MessageFormat.format("{0}@{1} visit:{2} authorisation:{3}", userID, hostname, visitID); 
+		return MessageFormat.format("{0}@{1} visit:{2} authorisation:{3}", userID, hostname, visitID, authorisationLevel);
 	}
 	
 	/**
