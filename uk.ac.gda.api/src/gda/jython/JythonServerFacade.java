@@ -918,7 +918,9 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 			} catch (UnknownHostException e) {
 				logger.error("Problems getting host name", e);
 			}
-			return new ClientDetails(indexNumberInJythonServer, UserAuthentication.getUsername(), localHost,
+			final String username = UserAuthentication.getUsername();
+			final String fullName = username;
+			return new ClientDetails(indexNumberInJythonServer, username, fullName, localHost,
 					getAuthorisationLevel(), true, visitID);
 		}
 
@@ -1007,6 +1009,8 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 			}
 		}
 		
+		final String fullName = username;
+		
 		String localHost = "unknown";
 		InetAddress hostAddress;
 		try {
@@ -1016,7 +1020,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 			logger.error("Problems while getting host name", e);
 		}
 
-		return new ClientDetails(indexNumberInJythonServer, username, localHost, authorisationLevel, amIBatonHolder(), visitID);
+		return new ClientDetails(indexNumberInJythonServer, username, fullName, localHost, authorisationLevel, amIBatonHolder(), visitID);
 	}
 	
 	@Override

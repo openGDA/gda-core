@@ -686,7 +686,7 @@ public class JythonAdapter implements Jython, EventSubscriber {
 
 		ClientDetails[] details = new ClientDetails[corba.authorisationLevel.length];
 		for (int i = 0; i < details.length; i++) {
-			details[i] = new ClientDetails(corba.index[i], corba.userID[i], corba.hostname[i],
+			details[i] = new ClientDetails(corba.index[i], corba.userID[i], corba.fullName[i], corba.hostname[i],
 					corba.authorisationLevel[i], corba.hasBaton[i], corba.visitID[i]);
 		}
 

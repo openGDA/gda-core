@@ -28,9 +28,10 @@ import java.io.Serializable;
 public class ClientDetails extends ClientInfo implements Serializable {
 	boolean hasBaton;
 
-	public ClientDetails(int index, String userID, String hostname, int authorisationLevel, boolean hasBaton, String visitID) {
+	public ClientDetails(int index, String userID, String fullName, String hostname, int authorisationLevel, boolean hasBaton, String visitID) {
 		this.index = index;
 		this.userID = userID;
+		this.fullName = fullName;
 		this.hostname = hostname;
 		this.authorisationLevel = authorisationLevel;
 		this.hasBaton = hasBaton;
@@ -40,6 +41,7 @@ public class ClientDetails extends ClientInfo implements Serializable {
 	public ClientDetails(ClientInfo other, boolean hasBaton) {
 		this.index = other.index;
 		this.userID = other.userID;
+		this.fullName = other.fullName;
 		this.hostname = other.hostname;
 		this.authorisationLevel = other.authorisationLevel;
 		this.hasBaton = hasBaton;

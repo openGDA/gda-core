@@ -403,6 +403,7 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 		// fill arrays of different information
 		int[] indexes = new int[details.length];
 		String[] ids = new String[details.length];
+		String[] fullNames = new String[details.length];
 		String[] hostnames = new String[details.length];
 		int[] levels = new int[details.length];
 		boolean[] hasBatons = new boolean[details.length];
@@ -411,13 +412,14 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 		for (int i = 0; i < details.length; i++) {
 			indexes[i] = details[i].getIndex();
 			ids[i] = details[i].getUserID();
+			fullNames[i] = details[i].getFullName();
 			hostnames[i] = details[i].getHostname();
 			levels[i] = details[i].getAuthorisationLevel();
 			hasBatons[i] = details[i].isHasBaton();
 			visits[i] = details[i].getVisitID();
 		}
 
-		return new CorbaFacadeDetails(indexes, ids, hostnames, levels, hasBatons, visits);
+		return new CorbaFacadeDetails(indexes, ids, fullNames, hostnames, levels, hasBatons, visits);
 	}
 
 	@Override

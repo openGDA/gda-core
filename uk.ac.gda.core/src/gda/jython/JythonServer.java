@@ -780,12 +780,13 @@ public class JythonServer extends OutputStream implements Jython, LocalJython, C
 
 			// if no username supplied, then its an object server
 			if (username.compareTo("") == 0) {
-				ClientDetails info = new ClientDetails(indexNumber, "", hostName, Integer.MAX_VALUE, false, visitID);
+				ClientDetails info = new ClientDetails(indexNumber, "", "", hostName, Integer.MAX_VALUE, false, visitID);
 				this.batonManager.addFacade(uniqueFacadeName, info);
 			} else {
 				// add the facade and associated roles to the list of registered facades
 				int accessLevel = authoriser.getAuthorisationLevel(username);
-				ClientDetails info = new ClientDetails(indexNumber, username, hostName, accessLevel, false, visitID);
+				final String fullName = username;
+				ClientDetails info = new ClientDetails(indexNumber, username, fullName, hostName, accessLevel, false, visitID);
 				logger.info("User " + username + " logged into GDA with authorisation level " + accessLevel);
 				this.batonManager.addFacade(uniqueFacadeName, info);
 			}

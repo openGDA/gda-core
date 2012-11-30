@@ -30,6 +30,7 @@ public class ClientInfo implements Serializable {
 	
 	int index;
 	String userID;
+	String fullName;
 	String hostname;
 	int authorisationLevel;
 	String visitID;
@@ -38,16 +39,17 @@ public class ClientInfo implements Serializable {
 
 	}
 
-	protected ClientInfo(int index, String userID, String hostname, int authorisationLevel, String visitID) {
+	protected ClientInfo(int index, String userID, String fullName, String hostname, int authorisationLevel, String visitID) {
 		this.index = index;
 		this.userID = userID;
+		this.fullName = fullName;
 		this.hostname = hostname;
 		this.authorisationLevel = authorisationLevel;
 		this.visitID = visitID;
 	}
 	
 	protected ClientInfo copy() {
-		return new ClientInfo(this.index, this.userID, this.hostname, this.authorisationLevel, this.visitID);
+		return new ClientInfo(this.index, this.userID, this.fullName, this.hostname, this.authorisationLevel, this.visitID);
 	}
 
 	@Override
@@ -77,6 +79,14 @@ public class ClientInfo implements Serializable {
 
 	public void setUserID(String userID) {
 		this.userID = userID;
+	}
+
+	public String getFullName() {
+		return fullName;
+	}
+
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
 	}
 
 	public String getVisitID() {

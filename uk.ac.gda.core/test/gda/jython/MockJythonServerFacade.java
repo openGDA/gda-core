@@ -211,8 +211,14 @@ public class MockJythonServerFacade implements IScanStatusHolder, ICommandRunner
 	public void deleteBatonChangedObserver(IObserver anObserver) {
 	}
 
-	ClientDetails myDetails = new ClientDetails(0, UserAuthentication.getUsername(), "pc012345", 3, true, "0-0");
-	ClientDetails [] others = new ClientDetails[]{new ClientDetails(1, "A.N. Other", "pc012345", 3, false, "0-0")};
+	ClientDetails myDetails;
+	{
+		final String username = UserAuthentication.getUsername();
+		final String fullName = username;
+		myDetails = new ClientDetails(0, username, fullName, "pc012345", 3, true, "0-0");
+	}
+	
+	ClientDetails [] others = new ClientDetails[]{new ClientDetails(1, "A.N. Other", "A.N. Other", "pc012345", 3, false, "0-0")};
 
 	public String evaluateCommandResult = "";
 	
