@@ -6,6 +6,11 @@ Eclipse-RegisterBuddy: uk.ac.gda.libs
 Eclipse-BuddyPolicy: registered
 Bundle-Version: 1.2.0.qualifier
 Bundle-Vendor: Diamond Light Source
+Bundle-NativeCode: lib/linux-x86/libgda_common.so;
+ osname=linux; processor=x86,
+ lib/linux-x86_64/libgda_common.so;
+ osname=linux; processor=x86_64,
+ *
 Export-Package: gda.configuration.properties,
  gda.doe,
  gda.observable,
