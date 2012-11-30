@@ -25,6 +25,7 @@ import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import gda.scan.IScanDataPoint;
 import gda.scan.ScanBase;
+import gda.util.LibGdaCommon;
 
 import java.io.File;
 import java.util.HashMap;
@@ -214,7 +215,7 @@ public class MockJythonServerFacade implements IScanStatusHolder, ICommandRunner
 	ClientDetails myDetails;
 	{
 		final String username = UserAuthentication.getUsername();
-		final String fullName = username;
+		final String fullName = LibGdaCommon.getFullNameOfUser(username);
 		myDetails = new ClientDetails(0, username, fullName, "pc012345", 3, true, "0-0");
 	}
 	

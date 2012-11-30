@@ -47,6 +47,7 @@ import gda.scan.Scan;
 import gda.scan.ScanBase;
 import gda.scan.ScanDataPoint;
 import gda.scan.ScanInformation;
+import gda.util.LibGdaCommon;
 import gda.util.exceptionUtils;
 
 import java.io.File;
@@ -785,7 +786,7 @@ public class JythonServer extends OutputStream implements Jython, LocalJython, C
 			} else {
 				// add the facade and associated roles to the list of registered facades
 				int accessLevel = authoriser.getAuthorisationLevel(username);
-				final String fullName = username;
+				final String fullName = LibGdaCommon.getFullNameOfUser(username);
 				ClientDetails info = new ClientDetails(indexNumber, username, fullName, hostName, accessLevel, false, visitID);
 				logger.info("User " + username + " logged into GDA with authorisation level " + accessLevel);
 				this.batonManager.addFacade(uniqueFacadeName, info);

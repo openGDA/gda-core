@@ -34,6 +34,7 @@ import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import gda.scan.IScanDataPoint;
 import gda.scan.Scan;
+import gda.util.LibGdaCommon;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -919,7 +920,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 				logger.error("Problems getting host name", e);
 			}
 			final String username = UserAuthentication.getUsername();
-			final String fullName = username;
+			final String fullName = LibGdaCommon.getFullNameOfUser(username);
 			return new ClientDetails(indexNumberInJythonServer, username, fullName, localHost,
 					getAuthorisationLevel(), true, visitID);
 		}
@@ -1009,7 +1010,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 			}
 		}
 		
-		final String fullName = username;
+		final String fullName = LibGdaCommon.getFullNameOfUser(username);
 		
 		String localHost = "unknown";
 		InetAddress hostAddress;
