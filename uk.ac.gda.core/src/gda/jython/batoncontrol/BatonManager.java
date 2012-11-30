@@ -121,7 +121,7 @@ public class BatonManager implements IBatonManager {
 		// must have a meaningful identifier
 		if (uniqueID != null && uniqueID != "") {
 
-			facadeNames.put(uniqueID, new ClientInfo(info.index, info.userID, info.hostname, info.authorisationLevel, info.visitID));
+			facadeNames.put(uniqueID, info.copy());
 
 			// if baton control not in use and this is the only client, the set this as the baton holder (meaning in 
 			// this case the only client. This is useful as it gives this client certain privileges in this class

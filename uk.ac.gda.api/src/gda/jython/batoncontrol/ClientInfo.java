@@ -45,6 +45,10 @@ public class ClientInfo implements Serializable {
 		this.authorisationLevel = authorisationLevel;
 		this.visitID = visitID;
 	}
+	
+	protected ClientInfo copy() {
+		return new ClientInfo(this.index, this.userID, this.hostname, this.authorisationLevel, this.visitID);
+	}
 
 	@Override
 	public String toString() {
