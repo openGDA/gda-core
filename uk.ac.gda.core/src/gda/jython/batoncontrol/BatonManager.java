@@ -207,7 +207,7 @@ public class BatonManager implements IBatonManager {
 	public ClientDetails getClientInformation(String myJSFIdentifier) {
 		boolean hasBaton = amIBatonHolder(myJSFIdentifier, false);
 		ClientInfo info = facadeNames.get(myJSFIdentifier);
-		return new ClientDetails(info.index, info.userID, info.hostname, info.authorisationLevel, hasBaton, info.visitID);
+		return new ClientDetails(info, hasBaton);
 	}
 
 	@Override
@@ -219,8 +219,7 @@ public class BatonManager implements IBatonManager {
 		for (String uniqueID : facadeNames.keySet()) {
 			boolean hasBaton = amIBatonHolder(uniqueID, false);
 			ClientInfo info = facadeNames.get(uniqueID);
-			ClientDetails details = new ClientDetails(info.index, info.userID, info.hostname, info.authorisationLevel, hasBaton,
-					info.visitID);
+			ClientDetails details = new ClientDetails(info, hasBaton);
 
 			// add other clients whose lease has not run out
 			// (so ignore Object Servers and Clients who have probably died and not de-registered)
