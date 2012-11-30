@@ -79,7 +79,6 @@ import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -103,8 +102,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.rcp.util.CommandExecutor;
 import uk.ac.gda.client.CommandQueueContributionFactory;
 import uk.ac.gda.client.CommandQueueViewFactory;
-import uk.ac.gda.client.tomo.ImageConstants;
-import uk.ac.gda.client.tomo.TomoClientActivator;
+import uk.ac.gda.client.tomo.IScanResolutionLookupProvider;
 import uk.ac.gda.client.tomo.TomoClientConstants;
 import uk.ac.gda.client.tomo.alignment.view.ImageLocationRelTheta;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ITomoConfigResourceHandler;
@@ -172,6 +170,10 @@ public class TomoConfigurationView extends ViewPart {
 	private StitchedImageCanvas img90DegComposite;
 	private TomoConfigurationViewController tomoConfigViewController;
 	private boolean isScanRunning = false;
+
+	private Button btnStopTomoRuns;
+
+	private IScanResolutionLookupProvider scanResolutionProvider;
 	/**/
 	private final String columnHeaders[] = { TomoConfigTableConstants.DRAG, TomoConfigTableConstants.SELECTION,
 			TomoConfigTableConstants.PROPOSAL, TomoConfigTableConstants.SAMPLE_DESCRIPTION,
@@ -234,7 +236,13 @@ public class TomoConfigurationView extends ViewPart {
 		configModelTableViewer = new TableViewer(tableViewerContainer, SWT.BORDER | SWT.FULL_SELECTION);
 
 		createColumns(configModelTableViewer);
-		configModelTableViewer.setContentProvider(new TomoConfigContentProvider());
+		TomoConfigContentProvider configContentProvider = null;
+		if (scanResolutionProvider != null) {
+			configContentProvider = new TomoConfigContentProvider(scanResolutionProvider);
+		} else {
+			configContentProvider = new TomoConfigContentProvider();
+		}
+		configModelTableViewer.setContentProvider(configContentProvider);
 		configModelTableViewer.setLabelProvider(new TomoConfigLabelProvider());
 
 		Transfer[] types = new Transfer[] { TextTransfer.getInstance() };
@@ -459,7 +467,6 @@ public class TomoConfigurationView extends ViewPart {
 		} catch (Exception e1) {
 			logger.error("Error getting state of processor", e1);
 		}
-
 	}
 
 	protected void updateScanRunDateTime() {
@@ -1069,7 +1076,7 @@ public class TomoConfigurationView extends ViewPart {
 				} else if (TomoConfigTableConstants.CONTINUOUS_STEP.equals(columnIdentifier)) {
 					return ScanMode.get(configContent.getScanMode()).getValue();
 				} else if (TomoConfigTableConstants.RESOLUTION.equals(columnIdentifier)) {
-					return RESOLUTION.get(configContent.getResolution()).getValue();
+					return RESOLUTION.get(configContent.getResolution()).ordinal();
 				} else if (TomoConfigTableConstants.SHOULD_DISPLAY.equals(columnIdentifier)) {
 					return configContent.isShouldDisplay();
 				} else if (TomoConfigTableConstants.SELECTION.equals(columnIdentifier)) {
@@ -1234,8 +1241,6 @@ public class TomoConfigurationView extends ViewPart {
 		}
 	};
 
-	private Button btnStopTomoRuns;
-
 	protected void disableControls() {
 		if (getViewSite().getShell() != null) {
 			getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
@@ -1268,4 +1273,31 @@ public class TomoConfigurationView extends ViewPart {
 		}
 	}
 
+	public void setScanResolutionProvider(IScanResolutionLookupProvider scanResolutionProvider) {
+		this.scanResolutionProvider = scanResolutionProvider;
+	}
+
+	/**
+	 * Given a config Id, checks if the table viewer contains an element with the config id and sets selection on that.
+	 * 
+	 * @param configId
+	 */
+	public void setConfigSelection(String configId) {
+
+		TableItem[] items = configModelTableViewer.getTable().getItems();
+		int count = 0;
+		for (TableItem tableItem : items) {
+			Object data = tableItem.getData();
+			if (data instanceof TomoConfigContent) {
+				TomoConfigContent configContent = (TomoConfigContent) data;
+				if (configContent.getConfigId().equals(configId)) {
+					configModelTableViewer.setSelection(
+							new StructuredSelection(configModelTableViewer.getElementAt(count)), true);
+					return;
+				}
+			}
+			count++;
+		}
+
+	}
 }

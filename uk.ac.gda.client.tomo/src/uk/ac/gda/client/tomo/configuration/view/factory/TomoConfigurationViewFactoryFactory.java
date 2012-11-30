@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
+import uk.ac.gda.client.tomo.IScanResolutionLookupProvider;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ITomoConfigResourceHandler;
 import uk.ac.gda.client.tomo.configuration.view.TomoConfigurationView;
 import uk.ac.gda.client.tomo.configuration.view.TomoConfigurationViewController;
@@ -41,8 +42,14 @@ public class TomoConfigurationViewFactoryFactory implements FindableExecutableEx
 	private ITomoConfigResourceHandler tomoConfigResourceHandler;
 	private TomoConfigurationViewController tomoConfigViewController;
 
+	private IScanResolutionLookupProvider scanResolutionLookupProvider;
+
 	public String getViewPartName() {
 		return viewPartName;
+	}
+
+	public void setScanResolutionLookupProvider(IScanResolutionLookupProvider scanResolutionLookupProvider) {
+		this.scanResolutionLookupProvider = scanResolutionLookupProvider;
 	}
 
 	public void setViewPartName(String viewPartName) {
@@ -66,6 +73,7 @@ public class TomoConfigurationViewFactoryFactory implements FindableExecutableEx
 		tomographyConfigurationView.setViewPartName(viewPartName);
 		tomographyConfigurationView.setConfigFileHandler(tomoConfigResourceHandler);
 		tomographyConfigurationView.setTomoConfigViewController(tomoConfigViewController);
+		tomographyConfigurationView.setScanResolutionProvider(scanResolutionLookupProvider);
 		return tomographyConfigurationView;
 	}
 

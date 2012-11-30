@@ -37,10 +37,10 @@ public class TomoSaveHandleSimulation implements ITomoConfigResourceHandler {
 	}
 
 	@Override
-	public void saveConfiguration(IProgressMonitor monitor, SaveableConfiguration saveableConfiguration)
+	public String saveConfiguration(IProgressMonitor monitor, SaveableConfiguration saveableConfiguration)
 			throws DeviceException, InvocationTargetException, InterruptedException {
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override

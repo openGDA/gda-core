@@ -84,136 +84,139 @@ public class TomoConfigResourceHandler implements ITomoConfigResourceHandler, In
 	}
 
 	@Override
-	public void saveConfiguration(IProgressMonitor monitor, final SaveableConfiguration saveableConfiguration)
+	public String saveConfiguration(IProgressMonitor monitor, final SaveableConfiguration saveableConfiguration)
 			throws DeviceException, InvocationTargetException, InterruptedException {
 
-		IRunnableWithProgress saveConfigurationOperation = new IRunnableWithProgress() {
+		// IRunnableWithProgress saveConfigurationOperation = new IRunnableWithProgress() {
+		//
+		// @Override
+		// public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 
-			@Override
-			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+		TomoExperiment experiment = getTomoConfigResource(monitor, true);
 
-				TomoExperiment experiment = getTomoConfigResource(monitor, true);
+		if (experiment != null) {
 
-				if (experiment != null) {
+			AlignmentConfiguration expConfiguration = TomoParametersFactory.eINSTANCE.createAlignmentConfiguration();
 
-					AlignmentConfiguration expConfiguration = TomoParametersFactory.eINSTANCE
-							.createAlignmentConfiguration();
+			// in beam position
+			expConfiguration.setInBeamPosition(saveableConfiguration.getInBeamPosition());
+			// out of beam position
+			expConfiguration.setOutOfBeamPosition(saveableConfiguration.getOutOfBeamPosition());
+			// proposal = visit
+			expConfiguration.setProposalId(LocalProperties.get(LocalProperties.RCP_APP_VISIT));
+			// energy
+			expConfiguration.setEnergy(saveableConfiguration.getEnergy());
+			// description
+			expConfiguration.setDescription(saveableConfiguration.getSampleDescription());
+			// Detector properties
+			expConfiguration.setDetectorProperties(createDetectorProperties(saveableConfiguration));
+			// SampleStageParameters
+			addTomoAlignmentMotorPositions(saveableConfiguration.getMotorPositions(),
+					expConfiguration.getMotorPositions());
+			// expConfiguration.setSampleStageParameters(createSampleStage(saveableConfiguration));
+			// sample exposure time
+			expConfiguration.setSampleExposureTime(saveableConfiguration.getSampleAcquisitonTime());
+			// flat exposure time
+			expConfiguration.setFlatExposureTime(saveableConfiguration.getFlatAcquisitionTime());
+			// created User Id
+			expConfiguration.setCreatedUserId(UserAuthentication.getUsername());
+			// created date time
+			expConfiguration.setCreatedDateTime(new Date());
+			// sampleWeight
+			expConfiguration.setSampleWeight(getSampleWeight(saveableConfiguration.getSampleWeight()));
+			// Tomo rotation axis
+			expConfiguration.setTomoRotationAxis(saveableConfiguration.getTomoRotationAxis());
+			// stitching theta angle
+			expConfiguration.setStitchParameters(createStitchParameters(saveableConfiguration));
+			// add the configuration to the parameter set
+			experiment.getParameters().getConfigurationSet().add(expConfiguration);
 
-					//in beam position
-					expConfiguration.setInBeamPosition(saveableConfiguration.getInBeamPosition());
-					//out of beam position
-					expConfiguration.setOutOfBeamPosition(saveableConfiguration.getOutOfBeamPosition());
-					// proposal = visit
-					expConfiguration.setProposalId(LocalProperties.get(LocalProperties.RCP_APP_VISIT));
-					// energy
-					expConfiguration.setEnergy(saveableConfiguration.getEnergy());
-					// description
-					expConfiguration.setDescription(saveableConfiguration.getSampleDescription());
-					// Detector properties
-					expConfiguration.setDetectorProperties(createDetectorProperties(saveableConfiguration));
-					// SampleStageParameters
-					addTomoAlignmentMotorPositions(saveableConfiguration.getMotorPositions(),
-							expConfiguration.getMotorPositions());
-					// expConfiguration.setSampleStageParameters(createSampleStage(saveableConfiguration));
-					// sample exposure time
-					expConfiguration.setSampleExposureTime(saveableConfiguration.getSampleAcquisitonTime());
-					// flat exposure time
-					expConfiguration.setFlatExposureTime(saveableConfiguration.getFlatAcquisitionTime());
-					// created User Id
-					expConfiguration.setCreatedUserId(UserAuthentication.getUsername());
-					// created date time
-					expConfiguration.setCreatedDateTime(new Date());
-					// sampleWeight
-					expConfiguration.setSampleWeight(getSampleWeight(saveableConfiguration.getSampleWeight()));
-					// Tomo rotation axis
-					expConfiguration.setTomoRotationAxis(saveableConfiguration.getTomoRotationAxis());
-					// stitching theta angle
-					expConfiguration.setStitchParameters(createStitchParameters(saveableConfiguration));
-					// add the configuration to the parameter set
-					experiment.getParameters().getConfigurationSet().add(expConfiguration);
-
-					Map<Object, Object> options = new HashMap<Object, Object>();
-					options.put(XMLResource.OPTION_ENCODING, "UTF-8");
-					try {
-						experiment.eResource().save(options);
-					} catch (IOException e) {
-						logger.error("Exception saving the configuration model", e);
-					}
-				}
-
+			Map<Object, Object> options = new HashMap<Object, Object>();
+			options.put(XMLResource.OPTION_ENCODING, "UTF-8");
+			try {
+				experiment.eResource().save(options);
+			} catch (IOException e) {
+				logger.error("Exception saving the configuration model", e);
 			}
+			return expConfiguration.getId();
+		}
 
-			private StitchParameters createStitchParameters(SaveableConfiguration saveableConfiguration) {
-				StitchParameters stitchParameters = TomoParametersFactory.eINSTANCE.createStitchParameters();
-				stitchParameters.setStitchingThetaAngle(saveableConfiguration.getStitchingAngle());
-				stitchParameters.setImageAtTheta(saveableConfiguration.getImageLocationAtTheta());
-				// Image location at theta +90
-				stitchParameters.setImageAtThetaPlus90(saveableConfiguration.getImageLocationAtThetaPlus90());
-				return stitchParameters;
-			}
+		return null;
 
-			private SampleWeight getSampleWeight(SAMPLE_WEIGHT sampleWeight) {
-				switch (sampleWeight) {
-				case LESS_THAN_ONE:
-					return SampleWeight.LESS_THAN_1;
-				case ONE_TO_TEN:
-					return SampleWeight.ONE_TO_TEN;
-				case TEN_TO_TWENTY:
-					return SampleWeight.TEN_TO_TWENTY;
-				case TWENTY_TO_FIFTY:
-					return SampleWeight.TWENTY_TO_FIFTY;
-				}
-				return null;
-			}
+		// }
 
-			private DetectorProperties createDetectorProperties(SaveableConfiguration saveableConfiguration) {
-				DetectorProperties detectorProperties = TomoParametersFactory.eINSTANCE.createDetectorProperties();
-				// 3d resolution
-				detectorProperties.setDesired3DResolution(getResolution(saveableConfiguration.getResolution3D()));
-				// number of frames per projection
-				detectorProperties.setNumberOfFramerPerProjection(saveableConfiguration.getNumProjections());
-				// acquisition time divider
-				// TODO:acquisition time divider
-				// detector roi
-				DetectorRoi detectorRoi = TomoParametersFactory.eINSTANCE.createDetectorRoi();
-				int[] roiPoints = saveableConfiguration.getRoiPoints();
-				detectorRoi.setMinX(roiPoints[0]);
-				detectorRoi.setMinY(roiPoints[1]);
-				detectorRoi.setMaxX(roiPoints[2]);
-				detectorRoi.setMaxY(roiPoints[3]);
+		// };
+		// saveConfigurationOperation.run(monitor);
 
-				detectorProperties.setDetectorRoi(detectorRoi);
-				// detector bin
-				DetectorBin detectorBin = TomoParametersFactory.eINSTANCE.createDetectorBin();
-				// detectorBin.setBinX(value)
-				// detectorBin.setBinY(value)
-				detectorProperties.setDetectorBin(detectorBin);
-				// module parameters
-				Module modulePosition = TomoParametersFactory.eINSTANCE.createModule();
-				modulePosition.setModuleNumber(saveableConfiguration.getModuleNumber());
-				modulePosition.setHorizontalFieldOfView(saveableConfiguration.getHorizontalFieldOfView());
-				//
-				detectorProperties.setModuleParameters(modulePosition);
+	}
 
-				return detectorProperties;
-			}
+	private StitchParameters createStitchParameters(SaveableConfiguration saveableConfiguration) {
+		StitchParameters stitchParameters = TomoParametersFactory.eINSTANCE.createStitchParameters();
+		stitchParameters.setStitchingThetaAngle(saveableConfiguration.getStitchingAngle());
+		stitchParameters.setImageAtTheta(saveableConfiguration.getImageLocationAtTheta());
+		// Image location at theta +90
+		stitchParameters.setImageAtThetaPlus90(saveableConfiguration.getImageLocationAtThetaPlus90());
+		return stitchParameters;
+	}
 
-			private Resolution getResolution(RESOLUTION resolution3d) {
-				switch (resolution3d) {
-				case FULL:
-					return Resolution.FULL;
-				case TWO_X:
-					return Resolution.X2;
-				case FOUR_X:
-					return Resolution.X4;
-				case EIGHT_X:
-					return Resolution.X8;
-				}
-				return null;
-			}
-		};
-		saveConfigurationOperation.run(monitor);
+	private SampleWeight getSampleWeight(SAMPLE_WEIGHT sampleWeight) {
+		switch (sampleWeight) {
+		case LESS_THAN_ONE:
+			return SampleWeight.LESS_THAN_1;
+		case ONE_TO_TEN:
+			return SampleWeight.ONE_TO_TEN;
+		case TEN_TO_TWENTY:
+			return SampleWeight.TEN_TO_TWENTY;
+		case TWENTY_TO_FIFTY:
+			return SampleWeight.TWENTY_TO_FIFTY;
+		}
+		return null;
+	}
 
+	private DetectorProperties createDetectorProperties(SaveableConfiguration saveableConfiguration) {
+		DetectorProperties detectorProperties = TomoParametersFactory.eINSTANCE.createDetectorProperties();
+		// 3d resolution
+		detectorProperties.setDesired3DResolution(getResolution(saveableConfiguration.getResolution3D()));
+		// number of frames per projection
+		detectorProperties.setNumberOfFramerPerProjection(saveableConfiguration.getNumProjections());
+		// acquisition time divider
+		// TODO:acquisition time divider
+		// detector roi
+		DetectorRoi detectorRoi = TomoParametersFactory.eINSTANCE.createDetectorRoi();
+		int[] roiPoints = saveableConfiguration.getRoiPoints();
+		detectorRoi.setMinX(roiPoints[0]);
+		detectorRoi.setMinY(roiPoints[1]);
+		detectorRoi.setMaxX(roiPoints[2]);
+		detectorRoi.setMaxY(roiPoints[3]);
+
+		detectorProperties.setDetectorRoi(detectorRoi);
+		// detector bin
+		DetectorBin detectorBin = TomoParametersFactory.eINSTANCE.createDetectorBin();
+		// detectorBin.setBinX(value)
+		// detectorBin.setBinY(value)
+		detectorProperties.setDetectorBin(detectorBin);
+		// module parameters
+		Module modulePosition = TomoParametersFactory.eINSTANCE.createModule();
+		modulePosition.setModuleNumber(saveableConfiguration.getModuleNumber());
+		modulePosition.setHorizontalFieldOfView(saveableConfiguration.getHorizontalFieldOfView());
+		//
+		detectorProperties.setModuleParameters(modulePosition);
+
+		return detectorProperties;
+	}
+
+	private Resolution getResolution(RESOLUTION resolution3d) {
+		switch (resolution3d) {
+		case FULL:
+			return Resolution.FULL;
+		case TWO_X:
+			return Resolution.X2;
+		case FOUR_X:
+			return Resolution.X4;
+		case EIGHT_X:
+			return Resolution.X8;
+		}
+		return null;
 	}
 
 	protected void addTomoAlignmentMotorPositions(

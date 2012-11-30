@@ -27,7 +27,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.client.tomo.TomoClientActivator;
+import uk.ac.gda.client.tomo.IScanResolutionLookupProvider;
 import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.RESOLUTION;
 import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.SAMPLE_WEIGHT;
 import uk.ac.gda.tomography.parameters.AlignmentConfiguration;
@@ -46,9 +46,16 @@ public class TomoConfigContentProvider implements IStructuredContentProvider {
 	 * XXX - Need to move this into a configurable value
 	 */
 	private static final String T3_M1Z = "t3_m1z";
+	private IScanResolutionLookupProvider scanResolutionLookupProvider;
 
 	public TomoConfigContentProvider() {
 		super();
+	}
+
+	public TomoConfigContentProvider(IScanResolutionLookupProvider scanResolutionLookupProvider) {
+		this();
+		this.scanResolutionLookupProvider = scanResolutionLookupProvider;
+
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -146,8 +153,18 @@ public class TomoConfigContentProvider implements IStructuredContentProvider {
 		double timeDiv = configContent.getTimeDivider();
 		double timeDivExp = exp * timeDiv;
 		int res = getResolutionIndex(configContent.getResolution());
-		double binning = TomoClientActivator.getResolutionBinning().get(res);
-		double projections = TomoClientActivator.getResolutionProjections().get(res);
+		double binning = 1;
+		try {
+			binning = scanResolutionLookupProvider.getBinX(res);
+		} catch (Exception e) {
+			logger.error("Cannot access lookup table to retrieve Bin X", e);
+		}
+		int projections = 0;
+		try {
+			projections = scanResolutionLookupProvider.getNumberOfProjections(res);
+		} catch (Exception e) {
+			logger.error("Cannot access lookup table to retrieve projections", e);
+		}
 		double time = (timeDivExp / binning) * projections;
 		logger.debug("time:{}", time);
 		return time;

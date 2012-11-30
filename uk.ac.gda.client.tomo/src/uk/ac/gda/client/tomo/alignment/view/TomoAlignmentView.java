@@ -399,6 +399,13 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			leftPanelComposite.addLeftPanelListener(tomoViewController);
 			tomoAlignmentController.isScanRunning();
 
+			// Initialise the duration of scan and number of projections.
+			tomoControlComposite.setNumberOfProjections(Integer.toString(tomoAlignmentController
+					.getNumberOfProjections(tomoControlComposite.getResolution().getResolutionNumber())));
+
+			tomoControlComposite.setEstimatedDuration(tomoAlignmentController
+					.getEstimatedDurationOfScan(tomoControlComposite.getResolution()));
+
 		} catch (Exception ex) {
 			throw new RuntimeException("Error opening view", ex);
 		}
@@ -971,6 +978,8 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	@Override
 	public void setPreferredSampleExposureTimeToWidget(double preferredExposureTime) {
 		leftPanelComposite.setPreferredSampleExposureTime(preferredExposureTime);
+		tomoControlComposite.setEstimatedDuration(tomoAlignmentController
+				.getEstimatedDurationOfScan(tomoControlComposite.getResolution()));
 	}
 
 	@Override
@@ -1424,7 +1433,8 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		}
 	}
 
-	public void saveConfiguration() throws Exception {
+	public String saveConfiguration() throws Exception {
+		final String[] configId = new String[1];
 		try {
 			isSaving = true;
 			leftPanelComposite.startStreaming();
@@ -1512,7 +1522,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 							configuration.setTomoRotationAxis(x * tomoAlignmentController.getLeftWindowBinValue());
 						}
 						try {
-							tomoAlignmentController.saveConfiguration(monitor, configuration);
+							configId[0] = tomoAlignmentController.saveConfiguration(monitor, configuration);
 						} catch (Exception e) {
 							logger.error("Unable to save configuration", e);
 							throw new InvocationTargetException(e, "Cannot save alignment configuration");
@@ -1529,6 +1539,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		} finally {
 			isSaving = false;
 		}
+		return configId[0];
 	}
 
 	@Override
@@ -1546,12 +1557,22 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		tomoControlComposite.setResolution(res);
 	}
 
+	private String getEstimatedDuration(double exposureTime) {
+		// exposureTime * numProjections + (500ms * numProjections) + 10 flat + 10 dark
+		return null;
+	}
+
 	@Override
 	public void setAdjustedPreferredExposureTimeToWidget(double preferredExposureTime) {
 		if (leftWindowDisplayMode == ViewerDisplayMode.SAMPLE_STREAM_LIVE
 				|| leftWindowDisplayMode == ViewerDisplayMode.SAMPLE_SINGLE) {
 			setPreferredSampleExposureTimeToWidget(preferredExposureTime);
 			tomoAlignmentController.setPreferredSampleExposureTime(preferredExposureTime);
+
+			// FIXME - Only updating the estimated duration based on the sample exposure time and not the flat exposure
+			// time - this needs to be modified once the flat exposure time is used in the experiment scan.
+
+			tomoControlComposite.setEstimatedDuration(getEstimatedDuration(preferredExposureTime));
 		} else if (leftWindowDisplayMode == ViewerDisplayMode.FLAT_STREAM_LIVE
 				|| leftWindowDisplayMode == ViewerDisplayMode.FLAT_SINGLE) {
 			setPreferredFlatExposureTimeToWidget(preferredExposureTime);

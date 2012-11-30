@@ -23,7 +23,6 @@ import gda.device.DeviceException;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-
 import uk.ac.gda.client.tomo.alignment.view.controller.SaveableConfiguration;
 import uk.ac.gda.tomography.parameters.TomoExperiment;
 
@@ -40,16 +39,18 @@ public interface ITomoConfigResourceHandler extends ITomoHandler {
 	 * @throws DeviceException
 	 * @throws InvocationTargetException
 	 * @throws InterruptedException
+	 * @return id of the experiment configuration
 	 */
-	void saveConfiguration(IProgressMonitor monitor, SaveableConfiguration saveableConfiguration)
+	String saveConfiguration(IProgressMonitor monitor, SaveableConfiguration saveableConfiguration)
 			throws DeviceException, InvocationTargetException, InterruptedException;
 
 	/**
 	 * @param monitor
 	 * @param shouldCreate
 	 * @return the config resource
-	 * @throws InterruptedException 
-	 * @throws InvocationTargetException 
+	 * @throws InterruptedException
+	 * @throws InvocationTargetException
 	 */
-	TomoExperiment getTomoConfigResource(IProgressMonitor monitor, boolean shouldCreate) throws InvocationTargetException, InterruptedException;
+	TomoExperiment getTomoConfigResource(IProgressMonitor monitor, boolean shouldCreate)
+			throws InvocationTargetException, InterruptedException;
 }
