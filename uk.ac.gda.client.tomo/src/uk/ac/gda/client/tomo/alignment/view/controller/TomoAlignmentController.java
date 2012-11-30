@@ -1054,7 +1054,7 @@ public class TomoAlignmentController extends TomoViewController {
 		return cameraModuleController.lookupDefaultExposureTime(newModule);
 	}
 
-	public int getNumberOfProjections(int resolutionNumber) throws Exception {
+	public int getNumberOfProjections(int resolutionNumber)  throws Exception {
 		if (scanResolutionLookupProvider != null) {
 			return scanResolutionLookupProvider.getNumberOfProjections(resolutionNumber);
 		}
