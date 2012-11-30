@@ -25,8 +25,6 @@ import gda.factory.corba.util.EventService;
 import gda.jython.Jython;
 import gda.jython.UserMessage;
 import gda.jython.batoncontrol.ClientDetails;
-import gda.jython.corba.CorbaFacadeDetails;
-import gda.jython.corba.CorbaFacadeDetailsHelper;
 import gda.jython.corba.CorbaJythonPOA;
 import gda.observable.IObserver;
 import gda.scan.ScanDataPoint;
@@ -386,40 +384,13 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 		try {
 			// get array from jython server
 			ClientDetails[] details = jythonServer.getOtherClientInformation(arg0);
-			// convert to CorbaFacadeDetails
-			CorbaFacadeDetails corbaDetails = convertFacadeDetailsToCorba(details);
-			// put CorbaFacadeDetails into an any
 			org.omg.CORBA.Any any = org.omg.CORBA.ORB.init().create_any();
-			CorbaFacadeDetailsHelper.insert(any, corbaDetails);
+			any.insert_Value(details);
 			// send out any
 			return any;
 		} catch (Exception de) {
 			throw new CorbaDeviceException(de.getMessage());
 		}
-	}
-
-	private CorbaFacadeDetails convertFacadeDetailsToCorba(ClientDetails[] details) {
-
-		// fill arrays of different information
-		int[] indexes = new int[details.length];
-		String[] ids = new String[details.length];
-		String[] fullNames = new String[details.length];
-		String[] hostnames = new String[details.length];
-		int[] levels = new int[details.length];
-		boolean[] hasBatons = new boolean[details.length];
-		String[] visits = new String[details.length];
-
-		for (int i = 0; i < details.length; i++) {
-			indexes[i] = details[i].getIndex();
-			ids[i] = details[i].getUserID();
-			fullNames[i] = details[i].getFullName();
-			hostnames[i] = details[i].getHostname();
-			levels[i] = details[i].getAuthorisationLevel();
-			hasBatons[i] = details[i].isHasBaton();
-			visits[i] = details[i].getVisitID();
-		}
-
-		return new CorbaFacadeDetails(indexes, ids, fullNames, hostnames, levels, hasBatons, visits);
 	}
 
 	@Override
