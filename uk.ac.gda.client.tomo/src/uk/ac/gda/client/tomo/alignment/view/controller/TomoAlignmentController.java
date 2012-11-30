@@ -46,6 +46,7 @@ import org.eclipse.swt.graphics.RGB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.client.tomo.IScanResolutionLookupProvider;
 import uk.ac.gda.client.tomo.TiltPlotPointsHolder;
 import uk.ac.gda.client.tomo.TomoViewController;
 import uk.ac.gda.client.tomo.alignment.view.IRotationMotorListener;
@@ -93,6 +94,8 @@ public class TomoAlignmentController extends TomoViewController {
 	private ISampleWeightRotationHandler sampleWeightRotationHandler;
 
 	private ITomoConfigResourceHandler saveHandler;
+
+	private IScanResolutionLookupProvider scanResolutionLookupProvider;
 
 	private Exception iocDownException = null;
 
@@ -898,35 +901,16 @@ public class TomoAlignmentController extends TomoViewController {
 		this.sampleWeightRotationHandler = sampleWeightRotationHandler;
 	}
 
-	public void setHistogramScaleOffsetValue(double acqTime, int lower, int upper, boolean isAmplified, double from,
-			double to) throws Exception {
-
-		double histogramFactor = getScaledFactor(from, to);
+	public void setHistogramScaleOffsetValue(double acqTime, int lower, int upper, boolean isAmplified,
+			double histogramFactor) throws Exception {
 
 		cameraHandler.setAmplifiedValue(acqTime, isAmplified, lower, upper, histogramFactor);
 	}
 
-	private double getScaledFactor(double from, double to) {
-		// slight guard
-		if (to < 0) {
-			to = 0.001;
-		}
-		if (from < 0) {
-			from = 0.001;
-		}
-		double scaledValue = from / to;
-
-		logger.debug("Scaled value:{}", scaledValue);
-		return scaledValue;
-	}
-
-	public void setAdjustedExposureTime(boolean isAmplified, double from, double to, int lower, int upper,
-			double histogramFactor) throws Exception {
-		double scaledFactor = getScaledFactor(from, to);
+	public void setAdjustedExposureTime(boolean isAmplified, int lower, int upper, double histogramFactor)
+			throws Exception {
 		double adjustedExposureTime = getCameraExposureTime();
-		if (scaledFactor != 0) {
-			adjustedExposureTime = adjustedExposureTime * scaledFactor;
-		}
+		adjustedExposureTime = adjustedExposureTime * histogramFactor;
 		updateAdjustedPreferredExposureTime(adjustedExposureTime);
 		// FIXME -
 		setExposureTime(adjustedExposureTime, isAmplified, lower, upper, histogramFactor);
@@ -953,7 +937,7 @@ public class TomoAlignmentController extends TomoViewController {
 	 * @throws InvocationTargetException
 	 * @throws DeviceException
 	 */
-	public void saveConfiguration(IProgressMonitor monitor, final SaveableConfiguration saveableConfiguration)
+	public String saveConfiguration(IProgressMonitor monitor, final SaveableConfiguration saveableConfiguration)
 			throws InvocationTargetException, InterruptedException, DeviceException {
 		SubMonitor progress = SubMonitor.convert(monitor);
 		progress.beginTask("Saving Configuration", 20);
@@ -1037,7 +1021,7 @@ public class TomoAlignmentController extends TomoViewController {
 		// Scan mode
 		saveableConfiguration.setScanMode(AlignmentScanMode.Step);
 
-		saveHandler.saveConfiguration(monitor, saveableConfiguration);
+		return saveHandler.saveConfiguration(monitor, saveableConfiguration);
 	}
 
 	public Integer getDetectorFullWidth() {
@@ -1068,5 +1052,39 @@ public class TomoAlignmentController extends TomoViewController {
 
 	public Double getDefaultExpTimeForModule(CAMERA_MODULE newModule) throws DeviceException {
 		return cameraModuleController.lookupDefaultExposureTime(newModule);
+	}
+
+	public int getNumberOfProjections(int resolutionNumber) throws Exception {
+		if (scanResolutionLookupProvider != null) {
+			return scanResolutionLookupProvider.getNumberOfProjections(resolutionNumber);
+		}
+		return 0;
+	}
+
+	public void setScanResolutionLookupProvider(IScanResolutionLookupProvider scanResolutionLookupProvider) {
+		this.scanResolutionLookupProvider = scanResolutionLookupProvider;
+	}
+
+	public String getEstimatedDurationOfScan(RESOLUTION resolution) {
+		double sampleExposureTime = getPreferredSampleExposureTime();
+		double binning = 1;
+		int resolutionNumber = resolution.getResolutionNumber();
+		try {
+			binning = scanResolutionLookupProvider.getBinX(resolutionNumber);
+		} catch (Exception e) {
+			logger.error("Cannot access lookup table to retrieve Bin X", e);
+		}
+		int projections = 0;
+		try {
+			projections = scanResolutionLookupProvider.getNumberOfProjections(resolutionNumber);
+		} catch (Exception e) {
+			logger.error("Cannot access lookup table to retrieve projections", e);
+		}
+		double runTime = projections * ((sampleExposureTime / binning) + 0.5);// +OVERHEAD TIME);
+
+		int hours = (int) (runTime / 3600); // since both are ints, you get an int
+		int minutes = (int) ((runTime / 60) % 60);
+		int seconds = (int) (runTime % 60);
+		return String.format("%dh %02dm %02ds", hours, minutes, seconds);
 	}
 }

@@ -168,10 +168,9 @@ public class TomoPlotComposite extends Composite {
 		 * 
 		 * @param minValue
 		 * @param maxValue
-		 * @param from
-		 * @param to
+		 * @param factor
 		 */
-		void histogramChangedRoi(double minValue, double maxValue, double from, double to);
+		void histogramChangedRoi(double minValue, double maxValue, double factor);
 
 	}
 
@@ -906,8 +905,9 @@ public class TomoPlotComposite extends Composite {
 				setShouldUpdatePlot(true);
 
 				histogramFactor = histogramFactor * histogramTo / histogramFrom;
+				// histogramFactor = histogramTo / histogramFrom;
 				for (PlottingSystemActionListener lis : lineListeners) {
-					lis.histogramChangedRoi(minValue, maxValue, histogramFrom, histogramTo);
+					lis.histogramChangedRoi(minValue, maxValue, histogramFactor);
 				}
 
 			}
