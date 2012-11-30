@@ -28,15 +28,6 @@ import java.io.Serializable;
 public class ClientDetails extends ClientInfo implements Serializable {
 	boolean hasBaton;
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param index
-	 * @param userID
-	 * @param authorisationLevel
-	 * @param hasBaton
-	 * @param visitID 
-	 */
 	public ClientDetails(int index, String userID, String hostname, int authorisationLevel, boolean hasBaton, String visitID) {
 		this.index = index;
 		this.userID = userID;
@@ -46,10 +37,6 @@ public class ClientDetails extends ClientInfo implements Serializable {
 		this.visitID = visitID;
 	}
 
-	/**
-	 * @param other
-	 * @param hasBaton
-	 */
 	public ClientDetails(ClientInfo other, boolean hasBaton) {
 		this.index = other.index;
 		this.userID = other.userID;
@@ -64,17 +51,11 @@ public class ClientDetails extends ClientInfo implements Serializable {
 	public String toString() {
 		return super.toString() + " baton:" + hasBaton;
 	}
-	/**
-	 * @return Returns the hasBaton.
-	 */
+	
 	public boolean isHasBaton() {
 		return hasBaton;
 	}
 
-	/**
-	 * @param hasBaton
-	 *            The hasBaton to set.
-	 */
 	public void setHasBaton(boolean hasBaton) {
 		this.hasBaton = hasBaton;
 	}
