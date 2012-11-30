@@ -64,8 +64,8 @@ public class BatonView extends ViewPart implements IObserver{
 	
 	protected TableViewer userTable;
 
-	private static enum columnType {CLIENT_NUMBER, USER, HOSTNAME, VISIT, HOLDING_BATON, AUTH_LEVEL}
-	private static String[] columnToolTip = {"Client\nNumber", "User", "Hostname", "Visit", "Holding\nBaton", "Authorisation\nLevel"};
+	private static enum columnType {CLIENT_NUMBER, USER, NAME, HOSTNAME, VISIT, HOLDING_BATON, AUTH_LEVEL}
+	private static String[] columnToolTip = {"Client\nNumber", "User", "Name", "Hostname", "Visit", "Holding\nBaton", "Authorisation\nLevel"};
 	
 	public BatonView() {
 		try {
@@ -174,6 +174,12 @@ public class BatonView extends ViewPart implements IObserver{
 		userName.getColumn().setWidth(150);
 		userName.setLabelProvider(new BatonColumnLabelProvider(second));
 		
+		int nameIndex = columnType.NAME.ordinal();
+		final TableViewerColumn nameColumn = new TableViewerColumn(userTable, SWT.NONE, nameIndex);
+		nameColumn.getColumn().setText(columnToolTip[nameIndex]);
+		nameColumn.getColumn().setWidth(200);
+		nameColumn.setLabelProvider(new BatonColumnLabelProvider(nameIndex));
+		
 		int third = columnType.HOSTNAME.ordinal();
 		final TableViewerColumn hostName = new TableViewerColumn(userTable, SWT.NONE, third);
 		hostName.getColumn().setText(columnToolTip[third]);
@@ -231,6 +237,8 @@ public class BatonView extends ViewPart implements IObserver{
 					return detail.getUserID()+"*";
 				}
 				return detail.getUserID();
+			} else if (columnIndex == columnType.NAME.ordinal()) {
+				return detail.getFullName();
 			} else if (columnIndex==columnType.HOSTNAME.ordinal()) {
 				return detail.getHostname();
 			} else if (columnIndex==columnType.VISIT.ordinal()) {
