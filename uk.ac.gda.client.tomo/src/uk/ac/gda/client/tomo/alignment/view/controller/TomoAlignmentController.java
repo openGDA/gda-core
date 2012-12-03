@@ -964,9 +964,9 @@ public class TomoAlignmentController extends TomoViewController {
 		// module number - provided by view
 
 		// horizontalFieldOfView
-		Double horizontalFieldOfView = cameraModuleController.lookupHFOV(CAMERA_MODULE.getEnum(saveableConfiguration
-				.getModuleNumber()));
-		saveableConfiguration.setModuleHorizontalFieldOfView(horizontalFieldOfView);
+		Double cameraMagnification = cameraModuleController.lookupMagnification(CAMERA_MODULE
+				.getEnum(saveableConfiguration.getModuleNumber()));
+		saveableConfiguration.setCameraMagnification(cameraMagnification);
 
 		saveableConfiguration.setInBeamPosition(sampleStageMotorHandler.getSampleBaseMotorPosition());
 
@@ -1054,7 +1054,7 @@ public class TomoAlignmentController extends TomoViewController {
 		return cameraModuleController.lookupDefaultExposureTime(newModule);
 	}
 
-	public int getNumberOfProjections(int resolutionNumber)  throws Exception {
+	public int getNumberOfProjections(int resolutionNumber) throws Exception {
 		if (scanResolutionLookupProvider != null) {
 			return scanResolutionLookupProvider.getNumberOfProjections(resolutionNumber);
 		}

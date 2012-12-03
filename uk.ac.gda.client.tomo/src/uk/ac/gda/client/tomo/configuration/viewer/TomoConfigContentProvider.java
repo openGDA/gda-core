@@ -45,7 +45,7 @@ public class TomoConfigContentProvider implements IStructuredContentProvider {
 	/**
 	 * XXX - Need to move this into a configurable value
 	 */
-	private static final String T3_M1Z = "t3_m1z";
+	private String cameraDistanceMotorName = "t3_m1z";
 	private IScanResolutionLookupProvider scanResolutionLookupProvider;
 
 	public TomoConfigContentProvider() {
@@ -55,7 +55,10 @@ public class TomoConfigContentProvider implements IStructuredContentProvider {
 	public TomoConfigContentProvider(IScanResolutionLookupProvider scanResolutionLookupProvider) {
 		this();
 		this.scanResolutionLookupProvider = scanResolutionLookupProvider;
+	}
 
+	public void setCameraDistanceMotorName(String cameraDistanceMotorName) {
+		this.cameraDistanceMotorName = cameraDistanceMotorName;
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -94,7 +97,7 @@ public class TomoConfigContentProvider implements IStructuredContentProvider {
 			configContent.setModuleNumber(alignmentConfiguration.getDetectorProperties().getModuleParameters()
 					.getModuleNumber());
 			configContent.setEnergy(alignmentConfiguration.getEnergy());
-			configContent.setSampleDetectorDistance(alignmentConfiguration.getMotorPosition(T3_M1Z));
+			configContent.setSampleDetectorDistance(alignmentConfiguration.getMotorPosition(cameraDistanceMotorName));
 
 			configContent.setSampleWeight(getSampleWeightString(alignmentConfiguration.getSampleWeight()));
 			configContent.setResolution(getResolutionString(alignmentConfiguration.getDetectorProperties()
@@ -104,7 +107,7 @@ public class TomoConfigContentProvider implements IStructuredContentProvider {
 					.getNumberOfFramerPerProjection());
 			configContent.setScanMode(alignmentConfiguration.getScanMode().toString());
 			configContent.setModuleObjectPixelSize(alignmentConfiguration.getDetectorProperties().getModuleParameters()
-					.getHorizontalFieldOfView());
+					.getCameraMagnification());
 			double runTime = getRunTime(configContent);
 
 			if (configContent.isSelectedToRun()) {

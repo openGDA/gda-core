@@ -256,8 +256,7 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	@Override
-	public EAttribute getModule_HorizontalFieldOfView() {
+	public EAttribute getModule_CameraMagnification() {
 		return (EAttribute)moduleEClass.getEStructuralFeatures().get(1);
 	}
 
@@ -778,7 +777,7 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 
 		moduleEClass = createEClass(MODULE);
 		createEAttribute(moduleEClass, MODULE__MODULE_NUMBER);
-		createEAttribute(moduleEClass, MODULE__HORIZONTAL_FIELD_OF_VIEW);
+		createEAttribute(moduleEClass, MODULE__CAMERA_MAGNIFICATION);
 
 		motorPositionEClass = createEClass(MOTOR_POSITION);
 		createEAttribute(motorPositionEClass, MOTOR_POSITION__NAME);
@@ -876,7 +875,7 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 
 		initEClass(moduleEClass, Module.class, "Module", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getModule_ModuleNumber(), ecorePackage.getEIntegerObject(), "moduleNumber", null, 1, 1, Module.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getModule_HorizontalFieldOfView(), ecorePackage.getEDouble(), "horizontalFieldOfView", null, 0, 1, Module.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getModule_CameraMagnification(), ecorePackage.getEDouble(), "cameraMagnification", null, 0, 1, Module.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(motorPositionEClass, MotorPosition.class, "MotorPosition", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getMotorPosition_Name(), ecorePackage.getEString(), "name", null, 0, 1, MotorPosition.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);

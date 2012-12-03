@@ -412,13 +412,13 @@ public interface TomoParametersPackage extends EPackage {
 	int MODULE__MODULE_NUMBER = 0;
 
 	/**
-	 * The feature id for the '<em><b>Horizontal Field Of View</b></em>' attribute.
+	 * The feature id for the '<em><b>Camera Magnification</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int MODULE__HORIZONTAL_FIELD_OF_VIEW = 1;
+	int MODULE__CAMERA_MAGNIFICATION = 1;
 
 	/**
 	 * The number of structural features of the '<em>Module</em>' class.
@@ -677,15 +677,15 @@ public interface TomoParametersPackage extends EPackage {
 	EAttribute getModule_ModuleNumber();
 
 	/**
-	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.parameters.Module#getHorizontalFieldOfView <em>Horizontal Field Of View</em>}'.
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.parameters.Module#getCameraMagnification <em>Camera Magnification</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Horizontal Field Of View</em>'.
-	 * @see uk.ac.gda.tomography.parameters.Module#getHorizontalFieldOfView()
+	 * @return the meta object for the attribute '<em>Camera Magnification</em>'.
+	 * @see uk.ac.gda.tomography.parameters.Module#getCameraMagnification()
 	 * @see #getModule()
 	 * @generated
 	 */
-	EAttribute getModule_HorizontalFieldOfView();
+	EAttribute getModule_CameraMagnification();
 
 	/**
 	 * Returns the meta object for class '{@link uk.ac.gda.tomography.parameters.MotorPosition <em>Motor Position</em>}'.
@@ -1242,12 +1242,12 @@ public interface TomoParametersPackage extends EPackage {
 		EAttribute MODULE__MODULE_NUMBER = eINSTANCE.getModule_ModuleNumber();
 
 		/**
-		 * The meta object literal for the '<em><b>Horizontal Field Of View</b></em>' attribute feature.
+		 * The meta object literal for the '<em><b>Camera Magnification</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EAttribute MODULE__HORIZONTAL_FIELD_OF_VIEW = eINSTANCE.getModule_HorizontalFieldOfView();
+		EAttribute MODULE__CAMERA_MAGNIFICATION = eINSTANCE.getModule_CameraMagnification();
 
 		/**
 		 * The meta object literal for the '{@link uk.ac.gda.tomography.parameters.impl.MotorPositionImpl <em>Motor Position</em>}' class.

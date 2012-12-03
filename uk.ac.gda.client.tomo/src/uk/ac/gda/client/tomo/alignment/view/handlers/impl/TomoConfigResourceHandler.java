@@ -198,7 +198,7 @@ public class TomoConfigResourceHandler implements ITomoConfigResourceHandler, In
 		// module parameters
 		Module modulePosition = TomoParametersFactory.eINSTANCE.createModule();
 		modulePosition.setModuleNumber(saveableConfiguration.getModuleNumber());
-		modulePosition.setHorizontalFieldOfView(saveableConfiguration.getHorizontalFieldOfView());
+		modulePosition.setCameraMagnification(saveableConfiguration.getCameraMagnification());
 		//
 		detectorProperties.setModuleParameters(modulePosition);
 

@@ -69,7 +69,7 @@ public class SaveableConfiguration {
 
 	private String imageLocationAtTheta;
 
-	private Double horizontalFieldOfView;
+	private Double cameraMagnification;
 
 	private ArrayList<MotorPosition> motorPositions = new ArrayList<SaveableConfiguration.MotorPosition>();
 
@@ -371,12 +371,12 @@ public class SaveableConfiguration {
 		return imageLocationAtTheta;
 	}
 
-	public void setModuleHorizontalFieldOfView(Double horizontalFieldOfView) {
-		this.horizontalFieldOfView = horizontalFieldOfView;
+	public void setCameraMagnification(Double cameraMagnification) {
+		this.cameraMagnification = cameraMagnification;
 	}
 
-	public Double getHorizontalFieldOfView() {
-		return horizontalFieldOfView;
+	public Double getCameraMagnification() {
+		return cameraMagnification;
 	}
 
 	public ArrayList<MotorPosition> getMotorPositions() {

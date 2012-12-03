@@ -196,9 +196,15 @@ public class TomoConfigurationView extends ViewPart {
 	private Button btnMoveUp;
 	private Button btnMoveDown;
 	private Label lblEstEndTime;
+	private String cameraDistanceMotorName;
 
 	private static final String BOLD_9 = "bold_9";
 
+	
+	public void setCameraDistanceMotorName(String cameraDistanceMotorName) {
+		this.cameraDistanceMotorName = cameraDistanceMotorName;
+	}
+	
 	private void initializeFontRegistry() {
 		if (Display.getCurrent() != null) {
 			fontRegistry = new FontRegistry(Display.getCurrent());
@@ -242,6 +248,7 @@ public class TomoConfigurationView extends ViewPart {
 		} else {
 			configContentProvider = new TomoConfigContentProvider();
 		}
+		configContentProvider.setCameraDistanceMotorName(cameraDistanceMotorName);
 		configModelTableViewer.setContentProvider(configContentProvider);
 		configModelTableViewer.setLabelProvider(new TomoConfigLabelProvider());
 

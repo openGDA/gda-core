@@ -38,6 +38,7 @@ public class TomoConfigurationViewFactoryFactory implements FindableExecutableEx
 	private final Logger logger = LoggerFactory.getLogger(TomoConfigurationViewFactoryFactory.class);
 	private String viewPartName;
 	private String name;
+	private String cameraDistanceMotorName;
 
 	private ITomoConfigResourceHandler tomoConfigResourceHandler;
 	private TomoConfigurationViewController tomoConfigViewController;
@@ -65,6 +66,10 @@ public class TomoConfigurationViewFactoryFactory implements FindableExecutableEx
 	public String getName() {
 		return this.name;
 	}
+	
+	public void setCameraDistanceMotorName(String cameraDistanceMotorName) {
+		this.cameraDistanceMotorName = cameraDistanceMotorName;
+	}
 
 	@Override
 	public Object create() throws CoreException {
@@ -74,6 +79,7 @@ public class TomoConfigurationViewFactoryFactory implements FindableExecutableEx
 		tomographyConfigurationView.setConfigFileHandler(tomoConfigResourceHandler);
 		tomographyConfigurationView.setTomoConfigViewController(tomoConfigViewController);
 		tomographyConfigurationView.setScanResolutionProvider(scanResolutionLookupProvider);
+		tomographyConfigurationView.setCameraDistanceMotorName(cameraDistanceMotorName);
 		return tomographyConfigurationView;
 	}
 
