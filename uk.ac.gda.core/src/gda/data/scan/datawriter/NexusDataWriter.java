@@ -733,7 +733,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		return file;
 	}
 
-	private void prepareForCollection() throws InstantiationException {
+	private void prepareForCollection() throws Exception {
 		setupProperties();
 		createNextFile();
 		makeMetadata();
@@ -1305,8 +1305,9 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	/**
 	 * Create the next file. First increment the file number and then try and get a NeXus file handle from
 	 * {@link NexusFileFactory}.
+	 * @throws Exception 
 	 */
-	public void createNextFile() {
+	public void createNextFile() throws Exception {
 		try {
 			if (file != null) {
 				try {
@@ -1404,22 +1405,38 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			if (createSrsFile) {
 				terminalPrinter.print("Also creating file (txt): " + txtFileUrl);
 			}
-		} catch (NexusException ex) {
-			String error = "Failed to create file (" + nexusFileUrl + ")";
-			logger.error(error, ex);
-			terminalPrinter.print(error);
-			terminalPrinter.print(ex.getMessage());
-		} catch (Exception ex) {
+		} catch (Error ex) {
 			String error = "Failed to create file (" + nexusFileUrl;
 			if (createSrsFile) {
 				error += " or " + txtFileUrl;
 			}
 			error += ")";
+			error += ". Nexus binary library was not found. Inform Data Acquisition.";
 			logger.error(error, ex);
-			currentScanController.haltCurrentScan();
-			terminalPrinter.print(error);
-			terminalPrinter.print(ex.getMessage());
-		}
+			if (currentScanController != null) {
+				currentScanController.haltCurrentScan();
+			}
+			if (terminalPrinter != null){
+				terminalPrinter.print(error);
+				terminalPrinter.print(ex.getMessage());
+			}
+			throw ex;
+		} catch (Exception ex) {
+				String error = "Failed to create file (" + nexusFileUrl;
+				if (createSrsFile) {
+					error += " or " + txtFileUrl;
+				}
+				error += ")";
+				logger.error(error, ex);
+				if (currentScanController != null) {
+					currentScanController.haltCurrentScan();
+				}
+				if (terminalPrinter != null){
+					terminalPrinter.print(error);
+					terminalPrinter.print(ex.getMessage());
+				}
+				throw ex;
+			}
 
 	}
 
