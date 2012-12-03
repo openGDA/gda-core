@@ -1909,9 +1909,9 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 		try {
 
 			double newExposureTime = tomoAlignmentView.getLeftPanelComposite().getSampleExposureTime()
-					* histogramFactor;
+					/ histogramFactor;
 			if (tomoAlignmentView.getLeftWindowViewerDisplayMode().equals(ViewerDisplayMode.FLAT_STREAM_LIVE)) {
-				newExposureTime = tomoAlignmentView.getLeftPanelComposite().getFlatExposureTime() * histogramFactor;
+				newExposureTime = tomoAlignmentView.getLeftPanelComposite().getFlatExposureTime() / histogramFactor;
 				tomoAlignmentView.getLeftPanelComposite().setPreferredFlatExposureTime(newExposureTime);
 			} else {
 				tomoAlignmentView.getLeftPanelComposite().setPreferredSampleExposureTime(newExposureTime);
@@ -1929,7 +1929,6 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 			tomoAlignmentView
 					.moveHigherContrastSliderTo((int) (tomoAlignmentView.getContrastUpper() / histogramFactor));
 			tomoAlignmentView.moveLowerContrastSliderTo((int) (tomoAlignmentView.getContrastLower() / histogramFactor));
-
 		} catch (Exception e1) {
 			logger.error("Problem updating exposure time", e1);
 			tomoAlignmentView.loadErrorInDisplay("Problem applying histogram value to exposure time",

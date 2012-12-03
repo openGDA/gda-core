@@ -904,8 +904,7 @@ public class TomoPlotComposite extends Composite {
 				region.removeROIListener(this);
 				setShouldUpdatePlot(true);
 
-				histogramFactor = histogramFactor * histogramTo / histogramFrom;
-				// histogramFactor = histogramTo / histogramFrom;
+				histogramFactor = histogramFactor * histogramFrom / histogramTo;
 				for (PlottingSystemActionListener lis : lineListeners) {
 					lis.histogramChangedRoi(minValue, maxValue, histogramFactor);
 				}
