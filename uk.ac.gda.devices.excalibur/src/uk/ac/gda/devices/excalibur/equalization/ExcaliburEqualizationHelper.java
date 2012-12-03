@@ -35,6 +35,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
+import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ShortDataset;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.CompositeFunction;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.Gaussian;
@@ -73,6 +74,11 @@ public class ExcaliburEqualizationHelper {
 	 * Name of dataset in hdf file for optimised DAC pixel values. One value per chip. Type short[]
 	 */
 	public static final String DACPIXEL_OPT = "DACPixelopt"; 
+
+	/*
+	 * Name of dataset in hdf file for optimised DAC pixel values. One value per chip. Type short[]
+	 */
+	public static final String DACPIXEL_SHIFT = "DACPixelshift"; 
 
 	/*
 	 * Name of dataset in hdf file for threshold0opt values. 
@@ -204,7 +210,7 @@ public class ExcaliburEqualizationHelper {
 	 * EDGE_THRESHOLD_RESPONSE_OFFSETS_DATASET
 	 */
 	public void createDACResponseFromThresholdFiles(List<String> edgeThresholdFilenames, double[] axisValues, String resultFile)
-			throws Exception {
+			throws Exception { 
 		Results responses = getDACResponseFromThresholdFiles(edgeThresholdFilenames, axisValues);
 		Hdf5HelperData hdSlopes = new Hdf5HelperData(responses.getDims(), responses.getSlopes());
 		Hdf5Helper.getInstance().writeToFileSimple(hdSlopes, resultFile, getEqualisationLocation(),
@@ -614,7 +620,7 @@ public class ExcaliburEqualizationHelper {
 
 		for (Chip chip : chipset.getChips()) {
 			AbstractDataset dataset = chip.getDataset(loader);
-			ShortDataset dataset2 = getDatasetWithValidPixels(dataset);
+			IntegerDataset dataset2 = getDatasetWithValidPixels(dataset);
 			if( dataset2 != null){
 				double[][] xyvals = createBinnedPopulation(dataset2);
 				double [] xvals = xyvals[0];
@@ -725,23 +731,23 @@ public class ExcaliburEqualizationHelper {
 		return aPeaks;
 	}
 
-	boolean thresholdEdgePosIsValid(short value) {
+	boolean thresholdEdgePosIsValid(int value) {
 		return (value != EDGE_POSITION_IF_ALL_ABOVE_THRESHOLD && value != EDGE_POSITION_IF_ALL_BELOW_THRESHOLD && value != EDGE_POSITION_IF_PIXEL_MASKED_OUT);
 	}
 
-	ShortDataset getDatasetWithValidPixels(AbstractDataset dataset) {
-		short[] validData = new short[dataset.getSize()];
+	IntegerDataset getDatasetWithValidPixels(AbstractDataset dataset) {
+		int[] validData = new int[dataset.getSize()];
 		int numValidData = 0;
 		IndexIterator iter = dataset.getIterator();
 
 		while (iter.hasNext()) {
-			short value = (short) dataset.getElementLongAbs(iter.index);
+			int value = (int) dataset.getElementLongAbs(iter.index);
 			if (thresholdEdgePosIsValid(value)) {
 				validData[numValidData] = value;
 				numValidData++;
 			}
 		}
-		return numValidData > 0 ? new ShortDataset(Arrays.copyOf(validData, numValidData), numValidData) : null;
+		return numValidData > 0 ? new IntegerDataset(Arrays.copyOf(validData, numValidData), numValidData) : null;
 	}
 
 	/**
@@ -760,7 +766,7 @@ public class ExcaliburEqualizationHelper {
 			double xfwhm = (xmax - xmin) / 4;
 			
 			Gaussian peakFunction = new Gaussian(xavg, xfwhm, (Double)yvals_ds.sum());
-			peakFunction.getParameter(0).setLimits(0., xmax*2);
+			peakFunction.getParameter(0).setLimits(xmin > 0 ? 0 : 2*xmin, xmax*2);
 			peakFunction.getParameter(1).setLimits(0., xfwhm*4);
 			peakFunction.getParameter(2).setLimits(-ymax*xfwhm*4*2, ymax*xfwhm*4*2);
 			
@@ -1033,7 +1039,7 @@ public class ExcaliburEqualizationHelper {
 				int numOutside = 0;
 				int j = yvals.length - 1;
 				while (numOutside < numPixelsOutSide && j >= 0) {
-					numOutside += yvals[i];
+					numOutside += yvals[j];
 					j--;
 				}
 				short thresholdlimit = j >=0 ? (short) xvals[j] : -1;
@@ -1083,6 +1089,37 @@ public class ExcaliburEqualizationHelper {
 		}
 		Hdf5HelperData data = new Hdf5HelperData(offsetData.dims, dacPixelOpt);
 		hdf.writeToFileSimple(data, resultFile, getEqualisationLocation(), DACPIXEL_OPT);
+	}
+	
+	/**
+	 * Reads the edhe positions from 2 sets of dacpixel and saves the difference 2 - 1
+	 * @param dacPixel1EdgeFile
+	 * @param dacPixel2EdgeFile
+	 * @param resultFile
+	 * @throws Exception 
+	 */
+	public void createDACPixelShift(String dacPixel1EdgeFile, String dacPixel2EdgeFile, String resultFile) throws Exception{
+		Hdf5Helper hdf = Hdf5Helper.getInstance();
+		Hdf5HelperData data1 = hdf.readDataSetAll(dacPixel1EdgeFile, getEqualisationLocation()
+				.getLocationForOpen(), THRESHOLD_DATASET, true);
+		short [] edgePosition1 = (short[]) data1.data;
+		Hdf5HelperData data2 = hdf.readDataSetAll(dacPixel2EdgeFile, getEqualisationLocation()
+				.getLocationForOpen(), THRESHOLD_DATASET, true);
+		short [] edgePosition2 = (short[]) data2.data;
+		int [] diff = new int[edgePosition1.length];
+		for( int i=0; i< diff.length; i++){
+			short d2 = edgePosition2[i]; 
+			short d1 = edgePosition1[i];
+			if( thresholdEdgePosIsValid(d2) && thresholdEdgePosIsValid(d1)) {
+				diff[i] = d2 - d1;
+			} else {
+				diff[i] = d2;
+			}
+		}
+		Hdf5HelperData data = new Hdf5HelperData(data1.dims, diff);
+		hdf.writeToFileSimple(data, resultFile, getEqualisationLocation(), THRESHOLD_DATASET);
+		
+		
 	}
 
 	public void setDACPixelFromFile(String edgeThresholdNResponseFile, List<ExcaliburReadoutNodeFem> readoutFems,
