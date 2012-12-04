@@ -18,6 +18,7 @@
 
 package gda.device.detector.pco;
 
+import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.IPCOControllerV17;
 import gda.device.detector.IPCODetector;
@@ -26,10 +27,12 @@ import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.device.detector.areadetector.v17.FfmpegStream;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDFileHDF5;
+import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.device.detector.areadetector.v17.NDROI;
 import gda.device.detector.areadetector.v17.NDStats;
 import gda.factory.Findable;
+import gda.util.Sleep;
 
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -44,6 +47,8 @@ import uk.ac.gda.tomography.devices.ITomographyDetector;
  * Tomography implementation for the PCO camera.
  */
 public class PCOTomography implements ITomographyDetector, Findable {
+	private static final double PRC_MIN_TIME = 0.4;
+
 	private String name;
 
 	private static final Logger logger = LoggerFactory.getLogger(PCOTomography.class);
@@ -66,7 +71,7 @@ public class PCOTomography implements ITomographyDetector, Findable {
 	private double maxIntensity = 65000;
 
 	@Override
-	public void acquireMJpeg(Double expTime, Double acqPeriod, int binX, int binY, Double scale, Double offset)
+	public void acquireMJpeg(Double expTime, int binX, int binY, Double scale, Double offset)
 			throws Exception {
 		// plugins arranged - cam -> proc -> roi ->mjpeg
 		IPCOControllerV17 controller = pcoDetector.getController();
@@ -85,15 +90,16 @@ public class PCOTomography implements ITomographyDetector, Findable {
 
 		areaDetector.setTriggerMode(2);
 		setExposureTime(expTime);
-		areaDetector.setAcquirePeriod(acqPeriod);
 		// enabling stat
 		stat.getPluginBase().enableCallbacks();
 		stat.setComputeStatistics(1);
-		stat.getPluginBase().setNDArrayPort(proc1.getPluginBase().getPortName_RBV());
+		NDPluginBase proc1PluginBase = proc1.getPluginBase();
+		stat.getPluginBase().setNDArrayPort(proc1PluginBase.getPortName_RBV());
 		// Setting default values so the MJPeg viewer can cope with the image streaming.
 		//
-		proc1.getPluginBase().setNDArrayPort(areaDetector.getPortName_RBV());
-		proc1.getPluginBase().enableCallbacks();
+		proc1PluginBase.setNDArrayPort(areaDetector.getPortName_RBV());
+		proc1PluginBase.enableCallbacks();
+		proc1PluginBase.setMinCallbackTime(PRC_MIN_TIME);
 		proc1.setEnableFilter(0);
 		proc1.setEnableOffsetScale(1);
 
@@ -101,7 +107,7 @@ public class PCOTomography implements ITomographyDetector, Findable {
 		proc1.setOffset(offset);
 		//
 		roi1.getPluginBase().enableCallbacks();
-		roi1.getPluginBase().setNDArrayPort(proc1.getPluginBase().getPortName_RBV());
+		roi1.getPluginBase().setNDArrayPort(proc1PluginBase.getPortName_RBV());
 
 		roi1.setSizeX(areaDetector.getArraySizeX_RBV());
 		roi1.setSizeY(areaDetector.getArraySizeY_RBV());
@@ -163,11 +169,14 @@ public class PCOTomography implements ITomographyDetector, Findable {
 		roi2.setSizeX(roi.width);
 		roi2.setSizeY(roi.height);
 
-		proc2.getPluginBase().setNDArrayPort(roi2.getPluginBase().getPortName_RBV());
-		proc2.getPluginBase().enableCallbacks();
+		NDPluginBase proc2PluginBase = proc2.getPluginBase();
+		proc2PluginBase.setNDArrayPort(roi2.getPluginBase().getPortName_RBV());
+		proc2PluginBase.enableCallbacks();
+		proc2PluginBase.setMinCallbackTime(PRC_MIN_TIME);
 
-		mJpeg2.getPluginBase().setNDArrayPort(proc2.getPluginBase().getPortName_RBV());
-		mJpeg2.getPluginBase().enableCallbacks();
+		NDPluginBase mjpeg2PluginBase = mJpeg2.getPluginBase();
+		mjpeg2PluginBase.setNDArrayPort(proc2PluginBase.getPortName_RBV());
+		mjpeg2PluginBase.enableCallbacks();
 	}
 
 	@Override
@@ -358,6 +367,13 @@ public class PCOTomography implements ITomographyDetector, Findable {
 		proc.setOOffset(0);
 		proc.setFScale(1.0);
 		proc.setFOffset(0);
+		proc.setFilterCallbacks(1);
+
+		proc.setEnableOffsetScale(0);
+		proc.setEnableHighClip(0);
+		proc.setEnableLowClip(0);
+		
+		proc.setEnableBackground(1);
 	}
 
 	@Override
@@ -371,23 +387,18 @@ public class PCOTomography implements ITomographyDetector, Findable {
 				numberOfImages);
 		ADBase areaDetector = controller.getAreaDetector();
 		areaDetector.setAcquireTime(acqTime);
-		controller.getAreaDetector().setTriggerMode(2);
 		NDProcess proc1 = controller.getProc1();
 		prepareProcForFlat(proc1, numberOfImages);
-		proc1.setEnableFlatField(1);
+
 		// Proc2
 		NDProcess proc2 = controller.getProc2();
 		prepareProcForFlat(proc2, numberOfImages);
-		proc2.setEnableFlatField(1);
 		// capture the appropriate number of images
-		controller.setNumImages(numberOfImages - 1);
-		controller.setImageMode(1);
+		controller.setImageMode(ImageMode.CONTINUOUS.ordinal());
 		//
 		NDFile tiff = controller.getTiff();
 		tiff.getPluginBase().enableCallbacks();
 		tiff.stopCapture();
-
-		pcoDetector.acquireSynchronously();
 
 		// save the flat field - so that 'disabled' is considered
 		proc1.setSaveFlatField(1);
@@ -403,20 +414,24 @@ public class PCOTomography implements ITomographyDetector, Findable {
 		tiff.setFileWriteMode(2);
 		tiff.startCapture();
 
-		controller.getAreaDetector().setImageMode(0);
 		//
-		pcoDetector.acquireSynchronously();
+		pcoDetector.getController().acquire();
+
+		while (tiff.getStatus() != Detector.IDLE) {
+			Sleep.sleep(200);
+		}
 
 		//
 		proc1.setEnableFilter(0);
 		proc2.setEnableFilter(0);
-
-		proc1.setEnableOffsetScale(0);
-		proc2.setEnableOffsetScale(0);
+	
 
 		proc1.setEnableFlatField(0);
 		proc2.setEnableFlatField(0);
 		//
+		proc1.setEnableBackground(0);
+		proc2.setEnableBackground(0);
+	
 		fullFileName = controller.getTiffFullFileName();
 		setHdfFormat(isHdfFormat);
 		return fullFileName;
@@ -430,8 +445,13 @@ public class PCOTomography implements ITomographyDetector, Findable {
 	private void prepareProcForDark(NDProcess proc, int numberOfImages) throws Exception {
 		IPCOControllerV17 controller = pcoDetector.getController();
 		// set Proc1 array port to Roi1 and enable callback
-		proc.getPluginBase().setNDArrayPort(controller.getAreaDetector().getPortName_RBV());
-		proc.getPluginBase().enableCallbacks();
+		NDPluginBase pluginBase = proc.getPluginBase();
+
+		pluginBase.setNDArrayPort(controller.getAreaDetector().getPortName_RBV());
+		pluginBase.enableCallbacks();
+		// Setting min time on prc to avoid dropping frames.
+		pluginBase.setMinCallbackTime(PRC_MIN_TIME);
+
 		proc.setEnableFlatField(0);
 		// Enable recursive filter
 		proc.setEnableFilter(1);
@@ -448,6 +468,10 @@ public class PCOTomography implements ITomographyDetector, Findable {
 		proc.setFOffset(0);
 		// disable background subtraction
 		proc.setEnableBackground(0);
+		proc.setFilterCallbacks(1);
+		proc.setEnableOffsetScale(0);
+		proc.setEnableHighClip(0);
+		proc.setEnableLowClip(0);
 	}
 
 	@Override
@@ -458,9 +482,10 @@ public class PCOTomography implements ITomographyDetector, Findable {
 		boolean isHdfFormat = isHdfFormat();
 		setHdfFormat(false);
 		IPCOControllerV17 controller = pcoDetector.getController();
-		controller.getAreaDetector().setTriggerMode(2);
+		controller.getAreaDetector().setImageMode(ImageMode.CONTINUOUS.ordinal());
 		logger.info("{} starts to collect {} averaged flat field, please wait...", pcoDetector.getName(),
 				numberOfImages);
+
 		ADBase areaDetector = controller.getAreaDetector();
 		areaDetector.setAcquireTime(acqTime);
 
@@ -472,15 +497,10 @@ public class PCOTomography implements ITomographyDetector, Findable {
 		NDProcess proc2 = controller.getProc2();
 		prepareProcForDark(proc2, numberOfImages);
 
-		// capture the appropriate number of images
-		controller.setNumImages(numberOfImages - 1);
-		controller.setImageMode(1);
 		//
 		NDFile tiff = controller.getTiff();
 		tiff.getPluginBase().enableCallbacks();
 		tiff.stopCapture();
-
-		pcoDetector.acquireSynchronously();
 
 		// save the flat field - so that 'disabled' is considered
 		proc1.setSaveFlatField(1);
@@ -495,12 +515,15 @@ public class PCOTomography implements ITomographyDetector, Findable {
 		tiff.setFileWriteMode(2);
 		tiff.startCapture();
 
-		controller.getAreaDetector().setImageMode(0);
 		// save background subtraction for both procs - to memory
 		proc1.setSaveBackground(1);
 		proc2.setSaveBackground(1);
 		//
-		pcoDetector.acquireSynchronously();
+		pcoDetector.getController().acquire();
+
+		while (tiff.getStatus() != Detector.IDLE) {
+			Sleep.sleep(200);
+		}
 
 		// disable recursive filter for both procs
 		proc1.setEnableFilter(0);
