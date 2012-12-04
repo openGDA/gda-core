@@ -168,8 +168,10 @@ class RunOptimisation():
                 slit_column_name = h
 
        
-
-        slitPos = errorData.getDataset(0).getData()
+        if headings[0]=="idx":
+            slitPos = errorData.getDataset(1).getData()
+        else:
+            slitPos = errorData.getDataset(0).getData()
         if LocalProperties.get("gda.data.scan.datawriter.dataFormat") == "NexusDataWriter":        
             slitPos = errorData.getDataset(slit_column_name).getData()
         
@@ -197,7 +199,10 @@ class RunOptimisation():
             if(self.minSlitPos!=None or self.maxSlitPos!=None):
                 centroids = centroids[startIndex:endIndex]
                 error_centroids = error_centroids[startIndex:endIndex]
-                slitPos = errorData.getDataset(0).getData()[startIndex:endIndex]
+                if headings[0]=="idx":
+                    slitPos = errorData.getDataset(1).getData()[startIndex:endIndex]
+                else:
+                    slitPos = errorData.getDataset(0).getData()[startIndex:endIndex]
 
             centroidMatrix.append(centroids)
             
