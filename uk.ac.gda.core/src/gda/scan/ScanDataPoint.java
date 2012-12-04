@@ -295,13 +295,17 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 */
 	@Override
 	public void addDetectorData(Object data, String[] format) {
-		this.detectorData.add(data);
-		if (format == null) {
-			format = new String[] { "%s" };
+		if (data != null){
+			this.detectorData.add(data);
+			if (format == null || format.length == 0) {
+				format = new String[] { "%s" };
+			}
+			detectorFormats = (String[][]) ArrayUtils.add(detectorFormats, format);
 		}
-		detectorFormats = (String[][]) ArrayUtils.add(detectorFormats, format);
 	}
 
+
+	
 	/**
 	 * Replaces the detector data held by the object. The replacement vector must be the same length as the previous for
 	 * this sdp to be self-consistent.
