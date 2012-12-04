@@ -638,8 +638,9 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	public void initialisePluginsArrayDimensions() throws Exception {
 		if ((tiff.getPluginBase().isCallbackEnabled() && tiff.getPluginBase().getArraySize0_RBV() == 0)
 				|| (hdf.getPluginBase().isCallbackEnabled() && hdf.getPluginBase().getArraySize0_RBV() == 0)) {
-			if (tiff.getPluginBase().getArraySize0_RBV() != this.getAreaDetector().getArraySizeX_RBV()
-					|| hdf.getPluginBase().getArraySize0_RBV() != getAreaDetector().getArraySizeX_RBV()) {
+			if (this.getAreaDetector().getArraySizeX_RBV() == 0
+					|| (tiff.getPluginBase().getArraySize0_RBV() != this.getAreaDetector().getArraySizeX_RBV() || hdf
+							.getPluginBase().getArraySize0_RBV() != getAreaDetector().getArraySizeX_RBV())) {
 				// dummy acquisition to ensure all plugin array dimensions are initialised,
 				// these must be called at least once after IOC restarts.
 				int cachedImgMode = areaDetector.getImageMode();
