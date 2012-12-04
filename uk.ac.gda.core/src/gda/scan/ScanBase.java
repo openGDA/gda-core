@@ -368,6 +368,16 @@ public abstract class ScanBase implements Scan {
 				getTerminalPrinter().print(message);
 			}
 		}
+		for (Scannable scannable : this.allDetectors) {
+			try {
+				scannable.atCommandFailure();
+			} catch (DeviceException e) {
+				String message = "Catching " + e.getClass().getSimpleName() + " during call of " + getName()
+						+ ".atCommandFailure() hook:";
+				logger.error(message, e);
+				getTerminalPrinter().print(message);
+			}
+		}
 	}
 
 	/**

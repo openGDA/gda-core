@@ -517,8 +517,9 @@ interface ICoordinatedScannableGroupChildScannable extends ICoordinatedChildScan
 /**
  * Wraps a Scannable to make it work with an ICoordinatedScannableGroup. Methods not in Scannable will be hidden.
  */
-class CoordinatedChildScannable implements Scannable, ICoordinatedScannableGroupChildScannable {
+class CoordinatedChildScannable extends ScannableBase implements Scannable, ICoordinatedScannableGroupChildScannable {
 
+	// ScannableBAse provides Jython functionality, e.g. __call__ 
 	private static final Logger logger = LoggerFactory.getLogger(ScannableBase.class);
 	
 	protected ICoordinatedParentScannable group;
@@ -1148,3 +1149,4 @@ class CoordinatedChildScannableMotionUnits extends CoordinatedChildScannableMoti
 		
 	}
 }
+

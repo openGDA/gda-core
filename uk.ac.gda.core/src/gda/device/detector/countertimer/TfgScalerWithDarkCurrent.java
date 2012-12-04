@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2011 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -31,7 +31,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class TfgScalerWithDarkCurrent extends TfgScaler implements DarkCurrentDetector{
+public abstract class TfgScalerWithDarkCurrent extends TfgScaler implements DarkCurrentDetector {
 
 	private static final Logger logger = LoggerFactory.getLogger(TfgScalerWithDarkCurrent.class);
 
@@ -41,7 +41,7 @@ public abstract class TfgScalerWithDarkCurrent extends TfgScaler implements Dark
 	private Double darkCurrentCollectionTime = 1.0;
 
 	private DarkCurrentResults darkCurrent;
-	
+
 	private boolean useReset = true;
 
 	/**
@@ -51,9 +51,8 @@ public abstract class TfgScalerWithDarkCurrent extends TfgScaler implements Dark
 	 */
 	public void acquireDarkCurrent() throws Exception {
 		darkCurrent = null;
-		
-		clearFrameSets(); 
 
+		clearFrameSets();
 
 		// Deal with DummyDASever - Arg DummyDASever should
 		// have a way of reading dark currents but it does not.
@@ -79,15 +78,12 @@ public abstract class TfgScalerWithDarkCurrent extends TfgScaler implements Dark
 		}
 	}
 
-	private DarkCurrentResults collectDarkCurrent(
-			final DarkCurrentBean bean) throws Exception {
+	private DarkCurrentResults collectDarkCurrent(final DarkCurrentBean bean) throws Exception {
 
 		final Scannable shutter = (Scannable) Finder.getInstance().find(bean.getShutterName());
 		String originalShutterPosition = shutter.getPosition().toString();
-		Boolean openAtEnd = true;
-		if (originalShutterPosition.equalsIgnoreCase("Close")) {
-			openAtEnd = false;
-		} else {
+
+		if (!originalShutterPosition.equalsIgnoreCase("Close")) {
 			shutter.moveTo("Close");
 		}
 
@@ -103,13 +99,15 @@ public abstract class TfgScalerWithDarkCurrent extends TfgScaler implements Dark
 		}
 
 		double[] countsDbl = super.readout();
-		Double[] counts = ArrayUtils.toObject(countsDbl);
-		if (openAtEnd) {
-			if (useReset) {
-				shutter.moveTo("Reset");
-			}
-			shutter.moveTo("Open");
+		if (timeChannelRequired) {
+			countsDbl = ArrayUtils.subarray(countsDbl, 1, countsDbl.length);
 		}
+		Double[] counts = ArrayUtils.toObject(countsDbl);
+
+		if (useReset) {
+			shutter.moveTo("Reset");
+		}
+		shutter.moveTo("Open");
 
 		setCollectionTime(bean.getOriginalCollectionTime());
 
@@ -131,7 +129,7 @@ public abstract class TfgScalerWithDarkCurrent extends TfgScaler implements Dark
 		}
 		super.atScanStart();
 	}
-	
+
 	@Override
 	public void atScanEnd() throws DeviceException {
 		// reset time to default
@@ -144,19 +142,19 @@ public abstract class TfgScalerWithDarkCurrent extends TfgScaler implements Dark
 	}
 
 	@Override
-	public DarkCurrentResults getDarkCurrentResults(){
+	public DarkCurrentResults getDarkCurrentResults() {
 		return darkCurrent;
 	}
-	
+
 	public Double[] getDarkCurrent() {
-		if (darkCurrent == null){
-			return new Double[]{};
+		if (darkCurrent == null) {
+			return new Double[] {};
 		}
 		Double[] rawCounts = darkCurrent.getCounts();
 		Double dkCollectTime = darkCurrent.getTimeInS();
 		Double[] counts = new Double[rawCounts.length];
-		for (int i = 0; i < counts.length; i++){
-			counts[i] = rawCounts[i]/ dkCollectTime;
+		for (int i = 0; i < counts.length; i++) {
+			counts[i] = rawCounts[i] / dkCollectTime;
 		}
 		return counts;
 	}
@@ -182,7 +180,8 @@ public abstract class TfgScalerWithDarkCurrent extends TfgScaler implements Dark
 	}
 
 	/**
-	 * True by default, set to false if the shutter used to collect the dark current should not have reset called before opening.
+	 * True by default, set to false if the shutter used to collect the dark current should not have reset called before
+	 * opening.
 	 * 
 	 * @param useReset
 	 */
@@ -204,15 +203,18 @@ public abstract class TfgScalerWithDarkCurrent extends TfgScaler implements Dark
 		}
 
 		for (; channel < values.length; channel++) {
-			values[channel] = adjustChannelForDarkCurrent(values[channel], darkCurrent.getCounts()[channel
-					+ darkChannelOffset], collectionTime);
+			int dkChannel = channel + darkChannelOffset;
+			if (darkCurrent.getCounts() != null && dkChannel < darkCurrent.getCounts().length) {
+				values[channel] = adjustChannelForDarkCurrent(values[channel], darkCurrent.getCounts()[dkChannel],
+						collectionTime);
+			}
 		}
 
 		return values;
 	}
 
 	protected Double adjustChannelForDarkCurrent(Double rawCounts, Double dkCounts, Double collectionTime) {
-		if (dkCounts > 0){
+		if (dkCounts > 0) {
 			rawCounts = rawCounts - (collectionTime / darkCurrent.getTimeInS()) * dkCounts;
 		}
 		rawCounts = rawCounts > 0 ? rawCounts : 0;

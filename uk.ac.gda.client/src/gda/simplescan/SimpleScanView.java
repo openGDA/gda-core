@@ -174,6 +174,9 @@ public class SimpleScanView extends ViewPart {
 		addDevicesComposite.updateScannables();
 		posComposite.updateScannables();
 		simpleScanComposite.updateScannables();
+		
+		addDevicesComposite.updateDetectors();
+		simpleScanComposite.updateDetectors();
 	}
 	
 	@Override
