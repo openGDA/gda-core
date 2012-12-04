@@ -1179,6 +1179,47 @@ public class TomoConfigurationView extends ViewPart {
 		public void updateExposureTime(double exposureTime) {
 			// Do nothing
 		}
+		
+		@Override
+		public void isScanRunning(boolean isScanRunning, String runningConfigId) {
+			if(isScanRunning){
+
+				isScanRunning = true;
+				disableControls();
+				final HashMap<String, CONFIG_STATUS> configStatusForTomoConfigContent = getConfigStatusForTomoConfigContent(runningConfigId);
+				final Shell shell = getSite().getShell();
+				shell.getDisplay().asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						TableItem[] items = configModelTableViewer.getTable().getItems();
+						for (TableItem tableItem : items) {
+							TomoConfigContent c = (TomoConfigContent) tableItem.getData();
+							if (configStatusForTomoConfigContent.keySet().contains(c.getConfigId())) {
+								CONFIG_STATUS status = configStatusForTomoConfigContent.get(c.getConfigId());
+								c.setStatus(status);
+								if (status == CONFIG_STATUS.COMPLETE) {
+									c.setProgress(100);
+								} else if (status == CONFIG_STATUS.NONE) {
+									c.setProgress(0);
+								}
+							} else {
+								c.setStatus(CONFIG_STATUS.NONE);
+								c.setProgress(0);
+							}
+							refreshRow(c);
+						}
+
+					}
+				});
+			
+				
+			}else{
+				enableControls();
+				isScanRunning = false;
+			}
+			
+		}
 
 		@Override
 		public void updateMessage(final String message) {

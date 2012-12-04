@@ -94,6 +94,8 @@ import uk.ac.gda.ui.event.PartAdapter2;
 public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	private static final Logger logger = LoggerFactory.getLogger(TomoAlignmentView.class);
 
+	private boolean isScanRunning = Boolean.FALSE;
+
 	private static final IWorkbenchWindow ACTIVE_WORKBENCH_WINDOW = PlatformUI.getWorkbench()
 			.getActiveWorkbenchWindow();
 
@@ -109,6 +111,14 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 	public enum RIGHT_INFO {
 		NONE, PROFILE, HISTOGRAM;
+	}
+
+	public boolean isScanRunning() {
+		return isScanRunning;
+	}
+
+	public void setScanRunning(boolean isScanRunning) {
+		this.isScanRunning = isScanRunning;
 	}
 
 	private TomoAlignmentLeftPanelComposite leftPanelComposite;
@@ -216,7 +226,12 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		}
 
 		private void stopStreamByCheckingIfOn() {
-			leftPanelComposite.stopStream();
+			// check if the scan is on.
+			if (!TomoAlignmentView.this.isScanRunning()) {
+				leftPanelComposite.stopStream();
+			} else {
+				// disable all the controls and inform the user that the scan is running.
+			}
 		}
 
 		@Override
@@ -260,6 +275,9 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 	public void setTomoAlignmentController(TomoAlignmentController tomoAlignmentViewController) {
 		this.tomoAlignmentController = tomoAlignmentViewController;
+		if (tomoAlignmentController != null) {
+			tomoAlignmentController.isScanRunning();
+		}
 	}
 
 	public void setViewPartName(String viewPartName) {
@@ -354,6 +372,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	 * Constructor - initalizes the font registry
 	 */
 	public TomoAlignmentView() {
+		tomoViewController = new TomoAlignmentViewController(this);
 		if (Display.getCurrent() != null) {
 			fontRegistry = new FontRegistry(Display.getCurrent());
 			String fontName = Display.getCurrent().getSystemFont().getFontData()[0].getName();
@@ -369,7 +388,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			toolkit = new FormToolkit(parent.getDisplay());
 			toolkit.setBorderStyle(SWT.BORDER);
 
-			tomoViewController = new TomoAlignmentViewController(this);
 			Composite cmpRoot = toolkit.createComposite(parent);
 			GridLayout layout = new GridLayout();
 			setDefaultLayoutSettings(layout);
@@ -1067,7 +1085,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			tomoAlignmentController.dispose();
 			toolkit.dispose();
 			histogramAdjuster.dispose();
-
+			tomoAlignmentController.removeScanControllerUpdateListener(tomoViewController);
 			super.dispose();
 		} catch (Exception ex) {
 			logger.error("Exception in dispose", ex);

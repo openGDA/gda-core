@@ -37,7 +37,6 @@ import org.eclipse.draw2d.geometry.PointList;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
@@ -1869,12 +1868,18 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 
 	@Override
 	public void updateScanProgress(double progress) {
-
+		logger.debug("Scan Progress message:{}", progress);
 	}
 
 	@Override
 	public void updateMessage(String message) {
+		logger.debug("Scan controller message:{}", message);
+	}
 
+	@Override
+	public void isScanRunning(boolean isScanRunning, String runningConfigId) {
+		logger.debug("Scan Running:{}", isScanRunning);
+		tomoAlignmentView.setScanRunning(isScanRunning);
 	}
 
 	@Override
@@ -1884,7 +1889,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 
 	@Override
 	public void updateError(Exception exception) {
-
+		logger.debug("updateError:{}", exception);
 	}
 
 	@Override
@@ -1920,15 +1925,19 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 			logger.debug("Exposure time set to :{}", newExposureTime);
 
 			tomoAlignmentView.getTomoAlignmentController().setExposureTime(newExposureTime,
-					tomoAlignmentView.getLeftPanelComposite().isAmplified(),
-					tomoAlignmentView.getContrastLower() * histogramFactor,
-					tomoAlignmentView.getContrastUpper() * histogramFactor, 1);
+					tomoAlignmentView.getLeftPanelComposite().isAmplified(), tomoAlignmentView.getContrastLower(),
+					tomoAlignmentView.getContrastUpper(), 1);
 
 			logger.debug("Histogram top set to:{}", tomoAlignmentView.getContrastUpper() / histogramFactor);
 			logger.debug("Histogram bottom set to:{}", tomoAlignmentView.getContrastLower() / histogramFactor);
-			tomoAlignmentView
-					.moveHigherContrastSliderTo((int) (tomoAlignmentView.getContrastUpper() / histogramFactor));
-			tomoAlignmentView.moveLowerContrastSliderTo((int) (tomoAlignmentView.getContrastLower() / histogramFactor));
+			try {
+				tomoAlignmentView
+						.moveHigherContrastSliderTo((int) (tomoAlignmentView.getContrastUpper() / histogramFactor));
+				tomoAlignmentView
+						.moveLowerContrastSliderTo((int) (tomoAlignmentView.getContrastLower() / histogramFactor));
+			} catch (Exception e) {
+				logger.error("Reached limits");
+			}
 		} catch (Exception e1) {
 			logger.error("Problem updating exposure time", e1);
 			tomoAlignmentView.loadErrorInDisplay("Problem applying histogram value to exposure time",

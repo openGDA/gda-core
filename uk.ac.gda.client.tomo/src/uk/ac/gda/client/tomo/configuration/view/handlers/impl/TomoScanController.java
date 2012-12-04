@@ -27,6 +27,7 @@ import gda.scan.IScanDataPoint;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,11 +41,21 @@ import uk.ac.gda.tomography.parameters.Resolution;
 
 public class TomoScanController implements ITomoScanController {
 
+	private static final String NONE = "None";
+
+	private static final String DOUBLE_REG_EXP = "(\\d)*.?(\\d)*";
+
+	private static final String EXPOSURE_TIME = "ExposureTime:";
+
 	private ArrayList<IScanControllerUpdateListener> controllerUpdates = new ArrayList<IScanControllerUpdateListener>();
 
 	private static final Logger logger = LoggerFactory.getLogger(TomoScanController.class);
 
 	private IObservable tomoScriptController;
+
+	private final Pattern DOUBLE_REG_EXP_PATTERN = Pattern.compile(DOUBLE_REG_EXP);
+
+	private static final String ID_GET_RUNNING_CONFIG = "RunningConfig#";
 
 	private boolean isInitialised = false;
 
@@ -194,16 +205,31 @@ public class TomoScanController implements ITomoScanController {
 				} else {
 					if (arg instanceof String) {
 						String message = (String) arg;
-						if (message.startsWith("ExposureTime:")) {
-							String expInDouble = message.substring("ExposureTime:".length());
-							if (expInDouble.matches("(\\d)*.?(\\d)*")) {
+						if (message.startsWith(EXPOSURE_TIME)) {
+							String expInDouble = message.substring(EXPOSURE_TIME.length());
+							if (DOUBLE_REG_EXP_PATTERN.matcher(expInDouble).matches()) {
 								for (IScanControllerUpdateListener lis : controllerUpdates) {
 									lis.updateExposureTime(Double.parseDouble(expInDouble));
 								}
 							}
 						} else {
-							for (IScanControllerUpdateListener lis : controllerUpdates) {
-								lis.updateMessage(message);
+
+							if (message.startsWith(ID_GET_RUNNING_CONFIG)) {
+								final String runningConfigId = message.substring(ID_GET_RUNNING_CONFIG.length());
+								if (NONE.equals(runningConfigId)) {
+									logger.debug("No configs are running");
+									for (IScanControllerUpdateListener lis : controllerUpdates) {
+										lis.isScanRunning(false, runningConfigId);
+									}
+								} else {
+									for (IScanControllerUpdateListener lis : controllerUpdates) {
+										lis.isScanRunning(true, runningConfigId);
+									}
+								}
+							} else {
+								for (IScanControllerUpdateListener lis : controllerUpdates) {
+									lis.updateMessage(message);
+								}
 							}
 						}
 					}
