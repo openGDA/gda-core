@@ -29,6 +29,9 @@ import java.util.List;
 
 import javax.swing.Timer;
 
+import org.dawnsci.plotting.jreality.impl.Plot1DAppearance;
+import org.dawnsci.plotting.jreality.impl.Plot1DStyles;
+import org.dawnsci.plotting.jreality.impl.PlotException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -38,10 +41,7 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.AxisValues;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DAppearance;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotException;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.Plot1DStyles;
+import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.AbstractPlotView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.PlotBean;
@@ -161,11 +161,19 @@ public abstract class AbstractScanPlotView extends AbstractPlotView implements S
 	@Override
 	public void scanStarted() {
 		++scanNumber;
-		xAxisValues.clear();
+		if (xAxisValues != null)
+			xAxisValues.clear();
 		// Prime numbers grow better.
 		scanning = true;
 		legendEntries = false;
 		plotter.getColourTable().clearLegend();
+		//stack.topControl = lblNoDataMessage; // Commented out in merge
+		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				stackComposite.layout();
+			}
+		});
 	}
 
 	/**

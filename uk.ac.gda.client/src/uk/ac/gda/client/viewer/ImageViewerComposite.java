@@ -24,6 +24,8 @@ import gda.rcp.ImageConstants;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.dawnsci.plotting.jreality.tool.IImagePositionEvent;
+import org.dawnsci.plotting.jreality.tool.ImagePositionListener;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.FigureCanvas;
@@ -65,8 +67,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.IImagePositionEvent;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.ImagePositionListener;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.GlobalColourMaps;
 
 /**

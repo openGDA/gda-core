@@ -37,15 +37,16 @@ public class DetectorManagerComposite extends Composite {
 	public DetectorManagerComposite(Composite parent, int style) {
 		super(parent, style);
 		final GridLayout gridLayout = new GridLayout();
+		gridLayout.verticalSpacing = 0;
+		gridLayout.horizontalSpacing = 0;
+		gridLayout.marginHeight = 0;
+		gridLayout.marginWidth = 0;
 		gridLayout.numColumns = 1;
 		setLayout(gridLayout);
-		
-		detectorName = new FindableNameWrapper(this, SWT.BORDER, Detector.class);
+		detectorName = new FindableNameWrapper(this, SWT.BORDER, Detector.class, false);
 		detectorName.on();
-		
-		GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		gd.widthHint=129;
-		detectorName.setLayoutData(gd);
+		GridData gd_scannableName = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		detectorName.setLayoutData(gd_scannableName);
 		detectorName.addValueListener(new ValueAdapter() {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {

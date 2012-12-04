@@ -22,12 +22,11 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import org.dawnsci.plotting.jreality.tool.IDataPositionEvent.Mode;
+import org.dawnsci.plotting.jreality.tool.IImagePositionEvent;
+import org.dawnsci.plotting.jreality.tool.ImagePositionListener;
 import org.eclipse.draw2d.MouseEvent;
 import org.eclipse.swt.SWT;
-
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.IDataPositionEvent.Mode;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.IImagePositionEvent;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.ImagePositionListener;
 
 public class SwtImagePositionTool {
 	

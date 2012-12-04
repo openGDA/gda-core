@@ -34,6 +34,7 @@ module corba {
  	{
  		longArray index;
 		stringArray userID;
+		stringArray fullName;
 		stringArray hostname;
 		longArray authorisationLevel;
 		booleanArray hasBaton;

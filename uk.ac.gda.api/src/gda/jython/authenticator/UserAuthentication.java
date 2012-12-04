@@ -43,9 +43,6 @@ public class UserAuthentication {
 		return useOSAuthentication;
 	}
 
-	/**
-	 * @return Username
-	 */
 	public static String getUsername() {
 		return username;
 	}
@@ -67,9 +64,6 @@ public class UserAuthentication {
 		UserAuthentication.password = "";
 	}
 
-	/**
-	 * 
-	 */
 	public static void clearValues() {
 		UserAuthentication.authInfoSupplied = false;
 		UserAuthentication.useOSAuthentication = false;
@@ -77,10 +71,6 @@ public class UserAuthentication {
 		UserAuthentication.password = "";
 	}
 
-	/**
-	 * @param username
-	 * @param password
-	 */
 	public static void setToNotUseOSAuthentication(String username, String password) {
 		UserAuthentication.authInfoSupplied = true;
 		UserAuthentication.useOSAuthentication = false;

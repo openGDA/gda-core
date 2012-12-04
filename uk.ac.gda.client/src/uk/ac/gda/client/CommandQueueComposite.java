@@ -397,7 +397,7 @@ class QueueByteArrayTransfer extends ByteArrayTransfer {
 	@Override
 	protected void javaToNative(Object object, TransferData transferData) {
 		// we need to fill transferData in with a byte array
-		logger.info("javaToNative " + transferData.getClass() + transferData.type);
+		logger.info("javaToNative " + transferData.getClass());
 		// currently do not actually transfer anything - the target and source are the same view
 	}
 

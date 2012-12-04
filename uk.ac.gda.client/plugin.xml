@@ -981,16 +981,6 @@
          type="java.lang.Object">
    </propertyTester>
 </extension>
-<extension point="org.eclipse.ui.editors">
-    <editor class="gda.simplescan.SimpleScanEditor"
-            default="true"
-            id="gda.simplescan.SimpleScanEditor"
-            name="SimpleScan">
-            <contentTypeBinding
-                contentTypeId="gda.simplescan.SimpleScanContentType">
-            </contentTypeBinding>
-     </editor>
-  </extension>
   <extension point="org.eclipse.core.contenttype.contentTypes">
      <content-type
        base-type="org.eclipse.core.runtime.xml"

@@ -71,11 +71,14 @@ public class LibsLocationFinder {
 		if (path != null)
 			return path;
 
-		final File plugins = new File(LocalProperties.getInstallationWorkspaceDir());
-		final File client = new File(plugins, "client");
-		final File inter = new File(client, "gda-script-interface.jar");
-		if (inter.exists())
-			return inter.getAbsolutePath();
+		String loc = LocalProperties.getInstallationWorkspaceDir();
+		if( loc != null && loc.length()>0){
+			final File plugins = new File(loc);
+			final File client = new File(plugins, "client");
+			final File inter = new File(client, "gda-script-interface.jar");
+			if (inter.exists())
+				return inter.getAbsolutePath();
+		}
 
 		return null;
 	}

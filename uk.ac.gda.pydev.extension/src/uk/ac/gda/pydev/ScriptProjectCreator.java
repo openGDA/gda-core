@@ -59,6 +59,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.ClientManager;
+import uk.ac.gda.common.rcp.util.BundleUtils;
 import uk.ac.gda.jython.PydevConstants;
 import uk.ac.gda.pydev.extension.Activator;
 import uk.ac.gda.pydev.extension.builder.ConfigurationXMLNature;
@@ -127,7 +128,7 @@ public class ScriptProjectCreator implements IStartup {
 	 * 
 	 * @throws CoreException
 	 */
-	static void createInterpreter(IProgressMonitor monitor) throws CoreException {
+	static void createInterpreter(IProgressMonitor monitor) throws Exception {
 
 		if (System.getProperty("gda.client.jython.automatic.interpreter") != null)
 			return;
@@ -138,9 +139,10 @@ public class ScriptProjectCreator implements IStartup {
 		if (!isInterpreter(monitor)) {
 
 			// Code copies from Pydev when the user chooses a Jython interpreter - these are the defaults.
-			final String interpreterPath = LocalProperties.getInstallationWorkspaceDir()
-					+ "plugins/uk.ac.gda.libs/jython2.5.1/";
-			final String executable = interpreterPath + "jython.jar";
+			final String interpreterPath = BundleUtils.getBundleLocation("uk.ac.diamond.jython").getAbsolutePath()+File.separator+"jython2.5";
+			final String executable = interpreterPath + File.separator+"jython.jar";
+			if( !(new File(executable)).exists())
+				throw new Exception("Jython jar not found  :" + executable);
 
 			final File script = PydevPlugin.getScriptWithinPySrc("interpreterInfo.py");
 			if (!script.exists()) {
@@ -148,8 +150,9 @@ public class ScriptProjectCreator implements IStartup {
 			}
 			monitor.subTask("Creating interpreter");
 			// gets the info for the python side
+			String encoding=null;
 			Tuple<String, String> outTup = new SimpleJythonRunner().runAndGetOutputWithJar(
-					REF.getFileAbsolutePath(script), executable, null, null, null, monitor);
+					REF.getFileAbsolutePath(script), executable, null, null, null, monitor, encoding);
 
 			InterpreterInfo info = null;
 			try {
@@ -157,8 +160,7 @@ public class ScriptProjectCreator implements IStartup {
 				ModulesManagerWithBuild.IN_TESTS = true;
 				info = InterpreterInfo.fromString(outTup.o1, false);
 			} catch (Exception e) {
-				logger.error(
-						"gda.root is defined incorrectly. It should be the plugins folder not the top level of GDA.", e);
+				logger.error("Something went wrong creating the InterpreterInfo.", e);
 			} finally {
 				ModulesManagerWithBuild.IN_TESTS = false;
 			}
@@ -208,7 +210,7 @@ public class ScriptProjectCreator implements IStartup {
 		}
 	}
 
-	static public void createProjects(IProgressMonitor monitor) throws CoreException {
+	static public void createProjects(IProgressMonitor monitor) throws Exception {
 		monitor.subTask("Checking existence of projects");
 		final IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 		boolean chkGDASyntax = store.getBoolean(PreferenceConstants.CHECK_SCRIPT_SYNTAX);
@@ -233,7 +235,6 @@ public class ScriptProjectCreator implements IStartup {
 					try {
 						project.delete(false, true, monitor);
 					} catch (CoreException e) {
-						// TODO Auto-generated catch block
 						logger.warn("Error deleting project " + projectName, e);
 					}
 				}

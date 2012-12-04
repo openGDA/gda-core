@@ -48,11 +48,11 @@ public class BatonManagerTest {
 
 		InterfaceProvider.setJythonServerNotiferForTesting(new MockJythonServer());
 		manager = new BatonManager();
-		ClientDetails details1 = new ClientDetails(manager.getNewFacadeIndex(), "abc123", "pc01234", 0, false, "mx123-1");
+		ClientDetails details1 = new ClientDetails(manager.getNewFacadeIndex(), "abc123", "ABC 123", "pc01234", 0, false, "mx123-1");
 		manager.addFacade("opq", details1);
-		ClientDetails details2 = new ClientDetails(manager.getNewFacadeIndex(), "def456", "pc12345", 1, false, "mx123-2");
+		ClientDetails details2 = new ClientDetails(manager.getNewFacadeIndex(), "def456", "DEF 456", "pc12345", 1, false, "mx123-2");
 		manager.addFacade("xyz", details2);
-		ClientDetails details3 = new ClientDetails(manager.getNewFacadeIndex(), "ghi789", "pc23456", 2, false, "mx123-3");
+		ClientDetails details3 = new ClientDetails(manager.getNewFacadeIndex(), "ghi789", "GHI 789", "pc23456", 2, false, "mx123-3");
 		manager.addFacade("rst", details3);
 	}
 
@@ -61,7 +61,7 @@ public class BatonManagerTest {
 	 */
 	@Test
 	public void testAddFacade() {
-		ClientDetails details4 = new ClientDetails(manager.getNewFacadeIndex(), "jkl101", "pc34567", 0, false, "mx123-3");
+		ClientDetails details4 = new ClientDetails(manager.getNewFacadeIndex(), "jkl101", "JKL 101", "pc34567", 0, false, "mx123-3");
 		manager.addFacade("uvw", details4);
 		assertTrue(manager.isJSFRegistered("uvw"));
 	}

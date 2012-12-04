@@ -25,6 +25,8 @@ import gda.device.detector.hardwaretriggerable.HardwareTriggeredDetector;
 public class HardwareTriggeredNXDetector extends NXDetector implements HardwareTriggeredDetector {
 
 	private HardwareTriggerProvider triggerProvider;
+	
+	private int numberImagesToCollect;
 
 	public void setHardwareTriggerProvider(HardwareTriggerProvider hardwareTriggerProvider) {
 		this.triggerProvider = hardwareTriggerProvider;
@@ -36,10 +38,27 @@ public class HardwareTriggeredNXDetector extends NXDetector implements HardwareT
 		// Do nothing, prepare only when #arm() called
 	}
 	
+	@Override
+	public void setNumberImagesToCollect(int numberImagesToCollect) {
+		this.numberImagesToCollect = numberImagesToCollect;
+	}
+
+	public int getNumberImagesToCollect() {
+		return this.numberImagesToCollect ;
+	}
 	
 	@Override
 	public void collectData() throws DeviceException {
 		lastReadoutValue = null;
+		try {
+			// Set number of images: the last trigger to end the exposure is superfluous, although it will be created
+			// as this detector integratesBetweenPoints() returns true;
+			getCollectionStrategy().prepareForCollection(getCollectionTime(), getNumberImagesToCollect());
+			getCollectionStrategy().collectData();
+		} catch (Exception e) {
+			throw new DeviceException(e);
+		}
+
 	}
 	
 	@Override
@@ -48,20 +67,9 @@ public class HardwareTriggeredNXDetector extends NXDetector implements HardwareT
 	}
 
 	@Override
-	public void arm() throws DeviceException {
-		try {
-			// Set number of images: the last trigger to end the exposure is superfluous
-			getCollectionStrategy().prepareForCollection(getCollectionTime(), getHardwareTriggerProvider().getNumberTriggers() - 1);
-			getCollectionStrategy().collectData();
-		} catch (Exception e) {
-			throw new DeviceException(e);
-		}
-
-	}
-
-	@Override
 	public boolean integratesBetweenPoints() {
 		return true;
 	}
+
 
 }

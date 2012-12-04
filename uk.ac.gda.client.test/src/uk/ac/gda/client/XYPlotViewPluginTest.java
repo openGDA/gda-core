@@ -34,6 +34,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
+import org.dawnsci.plotting.jreality.impl.Plot1DAppearance;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchPage;
@@ -46,7 +47,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DAppearance;
 import uk.ac.gda.ClientManager;
 import uk.ac.gda.preferences.PreferenceConstants;
 

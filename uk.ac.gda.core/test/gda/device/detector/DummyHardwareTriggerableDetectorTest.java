@@ -75,24 +75,22 @@ public class DummyHardwareTriggerableDetectorTest {
 		
 		det.atScanLineStart();
 		det.setCollectionTime(.2);
-		det.collectData();
 		assertEquals(Detector.IDLE, det.getStatus());
 		det.waitWhileBusy();
 		Callable<Double> positionCallable1 = det.getPositionCallable();
 		det.setCollectionTime(.2);
-		det.collectData();
 		assertEquals(Detector.IDLE, det.getStatus());
 		det.waitWhileBusy();
 		Callable<Double> positionCallable2 = det.getPositionCallable();
 		det.atScanLineEnd();
 		
-		det.arm();
-		assertEquals(det.getStatus(), Detector.BUSY);
+		det.collectData();
+		assertEquals(Detector.BUSY, det.getStatus());
 		det.update(null, null);
-		assertEquals(det.getStatus(), Detector.BUSY);
+		assertEquals(Detector.BUSY, det.getStatus());
 		det.update(null, null);
 		Thread.sleep(1000);
-		assertEquals(det.getStatus(), Detector.IDLE);
+		assertEquals(Detector.IDLE, det.getStatus());
 		
 				
 		assertEquals(Math.cos(.2),  positionCallable1.call(), .0001);

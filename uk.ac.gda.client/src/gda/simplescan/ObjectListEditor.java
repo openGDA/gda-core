@@ -10,9 +10,11 @@ import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.ui.forms.widgets.ExpandableComposite;
 
 import uk.ac.gda.richbeans.components.FieldBeanComposite;
 
@@ -20,7 +22,7 @@ public class ObjectListEditor extends FieldBeanComposite {
 
 	protected TableViewer viewer;
 	private String title;
-
+	
 	public ObjectListEditor(Composite parent, int style, String title) {
 		super(parent, style);
 		this.title = title;
@@ -30,13 +32,13 @@ public class ObjectListEditor extends FieldBeanComposite {
 		viewer = new TableViewer(this, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
 		createColumns();
 		final Table table = viewer.getTable();
-		table.setHeaderVisible(true);
+		if(title.equals(""))
+			table.setHeaderVisible(false);
+		else
+			table.setHeaderVisible(true);
 		table.setLinesVisible(true);
 		viewer.setContentProvider(new ArrayContentProvider());
 		GridData gridData = new GridData();
-		gridData.grabExcessHorizontalSpace = false;
-		gridData.heightHint = 200;
-		gridData.widthHint = 256;
 		viewer.getControl().setLayoutData(gridData);
 	}
 
@@ -51,8 +53,8 @@ public class ObjectListEditor extends FieldBeanComposite {
 	}
 
 	private void createColumns() {
-		TableViewerColumn col = createTableViewerColumn(title, 100);
-		col.setLabelProvider(new CellLabelProvider() {
+		TableViewerColumn col1 = createTableViewerColumn(title, 110);
+		col1.setLabelProvider(new CellLabelProvider() {
 			@Override
 			public void update(ViewerCell cell) {
 				cell.setText(cell.getItem().getData().toString());

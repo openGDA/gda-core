@@ -29,6 +29,8 @@ public abstract class HardwareTriggerableDetectorBase extends DetectorBase imple
 	
 	private boolean hardwareTriggering;
 
+	private int numberImagesToCollect = 1;
+
 	public void setHardwareTriggerProvider(HardwareTriggerProvider triggerProvider) {
 		this.triggerProvider = triggerProvider;
 	}
@@ -46,6 +48,15 @@ public abstract class HardwareTriggerableDetectorBase extends DetectorBase imple
 	@Override
 	public boolean isHardwareTriggering() {
 		return hardwareTriggering;
+	}
+	
+	@Override
+	public void setNumberImagesToCollect(int numberImagesToCollect) {
+		this.numberImagesToCollect = numberImagesToCollect;
+	}
+
+	public int getNumberImagesToCollect() {
+		return this.numberImagesToCollect;
 	}
 
 }

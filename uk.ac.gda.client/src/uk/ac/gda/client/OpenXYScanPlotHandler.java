@@ -18,14 +18,19 @@
 
 package uk.ac.gda.client;
 
+import gda.rcp.GDAClientActivator;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.WorkbenchException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.gda.preferences.PreferenceConstants;
 
 public class OpenXYScanPlotHandler extends AbstractHandler {
 	static final Logger logger = LoggerFactory.getLogger(OpenXYScanPlotHandler.class);
@@ -33,11 +38,13 @@ public class OpenXYScanPlotHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		
+		IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
+		String viewid = preferenceStore.getString(PreferenceConstants.GDA_OPEN_XYPLOT_ON_SCAN_START_ID);
 		try {
-			IViewPart view = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(XYPlotView.ID);
+			IViewPart view = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(viewid);
 			view.setFocus();
 		} catch (WorkbenchException e) {
-			logger.error("Cannot open "+XYPlotView.ID, e);
+			logger.error("Cannot open plot '"+viewid + "'", e);
 			return Boolean.FALSE;
 		}
 		return Boolean.TRUE;

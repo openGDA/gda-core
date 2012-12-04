@@ -481,7 +481,7 @@ where task can be:
 				self.logger.critical('Use the --lib_subdir option to specify correct name')
 				sys.exit(1)
 			try:
-				target_arch = {'i686': 'x86', 'x86': 'x86', 'x86_64': 'x86_64'}[platform.machine()]
+				target_arch = {'i686': 'x86', 'x86': 'x86', 'x86_64': 'x86_64', "AMD64": 'x86_64'}[platform.machine()]
 			except KeyError:
 				self.logger.critical('Cannot determine platform from platform.machine()="%s"' % (platform.machine(),))
 				self.logger.critical('Use the --lib_subdir option to specify correct name')
@@ -493,7 +493,7 @@ where task can be:
 		""" Determine Java profiler settings
 		"""
 
-		profiler_dir = os.getenv("PROFILER_DIR") or "/dls_sw/dasc/jprofiler4"
+		profiler_dir = os.getenv("PROFILER_DIR") or "/dls_sw/dasc/jprofiler5"
 
 		# find architecture of Java binary, to work out which JProfiler library dir to use
 		java_arch = platform.architecture(executable=self.javabin)[0]
@@ -703,11 +703,17 @@ where task can be:
 		if os.path.isdir(plugin_lib) and [item for item in os.listdir(plugin_lib) if not item.startswith('.')]:
 			self.append_to_library_path( plugin_lib )
 
+		location = self.plugin_location["uk.ac.diamond.jython"]
+		jythonJarPath = os.path.join(location, "jython2.5","jython.jar")
+		if not os.path.exists(jythonJarPath):
+			self.logger.critical("Jython  %s does not exist" % (jythonJarPath,))
+			sys.exit(1)
+						
+		self.append_to_class_path( os.path.join(location, "jython2.5","jython.jar") )
 		if not self.options.smart:
 			# be dumb - just add in all projects, plus tp/various
 			location = self.plugin_location["uk.ac.gda.libs"]
 			self.append_to_class_path( os.path.join(location, "*") )
-			self.append_to_class_path( os.path.join(location, "jython2.5.1","jython.jar") )
 
 			for plugin, location in sorted(self.plugin_location.iteritems()):
 				if plugin in ("uk.ac.gda.core", "uk.ac.gda.libs"):
@@ -724,7 +730,7 @@ where task can be:
 		else:
 			location = self.plugin_location["uk.ac.gda.libs"]
 			self.append_to_class_path( os.path.join(location, "*") )
-			self.append_to_class_path( os.path.join(location, "jython2.5.1","jython.jar") )
+#			self.append_to_class_path( os.path.join(location, "jython2.5.1","jython.jar") )
 
 			# be smart - just add plugins listed as dependencies in the CSpec for the GDA configuration
 			self.plugin_parser = PluginData(self.options.lib_subdir)  # for extracting information from a plugin manifest

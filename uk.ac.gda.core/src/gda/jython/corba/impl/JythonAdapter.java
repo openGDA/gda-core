@@ -28,8 +28,6 @@ import gda.factory.corba.util.NetService;
 import gda.jython.Jython;
 import gda.jython.UserMessage;
 import gda.jython.batoncontrol.ClientDetails;
-import gda.jython.corba.CorbaFacadeDetails;
-import gda.jython.corba.CorbaFacadeDetailsHelper;
 import gda.jython.corba.CorbaJython;
 import gda.jython.corba.CorbaJythonHelper;
 import gda.observable.IObserver;
@@ -664,10 +662,8 @@ public class JythonAdapter implements Jython, EventSubscriber {
 			try {
 				// get any from impl
 				Any any = jythonServer.getOtherClientInformation(myJSFIdentifier);
-				// get CorbaFacadeDetails object out of any
-				CorbaFacadeDetails corba = CorbaFacadeDetailsHelper.extract(any);
-				// convert to an array of FacadeDetails
-				return convertCorbaToFacadeDetails(corba);
+				ClientDetails[] details = (ClientDetails[]) any.extract_Value();
+				return details;
 			} catch (COMM_FAILURE cf) {
 				jythonServer = CorbaJythonHelper.narrow(netService.reconnect(name));
 			} catch (org.omg.CORBA.TRANSIENT ct) {
@@ -680,17 +676,6 @@ public class JythonAdapter implements Jython, EventSubscriber {
 			}
 		}
 		return new ClientDetails[0];
-	}
-
-	private ClientDetails[] convertCorbaToFacadeDetails(CorbaFacadeDetails corba) {
-
-		ClientDetails[] details = new ClientDetails[corba.authorisationLevel.length];
-		for (int i = 0; i < details.length; i++) {
-			details[i] = new ClientDetails(corba.index[i], corba.userID[i], corba.hostname[i],
-					corba.authorisationLevel[i], corba.hasBaton[i], corba.visitID[i]);
-		}
-
-		return details;
 	}
 
 	@Override

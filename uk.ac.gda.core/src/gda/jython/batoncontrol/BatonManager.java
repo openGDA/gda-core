@@ -65,9 +65,6 @@ public class BatonManager implements IBatonManager {
 	
 	private boolean disableControlOverVisitMetadataEntry = false;
 
-	/**
-	 * Constructor.
-	 */
 	public BatonManager() {
 
 		firstClientTakesBaton = LocalProperties.get("gda.accesscontrol.firstClientTakesBaton", "true").equals("true");
@@ -79,9 +76,6 @@ public class BatonManager implements IBatonManager {
 		new leaseRefresher().start();
 	}
 
-	/* (non-Javadoc)
-	 * @see gda.jython.batoncontrol.IBatonManager#getAuthorisationLevelOf(java.lang.String)
-	 */
 	@Override
 	public int getAuthorisationLevelOf(String uniqueID) {
 
@@ -112,9 +106,6 @@ public class BatonManager implements IBatonManager {
 		return 0;
 	}
 
-	/* (non-Javadoc)
-	 * @see gda.jython.batoncontrol.IBatonManager#getAuthorisationLevelOf(int)
-	 */
 	@Override
 	public int getAuthorisationLevelOf(int index) {
 		if (!useRBAC) {
@@ -124,16 +115,13 @@ public class BatonManager implements IBatonManager {
 		return facadeNames.get(uniqueID).authorisationLevel;
 	}
 
-	/* (non-Javadoc)
-	 * @see gda.jython.batoncontrol.IBatonManager#addFacade(java.lang.String, gda.jython.batoncontrol.ClientDetails)
-	 */
 	@Override
 	public void addFacade(String uniqueID, ClientDetails info) {
 
 		// must have a meaningful identifier
 		if (uniqueID != null && uniqueID != "") {
 
-			facadeNames.put(uniqueID, new ClientInfo(info.index, info.userID, info.hostname, info.authorisationLevel, info.visitID));
+			facadeNames.put(uniqueID, info.copy());
 
 			// if baton control not in use and this is the only client, the set this as the baton holder (meaning in 
 			// this case the only client. This is useful as it gives this client certain privileges in this class
@@ -154,9 +142,6 @@ public class BatonManager implements IBatonManager {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see gda.jython.batoncontrol.IBatonManager#switchUser(java.lang.String, java.lang.String, int, java.lang.String)
-	 */
 	@Override
 	public void switchUser(String uniqueFacadeName, String username, int accessLevel, String visitID) {
 		// overwrite the entry in facadeNames
@@ -185,9 +170,6 @@ public class BatonManager implements IBatonManager {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see gda.jython.batoncontrol.IBatonManager#removeFacade(java.lang.String)
-	 */
 	@Override
 	public void removeFacade(String uniqueID) {
 		returnBaton(uniqueID);
@@ -196,9 +178,6 @@ public class BatonManager implements IBatonManager {
 		notifyServerOfBatonChange();
 	}
 
-	/* (non-Javadoc)
-	 * @see gda.jython.batoncontrol.IBatonManager#getNewFacadeIndex()
-	 */
 	@Override
 	public int getNewFacadeIndex() {
 		int returnValue = facadeIndex;
@@ -206,17 +185,11 @@ public class BatonManager implements IBatonManager {
 		return returnValue;
 	}
 
-	/* (non-Javadoc)
-	 * @see gda.jython.batoncontrol.IBatonManager#amIBatonHolder(java.lang.String)
-	 */
 	@Override
 	public boolean amIBatonHolder(String myJSFIdentifier) {
 		return useBaton ? amIBatonHolder(myJSFIdentifier, true) : true;
 	}
 
-	/* (non-Javadoc)
-	 * @see gda.jython.batoncontrol.IBatonManager#assignBaton(java.lang.String, int)
-	 */
 	@Override
 	public void assignBaton(String myJSFIdentifier, int indexOfReciever) {
 		if (this.batonHolder.equals(myJSFIdentifier)) {
@@ -230,19 +203,13 @@ public class BatonManager implements IBatonManager {
 
 	}
 
-	/* (non-Javadoc)
-	 * @see gda.jython.batoncontrol.IBatonManager#getClientInformation(java.lang.String)
-	 */
 	@Override
 	public ClientDetails getClientInformation(String myJSFIdentifier) {
 		boolean hasBaton = amIBatonHolder(myJSFIdentifier, false);
 		ClientInfo info = facadeNames.get(myJSFIdentifier);
-		return new ClientDetails(info.index, info.userID, info.hostname, info.authorisationLevel, hasBaton, info.visitID);
+		return new ClientDetails(info, hasBaton);
 	}
 
-	/* (non-Javadoc)
-	 * @see gda.jython.batoncontrol.IBatonManager#getOtherClientInformation(java.lang.String)
-	 */
 	@Override
 	public ClientDetails[] getOtherClientInformation(String myJSFIdentifier) {
 		renewLease(myJSFIdentifier);
@@ -252,8 +219,7 @@ public class BatonManager implements IBatonManager {
 		for (String uniqueID : facadeNames.keySet()) {
 			boolean hasBaton = amIBatonHolder(uniqueID, false);
 			ClientInfo info = facadeNames.get(uniqueID);
-			ClientDetails details = new ClientDetails(info.index, info.userID, info.hostname, info.authorisationLevel, hasBaton,
-					info.visitID);
+			ClientDetails details = new ClientDetails(info, hasBaton);
 
 			// add other clients whose lease has not run out
 			// (so ignore Object Servers and Clients who have probably died and not de-registered)
@@ -265,9 +231,6 @@ public class BatonManager implements IBatonManager {
 		return array;
 	}
 
-	/* (non-Javadoc)
-	 * @see gda.jython.batoncontrol.IBatonManager#requestBaton(java.lang.String)
-	 */
 	@Override
 	public synchronized boolean requestBaton(String uniqueIdentifier) {
 
@@ -381,9 +344,6 @@ public class BatonManager implements IBatonManager {
 		}
 	}
 	
-	/* (non-Javadoc)
-	 * @see gda.jython.batoncontrol.IBatonManager#returnBaton(java.lang.String)
-	 */
 	@Override
 	public void returnBaton(String uniqueIdentifier) {
 		if (this.batonHolder.equals(uniqueIdentifier) && isJSFRegistered(uniqueIdentifier)) {
@@ -392,9 +352,6 @@ public class BatonManager implements IBatonManager {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see gda.jython.batoncontrol.IBatonManager#isJSFRegistered(java.lang.String)
-	 */
 	@Override
 	public boolean isJSFRegistered(String myJSFIdentifier) {
 		for (String uniqueID : facadeNames.keySet()) {
@@ -406,9 +363,6 @@ public class BatonManager implements IBatonManager {
 		return false;
 	}
 
-	/* (non-Javadoc)
-	 * @see gda.jython.batoncontrol.IBatonManager#isBatonHeld()
-	 */
 	@Override
 	public boolean isBatonHeld() {
 		return !this.batonHolder.equals("");
@@ -456,17 +410,11 @@ public class BatonManager implements IBatonManager {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see gda.jython.batoncontrol.IBatonManager#isDisableControlOverVisitMetadataEntry()
-	 */
 	@Override
 	public boolean isDisableControlOverVisitMetadataEntry() {
 		return disableControlOverVisitMetadataEntry;
 	}
 
-	/* (non-Javadoc)
-	 * @see gda.jython.batoncontrol.IBatonManager#setDisableControlOverVisitMetadataEntry(boolean)
-	 */
 	@Override
 	public void setDisableControlOverVisitMetadataEntry(boolean disableControlOverVisitMetadataEntry) {
 		this.disableControlOverVisitMetadataEntry = disableControlOverVisitMetadataEntry;

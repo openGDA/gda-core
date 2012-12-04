@@ -26,39 +26,7 @@
 	<bean id="plot_server" class="uk.ac.diamond.scisoft.analysis.plotserver.PlotServerBase"/>
 
 
-	<bean id="jythonServerFacade" class="gda.jython.JythonServerFacade">
-		<constructor-arg ref="command_server" />
-	</bean>
-
-	<bean id="command_server" class="gda.jython.JythonServer">
-		<property name="jythonScriptPaths">
-			<bean class="gda.jython.ScriptPaths">
-				<property name="projects">
-					<list>
-						<bean class="gda.jython.ScriptProject">
-							<property name="path" value="${gda.config}/users/scripts" />
-							<property name="name" value="Scripts: User" />
-							<property name="type" value="USER" />
-						</bean>
-						<bean class="gda.jython.ScriptProject">
-							<property name="path" value="${gda.config}/scripts" />
-							<property name="name" value="Scripts: Config" />
-							<property name="type" value="CONFIG" />
-						</bean>
-						<bean class="gda.jython.ScriptProject">
-							<property name="path" value="${gda.install.git.loc}/gda-core.git/uk.ac.gda.core/scripts" />
-							<property name="name" value="Scripts: Core" />
-							<property name="type" value="CORE" />
-						</bean>
-					</list>
-				</property>
-				<property name="startupScript" value="${gda.config}/scripts/localStation.py" />
-			</bean>
-		</property>
-		<property name="gdaVarDirectory" value="${gda.config}/var" />
-		<property name="cacheDirectory" value="${gda.config}/var/jythonCache" />
-		<property name="remotePort" value="9999" />
-	</bean>
+	<import resource="jythonServerFacade.xml" />
 	<import resource="commandQueueProcessor.xml"/>
 
 <!--for an 'empty' configuration, remove the imports below, and the other xml files and directories inside the xml/server directory-->

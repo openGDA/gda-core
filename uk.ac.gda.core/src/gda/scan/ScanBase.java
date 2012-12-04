@@ -172,6 +172,8 @@ public abstract class ScanBase implements Scan {
 	 */
 	private Long _scanNumber=null;
 	
+	protected boolean callCollectDataOnDetectors = true;
+	
 	@Override
 	public Long getScanNumber() {
 		return _scanNumber;
@@ -357,6 +359,16 @@ public abstract class ScanBase implements Scan {
 
 	protected void callAtCommandFailureHooks() {
 		for (Scannable scannable : this.allScannables) {
+			try {
+				scannable.atCommandFailure();
+			} catch (DeviceException e) {
+				String message = "Catching " + e.getClass().getSimpleName() + " during call of " + getName()
+						+ ".atCommandFailure() hook:";
+				logger.error(message, e);
+				getTerminalPrinter().print(message);
+			}
+		}
+		for (Scannable scannable : this.allDetectors) {
 			try {
 				scannable.atCommandFailure();
 			} catch (DeviceException e) {
@@ -1192,7 +1204,9 @@ public abstract class ScanBase implements Scan {
 		// collect data
 		for (Detector detector : allDetectors) {
 			checkForInterrupts();
-			detector.collectData();
+			if (callCollectDataOnDetectors) {
+				detector.collectData();
+			}
 		}
 		checkForInterrupts();
 
