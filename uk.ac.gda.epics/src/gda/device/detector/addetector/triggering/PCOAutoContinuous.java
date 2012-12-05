@@ -51,6 +51,7 @@ public class PCOAutoContinuous extends SimpleAcquire {
 		getAdBase().setImageMode(ImageMode.CONTINUOUS.ordinal());
 		getAdBase().setTriggerMode(PcoTriggerMode.AUTO.ordinal()); 
 		adDriverPco.getAdcModePV().put(1); //2 adcs
+		adDriverPco.getTimeStampModePV().put(0); // None
 	}
 
 	@Override

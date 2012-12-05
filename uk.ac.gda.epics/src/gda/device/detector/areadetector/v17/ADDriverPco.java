@@ -26,7 +26,7 @@ public interface ADDriverPco {
 	public enum PcoTriggerMode {
 		AUTO, SOFTWARE, 
 		/**
-		 * In External and Software the exposure length is govered by the exposure time set in the camera. 
+		 * In External and Software the exposure length is governed by the exposure time set in the camera. 
 		 */
 		EXTERNAL_AND_SOFTWARE, 
 		
@@ -41,4 +41,6 @@ public interface ADDriverPco {
 	PV<Double> getCameraUsagePV();
 	
 	PV<Integer> getAdcModePV();
+	
+	PV<Integer> getTimeStampModePV();
 }
