@@ -6,6 +6,8 @@ from gda.device.detector.xspress import XspressDetector
 from gda.jython.commands.ScannableCommands import scan, add_default
 from uk.ac.gda.beans import BeansFactory
 from uk.ac.gda.beans.exafs import XanesScanParameters
+from java.io import File
+from gda.device.detector.xspress import ResGrades
 
 class I18DetectorPreparer:
     def __init__(self):
@@ -14,7 +16,7 @@ class I18DetectorPreparer:
     def prepare(self, detectorParameters, outputParameters, scriptFolder):
         if detectorParameters.getExperimentType() == "Fluorescence":
             if (detectorParameters.getFluorescenceParameters().getDetectorType() == "Germanium"):
-                fullFileName = scriptFolder + detectorParameters.getConfigFileName()
+                fullFileName = scriptFolder + detectorParameters.getFluorescenceParameters().getConfigFileName()
                 bean = BeansFactory.getBean(File(fullFileName))
                 bean.setReadoutMode(XspressDetector.READOUT_MCA)
                 bean.setResGrade(ResGrades.NONE)

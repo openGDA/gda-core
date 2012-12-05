@@ -24,7 +24,7 @@ from gda.device import Detector
 
 class RasterMap(Map):
     
-    def __init__(self, d7a, d7b, counterTimer01, trajectoryX, raster_counterTimer01, raster_xmap, realX, datadir):
+    def __init__(self, d7a, d7b, counterTimer01, trajectoryX, raster_counterTimer01, raster_xmap, realX, datadir, raster_xspress):
         self.d7a=d7a
         self.d7b=d7b
         self.counterTimer01=counterTimer01
@@ -34,7 +34,12 @@ class RasterMap(Map):
         self.raster_xmap=raster_xmap
         self.realX=realX
         self.datadir=datadir
-        
+        self.raster_xspress=raster_xspress
+        self.mfd = None
+    
+    def getMFD(self):
+        return self.mfd
+    
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, scanNumber= -1, validation=True):
 
         origScanPlotSettings = LocalProperties.check("gda.scan.useScanPlotSettings")
@@ -64,7 +69,7 @@ class RasterMap(Map):
         beanGroup.setScan(scanBean)
         XasAsciiDataWriter.setBeanGroup(beanGroup)
         
-        detectorList = self.getDetectors(detectorBean, outputBean, None) 
+        detectorList = self.getDetectors(detectorBean, scanBean) 
     
         print "about to setup"
         self.setupForRaster(beanGroup)
@@ -78,14 +83,13 @@ class RasterMap(Map):
         energyList = [scanBean.getEnergy()]
         zScannablePos = scanBean.getZValue()
         for energy in energyList:
-            mfd = MicroFocusWriterExtender(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize())
-            globals()["microfocusScanWriter"] = mfd
-            mfd.setPlotName("MapPlot")
+            self.mfd = MicroFocusWriterExtender(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize())
+            self.mfd.setPlotName("MapPlot")
             print " the detector is " 
             print detectorList
             if(detectorBean.getExperimentType() == "Transmission"):
-                mfd.setSelectedElement("I0")
-                mfd.setDetectors(array(detectorList, Detector))
+                self.mfd.setSelectedElement("I0")
+                self.mfd.setDetectors(array(detectorList, Detector))
             else:   
                 detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
                 if(folderName != None):
@@ -95,21 +99,22 @@ class RasterMap(Map):
                 print detectorBeanFileName
                 elements = showElementsList(detectorBeanFileName)
                 selectedElement = elements[0]
-                mfd.setRoiNames(array(elements, String))
-                mfd.setDetectorBeanFileName(detectorBeanFileName)
+                self.mfd.setRoiNames(array(elements, String))
+                self.mfd.setDetectorBeanFileName(detectorBeanFileName)
                 bean = BeansFactory.getBean(File(detectorBeanFileName))   
                 detector = self.finder.find(bean.getDetectorName())   
                 firstDetector = detectorList[0]
                 detectorList=[]
                 detectorList.append(self.finder.find("counterTimer01"))
                 detectorList.append(detector)  
-                mfd.setDetectors(array(detectorList, Detector))     
-                mfd.setSelectedElement(selectedElement)
-                mfd.getWindowsfromBean()
-            mfd.setEnergyValue(energy)
-            mfd.setZValue(zScannablePos)
+                self.mfd.setDetectors(array(detectorList, Detector))     
+                self.mfd.setSelectedElement(selectedElement)
+                self.mfd.getWindowsfromBean()
+            self.mfd.setEnergyValue(energy)
+            self.mfd.setZValue(zScannablePos)
             xScannable = self.finder.find(scanBean.getXScannableName())
             yScannable = self.finder.find(scanBean.getYScannableName())
+            
             useFrames = False
             energyScannable = self.finder.find(scanBean.getEnergyScannableName())
             zScannable = self.finder.find(scanBean.getZScannableName())
@@ -126,12 +131,13 @@ class RasterMap(Map):
                 
                 detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
                 
-                if(detectorType == "Silicon"):                
+                if(detectorType == "Silicon"):
+                    print "Vortex raster scan"
                     cs = ContinuousScan(self.trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [self.raster_counterTimer01, self.raster_xmap]) 
                     xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),cs,self.realX])
                     xmapRasterscan.getScanPlotSettings().setIgnore(1)
                     xasWriter = XasAsciiNexusDatapointCompletingDataWriter()
-                    xasWriter.addDataWriterExtender(mfd)
+                    xasWriter.addDataWriterExtender(self.mfd)
                     xmapRasterscan.setDataWriter(xasWriter)
                     xmapRasterscan.runScan()
                 else:
@@ -139,7 +145,7 @@ class RasterMap(Map):
                     xspressRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),ContinuousScan(self.trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [self.raster_counterTimer01, self.raster_xspress]),self.realX])
                     xspressRasterscan.getScanPlotSettings().setIgnore(1)
                     xasWriter = XasAsciiNexusDatapointCompletingDataWriter()
-                    xasWriter.addDataWriterExtender(mfd)
+                    xasWriter.addDataWriterExtender(self.mfd)
                     xspressRasterscan.setDataWriter(xasWriter)
                     xspressRasterscan.runScan()
     
@@ -181,13 +187,15 @@ class RasterMap(Map):
             detectorFillingMonitor.setCollectionTime(collectionTime)
             print "setting up raster scan 3"
             fullFileName = beanGroup.getScriptFolder() + beanGroup.getDetector().getFluorescenceParameters().getConfigFileName()
+            print fullFileName
             bean = BeansFactory.getBean(File(fullFileName));
+            print dir(bean)
             bean.setReadoutMode(XspressDetector.READOUT_MCA);
             bean.setResGrade(ResGrades.NONE);
             elements = bean.getDetectorList();
             for element in elements: 
                 rois = element.getRegionList();
-                element.setWindow(rois.get(0).getRegionStart(), rois.get(0).getRegionEnd())
+                element.setWindow(rois.get(0).getRoiStart(), rois.get(0).getRoiEnd())
             BeansFactory.saveBean(File(fullFileName), bean)
         outputBean=beanGroup.getOutput()
         sampleParameters = beanGroup.getSample()

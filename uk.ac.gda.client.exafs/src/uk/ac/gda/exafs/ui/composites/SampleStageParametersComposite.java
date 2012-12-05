@@ -89,6 +89,18 @@ public final class SampleStageParametersComposite extends FieldBeanComposite {
 		return z;
 	}
 
+	public void setXValue(String newX) {
+		this.x.setValue(newX);
+	}
+
+	public void setYValue(String newY) {
+		this.y.setValue(newY);
+	}
+
+	public void setZValue(String newZ) {
+		this.z.setValue(newZ);
+	}
+
 	public void setMotorLimits(String motorName, ScaleBox box) throws Exception {
 		String lowerLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getLowerInnerLimit()");
 		String upperLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getUpperInnerLimit()");

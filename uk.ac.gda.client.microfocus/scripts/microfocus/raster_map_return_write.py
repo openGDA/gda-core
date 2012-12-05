@@ -35,7 +35,11 @@ class RasterMapReturnWrite(Map):
         self.HTScaler=HTScaler
         self.HTXmapMca=HTXmapMca
         self.datadir=datadir
-        
+        self.mfd = None
+    
+    def getMFD(self):
+        return self.self.mfd
+    
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, scanNumber= -1, validation=True):
 
         print detectorFileName
@@ -81,14 +85,14 @@ class RasterMapReturnWrite(Map):
         energyList = [scanBean.getEnergy()]
         zScannablePos = scanBean.getZValue()
         for energy in energyList:
-            mfd = TwoWayMicroFocusWriterExtender(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize())
-            globals()["microfocusScanWriter"] = mfd
-            mfd.setPlotName("MapPlot")
+            self.mfd = TwoWayMicroFocusWriterExtender(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize())
+            globals()["microfocusScanWriter"] = self.mfd
+            self.mfd.setPlotName("MapPlot")
             print " the detector is " 
             print detectorList
             if(detectorBean.getExperimentType() == "Transmission"):
-                mfd.setSelectedElement("I0")
-                mfd.setDetectors(array(detectorList, Detector))
+                self.mfd.setSelectedElement("I0")
+                self.mfd.setDetectors(array(detectorList, Detector))
             else:   
                 detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
                 #should get the bean file name from detector parametrs
@@ -100,20 +104,20 @@ class RasterMapReturnWrite(Map):
                 elements = showElementsList(detectorBeanFileName)
                 ##this should be the element selected in the gui
                 selectedElement = elements[0]
-                mfd.setRoiNames(array(elements, String))
+                self.mfd.setRoiNames(array(elements, String))
     
-                mfd.setDetectorBeanFileName(detectorBeanFileName)
+                self.mfd.setDetectorBeanFileName(detectorBeanFileName)
                 bean = BeansFactory.getBean(File(detectorBeanFileName))   
                 detector = finder.find(bean.getDetectorName())   
                 firstDetector = detectorList[0]
                 detectorList=[]
                 detectorList.append(finder.find("counterTimer01"))
                 detectorList.append(detector)  
-                mfd.setDetectors(array(detectorList, Detector))     
-                mfd.setSelectedElement(selectedElement)
-                mfd.getWindowsfromBean()
-            mfd.setEnergyValue(energy)
-            mfd.setZValue(zScannablePos)
+                self.mfd.setDetectors(array(detectorList, Detector))     
+                self.mfd.setSelectedElement(selectedElement)
+                self.mfd.getWindowsfromBean()
+            self.mfd.setEnergyValue(energy)
+            self.mfd.setZValue(zScannablePos)
             
             xScannable = finder.find(scanBean.getXScannableName())
             yScannable = finder.find(scanBean.getYScannableName())
@@ -152,7 +156,7 @@ class RasterMapReturnWrite(Map):
                     rowR.setNoOfRows(ny)
                     rowR.setReverseOdd(True)
                     xasWriter.setIndexer(rowR)
-                    xasWriter.addDataWriterExtender(mfd)
+                    xasWriter.addDataWriterExtender(self.mfd)
                     xmapRasterscan.setDataWriter(xasWriter)
                     xmapRasterscan.runScan()
                 else:
