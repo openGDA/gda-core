@@ -26,6 +26,8 @@ import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.connection.InitializationListener;
+import gda.epics.interfaceSpec.GDAEpicsInterfaceReader;
+import gda.epics.interfaceSpec.InterfaceException;
 import gda.epics.interfaces.SimplePvType;
 import gda.epics.util.EpicsGlobals;
 import gda.epics.xml.EpicsRecord;
@@ -134,7 +136,16 @@ public class EpicsMonitor extends MonitorBase implements gda.device.Monitor, Ini
 						pvConfig = Configurator.getConfiguration(getDeviceName(), SimplePvType.class);
 						pvName = pvConfig.getRECORD().getPv();
 					} catch (ConfigurationNotFoundException e) {
-						logger.error("Can NOT find EPICS configuration for motor " + getDeviceName(), e);
+						// Try to read from unchecked xml
+						try {
+							pvName = getPV();
+						} catch (Exception ex) {
+							logger.error(
+									"Can NOT find EPICS configuration for simplePvType " + getDeviceName() + "."
+											+ e.getMessage(), ex);
+							throw new FactoryException("Can NOT find EPICS configuration for motor " + getDeviceName()
+									+ "." + e.getMessage(), e);
+						}
 					}
 				}
 
@@ -151,7 +162,15 @@ public class EpicsMonitor extends MonitorBase implements gda.device.Monitor, Ini
 			configured = true;
 		}
 	}
-
+	
+	/**
+	 * @return pv
+	 * @throws InterfaceException
+	 */
+	String getPV() throws InterfaceException {
+		return GDAEpicsInterfaceReader.getPVFromSimplePVType(getDeviceName());
+	}
+	
 	private void fetchInitialValue() {
 		// fill the latestValue attribute in case its a while until an update
 		try {
