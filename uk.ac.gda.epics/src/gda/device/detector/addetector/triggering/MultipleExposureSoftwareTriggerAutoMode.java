@@ -89,11 +89,12 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 		getAdBase().setNumImages(numberImagesPerCollection);
 		getAdBase().setImageModeWait(numberImagesPerCollection > 1 ? ImageMode.MULTIPLE : ImageMode.SINGLE);
 		getAdBase().setAcquireTime(numberImagesPerCollection > 1 ?exposureTime : collectionTime);
-//		getAdBase().setAcquirePeriod(0.0);
 		
 		if( ndProcess != null){
 			ndProcess.setFilterType(NDProcess.FilterTypeV1_8_Sum);
 			ndProcess.setNumFilter(numberImagesPerCollection);
+			ndProcess.setAutoResetFilter(1);
+			ndProcess.setFilterCallbacks(NDProcess.FilterCallback_ArrayNOnly); 
 			ndProcess.setEnableFilter(1);
 			ndProcess.getPluginBase().enableCallbacks();
 			ndProcess.getPluginBase().setArrayCounter(0);
