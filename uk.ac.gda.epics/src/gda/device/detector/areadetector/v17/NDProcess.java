@@ -206,7 +206,6 @@ public interface NDProcess {
 	static final int DatatypeOut_Float64=7;
 	static final int DatatypeOut_Automatic=8;
 	
-	
 	NDPluginBase getPluginBase();
 
 	/**
@@ -778,7 +777,7 @@ public interface NDProcess {
 	void reset() throws Exception;
 
 	/**
-	 * See Area Detector NDProcess FilterCallbacks doc. 
+	 * See Area Detector NDProcess FilterCallbacks doc. for version 1.8 and above
 	 */
 	void setFilterCallbacks(int filterCallback) throws Exception;
 	
