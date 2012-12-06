@@ -117,7 +117,7 @@ class EllipseCalculator():
             self.error_list.append(error)
             pos += 1
         
-        self.create_error_file(self.s_pos, self.error_list, self.column)
+        self.create_error_file_cam(self.s_pos, self.error_list, self.column)
         
         return error
 
@@ -225,6 +225,12 @@ class EllipseCalculator():
         pa = PreloadedArray('pa', ['beam_position', output_column_name, 'sold', 'snew'], ['%f', '%f','%f', '%f'])
         for i in range(len(beam_positions)):
             pa.append([beam_positions[i], errors[i], self.sold[i], self.snew[i]])
+        scan([pa, 0, pa.getLength()-1, 1])   
+        
+    def create_error_file_cam(self, beam_positions, errors, output_column_name): #peak2d_peakx or peak2d_peaky
+        pa = PreloadedArray('pa', ['beam_position', output_column_name, 'told', 'tnew'], ['%f', '%f','%f', '%f'])
+        for i in range(len(beam_positions)):
+            pa.append([beam_positions[i], errors[i], self.told[i], self.tnew[i]])
         scan([pa, 0, pa.getLength()-1, 1])   
 
 if __name__ == '__main__':
