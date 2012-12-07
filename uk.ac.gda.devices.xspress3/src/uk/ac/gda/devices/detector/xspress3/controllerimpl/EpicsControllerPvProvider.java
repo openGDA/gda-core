@@ -158,7 +158,7 @@ public class EpicsControllerPvProvider {
 		 pvGetRoiCalc = LazyPVFactory.newReadOnlyEnumPV(generatePVName(ROI_CALC_RBV_SUFFIX),UPDATE_RBV.class);
 		 pvSetTrigMode = LazyPVFactory.newEnumPV(generatePVName(TRIG_MODE_SUFFIX), TRIGGER_MODE.class);
 		 pvGetTrigMode = LazyPVFactory.newReadOnlyEnumPV(generatePVName(TRIG_MODE_RBV_SUFFIX), TRIGGER_MODE.class);
-		 pvGetStatusMsg = LazyPVFactory.newReadOnlyStringPV(generatePVName(STATUS_MSG_SUFFIX));
+		 pvGetStatusMsg = LazyPVFactory.newReadOnlyStringFromWaveformPV(generatePVName(STATUS_MSG_SUFFIX));
 		 pvGetState = LazyPVFactory.newReadOnlyEnumPV(generatePVName(STATUS_RBV_SUFFIX),XSPRESS3_EPICS_STATUS.class);
 		 pvGetNumFramesPerReadout = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(FRAMES_PER_READ_SUFFIX));
 		 pvGetNumFramesAvailableToReadout = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(FRAMES_AVAILABLE_SUFFIX));
@@ -205,53 +205,52 @@ public class EpicsControllerPvProvider {
 		pvsGoodEventOffset = new ReadOnlyPV[NUMBER_DETECTOR_CHANNELS];
 		pvsInWinEventGradient = new ReadOnlyPV[NUMBER_DETECTOR_CHANNELS];
 		pvsInWinEventOffset = new ReadOnlyPV[NUMBER_DETECTOR_CHANNELS];
-		
-		for (int i = 0; i < NUMBER_DETECTOR_CHANNELS; i++){
-			pvsScalerWindow1[i] = LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(SCA_WIN1_SCAS_TEMPLATE,i));
-			pvsScalerWindow2[i] = LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(SCA_WIN2_SCAS_TEMPLATE,i));
 
-			pvsScaWin1Low[i] = LazyPVFactory.newIntegerPV(generatePVName(SCA_WIN1_LOW_BIN_TEMPLATE,i));
-			pvsScaWin1LowRBV[i] = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(SCA_WIN1_LOW_BIN_RBV_TEMPLATE,i));
-			pvsScaWin1High[i] = LazyPVFactory.newIntegerPV(generatePVName(SCA_WIN1_HIGH_BIN_TEMPLATE,i));
-			pvsScaWin1HighRBV[i] = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(SCA_WIN1_HIGH_BIN_RBV_TEMPLATE,i));
-			pvsScaWin2Low[i] = LazyPVFactory.newIntegerPV(generatePVName(SCA_WIN2_LOW_BIN_TEMPLATE,i));
-			pvsScaWin2LowRBV[i] = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(SCA_WIN2_LOW_BIN_RBV_TEMPLATE,i));
-			pvsScaWin2High[i] = LazyPVFactory.newIntegerPV(generatePVName(SCA_WIN2_HIGH_BIN_TEMPLATE,i));
-			pvsScaWin2HighRBV[i] = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(SCA_WIN2_HIGH_BIN_RBV_TEMPLATE,i));
+		pvsLatestMCA = new ReadOnlyPV[NUMBER_DETECTOR_CHANNELS];
+
+		for (int channel = 1; channel <= NUMBER_DETECTOR_CHANNELS; channel++){
+			pvsScalerWindow1[channel-1] = LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(SCA_WIN1_SCAS_TEMPLATE,channel));
+			pvsScalerWindow2[channel-1] = LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(SCA_WIN2_SCAS_TEMPLATE,channel));
+
+			pvsScaWin1Low[channel-1] = LazyPVFactory.newIntegerPV(generatePVName(SCA_WIN1_LOW_BIN_TEMPLATE,channel));
+			pvsScaWin1LowRBV[channel-1] = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(SCA_WIN1_LOW_BIN_RBV_TEMPLATE,channel));
+			pvsScaWin1High[channel-1] = LazyPVFactory.newIntegerPV(generatePVName(SCA_WIN1_HIGH_BIN_TEMPLATE,channel));
+			pvsScaWin1HighRBV[channel-1] = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(SCA_WIN1_HIGH_BIN_RBV_TEMPLATE,channel));
+			pvsScaWin2Low[channel-1] = LazyPVFactory.newIntegerPV(generatePVName(SCA_WIN2_LOW_BIN_TEMPLATE,channel));
+			pvsScaWin2LowRBV[channel-1] = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(SCA_WIN2_LOW_BIN_RBV_TEMPLATE,channel));
+			pvsScaWin2High[channel-1] = LazyPVFactory.newIntegerPV(generatePVName(SCA_WIN2_HIGH_BIN_TEMPLATE,channel));
+			pvsScaWin2HighRBV[channel-1] = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(SCA_WIN2_HIGH_BIN_RBV_TEMPLATE,channel));
 			
-			pvsTime[i] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_TIME_SCAS_TEMPLATE,i));
-			pvsResetTicks[i] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_RESET_TICKS_SCAS_TEMPLATE,i));
-			pvsResetCount[i] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_RESET_COUNT_TEMPLATE,i));
-			pvsAllEvent[i] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_ALL_EVENT_TEMPLATE,i));
-			pvsAllGood[i] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_ALL_GOOD_TEMPLATE,i));
-			pvsPileup[i] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_PILEUP_TEMPLATE,i));
+			pvsTime[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_TIME_SCAS_TEMPLATE,channel));
+			pvsResetTicks[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_RESET_TICKS_SCAS_TEMPLATE,channel));
+			pvsResetCount[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_RESET_COUNT_TEMPLATE,channel));
+			pvsAllEvent[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_ALL_EVENT_TEMPLATE,channel));
+			pvsAllGood[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_ALL_GOOD_TEMPLATE,channel));
+			pvsPileup[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_PILEUP_TEMPLATE,channel));
 			
-			pvsGoodEventGradient[i] = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(ALL_GOOD_EVT_GRAD_TEMPLATE,i));
-			pvsGoodEventOffset[i] = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(ALL_GOOD_EVT_OFFSET_TEMPLATE,i));
-			pvsInWinEventGradient[i] = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(IN_WIN_EVT_GRAD_TEMPLATE,i));
-			pvsInWinEventOffset[i] = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(INWIN_EVT_OFFSET_TEMPLATE,i));
+			pvsGoodEventGradient[channel-1] = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(ALL_GOOD_EVT_GRAD_TEMPLATE,channel));
+			pvsGoodEventOffset[channel-1] = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(ALL_GOOD_EVT_OFFSET_TEMPLATE,channel));
+			pvsInWinEventGradient[channel-1] = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(IN_WIN_EVT_GRAD_TEMPLATE,channel));
+			pvsInWinEventOffset[channel-1] = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(INWIN_EVT_OFFSET_TEMPLATE,channel));
+
+			pvsLatestMCA[channel-1] = LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(MCA_TEMPLATE,channel));
 		}
 	}
 
 	
 	@SuppressWarnings("unchecked")
 	private void createMCAPVs() {
-		
-		pvsLatestMCA = new ReadOnlyPV[NUMBER_DETECTOR_CHANNELS];
 		pvsROILLM = new PV[NUMBER_ROIs][NUMBER_DETECTOR_CHANNELS];
 		pvsROIHLM = new PV[NUMBER_ROIs][NUMBER_DETECTOR_CHANNELS];
 		pvsLatestROI = new ReadOnlyPV[NUMBER_ROIs][NUMBER_DETECTOR_CHANNELS];
 		pvsROIs = new ReadOnlyPV[NUMBER_ROIs][NUMBER_DETECTOR_CHANNELS];
 		
-		for (int roi = 0; roi < NUMBER_ROIs; roi++){
-			for (int channel = 0; channel < NUMBER_DETECTOR_CHANNELS; channel++){
-				if (roi == 0){
-					pvsLatestMCA[channel] = LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(MCA_TEMPLATE,channel));
-				}
-				pvsROILLM[channel][roi] = LazyPVFactory.newIntegerPV(generatePVName(ROI_LOW_BIN_TEMPLATE,channel,roi));
-				pvsROIHLM[channel][roi] = LazyPVFactory.newIntegerPV(generatePVName(ROI_HIGH_BIN_TEMPLATE,channel,roi));
-				pvsLatestROI[channel][roi] = LazyPVFactory.newReadOnlyDoublePV(generatePVName(ROI_COUNT_TEMPLATE,channel,roi));
-				pvsROIs[channel][roi] = LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(ROIS_TEMPLATE,channel,roi));
+		for (int roi = 1; roi <= NUMBER_ROIs; roi++){
+			for (int channel = 1; channel <= NUMBER_DETECTOR_CHANNELS; channel++){
+				pvsROILLM[roi-1][channel-1] = LazyPVFactory.newIntegerPV(generatePVName(ROI_LOW_BIN_TEMPLATE,channel,roi));
+				pvsROIHLM[roi-1][channel-1] = LazyPVFactory.newIntegerPV(generatePVName(ROI_HIGH_BIN_TEMPLATE,channel,roi));
+				pvsLatestROI[roi-1][channel-1] = LazyPVFactory.newReadOnlyDoublePV(generatePVName(ROI_COUNT_TEMPLATE,channel,roi));
+				pvsROIs[roi-1][channel-1] = LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(ROIS_TEMPLATE,channel,roi));
 			}
 		}
 	}

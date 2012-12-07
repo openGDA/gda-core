@@ -86,7 +86,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 	@Override
 	public void doReset() throws DeviceException {
 		try {
-			pvProvider.pvErase.put(1);
+			pvProvider.pvReset.put(1);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while resetting", e);
 		}
@@ -195,6 +195,9 @@ public class EpicsController implements Xspress3Controller, Configurable,
 			XSPRESS3_EPICS_STATUS currentStatus = pvProvider.pvGetState.get();
 			if (currentStatus == XSPRESS3_EPICS_STATUS.Idle) {
 				return Detector.IDLE;
+			}
+			if (currentStatus == XSPRESS3_EPICS_STATUS.Acquire) {
+				return Detector.BUSY;
 			}
 			return Detector.STANDBY;
 		} catch (IOException e) {
@@ -441,16 +444,16 @@ public class EpicsController implements Xspress3Controller, Configurable,
 		
 		try {
 			int numROIs = getNumberROIToRead();
-			int numFrames = finalFrame - startFrame;
-			int numChannels = finalChannel - startChannel;
+			int numFrames = finalFrame - startFrame + 1;
+			int numChannels = finalChannel - startChannel + 1;
 			
-			Double[][][] valuesWrongOrder = new Double[EpicsControllerPvProvider.NUMBER_ROIs][numChannels][numFrames];
-			for(int channel = startChannel; channel < finalChannel; channel++){
+			Double[][][] valuesWrongOrder = new Double[numROIs][numChannels][numFrames];
+//			for(int channel = startChannel; channel < finalChannel; channel++){
 				for(int roi = 0; roi < numROIs; roi++){
 					// [frame][channel]
 					valuesWrongOrder[roi] = readDoubleWaveform(pvProvider.pvsROIs[roi], startFrame, finalFrame, startChannel, finalChannel);
 				}
-			}
+//			}
 			return reorderROIValues(valuesWrongOrder);
 		} catch (Exception e) {
 			throw new DeviceException("Exception while fetching regions of interest",e);
@@ -478,8 +481,17 @@ public class EpicsController implements Xspress3Controller, Configurable,
 	@Override
 	public Double[][] readoutDTCorrectedLatestMCA(int startChannel,
 			int finalChannel) throws DeviceException {
-		return readDoubleWaveform(pvProvider.pvsLatestMCA, startChannel,
-				finalChannel, 0, EpicsControllerPvProvider.MCA_SIZE - 1);
+		
+		Double[][] mcas = new Double[finalChannel - startChannel + 1][];
+		for (int i = startChannel; i <= finalChannel; i++) {
+			try {
+				mcas[i] = pvProvider.pvsLatestMCA[i].get();
+			} catch (IOException e) {
+				throw new DeviceException(
+						"IOException while fetching mca array data", e);
+			}
+		}
+		return mcas;
 	}
 
 	@Override
@@ -603,12 +615,12 @@ public class EpicsController implements Xspress3Controller, Configurable,
 			throws DeviceException {
 		// this is [channel][frame]
 		Double[][] returnValuesWrongOrder = new Double[finalChannel
-				- startChannel][];
-		for (int i = startChannel; i < finalChannel; i++) {
+				- startChannel + 1][];
+		for (int i = startChannel; i <= finalChannel; i++) {
 			try {
 				Double[] allFrames = pvs[i].get();
 				returnValuesWrongOrder[i] = (Double[]) ArrayUtils.subarray(
-						allFrames, startFrame, finalFrame);
+						allFrames, startFrame, finalFrame +1);
 			} catch (IOException e) {
 				throw new DeviceException(
 						"IOException while fetching double array data", e);
@@ -640,12 +652,12 @@ public class EpicsController implements Xspress3Controller, Configurable,
 			int startFrame, int finalFrame, int startChannel, int finalChannel)
 			throws DeviceException {
 		Integer[][] returnValuesWrongOrder = new Integer[finalChannel
-				- startChannel][];
-		for (int i = startChannel; i < finalChannel; i++) {
+				- startChannel + 1][];
+		for (int i = startChannel; i <= finalChannel; i++) {
 			try {
 				Integer[] allFrames = pvs[i].get();
 				returnValuesWrongOrder[i] = (Integer[]) ArrayUtils.subarray(
-						allFrames, startFrame, finalFrame);
+						allFrames, startFrame, finalFrame+1);
 			} catch (IOException e) {
 				throw new DeviceException(
 						"IOException while fetching integer array data", e);
@@ -683,8 +695,8 @@ public class EpicsController implements Xspress3Controller, Configurable,
 
 	private Integer[] readIntegerArray(ReadOnlyPV<Integer>[] pvs,
 			int startChannel, int finalChannel) throws DeviceException {
-		Integer[] returnValues = new Integer[finalChannel - startChannel];
-		for (int i = startChannel; i < finalChannel; i++) {
+		Integer[] returnValues = new Integer[finalChannel - startChannel + 1];
+		for (int i = startChannel; i <= finalChannel; i++) {
 			try {
 				returnValues[i] = pvs[i].get();
 			} catch (IOException e) {

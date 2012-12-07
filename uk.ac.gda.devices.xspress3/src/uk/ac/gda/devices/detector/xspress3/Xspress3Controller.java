@@ -22,6 +22,10 @@ import gda.factory.FactoryException;
  * analysis purposes.
  * <p>
  * This class is the GDA interface to the EPICS Xspress3 template.
+ * <p>
+ * In GDA, arrays are zero based. In EPICS, arrays are 1 based. So input
+ * parameters to this interface, and results from this interface are all zero
+ * based.
  * 
  * @author rjw82
  * 
@@ -52,13 +56,15 @@ public interface Xspress3Controller {
 	public String getStatusMessage() throws DeviceException;
 
 	/**
-	 * @return - matches values in the Detector interface getStatus(). {@link #Detector.getStatus()}
+	 * @return - matches values in the Detector interface getStatus().
+	 *         {@link #Detector.getStatus()}
 	 * @throws DeviceException
 	 */
-	public int getStatus() throws DeviceException; 
+	public int getStatus() throws DeviceException;
 
 	/**
-	 * @return - the total number of frames of data available in memory for reading out.
+	 * @return - the total number of frames of data available in memory for
+	 *         reading out.
 	 * @throws DeviceException
 	 */
 	public int getTotalFramesAvailable() throws DeviceException; // ?
@@ -69,20 +75,20 @@ public interface Xspress3Controller {
 
 	// readout methods
 
-//	/**
-//	 * Uncorrected in-window scaler counts.
-//	 * <p>
-//	 * Use the value from {@link #getNumFramesAvailable()} to know what frames
-//	 * will have valid data in
-//	 * 
-//	 * @param startFrame
-//	 * @param finalFrame
-//	 * @param startChannel
-//	 * @param finalChannel
-//	 * @return int[frame][channel]
-//	 */
-//	public int[][] readoutRawSCA(int startFrame, int finalFrame,
-//			int startChannel, int finalChannel) throws DeviceException;
+	// /**
+	// * Uncorrected in-window scaler counts.
+	// * <p>
+	// * Use the value from {@link #getNumFramesAvailable()} to know what frames
+	// * will have valid data in
+	// *
+	// * @param startFrame
+	// * @param finalFrame
+	// * @param startChannel
+	// * @param finalChannel
+	// * @return int[frame][channel]
+	// */
+	// public int[][] readoutRawSCA(int startFrame, int finalFrame,
+	// int startChannel, int finalChannel) throws DeviceException;
 
 	/**
 	 * Dead-time corrected in-window scaler counts, for window 1
@@ -158,18 +164,21 @@ public interface Xspress3Controller {
 	 */
 	public Double[][][] readoutDTCorrectedROI(int startFrame, int finalFrame,
 			int startChannel, int finalChannel) throws DeviceException;
-	
+
 	/**
-	 * @return the number of roi which will be read out by the readoutDTCorrectedROI method.
+	 * @return the number of roi which will be read out by the
+	 *         readoutDTCorrectedROI method.
 	 */
 	public int getNumberROIToRead();
 
 	/**
 	 * @param numRoiToRead
 	 * @return
-	 * @throws IllegalArgumentException - if the value given is too high for the implementation
+	 * @throws IllegalArgumentException
+	 *             - if the value given is too high for the implementation
 	 */
-	public void setNumberROIToRead(int numRoiToRead) throws IllegalArgumentException;
+	public void setNumberROIToRead(int numRoiToRead)
+			throws IllegalArgumentException;
 
 	/**
 	 * The latest available MCA in the record. When running a series of time
@@ -201,7 +210,8 @@ public interface Xspress3Controller {
 	 * @param roiNumber
 	 * @return int[] [lowChannel,highChannel]
 	 */
-	public Integer[] getROILimits(int channel, int roiNumber) throws DeviceException;
+	public Integer[] getROILimits(int channel, int roiNumber)
+			throws DeviceException;
 
 	/**
 	 * @param channel
@@ -217,7 +227,8 @@ public interface Xspress3Controller {
 	 * @param roiNumber
 	 * @return int[] [lowChannel,highChannel]
 	 */
-	public Integer[] getWindows(int channel, int roiNumber) throws DeviceException;
+	public Integer[] getWindows(int channel, int roiNumber)
+			throws DeviceException;
 
 	// file saving options
 
