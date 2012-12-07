@@ -25,25 +25,41 @@ import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.GdaMetadata;
 import gda.data.metadata.Metadata;
 import gda.data.metadata.StoredMetadataEntry;
+import gda.data.nexus.extractor.NexusExtractor;
+import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.nxclassio.NexusFileHandle;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeBuilder;
 import gda.data.nexus.tree.NexusTreeNode;
 import gda.data.nexus.tree.NexusTreeNodeSelection;
+import gda.data.nexus.tree.NexusTreeWriter;
 import gda.data.scan.datawriter.AsciiWriterExtender;
 import gda.data.scan.datawriter.AsciiWriterExtenderConfig;
+import gda.data.scan.datawriter.DataWriter;
+import gda.data.scan.datawriter.DataWriterExtenderBase;
 import gda.data.scan.datawriter.DefaultDataWriterFactory;
 import gda.data.scan.datawriter.IDataWriterExtender;
+import gda.data.scan.datawriter.NexusDataWriter;
 import gda.device.Detector;
 import gda.device.Scannable;
 import gda.scan.ConcurrentScan;
+import gda.scan.IScanDataPoint;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Vector;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.nexusformat.NXlink;
+import org.nexusformat.NexusException;
 import org.nexusformat.NexusFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Class to test writing of nexus files during a scan
@@ -52,7 +68,7 @@ public class ScanToNexusTest {
 
 	final static String TestFileFolder = "testfiles/gda/data/nexus/";
 
-	static void runScanToCreateFile(IDataWriterExtender dataWriterExtender) throws InterruptedException, Exception {
+	static void runScanToCreateFile(DataWriter dataWriter, IDataWriterExtender dataWriterExtender) throws InterruptedException, Exception {
 		Scannable simpleScannable1 = TestHelpers.createTestScannable("SimpleScannable1", 0., new String[] {},
 				new String[] { "simpleScannable1" }, 0, new String[] { "%5.2g" }, new String[] { "\u212B" }); // Angstrom
 
@@ -73,11 +89,11 @@ public class ScanToNexusTest {
 
 		Object[] args = new Object[] { simpleScannable1, 0., 10., 1., simpleScannable2, simpleDetector1 };
 		ConcurrentScan scan = new ConcurrentScan(args);
-		scan.setDataWriter(DefaultDataWriterFactory.createDataWriterFromFactory());
+		scan.setDataWriter(dataWriter != null ? dataWriter : DefaultDataWriterFactory.createDataWriterFromFactory());
 		if( dataWriterExtender != null)
 			scan.getDataWriter().addDataWriterExtender(dataWriterExtender);
 		scan.runScan();
-		scan.getDataWriter().completeCollection();
+//		scan.getDataWriter().completeCollection();
 	}
 
 	static void runNestedScanToCreateFile(IDataWriterExtender dataWriterExtender) throws InterruptedException,
@@ -138,7 +154,7 @@ public class ScanToNexusTest {
 				"Description of Experiment"));
 		metadata.addMetadataEntry(new StoredMetadataEntry(GDAMetadataProvider.SCAN_IDENTIFIER, "12345678"));
 
-		runScanToCreateFile(null);
+		runScanToCreateFile(null, null);
 		// read nexus file
 		String filename = testScratchDirectoryName + "/Data/" + "1.nxs";
 
@@ -182,7 +198,7 @@ public class ScanToNexusTest {
 				.setUpTest(ScanToNexusTest.class, "testCreateScanToSRSFile", true);
 
 		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "SrsDataFile");
-		runScanToCreateFile(null);
+		runScanToCreateFile(null,null);
 		junitx.framework.FileAssert.assertEquals(new File(TestFileFolder + "testCreateScanToSRSFile_expected.dat"),
 				new File(testScratchDirectoryName + "/Data/1.dat"));
 	}
@@ -200,7 +216,7 @@ public class ScanToNexusTest {
 
 		LocalProperties.set("gda.data.scan.datawriter.dataFormat.SrsDataFile.aligncolumns", "True");
 		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "SrsDataFile");
-		runScanToCreateFile(null);
+		runScanToCreateFile(null,null);
 		junitx.framework.FileAssert.assertEquals(new File(TestFileFolder + "testCreateScanToAlignedSRSFile_expected.dat"),
 				new File(testScratchDirectoryName + "/Data/1.dat"));
 	}
@@ -230,7 +246,7 @@ public class ScanToNexusTest {
 		final AsciiWriterExtender writer = new AsciiWriterExtender(output, config, "\t", null, true);
 		writer.addVariable("I0", "SimpleScannable1", 0);
 		writer.addVariable("it", "SimpleScannable2", 0);
-		runScanToCreateFile(writer);
+		runScanToCreateFile(null, writer);
 		junitx.framework.FileAssert.assertEquals(new File(TestFileFolder + "testDataWriterExtender_expected.txt"),
 				new File(output));
 	}
@@ -345,4 +361,142 @@ public class ScanToNexusTest {
 		LocalProperties.set("gda.nexus.createSRS", "false");
 		runNestedScanToCreateFile(null);
 	}
+	
+	
+	
+	@Test
+	public void testNexusSubEntryCreator() throws Exception {
+		String testScratchDirectoryName = TestHelpers.setUpTest(ScanToNexusTest.class, "testNexusSubEntryCreator", true);
+		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "NexusDataWriter");
+		LocalProperties.set("gda.nexus.createSRS", "false");
+
+		NexusDataWriter dataWriter = new NexusDataWriter();
+		runScanToCreateFile(dataWriter, null);
+		
+		HashMap<String, String> links = new HashMap<String, String>();
+		links.put("/entry2:NXentry/test", "/entry1:NXentry/instrument:NXinstrument/SimpleDetector1:NXdetector/SimpleDetector1_0:NXdata");
+		links.put("/entry2:NXentry/test2", "nxfile://" + (new File(testScratchDirectoryName + "/1.nxs")).getAbsolutePath() + "#entry1/instrument/SimpleDetector1/SimpleDetector1_0");
+		
+		dataWriter = new NexusDataWriter();
+		IDataWriterExtender writer = new NXSubEntryWriter(links);
+		dataWriter.addDataWriterExtender(writer);
+		runScanToCreateFile(dataWriter, null);
+		
+//		junitx.framework.FileAssert.assertEquals(new File(TestFileFolder + "testDataWriterExtender_expected.txt"),
+//				new File(output));
+	}
+	
+	
 }
+
+class NXSubEntryWriter extends DataWriterExtenderBase{
+	private static final Logger logger = LoggerFactory.getLogger(NXSubEntryWriter.class);
+
+	String filename;
+	Map<String, String> links;
+	
+	
+	public NXSubEntryWriter(Map<String, String> links) {
+		super();
+		this.links = links;
+	}
+
+	@Override
+	public void addData(IDataWriterExtender parent, IScanDataPoint dataPoint) throws Exception {
+		filename = dataPoint.getCurrentFilename();
+	}
+
+	@Override
+	public void completeCollection(IDataWriterExtender parent) {
+		/**
+		 * add sub-entry section with links to other
+		 * This can be represented by a nexustree.
+		 */
+		NexusFile file;
+		try {
+			file = new NexusFile(filename,NexusFile.NXACC_RDWR);
+			for( Entry<String, String> entry : links.entrySet()){
+				String value = entry.getValue();
+				if( value.startsWith("nxfile")){
+					makelink(file, entry.getKey(), null, value);
+					
+				} else {
+					NXlink link = getLink(file,value);
+					makelink(file, entry.getKey(), link, null);
+				}
+				
+			}
+			file.flush();
+			file.finalize();
+			file.close();
+			
+		} catch (Throwable e) {
+			// TODO Auto-generated catch block
+			logger.error("TODO put description of error here", e);
+		}
+
+	}
+
+	private void makelink(NexusFile file, String path, NXlink link, String url) throws Exception {
+		String [] parts = path.split("/",2);
+		if( parts[0].isEmpty()){
+			if( parts.length>1){
+				makelink(file,parts[1], link, url);
+			}
+			return;
+		}
+		if( parts.length > 1){
+			String []subParts = parts[0].split(":");
+			String name = subParts[0];
+			String nxClass = subParts[1];
+			if( !(file.groupdir().containsKey(name) && file.groupdir().get(name).equals(nxClass))){
+				file.makegroup(name, nxClass);
+			}
+			file.opengroup(name, nxClass);
+			try{
+				makelink(file, parts[1], link, url);
+			} finally {
+				file.closegroup();
+			}
+			return;
+		}
+		if( link != null)
+			file.makenamedlink(parts[0], link);
+		if( url != null)
+			file.linkexternaldataset(parts[0],url);
+	}
+
+
+	private NXlink getLink(NexusFile file, String path) throws NexusException, Exception {
+		String [] parts = path.split("/",2);
+		if( parts[0].isEmpty()){
+			if( parts.length>1){
+				return getLink(file,parts[1]);
+			}
+			return null;
+		}
+		String []subParts = parts[0].split(":");
+		String name = subParts[0];
+		String nxClass = subParts[1];
+		if( parts.length > 1){
+			if( !(file.groupdir().containsKey(name) && file.groupdir().get(name).equals(nxClass))){
+				throw new Exception("Item not found " + name + ":" + nxClass);
+			}
+			file.opengroup(name, nxClass);
+			try{
+				return getLink(file, parts[1]);
+			} finally {
+				file.closegroup();
+			}
+		}
+		NXlink link=null;
+		if( nxClass.equals(NexusExtractor.NXDataClassName))
+		{
+			file.opendata(name);
+			link = file.getdataID();
+			file.closedata();
+		} 
+		return link;
+	}
+};
+
