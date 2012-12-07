@@ -53,6 +53,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
 
+import junit.framework.Assert;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.nexusformat.NXlink;
@@ -60,6 +62,12 @@ import org.nexusformat.NexusException;
 import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
+import uk.ac.diamond.scisoft.analysis.io.DataHolder;
+import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 
 /**
  * Class to test writing of nexus files during a scan
@@ -373,19 +381,64 @@ public class ScanToNexusTest {
 		NexusDataWriter dataWriter = new NexusDataWriter();
 		runScanToCreateFile(dataWriter, null);
 		
-		HashMap<String, String> links = new HashMap<String, String>();
-		links.put("/entry2:NXentry/test", "/entry1:NXentry/instrument:NXinstrument/SimpleDetector1:NXdetector/SimpleDetector1_0:NXdata");
-		links.put("/entry2:NXentry/test2", "nxfile://" + (new File(testScratchDirectoryName + "/1.nxs")).getAbsolutePath() + "#entry1/instrument/SimpleDetector1/SimpleDetector1_0");
+		
+		
+		
+		List<SubEntryLink> links = new Vector<SubEntryLink>();
+		
+		//create 3 links
+		//add link to simpleScannable1 in current file
+		links.add(  new SubEntryLink("/entry2:NXentry/test", "/entry1:NXentry/default:NXdata/simpleScannable1:NXdata"));
+
+		//add link to simpleScannable1 in 1.nxs via nxfile 
+		links.add(  new SubEntryLink("/entry2:NXentry/test2", 
+				"nxfile://" + (new File(testScratchDirectoryName + "/Data/1.nxs")).getAbsolutePath() + "#entry1/SimpleDetector1/simpleScannable1"));
+
+		//add link to entry2/test2 in this file - which itself points to simpleScannable1 in 1.nxs using currentfile  
+		links.add(  new SubEntryLink("/entry2:NXentry/test3", "#entry2/test2"));
 		
 		dataWriter = new NexusDataWriter();
 		IDataWriterExtender writer = new NXSubEntryWriter(links);
 		dataWriter.addDataWriterExtender(writer);
-		runScanToCreateFile(dataWriter, null);
-		
-//		junitx.framework.FileAssert.assertEquals(new File(TestFileFolder + "testDataWriterExtender_expected.txt"),
-//				new File(output));
+
+		Scannable simpleScannable1 = TestHelpers.createTestScannable("SimpleScannable1", 0., new String[] {},
+				new String[] { "simpleScannable1" }, 0, new String[] { "%5.2g" }, new String[] { "\u212B" }); // Angstrom
+
+		Object[] args = new Object[] { simpleScannable1, 0., 10., 2. };
+		ConcurrentScan scan = new ConcurrentScan(args);
+		scan.setDataWriter(dataWriter);
+		scan.runScan();
+
+		HDF5Loader loader = new HDF5Loader(testScratchDirectoryName + "/Data/2.nxs");
+		DataHolder holder = loader.loadFile();
+
+		//entry2/test points to simpleScannable1 in current file
+		ILazyDataset testds = holder.getLazyDataset("/entry2/test");
+		IDataset testslice = testds.getSlice(null, null, null);
+		Assert.assertEquals(testslice.getDouble(5), 10.0, 1e-6);
+
+		//entry2/test2 points to simpleScannable1 in 1.nxs
+		testds = holder.getLazyDataset("/entry2/test2");
+		testslice = testds.getSlice(null, null, null);
+		Assert.assertEquals(testslice.getDouble(5), 5.0, 1e-6);
+
+		//entry2/test3 points to simpleScannable1 in 1.nxs 
+		testds = holder.getLazyDataset("/entry2/test3");
+		testslice = testds.getSlice(null, null, null);
+		Assert.assertEquals(testslice.getDouble(5), 5.0, 1e-6);
 	}
 	
+	
+}
+
+class SubEntryLink{
+	public String key;
+	public String value;
+	public SubEntryLink(String key, String value) {
+		super();
+		this.key = key;
+		this.value = value;
+	}
 	
 }
 
@@ -393,36 +446,38 @@ class NXSubEntryWriter extends DataWriterExtenderBase{
 	private static final Logger logger = LoggerFactory.getLogger(NXSubEntryWriter.class);
 
 	String filename;
-	Map<String, String> links;
+	List<SubEntryLink> links;
 	
 	
-	public NXSubEntryWriter(Map<String, String> links) {
+	public NXSubEntryWriter(List<SubEntryLink> links2) {
 		super();
-		this.links = links;
+		this.links = links2;
 	}
 
 	@Override
 	public void addData(IDataWriterExtender parent, IScanDataPoint dataPoint) throws Exception {
-		filename = dataPoint.getCurrentFilename();
+		filename = new File(dataPoint.getCurrentFilename()).getAbsolutePath();
 	}
 
 	@Override
 	public void completeCollection(IDataWriterExtender parent) {
 		/**
 		 * add sub-entry section with links to other
-		 * This can be represented by a nexustree.
 		 */
 		NexusFile file;
 		try {
 			file = new NexusFile(filename,NexusFile.NXACC_RDWR);
-			for( Entry<String, String> entry : links.entrySet()){
-				String value = entry.getValue();
+			for( SubEntryLink link : links){
+				String value = link.value;
+				String key = link.key;
 				if( value.startsWith("nxfile")){
-					makelink(file, entry.getKey(), null, value);
+					makelink(file, key, null, value);
 					
+				} else if( value.startsWith("#")){
+					makelink(file, key, null, "nxfile://"+filename+value);
 				} else {
-					NXlink link = getLink(file,value);
-					makelink(file, entry.getKey(), link, null);
+					NXlink nxlink = getLink(file,value);
+					makelink(file, key, nxlink, null);
 				}
 				
 			}
@@ -492,7 +547,11 @@ class NXSubEntryWriter extends DataWriterExtenderBase{
 		NXlink link=null;
 		if( nxClass.equals(NexusExtractor.NXDataClassName))
 		{
-			file.opendata(name);
+			try{
+				file.opendata(name);
+			} catch( NexusException ne){
+				throw new Exception("Error calling opendata for "+name, ne);
+			}
 			link = file.getdataID();
 			file.closedata();
 		} 
