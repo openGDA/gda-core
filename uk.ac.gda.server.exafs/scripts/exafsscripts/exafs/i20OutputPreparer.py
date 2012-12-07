@@ -48,7 +48,8 @@ class I20OutputPreparer:
             if detType == "Germanium" :
                 fluoDetBean = BeansFactory.getBeanObject(beanGroup.getScriptFolder(), beanGroup.getDetector().getFluorescenceParameters().getConfigFileName())
                 if fluoDetBean.isXspressShowDTRawValues():
-                    # create a filter for the DT columns and return itLocalProperties.set("gda.scan.useScanPlotSettings", "true")
+                    # create a filter for the DT columns and return it
+                    LocalProperties.set("gda.scan.useScanPlotSettings", "true")
                     jython_mapper = JythonNameSpaceMapping()
                     sps = ScanPlotSettings()
                     sps.setXAxisName("Energy")  # column will be converted to this name
@@ -74,10 +75,11 @@ class I20OutputPreparer:
                             visibleAxes += [axis]
                             
                     sps.setYAxesShown(visibleAxes)
-                    sps.setYAxesNotShown([''])
+                    sps.setYAxesNotShown([invisibleAxes])
+                    # if anythign extra, such as columns added in the output parameters xml should also be plotted
+                    sps.setUnlistedColumnBehaviour(ScanPlotSettings.UnlistedColumnBehaviour.PLOT)
                     #print sps
                     return sps
-
         return None
     
     def _containsUnderbar(self,string):
