@@ -791,11 +791,13 @@ public class ExcaliburEqualizationHelper {
 		Arrays.fill(numInBins, 0);
 		IndexIterator iter = ids.getIterator();
 
+		int tens=0;
 		while (iter.hasNext()) {
 			int value = (int) ids.getElementLongAbs(iter.index);
 			numInBins[value - minVal] += 1;
+			if( value == 10)
+				tens++;
 		}
-		
 		double[] xvals = new double[numInBins.length];
 		double[] yvals = new double[numInBins.length];
 		int numFound = 0;
@@ -997,7 +999,7 @@ public class ExcaliburEqualizationHelper {
 		short[] thresholdLimit = new short[numItems];
 		Arrays.fill(thresholdLimit, (short)0);
 
-		for (int i = 0; i < numItems; i++) {
+		for (int i = 0; i < numItems; i++) { 
 			if (chipPresent[i] ) {		
 				Hdf5HelperData xValsHfd= hdf.readDataSetAll(thresholdFile, getEqualisationLocation()
 						.getLocationForOpen(), POPULATION+i+"_xvals", true);
@@ -1014,7 +1016,11 @@ public class ExcaliburEqualizationHelper {
 				int j = yvals.length - 1;
 				while (numOutside < numPixelsOutSide && j >= 0) {
 					numOutside += yvals[j];
-					j--;
+					if( numOutside < numPixelsOutSide)
+					{
+						//if number f entry in yvals[j] takes numOutside beyond limit then use j as final position rather than j--
+						j--;
+					}
 				}
 				short thresholdlimit = j >=0 ? (short) xvals[j] : -1;
 				thresholdLimit[i] = thresholdlimit; // if numPixelsOutSide==0 then use all i=
@@ -1087,7 +1093,7 @@ public class ExcaliburEqualizationHelper {
 			if( thresholdEdgePosIsValid(d2) && thresholdEdgePosIsValid(d1)) {
 				diff[i] = d2 - d1;
 			} else {
-				diff[i] = d2;
+				diff[i] = EDGE_POSITION_IF_ALL_ABOVE_THRESHOLD; 
 			}
 		}
 		Hdf5HelperData data = new Hdf5HelperData(data1.dims, diff);
@@ -1216,7 +1222,7 @@ public class ExcaliburEqualizationHelper {
 		}
 		
 	}*/
-	public void setThresholdAdjFromFile(String thresholdAFile, List<ExcaliburReadoutNodeFem> readoutFems,
+	public void setThresholdAdjFromFile(String thresholdAdjFile, String thresholdAdjOrValFile , List<ExcaliburReadoutNodeFem> readoutFems,
 			int rows, int columns, boolean[] chipPresent, short valueToOr) throws Exception {
 
 		if (columns != ExcaliburReadoutNodeFem.CHIPS_PER_FEM)
@@ -1224,10 +1230,20 @@ public class ExcaliburEqualizationHelper {
 
 		ChipSet chipset = new ChipSet(rows, columns, chipPresent);
 		Hdf5HelperLazyLoader loader = null;
-		loader = new Hdf5HelperLazyLoader(thresholdAFile, getEqualisationLocation()
+		loader = new Hdf5HelperLazyLoader(thresholdAdjFile, getEqualisationLocation()
 				.getLocationForOpen(), THRESHOLDADJ_DATASET, false);
+
 		int[] shape = loader.getLazyDataSet().getShape();
 		chipset.checkLoaderShape(shape);
+		
+		Hdf5HelperLazyLoader loaderOrVal = null;
+		if( thresholdAdjOrValFile != null ){
+			loaderOrVal = new Hdf5HelperLazyLoader(thresholdAdjOrValFile, getEqualisationLocation()
+					.getLocationForOpen(), THRESHOLDADJ_DATASET, false);
+			int[] shape1 = loaderOrVal.getLazyDataSet().getShape();
+			chipset.checkLoaderShape(shape1);
+		}
+		
 
 		for (Chip chip : chipset.getChips()) {
 			ExcaliburReadoutNodeFem fem = readoutFems.get(chip.row);
@@ -1236,8 +1252,19 @@ public class ExcaliburEqualizationHelper {
 			ShortDataset dataset = (ShortDataset) chip.getDataset(loader);
 			short[] thresholdAIn = (short[]) dataset.getBuffer();
 			short[] thresholdAOut = new short[thresholdAIn.length];
+			
+			short[] thresholdAOrValIn = null;
+			if( loaderOrVal != null){
+				ShortDataset datasetOrVal = (ShortDataset) chip.getDataset(loaderOrVal);
+				thresholdAOrValIn = (short[]) datasetOrVal.getBuffer();
+				
+			}
 			for (int i = 0; i < thresholdAIn.length; i++) {
-				thresholdAOut[i] = (short) (thresholdAIn[i] | valueToOr);
+				int val = (thresholdAIn[i] | valueToOr);
+				if(thresholdAOrValIn != null )
+					val |= thresholdAOrValIn[i];
+				thresholdAOut[i] = (short)val;
+				
 			}
 			chipReg.getPixel().setThresholdA(thresholdAOut);
 			chipReg.loadPixelConfig();
