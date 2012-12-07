@@ -26,12 +26,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ScanPlotSettings implements Serializable {
+	
+	public static enum UnlistedColumnBehaviour {
+		PLOT,
+		PLOT_NOT_VISIBLE,
+		IGNORE,
+	}
+	
 	@SuppressWarnings("unused")
 	private static final Logger logger = LoggerFactory.getLogger(ScanPlotSettings.class);
 	private String xAxisName;
 	private String[] yAxesShown, yAxesNotShown;
 	private Double xMin, xMax;
 	private boolean ignore = false;
+	private UnlistedColumnBehaviour unlistedColumnBehaviour = UnlistedColumnBehaviour.IGNORE;
 
 	public String getXAxisName() {
 		return xAxisName;
@@ -80,16 +88,25 @@ public class ScanPlotSettings implements Serializable {
 		this.ignore = ignore;
 	}
 
+	public UnlistedColumnBehaviour getUnlistedColumnBehaviour() {
+		return unlistedColumnBehaviour;
+	}
+
+	public void setUnlistedColumnBehaviour(UnlistedColumnBehaviour unlistedColumnBehaviour) {
+		this.unlistedColumnBehaviour = unlistedColumnBehaviour;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + (ignore ? 1231 : 1237);
+		result = prime * result + ((unlistedColumnBehaviour == null) ? 0 : unlistedColumnBehaviour.hashCode());
 		result = prime * result + ((xAxisName == null) ? 0 : xAxisName.hashCode());
 		result = prime * result + ((xMax == null) ? 0 : xMax.hashCode());
 		result = prime * result + ((xMin == null) ? 0 : xMin.hashCode());
 		result = prime * result + Arrays.hashCode(yAxesNotShown);
 		result = prime * result + Arrays.hashCode(yAxesShown);
-		result = prime * result + (ignore ? 1231 : 1237);
 		return result;
 	}
 
@@ -102,6 +119,10 @@ public class ScanPlotSettings implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		ScanPlotSettings other = (ScanPlotSettings) obj;
+		if (ignore != other.ignore)
+			return false;
+		if (unlistedColumnBehaviour != other.unlistedColumnBehaviour)
+			return false;
 		if (xAxisName == null) {
 			if (other.xAxisName != null)
 				return false;
@@ -121,8 +142,6 @@ public class ScanPlotSettings implements Serializable {
 			return false;
 		if (!Arrays.equals(yAxesShown, other.yAxesShown))
 			return false;
-		if (ignore != other.ignore)
-			return false;
 		return true;
 	}
 
@@ -140,8 +159,8 @@ public class ScanPlotSettings implements Serializable {
 	public String toString() {
 		return "xAxis = " + (xAxisName != null ? xAxisName.toString() : "null") + ", yAxesShown = "
 				+ listToString(yAxesShown) + ", yAxesNotShown = " + listToString(yAxesNotShown) + ", xMin = "
-				+ (xMin != null ? xMin.toString() : "null") + ", xMax = " + (xMax != null ? xMax.toString() : "null");
+				+ (xMin != null ? xMin.toString() : "null") + ", xMax = "
+				+ (xMax != null ? xMax.toString() : "null, unlisted columns: " + unlistedColumnBehaviour);
 	}
-
 
 }
