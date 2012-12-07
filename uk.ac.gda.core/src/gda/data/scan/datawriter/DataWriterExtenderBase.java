@@ -55,7 +55,7 @@ public class DataWriterExtenderBase implements IDataWriterExtender {
 	 * 
 	 * @param dataPoint
 	 */
-	public void addData(ScanDataPoint dataPoint) {
+	public void addData(IScanDataPoint dataPoint) {
 		try {
 			addData(this, dataPoint);
 		} catch (Exception e) {
