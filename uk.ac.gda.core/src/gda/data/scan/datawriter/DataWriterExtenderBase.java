@@ -20,7 +20,6 @@
 package gda.data.scan.datawriter;
 
 import gda.scan.IScanDataPoint;
-import gda.scan.ScanDataPoint;
 
 import java.util.ArrayList;
 import java.util.List;
