@@ -227,6 +227,9 @@ public class TomoAlignmentController extends TomoViewController {
 		SubMonitor progress = SubMonitor.convert(monitor);
 		progress.beginTask("Taking flat images", numFlat + 5);
 		// double distanceToMoveForFlat = motorHandler.getDistanceToMoveSampleForTakeFlat();
+		double initialMotorPos = sampleStageMotorHandler.getSampleBaseMotorPosition();
+		try{
+		sampleStageMotorHandler.moveSampleScannableBy(progress, sampleStageMotorHandler.getDistanceToMoveSampleOut());
 		try {
 			logger.debug("Requesting for open shutter");
 			// 1. Open Experimental shutter
@@ -243,7 +246,10 @@ public class TomoAlignmentController extends TomoViewController {
 			throw new InvocationTargetException(e, e.getMessage());
 		}
 
-		cameraHandler.resetFileFormat();
+		cameraHandler.resetFileFormat();}
+		finally{
+			sampleStageMotorHandler.moveSampleScannable(progress, initialMotorPos);
+		}
 	}
 
 	public int getPreferredNumberFlatImages() {
@@ -528,7 +534,7 @@ public class TomoAlignmentController extends TomoViewController {
 			}
 		} catch (Exception ex) {
 			logger.error("Exc:", ex);
-			throw new InvocationTargetException(ex, ex.getMessage());
+			throw new InvocationTargetException(ex, "Problem setting module");
 		}
 	}
 

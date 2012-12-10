@@ -480,11 +480,11 @@ public class TomoPlotComposite extends Composite {
 
 	public void updatePlotPoints(final IProgressMonitor progress, final TiltPlotPointsHolder tiltPoints) {
 		mode = MODE.TILT;
-		pgBook_plotinfo.showPage(pg_plotinfo_tilt);
 		getDisplay().syncExec(new Runnable() {
 
 			@Override
 			public void run() {
+				pgBook_plotinfo.showPage(pg_plotinfo_tilt);
 				plottingSystem.clear();
 				final DoublePointList centers1 = tiltPoints.getCenters1();
 				final DoublePointList centers2 = tiltPoints.getCenters2();
@@ -982,7 +982,7 @@ public class TomoPlotComposite extends Composite {
 		return DEFAULT_HISTOGRAM_FACTOR;
 	}
 
-	private void resetHistogramFactor() {
+	public void resetHistogramFactor() {
 		histogramFactor = DEFAULT_HISTOGRAM_FACTOR;
 	}
 }

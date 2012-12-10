@@ -1938,6 +1938,8 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 			} catch (Exception e) {
 				logger.error("Reached limits");
 			}
+			
+			tomoAlignmentView.getTomoPlotComposite().resetHistogramFactor();
 		} catch (Exception e1) {
 			logger.error("Problem updating exposure time", e1);
 			tomoAlignmentView.loadErrorInDisplay("Problem applying histogram value to exposure time",

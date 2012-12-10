@@ -62,6 +62,7 @@ import uk.ac.gda.client.tomo.TomoClientActivator;
 import uk.ac.gda.client.tomo.composites.ModuleButtonComposite.CAMERA_MODULE;
 import uk.ac.gda.client.tomo.composites.RotationButtonComposite.RotationButtonSelectionListener;
 import uk.ac.gda.client.tomo.composites.RotationSliderComposite.SliderSelectionListener;
+
 /**
  * Motion control composite - this contains
  * <p>
@@ -1962,7 +1963,7 @@ public class TomoAlignmentControlComposite extends Composite {
 	}
 
 	public void setEstimatedDuration(final String estimatedDuration) {
-		if (lblEstDuration != null && !lblEstDuration.isDisposed()) {
+		if (estimatedDuration != null && lblEstDuration != null && !lblEstDuration.isDisposed()) {
 
 			lblEstDuration.getDisplay().syncExec(new Runnable() {
 

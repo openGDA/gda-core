@@ -38,7 +38,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -52,6 +51,7 @@ import uk.ac.gda.client.tomo.ExternalFunction;
 import uk.ac.gda.client.tomo.TiltPlotPointsHolder;
 import uk.ac.gda.client.tomo.TomoClientConstants;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraHandler;
+import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraModuleMotorHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ISampleStageMotorHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ITiltBallLookupTableHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ITiltController;
@@ -63,13 +63,16 @@ import uk.ac.gda.client.tomo.view.handlers.exceptions.ExternalProcessingFailedEx
  */
 public class TiltController implements ITiltController {
 
-	private Pattern doublePattern = Pattern.compile("(\\d)*.?(\\d)*");
+	// private Pattern doublePattern = Pattern.compile("(\\d)*.?(\\d)*");
+	private Pattern doublePattern = Pattern.compile("\\-?[0-9]*\\.?[0-9]*");
 	private static final String SUBDIRECTORY = "Subdirectory:";
 	private ExternalFunction externalProgram1;
 	private ExternalFunction externalProgram2;
 	private ITiltBallLookupTableHandler lookupTableHandler;
 
 	private ISampleStageMotorHandler sampleStageMotorHandler;
+
+	private ICameraModuleMotorHandler cameraModuleMotorHandler;
 
 	private ICameraHandler cameraHandler;
 
@@ -88,6 +91,10 @@ public class TiltController implements ITiltController {
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(TiltController.class);
+
+	public void setCameraModuleMotorHandler(ICameraModuleMotorHandler cameraModuleMotorHandler) {
+		this.cameraModuleMotorHandler = cameraModuleMotorHandler;
+	}
 
 	public void setLookupTableHandler(ITiltBallLookupTableHandler lookupTableHandler) {
 		this.lookupTableHandler = lookupTableHandler;
@@ -149,15 +156,17 @@ public class TiltController implements ITiltController {
 							logger.debug("motorsto move:{}", motorsToMove);
 							if (!progress.isCanceled()) {
 								if (motorsToMove != null) {
-									logger.debug("Current rz is :{}", sampleStageMotorHandler.getSs1RzPosition());
+									logger.debug("Current cam1_roll is :{}", cameraModuleMotorHandler.getCam1RollPosition());
 									logger.debug("Current rx is :{}", sampleStageMotorHandler.getSs1RxPosition());
 									double rz = motorsToMove[0];// roll
 									double rx = motorsToMove[1];// pitch
 
-									sampleStageMotorHandler.moveSs1RzBy(progress, -rz);
+									// sampleStageMotorHandler.moveSs1RzBy(progress, -rz);
+									cameraModuleMotorHandler.moveCam1Roll(progress, cameraModuleMotorHandler.getCam1RollPosition() - rz);
 									sampleStageMotorHandler.moveSs1RxBy(progress, -rx);
 
-									logger.debug("After move ss1_rz is :{}", sampleStageMotorHandler.getSs1RzPosition());
+									logger.debug("After move cam1 roll is :{}",
+											cameraModuleMotorHandler.getCam1RollPosition());
 									logger.debug("After move ss1_rx is :{}", sampleStageMotorHandler.getSs1RxPosition());
 									if (!monitor.isCanceled()) {
 										// 5. scan 0 to 340 deg in steps of 20
@@ -175,8 +184,6 @@ public class TiltController implements ITiltController {
 						}
 					}
 				}
-			} catch (Exception ex) {
-				throw ex;
 			} finally {
 				sampleStageMotorHandler.moveSs1TxBy(progress, -txOffset);
 				changeSubDir(subDir);
@@ -436,6 +443,8 @@ public class TiltController implements ITiltController {
 		while (rl != null) {
 			StringTokenizer strTokenizer = new StringTokenizer(rl, ",");
 			if (strTokenizer.countTokens() != 2) {
+				fis.close();
+				br.close();
 				throw new IllegalArgumentException("Invalid row in the table");
 			}
 			double x = Double.parseDouble(strTokenizer.nextToken());
@@ -470,12 +479,21 @@ public class TiltController implements ITiltController {
 			int count = 0;
 			Double[] motorsToMove = new Double[tokenizer.countTokens()];
 			while (tokenizer.hasMoreElements()) {
-				String token = tokenizer.nextElement().toString();
-				Matcher doublePatternMatcher = doublePattern.matcher(token);
-				if (!doublePatternMatcher.matches()) {
+				String token = tokenizer.nextElement().toString().trim();
+				// Matcher doublePatternMatcher = doublePattern.matcher(token);
+				// if (!doublePatternMatcher.matches()) {
+				// return null;
+				// }
+				try {
+					motorsToMove[count++] = Double.parseDouble(token);
+					// Only interested in the first two decimals
+					if (count == 2) {
+						break;
+					}
+				} catch (NumberFormatException nfe) {
+					logger.error("Not a number", nfe);
 					return null;
 				}
-				motorsToMove[count++] = Double.parseDouble(token);
 			}
 			return motorsToMove;
 		}

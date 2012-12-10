@@ -20,6 +20,7 @@ package uk.ac.gda.client.tomo.configuration.view.handlers.impl;
 
 import gda.jython.IScanDataPointObserver;
 import gda.jython.InterfaceProvider;
+import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObservable;
 import gda.scan.IScanDataPoint;
@@ -90,6 +91,8 @@ public class TomoScanController implements ITomoScanController {
 		ArrayList<Double> positionOfBaseAtFlatList = new ArrayList<Double>();
 		ArrayList<Double> positionOfBaseInBeamList = new ArrayList<Double>();
 		ArrayList<Integer> tomoRotationAxisList = new ArrayList<Integer>();
+		ArrayList<Integer> minYList = new ArrayList<Integer>();
+		ArrayList<Integer> maxYList= new ArrayList<Integer>();
 
 		for (AlignmentConfiguration alignmentConfiguration : configurationSet) {
 			if (alignmentConfiguration.getSelectedToRun()) {
@@ -135,6 +138,8 @@ public class TomoScanController implements ITomoScanController {
 							.getDesired3DResolution());
 					double positionOfBaseAtFlat = alignmentConfiguration.getOutOfBeamPosition();
 					double positionOfBaseInBeam = alignmentConfiguration.getInBeamPosition();
+					int minY = alignmentConfiguration.getDetectorProperties().getDetectorRoi().getMinY();
+					int maxY = alignmentConfiguration.getDetectorProperties().getDetectorRoi().getMaxY();
 
 					sampleAcqTimeList.add(sampleAcq);
 					flatAcqTimesList.add(flatAcq);
@@ -146,6 +151,8 @@ public class TomoScanController implements ITomoScanController {
 					positionOfBaseAtFlatList.add(positionOfBaseAtFlat);
 					positionOfBaseInBeamList.add(positionOfBaseInBeam);
 					tomoRotationAxisList.add(alignmentConfiguration.getTomoRotationAxis());
+					minYList.add(minY);
+					maxYList.add(maxY);
 				} catch (Exception e) {
 					logger.error("TODO put description of error here", e);
 				}
@@ -155,10 +162,10 @@ public class TomoScanController implements ITomoScanController {
 		// numberOfFramesPerProjection, numberofProjections,
 		// isContinuousScan, desiredResolution, timeDivider, positionOfBaseAtFlat, positionOfBaseInBeam
 		String setupTomoScanCmd = String
-				.format("tomoAlignment.tomographyConfigurationManager.setupTomoScan(%1$d, %2$s, %3$s, %4$s, %5$s, %6$s, %7$s, %8$s, %9$s, %10$s, %11$s, %12$s, %13$s, %14$s, %15$s)",
+				.format("tomoAlignment.tomographyConfigurationManager.setupTomoScan(%1$d, %2$s, %3$s, %4$s, %5$s, %6$s, %7$s, %8$s, %9$s, %10$s, %11$s, %12$s, %13$s, %14$s, %15$s, %16$s, %17$s)",
 						length, configIds, descriptions, moduleNumbers, motorMoveMaps, sampleAcqTimeList,
 						flatAcqTimesList, numFramesPerPrList, numProjList, isContinuousList, desiredResolutionList,
-						timeDividerList, positionOfBaseAtFlatList, positionOfBaseInBeamList, tomoRotationAxisList);
+						timeDividerList, positionOfBaseAtFlatList, positionOfBaseInBeamList, tomoRotationAxisList, minYList, maxYList);
 		logger.debug("Setup:{}", setupTomoScanCmd);
 		JythonServerFacade.getInstance().runCommand(setupTomoScanCmd);
 	}
@@ -219,7 +226,7 @@ public class TomoScanController implements ITomoScanController {
 								if (NONE.equals(runningConfigId)) {
 									logger.debug("No configs are running");
 									for (IScanControllerUpdateListener lis : controllerUpdates) {
-										lis.isScanRunning(false, runningConfigId);
+										lis.isScanRunning(false || isJythonScanRunning(), runningConfigId);
 									}
 								} else {
 									for (IScanControllerUpdateListener lis : controllerUpdates) {
@@ -237,6 +244,16 @@ public class TomoScanController implements ITomoScanController {
 			}
 		}
 	};
+
+	private boolean isJythonScanRunning() {
+		boolean isJythonScanRunning = false;
+		try {
+			isJythonScanRunning = Jython.RUNNING == JythonServerFacade.getCurrentInstance().getScanStatus();
+		} catch (Exception ex) {
+			logger.error("Problem extracting jython scan running status", ex);
+		}
+		return isJythonScanRunning;
+	}
 
 	@Override
 	public void dispose() {

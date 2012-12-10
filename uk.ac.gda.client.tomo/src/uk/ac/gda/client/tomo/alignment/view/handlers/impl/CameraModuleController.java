@@ -46,14 +46,15 @@ public class CameraModuleController implements InitializingBean, ICameraModuleCo
 
 	protected IModuleLookupTableHandler lookupTableHandler;
 
-	private ICameraModuleMotorHandler cameraModuleMotorHandler;
 
 	private IObservable tomoScriptController;
+
+	
+	private ICameraModuleMotorHandler cameraModuleMotorHandler;
 
 	public void setCameraModuleMotorHandler(ICameraModuleMotorHandler cameraModuleMotorHandler) {
 		this.cameraModuleMotorHandler = cameraModuleMotorHandler;
 	}
-
 	/**
 	 * @param lookupTableHandler
 	 *            The lookupTableHandler to set.
@@ -66,7 +67,7 @@ public class CameraModuleController implements InitializingBean, ICameraModuleCo
 	public void moveModuleTo(CAMERA_MODULE module, final IProgressMonitor monitor) throws Exception {
 		final PyBaseException[] exceptions = new PyBaseException[1];
 		final SubMonitor progress = SubMonitor.convert(monitor);
-		progress.beginTask("Module change", 5);
+		progress.beginTask("", 5);
 		String moveModuleCmd = String.format(TomoClientConstants.MOVE_MODULE_COMMAND, module.getValue().intValue());
 		IObserver observer = new IObserver() {
 
@@ -87,9 +88,9 @@ public class CameraModuleController implements InitializingBean, ICameraModuleCo
 		tomoScriptController.addIObserver(observer);
 		JythonServerFacade.getInstance().evaluateCommand(moveModuleCmd);
 		tomoScriptController.deleteIObserver(observer);
-		if (exceptions[0] != null) {
-			throw new IllegalStateException(exceptions[0].message.toString());
-		}
+//		if (exceptions[0] != null) {
+//			throw new IllegalStateException(exceptions[0].message.toString());
+//		}
 	}
 
 	@Override

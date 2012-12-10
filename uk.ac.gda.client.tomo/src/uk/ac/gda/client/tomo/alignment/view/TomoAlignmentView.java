@@ -94,7 +94,7 @@ import uk.ac.gda.ui.event.PartAdapter2;
 public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	private static final Logger logger = LoggerFactory.getLogger(TomoAlignmentView.class);
 
-	private boolean isScanRunning = Boolean.FALSE;
+	private boolean isScanRunning = Boolean.TRUE;
 
 	private static final IWorkbenchWindow ACTIVE_WORKBENCH_WINDOW = PlatformUI.getWorkbench()
 			.getActiveWorkbenchWindow();
@@ -228,7 +228,8 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		private void stopStreamByCheckingIfOn() {
 			// check if the scan is on.
 			if (!TomoAlignmentView.this.isScanRunning()) {
-				leftPanelComposite.stopStream();
+				// leftPanelComposite.stopStream();
+				stopFullVideoReceiver();
 			} else {
 				// disable all the controls and inform the user that the scan is running.
 			}
@@ -856,9 +857,9 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			try {
 				if (isSuccess.get()) {
 					try {
-						if (tomoAlignmentController.isStreaming()) {
+						if (tomoAlignmentController.isStreaming() && !isScanRunning) {
 							logger.debug("run->Stopping stream while updating all fields");
-							leftPanelComposite.stopStream();
+							//leftPanelComposite.stopStream();
 						}
 					} catch (Exception e) {
 						logger.error("Problem identifying whether the streaming is switched on", e);
@@ -1156,6 +1157,10 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			leftVideoReceiver.removeImageListener(leftVideoListener);
 			fullImgReceiverStarted = false;
 
+			//
+			leftPanelComposite.deselectStreamButton();
+			setLeftWindowInfo(TomoAlignmentView.STREAM_STOPPED);
+			//
 			if (zoomReceiverStarted) {
 				stopZoomVideoReceiver();
 			}
@@ -1327,7 +1332,9 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 				MessageDialog.openError(getViewSite().getShell(), ERROR_STARTING_STREAM_label,
 						ERROR_STREAM_START_shortdesc);
 				//
-				leftPanelComposite.stopStream();
+				if (!isScanRunning) {
+					leftPanelComposite.stopStream();
+				}
 				//
 			} catch (ExecutionException e) {
 				logger.error("IOC May be down", e);
@@ -1575,11 +1582,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		tomoControlComposite.setResolution(res);
 	}
 
-	private String getEstimatedDuration(double exposureTime) {
-		// exposureTime * numProjections + (500ms * numProjections) + 10 flat + 10 dark
-		return null;
-	}
-
 	@Override
 	public void setAdjustedPreferredExposureTimeToWidget(double preferredExposureTime) {
 		if (leftWindowDisplayMode == ViewerDisplayMode.SAMPLE_STREAM_LIVE
@@ -1590,11 +1592,14 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			// FIXME - Only updating the estimated duration based on the sample exposure time and not the flat exposure
 			// time - this needs to be modified once the flat exposure time is used in the experiment scan.
 
-			tomoControlComposite.setEstimatedDuration(getEstimatedDuration(preferredExposureTime));
+			tomoControlComposite.setEstimatedDuration(tomoAlignmentController
+					.getEstimatedDurationOfScan(tomoControlComposite.getResolution()));
 		} else if (leftWindowDisplayMode == ViewerDisplayMode.FLAT_STREAM_LIVE
 				|| leftWindowDisplayMode == ViewerDisplayMode.FLAT_SINGLE) {
 			setPreferredFlatExposureTimeToWidget(preferredExposureTime);
 			tomoAlignmentController.setPreferredFlatExposureTime(preferredExposureTime);
+		} else {
+			tomoAlignmentController.setPreferredSampleExposureTime(preferredExposureTime);
 		}
 	}
 

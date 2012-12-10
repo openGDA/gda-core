@@ -97,7 +97,10 @@ public class TomoConfigContentProvider implements IStructuredContentProvider {
 			configContent.setModuleNumber(alignmentConfiguration.getDetectorProperties().getModuleParameters()
 					.getModuleNumber());
 			configContent.setEnergy(alignmentConfiguration.getEnergy());
-			configContent.setSampleDetectorDistance(alignmentConfiguration.getMotorPosition(cameraDistanceMotorName));
+			if (alignmentConfiguration.getMotorPosition(cameraDistanceMotorName) != null) {
+				configContent.setSampleDetectorDistance(alignmentConfiguration
+						.getMotorPosition(cameraDistanceMotorName));
+			}
 
 			configContent.setSampleWeight(getSampleWeightString(alignmentConfiguration.getSampleWeight()));
 			configContent.setResolution(getResolutionString(alignmentConfiguration.getDetectorProperties()

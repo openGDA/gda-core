@@ -801,7 +801,7 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 		// settings that would need to be copied otherwise.
 		boolean hdfFormat = getCamera().isHdfFormat();
 		getCamera().resetAll();
-		getCamera().setExternalTriggered(Boolean.FALSE);
+		getCamera().setExternalTriggered(Boolean.TRUE);
 		getCamera().initDetector();
 		getCamera().setHdfFormat(hdfFormat);
 	}

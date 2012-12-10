@@ -149,7 +149,7 @@ public class ModuleButtonComposite extends Composite {
 					return mod;
 				}
 			}
-			return null;
+			return NO_MODULE;
 		}
 
 	}
@@ -160,7 +160,8 @@ public class ModuleButtonComposite extends Composite {
 
 				@Override
 				public void run() {
-					MessageDialog.openError(getShell(), dialogTitle, ex.getMessage());
+					MessageDialog.openError(getShell(), dialogTitle,
+							"There has been an error with tomography alignment: " + ex.getMessage());
 				}
 			});
 		}
@@ -236,8 +237,9 @@ public class ModuleButtonComposite extends Composite {
 	 * @param btn3Text
 	 * @param btn4Text
 	 */
-	public void setModuleButtonText(@SuppressWarnings("unused") String units, String btn1Text, String btn2Text, String btn3Text, String btn4Text) {
-		//lblModulesHeader.setText(String.format("%1$s (%2$s)", MODULES_HEADER, units));
+	public void setModuleButtonText(@SuppressWarnings("unused") String units, String btn1Text, String btn2Text,
+			String btn3Text, String btn4Text) {
+		// lblModulesHeader.setText(String.format("%1$s (%2$s)", MODULES_HEADER, units));
 		btnModule1.setText(btn1Text);
 		btnModule2.setText(btn2Text);
 		btnModule3.setText(btn3Text);
