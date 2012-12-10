@@ -485,7 +485,8 @@ public class ColourSliderComposite extends Composite {
 
 	public void moveTopSliderTo(int value) {
 		if (value > maximumLimit) {
-			throw new IllegalArgumentException("Requested value greater than the maximum limit");
+			//throw new IllegalArgumentException("Requested value greater than the maximum limit");
+			value = (int)maximumLimit;
 		}
 		if (bottomLimitInPixel - topLimitInPixel > 0) {
 			topSliderMoved = true;
@@ -508,7 +509,8 @@ public class ColourSliderComposite extends Composite {
 
 	public void moveBottomSliderTo(int value) {
 		if (value < 0) {
-			throw new IllegalArgumentException("Requested value greater than the maximum limit");
+			//throw new IllegalArgumentException("Requested value greater than the maximum limit");
+			value = 0;
 		}
 		if (bottomLimitInPixel - topLimitInPixel > 0) {
 			bottomSliderMoved = true;
