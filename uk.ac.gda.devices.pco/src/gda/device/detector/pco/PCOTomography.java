@@ -71,15 +71,14 @@ public class PCOTomography implements ITomographyDetector, Findable {
 	private double maxIntensity = 65000;
 
 	@Override
-	public void acquireMJpeg(Double expTime, int binX, int binY, Double scale, Double offset)
-			throws Exception {
+	public void acquireMJpeg(Double expTime, int binX, int binY, Double scale, Double offset) throws Exception {
 		// plugins arranged - cam -> proc -> roi ->mjpeg
 		IPCOControllerV17 controller = pcoDetector.getController();
 
 		ADBase areaDetector = controller.getAreaDetector();
-		if (expTime != areaDetector.getAcquireTime_RBV()) {
-			pcoDetector.stop();
-		}
+		//
+		pcoDetector.getController().disarmCamera();
+		//
 		NDStats stat = controller.getStat();
 		NDProcess proc1 = controller.getProc1();
 		NDROI roi1 = controller.getRoi1();
@@ -372,7 +371,7 @@ public class PCOTomography implements ITomographyDetector, Findable {
 		proc.setEnableOffsetScale(0);
 		proc.setEnableHighClip(0);
 		proc.setEnableLowClip(0);
-		
+
 		proc.setEnableBackground(1);
 	}
 
@@ -424,14 +423,13 @@ public class PCOTomography implements ITomographyDetector, Findable {
 		//
 		proc1.setEnableFilter(0);
 		proc2.setEnableFilter(0);
-	
 
 		proc1.setEnableFlatField(0);
 		proc2.setEnableFlatField(0);
 		//
 		proc1.setEnableBackground(0);
 		proc2.setEnableBackground(0);
-	
+
 		fullFileName = controller.getTiffFullFileName();
 		setHdfFormat(isHdfFormat);
 		return fullFileName;
