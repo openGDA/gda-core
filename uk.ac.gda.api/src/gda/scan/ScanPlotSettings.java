@@ -27,11 +27,12 @@ import org.slf4j.LoggerFactory;
 
 public class ScanPlotSettings implements Serializable {
 	
-	public static enum UnlistedColumnBehaviour {
-		PLOT,
-		PLOT_NOT_VISIBLE,
-		IGNORE,
-	}
+	/**
+	 * The following are values for unlistedColumnBehaviour
+	 */
+	static int PLOT=0;
+	static int PLOT_NOT_VISIBLE=1;
+	static int IGNORE=2;
 	
 	@SuppressWarnings("unused")
 	private static final Logger logger = LoggerFactory.getLogger(ScanPlotSettings.class);
@@ -39,7 +40,7 @@ public class ScanPlotSettings implements Serializable {
 	private String[] yAxesShown, yAxesNotShown;
 	private Double xMin, xMax;
 	private boolean ignore = false;
-	private UnlistedColumnBehaviour unlistedColumnBehaviour = UnlistedColumnBehaviour.IGNORE;
+	private int unlistedColumnBehaviour = IGNORE;
 
 	public String getXAxisName() {
 		return xAxisName;
@@ -88,11 +89,11 @@ public class ScanPlotSettings implements Serializable {
 		this.ignore = ignore;
 	}
 
-	public UnlistedColumnBehaviour getUnlistedColumnBehaviour() {
+	public int getUnlistedColumnBehaviour() {
 		return unlistedColumnBehaviour;
 	}
 
-	public void setUnlistedColumnBehaviour(UnlistedColumnBehaviour unlistedColumnBehaviour) {
+	public void setUnlistedColumnBehaviour(int unlistedColumnBehaviour) {
 		this.unlistedColumnBehaviour = unlistedColumnBehaviour;
 	}
 
@@ -101,7 +102,7 @@ public class ScanPlotSettings implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + (ignore ? 1231 : 1237);
-		result = prime * result + ((unlistedColumnBehaviour == null) ? 0 : unlistedColumnBehaviour.hashCode());
+		result = prime * result + unlistedColumnBehaviour;
 		result = prime * result + ((xAxisName == null) ? 0 : xAxisName.hashCode());
 		result = prime * result + ((xMax == null) ? 0 : xMax.hashCode());
 		result = prime * result + ((xMin == null) ? 0 : xMin.hashCode());

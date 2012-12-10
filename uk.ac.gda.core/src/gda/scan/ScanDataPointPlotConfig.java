@@ -141,7 +141,7 @@ public class ScanDataPointPlotConfig {
 	}
 
 	private void addIfWanted(Vector<ScanDataPlotConfigLine> linesToAdd, Double val, Vector<String> yAxesShown,
-			Vector<String> yAxesNotShown, String name, int index, int xAxisIndex, ScanPlotSettings.UnlistedColumnBehaviour defaultBehaviour) {
+			Vector<String> yAxesNotShown, String name, int index, int xAxisIndex, int defaultBehaviour) {
 		// do not add a line if we are unable to convert the string representation to a double
 		if (val == null)
 			return;
@@ -150,9 +150,9 @@ public class ScanDataPointPlotConfig {
 				linesToAdd.add(new ScanDataPlotConfigLine(index, name, true));
 			} else if (yAxesNotShown == null || yAxesNotShown.contains(name)) {
 				linesToAdd.add(new ScanDataPlotConfigLine(index, name, false));
-			} else if (defaultBehaviour == ScanPlotSettings.UnlistedColumnBehaviour.PLOT) {
+			} else if (defaultBehaviour == ScanPlotSettings.PLOT) {
 				linesToAdd.add(new ScanDataPlotConfigLine(index, name, true));
-			} else if (defaultBehaviour == ScanPlotSettings.UnlistedColumnBehaviour.PLOT_NOT_VISIBLE) {
+			} else if (defaultBehaviour == ScanPlotSettings.PLOT_NOT_VISIBLE) {
 				linesToAdd.add(new ScanDataPlotConfigLine(index, name, false));
 			}
 		}
