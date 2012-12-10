@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
-import uk.ac.diamond.scisoft.analysis.io.MetaDataAdapter;
+import uk.ac.diamond.scisoft.analysis.io.Metadata;
 import uk.ac.gda.monitor.ProgressMonitorWrapper;
 import uk.ac.gda.util.io.SortingUtils;
 import uk.ac.gda.util.list.SortNatural;
@@ -111,7 +111,7 @@ public class DataSetComparisionDialog extends Dialog {
 			label.setLayoutData(gridData);
 		}
 		
-		dataSetPlotView.setMetaData(new MetaDataAdapter(getNames()));
+		dataSetPlotView.setMetaData(new Metadata(getNames()));
 		dataSetPlotView.createPartControl(container);
 
 		if (isAllDataSets) {
@@ -127,7 +127,7 @@ public class DataSetComparisionDialog extends Dialog {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				isAllDataSets = btnShowAllData.getSelection();
-				dataSetPlotView.setMetaData(new MetaDataAdapter(getNames()));
+				dataSetPlotView.setMetaData(new Metadata(getNames()));
 				dataSetPlotView.refresh();
 			}
 		});
