@@ -222,12 +222,14 @@ class EllipseCalculator():
         return self.error_list
         
     def create_error_file(self, beam_positions, errors, output_column_name): #peak2d_peakx or peak2d_peaky
+        #should really outpu the slit positions
         pa = PreloadedArray('pa', ['beam_position', output_column_name, 'sold', 'snew'], ['%f', '%f','%f', '%f'])
         for i in range(len(beam_positions)):
             pa.append([beam_positions[i], errors[i], self.sold[i], self.snew[i]])
         scan([pa, 0, pa.getLength()-1, 1])   
         
     def create_error_file_cam(self, beam_positions, errors, output_column_name): #peak2d_peakx or peak2d_peaky
+        #should really outpu the slit positions
         pa = PreloadedArray('pa', ['beam_position', output_column_name, 'told', 'tnew'], ['%f', '%f','%f', '%f'])
         for i in range(len(beam_positions)):
             pa.append([beam_positions[i], errors[i], self.told[i], self.tnew[i]])
