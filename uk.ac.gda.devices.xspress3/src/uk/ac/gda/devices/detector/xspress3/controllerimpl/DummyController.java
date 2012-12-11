@@ -206,4 +206,10 @@ public class DummyController implements Xspress3Controller {
 		// TODO Auto-generated method stub
 		return;
 	}
+
+	@Override
+	public int getNumFramesPerReadout() throws DeviceException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

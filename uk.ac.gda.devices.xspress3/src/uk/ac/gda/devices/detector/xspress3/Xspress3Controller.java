@@ -242,4 +242,6 @@ public interface Xspress3Controller {
 
 	public void configure() throws FactoryException;
 
+	public int getNumFramesPerReadout() throws DeviceException;
+
 }
