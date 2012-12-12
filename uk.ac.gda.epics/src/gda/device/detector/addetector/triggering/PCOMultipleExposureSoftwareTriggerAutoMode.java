@@ -40,7 +40,7 @@ public class PCOMultipleExposureSoftwareTriggerAutoMode extends MultipleExposure
 		getAdBase().setAcquirePeriod(0.0); //this is needed for PCO to make sure delay=0
 		getAdBase().setTriggerMode(PcoTriggerMode.SOFTWARE.ordinal());
 		adDriverPco.getAdcModePV().put(1); //2 adcs
-		adDriverPco.getTimeStampModePV().put(0); // None
+		adDriverPco.getTimeStampModePV().put(1); // BCD - if set to None then the image is blank. BCD means no timestamp on image
 		adDriverPco.getArmModePV().putCallback(true);
 		enableOrDisableCallbacks();
 	}
