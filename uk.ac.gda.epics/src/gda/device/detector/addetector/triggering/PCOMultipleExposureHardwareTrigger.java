@@ -28,14 +28,12 @@ import gda.device.timer.Etfg;
 import gda.device.timer.Tfg;
 
 /*
- * Class of detector used to take multiple exposures that are then added together to make a single collection file
- * 
- * How to use:
- * 
- * Connect Process Plugin to camera to allow the callback every nth array to the tif file plugin
- * The camera should be running iin continuous node with the exposure set in software
- * in collect Data the Process plugin is enabled to sum up n images. On reaching the n images it then stops acting on any more
- * is busy looks for the number of images summed up to match the number required 
+ * Class of detector used to take multiple exposures that are then added together to make a single collection image
+ * The TFG receives a trigger from a signal generator that is also used to vibrate the sample
+ * The TFG responds by sending a trigger to the camera after a certain delay
+ * Each TFG trigger results in a single exposure. Multilple exposures are added together in the proc plugin
+ * and the result is the image to be saved.
+ * The trigger is busy until N images are summed together by the proc plugin
  * 
  */
 public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftwareTriggerAutoMode {
@@ -84,9 +82,14 @@ public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftware
 			ndProcess.setNumFilter(numberImagesPerCollection);
 			ndProcess.setFilterCallbacks(NDProcess.FilterCallback_ArrayNOnly);
 			ndProcess.setEnableFilter(0); // enable in collectData
-			// do noy use autoreset - rather reset for every collection
+			// do not use autoreset - rather reset for every collection
 			// need to set Callbacks Array N only - version 1.8 of AD
 			ndProcess.setAutoResetFilter(0);
+			ndProcess.setEnableHighClip(0);
+			ndProcess.setEnableLowClip(0);
+			ndProcess.setEnableOffsetScale(0);
+			ndProcess.setEnableFlatField(0);
+			ndProcess.setEnableBackground(0);
 			ndProcess.getPluginBase().enableCallbacks();
 			ndProcess.getPluginBase().setArrayCounter(0);
 			ndProcess.getPluginBase().setDroppedArrays(0);
