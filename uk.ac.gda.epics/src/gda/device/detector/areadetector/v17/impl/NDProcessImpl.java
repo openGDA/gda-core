@@ -884,9 +884,9 @@ public class NDProcessImpl implements InitializingBean, NDProcess {
 	public void setResetFilter(int resetfilter) throws Exception {
 		try {
 			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getResetFilter().getPv()), resetfilter);
+				EPICS_CONTROLLER.caputWait(createChannel(config.getResetFilter().getPv()), resetfilter);
 			} else {
-				EPICS_CONTROLLER.caput(getChannel(ResetFilter), resetfilter);
+				EPICS_CONTROLLER.caputWait(getChannel(ResetFilter), resetfilter);
 			}
 		} catch (Exception ex) {
 			logger.warn("g.d.d.a.v.i.NDProcessImpl-> Cannot setResetFilter", ex);
