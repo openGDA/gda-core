@@ -53,6 +53,7 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 	public MultipleExposureSoftwareTriggerAutoMode(ADBase adBase, double maxExposureTime) {
 		super(adBase);
 		this.maxExposureTime = maxExposureTime;
+		exposureTime = maxExposureTime;
 	}
 
 	public NDProcess getNdProcess() {
@@ -96,9 +97,15 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 			ndProcess.setAutoResetFilter(1);
 			ndProcess.setFilterCallbacks(NDProcess.FilterCallback_ArrayNOnly); 
 			ndProcess.setEnableFilter(1);
+			ndProcess.setEnableHighClip(0);
+			ndProcess.setEnableLowClip(0);
+			ndProcess.setEnableOffsetScale(0);
+			ndProcess.setEnableFlatField(0);
+			ndProcess.setEnableBackground(0);
 			ndProcess.getPluginBase().enableCallbacks();
 			ndProcess.getPluginBase().setArrayCounter(0);
 			ndProcess.getPluginBase().setDroppedArrays(0);
+			ndProcess.setDataTypeOut(5); // UINT32			
 		}
 		enableOrDisableCallbacks();
 	}
