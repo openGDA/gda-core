@@ -349,6 +349,9 @@
 		<field name="gain" type="string">
 			<bind-xml name="gain" node="element" />
 		</field>
+		<field name="offset" type="string">
+			<bind-xml name="offset" node="element" />
+		</field>
 		<field name="useGasProperties" type="boolean" set-method="setUseGasProperties"
 			get-method="isUseGasProperties">
 			<bind-xml name="useGasProperties" node="element" />

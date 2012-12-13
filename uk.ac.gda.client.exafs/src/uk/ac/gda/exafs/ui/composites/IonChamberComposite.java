@@ -92,6 +92,7 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 	private TextWrapper currentAmplifierName;
 	private LabelWrapper channel;
 	private ComboWrapper gain;
+	private ComboWrapper offset;
 	private ScaleBox percentAbsorption;
 	private ComboWrapper gasType;
 	private Group gasPropertiesGroup;
@@ -126,6 +127,7 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 	private boolean useGasProperties = true;
 
 	private Label gainLabel;
+	private Label offsetLabel;
 
 	public void setExperimentType(String type) {
 		detParams.setExperimentType(type);
@@ -315,25 +317,31 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 		changeSensitivity
 				.setToolTipText("Select for the amplifier sensitivity to be adjust during data collection.\nIf unselected then the current sensitivity will be left unchanged.");
 		changeSensitivity.setValue(false);
-		changeSensitivity.addValueListener(new ValueListener() {
-			
-			@Override
-			public void valueChangePerformed(ValueEvent e) {
-				Boolean boxTicked = (Boolean) e.getValue();
-				if (boxTicked){
-					gainLabel.setEnabled(true);
-					gain.setEnabled(true);
-				} else {
-					gainLabel.setEnabled(false);
-					gain.setEnabled(false);
-				}
-			}
-			
-			@Override
-			public String getValueListenerName() {
-				return null;
-			}
-		});
+		// always be enabled as the events are not sent when the listeditor selection changes, so the
+		// labels and combos do not always track the booleanwrapper. So simpler to always be enabled.
+//		changeSensitivity.addValueListener(new ValueListener() {
+//			
+//			@Override
+//			public void valueChangePerformed(ValueEvent e) {
+//				Boolean boxTicked = (Boolean) e.getValue();
+//				if (boxTicked){
+//					gainLabel.setEnabled(true);
+//					offsetLabel.setEnabled(true);
+//					gain.setEnabled(true);
+//					offset.setEnabled(true);
+//				} else {
+//					gainLabel.setEnabled(false);
+//					offsetLabel.setEnabled(false);
+//					gain.setEnabled(false);
+//					offset.setEnabled(false);
+//				}
+//			}
+//			
+//			@Override
+//			public String getValueListenerName() {
+//				return null;
+//			}
+//		});
 
 		@SuppressWarnings("unused")
 		final Label blank = new Label(gainProperties, SWT.NONE);
@@ -342,7 +350,7 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 		gainLabel.setText("Sensitivity");
 		gainLabel
 				.setToolTipText("The gain setting on the amplifier.\n(This cannot be linked to get the gain as the Stanford Amplifier does not have a get for the gain, only a set.)");
-		gainLabel.setEnabled(false);
+//		gainLabel.setEnabled(false);
 		
 		gain = new ComboWrapper(gainProperties, SWT.READ_ONLY);
 		gain.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
@@ -357,7 +365,28 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 				dialog.open();
 			}
 		});
-		gain.setEnabled(false);
+//		gain.setEnabled(false);
+		
+		offsetLabel = new Label(gainProperties, SWT.NONE);
+		offsetLabel.setText("Offset");
+		offsetLabel
+				.setToolTipText("The offset setting on the amplifier.\n(This cannot be linked to get the offset as the Stanford Amplifier does not have an offset for the gain, only a set.)");
+//		offsetLabel.setEnabled(false);
+		
+		offset = new ComboWrapper(gainProperties, SWT.READ_ONLY);
+		offset.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		final List<String> offsetNotches = GainCalculation.getOffsetNotches();
+		offset.setItems(offsetNotches.toArray(new String[offsetNotches.size()]));
+		offset.addButtonListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				WizardDialog dialog = new WizardDialog(getShell(), new GainWizard());
+				dialog.setPageSize(new Point(780, 550));
+				dialog.create();
+				dialog.open();
+			}
+		});
+//		offset.setEnabled(false);
 	}
 
 	private void createRight(final Composite main) {
@@ -667,74 +696,48 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 		return gas_fill2_period_box;
 	}
 
-	/**
-	 * @return f
-	 */
 	public ScaleBox getIonChamberLength() {
 		return ionChamberLength;
 	}
 
-	/**
-	 * @return tp
-	 */
 	public ScaleBox getTotalPressure() {
 		return totalPressure;
 	}
 
-	/**
-	 * @return p
-	 */
 	public LabelWrapper getPressure() {
 		return pressure;
 	}
 
-	/**
-	 * @return variable
-	 */
 	public ComboWrapper getGasType() {
 		return gasType;
 	}
 
-	/**
-	 * @return variable
-	 */
 	public ScaleBox getPercentAbsorption() {
 		return percentAbsorption;
 	}
 
-	/**
-	 * @return variable
-	 */
 	public ComboWrapper getGain() {
 		return gain;
 	}
 
-	/**
-	 * @return variable
-	 */
+	public ComboWrapper getOffset() {
+		return offset;
+	}
+
 	public LabelWrapper getChannel() {
 		return channel;
 	}
 
-	/**
-	 * @return variable
-	 */
 	public TextWrapper getCurrentAmplifierName() {
 		return currentAmplifierName;
 	}
 
-	/**
-	 * @return variable
-	 */
 	// suppressing that getName is in the superclass hierarchy as a private
 	@SuppressWarnings("all")
 	public TextWrapper getName() {
 		return name;
 	}
 
-	/**
-	 * @return variable
-	 */
 	public LabelWrapper getDeviceName() {
 		return deviceName;
 	}
