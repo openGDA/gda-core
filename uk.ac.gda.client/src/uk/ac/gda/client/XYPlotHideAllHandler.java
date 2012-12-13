@@ -39,8 +39,8 @@ public class XYPlotHideAllHandler extends AbstractHandler {
 		
 		
 			IWorkbenchPart view = HandlerUtil.getActivePartChecked(event);
-			if(view instanceof XYPlotView){
-				XYPlotView xYPlotView = (XYPlotView)view;
+			if(view instanceof ScanPlotView){
+				ScanPlotView xYPlotView = (ScanPlotView)view;
 				xYPlotView.hideAll();
 			}
 		return null;

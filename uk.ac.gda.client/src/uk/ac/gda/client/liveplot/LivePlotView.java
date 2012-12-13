@@ -81,10 +81,11 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiUpdate;
 import uk.ac.diamond.scisoft.analysis.plotserver.OneDDataFilePlotDefinition;
+import uk.ac.gda.client.ScanPlotView;
 import uk.ac.gda.preferences.PreferenceConstants;
 
 @SuppressWarnings("deprecation")
-public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver {
+public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver,ScanPlotView {
 
 	private static final String MEMENTO_GROUP = "LivePlotView";
 
