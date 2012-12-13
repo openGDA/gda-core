@@ -43,34 +43,35 @@ import uk.ac.gda.richbeans.event.ValueListener;
 import uk.ac.gda.util.list.SortNatural;
 
 /**
- * Allows the expression only to be a function of field values of fields
- * in the bean passed in.
+ * Allows the expression only to be a function of field values of fields in the bean passed in.
  */
 public class BeanExpressionManager implements IExpressionManager, ValueListener {
 	@SuppressWarnings("unused")
 	private static final Logger logger = LoggerFactory.getLogger(BeanExpressionManager.class);
 
-	private double             value;
-	private boolean            expressionValid;
-	private String             expression;
-	private IFieldProvider     provider;
-	private IExpressionWidget  widget;
+	private double value;
+	private boolean expressionValid;
+	private String expression;
+	private IFieldProvider provider;
+	private IExpressionWidget widget;
 	private Collection<String> fields;
-	private JEP                jepParser;
-	
+	private JEP jepParser;
+	private ExpressionContentProposalProvider proposalProvider;
+	private List<IFieldWidget> precedents = new ArrayList<IFieldWidget>(7);
+
 	public BeanExpressionManager(final IExpressionWidget widget, IFieldProvider prov) {
-		
-		this.widget   = widget;
+
+		this.widget = widget;
 		this.provider = prov;
-		
-        // The parser which will check expressions.
+
+		// The parser which will check expressions.
 		this.jepParser = new JEP();
 		jepParser.addStandardFunctions();
 		jepParser.addStandardConstants();
 		jepParser.setAllowUndeclared(false);
 		jepParser.setImplicitMul(true);
 	}
-	
+
 	@Override
 	public double getExpressionValue() {
 		return value;
@@ -83,37 +84,37 @@ public class BeanExpressionManager implements IExpressionManager, ValueListener 
 
 	@Override
 	public void setExpression(String expression) {
-		
+
 		this.expression = expression;
-		
+
 		try {
-			if (expression==null) {
-				value           = Double.NaN;
+			if (expression == null) {
+				value = Double.NaN;
 				expressionValid = false;
 			}
-			this.value           = calculateValue();
+			this.value = calculateValue();
 			this.expressionValid = !Double.isNaN(value) && !Double.isInfinite(value);
-			
-		    updateListeners();
+
+			updateListeners();
 
 		} catch (Exception ne) {
 			clearListeners();
-			value           = Double.NaN;
+			value = Double.NaN;
 			expressionValid = false;
 		}
 	}
-	
-	private List<IFieldWidget> precedents = new ArrayList<IFieldWidget>(7);
-	
+
 	/**
 	 * Removes old listeners and adds new ones.
-	 * @throws ParseException 
+	 * 
+	 * @throws ParseException
 	 */
 	private void updateListeners() throws Exception {
-		
-        clearListeners();
-		if (!expressionValid) return;
-		
+
+		clearListeners();
+		if (!expressionValid)
+			return;
+
 		// NOTE newer versions of JEP have TreeAnalyzer for this...
 		final Node node = jepParser.parse(expression);
 		parseNode(node, precedents);
@@ -122,21 +123,22 @@ public class BeanExpressionManager implements IExpressionManager, ValueListener 
 			wid.addValueListener(this);
 		}
 	}
-	
+
 	private void clearListeners() {
 		for (IFieldWidget widget : precedents) {
 			try {
-			    widget.removeValueListener(this);
+				widget.removeValueListener(this);
 			} catch (Throwable ignored) {
 				// Intentional, keep trying to clear the listeners.
 			}
 		}
-	    precedents.clear();
+		precedents.clear();
 	}
 
 	@Override
 	public void valueChangePerformed(ValueEvent e) {
-		if (e.getFieldName()==null) return;
+		if (e.getFieldName() == null)
+			return;
 		jepParser.addVariable(e.getFieldName(), e.getDoubleValue());
 		this.value = jepParser.getValue();
 		widget.setExpressionValue(value);
@@ -144,24 +146,25 @@ public class BeanExpressionManager implements IExpressionManager, ValueListener 
 
 	/**
 	 * Recursive node parsing
+	 * 
 	 * @param node
 	 * @param precedents
 	 * @throws Exception
 	 */
 	private void parseNode(Node node, List<IFieldWidget> precedents) throws Exception {
-		
+
 		if (node instanceof ASTVarNode) {
-			IFieldWidget widget = getWidget((ASTVarNode)node);
-			if (widget!=null) precedents.add(widget);
+			IFieldWidget widget = getWidget((ASTVarNode) node);
+			if (widget != null)
+				precedents.add(widget);
 			return;
-		} 
-		
-		for (int i = 0; i<node.jjtGetNumChildren(); ++i) {
+		}
+
+		for (int i = 0; i < node.jjtGetNumChildren(); ++i) {
 			final Node c = node.jjtGetChild(i);
 			parseNode(c, precedents);
 		}
-	}		
-
+	}
 
 	private IFieldWidget getWidget(ASTVarNode node) {
 		try {
@@ -179,8 +182,9 @@ public class BeanExpressionManager implements IExpressionManager, ValueListener 
 			} catch (Exception e) {
 				continue;
 			}
-			if (!(value instanceof Number)) continue;
-			jepParser.addVariable(field, ((Number)value).doubleValue());
+			if (!(value instanceof Number))
+				continue;
+			jepParser.addVariable(field, ((Number) value).doubleValue());
 		}
 		jepParser.parseExpression(getExpression());
 		return jepParser.getValue();
@@ -188,11 +192,9 @@ public class BeanExpressionManager implements IExpressionManager, ValueListener 
 
 	@Override
 	public Collection<String> getAllowedSymbols() throws Exception {
-  	    return fields;
+		return fields;
 	}
 
-	private ExpressionContentProposalProvider proposalProvider;
-	
 	/**
 	 * Assumes that the fields are already sorted.
 	 */
@@ -202,33 +204,31 @@ public class BeanExpressionManager implements IExpressionManager, ValueListener 
 		final Set<String> fieldSet = new HashSet<String>(fs);
 
 		// Remove self
-		if (widget.getFieldName()!=null) fieldSet.remove(widget.getFieldName());
- 	    
+		if (widget.getFieldName() != null)
+			fieldSet.remove(widget.getFieldName());
+
 		// Sort list
 		final List<String> fieldList = new ArrayList<String>(fieldSet.size());
 		fieldList.addAll(fieldSet);
 		Collections.sort(fieldList, new SortNatural<String>(false));
 		fields = fieldList;
-				
+
 		// Create content helper
 		final String[] fieldsArray = fields.toArray(new String[fields.size()]);
-		if ((widget.getControl()) instanceof StyledText) {
+		if ((widget.getControl()) instanceof StyledText  && widget.isExpressionAllowed()) {
 			if (proposalProvider == null) {
 				proposalProvider = new ExpressionContentProposalProvider(fieldsArray, widget);
-				ContentProposalAdapter adapter = new ContentProposalAdapter(widget.getControl(), 
-						                                                   new StyledTextContentAdapter(),
-						                                                   proposalProvider, 
-						                                                   null ,
-						                                                   null);
+				ContentProposalAdapter adapter = new ContentProposalAdapter(widget.getControl(),
+						new StyledTextContentAdapter(), proposalProvider, null, null);
 				adapter.setLabelProvider(new ExpressionLabelProvider(fields));
 				adapter.setPropagateKeys(true);
 				adapter.setProposalAcceptanceStyle(ContentProposalAdapter.PROPOSAL_REPLACE);
-			
+
 			} else {
 				proposalProvider.setProposals(fieldsArray);
 			}
 		}
-			
+
 	}
 
 	@Override
@@ -238,6 +238,6 @@ public class BeanExpressionManager implements IExpressionManager, ValueListener 
 
 	@Override
 	public String getValueListenerName() {
-		return widget.getFieldName()+" "+getClass().getName();
+		return widget.getFieldName() + " " + getClass().getName();
 	}
 }
