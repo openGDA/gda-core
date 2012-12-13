@@ -148,6 +148,7 @@ public class PCOTFGTrigger extends SimpleAcquire {
 		getAdBase().setNumImages(1);
 		getAdBase().setImageModeWait(ImageMode.SINGLE);
 		adDriverPco.getAdcModePV().put(1); //2 adcs
+		adDriverPco.getTimeStampModePV().put(1); // BCD - if set to None then the image is blank. BCD means no timestamp on image
 		// getAdBase().setAcquirePeriod(0.0); //this is needed for PCO to make sure delay=0 - do not use as it effects
 		// delay
 		getAdBase().setTriggerMode(PcoTriggerMode.EXTERNAL_AND_SOFTWARE.ordinal()); // exposure time set by camera

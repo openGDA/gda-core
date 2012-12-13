@@ -21,7 +21,6 @@ package gda.device.enumpositioner;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
-import gda.device.scannable.ScannablePositionOnTargetEvent;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
@@ -261,9 +260,6 @@ public class EpicsSimplePneumatic extends EnumPositionerBase implements EnumPosi
 					logger.error("{} reports Alarm: {}", getName(), control);
 					positionerStatus=EnumPositionerStatus.ERROR;			
 				}
-				
-				String currentPosition = getPosition();
-				notifyIObservers(this, new ScannablePositionOnTargetEvent( currentPosition) );
 
 			} catch (Exception ex) {
 				exceptionUtils.logException(logger, "Error in putCompleted for " + getName(), ex);
