@@ -332,25 +332,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	 */
 	int[] dataDimPrefix;
 
-	
-	private NXLinkCreator nxLinkCreator;
-
-	/**
-	 * 
-	 * @return An object that can be used to add links to the nexus file
-	 */
-	public NXLinkCreator getNxLinkCreator() {
-		return nxLinkCreator;
-	}
-
-	/**
-	 * 
-	 * @param nxLinkCreator - An object that can be used to add links to the nexus file
-	 */
-	public void setNxLinkCreator(NXLinkCreator nxLinkCreator) {
-		this.nxLinkCreator = nxLinkCreator;
-	}
-
 	@Override
 	public void addData(IScanDataPoint dataPoint) throws Exception {
 		thisPoint = dataPoint;
@@ -711,9 +692,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	@Override
 	public void completeCollection() throws Exception {
 		releaseFile();
-		if ( nxLinkCreator != null){
-			nxLinkCreator.makelinks(nexusFileUrl);
-		}
 		super.completeCollection();
 	}
 

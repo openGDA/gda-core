@@ -36,7 +36,7 @@ import gda.data.scan.datawriter.DataWriter;
 import gda.data.scan.datawriter.DefaultDataWriterFactory;
 import gda.data.scan.datawriter.IDataWriterExtender;
 import gda.data.scan.datawriter.NXLinkCreator;
-import gda.data.scan.datawriter.NexusDataWriter;
+import gda.data.scan.datawriter.NXSubEntryWriter;
 import gda.device.Detector;
 import gda.device.Scannable;
 import gda.scan.ConcurrentScan;
@@ -50,10 +50,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.nexusformat.NexusFile;
 
-import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
-import uk.ac.diamond.scisoft.analysis.io.DataHolder;
-import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
+import uk.ac.gda.analysis.hdf5.Hdf5Helper;
+import uk.ac.gda.analysis.hdf5.Hdf5HelperData;
 
 /**
  * Class to test writing of nexus files during a scan
@@ -364,52 +362,47 @@ public class ScanToNexusTest {
 		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "NexusDataWriter");
 		LocalProperties.set("gda.nexus.createSRS", "false");
 
-		NexusDataWriter dataWriter = new NexusDataWriter();
-		runScanToCreateFile(dataWriter, null);
-		
-		
-		
-		
+		runScanToCreateFile(null, null);
 		
 		NXLinkCreator nxLinkCreator = new NXLinkCreator();
 		//create 3 links
 		//add link to simpleScannable1 in current file
-		nxLinkCreator.addLink("/entry2:NXentry/test", "/entry1:NXentry/default:NXdata/simpleScannable1:NXdata");
+		nxLinkCreator.addLink("/entry2:NXentry/test", null, "entry1/default/simpleScannable1");
 		//add link to simpleScannable1 in 1.nxs via nxfile 
-		nxLinkCreator.addLink("/entry2:NXentry/test2", 
-				"nxfile://" + (new File(testScratchDirectoryName + "/Data/1.nxs")).getAbsolutePath() + "#entry1/SimpleDetector1/simpleScannable1");
+		nxLinkCreator.addLink("/entry2:NXentry/test2", (new File(testScratchDirectoryName + "/Data/1.nxs")).getAbsolutePath(), "entry1/SimpleDetector1/simpleScannable1");
 		//add link to entry2/test2 in this file - which itself points to simpleScannable1 in 1.nxs using currentfile  
-		nxLinkCreator.addLink("/entry2:NXentry/test3", "#entry2/test2");
-		dataWriter = new NexusDataWriter();
-		dataWriter.setNxLinkCreator(nxLinkCreator);
-//		IDataWriterExtender writer = new NXSubEntryWriter(nxLinkCreator);
-//		dataWriter.addDataWriterExtender(writer);
+		nxLinkCreator.addLink("/entry2:NXentry/test3", "", "entry2/test2");
+		
 
 		Scannable simpleScannable1 = TestHelpers.createTestScannable("SimpleScannable1", 0., new String[] {},
 				new String[] { "simpleScannable1" }, 0, new String[] { "%5.2g" }, new String[] { "\u212B" }); // Angstrom
 
 		Object[] args = new Object[] { simpleScannable1, 0., 10., 2. };
 		ConcurrentScan scan = new ConcurrentScan(args);
-		scan.setDataWriter(dataWriter);
+		
+		DataWriter dw = DefaultDataWriterFactory.createDataWriterFromFactory();
+		IDataWriterExtender writer = new NXSubEntryWriter(nxLinkCreator);
+		dw.addDataWriterExtender(writer);
+		scan.setDataWriter(dw);
 		scan.runScan();
 
-		HDF5Loader loader = new HDF5Loader(testScratchDirectoryName + "/Data/2.nxs");
-		DataHolder holder = loader.loadFile();
 
-		//entry2/test points to simpleScannable1 in current file
-		ILazyDataset testds = holder.getLazyDataset("/entry2/test");
-		IDataset testslice = testds.getSlice(null, null, null);
-		Assert.assertEquals(testslice.getDouble(5), 10.0, 1e-6);
+		//1. test points to 2.nxs 
+		Hdf5HelperData helperData = Hdf5Helper.getInstance().readDataSetAll(testScratchDirectoryName + "/Data/2.nxs", "/entry2", "test", true);
+		double[] data = (double[]) helperData.data;
+		Assert.assertEquals(10.0, data[5], 1e-6);
 
-		//entry2/test2 points to simpleScannable1 in 1.nxs
-		testds = holder.getLazyDataset("/entry2/test2");
-		testslice = testds.getSlice(null, null, null);
-		Assert.assertEquals(testslice.getDouble(5), 5.0, 1e-6);
+		
+		//2. test2 points to 1.nxs 
+		helperData = Hdf5Helper.getInstance().readDataSetAll(testScratchDirectoryName + "/Data/2.nxs", "/entry2", "test2", true);
+		data = (double[]) helperData.data;
+		Assert.assertEquals(5.0, data[5], 1e-6);
 
-		//entry2/test3 points to simpleScannable1 in 1.nxs 
-		testds = holder.getLazyDataset("/entry2/test3");
-		testslice = testds.getSlice(null, null, null);
-		Assert.assertEquals(testslice.getDouble(5), 5.0, 1e-6);
+		//3. test3 points to test2 so should be the same assertion 2
+		helperData = Hdf5Helper.getInstance().readDataSetAll(testScratchDirectoryName + "/Data/2.nxs", "/entry2", "test3", true);
+		data = (double[]) helperData.data;
+		Assert.assertEquals(5.0, data[5], 1e-6);
+		
 	}
 	
 	
