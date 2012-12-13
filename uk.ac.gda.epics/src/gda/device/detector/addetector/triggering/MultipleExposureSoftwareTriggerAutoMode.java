@@ -134,6 +134,10 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 	
 	@Override
 	public void collectData() throws Exception {
+		if( ndProcess != null){
+			ndProcess.setResetFilter(1);
+			// autoreset only works in numFiltered== numFilter which is not the case as we have just reset numFilter
+		}
 		getAdBase().startAcquiring();
 	}
 
