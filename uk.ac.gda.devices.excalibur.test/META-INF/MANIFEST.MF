@@ -7,3 +7,4 @@ Bundle-Vendor: Diamond Light Source
 Fragment-Host: uk.ac.gda.devices.excalibur;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.junit;bundle-version="4.8.2"
+Import-Package: uk.ac.gda.devices.excalibur.equalization

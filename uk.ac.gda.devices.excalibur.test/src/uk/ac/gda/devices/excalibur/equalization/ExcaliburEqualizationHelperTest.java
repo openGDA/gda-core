@@ -134,38 +134,6 @@ public class ExcaliburEqualizationHelperTest {
 	}
 
 	@Test
-	public void testGetEdgeThresholdABResponse() throws Exception {
-		String testScratchDirectoryName = TestHelpers.setUpTest(ExcaliburEqualizationHelperTest.class,
-				"testGetEdgeThresholdABResponse", true);
-
-		ExcaliburEqualizationHelper equalizationHelper = ExcaliburEqualizationHelper.getInstance();
-		HDF5HelperLocations equalisationLocation = equalizationHelper.getEqualisationLocation();	
-		
-		double slope=23.;
-		double offset = -12.;
-		int numPoints = 20;
-		int numPixels = 200;
-		Vector<String> filenames = new Vector<String>();
-		for( int i=0; i< numPoints; i++){
-			double x = i;
-			int yval = (int)(offset + slope*x);
-			int [] y = new int[numPixels];
-			Arrays.fill(y, yval);
-			Hdf5HelperData hd = new Hdf5HelperData(new long[] { numPixels}, y);
-			String fileName = testScratchDirectoryName + "/"+i+".hdf";
-			Hdf5Helper.getInstance().writeToFileSimple(hd, fileName, equalisationLocation, ExcaliburEqualizationHelper.THRESHOLD_DATASET);
-			Hdf5Helper.getInstance().writeAttribute(fileName, TYPE.DATASET, equalizationHelper.getEdgeThresholdsLocation(), 
-					ExcaliburEqualizationHelper.THRESHOLDABNVAL_ATTR, new Hdf5HelperData(x));
-			filenames.add(fileName);
-		}
-		Results results = ExcaliburEqualizationHelper.getInstance().getEdgeThresholdABResponseFromThresholdFiles(filenames);
-		Assert.assertEquals(numPixels, results.getSlopes().length);
-		Assert.assertEquals(slope, results.getSlopes()[0], 1e-6);
-		Assert.assertEquals(offset, results.getOffsets()[0], 1e-6);
-		
-	}
-
-	@Test
 	public void testGetConfigFromThresholdResponse() throws Exception{
 		
 		String testScratchDirectoryName = TestHelpers.setUpTest(ExcaliburEqualizationHelperTest.class,
@@ -321,41 +289,7 @@ public class ExcaliburEqualizationHelperTest {
 		}
 	}
 	
-	@Test
-	public void testcreateThresholdAdjAndMask() throws Exception{
-		ExcaliburEqualizationHelper equalisation = ExcaliburEqualizationHelper.getInstance();
-		Hdf5Helper hdf = Hdf5Helper.getInstance();
-		String testScratchDirectoryName = TestHelpers.setUpTest(ExcaliburEqualizationHelperTest.class,
-				"testcreateThresholdAdjAndMask", true);
-		String onfilename = testScratchDirectoryName + "/on.hdf";
-		HDF5HelperLocations location = equalisation.getEqualisationLocation();
 
-		short[] onA = new short[100];
-		int j=-10;
-		for( int i=0; i< onA.length; i++, j++){
-			onA[i]=(short) j;
-		}
-		hdf.writeToFileSimple(new Hdf5HelperData(new long[]{ onA.length}, onA),onfilename , location, ExcaliburEqualizationHelper.THRESHOLD_FROM_THRESHOLD_RESPONSE_DATASET);
-		
-		equalisation.createThresholdAdjAndMask(onfilename, onfilename, onfilename);
-		
-		Hdf5HelperData data = hdf.readDataSetAll(onfilename, location.getLocationForOpen(), ExcaliburEqualizationHelper.THRESHOLDADJ_DATASET, true);
-		
-		assertEquals(0,((short[])data.data)[0]);
-		assertEquals(0,((short[])data.data)[10]);
-		assertEquals(1,((short[])data.data)[11]);
-		assertEquals(31,((short[])data.data)[41]);
-		assertEquals(0,((short[])data.data)[42]);
-
-		Hdf5HelperData mask = hdf.readDataSetAll(onfilename, location.getLocationForOpen(), ExcaliburEqualizationHelper.THRESHOLDADJ_MASK_DATASET, true);
-	
-		assertEquals(1,((short[])mask.data)[0]);
-		assertEquals(0,((short[])mask.data)[10]);
-		assertEquals(0,((short[])mask.data)[11]);
-		assertEquals(0,((short[])mask.data)[41]);
-		assertEquals(1,((short[])mask.data)[42]);
-	
-	}
 	
 	/**
 	 * Check that use of iterators means that we cover all pixels and the index returned takes account fo spaces between chips
