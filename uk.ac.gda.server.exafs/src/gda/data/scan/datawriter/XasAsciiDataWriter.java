@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.exafs.ISampleParameters;
 import uk.ac.gda.beans.exafs.OutputParameters;
+import uk.ac.gda.beans.exafs.i20.I20SampleParameters;
 import uk.ac.gda.util.io.FileUtils;
 
 /**
@@ -93,10 +94,18 @@ public class XasAsciiDataWriter extends AsciiDataWriter{
 			file.write("#\n");
 			final ISampleParameters p = (ISampleParameters) getBean(group.getSample());
 			// write out sample parameters
-			if (p != null) {				
-				for (int i =0; i < p.getDescriptions().size(); i++){
+			if (p != null) {
+				// I20 has an extra Sample Name field
+				if (p instanceof I20SampleParameters) {
+					String sampleName = ((I20SampleParameters) p).getSampleName();
+					if (!sampleName.isEmpty()) {
+						file.write("# Sample name: " + sampleName + "\n");
+					}
+				}
+
+				for (int i = 0; i < p.getDescriptions().size(); i++) {
 					String startMsg = "# ";
-					if (i==0){
+					if (i == 0) {
 						startMsg += "Sample description: ";
 					} else {
 						startMsg += "Additional comments: ";
