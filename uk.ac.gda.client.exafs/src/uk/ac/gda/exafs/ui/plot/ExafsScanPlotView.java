@@ -114,6 +114,7 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 			if (curScan != null && !(curScan instanceof MicroFocusScanParameters)) {
 				super.scanStopped();
 				a = Double.NaN;
+				stack.topControl = lblNoDataMessage;
 			}
 		} catch (Exception e) {
 			logger.error("Unable to determine the scan type", e);
