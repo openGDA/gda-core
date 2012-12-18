@@ -34,6 +34,8 @@ public class ADDriverPcoImpl implements ADDriverPco, InitializingBean{
 
 	private PV<Integer> adcModePV;
 
+	private PV<Integer> timeStampModePV;
+
 	@Deprecated // replace with a proper ADDriverPco - when it has been written!
 	public void setBasePvName(String basePvName) {
 		this.basePvName = basePvName;
@@ -51,6 +53,8 @@ public class ADDriverPcoImpl implements ADDriverPco, InitializingBean{
 		armModePV = LazyPVFactory.newBooleanFromEnumPV(basePvName + ":ARM_MODE"); 
 		cameraUsagePV = LazyPVFactory.newDoublePV(basePvName + ":CAM_RAM_USE_RBV"); 
 		adcModePV = LazyPVFactory.newIntegerPV(basePvName + ":ADC_MODE");
+		timeStampModePV = LazyPVFactory.newIntegerPV(basePvName + ":TIMESTAMP_MODE");
+		
 	}
 
 	@Override
@@ -66,6 +70,11 @@ public class ADDriverPcoImpl implements ADDriverPco, InitializingBean{
 	@Override
 	public PV<Integer> getAdcModePV() {
 		return adcModePV;
+	}
+
+	@Override
+	public PV<Integer> getTimeStampModePV() {
+		return timeStampModePV;
 	}
 	
 	

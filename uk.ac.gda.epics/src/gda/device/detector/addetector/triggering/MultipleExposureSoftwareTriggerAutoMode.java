@@ -53,6 +53,7 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 	public MultipleExposureSoftwareTriggerAutoMode(ADBase adBase, double maxExposureTime) {
 		super(adBase);
 		this.maxExposureTime = maxExposureTime;
+		exposureTime = maxExposureTime;
 	}
 
 	public NDProcess getNdProcess() {
@@ -89,15 +90,22 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 		getAdBase().setNumImages(numberImagesPerCollection);
 		getAdBase().setImageModeWait(numberImagesPerCollection > 1 ? ImageMode.MULTIPLE : ImageMode.SINGLE);
 		getAdBase().setAcquireTime(numberImagesPerCollection > 1 ?exposureTime : collectionTime);
-//		getAdBase().setAcquirePeriod(0.0);
 		
 		if( ndProcess != null){
 			ndProcess.setFilterType(NDProcess.FilterTypeV1_8_Sum);
 			ndProcess.setNumFilter(numberImagesPerCollection);
+			ndProcess.setAutoResetFilter(1);
+			ndProcess.setFilterCallbacks(NDProcess.FilterCallback_ArrayNOnly); 
 			ndProcess.setEnableFilter(1);
+			ndProcess.setEnableHighClip(0);
+			ndProcess.setEnableLowClip(0);
+			ndProcess.setEnableOffsetScale(0);
+			ndProcess.setEnableFlatField(0);
+			ndProcess.setEnableBackground(0);
 			ndProcess.getPluginBase().enableCallbacks();
 			ndProcess.getPluginBase().setArrayCounter(0);
 			ndProcess.getPluginBase().setDroppedArrays(0);
+			ndProcess.setDataTypeOut(5); // UINT32			
 		}
 		enableOrDisableCallbacks();
 	}
@@ -126,6 +134,10 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 	
 	@Override
 	public void collectData() throws Exception {
+		if( ndProcess != null){
+			ndProcess.setResetFilter(1);
+			// autoreset only works in numFiltered== numFilter which is not the case as we have just reset numFilter
+		}
 		getAdBase().startAcquiring();
 	}
 
