@@ -6,6 +6,7 @@ from gda.exafs.scan import ScanStartedMessage
 from gda.exafs.scan import RepetitionsProperties
 from gda.factory import Finder
 from java.lang import InterruptedException
+from java.lang import System
 from gda.jython import ScriptBase
 from gda.jython.scriptcontroller.event import ScanCreationEvent, ScanFinishEvent, ScriptProgressEvent
 from gda.jython.scriptcontroller.logging import XasProgressUpdater
@@ -51,6 +52,7 @@ class QexafsScan(Scan):
         LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
         LocalProperties.set(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY,str(numRepetitions))
         repetitionNumber = 0
+        timeRepetitionsStarted = System.currentTimeMillis();
         
         try:
             while True:
@@ -71,10 +73,11 @@ class QexafsScan(Scan):
                 numberPoints = int(math.ceil((final_energy-initial_energy)/step_size))
                 self._runScript(outputBean.getBeforeScriptName())
                 scan_time = scanBean.getTime()
-                logmsg = XasLoggingMessage(unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str("0%"),str(0),str(scanBean.getTime()) + "s",outputFolder)
+                initialPercent = str(int((float(repetitionNumber - 1) / float(numRepetitions)) * 100)) + "%" 
+                logmsg = XasLoggingMessage(unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), initialPercent,str(0),str(0),str(scanBean.getTime()) + "s",outputFolder)
                 loggingcontroller.update(None,logmsg)
                 loggingcontroller.update(None,ScanStartedMessage(scanBean,detectorBean))
-                loggingbean = XasProgressUpdater(loggingcontroller,logmsg)
+                loggingbean = XasProgressUpdater(loggingcontroller,logmsg,timeRepetitionsStarted)
             
                 print "running QEXAFS scan:", self.energy_scannable.getName(), scanBean.getInitialEnergy(), scanBean.getFinalEnergy(), numberPoints, scan_time, detectorList
                 controller.update(None, ScriptProgressEvent("Running QEXAFS scan"))
