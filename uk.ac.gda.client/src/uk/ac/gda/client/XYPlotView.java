@@ -83,7 +83,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.OneDDataFilePlotDefinition;
 import uk.ac.gda.preferences.PreferenceConstants;
 
 @SuppressWarnings("deprecation")
-public class XYPlotView extends ViewPart implements IAllScanDataPointsObserver {
+public class XYPlotView extends ViewPart implements IAllScanDataPointsObserver, ScanPlotView {
 
 	private static final String MEMENTO_GROUP = "XYPlotView";
 
