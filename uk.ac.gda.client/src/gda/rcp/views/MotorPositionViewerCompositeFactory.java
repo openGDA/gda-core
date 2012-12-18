@@ -23,8 +23,6 @@ import gda.device.monitor.DummyMonitor;
 import gda.device.motor.DummyMotor;
 import gda.device.scannable.ScannableMotor;
 
-import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -34,7 +32,6 @@ import org.springframework.beans.factory.InitializingBean;
 
 import swing2swt.layout.BorderLayout;
 import uk.ac.gda.ui.utils.SWTUtils;
-import uk.ac.gda.ui.viewer.MotorPositionViewer;
 
 public class MotorPositionViewerCompositeFactory implements CompositeFactory, InitializingBean {
 	private Scannable scannable;
@@ -143,27 +140,4 @@ public class MotorPositionViewerCompositeFactory implements CompositeFactory, In
 		shell.setSize(400, 400);
 		SWTUtils.showCenteredShell(shell);
 	}	
-}
-class MotorPositionViewerComposite extends Composite {
-
-	@SuppressWarnings("unused")
-	MotorPositionViewerComposite(Composite parent, int style, final Display display, Scannable scannable, Boolean layoutHoriz,
-			String label, Integer decimalPlaces, String commandFormat, Boolean restoreValueWhenFocusLost) {
-		super(parent, style);
-		
-		GridLayoutFactory.fillDefaults().numColumns(layoutHoriz ? 2: 1).applyTo(this);
-		GridDataFactory.fillDefaults().applyTo(this);
-		MotorPositionViewer mpv = new MotorPositionViewer(this, scannable, label);		
-		mpv.setCommandFormat(commandFormat);
-		mpv.setDecimalPlaces(2);
-		if (restoreValueWhenFocusLost != null) {
-			mpv.setRestoreValueWhenFocusLost(restoreValueWhenFocusLost);
-		}
-		else {
-			mpv.setRestoreValueWhenFocusLost(false);
-		}
-
-		if (decimalPlaces != null) 
-			mpv.setDecimalPlaces(decimalPlaces.intValue());
-	}
 }

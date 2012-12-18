@@ -283,4 +283,3 @@ public class MotorPositionViewer {
 		this.newPositionDialog = newPositionDialog;
 	}
 }
-
