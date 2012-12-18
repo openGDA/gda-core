@@ -18,6 +18,7 @@
 
 package uk.ac.gda.exafs.ui.views.scalersmonitor;
 
+import gda.device.scannable.IQexafsScannableState;
 import gda.factory.Finder;
 
 import org.eclipse.ui.PlatformUI;
