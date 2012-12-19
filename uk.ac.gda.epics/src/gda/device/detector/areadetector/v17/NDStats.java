@@ -407,6 +407,11 @@ public interface NDStats {
 	 *
 	 */
 	double[] getHistogram_RBV() throws Exception;
+	
+	/**
+	 * 
+	 */
+	double[] getHistogram_RBV(int numberOfElements) throws Exception;
 
 	/**
 	 *

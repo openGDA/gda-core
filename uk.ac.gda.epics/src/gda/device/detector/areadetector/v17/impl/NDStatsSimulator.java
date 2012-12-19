@@ -355,7 +355,11 @@ public class NDStatsSimulator implements NDStats {
 
 	@Override
 	public double[] getHistogram_RBV() throws Exception {
-
+		return null;
+	}
+	
+	@Override
+	public double[] getHistogram_RBV(int length) throws Exception {
 		return null;
 	}
 

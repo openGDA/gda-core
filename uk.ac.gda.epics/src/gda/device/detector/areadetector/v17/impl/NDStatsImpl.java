@@ -985,15 +985,14 @@ public class NDStatsImpl implements InitializingBean, NDStats {
 	*/
 	@Override
 	public double[] getHistogram_RBV() throws Exception {
-		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDoubleArray(createChannel(config.getHistogram_RBV().getPv()));
-			}
-			return EPICS_CONTROLLER.cagetDoubleArray(getChannel(Histogram_RBV));
-		} catch (Exception ex) {
-			logger.warn("g.d.d.a.v.i.NDStatsImpl-> Cannot getHistogram_RBV", ex);
-			throw ex;
-		}
+		Channel channel = config != null ? createChannel(config.getHistogram_RBV().getPv()) : getChannel(Histogram_RBV);
+		return EPICS_CONTROLLER.cagetDoubleArray(channel);
+	}
+
+	@Override
+	public double[] getHistogram_RBV(int numberOfElements) throws Exception {
+		Channel channel = config != null ? createChannel(config.getHistogram_RBV().getPv()) : getChannel(Histogram_RBV);
+		return EPICS_CONTROLLER.cagetDoubleArray(channel, numberOfElements);
 	}
 
 	/**
@@ -1150,6 +1149,23 @@ public class NDStatsImpl implements InitializingBean, NDStats {
 		this.basePVName = basePVName;
 	}
 
+	private String getChannelName(String pvElementName, String... args)throws Exception{
+		String pvPostFix = null;
+		if (args.length > 0) {
+			// PV element name is different from the pvPostFix
+			pvPostFix = args[0];
+		} else {
+			pvPostFix = pvElementName;
+		}
+
+		String fullPvName;
+		if (pvProvider != null) {
+			fullPvName = pvProvider.getPV(pvElementName);
+		} else {
+			fullPvName = basePVName + pvPostFix;
+		}
+		return fullPvName;
+	}
 	/**
 	 * This method allows to toggle between the method in which the PV is acquired.
 	 * 
@@ -1160,21 +1176,7 @@ public class NDStatsImpl implements InitializingBean, NDStats {
 	 */
 	private Channel getChannel(String pvElementName, String... args) throws Exception {
 		try {
-			String pvPostFix = null;
-			if (args.length > 0) {
-				// PV element name is different from the pvPostFix
-				pvPostFix = args[0];
-			} else {
-				pvPostFix = pvElementName;
-			}
-
-			String fullPvName;
-			if (pvProvider != null) {
-				fullPvName = pvProvider.getPV(pvElementName);
-			} else {
-				fullPvName = basePVName + pvPostFix;
-			}
-			return createChannel(fullPvName);
+			return createChannel(getChannelName(pvElementName, args));
 		} catch (Exception exception) {
 			logger.warn("g.d.d.a.v.i.NDStatsImpl -> Problem getting channel", exception);
 			throw exception;
