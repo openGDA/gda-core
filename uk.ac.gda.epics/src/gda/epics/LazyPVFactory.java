@@ -23,6 +23,9 @@ import static org.apache.commons.lang.ArrayUtils.toObject;
 import static org.apache.commons.lang.ArrayUtils.toPrimitive;
 import gda.epics.connection.EpicsController;
 import gda.epics.util.EpicsGlobals;
+import gda.observable.Observable;
+import gda.observable.Observer;
+import gda.observable.TypedObservableComponent;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.CAStatusException;
@@ -337,6 +340,8 @@ public class LazyPVFactory {
 		private PutCallbackListener putCallbackListener = new NullPutCallbackListener();
 
 		private Object putCallbackGuard = new Object();
+
+		private PVMonitor<T> observableMonitor;
 
 		LazyPV(EpicsController controller, String pvName, Class<T> javaType) {
 			this.controller = controller;
@@ -860,6 +865,43 @@ public class LazyPVFactory {
 
 		}
 
+		/**
+		 * When adding an observer we use the PVMonitor object to
+		 * add the monitor listener and notify the observer.
+		 * 
+		 */
+		@Override
+		public void addIObserver(Observer<T> observer) throws Exception {
+			if( observableMonitor == null){
+				observableMonitor = new PVMonitor<T>(this, this);
+			}
+			observableMonitor.addIObserver(observer);			
+			
+		}
+
+
+		@Override
+		public void deleteIObserver(Observer<T>  observer) {
+			if( observableMonitor == null){
+				return;
+			}
+			observableMonitor.deleteIObserver(observer);
+		}
+
+		@Override
+		public void deleteIObservers() {
+			if( observableMonitor == null){
+				return;
+			}
+			observableMonitor.deleteIObservers();
+		}
+
+		@Override
+		public boolean IsBeingObserved() {
+			return  observableMonitor == null ? false : observableMonitor.IsBeingObserved();
+		}
+
+
 	}
 
 	static abstract private class AbstractReadOnlyAdapter<N, T> implements ReadOnlyPV<T> {
@@ -946,6 +988,87 @@ public class LazyPVFactory {
 			}
 
 		}
+
+		/**
+		 * As the Observer may be of a different type e.g. String to the
+		 * Observable e.g. Byte[] we need to adapter.
+		 * 
+		 **/
+		private class GenericObservable implements Observable<T> {
+
+			private final Observable<N> stringFromWaveform;
+			TypedObservableComponent<T> oc = new TypedObservableComponent<T>();
+
+			public GenericObservable(Observable<N> stringFromWaveform) throws Exception {
+				this.stringFromWaveform = stringFromWaveform;
+				stringFromWaveform.addIObserver(new Observer<N>() {
+					
+					@Override
+					public void update(Observable<N> source, N arg) {
+						oc.notifyIObservers(AbstractReadOnlyAdapter.this, innerToOuter(arg));
+					}
+				});
+			}
+
+			@Override
+			public boolean IsBeingObserved() {
+				return oc.IsBeingObserved();
+			}
+
+			@Override
+			public void addIObserver(Observer<T> observer) throws Exception {
+				oc.addIObserver(observer);
+			}
+
+			@Override
+			public void deleteIObserver(Observer<T> observer) {
+				oc.deleteIObserver(observer);
+				if( !oc.IsBeingObserved())
+					stringFromWaveform.deleteIObservers();
+			}
+
+			@Override
+			public void deleteIObservers() {
+				oc.deleteIObservers();
+				if( !oc.IsBeingObserved())
+					stringFromWaveform.deleteIObservers();
+			}
+
+		}
+
+		@Override
+		public void addIObserver(final Observer<T> observer) throws Exception {
+
+			createStringObservable(getPV()).addIObserver(observer);
+			
+		}
+		Observable<T> obs=null;
+
+		private Observable<T> createStringObservable(ReadOnlyPV<N> pv) throws Exception {
+			if( obs== null){
+				obs = new GenericObservable(pv);
+			}
+			return obs;
+		}
+
+		@Override
+		public void deleteIObserver(Observer<T> observer) {
+			if( obs == null)
+				return;
+			obs.deleteIObserver(observer);
+		}
+
+		@Override
+		public void deleteIObservers() {
+			getPV().deleteIObservers();
+		}
+
+		@Override
+		public boolean IsBeingObserved() {
+			return getPV().IsBeingObserved();
+		}
+
+		
 
 	}
 
@@ -1035,7 +1158,26 @@ public class LazyPVFactory {
 		protected T outerToInner(T outerValue) {
 			return outerValue;
 		}
+		@Override
+		public void addIObserver(Observer<T> observer) throws Exception {
+			getPV().addIObserver(observer);
+			
+		}
 
+		@Override
+		public void deleteIObserver(Observer<T> observer) {
+			getPV().deleteIObserver(observer);
+		}
+
+		@Override
+		public void deleteIObservers() {
+			getPV().deleteIObservers();
+		}
+
+		@Override
+		public boolean IsBeingObserved() {
+			return getPV().IsBeingObserved();
+		}
 	}
 
 	static private class NoCallback<T> extends ReadOnly<T> implements NoCallbackPV<T> {
@@ -1116,6 +1258,88 @@ public class LazyPVFactory {
 			return (short) (outerValue ? 1 : 0);
 		}
 
+
 	}
 
 }
+
+/**
+ * Class to adapter between a monitor and the gda IObserver system
+ *
+ * @param <E>
+ */
+class PVMonitor<E> implements Observable<E>{
+	static final Logger logger = LoggerFactory.getLogger(PVMonitor.class);	
+	private final PV<E> pv;
+	private final Observable<E> observable;
+
+	public PVMonitor(Observable<E> observable, PV<E> pv){
+		this.observable = observable;
+		this.pv = pv;
+	}
+	TypedObservableComponent<E> oc=null;
+	MonitorListener monitorListener = new MonitorListener() {
+		
+		@Override
+		public void monitorChanged(MonitorEvent arg0) {
+			E extractValueFromDbr;
+			try {
+				extractValueFromDbr = pv.extractValueFromDbr(arg0.getDBR());
+				if( oc != null){
+					oc.notifyIObservers(observable, extractValueFromDbr);
+				}
+			} catch (Exception e) {
+				logger.error("Error extracting data from histogram update", e);
+			}
+		}
+	};
+
+
+	@Override
+	public void deleteIObservers() {
+		if( oc == null)
+			return;
+		oc.deleteIObservers();
+		if (!oc.IsBeingObserved()){
+			if ( !pv.isValueMonitoring()){
+				pv.removeMonitorListener(monitorListener);
+			}
+		}
+	}
+
+	@Override
+	public void addIObserver(Observer<E> observer) throws Exception {
+		if( oc == null)
+			oc = new TypedObservableComponent<E>();
+		oc.addIObserver(observer);
+		if( !pv.isValueMonitoring()){
+			try {
+				pv.addMonitorListener(monitorListener);
+			} catch (IOException e) {
+				throw new IllegalStateException("Error adding monitor to pv:"+ pv.getPvName(),e);
+			}
+		}
+		
+		
+	}
+
+	@Override
+	public void deleteIObserver(Observer<E> observer) {
+		if( oc == null)
+			return;
+		oc.deleteIObserver(observer);
+		if (!oc.IsBeingObserved()){
+			if ( !pv.isValueMonitoring()){
+				pv.removeMonitorListener(monitorListener);
+			}
+		}
+	}
+
+	@Override
+	public boolean IsBeingObserved() {
+		return oc == null ? false : oc.IsBeingObserved();
+	}
+	
+}
+
+
