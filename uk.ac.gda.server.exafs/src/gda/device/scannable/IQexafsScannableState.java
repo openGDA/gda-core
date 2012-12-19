@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.exafs.ui.views.scalersmonitor;
+package gda.device.scannable;
 
 import gda.factory.Findable;
 import gda.observable.IObservable;

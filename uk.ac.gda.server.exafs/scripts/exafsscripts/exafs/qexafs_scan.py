@@ -14,6 +14,7 @@ from gda.jython.scriptcontroller.logging import LoggingScriptController
 from gda.jython.scriptcontroller.logging import XasLoggingMessage
 from gda.scan import ScanBase, ContinuousScan
 from scan import Scan
+from exafs_environment import ExafsEnvironment
 
 class QexafsScan(Scan):
     
@@ -21,6 +22,7 @@ class QexafsScan(Scan):
         Scan.__init__(self, loggingcontroller,detectorPreparer, samplePreparer, outputPreparer,None)
         self.energy_scannable = energy_scannable
         self.ion_chambers_scannable = ion_chambers_scannable
+        self.t = None
             
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, numRepetitions= -1, validation=True):
         xmlFolderName = ExafsEnvironment().getXMLFolder() + folderName + "/"
@@ -74,11 +76,28 @@ class QexafsScan(Scan):
                 self._runScript(outputBean.getBeforeScriptName())
                 scan_time = scanBean.getTime()
                 initialPercent = str(int((float(repetitionNumber - 1) / float(numRepetitions)) * 100)) + "%" 
-                logmsg = XasLoggingMessage(unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), initialPercent,str(0),str(0),str(scanBean.getTime()) + "s",outputFolder)
+                logmsg = XasLoggingMessage(unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), initialPercent,str(0),str(0),beanGroup.getScan(),outputFolder)
                 loggingcontroller.update(None,logmsg)
                 loggingcontroller.update(None,ScanStartedMessage(scanBean,detectorBean))
                 loggingbean = XasProgressUpdater(loggingcontroller,logmsg,timeRepetitionsStarted)
-            
+                
+                ### cirrus test
+                import threading
+                import datetime
+                from time import sleep
+                from gda.data import PathConstructor
+                from cirrus import ThreadClass
+
+                finder = Finder.getInstance()
+                cirrus=finder.find("cirrus")
+                cirrus.setMasses([2, 28, 32])
+                energyScannable = finder.find("qexafs_energy")
+                self.t = ThreadClass(cirrus, energyScannable, initial_energy, final_energy, "cirrus_scan.dat")
+                self.t.setName("cirrus")
+                self.t.start()
+                ###
+                
+>>>>>>> branch '8.26' of ssh://dascgitolite@dasc-git.diamond.ac.uk/gda/gda-xas-core.git
                 print "running QEXAFS scan:", self.energy_scannable.getName(), scanBean.getInitialEnergy(), scanBean.getFinalEnergy(), numberPoints, scan_time, detectorList
                 controller.update(None, ScriptProgressEvent("Running QEXAFS scan"))
                 thisscan = ContinuousScan(self.energy_scannable , scanBean.getInitialEnergy(), scanBean.getFinalEnergy(), numberPoints, scan_time, detectorList)
@@ -139,6 +158,7 @@ class QexafsScan(Scan):
             if (jython_mapper.original_header != None):
                 original_header=jython_mapper.original_header[:]
                 Finder.getInstance().find("datawriterconfig").setHeader(original_header)
+            self.t.stop
 
  
     def _getNumberOfFrames(self, detectorBean, scanBean):
