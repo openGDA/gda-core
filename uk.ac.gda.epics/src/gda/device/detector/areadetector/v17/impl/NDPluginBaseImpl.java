@@ -22,9 +22,11 @@ import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.NDPluginBase;
+import gda.epics.LazyPVFactory;
 import gda.epics.connection.EpicsController;
 import gda.epics.interfaces.NDPluginBaseType;
 import gda.factory.FactoryException;
+import gda.observable.Observable;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
@@ -81,7 +83,6 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	 * Map that stores the channel against the PV name
 	 */
 	private Map<String, Channel> channelMap = new HashMap<String, Channel>();
-
 
 	/**
 	 * List all the PVs
@@ -830,4 +831,26 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 		return initialEnableCallbacks;
 	}
 
+	private String getChannelName(String pvElementName, String... args)throws Exception{
+		String pvPostFix = null;
+		if (args.length > 0) {
+			// PV element name is different from the pvPostFix
+			pvPostFix = args[0];
+		} else {
+			pvPostFix = pvElementName;
+		}
+
+		String fullPvName;
+		if (pvProvider != null) {
+			fullPvName = pvProvider.getPV(pvElementName);
+		} else {
+			fullPvName = basePVName + pvPostFix;
+		}
+		return fullPvName;
+	}
+	
+	@Override
+	public Observable<Integer> createArrayCounterObservable() throws Exception {
+		return LazyPVFactory.newReadOnlyIntegerPV(getChannelName(ArrayCounter_RBV));
+	}
 }
