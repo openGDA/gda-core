@@ -25,15 +25,13 @@ import gda.device.detector.DUMMY_XSPRESS2_MODE;
 import gda.device.detector.DummyDAServer;
 import gda.device.timer.Etfg;
 import gda.factory.FactoryException;
-import gda.factory.Finder;
 import gda.util.TestUtils;
 import gda.util.exceptionUtils;
 
 import java.io.File;
 import java.util.ArrayList;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 import uk.ac.gda.beans.xspress.DetectorDeadTimeElement;
@@ -44,14 +42,14 @@ import uk.ac.gda.beans.xspress.XspressROI;
  * Test the Xspress2System class against DummyDAServer. So this is more of a test of DummyDAServer really.
  */
 public class Xspress2SystemTest {
-	private static Xspress2System xspress = new Xspress2System();
-	final static String TestFileFolder = "testfiles/gda/device/detector/xspress";
-	static String testScratchDirectoryName = null;
+	private Xspress2System xspress;
+	final String TestFileFolder = "test/gda/device/detector/xspress/TestFiles/";
+	String testScratchDirectoryName = null;
 
-	/**
-	 */
-	@BeforeClass
-	public static void setUpBeforeClass() {
+	@Before
+	public void setUp() {
+		xspress = new Xspress2System();
+		
 		testScratchDirectoryName = TestUtils.generateDirectorynameFromClassname(Xspress2SystemTest.class
 				.getCanonicalName());
 		try {
@@ -87,14 +85,6 @@ public class Xspress2SystemTest {
 		} catch (FactoryException e) {
 			fail(e.getMessage());
 		}
-	}
-
-	/**
-	 * Clear out the Finder as this is a singleton instance.
-	 */
-	@AfterClass
-	public static void clearUpAfterClass() {
-		Finder.getInstance().clear();
 	}
 
 	/**
@@ -224,7 +214,7 @@ public class Xspress2SystemTest {
 	@Test
 	public void testSaveDetectors() {
 		xspress.saveDetectors(testScratchDirectoryName + "xspressConfig-saved.xml");
-		junitx.framework.FileAssert.assertEquals(new File(TestFileFolder + "/xspressConfig.xml"), 
+		junitx.framework.FileAssert.assertEquals(new File(TestFileFolder + "xspressConfig.xml"), 
 				new File(testScratchDirectoryName + "xspressConfig-saved.xml"));
 	}
 	
@@ -313,34 +303,4 @@ public class Xspress2SystemTest {
 			fail(e.getMessage());
 		}
 	}
-
-	@Test
-	public void testReadoutScalerData() {
-		try {
-			xspress.setReadoutMode(XspressDetector.READOUT_SCALERONLY);
-			xspress.setResGrade(ResGrades.NONE);
-			
-			double[] data = xspress.readoutScalerData();
-			assertEquals(10, data.length);
-
-			// then switch to using regions of interest mode
-			ArrayList<XspressROI> regionList = new ArrayList<XspressROI>();
-			XspressROI roi = new XspressROI("roi1", 50, 100);
-			XspressROI roi2 = new XspressROI("roi2", 150, 174);
-			regionList.add(roi);
-			regionList.add(roi2);
-			for (int i = 0; i < xspress.numberOfDetectors; i++) {
-				xspress.setRegionOfInterest(i, regionList);
-			}
-			xspress.setReadoutMode(XspressDetector.READOUT_ROIS);
-			xspress.setResGrade(ResGrades.NONE);
-
-			data = xspress.readoutScalerData();
-			assertEquals(19, data.length);
-
-		} catch (DeviceException e) {
-			fail(e.getMessage());
-		}
-	}
-
 }
