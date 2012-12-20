@@ -22,25 +22,21 @@ package gda.observable;
  * Interface for an object that supports type observation
  *
  */
-public interface Observable<E> extends IIsBeingObserved{
+public interface Observable<E> {
 	/**
-	 * Add an object to this objects's list of IObservers.
-	 * 
+	 * Add an object to this objects's list of Observers.
+	 * On adding the observer the Observable will call the Observer's update method.
 	 * @param observer
-	 *            object that implement IObserver and wishes to be notified by this object
+	 *            object that implement Observer and wishes to be notified by this object
 	 */
-	void addIObserver(Observer<E> observer) throws Exception;
+	void addObserver(Observer<E> observer) throws Exception;
 
 	/**
 	 * Delete an object from this objects's list of IObservers.
 	 * 
 	 * @param observer
-	 *            object that implement IObserver and wishes to be notified by this object
+	 *            object that implement Observer and wishes to be notified by this object
 	 */
 	void deleteIObserver(Observer<E> observer);
 
-	/**
-	 * delete all IObservers from list of observing objects
-	 */
-	void deleteIObservers();
 }
