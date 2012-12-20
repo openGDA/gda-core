@@ -25,7 +25,7 @@ import gda.epics.connection.EpicsController;
 import gda.epics.util.EpicsGlobals;
 import gda.observable.Observable;
 import gda.observable.Observer;
-import gda.observable.TypedObservableComponent;
+import gda.observable.ObservableUtil;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.CAStatusException;
@@ -871,11 +871,11 @@ public class LazyPVFactory {
 		 * 
 		 */
 		@Override
-		public void addIObserver(Observer<T> observer) throws Exception {
+		public void addObserver(Observer<T> observer) throws Exception {
 			if( observableMonitor == null){
 				observableMonitor = new PVMonitor<T>(this, this);
 			}
-			observableMonitor.addIObserver(observer);			
+			observableMonitor.addObserver(observer);			
 			
 		}
 
@@ -887,20 +887,6 @@ public class LazyPVFactory {
 			}
 			observableMonitor.deleteIObserver(observer);
 		}
-
-		@Override
-		public void deleteIObservers() {
-			if( observableMonitor == null){
-				return;
-			}
-			observableMonitor.deleteIObservers();
-		}
-
-		@Override
-		public boolean IsBeingObserved() {
-			return  observableMonitor == null ? false : observableMonitor.IsBeingObserved();
-		}
-
 
 	}
 
@@ -997,49 +983,39 @@ public class LazyPVFactory {
 		private class GenericObservable implements Observable<T> {
 
 			private final Observable<N> stringFromWaveform;
-			TypedObservableComponent<T> oc = new TypedObservableComponent<T>();
+			ObservableUtil<T> oc = new ObservableUtil<T>();
+			private Observer<N> observerN;
 
 			public GenericObservable(Observable<N> stringFromWaveform) throws Exception {
 				this.stringFromWaveform = stringFromWaveform;
-				stringFromWaveform.addIObserver(new Observer<N>() {
+				observerN = new Observer<N>() {
 					
 					@Override
 					public void update(Observable<N> source, N arg) {
 						oc.notifyIObservers(AbstractReadOnlyAdapter.this, innerToOuter(arg));
 					}
-				});
+				};
+				stringFromWaveform.addObserver(observerN);
 			}
 
 			@Override
-			public boolean IsBeingObserved() {
-				return oc.IsBeingObserved();
-			}
-
-			@Override
-			public void addIObserver(Observer<T> observer) throws Exception {
-				oc.addIObserver(observer);
+			public void addObserver(Observer<T> observer) throws Exception {
+				oc.addObserver(observer);
 			}
 
 			@Override
 			public void deleteIObserver(Observer<T> observer) {
 				oc.deleteIObserver(observer);
 				if( !oc.IsBeingObserved())
-					stringFromWaveform.deleteIObservers();
-			}
-
-			@Override
-			public void deleteIObservers() {
-				oc.deleteIObservers();
-				if( !oc.IsBeingObserved())
-					stringFromWaveform.deleteIObservers();
+					stringFromWaveform.deleteIObserver(observerN);
 			}
 
 		}
 
 		@Override
-		public void addIObserver(final Observer<T> observer) throws Exception {
+		public void addObserver(final Observer<T> observer) throws Exception {
 
-			createStringObservable(getPV()).addIObserver(observer);
+			createStringObservable(getPV()).addObserver(observer);
 			
 		}
 		Observable<T> obs=null;
@@ -1057,18 +1033,6 @@ public class LazyPVFactory {
 				return;
 			obs.deleteIObserver(observer);
 		}
-
-		@Override
-		public void deleteIObservers() {
-			getPV().deleteIObservers();
-		}
-
-		@Override
-		public boolean IsBeingObserved() {
-			return getPV().IsBeingObserved();
-		}
-
-		
 
 	}
 
@@ -1159,8 +1123,8 @@ public class LazyPVFactory {
 			return outerValue;
 		}
 		@Override
-		public void addIObserver(Observer<T> observer) throws Exception {
-			getPV().addIObserver(observer);
+		public void addObserver(Observer<T> observer) throws Exception {
+			getPV().addObserver(observer);
 			
 		}
 
@@ -1169,15 +1133,6 @@ public class LazyPVFactory {
 			getPV().deleteIObserver(observer);
 		}
 
-		@Override
-		public void deleteIObservers() {
-			getPV().deleteIObservers();
-		}
-
-		@Override
-		public boolean IsBeingObserved() {
-			return getPV().IsBeingObserved();
-		}
 	}
 
 	static private class NoCallback<T> extends ReadOnly<T> implements NoCallbackPV<T> {
@@ -1277,7 +1232,7 @@ class PVMonitor<E> implements Observable<E>{
 		this.observable = observable;
 		this.pv = pv;
 	}
-	TypedObservableComponent<E> oc=null;
+	ObservableUtil<E> oc=null;
 	MonitorListener monitorListener = new MonitorListener() {
 		
 		@Override
@@ -1295,23 +1250,12 @@ class PVMonitor<E> implements Observable<E>{
 	};
 
 
-	@Override
-	public void deleteIObservers() {
-		if( oc == null)
-			return;
-		oc.deleteIObservers();
-		if (!oc.IsBeingObserved()){
-			if ( !pv.isValueMonitoring()){
-				pv.removeMonitorListener(monitorListener);
-			}
-		}
-	}
 
 	@Override
-	public void addIObserver(Observer<E> observer) throws Exception {
+	public void addObserver(Observer<E> observer) throws Exception {
 		if( oc == null)
-			oc = new TypedObservableComponent<E>();
-		oc.addIObserver(observer);
+			oc = new ObservableUtil<E>();
+		oc.addObserver(observer);
 		if( !pv.isValueMonitoring()){
 			try {
 				pv.addMonitorListener(monitorListener);
@@ -1335,7 +1279,6 @@ class PVMonitor<E> implements Observable<E>{
 		}
 	}
 
-	@Override
 	public boolean IsBeingObserved() {
 		return oc == null ? false : oc.IsBeingObserved();
 	}
