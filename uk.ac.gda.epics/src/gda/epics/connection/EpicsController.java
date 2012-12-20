@@ -174,18 +174,12 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 */
 	private double timeout = EpicsGlobals.getTimeout();
 
-	/**
-	 * Monitor counter.
-	 */
 	private AtomicInteger monitorCount = new AtomicInteger(0);
 
 	private Context context = null;
 
 	private Map<MonitorID, Monitor> monitors;
 
-	/**
-	 * Thread pool.
-	 */
 	private ThreadPoolExecutor threadPool = null;
 
 	/**
@@ -261,7 +255,6 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			event = ev;
 			this.notifyAll();
 		}
-
 	}
 
 	/**
@@ -624,7 +617,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		return dbr;
 	}
 
-	// ******** channel acces methods that returns multi-element array *********
+	// ******** channel access methods that returns multi-element array *********
 	/**
 	 * Gets an array of short (enumerated positions) from enumerated field of this channel.
 	 * 
@@ -835,53 +828,14 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * @return DBR the channel's value in specified DBR type.
 	 * @throws CAException
 	 * @throws IllegalStateException
-	 * @throws CAException
-	 * @throws IllegalStateException
-	 * @throws TimeoutException
-	 * @throws CAException
-	 * @throws TimeoutException
 	 * @throws InterruptedException 
-	 */
-	/*
-	 * public DBR getDBR(Channel ch, DBRType type, int count) throws IllegalStateException, CAException,
-	 * TimeoutException { DBR dbr = ch.get(type, count); context.pendIO(100); logger.warn("In EpicsController.getDBR " +
-	 * ch.getName()+" "+type.getName()+" " +count); return dbr; }
 	 */
 	public DBR getDBR(Channel ch, DBRType type, int count) throws TimeoutException, CAException, InterruptedException {
 		checkConnection(ch);
-		try {
-			GetListenerImpl listener = new GetListenerImpl();
-			synchronized (listener) {
-				ch.get(type, count, listener);
-				context.flushIO();
-				listener.wait((long) (timeout * 1000));
-			}
-
-			final GetEvent event = listener.event;
-			if (event == null)
-				throw new TimeoutException("get timeout");
-
-			if (event.getStatus() != CAStatus.NORMAL)
-				throw new CAStatusException(event.getStatus(), "get failed");
-
-			return event.getDBR();
-		} catch (TimeoutException ex) {
-			logger.error(" getDBR( {} ) failed. {}",ch.getName(), ex.getMessage());
-			throw ex;
-		} catch (CAException ex) {
-			logger.error(" getDBR( {} ) failed. {}", ch.getName(), ex.getMessage());
-			throw ex;
-		} catch (IllegalStateException ex) {
-			logger.error(" getDBR( {} ) failed. {}", ch.getName(), ex.getMessage());
-			throw ex;
-		} catch (Throwable ex) {
-			logger.error(" getDBR( {} ) failed. {}", ch.getName(), ex.getMessage());
-			Thread.dumpStack();
-			throw new RuntimeException("unexpected exception", ex);
-		}
+		return getDBR(ch, type, count, timeout);
 	}
 
-	private DBR getDBR(Channel ch, DBRType type, int count,double timeout) throws TimeoutException, CAException {
+	private DBR getDBR(Channel ch, DBRType type, int count, double timeout) throws TimeoutException, CAException {
 		try {
 			GetListenerImpl listener = new GetListenerImpl();
 			synchronized (listener) {
@@ -918,6 +872,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			throw new RuntimeException("unexpected exception", ex);
 		}
 	}
+	
 	// ******* Channel Access methods that returns CA compound data type *******
 	/**
 	 * returns a STS typed DBR value of the channel. This STS type contains the channel's value, alarm status, and alarm
@@ -1052,30 +1007,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 */
 	// NOTE: there is no destruction of monitors
 	public Monitor setMonitor(Channel ch, DBRType type, int mask, MonitorListener ml) throws CAException {
-		try {
-			MonitorID id = new MonitorID(ch, type, ch.getElementCount(), mask);
-			Monitor mntr = null;
-			synchronized (monitors) {
-				mntr = monitors.get(id);
-				if (mntr == null || ((CAJMonitor) mntr).isCleared()) {
-					// create a monitor of the channel ch.
-					mntr = ch.addMonitor(type, ch.getElementCount(), mask, ml);
-					context.flushIO();
-
-					monitors.put(id, mntr);
-					monitorCount.incrementAndGet();
-				} else
-					// add a new listener to an already existed monitor.
-					mntr.addMonitorListener(ml);
-			}
-			return mntr;
-		} catch (CAException ex) {
-			logger.error("add monitor {} to the channel {} failed.", ml.getClass().getName(), ch.getName());
-			throw ex;
-		} catch (IllegalStateException ex) {
-			logger.error("add monitor {} to the channel {} failed.", ml.getClass().getName(), ch.getName());
-			throw ex;
-		}
+		return setMonitor(ch, type, mask, ml, ch.getElementCount());
 	}
 
 	public Monitor setMonitor(Channel ch, DBRType type, int mask, MonitorListener ml, int count) throws CAException {
@@ -1125,29 +1057,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * @throws CAException
 	 */
 	public Monitor setMonitor(Channel ch, MonitorListener ml, MonitorType type) throws CAException, InterruptedException {
-		checkConnection(ch);
-		Monitor mnt = null;
-		switch (type) {
-		case STS:
-			mnt = setMonitor(ch, STSHandler.getSTSType(ch), Monitor.VALUE | Monitor.ALARM, ml);
-			break;
-		case TIME:
-			mnt = setMonitor(ch, TIMEHandler.getTIMEType(ch), Monitor.VALUE | Monitor.ALARM, ml);
-			break;
-		case GR:
-			mnt = setMonitor(ch, GRHandler.getGRType(ch), Monitor.VALUE | Monitor.ALARM, ml);
-			break;
-		case CTRL:
-			mnt = setMonitor(ch, CTRLHandler.getCTRLType(ch), Monitor.VALUE | Monitor.ALARM, ml);
-			break;
-		case NATIVE:
-			mnt = setMonitor(ch, ch.getFieldType(), Monitor.VALUE | Monitor.ALARM, ml);
-			break;
-		default:
-			logger.error("Invalid Monitor Type is requested.");
-			break;
-		}
-		return mnt;
+		return setMonitor(ch, ml, type, ch.getElementCount()); 
 	}
 
 	public Monitor setMonitor(Channel ch, MonitorListener ml, MonitorType type, int count) throws CAException, InterruptedException {
@@ -1175,6 +1085,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		}
 		return mnt;
 	}
+	
 	/**
 	 * convenient method to support a deprecated interface
 	 * 
@@ -1194,6 +1105,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		return null;
 
 	}
+	
 	/**
 	 * Sets a VALUE monitor to the specified channel. The monitor event returns the default/native DBR type and element
 	 * count.
@@ -1210,6 +1122,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	public Monitor setMonitor(Channel ch, MonitorListener ml, int count) throws CAException, InterruptedException {
 		return setMonitor(ch, ml, MonitorType.NATIVE, count);
 	}
+	
 	/**
 	 * adds a ALARM monitor to the specified channel using the specified MonitorType. Valid MonitorType includes:
 	 * <li>NATIVE - the native DBR type, value only</li>
@@ -1415,7 +1328,6 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			logger.error("put to channel: {} value: {} failed. ", ch.getName(), value);
 			throw ex;
 		}
-
 	}
 
 	/**
@@ -2563,8 +2475,6 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		}
 	}
 
-	
-	
 	/**
 	 * Asynchronously writes a String array to this channel with user provided put listener which handles the
 	 * put-callback.
@@ -2651,5 +2561,4 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	public int getMonitorCount() {
 		return monitorCount.get();
 	}
-
 }
