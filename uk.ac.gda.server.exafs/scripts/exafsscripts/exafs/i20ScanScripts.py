@@ -339,9 +339,11 @@ class I20XesScan(XasScan):
             
 
             try:
+                self.outputPreparer.mode = "xes"
                 jython_mapper.xas(beanGroup.getSample(), xas_scanfilename, beanGroup.getDetector(), beanGroup.getOutput(), folderName, numRepetitions, validation)
             finally:
                 print "cleaning up scan defaults"
+                self.outputPreparer.mode = "xas"
                 ScannableCommands.remove_default([xes_energy,analyserAngle])
                 xes_energy(initialXESEnergy)
             return
@@ -357,9 +359,11 @@ class I20XesScan(XasScan):
             ScannableCommands.add_default([xes_energy,analyserAngle])
 
             try:
+                self.outputPreparer.mode = "xes"
                 jython_mapper.xanes(beanGroup.getSample(), xanes_scanfilename, beanGroup.getDetector(), beanGroup.getOutput(), folderName, numRepetitions, validation)
             finally:
                 print "cleaning up scan defaults"
+                self.outputPreparer.mode = "xas"
                 ScannableCommands.remove_default([xes_energy,analyserAngle])
                 xes_energy(initialXESEnergy)
             return
@@ -450,6 +454,7 @@ class I20XesScan(XasScan):
 #            LocalProperties.set("gda.data.scan.datawriter.dataFormat", originalDataFormat)
             # make sure the plotter is switched off
             jython_mapper.twodplotter.atScanEnd()
+            jython_mapper.ionchambers.setOutputLogValues(False) 
             
             
 
