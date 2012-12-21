@@ -13,6 +13,7 @@ from gda.jython.scriptcontroller.logging import LoggingScriptController
 from gda.jython.scriptcontroller.logging import XasLoggingMessage
 from gda.scan import ScanBase, ContinuousScan
 from scan import Scan
+from exafs_environment import ExafsEnvironment
 
 class QexafsScan(Scan):
     
@@ -71,7 +72,8 @@ class QexafsScan(Scan):
                 numberPoints = int(math.ceil((final_energy-initial_energy)/step_size))
                 self._runScript(outputBean.getBeforeScriptName())
                 scan_time = scanBean.getTime()
-                logmsg = XasLoggingMessage(unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str("0%"),str(0),str(scanBean.getTime()) + "s",outputFolder)
+                logmsg = XasLoggingMessage(unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str("0%"),str(0),beanGroup.getScan(),outputFolder)
+               
                 loggingcontroller.update(None,logmsg)
                 loggingcontroller.update(None,ScanStartedMessage(scanBean,detectorBean))
                 loggingbean = XasProgressUpdater(loggingcontroller,logmsg)

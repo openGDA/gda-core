@@ -2430,11 +2430,15 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	}
 	
 	public int getNumberFrames() throws DeviceException {
-
+		// this value will be non-zero if collecting from a series of time frames outside of the continuous scan mechanism
 		if (tfg.getAttribute("TotalFrames").equals(0)) {
 			return 0;
 		}
 
+		return getNumberFramesFromTFGStatus();
+	}
+
+	public int getNumberFramesFromTFGStatus() throws DeviceException {
 		String[] cmds = new String[] { "status show-armed", "progress", "status", "full", "lap", "frame" };
 		HashMap<String, String> currentVals = new HashMap<String, String>();
 		for (String cmd : cmds) {
