@@ -185,12 +185,10 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 		autoFillGas.setText("Fill before starting data collection");
 		autoFillGas
 				.setToolTipText("If selected then the gas filling system will be operated during the data collection scripts.\nIf unticked then it will not be operated and you should press the 'Fill Gas' button on the GUI to change the gas.");
-		autoFillGas.setEnabled(false);
-		
+
 		flush = new BooleanWrapper(gasPropertiesGroup, SWT.NONE);
 		flush.setText("Flush ion chamber before fill");
 		flush.setToolTipText("If selected then the ion chamber will be flushed before a filled");
-		flush.setEnabled(false);
 
 		final Label gasTypeLabel = new Label(gasPropertiesGroup, SWT.NONE);
 		gasTypeLabel.setText("Gas Type");
@@ -243,7 +241,6 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 		fillGasButton.setToolTipText("Click to fill the gas into the ion chamber.");
 		fillGasButton.setImage(SWTResourceManager.getImage(IonChamberComposite.class, "/application_side_expand.png"));
 		fillGasButton.setText("Fill Gas");
-		fillGasButton.setEnabled(false);
 
 		fillGasButton.addSelectionListener(new SelectionListener() {
 
@@ -266,9 +263,9 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 				String gas_select = gasType.getValue().toString();
 				int gas_select_val = -1;
 
-//				if (flush.getValue())
-//					flushString = "True";
-//				else
+				if (flush.getValue())
+					flushString = "True";
+				else
 					flushString = "False";
 
 				if (gas_select.equals("Kr"))
@@ -649,13 +646,13 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 									flush.setValue(false);
 									pressure.setLabelColor(new Color(null, 255,0,0));
 								} else {
-//									fillGasButton.setEnabled(true);
-//									autoFillGas.setEnabled(true);
-//									flush.setEnabled(true);
-//									autoFillGas.setValue(originalAutoFillGas);
-//									flush.setEnabled(true);
-//									autoFillGas.setValue(originalAutoFillGas);
-//									flush.setValue(originalFlush);
+									fillGasButton.setEnabled(true);
+									autoFillGas.setEnabled(true);
+									flush.setEnabled(true);
+									autoFillGas.setValue(originalAutoFillGas);
+									flush.setEnabled(true);
+									autoFillGas.setValue(originalAutoFillGas);
+									flush.setValue(originalFlush);
 									pressure.setLabelColor(new Color(null, 0,0,0));
 								}
 
