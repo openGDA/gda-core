@@ -1,6 +1,7 @@
-from xas_scan import XasScan
+from gda.jython.commands import ScannableCommands
 from uk.ac.gda.beans.exafs import XanesScanParameters, QEXAFSParameters
 
+from xas_scan import XasScan
 
 
 class I18XasScan(XasScan):
@@ -35,13 +36,13 @@ class I18XasScan(XasScan):
         if self.beam!=None:
             self.beam.setPauseBeforePoint(True)
             self.beam.setPauseBeforeLine(True)
-            add_default(self.beam)
+            ScannableCommands.add_default([self.beam])
 
         if self.detectorFillingMonitor!=None and beanGroup.getDetector().getExperimentType() == "Fluorescence" and beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium": 
             self.detectorFillingMonitor.setPauseBeforePoint(True)
             self.detectorFillingMonitor.setPauseBeforeLine(False)
             self.detectorFillingMonitor.setCollectionTime(collectionTime)
-            add_default(self.detectorFillingMonitor)
+            ScannableCommands.add_default([self.detectorFillingMonitor])
 
         if self.trajBeamMonitor!=None:
             self.trajBeamMonitor.setActive(False)

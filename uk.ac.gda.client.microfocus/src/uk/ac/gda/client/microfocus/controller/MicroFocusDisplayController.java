@@ -111,7 +111,8 @@ public class MicroFocusDisplayController {
 		}
 			//server needs to show the spectrum
 			logger.info("Plotting spectrum for "+this.currentDetectorElementNo+","+ x+"," +y);
-			JythonServerFacade.getInstance().evaluateCommand("plotSpectrum("+this.currentDetectorElementNo+","+ x+"," +y+")" );
+			//JythonServerFacade.getInstance().evaluateCommand("plotSpectrum("+this.currentDetectorElementNo+","+ x+"," +y+")" );
+			JythonServerFacade.getInstance().evaluateCommand("map.getMFD().plotSpectrum("+this.currentDetectorElementNo+","+ x+"," +y+")" );
 			return true;
 	}
 	public void displayMap(String selectedElement) throws Exception
@@ -133,9 +134,10 @@ public class MicroFocusDisplayController {
 		}
 		else
 		{
-			boolean success = Boolean.valueOf(JythonServerFacade.getInstance().evaluateCommand("displayMap(\"" +selectedElement+"\")"));
-			if(!success)
-				throw new Exception("Unable display map from the scan information for element " + selectedElement);
+			//boolean success = Boolean.valueOf(JythonServerFacade.getInstance().evaluateCommand("displayMap(\"" +selectedElement+"\")"));
+			JythonServerFacade.getInstance().evaluateCommand("map.getMFD().displayPlot(\"" +selectedElement+"\")");
+			//if(!success)
+			//	throw new Exception("Unable display map from the scan information for element " + selectedElement);
 		}
 		
 		
@@ -203,7 +205,7 @@ public class MicroFocusDisplayController {
 			xy[2] = currentDetectorProvider.getZValue();
 			return xy;
 		}
-			Object s =  JythonServerFacade.getInstance().evaluateCommand("getXY("+x+"," +y+")" );
+			Object s =  JythonServerFacade.getInstance().evaluateCommand("map.getMFD().getXY("+x+"," +y+")" );
 			if(s instanceof double[])
 			{
 				xy = (double[])s;

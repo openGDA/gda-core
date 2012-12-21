@@ -17,8 +17,8 @@ class I20SamplePreparer:
     
     def prepare(self, sampleParameters):
         # if microreactor, then add this to the list of detectors
-        if sampleParameters.getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[4] :
-            return [Finder.getInstance().find("cirrus")]
+#        if sampleParameters.getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[4] :
+#            return [Finder.getInstance().find("cirrus")]
         
         # for testing ONLY
         #jython_mapper = JythonNameSpaceMapping()

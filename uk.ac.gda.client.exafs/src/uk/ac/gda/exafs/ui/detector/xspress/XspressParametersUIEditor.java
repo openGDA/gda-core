@@ -19,6 +19,7 @@
 package uk.ac.gda.exafs.ui.detector.xspress;
 
 import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.device.detector.xspress.ResGrades;
@@ -45,6 +46,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -100,6 +102,8 @@ import com.swtdesigner.SWTResourceManager;
  *
  */
 public class XspressParametersUIEditor extends DetectorEditor {
+	
+	private static final String GDA_DEVICE_XSPRESS_SPOOL_DIR = "gda.device.xspress.spoolDir";
 
 	private static final Logger logger = LoggerFactory.getLogger(XspressParametersUIEditor.class);
 	private static final Map<String, Object> RES_ALL;
@@ -330,14 +334,15 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		openDialog.setFilterPath(LocalProperties.get(LocalProperties.GDA_DATAWRITER_DIR));
 
 		final Composite grid = new Composite(left, SWT.BORDER);
-		grid.setLayout(new GridLayout(1, false));
-		grid.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(grid);
+		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(grid);
 
 		this.showIndividualElements = new BooleanWrapper(grid, SWT.NONE);
 		showIndividualElements.setText("Show individual elements");
 
 		middleComposite = new Composite(grid, SWT.BORDER);
 		middleComposite.setLayout(new GridLayout(2, false));
+		GridDataFactory.fillDefaults()/*.grab(true, false)*/.applyTo(middleComposite);
 
 		this.applyToAllLabel = new Button(middleComposite, SWT.CHECK);
 		applyToAllLabel.setText("Apply Changes To All Elements ");
@@ -372,7 +377,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		gridData.minimumWidth = 90;
 		applyToAllButton.setLayoutData(gridData);
 		applyToAllButton.setText("Apply now");
-//		applyToAllButton.setImage(SWTResourceManager.getImage(XspressParametersUIEditor.class, "/camera_go.png"));
 		applyToAllButton.setToolTipText("Apply current detector regions of interest to all other detector elements.");
 		this.applyToAllListener = new SelectionAdapter() {
 			@Override
@@ -398,7 +402,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 
 		detectorElementsLabel = new Group(grid, SWT.BORDER);
 		GridLayoutFactory.fillDefaults().applyTo(detectorElementsLabel);
-//		this.detectorElementsLabel = new Label(grid, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(detectorElementsLabel);
 		detectorElementsLabel.setText("Detector Elements");
 
 		try {
@@ -785,14 +789,19 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			});
 
 			if (writeToDisk) {
-				String spoolDirPath = PathConstructor.createFromProperty("gda.device.xspress.spoolDir");
-				final File filePath = File.createTempFile("mca", ".xsp", new File(spoolDirPath));
+				String spoolDirPath = PathConstructor.createFromProperty(GDA_DEVICE_XSPRESS_SPOOL_DIR);
+				if (spoolDirPath == null || spoolDirPath.length() == 0)
+					throw new Exception("Error saving data. Xspress device spool dir is not defined in property "
+							+ GDA_DEVICE_XSPRESS_SPOOL_DIR);
+				long snapShotNumber = new NumTracker("Xspress_snapshot").incrementNumber();
+				String fileName = "xspress_snap_" + snapShotNumber + ".mca";
+				final File filePath = new File(spoolDirPath + "/" + fileName);
 				save(detectorData, filePath.getAbsolutePath());
-				sashPlotForm.appendStatus("Saved snapshot to filePath " + filePath, logger);
+				sashPlotForm.appendStatus("Xspress snapshot saved to " + filePath, logger);
 				getSite().getShell().getDisplay().syncExec(new Runnable() {
 					@Override
 					public void run() {
-						acquireFileLabel.setText("Saved to: " + filePath.getAbsolutePath());
+						acquireFileLabel.setText("Saved: " + filePath.getAbsolutePath());
 					}
 				});
 			}

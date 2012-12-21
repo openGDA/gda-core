@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.exafs.ISampleParameters;
 import uk.ac.gda.beans.exafs.OutputParameters;
+import uk.ac.gda.beans.exafs.i20.I20SampleParameters;
 import uk.ac.gda.util.io.FileUtils;
 
 /**
@@ -93,10 +94,18 @@ public class XasAsciiDataWriter extends AsciiDataWriter{
 			file.write("#\n");
 			final ISampleParameters p = (ISampleParameters) getBean(group.getSample());
 			// write out sample parameters
-			if (p != null) {				
-				for (int i =0; i < p.getDescriptions().size(); i++){
+			if (p != null) {
+				// I20 has an extra Sample Name field
+				if (p instanceof I20SampleParameters) {
+					String sampleName = ((I20SampleParameters) p).getSampleName();
+					if (!sampleName.isEmpty()) {
+						file.write("# Sample name: " + sampleName + "\n");
+					}
+				}
+
+				for (int i = 0; i < p.getDescriptions().size(); i++) {
 					String startMsg = "# ";
-					if (i==0){
+					if (i == 0) {
 						startMsg += "Sample description: ";
 					} else {
 						startMsg += "Additional comments: ";
@@ -143,7 +152,7 @@ public class XasAsciiDataWriter extends AsciiDataWriter{
 				if (da != null && da.getCounts().length >= 3) {
 					file.write("#\n");
 					file.write(String.format(
-							"# Dark current intensity (Hz), collected over %.2fs: I0 %.2f   It %.2f   Iref %.2f\n",
+							"# Dark current intensity was collected over %.2fs. Average counts per second: I0 %.2f   It %.2f   Iref %.2f\n",
 							da.getTimeInS(), da.getCounts()[0] / da.getTimeInS(), da.getCounts()[1] / da.getTimeInS(),
 							da.getCounts()[2] / da.getTimeInS()));
 					file.write("# Dark current has been automatically removed from counts in main scan (I0,It,Iref)\n");

@@ -283,6 +283,8 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 			xmap.prepareForCollection();
 		}
 	}
+	
+	@Override
 	public void arm() throws DeviceException {
 		try {
 			controller.startRecording();
@@ -296,6 +298,7 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 			
 		}
 	}
+	
 	private void setupFilename() throws Exception {
 		String beamline = null;
 		try {
@@ -377,24 +380,24 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 		this.indexer  = new PositionStreamIndexer<NexusTreeProvider>(new XmapPositionInputStream(this, this.xmap.isSumAllElementData()));
 			}
 
-	public void setupContinuousOperation(){
+	public void setupContinuousOperation() throws DeviceException{
 		if (!isSlave()) {
 				setTimeFrames();				
 			}
 		}
 	
-	private void setTimeFrames() {
+	private void setTimeFrames() throws DeviceException {
 		switchOnExtTrigger();
 		getDaServer().sendCommand("tfg setup-groups ext-start cycles 1");
 		getDaServer().sendCommand(this.scanNumberOfPoints + " 0.000001 0.00000001 0 0 0 8");
 		getDaServer().sendCommand("-1 0 0 0 0 0 0");
 		getDaServer().sendCommand("tfg arm");
 	}
-	private void switchOnExtTrigger() {
+	private void switchOnExtTrigger() throws DeviceException {
 		getDaServer().sendCommand("tfg setup-trig start ttl0");
 	}
 
-	private void switchOffExtTrigger() {
+	private void switchOffExtTrigger() throws DeviceException {
 		getDaServer().sendCommand("tfg setup-trig start"); // disables external triggering
 	}
 	public void setDaServer(DAServer daServer) {

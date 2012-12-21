@@ -10,6 +10,7 @@ from gda.device.scannable import JEPScannable
 from gda.exafs.scan import RepetitionsProperties
 from gda.factory import Finder
 from java.lang import InterruptedException
+from java.lang import System
 from gda.jython import ScriptBase
 from gda.jython.scriptcontroller.event import ScanCreationEvent, ScanFinishEvent, ScriptProgressEvent
 from gda.jython.scriptcontroller.logging import XasProgressUpdater
@@ -78,6 +79,7 @@ class XasScan(Scan):
         LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
         LocalProperties.set(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY,str(numRepetitions))
         repetitionNumber = 0
+        timeRepetitionsStarted = System.currentTimeMillis();
 
         try:
             while True:
@@ -98,10 +100,12 @@ class XasScan(Scan):
     
                 # send out initial messages for logging and display to user
                 outputFolder = beanGroup.getOutput().getAsciiDirectory()+ "/" + beanGroup.getOutput().getAsciiFileName()
-                logmsg = XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber + 1), str("0%"),str(0),beanGroup.getScan(),outputFolder)
+                print "Starting "+scriptType+" scan...", str(repetitionNumber)
+                initialPercent = str(int((float(repetitionNumber - 1) / float(numRepetitions)) * 100)) + "%" 
+                logmsg = XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), initialPercent,str(0),str(0),beanGroup.getScan(),outputFolder)
                 self.loggingcontroller.update(None,logmsg)
                 self.loggingcontroller.update(None,ScanStartedMessage(beanGroup.getScan(),beanGroup.getDetector())) # informs parts of the UI about current scan
-                loggingbean = XasProgressUpdater(self.loggingcontroller,logmsg)
+                loggingbean = XasProgressUpdater(self.loggingcontroller,logmsg,timeRepetitionsStarted)
     
                 # work out which detectors to use (they will need to have been configured already by the GUI)
                 detectorList = self._getDetectors(beanGroup.getDetector(), beanGroup.getScan()) 

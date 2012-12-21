@@ -52,15 +52,21 @@ public final class AttenuatorParametersComposite extends FieldBeanComposite {
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("position");
 		this.position = new Combo(this, SWT.READ_ONLY);
-		{
-			GridData gridData = new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1);
-			gridData.heightHint = 188;
-			position.setLayoutData(gridData);
-		}
+		GridData gridData = new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1);
+		gridData.heightHint = 188;
+		position.setLayoutData(gridData);
 		this.selectedPosition = new TextWrapper(this, SWT.NONE);
-		//selectedPosition.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		this.selectedPosition.setVisible(false);
-
+	}
+	
+	public void setPosition(String pos){
+		String[] items = this.position.getItems();
+		int index=0;
+		for(int i=0;i<items.length;i++){
+			if(items[i].equals(pos))
+				index=i;
+		}
+		this.position.select(index);
 	}
 
 	@SuppressWarnings("all")

@@ -114,6 +114,7 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 			if (curScan != null && !(curScan instanceof MicroFocusScanParameters)) {
 				super.scanStopped();
 				a = Double.NaN;
+				stack.topControl = lblNoDataMessage;
 			}
 		} catch (Exception e) {
 			logger.error("Unable to determine the scan type", e);
@@ -201,19 +202,28 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 			IScanDataPoint point = collection.get(i);
 			double x = point.getAllValuesAsDoubles()[0];
 			double ffi0 = ScanDataPointUtils.getFFI0(point);
+			double ffi1 = ScanDataPointUtils.getFFI1(point);
 			double ff = ScanDataPointUtils.getFF(point);
 			double i0 = ScanDataPointUtils.getI0(point);
+			double i1 = ScanDataPointUtils.getI1(point);
 			double it = ScanDataPointUtils.getIt(point);
-			if (Double.isNaN(i0))
+			if (Double.isNaN(i0) && Double.isNaN(i1))
 				continue;
 			if (!Double.isNaN(ffi0)) {
 				cachedY.add(ffi0);
+				cachedX.add(x);
+			} else if (!Double.isNaN(ffi1)) {
+				cachedY.add(ffi1);
 				cachedX.add(x);
 			} else if (!Double.isNaN(ff)) {
 				cachedY.add(ff / i0);
 				cachedX.add(x);
 			} else if (!Double.isNaN(it)) {
-				cachedY.add(Math.log(i0 / it));
+				Double y = Math.log(i0 / it);
+				if (y == null || y.isInfinite() || y.isNaN()){
+					y = 0.0;
+				}
+				cachedY.add(y);
 				cachedX.add(x);
 			} else {
 				continue;

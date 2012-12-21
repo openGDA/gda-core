@@ -1,4 +1,5 @@
 from java.lang import InterruptedException
+from java.lang import System
 from xas_scan import XasScan
 from exafs_environment import ExafsEnvironment
 from BeamlineParameters import JythonNameSpaceMapping, FinderNameMapping
@@ -30,7 +31,8 @@ class I20XasScan(XasScan):
 
         global jython_mapper
         jython_mapper = JythonNameSpaceMapping()
-
+        finder = Finder.getInstance()
+        
         # fluo detector, if in use
         if beanGroup.getDetector().getExperimentType() == 'Fluorescence':
             self.setDetectorCorrectionParameters(beanGroup)
@@ -45,7 +47,20 @@ class I20XasScan(XasScan):
             print "Moving filter wheel to",filter,"..."
             jython_mapper.filterwheel(filter)
             ScriptBase.checkForPauses()
-        
+            
+        # I20 always moves things back to initial positions after ecah scan. To save time, move mono to intial position here
+        scan =  beanGroup.getScan()
+        energy_scannable_name = scan.getScannableName()
+        energy_scannable = finder.find(energy_scannable_name)
+        if energy_scannable != None and isinstance(scan,XasScanParameters):
+            intialPosition = scan.getInitialEnergy()
+            energy_scannable.asynchronousMoveTo(intialPosition)
+            print "Moving",energy_scannable_name, "to initial position..."
+        elif energy_scannable != None and isinstance(scan,XanesScanParameters): 
+            intialPosition = scan.getRegions().get(0).getEnergy()
+            energy_scannable.asynchronousMoveTo(intialPosition)
+            print "Moving",energy_scannable_name, "to initial position..."
+
         # sample environments
 
         # room temperature (sample stage)
@@ -90,8 +105,11 @@ class I20XasScan(XasScan):
                     ScriptBase.checkForPauses()
                     
                     #TODO add to metadata?
+                    
+                    energy_scannable.waitWhileBusy()
                     self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
             else :
+                energy_scannable.waitWhileBusy()
                 self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
         finally:
             # remove extra columns from ionchambers output
@@ -321,9 +339,11 @@ class I20XesScan(XasScan):
             
 
             try:
+                self.outputPreparer.mode = "xes"
                 jython_mapper.xas(beanGroup.getSample(), xas_scanfilename, beanGroup.getDetector(), beanGroup.getOutput(), folderName, numRepetitions, validation)
             finally:
                 print "cleaning up scan defaults"
+                self.outputPreparer.mode = "xas"
                 ScannableCommands.remove_default([xes_energy,analyserAngle])
                 xes_energy(initialXESEnergy)
             return
@@ -339,9 +359,11 @@ class I20XesScan(XasScan):
             ScannableCommands.add_default([xes_energy,analyserAngle])
 
             try:
+                self.outputPreparer.mode = "xes"
                 jython_mapper.xanes(beanGroup.getSample(), xanes_scanfilename, beanGroup.getDetector(), beanGroup.getOutput(), folderName, numRepetitions, validation)
             finally:
                 print "cleaning up scan defaults"
+                self.outputPreparer.mode = "xas"
                 ScannableCommands.remove_default([xes_energy,analyserAngle])
                 xes_energy(initialXESEnergy)
             return
@@ -363,6 +385,8 @@ class I20XesScan(XasScan):
         LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
         LocalProperties.set(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY,str(numRepetitions))
         repetitionNumber = 0
+        timeRepetitionsStarted = System.currentTimeMillis();
+
         scriptType = "Xes"
         # set the dark current and integration time for all detectors
         itime = beanGroup.getScan().getXesIntegrationTime()
@@ -377,10 +401,12 @@ class I20XesScan(XasScan):
 
             # send out initial messages for logging and display to user
                 outputFolder = beanGroup.getOutput().getAsciiDirectory()+ "/" + beanGroup.getOutput().getAsciiFileName()
-                logmsg = XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str("0%"),str(0),beanGroup.getScan(),outputFolder)
+                print "Starting "+scriptType+" scan...", str(repetitionNumber)
+                initialPercent = str(int((float(repetitionNumber - 1) / float(numRepetitions)) * 100)) + "%" 
+                logmsg = XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), initialPercent,str(0),str(0),beanGroup.getScan(),outputFolder)
                 loggingcontroller.update(None,logmsg)
                 loggingcontroller.update(None,ScanStartedMessage(beanGroup.getScan(),beanGroup.getDetector())) # informs parts of the UI about current scan
-                loggingbean = XasProgressUpdater(loggingcontroller,logmsg)
+                loggingbean = XasProgressUpdater(loggingcontroller,logmsg,timeRepetitionsStarted)
                 args += [loggingbean]
                 try:
                     loggingcontroller.update(None, ScriptProgressEvent("Running scan"))
@@ -428,6 +454,7 @@ class I20XesScan(XasScan):
 #            LocalProperties.set("gda.data.scan.datawriter.dataFormat", originalDataFormat)
             # make sure the plotter is switched off
             jython_mapper.twodplotter.atScanEnd()
+            jython_mapper.ionchambers.setOutputLogValues(False) 
             
             
 
