@@ -65,26 +65,43 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 
 	@Override
 	public void stop() throws DeviceException {
-
 		xtal_x.stop();
-		det_y.stop();
 		det_x.stop();
+		det_y.stop();
 		det_rot.stop();
 
-		xtalxs[0].stop();
-		xtalxs[1].stop();
-
-		xtalys[0].stop();
-		xtalys[1].stop();
-		xtalys[2].stop();
-
-		xtalbraggs[0].stop();
 		xtalbraggs[1].stop();
-		xtalbraggs[2].stop();
-
+		xtalxs[0].stop();
+		xtalys[0].stop();
 		xtaltilts[0].stop();
-		xtaltilts[1].stop();
+		xtalbraggs[0].stop();
+
+
+		xtalxs[1].stop();
+		xtalys[2].stop();
 		xtaltilts[2].stop();
+		xtalbraggs[2].stop();
+		
+		try {
+			xtal_x.waitWhileBusy();
+			det_x.waitWhileBusy();
+			det_y.waitWhileBusy();
+			det_rot.waitWhileBusy();
+
+			xtalbraggs[1].waitWhileBusy();
+			xtalxs[0].waitWhileBusy();
+			xtalys[0].waitWhileBusy();
+			xtaltilts[0].waitWhileBusy();
+			xtalbraggs[0].waitWhileBusy();
+
+
+			xtalxs[1].waitWhileBusy();
+			xtalys[2].waitWhileBusy();
+			xtaltilts[2].waitWhileBusy();
+			xtalbraggs[2].waitWhileBusy();
+		} catch (InterruptedException e) {
+			throw new DeviceException("InterruptedException while waiting for motors to stop");
+		}
 	}
 
 	@Override
