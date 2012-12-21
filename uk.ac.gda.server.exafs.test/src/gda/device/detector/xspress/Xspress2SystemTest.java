@@ -43,7 +43,7 @@ import uk.ac.gda.beans.xspress.XspressROI;
  */
 public class Xspress2SystemTest {
 	private Xspress2System xspress;
-	final String TestFileFolder = "test/gda/device/detector/xspress/TestFiles/";
+	final String TestFileFolder = "testfiles/gda/device/detector/xspress/";
 	String testScratchDirectoryName = null;
 
 	@Before
