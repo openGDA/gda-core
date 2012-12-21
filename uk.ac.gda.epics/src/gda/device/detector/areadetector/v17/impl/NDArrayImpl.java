@@ -23,12 +23,15 @@ import gda.configuration.epics.Configurator;
 import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.areadetector.v17.NDPluginBase;
+import gda.epics.LazyPVFactory;
 import gda.epics.connection.EpicsController;
 import gda.epics.interfaces.NDStdArraysType;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
+import gov.aps.jca.dbr.DBR;
+import gov.aps.jca.dbr.DBRType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -281,5 +284,48 @@ public class NDArrayImpl implements NDArray, InitializingBean {
 		}
 	}
 
+	private String getChannelName(String pvElementName, String... args)throws Exception{
+		String pvPostFix = null;
+		if (args.length > 0) {
+			// PV element name is different from the pvPostFix
+			pvPostFix = args[0];
+		} else {
+			pvPostFix = pvElementName;
+		}
+
+		String fullPvName;
+		if (pvProvider != null) {
+			fullPvName = pvProvider.getPV(pvElementName);
+		} else {
+			fullPvName = basePVName + pvPostFix;
+		}
+		return fullPvName;
+	}	
+	
+	public static int[] determineDataDimensions(NDArray ndArray) throws Exception {
+		// only called if configured to readArrays (and hence ndArray is set)
+		NDPluginBase pluginBase = ndArray.getPluginBase();
+		int nDimensions = pluginBase.getNDimensions_RBV();
+		int[] dimFromEpics = new int[3];
+		dimFromEpics[0] = pluginBase.getArraySize2_RBV();
+		dimFromEpics[1] = pluginBase.getArraySize1_RBV();
+		dimFromEpics[2] = pluginBase.getArraySize0_RBV();
+
+		int[] dims = java.util.Arrays.copyOfRange(dimFromEpics, 3 - nDimensions, 3);
+		return dims;
+	}	
+	public Object getArrayData() throws Exception{
+		
+		int[] dims = determineDataDimensions(this);
+
+		int expectedNumPixels = dims[0];
+		for (int i = 1; i < dims.length; i++) {
+			expectedNumPixels = expectedNumPixels * dims[i];
+		}
+		
+		
+		Channel ch = getChannel(ARRAY_DATA);
+		return EPICS_CONTROLLER.getDBR(ch, ch.getFieldType(),expectedNumPixels).getValue();
+	}
 	
 }
