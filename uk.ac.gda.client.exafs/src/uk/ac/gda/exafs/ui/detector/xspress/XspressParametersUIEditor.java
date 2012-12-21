@@ -19,6 +19,7 @@
 package uk.ac.gda.exafs.ui.detector.xspress;
 
 import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.device.detector.xspress.ResGrades;
@@ -101,6 +102,8 @@ import com.swtdesigner.SWTResourceManager;
  *
  */
 public class XspressParametersUIEditor extends DetectorEditor {
+	
+	private static final String GDA_DEVICE_XSPRESS_SPOOL_DIR = "gda.device.xspress.spoolDir";
 
 	private static final Logger logger = LoggerFactory.getLogger(XspressParametersUIEditor.class);
 	private static final Map<String, Object> RES_ALL;
@@ -786,14 +789,19 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			});
 
 			if (writeToDisk) {
-				String spoolDirPath = PathConstructor.createFromProperty("gda.device.xspress.spoolDir");
-				final File filePath = File.createTempFile("mca", ".xsp", new File(spoolDirPath));
+				String spoolDirPath = PathConstructor.createFromProperty(GDA_DEVICE_XSPRESS_SPOOL_DIR);
+				if (spoolDirPath == null || spoolDirPath.length() == 0)
+					throw new Exception("Error saving data. Xspress device spool dir is not defined in property "
+							+ GDA_DEVICE_XSPRESS_SPOOL_DIR);
+				long snapShotNumber = new NumTracker("Xspress_snapshot").incrementNumber();
+				String fileName = "xspress_snap_" + snapShotNumber + ".mca";
+				final File filePath = new File(spoolDirPath + "/" + fileName);
 				save(detectorData, filePath.getAbsolutePath());
-				sashPlotForm.appendStatus("Saved snapshot to filePath " + filePath, logger);
+				sashPlotForm.appendStatus("Xspress snapshot saved to " + filePath, logger);
 				getSite().getShell().getDisplay().syncExec(new Runnable() {
 					@Override
 					public void run() {
-						acquireFileLabel.setText("Saved to: " + filePath.getAbsolutePath());
+						acquireFileLabel.setText("Saved: " + filePath.getAbsolutePath());
 					}
 				});
 			}
