@@ -830,6 +830,10 @@ public class TomoPlotComposite extends Composite {
 			update(evt);
 		}
 
+		@Override
+		public void roiSelected(ROIEvent evt) {
+
+		}
 	};
 
 	private MouseListener mouseFollowRegionMouseListner = new MouseListener.Stub() {
@@ -903,6 +907,10 @@ public class TomoPlotComposite extends Composite {
 				for (PlottingSystemActionListener lis : lineListeners) {
 					lis.histogramChangedRoi(minValue, maxValue, histogramFrom, histogramTo);
 				}
+
+			}
+			@Override
+			public void roiSelected(ROIEvent evt) {
 
 			}
 		});
