@@ -492,7 +492,6 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 				logger.info("End of scan, so returning scannables back to their initial positions.");
 				for (Scannable thisOne : allScannables) {
 					if (thisOne.getInputNames().length > 0) {
-						thisOne.stop();
 						thisOne.moveTo(this.scannablesOriginalPositions.get(thisOne));
 					}
 				}
