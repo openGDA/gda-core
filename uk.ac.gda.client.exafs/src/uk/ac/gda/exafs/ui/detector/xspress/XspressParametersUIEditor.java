@@ -45,6 +45,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -330,14 +331,15 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		openDialog.setFilterPath(LocalProperties.get(LocalProperties.GDA_DATAWRITER_DIR));
 
 		final Composite grid = new Composite(left, SWT.BORDER);
-		grid.setLayout(new GridLayout(1, false));
-		grid.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(grid);
+		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(grid);
 
 		this.showIndividualElements = new BooleanWrapper(grid, SWT.NONE);
 		showIndividualElements.setText("Show individual elements");
 
 		middleComposite = new Composite(grid, SWT.BORDER);
 		middleComposite.setLayout(new GridLayout(2, false));
+		GridDataFactory.fillDefaults()/*.grab(true, false)*/.applyTo(middleComposite);
 
 		this.applyToAllLabel = new Button(middleComposite, SWT.CHECK);
 		applyToAllLabel.setText("Apply Changes To All Elements ");
@@ -372,7 +374,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		gridData.minimumWidth = 90;
 		applyToAllButton.setLayoutData(gridData);
 		applyToAllButton.setText("Apply now");
-//		applyToAllButton.setImage(SWTResourceManager.getImage(XspressParametersUIEditor.class, "/camera_go.png"));
 		applyToAllButton.setToolTipText("Apply current detector regions of interest to all other detector elements.");
 		this.applyToAllListener = new SelectionAdapter() {
 			@Override
@@ -398,7 +399,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 
 		detectorElementsLabel = new Group(grid, SWT.BORDER);
 		GridLayoutFactory.fillDefaults().applyTo(detectorElementsLabel);
-//		this.detectorElementsLabel = new Label(grid, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(detectorElementsLabel);
 		detectorElementsLabel.setText("Detector Elements");
 
 		try {
