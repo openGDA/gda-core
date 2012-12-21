@@ -410,6 +410,10 @@ public abstract class ExperimentObjectManager implements IExperimentObjectManage
 		if (!file.equals(to))
 			file.move(to.getFullPath(), true, null);
 		this.file = to;
+		
+		for (IExperimentObject line : lines){
+			line.setMultiScanName(text);
+		}
 
 		notifyExperimentObjectListeners(new ExperimentObjectEvent(this));
 		ExperimentFactory.getExperimentEditorManager().notifyFileNameChange(origName, to);
