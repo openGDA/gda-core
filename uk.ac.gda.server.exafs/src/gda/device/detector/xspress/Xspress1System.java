@@ -519,7 +519,11 @@ public class Xspress1System extends DetectorBase implements NexusDetector, Xspre
 	public void reconfigure() throws FactoryException {
 		// A real system needs a connection to a real da.server via a DAServer object.
 		logger.debug("Xspress1System.reconfigure(): reconnecting to: " + daServer.getName());
-		daServer.reconnect();
+		try {
+			daServer.reconnect();
+		} catch (DeviceException e1) {
+			throw new FactoryException(e1.getMessage(),e1);
+		}
 
 		// does not reconfigure the timer -- need to check if it is needed
 		// If everything has been found send the open commands.
@@ -742,9 +746,13 @@ public class Xspress1System extends DetectorBase implements NexusDetector, Xspre
 			open();
 		}
 		if (mcaHandle >= 0 && daServer != null && daServer.isConnected()) {
-			value = daServer.getIntBinaryData("read 0 0 " + startFrame + " " + mcaSize + " " + numberOfDetectors
-					+ " " + numberOfFrames + " from " + mcaHandle + " raw motorola", numberOfDetectors
-					* mcaSize * numberOfFrames);
+			try {
+				value = daServer.getIntBinaryData("read 0 0 " + startFrame + " " + mcaSize + " " + numberOfDetectors
+						+ " " + numberOfFrames + " from " + mcaHandle + " raw motorola", numberOfDetectors
+						* mcaSize * numberOfFrames);
+			} catch (Exception e) {
+				throw new DeviceException(e.getMessage(),e);
+			}
 		}
 		return value;
 	}
@@ -820,9 +828,13 @@ public class Xspress1System extends DetectorBase implements NexusDetector, Xspre
 			open();
 		}
 		if (scalerHandle >= 0 && daServer != null && daServer.isConnected()) {
-			value = daServer.getIntBinaryData("read 0 0 " + startFrame + " " + numberOfScalers + " "
-					+ numberOfDetectors + " " + numberOfFrames + " from " + scalerHandle + " raw motorola",
-					numberOfDetectors * numberOfScalers * numberOfFrames);
+			try {
+				value = daServer.getIntBinaryData("read 0 0 " + startFrame + " " + numberOfScalers + " "
+						+ numberOfDetectors + " " + numberOfFrames + " from " + scalerHandle + " raw motorola",
+						numberOfDetectors * numberOfScalers * numberOfFrames);
+			} catch (Exception e) {
+				throw new DeviceException(e.getMessage(),e);
+			}
 		}
 		return value;
 	}
@@ -1000,8 +1012,9 @@ public class Xspress1System extends DetectorBase implements NexusDetector, Xspre
 	// this method is only for Junit testing
 	/**
 	 * for use by junit tests
+	 * @throws DeviceException 
 	 */
-	protected void setFail() {
+	protected void setFail() throws DeviceException {
 		if (daServer != null && daServer.isConnected()) {
 			daServer.sendCommand("Fail");
 		}
