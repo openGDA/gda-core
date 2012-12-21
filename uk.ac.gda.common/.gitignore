@@ -1,7 +1,13 @@
 # ignore build output
 /bin
+*.class
+*.pyc
 
 # ignore backup and temporary files
 *~
 *.tmp
 *.bak
+
+# ignore test output
+/test-reports
+/test-scratch
