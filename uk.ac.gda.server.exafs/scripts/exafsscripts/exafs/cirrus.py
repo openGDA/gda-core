@@ -1,8 +1,8 @@
 import threading
-import datetime
 from time import sleep
 from gda.data import PathConstructor
 from gda.factory import Finder
+import datetime
 
 class ThreadClass(threading.Thread):
 
@@ -30,28 +30,38 @@ class ThreadClass(threading.Thread):
         path = dataDir + self.fileName
         f=open(path,'w')
         
-        f.write("pressure=")
+        t=datetime.datetime.now()
+        
+        timeString = t.strftime("%Y-%m-%d %H:%M:%S")
+        
+        f.write("# scan started on "+timeString+"\n\n")
+        
+        f.write("# pressure=")
         f.write(str(self.cirrus.getPressure())+"\n\n")
+        f.write("time")
         
-        f.write("# energy")
+        f.write("\t\tenergy\t\t")
+        
         for i in range(len(self.cirrus.getMasses())):
-            f.write("\tmass " + str(i+1))
+            f.write("\tmass " + str(i+1) + "\t\t")
         f.write("\n")    
-        
         while self.stopped()==False and (self.energyScannable()<self.startEnergy or self.energyScannable()>self.stopEnergy):
             sleep(1)
             
         while self.stopped()==False and (self.energyScannable()>=self.startEnergy and self.energyScannable()<=self.stopEnergy):
             if self.stopped()==False:
-                now = datetime.datetime.now()
                 self.cirrus.collectData()
                 data = self.cirrus.readout()
                 currentEnergy = self.energyScannable()
-                f.write(str(currentEnergy))
+                t=datetime.datetime.now()
+                
+                timeString = t.strftime("%H:%M:%S")
+                f.write(timeString + "\t")
+                f.write("%.6f" % currentEnergy)
                 for d in data:
-                    f.write("\t"+str(d))
-                #add time from sys clock
+                    f.write("\t\t%.6f" % d)
                 f.write("\n")
+                
                 sleep(1)
         f.close()
         print "finished cirrus thread"
