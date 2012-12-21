@@ -62,3 +62,25 @@ class I20DetectorPreparer:
                     print "Set the ion chamber sensitivity manually, uncheck the box in the Detector Parameters editor and restart the scan"
                     print "Please report this problem to Data Acquisition"
                     raise e
+                
+                if ionChamberParams.getOffset() == None or ionChamberParams.getOffset() == "":
+                    continue
+                offset, units = ionChamberParams.getOffset().split()
+                
+                index = 0
+                if ionChamberName == "It":
+                    index = 1;
+                elif ionChamberName == "Iref":
+                    index = 2;
+                elif ionChamberName == "I1":
+                    index = 3;
+                
+                try:
+                    print "Changing amp offset of",ionChamberName,"to",ionChamberParams.getOffset()
+                    self.offsets[index](offset)
+                    self.offset_units[index](units)
+                except Exception, e:
+                    print "Exception while trying to change the sensitivity of ion chamber",ionChamberName
+                    print "Set the ion chamber sensitivity manually, uncheck the box in the Detector Parameters editor and restart the scan"
+                    print "Please report this problem to Data Acquisition"
+                    raise e
