@@ -56,12 +56,12 @@ public class PlottingPerspective implements IPerspectiveFactory {
 
 			IFolderLayout flBottomLeft = layout.createFolder("flBottomLeft", IPageLayout.BOTTOM, 0.7f, "flTop");
 			flBottomLeft.addView(CommandQueueViewFactory.ID);
-			flBottomLeft.addView(ScriptControllerLogView.ID);
 
-			IFolderLayout flBottom = layout.createFolder("flBottom", IPageLayout.RIGHT, 0.33f, "flBottomLeft");
+			IFolderLayout flBottom = layout.createFolder("flBottom", IPageLayout.RIGHT, 0.333f, "flBottomLeft");
 			flBottom.addView(JythonTerminalView.ID);
 
 			IFolderLayout flBottomRight = layout.createFolder("flBottomRight", IPageLayout.RIGHT, 0.5f, "flBottom");
+			flBottomRight.addView(ScriptControllerLogView.ID);
 			flBottomRight.addView(ScalersMonitorView.ID);
 			flBottomRight.addView(BatonView.ID);
 
