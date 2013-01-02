@@ -153,7 +153,7 @@ class QexafsScan(Scan):
                 self.beamlineReverter.scanCompleted() #NexusExtraMetadataDataWriter.removeAllMetadataEntries() for I20
             LocalProperties.set("gda.scan.useScanPlotSettings", "false")
             LocalProperties.set("gda.plot.ScanPlotSettings.fromUserList", "false")
-            
+            XasAsciiDataWriter.setBeanGroup(None)
             #remove added metadata from default metadata list to avoid multiple instances of the same metadata
             jython_mapper = JythonNameSpaceMapping()
             if (jython_mapper.original_header != None):
