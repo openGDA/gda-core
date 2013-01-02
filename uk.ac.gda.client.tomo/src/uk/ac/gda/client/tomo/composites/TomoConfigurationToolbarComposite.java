@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,23 +16,14 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.client.tomo.configuration.view.handlers;
+package uk.ac.gda.client.tomo.composites;
 
+public class TomoConfigurationToolbarComposite extends BaseToolbarComposite {
+	public static final String IS_IOC_RUNNING_CONTEXT = "uk.ac.gda.client.tomo.configuration.isDetectorIocRunningContext";
 
-public interface ITomoScanController {
-
-	void runScan(String configFilePath);
-
-	void dispose();
-
-	void isScanRunning();
-
-	void addControllerUpdateListener(IScanControllerUpdateListener scanControllerUpdateListener);
-
-	void removeControllerUpdateListener(IScanControllerUpdateListener scanControllerUpdateListener);
-
-	void initialize();
-
-	void stopScan();
+	@Override
+	protected String getIocRunningContext() {
+		return IS_IOC_RUNNING_CONTEXT;
+	}
 
 }

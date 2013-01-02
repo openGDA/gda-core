@@ -18,20 +18,10 @@
 
 package uk.ac.gda.client.tomo.configuration.view.handlers.simulator;
 
-import java.util.List;
-
 import uk.ac.gda.client.tomo.configuration.view.handlers.IScanControllerUpdateListener;
 import uk.ac.gda.client.tomo.configuration.view.handlers.ITomoScanController;
-import uk.ac.gda.tomography.parameters.AlignmentConfiguration;
 
 public class TomoScanControllerSimulator implements ITomoScanController{
-
-	@Override
-	public void runScan(List<AlignmentConfiguration> configurationSet) {
-		// TODO Auto-generated method stub
-		
-	}
-
 	@Override
 	public void dispose() {
 		// TODO Auto-generated method stub
@@ -64,6 +54,12 @@ public class TomoScanControllerSimulator implements ITomoScanController{
 
 	@Override
 	public void stopScan() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void runScan(String configFilePath) {
 		// TODO Auto-generated method stub
 		
 	}
