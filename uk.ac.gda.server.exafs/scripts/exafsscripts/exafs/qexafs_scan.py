@@ -75,8 +75,10 @@ class QexafsScan(Scan):
                 numberPoints = int(math.ceil((final_energy-initial_energy)/step_size))
                 self._runScript(outputBean.getBeforeScriptName())
                 scan_time = scanBean.getTime()
+
                 initialPercent = str(int((float(repetitionNumber - 1) / float(numRepetitions)) * 100)) + "%" 
                 logmsg = XasLoggingMessage(unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), initialPercent,str(0),str(0),beanGroup.getScan(),outputFolder)
+
                 loggingcontroller.update(None,logmsg)
                 loggingcontroller.update(None,ScanStartedMessage(scanBean,detectorBean))
                 loggingbean = XasProgressUpdater(loggingcontroller,logmsg,timeRepetitionsStarted)
