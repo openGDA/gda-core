@@ -179,6 +179,12 @@ public class PosComposite extends Composite {
 
 		updateScannables();
 
+		try {
+			setMotorLimits(bean.getScannableName(), textTo);
+		} catch (Exception e2) {
+		}
+		updateReadback();
+		
 		scannableName.getCombo().addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -203,7 +209,7 @@ public class PosComposite extends Composite {
 					if (status.equals("False"))
 						moving=false;
 						try {
-							Thread.sleep(100);
+							Thread.sleep(10);
 						} catch (InterruptedException e) {
 						}
 					Display.getDefault().asyncExec(new Runnable() {
@@ -213,6 +219,12 @@ public class PosComposite extends Composite {
 						}
 					});
 				}
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						updateReadback();
+					}
+				});
 				return Status.OK_STATUS;
 			}
 		};
@@ -223,6 +235,10 @@ public class PosComposite extends Composite {
 		String demand = textTo.getValue().toString();
 		String command = scannable + "(" + demand + ")";
 		JythonServerFacade.getInstance().runCommand(command);
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+		}
 		updateReadbackJob.schedule();
 	}
 
@@ -234,6 +250,10 @@ public class PosComposite extends Composite {
 		double demand = scannablePos + increment;
 		String command = scannable + "(" + demand + ")";
 		JythonServerFacade.getInstance().runCommand(command);
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+		}
 		updateReadbackJob.schedule();
 	}
 
@@ -245,6 +265,10 @@ public class PosComposite extends Composite {
 		double demand = scannablePos - decrement;
 		String command = scannable + "(" + demand + ")";
 		JythonServerFacade.getInstance().runCommand(command);
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+		}
 		updateReadbackJob.schedule();
 	}
 	
