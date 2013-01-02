@@ -35,11 +35,11 @@ class I20OutputPreparer:
         scan = beanGroup.getScan()
         if self.mode == "xes" or isinstance(scan,XesScanParameters):
             # will return None if not found
-            print "will write XES format ascii files"
+            print ".dat files will have XES header."
             return Finder.getInstance().find("datawriterconfig_xes")
         else:
             # will return None if not found
-            print "will write XAS format ascii files"
+            print ".dat files will have XAS format header."
             return Finder.getInstance().find("datawriterconfig")
 
     #
