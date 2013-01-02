@@ -14,7 +14,6 @@ from gda.device.scannable import ScannableBase, ScannableUtils
 from gda.device.scannable.scannablegroup import ScannableGroup
 from java.lang import InterruptedException
 from gdascripts.metadata.metadata_commands import setTitle
-from gdascripts.configuration.properties.localProperties import LocalProperties
 
 class EnumPositionerDelegateScannable(ScannableBase):
     """
@@ -38,12 +37,12 @@ class EnumPositionerDelegateScannable(ScannableBase):
         return 0
 
 
-def make_tomoScanDevice(tomography_theta, tomography_translation,
+def make_tomoScanDevice(tomography_theta, tomography_shutter, tomography_translation,
                         tomography_optimizer, image_key, tomography_imageIndex):
 
     tomoScanDevice = ScannableGroup()
     tomoScanDevice.addGroupMember(tomography_theta)
-    #tomoScanDevice.addGroupMember(EnumPositionerDelegateScannable("tomography_shutter", tomography_shutter))
+    tomoScanDevice.addGroupMember(EnumPositionerDelegateScannable("tomography_shutter", tomography_shutter))
     tomoScanDevice.addGroupMember(tomography_translation)
     tomoScanDevice.addGroupMember(tomography_optimizer)
     tomoScanDevice.addGroupMember(image_key)
@@ -69,7 +68,6 @@ class   tomoScan_positions(ScanPositionProvider):
         self.points = points
 
     def get(self, index):
-        print self.points[index]
         return self.points[index]
     
     def size(self):
@@ -80,62 +78,7 @@ class   tomoScan_positions(ScanPositionProvider):
             (self.start, self.stop, self.step, self.darkFieldInterval, self.imagesPerDark, self.flatFieldInterval, self.imagesPerFlat, self.inBeamPosition, self.outOfBeamPosition, self.optimizeBeamInterval, self.size()) 
     def toString(self):
         return self.__str__()
-    
-class scanSegmentPositions(ScanPositionProvider):
-    def __init__(self, shutterPostionProvider, tomoScanPositionProvider, darkFieldInterval, imagesPerDark, flatFieldInterval, imagesPerFlat):
-        self.shutterPostionProvider = shutterPostionProvider
-        self.tomoScanPositionProvider = tomoScanPositionProvider
-        self.darkFieldInterval = darkFieldInterval
-        self.imagesPerDark = imagesPerDark
-        self.flatFieldInterval = flatFieldInterval
-        self.imagesPerFlat = imagesPerFlat
-        self.segments = [0, 10 , (10 + 5 + 11 + 5)]
-    
-    def get(self, index):
-        points = []
-        #if index == 0:
-        print "index is:" + `index`
-        print "self.size()" + `self.size()`
-        if index < self.size() - 1:
-            for i in range(self.segments[index], self.segments[index + 1]):
-                points.append(self.tomoScanPositionProvider.get(i))
-        else:
-            for i in range(self.segments[index], self.tomoScanPositionProvider.size()):
-                points.append(self.tomoScanPositionProvider.get(i))
-        print "Points:" + `points`
-        return points
-    
-    def size(self):
-        print "Size in scanSegmentPositions called:" + `self.shutterPostionProvider.size()`
-        return self.shutterPostionProvider.size()
-        
-    
-class   shutter_positions(ScanPositionProvider):
-    def __init__(self, start, stop, step, darkFieldInterval, imagesPerDark, flatFieldInterval, imagesPerFlat,
-             inBeamPosition, outOfBeamPosition, optimizeBeamInterval, points):
-        self.start = start
-        self.stop = stop
-        self.step = step
-        self.darkFieldInterval = darkFieldInterval
-        self.imagesPerDark = imagesPerDark
-        self.flatFieldInterval = flatFieldInterval
-        self.imagesPerFlat = imagesPerFlat
-        self.inBeamPosition = inBeamPosition
-        self.outOfBeamPosition = outOfBeamPosition
-        self.optimizeBeamInterval = optimizeBeamInterval
-        self.points = points
 
-    def get(self, index):
-        return self.points[index]
-    
-    def size(self):
-        return len(self.points)
-    
-    def __str__(self):
-        return "Start: %f Stop: %f Step: %f Darks every:%d imagesPerDark:%d Flats every:%d imagesPerFlat:%d InBeamPosition:%f OutOfBeamPosition:%f Optimize every:%d numImages %d " % \
-            (self.start, self.stop, self.step, self.darkFieldInterval, self.imagesPerDark, self.flatFieldInterval, self.imagesPerFlat, self.inBeamPosition, self.outOfBeamPosition, self.optimizeBeamInterval, self.size()) 
-    def toString(self):
-        return self.__str__()
 from gda.device.scannable import SimpleScannable
 image_key_dark = 2
 image_key_flat = 1 # also known as bright
@@ -208,10 +151,8 @@ def tomoScan(description, inBeamPosition, outOfBeamPosition, exposureTime=1., st
         image_key.setName("image_key")
         image_key.configure()
 
-        tomoScanDevice = make_tomoScanDevice(tomography_theta,
+        tomoScanDevice = make_tomoScanDevice(tomography_theta, tomography_shutter,
                                              tomography_translation, tomography_optimizer, image_key, index)
-        
-        shutter = EnumPositionerDelegateScannable("tomography_shutter", tomography_shutter)
 
 #        return tomoScanDevice
         #generate list of positions
@@ -229,71 +170,58 @@ def tomoScan(description, inBeamPosition, outOfBeamPosition, exposureTime=1., st
         shutterOpen = 1
         shutterClosed = 0
         scan_points = []
-        shutter_points = []
         theta_pos = theta_points[0]
         index = 0
-        shutter_points.append(shutterClosed)
         for i in range(imagesPerDark):
-            scan_points.append((theta_pos, inBeamPosition, optimizeBeamNo, image_key_dark, index)) #dark
+            scan_points.append((theta_pos, shutterClosed, inBeamPosition, optimizeBeamNo, image_key_dark, index)) #dark
             index = index + 1
                     
-        shutter_points.append(shutterOpen)
         for i in range(imagesPerFlat):
-            scan_points.append((theta_pos, outOfBeamPosition, optimizeBeamNo, image_key_flat, index)) #flat
+            scan_points.append((theta_pos, shutterOpen, outOfBeamPosition, optimizeBeamNo, image_key_flat, index)) #flat
             index = index + 1        
-        scan_points.append((theta_pos, inBeamPosition, optimizeBeamNo, image_key_project, index)) #first
+        scan_points.append((theta_pos, shutterOpen, inBeamPosition, optimizeBeamNo, image_key_project, index)) #first
         index = index + 1        
         imageSinceDark = 1
         imageSinceFlat = 1
         optimizeBeam = 0
         for i in range(numberSteps):
             theta_pos = theta_points[i + 1]
-            scan_points.append((theta_pos, inBeamPosition, optimizeBeamNo, image_key_project, index))#main image
+            scan_points.append((theta_pos, shutterOpen, inBeamPosition, optimizeBeamNo, image_key_project, index))#main image
             index = index + 1        
             
             
             imageSinceFlat = imageSinceFlat + 1
             if imageSinceFlat == flatFieldInterval and flatFieldInterval != 0:
                 for i in range(imagesPerFlat):
-                    scan_points.append((theta_pos, outOfBeamPosition, optimizeBeamNo, image_key_flat, index))
+                    scan_points.append((theta_pos, shutterOpen, outOfBeamPosition, optimizeBeamNo, image_key_flat, index))
                     index = index + 1        
                     imageSinceFlat = 0
             
             imageSinceDark = imageSinceDark + 1
             if imageSinceDark == darkFieldInterval and darkFieldInterval != 0:
-                shutter_points.append(shutterClosed)
                 for i in range(imagesPerDark):
-                    scan_points.append((theta_pos, inBeamPosition, optimizeBeamNo, image_key_dark, index))
+                    scan_points.append((theta_pos, shutterClosed, inBeamPosition, optimizeBeamNo, image_key_dark, index))
                     index = index + 1        
                     imageSinceDark = 0
-                shutter_points.append(shutterOpen)
-                
+
             optimizeBeam = optimizeBeam + 1
             if optimizeBeam == optimizeBeamInterval and optimizeBeamInterval != 0:
-                scan_points.append((theta_pos, inBeamPosition, optimizeBeamYes, image_key_project, index))
+                scan_points.append((theta_pos, shutterOpen, inBeamPosition, optimizeBeamYes, image_key_project, index))
                 index = index + 1        
                 optimizeBeam = 0
                 
         #add dark and flat only if not done in last steps
         if imageSinceFlat != 0:
             for i in range(imagesPerFlat):
-                scan_points.append((theta_pos, outOfBeamPosition, optimizeBeamNo, image_key_flat, index)) #flat
+                scan_points.append((theta_pos, shutterOpen, outOfBeamPosition, optimizeBeamNo, image_key_flat, index)) #flat
                 index = index + 1
         if imageSinceDark != 0:
-            shutter_points.append(shutterClosed)
             for i in range(imagesPerDark):
-                scan_points.append((theta_pos, inBeamPosition, optimizeBeamNo, image_key_dark, index)) #dark
+                scan_points.append((theta_pos, shutterClosed, inBeamPosition, optimizeBeamNo, image_key_dark, index)) #dark
                 index = index + 1        
         positionProvider = tomoScan_positions(start, stop, step, darkFieldInterval, imagesPerDark, flatFieldInterval, imagesPerFlat, \
                                                inBeamPosition, outOfBeamPosition, optimizeBeamInterval, scan_points) 
-        shutterPositionProvider = shutter_positions(start, stop, step, darkFieldInterval, imagesPerDark, flatFieldInterval, imagesPerFlat, \
-                                               inBeamPosition, outOfBeamPosition, optimizeBeamInterval, shutter_points)
-        
-        scanSegmentPositionProvider = scanSegmentPositions(shutterPositionProvider, positionProvider, darkFieldInterval, imagesPerDark, flatFieldInterval, imagesPerFlat)
-        
-        scan_args = [shutter, scanSegmentPositionProvider, tomoScanDevice, positionProvider, tomography_time, tomography_beammonitor, tomography_detector, exposureTime ]
-        # scan shutter shutter_pos_provider scan motor motor_pos_provider detector 1
-        # scan y 1 3 1 x 1 3 1 det 1
+        scan_args = [tomoScanDevice, positionProvider, tomography_time, tomography_beammonitor, tomography_detector, exposureTime ]
         for scannable in additionalScannables:
             scan_args.append(scannable)
         ''' setting the description provided as the title'''
@@ -301,11 +229,6 @@ def tomoScan(description, inBeamPosition, outOfBeamPosition, exposureTime=1., st
             setTitle(description)
         else :
             setTitle("undefined")
-        
-        dataFormat = LocalProperties.get("gda.data.scan.datawriter.dataFormat")
-        if not dataFormat == "NexusDataWriter":
-            handle_messages.simpleLog("Data format inconsistent. Setting 'gda.data.scan.datawriter.dataFormat' to 'NexusDataWriter'")
-            LocalProperties.set("gda.data.scan.datawriter.dataFormat", "NexusDataWriter")
         scanObject = createConcurrentScan(scan_args)
         scanObject.runScan()
         return scanObject;
