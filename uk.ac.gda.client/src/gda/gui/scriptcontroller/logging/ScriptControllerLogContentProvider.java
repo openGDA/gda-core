@@ -67,8 +67,7 @@ public class ScriptControllerLogContentProvider implements ITreeContentProvider,
 				try {
 					newcontroller.addIObserver(new ScriptControllerLogHelper(this));
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					logger.error("TODO put description of error here", e);
+					logger.error("Error adding observer to logging script controller", e);
 				}
 			} else {
 				logger.warn("ScriptControllerLogContentProvider could not find a LoggingScriptController called "
@@ -102,8 +101,7 @@ public class ScriptControllerLogContentProvider implements ITreeContentProvider,
 					return new Object[] { details };
 				}
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				logger.error("TODO put description of error here", e);
+				logger.error("Error getting logging script controller details", e);
 			}
 		}
 		return null;
@@ -155,8 +153,7 @@ public class ScriptControllerLogContentProvider implements ITreeContentProvider,
 		try {
 			Arrays.sort(results);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			logger.error("TODO put description of error here", e);
+			logger.error("Error sorting results by time", e);
 		}
 	}
 
