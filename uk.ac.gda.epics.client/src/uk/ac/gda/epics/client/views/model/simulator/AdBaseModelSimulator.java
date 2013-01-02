@@ -104,4 +104,10 @@ public class AdBaseModelSimulator implements AdBaseModel {
 		return false;
 	}
 
+	@Override
+	public String getPortName() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

@@ -68,7 +68,6 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 		return adBaseViewControllers.add(adBaseViewController);
 	}
 
-	
 	@Override
 	public boolean removeAdBaseViewController(IAdBaseViewController adBaseViewController) {
 		return adBaseViewControllers.remove(adBaseViewController);
@@ -103,7 +102,7 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
 			DBR dbr = arg0.getDBR();
-			if (dbr!=null && dbr.isENUM()) {
+			if (dbr != null && dbr.isENUM()) {
 				for (IAdBaseViewController controller : adBaseViewControllers) {
 					controller.updateAcquireState(((DBR_Enum) dbr).getEnumValue()[0]);
 				}
@@ -132,7 +131,7 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
 			DBR dbr = arg0.getDBR();
-			if (dbr!=null && dbr.isDOUBLE()) {
+			if (dbr != null && dbr.isDOUBLE()) {
 				for (IAdBaseViewController controller : adBaseViewControllers) {
 					controller.updateAcqExposure(((DBR_Double) dbr).getDoubleValue()[0]);
 				}
@@ -144,7 +143,7 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
 			DBR dbr = arg0.getDBR();
-			if (dbr!=null && dbr.isDOUBLE()) {
+			if (dbr != null && dbr.isDOUBLE()) {
 				for (IAdBaseViewController controller : adBaseViewControllers) {
 					controller.updateAcqPeriod(((DBR_Double) dbr).getDoubleValue()[0]);
 				}
@@ -156,7 +155,7 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
 			DBR dbr = arg0.getDBR();
-			if (dbr!=null && dbr.isINT()) {
+			if (dbr != null && dbr.isINT()) {
 				for (IAdBaseViewController controller : adBaseViewControllers) {
 					controller.updateArrayCounter(((DBR_Int) dbr).getIntValue()[0]);
 				}
@@ -168,7 +167,7 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
 			DBR dbr = arg0.getDBR();
-			if (dbr!=null && dbr.isDOUBLE()) {
+			if (dbr != null && dbr.isDOUBLE()) {
 				for (IAdBaseViewController controller : adBaseViewControllers) {
 					controller.updateArrayRate(((DBR_Double) dbr).getDoubleValue()[0]);
 				}
@@ -180,7 +179,7 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
 			DBR dbr = arg0.getDBR();
-			if (dbr!=null && dbr.isDOUBLE()) {
+			if (dbr != null && dbr.isDOUBLE()) {
 				for (IAdBaseViewController controller : adBaseViewControllers) {
 					controller.updateTimeRemaining(((DBR_Double) dbr).getDoubleValue()[0]);
 				}
@@ -192,7 +191,7 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
 			DBR dbr = arg0.getDBR();
-			if (dbr!=null && dbr.isINT()) {
+			if (dbr != null && dbr.isINT()) {
 				for (IAdBaseViewController controller : adBaseViewControllers) {
 					controller.updateNumberOfExposuresCounter(((DBR_Int) dbr).getIntValue()[0]);
 				}
@@ -204,7 +203,7 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
 			DBR dbr = arg0.getDBR();
-			if (dbr!=null && dbr.isINT()) {
+			if (dbr != null && dbr.isINT()) {
 				for (IAdBaseViewController controller : adBaseViewControllers) {
 					controller.updateNumberOfImagesCounter(((DBR_Int) dbr).getIntValue()[0]);
 				}
@@ -217,7 +216,7 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
 			DBR dbr = arg0.getDBR();
-			if (dbr!=null && dbr.isSHORT()) {
+			if (dbr != null && dbr.isSHORT()) {
 				for (IAdBaseViewController controller : adBaseViewControllers) {
 					controller.updateDetectorState(((DBR_Short) dbr).getShortValue()[0]);
 				}
@@ -460,5 +459,17 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 		}
 		return detectorDataTypes;
 	}
-	
+
+	@Override
+	public String getPortName() throws Exception {
+		try {
+			if (config != null) {
+				return EPICS_CONTROLLER.cagetString(createChannel(config.getPortName_RBV().getPv(), null));
+			}
+			return EPICS_CONTROLLER.cagetString(getChannel(ADBase.PortName_RBV, null));
+		} catch (Exception ex) {
+			throw ex;
+		}
+	}
+
 }
