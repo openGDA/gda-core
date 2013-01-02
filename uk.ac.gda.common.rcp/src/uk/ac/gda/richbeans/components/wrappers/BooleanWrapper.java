@@ -103,6 +103,8 @@ public class BooleanWrapper extends FieldComposite{
 		} else {
 			checkBox.setSelection(!((Boolean)value).booleanValue());
 		}
+		final ValueEvent evt = new ValueEvent(checkBox,getFieldName());
+		eventDelegate.notifyValueListeners(evt);
 	}
 	
 	/*******************************************************************/
