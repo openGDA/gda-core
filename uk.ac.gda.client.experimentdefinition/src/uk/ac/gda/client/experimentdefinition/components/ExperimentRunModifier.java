@@ -79,15 +79,26 @@ public class ExperimentRunModifier implements ICellModifier {
 	@Override
 	public void modify(Object item, String property, Object value) {
 		
+		String[] illegalChars = {"!","£","$","%","^","&","*","(",")","¬","#~","@","'",",",".","/","`","{","}","|","?","<",">","+","=","-","\\"," "};
+		
 		// Validation
-		String text     = (String)value;
-		// No spaces
-		if (text!=null && text.indexOf(' ')>-1) {
-			MessageDialog.openError(controller.getSite().getShell(), "Contains a space", "The name must not contain a space.");
+		String text = (String)value;
+		int numberofIllegalCharsFound=0;
+		String illegalCharsFound = "";
+		for(int i=0;i<illegalChars.length;i++){
+			if(text.contains(illegalChars[i])){
+				illegalCharsFound+=illegalChars[i] + " ";
+				numberofIllegalCharsFound++;
+			}
+			
+		}
+		
+		if (numberofIllegalCharsFound>0) {
+			MessageDialog.openError(controller.getSite().getShell(), "Rename Contains Illegal Charachters ", "The scan rename contains the following illegal charachters " + illegalCharsFound.toString() + "and will not be renamed. Please use letters, numbers and underscores only.");
 			this.enabled = false;
 			return;
 		}
-
+		
 		final TreeItem treeItem = (TreeItem)item;
 		Object         element  = treeItem.getData();
 		try {
