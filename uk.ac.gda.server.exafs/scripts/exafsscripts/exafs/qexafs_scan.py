@@ -97,7 +97,6 @@ class QexafsScan(Scan):
                 self.t.start()
                 ###
                 
->>>>>>> branch '8.26' of ssh://dascgitolite@dasc-git.diamond.ac.uk/gda/gda-xas-core.git
                 print "running QEXAFS scan:", self.energy_scannable.getName(), scanBean.getInitialEnergy(), scanBean.getFinalEnergy(), numberPoints, scan_time, detectorList
                 controller.update(None, ScriptProgressEvent("Running QEXAFS scan"))
                 thisscan = ContinuousScan(self.energy_scannable , scanBean.getInitialEnergy(), scanBean.getFinalEnergy(), numberPoints, scan_time, detectorList)
