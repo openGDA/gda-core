@@ -59,6 +59,7 @@ class XasScan(Scan):
         scan_unique_id = LoggingScriptController.createUniqueID(scriptType);
         
         # update to terminal
+        print ""
         print "Starting",scriptType,detectorBean.getExperimentType(),"scan over scannable '"+scanBean.getScannableName()+"'..."
         print ""
         print "Output to",xmlFolderName
@@ -100,7 +101,7 @@ class XasScan(Scan):
     
                 # send out initial messages for logging and display to user
                 outputFolder = beanGroup.getOutput().getAsciiDirectory()+ "/" + beanGroup.getOutput().getAsciiFileName()
-                print "Starting "+scriptType+" scan...", str(repetitionNumber)
+                #print "Starting repetition", str(repetitionNumber)
                 initialPercent = str(int((float(repetitionNumber - 1) / float(numRepetitions)) * 100)) + "%" 
                 logmsg = XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), initialPercent,str(0),str(0),beanGroup.getScan(),outputFolder)
                 self.loggingcontroller.update(None,logmsg)
@@ -119,7 +120,7 @@ class XasScan(Scan):
                 sampleScannables = self.samplePreparer.prepare(beanGroup.getSample())
                 outputScannables = self.outputPreparer.prepare(beanGroup.getOutput())
                 scanPlotSettings = self.outputPreparer.getPlotSettings(beanGroup)
-                print scanPlotSettings
+                #print scanPlotSettings
                 # run the before scan script
                 self._runScript(beanGroup.getOutput().getBeforeScriptName())
      
@@ -141,12 +142,13 @@ class XasScan(Scan):
                         print ""
                         print "Starting repetition", str(repetitionNumber),"of",numRepetitions
                     else:
+                        print ""
                         print "Starting scan..."
                     thisscan = ConcurrentScan(args)
                     thisscan = self._setUpDataWriter(thisscan,beanGroup)
                     controller.update(None, ScanCreationEvent(thisscan.getName()))
                     if (scanPlotSettings != None):
-                        print "Setting the filter for columns to plot"
+                        print "Setting the filter for columns to plot..."
                         thisscan.setScanPlotSettings(scanPlotSettings)
                     thisscan.runScan()
                 except InterruptedException, e:

@@ -123,7 +123,7 @@ class I20XasScan(XasScan):
         elif isinstance(beanGroup.getScan(),XanesScanParameters):
             times = XanesScanPointCreator.getScanTimeArray(beanGroup.getScan())
         if len(times) > 0:
-            print "Setting scan times, using array of length",len(times)
+            print "Setting detector frame times, using array of length",str(len(times)) + "..."
             jython_mapper = JythonNameSpaceMapping()
             jython_mapper.ionchambers.setTimes(times)
             ScriptBase.checkForPauses()
@@ -169,7 +169,7 @@ class I20XasScan(XasScan):
     
         # set dark current time and handle any errors here
         if maxTime > 0:
-            print "Setting ionchambers dark current collectiom time to be",str(maxTime),"s"
+            print "Setting ionchambers dark current collectiom time to",str(maxTime),"s."
             jython_mapper.ionchambers.setDarkCurrentCollectionTime(maxTime)
             jython_mapper.I1.setDarkCurrentCollectionTime(maxTime)
 
