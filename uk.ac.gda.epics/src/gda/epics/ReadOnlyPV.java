@@ -18,6 +18,7 @@
 
 package gda.epics;
 
+import gda.observable.Observable;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.event.MonitorListener;
 
@@ -32,7 +33,7 @@ import java.io.InterruptedIOException;
  * 
  * @param <T>
  */
-public interface ReadOnlyPV<T> {
+public interface ReadOnlyPV<T> extends Observable<T> {
 
 	public String getPvName();
 
@@ -121,5 +122,5 @@ public interface ReadOnlyPV<T> {
 	 * @return the value
 	 */
 	public T extractValueFromDbr(DBR dbr);
-
+	
 }

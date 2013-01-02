@@ -23,6 +23,8 @@ import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
 
 public interface AdBaseModel {
+	
+	String getPortName() throws Exception;
 
 	/**
 	 * @throws InterruptedException

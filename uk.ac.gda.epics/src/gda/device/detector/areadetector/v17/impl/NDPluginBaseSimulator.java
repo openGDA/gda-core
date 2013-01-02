@@ -19,6 +19,7 @@
 package gda.device.detector.areadetector.v17.impl;
 
 import gda.device.detector.areadetector.v17.NDPluginBase;
+import gda.observable.Observable;
 
 /**
  * Simulation of NDPligin. 
@@ -272,4 +273,8 @@ public class NDPluginBaseSimulator implements NDPluginBase {
 		return null;
 	}
 
+	@Override
+	public Observable<Integer> createArrayCounterObservable() throws Exception {
+		return null;
+	}
 }

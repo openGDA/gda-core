@@ -18,6 +18,8 @@
 
 package gda.device.detector.areadetector.v17;
 
+import gda.observable.Observable;
+
 
 /**
  * This maps to the subset of PV that are shared across all plugins. All the plugins that share this have an object
@@ -301,5 +303,7 @@ public interface NDPluginBase {
 	 * @return initial array address.
 	 */
 	Integer getInitialArrayAddress();
+	
+	Observable<Integer> createArrayCounterObservable() throws Exception;
 
 }

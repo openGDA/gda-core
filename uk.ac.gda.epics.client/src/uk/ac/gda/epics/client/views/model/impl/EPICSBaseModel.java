@@ -163,7 +163,6 @@ public abstract class EPICSBaseModel<T> implements InitializingBean, Initializat
 
 	public Channel createChannel(String fullPvName, MonitorListener ml) throws CAException, TimeoutException,
 			InterruptedException {
-		getLogger().info(String.format("creating channel for :%1$s", fullPvName));
 		Channel channel;
 		synchronized (channelMap) {
 			channel = channelMap.get(fullPvName);

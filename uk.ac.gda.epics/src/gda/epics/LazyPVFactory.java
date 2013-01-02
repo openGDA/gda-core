@@ -23,6 +23,9 @@ import static org.apache.commons.lang.ArrayUtils.toObject;
 import static org.apache.commons.lang.ArrayUtils.toPrimitive;
 import gda.epics.connection.EpicsController;
 import gda.epics.util.EpicsGlobals;
+import gda.observable.Observable;
+import gda.observable.Observer;
+import gda.observable.ObservableUtil;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.CAStatusException;
@@ -337,6 +340,8 @@ public class LazyPVFactory {
 		private PutCallbackListener putCallbackListener = new NullPutCallbackListener();
 
 		private Object putCallbackGuard = new Object();
+
+		private PVMonitor<T> observableMonitor;
 
 		LazyPV(EpicsController controller, String pvName, Class<T> javaType) {
 			this.controller = controller;
@@ -860,6 +865,29 @@ public class LazyPVFactory {
 
 		}
 
+		/**
+		 * When adding an observer we use the PVMonitor object to
+		 * add the monitor listener and notify the observer.
+		 * 
+		 */
+		@Override
+		public void addObserver(Observer<T> observer) throws Exception {
+			if( observableMonitor == null){
+				observableMonitor = new PVMonitor<T>(this, this);
+			}
+			observableMonitor.addObserver(observer);			
+			
+		}
+
+
+		@Override
+		public void deleteIObserver(Observer<T>  observer) {
+			if( observableMonitor == null){
+				return;
+			}
+			observableMonitor.deleteIObserver(observer);
+		}
+
 	}
 
 	static abstract private class AbstractReadOnlyAdapter<N, T> implements ReadOnlyPV<T> {
@@ -945,6 +973,65 @@ public class LazyPVFactory {
 				return outerPredicate.apply(innerToOuter(innerObject));
 			}
 
+		}
+
+		/**
+		 * As the Observer may be of a different type e.g. String to the
+		 * Observable e.g. Byte[] we need to adapter.
+		 * 
+		 **/
+		private class GenericObservable implements Observable<T> {
+
+			private final Observable<N> stringFromWaveform;
+			ObservableUtil<T> oc = new ObservableUtil<T>();
+			private Observer<N> observerN;
+
+			public GenericObservable(Observable<N> stringFromWaveform) throws Exception {
+				this.stringFromWaveform = stringFromWaveform;
+				observerN = new Observer<N>() {
+					
+					@Override
+					public void update(Observable<N> source, N arg) {
+						oc.notifyIObservers(AbstractReadOnlyAdapter.this, innerToOuter(arg));
+					}
+				};
+				stringFromWaveform.addObserver(observerN);
+			}
+
+			@Override
+			public void addObserver(Observer<T> observer) throws Exception {
+				oc.addObserver(observer);
+			}
+
+			@Override
+			public void deleteIObserver(Observer<T> observer) {
+				oc.deleteIObserver(observer);
+				if( !oc.IsBeingObserved())
+					stringFromWaveform.deleteIObserver(observerN);
+			}
+
+		}
+
+		@Override
+		public void addObserver(final Observer<T> observer) throws Exception {
+
+			createStringObservable(getPV()).addObserver(observer);
+			
+		}
+		Observable<T> obs=null;
+
+		private Observable<T> createStringObservable(ReadOnlyPV<N> pv) throws Exception {
+			if( obs== null){
+				obs = new GenericObservable(pv);
+			}
+			return obs;
+		}
+
+		@Override
+		public void deleteIObserver(Observer<T> observer) {
+			if( obs == null)
+				return;
+			obs.deleteIObserver(observer);
 		}
 
 	}
@@ -1035,6 +1122,16 @@ public class LazyPVFactory {
 		protected T outerToInner(T outerValue) {
 			return outerValue;
 		}
+		@Override
+		public void addObserver(Observer<T> observer) throws Exception {
+			getPV().addObserver(observer);
+			
+		}
+
+		@Override
+		public void deleteIObserver(Observer<T> observer) {
+			getPV().deleteIObserver(observer);
+		}
 
 	}
 
@@ -1116,6 +1213,76 @@ public class LazyPVFactory {
 			return (short) (outerValue ? 1 : 0);
 		}
 
+
 	}
 
 }
+
+/**
+ * Class to adapter between a monitor and the gda IObserver system
+ *
+ * @param <E>
+ */
+class PVMonitor<E> implements Observable<E>{
+	static final Logger logger = LoggerFactory.getLogger(PVMonitor.class);	
+	private final PV<E> pv;
+	private final Observable<E> observable;
+
+	public PVMonitor(Observable<E> observable, PV<E> pv){
+		this.observable = observable;
+		this.pv = pv;
+	}
+	ObservableUtil<E> oc=null;
+	MonitorListener monitorListener = new MonitorListener() {
+		
+		@Override
+		public void monitorChanged(MonitorEvent arg0) {
+			E extractValueFromDbr;
+			try {
+				extractValueFromDbr = pv.extractValueFromDbr(arg0.getDBR());
+				if( oc != null){
+					oc.notifyIObservers(observable, extractValueFromDbr);
+				}
+			} catch (Exception e) {
+				logger.error("Error extracting data from histogram update", e);
+			}
+		}
+	};
+
+
+
+	@Override
+	public void addObserver(Observer<E> observer) throws Exception {
+		if( oc == null)
+			oc = new ObservableUtil<E>();
+		oc.addObserver(observer);
+		if( !pv.isValueMonitoring()){
+			try {
+				pv.addMonitorListener(monitorListener);
+			} catch (IOException e) {
+				throw new IllegalStateException("Error adding monitor to pv:"+ pv.getPvName(),e);
+			}
+		}
+		
+		
+	}
+
+	@Override
+	public void deleteIObserver(Observer<E> observer) {
+		if( oc == null)
+			return;
+		oc.deleteIObserver(observer);
+		if (!oc.IsBeingObserved()){
+			if ( !pv.isValueMonitoring()){
+				pv.removeMonitorListener(monitorListener);
+			}
+		}
+	}
+
+	public boolean IsBeingObserved() {
+		return oc == null ? false : oc.IsBeingObserved();
+	}
+	
+}
+
+
