@@ -28,53 +28,50 @@ import org.slf4j.LoggerFactory;
  * A Component that may be used by Observable objects to maintain its list of Observers
  * DO NOT synchronize the methods of this class as doing so in the past led to deadlocks when used with DOFS and AbosulteMove objects
  */
-public class TypedObservableComponent<E> implements Observable<E>, IIsBeingObserved {
-	private Vector<Observer<E>> myIObservers = new Vector<Observer<E>>();
-	private static final Logger logger = LoggerFactory.getLogger(TypedObservableComponent.class);
+public class ObservableUtil<E> implements Observable<E>, IIsBeingObserved {
+	private Vector<Observer<E>> myObservers = new Vector<Observer<E>>();
+	private static final Logger logger = LoggerFactory.getLogger(ObservableUtil.class);
 
 	/**
 	 * Add an observer to the list of observers providing that the list does not already contain an instance of the
 	 * observer on it. {@inheritDoc}
 	 * 
-	 * @param anIObserver
+	 * @param observer
 	 *            the observer
-	 * @see gda.observable.IObservable#addIObserver(gda.observable.IObserver)
+	 * @see gda.observable.Observable#addObserver(gda.observable.Observer)
 	 */
 	@Override
-	public void addIObserver(Observer<E> anIObserver) {
-		if( anIObserver  == null)
+	public void addObserver(Observer<E> observer) {
+		if( observer  == null)
 			return;
-		synchronized(myIObservers){
-			if (!myIObservers.contains(anIObserver))
-				myIObservers.addElement(anIObserver);
+		synchronized(myObservers){
+			if (!myObservers.contains(observer))
+				myObservers.addElement(observer);
 		}
 	}
 
 	/**
 	 * Delete the instance of this observer from the list observers. {@inheritDoc}
 	 * 
-	 * @param anIObserver
+	 * @param observer
 	 *            the observer
-	 * @see gda.observable.IObservable#deleteIObserver(gda.observable.IObserver)
+	 * @see gda.observable.Observable#deleteIObserver(gda.observable.Observer)
 	 */
 	@Override
-	public void deleteIObserver(Observer<E> anIObserver) {
-		if( anIObserver  == null)
+	public void deleteIObserver(Observer<E> observer) {
+		if( observer  == null)
 			return;
-		synchronized(myIObservers){
-			myIObservers.removeElement(anIObserver);
+		synchronized(myObservers){
+			myObservers.removeElement(observer);
 		}
 	}
 
 	/**
-	 * Delete all observers from the list of observers. {@inheritDoc}
-	 * 
-	 * @see gda.observable.IObservable#deleteIObservers()
+	 * Delete all observers from the list of observers. 
 	 */
-	@Override
 	public void deleteIObservers() {
-		synchronized(myIObservers){
-			myIObservers.removeAllElements();
+		synchronized(myObservers){
+			myObservers.removeAllElements();
 		}
 	}
 
@@ -89,8 +86,8 @@ public class TypedObservableComponent<E> implements Observable<E>, IIsBeingObser
 	@SuppressWarnings("unchecked")
 	public void notifyIObservers(Observable<E> theObserved, E changeCode) {
 		Observer<E>[] observers;
-		synchronized(myIObservers){
-			observers = (Observer<E>[]) myIObservers.toArray(new Observer<?>[0]);
+		synchronized(myObservers){
+			observers = (Observer<E>[]) myObservers.toArray(new Observer<?>[0]);
 		}
 		
 		for (Observer<E> anIObserver : observers) {
@@ -104,7 +101,7 @@ public class TypedObservableComponent<E> implements Observable<E>, IIsBeingObser
 
 	@Override
 	public boolean IsBeingObserved() {
-		return !myIObservers.isEmpty();
+		return !myObservers.isEmpty();
 	}
 
 }
