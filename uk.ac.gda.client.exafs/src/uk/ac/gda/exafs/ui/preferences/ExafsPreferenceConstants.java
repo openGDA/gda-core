@@ -102,4 +102,9 @@ public class ExafsPreferenceConstants {
 	 * When true, only show options relating to the XES spectrometer in various editors and dialogs.
 	 */
 	public static final String XES_MODE_ENABLED = "exafs.xes_mode_enabled.Preference";
+	
+	/**
+	 * When false, mca windows in xspress and vortex editors cannot be dragged with the mouse
+	 */
+	public static final String DETECTOR_OVERLAY_ENABLED = "exafs.editor.overlay.Preference";
 }

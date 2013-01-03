@@ -88,9 +88,11 @@ import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
 import uk.ac.gda.common.rcp.util.GridUtils;
+import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.exafs.ui.detector.vortex.VortexParametersUIEditor;
 import uk.ac.gda.exafs.ui.detector.wizards.ImportROIWizard;
+import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.components.data.DataWrapper;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
@@ -813,6 +815,9 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		currentOverlay.setDraw(getDetectorElementComposite().getRegionList().getListSize() > 0);
 		sashPlotForm.getPlotter().registerOverlay(currentOverlay);
 
+		if (!ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED))
+			currentOverlay.enableMouseListener(false);
+		
 		currentOverlay.addGraphSelectionListener(new GraphSelectionListener() {
 
 			@Override
