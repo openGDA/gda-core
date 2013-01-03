@@ -455,7 +455,7 @@ class I20XesScan(XasScan):
             # make sure the plotter is switched off
             jython_mapper.twodplotter.atScanEnd()
             jython_mapper.ionchambers.setOutputLogValues(False) 
-            
+            XasAsciiDataWriter.setBeanGroup(None)
             
 
     def setUpIonChambers(self,beanGroup):
