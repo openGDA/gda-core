@@ -36,13 +36,10 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.exafs.MetadataParameters;
 import uk.ac.gda.beans.exafs.OutputParameters;
 import uk.ac.gda.beans.exafs.SignalParameters;
-import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.composites.MetadataComposite;
@@ -54,12 +51,8 @@ import uk.ac.gda.richbeans.components.selector.VerticalListEditor;
 import uk.ac.gda.richbeans.components.wrappers.TextWrapper;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
-import uk.ac.gda.richbeans.event.ValueAdapter;
-import uk.ac.gda.richbeans.event.ValueEvent;
 
 public class OutputParametersUIEditor extends RichBeanEditorPart {
-
-	private static final Logger logger = LoggerFactory.getLogger(OutputParametersUIEditor.class);
 
 	private TextWrapper asciiFileName;
 	private VerticalListEditor signalList;
