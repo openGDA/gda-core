@@ -34,7 +34,7 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 	private int materialType = -1;
 	private int cut1Val = -1;
 	private int cut2Val = -1;
-	private int cut3Val = -1;;;
+	private int cut3Val = -1;
 	
 	@Override
 	public void configure() {
