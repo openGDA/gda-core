@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Electron Analyser Server
+Bundle-SymbolicName: org.opengda.detector.electronanalyser.server;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Diamond Light Source Ltd
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.springsource.slf4j.api,
+ uk.ac.gda.epics
