@@ -300,32 +300,13 @@ public class NDArrayImpl implements NDArray, InitializingBean {
 			fullPvName = basePVName + pvPostFix;
 		}
 		return fullPvName;
-	}	
-	
-	public static int[] determineDataDimensions(NDArray ndArray) throws Exception {
-		// only called if configured to readArrays (and hence ndArray is set)
-		NDPluginBase pluginBase = ndArray.getPluginBase();
-		int nDimensions = pluginBase.getNDimensions_RBV();
-		int[] dimFromEpics = new int[3];
-		dimFromEpics[0] = pluginBase.getArraySize2_RBV();
-		dimFromEpics[1] = pluginBase.getArraySize1_RBV();
-		dimFromEpics[2] = pluginBase.getArraySize0_RBV();
+	}
 
-		int[] dims = java.util.Arrays.copyOfRange(dimFromEpics, 3 - nDimensions, 3);
-		return dims;
-	}	
-	public Object getArrayData() throws Exception{
-		
-		int[] dims = determineDataDimensions(this);
-
-		int expectedNumPixels = dims[0];
-		for (int i = 1; i < dims.length; i++) {
-			expectedNumPixels = expectedNumPixels * dims[i];
-		}
-		
-		
+	@Override
+	public Object getImageData(int expectedNumPixels) throws Exception {
 		Channel ch = getChannel(ARRAY_DATA);
 		return EPICS_CONTROLLER.getDBR(ch, ch.getFieldType(),expectedNumPixels).getValue();
-	}
+	}	
+	
 	
 }

@@ -238,6 +238,11 @@ public class NDArraySimulator implements NDArray {
 		return bytes;
 	}
 
+	@Override
+	public Object getImageData(int expectedNumPixels) throws Exception {
+		return null;
+	}
+
 }
 
 class Gaussian {
