@@ -268,6 +268,11 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	@Override
 	public void setCollectionTime(double collectionTime) throws DeviceException {
 		try { // TODO beamline reported sometime exposure need to be set twice to succeed
+			if(LiveModeUtil.isLiveMode()){
+				if(controller.isArmed()){
+					controller.disarmCamera();
+				}
+			}
 			ADBase areaDetector = controller.getAreaDetector();
 			areaDetector.setAcquireTime(collectionTime);
 			this.collectionTime = collectionTime;
@@ -282,6 +287,11 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		int numImagesPerPoint = Integer.parseInt(collectspec[1].toString());
 		int totalNumImages = Integer.parseInt(collectspec[2].toString());
 		try {
+			if(LiveModeUtil.isLiveMode()){
+				if(controller.isArmed()){
+					controller.disarmCamera();
+				}
+			}
 			ADBase areaDetector = controller.getAreaDetector();
 			areaDetector.setAcquireTime(collectionTime);
 			controller.setNumImages(numImagesPerPoint);
