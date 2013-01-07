@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-import uk.ac.gda.client.tomo.TomoClientConstants;
+import uk.ac.gda.client.tomo.alignment.view.TomoAlignmentCommands;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraModuleController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.IModuleLookupTableHandler;
 import uk.ac.gda.client.tomo.composites.ModuleButtonComposite.CAMERA_MODULE;
@@ -60,7 +60,7 @@ public class CameraModuleController implements InitializingBean, ICameraModuleCo
 		final PyBaseException[] exceptions = new PyBaseException[1];
 		final SubMonitor progress = SubMonitor.convert(monitor);
 		progress.beginTask("", 5);
-		String moveModuleCmd = String.format(TomoClientConstants.MOVE_MODULE_COMMAND, module.getValue().intValue());
+		String moveModuleCmd = String.format(TomoAlignmentCommands.MOVE_MODULE_COMMAND, module.getValue().intValue());
 		IObserver observer = new IObserver() {
 
 			@Override
@@ -108,7 +108,7 @@ public class CameraModuleController implements InitializingBean, ICameraModuleCo
 			}
 		};
 		tomoScriptController.addIObserver(observer);
-		JythonServerFacade.getInstance().evaluateCommand(TomoClientConstants.GET_MODULE_COMMAND);
+		JythonServerFacade.getInstance().evaluateCommand(TomoAlignmentCommands.GET_MODULE_COMMAND);
 		int tries = 0;
 		while (moduleNumArr[0] == null && tries < 1000) {
 			Sleep.sleep(100);

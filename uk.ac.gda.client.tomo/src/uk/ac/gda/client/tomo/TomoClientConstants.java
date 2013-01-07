@@ -24,21 +24,5 @@ public interface TomoClientConstants {
 
 	public static final String TOMO_CONFIG_EDITING_DOMAIN = "uk.ac.gda.tomography.config.editingDomain";
 
-	public static final String MOVE_MODULE_COMMAND = "tomoAlignment.moveToModule(%d)";
-	
-	public static final String GET_MODULE_COMMAND = "tomoAlignment.getModule()";
-
-	public static final String TOMOGRAPHY_IS_RUNNING_CONFIG_CMD = "tomoAlignment.tomographyConfigurationManager.getRunningConfig()";
-
-	public static final String TOMOGRAPHY_STOP_SCAN = "tomoAlignment.tomographyConfigurationManager.stopScan()";
-
-	public static final String CHANGE_SUBDIR = "tomoAlignment.changeSubDir('%s')";
-
-	public static final String GET_SUBDIR = "tomoAlignment.getSubdir()";
-
-	public static final String MOVE_VERTICAL = "tomoAlignment.moveVerticalBy(%s, %s, %f)";
-
-	public static final String GET_VERTICAL = "tomoAlignment.getVerticalMotorPositions()";
-
 	public static double MAX_INTENSITY = 65535;
 }
