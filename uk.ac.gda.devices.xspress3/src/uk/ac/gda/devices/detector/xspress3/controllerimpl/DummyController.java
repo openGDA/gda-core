@@ -14,12 +14,6 @@ import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
 public class DummyController implements Xspress3Controller {
 
 	@Override
-	public void doStart() throws DeviceException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void doStop() throws DeviceException {
 		// TODO Auto-generated method stub
 
@@ -171,19 +165,7 @@ public class DummyController implements Xspress3Controller {
 	}
 
 	@Override
-	public void setFileTemplate(String template) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public String getFilePath() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getFileTemplate() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -211,5 +193,47 @@ public class DummyController implements Xspress3Controller {
 	public int getNumFramesPerReadout() throws DeviceException {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	@Override
+	public void setFilePrefix(String template) throws DeviceException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setNextFileNumber(int nextNumber) throws DeviceException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String getFilePrefix() throws DeviceException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getNextFileNumber() throws DeviceException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void doStart() throws DeviceException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean isSavingFiles() throws DeviceException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void setSavingFiles(Boolean saveFiles) throws DeviceException {
+		// TODO Auto-generated method stub
+		
 	}
 }

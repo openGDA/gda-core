@@ -30,10 +30,24 @@ public class EpicsControllerPvProvider {
 	private static String FRAMES_AVAILABLE_SUFFIX = ":ArrayCounter_RBV";
 	private static String BUSY_SUFFIX = ":Acquire_RBV";
 	private static String CONNECTED_SUFFIX = ":CONNECTED";
-	
+
 	// System Configuration
-	private static String MAX_FRAMES_SUFFIX = ":NUM_FRAMES_CONFIG_RBV";	
-	private static String MCA_SIZE_SUFFIX = ":MAX_SPECTRA_RBV";	
+	private static String MAX_FRAMES_SUFFIX = ":NUM_FRAMES_CONFIG_RBV";
+	private static String MCA_SIZE_SUFFIX = ":MAX_SPECTRA_RBV";
+	private static String CONNECTION_STATUS = ":CONNECTED";
+
+	// File creation PVs
+	private static String STARTSTOP_FILE_WRITING = ":HDF5:Capture";
+	private static String FILE_WRITING_RBV = ":HDF5:Capture_RBV";
+//	private static String FILE_WRITE_STATUS = ":HDF5:WriteStatus";
+
+	private static String FILE_PATH = ":HDF5:FilePath";
+	private static String FILE_PATH_RBV = ":HDF5:FilePath_RBV";
+
+	private static String FILE_PREFIX = ":HDF5:FileName";
+	private static String FILE_PREFIX_RBV = "HDF5:FileName_RBV";
+
+	private static String NEXT_FILENUMBER = ":HDF5:FileNumber";
 	
 	// Display Updates
 	private static String SCALER_UPDATE_SUFFIX = ":CTRL_DATA_UPDATE";
@@ -132,6 +146,15 @@ public class EpicsControllerPvProvider {
 	protected PV<Integer>[][] pvsROIHLM;// [roi][channel]
 	protected ReadOnlyPV<Double>[][] pvsLatestROI;  // [roi][channel]
 	protected ReadOnlyPV<Double[]>[][] pvsROIs;   //[roi][channel]
+	protected ReadOnlyPV<Integer> pvConnectionStatus;
+	protected PV<Integer> pvStartStopFileWriting;
+	protected ReadOnlyPV<Integer> pvIsFileWriting;
+	protected ReadOnlyPV<Integer> pvGetFileWritingStatus;
+	protected PV<String> pvSetFilePath;
+	protected ReadOnlyPV<String> pvGetFilePath;
+	protected PV<String> pvSetFilePrefix;
+	protected ReadOnlyPV<String> pvGetFilePrefix;
+	protected PV<Integer> pvNextFileNumber;
 
 	public EpicsControllerPvProvider(String epicsTemplate) throws FactoryException {
 		if (epicsTemplate == null || epicsTemplate.isEmpty()){
@@ -143,6 +166,7 @@ public class EpicsControllerPvProvider {
 
 	private void createPVs() {
 		createControlPVs();
+		createFileWritingPVs();
 		createDisplayPVs();
 		createReadoutPVs();
 		createMCAPVs();
@@ -165,10 +189,22 @@ public class EpicsControllerPvProvider {
 		 pvIsBusy = LazyPVFactory.newReadOnlyBooleanFromIntegerPV(generatePVName(BUSY_SUFFIX));
 		 pvIsConnected = LazyPVFactory.newReadOnlyBooleanFromIntegerPV(generatePVName(CONNECTED_SUFFIX));
 	}
-
-	private void createDisplayPVs() {		
+	
+	private void createFileWritingPVs() {
+		pvStartStopFileWriting =  LazyPVFactory.newIntegerPV(generatePVName(STARTSTOP_FILE_WRITING));
+		pvIsFileWriting = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(FILE_WRITING_RBV));
+//		pvGetFileWritingStatus = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(FILE_WRITE_STATUS));
+		pvSetFilePath = LazyPVFactory.newStringFromWaveformPV(generatePVName(FILE_PATH));
+		pvGetFilePath = LazyPVFactory.newReadOnlyStringFromWaveformPV(generatePVName(FILE_PATH_RBV));
+		pvSetFilePrefix = LazyPVFactory.newStringFromWaveformPV(generatePVName(FILE_PREFIX));
+		pvGetFilePrefix = LazyPVFactory.newReadOnlyStringFromWaveformPV(generatePVName(FILE_PREFIX_RBV));
+		pvNextFileNumber = LazyPVFactory.newIntegerPV(generatePVName(NEXT_FILENUMBER));
+	}
+	
+	private void createDisplayPVs() {
 		 pvGetMaxFrames = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(MAX_FRAMES_SUFFIX));
 		 pvGetMCASize = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(MCA_SIZE_SUFFIX));
+		 pvConnectionStatus = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(CONNECTION_STATUS));
 		 pvSetScalerUpdate = LazyPVFactory.newEnumPV(generatePVName(SCALER_UPDATE_SUFFIX),UPDATE_CTRL.class);
 		 pvGetScalerUpdate = LazyPVFactory.newReadOnlyEnumPV(generatePVName(SCALER_UPDATE_RBV_SUFFIX),UPDATE_RBV.class);
 		 pvScalerUpdatePeriod = LazyPVFactory.newIntegerPV(generatePVName(SCALER_UPDATE_PERIOD_SUFFIX));

@@ -1,5 +1,7 @@
 package uk.ac.gda.devices.detector.xspress3;
 
+import gda.data.NumTracker;
+import gda.data.PathConstructor;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
@@ -8,6 +10,8 @@ import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
 import gda.factory.FactoryException;
 
+import java.io.IOException;
+
 import org.nexusformat.NexusFile;
 
 /**
@@ -15,7 +19,8 @@ import org.nexusformat.NexusFile;
  * chain via EPICS.
  * <p>
  * By passive I mean that the Xspress3 is an externally triggered system and
- * this class does not cover the triggering.
+ * this class does not cover the triggering but sets up the time frames and
+ * reads out the data.
  * 
  * @author rjw82
  * 
@@ -34,6 +39,13 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 	private int numberOfChannelsToRead = 1;
 	private int summingMethod = SUM_ALL_ROI;
 
+	private boolean writeHDF5Files = false;
+	private String filePath = "";
+	private String filePrefix = "";
+	private int fileNumber = -1;
+	private String numTrackerExtension = "nxs";
+	private NumTracker numTracker;
+
 	public Xspress3Detector(Xspress3Controller controller) {
 		this.controller = controller;
 	}
@@ -42,21 +54,74 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 	public void configure() throws FactoryException {
 		controller.configure();
 		super.configure();
+		if (numTracker == null) {
+			createNumTracker();
+		}
+	}
+
+	private void createNumTracker() {
+		try {
+			numTracker = new NumTracker(numTrackerExtension);
+		} catch (IOException e) {
+			throw new IllegalArgumentException("NumTracker with extension '"
+					+ numTrackerExtension + "' could not be created.", e);
+		}
 	}
 
 	@Override
 	public void atScanLineStart() throws DeviceException {
 		framesRead = 0;
+		initiateFileWriting();
 		controller.doErase();
+	}
+
+	private void initiateFileWriting() throws DeviceException {
+		if (writeHDF5Files) {
+			// set file path name, number here if known or set
+			if (filePath != null && !filePath.isEmpty()) {
+				controller.setFilePath(filePath);
+			} else {
+				controller.setFilePath(PathConstructor
+						.createFromDefaultProperty());
+			}
+
+			if (filePrefix != null && !filePrefix.isEmpty()) {
+				controller.setFilePrefix(filePrefix);
+			} else {
+				controller.setFilePrefix("xspress3");
+			}
+
+			controller.setNextFileNumber((int) numTracker
+					.getCurrentFileNumber() + 1);
+		}
+		controller.setSavingFiles(writeHDF5Files);
+	}
+
+	@Override
+	public void atScanLineEnd() throws DeviceException {
+		// clear stored file path prefix and number at end of scan
+		if (writeHDF5Files) {
+			controller.setFilePath("");
+			controller.setFilePrefix("");
+			controller.setNextFileNumber(0);
+		}
 	}
 
 	@Override
 	public void collectData() throws DeviceException {
+		startRunningXspress3FrameSet();
+	}
+
+	protected void startRunningXspress3FrameSet() throws DeviceException {
 		controller.doStart();
 	}
 
 	@Override
 	public void stop() throws DeviceException {
+		stopXspress3();
+	}
+
+	protected void stopXspress3() throws DeviceException {
 		controller.doStop();
 	}
 
@@ -78,7 +143,9 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 		// has been collected by the time this method is called
 
 		if (framesRead == controller.getNumFramesToAcquire()) {
-			// TODO throw some sort of excpetion as we have run out of data!
+			// we have run out of data! This method should not have been called.
+			// Problem in the logic somewhere.
+			throw new DeviceException("Cannot readout - no more data in buffer");
 		}
 
 		// get all various info and add to a NexusTreeProvider
@@ -126,10 +193,6 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 				}
 			}
 		}
-
-		// get file name
-		// TODO need to create the full filename and then link correctly
-		String fileName = controller.getFilePath();
 
 		// create trees
 		NexusTreeProvider[] results = new NexusTreeProvider[numFramesRead];
@@ -204,6 +267,47 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 
 	public void setUnitsLabel(String unitsLabel) {
 		this.unitsLabel = unitsLabel;
+	}
+
+	public boolean isWriteHDF5Files() {
+		return writeHDF5Files;
+	}
+
+	public void setWriteHDF5Files(boolean writeHDF5Files) {
+		this.writeHDF5Files = writeHDF5Files;
+	}
+
+	public String getFilePath() {
+		return filePath;
+	}
+
+	public void setFilePath(String filePath) {
+		this.filePath = filePath;
+	}
+
+	public String getFilePrefix() {
+		return filePrefix;
+	}
+
+	public void setFilePrefix(String filePrefix) {
+		this.filePrefix = filePrefix;
+	}
+
+	public int getFileNumber() {
+		return fileNumber;
+	}
+
+	public void setFileNumber(int fileNumber) {
+		this.fileNumber = fileNumber;
+	}
+
+	public String getNumTrackerExtension() {
+		return numTrackerExtension;
+	}
+
+	public void setNumTrackerExtension(String numTrackerExtension) {
+		this.numTrackerExtension = numTrackerExtension;
+		createNumTracker();
 	}
 
 }

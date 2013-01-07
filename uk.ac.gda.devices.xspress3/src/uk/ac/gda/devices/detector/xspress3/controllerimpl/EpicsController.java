@@ -10,6 +10,8 @@ import gda.factory.Findable;
 import java.io.IOException;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.devices.detector.xspress3.TRIGGER_MODE;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
@@ -26,6 +28,9 @@ import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
 public class EpicsController implements Xspress3Controller, Configurable,
 		Findable {
 
+	private static final Logger logger = LoggerFactory
+			.getLogger(EpicsController.class);
+
 	private String epicsTemplate;
 
 	private EpicsControllerPvProvider pvProvider;
@@ -41,8 +46,17 @@ public class EpicsController implements Xspress3Controller, Configurable,
 		}
 		pvProvider = new EpicsControllerPvProvider(epicsTemplate);
 
+		try {
+			int epicsConnectionToHardware = pvProvider.pvConnectionStatus.get();
+			if (epicsConnectionToHardware != 1) {
+				logger.error("EPICS is not connected to underlying Xspress3 hardware.\\nConnect EPICS to Xspreess3 before doing any more in GDA.");
+			}
+		} catch (IOException e) {
+			throw new FactoryException(
+					"Excpetion trying to connect to Xspress3 EPICS template", e);
+		}
 	}
-	
+
 	@Override
 	public int getNumberROIToRead() {
 		return numRoiToRead;
@@ -60,6 +74,28 @@ public class EpicsController implements Xspress3Controller, Configurable,
 			pvProvider.pvAcquire.put(1);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while starting acquisition",
+					e);
+		}
+	}
+
+	public boolean isSavingFiles() throws DeviceException {
+		try {
+			return pvProvider.pvIsFileWriting.get() == 1;
+		} catch (IOException e) {
+			throw new DeviceException("IOException while reading save files flag",
+					e);
+		}
+	}
+
+	public void setSavingFiles(Boolean saveFiles) throws DeviceException {
+		try {
+			if (saveFiles) {
+				pvProvider.pvStartStopFileWriting.putCallback(1);
+			} else {
+				pvProvider.pvStartStopFileWriting.putCallback(0);
+			}
+		} catch (IOException e) {
+			throw new DeviceException("IOException while setting save files flag",
 					e);
 		}
 	}
@@ -429,39 +465,47 @@ public class EpicsController implements Xspress3Controller, Configurable,
 	}
 
 	@Override
-	public Integer[][] readoutDTCParameters(int startChannel, int finalChannel) throws DeviceException {
+	public Integer[][] readoutDTCParameters(int startChannel, int finalChannel)
+			throws DeviceException {
 		Integer[][] valuesWrongOrder = new Integer[4][]; // 4 values per channel
-		valuesWrongOrder[0] = readIntegerArray(pvProvider.pvsGoodEventGradient,startChannel,finalChannel);
-		valuesWrongOrder[1] = readIntegerArray(pvProvider.pvsGoodEventOffset,startChannel,finalChannel);
-		valuesWrongOrder[2] = readIntegerArray(pvProvider.pvsInWinEventGradient,startChannel,finalChannel);
-		valuesWrongOrder[3] = readIntegerArray(pvProvider.pvsInWinEventOffset,startChannel,finalChannel);
+		valuesWrongOrder[0] = readIntegerArray(pvProvider.pvsGoodEventGradient,
+				startChannel, finalChannel);
+		valuesWrongOrder[1] = readIntegerArray(pvProvider.pvsGoodEventOffset,
+				startChannel, finalChannel);
+		valuesWrongOrder[2] = readIntegerArray(
+				pvProvider.pvsInWinEventGradient, startChannel, finalChannel);
+		valuesWrongOrder[3] = readIntegerArray(pvProvider.pvsInWinEventOffset,
+				startChannel, finalChannel);
 		return invertIntegerArray(valuesWrongOrder);
 	}
 
 	@Override
 	public Double[][][] readoutDTCorrectedROI(int startFrame, int finalFrame,
 			int startChannel, int finalChannel) throws DeviceException {
-		
+
 		try {
 			int numROIs = getNumberROIToRead();
 			int numFrames = finalFrame - startFrame + 1;
 			int numChannels = finalChannel - startChannel + 1;
-			
+
 			Double[][][] valuesWrongOrder = new Double[numROIs][numChannels][numFrames];
-//			for(int channel = startChannel; channel < finalChannel; channel++){
-				for(int roi = 0; roi < numROIs; roi++){
-					// [frame][channel]
-					valuesWrongOrder[roi] = readDoubleWaveform(pvProvider.pvsROIs[roi], startFrame, finalFrame, startChannel, finalChannel);
-				}
-//			}
+			// for(int channel = startChannel; channel < finalChannel;
+			// channel++){
+			for (int roi = 0; roi < numROIs; roi++) {
+				// [frame][channel]
+				valuesWrongOrder[roi] = readDoubleWaveform(
+						pvProvider.pvsROIs[roi], startFrame, finalFrame,
+						startChannel, finalChannel);
+			}
+			// }
 			return reorderROIValues(valuesWrongOrder);
 		} catch (Exception e) {
-			throw new DeviceException("Exception while fetching regions of interest",e);
+			throw new DeviceException(
+					"Exception while fetching regions of interest", e);
 		}
 	}
-	
-	private Double[][][] reorderROIValues(
-			Double[][][] valuesWrongOrder) {
+
+	private Double[][][] reorderROIValues(Double[][][] valuesWrongOrder) {
 
 		int numRoi = valuesWrongOrder.length;
 		int numFrames = valuesWrongOrder[0].length;
@@ -481,7 +525,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 	@Override
 	public Double[][] readoutDTCorrectedLatestMCA(int startChannel,
 			int finalChannel) throws DeviceException {
-		
+
 		Double[][] mcas = new Double[finalChannel - startChannel + 1][];
 		for (int i = startChannel; i <= finalChannel; i++) {
 			try {
@@ -501,8 +545,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 			pvProvider.pvsROILLM[roiNumber][channel].put(lowHighMCAChannels[0]);
 			pvProvider.pvsROIHLM[roiNumber][channel].put(lowHighMCAChannels[1]);
 		} catch (IOException e) {
-			throw new DeviceException(
-					"IOException while setting ROI limits", e);
+			throw new DeviceException("IOException while setting ROI limits", e);
 		}
 	}
 
@@ -541,12 +584,14 @@ public class EpicsController implements Xspress3Controller, Configurable,
 						"Cannot set scaler window: value for window unacceptable");
 			}
 		} catch (IOException e) {
-			throw new DeviceException("IOException while setting scaler window limits", e);
+			throw new DeviceException(
+					"IOException while setting scaler window limits", e);
 		}
 	}
 
 	@Override
-	public Integer[] getWindows(int channel, int windowNumber) throws DeviceException {
+	public Integer[] getWindows(int channel, int windowNumber)
+			throws DeviceException {
 		try {
 			Integer[] limits = new Integer[2];
 			switch (windowNumber) {
@@ -564,32 +609,9 @@ public class EpicsController implements Xspress3Controller, Configurable,
 			}
 			return limits;
 		} catch (IOException e) {
-			throw new DeviceException("IOException while getting scaler window limits", e);
+			throw new DeviceException(
+					"IOException while getting scaler window limits", e);
 		}
-	}
-
-	@Override
-	public void setFilePath(String path) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void setFileTemplate(String template) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public String getFilePath() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getFileTemplate() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	public String getEpicsTemplate() {
@@ -620,7 +642,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 			try {
 				Double[] allFrames = pvs[i].get();
 				returnValuesWrongOrder[i] = (Double[]) ArrayUtils.subarray(
-						allFrames, startFrame, finalFrame +1);
+						allFrames, startFrame, finalFrame + 1);
 			} catch (IOException e) {
 				throw new DeviceException(
 						"IOException while fetching double array data", e);
@@ -657,7 +679,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 			try {
 				Integer[] allFrames = pvs[i].get();
 				returnValuesWrongOrder[i] = (Integer[]) ArrayUtils.subarray(
-						allFrames, startFrame, finalFrame+1);
+						allFrames, startFrame, finalFrame + 1);
 			} catch (IOException e) {
 				throw new DeviceException(
 						"IOException while fetching integer array data", e);
@@ -679,19 +701,19 @@ public class EpicsController implements Xspress3Controller, Configurable,
 		return correctedArray;
 	}
 
-//	private Double[] readDoubleArray(ReadOnlyPV<Double>[] pvs,
-//			int startChannel, int finalChannel) throws DeviceException {
-//		Double[] returnValues = new Double[finalChannel - startChannel];
-//		for (int i = startChannel; i < finalChannel; i++) {
-//			try {
-//				returnValues[i] = pvs[i].get();
-//			} catch (IOException e) {
-//				throw new DeviceException(
-//						"IOException while fetching integera data", e);
-//			}
-//		}
-//		return returnValues;
-//	}
+	// private Double[] readDoubleArray(ReadOnlyPV<Double>[] pvs,
+	// int startChannel, int finalChannel) throws DeviceException {
+	// Double[] returnValues = new Double[finalChannel - startChannel];
+	// for (int i = startChannel; i < finalChannel; i++) {
+	// try {
+	// returnValues[i] = pvs[i].get();
+	// } catch (IOException e) {
+	// throw new DeviceException(
+	// "IOException while fetching integera data", e);
+	// }
+	// }
+	// return returnValues;
+	// }
 
 	private Integer[] readIntegerArray(ReadOnlyPV<Integer>[] pvs,
 			int startChannel, int finalChannel) throws DeviceException {
@@ -701,9 +723,70 @@ public class EpicsController implements Xspress3Controller, Configurable,
 				returnValues[i] = pvs[i].get();
 			} catch (IOException e) {
 				throw new DeviceException(
-						"IOException while fetching integera data", e);
+						"IOException while fetching integer data", e);
 			}
 		}
 		return returnValues;
+	}
+
+	@Override
+	public void setFilePath(String path) throws DeviceException {
+		try {
+			pvProvider.pvSetFilePath.putCallback(path);
+		} catch (IOException e) {
+			throw new DeviceException("IOException while setting filepath", e);
+		}
+
+	}
+
+	@Override
+	public void setFilePrefix(String template) throws DeviceException {
+		try {
+			pvProvider.pvSetFilePrefix.putCallback(template);
+		} catch (IOException e) {
+			throw new DeviceException("IOException while setting file prefix",
+					e);
+		}
+
+	}
+
+	@Override
+	public void setNextFileNumber(int nextNumber) throws DeviceException {
+		try {
+			pvProvider.pvNextFileNumber.putCallback(nextNumber);
+		} catch (IOException e) {
+			throw new DeviceException("IOException while setting file number",
+					e);
+		}
+
+	}
+
+	@Override
+	public String getFilePath() throws DeviceException {
+		try {
+			return pvProvider.pvGetFilePath.get();
+		} catch (IOException e) {
+			throw new DeviceException("IOException while getting filepath", e);
+		}
+	}
+
+	@Override
+	public String getFilePrefix() throws DeviceException {
+		try {
+			return pvProvider.pvGetFilePrefix.get();
+		} catch (IOException e) {
+			throw new DeviceException("IOException while getting file prefix",
+					e);
+		}
+	}
+
+	@Override
+	public int getNextFileNumber() throws DeviceException {
+		try {
+			return pvProvider.pvNextFileNumber.get();
+		} catch (IOException e) {
+			throw new DeviceException("IOException while getting file number",
+					e);
+		}
 	}
 }

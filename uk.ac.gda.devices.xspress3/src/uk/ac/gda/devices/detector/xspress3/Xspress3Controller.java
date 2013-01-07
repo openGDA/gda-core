@@ -40,6 +40,10 @@ public interface Xspress3Controller {
 	public void doErase() throws DeviceException;
 
 	public void doReset() throws DeviceException;
+	
+	public boolean isSavingFiles() throws DeviceException;
+	
+	public void setSavingFiles(Boolean saveFiles) throws DeviceException;
 
 	public Integer getNumFramesToAcquire() throws DeviceException;
 
@@ -234,11 +238,15 @@ public interface Xspress3Controller {
 
 	public void setFilePath(String path) throws DeviceException;
 
-	public void setFileTemplate(String template) throws DeviceException;
+	public void setFilePrefix(String template) throws DeviceException;
+
+	public void setNextFileNumber(int nextNumber) throws DeviceException;
 
 	public String getFilePath() throws DeviceException;
 
-	public String getFileTemplate() throws DeviceException;
+	public String getFilePrefix() throws DeviceException;
+	
+	public int getNextFileNumber() throws DeviceException;
 
 	public void configure() throws FactoryException;
 

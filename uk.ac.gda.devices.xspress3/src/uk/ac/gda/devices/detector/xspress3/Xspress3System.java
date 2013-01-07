@@ -1,13 +1,12 @@
 package uk.ac.gda.devices.detector.xspress3;
 
-import org.apache.commons.lang.ArrayUtils;
-
-import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.CounterTimer;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Timer;
 import gda.device.detector.NXDetectorData;
+
+import org.apache.commons.lang.ArrayUtils;
 
 /**
  * Extension to the Xspress3Detector class which also drives a TFG timer to
@@ -65,7 +64,7 @@ public class Xspress3System extends Xspress3Detector implements Detector,
 
 	@Override
 	public void start() throws DeviceException {
-		controller.doStart();
+		collectData();
 		tfg.start();
 	}
 
@@ -141,18 +140,13 @@ public class Xspress3System extends Xspress3Detector implements Detector,
 	public void atScanLineStart() throws DeviceException {
 		super.atScanLineStart();
 		tfg.loadFrameSets();
-		controller.doStart();
+		startRunningXspress3FrameSet();
 		tfg.start();
 	}
 
 	@Override
 	public void collectData() throws DeviceException {
 		tfg.restart();
-	}
-
-	@Override
-	public NexusTreeProvider readout() throws DeviceException {
-		return super.readout();
 	}
 
 	@Override
