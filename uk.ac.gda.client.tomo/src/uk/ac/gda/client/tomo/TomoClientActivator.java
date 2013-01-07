@@ -18,8 +18,8 @@
 
 package uk.ac.gda.client.tomo;
 
-import java.util.HashMap;
-
+import org.eclipse.emf.edit.domain.EditingDomain;
+import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -79,30 +79,14 @@ public class TomoClientActivator extends AbstractUIPlugin {
 		}
 	}
 
-	private static HashMap<Integer, Integer> resolutionProjections;
+	public static final String EDITING_DOMAIN_ID = "uk.ac.gda.tomography.config.editingDomain";
 
-	public static HashMap<Integer, Integer> getResolutionProjections() {
-		if (resolutionProjections == null) {
-			resolutionProjections = new HashMap<Integer, Integer>();
-			resolutionProjections.put(1, 6000);
-			resolutionProjections.put(2, 3000);
-			resolutionProjections.put(4, 3000);
-			resolutionProjections.put(8, 1800);
+	public EditingDomain getTomoConfigEditingDomain() throws Exception {
+		try {
+			return TransactionalEditingDomain.Registry.INSTANCE.getEditingDomain(EDITING_DOMAIN_ID);
+		} catch (Exception ex) {
+			throw new Exception("Unable to get editing domain:" + ex.getMessage());
 		}
-		return resolutionProjections;
-	}
-
-	private static HashMap<Integer, Integer> resolutionBinning;
-
-	public static HashMap<Integer, Integer> getResolutionBinning() {
-		if (resolutionBinning == null) {
-			resolutionBinning = new HashMap<Integer, Integer>();
-			resolutionBinning.put(1, 1);
-			resolutionBinning.put(2, 1);
-			resolutionBinning.put(4, 4);
-			resolutionBinning.put(8, 8);
-		}
-		return resolutionBinning;
 	}
 
 }

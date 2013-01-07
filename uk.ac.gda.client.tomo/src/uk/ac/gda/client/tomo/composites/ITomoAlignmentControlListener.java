@@ -20,6 +20,7 @@ package uk.ac.gda.client.tomo.composites;
 
 import java.lang.reflect.InvocationTargetException;
 
+import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.RESOLUTION;
 import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.SAMPLE_WEIGHT;
 
 /**
@@ -145,7 +146,7 @@ public interface ITomoAlignmentControlListener extends IModuleChangeListener {
 	 * @throws InvocationTargetException
 	 * @throws Exception
 	 */
-	void saveAlignmentConfiguration() throws InvocationTargetException, InterruptedException, Exception;
+	String saveAlignmentConfiguration() throws InvocationTargetException, InterruptedException, Exception;
 
 	/**
 	 * Informs the listeners that "Define ROI" button has been selected.
@@ -158,5 +159,20 @@ public interface ITomoAlignmentControlListener extends IModuleChangeListener {
 	 * Informs the listeners to reset the ROI bounds
 	 */
 	void resetRoi();
+
+	/**
+	 * Invokes listeners when the resolution button is clicked.
+	 * 
+	 * @param resolution
+	 * @throws Exception
+	 */
+	void resolutionChanged(RESOLUTION resolution) throws Exception;
+
+	/**
+	 * Invokes listeners when the save operation is complete.
+	 * 
+	 * @param experimentConfigId
+	 */
+	void saveComplete(String experimentConfigId);
 
 }

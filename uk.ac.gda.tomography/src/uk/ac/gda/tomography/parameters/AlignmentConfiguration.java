@@ -36,6 +36,7 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getInBeamPosition <em>In Beam Position</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getOutOfBeamPosition <em>Out Of Beam Position</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getTomoRotationAxis <em>Tomo Rotation Axis</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getScanCollected <em>Scan Collected</em>}</li>
  * </ul>
  * </p>
  *
@@ -646,6 +647,22 @@ public interface AlignmentConfiguration extends EObject {
 	 * @generated
 	 */
 	void setTomoRotationAxis(Integer value);
+
+	/**
+	 * Returns the value of the '<em><b>Scan Collected</b></em>' containment reference list.
+	 * The list contents are of type {@link uk.ac.gda.tomography.parameters.ScanCollected}.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Scan Collected</em>' containment reference list isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Scan Collected</em>' containment reference list.
+	 * @see uk.ac.gda.tomography.parameters.TomoParametersPackage#getAlignmentConfiguration_ScanCollected()
+	 * @model containment="true"
+	 * @generated
+	 */
+	EList<ScanCollected> getScanCollected();
 
 	/**
 	 * <!-- begin-user-doc -->

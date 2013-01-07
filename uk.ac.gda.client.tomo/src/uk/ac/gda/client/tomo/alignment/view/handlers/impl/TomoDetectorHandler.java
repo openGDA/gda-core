@@ -57,8 +57,6 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 
 	private static final String lbl_PROGRESS_TAKING_DARK = "Taking dark";
 
-	private static final String lbl_PROGRESS_DARK_IMAGE_TAKEN_D = "Dark image taken:%d";
-
 	private ITomographyDetector camera;
 
 	private Integer defaultNumOfFlatImages;
@@ -179,10 +177,6 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 		double ampFactor = getAmpFactor(acqTime, isAmplified);
 
 		double maxIntensity = TomoClientConstants.MAX_INTENSITY;
-		logger.debug("getScale :exposure time->{}", acqTime);
-		logger.debug("getScale :amp factor->{}", ampFactor);
-		logger.debug("getScale :lower->{}", lower);
-		logger.debug("getScale :upper->{}", upper);
 
 		// S = S(lower/ampfactor, upper/ampfactor)
 		// S(L,U) = maxIntensity/(U-L)
@@ -203,7 +197,7 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 		progress.beginTask(lbl_PROGRESS_TAKING_FLAT, numOfImages);
 
 		ndProc1Model.getNumFiltered();
-		
+
 		INDProcViewController.Stub procViewListener = new INDProcViewController.Stub() {
 			@Override
 			public void updateNumFiltered(int numFiltered) {
@@ -805,7 +799,7 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 		// settings that would need to be copied otherwise.
 		boolean hdfFormat = getCamera().isHdfFormat();
 		getCamera().resetAll();
-		getCamera().setExternalTriggered(Boolean.FALSE);
+		getCamera().setExternalTriggered(Boolean.TRUE);
 		getCamera().initDetector();
 		getCamera().setHdfFormat(hdfFormat);
 	}
@@ -878,11 +872,10 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 		return camera.getProc1Scale();
 	}
 
-	/**
-	 * @return Returns the defaultDistanceToMoveForFlat.
-	 */
-	public Double getDefaultFastPreviewExposureTimeThreshold() {
-		return defaultFastPreviewExposureTimeThreshold;
+	@Override
+	public double getFastPreviewExposureThreshold() {
+		return TomoClientActivator.getDefault().getPreferenceStore()
+				.getDouble(TomoAlignmentPreferencePage.TOMO_CLIENT_FAST_PREVIEW_EXP_TIME);
 	}
 
 	/**
@@ -920,7 +913,14 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 		double scale = getScale(acqTime, isAmplified, lower, upper, scaledFactor);
 		double offset = getOffset(acqTime, isAmplified, lower, scaledFactor);
 
+		logger.debug("Scale:{}", scale);
+		logger.debug("Offset:{}", offset);
+
 		getCamera().setOffsetAndScale(offset, scale);
 	}
 
+	@Override
+	public String getPortName() throws Exception {
+		return adBaseModel.getPortName();
+	}
 }

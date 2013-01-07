@@ -28,7 +28,6 @@ import org.eclipse.draw2d.PositionConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
@@ -54,6 +53,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.eclipse.ui.part.PageBook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,6 +76,10 @@ import uk.ac.gda.client.tomo.composites.RotationSliderComposite.SliderSelectionL
  */
 public class TomoAlignmentControlComposite extends Composite {
 
+	private static final String PLUS_90_BTN_LBL = "+90°";
+	private static final String MINUS_90_BTN_LBL = "-90°";
+	private static final String ESTIMATED_DURATION = "Estimated Duration:";
+	private static final String NUMBER_OF_PROJECTIONS = "Number Of Projections:";
 	private static final String DEFAULT_OBJECT_PIXEL_SIZE = "0.000 mm";
 	private static final Color NORMAL_COLOR = ColorConstants.black;
 	private static final Color ERROR_COLOR = ColorConstants.red;
@@ -88,6 +92,14 @@ public class TomoAlignmentControlComposite extends Composite {
 	private static final String TOMOGRAPHY_PARAMETERS_lbl = "Tomography Parameters";
 	private Button btnAutoFocus;
 
+	private Label lblTiltLastDone;
+	private PageBook pgBook_MoveAxisOfRotation;
+	private Composite pg_MoveAxisOfRotation_NotFound;
+	private Composite pg_MoveAxisOfRotation_Found;
+
+	private Label lblNumProjections;
+	private Label lblEstDuration;
+
 	/**
 	 * Enum that caters to the motion control composite
 	 */
@@ -98,19 +110,19 @@ public class TomoAlignmentControlComposite extends Composite {
 	}
 
 	public enum RESOLUTION {
-		FULL(RESOLUTION_FULL, 0), TWO_X(RESOLUTION_2x, 1), FOUR_X(RESOLUTION_4x, 2), EIGHT_X(RESOLUTION_8x, 3);
+		FULL(RESOLUTION_FULL, 1), TWO_X(RESOLUTION_2x, 2), FOUR_X(RESOLUTION_4x, 4), EIGHT_X(RESOLUTION_8x, 8);
 
 		private final String value;
-		private final int index;
+		private final int resolutionNumber;
 
 		@Override
 		public String toString() {
 			return value;
 		}
 
-		private RESOLUTION(String value, int index) {
+		private RESOLUTION(String value, int resolutionNumber) {
 			this.value = value;
-			this.index = index;
+			this.resolutionNumber = resolutionNumber;
 		}
 
 		public static RESOLUTION get(String resolution) {
@@ -122,9 +134,10 @@ public class TomoAlignmentControlComposite extends Composite {
 			return null;
 		}
 
-		public int getValue() {
-			return index;
+		public int getResolutionNumber() {
+			return resolutionNumber;
 		}
+
 	}
 
 	private static final int MOTION_COMPOSITE_HEIGHT = 120;
@@ -197,13 +210,13 @@ public class TomoAlignmentControlComposite extends Composite {
 
 	//
 	private static final Logger logger = LoggerFactory.getLogger(TomoAlignmentControlComposite.class);
-	private static final String PLUS_90_DEG = "+90°";
-	private static final String MINUS_90_DEG = "-90°";
+	private static final String PLUS_90_DEG = " + 90°";
+	private static final String MINUS_90_DEG = "   - 90°";
 	private static final String PLUS_DELTA_5 = "▲+5°";
 	private static final String MINUS_DELTA_5 = "▲-5°";
-	private static final String PLUS_ONE_EIGHTY_DEG = "+180°";
+	private static final String PLUS_ONE_EIGHTY_DEG = "+ 180°";
 	private static final String ZERO_DEG = "0°";
-	private static final String MINUS_ONE_EIGHTY_DEG = "-180°";
+	private static final String MINUS_ONE_EIGHTY_DEG = " -  180°";
 	private static final String VERTICAL_lbl = "Move Vertical";
 	private static final String MOVE_TOMO_AXIS_lbl = "Move Rotation Axis";
 
@@ -243,7 +256,6 @@ public class TomoAlignmentControlComposite extends Composite {
 	private Text txtSampleDesc;
 	private String sampleDescription;
 
-	private StackLayout moveAxisRotationCmpLayout;
 	/* Control Box Buttons */
 
 	private Button btnDefineRoi;
@@ -670,13 +682,35 @@ public class TomoAlignmentControlComposite extends Composite {
 		btnFindAxisOfRotation.addListener(SWT.MouseDown, ctrlMouseListener);
 		ButtonSelectionUtil.decorateControlButton(btnFindAxisOfRotation);
 
-		btnMoveAxisOfRotation = toolkit.createButton(tomoAlignmentComposite, MOVE_TOMO_AXIS_lbl, SWT.PUSH);
-		btnMoveAxisOfRotation.setFont(fontRegistry.get(NORMAL_TEXT_9));
-		btnMoveAxisOfRotation.addListener(SWT.MouseDown, ctrlMouseListener);
+		pgBook_MoveAxisOfRotation = new PageBook(tomoAlignmentComposite, SWT.None);
 		GridData layoutData4 = new GridData(GridData.FILL_BOTH);
 		layoutData4.horizontalSpan = 2;
+		pgBook_MoveAxisOfRotation.setLayoutData(layoutData4);
+
+		pg_MoveAxisOfRotation_NotFound = toolkit.createComposite(pgBook_MoveAxisOfRotation);
+		GridLayout gridLayout = new GridLayout();
+		setDefaultLayoutSettings(gridLayout);
+		pg_MoveAxisOfRotation_NotFound.setLayout(gridLayout);
+		Label lblTomoRotAxisNotFound = toolkit.createLabel(pg_MoveAxisOfRotation_NotFound,
+				"Tomography Rotation Axis not determined yet.", SWT.CENTER);
+		GridData layoutData5 = new GridData(GridData.FILL_BOTH);
+		layoutData5.verticalAlignment = GridData.VERTICAL_ALIGN_CENTER;
+		lblTomoRotAxisNotFound.setLayoutData(layoutData5);
+
+		pg_MoveAxisOfRotation_Found = toolkit.createComposite(pgBook_MoveAxisOfRotation);
+		gridLayout = new GridLayout();
+		setDefaultLayoutSettings(gridLayout);
+		pg_MoveAxisOfRotation_Found.setLayout(gridLayout);
+
+		btnMoveAxisOfRotation = toolkit.createButton(pg_MoveAxisOfRotation_Found, MOVE_TOMO_AXIS_lbl, SWT.PUSH);
+		btnMoveAxisOfRotation.setFont(fontRegistry.get(NORMAL_TEXT_9));
+		btnMoveAxisOfRotation.addListener(SWT.MouseDown, ctrlMouseListener);
+		layoutData4 = new GridData(GridData.FILL_BOTH);
 		btnMoveAxisOfRotation.setLayoutData(layoutData4);
 		ButtonSelectionUtil.decorateControlButton(btnMoveAxisOfRotation);
+
+		pgBook_MoveAxisOfRotation.showPage(pg_MoveAxisOfRotation_NotFound);
+		//
 
 		Composite cameraDistanceComposite = toolkit.createComposite(tomoAlignmentComposite);
 		cameraDistanceComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
@@ -804,8 +838,21 @@ public class TomoAlignmentControlComposite extends Composite {
 		Composite infoCmp = toolkit.createComposite(tomoScanComposite);
 		GridData layoutData2 = new GridData(GridData.FILL_BOTH);
 		infoCmp.setLayoutData(layoutData2);
-		infoCmp.setLayout(new FillLayout());
-		toolkit.createLabel(infoCmp, "Information space");
+		GridLayout gl = new GridLayout(2, false);
+		setDefaultLayoutSettings(gl);
+		infoCmp.setLayout(gl);
+
+		Label numProjec = toolkit.createLabel(infoCmp, NUMBER_OF_PROJECTIONS);
+		numProjec.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		lblNumProjections = toolkit.createLabel(infoCmp, BLANK_STR);
+		lblNumProjections.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Label estDuration = toolkit.createLabel(infoCmp, ESTIMATED_DURATION);
+		estDuration.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		lblEstDuration = toolkit.createLabel(infoCmp, BLANK_STR);
+		lblEstDuration.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		return tomoScanComposite;
 	}
@@ -1039,13 +1086,15 @@ public class TomoAlignmentControlComposite extends Composite {
 		setDefaultLayoutSettings(layout);
 		rotationStageComposite.setLayout(layout);
 
-		btnLeftRotate = new RotationButtonComposite(rotationStageComposite, PositionConstants.WEST, MINUS_90_DEG, true);
+		btnLeftRotate = new RotationButtonComposite(rotationStageComposite, PositionConstants.WEST, MINUS_90_BTN_LBL,
+				true);
 		btnLeftRotate.addSelectionListener(rotationButtonListener);
 
 		GridData layoutData = new GridData(GridData.FILL_BOTH);
 		btnLeftRotate.setLayoutData(layoutData);
 
-		btnRightRotate = new RotationButtonComposite(rotationStageComposite, PositionConstants.EAST, PLUS_90_DEG, true);
+		btnRightRotate = new RotationButtonComposite(rotationStageComposite, PositionConstants.EAST, PLUS_90_BTN_LBL,
+				true);
 		btnRightRotate.addSelectionListener(rotationButtonListener);
 
 		layoutData = new GridData(GridData.FILL_BOTH);
@@ -1445,11 +1494,12 @@ public class TomoAlignmentControlComposite extends Composite {
 		}
 	}
 
-	public void setTomoAxisFound(boolean found) {
+	public void setRotationAxisFound(boolean found) {
+		rotationAxisFound = found;
 		if (found) {
-			rotationAxisFound = true;
-			moveAxisRotationCmpLayout.topControl = btnMoveAxisOfRotation;
-			moveAxisBtnComposite.layout();
+			pgBook_MoveAxisOfRotation.showPage(pg_MoveAxisOfRotation_Found);
+		} else {
+			pgBook_MoveAxisOfRotation.showPage(pg_MoveAxisOfRotation_NotFound);
 		}
 	}
 
@@ -1718,26 +1768,22 @@ public class TomoAlignmentControlComposite extends Composite {
 			} else if (sourceObj == btnResFull) {
 				if (!ButtonSelectionUtil.isButtonSelected(btnResFull)) {
 					logger.debug("'btnResFull' is selected");
-					resolution = RESOLUTION.FULL;
-					selectRes(btnResFull);
+					setResolution(RESOLUTION.FULL);
 				}
 			} else if (sourceObj == btnRes2x) {
 				if (!ButtonSelectionUtil.isButtonSelected(btnRes2x)) {
 					logger.debug("'btnRes2x' is selected");
-					resolution = RESOLUTION.TWO_X;
-					selectRes(btnRes2x);
+					setResolution(RESOLUTION.TWO_X);
 				}
 			} else if (sourceObj == btnRes4x) {
 				if (!ButtonSelectionUtil.isButtonSelected(btnRes4x)) {
 					logger.debug("'btnRes4x' is selected");
-					resolution = RESOLUTION.FOUR_X;
-					selectRes(btnRes4x);
+					setResolution(RESOLUTION.FOUR_X);
 				}
 			} else if (sourceObj == btnRes8x) {
 				if (!ButtonSelectionUtil.isButtonSelected(btnRes8x)) {
 					logger.debug("'btnRes8x' is selected");
-					resolution = RESOLUTION.EIGHT_X;
-					selectRes(btnRes8x);
+					setResolution(RESOLUTION.EIGHT_X);
 				}
 			} else if (sourceObj == btnSaveAlignment) {
 				boolean canSave = true;
@@ -1769,23 +1815,23 @@ public class TomoAlignmentControlComposite extends Composite {
 				}
 				if (canSave) {
 					logger.debug("Save alignment clicked");
+					String experimentConfigId = null;
 					try {
 						for (ITomoAlignmentControlListener tcl : getTomoControlListeners()) {
-							tcl.saveAlignmentConfiguration();
+							experimentConfigId = tcl.saveAlignmentConfiguration();
+						}
+
+						chkInstrument.setSelection(false);
+						chkSampleWeight.setSelection(false);
+						chkSampleAlignment.setSelection(false);
+						chkTomoParameters.setSelection(false);
+
+						for (ITomoAlignmentControlListener tcl : getTomoControlListeners()) {
+							tcl.saveComplete(experimentConfigId);
 						}
 					} catch (Exception e) {
-						logger.error("Error Saving:{}", e.getMessage());
+						logger.error("Error Saving:", e);
 					}
-
-					chkInstrument.setSelection(false);
-					chkSampleWeight.setSelection(false);
-					chkSampleAlignment.setSelection(false);
-					chkTomoParameters.setSelection(false);
-
-					MessageDialog.openInformation(getShell(), "Tomography Alignment Saved",
-							"The tomography alignment details are saved as part of the experiment configuration");
-				} else {
-
 				}
 
 			}
@@ -1825,7 +1871,6 @@ public class TomoAlignmentControlComposite extends Composite {
 			}
 		}
 	};
-	private Label lblTiltLastDone;
 
 	private void showSaveProblemDialog(String message) {
 		MessageDialog.openError(getShell(), "Saving Tomography Alignment", message);
@@ -1895,18 +1940,53 @@ public class TomoAlignmentControlComposite extends Composite {
 			selectRes(btnRes8x);
 			break;
 		}
+
+		for (ITomoAlignmentControlListener lis : tomoAlignmentControlListeners) {
+			try {
+				lis.resolutionChanged(res);
+			} catch (Exception e) {
+				showErrorDialog(e);
+			}
+		}
 	}
-	
-	
-	public void setTiltLastDoneLabel(final String formattedDateTime){
-		if(lblTiltLastDone!=null && !lblTiltLastDone.isDisposed()){
+
+	public void setTiltLastDoneLabel(final String formattedDateTime) {
+		if (lblTiltLastDone != null && !lblTiltLastDone.isDisposed()) {
 			lblTiltLastDone.getDisplay().asyncExec(new Runnable() {
-				
+
 				@Override
 				public void run() {
 					lblTiltLastDone.setText(String.format("%1$s %2$s", LAST_SAVED_lbl, formattedDateTime));
 				}
 			});
+		}
+	}
+
+	public void setEstimatedDuration(final String estimatedDuration) {
+		if (estimatedDuration != null && lblEstDuration != null && !lblEstDuration.isDisposed()) {
+
+			lblEstDuration.getDisplay().syncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					lblEstDuration.setText(estimatedDuration);
+				}
+			});
+
+		}
+	}
+
+	public void setNumberOfProjections(final String numberOfProjections) {
+		if (lblNumProjections != null && !lblNumProjections.isDisposed()) {
+
+			lblNumProjections.getDisplay().syncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					lblNumProjections.setText(numberOfProjections);
+				}
+			});
+
 		}
 	}
 

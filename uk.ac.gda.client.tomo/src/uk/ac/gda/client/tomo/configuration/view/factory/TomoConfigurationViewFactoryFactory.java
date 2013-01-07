@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
+import uk.ac.gda.client.tomo.IScanResolutionLookupProvider;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ITomoConfigResourceHandler;
 import uk.ac.gda.client.tomo.configuration.view.TomoConfigurationView;
 import uk.ac.gda.client.tomo.configuration.view.TomoConfigurationViewController;
@@ -37,12 +38,19 @@ public class TomoConfigurationViewFactoryFactory implements FindableExecutableEx
 	private final Logger logger = LoggerFactory.getLogger(TomoConfigurationViewFactoryFactory.class);
 	private String viewPartName;
 	private String name;
+	private String cameraDistanceMotorName;
 
 	private ITomoConfigResourceHandler tomoConfigResourceHandler;
 	private TomoConfigurationViewController tomoConfigViewController;
 
+	private IScanResolutionLookupProvider scanResolutionLookupProvider;
+
 	public String getViewPartName() {
 		return viewPartName;
+	}
+
+	public void setScanResolutionLookupProvider(IScanResolutionLookupProvider scanResolutionLookupProvider) {
+		this.scanResolutionLookupProvider = scanResolutionLookupProvider;
 	}
 
 	public void setViewPartName(String viewPartName) {
@@ -58,6 +66,10 @@ public class TomoConfigurationViewFactoryFactory implements FindableExecutableEx
 	public String getName() {
 		return this.name;
 	}
+	
+	public void setCameraDistanceMotorName(String cameraDistanceMotorName) {
+		this.cameraDistanceMotorName = cameraDistanceMotorName;
+	}
 
 	@Override
 	public Object create() throws CoreException {
@@ -66,6 +78,8 @@ public class TomoConfigurationViewFactoryFactory implements FindableExecutableEx
 		tomographyConfigurationView.setViewPartName(viewPartName);
 		tomographyConfigurationView.setConfigFileHandler(tomoConfigResourceHandler);
 		tomographyConfigurationView.setTomoConfigViewController(tomoConfigViewController);
+		tomographyConfigurationView.setScanResolutionProvider(scanResolutionLookupProvider);
+		tomographyConfigurationView.setCameraDistanceMotorName(cameraDistanceMotorName);
 		return tomographyConfigurationView;
 	}
 

@@ -533,7 +533,8 @@ fi
 		#tion concerning JSV in jsv(1))
 
 		if self.qsub_project == "i12":
-			args += [ "-pe", "smp", "4"]
+			#args += [ "-pe", "smp", "4"]
+			args += [ "-l", "gpus=1"]
 		else: 
 			#i13
 			args += [ "-l", "tesla64", "-pe", "smp", "6"]

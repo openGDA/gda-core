@@ -394,4 +394,16 @@ public class TomoDetectorHandlerSimulator implements ICameraHandler {
 		
 	}
 
+	@Override
+	public String getPortName() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public double getFastPreviewExposureThreshold() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }

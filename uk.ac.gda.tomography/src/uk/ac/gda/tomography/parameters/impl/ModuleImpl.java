@@ -22,7 +22,7 @@ import uk.ac.gda.tomography.parameters.TomoParametersPackage;
  * The following features are implemented:
  * <ul>
  *   <li>{@link uk.ac.gda.tomography.parameters.impl.ModuleImpl#getModuleNumber <em>Module Number</em>}</li>
- *   <li>{@link uk.ac.gda.tomography.parameters.impl.ModuleImpl#getHorizontalFieldOfView <em>Horizontal Field Of View</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.parameters.impl.ModuleImpl#getCameraMagnification <em>Camera Magnification</em>}</li>
  * </ul>
  * </p>
  *
@@ -59,24 +59,24 @@ public class ModuleImpl extends EObjectImpl implements Module {
 	protected boolean moduleNumberESet;
 
 	/**
-	 * The default value of the '{@link #getHorizontalFieldOfView() <em>Horizontal Field Of View</em>}' attribute.
+	 * The default value of the '{@link #getCameraMagnification() <em>Camera Magnification</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getHorizontalFieldOfView()
+	 * @see #getCameraMagnification()
 	 * @generated
 	 * @ordered
 	 */
-	protected static final double HORIZONTAL_FIELD_OF_VIEW_EDEFAULT = 0.0;
+	protected static final double CAMERA_MAGNIFICATION_EDEFAULT = 0.0;
 
 	/**
-	 * The cached value of the '{@link #getHorizontalFieldOfView() <em>Horizontal Field Of View</em>}' attribute.
+	 * The cached value of the '{@link #getCameraMagnification() <em>Camera Magnification</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getHorizontalFieldOfView()
+	 * @see #getCameraMagnification()
 	 * @generated
 	 * @ordered
 	 */
-	protected double horizontalFieldOfView = HORIZONTAL_FIELD_OF_VIEW_EDEFAULT;
+	protected double cameraMagnification = CAMERA_MAGNIFICATION_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -152,9 +152,8 @@ public class ModuleImpl extends EObjectImpl implements Module {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	@Override
-	public double getHorizontalFieldOfView() {
-		return horizontalFieldOfView;
+	public double getCameraMagnification() {
+		return cameraMagnification;
 	}
 
 	/**
@@ -162,12 +161,11 @@ public class ModuleImpl extends EObjectImpl implements Module {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	@Override
-	public void setHorizontalFieldOfView(double newHorizontalFieldOfView) {
-		double oldHorizontalFieldOfView = horizontalFieldOfView;
-		horizontalFieldOfView = newHorizontalFieldOfView;
+	public void setCameraMagnification(double newCameraMagnification) {
+		double oldCameraMagnification = cameraMagnification;
+		cameraMagnification = newCameraMagnification;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, TomoParametersPackage.MODULE__HORIZONTAL_FIELD_OF_VIEW, oldHorizontalFieldOfView, horizontalFieldOfView));
+			eNotify(new ENotificationImpl(this, Notification.SET, TomoParametersPackage.MODULE__CAMERA_MAGNIFICATION, oldCameraMagnification, cameraMagnification));
 	}
 
 	/**
@@ -180,8 +178,8 @@ public class ModuleImpl extends EObjectImpl implements Module {
 		switch (featureID) {
 			case TomoParametersPackage.MODULE__MODULE_NUMBER:
 				return getModuleNumber();
-			case TomoParametersPackage.MODULE__HORIZONTAL_FIELD_OF_VIEW:
-				return getHorizontalFieldOfView();
+			case TomoParametersPackage.MODULE__CAMERA_MAGNIFICATION:
+				return getCameraMagnification();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -197,8 +195,8 @@ public class ModuleImpl extends EObjectImpl implements Module {
 			case TomoParametersPackage.MODULE__MODULE_NUMBER:
 				setModuleNumber((Integer)newValue);
 				return;
-			case TomoParametersPackage.MODULE__HORIZONTAL_FIELD_OF_VIEW:
-				setHorizontalFieldOfView((Double)newValue);
+			case TomoParametersPackage.MODULE__CAMERA_MAGNIFICATION:
+				setCameraMagnification((Double)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -215,8 +213,8 @@ public class ModuleImpl extends EObjectImpl implements Module {
 			case TomoParametersPackage.MODULE__MODULE_NUMBER:
 				unsetModuleNumber();
 				return;
-			case TomoParametersPackage.MODULE__HORIZONTAL_FIELD_OF_VIEW:
-				setHorizontalFieldOfView(HORIZONTAL_FIELD_OF_VIEW_EDEFAULT);
+			case TomoParametersPackage.MODULE__CAMERA_MAGNIFICATION:
+				setCameraMagnification(CAMERA_MAGNIFICATION_EDEFAULT);
 				return;
 		}
 		super.eUnset(featureID);
@@ -232,8 +230,8 @@ public class ModuleImpl extends EObjectImpl implements Module {
 		switch (featureID) {
 			case TomoParametersPackage.MODULE__MODULE_NUMBER:
 				return isSetModuleNumber();
-			case TomoParametersPackage.MODULE__HORIZONTAL_FIELD_OF_VIEW:
-				return horizontalFieldOfView != HORIZONTAL_FIELD_OF_VIEW_EDEFAULT;
+			case TomoParametersPackage.MODULE__CAMERA_MAGNIFICATION:
+				return cameraMagnification != CAMERA_MAGNIFICATION_EDEFAULT;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -250,8 +248,8 @@ public class ModuleImpl extends EObjectImpl implements Module {
 		StringBuffer result = new StringBuffer(super.toString());
 		result.append(" (moduleNumber: ");
 		if (moduleNumberESet) result.append(moduleNumber); else result.append("<unset>");
-		result.append(", horizontalFieldOfView: ");
-		result.append(horizontalFieldOfView);
+		result.append(", cameraMagnification: ");
+		result.append(cameraMagnification);
 		result.append(')');
 		return result.toString();
 	}

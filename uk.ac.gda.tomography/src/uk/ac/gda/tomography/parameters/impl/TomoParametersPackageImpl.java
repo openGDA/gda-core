@@ -23,6 +23,7 @@ import uk.ac.gda.tomography.parameters.MotorPosition;
 import uk.ac.gda.tomography.parameters.Parameters;
 import uk.ac.gda.tomography.parameters.Resolution;
 import uk.ac.gda.tomography.parameters.SampleWeight;
+import uk.ac.gda.tomography.parameters.ScanCollected;
 import uk.ac.gda.tomography.parameters.ScanMode;
 import uk.ac.gda.tomography.parameters.StitchParameters;
 import uk.ac.gda.tomography.parameters.TomoExperiment;
@@ -42,6 +43,13 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 * @generated
 	 */
 	private EClass tomoExperimentEClass = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EClass scanCollectedEClass = null;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -236,6 +244,42 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EClass getScanCollected() {
+		return scanCollectedEClass;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getScanCollected_ScanNumber() {
+		return (EAttribute)scanCollectedEClass.getEStructuralFeatures().get(0);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getScanCollected_StartTime() {
+		return (EAttribute)scanCollectedEClass.getEStructuralFeatures().get(1);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getScanCollected_EndTime() {
+		return (EAttribute)scanCollectedEClass.getEStructuralFeatures().get(2);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	@Override
 	public EClass getModule() {
 		return moduleEClass;
@@ -256,8 +300,7 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	@Override
-	public EAttribute getModule_HorizontalFieldOfView() {
+	public EAttribute getModule_CameraMagnification() {
 		return (EAttribute)moduleEClass.getEStructuralFeatures().get(1);
 	}
 
@@ -625,6 +668,15 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EReference getAlignmentConfiguration_ScanCollected() {
+		return (EReference)alignmentConfigurationEClass.getEStructuralFeatures().get(17);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	@Override
 	public EClass getParameters() {
 		return parametersEClass;
@@ -757,6 +809,7 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 		createEAttribute(alignmentConfigurationEClass, ALIGNMENT_CONFIGURATION__IN_BEAM_POSITION);
 		createEAttribute(alignmentConfigurationEClass, ALIGNMENT_CONFIGURATION__OUT_OF_BEAM_POSITION);
 		createEAttribute(alignmentConfigurationEClass, ALIGNMENT_CONFIGURATION__TOMO_ROTATION_AXIS);
+		createEReference(alignmentConfigurationEClass, ALIGNMENT_CONFIGURATION__SCAN_COLLECTED);
 
 		detectorBinEClass = createEClass(DETECTOR_BIN);
 		createEAttribute(detectorBinEClass, DETECTOR_BIN__BIN_X);
@@ -778,7 +831,7 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 
 		moduleEClass = createEClass(MODULE);
 		createEAttribute(moduleEClass, MODULE__MODULE_NUMBER);
-		createEAttribute(moduleEClass, MODULE__HORIZONTAL_FIELD_OF_VIEW);
+		createEAttribute(moduleEClass, MODULE__CAMERA_MAGNIFICATION);
 
 		motorPositionEClass = createEClass(MOTOR_POSITION);
 		createEAttribute(motorPositionEClass, MOTOR_POSITION__NAME);
@@ -797,6 +850,11 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 		createEAttribute(tomoExperimentEClass, TOMO_EXPERIMENT__DESCRIPTION);
 		createEAttribute(tomoExperimentEClass, TOMO_EXPERIMENT__TOTAL_TIME_TO_RUN);
 		createEAttribute(tomoExperimentEClass, TOMO_EXPERIMENT__VERSION);
+
+		scanCollectedEClass = createEClass(SCAN_COLLECTED);
+		createEAttribute(scanCollectedEClass, SCAN_COLLECTED__SCAN_NUMBER);
+		createEAttribute(scanCollectedEClass, SCAN_COLLECTED__START_TIME);
+		createEAttribute(scanCollectedEClass, SCAN_COLLECTED__END_TIME);
 
 		// Create enums
 		scanModeEEnum = createEEnum(SCAN_MODE);
@@ -852,6 +910,7 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 		initEAttribute(getAlignmentConfiguration_InBeamPosition(), ecorePackage.getEDouble(), "inBeamPosition", null, 0, 1, AlignmentConfiguration.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getAlignmentConfiguration_OutOfBeamPosition(), ecorePackage.getEDouble(), "outOfBeamPosition", null, 0, 1, AlignmentConfiguration.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getAlignmentConfiguration_TomoRotationAxis(), ecorePackage.getEIntegerObject(), "tomoRotationAxis", "0", 0, 1, AlignmentConfiguration.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getAlignmentConfiguration_ScanCollected(), this.getScanCollected(), null, "scanCollected", null, 0, -1, AlignmentConfiguration.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		EOperation op = addEOperation(alignmentConfigurationEClass, ecorePackage.getEDoubleObject(), "getMotorPosition", 0, 1, IS_UNIQUE, IS_ORDERED);
 		addEParameter(op, ecorePackage.getEString(), "motorName", 0, 1, IS_UNIQUE, IS_ORDERED);
@@ -876,7 +935,7 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 
 		initEClass(moduleEClass, Module.class, "Module", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getModule_ModuleNumber(), ecorePackage.getEIntegerObject(), "moduleNumber", null, 1, 1, Module.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getModule_HorizontalFieldOfView(), ecorePackage.getEDouble(), "horizontalFieldOfView", null, 0, 1, Module.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getModule_CameraMagnification(), ecorePackage.getEDouble(), "cameraMagnification", null, 0, 1, Module.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(motorPositionEClass, MotorPosition.class, "MotorPosition", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getMotorPosition_Name(), ecorePackage.getEString(), "name", null, 0, 1, MotorPosition.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -901,6 +960,11 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 		initEAttribute(getTomoExperiment_Description(), ecorePackage.getEString(), "description", null, 0, 1, TomoExperiment.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getTomoExperiment_TotalTimeToRun(), ecorePackage.getEDate(), "totalTimeToRun", null, 0, 1, TomoExperiment.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getTomoExperiment_Version(), ecorePackage.getEInt(), "version", "1", 0, 1, TomoExperiment.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+
+		initEClass(scanCollectedEClass, ScanCollected.class, "ScanCollected", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+		initEAttribute(getScanCollected_ScanNumber(), ecorePackage.getEString(), "scanNumber", null, 0, 1, ScanCollected.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getScanCollected_StartTime(), ecorePackage.getEString(), "startTime", null, 0, 1, ScanCollected.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getScanCollected_EndTime(), ecorePackage.getEString(), "endTime", null, 0, 1, ScanCollected.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		// Initialize enums and add enum literals
 		initEEnum(scanModeEEnum, ScanMode.class, "ScanMode");

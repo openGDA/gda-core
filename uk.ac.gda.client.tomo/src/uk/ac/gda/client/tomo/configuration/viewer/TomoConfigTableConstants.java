@@ -43,7 +43,7 @@ public interface TomoConfigTableConstants {
 
 	public static final String SAMPLE_DESCRIPTION = "Description";
 	public static final String PROPOSAL = "Visit Id";
-	public static final String MODULE_NUMBER = "Module";
+	public static final String MODULE_NUMBER = "Camera Magnification";
 	public static final String ACQUISITION_TIME = "Acq time(s)";
 	public static final String FLAT_ACQ_TIME = "Flat acq time(s)";
 	public static final String DETECTOR_DISTANCE = "Det-dist.";

@@ -17,7 +17,7 @@ import org.eclipse.emf.ecore.EObject;
  * The following features are supported:
  * <ul>
  *   <li>{@link uk.ac.gda.tomography.parameters.Module#getModuleNumber <em>Module Number</em>}</li>
- *   <li>{@link uk.ac.gda.tomography.parameters.Module#getHorizontalFieldOfView <em>Horizontal Field Of View</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.parameters.Module#getCameraMagnification <em>Camera Magnification</em>}</li>
  * </ul>
  * </p>
  *
@@ -80,29 +80,29 @@ public interface Module extends EObject {
 	boolean isSetModuleNumber();
 
 	/**
-	 * Returns the value of the '<em><b>Horizontal Field Of View</b></em>' attribute.
+	 * Returns the value of the '<em><b>Camera Magnification</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <p>
-	 * If the meaning of the '<em>Horizontal Field Of View</em>' containment reference isn't clear,
+	 * If the meaning of the '<em>Camera Magnification</em>' attribute isn't clear,
 	 * there really should be more of a description here...
 	 * </p>
 	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Horizontal Field Of View</em>' attribute.
-	 * @see #setHorizontalFieldOfView(double)
-	 * @see uk.ac.gda.tomography.parameters.TomoParametersPackage#getModule_HorizontalFieldOfView()
+	 * @return the value of the '<em>Camera Magnification</em>' attribute.
+	 * @see #setCameraMagnification(double)
+	 * @see uk.ac.gda.tomography.parameters.TomoParametersPackage#getModule_CameraMagnification()
 	 * @model
 	 * @generated
 	 */
-	double getHorizontalFieldOfView();
+	double getCameraMagnification();
 
 	/**
-	 * Sets the value of the '{@link uk.ac.gda.tomography.parameters.Module#getHorizontalFieldOfView <em>Horizontal Field Of View</em>}' attribute.
+	 * Sets the value of the '{@link uk.ac.gda.tomography.parameters.Module#getCameraMagnification <em>Camera Magnification</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Horizontal Field Of View</em>' attribute.
-	 * @see #getHorizontalFieldOfView()
+	 * @param value the new value of the '<em>Camera Magnification</em>' attribute.
+	 * @see #getCameraMagnification()
 	 * @generated
 	 */
-	void setHorizontalFieldOfView(double value);
+	void setCameraMagnification(double value);
 
 } // Module

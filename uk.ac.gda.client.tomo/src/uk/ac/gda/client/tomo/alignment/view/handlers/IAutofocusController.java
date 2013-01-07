@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,23 +16,11 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.client.tomo.configuration.view.handlers;
+package uk.ac.gda.client.tomo.alignment.view.handlers;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 
-public interface ITomoScanController {
+public interface IAutofocusController {
 
-	void runScan(String configFilePath);
-
-	void dispose();
-
-	void isScanRunning();
-
-	void addControllerUpdateListener(IScanControllerUpdateListener scanControllerUpdateListener);
-
-	void removeControllerUpdateListener(IScanControllerUpdateListener scanControllerUpdateListener);
-
-	void initialize();
-
-	void stopScan();
-
+	public String doAutoFocus(IProgressMonitor monitor, double acquireTime);
 }

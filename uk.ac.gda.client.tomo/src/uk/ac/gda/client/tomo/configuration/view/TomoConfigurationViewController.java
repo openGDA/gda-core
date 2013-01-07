@@ -18,8 +18,6 @@
 
 package uk.ac.gda.client.tomo.configuration.view;
 
-import java.util.List;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -28,26 +26,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.tomo.TomoViewController;
-import uk.ac.gda.tomography.parameters.AlignmentConfiguration;
+import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraHandler;
+import uk.ac.gda.epics.client.views.model.AdBaseModel;
 import uk.ac.gda.tomography.parameters.TomoExperiment;
 
 public class TomoConfigurationViewController extends TomoViewController {
 	private static final Logger logger = LoggerFactory.getLogger(TomoConfigurationViewController.class);
 
+	private AdBaseModel adBaseModel;
+
+	private ICameraHandler cameraHandler;
+
 	private class TomoScan extends Job {
 
-		private final List<AlignmentConfiguration> configurationSet;
+		private final String configFilePath;
 
-		public TomoScan(List<AlignmentConfiguration> configurationSet) {
+		public TomoScan(String configFilePath) {
 			super("Queing Alignment Configurations");
-			this.configurationSet = configurationSet;
+			this.configFilePath = configFilePath;
 		}
 
 		@Override
 		protected IStatus run(IProgressMonitor monitor) {
 			IStatus status = Status.OK_STATUS;
 			try {
-				getScanController().runScan(configurationSet);
+				getScanController().runScan(configFilePath);
 			} catch (Exception e) {
 				status = Status.CANCEL_STATUS;
 			} finally {
@@ -60,13 +63,36 @@ public class TomoConfigurationViewController extends TomoViewController {
 
 	public void startScan(TomoExperiment tomoExperiment) {
 		logger.debug("Queueing scan configurations");
-		final List<AlignmentConfiguration> configurationSet = tomoExperiment.getParameters().getConfigurationSet();
-		TomoScan tomoScan = new TomoScan(configurationSet);
+		TomoScan tomoScan = new TomoScan(tomoExperiment.eResource().getURI().toFileString());
 		tomoScan.schedule();
 	}
 
 	public void stopScan() {
 		getScanController().stopScan();
+	}
+
+	public String getDetectorPortName() throws Exception {
+		return adBaseModel.getPortName();
+	}
+
+	public void setAdBaseModel(AdBaseModel adBaseModel) {
+		this.adBaseModel = adBaseModel;
+	}
+
+	public void reset() throws Exception {
+		cameraHandler.reset();
+	}
+
+	public void setCameraHandler(ICameraHandler cameraHandler) {
+		this.cameraHandler = cameraHandler;
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		super.afterPropertiesSet();
+		if (cameraHandler == null) {
+			throw new IllegalArgumentException("'cameraHandler' needs to be provided");
+		}
 	}
 
 }

@@ -13,6 +13,7 @@ from gda.scan import ScanPositionProvider
 from gda.device.scannable import ScannableBase, ScannableUtils
 from gda.device.scannable.scannablegroup import ScannableGroup
 from java.lang import InterruptedException
+from gdascripts.metadata.metadata_commands import setTitle
 
 class EnumPositionerDelegateScannable(ScannableBase):
     """
@@ -87,11 +88,12 @@ image_key_project = 0 # also known as sample
 """
 perform a simple tomography scan
 """
-def tomoScan(inBeamPosition, outOfBeamPosition, exposureTime=1., start=0., stop=180., step=0.1, darkFieldInterval=0, flatFieldInterval=0,
+def tomoScan(description, inBeamPosition, outOfBeamPosition, exposureTime=1., start=0., stop=180., step=0.1, darkFieldInterval=0, flatFieldInterval=0,
               imagesPerDark=10, imagesPerFlat=10, optimizeBeamInterval=0, additionalScannables=[]):
     """
     Function to collect a tomogram
     Arguments:
+    description - description of the scan(or the sample that is being scanned. This is generally user-specific information that may be used to map to this scan later and is available in the NeXus file)
     inBeamPosition - position of X drive to move sample into the beam to take a projection
     outOfBeamPosition - position of X drive to move sample out of the beam to take a flat field image
     exposureTime - exposure time in seconds (default = 1.0)
@@ -222,6 +224,11 @@ def tomoScan(inBeamPosition, outOfBeamPosition, exposureTime=1., start=0., stop=
         scan_args = [tomoScanDevice, positionProvider, tomography_time, tomography_beammonitor, tomography_detector, exposureTime ]
         for scannable in additionalScannables:
             scan_args.append(scannable)
+        ''' setting the description provided as the title'''
+        if not description == None: 
+            setTitle(description)
+        else :
+            setTitle("undefined")
         scanObject = createConcurrentScan(scan_args)
         scanObject.runScan()
         return scanObject;

@@ -23,6 +23,7 @@ import gda.device.DeviceException;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.emf.edit.domain.EditingDomain;
 
 import uk.ac.gda.client.tomo.alignment.view.controller.SaveableConfiguration;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ITomoConfigResourceHandler;
@@ -37,15 +38,21 @@ public class TomoSaveHandleSimulation implements ITomoConfigResourceHandler {
 	}
 
 	@Override
-	public void saveConfiguration(IProgressMonitor monitor, SaveableConfiguration saveableConfiguration)
+	public String saveConfiguration(IProgressMonitor monitor, SaveableConfiguration saveableConfiguration)
 			throws DeviceException, InvocationTargetException, InterruptedException {
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
 	public TomoExperiment getTomoConfigResource(IProgressMonitor monitor, boolean shouldCreate)
 			throws InvocationTargetException, InterruptedException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public EditingDomain getEditingDomain() {
 		// TODO Auto-generated method stub
 		return null;
 	}

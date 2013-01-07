@@ -46,12 +46,14 @@ import org.eclipse.swt.graphics.RGB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.client.tomo.IScanResolutionLookupProvider;
 import uk.ac.gda.client.tomo.TiltPlotPointsHolder;
 import uk.ac.gda.client.tomo.TomoViewController;
 import uk.ac.gda.client.tomo.alignment.view.IRotationMotorListener;
 import uk.ac.gda.client.tomo.alignment.view.ITomoAlignmentView;
 import uk.ac.gda.client.tomo.alignment.view.controller.SaveableConfiguration.AlignmentScanMode;
 import uk.ac.gda.client.tomo.alignment.view.controller.SaveableConfiguration.MotorPosition;
+import uk.ac.gda.client.tomo.alignment.view.handlers.IAutofocusController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraModuleController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraMotionController;
@@ -94,7 +96,11 @@ public class TomoAlignmentController extends TomoViewController {
 
 	private ITomoConfigResourceHandler saveHandler;
 
+	private IScanResolutionLookupProvider scanResolutionLookupProvider;
+
 	private Exception iocDownException = null;
+
+	private IAutofocusController autofocusController;
 
 	public enum SAMPLE_STAGE_STATE {
 		IN, OUT;
@@ -224,23 +230,30 @@ public class TomoAlignmentController extends TomoViewController {
 		SubMonitor progress = SubMonitor.convert(monitor);
 		progress.beginTask("Taking flat images", numFlat + 5);
 		// double distanceToMoveForFlat = motorHandler.getDistanceToMoveSampleForTakeFlat();
+		double initialMotorPos = sampleStageMotorHandler.getSampleBaseMotorPosition();
 		try {
-			logger.debug("Requesting for open shutter");
-			// 1. Open Experimental shutter
-			cameraShutterHandler.openShutter(progress.newChild(1));
-		} catch (DeviceException e) {
-			logger.error("Failed to open shutter", e);
-			throw new InvocationTargetException(e, e.getMessage());
-		}
+			sampleStageMotorHandler.moveSampleScannableBy(progress,
+					sampleStageMotorHandler.getDistanceToMoveSampleOut());
+			try {
+				logger.debug("Requesting for open shutter");
+				// 1. Open Experimental shutter
+				cameraShutterHandler.openShutter(progress.newChild(1));
+			} catch (DeviceException e) {
+				logger.error("Failed to open shutter", e);
+				throw new InvocationTargetException(e, e.getMessage());
+			}
 
-		try {
-			cameraHandler.takeFlat(progress.newChild(numFlat), numFlat, acqTime);
-		} catch (Exception e) {
-			logger.error("Problem with taking flat", e);
-			throw new InvocationTargetException(e, e.getMessage());
-		}
+			try {
+				cameraHandler.takeFlat(progress.newChild(numFlat), numFlat, acqTime);
+			} catch (Exception e) {
+				logger.error("Problem with taking flat", e);
+				throw new InvocationTargetException(e, e.getMessage());
+			}
 
-		cameraHandler.resetFileFormat();
+			cameraHandler.resetFileFormat();
+		} finally {
+			sampleStageMotorHandler.moveSampleScannable(progress, initialMotorPos);
+		}
 	}
 
 	public int getPreferredNumberFlatImages() {
@@ -257,10 +270,11 @@ public class TomoAlignmentController extends TomoViewController {
 		return acqExposureRBV;
 	}
 
-	public void startAcquiring(final double acqTime, final boolean isAmplified, double lower, double upper)
+	public void startAcquiring(final double acqTime, boolean isAmplified, double lower, double upper)
 			throws InvocationTargetException {
 		logger.debug("Start acquisition request");
 		try {
+			isAmplified = isAmplified && acqTime > getFastPreviewExposureThreshold();
 			cameraHandler.startAcquiring(acqTime, isAmplified, lower, upper);
 			iocDownException = null;
 		} catch (Exception e) {
@@ -316,7 +330,11 @@ public class TomoAlignmentController extends TomoViewController {
 				// adbase model values update
 				logger.debug("Set up all data fields - expected to be called only during initialization");
 				cameraHandler.init();
-				updateModuleSelected(getModule());
+				try {
+					updateModuleSelected(getModule());
+				} catch (Exception ex) {
+					logger.error("Exception while updating module selection", ex);
+				}
 
 				updatePreferredSampleExposureTime(cameraHandler.getPreferredSampleExposureTime());
 				cameraHandler.setPreferredFlatExposureTime(cameraHandler.getPreferredSampleExposureTime());
@@ -525,7 +543,7 @@ public class TomoAlignmentController extends TomoViewController {
 			}
 		} catch (Exception ex) {
 			logger.error("Exc:", ex);
-			throw new InvocationTargetException(ex, ex.getMessage());
+			throw new InvocationTargetException(ex, "Problem setting module");
 		}
 	}
 
@@ -693,7 +711,13 @@ public class TomoAlignmentController extends TomoViewController {
 		// 1. Close Experimental shutter
 		cameraShutterHandler.closeShutter(progress.newChild(2));
 
-		cameraHandler.takeDark(progress.newChild(8), acqTime);
+		try {
+			cameraHandler.takeDark(progress.newChild(8), acqTime);
+			darkImageSaved = true;
+		} catch (Exception e) {
+			darkImageSaved = false;
+			throw e;
+		}
 
 		logger.debug("Requesting for open shutter");
 		// . Open Experimental shutter
@@ -813,6 +837,10 @@ public class TomoAlignmentController extends TomoViewController {
 		this.tiltController = tiltController;
 	}
 
+	public void setAutofocusController(IAutofocusController autofocusController) {
+		this.autofocusController = autofocusController;
+	}
+
 	public String getDarkImageFileName() {
 		return cameraHandler.getDarkImageFullFileName();
 	}
@@ -892,60 +920,19 @@ public class TomoAlignmentController extends TomoViewController {
 		this.sampleWeightRotationHandler = sampleWeightRotationHandler;
 	}
 
-	public void setHistogramScaleOffsetValue(double acqTime, int lower, int upper, boolean isAmplified, double from,
-			double to) throws Exception {
-
-		double histogramFactor = getScaledFactor(from, to);
+	public void setHistogramScaleOffsetValue(double acqTime, int lower, int upper, boolean isAmplified,
+			double histogramFactor) throws Exception {
 
 		cameraHandler.setAmplifiedValue(acqTime, isAmplified, lower, upper, histogramFactor);
 	}
 
-	private double getScaledFactor(double from, double to) {
-		// slight guard
-		if (to < 0) {
-			to = 0.001;
-		}
-		if (from < 0) {
-			from = 0.001;
-		}
-		double scaledValue = from / to;
-
-		logger.debug("Scaled value:{}", scaledValue);
-		return scaledValue;
-	}
-
-	/**
-	 * The histogram value evaluated is adjusted towards setting a more appropriate exposure time value.
-	 * 
-	 * @throws Exception
-	 */
-	public void applyHistogramToAdjustExposureTime(boolean isAmplified, double lower, double upper, double histoFrom,
-			double histoTo) throws Exception {
-		double exposureTime = getCameraExposureTime();
-
-		double proc1Scale = cameraHandler.getProc1Scale();
-		double newExposureTime = exposureTime;
-		// If the proc1Scale is 0 which can be likely - then we set the scale back to 1 and leave the exposure time as
-		// it is.
-
-		if (proc1Scale != 0) {
-			newExposureTime = newExposureTime * proc1Scale;
-		}
-		setExposureTime(newExposureTime, isAmplified, lower, upper, histoFrom, histoTo);
-		updateAdjustedPreferredExposureTime(newExposureTime);
-
-	}
-
-	public void setAdjustedExposureTime(boolean isAmplified, double from, double to, int lower, int upper,
-			double histoFrom, double histoTo) throws Exception {
-		double scaledFactor = getScaledFactor(from, to);
+	public void setAdjustedExposureTime(boolean isAmplified, int lower, int upper, double histogramFactor)
+			throws Exception {
 		double adjustedExposureTime = getCameraExposureTime();
-		if (scaledFactor != 0) {
-			adjustedExposureTime = adjustedExposureTime * scaledFactor;
-		}
+		adjustedExposureTime = adjustedExposureTime * histogramFactor;
 		updateAdjustedPreferredExposureTime(adjustedExposureTime);
 		// FIXME -
-		setExposureTime(adjustedExposureTime, isAmplified, lower, upper, histoFrom, histoTo);
+		setExposureTime(adjustedExposureTime, isAmplified, lower, upper, histogramFactor);
 	}
 
 	protected void updateAdjustedPreferredExposureTime(double preferredExposureTime) {
@@ -965,12 +952,10 @@ public class TomoAlignmentController extends TomoViewController {
 	/**
 	 * @param monitor
 	 * @param saveableConfiguration
-	 * @throws InterruptedException
-	 * @throws InvocationTargetException
-	 * @throws DeviceException
+	 * @throws Exception
 	 */
-	public void saveConfiguration(IProgressMonitor monitor, final SaveableConfiguration saveableConfiguration)
-			throws InvocationTargetException, InterruptedException, DeviceException {
+	public String saveConfiguration(IProgressMonitor monitor, final SaveableConfiguration saveableConfiguration)
+			throws Exception {
 		SubMonitor progress = SubMonitor.convert(monitor);
 		progress.beginTask("Saving Configuration", 20);
 
@@ -996,9 +981,9 @@ public class TomoAlignmentController extends TomoViewController {
 		// module number - provided by view
 
 		// horizontalFieldOfView
-		Double horizontalFieldOfView = cameraModuleController.lookupHFOV(CAMERA_MODULE.getEnum(saveableConfiguration
-				.getModuleNumber()));
-		saveableConfiguration.setModuleHorizontalFieldOfView(horizontalFieldOfView);
+		Double cameraMagnification = cameraModuleController.lookupMagnification(CAMERA_MODULE
+				.getEnum(saveableConfiguration.getModuleNumber()));
+		saveableConfiguration.setCameraMagnification(cameraMagnification);
 
 		saveableConfiguration.setInBeamPosition(sampleStageMotorHandler.getSampleBaseMotorPosition());
 
@@ -1053,7 +1038,7 @@ public class TomoAlignmentController extends TomoViewController {
 		// Scan mode
 		saveableConfiguration.setScanMode(AlignmentScanMode.Step);
 
-		saveHandler.saveConfiguration(monitor, saveableConfiguration);
+		return saveHandler.saveConfiguration(monitor, saveableConfiguration);
 	}
 
 	public Integer getDetectorFullWidth() {
@@ -1069,9 +1054,9 @@ public class TomoAlignmentController extends TomoViewController {
 	}
 
 	public void setExposureTime(double actualExpTimeBeforeFactoring, boolean isAmplified, double lower, double upper,
-			double histogramFrom, double histogramTo) throws Exception {
+			double histogramFactor) throws Exception {
 		cameraHandler.setAmplifiedValue(actualExpTimeBeforeFactoring, isAmplified, (int) lower, (int) upper,
-				getScaledFactor(histogramFrom, histogramTo));
+				histogramFactor);
 	}
 
 	public double[] getHistogramFromStats() throws Exception {
@@ -1084,5 +1069,56 @@ public class TomoAlignmentController extends TomoViewController {
 
 	public Double getDefaultExpTimeForModule(CAMERA_MODULE newModule) throws DeviceException {
 		return cameraModuleController.lookupDefaultExposureTime(newModule);
+	}
+
+	public int getNumberOfProjections(int resolutionNumber) throws Exception {
+		if (scanResolutionLookupProvider != null) {
+			return scanResolutionLookupProvider.getNumberOfProjections(resolutionNumber);
+		}
+		return 0;
+	}
+
+	public void setScanResolutionLookupProvider(IScanResolutionLookupProvider scanResolutionLookupProvider) {
+		this.scanResolutionLookupProvider = scanResolutionLookupProvider;
+	}
+
+	public String getEstimatedDurationOfScan(RESOLUTION resolution) {
+		double sampleExposureTime = getPreferredSampleExposureTime();
+		double binning = 1;
+		int resolutionNumber = resolution.getResolutionNumber();
+		try {
+			binning = scanResolutionLookupProvider.getBinX(resolutionNumber);
+		} catch (Exception e) {
+			logger.error("Cannot access lookup table to retrieve Bin X", e);
+		}
+		int projections = 0;
+		try {
+			projections = scanResolutionLookupProvider.getNumberOfProjections(resolutionNumber);
+		} catch (Exception e) {
+			logger.error("Cannot access lookup table to retrieve projections", e);
+		}
+		double runTime = projections * ((sampleExposureTime / binning) + 0.5);// +OVERHEAD TIME);
+
+		int hours = (int) (runTime / 3600); // since both are ints, you get an int
+		int minutes = (int) ((runTime / 60) % 60);
+		int seconds = (int) (runTime % 60);
+		return String.format("%dh %02dm %02ds", hours, minutes, seconds);
+	}
+
+	public String getDetectorPortName() throws Exception {
+		return cameraHandler.getPortName();
+	}
+
+	public double getFastPreviewExposureThreshold() {
+		return cameraHandler.getFastPreviewExposureThreshold();
+	}
+
+	public String doAutoFocus(SubMonitor progress, double exposureTime) throws Exception {
+		try {
+			return autofocusController.doAutoFocus(progress, exposureTime);
+		} catch (Exception ex) {
+			logger.error("Problem with autofocus", ex);
+			throw ex;
+		}
 	}
 }

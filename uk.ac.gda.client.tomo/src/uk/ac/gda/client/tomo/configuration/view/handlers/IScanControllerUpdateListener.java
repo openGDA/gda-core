@@ -24,6 +24,33 @@ public interface IScanControllerUpdateListener {
 	public void updateScanProgress(double progress);
 
 	public void updateError(Exception exception);
-	
+
 	public void updateExposureTime(double exposureTime);
+
+	public void isScanRunning(boolean isScanRunning, String runningConfigId);
+
+	public class Stub implements IScanControllerUpdateListener {
+
+		@Override
+		public void updateMessage(String message) {
+		}
+
+		@Override
+		public void updateScanProgress(double progress) {
+		}
+
+		@Override
+		public void updateError(Exception exception) {
+		}
+
+		@Override
+		public void updateExposureTime(double exposureTime) {
+		}
+
+		@Override
+		public void isScanRunning(boolean isScanRunning, String runningConfigId) {
+		}
+
+	}
+
 }

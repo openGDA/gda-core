@@ -80,7 +80,7 @@ public class TomoCoarseRotationComposite extends RotationSliderComposite {
 	}
 
 	@Override
-	protected Dimension getSliderTriangleDimension() {
+	protected Dimension getSliderDimension() {
 		return new Dimension(65, 30);
 	}
 
@@ -147,7 +147,7 @@ public class TomoCoarseRotationComposite extends RotationSliderComposite {
 	private Button addButton(IFigure panel, String btnLabel) {
 		Button btn = new Button();
 		btn.setLayoutManager(new BorderLayout());
-		Label lblImg = new Label(TomoClientActivator.getDefault().getImageRegistry().get(ImageConstants.ICON_CTRL_BTN));
+		Label lblImg = new Label(TomoClientActivator.getDefault().getImageRegistry().get(ImageConstants.ICON_CTRL_BTN_12x12));
 		lblImg.setOpaque(true);
 		btn.add(lblImg, BorderLayout.LEFT);
 
@@ -180,7 +180,7 @@ public class TomoCoarseRotationComposite extends RotationSliderComposite {
 			textExtents = lblLeftCenter.getTextUtilities().getTextExtents(lblLeftCenter.getText(), getFont());
 			lblLeftCenter.setSize(textExtents);
 			btnLeftCenter.setSize(buttonSize);
-			double x = sliderBoundary.getBounds().width / 4.0 + sliderTriangle.getBounds().width / 2.0
+			double x = sliderBoundary.getBounds().width / 4.0 + rotationSlider.getBounds().width / 2.0
 					- buttonSize.width / 2.0;
 			btnLeftCenter.setLocation(new PrecisionPoint(x, labelY));
 		}
@@ -196,7 +196,7 @@ public class TomoCoarseRotationComposite extends RotationSliderComposite {
 			textExtents = lblRightCenter.getTextUtilities().getTextExtents(lblRightCenter.getText(), getFont());
 			lblRightCenter.setSize(new Dimension(45, lblRightCenter.getSize().height));
 			btnRightCenter.setSize(buttonSize);
-			double x = (3.0 * sliderBoundary.getBounds().width) / 4.0 + sliderTriangle.getBounds().width / 2.0
+			double x = (3.0 * sliderBoundary.getBounds().width) / 4.0 + rotationSlider.getBounds().width / 2.0
 					- buttonSize.width / 2.0;
 			btnRightCenter.setLocation(new PrecisionPoint(x, labelY));
 		}
@@ -405,9 +405,9 @@ public class TomoCoarseRotationComposite extends RotationSliderComposite {
 				@Override
 				public void run() {
 					if (isBusy) {
-						sliderTriangle.setBackgroundColor(COLOUR_BUSY);
+						rotationSlider.setBackgroundColor(COLOUR_BUSY);
 					} else {
-						sliderTriangle.setBackgroundColor(COLOUR_NOT_BUSY);
+						rotationSlider.setBackgroundColor(COLOUR_NOT_BUSY);
 					}
 				}
 			});

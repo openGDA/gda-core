@@ -103,31 +103,22 @@ public final class RotationSliderShape extends Shape implements Orientable {
 		r.shrink(getInsets());
 		r.resize(-1, -1);
 		int size = Math.min(r.height, r.width / 2);
-		r.y += (r.height - size) / 2;
 
 		size = Math.max(size, 1); // Size cannot be negative
-
-		Point head = new Point(r.x + r.width / 2, r.y - 4);
-		Point p2 = new Point(r.x + r.width / 2, head.y + 5);
-		Point p3 = new Point(head.x - size, head.y + 5);
-		Point p4 = new Point(head.x - size, head.y + 15);
-		Point p5 = new Point(head.x + size, head.y + 15);
-		Point p6 = new Point(head.x + size, head.y + 5);
-		Point p7 = new Point(r.x + r.width / 2, head.y + 5);
+		// r.y -= (r.height - size) / 2;
+		Point head = new Point(r.x + r.width / 2, r.y);
+		Point p2 = new Point(head.x, head.y + 3);
+		Point p3 = new Point(r.x, p2.y);
+		Point p4 = new Point(r.x, p2.y + 13);
+		Point p5 = new Point(r.x + r.width, p4.y);
+		Point p6 = new Point(r.x + r.width, p2.y);
+		Point p7 = new Point(p2);
 
 		/*
-		 * 
-		 *     p4---------p5
-		 *     -          -
-		 *     -          -
-		 *     p3--p2/7---p6 
-		 *           -
-		 *           -
-		 *           -       head
-		 * 
-		 * 
+		 * p4---------p5 - - - - p3--p2/7---p6 - - - head
 		 */
 		if (direction == SOUTH) {
+			r.y += (r.height - size) / 2;
 			// Coarse is south
 			head = new Point(r.x + r.width / 2, r.y + size + 2);
 			p2 = new Point(r.x + r.width / 2, head.y - (size / 3));
@@ -148,7 +139,6 @@ public final class RotationSliderShape extends Shape implements Orientable {
 		sliderShape.addPoint(p5);
 		sliderShape.addPoint(p6);
 		sliderShape.addPoint(p7);
-
 	}
 
 }
