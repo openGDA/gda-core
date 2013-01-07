@@ -395,6 +395,11 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 
 			}
 		}
+		
+		@Override
+		public void roiSelected(ROIEvent evt) {
+
+		}
 
 	};
 
