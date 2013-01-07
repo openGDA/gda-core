@@ -282,4 +282,9 @@ public class NDPluginBaseSimulator implements NDPluginBase {
 	public Observable<Boolean> createConnectionStateObservable() throws Exception {
 		return null;
 	}
+
+	@Override
+	public Observable<String> createEnableObservable() throws Exception {
+		return null;
+	}
 }

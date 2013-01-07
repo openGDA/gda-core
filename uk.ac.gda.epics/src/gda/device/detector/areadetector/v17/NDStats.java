@@ -18,6 +18,8 @@
 
 package gda.device.detector.areadetector.v17;
 
+import gda.observable.Observable;
+
 
 /**
  * This maps to the stats plugin on the edm screen.
@@ -457,4 +459,15 @@ public interface NDStats {
 	 * @throws Exception
 	 */
 	void reset() throws Exception;
+
+	Observable<String> createComputeHistogramObservable() throws Exception;
+
+	Observable<String> createComputeStatisticsObservable() throws Exception;
+
+	Observable<Double> createMinObservable() throws Exception;
+
+	Observable<Double> createMaxObservable() throws Exception;
+	Observable<Double> createMeanObservable() throws Exception;
+	Observable<Double> createTotalObservable() throws Exception;
+	Observable<Double> createSigmaObservable() throws Exception;
 }

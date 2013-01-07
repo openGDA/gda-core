@@ -862,6 +862,11 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	public Observable<Boolean> createConnectionStateObservable() throws Exception {
 		return new ConnectionStateObservable( getChannelName(ArrayCounter_RBV));
 	}
+
+	@Override
+	public Observable<String> createEnableObservable() throws Exception {
+		return LazyPVFactory.newReadOnlyEnumPV(getChannelName(EnableCallbacks_RBV), String.class);
+	}
 	
 	
 }

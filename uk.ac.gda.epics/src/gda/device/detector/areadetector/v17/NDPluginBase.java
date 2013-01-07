@@ -308,4 +308,6 @@ public interface NDPluginBase {
 	
 	Observable<Boolean> createConnectionStateObservable() throws Exception;
 
+	Observable<String> createEnableObservable() throws Exception;
+
 }

@@ -23,9 +23,11 @@ import gda.configuration.epics.Configurator;
 import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDStats;
+import gda.epics.LazyPVFactory;
 import gda.epics.connection.EpicsController;
 import gda.epics.interfaces.NDStatsType;
 import gda.factory.FactoryException;
+import gda.observable.Observable;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
@@ -1220,4 +1222,38 @@ public class NDStatsImpl implements InitializingBean, NDStats {
 	public void reset() throws Exception {
 		pluginBase.reset();
 	}
+
+
+	@Override
+	public Observable<String> createComputeHistogramObservable() throws Exception {
+		return LazyPVFactory.newReadOnlyEnumPV(getChannelName(ComputeHistogram_RBV), String.class);
+	}
+
+	@Override
+	public Observable<String> createComputeStatisticsObservable() throws Exception {
+		return LazyPVFactory.newReadOnlyEnumPV(getChannelName(ComputeStatistics_RBV), String.class);
+	}
+
+	@Override
+	public Observable<Double> createMinObservable() throws Exception {
+		return LazyPVFactory.newReadOnlyDoublePV(getChannelName(MinValue_RBV));
+	}
+
+	@Override
+	public Observable<Double> createMaxObservable() throws Exception {
+		return LazyPVFactory.newReadOnlyDoublePV(getChannelName(MaxValue_RBV));
+	}
+	@Override
+	public Observable<Double> createMeanObservable() throws Exception {
+		return LazyPVFactory.newReadOnlyDoublePV(getChannelName(MeanValue_RBV));
+	}
+	@Override
+	public Observable<Double> createTotalObservable() throws Exception {
+		return LazyPVFactory.newReadOnlyDoublePV(getChannelName(Total_RBV));
+	}
+	@Override
+	public Observable<Double> createSigmaObservable() throws Exception {
+		return LazyPVFactory.newReadOnlyDoublePV(getChannelName(Sigma_RBV));
+	}
+
 }
