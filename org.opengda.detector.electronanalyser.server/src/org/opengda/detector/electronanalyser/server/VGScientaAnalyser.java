@@ -26,9 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector {
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = -2907729482321978030L;
 
 	private static final Logger logger = LoggerFactory.getLogger(VGScientaAnalyser.class);
