@@ -26,8 +26,6 @@ import gda.observable.IObservable;
 import gda.scan.IScanDataPoint;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
@@ -36,9 +34,6 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.client.tomo.TomoClientConstants;
 import uk.ac.gda.client.tomo.configuration.view.handlers.IScanControllerUpdateListener;
 import uk.ac.gda.client.tomo.configuration.view.handlers.ITomoScanController;
-import uk.ac.gda.tomography.parameters.AlignmentConfiguration;
-import uk.ac.gda.tomography.parameters.MotorPosition;
-import uk.ac.gda.tomography.parameters.Resolution;
 
 public class TomoScanController implements ITomoScanController {
 
@@ -81,26 +76,6 @@ public class TomoScanController implements ITomoScanController {
 				configFilePath);
 		logger.debug("Setup:{}", setupTomoScanCmd);
 		JythonServerFacade.getInstance().runCommand(setupTomoScanCmd);
-	}
-
-	private int getDesiredResolution(Resolution desired3dResolution) {
-		int res = 1;
-		switch (desired3dResolution) {
-		case FULL:
-			res = 1;
-			break;
-		case X2:
-			res = 2;
-			break;
-		case X4:
-			res = 4;
-			break;
-		case X8:
-			res = 8;
-			break;
-		}
-
-		return res;
 	}
 
 	private IScanDataPointObserver tomoScriptControllerObserver = new IScanDataPointObserver() {
