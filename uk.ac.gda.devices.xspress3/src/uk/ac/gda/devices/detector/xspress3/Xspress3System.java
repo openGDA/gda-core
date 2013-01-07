@@ -34,7 +34,7 @@ import org.apache.commons.lang.ArrayUtils;
 public class Xspress3System extends Xspress3Detector implements Detector,
 		CounterTimer {
 
-	private final Timer tfg;
+	protected final Timer tfg;
 	private boolean frameSetsCreated = false; // as no getters in the Timer
 												// interface!!
 	private Double[] scanTimes;

@@ -79,21 +79,6 @@ public interface Xspress3Controller {
 
 	// readout methods
 
-	// /**
-	// * Uncorrected in-window scaler counts.
-	// * <p>
-	// * Use the value from {@link #getNumFramesAvailable()} to know what frames
-	// * will have valid data in
-	// *
-	// * @param startFrame
-	// * @param finalFrame
-	// * @param startChannel
-	// * @param finalChannel
-	// * @return int[frame][channel]
-	// */
-	// public int[][] readoutRawSCA(int startFrame, int finalFrame,
-	// int startChannel, int finalChannel) throws DeviceException;
-
 	/**
 	 * Dead-time corrected in-window scaler counts, for window 1
 	 * <p>
