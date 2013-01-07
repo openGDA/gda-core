@@ -1084,9 +1084,11 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 				if (tomoAlignmentView.isStreamingFlatExposure()) {
 					acqTime = tomoAlignmentView.getLeftPanelComposite().getFlatExposureTime();
 				}
-				tomoAlignmentView.getTomoAlignmentController().setExposureTime(acqTime, true,
-						tomoAlignmentView.getContrastLower(), tomoAlignmentView.getContrastUpper(),
-						getHistogramFactor());
+				if (acqTime > tomoAlignmentView.getTomoAlignmentController().getFastPreviewExposureThreshold()) {
+					tomoAlignmentView.getTomoAlignmentController().setExposureTime(acqTime, true,
+							tomoAlignmentView.getContrastLower(), tomoAlignmentView.getContrastUpper(),
+							getHistogramFactor());
+				}
 			}
 		} else {
 			if (tomoAlignmentView.isStreamingSampleExposure()) {
