@@ -5,6 +5,7 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Timer;
 import gda.device.detector.NXDetectorData;
+import gda.device.timer.Tfg;
 
 import org.apache.commons.lang.ArrayUtils;
 
@@ -34,6 +35,9 @@ public class Xspress3System extends Xspress3Detector implements Detector,
 		CounterTimer {
 
 	private final Timer tfg;
+	private boolean frameSetsCreated = false; // as no getters in the Timer
+												// interface!!
+	private Double[] scanTimes;
 
 	public Xspress3System(Xspress3Controller controller, Timer tfg) {
 		super(controller);
@@ -77,7 +81,7 @@ public class Xspress3System extends Xspress3Detector implements Detector,
 	public void addFrameSet(int frameCount, double requestedLiveTime,
 			double requestedDeadTime) throws DeviceException {
 		tfg.addFrameSet(frameCount, requestedLiveTime, requestedDeadTime);
-
+		frameSetsCreated = true;
 	}
 
 	@Override
@@ -86,17 +90,34 @@ public class Xspress3System extends Xspress3Detector implements Detector,
 			int deadPause, int livePause) throws DeviceException {
 		tfg.addFrameSet(frameCount, requestedDeadTime, requestedLiveTime,
 				deadPort, livePort, deadPause, livePause);
-
+		frameSetsCreated = true;
 	}
 
 	@Override
 	public void clearFrameSets() throws DeviceException {
 		tfg.clearFrameSets();
+		frameSetsCreated = false;
 	}
 
 	@Override
 	public void loadFrameSets() throws DeviceException {
 		tfg.loadFrameSets();
+	}
+
+	public Double[] getScanTimes() {
+		return scanTimes;
+	}
+
+	/**
+	 * Instead of use frame sets, give this class an array of times of the scan
+	 * in advance, so it can set up the time-frames. This will make operation of
+	 * the detector much faster than a simple step scan.
+	 * 
+	 * @param times
+	 *            - array of times of the upcoming scan in seconds.
+	 */
+	public void setScanTimes(Double[] times) {
+		this.scanTimes = times;
 	}
 
 	@Override
@@ -139,14 +160,52 @@ public class Xspress3System extends Xspress3Detector implements Detector,
 	@Override
 	public void atScanLineStart() throws DeviceException {
 		super.atScanLineStart();
-		tfg.loadFrameSets();
-		startRunningXspress3FrameSet();
-		tfg.start();
+
+		if (usingTimesArray()) {
+			clearFrameSets();
+			for (int i = 0; i < scanTimes.length; i++) {
+				// convert times to milliseconds for da.server
+				addFrameSet(1, 0, scanTimes[i] * 1000, 0, 0, -1, 0);
+			}
+			tfg.setAttribute(Tfg.SOFTWARE_START_AND_TRIG_ATTR_NAME,
+					Boolean.TRUE);
+		}
+		
+		if (frameSetsCreated|| usingTimesArray()) {
+			tfg.loadFrameSets();
+			startRunningXspress3FrameSet();
+			tfg.start();
+		}
+	}
+
+	@Override
+	public void atScanLineEnd() throws DeviceException {
+		if (usingTimesArray()) {
+			tfg.setAttribute(Tfg.SOFTWARE_START_AND_TRIG_ATTR_NAME,
+					Boolean.FALSE);
+		}
+		super.atScanLineEnd();
+	}
+
+	private boolean usingTimesArray() {
+		return frameSetsCreated == false && scanTimes != null && scanTimes.length > 0;
 	}
 
 	@Override
 	public void collectData() throws DeviceException {
-		tfg.restart();
+		if (frameSetsCreated || usingTimesArray()) {
+			tfg.restart();
+		} else {
+			// create a run a single frame set
+			tfg.clearFrameSets();
+			tfg.addFrameSet(1, 0, getCollectionTime() * 1000);
+			tfg.setAttribute(Tfg.SOFTWARE_START_AND_TRIG_ATTR_NAME,
+					Boolean.FALSE);
+			super.atScanLineStart();
+			setNumberOfFramesToCollect(1);
+			startRunningXspress3FrameSet();
+			tfg.start();
+		}
 	}
 
 	@Override
