@@ -1,8 +1,12 @@
+from gda.exafs.scan import ExafsScanPointCreator,XanesScanPointCreator
+from gda.jython import ScriptBase
 from gda.jython.commands import ScannableCommands
+
 from uk.ac.gda.beans.exafs import XanesScanParameters, QEXAFSParameters
+from uk.ac.gda.beans.exafs import XasScanParameters
 
 from xas_scan import XasScan
-
+from BeamlineParameters import JythonNameSpaceMapping
 
 class I18XasScan(XasScan):
     
@@ -51,3 +55,17 @@ class I18XasScan(XasScan):
     def _doLooping(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller):
         self.configureMonitors(beanGroup)
         self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
+        
+        
+    def _beforeEachRepetition(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller, repNum):
+        times = []
+        if isinstance(beanGroup.getScan(),XasScanParameters):
+            times = ExafsScanPointCreator.getScanTimeArray(beanGroup.getScan())
+        elif isinstance(beanGroup.getScan(),XanesScanParameters):
+            times = XanesScanPointCreator.getScanTimeArray(beanGroup.getScan())
+        if len(times) > 0:
+            print "Setting scan times, using array of length",len(times)
+            jython_mapper = JythonNameSpaceMapping()
+            jython_mapper.counterTimer01.setTimes(times)
+            ScriptBase.checkForPauses()
+        return

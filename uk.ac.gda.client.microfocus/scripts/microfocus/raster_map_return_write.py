@@ -23,7 +23,7 @@ from gda.scan import ContinuousScan
 
 class RasterMapReturnWrite(Map):
     
-    def __init__(self, d7a, d7b, counterTimer01, trajectoryX, raster_counterTimer01, raster_xmap, realX, HTScaler, HTXmapMca, datadir):
+    def __init__(self, d7a, d7b, counterTimer01, trajectoryX, raster_counterTimer01, raster_xmap, realX, HTScaler, HTXmapMca):
         self.d7a=d7a
         self.d7b=d7b
         self.counterTimer01=counterTimer01
@@ -34,7 +34,6 @@ class RasterMapReturnWrite(Map):
         self.realX=realX
         self.HTScaler=HTScaler
         self.HTXmapMca=HTXmapMca
-        self.datadir=datadir
         self.mfd = None
     
     def getMFD(self):
@@ -45,7 +44,9 @@ class RasterMapReturnWrite(Map):
         print detectorFileName
         origScanPlotSettings = LocalProperties.check("gda.scan.useScanPlotSettings")
         
-        xmlFolderName = self.datadir + folderName + "/"
+        datadir = PathConstructor.createFromDefaultProperty() + "/xml/"
+        
+        xmlFolderName = datadir + folderName + "/"
     
         if(sampleFileName == None or sampleFileName == 'None'):
             sampleBean = None
@@ -97,9 +98,9 @@ class RasterMapReturnWrite(Map):
                 detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
                 #should get the bean file name from detector parametrs
                 if(folderName != None):
-                    detectorBeanFileName =self.datadir+File.separator +folderName +File.separator+detectorBean.getFluorescenceParameters().getConfigFileName()
+                    detectorBeanFileName =datadir+File.separator +folderName +File.separator+detectorBean.getFluorescenceParameters().getConfigFileName()
                 else:
-                    detectorBeanFileName =self.datadir+detectorBean.getFluorescenceParameters().getConfigFileName()
+                    detectorBeanFileName =datadir+detectorBean.getFluorescenceParameters().getConfigFileName()
                 print detectorBeanFileName
                 elements = showElementsList(detectorBeanFileName)
                 ##this should be the element selected in the gui

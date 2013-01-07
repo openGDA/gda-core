@@ -24,7 +24,7 @@ from gda.device import Detector
 
 class RasterMap(Map):
     
-    def __init__(self, d7a, d7b, counterTimer01, trajectoryX, raster_counterTimer01, raster_xmap, realX, datadir, raster_xspress):
+    def __init__(self, d7a, d7b, counterTimer01, trajectoryX, raster_counterTimer01, raster_xmap, realX, raster_xspress):
         self.d7a=d7a
         self.d7b=d7b
         self.counterTimer01=counterTimer01
@@ -33,7 +33,6 @@ class RasterMap(Map):
         self.raster_counterTimer01=raster_counterTimer01
         self.raster_xmap=raster_xmap
         self.realX=realX
-        self.datadir=datadir
         self.raster_xspress=raster_xspress
         self.mfd = None
     
@@ -44,7 +43,10 @@ class RasterMap(Map):
 
         origScanPlotSettings = LocalProperties.check("gda.scan.useScanPlotSettings")
      
-        xmlFolderName = self.datadir + folderName + "/"
+        datadir = PathConstructor.createFromDefaultProperty() + "/xml/"
+     
+        xmlFolderName = datadir + folderName + "/"
+        
         if(sampleFileName == None or sampleFileName == 'None'):
             sampleBean = None
         else:
@@ -71,10 +73,7 @@ class RasterMap(Map):
         
         detectorList = self.getDetectors(detectorBean, scanBean) 
     
-        print "about to setup"
         self.setupForRaster(beanGroup)
-        print "after setup of raster"
-        dataWriter = self.finder.find("DataWriterFactory")
     
         nx = ScannableUtils.getNumberSteps(self.finder.find(scanBean.getXScannableName()),scanBean.getXStart(), scanBean.getXEnd(),scanBean.getXStepSize()) + 1
         ny = ScannableUtils.getNumberSteps(self.finder.find(scanBean.getYScannableName()),scanBean.getYStart(), scanBean.getYEnd(),scanBean.getYStepSize()) + 1
@@ -82,9 +81,9 @@ class RasterMap(Map):
         print "number of y points is ", str(ny)
         energyList = [scanBean.getEnergy()]
         zScannablePos = scanBean.getZValue()
+        self.mfd = MicroFocusWriterExtender(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize())
+        self.mfd.setPlotName("MapPlot")
         for energy in energyList:
-            self.mfd = MicroFocusWriterExtender(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize())
-            self.mfd.setPlotName("MapPlot")
             print " the detector is " 
             print detectorList
             if(detectorBean.getExperimentType() == "Transmission"):
@@ -93,9 +92,9 @@ class RasterMap(Map):
             else:   
                 detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
                 if(folderName != None):
-                    detectorBeanFileName =self.datadir+File.separator +folderName +File.separator+detectorBean.getFluorescenceParameters().getConfigFileName()
+                    detectorBeanFileName =datadir+File.separator +folderName +File.separator+detectorBean.getFluorescenceParameters().getConfigFileName()
                 else:
-                    detectorBeanFileName =self.datadir+detectorBean.getFluorescenceParameters().getConfigFileName()
+                    detectorBeanFileName =datadir+detectorBean.getFluorescenceParameters().getConfigFileName()
                 print detectorBeanFileName
                 elements = showElementsList(detectorBeanFileName)
                 selectedElement = elements[0]
@@ -168,7 +167,7 @@ class RasterMap(Map):
         print "1setting collection time to" , str(collectionTime)  
         command_server = self.finder.find("command_server")    
         topupMonitor1 = command_server.getFromJythonNamespace("topupMonitor", None)    
-        beam1 = command_server.getFromJythonNamespace("beam", None)
+        beam = command_server.getFromJythonNamespace("beam", None)
         detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
         trajBeamMonitor1 = command_server.getFromJythonNamespace("trajBeamMonitor", None)
         print "setting collection time to" , str(collectionTime)        
@@ -176,10 +175,10 @@ class RasterMap(Map):
             topupMonitor1.setPauseBeforePoint(False)
             topupMonitor1.setPauseBeforeLine(True)
             topupMonitor1.setCollectionTime(collectionTime)
-        if(not (beam1 == None)):
-            self.finder.find("command_server").addDefault(beam1);
-            beam1.setPauseBeforePoint(False)
-            beam1.setPauseBeforeLine(True)
+        if(not (beam == None)):
+            self.finder.find("command_server").addDefault(beam);
+            beam.setPauseBeforePoint(False)
+            beam.setPauseBeforeLine(True)
         if(beanGroup.getDetector().getExperimentType() == "Fluorescence" and beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium"and not (detectorFillingMonitor == None)):
             self.finder.find("command_server").addDefault(detectorFillingMonitor);
             detectorFillingMonitor.setPauseBeforePoint(False)

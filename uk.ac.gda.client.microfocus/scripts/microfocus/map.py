@@ -25,12 +25,11 @@ import time
 
 class Map(Scan):
     
-    def __init__(self, d7a, d7b, counterTimer01, datadir):
+    def __init__(self, d7a, d7b, counterTimer01):
         self.d7a=d7a
         self.d7b=d7b
         self.counterTimer01=counterTimer01
         self.finder = Finder.getInstance()
-        self.datadir=datadir
         self.mfd = None
     
     def getMFD(self):
@@ -40,7 +39,9 @@ class Map(Scan):
     
         origScanPlotSettings = LocalProperties.check("gda.scan.useScanPlotSettings")
         
-        xmlFolderName = self.datadir + folderName + "/"
+        datadir = PathConstructor.createFromDefaultProperty() + "/xml/"
+        
+        xmlFolderName = datadir + folderName + "/"
     
         if(sampleFileName == None or sampleFileName == 'None'):
             sampleBean = None
@@ -92,11 +93,12 @@ class Map(Scan):
         print "number of y points is ", str(ny)
         energyList = [scanBean.getEnergy()]
         zScannablePos = scanBean.getZValue()
+        self.mfd = MicroFocusWriterExtender(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize())
+        self.mfd.setPlotName("MapPlot")
+
         for energy in energyList:
             
-            self.mfd = MicroFocusWriterExtender(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize())
             zScannable = self.finder.find(scanBean.getZScannableName())
-            self.mfd.setPlotName("MapPlot")
             print " the detector is " 
             print detectorList
             if(detectorBean.getExperimentType() == "Transmission"):
@@ -107,9 +109,9 @@ class Map(Scan):
             else:   
                 detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
                 if(folderName != None):
-                    detectorBeanFileName =self.datadir+File.separator +folderName +File.separator+detectorBean.getFluorescenceParameters().getConfigFileName()
+                    detectorBeanFileName =datadir+File.separator +folderName +File.separator+detectorBean.getFluorescenceParameters().getConfigFileName()
                 else:
-                    detectorBeanFileName =self.datadir+detectorBean.getFluorescenceParameters().getConfigFileName()
+                    detectorBeanFileName =datadir+detectorBean.getFluorescenceParameters().getConfigFileName()
                 print detectorBeanFileName
                 elements = showElementsList(detectorBeanFileName)
                 selectedElement = elements[0]
@@ -146,7 +148,6 @@ class Map(Scan):
             useFrames = LocalProperties.check("gda.microfocus.scans.useFrames")
             print "using frames ", str(useFrames)
             energyScannable = self.finder.find(scanBean.getEnergyScannableName())
-            microfocusScanWriter  = self.mfd
             print "energy is ", str(energy)
     
             print detectorList
@@ -301,3 +302,4 @@ class Map(Scan):
         detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
         self.finder.find("command_server").removeDefault(beam);
         self.finder.find("command_server").removeDefault(detectorFillingMonitor);
+        self.mfd.finalize()

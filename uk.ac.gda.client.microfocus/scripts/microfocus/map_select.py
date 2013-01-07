@@ -1,16 +1,17 @@
 from uk.ac.gda.beans import BeansFactory
+from gda.data import PathConstructor
 
 class MapSelect():
     
-    def __init__(self, non_raster, raster, datadir):
+    def __init__(self, non_raster, raster):
         self.non_raster=non_raster
         self.raster=raster
-        self.datadir=datadir
         self.scanBean=None
         
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, scanNumber= -1, validation=True):
-    
-        xmlFolderName = self.datadir + folderName + "/"
+        
+        datadir = PathConstructor.createFromDefaultProperty() + "/xml/"
+        xmlFolderName = datadir + folderName + "/"
      
         self.scanBean = BeansFactory.getBeanObject(xmlFolderName, scanFileName)
         if(self.scanBean.isRaster()):

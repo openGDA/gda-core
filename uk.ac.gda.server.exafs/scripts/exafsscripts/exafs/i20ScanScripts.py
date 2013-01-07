@@ -1,4 +1,5 @@
 from java.lang import InterruptedException
+from java.lang import System
 from xas_scan import XasScan
 from exafs_environment import ExafsEnvironment
 from BeamlineParameters import JythonNameSpaceMapping, FinderNameMapping
@@ -363,6 +364,8 @@ class I20XesScan(XasScan):
         LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
         LocalProperties.set(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY,str(numRepetitions))
         repetitionNumber = 0
+        timeRepetitionsStarted = System.currentTimeMillis();
+
         scriptType = "Xes"
         # set the dark current and integration time for all detectors
         itime = beanGroup.getScan().getXesIntegrationTime()
@@ -377,10 +380,12 @@ class I20XesScan(XasScan):
 
             # send out initial messages for logging and display to user
                 outputFolder = beanGroup.getOutput().getAsciiDirectory()+ "/" + beanGroup.getOutput().getAsciiFileName()
-                logmsg = XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str("0%"),str(0),beanGroup.getScan(),outputFolder)
+                print "Starting "+scriptType+" scan...", str(repetitionNumber)
+                initialPercent = str(int((float(repetitionNumber - 1) / float(numRepetitions)) * 100)) + "%" 
+                logmsg = XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), initialPercent,str(0),str(0),beanGroup.getScan(),outputFolder)
                 loggingcontroller.update(None,logmsg)
                 loggingcontroller.update(None,ScanStartedMessage(beanGroup.getScan(),beanGroup.getDetector())) # informs parts of the UI about current scan
-                loggingbean = XasProgressUpdater(loggingcontroller,logmsg)
+                loggingbean = XasProgressUpdater(loggingcontroller,logmsg,timeRepetitionsStarted)
                 args += [loggingbean]
                 try:
                     loggingcontroller.update(None, ScriptProgressEvent("Running scan"))
