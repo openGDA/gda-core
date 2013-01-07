@@ -72,7 +72,7 @@ public final class I18SampleParametersUIEditor extends RichBeanEditorPart {
 		scrolledComposite.setExpandHorizontal(true);
 		scrolledComposite.setExpandVertical(true);
 
-		this.beanComposite = new I18SampleParametersComposite(scrolledComposite, SWT.NONE);
+		this.beanComposite = new I18SampleParametersComposite(scrolledComposite, SWT.NONE, (I18SampleParameters)editingBean);
 		try {
 			if(((I18SampleParameters)editingBean).getSampleStageParameters().getDisable())
 				this.beanComposite.disableSample();
@@ -80,7 +80,6 @@ public final class I18SampleParametersUIEditor extends RichBeanEditorPart {
 				this.beanComposite.enableSample();
 			
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			logger.error("Error enabling/disabling sample", e);
 		}
 		((GridData) beanComposite.getSampleStageParameters().getZ().getLayoutData()).widthHint = 544;
@@ -94,6 +93,20 @@ public final class I18SampleParametersUIEditor extends RichBeanEditorPart {
 	}
 
 	private void addListeners() {
+		
+		beanComposite.getAttnCurrentPosition().addListener(SWT.Selection, new Listener() {
+		@Override
+		public void handleEvent(Event event) {
+			String att1val = JythonServerFacade.getInstance().evaluateCommand("D7A()");
+			String att2val = JythonServerFacade.getInstance().evaluateCommand("D7B()");
+			beanComposite.getAttenuatorParameter1().getSelectedPosition().setValue(att1val);
+			beanComposite.getAttenuatorParameter2().getSelectedPosition().setValue(att2val);
+			beanComposite.getAttenuatorParameter1().setPosition(att1val);
+			beanComposite.getAttenuatorParameter2().setPosition(att2val);
+			
+		}
+	});
+		
 		this.beanComposite.getAttenuatorParameter1().getPosition().addSelectionListener(new SelectionListener(){
 
 			@Override
@@ -103,9 +116,7 @@ public final class I18SampleParametersUIEditor extends RichBeanEditorPart {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				beanComposite.getAttenuatorParameter1().getSelectedPosition().setValue(beanComposite.getAttenuatorParameter1().getPosition().getText());
-				
 			}
-			
 		});
 		this.beanComposite.getAttenuatorParameter2().getPosition().addSelectionListener(new SelectionListener(){
 
@@ -116,7 +127,6 @@ public final class I18SampleParametersUIEditor extends RichBeanEditorPart {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				beanComposite.getAttenuatorParameter2().getSelectedPosition().setValue(beanComposite.getAttenuatorParameter2().getPosition().getText());
-				
 			}
 			
 		});

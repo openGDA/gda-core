@@ -35,5 +35,4 @@ public class RefreshHandler extends AbstractHandler implements IHandler {
 		}
 		return null;
 	}
-
 }

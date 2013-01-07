@@ -129,4 +129,26 @@ public class XspressROIComposite extends DetectorROIComposite {
 		}
 		return widgets;
 	}	
+	
+	public ScaleBox getRegionEnd() {
+		return roiEnd;
+	}
+
+	/**
+	 * @return d
+	 */
+	public ScaleBox getRegionStart() {
+		return roiStart;
+	}
+	
+	public ScaleBox getWindowEnd() {
+		return roiEnd;
+	}
+
+	/**
+	 * @return d
+	 */
+	public ScaleBox getWindowStart() {
+		return roiStart;
+	}
 }

@@ -77,8 +77,8 @@ import uk.ac.gda.client.microfocus.util.MicroFocusScanLoader;
 import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.exafs.ui.data.ScanObjectManager;
 
-public class MicroFocusElementListView extends ViewPart implements Overlay2DConsumer, SelectionListener,
-		 FocusListener, IObservable
+public class MicroFocusElementListView extends ViewPart implements Overlay2DConsumer, SelectionListener, FocusListener,
+		IObservable
 
 {
 	/**
@@ -128,18 +128,10 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 		Composite xspressComposite = new Composite(parent, SWT.NONE);
 		xspressComposite.setLayout(new GridLayout(2, false));
 		xspressList = new List(xspressComposite, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
-		{
-
-			{
-				GridData gridData = new GridData(SWT.LEFT, SWT.CENTER, true, true, 2, 1);
-				gridData.widthHint = 598;
-				gridData.heightHint = 377;
-				xspressList.setLayoutData(gridData);
-			}
-		}
-		/*
-		 * xspressLoad = new Button(xspressComposite, SWT.BORDER); xspressLoad.setText("Load File");
-		 */
+		GridData gridData = new GridData(SWT.LEFT, SWT.CENTER, true, true, 2, 1);
+		gridData.widthHint = 598;
+		gridData.heightHint = 377;
+		xspressList.setLayoutData(gridData);
 		getDetectorFiles();
 		populateLists(detectorFileName);
 		openDialog = new FileDialog(parent.getShell(), SWT.OPEN);
@@ -148,32 +140,22 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 		xspressList.addSelectionListener(this);
 		xspressList.setToolTipText(loadedDetectorFileName);
 
-		// xspressLoad.addSelectionListener(this);
 		this.setTitleToolTip(getTitle() + "Dectector Elements list");
 
 		try {
 			// get an instance of the plotView we want to use
 			IViewPart newview = getSite().getPage().showView("uk.ac.gda.beamline.i18.MapView", null,
 					IWorkbenchPage.VIEW_CREATE);
-			if (newview instanceof PlotView){
+			if (newview instanceof PlotView) {
 				plotView = (PlotView) newview;
-	
 				plotView.updatePlotMode(GuiPlotMode.TWOD);
-	
 				// then register this with the plot.
 				plotView.getMainPlotter().registerOverlay(this);
 				logger.info("The Plot View is " + plotView);
-				//FIXME need some functionality to replace this? or is this now redundant?
-//				ExperimentFactory.getScanController().addControllerStatusListener(this);
 			}
-			/*
-			 * IPlotUI plotUI = plotView.getPlotUI(); if(plotUI instanceof Plot2DUI) { sidePlotView =
-			 * ((Plot2DUI)plotUI).getSidePlotView(); }
-			 */
 		} catch (Exception e) {
 			logger.error("Error while finding the plot view", e);
 		}
-
 	}
 
 	private void getDetectorFiles() {
@@ -212,56 +194,52 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 		}
 		return fileName;
 	}
-	
+
 	private void populateLists(String xmlfile) {
-		String location = xmlfile.substring(0, xmlfile.lastIndexOf('/'))+"/";
-		String filename = xmlfile.substring(xmlfile.lastIndexOf('/')+1);
+		String location = xmlfile.substring(0, xmlfile.lastIndexOf('/')) + "/";
+		String filename = xmlfile.substring(xmlfile.lastIndexOf('/') + 1);
 		IRichBean beanObject = null;
-		
+
 		xspressList.removeAll();
-		
+
 		try {
 			beanObject = BeansFactory.getBeanObject(location, filename);
 		} catch (Exception e) {
 			logger.error("Could not create beans from xml file " + xmlfile, e);
 		}
-		
-		
-		if(beanObject instanceof XspressParameters){
-			XspressParameters xspress = (XspressParameters)beanObject;
+
+		if (beanObject instanceof XspressParameters) {
+			XspressParameters xspress = (XspressParameters) beanObject;
 			java.util.List<XspressROI> regionList = xspress.getDetector(0).getRegionList();
-			for(int i=0; i<regionList.size();i++){
+			for (int i = 0; i < regionList.size(); i++) {
 				xspressList.add(regionList.get(i).getRoiName());
-				
 			}
 		}
-		
-		else if(beanObject instanceof VortexParameters){
-			VortexParameters vortex = (VortexParameters)beanObject;
+
+		else if (beanObject instanceof VortexParameters) {
+			VortexParameters vortex = (VortexParameters) beanObject;
 			java.util.List<RegionOfInterest> regionList = vortex.getDetector(0).getRegionList();
-			for(int i=0; i<regionList.size();i++){
+			for (int i = 0; i < regionList.size(); i++) {
 				xspressList.add(regionList.get(i).getRoiName());
-				
 			}
 		}
-		
+
 		loadedDetectorFileName = xmlfile;
 	}
 
 	public void refresh() {
 		String currentDetectorFile = null;
-			try {
-				currentDetectorFile = findCurrentDetectorFile();
-			} catch (Exception e) {
-				logger.warn("Unable to refresh the elements list, using default config ");
-			}
+		try {
+			currentDetectorFile = findCurrentDetectorFile();
+		} catch (Exception e) {
+			logger.warn("Unable to refresh the elements list, using default config ");
+		}
 		if (currentDetectorFile != null)
-				populateLists(currentDetectorFile);
+			populateLists(currentDetectorFile);
 	}
 
 	private boolean isScanRunning() {
-		if(JythonServerFacade.getInstance().getScanStatus() == Jython.RUNNING)
-		{
+		if (JythonServerFacade.getInstance().getScanStatus() == Jython.RUNNING) {
 			return true;
 		}
 		return false;
@@ -281,26 +259,22 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 			}
 			return null;
 		}
-		{
-			if (!((ScanObject) controller.getSelectedScan()).isMicroFocus())
-				return null;
-			String currentDetector = ((ScanObject) controller.getSelectedScan()).getDetectorParameters()
-					.getFluorescenceParameters().getConfigFileName();
-			if (currentDetector.contains(this.getTitle())) {
-				// find the full file path
-				return controller.getSelectedFolder().findMember(currentDetector).getLocationURI().getPath();
 
-			}
+		if (!((ScanObject) controller.getSelectedScan()).isMicroFocus())
 			return null;
+		String currentDetector = ((ScanObject) controller.getSelectedScan()).getDetectorParameters()
+				.getFluorescenceParameters().getConfigFileName();
+		if (currentDetector.contains(this.getTitle())) {
+			// find the full file path
+			return controller.getSelectedFolder().findMember(currentDetector).getLocationURI().getPath();
 		}
+		return null;
+
 	}
 
 	@Override
 	public void setFocus() {
-		// TODO Auto-generated method stub
-
 	}
-
 
 	@Override
 	public void hideOverlays() {
@@ -328,29 +302,24 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 
 	@Override
 	public void removePrimitives() {
-		// provider.remove
 		boxPrimID = -1;
 	}
 
 	@Override
 	public void unregisterProvider() {
-
 	}
 
 	@Override
 	public void imageDragged(IImagePositionEvent event) {
 		logger.info("the image dragged click position is " + event.getImagePosition()[0] + " "
 				+ event.getImagePosition()[1]);
-
 	}
 
 	@Override
 	public void imageFinished(final IImagePositionEvent event) {
 		logger.info("the image finished click position is " + event.getImagePosition()[0] + " "
 				+ event.getImagePosition()[1]);
-
 		Display.getDefault().asyncExec(new Runnable() {
-
 			@Override
 			public void run() {
 				try {
@@ -360,16 +329,12 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 						displayController.displayPlot(event.getImagePosition()[0], event.getImagePosition()[1]);
 					}
 				} catch (Exception e) {
-
-					// TODO show error message
 					logger.error("Error displaying the plot", e);
 					e.printStackTrace();
 					showErrorMessage("Error displaying the plot " + e.getMessage());
 				}
 			}
-
 		});
-
 	}
 
 	public double[] getXYZ() {
@@ -379,14 +344,12 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 	@Override
 	public void imageStart(final IImagePositionEvent event) {
 		Display.getDefault().asyncExec(new Runnable() {
-
 			@Override
 			public void run() {
 				try {
 					if (getViewSite().getPage().isPartVisible(MicroFocusElementListView.this)) {
 						logger.info("the image start click position is " + event.getImagePosition()[0] + " "
 								+ event.getImagePosition()[1]);
-
 						if (event.getFlags() == IImagePositionEvent.RIGHTMOUSEBUTTON) {
 							double xy[] = displayController.getXY(event.getImagePosition()[1],
 									event.getImagePosition()[0]);
@@ -395,26 +358,20 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 										+ " " + xy[2]);
 								xyz = xy;
 								notifyIObservers(this, xyz);
-
 							}
 						}
 					}
 				} catch (Exception e) {
-
-					// TODO show error message
 					logger.error("Error displaying the plot", e);
 					e.printStackTrace();
 					showErrorMessage("Error displaying the plot " + e.getMessage());
 				}
 			}
-
 		});
-
 	}
 
 	@Override
 	public void widgetDefaultSelected(SelectionEvent e) {
-
 	}
 
 	public void loadFile() {
@@ -423,30 +380,12 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 		if (selectedElement != null && filePath != null) {
 			final String msg = ("Loading map from " + filePath);
 			Job job = new Job(msg) {
-
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
 					try {
 						displayController.displayMap(selectedElement, filePath);
 						if (loadMapForScan)
 							scanLoader.loadMapXmlForScan(controller.getSelectedFolder(), filePath);
-						/*else {
-							final java.util.List<String> files = scanLoader.loadMapXmlForView(filePath);
-							if (files.size() > 0) {
-								Display.getDefault().asyncExec(new Runnable() {
-									@Override
-									public void run() {
-										try {
-											XMLEditorManager.openXmlEditorsFromStrings(files);
-										} catch (Exception e) {
-											e.printStackTrace();
-										}
-									}
-
-								});
-							}
-						}*/
-
 					} catch (Exception e) {
 						logger.error("Error displaying the map ", e);
 						showErrorMessage("Error displaying the map " + e.getMessage());
@@ -455,12 +394,10 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 					}
 					return Status.OK_STATUS;
 				}
-
 			};
 			job.setUser(true);
 			job.schedule();
 		}
-
 	}
 
 	@Override
@@ -471,12 +408,9 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 			Job job = new Job(msg) {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
-
 					try {
 						displayController.displayMap(selectedElement);
 					} catch (Exception e1) {
-
-						// TODO show error status
 						logger.error("Error displaying the map ", e1);
 						showErrorMessage("Error displaying the map " + e1.getMessage());
 					}
@@ -488,7 +422,6 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 		} else if (e.getSource().equals(elementSpinner)) {
 			displayController.setDetectorElementNumber(elementSpinner.getSelection());
 			Display.getDefault().asyncExec(new Runnable() {
-
 				@Override
 				public void run() {
 					try {
@@ -496,8 +429,6 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 							displayController.displayPlot(plotX, plotY);
 						}
 					} catch (Exception e) {
-
-						// TODO show error message
 						logger.error("Error displaying the plot", e);
 						e.printStackTrace();
 						showErrorMessage("Error displaying the plot " + e.getMessage());
@@ -509,39 +440,23 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 
 	@Override
 	public void dispose()
-
 	{
 		super.dispose();
 		xspressList.dispose();
-		// xspressLoad.dispose();
 		plotView.dispose();
-
 	}
 
 	public void showErrorMessage(final String messag) {
 		Display.getDefault().asyncExec(new Runnable() {
-
 			@Override
 			public void run() {
 				MessageDialog.openError(null, "Error", messag);
 			}
-
 		});
 	}
 
-//	@Override
-//	public void statusChangePerformed(ControllerStatusEvent evnt) {
-//		scanRunning = (evnt.getState() == ControllerStatus.PLAYING);
-//		if (scanRunning) {
-//			logger.info("the current scan is " + evnt.getCurrentRun().getRunName());
-//			displayController.disableProvider();
-//
-//		}
-//	}
-
 	@Override
 	public void focusGained(FocusEvent e) {
-
 	}
 
 	@Override
@@ -592,5 +507,4 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 	public void notifyIObservers(Object theObserved, Object theArgument) {
 		observableComponent.notifyIObservers(theObserved, theArgument);
 	}
-
 }
