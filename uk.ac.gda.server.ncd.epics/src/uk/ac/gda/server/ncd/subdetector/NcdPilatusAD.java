@@ -321,11 +321,15 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 		logger.debug("scan end");
 		try {
 			controller.stopAcquiringWithTimeout();
-			FileRegistrarHelper.registerFile(controller.getHDFFileName());
 			controller.endRecording();
 		} catch (Exception e) {
-			// stopping areadeetctor/camserver is too fragile for us to assume it will work within the timeouts, so we
-			// just hope for the best
+			throw new DeviceException("error finalising data acquitision/writing", e);
+		} finally {
+			try {
+				FileRegistrarHelper.registerFile(controller.getHDFFileName());
+			} catch (Exception e) {
+				logger.warn("error getting file name for archiving from "+getName(), e);
+			}
 		}
 	}
 
@@ -334,6 +338,8 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 		try {
 			dataTree.addScanFileLink(getName(), "nxfile://" + controller.getHDFFileName()
 					+ "#entry/instrument/detector/data");
+		} catch (DeviceException e) {
+			throw e;
 		} catch (Exception e) {
 			throw new DeviceException("error getting HDF file name", e);
 		}
