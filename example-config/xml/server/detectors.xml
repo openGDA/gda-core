@@ -1,0 +1,36 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd
+                           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+                           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd" >
+
+    <bean id="ddl" class = "gda.device.detector.datalogger.DummyDataLogger">
+		<property name="extraNames">
+			<list>
+				<value>1</value>
+				<value>2</value>
+				<value>3</value>
+				<value>4</value>
+				<value>5</value>
+				<value>6</value>
+				<value>7</value>
+				<value>8</value>
+			</list>
+		</property>
+		<property name="outputFormat">
+			<list>
+				<value>%.5f</value>
+				<value>%.5f</value>
+				<value>%.5f</value>
+				<value>%.5f</value>
+				<value>%.5f</value>
+				<value>%.5f</value>
+				<value>%.5f</value>
+				<value>%.5f</value>
+				<value>%.5f</value>
+			</list>
+		</property>
+    </bean>
+
+</beans>

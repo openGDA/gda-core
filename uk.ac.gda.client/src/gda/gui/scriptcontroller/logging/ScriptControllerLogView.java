@@ -59,6 +59,7 @@ public class ScriptControllerLogView extends ViewPart implements SelectionListen
 
 		treeViewer = new TreeViewer(parent);
 		treeViewer.addFilter(filter);
+		treeViewer.setComparer(new ScriptControllerLogComparer());
 
 		String controllers = GDAClientActivator.getDefault().getPreferenceStore()
 				.getString(PreferenceConstants.GDA_LOGGINGSCRIPTCONTROLLERS);
@@ -85,7 +86,7 @@ public class ScriptControllerLogView extends ViewPart implements SelectionListen
 		contentProvider.refresh();
 		treeViewer.setInput(contentProvider.getElements(null));
 		treeViewer.refresh(true);
-		treeViewer.collapseAll();
+//		treeViewer.collapseAll();
 	}
 
 	public TreeViewer getTreeViewer() {

@@ -55,6 +55,22 @@ public class ScriptControllerLogResults implements Serializable, Comparable<Scri
 		return uniqueID;
 	}
 
+	public void setUniqueID(String uniqueID) {
+		this.uniqueID = uniqueID;
+	}
+
+	public void setScriptName(String scriptName) {
+		this.scriptName = scriptName;
+	}
+
+	public void setStarted(Timestamp started) {
+		this.started = started;
+	}
+
+	public void setUpdated(Timestamp updated) {
+		this.updated = updated;
+	}
+
 	@Override
 	public String toString() {
 		return getScriptName() + " - started:" + formatDate(started,false) + ", updated:" + formatDate(updated,true);
@@ -97,7 +113,6 @@ public class ScriptControllerLogResults implements Serializable, Comparable<Scri
 		int result = 1;
 		result = prime * result + ((scriptName == null) ? 0 : scriptName.hashCode());
 		result = prime * result + ((started == null) ? 0 : started.hashCode());
-		result = prime * result + ((uniqueID == null) ? 0 : uniqueID.hashCode());
 		result = prime * result + ((updated == null) ? 0 : updated.hashCode());
 		return result;
 	}
@@ -125,11 +140,6 @@ public class ScriptControllerLogResults implements Serializable, Comparable<Scri
 			if (other.uniqueID != null)
 				return false;
 		} else if (!uniqueID.equals(other.uniqueID))
-			return false;
-		if (updated == null) {
-			if (other.updated != null)
-				return false;
-		} else if (!updated.equals(other.updated))
 			return false;
 		return true;
 	}

@@ -32,6 +32,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.PlatformUI;
@@ -66,8 +67,7 @@ public class ScriptControllerLogContentProvider implements ITreeContentProvider,
 				try {
 					newcontroller.addIObserver(new ScriptControllerLogHelper(this));
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					logger.error("TODO put description of error here", e);
+					logger.error("Error adding observer to logging script controller", e);
 				}
 			} else {
 				logger.warn("ScriptControllerLogContentProvider could not find a LoggingScriptController called "
@@ -101,8 +101,7 @@ public class ScriptControllerLogContentProvider implements ITreeContentProvider,
 					return new Object[] { details };
 				}
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				logger.error("TODO put description of error here", e);
+				logger.error("Error getting logging script controller details", e);
 			}
 		}
 		return null;
@@ -154,8 +153,7 @@ public class ScriptControllerLogContentProvider implements ITreeContentProvider,
 		try {
 			Arrays.sort(results);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			logger.error("TODO put description of error here", e);
+			logger.error("Error sorting results by time", e);
 		}
 	}
 
@@ -192,25 +190,24 @@ public class ScriptControllerLogContentProvider implements ITreeContentProvider,
 	public void update(final Object source, final Object arg) {
 
 		try {
-			if (arg instanceof ScriptControllerLogResults && updateViewLock.tryLock(500, TimeUnit.MILLISECONDS)) {
+			if (arg instanceof ScriptControllerLogResults && updateViewLock.tryLock(100, TimeUnit.MILLISECONDS)) {
+				final ScriptControllerLogResults temp = (ScriptControllerLogResults) arg;
 				try {
-					addToKnowScripts(((ScriptControllerLogResults) arg).getScriptName());
-					if (haveSeenBefore((ScriptControllerLogResults) arg)) {
-						ScriptControllerLogResults temp = (ScriptControllerLogResults) arg;
+					addToKnowScripts(temp.getScriptName());
+					if (haveSeenBefore(temp)) {
 						if (!results[0].getUniqueID().equals(temp.getUniqueID())) {
 							return;
 						}
-						ScriptControllerLogResults newResults = new ScriptControllerLogResults(temp.getUniqueID(),
-								temp.getScriptName(), results[0].getStarted(), temp.getUpdated());
-						results[0] = newResults;
+						results[0].setUpdated(temp.getUpdated());
 						PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 							@Override
 							public void run() {
 								view.getTreeViewer().refresh();
+								view.getTreeViewer().reveal(results[0]);
+								view.getTreeViewer().expandToLevel(results[0], AbstractTreeViewer.ALL_LEVELS);
 							}
 						});
 					} else {
-						ScriptControllerLogResults temp = (ScriptControllerLogResults) arg;
 						mapID2Controller.put(temp.getUniqueID(), (ILoggingScriptController) source);
 						results = (ScriptControllerLogResults[]) ArrayUtils.addAll(
 								new ScriptControllerLogResults[] { temp }, results);
@@ -222,11 +219,8 @@ public class ScriptControllerLogContentProvider implements ITreeContentProvider,
 								view.getTreeViewer()
 										.setInput(ScriptControllerLogContentProvider.this.getElements(null));
 								view.getTreeViewer().refresh();
-								view.getTreeViewer().collapseAll();
-								view.getTreeViewer().expandToLevel(arg, 1);
-								view.getTreeViewer().reveal(arg);
-								// view.getTreeViewer().setSelection(new StructuredSelection(arg), true);
-
+								view.getTreeViewer().expandToLevel(temp, 1);
+								view.getTreeViewer().reveal(temp);
 							}
 						});
 					}

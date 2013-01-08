@@ -66,6 +66,11 @@ public class ExperimentFactory {
 			managers = new ArrayList<IExperimentObjectManager>(3);
 		managers.add(runObjectManager);
 	}
+	
+	public static void emptyManagers() {
+		managers.removeAll(managers);
+		managers = null;
+	}
 
 	/**
 	 * Adds an observer for a specific experiment (run).

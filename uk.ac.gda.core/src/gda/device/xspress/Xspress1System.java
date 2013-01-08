@@ -24,6 +24,7 @@ import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.Xspress;
 import gda.device.detector.DAServer;
+import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.util.Gaussian;
@@ -91,19 +92,27 @@ public class Xspress1System extends DeviceBase implements Findable, Xspress {
 	}
 
 	@Override
-	public void configure() {
+	public void configure() throws FactoryException {
 		detectorList = new DetectorList();
 		logger.debug("Finding: " + daServerName);
 		if (!isDummy()) {
 			if ((daServer = (DAServer) Finder.getInstance().find(daServerName)) == null) {
 				logger.error("Server " + daServerName + " not found");
 			} else {
-				open();
+				try {
+					open();
+				} catch (DeviceException e) {
+					throw new FactoryException(e.getMessage(),e);
+				}
 			}
 		}
 
 		String configFileName = LocalProperties.get("gda.device.xspress.configFileName");
-		loadAndInitializeDetectors(configFileName);
+		try {
+			loadAndInitializeDetectors(configFileName);
+		} catch (DeviceException e) {
+			throw new FactoryException(e.getMessage(),e);
+		}
 	}
 
 	/**
@@ -206,14 +215,18 @@ public class Xspress1System extends DeviceBase implements Findable, Xspress {
 			}
 
 			logger.debug("start Channel and end Channel " + startChannel + " " + endChannel);
-			values = daServer.getBinaryData("read " + startChannel + " " + detector + " 0 " + npts + " 1 1 "
-					+ localEndian + " float from " + mcaHandle, npts);
+			try {
+				values = daServer.getBinaryData("read " + startChannel + " " + detector + " 0 " + npts + " 1 1 "
+						+ localEndian + " float from " + mcaHandle, npts);
+			} catch (Exception e) {
+				throw new DeviceException(e);
+			}
 
 		}
 		return values;
 	}
 
-	private void open() {
+	private void open() throws DeviceException {
 		Object obj;
 		String cmd;
 
@@ -240,9 +253,10 @@ public class Xspress1System extends DeviceBase implements Findable, Xspress {
 	 * @param filename
 	 *            detector window setup filename
 	 * @return result string
+	 * @throws DeviceException 
 	 */
 	@Override
-	public String loadAndInitializeDetectors(String filename) {
+	public String loadAndInitializeDetectors(String filename) throws DeviceException {
 		BufferedReader bufferedReader;
 		Detector detector;
 		String result = "Not done yet";
@@ -280,15 +294,20 @@ public class Xspress1System extends DeviceBase implements Findable, Xspress {
 	 * @param which
 	 *            the detector to read
 	 * @return a DetectorReading for the given detector
+	 * @throws DeviceException 
 	 */
 	@Override
-	public DetectorReading readDetector(int which) {
+	public DetectorReading readDetector(int which) throws DeviceException {
 		logger.debug("readDetector called");
 		DetectorReading detectorReading = null;
 
 		long[] values = new long[4];
-		values = daServer.getLongBinaryData("read 0 " + which + " 0 " + " 4 " + " 1 1 " + localEndian + " long from "
-				+ scalerHandle, 4);
+		try {
+			values = daServer.getLongBinaryData("read 0 " + which + " 0 " + " 4 " + " 1 1 " + localEndian + " long from "
+					+ scalerHandle, 4);
+		} catch (Exception e) {
+			throw new DeviceException(e);
+		}
 
 		detectorReading = new DetectorReading(detectorList.getDetector(which), (int) values[2], (int) values[3],
 				(int) values[1], (int) values[0]);
@@ -303,7 +322,7 @@ public class Xspress1System extends DeviceBase implements Findable, Xspress {
 	 * @return an array of DetectorReadings one for each detector
 	 */
 	@Override
-	public DetectorReading[] readDetectors() {
+	public DetectorReading[] readDetectors() throws DeviceException {
 		return readDetectors(0);
 	}
 
@@ -312,8 +331,9 @@ public class Xspress1System extends DeviceBase implements Findable, Xspress {
 	 * 
 	 * @param frame
 	 * @return an array of DetectorReadings one for each detector
+	 * @throws DeviceException 
 	 */
-	private DetectorReading[] readDetectors(int frame) {
+	private DetectorReading[] readDetectors(int frame) throws DeviceException {
 		DetectorReading[] detectorReadings = new DetectorReading[numberOfDetectors];
 
 		int npts = 4 * numberOfDetectors;
@@ -324,8 +344,12 @@ public class Xspress1System extends DeviceBase implements Findable, Xspress {
 				detectorReadings[k] = windowDummyData(values, k);
 			}
 		} else {
-			values = daServer.getLongBinaryData("read 0 0 " + frame + " 4 " + numberOfDetectors + " 1 " + localEndian
-					+ " long from " + scalerHandle, npts);
+			try {
+				values = daServer.getLongBinaryData("read 0 0 " + frame + " 4 " + numberOfDetectors + " 1 " + localEndian
+						+ " long from " + scalerHandle, npts);
+			} catch (Exception e) {
+				throw new DeviceException(e.getMessage(),e);
+			}
 
 			for (int j = 0; j < numberOfDetectors; j++) {
 				int i = j * 4;
@@ -364,9 +388,10 @@ public class Xspress1System extends DeviceBase implements Findable, Xspress {
 	 *            the start of the window
 	 * @param upper
 	 *            the end of the window
+	 * @throws DeviceException 
 	 */
 	@Override
-	public void setDetectorWindow(int detector, int lower, int upper) {
+	public void setDetectorWindow(int detector, int lower, int upper) throws DeviceException {
 		if (isDummy()) {
 			detectorList.getDetector(detector).setWindow(lower, upper);
 		} else {
@@ -441,9 +466,10 @@ public class Xspress1System extends DeviceBase implements Findable, Xspress {
 	 * @param frame
 	 *            which time frame
 	 * @return an array of data (one value for each detector element)
+	 * @throws DeviceException 
 	 */
 	@Override
-	public double[] readFrame(int startChannel, int channelCount, int frame) {
+	public double[] readFrame(int startChannel, int channelCount, int frame) throws DeviceException {
 		double[] values = null;
 		DetectorReading[] dr = readDetectors(frame);
 		values = new double[channelCount];

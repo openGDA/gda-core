@@ -33,6 +33,7 @@
 	<import resource="demonstration.xml" />     
 	<import resource="jack.xml" />     
 	<import resource="jaw.xml" />     
+	<import resource="detectors.xml" />     
 	<import resource="LoggingScriptController.xml" />     
 	<corba:export namespace="gda" />     
 

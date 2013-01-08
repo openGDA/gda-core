@@ -249,7 +249,7 @@ public class RotationViewer {
 				Double nudge = nudgeSizeBox.getNumericValue();
 				if(!nudge.isNaN())
 					moveMotor(false,nudge);
-			}			
+			}
 		});
 	}
 

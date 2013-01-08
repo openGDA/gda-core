@@ -88,9 +88,10 @@ public class GdhistTest {
 
 	/**
 	 * Test method for {@link gda.device.memory.Gdhist#close()}.
+	 * @throws DeviceException 
 	 */
 	@Test
-	public void testClose() {
+	public void testClose() throws DeviceException {
 		memory.close();
 	}
 
