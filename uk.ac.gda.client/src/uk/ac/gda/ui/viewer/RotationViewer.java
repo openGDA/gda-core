@@ -237,17 +237,19 @@ public class RotationViewer {
 		posNudgeButton.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				moveMotor(true,nudgeSizeBox.getNumericValue());
+				Double nudge = nudgeSizeBox.getNumericValue();
+				if(!nudge.isNaN())
+					moveMotor(true,nudge);
 			}
-			
 		});	
 		
 		negNudgeButton.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				moveMotor(false,nudgeSizeBox.getNumericValue());
-			}
-			
+				Double nudge = nudgeSizeBox.getNumericValue();
+				if(!nudge.isNaN())
+					moveMotor(false,nudge);
+			}			
 		});
 	}
 
