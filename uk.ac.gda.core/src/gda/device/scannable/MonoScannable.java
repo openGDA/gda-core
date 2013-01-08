@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Copyright © 2012 Diamond Light Source Ltd., Science and Technology
  * Facilities Council Daresbury Laboratory
  *
  * This file is part of GDA.
@@ -66,28 +66,19 @@ public class MonoScannable extends ScannableMotionUnitsBase implements Scannable
 	private Unit<?> userUnits = QuantityFactory.createUnitFromString("nm");
 	private String initialUserUnits = null;
 
-	/**
-	 * Constructor.
-	 */
 	public MonoScannable() {
-
 	}
 
 	@Override
 	public void configure() {
 		theMotor = (ScannableMotor) Finder.getInstance().find(motorName);
-//		this.inputNames = new String[] { theMotor.getName() };
+
+		if (this.inputNames.length == 1 && this.inputNames[0].equals("value")) {
+			this.inputNames = new String[] { getName() };
+		}
 
 		try {
-			// if (theMotor instanceof EpicsMotor) {
-			// // try to work out the units the motor works in
-			// motorUnit = QuantityFactory.createUnitFromString(theMotor
-			// .getAttribute("unit").toString());
-			// }
-			// // else help it is defined from setMotorUnitString()
-			// else {
 			motorUnit = QuantityFactory.createUnitFromString(this.motorUnitString);
-			// }
 			if (initialUserUnits == null) {
 				userUnits = motorUnit;
 			} else {
@@ -105,9 +96,9 @@ public class MonoScannable extends ScannableMotionUnitsBase implements Scannable
 		} catch (Exception e) {
 			// do not throw an error as this would stop ObjectFactory from
 			// completing its initialisation
-			logger.error("Exception during configure of " + getName() + " (motor=" + StringUtils.quote(motorName) + ")", e);
+			logger.error(
+					"Exception during configure of " + getName() + " (motor=" + StringUtils.quote(motorName) + ")", e);
 		}
-
 	}
 
 	/**
@@ -118,24 +109,15 @@ public class MonoScannable extends ScannableMotionUnitsBase implements Scannable
 		twoDee = Quantity.valueOf(twoD, NonSI.ANGSTROM);
 	}
 
-	/**
-	 * @param crystalType
-	 */
 	public void setCrystalType(String crystalType) {
 		this.crystalType = crystalType;
 		twoDee = Quantity.valueOf(twoDFromCrystalType(crystalType), NonSI.ANGSTROM);
 	}
 
-	/**
-	 * @return the current twoD value
-	 */
 	public double getTwoD() {
 		return (twoDee != null) ? twoDee.to(NonSI.ANGSTROM).getAmount() : 0.0;
 	}
 
-	/**
-	 * @return string of the current crystal type
-	 */
 	public String getCrystalType() {
 		return crystalType;
 	}
@@ -186,17 +168,10 @@ public class MonoScannable extends ScannableMotionUnitsBase implements Scannable
 		this.motorUnitString = hardwareUnitString;
 	}
 
-	/**
-	 * @return Returns the motorName.
-	 */
 	public String getMotorName() {
 		return motorName;
 	}
 
-	/**
-	 * @param motorName
-	 *            The motorName to set.
-	 */
 	public void setMotorName(String motorName) {
 		this.motorName = motorName;
 	}
