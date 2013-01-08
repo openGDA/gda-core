@@ -21,14 +21,15 @@ package uk.ac.gda.devices.bssc.beans;
 import uk.ac.gda.beans.IRichBean;
 
 public class TitrationBean implements IRichBean {
-	LocationBean location;
-	String sampleName, bufferName;
-	boolean yellowSample;
-	String viscosity;
-	double concentration;
-	double timePerFrame;
-	int frames;
-	float exposureTemperature;
+	
+	LocationBean location = new LocationBean();
+	String sampleName = "sample", bufferName = "buffer";
+	boolean yellowSample = true;
+	String viscosity = "high";
+	double concentration = 1;
+	double timePerFrame = 1;
+	int frames = 1;
+	float exposureTemperature = 22;
 	
 	public LocationBean getLocation() {
 		return location;
