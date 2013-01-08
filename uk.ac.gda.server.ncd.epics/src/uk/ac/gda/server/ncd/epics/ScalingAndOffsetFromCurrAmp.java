@@ -45,7 +45,7 @@ import uk.ac.gda.server.ncd.subdetector.ScalingAndOffset;
 @CorbaImplClass(ScannableImpl.class)
 public class ScalingAndOffsetFromCurrAmp extends ScannableBase implements Scannable, Findable, ScalingAndOffset, MonitorListener {
 	
-	private static final Logger logger = LoggerFactory.getLogger(ScalingAndOffsetFromCurrAmp.class);  		
+	private static final Logger logger = LoggerFactory.getLogger(ScalingAndOffsetFromCurrAmp.class);
 	
 	private String pvName;
 	public static final String[] epicsnamelist = {".ZRST", ".ONST", ".TWST", ".THST", ".FRST", ".FVST", ".SXST", ".SVST", ".EIST", ".NIST", ".TEST", ".ELST", ".TVST", ".TTST", ".FFST"};
