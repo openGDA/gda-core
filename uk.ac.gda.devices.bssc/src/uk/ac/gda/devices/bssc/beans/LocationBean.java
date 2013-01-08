@@ -20,10 +20,10 @@ package uk.ac.gda.devices.bssc.beans;
 
 import uk.ac.gda.beans.IRichBean;
 
-public class LocationBean implements IRichBean{
-	short plate;
-	char row;
-	short column;
+public class LocationBean implements IRichBean {
+	short plate = 1;
+	char row = 'A';
+	short column = 1;
 	
 	public short getPlate() {
 		return plate;
