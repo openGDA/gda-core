@@ -31,7 +31,8 @@ class I20XasScan(XasScan):
 
         global jython_mapper
         jython_mapper = JythonNameSpaceMapping()
-
+        finder = Finder.getInstance()
+        
         # fluo detector, if in use
         if beanGroup.getDetector().getExperimentType() == 'Fluorescence':
             self.setDetectorCorrectionParameters(beanGroup)
@@ -46,7 +47,20 @@ class I20XasScan(XasScan):
             print "Moving filter wheel to",filter,"..."
             jython_mapper.filterwheel(filter)
             ScriptBase.checkForPauses()
-        
+            
+        # I20 always moves things back to initial positions after ecah scan. To save time, move mono to intial position here
+        scan =  beanGroup.getScan()
+        energy_scannable_name = scan.getScannableName()
+        energy_scannable = finder.find(energy_scannable_name)
+        if energy_scannable != None and isinstance(scan,XasScanParameters):
+            intialPosition = scan.getInitialEnergy()
+            energy_scannable.asynchronousMoveTo(intialPosition)
+            print "Moving",energy_scannable_name, "to initial position..."
+        elif energy_scannable != None and isinstance(scan,XanesScanParameters): 
+            intialPosition = scan.getRegions().get(0).getEnergy()
+            energy_scannable.asynchronousMoveTo(intialPosition)
+            print "Moving",energy_scannable_name, "to initial position..."
+
         # sample environments
 
         # room temperature (sample stage)
@@ -91,8 +105,11 @@ class I20XasScan(XasScan):
                     ScriptBase.checkForPauses()
                     
                     #TODO add to metadata?
+                    
+                    energy_scannable.waitWhileBusy()
                     self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
             else :
+                energy_scannable.waitWhileBusy()
                 self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
         finally:
             # remove extra columns from ionchambers output
@@ -106,7 +123,7 @@ class I20XasScan(XasScan):
         elif isinstance(beanGroup.getScan(),XanesScanParameters):
             times = XanesScanPointCreator.getScanTimeArray(beanGroup.getScan())
         if len(times) > 0:
-            print "Setting scan times, using array of length",len(times)
+            print "Setting detector frame times, using array of length",str(len(times)) + "..."
             jython_mapper = JythonNameSpaceMapping()
             jython_mapper.ionchambers.setTimes(times)
             ScriptBase.checkForPauses()
@@ -152,7 +169,7 @@ class I20XasScan(XasScan):
     
         # set dark current time and handle any errors here
         if maxTime > 0:
-            print "Setting ionchambers dark current collectiom time to be",str(maxTime),"s"
+            print "Setting ionchambers dark current collectiom time to",str(maxTime),"s."
             jython_mapper.ionchambers.setDarkCurrentCollectionTime(maxTime)
             jython_mapper.I1.setDarkCurrentCollectionTime(maxTime)
 
@@ -322,9 +339,11 @@ class I20XesScan(XasScan):
             
 
             try:
+                self.outputPreparer.mode = "xes"
                 jython_mapper.xas(beanGroup.getSample(), xas_scanfilename, beanGroup.getDetector(), beanGroup.getOutput(), folderName, numRepetitions, validation)
             finally:
                 print "cleaning up scan defaults"
+                self.outputPreparer.mode = "xas"
                 ScannableCommands.remove_default([xes_energy,analyserAngle])
                 xes_energy(initialXESEnergy)
             return
@@ -340,9 +359,11 @@ class I20XesScan(XasScan):
             ScannableCommands.add_default([xes_energy,analyserAngle])
 
             try:
+                self.outputPreparer.mode = "xes"
                 jython_mapper.xanes(beanGroup.getSample(), xanes_scanfilename, beanGroup.getDetector(), beanGroup.getOutput(), folderName, numRepetitions, validation)
             finally:
                 print "cleaning up scan defaults"
+                self.outputPreparer.mode = "xas"
                 ScannableCommands.remove_default([xes_energy,analyserAngle])
                 xes_energy(initialXESEnergy)
             return
@@ -433,7 +454,8 @@ class I20XesScan(XasScan):
 #            LocalProperties.set("gda.data.scan.datawriter.dataFormat", originalDataFormat)
             # make sure the plotter is switched off
             jython_mapper.twodplotter.atScanEnd()
-            
+            jython_mapper.ionchambers.setOutputLogValues(False) 
+            XasAsciiDataWriter.setBeanGroup(None)
             
 
     def setUpIonChambers(self,beanGroup):

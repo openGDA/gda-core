@@ -77,6 +77,7 @@ class QexafsScan(Scan):
                 scan_time = scanBean.getTime()
 
                 initialPercent = str(int((float(repetitionNumber - 1) / float(numRepetitions)) * 100)) + "%" 
+
                 logmsg = XasLoggingMessage(unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), initialPercent,str(0),str(0),str(scanBean.getTime()) + "s",outputFolder)
 
                 loggingcontroller.update(None,logmsg)
@@ -154,7 +155,7 @@ class QexafsScan(Scan):
                 self.beamlineReverter.scanCompleted() #NexusExtraMetadataDataWriter.removeAllMetadataEntries() for I20
             LocalProperties.set("gda.scan.useScanPlotSettings", "false")
             LocalProperties.set("gda.plot.ScanPlotSettings.fromUserList", "false")
-            
+            XasAsciiDataWriter.setBeanGroup(None)
             #remove added metadata from default metadata list to avoid multiple instances of the same metadata
             jython_mapper = JythonNameSpaceMapping()
             if (jython_mapper.original_header != None):

@@ -138,6 +138,7 @@
 								minOccurs="1">
 								<xsd:simpleType>
 									<xsd:restriction base="xsd:string">
+										<xsd:enumeration value="3 Samples" />
 										<xsd:enumeration value="4 Samples" />
 										<xsd:enumeration value="Liquid Cell" />
 									</xsd:restriction>

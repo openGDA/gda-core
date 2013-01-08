@@ -45,7 +45,21 @@ public class ScanDataPointUtils {
 		final List<String> names = point.getDetectorHeader();
 		double ff = Double.NaN;
 		for (int i = 0; i < names.size(); i++) {
-			if (names.get(i).toLowerCase().equals("ffi0") || names.get(i).toLowerCase().equals("ffi1")) {
+			if (names.get(i).toLowerCase().equals("ffi0")) {
+				ff = data[i];
+			}
+		}
+		return ff;
+	}
+
+	public static double getFFI1(final IScanDataPoint point) {
+		if (point == null)
+			return 0;
+		final Double[] data = point.getDetectorDataAsDoubles();
+		final List<String> names = point.getDetectorHeader();
+		double ff = Double.NaN;
+		for (int i = 0; i < names.size(); i++) {
+			if (names.get(i).toLowerCase().equals("ffi1")) {
 				ff = data[i];
 			}
 		}
@@ -60,13 +74,27 @@ public class ScanDataPointUtils {
 		final List<String> names = point.getDetectorHeader();
 		double i0 = Double.NaN;
 		for (int i = 0; i < names.size(); i++) {
-			if (names.get(i).toLowerCase().equals("i0") || names.get(i).toLowerCase().equals("i1")) {
+			if (names.get(i).toLowerCase().equals("i0")) {
 				i0 = data[i];
 			}
 		}
 		return i0;
 	}
-	
+
+	public static double getI1(final IScanDataPoint point) {
+		if (point == null)
+			return 0;
+		final Double[] data = point.getDetectorDataAsDoubles();
+		final List<String> names = point.getDetectorHeader();
+		double i1 = Double.NaN;
+		for (int i = 0; i < names.size(); i++) {
+			if (names.get(i).toLowerCase().equals("i1")) {
+				i1 = data[i];
+			}
+		}
+		return i1;
+	}
+
 	public static double getIt(final IScanDataPoint point) {
 		if (point == null)
 			return 0;

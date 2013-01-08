@@ -231,15 +231,15 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		}
 	}
 	
-	private void switchOnExtTrigger() {
+	private void switchOnExtTrigger() throws DeviceException {
 		getDaServer().sendCommand("tfg setup-trig start ttl0");
 	}
 
-	private void switchOffExtTrigger() {
+	private void switchOffExtTrigger() throws DeviceException {
 		getDaServer().sendCommand("tfg setup-trig start"); // disables external triggering
 	}
 
-	private void setTimeFrames() {
+	private void setTimeFrames() throws DeviceException {
 		switchOnExtTrigger();
 		getDaServer().sendCommand("tfg setup-groups ext-start cycles 1");
 		getDaServer().sendCommand(continuousParameters.getNumberDataPoints() + " 0.000001 0.00000001 0 0 0 8");
