@@ -101,7 +101,12 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	private String normaliseElement = "I0";
 	private int normaliseElementIndex = -1;
 	private double normaliseValue = 1.0;
-
+	private boolean active=false;
+	
+	public boolean isActive(){
+		return active;
+	}
+	
 	public String[] getRoiNames() {
 		return roiNames;
 	}
@@ -621,6 +626,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	}
 
 	private void addToRgbFile(String string) throws IOException {
+		active=true;
 		if (writer != null) {
 			writer.write(string + "\n");
 			writer.flush();
@@ -670,15 +676,16 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 
 	@Override
 	public void finalize() throws Throwable {
-		logger.info("finalize called on MFwriter");
-		try {
-			writer.close();
-		} finally {
-			super.finalize();
-		}
-		writer = null;
-		scalerValues = null;
-		detectorValues = null;
+		//logger.info("finalize called on MFwriter");
+		//try {
+		//	writer.close();
+		//} finally {
+		//	super.finalize();
+		//}
+		//writer = null;
+		//scalerValues = null;
+		//detectorValues = null;
+		active=false;
 	}
 
 	public void setZValue(double zValue) {

@@ -18,6 +18,8 @@
 
 package uk.ac.gda.client.microfocus.ui.editors;
 
+import java.text.DecimalFormat;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -29,10 +31,9 @@ import uk.ac.gda.richbeans.components.FieldComposite;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 import uk.ac.gda.richbeans.components.wrappers.TextWrapper;
-import uk.ac.gda.richbeans.event.ValueEvent;
-import uk.ac.gda.richbeans.event.ValueListener;
 import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
+import uk.ac.gda.richbeans.event.ValueListener;
 
 public final class MicroFocusScanParametersComposite extends Composite {
 
@@ -228,6 +229,10 @@ public final class MicroFocusScanParametersComposite extends Composite {
 
 		infoComposite = new Composite(this, SWT.NONE);
 		infoComposite.setLayout(new GridLayout());
+		GridData gridData2 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gridData2.widthHint=250;
+		infoComposite.setLayoutData(gridData2);
+		
 		scanTypeLabel = new Label(infoComposite, SWT.NONE);
 		scanTypeLabel.setText("                                                                    ");
 		rowDistanceLabel = new Label(infoComposite, SWT.NONE);
@@ -308,16 +313,17 @@ public final class MicroFocusScanParametersComposite extends Composite {
 		int pointsPerRow = (int) (Math.round((rowDistance / xStepSize.getNumericValue()) + 1));
 		int numberOfRows = (int) Math.round((Math.abs(yEnd.getNumericValue() - yStart.getNumericValue())
 				/ yStepSize.getNumericValue() + 1));
-		rowDistanceLabel.setText("Row Distance : " + rowDistance);
+		DecimalFormat df = new DecimalFormat("#.#####");
+		rowDistanceLabel.setText("Row Distance : " + df.format(rowDistance));
 		pointsPerRowLabel.setText("No. of points/row : " + pointsPerRow);
 		numberOfRowsLabel.setText("No. of rows : " + numberOfRows);
 		if (raster.getValue()) {
 			double timePerPoint = rowTime.getNumericValue() / pointsPerRow;
-			timePerPointLabel.setText("Time per point : " + timePerPoint);
+			timePerPointLabel.setText("Time per point : " + df.format(timePerPoint));
 			scanTypeLabel.setText("Raster Map");
 		} else {
 			scanTypeLabel.setText("Step Map");
-			timePerPointLabel.setText("Time per point : " + collectionTime.getNumericValue());
+			timePerPointLabel.setText("Time per point : " + df.format(collectionTime.getNumericValue()));
 		}
 		infoComposite.layout();
 	}
