@@ -53,6 +53,7 @@ import org.eclipse.emf.edit.command.SetCommand;
 import org.eclipse.emf.edit.domain.EditingDomain;
 import org.eclipse.emf.workspace.IWorkspaceCommandStack;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CheckboxCellEditor;
@@ -190,14 +191,17 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 			TomoConfigTableConstants.ENERGY, TomoConfigTableConstants.SAMPLE_WEIGHT,
 			TomoConfigTableConstants.RESOLUTION, TomoConfigTableConstants.FRAMES_PER_PROJECTION,
 			TomoConfigTableConstants.CONTINUOUS_STEP, TomoConfigTableConstants.RUN_TIME,
-			TomoConfigTableConstants.EST_END_TIME, TomoConfigTableConstants.TIME_DIVIDER,
-			TomoConfigTableConstants.SHOULD_DISPLAY, TomoConfigTableConstants.PROGRESS };
+			TomoConfigTableConstants.EST_END_TIME, TomoConfigTableConstants.TIME_FACTOR,
+			TomoConfigTableConstants.SHOULD_DISPLAY, TomoConfigTableConstants.PROGRESS,
+			TomoConfigTableConstants.ADDITIONAL };
 
-	private ColumnLayoutData columnLayouts[] = { new ColumnWeightData(1), new ColumnWeightData(10),
-			new ColumnWeightData(60), new ColumnWeightData(200), new ColumnWeightData(40), new ColumnWeightData(40),
-			new ColumnWeightData(40), new ColumnWeightData(60), new ColumnWeightData(60), new ColumnWeightData(60),
-			new ColumnWeightData(40), new ColumnWeightData(40), new ColumnWeightData(40), new ColumnWeightData(40),
-			new ColumnWeightData(40), new ColumnWeightData(40), new ColumnWeightData(40), new ColumnWeightData(40) };
+	private ColumnLayoutData columnLayouts[] = { new ColumnWeightData(1, false), new ColumnWeightData(10, false),
+			new ColumnWeightData(60, false), new ColumnWeightData(200, false), new ColumnWeightData(40, false),
+			new ColumnWeightData(40, false), new ColumnWeightData(40, false), new ColumnWeightData(60, false),
+			new ColumnWeightData(60, false), new ColumnWeightData(60, false), new ColumnWeightData(40, false),
+			new ColumnWeightData(40, false), new ColumnWeightData(40, false), new ColumnWeightData(40, false),
+			new ColumnWeightData(40, false), new ColumnWeightData(40, false), new ColumnWeightData(40, false),
+			new ColumnWeightData(40, false), new ColumnWeightData(40, false) };
 	// Fonts
 	private FontRegistry fontRegistry;
 
@@ -239,16 +243,21 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 		btnAndTableViewerComposite.setLayoutData(layoutData2);
 		//
 		Composite tableViewerContainer = toolkit.createComposite(btnAndTableViewerComposite);
-		GridLayout l = new GridLayout();
-		setLayoutSettings(l, 0, 0, 0, 0);
-		tableViewerContainer.setLayout(l);
+		// GridLayout l = new GridLayout();
+		// setLayoutSettings(l, 0, 0, 0, 0);
+		// tableViewerContainer.setLayout(l);
 		GridData ld = new GridData(GridData.FILL_BOTH);
 		ld.heightHint = 60;
 		tableViewerContainer.setLayoutData(ld);
 
 		configModelTableViewer = new TableViewer(tableViewerContainer, SWT.BORDER | SWT.FULL_SELECTION);
+		configModelTableViewer.getTable().setHeaderVisible(true);
+		configModelTableViewer.getTable().setLinesVisible(true);
+		TableColumnLayout tableLayout = new TableColumnLayout();
+		tableViewerContainer.setLayout(tableLayout);
 
-		createColumns(configModelTableViewer);
+		createColumns(configModelTableViewer, tableLayout);
+
 		TomoConfigContentProvider configContentProvider = null;
 		if (scanResolutionProvider != null) {
 			configContentProvider = new TomoConfigContentProvider(scanResolutionProvider);
@@ -476,7 +485,7 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 		tomoConfigViewController.addScanControllerUpdateListener(scanControllerUpdateListener);
 		tomoConfigViewController.isScanRunning();
 		//
-		configModelTableViewer.getTable().layout();
+		// configModelTableViewer.getTable().layout();
 		final Processor processor = CommandQueueViewFactory.getProcessor();
 		CommandQueueViewFactory.getProcessor().addIObserver(queueObserver);
 		try {
@@ -997,19 +1006,13 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 		super.dispose();
 	}
 
-	public void createColumns(TableViewer tableViewer) {
-		TableLayout layout = new TableLayout();
-		Table table = tableViewer.getTable();
-		table.setLayout(layout);
-		table.setHeaderVisible(true);
-		table.setLinesVisible(true);
+	public void createColumns(TableViewer tableViewer, TableColumnLayout layout) {
 		for (int i = 0; i < columnHeaders.length; i++) {
-			layout.addColumnData(columnLayouts[i]);
-			TableColumn tc = new TableColumn(table, SWT.NONE, i);
-			TableViewerColumn tableViewerColumn = new TableViewerColumn(tableViewer, tc);
-			tc.setResizable(columnLayouts[i].resizable);
-			tc.setText(columnHeaders[i]);
-			tc.setToolTipText(columnHeaders[i]);
+			TableViewerColumn tableViewerColumn = new TableViewerColumn(tableViewer, SWT.None);
+			tableViewerColumn.getColumn().setResizable(columnLayouts[i].resizable);
+			tableViewerColumn.getColumn().setText(columnHeaders[i]);
+			tableViewerColumn.getColumn().setToolTipText(columnHeaders[i]);
+			layout.setColumnData(tableViewerColumn.getColumn(), columnLayouts[i]);
 			tableViewerColumn.setEditingSupport(new TomoColumnEditingSupport(tableViewer, tableViewerColumn));
 		}
 	}
@@ -1090,7 +1093,7 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 					} catch (Exception ex) {
 						logger.error("Error setting resolution", ex);
 					}
-				} else if (TomoConfigTableConstants.TIME_DIVIDER.equals(columnIdentifier)) {
+				} else if (TomoConfigTableConstants.TIME_FACTOR.equals(columnIdentifier)) {
 					try {
 						double doubleVal = Double.parseDouble((String) value);
 
@@ -1128,7 +1131,7 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 					return configContent.isShouldDisplay();
 				} else if (TomoConfigTableConstants.SELECTION.equals(columnIdentifier)) {
 					return configContent.isSelectedToRun();
-				} else if (TomoConfigTableConstants.TIME_DIVIDER.equals(columnIdentifier)) {
+				} else if (TomoConfigTableConstants.TIME_FACTOR.equals(columnIdentifier)) {
 					return Double.toString(configContent.getTimeDivider());
 				}
 			}
@@ -1148,8 +1151,11 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 				return new CheckboxCellEditor(table);
 			} else if (TomoConfigTableConstants.SELECTION.equals(columnIdentifier)) {
 				return new CheckboxCellEditor(table);
-			} else if (TomoConfigTableConstants.TIME_DIVIDER.equals(columnIdentifier)) {
+			} else if (TomoConfigTableConstants.TIME_FACTOR.equals(columnIdentifier)) {
 				return new TextCellEditor(table);
+			} else if (TomoConfigTableConstants.ADDITIONAL.equals(columnIdentifier)) {
+				return new AdditionalInfoDialogCellEditor(table, RESOLUTION.get(((TomoConfigContent) element)
+						.getResolution()));
 			}
 			return null;
 		}
@@ -1165,7 +1171,9 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 					return true;
 				} else if (TomoConfigTableConstants.SELECTION.equals(columnIdentifier)) {
 					return true;
-				} else if (TomoConfigTableConstants.TIME_DIVIDER.equals(columnIdentifier)) {
+				} else if (TomoConfigTableConstants.TIME_FACTOR.equals(columnIdentifier)) {
+					return true;
+				} else if (TomoConfigTableConstants.ADDITIONAL.equals(columnIdentifier)) {
 					return true;
 				}
 				logger.debug("canEdit:{}", element);
@@ -1205,6 +1213,7 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 					TableItem[] items = configModelTableViewer.getTable().getItems();
 					for (TableItem tableItem : items) {
 						TomoConfigContent c = (TomoConfigContent) tableItem.getData();
+
 						if (c.getStatus() == CONFIG_STATUS.RUNNING) {
 							c.setProgress(Math.round(progress));
 							refreshRow(c);
@@ -1238,7 +1247,9 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 							if (configStatusForTomoConfigContent.keySet().contains(c.getConfigId())) {
 								CONFIG_STATUS status = configStatusForTomoConfigContent.get(c.getConfigId());
 								c.setStatus(status);
-								if (status == CONFIG_STATUS.COMPLETE) {
+								if (status == CONFIG_STATUS.STARTING) {
+									c.setProgress(0);
+								} else if (status == CONFIG_STATUS.COMPLETE) {
 									c.setProgress(100);
 								} else if (status == CONFIG_STATUS.NONE) {
 									c.setProgress(0);

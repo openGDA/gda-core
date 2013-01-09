@@ -18,6 +18,9 @@
 
 package uk.ac.gda.client.tomo.configuration.viewer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  */
@@ -43,8 +46,35 @@ public class TomoConfigContent implements ITomoConfigContent {
 	private double progress;
 	private CONFIG_STATUS status = CONFIG_STATUS.NONE;
 
+	private List<ScanInformation> scanInformationList = new ArrayList<TomoConfigContent.ScanInformation>();
+
+	public static class ScanInformation {
+		private final int scanNumber;
+		private final String startTime;
+		private final String endTime;
+
+		public ScanInformation(int scanNumber, String startTime, String endTime) {
+			this.scanNumber = scanNumber;
+			this.startTime = startTime;
+			this.endTime = endTime;
+		}
+
+		public int getScanNumber() {
+			return scanNumber;
+		}
+
+		public String getEndTime() {
+			return endTime;
+		}
+
+		public String getStartTime() {
+			return startTime;
+		}
+
+	}
+
 	public enum CONFIG_STATUS {
-		NONE("None"), RUNNING("Running"), COMPLETE("Complete"), FAIL("Fail");
+		NONE("None"), RUNNING("Running"), COMPLETE("Complete"), FAIL("Fail"), STARTING("Starting");
 		private final String value;
 
 		CONFIG_STATUS(String value) {
@@ -227,4 +257,11 @@ public class TomoConfigContent implements ITomoConfigContent {
 		this.progress = progress;
 	}
 
+	public void addScanInformation(int scanNumber, String startTime, String endTime) {
+		scanInformationList.add(new ScanInformation(scanNumber, startTime, endTime));
+	}
+
+	public List<ScanInformation> getScanInformationList() {
+		return scanInformationList;
+	}
 }
