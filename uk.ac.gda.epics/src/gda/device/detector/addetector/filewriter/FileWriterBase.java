@@ -106,7 +106,7 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 		this.setFileNameAndNumber = setFileNameAndNumber;
 	}
 	
-	public NDFile getNdFile(NDFile ndFile) {
+	public NDFile getNdFile() {
 		return ndFile;
 	}
 	/**
@@ -201,10 +201,6 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 		this.ndArrayPortVal = ndArrayPortVal;
 	}
 
-	protected NDFile getNdFile() {
-		return ndFile;
-	}
-	
 	@Override
 	public void stop() throws Exception {
 		if(isEnabled())
