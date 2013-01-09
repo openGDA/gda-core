@@ -24,6 +24,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import gda.TestHelpers;
+import gda.configuration.properties.LocalProperties;
 import gda.device.detector.addetector.ADDetector;
 import gda.device.detector.addetector.ADPco;
 import gda.device.detector.addetector.triggering.SingleExposurePco;
@@ -33,6 +34,8 @@ import gda.device.detector.areadetector.v17.NDFile.FileWriteMode;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.epics.PV;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 
@@ -44,7 +47,18 @@ public class ADPcoTest extends ADDetectorTest {
 	private PV<Boolean> mockArmModePv;
 	private NDPluginBase mockNdFilePluginBase;
 
-
+	@Override
+	@Before
+	public void setUp() throws Exception {
+		super.setUp();
+		LocalProperties.set("gda.mode", "live");
+	}
+	
+	@After
+	public void tearDown() {
+		LocalProperties.clearProperty("gda.mode");
+	}
+	
 	@Override
 	public ADDetector det() {
 		return adPco;
