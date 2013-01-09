@@ -25,7 +25,6 @@ import gda.scan.ScanPositionProvider;
 
 public class ScanPositionsTwoWay implements ScanPositionProvider {
 	
-	private Scannable firstScannable;
 	private double start;
 	private double stop;
 	private double step;
@@ -34,7 +33,6 @@ public class ScanPositionsTwoWay implements ScanPositionProvider {
 
 	public ScanPositionsTwoWay(Scannable firstScannable, double start, double stop, double step) throws Exception
 	{
-		this.firstScannable = firstScannable;
 		this.start = start;
 		this.stop = stop;
 		this.step = (Double) ScanBase.sortArguments(start, stop, step);
@@ -49,7 +47,6 @@ public class ScanPositionsTwoWay implements ScanPositionProvider {
 			            previousPoint = nextPoint;
 		}
 		this.forward=false;
-
 	}
 
 	@Override
@@ -76,5 +73,4 @@ public class ScanPositionsTwoWay implements ScanPositionProvider {
 	public int size() {
 		return points.length;
 	}
-
 }
