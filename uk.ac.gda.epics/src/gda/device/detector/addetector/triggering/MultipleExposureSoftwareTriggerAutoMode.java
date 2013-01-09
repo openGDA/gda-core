@@ -22,6 +22,7 @@ import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.device.detector.areadetector.v17.ADBase.StandardTriggerMode;
+import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDProcess;
 
 /*
@@ -50,6 +51,23 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 
 	int numberImagesPerCollection=1;
 	NDProcess ndProcess=null;
+	
+	//If the detector runs continuously we have to use the tiff file to grab the images
+	NDFile ndFile=null;
+
+	/**
+	 * To allow for detectors with prefix acquire give option to read it at prepareForCollection
+	 */
+	private boolean readAcquireTimeFromHardware=false;
+
+	public boolean isReadAcquireTimeFromHardware() {
+		return readAcquireTimeFromHardware;
+	}
+
+	public void setReadAcquireTimeFromHardware(boolean readAcquireTimeFromHardware) {
+		this.readAcquireTimeFromHardware = readAcquireTimeFromHardware;
+	}
+
 	public MultipleExposureSoftwareTriggerAutoMode(ADBase adBase, double maxExposureTime) {
 		super(adBase);
 		this.maxExposureTime = maxExposureTime;
@@ -64,6 +82,14 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 		this.ndProcess = ndProcess;
 	}
 
+	public NDFile getNdFile() {
+		return ndFile;
+	}
+
+	public void setNdFile(NDFile ndFile) {
+		this.ndFile = ndFile;
+	}
+
 	public double getMaxExposureTime() {
 		return maxExposureTime;
 	}
@@ -72,8 +98,8 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 		this.maxExposureTime = maxExposureTime;
 	}
 
-	public double getExposureTime() {
-		return exposureTime;
+	public double getExposureTime() throws Exception {
+		return readAcquireTimeFromHardware ? getAdBase().getAcquireTime_RBV() : exposureTime;
 	}
 
 	public void setExposureTime(double exposureTime) {
@@ -82,14 +108,23 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 		this.exposureTime = exposureTime;
 	}
 
+	
 	@Override
 	public void prepareForCollection(double collectionTime, int numImagesIgnored) throws Exception {
+		double localExposureTime = getExposureTime();
 		getAdBase().stopAcquiring(); 
-		getAdBase().setTriggerMode(StandardTriggerMode.INTERNAL.ordinal());
-		numberImagesPerCollection = calcNumberImagesPerCollection(collectionTime);
-		getAdBase().setNumImages(numberImagesPerCollection);
-		getAdBase().setImageModeWait(numberImagesPerCollection > 1 ? ImageMode.MULTIPLE : ImageMode.SINGLE);
-		getAdBase().setAcquireTime(numberImagesPerCollection > 1 ?exposureTime : collectionTime);
+		numberImagesPerCollection = calcNumberImagesPerCollection(collectionTime, localExposureTime);
+		getAdBase().setTriggerMode(StandardTriggerMode.INTERNAL.ordinal()); 		
+		if( getNdFile() != null){
+			getAdBase().setImageMode(ImageMode.CONTINUOUS.ordinal());
+			getAdBase().setNumImages(1);
+		} else {
+			getAdBase().setNumImages(numberImagesPerCollection);
+			getAdBase().setImageModeWait(numberImagesPerCollection > 1 ? ImageMode.MULTIPLE : ImageMode.SINGLE);
+		}
+		if( !readAcquireTimeFromHardware)
+			getAdBase().setAcquireTime(numberImagesPerCollection > 1 ?localExposureTime : collectionTime);
+		
 		
 		if( ndProcess != null){
 			ndProcess.setFilterType(NDProcess.FilterTypeV1_8_Sum);
@@ -138,17 +173,28 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 			ndProcess.setResetFilter(1);
 			// autoreset only works in numFiltered== numFilter which is not the case as we have just reset numFilter
 		}
-		getAdBase().startAcquiring();
+		if( getNdFile() != null){
+			if( getAdBase().getAcquireState() != 1){
+				getAdBase().startAcquiring();
+			}
+			getNdFile().startCapture();
+		} else {
+			getAdBase().startAcquiring();
+		}
 	}
 
 	@Override
 	public int getStatus() throws DeviceException {
-		return getAdBase().getStatus();
+		return getNdFile() != null ? getNdFile().getStatus() : getAdBase().getStatus();
 	}
 	
 	@Override
 	public void waitWhileBusy() throws InterruptedException, DeviceException {
-		getAdBase().waitWhileStatusBusy();
+		if( getNdFile() != null){
+			getNdFile().waitWhileStatusBusy();
+		}else {
+			getAdBase().waitWhileStatusBusy();
+		}
 	}
 	
 	@Override
@@ -161,15 +207,16 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 		completeCollection();
 	}
 
-	protected int calcNumberImagesPerCollection(double collectionTime) {
+	protected int calcNumberImagesPerCollection(double collectionTime, double exposureTime) {
 		if (collectionTime > exposureTime)
 			return (int)(collectionTime/exposureTime + 0.5);
 		return 1;
 	}
 	
 	@Override
-	public int getNumberImagesPerCollection(double collectionTime) {
-		return ndProcess == null ? calcNumberImagesPerCollection(collectionTime) : 1;
+	public int getNumberImagesPerCollection(double collectionTime) throws Exception {
+		double localExposureTime = getExposureTime();
+		return ndProcess == null ? calcNumberImagesPerCollection(collectionTime, localExposureTime) : 1;
 	}
 
 }
