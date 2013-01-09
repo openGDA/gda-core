@@ -72,9 +72,10 @@ public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftware
 	@Override
 	public void prepareForCollection(double collectionTime, int numImagesIgnored) throws Exception {
 		getAdBase().stopAcquiring();
-
-		numberImagesPerCollection = calcNumberImagesPerCollection(collectionTime);
-		getAdBase().setAcquireTime(numberImagesPerCollection > 1 ? exposureTime : collectionTime);
+		double localExposureTime = getExposureTime();
+		numberImagesPerCollection = calcNumberImagesPerCollection(collectionTime, localExposureTime);
+		if( !isReadAcquireTimeFromHardware())
+			getAdBase().setAcquireTime(numberImagesPerCollection > 1 ? localExposureTime : collectionTime);
 
 		if (ndProcess != null) {
 
@@ -110,7 +111,7 @@ public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftware
 
 			etfg.clearFrameSets();
 			etfg.getDaServer().sendCommand("tfg setup-trig start adc4 alternate 1"); // PCO Trigger Out on TFg2 TF3_OUT4 
-			etfg.addFrameSet(1, delayTime*1000, exposureTime * 1000., 0, 64, 0, 0); //set exposure TFG2 User Out 6
+			etfg.addFrameSet(1, delayTime*1000, localExposureTime * 1000., 0, 64, 0, 0); //set exposure TFG2 User Out 6
 			etfg.setCycles(1); //the number of cycles is not used
 			etfg.loadFrameSets();
 			
