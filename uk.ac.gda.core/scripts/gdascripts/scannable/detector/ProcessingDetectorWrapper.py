@@ -471,7 +471,7 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 		
 	@property
 	def det(self):
-		return self.hardware_triggered_detector if self.hardware_triggering else self.detector
+		return self.hardware_triggered_detector if self.isHardwareTriggering() else self.detector
 	
 #		return {'pilatus100k_path_template='123-pilatus100k/%5i.cbf.'}
 	
@@ -506,9 +506,12 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 	# Detector
 		
 	def setCollectionTime(self, t):
-		self.det.setCollectionTime(t)
-		if self.hardware_triggered_detector:
-			self.hardware_triggered_detector.setCollectionTime(t) # setCollectionTime is called before the detector knows it will be used in continuous mode
+		if self.det is not None:
+			self.det.setCollectionTime(t)
+		if self.hardware_triggered_detector is not None:
+			self.hardware_triggered_detector.setCollectionTime(t)
+		if self.detector_for_snaps is not None:
+			self.detector_for_snaps.setCollectionTime(t)
 
 	def prepareForCollection(self):
 		self.det.prepareForCollection()
@@ -520,7 +523,10 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 		self.det.atScanStart()
 
 	def getCollectionTime(self):
-		return self.det.getCollectionTime()
+		if self.isHardwareTriggering():
+			return self.hardware_triggered_detector.getCollectionTime()
+		else:
+			return self.det.getCollectionTime()
 
 	def collectData(self):
 		self.clearLastAcquisitionState()
