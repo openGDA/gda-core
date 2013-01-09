@@ -101,6 +101,8 @@
         containment="true" resolveProxies="false"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="chipDisable" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"
         unsettable="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="dacIntoMpx" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="dacOutFromMpx" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="MpxiiiGlobalRegModel">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="colourMode" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>

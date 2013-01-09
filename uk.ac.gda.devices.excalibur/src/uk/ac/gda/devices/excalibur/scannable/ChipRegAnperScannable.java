@@ -29,12 +29,14 @@ import uk.ac.gda.devices.excalibur.MpxiiiChipReg;
 
 public class ChipRegAnperScannable extends BaseChipRegScannable{
 	final String getmethod, setmethod;	
+	final int index;
 	
-	public ChipRegAnperScannable(List<ExcaliburReadoutNodeFem> fems, String parameter) {
+	public ChipRegAnperScannable(List<ExcaliburReadoutNodeFem> fems, String parameter, int index) {
 		super(fems);
 		String cap = StringUtils.capitalize(parameter);
 		getmethod = "get" + cap;
 		setmethod = "set" + cap;	
+		this.index = index;
 	}
 
 	@Override
@@ -69,4 +71,9 @@ public class ChipRegAnperScannable extends BaseChipRegScannable{
 		}
 		return invoke;
 	}
+
+	public int getIndex() {
+		return index;
+	}
+	
 }

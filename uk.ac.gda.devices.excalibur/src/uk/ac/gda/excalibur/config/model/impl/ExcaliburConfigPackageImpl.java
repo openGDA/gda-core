@@ -787,6 +787,24 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EAttribute getMpxiiiChipRegModel_DacIntoMpx() {
+		return (EAttribute)mpxiiiChipRegModelEClass.getEStructuralFeatures().get(3);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getMpxiiiChipRegModel_DacOutFromMpx() {
+		return (EAttribute)mpxiiiChipRegModelEClass.getEStructuralFeatures().get(4);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	@Override
 	public EClass getMpxiiiGlobalRegModel() {
 		return mpxiiiGlobalRegModelEClass;
@@ -1370,6 +1388,8 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 		createEReference(mpxiiiChipRegModelEClass, MPXIII_CHIP_REG_MODEL__ANPER);
 		createEReference(mpxiiiChipRegModelEClass, MPXIII_CHIP_REG_MODEL__PIXEL);
 		createEAttribute(mpxiiiChipRegModelEClass, MPXIII_CHIP_REG_MODEL__CHIP_DISABLE);
+		createEAttribute(mpxiiiChipRegModelEClass, MPXIII_CHIP_REG_MODEL__DAC_INTO_MPX);
+		createEAttribute(mpxiiiChipRegModelEClass, MPXIII_CHIP_REG_MODEL__DAC_OUT_FROM_MPX);
 
 		mpxiiiGlobalRegModelEClass = createEClass(MPXIII_GLOBAL_REG_MODEL);
 		createEAttribute(mpxiiiGlobalRegModelEClass, MPXIII_GLOBAL_REG_MODEL__COLOUR_MODE);
@@ -1526,6 +1546,8 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 		initEReference(getMpxiiiChipRegModel_Anper(), this.getAnperModel(), null, "anper", null, 0, 1, MpxiiiChipRegModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getMpxiiiChipRegModel_Pixel(), this.getPixelModel(), null, "pixel", null, 0, 1, MpxiiiChipRegModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getMpxiiiChipRegModel_ChipDisable(), ecorePackage.getEBoolean(), "chipDisable", null, 0, 1, MpxiiiChipRegModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getMpxiiiChipRegModel_DacIntoMpx(), ecorePackage.getEDouble(), "dacIntoMpx", null, 0, 1, MpxiiiChipRegModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getMpxiiiChipRegModel_DacOutFromMpx(), ecorePackage.getEDouble(), "dacOutFromMpx", null, 0, 1, MpxiiiChipRegModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(mpxiiiGlobalRegModelEClass, MpxiiiGlobalRegModel.class, "MpxiiiGlobalRegModel", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getMpxiiiGlobalRegModel_ColourMode(), ecorePackage.getEInt(), "colourMode", null, 0, 1, MpxiiiGlobalRegModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);

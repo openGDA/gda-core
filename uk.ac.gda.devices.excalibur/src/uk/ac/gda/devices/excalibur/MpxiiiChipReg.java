@@ -18,6 +18,9 @@
 
 package uk.ac.gda.devices.excalibur;
 
+import gov.aps.jca.CAException;
+import gov.aps.jca.TimeoutException;
+
 
 /**
  * Interface that corresponds to $excalibur_ioc/excaliburApp/Db/mpxiiChipReg.template
@@ -63,4 +66,9 @@ public interface MpxiiiChipReg {
 
 	void loadPixelConfig() throws Exception;
 	
+	double getDacIntoMpx() throws Exception;
+	
+	void setDacIntoMpx(double dacIntoMPX)throws Exception;
+
+	double getDacOutFromMpx()throws Exception;
 }

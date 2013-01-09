@@ -36,6 +36,11 @@ public class ChipSet {
 	public static final int chipWidth = 256;
 	public static final int chipPixels = chipHeight*chipWidth;
 	
+	/**
+	 * 
+	 * @param chipRow
+	 * @return Returns value in row direction of top row of pixels in a chip. 0 is value for first row ( top most)
+	 */
 	public static int getChipTopPixel(long chipRow){
 		switch ((int)chipRow){
 		case 0:
@@ -55,20 +60,47 @@ public class ChipSet {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param chipRow
+	 * @return Returns value in row direction of bottom row of pixels in a chip. chipHeight-1 is value for first row ( top most)
+	 */
 	public static int getChipBottomPixel(int chipRow){
 		return getChipTopPixel(chipRow)+chipHeight-1;
 	}
 
+	/**
+	 * 
+	 * @param chipColumn
+	 * @return Returns value in column direction of left column of pixels in a chip. 0 is value for first column ( left most)
+	 */
 	public static int getChipLeftPixel(int chipColumn){
 		return chipColumn*(chipWidth+3);
 	}
+
+	/**
+	 * 
+	 * @param chipColumn
+	 * @return Returns value in column direction of right column of pixels in a chip. chipWidth -1 is value for first column ( left most)
+	 */
 	public static int getChipRightPixel(int chipColumn){
 		return getChipLeftPixel(chipColumn) + chipWidth-1;
 	}	
 	
+	/**
+	 * 
+	 * @param columns
+	 * @return number of pixels per row of pixels of a chipset with number of columns = columns. If columns = 1 return chipWidth
+	 */
 	public static int getPixelsPerRow(int columns){
 		return ChipSet.getChipRightPixel(columns-1)+1;
 	}
+
+	/**
+	 * 
+	 * @param rows
+	 * @return number of pixels per column of pixels of a chipset with number of rows = rows. If rows = 1 return chipHeight
+	 */
 	public static int getPixelsPerCol(int rows){
 		return ChipSet.getChipBottomPixel(rows-1)+1;
 	}
@@ -77,7 +109,17 @@ public class ChipSet {
 	List<Chip> chips;
 	public final int columns;
 	public final int rows;
+
+	/**
+	 * number of pixels per row of pixels of the chipset
+	 * 
+	 */
 	public final long pixelsPerRow;
+
+	
+	/**
+	 * number of pixels per column of pixels of a chipset
+	 */
 	public final long pixelsPerCol;
 	public final int numChips;
 
@@ -121,7 +163,7 @@ public class ChipSet {
 			throw new IllegalArgumentException("shape.length != 2");
 		}
 		long fullHeight = shape[0];
-		if(fullHeight != pixelsPerCol){
+		if(fullHeight < pixelsPerCol ||  fullHeight > pixelsPerCol+2){
 			throw new IllegalArgumentException("fullHeight != reqdHeight: " + pixelsPerCol);
 		}
 		long fullWidth = shape[1];
@@ -134,6 +176,10 @@ public class ChipSet {
 		return new long[]{rows, columns};
 	}
 	
+	/**
+	 * 
+	 * @return dimensions of the pixel array represented by this ChipSet
+	 */
 	public long[] getPixelsDims(){
 		return new long[]{pixelsPerRow, pixelsPerCol};
 	}
@@ -162,17 +208,34 @@ class Chip {
 		return index;
 	}
 	
+	/**
+	 * 
+	 * @return Returns value in row direction of top row of pixels in a chip. 0 is value for first row ( top most)
+	 */
 	int getChipTopPixel(){
 		return ChipSet.getChipTopPixel(row);
 	}
 	
+	/**
+	 * 
+	 * @return Returns value in row direction of bottom row of pixels in a chip. chipHeight-1 is value for first row ( top most)
+	 */
 	int getChipBottomPixel(){
 		return ChipSet.getChipBottomPixel(row);
 	}
 
+	/**
+	 * 
+	 * @return Returns value in column direction of left column of pixels in a chip. 0 is value for first column ( left most)
+	 */
 	int getChipLeftPixel(){
 		return ChipSet.getChipLeftPixel(column);
 	}
+	
+	/**
+	 * 
+	 * @return Returns value in column direction of right column of pixels in a chip. chipWidth -1 is value for first column ( left most)
+	 */
 	int getChipRightPixel(){
 		return ChipSet.getChipRightPixel(column);
 	}
@@ -181,6 +244,10 @@ class Chip {
 		return new PixelIndexIterator(this);
 	}
 	
+	/**
+	 * @return number of pixels per row of pixels of the chipset of which this chip is a member
+	 * 
+	 */
 	public long getPixelsPerRow(){
 		return chipSet.pixelsPerRow;
 	}
@@ -199,27 +266,30 @@ class Chip {
 
 }
 
-
+/**
+ * Class that can be used to iterate through all the pixels of a chip
+ * The value returned by next is the index into the 1d array that represents the pixels of the chipset
+ * of which the chip is a member
+ */
 class PixelIndexIterator implements Iterator<Long> {
 
 	private final Chip chip;
 	int row=0;
-	int col=0;
+	int col=-1;
+	
+	/**
+	 * index into the 1d array that represents the pixels of the chipset of which the chip is a member
+	 */
 	long pixelindex;
 	long pixelsStepBetweenRows;
 
 	public PixelIndexIterator(Chip chip) {
 		this.chip = chip;
-		pixelindex = chip.getChipTopPixel() + chip.getChipLeftPixel()-1;//subtract 1 as the value is read after callig next which adds 1
+		pixelindex = chip.getChipTopPixel()*chip.getPixelsPerRow() + chip.getChipLeftPixel()-1;//subtract 1 as the value is read after callig next which adds 1
 	}
 
 	@Override
 	public boolean hasNext() {
-		return row<ChipSet.chipHeight-1;
-	}
-
-	@Override
-	public Long next() {
 		col+=1;
 		pixelindex+=1;
 		if( col == ChipSet.chipWidth){
@@ -228,6 +298,10 @@ class PixelIndexIterator implements Iterator<Long> {
 			pixelindex-=ChipSet.chipWidth;
 			pixelindex+=chip.getPixelsPerRow();
 		}
+		return row<ChipSet.chipHeight;
+	}
+	@Override
+	public Long next() {
 		return pixelindex;
 	}
 

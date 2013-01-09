@@ -101,4 +101,18 @@ public interface MpxiiiChipRegModel extends EObject {
 	 */
 	boolean isSetChipDisable();
 
+	/**
+	 * @model 
+	 */
+	double getDacIntoMpx();
+	
+	void setDacIntoMpx(double dacIntoMPX);
+
+	/**
+	 * @model 
+	 */
+	double getDacOutFromMpx();
+	
+	void setDacOutFromMpx(double dacOutFromMPX);
+	
 }
