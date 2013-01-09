@@ -19,7 +19,6 @@
 package gda.device.detector.addetector.filewriter;
 
 import static java.text.MessageFormat.format;
-import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.NDFile.FileWriteMode;
 import gda.device.detector.areadetector.v17.NDPluginBase;
@@ -67,6 +66,17 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 	private boolean waitForFileArrival = true;
 
 	private String keyNameForMetadataPathTemplate = "";
+
+	private FileWriteMode fileWriteMode = FileWriteMode.SINGLE;
+
+
+	public String getFileWriteMode() {
+		return fileWriteMode.toString();
+	}
+
+	public void setFileWriteMode(String fileWriteMode) {
+		this.fileWriteMode = FileWriteMode.valueOf(fileWriteMode);
+	}
 
 	/**
 	 * Creates a SingleImageFileWriter with ndFile, fileTemplate, filePathTemplate, fileNameTemplate and
@@ -159,7 +169,10 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 			pluginBase.setBlockingCallbacks((short) (returnExpectedFileName ? 1 : 1)); // always block
 		}
 
-		getNdFile().setFileWriteMode(FileWriteMode.SINGLE);
+		getNdFile().setFileWriteMode(fileWriteMode);
+		if( fileWriteMode == FileWriteMode.CAPTURE){
+			getNdFile().setNumCapture(1);
+		}
 		
 		if (!getkeyNameForMetadataPathTemplate().isEmpty()) {
 			addPathTemplateToMetadata();
