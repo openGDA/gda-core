@@ -18,8 +18,6 @@
 
 package gda.device.detector.areadetector.v17.impl;
 
-import org.springframework.beans.factory.InitializingBean;
-
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 
@@ -306,6 +304,10 @@ public class NDFileSimulator implements NDFile{
 	public void setWriteFile(int writefile) throws Exception {
 		writeFile = (short)writefile;
 		
+	}
+
+	@Override
+	public void waitWhileStatusBusy() throws InterruptedException {
 	}
 
 

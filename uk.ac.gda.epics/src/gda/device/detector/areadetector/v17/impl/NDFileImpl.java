@@ -1085,9 +1085,22 @@ public class NDFileImpl implements InitializingBean, NDFile {
 		return channel;
 	}
 
+	private Object statusMonitor = new Object();
 	@Override
 	public void setStatus(int status) {
-		this.status = status;
+		synchronized (statusMonitor) {
+			this.status = status;
+			this.statusMonitor.notifyAll();
+		}
+	}
+	
+	@Override
+	public void waitWhileStatusBusy() throws InterruptedException {
+		synchronized (statusMonitor) {
+			while (status == Detector.BUSY) {
+				statusMonitor.wait();
+			}
+		}
 	}
 
 	@Override
@@ -1123,6 +1136,8 @@ public class NDFileImpl implements InitializingBean, NDFile {
 	public void setResetToInitialValues(boolean resetToInitialValues) {
 		this.resetToInitialValues = resetToInitialValues;
 	}
+
+
 
 
 }
