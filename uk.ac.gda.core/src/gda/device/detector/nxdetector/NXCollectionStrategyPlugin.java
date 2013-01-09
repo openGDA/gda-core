@@ -46,5 +46,5 @@ public interface NXCollectionStrategyPlugin extends NXPlugin{
 	 * Returns the number of images required to achieve the desired collectionTime (seconds)
 	 * This is number of images per ScanDataPoint
 	 */
-	public int getNumberImagesPerCollection(double collectionTime);
+	public int getNumberImagesPerCollection(double collectionTime) throws Exception;
 }
