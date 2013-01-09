@@ -147,9 +147,11 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 
 	@Override
 	public void completeCollection() throws Exception {
-		getAdBase().stopAcquiring();
-		getAdBase().setImageModeWait(ImageMode.SINGLE);
-		getAdBase().setNumImages(1);
+		if( getNdFile() == null){ 
+			getAdBase().stopAcquiring();
+			getAdBase().setImageModeWait(ImageMode.SINGLE);
+			getAdBase().setNumImages(1);
+		}
 		if( ndProcess != null){
 			ndProcess.setFilterType(NDProcess.FilterTypeV1_8_Sum);
 			ndProcess.setNumFilter(1);
