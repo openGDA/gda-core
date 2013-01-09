@@ -36,6 +36,8 @@ public class DeferredScannableGroup extends CoordinatedScannableGroup {
 	private static final Logger logger = LoggerFactory.getLogger(DeferredScannableGroup.class);
 	ControlPoint deferredControlPoint;
 	String deferredControlPointName;
+	
+	private boolean logDefFlagChangesAsInfo = false;
 
 	/**
 	 * 
@@ -57,6 +59,9 @@ public class DeferredScannableGroup extends CoordinatedScannableGroup {
 	 */
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
+		if (isLogDefFlagChangesAsInfo()) {
+			logger.info("[[[" +getName() + ": defer ON");
+		}
 		setDefer(true);
 		try {
 			super.asynchronousMoveTo(position);
@@ -67,6 +72,9 @@ public class DeferredScannableGroup extends CoordinatedScannableGroup {
 							e);
 			stop();
 			throw new DeviceException("Exception while triggering deferred scannable group move:\n " + e.getMessage(), e);
+		}
+		if (isLogDefFlagChangesAsInfo()) {
+			logger.info("]]]" + getName() + ": defer OFF");
 		}
 		setDefer(false);
 	}
@@ -136,5 +144,13 @@ public class DeferredScannableGroup extends CoordinatedScannableGroup {
 	 */
 	public void setDeferredControlPointName(String deferredControlPointName) {
 		this.deferredControlPointName = deferredControlPointName;
+	}
+
+	public boolean isLogDefFlagChangesAsInfo() {
+		return logDefFlagChangesAsInfo;
+	}
+
+	public void setLogDefFlagChangesAsInfo(boolean logDefFlagChangesAsInfo) {
+		this.logDefFlagChangesAsInfo = logDefFlagChangesAsInfo;
 	}
 }
