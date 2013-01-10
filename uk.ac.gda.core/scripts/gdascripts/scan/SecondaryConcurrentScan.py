@@ -18,6 +18,8 @@ from java.util import Vector
 from gda.jython.commands.GeneralCommands import pause
 from java.lang import InterruptedException
 import time
+from gda.device import Scannable, Detector
+from gdascripts.scannable.dummy import SingleInputDummy
 
 def frange(limit1, limit2, increment):
 	"""Range function that accepts floats (and integers).
@@ -86,7 +88,7 @@ class SecondaryConcurrentScan(object):# sort of extends ConcurrentScan
 
 		# Fudge the real scannables back in as arrayScannable was a conglomeration of these
 		
-		self.realScanRunAtEnd.setScannables(Vector(self.getUserListedScannables()))
+		self.realScanRunAtEnd.setScannables(Vector([SingleInputDummy("idx")] + self.getUserListedScannables()))
 
 	def scanIntoArrayAndSecondaryPlot(self, argStruct):
 
@@ -158,6 +160,11 @@ class SecondaryConcurrentScan(object):# sort of extends ConcurrentScan
 			raise Exception("ScanPlotSettings not available yet")
 		return self.realScanRunAtEnd.getScanPlotSettings()
 	
+	def getAllScannables(self):
+		return self.realScanRunAtEnd.getAllScannables()
+
+	def getDetectors(self):
+		return self.realScanRunAtEnd.getDetectors()
 	
 ################################################################################
 # CODE COPIED from ConcurrentScanWrapper:
@@ -198,10 +205,8 @@ def flattenArgStructToArgs(argStruct):
 
 # CODE COPIED from ConcurrentScanWrapper:
 def isObjectScannable(obj):
-	return isinstance(obj, PseudoDevice) or isinstance(obj, ScannableBase) 
-	
-	
-	
-	
-	
+	return isinstance(obj, (Scannable, PseudoDevice, ScannableBase))
+
+def isDetector(obj):
+	return isinstance(obj, Detector)
 	
