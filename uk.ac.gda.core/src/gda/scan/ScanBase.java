@@ -606,13 +606,19 @@ public abstract class ScanBase implements Scan {
 
 				// shutdown the ScanDataPointPipeline (will close DataWriter)
 				try {
-					this.scanDataPointPipeline.shutdown(Long.MAX_VALUE); // no timeout
+					if (this.scanDataPointPipeline != null) {
+						this.scanDataPointPipeline.shutdown(Long.MAX_VALUE); // no timeout
+					}
 				} catch (InterruptedException e) {
 					throw new DeviceException("Interupted while shutting down ScanDataPointPipeline from scan thread", e);
 
 				}
-
-				logger.info("Scan '{}' complete: {}", getName(), getDataWriter().getCurrentFileName());
+				try {
+					logger.info("Scan '{}' complete: {}", getName(), getDataWriter().getCurrentFileName());
+				} catch (IllegalStateException e) {
+					logger.info("Scan '{}' complete", getName());
+					
+				}
 
 				getTerminalPrinter().print("Scan complete.");
 			}
@@ -658,7 +664,7 @@ public abstract class ScanBase implements Scan {
 		if (scanDataPointPipeline == null) {
 			if (manuallySetDataWriter == null) {
 				throw new IllegalStateException(
-						"Could not get datawriter from data pipeline as there is no pipeline or"
+						"Could not get datawriter from data pipeline as there is no pipeline or "
 								+ "manually set datawriter");
 			}
 			return manuallySetDataWriter;
