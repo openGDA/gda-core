@@ -10,7 +10,7 @@ class ScannableScan(PseudoDevice):
 		self.name = name
 		self.inputNames = []
 		self.extraNames = ['scan'] + list(datasetProcessor.labelList)
-		self.outputFormat = ['%i']+['%f']*len(self.extraNames)
+		self.outputFormat = ['%i']+['%f']*len(datasetProcessor.labelList)
 		
 		self.datasetProcessorName = datasetProcessor.name
 		self.scan = scanClass([ScanDataProcessor([datasetProcessor])])
