@@ -1013,7 +1013,9 @@ public abstract class ScanBase implements Scan {
 					throw new Exception("Exception during scan collection: " + createMessage(e), e);
 				}
 			} catch (Exception e) {
-				logger.error(createMessage(e) + " during scan: calling atCommandFailure hooks and then interrupting scan.");
+				String msg = createMessage(e) + " during scan: calling atCommandFailure hooks on Scannables and then interrupting scan.";
+				InterfaceProvider.getTerminalPrinter().print("!!!" + msg);
+				logger.error(msg);
 				cancelReadoutAndPublishCompletion();
 				callAtCommandFailureHooks();
 				throw e;
