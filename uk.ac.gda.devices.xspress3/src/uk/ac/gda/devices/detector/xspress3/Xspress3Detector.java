@@ -29,8 +29,9 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 
 	public static int SUM_ALL_ROI = 0;
 	public static int SUM_FIRST_ROI = 1;
+	public static int MAX_ROI_PER_CHANNEL = 4;
 
-	protected final Xspress3Controller controller;
+	protected Xspress3Controller controller;
 	private String channelLabelPrefix = "FF channel ";
 	private String sumLabel = "FF";
 	private String unitsLabel = "counts";
@@ -45,8 +46,13 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 	private int fileNumber = -1;
 	private String numTrackerExtension = "nxs";
 	private NumTracker numTracker;
+	
+	public Xspress3Detector(){
+		
+	}
 
 	public Xspress3Detector(Xspress3Controller controller) {
+		super();
 		this.controller = controller;
 	}
 
@@ -219,6 +225,46 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 		}
 		return sum;
 	}
+	
+	public void setRegionsOfInterest(ROI[] regionList) throws DeviceException {
+		if (regionList.length > MAX_ROI_PER_CHANNEL) {
+			throw new DeviceException("Too many regions! Only "
+					+ MAX_ROI_PER_CHANNEL + " allowed.");
+		}
+		for (int chan = firstChannelToRead; chan < numberOfChannelsToRead
+				+ firstChannelToRead; chan++) {
+			for (int roiNum = 0; roiNum < MAX_ROI_PER_CHANNEL; roiNum++) {
+				if (roiNum < regionList.length){
+				controller.setROILimits(chan, roiNum,
+						new int[] { regionList[roiNum].getStart(),
+								regionList[roiNum].getEnd() });
+				} else {
+					controller.setROILimits(chan, roiNum,
+							new int[] {0,0});
+				}
+			}
+		}
+		controller.setNumberROIToRead(regionList.length + 1);
+	}
+	
+	/**
+	 * For the moment, all ROI on all channels are the same, and assumed by this class to be the same.
+	 * 
+	 * @return ROI[]
+	 * @throws DeviceException 
+	 */
+	public ROI[] getRegionsOfInterest() throws DeviceException {
+		ROI[] rois = new ROI[controller.getNumberROIToRead()];
+		
+		for (int roiNum = 0; roiNum < rois.length; roiNum++) {
+			rois[roiNum] = new ROI();
+			rois[roiNum].setName("ROI"+roiNum);
+			Integer[] limits = controller.getROILimits(0, roiNum);
+			rois[roiNum].setStart(limits[0]);
+			rois[roiNum].setEnd(limits[1]);
+		}
+		return rois;
+	}
 
 	public int getFirstChannelToRead() {
 		return firstChannelToRead;
@@ -267,6 +313,14 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 
 	public void setUnitsLabel(String unitsLabel) {
 		this.unitsLabel = unitsLabel;
+	}
+
+	public Xspress3Controller getController() {
+		return controller;
+	}
+
+	public void setController(Xspress3Controller controller) {
+		this.controller = controller;
 	}
 
 	public boolean isWriteHDF5Files() {
