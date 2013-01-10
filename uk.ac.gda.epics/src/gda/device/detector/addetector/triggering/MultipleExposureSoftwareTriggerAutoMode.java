@@ -112,13 +112,13 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 	@Override
 	public void prepareForCollection(double collectionTime, int numImagesIgnored) throws Exception {
 		double localExposureTime = getExposureTime();
-		getAdBase().stopAcquiring(); 
 		numberImagesPerCollection = calcNumberImagesPerCollection(collectionTime, localExposureTime);
-		getAdBase().setTriggerMode(StandardTriggerMode.INTERNAL.ordinal()); 		
+		getAdBase().setTriggerMode(StandardTriggerMode.INTERNAL.ordinal()); 		 
 		if( getNdFile() != null){
 			getAdBase().setImageMode(ImageMode.CONTINUOUS.ordinal());
 			getAdBase().setNumImages(1);
 		} else {
+			getAdBase().stopAcquiring(); 
 			getAdBase().setNumImages(numberImagesPerCollection);
 			getAdBase().setImageModeWait(numberImagesPerCollection > 1 ? ImageMode.MULTIPLE : ImageMode.SINGLE);
 		}
@@ -171,16 +171,24 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 	
 	@Override
 	public void collectData() throws Exception {
-		if( ndProcess != null){
-			ndProcess.setResetFilter(1);
-			// autoreset only works in numFiltered== numFilter which is not the case as we have just reset numFilter
-		}
 		if( getNdFile() != null){
 			if( getAdBase().getAcquireState() != 1){
 				getAdBase().startAcquiring();
 			}
+			//when running continuously we need to allow the current frame ( that started before now) to get out of the camera.
+			//this means waiting ofr the exposure time 
+			Thread.sleep((long) (getAdBase().getAcquirePeriod_RBV() * 1000));
+			//if use proc we now reset the filter
+			if( ndProcess != null){
+				ndProcess.setResetFilter(1);
+				// autoreset only works in numFiltered== numFilter which is not the case as we have just reset numFilter
+			}
 			getNdFile().startCapture();
 		} else {
+			if( ndProcess != null){
+				ndProcess.setResetFilter(1);
+				// autoreset only works in numFiltered== numFilter which is not the case as we have just reset numFilter
+			}
 			getAdBase().startAcquiring();
 		}
 	}
