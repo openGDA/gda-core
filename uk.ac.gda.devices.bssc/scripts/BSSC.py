@@ -8,6 +8,7 @@ from gda.commandqueue import JythonScriptProgressProvider
 class BSSCRun:
     
     def __init__(self, beanFile):
+        self.samplevolume = 10
         self.bean = uk.ac.gda.devices.bssc.beans.BSSCSessionBean.createFromXML(beanFile)
         self.bssc = gda.factory.Finder.getInstance().listAllLocalObjects("uk.ac.gda.devices.bssc.BioSAXSSampleChanger")[0]
         self.tfg = gda.factory.Finder.getInstance().listAllLocalObjects("gda.device.Timer")[0]
@@ -15,29 +16,34 @@ class BSSCRun:
         self.cam = gda.factory.Finder.getInstance().find("bsaxscam")
         self.shutter = gda.factory.Finder.getInstance().find("shutter")
         self.progresscounter = 0
-        self.sampleprogresscounter = 0
         self.overheadsteps = 5
-        self.stepspersample = 9 
-        self.samplevolume = 10
-        self.totalSteps = self.overheadsteps + self.bean.getMeasurements().size() * self.stepspersample
+        self.stepspersample = 7
+        self.stepsperbuffer = 3
+        self.totalSteps = self.overheadsteps + self.bean.getMeasurements().size() * self.stepspersample + (self.bean.getMeasurements().size() + 1) * self.stepsperbuffer
+        lastTitration=None
+        for titration in self.bean.getMeasurements():
+            if lastTitration != None and not self.tritrationsCanUseSameBufferMeasurement(lastTitration, titration):
+                self.totalSteps += self.stepsperbuffer
         self.lastreportedmeasurement = None
+        try: 
+            self.isSimulation = True
+            # in simulation temperature control does not work
+            self.bssc.getTemperatureSampleStorage()
+            self.isSimulation = False
+        except: 
+            print "Temperature control is not working, will run at ambient conditions."
         
     def reportProgress(self, message):
         self.progresscounter += 1
         if self.totalSteps < self.progresscounter:
             self.totalSteps = self.progresscounter
             print "max progress steps: %d" % self.totalSteps
-        JythonScriptProgressProvider.sendProgress(100.0*self.progresscounter/self.totalSteps, "%s  (%3.1f%% done)" % (message, 100.0*self.progresscounter/self.totalSteps))
-    
+        ourmessage = "%s  (%3.1f%% done)" % (message, 100.0*self.progresscounter/self.totalSteps)
+        print ourmessage
+        JythonScriptProgressProvider.sendProgress(100.0*self.progresscounter/self.totalSteps, ourmessage)
+        
     def reportSampleProgress(self, measurement, message):
-        if self.lastreportedmeasurement == measurement:
-            self.sampleprogresscounter += 1
-            if self.sampleprogresscounter > self.stepspersample:
-                print "max steps per sample: %d" % self.sampleprogresscounter
-        else:
-            self.lastreportedmeasurement = measurement
-            self.sampleprogresscounter = 1
-        self.reportProgress("Sample: %s -- %s" % (measurement.getSampleName(), message))
+        self.reportProgress("%s -- %s %s" % (message, measurement.getSampleName(), measurement.getLocation()))
     
     def monitorAsynchronousMethod(self, taskid):
         time.sleep(0.5)
@@ -57,12 +63,12 @@ class BSSCRun:
         print "Plates in Sample Changer: ", self.bssc.getPlatesIDs()
     
     def setStorageTemperature(self):
-        self.monitorAsynchronousMethod(self.bssc.waitTemperatureSample(self.bean.getSampleStorageTemperature()))
-        #pass
+        if not self.isSimulation:
+            self.monitorAsynchronousMethod(self.bssc.waitTemperatureSample(self.bean.getSampleStorageTemperature()))
     
     def setExposureTemperature(self, temperature):
-        self.monitorAsynchronousMethod(self.bssc.waitTemperatureSEU((temperature)))
-        #pass
+        if not self.isSimulation:
+            self.monitorAsynchronousMethod(self.bssc.waitTemperatureSEU((temperature)))
     
     def clean(self):
         self.monitorAsynchronousMethod(self.bssc.clean())
@@ -80,13 +86,19 @@ class BSSCRun:
         self.monitorAsynchronousMethod(self.bssc.fill(location.getPlate(), location.getRowAsInt(), location.getColumn(), self.samplevolume))
 
     def unloadIntoWell(self, location):
-        self.monitorAsynchronousMethod(self.bssc.recouperate(location.getPlate(), location.getRowAsInt(), location.getColumn()))
+        self.monitorAsynchronousMethod(self.bssc.recuperate(location.getPlate(), location.getRowAsInt(), location.getColumn()))
     
     def expose(self, duration):
-        taskid = self.bssc.push(10.0, 5.0/duration)
-        gda.jython.commands.ScannableCommands.staticscan([self.detector])
-        #self.monitorAsynchronousMethod(taskid)
-        
+        speed = self.samplevolume/duration
+        if speed >= 5 and speed <= 6000: 
+            # simulation reports these limits
+            taskid = self.bssc.push(self.samplevolume, speed)
+            gda.jython.commands.ScannableCommands.staticscan([self.detector])
+            self.monitorAsynchronousMethod(taskid)
+        else:
+            print "sample speed %5.1f outside allowed range, will do static exposure" % speed
+            gda.jython.commands.ScannableCommands.staticscan([self.detector])
+            
     def openShutter(self):
         self.shutter.asynchronousMoveTo("Open")
     
@@ -95,7 +107,7 @@ class BSSCRun:
         
     def measureBuffer(self, titration, duration):
         if titration != None:
-            self.reportSampleProgress(titration, "Sucking in Buffer")
+            self.reportSampleProgress(titration, "Sucking in Buffer from %s" % titration.getBufferLocation())
             self.loadWell(titration.getBufferLocation())
             self.reportSampleProgress(titration, "Exposing Buffer")
             self.setTitle("Buffer for next and preceding sample measurement")
@@ -110,9 +122,9 @@ class BSSCRun:
             self.reportSampleProgress(titration, "Exposing Sample")
             self.setTitle("Sample: %s (Location %s)" % (titration.getSampleName(), titration.getLocation().toString()))
             self.expose(duration)
-            if titration.isRecouperate():
-                self.reportSampleProgress(titration, "Recouperating Sample and Cleaning")
-                self.unloadIntoWell(titration.getLocation)
+            if titration.isRecouperate() and not titration.isYellowSample():
+                self.reportSampleProgress(titration, "Recuperating Sample and Cleaning")
+                self.unloadIntoWell(titration.getLocation())
             else:
                 self.reportSampleProgress(titration, "Cleaning after Sample")
             self.clean()
@@ -131,14 +143,14 @@ class BSSCRun:
         
     def tritrationsCanUseSameBufferMeasurement(self, t1, t2):
         if not t1.getBufferLocation().equals(t2.getBufferLocation()):
-            return false
+            return False
         if abs(t1.getExposureTemperature() - t2.getExposureTemperature()) > 0.1:
-            return false
+            return False
         if t1.getFrames() != t2.getFrames():
-            return false
+            return False
         if abs(t1.getTimePerFrame() - t2.getTimePerFrame()) > 0.001:
-            return false
-        return true
+            return False
+        return True
         
     def run(self):
         self.reportProgress("Initialising");
@@ -158,6 +170,7 @@ class BSSCRun:
                 # everything would be set up from previous sample then
                 self.measureBuffer(lastTitration, duration)
             duration = self.setUpRobotAndDetector(titration)
+            self.measureBuffer(titration, duration)
             self.measureSample(titration, duration)
             lastTitration = titration
         self.measureBuffer(lastTitration, duration)
