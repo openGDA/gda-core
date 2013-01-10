@@ -14,7 +14,7 @@ class ScannableScan(PseudoDevice):
 		
 		self.datasetProcessorName = datasetProcessor.name
 		self.scan = scanClass([ScanDataProcessor([datasetProcessor])])
-		self.numTracker = NumTracker('tmp')
+		self.numTracker = NumTracker('scanbase_numtrack')
 		self.args = tuple(args)
 			
 	def asynchronousMoveTo(self):
