@@ -26,7 +26,15 @@ class ScannableScan(PseudoDevice):
 	def getPosition(self):
 		if ScannableCommands.isPosCommandIsInTheProcessOfListingAllScannables():
 			raise Exception(self.name + " is not readout while the pos commands samples all Scannables")
-		sdpr = self.scan(*self.args)[self.datasetProcessorName]
+		scan_result = self.scan(*self.args)
+		try:
+			sdpr = scan_result[self.datasetProcessorName]
+		except TypeError:
+			print "***"
+			print "scan_result:", scan_result
+			print "***"
+			raise
+		
 		result = [int(self.numTracker.getCurrentFileNumber())]
 		for label in self.extraNames[1:]:
 			result.append(sdpr.result[label])
