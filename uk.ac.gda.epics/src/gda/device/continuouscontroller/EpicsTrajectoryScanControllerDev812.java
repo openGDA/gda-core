@@ -345,7 +345,8 @@ public class EpicsTrajectoryScanControllerDev812 extends DeviceBase implements T
 
 	@Override
 	public boolean isMMove(int motor) throws CAException, TimeoutException, InterruptedException {
-		return controller.cagetLabels(mmove[motor-1])[0].equalsIgnoreCase("yes");
+		short ordinate = controller.cagetEnum(mmove[motor-1]);
+		return ordinate == 1;
 	}
 
 	@Override
