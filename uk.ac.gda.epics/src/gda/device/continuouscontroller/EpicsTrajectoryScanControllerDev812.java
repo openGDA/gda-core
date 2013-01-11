@@ -310,8 +310,10 @@ public class EpicsTrajectoryScanControllerDev812 extends DeviceBase implements T
 	@Override
 	public void setMTraj(int motor, double[] path) throws DeviceException, InterruptedException {
 		try {
-			controller.caput(mtraj[motor-1], path);
+			controller.caputWait(mtraj[motor-1], path);
 		} catch (CAException e) {
+			throw new DeviceException("Epics CA problem setting motor " + motor + " path", e);
+		} catch (TimeoutException e) {
 			throw new DeviceException("Epics CA problem setting motor " + motor + " path", e);
 		}
 	}
@@ -332,8 +334,10 @@ public class EpicsTrajectoryScanControllerDev812 extends DeviceBase implements T
 	@Override
 	public void setMMove(int motor, boolean b) throws DeviceException, InterruptedException {
 		try {
-			controller.caput(mmove[motor-1], b ? 1 : 0);
+			controller.caputWait(mmove[motor-1], b ? 1 : 0);
 		} catch (CAException e) {
+			throw new DeviceException("Epics CA problem enabling motor " + motor, e);
+		} catch (TimeoutException e) {
 			throw new DeviceException("Epics CA problem enabling motor " + motor, e);
 		}
 	}
@@ -350,8 +354,10 @@ public class EpicsTrajectoryScanControllerDev812 extends DeviceBase implements T
 			throw new OutOfRangeException("Input value " + value + " is out of range 0 - " + MAXIMUM_ELEMENT_NUMBER);
 		}
 		try {
-			controller.caput(nelm, value);
+			controller.caputWait(nelm, value);
 		} catch (CAException e) {
+			throw new DeviceException("Epics CA problem setting number of elements to use", e);
+		} catch (TimeoutException e) {
 			throw new DeviceException("Epics CA problem setting number of elements to use", e);
 		}
 	}
@@ -373,10 +379,12 @@ public class EpicsTrajectoryScanControllerDev812 extends DeviceBase implements T
 			throw new OutOfRangeException("Input value " + value + " is out of range 0 - " + MAXIMUM_PULSE_NUMBER);
 		}
 		try {
-			controller.caput(npulses, value);
+			controller.caputWait(npulses, value);
 		} catch (CAException e) {
 			throw new DeviceException("Epics CA problem setting number of output pulses", e);
-		}
+		} catch (TimeoutException e) {
+			throw new DeviceException("Epics CA problem setting number of output pulses", e);
+		} 
 	}
 
 	@Override
@@ -393,8 +401,10 @@ public class EpicsTrajectoryScanControllerDev812 extends DeviceBase implements T
 	@Override
 	public void setStartPulseElement(int n) throws DeviceException, InterruptedException {
 		try {
-			controller.caput(spulses, n);
+			controller.caputWait(spulses, n);
 		} catch (CAException e) {
+			throw new DeviceException("Epics CA problem setting start pulse element ", e);
+		} catch (TimeoutException e) {
 			throw new DeviceException("Epics CA problem setting start pulse element ", e);
 		}
 	}
@@ -413,9 +423,11 @@ public class EpicsTrajectoryScanControllerDev812 extends DeviceBase implements T
 	@Override
 	public void setStopPulseElement(int n) throws DeviceException, InterruptedException {
 		try {
-			controller.caput(epulses, n);
+			controller.caputWait(epulses, n);
 		} catch (CAException e) {
 			throw new DeviceException("Epics CA problem setting stop pulse element ", e);
+		} catch (TimeoutException e) {
+			throw new DeviceException("Epics CA problem getting start pulse element ", e);
 		}
 	}
 	
@@ -434,8 +446,10 @@ public class EpicsTrajectoryScanControllerDev812 extends DeviceBase implements T
 	@Override
 	public void setTrajectoryTime(double seconds) throws DeviceException, InterruptedException {
 		try {
-			controller.caput(time, seconds);
+			controller.caputWait(time, seconds);
 		} catch (CAException e) {
+			throw new DeviceException("Epics CA problem setting the trajectory time ", e);
+		} catch (TimeoutException e) {
 			throw new DeviceException("Epics CA problem setting the trajectory time ", e);
 		}
 	}
@@ -578,8 +592,11 @@ public class EpicsTrajectoryScanControllerDev812 extends DeviceBase implements T
 	@Override
 	public void stop() throws DeviceException, InterruptedException {
 		try {
-			controller.caput(abort, 1);
+			controller.caputWait(abort, 1);
 		} catch (CAException e) {
+			logger.error("Epics CA problem stopping trajectory move", e);
+			throw new DeviceException("Epics CA problem stopping trajectory move", e);
+		} catch (TimeoutException e) {
 			logger.error("Epics CA problem stopping trajectory move", e);
 			throw new DeviceException("Epics CA problem stopping trajectory move", e);
 		}
