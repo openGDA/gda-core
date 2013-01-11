@@ -875,7 +875,7 @@ public class LazyPVFactory {
 			if( observableMonitor == null){
 				observableMonitor = new PVMonitor<T>(this, this);
 			}
-			observableMonitor.addObserver(observer);			
+			observableMonitor.addObserver(observer);
 			
 		}
 
@@ -1239,15 +1239,21 @@ class PVMonitor<E> implements Observable<E>{
 		public void monitorChanged(MonitorEvent arg0) {
 			E extractValueFromDbr;
 			try {
-				extractValueFromDbr = pv.extractValueFromDbr(arg0.getDBR());
-				if( oc != null){
-					oc.notifyIObservers(observable, extractValueFromDbr);
+				DBR dbr = arg0.getDBR();
+				if(dbr != null){
+					extractValueFromDbr = pv.extractValueFromDbr(dbr);
+					if( oc != null){
+						oc.notifyIObservers(observable, extractValueFromDbr);
+					}
+				} else {
+					arg0.toString();
 				}
 			} catch (Exception e) {
 				logger.error("Error extracting data from histogram update", e);
 			}
 		}
 	};
+	private boolean monitorAdded=false;
 
 
 
@@ -1256,9 +1262,10 @@ class PVMonitor<E> implements Observable<E>{
 		if( oc == null)
 			oc = new ObservableUtil<E>();
 		oc.addObserver(observer);
-		if( !pv.isValueMonitoring()){
+		if (! monitorAdded ){
 			try {
 				pv.addMonitorListener(monitorListener);
+				monitorAdded = true;
 			} catch (IOException e) {
 				throw new IllegalStateException("Error adding monitor to pv:"+ pv.getPvName(),e);
 			}
@@ -1272,9 +1279,10 @@ class PVMonitor<E> implements Observable<E>{
 		if( oc == null)
 			return;
 		oc.deleteIObserver(observer);
-		if (!oc.IsBeingObserved()){
-			if ( !pv.isValueMonitoring()){
+		if (!IsBeingObserved()){
+			if ( monitorAdded){
 				pv.removeMonitorListener(monitorListener);
+				monitorAdded = false;
 			}
 		}
 	}
