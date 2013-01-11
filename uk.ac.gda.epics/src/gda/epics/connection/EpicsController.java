@@ -163,7 +163,6 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		// TODO take care of shutdown
 		threadPool = new ThreadPoolExecutor(1, 5, 60, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
 		threadPool.prestartAllCoreThreads();
-		monitors = new HashMap<MonitorID, Monitor>();
 		if (contextRequired) {
 			initializeContext();
 		}
@@ -180,8 +179,6 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	private AtomicInteger monitorCount = new AtomicInteger(0);
 
 	private Context context = null;
-
-	private Map<MonitorID, Monitor> monitors;
 
 	/**
 	 * Thread pool.
@@ -341,16 +338,6 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	public void destroy(Channel ch) {
 		try {
 			ch.destroy();
-
-			// cleanup mids
-			synchronized (monitors) {
-				MonitorID[] mids = new MonitorID[monitors.size()];
-				monitors.keySet().toArray(mids);
-				for (MonitorID mid : mids)
-					if (mid.ch == ch)
-						monitors.remove(mid);
-			}
-
 			logger.debug("Channel " + ch.getName() + " is destroyed.");
 		} catch (IllegalStateException e) {
 			logger.error("Error on destroying CA channel: " + ch.getName() + " - " + e.getMessage());
@@ -990,50 +977,6 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		return getDBR(ch, TIMEHandler.getTIMEType(ch));
 	}
 
-	// ************ Channel Access Monitor methods *********************
-
-	// NOTE: this can cause memory leaks since there is no cleanup
-	private class MonitorID {
-		final Channel ch;
-
-		final DBRType type;
-
-		final int count;
-
-		final int mask;
-
-		/**
-		 * @param ch1
-		 * @param type1
-		 * @param count1
-		 * @param mask1
-		 */
-		public MonitorID(Channel ch1, DBRType type1, int count1, int mask1) {
-			this.ch = ch1;
-			this.type = type1;
-			this.count = count1;
-			this.mask = mask1;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (obj == this)
-				return true;
-
-			if (!(obj instanceof MonitorID))
-				return false;
-
-			MonitorID other = (MonitorID) obj;
-
-			return ch == other.ch && type == other.type && count == other.count && mask == other.mask;
-		}
-
-		@Override
-		public int hashCode() {
-			return ch.hashCode() + type.hashCode();
-		}
-
-	}
 
 	/**
 	 * adds a monitor listener to the specified channel using the channel's native count. The method is designed to
@@ -1052,49 +995,14 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 */
 	// NOTE: there is no destruction of monitors
 	public Monitor setMonitor(Channel ch, DBRType type, int mask, MonitorListener ml) throws CAException {
-		try {
-			MonitorID id = new MonitorID(ch, type, ch.getElementCount(), mask);
-			Monitor mntr = null;
-			synchronized (monitors) {
-				mntr = monitors.get(id);
-				if (mntr == null || ((CAJMonitor) mntr).isCleared()) {
-					// create a monitor of the channel ch.
-					mntr = ch.addMonitor(type, ch.getElementCount(), mask, ml);
-					context.flushIO();
-
-					monitors.put(id, mntr);
-					monitorCount.incrementAndGet();
-				} else
-					// add a new listener to an already existed monitor.
-					mntr.addMonitorListener(ml);
-			}
-			return mntr;
-		} catch (CAException ex) {
-			logger.error("add monitor {} to the channel {} failed.", ml.getClass().getName(), ch.getName());
-			throw ex;
-		} catch (IllegalStateException ex) {
-			logger.error("add monitor {} to the channel {} failed.", ml.getClass().getName(), ch.getName());
-			throw ex;
-		}
+		return setMonitor(ch, type, mask, ml, ch.getElementCount());
 	}
 
 	public Monitor setMonitor(Channel ch, DBRType type, int mask, MonitorListener ml, int count) throws CAException {
 		try {
-			MonitorID id = new MonitorID(ch, type, count, mask);
 			Monitor mntr = null;
-			synchronized (monitors) {
-				mntr = monitors.get(id);
-				if (mntr == null || ((CAJMonitor) mntr).isCleared()) {
-					// create a monitor of the channel ch.
-					mntr = ch.addMonitor(type, count, mask, ml);
-					context.flushIO();
-
-					monitors.put(id, mntr);
-					monitorCount.incrementAndGet();
-				} else
-					// add a new listener to an already existed monitor.
-					mntr.addMonitorListener(ml);
-			}
+			mntr = ch.addMonitor(type, count, mask, ml);
+			context.flushIO();
 			return mntr;
 		} catch (CAException ex) {
 			logger.error("add monitor {} to the channel {} failed.", ml.getClass().getName(), ch.getName());
@@ -1104,6 +1012,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			throw ex;
 		}
 	}
+	
 	/**
 	 * adds a VALUE monitor to the specified channel using the specified MonitorType.
 	 * <p>
@@ -1274,21 +1183,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	// TODO Check if Monitor.clear() destroys the monitor?
 	public void clearMonitor(Monitor mntr) {
 		try {
-			synchronized (monitors) {
-				MonitorID id = new MonitorID(mntr.getChannel(), mntr.getType(), mntr.getCount(), mntr.getMask());
-				// first remove all attached MonitorListener if any
-				MonitorListener[] ml = mntr.getMonitorListeners();
-				if (ml != null && ml.length != 0) {
-					for (MonitorListener m : ml) {
-						mntr.removeMonitorListener(m);
-					}
-				}
-				mntr.clear();
-				// todo need to make sure mntr had been cleared, before next,
-				// but how?
-				monitors.remove(id);
-			}
-			monitorCount.decrementAndGet();
+			mntr.clear();
 		} catch (CAException e) {
 			logger.error("Clear Monitor for channel {} failed. ", mntr.getChannel().getName());
 		}
