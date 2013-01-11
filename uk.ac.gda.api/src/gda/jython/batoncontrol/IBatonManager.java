@@ -18,6 +18,8 @@
 
 package gda.jython.batoncontrol;
 
+import java.util.List;
+
 public interface IBatonManager {
 
 	/**
@@ -123,5 +125,10 @@ public interface IBatonManager {
 	public boolean isDisableControlOverVisitMetadataEntry();
 
 	public void setDisableControlOverVisitMetadataEntry(boolean disableControlOverVisitMetadataEntry);
+	
+	/**
+	 * Returns details of all connected clients.
+	 */
+	public List<ClientDetails> getAllClients();
 
 }

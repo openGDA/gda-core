@@ -30,6 +30,8 @@ import gda.jython.InterfaceProvider;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
@@ -472,5 +474,20 @@ public class BatonManager implements IBatonManager {
 				}
 			}
 		}
+	}
+	
+	@Override
+	public List<ClientDetails> getAllClients() {
+		final List<ClientDetails> clients = new ArrayList<ClientDetails>();
+		for (Map.Entry<String, ClientInfo> entry : facadeNames.entrySet()) {
+			final String uniqueId = entry.getKey();
+			final ClientInfo info = entry.getValue();
+			if (!info.isServer()) {
+				final boolean hasBaton = amIBatonHolder(uniqueId, false);
+				final ClientDetails details = new ClientDetails(info, hasBaton);
+				clients.add(details);
+			}
+		}
+		return clients;
 	}
 }

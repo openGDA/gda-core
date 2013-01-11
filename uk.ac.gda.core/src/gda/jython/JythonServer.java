@@ -1496,5 +1496,35 @@ public class JythonServer extends OutputStream implements Jython, LocalJython, C
 		return new JythonServerStatus(scriptStatus, scanStatus);
 	}
 
+	public void showUsers() {
+		
+		final ITerminalPrinter tp = InterfaceProvider.getTerminalPrinter();
+		
+		final List<ClientDetails> clients = batonManager.getAllClients();
+		
+		tp.print(String.format("%d client%s connected%s",
+			clients.size(),
+			(clients.size() == 1) ? "" : "s",
+			(clients.size() > 0) ? ":" : "."));
+		
+		if (!clients.isEmpty()) {
+			
+			tp.print("");
+			
+			tp.print(String.format("%-6s   %-15s   %-20s   %-10s   %s",
+				"Number", "Username", "Hostname", "Visit", "Holds baton?"));
+			
+			tp.print("=============================================================================");
+			
+			for (ClientDetails c : clients) {
+				tp.print(String.format("%-6d   %-15s   %-20s   %-10s   %s",
+					c.getIndex(),
+					c.getUserID(),
+					c.getHostname(),
+					c.getVisitID(),
+					c.isHasBaton() ? "yes" : ""));
+			}
+		}
+	}
 
 }
