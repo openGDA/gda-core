@@ -60,7 +60,11 @@ public class PositionStreamIndexer<T> implements PositionCallableProvider<T> {
 	 * Can only be called once for each index
 	 */
 	public T get(int index) throws NoSuchElementException, InterruptedException, DeviceException {
-		fairGetLock.lock();
+		try {
+			fairGetLock.lockInterruptibly();
+		} catch (InterruptedException e) {
+			throw new InterruptedException("PositionStreamIndexer interrupted while waiting for element " + index);
+		}
 		// Keep reading until the indexed element is read from the stream.
 		while (index > lastIndexRead) {
 			List<T> values = stream.read(maxElementsToReadInOneGo);
