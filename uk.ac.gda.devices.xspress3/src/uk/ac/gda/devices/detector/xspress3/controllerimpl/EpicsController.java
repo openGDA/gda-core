@@ -25,11 +25,9 @@ import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
  * @author rjw82
  * 
  */
-public class EpicsController implements Xspress3Controller, Configurable,
-		Findable {
+public class EpicsController implements Xspress3Controller, Configurable, Findable {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(EpicsController.class);
+	private static final Logger logger = LoggerFactory.getLogger(EpicsController.class);
 
 	private String epicsTemplate;
 
@@ -41,7 +39,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 
 	@Override
 	public void configure() throws FactoryException {
-		if (epicsTemplate == null || epicsTemplate.isEmpty()) {
+		if (epicsTemplate == null || epicsTemplate.isEmpty()) { 
 			throw new FactoryException("Epics template has not been set!");
 		}
 		pvProvider = new EpicsControllerPvProvider(epicsTemplate);
@@ -52,8 +50,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 				logger.error("EPICS is not connected to underlying Xspress3 hardware.\\nConnect EPICS to Xspreess3 before doing any more in GDA.");
 			}
 		} catch (IOException e) {
-			throw new FactoryException(
-					"Excpetion trying to connect to Xspress3 EPICS template", e);
+			throw new FactoryException("Excpetion trying to connect to Xspress3 EPICS template", e);
 		}
 	}
 
@@ -63,40 +60,36 @@ public class EpicsController implements Xspress3Controller, Configurable,
 	}
 
 	@Override
-	public void setNumberROIToRead(int numRoiToRead)
-			throws IllegalArgumentException {
+	public void setNumberROIToRead(int numRoiToRead) throws IllegalArgumentException {
 		this.numRoiToRead = numRoiToRead;
 	}
 
 	@Override
 	public void doStart() throws DeviceException {
 		try {
-			pvProvider.pvAcquire.put(1);
+			pvProvider.pvAcquire.putCallback(1);
 		} catch (IOException e) {
-			throw new DeviceException("IOException while starting acquisition",
-					e);
+			throw new DeviceException("IOException while starting acquisition", e);
 		}
 	}
 
 	public boolean isSavingFiles() throws DeviceException {
 		try {
-			return pvProvider.pvIsFileWriting.get() == 1;
+			return pvProvider.pvIsFileWriting.get() == CAPTURE_CTRL_RBV.Capture;
 		} catch (IOException e) {
-			throw new DeviceException("IOException while reading save files flag",
-					e);
+			throw new DeviceException("IOException while reading save files flag", e);
 		}
 	}
 
 	public void setSavingFiles(Boolean saveFiles) throws DeviceException {
 		try {
 			if (saveFiles) {
-				pvProvider.pvStartStopFileWriting.putCallback(1);
+				pvProvider.pvStartStopFileWriting.put(CAPTURE_CTRL_RBV.Capture);
 			} else {
-				pvProvider.pvStartStopFileWriting.putCallback(0);
+				pvProvider.pvStartStopFileWriting.put(CAPTURE_CTRL_RBV.Done);
 			}
 		} catch (IOException e) {
-			throw new DeviceException("IOException while setting save files flag",
-					e);
+			throw new DeviceException("IOException while setting save files flag", e);
 		}
 	}
 
@@ -105,8 +98,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 		try {
 			pvProvider.pvAcquire.put(0);
 		} catch (IOException e) {
-			throw new DeviceException("IOException while stopping acquisition",
-					e);
+			throw new DeviceException("IOException while stopping acquisition", e);
 		}
 	}
 
@@ -133,8 +125,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 		try {
 			return pvProvider.pvGetNumImages.get();
 		} catch (IOException e) {
-			throw new DeviceException(
-					"IOException while fetching number of frames to acquire", e);
+			throw new DeviceException("IOException while fetching number of frames to acquire", e);
 		}
 	}
 
@@ -147,8 +138,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 		}
 	}
 
-	public void setPerformROICalculations(Boolean doCalcs)
-			throws DeviceException {
+	public void setPerformROICalculations(Boolean doCalcs) throws DeviceException {
 		try {
 			UPDATE_CTRL setValue = UPDATE_CTRL.Disable;
 			if (doCalcs) {
@@ -156,8 +146,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 			}
 			pvProvider.pvSetRoiCalc.put(setValue);
 		} catch (IOException e) {
-			throw new DeviceException(
-					"IOException while setting ROI calculations on/off", e);
+			throw new DeviceException("IOException while setting ROI calculations on/off", e);
 		}
 	}
 
@@ -169,8 +158,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 			}
 			return false;
 		} catch (IOException e) {
-			throw new DeviceException(
-					"IOException while getting ROI calculations", e);
+			throw new DeviceException("IOException while getting ROI calculations", e);
 		}
 	}
 
@@ -179,8 +167,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 		try {
 			pvProvider.pvSetTrigMode.put(mode);
 		} catch (IOException e) {
-			throw new DeviceException("IOException while setting trigger mode",
-					e);
+			throw new DeviceException("IOException while setting trigger mode", e);
 		}
 
 	}
@@ -190,8 +177,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 		try {
 			return pvProvider.pvGetTrigMode.get();
 		} catch (IOException e) {
-			throw new DeviceException("IOException while getting trigger mode",
-					e);
+			throw new DeviceException("IOException while getting trigger mode", e);
 		}
 	}
 
@@ -200,8 +186,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 		try {
 			return pvProvider.pvIsBusy.get();
 		} catch (IOException e) {
-			throw new DeviceException("IOException while getting isBusy value",
-					e);
+			throw new DeviceException("IOException while getting isBusy value", e);
 		}
 	}
 
@@ -210,8 +195,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 		try {
 			return pvProvider.pvIsConnected.get();
 		} catch (IOException e) {
-			throw new DeviceException(
-					"IOException while getting isConnected value", e);
+			throw new DeviceException("IOException while getting isConnected value", e);
 		}
 	}
 
@@ -220,8 +204,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 		try {
 			return pvProvider.pvGetStatusMsg.get();
 		} catch (IOException e) {
-			throw new DeviceException(
-					"IOException while getting status message", e);
+			throw new DeviceException("IOException while getting status message", e);
 		}
 	}
 
@@ -249,8 +232,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 		try {
 			return pvProvider.pvGetNumFramesPerReadout.get();
 		} catch (IOException e) {
-			throw new DeviceException(
-					"IOException while number of frames per readout", e);
+			throw new DeviceException("IOException while number of frames per readout", e);
 		}
 	}
 
@@ -259,8 +241,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 		try {
 			return pvProvider.pvGetNumFramesAvailableToReadout.get();
 		} catch (IOException e) {
-			throw new DeviceException(
-					"IOException while number of frames available", e);
+			throw new DeviceException("IOException while number of frames available", e);
 		}
 	}
 
@@ -269,13 +250,11 @@ public class EpicsController implements Xspress3Controller, Configurable,
 		try {
 			return pvProvider.pvGetMaxFrames.get();
 		} catch (IOException e) {
-			throw new DeviceException(
-					"IOException while maximum number of frames", e);
+			throw new DeviceException("IOException while maximum number of frames", e);
 		}
 	}
 
-	public void setPerformScalerUpdates(Boolean doUpdates)
-			throws DeviceException {
+	public void setPerformScalerUpdates(Boolean doUpdates) throws DeviceException {
 		try {
 			UPDATE_CTRL setValue = UPDATE_CTRL.Disable;
 			if (doUpdates) {
@@ -283,8 +262,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 			}
 			pvProvider.pvSetScalerUpdate.put(setValue);
 		} catch (IOException e) {
-			throw new DeviceException(
-					"IOException while setting scaler updates on/off", e);
+			throw new DeviceException("IOException while setting scaler updates on/off", e);
 		}
 	}
 
@@ -296,8 +274,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 			}
 			return false;
 		} catch (IOException e) {
-			throw new DeviceException(
-					"IOException while getting scaler updates setting", e);
+			throw new DeviceException("IOException while getting scaler updates setting", e);
 		}
 	}
 
@@ -305,8 +282,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 		try {
 			pvProvider.pvScalerUpdatePeriod.put(numFrames);
 		} catch (IOException e) {
-			throw new DeviceException(
-					"IOException while setting scaler refresh period", e);
+			throw new DeviceException("IOException while setting scaler refresh period", e);
 		}
 	}
 
@@ -314,8 +290,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 		try {
 			return pvProvider.pvScalerUpdatePeriod.get();
 		} catch (IOException e) {
-			throw new DeviceException(
-					"IOException while fetching scaler refresh period", e);
+			throw new DeviceException("IOException while fetching scaler refresh period", e);
 		}
 	}
 
@@ -327,8 +302,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 			}
 			pvProvider.pvSetMCAUpdate.put(setValue);
 		} catch (IOException e) {
-			throw new DeviceException(
-					"IOException while setting mca updates on/off", e);
+			throw new DeviceException("IOException while setting mca updates on/off", e);
 		}
 	}
 
@@ -340,8 +314,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 			}
 			return false;
 		} catch (IOException e) {
-			throw new DeviceException(
-					"IOException while getting mca updates setting", e);
+			throw new DeviceException("IOException while getting mca updates setting", e);
 		}
 	}
 
@@ -349,8 +322,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 		try {
 			pvProvider.pvMCAUpdatePeriod.put(numFrames);
 		} catch (IOException e) {
-			throw new DeviceException(
-					"IOException while setting mca refresh period", e);
+			throw new DeviceException("IOException while setting mca refresh period", e);
 		}
 	}
 
@@ -358,8 +330,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 		try {
 			return pvProvider.pvMCAUpdatePeriod.get();
 		} catch (IOException e) {
-			throw new DeviceException(
-					"IOException while fetching mca refresh period", e);
+			throw new DeviceException("IOException while fetching mca refresh period", e);
 		}
 	}
 
@@ -371,8 +342,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 			}
 			pvProvider.pvSetRoiCalc.put(setValue);
 		} catch (IOException e) {
-			throw new DeviceException(
-					"IOException while setting roi updates on/off", e);
+			throw new DeviceException("IOException while setting roi updates on/off", e);
 		}
 	}
 
@@ -384,8 +354,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 			}
 			return false;
 		} catch (IOException e) {
-			throw new DeviceException(
-					"IOException while getting roi updates setting", e);
+			throw new DeviceException("IOException while getting roi updates setting", e);
 		}
 	}
 
@@ -393,8 +362,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 		try {
 			pvProvider.pvSCAROIUpdatePeriod.put(numFrames);
 		} catch (IOException e) {
-			throw new DeviceException(
-					"IOException while setting ROI refresh period", e);
+			throw new DeviceException("IOException while setting ROI refresh period", e);
 		}
 	}
 
@@ -402,52 +370,46 @@ public class EpicsController implements Xspress3Controller, Configurable,
 		try {
 			return pvProvider.pvSCAROIUpdatePeriod.get();
 		} catch (IOException e) {
-			throw new DeviceException(
-					"IOException while fetching ROI refresh period", e);
+			throw new DeviceException("IOException while fetching ROI refresh period", e);
 		}
 	}
 
 	@Override
-	public Double[][] readoutDTCorrectedSCA1(int startFrame, int finalFrame,
-			int startChannel, int finalChannel) throws DeviceException {
-		return readDoubleWaveform(pvProvider.pvsScalerWindow1, startFrame,
-				finalFrame, startChannel, finalChannel);
+	public Double[][] readoutDTCorrectedSCA1(int startFrame, int finalFrame, int startChannel, int finalChannel)
+			throws DeviceException {
+		return readDoubleWaveform(pvProvider.pvsScalerWindow1, startFrame, finalFrame, startChannel, finalChannel);
 	}
 
 	@Override
-	public Double[][] readoutDTCorrectedSCA2(int startFrame, int finalFrame,
-			int startChannel, int finalChannel) throws DeviceException {
-		return readDoubleWaveform(pvProvider.pvsScalerWindow2, startFrame,
-				finalFrame, startChannel, finalChannel);
+	public Double[][] readoutDTCorrectedSCA2(int startFrame, int finalFrame, int startChannel, int finalChannel)
+			throws DeviceException {
+		return readDoubleWaveform(pvProvider.pvsScalerWindow2, startFrame, finalFrame, startChannel, finalChannel);
 	}
 
 	@Override
-	public Integer[][][] readoutScalerValues(int startFrame, int finalFrame,
-			int startChannel, int finalChannel) throws DeviceException {
+	public Integer[][][] readoutScalerValues(int startFrame, int finalFrame, int startChannel, int finalChannel)
+			throws DeviceException {
 		// there are six types of scaler values to return
 		Integer[][][] returnValuesWrongOrder = new Integer[6][][]; // scaler
 																	// values,
 																	// frame,
 																	// channel
-		returnValuesWrongOrder[0] = readIntegerWaveform(pvProvider.pvsTime,
-				startFrame, finalFrame, startChannel, finalChannel);
-		returnValuesWrongOrder[1] = readIntegerWaveform(
-				pvProvider.pvsResetTicks, startFrame, finalFrame, startChannel,
+		returnValuesWrongOrder[0] = readIntegerWaveform(pvProvider.pvsTime, startFrame, finalFrame, startChannel,
 				finalChannel);
-		returnValuesWrongOrder[2] = readIntegerWaveform(
-				pvProvider.pvsResetCount, startFrame, finalFrame, startChannel,
+		returnValuesWrongOrder[1] = readIntegerWaveform(pvProvider.pvsResetTicks, startFrame, finalFrame, startChannel,
 				finalChannel);
-		returnValuesWrongOrder[3] = readIntegerWaveform(pvProvider.pvsAllEvent,
-				startFrame, finalFrame, startChannel, finalChannel);
-		returnValuesWrongOrder[4] = readIntegerWaveform(pvProvider.pvsAllGood,
-				startFrame, finalFrame, startChannel, finalChannel);
-		returnValuesWrongOrder[5] = readIntegerWaveform(pvProvider.pvsPileup,
-				startFrame, finalFrame, startChannel, finalChannel);
+		returnValuesWrongOrder[2] = readIntegerWaveform(pvProvider.pvsResetCount, startFrame, finalFrame, startChannel,
+				finalChannel);
+		returnValuesWrongOrder[3] = readIntegerWaveform(pvProvider.pvsAllEvent, startFrame, finalFrame, startChannel,
+				finalChannel);
+		returnValuesWrongOrder[4] = readIntegerWaveform(pvProvider.pvsAllGood, startFrame, finalFrame, startChannel,
+				finalChannel);
+		returnValuesWrongOrder[5] = readIntegerWaveform(pvProvider.pvsPileup, startFrame, finalFrame, startChannel,
+				finalChannel);
 		return reorderScalerValues(returnValuesWrongOrder);
 	}
 
-	private Integer[][][] reorderScalerValues(
-			Integer[][][] returnValuesWrongOrder) {
+	private Integer[][][] reorderScalerValues(Integer[][][] returnValuesWrongOrder) {
 
 		int numScalers = returnValuesWrongOrder.length;
 		int numFrames = returnValuesWrongOrder[0].length;
@@ -465,43 +427,31 @@ public class EpicsController implements Xspress3Controller, Configurable,
 	}
 
 	@Override
-	public Integer[][] readoutDTCParameters(int startChannel, int finalChannel)
-			throws DeviceException {
+	public Integer[][] readoutDTCParameters(int startChannel, int finalChannel) throws DeviceException {
 		Integer[][] valuesWrongOrder = new Integer[4][]; // 4 values per channel
-		valuesWrongOrder[0] = readIntegerArray(pvProvider.pvsGoodEventGradient,
-				startChannel, finalChannel);
-		valuesWrongOrder[1] = readIntegerArray(pvProvider.pvsGoodEventOffset,
-				startChannel, finalChannel);
-		valuesWrongOrder[2] = readIntegerArray(
-				pvProvider.pvsInWinEventGradient, startChannel, finalChannel);
-		valuesWrongOrder[3] = readIntegerArray(pvProvider.pvsInWinEventOffset,
-				startChannel, finalChannel);
+		valuesWrongOrder[0] = readIntegerArray(pvProvider.pvsGoodEventGradient, startChannel, finalChannel);
+		valuesWrongOrder[1] = readIntegerArray(pvProvider.pvsGoodEventOffset, startChannel, finalChannel);
+		valuesWrongOrder[2] = readIntegerArray(pvProvider.pvsInWinEventGradient, startChannel, finalChannel);
+		valuesWrongOrder[3] = readIntegerArray(pvProvider.pvsInWinEventOffset, startChannel, finalChannel);
 		return invertIntegerArray(valuesWrongOrder);
 	}
 
 	@Override
-	public Double[][][] readoutDTCorrectedROI(int startFrame, int finalFrame,
-			int startChannel, int finalChannel) throws DeviceException {
+	public Double[][][] readoutDTCorrectedROI(int startFrame, int finalFrame, int startChannel, int finalChannel)
+			throws DeviceException {
 
 		try {
 			int numROIs = getNumberROIToRead();
-			int numFrames = finalFrame - startFrame + 1;
-			int numChannels = finalChannel - startChannel + 1;
 
-			Double[][][] valuesWrongOrder = new Double[numROIs][numChannels][numFrames];
-			// for(int channel = startChannel; channel < finalChannel;
-			// channel++){
+			Double[][][] valuesWrongOrder = new Double[numROIs][][];
 			for (int roi = 0; roi < numROIs; roi++) {
 				// [frame][channel]
-				valuesWrongOrder[roi] = readDoubleWaveform(
-						pvProvider.pvsROIs[roi], startFrame, finalFrame,
+				valuesWrongOrder[roi] = readDoubleWaveform(pvProvider.pvsROIs[roi], startFrame, finalFrame,
 						startChannel, finalChannel);
 			}
-			// }
 			return reorderROIValues(valuesWrongOrder);
 		} catch (Exception e) {
-			throw new DeviceException(
-					"Exception while fetching regions of interest", e);
+			throw new DeviceException("Exception while fetching regions of interest", e);
 		}
 	}
 
@@ -523,24 +473,36 @@ public class EpicsController implements Xspress3Controller, Configurable,
 	}
 
 	@Override
-	public Double[][] readoutDTCorrectedLatestMCA(int startChannel,
-			int finalChannel) throws DeviceException {
+	public Double[][] readoutDTCorrectedLatestMCA(int startChannel, int finalChannel) throws DeviceException {
 
 		Double[][] mcas = new Double[finalChannel - startChannel + 1][];
 		for (int i = startChannel; i <= finalChannel; i++) {
 			try {
 				mcas[i] = pvProvider.pvsLatestMCA[i].get();
 			} catch (IOException e) {
-				throw new DeviceException(
-						"IOException while fetching mca array data", e);
+				throw new DeviceException("IOException while fetching mca array data", e);
+			}
+		}
+		return mcas;
+	}
+	
+	@Override
+	public Double[][] readoutDTCorrectedLatestSummedMCA(int startChannel, int finalChannel) throws DeviceException {
+
+		Double[][] mcas = new Double[finalChannel - startChannel + 1][];
+		for (int i = startChannel; i <= finalChannel; i++) {
+			try {
+				mcas[i] = pvProvider.pvsLatestMCASummed[i].get();
+			} catch (IOException e) {
+				throw new DeviceException("IOException while fetching mca array data", e);
 			}
 		}
 		return mcas;
 	}
 
+
 	@Override
-	public void setROILimits(int channel, int roiNumber,
-			int[] lowHighMCAChannels) throws DeviceException {
+	public void setROILimits(int channel, int roiNumber, int[] lowHighMCAChannels) throws DeviceException {
 		try {
 			pvProvider.pvsROILLM[roiNumber][channel].put(lowHighMCAChannels[0]);
 			pvProvider.pvsROIHLM[roiNumber][channel].put(lowHighMCAChannels[1]);
@@ -550,8 +512,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 	}
 
 	@Override
-	public Integer[] getROILimits(int channel, int roiNumber)
-			throws DeviceException {
+	public Integer[] getROILimits(int channel, int roiNumber) throws DeviceException {
 		try {
 			Integer[] limits = new Integer[2];
 			limits[0] = pvProvider.pvsROILLM[roiNumber][channel].get();
@@ -563,35 +524,27 @@ public class EpicsController implements Xspress3Controller, Configurable,
 	}
 
 	@Override
-	public void setWindows(int channel, int windowNumber,
-			int[] lowHighScalerWindowChannels) throws DeviceException {
+	public void setWindows(int channel, int windowNumber, int[] lowHighScalerWindowChannels) throws DeviceException {
 		try {
 			switch (windowNumber) {
 			case 1:
-				pvProvider.pvsScaWin1Low[channel]
-						.put(lowHighScalerWindowChannels[0]);
-				pvProvider.pvsScaWin1High[channel]
-						.put(lowHighScalerWindowChannels[1]);
+				pvProvider.pvsScaWin1Low[channel].put(lowHighScalerWindowChannels[0]);
+				pvProvider.pvsScaWin1High[channel].put(lowHighScalerWindowChannels[1]);
 				break;
 			case 2:
-				pvProvider.pvsScaWin2Low[channel]
-						.put(lowHighScalerWindowChannels[0]);
-				pvProvider.pvsScaWin2High[channel]
-						.put(lowHighScalerWindowChannels[1]);
+				pvProvider.pvsScaWin2Low[channel].put(lowHighScalerWindowChannels[0]);
+				pvProvider.pvsScaWin2High[channel].put(lowHighScalerWindowChannels[1]);
 				break;
 			default:
-				throw new DeviceException(
-						"Cannot set scaler window: value for window unacceptable");
+				throw new DeviceException("Cannot set scaler window: value for window unacceptable");
 			}
 		} catch (IOException e) {
-			throw new DeviceException(
-					"IOException while setting scaler window limits", e);
+			throw new DeviceException("IOException while setting scaler window limits", e);
 		}
 	}
 
 	@Override
-	public Integer[] getWindows(int channel, int windowNumber)
-			throws DeviceException {
+	public Integer[] getWindows(int channel, int windowNumber) throws DeviceException {
 		try {
 			Integer[] limits = new Integer[2];
 			switch (windowNumber) {
@@ -604,13 +557,11 @@ public class EpicsController implements Xspress3Controller, Configurable,
 				limits[1] = pvProvider.pvsScaWin2HighRBV[channel].get();
 				break;
 			default:
-				throw new DeviceException(
-						"Cannot get scaler window: value for window unacceptable");
+				throw new DeviceException("Cannot get scaler window: value for window unacceptable");
 			}
 			return limits;
 		} catch (IOException e) {
-			throw new DeviceException(
-					"IOException while getting scaler window limits", e);
+			throw new DeviceException("IOException while getting scaler window limits", e);
 		}
 	}
 
@@ -632,20 +583,16 @@ public class EpicsController implements Xspress3Controller, Configurable,
 		return name;
 	}
 
-	private Double[][] readDoubleWaveform(ReadOnlyPV<Double[]>[] pvs,
-			int startFrame, int finalFrame, int startChannel, int finalChannel)
-			throws DeviceException {
+	private Double[][] readDoubleWaveform(ReadOnlyPV<Double[]>[] pvs, int startFrame, int finalFrame, int startChannel,
+			int finalChannel) throws DeviceException {
 		// this is [channel][frame]
-		Double[][] returnValuesWrongOrder = new Double[finalChannel
-				- startChannel + 1][];
+		Double[][] returnValuesWrongOrder = new Double[finalChannel - startChannel + 1][];
 		for (int i = startChannel; i <= finalChannel; i++) {
 			try {
 				Double[] allFrames = pvs[i].get();
-				returnValuesWrongOrder[i] = (Double[]) ArrayUtils.subarray(
-						allFrames, startFrame, finalFrame + 1);
+				returnValuesWrongOrder[i] = (Double[]) ArrayUtils.subarray(allFrames, startFrame, finalFrame + 1);
 			} catch (IOException e) {
-				throw new DeviceException(
-						"IOException while fetching double array data", e);
+				throw new DeviceException("IOException while fetching double array data", e);
 			}
 		}
 		// return [frame][channel]
@@ -670,19 +617,15 @@ public class EpicsController implements Xspress3Controller, Configurable,
 		return correctedArray;
 	}
 
-	private Integer[][] readIntegerWaveform(ReadOnlyPV<Integer[]>[] pvs,
-			int startFrame, int finalFrame, int startChannel, int finalChannel)
-			throws DeviceException {
-		Integer[][] returnValuesWrongOrder = new Integer[finalChannel
-				- startChannel + 1][];
+	private Integer[][] readIntegerWaveform(ReadOnlyPV<Integer[]>[] pvs, int startFrame, int finalFrame,
+			int startChannel, int finalChannel) throws DeviceException {
+		Integer[][] returnValuesWrongOrder = new Integer[finalChannel - startChannel + 1][];
 		for (int i = startChannel; i <= finalChannel; i++) {
 			try {
 				Integer[] allFrames = pvs[i].get();
-				returnValuesWrongOrder[i] = (Integer[]) ArrayUtils.subarray(
-						allFrames, startFrame, finalFrame + 1);
+				returnValuesWrongOrder[i] = (Integer[]) ArrayUtils.subarray(allFrames, startFrame, finalFrame + 1);
 			} catch (IOException e) {
-				throw new DeviceException(
-						"IOException while fetching integer array data", e);
+				throw new DeviceException("IOException while fetching integer array data", e);
 			}
 		}
 		return invertIntegerArray(returnValuesWrongOrder);
@@ -715,15 +658,14 @@ public class EpicsController implements Xspress3Controller, Configurable,
 	// return returnValues;
 	// }
 
-	private Integer[] readIntegerArray(ReadOnlyPV<Integer>[] pvs,
-			int startChannel, int finalChannel) throws DeviceException {
+	private Integer[] readIntegerArray(ReadOnlyPV<Integer>[] pvs, int startChannel, int finalChannel)
+			throws DeviceException {
 		Integer[] returnValues = new Integer[finalChannel - startChannel + 1];
 		for (int i = startChannel; i <= finalChannel; i++) {
 			try {
 				returnValues[i] = pvs[i].get();
 			} catch (IOException e) {
-				throw new DeviceException(
-						"IOException while fetching integer data", e);
+				throw new DeviceException("IOException while fetching integer data", e);
 			}
 		}
 		return returnValues;
@@ -744,8 +686,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 		try {
 			pvProvider.pvSetFilePrefix.putCallback(template);
 		} catch (IOException e) {
-			throw new DeviceException("IOException while setting file prefix",
-					e);
+			throw new DeviceException("IOException while setting file prefix", e);
 		}
 
 	}
@@ -755,8 +696,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 		try {
 			pvProvider.pvNextFileNumber.putCallback(nextNumber);
 		} catch (IOException e) {
-			throw new DeviceException("IOException while setting file number",
-					e);
+			throw new DeviceException("IOException while setting file number", e);
 		}
 
 	}
@@ -775,8 +715,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 		try {
 			return pvProvider.pvGetFilePrefix.get();
 		} catch (IOException e) {
-			throw new DeviceException("IOException while getting file prefix",
-					e);
+			throw new DeviceException("IOException while getting file prefix", e);
 		}
 	}
 
@@ -785,8 +724,7 @@ public class EpicsController implements Xspress3Controller, Configurable,
 		try {
 			return pvProvider.pvNextFileNumber.get();
 		} catch (IOException e) {
-			throw new DeviceException("IOException while getting file number",
-					e);
+			throw new DeviceException("IOException while getting file number", e);
 		}
 	}
 }

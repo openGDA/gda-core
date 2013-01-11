@@ -236,4 +236,10 @@ public class DummyController implements Xspress3Controller {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public Double[][] readoutDTCorrectedLatestSummedMCA(int startChannel, int finalChannel) throws DeviceException {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

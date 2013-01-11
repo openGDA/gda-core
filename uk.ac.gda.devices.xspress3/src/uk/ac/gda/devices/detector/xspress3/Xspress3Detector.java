@@ -46,9 +46,9 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 	private int fileNumber = -1;
 	private String numTrackerExtension = "nxs";
 	private NumTracker numTracker;
-	
-	public Xspress3Detector(){
-		
+
+	public Xspress3Detector() {
+
 	}
 
 	public Xspress3Detector(Xspress3Controller controller) {
@@ -63,54 +63,61 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 		if (numTracker == null) {
 			createNumTracker();
 		}
+		if (filePrefix.isEmpty() && !getName().isEmpty()) {
+			filePrefix = getName();
+		}
 	}
 
 	private void createNumTracker() {
-		try {
-			numTracker = new NumTracker(numTrackerExtension);
-		} catch (IOException e) {
-			throw new IllegalArgumentException("NumTracker with extension '"
-					+ numTrackerExtension + "' could not be created.", e);
+		if (numTrackerExtension != null && !numTrackerExtension.isEmpty()) {
+			try {
+				numTracker = new NumTracker(numTrackerExtension);
+			} catch (IOException e) {
+				throw new IllegalArgumentException("NumTracker with extension '" + numTrackerExtension
+						+ "' could not be created.", e);
+			}
 		}
+	}
+
+	@Override
+	public void atScanStart() throws DeviceException {
+		prepareFileWriting();
 	}
 
 	@Override
 	public void atScanLineStart() throws DeviceException {
 		framesRead = 0;
-		initiateFileWriting();
 		controller.doErase();
 	}
 
-	private void initiateFileWriting() throws DeviceException {
+	private void prepareFileWriting() throws DeviceException {
 		if (writeHDF5Files) {
 			// set file path name, number here if known or set
 			if (filePath != null && !filePath.isEmpty()) {
 				controller.setFilePath(filePath);
 			} else {
-				controller.setFilePath(PathConstructor
-						.createFromDefaultProperty());
+				controller.setFilePath(PathConstructor.createFromDefaultProperty());
 			}
 
 			if (filePrefix != null && !filePrefix.isEmpty()) {
-				controller.setFilePrefix(filePrefix);
+				String scanNumber = getScanNumber();
+				if (!scanNumber.isEmpty()) {
+					scanNumber = "_" + scanNumber;
+				}
+				controller.setFilePrefix(filePrefix + scanNumber);
 			} else {
 				controller.setFilePrefix("xspress3");
 			}
 
-			controller.setNextFileNumber((int) numTracker
-					.getCurrentFileNumber() + 1);
-		}
-		controller.setSavingFiles(writeHDF5Files);
-	}
-
-	@Override
-	public void atScanLineEnd() throws DeviceException {
-		// clear stored file path prefix and number at end of scan
-		if (writeHDF5Files) {
-			controller.setFilePath("");
-			controller.setFilePrefix("");
 			controller.setNextFileNumber(0);
 		}
+	}
+
+	private String getScanNumber() {
+		if (numTracker != null) {
+			return Long.toString(numTracker.getCurrentFileNumber());
+		}
+		return "";
 	}
 
 	@Override
@@ -119,6 +126,11 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 	}
 
 	protected void startRunningXspress3FrameSet() throws DeviceException {
+		if (writeHDF5Files) {
+			// do not do this if writeHDF5Files is false as may cause errors in
+			// epics
+			controller.setSavingFiles(writeHDF5Files);
+		}
 		controller.doStart();
 	}
 
@@ -163,29 +175,29 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 	}
 
 	/**
-	 * Currently only look at ROI, not the scalers.
+	 * Currently only looks at ROI, not the scaler windows.
 	 * <p>
-	 * Has a link to the HDF5 file created by underlying controller instead of
-	 * adding more data to this Nexus tree.
+	 * Returns the FF (sum of ROI) in the plottable values. May want the option
+	 * in the future to return the individual ROI values instead.
+	 * <p>
+	 * TODO add a link to the HDF5 file created by underlying controller instead
+	 * of adding more data to this Nexus tree.
 	 * 
 	 * @param firstFrame
 	 * @param lastFrame
 	 * @return NexusTreeProvider array for every frame
 	 * @throws DeviceException
 	 */
-	public NexusTreeProvider[] readoutFrames(int firstFrame, int lastFrame)
-			throws DeviceException {
+	public NexusTreeProvider[] readoutFrames(int firstFrame, int lastFrame) throws DeviceException {
 		int numFramesAvailable = controller.getTotalFramesAvailable();
 		if (lastFrame > numFramesAvailable) {
-			throw new DeviceException("Only " + numFramesAvailable
-					+ " frames available, cannot return frames " + firstFrame
-					+ " to " + lastFrame);
+			throw new DeviceException("Only " + numFramesAvailable + " frames available, cannot return frames "
+					+ firstFrame + " to " + lastFrame);
 		}
 
 		// readout ROI in format [frame][detector channel][ROIs]
-		Double[][][] data = controller.readoutDTCorrectedROI(firstFrame,
-				lastFrame, firstChannelToRead, numberOfChannelsToRead
-						+ firstChannelToRead);
+		Double[][][] data = controller.readoutDTCorrectedROI(firstFrame, lastFrame, firstChannelToRead,
+				numberOfChannelsToRead + firstChannelToRead - 1);
 		// calc FF from ROI
 		int numFramesRead = lastFrame - firstFrame + 1;
 		Double[][] FFs = new Double[numFramesRead][numberOfChannelsToRead]; // [frame][detector
@@ -206,12 +218,10 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 		for (int frame = 0; frame < numFramesRead; frame++) {
 			NXDetectorData thisFrame = new NXDetectorData(this);
 			INexusTree detTree = thisFrame.getDetTree(getName());
-			thisFrame.addData(detTree, sumLabel,
-					new int[] { numberOfChannelsToRead }, NexusFile.NX_FLOAT64,
-					FFs[frame], unitsLabel, 1);
+			thisFrame.addData(detTree, sumLabel, new int[] { numberOfChannelsToRead }, NexusFile.NX_FLOAT64,
+					FFs[frame], unitsLabel, 1);			
 			for (int chan = 0; chan < numberOfChannelsToRead; chan++) {
-				String label = channelLabelPrefix + chan + firstChannelToRead;
-				thisFrame.setPlottableValue(label, FFs[frame][chan]);
+				thisFrame.setPlottableValue(extraNames[chan], FFs[frame][chan]);
 			}
 			results[frame] = thisFrame;
 		}
@@ -225,40 +235,37 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 		}
 		return sum;
 	}
-	
+
 	public void setRegionsOfInterest(ROI[] regionList) throws DeviceException {
 		if (regionList.length > MAX_ROI_PER_CHANNEL) {
-			throw new DeviceException("Too many regions! Only "
-					+ MAX_ROI_PER_CHANNEL + " allowed.");
+			throw new DeviceException("Too many regions! Only " + MAX_ROI_PER_CHANNEL + " allowed.");
 		}
-		for (int chan = firstChannelToRead; chan < numberOfChannelsToRead
-				+ firstChannelToRead; chan++) {
+		for (int chan = firstChannelToRead; chan < numberOfChannelsToRead + firstChannelToRead; chan++) {
 			for (int roiNum = 0; roiNum < MAX_ROI_PER_CHANNEL; roiNum++) {
-				if (roiNum < regionList.length){
-				controller.setROILimits(chan, roiNum,
-						new int[] { regionList[roiNum].getStart(),
-								regionList[roiNum].getEnd() });
-				} else {
+				if (roiNum < regionList.length) {
 					controller.setROILimits(chan, roiNum,
-							new int[] {0,0});
+							new int[] { regionList[roiNum].getStart(), regionList[roiNum].getEnd() });
+				} else {
+					controller.setROILimits(chan, roiNum, new int[] { 0, 0 });
 				}
 			}
 		}
-		controller.setNumberROIToRead(regionList.length + 1);
+		controller.setNumberROIToRead(regionList.length);
 	}
-	
+
 	/**
-	 * For the moment, all ROI on all channels are the same, and assumed by this class to be the same.
+	 * For the moment, all ROI on all channels are the same, and assumed by this
+	 * class to be the same.
 	 * 
 	 * @return ROI[]
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public ROI[] getRegionsOfInterest() throws DeviceException {
 		ROI[] rois = new ROI[controller.getNumberROIToRead()];
-		
+
 		for (int roiNum = 0; roiNum < rois.length; roiNum++) {
 			rois[roiNum] = new ROI();
-			rois[roiNum].setName("ROI"+roiNum);
+			rois[roiNum].setName("ROI" + roiNum);
 			Integer[] limits = controller.getROILimits(0, roiNum);
 			rois[roiNum].setStart(limits[0]);
 			rois[roiNum].setEnd(limits[1]);
@@ -280,14 +287,26 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 
 	public void setNumberOfChannelsToRead(int numberOfChannelsToRead) {
 		this.numberOfChannelsToRead = numberOfChannelsToRead;
+		// this defines the number of extraNames as currently extraNames = FF
+		// per channel
+		String[] newExtraNames = new String[numberOfChannelsToRead];
+		String[] newoutputFormat = new String[numberOfChannelsToRead + 1];
+		newoutputFormat[0] = this.outputFormat[0];
+
+		for (int chan = 0; chan < numberOfChannelsToRead; chan++) {
+			String label = channelLabelPrefix + (chan + firstChannelToRead);
+			newExtraNames[chan] = label;
+			newoutputFormat[chan + 1] = this.outputFormat[0];
+		}
+		this.extraNames = newExtraNames;
+		this.outputFormat = newoutputFormat;
 	}
 
 	public int getNumberOfFramesToCollect() throws DeviceException {
 		return controller.getNumFramesToAcquire();
 	}
 
-	public void setNumberOfFramesToCollect(int numberOfFramesToCollect)
-			throws DeviceException {
+	public void setNumberOfFramesToCollect(int numberOfFramesToCollect) throws DeviceException {
 		controller.setNumFramesToAcquire(numberOfFramesToCollect);
 	}
 

@@ -65,7 +65,8 @@ public class EpicsControllerPvProvider {
 	private static String ROI_HIGH_BIN_TEMPLATE = ":C%1d_MCA_ROI%1d_HLM";// channel (1-8),ROI (1-4)
 	private static String ROI_COUNT_TEMPLATE = ";C%1d_MCA_ROI%1d_RBV";// channel (1-8),ROI (1-4)
 	private static String ROIS_TEMPLATE = ":C%1d_MCA_ROI%1d_ARRAY_RBV.VAL"; // channel (1-8),ROI (1-4) this points towards a waveform
-	private static String MCA_TEMPLATE = ":C%1d_MCA_CORR_RBV.VAL";// channel (1-8) this points towards a waveform
+	private static String MCA_TEMPLATE = ":C%1d_MCA_RBV.VAL";// channel (1-8) this points towards a waveform
+	private static String MCA_SUM_TEMPLATE = ":C%1d_MCA_SUM_RBV.VAL";// channel (1-8) this points towards a waveform
 	
 	// SCA
 	private static String SCA_WIN1_LOW_BIN_TEMPLATE = ":C%1d_SCA5_LLM";// channel (1-8)
@@ -142,13 +143,14 @@ public class EpicsControllerPvProvider {
 	protected PV<Integer>[] pvsScaWin2High;
 	protected ReadOnlyPV<Integer>[] pvsScaWin2HighRBV;
 	protected ReadOnlyPV<Double[]>[] pvsLatestMCA; //[channel]
+	protected ReadOnlyPV<Double[]>[] pvsLatestMCASummed; //[channel]
 	protected PV<Integer>[][] pvsROILLM;// [roi][channel]
 	protected PV<Integer>[][] pvsROIHLM;// [roi][channel]
 	protected ReadOnlyPV<Double>[][] pvsLatestROI;  // [roi][channel]
 	protected ReadOnlyPV<Double[]>[][] pvsROIs;   //[roi][channel]
 	protected ReadOnlyPV<Integer> pvConnectionStatus;
-	protected PV<Integer> pvStartStopFileWriting;
-	protected ReadOnlyPV<Integer> pvIsFileWriting;
+	protected PV<CAPTURE_CTRL_RBV> pvStartStopFileWriting;
+	protected ReadOnlyPV<CAPTURE_CTRL_RBV> pvIsFileWriting;
 	protected ReadOnlyPV<Integer> pvGetFileWritingStatus;
 	protected PV<String> pvSetFilePath;
 	protected ReadOnlyPV<String> pvGetFilePath;
@@ -191,8 +193,8 @@ public class EpicsControllerPvProvider {
 	}
 	
 	private void createFileWritingPVs() {
-		pvStartStopFileWriting =  LazyPVFactory.newIntegerPV(generatePVName(STARTSTOP_FILE_WRITING));
-		pvIsFileWriting = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(FILE_WRITING_RBV));
+		pvStartStopFileWriting =  LazyPVFactory.newEnumPV(generatePVName(STARTSTOP_FILE_WRITING),CAPTURE_CTRL_RBV.class);
+		pvIsFileWriting = LazyPVFactory.newReadOnlyEnumPV(generatePVName(FILE_WRITING_RBV),CAPTURE_CTRL_RBV.class);
 //		pvGetFileWritingStatus = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(FILE_WRITE_STATUS));
 		pvSetFilePath = LazyPVFactory.newStringFromWaveformPV(generatePVName(FILE_PATH));
 		pvGetFilePath = LazyPVFactory.newReadOnlyStringFromWaveformPV(generatePVName(FILE_PATH_RBV));
@@ -243,7 +245,8 @@ public class EpicsControllerPvProvider {
 		pvsInWinEventOffset = new ReadOnlyPV[NUMBER_DETECTOR_CHANNELS];
 
 		pvsLatestMCA = new ReadOnlyPV[NUMBER_DETECTOR_CHANNELS];
-
+		pvsLatestMCASummed = new ReadOnlyPV[NUMBER_DETECTOR_CHANNELS];
+		
 		for (int channel = 1; channel <= NUMBER_DETECTOR_CHANNELS; channel++){
 			pvsScalerWindow1[channel-1] = LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(SCA_WIN1_SCAS_TEMPLATE,channel));
 			pvsScalerWindow2[channel-1] = LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(SCA_WIN2_SCAS_TEMPLATE,channel));
@@ -270,6 +273,7 @@ public class EpicsControllerPvProvider {
 			pvsInWinEventOffset[channel-1] = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(INWIN_EVT_OFFSET_TEMPLATE,channel));
 
 			pvsLatestMCA[channel-1] = LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(MCA_TEMPLATE,channel));
+			pvsLatestMCASummed[channel-1] = LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(MCA_SUM_TEMPLATE,channel));
 		}
 	}
 

@@ -40,9 +40,9 @@ public interface Xspress3Controller {
 	public void doErase() throws DeviceException;
 
 	public void doReset() throws DeviceException;
-	
+
 	public boolean isSavingFiles() throws DeviceException;
-	
+
 	public void setSavingFiles(Boolean saveFiles) throws DeviceException;
 
 	public Integer getNumFramesToAcquire() throws DeviceException;
@@ -91,8 +91,8 @@ public interface Xspress3Controller {
 	 * @param finalChannel
 	 * @return Double[frame][channel]
 	 */
-	public Double[][] readoutDTCorrectedSCA1(int startFrame, int finalFrame,
-			int startChannel, int finalChannel) throws DeviceException;
+	public Double[][] readoutDTCorrectedSCA1(int startFrame, int finalFrame, int startChannel, int finalChannel)
+			throws DeviceException;
 
 	/**
 	 * Dead-time corrected in-window scaler counts, for window 2
@@ -106,8 +106,8 @@ public interface Xspress3Controller {
 	 * @param finalChannel
 	 * @return Double[frame][channel]
 	 */
-	public Double[][] readoutDTCorrectedSCA2(int startFrame, int finalFrame,
-			int startChannel, int finalChannel) throws DeviceException;
+	public Double[][] readoutDTCorrectedSCA2(int startFrame, int finalFrame, int startChannel, int finalChannel)
+			throws DeviceException;
 
 	/**
 	 * Array of scaler stats.
@@ -122,8 +122,8 @@ public interface Xspress3Controller {
 	 * @return int[frame][channel][time,reset ticks, reset counts,all events,
 	 *         all goodEvents, pileup counts]
 	 */
-	public Integer[][][] readoutScalerValues(int startFrame, int finalFrame,
-			int startChannel, int finalChannel) throws DeviceException;
+	public Integer[][][] readoutScalerValues(int startFrame, int finalFrame, int startChannel, int finalChannel)
+			throws DeviceException;
 
 	/**
 	 * The dead-time parameters
@@ -136,8 +136,7 @@ public interface Xspress3Controller {
 	 * @return int[channel][allGoodGradient,allGoodOffset,inWindowGradient,
 	 *         inWindowOffset]
 	 */
-	public Integer[][] readoutDTCParameters(int startChannel, int finalChannel)
-			throws DeviceException;
+	public Integer[][] readoutDTCParameters(int startChannel, int finalChannel) throws DeviceException;
 
 	/**
 	 * The deadtime corrected number of counts in each ROI.
@@ -151,8 +150,8 @@ public interface Xspress3Controller {
 	 * @param finalChannel
 	 * @return Double[frame][detector channel][ROIs]
 	 */
-	public Double[][][] readoutDTCorrectedROI(int startFrame, int finalFrame,
-			int startChannel, int finalChannel) throws DeviceException;
+	public Double[][][] readoutDTCorrectedROI(int startFrame, int finalFrame, int startChannel, int finalChannel)
+			throws DeviceException;
 
 	/**
 	 * @return the number of roi which will be read out by the
@@ -166,8 +165,7 @@ public interface Xspress3Controller {
 	 * @throws IllegalArgumentException
 	 *             - if the value given is too high for the implementation
 	 */
-	public void setNumberROIToRead(int numRoiToRead)
-			throws IllegalArgumentException;
+	public void setNumberROIToRead(int numRoiToRead) throws IllegalArgumentException;
 
 	/**
 	 * The latest available MCA in the record. When running a series of time
@@ -182,8 +180,17 @@ public interface Xspress3Controller {
 	 * @param finalChannel
 	 * @return Double[detector channel][mca channel]
 	 */
-	public Double[][] readoutDTCorrectedLatestMCA(int startChannel,
-			int finalChannel) throws DeviceException;
+	public Double[][] readoutDTCorrectedLatestMCA(int startChannel, int finalChannel) throws DeviceException;
+
+	/**
+	 * 
+	 * 
+	 * @param startChannel
+	 * @param finalChannel
+	 * @return Double[detector channel][mca channel]
+	 * @throws DeviceException
+	 */
+	public Double[][] readoutDTCorrectedLatestSummedMCA(int startChannel, int finalChannel) throws DeviceException;
 
 	/**
 	 * @param channel
@@ -191,16 +198,14 @@ public interface Xspress3Controller {
 	 * @param lowHighMCAChannels
 	 *            [lowChannel,highChannel]
 	 */
-	public void setROILimits(int channel, int roiNumber,
-			int[] lowHighMCAChannels) throws DeviceException;
+	public void setROILimits(int channel, int roiNumber, int[] lowHighMCAChannels) throws DeviceException;
 
 	/**
 	 * @param channel
 	 * @param roiNumber
 	 * @return int[] [lowChannel,highChannel]
 	 */
-	public Integer[] getROILimits(int channel, int roiNumber)
-			throws DeviceException;
+	public Integer[] getROILimits(int channel, int roiNumber) throws DeviceException;
 
 	/**
 	 * @param channel
@@ -208,16 +213,14 @@ public interface Xspress3Controller {
 	 * @param lowHighScalerWindowChannels
 	 *            [lowChannel,highChannel]
 	 */
-	public void setWindows(int channel, int roiNumber,
-			int[] lowHighScalerWindowChannels) throws DeviceException;
+	public void setWindows(int channel, int roiNumber, int[] lowHighScalerWindowChannels) throws DeviceException;
 
 	/**
 	 * @param channel
 	 * @param roiNumber
 	 * @return int[] [lowChannel,highChannel]
 	 */
-	public Integer[] getWindows(int channel, int roiNumber)
-			throws DeviceException;
+	public Integer[] getWindows(int channel, int roiNumber) throws DeviceException;
 
 	// file saving options
 
@@ -230,11 +233,10 @@ public interface Xspress3Controller {
 	public String getFilePath() throws DeviceException;
 
 	public String getFilePrefix() throws DeviceException;
-	
+
 	public int getNextFileNumber() throws DeviceException;
 
 	public void configure() throws FactoryException;
 
 	public int getNumFramesPerReadout() throws DeviceException;
-
 }
