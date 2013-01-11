@@ -92,6 +92,8 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	private boolean isDemandPositionToleranceSet = false;
 
 	private boolean pollBlockingMotorsStatus = false;
+	
+	private boolean logMoveRequestsWithInfo = false;
 
 	/**
 	 * Constructor
@@ -230,7 +232,11 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 
 			try {
 				internalDoublePosition = PositionConvertorFunctions.toDouble(internalPosition);
-				logger.debug("{}: move to {} ", getName(), internalPosition);
+				if (isLogMoveRequestsWithInfo()) {
+					logger.info("{}: move to {} ", getName(), internalPosition);
+				} else {
+					logger.debug("{}: move to {} ", getName(), internalPosition);
+				}
 				this.motor.moveTo(internalDoublePosition);
 				notifyIObservers(this, new ScannableStatus(getName(), ScannableStatus.BUSY));
 				lastDemandedInternalPosition = internalDoublePosition;
@@ -644,6 +650,14 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 
 	public boolean isIsBusyThrowingExceptionWhenMotorGoesIntoFault() {
 		return isBusyThrowsExceptionWhenMotorGoesIntoFault;
+	}
+
+	public boolean isLogMoveRequestsWithInfo() {
+		return logMoveRequestsWithInfo;
+	}
+
+	public void setLogMoveRequestsWithInfo(boolean logMoveRequestsWithInfo) {
+		this.logMoveRequestsWithInfo = logMoveRequestsWithInfo;
 	}
 
 	/**
