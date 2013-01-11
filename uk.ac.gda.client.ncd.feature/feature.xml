@@ -2,7 +2,7 @@
 <feature
       id="uk.ac.gda.client.ncd.feature"
       label="NCD client feature"
-      version="8.26.0"
+      version="8.28.0"
       provider-name="Diamond Light Source">
 
    <description url="http://www.example.com/description">
