@@ -501,6 +501,7 @@ public abstract class AbtsractContinuousScanLine extends ConcurrentScan {
 			logger.info(msg);
 			InterfaceProvider.getTerminalPrinter().print(msg);
 			getController().stopAndReset();
+			logger.info(getController().getName() + "stopAndReset ccomplete");
 			throw e;
 		} finally {
 			for (ContinuouslyScannableViaController scn : scannablesToMove) {
