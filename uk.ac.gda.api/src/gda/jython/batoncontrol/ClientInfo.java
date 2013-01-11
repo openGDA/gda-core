@@ -104,4 +104,8 @@ public class ClientInfo implements Serializable {
 	public void setHostname(String hostname) {
 		this.hostname = hostname;
 	}
+
+	public boolean isServer() {
+		return (authorisationLevel == Integer.MAX_VALUE);
+	}
 }
