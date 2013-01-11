@@ -46,6 +46,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.Vector;
@@ -171,6 +172,8 @@ public abstract class ScanBase implements Scan {
 	 * in prepareScanForCollection.
 	 */
 	private Long _scanNumber=null;
+
+	private boolean skipEndScan = false;
 	
 	@Override
 	public Long getScanNumber() {
@@ -560,11 +563,16 @@ public abstract class ScanBase implements Scan {
 			} finally  {
 				// disengage with the data handler, in case this scan is
 				// restarted
-				scanDataPointPipeline.shutdownNow();
+				try {
+					scanDataPointPipeline.shutdownNow();
+				} catch (InterruptedException e) {
+					// TODO endScan should throw InteruptedExceptions
+					throw new DeviceException("Problem shutting down scan pipeline while completing and interurupted scan.", e);
+				}
 			}
 
 
-		} else {
+		} else { // NOTE: Code will come through here even if there has been an exception in the run method.
 			if (getChild() == null) {
 				// wait for the last point to readout
 				try {
@@ -986,6 +994,7 @@ public abstract class ScanBase implements Scan {
 	@Override
 	public void run() throws Exception {
 		// lineScanNeedsDoing = false;
+		skipEndScan = false;
 		logger.debug("ScanBase.run() for scan: '" + getName() + "'");
 		do {
 			lineScanNeedsDoing = false;
@@ -1018,16 +1027,55 @@ public abstract class ScanBase implements Scan {
 				} catch (Exception e) {
 					throw new Exception("Exception during scan collection: " + createMessage(e), e);
 				}
+			} catch (ScanInterruptedException e) {
+				throw e;
 			} catch (Exception e) {
-				String msg = createMessage(e) + " during scan: calling atCommandFailure hooks on Scannables and then interrupting scan.";
-				InterfaceProvider.getTerminalPrinter().print("!!!" + msg);
-				logger.error(msg);
-				cancelReadoutAndPublishCompletion();
+				
+				report("====================================================================================================");
+				report(createMessage(e) + " during scan. Taking remedial action");
+				report("====================================================================================================");
+				
+				skipEndScan = true;
+				
+				report("1. Calling atCommandFailure() hooks on Scannables and Detectors used in scan.");
 				callAtCommandFailureHooks();
+				
+				
+				List<String> names = new ArrayList<String>();
+				for (Scannable scn : allScannables) {
+					names.add(scn.getName());
+				}
+				report("2. Stopping Scannables: " + Arrays.toString(names.toArray()));
+				for (Scannable scn : allScannables) {
+					scn.stop();
+				}
+
+				names = new ArrayList<String>();
+				for (Scannable scn : allDetectors) {
+					names.add(scn.getName());
+				}
+				report("3. Stopping Detectors: " + Arrays.toString(names.toArray()));
+				for (Scannable det : allDetectors) {
+					det.stop();
+				}
+				
+				report("4. Interupting all scan pipeline tasks and shutting pipeline down now. Waiting indefinitely for task interuption.");
+				scanDataPointPipeline.shutdownNow();  // This depends on the tasks being cancelable.
+				cancelReadoutAndPublishCompletion();  //TODO: This does nothing, why is this method available?
+
+				report("5. Rethrowing original " + e.getClass().getSimpleName()); // and skipping ScanBase.endScan().);
+				
+				report("====================================================================================================");
+				
 				throw e;
 			} finally {
 				try {
-					endScan();
+					// TODO: endScan now duplicates some of the exception handling performed above. 
+					// I do not understand the paths that result inScanBase.interupted being set well enougth to
+					// change the logic here. RobW
+					if (!skipEndScan) {
+						endScan();
+					}
 				} catch (DeviceException e) {
 					if ((e instanceof RedoScanLineThrowable) && (getChild() == null)) {
 						logger.info("Redoing scan line because: ", e.getMessage());
@@ -1043,6 +1091,10 @@ public abstract class ScanBase implements Scan {
 		} while (lineScanNeedsDoing);
 	}
 
+	private void report(String msg) {
+		InterfaceProvider.getTerminalPrinter().print("!- " + msg);
+		logger.info(msg);
+	}
 	
 	
 	@Override

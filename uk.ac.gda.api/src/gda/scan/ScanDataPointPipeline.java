@@ -51,8 +51,9 @@ public interface ScanDataPointPipeline {
 	void shutdown(long timeoutMillis) throws DeviceException, InterruptedException;
 	
 	/**
-	 * Aborts the processing of scan data points.
+	 * Aborts the processing of scan data points. Waits indefinitely while Callable tasks are interupted.
+	 * @throws InterruptedException 
 	 */
-	void shutdownNow() throws DeviceException;
+	void shutdownNow() throws DeviceException, InterruptedException;
 
 }
