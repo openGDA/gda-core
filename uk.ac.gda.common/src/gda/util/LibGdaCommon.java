@@ -26,19 +26,22 @@ public class LibGdaCommon {
 	
 	private static final Logger logger = LoggerFactory.getLogger(LibGdaCommon.class);
 	
+	private static boolean LIBRARY_AVAILABLE = false;
+	
 	static {
 		final String libname = "gda_common";
 		try {
 			if (SystemUtils.IS_OS_LINUX) {
 				System.loadLibrary(libname);
+				LIBRARY_AVAILABLE = true;
 			}
 		} catch (Throwable e) {
-			logger.error("Couldn't load " + libname + " library", e);
+			logger.warn("Couldn't load " + libname + " library", e);
 		}
 	}
 	
 	public static String getFullNameOfUser(String username) {
-		if (SystemUtils.IS_OS_LINUX) {
+		if (LIBRARY_AVAILABLE) {
 			return _getFullNameOfUser(username);
 		}
 		return null;
