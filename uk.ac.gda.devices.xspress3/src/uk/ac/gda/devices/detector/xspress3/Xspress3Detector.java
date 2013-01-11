@@ -22,6 +22,7 @@ import org.nexusformat.NexusFile;
  * this class does not cover the triggering but sets up the time frames and
  * reads out the data.
  * 
+ * @see uk.ac.gda.devices.detector.xspress#Xspress3System
  * @author rjw82
  * 
  */
