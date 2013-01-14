@@ -508,8 +508,6 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 							tomoAlignmentView.getLeftWindowImageViewer().getDisplay().syncExec(new Runnable() {
 								@Override
 								public void run() {
-									tomoAlignmentView
-											.setLeftWindowInfo(TomoAlignmentView.FIND_ROTATION_AXIS_DISPLAY_INFO);
 									tomoAlignmentView.getLeftWindowImageViewer().setFeedbackCursor(SWT.CURSOR_HAND);
 								}
 							});
@@ -1896,7 +1894,6 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 		TomoAlignmentLeftPanelComposite leftPanelComposite = tomoAlignmentView.getLeftPanelComposite();
 		switch (tomoAlignmentView.getLeftWindowViewerDisplayMode()) {
 		case SAMPLE_SINGLE:
-		case FLAT_SINGLE:
 			int scaledX = tomoAlignmentView.getTomoAlignmentController().getScaledX();
 			int scaledY = tomoAlignmentView.getTomoAlignmentController().getScaledY();
 			tomoAlignmentView.getHistogramAdjuster().updateHistogramValues(
