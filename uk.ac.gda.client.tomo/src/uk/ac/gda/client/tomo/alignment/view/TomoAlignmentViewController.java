@@ -214,9 +214,6 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 
 	@Override
 	public void vertical(boolean selected) throws Exception {
-		if (!tomoAlignmentView.isModuleSelected()) {
-			throw new IllegalArgumentException("Camera module must be selected");
-		}
 		if (selected) {
 			centringStarted(MOVE_AXIS.Y_AXIS);
 		} else {
@@ -250,6 +247,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 
 	@Override
 	public void tilt(boolean selected) throws Exception {
+
 		if (!tomoAlignmentView.isModuleSelected()) {
 			throw new IllegalArgumentException("Camera module must be selected");
 		}
@@ -633,10 +631,8 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 
 	@Override
 	public void autoFocus(boolean selected) throws Exception {
+		// TODO Auto-generated method stub
 		logger.debug("auto focus to be invoked");
-		if (!tomoAlignmentView.isModuleSelected()) {
-			throw new IllegalArgumentException("Camera module must be selected");
-		}
 	}
 
 	@Override
@@ -999,8 +995,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 				} catch (Exception e) {
 					logger.error("Problem collecting histogram data", e);
 				}
-				if (histogramFromStats != null && tomoAlignmentView.getViewSite().getShell() != null
-						&& !tomoAlignmentView.getViewSite().getShell().isDisposed()) {
+				if (histogramFromStats != null && !tomoAlignmentView.getViewSite().getShell().isDisposed()) {
 					tomoAlignmentView.getTomoPlotComposite().updateHistogramData(histogramFromStats);
 				}
 
@@ -1943,7 +1938,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 			} catch (Exception e) {
 				logger.error("Reached limits");
 			}
-
+			
 			tomoAlignmentView.getTomoPlotComposite().resetHistogramFactor();
 		} catch (Exception e1) {
 			logger.error("Problem updating exposure time", e1);

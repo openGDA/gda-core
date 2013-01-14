@@ -19,13 +19,13 @@
 package uk.ac.gda.client.tomo.alignment.view.handlers.impl;
 
 import gda.configuration.properties.LocalProperties;
+import gda.device.DeviceException;
 import gda.jython.authenticator.UserAuthentication;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -34,22 +34,20 @@ import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.XMLResource;
-import org.eclipse.emf.edit.domain.EditingDomain;
-import org.eclipse.emf.transaction.RecordingCommand;
-import org.eclipse.emf.transaction.TransactionalEditingDomain;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-import uk.ac.gda.client.tomo.TomoClientActivator;
 import uk.ac.gda.client.tomo.alignment.view.controller.SaveableConfiguration;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ITomoConfigResourceHandler;
 import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.RESOLUTION;
 import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.SAMPLE_WEIGHT;
-import uk.ac.gda.tomography.TomographyResourceUtil;
 import uk.ac.gda.tomography.parameters.AlignmentConfiguration;
 import uk.ac.gda.tomography.parameters.DetectorBin;
 import uk.ac.gda.tomography.parameters.DetectorProperties;
@@ -62,11 +60,14 @@ import uk.ac.gda.tomography.parameters.SampleWeight;
 import uk.ac.gda.tomography.parameters.StitchParameters;
 import uk.ac.gda.tomography.parameters.TomoExperiment;
 import uk.ac.gda.tomography.parameters.TomoParametersFactory;
+import uk.ac.gda.tomography.parameters.TomoParametersPackage;
+import uk.ac.gda.tomography.parameters.util.TomoParametersResourceFactoryImpl;
 
 /**
  *
  */
 public class TomoConfigResourceHandler implements ITomoConfigResourceHandler, InitializingBean {
+	private static final String TOMOPARAMETERS = "tomoparameters";
 
 	// private DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
@@ -75,11 +76,7 @@ public class TomoConfigResourceHandler implements ITomoConfigResourceHandler, In
 
 	private String fileLocation;
 
-	private TomographyResourceUtil resourceUtil;
-
-	public TomoConfigResourceHandler() {
-		resourceUtil = new TomographyResourceUtil();
-	}
+	private ResourceSet resourceSet;
 
 	@Override
 	public void dispose() {
@@ -88,52 +85,17 @@ public class TomoConfigResourceHandler implements ITomoConfigResourceHandler, In
 
 	@Override
 	public String saveConfiguration(IProgressMonitor monitor, final SaveableConfiguration saveableConfiguration)
-			throws Exception {
+			throws DeviceException, InvocationTargetException, InterruptedException {
+
+		// IRunnableWithProgress saveConfigurationOperation = new IRunnableWithProgress() {
+		//
+		// @Override
+		// public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 
 		TomoExperiment experiment = getTomoConfigResource(monitor, true);
 
 		if (experiment != null) {
-			AddTomoExperimentCommand command = new AddTomoExperimentCommand(
-					(TransactionalEditingDomain) TomoClientActivator.getDefault().getTomoConfigEditingDomain(),
-					experiment, saveableConfiguration);
 
-			TomoClientActivator.getDefault().getTomoConfigEditingDomain().getCommandStack().execute(command);
-			Collection<?> result = TomoClientActivator.getDefault().getTomoConfigEditingDomain().getCommandStack()
-					.getMostRecentCommand().getResult();
-
-			String expConfigId = null;
-
-			if (!result.isEmpty()) {
-				expConfigId = result.iterator().next().toString();
-			}
-			resourceUtil.saveResource(experiment);
-			return expConfigId;
-		}
-
-		return null;
-
-	}
-
-	private class AddTomoExperimentCommand extends RecordingCommand {
-
-		private final SaveableConfiguration saveableConfiguration;
-		private final TomoExperiment experiment;
-		private String configurationId;
-
-		public AddTomoExperimentCommand(TransactionalEditingDomain ed, TomoExperiment experiment,
-				SaveableConfiguration saveableConfiguration) {
-			super(ed);
-			this.experiment = experiment;
-			this.saveableConfiguration = saveableConfiguration;
-		}
-
-		@Override
-		public Collection<?> getResult() {
-			return Collections.singletonList(configurationId);
-		}
-
-		@Override
-		protected void doExecute() {
 			AlignmentConfiguration expConfiguration = TomoParametersFactory.eINSTANCE.createAlignmentConfiguration();
 
 			// in beam position
@@ -168,9 +130,23 @@ public class TomoConfigResourceHandler implements ITomoConfigResourceHandler, In
 			expConfiguration.setStitchParameters(createStitchParameters(saveableConfiguration));
 			// add the configuration to the parameter set
 			experiment.getParameters().getConfigurationSet().add(expConfiguration);
-			configurationId = expConfiguration.getId();
 
+			Map<Object, Object> options = new HashMap<Object, Object>();
+			options.put(XMLResource.OPTION_ENCODING, "UTF-8");
+			try {
+				experiment.eResource().save(options);
+			} catch (IOException e) {
+				logger.error("Exception saving the configuration model", e);
+			}
+			return expConfiguration.getId();
 		}
+
+		return null;
+
+		// }
+
+		// };
+		// saveConfigurationOperation.run(monitor);
 
 	}
 
@@ -256,6 +232,28 @@ public class TomoConfigResourceHandler implements ITomoConfigResourceHandler, In
 		//
 	}
 
+	/**
+	 * @param tomoConfigUri
+	 * @return {@link Resource}
+	 */
+	private Resource createResource(URI tomoConfigUri) {
+		return getResourceSet().createResource(tomoConfigUri);
+	}
+
+	/**
+	 * @return {@link ResourceSet}
+	 */
+	protected ResourceSet getResourceSet() {
+		if (resourceSet == null) {
+			resourceSet = new ResourceSetImpl();
+			// To initialize the resourceset resource factory registry with the excalibur config package
+			EPackage.Registry.INSTANCE.put(TomoParametersPackage.eNS_URI, TomoParametersPackage.eINSTANCE);
+			Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put(TOMOPARAMETERS,
+					new TomoParametersResourceFactoryImpl());
+		}
+		return resourceSet;
+	}
+
 	public String getFileLocation() {
 		return fileLocation;
 	}
@@ -273,8 +271,42 @@ public class TomoConfigResourceHandler implements ITomoConfigResourceHandler, In
 	}
 
 	@Override
-	public TomoExperiment getTomoConfigResource(IProgressMonitor monitor, boolean shouldCreate) throws Exception {
-		Resource res = resourceUtil.getResource(getResourceSet(), fileLocation, shouldCreate);
+	public TomoExperiment getTomoConfigResource(IProgressMonitor monitor, boolean shouldCreate)
+			throws InvocationTargetException, InterruptedException {
+		final URI tomoConfigUri = URI.createFileURI(fileLocation);
+		Resource res = null;
+
+		boolean fileExists = new File(fileLocation).exists();
+		if (!fileExists && !shouldCreate) {
+			return null;
+		}
+
+		if (!fileExists) {
+
+			final Resource[] resources = new Resource[1];
+			IRunnableWithProgress saveConfigurationOperation = new IRunnableWithProgress() {
+
+				@Override
+				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+					resources[0] = createResource(tomoConfigUri);
+					TomoExperiment experiment = TomoParametersFactory.eINSTANCE.createTomoExperiment();
+					Parameters parameters = TomoParametersFactory.eINSTANCE.createParameters();
+					experiment.setParameters(parameters);
+					resources[0].getContents().add(experiment);
+					Map<Object, Object> options = new HashMap<Object, Object>();
+					options.put(XMLResource.OPTION_ENCODING, "UTF-8");
+					try {
+						resources[0].save(options);
+					} catch (IOException e) {
+						logger.error("Exception saving the configuration model", e);
+					}
+				}
+			};
+			saveConfigurationOperation.run(monitor);
+			res = resources[0];
+		} else {
+			res = getResourceSet().getResource(tomoConfigUri, true);
+		}
 
 		TomoExperiment tomoExperiment = null;
 		if (res != null) {
@@ -283,18 +315,4 @@ public class TomoConfigResourceHandler implements ITomoConfigResourceHandler, In
 		}
 		return tomoExperiment;
 	}
-
-	@Override
-	public EditingDomain getEditingDomain() throws Exception {
-		return TomoClientActivator.getDefault().getTomoConfigEditingDomain();
-	}
-
-	/**
-	 * @return {@link ResourceSet}
-	 * @throws Exception
-	 */
-	protected ResourceSet getResourceSet() throws Exception {
-		return getEditingDomain().getResourceSet();
-	}
-
 }

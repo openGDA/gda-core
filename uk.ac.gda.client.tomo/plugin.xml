@@ -138,21 +138,18 @@
       </page>
    </extension>
     <extension
+         point="org.eclipse.emf.transaction.editingDomains">
+      <editingDomain
+            factory="uk.ac.gda.client.tomo.TomoConfigTransactionEditingDomainFactory"
+            id="uk.ac.gda.tomography.config.editingDomain">
+      </editingDomain>
+   </extension>
+    <extension
           point="org.eclipse.ui.contexts">
        <context
              description="Multiple Vertical Motor Context"
              id="uk.ac.gda.tomography.multiple.vertical.motors.context"
              name="Multiple Vertical Motor Context">
-       </context>
-       <context
-             description="Context that describes whether the detector responsible for running tomography is functioning"
-             id="uk.ac.gda.client.tomo.alignment.isDetectorIocRunningContext"
-             name="Tomography Alignment Detector Running">
-       </context>
-       <context
-             description="Context that describes whether the detector responsible for running tomography is functioning"
-             id="uk.ac.gda.client.tomo.configuration.isDetectorIocRunningContext"
-             name="Tomography Configuration Detector Running">
        </context>
     </extension>
     <extension
@@ -179,24 +176,7 @@
                    checkEnabled="true">
              </visibleWhen>
           </control>
-          
-       </menuContribution>
-       <menuContribution
-             allPopups="false"
-             locationURI="toolbar:uk.ac.gda.client.tomo.configuration.view">
-          <control
-                class="uk.ac.gda.client.tomo.composites.TomoConfigurationToolbarComposite">
-             <visibleWhen
-                   checkEnabled="true">
-             </visibleWhen>
-          </control>
        </menuContribution>
     </extension>
-   <extension
-         point="org.eclipse.emf.transaction.editingDomains">
-      <editingDomain
-            factory="uk.ac.gda.client.tomo.TomoConfigTransactionEditingDomainFactory"
-            id="uk.ac.gda.tomography.config.editingDomain">
-      </editingDomain>
-   </extension>
+   
 </plugin>

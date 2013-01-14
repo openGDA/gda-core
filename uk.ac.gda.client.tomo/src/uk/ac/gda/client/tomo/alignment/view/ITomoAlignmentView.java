@@ -25,12 +25,11 @@ import org.eclipse.ui.IViewPart;
 import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentController.SAMPLE_STAGE_STATE;
 import uk.ac.gda.client.tomo.composites.ModuleButtonComposite.CAMERA_MODULE;
 import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.RESOLUTION;
-import uk.ac.gda.client.tomo.views.IDetectorResetable;
 
 /**
  * Interface by which the tomo alignment controller communicates with the tomo alignment view.
  */
-public interface ITomoAlignmentView extends IRotationMotorListener, IViewPart, IDetectorResetable {
+public interface ITomoAlignmentView extends IRotationMotorListener, IViewPart {
 
 	void updateFullImgStreamUrl(String mjPegURL);
 
@@ -53,6 +52,8 @@ public interface ITomoAlignmentView extends IRotationMotorListener, IViewPart, I
 	void updateRightWindowNumPixelsLabel(String cameraScaleBarDisplayText, int barLengthInPixel);
 
 	void updateErrorAligningTilt(String status);
+
+	void reset();
 
 	void updateModuleButtonText(String unitsToBeDisplayed, Map<Integer, String> moduleButtonText);
 
