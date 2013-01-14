@@ -21,17 +21,22 @@ package uk.ac.gda.client.tomo.alignment.view.handlers.impl;
 import gda.configuration.properties.LocalProperties;
 import gda.jython.authenticator.UserAuthentication;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.edit.domain.EditingDomain;
 import org.eclipse.emf.transaction.RecordingCommand;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;
@@ -51,6 +56,7 @@ import uk.ac.gda.tomography.parameters.DetectorProperties;
 import uk.ac.gda.tomography.parameters.DetectorRoi;
 import uk.ac.gda.tomography.parameters.Module;
 import uk.ac.gda.tomography.parameters.MotorPosition;
+import uk.ac.gda.tomography.parameters.Parameters;
 import uk.ac.gda.tomography.parameters.Resolution;
 import uk.ac.gda.tomography.parameters.SampleWeight;
 import uk.ac.gda.tomography.parameters.StitchParameters;
@@ -291,11 +297,4 @@ public class TomoConfigResourceHandler implements ITomoConfigResourceHandler, In
 		return getEditingDomain().getResourceSet();
 	}
 
-	@Override
-	public void reloadResource() throws Exception {
-		TomoExperiment tomoConfigResource = getTomoConfigResource(new NullProgressMonitor(), false);
-		if(tomoConfigResource != null){
-			resourceUtil.reloadResource(getResourceSet(), tomoConfigResource.eResource());
-		}
-	}
 }

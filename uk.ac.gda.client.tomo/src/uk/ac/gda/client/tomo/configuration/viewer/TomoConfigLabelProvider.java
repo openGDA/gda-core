@@ -102,8 +102,6 @@ public class TomoConfigLabelProvider extends LabelProvider implements ITableLabe
 				return Double.toString(configContent.getTimeDivider());
 			} else if (TomoConfigTableConstants.COL_PROGRESS == columnIndex) {
 				return Double.toString(configContent.getProgress()) + " %";
-			} else if (TomoConfigTableConstants.COL_ADDITIONAL == columnIndex) {
-				return "Click...";
 			}
 		}
 
@@ -124,15 +122,12 @@ public class TomoConfigLabelProvider extends LabelProvider implements ITableLabe
 	private static final Color COLOR_RUNNING = ColorConstants.green;
 	private static final Color COLOR_NONE = null;
 	private static final Color COLOR_FAIL = ColorConstants.red;
-	private static final Color COLOR_STARTING = ColorConstants.lightGreen;
 
 	@Override
 	public Color getBackground(Object element, int columnIndex) {
 		if (columnIndex == TomoConfigTableConstants.COL_PROGRESS) {
 			if (element instanceof TomoConfigContent) {
 				switch (((TomoConfigContent) element).getStatus()) {
-				case STARTING:
-					return COLOR_STARTING;
 				case COMPLETE:
 					return COLOR_COMPLETE;
 				case RUNNING:

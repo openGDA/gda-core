@@ -22,21 +22,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.tomo.IScanResolutionLookupProvider;
-import uk.ac.gda.client.tomo.alignment.view.handlers.impl.TomoConfigResourceHandler;
 import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.RESOLUTION;
 import uk.ac.gda.client.tomo.composites.TomoAlignmentControlComposite.SAMPLE_WEIGHT;
-import uk.ac.gda.tomography.TomographyResourceUtil;
 import uk.ac.gda.tomography.parameters.AlignmentConfiguration;
 import uk.ac.gda.tomography.parameters.Resolution;
 import uk.ac.gda.tomography.parameters.SampleWeight;
-import uk.ac.gda.tomography.parameters.ScanCollected;
 import uk.ac.gda.tomography.parameters.TomoExperiment;
 
 /**
@@ -84,7 +80,6 @@ public class TomoConfigContentProvider implements IStructuredContentProvider {
 	}
 
 	private Object[] getTomoConfigContent(TomoExperiment tomoExperiment) {
-		
 		List<AlignmentConfiguration> configurationSet = tomoExperiment.getParameters().getConfigurationSet();
 
 		ArrayList<ITomoConfigContent> configContents = new ArrayList<ITomoConfigContent>();
@@ -123,12 +118,6 @@ public class TomoConfigContentProvider implements IStructuredContentProvider {
 				configContent.setEstEndTime(estEndTime);
 			} else {
 				configContent.setEstEndTime(0.0);
-			}
-
-			List<ScanCollected> scanCollected = alignmentConfiguration.getScanCollected();
-			for (ScanCollected collected : scanCollected) {
-				configContent.addScanInformation(Integer.parseInt(collected.getScanNumber()), collected.getStartTime(),
-						collected.getEndTime());
 			}
 
 			configContent.setRunTime(runTime);

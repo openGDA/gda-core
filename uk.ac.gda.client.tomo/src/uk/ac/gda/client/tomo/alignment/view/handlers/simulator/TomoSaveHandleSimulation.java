@@ -57,10 +57,4 @@ public class TomoSaveHandleSimulation implements ITomoConfigResourceHandler {
 		return null;
 	}
 
-	@Override
-	public void reloadResource() throws Exception {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

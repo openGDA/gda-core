@@ -64,9 +64,4 @@ public interface ITomoConfigResourceHandler extends ITomoHandler {
 	 */
 	EditingDomain getEditingDomain() throws Exception;
 
-	/**
-	 * Invocation to reload the emf resource
-	 * @throws Exception 
-	 */
-	void reloadResource() throws Exception;
 }
