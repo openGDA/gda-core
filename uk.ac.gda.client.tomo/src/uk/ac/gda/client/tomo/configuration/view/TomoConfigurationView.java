@@ -64,6 +64,7 @@ import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TextCellEditor;
@@ -88,6 +89,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchCommandConstants;
@@ -117,7 +119,6 @@ import uk.ac.gda.tomography.parameters.AlignmentConfiguration;
 import uk.ac.gda.tomography.parameters.DetectorProperties;
 import uk.ac.gda.tomography.parameters.Parameters;
 import uk.ac.gda.tomography.parameters.Resolution;
-import uk.ac.gda.tomography.parameters.ScanCollected;
 import uk.ac.gda.tomography.parameters.ScanMode;
 import uk.ac.gda.tomography.parameters.StitchParameters;
 import uk.ac.gda.tomography.parameters.TomoExperiment;
@@ -632,9 +633,10 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 							TomoParametersPackage.eINSTANCE.getParameters_ConfigurationSet(), configurationSet);
 					runCommand(rmCommand);
 				} catch (IOException ie) {
-					logger.error("IOException Problem removing configuration from set", ie);
+					logger.error("TODO put description of error here", ie);
 				} catch (Exception ex) {
-					logger.error("Problem removing configuration from set", ex);
+					// TODO Auto-generated catch block
+					logger.error("TODO put description of error here", ex);
 				}
 			} else if (e.getSource().equals(btnMoveUp) || e.getSource().equals(btnMoveDown)) {
 				ISelection selection = configModelTableViewer.getSelection();
@@ -712,7 +714,7 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 								}
 							}
 						} catch (Exception e1) {
-							logger.error("Problem stopping Tomography Runs", e1);
+							logger.error("TODO put description of error here", e1);
 						}
 						CommandExecutor.executeCommand(getViewSite(),
 								CommandQueueContributionFactory.UK_AC_GDA_CLIENT_START_COMMAND_QUEUE);
@@ -812,23 +814,16 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 
 		@Override
 		public void notifyChanged(Notification notification) {
-			int eventType = notification.getEventType();
-			if (eventType == Notification.SET || eventType == Notification.UNSET || eventType == Notification.ADD
-					|| eventType == Notification.ADD_MANY || eventType == Notification.REMOVE
-					|| eventType == Notification.REMOVE_MANY || eventType == Notification.MOVE) {
-
-				Object notifier = notification.getNotifier();
-				AlignmentConfiguration ac = null;
-
-				if (notifier instanceof AlignmentConfiguration) {
-					ac = (AlignmentConfiguration) notifier;
-				} else if (notifier instanceof DetectorProperties) {
-					ac = (AlignmentConfiguration) ((DetectorProperties) notifier).eContainer();
-				}
-				if (ac != null) {
-					if (!configModelTableViewer.getTable().isDisposed()) {
-						refreshTable();
-					}
+			Object notifier = notification.getNotifier();
+			AlignmentConfiguration ac = null;
+			if (notifier instanceof AlignmentConfiguration) {
+				ac = (AlignmentConfiguration) notifier;
+			} else if (notifier instanceof DetectorProperties) {
+				ac = (AlignmentConfiguration) ((DetectorProperties) notifier).eContainer();
+			}
+			if (ac != null) {
+				if (!configModelTableViewer.getTable().isDisposed()) {
+					refreshTable();
 				}
 			}
 		}
@@ -865,12 +860,7 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 					}
 				}
 			}
-
-			if (eventType == Notification.SET || eventType == Notification.UNSET || eventType == Notification.ADD
-					|| eventType == Notification.ADD_MANY || eventType == Notification.REMOVE
-					|| eventType == Notification.REMOVE_MANY || eventType == Notification.MOVE) {
-				refreshTable();
-			}
+			refreshTable();
 		}
 
 		@Override
@@ -1164,7 +1154,8 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 			} else if (TomoConfigTableConstants.TIME_FACTOR.equals(columnIdentifier)) {
 				return new TextCellEditor(table);
 			} else if (TomoConfigTableConstants.ADDITIONAL.equals(columnIdentifier)) {
-				return new AdditionalInfoDialogCellEditor(table, (TomoConfigContent) element, scanResolutionProvider);
+				return new AdditionalInfoDialogCellEditor(table, RESOLUTION.get(((TomoConfigContent) element)
+						.getResolution()));
 			}
 			return null;
 		}
@@ -1183,9 +1174,7 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 				} else if (TomoConfigTableConstants.TIME_FACTOR.equals(columnIdentifier)) {
 					return true;
 				} else if (TomoConfigTableConstants.ADDITIONAL.equals(columnIdentifier)) {
-					if (!(CONFIG_STATUS.RUNNING == ((TomoConfigContent) element).getStatus())) {
-						return true;
-					}
+					return true;
 				}
 				logger.debug("canEdit:{}", element);
 			}
@@ -1257,13 +1246,10 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 							TomoConfigContent c = (TomoConfigContent) tableItem.getData();
 							if (configStatusForTomoConfigContent.keySet().contains(c.getConfigId())) {
 								CONFIG_STATUS status = configStatusForTomoConfigContent.get(c.getConfigId());
-								logger.debug("configId ={}", c.getConfigId());
-								logger.debug("status = {}", status);
 								c.setStatus(status);
 								if (status == CONFIG_STATUS.STARTING) {
 									c.setProgress(0);
 								} else if (status == CONFIG_STATUS.COMPLETE) {
-									updateScanCollected(c);
 									c.setProgress(100);
 								} else if (status == CONFIG_STATUS.NONE) {
 									c.setProgress(0);
@@ -1273,26 +1259,6 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 								c.setProgress(0);
 							}
 							refreshRow(c);
-						}
-
-					}
-
-					private void updateScanCollected(TomoConfigContent c) {
-						try {
-							configFileHandler.reloadResource();
-						} catch (Exception e) {
-							logger.error("Problem reloading resource", e);
-						}
-						AlignmentConfiguration alignmentConfiguration = getModel().getParameters()
-								.getAlignmentConfiguration(c.getConfigId());
-						if (alignmentConfiguration != null) {
-							List<ScanCollected> scanCollected = alignmentConfiguration.getScanCollected();
-
-							for (ScanCollected sC : scanCollected) {
-								c.addScanInformation(Integer.parseInt(sC.getScanNumber()), sC.getStartTime(),
-										sC.getEndTime());
-							}
-
 						}
 
 					}
