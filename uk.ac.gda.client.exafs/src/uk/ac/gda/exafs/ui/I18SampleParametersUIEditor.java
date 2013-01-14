@@ -72,7 +72,7 @@ public final class I18SampleParametersUIEditor extends RichBeanEditorPart {
 		scrolledComposite.setExpandHorizontal(true);
 		scrolledComposite.setExpandVertical(true);
 
-		this.beanComposite = new I18SampleParametersComposite(scrolledComposite, SWT.NONE);
+		this.beanComposite = new I18SampleParametersComposite(scrolledComposite, SWT.NONE, (I18SampleParameters)editingBean);
 		try {
 			if(((I18SampleParameters)editingBean).getSampleStageParameters().getDisable())
 				this.beanComposite.disableSample();
@@ -80,7 +80,6 @@ public final class I18SampleParametersUIEditor extends RichBeanEditorPart {
 				this.beanComposite.enableSample();
 			
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			logger.error("Error enabling/disabling sample", e);
 		}
 		((GridData) beanComposite.getSampleStageParameters().getZ().getLayoutData()).widthHint = 544;
@@ -93,36 +92,21 @@ public final class I18SampleParametersUIEditor extends RichBeanEditorPart {
 		
 	}
 
-	private void loadRealPositions() {
-		final JythonServerFacade jythonServerFacade = JythonServerFacade.getInstance();
-		String command = "getSampleXYZPositions()";        
-		StringTokenizer s =new StringTokenizer(jythonServerFacade.evaluateCommand(command).trim(), ",");
-		//positions will be sent from the script as space separated string  "x y z"
-		System.out.println(beanComposite.getSampleStageParameters().getX().getValue());
-		beanComposite.getSampleStageParameters().getX().setValue(Double.valueOf(s.nextToken()));
-		beanComposite.getSampleStageParameters().getY().setValue(Double.valueOf(s.nextToken()));
-		beanComposite.getSampleStageParameters().getZ().setValue(Double.valueOf(s.nextToken()));
-		//fill the real attenuator position
-		/*command = "getAttenuatorPositions(\""+(String)beanComposite.getAttenuatorParameter1().getName().getValue()
-		+"\",\""+(String)beanComposite.getAttenuatorParameter2().getName().getValue()+"\")";
-		s =new StringTokenizer(jythonServerFacade.evaluateCommand(command).trim(), ",");
-		beanComposite.getAttenuatorParameter1().getPosition().setText(s.nextToken());
-		beanComposite.getAttenuatorParameter2().getPosition().setText(s.nextToken());*/
-		
-	}
-	private void loadAttnRealPositions() {
-		final JythonServerFacade jythonServerFacade = JythonServerFacade.getInstance();
-		String command = "getAttenuatorPositions(\""+(String)beanComposite.getAttenuatorParameter1().getName().getValue()
-		+"\",\""+(String)beanComposite.getAttenuatorParameter2().getName().getValue()+"\")";
-		StringTokenizer s =new StringTokenizer(jythonServerFacade.evaluateCommand(command).trim(), ",");
-		beanComposite.getAttenuatorParameter1().getPosition().setText(s.nextToken());
-		beanComposite.getAttenuatorParameter2().getPosition().setText(s.nextToken());
-		beanComposite.getAttenuatorParameter1().getSelectedPosition().setValue(beanComposite.getAttenuatorParameter1().getPosition().getText());
-		beanComposite.getAttenuatorParameter2().getSelectedPosition().setValue(beanComposite.getAttenuatorParameter2().getPosition().getText());
-		
-	}
-
 	private void addListeners() {
+		
+		beanComposite.getAttnCurrentPosition().addListener(SWT.Selection, new Listener() {
+		@Override
+		public void handleEvent(Event event) {
+			String att1val = JythonServerFacade.getInstance().evaluateCommand("D7A()");
+			String att2val = JythonServerFacade.getInstance().evaluateCommand("D7B()");
+			beanComposite.getAttenuatorParameter1().getSelectedPosition().setValue(att1val);
+			beanComposite.getAttenuatorParameter2().getSelectedPosition().setValue(att2val);
+			beanComposite.getAttenuatorParameter1().setPosition(att1val);
+			beanComposite.getAttenuatorParameter2().setPosition(att2val);
+		
+	}
+	});
+
 		this.beanComposite.getAttenuatorParameter1().getPosition().addSelectionListener(new SelectionListener(){
 
 			@Override
@@ -149,23 +133,8 @@ public final class I18SampleParametersUIEditor extends RichBeanEditorPart {
 			}
 			
 		});
-		
-		beanComposite.getCurrentPosition().addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				loadRealPositions();
-			
 			}
-		});
-		beanComposite.getAttnCurrentPosition().addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				loadAttnRealPositions();
 			
-			}
-		});
-	}
-
 	private void fillAttenuatorPositions() {
 		AttenuatorParametersComposite at1 = this.beanComposite.getAttenuatorParameter1();
 		AttenuatorParametersComposite at2 = this.beanComposite.getAttenuatorParameter2();

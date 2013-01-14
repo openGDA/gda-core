@@ -34,7 +34,8 @@ public class IonChamberParameters  implements Serializable{
 	private Integer channel=1;
 	private String  currentAmplifierName="Keithley";
 	private boolean useGasProperties = true;
-	private String  gain;
+	private String  gain;  // sensitivity of the current amps
+	private String  offset; // offset of the current amps
 	private Double  pressure;
 	private Double  totalPressure = 2d; // Not often changed by user, can default it
 	private String  gasType;
@@ -65,133 +66,82 @@ public class IonChamberParameters  implements Serializable{
 		gas_fill2_period_box = gasFill2PeriodBox;
 	}
 	
-	/**
-	 * @return Returns the workingEnergy.
-	 */
 	public Double getWorkingEnergy() {
 		return workingEnergy;
 	}
 
-	/**
-	 * @param workingEnergy The workingEnergy to set.
-	 */
 	public void setWorkingEnergy(Double workingEnergy) {
 		this.workingEnergy = workingEnergy;
 	}
 
-	/**
-	 * @return d
-	 */
 	public Double getIonChamberLength() {
 		return ionChamberLength;
 	}
 
-	/**
-	 * @param ionChamberLength
-	 */
 	public void setIonChamberLength(Double ionChamberLength) {
 		this.ionChamberLength = ionChamberLength;
 	}
-	/**
-	 * @return f
-	 */
+
 	public Double getTotalPressure() {
 		return totalPressure;
 	}
 
-	/**
-	 * @param totalPressure
-	 */
 	public void setTotalPressure(Double totalPressure) {
 		this.totalPressure = totalPressure;
 	}
-	/**
-	 * @return the name
-	 */
+
 	public String getName() {
 		return name;
 	}
 
-	/**
-	 * @param name
-	 *            the name to set
-	 */
 	public void setName(String name) {
 		this.name = name;
 	}
 
-	/**
-	 * @return the deviceName
-	 */
 	public String getDeviceName() {
 		return deviceName;
 	}
 
-	/**
-	 * @param deviceName
-	 *            the deviceName to set
-	 */
 	public void setDeviceName(String deviceName) {
 		this.deviceName = deviceName;
 	}
 
-	/**
-	 * @return the channel
-	 */
 	public Integer getChannel() {
 		return channel;
 	}
 
-	/**
-	 * @param channel
-	 *            the channel to set
-	 */
 	public void setChannel(Integer channel) {
 		this.channel = channel;
 	}
 
-	/**
-	 * @return the currentAmplifierName
-	 */
 	public String getCurrentAmplifierName() {
 		return currentAmplifierName;
 	}
 
-	/**
-	 * @param currentAmplifierName
-	 *            the currentAmplifierName to set
-	 */
 	public void setCurrentAmplifierName(String currentAmplifierName) {
 		this.currentAmplifierName = currentAmplifierName;
 	}
 
-	/**
-	 * @return the gain
-	 */
 	public String getGain() {
 		return gain;
 	}
 
-	/**
-	 * @param gain
-	 *            the gain to set
-	 */
 	public void setGain(String gain) {
 		this.gain = gain;
 	}
 
+	public String getOffset() {
+		return offset;
+	}
 
-	/**
-	 * @return the gasType
-	 */
+	public void setOffset(String offset) {
+		this.offset = offset;
+	}
+
 	public String getGasType() {
 		return gasType;
 	}
 
-	/**
-	 * @param gasType
-	 *            the gasType to set
-	 */
 	public void setGasType(String gasType) {
 		this.gasType = gasType;
 	}
@@ -254,26 +204,23 @@ public class IonChamberParameters  implements Serializable{
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((autoFillGas == null) ? 0 : autoFillGas.hashCode());
-		result = prime * result + ((flush == null) ? 0 : flush.hashCode());
 		result = prime * result + ((changeSensitivity == null) ? 0 : changeSensitivity.hashCode());
 		result = prime * result + ((channel == null) ? 0 : channel.hashCode());
 		result = prime * result + ((currentAmplifierName == null) ? 0 : currentAmplifierName.hashCode());
 		result = prime * result + ((deviceName == null) ? 0 : deviceName.hashCode());
+		result = prime * result + ((flush == null) ? 0 : flush.hashCode());
 		result = prime * result + ((gain == null) ? 0 : gain.hashCode());
 		result = prime * result + ((gasType == null) ? 0 : gasType.hashCode());
 		result = prime * result + ((gas_fill1_period_box == null) ? 0 : gas_fill1_period_box.hashCode());
 		result = prime * result + ((gas_fill2_period_box == null) ? 0 : gas_fill2_period_box.hashCode());
 		result = prime * result + ((ionChamberLength == null) ? 0 : ionChamberLength.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime
-				* result
-				+ ((percentAbsorption == null) ? 0 : percentAbsorption
-						.hashCode());
-		result = prime * result
-				+ ((pressure == null) ? 0 : pressure.hashCode());
+		result = prime * result + ((offset == null) ? 0 : offset.hashCode());
+		result = prime * result + ((percentAbsorption == null) ? 0 : percentAbsorption.hashCode());
+		result = prime * result + ((pressure == null) ? 0 : pressure.hashCode());
+		result = prime * result + ((totalPressure == null) ? 0 : totalPressure.hashCode());
 		result = prime * result + (useGasProperties ? 1231 : 1237);
-		result = prime * result
-				+ ((totalPressure == null) ? 0 : totalPressure.hashCode());
+		result = prime * result + ((workingEnergy == null) ? 0 : workingEnergy.hashCode());
 		return result;
 	}
 
@@ -290,11 +237,6 @@ public class IonChamberParameters  implements Serializable{
 			if (other.autoFillGas != null)
 				return false;
 		} else if (!autoFillGas.equals(other.autoFillGas))
-			return false;
-		if (flush == null) {
-			if (other.flush != null)
-				return false;
-		} else if (!flush.equals(other.flush))
 			return false;
 		if (changeSensitivity == null) {
 			if (other.changeSensitivity != null)
@@ -315,6 +257,11 @@ public class IonChamberParameters  implements Serializable{
 			if (other.deviceName != null)
 				return false;
 		} else if (!deviceName.equals(other.deviceName))
+			return false;
+		if (flush == null) {
+			if (other.flush != null)
+				return false;
+		} else if (!flush.equals(other.flush))
 			return false;
 		if (gain == null) {
 			if (other.gain != null)
@@ -346,6 +293,11 @@ public class IonChamberParameters  implements Serializable{
 				return false;
 		} else if (!name.equals(other.name))
 			return false;
+		if (offset == null) {
+			if (other.offset != null)
+				return false;
+		} else if (!offset.equals(other.offset))
+			return false;
 		if (percentAbsorption == null) {
 			if (other.percentAbsorption != null)
 				return false;
@@ -361,15 +313,16 @@ public class IonChamberParameters  implements Serializable{
 				return false;
 		} else if (!totalPressure.equals(other.totalPressure))
 			return false;
-		if (useGasProperties != other.useGasProperties) {
+		if (useGasProperties != other.useGasProperties)
 			return false;
-		}
+		if (workingEnergy == null) {
+			if (other.workingEnergy != null)
+				return false;
+		} else if (!workingEnergy.equals(other.workingEnergy))
+			return false;
 		return true;
 	}
 
-	/**
-	 *
-	 */
 	@Override
 	public String toString() {
 		try {

@@ -60,20 +60,31 @@ public class XmapMonitorView extends MonitorViewBase {
 
 	@Override
 	public void createPartControl(Composite parent) {
-
+		refreshRate = 0.1;
+		
 		Group grpCurrentCountRates = new Group(parent, SWT.BORDER);
 		grpCurrentCountRates.setText("Current count rates");
 		grpCurrentCountRates.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		grpCurrentCountRates.setLayout(new GridLayout());
 
 		displayData = new ScalersMonitorViewData(grpCurrentCountRates);
+		
+		String xmapName = LocalProperties.get("gda.exafs.xmapName", "xmapMca");
+		XmapDetector xmap = (XmapDetector) Finder.getInstance().find(xmapName);
+		try {
+			numElements = xmap.getNumberOfMca();
+		} catch (DeviceException e) {
+			logger.error("Exception while fetching number of elements in the Si detector. Is it properly configured/connected?", e);
+		}
 
-		myPlotter = new DataSetPlotter(PlottingMode.ONED, grpCurrentCountRates, true);
-		myPlotter.getComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		myPlotter.setXAxisLabel("Xmap element");
-
-		myPlotter.updateAllAppearance();
-		myPlotter.refresh(false);
+		if (numElements > 1){
+			myPlotter = new DataSetPlotter(PlottingMode.ONED, grpCurrentCountRates, true);
+			myPlotter.getComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+			myPlotter.setXAxisLabel("Xmap element");
+	
+			myPlotter.updateAllAppearance();
+			myPlotter.refresh(false);
+		}
 
 		super.createPartControl(parent);
 	}
@@ -100,7 +111,7 @@ public class XmapMonitorView extends MonitorViewBase {
 			for (int element = 0; element < numElements; element++) {
 				rates[element] = xmapStats[element * 3]; // Hz
 				dts[element] = (xmapStats[element * 3 + 1] - 1) * 100; // %
-				FF += xmapStats[element * 3];
+				FF += xmapStats[element * 3 + 2] * xmapStats[element * 3 + 1];
 
 				maxRate = xmapStats[element * 3] > maxRate ? xmapStats[element * 3] : maxRate;
 				maxDT = xmapStats[element * 3 + 1] > maxDT ? xmapStats[element * 3 + 1] : maxDT;
@@ -117,12 +128,16 @@ public class XmapMonitorView extends MonitorViewBase {
 				displayData.setFFI0(xmapStats[16 * 3 + 2] / values[0]);
 				break;
 			default:
-				displayData.setFFI0(xmapStats[2] / values[0]);
+				displayData.setFFI0(FF / values[0]);
 				break;
 			}
 
 //			int rateOOM = findOrderOfMagnitude(maxRate);
 //			int dtOOM = findOrderOfMagnitude(maxDT);
+			
+			if (myPlotter == null){
+				return;
+			}
 
 			for (int element = 0; element < numElements; element++) {
 				rates[element] = rates[element];// / Math.pow(10, rateOOM);
@@ -179,9 +194,10 @@ public class XmapMonitorView extends MonitorViewBase {
 				xmap.collectData();
 				ionchambers.setCollectionTime(1);
 				ionchambers.collectData();
+				ionchambers.waitWhileBusy();
+				xmap.stop();
 			}
 			xmap.waitWhileBusy();
-			ionchambers.waitWhileBusy();
 		} catch (InterruptedException e) {
 			// ignore
 		}
@@ -197,8 +213,10 @@ public class XmapMonitorView extends MonitorViewBase {
 		}
 
 		int numChannels = ionchambers.getExtraNames().length;
+//		// works for TFG2 only where time if the first channel
 		double[] ion_results = ionchambers.readFrame(1, numChannels, currentFrame);
-
+		
+//		double[] ion_results = (double[]) ionchambers.readout();
 		Double collectionTime = (Double) ionchambers.getAttribute("collectionTime");
 		int i0Index = -1;
 		String[] eNames = ionchambers.getExtraNames();
@@ -212,6 +230,7 @@ public class XmapMonitorView extends MonitorViewBase {
 		if (collectionTime != null) {
 			ion_results[i0Index] /= collectionTime;
 			ion_results[i0Index + 1] /= collectionTime;
+			ion_results[i0Index + 2] /= collectionTime;
 		}
 		return new Double[] { ion_results[i0Index + 0], ion_results[i0Index + 1], ion_results[i0Index + 2] };
 

@@ -88,9 +88,11 @@ import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
 import uk.ac.gda.common.rcp.util.GridUtils;
+import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.exafs.ui.detector.vortex.VortexParametersUIEditor;
 import uk.ac.gda.exafs.ui.detector.wizards.ImportROIWizard;
+import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.components.data.DataWrapper;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
@@ -722,6 +724,9 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 		getDetectorElementComposite().setTotalCounts(getTotalCounts());
 		getDetectorElementComposite().setTotalElementCounts(getTotalElementCounts(data));
+		
+		// always refresh the ROI/window values when replotting
+		calculateCounts(null);
 	}
 
 	private Double getTotalElementCounts(Collection<AbstractDataset> d) {
@@ -810,6 +815,9 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		currentOverlay.setDraw(getDetectorElementComposite().getRegionList().getListSize() > 0);
 		sashPlotForm.getPlotter().registerOverlay(currentOverlay);
 
+		if (!ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED))
+			currentOverlay.enableMouseListener(false);
+		
 		currentOverlay.addGraphSelectionListener(new GraphSelectionListener() {
 
 			@Override
@@ -1046,7 +1054,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		try {
 			File dataFile = new File(getDataXMLName());
 			if (!dataFile.exists()) {
-				return new DataWrapper();
+				return newwrapper;
 			}
 			BufferedReader in = new BufferedReader(new FileReader(dataFile));
 			ElementCountsData[] elements = new ElementCountsData[0];
@@ -1059,11 +1067,16 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			}
 			// Close the input stream
 			in.close();
+			
+			if (elements.length == 0){
+				return newwrapper;
+			}
 
 			newwrapper.setValue(elements);
 
 		} catch (IOException e) {
-			logger.error("Error reading data from xml", e);
+			logger.error("IOException whilst reading stored detector editor data from file " + getDataXMLName());
+			return newwrapper;
 		}
 
 		return newwrapper;
@@ -1079,7 +1092,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			}
 			out.close();
 		} catch (IOException e) {
-			logger.error("Error writing data to xml", e);
+			logger.error("IOException whilst writing stored detector editor data from file " + getDataXMLName());
 		}
 	}
 

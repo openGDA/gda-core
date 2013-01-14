@@ -184,7 +184,7 @@ public abstract class MicroFocusMappableDataProvider {
 					+ yScannableName);
 			AbstractDataset ydata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(yscannableDS));
 			yAxisLengthFromFile = ydata.getShape()[0];
-			double[] x = ((double[]) xdata.getBuffer());
+			double[] x = (double[]) xdata.getBuffer();
 			double[] y = (double[]) ydata.getBuffer();
 			ILazyDataset zscannableDS = dataHolder.getLazyDataset("/entry1/instrument/" + zScannableName + "/"
 					+ zScannableName);

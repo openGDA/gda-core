@@ -10,7 +10,7 @@ class B18DetectorPreparer:
         self.mythen_scannable = mythen_scannable
         self.ionc_stanford_scannables = ionc_stanford_scannables
         self.ionc_gas_injector_scannables = ionc_gas_injector_scannables
-        
+
     def prepare(self, detectorParameters, outputParameters, scriptFolder):
         if detectorParameters.getExperimentType() == "Fluorescence":
             fluoresenceParameters = detectorParameters.getFluorescenceParameters()
@@ -23,12 +23,12 @@ class B18DetectorPreparer:
             if transmissionParameters.isCollectDiffractionImages():
                 self._control_mythen(transmissionParameters)   
             self._control_all_ionc(transmissionParameters.getIonChamberParameters())
-    
+
     def _control_all_ionc(self, ion_chambers_bean):
         self._control_ionc(ion_chambers_bean, 0)
         self._control_ionc(ion_chambers_bean, 1)
         self._control_ionc(ion_chambers_bean, 2)
-        
+
     def _control_ionc(self, ion_chambers_bean, ion_chamber_num):
         ion_chamber = ion_chambers_bean[ion_chamber_num]
         change_sensitivity = ion_chamber.getChangeSensitivity()
@@ -48,7 +48,7 @@ class B18DetectorPreparer:
         gas_select_val = "0"
         if autoGas == True:
             self.ionc_gas_injector_scannables[ion_chamber_num]([purge_pressure, purge_period, gas_fill1_pressure, gas_fill1_period, gas_fill2_pressure, gas_fill2_period, gas_select_val, flushString])
-    
+
     def _control_mythen(self, bean):
         print "Moving DCM..."
         energyForMythen = bean.getMythenEnergy()

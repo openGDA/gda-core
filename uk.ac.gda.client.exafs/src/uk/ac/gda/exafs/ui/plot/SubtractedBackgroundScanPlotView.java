@@ -18,6 +18,9 @@
 
 package uk.ac.gda.exafs.ui.plot;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.exafs.scan.ExafsScanPointCreator;
 import gda.scan.IScanDataPoint;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
@@ -31,6 +34,8 @@ import uk.ac.gda.exafs.ui.data.ScanObjectManager;
  * This class assumes that the point with energy less than A are to be included in the pre-edge.
  */
 public class SubtractedBackgroundScanPlotView extends ExafsScanPlotView {
+
+	private static final Logger logger = LoggerFactory.getLogger(SubtractedBackgroundScanPlotView.class);
 
 	@SuppressWarnings("hiding")
 	public static final String ID = "gda.rcp.views.scan.SubtractedBackgroundScanPlotView"; //$NON-NLS-1$
@@ -67,7 +72,7 @@ public class SubtractedBackgroundScanPlotView extends ExafsScanPlotView {
 				}
 			}
 		} catch (Exception e) {
-			// logger.error("Cannot normalise data", e);
+			logger.warn("Exception in XafsFittingUtils calculating Subtracted background",e);
 		}
 		return null;
 

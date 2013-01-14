@@ -18,15 +18,20 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
+import gda.jython.JythonServerFacade;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 
 import uk.ac.gda.beans.exafs.i18.AttenuatorParameters;
+import uk.ac.gda.beans.exafs.i18.I18SampleParameters;
 import uk.ac.gda.richbeans.components.FieldComposite;
 import uk.ac.gda.richbeans.components.wrappers.TextWrapper;
 
@@ -43,11 +48,13 @@ public final class I18SampleParametersComposite extends Composite {
 	private FieldComposite description;
 	private Button currentPosition;
 	private Button attnCurrentPosition;
-
+	private I18SampleParameters bean;
+	
 	@SuppressWarnings("unused")
-	public I18SampleParametersComposite(Composite parent, int style) {
+	public I18SampleParametersComposite(Composite parent, int style, I18SampleParameters newBean) {
 		super(parent, style);
 		setLayout(new GridLayout(1, false));
+		bean = newBean;
 		Label label = new Label(this, SWT.NONE);
 		label.setSize(37, 17);
 		label.setText("name");
@@ -83,7 +90,15 @@ public final class I18SampleParametersComposite extends Composite {
 		currentPosition.setToolTipText("Fill the text boxes with the current motor values");
 		currentPosition.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		currentPosition.setText("Get current values");
-		//sampleStageParameters.setLayoutData(layoutData)
+		
+		currentPosition.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				sampleStageParameters.setXValue(JythonServerFacade.getInstance().evaluateCommand("sc_MicroFocusSampleX()"));
+				sampleStageParameters.setYValue(JythonServerFacade.getInstance().evaluateCommand("sc_MicroFocusSampleY()"));
+				sampleStageParameters.setZValue(JythonServerFacade.getInstance().evaluateCommand("sc_sample_z()"));
+			}
+		});
 
 		final Composite attenComp = new Composite(this, SWT.BORDER);
 		{
@@ -93,7 +108,6 @@ public final class I18SampleParametersComposite extends Composite {
 			attenComp.setLayoutData(gridData);
 		}
 		attenComp.setLayout(new GridLayout(1,false));
-		//attenComp.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true));
 		new Label(attenComp, SWT.NONE);
 		label = new Label(attenComp, SWT.NONE);
 		label.setText("Attenuators");
@@ -127,7 +141,6 @@ public final class I18SampleParametersComposite extends Composite {
 		attnCurrentPosition.setToolTipText("Select the current attenuator values");
 		attnCurrentPosition.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		attnCurrentPosition.setText("Get current values");
-
 	}
 
 	public FieldComposite getName() {

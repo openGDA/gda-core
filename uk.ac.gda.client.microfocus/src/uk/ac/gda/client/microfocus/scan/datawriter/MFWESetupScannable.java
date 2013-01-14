@@ -90,7 +90,7 @@ public class MFWESetupScannable extends ScanDataListenerScannable {
 		ext.setDetectorBeanFileName(detectorBeanFileName);
 		ext.setDetectors(detectors);
 		ext.getWindowsfromBean();
-//		ext.setRoiFromBean();
+//		ext.setRoiFromBean();//commented due to merge issue from 8.22. This method can go back in but I (Chris C) first want to see what this new class is for. (Ask Paul G)
 //		ext.setSelectedElement(initialSelectedElement);
 		ext.setEnergyValue(1.0);
 		ext.setZValue(0.);

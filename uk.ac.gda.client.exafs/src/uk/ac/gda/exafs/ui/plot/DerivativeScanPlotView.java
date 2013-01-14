@@ -59,7 +59,7 @@ public class DerivativeScanPlotView extends ExafsScanPlotView {
 			AbstractDataset derv = Maths.derivative(energy, lnI0It, 1);
 			return new DataSetPlotData(getYAxis(), derv);
 		} catch (Exception e) {
-			logger.warn("Cannot normalise data", e);
+			logger.warn("Exception in XafsFittingUtils calculating Derivative",e);
 			return null;
 		}
 	}

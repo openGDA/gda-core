@@ -18,7 +18,7 @@
 
 package uk.ac.gda.exafs.ui.views.scalersmonitor;
 
-import gda.device.DeviceException;
+import gda.device.scannable.IQexafsScannableState;
 import gda.factory.Finder;
 
 import org.eclipse.ui.PlatformUI;
@@ -57,9 +57,15 @@ public class B18ScalersMonitorView extends ScalersMonitorView {
 					try {
 						values = getIonChamberValues();
 						xspressStats = getFluoDetectorCountRatesAndDeadTimes();
-					} catch (DeviceException e1) {
+					} catch (Exception e1) {
 						logger.error(e1.getMessage(), e1);
 						runMonitoring = false;
+						PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								btnRunPause.setImageDescriptor(runImage);
+							}
+						});
 						continue;
 					}
 

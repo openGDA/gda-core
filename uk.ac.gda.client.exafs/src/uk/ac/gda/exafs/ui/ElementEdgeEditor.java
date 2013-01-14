@@ -308,7 +308,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 
 			plotter.setTitle("EXAFS Energy Profile");
 			plotter.refresh(false);
-			System.out.println("refreshupdatePlottedPoints");
+//			System.out.println("refreshupdatePlottedPoints");
 			
 			lastPlottedBean = BeansFactory.deepClone(scanBean);
 

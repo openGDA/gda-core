@@ -649,7 +649,6 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			}
 			setupEstimationWidgets();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			logger.error("Error trying to linkUI in the xas scan editor", e);
 		} finally {
 			setPointsUpdate(true);

@@ -108,7 +108,7 @@
 					<xsd:complexType>
 						<xsd:sequence>
 							<xsd:element name="loopChoice"
-								maxOccurs="1" minOccurs="1">
+								maxOccurs="1" minOccurs="0">
 								<xsd:simpleType>
 									<xsd:restriction base="xsd:string">
 										<xsd:enumeration value="Loop over sample, then temperature" />
@@ -138,7 +138,7 @@
 								minOccurs="1">
 								<xsd:simpleType>
 									<xsd:restriction base="xsd:string">
-										<xsd:enumeration value="4 Samples" />
+										<xsd:enumeration value="3 Samples" />
 										<xsd:enumeration value="Liquid Cell" />
 									</xsd:restriction>
 								</xsd:simpleType>

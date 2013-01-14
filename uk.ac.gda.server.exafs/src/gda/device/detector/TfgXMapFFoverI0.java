@@ -64,7 +64,8 @@ public class TfgXMapFFoverI0 extends DetectorBase implements NexusDetector {
 			this.setExtraNames(new String[] { getName() });
 		}
 		this.setInputNames(new String[0]);
-		this.setOutputFormat(new String[] { "%.6f" });
+		if (outputFormat == null || outputFormat.length != 1)
+			this.setOutputFormat(new String[] { "%.6f" });
 
 	}
 

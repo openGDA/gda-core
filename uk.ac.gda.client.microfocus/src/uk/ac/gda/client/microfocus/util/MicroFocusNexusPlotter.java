@@ -52,7 +52,6 @@ public class MicroFocusNexusPlotter {
 		double[][] mapData = dataProvider.constructMappableData();
 		AbstractDataset plotSet = AbstractDataset.array(mapData);
 		try {
-			
 			RCPPlotter.imagePlot(plottingWindowName, plotSet);
 		} catch (Exception e) {
 			logger.error("Error plotting the dataset in MicroFocusNexusPlotter", e);

@@ -28,6 +28,7 @@ import org.eclipse.ui.IPerspectiveFactory;
 
 import uk.ac.gda.client.CommandQueueViewFactory;
 import uk.ac.gda.client.XYPlotView;
+import uk.ac.gda.client.liveplot.LivePlotView;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.plot.DerivativeScanPlotView;
 import uk.ac.gda.exafs.ui.plot.FourierScanPlotView;
@@ -78,7 +79,7 @@ public class PlottingPerspective implements IPerspectiveFactory {
 		}
 		
 		IFolderLayout folderLayout_0 = layout.createFolder("folder10", IPageLayout.LEFT, 0.7f, editorArea);
-		folderLayout_0.addView(XYPlotView.ID);
+		folderLayout_0.addView(LivePlotView.ID);
 		if (!ExafsActivator.getDefault().getPreferenceStore()
 				.getBoolean(ExafsPreferenceConstants.HIDE_LnI0ItScanPlotView)) {
 			folderLayout_0.addView(LnI0ItScanPlotView.ID);

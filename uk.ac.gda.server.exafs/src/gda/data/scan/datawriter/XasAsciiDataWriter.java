@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -35,13 +35,14 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.exafs.ISampleParameters;
 import uk.ac.gda.beans.exafs.OutputParameters;
+import uk.ac.gda.beans.exafs.i20.I20SampleParameters;
 import uk.ac.gda.util.io.FileUtils;
 
 /**
  * Extension to the asciidatawriter which uses xml files if defined which have more options specific to the exafs RCP
  * GUI as used on spectroscopy beamlines
  */
-public class XasAsciiDataWriter extends AsciiDataWriter {
+public class XasAsciiDataWriter extends AsciiDataWriter{
 
 	private static Logger logger = LoggerFactory.getLogger(XasAsciiDataWriter.class);
 
@@ -53,6 +54,13 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 
 	public static BeanGroup getBeanGroup() {
 		return group;
+	}
+
+	public static String getDataDirectory() {
+		if (group != null && group.getExperimentFolderName() != null) {
+			return PathConstructor.createFromDefaultProperty() + group.getExperimentFolderName() + "/";
+		}
+		return PathConstructor.createFromDefaultProperty();
 	}
 
 	private String nexusFilePath;
@@ -86,10 +94,18 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 			file.write("#\n");
 			final ISampleParameters p = (ISampleParameters) getBean(group.getSample());
 			// write out sample parameters
-			if (p != null) {				
-				for (int i =0; i < p.getDescriptions().size(); i++){
+			if (p != null) {
+				// I20 has an extra Sample Name field
+				if (p instanceof I20SampleParameters) {
+					String sampleName = ((I20SampleParameters) p).getSampleName();
+					if (!sampleName.isEmpty()) {
+						file.write("# Sample name: " + sampleName + "\n");
+					}
+				}
+
+				for (int i = 0; i < p.getDescriptions().size(); i++) {
 					String startMsg = "# ";
-					if (i==0){
+					if (i == 0) {
 						startMsg += "Sample description: ";
 					} else {
 						startMsg += "Additional comments: ";
@@ -136,10 +152,18 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 				if (da != null && da.getCounts().length >= 3) {
 					file.write("#\n");
 					file.write(String.format(
-							"# Dark current intensity (Hz), collected over %.2fs: I0 %0.2f   It %0.2f   Iref %0.2f\n",
+							"# Dark current intensity was collected over %.2fs. Average counts per second: I0 %.2f   It %.2f   Iref %.2f\n",
 							da.getTimeInS(), da.getCounts()[0] / da.getTimeInS(), da.getCounts()[1] / da.getTimeInS(),
 							da.getCounts()[2] / da.getTimeInS()));
 					file.write("# Dark current has been automatically removed from counts in main scan (I0,It,Iref)\n");
+					file.write("#\n");
+				}
+
+				if (da != null && da.getCounts().length == 1) {
+					file.write("#\n");
+					file.write(String.format("# Dark current intensity (Hz), collected over %.2fs: I1 %.2f\n",
+							da.getTimeInS(), da.getCounts()[0] / da.getTimeInS()));
+					file.write("# Dark current has been automatically removed from counts in main scan (I1)\n");
 					file.write("#\n");
 				}
 
@@ -219,12 +243,6 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 		}
 	}
 
-	public static String getDataDirectory() {
-		if (group != null && group.getExperimentFolderName() != null) {
-			return PathConstructor.createFromDefaultProperty() + group.getExperimentFolderName() + "/";
-		}
-		return PathConstructor.createFromDefaultProperty();
-	}
 
 	protected Object getBean(final Object var) {
 		try {

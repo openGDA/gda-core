@@ -286,6 +286,8 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 		}
 	}
 	
+	@Override
+	
 	private void arm() throws DeviceException {
 		try {
 			controller.startRecording();
@@ -356,10 +358,11 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 			
 			//controller.setNexusCapture(0);
 			controller.setAutoPixelsPerBuffer(true);
-			int numberOfPointsPerScan = getHardwareTriggerProvider().getNumberTriggers() ; 
-			if(numberOfPointsPerScan != 0 && integratesBetweenPoints())
-				numberOfPointsPerScan = numberOfPointsPerScan - 1;
-			if(numberOfPointsPerScan == 0)
+			int numberOfPointsPerScan = 0;
+			int numberOfTriggers = getHardwareTriggerProvider().getNumberTriggers() ; 
+			if(numberOfTriggers != 0 && integratesBetweenPoints())
+				numberOfPointsPerScan = numberOfTriggers - 1;
+			if(numberOfTriggers == 0)
 				numberOfPointsPerScan = this.scanNumberOfPoints;
 			//??TODO should get the number of points per scan 
 			controller.setPixelsPerRun(numberOfPointsPerScan);

@@ -60,11 +60,11 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 
 	protected volatile boolean keepOnTrucking = true;
 
-	private Action btnRunPause;
+	Action btnRunPause;
 
 	private ImageDescriptor pauseImage;
 
-	private ImageDescriptor runImage;
+	ImageDescriptor runImage;
 
 	/**
 	 * Collect the data from the fluorescence detector
@@ -90,7 +90,7 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 	 * @return Double[]
 	 * @throws DeviceException
 	 */
-	protected abstract Double[] getIonChamberValues() throws DeviceException;
+	protected abstract Double[] getIonChamberValues() throws Exception;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -142,10 +142,17 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 				try {
 					values = getIonChamberValues();
 					xspressStats = getFluoDetectorCountRatesAndDeadTimes();
-				} catch (DeviceException e1) {
-					logger.error(e1.getMessage(), e1);
-					runMonitoring = false;
+				} catch (Exception e1) {
+					logger.debug(e1.getMessage(), e1);
+					setRunMonitoring(false);
+					PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							btnRunPause.setImageDescriptor(runImage);
+						}
+					});
 					continue;
+
 				}
 
 				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {

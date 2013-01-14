@@ -19,6 +19,7 @@
 package uk.ac.gda.exafs.ui.actions;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.dawb.workbench.ui.perspective.DataBrowsingPerspective;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -34,7 +35,6 @@ import org.eclipse.ui.WorkbenchException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.rcp.DataExplorationPerspective;
 import uk.ac.gda.exafs.ui.AlignmentPerspective;
 import uk.ac.gda.pydev.extension.ui.perspective.JythonPerspective;
 
@@ -46,7 +46,7 @@ public class AlignmentModeHandler extends AbstractHandler implements IWorkbenchW
 
 	private static final Logger logger = LoggerFactory.getLogger(AlignmentModeHandler.class);
 
-	private static final String[] idsToShow = new String[] { DataExplorationPerspective.ID, AlignmentPerspective.ID,
+	private static final String[] idsToShow = new String[] { DataBrowsingPerspective.ID, AlignmentPerspective.ID,
 			JythonPerspective.ID };
 
 	@Override
