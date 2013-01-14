@@ -44,6 +44,4 @@ public interface TomoAlignmentCommands {
 
 	public static final String GET_VERTICAL = "tomoAlignment.getVerticalMotorPositions()";
 
-	public static final String AUTO_FOCUS = "tomoAlignment.autoFocus(%f)";
-
 }

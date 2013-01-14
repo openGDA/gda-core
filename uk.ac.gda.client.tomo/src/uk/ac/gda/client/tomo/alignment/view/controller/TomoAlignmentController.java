@@ -53,7 +53,6 @@ import uk.ac.gda.client.tomo.alignment.view.IRotationMotorListener;
 import uk.ac.gda.client.tomo.alignment.view.ITomoAlignmentView;
 import uk.ac.gda.client.tomo.alignment.view.controller.SaveableConfiguration.AlignmentScanMode;
 import uk.ac.gda.client.tomo.alignment.view.controller.SaveableConfiguration.MotorPosition;
-import uk.ac.gda.client.tomo.alignment.view.handlers.IAutofocusController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraModuleController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraMotionController;
@@ -99,8 +98,6 @@ public class TomoAlignmentController extends TomoViewController {
 	private IScanResolutionLookupProvider scanResolutionLookupProvider;
 
 	private Exception iocDownException = null;
-
-	private IAutofocusController autofocusController;
 
 	public enum SAMPLE_STAGE_STATE {
 		IN, OUT;
@@ -837,10 +834,6 @@ public class TomoAlignmentController extends TomoViewController {
 		this.tiltController = tiltController;
 	}
 
-	public void setAutofocusController(IAutofocusController autofocusController) {
-		this.autofocusController = autofocusController;
-	}
-
 	public String getDarkImageFileName() {
 		return cameraHandler.getDarkImageFullFileName();
 	}
@@ -1111,14 +1104,5 @@ public class TomoAlignmentController extends TomoViewController {
 
 	public double getFastPreviewExposureThreshold() {
 		return cameraHandler.getFastPreviewExposureThreshold();
-	}
-
-	public String doAutoFocus(SubMonitor progress, double exposureTime) throws Exception {
-		try {
-			return autofocusController.doAutoFocus(progress, exposureTime);
-		} catch (Exception ex) {
-			logger.error("Problem with autofocus", ex);
-			throw ex;
-		}
 	}
 }
