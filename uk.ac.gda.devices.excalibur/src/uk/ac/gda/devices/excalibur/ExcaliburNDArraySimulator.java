@@ -251,6 +251,10 @@ public class ExcaliburNDArraySimulator implements NDArray{
 	public byte[] getByteArrayData() throws Exception {
 		throw new UnsupportedOperationException("Only getIntArrayData is supported");
 	}
+	@Override
+	public Object getImageData(int expectedNumPixels) throws Exception {
+		throw new UnsupportedOperationException("getImageData is supported");
+	}
 
 	
 }
