@@ -350,8 +350,6 @@ public class TomoAlignmentController extends TomoViewController {
 				updateEnergy(getEnergy());
 
 				updateResolutionPixelSize(getResolutionPixelSize(getModule()));
-				
-				updateAcqExposure(getCameraExposureTime());
 
 				Double cameraMotionMotorPosition = getCameraMotionMotorPosition();
 				if (cameraMotionMotorPosition != null) {
@@ -1121,12 +1119,6 @@ public class TomoAlignmentController extends TomoViewController {
 		} catch (Exception ex) {
 			logger.error("Problem with autofocus", ex);
 			throw ex;
-		}
-	}
-
-	public void updateAcqExposure(double acqExposure) {
-		for (ITomoAlignmentView av : tomoalignmentViews) {
-			av.updateExposureTimeToWidget(acqExposure);
 		}
 	}
 }

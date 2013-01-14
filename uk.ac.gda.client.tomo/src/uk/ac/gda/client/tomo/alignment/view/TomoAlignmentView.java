@@ -616,8 +616,6 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 		}
 	};
 
-	private Label lblExpTime;
-
 	private Composite createLeftWindowInfoViewComposite(final Composite imageViewAndInfoBarComposite) {
 
 		// Border composite used to make the borders thick
@@ -655,28 +653,10 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 		leftScaleBar.setLayoutData(layoutData2);
 		leftScaleBar.setBackground(ColorConstants.black);
 
-		Composite statusExpComposite = toolkit.createComposite(infoViewerComposite);
-		statusExpComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		GridLayout gl1 = new GridLayout(2, true);
-		setDefaultLayoutSettings(gl1);
-		statusExpComposite.setLayout(gl1);
-
-		lblLeftWindowDisplayModeStatus = toolkit.createLabel(statusExpComposite, "", SWT.CENTER);
+		lblLeftWindowDisplayModeStatus = toolkit.createLabel(infoViewerComposite, "", SWT.CENTER);
 		lblLeftWindowDisplayModeStatus.setFont(fontRegistry.get(BOLD_TEXT_11));
 		lblLeftWindowDisplayModeStatus.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		Composite exposureTimeComposite = toolkit.createComposite(statusExpComposite);
-		exposureTimeComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		GridLayout gl2 = new GridLayout(2, true);
-		setDefaultLayoutSettings(gl2);
-		exposureTimeComposite.setLayout(gl2);
-
-		Label expTimeLbl = toolkit.createLabel(exposureTimeComposite, "Exposure Time = ", SWT.RIGHT);
-		expTimeLbl.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		lblExpTime = toolkit.createLabel(exposureTimeComposite, "", SWT.LEFT);
-		lblExpTime.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		
 		lblLeftWindowInfoNumPixels = toolkit.createLabel(infoViewerComposite, DEFAULT_LEFT_WINDOW_INFO_SIZE, SWT.LEFT);
 		lblLeftWindowInfoNumPixels.setFont(fontRegistry.get(BOLD_TEXT_11));
 		lblLeftWindowInfoNumPixels.setLayoutData(new GridData());
@@ -1732,18 +1712,4 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 	protected String getIocRunningContext() {
 		return IOC_RUNNING_CONTEXT;
 	}
-
-	@Override
-	public void updateExposureTimeToWidget(final double acqExposure) {
-		if (lblExpTime != null && !lblExpTime.isDisposed()) {
-			lblExpTime.getDisplay().asyncExec(new Runnable() {
-
-				@Override
-				public void run() {
-					lblExpTime.setText(String.format("%.3g (s)", acqExposure));
-				}
-			});
-		}
-	}
-
 }
