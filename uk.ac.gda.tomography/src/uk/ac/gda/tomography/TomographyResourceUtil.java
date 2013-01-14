@@ -132,22 +132,4 @@ public class TomographyResourceUtil {
 		return resourceSet;
 	}
 
-	public void reloadResource(Resource resource) {
-		reloadResource(null, resource);
-	}
-
-	public void reloadResource(ResourceSet resourceSet, Resource resource) {
-		ResourceSet rSet = resourceSet;
-		if (rSet == null) {
-			rSet = getResourceSet();
-		}
-
-		resource.unload();
-		try {
-			resource.load(rSet.getLoadOptions());
-		} catch (IOException e) {
-			logger.error("TODO put description of error here", e);
-		}
-	}
-
 }

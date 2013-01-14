@@ -21,8 +21,6 @@ package uk.ac.gda.client.tomo.configuration.view;
 import gda.commandqueue.Processor;
 import gda.commandqueue.ProcessorCurrentItem;
 import gda.commandqueue.QueuedCommandSummary;
-import gda.jython.Jython;
-import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
 
 import java.io.IOException;
@@ -127,14 +125,6 @@ import uk.ac.gda.tomography.parameters.TomoParametersPackage;
  *
  */
 public class TomoConfigurationView extends BaseTomographyView implements IDetectorResetable {
-	private static final String NO_SCAN_RUNNING_MSG = "There is no scan running at the moment.";
-
-	private static final String NO_SCAN_RUNNING_TITLE = "No scan running";
-
-	private static final String SCAN_STOP_TITLE = "Scan stop";
-
-	private static final String SCAN_STOP_MSG = "Do you want to stop the scan?";
-
 	private static final String IOC_RUNNING_CONTEXT = "uk.ac.gda.client.tomo.configuration.isDetectorIocRunningContext";
 
 	private static final String DISPLAY_STATISTICS = "Display Statistics";
@@ -684,35 +674,25 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 				}
 
 			} else if (e.getSource().equals(btnStopTomoRuns)) {
-				if (JythonServerFacade.getInstance().getScanStatus() == Jython.RUNNING) {
-					boolean openConfirm = MessageDialog.openConfirm(getSite().getShell(), SCAN_STOP_TITLE,
-							SCAN_STOP_MSG);
-					if (openConfirm) {
-						logger.debug("Calling stop tomo runs");
-						tomoConfigViewController.stopScan();
-						try {
-							CommandQueueViewFactory.getProcessor().stop(100);
-						} catch (Exception e1) {
-							logger.error("problem with stopping the command queue processor", e1);
-						}
-						try {
-							List<QueuedCommandSummary> summaryList = CommandQueueViewFactory.getQueue()
-									.getSummaryList();
-							for (QueuedCommandSummary queuedCommandSummary : summaryList) {
-								if (tomoAlignmentDescRegexPattern.matcher(queuedCommandSummary.getDescription())
-										.matches()) {
-									CommandQueueViewFactory.getQueue().remove(queuedCommandSummary.id);
-								}
-							}
-						} catch (Exception e1) {
-							logger.error("TODO put description of error here", e1);
-						}
-						CommandExecutor.executeCommand(getViewSite(),
-								CommandQueueContributionFactory.UK_AC_GDA_CLIENT_START_COMMAND_QUEUE);
-					}
-				} else {
-					MessageDialog.openInformation(getSite().getShell(), NO_SCAN_RUNNING_TITLE, NO_SCAN_RUNNING_MSG);
+				logger.debug("Calling stop tomo runs");
+				tomoConfigViewController.stopScan();
+				try {
+					CommandQueueViewFactory.getProcessor().stop(100);
+				} catch (Exception e1) {
+					logger.error("TODO put description of error here", e1);
 				}
+				try {
+					List<QueuedCommandSummary> summaryList = CommandQueueViewFactory.getQueue().getSummaryList();
+					for (QueuedCommandSummary queuedCommandSummary : summaryList) {
+						if (tomoAlignmentDescRegexPattern.matcher(queuedCommandSummary.getDescription()).matches()) {
+							CommandQueueViewFactory.getQueue().remove(queuedCommandSummary.id);
+						}
+					}
+				} catch (Exception e1) {
+					logger.error("TODO put description of error here", e1);
+				}
+				CommandExecutor.executeCommand(getViewSite(),
+						CommandQueueContributionFactory.UK_AC_GDA_CLIENT_START_COMMAND_QUEUE);
 			}
 		}
 	};
@@ -814,6 +794,13 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 			}
 			if (ac != null) {
 				if (!configModelTableViewer.getTable().isDisposed()) {
+					// Object elementAt = configModelTableViewer.getElementAt(getModel().getParameters().getIndex(ac));
+					// if (elementAt instanceof TomoConfigContent) {
+					// TomoConfigContent cc = (TomoConfigContent) elementAt;
+					// TomoConfigViewerUtil.setupConfigContent(ac, cc,
+					// Collections.unmodifiableCollection(Arrays.asList(configModelTableViewer.getTable().getItems())));
+					// refreshRow(cc);
+					// }
 					refreshTable();
 				}
 			}

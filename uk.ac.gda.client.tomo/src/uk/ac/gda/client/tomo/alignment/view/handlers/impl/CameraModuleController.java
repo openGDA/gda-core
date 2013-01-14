@@ -33,6 +33,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import uk.ac.gda.client.tomo.TomoClientConstants;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraModuleController;
+import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraModuleMotorHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.IModuleLookupTableHandler;
 import uk.ac.gda.client.tomo.composites.ModuleButtonComposite.CAMERA_MODULE;
 
@@ -45,8 +46,15 @@ public class CameraModuleController implements InitializingBean, ICameraModuleCo
 
 	protected IModuleLookupTableHandler lookupTableHandler;
 
+
 	private IObservable tomoScriptController;
 
+	
+	private ICameraModuleMotorHandler cameraModuleMotorHandler;
+
+	public void setCameraModuleMotorHandler(ICameraModuleMotorHandler cameraModuleMotorHandler) {
+		this.cameraModuleMotorHandler = cameraModuleMotorHandler;
+	}
 	/**
 	 * @param lookupTableHandler
 	 *            The lookupTableHandler to set.
@@ -80,14 +88,13 @@ public class CameraModuleController implements InitializingBean, ICameraModuleCo
 		tomoScriptController.addIObserver(observer);
 		JythonServerFacade.getInstance().evaluateCommand(moveModuleCmd);
 		tomoScriptController.deleteIObserver(observer);
-		// if (exceptions[0] != null) {
-		// throw new IllegalStateException(exceptions[0].message.toString());
-		// }
+//		if (exceptions[0] != null) {
+//			throw new IllegalStateException(exceptions[0].message.toString());
+//		}
 	}
 
 	@Override
 	public CAMERA_MODULE getModule() throws DeviceException {
-		final PyBaseException[] exceptions = new PyBaseException[1];
 		final Integer[] moduleNumArr = new Integer[1];
 		IObserver observer = new IObserver() {
 
@@ -98,8 +105,7 @@ public class CameraModuleController implements InitializingBean, ICameraModuleCo
 					logger.debug("Observing arg:{}", arg);
 					if (arg instanceof PyBaseException) {
 						PyBaseException ex = (PyBaseException) arg;
-						exceptions[0] = ex;
-						moduleNumArr[0] = 0;
+						// exceptions[0] = ex;
 					} else if (arg.toString().startsWith("Module:")) {
 						String md = arg.toString().substring("Module:".length());
 						moduleNumArr[0] = Integer.parseInt(md.trim());
@@ -109,18 +115,14 @@ public class CameraModuleController implements InitializingBean, ICameraModuleCo
 		};
 		tomoScriptController.addIObserver(observer);
 		JythonServerFacade.getInstance().evaluateCommand(TomoClientConstants.GET_MODULE_COMMAND);
-		int tries = 0;
-		while (moduleNumArr[0] == null && tries < 1000) {
+		// if (exceptions[0] != null) {
+		// throw new IllegalStateException(exceptions[0].message.toString());
+		// }
+		while (moduleNumArr[0] == null) {
 			Sleep.sleep(100);
-			tries++;
 		}
 		tomoScriptController.deleteIObserver(observer);
-		if (exceptions[0] != null) {
-			throw new IllegalStateException(exceptions[0].message.toString());
-		}
-		if (tries > 1000) {
-			throw new IllegalStateException("Cannot find module and timed out");
-		}
+
 		return CAMERA_MODULE.getEnum(moduleNumArr[0]);
 	}
 
