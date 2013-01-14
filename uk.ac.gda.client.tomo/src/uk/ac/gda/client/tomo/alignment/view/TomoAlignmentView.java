@@ -144,6 +144,8 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 
 	private static final RGB BACKGROUND_COLOUR_RGB = new RGB(242, 242, 242);
 
+	public static final String FIND_ROTATION_AXIS_DISPLAY_INFO = "ROTATION AXIS";
+
 	private boolean isSaving;
 	private HistogramAdjuster histogramAdjuster;
 	private TomoAlignmentControlComposite tomoControlComposite;
@@ -676,7 +678,7 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 
 		lblExpTime = toolkit.createLabel(exposureTimeComposite, "", SWT.LEFT);
 		lblExpTime.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		
+
 		lblLeftWindowInfoNumPixels = toolkit.createLabel(infoViewerComposite, DEFAULT_LEFT_WINDOW_INFO_SIZE, SWT.LEFT);
 		lblLeftWindowInfoNumPixels.setFont(fontRegistry.get(BOLD_TEXT_11));
 		lblLeftWindowInfoNumPixels.setLayoutData(new GridData());

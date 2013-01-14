@@ -40,6 +40,7 @@ public interface TomoConfigTableConstants {
 	public static final int COL_TIME_DIVIDER = COL_EST_END_TIME + 1;
 	public static final int COL_SHOULD_DISPLAY = COL_TIME_DIVIDER + 1;
 	public static final int COL_PROGRESS = COL_SHOULD_DISPLAY + 1;
+	public static final int COL_ADDITIONAL = COL_PROGRESS + 1;
 
 	public static final String SAMPLE_DESCRIPTION = "Description";
 	public static final String PROPOSAL = "Visit Id";
@@ -54,9 +55,10 @@ public interface TomoConfigTableConstants {
 	public static final String CONTINUOUS_STEP = "C/S";
 	public static final String RUN_TIME = "Duration(hh:mm:ss)";
 	public static final String EST_END_TIME = "Est. end time(hh:mm)";
-	public static final String TIME_DIVIDER = "Time divider";
+	public static final String TIME_FACTOR = "Time factor";
 	public static final String PROGRESS = "Progress";
 	public static final String SELECTION = "Do";
 	public static final String DRAG = "";
 	public static final String SHOULD_DISPLAY = "Display";
+	public static final String ADDITIONAL = "Additional";
 }

@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.client.tomo.IScanResolutionLookupProvider;
 import uk.ac.gda.client.tomo.TomoViewController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraHandler;
 import uk.ac.gda.epics.client.views.model.AdBaseModel;
@@ -36,6 +37,12 @@ public class TomoConfigurationViewController extends TomoViewController {
 	private AdBaseModel adBaseModel;
 
 	private ICameraHandler cameraHandler;
+
+	private IScanResolutionLookupProvider scanResolutionLookupProvider;
+
+	public void setScanResolutionLookupProvider(IScanResolutionLookupProvider scanResolutionLookupProvider) {
+		this.scanResolutionLookupProvider = scanResolutionLookupProvider;
+	}
 
 	private class TomoScan extends Job {
 
@@ -93,6 +100,10 @@ public class TomoConfigurationViewController extends TomoViewController {
 		if (cameraHandler == null) {
 			throw new IllegalArgumentException("'cameraHandler' needs to be provided");
 		}
+	}
+	
+	public int getNumberOfProjections(int resolution) throws Exception{
+		return scanResolutionLookupProvider.getNumberOfProjections(resolution);
 	}
 
 }
