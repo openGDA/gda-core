@@ -137,10 +137,10 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 			ndProcess.setEnableOffsetScale(0);
 			ndProcess.setEnableFlatField(0);
 			ndProcess.setEnableBackground(0);
-			ndProcess.getPluginBase().enableCallbacks();
 			ndProcess.getPluginBase().setArrayCounter(0);
 			ndProcess.getPluginBase().setDroppedArrays(0);
 			ndProcess.setDataTypeOut(5); // UINT32			
+			ndProcess.getPluginBase().disableCallbacks();
 		}
 		enableOrDisableCallbacks();
 	}
@@ -171,22 +171,25 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 	
 	@Override
 	public void collectData() throws Exception {
+		double acquirePeriod_RBV = getAdBase().getAcquirePeriod_RBV();
 		if( getNdFile() != null){
 			if( getAdBase().getAcquireState() != 1){
 				getAdBase().startAcquiring();
 			}
 			//when running continuously we need to allow the current frame ( that started before now) to get out of the camera.
 			//this means waiting ofr the exposure time 
-			Thread.sleep((long) (getAdBase().getAcquirePeriod_RBV() * 1000));
+			Thread.sleep((long) (acquirePeriod_RBV * 1000));
 			//if use proc we now reset the filter
 			if( ndProcess != null){
 				ndProcess.setResetFilter(1);
+				ndProcess.getPluginBase().enableCallbacks();
 				// autoreset only works in numFiltered== numFilter which is not the case as we have just reset numFilter
 			}
 			getNdFile().startCapture();
 		} else {
 			if( ndProcess != null){
 				ndProcess.setResetFilter(1);
+				ndProcess.getPluginBase().enableCallbacks();
 				// autoreset only works in numFiltered== numFilter which is not the case as we have just reset numFilter
 			}
 			getAdBase().startAcquiring();
@@ -195,7 +198,10 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 
 	@Override
 	public int getStatus() throws DeviceException {
-		return getNdFile() != null ? getNdFile().getStatus() : getAdBase().getStatus();
+		if (getNdFile() != null ){
+			return getNdFile().getStatus();
+		} 
+		return getAdBase().getStatus();
 	}
 	
 	@Override
