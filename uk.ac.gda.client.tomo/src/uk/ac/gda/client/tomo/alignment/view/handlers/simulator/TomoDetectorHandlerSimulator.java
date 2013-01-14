@@ -400,10 +400,4 @@ public class TomoDetectorHandlerSimulator implements ICameraHandler {
 		return null;
 	}
 
-	@Override
-	public double getFastPreviewExposureThreshold() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
 }

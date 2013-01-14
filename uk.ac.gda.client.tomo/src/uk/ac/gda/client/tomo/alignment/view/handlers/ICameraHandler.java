@@ -331,10 +331,9 @@ public interface ICameraHandler extends ITomoHandler {
 	 * @param upper
 	 * @param scaledFactor
 	 *            - scaled factor
-	 * @throws Exception
+	 * @throws Exception 
 	 */
-	void setAmplifiedValue(double acqTime, boolean isAmplified, int lower, int upper, double scaledFactor)
-			throws Exception;
+	void setAmplifiedValue(double acqTime, boolean isAmplified, int lower, int upper, double scaledFactor) throws Exception;
 
 	/**
 	 * Stop capturing and acquisition.
@@ -462,10 +461,5 @@ public interface ICameraHandler extends ITomoHandler {
 	 * @return the port name of the areadetector
 	 */
 	String getPortName() throws Exception;
-
-	/**
-	 * @return the preference set for the fast preview threshold.
-	 */
-	double getFastPreviewExposureThreshold();
 
 }
