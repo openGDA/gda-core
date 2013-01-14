@@ -25,7 +25,19 @@ public interface NDFileHDF5 {
 	int getNumRowChunks() throws Exception;
 
 	void setNumRowChunks(int value) throws Exception;
+	
+	int getNumColChunks() throws Exception;
 
+	void setNumColChunks(int value) throws Exception;
+
+	int getNumFramesChunks() throws Exception;
+
+	void setNumFramesChunks(int value) throws Exception;
+	
+	int getNumFramesFlush() throws Exception;
+
+	void setNumFramesFlush(int value) throws Exception;
+	
 	int getNumExtraDims() throws Exception;
 
 	void setNumExtraDims(int value) throws Exception;
