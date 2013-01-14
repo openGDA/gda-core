@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.client.tomo.DoublePointList;
 import uk.ac.gda.client.tomo.ExternalFunction;
 import uk.ac.gda.client.tomo.TiltPlotPointsHolder;
-import uk.ac.gda.client.tomo.alignment.view.TomoAlignmentCommands;
+import uk.ac.gda.client.tomo.TomoClientConstants;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraModuleMotorHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ISampleStageMotorHandler;
@@ -242,7 +242,7 @@ public class TiltController implements ITiltController {
 			tomoScriptController.addIObserver(observer);
 		}
 
-		InterfaceProvider.getCommandRunner().evaluateCommand(TomoAlignmentCommands.GET_SUBDIR);
+		InterfaceProvider.getCommandRunner().evaluateCommand(TomoClientConstants.GET_SUBDIR);
 		while (!subdirChanged[0]) {
 			Sleep.sleep(5);
 		}
@@ -274,8 +274,7 @@ public class TiltController implements ITiltController {
 			tomoScriptController.addIObserver(observer);
 		}
 
-		InterfaceProvider.getCommandRunner()
-				.evaluateCommand(String.format(TomoAlignmentCommands.CHANGE_SUBDIR, subdir));
+		InterfaceProvider.getCommandRunner().evaluateCommand(String.format(TomoClientConstants.CHANGE_SUBDIR, subdir));
 		while (!subdirChanged[0]) {
 			Sleep.sleep(5);
 		}

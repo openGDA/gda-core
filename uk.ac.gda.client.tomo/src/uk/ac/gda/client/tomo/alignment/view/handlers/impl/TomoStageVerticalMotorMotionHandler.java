@@ -35,7 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.tomo.TomoClientActivator;
-import uk.ac.gda.client.tomo.alignment.view.TomoAlignmentCommands;
+import uk.ac.gda.client.tomo.TomoClientConstants;
 import uk.ac.gda.client.tomo.alignment.view.handlers.IVerticalMotorMotionHandler;
 import uk.ac.gda.client.tomo.preferences.TomoAlignmentPreferencePage;
 
@@ -81,7 +81,7 @@ public class TomoStageVerticalMotorMotionHandler implements IVerticalMotorMotion
 				.getBoolean(TomoAlignmentPreferencePage.TOMO_CLIENT_VERTICAL_STAGE_Y2_BEFORE_Y3);
 		String y2BeforeY3Val = y2BeforeY3 ? "True" : "False";
 
-		String moveVerticalCmd = String.format(TomoAlignmentCommands.MOVE_VERTICAL, useY1Val, y2BeforeY3Val, position);
+		String moveVerticalCmd = String.format(TomoClientConstants.MOVE_VERTICAL, useY1Val, y2BeforeY3Val, position);
 
 		JythonServerFacade.getInstance().evaluateCommand(moveVerticalCmd);
 
@@ -124,7 +124,7 @@ public class TomoStageVerticalMotorMotionHandler implements IVerticalMotorMotion
 			}
 		};
 		tomoScriptController.addIObserver(obs);
-		JythonServerFacade.getInstance().evaluateCommand(TomoAlignmentCommands.GET_VERTICAL);
+		JythonServerFacade.getInstance().evaluateCommand(TomoClientConstants.GET_VERTICAL);
 		while (maps[0] == null) {
 			Sleep.sleep(200);
 		}
