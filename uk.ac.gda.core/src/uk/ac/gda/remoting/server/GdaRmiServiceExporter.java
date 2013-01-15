@@ -129,6 +129,10 @@ public class GdaRmiServiceExporter implements InitializingBean {
 			observer.setObject(observable);
 			observer.afterPropertiesSet();
 		}
+		
+		else {
+			throw new RuntimeException("Object " + serviceName + " must implement IObservable and Findable in order for events to be sent over CORBA. Use " + RmiServiceExporter.class.getName() + " instead of " + getClass().getSimpleName() + " if event handling is not necessary.");
+		}
 	}
 
 }
