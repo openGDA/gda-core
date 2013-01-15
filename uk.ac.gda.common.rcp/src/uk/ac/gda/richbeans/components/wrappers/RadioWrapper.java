@@ -81,7 +81,9 @@ public class RadioWrapper extends Group implements IFieldWidget {
 	@Override
 	public void dispose() {
 		for (String key : buttonMap.keySet()) {
-			buttonMap.get(key).removeSelectionListener(listenerMap.get(key));
+			Button button = buttonMap.get(key);
+			if (!button.isDisposed())
+				button.removeSelectionListener(listenerMap.get(key));
 		}
 		super.dispose();
 	}
