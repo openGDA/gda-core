@@ -67,7 +67,19 @@ public class LocationBean implements IRichBean {
 	}
 
 	@Override
-	public void clear() {
-		
+	public void clear() {	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof LocationBean) {
+			LocationBean foreignLocation = (LocationBean) obj;
+			return foreignLocation.plate == plate && foreignLocation.column == column && foreignLocation.row == foreignLocation.row;
+		}
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		return plate + 5 * row + 31 * column;
 	}
 }

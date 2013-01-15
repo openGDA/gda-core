@@ -21,5 +21,36 @@
        priority="high">
      </content-type>
   </extension>
+  <extension
+        point="org.eclipse.ui.newWizards">
+     <category
+           id="uk.ac.gda.devices.bssc"
+           name="Experiment">
+     </category>
+     <wizard
+           category="uk.ac.gda.devices.bssc"
+           class="uk.ac.gda.devices.bssc.wizards.BSSCSessionWizard"
+           icon="icons/sample.gif"
+           id="uk.ac.gda.devices.bssc.wizards.BSSCSessionWizard"
+           name="BioSAXS Sample Robot Experiment">
+     </wizard>
+  </extension>
+  <extension
+        point="org.eclipse.ui.importWizards">
+     <category
+           id="uk.ac.gda.devices.bssc.wizards.sampleCategory"
+           name="BSSC Spreadsheet File Import">
+     </category>
+     <wizard
+           category="uk.ac.gda.devices.bssc.wizards.sampleCategory"
+           class="uk.ac.gda.devices.bssc.wizards.BSSCImportWizard"
+           icon="icons/sample.gif"
+           id="uk.ac.gda.devices.bssc.wizards.BSSCImportWizard"
+           name="BioSAXS Experiment Import">
+        <description>
+           Import a file from the local file system into the workspace.
+        </description>
+     </wizard>
+  </extension>
 
 </plugin>
