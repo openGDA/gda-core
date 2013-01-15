@@ -241,7 +241,6 @@ public class RotationViewer {
 				if(!nudge.isNaN())
 					moveMotor(true,nudge);
 			}
-			
 		});	
 		
 		negNudgeButton.addSelectionListener(new SelectionAdapter(){
