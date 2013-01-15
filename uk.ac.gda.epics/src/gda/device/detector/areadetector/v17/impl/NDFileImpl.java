@@ -28,6 +28,7 @@ import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.epics.connection.EpicsController;
 import gda.epics.interfaces.NDFileType;
 import gda.factory.FactoryException;
+import gda.scan.ScanBase;
 import gda.util.Sleep;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
@@ -1085,9 +1086,27 @@ public class NDFileImpl implements InitializingBean, NDFile {
 		return channel;
 	}
 
+	private Object statusMonitor = new Object();
 	@Override
 	public void setStatus(int status) {
-		this.status = status;
+		synchronized (statusMonitor) {
+			this.status = status;
+			this.statusMonitor.notifyAll();
+		}
+	}
+	
+	@Override
+	public void waitWhileStatusBusy() throws InterruptedException {
+		synchronized (statusMonitor) {
+			while (status == Detector.BUSY) { 
+				statusMonitor.wait(1000);
+				//if interrupted clear the status state as the IOC may have crashed
+				if( ScanBase.isInterrupted()){
+					setStatus(0);
+				}
+				ScanBase.checkForInterrupts();
+			}
+		}
 	}
 
 	@Override
@@ -1123,6 +1142,8 @@ public class NDFileImpl implements InitializingBean, NDFile {
 	public void setResetToInitialValues(boolean resetToInitialValues) {
 		this.resetToInitialValues = resetToInitialValues;
 	}
+
+
 
 
 }

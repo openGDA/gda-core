@@ -49,6 +49,9 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 	private boolean blocking = true;
 	
 	private int rowChunks = 1;
+	private int colChunks=1;
+	private int framesChunks=16;
+	private int framesFlush=64;
 
 	private boolean firstReadoutInScan;
 	
@@ -64,6 +67,30 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 	
 	public NDFileHDF5 getNdFileHDF5() {
 		return ndFileHDF5;
+	}
+
+	public int getColChunks() {
+		return colChunks;
+	}
+
+	public void setColChunks(int colChunks) {
+		this.colChunks = colChunks;
+	}
+
+	public int getFramesChunks() {
+		return framesChunks;
+	}
+
+	public void setFramesChunks(int framesChunks) {
+		this.framesChunks = framesChunks;
+	}
+
+	public int getFramesFlush() {
+		return framesFlush;
+	}
+
+	public void setFramesFlush(int framesFlush) {
+		this.framesFlush = framesFlush;
 	}
 
 	@Override
@@ -141,6 +168,9 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 		getNdFileHDF5().setNumCapture(numberOfAcquires);
 
 		getNdFileHDF5().setNumRowChunks(rowChunks);
+		getNdFileHDF5().setNumColChunks(colChunks);
+		getNdFileHDF5().setNumFramesChunks(framesChunks);
+		getNdFileHDF5().setNumFramesFlush(framesFlush);
 	}
 	
 	private void setupFilename() throws Exception {

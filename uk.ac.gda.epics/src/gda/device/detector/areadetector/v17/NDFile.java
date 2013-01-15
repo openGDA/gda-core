@@ -188,4 +188,6 @@ public interface NDFile {
 	void resetFileTemplate() throws Exception;
 
 	void setFileWriteMode(FileWriteMode mode) throws Exception;
+
+	void waitWhileStatusBusy() throws InterruptedException;
 }

@@ -981,7 +981,9 @@ class ADDetectorPositionCallable implements Callable<NexusTreeProvider> {
 				while( !f.exists() ){
 					numChecks++;
 					Thread.sleep(1000);
-					ScanBase.checkForInterrupts();
+					//checkForInterrupts only throws exception if a scan is running. This code will run beyond that point
+					if(ScanBase.isInterrupted())
+						throw new Exception("ScanBase is interrupted whilst waiting for "+ filepath);
 					if( numChecks> 10){
 						//Inform user every 10 seconds
 						InterfaceProvider.getTerminalPrinter().print("Waiting for file " + filepath + " to be created");
