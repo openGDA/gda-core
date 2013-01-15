@@ -32,8 +32,9 @@
 			<xsd:all>				
 				<xsd:element name="location" type="LocationBean" minOccurs="1" />
 				<xsd:element name="sampleName" type="xsd:string" minOccurs="1"/>
-				<xsd:element name="bufferName" type="xsd:string" />
+				<xsd:element name="bufferLocation" type="LocationBean" />
 				<xsd:element name="yellowSample" type="xsd:boolean" />
+				<xsd:element name="recouperate" type="xsd:boolean" />
 				<xsd:element name="concentration" type="xsd:double" />
 				<xsd:element name="timePerFrame" type="xsd:double" minOccurs="1"/>
 				<xsd:element name="frames" type="xsd:int" minOccurs="1"/>

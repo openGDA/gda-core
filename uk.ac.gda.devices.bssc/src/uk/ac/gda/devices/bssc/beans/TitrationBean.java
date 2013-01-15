@@ -23,8 +23,10 @@ import uk.ac.gda.beans.IRichBean;
 public class TitrationBean implements IRichBean {
 	
 	LocationBean location = new LocationBean();
-	String sampleName = "sample", bufferName = "buffer";
+	LocationBean bufferLocation = new LocationBean();
+	String sampleName = "sample";
 	boolean yellowSample = true;
+	boolean recouperate = false;
 	String viscosity = "high";
 	double concentration = 1;
 	double timePerFrame = 1;
@@ -42,12 +44,6 @@ public class TitrationBean implements IRichBean {
 	}
 	public void setSampleName(String sampleName) {
 		this.sampleName = sampleName;
-	}
-	public String getBufferName() {
-		return bufferName;
-	}
-	public void setBufferName(String bufferName) {
-		this.bufferName = bufferName;
 	}
 	public boolean isYellowSample() {
 		return yellowSample;
@@ -85,9 +81,20 @@ public class TitrationBean implements IRichBean {
 	public void setExposureTemperature(float exposureTemperature) {
 		this.exposureTemperature = exposureTemperature;
 	}
+	public LocationBean getBufferLocation() {
+		return bufferLocation;
+	}
+	public void setBufferLocation(LocationBean bufferLocation) {
+		this.bufferLocation = bufferLocation;
+	}
+
+	public boolean isRecouperate() {
+		return recouperate;
+	}
+	public void setRecouperate(boolean recouperate) {
+		this.recouperate = recouperate;
+	}
 	@Override
 	public void clear() {
-		// TODO Auto-generated method stub
-		
 	}
 }
