@@ -127,6 +127,11 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 		// test if it a 'large' movement, defined as more than 10 times the step size
 		if (Math.abs(bragg - targetBragg) > trajectoryStepSize * 10) {
 			doTrajectory = true;
+			
+			boolean positiveMove = true;
+			if (bragg > targetBragg){
+				positiveMove = false;
+			}
 
 			// create the trajectory points for the detector
 			numTrajPoints = (int) Math.round(Math.abs(bragg - targetBragg) / trajectoryStepSize) + 1;
@@ -142,7 +147,11 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 				}
 				targetDetYArray[node] = XesUtils.getDy(radius, braggAtNode);
 				targetXtalThetaArray[node] = XesUtils.getCrystalRotation(braggAtNode) * 2;
-				braggAtNode += trajectoryStepSize;
+				if (positiveMove) {
+					braggAtNode += trajectoryStepSize;
+				} else {
+					braggAtNode -= trajectoryStepSize;
+				}
 			}
 		}
 
@@ -207,7 +216,7 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 					det_rot.waitWhileBusy();
 					det_x.asynchronousMoveTo(targetDetXArray[node]);
 					det_y.asynchronousMoveTo(targetDetYArray[node]);
-					det_rot.asynchronousMoveTo(targetXtalThetaArray[node] * 2);
+					det_rot.asynchronousMoveTo(targetXtalThetaArray[node]);
 				}
 			} catch (InterruptedException e) {
 				throw new DeviceException("InterruptedException while moving " + getName(), e);
