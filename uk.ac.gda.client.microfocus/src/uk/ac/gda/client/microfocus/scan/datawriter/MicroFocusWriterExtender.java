@@ -288,14 +288,14 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 						String text = Double.toString(Math.abs(i));
 						int integerPlaces = text.indexOf('.');
 						int decimalPlaces = text.length() - integerPlaces - 1;
-						if (decimalPlaces > 9) {
-							DecimalFormat df = new DecimalFormat("#.#");
-							rgbLine.append(df.format(i));
-							rgbLine.append(" ");
-						} else {
+//						if (decimalPlaces > 3) {
+//							DecimalFormat df = new DecimalFormat("#.#");
+//							rgbLine.append(df.format(i));
+//							rgbLine.append("	");
+//						} else {
 							rgbLine.append(i);
-							rgbLine.append(" ");
-						}
+							rgbLine.append("	");
+//						}
 					}
 					scalerValues[dataPoint.getCurrentPointNumber()] = scalerData;
 					logger.info("The rgb Line with scaler values is " + rgbLine.toString());
@@ -407,8 +407,10 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 
 					}
 					for (String s : roiNames) {
-						rgbLine.append(roiTable.get(s));
-						rgbLine.append(" ");
+						double val = roiTable.get(s);
+						DecimalFormat df = new DecimalFormat("#");
+						rgbLine.append(df.format(val));
+						rgbLine.append("	");
 					}
 					logger.debug("The y value is " + xy[0]);
 					logger.debug("the x value is " + xy[1]);

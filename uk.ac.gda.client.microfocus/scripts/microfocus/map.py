@@ -20,7 +20,7 @@ from microfocus_elements import showElementsList, getElementNamesfromIonChamber
 from java.lang import String
 from gda.device import Detector
 import time
-
+from gda.configuration.properties import LocalProperties
 
 
 class Map(Scan):
@@ -205,32 +205,37 @@ class Map(Scan):
             configFluoDetector(beanGroup)
         scan = beanGroup.getScan()
     
-        collectionTime = scan.getCollectionTime()
-        command_server = self.finder.find("command_server")    
-        topupMonitor = command_server.getFromJythonNamespace("topupMonitor", None)    
-        beam = command_server.getFromJythonNamespace("beam", None)
-        detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
-        trajBeamMonitor = command_server.getFromJythonNamespace("trajBeamMonitor", None)
-        print "setting collection time to" , str(collectionTime)        
-        topupMonitor.setPauseBeforePoint(True)
-        topupMonitor.setCollectionTime(collectionTime)
-        
-        self.finder.find("command_server").addDefault(beam);
-        
-        topupMonitor.setPauseBeforePoint(True)
-        topupMonitor.setPauseBeforeLine(False)
-
-        beam.setPauseBeforePoint(True)
-        beam.setPauseBeforePoint(True)
-        beam.setPauseBeforeLine(True)
-        
-        if(beanGroup.getDetector().getExperimentType() == "Fluorescence" and beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium"):
-            self.finder.find("command_server").addDefault(detectorFillingMonitor);
-            detectorFillingMonitor.setPauseBeforePoint(True)
-            detectorFillingMonitor.setPauseBeforeLine(False)
-            detectorFillingMonitor.setCollectionTime(collectionTime)
-        trajBeamMonitor.setActive(False)
     
+    
+        if (LocalProperties.get("gda.mode") == 'live'):
+            collectionTime = scan.getCollectionTime()
+            command_server = self.finder.find("command_server")    
+            topupMonitor = command_server.getFromJythonNamespace("topupMonitor", None)    
+            beam = command_server.getFromJythonNamespace("beam", None)
+            detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
+            trajBeamMonitor = command_server.getFromJythonNamespace("trajBeamMonitor", None)
+            print "setting collection time to" , str(collectionTime)        
+            topupMonitor.setPauseBeforePoint(True)
+            topupMonitor.setCollectionTime(collectionTime)
+            
+            self.finder.find("command_server").addDefault(beam);
+            
+            topupMonitor.setPauseBeforePoint(True)
+            topupMonitor.setPauseBeforeLine(False)
+    
+            beam.setPauseBeforePoint(True)
+            beam.setPauseBeforePoint(True)
+            beam.setPauseBeforeLine(True)
+            
+            if(beanGroup.getDetector().getExperimentType() == "Fluorescence" and beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium"):
+                self.finder.find("command_server").addDefault(detectorFillingMonitor);
+                detectorFillingMonitor.setPauseBeforePoint(True)
+                detectorFillingMonitor.setPauseBeforeLine(False)
+                detectorFillingMonitor.setCollectionTime(collectionTime)
+            trajBeamMonitor.setActive(False)
+
+
+
         outputBean=beanGroup.getOutput()
         sampleParameters = beanGroup.getSample()
         outputBean.setAsciiFileName(sampleParameters.getName())
