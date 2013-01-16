@@ -42,8 +42,6 @@ import uk.ac.gda.client.tomo.composites.OverlayImageFigure.OverlayImgFigureListe
  * also features for Cross Hair, Zoom Rectangle, profiling across with draggable slider.
  */
 public class FullImageComposite extends FixedImageViewerComposite {
-	private static final String HIDE_CROSSHAIR = "Hide Crosshair";
-	private static final String SHOW_CROSSHAIR = "Show Crosshair";
 	private final static Logger logger = LoggerFactory.getLogger(FullImageComposite.class);
 	// private RectangleFigure rectFigure;
 	private Polyline horizontalTop;
@@ -707,7 +705,7 @@ public class FullImageComposite extends FixedImageViewerComposite {
 		Point firstPoint = validPoints.getFirstPoint().translate(d);
 		Point lastPoint = validPoints.getLastPoint().translate(d);
 		logger.debug(String.format("x1 :%d  y1:%d    x2:%d    y2:%d", firstPoint.x, firstPoint.y, lastPoint.x,
-				firstPoint.y));
+				lastPoint.y));
 
 		horizontalTop.setPoints(new PointList(new int[] { firstPoint.x, firstPoint.y, lastPoint.x, firstPoint.y }));
 
@@ -731,9 +729,9 @@ public class FullImageComposite extends FixedImageViewerComposite {
 		if (horizontalBottom.getPoints().size() < 2) {
 			return null;
 		}
-		Point firstPoint = horizontalTop.getPoints().getFirstPoint();
-		Point lastPoint = horizontalBottom.getPoints().getLastPoint();
-		return new int[] { firstPoint.x, firstPoint.y, lastPoint.x, lastPoint.y };
+		Dimension firstPoint = horizontalTop.getPoints().getFirstPoint().getDifference(getImageBounds().getLocation());
+		Dimension lastPoint = horizontalBottom.getPoints().getLastPoint().getDifference(getImageBounds().getLocation());
+		return new int[] { firstPoint.width, firstPoint.height, lastPoint.width, lastPoint.height };
 	}
 
 	public Polyline getCrossWire1Vertical() {
