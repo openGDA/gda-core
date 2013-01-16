@@ -18,38 +18,52 @@
 
 package uk.ac.gda.exafs.ui;
 
-import java.net.URL;
+import gda.util.exafs.Element;
 
+import org.eclipse.jface.dialogs.IPageChangedListener;
+import org.eclipse.jface.dialogs.PageChangedEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import swing2swt.layout.BorderLayout;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
+import uk.ac.gda.exafs.ui.ElementEdgeEditor.ELEMENT_EVENT_TYPE;
 import uk.ac.gda.exafs.ui.composites.QEXAFSParametersComposite;
 import uk.ac.gda.richbeans.components.FieldComposite;
-import uk.ac.gda.richbeans.editors.DirtyContainer;
-import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
+import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
+import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
 
 /**
  *
  */
-public final class QEXAFSParametersUIEditor extends RichBeanEditorPart {
+public final class QEXAFSParametersUIEditor extends ElementEdgeEditor{
 
 	private QEXAFSParametersComposite beanComposite;
+	private String cachedElement;
+	private static Logger logger = LoggerFactory.getLogger(QEXAFSParametersUIEditor.class);
 
 	/**
 	 * @param path
-	 * @param mappingURL
-	 * @param dirtyContainer
 	 * @param editingBean
 	 */
-	public QEXAFSParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
-		super(path, mappingURL, dirtyContainer, editingBean);
-		// TODO Auto-generated constructor stub
+	public QEXAFSParametersUIEditor(String path, final RichBeanMultiPageEditorPart containingEditor,
+			final Object editingBean) {
+		super(path, containingEditor.getMappingUrl(), containingEditor, editingBean);
+
+		containingEditor.addPageChangedListener(new IPageChangedListener() {
+			@Override
+			public void pageChanged(PageChangedEvent event) {
+				final int ipage = containingEditor.getActivePage();
+				if (ipage == 1)
+					cachedElement = ((QEXAFSParameters) editingBean).getElement();
+			}
+		});
 	}
 
 	@Override
@@ -74,10 +88,13 @@ public final class QEXAFSParametersUIEditor extends RichBeanEditorPart {
 		Group grpQuickExafsParameters = new Group(container, SWT.NONE);
 		grpQuickExafsParameters.setText("Quick EXAFS Parameters");
 		final GridLayout gridLayout = new GridLayout();
-		gridLayout.numColumns = 1;
+		gridLayout.numColumns = 2;
 		grpQuickExafsParameters.setLayout(gridLayout);
 
-		this.beanComposite = new QEXAFSParametersComposite(grpQuickExafsParameters, SWT.NONE, (QEXAFSParameters)editingBean);
+		createElementEdgeArea(grpQuickExafsParameters);
+
+		this.beanComposite = new QEXAFSParametersComposite(grpQuickExafsParameters, SWT.NONE,
+				(QEXAFSParameters) editingBean);
 		GridData gridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gridData.widthHint = 800;
 		beanComposite.setLayoutData(gridData);
@@ -108,7 +125,7 @@ public final class QEXAFSParametersUIEditor extends RichBeanEditorPart {
 	public FieldComposite getStepSize() {
 		return beanComposite.getStepSize();
 	}
-	
+
 	public FieldComposite getTime() {
 		return beanComposite.getTime();
 	}
@@ -116,4 +133,58 @@ public final class QEXAFSParametersUIEditor extends RichBeanEditorPart {
 	public FieldComposite getShouldValidate() {
 		return beanComposite.getShouldValidate();
 	}
+
+	protected double getInitialEnergyFromElement() throws Exception {
+		final Element ele = getElementUseBean();
+		final String edge = getEdgeUseBean();
+		return ele.getInitialEnergy(edge);
+	}
+
+	protected double getFinalEnergyFromElement() throws Exception {
+		final Element ele = getElementUseBean();
+		final String edge = getEdgeUseBean();
+		double fEnergy = ele.getFinalEnergy(edge);
+		return fEnergy;
+	}
+
+	/**
+	 * @return ScaleBox
+	 */
+	public ComboWrapper getElement() {
+		return element;
+	}
+
+	@Override
+	protected void updateElement(ELEMENT_EVENT_TYPE type) {
+		try {
+			super.updateElement(type);
+		} catch (Exception e) {
+			logger.error("Cannot update element", e);
+		}
+		try {
+			getInitialEnergy().setValue(getInitialEnergyFromElement());
+			getFinalEnergy().setValue(getFinalEnergyFromElement());
+		} catch (Exception e) {
+			logger.error("Could not get initial/final energies", e);
+		}
+	}
+	
+	@Override
+	public void linkUI(final boolean isPageChange) {
+
+		setPointsUpdate(false);
+
+		try {
+			setupElementAndEdge("XasScanParameters");
+		} catch (Exception e) {
+			logger.error("Could not update element list", e);
+		}
+		super.linkUI(isPageChange);
+		
+	}
+	
+	public ComboWrapper getEdge() {
+		return edge;
+	}
+	
 }

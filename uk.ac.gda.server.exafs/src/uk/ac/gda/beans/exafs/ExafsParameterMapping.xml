@@ -492,6 +492,15 @@
 		<field name="time" type="double">
 			<bind-xml name="time" node="element" />
 		</field>
+		<field name="element" type="string">
+			<bind-xml name="element" node="element" />
+		</field>
+		<field name="edge" type="string">
+			<bind-xml name="edge" node="element" />
+		</field>
+		<field name="coreHole" type="double">
+			<bind-xml name="coreHole" node="element" />
+		</field>
 	</class>
 
 
