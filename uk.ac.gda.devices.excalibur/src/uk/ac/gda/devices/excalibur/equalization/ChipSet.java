@@ -164,7 +164,7 @@ public class ChipSet {
 		}
 		long fullHeight = shape[0];
 		if(fullHeight < pixelsPerCol ||  fullHeight > pixelsPerCol+2){
-			throw new IllegalArgumentException("fullHeight != reqdHeight: " + pixelsPerCol);
+			throw new IllegalArgumentException("fullHeight (" + fullHeight + ") != reqdHeight (" + pixelsPerCol +")");
 		}
 		long fullWidth = shape[1];
 		if(fullWidth != pixelsPerRow){
@@ -251,16 +251,25 @@ class Chip {
 	public long getPixelsPerRow(){
 		return chipSet.pixelsPerRow;
 	}
-	
 	public AbstractDataset getDataset(ILazyLoader loader) throws ScanFileHolderException{
-		int[] start = new int[2]; 
-		int[] stop = new int[2]; 
-		int[] step= new int[2];
+		return getDataset(loader,0);
+	}
+	
+	public AbstractDataset getDataset(ILazyLoader loader, int length3d) throws ScanFileHolderException{
+		int dim = length3d == 0? 2  : 3;
+		int[] start = new int[dim]; 
+		int[] stop = new int[dim]; 
+		int[] step= new int[dim];
 		step[0]=step[1]=1;		
 		start[0] = getChipTopPixel();
 		stop[0] = (start[0]+ChipSet.chipHeight); //exclusive
 		start[1] = getChipLeftPixel();
 		stop[1] = (start[1] + ChipSet.chipWidth); //exclusive
+		if( dim == 3){
+			step[2] = 1;
+			start[2] = 0;
+			stop[3] = length3d;
+		}
 		return loader.getDataset(null, null, start, stop, step);
 	}
 
