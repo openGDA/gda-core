@@ -120,8 +120,20 @@ public class ExcaliburEqualizationHelperTest {
 		String groupName = "entry1/excalibur_summary_ad";
 		String dataSetNameThreshold0 = "threshold0";
 		String dataSetNameDetector = "data";
+		
+		
+		Hdf5HelperData threshold0Vals = Hdf5Helper.getInstance().readDataSetAll(scanFilename, groupName,
+				dataSetNameThreshold0, true);
+		double[] tmp = (double[]) threshold0Vals.data;
+		short[] threshold0ValsAsInt = new short[tmp.length];
+		for (int i = 0; i < tmp.length; i++) {
+			threshold0ValsAsInt[i] = (short) tmp[i];
+		}		
+		
+		
+		
 		long before = System.currentTimeMillis();
-		Hdf5HelperData hd = ExcaliburEqualizationHelper.getInstance().getThresholdFromScanData(threshold, sizeOfSlice, scanFilename, groupName, dataSetNameThreshold0,
+		Hdf5HelperData hd = ExcaliburEqualizationHelper.getInstance().getThresholdFromScanData(threshold, sizeOfSlice, scanFilename, groupName, threshold0ValsAsInt,
 				dataSetNameDetector);
 		short[] data = (short[])hd.data;
 		Assert.assertEquals(11800, data[1000],1e-6);
@@ -251,13 +263,19 @@ public class ExcaliburEqualizationHelperTest {
 				long[] offset = new long[chunk_dims.length];
 				offset[0] = ChipSet.getChipTopPixel(ih);
 				offset[1] = ChipSet.getChipLeftPixel(iw);
-				Hdf5Helper.getInstance().writeToFile(hData, fileName, equalisationLocation, ExcaliburEqualizationHelper.THRESHOLD_DATASET, 
+				Hdf5Helper hdf = Hdf5Helper.getInstance();
+				hdf.writeToFile(hData, fileName, equalisationLocation, ExcaliburEqualizationHelper.THRESHOLD_DATASET, 
 						chunk_dims, extendible, offset);
+				
 			}
 		}
+		
 		//indicate all chips are present
 		boolean [] chipPresent = new boolean[numChipsDown*numChipsAcross];
 		Arrays.fill(chipPresent, true);
+		equalisation.addChipPopulationsToThresholdFile(fileName, numChipsDown, numChipsAcross, chipPresent, fileName);
+
+		
 		ChipAveragedResult[] chipEdgeThreshold = equalisation.getChipAveragedThresholdFromThresholdFile(fileName, numChipsDown, numChipsAcross, chipPresent);
 		for( int ih =0; ih < numChipsDown; ih++){
 			for( int iw =0; iw < numChipsAcross; iw++){
