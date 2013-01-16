@@ -24,7 +24,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.progress.UIJob;
 import org.slf4j.Logger;
@@ -38,6 +37,11 @@ import uk.ac.gda.client.tomo.composites.FixedImageViewerComposite;
  */
 public class HistogramAdjuster {
 
+	public enum UpdatingImage {
+		OVERLAY, MAIN;
+
+	}
+
 	private static final int BIN_SIZE = 255;
 
 	private static final double BIN_DOUBLE = BIN_SIZE;
@@ -48,35 +52,31 @@ public class HistogramAdjuster {
 	private int maxIntensity = 65536;
 	private int highValue = maxIntensity;
 
-	private ImageData workingImageData;
+	public HistogramAdjuster(Display display) {
+		updateOverlayImageJob = new UpdateHistogramJob(display, "Update Overlay Image", UpdatingImage.OVERLAY);
 
-	/**
-	 * This should be the clone of the image data and not the data itself.
-	 * 
-	 * @param imgData
-	 */
-	public void setImageData(ImageData imgData) {
-		this.workingImageData = imgData;
-	}
-
-	public void dispose() {
-		workingImageData = null;
+		updateMainImageJob = new UpdateHistogramJob(display, "Update Main Image", UpdatingImage.MAIN);
 	}
 
 	public void setMaxIntensity(int maxIntensity) {
 		this.maxIntensity = maxIntensity;
 	}
 
-	private UpdateHistogramJob updateHJob;
+	private UpdateHistogramJob updateMainImageJob;
+
+	private UpdateHistogramJob updateOverlayImageJob;
 
 	private class UpdateHistogramJob extends UIJob {
 
 		private FixedImageViewerComposite fullImageComposite;
 		private int scaledX;
 		private int scaledY;
+		private ImageData workingImageData;
+		private final UpdatingImage updatingImage;
 
-		public UpdateHistogramJob(Display jobDisplay, String name) {
+		public UpdateHistogramJob(Display jobDisplay, String name, UpdatingImage updatingImage) {
 			super(jobDisplay, name);
+			this.updatingImage = updatingImage;
 		}
 
 		public void setDisplayWindow(final FixedImageViewerComposite fullImageComposite) {
@@ -96,82 +96,113 @@ public class HistogramAdjuster {
 			ImageData imgData = null;
 			logger.debug("Updating histogram");
 			int[] valArray = new int[BIN_SIZE];
-			workingImageData.palette.getRGBs();
+			if (workingImageData != null) {
+				workingImageData.palette.getRGBs();
 
-			int cBin = (int) (((double) lowValue / (double) maxIntensity) * BIN_DOUBLE);
-			int dBin = (int) (((double) highValue / (double) maxIntensity) * BIN_DOUBLE);
+				int cBin = (int) (((double) lowValue / (double) maxIntensity) * BIN_DOUBLE);
+				int dBin = (int) (((double) highValue / (double) maxIntensity) * BIN_DOUBLE);
 
-			double width = dBin - cBin;
+				double width = dBin - cBin;
 
-			int step = (int) (BIN_DOUBLE / width);
+				int step = (int) (BIN_DOUBLE / width);
 
-			RGB rgb0 = new RGB(0, 0, 0);
-			PaletteData palette = workingImageData.palette;
-			int pixel0 = palette.getPixel(rgb0);
-			for (int i = 0; i <= cBin; i++) {
-				valArray[i] = pixel0;
-			}
-
-			// RGB rgb255 = new RGB(dBin - 1, dBin - 1, dBin - 1);
-			RGB rgb255 = new RGB(255, 255, 255);
-			int pixel255 = palette.getPixel(rgb255);
-			for (int i = dBin - 1; i < BIN_SIZE; i++) {
-				valArray[i] = pixel255;
-			}
-
-			for (int i = cBin + 1; i < dBin - 1; i++) {
-				int stepIntensity = (i - cBin) * step;
-				RGB rgb = new RGB(stepIntensity, stepIntensity, stepIntensity);
-				valArray[i] = palette.getPixel(rgb);
-			}
-
-			// Need to consider a clone because once the original data is set below the high values then it can be
-			// reverted
-			// for values above.
-
-			imgData = (ImageData) HistogramAdjuster.this.workingImageData.clone();
-			for (int h = 0; h < workingImageData.height; h++) {
-				for (int w = 0; w < workingImageData.width; w++) {
-					int pixel = workingImageData.getPixel(w, h);
-
-					// to equate it to a 10 bit number of 1024 shift it right by 14
-					int actualIntensityVal = pixel >> 8;
-					double offset = (double) actualIntensityVal / (double) maxIntensity;
-					int index = (int) (offset * BIN_SIZE);
-					imgData.setPixel(w, h, valArray[index]);
+				RGB rgb0 = new RGB(0, 0, 0);
+				PaletteData palette = workingImageData.palette;
+				int pixel0 = palette.getPixel(rgb0);
+				for (int i = 0; i <= cBin; i++) {
+					valArray[i] = pixel0;
 				}
-			}
 
-			logger.debug("Updating image");
-			try {
-				fullImageComposite.loadMainImage(imgData.scaledTo(scaledX, scaledY));
-			} catch (Exception e) {
-				logger.error("TODO put description of error here", e);
+				// RGB rgb255 = new RGB(dBin - 1, dBin - 1, dBin - 1);
+				RGB rgb255 = new RGB(255, 255, 255);
+				int pixel255 = palette.getPixel(rgb255);
+				for (int i = dBin - 1; i < BIN_SIZE; i++) {
+					valArray[i] = pixel255;
+				}
+
+				for (int i = cBin + 1; i < dBin - 1; i++) {
+					int stepIntensity = (i - cBin) * step;
+					RGB rgb = new RGB(stepIntensity, stepIntensity, stepIntensity);
+					valArray[i] = palette.getPixel(rgb);
+				}
+
+				// Need to consider a clone because once the original data is set below the high values then it can be
+				// reverted
+				// for values above.
+
+				imgData = (ImageData) this.workingImageData.clone();
+				for (int h = 0; h < workingImageData.height; h++) {
+					for (int w = 0; w < workingImageData.width; w++) {
+						int pixel = workingImageData.getPixel(w, h);
+
+						// to equate it to a 10 bit number of 1024 shift it right by 14
+						int actualIntensityVal = pixel >> 8;
+						double offset = (double) actualIntensityVal / (double) maxIntensity;
+						int index = (int) (offset * BIN_SIZE);
+						imgData.setPixel(w, h, valArray[index]);
+					}
+				}
+
+				if (UpdatingImage.MAIN == updatingImage) {
+					try {
+						fullImageComposite.loadMainImage(imgData.scaledTo(scaledX, scaledY));
+					} catch (Exception e) {
+						logger.error("Unable to apply histogram to main image", e);
+					}
+				} else {
+					try {
+						fullImageComposite.loadOverlayImage(imgData.scaledTo(scaledX, scaledY));
+					} catch (Exception e) {
+						logger.error("Unable to apply histogram to overlay image", e);
+					}
+				}
 			}
 			return Status.OK_STATUS;
 		}
+
+		public void setWorkingImageData(ImageData imgData) {
+			this.workingImageData = imgData;
+		}
 	}
 
-	public void updateHistogramValues(final FixedImageViewerComposite fullImageComposite, int scaledX, int scaledY,
-			double lowerLimit, double upperLimit) {
+	public void setMainImageData(ImageData imgData) {
+		if (updateMainImageJob != null) {
+			updateMainImageJob.setWorkingImageData(imgData);
+		}
+	}
+
+	public void setOverlayImageData(ImageData imgData) {
+		if (updateOverlayImageJob != null) {
+			updateOverlayImageJob.setWorkingImageData(imgData);
+		}
+	}
+
+	public void updateMainImageHistogramValues(final FixedImageViewerComposite fullImageComposite, int scaledX,
+			int scaledY, double lowerLimit, double upperLimit) {
 
 		this.lowValue = (int) lowerLimit;
 		this.highValue = (int) upperLimit;
 
-		UpdateHistogramJob job = getJob(fullImageComposite);
+		scheduleJob(fullImageComposite, scaledX, scaledY, updateMainImageJob);
+	}
+
+	public void updateOverlayImageHistogramValues(final FixedImageViewerComposite fullImageComposite, int scaledX,
+			int scaledY, double lowerLimit, double upperLimit) {
+
+		this.lowValue = (int) lowerLimit;
+		this.highValue = (int) upperLimit;
+
+		scheduleJob(fullImageComposite, scaledX, scaledY, updateOverlayImageJob);
+	}
+
+	private void scheduleJob(final FixedImageViewerComposite fullImageComposite, int scaledX, int scaledY,
+			UpdateHistogramJob job) {
 		job.setDisplayWindow(fullImageComposite);
 		job.setScaledX(scaledX);
 		job.setScaledY(scaledY);
 
 		job.cancel();
 		job.schedule(100);
-	}
-
-	private UpdateHistogramJob getJob(Control control) {
-		if (updateHJob == null) {
-			updateHJob = new UpdateHistogramJob(control.getDisplay(), "Update histogram");
-		}
-		return updateHJob;
 	}
 
 	public double getMaxIntensity() {
@@ -181,4 +212,5 @@ public class HistogramAdjuster {
 	public double getMinIntensity() {
 		return 0;
 	}
+
 }

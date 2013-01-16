@@ -489,19 +489,22 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 							img.dispose();
 
 							// Loading the second image
-							img = new Image(tomoAlignmentView.getLeftWindowImageViewer().getDisplay(),
-									secondImageLocation);
-							ImageData secondImgData = img.getImageData();
-							img.dispose();
-
-							tomoAlignmentView.loadImageInUIThread(tomoAlignmentView.getLeftWindowImageViewer(),
-									secondImgData.scaledTo(tomoAlignmentView.getTomoAlignmentController().getScaledX(),
-											tomoAlignmentView.getTomoAlignmentController().getScaledY()));
+							// img = new Image(tomoAlignmentView.getLeftWindowImageViewer().getDisplay(),
+							// secondImageLocation);
+							// ImageData secondImgData = img.getImageData();
+							// img.dispose();
+							//
+							// tomoAlignmentView.loadImageInUIThread(tomoAlignmentView.getLeftWindowImageViewer(),
+							// secondImgData.scaledTo(tomoAlignmentView.getTomoAlignmentController().getScaledX(),
+							// tomoAlignmentView.getTomoAlignmentController().getScaledY()));
+							loadImageInViewAfterApplyingContrast(secondImageLocation);
 
 							ImageData horizontallyFlippedImageData = SWT2Dutil.flip(firstImgData, false);
-							loadOverlayImgInUIThread(horizontallyFlippedImageData.scaledTo(tomoAlignmentView
-									.getTomoAlignmentController().getScaledX(), tomoAlignmentView
-									.getTomoAlignmentController().getScaledY()));
+
+							// loadOverlayImgInUIThread(horizontallyFlippedImageData.scaledTo(tomoAlignmentView
+							// .getTomoAlignmentController().getScaledX(), tomoAlignmentView
+							// .getTomoAlignmentController().getScaledY()));
+							loadOverlayImageInViewAfterApplyingContrast(horizontallyFlippedImageData);
 							tomoAlignmentView.getLeftWindowImageViewer().addOverlayImageFigureListener(
 									TomoAlignmentViewController.this);
 							tomoAlignmentView.getLeftWindowImageViewer().setOverLayImageMoveAxis(MOVE_AXIS.X_AXIS);
@@ -1252,6 +1255,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 
 	private void centringStopped() throws Exception {
 		tomoAlignmentView.enableLeftPanelControls();
+		tomoAlignmentView.getHistogramAdjuster().setOverlayImageData(null);
 		tomoAlignmentView.getLeftWindowImageViewer().removeOverlayImage();
 		tomoAlignmentView.getLeftWindowImageViewer().resetFeedbackCursor();
 		tomoAlignmentView.getViewSite().getActionBars().getStatusLineManager().setMessage(null);
@@ -1506,22 +1510,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 				}
 				//
 				if (!baseMonitor.isCanceled() && fileLocation != null) {
-					Image img = new Image(tomoAlignmentView.getLeftWindowImageViewer().getDisplay(), fileLocation);
-					ImageData imgData = img.getImageData();
-
-					logger.debug(String.format("demandRaw() imageData depth#%d  palete is direct# %s", imgData.depth,
-							imgData.palette.isDirect));
-
-					tomoAlignmentView.setHistogramAdjusterImageData((ImageData) imgData.clone());
-
-					tomoAlignmentView.getHistogramAdjuster().updateHistogramValues(
-							tomoAlignmentView.getLeftWindowImageViewer(),
-							tomoAlignmentView.getTomoAlignmentController().getScaledX(),
-							tomoAlignmentView.getTomoAlignmentController().getScaledY(),
-							tomoAlignmentView.getContrastLower(), tomoAlignmentView.getContrastUpper());
-					imgData.data = null;
-					imgData = null;
-					img.dispose();
+					loadImageInViewAfterApplyingContrast(fileLocation);
 					loadZoomImageInUI();
 					//
 				}
@@ -1894,12 +1883,16 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 		logger.debug("Lower Limit:{}", lowerLimit);
 		logger.debug("Upper Limit:{}", upperLimit);
 		TomoAlignmentLeftPanelComposite leftPanelComposite = tomoAlignmentView.getLeftPanelComposite();
+		int scaledX = tomoAlignmentView.getTomoAlignmentController().getScaledX();
+		int scaledY = tomoAlignmentView.getTomoAlignmentController().getScaledY();
 		switch (tomoAlignmentView.getLeftWindowViewerDisplayMode()) {
+		case ROTATION_AXIS:
+			tomoAlignmentView.getHistogramAdjuster().updateOverlayImageHistogramValues(
+					tomoAlignmentView.getLeftWindowImageViewer(), scaledX, scaledY, lowerLimit, upperLimit);
+			//$FALL-THROUGH$
 		case SAMPLE_SINGLE:
 		case FLAT_SINGLE:
-			int scaledX = tomoAlignmentView.getTomoAlignmentController().getScaledX();
-			int scaledY = tomoAlignmentView.getTomoAlignmentController().getScaledY();
-			tomoAlignmentView.getHistogramAdjuster().updateHistogramValues(
+			tomoAlignmentView.getHistogramAdjuster().updateMainImageHistogramValues(
 					tomoAlignmentView.getLeftWindowImageViewer(), scaledX, scaledY, lowerLimit, upperLimit);
 			break;
 		case SAMPLE_STREAM_LIVE:
@@ -2063,5 +2056,32 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 		} catch (PartInitException e) {
 			logger.error("Cannot open the tomo configuration view and set the element selected.", e);
 		}
+	}
+
+	protected void loadImageInViewAfterApplyingContrast(String fileLocation) {
+		Image img = new Image(tomoAlignmentView.getLeftWindowImageViewer().getDisplay(), fileLocation);
+		ImageData imgData = img.getImageData();
+
+		logger.debug(String.format("loadImageInViewAfterApplyingContrast imageData depth#%d  palete is direct# %s",
+				imgData.depth, imgData.palette.isDirect));
+
+		tomoAlignmentView.setHistogramAdjusterMainImageData((ImageData)imgData.clone());
+		tomoAlignmentView.getHistogramAdjuster().updateMainImageHistogramValues(
+				tomoAlignmentView.getLeftWindowImageViewer(),
+				tomoAlignmentView.getTomoAlignmentController().getScaledX(),
+				tomoAlignmentView.getTomoAlignmentController().getScaledY(), tomoAlignmentView.getContrastLower(),
+				tomoAlignmentView.getContrastUpper());
+		imgData.data = null;
+		imgData = null;
+		img.dispose();
+	}
+
+	protected void loadOverlayImageInViewAfterApplyingContrast(ImageData horizontallyFlippedImageData) {
+		tomoAlignmentView.setHistogramAdjusterOverlayImageData(horizontallyFlippedImageData);
+		tomoAlignmentView.getHistogramAdjuster().updateOverlayImageHistogramValues(
+				tomoAlignmentView.getLeftWindowImageViewer(),
+				tomoAlignmentView.getTomoAlignmentController().getScaledX(),
+				tomoAlignmentView.getTomoAlignmentController().getScaledY(), tomoAlignmentView.getContrastLower(),
+				tomoAlignmentView.getContrastUpper());
 	}
 }

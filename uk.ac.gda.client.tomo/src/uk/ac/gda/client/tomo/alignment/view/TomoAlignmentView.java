@@ -544,7 +544,7 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 		GridData layoutData = new GridData(GridData.FILL_BOTH);
 		viewerComposite.setLayoutData(layoutData);
 		//
-		histogramAdjuster = new HistogramAdjuster();
+		histogramAdjuster = new HistogramAdjuster(getSite().getShell().getDisplay());
 		//
 		contrastSliderComposite = new ColourSliderComposite(page_leftWindow_imgViewer, SWT.None);
 		layoutData = new GridData(GridData.FILL_VERTICAL);
@@ -559,8 +559,6 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 		layoutData.horizontalSpan = 2;
 		infoComposite.setLayoutData(layoutData);
 
-		/**/
-		/**/
 		return leftWindowComposite;
 	}
 
@@ -1074,7 +1072,6 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 			tomoAlignmentController.unregisterTomoAlignmentView(this);
 			tomoAlignmentController.dispose();
 			toolkit.dispose();
-			histogramAdjuster.dispose();
 			tomoAlignmentController.removeScanControllerUpdateListener(tomoViewController);
 
 			super.dispose();
@@ -1348,8 +1345,12 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 				&& SAMPLE_OR_FLAT.FLAT.equals(leftPanelComposite.getStreamState());
 	}
 
-	public void setHistogramAdjusterImageData(ImageData imgData) {
-		histogramAdjuster.setImageData(imgData);
+	public void setHistogramAdjusterMainImageData(ImageData imgData) {
+		histogramAdjuster.setMainImageData(imgData);
+	}
+
+	public void setHistogramAdjusterOverlayImageData(ImageData imgData) {
+		histogramAdjuster.setOverlayImageData(imgData);
 	}
 
 	public CAMERA_MODULE getSelectedCameraModule() {
