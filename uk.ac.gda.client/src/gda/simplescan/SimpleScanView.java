@@ -42,7 +42,7 @@ import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class SimpleScanView extends ViewPart {
-	private static final Logger logger = LoggerFactory.getLogger(XMLHelpers.class);
+	private static final Logger logger = LoggerFactory.getLogger(SimpleScanView.class);
 	private String path;
 	SimpleScan bean = null;
 	SimpleScanComposite simpleScanComposite;
