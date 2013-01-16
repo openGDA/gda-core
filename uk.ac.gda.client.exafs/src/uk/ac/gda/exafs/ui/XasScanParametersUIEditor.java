@@ -537,11 +537,9 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		return new ExpressionProvider() {
 			@Override
 			public double getValue(double e) {
-
 				Converter.setEdgeEnergy(getEdgeValue() / 1000.0);
 				return Converter.convert(e, Converter.EV, Converter.PERANGSTROM);
 			}
-
 			@Override
 			public IFieldWidget[] getPrecedents() {
 				return null;

@@ -18,10 +18,9 @@
 
 package uk.ac.gda.exafs.ui;
 
+import gda.util.Converter;
 import gda.util.exafs.Element;
 
-import org.eclipse.jface.dialogs.IPageChangedListener;
-import org.eclipse.jface.dialogs.PageChangedEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.GridData;
@@ -33,9 +32,10 @@ import org.slf4j.LoggerFactory;
 
 import swing2swt.layout.BorderLayout;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
-import uk.ac.gda.exafs.ui.ElementEdgeEditor.ELEMENT_EVENT_TYPE;
 import uk.ac.gda.exafs.ui.composites.QEXAFSParametersComposite;
+import uk.ac.gda.richbeans.beans.IFieldWidget;
 import uk.ac.gda.richbeans.components.FieldComposite;
+import uk.ac.gda.richbeans.components.scalebox.ScaleBoxAndFixedExpression.ExpressionProvider;
 import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
 
@@ -45,7 +45,6 @@ import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
 public final class QEXAFSParametersUIEditor extends ElementEdgeEditor{
 
 	private QEXAFSParametersComposite beanComposite;
-	private String cachedElement;
 	private static Logger logger = LoggerFactory.getLogger(QEXAFSParametersUIEditor.class);
 
 	/**
@@ -55,15 +54,6 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor{
 	public QEXAFSParametersUIEditor(String path, final RichBeanMultiPageEditorPart containingEditor,
 			final Object editingBean) {
 		super(path, containingEditor.getMappingUrl(), containingEditor, editingBean);
-
-		containingEditor.addPageChangedListener(new IPageChangedListener() {
-			@Override
-			public void pageChanged(PageChangedEvent event) {
-				final int ipage = containingEditor.getActivePage();
-				if (ipage == 1)
-					cachedElement = ((QEXAFSParameters) editingBean).getElement();
-			}
-		});
 	}
 
 	@Override
@@ -71,6 +61,20 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor{
 		return "QEXAFS Editor";
 	}
 
+	private ExpressionProvider getKProvider() {
+		return new ExpressionProvider() {
+			@Override
+			public double getValue(double e) {
+				Converter.setEdgeEnergy(getEdgeValue() / 1000.0);
+				return Converter.convert(e, Converter.EV, Converter.PERANGSTROM);
+			}
+			@Override
+			public IFieldWidget[] getPrecedents() {
+				return null;
+			}
+		};
+	}
+	
 	/**
 	 * 
 	 */
@@ -94,12 +98,17 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor{
 		createElementEdgeArea(grpQuickExafsParameters);
 
 		this.beanComposite = new QEXAFSParametersComposite(grpQuickExafsParameters, SWT.NONE,
-				(QEXAFSParameters) editingBean);
+				(QEXAFSParameters) editingBean, getKProvider());
 		GridData gridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gridData.widthHint = 800;
 		beanComposite.setLayoutData(gridData);
 		beanComposite.setSize(800, 473);
-
+		
+		try {
+			getCoreHole_unused().setValue(getCfromElement());
+		} catch (Exception e) {
+			logger.error("Cannot get and set core hole", e);
+		}
 	}
 
 	/**
@@ -147,6 +156,12 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor{
 		return fEnergy;
 	}
 
+	protected double getCfromElement() throws Exception {
+		final Element ele = getElementUseBean();
+		final String edge = getEdgeUseBean();
+		return ele.getCoreHole(edge);
+	}
+	
 	/**
 	 * @return ScaleBox
 	 */
@@ -164,6 +179,7 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor{
 		try {
 			getInitialEnergy().setValue(getInitialEnergyFromElement());
 			getFinalEnergy().setValue(getFinalEnergyFromElement());
+			getCoreHole_unused().setValue(getCfromElement());
 		} catch (Exception e) {
 			logger.error("Could not get initial/final energies", e);
 		}
