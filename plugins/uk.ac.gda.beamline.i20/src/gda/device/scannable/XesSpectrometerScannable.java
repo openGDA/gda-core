@@ -18,6 +18,9 @@
 
 package gda.device.scannable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.exafs.xes.XesUtils;
@@ -35,6 +38,8 @@ import gda.observable.IObserver;
  */
 public class XesSpectrometerScannable extends ScannableMotionUnitsBase implements Scannable, Findable, IObserver {
 
+	private static final Logger logger = LoggerFactory.getLogger(XesSpectrometerScannable.class);
+	
 	ScannableMotor xtal_x; // also known as L
 	ScannableMotor det_y;
 	ScannableMotor det_x;
@@ -116,30 +121,31 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 
 		String pos = position.toString();
 		double targetBragg = Double.parseDouble(pos);
+		double currentPosition = Double.parseDouble(getPosition().toString());
 		radius = Double.parseDouble(radiusScannable.getPosition().toString());
 
-		boolean doTrajectory = false;
+		boolean doTrajectory = false; 
 		Double[] targetDetXArray = null;
 		Double[] targetDetYArray = null;
 		Double[] targetXtalThetaArray = null;
 		Integer numTrajPoints = null;
 
 		// test if it a 'large' movement, defined as more than 10 times the step size
-		if (Math.abs(bragg - targetBragg) > trajectoryStepSize * 10) {
+		if (Math.abs(currentPosition - targetBragg) > trajectoryStepSize /** 10*/) {
 			doTrajectory = true;
 			
 			boolean positiveMove = true;
-			if (bragg > targetBragg){
+			if (currentPosition > targetBragg){
 				positiveMove = false;
 			}
 
 			// create the trajectory points for the detector
-			numTrajPoints = (int) Math.round(Math.abs(bragg - targetBragg) / trajectoryStepSize) + 1;
+			numTrajPoints = (int) Math.round(Math.abs(currentPosition - targetBragg) / trajectoryStepSize) + 1;
 			targetDetXArray = new Double[numTrajPoints];
 			targetDetYArray = new Double[numTrajPoints];
 			targetXtalThetaArray = new Double[numTrajPoints];
 
-			double braggAtNode = bragg;
+			double braggAtNode = currentPosition;
 			for (int node = 0; node < numTrajPoints; node++) {
 				targetDetXArray[node] = XesUtils.getDx(radius, braggAtNode);
 				if (targetDetXArray[node] == null){
@@ -184,9 +190,9 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 		checkPositionValid(xtaltilts[2], -iTargets[2]);
 		checkPositionValid(xtalbraggs[2], iTargets[3]);
 
-		// only now store the new gragg value
+		// only now store the new bragg value
 		bragg = targetBragg;
-
+		
 		// now do moves
 		notifyIObservers(this, new ScannableStatus(getName(), ScannableStatus.BUSY));
 
@@ -241,7 +247,36 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 
 	@Override
 	public Object rawGetPosition() throws DeviceException {
+		if (!doesMotorPositionAgreeWithExpectedBraggAngle()) {
+			logger.warn(getName()
+					+ " cannot correctly determine its position: detector angle disagrees with expected position.\nReported position is based on detector rotation.\nIf you have not moved XES bragg or energy since restarting the GDA then please ignore this message");
+			return braggBasedOnDetectorRotation();
+		}
+
 		return bragg;
+	}
+	
+	private boolean doesMotorPositionAgreeWithExpectedBraggAngle() throws DeviceException {
+		return Math.abs(braggBasedOnDetectorRotation() - bragg) < 1;
+	}
+	
+	private double braggBasedOnDetectorRotation() throws NumberFormatException, DeviceException {
+		return 90.0 - (Double.parseDouble(det_rot.getPosition().toString()) / 2);
+	}
+	
+	@Override
+	public String toFormattedString() {
+		try {
+			if (!doesMotorPositionAgreeWithExpectedBraggAngle()) {
+				return getName() + "\t: " + braggBasedOnDetectorRotation() + " " + "deg. NB: this is derived only on the " + det_rot.getName() + " motor position";
+				
+			}
+		} catch (Exception e) {
+			logger.error("Exception while deriving the " + getName() + " position",e);
+			super.toFormattedString();
+		}
+		
+		return super.toFormattedString();
 	}
 
 	public Double getRadius() {
