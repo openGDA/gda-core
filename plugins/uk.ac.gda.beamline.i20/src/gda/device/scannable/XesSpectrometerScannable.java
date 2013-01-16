@@ -252,7 +252,6 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 					+ " cannot correctly determine its position: detector angle disagrees with expected position.\nReported position is based on detector rotation.\nIf you have not moved XES bragg or energy since restarting the GDA then please ignore this message");
 			return braggBasedOnDetectorRotation();
 		}
-
 		return bragg;
 	}
 	
@@ -261,15 +260,21 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 	}
 	
 	private double braggBasedOnDetectorRotation() throws NumberFormatException, DeviceException {
-		return 90.0 - (Double.parseDouble(det_rot.getPosition().toString()) / 2);
+		double yPosition = Double.parseDouble(det_y.getPosition().toString());
+		double lPosition = Double.parseDouble(xtal_x.getPosition().toString());
+		// In the Rowland condition: sin(2*(90-bragg)) = y/L
+		double derivedBragg = 90 - (0.5*Math.toDegrees(Math.asin(yPosition/lPosition)));
+		return derivedBragg;
+
 	}
 	
 	@Override
 	public String toFormattedString() {
 		try {
 			if (!doesMotorPositionAgreeWithExpectedBraggAngle()) {
-				return getName() + "\t: " + braggBasedOnDetectorRotation() + " " + "deg. NB: this is derived only on the " + det_rot.getName() + " motor position";
-				
+				double position = braggBasedOnDetectorRotation();
+				String formattedPosition = String.format(getOutputFormat()[0], position);
+				return getName() + "\t: " + formattedPosition + " " + "deg. NB: this is derived from only the " + det_y.getName() +" and " + xtal_x.getName() + " motor positions.";
 			}
 		} catch (Exception e) {
 			logger.error("Exception while deriving the " + getName() + " position",e);
