@@ -186,31 +186,36 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 		logger.info("Storing an Exception caught computing a point (and then shutting down pipeline): " + message);
 		try {
 			shutdownNow();
-		} catch (DeviceException e1) {
-			logger.error("While handling exception from thread, caught another Exception shutting down pipeline.");
+		} catch (Exception e1) {
+			logger.warn("While handling exception from thread, caught another Exception shutting down pipeline: " + e1.getMessage(), e1);
 		}
 
 	}
 
 	@Override
-	public void shutdownNow() throws DeviceException {
+	public void shutdownNow() throws DeviceException, InterruptedException {
 		logger.info("Shutting down MultithreadedScanDataPointPipeline NOW.");
 		int numberOfDumpedPoints = shutdownNowAndGetNumberOfDumpedPoints();
 		if (numberOfDumpedPoints > 0) {
 			logger.warn("The MultithreadedScanDataPointPipeline was shutdown with " + numberOfDumpedPoints
 					+ " points still to record and broadcast.");
 		}
+		logger.info("Awaiting positionCallableService shutdown");
+		positionCallableService.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+		logger.info("Awaiting broadcasterQueue shutdown");
+		broadcasterQueue.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+		
 	}
 
 	private int shutdownNowAndGetNumberOfDumpedPoints() {
 		if (positionCallableService != null) {
-			positionCallableService.shutdownNow();
+			positionCallableService.shutdownNow();  // This depends on the tasks being cancelable.
 		}
 		List<Runnable> remainingPointsInQueue = broadcasterQueue.shutdownNow();
 		try {
 			getBroadcaster().shutdown();
 		} catch (Exception e) {
-
+			// TODO: Why are we absorbing this?
 		}
 		return remainingPointsInQueue.size();
 
@@ -262,7 +267,7 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 
 			throw new DeviceException(
 					"Interupted while shutting down MultithreadedScanDataPointPipeline. The Pipeline has been stopped and "
-							+ numberOfDumpedPoints + " points dumped.");
+							+ numberOfDumpedPoints + " points dumped. \n  !!!The position callable processing thread pool has likely been left running.!!!");
 		}
 		// If everything stopped normally then throw exception from Runnable if there were any.
 		throwException();

@@ -33,7 +33,7 @@ public class HardwareTriggeredNXDetector extends NXDetector implements HardwareT
 	@Override
 	protected void prepareCollectionStrategyAtScanStart(int numberImagesPerCollection) throws Exception,
 			DeviceException {
-		// Do nothing, prepare only when #arm() called
+		super.prepareCollectionStrategyAtScanStart(numberImagesPerCollection);
 	}
 	
 	

@@ -2,6 +2,8 @@ from gda.data import PathConstructor
 from gda.factory import Finder
 from gdascripts.scannable.detector.dummy.ImageReadingDummyDetector import ImageReadingDummyDetector
 import os
+import gov.aps.jca.TimeoutException  # @UnresolvedImport
+import java.lang.IllegalStateException
 
 class VisitSetter():
     
@@ -29,7 +31,10 @@ class VisitSetter():
     
     def setDetectorDirectories(self):
         for det in self.detector_adapters:
-            det.setVisitDirectory(self.getVisitDirectory())
+            try:
+                det.setVisitDirectory(self.getVisitDirectory())
+            except gov.aps.jca.TimeoutException:
+                "EPICS TimeoutException: Failed to set directory on " + det.detector.name
             
     def addDetectorAdapter(self, adapter):
         self.detector_adapters.append(adapter)
@@ -40,7 +45,11 @@ class VisitSetter():
         s+= '%12s : %s\n' % ("datadir", self.getVisitDirectory())
         for det in self.detector_adapters:
             if det.report_path:
-                s+= '%12s : %s\n' % (det.detector.name, det.getDirectory())
+                try:
+                    directory = det.getDirectory()
+                except gov.aps.jca.TimeoutException:
+                    directory = '< EPICS IOC unavailable >'
+                s+= '%12s : %s\n' % (det.detector.name, directory)
         return s
 
 
@@ -85,7 +94,10 @@ class PilatusAdapter(DetectorAdapter): #pil100k
 class FileWritingDetectorAdapter(DetectorAdapter): # ADDetector, ADPco
     
     def setDirectory(self, path):
-        self.detector.setFilePath(path + '/') # Required by epics
+        try:
+            self.detector.setFilePath(path + '/') # Required by epics
+        except java.lang.IllegalStateException:
+            print "!!!!! Could not connect to (EPICS) " + self.detector.name + ": path not set to : '" + path +"'"
         
     def getDirectory(self):
         return self.detector.getFilePath()

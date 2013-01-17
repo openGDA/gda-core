@@ -471,7 +471,7 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 		
 	@property
 	def det(self):
-		return self.hardware_triggered_detector if self.hardware_triggering else self.detector
+		return self.hardware_triggered_detector if self.isHardwareTriggering() else self.detector
 	
 #		return {'pilatus100k_path_template='123-pilatus100k/%5i.cbf.'}
 	
@@ -506,16 +506,27 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 	# Detector
 		
 	def setCollectionTime(self, t):
-		self.det.setCollectionTime(t)
+		if self.det is not None:
+			self.det.setCollectionTime(t)
+		if self.hardware_triggered_detector is not None:
+			self.hardware_triggered_detector.setCollectionTime(t)
+		if self.detector_for_snaps is not None:
+			self.detector_for_snaps.setCollectionTime(t)
 
 	def prepareForCollection(self):
 		self.det.prepareForCollection()
+
+	def atScanLineStart(self):
+		self.det.atScanLineStart()
 
 	def atScanStart(self):
 		self.det.atScanStart()
 
 	def getCollectionTime(self):
-		return self.det.getCollectionTime()
+		if self.isHardwareTriggering():
+			return self.hardware_triggered_detector.getCollectionTime()
+		else:
+			return self.det.getCollectionTime()
 
 	def collectData(self):
 		self.clearLastAcquisitionState()
@@ -526,10 +537,15 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 		return self.det.getStatus()
 
 	def readout(self):
+		if self.isHardwareTriggering():
+			self.clearLastAcquisitionState()
 		return self.getPositionCallable().call()
 		
 	def endCollection(self):
 		self.det.endCollection()
+
+	def atScanLineEnd(self):
+		self.det.atScanLineEnd()
 
 	def atScanEnd(self):
 		self.det.atScanEnd()
@@ -551,6 +567,12 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 	
 	def prepareForAcquisition(self, collection_time):
 		self.detector_for_snaps.setCollectionTime(collection_time)
+		
+	def getPositionCallable(self):
+		if self.isHardwareTriggering():
+			self.clearLastAcquisitionState()
+			self.hardware_triggered_detector.lastReadoutValue = None
+		return ProcessingDetectorWrapper.getPositionCallable(self)
 
 
 #	public double getAcquireTime() throws Exception;
@@ -560,7 +582,7 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 
 
 	def acquire(self):
-		
+		self.clearLastAcquisitionState()
 		self.detector_for_snaps.atScanStart()
 		self.detector_for_snaps.atScanLineStart()
 		self.detector_for_snaps.collectData()
