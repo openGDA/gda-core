@@ -140,6 +140,16 @@ public class DeferredAndTrajectoryScannableGroup extends DeferredScannableGroup 
 		}
 		return posForUnderlyingMotors;
 	}
+	
+	public Double[] positionForUnderlyingMotorsToScannable(Double[] posForUnderlyingMotors) {
+		Double[] posForScannableMotors = new Double[posForUnderlyingMotors.length];
+		ArrayList<ScannableMotor> scannableMotors = getScannableMotors();
+		for (int i = 0; i < scannableMotors.size(); i++) {
+			Object scannablePos = scannableMotors.get(i).internalToExternal(posForUnderlyingMotors[i]);
+			posForScannableMotors[i] = PositionConvertorFunctions.toDouble(scannablePos);
+		}
+		return posForScannableMotors;
+	}
 
 	@Override
 	public Object getPosition() throws DeviceException {
