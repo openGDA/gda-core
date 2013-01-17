@@ -159,8 +159,8 @@ public class DeferredAndTrajectoryScannableGroupIntegrationTest {
 
 	@Test
 	public void testAsynchronousMoveToViaElements() throws DeviceException {
-		Scannable a = (trajgroup.getGroupMembers().get(0));
 		Scannable c = (trajgroup.getGroupMembers().get(2));
+		Scannable a = (trajgroup.getGroupMembers().get(0));
 		InOrder inOrder = inOrder(mockedControlPoint, motora, motorb, motorc);
 
 		a.atLevelMoveStart();
@@ -201,9 +201,60 @@ public class DeferredAndTrajectoryScannableGroupIntegrationTest {
 		trajgroup.setOperatingContinuously(false);
 	}
 
+	@Test
+	public void testTrajectoryScanOperationViaElement() throws Exception {
+		ContinuouslyScannableViaController wrapperaa = (ContinuouslyScannableViaController) trajgroup.getGroupMembers().get(0);
+		ContinuouslyScannableViaController wrapperac = (ContinuouslyScannableViaController) trajgroup.getGroupMembers().get(2);
+
+		wrapperaa.setOperatingContinuously(true);
+		wrapperac.setOperatingContinuously(true);
+		wrapperaa.atLevelMoveStart();
+		wrapperac.atLevelMoveStart();
+		
+		wrapperaa.asynchronousMoveTo(1.1);
+		wrapperac.asynchronousMoveTo(1.3);
+		assertFalse(trajgroup.isBusy());
+		trajgroup.waitWhileBusy();
+		
+		verify(motora, never()).moveTo(anyDouble());
+		verify(motorb, never()).moveTo(anyDouble());
+		verify(motorc, never()).moveTo(anyDouble());
+		verify(mockedControlPoint, never()).setValue(anyDouble());
+		verify(controller).addPoint(new Double[] { 1.1, null, 1.3 });
+	}
+
+	@Test
+	public void testOffsetsAppliedDuringTrajectoryScan() throws Exception {
+		scna.setOffset(10);
+		scnb.setOffset(20);
+		scnc.setOffset(30);
+		trajgroup.setOperatingContinuously(true);
+		trajgroup.asynchronousMoveTo(new double[] { 1.1, 1.2, 1.3 });
+
+		verify(controller).addPoint(new Double[] { -8.9, -18.8, -28.7 });
+	}
+	@Test
+	public void testOffsetsAppliedDuringTrajectoryScanViaElement() throws Exception {
+		scna.setOffset(10);
+		Scannable wrapperaa = trajgroup.getGroupMembers().get(0);
+
+		((ContinuouslyScannableViaController) wrapperaa).setOperatingContinuously(true);
+		wrapperaa.atLevelMoveStart();
+		wrapperaa.asynchronousMoveTo(1.1);
+		
+		verify(controller).addPoint(new Double[] { -8.9, null, null });
+	}
+
 	@Test(expected=DeviceException.class)
 	public void testTrajectoryScanOperationViolatedScannableLimit() throws Exception {
 		scna.setUpperGdaLimits(0.);
+		trajgroup.setOperatingContinuously(true);
+		trajgroup.asynchronousMoveTo(new double[] { 1.1, 1.2, 1.3 });
+	}
+
+	@Test(expected=DeviceException.class)
+	public void testTrajectoryScanOperationViolatedScannableLimit2() throws Exception {
+		scnb.setUpperGdaLimits(0.);
 		trajgroup.setOperatingContinuously(true);
 		trajgroup.asynchronousMoveTo(new double[] { 1.1, 1.2, 1.3 });
 	}
@@ -213,5 +264,36 @@ public class DeferredAndTrajectoryScannableGroupIntegrationTest {
 		when(motora.getMaxPosition()).thenReturn(0.);
 		trajgroup.setOperatingContinuously(true);
 		trajgroup.asynchronousMoveTo(new double[] { 1.1, 1.2, 1.3 });
+	}
+	
+	@Test(expected=DeviceException.class)
+	public void testTrajectoryScanOperationViolatedScannableLimitViaElement() throws Exception {
+		scna.setUpperGdaLimits(0.);
+
+		ContinuouslyScannableViaController wrapperaa = (ContinuouslyScannableViaController) trajgroup.getGroupMembers().get(0);
+		wrapperaa.setOperatingContinuously(true);
+		wrapperaa.atLevelMoveStart();
+		wrapperaa.asynchronousMoveTo(1.1);
+	}
+	
+	@Test(expected=DeviceException.class)
+	public void testTrajectoryScanOperationViolatedScannableLimitViaElement2() throws Exception {
+		scnb.setUpperGdaLimits(0.);
+
+		ContinuouslyScannableViaController wrapperab = (ContinuouslyScannableViaController) trajgroup.getGroupMembers().get(1);
+		wrapperab.setOperatingContinuously(true);
+		wrapperab.atLevelMoveStart();
+		wrapperab.asynchronousMoveTo(1.1);
+	}
+	
+	@Test(expected=DeviceException.class)
+	public void testTrajectoryScanOperationViolatesMotorLimitViaElement() throws Exception {
+		when(motora.getMaxPosition()).thenReturn(0.);
+		scna.setUpperGdaLimits(0.);
+
+		ContinuouslyScannableViaController wrapperaa = (ContinuouslyScannableViaController) trajgroup.getGroupMembers().get(0);
+		wrapperaa.setOperatingContinuously(true);
+		wrapperaa.atLevelMoveStart();
+		wrapperaa.asynchronousMoveTo(1.1);
 	}
 }
