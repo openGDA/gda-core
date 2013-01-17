@@ -95,7 +95,11 @@ public class Gdhist extends DeviceBase implements Memory {
 
 	@Override
 	public void reconfigure() throws FactoryException {
-		close();
+		try {
+			close();
+		} catch (DeviceException e) {
+			throw new FactoryException("Device exception while closing",e);
+		}
 		configure();
 	}
 
@@ -165,7 +169,7 @@ public class Gdhist extends DeviceBase implements Memory {
 	}
 
 	@Override
-	public void close() {
+	public void close() throws DeviceException {
 		if (handle < 0) {
 			return;
 		}
@@ -213,13 +217,20 @@ public class Gdhist extends DeviceBase implements Memory {
 		int npoints = dx * dy * dt;
 
 		ensureOpen();
-		data = daServer.getFloatBinaryData("read " + x + " " + y + " " + t + " " + dx + " " + dy + " " + dt + " "
-				+ localEndian + " float from " + handle, npoints);
+		try {
+			data = daServer.getFloatBinaryData("read " + x + " " + y + " " + t + " " + dx + " " + dy + " " + dt + " "
+					+ localEndian + " float from " + handle, npoints);
+		} catch (Exception e) {
+			throwDeviceException(e);
+		}
 		if (data == null) {
-			close();
-			throw new DeviceException("read null from daserver");
+			throwNullException();
 		}
 		return data;
+	}
+
+	private void throwDeviceException(Exception e) throws DeviceException {
+		throw new DeviceException(e.getMessage(),e);
 	}
 
 	public float[] readFloat(int frame) throws DeviceException {
@@ -228,11 +239,14 @@ public class Gdhist extends DeviceBase implements Memory {
 
 		ensureOpen();
 		npoints = width * height;
-		data = daServer.getFloatBinaryData("read 0 0 " + frame + " " + width + " " + height + " 1 " + localEndian
-				+ " float from " + handle, npoints);
+		try {
+			data = daServer.getFloatBinaryData("read 0 0 " + frame + " " + width + " " + height + " 1 " + localEndian
+					+ " float from " + handle, npoints);
+		} catch (Exception e) {
+			throwDeviceException(e);
+		}
 		if (data == null) {
-			close();
-			throw new DeviceException("read null from daserver");
+			throwNullException();
 		}
 		return data;
 	}
@@ -243,11 +257,14 @@ public class Gdhist extends DeviceBase implements Memory {
 		int npoints = dx * dy * dt;
 
 		ensureOpen();
-		data = daServer.getBinaryData("read " + x + " " + y + " " + t + " " + dx + " " + dy + " " + dt + " "
-				+ localEndian + " float from " + handle, npoints);
+		try {
+			data = daServer.getBinaryData("read " + x + " " + y + " " + t + " " + dx + " " + dy + " " + dt + " "
+					+ localEndian + " float from " + handle, npoints);
+		} catch (Exception e) {
+			throwDeviceException(e);
+		}
 		if (data == null) {
-			close();
-			throw new DeviceException("read null from daserver");
+			throwNullException();
 		}
 		return data;
 	}
@@ -260,13 +277,21 @@ public class Gdhist extends DeviceBase implements Memory {
 		ensureOpen();
 
 		npoints = width * height;
-		data = daServer.getBinaryData("read 0 0 " + frame + " " + width + " " + height + " 1 " + localEndian
-				+ " float from " + handle, npoints);
+		try {
+			data = daServer.getBinaryData("read 0 0 " + frame + " " + width + " " + height + " 1 " + localEndian
+					+ " float from " + handle, npoints);
+		} catch (Exception e) {
+			throwDeviceException(e);
+		}
 		if (data == null) {
-			close();
-			throw new DeviceException("read null from daserver");
+			throwNullException();
 		}
 		return data;
+	}
+
+	private void throwNullException() throws DeviceException {
+		close();
+		throw new DeviceException("read null from daserver");
 	}
 
 	/**
@@ -524,8 +549,9 @@ public class Gdhist extends DeviceBase implements Memory {
 	// this method is only for Junit testing
 	/**
 	 * for use by junit tests
+	 * @throws DeviceException 
 	 */
-	protected void setFail() {
+	protected void setFail() throws DeviceException {
 		if (daServer != null && daServer.isConnected()) {
 			daServer.sendCommand("Fail");
 		}

@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,19 +16,16 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector;
+package uk.ac.gda.client;
 
-import gda.device.DeviceException;
-
-/**
- * For detector classes which are to be used in Continuous Scans during partial systems testing (testing hardware but with software triggering) by a
- * SimulatedContinuouslyScannable
- */
-public interface SimulatedBufferedDetector extends BufferedDetector {
+public interface ScanPlotView {
+	/**
+	 * Hide all scans
+	 */
+	public void hideAll();
 
 	/**
-	 * Collects another frame of data. This should be stored in memory for retrieval by the readFrames method. The value
-	 * from getNumberFrames should be incremented.
+	 * Clear the graph
 	 */
-	public void addPoint() throws DeviceException;
+	public void clearGraph();
 }

@@ -72,7 +72,6 @@ public class TfgXspress extends TFGCounterTimer implements CounterTimer {
 	}
 
 	public void countAsync(double time) throws DeviceException {
-		// FIXME: put these into Xspress
 		if (xspressSystem instanceof Xspress2System) {
 			((Xspress2System) xspressSystem).clear();
 			((Xspress2System) xspressSystem).start();
@@ -104,13 +103,7 @@ public class TfgXspress extends TFGCounterTimer implements CounterTimer {
 		return xspressSystem.readFrame(startChannel, channelCount, frame - 1);
 	}
 
-	/**
-	 * @param startChannel
-	 * @param channelCount
-	 * @param frame
-	 * @return value
-	 */
-	public String readFrameFile(int startChannel, int channelCount, int frame) {
+	public String readFrameFile(int startChannel, int channelCount, int frame) throws DeviceException {
 		String value = "wrong type of xspress";
 		if (xspressSystem instanceof Xspress2System) {
 			value = ((Xspress2System) xspressSystem).readFrameFile(startChannel, channelCount, frame);
@@ -133,17 +126,11 @@ public class TfgXspress extends TFGCounterTimer implements CounterTimer {
 		return obj;
 	}
 
-	/**
-	 * @throws DeviceException
-	 */
 	@Override
 	public void collectData() throws DeviceException {
 		countAsync(collectionTime);
 	}
 
-	/**
-	 * @see gda.device.Detector#readout()
-	 */
 	@Override
 	public Object readout() throws DeviceException {
 		return xspressSystem.readout();
@@ -178,24 +165,17 @@ public class TfgXspress extends TFGCounterTimer implements CounterTimer {
 		}
 	}
 
-	/**
-	 * @return readout mode
-	 */
 	public int getReadoutMode() {
 		return ((Xspress2System) xspressSystem).getReadoutMode();
 	}
 
-	/**
-	 * 
-	 */
-	public void clearAndStart() {
+	public void clearAndStart() throws DeviceException {
 		// NB This starts as well as clearing
 		if (xspressSystem instanceof Xspress2System) {
 			// ((Xspress2System) xspressSystem).stop();
 			((Xspress2System) xspressSystem).clear();
 			((Xspress2System) xspressSystem).start();
 		}
-
 	}
 
 	@Override

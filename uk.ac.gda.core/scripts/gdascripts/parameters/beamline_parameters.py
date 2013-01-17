@@ -148,8 +148,8 @@ class DictionaryWrapper:
             raise AttributeError, attrName
         
 class Parameters:
-    def __init__(self ):
-        self.reload()
+    def __init__(self, parametersFilePath=None ):
+        self.reload(parametersFilePath=parametersFilePath)
     def __getitem__(self, itemName):
         return self.__getattr__(itemName)
     def __getattr__(self, attrName):
@@ -162,10 +162,13 @@ class Parameters:
             return self.parameters[attrName]
         else:
             return None
-    def reload(self):
-        self.parametersFilePath = LocalProperties().get(BEAMLINE_PARAMETERS_FILE_PROPERTY)
-        if(self.parametersFilePath == None):
-            raise AttributeError, "property " + BEAMLINE_PARAMETERS_FILE_PROPERTY + " is not set"
+    def reload(self, parametersFilePath=None):
+        if parametersFilePath == None:
+            self.parametersFilePath = LocalProperties().get(BEAMLINE_PARAMETERS_FILE_PROPERTY)
+            if(self.parametersFilePath == None):
+                raise AttributeError, "property " + BEAMLINE_PARAMETERS_FILE_PROPERTY + " is not set"
+        else:
+            self.parametersFilePath = parametersFilePath
         self.parameters={}
         self.parameters = readDictionaryFromFile(self.parametersFilePath, self.parameters)
     def getValueFromObjectOrNone(self, attrName, object):
@@ -173,4 +176,9 @@ class Parameters:
             return object.__getattr__(self.parameters[attrName])
         else:
             return None
+    def saveToFile(self, filePath):
+        f = open(filePath,"w")
+        for key,item in self.parameters.items():
+            f.write(key + "=" + item + "\n")
+        f.close()
     
