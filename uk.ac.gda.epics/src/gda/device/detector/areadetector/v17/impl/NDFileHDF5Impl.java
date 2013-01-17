@@ -111,6 +111,19 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 
 	private static final String NumRowChunks_RBV = "NumRowChunks_RBV";
 
+	private static final String NumColChunks = "NumColChunks";
+
+	private static final String NumColChunks_RBV = "NumColChunks_RBV";
+
+	private static final String NumFramesChunks = "NumFramesChunks";
+
+	private static final String NumFramesChunks_RBV = "NumFramesChunks_RBV";
+
+	private static final String NumFramesFlush = "NumFramesFlush";
+
+	private static final String NumFramesFlush_RBV = "NumFramesFlush_RBV";
+
+	
 	private static final String NumExtraDims = "NumExtraDims";
 
 	private static final String NumExtraDims_RBV = "NumExtraDims_RBV";
@@ -877,5 +890,89 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 			logger.warn("Cannot get Array port", ex);
 			throw ex;
 		}
+	}
+
+	@Override
+	public int getNumColChunks() throws Exception {
+		try {
+			if (config != null) {
+				return EPICS_CONTROLLER.cagetInt(createChannel(config.getNumColChunks_RBV().getPv()));
+			}
+			return EPICS_CONTROLLER.cagetInt(getChannel(NumColChunks_RBV));
+		} catch (Exception ex) {
+			logger.warn("Cannot getNumColChunks", ex);
+			throw ex;
+		}
+
+	}
+
+	@Override
+	public void setNumColChunks(int value) throws Exception {
+		try {
+			if (config != null) {
+				EPICS_CONTROLLER.caput(createChannel(config.getNumColChunks().getPv()), value);
+			} else {
+				EPICS_CONTROLLER.caput(getChannel(NumColChunks), value);
+			}
+		} catch (Exception ex) {
+			logger.warn("Cannot setNumColChunks", ex);
+			throw ex;
+		}
+	}
+
+	@Override
+	public int getNumFramesChunks() throws Exception {
+		try {
+			if (config != null) {
+				return EPICS_CONTROLLER.cagetInt(createChannel(config.getNumFramesChunks_RBV().getPv()));
+			}
+			return EPICS_CONTROLLER.cagetInt(getChannel(NumFramesChunks_RBV));
+		} catch (Exception ex) {
+			logger.warn("Cannot getNumFramesChunks", ex);
+			throw ex;
+		}
+	}
+
+	@Override
+	public void setNumFramesChunks(int value) throws Exception {
+		try {
+			if (config != null) {
+				EPICS_CONTROLLER.caput(createChannel(config.getNumFramesChunks().getPv()), value);
+			} else {
+				EPICS_CONTROLLER.caput(getChannel(NumFramesChunks), value);
+			}
+		} catch (Exception ex) {
+			logger.warn("Cannot setNumFramesChunks", ex);
+			throw ex;
+		}
+		
+	}
+
+	@Override
+	public int getNumFramesFlush() throws Exception {
+		try {
+			if (config != null) {
+				return EPICS_CONTROLLER.cagetInt(createChannel(config.getNumFramesFlush_RBV().getPv()));
+			}
+			return EPICS_CONTROLLER.cagetInt(getChannel(NumFramesFlush_RBV));
+		} catch (Exception ex) {
+			logger.warn("Cannot getNumFramesFlush", ex);
+			throw ex;
+		}
+	}
+
+	@Override
+	public void setNumFramesFlush(int value) throws Exception {
+		try {
+			if (config != null) {
+				EPICS_CONTROLLER.caput(createChannel(config.getNumFramesFlush().getPv()), value);
+			} else {
+				EPICS_CONTROLLER.caput(getChannel(NumFramesFlush), value);
+			}
+		} catch (Exception ex) {
+			logger.warn("Cannot setNumFramesFlush", ex);
+			throw ex;
+		}
+		
 	}
 }
