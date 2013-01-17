@@ -31,6 +31,7 @@ class Map(Scan):
         self.counterTimer01=counterTimer01
         self.finder = Finder.getInstance()
         self.mfd = None
+        self.detectorBeanFileName = ""
     
     def getMFD(self):
         return self.mfd
@@ -109,15 +110,17 @@ class Map(Scan):
             else:   
                 detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
                 if(folderName != None):
-                    detectorBeanFileName =datadir+File.separator +folderName +File.separator+detectorBean.getFluorescenceParameters().getConfigFileName()
+                    self.detectorBeanFileName =datadir+File.separator +folderName +File.separator+detectorBean.getFluorescenceParameters().getConfigFileName()
+                    print "***************1", self.detectorBeanFileName
                 else:
-                    detectorBeanFileName =datadir+detectorBean.getFluorescenceParameters().getConfigFileName()
-                print detectorBeanFileName
-                elements = showElementsList(detectorBeanFileName)
+                    self.detectorBeanFileName =datadir+detectorBean.getFluorescenceParameters().getConfigFileName()
+                    print "***************2", self.detectorBeanFileName
+                print self.detectorBeanFileName
+                elements = showElementsList(self.detectorBeanFileName)
                 selectedElement = elements[0]
                 self.mfd.setRoiNames(array(elements, String))
-                self.mfd.setDetectorBeanFileName(detectorBeanFileName)
-                bean = BeansFactory.getBean(File(detectorBeanFileName))   
+                self.mfd.setDetectorBeanFileName(self.detectorBeanFileName)
+                bean = BeansFactory.getBean(File(self.detectorBeanFileName))   
                 detector = self.finder.find(bean.getDetectorName())   
                 firstDetector = detectorList[0]
                 detectorList=[]
@@ -177,6 +180,7 @@ class Map(Scan):
                 mapscan= ScannableCommands.createConcurrentScan(args)
                 print mapscan.getScanDataPointQueueLength()
                 mapscan.getScanPlotSettings().setIgnore(1)
+                self.finder.find("elementListScriptController").update(None, self.detectorBeanFileName);
                 mapscan.runScan()
                 
             finally:
@@ -247,6 +251,9 @@ class Map(Scan):
         self.d7a(att1.getSelectedPosition())
         self.d7b(att2.getSelectedPosition())
         LocalProperties.set("gda.scan.useScanPlotSettings", "true")
+        
+        
+        
         self.finder.find("RCPController").openPesrpective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")
         
     def redefineNexusMetadataForMaps(self, beanGroup):

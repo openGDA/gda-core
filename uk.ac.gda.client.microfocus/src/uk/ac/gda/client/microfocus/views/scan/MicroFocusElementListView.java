@@ -19,8 +19,10 @@
 package uk.ac.gda.client.microfocus.views.scan;
 
 import gda.configuration.properties.LocalProperties;
+import gda.factory.Finder;
 import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
+import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
@@ -45,11 +47,11 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,7 +80,7 @@ import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.exafs.ui.data.ScanObjectManager;
 
 public class MicroFocusElementListView extends ViewPart implements Overlay2DConsumer, SelectionListener, FocusListener,
-		IObservable
+		IObservable, IObserver
 
 {
 	/**
@@ -120,6 +122,8 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 		super();
 		displayController = new MicroFocusDisplayController();
 		scanLoader = new MicroFocusScanLoader();
+		Scriptcontroller find = (Scriptcontroller)Finder.getInstance().find("elementListScriptController");
+		find.addIObserver(this);
 	}
 
 	@Override
@@ -226,52 +230,7 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 
 		loadedDetectorFileName = xmlfile;
 	}
-
-	public void refresh() {
-		String currentDetectorFile = null;
-		try {
-			currentDetectorFile = findCurrentDetectorFile();
-		} catch (Exception e) {
-			logger.warn("Unable to refresh the elements list, using default config ");
-		}
-		if (currentDetectorFile != null)
-			populateLists(currentDetectorFile);
-	}
-
-	private boolean isScanRunning() {
-		if (JythonServerFacade.getInstance().getScanStatus() == Jython.RUNNING) {
-			return true;
-		}
-		return false;
-	}
-
-	private String findCurrentDetectorFile() throws Exception {
-		if (isScanRunning()) {
-			IScanParameters runningScan = ScanObjectManager.getCurrentScan();
-			IDetectorParameters runningDetParams = ScanObjectManager.getCurrentDetectorParameters();
-			if (runningScan instanceof MicroFocusScanParameters) {
-				String currentDetector = runningDetParams.getFluorescenceParameters().getConfigFileName();
-				if (currentDetector.contains(this.getTitle())) {
-					// find the full file path
-					return controller.getSelectedFolder().findMember(currentDetector).getLocationURI().getPath();
-				}
-				return null;
-			}
-			return null;
-		}
-
-		if (!((ScanObject) controller.getSelectedScan()).isMicroFocus())
-			return null;
-		String currentDetector = ((ScanObject) controller.getSelectedScan()).getDetectorParameters()
-				.getFluorescenceParameters().getConfigFileName();
-		if (currentDetector.contains(this.getTitle())) {
-			// find the full file path
-			return controller.getSelectedFolder().findMember(currentDetector).getLocationURI().getPath();
-		}
-		return null;
-
-	}
-
+	
 	@Override
 	public void setFocus() {
 	}
@@ -506,5 +465,17 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 	 */
 	public void notifyIObservers(Object theObserved, Object theArgument) {
 		observableComponent.notifyIObservers(theObserved, theArgument);
+	}
+
+	@Override
+	public void update(Object source, Object arg) {
+		final String detectorConfig = (String)arg;
+		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				populateLists(detectorConfig);
+			}
+		});
+		
 	}
 }
