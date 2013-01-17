@@ -41,5 +41,16 @@ public class HardwareTriggeredStandard extends SimpleAcquire {
 	protected void configureTriggerMode() throws Exception {
 		getAdBase().setTriggerMode(StandardTriggerMode.EXTERNAL.ordinal());
 	}
+	
+	@Override
+	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
+		if (getReadoutTime() < 0) {
+			getAdBase().setAcquirePeriod(collectionTime);
+			getAdBase().setAcquireTime(collectionTime);
+		} else {
+			getAdBase().setAcquirePeriod(collectionTime);
+			getAdBase().setAcquireTime(collectionTime - getReadoutTime());
+		}
+	}
 
 }

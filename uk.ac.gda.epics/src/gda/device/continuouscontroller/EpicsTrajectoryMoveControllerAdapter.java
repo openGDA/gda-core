@@ -25,23 +25,43 @@ import gda.device.scannable.scannablegroup.DeferredAndTrajectoryScannableGroup;
 import gda.factory.FactoryException;
 import gda.util.OutOfRangeException;
 
-import java.text.MessageFormat;
+import static java.text.MessageFormat.format;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import gda.scan.Trajectory;
+import gov.aps.jca.CAException;
+import gov.aps.jca.TimeoutException;
 
 /**
  * This class needs refactoring. It has become tightly coupled to DeferredAndTrajectoryScannableGroup.
  */
 public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements TrajectoryMoveController {
 
+	public static String almostEqual(double[] a, double[] b, double eps){
+		if (a == null) {
+			return "first is null";
+		}
+		if (b == null) {
+			return "second is null";
+		}
+		if (a.length != b.length) {
+			return "Lengths differ. First=" + a.length + " Second:" + b.length;
+		}
+		for (int i = 0; i < a.length; i++) {
+			if (Math.abs(a[i] - b[i]) > eps) {
+				return "Element " + i + " differs. First=" + a[i] + " Second:" + b[i];
+			}
+		}
+		
+		return null;
+	}
+	
 	public class ExecuteMoveTask implements Callable<Void> {
 		@Override
 		public Void call() throws DeviceException, InterruptedException{
@@ -55,6 +75,7 @@ public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements 
 				throw e;
 			}
 			return null;
+			
 		}
 		
 	}
@@ -160,9 +181,8 @@ public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements 
 	@Override
 	public void addPoint(Double[] point) throws DeviceException {
 		if (point.length != getNumberAxes()) {
-			throw new DeviceException(MessageFormat.format(
-					"{0} expected {1} dimension point not a {2} dimension one.", getName(), getNumberAxes(),
-					point.length));
+			throw new DeviceException(format("{0} expected {1} dimension point not a {2} dimension one.", getName(),
+					getNumberAxes(), point.length));
 		}
 		points.add(point);
 	}
@@ -170,7 +190,6 @@ public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements 
 	@Override
 	public Double[] getLastPointAdded() {
 		if (points.size() == 0) {
-			logger.info(getName() + ".getLastPointAdded() returning null, as no points have yet been added");
 			return null;
 		}
 		return points.get(points.size() - 1);
@@ -204,7 +223,21 @@ public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements 
 			controller.setTrajectoryTime(getTotalTime());
 		}
 		
-		pushEnableAxisSettings();		
+		List<Integer> motorsToMove = pushEnableAxisSettings();		
+
+		
+		// Verify Epics settings. Getting this wrong could be expensive.
+		verifyEpicsSettingsForNumberOfElementsAndPulses();
+		verifyEpicsSettingsForPathTrajectories();
+		verifyEpicsSettingsForTrajectoryTime();
+		try {
+			verifyEpicsSettingsAxisEnabled(motorsToMove);
+		} catch (CAException e) {
+			throw new DeviceException(e);
+		} catch (TimeoutException e) {
+			throw new DeviceException(e);
+		}
+		
 		controller.build(); // will throw an exception with no points (this is okay)
 		
 		// move to first position
@@ -219,9 +252,109 @@ public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements 
 			scannableGroup.setOperatingContinuously(wasOperatingContinously);
 			logger.info("Move to start complete");
 		}
+		
 	}
 
-	private void pushEnableAxisSettings() throws DeviceException, InterruptedException {
+	void verifyEpicsSettingsForNumberOfElementsAndPulses() throws DeviceException, InterruptedException {
+		logger.info("Epics NumberOfElements:" + controller.getNumberOfElements());
+		if (controller.getNumberOfElements() != points.size()) {
+			throw new IllegalStateException(format("controller.getNumberOfElements() [{0}] != points.size() [{1}]",
+					controller.getNumberOfElements(), points.size()));
+		}
+		logger.info("Epics StartPulseElement:" + controller.getStartPulseElement());
+		if (controller.getStartPulseElement() != 1) {
+			throw new IllegalStateException(format("controller.getStartPulseElement() [{0}] != 1",
+					controller.getStartPulseElement()));
+		}
+		logger.info("Epics StopPulseElement:" + controller.getStopPulseElement());
+		if (controller.getStopPulseElement() != points.size()) {
+			throw new IllegalStateException(format("controller.getStopPulseElement() [{0}] != points.size() [{1}]",
+					controller.getStopPulseElement(), points.size()));
+		}
+		
+	}
+
+	private void verifyEpicsSettingsForPathTrajectories() throws DeviceException, InterruptedException {
+		
+		int numberOfElementsFromEpics = controller.getNumberOfElements();
+		logger.info("----------------------------------------------------------------------------------------------------");	
+		logger.info("Showing epics trajectories for the number of elements reported by Epics:" + numberOfElementsFromEpics);
+		for (int motorIndex = 1; motorIndex < controller.getMaximumNumberMotors() + 1; motorIndex++) {
+			double[] mTraj = controller.getMTraj(motorIndex);
+			mTraj = Arrays.copyOf(mTraj, numberOfElementsFromEpics);
+			try {
+				String enabledFlag = controller.isMMove(motorIndex) ? "**ENABLED**" : "  DISABLED";
+				logger.info(format("Epics trajectory for motor{0}: {1}\n{2}", motorIndex, enabledFlag, Arrays.toString(mTraj)));
+			} catch (Exception e) {
+				throw new DeviceException(e);
+			}
+		}
+		logger.info("----------------------------------------------------------------------------------------------------");	
+		
+		ArrayList<Integer> motorsToMove = new ArrayList<Integer>();
+		// check trajectories to move
+		if (points.size() > 0) {
+			for (int axisIndex = 0; axisIndex < axisNames.length; axisIndex++) {
+				double[] path = new double[points.size()];
+				for (int i = 0; i < points.size(); i++) {
+					Double val = points.get(i)[axisIndex];
+					if (val != null){
+						path[i] = val;
+						motorsToMove.add(motorFromIndex(axisIndex));
+					} else {
+						path = null;
+						break;
+					}
+				}
+				if (path != null) {
+					double[] setPath = controller.getMTraj(motorFromIndex(axisIndex));
+					String msgIfDiffer = almostEqual(setPath, Arrays.copyOf(path, controller.getMaximumNumberElements()), .0000001);
+					if (msgIfDiffer != null) {
+						throw new IllegalStateException(format("Epics set path for motor{0} differs from expected value: {1}", motorFromIndex(axisIndex), msgIfDiffer));
+					}
+				}
+			}
+		}
+		for (int motorIndex = 1; motorIndex < controller.getMaximumNumberMotors() + 1; motorIndex++) {
+			double[] zeros = new double[controller.getMaximumNumberElements()];
+			Arrays.fill(zeros, 0);
+			if (!motorsToMove.contains(motorIndex)) {
+				double[] setPath = controller.getMTraj(motorIndex);
+				String msgIfDiffer = almostEqual(setPath, zeros, .0000001);
+				if (msgIfDiffer != null) {
+					throw new IllegalStateException(format("Epics set path for motor{0} differs from expected value: {1}", motorIndex, msgIfDiffer));
+				}
+			}
+		}
+		
+	}
+
+	private void verifyEpicsSettingsForTrajectoryTime() throws DeviceException, InterruptedException {
+		logger.info("Epics TrajectoryTime:" + controller.getTrajectoryTime());
+		if (Math.abs(controller.getTrajectoryTime() - getTotalTime()) > .00001) {
+			throw new IllegalStateException(format("controller.getTrajectoryTime() [{0}] != getTotalTime() [{1}]",
+					controller.getTrajectoryTime(), getTotalTime()));
+		}
+		
+	}
+
+	private void verifyEpicsSettingsAxisEnabled(List<Integer> motorsToMove) throws CAException, TimeoutException, InterruptedException {
+		for (int motorIndex = 1; motorIndex < controller.getMaximumNumberMotors() + 1; motorIndex++) {
+			logger.info("Epics MMove motor" + motorIndex + ": " + controller.isMMove(motorIndex));
+		}
+		for (int motorIndex = 1; motorIndex < controller.getMaximumNumberMotors() + 1; motorIndex++) {
+			boolean motorShouldMove = controller.isMMove(motorIndex);
+			if (motorShouldMove != motorsToMove.contains(motorIndex)) {
+				throw new IllegalStateException(format("Epics MMove({0}) was found to be ''{1}'' but should be ''{2}'']",
+						motorIndex, motorShouldMove, motorsToMove.contains(motorIndex)));
+			}
+		}
+		logger.info("Epics MMove set as expected");
+		
+	}
+
+	
+	private List<Integer> pushEnableAxisSettings() throws DeviceException, InterruptedException {
 		ArrayList<Integer> motorsToMove = new ArrayList<Integer>();
 		if (points.size() > 0) {
 			Double[] representativePoint = (getLastPointAdded() == null) ? new Double[getNumberAxes()]
@@ -241,6 +374,7 @@ public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements 
 				controller.setMMove(motorIndex, false);
 			}
 		}
+		return motorsToMove;
 	}
 
 	private void pushNumberOfElementsAndPulses() throws DeviceException, InterruptedException {
