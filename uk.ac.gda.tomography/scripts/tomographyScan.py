@@ -108,6 +108,7 @@ def tomoScan(description, inBeamPosition, outOfBeamPosition, exposureTime=1., st
     General scan sequence is: D, F, P,..., P, F, D
     where D stands for dark field, F - for flat field, and P - for projection.
     """
+    dataFormat = LocalProperties.get("gda.data.scan.datawriter.dataFormat")
     try:
         darkFieldInterval = int(darkFieldInterval)
         flatFieldInterval = int(flatFieldInterval)
@@ -229,6 +230,11 @@ def tomoScan(description, inBeamPosition, outOfBeamPosition, exposureTime=1., st
             setTitle(description)
         else :
             setTitle("undefined")
+        
+        dataFormat = LocalProperties.get("gda.data.scan.datawriter.dataFormat")
+        if not dataFormat == "NexusDataWriter":
+            handle_messages.simpleLog("Data format inconsistent. Setting 'gda.data.scan.datawriter.dataFormat' to 'NexusDataWriter'")
+            LocalProperties.set("gda.data.scan.datawriter.dataFormat", "NexusDataWriter")
         scanObject = createConcurrentScan(scan_args)
         scanObject.runScan()
         return scanObject;
@@ -240,6 +246,9 @@ def tomoScan(description, inBeamPosition, outOfBeamPosition, exposureTime=1., st
         exceptionType, exception, traceback = sys.exc_info()
         handle_messages.log(None, "Error during tomography scan", exceptionType, exception, traceback, False)
         raise Exception("Error during tomography scan", exception)
+    finally:
+        handle_messages.simpleLog("Data Format reset to " + dataFormat)
+        LocalProperties.set("gda.data.scan.datawriter.dataFormat", dataFormat)
 
 def __test1_tomoScan():
     jns = beamline_parameters.JythonNameSpaceMapping()    
