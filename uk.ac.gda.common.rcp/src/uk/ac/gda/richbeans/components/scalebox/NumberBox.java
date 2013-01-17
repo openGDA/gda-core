@@ -281,6 +281,19 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 		return new Double(val);
 	}
 
+	protected String formatValue(Object val){
+		return numberFormat.format(val);
+	}
+	
+	public NumberFormat getNumberFormat(){
+		return numberFormat;
+	}
+	
+	public void setNumberFormat(NumberFormat numberFormat)
+	{
+		this.numberFormat = numberFormat;
+	}
+	
 	@Override
 	public void setValue(final Object value) {
 		if (value != null) {
@@ -439,6 +452,7 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 			}
 			numericalValue = (buf != null && buf.length() > 0) ? Double.parseDouble(buf.toString()) : Double
 					.parseDouble(matcher.group(1));
+			buf = new StringBuilder(formatValue(numericalValue));
 		} catch (Exception ignored) {
 			numericalValue = Double.NaN;
 		}
