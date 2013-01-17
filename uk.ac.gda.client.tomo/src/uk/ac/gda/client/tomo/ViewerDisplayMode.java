@@ -25,20 +25,9 @@ import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentController;
  * Enum defining the states of the left window view in the tomo alignment view.
  */
 public enum ViewerDisplayMode {
-	SAMPLE_STREAM_LIVE(TomoAlignmentView.SAMPLE_LIVE_STREAM) {
+	SAMPLE_STREAM_LIVE(TomoAlignmentView.SAMPLE_LIVE_STREAM), FLAT_STREAM_LIVE(TomoAlignmentView.FLAT_LIVE_STREAM), STREAM_STOPPED(
+			TomoAlignmentView.STREAM_STOPPED),
 
-		@Override
-		public String getFileName(TomoAlignmentController tomoAlignmentController) throws Exception {
-			return null;
-		}
-	},
-	FLAT_STREAM_LIVE(TomoAlignmentView.FLAT_LIVE_STREAM) {
-
-		@Override
-		public String getFileName(TomoAlignmentController tomoAlignmentController) throws Exception {
-			return null;
-		}
-	},
 	SAMPLE_SINGLE(TomoAlignmentView.SAMPLE_SINGLE) {
 		@Override
 		public String getFileName(TomoAlignmentController tomoAlignmentController) throws Exception {
@@ -68,7 +57,8 @@ public enum ViewerDisplayMode {
 			return tomoAlignmentController.getDarkFieldImageFullFileName();
 		}
 	},
-	STREAM_STOPPED(TomoAlignmentView.STREAM_STOPPED) {
+
+	ROTATION_AXIS(TomoAlignmentView.FIND_ROTATION_AXIS_DISPLAY_INFO) {
 		@Override
 		public String getFileName(TomoAlignmentController tomoAlignmentController) throws Exception {
 			return null;
@@ -85,20 +75,11 @@ public enum ViewerDisplayMode {
 		return val;
 	}
 
-	// public static ViewerDisplayMode getViewDisplayMode(boolean isStreaming, String txt) {
-	// if (isStreaming) {
-	// return ViewerDisplayMode.SAMPLE_STREAM_LIVE;
-	// }
-	// for (ViewerDisplayMode img : values()) {
-	// if (img.getVal().equals(txt)) {
-	// return img;
-	// }
-	// }
-	// return null;
-	// }
 
-	public abstract String getFileName(TomoAlignmentController tomoAlignmentController) throws Exception;
-
+	@SuppressWarnings("unused")
+	public String getFileName(TomoAlignmentController tomoAlignmentController) throws Exception {
+		return null;
+	}
 	public static ViewerDisplayMode getDisplayMode(String info) {
 		for (ViewerDisplayMode mode : values()) {
 			if (info.equals(mode.getVal())) {
