@@ -50,7 +50,7 @@ public class MicroFocusMappableDataProviderFactory {
 			}
 			
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
+			logger.error("Could not get instance of MicroFocusMappableDataProvider using "+fileName,e);
 			e.printStackTrace();
 		}
 		return null;

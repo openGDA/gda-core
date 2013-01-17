@@ -42,22 +42,22 @@
       <view
             category="uk.ac.gda.client.microfocus.category"
             class="uk.ac.gda.client.microfocus.views.scan.MicroFocusElementListView"
-            id="uk.ac.gda.client.microfocus.MFElementListView"
-            name="Xspress"
+            id="uk.ac.gda.client.microfocus.XspressElementListView"
+            name="Xspress Elements"
             restorable="true">
       </view>
       <view
             category="uk.ac.gda.client.microfocus.category"
             class="uk.ac.gda.client.microfocus.views.scan.MicroFocusElementListView"
             id="uk.ac.gda.client.microfocus.VortexElementListView"
-            name="Vortex"
+            name="Vortex Elements"
             restorable="true">
       </view>
       <view
             category="uk.ac.gda.client.microfocus.category"
             class="uk.ac.gda.client.microfocus.views.ExafsSelectionView"
             id="uk.ac.gda.client.microfocus.SelectExafsView"
-            name="ExafsSelectionView"
+            name="Exafs Selection View"
             restorable="true">
       </view>
       <view
@@ -125,7 +125,7 @@
    <extension
          point="org.eclipse.ui.menus">
       <menuContribution
-            locationURI="toolbar:uk.ac.gda.client.microfocus.MFElementListView?after=additions">
+            locationURI="toolbar:uk.ac.gda.client.microfocus.XspressElementListView?after=additions">
          <command
                commandId="uk.ac.gda.client.microfocus.LoadFileCommand"
                icon="icons/folder_image.png"

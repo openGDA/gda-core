@@ -113,7 +113,7 @@ public class ExafsSelectionView extends ViewPart implements IObserver {
 		selectedScanList.setLayoutData(gridData);
 		try {
 			// get an instance of the plotView we want to use
-			MFView = (MicroFocusElementListView) getSite().getPage().showView("uk.ac.gda.client.microfocus.MFElementListView",
+			MFView = (MicroFocusElementListView) getSite().getPage().showView("uk.ac.gda.client.microfocus.XspressElementListView",
 					null, IWorkbenchPage.VIEW_CREATE);
 			MFView.addIObserver(this);
 			MFView = (MicroFocusElementListView) getSite().getPage().showView("uk.ac.gda.client.microfocus.VortexElementListView",
