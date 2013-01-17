@@ -114,14 +114,7 @@ public class NcdDetectorView extends ViewPart {
 			for (String name : availableDetectors) {
 				detectorChoice.add(name);
 				if (name.equals(detectorName)) {
-					if (!NODETECTOR.equals(detectorName)  && ncdController.isDetectorConfigured(detectorName)) {
-						detectorChoice.select(index);
-					} else {
-						if (detector != null)
-							ncdController.removeDetector(detectorName);
-						detectorChoice.select(0);
-						detector= null;
-					}
+					detectorChoice.select(index);
 				}
 				index++;
 			}
