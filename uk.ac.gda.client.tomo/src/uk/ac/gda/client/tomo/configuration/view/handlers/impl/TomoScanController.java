@@ -26,14 +26,19 @@ import gda.observable.IObservable;
 import gda.scan.IScanDataPoint;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.client.tomo.alignment.view.TomoAlignmentCommands;
+import uk.ac.gda.client.tomo.TomoClientConstants;
 import uk.ac.gda.client.tomo.configuration.view.handlers.IScanControllerUpdateListener;
 import uk.ac.gda.client.tomo.configuration.view.handlers.ITomoScanController;
+import uk.ac.gda.tomography.parameters.AlignmentConfiguration;
+import uk.ac.gda.tomography.parameters.MotorPosition;
+import uk.ac.gda.tomography.parameters.Resolution;
 
 public class TomoScanController implements ITomoScanController {
 
@@ -70,12 +75,119 @@ public class TomoScanController implements ITomoScanController {
 	}
 
 	@Override
-	public void runScan(String configFilePath) {
+	public void runScan(List<AlignmentConfiguration> configurationSet) {
+		int length = 0;
+		ArrayList<Integer> moduleNumbers = new ArrayList<Integer>();
+		ArrayList<String> configIds = new ArrayList<String>();
+		ArrayList<String> descriptions = new ArrayList<String>();
+		ArrayList<HashMap<String, Double>> motorMoveMaps = new ArrayList<HashMap<String, Double>>();
+		ArrayList<Double> sampleAcqTimeList = new ArrayList<Double>();
+		ArrayList<Double> flatAcqTimesList = new ArrayList<Double>();
+		ArrayList<Integer> numFramesPerPrList = new ArrayList<Integer>();
+		ArrayList<Integer> numProjList = new ArrayList<Integer>();
+		ArrayList<String> isContinuousList = new ArrayList<String>();
+		ArrayList<Integer> desiredResolutionList = new ArrayList<Integer>();
+		ArrayList<Double> timeDividerList = new ArrayList<Double>();
+		ArrayList<Double> positionOfBaseAtFlatList = new ArrayList<Double>();
+		ArrayList<Double> positionOfBaseInBeamList = new ArrayList<Double>();
+		ArrayList<Integer> tomoRotationAxisList = new ArrayList<Integer>();
+		ArrayList<Integer> minYList = new ArrayList<Integer>();
+		ArrayList<Integer> maxYList= new ArrayList<Integer>();
 
-		String setupTomoScanCmd = String.format("tomoAlignment.tomographyConfigurationManager.setupTomoScan('%1$s')",
-				configFilePath);
+		for (AlignmentConfiguration alignmentConfiguration : configurationSet) {
+			if (alignmentConfiguration.getSelectedToRun()) {
+				length++;
+				configIds.add("'" + alignmentConfiguration.getId() + "'");
+				descriptions.add("'" + alignmentConfiguration.getDescription() + "'");
+				try {
+
+					int moduleNumber = alignmentConfiguration.getDetectorProperties().getModuleParameters()
+							.getModuleNumber().intValue();
+
+					moduleNumbers.add(moduleNumber);
+
+					HashMap<String, Double> motorMoveMap = new HashMap<String, Double>() {
+						@Override
+						public String toString() {
+							String string = super.toString();
+							return string.replace("=", ":");
+						}
+					};
+
+					for (MotorPosition mp : alignmentConfiguration.getMotorPositions()) {
+						motorMoveMap.put("'" + mp.getName() + "'", mp.getPosition());
+					}
+
+					motorMoveMaps.add(motorMoveMap);
+
+					boolean isContinuousScan = true;
+
+					// def tomoScani12
+					// 1.sampleAcquisitionTime, 2.flatAcquisitionTime, 3.numberOfFramesPerProjection,
+					// 4. numberofProjections,
+					// 5. isContinuousScan, 6. desiredResolution, 7. timeDivider, 8. positionOfBaseAtFlat,
+					// 9. positionOfBaseInBeam, 10. mapOfScannablesTobeAddedAsMetaData):
+					double sampleAcq = alignmentConfiguration.getSampleExposureTime();
+					double timeDivider = alignmentConfiguration.getDetectorProperties().getAcquisitionTimeDivider();
+					double flatAcq = alignmentConfiguration.getFlatExposureTime();
+					int numFramesPerPr = alignmentConfiguration.getDetectorProperties()
+							.getNumberOfFramerPerProjection();
+					int numProj = 10;
+					String isContinuous = isContinuousScan ? "True" : "False";
+					int desiredResolution = getDesiredResolution(alignmentConfiguration.getDetectorProperties()
+							.getDesired3DResolution());
+					double positionOfBaseAtFlat = alignmentConfiguration.getOutOfBeamPosition();
+					double positionOfBaseInBeam = alignmentConfiguration.getInBeamPosition();
+					int minY = alignmentConfiguration.getDetectorProperties().getDetectorRoi().getMinY();
+					int maxY = alignmentConfiguration.getDetectorProperties().getDetectorRoi().getMaxY();
+
+					sampleAcqTimeList.add(sampleAcq);
+					flatAcqTimesList.add(flatAcq);
+					numFramesPerPrList.add(numFramesPerPr);
+					numProjList.add(numProj);
+					isContinuousList.add(isContinuous);
+					desiredResolutionList.add(desiredResolution);
+					timeDividerList.add(timeDivider);
+					positionOfBaseAtFlatList.add(positionOfBaseAtFlat);
+					positionOfBaseInBeamList.add(positionOfBaseInBeam);
+					tomoRotationAxisList.add(alignmentConfiguration.getTomoRotationAxis());
+					minYList.add(minY);
+					maxYList.add(maxY);
+				} catch (Exception e) {
+					logger.error("TODO put description of error here", e);
+				}
+			}
+		}
+		// self, length, configId, moduleNum, motorMoveMap, sampleAcquisitionTime, flatAcquisitionTime,
+		// numberOfFramesPerProjection, numberofProjections,
+		// isContinuousScan, desiredResolution, timeDivider, positionOfBaseAtFlat, positionOfBaseInBeam
+		String setupTomoScanCmd = String
+				.format("tomoAlignment.tomographyConfigurationManager.setupTomoScan(%1$d, %2$s, %3$s, %4$s, %5$s, %6$s, %7$s, %8$s, %9$s, %10$s, %11$s, %12$s, %13$s, %14$s, %15$s, %16$s, %17$s)",
+						length, configIds, descriptions, moduleNumbers, motorMoveMaps, sampleAcqTimeList,
+						flatAcqTimesList, numFramesPerPrList, numProjList, isContinuousList, desiredResolutionList,
+						timeDividerList, positionOfBaseAtFlatList, positionOfBaseInBeamList, tomoRotationAxisList, minYList, maxYList);
 		logger.debug("Setup:{}", setupTomoScanCmd);
 		JythonServerFacade.getInstance().runCommand(setupTomoScanCmd);
+	}
+
+	private int getDesiredResolution(Resolution desired3dResolution) {
+		int res = 1;
+		switch (desired3dResolution) {
+		case FULL:
+			res = 1;
+			break;
+		case X2:
+			res = 2;
+			break;
+		case X4:
+			res = 4;
+			break;
+		case X8:
+			res = 8;
+			break;
+		}
+
+		return res;
 	}
 
 	private IScanDataPointObserver tomoScriptControllerObserver = new IScanDataPointObserver() {
@@ -156,7 +268,7 @@ public class TomoScanController implements ITomoScanController {
 
 	@Override
 	public void isScanRunning() {
-		InterfaceProvider.getCommandRunner().evaluateCommand(TomoAlignmentCommands.TOMOGRAPHY_IS_RUNNING_CONFIG_CMD);
+		InterfaceProvider.getCommandRunner().evaluateCommand(TomoClientConstants.TOMOGRAPHY_IS_RUNNING_CONFIG_CMD);
 	}
 
 	@Override
@@ -172,7 +284,7 @@ public class TomoScanController implements ITomoScanController {
 
 	@Override
 	public void stopScan() {
-		InterfaceProvider.getCommandRunner().evaluateCommand(TomoAlignmentCommands.TOMOGRAPHY_STOP_SCAN);
+		InterfaceProvider.getCommandRunner().evaluateCommand(TomoClientConstants.TOMOGRAPHY_STOP_SCAN);
 	}
 
 }

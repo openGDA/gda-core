@@ -55,10 +55,14 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.PageBook;
+import org.eclipse.ui.part.ViewPart;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.tomo.ViewerDisplayMode;
 import uk.ac.gda.client.tomo.alignment.view.controller.SaveableConfiguration;
@@ -80,15 +84,15 @@ import uk.ac.gda.client.tomo.composites.TomoPlotComposite;
 import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
 import uk.ac.gda.client.tomo.composites.ZoomedImageComposite;
 import uk.ac.gda.client.tomo.composites.ZoomedImgCanvas;
-import uk.ac.gda.client.tomo.views.BaseTomographyView;
 import uk.ac.gda.ui.components.ColourSliderComposite;
 import uk.ac.gda.ui.components.PointInDouble;
+import uk.ac.gda.ui.event.PartAdapter2;
 
 /**
  * View for Tomography alignment, and scan
  */
-public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignmentView {
-	private static final String IOC_RUNNING_CONTEXT = "uk.ac.gda.client.tomo.alignment.isDetectorIocRunningContext";
+public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
+	private static final Logger logger = LoggerFactory.getLogger(TomoAlignmentView.class);
 
 	private boolean isScanRunning = Boolean.TRUE;
 
@@ -143,8 +147,6 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 	private static final int CONTROLLER_HEIGHT = 220;
 
 	private static final RGB BACKGROUND_COLOUR_RGB = new RGB(242, 242, 242);
-
-	public static final String FIND_ROTATION_AXIS_DISPLAY_INFO = "ROTATION AXIS";
 
 	private boolean isSaving;
 	private HistogramAdjuster histogramAdjuster;
@@ -216,6 +218,33 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 	private Label lblPixelIntensityVal;
 
 	private TomoAlignmentViewController tomoViewController;
+
+	private IPartListener tomoPartAdapter = new PartAdapter2() {
+		@Override
+		public void partDeactivated(org.eclipse.ui.IWorkbenchPart part) {
+			stopStreamByCheckingIfOn();
+		}
+
+		private void stopStreamByCheckingIfOn() {
+			// check if the scan is on.
+			if (!TomoAlignmentView.this.isScanRunning()) {
+				// leftPanelComposite.stopStream();
+				stopFullVideoReceiver();
+			} else {
+				// disable all the controls and inform the user that the scan is running.
+			}
+		}
+
+		@Override
+		public void partHidden(org.eclipse.ui.IWorkbenchPartReference partRef) {
+			stopStreamByCheckingIfOn();
+		}
+
+		@Override
+		public void partClosed(org.eclipse.ui.IWorkbenchPart part) {
+			stopStreamByCheckingIfOn();
+		}
+	};
 
 	public void setRightInfoPage(RIGHT_INFO rightInfo) {
 		switch (rightInfo) {
@@ -380,6 +409,7 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 			new Thread(new RunUpdateAllFields(isSuccessful)).start();
 			/**/
 
+			getSite().getPage().addPartListener(tomoPartAdapter);
 			//
 
 			tomoControlComposite.addMotionControlListener(tomoViewController);
@@ -398,7 +428,6 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 		} catch (Exception ex) {
 			throw new RuntimeException("Error opening view", ex);
 		}
-		addPartListener();
 	}
 
 	/**
@@ -618,8 +647,6 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 		}
 	};
 
-	private Label lblExpTime;
-
 	private Composite createLeftWindowInfoViewComposite(final Composite imageViewAndInfoBarComposite) {
 
 		// Border composite used to make the borders thick
@@ -657,27 +684,9 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 		leftScaleBar.setLayoutData(layoutData2);
 		leftScaleBar.setBackground(ColorConstants.black);
 
-		Composite statusExpComposite = toolkit.createComposite(infoViewerComposite);
-		statusExpComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		GridLayout gl1 = new GridLayout(2, true);
-		setDefaultLayoutSettings(gl1);
-		statusExpComposite.setLayout(gl1);
-
-		lblLeftWindowDisplayModeStatus = toolkit.createLabel(statusExpComposite, "", SWT.CENTER);
+		lblLeftWindowDisplayModeStatus = toolkit.createLabel(infoViewerComposite, "", SWT.CENTER);
 		lblLeftWindowDisplayModeStatus.setFont(fontRegistry.get(BOLD_TEXT_11));
 		lblLeftWindowDisplayModeStatus.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		Composite exposureTimeComposite = toolkit.createComposite(statusExpComposite);
-		exposureTimeComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		GridLayout gl2 = new GridLayout(2, true);
-		setDefaultLayoutSettings(gl2);
-		exposureTimeComposite.setLayout(gl2);
-
-		Label expTimeLbl = toolkit.createLabel(exposureTimeComposite, "Exposure Time = ", SWT.RIGHT);
-		expTimeLbl.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		lblExpTime = toolkit.createLabel(exposureTimeComposite, "", SWT.LEFT);
-		lblExpTime.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		lblLeftWindowInfoNumPixels = toolkit.createLabel(infoViewerComposite, DEFAULT_LEFT_WINDOW_INFO_SIZE, SWT.LEFT);
 		lblLeftWindowInfoNumPixels.setFont(fontRegistry.get(BOLD_TEXT_11));
@@ -850,7 +859,7 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 					try {
 						if (tomoAlignmentController.isStreaming() && !isScanRunning) {
 							logger.debug("run->Stopping stream while updating all fields");
-							// leftPanelComposite.stopStream();
+							//leftPanelComposite.stopStream();
 						}
 					} catch (Exception e) {
 						logger.error("Problem identifying whether the streaming is switched on", e);
@@ -1031,7 +1040,9 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 
 	@Override
 	public void dispose() {
+
 		try {
+			getSite().getPage().removePartListener(tomoPartAdapter);
 			if (leftWindowImageViewer != null) {
 				logger.debug("Removing zoom rect listener");
 				leftWindowImageViewer.removeZoomRectListener(tomoViewController);
@@ -1076,7 +1087,6 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 			toolkit.dispose();
 			histogramAdjuster.dispose();
 			tomoAlignmentController.removeScanControllerUpdateListener(tomoViewController);
-
 			super.dispose();
 		} catch (Exception ex) {
 			logger.error("Exception in dispose", ex);
@@ -1098,7 +1108,7 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 		try {
 			tomoAlignmentController.resetAll();
 		} catch (Exception e) {
-			logger.error("Problem resetting detector", e);
+			logger.error("TODO put description of error here", e);
 			loadErrorInDisplay("Error while reseting the camera", "Connection with the camera IOC may be disrupted.");
 		}
 	}
@@ -1709,43 +1719,10 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 
 				@Override
 				public void run() {
+
 					contrastSliderComposite.moveBottomSliderTo(value);
 				}
 			});
 		}
 	}
-
-	@Override
-	protected void doPartDeactivated() {
-		// check if the scan is on.
-		if (!isScanRunning()) {
-			stopFullVideoReceiver();
-		} else {
-			// disable all the controls and inform the user that the scan is running.
-		}
-	}
-
-	@Override
-	protected String getDetectorPortName() throws Exception {
-		return tomoAlignmentController.getDetectorPortName();
-	}
-
-	@Override
-	protected String getIocRunningContext() {
-		return IOC_RUNNING_CONTEXT;
-	}
-
-	@Override
-	public void updateExposureTimeToWidget(final double acqExposure) {
-		if (lblExpTime != null && !lblExpTime.isDisposed()) {
-			lblExpTime.getDisplay().asyncExec(new Runnable() {
-
-				@Override
-				public void run() {
-					lblExpTime.setText(String.format("%.3g (s)", acqExposure));
-				}
-			});
-		}
-	}
-
 }

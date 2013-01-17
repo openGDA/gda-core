@@ -43,7 +43,6 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//AlignmentConfiguration/inBeamPosition"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//AlignmentConfiguration/outOfBeamPosition"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//AlignmentConfiguration/tomoRotationAxis"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference tomoparameters.ecore#//AlignmentConfiguration/scanCollected"/>
       <genOperations ecoreOperation="tomoparameters.ecore#//AlignmentConfiguration/getMotorPosition">
         <genParameters ecoreParameter="tomoparameters.ecore#//AlignmentConfiguration/getMotorPosition/motorName"/>
       </genOperations>
@@ -68,7 +67,7 @@
     </genClasses>
     <genClasses ecoreClass="tomoparameters.ecore#//Module">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//Module/moduleNumber"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//Module/cameraMagnification"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//Module/horizontalFieldOfView"/>
     </genClasses>
     <genClasses ecoreClass="tomoparameters.ecore#//MotorPosition">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//MotorPosition/name"/>
@@ -93,11 +92,6 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//TomoExperiment/description"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//TomoExperiment/totalTimeToRun"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//TomoExperiment/version"/>
-    </genClasses>
-    <genClasses ecoreClass="tomoparameters.ecore#//ScanCollected">
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//ScanCollected/scanNumber"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//ScanCollected/startTime"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute tomoparameters.ecore#//ScanCollected/endTime"/>
     </genClasses>
   </genPackages>
 </genmodel:GenModel>

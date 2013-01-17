@@ -35,15 +35,6 @@ public interface TomoParametersFactory extends EFactory {
 	TomoExperiment createTomoExperiment();
 
 	/**
-	 * Returns a new object of class '<em>Scan Collected</em>'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return a new object of class '<em>Scan Collected</em>'.
-	 * @generated
-	 */
-	ScanCollected createScanCollected();
-
-	/**
 	 * Returns a new object of class '<em>Module</em>'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->

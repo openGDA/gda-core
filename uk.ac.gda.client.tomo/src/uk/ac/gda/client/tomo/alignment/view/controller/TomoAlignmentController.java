@@ -53,7 +53,6 @@ import uk.ac.gda.client.tomo.alignment.view.IRotationMotorListener;
 import uk.ac.gda.client.tomo.alignment.view.ITomoAlignmentView;
 import uk.ac.gda.client.tomo.alignment.view.controller.SaveableConfiguration.AlignmentScanMode;
 import uk.ac.gda.client.tomo.alignment.view.controller.SaveableConfiguration.MotorPosition;
-import uk.ac.gda.client.tomo.alignment.view.handlers.IAutofocusController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraModuleController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraMotionController;
@@ -99,8 +98,6 @@ public class TomoAlignmentController extends TomoViewController {
 	private IScanResolutionLookupProvider scanResolutionLookupProvider;
 
 	private Exception iocDownException = null;
-
-	private IAutofocusController autofocusController;
 
 	public enum SAMPLE_STAGE_STATE {
 		IN, OUT;
@@ -231,27 +228,26 @@ public class TomoAlignmentController extends TomoViewController {
 		progress.beginTask("Taking flat images", numFlat + 5);
 		// double distanceToMoveForFlat = motorHandler.getDistanceToMoveSampleForTakeFlat();
 		double initialMotorPos = sampleStageMotorHandler.getSampleBaseMotorPosition();
+		try{
+		sampleStageMotorHandler.moveSampleScannableBy(progress, sampleStageMotorHandler.getDistanceToMoveSampleOut());
 		try {
-			sampleStageMotorHandler.moveSampleScannableBy(progress,
-					sampleStageMotorHandler.getDistanceToMoveSampleOut());
-			try {
-				logger.debug("Requesting for open shutter");
-				// 1. Open Experimental shutter
-				cameraShutterHandler.openShutter(progress.newChild(1));
-			} catch (DeviceException e) {
-				logger.error("Failed to open shutter", e);
-				throw new InvocationTargetException(e, e.getMessage());
-			}
+			logger.debug("Requesting for open shutter");
+			// 1. Open Experimental shutter
+			cameraShutterHandler.openShutter(progress.newChild(1));
+		} catch (DeviceException e) {
+			logger.error("Failed to open shutter", e);
+			throw new InvocationTargetException(e, e.getMessage());
+		}
 
-			try {
-				cameraHandler.takeFlat(progress.newChild(numFlat), numFlat, acqTime);
-			} catch (Exception e) {
-				logger.error("Problem with taking flat", e);
-				throw new InvocationTargetException(e, e.getMessage());
-			}
+		try {
+			cameraHandler.takeFlat(progress.newChild(numFlat), numFlat, acqTime);
+		} catch (Exception e) {
+			logger.error("Problem with taking flat", e);
+			throw new InvocationTargetException(e, e.getMessage());
+		}
 
-			cameraHandler.resetFileFormat();
-		} finally {
+		cameraHandler.resetFileFormat();}
+		finally{
 			sampleStageMotorHandler.moveSampleScannable(progress, initialMotorPos);
 		}
 	}
@@ -270,11 +266,10 @@ public class TomoAlignmentController extends TomoViewController {
 		return acqExposureRBV;
 	}
 
-	public void startAcquiring(final double acqTime, boolean isAmplified, double lower, double upper)
+	public void startAcquiring(final double acqTime, final boolean isAmplified, double lower, double upper)
 			throws InvocationTargetException {
 		logger.debug("Start acquisition request");
 		try {
-			isAmplified = isAmplified && acqTime > getFastPreviewExposureThreshold();
 			cameraHandler.startAcquiring(acqTime, isAmplified, lower, upper);
 			iocDownException = null;
 		} catch (Exception e) {
@@ -330,11 +325,7 @@ public class TomoAlignmentController extends TomoViewController {
 				// adbase model values update
 				logger.debug("Set up all data fields - expected to be called only during initialization");
 				cameraHandler.init();
-				try {
-					updateModuleSelected(getModule());
-				} catch (Exception ex) {
-					logger.error("Exception while updating module selection", ex);
-				}
+				updateModuleSelected(getModule());
 
 				updatePreferredSampleExposureTime(cameraHandler.getPreferredSampleExposureTime());
 				cameraHandler.setPreferredFlatExposureTime(cameraHandler.getPreferredSampleExposureTime());
@@ -350,8 +341,6 @@ public class TomoAlignmentController extends TomoViewController {
 				updateEnergy(getEnergy());
 
 				updateResolutionPixelSize(getResolutionPixelSize(getModule()));
-				
-				updateAcqExposure(getCameraExposureTime());
 
 				Double cameraMotionMotorPosition = getCameraMotionMotorPosition();
 				if (cameraMotionMotorPosition != null) {
@@ -839,10 +828,6 @@ public class TomoAlignmentController extends TomoViewController {
 		this.tiltController = tiltController;
 	}
 
-	public void setAutofocusController(IAutofocusController autofocusController) {
-		this.autofocusController = autofocusController;
-	}
-
 	public String getDarkImageFileName() {
 		return cameraHandler.getDarkImageFullFileName();
 	}
@@ -954,10 +939,12 @@ public class TomoAlignmentController extends TomoViewController {
 	/**
 	 * @param monitor
 	 * @param saveableConfiguration
-	 * @throws Exception
+	 * @throws InterruptedException
+	 * @throws InvocationTargetException
+	 * @throws DeviceException
 	 */
 	public String saveConfiguration(IProgressMonitor monitor, final SaveableConfiguration saveableConfiguration)
-			throws Exception {
+			throws InvocationTargetException, InterruptedException, DeviceException {
 		SubMonitor progress = SubMonitor.convert(monitor);
 		progress.beginTask("Saving Configuration", 20);
 
@@ -1105,28 +1092,5 @@ public class TomoAlignmentController extends TomoViewController {
 		int minutes = (int) ((runTime / 60) % 60);
 		int seconds = (int) (runTime % 60);
 		return String.format("%dh %02dm %02ds", hours, minutes, seconds);
-	}
-
-	public String getDetectorPortName() throws Exception {
-		return cameraHandler.getPortName();
-	}
-
-	public double getFastPreviewExposureThreshold() {
-		return cameraHandler.getFastPreviewExposureThreshold();
-	}
-
-	public String doAutoFocus(SubMonitor progress, double exposureTime) throws Exception {
-		try {
-			return autofocusController.doAutoFocus(progress, exposureTime);
-		} catch (Exception ex) {
-			logger.error("Problem with autofocus", ex);
-			throw ex;
-		}
-	}
-
-	public void updateAcqExposure(double acqExposure) {
-		for (ITomoAlignmentView av : tomoalignmentViews) {
-			av.updateExposureTimeToWidget(acqExposure);
-		}
 	}
 }

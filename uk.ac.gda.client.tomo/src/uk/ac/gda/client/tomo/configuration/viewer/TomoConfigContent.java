@@ -18,9 +18,6 @@
 
 package uk.ac.gda.client.tomo.configuration.viewer;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  *
  */
@@ -46,48 +43,8 @@ public class TomoConfigContent implements ITomoConfigContent {
 	private double progress;
 	private CONFIG_STATUS status = CONFIG_STATUS.NONE;
 
-	private Set<ScanInformation> scanInformationSet = new HashSet<TomoConfigContent.ScanInformation>();
-
-	public static class ScanInformation {
-		private final int scanNumber;
-		private final String startTime;
-		private final String endTime;
-
-		public ScanInformation(int scanNumber, String startTime, String endTime) {
-			this.scanNumber = scanNumber;
-			this.startTime = startTime;
-			this.endTime = endTime;
-		}
-
-		public int getScanNumber() {
-			return scanNumber;
-		}
-
-		public String getEndTime() {
-			return endTime;
-		}
-
-		public String getStartTime() {
-			return startTime;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (obj.getClass().equals(ScanInformation.class)) {
-				return ((ScanInformation) obj).getScanNumber() == scanNumber;
-			}
-			return false;
-		}
-
-		@Override
-		public int hashCode() {
-			return scanNumber;
-		}
-
-	}
-
 	public enum CONFIG_STATUS {
-		NONE("None"), RUNNING("Running"), COMPLETE("Complete"), FAIL("Fail"), STARTING("Starting");
+		NONE("None"), RUNNING("Running"), COMPLETE("Complete"), FAIL("Fail");
 		private final String value;
 
 		CONFIG_STATUS(String value) {
@@ -270,47 +227,4 @@ public class TomoConfigContent implements ITomoConfigContent {
 		this.progress = progress;
 	}
 
-	public void addScanInformation(int scanNumber, String startTime, String endTime) {
-		scanInformationSet.add(new ScanInformation(scanNumber, startTime, endTime));
-	}
-
-	public Set<ScanInformation> getScanInformationList() {
-		return scanInformationSet;
-	}
-
-	public int getMostRecentScanNumber() {
-		ScanInformation mostRecentScanInformation = getMostRecentScanInformation();
-		if (mostRecentScanInformation != null) {
-			return mostRecentScanInformation.getScanNumber();
-		}
-		return -1;
-	}
-
-	private ScanInformation getMostRecentScanInformation() {
-		ScanInformation scanInformation = null;
-		int scanNumber = 0;
-		for (ScanInformation sc : scanInformationSet) {
-			if (sc.getScanNumber() > scanNumber) {
-				scanNumber = sc.getScanNumber();
-				scanInformation = sc;
-			}
-		}
-		return scanInformation;
-	}
-
-	public String getMostRecentStartTime() {
-		ScanInformation mostRecentScanInformation = getMostRecentScanInformation();
-		if (mostRecentScanInformation != null) {
-			return mostRecentScanInformation.getStartTime();
-		}
-		return null;
-	}
-
-	public String getMostRecentEndTime() {
-		ScanInformation mostRecentScanInformation = getMostRecentScanInformation();
-		if (mostRecentScanInformation != null) {
-			return mostRecentScanInformation.getEndTime();
-		}
-		return null;
-	}
 }

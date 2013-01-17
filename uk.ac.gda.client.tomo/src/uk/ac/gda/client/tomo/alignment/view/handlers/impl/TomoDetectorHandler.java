@@ -57,6 +57,8 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 
 	private static final String lbl_PROGRESS_TAKING_DARK = "Taking dark";
 
+	private static final String lbl_PROGRESS_DARK_IMAGE_TAKEN_D = "Dark image taken:%d";
+
 	private ITomographyDetector camera;
 
 	private Integer defaultNumOfFlatImages;
@@ -197,7 +199,7 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 		progress.beginTask(lbl_PROGRESS_TAKING_FLAT, numOfImages);
 
 		ndProc1Model.getNumFiltered();
-
+		
 		INDProcViewController.Stub procViewListener = new INDProcViewController.Stub() {
 			@Override
 			public void updateNumFiltered(int numFiltered) {
@@ -299,11 +301,6 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 				logger.info("Updating acquire state:{}", acquisitionState);
 				tomoAlignmentViewController.updateAcquireState(acquisitionState);
 			}
-		}
-		
-		@Override
-		public void updateAcqExposure(double acqExposure) {
-			tomoAlignmentViewController.updateAcqExposure(acqExposure);
 		}
 
 	};
@@ -877,10 +874,11 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 		return camera.getProc1Scale();
 	}
 
-	@Override
-	public double getFastPreviewExposureThreshold() {
-		return TomoClientActivator.getDefault().getPreferenceStore()
-				.getDouble(TomoAlignmentPreferencePage.TOMO_CLIENT_FAST_PREVIEW_EXP_TIME);
+	/**
+	 * @return Returns the defaultDistanceToMoveForFlat.
+	 */
+	public Double getDefaultFastPreviewExposureTimeThreshold() {
+		return defaultFastPreviewExposureTimeThreshold;
 	}
 
 	/**
@@ -917,15 +915,12 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 
 		double scale = getScale(acqTime, isAmplified, lower, upper, scaledFactor);
 		double offset = getOffset(acqTime, isAmplified, lower, scaledFactor);
-
+		
 		logger.debug("Scale:{}", scale);
 		logger.debug("Offset:{}", offset);
+		
 
 		getCamera().setOffsetAndScale(offset, scale);
 	}
 
-	@Override
-	public String getPortName() throws Exception {
-		return adBaseModel.getPortName();
-	}
 }

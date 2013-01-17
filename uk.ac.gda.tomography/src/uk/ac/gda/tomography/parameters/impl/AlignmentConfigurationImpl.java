@@ -21,7 +21,6 @@ import uk.ac.gda.tomography.parameters.AlignmentConfiguration;
 import uk.ac.gda.tomography.parameters.DetectorProperties;
 import uk.ac.gda.tomography.parameters.MotorPosition;
 import uk.ac.gda.tomography.parameters.SampleWeight;
-import uk.ac.gda.tomography.parameters.ScanCollected;
 import uk.ac.gda.tomography.parameters.ScanMode;
 import uk.ac.gda.tomography.parameters.StitchParameters;
 import uk.ac.gda.tomography.parameters.TomoParametersPackage;
@@ -49,7 +48,6 @@ import uk.ac.gda.tomography.parameters.TomoParametersPackage;
  *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getInBeamPosition <em>In Beam Position</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getOutOfBeamPosition <em>Out Of Beam Position</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getTomoRotationAxis <em>Tomo Rotation Axis</em>}</li>
- *   <li>{@link uk.ac.gda.tomography.parameters.impl.AlignmentConfigurationImpl#getScanCollected <em>Scan Collected</em>}</li>
  * </ul>
  * </p>
  *
@@ -412,16 +410,6 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	 * @ordered
 	 */
 	protected Integer tomoRotationAxis = TOMO_ROTATION_AXIS_EDEFAULT;
-
-	/**
-	 * The cached value of the '{@link #getScanCollected() <em>Scan Collected</em>}' containment reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getScanCollected()
-	 * @generated
-	 * @ordered
-	 */
-	protected EList<ScanCollected> scanCollected;
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
@@ -1035,18 +1023,6 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EList<ScanCollected> getScanCollected() {
-		if (scanCollected == null) {
-			scanCollected = new EObjectContainmentEList<ScanCollected>(ScanCollected.class, this, TomoParametersPackage.ALIGNMENT_CONFIGURATION__SCAN_COLLECTED);
-		}
-		return scanCollected;
-	}
-
-	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * 
 	 * @generated NOT
@@ -1074,8 +1050,6 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 				return basicUnsetStitchParameters(msgs);
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__MOTOR_POSITIONS:
 				return ((InternalEList<?>)getMotorPositions()).basicRemove(otherEnd, msgs);
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SCAN_COLLECTED:
-				return ((InternalEList<?>)getScanCollected()).basicRemove(otherEnd, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
@@ -1121,8 +1095,6 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 				return getOutOfBeamPosition();
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__TOMO_ROTATION_AXIS:
 				return getTomoRotationAxis();
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SCAN_COLLECTED:
-				return getScanCollected();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -1187,10 +1159,6 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__TOMO_ROTATION_AXIS:
 				setTomoRotationAxis((Integer)newValue);
 				return;
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SCAN_COLLECTED:
-				getScanCollected().clear();
-				getScanCollected().addAll((Collection<? extends ScanCollected>)newValue);
-				return;
 		}
 		super.eSet(featureID, newValue);
 	}
@@ -1253,9 +1221,6 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__TOMO_ROTATION_AXIS:
 				setTomoRotationAxis(TOMO_ROTATION_AXIS_EDEFAULT);
 				return;
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SCAN_COLLECTED:
-				getScanCollected().clear();
-				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -1301,8 +1266,6 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 				return outOfBeamPosition != OUT_OF_BEAM_POSITION_EDEFAULT;
 			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__TOMO_ROTATION_AXIS:
 				return TOMO_ROTATION_AXIS_EDEFAULT == null ? tomoRotationAxis != null : !TOMO_ROTATION_AXIS_EDEFAULT.equals(tomoRotationAxis);
-			case TomoParametersPackage.ALIGNMENT_CONFIGURATION__SCAN_COLLECTED:
-				return scanCollected != null && !scanCollected.isEmpty();
 		}
 		return super.eIsSet(featureID);
 	}
