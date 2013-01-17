@@ -20,7 +20,7 @@ from microfocus_elements import showElementsList, getElementNamesfromIonChamber
 from java.lang import String
 from gda.device import Detector
 import time
-
+from gda.configuration.properties import LocalProperties
 
 
 class Map(Scan):
@@ -31,6 +31,7 @@ class Map(Scan):
         self.counterTimer01=counterTimer01
         self.finder = Finder.getInstance()
         self.mfd = None
+        self.detectorBeanFileName = ""
     
     def getMFD(self):
         return self.mfd
@@ -109,15 +110,14 @@ class Map(Scan):
             else:   
                 detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
                 if(folderName != None):
-                    detectorBeanFileName =datadir+File.separator +folderName +File.separator+detectorBean.getFluorescenceParameters().getConfigFileName()
+                    self.detectorBeanFileName =datadir+File.separator +folderName +File.separator+detectorBean.getFluorescenceParameters().getConfigFileName()
                 else:
-                    detectorBeanFileName =datadir+detectorBean.getFluorescenceParameters().getConfigFileName()
-                print detectorBeanFileName
-                elements = showElementsList(detectorBeanFileName)
+                    self.detectorBeanFileName =datadir+detectorBean.getFluorescenceParameters().getConfigFileName()
+                elements = showElementsList(self.detectorBeanFileName)
                 selectedElement = elements[0]
                 self.mfd.setRoiNames(array(elements, String))
-                self.mfd.setDetectorBeanFileName(detectorBeanFileName)
-                bean = BeansFactory.getBean(File(detectorBeanFileName))   
+                self.mfd.setDetectorBeanFileName(self.detectorBeanFileName)
+                bean = BeansFactory.getBean(File(self.detectorBeanFileName))   
                 detector = self.finder.find(bean.getDetectorName())   
                 firstDetector = detectorList[0]
                 detectorList=[]
@@ -180,6 +180,7 @@ class Map(Scan):
                 mapscan= ScannableCommands.createConcurrentScan(args)
                 print mapscan.getScanDataPointQueueLength()
                 mapscan.getScanPlotSettings().setIgnore(1)
+                self.finder.find("elementListScriptController").update(None, self.detectorBeanFileName);
                 mapscan.runScan()
                 
             finally:
@@ -208,32 +209,35 @@ class Map(Scan):
             configFluoDetector(beanGroup)
         scan = beanGroup.getScan()
     
-        collectionTime = scan.getCollectionTime()
-        command_server = self.finder.find("command_server")    
-        topupMonitor = command_server.getFromJythonNamespace("topupMonitor", None)    
-        beam = command_server.getFromJythonNamespace("beam", None)
-        detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
-        trajBeamMonitor = command_server.getFromJythonNamespace("trajBeamMonitor", None)
-        print "setting collection time to" , str(collectionTime)        
-        topupMonitor.setPauseBeforePoint(True)
-        topupMonitor.setCollectionTime(collectionTime)
-        
-        #self.finder.find("command_server").addDefault(beam);
-        
-        topupMonitor.setPauseBeforePoint(True)
-        topupMonitor.setPauseBeforeLine(False)
-
-        beam.setPauseBeforePoint(True)
-        beam.setPauseBeforePoint(True)
-        beam.setPauseBeforeLine(True)
-        
-        if(beanGroup.getDetector().getExperimentType() == "Fluorescence" and beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium"):
-            self.finder.find("command_server").addDefault(detectorFillingMonitor);
-            detectorFillingMonitor.setPauseBeforePoint(True)
-            detectorFillingMonitor.setPauseBeforeLine(False)
-            detectorFillingMonitor.setCollectionTime(collectionTime)
-        trajBeamMonitor.setActive(False)
     
+        if (LocalProperties.get("gda.mode") == 'live'):
+            collectionTime = scan.getCollectionTime()
+            command_server = self.finder.find("command_server")    
+            topupMonitor = command_server.getFromJythonNamespace("topupMonitor", None)    
+            beam = command_server.getFromJythonNamespace("beam", None)
+            detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
+            trajBeamMonitor = command_server.getFromJythonNamespace("trajBeamMonitor", None)
+            print "setting collection time to" , str(collectionTime)        
+            topupMonitor.setPauseBeforePoint(True)
+            topupMonitor.setCollectionTime(collectionTime)
+            
+            self.finder.find("command_server").addDefault(beam);
+            
+            topupMonitor.setPauseBeforePoint(True)
+            topupMonitor.setPauseBeforeLine(False)
+    
+            beam.setPauseBeforePoint(True)
+            beam.setPauseBeforePoint(True)
+            beam.setPauseBeforeLine(True)
+            
+            if(beanGroup.getDetector().getExperimentType() == "Fluorescence" and beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium"):
+                self.finder.find("command_server").addDefault(detectorFillingMonitor);
+                detectorFillingMonitor.setPauseBeforePoint(True)
+                detectorFillingMonitor.setPauseBeforeLine(False)
+                detectorFillingMonitor.setCollectionTime(collectionTime)
+            trajBeamMonitor.setActive(False)
+
+
         outputBean=beanGroup.getOutput()
         sampleParameters = beanGroup.getSample()
         outputBean.setAsciiFileName(sampleParameters.getName())
@@ -245,6 +249,8 @@ class Map(Scan):
         self.d7a(att1.getSelectedPosition())
         self.d7b(att2.getSelectedPosition())
         LocalProperties.set("gda.scan.useScanPlotSettings", "true")
+        
+        
         self.finder.find("RCPController").openPesrpective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")
         
     def redefineNexusMetadataForMaps(self, beanGroup):

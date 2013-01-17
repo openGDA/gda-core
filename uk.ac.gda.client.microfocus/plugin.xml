@@ -198,10 +198,6 @@
             commandId="uk.ac.gda.client.microfocus.LoadFileCommand">
       </handler>
       <handler
-            class="uk.ac.gda.client.microfocus.ui.commands.RefreshHandler"
-            commandId="uk.ac.gda.client.microfocus.RefreshListCommand">
-      </handler>
-      <handler
             class="uk.ac.gda.client.microfocus.ui.commands.RunExafsHandler"
             commandId="uk.ac.gda.client.microfocus.runExafsCommand">
       </handler>
