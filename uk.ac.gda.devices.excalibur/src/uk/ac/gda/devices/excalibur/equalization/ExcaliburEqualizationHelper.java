@@ -56,7 +56,8 @@ import uk.ac.gda.devices.excalibur.MpxiiiChipReg;
  */
 public class ExcaliburEqualizationHelper {
 
-	private static final String POPULATION = "Population";
+	static final String POPULATION_XVALS = "Population"+"_col%d" + "_row%d"+"_xvals";
+	static final String POPULATION_YVALS = "Population"+"_col%d" + "_row%d"+"_yvals";
 
 	private static final double FWHM_OVER_SIGMA = 2.3548;
 
@@ -470,14 +471,28 @@ public class ExcaliburEqualizationHelper {
 	 * Calls getThresholdFromScanData and stores the result in the result file The edge threshold values are stored in
 	 * dataset EDGE_THRESHOLDS_DATASET This dataset has the edgeThreshold limit stored in the attribute
 	 * THRESHOLD_LIMIT_ATTR and the value of detector thresholdABNName stored in attribute THRESHOLDABVAL_ATTR
+	 * @param columns 
+	 * @param chipPresent 
 	 */
 	public void createThresholdFileFromScanData(String filename, String detectorName, String threshold0Name,
-			String thresholdABNName, int edgeThreshold, int sizeOfSlice, String resultfilename) throws Exception {
+			String thresholdABNName, int edgeThreshold, int sizeOfSlice,  int rows, int columns, boolean[] chipPresent,  String resultfilename) throws Exception {
+
+		
 		String detectorLocation = "entry1/" + detectorName;
-		Hdf5HelperData hd = getThresholdFromScanData(edgeThreshold, sizeOfSlice, filename, detectorLocation,
-				threshold0Name, "data");
-		HDF5HelperLocations equalisationLocation = getEqualisationLocation();
 		Hdf5Helper hdf = Hdf5Helper.getInstance();
+
+		Hdf5HelperData threshold0Vals = hdf.readDataSetAll(filename, detectorLocation,
+				threshold0Name, true);
+		double[] tmp = (double[]) threshold0Vals.data;
+		short[] threshold0ValsAsInt = new short[tmp.length];
+		for (int i = 0; i < tmp.length; i++) {
+			threshold0ValsAsInt[i] = (short) tmp[i];
+		}
+		
+		
+		Hdf5HelperData hd = getThresholdFromScanData(edgeThreshold, sizeOfSlice, filename, detectorLocation,
+				threshold0ValsAsInt, "data");
+		HDF5HelperLocations equalisationLocation = getEqualisationLocation();
 		hdf.writeToFileSimple(hd, resultfilename, equalisationLocation, THRESHOLD_DATASET);
 		hdf.writeAttribute(resultfilename, Hdf5Helper.TYPE.DATASET, getEdgeThresholdsLocation(), THRESHOLD_LIMIT_ATTR,
 				edgeThreshold);
@@ -486,15 +501,18 @@ public class ExcaliburEqualizationHelper {
 			hdf.writeAttribute(resultfilename, Hdf5Helper.TYPE.DATASET, getEdgeThresholdsLocation(), THRESHOLDABNVAL_ATTR,
 					((int[]) thresholdAValData.data)[0]);
 		}
+		
+		createChipAveragedThresholdFileFromThresholdFile(resultfilename, rows, columns, chipPresent, resultfilename);
 	}
 
+	
 	/**
 	 * From the scan of detector name against threshold0 calculate the edge threshold for each pixel and save results to
 	 * the file. As the data for a complete scan can be too large for the memepry available the data is treated in
 	 * slices by calling getThresholdFromSliceofScanData.
 	 */
 	public Hdf5HelperData getThresholdFromScanData(int threshold, int sizeOfSlice, String scanFilename,
-			String groupName, String dataSetNameThreshold0, String dataSetNameDetector) throws Exception {
+			String groupName, short[] threshold0ValsAsInt, String dataSetNameDetector) throws Exception {
 
 		Hdf5HelperLazyLoader loader = new Hdf5HelperLazyLoader(scanFilename, groupName, dataSetNameDetector, false);
 		ILazyDataset dataset = loader.getLazyDataSet();
@@ -510,13 +528,6 @@ public class ExcaliburEqualizationHelper {
 
 		short[] edgeThresholds = new short[shape[1] * shape[2]];
 		int iEdgeThresholdProcessed = 0;
-		Hdf5HelperData threshold0Vals = Hdf5Helper.getInstance().readDataSetAll(scanFilename, groupName,
-				dataSetNameThreshold0, true);
-		double[] tmp = (double[]) threshold0Vals.data;
-		short[] threshold0ValsAsInt = new short[tmp.length];
-		for (int i = 0; i < tmp.length; i++) {
-			threshold0ValsAsInt[i] = (short) tmp[i];
-		}
 		while (start[shape.length - 2] < shape[shape.length - 2]) {
 			IDataset slice = dataset.getSlice(null, start, stop, null);
 			if (!(slice instanceof ShortDataset))
@@ -532,7 +543,6 @@ public class ExcaliburEqualizationHelper {
 		}
 		return new Hdf5HelperData(new long[] { shape[1], shape[2] }, edgeThresholds);
 	}
-
 	/*
 	 * Not to be called by scripts.
 	 */
@@ -618,20 +628,38 @@ public class ExcaliburEqualizationHelper {
 		ChipSet chipset = new ChipSet(rows, columns, chipPresent);
 		chipset.checkLoaderShape(shape);
 
-		for (Chip chip : chipset.getChips()) {
-			AbstractDataset dataset = chip.getDataset(loader);
+		for (Chip chip : chipset.getChips()) { 
+			ShortDataset dataset = (ShortDataset) chip.getDataset(loader);
+			
+			int[] shape2 = dataset.getShape();
+			hdf.writeToFileSimple(new Hdf5HelperData( new long[]{ shape2[0], shape2[1]}, dataset.getData()), resultFileName, getEqualisationLocation(),
+					THRESHOLD_DATASET+"_col" + chip.column + "_row" + chip.row);
+			
 			IntegerDataset dataset2 = getDatasetWithValidPixels(dataset);
 			if( dataset2 != null){
 				double[][] xyvals = createBinnedPopulation(dataset2);
 				double [] xvals = xyvals[0];
 				double [] yvals = xyvals[1];
 				hdf.writeToFileSimple(new Hdf5HelperData(xvals), resultFileName, getEqualisationLocation(),
-						POPULATION+chip.index+"_xvals");
+						getPopXvalName(chip));
 				hdf.writeToFileSimple(new Hdf5HelperData(yvals), resultFileName, getEqualisationLocation(),
-						POPULATION+chip.index+"_yvals");
+						getPopYvalName(chip));
 			}
 		}
 		
+	}
+
+	private String getPopXvalName(Chip chip) {
+		return String.format(POPULATION_XVALS, chip.column, chip.row);
+	}
+	public String getPopXvalName(int column, int row) {
+		return String.format(POPULATION_XVALS, column, row);
+	}
+	private String getPopYvalName(Chip chip) {
+		return String.format(POPULATION_YVALS, chip.column, chip.row);
+	}
+	public String getPopYvalName(int column, int row) {
+		return String.format(POPULATION_YVALS, column, row);
 	}
 	/**
 	 * Calls getChipAveragedThresholdFromThresholdFile and writes result to resultFileName The resultFile has 3
@@ -699,34 +727,27 @@ public class ExcaliburEqualizationHelper {
 	public ChipAveragedResult[] getChipAveragedThresholdFromThresholdFile(String fileName, int rows, int columns,
 			boolean chipPresent[]) throws Exception {
 		Hdf5Helper hdf = Hdf5Helper.getInstance();
-		long dims[] = new long[] { rows, columns };
-		int numItems = (int) hdf.lenFromDims(dims);
-		if (numItems != chipPresent.length)
-			throw new IllegalArgumentException("numItems != chipPresent.length");
-		
-		short[] thresholdLimit = new short[numItems];
-		Arrays.fill(thresholdLimit, (short)0);
 
 
-		ChipAveragedResult[] aPeaks = new ChipAveragedResult[numItems];
+
+		ChipSet chipset = new ChipSet(rows, columns, chipPresent);
+		ChipAveragedResult[] aPeaks = new ChipAveragedResult[chipset.numChips];
 		Arrays.fill(aPeaks, null);
 
-		for (int i = 0; i < numItems; i++) {
-			if (chipPresent[i] ) {	
-				ChipAveragedResult chipAveragedResult = new ChipAveragedResult();
-				
-				Hdf5HelperData xValsHfd= hdf.readDataSetAll(fileName, getEqualisationLocation()
-						.getLocationForOpen(), POPULATION+i+"_xvals", true);
-				
-				chipAveragedResult.xvals=(double[]) xValsHfd.data;
-	
-				Hdf5HelperData yValsHfd= hdf.readDataSetAll(fileName, getEqualisationLocation()
-						.getLocationForOpen(), POPULATION+i+"_yvals", true);
-				
-				chipAveragedResult.yvals=(double[]) yValsHfd.data;				
-				chipAveragedResult.function = fitGaussianToBinnedPopulation(chipAveragedResult.xvals, chipAveragedResult.yvals);
-				aPeaks[i] = chipAveragedResult;
-			}
+		for (Chip chip : chipset.getChips()) { 
+			ChipAveragedResult chipAveragedResult = new ChipAveragedResult();
+			
+			Hdf5HelperData xValsHfd= hdf.readDataSetAll(fileName, getEqualisationLocation()
+					.getLocationForOpen(), getPopXvalName(chip), true);
+			
+			chipAveragedResult.xvals=(double[]) xValsHfd.data;
+
+			Hdf5HelperData yValsHfd= hdf.readDataSetAll(fileName, getEqualisationLocation()
+					.getLocationForOpen(), getPopYvalName(chip), true);
+			
+			chipAveragedResult.yvals=(double[]) yValsHfd.data;				
+			chipAveragedResult.function = fitGaussianToBinnedPopulation(chipAveragedResult.xvals, chipAveragedResult.yvals);
+			aPeaks[chip.index] = chipAveragedResult;
 		}
 		return aPeaks;
 	}
@@ -783,7 +804,7 @@ public class ExcaliburEqualizationHelper {
 		return null;
 	}
 
-	double[][] createBinnedPopulation(AbstractDataset ids) {
+	public double[][] createBinnedPopulation(AbstractDataset ids) {
 		int minVal = ids.min().intValue();
 		// range of values is from minVal to max. Num of bins is range +1
 		// first bin contains population with val = minVal
@@ -991,23 +1012,19 @@ public class ExcaliburEqualizationHelper {
 			long numPixelsOutSide, String resultFile) throws Exception {
 		
 		Hdf5Helper hdf = Hdf5Helper.getInstance();
-		long dims[] = new long[] { rows, columns };
-		int numItems = (int) hdf.lenFromDims(dims);
-		if (numItems != chipPresent.length)
-			throw new IllegalArgumentException("numItems != chipPresent.length");
 		
-		short[] thresholdLimit = new short[numItems];
+		ChipSet chipset = new ChipSet(rows, columns, chipPresent);
+		short[] thresholdLimit = new short[chipset.numChips];
 		Arrays.fill(thresholdLimit, (short)0);
 
-		for (int i = 0; i < numItems; i++) { 
-			if (chipPresent[i] ) {		
+		for (Chip chip : chipset.getChips()) { 
 				Hdf5HelperData xValsHfd= hdf.readDataSetAll(thresholdFile, getEqualisationLocation()
-						.getLocationForOpen(), POPULATION+i+"_xvals", true);
+						.getLocationForOpen(), getPopXvalName(chip), true);
 				
 				double [] xvals=(double[]) xValsHfd.data;
 
 				Hdf5HelperData yValsHfd= hdf.readDataSetAll(thresholdFile, getEqualisationLocation()
-						.getLocationForOpen(), POPULATION+i+"_yvals", true);
+						.getLocationForOpen(), getPopYvalName(chip), true);
 				
 				double [] yvals=(double[]) yValsHfd.data;
 
@@ -1023,15 +1040,14 @@ public class ExcaliburEqualizationHelper {
 					}
 				}
 				short thresholdlimit = j >=0 ? (short) xvals[j] : -1;
-				thresholdLimit[i] = thresholdlimit; // if numPixelsOutSide==0 then use all i=
+				thresholdLimit[chip.index] = thresholdlimit; // if numPixelsOutSide==0 then use all i=
 																// population.length-1
-			}
-
 		}
 
 		// write results into file.
 		ShortDataset dataset = new ShortDataset(thresholdLimit, thresholdLimit.length);
 		long maxThresholdLimit = dataset.max().longValue();
+		long[] dims = new long[]{ rows, columns};
 		Hdf5Helper.getInstance().writeToFileSimple(new Hdf5HelperData(dims, thresholdLimit), resultFile,
 				getEqualisationLocation(), THRESHOLD_LIMIT_DATASET);
 		Hdf5Helper.getInstance().writeAttribute(resultFile, Hdf5Helper.TYPE.DATASET,
@@ -1078,7 +1094,7 @@ public class ExcaliburEqualizationHelper {
 	 * @param resultFile
 	 * @throws Exception 
 	 */
-	public void createDACPixelShift(String dacPixel1EdgeFile, String dacPixel2EdgeFile, String resultFile) throws Exception{
+	public void createDACPixelShift(String dacPixel1EdgeFile, String dacPixel2EdgeFile, int rows, int columns, boolean[] chipPresent, String resultFile) throws Exception{
 		Hdf5Helper hdf = Hdf5Helper.getInstance();
 		Hdf5HelperData data1 = hdf.readDataSetAll(dacPixel1EdgeFile, getEqualisationLocation()
 				.getLocationForOpen(), THRESHOLD_DATASET, true);
@@ -1086,18 +1102,19 @@ public class ExcaliburEqualizationHelper {
 		Hdf5HelperData data2 = hdf.readDataSetAll(dacPixel2EdgeFile, getEqualisationLocation()
 				.getLocationForOpen(), THRESHOLD_DATASET, true);
 		short [] edgePosition2 = (short[]) data2.data;
-		int [] diff = new int[edgePosition1.length];
+		short [] diff = new short[edgePosition1.length];
 		for( int i=0; i< diff.length; i++){
-			short d2 = edgePosition2[i]; 
+			short d2 = edgePosition2[i];  
 			short d1 = edgePosition1[i];
 			if( thresholdEdgePosIsValid(d2) && thresholdEdgePosIsValid(d1)) {
-				diff[i] = d2 - d1;
+				diff[i] = (short) (d2 - d1);
 			} else {
 				diff[i] = EDGE_POSITION_IF_ALL_ABOVE_THRESHOLD; 
 			}
 		}
 		Hdf5HelperData data = new Hdf5HelperData(data1.dims, diff);
 		hdf.writeToFileSimple(data, resultFile, getEqualisationLocation(), THRESHOLD_DATASET);
+		createChipAveragedThresholdFileFromThresholdFile(resultFile, rows, columns, chipPresent, resultFile);
 		
 		
 	}
