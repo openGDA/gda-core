@@ -111,11 +111,8 @@ class Map(Scan):
                 detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
                 if(folderName != None):
                     self.detectorBeanFileName =datadir+File.separator +folderName +File.separator+detectorBean.getFluorescenceParameters().getConfigFileName()
-                    print "***************1", self.detectorBeanFileName
                 else:
                     self.detectorBeanFileName =datadir+detectorBean.getFluorescenceParameters().getConfigFileName()
-                    print "***************2", self.detectorBeanFileName
-                print self.detectorBeanFileName
                 elements = showElementsList(self.detectorBeanFileName)
                 selectedElement = elements[0]
                 self.mfd.setRoiNames(array(elements, String))
@@ -161,10 +158,13 @@ class Map(Scan):
             scanBean.setCollectionTime(scanBean.getCollectionTime())
             args=[yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),  xScannable, scanBean.getXStart(), scanBean.getXEnd(),  scanBean.getXStepSize()]
             
+            self.counterTimer01.setCollectionTime(scanBean.getCollectionTime())
+            
+            # what does this do? why is it not in raster map? Adding this to raster map does not set live time.
             if(detectorBean.getExperimentType() == "Fluorescence" and useFrames):
                 args+= detectorList
                 self.counterTimer01.clearFrameSets()
-                print "setting the collection time for frames as ", str(scanBean.getCollectionTime()*1000.0)
+                print "setting the collection time for frames as ", str(scanBean.getCollectionTime())
                 self.counterTimer01.addFrameSet(int(nx),1.0E-4,scanBean.getCollectionTime()*1000.0,0,7,-1,0)
             else:
                 for detector in detectorList:
@@ -210,7 +210,6 @@ class Map(Scan):
         scan = beanGroup.getScan()
     
     
-    
         if (LocalProperties.get("gda.mode") == 'live'):
             collectionTime = scan.getCollectionTime()
             command_server = self.finder.find("command_server")    
@@ -239,7 +238,6 @@ class Map(Scan):
             trajBeamMonitor.setActive(False)
 
 
-
         outputBean=beanGroup.getOutput()
         sampleParameters = beanGroup.getSample()
         outputBean.setAsciiFileName(sampleParameters.getName())
@@ -251,7 +249,6 @@ class Map(Scan):
         self.d7a(att1.getSelectedPosition())
         self.d7b(att2.getSelectedPosition())
         LocalProperties.set("gda.scan.useScanPlotSettings", "true")
-        
         
         
         self.finder.find("RCPController").openPesrpective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")

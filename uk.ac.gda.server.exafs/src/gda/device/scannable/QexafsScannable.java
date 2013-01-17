@@ -464,4 +464,12 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 	public void setNumPulsesPV(String numPulsesPV) {
 		this.numPulsesPV = numPulsesPV;
 	}
+
+	public String getBraggCurrentSpeedPV() {
+		return braggCurrentSpeedPV;
+	}
+
+	public void setBraggCurrentSpeedPV(String braggCurrentSpeedPV) {
+		this.braggCurrentSpeedPV = braggCurrentSpeedPV;
+	}
 }
