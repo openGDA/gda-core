@@ -21,6 +21,7 @@ package gda.device.detector.areadetector.v17.impl;
 import gda.device.detector.areadetector.AreaDetectorBin;
 import gda.device.detector.areadetector.AreaDetectorROI;
 import gda.device.detector.areadetector.v17.ADBase;
+import gda.observable.Observable;
 
 import java.util.concurrent.TimeoutException;
 
@@ -749,8 +750,16 @@ public class ADBaseSimulator implements ADBase {
 
 	@Override
 	public void setImageModeWait(gda.device.detector.areadetector.v17.ADBase.ImageMode imagemode) throws Exception {
-		// TODO Auto-generated method stub
-		
+	}
+
+	@Override
+	public Observable<String> createAcquireStateObservable() throws Exception {
+		return null;
+	}
+
+	@Override
+	public Observable<Double> createAcquireTimeObservable() throws Exception {
+		return null;
 	}
 
 }

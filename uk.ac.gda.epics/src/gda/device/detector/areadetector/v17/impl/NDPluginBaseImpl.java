@@ -27,9 +27,13 @@ import gda.epics.connection.EpicsController;
 import gda.epics.interfaces.NDPluginBaseType;
 import gda.factory.FactoryException;
 import gda.observable.Observable;
+import gda.observable.ObservableUtil;
+import gda.observable.Observer;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
+import gov.aps.jca.event.ConnectionEvent;
+import gov.aps.jca.event.ConnectionListener;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -853,4 +857,51 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	public Observable<Integer> createArrayCounterObservable() throws Exception {
 		return LazyPVFactory.newReadOnlyIntegerPV(getChannelName(ArrayCounter_RBV));
 	}
+
+	@Override
+	public Observable<Boolean> createConnectionStateObservable() throws Exception {
+		return new ConnectionStateObservable( getChannelName(ArrayCounter_RBV));
+	}
+
+	@Override
+	public Observable<String> createEnableObservable() throws Exception {
+		return LazyPVFactory.newReadOnlyEnumPV(getChannelName(EnableCallbacks_RBV), String.class);
+	}
+	
+	
+}
+
+class ConnectionStateObservable implements Observable<Boolean>{
+	Channel ch;
+	
+	ObservableUtil<Boolean> delegate= new ObservableUtil<Boolean>();
+
+	@Override
+	public void addObserver(Observer<Boolean> observer) {
+		delegate.addObserver(observer);
+	}
+
+	@Override
+	public void deleteIObserver(Observer<Boolean> observer) {
+		delegate.deleteIObserver(observer);
+	}
+	ConnectionStateObservable(String pv) throws Exception{
+		EpicsController.getInstance().createChannel(pv, new ConnectionListener() {
+			
+			@Override
+			public void connectionChanged(ConnectionEvent arg0) {
+				delegate.notifyIObservers(ConnectionStateObservable.this, arg0.isConnected());
+			}
+		});
+	}
+
+	@Override
+	protected void finalize() throws Throwable {
+		if( ch != null){
+			EpicsController.getInstance().destroy(ch);
+			ch = null;
+		}
+		super.finalize();
+	}
+	
 }

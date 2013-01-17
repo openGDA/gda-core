@@ -20,6 +20,7 @@ package gda.device.detector.areadetector.v17;
 
 import gda.device.detector.areadetector.AreaDetectorBin;
 import gda.device.detector.areadetector.AreaDetectorROI;
+import gda.observable.Observable;
 
 import java.util.concurrent.TimeoutException;
 
@@ -839,5 +840,7 @@ public interface ADBase  {
 
 	void setImageModeWait(ImageMode imagemode) throws Exception;
 	
-
+	
+	Observable<String> createAcquireStateObservable() throws Exception;
+	Observable<Double> createAcquireTimeObservable() throws Exception;
 }

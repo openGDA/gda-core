@@ -23,9 +23,11 @@ import gda.configuration.epics.Configurator;
 import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDProcess;
+import gda.epics.LazyPVFactory;
 import gda.epics.connection.EpicsController;
 import gda.epics.interfaces.NDProcessType;
 import gda.factory.FactoryException;
+import gda.observable.Observable;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
@@ -2101,6 +2103,34 @@ public class NDProcessImpl implements InitializingBean, NDProcess {
 	@Override
 	public int getAutoResetFilter() throws Exception {
 		return EPICS_CONTROLLER.cagetInt(getChannel(AutoResetFilter_RBV));
+	}
+
+	private String getChannelName(String pvElementName, String... args)throws Exception{
+		String pvPostFix = null;
+		if (args.length > 0) {
+			// PV element name is different from the pvPostFix
+			pvPostFix = args[0];
+		} else {
+			pvPostFix = pvElementName;
+		}
+
+		String fullPvName;
+		if (pvProvider != null) {
+			fullPvName = pvProvider.getPV(pvElementName);
+		} else {
+			fullPvName = basePVName + pvPostFix;
+		}
+		return fullPvName;
+	}
+	
+	@Override
+	public Observable<Double> createScaleObservable() throws Exception {
+		return LazyPVFactory.newReadOnlyDoublePV(getChannelName(Scale_RBV));
+	}
+
+	@Override
+	public Observable<Double> createOffsetObservable() throws Exception {
+		return LazyPVFactory.newReadOnlyDoublePV(getChannelName(Offset_RBV));
 	}
 
 }
