@@ -158,10 +158,13 @@ class Map(Scan):
             scanBean.setCollectionTime(scanBean.getCollectionTime())
             args=[yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),  xScannable, scanBean.getXStart(), scanBean.getXEnd(),  scanBean.getXStepSize()]
             
+            self.counterTimer01.setCollectionTime(scanBean.getCollectionTime())
+            
+            # what does this do? why is it not in raster map? Adding this to raster map does not set live time.
             if(detectorBean.getExperimentType() == "Fluorescence" and useFrames):
                 args+= detectorList
                 self.counterTimer01.clearFrameSets()
-                print "setting the collection time for frames as ", str(scanBean.getCollectionTime()*1000.0)
+                print "setting the collection time for frames as ", str(scanBean.getCollectionTime())
                 self.counterTimer01.addFrameSet(int(nx),1.0E-4,scanBean.getCollectionTime()*1000.0,0,7,-1,0)
             else:
                 for detector in detectorList:
@@ -215,7 +218,7 @@ class Map(Scan):
         topupMonitor.setPauseBeforePoint(True)
         topupMonitor.setCollectionTime(collectionTime)
         
-        self.finder.find("command_server").addDefault(beam);
+        #self.finder.find("command_server").addDefault(beam);
         
         topupMonitor.setPauseBeforePoint(True)
         topupMonitor.setPauseBeforeLine(False)

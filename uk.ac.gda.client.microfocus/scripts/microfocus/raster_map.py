@@ -126,9 +126,20 @@ class RasterMap(Map):
             self.redefineNexusMetadataForMaps(beanGroup)
             
             try:
-                numberPoints = abs(scanBean.getXEnd()- scanBean.getXStart())/scanBean.getXStepSize()
+                numberPoints = abs(scanBean.getXEnd()- scanBean.getXStart())/scanBean.getXStepSize() + 1.0
                 
                 detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
+                
+                collectionTime = float(scanBean.getRowTime())/float(numberPoints)
+                
+                self.counterTimer01.setCollectionTime(collectionTime)
+                print "row time = ", float(scanBean.getRowTime())
+                print "no. points = ", float(numberPoints)
+                
+                #if(detectorBean.getExperimentType() == "Fluorescence" and useFrames):
+                #    print "setting the collection time for frames as ", str(collectionTime)
+                #    self.counterTimer01.clearFrameSets()
+                #    self.counterTimer01.addFrameSet(int(nx),1.0E-4,collectionTime*1000.0,0,7,-1,0)
                 
                 if(detectorType == "Silicon"):
                     print "Vortex raster scan"
