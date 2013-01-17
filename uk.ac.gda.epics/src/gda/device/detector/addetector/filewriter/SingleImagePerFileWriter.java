@@ -182,13 +182,16 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 		if (existingMetadataString==null) {
 			newMetadataString = "";
 		} else {
-			newMetadataString = existingMetadataString + "\n";
+			newMetadataString = existingMetadataString;
 		}
 		
-		String newValue = StringUtils.replaceOnce(getFileTemplate(), "%s", getFilePathRelativeToDataDirIfPossible() + "/");
+		String filePathRelativeToDataDirIfPossible = getFilePathRelativeToDataDirIfPossible();
+		String fileRedoutTemplate = getFileTemplateForReadout();
+		String newValue = StringUtils.replaceOnce(fileRedoutTemplate, "%s", filePathRelativeToDataDirIfPossible + "/");
 		newValue = StringUtils.replaceOnce(newValue, "%s", getFileName());
 		String newKey = getkeyNameForMetadataPathTemplate();
-		jythonNamespace.placeInJythonNamespace("SRSWriteAtFileCreation", newMetadataString + newKey + "='" +newValue + "'");
+		jythonNamespace.placeInJythonNamespace("SRSWriteAtFileCreation", newMetadataString + newKey + "='" +newValue + "'\n");
+		InterfaceProvider.getTerminalPrinter().print("Image location: " + newKey + "='" +newValue);
 	}
 
 	protected void configureNdFile() throws Exception {
