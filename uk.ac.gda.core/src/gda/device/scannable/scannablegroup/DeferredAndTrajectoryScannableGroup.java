@@ -26,9 +26,11 @@ import gda.device.continuouscontroller.ContinuousMoveController;
 import gda.device.continuouscontroller.TrajectoryMoveController;
 import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.device.scannable.PositionConvertorFunctions;
+import gda.device.scannable.ScannableMotor;
 import gda.factory.FactoryException;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 
 public class DeferredAndTrajectoryScannableGroup extends DeferredScannableGroup implements
 		ContinuouslyScannableViaController {
@@ -41,6 +43,25 @@ public class DeferredAndTrajectoryScannableGroup extends DeferredScannableGroup 
 
 	}
 
+	@Override
+	public void setGroupMembers(Scannable[] groupMembers) {
+		for (Scannable scn : groupMembers) {
+			if (!(scn instanceof ScannableMotor)) {
+				throw new IllegalArgumentException("groupMembers must be ScannableMotors ");
+			}
+		}
+		super.setGroupMembers(groupMembers);
+	}
+	
+	public ArrayList<ScannableMotor> getScannableMotors() {
+		ArrayList<ScannableMotor> members = new ArrayList<ScannableMotor>();
+		for (Scannable wrappedScannable : getGroupMembers()) {
+			Scannable scannableMotor = ((CoordinatedChildContinuousScannableMotionUnits) wrappedScannable).getPhysicalScannable();
+			members.add((ScannableMotor) scannableMotor);
+		}
+		return members;
+	}
+	
 	@Override
 	public void configure() throws FactoryException {
 		assertGroupMembersAllHaveOnlyOneInputField();
@@ -87,10 +108,22 @@ public class DeferredAndTrajectoryScannableGroup extends DeferredScannableGroup 
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
 		if (isOperatingContinously()) {
-			controller.addPoint(PositionConvertorFunctions
-					.toDoubleArray(externalToInternal(parsePointFromPosition(position))));
+			Double[] posForScannableMotors = PositionConvertorFunctions
+					.toDoubleArray(externalToInternal(parsePointFromPosition(position)));
+			checkGroupMembersPositionValids(posForScannableMotors);
+			controller.addPoint(posForScannableMotors);
 		} else {
 			super.asynchronousMoveTo(position);
+		}
+	}
+
+	private void checkGroupMembersPositionValids(Double[] posForScannableMotors) throws DeviceException {
+		ArrayList<ScannableMotor> scannableMotors = getScannableMotors();
+		for (int i = 0; i < scannableMotors.size(); i++) {
+			String report = scannableMotors.get(i).checkPositionValid(posForScannableMotors[i]);
+			if (report != null) {
+				throw new DeviceException(report);
+			}
 		}
 	}
 

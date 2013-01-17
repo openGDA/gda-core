@@ -77,9 +77,9 @@ public class DeferredAndTrajectoryScannableGroupIntegrationTest {
 
 		controller = mock(TrajectoryMoveController.class);
 		when(controller.getNumberAxes()).thenReturn(3);
-		scna = mockScannableMotor(motora);
-		scnb = mockScannableMotor(motorb);
-		scnc = mockScannableMotor(motorc);
+		scna = mockScannableMotor(motora, "a");
+		scnb = mockScannableMotor(motorb, "b");
+		scnc = mockScannableMotor(motorc, "c");
 		mockedControlPoint = mock(ControlPoint.class);
 		when(mockedControlPoint.getPosition()).thenReturn(0);
 
@@ -87,19 +87,23 @@ public class DeferredAndTrajectoryScannableGroupIntegrationTest {
 		trajgroup.configure();
 	}
 
-	private ScannableMotor mockScannableMotor(BlockingMotor motor) throws FactoryException, MotorException {
+	private ScannableMotor mockScannableMotor(BlockingMotor motor, String name) throws FactoryException, MotorException {
 		when(motor.getMinPosition()).thenReturn(-100.);
 		when(motor.getMaxPosition()).thenReturn(100.);
 		when(motor.getStatus()).thenReturn(MotorStatus.READY);
+		when(motor.getName()).thenReturn("motor" + name);
+		
 		ScannableMotor scn = new ScannableMotor();
+		scn.setName("scn" + name);
 		scn.setMotor(motor);
 		scn.configure();
+		
 		return scn;
 	}
 
 	void createGroup() {
 		trajgroup = new DeferredAndTrajectoryScannableGroup();
-		trajgroup.setGroupMembers(new Scannable[] { scna, scnb, scnc });
+		trajgroup.setGroupMembers(new ScannableMotor[] { scna, scnb, scnc });
 		trajgroup.setDeferredControlPoint(mockedControlPoint);
 		trajgroup.setContinuousMoveController(controller);
 	}
@@ -176,7 +180,6 @@ public class DeferredAndTrajectoryScannableGroupIntegrationTest {
 		when(motorb.getStatus()).thenReturn(MotorStatus.BUSY);
 		when(motorc.getStatus()).thenReturn(MotorStatus.READY);
 		assertTrue(trajgroup.isBusy());
-
 	}
 
 	@Test
@@ -196,6 +199,19 @@ public class DeferredAndTrajectoryScannableGroupIntegrationTest {
 		verify(controller).addPoint(new Double[] { 1.1, 1.2, 1.3 });
 		verify(controller).addPoint(new Double[] { 2.1, 2.2, 2.3 });
 		trajgroup.setOperatingContinuously(false);
+	}
 
+	@Test(expected=DeviceException.class)
+	public void testTrajectoryScanOperationViolatedScannableLimit() throws Exception {
+		scna.setUpperGdaLimits(0.);
+		trajgroup.setOperatingContinuously(true);
+		trajgroup.asynchronousMoveTo(new double[] { 1.1, 1.2, 1.3 });
+	}
+	
+	@Test(expected=DeviceException.class)
+	public void testTrajectoryScanOperationViolatesMotorLimit() throws Exception {
+		when(motora.getMaxPosition()).thenReturn(0.);
+		trajgroup.setOperatingContinuously(true);
+		trajgroup.asynchronousMoveTo(new double[] { 1.1, 1.2, 1.3 });
 	}
 }
