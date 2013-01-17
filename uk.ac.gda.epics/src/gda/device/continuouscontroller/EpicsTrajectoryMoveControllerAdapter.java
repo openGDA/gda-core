@@ -21,6 +21,7 @@ package gda.device.continuouscontroller;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.device.scannable.scannablegroup.DeferredAndTrajectoryScannableGroup;
 import gda.factory.FactoryException;
 import gda.util.OutOfRangeException;
 
@@ -36,6 +37,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import gda.scan.Trajectory;
 
+/**
+ * This class needs refactoring. It has become tightly coupled to DeferredAndTrajectoryScannableGroup.
+ */
 public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements TrajectoryMoveController {
 
 	public class ExecuteMoveTask implements Callable<Void> {
@@ -66,7 +70,7 @@ public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements 
 	
 	private Double triggerPeriod = 1.;
 	
-	private Scannable scannableForMovingGroupToStart;
+	private DeferredAndTrajectoryScannableGroup groupScannableForMoveToStart;
 	
 	List<Double[]> points = new ArrayList<Double[]>();
 
@@ -120,8 +124,8 @@ public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements 
 		this.axisMotorOrder = axisMotorOrder;
 	}
 	
-	public Scannable getScannableForMovingGroupToStart() {
-		return scannableForMovingGroupToStart;
+	public DeferredAndTrajectoryScannableGroup getScannableForMovingGroupToStart() {
+		return groupScannableForMoveToStart;
 	}
 
 	/**
@@ -130,8 +134,8 @@ public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements 
 	 * result in collision, or (b) the time it takes for motors to move the start position when executing the trajectory
 	 * is may exceed the timeout a detector waits for it first trigger..
 	 */
-	public void setScannableForMovingGroupToStart(Scannable scannableForMovingGroupToStart) {
-		this.scannableForMovingGroupToStart = scannableForMovingGroupToStart;
+	public void setScannableForMovingGroupToStart(DeferredAndTrajectoryScannableGroup scannableForMovingGroupToStart) {
+		this.groupScannableForMoveToStart = scannableForMovingGroupToStart;
 	}
 	
 	/**
@@ -204,10 +208,15 @@ public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements 
 		controller.build(); // will throw an exception with no points (this is okay)
 		
 		// move to first position
-		if (getScannableForMovingGroupToStart() != null) {
-			Double[] firstPosition = points.get(0);
-			logger.info("Moving axes to start (" + Arrays.toString(firstPosition) + ") via configured Scannable " + getScannableForMovingGroupToStart().getName());
-			getScannableForMovingGroupToStart().moveTo(firstPosition);
+		DeferredAndTrajectoryScannableGroup scannableGroup = getScannableForMovingGroupToStart();
+		if (scannableGroup != null) {
+			boolean wasOperatingContinously = scannableGroup.isOperatingContinously();
+			Double[] firstPositionForMotors = points.get(0);
+			Double[] firstPositionForScannableGroup = scannableGroup.positionForUnderlyingMotorsToScannable(firstPositionForMotors);
+			logger.info("Moving axes to start (" + Arrays.toString(firstPositionForScannableGroup) + ") via configured Scannable " + scannableGroup.getName());
+			scannableGroup.setOperatingContinuously(false);
+			scannableGroup.moveTo(firstPositionForScannableGroup);
+			scannableGroup.setOperatingContinuously(wasOperatingContinously);
 			logger.info("Move to start complete");
 		}
 	}
