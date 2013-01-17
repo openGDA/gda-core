@@ -260,10 +260,10 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	@Override
 	public void atScanStart() throws DeviceException {
 
-		int numberImagesPerCollection = getCollectionStrategy().getNumberImagesPerCollection(getCollectionTime());
-		lastReadoutValue = null;
 
 		try {
+			int numberImagesPerCollection = getCollectionStrategy().getNumberImagesPerCollection(getCollectionTime());
+			lastReadoutValue = null;
 			prepareCollectionStrategyAtScanStart(numberImagesPerCollection);
 			for (NXPlugin plugin : getAdditionalPluginList()) {
 				plugin.prepareForCollection(numberImagesPerCollection);
