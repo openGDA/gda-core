@@ -18,10 +18,13 @@
 
 package uk.ac.gda.client.tomo.configuration.view.handlers;
 
+import java.util.List;
+
+import uk.ac.gda.tomography.parameters.AlignmentConfiguration;
 
 public interface ITomoScanController {
 
-	void runScan(String configFilePath);
+	void runScan(List<AlignmentConfiguration> configurationSet);
 
 	void dispose();
 

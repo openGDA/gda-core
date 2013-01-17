@@ -74,7 +74,6 @@ public class TomoParametersFactoryImpl extends EFactoryImpl implements TomoParam
 			case TomoParametersPackage.PARAMETERS: return createParameters();
 			case TomoParametersPackage.STITCH_PARAMETERS: return createStitchParameters();
 			case TomoParametersPackage.TOMO_EXPERIMENT: return createTomoExperiment();
-			case TomoParametersPackage.SCAN_COLLECTED: return createScanCollected();
 			default:
 				throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier");
 		}
@@ -125,16 +124,6 @@ public class TomoParametersFactoryImpl extends EFactoryImpl implements TomoParam
 	public TomoExperiment createTomoExperiment() {
 		TomoExperimentImpl tomoExperiment = new TomoExperimentImpl();
 		return tomoExperiment;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public ScanCollected createScanCollected() {
-		ScanCollectedImpl scanCollected = new ScanCollectedImpl();
-		return scanCollected;
 	}
 
 	/**

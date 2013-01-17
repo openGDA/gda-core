@@ -32,7 +32,7 @@ public enum ViewerDisplayMode {
 		@Override
 		public String getFileName(TomoAlignmentController tomoAlignmentController) throws Exception {
 			return tomoAlignmentController.getDemandRawTiffFullFileName();
-			// return "/dls_sw/dasc/tomo/ravi.tif";
+//			return "/dls_sw/dasc/tomo/ravi.tif";
 
 		}
 
@@ -57,6 +57,7 @@ public enum ViewerDisplayMode {
 			return tomoAlignmentController.getDarkFieldImageFullFileName();
 		}
 	},
+
 	ROTATION_AXIS(TomoAlignmentView.FIND_ROTATION_AXIS_DISPLAY_INFO) {
 		@Override
 		public String getFileName(TomoAlignmentController tomoAlignmentController) throws Exception {
@@ -74,11 +75,11 @@ public enum ViewerDisplayMode {
 		return val;
 	}
 
+
 	@SuppressWarnings("unused")
 	public String getFileName(TomoAlignmentController tomoAlignmentController) throws Exception {
 		return null;
 	}
-
 	public static ViewerDisplayMode getDisplayMode(String info) {
 		for (ViewerDisplayMode mode : values()) {
 			if (info.equals(mode.getVal())) {

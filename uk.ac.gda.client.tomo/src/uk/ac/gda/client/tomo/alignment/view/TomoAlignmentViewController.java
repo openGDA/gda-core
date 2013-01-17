@@ -511,8 +511,6 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 							tomoAlignmentView.getLeftWindowImageViewer().getDisplay().syncExec(new Runnable() {
 								@Override
 								public void run() {
-									tomoAlignmentView
-											.setLeftWindowInfo(TomoAlignmentView.FIND_ROTATION_AXIS_DISPLAY_INFO);
 									tomoAlignmentView.getLeftWindowImageViewer().setFeedbackCursor(SWT.CURSOR_HAND);
 								}
 							});
@@ -688,7 +686,6 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 		} else {
 			logger.debug("'Auto-focus' de-selected");
 		}
-
 	}
 
 	@Override
@@ -1510,7 +1507,22 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 				}
 				//
 				if (!baseMonitor.isCanceled() && fileLocation != null) {
-					loadImageInViewAfterApplyingContrast(fileLocation);
+					Image img = new Image(tomoAlignmentView.getLeftWindowImageViewer().getDisplay(), fileLocation);
+					ImageData imgData = img.getImageData();
+
+					logger.debug(String.format("demandRaw() imageData depth#%d  palete is direct# %s", imgData.depth,
+							imgData.palette.isDirect));
+
+					tomoAlignmentView.setHistogramAdjusterImageData((ImageData) imgData.clone());
+
+					tomoAlignmentView.getHistogramAdjuster().updateHistogramValues(
+							tomoAlignmentView.getLeftWindowImageViewer(),
+							tomoAlignmentView.getTomoAlignmentController().getScaledX(),
+							tomoAlignmentView.getTomoAlignmentController().getScaledY(),
+							tomoAlignmentView.getContrastLower(), tomoAlignmentView.getContrastUpper());
+					imgData.data = null;
+					imgData = null;
+					img.dispose();
 					loadZoomImageInUI();
 					//
 				}

@@ -116,10 +116,6 @@ public class TomoParametersAdapterFactory extends AdapterFactoryImpl {
 				return createTomoExperimentAdapter();
 			}
 			@Override
-			public Adapter caseScanCollected(ScanCollected object) {
-				return createScanCollectedAdapter();
-			}
-			@Override
 			public Adapter defaultCase(EObject object) {
 				return createEObjectAdapter();
 			}
@@ -150,20 +146,6 @@ public class TomoParametersAdapterFactory extends AdapterFactoryImpl {
 	 * @generated
 	 */
 	public Adapter createTomoExperimentAdapter() {
-		return null;
-	}
-
-	/**
-	 * Creates a new adapter for an object of class '{@link uk.ac.gda.tomography.parameters.ScanCollected <em>Scan Collected</em>}'.
-	 * <!-- begin-user-doc -->
-	 * This default implementation returns null so that we can easily ignore cases;
-	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
-	 * <!-- end-user-doc -->
-	 * @return the new adapter.
-	 * @see uk.ac.gda.tomography.parameters.ScanCollected
-	 * @generated
-	 */
-	public Adapter createScanCollectedAdapter() {
 		return null;
 	}
 

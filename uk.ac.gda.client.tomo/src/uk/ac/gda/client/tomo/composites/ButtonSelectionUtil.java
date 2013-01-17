@@ -30,8 +30,8 @@ public class ButtonSelectionUtil {
 	public static final Color BUTTON_DE_SELECTION_FOREGROUND = ColorConstants.listForeground;
 	public static final Color BUTTON_DE_SELECTION_BACKGROUND = ColorConstants.listBackground;
 
-	public static final Color BUTTON_SELECTION_FOREGROUND = ColorConstants.black;
-	public static final Color BUTTON_SELECTION_BACKGROUND = ColorConstants.green;
+	public static final Color BUTTON_SELECTION_FOREGROUND = ColorConstants.red;
+	public static final Color BUTTON_SELECTION_BACKGROUND = ColorConstants.lightGray;
 
 	public static final Color CTRL_BUTTON_DE_SELECTION_FOREGROUND = BUTTON_DE_SELECTION_FOREGROUND;// ColorConstants.white;
 	public static final Color CTRL_BUTTON_DE_SELECTION_BACKGROUND = BUTTON_DE_SELECTION_BACKGROUND;// ColorConstants.buttonDarkest;

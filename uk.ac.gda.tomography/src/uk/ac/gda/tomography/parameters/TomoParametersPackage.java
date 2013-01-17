@@ -246,22 +246,13 @@ public interface TomoParametersPackage extends EPackage {
 	int ALIGNMENT_CONFIGURATION__TOMO_ROTATION_AXIS = 16;
 
 	/**
-	 * The feature id for the '<em><b>Scan Collected</b></em>' containment reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int ALIGNMENT_CONFIGURATION__SCAN_COLLECTED = 17;
-
-	/**
 	 * The number of structural features of the '<em>Alignment Configuration</em>' class.
 	 * <!-- begin-user-doc --> <!--
 	 * end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int ALIGNMENT_CONFIGURATION_FEATURE_COUNT = 18;
+	int ALIGNMENT_CONFIGURATION_FEATURE_COUNT = 17;
 
 	/**
 	 * The feature id for the '<em><b>Bin X</b></em>' attribute.
@@ -583,52 +574,6 @@ public interface TomoParametersPackage extends EPackage {
 	int TOMO_EXPERIMENT_FEATURE_COUNT = 4;
 
 	/**
-	 * The meta object id for the '{@link uk.ac.gda.tomography.parameters.impl.ScanCollectedImpl <em>Scan Collected</em>}' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see uk.ac.gda.tomography.parameters.impl.ScanCollectedImpl
-	 * @see uk.ac.gda.tomography.parameters.impl.TomoParametersPackageImpl#getScanCollected()
-	 * @generated
-	 */
-	int SCAN_COLLECTED = 9;
-
-	/**
-	 * The feature id for the '<em><b>Scan Number</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SCAN_COLLECTED__SCAN_NUMBER = 0;
-
-	/**
-	 * The feature id for the '<em><b>Start Time</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SCAN_COLLECTED__START_TIME = 1;
-
-	/**
-	 * The feature id for the '<em><b>End Time</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SCAN_COLLECTED__END_TIME = 2;
-
-	/**
-	 * The number of structural features of the '<em>Scan Collected</em>' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SCAN_COLLECTED_FEATURE_COUNT = 3;
-
-	/**
 	 * The meta object id for the '{@link uk.ac.gda.tomography.parameters.ScanMode <em>Scan Mode</em>}' enum. <!--
 	 * begin-user-doc --> <!-- end-user-doc -->
 	 * 
@@ -636,7 +581,7 @@ public interface TomoParametersPackage extends EPackage {
 	 * @see uk.ac.gda.tomography.parameters.impl.TomoParametersPackageImpl#getScanMode()
 	 * @generated
 	 */
-	int SCAN_MODE = 10;
+	int SCAN_MODE = 9;
 
 	/**
 	 * The meta object id for the '{@link uk.ac.gda.tomography.parameters.Resolution <em>Resolution</em>}' enum.
@@ -646,7 +591,7 @@ public interface TomoParametersPackage extends EPackage {
 	 * @see uk.ac.gda.tomography.parameters.impl.TomoParametersPackageImpl#getResolution()
 	 * @generated
 	 */
-	int RESOLUTION = 11;
+	int RESOLUTION = 10;
 
 	/**
 	 * The meta object id for the '{@link uk.ac.gda.tomography.parameters.SampleWeight <em>Sample Weight</em>}' enum.
@@ -656,7 +601,7 @@ public interface TomoParametersPackage extends EPackage {
 	 * @see uk.ac.gda.tomography.parameters.impl.TomoParametersPackageImpl#getSampleWeight()
 	 * @generated
 	 */
-	int SAMPLE_WEIGHT = 12;
+	int SAMPLE_WEIGHT = 11;
 
 	/**
 	 * Returns the meta object for class '{@link uk.ac.gda.tomography.parameters.TomoExperiment <em>Tomo Experiment</em>}'.
@@ -709,49 +654,6 @@ public interface TomoParametersPackage extends EPackage {
 	 * @generated
 	 */
 	EAttribute getTomoExperiment_Version();
-
-	/**
-	 * Returns the meta object for class '{@link uk.ac.gda.tomography.parameters.ScanCollected <em>Scan Collected</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for class '<em>Scan Collected</em>'.
-	 * @see uk.ac.gda.tomography.parameters.ScanCollected
-	 * @generated
-	 */
-	EClass getScanCollected();
-
-	/**
-	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.parameters.ScanCollected#getScanNumber <em>Scan Number</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Scan Number</em>'.
-	 * @see uk.ac.gda.tomography.parameters.ScanCollected#getScanNumber()
-	 * @see #getScanCollected()
-	 * @generated
-	 */
-	EAttribute getScanCollected_ScanNumber();
-
-	/**
-	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.parameters.ScanCollected#getStartTime <em>Start Time</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Start Time</em>'.
-	 * @see uk.ac.gda.tomography.parameters.ScanCollected#getStartTime()
-	 * @see #getScanCollected()
-	 * @generated
-	 */
-	EAttribute getScanCollected_StartTime();
-
-	/**
-	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.parameters.ScanCollected#getEndTime <em>End Time</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>End Time</em>'.
-	 * @see uk.ac.gda.tomography.parameters.ScanCollected#getEndTime()
-	 * @see #getScanCollected()
-	 * @generated
-	 */
-	EAttribute getScanCollected_EndTime();
 
 	/**
 	 * Returns the meta object for class '{@link uk.ac.gda.tomography.parameters.Module <em>Module</em>}'.
@@ -1164,17 +1066,6 @@ public interface TomoParametersPackage extends EPackage {
 	EAttribute getAlignmentConfiguration_TomoRotationAxis();
 
 	/**
-	 * Returns the meta object for the containment reference list '{@link uk.ac.gda.tomography.parameters.AlignmentConfiguration#getScanCollected <em>Scan Collected</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the containment reference list '<em>Scan Collected</em>'.
-	 * @see uk.ac.gda.tomography.parameters.AlignmentConfiguration#getScanCollected()
-	 * @see #getAlignmentConfiguration()
-	 * @generated
-	 */
-	EReference getAlignmentConfiguration_ScanCollected();
-
-	/**
 	 * Returns the meta object for class '{@link uk.ac.gda.tomography.parameters.Parameters <em>Parameters</em>}'. <!--
 	 * begin-user-doc --> <!-- end-user-doc -->
 	 * 
@@ -1331,40 +1222,6 @@ public interface TomoParametersPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute TOMO_EXPERIMENT__VERSION = eINSTANCE.getTomoExperiment_Version();
-
-		/**
-		 * The meta object literal for the '{@link uk.ac.gda.tomography.parameters.impl.ScanCollectedImpl <em>Scan Collected</em>}' class.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @see uk.ac.gda.tomography.parameters.impl.ScanCollectedImpl
-		 * @see uk.ac.gda.tomography.parameters.impl.TomoParametersPackageImpl#getScanCollected()
-		 * @generated
-		 */
-		EClass SCAN_COLLECTED = eINSTANCE.getScanCollected();
-
-		/**
-		 * The meta object literal for the '<em><b>Scan Number</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute SCAN_COLLECTED__SCAN_NUMBER = eINSTANCE.getScanCollected_ScanNumber();
-
-		/**
-		 * The meta object literal for the '<em><b>Start Time</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute SCAN_COLLECTED__START_TIME = eINSTANCE.getScanCollected_StartTime();
-
-		/**
-		 * The meta object literal for the '<em><b>End Time</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute SCAN_COLLECTED__END_TIME = eINSTANCE.getScanCollected_EndTime();
 
 		/**
 		 * The meta object literal for the '{@link uk.ac.gda.tomography.parameters.impl.ModuleImpl <em>Module</em>}' class.
@@ -1685,14 +1542,6 @@ public interface TomoParametersPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute ALIGNMENT_CONFIGURATION__TOMO_ROTATION_AXIS = eINSTANCE.getAlignmentConfiguration_TomoRotationAxis();
-
-		/**
-		 * The meta object literal for the '<em><b>Scan Collected</b></em>' containment reference list feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EReference ALIGNMENT_CONFIGURATION__SCAN_COLLECTED = eINSTANCE.getAlignmentConfiguration_ScanCollected();
 
 		/**
 		 * The meta object literal for the '{@link uk.ac.gda.tomography.parameters.impl.ParametersImpl <em>Parameters</em>}' class.

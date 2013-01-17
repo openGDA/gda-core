@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.client.tomo.alignment.view.command.handlers;
+package uk.ac.gda.client.tomo.alignment.view.handlers.impl;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -26,15 +26,19 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import uk.ac.gda.client.tomo.alignment.view.ITomoAlignmentView;
 
-public class ResetDetectorCommandHandler extends AbstractHandler {
+/**
+ *
+ */
+public class ResetDetectorHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		IWorkbenchPart activePart = HandlerUtil.getActivePart(event);
 		if (activePart instanceof ITomoAlignmentView) {
-			ITomoAlignmentView tv = (ITomoAlignmentView) activePart;
-			tv.reset();
+			ITomoAlignmentView tomoView = (ITomoAlignmentView) activePart;
+			tomoView.reset();
 		}
 		return null;
 	}
+
 }

@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.client.tomo.DoublePointList;
 import uk.ac.gda.client.tomo.ExternalFunction;
 import uk.ac.gda.client.tomo.TiltPlotPointsHolder;
-import uk.ac.gda.client.tomo.alignment.view.TomoAlignmentCommands;
+import uk.ac.gda.client.tomo.TomoClientConstants;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraModuleMotorHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ISampleStageMotorHandler;
@@ -81,18 +81,6 @@ public class TiltController implements ITiltController {
 	private String result;
 
 	private boolean test = false;
-
-	private double preTiltSs1RxVal = 0.2;
-
-	private double preTiltCam1RollVal = 0.5;
-
-	public void setPreTiltCam1RollVal(double preTiltCam1RollVal) {
-		this.preTiltCam1RollVal = preTiltCam1RollVal;
-	}
-
-	public void setPreTiltSs1RxVal(double preTiltSs1RxVal) {
-		this.preTiltSs1RxVal = preTiltSs1RxVal;
-	}
 
 	public String getResult() {
 		return result;
@@ -142,12 +130,6 @@ public class TiltController implements ITiltController {
 		String firstScanFolder = null;
 		String secondScanFolder = null;
 		try {
-			// Move the cam1_roll and the ss1_rx to preset values so that the matlab tilt procedure evaluates good
-			// values.
-			cameraModuleMotorHandler.moveCam1Roll(progress, preTiltCam1RollVal);
-			sampleStageMotorHandler.moveSs1RxBy(progress, preTiltSs1RxVal);
-			//
-
 			cameraHandler.setUpForTilt(minY, maxY, minX, maxX);
 			logger.debug("Set the camera minY at:" + minY + " and maxY at:" + maxY);
 			double txOffset = getTxOffset(module);
@@ -174,15 +156,13 @@ public class TiltController implements ITiltController {
 							logger.debug("motorsto move:{}", motorsToMove);
 							if (!progress.isCanceled()) {
 								if (motorsToMove != null) {
-									logger.debug("Current cam1_roll is :{}",
-											cameraModuleMotorHandler.getCam1RollPosition());
+									logger.debug("Current cam1_roll is :{}", cameraModuleMotorHandler.getCam1RollPosition());
 									logger.debug("Current rx is :{}", sampleStageMotorHandler.getSs1RxPosition());
 									double rz = motorsToMove[0];// roll
 									double rx = motorsToMove[1];// pitch
 
 									// sampleStageMotorHandler.moveSs1RzBy(progress, -rz);
-									cameraModuleMotorHandler.moveCam1Roll(progress,
-											cameraModuleMotorHandler.getCam1RollPosition() - rz);
+									cameraModuleMotorHandler.moveCam1Roll(progress, cameraModuleMotorHandler.getCam1RollPosition() - rz);
 									sampleStageMotorHandler.moveSs1RxBy(progress, -rx);
 
 									logger.debug("After move cam1 roll is :{}",
@@ -242,7 +222,7 @@ public class TiltController implements ITiltController {
 			tomoScriptController.addIObserver(observer);
 		}
 
-		InterfaceProvider.getCommandRunner().evaluateCommand(TomoAlignmentCommands.GET_SUBDIR);
+		InterfaceProvider.getCommandRunner().evaluateCommand(TomoClientConstants.GET_SUBDIR);
 		while (!subdirChanged[0]) {
 			Sleep.sleep(5);
 		}
@@ -274,8 +254,7 @@ public class TiltController implements ITiltController {
 			tomoScriptController.addIObserver(observer);
 		}
 
-		InterfaceProvider.getCommandRunner()
-				.evaluateCommand(String.format(TomoAlignmentCommands.CHANGE_SUBDIR, subdir));
+		InterfaceProvider.getCommandRunner().evaluateCommand(String.format(TomoClientConstants.CHANGE_SUBDIR, subdir));
 		while (!subdirChanged[0]) {
 			Sleep.sleep(5);
 		}
@@ -506,8 +485,7 @@ public class TiltController implements ITiltController {
 				// return null;
 				// }
 				try {
-					motorsToMove[count] = Double.parseDouble(token);
-					count = count + 1;
+					motorsToMove[count++] = Double.parseDouble(token);
 					// Only interested in the first two decimals
 					if (count == 2) {
 						break;
