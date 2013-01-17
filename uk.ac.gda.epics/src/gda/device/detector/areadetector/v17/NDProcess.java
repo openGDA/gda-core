@@ -18,6 +18,8 @@
 
 package gda.device.detector.areadetector.v17;
 
+import gda.observable.Observable;
+
 
 /**
  * This maps to the "proc" plugin on the edm screen
@@ -786,5 +788,7 @@ public interface NDProcess {
 	void setAutoResetFilter(int enable) throws Exception;
 	
 	int getAutoResetFilter() throws Exception;
-	
+
+	Observable<Double> createScaleObservable() throws Exception;	
+	Observable<Double> createOffsetObservable() throws Exception;	
 }

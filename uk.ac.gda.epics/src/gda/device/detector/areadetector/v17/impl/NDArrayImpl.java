@@ -23,12 +23,15 @@ import gda.configuration.epics.Configurator;
 import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.areadetector.v17.NDPluginBase;
+import gda.epics.LazyPVFactory;
 import gda.epics.connection.EpicsController;
 import gda.epics.interfaces.NDStdArraysType;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
+import gov.aps.jca.dbr.DBR;
+import gov.aps.jca.dbr.DBRType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -281,5 +284,29 @@ public class NDArrayImpl implements NDArray, InitializingBean {
 		}
 	}
 
+	private String getChannelName(String pvElementName, String... args)throws Exception{
+		String pvPostFix = null;
+		if (args.length > 0) {
+			// PV element name is different from the pvPostFix
+			pvPostFix = args[0];
+		} else {
+			pvPostFix = pvElementName;
+		}
+
+		String fullPvName;
+		if (pvProvider != null) {
+			fullPvName = pvProvider.getPV(pvElementName);
+		} else {
+			fullPvName = basePVName + pvPostFix;
+		}
+		return fullPvName;
+	}
+
+	@Override
+	public Object getImageData(int expectedNumPixels) throws Exception {
+		Channel ch = getChannel(ARRAY_DATA);
+		return EPICS_CONTROLLER.getDBR(ch, ch.getFieldType(),expectedNumPixels).getValue();
+	}	
+	
 	
 }

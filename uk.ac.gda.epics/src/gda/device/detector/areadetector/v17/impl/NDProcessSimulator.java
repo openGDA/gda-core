@@ -20,6 +20,7 @@ package gda.device.detector.areadetector.v17.impl;
 
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDProcess;
+import gda.observable.Observable;
 
 public class NDProcessSimulator implements NDProcess {
 
@@ -734,6 +735,16 @@ public class NDProcessSimulator implements NDProcess {
 	public int getAutoResetFilter() throws Exception {
 
 		return 0;
+	}
+
+	@Override
+	public Observable<Double> createScaleObservable() throws Exception {
+		return null;
+	}
+
+	@Override
+	public Observable<Double> createOffsetObservable() throws Exception {
+		return null;
 	}
 
 }

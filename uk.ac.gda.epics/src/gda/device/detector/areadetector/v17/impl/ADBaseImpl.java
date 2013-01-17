@@ -34,6 +34,7 @@ import gda.epics.Predicate;
 import gda.epics.connection.EpicsController;
 import gda.epics.interfaces.ADBaseType;
 import gda.factory.FactoryException;
+import gda.observable.Observable;
 import gda.util.Sleep;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
@@ -2332,5 +2333,19 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				return (object >= exposureNumber);
 			}
 		}, timeoutS);
+	}
+
+	private String getChannelName(String pvElementName, String... args)throws Exception{
+		return genenerateFullPvName(pvElementName, args);
+	}	
+	
+	@Override
+	public Observable<String> createAcquireStateObservable() throws Exception {
+		return LazyPVFactory.newReadOnlyStringPV(getChannelName(Acquire_RBV));
+	}
+
+	@Override
+	public Observable<Double> createAcquireTimeObservable() throws Exception {
+		return LazyPVFactory.newReadOnlyDoublePV(getChannelName(AcquireTime_RBV));
 	}
 }

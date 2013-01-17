@@ -41,4 +41,6 @@ public interface NDArray {
 	void reset() throws Exception;
 
 	byte[] getByteArrayData() throws Exception;
+	
+	Object getImageData(int expectedNumPixels) throws Exception;
 }
