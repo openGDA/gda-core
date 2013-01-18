@@ -228,26 +228,27 @@ public class TomoAlignmentController extends TomoViewController {
 		progress.beginTask("Taking flat images", numFlat + 5);
 		// double distanceToMoveForFlat = motorHandler.getDistanceToMoveSampleForTakeFlat();
 		double initialMotorPos = sampleStageMotorHandler.getSampleBaseMotorPosition();
-		try{
-		sampleStageMotorHandler.moveSampleScannableBy(progress, sampleStageMotorHandler.getDistanceToMoveSampleOut());
 		try {
-			logger.debug("Requesting for open shutter");
-			// 1. Open Experimental shutter
-			cameraShutterHandler.openShutter(progress.newChild(1));
-		} catch (DeviceException e) {
-			logger.error("Failed to open shutter", e);
-			throw new InvocationTargetException(e, e.getMessage());
-		}
+			sampleStageMotorHandler.moveSampleScannableBy(progress,
+					sampleStageMotorHandler.getDistanceToMoveSampleOut());
+			try {
+				logger.debug("Requesting for open shutter");
+				// 1. Open Experimental shutter
+				cameraShutterHandler.openShutter(progress.newChild(1));
+			} catch (DeviceException e) {
+				logger.error("Failed to open shutter", e);
+				throw new InvocationTargetException(e, e.getMessage());
+			}
 
-		try {
-			cameraHandler.takeFlat(progress.newChild(numFlat), numFlat, acqTime);
-		} catch (Exception e) {
-			logger.error("Problem with taking flat", e);
-			throw new InvocationTargetException(e, e.getMessage());
-		}
+			try {
+				cameraHandler.takeFlat(progress.newChild(numFlat), numFlat, acqTime);
+			} catch (Exception e) {
+				logger.error("Problem with taking flat", e);
+				throw new InvocationTargetException(e, e.getMessage());
+			}
 
-		cameraHandler.resetFileFormat();}
-		finally{
+			cameraHandler.resetFileFormat();
+		} finally {
 			sampleStageMotorHandler.moveSampleScannable(progress, initialMotorPos);
 		}
 	}
@@ -266,10 +267,11 @@ public class TomoAlignmentController extends TomoViewController {
 		return acqExposureRBV;
 	}
 
-	public void startAcquiring(final double acqTime, final boolean isAmplified, double lower, double upper)
+	public void startAcquiring(final double acqTime, boolean isAmplified, double lower, double upper)
 			throws InvocationTargetException {
 		logger.debug("Start acquisition request");
 		try {
+			isAmplified = isAmplified && acqTime > getFastPreviewExposureThreshold();
 			cameraHandler.startAcquiring(acqTime, isAmplified, lower, upper);
 			iocDownException = null;
 		} catch (Exception e) {
@@ -325,7 +327,11 @@ public class TomoAlignmentController extends TomoViewController {
 				// adbase model values update
 				logger.debug("Set up all data fields - expected to be called only during initialization");
 				cameraHandler.init();
-				updateModuleSelected(getModule());
+				try {
+					updateModuleSelected(getModule());
+				} catch (Exception ex) {
+					logger.error("Exception while updating module selection", ex);
+				}
 
 				updatePreferredSampleExposureTime(cameraHandler.getPreferredSampleExposureTime());
 				cameraHandler.setPreferredFlatExposureTime(cameraHandler.getPreferredSampleExposureTime());
@@ -939,7 +945,7 @@ public class TomoAlignmentController extends TomoViewController {
 	/**
 	 * @param monitor
 	 * @param saveableConfiguration
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public String saveConfiguration(IProgressMonitor monitor, final SaveableConfiguration saveableConfiguration)
 			throws Exception {
@@ -1092,7 +1098,11 @@ public class TomoAlignmentController extends TomoViewController {
 		return String.format("%dh %02dm %02ds", hours, minutes, seconds);
 	}
 
-	public String getDetectorPortName() throws Exception{
+	public String getDetectorPortName() throws Exception {
 		return cameraHandler.getPortName();
+	}
+
+	public double getFastPreviewExposureThreshold() {
+		return cameraHandler.getFastPreviewExposureThreshold();
 	}
 }

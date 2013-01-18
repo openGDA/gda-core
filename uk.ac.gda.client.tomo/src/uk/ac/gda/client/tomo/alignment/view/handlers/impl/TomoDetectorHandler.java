@@ -872,11 +872,10 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 		return camera.getProc1Scale();
 	}
 
-	/**
-	 * @return Returns the defaultDistanceToMoveForFlat.
-	 */
-	public Double getDefaultFastPreviewExposureTimeThreshold() {
-		return defaultFastPreviewExposureTimeThreshold;
+	@Override
+	public double getFastPreviewExposureThreshold() {
+		return TomoClientActivator.getDefault().getPreferenceStore()
+				.getDouble(TomoAlignmentPreferencePage.TOMO_CLIENT_FAST_PREVIEW_EXP_TIME);
 	}
 
 	/**
