@@ -522,11 +522,7 @@ public class Xspress1System extends DetectorBase implements NexusDetector, Xspre
 		try {
 			daServer.reconnect();
 		} catch (DeviceException e1) {
-<<<<<<< HEAD
 			throw new FactoryException(e1.getMessage(),e1);
-=======
-			logger.error("Could not reconnect to xspress", e1);
->>>>>>> refs/remotes/origin/8.26
 		}
 
 		// does not reconfigure the timer -- need to check if it is needed

@@ -286,8 +286,6 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 		}
 	}
 	
-	@Override
-	
 	private void arm() throws DeviceException {
 		try {
 			controller.startRecording();
