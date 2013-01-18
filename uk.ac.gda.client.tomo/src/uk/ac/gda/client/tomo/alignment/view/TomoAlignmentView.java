@@ -89,6 +89,7 @@ import uk.ac.gda.ui.components.PointInDouble;
  */
 public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignmentView {
 	private static final String IOC_RUNNING_CONTEXT = "uk.ac.gda.client.tomo.alignment.isDetectorIocRunningContext";
+	public static final String FIND_ROTATION_AXIS_DISPLAY_INFO = "ROTATION AXIS";
 
 	private boolean isScanRunning = Boolean.TRUE;
 

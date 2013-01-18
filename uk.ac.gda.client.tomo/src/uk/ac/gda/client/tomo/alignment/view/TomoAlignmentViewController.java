@@ -1510,22 +1510,7 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 				}
 				//
 				if (!baseMonitor.isCanceled() && fileLocation != null) {
-					Image img = new Image(tomoAlignmentView.getLeftWindowImageViewer().getDisplay(), fileLocation);
-					ImageData imgData = img.getImageData();
-
-					logger.debug(String.format("demandRaw() imageData depth#%d  palete is direct# %s", imgData.depth,
-							imgData.palette.isDirect));
-
-					tomoAlignmentView.setHistogramAdjusterImageData((ImageData) imgData.clone());
-
-					tomoAlignmentView.getHistogramAdjuster().updateHistogramValues(
-							tomoAlignmentView.getLeftWindowImageViewer(),
-							tomoAlignmentView.getTomoAlignmentController().getScaledX(),
-							tomoAlignmentView.getTomoAlignmentController().getScaledY(),
-							tomoAlignmentView.getContrastLower(), tomoAlignmentView.getContrastUpper());
-					imgData.data = null;
-					imgData = null;
-					img.dispose();
+					loadImageInViewAfterApplyingContrast(fileLocation);
 					loadZoomImageInUI();
 					//
 				}
