@@ -36,6 +36,8 @@ public interface ITomoAlignmentView extends IRotationMotorListener, IViewPart, I
 
 	void updateStreamWidget(int acquisitionState);
 
+	void updateExposureTimeToWidget(double acqExposure);
+
 	void updateZoomImgStreamUrl(String zoomImgJpegURL);
 
 	Double getScreenPixelSize();

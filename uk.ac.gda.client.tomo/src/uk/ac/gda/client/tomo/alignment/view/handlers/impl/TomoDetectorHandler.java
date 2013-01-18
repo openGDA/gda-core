@@ -300,6 +300,11 @@ public class TomoDetectorHandler implements ICameraHandler, InitializingBean {
 				tomoAlignmentViewController.updateAcquireState(acquisitionState);
 			}
 		}
+		
+		@Override
+		public void updateAcqExposure(double acqExposure) {
+			tomoAlignmentViewController.updateAcqExposure(acqExposure);
+		}
 
 	};
 
