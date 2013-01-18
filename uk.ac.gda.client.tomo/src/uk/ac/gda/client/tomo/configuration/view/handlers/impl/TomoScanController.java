@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.client.tomo.TomoClientConstants;
+import uk.ac.gda.client.tomo.alignment.view.TomoAlignmentCommands;
 import uk.ac.gda.client.tomo.configuration.view.handlers.IScanControllerUpdateListener;
 import uk.ac.gda.client.tomo.configuration.view.handlers.ITomoScanController;
 
@@ -156,7 +156,7 @@ public class TomoScanController implements ITomoScanController {
 
 	@Override
 	public void isScanRunning() {
-		InterfaceProvider.getCommandRunner().evaluateCommand(TomoClientConstants.TOMOGRAPHY_IS_RUNNING_CONFIG_CMD);
+		InterfaceProvider.getCommandRunner().evaluateCommand(TomoAlignmentCommands.TOMOGRAPHY_IS_RUNNING_CONFIG_CMD);
 	}
 
 	@Override
@@ -172,7 +172,7 @@ public class TomoScanController implements ITomoScanController {
 
 	@Override
 	public void stopScan() {
-		InterfaceProvider.getCommandRunner().evaluateCommand(TomoClientConstants.TOMOGRAPHY_STOP_SCAN);
+		InterfaceProvider.getCommandRunner().evaluateCommand(TomoAlignmentCommands.TOMOGRAPHY_STOP_SCAN);
 	}
 
 }
