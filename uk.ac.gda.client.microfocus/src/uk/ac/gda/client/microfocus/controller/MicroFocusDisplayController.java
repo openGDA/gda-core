@@ -194,9 +194,7 @@ public class MicroFocusDisplayController {
 			return xy;
 		}
 		Object s = JythonServerFacade.getInstance().evaluateCommand("map.getMFD().getXY(" + x + "," + y + ")");
-		if (s instanceof double[]) {
-			xy = (double[]) s;
-		}
+		
 		if (s instanceof String) {
 			String xyString = (String) s;
 			xyString = xyString.substring(xyString.indexOf("[") + 1, xyString.indexOf("]"));

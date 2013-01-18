@@ -150,5 +150,4 @@ public class VortexMFMappableDataProviderTest {
 	{
 		vortexDataProvider = null;
 	}
-
 }
