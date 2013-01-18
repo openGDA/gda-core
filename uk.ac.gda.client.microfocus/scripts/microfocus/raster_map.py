@@ -128,7 +128,8 @@ class RasterMap(Map):
             self.redefineNexusMetadataForMaps(beanGroup)
             
             try:
-
+                numberPoints = abs(scanBean.getXEnd()- scanBean.getXStart())/scanBean.getXStepSize() + 1.0
+                
                 detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
  
                 collectionTime = float(scanBean.getRowTime())/float(numberPoints)

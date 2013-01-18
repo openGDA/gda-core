@@ -22,6 +22,8 @@ import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
+import uk.ac.gda.client.CommandQueueViewFactory;
+
 public class MicroFocusPerspective implements IPerspectiveFactory {
 
 	public static final String ID = "uk.ac.gda.microfocus.ui.MicroFocusPerspective";
@@ -44,6 +46,7 @@ public class MicroFocusPerspective implements IPerspectiveFactory {
 		leftFolder.addView("uk.ac.gda.client.microfocus.MFElementListView");
 		leftFolder.addView("uk.ac.gda.client.microfocus.VortexElementListView");
 		detfolder.addView("gda.rcp.jythonterminalview");
+		detfolder.addView(CommandQueueViewFactory.ID);
 		rightfolder.addView("uk.ac.gda.beamline.i18.McaView");
 		
 		layout.setEditorAreaVisible(false);
