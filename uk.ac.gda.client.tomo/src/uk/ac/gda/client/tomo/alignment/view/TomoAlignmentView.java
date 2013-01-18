@@ -1733,9 +1733,7 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 	protected String getIocRunningContext() {
 		return IOC_RUNNING_CONTEXT;
 	}
-<<<<<<< OURS
-}
-=======
+
 
 	@Override
 	public void updateExposureTimeToWidget(final double acqExposure) {
@@ -1751,4 +1749,4 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 	}
 
 }
->>>>>>> THEIRS
+

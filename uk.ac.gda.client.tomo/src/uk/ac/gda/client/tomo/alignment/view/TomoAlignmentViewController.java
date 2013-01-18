@@ -511,6 +511,8 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 							tomoAlignmentView.getLeftWindowImageViewer().getDisplay().syncExec(new Runnable() {
 								@Override
 								public void run() {
+									tomoAlignmentView
+											.setLeftWindowInfo(TomoAlignmentView.FIND_ROTATION_AXIS_DISPLAY_INFO);
 									tomoAlignmentView.getLeftWindowImageViewer().setFeedbackCursor(SWT.CURSOR_HAND);
 								}
 							});
@@ -638,53 +640,6 @@ public class TomoAlignmentViewController implements ITomoAlignmentLeftPanelListe
 	public void autoFocus(boolean selected) throws Exception {
 		if (!tomoAlignmentView.isModuleSelected()) {
 			throw new IllegalArgumentException("Camera module must be selected");
-		}
-		if (selected) {
-			tomoAlignmentView.getLeftPanelComposite().setZoom(ZOOM_LEVEL.NO_ZOOM);
-			tomoAlignmentView.getLeftPanelComposite().deselectProfileButton();
-			logger.debug("Switching off the zoom");
-
-			// start the stream button if not already streaming
-			ViewerDisplayMode leftWindowViewerDisplayMode = tomoAlignmentView.getLeftWindowViewerDisplayMode();
-			if (ViewerDisplayMode.SAMPLE_STREAM_LIVE != leftWindowViewerDisplayMode
-					|| ViewerDisplayMode.FLAT_STREAM_LIVE != leftWindowViewerDisplayMode) {
-				tomoAlignmentView.getLeftPanelComposite().startStreaming();
-			}
-			final String[] autofocusStatus = new String[1];
-			try {
-				ACTIVE_WORKBENCH_WINDOW.run(true, false, new IRunnableWithProgress() {
-
-					@Override
-					public void run(IProgressMonitor monitor) throws InvocationTargetException {
-						double exposureTime = tomoAlignmentView.getLeftPanelComposite().getSampleExposureTime();
-						SubMonitor progress = SubMonitor.convert(monitor);
-						try {
-							progress.beginTask("AutoFocus", 50);
-							autofocusStatus[0] = tomoAlignmentView.getTomoAlignmentController().doAutoFocus(progress,
-									exposureTime);
-						} catch (Exception ex) {
-							logger.error("Error while evaluating auto-focus", ex);
-							throw new InvocationTargetException(ex, "Error while evaluating auto-focus:"
-									+ ex.getMessage());
-						} finally {
-							progress.done();
-							monitor.done();
-						}
-					}
-				});
-			} finally {
-			}
-			try {
-				tomoAlignmentView.getTomoControlComposite().switchOff(MotionControlCentring.AUTO_FOCUS);
-				if (autofocusStatus[0] != null) {
-					MessageDialog.openInformation(tomoAlignmentView.getSite().getShell(), "Auto focus result",
-							"Auto focus results: " + autofocusStatus[0]);
-				}
-			} catch (Exception e) {
-				logger.error("Problem stopping switching off 'Auto-focus'", e);
-			}
-		} else {
-			logger.debug("'Auto-focus' de-selected");
 		}
 		if (selected) {
 			tomoAlignmentView.getLeftPanelComposite().setZoom(ZOOM_LEVEL.NO_ZOOM);
