@@ -230,10 +230,7 @@ public class WorkingEnergyComposite extends FieldBeanComposite {
 					double energy = init + ((fin - init) / 2.0);
 					workingEnergy.setMinimum(init);
 					workingEnergy.setMaximum(fin);
-					if (Math.floor(energy) == energy)
-						workingEnergy.setValue((int) energy);
-					else
-						workingEnergy.setValue(energy);
+					workingEnergy.setValue(energy);
 				}
 			}
 		} catch (Exception ne) {
