@@ -93,7 +93,7 @@ public class GasFilling extends Composite {
 
 		textEnergy = new Text(compositeEnergy, SWT.BORDER);
 		GridData gd_textEnergy = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_textEnergy.widthHint = 61;
+		gd_textEnergy.widthHint = 73;
 		textEnergy.setLayoutData(gd_textEnergy);
 		textEnergy.setText("10500ev");
 

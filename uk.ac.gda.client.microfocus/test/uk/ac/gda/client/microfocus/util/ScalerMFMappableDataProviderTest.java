@@ -33,69 +33,63 @@ import org.junit.Test;
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.util.PackageUtils;
-//@Ignore("2010/03/04 Test ignored as ScalerMFMappableDataProvider now calls getExtensionRegistry, so this needs to be converted to a Plug-in Test.")
+
+// @Ignore("2010/03/04 Test ignored as ScalerMFMappableDataProvider now calls getExtensionRegistry, so this needs to be converted to a Plug-in Test.")
 public class ScalerMFMappableDataProviderTest {
-	
-	
-	final static String testScratchDirectoryName =
-		TestUtils.generateDirectorynameFromClassname(ScalerMFMappableDataProviderTest.class.getCanonicalName());
+
+	final static String testScratchDirectoryName = TestUtils
+			.generateDirectorynameFromClassname(ScalerMFMappableDataProviderTest.class.getCanonicalName());
 	private static ScalerMFMappableDataProvider scalerDataProvider;
+
 	@SuppressWarnings("unchecked")
 	@BeforeClass
-	public static void beforeClass() throws Exception{
+	public static void beforeClass() throws Exception {
 		TestUtils.makeScratchDirectory(testScratchDirectoryName);
 		Class<?> c = Class.forName("uk.ac.gda.beans.xspress.XspressParameters");
 		Class<?> c1 = Class.forName("uk.ac.gda.beans.vortex.VortexParameters");
 		Class<?> c2 = Class.forName("uk.ac.gda.beans.exafs.DetectorParameters");
-		BeansFactory.setClasses((Class<? extends IRichBean>[]) new Class<?>[]{c, c1, c2});
-		
+		BeansFactory.setClasses((Class<? extends IRichBean>[]) new Class<?>[] { c, c1, c2 });
 	}
-	
+
 	@SuppressWarnings("unused")
 	@Before
-	public void setUp()throws Exception
-	{
+	public void setUp() throws Exception {
 		scalerDataProvider = new ScalerMFMappableDataProvider();
 		scalerDataProvider.setXScannableName("sc_MicroFocusSampleX");
 		scalerDataProvider.setYScannableName("sc_MicroFocusSampleY");
 		scalerDataProvider.setZScannableName("sc_sample_z");
 		scalerDataProvider.setSelectedElement("I0");
-		scalerDataProvider.setBeanFilePath(PackageUtils.getTestPath(getClass(), "test")+"Detector_Parameters.xml");
+		scalerDataProvider.setBeanFilePath(PackageUtils.getTestPath(getClass(), "test") + "Detector_Parameters.xml");
 		scalerDataProvider.loadBean();
-		
 	}
-	
-	
+
 	@SuppressWarnings("unused")
 	@Test
-	public void testLoadBean() throws Exception
-	{		
+	public void testLoadBean() throws Exception {
 		String[] elementNames = scalerDataProvider.getElementNames();
 		assertEquals(3, elementNames.length);
 		assertEquals(elementNames[0], "I0");
 		assertEquals("Iref", elementNames[2]);
 	}
-	
+
 	@SuppressWarnings("unused")
 	@Test
-	public void testLoadData() throws Exception
-	{
-		scalerDataProvider.loadData(PackageUtils.getTestPath(getClass(), "test")+"vortex_map_1_8472.nxs");
+	public void testLoadData() throws Exception {
+		scalerDataProvider.loadData(PackageUtils.getTestPath(getClass(), "test") + "vortex_map_1_8472.nxs");
 		Double[] x = scalerDataProvider.getXarray();
 		assertEquals(11, x.length);
 		Double[] y = scalerDataProvider.getYarray();
 		assertEquals(11, y.length);
-		assertArrayEquals(new Double[]{0.5, 0.55, 0.6, 0.6500000000000001, 0.7000000000000001, 0.75, 0.8, 0.8500000000000001, 0.9000000000000001, 0.9500000000000001, 1.0},x);
-		assertArrayEquals(new Double[]{ 3.0, 3.0500000000000003, 3.100000000000001, 3.1500000000000004, 3.2, 
-				3.250000000000001, 3.3000000000000003, 3.35, 3.4000000000000004, 3.45, 3.5}, y);
-		}
-	
+		assertArrayEquals(new Double[] { 0.5, 0.55, 0.6, 0.6500000000000001, 0.7000000000000001, 0.75, 0.8,
+				0.8500000000000001, 0.9000000000000001, 0.9500000000000001, 1.0 }, x);
+		assertArrayEquals(new Double[] { 3.0, 3.0500000000000003, 3.100000000000001, 3.1500000000000004, 3.2,
+				3.250000000000001, 3.3000000000000003, 3.35, 3.4000000000000004, 3.45, 3.5 }, y);
+	}
 
 	@SuppressWarnings("unused")
 	@Test
-	public void testConstructMappableDatafromCounter() throws Exception
-	{
-		scalerDataProvider.loadData(PackageUtils.getTestPath(getClass(), "test")+"i18-284.nxs");
+	public void testConstructMappableDatafromCounter() throws Exception {
+		scalerDataProvider.loadData(PackageUtils.getTestPath(getClass(), "test") + "i18-284.nxs");
 		double d[][] = scalerDataProvider.constructMappableData();
 		assertEquals(99379.0, d[0][0], 0.0);
 		assertEquals(3, d.length);
@@ -104,21 +98,17 @@ public class ScalerMFMappableDataProviderTest {
 		double d1[][] = scalerDataProvider.constructMappableData();
 		assertEquals(99379.0, d1[0][0], 0.0);
 	}
-	
-	
+
 	@SuppressWarnings("unused")
 	@Test
-	public void testHasPlottableData() throws Exception
-	{
+	public void testHasPlottableData() throws Exception {
 		assertTrue(scalerDataProvider.hasPlotData("I0"));
 		assertFalse(scalerDataProvider.hasPlotData("Idrain"));
 	}
 
 	@SuppressWarnings("unused")
 	@After
-	public void tearDown()throws Exception
-	{
+	public void tearDown() throws Exception {
 		scalerDataProvider = null;
-		
 	}
 }
