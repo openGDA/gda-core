@@ -251,4 +251,33 @@
             name="Grid Scan">
       </sideplot>
       </extension>
+      <extension
+            point="org.dawb.common.ui.toolPageAction">
+         <tool_page_action
+               action_type="TOOLBAR"
+               command_id="uk.ac.gda.client.ncd.gridrefreshimage"
+               id="uk.ac.gda.client.ncd.gridtool.gridrefreshimage"
+               label="Refresh Image"
+               tool_id="org.dawb.workbench.plotting.tools.gridTool">
+         </tool_page_action>
+         <tool_page_action
+               command_id="uk.ac.gda.client.ncd.gridstartscan"
+               id="uk.ac.gda.client.ncd.gridtool.gridstartscan"
+               label="Start Scan"
+               tool_id="org.dawb.workbench.plotting.tools.gridTool">
+         </tool_page_action>
+      </extension>
+      <extension
+            point="org.eclipse.ui.commands">
+         <command
+               defaultHandler="gda.rcp.ncd.sideplot.GridImageRefresh"
+               id="uk.ac.gda.client.ncd.gridrefreshimage"
+               name="Refresh Image">
+         </command>
+         <command
+               defaultHandler="gda.rcp.ncd.sideplot.GridStartScan"
+               id="uk.ac.gda.client.ncd.gridstartscan"
+               name="Start Scan">
+         </command>
+      </extension>
 </plugin>
