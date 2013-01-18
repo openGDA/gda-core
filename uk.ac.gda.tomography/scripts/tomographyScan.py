@@ -14,7 +14,9 @@ from gda.device.scannable import ScannableBase, ScannableUtils
 from gda.device.scannable.scannablegroup import ScannableGroup
 from java.lang import InterruptedException
 from gdascripts.metadata.metadata_commands import setTitle
+
 from gda.configuration.properties import LocalProperties
+
 
 class EnumPositionerDelegateScannable(ScannableBase):
     """
@@ -69,6 +71,7 @@ class   tomoScan_positions(ScanPositionProvider):
         self.points = points
 
     def get(self, index):
+        print self.points[index]
         return self.points[index]
     
     def size(self):

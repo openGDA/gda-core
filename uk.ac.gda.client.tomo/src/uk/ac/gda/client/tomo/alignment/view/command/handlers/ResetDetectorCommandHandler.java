@@ -24,15 +24,15 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import uk.ac.gda.client.tomo.alignment.view.ITomoAlignmentView;
+import uk.ac.gda.client.tomo.views.IDetectorResetable;
 
 public class ResetDetectorCommandHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		IWorkbenchPart activePart = HandlerUtil.getActivePart(event);
-		if (activePart instanceof ITomoAlignmentView) {
-			ITomoAlignmentView tv = (ITomoAlignmentView) activePart;
+		if (activePart instanceof IDetectorResetable) {
+			IDetectorResetable tv = (IDetectorResetable) activePart;
 			tv.reset();
 		}
 		return null;

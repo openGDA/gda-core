@@ -18,6 +18,8 @@
 
 package uk.ac.gda.client.tomo;
 
+import org.eclipse.emf.edit.domain.EditingDomain;
+import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -74,6 +76,16 @@ public class TomoClientActivator extends AbstractUIPlugin {
 	protected void initializeImageRegistry(ImageRegistry reg) {
 		for (String imgPath : ImageConstants.IMAGES) {
 			reg.put(imgPath, imageDescriptorFromPlugin(PLUGIN_ID, imgPath));
+		}
+	}
+
+	public static final String EDITING_DOMAIN_ID = "uk.ac.gda.tomography.config.editingDomain";
+
+	public EditingDomain getTomoConfigEditingDomain() throws Exception {
+		try {
+			return TransactionalEditingDomain.Registry.INSTANCE.getEditingDomain(EDITING_DOMAIN_ID);
+		} catch (Exception ex) {
+			throw new Exception("Unable to get editing domain:" + ex.getMessage());
 		}
 	}
 

@@ -133,6 +133,12 @@ public class TomoParametersSwitch<T> extends Switch<T> {
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
+			case TomoParametersPackage.SCAN_COLLECTED: {
+				ScanCollected scanCollected = (ScanCollected)theEObject;
+				T result = caseScanCollected(scanCollected);
+				if (result == null) result = defaultCase(theEObject);
+				return result;
+			}
 			default: return defaultCase(theEObject);
 		}
 	}
@@ -150,6 +156,21 @@ public class TomoParametersSwitch<T> extends Switch<T> {
 	 */
 	@SuppressWarnings("unused")
 	public T caseTomoExperiment(TomoExperiment object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpreting the object as an instance of '<em>Scan Collected</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpreting the object as an instance of '<em>Scan Collected</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public T caseScanCollected(ScanCollected object) {
 		return null;
 	}
 

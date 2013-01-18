@@ -457,4 +457,9 @@ public interface ICameraHandler extends ITomoHandler {
 	 */
 	void setupHistoStatCollection() throws Exception;
 
+	/**
+	 * @return the port name of the areadetector
+	 */
+	String getPortName() throws Exception;
+
 }

@@ -55,14 +55,10 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.PageBook;
-import org.eclipse.ui.part.ViewPart;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.tomo.ViewerDisplayMode;
 import uk.ac.gda.client.tomo.alignment.view.controller.SaveableConfiguration;
@@ -84,15 +80,15 @@ import uk.ac.gda.client.tomo.composites.TomoPlotComposite;
 import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
 import uk.ac.gda.client.tomo.composites.ZoomedImageComposite;
 import uk.ac.gda.client.tomo.composites.ZoomedImgCanvas;
+import uk.ac.gda.client.tomo.views.BaseTomographyView;
 import uk.ac.gda.ui.components.ColourSliderComposite;
 import uk.ac.gda.ui.components.PointInDouble;
-import uk.ac.gda.ui.event.PartAdapter2;
 
 /**
  * View for Tomography alignment, and scan
  */
-public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
-	private static final Logger logger = LoggerFactory.getLogger(TomoAlignmentView.class);
+public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignmentView {
+	private static final String IOC_RUNNING_CONTEXT = "uk.ac.gda.client.tomo.alignment.isDetectorIocRunningContext";
 
 	private boolean isScanRunning = Boolean.TRUE;
 
@@ -218,33 +214,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 	private Label lblPixelIntensityVal;
 
 	private TomoAlignmentViewController tomoViewController;
-
-	private IPartListener tomoPartAdapter = new PartAdapter2() {
-		@Override
-		public void partDeactivated(org.eclipse.ui.IWorkbenchPart part) {
-			stopStreamByCheckingIfOn();
-		}
-
-		private void stopStreamByCheckingIfOn() {
-			// check if the scan is on.
-			if (!TomoAlignmentView.this.isScanRunning()) {
-				// leftPanelComposite.stopStream();
-				stopFullVideoReceiver();
-			} else {
-				// disable all the controls and inform the user that the scan is running.
-			}
-		}
-
-		@Override
-		public void partHidden(org.eclipse.ui.IWorkbenchPartReference partRef) {
-			stopStreamByCheckingIfOn();
-		}
-
-		@Override
-		public void partClosed(org.eclipse.ui.IWorkbenchPart part) {
-			stopStreamByCheckingIfOn();
-		}
-	};
 
 	public void setRightInfoPage(RIGHT_INFO rightInfo) {
 		switch (rightInfo) {
@@ -409,7 +378,6 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			new Thread(new RunUpdateAllFields(isSuccessful)).start();
 			/**/
 
-			getSite().getPage().addPartListener(tomoPartAdapter);
 			//
 
 			tomoControlComposite.addMotionControlListener(tomoViewController);
@@ -428,6 +396,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		} catch (Exception ex) {
 			throw new RuntimeException("Error opening view", ex);
 		}
+		addPartListener();
 	}
 
 	/**
@@ -857,7 +826,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 					try {
 						if (tomoAlignmentController.isStreaming() && !isScanRunning) {
 							logger.debug("run->Stopping stream while updating all fields");
-							//leftPanelComposite.stopStream();
+							// leftPanelComposite.stopStream();
 						}
 					} catch (Exception e) {
 						logger.error("Problem identifying whether the streaming is switched on", e);
@@ -1038,9 +1007,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 	@Override
 	public void dispose() {
-
 		try {
-			getSite().getPage().removePartListener(tomoPartAdapter);
 			if (leftWindowImageViewer != null) {
 				logger.debug("Removing zoom rect listener");
 				leftWindowImageViewer.removeZoomRectListener(tomoViewController);
@@ -1084,6 +1051,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 			tomoAlignmentController.dispose();
 			toolkit.dispose();
 			tomoAlignmentController.removeScanControllerUpdateListener(tomoViewController);
+
 			super.dispose();
 		} catch (Exception ex) {
 			logger.error("Exception in dispose", ex);
@@ -1105,7 +1073,7 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 		try {
 			tomoAlignmentController.resetAll();
 		} catch (Exception e) {
-			logger.error("TODO put description of error here", e);
+			logger.error("Problem resetting detector", e);
 			loadErrorInDisplay("Error while reseting the camera", "Connection with the camera IOC may be disrupted.");
 		}
 	}
@@ -1720,10 +1688,29 @@ public class TomoAlignmentView extends ViewPart implements ITomoAlignmentView {
 
 				@Override
 				public void run() {
-
 					contrastSliderComposite.moveBottomSliderTo(value);
 				}
 			});
 		}
+	}
+
+	@Override
+	protected void doPartDeactivated() {
+		// check if the scan is on.
+		if (!isScanRunning()) {
+			stopFullVideoReceiver();
+		} else {
+			// disable all the controls and inform the user that the scan is running.
+		}
+	}
+
+	@Override
+	protected String getDetectorPortName() throws Exception {
+		return tomoAlignmentController.getDetectorPortName();
+	}
+
+	@Override
+	protected String getIocRunningContext() {
+		return IOC_RUNNING_CONTEXT;
 	}
 }

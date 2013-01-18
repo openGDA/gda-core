@@ -939,12 +939,10 @@ public class TomoAlignmentController extends TomoViewController {
 	/**
 	 * @param monitor
 	 * @param saveableConfiguration
-	 * @throws InterruptedException
-	 * @throws InvocationTargetException
-	 * @throws DeviceException
+	 * @throws Exception 
 	 */
 	public String saveConfiguration(IProgressMonitor monitor, final SaveableConfiguration saveableConfiguration)
-			throws InvocationTargetException, InterruptedException, DeviceException {
+			throws Exception {
 		SubMonitor progress = SubMonitor.convert(monitor);
 		progress.beginTask("Saving Configuration", 20);
 
@@ -1092,5 +1090,9 @@ public class TomoAlignmentController extends TomoViewController {
 		int minutes = (int) ((runTime / 60) % 60);
 		int seconds = (int) (runTime % 60);
 		return String.format("%dh %02dm %02ds", hours, minutes, seconds);
+	}
+
+	public String getDetectorPortName() throws Exception{
+		return cameraHandler.getPortName();
 	}
 }
