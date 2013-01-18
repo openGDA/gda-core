@@ -4,7 +4,8 @@ from gda.device.scannable.scannablegroup import ScannableGroup
 from gda.data.scan.datawriter import DataWriterFactory
 from gda.factory import Finder
 import gda.jython.commands.ScannableCommands.scan
-from gda.analysis import DataSet, RCPPlotter
+from gda.analysis import DataSet
+from uk.ac.diamond.scisoft.analysis import SDAPlotter as RCPPlotter
 from uk.ac.diamond.scisoft.analysis.roi import GridROI
 from uk.ac.diamond.scisoft.analysis.plotserver import GuiParameters
 from gdascripts.messages import handle_messages
@@ -87,7 +88,8 @@ class Grid(DataWriterExtenderBase):
 				tree=dataPoint.getDetectorData().get(index).getNexusTree()
 				try:
 					data=tree.findNode(self.getSaxsDetectorName()).findNode("data").getData()
-					ds=DataSet(data.dimensions.tolist()[1],data.dimensions.tolist()[2],data.getBuffer().tolist())
+					ds = dnp.array(data.getBuffer().tolist())
+					ds.shape = data.dimensions.tolist()[1],data.dimensions.tolist()[2]
 				except:
 					if isinstance(self.getSaxsDetector(), LastImageProvider):
 						ds=self.getSaxsDetector().readLastImage()
