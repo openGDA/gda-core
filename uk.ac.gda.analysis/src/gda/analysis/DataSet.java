@@ -44,6 +44,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.Maths;
 import uk.ac.diamond.scisoft.analysis.dataset.Stats;
 import uk.ac.diamond.scisoft.analysis.dataset.function.Downsample;
 import uk.ac.diamond.scisoft.analysis.dataset.function.DownsampleMode;
+import uk.ac.diamond.scisoft.python.PythonUtils;
 import Jama.Matrix;
 
 /**
@@ -470,7 +471,8 @@ public class DataSet extends DoubleDataset {
 	@Deprecated
 	public DataSet(PySequence seq) {
 		issueDeprecatedWarning();
-		DataSet d = convertToDataSet(createFromObject(seq));
+		Object obj = PythonUtils.convertToJava(seq);
+		DataSet d = convertToDataSet(createFromObject(obj));
 		odata = data = d.data;
 		shape = d.shape;
 		name = d.name;
