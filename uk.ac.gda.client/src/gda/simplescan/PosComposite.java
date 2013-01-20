@@ -72,7 +72,7 @@ public class PosComposite extends Composite {
 
 		Group grpPos = new Group(this, SWT.NONE);
 		GridData gd_grpPos = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_grpPos.widthHint = 221;
+		gd_grpPos.widthHint = 258;
 		grpPos.setLayoutData(gd_grpPos);
 		grpPos.setText("Pos");
 		GridLayout gl_grpPos = new GridLayout(1, false);
@@ -98,18 +98,16 @@ public class PosComposite extends Composite {
 
 		createScannables(posComposite);
 		Composite composite_2 = new Composite(grpPos, SWT.NONE);
-		GridData gd_composite_2 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_composite_2.widthHint = 218;
-		composite_2.setLayoutData(gd_composite_2);
-		GridLayout gl_composite_2 = new GridLayout(3, false);
+		GridLayout gl_composite_2 = new GridLayout(5, false);
 		gl_composite_2.verticalSpacing = 2;
 		gl_composite_2.marginWidth = 2;
-		gl_composite_2.marginHeight = 2;
+		gl_composite_2.marginHeight = 0;
 		gl_composite_2.horizontalSpacing = 2;
 		composite_2.setLayout(gl_composite_2);
 
 		Label lblTo = new Label(composite_2, SWT.NONE);
 		lblTo.setText("Go to");
+		new Label(composite_2, SWT.NONE);
 		textTo = new ScaleBox(composite_2, SWT.NONE);
 
 		textTo.getControl().addKeyListener(new KeyAdapter() {
@@ -126,49 +124,42 @@ public class PosComposite extends Composite {
 				}
 			}
 		});
-
-		((GridData) textTo.getControl().getLayoutData()).widthHint = 65;
-		textTo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		textTo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		new Label(textTo, SWT.NONE);
+		new Label(composite_2, SWT.NONE);
 
 		final Button btnStop = new Button(composite_2, SWT.NONE);
+		GridData gd_btnStop = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btnStop.widthHint = 55;
+		btnStop.setLayoutData(gd_btnStop);
 		btnStop.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				performStop();
 			}
 		});
-		btnStop.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		btnStop.setText("Stop");
 		btnStop.setEnabled(false);
+		
+				Label lblReadback = new Label(composite_2, SWT.NONE);
+				lblReadback.setText("Readback");
+		new Label(composite_2, SWT.NONE);
 
-		Label lblReadback = new Label(composite_2, SWT.NONE);
-		lblReadback.setText("Readback");
-		lblReadbackVal = new Label(composite_2, SWT.NONE);
-		GridData gd_lblReadbackVal = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
-		gd_lblReadbackVal.widthHint = 75;
-		lblReadbackVal.setLayoutData(gd_lblReadbackVal);
-		lblReadbackVal.setText("2.335mm");
+		Composite incrementNuggeComp = new Composite(composite_2, SWT.NONE);
+		GridData gd_incrementNuggeComp = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_incrementNuggeComp.widthHint = 117;
+		incrementNuggeComp.setLayoutData(gd_incrementNuggeComp);
+		GridLayout gl_incrementNuggeComp = new GridLayout(3, false);
+		gl_incrementNuggeComp.verticalSpacing = 0;
+		gl_incrementNuggeComp.marginHeight = 0;
+		gl_incrementNuggeComp.marginWidth = 0;
+		gl_incrementNuggeComp.horizontalSpacing = 0;
+		incrementNuggeComp.setLayout(gl_incrementNuggeComp);
 
-		final Label lblStatus = new Label(composite_2, SWT.NONE);
-		lblStatus.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false, 1, 1));
-		lblStatus.setText("     Idle     ");
-
-		Label lblIncrement = new Label(composite_2, SWT.NONE);
-		lblIncrement.setText("Increment");
-
-		incrementVal = new Text(composite_2, SWT.BORDER);
-		incrementVal.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		incrementVal.setText("1");
-
-		Composite composite = new Composite(composite_2, SWT.NONE);
-		GridLayout gl_composite = new GridLayout(2, false);
-		gl_composite.marginHeight = 0;
-		gl_composite.horizontalSpacing = 2;
-		gl_composite.marginWidth = 0;
-		composite.setLayout(gl_composite);
-
-		btnDecrement = new Button(composite, SWT.NONE);
+		btnDecrement = new Button(incrementNuggeComp, SWT.NONE);
+		GridData gd_btnDecrement = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btnDecrement.widthHint = 25;
+		btnDecrement.setLayoutData(gd_btnDecrement);
 		btnDecrement.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -176,12 +167,15 @@ public class PosComposite extends Composite {
 			}
 		});
 		btnDecrement.setText("-");
-		GridData gd_btnDecrement = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
-		gd_btnDecrement.widthHint = 30;
-		btnDecrement.setLayoutData(gd_btnDecrement);
 		btnDecrement.setFont(SWTResourceManager.getFont("Sans", 12, SWT.BOLD));
+		lblReadbackVal = new Label(incrementNuggeComp, SWT.NONE);
+		lblReadbackVal.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+		lblReadbackVal.setText("               ");
 
-		btnIncrement = new Button(composite, SWT.NONE);
+		btnIncrement = new Button(incrementNuggeComp, SWT.NONE);
+		GridData gd_btnIncrement = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btnIncrement.widthHint = 25;
+		btnIncrement.setLayoutData(gd_btnIncrement);
 		btnIncrement.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -189,15 +183,29 @@ public class PosComposite extends Composite {
 			}
 		});
 		btnIncrement.setText("+");
-		GridData gd_btnIncrement = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
-		gd_btnIncrement.widthHint = 30;
-		btnIncrement.setLayoutData(gd_btnIncrement);
 		btnIncrement.setFont(SWTResourceManager.getFont("Sans", 12, SWT.BOLD));
+		new Label(composite_2, SWT.NONE);
+
+		final Label lblStatus = new Label(composite_2, SWT.NONE);
+		GridData gd_lblStatus = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);
+		gd_lblStatus.widthHint = 55;
+		lblStatus.setLayoutData(gd_lblStatus);
+		lblStatus.setText("     Idle     ");
+
+		Label lblIncrement = new Label(composite_2, SWT.NONE);
+		lblIncrement.setText("Increment");
+		new Label(composite_2, SWT.NONE);
+
+		incrementVal = new Text(composite_2, SWT.BORDER);
+		incrementVal.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		incrementVal.setText("1");
+		new Label(composite_2, SWT.NONE);
 
 		updateScannables();
 
 		try {
 			setMotorLimits(bean.getScannableName(), textTo);
+			new Label(composite_2, SWT.NONE);
 		} catch (Exception e2) {
 		}
 		updateReadback();
@@ -227,7 +235,8 @@ public class PosComposite extends Composite {
 				} catch (InterruptedException e) {
 				}
 				while (moving) {
-					String status = JythonServerFacade.getInstance().evaluateCommand(scannable + ".getMotor().isMoving()");
+					String status = JythonServerFacade.getInstance().evaluateCommand(
+							scannable + ".getMotor().isMoving()");
 					if (status.equals("False"))
 						moving = false;
 					try {
