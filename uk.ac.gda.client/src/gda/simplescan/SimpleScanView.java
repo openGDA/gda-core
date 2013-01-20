@@ -42,6 +42,8 @@ import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class SimpleScanView extends ViewPart {
+	public SimpleScanView() {
+	}
 	private static final Logger logger = LoggerFactory.getLogger(SimpleScanView.class);
 	private String path;
 	SimpleScan bean = null;
@@ -86,6 +88,10 @@ public class SimpleScanView extends ViewPart {
 		}
         
         GridLayout gl = new GridLayout(1, false);
+        gl.verticalSpacing = 0;
+        gl.marginWidth = 0;
+        gl.horizontalSpacing = 0;
+        gl.marginHeight = 0;
         parent.setLayout(gl);
         GridData gd = new GridData(SWT.LEFT, SWT.TOP, true, false, 1, 1);
         gd.horizontalIndent=0;
@@ -94,10 +100,14 @@ public class SimpleScanView extends ViewPart {
         parent.setLayoutData(gd);
 		
 		Composite composite = new Composite(parent, SWT.NONE);
-		GridData gd_composite = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
+		GridData gd_composite = new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1);
 		gd_composite.widthHint = 900;
 		composite.setLayoutData(gd_composite);
 		GridLayout gl_composite = new GridLayout(2, false);
+		gl_composite.horizontalSpacing = 0;
+		gl_composite.verticalSpacing = 0;
+		gl_composite.marginWidth = 0;
+		gl_composite.marginHeight = 0;
 		composite.setLayout(gl_composite);
         
         posComposite = new PosComposite(composite, SWT.NONE, bean);
