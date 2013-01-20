@@ -84,7 +84,8 @@ Export-Package: gda.exafs.scan,
  uk.ac.gda.exafs.ui.plot,
  uk.ac.gda.exafs.ui.preferences,
  uk.ac.gda.exafs.ui.views.scalersmonitor,
- uk.ac.gda.exafs.util
+ uk.ac.gda.exafs.util,
+ uk.ac.gda.exafs.ui.microreactor
 Bundle-ClassPath: .
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: uk.ac.gda.exafs.ExafsActivator

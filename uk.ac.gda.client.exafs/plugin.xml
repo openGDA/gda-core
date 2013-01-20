@@ -97,6 +97,13 @@
             id="uk.ac.gda.exafs.ui.ionchambers"
             name="Ion Chambers"
             restorable="true">
+      </view>
+      <view
+            class="uk.ac.gda.exafs.ui.microreactor.MicroreactorView"
+            icon="icons/cirrus.jpeg"
+            id="uk.ac.gda.client.exafs.cirrus"
+            name="cirrus"
+            restorable="true">
       </view> 
    </extension>
    <extension
