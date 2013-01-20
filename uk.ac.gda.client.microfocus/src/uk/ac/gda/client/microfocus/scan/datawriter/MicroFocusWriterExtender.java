@@ -288,14 +288,8 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 						String text = Double.toString(Math.abs(i));
 						int integerPlaces = text.indexOf('.');
 						int decimalPlaces = text.length() - integerPlaces - 1;
-						// if (decimalPlaces > 3) {
-						// DecimalFormat df = new DecimalFormat("#.#");
-						// rgbLine.append(df.format(i));
-						// rgbLine.append("	");
-						// } else {
 						rgbLine.append(i);
 						rgbLine.append("	");
-						// }
 					}
 					scalerValues[dataPoint.getCurrentPointNumber()] = scalerData;
 					logger.info("The rgb Line with scaler values is " + rgbLine.toString());
