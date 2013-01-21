@@ -27,10 +27,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.dawnsci.plotting.jreality.overlay.OverlayType;
-import org.dawnsci.plotting.jreality.overlay.primitives.PrimitiveType;
-import org.dawnsci.plotting.jreality.tool.IImagePositionEvent;
-import org.dawnsci.plotting.jreality.tool.ImagePositionListener;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.IFigure;
@@ -56,8 +52,12 @@ import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.client.viewer.SWT2DOverlayProvider;
 import uk.ac.gda.epics.adviewer.ADController;
+import uk.ac.gda.epics.adviewer.composites.imageviewer.IImagePositionEvent;
+import uk.ac.gda.epics.adviewer.composites.imageviewer.ImagePositionListener;
+import uk.ac.gda.epics.adviewer.composites.imageviewer.OverlayType;
+import uk.ac.gda.epics.adviewer.composites.imageviewer.PrimitiveType;
+import uk.ac.gda.epics.adviewer.composites.imageviewer.SWT2DOverlayProvider;
 
 public class MJPeg extends Composite {
 

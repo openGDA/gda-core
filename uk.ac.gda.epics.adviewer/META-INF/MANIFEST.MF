@@ -13,9 +13,7 @@ Require-Bundle: org.eclipse.ui,
  uk.ac.diamond.scisoft.analysis.rcp;bundle-version="1.0.0",
  uk.ac.diamond.scisoft.analysis,
  uk.ac.gda.common.rcp;bundle-version="1.2.0",
- uk.ac.gda.client;bundle-version="1.0.0",
  uk.ac.gda.video;bundle-version="1.0.0",
- org.dawnsci.plotting.jreality;bundle-version="1.0.0",
  uk.ac.gda.video.mjpeg;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
@@ -31,5 +29,6 @@ Import-Package: org.dawb.common.ui.plot,
  org.springframework.util;version="3.0.4"
 Export-Package: uk.ac.gda.epics.adviewer,
  uk.ac.gda.epics.adviewer.composites,
+ uk.ac.gda.epics.adviewer.composites.imageviewer,
  uk.ac.gda.epics.adviewer.handlers,
  uk.ac.gda.epics.adviewer.views

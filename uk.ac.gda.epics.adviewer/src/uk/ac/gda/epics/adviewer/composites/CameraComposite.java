@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.SWTImageUtils;
-import uk.ac.gda.client.viewer.ImageViewer;
+import uk.ac.gda.epics.adviewer.composites.imageviewer.ImageViewer;
 
 
 public class CameraComposite extends Composite {
@@ -58,7 +58,7 @@ public class CameraComposite extends Composite {
 		this.newImageListener = newImageListener;
 
 		setLayout(new GridLayout(1, false));
-		viewer = new uk.ac.gda.client.viewer.ImageViewer(this, SWT.DOUBLE_BUFFERED);
+		viewer = new ImageViewer(this, SWT.DOUBLE_BUFFERED);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(viewer.getCanvas());
 
 		viewer.showDefaultImage();
@@ -138,9 +138,8 @@ public class CameraComposite extends Composite {
 			return name;
 		}
 
-		boolean processingImage=false;
 		
-		NewImageHnadler latestUpdater = null;
+		NewImageHandler latestUpdater = null;
 		@Override
 		public void processImage(final ImageData image) {
 			if (image == null)
@@ -150,59 +149,19 @@ public class CameraComposite extends Composite {
 			if (viewer != null) {
 				if(isDisposed())
 					return;
-/*				if(processingImage)
-					return;
-				processingImage=true;
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					throw new RuntimeException("processImage interrupted");
-				}
-*/				if( getDisplay().isDisposed())
+				if( getDisplay().isDisposed())
 					return;
 				
 				lastImage=image;
 				
 				if( latestUpdater ==null || !latestUpdater.inqueue){
-					latestUpdater = new NewImageHnadler(CameraComposite.this);
+					latestUpdater = new NewImageHandler(CameraComposite.this);
 					if (!PlatformUI.getWorkbench().getDisplay().isDisposed()) {
 						PlatformUI.getWorkbench().getDisplay().asyncExec(latestUpdater);
 					}
 				}
 				
-/*				getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						boolean showingDefault = viewer.isShowingDefault();
-						while(true){
-							//ensure we don't miss an image that arrives while we process the first
-								ImageData lastImage2 = lastImage;
-								viewer.loadImage(lastImage2);
-								if (showingDefault) {
-									zoomFit();
-								}
-								if (!layoutReset){
-									layoutReset = true;
-									viewer.resetView();
-								}
-
-								if( newImageListener != null){
-									try {
-										newImageListener.handlerNewImageNotification(lastImage2);
-									} catch (Exception e) {
-										logger.error("Error in handling new image", e);
-									}
-								}
-								if( lastImage2 == lastImage){
-									processingImage=false;
-									break;
-								}
-								processingImage=false;
-								break; //TODO we may remain in UI thread if frame rate is very high
-						}
-					}
-				});
-*/			}
+			}
 		}
 	}
 	public ImageViewer getViewer() {
@@ -230,14 +189,14 @@ class SWTImageDataConverter {
 	}
 }
 
-class NewImageHnadler implements Runnable{
+class NewImageHandler implements Runnable{
 	public boolean inqueue;
 
 	
 	CameraComposite listener;
 	
 	
-	public NewImageHnadler(CameraComposite listener) {
+	public NewImageHandler(CameraComposite listener) {
 		super();
 		this.listener = listener;
 		inqueue=true;
