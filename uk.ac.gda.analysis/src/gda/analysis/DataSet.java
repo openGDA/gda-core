@@ -203,6 +203,11 @@ public class DataSet extends DoubleDataset {
 		super.setShape(shape);
 	}
 
+	@Override
+	public DataSet reshape(int... shape) {
+		return (DataSet) super.reshape(shape);
+	}
+
 	/**
 	 * @param withPosition
 	 *            set true if position is needed
