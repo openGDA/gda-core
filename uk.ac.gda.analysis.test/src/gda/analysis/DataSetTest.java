@@ -1606,5 +1606,10 @@ public class DataSetTest {
 		assertArrayEquals("shape incorrect", new int[] {3,2}, d.getShape());
 		assertEquals("array length incorrect", 6, d.getData().length);
 		assertArrayEquals("array incorrect", new double[] {0,0,0,0,8920,8853}, d.getData(), 1e-5);
+
+		DataSet ta = DataSet.arange(1024);
+		ta.set(3., 1024);
+		assertEquals(false, ta.containsNans());
+		assertEquals(false, ta.containsInfs());
 	}
 }
