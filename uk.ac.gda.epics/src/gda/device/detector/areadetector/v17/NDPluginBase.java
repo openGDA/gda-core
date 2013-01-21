@@ -310,4 +310,6 @@ public interface NDPluginBase {
 
 	Observable<String> createEnableObservable() throws Exception;
 
+	Observable<Double> createMinCallbackTimeObservable() throws Exception;
+
 }

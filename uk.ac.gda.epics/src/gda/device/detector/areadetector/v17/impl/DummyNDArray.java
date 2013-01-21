@@ -20,7 +20,6 @@ package gda.device.detector.areadetector.v17.impl;
 
 import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.areadetector.v17.NDPluginBase;
-import de.jreality.shader.ImageData;
 
 /*
  * class that returns data from a file rather than EPICS.
@@ -88,7 +87,7 @@ public class DummyNDArray implements NDArray {
 	}
 
 	@Override
-	public ImageData getImageData(int expectedNumPixels) throws Exception {
+	public Object getImageData(int expectedNumPixels) throws Exception {
 		return null;
 	}
 

@@ -287,4 +287,9 @@ public class NDPluginBaseSimulator implements NDPluginBase {
 	public Observable<String> createEnableObservable() throws Exception {
 		return null;
 	}
+
+	@Override
+	public Observable<Double> createMinCallbackTimeObservable() throws Exception {
+		return null;
+	}
 }

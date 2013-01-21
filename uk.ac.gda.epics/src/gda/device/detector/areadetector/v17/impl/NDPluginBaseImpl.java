@@ -867,6 +867,11 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	public Observable<String> createEnableObservable() throws Exception {
 		return LazyPVFactory.newReadOnlyEnumPV(getChannelName(EnableCallbacks_RBV), String.class);
 	}
+
+	@Override
+	public Observable<Double> createMinCallbackTimeObservable() throws Exception {
+		return LazyPVFactory.newReadOnlyDoublePV(getChannelName(MinCallbackTime_RBV));
+	}
 	
 	
 }
