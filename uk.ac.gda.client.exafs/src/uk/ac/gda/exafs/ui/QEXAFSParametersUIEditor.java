@@ -25,6 +25,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.slf4j.Logger;
@@ -38,11 +39,14 @@ import uk.ac.gda.richbeans.components.FieldComposite;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBoxAndFixedExpression.ExpressionProvider;
 import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 
 /**
  *
  */
-public final class QEXAFSParametersUIEditor extends ElementEdgeEditor{
+public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 
 	private QEXAFSParametersComposite beanComposite;
 	private static Logger logger = LoggerFactory.getLogger(QEXAFSParametersUIEditor.class);
@@ -68,13 +72,14 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor{
 				Converter.setEdgeEnergy(getEdgeValue() / 1000.0);
 				return Converter.convert(e, Converter.EV, Converter.PERANGSTROM);
 			}
+
 			@Override
 			public IFieldWidget[] getPrecedents() {
 				return null;
 			}
 		};
 	}
-	
+
 	/**
 	 * 
 	 */
@@ -99,11 +104,29 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor{
 
 		this.beanComposite = new QEXAFSParametersComposite(grpQuickExafsParameters, SWT.NONE,
 				(QEXAFSParameters) editingBean, getKProvider());
-		GridData gridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		GridData gridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 2);
 		gridData.widthHint = 800;
 		beanComposite.setLayoutData(gridData);
 		beanComposite.setSize(800, 473);
-		
+
+		Button updateElementBtn = new Button(grpQuickExafsParameters, SWT.NONE);
+		updateElementBtn.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				try {
+					getInitialEnergy().setValue(getInitialEnergyFromElement());
+					getFinalEnergy().setValue(getFinalEnergyFromElement());
+					getCoreHole_unused().setValue(getCfromElement());
+				} catch (Exception e1) {
+					logger.error("Cannot update energies from element selection", e1);
+				}
+
+			}
+		});
+		updateElementBtn.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+		updateElementBtn.setText("Update Values");
+		new Label(grpQuickExafsParameters, SWT.NONE);
+
 		try {
 			getCoreHole_unused().setValue(getCfromElement());
 		} catch (Exception e) {
@@ -161,7 +184,7 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor{
 		final String edge = getEdgeUseBean();
 		return ele.getCoreHole(edge);
 	}
-	
+
 	/**
 	 * @return ScaleBox
 	 */
@@ -176,15 +199,8 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor{
 		} catch (Exception e) {
 			logger.error("Cannot update element", e);
 		}
-		try {
-			getInitialEnergy().setValue(getInitialEnergyFromElement());
-			getFinalEnergy().setValue(getFinalEnergyFromElement());
-			getCoreHole_unused().setValue(getCfromElement());
-		} catch (Exception e) {
-			logger.error("Could not get initial/final energies", e);
-		}
 	}
-	
+
 	@Override
 	public void linkUI(final boolean isPageChange) {
 
@@ -196,11 +212,11 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor{
 			logger.error("Could not update element list", e);
 		}
 		super.linkUI(isPageChange);
-		
+
 	}
-	
+
 	public ComboWrapper getEdge() {
 		return edge;
 	}
-	
+
 }

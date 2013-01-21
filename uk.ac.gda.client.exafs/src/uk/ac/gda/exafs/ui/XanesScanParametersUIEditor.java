@@ -56,11 +56,9 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 	private static final Logger logger = LoggerFactory.getLogger(XanesScanParametersUIEditor.class);
 
 	private ScaleBox finalEnergy;
-//	private XanesScanParameters editingBean;
 	private RegionComposite regionsEditor;
 	double edgeVal = 0;
 	private Button updateTable;
-//	private double coreHole;
 	private ELEMENT_EVENT_TYPE type;
 	/**
 	 * @param path
@@ -115,9 +113,7 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 					if(i>4)
 						((XanesScanParameters) editingBean).getRegions().remove(i);
 				}
-				
 				Region obj = null;
-
 				try {
 					List<uk.ac.gda.beans.exafs.Region> regions = regionsEditor.getBeanRegions();
 					double coreHole = getSelectedElement(type).getCoreHole(getEdgeUseBean());
@@ -230,7 +226,6 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 			this.type = type;
 			if (type != null) {
 				super.updateElement(type);
-//				coreHole = getSelectedElement(type).getCoreHole(getEdgeUseBean());
 			}
 		} catch (Exception e) {
 		}
