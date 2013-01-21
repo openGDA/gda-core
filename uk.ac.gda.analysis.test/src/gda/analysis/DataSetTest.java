@@ -23,9 +23,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import gda.analysis.utils.DatasetMaths;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Vector;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.python.core.Py;
 import org.python.core.PyException;
@@ -1612,4 +1616,93 @@ public class DataSetTest {
 		assertEquals(false, ta.containsNans());
 		assertEquals(false, ta.containsInfs());
 	}
+
+
+	private final static int WARMUP = 3;
+	private final static int REPEAT = 7;
+
+	class TimeStats {
+		double min, max, med;
+		public TimeStats(List<Double> times) {
+			Collections.sort(times);
+			int len = times.size();
+			min = times.get(0)*1e-6;
+			max = times.get(len - 1)*1e-6;
+			med = times.get(len/2)*1e-6;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("(%.2f, %.2f, %.2f ms)", min, max, med);
+		}
+
+		public double getValue() {
+			return min;
+		}
+	}
+
+	@Test
+	@Ignore("This test is for benchmarking only")
+	public void testExtending() {
+		List<Double> times = new ArrayList<Double>();
+
+		int end = 100000;
+
+		times.clear();
+		for (int j = 0; j < REPEAT; j++) {
+			final double time = timeList(100, end);
+			times.add(time);
+		}
+		final TimeStats otime = new TimeStats(times);
+
+		times.clear();
+		for (int j = 0; j < REPEAT; j++) {
+			final double time = timeDataset(100, end);
+			times.add(time);
+		}
+		final TimeStats ntime = new TimeStats(times);
+
+		System.out.printf("Time taken by extend for %s: %s; %s (%.1f%%)\n", end, otime, ntime, 100.*(otime.getValue() - ntime.getValue())/otime.getValue());
+	}
+
+	private double timeDataset(int n, int end) {
+		for (int i = 0; i < WARMUP; i++) {
+			extendDataset(end);
+		}
+		long start = -System.nanoTime();
+		for (int i = 0; i < n; i++) {
+			extendDataset(end);
+		}
+		start += System.nanoTime();
+
+		return ((double) start)/n;
+	}
+
+	private void extendDataset(int end) {
+		DataSet result = new DataSet(100);
+		for (int i = 0; i < end; i++) {
+			result.setItem((double) i, i);
+		}
+	}
+
+	private double timeList(int n, int end) {
+		for (int i = 0; i < WARMUP; i++) {
+			extendList(end);
+		}
+		long start = -System.nanoTime();
+		for (int i = 0; i < n; i++) {
+			extendList(end);
+		}
+		start += System.nanoTime();
+
+		return ((double) start)/n;
+	}
+
+	private void extendList(int end) {
+		List<Double> result = new ArrayList<Double>(100);
+		for (int i = 0; i < end; i++) {
+			result.add((double) i);
+		}
+	}
+
 }
