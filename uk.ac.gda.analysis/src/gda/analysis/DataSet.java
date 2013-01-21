@@ -798,6 +798,11 @@ public class DataSet extends DoubleDataset {
 		return result;
 	}
 
+	@Override
+	public String toString() {
+		return super.toString(true);
+	}
+
 	/**
 	 * @deprecated Use {@link AbstractDataset#toString}
 	 */
