@@ -30,7 +30,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.jface.layout.RowLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -39,7 +38,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -341,7 +339,7 @@ public class RotationViewer {
 		
 		final Composite rotationGroup = new Composite(parent, SWT.NONE);
 		int numColumns = singleLineLayout ? 2 : 1;
-		GridLayoutFactory.swtDefaults().numColumns(numColumns).equalWidth(false).margins(0, 0).spacing(0, 0).applyTo(rotationGroup);
+		GridLayoutFactory.swtDefaults().numColumns(numColumns).equalWidth(false).margins(1, 1).spacing(2, 2).applyTo(rotationGroup);
 		
 		if (DEBUG_LAYOUT) {
 			rotationGroup.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_GREEN));
@@ -350,28 +348,33 @@ public class RotationViewer {
 		if (motorLabel == null)
 			motorLabel = scannable.getName();
 		
-		Composite motorPositionContainer = new Composite(rotationGroup, SWT.NONE);
-		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(motorPositionContainer);
-		motorPositionViewer = new MotorPositionViewer(motorPositionContainer, scannable, motorLabel);
-		
-		if (DEBUG_LAYOUT) {
-			motorPositionContainer.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
+		{
+			Composite motorPositionContainer = new Composite(rotationGroup, SWT.NONE);
+			GridDataFactory.fillDefaults().applyTo(motorPositionContainer);
+			GridLayoutFactory.swtDefaults().numColumns(3).margins(1,1).spacing(2,2).applyTo(motorPositionContainer);
+			motorPositionViewer = new MotorPositionViewer(motorPositionContainer, scannable, motorLabel);
+			if (DEBUG_LAYOUT) {
+				motorPositionContainer.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
+			}
 		}
 		
+		
 		final Composite otherControls = new Composite(rotationGroup, SWT.NONE);
-		RowLayoutFactory.swtDefaults().extendedMargins(0, 0, 0, 0).spacing(0).applyTo(otherControls);
+		GridLayoutFactory.swtDefaults().margins(0,0).spacing(0,0).applyTo(otherControls);
+		GridDataFactory.fillDefaults().applyTo(otherControls);
 		
 		if (DEBUG_LAYOUT) {
 			otherControls.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
 		}
+		
 		
 		GridData data = new GridData();
 		data.widthHint = 60;
 		data.horizontalAlignment = GridData.CENTER;	
 		
 		if (showFixedSteps){
-			final Composite buttonGroup = new Composite(otherControls, SWT.NONE);
-			GridLayoutFactory.swtDefaults().numColumns(2).applyTo(buttonGroup);
+			Composite buttonGroup = new Composite(otherControls, SWT.NONE);
+			GridLayoutFactory.swtDefaults().numColumns(2).margins(1,1).spacing(2,2).applyTo(buttonGroup);
 			
 			if (DEBUG_LAYOUT) {
 				buttonGroup.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW));
@@ -420,25 +423,23 @@ public class RotationViewer {
 		
 		Composite inOutButtonsComp = new Composite(otherControls, SWT.NONE);
 		
-		if (DEBUG_LAYOUT) {
-			inOutButtonsComp.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_CYAN));
-		}
-		
-		if (!showFixedSteps && singleLineNudgeControls) {
-			inOutButtonsComp.setLayout(new GridLayout(3, false));
+		if (singleLineNudgeControls) {
+			
+			GridLayoutFactory.swtDefaults().numColumns(3).equalWidth(false).margins(1,1).spacing(2,2).applyTo(inOutButtonsComp);
+			
 			data.widthHint = 40;
 			negNudgeButton  = createButton(inOutButtonsComp, "-", null, data);
 			posNudgeButton  = createButton(inOutButtonsComp, "+", null, data);
 			nudgeSizeBox = new ScaleBox(inOutButtonsComp, SWT.NONE);
 			GridDataFactory.fillDefaults().align(GridData.END, GridData.CENTER).applyTo(nudgeSizeBox);
 		} else {
-			inOutButtonsComp.setLayout(new GridLayout(2, true));
+			GridLayoutFactory.swtDefaults().numColumns(2).equalWidth(true).margins(1,1).spacing(2,2).applyTo(inOutButtonsComp);
 			data.widthHint = 50;
 			negNudgeButton  = createButton(inOutButtonsComp, "-", null, data);
 			posNudgeButton  = createButton(inOutButtonsComp, "+", null, data);
 			
 			Composite sizeComposite = new Composite(inOutButtonsComp, SWT.NONE);
-			GridLayoutFactory.swtDefaults().numColumns(2).margins(0, 0).applyTo(sizeComposite);
+			GridLayoutFactory.swtDefaults().numColumns(2).equalWidth(true).margins(1,1).spacing(2,2).applyTo(sizeComposite);
 			GridDataFactory.swtDefaults().span(2, 1).grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(sizeComposite);
 			
 			if (DEBUG_LAYOUT) {
