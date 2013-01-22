@@ -61,7 +61,7 @@ public class NDFileSimulator implements NDFile{
 
 	@Override
 	public String getFullFileName_RBV() throws Exception { 
-		return "/scratch/1.tif";//fileTemplate; //String.format(fileTemplate, getFilePath(), getFileName(), getFileNumber());
+		return String.format(fileTemplate, getFilePath(), getFileName(), getFileNumber());
 	}
 
 	@Override
