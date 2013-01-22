@@ -20,7 +20,6 @@ package uk.ac.gda.epics.adviewer.views;
 
 
 public class HistogramViewCreator extends AreaDetectorViewCreatorBase{
-	static public String Id="uk.ac.gda.beamline.i13i.AreaDetectorProfileView";
 	
 	@Override
 	protected Object getView(ViewCreator adController) {

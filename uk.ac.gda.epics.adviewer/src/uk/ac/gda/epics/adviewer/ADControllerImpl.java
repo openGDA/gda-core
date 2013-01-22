@@ -110,9 +110,7 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 		this.imageNDArray = imageNDArray;
 	}
 
-	private int[] determineDataDimensions() throws Exception {
-		// only called if configured to readArrays (and hence ndArray is set)
-		NDPluginBase pluginBase = imageNDArray.getPluginBase();
+	private int[] getDataDimensions(NDPluginBase pluginBase) throws Exception {
 		int nDimensions = pluginBase.getNDimensions_RBV();
 		int[] dimFromEpics = new int[3];
 		dimFromEpics[0] = pluginBase.getArraySize2_RBV();
@@ -126,7 +124,7 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 	@Override
 	public ImageData getImageData() throws Exception {
 
-		int[] dims = determineDataDimensions();
+		int[] dims = getDataDimensions(imageNDArray.getPluginBase());
 
 		int expectedNumPixels = dims[0];
 		for (int i = 1; i < dims.length; i++) {
@@ -350,4 +348,18 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 	public ImageDescriptor getHistogramViewImageDescriptor() {
 		return Activator.getImageDescriptor("icons/AreaDetectorProfileView.gif");
 	}
+	
+	
+	@Override
+	public int getImageHeight() throws Exception {
+		int[] dimensions = getDataDimensions(getFfmpegStream().getPluginBase());
+		return dimensions[1];
+	}
+
+	@Override
+	public int getImageWidth() throws Exception {
+		int[] dimensions = getDataDimensions(getFfmpegStream().getPluginBase());
+		return dimensions[0];
+	}
+	
 }

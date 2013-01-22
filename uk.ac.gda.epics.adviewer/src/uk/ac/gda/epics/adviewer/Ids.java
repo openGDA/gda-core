@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,13 +16,12 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.epics.adviewer.views;
+package uk.ac.gda.epics.adviewer;
 
+public class Ids {
+	//Do not change without changing plugin.xml
+	public static final String COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME = "uk.ac.gda.epics.adviewer.commandParameters.adcontrollerServiceName";
+	public static final String COMMANDS_SET_EXPOSURE="uk.ac.gda.epics.adviewer.commands.setExposure";
+	public static final String COMMANDS_SET_LIVEVIEW_SCALE="uk.ac.gda.epics.adviewer.commands.setLiveViewScale";
 
-public class MJPegViewCreator extends AreaDetectorViewCreatorBase {
-	
-	@Override
-	protected Object getView(ViewCreator adController) {
-		return adController.createLiveView();
-	}	
 }

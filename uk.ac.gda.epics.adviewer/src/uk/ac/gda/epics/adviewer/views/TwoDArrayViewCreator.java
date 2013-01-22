@@ -20,8 +20,6 @@ package uk.ac.gda.epics.adviewer.views;
 
 
 public class TwoDArrayViewCreator extends AreaDetectorViewCreatorBase{
-	static public String Id="uk.ac.gda.beamline.i13i.AreaDetectorArrayView";
-	
 	@Override
 	protected Object getView(ViewCreator adController) {
 		return adController.createArrayView();

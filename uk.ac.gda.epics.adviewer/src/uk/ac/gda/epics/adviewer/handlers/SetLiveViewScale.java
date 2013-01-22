@@ -30,13 +30,14 @@ import org.eclipse.swt.widgets.Display;
 
 import uk.ac.gda.epics.adviewer.ADController;
 import uk.ac.gda.epics.adviewer.Activator;
+import uk.ac.gda.epics.adviewer.Ids;
 
 
 public class SetLiveViewScale extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		String serviceName = event.getParameter("uk.ac.gda.beamline.i13i.commandParameters.adcontrollerServiceName");
+		String serviceName = event.getParameter(Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME);
 		Object namedService = Activator.getNamedService(ADController.class, serviceName);
 		final ADController adController = (ADController) namedService;
 		ProgressMonitorDialog pd = new ProgressMonitorDialog(Display.getCurrent().getActiveShell());

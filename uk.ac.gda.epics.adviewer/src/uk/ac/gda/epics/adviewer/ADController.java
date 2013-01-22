@@ -66,4 +66,12 @@ public interface ADController {
 	public abstract ImageDescriptor getLiveViewImageDescriptor();
 
 	public abstract ImageDescriptor getHistogramViewImageDescriptor();
+	
+	//height of the array passed to the mjpeg plugin
+	public abstract int getImageHeight() throws Exception;
+
+	//width of the array passed to the mjpeg plugin
+	public abstract int getImageWidth() throws Exception;
+	
+
 }
