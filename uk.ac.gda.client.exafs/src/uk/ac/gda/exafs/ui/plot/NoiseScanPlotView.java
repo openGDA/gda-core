@@ -80,7 +80,8 @@ public class NoiseScanPlotView extends ExafsScanPlotView {
 
 	@Override
 	protected String getGraphTitle() {
-		return "Noise Profile";
+		String scanName = super.getGraphTitle() + " Noise Profile";  
+		return  scanName;
 	}
 
 }

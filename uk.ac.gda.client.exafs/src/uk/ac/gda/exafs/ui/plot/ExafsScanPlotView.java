@@ -62,6 +62,7 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 
 	protected final XafsFittingUtils xafsFittingUtils;
 	protected final int minPlotPoints = 10;  // Minimal number of points needed to start plotting
+	private String scanID = "";
 
 	public ExafsScanPlotView() {
 		super();
@@ -101,6 +102,7 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 			IScanParameters curScan = ScanObjectManager.getCurrentScan();
 			if (!(curScan instanceof MicroFocusScanParameters)) {
 				super.scanDataPointChanged(e);
+				scanID = e.getCurrentPoint().getScanIdentifier();
 			}
 		} catch (Exception exp) {
 			logger.error("Unable to determine the scan type", exp);
@@ -259,7 +261,7 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 
 	@Override
 	protected String getGraphTitle() {
-		return "EXAFS";
+		return "Scan:" + scanID;
 	}
 
 }

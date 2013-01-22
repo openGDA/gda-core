@@ -71,6 +71,8 @@ public class SubtractedBackgroundScanPlotView extends ExafsScanPlotView {
 					return new DataSetPlotData(getYAxis(), exafs[1]);
 				}
 			}
+			this.xDataSetData = new DataSetPlotData(getXAxis(), energy);
+			return new DataSetPlotData(getYAxis(), AbstractDataset.zeros(lnI0It.getShape(), lnI0It.getDtype()));
 		} catch (Exception e) {
 			logger.warn("Exception in XafsFittingUtils calculating Subtracted background",e);
 		}
@@ -111,17 +113,33 @@ public class SubtractedBackgroundScanPlotView extends ExafsScanPlotView {
 
 	@Override
 	protected String getYAxis() {
-		return "Amplitude";
+		int kw = xafsFittingUtils.getKweight();
+		String prefix = "";
+		switch (kw) {
+		case 1:
+			prefix = "k"; 
+			break;
+		case 2:
+			prefix = "k\u00b2"; 
+			break;
+		case 3:
+			prefix = "k\u00b3"; 
+			break;
+		default:
+			break;
+		}
+		return prefix + "\u03c7(k)";
 	}
 
 	@Override
 	protected String getXAxis() {
-		return "k(1/A)";
+		return "k (\u212b\u207b\u00b9)";
 	}
 
 	@Override
 	protected String getGraphTitle() {
-		return "Subtracted Background (Estimate)";
+		String scanName = super.getGraphTitle() + " Subtracted Background (Estimate)";
+		return scanName;
 	}
 
 }

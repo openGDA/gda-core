@@ -70,10 +70,11 @@ public class FourierScanPlotView extends ExafsScanPlotView {
 					this.xDataSetData = new DataSetPlotData(getXAxis(), fft[0]);
 
 					// At the time of writing this code DataSet does not inherit from AbstractDataset!!
-					return new DataSetPlotData("fft", fft[1]);
+					return new DataSetPlotData(getYAxis(), fft[1]);
 				}
 			}
-			return null;
+			this.xDataSetData = new DataSetPlotData(getXAxis(), energy);
+			return new DataSetPlotData(getYAxis(), AbstractDataset.zeros(lnI0It.getShape(), lnI0It.getDtype()));
 		} catch (Exception e) {
 			logger.warn("Exception in XafsFittingUtils calculating FFT",e);
 			return null;
@@ -112,17 +113,18 @@ public class FourierScanPlotView extends ExafsScanPlotView {
 
 	@Override
 	protected String getYAxis() {
-		return "Amplitude";
+		return "\u03c7(R)";
 	}
 
 	@Override
 	protected String getXAxis() {
-		return "R";
+		return "R (\u212b)";
 	}
 
 	@Override
 	protected String getGraphTitle() {
-		return "Fourier Transform";
+		String scanName = super.getGraphTitle() + " Fourier Transform";
+		return scanName;
 	}
 
 }

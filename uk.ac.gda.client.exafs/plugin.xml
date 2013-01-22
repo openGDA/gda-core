@@ -61,10 +61,10 @@
       </view>
       <view
             category="uk.ac.gda.client.exafs.category"
-            class="uk.ac.gda.exafs.ui.plot.ChiSquareErrorPlotView"
+            class="uk.ac.gda.exafs.ui.plot.RMSChiErrorPlotView"
             icon="icons/chart_curve.png"
-            id="gda.rcp.views.scan.ChiSquareErrorPlotView"
-            name="Chi^2 Error"
+            id="gda.rcp.views.scan.RMSChiErrorPlotView"
+            name="RMS Error"
             restorable="true">
       </view>
       <view
