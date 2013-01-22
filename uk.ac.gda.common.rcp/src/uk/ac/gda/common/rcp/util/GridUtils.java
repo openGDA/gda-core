@@ -105,7 +105,10 @@ public class GridUtils {
 				// perform update immediately
 				widget.setVisible(isVisible);
 				try {
-					widget.getShell().layout(new Control[] { widget });
+					//changed from widget.getShell() to widget.getParent() as the former
+					//led to views not laying out correctly when opened in running workbench despite working
+					//ok if view is opened during workbench initialisation
+					widget.getParent().layout(new Control[] { widget });
 				} catch (Exception ignored) {
 					// If we cannot layout parent then not a problem.
 				}
