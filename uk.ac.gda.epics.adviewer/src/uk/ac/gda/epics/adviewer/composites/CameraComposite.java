@@ -40,6 +40,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.SWTImageUtils;
 import uk.ac.gda.epics.adviewer.composites.imageviewer.ImageViewer;
+import uk.ac.gda.epics.adviewer.composites.imageviewer.NewImageListener;
 
 
 public class CameraComposite extends Composite {

@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.richbeans.event.ValueEvent;
 import uk.ac.gda.richbeans.event.ValueListener;
+import org.eclipse.swt.widgets.Label;
 
 public class MinCallbackTimeComposite extends Composite {
 	private static final Logger logger = LoggerFactory.getLogger(MinCallbackTimeComposite.class);
@@ -59,8 +60,8 @@ public class MinCallbackTimeComposite extends Composite {
 		grpMaxUpdateRate.setLayout(gl_grpMaxUpdateRate);
 		
 		valueBox = new ValueBox(grpMaxUpdateRate, SWT.NONE);
-		valueBox.setLabelWidth(60);
-		valueBox.setLabel("Rate");
+		valueBox.setLabelWidth(30);
+		valueBox.setLabel("Time");
 		valueBox.setDecimalPlaces(1);
 		valueBox.setMaximum(Double.MAX_VALUE);
 		valueBox.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false,1,1));		

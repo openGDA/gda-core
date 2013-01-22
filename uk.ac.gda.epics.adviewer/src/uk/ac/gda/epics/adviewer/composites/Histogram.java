@@ -94,9 +94,6 @@ public class Histogram extends Composite {
 
 	private boolean grabOnceStats;
 
-	private boolean computeHistAlreadyRunning = true;
-
-	private boolean computeStatsAlreadyRunning = true;
 
 	private IViewPart parentViewPart;
 
@@ -153,12 +150,6 @@ public class Histogram extends Composite {
 
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
-				try {
-					stop();
-					stopStats();
-				} catch (Exception ex) {
-					logger.error("Error stopping histogram computation", e);
-				}
 				if (mpegProcObserver != null) {
 					if (mpegProcOffsetObservable != null && mpegProcObserver != null)
 						mpegProcOffsetObservable.deleteIObserver(mpegProcObserver);
@@ -186,12 +177,6 @@ public class Histogram extends Composite {
 
 	public void setADController(ADController config) {
 		this.config = config;
-		try {
-			computeHistAlreadyRunning = config.getImageNDStats().getComputeHistogram() == 1;
-			computeStatsAlreadyRunning = config.getImageNDStats().getComputeStatistics() == 1;
-		} catch (Exception e2) {
-			logger.error("Error reading current state of image plugin", e2);
-		}
 
 		try {
 			createOrUpdateROI();
@@ -265,16 +250,6 @@ public class Histogram extends Composite {
 				}
 			}
 		});
-		histogramStatus.addGrabOnceSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				try {
-					grabOnce();
-				} catch (Exception e1) {
-					logger.error("Error grabbing histogram", e1);
-				}
-			}
-		});
 		statisticsStatus.addMonitoringbtnSelectionListener(new SelectionAdapter() {
 
 			@Override
@@ -287,16 +262,6 @@ public class Histogram extends Composite {
 					}
 				} catch (Exception ex) {
 					logger.error("Error responding to start_stop button", ex);
-				}
-			}
-		});
-		statisticsStatus.addGrabOnceSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				try {
-					grabOnceStats();
-				} catch (Exception e1) {
-					logger.error("Error grabbing histogram", e1);
 				}
 			}
 		});
@@ -372,16 +337,8 @@ public class Histogram extends Composite {
 							first = false;
 							return; // ignore first update
 						}
-						if (histogramStatus.isFreezeSelected() && !grabOnce)
+						if (histogramStatus.isFreezeSelected()  || !histogramStatus.getHistogramMonitoring())
 							return;
-						if (grabOnce) {
-							try {
-								stop();
-							} catch (Exception e) {
-								logger.error("Error stopping histogram update", e);
-							}
-							grabOnce = false;
-						}
 						if (updateHistogramJob == null) {
 							updateHistogramJob = new Job("Update histogram") {
 
@@ -475,8 +432,7 @@ public class Histogram extends Composite {
 	}
 
 	public void stopStats() throws Exception {
-		if (computeStatsAlreadyRunning)
-			config.getImageNDStats().setComputeStatistics(0);
+		config.getImageNDStats().setComputeStatistics(0);
 	}
 
 	private double getMPEGProcOffset() throws Exception {
@@ -561,8 +517,6 @@ public class Histogram extends Composite {
 
 				@Override
 				public void roiSelected(ROIEvent evt) {
-					// TODO Auto-generated method stub
-					
 				}
 			});
 			mpegProcOffsetObservable = Histogram.this.config.getLiveViewNDProc().createOffsetObservable();
@@ -587,8 +541,7 @@ public class Histogram extends Composite {
 	}
 
 	public void stop() throws Exception {
-		if (computeHistAlreadyRunning)
-			config.getImageNDStats().setComputeHistogram(0);
+		config.getImageNDStats().setComputeHistogram(0);
 	}
 
 	Job updateHistogramJob;
@@ -596,7 +549,6 @@ public class Histogram extends Composite {
 	private Button autoScaleBtn;
 	private IOCStatus statusComposite;
 
-	private boolean grabOnce;
 	private HistogramStatus histogramStatus;
 	private StatisticsStatus statisticsStatus;
 	private Group grpMjpegRange;
@@ -616,11 +568,6 @@ public class Histogram extends Composite {
 	public void start() throws Exception {
 		config.getImageNDStats().getPluginBase().enableCallbacks();
 		config.getImageNDStats().setComputeHistogram(1);
-	}
-
-	public void grabOnce() throws Exception {
-		grabOnce = !isComputingHistogram();
-		start();
 	}
 
 	/**

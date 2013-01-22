@@ -55,6 +55,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.epics.adviewer.ADController;
 import uk.ac.gda.epics.adviewer.composites.imageviewer.IImagePositionEvent;
 import uk.ac.gda.epics.adviewer.composites.imageviewer.ImagePositionListener;
+import uk.ac.gda.epics.adviewer.composites.imageviewer.NewImageListener;
 import uk.ac.gda.epics.adviewer.composites.imageviewer.OverlayType;
 import uk.ac.gda.epics.adviewer.composites.imageviewer.PrimitiveType;
 import uk.ac.gda.epics.adviewer.composites.imageviewer.SWT2DOverlayProvider;
@@ -108,6 +109,7 @@ public class MJPeg extends Composite {
 		gd_livwMonitoringLbl.widthHint = 80;
 		livwMonitoringLbl.setLayoutData(gd_livwMonitoringLbl);
 		liveMonitoringBtn = new Button(stateGroup, SWT.PUSH | SWT.CENTER);
+		liveMonitoringBtn.setText("Stop");
 		liveMonitoringBtn.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -132,16 +134,17 @@ public class MJPeg extends Composite {
 		GridData gd_composite = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_composite.widthHint = 160;
 		composite.setLayoutData(gd_composite);
-		GridLayout gl_composite = new GridLayout(1, false);
+		GridLayout gl_composite = new GridLayout(2, false);
 		gl_composite.marginWidth = 0;
 		gl_composite.marginHeight = 0;
 		composite.setLayout(gl_composite);
 		
 		lblTime = new Label(composite, SWT.NONE);
-		lblTime.setText("Time of last image");
+		lblTime.setToolTipText("Time of last image");
+		lblTime.setText("Last image");
 		
 		txtTime = new Text(composite, SWT.BORDER);
-		txtTime.setText("Waiting for image...");
+		txtTime.setText("Waiting ....");
 		
 		lblRates = new Label(composite, SWT.NONE);
 		lblRates.setText("Rate /s");

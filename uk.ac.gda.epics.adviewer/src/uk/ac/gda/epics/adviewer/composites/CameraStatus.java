@@ -56,10 +56,7 @@ public class CameraStatus extends Composite {
 		
 		Group group = new Group(this, SWT.NONE);
 		group.setText("Camera");
-		GridLayout gl_group = new GridLayout(1, false);
-		gl_group.marginHeight = 0;
-		gl_group.marginWidth = 0;
-		group.setLayout(gl_group);
+		group.setLayout(new GridLayout(2, false));
 		
 		btnStart = new Button(group, SWT.NONE);
 		btnStart.setText("Start");
@@ -69,13 +66,14 @@ public class CameraStatus extends Composite {
 		lblAcquireState.setText("acquireState");
 		
 		acquireTimeBox = new StandardBox(group, SWT.NONE);
-		acquireTimeBox.setLabelWidth(100);
+		acquireTimeBox.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
+		acquireTimeBox.setLabelWidth(60);
 		acquireTimeBox.setActive(true);
 		acquireTimeBox.setUnit("s");
 		acquireTimeBox.setNumericValue(10.0);
-		acquireTimeBox.setLabel("Exposure Time");
+		acquireTimeBox.setLabel("Exp.Time");
+		acquireTimeBox.setToolTipText("Exposure time in seconds");
 		acquireTimeBox.setDecimalPlaces(3);
-		acquireTimeBox.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false,1,1));
 		
 		addDisposeListener(new DisposeListener() {
 			

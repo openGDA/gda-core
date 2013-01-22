@@ -45,7 +45,6 @@ public class HistogramStatus extends Composite {
 	private Label histogramMonitoringLbl;
 	private boolean enableRBV;
 	private boolean computeHistogram;
-	private Button btnGrabOnce;
 	private Observable<String> enableObservable;
 	private Observable<String> computeHistogramObservable;
 	private Observer<String> enableObserver;
@@ -59,24 +58,17 @@ public class HistogramStatus extends Composite {
 		setLayout(new FillLayout(SWT.HORIZONTAL));
 		Group stateGroup = new Group(this, SWT.NONE);
 		stateGroup.setText("Histogram Plot");
-		GridLayout gl_stateGroup = new GridLayout(2, false);
-		gl_stateGroup.marginHeight = 0;
-		gl_stateGroup.marginWidth = 0;
-		stateGroup.setLayout(gl_stateGroup);
+		stateGroup.setLayout(new GridLayout(2, false));
 		histogramMonitoringLbl = new Label(stateGroup, SWT.NONE);
-		histogramMonitoringLbl.setAlignment(SWT.LEFT);
-		histogramMonitoringLbl.setText("running");
-		GridData gd_histogramMonitoringLbl = new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1);
-		gd_histogramMonitoringLbl.widthHint = 77;
+		GridData gd_histogramMonitoringLbl = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_histogramMonitoringLbl.widthHint = 72;
 		histogramMonitoringLbl.setLayoutData(gd_histogramMonitoringLbl);
+		histogramMonitoringLbl.setAlignment(SWT.LEFT);
+		histogramMonitoringLbl.setText("Running");
 		
-		btnGrabOnce = new Button(stateGroup, SWT.NONE);
-		btnGrabOnce.setText("Grab Once");
 		histogramMonitoringBtn = new Button(stateGroup, SWT.PUSH | SWT.CENTER);
+		histogramMonitoringBtn.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
 		histogramMonitoringBtn.setText("Start");
-		GridData gd_histogramMonitoringBtn = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);
-		gd_histogramMonitoringBtn.widthHint = 58;
-		histogramMonitoringBtn.setLayoutData(gd_histogramMonitoringBtn);
 		
 		btnFreezePlot = new Button(stateGroup, SWT.CHECK);
 		btnFreezePlot.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
@@ -154,7 +146,6 @@ public class HistogramStatus extends Composite {
 		histogramMonitoring = b;
 		histogramMonitoringBtn.setText(b ? "Stop" : "Start");
 		histogramMonitoringLbl.setText(b ? "Running" : "Stopped");
-		btnGrabOnce.setEnabled(!histogramMonitoring);
 		
 	}
 
@@ -169,9 +160,6 @@ public class HistogramStatus extends Composite {
 	}
 
 
-	public void addGrabOnceSelectionListener(SelectionListener selectionListener) {
-		btnGrabOnce.addSelectionListener(selectionListener);
-	}
 
 
 	/* return vaue of local variable so that this function doe snot have to be called on UI thread */

@@ -41,19 +41,19 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.richbeans.components.scalebox.StandardBox;
 
 public class StatisticsStatus extends Composite {
+	@SuppressWarnings("unused")
 	private static final Logger logger = LoggerFactory.getLogger(StatisticsStatus.class);
 	private boolean monitoring = false;
 	private Button monitoringBtn;
 	private Label monitoringLbl;
 	private boolean enableRBV;
 	private boolean compute;
-	private Button btnGrabOnce;
 	private Observable<String> enableObservable;
 	private Observable<String> computeObservable;
 	private Observer<String> enableObserver;
 	private Observer<String> computeObserver;
 	private ValueBox min, max, mean, total, sigma;
-	private Composite composite;
+	private Composite composite_1;
 
 	public StatisticsStatus(Composite parent, int style) {
 		super(parent, style);
@@ -64,23 +64,16 @@ public class StatisticsStatus extends Composite {
 		gl_stateGroup.marginWidth = 0;
 		gl_stateGroup.marginHeight = 0;
 		stateGroup.setLayout(gl_stateGroup);
-		monitoringLbl = new Label(stateGroup, SWT.CENTER);
+		
+		composite_1 = new Composite(stateGroup, SWT.NONE);
+		composite_1.setLayout(new GridLayout(2, false));
+		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+		monitoringLbl = new Label(composite_1, SWT.CENTER);
 		monitoringLbl.setText("Running__");
 		
-		composite = new Composite(stateGroup, SWT.NONE);
-		composite.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false, 1, 1));
-		composite.setLayout(new GridLayout(2, false));
-		
-		btnGrabOnce = new Button(composite, SWT.NONE);
-		btnGrabOnce.setAlignment(SWT.LEFT);
-		btnGrabOnce.setText("Grab Once");
-		monitoringBtn = new Button(composite, SWT.NONE);
+		monitoringBtn = new Button(composite_1, SWT.NONE);
 		monitoringBtn.setAlignment(SWT.LEFT);
 		monitoringBtn.setText("Start");
-		
-		
-		
-		
 		
 		min = new ValueBox(stateGroup, SWT.NONE);
 		((GridData) min.getControl().getLayoutData()).horizontalAlignment = SWT.LEFT;
@@ -187,8 +180,6 @@ public class StatisticsStatus extends Composite {
 		monitoring = b;
 		monitoringBtn.setText(b ? "Stop" : "Start");
 		monitoringLbl.setText(b ? "Running" : "Stopped");
-		btnGrabOnce.setEnabled(!monitoring);
-		
 	}
 
 
@@ -218,10 +209,6 @@ public class StatisticsStatus extends Composite {
 
 	public void addMonitoringbtnSelectionListener(SelectionListener listener) {
 		monitoringBtn.addSelectionListener(listener);
-	}
-
-	public void addGrabOnceSelectionListener(SelectionListener listener) {
-		btnGrabOnce.addSelectionListener(listener);
 	}
 
 	public boolean getMonitoring() {
