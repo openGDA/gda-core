@@ -64,6 +64,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 import uk.ac.gda.epics.adviewer.ADController;
+import uk.ac.gda.epics.adviewer.Ids;
 
 public class Histogram extends Composite {
 	private static final String PROFILE = "PROFILE";
@@ -213,9 +214,9 @@ public class Histogram extends Composite {
 					try {
 						ICommandService cs = (ICommandService) parentViewPart.getSite().getService(
 								ICommandService.class);
-						Command command = cs.getCommand("uk.ac.gda.beamline.i13i.commands.setLiveViewScale");
+						Command command = cs.getCommand(Ids.COMMANDS_SET_LIVEVIEW_SCALE);
 						IParameter parameter = command
-								.getParameter("uk.ac.gda.beamline.i13i.commandParameters.adcontrollerServiceName");
+								.getParameter(Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME);
 						Parameterization[] parameterizations = new Parameterization[] { new Parameterization(parameter,
 								"i13") };
 						ParameterizedCommand cmd = new ParameterizedCommand(command, parameterizations);
