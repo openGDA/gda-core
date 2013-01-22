@@ -448,34 +448,40 @@ public class TiltController implements ITiltController {
 		TiltPlotPointsHolder tiltPlotPointsHolder = new TiltPlotPointsHolder();
 
 		tiltPlotPointsHolder.setCenters1(getDoublePointList(firstScanFolder + File.separator + "centers_1.csv"));
+		tiltPlotPointsHolder.setEllipse1(getDoublePointList(firstScanFolder + File.separator + "ellipse_1.csv"));
 		tiltPlotPointsHolder.setCenters2(getDoublePointList(secondScanFolder + File.separator + "centers_2.csv"));
+		tiltPlotPointsHolder.setEllipse2(getDoublePointList(secondScanFolder + File.separator + "ellipse_2.csv"));
 		tiltPlotPointsHolder.setLine2(getDoublePointList(secondScanFolder + File.separator + "line_2.csv"));
 		return tiltPlotPointsHolder;
 	}
 
 	private DoublePointList getDoublePointList(String fileName) throws IOException {
 		File firstScanCentersFile = new File(fileName);
-		FileInputStream fis = new FileInputStream(firstScanCentersFile);
-		InputStreamReader inpStreamReader = new InputStreamReader(fis);
-		BufferedReader br = new BufferedReader(inpStreamReader);
-		String rl = null;
 		DoublePointList pointList = new DoublePointList();
-		rl = br.readLine();
-		while (rl != null) {
-			StringTokenizer strTokenizer = new StringTokenizer(rl, ",");
-			if (strTokenizer.countTokens() != 2) {
-				fis.close();
-				br.close();
-				throw new IllegalArgumentException("Invalid row in the table");
-			}
-			double x = Double.parseDouble(strTokenizer.nextToken());
-			double y = Double.parseDouble(strTokenizer.nextToken());
-			pointList.addPoint(x, y);
+		if (firstScanCentersFile.exists()) {
+			FileInputStream fis = new FileInputStream(firstScanCentersFile);
+			InputStreamReader inpStreamReader = new InputStreamReader(fis);
+			BufferedReader br = new BufferedReader(inpStreamReader);
+			String rl = null;
 			rl = br.readLine();
+			while (rl != null) {
+				StringTokenizer strTokenizer = new StringTokenizer(rl, ",");
+				if (strTokenizer.countTokens() != 2) {
+					fis.close();
+					br.close();
+					throw new IllegalArgumentException("Invalid row in the table");
+				}
+				double x = Double.parseDouble(strTokenizer.nextToken());
+				double y = Double.parseDouble(strTokenizer.nextToken());
+				pointList.addPoint(x, y);
+				rl = br.readLine();
+			}
+			fis.close();
+			br.close();
+			inpStreamReader.close();
+		} else {
+			logger.error("File {} does not exist", fileName);
 		}
-		fis.close();
-		br.close();
-		inpStreamReader.close();
 		return pointList;
 	}
 
