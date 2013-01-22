@@ -244,6 +244,7 @@ public class MotorPositionViewer {
 	private void createReadbacksGroup(Composite readBacksGroup) {
 		Label label = new Label(readBacksGroup, SWT.NONE);
 		label.setText( motor.getDescriptor().getLabelText());
+		GridDataFactory.swtDefaults().applyTo(label);
 		motorBox = new DemandBox(readBacksGroup, SWT.NONE, 60);
 		GridDataFactory.swtDefaults().hint(120, SWT.DEFAULT).applyTo(motorBox);
 	}
