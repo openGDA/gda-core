@@ -424,8 +424,16 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 		final boolean matches = matcher.matches();
 		StringBuilder buf = null;
 		if (!matches) {
-			buf = new StringBuilder(String.format("%." + decimalPlaces + "f", Double.valueOf(txt)));
+			try {
+				String valueFromText = Double.valueOf(txt).toString();
+				buf = new StringBuilder(String.format("%." + decimalPlaces + "f", valueFromText));
+			} catch (NumberFormatException e) {
+				text.setForeground(red);
+				return;
+			}
+			
 		}
+		text.setForeground(black);
 
 		if (buf != null && "-".equals(buf.toString()))
 			return;
