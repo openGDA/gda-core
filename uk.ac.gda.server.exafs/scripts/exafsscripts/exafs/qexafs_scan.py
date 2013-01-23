@@ -15,6 +15,8 @@ from gda.jython.scriptcontroller.logging import XasLoggingMessage
 from gda.scan import ScanBase, ContinuousScan
 from scan import Scan
 from exafs_environment import ExafsEnvironment
+from gda.epics import CAClient
+from time import sleep
 
 class QexafsScan(Scan):
     
@@ -22,8 +24,9 @@ class QexafsScan(Scan):
         Scan.__init__(self, loggingcontroller,detectorPreparer, samplePreparer, outputPreparer,None)
         self.energy_scannable = energy_scannable
         self.ion_chambers_scannable = ion_chambers_scannable
-        self.t = None
-            
+        #self.t = None
+        self.beamCheck = True
+        
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, numRepetitions= -1, validation=True):
         xmlFolderName = ExafsEnvironment().getXMLFolder() + folderName + "/"
 
@@ -78,8 +81,8 @@ class QexafsScan(Scan):
 
                 initialPercent = str(int((float(repetitionNumber - 1) / float(numRepetitions)) * 100)) + "%" 
 
-                logmsg = XasLoggingMessage(unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), initialPercent,str(0),str(0),str(scanBean.getTime()) + "s",outputFolder)
-
+                logmsg = XasLoggingMessage(unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), initialPercent,str(0),str(0),beanGroup.getScan(),outputFolder)
+               
                 loggingcontroller.update(None,logmsg)
                 loggingcontroller.update(None,ScanStartedMessage(scanBean,detectorBean))
 
@@ -100,6 +103,16 @@ class QexafsScan(Scan):
                 ###
 
                 loggingbean = XasProgressUpdater(loggingcontroller,logmsg,timeRepetitionsStarted)
+            
+                #3=closed
+                if self.beamCheck==True:
+                    feAbsPV = "FE18B-RS-ABSB-02:STA"
+                    feAbsStatus = int(CAClient().caget(feAbsPV))
+                    print "feAbsStatus=",feAbsStatus
+                    while feAbsStatus!=1 and self.beamCheck==True:
+                        feAbsStatus = int(CAClient().caget(feAbsPV))
+                        print "Checking whether front end absorber is open. Currently "+str(feAbsStatus)
+                        sleep(2)
             
                 print "running QEXAFS scan:", self.energy_scannable.getName(), scanBean.getInitialEnergy(), scanBean.getFinalEnergy(), numberPoints, scan_time, detectorList
                 controller.update(None, ScriptProgressEvent("Running QEXAFS scan"))
@@ -161,7 +174,7 @@ class QexafsScan(Scan):
             if (jython_mapper.original_header != None):
                 original_header=jython_mapper.original_header[:]
                 Finder.getInstance().find("datawriterconfig").setHeader(original_header)
-            self.t.stop
+            #self.t.stop
 
  
     def _getNumberOfFrames(self, detectorBean, scanBean):
@@ -212,3 +225,12 @@ class QexafsScan(Scan):
         beanGroup.setOutput(outputBean)
         beanGroup.setScan(scanBean)
         return beanGroup
+
+    def isBeamCheck(self):
+        return self.beamCheck
+    
+    def turnOnBeamCheck(self):
+        self.beamCheck = True
+        
+    def turnOffBeamCheck(self):
+        self.beamCheck=False

@@ -20,7 +20,6 @@ def vortex (vortexFileName, outputfile, path=None):
 	try:
 		print "from vortex config"
 		controller = Finder.getInstance().find("ExafsScriptObserver")
-		print "from orte config"
 		return vortexEx(controller, vortexFileName, outputfile, path)
 	except:
 		type, exception, traceback = sys.exc_info()

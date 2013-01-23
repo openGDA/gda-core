@@ -35,6 +35,7 @@ class RasterMapReturnWrite(Map):
         self.HTScaler=HTScaler
         self.HTXmapMca=HTXmapMca
         self.mfd = None
+        self.detectorBeanFileName=""
     
     def getMFD(self):
         return self.self.mfd
@@ -98,17 +99,17 @@ class RasterMapReturnWrite(Map):
                 detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
                 #should get the bean file name from detector parametrs
                 if(folderName != None):
-                    detectorBeanFileName =datadir+File.separator +folderName +File.separator+detectorBean.getFluorescenceParameters().getConfigFileName()
+                    self.detectorBeanFileName =datadir+File.separator +folderName +File.separator+detectorBean.getFluorescenceParameters().getConfigFileName()
                 else:
-                    detectorBeanFileName =datadir+detectorBean.getFluorescenceParameters().getConfigFileName()
-                print detectorBeanFileName
-                elements = showElementsList(detectorBeanFileName)
+                    self.detectorBeanFileName =datadir+detectorBean.getFluorescenceParameters().getConfigFileName()
+                print self.detectorBeanFileName
+                elements = showElementsList(self.detectorBeanFileName)
                 ##this should be the element selected in the gui
                 selectedElement = elements[0]
                 self.mfd.setRoiNames(array(elements, String))
     
-                self.mfd.setDetectorBeanFileName(detectorBeanFileName)
-                bean = BeansFactory.getBean(File(detectorBeanFileName))   
+                self.mfd.setDetectorBeanFileName(self.detectorBeanFileName)
+                bean = BeansFactory.getBean(File(self.detectorBeanFileName))   
                 detector = finder.find(bean.getDetectorName())   
                 firstDetector = detectorList[0]
                 detectorList=[]
@@ -159,10 +160,12 @@ class RasterMapReturnWrite(Map):
                     xasWriter.setIndexer(rowR)
                     xasWriter.addDataWriterExtender(self.mfd)
                     xmapRasterscan.setDataWriter(xasWriter)
+                    self.finder.find("elementListScriptController").update(None, self.detectorBeanFileName);
                     xmapRasterscan.runScan()
                 else:
                     xspressRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),ContinuousScan(self.trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [self.raster_counterTimer01, self.raster_xspress]),self.realX])
                     xspressRasterscan.getScanPlotSettings().setIgnore(1)
+                    self.finder.find("elementListScriptController").update(None, self.detectorBeanFileName);
                     xspressRasterscan.runScan()
     
             finally:

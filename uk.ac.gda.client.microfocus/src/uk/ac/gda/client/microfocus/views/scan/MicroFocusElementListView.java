@@ -19,19 +19,15 @@
 package uk.ac.gda.client.microfocus.views.scan;
 
 import gda.configuration.properties.LocalProperties;
-import gda.jython.Jython;
-import gda.jython.JythonServerFacade;
+import gda.data.PathConstructor;
+import gda.factory.Finder;
+import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 
-import java.io.File;
-import java.util.StringTokenizer;
-
-import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -45,11 +41,11 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,9 +59,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.IImagePositionEvent;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.IRichBean;
-import uk.ac.gda.beans.exafs.IDetectorParameters;
-import uk.ac.gda.beans.exafs.IScanParameters;
-import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
 import uk.ac.gda.beans.vortex.RegionOfInterest;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
@@ -74,17 +67,13 @@ import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentEditorManager;
 import uk.ac.gda.client.microfocus.controller.MicroFocusDisplayController;
 import uk.ac.gda.client.microfocus.util.MicroFocusScanLoader;
-import uk.ac.gda.exafs.ui.data.ScanObject;
-import uk.ac.gda.exafs.ui.data.ScanObjectManager;
 
 public class MicroFocusElementListView extends ViewPart implements Overlay2DConsumer, SelectionListener, FocusListener,
-		IObservable
-
-{
+		IObservable, IObserver {
 	/**
 	 * The extension point ID for 3rd party contribution
 	 */
-	public static final String ID = "uk.ac.gda.client.microfocus.ui.views.MicroFocusElementListView";
+	public static final String ID = "uk.ac.gda.client.microfocus.ElementListView";
 	private Overlay2DProvider provider;
 	int boxPrimID = -1;
 	private List xspressList;
@@ -92,11 +81,7 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 	private MicroFocusScanLoader scanLoader;
 	private static final Logger logger = LoggerFactory.getLogger(MicroFocusElementListView.class);
 	private FileDialog openDialog;
-	private String detectorFileName;
-	private String defaultDetectorFileName;
 	private String loadedDetectorFileName;
-	private final String detectorConfiguration = "uk.ac.gda.microfocus.display.detectorfile";
-	private final String defaultDetectorConfiguration = "uk.ac.gda.microfocus.display.default.detectorfile";
 	private double[] xyz = new double[3];
 	private ObservableComponent observableComponent = new ObservableComponent();
 	private boolean loadMapForScan = false;
@@ -120,6 +105,8 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 		super();
 		displayController = new MicroFocusDisplayController();
 		scanLoader = new MicroFocusScanLoader();
+		Scriptcontroller find = (Scriptcontroller) Finder.getInstance().find("elementListScriptController");
+		find.addIObserver(this);
 	}
 
 	@Override
@@ -132,8 +119,12 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 		gridData.widthHint = 598;
 		gridData.heightHint = 377;
 		xspressList.setLayoutData(gridData);
-		getDetectorFiles();
-		populateLists(detectorFileName);
+
+		String configDir = PathConstructor.createFromProperty("gda.params");
+
+		setDefaultDetectorFile(configDir + "/templates/Xspress_Parameters.xml");
+		setDetectorFile(configDir + "/templates/Xspress_Parameters.xml");
+
 		openDialog = new FileDialog(parent.getShell(), SWT.OPEN);
 		openDialog.setFilterPath(LocalProperties.get("gda.data.scan.datawriter.datadir"));
 		selectedElement = xspressList.getItemCount() > 0 ? xspressList.getItem(0) : null;
@@ -158,41 +149,12 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 		}
 	}
 
-	private void getDetectorFiles() {
-		defaultDetectorFileName = getFileName(defaultDetectorConfiguration, true);
-		detectorFileName = getFileName(detectorConfiguration, false);
-		displayController.setDetectorFile(detectorFileName);
-		displayController.setDefaultDetectorFile(defaultDetectorFileName);
+	private void setDefaultDetectorFile(String path) {
+		displayController.setDefaultDetectorFile(path);
 	}
 
-	private String getFileName(String configuration, boolean defaultFile) {
-		logger.info("the tilte of this view is " + getTitle());
-		String fileName = "";
-		IConfigurationElement[] config = Platform.getExtensionRegistry().getConfigurationElementsFor(configuration);
-		for (IConfigurationElement e : config) {
-
-			fileName = e.getAttribute("path");
-			logger.info("the mode is " + fileName);
-			if (!fileName.contains(this.getTitle()) && !defaultFile)
-				continue;
-			if (fileName.contains("$")) {
-				StringTokenizer tokens = new StringTokenizer(fileName, "/");
-				StringBuffer buf = new StringBuffer();
-				while (tokens.hasMoreElements()) {
-					String tok = tokens.nextToken();
-					if (tok.startsWith("$")) {
-						tok = LocalProperties.get(tok.substring(1));
-					}
-					if (tokens.hasMoreElements())
-						buf.append(tok + File.separator);
-					else
-						buf.append(tok);
-				}
-				fileName = buf.toString();
-			}
-			break;
-		}
-		return fileName;
+	private void setDetectorFile(String path) {
+		displayController.setDetectorFile(path);
 	}
 
 	private void populateLists(String xmlfile) {
@@ -225,51 +187,6 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 		}
 
 		loadedDetectorFileName = xmlfile;
-	}
-
-	public void refresh() {
-		String currentDetectorFile = null;
-		try {
-			currentDetectorFile = findCurrentDetectorFile();
-		} catch (Exception e) {
-			logger.warn("Unable to refresh the elements list, using default config ");
-		}
-		if (currentDetectorFile != null)
-			populateLists(currentDetectorFile);
-	}
-
-	private boolean isScanRunning() {
-		if (JythonServerFacade.getInstance().getScanStatus() == Jython.RUNNING) {
-			return true;
-		}
-		return false;
-	}
-
-	private String findCurrentDetectorFile() throws Exception {
-		if (isScanRunning()) {
-			IScanParameters runningScan = ScanObjectManager.getCurrentScan();
-			IDetectorParameters runningDetParams = ScanObjectManager.getCurrentDetectorParameters();
-			if (runningScan instanceof MicroFocusScanParameters) {
-				String currentDetector = runningDetParams.getFluorescenceParameters().getConfigFileName();
-				if (currentDetector.contains(this.getTitle())) {
-					// find the full file path
-					return controller.getSelectedFolder().findMember(currentDetector).getLocationURI().getPath();
-				}
-				return null;
-			}
-			return null;
-		}
-
-		if (!((ScanObject) controller.getSelectedScan()).isMicroFocus())
-			return null;
-		String currentDetector = ((ScanObject) controller.getSelectedScan()).getDetectorParameters()
-				.getFluorescenceParameters().getConfigFileName();
-		if (currentDetector.contains(this.getTitle())) {
-			// find the full file path
-			return controller.getSelectedFolder().findMember(currentDetector).getLocationURI().getPath();
-		}
-		return null;
-
 	}
 
 	@Override
@@ -439,8 +356,7 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 	}
 
 	@Override
-	public void dispose()
-	{
+	public void dispose() {
 		super.dispose();
 		xspressList.dispose();
 		plotView.dispose();
@@ -506,5 +422,17 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 	 */
 	public void notifyIObservers(Object theObserved, Object theArgument) {
 		observableComponent.notifyIObservers(theObserved, theArgument);
+	}
+
+	@Override
+	public void update(Object source, Object arg) {
+		final String detectorConfig = (String) arg;
+		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				populateLists(detectorConfig);
+			}
+		});
+
 	}
 }

@@ -345,7 +345,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			finalEnergy.setUnit("Å\u207B\u00b9");
 			finalEnergy.setMaximum(100.0);
 			finalEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-			//initialEnergy.setMaximum(edge);
+			initialEnergy.setMaximum(40000.0);
 			finalEnergy.setMinimum(0);
 		}
 		else{
@@ -537,11 +537,9 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		return new ExpressionProvider() {
 			@Override
 			public double getValue(double e) {
-
 				Converter.setEdgeEnergy(getEdgeValue() / 1000.0);
 				return Converter.convert(e, Converter.EV, Converter.PERANGSTROM);
 			}
-
 			@Override
 			public IFieldWidget[] getPrecedents() {
 				return null;
