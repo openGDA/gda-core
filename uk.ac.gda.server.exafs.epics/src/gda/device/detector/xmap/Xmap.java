@@ -674,6 +674,8 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 	public Object getAttribute(String attributeName) throws DeviceException {
 		if (attributeName.equals("liveStats")) {
 			return calculateLiveStats();
+		} else if (attributeName.equals("countRates")) {
+			return getCountRates();
 		}
 		return null;
 	}
@@ -720,5 +722,14 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 		}
 		return results;
 	}
-
+	
+	private Object getCountRates() throws DeviceException {
+		Double results[] = new Double[2 * this.getNumberOfMca()];
+		int noOfMca = this.getNumberOfMca();
+		for (int i = 0; i < noOfMca; i++) {
+			results[i * 2] = controller.getICR(i);
+			results[i * 2 + 1] = controller.getOCR(i);
+		}
+		return results;
+	}
 }
