@@ -199,8 +199,8 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 		}
 		
 		String filePathRelativeToDataDirIfPossible = getFilePathRelativeToDataDirIfPossible();
-		String fileRedoutTemplate = getFileTemplateForReadout();
-		String newValue = StringUtils.replaceOnce(fileRedoutTemplate, "%s", filePathRelativeToDataDirIfPossible + "/");
+		String template = (getFileTemplateForReadout() == null) ? getFileTemplate() : getFileTemplateForReadout();
+		String newValue = StringUtils.replaceOnce(template, "%s", filePathRelativeToDataDirIfPossible + "/");
 		newValue = StringUtils.replaceOnce(newValue, "%s", getFileName());
 		String newKey = getkeyNameForMetadataPathTemplate();
 		jythonNamespace.placeInJythonNamespace("SRSWriteAtFileCreation", newMetadataString + newKey + "='" +newValue + "'\n");
