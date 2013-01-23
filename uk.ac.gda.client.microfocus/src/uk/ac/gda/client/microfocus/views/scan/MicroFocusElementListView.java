@@ -18,13 +18,15 @@
 
 package uk.ac.gda.client.microfocus.views.scan;
 
+import gda.analysis.io.ScanFileHolderException;
 import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
 import gda.factory.Finder;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
+
+import java.io.ByteArrayInputStream;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -49,7 +51,13 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.InputSource;
 
+import uk.ac.diamond.scisoft.analysis.hdf5.HDF5File;
+import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
+import uk.ac.diamond.scisoft.analysis.io.DataHolder;
+import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
+import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.PrimitiveType;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.Overlay2DConsumer;
@@ -67,6 +75,7 @@ import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentEditorManager;
 import uk.ac.gda.client.microfocus.controller.MicroFocusDisplayController;
 import uk.ac.gda.client.microfocus.util.MicroFocusScanLoader;
+import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class MicroFocusElementListView extends ViewPart implements Overlay2DConsumer, SelectionListener, FocusListener,
 		IObservable, IObserver {
@@ -76,9 +85,8 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 	public static final String ID = "uk.ac.gda.client.microfocus.ElementListView";
 	private Overlay2DProvider provider;
 	int boxPrimID = -1;
-	private List xspressList;
+	private List listOfElements;
 	private MicroFocusDisplayController displayController;
-	private MicroFocusScanLoader scanLoader;
 	private static final Logger logger = LoggerFactory.getLogger(MicroFocusElementListView.class);
 	private FileDialog openDialog;
 	private String loadedDetectorFileName;
@@ -89,7 +97,9 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 	private int plotY = 0;
 	private PlotView plotView;
 	private String selectedElement;
-
+	private XspressParameters xspressBean;
+	private VortexParameters vortexBean;
+	
 	public boolean isLoadMapForScan() {
 		return loadMapForScan;
 	}
@@ -104,7 +114,6 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 	public MicroFocusElementListView() {
 		super();
 		displayController = new MicroFocusDisplayController();
-		scanLoader = new MicroFocusScanLoader();
 		Scriptcontroller find = (Scriptcontroller) Finder.getInstance().find("elementListScriptController");
 		find.addIObserver(this);
 	}
@@ -114,22 +123,17 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 		logger.info("Part Control the title is " + this.getTitle());
 		Composite xspressComposite = new Composite(parent, SWT.NONE);
 		xspressComposite.setLayout(new GridLayout(2, false));
-		xspressList = new List(xspressComposite, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
+		listOfElements = new List(xspressComposite, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
 		GridData gridData = new GridData(SWT.LEFT, SWT.CENTER, true, true, 2, 1);
 		gridData.widthHint = 598;
 		gridData.heightHint = 377;
-		xspressList.setLayoutData(gridData);
-
-		String configDir = PathConstructor.createFromProperty("gda.params");
-
-		setDefaultDetectorFile(configDir + "/templates/Xspress_Parameters.xml");
-		setDetectorFile(configDir + "/templates/Xspress_Parameters.xml");
+		listOfElements.setLayoutData(gridData);
 
 		openDialog = new FileDialog(parent.getShell(), SWT.OPEN);
 		openDialog.setFilterPath(LocalProperties.get("gda.data.scan.datawriter.datadir"));
-		selectedElement = xspressList.getItemCount() > 0 ? xspressList.getItem(0) : null;
-		xspressList.addSelectionListener(this);
-		xspressList.setToolTipText(loadedDetectorFileName);
+		selectedElement = listOfElements.getItemCount() > 0 ? listOfElements.getItem(0) : null;
+		listOfElements.addSelectionListener(this);
+		listOfElements.setToolTipText(loadedDetectorFileName);
 
 		this.setTitleToolTip(getTitle() + "Dectector Elements list");
 
@@ -149,20 +153,12 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 		}
 	}
 
-	private void setDefaultDetectorFile(String path) {
-		displayController.setDefaultDetectorFile(path);
-	}
-
-	private void setDetectorFile(String path) {
-		displayController.setDetectorFile(path);
-	}
-
 	private void populateLists(String xmlfile) {
 		String location = xmlfile.substring(0, xmlfile.lastIndexOf('/')) + "/";
 		String filename = xmlfile.substring(xmlfile.lastIndexOf('/') + 1);
 		IRichBean beanObject = null;
 
-		xspressList.removeAll();
+		listOfElements.removeAll();
 
 		try {
 			beanObject = BeansFactory.getBeanObject(location, filename);
@@ -174,7 +170,7 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 			XspressParameters xspress = (XspressParameters) beanObject;
 			java.util.List<XspressROI> regionList = xspress.getDetector(0).getRegionList();
 			for (int i = 0; i < regionList.size(); i++) {
-				xspressList.add(regionList.get(i).getRoiName());
+				listOfElements.add(regionList.get(i).getRoiName());
 			}
 		}
 
@@ -182,7 +178,7 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 			VortexParameters vortex = (VortexParameters) beanObject;
 			java.util.List<RegionOfInterest> regionList = vortex.getDetector(0).getRegionList();
 			for (int i = 0; i < regionList.size(); i++) {
-				xspressList.add(regionList.get(i).getRoiName());
+				listOfElements.add(regionList.get(i).getRoiName());
 			}
 		}
 
@@ -294,34 +290,133 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 	public void loadFile() {
 
 		final String filePath = openDialog.open();
-		if (selectedElement != null && filePath != null) {
-			final String msg = ("Loading map from " + filePath);
-			Job job = new Job(msg) {
-				@Override
-				protected IStatus run(IProgressMonitor monitor) {
-					try {
-						displayController.displayMap(selectedElement, filePath);
-						if (loadMapForScan)
-							scanLoader.loadMapXmlForScan(controller.getSelectedFolder(), filePath);
-					} catch (Exception e) {
-						logger.error("Error displaying the map ", e);
-						showErrorMessage("Error displaying the map " + e.getMessage());
-					} catch (Throwable ne) {
-						logger.error("Cannot open file " + filePath, ne);
-					}
-					return Status.OK_STATUS;
-				}
-			};
-			job.setUser(true);
-			job.schedule();
+		HDF5Loader hdf5Loader = new HDF5Loader(filePath);
+
+		HDF5File tree = null;
+		try {
+			tree = hdf5Loader.loadTree(null);
+		} catch (ScanFileHolderException e2) {
+			logger.error("Could not load tree from " + filePath, e2);
 		}
+		
+		DataHolder dataHolder = null;
+		try {
+			dataHolder = hdf5Loader.loadFile();
+		} catch (ScanFileHolderException e1) {
+			logger.error("Could not load nexus file " + filePath, e1);
+		}
+
+		// get detector type xspress/vortex from nexus
+		IMetaData metadata = dataHolder.getMetadata();
+
+		String metaNames = null;
+		try {
+			metaNames = metadata.getMetaNames().toString();
+		} catch (Exception e1) {
+			logger.error("Cannot retreive metadata from nexus file " + filePath, e1);
+		}
+
+		if(metaNames.contains("xspress2system")){
+			HDF5NodeLink nl = tree.findNodeLink("/entry1/xml/XspressParameters");
+			String xml = nl.toString();
+			xml = xml.substring(xml.indexOf("<?xml"));
+			ByteArrayInputStream stream = new ByteArrayInputStream(xml.getBytes());
+			InputSource source = new InputSource(stream);
+			
+			try {
+				xspressBean = (XspressParameters) XMLHelpers.createFromXML(XspressParameters.mappingURL, XspressParameters.class, XspressParameters.schemaURL, source);
+			} catch (Exception e2) {
+				logger.error("Could not create XspressParameters bean from nexus file", e2);
+			}
+			
+			java.util.List<XspressROI> elementList = xspressBean.getDetector(0).getRegionList();
+			int numElements = elementList.size();
+			String[] elements = new String[numElements];
+			
+			listOfElements.removeAll();
+			for(int i=0;i<numElements;i++){
+				String roiName = elementList.get(i).getRoiName();
+				elements[i]=roiName;
+				listOfElements.add(roiName);
+			}
+			selectedElement=listOfElements.getItem(0);
+			
+			if (selectedElement != null && filePath != null) {
+				final String msg = ("Loading map from " + filePath);
+				Job job = new Job(msg) {
+					@Override
+					protected IStatus run(IProgressMonitor monitor) {
+						try {
+							displayController.displayMap(xspressBean.getDetector(0).getRegionList().get(0).getRoiName(), filePath, xspressBean);
+						} catch (Exception e) {
+							logger.error("Error displaying the map ", e);
+							showErrorMessage("Error displaying the map " + e.getMessage());
+						} catch (Throwable ne) {
+							logger.error("Cannot open file " + filePath, ne);
+						}
+						return Status.OK_STATUS;
+					}
+				};
+				job.setUser(true);
+				job.schedule();
+			}
+		}
+		
+		
+		if(metaNames.contains("xmapMca")){
+			HDF5NodeLink nl = tree.findNodeLink("/entry1/xml/VortexParameters");
+			String xml = nl.toString();
+			xml = xml.substring(xml.indexOf("<?xml"));
+			ByteArrayInputStream stream = new ByteArrayInputStream(xml.getBytes());
+			InputSource source = new InputSource(stream);
+			
+			try {
+				vortexBean = (VortexParameters) XMLHelpers.createFromXML(VortexParameters.mappingURL, VortexParameters.class, VortexParameters.schemaURL, source);
+			} catch (Exception e2) {
+				logger.error("Could not create VortexParameters bean from nexus file", e2);
+			}
+			
+			java.util.List<RegionOfInterest> elementList = vortexBean.getDetector(0).getRegionList();
+			int numElements = elementList.size();
+			String[] elements = new String[numElements];
+			
+			listOfElements.removeAll();
+			for(int i=0;i<numElements;i++){
+				String roiName = elementList.get(i).getRoiName();
+				elements[i]=roiName;
+				listOfElements.add(roiName);
+			}
+			selectedElement=listOfElements.getItem(0);
+			
+			if (selectedElement != null && filePath != null) {
+				final String msg = ("Loading map from " + filePath);
+				Job job = new Job(msg) {
+					@Override
+					protected IStatus run(IProgressMonitor monitor) {
+						try {
+							displayController.displayMap(vortexBean.getDetector(0).getRegionList().get(0).getRoiName(), filePath, vortexBean);
+						} catch (Exception e) {
+							logger.error("Error displaying the map ", e);
+							showErrorMessage("Error displaying the map " + e.getMessage());
+						} catch (Throwable ne) {
+							logger.error("Cannot open file " + filePath, ne);
+						}
+						return Status.OK_STATUS;
+					}
+				};
+				job.setUser(true);
+				job.schedule();
+			}
+		}
+
+		
 	}
 
 	@Override
 	public void widgetSelected(SelectionEvent e) {
-		selectedElement = xspressList.getSelection()[0];
+		selectedElement = listOfElements.getSelection()[0];
 		final String msg = "Loading the map for  " + selectedElement;
-		if (e.getSource().equals(xspressList)) {
+		if (e.getSource().equals(listOfElements)) {
 			Job job = new Job(msg) {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
@@ -358,7 +453,7 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 	@Override
 	public void dispose() {
 		super.dispose();
-		xspressList.dispose();
+		listOfElements.dispose();
 		plotView.dispose();
 	}
 
@@ -431,6 +526,7 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 			@Override
 			public void run() {
 				populateLists(detectorConfig);
+				displayController.setDetectorFile(detectorConfig);
 			}
 		});
 

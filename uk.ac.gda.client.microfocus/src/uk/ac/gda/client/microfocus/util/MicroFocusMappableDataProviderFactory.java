@@ -56,6 +56,31 @@ public class MicroFocusMappableDataProviderFactory {
 		return null;
 	}
 	
+	public static MicroFocusMappableDataProvider getInstance(Object bean)
+	{
+		try {
+			if(bean instanceof XspressParameters)
+			{
+				logger.info("xspress bean " );
+				return new XspressMFMappableDataProvider();
+			}
+			else if(bean instanceof VortexParameters)
+			{
+				logger.info("vortex bean " );
+				return new VortexMFMappableDataProvider();
+			}
+			else if(bean instanceof DetectorParameters)
+			{
+				return new ScalerMFMappableDataProvider();
+			}
+			
+		} catch (Exception e) {
+			logger.error("Could not get instance of MicroFocusMappableDataProvider using bean",e);
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	
 
 }
