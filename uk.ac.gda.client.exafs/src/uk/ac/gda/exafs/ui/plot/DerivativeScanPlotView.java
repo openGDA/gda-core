@@ -76,7 +76,8 @@ public class DerivativeScanPlotView extends ExafsScanPlotView {
 
 	@Override
 	protected String getGraphTitle() {
-		return "First Derivative";
+		String scanName = super.getGraphTitle() + " First Derivative";
+		return scanName;
 	}
 
 }

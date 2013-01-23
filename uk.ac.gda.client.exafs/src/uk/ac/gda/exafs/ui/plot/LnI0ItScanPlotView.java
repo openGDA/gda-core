@@ -67,6 +67,7 @@ public class LnI0ItScanPlotView extends AbstractCachedScanPlotView {
 			cachedY = new ArrayList<Double>(89);
 		for (int i = startIndex; i < collection.size(); i++){
 			IScanDataPoint point = collection.get(i);
+			graphTitle = "Scan: " + point.getScanIdentifier();
 			double x = point.getAllValuesAsDoubles()[0];
 			double ffi0 = ScanDataPointUtils.getFFI0(point);
 			double ffi1 = ScanDataPointUtils.getFFI1(point);
@@ -80,17 +81,17 @@ public class LnI0ItScanPlotView extends AbstractCachedScanPlotView {
 				cachedY.add(ffi0);
 				cachedX.add(x);
 				yAxis = "FF/I0";
-				graphTitle = "Fluorescence  -  FF/I0 vs. Energy";
+				graphTitle += " Fluorescence  -  FF/I0 vs. Energy";
 			} else if (!Double.isNaN(ffi1)) {
 				cachedY.add(ffi1);
 				cachedX.add(x);
 				yAxis = "FF/I1";
-				graphTitle = "Fluorescence  -  FF/I1 vs. Energy";
+				graphTitle += " Fluorescence  -  FF/I1 vs. Energy";
 			}  else if (!Double.isNaN(ff)) {
 				cachedY.add(ff / i0);
 				cachedX.add(x);
 				yAxis = "FF/I0";
-				graphTitle = "Fluorescence  -  FF/I0 vs. Energy";
+				graphTitle += " Fluorescence  -  FF/I0 vs. Energy";
 			} else if (!Double.isNaN(it)) {
 				Double y = Math.log(i0 / it);
 				if (y == null || y.isInfinite() || y.isNaN()){
@@ -99,7 +100,7 @@ public class LnI0ItScanPlotView extends AbstractCachedScanPlotView {
 				cachedY.add(y);
 				cachedX.add(x);
 				yAxis = "ln(I0/It)";
-				graphTitle = "Absorption  -  ln(I0/It) vs. Energy";
+				graphTitle += " Absorption  -  ln(I0/It) vs. Energy";
 			} else
 				continue;
 		}

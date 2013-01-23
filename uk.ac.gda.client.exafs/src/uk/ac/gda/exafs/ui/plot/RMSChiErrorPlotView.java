@@ -30,16 +30,17 @@ import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.DataSetPlotData;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
 
-public class ChiSquareErrorPlotView extends ExafsScanPlotView {
+public class RMSChiErrorPlotView extends ExafsScanPlotView {
 
-	private static final Logger logger = LoggerFactory.getLogger(ChiSquareErrorPlotView.class);
+	private static final Logger logger = LoggerFactory.getLogger(RMSChiErrorPlotView.class);
 
 	@SuppressWarnings("hiding")
-	public static final String ID = "gda.rcp.views.scan.ChiSquareErrorPlotView"; //$NON-NLS-1$
+	public static final String ID = "gda.rcp.views.scan.RMSChiErrorPlotView"; //$NON-NLS-1$
 
 	private ArrayList<Double> cachedE, cachedChi2;
+	private DataSetPlotData xDataSetData;
 
-	public ChiSquareErrorPlotView() {
+	public RMSChiErrorPlotView() {
 		super();
 		setSampleRate(3000);
 		cachedE = new ArrayList<Double>(89);
@@ -84,12 +85,14 @@ public class ChiSquareErrorPlotView extends ExafsScanPlotView {
 						cachedE.add(chi2result[0]);
 						cachedChi2.add(chi2result[1]);
 					}
+					this.xDataSetData = new DataSetPlotData(getXAxis(), AbstractDataset.createFromList(cachedE));
 					return new DataSetPlotData(getYAxis(), AbstractDataset.createFromList(cachedChi2));
 				}
 			}
 			cachedE.clear();
 			cachedChi2.clear();
-			return null;
+			this.xDataSetData = new DataSetPlotData(getXAxis(), AbstractDataset.zeros(energy));
+			return new DataSetPlotData(getYAxis(), AbstractDataset.zeros(lnI0It));
 		} catch (Exception e) {
 			logger.warn("Exception in XafsFittingUtils calculating Chi^2 error", e);
 			return null;
@@ -98,10 +101,7 @@ public class ChiSquareErrorPlotView extends ExafsScanPlotView {
 
 	@Override
 	protected IPlotData getX(IScanDataPoint... points) {
-		if (cachedE.size() <= 3){
-			return null;
-		}
-		return new DataSetPlotData(getXAxis(), AbstractDataset.createFromList(cachedE));
+		return xDataSetData;
 	}
 
 	@Override
@@ -113,7 +113,7 @@ public class ChiSquareErrorPlotView extends ExafsScanPlotView {
 	@Override
 	protected String getYAxis() {
 
-		return "Chi^2 (R)";
+		return "RMS(\u03c7(k))";
 	}
 
 	@Override
@@ -124,7 +124,8 @@ public class ChiSquareErrorPlotView extends ExafsScanPlotView {
 	@Override
 	protected String getGraphTitle() {
 
-		return "Real-space chi^2 error (Estimate)";
+		String scanName = super.getGraphTitle() + " \u03c7(k) RMS error (Estimate)";  
+		return  scanName;
 	}
 
 }
