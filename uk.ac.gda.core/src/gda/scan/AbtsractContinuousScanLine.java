@@ -24,6 +24,7 @@ import gda.device.Scannable;
 import gda.device.continuouscontroller.ContinuousMoveController;
 import gda.device.continuouscontroller.HardwareTriggerProvider;
 import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetector;
+import gda.device.detector.hardwaretriggerable.HardwareTriggeredDetector;
 import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.device.scannable.PositionConvertorFunctions;
 import gda.factory.FactoryException;
@@ -49,6 +50,8 @@ import org.apache.commons.math.linear.MatrixUtils;
 import org.apache.commons.math.linear.RealVector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sun.org.apache.bcel.internal.generic.INSTANCEOF;
 
 /**
  * 
@@ -315,7 +318,7 @@ public abstract class AbtsractContinuousScanLine extends ConcurrentScan {
 
 	private ContinuousMoveController controller;
 
-	protected Vector<HardwareTriggerableDetector> detectors = new Vector<HardwareTriggerableDetector>();
+	protected Vector<HardwareTriggeredDetector> detectors = new Vector<HardwareTriggeredDetector>();
 
 	private Vector<ContinuouslyScannableViaController> scannablesToMove = new Vector<ContinuouslyScannableViaController>();
 
@@ -328,7 +331,7 @@ public abstract class AbtsractContinuousScanLine extends ConcurrentScan {
 		extractScannablesToScan();
 		extractDetectors();
 		if (detectors.size() == 0) {
-			throw new IllegalArgumentException("At least one (HardwareTriggerableDetector) detector must be specified (to provide a trigger period or profile).");
+			throw new IllegalArgumentException("At least one (HardwareTriggeredDetector) detector must be specified (to provide a trigger period or profile).");
 		}
 		extractContinuousMoveController(scannablesToMove);
 		checkDetectorsAllUseTheScanController();
@@ -365,11 +368,11 @@ public abstract class AbtsractContinuousScanLine extends ConcurrentScan {
 
 	private void extractDetectors() {
 		for (Detector det : allDetectors) {
-			if (!(det instanceof HardwareTriggerableDetector)) {
+			if (!(det instanceof HardwareTriggeredDetector)) {
 				throw new IllegalArgumentException("Detector " + det.getName()
-						+ " is not a HardwareTriggerableDetector so cannot be used in a TrajectoryScanLine");
+						+ " is not a HardwareTriggeredDetector so cannot be used in a TrajectoryScanLine");
 			}
-			detectors.add((HardwareTriggerableDetector) det);
+			detectors.add((HardwareTriggeredDetector) det);
 		}
 	}
 
@@ -397,7 +400,7 @@ public abstract class AbtsractContinuousScanLine extends ConcurrentScan {
 	}
 
 	private void checkDetectorsAllUseTheScanController() {
-		for (HardwareTriggerableDetector det : detectors) {
+		for (HardwareTriggeredDetector det : detectors) {
 			HardwareTriggerProvider triggerProvider = det.getHardwareTriggerProvider();
 			if (triggerProvider == null) {
 				throw new IllegalArgumentException("Detector " + det.getName()
@@ -412,7 +415,7 @@ public abstract class AbtsractContinuousScanLine extends ConcurrentScan {
 	}
 
 	private void determineIfDetectorsIntegrateBetweenTriggers() {
-		Iterator<HardwareTriggerableDetector> detectorIterator = detectors.iterator();
+		Iterator<HardwareTriggeredDetector> detectorIterator = detectors.iterator();
 		detectorsIntegrateBetweenTriggers = detectorIterator.next().integratesBetweenPoints();
 		while (detectorIterator.hasNext()) {
 			if (detectorIterator.next().integratesBetweenPoints() != detectorsIntegrateBetweenTriggers) {
@@ -433,9 +436,7 @@ public abstract class AbtsractContinuousScanLine extends ConcurrentScan {
 					"Requests to move Scannables ({0}) will be collected by the TrajectoryMoveController ({1})",
 					scannablesToString(scannablesToMove), getController().getName()));
 
-			for (HardwareTriggerableDetector det : detectors) {
-				det.setHardwareTriggering(true);
-			}
+			setHardwareTriggeringOnAllHardwareTriggerableDetectors(true);
 			logger.info(MessageFormat
 					.format("Requests to collect data on Detectors ({0}) will be collected by the TrajectoryMoveController ({1})",
 							scannablesToString(detectors), getController().getName()));
@@ -445,12 +446,19 @@ public abstract class AbtsractContinuousScanLine extends ConcurrentScan {
 			for (ContinuouslyScannableViaController scn : scannablesToMove) {
 				scn.setOperatingContinuously(false);
 			}
-			for (HardwareTriggerableDetector det : detectors) {
-				det.setHardwareTriggering(false);
-			}
+			setHardwareTriggeringOnAllHardwareTriggerableDetectors(false);
+
 			throw e;
 		}
 		super.prepareDevicesForCollection();
+	}
+
+	private void setHardwareTriggeringOnAllHardwareTriggerableDetectors(boolean enable) throws DeviceException {
+		for (HardwareTriggeredDetector det : detectors) {
+			if (det instanceof HardwareTriggerableDetector) {
+				((HardwareTriggerableDetector) det).setHardwareTriggering(enable);
+			}
+		}
 	}
 	
 	@Override
@@ -493,7 +501,7 @@ public abstract class AbtsractContinuousScanLine extends ConcurrentScan {
 
 			// 6. Wait for completion (Scannables obtain their status from the controller)
 			getController().waitWhileMoving();
-			for (HardwareTriggerableDetector det : detectors) {
+			for (HardwareTriggeredDetector det : detectors) {
 				det.waitWhileBusy();
 			}
 		} catch (Exception e) {
@@ -507,9 +515,8 @@ public abstract class AbtsractContinuousScanLine extends ConcurrentScan {
 			for (ContinuouslyScannableViaController scn : scannablesToMove) {
 				scn.setOperatingContinuously(false);
 			}
-			for (HardwareTriggerableDetector det : detectors) {
-				det.setHardwareTriggering(false);
-			}
+			setHardwareTriggeringOnAllHardwareTriggerableDetectors(false);
+
 		}
 	}
 
@@ -517,7 +524,7 @@ public abstract class AbtsractContinuousScanLine extends ConcurrentScan {
 
 	final protected double extractCommonCollectionTimeFromDetectors() throws DeviceException {
 		double period = detectors.get(0).getCollectionTime();
-		for (HardwareTriggerableDetector det : detectors.subList(1, detectors.size())) {
+		for (HardwareTriggeredDetector det : detectors.subList(1, detectors.size())) {
 			double detsPeriod = det.getCollectionTime();
 			if ((Math.abs(detsPeriod - period) / period) > .1 / 100) {
 				throw new DeviceException(
@@ -607,9 +614,9 @@ public abstract class AbtsractContinuousScanLine extends ConcurrentScan {
 	private void armDetectors() throws DeviceException, InterruptedException {
 
 		class ArmDetector implements Callable<Void> {
-			public final HardwareTriggerableDetector det;
+			public final HardwareTriggeredDetector det;
 
-			public ArmDetector(HardwareTriggerableDetector det) {
+			public ArmDetector(HardwareTriggeredDetector det) {
 				this.det = det;
 			}
 
@@ -626,7 +633,7 @@ public abstract class AbtsractContinuousScanLine extends ConcurrentScan {
 
 		// Arm each detector in a new thread
 		LinkedList<FutureTask<Void>> futureTasks = new LinkedList<FutureTask<Void>>();
-		for (HardwareTriggerableDetector det : detectors) {
+		for (HardwareTriggeredDetector det : detectors) {
 			futureTasks.add(new FutureTask<Void>(new ArmDetector(det)));
 			(new Thread(futureTasks.getLast(), "TrajectoryScanLine.ArmDetector-" + det.getName())).start();
 		}
@@ -659,7 +666,7 @@ public abstract class AbtsractContinuousScanLine extends ConcurrentScan {
 
 	protected void stopDetectors() throws DeviceException {
 		logger.info("stopping detector(s)");
-		for (HardwareTriggerableDetector det : detectors) {
+		for (HardwareTriggeredDetector det : detectors) {
 			det.stop();
 		}
 	}

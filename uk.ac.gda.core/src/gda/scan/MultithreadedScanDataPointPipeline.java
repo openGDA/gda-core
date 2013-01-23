@@ -267,7 +267,7 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 
 			throw new DeviceException(
 					"Interupted while shutting down MultithreadedScanDataPointPipeline. The Pipeline has been stopped and "
-							+ numberOfDumpedPoints + " points dumped. \n  !!!The position callable processing thread pool has likely been left running.!!!");
+							+ numberOfDumpedPoints + " points dumped.");
 		}
 		// If everything stopped normally then throw exception from Runnable if there were any.
 		throwException();
