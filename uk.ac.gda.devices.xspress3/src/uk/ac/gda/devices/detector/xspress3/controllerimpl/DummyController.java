@@ -340,7 +340,6 @@ public class DummyController implements Xspress3Controller {
 
 	@Override
 	public boolean isSavingFiles() throws DeviceException {
-
 		return false;
 	}
 
@@ -351,48 +350,101 @@ public class DummyController implements Xspress3Controller {
 	@Override
 	public Double[][] readoutDTCorrectedSCA1(int startFrame, int finalFrame,
 			int startChannel, int finalChannel) {
-		// TODO Auto-generated method stub
-		return null;
+		int numFrames = finalFrame - startFrame + 1;
+		int numChannels = finalChannel - startChannel + 1;
+
+		Double[][] results = new Double[numFrames][numChannels];
+
+		Double counts = 10.0;
+		for (int frame = 0; frame < numFrames; frame++) {
+			for (int chan = 0; chan < numChannels; chan++) {
+				results[frame][chan] = counts;
+				counts += 10.0;
+			}
+		}
+
+		return results;
 	}
 
 	@Override
 	public Double[][] readoutDTCorrectedSCA2(int startFrame, int finalFrame,
 			int startChannel, int finalChannel) {
-		// TODO Auto-generated method stub
-		return null;
+		return readoutDTCorrectedSCA1(startFrame, finalFrame, startChannel,
+				finalChannel);
 	}
 
 	@Override
 	public Integer[][][] readoutScalerValues(int startFrame, int finalFrame,
 			int startChannel, int finalChannel) {
-		// TODO Auto-generated method stub
-		return null;
+		// int[frame][channel][time,reset ticks, reset counts,all events, all
+		// goodEvents, pileup counts]
+		int numFrames = finalFrame - startFrame + 1;
+		int numChannels = finalChannel - startChannel + 1;
+
+		Integer[][][] results = new Integer[numFrames][numChannels][6];
+		for (int frame = 0; frame < numFrames; frame++) {
+			for (int chan = 0; chan < numChannels; chan++) {
+				results[frame][chan] = new Integer[] { 0, 1, 2, 3, 4, 5 };
+			}
+		}
+
+		return results;
 	}
 
 	@Override
 	public Integer[][] readoutDTCParameters(int startChannel, int finalChannel) {
-		// TODO Auto-generated method stub
-		return null;
+		// int[channel][allGoodGradient,allGoodOffset,inWindowGradient,inWindowOffset]
+
+		int numChannels = finalChannel - startChannel + 1;
+
+		Integer[][] results = new Integer[numChannels][4];
+		for (int chan = 0; chan < numChannels; chan++) {
+			results[chan] = new Integer[] { 0, 1, 2, 3 };
+		}
+		
+		return results;
 	}
 
 	@Override
 	public Double[][][] readoutDTCorrectedROI(int startFrame, int finalFrame,
 			int startChannel, int finalChannel) {
-		// TODO Auto-generated method stub
-		return null;
+		int numFrames = finalFrame - startFrame + 1;
+		int numChannels = finalChannel - startChannel + 1;
+
+		Double[][][] results = new Double[numFrames][numChannels][getNumberROIToRead()];
+
+		Double counts = 10.0;
+		for (int frame = 0; frame < numFrames; frame++) {
+			for (int chan = 0; chan < numChannels; chan++) {
+				for (int roi = 0; roi < getNumberROIToRead(); roi++) {
+					results[frame][chan][roi] = counts;
+					counts += 10;
+				}
+			}
+		}
+		return results;
 	}
 
 	@Override
 	public Double[][] readoutDTCorrectedLatestMCA(int startChannel,
-			int finalChannel) {
-		// TODO Auto-generated method stub
-		return null;
+			int finalChannel) throws DeviceException {
+		return readoutDTCorrectedLatestSummedMCA(startChannel, finalChannel);
 	}
 
 	@Override
 	public Double[][] readoutDTCorrectedLatestSummedMCA(int startChannel,
 			int finalChannel) throws DeviceException {
-		// TODO Auto-generated method stub
-		return null;
+		int numChannels = finalChannel - startChannel + 1;
+		int[] rawData = daserver.getIntBinaryData("read 0 0 0 " + 4096 + " "
+				+ 1 + " " + 1 + " from " + mcaHandle + " raw motorola", 4096);
+
+		Double[][] results = new Double[numChannels][4096];
+		for (int chan = 0; chan < numChannels; chan++) {
+			for (int mcaChan = 0; mcaChan < 4096; mcaChan++) {
+				results[chan][mcaChan] = (double) rawData[mcaChan];
+			}
+		}
+
+		return results;
 	}
 }
