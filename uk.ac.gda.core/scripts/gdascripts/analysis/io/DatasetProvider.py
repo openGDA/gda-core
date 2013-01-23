@@ -52,12 +52,13 @@ class LazyDataSetProvider(DataSetProvider):
 	enougth to be readable without exception.  
 	'''
 
-	def __init__(self, path, iFileLoader=None, fileLoadTimout=None, printNfsTimes=False):
+	def __init__(self, path, iFileLoader=None, fileLoadTimout=None, printNfsTimes=False, wait_for_exposure_callable=None):
 		self.path = path
 		self.iFileLoader = iFileLoader
 		self.fileLoadTimout = fileLoadTimout
 		self.printNfsTimes = printNfsTimes
-
+		self.wait_for_exposure_callable = wait_for_exposure_callable
+		
 		self.configureLock = threading.Lock()
 		self.dataset = None
 
@@ -66,6 +67,9 @@ class LazyDataSetProvider(DataSetProvider):
 		return self.dataset
 
 	def configure(self, retryUntilTimeout = True):
+		if self.wait_for_exposure_callable:
+			# Wait for exposure before trying to load file
+			self.wait_for_exposure_callable.call()
 		self.configureLock.acquire()
 		try:	
 			if self.dataset is None:
