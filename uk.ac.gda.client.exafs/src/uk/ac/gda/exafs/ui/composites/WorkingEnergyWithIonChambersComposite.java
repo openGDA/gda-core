@@ -52,7 +52,7 @@ public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposit
 	public void setExperimentType(String type) {
 		if (ionChamberComposite != null) {
 			ionChamberComposite.setExperimentType(type);
-			//ionChamberComposite.calculatePressure();
+			ionChamberComposite.calculatePressure();
 		}
 	}
 
@@ -76,7 +76,7 @@ public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposit
 			ionChamberParameters.addBeanSelectionListener(new BeanSelectionListener() {
 				@Override
 				public void selectionChanged(BeanSelectionEvent evt) {
-					//ionChamberComposite.calculatePressure();
+					ionChamberComposite.calculatePressure();
 					try {
 						BeanUI.uiToBean(ionChamberComposite, evt.getSelectedBean(), "pressure");
 					} catch (Exception e) {
