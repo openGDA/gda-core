@@ -113,7 +113,7 @@ public class PosComposite extends Composite {
 		textTo.getControl().addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
-				if (e.keyCode == 13)
+				if (e.keyCode == 13 || e.keyCode == 16777296)
 					performPos();
 				else {
 					bean.setScannableName(scannableName.getItem(scannableName.getSelectionIndex()));
@@ -310,6 +310,8 @@ public class PosComposite extends Composite {
 	private void performStop() {
 		scannable = scannableName.getItem(scannableName.getSelectionIndex());
 		String command = scannable + ".getMotor().stop()";
+		JythonServerFacade.getInstance().runCommand(command);
+		command = scannable + ".stop()";
 		JythonServerFacade.getInstance().runCommand(command);
 	}
 
