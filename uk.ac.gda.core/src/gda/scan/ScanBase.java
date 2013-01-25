@@ -173,8 +173,6 @@ public abstract class ScanBase implements Scan {
 	 */
 	private Long _scanNumber=null;
 
-	private boolean skipEndScan = false;
-	
 	@Override
 	public Long getScanNumber() {
 		return _scanNumber;
@@ -994,7 +992,6 @@ public abstract class ScanBase implements Scan {
 	@Override
 	public void run() throws Exception {
 		// lineScanNeedsDoing = false;
-		skipEndScan = false;
 		logger.debug("ScanBase.run() for scan: '" + getName() + "'");
 		do {
 			lineScanNeedsDoing = false;
@@ -1032,38 +1029,24 @@ public abstract class ScanBase implements Scan {
 			} catch (Exception e) {
 				
 				report("====================================================================================================");
-				report(createMessage(e) + " during scan. Taking remedial action");
-				report("====================================================================================================");
+				report(createMessage(e) + " during scan");
 				
-				skipEndScan = true;
-				
-				report("1. Calling atCommandFailure() hooks on Scannables and Detectors used in scan.");
+				report("Calling stop() on Scannables and Detectors used in scan, followed by atCommandFailure().");
 				callAtCommandFailureHooks();
-				
-				
-				List<String> names = new ArrayList<String>();
 				for (Scannable scn : allScannables) {
-					names.add(scn.getName());
-				}
-				report("2. Stopping Scannables: " + Arrays.toString(names.toArray()));
-				for (Scannable scn : allScannables) {
+					logger.info("Stopping " + scn.getName());
 					scn.stop();
 				}
-
-				names = new ArrayList<String>();
-				for (Scannable scn : allDetectors) {
-					names.add(scn.getName());
-				}
-				report("3. Stopping Detectors: " + Arrays.toString(names.toArray()));
 				for (Scannable det : allDetectors) {
+					logger.info("Stopping " + det.getName());
 					det.stop();
 				}
 				
-				report("4. Interupting all scan pipeline tasks and shutting pipeline down now. Waiting indefinitely for task interuption.");
+				report("Interupting all scan pipeline tasks and shutting pipeline down now. Waiting indefinitely for task interuption.");
 				scanDataPointPipeline.shutdownNow();  // This depends on the tasks being cancelable.
 				cancelReadoutAndPublishCompletion();  //TODO: This does nothing, why is this method available?
 
-				report("5. Rethrowing original " + e.getClass().getSimpleName()); // and skipping ScanBase.endScan().);
+				report("Ending scan and rethrowing exception");
 				
 				report("====================================================================================================");
 				
@@ -1073,9 +1056,7 @@ public abstract class ScanBase implements Scan {
 					// TODO: endScan now duplicates some of the exception handling performed above. 
 					// I do not understand the paths that result inScanBase.interupted being set well enougth to
 					// change the logic here. RobW
-					if (!skipEndScan) {
-						endScan();
-					}
+					endScan();
 				} catch (DeviceException e) {
 					if ((e instanceof RedoScanLineThrowable) && (getChild() == null)) {
 						logger.info("Redoing scan line because: ", e.getMessage());
