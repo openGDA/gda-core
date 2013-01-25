@@ -107,4 +107,8 @@ public abstract class BioSAXSISPyB {
 	public abstract void registerBufferForSample(long blsessionId, long sampleMeasurementId, long bufferMeasurementId) 
 			throws SQLException;
 
+	/**
+	 * Method to close the database connection once it's no longer needed.
+	 */
+	public abstract void disconnect() throws SQLException;
 }
