@@ -51,8 +51,6 @@ import org.apache.commons.math.linear.RealVector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.org.apache.bcel.internal.generic.INSTANCEOF;
-
 /**
  * 
  */
