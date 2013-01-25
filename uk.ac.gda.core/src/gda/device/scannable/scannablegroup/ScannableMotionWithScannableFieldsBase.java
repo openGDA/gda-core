@@ -727,6 +727,7 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 	
 	@Override
 	public void stop() throws DeviceException {
+		positionAtScanStart = null;
 		super.stop();
 		if (isOperatingContinously()) {
 			try {
