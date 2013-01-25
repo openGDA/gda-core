@@ -328,9 +328,10 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		e0Label.addSelectionListener(e0Listener);
 
 		initialEnergy = new ScaleBox(topCentre, SWT.NONE);
+		initialEnergy.setDoNotUseExpressions(true);
 		initialEnergy.setUnit("eV");
 		initialEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-
+		
 		this.e1Label = new Link(topCentre, SWT.NONE);
 		e1Label.setText("<a>Final Energy</a>");
 		e1Label.setToolTipText("Click to open preferences (and allow/disallow editing final energy).");
@@ -345,6 +346,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		
 		if(energyInK){
 			finalEnergy = new ScaleBoxAndFixedExpression(topCentre, SWT.NONE,getKInEv());
+			finalEnergy.setDoNotUseExpressions(true);
 			finalEnergy.setLabelWidth(10000);
 			finalEnergy.setLabelDecimalPlaces(1);
 			finalEnergy.setLabelUnit("eV");
@@ -358,6 +360,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		}
 		else{
 			finalEnergy = new ScaleBoxAndFixedExpression(topCentre, SWT.NONE, getKProvider());
+			finalEnergy.setDoNotUseExpressions(true);
 			finalEnergy.setLabelUnit("Å\u207B\u00b9");
 			finalEnergy.setLabelWidth(100);
 			finalEnergy.setLabelDecimalPlaces(3);
@@ -391,6 +394,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		gaf1 = new ScaleBox(topCentre, SWT.NONE);
 		gaf1.setActiveMode(ACTIVE_MODE.SET_ENABLED_AND_ACTIVE);
 		gaf1.setNumericValue(30);
+		gaf1.setDoNotUseExpressions(true);
 		gaf1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		gaf1.addValueListener(new ValueAdapter("gaf1Listener") {
 			@Override
@@ -413,6 +417,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		gaf2.setActiveMode(ACTIVE_MODE.SET_ENABLED_AND_ACTIVE);
 		gaf2.setNumericValue(10);
 		gaf2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+		gaf2.setDoNotUseExpressions(true);
 		gaf2.addValueListener(new ValueAdapter("gaf2Listener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
@@ -435,6 +440,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		gaf3 = new ScaleBox(topCentre, SWT.NONE);
 		gaf3.setActiveMode(ACTIVE_MODE.SET_ENABLED_AND_ACTIVE);
 		gaf3.setNumericValue(10);
+		gaf3.setDoNotUseExpressions(true);
 		gaf3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		gaf3.addValueListener(new ValueAdapter("gaf3Listener") {
 			@Override
