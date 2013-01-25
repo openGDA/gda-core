@@ -244,4 +244,6 @@ public abstract class MicroFocusMappableDataProvider {
 	public void setBeanFilePath(String file) {
 		beanFile = file;
 	}
+
+	public abstract void loadBean(Object bean);
 }

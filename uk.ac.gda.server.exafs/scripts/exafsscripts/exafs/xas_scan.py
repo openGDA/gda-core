@@ -59,7 +59,7 @@ class XasScan(Scan):
         scan_unique_id = LoggingScriptController.createUniqueID(scriptType);
         
         # update to terminal
-        print ""
+        print "**********************************"
         print "Starting",scriptType,detectorBean.getExperimentType(),"scan over scannable '"+scanBean.getScannableName()+"'..."
         print ""
         print "Output to",xmlFolderName
@@ -102,8 +102,6 @@ class XasScan(Scan):
                 # send out initial messages for logging and display to user
                 outputFolder = beanGroup.getOutput().getAsciiDirectory()+ "/" + beanGroup.getOutput().getAsciiFileName()
                 
-                print "Starting "+scriptType+" scan...", str(repetitionNumber)
-
                 initialPercent = str(int((float(repetitionNumber - 1) / float(numRepetitions)) * 100)) + "%" 
                 logmsg = XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), initialPercent,str(0),str(0),beanGroup.getScan(),outputFolder)
                 self.loggingcontroller.update(None,logmsg)
@@ -145,7 +143,7 @@ class XasScan(Scan):
                         print "Starting repetition", str(repetitionNumber),"of",numRepetitions
                     else:
                         print ""
-                        print "Starting scan..."
+                        print "Starting "+scriptType+" scan..."
                     thisscan = ConcurrentScan(args)
                     thisscan = self._setUpDataWriter(thisscan,beanGroup)
                     controller.update(None, ScanCreationEvent(thisscan.getName()))
@@ -187,7 +185,7 @@ class XasScan(Scan):
                     break
                 elif numRepsFromProperty <= (repetitionNumber):
                     break
-                    
+                numRepetitions = numRepsFromProperty
         finally:    
             # repetition loop completed, so reset things
             if (self.beamlineReverter != None):
@@ -201,6 +199,8 @@ class XasScan(Scan):
             if (jython_mapper.original_header != None):
                 original_header=jython_mapper.original_header[:]
                 Finder.getInstance().find("datawriterconfig").setHeader(original_header)
+                
+            print "**********************************"
     
     def _beforeEachRepetition(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller, repNum):
         return
@@ -218,6 +218,10 @@ class XasScan(Scan):
         if expt_type == "Transmission":
             for group in detectorBean.getDetectorGroups():
                 if group.getName() == detectorBean.getTransmissionParameters().getDetectorType():
+                    return self._createDetArray(group.getDetector(), scanBean)
+        elif expt_type == "XES":
+            for group in detectorBean.getDetectorGroups():
+                if group.getName() == "XES":
                     return self._createDetArray(group.getDetector(), scanBean)
         else:
             for group in detectorBean.getDetectorGroups():
