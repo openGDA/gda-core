@@ -462,6 +462,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		};
 		aLabel.addSelectionListener(aListener);
 		a = new ScaleBox(topCentre, SWT.NONE);
+		a.setDoNotUseExpressions(true);
 		a.setActiveMode(ACTIVE_MODE.SET_ENABLED_AND_ACTIVE);
 		a.setUnit("eV");
 		a.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -479,6 +480,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		};
 		bLabel.addSelectionListener(bListener);
 		b = new ScaleBox(topCentre, SWT.NONE);
+		b.setDoNotUseExpressions(true);
 		b.setActiveMode(ACTIVE_MODE.SET_ENABLED_AND_ACTIVE);
 		b.setUnit("eV");
 		b.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -499,6 +501,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		if(energyInK)
 		{
 			c = new ScaleBoxAndFixedExpression(topCentre, SWT.NONE, getKInEv());
+			c.setDoNotUseExpressions(true);
 			c.setLabelUnit("eV");			
 			c.setLabelDecimalPlaces(1);
 			c.setLabelWidth(1000000);
@@ -513,6 +516,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		else
 		{
 			c = new ScaleBoxAndFixedExpression(topCentre, SWT.NONE, getKProvider());
+			c.setDoNotUseExpressions(true);
 			c.setLabelUnit("Å\u207B\u00b9");
 			c.setLabelDecimalPlaces(3);
 			c.setLabelWidth(100);
