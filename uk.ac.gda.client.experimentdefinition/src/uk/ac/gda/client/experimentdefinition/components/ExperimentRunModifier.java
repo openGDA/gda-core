@@ -111,6 +111,8 @@ public class ExperimentRunModifier implements ICellModifier {
 			    final IFolder to        = ((IProject)folder.getParent()).getFolder(text);
 			    if (to.exists()) return;
 				folder.move(to.getFullPath(), true, null);
+
+				ExperimentFactory.emptyManagers();
 			    controller.refreshTree();		    
 				controller.setSelected(to);
 				
@@ -135,6 +137,8 @@ public class ExperimentRunModifier implements ICellModifier {
 					
 					ExperimentFactory.getManager(runOb).write();
 				}
+				ExperimentFactory.emptyManagers();
+				controller.refreshTree();
 			}
 		
 		} catch (Exception ne) {

@@ -20,10 +20,11 @@ package gda.simplescan;
 
 import gda.jython.JythonServerFacade;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.derby.impl.store.raw.data.DecryptInputStream;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -31,11 +32,13 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
@@ -44,12 +47,10 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
-import uk.ac.gda.richbeans.components.wrappers.ComboWrapperWithGetCombo;
-import org.eclipse.swt.events.SelectionAdapter;
 
 public class PosComposite extends Composite {
 
-	ComboWrapperWithGetCombo scannableName;
+	Combo scannableName;
 	SimpleScan bean;
 	Text incrementVal;
 	ScaleBox textTo;
@@ -58,7 +59,7 @@ public class PosComposite extends Composite {
 	Label lblReadbackVal;
 	Job updateReadbackJob;
 	String scannable;
-	
+
 	public PosComposite(Composite parent, int style, Object editingBean) {
 		super(parent, style);
 		GridLayout gridLayout = new GridLayout(1, false);
@@ -71,29 +72,42 @@ public class PosComposite extends Composite {
 
 		Group grpPos = new Group(this, SWT.NONE);
 		GridData gd_grpPos = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_grpPos.widthHint = 231;
+		gd_grpPos.widthHint = 258;
 		grpPos.setLayoutData(gd_grpPos);
 		grpPos.setText("Pos");
-		grpPos.setLayout(new GridLayout(1, false));
+		GridLayout gl_grpPos = new GridLayout(1, false);
+		gl_grpPos.marginHeight = 2;
+		gl_grpPos.marginWidth = 2;
+		gl_grpPos.verticalSpacing = 2;
+		gl_grpPos.horizontalSpacing = 2;
+		grpPos.setLayout(gl_grpPos);
 
 		Composite posComposite = new Composite(grpPos, SWT.NONE);
 		GridData gd_posComposite = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-		gd_posComposite.widthHint = 197;
+		gd_posComposite.widthHint = 218;
 		posComposite.setLayoutData(gd_posComposite);
-		posComposite.setLayout(new GridLayout(2, false));
+		GridLayout gl_posComposite = new GridLayout(2, false);
+		gl_posComposite.marginWidth = 2;
+		gl_posComposite.verticalSpacing = 2;
+		gl_posComposite.horizontalSpacing = 2;
+		gl_posComposite.marginHeight = 0;
+		posComposite.setLayout(gl_posComposite);
 
 		Label lblScannable = new Label(posComposite, SWT.NONE);
 		lblScannable.setText("Scannable");
 
 		createScannables(posComposite);
 		Composite composite_2 = new Composite(grpPos, SWT.NONE);
-		GridData gd_composite_2 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_composite_2.widthHint = 218;
-		composite_2.setLayoutData(gd_composite_2);
-		composite_2.setLayout(new GridLayout(3, false));
+		GridLayout gl_composite_2 = new GridLayout(5, false);
+		gl_composite_2.verticalSpacing = 2;
+		gl_composite_2.marginWidth = 2;
+		gl_composite_2.marginHeight = 0;
+		gl_composite_2.horizontalSpacing = 2;
+		composite_2.setLayout(gl_composite_2);
 
 		Label lblTo = new Label(composite_2, SWT.NONE);
-		lblTo.setText("Demand");
+		lblTo.setText("Go to");
+		new Label(composite_2, SWT.NONE);
 		textTo = new ScaleBox(composite_2, SWT.NONE);
 
 		textTo.getControl().addKeyListener(new KeyAdapter() {
@@ -101,7 +115,7 @@ public class PosComposite extends Composite {
 			public void keyPressed(KeyEvent e) {
 				if (e.keyCode == 13)
 					performPos();
-				else{
+				else {
 					bean.setScannableName(scannableName.getItem(scannableName.getSelectionIndex()));
 					try {
 						setMotorLimits(bean.getScannableName(), textTo);
@@ -110,48 +124,42 @@ public class PosComposite extends Composite {
 				}
 			}
 		});
-
-		((GridData) textTo.getControl().getLayoutData()).widthHint = 75;
-		textTo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		textTo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		new Label(textTo, SWT.NONE);
+		new Label(composite_2, SWT.NONE);
 
-		Label lblStatus = new Label(composite_2, SWT.NONE);
-		lblStatus.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-		lblStatus.setText("Idle");
-
-		Label lblReadback = new Label(composite_2, SWT.NONE);
-		lblReadback.setText("Readback");
-		lblReadbackVal = new Label(composite_2, SWT.NONE);
-		GridData gd_lblReadbackVal = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
-		gd_lblReadbackVal.widthHint = 75;
-		lblReadbackVal.setLayoutData(gd_lblReadbackVal);
-		lblReadbackVal.setText("2.335mm");
-
-		Button btnStop = new Button(composite_2, SWT.NONE);
+		final Button btnStop = new Button(composite_2, SWT.NONE);
+		GridData gd_btnStop = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btnStop.widthHint = 55;
+		btnStop.setLayoutData(gd_btnStop);
 		btnStop.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				performStop();
 			}
 		});
-		btnStop.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		btnStop.setText("Stop");
+		btnStop.setEnabled(false);
+		
+				Label lblReadback = new Label(composite_2, SWT.NONE);
+				lblReadback.setText("Readback");
+		new Label(composite_2, SWT.NONE);
 
-		Label lblIncrement = new Label(composite_2, SWT.NONE);
-		lblIncrement.setText("Increment");
+		Composite incrementNuggeComp = new Composite(composite_2, SWT.NONE);
+		GridData gd_incrementNuggeComp = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_incrementNuggeComp.widthHint = 117;
+		incrementNuggeComp.setLayoutData(gd_incrementNuggeComp);
+		GridLayout gl_incrementNuggeComp = new GridLayout(3, false);
+		gl_incrementNuggeComp.verticalSpacing = 0;
+		gl_incrementNuggeComp.marginHeight = 0;
+		gl_incrementNuggeComp.marginWidth = 0;
+		gl_incrementNuggeComp.horizontalSpacing = 0;
+		incrementNuggeComp.setLayout(gl_incrementNuggeComp);
 
-		incrementVal = new Text(composite_2, SWT.BORDER);
-		incrementVal.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		incrementVal.setText("1");
-
-		Composite composite = new Composite(composite_2, SWT.NONE);
-		GridLayout gl_composite = new GridLayout(2, false);
-		gl_composite.marginHeight = 0;
-		gl_composite.horizontalSpacing = 0;
-		gl_composite.marginWidth = 0;
-		composite.setLayout(gl_composite);
-
-		btnDecrement = new Button(composite, SWT.NONE);
+		btnDecrement = new Button(incrementNuggeComp, SWT.NONE);
+		GridData gd_btnDecrement = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btnDecrement.widthHint = 25;
+		btnDecrement.setLayoutData(gd_btnDecrement);
 		btnDecrement.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -159,12 +167,15 @@ public class PosComposite extends Composite {
 			}
 		});
 		btnDecrement.setText("-");
-		GridData gd_btnDecrement = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
-		gd_btnDecrement.widthHint = 30;
-		btnDecrement.setLayoutData(gd_btnDecrement);
 		btnDecrement.setFont(SWTResourceManager.getFont("Sans", 12, SWT.BOLD));
+		lblReadbackVal = new Label(incrementNuggeComp, SWT.NONE);
+		lblReadbackVal.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+		lblReadbackVal.setText("               ");
 
-		btnIncrement = new Button(composite, SWT.NONE);
+		btnIncrement = new Button(incrementNuggeComp, SWT.NONE);
+		GridData gd_btnIncrement = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btnIncrement.widthHint = 25;
+		btnIncrement.setLayoutData(gd_btnIncrement);
 		btnIncrement.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -172,20 +183,34 @@ public class PosComposite extends Composite {
 			}
 		});
 		btnIncrement.setText("+");
-		GridData gd_btnIncrement = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
-		gd_btnIncrement.widthHint = 30;
-		btnIncrement.setLayoutData(gd_btnIncrement);
 		btnIncrement.setFont(SWTResourceManager.getFont("Sans", 12, SWT.BOLD));
+		new Label(composite_2, SWT.NONE);
+
+		final Label lblStatus = new Label(composite_2, SWT.NONE);
+		GridData gd_lblStatus = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);
+		gd_lblStatus.widthHint = 55;
+		lblStatus.setLayoutData(gd_lblStatus);
+		lblStatus.setText("     Idle     ");
+
+		Label lblIncrement = new Label(composite_2, SWT.NONE);
+		lblIncrement.setText("Increment");
+		new Label(composite_2, SWT.NONE);
+
+		incrementVal = new Text(composite_2, SWT.BORDER);
+		incrementVal.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		incrementVal.setText("1");
+		new Label(composite_2, SWT.NONE);
 
 		updateScannables();
 
 		try {
 			setMotorLimits(bean.getScannableName(), textTo);
+			new Label(composite_2, SWT.NONE);
 		} catch (Exception e2) {
 		}
 		updateReadback();
-		
-		scannableName.getCombo().addSelectionListener(new SelectionListener() {
+
+		scannableName.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				try {
@@ -195,27 +220,35 @@ public class PosComposite extends Composite {
 				} catch (Exception e1) {
 				}
 			}
+
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});
-		
+
 		updateReadbackJob = new Job("updateReadback") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				boolean moving = true;
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+				}
 				while (moving) {
-					String status = JythonServerFacade.getInstance().evaluateCommand(scannable + ".isBusy()");
+					String status = JythonServerFacade.getInstance().evaluateCommand(
+							scannable + ".getMotor().isMoving()");
 					if (status.equals("False"))
-						moving=false;
-						try {
-							Thread.sleep(10);
-						} catch (InterruptedException e) {
-						}
+						moving = false;
+					try {
+						Thread.sleep(10);
+					} catch (InterruptedException e) {
+					}
 					Display.getDefault().asyncExec(new Runnable() {
 						@Override
 						public void run() {
 							updateReadback();
+							lblStatus.setText(" Moving  ");
+							btnStop.setEnabled(true);
 						}
 					});
 				}
@@ -223,6 +256,8 @@ public class PosComposite extends Composite {
 					@Override
 					public void run() {
 						updateReadback();
+						lblStatus.setText("     Idle     ");
+						btnStop.setEnabled(false);
 					}
 				});
 				return Status.OK_STATUS;
@@ -271,16 +306,18 @@ public class PosComposite extends Composite {
 		}
 		updateReadbackJob.schedule();
 	}
-	
-	private void performStop(){
+
+	private void performStop() {
 		scannable = scannableName.getItem(scannableName.getSelectionIndex());
 		String command = scannable + ".getMotor().stop()";
 		JythonServerFacade.getInstance().runCommand(command);
 	}
 
 	public void createScannables(Composite comp) {
-		scannableName = new ComboWrapperWithGetCombo(comp, SWT.NONE);
-		scannableName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		scannableName = new Combo(comp, SWT.NONE);
+		GridData gd_scannableName = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_scannableName.widthHint = 136;
+		scannableName.setLayoutData(gd_scannableName);
 	}
 
 	public void updateScannables() {
@@ -315,16 +352,21 @@ public class PosComposite extends Composite {
 	}
 
 	public void setMotorLimits(String motorName, ScaleBox box) throws Exception {
-		String lowerLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getLowerInnerLimit()");
-		String upperLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getUpperInnerLimit()");
-		if (!lowerLimit.equals("None"))
-			box.setMinimum(Double.parseDouble(lowerLimit));
-		else
-			box.setMinimum(-99999);
-		if (!upperLimit.equals("None"))
-			box.setMaximum(Double.parseDouble(upperLimit));
-		else
-			box.setMaximum(99999);
+		double lowerLimit = Double.parseDouble(JythonServerFacade.getInstance().evaluateCommand(
+				motorName + ".getLowerInnerLimit()"));
+		double upperLimit = Double.parseDouble(JythonServerFacade.getInstance().evaluateCommand(
+				motorName + ".getUpperInnerLimit()"));
+
+		if (lowerLimit < -1000000)
+			lowerLimit = -1000000;
+		if (upperLimit > 1000000)
+			upperLimit = 1000000;
+
+		BigDecimal bdLowerLimit = new BigDecimal(lowerLimit).setScale(6, RoundingMode.HALF_EVEN);
+		BigDecimal bdUpperLimit = new BigDecimal(upperLimit).setScale(6, RoundingMode.HALF_EVEN);
+
+		box.setMinimum(bdLowerLimit.doubleValue());
+		box.setMaximum(bdUpperLimit.doubleValue());
 	}
 
 	public void setBean(SimpleScan bean) {

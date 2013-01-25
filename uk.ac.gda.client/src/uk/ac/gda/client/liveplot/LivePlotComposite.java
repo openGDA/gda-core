@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2011 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -40,9 +40,7 @@ import java.io.Serializable;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.tree.TreePath;
@@ -53,10 +51,11 @@ import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawb.common.ui.plot.trace.ILineTrace;
 import org.dawb.common.ui.plot.trace.ILineTrace.PointStyle;
 import org.dawb.common.ui.plot.trace.ITrace;
-import org.dawb.workbench.plotting.util.ColorUtility;
-import org.dawnsci.plotting.jreality.impl.Plot1DAppearance;
-import org.dawnsci.plotting.jreality.impl.Plot1DGraphTable;
-import org.dawnsci.plotting.jreality.impl.Plot1DStyles;
+import org.dawb.workbench.plotting.system.LightWeightPlottingSystem;
+import org.dawb.workbench.plotting.system.swtxy.XYRegionGraph;
+import org.eclipse.draw2d.IFigure;
+import org.eclipse.draw2d.MouseEvent;
+import org.eclipse.draw2d.MouseMotionListener;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuListener;
@@ -71,6 +70,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IMemento;
@@ -453,6 +453,11 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 	protected AbstractPlottingSystem plottingSystem;
 	LiveData dummy; // used when all other lines are invisible
 
+	/**
+	 * Label used to display the cursor position on the graph
+	 */
+	private Label positionLabel;
+
 	private final String archiveFolder;
 
 	public SubLivePlotView(IWorkbenchPart parentPart, Composite parent, int style, String archiveFolder) {
@@ -469,6 +474,15 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 		setLayout(layout);
 		GridUtils.removeMargins(this);
 
+		positionLabel = new Label(this, SWT.LEFT);
+		positionLabel.setText("");
+		{
+			GridData gridData = new GridData();
+			gridData.horizontalAlignment = SWT.FILL;
+			gridData.grabExcessHorizontalSpace = true;
+			positionLabel.setLayoutData(gridData);
+		}
+		
 		Composite plotArea = new Composite(this, SWT.NONE);
 		plotArea.setLayout(new FillLayout());
 		{
@@ -493,6 +507,20 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 				            : null;
 		plottingSystem.createPlotPart(plotArea, parentPart.getTitle(), bars, PlotType.XY, parentPart);
 		plottingSystem.setXfirst(true);
+		
+		// HACK Warning need better solution in 8.28!
+		// LightWeightPlottingSystem not supported going forwards
+		XYRegionGraph graph = ((LightWeightPlottingSystem) plottingSystem).getGraph();
+		IFigure fig = (IFigure) graph.getRegionArea();
+		fig.addMouseMotionListener(new MouseMotionListener.Stub() { //
+			@Override
+			public void mouseMoved(MouseEvent me) {
+				double x = plottingSystem.getSelectedXAxis().getPositionValue(me.x);
+				double y = plottingSystem.getSelectedYAxis().getPositionValue(me.y);
+				positionLabel.setText(String.format("X:%.7g Y:%.7g", x, y));
+//				plotView.setPositionLabel(String.format("X:%.7g Y:%.7g", x, y));
+			}
+		});
 	}
 
 	void saveState(IMemento memento, String archiveFolder) {
@@ -518,9 +546,8 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 		}
 	}
 
-	
 	void setPositionLabel(String label) {
-		//positionLabel.setText(label);
+		positionLabel.setText(label);
 	}
 
 	/**
