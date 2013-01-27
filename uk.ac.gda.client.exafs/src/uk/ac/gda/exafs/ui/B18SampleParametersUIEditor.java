@@ -195,11 +195,6 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 		wheelExpandableComposite.setText("Sample Wheel");
 		wheelExpandableComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 
-		createTemp();
-		
-		
-		
-		
 		//stage
 		ExpansionAdapter stageExpansionListener = new ExpansionAdapter() {
 			@Override
@@ -221,9 +216,8 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 			updateStageType();
 		}
 
-		
-		
-		
+		createTemp();
+
 		//temp
 		ExpansionAdapter tempExpansionListener = new ExpansionAdapter() {
 			@Override
@@ -231,18 +225,18 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 				if (!sampleEnvironment.getValue().toString().equals("none"))
 					temperatureExpandableComposite.setExpanded(true);
 				GridUtils.layoutFull(temperatureExpandableComposite);
+				linkuiForDynamicLoading(false);
 			}
 		};
 		temperatureExpandableComposite.addExpansionListener(tempExpansionListener);
 
-		if (!bean.getTemperatureControl().toString().equals("none"))
+		if (!bean.getTemperatureControl().toString().equals("none")){
+			createTemp();
 			temperatureExpandableComposite.setExpanded(true);
+			linkuiForDynamicLoading(false);
+			updateEnvironmentType();
+		}
 
-		
-		
-		
-		
-		
 		//wheel
 		ExpansionAdapter wheelExpansionAdapter = new ExpansionAdapter() {
 			@Override
@@ -294,9 +288,6 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 			stage.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 			stage.setSize(234, 27);
 			stage.setItems(new String[] { "none", "xythetastage", "ln2cryostage", "sxcryostage", "userstage" });
-			
-			
-			
 
 			grpStageParameters = new Group(grpStage, SWT.NONE);
 			stageLayout = new StackLayout();
