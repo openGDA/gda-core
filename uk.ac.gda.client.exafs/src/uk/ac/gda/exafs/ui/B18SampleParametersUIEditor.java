@@ -63,6 +63,7 @@ import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
+import uk.ac.gda.richbeans.event.ValueListener;
 
 /**
  *
@@ -189,130 +190,34 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 		wheelExpandableComposite = new ExpandableComposite(composite, SWT.NONE);
 		wheelExpandableComposite.setText("Sample Wheel");
 		wheelExpandableComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
-		
-		stageComp = new Composite(sampleStageExpandableComposite, SWT.NONE);
-		GridLayout gridLayout_2 = new GridLayout();
-		gridLayout_2.numColumns = 2;
-		stageComp.setLayout(gridLayout_2);
 
-		grpStage = new Group(stageComp, SWT.NONE);
-		grpStage.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false, 1, 1));
-		GridLayout gridLayout = new GridLayout();
-		gridLayout.numColumns = 2;
-		grpStage.setLayout(gridLayout);
-
-		label = new Label(grpStage, SWT.NONE);
-		label.setSize(37, 17);
-		label.setText("Stage");
-
-		stage = new ComboWrapper(grpStage, SWT.READ_ONLY);
-		stage.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		stage.setSize(234, 27);
-		stage.setItems(new String[] { "none", "xythetastage", "ln2cryostage", "sxcryostage", "userstage" });
-		stage.select(0);
-
-		grpStageParameters = new Group(grpStage, SWT.NONE);
-		stageLayout = new StackLayout();
-		grpStageParameters.setLayout(stageLayout);
-		grpStageParameters.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
-
-		blankStageComposite = new Composite(grpStageParameters, SWT.NONE);
-
-		xythetaStageParameters = new XYThetaStageComposite(grpStageParameters, SWT.NONE, "sam2x", "sam2y", "sam2rot");
-		xythetaStageParameters.setVisible(true);
-		xythetaStageParameters.setEditorClass(XYThetaStageParameters.class);
-		xythetaStageParameters.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
-
-		ln2CryoStageComposite = new LN2CryoStageComposite(grpStageParameters, SWT.NONE,
-				bean);
-		ln2CryoStageComposite.setVisible(true);
-		ln2CryoStageComposite.setEditorClass(LN2CryoStageParameters.class);
-		ln2CryoStageComposite.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
-
-		sxCryoStageComposite = new SXCryoStageComposite(grpStageParameters, SWT.NONE, bean);
-		sxCryoStageComposite.setVisible(true);
-		sxCryoStageComposite.setEditorClass(SXCryoStageParameters.class);
-		sxCryoStageComposite.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
-
-		userStageComposite = new UserStageComposite(grpStageParameters, SWT.NONE, "user2", "user4", "user5", "user6",
-				"user7", "user8");
-		userStageComposite.setVisible(true);
-		userStageComposite.setEditorClass(UserStageParameters.class);
-		userStageComposite.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
-
-		tempComp = new Composite(temperatureExpandableComposite, SWT.NONE);
-		GridLayout gridLayout_3 = new GridLayout();
-		gridLayout_3.numColumns = 2;
-		tempComp.setLayout(gridLayout_3);
-
-		grpBeanComposite = new Group(tempComp, SWT.NONE);
-		grpBeanComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false, 1, 1));
-		GridLayout gridLayout2 = new GridLayout();
-		gridLayout2.numColumns = 2;
-		grpBeanComposite.setLayout(gridLayout2);
-
-		label = new Label(grpBeanComposite, SWT.NONE);
-		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		label.setText("temperatureControl");
-		sampleEnvironment = new ComboWrapper(grpBeanComposite, SWT.READ_ONLY);
-		sampleEnvironment.setItems(new String[] { "none", "pulsetubecryostat", "furnace", "lakeshore" });
-		sampleEnvironment.select(0);
-		sampleEnvironment.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
-
-		grpEnvironmentParameters = new Group(grpBeanComposite, SWT.NONE);
-		environmentLayout = new StackLayout();
-		grpEnvironmentParameters.setLayout(environmentLayout);
-		grpEnvironmentParameters.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false, 2, 1));
-
-		blankEnvironmentComposite = new Composite(grpEnvironmentParameters, SWT.NONE);
-		pulseTubeCryostatParameters = new B18PulseTubeCryostatComposite(grpEnvironmentParameters, SWT.NONE,
-				bean);
-		pulseTubeCryostatParameters.setVisible(false);
-		pulseTubeCryostatParameters.setEditorClass(PulseTubeCryostatParameters.class);
-		pulseTubeCryostatParameters.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
-		
-		new Label(pulseTubeCryostatParameters, SWT.NONE);
-		new Label(pulseTubeCryostatParameters.getSetPoint(), SWT.NONE);
-		new Label(pulseTubeCryostatParameters.getTolerance(), SWT.NONE);
-		new Label(pulseTubeCryostatParameters.getTime(), SWT.NONE);
-
-		furnaceParameters = new B18FurnaceComposite(grpEnvironmentParameters, SWT.NONE);
-		furnaceParameters.setVisible(false);
-		furnaceParameters.setEditorClass(FurnaceParameters.class);
-		furnaceParameters.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
-		
-		new Label(furnaceParameters, SWT.NONE);
-		new Label(furnaceParameters.getTolerance(), SWT.NONE);
-		new Label(furnaceParameters.getTime(), SWT.NONE);
-
-		lakeshoreComposite = new LakeshoreComposite(grpEnvironmentParameters, SWT.NONE);
-		lakeshoreComposite.setVisible(false);
-		lakeshoreComposite.setEditorClass(LakeshoreParameters.class);
-		lakeshoreComposite.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
-		
-		new Label(lakeshoreComposite, SWT.NONE);
-		new Label(lakeshoreComposite.getTolerance(), SWT.NONE);
-		new Label(lakeshoreComposite.getTime(), SWT.NONE);
-		new Label(container, SWT.NONE);
+		createTemp();
 
 		topComposite.setContent(container);
 		topComposite.setMinSize(container.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-		
-		sampleStageExpandableComposite.setClient(stageComp);
+
 		temperatureExpandableComposite.setClient(tempComp);
 
 		ExpansionAdapter stageExpansionListener = new ExpansionAdapter() {
 			@Override
 			public void expansionStateChanged(ExpansionEvent e) {
-				if (!stage.getValue().toString().equals("none"))
+				createStage();
+				if (!stage.getValue().toString().equals("none")) {
 					sampleStageExpandableComposite.setExpanded(true);
+				}
 				GridUtils.layoutFull(stageComp.getParent());
+				linkUI(false);
 			}
 		};
 		sampleStageExpandableComposite.addExpansionListener(stageExpansionListener);
 
-		if (!bean.getStage().toString().equals("none"))
+		if (!bean.getStage().toString().equals("none")) {
+			createStage();
 			sampleStageExpandableComposite.setExpanded(true);
+			GridUtils.layoutFull(stageComp.getParent());
+			linkUI(false);
+			updateStageType();
+		}
 
 		ExpansionAdapter tempExpansionListener = new ExpansionAdapter() {
 			@Override
@@ -326,22 +231,152 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 
 		if (!bean.getTemperatureControl().toString().equals("none"))
 			temperatureExpandableComposite.setExpanded(true);
-		
-		createWheel();
-		
+
 		ExpansionAdapter wheelExpansionAdapter = new ExpansionAdapter() {
 			@Override
 			public void expansionStateChanged(ExpansionEvent e) {
-				if (e.getState()) {
+				createWheel();
+				if (bean.getSampleWheelParameters().isWheelEnabled()) {
+					wheelExpandableComposite.setExpanded(true);
+				} else
 					wheelExpandableComposite.setExpanded(e.getState());
-				}
 				GridUtils.layoutFull(wheelExpandableComposite);
-				
 				linkUI(false);
 			}
 		};
 		wheelExpandableComposite.addExpansionListener(wheelExpansionAdapter);
 
+		if (bean.getSampleWheelParameters().isWheelEnabled()) {
+			createWheel();
+			wheelExpandableComposite.setExpanded(true);
+		}
+	}
+
+	public void createStage() {
+		if (stageComp == null) {
+			stageComp = new Composite(sampleStageExpandableComposite, SWT.NONE);
+			GridLayout gridLayout_2 = new GridLayout();
+			gridLayout_2.numColumns = 2;
+			stageComp.setLayout(gridLayout_2);
+
+			grpStage = new Group(stageComp, SWT.NONE);
+			grpStage.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false, 1, 1));
+			GridLayout gridLayout = new GridLayout();
+			gridLayout.numColumns = 2;
+			grpStage.setLayout(gridLayout);
+
+			Label label = new Label(grpStage, SWT.NONE);
+			label.setSize(37, 17);
+			label.setText("Stage");
+
+			stage = new ComboWrapper(grpStage, SWT.READ_ONLY);
+			stage.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+			stage.setSize(234, 27);
+			stage.setItems(new String[] { "none", "xythetastage", "ln2cryostage", "sxcryostage", "userstage" });
+			
+			stage.addValueListener(new ValueListener() {
+				@Override
+				public void valueChangePerformed(ValueEvent e) {
+					bean.setStage(stage.getItem(stage.getSelectionIndex()));
+					updateStageType();
+					linkUI(false);
+				}
+				@Override
+				public String getValueListenerName() {
+					return "stage";
+				}
+			});
+
+			grpStageParameters = new Group(grpStage, SWT.NONE);
+			stageLayout = new StackLayout();
+			grpStageParameters.setLayout(stageLayout);
+			grpStageParameters.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+
+			blankStageComposite = new Composite(grpStageParameters, SWT.NONE);
+
+			xythetaStageParameters = new XYThetaStageComposite(grpStageParameters, SWT.NONE, "sam2x", "sam2y",
+					"sam2rot");
+			xythetaStageParameters.setVisible(true);
+			xythetaStageParameters.setEditorClass(XYThetaStageParameters.class);
+			xythetaStageParameters.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
+
+			ln2CryoStageComposite = new LN2CryoStageComposite(grpStageParameters, SWT.NONE, bean);
+			ln2CryoStageComposite.setVisible(true);
+			ln2CryoStageComposite.setEditorClass(LN2CryoStageParameters.class);
+			ln2CryoStageComposite.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
+
+			sxCryoStageComposite = new SXCryoStageComposite(grpStageParameters, SWT.NONE, bean);
+			sxCryoStageComposite.setVisible(true);
+			sxCryoStageComposite.setEditorClass(SXCryoStageParameters.class);
+			sxCryoStageComposite.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
+
+			userStageComposite = new UserStageComposite(grpStageParameters, SWT.NONE, "user2", "user4", "user5",
+					"user6", "user7", "user8");
+			userStageComposite.setVisible(true);
+			userStageComposite.setEditorClass(UserStageParameters.class);
+			userStageComposite.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
+			
+			sampleStageExpandableComposite.setClient(stageComp);
+		}
+	}
+
+	public void createTemp() {
+		if (tempComp == null) {
+			tempComp = new Composite(temperatureExpandableComposite, SWT.NONE);
+			GridLayout gridLayout_3 = new GridLayout();
+			gridLayout_3.numColumns = 2;
+			tempComp.setLayout(gridLayout_3);
+
+			grpBeanComposite = new Group(tempComp, SWT.NONE);
+			grpBeanComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false, 1, 1));
+			GridLayout gridLayout2 = new GridLayout();
+			gridLayout2.numColumns = 2;
+			grpBeanComposite.setLayout(gridLayout2);
+
+			Label label = new Label(grpBeanComposite, SWT.NONE);
+			label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+			label.setText("temperatureControl");
+			sampleEnvironment = new ComboWrapper(grpBeanComposite, SWT.READ_ONLY);
+			sampleEnvironment.setItems(new String[] { "none", "pulsetubecryostat", "furnace", "lakeshore" });
+			sampleEnvironment.select(0);
+			sampleEnvironment.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
+
+			grpEnvironmentParameters = new Group(grpBeanComposite, SWT.NONE);
+			environmentLayout = new StackLayout();
+			grpEnvironmentParameters.setLayout(environmentLayout);
+			grpEnvironmentParameters.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false, 2, 1));
+
+			blankEnvironmentComposite = new Composite(grpEnvironmentParameters, SWT.NONE);
+			pulseTubeCryostatParameters = new B18PulseTubeCryostatComposite(grpEnvironmentParameters, SWT.NONE, bean);
+			pulseTubeCryostatParameters.setVisible(false);
+			pulseTubeCryostatParameters.setEditorClass(PulseTubeCryostatParameters.class);
+			pulseTubeCryostatParameters.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
+
+			new Label(pulseTubeCryostatParameters, SWT.NONE);
+			new Label(pulseTubeCryostatParameters.getSetPoint(), SWT.NONE);
+			new Label(pulseTubeCryostatParameters.getTolerance(), SWT.NONE);
+			new Label(pulseTubeCryostatParameters.getTime(), SWT.NONE);
+
+			furnaceParameters = new B18FurnaceComposite(grpEnvironmentParameters, SWT.NONE);
+			furnaceParameters.setVisible(false);
+			furnaceParameters.setEditorClass(FurnaceParameters.class);
+			furnaceParameters.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
+
+			new Label(furnaceParameters, SWT.NONE);
+			new Label(furnaceParameters.getTolerance(), SWT.NONE);
+			new Label(furnaceParameters.getTime(), SWT.NONE);
+
+			lakeshoreComposite = new LakeshoreComposite(grpEnvironmentParameters, SWT.NONE);
+			lakeshoreComposite.setVisible(false);
+			lakeshoreComposite.setEditorClass(LakeshoreParameters.class);
+			lakeshoreComposite.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
+
+			new Label(lakeshoreComposite, SWT.NONE);
+			new Label(lakeshoreComposite.getTolerance(), SWT.NONE);
+			new Label(lakeshoreComposite.getTime(), SWT.NONE);
+
+			temperatureExpandableComposite.setClient(tempComp);
+		}
 	}
 
 	public void createWheel() {
@@ -357,14 +392,25 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 			gridLayout3.numColumns = 2;
 			grpSampleWheel.setLayout(gridLayout3);
 
-			sampleWheelParametersComposite = new SampleWheelParametersComposite(grpSampleWheel, SWT.NONE,
-					bean);
+			sampleWheelParametersComposite = new SampleWheelParametersComposite(grpSampleWheel, SWT.NONE, bean);
 			sampleWheelParametersComposite.setBounds(10, 29, 400, 230);
 			sampleWheelParametersComposite.setEditorClass(SampleWheelParameters.class);
 			sampleWheelParametersComposite.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
 			sampleWheelParametersComposite.layout();
-			wheelExpandableComposite.setClient(wheelComp);
 
+			sampleWheelParametersComposite.addValueListener(new ValueListener() {
+				@Override
+				public void valueChangePerformed(ValueEvent e) {
+					linkUI(false);
+				}
+
+				@Override
+				public String getValueListenerName() {
+					return null;
+				}
+			});
+
+			wheelExpandableComposite.setClient(wheelComp);
 		}
 	}
 
@@ -378,37 +424,22 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 			}
 		});
 
-		stage.addValueListener(new ValueAdapter("stage") {
-			@Override
-			public void valueChangePerformed(ValueEvent e) {
-				updateStageType();
-			}
-		});
-		
-		
-
 		try {
 			GridUtils.startMultiLayout(topComposite);
 			super.linkUI(isPageChange);
 
-			// Now the data will have one of the complex types so we can init the envType
 			initOptions();
 			updateEnvironmentType();
-			updateStageType();
 		} finally {
 			GridUtils.endMultiLayout();
 		}
 	}
 
 	private void initOptions() {
-
+		
 		List<String> envItems = Arrays.asList(sampleEnvironment.getItems());
 		int envIndex = envItems.indexOf(bean.getTemperatureControl());
 		sampleEnvironment.select(envIndex);
-
-		List<String> stageItems = Arrays.asList(stage.getItems());
-		int stageIndex = stageItems.indexOf(bean.getStage());
-		stage.select(stageIndex);
 	}
 
 	private void updateStageType() {
