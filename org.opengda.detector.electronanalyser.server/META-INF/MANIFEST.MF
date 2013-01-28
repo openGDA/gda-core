@@ -1,13 +1,24 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Electron Analyser Server
+Bundle-Name: %pluginName
 Bundle-SymbolicName: org.opengda.detector.electronanalyser.server;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Vendor: Diamond Light Source Ltd
+Bundle-ClassPath: .
+Bundle-Vendor: %providerName
+Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: com.opengda.detector.electronalyser.server.model.regiondefinition,
+ com.opengda.detector.electronalyser.server.model.regiondefinition.impl,
+ com.opengda.detector.electronalyser.server.model.regiondefinition.util
 Require-Bundle: uk.ac.gda.epics,
  uk.ac.gda.nexus,
  uk.ac.gda.api;bundle-version="8.26.0",
- uk.ac.diamond.scisoft.analysis
+ org.eclipse.emf.ecore;visibility:=reexport,
+ uk.ac.diamond.scisoft.analysis,
+ org.eclipse.emf.ecore.xmi;bundle-version="2.7.0",
+ org.opengda.detector.electroanalyser.api;bundle-version="1.0.0"
+Bundle-ActivationPolicy: lazy
 Import-Package: org.slf4j,
  org.springframework.beans.factory;version="3.0.4"
+Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
+
