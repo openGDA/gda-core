@@ -6,6 +6,7 @@
 	<classpathentry exported="true" kind="lib" path="jars/poi-ooxml-3.9-20121203.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/poi-ooxml-schemas-3.9-20121203.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/poi-scratchpad-3.9-20121203.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/ojdbc6.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/BSSC.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/JLib.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
