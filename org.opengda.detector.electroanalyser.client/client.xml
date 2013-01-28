@@ -1,0 +1,23 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<bean id="regionviewholder"
+		class="org.opengda.detector.electroanalyser.client.regioneditor.RegionViewFactoryFactory">
+		<property name="viewPartName" value="Region Editor" />
+		<property name="regionDefinition" ref="regionDefinitions"></property>
+	</bean>
+
+	<bean id="regionDefinitionResourceUtil"
+		class="com.opengda.detector.electronalyser.server.model.regiondefinition.resource.RegionDefinitionResourceUtil">
+		<property name="fileName"
+			value="D:/gda/gda-i09/runtime-TestCleint/test123/My1.regiondefinition" />
+	</bean>
+
+	<bean id="regionDefinitions"
+		class="com.opengda.detector.electronalyser.server.api.RegionDefinitionImpl">
+		<property name="regionDefinitionResourceUtil" ref="regionDefinitionResourceUtil" />
+	</bean>
+
+</beans>
