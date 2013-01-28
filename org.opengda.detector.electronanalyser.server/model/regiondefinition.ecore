@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="regiondefinition" nsURI="http://diamond.ac.uk/regiondefinition"
+    nsPrefix="">
+  <eClassifiers xsi:type="ecore:EClass" name="DocumentRoot">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="sequence" eType="#//Sequence"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Region">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="lensmode" eType="#//LENS_MODE"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="passEnergy" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EIntegerObject"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="runMode" eType="#//RunMode"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="LENS_MODE">
+    <eLiterals name="TRANSMISSION"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="RunMode">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="mode" eType="#//RUN_MODES"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="numIterations" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="repeatUnitilStopped" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="RUN_MODES">
+    <eLiterals name="Normal"/>
+    <eLiterals name="ADD_DIMENSION" value="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Sequence">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="region" upperBound="-1"
+        eType="#//Region" containment="true"/>
+  </eClassifiers>
+</ecore:EPackage>
