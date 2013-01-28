@@ -7,7 +7,7 @@ Bundle-ClassPath: .
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: com.opengda.detector.electronalyser.server.model.regiondefinition.tests
+Export-Package: org.opengda.detector.electronalyser.server.model.regiondefinition.tests
 Require-Bundle: org.eclipse.core.runtime,
  org.opengda.detector.electronanalyser.server;visibility:=reexport,
  org.eclipse.emf.ecore.xmi;visibility:=reexport,

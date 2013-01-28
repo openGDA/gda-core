@@ -4,7 +4,7 @@
     modelPluginID="org.opengda.detector.electronanalyser.server" modelName="Regiondefinition"
     importerID="org.eclipse.emf.importer.ecore" complianceLevel="6.0" copyrightFields="false">
   <foreignModel>regiondefinition.ecore</foreignModel>
-  <genPackages prefix="Regiondefinition" basePackage="com.opengda.detector.electronalyser.server.model"
+  <genPackages prefix="Regiondefinition" basePackage="org.opengda.detector.electronalyser.server.model"
       resource="XML" disposableProviderFactory="true" ecorePackage="regiondefinition.ecore#/">
     <genEnums typeSafeEnumCompatible="false" ecoreEnum="regiondefinition.ecore#//LENS_MODE">
       <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//LENS_MODE/TRANSMISSION"/>

@@ -8,7 +8,7 @@ Bundle-Activator: com.opengda.detector.electronalyser.server.model.regiondefinit
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: com.opengda.detector.electronalyser.server.model.regiondefinition.presentation
+Export-Package: org.opengda.detector.electronalyser.server.model.regiondefinition.presentation
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.resources;visibility:=reexport,
  org.opengda.detector.electronanalyser.server.edit;visibility:=reexport,

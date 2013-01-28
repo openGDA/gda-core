@@ -7,9 +7,9 @@ Bundle-ClassPath: .
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: com.opengda.detector.electronalyser.server.model.regiondefinition,
- com.opengda.detector.electronalyser.server.model.regiondefinition.impl,
- com.opengda.detector.electronalyser.server.model.regiondefinition.util
+Export-Package: org.opengda.detector.electronalyser.server.model.regiondefinition,
+ org.opengda.detector.electronalyser.server.model.regiondefinition.impl,
+ org.opengda.detector.electronalyser.server.model.regiondefinition.util
 Require-Bundle: uk.ac.gda.epics,
  uk.ac.gda.nexus,
  uk.ac.gda.api;bundle-version="8.26.0",
