@@ -56,25 +56,17 @@ import uk.ac.gda.views.baton.dialogs.BatonRequestDialog;
 
 import com.swtdesigner.SWTResourceManager;
 
-/**
- *
- */
 public class BatonView extends ViewPart implements IObserver{
 
 	private static final Logger logger = LoggerFactory.getLogger(BatonView.class);
 	
-	/**
-	 * 
-	 */
 	public static final String ID = "gda.rcp.views.baton.BatonView"; //$NON-NLS-1$
 	
 	protected TableViewer userTable;
 
-	private static enum columnType {CLIENT_NUMBER, USER, HOSTNAME, VISIT, HOLDING_BATON}
-	private static String[] columnToolTip = {"Client Number", "User", "Hostname", "Visit", "Holding Baton"};
-	/**
-	 * 
-	 */
+	private static enum columnType {CLIENT_NUMBER, USER, NAME, HOSTNAME, VISIT, HOLDING_BATON, AUTH_LEVEL}
+	private static String[] columnToolTip = {"Client\nNumber", "User", "Name", "Hostname", "Visit", "Holding\nBaton", "Authorisation\nLevel"};
+	
 	public BatonView() {
 		try {
 			GDAClientActivator.getDefault().getPreferenceStore().getBoolean(PreferenceConstants.KEEP_BATON);
@@ -96,7 +88,6 @@ public class BatonView extends ViewPart implements IObserver{
 
 	/**
 	 * Create contents of the view part.
-	 * @param parent
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
@@ -132,7 +123,6 @@ public class BatonView extends ViewPart implements IObserver{
 		}
 		
 		createRightClickMenu();
-		createActions();
 		initializeToolBar();
 		initializeMenu();
 	}
@@ -184,6 +174,12 @@ public class BatonView extends ViewPart implements IObserver{
 		userName.getColumn().setWidth(150);
 		userName.setLabelProvider(new BatonColumnLabelProvider(second));
 		
+		int nameIndex = columnType.NAME.ordinal();
+		final TableViewerColumn nameColumn = new TableViewerColumn(userTable, SWT.NONE, nameIndex);
+		nameColumn.getColumn().setText(columnToolTip[nameIndex]);
+		nameColumn.getColumn().setWidth(200);
+		nameColumn.setLabelProvider(new BatonColumnLabelProvider(nameIndex));
+		
 		int third = columnType.HOSTNAME.ordinal();
 		final TableViewerColumn hostName = new TableViewerColumn(userTable, SWT.NONE, third);
 		hostName.getColumn().setText(columnToolTip[third]);
@@ -202,6 +198,11 @@ public class BatonView extends ViewPart implements IObserver{
 		hasBaton.getColumn().setWidth(100);
 		hasBaton.setLabelProvider(new BatonColumnLabelProvider(fifth));
 		
+		int sixth = columnType.AUTH_LEVEL.ordinal();
+		final TableViewerColumn authLevel = new TableViewerColumn(userTable, SWT.NONE, sixth);
+		authLevel.getColumn().setText(columnToolTip[sixth]);
+		authLevel.getColumn().setWidth(150);
+		authLevel.setLabelProvider(new BatonColumnLabelProvider(sixth));
 	}
 
 	private class BatonColumnLabelProvider extends ColumnLabelProvider {
@@ -236,12 +237,16 @@ public class BatonView extends ViewPart implements IObserver{
 					return detail.getUserID()+"*";
 				}
 				return detail.getUserID();
+			} else if (columnIndex == columnType.NAME.ordinal()) {
+				return detail.getFullName();
 			} else if (columnIndex==columnType.HOSTNAME.ordinal()) {
 				return detail.getHostname();
 			} else if (columnIndex==columnType.VISIT.ordinal()) {
 				return detail.getVisitID();
 			} else if (columnIndex==columnType.HOLDING_BATON.ordinal()) {
 				return "";
+			} else if (columnIndex == columnType.AUTH_LEVEL.ordinal()) {
+				return Integer.toString(detail.getAuthorisationLevel());
 			}
 			return null;
 		}
@@ -264,31 +269,20 @@ public class BatonView extends ViewPart implements IObserver{
 				return "The visit in current use.";
 			} else if (columnIndex==columnType.HOLDING_BATON.ordinal()) {
 				return "A green flag represents ownership of the baton.";
+			} else if (columnIndex == columnType.AUTH_LEVEL.ordinal()) {
+				return "Authorisation level of this client.";
 			}
 			return null;
 		}
 
 	}
 	
-	/**
-	 * Create the actions.
-	 */
-	private void createActions() {
-		// Create the actions
-	}
-
-	/**
-	 * Initialize the toolbar.
-	 */
 	private void initializeToolBar() {
 		@SuppressWarnings("unused")
 		IToolBarManager toolbarManager = getViewSite().getActionBars()
 				.getToolBarManager();
 	}
 
-	/**
-	 * Initialize the menu.
-	 */
 	private void initializeMenu() {
 		@SuppressWarnings("unused")
 		IMenuManager menuManager = getViewSite().getActionBars()
@@ -333,7 +327,6 @@ public class BatonView extends ViewPart implements IObserver{
 
 	@Override
 	public void dispose() {
-		// by the time we get to this point, 
 		try {
 			InterfaceProvider.getJSFObserver().deleteIObserver(this);
 			if(userTable != null && userTable.getTable() != null)
@@ -343,9 +336,6 @@ public class BatonView extends ViewPart implements IObserver{
 		}
 	}
 
-	/**
-	 * 
-	 */
 	public void refresh() {
 		userTable.refresh();
 	}

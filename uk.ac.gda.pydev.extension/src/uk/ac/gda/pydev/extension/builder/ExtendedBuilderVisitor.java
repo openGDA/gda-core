@@ -22,17 +22,20 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderVisitor;
+import org.python.pydev.core.callbacks.ICallback0;
 
 public class ExtendedBuilderVisitor extends PyDevBuilderVisitor {
 
+
 	@Override
-	public void visitChangedResource(IResource arg0, IDocument arg1, IProgressMonitor arg2) {
-		//System.out.println("Hello Word");
+	public void visitChangedResource(IResource arg0, ICallback0<IDocument> arg1, IProgressMonitor arg2) {
+		//not sure what to do here so provide default implementation
 	}
 
 	@Override
-	public void visitRemovedResource(IResource arg0, IDocument arg1, IProgressMonitor arg2) {
-		//System.out.println("Hello Word");
+	public void visitRemovedResource(IResource arg0, ICallback0<IDocument> arg1, IProgressMonitor arg2) {
+		//not sure what to do here so provide default implementation
+		
 	}
 
 }

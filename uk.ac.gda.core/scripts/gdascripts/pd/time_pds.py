@@ -6,6 +6,9 @@
 import time
 from gda.device.scannable import ScannableMotionBase
 
+from org.slf4j import Logger
+from org.slf4j import LoggerFactory
+
 class tictoc:
 	"""Class tictoc. Creates new timer object.
 	__call__ returns numerical value of elapsed time in seconds since initialization
@@ -182,6 +185,34 @@ class actualTimeClass(ScannableMotionBase):
 
 	def rawIsBusy(self):
 		return False
+	
+class LogTimeClass(ScannableMotionBase):
+	"""Logs the scan progress to the GDA logging system"""
+	def __init__(self, name):
+		self.setName(name);
+		self.setInputNames([]);
+		self.setExtraNames([]);
+		self.setOutputFormat([])
+		self.setLevel(7)
+		self.logger = LoggerFactory.getLogger(name)
+
+	def rawGetPosition(self):
+		return None
+
+	def rawIsBusy(self):
+		return False
+	
+	def atScanStart(self):
+		self.logger.info("atScanStart")
+		
+	def atScanEnd(self):
+		self.logger.info("atScanEnd")
+		
+	def atPointStart(self):
+		self.logger.info("atPointStart")
+
+	def atPointEnd(self):
+		self.logger.info("atPointEnd")
 
 #if __name__ == "__main__":
 showtime=showtimeClass('showtime')

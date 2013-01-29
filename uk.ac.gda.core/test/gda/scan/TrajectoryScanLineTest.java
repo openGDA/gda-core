@@ -21,6 +21,8 @@ package gda.scan;
 import static org.junit.Assert.assertArrayEquals;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import gda.MockFactory;
 import gda.TestHelpers;
@@ -128,25 +130,26 @@ public class TrajectoryScanLineTest {
 		InOrder inOrder = performSingleLineMockScannableAndTwoDetectors();
 		
 		inOrder.verify(mockeddet1).setCollectionTime(2.); // must be called in constructor!
-		
-		inOrder.verify(mockedController).stopAndReset();
 		inOrder.verify(mockedx).setOperatingContinuously(true);
 		inOrder.verify(mockedy).setOperatingContinuously(true);
 		inOrder.verify(mockeddet1).setHardwareTriggering(true);
 		inOrder.verify(mockeddet2).setHardwareTriggering(true);
+		inOrder.verify(mockeddet1).setNumberImagesToCollect(2);
+		inOrder.verify(mockeddet1).prepareForCollection();
+		inOrder.verify(mockeddet1).atScanStart();
+		
+		inOrder.verify(mockedController).stopAndReset();
 		inOrder.verify(mockedx).asynchronousMoveTo(0.);
 		inOrder.verify(mockedy).asynchronousMoveTo(10.);
-		inOrder.verify(mockeddet1).collectData();
-		inOrder.verify(mockeddet2).collectData();
 		inOrder.verify(mockedx).asynchronousMoveTo(1.);
 		inOrder.verify(mockedy).asynchronousMoveTo(11.);
-		inOrder.verify(mockeddet1).collectData();
-		inOrder.verify(mockeddet2).collectData();
 
 		inOrder.verify(mockedController).prepareForMove();
 		// detectors armed in here in parallel and tested below
 		inOrder.verify(mockedController).startMove();
 		inOrder.verify(mockedController).waitWhileMoving();
+		verify(mockeddet1, times(1)).collectData();
+		verify(mockeddet2, times(1)).collectData();
 		
 	}
 	
@@ -156,7 +159,7 @@ public class TrajectoryScanLineTest {
 		InOrder inOrder = performSingleLineMockScannableAndTwoDetectors();
 
 		inOrder.verify(mockedController).prepareForMove();
-		inOrder.verify(mockeddet1).arm();
+		inOrder.verify(mockeddet1).collectData();
 		inOrder.verify(mockedController).startMove();
 	}
 
@@ -167,7 +170,7 @@ public class TrajectoryScanLineTest {
 		
 
 		inOrder.verify(mockedController).prepareForMove();
-		inOrder.verify(mockeddet2).arm();
+		inOrder.verify(mockeddet2).collectData();
 		inOrder.verify(mockedController).startMove();
 	}
 	
@@ -272,19 +275,17 @@ public class TrajectoryScanLineTest {
 		TestHelpers.setUpTest(TrajectoryScanLineTest.class, "singleLineScanMockScannablesAndTwoMockDetectorsIntegrating", true);
 		InOrder inOrder = performSingleLineScanMockScannablesAndTwoMockDetectorsIntegrating();
 		
-		inOrder.verify(mockedController).stopAndReset();
 		inOrder.verify(mockedx).setOperatingContinuously(true);
 		inOrder.verify(mockedy).setOperatingContinuously(true);
 		inOrder.verify(mockeddet1).setHardwareTriggering(true);
 		inOrder.verify(mockeddet2).setHardwareTriggering(true);
+		inOrder.verify(mockeddet1).setNumberImagesToCollect(2);
+
+		inOrder.verify(mockedController).stopAndReset();
 		inOrder.verify(mockedx).asynchronousMoveTo(0.);
 		inOrder.verify(mockedy).asynchronousMoveTo(10.);
-		inOrder.verify(mockeddet1).collectData();
-		inOrder.verify(mockeddet2).collectData();
 		inOrder.verify(mockedx).asynchronousMoveTo(1.);
 		inOrder.verify(mockedy).asynchronousMoveTo(11.);
-		inOrder.verify(mockeddet1).collectData();
-		inOrder.verify(mockeddet2).collectData();
 		
 		inOrder.verify(mockedController).stopAndReset();
 		inOrder.verify(mockedx).atLevelMoveStart();
@@ -305,6 +306,8 @@ public class TrajectoryScanLineTest {
 		// detectors armed in here in parallel and tested below
 		inOrder.verify(mockedController).startMove();
 		inOrder.verify(mockedController).waitWhileMoving();
+		verify(mockeddet1, times(1)).collectData();
+		verify(mockeddet2, times(1)).collectData();
 	}
 	
 	@Test
@@ -313,7 +316,7 @@ public class TrajectoryScanLineTest {
 		InOrder inOrder = performSingleLineScanMockScannablesAndTwoMockDetectorsIntegrating();
 		
 		inOrder.verify(mockedController).prepareForMove();
-		inOrder.verify(mockeddet1).arm();
+		inOrder.verify(mockeddet1).collectData();
 		inOrder.verify(mockedController).startMove();
 	}
 
@@ -323,7 +326,7 @@ public class TrajectoryScanLineTest {
 		InOrder inOrder = performSingleLineScanMockScannablesAndTwoMockDetectorsIntegrating();
 		
 		inOrder.verify(mockedController).prepareForMove();
-		inOrder.verify(mockeddet2).arm();
+		inOrder.verify(mockeddet2).collectData();
 		inOrder.verify(mockedController).startMove();
 	}
 	

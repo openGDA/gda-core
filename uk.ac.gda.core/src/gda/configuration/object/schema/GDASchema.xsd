@@ -760,22 +760,6 @@
 			</xsd:extension>
 		</xsd:complexContent>
 	</xsd:complexType>
-	<xsd:annotation>
-		<xsd:documentation>
-			TfgXspress
-    </xsd:documentation>
-	</xsd:annotation>
-	<xsd:complexType name="TfgXspress">
-		<xsd:complexContent>
-			<xsd:extension base="CounterTimerBase">
-				<xsd:sequence>
-					<xsd:element ref="xspressSystemName"/>
-					<xsd:element ref="tfgName"/>
-					<xsd:element ref="slave"/>
-				</xsd:sequence>
-			</xsd:extension>
-		</xsd:complexContent>
-	</xsd:complexType>
 	<xsd:complexType name="TfgXspress2">
 		<xsd:complexContent>
 			<xsd:extension base="CounterTimerBase">
@@ -1576,71 +1560,6 @@
 			xspress
 	</xsd:documentation>
 	</xsd:annotation>
-	<xsd:complexType name="ExafsServer">
-		<xsd:complexContent>
-			<xsd:extension base="DeviceBase">
-				<xsd:sequence>
-					<xsd:element ref="host"/>
-					<xsd:element ref="port"/>
-					<!--
-						name field already exists in DeviceBase, but ExafsServer has a
-						"name" in mapping file?!
-					-->
-					<!--      <xsd:element ref="name" /> -->
-				</xsd:sequence>
-			</xsd:extension>
-		</xsd:complexContent>
-	</xsd:complexType>
-	<xsd:complexType name="DummyExafsServer">
-		<xsd:complexContent>
-			<xsd:extension base="ExafsServer"/>
-		</xsd:complexContent>
-	</xsd:complexType>
-	<xsd:complexType name="XspressSystem">
-		<xsd:sequence>
-			<xsd:element ref="name"/>
-			<xsd:element ref="ExafsServerName"/>
-			<xsd:element ref="numberOfDetectors"/>
-		</xsd:sequence>
-	</xsd:complexType>
-	<xsd:complexType name="Xspress1System">
-		<xsd:sequence>
-			<xsd:element ref="name"/>
-			<xsd:element ref="daServerName"/>
-			<xsd:element ref="numberOfDetectors"/>
-			<xsd:element ref="xspressSystemName"/>
-			<xsd:element ref="mcaOpenCommand"/>
-			<xsd:element ref="scalerOpenCommand"/>
-			<xsd:element ref="dummy"/>
-		</xsd:sequence>
-	</xsd:complexType>
-	<xsd:complexType name="Xspress2System">
-		<xsd:sequence>
-			<xsd:element ref="name"/>
-			<xsd:element ref="daServerName"/>
-			<xsd:element ref="tfgName"/>
-			<xsd:element ref="mcaOpenCommand"/>
-			<xsd:element ref="scalerOpenCommand"/>
-			<xsd:element minOccurs="0" ref="startupScript"/>
-			<xsd:element ref="numberOfDetectors"/>
-			<xsd:element ref="dummy"/>
-		</xsd:sequence>
-	</xsd:complexType>
-	<xsd:complexType name="Xspress2SystemPlus">
-		<xsd:sequence>
-			<xsd:element ref="name"/>
-			<xsd:element ref="daServerName"/>
-			<xsd:element ref="tfgName"/>
-			<xsd:element ref="mcaOpenCommand"/>
-			<xsd:element ref="scalerOpenCommand"/>
-			<xsd:element minOccurs="0" ref="startupScript"/>
-			<xsd:element ref="numberOfDetectors"/>
-			<xsd:element ref="configFileName"/>
-			<xsd:element ref="readoutMode"/>
-			<xsd:element ref="xspressSystemName"/>
-			<xsd:element name="fullMCABits"/>
-		</xsd:sequence>
-	</xsd:complexType>
 	<xsd:annotation>
 		<xsd:documentation>
 			Digital I/O
@@ -3365,8 +3284,6 @@
 	
 	<xsd:element name="DummyCurrentAmplifier" type="DummyCurrentAmplifier"/>
 	
-	<xsd:element name="DummyExafsServer" type="DummyExafsServer"/>
-	
 	<xsd:element name="DummyFilterArray" type="DummyFilterArray"/>
 	
 	<xsd:element name="DummyGpib" type="DummyGpib"/>
@@ -3485,9 +3402,7 @@
 	
 	<xsd:element name="ExafsPanel" type="ExafsPanel"/>
 	
-	<xsd:element name="ExafsServer" type="ExafsServer"/>
-	
-	<xsd:element name="ExafsServerName" type="xsd:string"/>
+
 	
 	<xsd:element name="exceptionLevel" type="xsd:double"/>
 	
@@ -3629,8 +3544,6 @@
 	<xsd:element name="hours" type="hourType"/>
 	
 	<xsd:element name="HPDataLogger" type="HPDataLogger"/>
-	
-	
 	
 	<xsd:element name="I18ExafsPanel" type="I18ExafsPanel"/>
 	
@@ -4408,8 +4321,6 @@
 	
 	<xsd:element name="TfgScaler" type="TfgScaler"/>
 	
-	<xsd:element name="TfgXspress" type="TfgXspress"/>
-	
 	<xsd:element name="TfgXspress2" type="TfgXspress2"/>
 	
 	<xsd:element name="TfgXmap" type="TfgXmap"/>
@@ -4539,19 +4450,12 @@
 	
 	<xsd:element name="XpsPositionerName" type="xsd:string"/>
 	
-	<xsd:element name="Xspress1System" type="Xspress1System"/>
 	
 	<xsd:element name="Xspress2MonitorPanel" type="Xspress2MonitorPanel"/>
 	
 	<xsd:element name="Xspress2Panel" type="Xspress2Panel"/>
 	
-	<xsd:element name="Xspress2System" type="Xspress2System"/>
-	
-	<xsd:element name="Xspress2SystemPlus" type="Xspress2SystemPlus"/>
-	
 	<xsd:element name="XspressPanel" type="XspressPanel"/>
-	
-	<xsd:element name="XspressSystem" type="XspressSystem"/>
 	
 	<xsd:element name="xspressSystemCounterTimerName" type="xsd:string"/>
 	
@@ -4593,7 +4497,6 @@
 					<xsd:element ref="Scaler"/>
 					<xsd:element ref="EncoderCounter"/>
 					<xsd:element ref="TfgScaler"/>
-					<xsd:element ref="TfgXspress"/>
 					<xsd:element ref="TfgXspress2"/>
 					<xsd:element ref="TfgXmap"/>
 					<xsd:element ref="TfgEncoderCounter"/>
@@ -4624,12 +4527,6 @@
 					<xsd:element ref="EpicsAdc"/>
 					<xsd:element ref="PCO4000"/>
 					<xsd:element ref="EDXD"/>
-					<xsd:element ref="ExafsServer"/>
-					<xsd:element ref="DummyExafsServer"/>
-					<xsd:element ref="XspressSystem"/>
-					<xsd:element ref="Xspress1System"/>
-					<xsd:element ref="Xspress2System"/>
-					<xsd:element ref="Xspress2SystemPlus"/>
 					<xsd:element ref="ColumnDataFile"/>
 					<xsd:element ref="LookupTable"/>
 					<xsd:element ref="LookupTableConverter"/>

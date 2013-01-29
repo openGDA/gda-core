@@ -18,20 +18,25 @@
 
 package uk.ac.gda.views.baton;
 
+import java.text.SimpleDateFormat;
+import java.util.List;
+
 import gda.configuration.properties.LocalProperties;
 import gda.jython.InterfaceProvider;
 import gda.jython.UserMessage;
 import gda.observable.IObserver;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -82,59 +87,77 @@ public class MessageView extends ViewPart implements IObserver {
 			return;
 		}*/
 		
+
+		
 		Composite container = new Composite(parent, SWT.NONE);
 		container.setLayout(new GridLayout());
-		{
-			SashForm sashForm = new SashForm(container, SWT.NONE);
-			sashForm.setOrientation(SWT.VERTICAL);
-			sashForm.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-			{
-				history = new StyledText(sashForm, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.SEARCH | SWT.CANCEL | SWT.MULTI);
-				history.setEditable(false);
-			}
-			{
-				Composite composite = new Composite(sashForm, SWT.NONE);
-				composite.setLayout(new GridLayout(2, false));
-				{
-					text = new Text(composite, SWT.BORDER | SWT.MULTI);
-					text.setToolTipText("Enter message and ENTER to send.");
-					text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-					this.keyListener = new KeyListener() {
-						
-						@Override
-						public void keyReleased(KeyEvent e) {
-							// TODO Auto-generated method stub
-							
-						}
-						
-						@Override
-						public void keyPressed(KeyEvent e) {
-							if (e.character=='\r') {
-								sendMessage();
-								e.doit = false;
-							}
-						}
-					};
-					text.addKeyListener(keyListener);
-				}
-				{
-					this.btnSend = new Button(composite, SWT.NONE);
-					btnSend.setText("Send");
-					this.selectionListener = new SelectionAdapter() {
-						@Override
-						public void widgetSelected(SelectionEvent e) {
-							sendMessage();
-						}
-					};
-					btnSend.addSelectionListener(selectionListener);
+		
+		history = new StyledText(container, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.SEARCH | SWT.CANCEL | SWT.MULTI);
+		history.setEditable(false);
+		history.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		
+		Composite composite = new Composite(container, SWT.NONE);
+		composite.setLayout(new GridLayout(2, false));
+		GridData textCompositeData = new GridData(SWT.FILL, SWT.BOTTOM, true, false);
+		textCompositeData.minimumHeight = 35;
+		textCompositeData.heightHint = 35;
+		composite.setLayoutData(textCompositeData);
+		
+		text = new Text(composite, SWT.BORDER | SWT.MULTI);
+		text.setToolTipText("Enter message and ENTER to send.");
+		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		keyListener = new KeyListener() {
+			
+			@Override
+			public void keyReleased(KeyEvent e) {}
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.character=='\r') {
+					sendMessage();
+					e.doit = false;
 				}
 			}
-			sashForm.setWeights(new int[] {412, 38});
-		}
+		};
+		text.addKeyListener(keyListener);
+		text.addDisposeListener(new DisposeListener() {
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				text.removeKeyListener(keyListener);
+			}
+		});
+		
+		btnSend = new Button(composite, SWT.NONE);
+		btnSend.setText("Send");
+		selectionListener = new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				sendMessage();
+			}
+		};
+		
+		btnSend.addSelectionListener(selectionListener);
+		
+		btnSend.addDisposeListener(new DisposeListener() {
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				btnSend.removeSelectionListener(selectionListener);
+			}
+		});
+		
 		if(!LocalProperties.isBatonManagementEnabled()){
-			addUserMessageText("", "Baton control is not enabled for this beam line.");
+			UserMessage msg = new UserMessage(-1, "", "Baton control is not enabled for this beam line.");
+			addUserMessageText(msg);
 		}
-
+		else {
+			List<UserMessage> oldMessages = InterfaceProvider.getBatonStateProvider().getMessageHistory();
+			if (oldMessages != null) {
+				for (UserMessage msg : oldMessages) {
+					addUserMessageText(msg);
+				}
+				scrollToEndOfHistory();
+			}
+		}
 	}
 	
 	private void sendMessage() {
@@ -149,10 +172,6 @@ public class MessageView extends ViewPart implements IObserver {
 	
 	@Override
 	public void dispose() {
-		text.removeKeyListener(keyListener);
-		text.dispose();
-		btnSend.removeSelectionListener(selectionListener);
-		btnSend.dispose();
 		try {
 			InterfaceProvider.getJSFObserver().deleteIObserver(this);
 		} catch (Exception e) {
@@ -162,24 +181,42 @@ public class MessageView extends ViewPart implements IObserver {
 	}
 	
 
-	protected void addUserMessageText(final String userName, final String text) {
+	protected void addUserMessageText(UserMessage message) {
+		
+		if (history.getCharCount() > 0) {
+			// add newline to end of previous message - if there is one
+			history.append("\n");
+		}
 		
 		StyleRange style = new StyleRange();
+		style.font = new Font(history.getDisplay(), "Monospace", 0, SWT.NORMAL);
 		style.start = history.getCharCount();
-		style.length = userName.length() + 3;
-		history.append("\n");
-		history.append(userName);
-		history.append("> ");
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String dateTime = String.format("[%s]", dateFormat.format(message.getTimestamp()));
+		style.length = dateTime.length();
+		history.append(dateTime);
+		history.setStyleRange(style);
+		
+		style = new StyleRange();
+		style.fontStyle = SWT.BOLD;
+		style.start = history.getCharCount();
+		String prefix = String.format(" %s: ", message.getSourceUsername());
+		style.length = prefix.length();
+		history.append(prefix);
 		history.setStyleRange(style);
 
 		style = new StyleRange();
 		style.start = history.getCharCount();
-		style.length = text.length();
 		style.fontStyle = SWT.BOLD;
 		// CadetBlue from http://www.wilsonmar.com/1colors.htm#TopMenu
 		style.foreground = new Color(this.getSite().getShell().getDisplay(),95,158,160); 
-		history.append(text);
+		history.append(" "); history.append(message.getMessage());
+		style.length = 1 + message.getMessage().length();
 		history.setStyleRange(style);
+	}
+	
+	private void scrollToEndOfHistory() {
+		history.setTopIndex(history.getLineCount() - 1);
 	}
 
 	@Override
@@ -189,7 +226,8 @@ public class MessageView extends ViewPart implements IObserver {
 				@Override
 				public void run() {
 					UserMessage message = (UserMessage) changeCode;
-   				    addUserMessageText(message.getSourceUsername(), message.getMessage());
+					addUserMessageText(message);
+					scrollToEndOfHistory();
 				}
 			});	
 		}

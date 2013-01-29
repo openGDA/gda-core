@@ -574,14 +574,6 @@
 			<bind-xml name="timeChannelRequired" node="element" />
 		</field>
 	</class>
-	<!-- TfgXspress -->
-	<class extends="gda.device.detector.countertimer.CounterTimerBase"
-		identity="name" name="gda.device.detector.countertimer.TfgXspress">
-		<map-to xml="TfgXspress" />
-		<field name="xspressSystemName" type="string">
-			<bind-xml name="xspressSystemName" node="element" />
-		</field>
-	</class>
 	<class extends="gda.device.detector.countertimer.CounterTimerBase"
 		identity="name" name="gda.device.detector.countertimer.TfgXmap">
 		<map-to xml="TfgXmap" />
@@ -1388,87 +1380,8 @@
 			node="element"/> </field>
 		-->
 	</class>
-	<!-- xspress -->
-	<class extends="gda.device.DeviceBase" identity="name"
-		name="gda.device.xspress.ExafsServer">
-		<map-to xml="ExafsServer" />
-		<field name="name" type="string">
-			<bind-xml name="name" node="element" />
-		</field>
-		<field name="host" type="string">
-			<bind-xml name="host" node="element" />
-		</field>
-		<field name="port" type="integer">
-			<bind-xml name="port" node="element" />
-		</field>
-	</class>
-	<class extends="gda.device.xspress.ExafsServer" identity="name"
-		name="gda.device.xspress.DummyExafsServer">
-		<map-to xml="DummyExafsServer" />
-	</class>
-	<class identity="name" name="gda.device.xspress.XspressSystem">
-		<map-to xml="XspressSystem" />
-		<field name="name" type="string">
-			<bind-xml name="name" node="element" />
-		</field>
-		<field name="ExafsServerName" type="string">
-			<bind-xml name="ExafsServerName" node="element" />
-		</field>
-		<field name="numberOfDetectors" type="integer">
-			<bind-xml name="numberOfDetectors" node="element" />
-		</field>
-	</class>
-	<class identity="name" name="gda.device.xspress.Xspress1System">
-		<map-to xml="Xspress1System" />
-		<field name="name" type="string">
-			<bind-xml name="name" node="element" />
-		</field>
-		<field name="daServerName" type="string">
-			<bind-xml name="daServerName" node="element" />
-		</field>
-		<field name="numberOfDetectors" type="integer">
-			<bind-xml name="numberOfDetectors" node="element" />
-		</field>
-		<field name="xspressSystemName" type="string">
-			<bind-xml name="xspressSystemName" node="element" />
-		</field>
-		<field name="mcaOpenCommand" type="string">
-			<bind-xml name="mcaOpenCommand" node="element" />
-		</field>
-		<field name="scalerOpenCommand" type="string">
-			<bind-xml name="scalerOpenCommand" node="element" />
-		</field>
-		<field name="dummy" type="boolean">
-			<bind-xml name="dummy" node="element" />
-		</field>
-	</class>
-	<class identity="name" name="gda.device.xspress.Xspress2System">
-		<map-to xml="Xspress2System" />
-		<field name="name" type="string">
-			<bind-xml name="name" node="element" />
-		</field>
-		<field name="daServerName" type="string">
-			<bind-xml name="daServerName" node="element" />
-		</field>
-		<field name="tfgName" type="string">
-			<bind-xml name="tfgName" node="element" />
-		</field>
-		<field name="mcaOpenCommand" type="string">
-			<bind-xml name="mcaOpenCommand" node="element" />
-		</field>
-		<field name="scalerOpenCommand" type="string">
-			<bind-xml name="scalerOpenCommand" node="element" />
-		</field>
-		<field name="startupScript" type="string">
-			<bind-xml name="startupScript" node="element" />
-		</field>
-		<field name="numberOfDetectors" type="int">
-			<bind-xml name="numberOfDetectors" node="element" />
-		</field>
-		<field name="dummy" type="boolean">
-			<bind-xml name="dummy" node="element" />
-		</field>
-	</class>
+	
+
 	<class identity="name" name="gda.device.gpib.DummyGpib">
 		<map-to xml="DummyGpib" />
 		<field name="name" type="string">

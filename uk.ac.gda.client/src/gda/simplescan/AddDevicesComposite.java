@@ -33,11 +33,11 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.richbeans.components.selector.BeanSelectionEvent;
 import uk.ac.gda.richbeans.components.selector.BeanSelectionListener;
-import org.eclipse.wb.swt.SWTResourceManager;
 
 public class AddDevicesComposite extends Composite {
 	private Button removeScannable;

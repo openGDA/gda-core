@@ -304,6 +304,8 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		}
 	}
 
+
+	
 	/**
 	 * Replaces the detector data held by the object. The replacement vector must be the same length as the previous for
 	 * this sdp to be self-consistent.

@@ -34,6 +34,7 @@ module corba {
  	{
  		longArray index;
 		stringArray userID;
+		stringArray fullName;
 		stringArray hostname;
 		longArray authorisationLevel;
 		booleanArray hasBaton;
@@ -144,6 +145,8 @@ interface CorbaJython : gda::_factory::corba::CorbaFindable
 	void switchUser(in string uniqueFacadeName, in string username, in string visitID) raises (device::corba::CorbaDeviceException);
 	
 	void sendMessage(in string uniqueFacadeName, in string message) raises (device::corba::CorbaDeviceException);
+	
+	any getMessageHistory(in string uniqueFacadeName) raises (device::corba::CorbaDeviceException);
 	
 	string locateScript(in string scriptToRun) raises (device::corba::CorbaDeviceException);
 

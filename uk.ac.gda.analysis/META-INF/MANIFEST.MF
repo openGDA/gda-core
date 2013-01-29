@@ -1,15 +1,13 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: GDA Core Analysis plugin
+Bundle-Name: GDA Core Analysis
 Bundle-SymbolicName: uk.ac.gda.analysis;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: Diamond Light Source
-Export-Package: gda,
- gda.analysis,
+Export-Package: gda.analysis,
  gda.analysis.datastructure,
  gda.analysis.datastructure.event,
- gda.analysis.datavector,
  gda.analysis.functions,
  gda.analysis.functions.dataset,
  gda.analysis.io,
@@ -38,8 +36,6 @@ Export-Package: gda,
  gda.analysis.utilities,
  gda.analysis.utils,
  gda.analysis.utils.optimisation,
- gda.data.nexus,
- gda.data.nexus.nxclassio,
  gda.data.structure,
  gda.data.structure.filemounter,
  gda.device.detector.nexusprocessor,
@@ -60,10 +56,10 @@ Require-Bundle: uk.ac.diamond.scisoft.analysis;bundle-version="1.0.0",
  uk.ac.gda.common,
  uk.ac.gda.nexus,
  uk.ac.gda.api,
- org.junit4;bundle-version="4.8.1",
  uk.ac.diamond.CBFlib;bundle-version="1.0.0",
  uk.ac.diamond.org.jfree.chart;bundle-version="1.0.0",
- ncsa.hdf;bundle-version="2.7.0"
+ ncsa.hdf;bundle-version="2.7.0",
+ uk.ac.diamond.jython;bundle-version="[2.5.3,3.0.0)"
 Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.diamond.scisoft.analysis,
  uk.ac.diamond.org.jacorb, uk.ac.gda.api, uk.ac.gda.core
 Eclipse-BuddyPolicy: registered

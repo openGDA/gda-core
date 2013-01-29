@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: GDA Core Analysis Test
+Bundle-SymbolicName: uk.ac.gda.analysis.test
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Diamond Light Source
+Fragment-Host: uk.ac.gda.analysis;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: org.junit4;bundle-version="4.8.1",
+ uk.ac.gda.test.helpers;bundle-version="1.0.0",
+ org.mockito.mockito-core;bundle-version="[1.9.5,2.0.0)",
+ com.springsource.org.hamcrest.core;bundle-version="[1.1.0,2.0.0)",
+ com.springsource.org.objenesis;bundle-version="[1.0.0,2.0.0)"

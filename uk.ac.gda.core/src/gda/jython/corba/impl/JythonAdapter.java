@@ -26,9 +26,8 @@ import gda.factory.corba.util.EventSubscriber;
 import gda.factory.corba.util.NameFilter;
 import gda.factory.corba.util.NetService;
 import gda.jython.Jython;
+import gda.jython.UserMessage;
 import gda.jython.batoncontrol.ClientDetails;
-import gda.jython.corba.CorbaFacadeDetails;
-import gda.jython.corba.CorbaFacadeDetailsHelper;
 import gda.jython.corba.CorbaJython;
 import gda.jython.corba.CorbaJythonHelper;
 import gda.observable.IObserver;
@@ -663,10 +662,8 @@ public class JythonAdapter implements Jython, EventSubscriber {
 			try {
 				// get any from impl
 				Any any = jythonServer.getOtherClientInformation(myJSFIdentifier);
-				// get CorbaFacadeDetails object out of any
-				CorbaFacadeDetails corba = CorbaFacadeDetailsHelper.extract(any);
-				// convert to an array of FacadeDetails
-				return convertCorbaToFacadeDetails(corba);
+				ClientDetails[] details = (ClientDetails[]) any.extract_Value();
+				return details;
 			} catch (COMM_FAILURE cf) {
 				jythonServer = CorbaJythonHelper.narrow(netService.reconnect(name));
 			} catch (org.omg.CORBA.TRANSIENT ct) {
@@ -679,17 +676,6 @@ public class JythonAdapter implements Jython, EventSubscriber {
 			}
 		}
 		return new ClientDetails[0];
-	}
-
-	private ClientDetails[] convertCorbaToFacadeDetails(CorbaFacadeDetails corba) {
-
-		ClientDetails[] details = new ClientDetails[corba.authorisationLevel.length];
-		for (int i = 0; i < details.length; i++) {
-			details[i] = new ClientDetails(corba.index[i], corba.userID[i], corba.hostname[i],
-					corba.authorisationLevel[i], corba.hasBaton[i], corba.visitID[i]);
-		}
-
-		return details;
 	}
 
 	@Override
@@ -823,6 +809,27 @@ public class JythonAdapter implements Jython, EventSubscriber {
 		}
 	}
 
+	@Override
+	public List<UserMessage> getMessageHistory(String myJSFIdentifier) {
+		for (int i = 0; i < NetService.RETRY; i++) {
+			try {
+				Any any = jythonServer.getMessageHistory(myJSFIdentifier);
+				@SuppressWarnings("unchecked")
+				List<UserMessage> messages = (List<UserMessage>) any.extract_Value();
+				return messages;
+			} catch (COMM_FAILURE cf) {
+				jythonServer = CorbaJythonHelper.narrow(netService.reconnect(name));
+			} catch (org.omg.CORBA.TRANSIENT ct) {
+				// This exception is thrown when the ORB failed to connect to
+				// the object primarily when the server has failed.
+				break;
+			} catch (CorbaDeviceException ex) {
+				// throw new DeviceException(ex.message);
+			}
+		}
+		return null;
+	}
+	
 	@Override
 	public Vector<String> getAliasedCommands(String JSFIdentifier) {
 		for (int i = 0; i < NetService.RETRY; i++) {

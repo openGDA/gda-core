@@ -2,7 +2,7 @@
 <feature
       id="uk.ac.gda.client.feature"
       label="GDA Client Feature"
-      version="8.26.0"
+      version="8.30.0"
       provider-name="Diamond Light Source">
 
    <description url="http://www.example.com/description">
@@ -302,5 +302,33 @@
          download-size="0"
          install-size="0"
          version="0.0.0"/>
+
+   <plugin
+         id="uk.ac.diamond.guava"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.mockito.mockito-core"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.springsource.org.objenesis"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.springsource.org.hamcrest.core"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
 
 </feature>

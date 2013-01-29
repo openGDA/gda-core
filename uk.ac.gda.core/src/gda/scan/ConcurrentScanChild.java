@@ -295,7 +295,9 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 						}
 					}
 				} else {
-					((Detector) device).collectData();
+					if (callCollectDataOnDetectors) {
+						((Detector) device).collectData();
+					}
 				}
 			}
 

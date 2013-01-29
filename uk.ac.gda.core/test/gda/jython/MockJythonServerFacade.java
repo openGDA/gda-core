@@ -25,10 +25,12 @@ import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import gda.scan.IScanDataPoint;
 import gda.scan.ScanBase;
+import gda.util.LibGdaCommon;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -210,8 +212,14 @@ public class MockJythonServerFacade implements IScanStatusHolder, ICommandRunner
 	public void deleteBatonChangedObserver(IObserver anObserver) {
 	}
 
-	ClientDetails myDetails = new ClientDetails(0, UserAuthentication.getUsername(), "pc012345", 3, true, "0-0");
-	ClientDetails [] others = new ClientDetails[]{new ClientDetails(1, "A.N. Other", "pc012345", 3, false, "0-0")};
+	ClientDetails myDetails;
+	{
+		final String username = UserAuthentication.getUsername();
+		final String fullName = LibGdaCommon.getFullNameOfUser(username);
+		myDetails = new ClientDetails(0, username, fullName, "pc012345", 3, true, "0-0");
+	}
+	
+	ClientDetails [] others = new ClientDetails[]{new ClientDetails(1, "A.N. Other", "A.N. Other", "pc012345", 3, false, "0-0")};
 
 	public String evaluateCommandResult = "";
 	
@@ -283,6 +291,11 @@ public class MockJythonServerFacade implements IScanStatusHolder, ICommandRunner
 
 	@Override
 	public void sendMessage(String message) {
+	}
+	
+	@Override
+	public List<UserMessage> getMessageHistory() {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

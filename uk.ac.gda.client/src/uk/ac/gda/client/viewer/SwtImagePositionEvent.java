@@ -20,7 +20,7 @@ package uk.ac.gda.client.viewer;
 
 import java.util.List;
 
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.IImagePositionEvent;
+import org.dawnsci.plotting.jreality.tool.IImagePositionEvent;
 
 
 public class SwtImagePositionEvent implements IImagePositionEvent {
@@ -73,5 +73,13 @@ public class SwtImagePositionEvent implements IImagePositionEvent {
 	@Override
 	public double[] getPosition() {
 		return position;
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("%s[position=(%.1f, %.1f), imagePosition=(%d, %d)]",
+			getClass().getSimpleName(),
+			position[0], position[1],
+			imagePosition[0], imagePosition[1]);
 	}
 }

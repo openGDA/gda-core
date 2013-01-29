@@ -33,6 +33,8 @@ public class ShutteredScannableMotor extends DeviceBase implements ShutteredMoto
 
 	private static final Logger logger = LoggerFactory.getLogger(ShutteredScannableMotor.class);
 
+	public double acceleration = 10;
+	
 	private double startPosition = 0, endPosition = 0, closePosition = 0, moveDistance = 0;
 
 	private double shutterOpenTriggeredPosition = 0, minimumStartToOpenPositionDifference = 0.01;
@@ -90,7 +92,7 @@ public class ShutteredScannableMotor extends DeviceBase implements ShutteredMoto
 	}
 
 	protected void calculateDesiredAccelerationTime() {
-		desiredTimeToVelocity = desiredVelocity / ACCELERATION;
+		desiredTimeToVelocity = desiredVelocity / acceleration;
 		
 		// time must be greater than twice the Ixx21 value in the PMAC
 		// (effectively a maximum acceleration of the motor)
@@ -345,5 +347,15 @@ public class ShutteredScannableMotor extends DeviceBase implements ShutteredMoto
 	
 	public void setPositionFudgeFactor(double positionFudgeFactor) {
 		this.positionFudgeFactor = positionFudgeFactor;
+	}
+
+	@Override
+	public void setAcceleration(double acceleration) {
+		this.acceleration = acceleration;
+	}
+
+	@Override
+	public double getAcceleration() {
+		return acceleration;
 	}
 }

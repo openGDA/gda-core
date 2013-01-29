@@ -27,7 +27,6 @@ import gda.jython.JythonServerFacade;
 import gda.jython.authoriser.AuthoriserProvider;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -84,7 +83,10 @@ public abstract class IcatBase implements Icat {
 		Set<String> visits = new LinkedHashSet<String>();
 
 		if (results != null) {
-			visits.addAll(Arrays.asList(results.split(",")));
+			final String[] bits = results.split(",");
+			for (String bit : bits) {
+				visits.add(bit.trim());
+			}
 		}
 
 		// append to the list extra options if local staff

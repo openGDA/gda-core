@@ -38,6 +38,8 @@ import gda.jython.corba.impl.JythonImpl;
 import gda.jython.socket.SocketServer;
 import gda.jython.socket.SocketServer.ServerType;
 import gda.jython.translator.Translator;
+import gda.messages.InMemoryMessageHandler;
+import gda.messages.MessageHandler;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
@@ -45,6 +47,7 @@ import gda.scan.Scan;
 import gda.scan.ScanBase;
 import gda.scan.ScanDataPoint;
 import gda.scan.ScanInformation;
+import gda.util.LibGdaCommon;
 import gda.util.exceptionUtils;
 
 import java.io.File;
@@ -333,6 +336,12 @@ public class JythonServer extends OutputStream implements Jython, LocalJython, C
 		return isLocal;
 	}
 
+	private MessageHandler messageHandler;
+	
+	public void setMessageHandler(MessageHandler messageHandler) {
+		this.messageHandler = messageHandler;
+	}
+	
 	// to fulfil the Configurable interface
 
 	@Override
@@ -340,6 +349,13 @@ public class JythonServer extends OutputStream implements Jython, LocalJython, C
 		if (!configured) {
 			// force garbage collect (useful if doing a restart)
 			System.gc();
+			
+			if (messageHandler == null) {
+				final InMemoryMessageHandler messageHandler = new InMemoryMessageHandler();
+				messageHandler.setMaxMessagesPerVisit(10);
+				setMessageHandler(messageHandler);
+			}
+			
 			// reset the defaultScannables array
 			defaultScannables = new Vector<Scannable>();
 
@@ -765,12 +781,13 @@ public class JythonServer extends OutputStream implements Jython, LocalJython, C
 
 			// if no username supplied, then its an object server
 			if (username.compareTo("") == 0) {
-				ClientDetails info = new ClientDetails(indexNumber, "", hostName, Integer.MAX_VALUE, false, visitID);
+				ClientDetails info = new ClientDetails(indexNumber, "", "", hostName, Integer.MAX_VALUE, false, visitID);
 				this.batonManager.addFacade(uniqueFacadeName, info);
 			} else {
 				// add the facade and associated roles to the list of registered facades
 				int accessLevel = authoriser.getAuthorisationLevel(username);
-				ClientDetails info = new ClientDetails(indexNumber, username, hostName, accessLevel, false, visitID);
+				final String fullName = LibGdaCommon.getFullNameOfUser(username);
+				ClientDetails info = new ClientDetails(indexNumber, username, fullName, hostName, accessLevel, false, visitID);
 				logger.info("User " + username + " logged into GDA with authorisation level " + accessLevel);
 				this.batonManager.addFacade(uniqueFacadeName, info);
 			}
@@ -964,9 +981,33 @@ public class JythonServer extends OutputStream implements Jython, LocalJython, C
 	@Override
 	public void sendMessage(String myJSFIdentifier, String message) {
 		ClientDetails details = this.batonManager.getClientInformation(myJSFIdentifier);
-		updateIObservers(new UserMessage(details.getIndex(), details.getUserID(), message));
+		final UserMessage msg = new UserMessage(details.getIndex(), details.getUserID(), message);
+		
+		// Save message first...
+		saveMessage(details, msg);
+		
+		// ...before notifying clients
+		updateIObservers(msg);
 	}
-
+	
+	private void saveMessage(ClientDetails details, UserMessage message) {
+		final String visit = details.getVisitID();
+		if (StringUtils.hasText(visit)) {
+			messageHandler.saveMessage(visit, message);
+		}
+	}
+	
+	@Override
+	public List<UserMessage> getMessageHistory(String myJSFIdentifier) {
+		final ClientDetails details = this.batonManager.getClientInformation(myJSFIdentifier);
+		final String visit = details.getVisitID();
+		if (StringUtils.hasText(visit)) {
+			List<UserMessage> messages = messageHandler.getMessageHistory(visit);
+			return messages;
+		}
+		return null;
+	}
+	
 	private void updateIObservers(Object messageObject) {
 		// localFacade will be null during configure phase, and before implFactory made
 		if (localFacade != null) {
@@ -1455,5 +1496,35 @@ public class JythonServer extends OutputStream implements Jython, LocalJython, C
 		return new JythonServerStatus(scriptStatus, scanStatus);
 	}
 
+	public void showUsers() {
+		
+		final ITerminalPrinter tp = InterfaceProvider.getTerminalPrinter();
+		
+		final List<ClientDetails> clients = batonManager.getAllClients();
+		
+		tp.print(String.format("%d client%s connected%s",
+			clients.size(),
+			(clients.size() == 1) ? "" : "s",
+			(clients.size() > 0) ? ":" : "."));
+		
+		if (!clients.isEmpty()) {
+			
+			tp.print("");
+			
+			tp.print(String.format("%-6s   %-15s   %-20s   %-10s   %s",
+				"Number", "Username", "Hostname", "Visit", "Holds baton?"));
+			
+			tp.print("=============================================================================");
+			
+			for (ClientDetails c : clients) {
+				tp.print(String.format("%-6d   %-15s   %-20s   %-10s   %s",
+					c.getIndex(),
+					c.getUserID(),
+					c.getHostname(),
+					c.getVisitID(),
+					c.isHasBaton() ? "yes" : ""));
+			}
+		}
+	}
 
 }

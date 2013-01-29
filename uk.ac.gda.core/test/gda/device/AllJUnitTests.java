@@ -31,7 +31,6 @@ import org.junit.runners.Suite;
 	gda.device.detector.AllJUnitTests.class,
 	gda.device.memory.AllJUnitTests.class,
 	gda.device.timer.AllJUnitTests.class,
-	gda.device.xspress.AllJUnitTests.class,
 	gda.device.scannable.AllJUnitTests.class,
 	DeviceBaseTest.class
 })

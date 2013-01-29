@@ -554,20 +554,11 @@ public class DummyCounterTimer extends TFGCounterTimer implements Runnable, IObs
 		this.readoutFileName = readoutFileName;
 	}
 
-	/**
-	 * Only exists so that DummyCounterTimer can behave like TfgXspress
-	 * 
-	 * @param scan
-	 */
 	public void prepareForCollection(Scan scan) {
 		logger.debug("prepareForCollection(Scan) called with " + scan);
 	}
 
-	/**
-	 * Only exists so that DummyCounterTimer can behave like TfgXspress
-	 */
 	public void clearAndStart() {
-		// Only exists so that DummyCounterTimer can behave like TfgXspress
 		logger.debug("DummyCounterTimer " + getName() + " clear called");
 	}
 

@@ -34,6 +34,7 @@ import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import gda.scan.IScanDataPoint;
 import gda.scan.Scan;
+import gda.util.LibGdaCommon;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -918,7 +919,9 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 			} catch (UnknownHostException e) {
 				logger.error("Problems getting host name", e);
 			}
-			return new ClientDetails(indexNumberInJythonServer, UserAuthentication.getUsername(), localHost,
+			final String username = UserAuthentication.getUsername();
+			final String fullName = LibGdaCommon.getFullNameOfUser(username);
+			return new ClientDetails(indexNumberInJythonServer, username, fullName, localHost,
 					getAuthorisationLevel(), true, visitID);
 		}
 
@@ -949,6 +952,11 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	@Override
 	public void sendMessage(String message) {
 		commandServer.sendMessage(name, message);
+	}
+	
+	@Override
+	public List<UserMessage> getMessageHistory() {
+		return commandServer.getMessageHistory(name);
 	}
 
 	@Override
@@ -1002,6 +1010,8 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 			}
 		}
 		
+		final String fullName = LibGdaCommon.getFullNameOfUser(username);
+		
 		String localHost = "unknown";
 		InetAddress hostAddress;
 		try {
@@ -1011,7 +1021,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 			logger.error("Problems while getting host name", e);
 		}
 
-		return new ClientDetails(indexNumberInJythonServer, username, localHost, authorisationLevel, amIBatonHolder(), visitID);
+		return new ClientDetails(indexNumberInJythonServer, username, fullName, localHost, authorisationLevel, amIBatonHolder(), visitID);
 	}
 	
 	@Override

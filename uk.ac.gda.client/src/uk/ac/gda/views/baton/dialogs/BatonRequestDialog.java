@@ -50,7 +50,7 @@ public class BatonRequestDialog extends Dialog {
 	
 	private Label lblARequestFor;
 	private ClientDetails request;
-	private boolean ok = true;
+	private boolean open = true;
 
 	/**
 	 * Create the dialog.
@@ -67,6 +67,9 @@ public class BatonRequestDialog extends Dialog {
 	 */
 	@Override
 	protected Control createDialogArea(Composite parent) {
+		
+		getShell().setText(String.format("%s has requested the baton", request.getUserID()));
+		
 		Composite container = (Composite) super.createDialogArea(parent);
 		{
 			lblARequestFor = new Label(container, SWT.NONE);
@@ -104,7 +107,7 @@ public class BatonRequestDialog extends Dialog {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
  					
-					if (!currentOpenDialog.isOk()) {
+					if (!currentOpenDialog.isOpen()) {
 						return new Status(IStatus.OK, BatonView.ID, "Choosing ok for the user.");
 					}
 					try {
@@ -122,8 +125,6 @@ public class BatonRequestDialog extends Dialog {
 					} catch (Exception ne) {
 						logger.error("Cannot process dialog kill", ne);
 						return  new Status(IStatus.ERROR, BatonView.ID, "Choosing ok for the user.");
-					} finally {
-	 					doPass(request, true);
 					}
 				}
 			};
@@ -135,9 +136,9 @@ public class BatonRequestDialog extends Dialog {
 			job.schedule(minutes*60*1000);// 2 minutes.
 		}
  		
-		final int ok = currentOpenDialog.open();
-		currentOpenDialog.setOk(ok==OK);
-		doPass(request, ok==OK);
+		final int returnCode = currentOpenDialog.open();
+		currentOpenDialog.setOpen(false);
+		doPass(request, returnCode == OK);
 
 	}
 
@@ -149,17 +150,11 @@ public class BatonRequestDialog extends Dialog {
 		}
 	}
 
-	/**
-	 * @return Returns the ok.
-	 */
-	public boolean isOk() {
-		return ok;
+	public boolean isOpen() {
+		return open;
 	}
 
-	/**
-	 * @param ok The ok to set.
-	 */
-	public void setOk(boolean ok) {
-		this.ok = ok;
+	public void setOpen(boolean open) {
+		this.open = open;
 	}
 }

@@ -66,7 +66,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 							try {
 								ScriptProjectCreator.createProjects(monitor);
 								return Status.OK_STATUS;
-							} catch (CoreException e) {
+							} catch (Exception e) {
 								return new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage(),e );
 							}
 						}

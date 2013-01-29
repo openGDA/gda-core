@@ -19,7 +19,7 @@
 package uk.ac.gda.client.liveplot;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DAppearance;
+import org.dawnsci.plotting.jreality.impl.Plot1DAppearance;
 
 public class LineData {
 	Plot1DAppearance appearance;

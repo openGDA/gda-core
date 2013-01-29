@@ -179,8 +179,15 @@ public class DummyXmapController extends DeviceBase implements XmapController {
 
 	@Override
 	public double[] getROIs(int mcaNumber) throws DeviceException {
-	 return null;
+		double[] roiSum = new double[actualNumberOfROIs];
+
+		Random generator = new Random();
+		for (int k = 0; k < actualNumberOfROIs; k++) {
+			roiSum[k] = generator.nextInt(new Double(realTime).intValue() * 10000);
+		}
+		return roiSum;
 	}
+	
 	@Override
 	public double[] getROIsSum() throws DeviceException {
 		double[] roiSum = new double[actualNumberOfROIs];

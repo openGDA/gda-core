@@ -20,6 +20,7 @@
 package gda.jython;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * Object to be passed from JythonServer to Client when a user broadcasts a message to other users.
@@ -29,6 +30,7 @@ public class UserMessage implements Serializable{
 	int sourceClientNumber;
 	String sourceUsername;
 	String message;
+	long timestamp;
 
 	/**
 	 * @param sourceClientNumber
@@ -36,10 +38,14 @@ public class UserMessage implements Serializable{
 	 * @param message
 	 */
 	public UserMessage(int sourceClientNumber, String sourceUsername, String message) {
-		super();
+		this(sourceClientNumber, sourceUsername, message, System.currentTimeMillis());
+	}
+
+	UserMessage(int sourceClientNumber, String sourceUsername, String message, long timestamp) {
 		this.sourceClientNumber = sourceClientNumber;
 		this.sourceUsername = sourceUsername;
 		this.message = message;
+		this.timestamp = timestamp;
 	}
 
 	/**
@@ -61,5 +67,9 @@ public class UserMessage implements Serializable{
 	 */
 	public String getMessage() {
 		return message;
+	}
+	
+	public Date getTimestamp() {
+		return new Date(timestamp);
 	}
 }

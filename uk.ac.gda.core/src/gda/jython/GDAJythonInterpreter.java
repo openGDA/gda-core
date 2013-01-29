@@ -133,9 +133,8 @@ public class GDAJythonInterpreter extends ObservableComponent {
 
 	/**
 	 * Configures this interpreter.
-	 * @throws Exception 
 	 */
-	public void configure() throws Exception {
+	public void configure() {
 		// If not already specified, work out the Jython cache directory and
 		// create if required
 		if (cacheDir == null) {
@@ -151,18 +150,11 @@ public class GDAJythonInterpreter extends ObservableComponent {
 		Properties gdaCustomProperties = new Properties();
 		gdaCustomProperties.setProperty("python.console.encoding", "UTF-8");
 		gdaCustomProperties.setProperty("python.cachedir", cacheDir.getAbsolutePath());
+		String jythonRoot = LocalProperties.getParentGitDir() + "diamond-jython.git/uk.ac.diamond.jython/jython2.5/";
+
+		if( !(new File(jythonRoot)).exists())
+			throw new RuntimeException("Jython root not found  :" + jythonRoot);
 		
-		//until we remove the subversion copy of uk.ac.gda.libs we need to handle the case
-		//of the plugin being in workspace/plugins and workspae_git/plugins
-		String jythonRoot = LocalProperties.getInstallationWorkspaceDir() + "plugins/uk.ac.gda.libs/jython2.5.1/";
-
-		if( !(new File(jythonRoot)).exists()){
-			jythonRoot = LocalProperties.getParentGitDir() + "gda-libs.git/uk.ac.gda.libs/jython2.5.1/";
-		}
-		if( !(new File(jythonRoot)).exists()){
-			throw new Exception("Unable to locate jythonRoot");
-		}
-
 		// something sets path to jython lib already!
 		// gdaCustomProperties.setProperty("python.path", jythonRoot + "Lib");
 		gdaCustomProperties.setProperty("python.home", jythonRoot);
@@ -289,22 +281,22 @@ public class GDAJythonInterpreter extends ObservableComponent {
 				interp.setOut(output);
 				interp.setErr(output);
 
-				// install our own displayhook that knows how to print unicode
-				java.lang.reflect.Method meth = GDAInteractiveConsole.class.getDeclaredMethod("displayhook",
-						PyObject.class);
-				PyReflectedFunction pyReflectedFunction = new PyReflectedFunction(meth);
-				sys.__dict__.__setitem__("displayhook", pyReflectedFunction);
-
 				// dynamic configuration using Castor
 				logger.info("performing standard Jython interpreter imports...");
 
+				this.interp.runsource("import sys");
+				this.interp.runsource("import gda.jython");
+				this.interp.runsource("sys.displayhook=gda.jython.GDAInteractiveConsole.displayhook");
+				
 				// give Jython the reference to this wrapper object
 				this.interp.set("GDAJythonInterpreter", this);
+				
 				this.interp.set("command_server", output);
+				this.interp.runsource("import gda.jython");
 
 				// site import
 				this.interp.runsource("import site");
-
+		
 				// standard imports
 				this.interp.runsource("import java");
 				this.interp.runsource("from java.lang import Thread");

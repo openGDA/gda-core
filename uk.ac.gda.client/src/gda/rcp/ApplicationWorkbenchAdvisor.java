@@ -31,6 +31,7 @@ import gda.jython.InterfaceProvider;
 import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
 import gda.jython.JythonServerStatus;
+import gda.jython.UserMessage;
 import gda.observable.IObserver;
 import gda.rcp.preferences.GdaRootPreferencePage;
 import gda.util.ObjectServer;
@@ -102,6 +103,7 @@ import uk.ac.gda.pydev.extension.ui.perspective.JythonPerspective;
 import uk.ac.gda.ui.partlistener.MenuDisplayPartListener;
 import uk.ac.gda.ui.utils.ProjectUtils;
 import uk.ac.gda.ui.utils.ResourceFilterWrapper;
+import uk.ac.gda.views.baton.MessageView;
 
 /**
  * 
@@ -340,6 +342,8 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 				});
 			}
 
+			listenForUserMessages();
+			
 			// should these two be done during initialize instead of now when Windows have been created?
 			WorkspaceModifyOperation wkspaceModifyOperation = new WorkspaceModifyOperation() {
 
@@ -382,6 +386,30 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		}
 	}
 
+	private void listenForUserMessages() {
+		
+		final IObserver messageObserver = new IObserver() {
+			@Override
+			public void update(Object source, Object arg) {
+				// If a message is received, force the Messages view to open
+				if (arg instanceof UserMessage) {
+					PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+						@Override
+						public void run() {
+							try {
+								PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(MessageView.ID);
+							} catch (Exception e) {
+								logger.warn("Could not open Messages view", e);
+							}
+						}
+					});
+				}
+			}
+		};
+		
+		InterfaceProvider.getJSFObserver().addIObserver(messageObserver);
+	}
+	
 	private void refreshFromLocal() {
 		String[] commandLineArgs = Platform.getCommandLineArgs();
 		boolean refresh = true;
@@ -486,7 +514,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 			monitor.subTask("Initialising script projects");
 			ScriptProjectCreator.handleShowXMLConfig(monitor);
 			ScriptProjectCreator.createProjects(monitor);
-		} catch (CoreException e) {
+		} catch (Exception e) {
 			logger.error("Error preparing Jython interpeter and projects", e);
 		}
 	}

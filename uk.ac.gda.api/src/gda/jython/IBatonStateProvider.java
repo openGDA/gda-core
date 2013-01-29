@@ -19,6 +19,9 @@
 
 package gda.jython;
 
+
+import java.util.List;
+
 import gda.jython.batoncontrol.ClientDetails;
 import gda.observable.IObserver;
 
@@ -116,6 +119,11 @@ public interface IBatonStateProvider{
 	 * @param message
 	 */	
 	void sendMessage(String message);
+	
+	/**
+	 * Returns previous messages sent during this visit.
+	 */
+	public List<UserMessage> getMessageHistory();
 	
 	/**
 	 * @param username

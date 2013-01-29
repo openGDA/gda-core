@@ -172,6 +172,8 @@ public abstract class ScanBase implements Scan {
 	 * in prepareScanForCollection.
 	 */
 	private Long _scanNumber=null;
+	
+	protected boolean callCollectDataOnDetectors = true;
 
 	@Override
 	public Long getScanNumber() {
@@ -527,7 +529,7 @@ public abstract class ScanBase implements Scan {
 		}
 		logger.info(String.format(
 				"Creating MultithreadedScanDataPointPipeline which can hold %d points before blocking"
-						+ ", and that will on average process %.1f points simultaneousely using %d threads.",
+						+ ", and that will on average process %.1f points simultaneously using %d threads.",
 				getScanDataPointQueueLength(), estimatedPointsToComputeSimultaneousely,
 				getPositionCallableThreadPoolSize()));
 
@@ -1243,7 +1245,9 @@ public abstract class ScanBase implements Scan {
 		// collect data
 		for (Detector detector : allDetectors) {
 			checkForInterrupts();
-			detector.collectData();
+			if (callCollectDataOnDetectors) {
+				detector.collectData();
+			}
 		}
 		checkForInterrupts();
 
