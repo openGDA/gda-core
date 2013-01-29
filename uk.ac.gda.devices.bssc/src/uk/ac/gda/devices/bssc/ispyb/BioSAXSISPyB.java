@@ -41,7 +41,7 @@ public interface BioSAXSISPyB {
 	 * @param sessionID
 	 * @return experimentID
 	 */
-	public abstract long createExperiment(long sessionID) throws SQLException;
+	public abstract long createSaxsDataCollection(long sessionID) throws SQLException;
 
 	/**
 	 * @param blsessionId
@@ -96,15 +96,13 @@ public interface BioSAXSISPyB {
 			String fileName, String internalPath) throws SQLException;
 
 	/**
-	 * @param blsessionId
-	 *            The ID of the visit
-	 * @param sampleMeasurementId
-	 *            The ID of the sample's measurement
-	 * @param bufferMeasurementId
-	 *            The ID of the buffer's measurement
+	 * 
+	 * @param saxsDataCollectionId from that call
+	 * @param measurementId can be buffer or sample measurement
+	 * @return measurementToSaxsCollectionId
+	 * @throws SQLException
 	 */
-	public abstract void registerBufferForSample(long blsessionId, long sampleMeasurementId, long bufferMeasurementId) 
-			throws SQLException;
+	public long createMeasurementToDataCollection(long saxsDataCollectionId, long measurementId) throws SQLException;
 
 	/**
 	 * Method to close the database connection once it's no longer needed.
