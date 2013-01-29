@@ -20,10 +20,10 @@ package uk.ac.gda.devices.bssc.ispyb;
 
 import java.sql.SQLException;
 
-public abstract class BioSAXSISPyB {
+public interface BioSAXSISPyB {
 
-	public enum RDBMSTYPE {Oracle, MySQL, PostgreSQL};
-	public enum MODE {live, testing};
+	public enum RDBMSTYPE {Oracle, MySQL, PostgreSQL}
+	public enum MODE {live, testing}
 	
 	
 	/**
@@ -34,7 +34,7 @@ public abstract class BioSAXSISPyB {
 	 *            e.g. sm9999-9
 	 * @return sessionID
 	 */
-	public abstract long getSessionForVisit(String visitname) throws SQLException;
+	public long getSessionForVisit(String visitname) throws SQLException;
 
 	/**
 	 * I'd keep that for one run of my spreadsheet, i.e. normally for one set of samples loaded.
@@ -42,7 +42,7 @@ public abstract class BioSAXSISPyB {
 	 * @param sessionID
 	 * @return experimentID
 	 */
-	public abstract long createExperiment(long sessionID) throws SQLException;
+	public long createExperiment(long sessionID) throws SQLException;
 
 	/**
 	 * @param blsessionId
@@ -67,7 +67,7 @@ public abstract class BioSAXSISPyB {
 	 *            "/entry1/detector/data"
 	 * @return bufferMeasurementId
 	 */
-	public abstract long createBufferMeasurement(long blsessionId, short plate, short row, short column, float storageTemperature,
+	public long createBufferMeasurement(long blsessionId, short plate, short row, short column, float storageTemperature,
 			float exposureTemperature, int numFrames, double timePerFrame, double flow, double volume,
 			double energyInkeV, String viscosity, String fileName, String internalPath) throws SQLException;
 
@@ -91,7 +91,7 @@ public abstract class BioSAXSISPyB {
 	 * @param internalPath
 	 * @return sampleMeasurementId
 	 */
-	public abstract long createSampleMeasurement(long blsessionId, short plate, short row, short column, String name,
+	public long createSampleMeasurement(long blsessionId, short plate, short row, short column, String name,
 			double concentration, float storageTemperature, float exposureTemperature, int numFrames,
 			double timePerFrame, double flow, double volume, double energyInkeV, String viscosity, 
 			String fileName, String internalPath) throws SQLException;
@@ -104,11 +104,11 @@ public abstract class BioSAXSISPyB {
 	 * @param bufferMeasurementId
 	 *            The ID of the buffer's measurement
 	 */
-	public abstract void registerBufferForSample(long blsessionId, long sampleMeasurementId, long bufferMeasurementId) 
+	public void registerBufferForSample(long blsessionId, long sampleMeasurementId, long bufferMeasurementId) 
 			throws SQLException;
 
 	/**
 	 * Method to close the database connection once it's no longer needed.
 	 */
-	public abstract void disconnect() throws SQLException;
+	public void disconnect() throws SQLException;
 }
