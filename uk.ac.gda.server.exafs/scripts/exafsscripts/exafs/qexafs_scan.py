@@ -104,15 +104,15 @@ class QexafsScan(Scan):
 
                 loggingbean = XasProgressUpdater(loggingcontroller,logmsg,timeRepetitionsStarted)
             
-                #3=closed
-                if self.beamCheck==True:
-                    feAbsPV = "FE18B-RS-ABSB-02:STA"
-                    feAbsStatus = int(CAClient().caget(feAbsPV))
-                    print "feAbsStatus=",feAbsStatus
-                    while feAbsStatus!=1 and self.beamCheck==True:
+                if (LocalProperties.get("gda.mode") == 'live'):
+                    if self.beamCheck==True:
+                        feAbsPV = "FE18B-RS-ABSB-02:STA"
                         feAbsStatus = int(CAClient().caget(feAbsPV))
-                        print "Checking whether front end absorber is open. Currently "+str(feAbsStatus)
-                        sleep(2)
+                        print "feAbsStatus=",feAbsStatus
+                        while feAbsStatus!=1 and self.beamCheck==True:
+                            feAbsStatus = int(CAClient().caget(feAbsPV))
+                            print "Checking whether front end absorber is open. Currently "+str(feAbsStatus)
+                            sleep(2)
             
                 print "running QEXAFS scan:", self.energy_scannable.getName(), scanBean.getInitialEnergy(), scanBean.getFinalEnergy(), numberPoints, scan_time, detectorList
                 controller.update(None, ScriptProgressEvent("Running QEXAFS scan"))
