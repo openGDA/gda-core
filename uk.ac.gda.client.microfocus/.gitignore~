@@ -8,6 +8,5 @@
 /temp.folder
 /test-reports
 /test-scratch
-*.class
 
 # Ignores that are specific to this Eclipse project
