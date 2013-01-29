@@ -52,7 +52,7 @@ public class PlottingPerspective implements IPerspectiveFactory {
 		String nameFrag = LocalProperties.get("gda.instrument");
 		if (nameFrag.equals("i20")) {
 			IFolderLayout flTop = layout.createFolder("flTop", IPageLayout.LEFT, 1.0f, editorArea);
-			flTop.addView(LivePlotView.ID);
+			flTop.addView(XYPlotView.ID);
 
 			IFolderLayout flBottomLeft = layout.createFolder("flBottomLeft", IPageLayout.BOTTOM, 0.7f, "flTop");
 			flBottomLeft.addView(CommandQueueViewFactory.ID);
