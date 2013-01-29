@@ -200,17 +200,17 @@ class RasterMap(Map):
                 detectorFillingMonitor.setPauseBeforeLine(True)
                 detectorFillingMonitor.setCollectionTime(collectionTime)
            
-            fullFileName = beanGroup.getScriptFolder() + beanGroup.getDetector().getFluorescenceParameters().getConfigFileName()
-            print fullFileName
-            bean = BeansFactory.getBean(File(fullFileName));
-            print dir(bean)
-            bean.setReadoutMode(XspressDetector.READOUT_MCA);
-            bean.setResGrade(ResGrades.NONE);
-            elements = bean.getDetectorList();
-            for element in elements: 
-                rois = element.getRegionList();
-                element.setWindow(rois.get(0).getRoiStart(), rois.get(0).getRoiEnd())
-            BeansFactory.saveBean(File(fullFileName), bean)
+                fullFileName = beanGroup.getScriptFolder() + beanGroup.getDetector().getFluorescenceParameters().getConfigFileName()
+                print fullFileName
+                bean = BeansFactory.getBean(File(fullFileName));
+                print dir(bean)
+                bean.setReadoutMode(XspressDetector.READOUT_MCA);
+                bean.setResGrade(ResGrades.NONE);
+                elements = bean.getDetectorList();
+                for element in elements: 
+                    rois = element.getRegionList();
+                    element.setWindow(rois.get(0).getRoiStart(), rois.get(0).getRoiEnd())
+                BeansFactory.saveBean(File(fullFileName), bean)
         outputBean=beanGroup.getOutput()
         sampleParameters = beanGroup.getSample()
         outputBean.setAsciiFileName(sampleParameters.getName())
