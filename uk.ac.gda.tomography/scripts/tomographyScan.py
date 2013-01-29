@@ -31,7 +31,7 @@ class EnumPositionerDelegateScannable(ScannableBase):
     def rawAsynchronousMoveTo(self, new_position):
         if int(new_position) == 1:
             self.delegate.asynchronousMoveTo("Open")
-        else:
+        elif int(new_position) == 0:
             self.delegate.asynchronousMoveTo("Close")
     def rawGetPosition(self):
         pos = self.delegate.getPosition()
@@ -71,7 +71,6 @@ class   tomoScan_positions(ScanPositionProvider):
         self.points = points
 
     def get(self, index):
-        print self.points[index]
         return self.points[index]
     
     def size(self):
@@ -174,15 +173,18 @@ def tomoScan(description, inBeamPosition, outOfBeamPosition, exposureTime=1., st
         optimizeBeamYes = 1
         shutterOpen = 1
         shutterClosed = 0
+        shutterNoChange = 2
         scan_points = []
         theta_pos = theta_points[0]
         index = 0
+        #Added shutterNoChange state for the shutter. The scan points are added using the ternary operator, 
+        #if index is 0 then the shutterPosition is added to the scan point, else shutterNoChange is added to scan points.
         for i in range(imagesPerDark):
-            scan_points.append((theta_pos, shutterClosed, inBeamPosition, optimizeBeamNo, image_key_dark, index)) #dark
+            .append((theta_pos, [shutterClosed, shutterNoChange][i != 0], inBeamPosition, optimizeBeamNo, image_key_dark, index)) #dark
             index = index + 1
                     
         for i in range(imagesPerFlat):
-            scan_points.append((theta_pos, shutterOpen, outOfBeamPosition, optimizeBeamNo, image_key_flat, index)) #flat
+            scan_points.append((theta_pos, [shutterOpen, shutterNoChange][i != 0], outOfBeamPosition, optimizeBeamNo, image_key_flat, index)) #flat
             index = index + 1        
         scan_points.append((theta_pos, shutterOpen, inBeamPosition, optimizeBeamNo, image_key_project, index)) #first
         index = index + 1        
@@ -191,38 +193,37 @@ def tomoScan(description, inBeamPosition, outOfBeamPosition, exposureTime=1., st
         optimizeBeam = 0
         for i in range(numberSteps):
             theta_pos = theta_points[i + 1]
-            scan_points.append((theta_pos, shutterOpen, inBeamPosition, optimizeBeamNo, image_key_project, index))#main image
+            scan_points.append((theta_pos, [shutterOpen, shutterNoChange][i != 0], inBeamPosition, optimizeBeamNo, image_key_project, index))#main image
             index = index + 1        
-            
             
             imageSinceFlat = imageSinceFlat + 1
             if imageSinceFlat == flatFieldInterval and flatFieldInterval != 0:
                 for i in range(imagesPerFlat):
-                    scan_points.append((theta_pos, shutterOpen, outOfBeamPosition, optimizeBeamNo, image_key_flat, index))
+                    scan_points.append((theta_pos, [shutterOpen, shutterNoChange][i != 0], outOfBeamPosition, optimizeBeamNo, image_key_flat, index))
                     index = index + 1        
                     imageSinceFlat = 0
             
             imageSinceDark = imageSinceDark + 1
             if imageSinceDark == darkFieldInterval and darkFieldInterval != 0:
                 for i in range(imagesPerDark):
-                    scan_points.append((theta_pos, shutterClosed, inBeamPosition, optimizeBeamNo, image_key_dark, index))
+                    scan_points.append((theta_pos, [shutterClosed, shutterNoChange][i != 0], inBeamPosition, optimizeBeamNo, image_key_dark, index))
                     index = index + 1        
                     imageSinceDark = 0
 
             optimizeBeam = optimizeBeam + 1
             if optimizeBeam == optimizeBeamInterval and optimizeBeamInterval != 0:
-                scan_points.append((theta_pos, shutterOpen, inBeamPosition, optimizeBeamYes, image_key_project, index))
+                scan_points.append((theta_pos, [shutterOpen, shutterNoChange][i != 0], inBeamPosition, optimizeBeamYes, image_key_project, index))
                 index = index + 1        
                 optimizeBeam = 0
                 
         #add dark and flat only if not done in last steps
         if imageSinceFlat != 0:
             for i in range(imagesPerFlat):
-                scan_points.append((theta_pos, shutterOpen, outOfBeamPosition, optimizeBeamNo, image_key_flat, index)) #flat
+                scan_points.append((theta_pos, [shutterOpen, shutterNoChange][i != 0], outOfBeamPosition, optimizeBeamNo, image_key_flat, index)) #flat
                 index = index + 1
         if imageSinceDark != 0:
             for i in range(imagesPerDark):
-                scan_points.append((theta_pos, shutterClosed, inBeamPosition, optimizeBeamNo, image_key_dark, index)) #dark
+                scan_points.append((theta_pos, [shutterClosed, shutterNoChange][i != 0], inBeamPosition, optimizeBeamNo, image_key_dark, index)) #dark
                 index = index + 1        
         positionProvider = tomoScan_positions(start, stop, step, darkFieldInterval, imagesPerDark, flatFieldInterval, imagesPerFlat, \
                                                inBeamPosition, outOfBeamPosition, optimizeBeamInterval, scan_points) 
