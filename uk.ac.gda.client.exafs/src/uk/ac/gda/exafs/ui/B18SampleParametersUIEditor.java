@@ -152,7 +152,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 
 		topComposite.setContent(container);
 		topComposite.setMinSize(container.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-		
+
 		Label label = new Label(composite, SWT.NONE);
 		label.setSize(37, 17);
 		label.setText("Filename");
@@ -195,7 +195,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 		wheelExpandableComposite.setText("Sample Wheel");
 		wheelExpandableComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 
-		//stage
+		// stage
 		ExpansionAdapter stageExpansionListener = new ExpansionAdapter() {
 			@Override
 			public void expansionStateChanged(ExpansionEvent e) {
@@ -203,7 +203,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 				if (!stage.getValue().toString().equals("none")) {
 					sampleStageExpandableComposite.setExpanded(true);
 				}
-				GridUtils.layoutFull(stageComp.getParent());
+				GridUtils.layoutFull(sampleStageExpandableComposite);
 				linkuiForDynamicLoading(false);
 			}
 		};
@@ -218,7 +218,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 
 		createTemp();
 
-		//temp
+		// temp
 		ExpansionAdapter tempExpansionListener = new ExpansionAdapter() {
 			@Override
 			public void expansionStateChanged(ExpansionEvent e) {
@@ -230,14 +230,14 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 		};
 		temperatureExpandableComposite.addExpansionListener(tempExpansionListener);
 
-		if (!bean.getTemperatureControl().toString().equals("none")){
+		if (!bean.getTemperatureControl().toString().equals("none")) {
 			createTemp();
 			temperatureExpandableComposite.setExpanded(true);
 			linkuiForDynamicLoading(false);
 			updateEnvironmentType();
 		}
 
-		//wheel
+		// wheel
 		ExpansionAdapter wheelExpansionAdapter = new ExpansionAdapter() {
 			@Override
 			public void expansionStateChanged(ExpansionEvent e) {
@@ -257,18 +257,19 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 			wheelExpandableComposite.setExpanded(true);
 		}
 	}
-	
+
 	public void linkuiForDynamicLoading(@SuppressWarnings("unused") final boolean isPageChange) {
-        try {
-    		BeanUI.switchState(editingBean, this, false);
+		try {
+			BeanUI.switchState(editingBean, this, false);
 			BeanUI.beanToUI(editingBean, this);
 			BeanUI.switchState(editingBean, this, true);
 		} catch (Exception e) {
 		}
 	}
-	
+
 	public void createStage() {
 		if (stageComp == null) {
+
 			stageComp = new Composite(sampleStageExpandableComposite, SWT.NONE);
 			GridLayout gridLayout_2 = new GridLayout();
 			gridLayout_2.numColumns = 2;
@@ -319,9 +320,9 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 			userStageComposite.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
 
 			Control[] children = grpStageParameters.getChildren();
-			for(int i=0;i<children.length;i++){
-				Control control =  children[i];
-				if(control instanceof FieldBeanComposite){
+			for (int i = 0; i < children.length; i++) {
+				Control control = children[i];
+				if (control instanceof FieldBeanComposite) {
 					((FieldBeanComposite) control).addValueListener(new ValueListener() {
 						@Override
 						public void valueChangePerformed(ValueEvent e) {
@@ -329,6 +330,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 							updateStageType();
 							linkUI(false);
 						}
+
 						@Override
 						public String getValueListenerName() {
 							return null;
@@ -336,7 +338,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 					});
 				}
 			}
-			
+
 			stage.addValueListener(new ValueListener() {
 				@Override
 				public void valueChangePerformed(ValueEvent e) {
@@ -344,18 +346,20 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 					updateStageType();
 					linkUI(false);
 				}
+
 				@Override
 				public String getValueListenerName() {
 					return "stage";
 				}
 			});
-			
+
 			sampleStageExpandableComposite.setClient(stageComp);
 		}
 	}
 
 	public void createTemp() {
 		if (tempComp == null) {
+
 			tempComp = new Composite(temperatureExpandableComposite, SWT.NONE);
 			GridLayout gridLayout_3 = new GridLayout();
 			gridLayout_3.numColumns = 2;
@@ -381,7 +385,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 					updateEnvironmentType();
 				}
 			});
-			
+
 			grpEnvironmentParameters = new Group(grpBeanComposite, SWT.NONE);
 			environmentLayout = new StackLayout();
 			grpEnvironmentParameters.setLayout(environmentLayout);
@@ -422,6 +426,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 
 	public void createWheel() {
 		if (wheelComp == null) {
+
 			wheelComp = new Composite(wheelExpandableComposite, SWT.NONE);
 			GridLayout gridLayout_4 = new GridLayout();
 			gridLayout_4.numColumns = 2;
@@ -462,8 +467,10 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 			GridUtils.startMultiLayout(topComposite);
 			super.linkUI(isPageChange);
 
-			sampleEnvironment.select(sampleEnvironment.getSelectionIndex());
-			updateEnvironmentType();
+			if (sampleEnvironment != null) {
+				sampleEnvironment.select(sampleEnvironment.getSelectionIndex());
+				updateEnvironmentType();
+			}
 		} finally {
 			GridUtils.endMultiLayout();
 		}
