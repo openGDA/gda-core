@@ -20,11 +20,10 @@ package uk.ac.gda.devices.bssc.ispyb;
 
 import java.sql.SQLException;
 
-public abstract class BioSAXSISPyB {
+public interface BioSAXSISPyB {
 
-	public enum RDBMSTYPE {Oracle, MySQL, PostgreSQL};
-	public enum MODE {live, testing};
-	
+	public enum RDBMSTYPE {Oracle, MySQL, PostgreSQL}
+	public enum MODE {live, testing}
 	
 	/**
 	 * I would not care if that creates/gets a BLSession or an Experiment. So if the structure for that changes I would
