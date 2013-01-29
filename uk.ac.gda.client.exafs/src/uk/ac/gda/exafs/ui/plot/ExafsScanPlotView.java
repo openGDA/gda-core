@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -108,25 +108,11 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 	}
 
 	@Override
-	public void scanStopped() {
-		try {
-			IScanParameters curScan = ScanObjectManager.getCurrentScan();
-			if (curScan != null && !(curScan instanceof MicroFocusScanParameters)) {
-				super.scanStopped();
-				a = Double.NaN;
-				stack.topControl = lblNoDataMessage;
-			}
-		} catch (Exception e) {
-			logger.error("Unable to determine the scan type", e);
-		}
-	}
-
-	@Override
 	public void scanStarted() {
 		try {
+			super.scanStarted();
 			IScanParameters curScan = ScanObjectManager.getCurrentScan();
 			if (curScan != null && !(curScan instanceof MicroFocusScanParameters)) {
-				super.scanStarted();
 				calculateA();
 			}
 		} catch (Exception e) {
@@ -143,7 +129,6 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 			if (params == null)
 				return false; // Leave a as last calculated
 
-//			final IScanParameters params = currentScan.getScanParameters();
 			if (params instanceof XasScanParameters) {
 				final XasScanParameters scanParams = (XasScanParameters) params;
 				final Double A = scanParams.getA();
@@ -216,7 +201,11 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 				cachedY.add(ffi1);
 				cachedX.add(x);
 			} else if (!Double.isNaN(ff)) {
-				cachedY.add(ff / i0);
+				Double y = ff / i0;
+				if (y.isInfinite() || y.isNaN()) {
+					y = 0.0;
+				}
+				cachedY.add(y);
 				cachedX.add(x);
 			} else if (!Double.isNaN(it)) {
 				Double y = Math.log(i0 / it);
