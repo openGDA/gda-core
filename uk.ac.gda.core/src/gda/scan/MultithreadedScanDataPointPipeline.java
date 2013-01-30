@@ -167,7 +167,7 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 		} else {
 			message = (e instanceof PyException) ? e.toString() : e.getMessage();
 		}
-		return new DeviceException("Unable to publish scan data point because: " + message, e);
+		return new DeviceException("Unable to publish scan data point because: " + e.getClass().getSimpleName() + " : ", e);
 	}
 
 	synchronized Throwable getException() {
