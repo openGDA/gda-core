@@ -18,6 +18,7 @@
 
 package uk.ac.gda.epics.adviewer;
 
+import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.FfmpegStream;
 import gda.device.detector.areadetector.v17.NDArray;
@@ -130,7 +131,82 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 		for (int i = 1; i < dims.length; i++) {
 			expectedNumPixels = expectedNumPixels * dims[i];
 		}
-		Object imageData = imageNDArray.getImageData(expectedNumPixels);
+		if (dims.length == 0) {
+			throw new Exception("Dimensions of data from " + detectorName + " are zero length");
+		}
+		Object imageData;
+		
+		short dataType = imageNDArray.getPluginBase().getDataType_RBV();
+		switch (dataType) {
+		case NDPluginBase.UInt8: {
+			byte[] b = new byte[] {};
+			b = imageNDArray.getByteArrayData(expectedNumPixels);
+			if (expectedNumPixels > b.length)
+				throw new DeviceException("Data size is not valid");
+			{
+				short cd[] = new short[expectedNumPixels];
+				for (int i = 0; i < expectedNumPixels; i++) {
+					cd[i] = (short) (b[i] & 0xff);
+				}
+				imageData = cd;
+			}
+		}
+			break;
+		case NDPluginBase.Int8: {
+			byte[] b = imageNDArray.getByteArrayData(expectedNumPixels);
+			if (expectedNumPixels > b.length)
+				throw new DeviceException("Data size is not valid");
+			imageData = b;
+			break;
+		}
+		case NDPluginBase.Int16: {
+			short[] s = imageNDArray.getShortArrayData(expectedNumPixels);
+			if (expectedNumPixels > s.length)
+				throw new DeviceException("Data size is not valid length read:" + s.length + " expected:"
+						+ expectedNumPixels);
+
+			imageData = s;
+		}
+			break;
+		case NDPluginBase.UInt16: {
+			short[] s = imageNDArray.getShortArrayData(expectedNumPixels);
+			if (expectedNumPixels > s.length)
+				throw new DeviceException("Data size is not valid length read:" + s.length + " expected:"
+						+ expectedNumPixels);
+
+			int cd[] = new int[expectedNumPixels];
+			for (int i = 0; i < expectedNumPixels; i++) {
+				cd[i] = (s[i] & 0xffff);
+			}
+			imageData = cd;
+		}
+			break;
+		case NDPluginBase.UInt32: // TODO should convert to INT64 if any numbers are negative
+		case NDPluginBase.Int32: {
+			int[] s = imageNDArray.getIntArrayData(expectedNumPixels);
+			if (expectedNumPixels > s.length)
+				throw new DeviceException("Data size is not valid length read:" + s.length + " expected:"
+						+ expectedNumPixels);
+
+			imageData = s;
+		}
+			break;
+		case NDPluginBase.Float32:
+		case NDPluginBase.Float64: {
+			float[] s = imageNDArray.getFloatArrayData(expectedNumPixels);
+			if (expectedNumPixels > s.length)
+				throw new DeviceException("Data size is not valid length read:" + s.length + " expected:"
+						+ expectedNumPixels);
+
+			imageData = s;
+		}
+			break;
+		default:
+			throw new DeviceException("Type of data is not understood :" + dataType);
+		}		
+		
+		
+		
 		ImageData data = new ImageData();
 		data.dimensions = dims;
 		data.data = imageData;

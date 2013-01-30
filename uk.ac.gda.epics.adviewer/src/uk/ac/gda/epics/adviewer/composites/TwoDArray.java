@@ -54,6 +54,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ByteDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.FloatDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.LongDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ShortDataset;
 import uk.ac.gda.epics.adviewer.ADController;
@@ -241,6 +242,8 @@ public class TwoDArray extends Composite {
 											ads = new ByteDataset((byte[]) (imageData.data), imageData.dimensions);
 										} else if (object instanceof Float) {
 											ads = new FloatDataset((float[]) (imageData.data), imageData.dimensions);
+										} else if (object instanceof Integer) {
+											ads = new IntegerDataset((int[]) (imageData.data), imageData.dimensions);
 										} else {
 											throw new IllegalArgumentException("Type of data not recognised: "
 													+ object.getClass().getName());
