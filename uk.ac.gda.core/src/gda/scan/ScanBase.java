@@ -1043,7 +1043,9 @@ public abstract class ScanBase implements Scan {
 				}
 				
 				report("Interupting all scan pipeline tasks and shutting pipeline down now. Waiting indefinitely for task interuption.");
-				scanDataPointPipeline.shutdownNow();  // This depends on the tasks being cancelable.
+				if (scanDataPointPipeline != null) {
+					scanDataPointPipeline.shutdownNow();  // This depends on the tasks being cancelable.
+				}
 				cancelReadoutAndPublishCompletion();  //TODO: This does nothing, why is this method available?
 
 				report("Ending scan and rethrowing exception");
