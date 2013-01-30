@@ -18,37 +18,22 @@
 
 package gda.scan;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import gda.MockFactory;
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
-import gda.device.ControlPoint;
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.device.continuouscontroller.ConstantVelocityMoveController;
-import gda.device.continuouscontroller.DummyTrajectoryMoveController;
-import gda.device.continuouscontroller.TrajectoryMoveController;
 import gda.device.detector.hardwaretriggerable.DummyHardwareTriggerableAreaDetector;
 import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetector;
 import gda.device.scannable.ContinuouslyScannableViaController;
-import gda.device.scannable.ScannableMotor;
-import gda.device.scannable.scannablegroup.DeferredAndTrajectoryScannableGroup;
-import gda.factory.FactoryException;
 import gda.jython.ITerminalPrinter;
 import gda.jython.InterfaceProvider;
-
-import java.util.List;
-import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
-
-import static org.mockito.Mockito.withSettings;
-
 
 /**
  *
@@ -130,10 +115,10 @@ public class ConstantVelocityScanLineTest {
 		
 		inOrder.verify(mockeddet1).setCollectionTime(2.); // must be called in constructor!
 		
-		inOrder.verify(mockedController).stopAndReset();
 		inOrder.verify(mockscn).setOperatingContinuously(true);
 		inOrder.verify(mockeddet1).setHardwareTriggering(true);
 		inOrder.verify(mockeddet2).setHardwareTriggering(true);
+		inOrder.verify(mockedController).stopAndReset();
 		inOrder.verify(mockscn).asynchronousMoveTo(0.);
 		inOrder.verify(mockeddet1).collectData();
 		inOrder.verify(mockeddet2).collectData();
@@ -171,10 +156,10 @@ public class ConstantVelocityScanLineTest {
 		
 		inOrder.verify(mockeddet1).setCollectionTime(2.); // must be called in constructor!
 		
-		inOrder.verify(mockedController).stopAndReset();
 		inOrder.verify(mockscn).setOperatingContinuously(true);
 		inOrder.verify(mockeddet1).setHardwareTriggering(true);
 		inOrder.verify(mockeddet2).setHardwareTriggering(true);
+		inOrder.verify(mockedController).stopAndReset();
 		inOrder.verify(mockscn).asynchronousMoveTo(0.);
 		inOrder.verify(mockeddet1).collectData();
 		inOrder.verify(mockeddet2).collectData();
