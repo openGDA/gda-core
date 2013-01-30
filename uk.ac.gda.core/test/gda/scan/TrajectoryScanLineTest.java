@@ -22,10 +22,10 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.times;
 import gda.MockFactory;
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
-import gda.device.ControlPoint;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.continuouscontroller.DummyTrajectoryMoveController;
@@ -33,7 +33,6 @@ import gda.device.continuouscontroller.TrajectoryMoveController;
 import gda.device.detector.hardwaretriggerable.DummyHardwareTriggerableAreaDetector;
 import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetector;
 import gda.device.scannable.ContinuouslyScannableViaController;
-import gda.device.scannable.scannablegroup.DeferredAndTrajectoryScannableGroup;
 import gda.factory.FactoryException;
 import gda.jython.ITerminalPrinter;
 import gda.jython.InterfaceProvider;
@@ -63,16 +62,13 @@ public class TrajectoryScanLineTest {
 	private TrajectoryMoveController mockedController;
 	private HardwareTriggerableDetector mockeddet1;
 	private HardwareTriggerableDetector mockeddet2;
-	private DeferredAndTrajectoryScannableGroup trajGroup;
+	private ContinuouslyScannableViaController mockedGroup;
 	private DummyHardwareTriggerableAreaDetector dummydet1;
 	private DummyHardwareTriggerableAreaDetector dummydet2;
-	private Scannable mockedrawa;
-	private Scannable mockedrawb;
-	private Scannable mockedrawc;
 	private DummyTrajectoryMoveController dummyController;
 	
 	@Before()
-	public void before() throws DeviceException, FactoryException {
+	public void before() throws DeviceException {
 		
 		InterfaceProvider.setTerminalPrinterForTesting(new TerminalPrinter());
 
@@ -100,15 +96,13 @@ public class TrajectoryScanLineTest {
 		dummyController.setName("dummyController");
 		dummyController.setNumberAxes(3);
 		
-		mockedrawa = MockFactory.createMockScannable("a");
-		mockedrawb = MockFactory.createMockScannable("b");
-		mockedrawc = MockFactory.createMockScannable("c");
-		trajGroup = new DeferredAndTrajectoryScannableGroup();
-		trajGroup.setName("trajGroup");
-		trajGroup.setGroupMembers(new Scannable[] { mockedrawa, mockedrawb, mockedrawc });
-		trajGroup.setContinuousMoveController(mockedController);
-		trajGroup.setDeferredControlPoint(mock(ControlPoint.class));
-		trajGroup.configure();		
+		mockedGroup = mock(ContinuouslyScannableViaController.class);
+		when(mockedGroup.getContinuousMoveController()).thenReturn(mockedController);
+		when(mockedGroup.getInputNames()).thenReturn(new String[]{"a", "b", "c"});
+		when(mockedGroup.getExtraNames()).thenReturn(new String[]{});
+		when(mockedGroup.getName()).thenReturn("abc");
+		when(mockedGroup.getOutputFormat()).thenReturn(new String[]{"%f", "%f", "%f"});
+		when(mockedGroup.getPosition()).thenReturn(new double[]{1, 2, 3});
 	}
 
 	private HardwareTriggerableDetector createMockDetector(String name) throws DeviceException {
@@ -129,11 +123,11 @@ public class TrajectoryScanLineTest {
 		
 		inOrder.verify(mockeddet1).setCollectionTime(2.); // must be called in constructor!
 		
-		inOrder.verify(mockedController).stopAndReset();
 		inOrder.verify(mockedx).setOperatingContinuously(true);
 		inOrder.verify(mockedy).setOperatingContinuously(true);
 		inOrder.verify(mockeddet1).setHardwareTriggering(true);
 		inOrder.verify(mockeddet2).setHardwareTriggering(true);
+		inOrder.verify(mockedController).stopAndReset();
 		inOrder.verify(mockedx).asynchronousMoveTo(0.);
 		inOrder.verify(mockedy).asynchronousMoveTo(10.);
 		inOrder.verify(mockeddet1).collectData();
@@ -185,36 +179,16 @@ public class TrajectoryScanLineTest {
 		TestHelpers.setUpTest(TrajectoryScanLineTest.class, "singleLineScanWithDeferredAndTrajectoryScannableGroupAndMockDetector", true);
 		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "DummyDataWriter");
 		
-		TrajectoryScanLine scan = new TrajectoryScanLine(new Object[]{trajGroup, new Double[]{0., 0.1, 0.2}, new Double[]{1., 1.1, 1.2}, new Double[]{1., 1., 1.}, mockeddet1, 1});
+		TrajectoryScanLine scan = new TrajectoryScanLine(new Object[]{mockedGroup, new Double[]{0., 0.1, 0.2}, new Double[]{1., 1.1, 1.2}, new Double[]{1., 1., 1.}, mockeddet1, 1});
 		scan.runScan();
 		
-		InOrder inOrder = inOrder(mockedController);
+		InOrder inOrder = inOrder(mockedController, mockedGroup);
 		inOrder.verify(mockedController).stopAndReset();
-		inOrder.verify(mockedController).addPoint(new Double[]{0., 0.1, 0.2});
-		inOrder.verify(mockedController).addPoint(new Double[]{1., 1.1, 1.2});
+		inOrder.verify(mockedGroup).asynchronousMoveTo(new Double[]{0., 0.1, 0.2});
+		inOrder.verify(mockedGroup).asynchronousMoveTo(new Double[]{1., 1.1, 1.2});
 		inOrder.verify(mockedController).startMove();
 		inOrder.verify(mockedController).waitWhileMoving();
 
-	}
-	@Test
-	public void singleLineScanWithDeferredAndTrajectoryScannableViaChildrenGroupAndMockDetectors () throws Exception  {
-		TestHelpers.setUpTest(TrajectoryScanLineTest.class, "singleLineScanWithDeferredAndTrajectoryScannableViaChildrenGroupAndMockDetectors", true);
-		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "DummyDataWriter");
-
-		
-		ContinuouslyScannableViaController a = (ContinuouslyScannableViaController) trajGroup.getGroupMember("a");
-		ContinuouslyScannableViaController b = (ContinuouslyScannableViaController) trajGroup.getGroupMember("b");
-		
-		TrajectoryScanLine scan = new TrajectoryScanLine(new Object[]{a, 0, 1, 1, b, .1, 1, mockeddet1});
-		scan.runScan();
-		
-		InOrder inOrder = inOrder(mockedController);
-		inOrder.verify(mockedController).stopAndReset();
-		inOrder.verify(mockedController).addPoint(new Double[]{0., 0.1, null});
-		inOrder.verify(mockedController).addPoint(new Double[]{1., 1.1, null});
-		inOrder.verify(mockedController).startMove();
-		inOrder.verify(mockedController).waitWhileMoving();
-		
 	}
 	
 	@Test
@@ -223,10 +197,11 @@ public class TrajectoryScanLineTest {
 		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "DummyDataWriter");
 		InterfaceProvider.setTerminalPrinterForTesting(new TerminalPrinter());
 		
-		trajGroup.setContinuousMoveController(dummyController);
+		//mockedGroup.setContinuousMoveController(dummyController);
 
 		dummydet1.setHardwareTriggerProvider(dummyController);
 		dummydet2.setHardwareTriggerProvider(dummyController);
+		when(mockedGroup.getContinuousMoveController()).thenReturn(dummyController);
 		dummyController.simulate = true;
 		dummyController.addIObserver(dummydet1);
 		dummyController.addIObserver(dummydet2);
@@ -235,7 +210,7 @@ public class TrajectoryScanLineTest {
 		
 		
 		
-		TrajectoryScanLine scan = new TrajectoryScanLine(new Object[]{trajGroup, new Double[]{0., 0.1, 0.2}, new Double[]{1., 1.1, 1.2}, new Double[]{1., 1., 1.}, dummydet1, 2., dummydet2, 2.});
+		TrajectoryScanLine scan = new TrajectoryScanLine(new Object[]{mockedGroup, new Double[]{0., 0.1, 0.2}, new Double[]{1., 1.1, 1.2}, new Double[]{1., 1., 1.}, dummydet1, 2., dummydet2, 2.});
 		scan.runScan();
 		System.out.println("***");
 		System.out.print(dummyController);
@@ -249,19 +224,19 @@ public class TrajectoryScanLineTest {
 		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "DummyDataWriter");
 		when(mockeddet1.integratesBetweenPoints()).thenReturn(true);
 		
-		TrajectoryScanLine scan = new TrajectoryScanLine(new Object[]{trajGroup, new Double[]{0., 0.1, 0.2}, new Double[]{1., 1.1, 1.2}, new Double[]{1., 1., 1.}, mockeddet1, 1});
+		TrajectoryScanLine scan = new TrajectoryScanLine(new Object[]{mockedGroup, new Double[]{0., 0.1, 0.2}, new Double[]{1., 1.1, 1.2}, new Double[]{1., 1., 1.}, mockeddet1, 1});
 		scan.runScan();
 		List<Map<Scannable, double[]>> triggers = scan.generateTrajectoryForDetectorsThatIntegrateBetweenTriggers();
-		assertArrayEquals(new double[] {-0.5, -0.4, -0.3}, triggers.get(0).get(trajGroup), .0001);
-		assertArrayEquals(new double[] {0.5, 0.6, 0.7}, triggers.get(1).get(trajGroup), .0001);
-		assertArrayEquals(new double[] {1.5, 1.6, 1.7}, triggers.get(2).get(trajGroup), .0001);
+		assertArrayEquals(new double[] {-0.5, -0.4, -0.3}, triggers.get(0).get(mockedGroup), .0001);
+		assertArrayEquals(new double[] {0.5, 0.6, 0.7}, triggers.get(1).get(mockedGroup), .0001);
+		assertArrayEquals(new double[] {1.5, 1.6, 1.7}, triggers.get(2).get(mockedGroup), .0001);
 		
-		InOrder inOrder = inOrder(mockedController);
-		inOrder.verify(mockedController).stopAndReset(); // ignore the bin centres sent here
-		inOrder.verify(mockedController).stopAndReset(); // the triggers
-		inOrder.verify(mockedController).addPoint(new Double[]{-0.5, -0.4, -0.3});
-		inOrder.verify(mockedController).addPoint(new Double[]{0.5, 0.6000000000000001, 0.7});
-		inOrder.verify(mockedController).addPoint(new Double[]{1.5, 1.6, 1.7});
+		InOrder inOrder = inOrder(mockedController, mockedGroup);
+		inOrder.verify(mockedController, times(2)).stopAndReset(); // ignore the bin centres sent here
+		//inOrder.verify(mockedController).stopAndReset(); // the triggers
+		inOrder.verify(mockedGroup).asynchronousMoveTo(new Double[]{-0.5, -0.4, -0.3});
+		inOrder.verify(mockedGroup).asynchronousMoveTo(new Double[]{0.5, 0.6000000000000001, 0.7});
+		inOrder.verify(mockedGroup).asynchronousMoveTo(new Double[]{1.5, 1.6, 1.7});
 		inOrder.verify(mockedController).startMove();
 		inOrder.verify(mockedController).waitWhileMoving();
 
@@ -272,11 +247,11 @@ public class TrajectoryScanLineTest {
 		TestHelpers.setUpTest(TrajectoryScanLineTest.class, "singleLineScanMockScannablesAndTwoMockDetectorsIntegrating", true);
 		InOrder inOrder = performSingleLineScanMockScannablesAndTwoMockDetectorsIntegrating();
 		
-		inOrder.verify(mockedController).stopAndReset();
 		inOrder.verify(mockedx).setOperatingContinuously(true);
 		inOrder.verify(mockedy).setOperatingContinuously(true);
 		inOrder.verify(mockeddet1).setHardwareTriggering(true);
 		inOrder.verify(mockeddet2).setHardwareTriggering(true);
+		inOrder.verify(mockedController).stopAndReset();
 		inOrder.verify(mockedx).asynchronousMoveTo(0.);
 		inOrder.verify(mockedy).asynchronousMoveTo(10.);
 		inOrder.verify(mockeddet1).collectData();
