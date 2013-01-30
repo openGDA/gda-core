@@ -51,9 +51,9 @@ public class HistogramView extends ViewPart implements InitializingBean{
 	public void createPartControl(Composite parent) {
 
 		parent.setLayout(new FillLayout());
-		histogram = new Histogram(this, parent, SWT.NONE);
-		histogram.setADController(config);
 		try {
+			histogram = new Histogram(this, parent, SWT.NONE);
+			histogram.setADController(config);
 //			areaDetectorProfileComposite.grabOnce();
 //			areaDetectorProfileComposite.grabOnceStats();
 		} catch (Exception e) {
