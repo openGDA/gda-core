@@ -18,25 +18,20 @@
 
 package gda.device.continuouscontroller;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyDouble;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.anyInt;
 import gda.device.BlockingMotor;
 import gda.device.ControlPoint;
 import gda.device.DeviceException;
 import gda.device.MotorException;
 import gda.device.MotorStatus;
-import gda.device.Scannable;
 import gda.device.continuouscontroller.EpicsTrajectoryMoveControllerAdapter;
 import gda.device.continuouscontroller.EpicsTrajectoryScanControllerDev812;
-import gda.device.continuouscontroller.TrajectoryMoveController;
 import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.device.scannable.ScannableMotor;
 import gda.device.scannable.scannablegroup.DeferredAndTrajectoryScannableGroup;
@@ -127,6 +122,16 @@ public class EpicsTrajectoryMoveControllerAdapterIntegrationTest {
 		verify(motorb, never()).moveTo(anyDouble());
 		verify(motorc, never()).moveTo(anyDouble());
 		verify(mockedControlPoint, never()).setValue(anyDouble());
+		
+		when(mockedController.getNumberOfElements()).thenReturn(2);
+		when(mockedController.getStartPulseElement()).thenReturn(1);
+		when(mockedController.getStopPulseElement()).thenReturn(2);
+		when(mockedController.getMTraj(anyInt())).thenReturn(new double[]{});
+		when(mockedController.getTrajectoryTime()).thenReturn(1.);
+		when(mockedController.isMMove(2)).thenReturn(true);
+		when(mockedController.isMMove(3)).thenReturn(true);
+		when(mockedController.isMMove(4)).thenReturn(true);
+		
 		controller.prepareForMove();
 		InOrder inOrder = inOrder(mockedControlPoint, motora, motorb, motorc);
 		inOrder.verify(mockedControlPoint).setValue(1);
@@ -147,7 +152,18 @@ public class EpicsTrajectoryMoveControllerAdapterIntegrationTest {
 		verify(motorb, never()).moveTo(anyDouble());
 		verify(motorc, never()).moveTo(anyDouble());
 		verify(mockedControlPoint, never()).setValue(anyDouble());
+		
+		when(mockedController.getNumberOfElements()).thenReturn(2);
+		when(mockedController.getStartPulseElement()).thenReturn(1);
+		when(mockedController.getStopPulseElement()).thenReturn(2);
+		when(mockedController.getMTraj(anyInt())).thenReturn(new double[]{});
+		when(mockedController.getTrajectoryTime()).thenReturn(1.);
+		when(mockedController.isMMove(2)).thenReturn(true);
+		when(mockedController.isMMove(3)).thenReturn(true);
+		when(mockedController.isMMove(4)).thenReturn(true);
+
 		controller.prepareForMove();
+		
 		InOrder inOrder = inOrder(mockedControlPoint, motora, motorb, motorc);
 		inOrder.verify(mockedControlPoint).setValue(1);
 		inOrder.verify(motora).moveTo(-8.9);
@@ -178,6 +194,15 @@ public class EpicsTrajectoryMoveControllerAdapterIntegrationTest {
 		verify(motorb, never()).moveTo(anyDouble());
 		verify(motorc, never()).moveTo(anyDouble());
 		verify(mockedControlPoint, never()).setValue(anyDouble());
+		
+		when(mockedController.getNumberOfElements()).thenReturn(2);
+		when(mockedController.getStartPulseElement()).thenReturn(1);
+		when(mockedController.getStopPulseElement()).thenReturn(2);
+		when(mockedController.getMTraj(anyInt())).thenReturn(new double[]{});
+		when(mockedController.getTrajectoryTime()).thenReturn(1.);
+		when(mockedController.isMMove(2)).thenReturn(true);
+		when(mockedController.isMMove(4)).thenReturn(true);
+		
 		controller.prepareForMove();
 		InOrder inOrder = inOrder(mockedControlPoint, motora, motorb, motorc);
 		inOrder.verify(mockedControlPoint).setValue(1);
