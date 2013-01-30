@@ -18,9 +18,12 @@
 
 package gda.jython.scriptcontroller.logging;
 
+import gda.configuration.properties.LocalProperties;
+import gda.exafs.scan.ExafsTimeEstimator;
+import gda.exafs.scan.RepetitionsProperties;
+
 import java.util.concurrent.TimeUnit;
 
-import gda.exafs.scan.ExafsTimeEstimator;
 import uk.ac.gda.beans.exafs.IScanParameters;
 
 public class XasLoggingMessage implements ScriptControllerLoggingMessage {
@@ -93,7 +96,7 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 
 	@ScriptControllerLogColumn(columnName = "Repetition", refresh = true, columnIndex = 1)
 	public String getRepetition() {
-		return repetition + " of " + totalRepetitions;
+		return repetition + " of " + getTotalRepetitions();
 	}
 	
 	public Integer getRepetitionNumber() {
@@ -101,7 +104,11 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 	}
 
 	public String getTotalRepetitions() {
-		return totalRepetitions;
+		String property = LocalProperties.get(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY);
+		if (property == null || property.isEmpty()){
+				return totalRepetitions;
+		}
+		return property;
 	}
 
 	@ScriptControllerLogColumn(columnName = "Percent Complete", refresh = true, columnIndex = 2)

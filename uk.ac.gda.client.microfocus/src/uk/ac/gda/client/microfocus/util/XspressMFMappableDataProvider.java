@@ -159,15 +159,28 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 	public void loadBean() {
 		Object xspressBean = null;
 		try {
-
-			if (beanFile == null)
-				xspressBean = BeansFactory.getBean(new File(LocalProperties.getConfigDir()
-						+ "/templates/Xspress_Parameters.xml"));
-			else
-				xspressBean = BeansFactory.getBean(new File(beanFile));
+			xspressBean = BeansFactory.getBean(new File(beanFile));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		if (xspressBean != null) {
+			detectorName = ((XspressParameters) xspressBean).getDetectorName();
+			numberOfdetectorElements = ((XspressParameters) xspressBean).getDetectorList().size();
+
+			elementRois = new List[numberOfdetectorElements];
+			for (int detectorNo = 0; detectorNo < numberOfdetectorElements; detectorNo++)
+				elementRois[detectorNo] = ((XspressParameters) xspressBean).getDetector(detectorNo).getRegionList();
+			String eleNames[] = getElementNames();
+			dataset = new double[eleNames.length][];
+			roiNameMap = new HashMap<String, Integer>();
+			for (int i = 0; i < eleNames.length; i++) {
+				roiNameMap.put(eleNames[i], i);
+			}
+		}
+	}
+	
+	@Override
+	public void loadBean(Object xspressBean) {
 		if (xspressBean != null) {
 			detectorName = ((XspressParameters) xspressBean).getDetectorName();
 			numberOfdetectorElements = ((XspressParameters) xspressBean).getDetectorList().size();

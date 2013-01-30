@@ -36,6 +36,7 @@ def worker (controller, xspressFile,outputFile,path):
 		else:
 			conf = Xspress2DetectorConfiguration(controller, defaultScriptFolder(), xspressFile, outputFile,path)
 		msg  = conf.configure() #  Might throw Exception
+		log(controller, "Xspress configuration successfully applied", None, None, None, False)
 		return msg
 	except :
 		type, exception, traceback = sys.exc_info()

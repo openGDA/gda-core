@@ -21,6 +21,7 @@ from gda.scan import ContinuousScan
 import time
 from java.lang import String
 from gda.device import Detector
+from gda.configuration.properties import LocalProperties
 
 class RasterMap(Map):
     
@@ -35,6 +36,7 @@ class RasterMap(Map):
         self.realX=realX
         self.raster_xspress=raster_xspress
         self.mfd = None
+        self.detectorBeanFileName=""
     
     def getMFD(self):
         return self.mfd
@@ -92,15 +94,15 @@ class RasterMap(Map):
             else:   
                 detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
                 if(folderName != None):
-                    detectorBeanFileName =datadir+File.separator +folderName +File.separator+detectorBean.getFluorescenceParameters().getConfigFileName()
+                    self.detectorBeanFileName =datadir+File.separator +folderName +File.separator+detectorBean.getFluorescenceParameters().getConfigFileName()
                 else:
-                    detectorBeanFileName =datadir+detectorBean.getFluorescenceParameters().getConfigFileName()
-                print detectorBeanFileName
-                elements = showElementsList(detectorBeanFileName)
+                    self.detectorBeanFileName =datadir+detectorBean.getFluorescenceParameters().getConfigFileName()
+                print self.detectorBeanFileName
+                elements = showElementsList(self.detectorBeanFileName)
                 selectedElement = elements[0]
                 self.mfd.setRoiNames(array(elements, String))
-                self.mfd.setDetectorBeanFileName(detectorBeanFileName)
-                bean = BeansFactory.getBean(File(detectorBeanFileName))   
+                self.mfd.setDetectorBeanFileName(self.detectorBeanFileName)
+                bean = BeansFactory.getBean(File(self.detectorBeanFileName))   
                 detector = self.finder.find(bean.getDetectorName())   
                 firstDetector = detectorList[0]
                 detectorList=[]
@@ -126,10 +128,21 @@ class RasterMap(Map):
             self.redefineNexusMetadataForMaps(beanGroup)
             
             try:
-                numberPoints = abs(scanBean.getXEnd()- scanBean.getXStart())/scanBean.getXStepSize()
+                numberPoints = abs(scanBean.getXEnd()- scanBean.getXStart())/scanBean.getXStepSize() + 1.0
                 
                 detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
+ 
+                collectionTime = float(scanBean.getRowTime())/float(numberPoints)
                 
+                self.counterTimer01.setCollectionTime(collectionTime)
+                print "row time = ", float(scanBean.getRowTime())
+                print "no. points = ", float(numberPoints)
+                
+                #if(detectorBean.getExperimentType() == "Fluorescence" and useFrames):
+                #    print "setting the collection time for frames as ", str(collectionTime)
+                #    self.counterTimer01.clearFrameSets()
+                #    self.counterTimer01.addFrameSet(int(nx),1.0E-4,collectionTime*1000.0,0,7,-1,0)
+
                 if(detectorType == "Silicon"):
                     print "Vortex raster scan"
                     cs = ContinuousScan(self.trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [self.raster_counterTimer01, self.raster_xmap]) 
@@ -138,6 +151,7 @@ class RasterMap(Map):
                     xasWriter = XasAsciiNexusDatapointCompletingDataWriter()
                     xasWriter.addDataWriterExtender(self.mfd)
                     xmapRasterscan.setDataWriter(xasWriter)
+                    self.finder.find("elementListScriptController").update(None, self.detectorBeanFileName);
                     xmapRasterscan.runScan()
                 else:
                     print "Xspress Raster Scan"
@@ -146,6 +160,7 @@ class RasterMap(Map):
                     xasWriter = XasAsciiNexusDatapointCompletingDataWriter()
                     xasWriter.addDataWriterExtender(self.mfd)
                     xspressRasterscan.setDataWriter(xasWriter)
+                    self.finder.find("elementListScriptController").update(None, self.detectorBeanFileName);
                     xspressRasterscan.runScan()
     
             finally:
@@ -159,32 +174,32 @@ class RasterMap(Map):
                 self.finish()
     
     def setupForRaster(self, beanGroup):
-        
-        print "setting up raster scan"
         rasterscan = beanGroup.getScan()
-        print "collection time is " , str(rasterscan.getRowTime())
         collectionTime = rasterscan.getRowTime()
-        print "1setting collection time to" , str(collectionTime)  
         command_server = self.finder.find("command_server")    
-        topupMonitor1 = command_server.getFromJythonNamespace("topupMonitor", None)    
-        beam = command_server.getFromJythonNamespace("beam", None)
-        detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
-        trajBeamMonitor1 = command_server.getFromJythonNamespace("trajBeamMonitor", None)
-        print "setting collection time to" , str(collectionTime)        
-        if(not (topupMonitor1 == None)):
-            topupMonitor1.setPauseBeforePoint(False)
-            topupMonitor1.setPauseBeforeLine(True)
-            topupMonitor1.setCollectionTime(collectionTime)
-        if(not (beam == None)):
-            self.finder.find("command_server").addDefault(beam);
-            beam.setPauseBeforePoint(False)
-            beam.setPauseBeforeLine(True)
-        if(beanGroup.getDetector().getExperimentType() == "Fluorescence" and beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium"and not (detectorFillingMonitor == None)):
-            self.finder.find("command_server").addDefault(detectorFillingMonitor);
-            detectorFillingMonitor.setPauseBeforePoint(False)
-            detectorFillingMonitor.setPauseBeforeLine(True)
-            detectorFillingMonitor.setCollectionTime(collectionTime)
-            print "setting up raster scan 3"
+        
+        if (LocalProperties.get("gda.mode") == 'live'):
+            topupMonitor1 = command_server.getFromJythonNamespace("topupMonitor", None)    
+            beam = command_server.getFromJythonNamespace("beam", None)
+            detectorFillingMonitor = command_server.getFromJythonNamespace("detectorFillingMonitor", None)
+            trajBeamMonitor = command_server.getFromJythonNamespace("trajBeamMonitor", None)
+            if not (trajBeamMonitor == None):
+                trajBeamMonitor.setActive(True)
+            print "setting collection time to" , str(collectionTime)        
+            if(not (topupMonitor1 == None)):
+                topupMonitor1.setPauseBeforePoint(False)
+                topupMonitor1.setPauseBeforeLine(True)
+                topupMonitor1.setCollectionTime(collectionTime)
+            if(not (beam == None)):
+                self.finder.find("command_server").addDefault(beam);
+                beam.setPauseBeforePoint(False)
+                beam.setPauseBeforeLine(True)
+            if(beanGroup.getDetector().getExperimentType() == "Fluorescence" and beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium"and not (detectorFillingMonitor == None)):
+                self.finder.find("command_server").addDefault(detectorFillingMonitor);
+                detectorFillingMonitor.setPauseBeforePoint(False)
+                detectorFillingMonitor.setPauseBeforeLine(True)
+                detectorFillingMonitor.setCollectionTime(collectionTime)
+           
             fullFileName = beanGroup.getScriptFolder() + beanGroup.getDetector().getFluorescenceParameters().getConfigFileName()
             print fullFileName
             bean = BeansFactory.getBean(File(fullFileName));
@@ -204,13 +219,9 @@ class RasterMap(Map):
         att2 = sampleParameters.getAttenuatorParameter2()
         self.d7a(att1.getSelectedPosition())
         self.d7b(att2.getSelectedPosition())
-        configFluoDetector(beanGroup)
-        print "setting up raster scan"
-        print "beangroup:", beanGroup
-        print "dtector:", beanGroup.getDetector()
-        print "experimenttype:", beanGroup.getDetector().getExperimentType()
+        if(beanGroup.getDetector().getExperimentType() == "Fluorescence"):
+            configFluoDetector(beanGroup)
       
         LocalProperties.set("gda.scan.useScanPlotSettings", "true")
-        if not (trajBeamMonitor1 == None):
-            trajBeamMonitor1.setActive(True)
+       
         self.finder.find("RCPController").openPesrpective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")

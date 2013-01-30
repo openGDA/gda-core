@@ -393,8 +393,9 @@ public class VortexParametersUIEditor extends DetectorEditor {
 			if (monitor != null)
 				monitor.worked(1);
 
-			double realTimeInSeconds =xmapDetector.getRealTime() * 1000d;
-			final double deadTimeFinal = (realTimeInSeconds - collectionTimeValue) / realTimeInSeconds;
+			// returns the icr and ocr
+			Double[] liveStats = (Double[]) xmapDetector.getAttribute("countRates");
+			final double deadTimeFinal = (Math.abs(liveStats[0] - liveStats[1]) / liveStats[0]) * 100;
 
 			// Note: currently has to be in this order.
 			getSite().getShell().getDisplay().asyncExec(new Runnable() {

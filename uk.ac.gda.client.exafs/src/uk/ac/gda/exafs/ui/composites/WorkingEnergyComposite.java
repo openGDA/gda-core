@@ -135,14 +135,6 @@ public class WorkingEnergyComposite extends FieldBeanComposite {
 					}
 					workingEnergy.setMaximum(qexafsBean.getFinalEnergy());
 					workingEnergy.setMinimum(qexafsBean.getInitialEnergy());
-					double init = qexafsBean.getInitialEnergy();
-					double fin = qexafsBean.getFinalEnergy();
-					String energy = String.valueOf(init + ((fin - init) / 2.0));
-					workingEnergy.setValue(energy);
-					if (runOb.getDetectorParameters().getExperimentType().equals("Transmission"))
-						provider.getTransmissionParameters().setWorkingEnergy(Double.parseDouble(energy));
-					else
-						provider.getFluorescenceParameters().setWorkingEnergy(Double.parseDouble(energy));
 				} else if (runOb.isXes() && provider != null) {
 					workingEnergy.setMaximum(runOb.getFinalEnergy(), "FinalEnergy", XesScanParameters.class);
 					workingEnergy.setMinimum(runOb.getInitialEnergy(), "InitialEnergy", XesScanParameters.class);
@@ -152,21 +144,6 @@ public class WorkingEnergyComposite extends FieldBeanComposite {
 					xasBean = XasScanParameters.createFromXML(location);
 					workingEnergy.setMaximum(xasBean.getFinalEnergy());
 					workingEnergy.setMinimum(xasBean.getInitialEnergy());
-
-					String element = xasBean.getElement();
-					String edge = xasBean.getEdge();
-					Element ele = Element.getElement(element);
-					workingEnergy.setValue(ele.getEdgeEnergy(edge));
-					String expType = runOb.getDetectorParameters().getExperimentType();
-					if (expType.equals("Transmission") && provider != null) {
-						TransmissionParameters tp = provider.getTransmissionParameters();
-						double edgeEnergy = ele.getEdgeEnergy(edge);
-						tp.setWorkingEnergy(edgeEnergy);
-					} else if (provider != null) {
-						FluorescenceParameters fp = provider.getFluorescenceParameters();
-						double edgeEnergy = ele.getEdgeEnergy(edge);
-						fp.setWorkingEnergy(edgeEnergy);
-					}
 				}
 
 				else if (runOb.isXanes()) {
@@ -177,16 +154,6 @@ public class WorkingEnergyComposite extends FieldBeanComposite {
 					}
 					workingEnergy.setMaximum(xanesBean.getFinalEnergy());
 					workingEnergy.setMinimum(xanesBean.getRegions().get(0).getEnergy());
-
-					String element = xanesBean.getElement();
-					String edge = xanesBean.getEdge();
-					Element ele = Element.getElement(element);
-					workingEnergy.setValue(ele.getEdgeEnergy(edge));
-					if (runOb.getDetectorParameters().getExperimentType().equals("Transmission") && provider != null)
-						provider.getTransmissionParameters().setWorkingEnergy(ele.getEdgeEnergy(edge));
-					else if (provider != null)
-						provider.getFluorescenceParameters().setWorkingEnergy(ele.getEdgeEnergy(edge));
-
 				}
 
 				else if (!runOb.isMicroFocus() && provider != null) {
@@ -263,10 +230,7 @@ public class WorkingEnergyComposite extends FieldBeanComposite {
 					double energy = init + ((fin - init) / 2.0);
 					workingEnergy.setMinimum(init);
 					workingEnergy.setMaximum(fin);
-					if (Math.floor(energy) == energy)
-						workingEnergy.setValue((int) energy);
-					else
-						workingEnergy.setValue(energy);
+					workingEnergy.setValue(energy);
 				}
 			}
 		} catch (Exception ne) {

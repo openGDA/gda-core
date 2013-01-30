@@ -21,6 +21,7 @@ package uk.ac.gda.exafs.ui.composites;
 import gda.configuration.properties.LocalProperties;
 import gda.jscience.physics.quantities.BraggAngle;
 import gda.jython.JythonServerFacade;
+import gda.util.Converter;
 import gda.util.QuantityFactory;
 
 import java.text.DecimalFormat;
@@ -43,8 +44,11 @@ import uk.ac.gda.beans.exafs.QEXAFSParameters;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.beans.BeanUI;
+import uk.ac.gda.richbeans.beans.IFieldWidget;
 import uk.ac.gda.richbeans.components.FieldComposite;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
+import uk.ac.gda.richbeans.components.scalebox.ScaleBoxAndFixedExpression;
+import uk.ac.gda.richbeans.components.scalebox.ScaleBoxAndFixedExpression.ExpressionProvider;
 import uk.ac.gda.richbeans.components.wrappers.LabelWrapper;
 import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
@@ -55,7 +59,7 @@ import uk.ac.gda.richbeans.event.ValueEvent;
 public final class QEXAFSParametersComposite extends Composite {
 
 	private ScaleBox initialEnergy;
-	private ScaleBox finalEnergy;
+	private ScaleBoxAndFixedExpression finalEnergy;
 	private ScaleBox speed;
 	private ScaleBox stepSize;
 	private LabelWrapper totalTime;
@@ -67,7 +71,7 @@ public final class QEXAFSParametersComposite extends Composite {
 	private NumberFormat formatter = new DecimalFormat("#0.00000");
 	private Length crystal = null;
 
-	public QEXAFSParametersComposite(Composite parent, int style, final QEXAFSParameters provider) {
+	public QEXAFSParametersComposite(Composite parent, int style, final QEXAFSParameters provider, ExpressionProvider k) {
 		super(parent, SWT.NONE);
 
 		GridLayout gridLayout = new GridLayout(2, false);
@@ -88,9 +92,20 @@ public final class QEXAFSParametersComposite extends Composite {
 
 		label = new Label(this, SWT.NONE);
 		label.setText("Final Energy");
-		this.finalEnergy = new ScaleBox(this, SWT.NONE);
+		
+		finalEnergy = new ScaleBoxAndFixedExpression(this, SWT.NONE, k);
+		((GridData) finalEnergy.getControl().getLayoutData()).grabExcessHorizontalSpace = false;
 		((GridData) finalEnergy.getControl().getLayoutData()).widthHint = 150;
+		finalEnergy.setLabelUnit("Å\u207B\u00b9");
+		finalEnergy.setLabelWidth(100);
+		finalEnergy.setLabelDecimalPlaces(3);
+		finalEnergy.setPrefix(" ");
+		GridData gd_finalEnergy = new GridData(SWT.FILL, SWT.CENTER, false, false);
+		gd_finalEnergy.widthHint = 150;
+		finalEnergy.setLayoutData(gd_finalEnergy);
+		
 		finalEnergy.setUnit("eV");
+		new Label(finalEnergy, SWT.NONE);
 		new Label(finalEnergy, SWT.NONE);
 
 		if (LocalProperties.get("gda.beamline.name").equals("BL18B")) {
@@ -123,8 +138,6 @@ public final class QEXAFSParametersComposite extends Composite {
 		label = new Label(this, SWT.NONE);
 		label.setText("Speed");
 		String minSpeed = "Min = 0.1 mdeg/s";
-		String maxSpeed = JythonServerFacade.getInstance().evaluateCommand("bragg_speed()");
-		double maxSpeedDouble = Double.parseDouble(maxSpeed)*1000;
 
 		Composite speedComp = new Composite(this, SWT.NONE);
 		GridLayout gl_speedComp = new GridLayout(3, false);
@@ -140,8 +153,8 @@ public final class QEXAFSParametersComposite extends Composite {
 		speed.setUnit("mdeg/s");
 		speed.setDecimalPlaces(4);
 		speed.setMinimum(0.1);
-		speed.setMaximum(maxSpeedDouble);
-		
+
+
 		new Label(speed, SWT.NONE);
 		Label minSpeedlabel = new Label(speedComp, SWT.NONE);
 		GridData gd_minSpeedlabel = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
@@ -149,7 +162,13 @@ public final class QEXAFSParametersComposite extends Composite {
 		minSpeedlabel.setLayoutData(gd_minSpeedlabel);
 		minSpeedlabel.setText(minSpeed);
 		Label maxSpeedlabel = new Label(speedComp, SWT.NONE);
-		maxSpeedlabel.setText("Max = " + formatter.format(maxSpeedDouble) + " mdeg/sec");
+
+		String maxSpeed = JythonServerFacade.getInstance().evaluateCommand("bragg_speed()");
+		if (maxSpeed != null) {
+			double maxSpeedDouble = Double.parseDouble(maxSpeed) * 1000;
+			speed.setMaximum(maxSpeedDouble);
+			maxSpeedlabel.setText("Max = " + formatter.format(maxSpeedDouble) + " mdeg/sec");
+		}
 
 		label = new Label(this, SWT.NONE);
 		label.setText("Step Size");
@@ -158,12 +177,12 @@ public final class QEXAFSParametersComposite extends Composite {
 		stepSize.setUnit("eV");
 		stepSize.setMinimum(0.0001);
 		stepSize.setDecimalPlaces(5);
-		
+
 		double initialEnergyVal = provider.getInitialEnergy();
 		double finalEnergyVal = provider.getFinalEnergy();
-		double rangeEv = finalEnergyVal-initialEnergyVal;
+		double rangeEv = finalEnergyVal - initialEnergyVal;
 		stepSize.setMaximum(rangeEv);
-		
+
 		new Label(stepSize, SWT.NONE);
 
 		label = new Label(this, SWT.NONE);
@@ -172,25 +191,25 @@ public final class QEXAFSParametersComposite extends Composite {
 		GridData gd_totalTime = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_totalTime.widthHint = 159;
 		totalTime.setLayoutData(gd_totalTime);
-		
+
 		label = new Label(this, SWT.NONE);
 		label.setText("Number of Points");
 		this.numberPoints = new Label(this, SWT.NONE);
 		GridData gd_numberPoints = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_numberPoints.widthHint = 544;
 		numberPoints.setLayoutData(gd_numberPoints);
-		
+
 		label = new Label(this, SWT.NONE);
 		label.setText("Avg Time Per Point");
 		this.avgTimePerPoint = new Label(this, SWT.NONE);
 		GridData gd_avgTimePerPoint = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_avgTimePerPoint.widthHint = 159;
 		avgTimePerPoint.setLayoutData(gd_avgTimePerPoint);
-		
+
 		initialEnergy.addValueListener(new ValueAdapter("initialEnergyListener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
-				if(initialEnergy.getNumericValue()!=0 && !initialEnergy.getValue().toString().equals(""))
+				if (initialEnergy.getNumericValue() != 0 && !initialEnergy.getValue().toString().equals(""))
 					calculate(provider);
 			}
 		});
@@ -198,7 +217,7 @@ public final class QEXAFSParametersComposite extends Composite {
 		finalEnergy.addValueListener(new ValueAdapter("finalEnergyListener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
-				if(finalEnergy.getNumericValue()!=0 && !finalEnergy.getValue().toString().equals(""))
+				if (finalEnergy.getNumericValue() != 0 && !finalEnergy.getValue().toString().equals(""))
 					calculate(provider);
 			}
 		});
@@ -206,7 +225,7 @@ public final class QEXAFSParametersComposite extends Composite {
 		speed.addValueListener(new ValueAdapter("speedListener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
-				if(speed.getNumericValue()!=0 && !speed.getValue().toString().equals(""))
+				if (speed.getNumericValue() != 0 && !speed.getValue().toString().equals(""))
 					calculate(provider);
 			}
 		});
@@ -214,12 +233,14 @@ public final class QEXAFSParametersComposite extends Composite {
 		stepSize.addValueListener(new ValueAdapter("stepSizeListener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
-				if(stepSize.getNumericValue()!=0 && !stepSize.getValue().toString().equals(""))
+				if (stepSize.getNumericValue() != 0 && !stepSize.getValue().toString().equals(""))
 					calculate(provider);
 			}
 		});
 		calculate(provider);
 	}
+	
+	
 	
 	private void calculate(QEXAFSParameters provider) {
 		try {
@@ -231,34 +252,38 @@ public final class QEXAFSParametersComposite extends Composite {
 		double finalEnergyVal = provider.getFinalEnergy();
 		double speedVal = provider.getSpeed();
 		double stepSizeVal = provider.getStepSize();
-		double rangeEv = finalEnergyVal-initialEnergyVal;
+		double rangeEv = finalEnergyVal - initialEnergyVal;
 		Unit<?> userUnits = QuantityFactory.createUnitFromString("eV");
 		Quantity initialAngleQuantity = QuantityFactory.createFromObject(initialEnergyVal, userUnits);
 		Angle initialAngle = BraggAngle.braggAngleOf((Energy) initialAngleQuantity, crystal);
 		Quantity finalAngleQuantity = QuantityFactory.createFromObject(finalEnergyVal, userUnits);
 		Angle finalAngle = BraggAngle.braggAngleOf((Energy) finalAngleQuantity, crystal);
-		
-		double range = ((initialAngle.doubleValue()*180)/Math.PI) - ((finalAngle.doubleValue()*180)/Math.PI);
-		double time = (range/speedVal)*1000;
+
+		double range = ((initialAngle.doubleValue() * 180) / Math.PI) - ((finalAngle.doubleValue() * 180) / Math.PI);
+		double time = (range / speedVal) * 1000;
 		totalTime.setUnit("s");
-		if(time >0){
+		if (time > 0) {
 			totalTime.setValue(time);
-			totalTime.setText(formatter.format(time)+ " s");
+			totalTime.setText(formatter.format(time) + " s");
 		}
 		int numberOfPoints = (int) (rangeEv / stepSizeVal);
 		numberPoints.setText(numberOfPoints + "");
-		if(numberOfPoints>4000){
-			numberPoints.setForeground(new Color(null, 255,0,0));
-			numberPoints.setText(numberOfPoints + " (Too many points! Please increase step size or reduce energy range)");
-		}
-		else
-			numberPoints.setForeground(new Color(null, 0,0,0));
-		if(time >0&&numberOfPoints>0)
-			avgTimePerPoint.setText(formatter.format((time/numberOfPoints)*1000) + " ms");
-		
+		if (numberOfPoints > 4000) {
+			numberPoints.setForeground(new Color(null, 255, 0, 0));
+			numberPoints.setText(numberOfPoints
+					+ " (Too many points! Please increase step size or reduce energy range)");
+		} else
+			numberPoints.setForeground(new Color(null, 0, 0, 0));
+		if (time > 0 && numberOfPoints > 0)
+			avgTimePerPoint.setText(formatter.format((time / numberOfPoints) * 1000) + " ms");
+
 		stepSize.setMaximum(rangeEv);
 	}
 
+	public void updateFinalEnergy(){
+		finalEnergy.update();
+	}
+	
 	public FieldComposite getInitialEnergy() {
 		return initialEnergy;
 	}
@@ -278,7 +303,7 @@ public final class QEXAFSParametersComposite extends Composite {
 	public FieldComposite getTime() {
 		return totalTime;
 	}
-	
+
 	public FieldComposite getShouldValidate() {
 		return shouldValidate;
 	}

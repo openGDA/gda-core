@@ -101,12 +101,12 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	private String normaliseElement = "I0";
 	private int normaliseElementIndex = -1;
 	private double normaliseValue = 1.0;
-	private boolean active=false;
-	
-	public boolean isActive(){
+	private boolean active = false;
+
+	public boolean isActive() {
 		return active;
 	}
-	
+
 	public String[] getRoiNames() {
 		return roiNames;
 	}
@@ -132,8 +132,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		try {
 			detectorBean = BeansFactory.getBean(new File(detectorBeanFileName));
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Error loading bean from " + detectorBeanFileName, e);
 		}
 
 		for (Detector detector : detectors) {
@@ -285,18 +284,8 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 					if (normaliseElementIndex != -1)
 						normaliseValue = scalerData[normaliseElementIndex];
 					for (double i : scalerData) {
-
-						String text = Double.toString(Math.abs(i));
-						int integerPlaces = text.indexOf('.');
-						int decimalPlaces = text.length() - integerPlaces - 1;
-						if (decimalPlaces > 9) {
-							DecimalFormat df = new DecimalFormat("#.#");
-							rgbLine.append(df.format(i));
-							rgbLine.append(" ");
-						} else {
-							rgbLine.append(i);
-							rgbLine.append(" ");
-						}
+						rgbLine.append(i);
+						rgbLine.append("	");
 					}
 					scalerValues[dataPoint.getCurrentPointNumber()] = scalerData;
 					logger.info("The rgb Line with scaler values is " + rgbLine.toString());
@@ -408,8 +397,10 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 
 					}
 					for (String s : roiNames) {
-						rgbLine.append(roiTable.get(s));
-						rgbLine.append(" ");
+						double val = roiTable.get(s);
+						DecimalFormat df = new DecimalFormat("#");
+						rgbLine.append(df.format(val));
+						rgbLine.append("	");
 					}
 					logger.debug("The y value is " + xy[0]);
 					logger.debug("the x value is " + xy[1]);
@@ -467,10 +458,10 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	public void plotSpectrum(int detNo, int x, int y) throws Exception {
 		// always make sure the spectrum asked to plot is less than the last data point to prevent crashing of the
 		// server
-		
+
 		int point = y * numberOfXPoints + x;
 		int current = lastDataPoint.getCurrentPointNumber();
-		
+
 		if (current >= point) {
 			IDataset slice = null;
 			dataHolder = hdf5Loader.loadFile();
@@ -570,9 +561,9 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 
 			return;
 
-		} else if (isXmapScan())
+		}
 
-		{
+		else if (isXmapScan()){
 			minValue = Double.MAX_VALUE;
 			Integer elementIndex = roiNameMap.get(selectedElement);
 			if (elementIndex != null) {
@@ -627,7 +618,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	}
 
 	private void addToRgbFile(String string) throws IOException {
-		active=true;
+		active = true;
 		if (writer != null) {
 			writer.write(string + "\n");
 			writer.flush();
@@ -677,16 +668,16 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 
 	@Override
 	public void finalize() throws Throwable {
-		//logger.info("finalize called on MFwriter");
-		//try {
-		//	writer.close();
-		//} finally {
-		//	super.finalize();
-		//}
-		//writer = null;
-		//scalerValues = null;
-		//detectorValues = null;
-		active=false;
+		// logger.info("finalize called on MFwriter");
+		// try {
+		// writer.close();
+		// } finally {
+		// super.finalize();
+		// }
+		// writer = null;
+		// scalerValues = null;
+		// detectorValues = null;
+		active = false;
 	}
 
 	public void setZValue(double zValue) {

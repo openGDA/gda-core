@@ -37,14 +37,11 @@ import uk.ac.gda.client.microfocus.util.ObjectStateManager;
 
 public class MicroFocusDisplayController {
 	private MicroFocusMappableDataProvider detectorProvider;
-	private MicroFocusMappableDataProvider defaultDetectorProvider;
 	private MicroFocusMappableDataProvider currentDetectorProvider;
-	// TODO obtain from extension point
 	private String xScannable = "sc_MicroFocusSampleX";
 	private String yScannable = "sc_MicroFocusSampleY";
 	private MicroFocusNexusPlotter plotter;
 	private String detectorFile;
-	private String defaultDetectorFile;
 	private int currentDetectorElementNo;
 	private String[] trajectoryScannableName;
 	private String zScannableName;
@@ -98,7 +95,6 @@ public class MicroFocusDisplayController {
 					return true;
 				} catch (DeviceException e) {
 					logger.error("Unable to plot the spectrum for " + x + " " + y, e);
-					// TODO create a DisplayException class
 					throw new Exception("Unable to plot the spectrum for " + x + " " + y, e);
 
 				}
@@ -113,48 +109,63 @@ public class MicroFocusDisplayController {
 	}
 
 	private void setDataProviderForElement(String selectedElement) {
-		if (detectorProvider.hasPlotData(selectedElement)) {
+		if (detectorProvider.hasPlotData(selectedElement))
 			currentDetectorProvider = detectorProvider;
-		} else if (defaultDetectorProvider.hasPlotData(selectedElement))
-			currentDetectorProvider = defaultDetectorProvider;
 		else
 			currentDetectorProvider = null;
 
 	}
 
 	public void displayMap(String selectedElement) throws Exception {
+		// check whether map scan is running
 		String active = JythonServerFacade.getInstance().evaluateCommand("map.getMFD().isActive()");
-		if(active!=null){
-			if(active.equals("True")){
+
+		// if a map scan is running then disable the provider but what does provider provide? Names are important!
+		if (active != null) {
+			if (active.equals("True")) {
 				disableProvider();
 			}
 		}
-		if(ObjectStateManager.isActive(detectorProvider)){
+
+		if (ObjectStateManager.isActive(detectorProvider)) {
 			if (plotter != null) {
 				setDataProviderForElement(selectedElement);
-				if (currentDetectorProvider != null) {
-					plotter.setDataProvider(currentDetectorProvider);
-					plotter.plotElement(selectedElement);
-				} else
-					throw new Exception("Unable to display map for element " + selectedElement);
+				// if (currentDetectorProvider != null) {
+				plotter.setDataProvider(currentDetectorProvider);
+				plotter.plotElement(selectedElement);
+				// } else
+				// throw new Exception("Unable to display map for element " + selectedElement);
 			}
-		}
-		else
+		} else
 			JythonServerFacade.getInstance().evaluateCommand("map.getMFD().displayPlot(\"" + selectedElement + "\")");
+	}
+
+	public void displayMap(String selectedElement, String filePath, Object bean) throws Exception {
+		if (plotter == null)
+			plotter = new MicroFocusNexusPlotter();
+		plotter.setPlottingWindowName("MapPlot");
+		detectorProvider = MicroFocusMappableDataProviderFactory.getInstance(bean);
+		ObjectStateManager.register(detectorProvider);
+		detectorProvider.setXScannableName(xScannable);
+		detectorProvider.setYScannableName(yScannable);
+		detectorProvider.setTrajectoryScannableName(trajectoryScannableName);
+		detectorProvider.setZScannableName(zScannableName);
+		detectorProvider.setTrajectoryCounterTimerName(trajectoryCounterTimerName);
+
+		
+		detectorProvider.loadBean(bean);
+		detectorProvider.loadData(filePath);
+		ObjectStateManager.setActive(detectorProvider);
+		displayMap(selectedElement);
+
+		logger.info("displayed map for " + selectedElement + " " + currentDetectorProvider);
 	}
 
 	public void displayMap(String selectedElement, String filePath) throws Exception {
 		if (plotter == null)
 			plotter = new MicroFocusNexusPlotter();
 		plotter.setPlottingWindowName("MapPlot");
-		if (defaultDetectorProvider == null) {
-			defaultDetectorProvider = MicroFocusMappableDataProviderFactory.getInstance(defaultDetectorFile);
-			defaultDetectorProvider.setXScannableName(xScannable);
-			defaultDetectorProvider.setYScannableName(yScannable);
-			defaultDetectorProvider.setZScannableName(zScannableName);
-			defaultDetectorProvider.setTrajectoryScannableName(trajectoryScannableName);
-			defaultDetectorProvider.setTrajectoryCounterTimerName(trajectoryCounterTimerName);
-		}
+
 		if (detectorProvider == null) {
 			detectorProvider = MicroFocusMappableDataProviderFactory.getInstance(detectorFile);
 			ObjectStateManager.register(detectorProvider);
@@ -165,9 +176,7 @@ public class MicroFocusDisplayController {
 			detectorProvider.setTrajectoryCounterTimerName(trajectoryCounterTimerName);
 		}
 		detectorProvider.loadBean();
-		defaultDetectorProvider.loadBean();
 		detectorProvider.loadData(filePath);
-		defaultDetectorProvider.loadData(filePath);
 		ObjectStateManager.setActive(detectorProvider);
 		displayMap(selectedElement);
 
@@ -176,10 +185,6 @@ public class MicroFocusDisplayController {
 
 	public void setDetectorFile(String filename) {
 		this.detectorFile = filename;
-	}
-
-	public void setDefaultDetectorFile(String filename) {
-		this.defaultDetectorFile = filename;
 	}
 
 	public void dispose() {
@@ -194,9 +199,7 @@ public class MicroFocusDisplayController {
 			return xy;
 		}
 		Object s = JythonServerFacade.getInstance().evaluateCommand("map.getMFD().getXY(" + x + "," + y + ")");
-		if (s instanceof double[]) {
-			xy = (double[]) s;
-		}
+
 		if (s instanceof String) {
 			String xyString = (String) s;
 			xyString = xyString.substring(xyString.indexOf("[") + 1, xyString.indexOf("]"));

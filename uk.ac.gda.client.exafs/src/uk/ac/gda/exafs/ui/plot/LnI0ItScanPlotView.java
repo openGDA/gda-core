@@ -88,7 +88,11 @@ public class LnI0ItScanPlotView extends AbstractCachedScanPlotView {
 				yAxis = "FF/I1";
 				graphTitle += " Fluorescence  -  FF/I1 vs. Energy";
 			}  else if (!Double.isNaN(ff)) {
-				cachedY.add(ff / i0);
+				Double y = ff / i0;
+				if (y.isInfinite() || y.isNaN()) {
+					y = 0.0;
+				}
+				cachedY.add(y);
 				cachedX.add(x);
 				yAxis = "FF/I0";
 				graphTitle += " Fluorescence  -  FF/I0 vs. Energy";

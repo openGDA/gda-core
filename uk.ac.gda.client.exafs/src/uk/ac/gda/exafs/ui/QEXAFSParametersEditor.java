@@ -21,12 +21,13 @@ package uk.ac.gda.exafs.ui;
 import java.net.URL;
 
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
+import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
 /**
  *
  */
-public final class QEXAFSParametersEditor extends ExafsBeanFileSelectionEditor {
+public final class QEXAFSParametersEditor extends ExafsBeanFileSelectionEditor implements DirtyContainer {
 
 	@Override
 	public Class<?> getBeanClass() {
@@ -40,7 +41,7 @@ public final class QEXAFSParametersEditor extends ExafsBeanFileSelectionEditor {
 
 	@Override
 	public RichBeanEditorPart getRichBeanEditorPart(String path, Object editingBean) {
-		return new QEXAFSParametersUIEditor(path, getMappingUrl(), this, editingBean);
+		return new QEXAFSParametersUIEditor(path, this, editingBean);
 	}
 
 	@Override

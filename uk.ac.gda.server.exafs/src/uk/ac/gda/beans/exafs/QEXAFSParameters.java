@@ -32,6 +32,9 @@ public class QEXAFSParameters implements Serializable, IScanParameters {
 	Double speed;
 	Double stepSize;
 	Double time;
+	String element;
+	String edge;
+	Double coreHole;
 	
 	private boolean shouldValidate = true;
 
@@ -80,6 +83,7 @@ public class QEXAFSParameters implements Serializable, IScanParameters {
 	@Override
 	public void clear() {
 		initialEnergy = finalEnergy = speed = stepSize = time = null;
+		element = edge = "";
 	}
 
 	@Override
@@ -194,6 +198,32 @@ public class QEXAFSParameters implements Serializable, IScanParameters {
 	public void setTime(double time) {
 		this.time = time;
 	}
+
+	public String getElement() {
+		return element;
+	}
+
+	public void setElement(String element) {
+		this.element = element;
+	}
+
+	public String getEdge() {
+		return edge;
+	}
+
+	public void setEdge(String edge) {
+		this.edge = edge;
+	}
 	
-	
+	public boolean isCoreGiven() {
+		return coreHole != null;
+	}
+
+	public Double getCoreHole() {
+		return coreHole;
+	}
+
+	public void setCoreHole(Double coreHole) {
+		this.coreHole = coreHole;
+	}
 }

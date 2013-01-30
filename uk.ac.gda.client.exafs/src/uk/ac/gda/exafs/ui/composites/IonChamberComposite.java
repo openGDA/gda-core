@@ -332,31 +332,6 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 		changeSensitivity
 				.setToolTipText("Select for the amplifier sensitivity to be adjust during data collection.\nIf unselected then the current sensitivity will be left unchanged.");
 		changeSensitivity.setValue(false);
-		// always be enabled as the events are not sent when the listeditor selection changes, so the
-		// labels and combos do not always track the booleanwrapper. So simpler to always be enabled.
-//		changeSensitivity.addValueListener(new ValueListener() {
-//			
-//			@Override
-//			public void valueChangePerformed(ValueEvent e) {
-//				Boolean boxTicked = (Boolean) e.getValue();
-//				if (boxTicked){
-//					gainLabel.setEnabled(true);
-//					offsetLabel.setEnabled(true);
-//					gain.setEnabled(true);
-//					offset.setEnabled(true);
-//				} else {
-//					gainLabel.setEnabled(false);
-//					offsetLabel.setEnabled(false);
-//					gain.setEnabled(false);
-//					offset.setEnabled(false);
-//				}
-//			}
-//			
-//			@Override
-//			public String getValueListenerName() {
-//				return null;
-//			}
-//		});
 
 		@SuppressWarnings("unused")
 		final Label blank = new Label(gainProperties, SWT.NONE);
@@ -365,8 +340,7 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 		gainLabel.setText("Sensitivity");
 		gainLabel
 				.setToolTipText("The gain setting on the amplifier.\n(This cannot be linked to get the gain as the Stanford Amplifier does not have a get for the gain, only a set.)");
-//		gainLabel.setEnabled(false);
-		
+
 		gain = new ComboWrapper(gainProperties, SWT.READ_ONLY);
 		gain.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		final List<String> notches = GainCalculation.getGainNotches();
@@ -380,14 +354,12 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 				dialog.open();
 			}
 		});
-//		gain.setEnabled(false);
-		
+
 		offsetLabel = new Label(gainProperties, SWT.NONE);
 		offsetLabel.setText("Offset");
 		offsetLabel
 				.setToolTipText("The offset setting on the amplifier.\n(This cannot be linked to get the offset as the Stanford Amplifier does not have an offset for the gain, only a set.)");
-//		offsetLabel.setEnabled(false);
-		
+
 		offset = new ComboWrapper(gainProperties, SWT.READ_ONLY);
 		offset.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		final List<String> offsetNotches = GainCalculation.getOffsetNotches();
@@ -401,7 +373,7 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 				dialog.open();
 			}
 		});
-//		offset.setEnabled(false);
+		// offset.setEnabled(false);
 	}
 
 	private void createRight(final Composite main) {
@@ -525,10 +497,10 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 		int N = 1;
 		int Ar = 2;
 		int Kr = 3;
-		
-		String chamber = this.ionParams.getName();
-		List<IonChamberParameters>chambers=null;
-		
+
+		String chamber = ionParams.getName();
+		List<IonChamberParameters> chambers = null;
+
 		if (detParams.getExperimentType().toString().equals("Transmission")) {
 			chambers = detParams.getTransmissionParameters().getIonChamberParameters();
 		} else if (detParams.getExperimentType().toString().equals("Fluorescence")) {
@@ -538,7 +510,7 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 		} else {
 			return;
 		}
-		
+
 		if (workingE < 7000) {
 			chambers.get(0).setGasType("N");
 		} else if (workingE >= 7000 && workingE < 26000) {
@@ -553,7 +525,7 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 			chambers.get(1).setGasType("Kr");
 			chambers.get(2).setGasType("Kr");
 		}
-		
+
 		if (chamber.equals("I0") || chamber.equals("I1")) {
 			this.percentAbsorption.setValue(15);
 			if (workingE < 7000) {
@@ -576,131 +548,119 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 	 * We do not calculate pressure in this class. Instead we prepare the data and send it to the PressureCalculation
 	 * class.
 	 */
-	/**
-	 * We do not calculate pressure in this class. Instead we prepare the data and send it to the PressureCalculation
-	 * class.
-	 */
-	void calculatePressure() {
+	public void calculatePressure() {
+		
+		if(this.isVisible()){
 
-		if(!isUseGasProperties() || workingEnergy.getValue()==null)
-			return;
-		// We run the pressure code in a separate progressible task, just in case.
-		final IProgressService service = (IProgressService) PlatformUI.getWorkbench()
-				.getService(IProgressService.class);
-		try {
+			if (!isUseGasProperties() || workingEnergy.getValue() == null)
+				return;
+			// We run the pressure code in a separate progressible task, just in case.
+			final IProgressService service = (IProgressService) PlatformUI.getWorkbench().getService(
+					IProgressService.class);
+			try {
 
-			// Get the working energy before starting the task.
-			final double workingE = (Double) workingEnergy.getValue();
+				// Get the working energy before starting the task.
+				final double workingE = (Double) workingEnergy.getValue();
 
-			service.run(true, true, new IRunnableWithProgress() {
-				@Override
-				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+				service.run(true, true, new IRunnableWithProgress() {
+					@Override
+					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 
-					monitor.beginTask("Calculate Pressure", 100);
+						monitor.beginTask("Calculate Pressure", 100);
 
-					try {
-						final IonChamberParameters bean = (IonChamberParameters) provider.getInstance();
+						try {
+							final IonChamberParameters bean = (IonChamberParameters) provider.getInstance();
 
-						getDisplay().syncExec(new Runnable() {
+							getDisplay().syncExec(new Runnable() {
 
-							@Override
-							public void run() {
-								try {
-									BeanUI.uiToBean(IonChamberComposite.this, bean);
-								} catch (Exception e) {
+								@Override
+								public void run() {
+									try {
+										BeanUI.uiToBean(IonChamberComposite.this, bean);
+									} catch (Exception e) {
 
-									e.printStackTrace();
+										e.printStackTrace();
+									}
 								}
-							}
-						});
+							});
 
-						bean.setWorkingEnergy(workingE);
+							bean.setWorkingEnergy(workingE);
 
-						monitor.worked(10);
-						final PressureBean ans = PressureCalculation.getPressure(bean);
-						monitor.worked(80);
+							monitor.worked(10);
+							final PressureBean ans = PressureCalculation.getPressure(bean);
+							monitor.worked(80);
 
-						getDisplay().asyncExec(new Runnable() {
-							@Override
-							public void run() {
-								final double pressureVal = ans.getPressure();
+							getDisplay().asyncExec(new Runnable() {
+								@Override
+								public void run() {
+									final double pressureVal = ans.getPressure();
 
-								String experimentType = detParams.getExperimentType();
+									String experimentType = detParams.getExperimentType();
 
-								int index = provider.getSelectedIndex();
+									int index = provider.getSelectedIndex();
 
-//								TransmissionParameters transmissionParameters;
-//								FluorescenceParameters fluoresenceParameters;
-								List<IonChamberParameters> ionParamsList = null;
+									List<IonChamberParameters> ionParamsList = null;
 
-								if (experimentType.equals("Transmission")) {
-									TransmissionParameters params = detParams.getTransmissionParameters();
-									ionParamsList = params.getIonChamberParameters();
-								} else if (experimentType.equals("Fluorescence")) {
-									FluorescenceParameters params = detParams.getFluorescenceParameters();
-									ionParamsList = params.getIonChamberParameters();
-								} else if (experimentType.equals("XES")) {
-									FluorescenceParameters params = detParams.getXesParameters();
-									ionParamsList = params.getIonChamberParameters();
+									if (experimentType.equals("Transmission")) {
+										TransmissionParameters params = detParams.getTransmissionParameters();
+										ionParamsList = params.getIonChamberParameters();
+									} else if (experimentType.equals("Fluorescence")) {
+										FluorescenceParameters params = detParams.getFluorescenceParameters();
+										ionParamsList = params.getIonChamberParameters();
+									} else if (experimentType.equals("XES")) {
+										FluorescenceParameters params = detParams.getXesParameters();
+										ionParamsList = params.getIonChamberParameters();
+									}
+
+									if (ionParamsList != null) {
+										ionParams = ionParamsList.get(index);
+									}
+
+									boolean originalAutoFillGas = ionParams.getAutoFillGas();
+									boolean originalFlush = ionParams.getFlush();
+
+									if (pressureVal > totalPressure.getNumericValue() || pressureVal < 0.003) {
+										fillGasButton.setEnabled(false);
+										autoFillGas.setEnabled(false);
+										flush.setEnabled(false);
+										autoFillGas.setValue(false);
+										flush.setValue(false);
+										pressure.setLabelColor(new Color(null, 255, 0, 0));
+									} else {
+										fillGasButton.setEnabled(true);
+										autoFillGas.setEnabled(true);
+										flush.setEnabled(true);
+										autoFillGas.setValue(originalAutoFillGas);
+										flush.setEnabled(true);
+										autoFillGas.setValue(originalAutoFillGas);
+										flush.setValue(originalFlush);
+										pressure.setLabelColor(new Color(null, 0, 0, 0));
+									}
+
+									if (!Double.isNaN(pressureVal) && !Double.isInfinite(pressureVal)) {
+										getPressure().setValue(pressureVal);
+									}
+
+									GridUtils.layoutFull(IonChamberComposite.this);
 								}
+							});
+							monitor.worked(10);
 
-								if (ionParamsList != null) {
-									ionParams = ionParamsList.get(index);
-								}
-
-								boolean originalAutoFillGas = ionParams.getAutoFillGas();
-								boolean originalFlush = ionParams.getFlush();
-
-								// IonChamberComposite.this.pressure.setMax(totalPressure.getNumericValue());
-
-								if (pressureVal > totalPressure.getNumericValue() || pressureVal < 0.003) {
-									fillGasButton.setEnabled(false);
-									autoFillGas.setEnabled(false);
-									flush.setEnabled(false);
-									autoFillGas.setValue(false);
-									flush.setValue(false);
-									pressure.setLabelColor(new Color(null, 255,0,0));
-								} else {
-									fillGasButton.setEnabled(true);
-									autoFillGas.setEnabled(true);
-									flush.setEnabled(true);
-									autoFillGas.setValue(originalAutoFillGas);
-									flush.setEnabled(true);
-									autoFillGas.setValue(originalAutoFillGas);
-									flush.setValue(originalFlush);
-									pressure.setLabelColor(new Color(null, 0,0,0));
-								}
-
-								if (!Double.isNaN(pressureVal) && !Double.isInfinite(pressureVal)) {
-									getPressure().setValue(pressureVal);
-								}
-								// for testing on windows
-								//if ("" != null) {
-									// IonChamberComposite.this.errorMessage.setText(ans.getErrorMessage());
-									// IonChamberComposite.this.errorMessage.setToolTipText(ans.getErrorTooltip());
-									//IonChamberComposite.this.errorMessage.setVisible(true);
-								//} else {
-								//	IonChamberComposite.this.errorMessage.setText("");
-								//	IonChamberComposite.this.errorMessage.setVisible(false);
-								//}
-								GridUtils.layoutFull(IonChamberComposite.this);
-							}
-						});
-						monitor.worked(10);
-
-					} catch (NullPointerException ne) {
-						// Can legally happen when user types in no value for a box.
-						logger.debug("Cannot run mucal code to find gas absorption.", ne);
-					} catch (Throwable ne) {
-						logger.error("Cannot run mucal code to find gas absorption.", ne);
-					} finally {
-						monitor.done();
+						} catch (NullPointerException ne) {
+							// Can legally happen when user types in no value for a box.
+							logger.debug("Cannot run mucal code to find gas absorption.", ne);
+						} catch (Throwable ne) {
+							logger.error("Cannot run mucal code to find gas absorption.", ne);
+						} finally {
+							monitor.done();
+						}
 					}
-				}
-			});
-		} catch (Exception e) {
-			logger.error("Cannot run mucal code to find gas absorption.", e);
+				});
+			} catch (Exception e) {
+				logger.error("Cannot run mucal code to find gas absorption.", e);
+			}
 		}
+
 	}
 
 	public ScaleBox getGas_fill1_period_box() {
@@ -836,5 +796,5 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 
 	public void setGasType(String gasTypeVal) {
 		this.gasType.select(findFilterIndex(gasTypeVal, gasType));
-	}
+	}	
 }

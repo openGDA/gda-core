@@ -19,6 +19,8 @@
 package uk.ac.gda.exafs.ui.ionchambers;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridData;
@@ -27,12 +29,16 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Label;
 
 public class IonChamber extends Composite{
-	private Text text;
-	public IonChamber(Composite parent, int style, boolean inEditor) {
+	private Text log;
+	private List ionChamberList;
+	IonChambersBean bean;
+	private String[] ionChambers = {"I0", "It", "Iref"};
+	
+	public IonChamber(Composite parent, int style, boolean inEditor, IonChambersBean bean) {
 		super(parent, style);
+		this.bean = bean;
 		setLayout(new FormLayout());
 		Group grpIonChambers = new Group(this, SWT.NONE);
 		grpIonChambers.setLayoutData(new FormData());
@@ -54,16 +60,17 @@ public class IonChamber extends Composite{
 		gd_composite_1.widthHint = 489;
 		composite_1.setLayoutData(gd_composite_1);
 		
-		List list = new List(composite_1, SWT.BORDER);
-		list.setItems(new String[] {"I0", "It", "Iref"});
+		ionChamberList = new List(composite_1, SWT.BORDER);
+		ionChamberList.setItems(ionChambers);
 		GridData gd_list = new GridData(SWT.LEFT, SWT.FILL, false, true, 1, 1);
 		gd_list.widthHint = 90;
-		list.setLayoutData(gd_list);
+		ionChamberList.setLayoutData(gd_list);
 		
-		text = new Text(composite_1, SWT.BORDER);
+		log = new Text(composite_1, SWT.BORDER | SWT.V_SCROLL | SWT.MULTI);
 		GridData gd_text = new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1);
-		gd_text.widthHint = 379;
-		text.setLayoutData(gd_text);
+		gd_text.widthHint = 366;
+		log.setLayoutData(gd_text);
+		log.append(bean.getLog());
 		
 		Composite composite = new Composite(grpIonChambers, SWT.NONE);
 		GridLayout gl_composite = new GridLayout(2, false);
@@ -78,10 +85,9 @@ public class IonChamber extends Composite{
 		
 		Amplifier amplifier = new Amplifier(composite, SWT.NONE, inEditor);
 		amplifier.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false, 1, 1));
-		
-		//if(!inEditor)
-			VoltageSupply voltageSupply = new VoltageSupply(composite, SWT.NONE, inEditor);
-			voltageSupply.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false, 1, 1));
+
+		VoltageSupply voltageSupply = new VoltageSupply(composite, SWT.NONE, inEditor);
+		voltageSupply.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false, 1, 1));
 		
 		GasFilling gasFilling = new GasFilling(grpIonChambers, SWT.NONE, inEditor);
 		GridLayout gridLayout = (GridLayout) gasFilling.getLayout();
@@ -89,5 +95,26 @@ public class IonChamber extends Composite{
 		gridLayout.marginWidth = 0;
 		gridLayout.marginHeight = 0;
 		gridLayout.horizontalSpacing = 0;
+		
+		ionChamberList.addSelectionListener(new SelectionListener(){
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				String[] selection = ionChamberList.getSelection();
+				log.append(selection[0]+" selected\n");
+			}
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
 	}
+
+	public Text getLog() {
+		return log;
+	}
+
+	public List getList() {
+		return ionChamberList;
+	}
+	
+	
 }

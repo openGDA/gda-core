@@ -142,5 +142,10 @@ import uk.ac.gda.beans.exafs.IonChamberParameters;
 	{
 		return elementNames;
 	}
+	@Override
+	public void loadBean(Object bean) {
+		// TODO Auto-generated method stub
+		
+	}
 
 }
