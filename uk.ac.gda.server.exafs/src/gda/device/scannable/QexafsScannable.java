@@ -155,6 +155,13 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 			Double startDeg = radToDeg(startAngle);
 			Double stopDeg = radToDeg(endAngle);
 			Double stepDeg = radToDeg(stepSize);
+			
+			//wait until run down period has finished. 5th oct 2012 trying to fix problem where sometimes a qexafs scan finishes early
+			while (isBusy()){
+				logger.info("-----waiting for qscanAxis to finish moving inside prepare");
+				Thread.sleep(100);
+			}
+			
 			controller.caputWait(outputModeChnl, 0); // ensure at 0 for the run-up movement. No longer in EDM screen.
 			controller.caputWait(currentSpeedChnl, getMaxSpeed()); // ensure at max speed for the run-up movement
 			// move to run-up position so ready to collect
@@ -216,6 +223,12 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 			try {
 				//set the sped (do this now, after the motor has been moved to the run-up position)
 				if (desiredSpeed <= getMaxSpeed()) {
+					logger.info("*****speed test*****     before     controller.caputWait(currentSpeedChnl, desiredSpeed))");
+					//wait until run down period has finished. 5th oct 2012 trying to fix problem where sometimes a qexafs scan finishes early
+					while (isBusy()){
+						logger.info("-----waiting for qscanAxis to finish moving inside perform before starting scanning. after goto runup");
+						Thread.sleep(100);
+					}
 					controller.caputWait(currentSpeedChnl, desiredSpeed);
 				} else {
 					logger.info("Continuous motion for " + getName()

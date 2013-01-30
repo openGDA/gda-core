@@ -30,6 +30,7 @@ class B18DetectorPreparer:
         self._control_ionc(ion_chambers_bean, 2)
 
     def _control_ionc(self, ion_chambers_bean, ion_chamber_num):
+        
         ion_chamber = ion_chambers_bean[ion_chamber_num]
         change_sensitivity = ion_chamber.getChangeSensitivity()
         if change_sensitivity == True:
@@ -58,6 +59,9 @@ class B18DetectorPreparer:
         self.mythen_scannable.setCollectionTime(collectionTime)
         staticscan = StaticScan([self.mythen_scannable])
         staticscan.run()
+        #the following two lines are to temporarily fix a bug where the jython server still thinks the mythen is in a scan after it has written data.
+        from gda.jython import JythonServerFacade
+        JythonServerFacade.getInstance().setScanStatus(0)
         print "Diffraction scan complete."
         
     """

@@ -283,9 +283,4 @@ public class SampleParameters implements Serializable, ISampleParameters {
 	public void setShouldValidate(boolean shouldValidate) {
 		this.shouldValidate = shouldValidate;
 	}
-
-	public void setNoneParameters(@SuppressWarnings("unused") NoneParameters noneParameters) {
-//		this.noneParameters = noneParameters;
-	}
-
 }

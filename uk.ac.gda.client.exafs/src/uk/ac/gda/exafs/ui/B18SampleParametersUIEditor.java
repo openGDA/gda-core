@@ -56,6 +56,7 @@ import uk.ac.gda.richbeans.ACTIVE_MODE;
 import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.components.FieldBeanComposite;
 import uk.ac.gda.richbeans.components.FieldComposite;
+import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.selector.VerticalListEditor;
 import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
@@ -326,9 +327,12 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 					((FieldBeanComposite) control).addValueListener(new ValueListener() {
 						@Override
 						public void valueChangePerformed(ValueEvent e) {
-							bean.setStage(stage.getItem(stage.getSelectionIndex()));
-							updateStageType();
-							linkUI(false);
+							Object source = e.getSource();
+							if (!(source instanceof ScaleBox)) {
+								bean.setStage(stage.getItem(stage.getSelectionIndex()));
+								updateStageType();
+								linkUI(false);
+							}
 						}
 
 						@Override

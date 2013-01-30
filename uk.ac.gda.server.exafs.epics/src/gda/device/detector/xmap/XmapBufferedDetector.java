@@ -636,7 +636,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		CAClient ca_client = new CAClient();
 		try {
 			if (capturepv != null)
-				ca_client.caput("stoppv", 0);
+				ca_client.caput(capturepv, 0);
 		} catch (CAException e) {
 			logger.error("Could not stop xmap capture", e);
 		} catch (InterruptedException e) {
