@@ -28,7 +28,7 @@ public class B18ScalersMonitorView extends ScalersMonitorView {
 	@SuppressWarnings("hiding")
 	public static final String ID = "uk.ac.gda.exafs.ui.views.B18ScalersMonitor"; //$NON-NLS-1$
 	private String qexafsState;
-	private IQexafsScannableState qexafsScannableState;
+	//private IQexafsScannableState qexafsScannableState;
 
 	
 	@Override
