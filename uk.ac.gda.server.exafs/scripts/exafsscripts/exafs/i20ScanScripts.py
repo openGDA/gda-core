@@ -67,14 +67,21 @@ class I20XasScan(XasScan):
         try:
             if beanGroup.getDetector().getExperimentType() != 'XES' and beanGroup.getSample().getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[1] :
                 sampleStageParameters = beanGroup.getSample().getRoomTemperatureParameters()
-                numSamples = sampleStageParameters.getNumberOfSamples()
-                for i in range(0,numSamples):
+                # there are 4 samples in the bean
+                for i in range(0,4):
+                    doUse = sampleStageParameters.getUses()[i]
+                    
+                    if not doUse:
+                        continue
+                    
                     x = sampleStageParameters.getXs()[i]
                     y = sampleStageParameters.getYs()[i]
                     z = sampleStageParameters.getZs()[i]
                     rotation = sampleStageParameters.getRotations()[i]
                     roll = sampleStageParameters.getRolls()[i]
                     pitch = sampleStageParameters.getPitches()[i]
+                    samplename = sampleStageParameters.getSampleNames()[i]
+                    sampledescription = sampleStageParameters.getSampleDescriptions()[i]
                     
                     finder = Finder.getInstance()
                     samx = finder.find("sample_x")
@@ -101,6 +108,54 @@ class I20XasScan(XasScan):
                     samrot.waitWhileBusy()
                     samroll.waitWhileBusy()
                     sampitch.waitWhileBusy()
+                    print "Sample stage move complete.\n"
+                    ScriptBase.checkForPauses()
+                    
+                    # change the strings in the filewriter so that the ascii filename changes
+                    beanGroup.getSample().setName(samplename)
+                    beanGroup.getSample().setSampleName(samplename)
+                    beanGroup.getSample().setDescriptions([sampledescription])
+                    
+                    #TODO add to metadata?
+                    
+                    energy_scannable.waitWhileBusy()
+                    self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
+            elif beanGroup.getDetector().getExperimentType() == 'XES' and beanGroup.getSample().getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[1] :
+                sampleStageParameters = beanGroup.getSample().getRoomTemperatureParameters()
+                # there are 4 samples in the bean
+                for i in range(0,4):
+                    doUse = sampleStageParameters.getUses()[i]
+                    
+                    if not doUse:
+                        continue
+                    
+                    x = sampleStageParameters.getXs()[i]
+                    y = sampleStageParameters.getYs()[i]
+                    z = sampleStageParameters.getZs()[i]
+                    rotation = sampleStageParameters.getRotations()[i]
+                    finerotation = sampleStageParameters.getFineRotations()[i]
+                    
+                    finder = Finder.getInstance()
+                    samx = finder.find("sample_x")
+                    samy = finder.find("sample_y")
+                    samz = finder.find("sample_z")
+                    samrot = finder.find("sample_rot")
+                    samfinerot = finder.find("sample_fine_rot")
+                    
+                    if samx == None or samy ==None or samz == None or samrot == None or samfinerot == None:
+                        raise DeviceException("I20 scan script - could not find all sample stage motors!")
+                    
+                    print "Moving sample stage to",x,y,z,rotation,finerotation,"..."
+                    samx.asynchronousMoveTo(x)
+                    samy.asynchronousMoveTo(y)
+                    samz.asynchronousMoveTo(z)
+                    samrot.asynchronousMoveTo(rotation)
+                    samfinerot.asynchronousMoveTo(finerotation)
+                    samx.waitWhileBusy()
+                    samy.waitWhileBusy()
+                    samz.waitWhileBusy()
+                    samrot.waitWhileBusy()
+                    samfinerot.waitWhileBusy()
                     print "Sample stage move complete.\n"
                     ScriptBase.checkForPauses()
                     

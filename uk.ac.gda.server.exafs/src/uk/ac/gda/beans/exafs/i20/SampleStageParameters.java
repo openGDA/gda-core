@@ -104,6 +104,14 @@ public class SampleStageParameters implements Serializable {
 		return new Double[] { sample1_pitch, sample2_pitch, sample3_pitch, sample4_pitch };
 	}
 
+	public String[] getSampleNames() {
+		return new String[] { sample1_name, sample2_name, sample3_name, sample4_name };
+	}
+
+	public String[] getSampleDescriptions() {
+		return new String[] { sample1_description, sample2_description, sample3_description, sample4_description };
+	}
+
 	public Boolean getUseSample1() {
 		return useSample1;
 	}
