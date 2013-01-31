@@ -1,5 +1,8 @@
 package org.opengda.detector.electroanalyser.client.regioneditor;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -7,12 +10,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.ViewPart;
-import org.opengda.detector.electroanalyser.api.Region;
-import org.opengda.detector.electroanalyser.api.RegionDefinition;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
+import org.opengda.detector.electronanalyser.model.regiondefinition.util.RegionDefinitionResourceUtil;
 
 public class RegionView extends ViewPart {
 
-	private RegionDefinition regionDefinition;
+	private RegionDefinitionResourceUtil regionDefinitionResourceUtil;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -43,7 +46,7 @@ public class RegionView extends ViewPart {
 		Text txtLens = new Text(rightComposite, SWT.None);
 		txtLens.setLayoutData(new GridData(GridData.FILL_BOTH));
 
-		for (Region region : regionDefinition.getRegions()) {
+		for (Region region : getRegions()) {
 			Label lblRegionName = new Label(regionViewComposite, SWT.None);
 			lblRegionName.setText(region.getName());
 			GridData layoutData = new GridData();
@@ -51,6 +54,13 @@ public class RegionView extends ViewPart {
 			lblRegionName.setLayoutData(layoutData);
 		}
 
+	}
+
+	private List<Region> getRegions() {
+		if (regionDefinitionResourceUtil != null) {
+			return regionDefinitionResourceUtil.getRegions(false);
+		}
+		return Collections.emptyList();
 	}
 
 	@Override
@@ -62,8 +72,9 @@ public class RegionView extends ViewPart {
 		setPartName(viewPartName);
 	}
 
-	public void setRegionDefinition(RegionDefinition regionDefinition) {
-		this.regionDefinition = regionDefinition;
+	public void setRegionDefinitionResourceUtil(
+			RegionDefinitionResourceUtil regionDefinition) {
+		this.regionDefinitionResourceUtil = regionDefinition;
 
 	}
 

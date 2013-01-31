@@ -22,7 +22,7 @@ import gda.rcp.views.FindableExecutableExtension;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
-import org.opengda.detector.electroanalyser.api.RegionDefinition;
+import org.opengda.detector.electronanalyser.model.regiondefinition.util.RegionDefinitionResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,14 +34,14 @@ public class RegionViewFactoryFactory implements FindableExecutableExtension {
 			.getLogger(RegionViewFactoryFactory.class);
 	private String viewPartName;
 	private String name;
-	private RegionDefinition regionDefinition;
+	private RegionDefinitionResourceUtil regionDefinitionResourceUtil;
 
 	public String getViewPartName() {
 		return viewPartName;
 	}
 
-	public void setRegionDefinition(RegionDefinition regionDefinition) {
-		this.regionDefinition = regionDefinition;
+	public void setRegionDefinitionResourceUtil(RegionDefinitionResourceUtil regionDefinitionResourceUtil) {
+		this.regionDefinitionResourceUtil = regionDefinitionResourceUtil;
 	}
 
 	public void setViewPartName(String viewPartName) {
@@ -63,7 +63,7 @@ public class RegionViewFactoryFactory implements FindableExecutableExtension {
 		logger.info("Creating tomoalignment view");
 		RegionView regionView = new RegionView();
 		regionView.setViewPartName(viewPartName);
-		regionView.setRegionDefinition(regionDefinition);
+		regionView.setRegionDefinitionResourceUtil(regionDefinitionResourceUtil);
 		return regionView;
 	}
 
