@@ -27,39 +27,55 @@ import org.apache.commons.beanutils.BeanUtils;
  */
 public class SampleStageParameters implements Serializable {
 
-	private Integer numberOfSamples;
-	private Double sample1_x;
-	private Double sample1_y;
-	private Double sample1_z;
+	private Boolean useSample1 = false;
+	private Double sample1_x = 0.;
+	private Double sample1_y = 0.;
+	private Double sample1_z = 0.;
 	private Double sample1_rotation;
 	private Double sample1_finerotation = 0.;
 	private Double sample1_roll = 0.;
 	private Double sample1_pitch = 0.;
-	private Double sample2_x;
-	private Double sample2_y;
-	private Double sample2_z;
-	private Double sample2_rotation;
+	private String sample1_name  = "";
+	private String sample1_description = "";
+	private Boolean useSample2 = false;
+	private Double sample2_x = 0.;
+	private Double sample2_y = 0.;
+	private Double sample2_z = 0.;
+	private Double sample2_rotation = 0.;
 	private Double sample2_finerotation = 0.;
 	private Double sample2_roll = 0.;
 	private Double sample2_pitch = 0.;
-	private Double sample3_x;
-	private Double sample3_y;
-	private Double sample3_z;
-	private Double sample3_rotation;
+	private String sample2_name  = "";
+	private String sample2_description = "";
+	private Boolean useSample3 = false;
+	private Double sample3_x = 0.;
+	private Double sample3_y = 0.;
+	private Double sample3_z = 0.;
+	private Double sample3_rotation = 0.;
 	private Double sample3_finerotation = 0.;
 	private Double sample3_roll = 0.;
 	private Double sample3_pitch = 0.;
-	private Double sample4_x;
-	private Double sample4_y;
-	private Double sample4_z;
-	private Double sample4_rotation;
+	private String sample3_name  = "";
+	private String sample3_description = "";
+	private Boolean useSample4 = false;
+	private Double sample4_x = 0.;
+	private Double sample4_y = 0.;
+	private Double sample4_z = 0.;
+	private Double sample4_rotation = 0.;
 	private Double sample4_finerotation = 0.;
 	private Double sample4_roll = 0.;
 	private Double sample4_pitch = 0.;
+	private String sample4_name  = "";
+	private String sample4_description = "";
 
 	/*
 	 * useful methods when used in scripts
 	 */
+	
+	public Boolean[] getUses() {
+		return new Boolean[]{useSample1,useSample2,useSample3,useSample4};
+	}
+	
 	public Double[] getXs() {
 		return new Double[] { sample1_x, sample2_x, sample3_x, sample4_x };
 	}
@@ -88,12 +104,12 @@ public class SampleStageParameters implements Serializable {
 		return new Double[] { sample1_pitch, sample2_pitch, sample3_pitch, sample4_pitch };
 	}
 
-	public Integer getNumberOfSamples() {
-		return numberOfSamples;
+	public Boolean getUseSample1() {
+		return useSample1;
 	}
 
-	public void setNumberOfSamples(Integer numberOfSamples) {
-		this.numberOfSamples = numberOfSamples;
+	public void setUseSample1(Boolean useSample1) {
+		this.useSample1 = useSample1;
 	}
 
 	public Double getSample1_x() {
@@ -128,6 +144,14 @@ public class SampleStageParameters implements Serializable {
 		this.sample1_rotation = sample1_rotation;
 	}
 
+	public Double getSample1_finerotation() {
+		return sample1_finerotation;
+	}
+
+	public void setSample1_finerotation(Double sample1_finerotation) {
+		this.sample1_finerotation = sample1_finerotation;
+	}
+
 	public Double getSample1_roll() {
 		return sample1_roll;
 	}
@@ -142,6 +166,30 @@ public class SampleStageParameters implements Serializable {
 
 	public void setSample1_pitch(Double sample1_pitch) {
 		this.sample1_pitch = sample1_pitch;
+	}
+
+	public String getSample1_name() {
+		return sample1_name;
+	}
+
+	public void setSample1_name(String sample1_name) {
+		this.sample1_name = sample1_name;
+	}
+
+	public String getSample1_description() {
+		return sample1_description;
+	}
+
+	public void setSample1_description(String sample1_description) {
+		this.sample1_description = sample1_description;
+	}
+
+	public Boolean getUseSample2() {
+		return useSample2;
+	}
+
+	public void setUseSample2(Boolean useSample2) {
+		this.useSample2 = useSample2;
 	}
 
 	public Double getSample2_x() {
@@ -176,6 +224,14 @@ public class SampleStageParameters implements Serializable {
 		this.sample2_rotation = sample2_rotation;
 	}
 
+	public Double getSample2_finerotation() {
+		return sample2_finerotation;
+	}
+
+	public void setSample2_finerotation(Double sample2_finerotation) {
+		this.sample2_finerotation = sample2_finerotation;
+	}
+
 	public Double getSample2_roll() {
 		return sample2_roll;
 	}
@@ -190,6 +246,30 @@ public class SampleStageParameters implements Serializable {
 
 	public void setSample2_pitch(Double sample2_pitch) {
 		this.sample2_pitch = sample2_pitch;
+	}
+
+	public String getSample2_name() {
+		return sample2_name;
+	}
+
+	public void setSample2_name(String sample2_name) {
+		this.sample2_name = sample2_name;
+	}
+
+	public String getSample2_description() {
+		return sample2_description;
+	}
+
+	public void setSample2_description(String sample2_description) {
+		this.sample2_description = sample2_description;
+	}
+
+	public Boolean getUseSample3() {
+		return useSample3;
+	}
+
+	public void setUseSample3(Boolean useSample3) {
+		this.useSample3 = useSample3;
 	}
 
 	public Double getSample3_x() {
@@ -224,6 +304,14 @@ public class SampleStageParameters implements Serializable {
 		this.sample3_rotation = sample3_rotation;
 	}
 
+	public Double getSample3_finerotation() {
+		return sample3_finerotation;
+	}
+
+	public void setSample3_finerotation(Double sample3_finerotation) {
+		this.sample3_finerotation = sample3_finerotation;
+	}
+
 	public Double getSample3_roll() {
 		return sample3_roll;
 	}
@@ -238,6 +326,30 @@ public class SampleStageParameters implements Serializable {
 
 	public void setSample3_pitch(Double sample3_pitch) {
 		this.sample3_pitch = sample3_pitch;
+	}
+
+	public String getSample3_name() {
+		return sample3_name;
+	}
+
+	public void setSample3_name(String sample3_name) {
+		this.sample3_name = sample3_name;
+	}
+
+	public String getSample3_description() {
+		return sample3_description;
+	}
+
+	public void setSample3_description(String sample3_description) {
+		this.sample3_description = sample3_description;
+	}
+
+	public Boolean getUseSample4() {
+		return useSample4;
+	}
+
+	public void setUseSample4(Boolean useSample4) {
+		this.useSample4 = useSample4;
 	}
 
 	public Double getSample4_x() {
@@ -272,6 +384,14 @@ public class SampleStageParameters implements Serializable {
 		this.sample4_rotation = sample4_rotation;
 	}
 
+	public Double getSample4_finerotation() {
+		return sample4_finerotation;
+	}
+
+	public void setSample4_finerotation(Double sample4_finerotation) {
+		this.sample4_finerotation = sample4_finerotation;
+	}
+
 	public Double getSample4_roll() {
 		return sample4_roll;
 	}
@@ -288,71 +408,66 @@ public class SampleStageParameters implements Serializable {
 		this.sample4_pitch = sample4_pitch;
 	}
 
-	public Double getSample1_finerotation() {
-		return sample1_finerotation;
+	public String getSample4_name() {
+		return sample4_name;
 	}
 
-	public void setSample1_finerotation(Double sample1_finerotation) {
-		this.sample1_finerotation = sample1_finerotation;
+	public void setSample4_name(String sample4_name) {
+		this.sample4_name = sample4_name;
 	}
 
-	public Double getSample2_finerotation() {
-		return sample2_finerotation;
+	public String getSample4_description() {
+		return sample4_description;
 	}
 
-	public void setSample2_finerotation(Double sample2_finerotation) {
-		this.sample2_finerotation = sample2_finerotation;
-	}
-
-	public Double getSample3_finerotation() {
-		return sample3_finerotation;
-	}
-
-	public void setSample3_finerotation(Double sample3_finerotation) {
-		this.sample3_finerotation = sample3_finerotation;
-	}
-
-	public Double getSample4_finerotation() {
-		return sample4_finerotation;
-	}
-
-	public void setSample4_finerotation(Double sample4_finerotation) {
-		this.sample4_finerotation = sample4_finerotation;
+	public void setSample4_description(String sample4_description) {
+		this.sample4_description = sample4_description;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((numberOfSamples == null) ? 0 : numberOfSamples.hashCode());
+		result = prime * result + ((sample1_description == null) ? 0 : sample1_description.hashCode());
 		result = prime * result + ((sample1_finerotation == null) ? 0 : sample1_finerotation.hashCode());
+		result = prime * result + ((sample1_name == null) ? 0 : sample1_name.hashCode());
 		result = prime * result + ((sample1_pitch == null) ? 0 : sample1_pitch.hashCode());
 		result = prime * result + ((sample1_roll == null) ? 0 : sample1_roll.hashCode());
 		result = prime * result + ((sample1_rotation == null) ? 0 : sample1_rotation.hashCode());
 		result = prime * result + ((sample1_x == null) ? 0 : sample1_x.hashCode());
 		result = prime * result + ((sample1_y == null) ? 0 : sample1_y.hashCode());
 		result = prime * result + ((sample1_z == null) ? 0 : sample1_z.hashCode());
+		result = prime * result + ((sample2_description == null) ? 0 : sample2_description.hashCode());
 		result = prime * result + ((sample2_finerotation == null) ? 0 : sample2_finerotation.hashCode());
+		result = prime * result + ((sample2_name == null) ? 0 : sample2_name.hashCode());
 		result = prime * result + ((sample2_pitch == null) ? 0 : sample2_pitch.hashCode());
 		result = prime * result + ((sample2_roll == null) ? 0 : sample2_roll.hashCode());
 		result = prime * result + ((sample2_rotation == null) ? 0 : sample2_rotation.hashCode());
 		result = prime * result + ((sample2_x == null) ? 0 : sample2_x.hashCode());
 		result = prime * result + ((sample2_y == null) ? 0 : sample2_y.hashCode());
 		result = prime * result + ((sample2_z == null) ? 0 : sample2_z.hashCode());
+		result = prime * result + ((sample3_description == null) ? 0 : sample3_description.hashCode());
 		result = prime * result + ((sample3_finerotation == null) ? 0 : sample3_finerotation.hashCode());
+		result = prime * result + ((sample3_name == null) ? 0 : sample3_name.hashCode());
 		result = prime * result + ((sample3_pitch == null) ? 0 : sample3_pitch.hashCode());
 		result = prime * result + ((sample3_roll == null) ? 0 : sample3_roll.hashCode());
 		result = prime * result + ((sample3_rotation == null) ? 0 : sample3_rotation.hashCode());
 		result = prime * result + ((sample3_x == null) ? 0 : sample3_x.hashCode());
 		result = prime * result + ((sample3_y == null) ? 0 : sample3_y.hashCode());
 		result = prime * result + ((sample3_z == null) ? 0 : sample3_z.hashCode());
+		result = prime * result + ((sample4_description == null) ? 0 : sample4_description.hashCode());
 		result = prime * result + ((sample4_finerotation == null) ? 0 : sample4_finerotation.hashCode());
+		result = prime * result + ((sample4_name == null) ? 0 : sample4_name.hashCode());
 		result = prime * result + ((sample4_pitch == null) ? 0 : sample4_pitch.hashCode());
 		result = prime * result + ((sample4_roll == null) ? 0 : sample4_roll.hashCode());
 		result = prime * result + ((sample4_rotation == null) ? 0 : sample4_rotation.hashCode());
 		result = prime * result + ((sample4_x == null) ? 0 : sample4_x.hashCode());
 		result = prime * result + ((sample4_y == null) ? 0 : sample4_y.hashCode());
 		result = prime * result + ((sample4_z == null) ? 0 : sample4_z.hashCode());
+		result = prime * result + ((useSample1 == null) ? 0 : useSample1.hashCode());
+		result = prime * result + ((useSample2 == null) ? 0 : useSample2.hashCode());
+		result = prime * result + ((useSample3 == null) ? 0 : useSample3.hashCode());
+		result = prime * result + ((useSample4 == null) ? 0 : useSample4.hashCode());
 		return result;
 	}
 
@@ -365,15 +480,20 @@ public class SampleStageParameters implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		SampleStageParameters other = (SampleStageParameters) obj;
-		if (numberOfSamples == null) {
-			if (other.numberOfSamples != null)
+		if (sample1_description == null) {
+			if (other.sample1_description != null)
 				return false;
-		} else if (!numberOfSamples.equals(other.numberOfSamples))
+		} else if (!sample1_description.equals(other.sample1_description))
 			return false;
 		if (sample1_finerotation == null) {
 			if (other.sample1_finerotation != null)
 				return false;
 		} else if (!sample1_finerotation.equals(other.sample1_finerotation))
+			return false;
+		if (sample1_name == null) {
+			if (other.sample1_name != null)
+				return false;
+		} else if (!sample1_name.equals(other.sample1_name))
 			return false;
 		if (sample1_pitch == null) {
 			if (other.sample1_pitch != null)
@@ -405,10 +525,20 @@ public class SampleStageParameters implements Serializable {
 				return false;
 		} else if (!sample1_z.equals(other.sample1_z))
 			return false;
+		if (sample2_description == null) {
+			if (other.sample2_description != null)
+				return false;
+		} else if (!sample2_description.equals(other.sample2_description))
+			return false;
 		if (sample2_finerotation == null) {
 			if (other.sample2_finerotation != null)
 				return false;
 		} else if (!sample2_finerotation.equals(other.sample2_finerotation))
+			return false;
+		if (sample2_name == null) {
+			if (other.sample2_name != null)
+				return false;
+		} else if (!sample2_name.equals(other.sample2_name))
 			return false;
 		if (sample2_pitch == null) {
 			if (other.sample2_pitch != null)
@@ -440,10 +570,20 @@ public class SampleStageParameters implements Serializable {
 				return false;
 		} else if (!sample2_z.equals(other.sample2_z))
 			return false;
+		if (sample3_description == null) {
+			if (other.sample3_description != null)
+				return false;
+		} else if (!sample3_description.equals(other.sample3_description))
+			return false;
 		if (sample3_finerotation == null) {
 			if (other.sample3_finerotation != null)
 				return false;
 		} else if (!sample3_finerotation.equals(other.sample3_finerotation))
+			return false;
+		if (sample3_name == null) {
+			if (other.sample3_name != null)
+				return false;
+		} else if (!sample3_name.equals(other.sample3_name))
 			return false;
 		if (sample3_pitch == null) {
 			if (other.sample3_pitch != null)
@@ -475,10 +615,20 @@ public class SampleStageParameters implements Serializable {
 				return false;
 		} else if (!sample3_z.equals(other.sample3_z))
 			return false;
+		if (sample4_description == null) {
+			if (other.sample4_description != null)
+				return false;
+		} else if (!sample4_description.equals(other.sample4_description))
+			return false;
 		if (sample4_finerotation == null) {
 			if (other.sample4_finerotation != null)
 				return false;
 		} else if (!sample4_finerotation.equals(other.sample4_finerotation))
+			return false;
+		if (sample4_name == null) {
+			if (other.sample4_name != null)
+				return false;
+		} else if (!sample4_name.equals(other.sample4_name))
 			return false;
 		if (sample4_pitch == null) {
 			if (other.sample4_pitch != null)
@@ -509,6 +659,26 @@ public class SampleStageParameters implements Serializable {
 			if (other.sample4_z != null)
 				return false;
 		} else if (!sample4_z.equals(other.sample4_z))
+			return false;
+		if (useSample1 == null) {
+			if (other.useSample1 != null)
+				return false;
+		} else if (!useSample1.equals(other.useSample1))
+			return false;
+		if (useSample2 == null) {
+			if (other.useSample2 != null)
+				return false;
+		} else if (!useSample2.equals(other.useSample2))
+			return false;
+		if (useSample3 == null) {
+			if (other.useSample3 != null)
+				return false;
+		} else if (!useSample3.equals(other.useSample3))
+			return false;
+		if (useSample4 == null) {
+			if (other.useSample4 != null)
+				return false;
+		} else if (!useSample4.equals(other.useSample4))
 			return false;
 		return true;
 	}

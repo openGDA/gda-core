@@ -23,10 +23,10 @@
 							<xsd:enumeration value="None" />
 							<xsd:enumeration value="Room Temperature" />
 							<xsd:enumeration value="Cryostat" />
-							<xsd:enumeration value="Furnace" />
-							<xsd:enumeration value="Microreactor" />
-							<xsd:enumeration value="Custom (XYZ)" />
-							<xsd:enumeration value="Custom" />
+<!-- 							<xsd:enumeration value="Furnace" /> -->
+<!-- 							<xsd:enumeration value="Microreactor" /> -->
+<!-- 							<xsd:enumeration value="Custom (XYZ)" /> -->
+<!-- 							<xsd:enumeration value="Custom" /> -->
 						</xsd:restriction>
 					</xsd:simpleType>
 				</xsd:element>
@@ -35,15 +35,8 @@
 					minOccurs="0">
 					<xsd:complexType>
 						<xsd:sequence>
-							<xsd:element name="numberOfSamples" maxOccurs="1"
-								minOccurs="1">
-								<xsd:simpleType>
-									<xsd:restriction base="xsd:integer">
-										<xsd:minInclusive value="1" />
-										<xsd:maxInclusive value="4" />
-									</xsd:restriction>
-								</xsd:simpleType>
-							</xsd:element>
+							<xsd:element name="useSample1" type="xsd:boolean"
+								maxOccurs="1" minOccurs="1" />
 							<xsd:element name="sample1_x" type="xsd:string"
 								maxOccurs="1" minOccurs="1" />
 							<xsd:element name="sample1_y" type="xsd:string"
@@ -58,6 +51,12 @@
 								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="sample1_pitch" type="xsd:string"
 								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="sample1_name" type="xsd:string"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="sample1_description" type="xsd:string"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="useSample2" type="xsd:boolean"
+								maxOccurs="1" minOccurs="1" />
 							<xsd:element name="sample2_x" type="xsd:string"
 								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="sample2_y" type="xsd:string"
@@ -72,6 +71,12 @@
 								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="sample2_pitch" type="xsd:string"
 								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="sample2_name" type="xsd:string"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="sample2_description" type="xsd:string"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="useSample3" type="xsd:boolean"
+								maxOccurs="1" minOccurs="1" />
 							<xsd:element name="sample3_x" type="xsd:string"
 								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="sample3_y" type="xsd:string"
@@ -86,6 +91,12 @@
 								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="sample3_pitch" type="xsd:string"
 								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="sample3_name" type="xsd:string"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="sample3_description" type="xsd:string"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="useSample4" type="xsd:boolean"
+								maxOccurs="1" minOccurs="1" />
 							<xsd:element name="sample4_x" type="xsd:string"
 								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="sample4_y" type="xsd:string"
@@ -99,6 +110,10 @@
 							<xsd:element name="sample4_roll" type="xsd:string"
 								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="sample4_pitch" type="xsd:string"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="sample4_name" type="xsd:string"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="sample4_description" type="xsd:string"
 								maxOccurs="1" minOccurs="0" />
 						</xsd:sequence>
 					</xsd:complexType>
