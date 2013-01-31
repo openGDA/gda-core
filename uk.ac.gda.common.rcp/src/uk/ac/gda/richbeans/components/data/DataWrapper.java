@@ -27,18 +27,24 @@ import uk.ac.gda.richbeans.event.ValueListener;
  * A not widget wrapper for data only contained in the editor.
  */
 public class DataWrapper implements IFieldWidget {
-	
+
 	private EventManagerDelegate eventDelegate;
-	/**
-	 * 
-	 */
+	private Object value;
+	private String fieldName;
+	private boolean isOn = false;
+
+
 	public DataWrapper() {
 		this.eventDelegate = new EventManagerDelegate(this);
 	}
 	
-	
-	private Object value;
-    private String fieldName;
+	public DataWrapper(String fieldName, ValueListener listener) {
+		this();
+		setFieldName(fieldName);
+		addValueListener(listener);
+	}
+
+
 	@Override
 	public String getFieldName() {
 		return fieldName;
@@ -46,14 +52,14 @@ public class DataWrapper implements IFieldWidget {
 
 	@Override
 	public void setFieldName(String fieldName) {
-		this.fieldName  = fieldName;
+		this.fieldName = fieldName;
 	}
 
 	@Override
 	public void addValueListener(ValueListener l) {
 		eventDelegate.addValueListener(l);
 	}
-	
+
 	@Override
 	public void removeValueListener(ValueListener l) {
 		eventDelegate.removeValueListener(l);
@@ -69,7 +75,6 @@ public class DataWrapper implements IFieldWidget {
 		return true;
 	}
 
-	private boolean isOn = false;
 	@Override
 	public boolean isOn() {
 		return isOn;
@@ -103,7 +108,6 @@ public class DataWrapper implements IFieldWidget {
 		eventDelegate.notifyValueListeners(evt);
 	}
 
-
 	@Override
 	public void fireBoundsUpdaters() {
 		// There are none
@@ -111,8 +115,7 @@ public class DataWrapper implements IFieldWidget {
 
 	@Override
 	public void dispose() {
-		
-	}
 
+	}
 
 }

@@ -106,11 +106,11 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 		setLayout(gridLayout);
 
 		this.label = new Label(this, SWT.LEFT);
-		this.label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+		this.label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true));
 		label.setVisible(false);
 
 		this.text = new StyledText(this, SWT.BORDER | SWT.SINGLE);
-		this.text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		this.text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		createTextListeners(text);
 
 		text.setToolTipText(null); // Required to stop tip fickering on linux

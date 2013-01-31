@@ -23,11 +23,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Text;
 import org.nfunk.jep.JEP;
 
 import swing2swt.layout.BorderLayout;
@@ -84,7 +84,7 @@ public class TextWrapper extends ButtonComposite {
 		this.textType = textType;
 	}
 
-	protected Text text;
+	protected StyledText text;
 	private ModifyListener modifyListener;
 
 	/**
@@ -100,9 +100,11 @@ public class TextWrapper extends ButtonComposite {
 	public TextWrapper(Composite parent, int style) {
 		
 		super(parent, SWT.NONE);
+//		GridLayoutFactory.fillDefaults().applyTo(this);
 		setLayout(new BorderLayout());
 		
-		this.text = new Text(this, style);
+		this.text = new StyledText(this, style);
+//		GridDataFactory.fillDefaults().applyTo(text);
 		text.setLayoutData(BorderLayout.CENTER);
 		mainControl = text;
 		

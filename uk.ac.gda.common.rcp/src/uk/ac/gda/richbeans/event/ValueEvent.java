@@ -32,55 +32,36 @@ import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
  */
 public class ValueEvent extends EventObject {
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -2193419622660949003L;
 	private double doubleValue;
-
-	/**
-	 * @return the doubleValue
-	 */
-	public double getDoubleValue() {
-		return doubleValue;
-	}
-	/**
-	 * @param doubleValue the doubleValue to set
-	 */
-	public void setDoubleValue(double doubleValue) {
-		this.doubleValue = doubleValue;
-	}
 	private Object value;
 	private String fieldName;
-	/**
-	 * @return the value
-	 */
-	public Object getValue() {
-		return value;
-	}
-	/**
-	 * @param value the value to set
-	 */
-	public void setValue(Object value) {
-		this.value = value;
-	}
-	/**
-	 * Constructor
-	 * @param source
-	 */
+
 	public ValueEvent(final Object source, final String field) {
 		super(source);
 		this.fieldName = field;
 	}
-	/**
-	 * @return f
-	 */
+
+	public double getDoubleValue() {
+		return doubleValue;
+	}
+
+	public void setDoubleValue(double doubleValue) {
+		this.doubleValue = doubleValue;
+	}
+
+	public Object getValue() {
+		return value;
+	}
+
+	public void setValue(Object value) {
+		this.value = value;
+	}
+
 	public String getFieldName() {
 		return fieldName;
 	}
-	/**
-	 * @param fieldName
-	 */
+
 	public void setFieldName(String fieldName) {
 		this.fieldName = fieldName;
 	}
