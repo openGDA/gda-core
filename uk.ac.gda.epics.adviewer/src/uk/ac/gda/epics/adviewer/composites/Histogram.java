@@ -26,6 +26,8 @@ import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawb.common.ui.plot.axis.IAxis;
+import org.dawb.common.ui.plot.axis.IPositionListener;
+import org.dawb.common.ui.plot.axis.PositionEvent;
 import org.dawb.common.ui.plot.region.IROIListener;
 import org.dawb.common.ui.plot.region.IRegion;
 import org.dawb.common.ui.plot.region.ROIEvent;
@@ -42,6 +44,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -55,6 +58,7 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.handlers.IHandlerService;
@@ -98,7 +102,9 @@ public class Histogram extends Composite {
 
 	private IViewPart parentViewPart;
 
-	public Histogram(IViewPart parentViewPart, Composite parent, int style) {
+	private Label txtPos;
+
+	public Histogram(IViewPart parentViewPart, Composite parent, int style) throws Exception {
 		super(parent, style);
 		this.parentViewPart =parentViewPart;
 		setLayout(new GridLayout(2, false));
@@ -123,17 +129,28 @@ public class Histogram extends Composite {
 
 		Composite right = new Composite(this, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(right);
-		right.setLayout(new FillLayout());
+		GridLayoutFactory.fillDefaults().applyTo(right);
 
-		try {
-			this.plottingSystem = PlottingFactory.getLightWeightPlottingSystem();
-			plottingSystem.createPlotPart(right, "", parentViewPart.getViewSite().getActionBars(), PlotType.XY,
-					parentViewPart);
-			plottingSystem.setXfirst(true);
-		} catch (Exception ne) {
-			logger.error("Cannot create a plotting system!", ne);
-		}
+		txtPos = new Label(right, SWT.LEFT);
+		txtPos.setText("XY value");
+		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(txtPos);
+		Composite plotArea = new Composite(right, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(plotArea);
 
+		plotArea.setLayout(new FillLayout());
+
+		this.plottingSystem = PlottingFactory.getLightWeightPlottingSystem();
+		plottingSystem.createPlotPart(plotArea, "", parentViewPart.getViewSite().getActionBars(), PlotType.XY,
+				parentViewPart);
+		plottingSystem.setXfirst(true);
+		plottingSystemPositionListener = new IPositionListener() {
+			
+			@Override
+			public void positionChanged(PositionEvent evt) {
+				txtPos.setText(String.format("X:%.7g Y:%.7g", evt.x, evt.y));
+			}
+		};
+		plottingSystem.addPositionListener(plottingSystemPositionListener);
 		grpMjpegRange = new Group(left, SWT.NONE);
 		grpMjpegRange.setText("MJPeg Range");
 		grpMjpegRange.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
@@ -161,6 +178,10 @@ public class Histogram extends Composite {
 				mpegProcOffsetObservable = null;
 				mpegProcScaleObservable = null;
 				if (plottingSystem != null) {
+					if( plottingSystemPositionListener != null){
+						plottingSystem.removePositionListener(plottingSystemPositionListener);
+						plottingSystemPositionListener = null;
+					}
 					plottingSystem.dispose();
 					plottingSystem = null;
 				}
@@ -555,6 +576,8 @@ public class Histogram extends Composite {
 	private Group grpMjpegRange;
 	private Button btnDisplayMJPegRange;
 	private MinCallbackTimeComposite minCallbackTimeComposite;
+
+	private IPositionListener plottingSystemPositionListener;
 
 	boolean isComputingHistogram() throws Exception {
 		NDStats imageNDStats = config.getImageNDStats();

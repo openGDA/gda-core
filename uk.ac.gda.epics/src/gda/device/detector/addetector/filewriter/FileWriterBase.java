@@ -112,7 +112,7 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 	/**
 	 * @return the file template to configure in AreaDetector
 	 */
-	protected String getFileTemplate() {
+	public String getFileTemplate() {
 		return fileTemplate;
 	}
 
