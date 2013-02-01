@@ -34,13 +34,14 @@
          unpack="false"/>
 
    <plugin
-         id="ncsa.hdf"
+         id="org.dawnsci.rcp.histogram"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="false"/>
 
    <plugin
-         id="org.dawnsci.rcp.histogram"
+         id="org.dawb.hdf5"
          download-size="0"
          install-size="0"
          version="0.0.0"
