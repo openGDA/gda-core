@@ -40,24 +40,25 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 
 	private static final Logger logger = LoggerFactory.getLogger(XesSpectrometerScannable.class);
 	
+	private volatile boolean stopCalled = false;
+
+	double bragg = 80;
+	double radius = 1000;
+	double trajectoryStepSize = 0.02; // the size of each bragg angle step when moving the detector.
+
+	Double[] additionalCrystalHorizontalOffsets = new Double[] { -137., 137. };
+	Boolean[] additionalCrystalsInUse = new Boolean[] { false, false, false, false };
+
 	ScannableMotor xtal_x; // also known as L
 	ScannableMotor det_y;
 	ScannableMotor det_x;
 	ScannableMotor det_rot;
 	DummyPersistentScannable radiusScannable;
-	double bragg = 80;
-	double radius = 1000;
-
-	Boolean[] additionalCrystalsInUse = new Boolean[] { false, false, false, false };
 
 	ScannableMotor[] xtalxs = new ScannableMotor[2];
 	ScannableMotor[] xtalys = new ScannableMotor[3];
 	ScannableMotor[] xtalbraggs = new ScannableMotor[3];
 	ScannableMotor[] xtaltilts = new ScannableMotor[3];
-
-	Double[] additionalCrystalHorizontalOffsets = new Double[] { -137., 137. };
-
-	Double trajectoryStepSize = 0.02; // the size of each bragg angle step when moving the detector.
 
 	public XesSpectrometerScannable() {
 		this.inputNames = new String[] { "XES" };
@@ -71,6 +72,9 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 
 	@Override
 	public void stop() throws DeviceException {
+		
+		stopCalled  = true;
+		
 		xtal_x.stop();
 		det_x.stop();
 		det_y.stop();
@@ -189,6 +193,9 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 		checkPositionValid(xtalys[2], iTargets[1]);
 		checkPositionValid(xtaltilts[2], -iTargets[2]);
 		checkPositionValid(xtalbraggs[2], iTargets[3]);
+		
+		// reset the stop flag
+		stopCalled = false;
 
 		// only now store the new bragg value
 		bragg = targetBragg;
@@ -217,9 +224,15 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 				&& targetXtalThetaArray != null) {
 			try {
 				for (int node = 0; node < numTrajPoints; node++) {
+					if (stopCalled) {
+						return;
+					}
 					det_x.waitWhileBusy();
 					det_y.waitWhileBusy();
 					det_rot.waitWhileBusy();
+					if (stopCalled) {
+						return;
+					}
 					det_x.asynchronousMoveTo(targetDetXArray[node]);
 					det_y.asynchronousMoveTo(targetDetYArray[node]);
 					det_rot.asynchronousMoveTo(targetXtalThetaArray[node]);
