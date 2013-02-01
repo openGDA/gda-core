@@ -20,6 +20,7 @@ package uk.ac.diamond.tomography.reconstruction.views;
 import gda.analysis.io.ScanFileHolderException;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 
 import org.dawb.common.ui.image.PaletteFactory;
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
@@ -38,6 +39,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.MouseListener;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
@@ -54,9 +56,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISelectionListener;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.ui.progress.IProgressService;
 import org.eclipse.ui.progress.UIJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -276,34 +281,49 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 				if (nexusFile == null) {
 					return Status.CANCEL_STATUS;
 				}
-				if (dataset != null) {
-					int[] shape = dataset.getShape();
-					shape[0] = position + 1;
-					IDataset slice = dataset.getSlice(new int[] { position, 0, 0 }, shape, new int[] { 1, 1, 1 });
-					final ILazyDataset squeeze = slice.squeeze();
-
-					getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
-
+				final IWorkbench wb = PlatformUI.getWorkbench();
+				IProgressService ps = wb.getProgressService();
+				try {
+					ps.busyCursorWhile(new IRunnableWithProgress() {
 						@Override
-						public void run() {
-							plottingSystem.createPlot2D((AbstractDataset) squeeze, null, new NullProgressMonitor());
-							fileName.setText(nexusFile.getLocation().toOSString());
-							for (ITrace trace : plottingSystem.getTraces()) {
-								if (trace instanceof IImageTrace) {
-									IImageTrace imageTrace = (IImageTrace) trace;
-									imageTrace.setPaletteData(PaletteFactory.makeGrayScalePalette());
-								}
+						public void run(IProgressMonitor pm) {
+
+							if (dataset != null) {
+								int[] shape = dataset.getShape();
+								shape[0] = position + 1;
+								IDataset slice = dataset.getSlice(new int[] { position, 0, 0 }, shape,
+										new int[] { 1, 1, 1 });
+								final ILazyDataset squeeze = slice.squeeze();
+
+								getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
+
+									@Override
+									public void run() {
+										plottingSystem.updatePlot2D((AbstractDataset) squeeze, null,
+												new NullProgressMonitor());
+										fileName.setText(nexusFile.getLocation().toOSString());
+										for (ITrace trace : plottingSystem.getTraces()) {
+											if (trace instanceof IImageTrace) {
+												IImageTrace imageTrace = (IImageTrace) trace;
+												imageTrace.setPaletteData(PaletteFactory.makeGrayScalePalette());
+											}
+										}
+
+									}
+								});
+								logger.debug(dataset.getName());
+							} else {
+								showErrorMessage("Error while displaying projections", new IllegalArgumentException(
+										"Unable to find dataset"));
 							}
 
 						}
 					});
-					logger.debug(dataset.getName());
-				} else {
-					// throw new IllegalArgumentException("Unable to find dataset");
-					showErrorMessage("Error while displaying projections", new IllegalArgumentException(
-							"Unable to find dataset"));
+				} catch (InvocationTargetException e) {
+					logger.error("TODO put description of error here", e);
+				} catch (InterruptedException e) {
+					logger.error("TODO put description of error here", e);
 				}
-
 				return Status.OK_STATUS;
 			}
 
@@ -395,7 +415,7 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 
 			}
 		}
-		
+
 		@Override
 		public void roiSelected(ROIEvent evt) {
 
@@ -431,8 +451,8 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 				if (localTomoObject != null) {
 					TifNXSPathType tifNXSPath = localTomoObject.getTomodo().getNexusfile().getTifNXSPath();
 					dataset = loadFile.getLazyDataset(tifNXSPath.getValue());
-					//dataset = loadFile.getLazyDataset("/entry1/instrument/pco1_hw_tif/image_data");
-				} 
+					// dataset = loadFile.getLazyDataset("/entry1/instrument/pco1_hw_tif/image_data");
+				}
 			}
 
 			if (dataset != null) {
@@ -494,30 +514,30 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 				monitor.beginTask("Showing Reconstruction", 5);
 				// Update monitor
 				monitor.worked(1);
-				
+
 				File path = new File(nexusFile.getLocation().toOSString());
 				File pathToRecon = ReconUtil.getPathToWriteTo(nexusFile);
 				File pathToImages = new File(pathToRecon, path.getName().replace(".nxs", "") + "_data_quick");
 				File imageFile = new File(pathToImages, String.format("image_%05d.tif", pixelPosition));
-				
+
 				// update monitor
 				monitor.worked(1);
-				
+
 				try {
 					DataHolder data = new TIFFImageLoader(imageFile.getAbsolutePath()).loadFile();
-					
+
 					// update monitor
 					monitor.worked(1);
-					
+
 					AbstractDataset image = data.getDataset(0);
 					image.isubtract(image.min());
 					image.imultiply(1000.0);
-					
+
 					// update monitor
 					monitor.worked(1);
-					
+
 					SDAPlotter.imagePlot("Plot 1", image);
-					
+
 					// update monitor
 					monitor.worked(1);
 				} catch (Exception e) {
@@ -527,7 +547,7 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 				return Status.OK_STATUS;
 			}
 		};
-		
+
 		displayJob.setUser(true);
 		displayJob.schedule();
 

@@ -27,6 +27,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collections;
@@ -83,7 +84,6 @@ import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.diamond.tomography.localtomo.LocalTomoType;
-import uk.ac.diamond.tomography.localtomo.TifNXSPathType;
 import uk.ac.diamond.tomography.localtomo.util.LocalTomoUtil;
 import uk.ac.diamond.tomography.reconstruction.Activator;
 import uk.ac.diamond.tomography.reconstruction.ReconUtil;
@@ -388,45 +388,22 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 		}
 	}
 
-	private int[] getImageWidthHeight() {
-		String path = nexusFile.getLocation().toOSString();
-		HDF5Loader hdf5Loader = new HDF5Loader(path);
-		DataHolder loadFile;
-		int[] widthHeight = null;
-		try {
-			loadFile = hdf5Loader.loadFile();
-
-			LocalTomoType localTomoObject = LocalTomoUtil.getLocalTomoObject();
-
-			ILazyDataset dataset = null;
-			if (localTomoObject != null) {
-				TifNXSPathType tifNXSPath = localTomoObject.getTomodo().getNexusfile().getTifNXSPath();
-				dataset = loadFile.getLazyDataset(tifNXSPath.getValue());
-			}
-
-			if (dataset != null) {
-				int[] shape = dataset.getShape();
-				if (shape.length == 3) {
-					widthHeight = new int[2];
-					//
-					widthHeight[0] = shape[1];
-					widthHeight[1] = shape[2];
-				}
-			} else {
-				throw new IllegalArgumentException("Unable to find dataset");
-			}
-		} catch (ScanFileHolderException e1) {
-			logger.error("TODO", e1);
-		} catch (IllegalArgumentException e2) {
-			logger.error("TODO", e2);
-		}
-		return widthHeight;
-
-	}
 
 	private void runReconScript(boolean quick) {
 		saveModel();
+		if (isHdf) {
+			runHdfReconstruction(quick);
+		} else {
+			runTiffReconstruction(quick);
+		}
+	}
 
+	private void runHdfReconstruction(boolean quick) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void runTiffReconstruction(boolean quick) {
 		boolean isImageKeyAvailable = isImageKeyAvailable();
 		SampleInOutBeamPosition sampleInOutBeamPositionDialog = null;
 
@@ -482,12 +459,6 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 			}
 			command.append(String.format(" --stageInBeamPhys %s", inBeamVal));
 			command.append(String.format(" --stageOutOfBeamPhys %s", outOfBeamVal));
-
-			int[] imageWidthHeight = getImageWidthHeight();
-			if (imageWidthHeight != null) {
-				command.append(String.format(" --width %d", imageWidthHeight[1]));
-				command.append(String.format(" --height %d", imageWidthHeight[0]));
-			}
 
 			logger.debug("Command that will be run:{}", command);
 			OSCommandRunner.runNoWait(command.toString(), LOGOPTION.ALWAYS, null);
@@ -712,6 +683,7 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 	private Form mainForm;
 	private PageBook pgBook;
 	private Composite emptyCmp;
+	private boolean isHdf = false;
 
 	protected void saveModel() {
 		HMxmlType model = getModel();
@@ -827,85 +799,97 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 
 	private void createSettingsFile() {
 		LocalTomoType localTomoObject = LocalTomoUtil.getLocalTomoObject();
+		String blueprintFileLoc = "";
+
 		if (localTomoObject != null) {
-			String blueprintFileLoc = "file:" + localTomoObject.getTomodo().getSettingsfile().getBlueprint();
-
-			fileOnFileSystem = null;
+			blueprintFileLoc = "file:" + localTomoObject.getTomodo().getSettingsfile().getBlueprint();
+		}
+		if (blueprintFileLoc == "") {
 			try {
-				URL fileURL = new URL(blueprintFileLoc);
-				fileOnFileSystem = new File(FileLocator.resolve(fileURL).toURI());
-			} catch (URISyntaxException e) {
+				blueprintFileLoc = new URL("platform:/plugin/" + Activator.PLUGIN_ID + "/" + "resources/settings.xml")
+						.toString();
+				logger.debug("shFileURL:{}", blueprintFileLoc);
+
+			} catch (MalformedURLException e) {
+				logger.error("TODO put description of error here", e);
+			}
+		}
+
+		fileOnFileSystem = null;
+		try {
+			URL fileURL = new URL(blueprintFileLoc);
+			fileOnFileSystem = new File(FileLocator.resolve(fileURL).toURI());
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			logger.error("TODO put description of error here", e);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			logger.error("TODO put description of error here", e);
+		}
+		final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(Activator.TOMOGRAPHY_SETTINGS);
+		if (!project.exists()) {
+			WorkspaceModifyOperation workspaceModifyOperation = new WorkspaceModifyOperation() {
+
+				@Override
+				protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException,
+						InterruptedException {
+					project.create(monitor);
+					project.open(monitor);
+				}
+			};
+			try {
+				workspaceModifyOperation.run(null);
+			} catch (InvocationTargetException e) {
 				// TODO Auto-generated catch block
 				logger.error("TODO put description of error here", e);
-			} catch (IOException e) {
+			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				logger.error("TODO put description of error here", e);
 			}
-			final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(Activator.TOMOGRAPHY_SETTINGS);
-			if (!project.exists()) {
-				WorkspaceModifyOperation workspaceModifyOperation = new WorkspaceModifyOperation() {
+		} else if (!project.isAccessible()) {
 
-					@Override
-					protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException,
-							InterruptedException {
-						project.create(monitor);
-						project.open(monitor);
-					}
-				};
-				try {
-					workspaceModifyOperation.run(null);
-				} catch (InvocationTargetException e) {
-					// TODO Auto-generated catch block
-					logger.error("TODO put description of error here", e);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					logger.error("TODO put description of error here", e);
+			WorkspaceModifyOperation workspaceModifyOperation = new WorkspaceModifyOperation() {
+
+				@Override
+				protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException,
+						InterruptedException {
+					project.open(monitor);
 				}
-			} else if (!project.isAccessible()) {
-
-				WorkspaceModifyOperation workspaceModifyOperation = new WorkspaceModifyOperation() {
-
-					@Override
-					protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException,
-							InterruptedException {
-						project.open(monitor);
-					}
-				};
-				try {
-					workspaceModifyOperation.run(null);
-				} catch (InvocationTargetException e) {
-					// TODO Auto-generated catch block
-					logger.error("TODO put description of error here", e);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					logger.error("TODO put description of error here", e);
-				}
-
+			};
+			try {
+				workspaceModifyOperation.run(null);
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				logger.error("TODO put description of error here", e);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				logger.error("TODO put description of error here", e);
 			}
 
-			defaultSettingFile = project.getFile(pathname);
-			if (!defaultSettingFile.exists()) {
-				WorkspaceModifyOperation workspaceModifyOperation = new WorkspaceModifyOperation() {
+		}
 
-					@Override
-					protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException,
-							InterruptedException {
-						try {
-							defaultSettingFile.create(new FileInputStream(fileOnFileSystem), true, null);
-						} catch (FileNotFoundException e) {
-							logger.error("TODO put description of error here", e);
-						}
+		defaultSettingFile = project.getFile(pathname);
+		if (!defaultSettingFile.exists()) {
+			WorkspaceModifyOperation workspaceModifyOperation = new WorkspaceModifyOperation() {
+
+				@Override
+				protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException,
+						InterruptedException {
+					try {
+						defaultSettingFile.create(new FileInputStream(fileOnFileSystem), true, null);
+					} catch (FileNotFoundException e) {
+						logger.error("TODO put description of error here", e);
 					}
-				};
-				try {
-					workspaceModifyOperation.run(null);
-				} catch (InvocationTargetException e) {
-					// TODO Auto-generated catch block
-					logger.error("TODO put description of error here", e);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					logger.error("TODO put description of error here", e);
 				}
+			};
+			try {
+				workspaceModifyOperation.run(null);
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				logger.error("TODO put description of error here", e);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				logger.error("TODO put description of error here", e);
 			}
 		}
 	}
@@ -943,7 +927,21 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 
 			if (nexusFile != null) {
 				hmSettingsInProcessingDir = getHmSettingsInProcessingDir();
+				String path = nexusFile.getLocation().toOSString();
+				HDF5Loader hdf5Loader = new HDF5Loader(path);
+				DataHolder loadFile;
+				int[] widthHeight = null;
+				ILazyDataset dataset = null;
+				try {
+					loadFile = hdf5Loader.loadFile();
 
+					dataset = loadFile.getLazyDataset("/entry1/instrument/pco4000_dio_hdf/data");
+				} catch (Exception ex) {
+					logger.error("Error", ex);
+				}
+				if (dataset != null && dataset.getRank() == 3) {
+					isHdf = true;
+				}
 				getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
 
 					@Override
