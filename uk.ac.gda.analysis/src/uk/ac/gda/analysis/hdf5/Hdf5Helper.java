@@ -27,6 +27,8 @@ import ncsa.hdf.hdf5lib.HDF5Constants;
 import ncsa.hdf.object.h5.H5Datatype;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
@@ -46,7 +48,7 @@ import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
  * H5Dread/h5dread_f and H5Dwrite/h5dwrite_f routines are used.
  */
 public class Hdf5Helper {
-	// private static final Logger logger = LoggerFactory.getLogger(Hdf5Helper.class);
+	private static final Logger logger = LoggerFactory.getLogger(Hdf5Helper.class);
 	private static final Hdf5Helper INSTANCE = new Hdf5Helper();
 
 	public static Hdf5Helper getInstance() {
@@ -361,7 +363,13 @@ public class Hdf5Helper {
 	 */
 	public Hdf5HelperData readDataSetAll(String fileName, String location, String dataSetName, boolean getData)
 			throws Exception {
-		return readDataSet(fileName, location, dataSetName, null, null, null, null, null, null, 0, null, getData);
+		try{
+			return readDataSet(fileName, location, dataSetName, null, null, null, null, null, null, 0, null, getData);
+		} 
+		catch(Exception e){
+			logger.error("Error reading " + location + "/" + dataSetName + " from " + fileName, e);
+			throw e;
+		}
 	}
 
 	public long lenFromDims(long[] dims) {
