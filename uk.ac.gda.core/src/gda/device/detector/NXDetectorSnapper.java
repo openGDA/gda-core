@@ -65,8 +65,8 @@ public class NXDetectorSnapper implements DetectorSnapper {
 		//disable or enable callbacks if required by class variable first to allow collectionStrategy or fileWriter to turn back on needed
 		getCollectionStrategy().setGenerateCallbacks(!isDisableCallbacks());
 		int numberImagesPerCollection = getCollectionStrategy().getNumberImagesPerCollection(collectionTime);
-		getCollectionStrategy().prepareForCollection(collectionTime, 1);
-		getFileWriter().prepareForCollection(numberImagesPerCollection);
+		getCollectionStrategy().prepareForCollection(collectionTime, 1, null);
+		getFileWriter().prepareForCollection(numberImagesPerCollection, null);
 
 	}
 

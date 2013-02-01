@@ -25,6 +25,7 @@ import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataChildNodeAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
 import gda.device.detector.nxdetector.NXPlugin;
+import gda.scan.ScanInformation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,7 +63,7 @@ public class NXDetectorMetadataPlugin implements NXPlugin {
 	}
 
 	@Override
-	public void prepareForCollection(int numberImagesPerCollection) throws Exception {
+	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 		firstReadoutInScan = true;
 	}
 

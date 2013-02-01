@@ -18,6 +18,8 @@
 
 package gda.device.detector.nxdetector;
 
+import gda.scan.ScanInformation;
+
 /**
  * Called by ADDetector;s Detector hooks (in the order triggered by ConcurrentScan)
  */
@@ -30,7 +32,7 @@ public interface NXCollectionStrategyPlugin extends NXPlugin{
 	@Deprecated // This does not need to be on the interface. It duplicates some of the behaviour in prepareForCollection
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception;
 
-	void prepareForCollection(double collectionTime, int numberImagesPerCollection) throws Exception;
+	void prepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo) throws Exception;
 	
 	public void collectData() throws Exception;
 

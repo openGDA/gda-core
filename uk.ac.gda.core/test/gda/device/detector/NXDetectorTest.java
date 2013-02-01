@@ -36,6 +36,9 @@ import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
 import gda.device.detector.nxdetector.NXFileWriterPlugin;
 import gda.device.detector.nxdetector.NXPlugin;
+import gda.jython.ICurrentScanInformationHolder;
+import gda.jython.InterfaceProvider;
+import gda.scan.ScanInformation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,11 +49,14 @@ import java.util.concurrent.Callable;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.runners.MockitoJUnitRunner;
 
+@RunWith(MockitoJUnitRunner.class)
 public class NXDetectorTest {
 
 	private NXDetector det;
@@ -64,6 +70,9 @@ public class NXDetectorTest {
 	@Mock
 	private NXPlugin plugin;
 
+	@Mock
+	private ICurrentScanInformationHolder currentScanInformationHolder;
+
 	private List<NXDetectorDataAppender> appenderList0;
 
 	private List<NXDetectorDataAppender> appenderList1;
@@ -72,12 +81,12 @@ public class NXDetectorTest {
 
 	@Before
 	public void setUp() {
-		MockitoAnnotations.initMocks(this);
-		
+		InterfaceProvider.setCurrentScanInformationHolderForTesting(currentScanInformationHolder);
+
 		when(collectionStrategy.getName()).thenReturn("a");
 		when(fileWriter.getName()).thenReturn("b");
 		when(plugin.getName()).thenReturn("c");
-		
+
 		appenderList0 = mockAppenderList(10);
 		appenderList1 = mockAppenderList(10);
 		appenderList2 = mockAppenderList(10);
@@ -101,12 +110,12 @@ public class NXDetectorTest {
 
 	@Test
 	public void testGetPluginMap() {
-		
+
 		Map<String, NXPlugin> expected = new HashMap<String, NXPlugin>();
 		expected.put("a", collectionStrategy);
 		expected.put("b", fileWriter);
 		expected.put("c", plugin);
-		
+
 		assertEquals(expected, det.getPluginMap());
 	}
 
@@ -117,7 +126,7 @@ public class NXDetectorTest {
 		det.setAdditionalPluginList(Arrays.asList(fileWriter, plugin));
 		det.setCollectionStrategy(collectionStrategy);
 	}
-	
+
 	@Test(expected = IllegalArgumentException.class)
 	public void testSetAdditionalPluginListWithDuplicateCollectionStrategyName() {
 		when(collectionStrategy.getName()).thenReturn("b");
@@ -134,7 +143,7 @@ public class NXDetectorTest {
 	}
 
 	// Scannable
-	
+
 	@Test
 	public void testGetInputNames() {
 		assertArrayEquals(new String[0], det.getInputNames());
@@ -171,7 +180,8 @@ public class NXDetectorTest {
 
 	@Test
 	public void testAtScanStart() throws Exception {
-		
+		ScanInformation scanInfo = mock(ScanInformation.class);
+		when(currentScanInformationHolder.getCurrentScanInformation()).thenReturn(scanInfo );
 		when(collectionStrategy.getNumberImagesPerCollection(3.)).thenReturn(2);
 
 		det.setCollectionTime(3.);
@@ -179,10 +189,10 @@ public class NXDetectorTest {
 
 		InOrder inOrder = inOrder(collectionStrategy, fileWriter, plugin);
 		inOrder.verify(collectionStrategy).setGenerateCallbacks(anyBoolean()); // ignorese value
-		inOrder.verify(collectionStrategy).prepareForCollection(3., 2);
-		inOrder.verify(fileWriter).prepareForCollection(2);
-		inOrder.verify(plugin).prepareForCollection(2);
-	
+		inOrder.verify(collectionStrategy).prepareForCollection(3., 2, scanInfo);
+		inOrder.verify(fileWriter).prepareForCollection(2, scanInfo);
+		inOrder.verify(plugin).prepareForCollection(2, scanInfo);
+
 	}
 
 	@Test
@@ -193,7 +203,7 @@ public class NXDetectorTest {
 
 	@Test
 	public void testAtScanStartWithCallbacksRequired() throws Exception {
-		
+
 		when(collectionStrategy.willRequireCallbacks()).thenReturn(false);
 		when(fileWriter.willRequireCallbacks()).thenReturn(true);
 		when(plugin.willRequireCallbacks()).thenReturn(false);
@@ -201,7 +211,7 @@ public class NXDetectorTest {
 		det.atScanStart();
 
 		verify(collectionStrategy).setGenerateCallbacks(true);
-		
+
 	}
 
 	@Test
@@ -227,7 +237,7 @@ public class NXDetectorTest {
 
 	@Test
 	public void testPositionCallableTypeWithFileWriterNotReturningFilepaths() throws Exception {
-		
+
 		configureStreamsForSinglePoint();
 		when(fileWriter.appendsFilepathStrings()).thenReturn(false);
 
@@ -236,12 +246,12 @@ public class NXDetectorTest {
 
 		assertTrue(data instanceof NXDetectorData);
 		assertFalse(data instanceof NXDetectorDataWithFilepathForSrs);
-		
+
 	}
 
 	@Test
 	public void testPositionCallableTypeWithFileWriterReturningFilepaths() throws Exception {
-		
+
 		configureStreamsForSinglePoint();
 		when(fileWriter.appendsFilepathStrings()).thenReturn(true);
 
@@ -250,31 +260,31 @@ public class NXDetectorTest {
 
 		assertTrue(data instanceof NXDetectorData);
 		assertTrue(data instanceof NXDetectorDataWithFilepathForSrs);
-		
+
 	}
 
 	@Test
 	public void testPositionCallableAppendingWithSinglePointStream() throws Exception {
-		
+
 		configureStreamsForSinglePoint();
 
 		det.atScanStart();
 		NexusTreeProvider returnedData = det.getPositionCallable().call();
 
 		checkNXDetectorDataGeneration(returnedData, appenderList0.get(0), appenderList1.get(0), appenderList2.get(0));
-	
+
 	}
 
 	@Test
 	public void testReadoutWithSinglePointStream() throws Exception {
-		
+
 		configureStreamsForSinglePoint();
 
 		det.atScanStart();
 		NexusTreeProvider returnedData = det.readout();
 
 		checkNXDetectorDataGeneration(returnedData, appenderList0.get(0), appenderList1.get(0), appenderList2.get(0));
-	
+
 	}
 
 	@Test
