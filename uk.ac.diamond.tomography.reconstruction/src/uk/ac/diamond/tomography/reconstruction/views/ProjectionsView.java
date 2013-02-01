@@ -421,12 +421,18 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 		try {
 			loadFile = hdf5Loader.loadFile();
 
-			LocalTomoType localTomoObject = LocalTomoUtil.getLocalTomoObject();
+			// if this is an HDF5 object, we need no local information
+			// TODO hardcoded for testing, but this needs to be sorted out when proper format is specified.
+			dataset = loadFile.getLazyDataset("/entry1/instrument/pco4000_dio_hdf/data");
+			if (dataset.getRank() != 3) {
+				dataset = null;
+				LocalTomoType localTomoObject = LocalTomoUtil.getLocalTomoObject();
 
-			if (localTomoObject != null) {
-				TifNXSPathType tifNXSPath = localTomoObject.getTomodo().getNexusfile().getTifNXSPath();
-				dataset = loadFile.getLazyDataset(tifNXSPath.getValue());
-				//dataset = loadFile.getLazyDataset("/entry1/instrument/pco1_hw_tif/image_data");
+				if (localTomoObject != null) {
+					TifNXSPathType tifNXSPath = localTomoObject.getTomodo().getNexusfile().getTifNXSPath();
+					dataset = loadFile.getLazyDataset(tifNXSPath.getValue());
+					//dataset = loadFile.getLazyDataset("/entry1/instrument/pco1_hw_tif/image_data");
+				} 
 			}
 
 			if (dataset != null) {
