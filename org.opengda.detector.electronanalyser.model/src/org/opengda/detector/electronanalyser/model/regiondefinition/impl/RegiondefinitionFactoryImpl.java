@@ -88,6 +88,8 @@ public class RegiondefinitionFactoryImpl extends EFactoryImpl implements Regiond
 				return createENERGY_MODEFromString(eDataType, initialValue);
 			case RegiondefinitionPackage.DETECTOR_MODE:
 				return createDETECTOR_MODEFromString(eDataType, initialValue);
+			case RegiondefinitionPackage.PASS_ENERGY:
+				return createPASS_ENERGYFromString(eDataType, initialValue);
 			default:
 				throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
 		}
@@ -111,6 +113,8 @@ public class RegiondefinitionFactoryImpl extends EFactoryImpl implements Regiond
 				return convertENERGY_MODEToString(eDataType, instanceValue);
 			case RegiondefinitionPackage.DETECTOR_MODE:
 				return convertDETECTOR_MODEToString(eDataType, instanceValue);
+			case RegiondefinitionPackage.PASS_ENERGY:
+				return convertPASS_ENERGYToString(eDataType, instanceValue);
 			default:
 				throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
 		}
@@ -293,6 +297,26 @@ public class RegiondefinitionFactoryImpl extends EFactoryImpl implements Regiond
 	 * @generated
 	 */
 	public String convertDETECTOR_MODEToString(EDataType eDataType, Object instanceValue) {
+		return instanceValue == null ? null : instanceValue.toString();
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public PASS_ENERGY createPASS_ENERGYFromString(EDataType eDataType, String initialValue) {
+		PASS_ENERGY result = PASS_ENERGY.get(initialValue);
+		if (result == null) throw new IllegalArgumentException("The value '" + initialValue + "' is not a valid enumerator of '" + eDataType.getName() + "'");
+		return result;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public String convertPASS_ENERGYToString(EDataType eDataType, Object instanceValue) {
 		return instanceValue == null ? null : instanceValue.toString();
 	}
 

@@ -131,7 +131,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	int SEQUENCE__REPEAT_UNITIL_STOPPED = 3;
 
 	/**
-	 * The feature id for the '<em><b>Spectrum</b></em>' reference.
+	 * The feature id for the '<em><b>Spectrum</b></em>' containment reference.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
@@ -140,13 +140,22 @@ public interface RegiondefinitionPackage extends EPackage {
 	int SEQUENCE__SPECTRUM = 4;
 
 	/**
+	 * The feature id for the '<em><b>Filename</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SEQUENCE__FILENAME = 5;
+
+	/**
 	 * The number of structural features of the '<em>Sequence</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SEQUENCE_FEATURE_COUNT = 5;
+	int SEQUENCE_FEATURE_COUNT = 6;
 
 	/**
 	 * The meta object id for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl <em>Region</em>}' class.
@@ -177,22 +186,13 @@ public interface RegiondefinitionPackage extends EPackage {
 	int REGION__LENSMODE = 1;
 
 	/**
-	 * The feature id for the '<em><b>Pass Energy</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int REGION__PASS_ENERGY = 2;
-
-	/**
 	 * The feature id for the '<em><b>Run Mode</b></em>' containment reference.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int REGION__RUN_MODE = 3;
+	int REGION__RUN_MODE = 2;
 
 	/**
 	 * The feature id for the '<em><b>Acquisition Mode</b></em>' attribute.
@@ -201,7 +201,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REGION__ACQUISITION_MODE = 4;
+	int REGION__ACQUISITION_MODE = 3;
 
 	/**
 	 * The feature id for the '<em><b>Energy Mode</b></em>' attribute.
@@ -210,34 +210,43 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REGION__ENERGY_MODE = 5;
+	int REGION__ENERGY_MODE = 4;
 
 	/**
-	 * The feature id for the '<em><b>Energy</b></em>' reference.
+	 * The feature id for the '<em><b>Energy</b></em>' containment reference.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int REGION__ENERGY = 6;
+	int REGION__ENERGY = 5;
 
 	/**
-	 * The feature id for the '<em><b>Step</b></em>' reference.
+	 * The feature id for the '<em><b>Step</b></em>' containment reference.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int REGION__STEP = 7;
+	int REGION__STEP = 6;
 
 	/**
-	 * The feature id for the '<em><b>Detector</b></em>' reference.
+	 * The feature id for the '<em><b>Detector</b></em>' containment reference.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int REGION__DETECTOR = 8;
+	int REGION__DETECTOR = 7;
+
+	/**
+	 * The feature id for the '<em><b>Pass Energy</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REGION__PASS_ENERGY = 8;
 
 	/**
 	 * The number of structural features of the '<em>Region</em>' class.
@@ -587,6 +596,16 @@ public interface RegiondefinitionPackage extends EPackage {
 	int SPECTRUM_FEATURE_COUNT = 9;
 
 	/**
+	 * The meta object id for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.PASS_ENERGY <em>PASS ENERGY</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.PASS_ENERGY
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegiondefinitionPackageImpl#getPASS_ENERGY()
+	 * @generated
+	 */
+	int PASS_ENERGY = 13;
+
+	/**
 	 * The meta object id for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.LENS_MODE <em>LENS MODE</em>}' enum.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -713,15 +732,26 @@ public interface RegiondefinitionPackage extends EPackage {
 	EAttribute getSequence_RepeatUnitilStopped();
 
 	/**
-	 * Returns the meta object for the reference '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getSpectrum <em>Spectrum</em>}'.
+	 * Returns the meta object for the containment reference '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getSpectrum <em>Spectrum</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the reference '<em>Spectrum</em>'.
+	 * @return the meta object for the containment reference '<em>Spectrum</em>'.
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getSpectrum()
 	 * @see #getSequence()
 	 * @generated
 	 */
 	EReference getSequence_Spectrum();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getFilename <em>Filename</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Filename</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getFilename()
+	 * @see #getSequence()
+	 * @generated
+	 */
+	EAttribute getSequence_Filename();
 
 	/**
 	 * Returns the meta object for class '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region <em>Region</em>}'.
@@ -800,10 +830,10 @@ public interface RegiondefinitionPackage extends EPackage {
 	EAttribute getRegion_EnergyMode();
 
 	/**
-	 * Returns the meta object for the reference '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getEnergy <em>Energy</em>}'.
+	 * Returns the meta object for the containment reference '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getEnergy <em>Energy</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the reference '<em>Energy</em>'.
+	 * @return the meta object for the containment reference '<em>Energy</em>'.
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getEnergy()
 	 * @see #getRegion()
 	 * @generated
@@ -811,10 +841,10 @@ public interface RegiondefinitionPackage extends EPackage {
 	EReference getRegion_Energy();
 
 	/**
-	 * Returns the meta object for the reference '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getStep <em>Step</em>}'.
+	 * Returns the meta object for the containment reference '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getStep <em>Step</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the reference '<em>Step</em>'.
+	 * @return the meta object for the containment reference '<em>Step</em>'.
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getStep()
 	 * @see #getRegion()
 	 * @generated
@@ -822,10 +852,10 @@ public interface RegiondefinitionPackage extends EPackage {
 	EReference getRegion_Step();
 
 	/**
-	 * Returns the meta object for the reference '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getDetector <em>Detector</em>}'.
+	 * Returns the meta object for the containment reference '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getDetector <em>Detector</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the reference '<em>Detector</em>'.
+	 * @return the meta object for the containment reference '<em>Detector</em>'.
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getDetector()
 	 * @see #getRegion()
 	 * @generated
@@ -1230,6 +1260,16 @@ public interface RegiondefinitionPackage extends EPackage {
 	EEnum getDETECTOR_MODE();
 
 	/**
+	 * Returns the meta object for enum '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.PASS_ENERGY <em>PASS ENERGY</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>PASS ENERGY</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.PASS_ENERGY
+	 * @generated
+	 */
+	EEnum getPASS_ENERGY();
+
+	/**
 	 * Returns the factory that creates the instances of the model.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -1312,12 +1352,20 @@ public interface RegiondefinitionPackage extends EPackage {
 		EAttribute SEQUENCE__REPEAT_UNITIL_STOPPED = eINSTANCE.getSequence_RepeatUnitilStopped();
 
 		/**
-		 * The meta object literal for the '<em><b>Spectrum</b></em>' reference feature.
+		 * The meta object literal for the '<em><b>Spectrum</b></em>' containment reference feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
 		EReference SEQUENCE__SPECTRUM = eINSTANCE.getSequence_Spectrum();
+
+		/**
+		 * The meta object literal for the '<em><b>Filename</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute SEQUENCE__FILENAME = eINSTANCE.getSequence_Filename();
 
 		/**
 		 * The meta object literal for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl <em>Region</em>}' class.
@@ -1378,7 +1426,7 @@ public interface RegiondefinitionPackage extends EPackage {
 		EAttribute REGION__ENERGY_MODE = eINSTANCE.getRegion_EnergyMode();
 
 		/**
-		 * The meta object literal for the '<em><b>Energy</b></em>' reference feature.
+		 * The meta object literal for the '<em><b>Energy</b></em>' containment reference feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
@@ -1386,7 +1434,7 @@ public interface RegiondefinitionPackage extends EPackage {
 		EReference REGION__ENERGY = eINSTANCE.getRegion_Energy();
 
 		/**
-		 * The meta object literal for the '<em><b>Step</b></em>' reference feature.
+		 * The meta object literal for the '<em><b>Step</b></em>' containment reference feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
@@ -1394,7 +1442,7 @@ public interface RegiondefinitionPackage extends EPackage {
 		EReference REGION__STEP = eINSTANCE.getRegion_Step();
 
 		/**
-		 * The meta object literal for the '<em><b>Detector</b></em>' reference feature.
+		 * The meta object literal for the '<em><b>Detector</b></em>' containment reference feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
@@ -1666,6 +1714,16 @@ public interface RegiondefinitionPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute SPECTRUM__COMMENTS = eINSTANCE.getSpectrum_Comments();
+
+		/**
+		 * The meta object literal for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.PASS_ENERGY <em>PASS ENERGY</em>}' enum.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.PASS_ENERGY
+		 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegiondefinitionPackageImpl#getPASS_ENERGY()
+		 * @generated
+		 */
+		EEnum PASS_ENERGY = eINSTANCE.getPASS_ENERGY();
 
 		/**
 		 * The meta object literal for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.LENS_MODE <em>LENS MODE</em>}' enum.

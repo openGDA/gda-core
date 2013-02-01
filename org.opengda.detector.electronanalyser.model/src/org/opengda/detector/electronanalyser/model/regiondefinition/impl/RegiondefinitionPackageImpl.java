@@ -5,6 +5,7 @@ package org.opengda.detector.electronanalyser.model.regiondefinition.impl;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EEnum;
+import org.eclipse.emf.ecore.EOperation;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 
@@ -13,6 +14,8 @@ import org.eclipse.emf.ecore.impl.EPackageImpl;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Detector;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.DocumentRoot;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Energy;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.Energy1;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.PassEnergy;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionFactory;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
@@ -118,6 +121,13 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * @generated
 	 */
 	private EEnum detectoR_MODEEEnum = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EEnum pasS_ENERGYEEnum = null;
 
 	/**
 	 * Creates an instance of the model <b>Package</b>, registered with
@@ -257,6 +267,15 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EAttribute getSequence_Filename() {
+		return (EAttribute)sequenceEClass.getEStructuralFeatures().get(5);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EClass getRegion() {
 		return regionEClass;
 	}
@@ -285,7 +304,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * @generated
 	 */
 	public EAttribute getRegion_PassEnergy() {
-		return (EAttribute)regionEClass.getEStructuralFeatures().get(2);
+		return (EAttribute)regionEClass.getEStructuralFeatures().get(8);
 	}
 
 	/**
@@ -294,7 +313,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * @generated
 	 */
 	public EReference getRegion_RunMode() {
-		return (EReference)regionEClass.getEStructuralFeatures().get(3);
+		return (EReference)regionEClass.getEStructuralFeatures().get(2);
 	}
 
 	/**
@@ -303,7 +322,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * @generated
 	 */
 	public EAttribute getRegion_AcquisitionMode() {
-		return (EAttribute)regionEClass.getEStructuralFeatures().get(4);
+		return (EAttribute)regionEClass.getEStructuralFeatures().get(3);
 	}
 
 	/**
@@ -312,7 +331,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * @generated
 	 */
 	public EAttribute getRegion_EnergyMode() {
-		return (EAttribute)regionEClass.getEStructuralFeatures().get(5);
+		return (EAttribute)regionEClass.getEStructuralFeatures().get(4);
 	}
 
 	/**
@@ -321,7 +340,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * @generated
 	 */
 	public EReference getRegion_Energy() {
-		return (EReference)regionEClass.getEStructuralFeatures().get(6);
+		return (EReference)regionEClass.getEStructuralFeatures().get(5);
 	}
 
 	/**
@@ -330,7 +349,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * @generated
 	 */
 	public EReference getRegion_Step() {
-		return (EReference)regionEClass.getEStructuralFeatures().get(7);
+		return (EReference)regionEClass.getEStructuralFeatures().get(6);
 	}
 
 	/**
@@ -339,7 +358,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * @generated
 	 */
 	public EReference getRegion_Detector() {
-		return (EReference)regionEClass.getEStructuralFeatures().get(8);
+		return (EReference)regionEClass.getEStructuralFeatures().get(7);
 	}
 
 	/**
@@ -680,6 +699,15 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EEnum getPASS_ENERGY() {
+		return pasS_ENERGYEEnum;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public RegiondefinitionFactory getRegiondefinitionFactory() {
 		return (RegiondefinitionFactory)getEFactoryInstance();
 	}
@@ -712,17 +740,18 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 		createEAttribute(sequenceEClass, SEQUENCE__NUM_ITERATIONS);
 		createEAttribute(sequenceEClass, SEQUENCE__REPEAT_UNITIL_STOPPED);
 		createEReference(sequenceEClass, SEQUENCE__SPECTRUM);
+		createEAttribute(sequenceEClass, SEQUENCE__FILENAME);
 
 		regionEClass = createEClass(REGION);
 		createEAttribute(regionEClass, REGION__NAME);
 		createEAttribute(regionEClass, REGION__LENSMODE);
-		createEAttribute(regionEClass, REGION__PASS_ENERGY);
 		createEReference(regionEClass, REGION__RUN_MODE);
 		createEAttribute(regionEClass, REGION__ACQUISITION_MODE);
 		createEAttribute(regionEClass, REGION__ENERGY_MODE);
 		createEReference(regionEClass, REGION__ENERGY);
 		createEReference(regionEClass, REGION__STEP);
 		createEReference(regionEClass, REGION__DETECTOR);
+		createEAttribute(regionEClass, REGION__PASS_ENERGY);
 
 		runModeEClass = createEClass(RUN_MODE);
 		createEAttribute(runModeEClass, RUN_MODE__MODE);
@@ -767,6 +796,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 		acquiaitioN_MODEEEnum = createEEnum(ACQUIAITION_MODE);
 		energY_MODEEEnum = createEEnum(ENERGY_MODE);
 		detectoR_MODEEEnum = createEEnum(DETECTOR_MODE);
+		pasS_ENERGYEEnum = createEEnum(PASS_ENERGY);
 	}
 
 	/**
@@ -803,22 +833,26 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 		initEReference(getDocumentRoot_Sequence(), this.getSequence(), null, "sequence", null, 0, 1, DocumentRoot.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(sequenceEClass, Sequence.class, "Sequence", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEReference(getSequence_Region(), this.getRegion(), null, "region", null, 0, -1, Sequence.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getSequence_RunMode(), this.getRUN_MODES(), "runMode", null, 0, 1, Sequence.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getSequence_NumIterations(), ecorePackage.getEInt(), "numIterations", null, 0, 1, Sequence.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getSequence_RepeatUnitilStopped(), ecorePackage.getEBoolean(), "repeatUnitilStopped", null, 0, 1, Sequence.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getSequence_Spectrum(), this.getSpectrum(), null, "spectrum", null, 0, 1, Sequence.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getSequence_Region(), this.getRegion(), null, "region", null, 0, -1, Sequence.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getSequence_RunMode(), this.getRUN_MODES(), "runMode", "", 0, 1, Sequence.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getSequence_NumIterations(), ecorePackage.getEInt(), "numIterations", null, 0, 1, Sequence.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getSequence_RepeatUnitilStopped(), ecorePackage.getEBoolean(), "repeatUnitilStopped", null, 0, 1, Sequence.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getSequence_Spectrum(), this.getSpectrum(), null, "spectrum", null, 0, 1, Sequence.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getSequence_Filename(), ecorePackage.getEString(), "filename", null, 0, 1, Sequence.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+
+		EOperation op = addEOperation(sequenceEClass, this.getRegion(), "getRegion", 0, 1, IS_UNIQUE, IS_ORDERED);
+		addEParameter(op, ecorePackage.getEString(), "regionName", 0, 1, IS_UNIQUE, IS_ORDERED);
 
 		initEClass(regionEClass, Region.class, "Region", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getRegion_Name(), ecorePackage.getEString(), "name", null, 0, 1, Region.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getRegion_Lensmode(), this.getLENS_MODE(), "lensmode", null, 0, 1, Region.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getRegion_PassEnergy(), ecorePackage.getEIntegerObject(), "passEnergy", null, 0, 1, Region.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getRegion_RunMode(), this.getRunMode(), null, "runMode", null, 0, 1, Region.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getRegion_AcquisitionMode(), this.getACQUIAITION_MODE(), "acquisitionMode", null, 0, 1, Region.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getRegion_Lensmode(), this.getLENS_MODE(), "lensmode", null, 0, 1, Region.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getRegion_RunMode(), this.getRunMode(), null, "runMode", null, 0, 1, Region.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getRegion_AcquisitionMode(), this.getACQUIAITION_MODE(), "acquisitionMode", null, 0, 1, Region.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getRegion_EnergyMode(), this.getENERGY_MODE(), "energyMode", null, 0, 1, Region.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getRegion_Energy(), this.getEnergy(), null, "energy", null, 0, 1, Region.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getRegion_Step(), this.getStep(), null, "step", null, 0, 1, Region.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getRegion_Detector(), this.getDetector(), null, "detector", null, 0, 1, Region.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getRegion_Energy(), this.getEnergy(), null, "energy", null, 0, 1, Region.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getRegion_Step(), this.getStep(), null, "step", null, 0, 1, Region.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getRegion_Detector(), this.getDetector(), null, "detector", null, 0, 1, Region.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getRegion_PassEnergy(), this.getPASS_ENERGY(), "passEnergy", null, 0, 1, Region.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(runModeEClass, RunMode.class, "RunMode", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getRunMode_Mode(), this.getRUN_MODES(), "mode", null, 0, 1, RunMode.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -878,6 +912,15 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 		initEEnum(detectoR_MODEEEnum, org.opengda.detector.electronanalyser.model.regiondefinition.api.DETECTOR_MODE.class, "DETECTOR_MODE");
 		addEEnumLiteral(detectoR_MODEEEnum, org.opengda.detector.electronanalyser.model.regiondefinition.api.DETECTOR_MODE.ADC);
 		addEEnumLiteral(detectoR_MODEEEnum, org.opengda.detector.electronanalyser.model.regiondefinition.api.DETECTOR_MODE.PULSE_COUNTING);
+
+		initEEnum(pasS_ENERGYEEnum, org.opengda.detector.electronanalyser.model.regiondefinition.api.PASS_ENERGY.class, "PASS_ENERGY");
+		addEEnumLiteral(pasS_ENERGYEEnum, org.opengda.detector.electronanalyser.model.regiondefinition.api.PASS_ENERGY._5);
+		addEEnumLiteral(pasS_ENERGYEEnum, org.opengda.detector.electronanalyser.model.regiondefinition.api.PASS_ENERGY._10);
+		addEEnumLiteral(pasS_ENERGYEEnum, org.opengda.detector.electronanalyser.model.regiondefinition.api.PASS_ENERGY._50);
+		addEEnumLiteral(pasS_ENERGYEEnum, org.opengda.detector.electronanalyser.model.regiondefinition.api.PASS_ENERGY._75);
+		addEEnumLiteral(pasS_ENERGYEEnum, org.opengda.detector.electronanalyser.model.regiondefinition.api.PASS_ENERGY._100);
+		addEEnumLiteral(pasS_ENERGYEEnum, org.opengda.detector.electronanalyser.model.regiondefinition.api.PASS_ENERGY._200);
+		addEEnumLiteral(pasS_ENERGYEEnum, org.opengda.detector.electronanalyser.model.regiondefinition.api.PASS_ENERGY._500);
 
 		// Create resource
 		createResource(eNS_URI);

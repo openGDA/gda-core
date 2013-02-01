@@ -24,6 +24,7 @@ import org.eclipse.emf.edit.provider.ItemPropertyDescriptor;
 import org.eclipse.emf.edit.provider.ItemProviderAdapter;
 import org.eclipse.emf.edit.provider.ViewerNotification;
 
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.PASS_ENERGY;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionFactory;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
@@ -65,12 +66,9 @@ public class RegionItemProvider
 
 			addNamePropertyDescriptor(object);
 			addLensmodePropertyDescriptor(object);
-			addPassEnergyPropertyDescriptor(object);
 			addAcquisitionModePropertyDescriptor(object);
 			addEnergyModePropertyDescriptor(object);
-			addEnergyPropertyDescriptor(object);
-			addStepPropertyDescriptor(object);
-			addDetectorPropertyDescriptor(object);
+			addPassEnergyPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
 	}
@@ -111,28 +109,6 @@ public class RegionItemProvider
 				 getString("_UI_Region_lensmode_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Region_lensmode_feature", "_UI_Region_type"),
 				 RegiondefinitionPackage.Literals.REGION__LENSMODE,
-				 true,
-				 false,
-				 false,
-				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
-				 null,
-				 null));
-	}
-
-	/**
-	 * This adds a property descriptor for the Pass Energy feature.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected void addPassEnergyPropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
-				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
-				 getResourceLocator(),
-				 getString("_UI_Region_passEnergy_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Region_passEnergy_feature", "_UI_Region_type"),
-				 RegiondefinitionPackage.Literals.REGION__PASS_ENERGY,
 				 true,
 				 false,
 				 false,
@@ -186,67 +162,23 @@ public class RegionItemProvider
 	}
 
 	/**
-	 * This adds a property descriptor for the Energy feature.
+	 * This adds a property descriptor for the Pass Energy feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addEnergyPropertyDescriptor(Object object) {
+	protected void addPassEnergyPropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_Region_energy_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Region_energy_feature", "_UI_Region_type"),
-				 RegiondefinitionPackage.Literals.REGION__ENERGY,
+				 getString("_UI_Region_passEnergy_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Region_passEnergy_feature", "_UI_Region_type"),
+				 RegiondefinitionPackage.Literals.REGION__PASS_ENERGY,
 				 true,
 				 false,
-				 true,
-				 null,
-				 null,
-				 null));
-	}
-
-	/**
-	 * This adds a property descriptor for the Step feature.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected void addStepPropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
-				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
-				 getResourceLocator(),
-				 getString("_UI_Region_step_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Region_step_feature", "_UI_Region_type"),
-				 RegiondefinitionPackage.Literals.REGION__STEP,
-				 true,
 				 false,
-				 true,
-				 null,
-				 null,
-				 null));
-	}
-
-	/**
-	 * This adds a property descriptor for the Detector feature.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected void addDetectorPropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
-				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
-				 getResourceLocator(),
-				 getString("_UI_Region_detector_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Region_detector_feature", "_UI_Region_type"),
-				 RegiondefinitionPackage.Literals.REGION__DETECTOR,
-				 true,
-				 false,
-				 true,
-				 null,
+				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
 				 null,
 				 null));
 	}
@@ -264,6 +196,9 @@ public class RegionItemProvider
 		if (childrenFeatures == null) {
 			super.getChildrenFeatures(object);
 			childrenFeatures.add(RegiondefinitionPackage.Literals.REGION__RUN_MODE);
+			childrenFeatures.add(RegiondefinitionPackage.Literals.REGION__ENERGY);
+			childrenFeatures.add(RegiondefinitionPackage.Literals.REGION__STEP);
+			childrenFeatures.add(RegiondefinitionPackage.Literals.REGION__DETECTOR);
 		}
 		return childrenFeatures;
 	}
@@ -320,12 +255,15 @@ public class RegionItemProvider
 		switch (notification.getFeatureID(Region.class)) {
 			case RegiondefinitionPackage.REGION__NAME:
 			case RegiondefinitionPackage.REGION__LENSMODE:
-			case RegiondefinitionPackage.REGION__PASS_ENERGY:
 			case RegiondefinitionPackage.REGION__ACQUISITION_MODE:
 			case RegiondefinitionPackage.REGION__ENERGY_MODE:
+			case RegiondefinitionPackage.REGION__PASS_ENERGY:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;
 			case RegiondefinitionPackage.REGION__RUN_MODE:
+			case RegiondefinitionPackage.REGION__ENERGY:
+			case RegiondefinitionPackage.REGION__STEP:
+			case RegiondefinitionPackage.REGION__DETECTOR:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), true, false));
 				return;
 		}
@@ -347,6 +285,21 @@ public class RegionItemProvider
 			(createChildParameter
 				(RegiondefinitionPackage.Literals.REGION__RUN_MODE,
 				 RegiondefinitionFactory.eINSTANCE.createRunMode()));
+
+		newChildDescriptors.add
+			(createChildParameter
+				(RegiondefinitionPackage.Literals.REGION__ENERGY,
+				 RegiondefinitionFactory.eINSTANCE.createEnergy()));
+
+		newChildDescriptors.add
+			(createChildParameter
+				(RegiondefinitionPackage.Literals.REGION__STEP,
+				 RegiondefinitionFactory.eINSTANCE.createStep()));
+
+		newChildDescriptors.add
+			(createChildParameter
+				(RegiondefinitionPackage.Literals.REGION__DETECTOR,
+				 RegiondefinitionFactory.eINSTANCE.createDetector()));
 	}
 
 	/**

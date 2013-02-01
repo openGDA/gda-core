@@ -13,6 +13,12 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence
  * <!-- begin-user-doc -->
  * A test case for the model object '<em><b>Sequence</b></em>'.
  * <!-- end-user-doc -->
+ * <p>
+ * The following operations are tested:
+ * <ul>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRegion(java.lang.String) <em>Get Region</em>}</li>
+ * </ul>
+ * </p>
  * @generated
  */
 public class SequenceTest extends TestCase {
@@ -84,6 +90,19 @@ public class SequenceTest extends TestCase {
 	@Override
 	protected void tearDown() throws Exception {
 		setFixture(null);
+	}
+
+	/**
+	 * Tests the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRegion(java.lang.String) <em>Get Region</em>}' operation.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRegion(java.lang.String)
+	 * @generated
+	 */
+	public void testGetRegion__String() {
+		// TODO: implement this operation test method
+		// Ensure that you remove @generated or mark it @generated NOT
+		fail();
 	}
 
 } //SequenceTest

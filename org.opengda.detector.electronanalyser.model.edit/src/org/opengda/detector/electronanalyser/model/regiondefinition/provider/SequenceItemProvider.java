@@ -67,7 +67,7 @@ public class SequenceItemProvider
 			addRunModePropertyDescriptor(object);
 			addNumIterationsPropertyDescriptor(object);
 			addRepeatUnitilStoppedPropertyDescriptor(object);
-			addSpectrumPropertyDescriptor(object);
+			addFilenamePropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
 	}
@@ -139,23 +139,23 @@ public class SequenceItemProvider
 	}
 
 	/**
-	 * This adds a property descriptor for the Spectrum feature.
+	 * This adds a property descriptor for the Filename feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addSpectrumPropertyDescriptor(Object object) {
+	protected void addFilenamePropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_Sequence_spectrum_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Sequence_spectrum_feature", "_UI_Sequence_type"),
-				 RegiondefinitionPackage.Literals.SEQUENCE__SPECTRUM,
+				 getString("_UI_Sequence_filename_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sequence_filename_feature", "_UI_Sequence_type"),
+				 RegiondefinitionPackage.Literals.SEQUENCE__FILENAME,
 				 true,
 				 false,
-				 true,
-				 null,
+				 false,
+				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
 				 null,
 				 null));
 	}
@@ -173,6 +173,7 @@ public class SequenceItemProvider
 		if (childrenFeatures == null) {
 			super.getChildrenFeatures(object);
 			childrenFeatures.add(RegiondefinitionPackage.Literals.SEQUENCE__REGION);
+			childrenFeatures.add(RegiondefinitionPackage.Literals.SEQUENCE__SPECTRUM);
 		}
 		return childrenFeatures;
 	}
@@ -209,8 +210,7 @@ public class SequenceItemProvider
 	 */
 	@Override
 	public String getText(Object object) {
-		RUN_MODES labelValue = ((Sequence)object).getRunMode();
-		String label = labelValue == null ? null : labelValue.toString();
+		String label = ((Sequence)object).getFilename();
 		return label == null || label.length() == 0 ?
 			getString("_UI_Sequence_type") :
 			getString("_UI_Sequence_type") + " " + label;
@@ -231,9 +231,11 @@ public class SequenceItemProvider
 			case RegiondefinitionPackage.SEQUENCE__RUN_MODE:
 			case RegiondefinitionPackage.SEQUENCE__NUM_ITERATIONS:
 			case RegiondefinitionPackage.SEQUENCE__REPEAT_UNITIL_STOPPED:
+			case RegiondefinitionPackage.SEQUENCE__FILENAME:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;
 			case RegiondefinitionPackage.SEQUENCE__REGION:
+			case RegiondefinitionPackage.SEQUENCE__SPECTRUM:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), true, false));
 				return;
 		}
@@ -255,6 +257,11 @@ public class SequenceItemProvider
 			(createChildParameter
 				(RegiondefinitionPackage.Literals.SEQUENCE__REGION,
 				 RegiondefinitionFactory.eINSTANCE.createRegion()));
+
+		newChildDescriptors.add
+			(createChildParameter
+				(RegiondefinitionPackage.Literals.SEQUENCE__SPECTRUM,
+				 RegiondefinitionFactory.eINSTANCE.createSpectrum()));
 	}
 
 	/**

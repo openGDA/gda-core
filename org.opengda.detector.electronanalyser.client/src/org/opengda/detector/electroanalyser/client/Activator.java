@@ -1,12 +1,11 @@
 package org.opengda.detector.electroanalyser.client;
 
-import java.io.File;
-
 import gda.util.SpringObjectServer;
+
+import java.io.File;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 public class Activator implements BundleActivator {
 
@@ -27,11 +26,9 @@ public class Activator implements BundleActivator {
 		Activator.context = bundleContext;
 		SpringObjectServer s = new SpringObjectServer(
 				new File(
-						"D:/gda/gda-i09/workspace/org.opengda.detector.electroanalyser.client/client.xml"),
+						"D:/gda/gda-i09/workspace/org.opengda.detector.electronanalyser.client.test/client.xml"),
 				true);
 		s.configure();
-//		FileSystemXmlApplicationContext applicationContext = new FileSystemXmlApplicationContext(
-//				"file:D:\\gda\\gda-i09\\workspace\\org.opengda.detector.electroanalyser.client\\client.xml");
 	}
 
 	/*

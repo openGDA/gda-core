@@ -7,24 +7,38 @@
         containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Sequence">
+    <eOperations name="getRegion" eType="#//Region">
+      <eParameters name="regionName" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eOperations>
     <eStructuralFeatures xsi:type="ecore:EReference" name="region" upperBound="-1"
-        eType="#//Region" containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="runMode" eType="#//RUN_MODES"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="numIterations" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="repeatUnitilStopped" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="spectrum" eType="#//Spectrum"/>
+        eType="#//Region" unsettable="true" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="runMode" unique="false"
+        eType="#//RUN_MODES" defaultValueLiteral="" unsettable="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="numIterations" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
+        unsettable="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="repeatUnitilStopped" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"
+        unsettable="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="spectrum" eType="#//Spectrum"
+        unsettable="true" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="filename" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        unsettable="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Region">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="lensmode" eType="#//LENS_MODE"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="passEnergy" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EIntegerObject"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="lensmode" eType="#//LENS_MODE"
+        unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="runMode" eType="#//RunMode"
-        containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="acquisitionMode" eType="#//ACQUIAITION_MODE"/>
+        unsettable="true" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="acquisitionMode" eType="#//ACQUIAITION_MODE"
+        unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="energyMode" eType="#//ENERGY_MODE"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="energy" eType="#//Energy"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="step" eType="#//Step"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="detector" eType="#//Detector"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="energy" eType="#//Energy"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="step" eType="#//Step" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="detector" eType="#//Detector"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="passEnergy" eType="#//PASS_ENERGY"
+        unsettable="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EEnum" name="LENS_MODE">
     <eLiterals name="TRANSMISSION"/>
@@ -87,5 +101,14 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="numberOfComments" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="comments" upperBound="-1"
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="PASS_ENERGY">
+    <eLiterals name="_5" literal="5"/>
+    <eLiterals name="_10" value="1" literal="10"/>
+    <eLiterals name="_50" value="2" literal="50"/>
+    <eLiterals name="_75" value="3" literal="75"/>
+    <eLiterals name="_100" value="4" literal="100"/>
+    <eLiterals name="_200" value="5" literal="200"/>
+    <eLiterals name="_500" value="6" literal="500"/>
   </eClassifiers>
 </ecore:EPackage>

@@ -31,6 +31,7 @@ public class RegiondefinitionAllTests extends TestSuite {
 	 */
 	public static Test suite() {
 		TestSuite suite = new RegiondefinitionAllTests("Regiondefinition Tests");
+		suite.addTest(RegiondefinitionTests.suite());
 		return suite;
 	}
 

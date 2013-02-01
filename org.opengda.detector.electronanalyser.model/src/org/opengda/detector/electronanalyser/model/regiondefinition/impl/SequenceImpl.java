@@ -36,6 +36,7 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SequenceImpl#getNumIterations <em>Num Iterations</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SequenceImpl#isRepeatUnitilStopped <em>Repeat Unitil Stopped</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SequenceImpl#getSpectrum <em>Spectrum</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SequenceImpl#getFilename <em>Filename</em>}</li>
  * </ul>
  * </p>
  *
@@ -73,6 +74,15 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	protected RUN_MODES runMode = RUN_MODE_EDEFAULT;
 
 	/**
+	 * This is true if the Run Mode attribute has been set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean runModeESet;
+
+	/**
 	 * The default value of the '{@link #getNumIterations() <em>Num Iterations</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -91,6 +101,15 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * @ordered
 	 */
 	protected int numIterations = NUM_ITERATIONS_EDEFAULT;
+
+	/**
+	 * This is true if the Num Iterations attribute has been set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean numIterationsESet;
 
 	/**
 	 * The default value of the '{@link #isRepeatUnitilStopped() <em>Repeat Unitil Stopped</em>}' attribute.
@@ -113,7 +132,16 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	protected boolean repeatUnitilStopped = REPEAT_UNITIL_STOPPED_EDEFAULT;
 
 	/**
-	 * The cached value of the '{@link #getSpectrum() <em>Spectrum</em>}' reference.
+	 * This is true if the Repeat Unitil Stopped attribute has been set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean repeatUnitilStoppedESet;
+
+	/**
+	 * The cached value of the '{@link #getSpectrum() <em>Spectrum</em>}' containment reference.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @see #getSpectrum()
@@ -121,6 +149,44 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * @ordered
 	 */
 	protected Spectrum spectrum;
+
+	/**
+	 * This is true if the Spectrum containment reference has been set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean spectrumESet;
+
+	/**
+	 * The default value of the '{@link #getFilename() <em>Filename</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getFilename()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String FILENAME_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getFilename() <em>Filename</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getFilename()
+	 * @generated
+	 * @ordered
+	 */
+	protected String filename = FILENAME_EDEFAULT;
+
+	/**
+	 * This is true if the Filename attribute has been set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean filenameESet;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -148,9 +214,27 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 */
 	public EList<Region> getRegion() {
 		if (region == null) {
-			region = new EObjectContainmentEList<Region>(Region.class, this, RegiondefinitionPackage.SEQUENCE__REGION);
+			region = new EObjectContainmentEList.Unsettable<Region>(Region.class, this, RegiondefinitionPackage.SEQUENCE__REGION);
 		}
 		return region;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void unsetRegion() {
+		if (region != null) ((InternalEList.Unsettable<?>)region).unset();
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean isSetRegion() {
+		return region != null && ((InternalEList.Unsettable<?>)region).isSet();
 	}
 
 	/**
@@ -170,8 +254,33 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	public void setRunMode(RUN_MODES newRunMode) {
 		RUN_MODES oldRunMode = runMode;
 		runMode = newRunMode == null ? RUN_MODE_EDEFAULT : newRunMode;
+		boolean oldRunModeESet = runModeESet;
+		runModeESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SEQUENCE__RUN_MODE, oldRunMode, runMode));
+			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SEQUENCE__RUN_MODE, oldRunMode, runMode, !oldRunModeESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void unsetRunMode() {
+		RUN_MODES oldRunMode = runMode;
+		boolean oldRunModeESet = runModeESet;
+		runMode = RUN_MODE_EDEFAULT;
+		runModeESet = false;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.SEQUENCE__RUN_MODE, oldRunMode, RUN_MODE_EDEFAULT, oldRunModeESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean isSetRunMode() {
+		return runModeESet;
 	}
 
 	/**
@@ -191,8 +300,33 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	public void setNumIterations(int newNumIterations) {
 		int oldNumIterations = numIterations;
 		numIterations = newNumIterations;
+		boolean oldNumIterationsESet = numIterationsESet;
+		numIterationsESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SEQUENCE__NUM_ITERATIONS, oldNumIterations, numIterations));
+			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SEQUENCE__NUM_ITERATIONS, oldNumIterations, numIterations, !oldNumIterationsESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void unsetNumIterations() {
+		int oldNumIterations = numIterations;
+		boolean oldNumIterationsESet = numIterationsESet;
+		numIterations = NUM_ITERATIONS_EDEFAULT;
+		numIterationsESet = false;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.SEQUENCE__NUM_ITERATIONS, oldNumIterations, NUM_ITERATIONS_EDEFAULT, oldNumIterationsESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean isSetNumIterations() {
+		return numIterationsESet;
 	}
 
 	/**
@@ -212,8 +346,33 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	public void setRepeatUnitilStopped(boolean newRepeatUnitilStopped) {
 		boolean oldRepeatUnitilStopped = repeatUnitilStopped;
 		repeatUnitilStopped = newRepeatUnitilStopped;
+		boolean oldRepeatUnitilStoppedESet = repeatUnitilStoppedESet;
+		repeatUnitilStoppedESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SEQUENCE__REPEAT_UNITIL_STOPPED, oldRepeatUnitilStopped, repeatUnitilStopped));
+			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SEQUENCE__REPEAT_UNITIL_STOPPED, oldRepeatUnitilStopped, repeatUnitilStopped, !oldRepeatUnitilStoppedESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void unsetRepeatUnitilStopped() {
+		boolean oldRepeatUnitilStopped = repeatUnitilStopped;
+		boolean oldRepeatUnitilStoppedESet = repeatUnitilStoppedESet;
+		repeatUnitilStopped = REPEAT_UNITIL_STOPPED_EDEFAULT;
+		repeatUnitilStoppedESet = false;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.SEQUENCE__REPEAT_UNITIL_STOPPED, oldRepeatUnitilStopped, REPEAT_UNITIL_STOPPED_EDEFAULT, oldRepeatUnitilStoppedESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean isSetRepeatUnitilStopped() {
+		return repeatUnitilStoppedESet;
 	}
 
 	/**
@@ -222,14 +381,6 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * @generated
 	 */
 	public Spectrum getSpectrum() {
-		if (spectrum != null && spectrum.eIsProxy()) {
-			InternalEObject oldSpectrum = (InternalEObject)spectrum;
-			spectrum = (Spectrum)eResolveProxy(oldSpectrum);
-			if (spectrum != oldSpectrum) {
-				if (eNotificationRequired())
-					eNotify(new ENotificationImpl(this, Notification.RESOLVE, RegiondefinitionPackage.SEQUENCE__SPECTRUM, oldSpectrum, spectrum));
-			}
-		}
 		return spectrum;
 	}
 
@@ -238,8 +389,16 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public Spectrum basicGetSpectrum() {
-		return spectrum;
+	public NotificationChain basicSetSpectrum(Spectrum newSpectrum, NotificationChain msgs) {
+		Spectrum oldSpectrum = spectrum;
+		spectrum = newSpectrum;
+		boolean oldSpectrumESet = spectrumESet;
+		spectrumESet = true;
+		if (eNotificationRequired()) {
+			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SEQUENCE__SPECTRUM, oldSpectrum, newSpectrum, !oldSpectrumESet);
+			if (msgs == null) msgs = notification; else msgs.add(notification);
+		}
+		return msgs;
 	}
 
 	/**
@@ -248,10 +407,124 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * @generated
 	 */
 	public void setSpectrum(Spectrum newSpectrum) {
+		if (newSpectrum != spectrum) {
+			NotificationChain msgs = null;
+			if (spectrum != null)
+				msgs = ((InternalEObject)spectrum).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - RegiondefinitionPackage.SEQUENCE__SPECTRUM, null, msgs);
+			if (newSpectrum != null)
+				msgs = ((InternalEObject)newSpectrum).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - RegiondefinitionPackage.SEQUENCE__SPECTRUM, null, msgs);
+			msgs = basicSetSpectrum(newSpectrum, msgs);
+			if (msgs != null) msgs.dispatch();
+		}
+		else {
+			boolean oldSpectrumESet = spectrumESet;
+			spectrumESet = true;
+			if (eNotificationRequired())
+				eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SEQUENCE__SPECTRUM, newSpectrum, newSpectrum, !oldSpectrumESet));
+		}
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public NotificationChain basicUnsetSpectrum(NotificationChain msgs) {
 		Spectrum oldSpectrum = spectrum;
-		spectrum = newSpectrum;
+		spectrum = null;
+		boolean oldSpectrumESet = spectrumESet;
+		spectrumESet = false;
+		if (eNotificationRequired()) {
+			ENotificationImpl notification = new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.SEQUENCE__SPECTRUM, oldSpectrum, null, oldSpectrumESet);
+			if (msgs == null) msgs = notification; else msgs.add(notification);
+		}
+		return msgs;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void unsetSpectrum() {
+		if (spectrum != null) {
+			NotificationChain msgs = null;
+			msgs = ((InternalEObject)spectrum).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - RegiondefinitionPackage.SEQUENCE__SPECTRUM, null, msgs);
+			msgs = basicUnsetSpectrum(msgs);
+			if (msgs != null) msgs.dispatch();
+		}
+		else {
+			boolean oldSpectrumESet = spectrumESet;
+			spectrumESet = false;
+			if (eNotificationRequired())
+				eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.SEQUENCE__SPECTRUM, null, null, oldSpectrumESet));
+		}
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean isSetSpectrum() {
+		return spectrumESet;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public String getFilename() {
+		return filename;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setFilename(String newFilename) {
+		String oldFilename = filename;
+		filename = newFilename;
+		boolean oldFilenameESet = filenameESet;
+		filenameESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SEQUENCE__SPECTRUM, oldSpectrum, spectrum));
+			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SEQUENCE__FILENAME, oldFilename, filename, !oldFilenameESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void unsetFilename() {
+		String oldFilename = filename;
+		boolean oldFilenameESet = filenameESet;
+		filename = FILENAME_EDEFAULT;
+		filenameESet = false;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.SEQUENCE__FILENAME, oldFilename, FILENAME_EDEFAULT, oldFilenameESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean isSetFilename() {
+		return filenameESet;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public Region getRegion(String regionName) {
+		// TODO: implement this method
+		// Ensure that you remove @generated or mark it @generated NOT
+		throw new UnsupportedOperationException();
 	}
 
 	/**
@@ -264,6 +537,8 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 		switch (featureID) {
 			case RegiondefinitionPackage.SEQUENCE__REGION:
 				return ((InternalEList<?>)getRegion()).basicRemove(otherEnd, msgs);
+			case RegiondefinitionPackage.SEQUENCE__SPECTRUM:
+				return basicUnsetSpectrum(msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
@@ -285,8 +560,9 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 			case RegiondefinitionPackage.SEQUENCE__REPEAT_UNITIL_STOPPED:
 				return isRepeatUnitilStopped();
 			case RegiondefinitionPackage.SEQUENCE__SPECTRUM:
-				if (resolve) return getSpectrum();
-				return basicGetSpectrum();
+				return getSpectrum();
+			case RegiondefinitionPackage.SEQUENCE__FILENAME:
+				return getFilename();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -316,6 +592,9 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 			case RegiondefinitionPackage.SEQUENCE__SPECTRUM:
 				setSpectrum((Spectrum)newValue);
 				return;
+			case RegiondefinitionPackage.SEQUENCE__FILENAME:
+				setFilename((String)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
@@ -329,19 +608,22 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	public void eUnset(int featureID) {
 		switch (featureID) {
 			case RegiondefinitionPackage.SEQUENCE__REGION:
-				getRegion().clear();
+				unsetRegion();
 				return;
 			case RegiondefinitionPackage.SEQUENCE__RUN_MODE:
-				setRunMode(RUN_MODE_EDEFAULT);
+				unsetRunMode();
 				return;
 			case RegiondefinitionPackage.SEQUENCE__NUM_ITERATIONS:
-				setNumIterations(NUM_ITERATIONS_EDEFAULT);
+				unsetNumIterations();
 				return;
 			case RegiondefinitionPackage.SEQUENCE__REPEAT_UNITIL_STOPPED:
-				setRepeatUnitilStopped(REPEAT_UNITIL_STOPPED_EDEFAULT);
+				unsetRepeatUnitilStopped();
 				return;
 			case RegiondefinitionPackage.SEQUENCE__SPECTRUM:
-				setSpectrum((Spectrum)null);
+				unsetSpectrum();
+				return;
+			case RegiondefinitionPackage.SEQUENCE__FILENAME:
+				unsetFilename();
 				return;
 		}
 		super.eUnset(featureID);
@@ -356,15 +638,17 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
 			case RegiondefinitionPackage.SEQUENCE__REGION:
-				return region != null && !region.isEmpty();
+				return isSetRegion();
 			case RegiondefinitionPackage.SEQUENCE__RUN_MODE:
-				return runMode != RUN_MODE_EDEFAULT;
+				return isSetRunMode();
 			case RegiondefinitionPackage.SEQUENCE__NUM_ITERATIONS:
-				return numIterations != NUM_ITERATIONS_EDEFAULT;
+				return isSetNumIterations();
 			case RegiondefinitionPackage.SEQUENCE__REPEAT_UNITIL_STOPPED:
-				return repeatUnitilStopped != REPEAT_UNITIL_STOPPED_EDEFAULT;
+				return isSetRepeatUnitilStopped();
 			case RegiondefinitionPackage.SEQUENCE__SPECTRUM:
-				return spectrum != null;
+				return isSetSpectrum();
+			case RegiondefinitionPackage.SEQUENCE__FILENAME:
+				return isSetFilename();
 		}
 		return super.eIsSet(featureID);
 	}
@@ -380,11 +664,13 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 
 		StringBuffer result = new StringBuffer(super.toString());
 		result.append(" (runMode: ");
-		result.append(runMode);
+		if (runModeESet) result.append(runMode); else result.append("<unset>");
 		result.append(", numIterations: ");
-		result.append(numIterations);
+		if (numIterationsESet) result.append(numIterations); else result.append("<unset>");
 		result.append(", repeatUnitilStopped: ");
-		result.append(repeatUnitilStopped);
+		if (repeatUnitilStoppedESet) result.append(repeatUnitilStopped); else result.append("<unset>");
+		result.append(", filename: ");
+		if (filenameESet) result.append(filename); else result.append("<unset>");
 		result.append(')');
 		return result.toString();
 	}
