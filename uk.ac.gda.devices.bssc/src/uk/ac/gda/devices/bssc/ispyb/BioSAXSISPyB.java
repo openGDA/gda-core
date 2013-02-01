@@ -19,16 +19,20 @@
 package uk.ac.gda.devices.bssc.ispyb;
 
 import java.sql.SQLException;
+import java.util.List;
+
+import uk.ac.gda.devices.bssc.beans.LocationBean;
 
 public interface BioSAXSISPyB {
-
-	public enum RDBMSTYPE {Oracle, MySQL, PostgreSQL}
-	public enum MODE {live, testing}
+	
+	public class SampleInfo {
+		public LocationBean location;
+		public String name;
+		public String sampleFileName, bufferBeforeFileName, bufferAfterFileName;
+	}
 	
 	/**
-	 * I would not care if that creates/gets a BLSession or an Experiment. So if the structure for that changes I would
-	 * not be affected.
-	 * 
+	 *  
 	 * @param visitname
 	 *            e.g. sm9999-9
 	 * @return sessionID
@@ -108,4 +112,15 @@ public interface BioSAXSISPyB {
 	 * Method to close the database connection once it's no longer needed.
 	 */
 	public abstract void disconnect() throws SQLException;
+	
+	public List<SampleInfo> getSaxsDataCollectionInfo(long saxsDataCollectionId) throws SQLException;
+
+	/**
+	 * retrieve all data collection ids for a session (visit)
+	 * 
+	 * @param blsessionId
+	 * @return all ids
+	 * @throws SQLException
+	 */
+	public List<Long> getSaxsDataCollectionsForSession(long blsessionId) throws SQLException;
 }

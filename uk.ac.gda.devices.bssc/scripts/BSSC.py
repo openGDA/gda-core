@@ -4,7 +4,7 @@ import uk.ac.gda.devices.bssc.beans.BSSCSessionBean
 from gda.data.metadata import GDAMetadataProvider
 import gda.jython.commands.ScannableCommands
 from gda.commandqueue import JythonScriptProgressProvider
-from uk.ac.gda.devices.bssc.ispyb import BioSAXSDBFactory
+from uk.ac.gda.devices.bssc.ispyb import BioSAXSDBFactory, BioSAXSISPyBUtils
 
 class BSSCRun:
     
@@ -18,14 +18,13 @@ class BSSCRun:
         self.shutter = gda.factory.Finder.getInstance().find("shutter")
         self.progresscounter = 0
         self.overheadsteps = 5
-        self.stepspersample = 7
+        self.stepspersample = 8
         self.stepsperbuffer = 3
         self.energy = float(GDAMetadataProvider.getInstance().getMetadataValue("instrument.monochromator.energy"))
         self.totalSteps = self.overheadsteps + self.bean.getMeasurements().size() * self.stepspersample + (self.bean.getMeasurements().size() + 1) * self.stepsperbuffer
         lastTitration=None
         self.ispyb = BioSAXSDBFactory.makeAPI()
-        self.visit = self.ispyb.getSessionForVisit("nt20-12")
-        #self.visit = self.ispyb.getSessionForVisit(GDAMetadataProvider.getInstance().getMetadataValue("visit"))
+        self.visit = self.ispyb.getSessionForVisit(GDAMetadataProvider.getInstance().getMetadataValue("visit"))
         for titration in self.bean.getMeasurements():
             if lastTitration != None and not self.tritrationsCanUseSameBufferMeasurement(lastTitration, titration):
                 self.totalSteps += self.stepsperbuffer
@@ -37,6 +36,10 @@ class BSSCRun:
             self.isSimulation = False
         except: 
             print "Temperature control is not working, will run at ambient conditions."
+        if self.isSimulation:
+            self.scannables = [self.detector]
+        else:
+            self.scannable = [self.detector, self.cam]
         
     def reportProgress(self, message):
         self.progresscounter += 1
@@ -67,10 +70,22 @@ class BSSCRun:
         self.bssc.setEnableVolumeDetectionInWell(True)
         print "Plates in Sample Changer: ", self.bssc.getPlatesIDs()
     
+    def getStorageTemperature(self):
+        if not self.isSimulation:
+            return self.bssc.getTemperatureSampleStorage()
+        else:
+            return -300.0
+            
     def setStorageTemperature(self):
         if not self.isSimulation:
             self.monitorAsynchronousMethod(self.bssc.waitTemperatureSample(self.bean.getSampleStorageTemperature()))
     
+    def getExposureTemperature(self):
+        if not self.isSimulation:
+            return self.bssc.getTemperatureSEU()
+        else:
+            return -300
+
     def setExposureTemperature(self, temperature):
         if not self.isSimulation:
             self.monitorAsynchronousMethod(self.bssc.waitTemperatureSEU((temperature)))
@@ -103,7 +118,7 @@ class BSSCRun:
         if speed >= 5 and speed <= 6000: 
             # simulation reports these limits
             taskid = self.bssc.push(self.samplevolume, speed)
-            filename = self.doTheScan([self.detector])
+            filename = self.doTheScan(self.scannables)
             self.monitorAsynchronousMethod(taskid)
         else:
             print "sample speed %5.1f outside allowed range, will do static exposure" % speed
@@ -124,7 +139,7 @@ class BSSCRun:
             self.setTitle("Buffer for next and preceding sample measurement")
             filename = self.expose(duration)
             self.reportSampleProgress(titration, "Cleaning after Buffer")
-            id = self.ispyb.createBufferMeasurement(self.visit, titration.getBufferLocation().getPlate(), titration.getBufferLocation().getRowAsInt(), titration.getBufferLocation().getColumn(), self.bean.getSampleStorageTemperature(), titration.getExposureTemperature(), titration.getFrames(), titration.getTimePerFrame(), 0.0, self.samplevolume, self.energy, titration.getViscosity(), filename, "/entry1/Pilatus2M/data")
+            id = self.ispyb.createBufferMeasurement(self.visit, titration.getBufferLocation().getPlate(), titration.getBufferLocation().getRowAsInt(), titration.getBufferLocation().getColumn(), self.getStorageTemperature(), self.getExposureTemperature(), titration.getFrames(), titration.getTimePerFrame(), 0.0, self.samplevolume, self.energy, titration.getViscosity(), filename, "/entry1/Pilatus2M/data")
             self.ispyb.createMeasurementToDataCollection(self.datacollection, id)
             self.clean()
    
@@ -135,13 +150,13 @@ class BSSCRun:
             self.reportSampleProgress(titration, "Exposing Sample")
             self.setTitle("Sample: %s (Location %s)" % (titration.getSampleName(), titration.getLocation().toString()))
             filename = self.expose(duration)
+            id = self.ispyb.createSampleMeasurement(self.visit, titration.getLocation().getPlate(), titration.getLocation().getRowAsInt(), titration.getLocation().getColumn(), titration.getSampleName(), titration.getConcentration(), self.getStorageTemperature(), self.getExposureTemperature(), titration.getFrames(), titration.getTimePerFrame(), 0.0, self.samplevolume, self.energy, titration.getViscosity(), filename, "/entry1/Pilatus2M/data")
+            self.ispyb.createMeasurementToDataCollection(self.datacollection, id)
             if titration.isRecouperate() and not titration.isYellowSample():
                 self.reportSampleProgress(titration, "Recuperating Sample and Cleaning")
                 self.unloadIntoWell(titration.getLocation())
             else:
                 self.reportSampleProgress(titration, "Cleaning after Sample")
-            id = self.ispyb.createBufferMeasurement(self.visit, titration.getLocation().getPlate(), titration.getLocation().getRowAsInt(), titration.getLocation().getColumn(), self.bean.getSampleStorageTemperature(), titration.getExposureTemperature(), titration.getFrames(), titration.getTimePerFrame(), 0.0, self.samplevolume, self.energy, titration.getViscosity(), filename, "/entry1/Pilatus2M/data")
-            self.ispyb.createMeasurementToDataCollection(self.datacollection, id)
             self.clean()
 
     def setUpRobotAndDetector(self, titration):
@@ -195,5 +210,6 @@ class BSSCRun:
         self.reportProgress("Closing shutter")
         self.closeShutter()
         time.sleep(2)
+        BioSAXSISPyBUtils.dumpCollectionReport(self.datacollection)
         self.ispyb.disconnect()
         
