@@ -84,6 +84,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.diamond.tomography.localtomo.LocalTomoType;
+import uk.ac.diamond.tomography.localtomo.TifNXSPathType;
 import uk.ac.diamond.tomography.localtomo.util.LocalTomoUtil;
 import uk.ac.diamond.tomography.reconstruction.Activator;
 import uk.ac.diamond.tomography.reconstruction.ReconUtil;
@@ -388,7 +389,6 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 		}
 	}
 
-
 	private void runReconScript(boolean quick) {
 		saveModel();
 		if (isHdf) {
@@ -399,8 +399,80 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 	}
 
 	private void runHdfReconstruction(boolean quick) {
-		// TODO Auto-generated method stub
-		
+		File tomoDoShScript = null;
+		try {
+			URL shFileURL = new URL("platform:/plugin/" + Activator.PLUGIN_ID + "/" + "scripts/hdfrecon.sh");
+			logger.debug("shFileURL:{}", shFileURL);
+			tomoDoShScript = new File(FileLocator.toFileURL(shFileURL).toURI());
+			logger.debug("tomoDoShScript:{}", tomoDoShScript);
+
+			IPath fullPath = nexusFile.getLocation();
+
+			File path = new File(nexusFile.getLocation().toOSString());
+			File pathToRecon = ReconUtil.getPathToWriteTo(nexusFile);
+			File pathToImages = new File(pathToRecon, path.getName().replace(".nxs", "") + "_data_quick");
+
+			if (pathToImages.exists()) {
+				final File[] files = pathToImages.listFiles();
+				for (File f : files) {
+					try {
+						f.delete();
+					} catch (Exception e) {
+						logger.warn("Cannot delete file");
+					}
+				}
+			} else {
+				try {
+					pathToImages.mkdirs();
+				} catch (Exception ex) {
+					logger.warn("Cannot create writing directory");
+				}
+			}
+
+			String fileName = fullPath.toOSString();
+
+			String shScriptName = tomoDoShScript.getAbsolutePath();
+			String templateFileName = hmSettingsInProcessingDir.getAbsolutePath();
+
+			int height = hdfShape[1];
+			String centerOfRotText = txtCenterOfRotation.getText();
+			double centerOfRotationValue = 2000;
+			try {
+				centerOfRotationValue = Double.parseDouble(centerOfRotText);
+			} catch (NumberFormatException n) {
+				logger.error("Cant parse", n);
+			}
+
+			StringBuffer command = new StringBuffer(String.format("%s -e %d -n -t %s -c %f", shScriptName, height,
+					templateFileName, centerOfRotationValue));
+			if (quick) {
+				command.append(" -q 100");
+			}
+			command.append(" " + fileName);
+			command.append(" " + pathToImages.toString());
+
+			// String localTomoUtilFileLocation = LocalTomoUtil.getLocalTomoUtilFileLocation();
+			// if (localTomoUtilFileLocation != null) {
+			// command.append(" --local " + localTomoUtilFileLocation);
+			// }
+
+			double inBeamVal = 0;
+			double outOfBeamVal = 0;
+
+			// if (!isImageKeyAvailable && sampleInOutBeamPositionDialog != null) {
+			// inBeamVal = sampleInOutBeamPositionDialog.getInBeamPosition();
+			// outOfBeamVal = sampleInOutBeamPositionDialog.getOutOfBeamPosition();
+			// }
+			// command.append(String.format(" --stageInBeamPhys %s", inBeamVal));
+			// command.append(String.format(" --stageOutOfBeamPhys %s", outOfBeamVal));
+
+			logger.debug("Command that will be run:{}", command);
+			OSCommandRunner.runNoWait(command.toString(), LOGOPTION.ALWAYS, null);
+		} catch (URISyntaxException e) {
+			logger.error("TODO put description of error here", e);
+		} catch (IOException e) {
+			logger.error("TODO put description of error here", e);
+		}
 	}
 
 	private void runTiffReconstruction(boolean quick) {
@@ -684,6 +756,7 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 	private PageBook pgBook;
 	private Composite emptyCmp;
 	private boolean isHdf = false;
+	private int[] hdfShape;
 
 	protected void saveModel() {
 		HMxmlType model = getModel();
@@ -930,7 +1003,6 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 				String path = nexusFile.getLocation().toOSString();
 				HDF5Loader hdf5Loader = new HDF5Loader(path);
 				DataHolder loadFile;
-				int[] widthHeight = null;
 				ILazyDataset dataset = null;
 				try {
 					loadFile = hdf5Loader.loadFile();
@@ -941,6 +1013,7 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 				}
 				if (dataset != null && dataset.getRank() == 3) {
 					isHdf = true;
+					hdfShape = dataset.getShape();
 				}
 				getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
 
