@@ -4,7 +4,7 @@ import uk.ac.gda.devices.bssc.beans.BSSCSessionBean
 from gda.data.metadata import GDAMetadataProvider
 import gda.jython.commands.ScannableCommands
 from gda.commandqueue import JythonScriptProgressProvider
-from uk.ac.gda.devices.bssc.ispyb import BioSAXSDBFactory
+from uk.ac.gda.devices.bssc.ispyb import BioSAXSDBFactory, BioSAXSISPyBUtils
 
 class BSSCRun:
     
@@ -150,7 +150,7 @@ class BSSCRun:
             self.reportSampleProgress(titration, "Exposing Sample")
             self.setTitle("Sample: %s (Location %s)" % (titration.getSampleName(), titration.getLocation().toString()))
             filename = self.expose(duration)
-            id = self.ispyb.createBufferMeasurement(self.visit, titration.getLocation().getPlate(), titration.getLocation().getRowAsInt(), titration.getLocation().getColumn(), self.getStorageTemperature(), self.getExposureTemperature(), titration.getFrames(), titration.getTimePerFrame(), 0.0, self.samplevolume, self.energy, titration.getViscosity(), filename, "/entry1/Pilatus2M/data")
+            id = self.ispyb.createSampleMeasurement(self.visit, titration.getLocation().getPlate(), titration.getLocation().getRowAsInt(), titration.getLocation().getColumn(), titration.getSampleName(), titration.getConcentration(), self.getStorageTemperature(), self.getExposureTemperature(), titration.getFrames(), titration.getTimePerFrame(), 0.0, self.samplevolume, self.energy, titration.getViscosity(), filename, "/entry1/Pilatus2M/data")
             self.ispyb.createMeasurementToDataCollection(self.datacollection, id)
             if titration.isRecouperate() and not titration.isYellowSample():
                 self.reportSampleProgress(titration, "Recuperating Sample and Cleaning")
@@ -210,5 +210,6 @@ class BSSCRun:
         self.reportProgress("Closing shutter")
         self.closeShutter()
         time.sleep(2)
+        BioSAXSISPyBUtils.dumpCollectionReport(self.datacollection)
         self.ispyb.disconnect()
         
