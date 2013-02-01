@@ -26,6 +26,7 @@ import gda.device.detector.areadetector.v17.ADDriverPco.PcoTriggerMode;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.scan.ScanBase;
+import gda.scan.ScanInformation;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
@@ -87,7 +88,7 @@ public class PCODIOTrigger extends SimpleAcquire {
 		}
 	};
 	@Override
-	public void prepareForCollection(double collectionTime, int numImagesIgnored) throws Exception {
+	public void prepareForCollection(double collectionTime, int numImagesIgnored, ScanInformation scanInfo) throws Exception {
 		getAdBase().stopAcquiring();
 		if (checkCameraUsage)
 			adDriverPco.getCameraUsagePV().addMonitorListener(getCameraUsageListener());

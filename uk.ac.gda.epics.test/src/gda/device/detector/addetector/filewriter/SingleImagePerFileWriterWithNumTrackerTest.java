@@ -98,9 +98,9 @@ public class SingleImagePerFileWriterWithNumTrackerTest {
 		setGdaVarDir(TestUtils.setUpTest(this.getClass(), "testPrepareforCollectionSetsNextNumberDefault", true));
 		createWriter();
 
-		writer.prepareForCollection(1);
-		writer.prepareForCollection(1);
-		writer.prepareForCollection(1);
+		writer.prepareForCollection(1, null);
+		writer.prepareForCollection(1, null);
+		writer.prepareForCollection(1, null);
 
 		InOrder inOrder = inOrder(mockNdFile);
 		inOrder.verify(mockNdFile).setFileNumber(1);
@@ -114,8 +114,8 @@ public class SingleImagePerFileWriterWithNumTrackerTest {
 		NumTracker numTracker = new NumTracker("detname_numtracker");
 
 		numTracker.setFileNumber(100);
-		writer.prepareForCollection(1);
-		writer.prepareForCollection(1);
+		writer.prepareForCollection(1, null);
+		writer.prepareForCollection(1, null);
 
 		InOrder inOrder = inOrder(mockNdFile);
 		inOrder.verify(mockNdFile).setFileNumber(101);

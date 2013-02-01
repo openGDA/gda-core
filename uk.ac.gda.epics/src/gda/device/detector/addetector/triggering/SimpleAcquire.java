@@ -20,6 +20,7 @@ package gda.device.detector.addetector.triggering;
 
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
+import gda.scan.ScanInformation;
 
 
 public class SimpleAcquire extends AbstractADTriggeringStrategy {
@@ -31,7 +32,7 @@ public class SimpleAcquire extends AbstractADTriggeringStrategy {
 	}
 
 	@Override
-	public void prepareForCollection(double collectionTime, int numImages) throws Exception {
+	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo) throws Exception {
 		enableOrDisableCallbacks();
 		if (numImages != 1) {
 			throw new IllegalArgumentException("This single exposure triggering strategy expects to expose only 1 image");

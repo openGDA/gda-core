@@ -266,7 +266,7 @@ public class ADDetectorTest {
 //		verify(ndStats).setComputeStatistics((short) 1);
 //		verify(ndStats).setComputeCentroid((short) 1);
 //		verify(ndStatsBase).setBlockingCallbacks((short) 1);
-		verify(collectionStrategy).prepareForCollection(1.,  1);
+		verify(collectionStrategy).prepareForCollection(1.,  1, null);
 	}
 
 	@Test
@@ -317,7 +317,7 @@ public class ADDetectorTest {
 		det().collectData();
 		det().collectData();
 		det().collectData();
-		verify(collectionStrategy, times(1)).prepareForCollection(1., 1);
+		verify(collectionStrategy, times(1)).prepareForCollection(1., 1, null);
 	}
 
 	@Test

@@ -22,6 +22,7 @@ import gda.device.detector.addetector.ADDetector;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADDriverPilatus;
 import gda.device.detector.areadetector.v17.ADDriverPilatus.PilatusTriggerMode;
+import gda.scan.ScanInformation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,8 +45,8 @@ public class HardwareTriggeredPilatus extends HardwareTriggeredStandard {
 	}
 
 	@Override
-	public void prepareForCollection(double collectionTime, int numImages) throws Exception {
-		super.prepareForCollection(collectionTime, numImages);
+	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo) throws Exception {
+		super.prepareForCollection(collectionTime, numImages, scanInfo);
 		getAdDriverPilatus().setDelayTime(0);
 	}
 

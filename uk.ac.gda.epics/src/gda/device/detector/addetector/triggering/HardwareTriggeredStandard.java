@@ -21,6 +21,7 @@ package gda.device.detector.addetector.triggering;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.device.detector.areadetector.v17.ADBase.StandardTriggerMode;
+import gda.scan.ScanInformation;
 
 public class HardwareTriggeredStandard extends SimpleAcquire {
 
@@ -30,7 +31,7 @@ public class HardwareTriggeredStandard extends SimpleAcquire {
 	}
 
 	@Override
-	public void prepareForCollection(double collectionTime, int numImages) throws Exception {
+	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo) throws Exception {
 		configureAcquireAndPeriodTimes(collectionTime);
 		configureTriggerMode();
 		getAdBase().setImageModeWait(ImageMode.MULTIPLE);

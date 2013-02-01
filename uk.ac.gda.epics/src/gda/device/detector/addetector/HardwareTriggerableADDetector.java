@@ -181,7 +181,7 @@ public class HardwareTriggerableADDetector extends ADDetector implements Hardwar
 		} else {
 			// only called when in hardware triggering mode
 			try {
-				getCollectionStrategy().prepareForCollection(getCollectionTime(), getNumberImagesToCollect());
+				getCollectionStrategy().prepareForCollection(getCollectionTime(), getNumberImagesToCollect(), null);
 				// Set number of images: the last trigger to end the exposure is superfluous
 				getCollectionStrategy().collectData();
 				nextPositionCallableExposureNumberToReturn = 0;

@@ -24,6 +24,7 @@ import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.device.detector.areadetector.v17.ADBase.StandardTriggerMode;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDProcess;
+import gda.scan.ScanInformation;
 
 /*
  * Implementation of ADTriggeringStrategy that is used when multiple exposures are to be taken per
@@ -110,7 +111,7 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 
 	
 	@Override
-	public void prepareForCollection(double collectionTime, int numImagesIgnored) throws Exception {
+	public void prepareForCollection(double collectionTime, int numImagesIgnored, ScanInformation scanInfo) throws Exception {
 		double localExposureTime = getExposureTime();
 		numberImagesPerCollection = calcNumberImagesPerCollection(collectionTime, localExposureTime);
 		getAdBase().setTriggerMode(StandardTriggerMode.INTERNAL.ordinal()); 		 

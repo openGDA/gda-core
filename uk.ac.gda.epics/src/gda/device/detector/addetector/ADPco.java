@@ -36,7 +36,7 @@ public class ADPco extends ADDetector {
 		// TODO if still required, move into FileWriters and add to interface
 		getFileWriter().completeCollection(); // ensure the thing is not recording!
 		((FileWriterBase) getFileWriter()).enableCallback(true);
-		getCollectionStrategy().prepareForCollection(.01, 1);
+		getCollectionStrategy().prepareForCollection(.01, 1, null);
 		collectData();
 		waitWhileBusy();
 		endCollection();

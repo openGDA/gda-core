@@ -80,14 +80,14 @@ public class SingleImagePerFileWriterTest {
 	
 	@Test
 	public void testPrepareforCollectionSetsNextNumberDefault() throws Exception {
-		writer.prepareForCollection(1);
+		writer.prepareForCollection(1, null);
 		verify(mockNdFile).setFileNumber(1);
 	}
 
 	@Test
 	public void testPrepareforCollectionSetsNextNumberNonDefault() throws Exception {
 		writer.setFileNumberAtScanStart(54321);
-		writer.prepareForCollection(1);
+		writer.prepareForCollection(1, null);
 		verify(mockNdFile).setFileNumber(54321);
 	}
 	
@@ -98,7 +98,7 @@ public class SingleImagePerFileWriterTest {
 		when(namespace.getFromJythonNamespace("SRSWriteAtFileCreation")).thenReturn("existing");
 		
 		writer.setKeyNameForMetadataPathTemplate("detector_path_template");
-		writer.prepareForCollection(1);
+		writer.prepareForCollection(1, null);
 		
 		String expected = "existing\ndetector_path_template='12345-detname-files/%05d.tif'";
 		verify(namespace).placeInJythonNamespace("SRSWriteAtFileCreation", expected);
@@ -112,7 +112,7 @@ public class SingleImagePerFileWriterTest {
 		when(namespace.getFromJythonNamespace("SRSWriteAtFileCreation")).thenReturn(null);
 		
 		writer.setKeyNameForMetadataPathTemplate("detector_path_template");
-		writer.prepareForCollection(1);
+		writer.prepareForCollection(1, null);
 		
 		String expected = "detector_path_template='12345-detname-files/%05d.tif'";
 		verify(namespace).placeInJythonNamespace("SRSWriteAtFileCreation", expected);

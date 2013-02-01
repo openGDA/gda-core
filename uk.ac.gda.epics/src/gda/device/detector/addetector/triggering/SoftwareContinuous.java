@@ -21,6 +21,7 @@ package gda.device.detector.addetector.triggering;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.device.detector.areadetector.v17.ADBase.StandardTriggerMode;
+import gda.scan.ScanInformation;
 
 /*
  * Class to run a camera continuously with software trigger
@@ -34,10 +35,10 @@ public class SoftwareContinuous extends SimpleAcquire {
 	}
 
 	@Override
-	public void prepareForCollection(double collectionTime, int numImagesIgnored) throws Exception {
+	public void prepareForCollection(double collectionTime, int numImagesIgnored, ScanInformation scanInfo) throws Exception {
 		getAdBase().stopAcquiring(); //to get out of armed state
  
-		super.prepareForCollection(collectionTime, numImagesIgnored); 
+		super.prepareForCollection(collectionTime, numImagesIgnored, scanInfo); 
 		getAdBase().setImageMode(ImageMode.CONTINUOUS.ordinal());
 		getAdBase().setTriggerMode(StandardTriggerMode.INTERNAL.ordinal()); 
 	}

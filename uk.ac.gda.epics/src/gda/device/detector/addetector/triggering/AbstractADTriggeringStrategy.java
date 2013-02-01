@@ -23,6 +23,7 @@ import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
+import gda.scan.ScanInformation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,7 +97,7 @@ abstract public class AbstractADTriggeringStrategy implements NXCollectionStrate
 	}
 
 	@Override
-	public void prepareForCollection(int numberImagesPerCollection) throws Exception {
+	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 		throw new UnsupportedOperationException("Must be operated via prepareForCollection(collectionTime, numberImagesPerCollection)");
 	}
 
@@ -104,7 +105,7 @@ abstract public class AbstractADTriggeringStrategy implements NXCollectionStrate
 	 * IMPORTANT: Implementations must call enableOrDisableCallbacks()
 	 */
 	@Override
-	public void prepareForCollection(double collectionTime, int numImages) throws Exception {
+	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo) throws Exception {
 		enableOrDisableCallbacks();
 	}
 

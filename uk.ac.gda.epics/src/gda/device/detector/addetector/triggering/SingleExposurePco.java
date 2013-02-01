@@ -21,6 +21,7 @@ package gda.device.detector.addetector.triggering;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADDriverPco;
 import gda.device.detector.areadetector.v17.ADDriverPco.PcoTriggerMode;
+import gda.scan.ScanInformation;
 import gda.util.LiveModeUtil;
 
 public class SingleExposurePco extends SingleExposureStandard {
@@ -33,8 +34,8 @@ public class SingleExposurePco extends SingleExposureStandard {
 	}
 
 	@Override
-	public void prepareForCollection(double collectionTime, int numImages) throws Exception {
-		super.prepareForCollection(collectionTime, numImages);
+	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo) throws Exception {
+		super.prepareForCollection(collectionTime, numImages, scanInfo);
 		getAdBase().setAcquirePeriod(0.); // for pco always set acq period to 0 to force delay to 0.
 		if (LiveModeUtil.isLiveMode()) {
 			adDriverPco.getArmModePV().putCallback(true);

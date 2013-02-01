@@ -22,6 +22,7 @@ import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADDriverPco;
 import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.device.detector.areadetector.v17.ADDriverPco.PcoTriggerMode;
+import gda.scan.ScanInformation;
 
 /*
 Class to set PCO into Continuous acquire
@@ -44,10 +45,10 @@ public class PCOAutoContinuous extends SimpleAcquire {
 
 
 	@Override
-	public void prepareForCollection(double collectionTime, int numImagesIgnored) throws Exception {
+	public void prepareForCollection(double collectionTime, int numImagesIgnored, ScanInformation scanInfo) throws Exception {
 		getAdBase().stopAcquiring(); //to get out of armed state
  
-		super.prepareForCollection(collectionTime, numImagesIgnored); 
+		super.prepareForCollection(collectionTime, numImagesIgnored, scanInfo); 
 		getAdBase().setImageMode(ImageMode.CONTINUOUS.ordinal());
 		getAdBase().setTriggerMode(PcoTriggerMode.AUTO.ordinal()); 
 		adDriverPco.getAdcModePV().put(1); //2 adcs

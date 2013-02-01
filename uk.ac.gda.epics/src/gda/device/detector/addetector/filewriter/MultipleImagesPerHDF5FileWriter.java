@@ -122,7 +122,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 
 
 	@Override
-	public void prepareForCollection(int numberImagesPerCollection) throws Exception {
+	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 		if(!isEnabled())
 			return;
 		setNDArrayPortAndAddress();

@@ -26,6 +26,7 @@ import gda.device.detector.areadetector.v17.ADDriverPco.PcoTriggerMode;
 import gda.device.timer.Etfg;
 import gda.device.timer.Tfg;
 import gda.scan.ScanBase;
+import gda.scan.ScanInformation;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
@@ -121,7 +122,7 @@ public class PCOTFGTrigger extends SimpleAcquire {
 	private String noLongerBusyTriggerSetupCommand="tfg setup-trig start adc5 alternate 1"; //// PCO BUSY Out on TFg2 TF3_OUT5
 
 	@Override
-	public void prepareForCollection(double collectionTime, int numImagesIgnored) throws Exception {
+	public void prepareForCollection(double collectionTime, int numImagesIgnored, ScanInformation scanInfo) throws Exception {
 		getAdBase().stopAcquiring();
 		if (checkCameraUsage)
 			adDriverPco.getCameraUsagePV().addMonitorListener(getCameraUsageListener());

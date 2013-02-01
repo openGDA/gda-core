@@ -24,6 +24,7 @@ import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
 import gda.device.detector.nxdetector.NXPlugin;
+import gda.scan.ScanInformation;
 
 import java.util.Arrays;
 import java.util.List;
@@ -54,7 +55,7 @@ public class ADArrayPlugin implements NXPlugin {
 	}
 
 	@Override
-	public void prepareForCollection(int numberImagesPerCollection) throws Exception {
+	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 		if (isEnabled()) {
 			ndArray.getPluginBase().enableCallbacks();
 			ndArray.getPluginBase().setBlockingCallbacks((short) 1);

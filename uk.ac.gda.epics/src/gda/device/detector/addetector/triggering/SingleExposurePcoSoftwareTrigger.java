@@ -27,6 +27,7 @@ import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADDriverPco;
 import gda.device.detector.areadetector.v17.ADDriverPco.PcoTriggerMode;
 import gda.device.detector.areadetector.v17.impl.ADBaseImpl;
+import gda.scan.ScanInformation;
 
 /*
  * Class to configure PCO Software trigger - puts trigger into Auto mode and does not arm
@@ -43,8 +44,8 @@ public class SingleExposurePcoSoftwareTrigger extends SingleExposureStandard {
 	}
 
 	@Override
-	public void prepareForCollection(double collectionTime, int numImages) throws Exception {
-		super.prepareForCollection(collectionTime, numImages);
+	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo) throws Exception {
+		super.prepareForCollection(collectionTime, numImages, scanInfo);
 		adDriverPco.getArmModePV().putCallback(false);
 	}
 

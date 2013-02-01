@@ -49,6 +49,7 @@ import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 import gda.scan.Scan;
 import gda.scan.ScanBase;
+import gda.scan.ScanInformation;
 
 import java.io.File;
 import java.io.Serializable;
@@ -116,7 +117,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 		static final String DUMMY_FILE_WRITER_GET_FULL_FILE_NAME_RBV = "DummyFileWriter - getFullFileName_RBV";
 
 		@Override
-		public void prepareForCollection(int numberImagesPerCollection) throws Exception {
+		public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 		}
 
 		@Override
@@ -500,14 +501,15 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 
 	@Override
 	public void atScanStart() throws DeviceException {
+		ScanInformation scanInfo = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
 		firstReadoutInScan = true;
 		try {
 			//disable or enable callbacks if required by class variable first to allow collectionStrategy or fileWriter to turn back on needed
 			getAdBase().setArrayCallbacks( isDisableCallbacks() ? 0 :1);
 			int numberImagesPerCollection = getCollectionStrategy().getNumberImagesPerCollection(getCollectionTime());
-			getCollectionStrategy().prepareForCollection(getCollectionTime(), 1);
+			getCollectionStrategy().prepareForCollection(getCollectionTime(), 1, null);
 			if(isReadFilepath()){
-				getFileWriter().prepareForCollection(numberImagesPerCollection);
+				getFileWriter().prepareForCollection(numberImagesPerCollection, scanInfo);
 			}
 			prepareForArrayAndStatsCollection();
 		} catch (Exception e) {

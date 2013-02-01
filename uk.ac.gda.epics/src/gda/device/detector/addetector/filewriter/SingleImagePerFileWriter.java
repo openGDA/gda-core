@@ -29,6 +29,7 @@ import gda.device.detectorfilemonitor.HighestExitingFileMonitorSettings;
 import gda.jython.IJythonNamespace;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanBase;
+import gda.scan.ScanInformation;
 
 import java.io.File;
 import java.util.Arrays;
@@ -145,7 +146,7 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 	}
 
 	@Override
-	public void prepareForCollection(int numberImagesPerCollection) throws Exception {
+	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 
 		if (!isEnabled())
 			return;

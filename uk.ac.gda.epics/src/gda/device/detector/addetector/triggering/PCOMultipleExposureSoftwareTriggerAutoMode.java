@@ -21,6 +21,7 @@ package gda.device.detector.addetector.triggering;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADDriverPco;
 import gda.device.detector.areadetector.v17.ADDriverPco.PcoTriggerMode;
+import gda.scan.ScanInformation;
 
 /*
  * Version of MultipleExposureSoftwareTriggerAutoMode that works with te PCO camera
@@ -35,8 +36,8 @@ public class PCOMultipleExposureSoftwareTriggerAutoMode extends MultipleExposure
 	}
 
 	@Override
-	public void prepareForCollection(double collectionTime, int numImagesIgnored) throws Exception {
-		super.prepareForCollection(collectionTime, numImagesIgnored);
+	public void prepareForCollection(double collectionTime, int numImagesIgnored, ScanInformation scanInfo) throws Exception {
+		super.prepareForCollection(collectionTime, numImagesIgnored, scanInfo);
 		getAdBase().setAcquirePeriod(0.0); //this is needed for PCO to make sure delay=0
 		getAdBase().setTriggerMode(PcoTriggerMode.SOFTWARE.ordinal());
 		adDriverPco.getAdcModePV().put(1); //2 adcs

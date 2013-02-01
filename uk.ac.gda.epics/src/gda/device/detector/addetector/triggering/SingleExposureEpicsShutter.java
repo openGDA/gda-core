@@ -32,6 +32,7 @@ import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.device.detector.areadetector.v17.ADBase.StandardTriggerMode;
 import gda.device.detector.areadetector.v17.impl.ADBaseImpl;
 import gda.epics.connection.EpicsController;
+import gda.scan.ScanInformation;
 import gda.util.Sleep;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
@@ -168,12 +169,12 @@ public class SingleExposureEpicsShutter extends SimpleAcquire {
 	}
 
 	@Override
-	public void prepareForCollection(double collectionTime, int numImages) throws Exception {
+	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo) throws Exception {
 		if (numImages != 1) {
 			throw new IllegalArgumentException("This single exposure " +
 					"triggering strategy expects to expose only 1 image");
 		}
-		super.prepareForCollection(collectionTime, 1);
+		super.prepareForCollection(collectionTime, 1, scanInfo);
 		configureTriggerMode();
 		getAdBase().setImageModeWait(ImageMode.SINGLE);
 		getAdBase().setNumImages(1);

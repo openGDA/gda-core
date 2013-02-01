@@ -26,6 +26,7 @@ import gda.device.detector.areadetector.v17.ADDriverPco.PcoTriggerMode;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.device.timer.Etfg;
 import gda.device.timer.Tfg;
+import gda.scan.ScanInformation;
 
 /*
  * Class of detector used to take multiple exposures that are then added together to make a single collection image
@@ -70,7 +71,7 @@ public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftware
 	}
 
 	@Override
-	public void prepareForCollection(double collectionTime, int numImagesIgnored) throws Exception {
+	public void prepareForCollection(double collectionTime, int numImagesIgnored, ScanInformation scanInfo) throws Exception {
 		getAdBase().stopAcquiring();
 		double localExposureTime = getExposureTime();
 		numberImagesPerCollection = calcNumberImagesPerCollection(collectionTime, localExposureTime);

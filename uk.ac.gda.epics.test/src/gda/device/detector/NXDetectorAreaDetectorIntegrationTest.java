@@ -423,7 +423,7 @@ public class NXDetectorAreaDetectorIntegrationTest extends ADDetectorTest {
 		verify(collectionStrategy).setGenerateCallbacks(true);
 		verify(ndArrayBase).enableCallbacks();
 		verify(ndArrayBase).setBlockingCallbacks((short) 1);
-		verify(collectionStrategy).prepareForCollection(1., 1);
+		verify(collectionStrategy).prepareForCollection(1., 1, null);
 	}
 
 	@Override
