@@ -181,7 +181,7 @@ public class ChipSet {
 	 * @return dimensions of the pixel array represented by this ChipSet
 	 */
 	public long[] getPixelsDims(){
-		return new long[]{pixelsPerRow, pixelsPerCol};
+		return new long[]{ pixelsPerCol, pixelsPerRow};
 	}
 	
 }
