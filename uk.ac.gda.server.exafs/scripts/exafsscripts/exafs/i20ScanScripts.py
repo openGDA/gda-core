@@ -199,12 +199,6 @@ class I20XesScan(XasScan):
         # create unique ID for this scan (all repetitions will share the same ID)
         scriptType = "Xes"
         scan_unique_id = LoggingScriptController.createUniqueID(scriptType);
-        
-        # update to terminal
-        print "Starting xes scan..."
-        print ""
-        print "Output to",xmlFolderName
-        print ""
 
         # give the beans to the xasdatawriter class to help define the folders/filenames 
         beanGroup = BeanGroup()
@@ -302,13 +296,17 @@ class I20XesScan(XasScan):
         xes_energy.setCut3Val(beanGroup.getScan().getAnalyserCut2())
         
         if scanType == XesScanParameters.SCAN_XES_FIXED_MONO:
-            print "Scanning the analyser scan with fixed mono"
+            print "Starting XES scan with fixed mono..."
+            print""
+            print "Output to",xmlFolderName
 #            print "switching data output format to XesAsciiNexusDataWriter"
 #            LocalProperties.set("gda.data.scan.datawriter.dataFormat","XesAsciiNexusDataWriter")
             args += [xes_energy, beanGroup.getScan().getXesInitialEnergy(), beanGroup.getScan().getXesFinalEnergy(), beanGroup.getScan().getXesStepSize(), mono_energy, beanGroup.getScan().getMonoEnergy()]
     
         elif scanType == XesScanParameters.SCAN_XES_SCAN_MONO:
-            print "Scanning over the analyser and mono energies"
+            print "Starting 2D scan over XES and mono..."
+            print""
+            print "Output to",xmlFolderName
 #            print "switching data output format to XesAsciiNexusDataWriter"
 #            LocalProperties.set("gda.data.scan.datawriter.dataFormat","XesAsciiNexusDataWriter")
 
@@ -328,7 +326,10 @@ class I20XesScan(XasScan):
             args += [jython_mapper.twodplotter]
 
         elif scanType == XesScanParameters.FIXED_XES_SCAN_XAS:
-            print "Doing an EXAFS scan with a fixed analyser energy"
+            print "Starting XAS scan with fixed analyser energy..."
+            print""
+            print "Output to",xmlFolderName
+
             # add xes_energy, analyserAngle to the defaults and then call the xas command
             xas_scanfilename = beanGroup.getScan().getScanFileName()
 
@@ -349,7 +350,9 @@ class I20XesScan(XasScan):
             return
 
         elif scanType == XesScanParameters.FIXED_XES_SCAN_XANES:
-            print "Doing a XANES scan with a fixed analyser energy"
+            print "Starting XANES scan with fixed analyser energy..."
+            print""
+            print "Output to",xmlFolderName
             # add xes_energy, analyserAngle, to the signal parameters bean and then call the xanes command
             xanes_scanfilename = beanGroup.getScan().getScanFileName()
 
@@ -401,7 +404,7 @@ class I20XesScan(XasScan):
 
             # send out initial messages for logging and display to user
                 outputFolder = beanGroup.getOutput().getAsciiDirectory()+ "/" + beanGroup.getOutput().getAsciiFileName()
-                print "Starting "+scriptType+" scan...", str(repetitionNumber)
+                #print "Starting "+scriptType+" scan...", str(repetitionNumber)
                 initialPercent = str(int((float(repetitionNumber - 1) / float(numRepetitions)) * 100)) + "%" 
                 logmsg = XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), initialPercent,str(0),str(0),beanGroup.getScan(),outputFolder)
                 loggingcontroller.update(None,logmsg)
