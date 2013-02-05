@@ -113,7 +113,6 @@ class I20XasScan(XasScan):
                     
                     # change the strings in the filewriter so that the ascii filename changes
                     beanGroup.getSample().setName(samplename)
-                    beanGroup.getSample().setSampleName(samplename)
                     beanGroup.getSample().setDescriptions([sampledescription])
                     
                     #TODO add to metadata?
@@ -286,13 +285,19 @@ class I20XesScan(XasScan):
         if beanGroup.getSample().getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV_XES[1] :
             
             sampleStageParameters = beanGroup.getSample().getRoomTemperatureParameters()
-            numSamples = sampleStageParameters.getNumberOfSamples()
-            for i in range(0,numSamples):
+            for i in range(0,4):
+                doUse = sampleStageParameters.getUses()[i]
+               
+                if not doUse:
+                    continue
+                    
                 x = sampleStageParameters.getXs()[i]
                 y = sampleStageParameters.getYs()[i]
                 z = sampleStageParameters.getZs()[i]
                 rotation = sampleStageParameters.getRotations()[i]
                 finerotation = sampleStageParameters.getFineRotations()[i]
+                samplename = sampleStageParameters.getSampleNames()[i]
+                sampledescription = sampleStageParameters.getSampleDescriptions()[i]
                 
                 finder = Finder.getInstance()
                 samx = finder.find("sample_x")
@@ -318,6 +323,12 @@ class I20XesScan(XasScan):
                 samfinerot.waitWhileBusy()
                 print "Sample stage move complete.\n"
                 ScriptBase.checkForPauses()
+                
+                
+                # change the strings in the filewriter so that the ascii filename changes
+                beanGroup.getSample().setName(samplename)
+                beanGroup.getSample().setDescriptions([sampledescription])
+
                 
                 self._doScan(beanGroup,folderName,numRepetitions, validation,scan_unique_id)
                 

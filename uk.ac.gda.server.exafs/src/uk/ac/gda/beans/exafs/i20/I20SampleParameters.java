@@ -55,7 +55,6 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 
 	private List<String> descriptions;
 	private String name;  // use as file prefix
-	private String sampleName;
 	private String sampleWheelPosition;
 	private Boolean useSampleWheel = false;
 	private String sampleEnvironment = "None";
@@ -217,14 +216,6 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 		this.useSampleWheel = useSampleWheel;
 	}
 
-	public String getSampleName() {
-		return sampleName;
-	}
-
-	public void setSampleName(String sampleName) {
-		this.sampleName = sampleName;
-	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -238,7 +229,6 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((roomTemperatureParameters == null) ? 0 : roomTemperatureParameters.hashCode());
 		result = prime * result + ((sampleEnvironment == null) ? 0 : sampleEnvironment.hashCode());
-		result = prime * result + ((sampleName == null) ? 0 : sampleName.hashCode());
 		result = prime * result + ((sampleWheelPosition == null) ? 0 : sampleWheelPosition.hashCode());
 		result = prime * result + (shouldValidate ? 1231 : 1237);
 		result = prime * result + ((useSampleWheel == null) ? 0 : useSampleWheel.hashCode());
@@ -298,11 +288,6 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 			if (other.sampleEnvironment != null)
 				return false;
 		} else if (!sampleEnvironment.equals(other.sampleEnvironment))
-			return false;
-		if (sampleName == null) {
-			if (other.sampleName != null)
-				return false;
-		} else if (!sampleName.equals(other.sampleName))
 			return false;
 		if (sampleWheelPosition == null) {
 			if (other.sampleWheelPosition != null)
