@@ -18,17 +18,26 @@
 
 package uk.ac.gda.devices.bssc.ispyb;
 
-public interface BioSAXSISPyB {
+import java.sql.SQLException;
+import java.util.List;
 
+import uk.ac.gda.devices.bssc.beans.LocationBean;
+
+public interface BioSAXSISPyB {
+	
+	public class SampleInfo {
+		public LocationBean location;
+		public String name;
+		public String sampleFileName, bufferBeforeFileName, bufferAfterFileName;
+	}
+	
 	/**
-	 * I would not care if that creates/gets a BLSession or an Experiment. So if the structure for that changes I would
-	 * not be affected.
-	 * 
+	 *  
 	 * @param visitname
 	 *            e.g. sm9999-9
 	 * @return sessionID
 	 */
-	public long getSessionForVisit(String visitname);
+	public abstract long getSessionForVisit(String visitname) throws SQLException;
 
 	/**
 	 * I'd keep that for one run of my spreadsheet, i.e. normally for one set of samples loaded.
@@ -36,10 +45,11 @@ public interface BioSAXSISPyB {
 	 * @param sessionID
 	 * @return experimentID
 	 */
-	public long createExperiment(long sessionID);
+	public abstract long createSaxsDataCollection(long sessionID) throws SQLException;
 
 	/**
-	 * @param experimentID
+	 * @param blsessionId
+	 *            The ID of the visit
 	 * @param plate
 	 *            does not seem to be in the database. it is 1,2,3 and you could create a SamplePlate for each per
 	 *            Experiment
@@ -60,12 +70,13 @@ public interface BioSAXSISPyB {
 	 *            "/entry1/detector/data"
 	 * @return bufferMeasurementId
 	 */
-	public long createBufferMeasurement(long experimentID, short plate, short row, short column, float storageTemperature,
+	public abstract long createBufferMeasurement(long blsessionId, short plate, short row, short column, float storageTemperature,
 			float exposureTemperature, int numFrames, double timePerFrame, double flow, double volume,
-			double energyInkeV, String viscosity, String fileName, String internalPath);
+			double energyInkeV, String viscosity, String fileName, String internalPath) throws SQLException;
 
 	/**
-	 * @param experimentID
+	 * @param blsessionId
+	 *            The ID of the visit
 	 * @param plate
 	 * @param row
 	 * @param column
@@ -83,17 +94,33 @@ public interface BioSAXSISPyB {
 	 * @param internalPath
 	 * @return sampleMeasurementId
 	 */
-	public long createSampleMeasurement(long experimentID, short plate, short row, short column, String name,
+	public abstract long createSampleMeasurement(long blsessionId, short plate, short row, short column, String name,
 			double concentration, float storageTemperature, float exposureTemperature, int numFrames,
 			double timePerFrame, double flow, double volume, double energyInkeV, String viscosity, 
-			String fileName, String internalPath);
+			String fileName, String internalPath) throws SQLException;
 
 	/**
-	 * @param sample
-	 *            sampleMeasurementId
-	 * @param buffer
-	 *            bufferMeasurementId
+	 * 
+	 * @param saxsDataCollectionId from that call
+	 * @param measurementId can be buffer or sample measurement
+	 * @return measurementToSaxsCollectionId
+	 * @throws SQLException
 	 */
-	public void registerBufferForSample(long sample, long buffer);
+	public long createMeasurementToDataCollection(long saxsDataCollectionId, long measurementId) throws SQLException;
 
+	/**
+	 * Method to close the database connection once it's no longer needed.
+	 */
+	public abstract void disconnect() throws SQLException;
+	
+	public List<SampleInfo> getSaxsDataCollectionInfo(long saxsDataCollectionId) throws SQLException;
+
+	/**
+	 * retrieve all data collection ids for a session (visit)
+	 * 
+	 * @param blsessionId
+	 * @return all ids
+	 * @throws SQLException
+	 */
+	public List<Long> getSaxsDataCollectionsForSession(long blsessionId) throws SQLException;
 }
