@@ -27,5 +27,5 @@ import gda.observable.IObservable;
  */
 public interface RCPController extends IObservable, Findable{
 	void openView(String id);
-	void openPesrpective(String id);
+	void openPerspective(String id);
 }
