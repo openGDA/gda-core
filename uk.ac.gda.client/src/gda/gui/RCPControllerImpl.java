@@ -76,7 +76,7 @@ public class RCPControllerImpl implements RCPController {
 	}
 
 	@Override
-	public void openPesrpective(String id) {
+	public void openPerspective(String id) {
 		notifyIObservers(this, new RCPOpenPerspectiveCommand(id));
 		
 	}
