@@ -54,10 +54,12 @@ class I20XasScan(XasScan):
         energy_scannable = finder.find(energy_scannable_name)
         if energy_scannable != None and isinstance(scan,XasScanParameters):
             intialPosition = scan.getInitialEnergy()
+            energy_scannable.waitWhileBusy()
             energy_scannable.asynchronousMoveTo(intialPosition)
             print "Moving",energy_scannable_name, "to initial position..."
         elif energy_scannable != None and isinstance(scan,XanesScanParameters): 
             intialPosition = scan.getRegions().get(0).getEnergy()
+            energy_scannable.waitWhileBusy()
             energy_scannable.asynchronousMoveTo(intialPosition)
             print "Moving",energy_scannable_name, "to initial position..."
 
@@ -221,6 +223,7 @@ class I20XesScan(XasScan):
         
         # ion chambers
         self.setUpIonChambers(beanGroup)
+        
 
         if beanGroup.getSample().getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV_XES[1] :
             
@@ -269,10 +272,12 @@ class I20XesScan(XasScan):
         finder_mapper = FinderNameMapping()
         jython_mapper = JythonNameSpaceMapping()
         loggingcontroller = Finder.getInstance().find("XASLoggingScriptController")
+        xmlFolderName = ExafsEnvironment().getXMLFolder() + folderName + "/"
+
         # now that the scan has been defined, run it in a loop
         
         
-                # work out which detectors to use (they will need to have been configured already by the GUI)
+        # work out which detectors to use (they will need to have been configured already by the GUI)
         detectorList = self._getDetectors(beanGroup.getDetector(), beanGroup.getScan()) 
 
         # get the relevant objects from the namespace
@@ -283,6 +288,11 @@ class I20XesScan(XasScan):
 
         scanType = beanGroup.getScan().getScanType()
         args = []
+        
+        if analyserAngle.isBusy():
+            print "XESBragg is moving. Waiting for it to finish..."
+            analyserAngle.waitWhileBusy()
+            print "XESBragg move completed."
 
 #        originalDataFormat = LocalProperties.get("gda.data.scan.datawriter.dataFormat")
 
@@ -302,6 +312,12 @@ class I20XesScan(XasScan):
 #            print "switching data output format to XesAsciiNexusDataWriter"
 #            LocalProperties.set("gda.data.scan.datawriter.dataFormat","XesAsciiNexusDataWriter")
             args += [xes_energy, beanGroup.getScan().getXesInitialEnergy(), beanGroup.getScan().getXesFinalEnergy(), beanGroup.getScan().getXesStepSize(), mono_energy, beanGroup.getScan().getMonoEnergy()]
+            
+            # I20 always moves things back to initial positions after ecah scan. To save time, move mono to intial position here
+            print "Moving spectrometer to initial position..."
+            xes_energy.moveTo(beanGroup.getScan().getXesInitialEnergy())
+            print "Move done."
+
     
         elif scanType == XesScanParameters.SCAN_XES_SCAN_MONO:
             print "Starting 2D scan over XES and mono..."
@@ -324,6 +340,15 @@ class I20XesScan(XasScan):
             else:
                 args += e0_args + ef_args
             args += [jython_mapper.twodplotter]
+            
+            # I20 always moves things back to initial positions after ecah scan. To save time, move mono to intial position here
+            print "Moving mono and spectrometer to initial positions..."
+            xes_energy(beanGroup.getScan().getXesInitialEnergy())
+            mono_energy(beanGroup.getScan().getMonoInitialEnergy())
+            xes_energy.waitWhileBusy()
+            mono_energy.waitWhileBusy()
+            print "Moves done."
+
 
         elif scanType == XesScanParameters.FIXED_XES_SCAN_XAS:
             print "Starting XAS scan with fixed analyser energy..."
@@ -335,6 +360,7 @@ class I20XesScan(XasScan):
 
             print "moving XES analyser stage to collect at", beanGroup.getScan().getXesEnergy()
             initialXESEnergy = xes_energy()
+            xes_energy.waitWhileBusy()
             xes_energy(beanGroup.getScan().getXesEnergy())
             ScannableCommands.add_default([xes_energy,analyserAngle])
             
@@ -358,6 +384,7 @@ class I20XesScan(XasScan):
 
             print "moving XES analyser stage to collect at", beanGroup.getScan().getXesEnergy()
             initialXESEnergy = xes_energy()
+            xes_energy.waitWhileBusy()
             xes_energy(beanGroup.getScan().getXesEnergy())
             ScannableCommands.add_default([xes_energy,analyserAngle])
 
@@ -372,6 +399,14 @@ class I20XesScan(XasScan):
             return
         else:
             raise "scan type in XES Scan Parameters bean/xml not acceptable"
+
+        # may want to do all of these?
+        print "Setting up the Vortex detector..."
+        self.detectorPreparer.prepare(beanGroup.getDetector(), beanGroup.getOutput(), xmlFolderName)
+        print "Vortex configured."
+        #sampleScannables = self.samplePreparer.prepare(beanGroup.getSample())
+        #outputScannables = self.outputPreparer.prepare(beanGroup.getOutput())
+        #scanPlotSettings = self.outputPreparer.getPlotSettings(beanGroup)
 
         # run the before scan script
         self._runScript(beanGroup.getOutput().getBeforeScriptName())
@@ -430,8 +465,7 @@ class I20XesScan(XasScan):
                             print "Repetition", str(repetitionNumber),"skipped."
                     else:
                         print e
-                        raise # any other exception we are not expecting so raise whatever this is to abort the script
-                       
+                        raise # any other exception we are not expecting so raise whatever this is to abort the script                       
                 #update observers
                 loggingcontroller.update(None, ScanFinishEvent(thisscan.getName(), ScanFinishEvent.FinishType.OK));
 

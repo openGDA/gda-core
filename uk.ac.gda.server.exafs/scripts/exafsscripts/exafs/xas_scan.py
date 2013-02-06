@@ -46,6 +46,8 @@ class XasScan(Scan):
 
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, numRepetitions= 1, validation=True):
         ScanBase.interrupted = False
+        ScriptBase.interrupted = False
+        ScriptBase.paused = False
         controller = Finder.getInstance().find("ExafsScriptObserver")
         
         # Create the beans from the file names

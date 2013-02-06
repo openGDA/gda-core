@@ -566,6 +566,12 @@
          </run>
       </runtime>
    </extension>
+   <extension
+         point="gda.scan.scan.data.point.formatter">
+      <formatter
+            class="gda.data.scan.datawriter.XasScanDataPointFormatter">
+      </formatter>
+   </extension>
    
 
 </plugin>
