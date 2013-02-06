@@ -81,4 +81,9 @@ public class RCPControllerImpl implements RCPController {
 		
 	}
 
+	@Override
+	public void setPreference(String id, Object value) {
+		notifyIObservers(this, new RCPSetPreferenceCommand(id, value));
+	}
+
 }
