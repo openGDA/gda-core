@@ -29,6 +29,9 @@ import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
+import org.dawb.common.util.io.PropUtils;
+import org.dawb.common.util.io.SortingUtils;
+import org.dawb.common.util.list.SortNatural;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -91,21 +94,16 @@ import uk.ac.diamond.scisoft.analysis.deprecated.rcp.Activator;
 import uk.ac.diamond.scisoft.analysis.io.DataSetProvider;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
+import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
-import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
+import uk.ac.diamond.scisoft.analysis.rcp.monitor.ProgressMonitorWrapper;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.DeprecatedPreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.PlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.util.PlotUtils;
 import uk.ac.diamond.scisoft.analysis.rcp.util.SDAUtils;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
-import uk.ac.gda.monitor.IMonitor;
-import uk.ac.gda.monitor.ProgressMonitorWrapper;
 import uk.ac.gda.ui.modifiers.DoubleClickModifier;
-import uk.ac.gda.util.io.PropUtils;
-import uk.ac.gda.util.io.SortingUtils;
-import uk.ac.gda.util.list.SortNatural;
-
 import com.swtdesigner.ResourceManager;
 
 /**

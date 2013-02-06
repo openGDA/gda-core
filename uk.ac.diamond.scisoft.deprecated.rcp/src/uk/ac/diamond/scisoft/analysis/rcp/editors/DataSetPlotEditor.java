@@ -64,10 +64,12 @@ import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.DataSetProvider;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
+import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
+import uk.ac.diamond.scisoft.analysis.rcp.monitor.ProgressMonitorWrapper;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DUIAdapter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PydevConsoleAction;
@@ -80,8 +82,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.nexus.SliceComponent;
 import uk.ac.gda.common.rcp.util.ActionBarWrapper;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.common.rcp.util.GridUtils;
-import uk.ac.gda.monitor.IMonitor;
-import uk.ac.gda.monitor.ProgressMonitorWrapper;
 
 
 /**

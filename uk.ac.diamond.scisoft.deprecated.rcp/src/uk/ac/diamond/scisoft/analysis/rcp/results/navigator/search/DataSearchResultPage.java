@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.dawb.common.util.list.SortNatural;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableViewer;
@@ -34,7 +35,6 @@ import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.ui.file.IFileConst;
 import uk.ac.gda.ui.file.IFileTreeColumnProvider;
 import uk.ac.gda.ui.file.IFileTreeLabelProvider;
-import uk.ac.gda.util.list.SortNatural;
 
 public class DataSearchResultPage extends AbstractTextSearchViewPage implements ISearchResultPage {
 

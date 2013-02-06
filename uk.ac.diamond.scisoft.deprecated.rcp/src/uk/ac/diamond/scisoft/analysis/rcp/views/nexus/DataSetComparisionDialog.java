@@ -25,6 +25,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.dawb.common.util.io.SortingUtils;
+import org.dawb.common.util.list.SortNatural;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.Dialog;
@@ -48,9 +50,7 @@ import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.io.Metadata;
-import uk.ac.gda.monitor.ProgressMonitorWrapper;
-import uk.ac.gda.util.io.SortingUtils;
-import uk.ac.gda.util.list.SortNatural;
+import uk.ac.diamond.scisoft.analysis.rcp.monitor.ProgressMonitorWrapper;
 
 import com.swtdesigner.SWTResourceManager;
 

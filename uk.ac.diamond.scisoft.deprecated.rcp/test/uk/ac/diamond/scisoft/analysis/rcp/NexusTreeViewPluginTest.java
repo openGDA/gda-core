@@ -17,7 +17,6 @@
 package uk.ac.diamond.scisoft.analysis.rcp;
 
 import gda.util.TestUtils;
-
 import junit.framework.Assert;
 
 import org.eclipse.core.runtime.jobs.Job;

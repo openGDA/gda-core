@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 
 import uk.ac.diamond.scisoft.analysis.io.NexusLoader;
-import uk.ac.gda.monitor.ProgressMonitorWrapper;
+import uk.ac.diamond.scisoft.analysis.rcp.monitor.ProgressMonitorWrapper;
 
 /**
  * This is a UI util
