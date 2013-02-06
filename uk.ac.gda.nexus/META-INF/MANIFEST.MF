@@ -22,6 +22,7 @@ Bundle-NativeCode: lib/win32-x86/hdf5dll.dll;  lib/win32-x86/jnexus.dll;  lib/wi
  osname=Linux; processor=x86,
  lib/linux-x86_64/libhdf5.so.7; lib/linux-x86_64/libjnexus.so; lib/linux-x86_64/libNeXus.so.0; lib/linux-x86_64/libz.so;
  osname=Linux; processor=x86-64
-Import-Package: org.slf4j;version="[1.5.0,2.0.0)"
+Import-Package: org.slf4j;version="[1.5.0,2.0.0)",
+ uk.ac.diamond.scisoft.analysis.monitor
 Bundle-Vendor: Diamond Light Source
 

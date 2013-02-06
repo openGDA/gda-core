@@ -35,9 +35,7 @@ import org.nexusformat.NexusException;
 import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import uk.ac.gda.monitor.IMonitor;
-
+import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 /**
  *
  */

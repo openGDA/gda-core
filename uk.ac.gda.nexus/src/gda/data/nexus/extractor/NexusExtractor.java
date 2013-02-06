@@ -1,5 +1,4 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -37,9 +36,7 @@ import org.nexusformat.NexusException;
 import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import uk.ac.gda.monitor.IMonitor;
-
+import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 /**
  * see the package-info.java file for information on this class
  */
