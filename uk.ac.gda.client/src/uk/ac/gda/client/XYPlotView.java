@@ -45,6 +45,8 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -217,7 +219,7 @@ public class XYPlotView extends ViewPart implements IAllScanDataPointsObserver {
 			actions.add(actionConnect);
 		}
 		{
-			IAction action = new Action("", IAction.AS_CHECK_BOX) {
+			final IAction action = new Action("", IAction.AS_CHECK_BOX) {
 				@Override
 				public void run() {
 					setAutoHideLastScan(!getAutoHideLastScan());
@@ -226,6 +228,23 @@ public class XYPlotView extends ViewPart implements IAllScanDataPointsObserver {
 					this.setChecked(autoHideLastScan);
 				}
 			};
+			preferenceStore.addPropertyChangeListener(new IPropertyChangeListener() {
+				
+				@Override
+				public void propertyChange(PropertyChangeEvent event) {
+					if (event.getProperty().equals(PreferenceConstants.GDA_CLIENT_PLOT_AUTOHIDE_LAST_SCAN)) {
+						Object newValue = event.getNewValue();
+						if (newValue instanceof Boolean) {
+							if ((Boolean)newValue != getAutoHideLastScan()) {
+								action.run();
+							}
+							else {
+								action.setChecked((Boolean)newValue);
+							}
+						}
+					}
+				}
+			});
 			action.setChecked(xyPlot.getAutoHideLastScan());
 			action.setToolTipText("Auto hide last scan");
 			action.setImageDescriptor(gda.rcp.GDAClientActivator.getImageDescriptor("icons/chart_curve_single.png"));
