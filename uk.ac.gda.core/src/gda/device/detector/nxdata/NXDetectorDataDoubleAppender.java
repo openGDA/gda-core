@@ -20,6 +20,7 @@ package gda.device.detector.nxdata;
 
 import gda.device.detector.NXDetectorData;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 import org.nexusformat.NexusFile;
@@ -27,13 +28,16 @@ import org.nexusformat.NexusFile;
 public class NXDetectorDataDoubleAppender implements NXDetectorDataAppender {
 
 	static private final int[] SINGLE_DIMENSION = new int[] { 1 };
-	
+
 	private final List<String> elementNames;
-	
+
 	private final List<Double> elementValues;
-	
 
 	public NXDetectorDataDoubleAppender(List<String> elementNames, List<Double> elementValues) {
+		if (elementNames.size() != elementValues.size()) {
+			throw new IllegalArgumentException(MessageFormat.format(
+					"Length of elementNames[{0}] != elementValues[{1}]", elementNames.size(), elementValues.size()));
+		}
 		this.elementNames = elementNames;
 		this.elementValues = elementValues;
 	}
@@ -43,7 +47,6 @@ public class NXDetectorDataDoubleAppender implements NXDetectorDataAppender {
 	 */
 	@Override
 	public void appendTo(NXDetectorData data, String detectorName) {
-		// TODO Auto-generated method stub
 
 		for (int i = 0; i < elementNames.size(); i++) {
 			String name = elementNames.get(i);
@@ -52,6 +55,48 @@ public class NXDetectorDataDoubleAppender implements NXDetectorDataAppender {
 			data.addData(detectorName, name, SINGLE_DIMENSION, NexusFile.NX_FLOAT64, new double[] { value }, null, null);
 		}
 
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((elementNames == null) ? 0 : elementNames.hashCode());
+		result = prime * result + ((elementValues == null) ? 0 : elementValues.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		NXDetectorDataDoubleAppender other = (NXDetectorDataDoubleAppender) obj;
+		if (elementNames == null) {
+			if (other.elementNames != null)
+				return false;
+		} else if (!elementNames.equals(other.elementNames))
+			return false;
+		if (elementValues == null) {
+			if (other.elementValues != null)
+				return false;
+		} else if (!elementValues.equals(other.elementValues))
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		String str = "NXDetectorDataDoubleAppender:";
+		for (int i = 0; i < elementNames.size(); i++) {
+			String name = elementNames.get(i);
+			Double value = elementValues.get(i);
+			str = str + " " + name + ":" + value;
+		}
+		return str;
 	}
 
 }

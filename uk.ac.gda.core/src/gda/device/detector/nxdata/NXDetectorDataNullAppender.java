@@ -21,10 +21,26 @@ package gda.device.detector.nxdata;
 import gda.device.detector.NXDetectorData;
 
 public class NXDetectorDataNullAppender implements NXDetectorDataAppender {
-
+	
 	@Override
 	public void appendTo(NXDetectorData data, String detectorName) {
 		// do nothing
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		return super.hashCode();
+	}
+	
 }
