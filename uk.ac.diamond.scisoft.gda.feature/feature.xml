@@ -22,7 +22,7 @@
          version="0.0.0"/>
 
    <includes
-         id="org.dawnsci.workbench.plotting.feature"
+         id="org.dawnsci.plotting.feature"
          version="0.0.0"/>
 
    <plugin
