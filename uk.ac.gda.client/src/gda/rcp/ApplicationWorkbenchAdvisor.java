@@ -26,6 +26,7 @@ import gda.gui.RCPController;
 import gda.gui.RCPControllerImpl;
 import gda.gui.RCPOpenPerspectiveCommand;
 import gda.gui.RCPOpenViewCommand;
+import gda.gui.RCPSetPreferenceCommand;
 import gda.jython.IScanDataPointObserver;
 import gda.jython.InterfaceProvider;
 import gda.jython.Jython;
@@ -316,6 +317,32 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 									}
 								}
 							});							
+						}
+						if( arg instanceof RCPSetPreferenceCommand){
+							IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
+							RCPSetPreferenceCommand preference = (RCPSetPreferenceCommand) arg;
+							Object value = preference.getValue();
+							if (value instanceof Double) {
+								preferenceStore.setValue(preference.getId(), (Double)value);
+							}
+							else if( value instanceof Float) {
+								preferenceStore.setValue(preference.getId(), (Float)value);
+							}
+							else if( value instanceof Integer) {
+								preferenceStore.setValue(preference.getId(), (Integer)value);
+							}
+							else if( value instanceof Long) {
+								preferenceStore.setValue(preference.getId(), (Long)value);
+							}
+							else if( value instanceof String) {
+								preferenceStore.setValue(preference.getId(), (String)value);
+							}
+							else if( value instanceof Boolean) {
+								preferenceStore.setValue(preference.getId(), (Boolean)value);
+							}
+							else {
+								throw new IllegalArgumentException("The value must be of one of the following types: Double, Float, Integer, Long, String, or Boolean");
+							}
 						}
 					}
 				};

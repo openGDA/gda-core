@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2011 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,15 +18,28 @@
 
 package gda.gui;
 
-import gda.factory.Findable;
-import gda.observable.IObservable;
+import java.io.Serializable;
 
-
-/*
- * Interface for object on server that can be used to open a view on the client
- */
-public interface RCPController extends IObservable, Findable{
-	void openView(String id);
-	void openPerspective(String id);
-	void setPreference(String id, Object value);
+public class RCPSetPreferenceCommand implements Serializable {
+	String id;
+	Object value;
+	
+	public RCPSetPreferenceCommand(String id, Object value) {
+		this.id = id;
+		this.value = value;
+	}
+	
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	public Object getValue() {
+		return value;
+	}
+	public void setValue(Object value) {
+		this.value = value;
+	}
+	
 }
