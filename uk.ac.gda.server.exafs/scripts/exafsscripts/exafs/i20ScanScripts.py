@@ -1,3 +1,5 @@
+import array
+
 from java.lang import InterruptedException
 from java.lang import System
 from xas_scan import XasScan
@@ -22,16 +24,16 @@ from uk.ac.gda.beans import BeansFactory
 from uk.ac.gda.beans.exafs import XanesScanParameters
 from uk.ac.gda.beans.exafs import XesScanParameters
 from uk.ac.gda.beans.exafs import XasScanParameters
-from uk.ac.gda.beans.exafs.i20 import I20SampleParameters
+from uk.ac.gda.beans.exafs.i20 import I20SampleParameters, CryostatParameters
+from uk.ac.gda.doe import DOEUtils
 
 
 class I20XasScan(XasScan):
     
     def _doLooping(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller):
 
-        global jython_mapper
-        jython_mapper = JythonNameSpaceMapping()
-        finder = Finder.getInstance()
+        self.jython_mapper = JythonNameSpaceMapping()
+        self.finder = Finder.getInstance()
         
         # fluo detector, if in use
         if beanGroup.getDetector().getExperimentType() == 'Fluorescence':
@@ -45,13 +47,13 @@ class I20XasScan(XasScan):
         if beanGroup.getSample().getUseSampleWheel():
             filter = beanGroup.getSample().getSampleWheelPosition()
             print "Moving filter wheel to",filter,"..."
-            jython_mapper.filterwheel(filter)
+            self.jython_mapper.filterwheel(filter)
             ScriptBase.checkForPauses()
             
         # I20 always moves things back to initial positions after ecah scan. To save time, move mono to intial position here
         scan =  beanGroup.getScan()
         energy_scannable_name = scan.getScannableName()
-        energy_scannable = finder.find(energy_scannable_name)
+        energy_scannable = self.finder.find(energy_scannable_name)
         if energy_scannable != None and isinstance(scan,XasScanParameters):
             intialPosition = scan.getInitialEnergy()
             energy_scannable.asynchronousMoveTo(intialPosition)
@@ -65,6 +67,7 @@ class I20XasScan(XasScan):
 
         # room temperature (sample stage)
         try:
+            # XAS / XANES room temperature sample stage 
             if beanGroup.getDetector().getExperimentType() != 'XES' and beanGroup.getSample().getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[1] :
                 sampleStageParameters = beanGroup.getSample().getRoomTemperatureParameters()
                 # there are 4 samples in the bean
@@ -83,13 +86,12 @@ class I20XasScan(XasScan):
                     samplename = sampleStageParameters.getSampleNames()[i]
                     sampledescription = sampleStageParameters.getSampleDescriptions()[i]
                     
-                    finder = Finder.getInstance()
-                    samx = finder.find("sample_x")
-                    samy = finder.find("sample_y")
-                    samz = finder.find("sample_z")
-                    samrot = finder.find("sample_rot")
-                    samroll = finder.find("sample_roll")
-                    sampitch = finder.find("sample_pitch")
+                    samx = self.finder.find("sample_x")
+                    samy = self.finder.find("sample_y")
+                    samz = self.finder.find("sample_z")
+                    samrot = self.finder.find("sample_rot")
+                    samroll = self.finder.find("sample_roll")
+                    sampitch = self.finder.find("sample_pitch")
                     
                     if samx == None or samy ==None or samz == None or samrot == None or samroll == None or sampitch == None:
                         raise DeviceException("I20 scan script - could not find all sample stage motors!")
@@ -119,6 +121,7 @@ class I20XasScan(XasScan):
                     
                     energy_scannable.waitWhileBusy()
                     self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
+            # XES room temp sample stage
             elif beanGroup.getDetector().getExperimentType() == 'XES' and beanGroup.getSample().getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[1] :
                 sampleStageParameters = beanGroup.getSample().getRoomTemperatureParameters()
                 # there are 4 samples in the bean
@@ -133,13 +136,14 @@ class I20XasScan(XasScan):
                     z = sampleStageParameters.getZs()[i]
                     rotation = sampleStageParameters.getRotations()[i]
                     finerotation = sampleStageParameters.getFineRotations()[i]
+                    samplename = sampleStageParameters.getSampleNames()[i]
+                    sampledescription = sampleStageParameters.getSampleDescriptions()[i]
                     
-                    finder = Finder.getInstance()
-                    samx = finder.find("sample_x")
-                    samy = finder.find("sample_y")
-                    samz = finder.find("sample_z")
-                    samrot = finder.find("sample_rot")
-                    samfinerot = finder.find("sample_fine_rot")
+                    samx = self.finder.find("sample_x")
+                    samy = self.finder.find("sample_y")
+                    samz = self.finder.find("sample_z")
+                    samrot = self.finder.find("sample_rot")
+                    samfinerot = self.finder.find("sample_fine_rot")
                     
                     if samx == None or samy ==None or samz == None or samrot == None or samfinerot == None:
                         raise DeviceException("I20 scan script - could not find all sample stage motors!")
@@ -158,16 +162,21 @@ class I20XasScan(XasScan):
                     print "Sample stage move complete.\n"
                     ScriptBase.checkForPauses()
                     
-                    #TODO add to metadata?
+                    # change the strings in the filewriter so that the ascii filename changes
+                    beanGroup.getSample().setName(samplename)
+                    beanGroup.getSample().setDescriptions([sampledescription])
                     
                     energy_scannable.waitWhileBusy()
                     self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
+            #XAS/XANES cryostat
+            elif beanGroup.getDetector().getExperimentType() != 'XES' and beanGroup.getSample().getSampleEnvironment() == I20SampleParameters.SAMPLE_ENV[2] :
+                self._runCryoStatLoop(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
             else :
                 energy_scannable.waitWhileBusy()
                 self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
         finally:
             # remove extra columns from ionchambers output
-            jython_mapper.ionchambers.setOutputLogValues(False) 
+            self.jython_mapper.ionchambers.setOutputLogValues(False) 
             ScriptBase.checkForPauses()
         
     def _beforeEachRepetition(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller, repNum):
@@ -178,15 +187,12 @@ class I20XasScan(XasScan):
             times = XanesScanPointCreator.getScanTimeArray(beanGroup.getScan())
         if len(times) > 0:
             print "Setting detector frame times, using array of length",str(len(times)) + "..."
-            jython_mapper = JythonNameSpaceMapping()
-            jython_mapper.ionchambers.setTimes(times)
+            self.jython_mapper.ionchambers.setTimes(times)
             ScriptBase.checkForPauses()
         return
         
 
     def setDetectorCorrectionParameters(self,beanGroup):
-        jython_mapper = JythonNameSpaceMapping()
-        
         scanObj = beanGroup.getScan()
         edgeEnergy = 0.0
         if isinstance(scanObj,XasScanParameters):
@@ -195,12 +201,10 @@ class I20XasScan(XasScan):
         else :
             edgeEnergy = scanObj.getFinalEnergy() 
             edgeEnergy /= 1000 # convert from eV to keV
-        jython_mapper.xspress2system.setDeadtimeCalculationEnergy(edgeEnergy)
+        self.jython_mapper.xspress2system.setDeadtimeCalculationEnergy(edgeEnergy)
  
     
-    def setUpIonChambers(self,beanGroup):
-        jython_mapper = JythonNameSpaceMapping()
-    
+    def setUpIonChambers(self,beanGroup):    
         # determine max collection time
         scanBean = beanGroup.getScan()
         maxTime = 0;
@@ -224,9 +228,93 @@ class I20XasScan(XasScan):
         # set dark current time and handle any errors here
         if maxTime > 0:
             print "Setting ionchambers dark current collectiom time to",str(maxTime),"s."
-            jython_mapper.ionchambers.setDarkCurrentCollectionTime(maxTime)
-            jython_mapper.I1.setDarkCurrentCollectionTime(maxTime)
+            self.jython_mapper.ionchambers.setDarkCurrentCollectionTime(maxTime)
+            self.jython_mapper.I1.setDarkCurrentCollectionTime(maxTime)
+            
+    def _runCryoStatLoop(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller):
+        cryoStatParameters = beanGroup.getSample().getCryostatParameters()
+        loopSampleFirst = cryoStatParameters.getLoopChoice() == CryostatParameters.LOOP_OPTION[0]
+        #temperatures = self._createTemperaturesArrayFromString(cryoStatParameters.getTemperature())
+        temperatures = DOEUtils.getRange(cryoStatParameters.getTemperature(),None)
 
+        energy_scannable_name = beanGroup.getScan().getScannableName()
+        energy_scannable = self.finder.find(energy_scannable_name)
+
+        # TODO set up the cryostat here at this point
+        print "would set up the cryostat parameters at this point"
+        
+        if loopSampleFirst:
+                # there are 3 samples in the bean
+                for i in range(0,3):
+                    doUse = cryoStatParameters.getUses()[i]
+                    if not doUse:
+                        continue
+                    
+                    y = cryoStatParameters.getYs()[i]
+                    finepos = cryoStatParameters.getFinePositions()[i]
+                    desc = cryoStatParameters.getSampleDescriptions()[i]
+                    
+                    samy = self.finder.find("sample_y")
+                    sam_fine_pos = self.finder.find("sample_fine_rot")
+                    
+                    print "Moving sample stage to",y,finepos,"..."
+                    
+                    samy.asynchronousMoveTo(y)
+                    sam_fine_pos.asynchronousMoveTo(finepos)
+                    samy.waitWhileBusy()
+                    sam_fine_pos.waitWhileBusy()
+                    print "Sample stage move complete.\n"
+                    ScriptBase.checkForPauses()
+                    
+                    beanGroup.getSample().setDescriptions([desc])
+
+                    for temp in temperatures:
+                        print "Setting cryostat to",str(temp),"K"
+                        print "Would change cryostat temp here." 
+                        energy_scannable.waitWhileBusy()
+                        self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
+                        
+        else:
+                for temp in temperatures:
+                    print "Setting cryostat to",str(temp),"K"
+                    print "Would change cryostat temp here." 
+                     
+                    for i in range(0,3):
+                        doUse = cryoStatParameters.getUses()[i]
+                        if not doUse:
+                            continue
+                        
+                        y = cryoStatParameters.getYs()[i]
+                        finepos = cryoStatParameters.getFinePositions()[i]
+                        desc = cryoStatParameters.getSampleDescriptions()[i]
+                        
+                        samy = self.finder.find("sample_y")
+                        sam_fine_pos = self.finder.find("sample_fine_rot")
+                        
+                        print "Moving sample stage to",y,finepos,"..."
+                        
+                        samy.asynchronousMoveTo(y)
+                        sam_fine_pos.asynchronousMoveTo(finepos)
+                        samy.waitWhileBusy()
+                        sam_fine_pos.waitWhileBusy()
+                        print "Sample stage move complete.\n"
+                        ScriptBase.checkForPauses()
+                        
+                        beanGroup.getSample().setDescriptions([desc])
+                        
+                        energy_scannable.waitWhileBusy()
+                        self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
+
+                    
+    def _createTemperaturesArrayFromString(self,tempString):
+        
+        parts = tempString.split(",")
+        dblArray = array.array('d')
+        for part in parts:
+            dblArray.append(float(part))
+        return dblArray
+        
+        
 class I20XesScan(XasScan):
     
     def __init__(self, loggingcontroller, detectorPreparer, samplePreparer, outputPreparer, beamlineReverter):
@@ -246,8 +334,8 @@ class I20XesScan(XasScan):
         detectorBean = BeansFactory.getBeanObject(xmlFolderName, detectorFileName)
         outputBean = BeansFactory.getBeanObject(xmlFolderName, outputFileName)
 
-        finder_mapper = FinderNameMapping()
-        jython_mapper = JythonNameSpaceMapping()
+        self.finder_mapper = FinderNameMapping()
+        self.jython_mapper = JythonNameSpaceMapping()
         loggingcontroller = Finder.getInstance().find("XASLoggingScriptController")
 
         # create unique ID for this scan (all repetitions will share the same ID)
@@ -275,8 +363,6 @@ class I20XesScan(XasScan):
         
     def _doLooping(self,beanGroup,folderName,numRepetitions, validation,scan_unique_id):
 
-        finder_mapper = FinderNameMapping()
-        jython_mapper = JythonNameSpaceMapping()
         loggingcontroller = Finder.getInstance().find("XASLoggingScriptController")
         
         # ion chambers
@@ -299,12 +385,11 @@ class I20XesScan(XasScan):
                 samplename = sampleStageParameters.getSampleNames()[i]
                 sampledescription = sampleStageParameters.getSampleDescriptions()[i]
                 
-                finder = Finder.getInstance()
-                samx = finder.find("sample_x")
-                samy = finder.find("sample_y")
-                samz = finder.find("sample_z")
-                samrot = finder.find("sample_rot")
-                samfinerot = finder.find("sample_fine_rot")
+                samx = self.finder.find("sample_x")
+                samy = self.finder.find("sample_y")
+                samz = self.finder.find("sample_z")
+                samrot = self.finder.find("sample_rot")
+                samfinerot = self.finder.find("sample_fine_rot")
                 
                 if samx == None or samy ==None or samz == None or samrot == None or samfinerot == None:
                     raise DeviceException("I20 XES scan script - could not find all sample stage motors!")
@@ -338,8 +423,6 @@ class I20XesScan(XasScan):
 
     def _doScan(self,beanGroup,folderName,numRepetitions, validation,scan_unique_id):
 
-        finder_mapper = FinderNameMapping()
-        jython_mapper = JythonNameSpaceMapping()
         loggingcontroller = Finder.getInstance().find("XASLoggingScriptController")
         # now that the scan has been defined, run it in a loop
         
@@ -348,9 +431,9 @@ class I20XesScan(XasScan):
         detectorList = self._getDetectors(beanGroup.getDetector(), beanGroup.getScan()) 
 
         # get the relevant objects from the namespace
-        xes_energy = jython_mapper.XESEnergy
-        mono_energy = jython_mapper.bragg1
-        analyserAngle = jython_mapper.XESBragg
+        xes_energy = self.jython_mapper.XESEnergy
+        mono_energy = self.jython_mapper.bragg1
+        analyserAngle = self.jython_mapper.XESBragg
         #L = jython_mapper.xtal_x
 
         scanType = beanGroup.getScan().getScanType()
@@ -379,9 +462,9 @@ class I20XesScan(XasScan):
 #            LocalProperties.set("gda.data.scan.datawriter.dataFormat","XesAsciiNexusDataWriter")
 
              # create scannable which will control 2D plotting in this mode
-            jython_mapper.twodplotter.setX_colName(xes_energy.getInputNames()[0])
-            jython_mapper.twodplotter.setY_colName(mono_energy.getInputNames()[0])
-            jython_mapper.twodplotter.setZ_colName(finder_mapper.xmapMca.getExtraNames()[0])
+            self.jython_mapper.twodplotter.setX_colName(xes_energy.getInputNames()[0])
+            self.jython_mapper.twodplotter.setY_colName(mono_energy.getInputNames()[0])
+            self.jython_mapper.twodplotter.setZ_colName(finder_mapper.xmapMca.getExtraNames()[0])
             # note that users will have to open a 'plot 1' view or use the XESPlot perspective for this to work
 
             ef_args = [xes_energy, beanGroup.getScan().getXesInitialEnergy(), beanGroup.getScan().getXesFinalEnergy(), beanGroup.getScan().getXesStepSize()]
@@ -391,7 +474,7 @@ class I20XesScan(XasScan):
                 args += ef_args + e0_args
             else:
                 args += e0_args + ef_args
-            args += [jython_mapper.twodplotter]
+            args += [self.jython_mapper.twodplotter]
 
         elif scanType == XesScanParameters.FIXED_XES_SCAN_XAS:
             print "Doing an EXAFS scan with a fixed analyser energy"
@@ -406,7 +489,7 @@ class I20XesScan(XasScan):
 
             try:
                 self.outputPreparer.mode = "xes"
-                jython_mapper.xas(beanGroup.getSample(), xas_scanfilename, beanGroup.getDetector(), beanGroup.getOutput(), folderName, numRepetitions, validation)
+                self.jython_mapper.xas(beanGroup.getSample(), xas_scanfilename, beanGroup.getDetector(), beanGroup.getOutput(), folderName, numRepetitions, validation)
             finally:
                 print "cleaning up scan defaults"
                 self.outputPreparer.mode = "xas"
@@ -426,7 +509,7 @@ class I20XesScan(XasScan):
 
             try:
                 self.outputPreparer.mode = "xes"
-                jython_mapper.xanes(beanGroup.getSample(), xanes_scanfilename, beanGroup.getDetector(), beanGroup.getOutput(), folderName, numRepetitions, validation)
+                self.jython_mapper.xanes(beanGroup.getSample(), xanes_scanfilename, beanGroup.getDetector(), beanGroup.getOutput(), folderName, numRepetitions, validation)
             finally:
                 print "cleaning up scan defaults"
                 self.outputPreparer.mode = "xas"
@@ -519,14 +602,13 @@ class I20XesScan(XasScan):
         finally:
 #            LocalProperties.set("gda.data.scan.datawriter.dataFormat", originalDataFormat)
             # make sure the plotter is switched off
-            jython_mapper.twodplotter.atScanEnd()
-            jython_mapper.ionchambers.setOutputLogValues(False) 
+            self.jython_mapper.twodplotter.atScanEnd()
+            self.jython_mapper.ionchambers.setOutputLogValues(False) 
             XasAsciiDataWriter.setBeanGroup(None)
             
 
     def setUpIonChambers(self,beanGroup):
-        jython_mapper = JythonNameSpaceMapping()
         # get ion chmabers
-        ct = jython_mapper.I1
+        ct = self.jython_mapper.I1
         ct.setDarkCurrentCollectionTime(beanGroup.getScan().getXesIntegrationTime())
 

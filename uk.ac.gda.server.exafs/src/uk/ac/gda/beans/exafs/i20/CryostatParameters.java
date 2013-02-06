@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -24,89 +24,125 @@ import org.apache.commons.beanutils.BeanUtils;
 
 /**
  * Class to represent changeable parameters for a cryostat device.
-
  */
 public class CryostatParameters implements Serializable {
-		
-	public static final String[] LOOP_OPTION = new String[]{"Loop over sample, then temperature", "Loop over temperature, then sample"};
-	public static final String[] SAMPLE_HOLDER_OPTION = new String[]{"3 Samples", "Liquid Cell"};
 
-	private Double  temperature;	// desired temp
-	private Double  time;			// timeout while waiting for heat to reach desired value
-	private Double  tolerance;		// temperature deadband (GDA-level concept, this is not in EPICS)
-	private Double  p,i,d,ramp;		// ramp rate unused in UI
-	private Integer heaterRange;	// power output 1-5
-	
-	// TODO add ramp rate, ramp enable, 
+	public static final String[] LOOP_OPTION = new String[] { "Loop over sample, then temperature",
+			"Loop over temperature, then sample" };
+	public static final String[] CONTROL_MODE = new String[] { "Manual PID", "Zone control", "Open Loop",
+			"Auto-tune PID" };
+	public static final String[] HEATER_RANGE = new String[] { "4mW", "40mW", "400mW", "4W", "40W" };
 
-	private String  profileType;	// unused  TODO remove
-	
-	private String  sampleHolder;	// liquid cell or '4 samples' TODO stic final string[]
-	private String  sampleNumbers = "";
-	
-	private Double  position1 = 0.0;
-	private Double  finePosition1 = 0.0;
-	private String  sampleDescription1 = "";
-	
-	private Double  position2 = 0.0;
-	private Double  finePosition2 = 0.0;
-	private String  sampleDescription2 = "";
-	
-	private Double  position3 = 0.0;
-	private Double  finePosition3 = 0.0;
-	private String  sampleDescription3 = "";
-	
-	private Double  position4 = 0.0;				// TODO remove 4th
-	private Double  finePosition4 = 0.0;
-	private String  sampleDescription4 = "";
 	private String loopChoice;
 
-	public Double getTemperature() {
+	private Double tolerance; // temperature deadband (GDA-level concept, this is not in EPICS)
+	private Double waitTime; // timeout while waiting for heat to reach desired value
+	private String temperature = ""; // desired temp
+
+	private String controlMode = "";
+	private String heaterRange = "";
+	private Double p, i, d, manualOutput;
+
+	private Boolean useSample1 = false;
+	private Double position1 = 0.0;
+	private Double finePosition1 = 0.0;
+	private String sampleDescription1 = "";
+
+	private Boolean useSample2 = false;
+	private Double position2 = 0.0;
+	private Double finePosition2 = 0.0;
+	private String sampleDescription2 = "";
+
+	private Boolean useSample3 = false;
+	private Double position3 = 0.0;
+	private Double finePosition3 = 0.0;
+	private String sampleDescription3 = "";
+	
+	/*
+	 * useful methods when used in scripts
+	 */
+	
+	public Boolean[] getUses() {
+		return new Boolean[]{useSample1,useSample2,useSample3};
+	}
+
+	public Double[] getYs() {
+		return new Double[] { position1, position2, position3 };
+	}
+
+	public Double[] getFinePositions() {
+		return new Double[] { finePosition3, finePosition3, finePosition3 };
+	}
+
+	public String[] getSampleDescriptions() {
+		return new String[] { sampleDescription1, sampleDescription2, sampleDescription3 };
+	}
+
+	@Override
+	public String toString() {
+		try {
+			return BeanUtils.describe(this).toString();
+		} catch (Exception e) {
+			return e.getMessage();
+		}
+	}
+
+	public String getLoopChoice() {
+		return loopChoice;
+	}
+
+	public void setLoopChoice(String loopChoice) {
+		this.loopChoice = loopChoice;
+	}
+
+	public Double getTolerance() {
+		return tolerance;
+	}
+
+	public void setTolerance(Double tolerance) {
+		this.tolerance = tolerance;
+	}
+
+	public Double getWaitTime() {
+		return waitTime;
+	}
+
+	public void setWaitTime(Double waitTime) {
+		this.waitTime = waitTime;
+	}
+
+	public String getTemperature() {
 		return temperature;
 	}
 
-	public void setTemperature(Double temperature) {
+	public void setTemperature(String temperature) {
 		this.temperature = temperature;
 	}
 
-	public Integer getHeaterRange() {
+	public String getControlMode() {
+		return controlMode;
+	}
+
+	public void setControlMode(String controlMode) {
+		this.controlMode = controlMode;
+	}
+
+	public String getHeaterRange() {
 		return heaterRange;
 	}
 
-	public void setHeaterRange(Integer tolerance) {
-		this.heaterRange = tolerance;
+	public void setHeaterRange(String heaterRange) {
+		this.heaterRange = heaterRange;
 	}
 
-	public Double getTime() {
-		return time;
-	}
-
-	public void setTime(Double time) {
-		this.time = time;
-	}
-
-	public String getSampleNumbers() {
-		return sampleNumbers;
-	}
-
-	public void setSampleNumbers(String sampleNumbers) {
-		this.sampleNumbers = sampleNumbers;
-	}
-
-	public String getProfileType() {
-		return profileType;
-	}
-
-	public void setProfileType(String profileType) {
-		this.profileType = profileType;
-	}
 	public Double getP() {
 		return p;
 	}
+
 	public void setP(Double p) {
 		this.p = p;
 	}
-	
+
 	public Double getI() {
 		return i;
 	}
@@ -123,37 +159,20 @@ public class CryostatParameters implements Serializable {
 		this.d = d;
 	}
 
-	public Double getRamp() {
-		return ramp;
+	public Double getManualOutput() {
+		return manualOutput;
 	}
 
-	public void setRamp(Double ramp) {
-		this.ramp = ramp;
+	public void setManualOutput(Double manualOutput) {
+		this.manualOutput = manualOutput;
 	}
 
-	@Override
-	public String toString() {
-		try {
-			return BeanUtils.describe(this).toString();
-		} catch (Exception e) {
-			return e.getMessage();
-		}
+	public Boolean getUseSample1() {
+		return useSample1;
 	}
 
-	public Double getTolerance() {
-		return tolerance;
-	}
-
-	public void setTolerance(Double tolerance) {
-		this.tolerance = tolerance;
-	}
-
-	public String getSampleHolder() {
-		return sampleHolder;
-	}
-
-	public void setSampleHolder(String sampleHolder) {
-		this.sampleHolder = sampleHolder;
+	public void setUseSample1(Boolean useSample1) {
+		this.useSample1 = useSample1;
 	}
 
 	public Double getPosition1() {
@@ -180,6 +199,14 @@ public class CryostatParameters implements Serializable {
 		this.sampleDescription1 = sampleDescription1;
 	}
 
+	public Boolean getUseSample2() {
+		return useSample2;
+	}
+
+	public void setUseSample2(Boolean useSample2) {
+		this.useSample2 = useSample2;
+	}
+
 	public Double getPosition2() {
 		return position2;
 	}
@@ -202,6 +229,14 @@ public class CryostatParameters implements Serializable {
 
 	public void setSampleDescription2(String sampleDescription2) {
 		this.sampleDescription2 = sampleDescription2;
+	}
+
+	public Boolean getUseSample3() {
+		return useSample3;
+	}
+
+	public void setUseSample3(Boolean useSample3) {
+		this.useSample3 = useSample3;
 	}
 
 	public Double getPosition3() {
@@ -228,66 +263,32 @@ public class CryostatParameters implements Serializable {
 		this.sampleDescription3 = sampleDescription3;
 	}
 
-	public Double getPosition4() {
-		return position4;
-	}
-
-	public void setPosition4(Double position4) {
-		this.position4 = position4;
-	}
-
-	public Double getFinePosition4() {
-		return finePosition4;
-	}
-
-	public void setFinePosition4(Double finePosition4) {
-		this.finePosition4 = finePosition4;
-	}
-
-	public String getSampleDescription4() {
-		return sampleDescription4;
-	}
-
-	public void setSampleDescription4(String sampleDescription4) {
-		this.sampleDescription4 = sampleDescription4;
-	}
-
-	public String getLoopChoice() {
-		return loopChoice;
-	}
-
-	public void setLoopChoice(String loopChoice) {
-		this.loopChoice = loopChoice;
-	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((controlMode == null) ? 0 : controlMode.hashCode());
 		result = prime * result + ((d == null) ? 0 : d.hashCode());
 		result = prime * result + ((finePosition1 == null) ? 0 : finePosition1.hashCode());
 		result = prime * result + ((finePosition2 == null) ? 0 : finePosition2.hashCode());
 		result = prime * result + ((finePosition3 == null) ? 0 : finePosition3.hashCode());
-		result = prime * result + ((finePosition4 == null) ? 0 : finePosition4.hashCode());
 		result = prime * result + ((heaterRange == null) ? 0 : heaterRange.hashCode());
 		result = prime * result + ((i == null) ? 0 : i.hashCode());
 		result = prime * result + ((loopChoice == null) ? 0 : loopChoice.hashCode());
+		result = prime * result + ((manualOutput == null) ? 0 : manualOutput.hashCode());
 		result = prime * result + ((p == null) ? 0 : p.hashCode());
 		result = prime * result + ((position1 == null) ? 0 : position1.hashCode());
 		result = prime * result + ((position2 == null) ? 0 : position2.hashCode());
 		result = prime * result + ((position3 == null) ? 0 : position3.hashCode());
-		result = prime * result + ((position4 == null) ? 0 : position4.hashCode());
-		result = prime * result + ((profileType == null) ? 0 : profileType.hashCode());
-		result = prime * result + ((ramp == null) ? 0 : ramp.hashCode());
 		result = prime * result + ((sampleDescription1 == null) ? 0 : sampleDescription1.hashCode());
 		result = prime * result + ((sampleDescription2 == null) ? 0 : sampleDescription2.hashCode());
 		result = prime * result + ((sampleDescription3 == null) ? 0 : sampleDescription3.hashCode());
-		result = prime * result + ((sampleDescription4 == null) ? 0 : sampleDescription4.hashCode());
-		result = prime * result + ((sampleHolder == null) ? 0 : sampleHolder.hashCode());
-		result = prime * result + ((sampleNumbers == null) ? 0 : sampleNumbers.hashCode());
 		result = prime * result + ((temperature == null) ? 0 : temperature.hashCode());
-		result = prime * result + ((time == null) ? 0 : time.hashCode());
 		result = prime * result + ((tolerance == null) ? 0 : tolerance.hashCode());
+		result = prime * result + ((useSample1 == null) ? 0 : useSample1.hashCode());
+		result = prime * result + ((useSample2 == null) ? 0 : useSample2.hashCode());
+		result = prime * result + ((useSample3 == null) ? 0 : useSample3.hashCode());
+		result = prime * result + ((waitTime == null) ? 0 : waitTime.hashCode());
 		return result;
 	}
 
@@ -300,6 +301,11 @@ public class CryostatParameters implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		CryostatParameters other = (CryostatParameters) obj;
+		if (controlMode == null) {
+			if (other.controlMode != null)
+				return false;
+		} else if (!controlMode.equals(other.controlMode))
+			return false;
 		if (d == null) {
 			if (other.d != null)
 				return false;
@@ -320,11 +326,6 @@ public class CryostatParameters implements Serializable {
 				return false;
 		} else if (!finePosition3.equals(other.finePosition3))
 			return false;
-		if (finePosition4 == null) {
-			if (other.finePosition4 != null)
-				return false;
-		} else if (!finePosition4.equals(other.finePosition4))
-			return false;
 		if (heaterRange == null) {
 			if (other.heaterRange != null)
 				return false;
@@ -339,6 +340,11 @@ public class CryostatParameters implements Serializable {
 			if (other.loopChoice != null)
 				return false;
 		} else if (!loopChoice.equals(other.loopChoice))
+			return false;
+		if (manualOutput == null) {
+			if (other.manualOutput != null)
+				return false;
+		} else if (!manualOutput.equals(other.manualOutput))
 			return false;
 		if (p == null) {
 			if (other.p != null)
@@ -360,21 +366,6 @@ public class CryostatParameters implements Serializable {
 				return false;
 		} else if (!position3.equals(other.position3))
 			return false;
-		if (position4 == null) {
-			if (other.position4 != null)
-				return false;
-		} else if (!position4.equals(other.position4))
-			return false;
-		if (profileType == null) {
-			if (other.profileType != null)
-				return false;
-		} else if (!profileType.equals(other.profileType))
-			return false;
-		if (ramp == null) {
-			if (other.ramp != null)
-				return false;
-		} else if (!ramp.equals(other.ramp))
-			return false;
 		if (sampleDescription1 == null) {
 			if (other.sampleDescription1 != null)
 				return false;
@@ -390,35 +381,35 @@ public class CryostatParameters implements Serializable {
 				return false;
 		} else if (!sampleDescription3.equals(other.sampleDescription3))
 			return false;
-		if (sampleDescription4 == null) {
-			if (other.sampleDescription4 != null)
-				return false;
-		} else if (!sampleDescription4.equals(other.sampleDescription4))
-			return false;
-		if (sampleHolder == null) {
-			if (other.sampleHolder != null)
-				return false;
-		} else if (!sampleHolder.equals(other.sampleHolder))
-			return false;
-		if (sampleNumbers == null) {
-			if (other.sampleNumbers != null)
-				return false;
-		} else if (!sampleNumbers.equals(other.sampleNumbers))
-			return false;
 		if (temperature == null) {
 			if (other.temperature != null)
 				return false;
 		} else if (!temperature.equals(other.temperature))
 			return false;
-		if (time == null) {
-			if (other.time != null)
-				return false;
-		} else if (!time.equals(other.time))
-			return false;
 		if (tolerance == null) {
 			if (other.tolerance != null)
 				return false;
 		} else if (!tolerance.equals(other.tolerance))
+			return false;
+		if (useSample1 == null) {
+			if (other.useSample1 != null)
+				return false;
+		} else if (!useSample1.equals(other.useSample1))
+			return false;
+		if (useSample2 == null) {
+			if (other.useSample2 != null)
+				return false;
+		} else if (!useSample2.equals(other.useSample2))
+			return false;
+		if (useSample3 == null) {
+			if (other.useSample3 != null)
+				return false;
+		} else if (!useSample3.equals(other.useSample3))
+			return false;
+		if (waitTime == null) {
+			if (other.waitTime != null)
+				return false;
+		} else if (!waitTime.equals(other.waitTime))
 			return false;
 		return true;
 	}
