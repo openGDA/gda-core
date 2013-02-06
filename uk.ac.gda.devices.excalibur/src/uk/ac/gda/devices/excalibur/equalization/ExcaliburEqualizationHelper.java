@@ -645,7 +645,7 @@ public class ExcaliburEqualizationHelper {
 			
 			int[] shape2 = dataset.getShape();
 			hdf.writeToFileSimple(new Hdf5HelperData( new long[]{ shape2[0], shape2[1]}, dataset.getData()), resultFileName, getEqualisationLocation(),
-					THRESHOLD_DATASET+"_col" + chip.column + "_row" + chip.row);
+					THRESHOLD_DATASET+"_row" + chip.row + "_column" + chip.column);
 			
 			IntegerDataset dataset2 = getDatasetWithValidPixels(dataset);
 			if( dataset2 != null){

@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
@@ -279,31 +280,47 @@ public class ExcaliburConfigModelHelper {
 	/**
 	 * Sends the configuration parameters persisted in the {@link ExcaliburConfig} to the excalibur detector.
 	 * 
-	 * @param readOutNodes
-	 * @param excaliburConfig
-	 * @throws Exception
 	 */
+	Exception sendToExcaliburException=null;
 	public void sendToExcalibur(List<ExcaliburReadoutNodeFem> readOutNodes, ExcaliburConfig excaliburConfig)
 			throws Exception {
+		sendToExcaliburException = null;
+		Vector<Thread> threads = new Vector<Thread>();
 		for (int count = 0; count < excaliburConfig.getReadoutNodes().size(); count++) {
-			ReadoutNodeFemModel modelReadoutNodeFem = excaliburConfig.getReadoutNodes().get(count).getReadoutNodeFem();
-			ExcaliburReadoutNodeFem detectorNode = readOutNodes.get(count);
+			final ReadoutNodeFemModel modelReadoutNodeFem = excaliburConfig.getReadoutNodes().get(count).getReadoutNodeFem();
+			final ExcaliburReadoutNodeFem detectorNode = readOutNodes.get(count);
+			Thread thread = new Thread(new Runnable(){
 
-			detectorNode.setCounterDepth(modelReadoutNodeFem.getCounterDepth());
-			detectorNode.setCounterSelect(modelReadoutNodeFem.getCounterSelect());
-			detectorNode.setOperationMode(modelReadoutNodeFem.getOperationMode());
-			detectorNode.setDacExternal(modelReadoutNodeFem.getDacExternal());
-			detectorNode.setDacSense(modelReadoutNodeFem.getDacSense());
+				@Override
+				public void run() {
+					try{
+						detectorNode.setCounterDepth(modelReadoutNodeFem.getCounterDepth());
+						detectorNode.setCounterSelect(modelReadoutNodeFem.getCounterSelect());
+						detectorNode.setOperationMode(modelReadoutNodeFem.getOperationMode());
+						detectorNode.setDacExternal(modelReadoutNodeFem.getDacExternal());
+						detectorNode.setDacSense(modelReadoutNodeFem.getDacSense());
+						
+						setDetectorChipReg(detectorNode.getMpxiiiChipReg1(), modelReadoutNodeFem.getMpxiiiChipReg1());
+						setDetectorChipReg(detectorNode.getMpxiiiChipReg2(), modelReadoutNodeFem.getMpxiiiChipReg2());
+						setDetectorChipReg(detectorNode.getMpxiiiChipReg3(), modelReadoutNodeFem.getMpxiiiChipReg3());
+						setDetectorChipReg(detectorNode.getMpxiiiChipReg4(), modelReadoutNodeFem.getMpxiiiChipReg4());
+						setDetectorChipReg(detectorNode.getMpxiiiChipReg5(), modelReadoutNodeFem.getMpxiiiChipReg5());
+						setDetectorChipReg(detectorNode.getMpxiiiChipReg6(), modelReadoutNodeFem.getMpxiiiChipReg6());
+						setDetectorChipReg(detectorNode.getMpxiiiChipReg7(), modelReadoutNodeFem.getMpxiiiChipReg7());
+						setDetectorChipReg(detectorNode.getMpxiiiChipReg8(), modelReadoutNodeFem.getMpxiiiChipReg8());
+					} catch(Exception ex){
+						sendToExcaliburException = ex;
+					}
+				}});
+			threads.add(thread);
+			thread.start();
 			
-			setDetectorChipReg(detectorNode.getMpxiiiChipReg1(), modelReadoutNodeFem.getMpxiiiChipReg1());
-			setDetectorChipReg(detectorNode.getMpxiiiChipReg2(), modelReadoutNodeFem.getMpxiiiChipReg2());
-			setDetectorChipReg(detectorNode.getMpxiiiChipReg3(), modelReadoutNodeFem.getMpxiiiChipReg3());
-			setDetectorChipReg(detectorNode.getMpxiiiChipReg4(), modelReadoutNodeFem.getMpxiiiChipReg4());
-			setDetectorChipReg(detectorNode.getMpxiiiChipReg5(), modelReadoutNodeFem.getMpxiiiChipReg5());
-			setDetectorChipReg(detectorNode.getMpxiiiChipReg6(), modelReadoutNodeFem.getMpxiiiChipReg6());
-			setDetectorChipReg(detectorNode.getMpxiiiChipReg7(), modelReadoutNodeFem.getMpxiiiChipReg7());
-			setDetectorChipReg(detectorNode.getMpxiiiChipReg8(), modelReadoutNodeFem.getMpxiiiChipReg8());
 		}
+		for(Thread thread : threads){
+			thread.join();
+		}
+		if( sendToExcaliburException != null)
+			throw sendToExcaliburException;
 	}
 
 	private void setDetectorChipReg(MpxiiiChipReg detectorChip, MpxiiiChipRegModel modelChipReg) throws Exception {
