@@ -212,7 +212,7 @@ public class ExafsScanPointCreator {
 		double[][] abEnergies = convertABSteps(aEnergy, bEnergy, preEdgeStep, edgeStep, preEdgeTime);
 		scanTimes.add(new ExafsScanRegionTime("AbEdge", abEnergies.length, new double[]{preEdgeTime}));
 		
-		double[][] bcEnergies = createStepArray(bEnergy + edgeStep, cEnergy, edgeStep, edgeTime, false, numberDetectors);
+		double[][] bcEnergies = createStepArray(bEnergy+edgeStep, cEnergy, edgeStep, edgeTime, false, numberDetectors);
 		scanTimes.add(new ExafsScanRegionTime("BcEnergy", bcEnergies.length, new double[]{edgeTime}));
 		// if varying time the temporarily set the exafs time to a fixed value
 		if (!exafsConstantTime) {
@@ -232,11 +232,11 @@ public class ExafsScanPointCreator {
 		}
 
 		// Smooth out the transition between edge and exafs region.
-		final double[][][] newRegions = createEdgeToExafsSteps(cEnergy, exafsEnergies, edgeStep, edgeTime);
+		final double[][][] newRegions = createEdgeToExafsSteps(cEnergy, exafsEnergies, edgeStep, exafsTime);
 		final double[][] edgeToExafsEnergies = newRegions[0];
 		if(edgeToExafsEnergies != null)
 		{
-			scanTimes.add(new ExafsScanRegionTime("EdgetoExafs", edgeToExafsEnergies.length, new double[]{edgeTime}));
+			scanTimes.add(new ExafsScanRegionTime("EdgetoExafs", edgeToExafsEnergies.length, new double[]{exafsTime}));
 		}
 		exafsEnergies = newRegions[1];
 
