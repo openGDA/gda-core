@@ -31,10 +31,6 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 	private Scannable cut2Scannable;
 	private Scannable cut3Scannable;
 	private Scannable materialScannable;
-	private int materialType = -1;
-	private int cut1Val = -1;
-	private int cut2Val = -1;
-	private int cut3Val = -1;
 	
 	@Override
 	public void configure() {
@@ -56,48 +52,25 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 	}
 
 	public int[] getCrystalCut() throws DeviceException {
-		int cut1;
-		int cut2;
-		int cut3;
-		if(cut1Val==-1||cut2Val==-1||cut3Val==-1){
-			cut1 = (int) Double.parseDouble(cut1Scannable.getPosition().toString());
-			cut2 = (int) Double.parseDouble(cut2Scannable.getPosition().toString());
-			cut3 = (int) Double.parseDouble(cut3Scannable.getPosition().toString());
-		}
-		else{
-			cut1 = this.cut1Val;
-			cut2 = this.cut2Val;
-			cut3 = this.cut3Val;
-		}
+		int cut1 = (int) Double.parseDouble(cut1Scannable.getPosition().toString());
+		int cut2 = (int) Double.parseDouble(cut2Scannable.getPosition().toString());
+		int cut3 = (int) Double.parseDouble(cut3Scannable.getPosition().toString());
 		int[] cut = { cut1, cut2, cut3 };
 		return cut;
 	}
 
-	public void setMaterialType(int type) {
-		materialType = type;
-	}
-
 	public int getMaterialType() throws DeviceException {
-		if (materialType == -1) {
-			String materialVal = materialScannable.getPosition().toString();
-			if (materialVal.equals("Si"))
-				return 0;
-			else if (materialVal.equals("Ge"))
-				return 1;
-			return -1;
-		}
-		return materialType;
+		String materialVal = materialScannable.getPosition().toString();
+		if (materialVal.equals("Si"))
+			return 0;
+		else if (materialVal.equals("Ge"))
+			return 1;
+		throw new DeviceException("Material type could not be determined");
 	}
 
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
-		XesMaterial material = null;
-		XesUtils.XesMaterial silicon = XesUtils.XesMaterial.SILICON;
-		XesUtils.XesMaterial germanium = XesUtils.XesMaterial.GERMANIUM;
-		if (getMaterialType() == 0)
-			material = silicon;
-		else if (getMaterialType() == 1)
-			material =  germanium;
+		XesMaterial material = getCurrentMaterial();
 		double bragg = XesUtils.getBragg(Double.parseDouble(position.toString()), material, getCrystalCut());
 		if (bragg >= 60.0 && bragg <= 85.0){
 			xes.asynchronousMoveTo(bragg);
@@ -108,16 +81,7 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 
 	@Override
 	public Object rawGetPosition() throws DeviceException {
-		XesMaterial material = null;
-		XesUtils.XesMaterial silicon = XesUtils.XesMaterial.SILICON;
-		XesUtils.XesMaterial germanium = XesUtils.XesMaterial.GERMANIUM;
-		if (getMaterialType() == 0)
-			material = silicon;
-		else if (getMaterialType() == 1)
-			material =  germanium;
-		
-		//xes.bragg=80;
-		
+		XesMaterial material = getCurrentMaterial();
 		double energy = XesUtils.getFluoEnergy(Double.parseDouble(xes.getPosition().toString()), material, getCrystalCut());
 		if(energy<100000){
 			String en = String.valueOf(energy);
@@ -129,6 +93,17 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 			return energy;
 		}
 		return 0;
+	}
+
+	private XesMaterial getCurrentMaterial() throws DeviceException {
+		XesMaterial material = null;
+		XesUtils.XesMaterial silicon = XesUtils.XesMaterial.SILICON;
+		XesUtils.XesMaterial germanium = XesUtils.XesMaterial.GERMANIUM;
+		if (getMaterialType() == 0)
+			material = silicon;
+		else if (getMaterialType() == 1)
+			material =  germanium;
+		return material;
 	}
 	
 	@Override
@@ -166,30 +141,6 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 
 	public void setCut3(Scannable cut3) {
 		this.cut3Scannable = cut3;
-	}
-
-	public void setCut1Val(int cut){
-		cut1Val = cut;
-	}
-	
-	public void setCut2Val(int cut){
-		cut2Val = cut;
-	}
-	
-	public void setCut3Val(int cut){
-		cut3Val = cut;
-	}
-	
-	public int getCut1Val(){
-		return cut1Val;
-	}
-	
-	public int getCut2Val(){
-		return cut2Val;
-	}
-	
-	public int getCut3Val(){
-		return cut3Val;
 	}
 	
 	public Scannable getMaterial() {
