@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -31,8 +31,6 @@ import java.util.TreeMap;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
@@ -534,9 +532,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 					throw e;
 				}
 				return null;
-
 			}
-
 		});
 		
 		new Thread(detectorReadoutTask, threadName).start();
@@ -557,6 +553,9 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 			throw e;
 		} catch (ExecutionException e) {
 			cancelReadoutAndPublishCompletion();
+			if (e.getCause() instanceof InterruptedException){
+				throw (InterruptedException) e.getCause();
+			}
 			throw e;
 		}
 	}
