@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
+ * Copyright © 2013 Diamond Light Source Ltd., Science and Technology
  * Facilities Council Daresbury Laboratory
  *
  * This file is part of GDA.
@@ -112,7 +112,7 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 	private int numberPoints = 0;
 
 	/**
-	 * attribute to allow scannables to return to their orginal positions after a scan
+	 * attribute to allow scannables to return to their original positions after a scan
 	 */
 	boolean returnScannablesToOrginalPositions = false;
 
@@ -333,6 +333,10 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 
 			// create a structure of child scans from the vector of scans
 			nestChildScans();
+			
+			// check if return to original positions flag has been set
+			checkReturnToOriginalPositionsFlag();
+			
 		} catch (Exception e) {
 			//Log here as the exception will not be passed fully to GDA from Jython
 			logger.error("Error while creating scan: " + e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName(), e);
@@ -340,6 +344,16 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 		}
 		
 		ScannableCommands.configureScanPipelineParameters(this);
+	}
+
+	private void checkReturnToOriginalPositionsFlag() {
+		// check variable in Jython environment
+		Object flag = InterfaceProvider.getJythonNamespace().getFromJythonNamespace(RETURNTOSTARTINGPOSITION);
+		if (flag != null && flag.toString().compareTo("1") == 0) {
+			setReturnScannablesToOrginalPositions(true);
+		} else {
+			setReturnScannablesToOrginalPositions(false);
+		}
 	}
 
 	public String reportDevicesByLevel() {
@@ -375,16 +389,10 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 			reportDetectorsThatWillBeMovedConcurrentlyWithSomeOtherScannables();
 			logger.info("Concurrency: " + reportDevicesByLevel());
 
-
-			// check variable in Jython environment
-			Object flag = InterfaceProvider.getJythonNamespace().getFromJythonNamespace(RETURNTOSTARTINGPOSITION);
-
 			// if true, then make a note of current position of all scannables to use at the end
-			if (!isChild && flag != null && flag.toString().compareTo("1") == 0) {
+			if (!isChild && isReturnScannablesToOrginalPositions()) {
 				recordOriginalPositions();
-				returnScannablesToOrginalPositions = true;
 			}
-
 			
 			// *** First point in this scan ***
 			setPointPositionInLine(PointPositionInLine.FIRST);
@@ -485,10 +493,9 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 
 	@Override
 	protected void endScan() throws DeviceException {
-		if (!isChild && returnScannablesToOrginalPositions) {
+		if (!isChild && isReturnScannablesToOrginalPositions()) {
 			// return all scannables to original positions
 			try {
-				returnScannablesToOrginalPositions = false;
 				logger.info("End of scan, so returning scannables back to their initial positions.");
 				for (Scannable thisOne : allScannables) {
 					if (thisOne.getInputNames().length > 0) {
@@ -686,6 +693,14 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 				scannablesOriginalPositions.put(thisOne, thisOne.getPosition());
 			}
 		}
+	}
+
+	public boolean isReturnScannablesToOrginalPositions() {
+		return returnScannablesToOrginalPositions;
+	}
+
+	public void setReturnScannablesToOrginalPositions(boolean returnScannablesToOrginalPositions) {
+		this.returnScannablesToOrginalPositions = returnScannablesToOrginalPositions;
 	}
 }
 
