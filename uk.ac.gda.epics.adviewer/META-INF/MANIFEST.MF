@@ -14,8 +14,7 @@ Require-Bundle: org.eclipse.ui,
  uk.ac.diamond.scisoft.analysis,
  uk.ac.gda.common.rcp;bundle-version="1.2.0",
  uk.ac.gda.video;bundle-version="1.0.0",
- uk.ac.gda.video.mjpeg;bundle-version="1.0.0",
- uk.ac.gda.common.core;bundle-version="1.0.0"
+ uk.ac.gda.video.mjpeg;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Import-Package: org.dawb.common.ui.plot,
