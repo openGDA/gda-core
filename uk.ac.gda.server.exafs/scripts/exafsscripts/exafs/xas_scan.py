@@ -148,6 +148,7 @@ class XasScan(Scan):
                         print "Starting scan..."
                     thisscan = ConcurrentScan(args)
                     thisscan = self._setUpDataWriter(thisscan,beanGroup)
+                    thisscan.setReturnScannablesToOrginalPositions(False)
                     controller.update(None, ScanCreationEvent(thisscan.getName()))
                     if (scanPlotSettings != None):
                         print "Setting the filter for columns to plot..."
