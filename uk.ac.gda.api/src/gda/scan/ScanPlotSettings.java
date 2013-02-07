@@ -41,6 +41,7 @@ public class ScanPlotSettings implements Serializable {
 	private Double xMin, xMax;
 	private boolean ignore = false;
 	private int unlistedColumnBehaviour = IGNORE;
+	private boolean allowUseOfPreviousScanSettings = true;
 
 	public String getXAxisName() {
 		return xAxisName;
@@ -116,6 +117,14 @@ public class ScanPlotSettings implements Serializable {
 
 	public void setUnlistedColumnBehaviour(int unlistedColumnBehaviour) {
 		this.unlistedColumnBehaviour = unlistedColumnBehaviour;
+	}
+
+	public boolean isAllowUseOfPreviousScanSettings() {
+		return allowUseOfPreviousScanSettings;
+	}
+
+	public void setAllowUseOfPreviousScanSettings(boolean allowUseOfPreviousScanSettings) {
+		this.allowUseOfPreviousScanSettings = allowUseOfPreviousScanSettings;
 	}
 
 	@Override
