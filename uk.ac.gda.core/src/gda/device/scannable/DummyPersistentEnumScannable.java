@@ -86,6 +86,11 @@ public class DummyPersistentEnumScannable extends ScannableBase {
 		if (position instanceof String) {
 			if (ArrayUtils.contains(acceptableStrings, position)) {
 				configuration.setProperty(getName() + "PersistentPosition", position);
+				try {
+					configuration.save();
+				} catch (ConfigurationException e) {
+					mylogger.error("configuration error when saving to UserConfiguration", e);
+				}
 				notifyIObservers(getName(), position);
 				notifyIObservers(getName(), new ScannablePositionChangeEvent(position.toString()));
 				return;
@@ -95,6 +100,11 @@ public class DummyPersistentEnumScannable extends ScannableBase {
 			if (acceptableStrings.length > pos) {
 				String newpos = acceptableStrings[pos];
 				configuration.setProperty(getName() + "PersistentPosition", newpos);
+				try {
+					configuration.save();
+				} catch (ConfigurationException e) {
+					mylogger.error("configuration error when saving to UserConfiguration", e);
+				}
 				notifyIObservers(getName(), newpos);
 				notifyIObservers(getName(), new ScannablePositionChangeEvent(newpos));
 				return;
