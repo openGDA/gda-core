@@ -27,7 +27,6 @@ import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
 import uk.ac.gda.client.CommandQueueViewFactory;
-import uk.ac.gda.client.XYPlotView;
 import uk.ac.gda.client.liveplot.LivePlotView;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.plot.DerivativeScanPlotView;
@@ -52,7 +51,7 @@ public class PlottingPerspective implements IPerspectiveFactory {
 		String nameFrag = LocalProperties.get("gda.instrument");
 		if (nameFrag.equals("i20")) {
 			IFolderLayout flTop = layout.createFolder("flTop", IPageLayout.LEFT, 1.0f, editorArea);
-			flTop.addView(XYPlotView.ID);
+			flTop.addView(LivePlotView.ID);
 			
 			IFolderLayout flBottomLeft = layout.createFolder("flBottomLeft", IPageLayout.BOTTOM, 0.7f, "flTop");
 			flBottomLeft.addView(CommandQueueViewFactory.ID);
@@ -95,7 +94,7 @@ public class PlottingPerspective implements IPerspectiveFactory {
 			folderLayout.addView(ScalersMonitorView.ID);
 		}
 
-		IFolderLayout folderLayout_1 = layout.createFolder("folder0", IPageLayout.BOTTOM, 0.7f, XYPlotView.ID);
+		IFolderLayout folderLayout_1 = layout.createFolder("folder0", IPageLayout.BOTTOM, 0.7f, LivePlotView.ID);
 
 		folderLayout_1.addView(CommandQueueViewFactory.ID);
 		
