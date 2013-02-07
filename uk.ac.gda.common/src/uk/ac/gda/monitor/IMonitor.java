@@ -20,7 +20,10 @@ package uk.ac.gda.monitor;
 
 /**
  * Interface to monitoring loading of files, which may take a while.
+ * 
+ * @deprecated @see uk.ac.diamond.scisoft.analysis.monitor.IMonitor
  */
+@Deprecated
 public interface IMonitor {
 
 	/**
