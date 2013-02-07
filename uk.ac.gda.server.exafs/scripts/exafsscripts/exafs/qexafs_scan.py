@@ -24,8 +24,10 @@ class QexafsScan(Scan):
         Scan.__init__(self, loggingcontroller,detectorPreparer, samplePreparer, outputPreparer,None)
         self.energy_scannable = energy_scannable
         self.ion_chambers_scannable = ion_chambers_scannable
-        #self.t = None
+        if self.cirrusEnabled:
+            self.t = None
         self.beamCheck = True
+        self.cirrusEnabled = False
         
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, numRepetitions= -1, validation=True):
         xmlFolderName = ExafsEnvironment().getXMLFolder() + folderName + "/"
@@ -43,7 +45,6 @@ class QexafsScan(Scan):
         # work out which detectors to use (they will need to have been configured already by the GUI)
         detectorList = self._getQEXAFSDetectors(detectorBean, outputBean, scanBean) 
         print "detectors to be used:", str(detectorList)
-        
         
         # send initial message to the log
         from gda.jython.scriptcontroller.logging import LoggingScriptController
@@ -92,21 +93,21 @@ class QexafsScan(Scan):
                 loggingcontroller.update(None,logmsg)
                 loggingcontroller.update(None,ScanStartedMessage(scanBean,detectorBean))
 
-                ### cirrus test
-                #import threading
-                #import datetime
-                #from time import sleep
-                #from gda.data import PathConstructor
-                #from cirrus import ThreadClass
-
-                #finder = Finder.getInstance()
-                #cirrus=finder.find("cirrus")
-                #cirrus.setMasses([2, 28, 32])
-                #energyScannable = finder.find("qexafs_energy")
-                #self.t = ThreadClass(cirrus, energyScannable, initial_energy, final_energy, "cirrus_scan.dat")
-                #self.t.setName("cirrus")
-                #self.t.start()
-                ###
+                if self.cirrusEnabled:
+                    ### cirrus test
+                    import threading
+                    import datetime
+                    from time import sleep
+                    from gda.data import PathConstructor
+                    from cirrus import ThreadClass
+                    finder = Finder.getInstance()
+                    cirrus=finder.find("cirrus")
+                    cirrus.setMasses([2, 28, 32])
+                    energyScannable = finder.find("qexafs_energy")
+                    self.t = ThreadClass(cirrus, energyScannable, initial_energy, final_energy, "cirrus_scan.dat")
+                    self.t.setName("cirrus")
+                    self.t.start()
+                    ###
 
                 loggingbean = XasProgressUpdater(loggingcontroller,logmsg,timeRepetitionsStarted)
             
@@ -180,7 +181,8 @@ class QexafsScan(Scan):
             if (jython_mapper.original_header != None):
                 original_header=jython_mapper.original_header[:]
                 Finder.getInstance().find("datawriterconfig").setHeader(original_header)
-            #self.t.stop
+            if self.cirrusEnabled:
+                self.t.stop
 
  
     def _getNumberOfFrames(self, detectorBean, scanBean):
@@ -243,3 +245,6 @@ class QexafsScan(Scan):
         
     def turnOffBeamCheck(self):
         self.beamCheck=False
+    
+    def useCirrus(self, isUsed):
+        self.cirrusEnabled = isUsed
