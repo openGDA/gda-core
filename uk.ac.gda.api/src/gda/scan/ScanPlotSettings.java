@@ -32,6 +32,7 @@ public class ScanPlotSettings implements Serializable {
 	private String[] yAxesShown, yAxesNotShown;
 	private Double xMin, xMax;
 	private boolean ignore = false;
+	private boolean allowUseOfPreviousScanSettings = true;
 
 	public String getXAxisName() {
 		return xAxisName;
@@ -78,6 +79,14 @@ public class ScanPlotSettings implements Serializable {
 
 	public void setIgnore(boolean ignore) {
 		this.ignore = ignore;
+	}
+
+	public boolean isAllowUseOfPreviousScanSettings() {
+		return allowUseOfPreviousScanSettings;
+	}
+
+	public void setAllowUseOfPreviousScanSettings(boolean allowUseOfPreviousScanSettings) {
+		this.allowUseOfPreviousScanSettings = allowUseOfPreviousScanSettings;
 	}
 
 	@Override
