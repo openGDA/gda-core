@@ -11,7 +11,9 @@ Bundle-NativeCode: lib/linux-x86/libgda_common.so;
  lib/linux-x86_64/libgda_common.so;
  osname=linux; processor=x86_64,
  *
-Export-Package: gda.doe,
+Export-Package: gda.configuration.properties,
+ gda.doe,
+ gda.observable,
  gda.util,
  gda.util.logging,
  org.diamond.util.io,
@@ -20,6 +22,7 @@ Export-Package: gda.doe,
  uk.ac.gda.doe,
  uk.ac.gda.jython,
  uk.ac.gda.jython.commands,
+ uk.ac.gda.monitor,
  uk.ac.gda.util,
  uk.ac.gda.util.beans.xml,
  uk.ac.gda.util.dictionary,
@@ -33,14 +36,15 @@ Export-Package: gda.doe,
 Require-Bundle: org.junit4,
  com.springsource.ch.qos.logback.classic;bundle-version="0.9.15",
  com.springsource.ch.qos.logback.core;bundle-version="0.9.15",
- uk.ac.gda.libs;bundle-version="1.0.0",
- uk.ac.gda.common.core;bundle-version="1.0.0"
+ uk.ac.gda.libs;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: org.exolab.castor.mapping;version="1.2.0",
+Import-Package: org.apache.commons.configuration;version="1.6.0",
+ org.exolab.castor.mapping;version="1.2.0",
  org.exolab.castor.xml;version="1.2.0",
  org.slf4j;version="[1.5.0,2.0.0)",
  org.springframework.beans.factory;version="3.0.4",
+ org.springframework.beans.factory.xml;version="3.0.4",
  org.springframework.util;version="3.0.4"
 Bundle-ClassPath: jars/com.springsource.org.apache.xerces-2.9.1.jar,
  .
