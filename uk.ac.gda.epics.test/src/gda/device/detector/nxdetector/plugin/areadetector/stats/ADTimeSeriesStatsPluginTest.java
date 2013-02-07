@@ -89,11 +89,8 @@ public class ADTimeSeriesStatsPluginTest {
 
 	@Before
 	public void setUp() {
-		tsArrayPVMap = new HashMap<Stat, ReadOnlyPV<Double[]>>();
-		tsArrayPVMap.put(BasicStat.MaxValue, maxArrayPV);
-		tsArrayPVMap.put(CentroidStat.CentroidX, cenxArrayPV);
-
-		when(pvs.getTSArrayPVMap()).thenReturn(tsArrayPVMap);
+		when(pvs.getTSArrayPV(BasicStat.MaxValue)).thenReturn(maxArrayPV);
+		when(pvs.getTSArrayPV(CentroidStat.CentroidX)).thenReturn(cenxArrayPV);
 		when(pvs.getTSControlPV()).thenReturn(tsControlPV);
 		when(pvs.getTSCurrentPointPV()).thenReturn(tsCurrentPointPV);
 		when(pvs.getTSNumPointsPV()).thenReturn(tsNumPointsPV);
@@ -219,8 +216,8 @@ public class ADTimeSeriesStatsPluginTest {
 	
 	@Test
 	public void testReadWhileEnabled() throws Exception {
-		when(pvs.getTSArrayPVMap().get(BasicStat.MaxValue).get()).thenReturn(new Double[] {0., 1., 2.});
-		when(pvs.getTSArrayPVMap().get(CentroidStat.CentroidX).get()).thenReturn(new Double[] {10., 11., 12.});
+		when(pvs.getTSArrayPV(BasicStat.MaxValue).get()).thenReturn(new Double[] {0., 1., 2.});
+		when(pvs.getTSArrayPV(CentroidStat.CentroidX).get()).thenReturn(new Double[] {10., 11., 12.});
 		plugin.setEnabledBasicStats(asList(BasicStat.MaxValue));
 		plugin.setEnabledCentroidStats(asList(CentroidStat.CentroidX));
 		testPrepareForLine();
@@ -249,9 +246,8 @@ public class ADTimeSeriesStatsPluginTest {
 
 	@Test
 	public void  testEndCollectionWaitsForPointstoHaveBeenReadOut() throws Exception {
-		
-		when(pvs.getTSArrayPVMap().get(BasicStat.MaxValue).get()).thenReturn(new Double[] {0., 1., 2.});
-		when(pvs.getTSArrayPVMap().get(CentroidStat.CentroidX).get()).thenReturn(new Double[] {10., 11., 12.});
+		when(pvs.getTSArrayPV(BasicStat.MaxValue).get()).thenReturn(new Double[] {0., 1., 2.});
+		when(pvs.getTSArrayPV(CentroidStat.CentroidX).get()).thenReturn(new Double[] {10., 11., 12.});
 		plugin.setEnabledBasicStats(asList(BasicStat.MaxValue));
 		plugin.setEnabledCentroidStats(asList(CentroidStat.CentroidX));
 		testPrepareForLine();
@@ -261,7 +257,6 @@ public class ADTimeSeriesStatsPluginTest {
 		final NXDetectorDataDoubleAppender appender1 = new NXDetectorDataDoubleAppender(names, asList(0., 10.));
 		final NXDetectorDataDoubleAppender appender2 = new NXDetectorDataDoubleAppender(names, asList(1., 11.));
 		final NXDetectorDataDoubleAppender appender3 = new NXDetectorDataDoubleAppender(names, asList(2., 12.));
-
 		
 		Callable<Void> reader = new Callable<Void>() {
 			@Override

@@ -18,36 +18,9 @@
 
 package gda.device.detector.areadetector.v18;
 
+import gda.device.detector.areadetector.v17.NDPluginBasePVs;
 import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
-
-import java.util.Map;
-
-
-
-//PV<TSControlCommands> tsControlPV = LazyPVFactory.newEnumPV(basePVName + "Control", TSControlCommands.class);
-//PV<Integer> tsNumPointsPV = LazyPVFactory.newIntegerPV(basePVName + "NumPoints");
-//ReadOnlyPV<Integer> tsCurrentPointPV = LazyPVFactory.newReadOnlyIntegerPV(basePVName + "CurrentPoint");
-//Map<Stat, ReadOnlyPV<Double[]>> tsArrayPVMap = new HashMap<ADTimeSeriesStats.Stat, ReadOnlyPV<Double[]>>();
-//BasicStat[] values = BasicStat.values();
-//tsArrayPVMap.putAll(createTsArrayMap(values, basePVName));
-
-//private Map<Stat, ReadOnlyPV<Double[]>> createTsArrayMap(Stat[] statList, String basePVName) {
-//	Map<Stat, ReadOnlyPV<Double[]>>  pvMap = new HashMap<ADTimeSeriesStats.Stat, ReadOnlyPV<Double[]>>();
-//	for (Stat stat : statList) {
-//		String pvName = basePVName + stat.name();
-//		pvMap.put(stat, LazyPVFactory.newReadOnlyDoubleArrayPV(basePVName + stat.))
-//	}
-//	return pvMap;
-//}
-
-///**
-// * 
-// * @param basePVName base PV name ending in TS. E.g. BLRWI-DI-CAM-01:STAT1TS
-// */
-//public ADTimeSeriesStatsPlugin(String basePVName) {
-//	
-//}
 
 public interface NDStatsPVs {
 
@@ -95,6 +68,8 @@ public interface NDStatsPVs {
 		CentroidX, CentroidY, SigmaX, SigmaY, SigmaXY
 	}
 
+	public NDPluginBasePVs getPluginBasePVs();
+	
 	public PV<Boolean> getEnableCallbacksPV();
 
 	public PV<TSControlCommands> getTSControlPV();
@@ -103,6 +78,6 @@ public interface NDStatsPVs {
 
 	public ReadOnlyPV<Integer> getTSCurrentPointPV();
 
-	public Map<Stat, ReadOnlyPV<Double[]>> getTSArrayPVMap();
+	public ReadOnlyPV<Double[]> getTSArrayPV(Stat stat);
 
 }

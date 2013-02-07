@@ -136,7 +136,7 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin {
 		int numPointsToCollect = getNumPointsInLine();
 		List<ReadOnlyPV<Double[]>> tsArrayPVList = new ArrayList<ReadOnlyPV<Double[]>>();
 		for (Stat stat: getEnabledStats()) {
-			tsArrayPVList.add(statsPVs.getTSArrayPVMap().get(stat));
+			tsArrayPVList.add(statsPVs.getTSArrayPV(stat));
 		}
 		timeSeriesCollection = new TimeSeriesInputStreamCollection(statsPVs.getTSControlPV(), statsPVs.getTSNumPointsPV(), statsPVs.getTSCurrentPointPV(), tsArrayPVList , numPointsToCollect);
 	}
