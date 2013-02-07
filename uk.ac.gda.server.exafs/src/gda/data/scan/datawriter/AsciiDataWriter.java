@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * Generic and configurable writer of ascii files. The format of the file is defined using an
  * AsciiDataWriterConfiguration object.
  */
-public class AsciiDataWriter extends ExafsIncrementalFile implements ConfigurableAsciiFormat{
+public class AsciiDataWriter extends IncrementalFile implements ConfigurableAsciiFormat{
 
 	private static Logger logger = LoggerFactory.getLogger(AsciiDataWriter.class);
 
