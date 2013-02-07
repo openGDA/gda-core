@@ -176,6 +176,7 @@ class I20XasScan(XasScan):
                 self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
         finally:
             # remove extra columns from ionchambers output
+            self.jython_mapper.topupChecker.collectionTime = 0.0
             self.jython_mapper.ionchambers.setOutputLogValues(False) 
             ScriptBase.checkForPauses()
         
@@ -230,6 +231,10 @@ class I20XasScan(XasScan):
             print "Setting ionchambers dark current collectiom time to",str(maxTime),"s."
             self.jython_mapper.ionchambers.setDarkCurrentCollectionTime(maxTime)
             self.jython_mapper.I1.setDarkCurrentCollectionTime(maxTime)
+            
+            topupPauseTime = maxTime + self.jython_mapper.topupChecker.tolerance
+            print "Setting the topup checker to pause scans for",topupPauseTime,"s before topup"
+            self.jython_mapper.topupChecker.collectionTime = maxTime
             
     def _runCryoStatLoop(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller):
         cryoStatParameters = beanGroup.getSample().getCryostatParameters()
@@ -441,14 +446,14 @@ class I20XesScan(XasScan):
 
 #        originalDataFormat = LocalProperties.get("gda.data.scan.datawriter.dataFormat")
 
-        from gda.exafs.xes.XesUtils import XesMaterial
-        type = 1
-        if beanGroup.getScan().getAnalyserType() == str("Si"):
-            type = 0
-        xes_energy.setMaterialType(type)
-        xes_energy.setCut1Val(beanGroup.getScan().getAnalyserCut0())
-        xes_energy.setCut2Val(beanGroup.getScan().getAnalyserCut1())
-        xes_energy.setCut3Val(beanGroup.getScan().getAnalyserCut2())
+#        from gda.exafs.xes.XesUtils import XesMaterial
+#        type = 1
+#        if beanGroup.getScan().getAnalyserType() == str("Si"):
+#            type = 0
+#        xes_energy.setMaterialType(type)
+        #xes_energy.setCut1Val(beanGroup.getScan().getAnalyserCut0())
+        #xes_energy.setCut2Val(beanGroup.getScan().getAnalyserCut1())
+        #xes_energy.setCut3Val(beanGroup.getScan().getAnalyserCut2())
         
         if scanType == XesScanParameters.SCAN_XES_FIXED_MONO:
             print "Scanning the analyser scan with fixed mono"
@@ -462,9 +467,12 @@ class I20XesScan(XasScan):
 #            LocalProperties.set("gda.data.scan.datawriter.dataFormat","XesAsciiNexusDataWriter")
 
              # create scannable which will control 2D plotting in this mode
-            self.jython_mapper.twodplotter.setX_colName(xes_energy.getInputNames()[0])
-            self.jython_mapper.twodplotter.setY_colName(mono_energy.getInputNames()[0])
-            self.jython_mapper.twodplotter.setZ_colName(finder_mapper.xmapMca.getExtraNames()[0])
+#            self.jython_mapper.twodplotter.setX_colName(xes_energy.getInputNames()[0])
+#            self.jython_mapper.twodplotter.setY_colName(mono_energy.getInputNames()[0])
+#            self.jython_mapper.twodplotter.setZ_colName(self.finder_mapper.xmapMca.getExtraNames()[0])
+            self.jython_mapper.twodplotter.setX_colName("XESEnergy")
+            self.jython_mapper.twodplotter.setY_colName("bragg1")
+            self.jython_mapper.twodplotter.setZ_colName("FFI0")
             # note that users will have to open a 'plot 1' view or use the XESPlot perspective for this to work
 
             ef_args = [xes_energy, beanGroup.getScan().getXesInitialEnergy(), beanGroup.getScan().getXesFinalEnergy(), beanGroup.getScan().getXesStepSize()]
@@ -565,6 +573,7 @@ class I20XesScan(XasScan):
                         print "Starting repetition", str(repetitionNumber),"of",numRepetitions
                     thisscan = ConcurrentScan(args)
                     thisscan = self._setUpDataWriter(thisscan,beanGroup)
+                    thisscan.setReturnScannablesToOrginalPositions(False)
                     loggingcontroller.update(None, ScanCreationEvent(thisscan.getName()))
                     thisscan.runScan()
                 except InterruptedException, e:
