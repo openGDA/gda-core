@@ -25,8 +25,7 @@ Require-Bundle: uk.ac.diamond.org.jacorb;bundle-version="2.2.0",
  uk.ac.diamond.jython;bundle-version="[2.5.3,3.0.0)",
  org.mockito.mockito-core;bundle-version="[1.9.5,2.0.0)",
  com.springsource.org.objenesis;bundle-version="[1.0.0,2.0.0)",
- com.springsource.org.hamcrest.core;bundle-version="[1.1.0,2.0.0)",
- uk.ac.gda.common.core;bundle-version="1.0.0"
+ com.springsource.org.hamcrest.core;bundle-version="[1.1.0,2.0.0)"
 Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.diamond.scisoft.analysis,
  uk.ac.diamond.org.jacorb, uk.ac.gda.api, uk.ac.diamond.org.springframework
 Eclipse-BuddyPolicy: registered

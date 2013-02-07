@@ -28,7 +28,7 @@ import java.util.Map;
 
 import org.nexusformat.NexusException;
 
-import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
+import uk.ac.gda.monitor.IMonitor;
 
 /**
  * This duplicates static methods to allow direct access to the methods from this class.

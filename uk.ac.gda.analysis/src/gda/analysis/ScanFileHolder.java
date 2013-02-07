@@ -27,6 +27,7 @@ import gda.analysis.utils.DatasetMaths;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.python.core.PyException;
 import org.python.core.PyInteger;
@@ -45,7 +46,7 @@ import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.io.PilatusTiffLoader;
 import uk.ac.diamond.scisoft.analysis.io.SRSLoader;
-import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
+import uk.ac.gda.monitor.IMonitor;
 
 /**
  * Class that contains all the info from a single data file. It can also contain a list of names datasets.
