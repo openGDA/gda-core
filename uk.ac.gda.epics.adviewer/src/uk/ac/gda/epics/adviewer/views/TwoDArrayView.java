@@ -22,6 +22,8 @@ import org.dawb.common.ui.plot.tool.IToolPageSystem;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.IPartListener2;
+import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +38,8 @@ public class TwoDArrayView extends ViewPart implements InitializingBean{
 
 	private TwoDArray twoDArray;
 	ADController config;
+
+	private IPartListener2 partListener;
 	
 	public TwoDArrayView(ADController config) {
 		this.config = config;
@@ -56,6 +60,45 @@ public class TwoDArrayView extends ViewPart implements InitializingBean{
 		setTitleImage(config.getTwoDarrayViewImageDescriptor().createImage());
 		setPartName(config.getDetectorName() + " Array View" );
 
+		partListener = new IPartListener2() {
+			
+			@Override
+			public void partVisible(IWorkbenchPartReference partRef) {
+				if( partRef.getPart(false) ==  TwoDArrayView.this)
+					twoDArray.setViewIsVisible(true);
+			}
+			
+			@Override
+			public void partOpened(IWorkbenchPartReference partRef) {
+			}
+			
+			@Override
+			public void partInputChanged(IWorkbenchPartReference partRef) {
+			}
+			
+			@Override
+			public void partHidden(IWorkbenchPartReference partRef) {
+				if( partRef.getPart(false) ==  TwoDArrayView.this)
+					twoDArray.setViewIsVisible(false);
+			}
+			
+			@Override
+			public void partDeactivated(IWorkbenchPartReference partRef) {
+			}
+			
+			@Override
+			public void partClosed(IWorkbenchPartReference partRef) {
+			}
+			
+			@Override
+			public void partBroughtToTop(IWorkbenchPartReference partRef) {
+			}
+			
+			@Override
+			public void partActivated(IWorkbenchPartReference partRef) {
+			}
+		};
+		getSite().getWorkbenchWindow().getPartService().addPartListener(partListener);
 	}
 
 	@Override
@@ -65,6 +108,10 @@ public class TwoDArrayView extends ViewPart implements InitializingBean{
 
 	@Override
 	public void dispose() {
+		if( partListener != null){
+			getSite().getWorkbenchWindow().getPartService().removePartListener(partListener);
+			partListener = null;
+		}
 		super.dispose();
 	}
 
