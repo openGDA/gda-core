@@ -181,7 +181,7 @@ public class MJPeg extends Composite {
 //		RaisedBorder border = new RaisedBorder(50,100,50,100);
 //		cameraComposite.getViewer().setImageBorder(border);
 		
-		SWT2DOverlayProvider fig = new SWT2DOverlayProvider(getTopFigure());
+/*		SWT2DOverlayProvider fig = new SWT2DOverlayProvider(getTopFigure());
 		OverlayType type = OverlayType.IMAGE;
 		fig.begin(type );
 		int primitive = fig.registerPrimitive(PrimitiveType.BOX);
@@ -204,7 +204,7 @@ public class MJPeg extends Composite {
 			public void imageDragged(IImagePositionEvent event) {
 			}
 		}, fig);
-		
+*/		
 		addDisposeListener(new DisposeListener() {
 			
 			@Override
