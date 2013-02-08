@@ -152,6 +152,7 @@ public class MultiplePositionStreamIndexerTest {
 		call = callables.get(0).call();
 		assertEquals(objects1.get(0), call.get(0));
 		assertEquals(objects2.get(0), call.get(1));
+		
 //		assertEquals(objects.get(1), callables.get(1).call());
 //		callables.add(indexer.getPositionCallable());
 //		callables.add(indexer.getPositionCallable());

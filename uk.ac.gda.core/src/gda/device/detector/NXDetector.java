@@ -24,9 +24,10 @@ import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
 import gda.device.detector.nxdetector.NXFileWriterPlugin;
 import gda.device.detector.nxdetector.NXPlugin;
-import gda.device.scannable.MultiplePositionStreamIndexer;
 import gda.device.scannable.PositionCallableProvider;
 import gda.device.scannable.PositionInputStream;
+import gda.device.scannable.PositionInputStreamCombiner;
+import gda.device.scannable.PositionStreamIndexer;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 
@@ -37,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.python.core.Py;
 import org.python.core.PyException;
@@ -54,7 +54,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 
 	private HashMap<String, NXPlugin> additionalPluginMap;
 
-	private MultiplePositionStreamIndexer<NXDetectorDataAppender> pluginStreamsIndexer;
+	private PositionStreamIndexer<List<NXDetectorDataAppender>> pluginStreamsIndexer;
 
 	public NexusTreeProvider lastReadoutValue = null;
 
@@ -275,7 +275,9 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 		}
 		@SuppressWarnings("unchecked")
 		List<PositionInputStream<NXDetectorDataAppender>> plugins = (List<PositionInputStream<NXDetectorDataAppender>>) (List<?>) getPluginList();
-		pluginStreamsIndexer = new MultiplePositionStreamIndexer<NXDetectorDataAppender>(plugins);
+		
+		PositionInputStreamCombiner<NXDetectorDataAppender> combinedStream = new PositionInputStreamCombiner<NXDetectorDataAppender>(plugins);
+		pluginStreamsIndexer = new PositionStreamIndexer<List<NXDetectorDataAppender>>(combinedStream);
 	}
 
 	protected void prepareCollectionStrategyAtScanStart(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception, DeviceException {
