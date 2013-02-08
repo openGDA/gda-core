@@ -1,4 +1,4 @@
-package gda.device.detector.nxdetector.plugin.areadetector.stats;
+package gda.device.detector.nxdetector.plugin.areadetector;
 
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v18.NDStatsPVs.TSControlCommands;
