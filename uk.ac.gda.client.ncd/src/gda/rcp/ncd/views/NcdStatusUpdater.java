@@ -56,6 +56,7 @@ public class NcdStatusUpdater implements IObserver, IAllScanDataPointsObserver {
 	private NcdStatus client;
 	private String subdirectory;
 	private Metadata metadata;
+	private Device blaster;
 
 	/**
 	 * Constructor
@@ -79,7 +80,7 @@ public class NcdStatusUpdater implements IObserver, IAllScanDataPointsObserver {
 			metadata = GDAMetadataProvider.getInstance();
 			subdirectory = metadata.getMetadataValue("subdirectory");
 
-			Device blaster = Finder.getInstance().find("observableSubdirectory");
+			blaster = Finder.getInstance().find("observableSubdirectory");
 			blaster.addIObserver(this);
 
 			meUpdate();
@@ -107,6 +108,13 @@ public class NcdStatusUpdater implements IObserver, IAllScanDataPointsObserver {
 
 	@Override
 	public void update(Object iObservable, Object arg) {
+		if (client.progressBar.isDisposed()) {
+			tfg.deleteIObserver(this);
+			blaster.deleteIObserver(this);
+			exptDataModel.deleteIObserver(this);
+			InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(this);
+			return;
+		}
 		Display.getDefault().asyncExec(new Updater(iObservable, arg));
 	}
 
