@@ -68,10 +68,15 @@ public interface NDStatsPVs {
 		CentroidX, CentroidY, SigmaX, SigmaY, SigmaXY
 	}
 
+	/**
+	 * Enable or disable the *basic* statistics.
+	 */
+	public PV<Boolean> getComputeStatistsicsPV();
+
+	public PV<Boolean> getComputeCentroidPV();
+	
 	public NDPluginBasePVs getPluginBasePVs();
 	
-	public PV<Boolean> getEnableCallbacksPV();
-
 	public PV<TSControlCommands> getTSControlPV();
 
 	public PV<Integer> getTSNumPointsPV();

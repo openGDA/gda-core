@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import gda.device.detector.areadetector.v17.NDPluginBasePVs;
 import gda.device.detector.areadetector.v18.NDStatsPVs;
 import gda.device.detector.areadetector.v18.NDStatsPVs.BasicStat;
 import gda.device.detector.areadetector.v18.NDStatsPVs.CentroidStat;
@@ -32,12 +33,12 @@ import gda.device.detector.areadetector.v18.NDStatsPVs.TSControlCommands;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
+import gda.device.detector.nxdetector.plugin.areadetector.ADTimeSeriesStatsPlugin;
 import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
 import gda.epics.predicate.GreaterThanOrEqualTo;
 import gda.scan.ScanInformation;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -85,17 +86,27 @@ public class ADTimeSeriesStatsPluginTest {
 	@Mock
 	private ScanInformation scanInfo;
 
-	private ADTimeSeriesStatsPlugin plugin;
+	@Mock
+	private NDPluginBasePVs pluginBasePVs;
+	
+	@Mock
+	private PV<Boolean> computeStatisticsPV;
+	
+	@Mock
+	private PV<Boolean> computeCentroidPV;
 
+	private ADTimeSeriesStatsPlugin plugin;
 	@Before
 	public void setUp() {
+		when(pvs.getComputeStatistsicsPV()).thenReturn(computeStatisticsPV);
+		when(pvs.getComputeCentroidPV()).thenReturn(computeCentroidPV);
 		when(pvs.getTSArrayPV(BasicStat.MaxValue)).thenReturn(maxArrayPV);
 		when(pvs.getTSArrayPV(CentroidStat.CentroidX)).thenReturn(cenxArrayPV);
 		when(pvs.getTSControlPV()).thenReturn(tsControlPV);
 		when(pvs.getTSCurrentPointPV()).thenReturn(tsCurrentPointPV);
 		when(pvs.getTSNumPointsPV()).thenReturn(tsNumPointsPV);
-		when(pvs.getEnableCallbacksPV()).thenReturn(enableCallbacksPV);
-
+		when(pvs.getPluginBasePVs()).thenReturn(pluginBasePVs);
+		when(pluginBasePVs.getEnableCallbacksPVPair()).thenReturn(enableCallbacksPV);
 		plugin = new ADTimeSeriesStatsPlugin(pvs, "name");
 	}
 
@@ -135,6 +146,8 @@ public class ADTimeSeriesStatsPluginTest {
 	public void testPrepareForCollectionNoneEnabled() throws Exception{
 		plugin.prepareForCollection(1, scanInfo);
 		verify(enableCallbacksPV).putCallback(false);
+		verify(computeStatisticsPV).putCallback(false);
+		verify(computeCentroidPV).putCallback(false);
 	}
 
 	@Test
@@ -142,6 +155,8 @@ public class ADTimeSeriesStatsPluginTest {
 		plugin.setEnabledBasicStats(asList(BasicStat.MaxX, BasicStat.Total));
 		plugin.prepareForCollection(1, scanInfo);
 		verify(enableCallbacksPV).putCallback(true);
+		verify(computeStatisticsPV).putCallback(true);
+		verify(computeCentroidPV).putCallback(false);
 	}
 
 	@Test
