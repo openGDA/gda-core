@@ -164,75 +164,6 @@ public class RegiondefinitionItemProviderAdapterFactory extends Regiondefinition
 	}
 
 	/**
-	 * This keeps track of the one adapter used for all {@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Energy} instances.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected EnergyItemProvider energyItemProvider;
-
-	/**
-	 * This creates an adapter for a {@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Energy}.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public Adapter createEnergyAdapter() {
-		if (energyItemProvider == null) {
-			energyItemProvider = new EnergyItemProvider(this);
-		}
-
-		return energyItemProvider;
-	}
-
-	/**
-	 * This keeps track of the one adapter used for all {@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Step} instances.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected StepItemProvider stepItemProvider;
-
-	/**
-	 * This creates an adapter for a {@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Step}.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public Adapter createStepAdapter() {
-		if (stepItemProvider == null) {
-			stepItemProvider = new StepItemProvider(this);
-		}
-
-		return stepItemProvider;
-	}
-
-	/**
-	 * This keeps track of the one adapter used for all {@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Detector} instances.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected DetectorItemProvider detectorItemProvider;
-
-	/**
-	 * This creates an adapter for a {@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Detector}.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public Adapter createDetectorAdapter() {
-		if (detectorItemProvider == null) {
-			detectorItemProvider = new DetectorItemProvider(this);
-		}
-
-		return detectorItemProvider;
-	}
-
-	/**
 	 * This keeps track of the one adapter used for all {@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum} instances.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -358,9 +289,6 @@ public class RegiondefinitionItemProviderAdapterFactory extends Regiondefinition
 		if (sequenceItemProvider != null) sequenceItemProvider.dispose();
 		if (regionItemProvider != null) regionItemProvider.dispose();
 		if (runModeItemProvider != null) runModeItemProvider.dispose();
-		if (energyItemProvider != null) energyItemProvider.dispose();
-		if (stepItemProvider != null) stepItemProvider.dispose();
-		if (detectorItemProvider != null) detectorItemProvider.dispose();
 		if (spectrumItemProvider != null) spectrumItemProvider.dispose();
 	}
 

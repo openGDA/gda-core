@@ -64,10 +64,12 @@ public class SequenceItemProvider
 		if (itemPropertyDescriptors == null) {
 			super.getPropertyDescriptors(object);
 
-			addRunModePropertyDescriptor(object);
-			addNumIterationsPropertyDescriptor(object);
-			addRepeatUnitilStoppedPropertyDescriptor(object);
 			addFilenamePropertyDescriptor(object);
+			addRunModePropertyDescriptor(object);
+			addRunModeIndexPropertyDescriptor(object);
+			addNumIterationsPropertyDescriptor(object);
+			addRepeatUntilStoppedPropertyDescriptor(object);
+			addConfirmAfterEachIterationPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
 	}
@@ -83,13 +85,35 @@ public class SequenceItemProvider
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_Sequence_runMode_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Sequence_runMode_feature", "_UI_Sequence_type"),
+				 getString("_UI_Sequence_runMode_feature"), //$NON-NLS-1$
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sequence_runMode_feature", "_UI_Sequence_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				 RegiondefinitionPackage.Literals.SEQUENCE__RUN_MODE,
 				 true,
 				 false,
 				 false,
 				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
+	 * This adds a property descriptor for the Run Mode Index feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addRunModeIndexPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Sequence_runModeIndex_feature"), //$NON-NLS-1$
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sequence_runModeIndex_feature", "_UI_Sequence_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				 RegiondefinitionPackage.Literals.SEQUENCE__RUN_MODE_INDEX,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.INTEGRAL_VALUE_IMAGE,
 				 null,
 				 null));
 	}
@@ -105,8 +129,8 @@ public class SequenceItemProvider
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_Sequence_numIterations_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Sequence_numIterations_feature", "_UI_Sequence_type"),
+				 getString("_UI_Sequence_numIterations_feature"), //$NON-NLS-1$
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sequence_numIterations_feature", "_UI_Sequence_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				 RegiondefinitionPackage.Literals.SEQUENCE__NUM_ITERATIONS,
 				 true,
 				 false,
@@ -117,19 +141,41 @@ public class SequenceItemProvider
 	}
 
 	/**
-	 * This adds a property descriptor for the Repeat Unitil Stopped feature.
+	 * This adds a property descriptor for the Repeat Until Stopped feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addRepeatUnitilStoppedPropertyDescriptor(Object object) {
+	protected void addRepeatUntilStoppedPropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_Sequence_repeatUnitilStopped_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Sequence_repeatUnitilStopped_feature", "_UI_Sequence_type"),
-				 RegiondefinitionPackage.Literals.SEQUENCE__REPEAT_UNITIL_STOPPED,
+				 getString("_UI_Sequence_repeatUntilStopped_feature"), //$NON-NLS-1$
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sequence_repeatUntilStopped_feature", "_UI_Sequence_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				 RegiondefinitionPackage.Literals.SEQUENCE__REPEAT_UNTIL_STOPPED,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.BOOLEAN_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
+	 * This adds a property descriptor for the Confirm After Each Iteration feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addConfirmAfterEachIterationPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Sequence_confirmAfterEachIteration_feature"), //$NON-NLS-1$
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sequence_confirmAfterEachIteration_feature", "_UI_Sequence_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				 RegiondefinitionPackage.Literals.SEQUENCE__CONFIRM_AFTER_EACH_ITERATION,
 				 true,
 				 false,
 				 false,
@@ -149,8 +195,8 @@ public class SequenceItemProvider
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_Sequence_filename_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Sequence_filename_feature", "_UI_Sequence_type"),
+				 getString("_UI_Sequence_filename_feature"), //$NON-NLS-1$
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sequence_filename_feature", "_UI_Sequence_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				 RegiondefinitionPackage.Literals.SEQUENCE__FILENAME,
 				 true,
 				 false,
@@ -199,7 +245,7 @@ public class SequenceItemProvider
 	 */
 	@Override
 	public Object getImage(Object object) {
-		return overlayImage(object, getResourceLocator().getImage("full/obj16/Sequence"));
+		return overlayImage(object, getResourceLocator().getImage("full/obj16/Sequence")); //$NON-NLS-1$
 	}
 
 	/**
@@ -212,8 +258,8 @@ public class SequenceItemProvider
 	public String getText(Object object) {
 		String label = ((Sequence)object).getFilename();
 		return label == null || label.length() == 0 ?
-			getString("_UI_Sequence_type") :
-			getString("_UI_Sequence_type") + " " + label;
+			getString("_UI_Sequence_type") : //$NON-NLS-1$
+			getString("_UI_Sequence_type") + " " + label; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
@@ -228,10 +274,12 @@ public class SequenceItemProvider
 		updateChildren(notification);
 
 		switch (notification.getFeatureID(Sequence.class)) {
-			case RegiondefinitionPackage.SEQUENCE__RUN_MODE:
-			case RegiondefinitionPackage.SEQUENCE__NUM_ITERATIONS:
-			case RegiondefinitionPackage.SEQUENCE__REPEAT_UNITIL_STOPPED:
 			case RegiondefinitionPackage.SEQUENCE__FILENAME:
+			case RegiondefinitionPackage.SEQUENCE__RUN_MODE:
+			case RegiondefinitionPackage.SEQUENCE__RUN_MODE_INDEX:
+			case RegiondefinitionPackage.SEQUENCE__NUM_ITERATIONS:
+			case RegiondefinitionPackage.SEQUENCE__REPEAT_UNTIL_STOPPED:
+			case RegiondefinitionPackage.SEQUENCE__CONFIRM_AFTER_EACH_ITERATION:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;
 			case RegiondefinitionPackage.SEQUENCE__REGION:

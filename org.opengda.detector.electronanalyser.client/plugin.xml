@@ -10,7 +10,7 @@
             restorable="true">
       </view>
       <view
-            class="org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewFactory:sequenceviewholder"
+            class="org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewExtensionFactory:sequenceviewfactory"
             id="org.opengda.detector.electronanalyser.client.sequenceeditor"
             name="Sequence Editor"
             restorable="true">

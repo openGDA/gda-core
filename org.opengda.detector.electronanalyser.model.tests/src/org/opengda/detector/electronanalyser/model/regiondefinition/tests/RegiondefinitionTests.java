@@ -30,7 +30,7 @@ public class RegiondefinitionTests extends TestSuite {
 	 * @generated
 	 */
 	public static Test suite() {
-		TestSuite suite = new RegiondefinitionTests("regiondefinition Tests");
+		TestSuite suite = new RegiondefinitionTests("regiondefinition Tests"); //$NON-NLS-1$
 		suite.addTestSuite(SequenceTest.class);
 		return suite;
 	}

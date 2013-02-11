@@ -84,8 +84,8 @@ public class SpectrumItemProvider
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_Spectrum_location_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Spectrum_location_feature", "_UI_Spectrum_type"),
+				 getString("_UI_Spectrum_location_feature"), //$NON-NLS-1$
+				 getString("_UI_PropertyDescriptor_description", "_UI_Spectrum_location_feature", "_UI_Spectrum_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				 RegiondefinitionPackage.Literals.SPECTRUM__LOCATION,
 				 true,
 				 false,
@@ -106,8 +106,8 @@ public class SpectrumItemProvider
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_Spectrum_User_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Spectrum_User_feature", "_UI_Spectrum_type"),
+				 getString("_UI_Spectrum_User_feature"), //$NON-NLS-1$
+				 getString("_UI_PropertyDescriptor_description", "_UI_Spectrum_User_feature", "_UI_Spectrum_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				 RegiondefinitionPackage.Literals.SPECTRUM__USER,
 				 true,
 				 false,
@@ -128,8 +128,8 @@ public class SpectrumItemProvider
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_Spectrum_sampleName_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Spectrum_sampleName_feature", "_UI_Spectrum_type"),
+				 getString("_UI_Spectrum_sampleName_feature"), //$NON-NLS-1$
+				 getString("_UI_PropertyDescriptor_description", "_UI_Spectrum_sampleName_feature", "_UI_Spectrum_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				 RegiondefinitionPackage.Literals.SPECTRUM__SAMPLE_NAME,
 				 true,
 				 false,
@@ -150,8 +150,8 @@ public class SpectrumItemProvider
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_Spectrum_filenamePrefix_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Spectrum_filenamePrefix_feature", "_UI_Spectrum_type"),
+				 getString("_UI_Spectrum_filenamePrefix_feature"), //$NON-NLS-1$
+				 getString("_UI_PropertyDescriptor_description", "_UI_Spectrum_filenamePrefix_feature", "_UI_Spectrum_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				 RegiondefinitionPackage.Literals.SPECTRUM__FILENAME_PREFIX,
 				 true,
 				 false,
@@ -172,8 +172,8 @@ public class SpectrumItemProvider
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_Spectrum_baseDirectory_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Spectrum_baseDirectory_feature", "_UI_Spectrum_type"),
+				 getString("_UI_Spectrum_baseDirectory_feature"), //$NON-NLS-1$
+				 getString("_UI_PropertyDescriptor_description", "_UI_Spectrum_baseDirectory_feature", "_UI_Spectrum_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				 RegiondefinitionPackage.Literals.SPECTRUM__BASE_DIRECTORY,
 				 true,
 				 false,
@@ -194,8 +194,8 @@ public class SpectrumItemProvider
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_Spectrum_filenameFormet_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Spectrum_filenameFormet_feature", "_UI_Spectrum_type"),
+				 getString("_UI_Spectrum_filenameFormet_feature"), //$NON-NLS-1$
+				 getString("_UI_PropertyDescriptor_description", "_UI_Spectrum_filenameFormet_feature", "_UI_Spectrum_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				 RegiondefinitionPackage.Literals.SPECTRUM__FILENAME_FORMET,
 				 true,
 				 false,
@@ -216,8 +216,8 @@ public class SpectrumItemProvider
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_Spectrum_fileExtension_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Spectrum_fileExtension_feature", "_UI_Spectrum_type"),
+				 getString("_UI_Spectrum_fileExtension_feature"), //$NON-NLS-1$
+				 getString("_UI_PropertyDescriptor_description", "_UI_Spectrum_fileExtension_feature", "_UI_Spectrum_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				 RegiondefinitionPackage.Literals.SPECTRUM__FILE_EXTENSION,
 				 true,
 				 false,
@@ -238,8 +238,8 @@ public class SpectrumItemProvider
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_Spectrum_numberOfComments_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Spectrum_numberOfComments_feature", "_UI_Spectrum_type"),
+				 getString("_UI_Spectrum_numberOfComments_feature"), //$NON-NLS-1$
+				 getString("_UI_PropertyDescriptor_description", "_UI_Spectrum_numberOfComments_feature", "_UI_Spectrum_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				 RegiondefinitionPackage.Literals.SPECTRUM__NUMBER_OF_COMMENTS,
 				 true,
 				 false,
@@ -260,8 +260,8 @@ public class SpectrumItemProvider
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_Spectrum_comments_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Spectrum_comments_feature", "_UI_Spectrum_type"),
+				 getString("_UI_Spectrum_comments_feature"), //$NON-NLS-1$
+				 getString("_UI_PropertyDescriptor_description", "_UI_Spectrum_comments_feature", "_UI_Spectrum_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				 RegiondefinitionPackage.Literals.SPECTRUM__COMMENTS,
 				 true,
 				 false,
@@ -279,7 +279,7 @@ public class SpectrumItemProvider
 	 */
 	@Override
 	public Object getImage(Object object) {
-		return overlayImage(object, getResourceLocator().getImage("full/obj16/Spectrum"));
+		return overlayImage(object, getResourceLocator().getImage("full/obj16/Spectrum")); //$NON-NLS-1$
 	}
 
 	/**
@@ -292,8 +292,8 @@ public class SpectrumItemProvider
 	public String getText(Object object) {
 		String label = ((Spectrum)object).getSampleName();
 		return label == null || label.length() == 0 ?
-			getString("_UI_Spectrum_type") :
-			getString("_UI_Spectrum_type") + " " + label;
+			getString("_UI_Spectrum_type") : //$NON-NLS-1$
+			getString("_UI_Spectrum_type") + " " + label; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**

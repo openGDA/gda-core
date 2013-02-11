@@ -607,7 +607,7 @@ public class RegiondefinitionEditor
 			BasicDiagnostic diagnostic =
 				new BasicDiagnostic
 					(Diagnostic.OK,
-					 "org.opengda.detector.electronanalyser.model.editor",
+					 "org.opengda.detector.electronanalyser.model.editor", //$NON-NLS-1$
 					 0,
 					 null,
 					 new Object [] { editingDomain.getResourceSet() });
@@ -663,8 +663,8 @@ public class RegiondefinitionEditor
 		return
 			MessageDialog.openQuestion
 				(getSite().getShell(),
-				 getString("_UI_FileConflict_label"),
-				 getString("_WARN_FileConflict"));
+				 getString("_UI_FileConflict_label"), //$NON-NLS-1$
+				 getString("_WARN_FileConflict")); //$NON-NLS-1$
 	}
 
 	/**
@@ -911,8 +911,8 @@ public class RegiondefinitionEditor
 	 * @generated
 	 */
 	protected void createContextMenuFor(StructuredViewer viewer) {
-		MenuManager contextMenu = new MenuManager("#PopUp");
-		contextMenu.add(new Separator("additions"));
+		MenuManager contextMenu = new MenuManager("#PopUp"); //$NON-NLS-1$
+		contextMenu.add(new Separator("additions")); //$NON-NLS-1$
 		contextMenu.setRemoveAllWhenShown(true);
 		contextMenu.addMenuListener(this);
 		Menu menu= contextMenu.createContextMenu(viewer.getControl());
@@ -964,9 +964,9 @@ public class RegiondefinitionEditor
 			BasicDiagnostic basicDiagnostic =
 				new BasicDiagnostic
 					(Diagnostic.ERROR,
-					 "org.opengda.detector.electronanalyser.model.editor",
+					 "org.opengda.detector.electronanalyser.model.editor", //$NON-NLS-1$
 					 0,
-					 getString("_UI_CreateModelError_message", resource.getURI()),
+					 getString("_UI_CreateModelError_message", resource.getURI()), //$NON-NLS-1$
 					 new Object [] { exception == null ? (Object)resource : exception });
 			basicDiagnostic.merge(EcoreUtil.computeDiagnostic(resource, true));
 			return basicDiagnostic;
@@ -975,9 +975,9 @@ public class RegiondefinitionEditor
 			return
 				new BasicDiagnostic
 					(Diagnostic.ERROR,
-					 "org.opengda.detector.electronanalyser.model.editor",
+					 "org.opengda.detector.electronanalyser.model.editor", //$NON-NLS-1$
 					 0,
-					 getString("_UI_CreateModelError_message", resource.getURI()),
+					 getString("_UI_CreateModelError_message", resource.getURI()), //$NON-NLS-1$
 					 new Object[] { exception });
 		}
 		else {
@@ -1031,7 +1031,7 @@ public class RegiondefinitionEditor
 
 				createContextMenuFor(selectionViewer);
 				int pageIndex = addPage(viewerPane.getControl());
-				setPageText(pageIndex, getString("_UI_SelectionPage_label"));
+				setPageText(pageIndex, getString("_UI_SelectionPage_label")); //$NON-NLS-1$
 			}
 
 			// Create a page for the parent tree view.
@@ -1060,7 +1060,7 @@ public class RegiondefinitionEditor
 
 				createContextMenuFor(parentViewer);
 				int pageIndex = addPage(viewerPane.getControl());
-				setPageText(pageIndex, getString("_UI_ParentPage_label"));
+				setPageText(pageIndex, getString("_UI_ParentPage_label")); //$NON-NLS-1$
 			}
 
 			// This is the page for the list viewer
@@ -1085,7 +1085,7 @@ public class RegiondefinitionEditor
 
 				createContextMenuFor(listViewer);
 				int pageIndex = addPage(viewerPane.getControl());
-				setPageText(pageIndex, getString("_UI_ListPage_label"));
+				setPageText(pageIndex, getString("_UI_ListPage_label")); //$NON-NLS-1$
 			}
 
 			// This is the page for the tree viewer
@@ -1112,7 +1112,7 @@ public class RegiondefinitionEditor
 
 				createContextMenuFor(treeViewer);
 				int pageIndex = addPage(viewerPane.getControl());
-				setPageText(pageIndex, getString("_UI_TreePage_label"));
+				setPageText(pageIndex, getString("_UI_TreePage_label")); //$NON-NLS-1$
 			}
 
 			// This is the page for the table viewer.
@@ -1141,21 +1141,21 @@ public class RegiondefinitionEditor
 
 				TableColumn objectColumn = new TableColumn(table, SWT.NONE);
 				layout.addColumnData(new ColumnWeightData(3, 100, true));
-				objectColumn.setText(getString("_UI_ObjectColumn_label"));
+				objectColumn.setText(getString("_UI_ObjectColumn_label")); //$NON-NLS-1$
 				objectColumn.setResizable(true);
 
 				TableColumn selfColumn = new TableColumn(table, SWT.NONE);
 				layout.addColumnData(new ColumnWeightData(2, 100, true));
-				selfColumn.setText(getString("_UI_SelfColumn_label"));
+				selfColumn.setText(getString("_UI_SelfColumn_label")); //$NON-NLS-1$
 				selfColumn.setResizable(true);
 
-				tableViewer.setColumnProperties(new String [] {"a", "b"});
+				tableViewer.setColumnProperties(new String [] {"a", "b"}); //$NON-NLS-1$ //$NON-NLS-2$
 				tableViewer.setContentProvider(new AdapterFactoryContentProvider(adapterFactory));
 				tableViewer.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
 
 				createContextMenuFor(tableViewer);
 				int pageIndex = addPage(viewerPane.getControl());
-				setPageText(pageIndex, getString("_UI_TablePage_label"));
+				setPageText(pageIndex, getString("_UI_TablePage_label")); //$NON-NLS-1$
 			}
 
 			// This is the page for the table tree viewer.
@@ -1183,22 +1183,22 @@ public class RegiondefinitionEditor
 				tree.setLinesVisible(true);
 
 				TreeColumn objectColumn = new TreeColumn(tree, SWT.NONE);
-				objectColumn.setText(getString("_UI_ObjectColumn_label"));
+				objectColumn.setText(getString("_UI_ObjectColumn_label")); //$NON-NLS-1$
 				objectColumn.setResizable(true);
 				objectColumn.setWidth(250);
 
 				TreeColumn selfColumn = new TreeColumn(tree, SWT.NONE);
-				selfColumn.setText(getString("_UI_SelfColumn_label"));
+				selfColumn.setText(getString("_UI_SelfColumn_label")); //$NON-NLS-1$
 				selfColumn.setResizable(true);
 				selfColumn.setWidth(200);
 
-				treeViewerWithColumns.setColumnProperties(new String [] {"a", "b"});
+				treeViewerWithColumns.setColumnProperties(new String [] {"a", "b"}); //$NON-NLS-1$ //$NON-NLS-2$
 				treeViewerWithColumns.setContentProvider(new AdapterFactoryContentProvider(adapterFactory));
 				treeViewerWithColumns.setLabelProvider(new AdapterFactoryLabelProvider(adapterFactory));
 
 				createContextMenuFor(treeViewerWithColumns);
 				int pageIndex = addPage(viewerPane.getControl());
-				setPageText(pageIndex, getString("_UI_TreeWithColumnsPage_label"));
+				setPageText(pageIndex, getString("_UI_TreeWithColumnsPage_label")); //$NON-NLS-1$
 			}
 
 			getSite().getShell().getDisplay().asyncExec
@@ -1242,7 +1242,7 @@ public class RegiondefinitionEditor
 	 */
 	protected void hideTabs() {
 		if (getPageCount() <= 1) {
-			setPageText(0, "");
+			setPageText(0, ""); //$NON-NLS-1$
 			if (getContainer() instanceof CTabFolder) {
 				((CTabFolder)getContainer()).setTabHeight(1);
 				Point point = getContainer().getSize();
@@ -1260,7 +1260,7 @@ public class RegiondefinitionEditor
 	 */
 	protected void showTabs() {
 		if (getPageCount() > 1) {
-			setPageText(0, getString("_UI_SelectionPage_label"));
+			setPageText(0, getString("_UI_SelectionPage_label")); //$NON-NLS-1$
 			if (getContainer() instanceof CTabFolder) {
 				((CTabFolder)getContainer()).setTabHeight(SWT.DEFAULT);
 				Point point = getContainer().getSize();
@@ -1693,22 +1693,22 @@ public class RegiondefinitionEditor
 				Collection<?> collection = ((IStructuredSelection)selection).toList();
 				switch (collection.size()) {
 					case 0: {
-						statusLineManager.setMessage(getString("_UI_NoObjectSelected"));
+						statusLineManager.setMessage(getString("_UI_NoObjectSelected")); //$NON-NLS-1$
 						break;
 					}
 					case 1: {
 						String text = new AdapterFactoryItemDelegator(adapterFactory).getText(collection.iterator().next());
-						statusLineManager.setMessage(getString("_UI_SingleObjectSelected", text));
+						statusLineManager.setMessage(getString("_UI_SingleObjectSelected", text)); //$NON-NLS-1$
 						break;
 					}
 					default: {
-						statusLineManager.setMessage(getString("_UI_MultiObjectSelected", Integer.toString(collection.size())));
+						statusLineManager.setMessage(getString("_UI_MultiObjectSelected", Integer.toString(collection.size()))); //$NON-NLS-1$
 						break;
 					}
 				}
 			}
 			else {
-				statusLineManager.setMessage("");
+				statusLineManager.setMessage(""); //$NON-NLS-1$
 			}
 		}
 	}

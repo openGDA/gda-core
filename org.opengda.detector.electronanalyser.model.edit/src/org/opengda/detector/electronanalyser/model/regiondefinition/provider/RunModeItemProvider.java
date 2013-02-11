@@ -62,8 +62,10 @@ public class RunModeItemProvider
 			super.getPropertyDescriptors(object);
 
 			addModePropertyDescriptor(object);
+			addRunModeIndexPropertyDescriptor(object);
 			addNumIterationsPropertyDescriptor(object);
-			addRepeatUnitilStoppedPropertyDescriptor(object);
+			addRepeatUntilStoppedPropertyDescriptor(object);
+			addConfirmAfterEachInterationPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
 	}
@@ -79,13 +81,35 @@ public class RunModeItemProvider
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_RunMode_mode_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_RunMode_mode_feature", "_UI_RunMode_type"),
+				 getString("_UI_RunMode_mode_feature"), //$NON-NLS-1$
+				 getString("_UI_PropertyDescriptor_description", "_UI_RunMode_mode_feature", "_UI_RunMode_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				 RegiondefinitionPackage.Literals.RUN_MODE__MODE,
 				 true,
 				 false,
 				 false,
 				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
+	 * This adds a property descriptor for the Run Mode Index feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addRunModeIndexPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_RunMode_runModeIndex_feature"), //$NON-NLS-1$
+				 getString("_UI_PropertyDescriptor_description", "_UI_RunMode_runModeIndex_feature", "_UI_RunMode_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				 RegiondefinitionPackage.Literals.RUN_MODE__RUN_MODE_INDEX,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.INTEGRAL_VALUE_IMAGE,
 				 null,
 				 null));
 	}
@@ -101,8 +125,8 @@ public class RunModeItemProvider
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_RunMode_numIterations_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_RunMode_numIterations_feature", "_UI_RunMode_type"),
+				 getString("_UI_RunMode_numIterations_feature"), //$NON-NLS-1$
+				 getString("_UI_PropertyDescriptor_description", "_UI_RunMode_numIterations_feature", "_UI_RunMode_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				 RegiondefinitionPackage.Literals.RUN_MODE__NUM_ITERATIONS,
 				 true,
 				 false,
@@ -113,19 +137,41 @@ public class RunModeItemProvider
 	}
 
 	/**
-	 * This adds a property descriptor for the Repeat Unitil Stopped feature.
+	 * This adds a property descriptor for the Repeat Until Stopped feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addRepeatUnitilStoppedPropertyDescriptor(Object object) {
+	protected void addRepeatUntilStoppedPropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_RunMode_repeatUnitilStopped_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_RunMode_repeatUnitilStopped_feature", "_UI_RunMode_type"),
-				 RegiondefinitionPackage.Literals.RUN_MODE__REPEAT_UNITIL_STOPPED,
+				 getString("_UI_RunMode_repeatUntilStopped_feature"), //$NON-NLS-1$
+				 getString("_UI_PropertyDescriptor_description", "_UI_RunMode_repeatUntilStopped_feature", "_UI_RunMode_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				 RegiondefinitionPackage.Literals.RUN_MODE__REPEAT_UNTIL_STOPPED,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.BOOLEAN_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
+	 * This adds a property descriptor for the Confirm After Each Interation feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addConfirmAfterEachInterationPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_RunMode_confirmAfterEachInteration_feature"), //$NON-NLS-1$
+				 getString("_UI_PropertyDescriptor_description", "_UI_RunMode_confirmAfterEachInteration_feature", "_UI_RunMode_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				 RegiondefinitionPackage.Literals.RUN_MODE__CONFIRM_AFTER_EACH_INTERATION,
 				 true,
 				 false,
 				 false,
@@ -142,7 +188,7 @@ public class RunModeItemProvider
 	 */
 	@Override
 	public Object getImage(Object object) {
-		return overlayImage(object, getResourceLocator().getImage("full/obj16/RunMode"));
+		return overlayImage(object, getResourceLocator().getImage("full/obj16/RunMode")); //$NON-NLS-1$
 	}
 
 	/**
@@ -156,8 +202,8 @@ public class RunModeItemProvider
 		RUN_MODES labelValue = ((RunMode)object).getMode();
 		String label = labelValue == null ? null : labelValue.toString();
 		return label == null || label.length() == 0 ?
-			getString("_UI_RunMode_type") :
-			getString("_UI_RunMode_type") + " " + label;
+			getString("_UI_RunMode_type") : //$NON-NLS-1$
+			getString("_UI_RunMode_type") + " " + label; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
@@ -173,8 +219,10 @@ public class RunModeItemProvider
 
 		switch (notification.getFeatureID(RunMode.class)) {
 			case RegiondefinitionPackage.RUN_MODE__MODE:
+			case RegiondefinitionPackage.RUN_MODE__RUN_MODE_INDEX:
 			case RegiondefinitionPackage.RUN_MODE__NUM_ITERATIONS:
-			case RegiondefinitionPackage.RUN_MODE__REPEAT_UNITIL_STOPPED:
+			case RegiondefinitionPackage.RUN_MODE__REPEAT_UNTIL_STOPPED:
+			case RegiondefinitionPackage.RUN_MODE__CONFIRM_AFTER_EACH_INTERATION:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;
 		}
