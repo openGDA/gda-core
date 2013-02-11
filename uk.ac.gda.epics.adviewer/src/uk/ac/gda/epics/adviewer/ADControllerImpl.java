@@ -47,11 +47,20 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 	private String detectorName;
 	private ADBase adBase;
 
-	private int fFMpegImgWidthRequired;
-
-	private int fFMpegImgHeightRequired;
 
 	private FfmpegStream ffmpegStream;
+
+	private int ffmpegImageOutWidthMax;
+
+	private int ffmpegImageOutHeightMax;
+
+	private int cameraImageWidthMax;
+
+	private int cameraImageHeightMax;
+
+	private int ffmpegImageInOffsetX=0;
+
+	private int ffmpegImageInOffsetY=0;
 
 	@Override
 	public NDStats getImageNDStats() {
@@ -233,10 +242,10 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if( adBase == null) throw new Exception("adBase is null");
-		if (fFMpegImgWidthRequired < 1)
-			throw new IllegalArgumentException("fFMpegImgWidthRequired < 1");
-		if (fFMpegImgHeightRequired < 1)
-			throw new IllegalArgumentException("fFMpegImgHeightRequired < 1");		
+		if (ffmpegImageOutHeightMax < 1)
+			throw new IllegalArgumentException("ffmpegImageOutHeightMax < 1");
+		if (ffmpegImageOutWidthMax < 1)
+			throw new IllegalArgumentException("ffmpegImageOutWidthMax < 1");		
 		
 	}
 
@@ -342,22 +351,42 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 		this.ffmpegStream = ffmpegStream;
 	}
 
-	@Override
-	public int getfFMpegImgWidthRequired() {
-		return fFMpegImgWidthRequired;
-	}
 
-	public void setfFMpegImgWidthRequired(int fFMpegImgWidthRequired) {
-		this.fFMpegImgWidthRequired = fFMpegImgWidthRequired;
+	@Override
+	public int getFfmpegImageOutWidthMax() {
+		return ffmpegImageOutWidthMax;
 	}
 
 	@Override
-	public int getfFMpegImgHeightRequired() {
-		return fFMpegImgHeightRequired;
+	public int getFfmpegImageOutHeightMax() {
+		return ffmpegImageOutHeightMax;
 	}
 
-	public void setfFMpegImgHeightRequired(int fFMpegImgHeightRequired) {
-		this.fFMpegImgHeightRequired = fFMpegImgHeightRequired;
+	
+	public void setFfmpegImageOutWidthMax(int ffmpegImageOutWidthMax) {
+		this.ffmpegImageOutWidthMax = ffmpegImageOutWidthMax;
+	}
+
+	public void setFfmpegImageOutHeightMax(int ffmpegImageOutHeightMax) {
+		this.ffmpegImageOutHeightMax = ffmpegImageOutHeightMax;
+	}
+
+	@Override
+	public int getCameraImageWidthMax() {
+		return cameraImageWidthMax;
+	}
+
+	@Override
+	public int getCameraImageHeightMax() {
+		return cameraImageHeightMax;
+	}
+
+	public void setCameraImageWidthMax(int cameraImageWidthMax) {
+		this.cameraImageWidthMax = cameraImageWidthMax;
+	}
+
+	public void setCameraImageHeightMax(int cameraImageHeightMax) {
+		this.cameraImageHeightMax = cameraImageHeightMax;
 	}
 
 	@Override
@@ -377,8 +406,8 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 		if (!procBase.isCallbacksEnabled_RBV())
 			procBase.enableCallbacks();
 
-		ffmpegStream.setMAXW(getfFMpegImgWidthRequired());
-		ffmpegStream.setMAXH(getfFMpegImgHeightRequired());
+		ffmpegStream.setMAXW(getFfmpegImageOutWidthMax());
+		ffmpegStream.setMAXH(getFfmpegImageOutHeightMax());
 		ffmpegStream.setQUALITY(100.);
 		NDPluginBase ffmpegBase = ffmpegStream.getPluginBase();
 		String procPortName_RBV = procBase.getPortName_RBV();
@@ -427,15 +456,33 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 	
 	
 	@Override
-	public int getImageHeight() throws Exception {
+	public int getFfmpegImageInHeight() throws Exception {
 		int[] dimensions = getDataDimensions(getFfmpegStream().getPluginBase());
 		return dimensions[1];
 	}
 
 	@Override
-	public int getImageWidth() throws Exception {
+	public int getFfmpegImageInWidth() throws Exception {
 		int[] dimensions = getDataDimensions(getFfmpegStream().getPluginBase());
 		return dimensions[0];
+	}
+
+	@Override
+	public int getFfmpegImageInOffsetX() throws Exception {
+		return ffmpegImageInOffsetX;
+	}
+
+	@Override
+	public int getFfmpegImageInOffsetY() throws Exception {
+		return ffmpegImageInOffsetY;
+	}
+
+	public void setFfmpegImageInOffsetX(int ffmpegImageInOffsetX) {
+		this.ffmpegImageInOffsetX = ffmpegImageInOffsetX;
+	}
+
+	public void setFfmpegImageInOffsetY(int ffmpegImageInOffsetY) {
+		this.ffmpegImageInOffsetY = ffmpegImageInOffsetY;
 	}
 	
 }
