@@ -4,9 +4,15 @@
    <extension
          point="org.eclipse.ui.views">
       <view
-            class="org.opengda.detector.electroanalyser.client.regioneditor.RegionViewFactory:regionviewholder"
-            id="org.opengda.detector.electroanalyser.client.regioneditor"
+            class="org.opengda.detector.electronanalyser.client.regioneditor.RegionViewExtensionFactory:regionviewfactory"
+            id="org.opengda.detector.electronanalyser.client.regioneditor"
             name="Region Editor"
+            restorable="true">
+      </view>
+      <view
+            class="org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewFactory:sequenceviewholder"
+            id="org.opengda.detector.electronanalyser.client.sequenceeditor"
+            name="Sequence Editor"
             restorable="true">
       </view>
    </extension>

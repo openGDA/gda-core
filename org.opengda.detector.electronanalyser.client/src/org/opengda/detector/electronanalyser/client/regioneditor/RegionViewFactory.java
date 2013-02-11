@@ -16,8 +16,9 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.opengda.detector.electroanalyser.client.regioneditor;
+package org.opengda.detector.electronanalyser.client.regioneditor;
 
+import gda.device.scannable.ScannableMotor;
 import gda.rcp.views.FindableExecutableExtension;
 
 import org.eclipse.core.runtime.CoreException;
@@ -27,14 +28,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Factory method that invokes the View object
+ * Factory class that creates the RegionView object to be contributed to eclipse's {@link org.eclipse.ui.views} extension point.
  */
-public class RegionViewFactoryFactory implements FindableExecutableExtension {
+public class RegionViewFactory implements FindableExecutableExtension {
 	private final Logger logger = LoggerFactory
-			.getLogger(RegionViewFactoryFactory.class);
+			.getLogger(RegionViewFactory.class);
 	private String viewPartName;
 	private String name;
 	private RegionDefinitionResourceUtil regionDefinitionResourceUtil;
+	private int framerate;
+	private double energyresolution;
+	private int cameraXSize;
+	private int cameraYSize;
+	private ScannableMotor dcmenergy;
+	private ScannableMotor pgmenergy;
 
 	public String getViewPartName() {
 		return viewPartName;
@@ -60,10 +67,17 @@ public class RegionViewFactoryFactory implements FindableExecutableExtension {
 
 	@Override
 	public Object create() throws CoreException {
-		logger.info("Creating tomoalignment view");
+		logger.info("Creating region editor view");
 		RegionView regionView = new RegionView();
 		regionView.setViewPartName(viewPartName);
 		regionView.setRegionDefinitionResourceUtil(regionDefinitionResourceUtil);
+		if (!(getCameraEnergyResolution()==0)) regionView.setCameraEnergyResolution(energyresolution);
+		if (!(getCameraFrameRate()==0)) regionView.setCameraFrameRate(framerate);
+		if (!(getCameraXSize()==0)) regionView.setCameraXSize(cameraXSize);
+		if (!(getCameraYSize()==0)) regionView.setCameraYSize(cameraYSize);
+		if (dcmenergy!=null) regionView.setDcmEnergy(dcmenergy);
+		if (pgmenergy!=null) regionView.setPgmEnergy(pgmenergy);
+		
 		return regionView;
 	}
 
@@ -75,4 +89,52 @@ public class RegionViewFactoryFactory implements FindableExecutableExtension {
 	@Override
 	public void afterPropertiesSet() throws Exception {
 	}
+	public void setCameraFrameRate(int rate) {
+		if (rate < 1) {
+			throw new IllegalArgumentException(
+					"Camera frame rate must be great than and equal to 1.");
+		}
+		this.framerate = rate;
+	}
+
+	public int getCameraFrameRate() {
+		return this.framerate;
+	}
+
+	public void setCameraEnergyResolution(double resolution) {
+		this.energyresolution = resolution;
+	}
+
+	public double getCameraEnergyResolution() {
+		return this.energyresolution;
+	}
+	public int getCameraXSize() {
+		return cameraXSize;
+	}
+
+	public void setCameraXSize(int detecterXSize) {
+		this.cameraXSize = detecterXSize;
+	}
+
+	public int getCameraYSize() {
+		return cameraYSize;
+	}
+
+	public void setCameraYSize(int detecterYSize) {
+		this.cameraYSize = detecterYSize;
+	}
+
+	public void setDcmEnergy(ScannableMotor energy) {
+		this.dcmenergy=energy;
+	}
+	public ScannableMotor getDcmEnergy() {
+		return this.dcmenergy;
+	}
+	public void setPgmEnergy(ScannableMotor energy) {
+		this.pgmenergy=energy;
+	}
+	public ScannableMotor getPgmEnergy() {
+		return this.pgmenergy;
+	}
+
 }

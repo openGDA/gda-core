@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Client
 Bundle-SymbolicName: org.opengda.detector.electronanalyser.client;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: org.opengda.detector.electroanalyser.client.Activator
+Bundle-Activator: org.opengda.detector.electronanalyser.client.Activator
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
  uk.ac.gda.client;bundle-version="1.0.0",

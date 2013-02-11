@@ -1,4 +1,4 @@
-package org.opengda.detector.electroanalyser.client;
+package org.opengda.detector.electronanalyser.client;
 
 import gda.util.SpringObjectServer;
 
