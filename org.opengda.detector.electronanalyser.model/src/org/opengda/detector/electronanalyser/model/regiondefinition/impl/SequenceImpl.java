@@ -31,18 +31,49 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum
  * <p>
  * The following features are implemented:
  * <ul>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SequenceImpl#getFilename <em>Filename</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SequenceImpl#getRegion <em>Region</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SequenceImpl#getRunMode <em>Run Mode</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SequenceImpl#getRunModeIndex <em>Run Mode Index</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SequenceImpl#getNumIterations <em>Num Iterations</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SequenceImpl#isRepeatUnitilStopped <em>Repeat Unitil Stopped</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SequenceImpl#isRepeatUntilStopped <em>Repeat Until Stopped</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SequenceImpl#isConfirmAfterEachIteration <em>Confirm After Each Iteration</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SequenceImpl#getSpectrum <em>Spectrum</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SequenceImpl#getFilename <em>Filename</em>}</li>
  * </ul>
  * </p>
  *
  * @generated
  */
 public class SequenceImpl extends EObjectImpl implements Sequence {
+	/**
+	 * The default value of the '{@link #getFilename() <em>Filename</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getFilename()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String FILENAME_EDEFAULT = "user.seq";
+
+	/**
+	 * The cached value of the '{@link #getFilename() <em>Filename</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getFilename()
+	 * @generated
+	 * @ordered
+	 */
+	protected String filename = FILENAME_EDEFAULT;
+
+	/**
+	 * This is true if the Filename attribute has been set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean filenameESet;
+
 	/**
 	 * The cached value of the '{@link #getRegion() <em>Region</em>}' containment reference list.
 	 * <!-- begin-user-doc -->
@@ -61,7 +92,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final RUN_MODES RUN_MODE_EDEFAULT = RUN_MODES.NORMAL;
+	protected static final RUN_MODES RUN_MODE_EDEFAULT = RUN_MODES.NORMAL_LITERAL;
 
 	/**
 	 * The cached value of the '{@link #getRunMode() <em>Run Mode</em>}' attribute.
@@ -83,6 +114,35 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	protected boolean runModeESet;
 
 	/**
+	 * The default value of the '{@link #getRunModeIndex() <em>Run Mode Index</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getRunModeIndex()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final int RUN_MODE_INDEX_EDEFAULT = 0;
+
+	/**
+	 * The cached value of the '{@link #getRunModeIndex() <em>Run Mode Index</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getRunModeIndex()
+	 * @generated
+	 * @ordered
+	 */
+	protected int runModeIndex = RUN_MODE_INDEX_EDEFAULT;
+
+	/**
+	 * This is true if the Run Mode Index attribute has been set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean runModeIndexESet;
+
+	/**
 	 * The default value of the '{@link #getNumIterations() <em>Num Iterations</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -90,7 +150,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final int NUM_ITERATIONS_EDEFAULT = 0;
+	protected static final int NUM_ITERATIONS_EDEFAULT = 1;
 
 	/**
 	 * The cached value of the '{@link #getNumIterations() <em>Num Iterations</em>}' attribute.
@@ -112,33 +172,62 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	protected boolean numIterationsESet;
 
 	/**
-	 * The default value of the '{@link #isRepeatUnitilStopped() <em>Repeat Unitil Stopped</em>}' attribute.
+	 * The default value of the '{@link #isRepeatUntilStopped() <em>Repeat Until Stopped</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #isRepeatUnitilStopped()
+	 * @see #isRepeatUntilStopped()
 	 * @generated
 	 * @ordered
 	 */
-	protected static final boolean REPEAT_UNITIL_STOPPED_EDEFAULT = false;
+	protected static final boolean REPEAT_UNTIL_STOPPED_EDEFAULT = false;
 
 	/**
-	 * The cached value of the '{@link #isRepeatUnitilStopped() <em>Repeat Unitil Stopped</em>}' attribute.
+	 * The cached value of the '{@link #isRepeatUntilStopped() <em>Repeat Until Stopped</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #isRepeatUnitilStopped()
+	 * @see #isRepeatUntilStopped()
 	 * @generated
 	 * @ordered
 	 */
-	protected boolean repeatUnitilStopped = REPEAT_UNITIL_STOPPED_EDEFAULT;
+	protected boolean repeatUntilStopped = REPEAT_UNTIL_STOPPED_EDEFAULT;
 
 	/**
-	 * This is true if the Repeat Unitil Stopped attribute has been set.
+	 * This is true if the Repeat Until Stopped attribute has been set.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	protected boolean repeatUnitilStoppedESet;
+	protected boolean repeatUntilStoppedESet;
+
+	/**
+	 * The default value of the '{@link #isConfirmAfterEachIteration() <em>Confirm After Each Iteration</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isConfirmAfterEachIteration()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final boolean CONFIRM_AFTER_EACH_ITERATION_EDEFAULT = false;
+
+	/**
+	 * The cached value of the '{@link #isConfirmAfterEachIteration() <em>Confirm After Each Iteration</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isConfirmAfterEachIteration()
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean confirmAfterEachIteration = CONFIRM_AFTER_EACH_ITERATION_EDEFAULT;
+
+	/**
+	 * This is true if the Confirm After Each Iteration attribute has been set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean confirmAfterEachIterationESet;
 
 	/**
 	 * The cached value of the '{@link #getSpectrum() <em>Spectrum</em>}' containment reference.
@@ -158,35 +247,6 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * @ordered
 	 */
 	protected boolean spectrumESet;
-
-	/**
-	 * The default value of the '{@link #getFilename() <em>Filename</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getFilename()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final String FILENAME_EDEFAULT = null;
-
-	/**
-	 * The cached value of the '{@link #getFilename() <em>Filename</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getFilename()
-	 * @generated
-	 * @ordered
-	 */
-	protected String filename = FILENAME_EDEFAULT;
-
-	/**
-	 * This is true if the Filename attribute has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	protected boolean filenameESet;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -288,6 +348,52 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public int getRunModeIndex() {
+		return runModeIndex;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setRunModeIndex(int newRunModeIndex) {
+		int oldRunModeIndex = runModeIndex;
+		runModeIndex = newRunModeIndex;
+		boolean oldRunModeIndexESet = runModeIndexESet;
+		runModeIndexESet = true;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SEQUENCE__RUN_MODE_INDEX, oldRunModeIndex, runModeIndex, !oldRunModeIndexESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void unsetRunModeIndex() {
+		int oldRunModeIndex = runModeIndex;
+		boolean oldRunModeIndexESet = runModeIndexESet;
+		runModeIndex = RUN_MODE_INDEX_EDEFAULT;
+		runModeIndexESet = false;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.SEQUENCE__RUN_MODE_INDEX, oldRunModeIndex, RUN_MODE_INDEX_EDEFAULT, oldRunModeIndexESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean isSetRunModeIndex() {
+		return runModeIndexESet;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public int getNumIterations() {
 		return numIterations;
 	}
@@ -334,8 +440,8 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public boolean isRepeatUnitilStopped() {
-		return repeatUnitilStopped;
+	public boolean isRepeatUntilStopped() {
+		return repeatUntilStopped;
 	}
 
 	/**
@@ -343,13 +449,13 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public void setRepeatUnitilStopped(boolean newRepeatUnitilStopped) {
-		boolean oldRepeatUnitilStopped = repeatUnitilStopped;
-		repeatUnitilStopped = newRepeatUnitilStopped;
-		boolean oldRepeatUnitilStoppedESet = repeatUnitilStoppedESet;
-		repeatUnitilStoppedESet = true;
+	public void setRepeatUntilStopped(boolean newRepeatUntilStopped) {
+		boolean oldRepeatUntilStopped = repeatUntilStopped;
+		repeatUntilStopped = newRepeatUntilStopped;
+		boolean oldRepeatUntilStoppedESet = repeatUntilStoppedESet;
+		repeatUntilStoppedESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SEQUENCE__REPEAT_UNITIL_STOPPED, oldRepeatUnitilStopped, repeatUnitilStopped, !oldRepeatUnitilStoppedESet));
+			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SEQUENCE__REPEAT_UNTIL_STOPPED, oldRepeatUntilStopped, repeatUntilStopped, !oldRepeatUntilStoppedESet));
 	}
 
 	/**
@@ -357,13 +463,13 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public void unsetRepeatUnitilStopped() {
-		boolean oldRepeatUnitilStopped = repeatUnitilStopped;
-		boolean oldRepeatUnitilStoppedESet = repeatUnitilStoppedESet;
-		repeatUnitilStopped = REPEAT_UNITIL_STOPPED_EDEFAULT;
-		repeatUnitilStoppedESet = false;
+	public void unsetRepeatUntilStopped() {
+		boolean oldRepeatUntilStopped = repeatUntilStopped;
+		boolean oldRepeatUntilStoppedESet = repeatUntilStoppedESet;
+		repeatUntilStopped = REPEAT_UNTIL_STOPPED_EDEFAULT;
+		repeatUntilStoppedESet = false;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.SEQUENCE__REPEAT_UNITIL_STOPPED, oldRepeatUnitilStopped, REPEAT_UNITIL_STOPPED_EDEFAULT, oldRepeatUnitilStoppedESet));
+			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.SEQUENCE__REPEAT_UNTIL_STOPPED, oldRepeatUntilStopped, REPEAT_UNTIL_STOPPED_EDEFAULT, oldRepeatUntilStoppedESet));
 	}
 
 	/**
@@ -371,8 +477,54 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public boolean isSetRepeatUnitilStopped() {
-		return repeatUnitilStoppedESet;
+	public boolean isSetRepeatUntilStopped() {
+		return repeatUntilStoppedESet;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean isConfirmAfterEachIteration() {
+		return confirmAfterEachIteration;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setConfirmAfterEachIteration(boolean newConfirmAfterEachIteration) {
+		boolean oldConfirmAfterEachIteration = confirmAfterEachIteration;
+		confirmAfterEachIteration = newConfirmAfterEachIteration;
+		boolean oldConfirmAfterEachIterationESet = confirmAfterEachIterationESet;
+		confirmAfterEachIterationESet = true;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SEQUENCE__CONFIRM_AFTER_EACH_ITERATION, oldConfirmAfterEachIteration, confirmAfterEachIteration, !oldConfirmAfterEachIterationESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void unsetConfirmAfterEachIteration() {
+		boolean oldConfirmAfterEachIteration = confirmAfterEachIteration;
+		boolean oldConfirmAfterEachIterationESet = confirmAfterEachIterationESet;
+		confirmAfterEachIteration = CONFIRM_AFTER_EACH_ITERATION_EDEFAULT;
+		confirmAfterEachIterationESet = false;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.SEQUENCE__CONFIRM_AFTER_EACH_ITERATION, oldConfirmAfterEachIteration, CONFIRM_AFTER_EACH_ITERATION_EDEFAULT, oldConfirmAfterEachIterationESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean isSetConfirmAfterEachIteration() {
+		return confirmAfterEachIterationESet;
 	}
 
 	/**
@@ -551,18 +703,22 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
+			case RegiondefinitionPackage.SEQUENCE__FILENAME:
+				return getFilename();
 			case RegiondefinitionPackage.SEQUENCE__REGION:
 				return getRegion();
 			case RegiondefinitionPackage.SEQUENCE__RUN_MODE:
 				return getRunMode();
+			case RegiondefinitionPackage.SEQUENCE__RUN_MODE_INDEX:
+				return getRunModeIndex();
 			case RegiondefinitionPackage.SEQUENCE__NUM_ITERATIONS:
 				return getNumIterations();
-			case RegiondefinitionPackage.SEQUENCE__REPEAT_UNITIL_STOPPED:
-				return isRepeatUnitilStopped();
+			case RegiondefinitionPackage.SEQUENCE__REPEAT_UNTIL_STOPPED:
+				return isRepeatUntilStopped();
+			case RegiondefinitionPackage.SEQUENCE__CONFIRM_AFTER_EACH_ITERATION:
+				return isConfirmAfterEachIteration();
 			case RegiondefinitionPackage.SEQUENCE__SPECTRUM:
 				return getSpectrum();
-			case RegiondefinitionPackage.SEQUENCE__FILENAME:
-				return getFilename();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -576,6 +732,9 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
+			case RegiondefinitionPackage.SEQUENCE__FILENAME:
+				setFilename((String)newValue);
+				return;
 			case RegiondefinitionPackage.SEQUENCE__REGION:
 				getRegion().clear();
 				getRegion().addAll((Collection<? extends Region>)newValue);
@@ -583,17 +742,20 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 			case RegiondefinitionPackage.SEQUENCE__RUN_MODE:
 				setRunMode((RUN_MODES)newValue);
 				return;
+			case RegiondefinitionPackage.SEQUENCE__RUN_MODE_INDEX:
+				setRunModeIndex((Integer)newValue);
+				return;
 			case RegiondefinitionPackage.SEQUENCE__NUM_ITERATIONS:
 				setNumIterations((Integer)newValue);
 				return;
-			case RegiondefinitionPackage.SEQUENCE__REPEAT_UNITIL_STOPPED:
-				setRepeatUnitilStopped((Boolean)newValue);
+			case RegiondefinitionPackage.SEQUENCE__REPEAT_UNTIL_STOPPED:
+				setRepeatUntilStopped((Boolean)newValue);
+				return;
+			case RegiondefinitionPackage.SEQUENCE__CONFIRM_AFTER_EACH_ITERATION:
+				setConfirmAfterEachIteration((Boolean)newValue);
 				return;
 			case RegiondefinitionPackage.SEQUENCE__SPECTRUM:
 				setSpectrum((Spectrum)newValue);
-				return;
-			case RegiondefinitionPackage.SEQUENCE__FILENAME:
-				setFilename((String)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -607,23 +769,29 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
+			case RegiondefinitionPackage.SEQUENCE__FILENAME:
+				unsetFilename();
+				return;
 			case RegiondefinitionPackage.SEQUENCE__REGION:
 				unsetRegion();
 				return;
 			case RegiondefinitionPackage.SEQUENCE__RUN_MODE:
 				unsetRunMode();
 				return;
+			case RegiondefinitionPackage.SEQUENCE__RUN_MODE_INDEX:
+				unsetRunModeIndex();
+				return;
 			case RegiondefinitionPackage.SEQUENCE__NUM_ITERATIONS:
 				unsetNumIterations();
 				return;
-			case RegiondefinitionPackage.SEQUENCE__REPEAT_UNITIL_STOPPED:
-				unsetRepeatUnitilStopped();
+			case RegiondefinitionPackage.SEQUENCE__REPEAT_UNTIL_STOPPED:
+				unsetRepeatUntilStopped();
+				return;
+			case RegiondefinitionPackage.SEQUENCE__CONFIRM_AFTER_EACH_ITERATION:
+				unsetConfirmAfterEachIteration();
 				return;
 			case RegiondefinitionPackage.SEQUENCE__SPECTRUM:
 				unsetSpectrum();
-				return;
-			case RegiondefinitionPackage.SEQUENCE__FILENAME:
-				unsetFilename();
 				return;
 		}
 		super.eUnset(featureID);
@@ -637,18 +805,22 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
+			case RegiondefinitionPackage.SEQUENCE__FILENAME:
+				return isSetFilename();
 			case RegiondefinitionPackage.SEQUENCE__REGION:
 				return isSetRegion();
 			case RegiondefinitionPackage.SEQUENCE__RUN_MODE:
 				return isSetRunMode();
+			case RegiondefinitionPackage.SEQUENCE__RUN_MODE_INDEX:
+				return isSetRunModeIndex();
 			case RegiondefinitionPackage.SEQUENCE__NUM_ITERATIONS:
 				return isSetNumIterations();
-			case RegiondefinitionPackage.SEQUENCE__REPEAT_UNITIL_STOPPED:
-				return isSetRepeatUnitilStopped();
+			case RegiondefinitionPackage.SEQUENCE__REPEAT_UNTIL_STOPPED:
+				return isSetRepeatUntilStopped();
+			case RegiondefinitionPackage.SEQUENCE__CONFIRM_AFTER_EACH_ITERATION:
+				return isSetConfirmAfterEachIteration();
 			case RegiondefinitionPackage.SEQUENCE__SPECTRUM:
 				return isSetSpectrum();
-			case RegiondefinitionPackage.SEQUENCE__FILENAME:
-				return isSetFilename();
 		}
 		return super.eIsSet(featureID);
 	}
@@ -663,14 +835,18 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 		if (eIsProxy()) return super.toString();
 
 		StringBuffer result = new StringBuffer(super.toString());
-		result.append(" (runMode: ");
-		if (runModeESet) result.append(runMode); else result.append("<unset>");
-		result.append(", numIterations: ");
-		if (numIterationsESet) result.append(numIterations); else result.append("<unset>");
-		result.append(", repeatUnitilStopped: ");
-		if (repeatUnitilStoppedESet) result.append(repeatUnitilStopped); else result.append("<unset>");
-		result.append(", filename: ");
-		if (filenameESet) result.append(filename); else result.append("<unset>");
+		result.append(" (filename: "); //$NON-NLS-1$
+		if (filenameESet) result.append(filename); else result.append("<unset>"); //$NON-NLS-1$
+		result.append(", runMode: "); //$NON-NLS-1$
+		if (runModeESet) result.append(runMode); else result.append("<unset>"); //$NON-NLS-1$
+		result.append(", runModeIndex: "); //$NON-NLS-1$
+		if (runModeIndexESet) result.append(runModeIndex); else result.append("<unset>"); //$NON-NLS-1$
+		result.append(", numIterations: "); //$NON-NLS-1$
+		if (numIterationsESet) result.append(numIterations); else result.append("<unset>"); //$NON-NLS-1$
+		result.append(", repeatUntilStopped: "); //$NON-NLS-1$
+		if (repeatUntilStoppedESet) result.append(repeatUntilStopped); else result.append("<unset>"); //$NON-NLS-1$
+		result.append(", confirmAfterEachIteration: "); //$NON-NLS-1$
+		if (confirmAfterEachIterationESet) result.append(confirmAfterEachIteration); else result.append("<unset>"); //$NON-NLS-1$
 		result.append(')');
 		return result.toString();
 	}

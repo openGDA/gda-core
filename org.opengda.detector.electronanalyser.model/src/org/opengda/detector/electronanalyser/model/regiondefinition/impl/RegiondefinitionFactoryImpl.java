@@ -28,7 +28,7 @@ public class RegiondefinitionFactoryImpl extends EFactoryImpl implements Regiond
 	 */
 	public static RegiondefinitionFactory init() {
 		try {
-			RegiondefinitionFactory theRegiondefinitionFactory = (RegiondefinitionFactory)EPackage.Registry.INSTANCE.getEFactory("http://www.opengda.org/regiondefinition"); 
+			RegiondefinitionFactory theRegiondefinitionFactory = (RegiondefinitionFactory)EPackage.Registry.INSTANCE.getEFactory("http://www.opengda.org/regiondefinition"); //$NON-NLS-1$ 
 			if (theRegiondefinitionFactory != null) {
 				return theRegiondefinitionFactory;
 			}
@@ -61,12 +61,9 @@ public class RegiondefinitionFactoryImpl extends EFactoryImpl implements Regiond
 			case RegiondefinitionPackage.SEQUENCE: return createSequence();
 			case RegiondefinitionPackage.REGION: return createRegion();
 			case RegiondefinitionPackage.RUN_MODE: return createRunMode();
-			case RegiondefinitionPackage.ENERGY: return createEnergy();
-			case RegiondefinitionPackage.STEP: return createStep();
-			case RegiondefinitionPackage.DETECTOR: return createDetector();
 			case RegiondefinitionPackage.SPECTRUM: return createSpectrum();
 			default:
-				throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier");
+				throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
@@ -90,8 +87,10 @@ public class RegiondefinitionFactoryImpl extends EFactoryImpl implements Regiond
 				return createDETECTOR_MODEFromString(eDataType, initialValue);
 			case RegiondefinitionPackage.PASS_ENERGY:
 				return createPASS_ENERGYFromString(eDataType, initialValue);
+			case RegiondefinitionPackage.STATUS:
+				return createSTATUSFromString(eDataType, initialValue);
 			default:
-				throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
+				throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
@@ -115,8 +114,10 @@ public class RegiondefinitionFactoryImpl extends EFactoryImpl implements Regiond
 				return convertDETECTOR_MODEToString(eDataType, instanceValue);
 			case RegiondefinitionPackage.PASS_ENERGY:
 				return convertPASS_ENERGYToString(eDataType, instanceValue);
+			case RegiondefinitionPackage.STATUS:
+				return convertSTATUSToString(eDataType, instanceValue);
 			default:
-				throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
+				throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
@@ -165,36 +166,6 @@ public class RegiondefinitionFactoryImpl extends EFactoryImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public Energy createEnergy() {
-		EnergyImpl energy = new EnergyImpl();
-		return energy;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public Step createStep() {
-		StepImpl step = new StepImpl();
-		return step;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public Detector createDetector() {
-		DetectorImpl detector = new DetectorImpl();
-		return detector;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	public Spectrum createSpectrum() {
 		SpectrumImpl spectrum = new SpectrumImpl();
 		return spectrum;
@@ -207,7 +178,7 @@ public class RegiondefinitionFactoryImpl extends EFactoryImpl implements Regiond
 	 */
 	public LENS_MODE createLENS_MODEFromString(EDataType eDataType, String initialValue) {
 		LENS_MODE result = LENS_MODE.get(initialValue);
-		if (result == null) throw new IllegalArgumentException("The value '" + initialValue + "' is not a valid enumerator of '" + eDataType.getName() + "'");
+		if (result == null) throw new IllegalArgumentException("The value '" + initialValue + "' is not a valid enumerator of '" + eDataType.getName() + "'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		return result;
 	}
 
@@ -227,7 +198,7 @@ public class RegiondefinitionFactoryImpl extends EFactoryImpl implements Regiond
 	 */
 	public RUN_MODES createRUN_MODESFromString(EDataType eDataType, String initialValue) {
 		RUN_MODES result = RUN_MODES.get(initialValue);
-		if (result == null) throw new IllegalArgumentException("The value '" + initialValue + "' is not a valid enumerator of '" + eDataType.getName() + "'");
+		if (result == null) throw new IllegalArgumentException("The value '" + initialValue + "' is not a valid enumerator of '" + eDataType.getName() + "'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		return result;
 	}
 
@@ -247,7 +218,7 @@ public class RegiondefinitionFactoryImpl extends EFactoryImpl implements Regiond
 	 */
 	public ACQUIAITION_MODE createACQUIAITION_MODEFromString(EDataType eDataType, String initialValue) {
 		ACQUIAITION_MODE result = ACQUIAITION_MODE.get(initialValue);
-		if (result == null) throw new IllegalArgumentException("The value '" + initialValue + "' is not a valid enumerator of '" + eDataType.getName() + "'");
+		if (result == null) throw new IllegalArgumentException("The value '" + initialValue + "' is not a valid enumerator of '" + eDataType.getName() + "'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		return result;
 	}
 
@@ -267,7 +238,7 @@ public class RegiondefinitionFactoryImpl extends EFactoryImpl implements Regiond
 	 */
 	public ENERGY_MODE createENERGY_MODEFromString(EDataType eDataType, String initialValue) {
 		ENERGY_MODE result = ENERGY_MODE.get(initialValue);
-		if (result == null) throw new IllegalArgumentException("The value '" + initialValue + "' is not a valid enumerator of '" + eDataType.getName() + "'");
+		if (result == null) throw new IllegalArgumentException("The value '" + initialValue + "' is not a valid enumerator of '" + eDataType.getName() + "'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		return result;
 	}
 
@@ -287,7 +258,7 @@ public class RegiondefinitionFactoryImpl extends EFactoryImpl implements Regiond
 	 */
 	public DETECTOR_MODE createDETECTOR_MODEFromString(EDataType eDataType, String initialValue) {
 		DETECTOR_MODE result = DETECTOR_MODE.get(initialValue);
-		if (result == null) throw new IllegalArgumentException("The value '" + initialValue + "' is not a valid enumerator of '" + eDataType.getName() + "'");
+		if (result == null) throw new IllegalArgumentException("The value '" + initialValue + "' is not a valid enumerator of '" + eDataType.getName() + "'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		return result;
 	}
 
@@ -307,7 +278,7 @@ public class RegiondefinitionFactoryImpl extends EFactoryImpl implements Regiond
 	 */
 	public PASS_ENERGY createPASS_ENERGYFromString(EDataType eDataType, String initialValue) {
 		PASS_ENERGY result = PASS_ENERGY.get(initialValue);
-		if (result == null) throw new IllegalArgumentException("The value '" + initialValue + "' is not a valid enumerator of '" + eDataType.getName() + "'");
+		if (result == null) throw new IllegalArgumentException("The value '" + initialValue + "' is not a valid enumerator of '" + eDataType.getName() + "'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		return result;
 	}
 
@@ -317,6 +288,26 @@ public class RegiondefinitionFactoryImpl extends EFactoryImpl implements Regiond
 	 * @generated
 	 */
 	public String convertPASS_ENERGYToString(EDataType eDataType, Object instanceValue) {
+		return instanceValue == null ? null : instanceValue.toString();
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public STATUS createSTATUSFromString(EDataType eDataType, String initialValue) {
+		STATUS result = STATUS.get(initialValue);
+		if (result == null) throw new IllegalArgumentException("The value '" + initialValue + "' is not a valid enumerator of '" + eDataType.getName() + "'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return result;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public String convertSTATUSToString(EDataType eDataType, Object instanceValue) {
 		return instanceValue == null ? null : instanceValue.toString();
 	}
 

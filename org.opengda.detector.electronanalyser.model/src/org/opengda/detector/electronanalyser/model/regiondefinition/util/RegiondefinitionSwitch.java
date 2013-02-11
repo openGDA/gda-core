@@ -90,24 +90,6 @@ public class RegiondefinitionSwitch<T> extends Switch<T> {
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
-			case RegiondefinitionPackage.ENERGY: {
-				Energy energy = (Energy)theEObject;
-				T result = caseEnergy(energy);
-				if (result == null) result = defaultCase(theEObject);
-				return result;
-			}
-			case RegiondefinitionPackage.STEP: {
-				Step step = (Step)theEObject;
-				T result = caseStep(step);
-				if (result == null) result = defaultCase(theEObject);
-				return result;
-			}
-			case RegiondefinitionPackage.DETECTOR: {
-				Detector detector = (Detector)theEObject;
-				T result = caseDetector(detector);
-				if (result == null) result = defaultCase(theEObject);
-				return result;
-			}
 			case RegiondefinitionPackage.SPECTRUM: {
 				Spectrum spectrum = (Spectrum)theEObject;
 				T result = caseSpectrum(spectrum);
@@ -175,51 +157,6 @@ public class RegiondefinitionSwitch<T> extends Switch<T> {
 	 * @generated
 	 */
 	public T caseRunMode(RunMode object) {
-		return null;
-	}
-
-	/**
-	 * Returns the result of interpreting the object as an instance of '<em>Energy</em>'.
-	 * <!-- begin-user-doc -->
-	 * This implementation returns null;
-	 * returning a non-null result will terminate the switch.
-	 * <!-- end-user-doc -->
-	 * @param object the target of the switch.
-	 * @return the result of interpreting the object as an instance of '<em>Energy</em>'.
-	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
-	 * @generated
-	 */
-	public T caseEnergy(Energy object) {
-		return null;
-	}
-
-	/**
-	 * Returns the result of interpreting the object as an instance of '<em>Step</em>'.
-	 * <!-- begin-user-doc -->
-	 * This implementation returns null;
-	 * returning a non-null result will terminate the switch.
-	 * <!-- end-user-doc -->
-	 * @param object the target of the switch.
-	 * @return the result of interpreting the object as an instance of '<em>Step</em>'.
-	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
-	 * @generated
-	 */
-	public T caseStep(Step object) {
-		return null;
-	}
-
-	/**
-	 * Returns the result of interpreting the object as an instance of '<em>Detector</em>'.
-	 * <!-- begin-user-doc -->
-	 * This implementation returns null;
-	 * returning a non-null result will terminate the switch.
-	 * <!-- end-user-doc -->
-	 * @param object the target of the switch.
-	 * @return the result of interpreting the object as an instance of '<em>Detector</em>'.
-	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
-	 * @generated
-	 */
-	public T caseDetector(Detector object) {
 		return null;
 	}
 

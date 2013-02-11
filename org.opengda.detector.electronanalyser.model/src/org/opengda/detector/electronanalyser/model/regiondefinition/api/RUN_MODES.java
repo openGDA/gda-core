@@ -19,39 +19,39 @@ import org.eclipse.emf.common.util.Enumerator;
  */
 public enum RUN_MODES implements Enumerator {
 	/**
-	 * The '<em><b>Normal</b></em>' literal object.
+	 * The '<em><b>NORMAL</b></em>' literal object.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #NORMAL_VALUE
+	 * @see #NORMAL
 	 * @generated
 	 * @ordered
 	 */
-	NORMAL(0, "Normal", "Normal"),
+	NORMAL_LITERAL(0, "NORMAL", "NORMAL"), //$NON-NLS-1$ //$NON-NLS-2$
 
 	/**
 	 * The '<em><b>ADD DIMENSION</b></em>' literal object.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #ADD_DIMENSION_VALUE
+	 * @see #ADD_DIMENSION
 	 * @generated
 	 * @ordered
 	 */
-	ADD_DIMENSION(1, "ADD_DIMENSION", "ADD_DIMENSION");
+	ADD_DIMENSION_LITERAL(1, "ADD_DIMENSION", "ADD_DIMENSION"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	/**
-	 * The '<em><b>Normal</b></em>' literal value.
+	 * The '<em><b>NORMAL</b></em>' literal value.
 	 * <!-- begin-user-doc -->
 	 * <p>
-	 * If the meaning of '<em><b>Normal</b></em>' literal object isn't clear,
+	 * If the meaning of '<em><b>NORMAL</b></em>' literal object isn't clear,
 	 * there really should be more of a description here...
 	 * </p>
 	 * <!-- end-user-doc -->
-	 * @see #NORMAL
-	 * @model name="Normal"
+	 * @see #NORMAL_LITERAL
+	 * @model
 	 * @generated
 	 * @ordered
 	 */
-	public static final int NORMAL_VALUE = 0;
+	public static final int NORMAL = 0;
 
 	/**
 	 * The '<em><b>ADD DIMENSION</b></em>' literal value.
@@ -61,12 +61,12 @@ public enum RUN_MODES implements Enumerator {
 	 * there really should be more of a description here...
 	 * </p>
 	 * <!-- end-user-doc -->
-	 * @see #ADD_DIMENSION
+	 * @see #ADD_DIMENSION_LITERAL
 	 * @model
 	 * @generated
 	 * @ordered
 	 */
-	public static final int ADD_DIMENSION_VALUE = 1;
+	public static final int ADD_DIMENSION = 1;
 
 	/**
 	 * An array of all the '<em><b>RUN MODES</b></em>' enumerators.
@@ -76,8 +76,8 @@ public enum RUN_MODES implements Enumerator {
 	 */
 	private static final RUN_MODES[] VALUES_ARRAY =
 		new RUN_MODES[] {
-			NORMAL,
-			ADD_DIMENSION,
+			NORMAL_LITERAL,
+			ADD_DIMENSION_LITERAL,
 		};
 
 	/**
@@ -128,8 +128,8 @@ public enum RUN_MODES implements Enumerator {
 	 */
 	public static RUN_MODES get(int value) {
 		switch (value) {
-			case NORMAL_VALUE: return NORMAL;
-			case ADD_DIMENSION_VALUE: return ADD_DIMENSION;
+			case NORMAL: return NORMAL_LITERAL;
+			case ADD_DIMENSION: return ADD_DIMENSION_LITERAL;
 		}
 		return null;
 	}

@@ -14,12 +14,14 @@ import org.eclipse.emf.ecore.EObject;
  * <p>
  * The following features are supported:
  * <ul>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getFilename <em>Filename</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRegion <em>Region</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRunMode <em>Run Mode</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRunModeIndex <em>Run Mode Index</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getNumIterations <em>Num Iterations</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#isRepeatUnitilStopped <em>Repeat Unitil Stopped</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#isRepeatUntilStopped <em>Repeat Until Stopped</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#isConfirmAfterEachIteration <em>Confirm After Each Iteration</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getSpectrum <em>Spectrum</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getFilename <em>Filename</em>}</li>
  * </ul>
  * </p>
  *
@@ -125,7 +127,62 @@ public interface Sequence extends EObject {
 	boolean isSetRunMode();
 
 	/**
+	 * Returns the value of the '<em><b>Run Mode Index</b></em>' attribute.
+	 * The default value is <code>"0"</code>.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Run Mode Index</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Run Mode Index</em>' attribute.
+	 * @see #isSetRunModeIndex()
+	 * @see #unsetRunModeIndex()
+	 * @see #setRunModeIndex(int)
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getSequence_RunModeIndex()
+	 * @model default="0" unsettable="true"
+	 * @generated
+	 */
+	int getRunModeIndex();
+
+	/**
+	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRunModeIndex <em>Run Mode Index</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Run Mode Index</em>' attribute.
+	 * @see #isSetRunModeIndex()
+	 * @see #unsetRunModeIndex()
+	 * @see #getRunModeIndex()
+	 * @generated
+	 */
+	void setRunModeIndex(int value);
+
+	/**
+	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRunModeIndex <em>Run Mode Index</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isSetRunModeIndex()
+	 * @see #getRunModeIndex()
+	 * @see #setRunModeIndex(int)
+	 * @generated
+	 */
+	void unsetRunModeIndex();
+
+	/**
+	 * Returns whether the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRunModeIndex <em>Run Mode Index</em>}' attribute is set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return whether the value of the '<em>Run Mode Index</em>' attribute is set.
+	 * @see #unsetRunModeIndex()
+	 * @see #getRunModeIndex()
+	 * @see #setRunModeIndex(int)
+	 * @generated
+	 */
+	boolean isSetRunModeIndex();
+
+	/**
 	 * Returns the value of the '<em><b>Num Iterations</b></em>' attribute.
+	 * The default value is <code>"1"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Num Iterations</em>' attribute isn't clear,
@@ -137,7 +194,7 @@ public interface Sequence extends EObject {
 	 * @see #unsetNumIterations()
 	 * @see #setNumIterations(int)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getSequence_NumIterations()
-	 * @model unsettable="true"
+	 * @model default="1" unsettable="true"
 	 * @generated
 	 */
 	int getNumIterations();
@@ -178,57 +235,112 @@ public interface Sequence extends EObject {
 	boolean isSetNumIterations();
 
 	/**
-	 * Returns the value of the '<em><b>Repeat Unitil Stopped</b></em>' attribute.
+	 * Returns the value of the '<em><b>Repeat Until Stopped</b></em>' attribute.
+	 * The default value is <code>"false"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
-	 * If the meaning of the '<em>Repeat Unitil Stopped</em>' attribute isn't clear,
+	 * If the meaning of the '<em>Repeat Until Stopped</em>' attribute isn't clear,
 	 * there really should be more of a description here...
 	 * </p>
 	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Repeat Unitil Stopped</em>' attribute.
-	 * @see #isSetRepeatUnitilStopped()
-	 * @see #unsetRepeatUnitilStopped()
-	 * @see #setRepeatUnitilStopped(boolean)
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getSequence_RepeatUnitilStopped()
-	 * @model unsettable="true"
+	 * @return the value of the '<em>Repeat Until Stopped</em>' attribute.
+	 * @see #isSetRepeatUntilStopped()
+	 * @see #unsetRepeatUntilStopped()
+	 * @see #setRepeatUntilStopped(boolean)
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getSequence_RepeatUntilStopped()
+	 * @model default="false" unsettable="true"
 	 * @generated
 	 */
-	boolean isRepeatUnitilStopped();
+	boolean isRepeatUntilStopped();
 
 	/**
-	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#isRepeatUnitilStopped <em>Repeat Unitil Stopped</em>}' attribute.
+	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#isRepeatUntilStopped <em>Repeat Until Stopped</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Repeat Unitil Stopped</em>' attribute.
-	 * @see #isSetRepeatUnitilStopped()
-	 * @see #unsetRepeatUnitilStopped()
-	 * @see #isRepeatUnitilStopped()
+	 * @param value the new value of the '<em>Repeat Until Stopped</em>' attribute.
+	 * @see #isSetRepeatUntilStopped()
+	 * @see #unsetRepeatUntilStopped()
+	 * @see #isRepeatUntilStopped()
 	 * @generated
 	 */
-	void setRepeatUnitilStopped(boolean value);
+	void setRepeatUntilStopped(boolean value);
 
 	/**
-	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#isRepeatUnitilStopped <em>Repeat Unitil Stopped</em>}' attribute.
+	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#isRepeatUntilStopped <em>Repeat Until Stopped</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #isSetRepeatUnitilStopped()
-	 * @see #isRepeatUnitilStopped()
-	 * @see #setRepeatUnitilStopped(boolean)
+	 * @see #isSetRepeatUntilStopped()
+	 * @see #isRepeatUntilStopped()
+	 * @see #setRepeatUntilStopped(boolean)
 	 * @generated
 	 */
-	void unsetRepeatUnitilStopped();
+	void unsetRepeatUntilStopped();
 
 	/**
-	 * Returns whether the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#isRepeatUnitilStopped <em>Repeat Unitil Stopped</em>}' attribute is set.
+	 * Returns whether the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#isRepeatUntilStopped <em>Repeat Until Stopped</em>}' attribute is set.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return whether the value of the '<em>Repeat Unitil Stopped</em>' attribute is set.
-	 * @see #unsetRepeatUnitilStopped()
-	 * @see #isRepeatUnitilStopped()
-	 * @see #setRepeatUnitilStopped(boolean)
+	 * @return whether the value of the '<em>Repeat Until Stopped</em>' attribute is set.
+	 * @see #unsetRepeatUntilStopped()
+	 * @see #isRepeatUntilStopped()
+	 * @see #setRepeatUntilStopped(boolean)
 	 * @generated
 	 */
-	boolean isSetRepeatUnitilStopped();
+	boolean isSetRepeatUntilStopped();
+
+	/**
+	 * Returns the value of the '<em><b>Confirm After Each Iteration</b></em>' attribute.
+	 * The default value is <code>"false"</code>.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Confirm After Each Iteration</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Confirm After Each Iteration</em>' attribute.
+	 * @see #isSetConfirmAfterEachIteration()
+	 * @see #unsetConfirmAfterEachIteration()
+	 * @see #setConfirmAfterEachIteration(boolean)
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getSequence_ConfirmAfterEachIteration()
+	 * @model default="false" unsettable="true"
+	 * @generated
+	 */
+	boolean isConfirmAfterEachIteration();
+
+	/**
+	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#isConfirmAfterEachIteration <em>Confirm After Each Iteration</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Confirm After Each Iteration</em>' attribute.
+	 * @see #isSetConfirmAfterEachIteration()
+	 * @see #unsetConfirmAfterEachIteration()
+	 * @see #isConfirmAfterEachIteration()
+	 * @generated
+	 */
+	void setConfirmAfterEachIteration(boolean value);
+
+	/**
+	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#isConfirmAfterEachIteration <em>Confirm After Each Iteration</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isSetConfirmAfterEachIteration()
+	 * @see #isConfirmAfterEachIteration()
+	 * @see #setConfirmAfterEachIteration(boolean)
+	 * @generated
+	 */
+	void unsetConfirmAfterEachIteration();
+
+	/**
+	 * Returns whether the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#isConfirmAfterEachIteration <em>Confirm After Each Iteration</em>}' attribute is set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return whether the value of the '<em>Confirm After Each Iteration</em>' attribute is set.
+	 * @see #unsetConfirmAfterEachIteration()
+	 * @see #isConfirmAfterEachIteration()
+	 * @see #setConfirmAfterEachIteration(boolean)
+	 * @generated
+	 */
+	boolean isSetConfirmAfterEachIteration();
 
 	/**
 	 * Returns the value of the '<em><b>Spectrum</b></em>' containment reference.
@@ -285,6 +397,7 @@ public interface Sequence extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Filename</b></em>' attribute.
+	 * The default value is <code>"user.seq"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Filename</em>' attribute isn't clear,
@@ -296,7 +409,7 @@ public interface Sequence extends EObject {
 	 * @see #unsetFilename()
 	 * @see #setFilename(String)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getSequence_Filename()
-	 * @model unsettable="true"
+	 * @model default="user.seq" unsettable="true"
 	 * @generated
 	 */
 	String getFilename();

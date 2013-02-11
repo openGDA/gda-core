@@ -84,18 +84,6 @@ public class RegiondefinitionAdapterFactory extends AdapterFactoryImpl {
 				return createRunModeAdapter();
 			}
 			@Override
-			public Adapter caseEnergy(Energy object) {
-				return createEnergyAdapter();
-			}
-			@Override
-			public Adapter caseStep(Step object) {
-				return createStepAdapter();
-			}
-			@Override
-			public Adapter caseDetector(Detector object) {
-				return createDetectorAdapter();
-			}
-			@Override
 			public Adapter caseSpectrum(Spectrum object) {
 				return createSpectrumAdapter();
 			}
@@ -172,48 +160,6 @@ public class RegiondefinitionAdapterFactory extends AdapterFactoryImpl {
 	 * @generated
 	 */
 	public Adapter createRunModeAdapter() {
-		return null;
-	}
-
-	/**
-	 * Creates a new adapter for an object of class '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Energy <em>Energy</em>}'.
-	 * <!-- begin-user-doc -->
-	 * This default implementation returns null so that we can easily ignore cases;
-	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
-	 * <!-- end-user-doc -->
-	 * @return the new adapter.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Energy
-	 * @generated
-	 */
-	public Adapter createEnergyAdapter() {
-		return null;
-	}
-
-	/**
-	 * Creates a new adapter for an object of class '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Step <em>Step</em>}'.
-	 * <!-- begin-user-doc -->
-	 * This default implementation returns null so that we can easily ignore cases;
-	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
-	 * <!-- end-user-doc -->
-	 * @return the new adapter.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Step
-	 * @generated
-	 */
-	public Adapter createStepAdapter() {
-		return null;
-	}
-
-	/**
-	 * Creates a new adapter for an object of class '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Detector <em>Detector</em>}'.
-	 * <!-- begin-user-doc -->
-	 * This default implementation returns null so that we can easily ignore cases;
-	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
-	 * <!-- end-user-doc -->
-	 * @return the new adapter.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Detector
-	 * @generated
-	 */
-	public Adapter createDetectorAdapter() {
 		return null;
 	}
 

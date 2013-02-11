@@ -14,15 +14,28 @@ import org.eclipse.emf.ecore.EObject;
  * <p>
  * The following features are supported:
  * <ul>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getStatus <em>Status</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#isEnabled <em>Enabled</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getName <em>Name</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLensmode <em>Lensmode</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLensMode <em>Lens Mode</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getPassEnergy <em>Pass Energy</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getRunMode <em>Run Mode</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getExcitationEnergy <em>Excitation Energy</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getAcquisitionMode <em>Acquisition Mode</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getEnergyMode <em>Energy Mode</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getEnergy <em>Energy</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getStep <em>Step</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getDetector <em>Detector</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getPassEnergy <em>Pass Energy</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getFixEnergy <em>Fix Energy</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLowEnergy <em>Low Energy</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getHighEnergy <em>High Energy</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getEnergyStep <em>Energy Step</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getSetpTime <em>Setp Time</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getFirstXChannel <em>First XChannel</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLastXChannel <em>Last XChannel</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getFirstYChannel <em>First YChannel</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLastYChannel <em>Last YChannel</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getSlices <em>Slices</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getDetectorMode <em>Detector Mode</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getADCMask <em>ADC Mask</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getDiscriminatorLevel <em>Discriminator Level</em>}</li>
  * </ul>
  * </p>
  *
@@ -33,6 +46,7 @@ import org.eclipse.emf.ecore.EObject;
 public interface Region extends EObject {
 	/**
 	 * Returns the value of the '<em><b>Name</b></em>' attribute.
+	 * The default value is <code>"New Region"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Name</em>' attribute isn't clear,
@@ -40,9 +54,11 @@ public interface Region extends EObject {
 	 * </p>
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Name</em>' attribute.
+	 * @see #isSetName()
+	 * @see #unsetName()
 	 * @see #setName(String)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_Name()
-	 * @model
+	 * @model default="New Region" unsettable="true"
 	 * @generated
 	 */
 	String getName();
@@ -52,69 +68,96 @@ public interface Region extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @param value the new value of the '<em>Name</em>' attribute.
+	 * @see #isSetName()
+	 * @see #unsetName()
 	 * @see #getName()
 	 * @generated
 	 */
 	void setName(String value);
 
 	/**
-	 * Returns the value of the '<em><b>Lensmode</b></em>' attribute.
+	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getName <em>Name</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isSetName()
+	 * @see #getName()
+	 * @see #setName(String)
+	 * @generated
+	 */
+	void unsetName();
+
+	/**
+	 * Returns whether the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getName <em>Name</em>}' attribute is set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return whether the value of the '<em>Name</em>' attribute is set.
+	 * @see #unsetName()
+	 * @see #getName()
+	 * @see #setName(String)
+	 * @generated
+	 */
+	boolean isSetName();
+
+	/**
+	 * Returns the value of the '<em><b>Lens Mode</b></em>' attribute.
+	 * The default value is <code>"TRANSMISSION"</code>.
 	 * The literals are from the enumeration {@link org.opengda.detector.electronanalyser.model.regiondefinition.api.LENS_MODE}.
 	 * <!-- begin-user-doc -->
 	 * <p>
-	 * If the meaning of the '<em>Lensmode</em>' attribute isn't clear,
+	 * If the meaning of the '<em>Lens Mode</em>' attribute isn't clear,
 	 * there really should be more of a description here...
 	 * </p>
 	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Lensmode</em>' attribute.
+	 * @return the value of the '<em>Lens Mode</em>' attribute.
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.LENS_MODE
-	 * @see #isSetLensmode()
-	 * @see #unsetLensmode()
-	 * @see #setLensmode(LENS_MODE)
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_Lensmode()
-	 * @model unsettable="true"
+	 * @see #isSetLensMode()
+	 * @see #unsetLensMode()
+	 * @see #setLensMode(LENS_MODE)
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_LensMode()
+	 * @model default="TRANSMISSION" unsettable="true"
 	 * @generated
 	 */
-	LENS_MODE getLensmode();
+	LENS_MODE getLensMode();
 
 	/**
-	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLensmode <em>Lensmode</em>}' attribute.
+	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLensMode <em>Lens Mode</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Lensmode</em>' attribute.
+	 * @param value the new value of the '<em>Lens Mode</em>' attribute.
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.LENS_MODE
-	 * @see #isSetLensmode()
-	 * @see #unsetLensmode()
-	 * @see #getLensmode()
+	 * @see #isSetLensMode()
+	 * @see #unsetLensMode()
+	 * @see #getLensMode()
 	 * @generated
 	 */
-	void setLensmode(LENS_MODE value);
+	void setLensMode(LENS_MODE value);
 
 	/**
-	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLensmode <em>Lensmode</em>}' attribute.
+	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLensMode <em>Lens Mode</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #isSetLensmode()
-	 * @see #getLensmode()
-	 * @see #setLensmode(LENS_MODE)
+	 * @see #isSetLensMode()
+	 * @see #getLensMode()
+	 * @see #setLensMode(LENS_MODE)
 	 * @generated
 	 */
-	void unsetLensmode();
+	void unsetLensMode();
 
 	/**
-	 * Returns whether the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLensmode <em>Lensmode</em>}' attribute is set.
+	 * Returns whether the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLensMode <em>Lens Mode</em>}' attribute is set.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return whether the value of the '<em>Lensmode</em>' attribute is set.
-	 * @see #unsetLensmode()
-	 * @see #getLensmode()
-	 * @see #setLensmode(LENS_MODE)
+	 * @return whether the value of the '<em>Lens Mode</em>' attribute is set.
+	 * @see #unsetLensMode()
+	 * @see #getLensMode()
+	 * @see #setLensMode(LENS_MODE)
 	 * @generated
 	 */
-	boolean isSetLensmode();
+	boolean isSetLensMode();
 
 	/**
 	 * Returns the value of the '<em><b>Pass Energy</b></em>' attribute.
+	 * The default value is <code>"10"</code>.
 	 * The literals are from the enumeration {@link org.opengda.detector.electronanalyser.model.regiondefinition.api.PASS_ENERGY}.
 	 * <!-- begin-user-doc -->
 	 * <p>
@@ -128,7 +171,7 @@ public interface Region extends EObject {
 	 * @see #unsetPassEnergy()
 	 * @see #setPassEnergy(PASS_ENERGY)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_PassEnergy()
-	 * @model unsettable="true"
+	 * @model default="10" unsettable="true"
 	 * @generated
 	 */
 	PASS_ENERGY getPassEnergy();
@@ -223,7 +266,62 @@ public interface Region extends EObject {
 	boolean isSetRunMode();
 
 	/**
+	 * Returns the value of the '<em><b>Excitation Energy</b></em>' attribute.
+	 * The default value is <code>"0.0"</code>.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Excitation Energy</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Excitation Energy</em>' attribute.
+	 * @see #isSetExcitationEnergy()
+	 * @see #unsetExcitationEnergy()
+	 * @see #setExcitationEnergy(double)
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_ExcitationEnergy()
+	 * @model default="0.0" unsettable="true"
+	 * @generated
+	 */
+	double getExcitationEnergy();
+
+	/**
+	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getExcitationEnergy <em>Excitation Energy</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Excitation Energy</em>' attribute.
+	 * @see #isSetExcitationEnergy()
+	 * @see #unsetExcitationEnergy()
+	 * @see #getExcitationEnergy()
+	 * @generated
+	 */
+	void setExcitationEnergy(double value);
+
+	/**
+	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getExcitationEnergy <em>Excitation Energy</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isSetExcitationEnergy()
+	 * @see #getExcitationEnergy()
+	 * @see #setExcitationEnergy(double)
+	 * @generated
+	 */
+	void unsetExcitationEnergy();
+
+	/**
+	 * Returns whether the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getExcitationEnergy <em>Excitation Energy</em>}' attribute is set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return whether the value of the '<em>Excitation Energy</em>' attribute is set.
+	 * @see #unsetExcitationEnergy()
+	 * @see #getExcitationEnergy()
+	 * @see #setExcitationEnergy(double)
+	 * @generated
+	 */
+	boolean isSetExcitationEnergy();
+
+	/**
 	 * Returns the value of the '<em><b>Acquisition Mode</b></em>' attribute.
+	 * The default value is <code>"SWEPT"</code>.
 	 * The literals are from the enumeration {@link org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUIAITION_MODE}.
 	 * <!-- begin-user-doc -->
 	 * <p>
@@ -237,7 +335,7 @@ public interface Region extends EObject {
 	 * @see #unsetAcquisitionMode()
 	 * @see #setAcquisitionMode(ACQUIAITION_MODE)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_AcquisitionMode()
-	 * @model unsettable="true"
+	 * @model default="SWEPT" unsettable="true"
 	 * @generated
 	 */
 	ACQUIAITION_MODE getAcquisitionMode();
@@ -280,6 +378,7 @@ public interface Region extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Energy Mode</b></em>' attribute.
+	 * The default value is <code>"KINTETIC"</code>.
 	 * The literals are from the enumeration {@link org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE}.
 	 * <!-- begin-user-doc -->
 	 * <p>
@@ -289,9 +388,11 @@ public interface Region extends EObject {
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Energy Mode</em>' attribute.
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE
+	 * @see #isSetEnergyMode()
+	 * @see #unsetEnergyMode()
 	 * @see #setEnergyMode(ENERGY_MODE)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_EnergyMode()
-	 * @model
+	 * @model default="KINTETIC" unsettable="true"
 	 * @generated
 	 */
 	ENERGY_MODE getEnergyMode();
@@ -302,87 +403,823 @@ public interface Region extends EObject {
 	 * <!-- end-user-doc -->
 	 * @param value the new value of the '<em>Energy Mode</em>' attribute.
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE
+	 * @see #isSetEnergyMode()
+	 * @see #unsetEnergyMode()
 	 * @see #getEnergyMode()
 	 * @generated
 	 */
 	void setEnergyMode(ENERGY_MODE value);
 
 	/**
-	 * Returns the value of the '<em><b>Energy</b></em>' containment reference.
+	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getEnergyMode <em>Energy Mode</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isSetEnergyMode()
+	 * @see #getEnergyMode()
+	 * @see #setEnergyMode(ENERGY_MODE)
+	 * @generated
+	 */
+	void unsetEnergyMode();
+
+	/**
+	 * Returns whether the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getEnergyMode <em>Energy Mode</em>}' attribute is set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return whether the value of the '<em>Energy Mode</em>' attribute is set.
+	 * @see #unsetEnergyMode()
+	 * @see #getEnergyMode()
+	 * @see #setEnergyMode(ENERGY_MODE)
+	 * @generated
+	 */
+	boolean isSetEnergyMode();
+
+	/**
+	 * Returns the value of the '<em><b>Fix Energy</b></em>' attribute.
+	 * The default value is <code>"0.0"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
-	 * If the meaning of the '<em>Energy</em>' containment reference isn't clear,
+	 * If the meaning of the '<em>Fix Energy</em>' attribute isn't clear,
 	 * there really should be more of a description here...
 	 * </p>
 	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Energy</em>' containment reference.
-	 * @see #setEnergy(Energy)
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_Energy()
-	 * @model containment="true"
+	 * @return the value of the '<em>Fix Energy</em>' attribute.
+	 * @see #isSetFixEnergy()
+	 * @see #unsetFixEnergy()
+	 * @see #setFixEnergy(double)
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_FixEnergy()
+	 * @model default="0.0" unsettable="true"
 	 * @generated
 	 */
-	Energy getEnergy();
+	double getFixEnergy();
 
 	/**
-	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getEnergy <em>Energy</em>}' containment reference.
+	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getFixEnergy <em>Fix Energy</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Energy</em>' containment reference.
-	 * @see #getEnergy()
+	 * @param value the new value of the '<em>Fix Energy</em>' attribute.
+	 * @see #isSetFixEnergy()
+	 * @see #unsetFixEnergy()
+	 * @see #getFixEnergy()
 	 * @generated
 	 */
-	void setEnergy(Energy value);
+	void setFixEnergy(double value);
 
 	/**
-	 * Returns the value of the '<em><b>Step</b></em>' containment reference.
+	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getFixEnergy <em>Fix Energy</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isSetFixEnergy()
+	 * @see #getFixEnergy()
+	 * @see #setFixEnergy(double)
+	 * @generated
+	 */
+	void unsetFixEnergy();
+
+	/**
+	 * Returns whether the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getFixEnergy <em>Fix Energy</em>}' attribute is set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return whether the value of the '<em>Fix Energy</em>' attribute is set.
+	 * @see #unsetFixEnergy()
+	 * @see #getFixEnergy()
+	 * @see #setFixEnergy(double)
+	 * @generated
+	 */
+	boolean isSetFixEnergy();
+
+	/**
+	 * Returns the value of the '<em><b>Low Energy</b></em>' attribute.
+	 * The default value is <code>"0.0"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
-	 * If the meaning of the '<em>Step</em>' containment reference isn't clear,
+	 * If the meaning of the '<em>Low Energy</em>' attribute isn't clear,
 	 * there really should be more of a description here...
 	 * </p>
 	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Step</em>' containment reference.
-	 * @see #setStep(Step)
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_Step()
-	 * @model containment="true"
+	 * @return the value of the '<em>Low Energy</em>' attribute.
+	 * @see #isSetLowEnergy()
+	 * @see #unsetLowEnergy()
+	 * @see #setLowEnergy(double)
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_LowEnergy()
+	 * @model default="0.0" unsettable="true"
 	 * @generated
 	 */
-	Step getStep();
+	double getLowEnergy();
 
 	/**
-	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getStep <em>Step</em>}' containment reference.
+	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLowEnergy <em>Low Energy</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Step</em>' containment reference.
-	 * @see #getStep()
+	 * @param value the new value of the '<em>Low Energy</em>' attribute.
+	 * @see #isSetLowEnergy()
+	 * @see #unsetLowEnergy()
+	 * @see #getLowEnergy()
 	 * @generated
 	 */
-	void setStep(Step value);
+	void setLowEnergy(double value);
 
 	/**
-	 * Returns the value of the '<em><b>Detector</b></em>' containment reference.
+	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLowEnergy <em>Low Energy</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isSetLowEnergy()
+	 * @see #getLowEnergy()
+	 * @see #setLowEnergy(double)
+	 * @generated
+	 */
+	void unsetLowEnergy();
+
+	/**
+	 * Returns whether the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLowEnergy <em>Low Energy</em>}' attribute is set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return whether the value of the '<em>Low Energy</em>' attribute is set.
+	 * @see #unsetLowEnergy()
+	 * @see #getLowEnergy()
+	 * @see #setLowEnergy(double)
+	 * @generated
+	 */
+	boolean isSetLowEnergy();
+
+	/**
+	 * Returns the value of the '<em><b>High Energy</b></em>' attribute.
+	 * The default value is <code>"0.0"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
-	 * If the meaning of the '<em>Detector</em>' containment reference isn't clear,
+	 * If the meaning of the '<em>High Energy</em>' attribute isn't clear,
 	 * there really should be more of a description here...
 	 * </p>
 	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Detector</em>' containment reference.
-	 * @see #setDetector(Detector)
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_Detector()
-	 * @model containment="true"
+	 * @return the value of the '<em>High Energy</em>' attribute.
+	 * @see #isSetHighEnergy()
+	 * @see #unsetHighEnergy()
+	 * @see #setHighEnergy(double)
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_HighEnergy()
+	 * @model default="0.0" unsettable="true"
 	 * @generated
 	 */
-	Detector getDetector();
+	double getHighEnergy();
 
 	/**
-	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getDetector <em>Detector</em>}' containment reference.
+	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getHighEnergy <em>High Energy</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Detector</em>' containment reference.
-	 * @see #getDetector()
+	 * @param value the new value of the '<em>High Energy</em>' attribute.
+	 * @see #isSetHighEnergy()
+	 * @see #unsetHighEnergy()
+	 * @see #getHighEnergy()
 	 * @generated
 	 */
-	void setDetector(Detector value);
+	void setHighEnergy(double value);
+
+	/**
+	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getHighEnergy <em>High Energy</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isSetHighEnergy()
+	 * @see #getHighEnergy()
+	 * @see #setHighEnergy(double)
+	 * @generated
+	 */
+	void unsetHighEnergy();
+
+	/**
+	 * Returns whether the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getHighEnergy <em>High Energy</em>}' attribute is set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return whether the value of the '<em>High Energy</em>' attribute is set.
+	 * @see #unsetHighEnergy()
+	 * @see #getHighEnergy()
+	 * @see #setHighEnergy(double)
+	 * @generated
+	 */
+	boolean isSetHighEnergy();
+
+	/**
+	 * Returns the value of the '<em><b>Energy Step</b></em>' attribute.
+	 * The default value is <code>"0.0"</code>.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Energy Step</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Energy Step</em>' attribute.
+	 * @see #isSetEnergyStep()
+	 * @see #unsetEnergyStep()
+	 * @see #setEnergyStep(double)
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_EnergyStep()
+	 * @model default="0.0" unsettable="true"
+	 * @generated
+	 */
+	double getEnergyStep();
+
+	/**
+	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getEnergyStep <em>Energy Step</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Energy Step</em>' attribute.
+	 * @see #isSetEnergyStep()
+	 * @see #unsetEnergyStep()
+	 * @see #getEnergyStep()
+	 * @generated
+	 */
+	void setEnergyStep(double value);
+
+	/**
+	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getEnergyStep <em>Energy Step</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isSetEnergyStep()
+	 * @see #getEnergyStep()
+	 * @see #setEnergyStep(double)
+	 * @generated
+	 */
+	void unsetEnergyStep();
+
+	/**
+	 * Returns whether the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getEnergyStep <em>Energy Step</em>}' attribute is set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return whether the value of the '<em>Energy Step</em>' attribute is set.
+	 * @see #unsetEnergyStep()
+	 * @see #getEnergyStep()
+	 * @see #setEnergyStep(double)
+	 * @generated
+	 */
+	boolean isSetEnergyStep();
+
+	/**
+	 * Returns the value of the '<em><b>Setp Time</b></em>' attribute.
+	 * The default value is <code>"0.0"</code>.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Setp Time</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Setp Time</em>' attribute.
+	 * @see #isSetSetpTime()
+	 * @see #unsetSetpTime()
+	 * @see #setSetpTime(double)
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_SetpTime()
+	 * @model default="0.0" unsettable="true"
+	 * @generated
+	 */
+	double getSetpTime();
+
+	/**
+	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getSetpTime <em>Setp Time</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Setp Time</em>' attribute.
+	 * @see #isSetSetpTime()
+	 * @see #unsetSetpTime()
+	 * @see #getSetpTime()
+	 * @generated
+	 */
+	void setSetpTime(double value);
+
+	/**
+	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getSetpTime <em>Setp Time</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isSetSetpTime()
+	 * @see #getSetpTime()
+	 * @see #setSetpTime(double)
+	 * @generated
+	 */
+	void unsetSetpTime();
+
+	/**
+	 * Returns whether the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getSetpTime <em>Setp Time</em>}' attribute is set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return whether the value of the '<em>Setp Time</em>' attribute is set.
+	 * @see #unsetSetpTime()
+	 * @see #getSetpTime()
+	 * @see #setSetpTime(double)
+	 * @generated
+	 */
+	boolean isSetSetpTime();
+
+	/**
+	 * Returns the value of the '<em><b>First XChannel</b></em>' attribute.
+	 * The default value is <code>"1"</code>.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>First XChannel</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>First XChannel</em>' attribute.
+	 * @see #isSetFirstXChannel()
+	 * @see #unsetFirstXChannel()
+	 * @see #setFirstXChannel(int)
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_FirstXChannel()
+	 * @model default="1" unsettable="true"
+	 * @generated
+	 */
+	int getFirstXChannel();
+
+	/**
+	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getFirstXChannel <em>First XChannel</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>First XChannel</em>' attribute.
+	 * @see #isSetFirstXChannel()
+	 * @see #unsetFirstXChannel()
+	 * @see #getFirstXChannel()
+	 * @generated
+	 */
+	void setFirstXChannel(int value);
+
+	/**
+	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getFirstXChannel <em>First XChannel</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isSetFirstXChannel()
+	 * @see #getFirstXChannel()
+	 * @see #setFirstXChannel(int)
+	 * @generated
+	 */
+	void unsetFirstXChannel();
+
+	/**
+	 * Returns whether the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getFirstXChannel <em>First XChannel</em>}' attribute is set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return whether the value of the '<em>First XChannel</em>' attribute is set.
+	 * @see #unsetFirstXChannel()
+	 * @see #getFirstXChannel()
+	 * @see #setFirstXChannel(int)
+	 * @generated
+	 */
+	boolean isSetFirstXChannel();
+
+	/**
+	 * Returns the value of the '<em><b>Last XChannel</b></em>' attribute.
+	 * The default value is <code>"1024"</code>.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Last XChannel</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Last XChannel</em>' attribute.
+	 * @see #isSetLastXChannel()
+	 * @see #unsetLastXChannel()
+	 * @see #setLastXChannel(int)
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_LastXChannel()
+	 * @model default="1024" unsettable="true"
+	 * @generated
+	 */
+	int getLastXChannel();
+
+	/**
+	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLastXChannel <em>Last XChannel</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Last XChannel</em>' attribute.
+	 * @see #isSetLastXChannel()
+	 * @see #unsetLastXChannel()
+	 * @see #getLastXChannel()
+	 * @generated
+	 */
+	void setLastXChannel(int value);
+
+	/**
+	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLastXChannel <em>Last XChannel</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isSetLastXChannel()
+	 * @see #getLastXChannel()
+	 * @see #setLastXChannel(int)
+	 * @generated
+	 */
+	void unsetLastXChannel();
+
+	/**
+	 * Returns whether the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLastXChannel <em>Last XChannel</em>}' attribute is set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return whether the value of the '<em>Last XChannel</em>' attribute is set.
+	 * @see #unsetLastXChannel()
+	 * @see #getLastXChannel()
+	 * @see #setLastXChannel(int)
+	 * @generated
+	 */
+	boolean isSetLastXChannel();
+
+	/**
+	 * Returns the value of the '<em><b>First YChannel</b></em>' attribute.
+	 * The default value is <code>"1"</code>.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>First YChannel</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>First YChannel</em>' attribute.
+	 * @see #isSetFirstYChannel()
+	 * @see #unsetFirstYChannel()
+	 * @see #setFirstYChannel(int)
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_FirstYChannel()
+	 * @model default="1" unsettable="true"
+	 * @generated
+	 */
+	int getFirstYChannel();
+
+	/**
+	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getFirstYChannel <em>First YChannel</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>First YChannel</em>' attribute.
+	 * @see #isSetFirstYChannel()
+	 * @see #unsetFirstYChannel()
+	 * @see #getFirstYChannel()
+	 * @generated
+	 */
+	void setFirstYChannel(int value);
+
+	/**
+	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getFirstYChannel <em>First YChannel</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isSetFirstYChannel()
+	 * @see #getFirstYChannel()
+	 * @see #setFirstYChannel(int)
+	 * @generated
+	 */
+	void unsetFirstYChannel();
+
+	/**
+	 * Returns whether the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getFirstYChannel <em>First YChannel</em>}' attribute is set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return whether the value of the '<em>First YChannel</em>' attribute is set.
+	 * @see #unsetFirstYChannel()
+	 * @see #getFirstYChannel()
+	 * @see #setFirstYChannel(int)
+	 * @generated
+	 */
+	boolean isSetFirstYChannel();
+
+	/**
+	 * Returns the value of the '<em><b>Last YChannel</b></em>' attribute.
+	 * The default value is <code>"1024"</code>.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Last YChannel</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Last YChannel</em>' attribute.
+	 * @see #isSetLastYChannel()
+	 * @see #unsetLastYChannel()
+	 * @see #setLastYChannel(int)
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_LastYChannel()
+	 * @model default="1024" unsettable="true"
+	 * @generated
+	 */
+	int getLastYChannel();
+
+	/**
+	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLastYChannel <em>Last YChannel</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Last YChannel</em>' attribute.
+	 * @see #isSetLastYChannel()
+	 * @see #unsetLastYChannel()
+	 * @see #getLastYChannel()
+	 * @generated
+	 */
+	void setLastYChannel(int value);
+
+	/**
+	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLastYChannel <em>Last YChannel</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isSetLastYChannel()
+	 * @see #getLastYChannel()
+	 * @see #setLastYChannel(int)
+	 * @generated
+	 */
+	void unsetLastYChannel();
+
+	/**
+	 * Returns whether the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLastYChannel <em>Last YChannel</em>}' attribute is set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return whether the value of the '<em>Last YChannel</em>' attribute is set.
+	 * @see #unsetLastYChannel()
+	 * @see #getLastYChannel()
+	 * @see #setLastYChannel(int)
+	 * @generated
+	 */
+	boolean isSetLastYChannel();
+
+	/**
+	 * Returns the value of the '<em><b>Slices</b></em>' attribute.
+	 * The default value is <code>"1"</code>.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Slices</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Slices</em>' attribute.
+	 * @see #isSetSlices()
+	 * @see #unsetSlices()
+	 * @see #setSlices(int)
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_Slices()
+	 * @model default="1" unsettable="true"
+	 * @generated
+	 */
+	int getSlices();
+
+	/**
+	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getSlices <em>Slices</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Slices</em>' attribute.
+	 * @see #isSetSlices()
+	 * @see #unsetSlices()
+	 * @see #getSlices()
+	 * @generated
+	 */
+	void setSlices(int value);
+
+	/**
+	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getSlices <em>Slices</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isSetSlices()
+	 * @see #getSlices()
+	 * @see #setSlices(int)
+	 * @generated
+	 */
+	void unsetSlices();
+
+	/**
+	 * Returns whether the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getSlices <em>Slices</em>}' attribute is set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return whether the value of the '<em>Slices</em>' attribute is set.
+	 * @see #unsetSlices()
+	 * @see #getSlices()
+	 * @see #setSlices(int)
+	 * @generated
+	 */
+	boolean isSetSlices();
+
+	/**
+	 * Returns the value of the '<em><b>Detector Mode</b></em>' attribute.
+	 * The default value is <code>"ADC"</code>.
+	 * The literals are from the enumeration {@link org.opengda.detector.electronanalyser.model.regiondefinition.api.DETECTOR_MODE}.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Detector Mode</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Detector Mode</em>' attribute.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.DETECTOR_MODE
+	 * @see #isSetDetectorMode()
+	 * @see #unsetDetectorMode()
+	 * @see #setDetectorMode(DETECTOR_MODE)
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_DetectorMode()
+	 * @model default="ADC" unsettable="true"
+	 * @generated
+	 */
+	DETECTOR_MODE getDetectorMode();
+
+	/**
+	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getDetectorMode <em>Detector Mode</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Detector Mode</em>' attribute.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.DETECTOR_MODE
+	 * @see #isSetDetectorMode()
+	 * @see #unsetDetectorMode()
+	 * @see #getDetectorMode()
+	 * @generated
+	 */
+	void setDetectorMode(DETECTOR_MODE value);
+
+	/**
+	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getDetectorMode <em>Detector Mode</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isSetDetectorMode()
+	 * @see #getDetectorMode()
+	 * @see #setDetectorMode(DETECTOR_MODE)
+	 * @generated
+	 */
+	void unsetDetectorMode();
+
+	/**
+	 * Returns whether the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getDetectorMode <em>Detector Mode</em>}' attribute is set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return whether the value of the '<em>Detector Mode</em>' attribute is set.
+	 * @see #unsetDetectorMode()
+	 * @see #getDetectorMode()
+	 * @see #setDetectorMode(DETECTOR_MODE)
+	 * @generated
+	 */
+	boolean isSetDetectorMode();
+
+	/**
+	 * Returns the value of the '<em><b>ADC Mask</b></em>' attribute.
+	 * The default value is <code>"255"</code>.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>ADC Mask</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>ADC Mask</em>' attribute.
+	 * @see #isSetADCMask()
+	 * @see #unsetADCMask()
+	 * @see #setADCMask(int)
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_ADCMask()
+	 * @model default="255" unsettable="true"
+	 * @generated
+	 */
+	int getADCMask();
+
+	/**
+	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getADCMask <em>ADC Mask</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>ADC Mask</em>' attribute.
+	 * @see #isSetADCMask()
+	 * @see #unsetADCMask()
+	 * @see #getADCMask()
+	 * @generated
+	 */
+	void setADCMask(int value);
+
+	/**
+	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getADCMask <em>ADC Mask</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isSetADCMask()
+	 * @see #getADCMask()
+	 * @see #setADCMask(int)
+	 * @generated
+	 */
+	void unsetADCMask();
+
+	/**
+	 * Returns whether the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getADCMask <em>ADC Mask</em>}' attribute is set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return whether the value of the '<em>ADC Mask</em>' attribute is set.
+	 * @see #unsetADCMask()
+	 * @see #getADCMask()
+	 * @see #setADCMask(int)
+	 * @generated
+	 */
+	boolean isSetADCMask();
+
+	/**
+	 * Returns the value of the '<em><b>Discriminator Level</b></em>' attribute.
+	 * The default value is <code>"10"</code>.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Discriminator Level</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Discriminator Level</em>' attribute.
+	 * @see #isSetDiscriminatorLevel()
+	 * @see #unsetDiscriminatorLevel()
+	 * @see #setDiscriminatorLevel(int)
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_DiscriminatorLevel()
+	 * @model default="10" unsettable="true"
+	 * @generated
+	 */
+	int getDiscriminatorLevel();
+
+	/**
+	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getDiscriminatorLevel <em>Discriminator Level</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Discriminator Level</em>' attribute.
+	 * @see #isSetDiscriminatorLevel()
+	 * @see #unsetDiscriminatorLevel()
+	 * @see #getDiscriminatorLevel()
+	 * @generated
+	 */
+	void setDiscriminatorLevel(int value);
+
+	/**
+	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getDiscriminatorLevel <em>Discriminator Level</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isSetDiscriminatorLevel()
+	 * @see #getDiscriminatorLevel()
+	 * @see #setDiscriminatorLevel(int)
+	 * @generated
+	 */
+	void unsetDiscriminatorLevel();
+
+	/**
+	 * Returns whether the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getDiscriminatorLevel <em>Discriminator Level</em>}' attribute is set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return whether the value of the '<em>Discriminator Level</em>' attribute is set.
+	 * @see #unsetDiscriminatorLevel()
+	 * @see #getDiscriminatorLevel()
+	 * @see #setDiscriminatorLevel(int)
+	 * @generated
+	 */
+	boolean isSetDiscriminatorLevel();
+
+	/**
+	 * Returns the value of the '<em><b>Status</b></em>' attribute.
+	 * The default value is <code>"READY"</code>.
+	 * The literals are from the enumeration {@link org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS}.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Status</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Status</em>' attribute.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS
+	 * @see #setStatus(STATUS)
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_Status()
+	 * @model default="READY"
+	 * @generated
+	 */
+	STATUS getStatus();
+
+	/**
+	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getStatus <em>Status</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Status</em>' attribute.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS
+	 * @see #getStatus()
+	 * @generated
+	 */
+	void setStatus(STATUS value);
+
+	/**
+	 * Returns the value of the '<em><b>Enabled</b></em>' attribute.
+	 * The default value is <code>"true"</code>.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Enabled</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Enabled</em>' attribute.
+	 * @see #isSetEnabled()
+	 * @see #unsetEnabled()
+	 * @see #setEnabled(boolean)
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_Enabled()
+	 * @model default="true" unsettable="true"
+	 * @generated
+	 */
+	boolean isEnabled();
+
+	/**
+	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#isEnabled <em>Enabled</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Enabled</em>' attribute.
+	 * @see #isSetEnabled()
+	 * @see #unsetEnabled()
+	 * @see #isEnabled()
+	 * @generated
+	 */
+	void setEnabled(boolean value);
+
+	/**
+	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#isEnabled <em>Enabled</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isSetEnabled()
+	 * @see #isEnabled()
+	 * @see #setEnabled(boolean)
+	 * @generated
+	 */
+	void unsetEnabled();
+
+	/**
+	 * Returns whether the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#isEnabled <em>Enabled</em>}' attribute is set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return whether the value of the '<em>Enabled</em>' attribute is set.
+	 * @see #unsetEnabled()
+	 * @see #isEnabled()
+	 * @see #setEnabled(boolean)
+	 * @generated
+	 */
+	boolean isSetEnabled();
 
 } // Region

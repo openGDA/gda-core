@@ -40,6 +40,15 @@ public class DocumentRootImpl extends EObjectImpl implements DocumentRoot {
 	protected Sequence sequence;
 
 	/**
+	 * This is true if the Sequence containment reference has been set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean sequenceESet;
+
+	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
@@ -75,8 +84,10 @@ public class DocumentRootImpl extends EObjectImpl implements DocumentRoot {
 	public NotificationChain basicSetSequence(Sequence newSequence, NotificationChain msgs) {
 		Sequence oldSequence = sequence;
 		sequence = newSequence;
+		boolean oldSequenceESet = sequenceESet;
+		sequenceESet = true;
 		if (eNotificationRequired()) {
-			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.DOCUMENT_ROOT__SEQUENCE, oldSequence, newSequence);
+			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.DOCUMENT_ROOT__SEQUENCE, oldSequence, newSequence, !oldSequenceESet);
 			if (msgs == null) msgs = notification; else msgs.add(notification);
 		}
 		return msgs;
@@ -97,8 +108,58 @@ public class DocumentRootImpl extends EObjectImpl implements DocumentRoot {
 			msgs = basicSetSequence(newSequence, msgs);
 			if (msgs != null) msgs.dispatch();
 		}
-		else if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.DOCUMENT_ROOT__SEQUENCE, newSequence, newSequence));
+		else {
+			boolean oldSequenceESet = sequenceESet;
+			sequenceESet = true;
+			if (eNotificationRequired())
+				eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.DOCUMENT_ROOT__SEQUENCE, newSequence, newSequence, !oldSequenceESet));
+		}
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public NotificationChain basicUnsetSequence(NotificationChain msgs) {
+		Sequence oldSequence = sequence;
+		sequence = null;
+		boolean oldSequenceESet = sequenceESet;
+		sequenceESet = false;
+		if (eNotificationRequired()) {
+			ENotificationImpl notification = new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.DOCUMENT_ROOT__SEQUENCE, oldSequence, null, oldSequenceESet);
+			if (msgs == null) msgs = notification; else msgs.add(notification);
+		}
+		return msgs;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void unsetSequence() {
+		if (sequence != null) {
+			NotificationChain msgs = null;
+			msgs = ((InternalEObject)sequence).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - RegiondefinitionPackage.DOCUMENT_ROOT__SEQUENCE, null, msgs);
+			msgs = basicUnsetSequence(msgs);
+			if (msgs != null) msgs.dispatch();
+		}
+		else {
+			boolean oldSequenceESet = sequenceESet;
+			sequenceESet = false;
+			if (eNotificationRequired())
+				eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.DOCUMENT_ROOT__SEQUENCE, null, null, oldSequenceESet));
+		}
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean isSetSequence() {
+		return sequenceESet;
 	}
 
 	/**
@@ -110,7 +171,7 @@ public class DocumentRootImpl extends EObjectImpl implements DocumentRoot {
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
 			case RegiondefinitionPackage.DOCUMENT_ROOT__SEQUENCE:
-				return basicSetSequence(null, msgs);
+				return basicUnsetSequence(msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
@@ -153,7 +214,7 @@ public class DocumentRootImpl extends EObjectImpl implements DocumentRoot {
 	public void eUnset(int featureID) {
 		switch (featureID) {
 			case RegiondefinitionPackage.DOCUMENT_ROOT__SEQUENCE:
-				setSequence((Sequence)null);
+				unsetSequence();
 				return;
 		}
 		super.eUnset(featureID);
@@ -168,7 +229,7 @@ public class DocumentRootImpl extends EObjectImpl implements DocumentRoot {
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
 			case RegiondefinitionPackage.DOCUMENT_ROOT__SEQUENCE:
-				return sequence != null;
+				return isSetSequence();
 		}
 		return super.eIsSet(featureID);
 	}

@@ -15,6 +15,7 @@ import org.eclipse.emf.ecore.impl.EObjectImpl;
 
 import org.eclipse.emf.ecore.util.EDataTypeUniqueEList;
 
+import org.eclipse.emf.ecore.util.InternalEList;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum;
 
@@ -61,6 +62,15 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	protected String location = LOCATION_EDEFAULT;
 
 	/**
+	 * This is true if the Location attribute has been set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean locationESet;
+
+	/**
 	 * The default value of the '{@link #getUser() <em>User</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -68,7 +78,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String USER_EDEFAULT = null;
+	protected static final String USER_EDEFAULT = "cm5933-1";
 
 	/**
 	 * The cached value of the '{@link #getUser() <em>User</em>}' attribute.
@@ -81,6 +91,15 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	protected String user = USER_EDEFAULT;
 
 	/**
+	 * This is true if the User attribute has been set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean userESet;
+
+	/**
 	 * The default value of the '{@link #getSampleName() <em>Sample Name</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -88,7 +107,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String SAMPLE_NAME_EDEFAULT = null;
+	protected static final String SAMPLE_NAME_EDEFAULT = "mySample";
 
 	/**
 	 * The cached value of the '{@link #getSampleName() <em>Sample Name</em>}' attribute.
@@ -101,6 +120,15 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	protected String sampleName = SAMPLE_NAME_EDEFAULT;
 
 	/**
+	 * This is true if the Sample Name attribute has been set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean sampleNameESet;
+
+	/**
 	 * The default value of the '{@link #getFilenamePrefix() <em>Filename Prefix</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -108,7 +136,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String FILENAME_PREFIX_EDEFAULT = null;
+	protected static final String FILENAME_PREFIX_EDEFAULT = "myPrefix";
 
 	/**
 	 * The cached value of the '{@link #getFilenamePrefix() <em>Filename Prefix</em>}' attribute.
@@ -121,6 +149,15 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	protected String filenamePrefix = FILENAME_PREFIX_EDEFAULT;
 
 	/**
+	 * This is true if the Filename Prefix attribute has been set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean filenamePrefixESet;
+
+	/**
 	 * The default value of the '{@link #getBaseDirectory() <em>Base Directory</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -128,7 +165,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String BASE_DIRECTORY_EDEFAULT = null;
+	protected static final String BASE_DIRECTORY_EDEFAULT = "myBaseDirectory";
 
 	/**
 	 * The cached value of the '{@link #getBaseDirectory() <em>Base Directory</em>}' attribute.
@@ -139,6 +176,15 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * @ordered
 	 */
 	protected String baseDirectory = BASE_DIRECTORY_EDEFAULT;
+
+	/**
+	 * This is true if the Base Directory attribute has been set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean baseDirectoryESet;
 
 	/**
 	 * The default value of the '{@link #getFilenameFormet() <em>Filename Formet</em>}' attribute.
@@ -161,6 +207,15 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	protected String filenameFormet = FILENAME_FORMET_EDEFAULT;
 
 	/**
+	 * This is true if the Filename Formet attribute has been set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean filenameFormetESet;
+
+	/**
 	 * The default value of the '{@link #getFileExtension() <em>File Extension</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -181,6 +236,15 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	protected String fileExtension = FILE_EXTENSION_EDEFAULT;
 
 	/**
+	 * This is true if the File Extension attribute has been set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean fileExtensionESet;
+
+	/**
 	 * The default value of the '{@link #getNumberOfComments() <em>Number Of Comments</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -188,7 +252,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final int NUMBER_OF_COMMENTS_EDEFAULT = 0;
+	protected static final int NUMBER_OF_COMMENTS_EDEFAULT = 1;
 
 	/**
 	 * The cached value of the '{@link #getNumberOfComments() <em>Number Of Comments</em>}' attribute.
@@ -199,6 +263,15 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * @ordered
 	 */
 	protected int numberOfComments = NUMBER_OF_COMMENTS_EDEFAULT;
+
+	/**
+	 * This is true if the Number Of Comments attribute has been set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean numberOfCommentsESet;
 
 	/**
 	 * The cached value of the '{@link #getComments() <em>Comments</em>}' attribute list.
@@ -246,8 +319,33 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	public void setLocation(String newLocation) {
 		String oldLocation = location;
 		location = newLocation;
+		boolean oldLocationESet = locationESet;
+		locationESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SPECTRUM__LOCATION, oldLocation, location));
+			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SPECTRUM__LOCATION, oldLocation, location, !oldLocationESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void unsetLocation() {
+		String oldLocation = location;
+		boolean oldLocationESet = locationESet;
+		location = LOCATION_EDEFAULT;
+		locationESet = false;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.SPECTRUM__LOCATION, oldLocation, LOCATION_EDEFAULT, oldLocationESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean isSetLocation() {
+		return locationESet;
 	}
 
 	/**
@@ -267,8 +365,33 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	public void setUser(String newUser) {
 		String oldUser = user;
 		user = newUser;
+		boolean oldUserESet = userESet;
+		userESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SPECTRUM__USER, oldUser, user));
+			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SPECTRUM__USER, oldUser, user, !oldUserESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void unsetUser() {
+		String oldUser = user;
+		boolean oldUserESet = userESet;
+		user = USER_EDEFAULT;
+		userESet = false;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.SPECTRUM__USER, oldUser, USER_EDEFAULT, oldUserESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean isSetUser() {
+		return userESet;
 	}
 
 	/**
@@ -288,8 +411,33 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	public void setSampleName(String newSampleName) {
 		String oldSampleName = sampleName;
 		sampleName = newSampleName;
+		boolean oldSampleNameESet = sampleNameESet;
+		sampleNameESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SPECTRUM__SAMPLE_NAME, oldSampleName, sampleName));
+			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SPECTRUM__SAMPLE_NAME, oldSampleName, sampleName, !oldSampleNameESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void unsetSampleName() {
+		String oldSampleName = sampleName;
+		boolean oldSampleNameESet = sampleNameESet;
+		sampleName = SAMPLE_NAME_EDEFAULT;
+		sampleNameESet = false;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.SPECTRUM__SAMPLE_NAME, oldSampleName, SAMPLE_NAME_EDEFAULT, oldSampleNameESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean isSetSampleName() {
+		return sampleNameESet;
 	}
 
 	/**
@@ -309,8 +457,33 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	public void setFilenamePrefix(String newFilenamePrefix) {
 		String oldFilenamePrefix = filenamePrefix;
 		filenamePrefix = newFilenamePrefix;
+		boolean oldFilenamePrefixESet = filenamePrefixESet;
+		filenamePrefixESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SPECTRUM__FILENAME_PREFIX, oldFilenamePrefix, filenamePrefix));
+			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SPECTRUM__FILENAME_PREFIX, oldFilenamePrefix, filenamePrefix, !oldFilenamePrefixESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void unsetFilenamePrefix() {
+		String oldFilenamePrefix = filenamePrefix;
+		boolean oldFilenamePrefixESet = filenamePrefixESet;
+		filenamePrefix = FILENAME_PREFIX_EDEFAULT;
+		filenamePrefixESet = false;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.SPECTRUM__FILENAME_PREFIX, oldFilenamePrefix, FILENAME_PREFIX_EDEFAULT, oldFilenamePrefixESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean isSetFilenamePrefix() {
+		return filenamePrefixESet;
 	}
 
 	/**
@@ -330,8 +503,33 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	public void setBaseDirectory(String newBaseDirectory) {
 		String oldBaseDirectory = baseDirectory;
 		baseDirectory = newBaseDirectory;
+		boolean oldBaseDirectoryESet = baseDirectoryESet;
+		baseDirectoryESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SPECTRUM__BASE_DIRECTORY, oldBaseDirectory, baseDirectory));
+			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SPECTRUM__BASE_DIRECTORY, oldBaseDirectory, baseDirectory, !oldBaseDirectoryESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void unsetBaseDirectory() {
+		String oldBaseDirectory = baseDirectory;
+		boolean oldBaseDirectoryESet = baseDirectoryESet;
+		baseDirectory = BASE_DIRECTORY_EDEFAULT;
+		baseDirectoryESet = false;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.SPECTRUM__BASE_DIRECTORY, oldBaseDirectory, BASE_DIRECTORY_EDEFAULT, oldBaseDirectoryESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean isSetBaseDirectory() {
+		return baseDirectoryESet;
 	}
 
 	/**
@@ -351,8 +549,33 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	public void setFilenameFormet(String newFilenameFormet) {
 		String oldFilenameFormet = filenameFormet;
 		filenameFormet = newFilenameFormet;
+		boolean oldFilenameFormetESet = filenameFormetESet;
+		filenameFormetESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SPECTRUM__FILENAME_FORMET, oldFilenameFormet, filenameFormet));
+			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SPECTRUM__FILENAME_FORMET, oldFilenameFormet, filenameFormet, !oldFilenameFormetESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void unsetFilenameFormet() {
+		String oldFilenameFormet = filenameFormet;
+		boolean oldFilenameFormetESet = filenameFormetESet;
+		filenameFormet = FILENAME_FORMET_EDEFAULT;
+		filenameFormetESet = false;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.SPECTRUM__FILENAME_FORMET, oldFilenameFormet, FILENAME_FORMET_EDEFAULT, oldFilenameFormetESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean isSetFilenameFormet() {
+		return filenameFormetESet;
 	}
 
 	/**
@@ -372,8 +595,33 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	public void setFileExtension(String newFileExtension) {
 		String oldFileExtension = fileExtension;
 		fileExtension = newFileExtension;
+		boolean oldFileExtensionESet = fileExtensionESet;
+		fileExtensionESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SPECTRUM__FILE_EXTENSION, oldFileExtension, fileExtension));
+			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SPECTRUM__FILE_EXTENSION, oldFileExtension, fileExtension, !oldFileExtensionESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void unsetFileExtension() {
+		String oldFileExtension = fileExtension;
+		boolean oldFileExtensionESet = fileExtensionESet;
+		fileExtension = FILE_EXTENSION_EDEFAULT;
+		fileExtensionESet = false;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.SPECTRUM__FILE_EXTENSION, oldFileExtension, FILE_EXTENSION_EDEFAULT, oldFileExtensionESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean isSetFileExtension() {
+		return fileExtensionESet;
 	}
 
 	/**
@@ -393,8 +641,33 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	public void setNumberOfComments(int newNumberOfComments) {
 		int oldNumberOfComments = numberOfComments;
 		numberOfComments = newNumberOfComments;
+		boolean oldNumberOfCommentsESet = numberOfCommentsESet;
+		numberOfCommentsESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SPECTRUM__NUMBER_OF_COMMENTS, oldNumberOfComments, numberOfComments));
+			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SPECTRUM__NUMBER_OF_COMMENTS, oldNumberOfComments, numberOfComments, !oldNumberOfCommentsESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void unsetNumberOfComments() {
+		int oldNumberOfComments = numberOfComments;
+		boolean oldNumberOfCommentsESet = numberOfCommentsESet;
+		numberOfComments = NUMBER_OF_COMMENTS_EDEFAULT;
+		numberOfCommentsESet = false;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.SPECTRUM__NUMBER_OF_COMMENTS, oldNumberOfComments, NUMBER_OF_COMMENTS_EDEFAULT, oldNumberOfCommentsESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean isSetNumberOfComments() {
+		return numberOfCommentsESet;
 	}
 
 	/**
@@ -404,9 +677,27 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 */
 	public EList<String> getComments() {
 		if (comments == null) {
-			comments = new EDataTypeUniqueEList<String>(String.class, this, RegiondefinitionPackage.SPECTRUM__COMMENTS);
+			comments = new EDataTypeUniqueEList.Unsettable<String>(String.class, this, RegiondefinitionPackage.SPECTRUM__COMMENTS);
 		}
 		return comments;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void unsetComments() {
+		if (comments != null) ((InternalEList.Unsettable<?>)comments).unset();
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean isSetComments() {
+		return comments != null && ((InternalEList.Unsettable<?>)comments).isSet();
 	}
 
 	/**
@@ -489,31 +780,31 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	public void eUnset(int featureID) {
 		switch (featureID) {
 			case RegiondefinitionPackage.SPECTRUM__LOCATION:
-				setLocation(LOCATION_EDEFAULT);
+				unsetLocation();
 				return;
 			case RegiondefinitionPackage.SPECTRUM__USER:
-				setUser(USER_EDEFAULT);
+				unsetUser();
 				return;
 			case RegiondefinitionPackage.SPECTRUM__SAMPLE_NAME:
-				setSampleName(SAMPLE_NAME_EDEFAULT);
+				unsetSampleName();
 				return;
 			case RegiondefinitionPackage.SPECTRUM__FILENAME_PREFIX:
-				setFilenamePrefix(FILENAME_PREFIX_EDEFAULT);
+				unsetFilenamePrefix();
 				return;
 			case RegiondefinitionPackage.SPECTRUM__BASE_DIRECTORY:
-				setBaseDirectory(BASE_DIRECTORY_EDEFAULT);
+				unsetBaseDirectory();
 				return;
 			case RegiondefinitionPackage.SPECTRUM__FILENAME_FORMET:
-				setFilenameFormet(FILENAME_FORMET_EDEFAULT);
+				unsetFilenameFormet();
 				return;
 			case RegiondefinitionPackage.SPECTRUM__FILE_EXTENSION:
-				setFileExtension(FILE_EXTENSION_EDEFAULT);
+				unsetFileExtension();
 				return;
 			case RegiondefinitionPackage.SPECTRUM__NUMBER_OF_COMMENTS:
-				setNumberOfComments(NUMBER_OF_COMMENTS_EDEFAULT);
+				unsetNumberOfComments();
 				return;
 			case RegiondefinitionPackage.SPECTRUM__COMMENTS:
-				getComments().clear();
+				unsetComments();
 				return;
 		}
 		super.eUnset(featureID);
@@ -528,23 +819,23 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
 			case RegiondefinitionPackage.SPECTRUM__LOCATION:
-				return LOCATION_EDEFAULT == null ? location != null : !LOCATION_EDEFAULT.equals(location);
+				return isSetLocation();
 			case RegiondefinitionPackage.SPECTRUM__USER:
-				return USER_EDEFAULT == null ? user != null : !USER_EDEFAULT.equals(user);
+				return isSetUser();
 			case RegiondefinitionPackage.SPECTRUM__SAMPLE_NAME:
-				return SAMPLE_NAME_EDEFAULT == null ? sampleName != null : !SAMPLE_NAME_EDEFAULT.equals(sampleName);
+				return isSetSampleName();
 			case RegiondefinitionPackage.SPECTRUM__FILENAME_PREFIX:
-				return FILENAME_PREFIX_EDEFAULT == null ? filenamePrefix != null : !FILENAME_PREFIX_EDEFAULT.equals(filenamePrefix);
+				return isSetFilenamePrefix();
 			case RegiondefinitionPackage.SPECTRUM__BASE_DIRECTORY:
-				return BASE_DIRECTORY_EDEFAULT == null ? baseDirectory != null : !BASE_DIRECTORY_EDEFAULT.equals(baseDirectory);
+				return isSetBaseDirectory();
 			case RegiondefinitionPackage.SPECTRUM__FILENAME_FORMET:
-				return FILENAME_FORMET_EDEFAULT == null ? filenameFormet != null : !FILENAME_FORMET_EDEFAULT.equals(filenameFormet);
+				return isSetFilenameFormet();
 			case RegiondefinitionPackage.SPECTRUM__FILE_EXTENSION:
-				return FILE_EXTENSION_EDEFAULT == null ? fileExtension != null : !FILE_EXTENSION_EDEFAULT.equals(fileExtension);
+				return isSetFileExtension();
 			case RegiondefinitionPackage.SPECTRUM__NUMBER_OF_COMMENTS:
-				return numberOfComments != NUMBER_OF_COMMENTS_EDEFAULT;
+				return isSetNumberOfComments();
 			case RegiondefinitionPackage.SPECTRUM__COMMENTS:
-				return comments != null && !comments.isEmpty();
+				return isSetComments();
 		}
 		return super.eIsSet(featureID);
 	}
@@ -559,23 +850,23 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 		if (eIsProxy()) return super.toString();
 
 		StringBuffer result = new StringBuffer(super.toString());
-		result.append(" (location: ");
-		result.append(location);
-		result.append(", User: ");
-		result.append(user);
-		result.append(", sampleName: ");
-		result.append(sampleName);
-		result.append(", filenamePrefix: ");
-		result.append(filenamePrefix);
-		result.append(", baseDirectory: ");
-		result.append(baseDirectory);
-		result.append(", filenameFormet: ");
-		result.append(filenameFormet);
-		result.append(", fileExtension: ");
-		result.append(fileExtension);
-		result.append(", numberOfComments: ");
-		result.append(numberOfComments);
-		result.append(", comments: ");
+		result.append(" (location: "); //$NON-NLS-1$
+		if (locationESet) result.append(location); else result.append("<unset>"); //$NON-NLS-1$
+		result.append(", User: "); //$NON-NLS-1$
+		if (userESet) result.append(user); else result.append("<unset>"); //$NON-NLS-1$
+		result.append(", sampleName: "); //$NON-NLS-1$
+		if (sampleNameESet) result.append(sampleName); else result.append("<unset>"); //$NON-NLS-1$
+		result.append(", filenamePrefix: "); //$NON-NLS-1$
+		if (filenamePrefixESet) result.append(filenamePrefix); else result.append("<unset>"); //$NON-NLS-1$
+		result.append(", baseDirectory: "); //$NON-NLS-1$
+		if (baseDirectoryESet) result.append(baseDirectory); else result.append("<unset>"); //$NON-NLS-1$
+		result.append(", filenameFormet: "); //$NON-NLS-1$
+		if (filenameFormetESet) result.append(filenameFormet); else result.append("<unset>"); //$NON-NLS-1$
+		result.append(", fileExtension: "); //$NON-NLS-1$
+		if (fileExtensionESet) result.append(fileExtension); else result.append("<unset>"); //$NON-NLS-1$
+		result.append(", numberOfComments: "); //$NON-NLS-1$
+		if (numberOfCommentsESet) result.append(numberOfComments); else result.append("<unset>"); //$NON-NLS-1$
+		result.append(", comments: "); //$NON-NLS-1$
 		result.append(comments);
 		result.append(')');
 		return result.toString();

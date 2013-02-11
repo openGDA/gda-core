@@ -30,9 +30,11 @@ public interface DocumentRoot extends EObject {
 	 * </p>
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Sequence</em>' containment reference.
+	 * @see #isSetSequence()
+	 * @see #unsetSequence()
 	 * @see #setSequence(Sequence)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getDocumentRoot_Sequence()
-	 * @model containment="true"
+	 * @model containment="true" unsettable="true"
 	 * @generated
 	 */
 	Sequence getSequence();
@@ -42,9 +44,34 @@ public interface DocumentRoot extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @param value the new value of the '<em>Sequence</em>' containment reference.
+	 * @see #isSetSequence()
+	 * @see #unsetSequence()
 	 * @see #getSequence()
 	 * @generated
 	 */
 	void setSequence(Sequence value);
+
+	/**
+	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.DocumentRoot#getSequence <em>Sequence</em>}' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isSetSequence()
+	 * @see #getSequence()
+	 * @see #setSequence(Sequence)
+	 * @generated
+	 */
+	void unsetSequence();
+
+	/**
+	 * Returns whether the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.DocumentRoot#getSequence <em>Sequence</em>}' containment reference is set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return whether the value of the '<em>Sequence</em>' containment reference is set.
+	 * @see #unsetSequence()
+	 * @see #getSequence()
+	 * @see #setSequence(Sequence)
+	 * @generated
+	 */
+	boolean isSetSequence();
 
 } // DocumentRoot

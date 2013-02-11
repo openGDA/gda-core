@@ -95,13 +95,22 @@ public interface RegiondefinitionPackage extends EPackage {
 	int SEQUENCE = 1;
 
 	/**
+	 * The feature id for the '<em><b>Filename</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SEQUENCE__FILENAME = 0;
+
+	/**
 	 * The feature id for the '<em><b>Region</b></em>' containment reference list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SEQUENCE__REGION = 0;
+	int SEQUENCE__REGION = 1;
 
 	/**
 	 * The feature id for the '<em><b>Run Mode</b></em>' attribute.
@@ -110,7 +119,16 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SEQUENCE__RUN_MODE = 1;
+	int SEQUENCE__RUN_MODE = 2;
+
+	/**
+	 * The feature id for the '<em><b>Run Mode Index</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SEQUENCE__RUN_MODE_INDEX = 3;
 
 	/**
 	 * The feature id for the '<em><b>Num Iterations</b></em>' attribute.
@@ -119,16 +137,25 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SEQUENCE__NUM_ITERATIONS = 2;
+	int SEQUENCE__NUM_ITERATIONS = 4;
 
 	/**
-	 * The feature id for the '<em><b>Repeat Unitil Stopped</b></em>' attribute.
+	 * The feature id for the '<em><b>Repeat Until Stopped</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SEQUENCE__REPEAT_UNITIL_STOPPED = 3;
+	int SEQUENCE__REPEAT_UNTIL_STOPPED = 5;
+
+	/**
+	 * The feature id for the '<em><b>Confirm After Each Iteration</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SEQUENCE__CONFIRM_AFTER_EACH_ITERATION = 6;
 
 	/**
 	 * The feature id for the '<em><b>Spectrum</b></em>' containment reference.
@@ -137,16 +164,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SEQUENCE__SPECTRUM = 4;
-
-	/**
-	 * The feature id for the '<em><b>Filename</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SEQUENCE__FILENAME = 5;
+	int SEQUENCE__SPECTRUM = 7;
 
 	/**
 	 * The number of structural features of the '<em>Sequence</em>' class.
@@ -155,7 +173,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SEQUENCE_FEATURE_COUNT = 6;
+	int SEQUENCE_FEATURE_COUNT = 8;
 
 	/**
 	 * The meta object id for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl <em>Region</em>}' class.
@@ -168,76 +186,40 @@ public interface RegiondefinitionPackage extends EPackage {
 	int REGION = 2;
 
 	/**
+	 * The feature id for the '<em><b>Status</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REGION__STATUS = 0;
+
+	/**
+	 * The feature id for the '<em><b>Enabled</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REGION__ENABLED = 1;
+
+	/**
 	 * The feature id for the '<em><b>Name</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int REGION__NAME = 0;
+	int REGION__NAME = 2;
 
 	/**
-	 * The feature id for the '<em><b>Lensmode</b></em>' attribute.
+	 * The feature id for the '<em><b>Lens Mode</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int REGION__LENSMODE = 1;
-
-	/**
-	 * The feature id for the '<em><b>Run Mode</b></em>' containment reference.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int REGION__RUN_MODE = 2;
-
-	/**
-	 * The feature id for the '<em><b>Acquisition Mode</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int REGION__ACQUISITION_MODE = 3;
-
-	/**
-	 * The feature id for the '<em><b>Energy Mode</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int REGION__ENERGY_MODE = 4;
-
-	/**
-	 * The feature id for the '<em><b>Energy</b></em>' containment reference.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int REGION__ENERGY = 5;
-
-	/**
-	 * The feature id for the '<em><b>Step</b></em>' containment reference.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int REGION__STEP = 6;
-
-	/**
-	 * The feature id for the '<em><b>Detector</b></em>' containment reference.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int REGION__DETECTOR = 7;
+	int REGION__LENS_MODE = 3;
 
 	/**
 	 * The feature id for the '<em><b>Pass Energy</b></em>' attribute.
@@ -246,7 +228,160 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REGION__PASS_ENERGY = 8;
+	int REGION__PASS_ENERGY = 4;
+
+	/**
+	 * The feature id for the '<em><b>Run Mode</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REGION__RUN_MODE = 5;
+
+	/**
+	 * The feature id for the '<em><b>Excitation Energy</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REGION__EXCITATION_ENERGY = 6;
+
+	/**
+	 * The feature id for the '<em><b>Acquisition Mode</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REGION__ACQUISITION_MODE = 7;
+
+	/**
+	 * The feature id for the '<em><b>Energy Mode</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REGION__ENERGY_MODE = 8;
+
+	/**
+	 * The feature id for the '<em><b>Fix Energy</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REGION__FIX_ENERGY = 9;
+
+	/**
+	 * The feature id for the '<em><b>Low Energy</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REGION__LOW_ENERGY = 10;
+
+	/**
+	 * The feature id for the '<em><b>High Energy</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REGION__HIGH_ENERGY = 11;
+
+	/**
+	 * The feature id for the '<em><b>Energy Step</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REGION__ENERGY_STEP = 12;
+
+	/**
+	 * The feature id for the '<em><b>Setp Time</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REGION__SETP_TIME = 13;
+
+	/**
+	 * The feature id for the '<em><b>First XChannel</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REGION__FIRST_XCHANNEL = 14;
+
+	/**
+	 * The feature id for the '<em><b>Last XChannel</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REGION__LAST_XCHANNEL = 15;
+
+	/**
+	 * The feature id for the '<em><b>First YChannel</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REGION__FIRST_YCHANNEL = 16;
+
+	/**
+	 * The feature id for the '<em><b>Last YChannel</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REGION__LAST_YCHANNEL = 17;
+
+	/**
+	 * The feature id for the '<em><b>Slices</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REGION__SLICES = 18;
+
+	/**
+	 * The feature id for the '<em><b>Detector Mode</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REGION__DETECTOR_MODE = 19;
+
+	/**
+	 * The feature id for the '<em><b>ADC Mask</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REGION__ADC_MASK = 20;
+
+	/**
+	 * The feature id for the '<em><b>Discriminator Level</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REGION__DISCRIMINATOR_LEVEL = 21;
 
 	/**
 	 * The number of structural features of the '<em>Region</em>' class.
@@ -255,7 +390,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REGION_FEATURE_COUNT = 9;
+	int REGION_FEATURE_COUNT = 22;
 
 	/**
 	 * The meta object id for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RunModeImpl <em>Run Mode</em>}' class.
@@ -277,22 +412,40 @@ public interface RegiondefinitionPackage extends EPackage {
 	int RUN_MODE__MODE = 0;
 
 	/**
+	 * The feature id for the '<em><b>Run Mode Index</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int RUN_MODE__RUN_MODE_INDEX = 1;
+
+	/**
 	 * The feature id for the '<em><b>Num Iterations</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int RUN_MODE__NUM_ITERATIONS = 1;
+	int RUN_MODE__NUM_ITERATIONS = 2;
 
 	/**
-	 * The feature id for the '<em><b>Repeat Unitil Stopped</b></em>' attribute.
+	 * The feature id for the '<em><b>Repeat Until Stopped</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int RUN_MODE__REPEAT_UNITIL_STOPPED = 2;
+	int RUN_MODE__REPEAT_UNTIL_STOPPED = 3;
+
+	/**
+	 * The feature id for the '<em><b>Confirm After Each Interation</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int RUN_MODE__CONFIRM_AFTER_EACH_INTERATION = 4;
 
 	/**
 	 * The number of structural features of the '<em>Run Mode</em>' class.
@@ -301,199 +454,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int RUN_MODE_FEATURE_COUNT = 3;
-
-	/**
-	 * The meta object id for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.EnergyImpl <em>Energy</em>}' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.EnergyImpl
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegiondefinitionPackageImpl#getEnergy()
-	 * @generated
-	 */
-	int ENERGY = 4;
-
-	/**
-	 * The feature id for the '<em><b>Low</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int ENERGY__LOW = 0;
-
-	/**
-	 * The feature id for the '<em><b>High</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int ENERGY__HIGH = 1;
-
-	/**
-	 * The feature id for the '<em><b>Center</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int ENERGY__CENTER = 2;
-
-	/**
-	 * The feature id for the '<em><b>Width</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int ENERGY__WIDTH = 3;
-
-	/**
-	 * The number of structural features of the '<em>Energy</em>' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int ENERGY_FEATURE_COUNT = 4;
-
-	/**
-	 * The meta object id for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.StepImpl <em>Step</em>}' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.StepImpl
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegiondefinitionPackageImpl#getStep()
-	 * @generated
-	 */
-	int STEP = 5;
-
-	/**
-	 * The feature id for the '<em><b>Frames</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int STEP__FRAMES = 0;
-
-	/**
-	 * The feature id for the '<em><b>Time</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int STEP__TIME = 1;
-
-	/**
-	 * The feature id for the '<em><b>Size</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int STEP__SIZE = 2;
-
-	/**
-	 * The feature id for the '<em><b>Total Time</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int STEP__TOTAL_TIME = 3;
-
-	/**
-	 * The feature id for the '<em><b>Total Steps</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int STEP__TOTAL_STEPS = 4;
-
-	/**
-	 * The number of structural features of the '<em>Step</em>' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int STEP_FEATURE_COUNT = 5;
-
-	/**
-	 * The meta object id for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.DetectorImpl <em>Detector</em>}' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.DetectorImpl
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegiondefinitionPackageImpl#getDetector()
-	 * @generated
-	 */
-	int DETECTOR = 6;
-
-	/**
-	 * The feature id for the '<em><b>First XChannel</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int DETECTOR__FIRST_XCHANNEL = 0;
-
-	/**
-	 * The feature id for the '<em><b>Last XChannel</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int DETECTOR__LAST_XCHANNEL = 1;
-
-	/**
-	 * The feature id for the '<em><b>First YChannel</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int DETECTOR__FIRST_YCHANNEL = 2;
-
-	/**
-	 * The feature id for the '<em><b>Last YChannel</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int DETECTOR__LAST_YCHANNEL = 3;
-
-	/**
-	 * The feature id for the '<em><b>Slices</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int DETECTOR__SLICES = 4;
-
-	/**
-	 * The feature id for the '<em><b>Detector Mode</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int DETECTOR__DETECTOR_MODE = 5;
-
-	/**
-	 * The number of structural features of the '<em>Detector</em>' class.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int DETECTOR_FEATURE_COUNT = 6;
+	int RUN_MODE_FEATURE_COUNT = 5;
 
 	/**
 	 * The meta object id for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SpectrumImpl <em>Spectrum</em>}' class.
@@ -503,7 +464,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegiondefinitionPackageImpl#getSpectrum()
 	 * @generated
 	 */
-	int SPECTRUM = 7;
+	int SPECTRUM = 4;
 
 	/**
 	 * The feature id for the '<em><b>Location</b></em>' attribute.
@@ -603,7 +564,17 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegiondefinitionPackageImpl#getPASS_ENERGY()
 	 * @generated
 	 */
-	int PASS_ENERGY = 13;
+	int PASS_ENERGY = 10;
+
+	/**
+	 * The meta object id for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS <em>STATUS</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegiondefinitionPackageImpl#getSTATUS()
+	 * @generated
+	 */
+	int STATUS = 11;
 
 	/**
 	 * The meta object id for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.LENS_MODE <em>LENS MODE</em>}' enum.
@@ -613,7 +584,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegiondefinitionPackageImpl#getLENS_MODE()
 	 * @generated
 	 */
-	int LENS_MODE = 8;
+	int LENS_MODE = 5;
 
 	/**
 	 * The meta object id for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.RUN_MODES <em>RUN MODES</em>}' enum.
@@ -623,7 +594,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegiondefinitionPackageImpl#getRUN_MODES()
 	 * @generated
 	 */
-	int RUN_MODES = 9;
+	int RUN_MODES = 6;
 
 	/**
 	 * The meta object id for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUIAITION_MODE <em>ACQUIAITION MODE</em>}' enum.
@@ -633,7 +604,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegiondefinitionPackageImpl#getACQUIAITION_MODE()
 	 * @generated
 	 */
-	int ACQUIAITION_MODE = 10;
+	int ACQUIAITION_MODE = 7;
 
 	/**
 	 * The meta object id for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE <em>ENERGY MODE</em>}' enum.
@@ -643,7 +614,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegiondefinitionPackageImpl#getENERGY_MODE()
 	 * @generated
 	 */
-	int ENERGY_MODE = 11;
+	int ENERGY_MODE = 8;
 
 	/**
 	 * The meta object id for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.DETECTOR_MODE <em>DETECTOR MODE</em>}' enum.
@@ -653,7 +624,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegiondefinitionPackageImpl#getDETECTOR_MODE()
 	 * @generated
 	 */
-	int DETECTOR_MODE = 12;
+	int DETECTOR_MODE = 9;
 
 
 	/**
@@ -710,6 +681,17 @@ public interface RegiondefinitionPackage extends EPackage {
 	EAttribute getSequence_RunMode();
 
 	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRunModeIndex <em>Run Mode Index</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Run Mode Index</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRunModeIndex()
+	 * @see #getSequence()
+	 * @generated
+	 */
+	EAttribute getSequence_RunModeIndex();
+
+	/**
 	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getNumIterations <em>Num Iterations</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -721,15 +703,26 @@ public interface RegiondefinitionPackage extends EPackage {
 	EAttribute getSequence_NumIterations();
 
 	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#isRepeatUnitilStopped <em>Repeat Unitil Stopped</em>}'.
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#isRepeatUntilStopped <em>Repeat Until Stopped</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Repeat Unitil Stopped</em>'.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#isRepeatUnitilStopped()
+	 * @return the meta object for the attribute '<em>Repeat Until Stopped</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#isRepeatUntilStopped()
 	 * @see #getSequence()
 	 * @generated
 	 */
-	EAttribute getSequence_RepeatUnitilStopped();
+	EAttribute getSequence_RepeatUntilStopped();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#isConfirmAfterEachIteration <em>Confirm After Each Iteration</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Confirm After Each Iteration</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#isConfirmAfterEachIteration()
+	 * @see #getSequence()
+	 * @generated
+	 */
+	EAttribute getSequence_ConfirmAfterEachIteration();
 
 	/**
 	 * Returns the meta object for the containment reference '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getSpectrum <em>Spectrum</em>}'.
@@ -775,15 +768,15 @@ public interface RegiondefinitionPackage extends EPackage {
 	EAttribute getRegion_Name();
 
 	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLensmode <em>Lensmode</em>}'.
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLensMode <em>Lens Mode</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Lensmode</em>'.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLensmode()
+	 * @return the meta object for the attribute '<em>Lens Mode</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLensMode()
 	 * @see #getRegion()
 	 * @generated
 	 */
-	EAttribute getRegion_Lensmode();
+	EAttribute getRegion_LensMode();
 
 	/**
 	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getPassEnergy <em>Pass Energy</em>}'.
@@ -808,6 +801,17 @@ public interface RegiondefinitionPackage extends EPackage {
 	EReference getRegion_RunMode();
 
 	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getExcitationEnergy <em>Excitation Energy</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Excitation Energy</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getExcitationEnergy()
+	 * @see #getRegion()
+	 * @generated
+	 */
+	EAttribute getRegion_ExcitationEnergy();
+
+	/**
 	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getAcquisitionMode <em>Acquisition Mode</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -830,37 +834,169 @@ public interface RegiondefinitionPackage extends EPackage {
 	EAttribute getRegion_EnergyMode();
 
 	/**
-	 * Returns the meta object for the containment reference '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getEnergy <em>Energy</em>}'.
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getFixEnergy <em>Fix Energy</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the containment reference '<em>Energy</em>'.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getEnergy()
+	 * @return the meta object for the attribute '<em>Fix Energy</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getFixEnergy()
 	 * @see #getRegion()
 	 * @generated
 	 */
-	EReference getRegion_Energy();
+	EAttribute getRegion_FixEnergy();
 
 	/**
-	 * Returns the meta object for the containment reference '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getStep <em>Step</em>}'.
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLowEnergy <em>Low Energy</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the containment reference '<em>Step</em>'.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getStep()
+	 * @return the meta object for the attribute '<em>Low Energy</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLowEnergy()
 	 * @see #getRegion()
 	 * @generated
 	 */
-	EReference getRegion_Step();
+	EAttribute getRegion_LowEnergy();
 
 	/**
-	 * Returns the meta object for the containment reference '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getDetector <em>Detector</em>}'.
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getHighEnergy <em>High Energy</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the containment reference '<em>Detector</em>'.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getDetector()
+	 * @return the meta object for the attribute '<em>High Energy</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getHighEnergy()
 	 * @see #getRegion()
 	 * @generated
 	 */
-	EReference getRegion_Detector();
+	EAttribute getRegion_HighEnergy();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getEnergyStep <em>Energy Step</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Energy Step</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getEnergyStep()
+	 * @see #getRegion()
+	 * @generated
+	 */
+	EAttribute getRegion_EnergyStep();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getSetpTime <em>Setp Time</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Setp Time</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getSetpTime()
+	 * @see #getRegion()
+	 * @generated
+	 */
+	EAttribute getRegion_SetpTime();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getFirstXChannel <em>First XChannel</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>First XChannel</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getFirstXChannel()
+	 * @see #getRegion()
+	 * @generated
+	 */
+	EAttribute getRegion_FirstXChannel();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLastXChannel <em>Last XChannel</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Last XChannel</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLastXChannel()
+	 * @see #getRegion()
+	 * @generated
+	 */
+	EAttribute getRegion_LastXChannel();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getFirstYChannel <em>First YChannel</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>First YChannel</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getFirstYChannel()
+	 * @see #getRegion()
+	 * @generated
+	 */
+	EAttribute getRegion_FirstYChannel();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLastYChannel <em>Last YChannel</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Last YChannel</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLastYChannel()
+	 * @see #getRegion()
+	 * @generated
+	 */
+	EAttribute getRegion_LastYChannel();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getSlices <em>Slices</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Slices</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getSlices()
+	 * @see #getRegion()
+	 * @generated
+	 */
+	EAttribute getRegion_Slices();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getDetectorMode <em>Detector Mode</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Detector Mode</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getDetectorMode()
+	 * @see #getRegion()
+	 * @generated
+	 */
+	EAttribute getRegion_DetectorMode();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getADCMask <em>ADC Mask</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>ADC Mask</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getADCMask()
+	 * @see #getRegion()
+	 * @generated
+	 */
+	EAttribute getRegion_ADCMask();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getDiscriminatorLevel <em>Discriminator Level</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Discriminator Level</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getDiscriminatorLevel()
+	 * @see #getRegion()
+	 * @generated
+	 */
+	EAttribute getRegion_DiscriminatorLevel();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getStatus <em>Status</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Status</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getStatus()
+	 * @see #getRegion()
+	 * @generated
+	 */
+	EAttribute getRegion_Status();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#isEnabled <em>Enabled</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Enabled</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#isEnabled()
+	 * @see #getRegion()
+	 * @generated
+	 */
+	EAttribute getRegion_Enabled();
 
 	/**
 	 * Returns the meta object for class '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode <em>Run Mode</em>}'.
@@ -884,6 +1020,17 @@ public interface RegiondefinitionPackage extends EPackage {
 	EAttribute getRunMode_Mode();
 
 	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode#getRunModeIndex <em>Run Mode Index</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Run Mode Index</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode#getRunModeIndex()
+	 * @see #getRunMode()
+	 * @generated
+	 */
+	EAttribute getRunMode_RunModeIndex();
+
+	/**
 	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode#getNumIterations <em>Num Iterations</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -895,210 +1042,26 @@ public interface RegiondefinitionPackage extends EPackage {
 	EAttribute getRunMode_NumIterations();
 
 	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode#isRepeatUnitilStopped <em>Repeat Unitil Stopped</em>}'.
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode#isRepeatUntilStopped <em>Repeat Until Stopped</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Repeat Unitil Stopped</em>'.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode#isRepeatUnitilStopped()
+	 * @return the meta object for the attribute '<em>Repeat Until Stopped</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode#isRepeatUntilStopped()
 	 * @see #getRunMode()
 	 * @generated
 	 */
-	EAttribute getRunMode_RepeatUnitilStopped();
+	EAttribute getRunMode_RepeatUntilStopped();
 
 	/**
-	 * Returns the meta object for class '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Energy <em>Energy</em>}'.
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode#isConfirmAfterEachInteration <em>Confirm After Each Interation</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for class '<em>Energy</em>'.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Energy
+	 * @return the meta object for the attribute '<em>Confirm After Each Interation</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode#isConfirmAfterEachInteration()
+	 * @see #getRunMode()
 	 * @generated
 	 */
-	EClass getEnergy();
-
-	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Energy#getLow <em>Low</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Low</em>'.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Energy#getLow()
-	 * @see #getEnergy()
-	 * @generated
-	 */
-	EAttribute getEnergy_Low();
-
-	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Energy#getHigh <em>High</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>High</em>'.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Energy#getHigh()
-	 * @see #getEnergy()
-	 * @generated
-	 */
-	EAttribute getEnergy_High();
-
-	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Energy#getCenter <em>Center</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Center</em>'.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Energy#getCenter()
-	 * @see #getEnergy()
-	 * @generated
-	 */
-	EAttribute getEnergy_Center();
-
-	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Energy#getWidth <em>Width</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Width</em>'.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Energy#getWidth()
-	 * @see #getEnergy()
-	 * @generated
-	 */
-	EAttribute getEnergy_Width();
-
-	/**
-	 * Returns the meta object for class '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Step <em>Step</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for class '<em>Step</em>'.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Step
-	 * @generated
-	 */
-	EClass getStep();
-
-	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Step#getFrames <em>Frames</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Frames</em>'.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Step#getFrames()
-	 * @see #getStep()
-	 * @generated
-	 */
-	EAttribute getStep_Frames();
-
-	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Step#getTime <em>Time</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Time</em>'.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Step#getTime()
-	 * @see #getStep()
-	 * @generated
-	 */
-	EAttribute getStep_Time();
-
-	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Step#getSize <em>Size</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Size</em>'.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Step#getSize()
-	 * @see #getStep()
-	 * @generated
-	 */
-	EAttribute getStep_Size();
-
-	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Step#getTotalTime <em>Total Time</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Total Time</em>'.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Step#getTotalTime()
-	 * @see #getStep()
-	 * @generated
-	 */
-	EAttribute getStep_TotalTime();
-
-	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Step#getTotalSteps <em>Total Steps</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Total Steps</em>'.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Step#getTotalSteps()
-	 * @see #getStep()
-	 * @generated
-	 */
-	EAttribute getStep_TotalSteps();
-
-	/**
-	 * Returns the meta object for class '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Detector <em>Detector</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for class '<em>Detector</em>'.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Detector
-	 * @generated
-	 */
-	EClass getDetector();
-
-	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Detector#getFirstXChannel <em>First XChannel</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>First XChannel</em>'.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Detector#getFirstXChannel()
-	 * @see #getDetector()
-	 * @generated
-	 */
-	EAttribute getDetector_FirstXChannel();
-
-	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Detector#getLastXChannel <em>Last XChannel</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Last XChannel</em>'.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Detector#getLastXChannel()
-	 * @see #getDetector()
-	 * @generated
-	 */
-	EAttribute getDetector_LastXChannel();
-
-	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Detector#getFirstYChannel <em>First YChannel</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>First YChannel</em>'.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Detector#getFirstYChannel()
-	 * @see #getDetector()
-	 * @generated
-	 */
-	EAttribute getDetector_FirstYChannel();
-
-	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Detector#getLastYChannel <em>Last YChannel</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Last YChannel</em>'.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Detector#getLastYChannel()
-	 * @see #getDetector()
-	 * @generated
-	 */
-	EAttribute getDetector_LastYChannel();
-
-	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Detector#getSlices <em>Slices</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Slices</em>'.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Detector#getSlices()
-	 * @see #getDetector()
-	 * @generated
-	 */
-	EAttribute getDetector_Slices();
-
-	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Detector#getDetectorMode <em>Detector Mode</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Detector Mode</em>'.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Detector#getDetectorMode()
-	 * @see #getDetector()
-	 * @generated
-	 */
-	EAttribute getDetector_DetectorMode();
+	EAttribute getRunMode_ConfirmAfterEachInteration();
 
 	/**
 	 * Returns the meta object for class '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum <em>Spectrum</em>}'.
@@ -1270,6 +1233,16 @@ public interface RegiondefinitionPackage extends EPackage {
 	EEnum getPASS_ENERGY();
 
 	/**
+	 * Returns the meta object for enum '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS <em>STATUS</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>STATUS</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS
+	 * @generated
+	 */
+	EEnum getSTATUS();
+
+	/**
 	 * Returns the factory that creates the instances of the model.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -1336,6 +1309,14 @@ public interface RegiondefinitionPackage extends EPackage {
 		EAttribute SEQUENCE__RUN_MODE = eINSTANCE.getSequence_RunMode();
 
 		/**
+		 * The meta object literal for the '<em><b>Run Mode Index</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute SEQUENCE__RUN_MODE_INDEX = eINSTANCE.getSequence_RunModeIndex();
+
+		/**
 		 * The meta object literal for the '<em><b>Num Iterations</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
@@ -1344,12 +1325,20 @@ public interface RegiondefinitionPackage extends EPackage {
 		EAttribute SEQUENCE__NUM_ITERATIONS = eINSTANCE.getSequence_NumIterations();
 
 		/**
-		 * The meta object literal for the '<em><b>Repeat Unitil Stopped</b></em>' attribute feature.
+		 * The meta object literal for the '<em><b>Repeat Until Stopped</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EAttribute SEQUENCE__REPEAT_UNITIL_STOPPED = eINSTANCE.getSequence_RepeatUnitilStopped();
+		EAttribute SEQUENCE__REPEAT_UNTIL_STOPPED = eINSTANCE.getSequence_RepeatUntilStopped();
+
+		/**
+		 * The meta object literal for the '<em><b>Confirm After Each Iteration</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute SEQUENCE__CONFIRM_AFTER_EACH_ITERATION = eINSTANCE.getSequence_ConfirmAfterEachIteration();
 
 		/**
 		 * The meta object literal for the '<em><b>Spectrum</b></em>' containment reference feature.
@@ -1386,12 +1375,12 @@ public interface RegiondefinitionPackage extends EPackage {
 		EAttribute REGION__NAME = eINSTANCE.getRegion_Name();
 
 		/**
-		 * The meta object literal for the '<em><b>Lensmode</b></em>' attribute feature.
+		 * The meta object literal for the '<em><b>Lens Mode</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EAttribute REGION__LENSMODE = eINSTANCE.getRegion_Lensmode();
+		EAttribute REGION__LENS_MODE = eINSTANCE.getRegion_LensMode();
 
 		/**
 		 * The meta object literal for the '<em><b>Pass Energy</b></em>' attribute feature.
@@ -1410,6 +1399,14 @@ public interface RegiondefinitionPackage extends EPackage {
 		EReference REGION__RUN_MODE = eINSTANCE.getRegion_RunMode();
 
 		/**
+		 * The meta object literal for the '<em><b>Excitation Energy</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute REGION__EXCITATION_ENERGY = eINSTANCE.getRegion_ExcitationEnergy();
+
+		/**
 		 * The meta object literal for the '<em><b>Acquisition Mode</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
@@ -1426,28 +1423,124 @@ public interface RegiondefinitionPackage extends EPackage {
 		EAttribute REGION__ENERGY_MODE = eINSTANCE.getRegion_EnergyMode();
 
 		/**
-		 * The meta object literal for the '<em><b>Energy</b></em>' containment reference feature.
+		 * The meta object literal for the '<em><b>Fix Energy</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EReference REGION__ENERGY = eINSTANCE.getRegion_Energy();
+		EAttribute REGION__FIX_ENERGY = eINSTANCE.getRegion_FixEnergy();
 
 		/**
-		 * The meta object literal for the '<em><b>Step</b></em>' containment reference feature.
+		 * The meta object literal for the '<em><b>Low Energy</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EReference REGION__STEP = eINSTANCE.getRegion_Step();
+		EAttribute REGION__LOW_ENERGY = eINSTANCE.getRegion_LowEnergy();
 
 		/**
-		 * The meta object literal for the '<em><b>Detector</b></em>' containment reference feature.
+		 * The meta object literal for the '<em><b>High Energy</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EReference REGION__DETECTOR = eINSTANCE.getRegion_Detector();
+		EAttribute REGION__HIGH_ENERGY = eINSTANCE.getRegion_HighEnergy();
+
+		/**
+		 * The meta object literal for the '<em><b>Energy Step</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute REGION__ENERGY_STEP = eINSTANCE.getRegion_EnergyStep();
+
+		/**
+		 * The meta object literal for the '<em><b>Setp Time</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute REGION__SETP_TIME = eINSTANCE.getRegion_SetpTime();
+
+		/**
+		 * The meta object literal for the '<em><b>First XChannel</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute REGION__FIRST_XCHANNEL = eINSTANCE.getRegion_FirstXChannel();
+
+		/**
+		 * The meta object literal for the '<em><b>Last XChannel</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute REGION__LAST_XCHANNEL = eINSTANCE.getRegion_LastXChannel();
+
+		/**
+		 * The meta object literal for the '<em><b>First YChannel</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute REGION__FIRST_YCHANNEL = eINSTANCE.getRegion_FirstYChannel();
+
+		/**
+		 * The meta object literal for the '<em><b>Last YChannel</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute REGION__LAST_YCHANNEL = eINSTANCE.getRegion_LastYChannel();
+
+		/**
+		 * The meta object literal for the '<em><b>Slices</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute REGION__SLICES = eINSTANCE.getRegion_Slices();
+
+		/**
+		 * The meta object literal for the '<em><b>Detector Mode</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute REGION__DETECTOR_MODE = eINSTANCE.getRegion_DetectorMode();
+
+		/**
+		 * The meta object literal for the '<em><b>ADC Mask</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute REGION__ADC_MASK = eINSTANCE.getRegion_ADCMask();
+
+		/**
+		 * The meta object literal for the '<em><b>Discriminator Level</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute REGION__DISCRIMINATOR_LEVEL = eINSTANCE.getRegion_DiscriminatorLevel();
+
+		/**
+		 * The meta object literal for the '<em><b>Status</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute REGION__STATUS = eINSTANCE.getRegion_Status();
+
+		/**
+		 * The meta object literal for the '<em><b>Enabled</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute REGION__ENABLED = eINSTANCE.getRegion_Enabled();
 
 		/**
 		 * The meta object literal for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RunModeImpl <em>Run Mode</em>}' class.
@@ -1468,6 +1561,14 @@ public interface RegiondefinitionPackage extends EPackage {
 		EAttribute RUN_MODE__MODE = eINSTANCE.getRunMode_Mode();
 
 		/**
+		 * The meta object literal for the '<em><b>Run Mode Index</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute RUN_MODE__RUN_MODE_INDEX = eINSTANCE.getRunMode_RunModeIndex();
+
+		/**
 		 * The meta object literal for the '<em><b>Num Iterations</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
@@ -1476,162 +1577,20 @@ public interface RegiondefinitionPackage extends EPackage {
 		EAttribute RUN_MODE__NUM_ITERATIONS = eINSTANCE.getRunMode_NumIterations();
 
 		/**
-		 * The meta object literal for the '<em><b>Repeat Unitil Stopped</b></em>' attribute feature.
+		 * The meta object literal for the '<em><b>Repeat Until Stopped</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EAttribute RUN_MODE__REPEAT_UNITIL_STOPPED = eINSTANCE.getRunMode_RepeatUnitilStopped();
+		EAttribute RUN_MODE__REPEAT_UNTIL_STOPPED = eINSTANCE.getRunMode_RepeatUntilStopped();
 
 		/**
-		 * The meta object literal for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.EnergyImpl <em>Energy</em>}' class.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.EnergyImpl
-		 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegiondefinitionPackageImpl#getEnergy()
-		 * @generated
-		 */
-		EClass ENERGY = eINSTANCE.getEnergy();
-
-		/**
-		 * The meta object literal for the '<em><b>Low</b></em>' attribute feature.
+		 * The meta object literal for the '<em><b>Confirm After Each Interation</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EAttribute ENERGY__LOW = eINSTANCE.getEnergy_Low();
-
-		/**
-		 * The meta object literal for the '<em><b>High</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute ENERGY__HIGH = eINSTANCE.getEnergy_High();
-
-		/**
-		 * The meta object literal for the '<em><b>Center</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute ENERGY__CENTER = eINSTANCE.getEnergy_Center();
-
-		/**
-		 * The meta object literal for the '<em><b>Width</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute ENERGY__WIDTH = eINSTANCE.getEnergy_Width();
-
-		/**
-		 * The meta object literal for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.StepImpl <em>Step</em>}' class.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.StepImpl
-		 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegiondefinitionPackageImpl#getStep()
-		 * @generated
-		 */
-		EClass STEP = eINSTANCE.getStep();
-
-		/**
-		 * The meta object literal for the '<em><b>Frames</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute STEP__FRAMES = eINSTANCE.getStep_Frames();
-
-		/**
-		 * The meta object literal for the '<em><b>Time</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute STEP__TIME = eINSTANCE.getStep_Time();
-
-		/**
-		 * The meta object literal for the '<em><b>Size</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute STEP__SIZE = eINSTANCE.getStep_Size();
-
-		/**
-		 * The meta object literal for the '<em><b>Total Time</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute STEP__TOTAL_TIME = eINSTANCE.getStep_TotalTime();
-
-		/**
-		 * The meta object literal for the '<em><b>Total Steps</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute STEP__TOTAL_STEPS = eINSTANCE.getStep_TotalSteps();
-
-		/**
-		 * The meta object literal for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.DetectorImpl <em>Detector</em>}' class.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.DetectorImpl
-		 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegiondefinitionPackageImpl#getDetector()
-		 * @generated
-		 */
-		EClass DETECTOR = eINSTANCE.getDetector();
-
-		/**
-		 * The meta object literal for the '<em><b>First XChannel</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute DETECTOR__FIRST_XCHANNEL = eINSTANCE.getDetector_FirstXChannel();
-
-		/**
-		 * The meta object literal for the '<em><b>Last XChannel</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute DETECTOR__LAST_XCHANNEL = eINSTANCE.getDetector_LastXChannel();
-
-		/**
-		 * The meta object literal for the '<em><b>First YChannel</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute DETECTOR__FIRST_YCHANNEL = eINSTANCE.getDetector_FirstYChannel();
-
-		/**
-		 * The meta object literal for the '<em><b>Last YChannel</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute DETECTOR__LAST_YCHANNEL = eINSTANCE.getDetector_LastYChannel();
-
-		/**
-		 * The meta object literal for the '<em><b>Slices</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute DETECTOR__SLICES = eINSTANCE.getDetector_Slices();
-
-		/**
-		 * The meta object literal for the '<em><b>Detector Mode</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute DETECTOR__DETECTOR_MODE = eINSTANCE.getDetector_DetectorMode();
+		EAttribute RUN_MODE__CONFIRM_AFTER_EACH_INTERATION = eINSTANCE.getRunMode_ConfirmAfterEachInteration();
 
 		/**
 		 * The meta object literal for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SpectrumImpl <em>Spectrum</em>}' class.
@@ -1724,6 +1683,16 @@ public interface RegiondefinitionPackage extends EPackage {
 		 * @generated
 		 */
 		EEnum PASS_ENERGY = eINSTANCE.getPASS_ENERGY();
+
+		/**
+		 * The meta object literal for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS <em>STATUS</em>}' enum.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS
+		 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegiondefinitionPackageImpl#getSTATUS()
+		 * @generated
+		 */
+		EEnum STATUS = eINSTANCE.getSTATUS();
 
 		/**
 		 * The meta object literal for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.LENS_MODE <em>LENS MODE</em>}' enum.

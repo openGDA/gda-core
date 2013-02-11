@@ -58,33 +58,6 @@ public interface RegiondefinitionFactory extends EFactory {
 	RunMode createRunMode();
 
 	/**
-	 * Returns a new object of class '<em>Energy</em>'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return a new object of class '<em>Energy</em>'.
-	 * @generated
-	 */
-	Energy createEnergy();
-
-	/**
-	 * Returns a new object of class '<em>Step</em>'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return a new object of class '<em>Step</em>'.
-	 * @generated
-	 */
-	Step createStep();
-
-	/**
-	 * Returns a new object of class '<em>Detector</em>'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return a new object of class '<em>Detector</em>'.
-	 * @generated
-	 */
-	Detector createDetector();
-
-	/**
 	 * Returns a new object of class '<em>Spectrum</em>'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
