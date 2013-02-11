@@ -22,7 +22,9 @@ import org.eclipse.draw2d.BorderLayout;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.FigureCanvas;
+import org.eclipse.draw2d.IClippingStrategy;
 import org.eclipse.draw2d.IFigure;
+import org.eclipse.draw2d.IImageFigure.ImageChangedListener;
 import org.eclipse.draw2d.ImageFigure;
 import org.eclipse.draw2d.LightweightSystem;
 import org.eclipse.draw2d.MouseListener;
@@ -66,26 +68,7 @@ import org.eclipse.swt.widgets.Text;
  */
 public class ImageViewer {
 
-	private final class LocalViewPort extends Viewport {
-		@Override
-		protected void readjustScrollBars() {
-			// expand left and right (or top and bottom)
-			// by half the extent size so that we can scroll the containing
-			// figure by half its width
-			// We don't base the overall width on the getContents().getBounds() as that
-			// may be the wrong size, force it to the width of the image itself
-			
-			Rectangle imageBounds = getImageBounds();
 
-			int clientHeight = getClientArea().height;
-			getVerticalRangeModel().setAll(-clientHeight / 2, clientHeight, clientHeight / 2 + imageBounds.height);
-
-			int clientWidth = getClientArea().width;
-			getHorizontalRangeModel().setAll(-clientWidth / 2, clientWidth, clientWidth / 2 + imageBounds.width);
-
-		}
-	}
-	
 	private static final float DEFAULT_ZOOM_LEVEL = 1.0f;
 	private static final float MAX_ZOOM_LEVEL = 5.0f;
 	private static final float MIN_ZOOM_LEVEL = 0.10f;
@@ -114,14 +97,17 @@ public class ImageViewer {
 
 	private boolean keepZoomFit = false;
 	private float zoomLevel;
-	//private Cursor cursor;
-	
+	// private Cursor cursor;
+	private ImageFigure topImgFig;
+
 	private static Group listenersGroup;
 	private static Text eventConsole;
-	private static boolean logging;	
+	private static boolean logging;
 	private static Label statusLabel;
 	private static Label imageLabel;
 
+	boolean updateQueued=false;
+	private Rectangle destinationRect = new Rectangle(0,0,100,100);
 	/**
 	 * Constructor for the image viewer
 	 * 
@@ -158,31 +144,82 @@ public class ImageViewer {
 		});
 
 		imgFig = new ImageFigure();
+		imgFig.addImageChangedListener(new ImageChangedListener() {
+			
+			@Override
+			public void imageChanged() {
+				if( updateQueued)
+					return;
+				updateQueued = true;
+				Display.getCurrent().asyncExec(new Runnable(){
+
+					@Override
+					public void run() {
+						updateQueued = false;
+						zoomContainer.setZoom(zoomLevel);
+						imgFig.revalidate();
+						imgFig.repaint();
+						
+					}});
+				
+			}
+		} );
+		topImgFig = new ImageFigure();
+		
+
+/*topImgFig.setSize(2000, 2000);
+
+topImgFig.setBackgroundColor(ColorConstants.black);
+topImgFig.setForegroundColor(ColorConstants.black);
+topImgFig.setOpaque(true);
+topImgFig.setFill(true);
+topImgFig.setBounds(new Rectangle(5, 5, 2000, 1500));
+*///topImgFig.setBackgroundColor())
+//topImgFig.setAlpha(100);
 		
 		topFig = new Figure();
 		topFig.setLayoutManager(new XYLayout());
-		topFig.add(imgFig, new Rectangle(0, 0, -1, -1));
+		topImgFig.setLayoutManager(new XYLayout());
+		topFig.add(topImgFig, new Rectangle(0, 0, -1, -1));
+		topImgFig.add(imgFig, new Rectangle(0,0,-1,-1));
 
-		// panning support
-		scrollPane = new ScrollPane();
-		scrollPane.setViewport(new LocalViewPort());
-		scrollPane.setContents(topFig);
-		scrollPane.setScrollBarVisibility(ScrollPane.NEVER);
-		scrollPane.getViewport().setContentsTracksWidth(true);
-		scrollPane.getViewport().setContentsTracksHeight(true);
 
 		// zoom support
 		zoomLevel = DEFAULT_ZOOM_LEVEL;
 		zoomContainer = new ZoomContainer();
-		zoomContainer.add(scrollPane);
+		zoomContainer.add(topFig);
 		zoomContainer.setZoom(zoomLevel);
 
-		fig.add(zoomContainer);
-		layout.setConstraint(zoomContainer, BorderLayout.CENTER);
+		// panning support
+		scrollPane = new ScrollPane();
+		scrollPane.setViewport(new Viewport());
+		scrollPane.setContents(zoomContainer);
+		scrollPane.setScrollBarVisibility(ScrollPane.ALWAYS);
+//		scrollPane.getViewport().setContentsTracksWidth(true);
+//		scrollPane.getViewport().setContentsTracksHeight(true);
+		scrollPane.setClippingStrategy(new IClippingStrategy() {
+			
+			@Override
+			public Rectangle[] getClip(IFigure childFigure) {
+				// TODO Auto-generated method stub
+				return new Rectangle[]{ scrollPane.getClientArea()};
+			}
+		});
+		
+		fig.add(scrollPane);
+		layout.setConstraint(scrollPane, BorderLayout.CENTER);
 
 		initialize();
 	}
-
+	public void setImageForTopImage(Image image){
+		topImgFig.setImage(image);
+		refreshView();
+		
+	}
+	
+	public void setCameraImagePosition(org.eclipse.draw2d.geometry.Rectangle rect){
+		destinationRect = rect;
+	}
 	/**
 	 * Initialize listeners and position tools
 	 */
@@ -208,7 +245,7 @@ public class ImageViewer {
 				if (!keepZoomFit && me.button == 2) {
 					panInProgress = true;
 					panStartMousePoint = me.getLocation();
-					panStartViewPoint = getViewLocation().getScaled(zoomLevel);
+					panStartViewPoint = getViewLocation();//.getScaled(zoomLevel);
 				}
 				if (image != null) {
 					Rectangle imageBounds = getImageBounds();
@@ -242,8 +279,7 @@ public class ImageViewer {
 					if (panInProgress) {
 						Point currentPoint = me.getLocation();
 						Dimension difference = currentPoint.getDifference(panStartMousePoint);
-						Point newPoint = panStartViewPoint.getTranslated(difference.getNegated()).getScaled(
-								1 / zoomLevel);
+						Point newPoint = panStartViewPoint.getTranslated(difference.getNegated());//.getScaled(	1 / zoomLevel);
 						scrollPane.scrollTo(newPoint);
 					}
 					Rectangle imageBounds = getImageBounds();
@@ -269,7 +305,7 @@ public class ImageViewer {
 	 * @return Point image bounds
 	 */
 	public Rectangle getImageBounds() {
-		return imgFig.getBounds();
+		return topImgFig.getBounds();
 	}
 
 	/**
@@ -327,9 +363,17 @@ public class ImageViewer {
 	public void loadImage(final ImageData imageDataIn) {
 
 		if (!canvas.isDisposed()) {
-			final Image newImage = new Image(canvas.getDisplay(), imageDataIn);
+			 Image image2 = new Image(canvas.getDisplay(), imageDataIn);
+			 final Image newImage = new Image(canvas.getDisplay(),destinationRect.width, destinationRect.height);
 
-			if (!canvas.isDisposed()){
+			GC gc = new GC(newImage);
+			
+			org.eclipse.swt.graphics.Rectangle bounds2 = image2.getBounds();
+			
+			gc.drawImage(image2, 0,0,bounds2.width, bounds2.height, 0, 0, newImage.getBounds().width, newImage.getBounds().height);
+			gc.dispose();
+
+			if (!canvas.isDisposed()) {
 				canvas.getDisplay().syncExec(new Runnable() {
 					@Override
 					public void run() {
@@ -377,7 +421,7 @@ public class ImageViewer {
 			// in a delayed way after zoom is set, therefore tell the update
 			// manager to perform those calculations immediately so we can
 			// proceed
-			zoomContainer.getUpdateManager().performValidation();
+//			zoomContainer.getUpdateManager().performValidation();
 			Rectangle bounds = getImageBounds();
 			int horizontalExtent = viewport.getHorizontalRangeModel().getExtent();
 			int horizontalValue = -((horizontalExtent - bounds.width) / 2);
@@ -406,7 +450,7 @@ public class ImageViewer {
 	 */
 	public void zoomFit() {
 		centerScrollBars();
-		Rectangle clientArea = fig.getClientArea();
+		Rectangle clientArea = zoomContainer.getClientArea();
 		Rectangle imageArea = getImageBounds();
 		float heightZoomLevel = ((float) clientArea.height) / imageArea.height;
 		float widthZoomLevel = ((float) clientArea.width) / imageArea.width;
@@ -467,45 +511,48 @@ public class ImageViewer {
 	}
 
 	private void setZoomLevel(float newZoomLevel) {
-		Viewport viewport = scrollPane.getViewport();
+/*		Viewport viewport = scrollPane.getViewport();
 		RangeModel horizontalRangeModel = viewport.getHorizontalRangeModel();
 		RangeModel verticalRangeModel = viewport.getVerticalRangeModel();
 		double horizontalScrollFactor = calcScrollFactor(horizontalRangeModel);
 		double verticalScrollFactor = calcScrollFactor(verticalRangeModel);
-
+*/
+		double horizontalScrollFactor = 1.0;
+		double verticalScrollFactor = 1.0;
+		
+		
 		newZoomLevel = Math.max(MIN_ZOOM_LEVEL, newZoomLevel);
 		newZoomLevel = Math.min(MAX_ZOOM_LEVEL, newZoomLevel);
 		zoomLevel = newZoomLevel;
-		zoomContainer.setZoom(zoomLevel);
+//		zoomContainer.setZoom(zoomLevel);
 
 		// this recalculates the range models values
-		zoomContainer.getUpdateManager().performValidation();
+//		zoomContainer.getUpdateManager().performValidation();
 
-		int newHorizontalValue = calcPositionFromScrollFactor(horizontalRangeModel, horizontalScrollFactor);
+/*		int newHorizontalValue = calcPositionFromScrollFactor(horizontalRangeModel, horizontalScrollFactor);
 		int newVerticalValue = calcPositionFromScrollFactor(verticalRangeModel, verticalScrollFactor);
 		viewport.setHorizontalLocation(newHorizontalValue);
 		viewport.setVerticalLocation(newVerticalValue);
-	}
+*/	}
 
-	static boolean layoutReset=false;
-	static int size=10;
+	static boolean layoutReset = false;
+	static int size = 10;
 
 	public static void main(String[] args) {
 		final Display display = new Display();
 		Shell shell = new Shell(display);
 		shell.setLayout(new org.eclipse.swt.layout.GridLayout(4, false));
 		shell.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true));
-		
-		final SashForm sashForm = new SashForm (shell, SWT.HORIZONTAL | SWT.SMOOTH);
+
+		final SashForm sashForm = new SashForm(shell, SWT.HORIZONTAL | SWT.SMOOTH);
 		sashForm.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.FILL_VERTICAL));
 		final ImageViewer imageViewer = new ImageViewer(sashForm, SWT.DOUBLE_BUFFERED);
-		
-		
+
 		Composite composite = new Group(sashForm, SWT.NONE);
 		composite.setLayout(new GridLayout(2, true));
 		composite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.FILL_VERTICAL));
-		
-		sashForm.setWeights(new int[] {75,25});
+
+		sashForm.setWeights(new int[] { 75, 25 });
 
 		Button loadButton = new Button(composite, SWT.PUSH);
 		loadButton.setText("Load Image");
@@ -543,62 +590,59 @@ public class ImageViewer {
 			}
 		});
 
-
 		final Button sendImagesBtn = new Button(composite, SWT.PUSH);
 		sendImagesBtn.setText("Send Image");
 		sendImagesBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				
+
 				Dimension imageSize = new Dimension(640, 480);
 				final Image image = new Image(display, imageSize.width, imageSize.height);
 				GC gc = new GC(image);
-				
+
 				Color backgroundColour = display.getSystemColor(SWT.COLOR_BLUE);
 				gc.setBackground(backgroundColour);
-				gc.fillOval(0, 0, Math.min(size,imageSize.width), Math.min(size,imageSize.height));
+				gc.fillOval(0, 0, Math.min(size, imageSize.width), Math.min(size, imageSize.height));
 				size++;
 
-				display.asyncExec(new Runnable(){
-
+				display.asyncExec(new Runnable() {
 
 					@Override
 					public void run() {
 						imageViewer.loadImage(image.getImageData());
-						if (!layoutReset){
+						if (!layoutReset) {
 							layoutReset = true;
 							imageViewer.getCanvas().getDisplay().asyncExec(new Runnable() {
 								@Override
 								public void run() {
 									imageViewer.resetView();
 									TestFigure testFigure = new TestFigure();
-									Rectangle testFigurePosition = new Rectangle(0, 0, -1, -1);		
-									imageViewer.getTopFigure().add( testFigure, testFigurePosition);
+									Rectangle testFigurePosition = new Rectangle(0, 0, -1, -1);
+									imageViewer.getTopFigure().add(testFigure, testFigurePosition);
 								}
 							});
-						}						
+						}
 					}
-					
+
 				});
 			}
 		});
-		
+
 		// Label to show status and cursor location in image.
 		statusLabel = new Label(composite, SWT.NONE);
 		GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
 		statusLabel.setLayoutData(gridData);
 		gridData.horizontalSpan = 2;
 		statusLabel.setText("Mouse position at: ");
-		
+
 		imageLabel = new Label(composite, SWT.NONE);
 		gridData = new GridData(GridData.FILL_HORIZONTAL);
 		gridData.horizontalSpan = 2;
 		imageLabel.setLayoutData(gridData);
-		imageLabel.setText("Image position at: ");		
-		
+		imageLabel.setText("Image position at: ");
+
 		createListenersGroup(composite);
 		initializeListeners(imageViewer);
-		
 
 		shell.open();
 
@@ -618,43 +662,47 @@ public class ImageViewer {
 		}
 		display.dispose();
 	}
-	
-	private static void initializeListeners(ImageViewer viewer){
+
+	private static void initializeListeners(ImageViewer viewer) {
 		viewer.getCanvas().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent event) {
 				log(event, "Mouse Down");
 			}
+
 			@Override
 			public void mouseUp(MouseEvent event) {
 				log(event, "Mouse Up");
 			}
+
 			@Override
 			public void mouseDoubleClick(MouseEvent event) {
 				log(event, "Mouse Double Clicked");
-			}			
+			}
 		});
-		
-		viewer.getCanvas().addListener(SWT.MouseWheel, new Listener() {			
+
+		viewer.getCanvas().addListener(SWT.MouseWheel, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
 				log(event, "Mouse Wheel");
 			}
 		});
-		
-		ImagePositionListener newListener = new ImagePositionListener() {			
+
+		ImagePositionListener newListener = new ImagePositionListener() {
 			@Override
 			public void imageStart(IImagePositionEvent event) {
 				double[] position = event.getPosition();
 				int[] imagePosition = event.getImagePosition();
-				updateStatus((int) position[0], (int) position[1], imagePosition[0], imagePosition[1]);			
-			}		
+				updateStatus((int) position[0], (int) position[1], imagePosition[0], imagePosition[1]);
+			}
+
 			@Override
 			public void imageFinished(IImagePositionEvent event) {
 				double[] position = event.getPosition();
 				int[] imagePosition = event.getImagePosition();
 				updateStatus((int) position[0], (int) position[1], imagePosition[0], imagePosition[1]);
-			}			
+			}
+
 			@Override
 			public void imageDragged(IImagePositionEvent event) {
 				double[] position = event.getPosition();
@@ -662,144 +710,147 @@ public class ImageViewer {
 				updateStatus((int) position[0], (int) position[1], imagePosition[0], imagePosition[1]);
 			}
 		};
-		viewer.getPositionTool().addImagePositionListener(newListener, null);		
+		viewer.getPositionTool().addImagePositionListener(newListener, null);
 	}
+
 	private static void createListenersGroup(Composite composite) {
-		listenersGroup = new Group (composite, SWT.NONE);
-		listenersGroup.setLayout (new GridLayout (1, false));
-		listenersGroup.setLayoutData (new GridData (SWT.FILL, SWT.FILL, true, true, 2, 1));		
-		listenersGroup.setText ("Listeners");
-		
+		listenersGroup = new Group(composite, SWT.NONE);
+		listenersGroup.setLayout(new GridLayout(1, false));
+		listenersGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
+		listenersGroup.setText("Listeners");
+
 		/*
 		 * Create the checkbox to add/remove listeners to/from the example widgets.
 		 */
-		final Button listenCheckbox = new Button (listenersGroup, SWT.CHECK);
-		listenCheckbox.setText ("Listen");
-		listenCheckbox.addSelectionListener (new SelectionAdapter () {
-			
+		final Button listenCheckbox = new Button(listenersGroup, SWT.CHECK);
+		listenCheckbox.setText("Listen");
+		listenCheckbox.addSelectionListener(new SelectionAdapter() {
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				logging = listenCheckbox.getSelection ();
+				logging = listenCheckbox.getSelection();
 			}
-		});	
-		
+		});
+
 		/*
 		 * Create the button to clear the text.
 		 */
-		Button clearButton = new Button (listenersGroup, SWT.PUSH);
-		clearButton.setText ("Clear");
+		Button clearButton = new Button(listenersGroup, SWT.PUSH);
+		clearButton.setText("Clear");
 		clearButton.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_END));
-		clearButton.addSelectionListener (new SelectionAdapter() {
+		clearButton.addSelectionListener(new SelectionAdapter() {
 			@Override
-			public void widgetSelected (SelectionEvent e) {
-				eventConsole.setText ("");
+			public void widgetSelected(SelectionEvent e) {
+				eventConsole.setText("");
 			}
-		});	
-		
-		eventConsole = new Text (listenersGroup, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
-		GridData data = new GridData (GridData.FILL_BOTH);
+		});
+
+		eventConsole = new Text(listenersGroup, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+		GridData data = new GridData(GridData.FILL_BOTH);
 		data.horizontalSpan = 3;
 		data.heightHint = 80;
-		eventConsole.setLayoutData (data);		
+		eventConsole.setLayoutData(data);
 	}
-	
-	private static void log(MouseEvent event, String tag){
-		if (logging){
-			String toString = tag + " " + (event.button == 1 ? "Left" : event.button == 3 ? "Right" : event.button) + " button x=" + event.x + " y=" + event.y + " count=" + event.count;
-			if (eventConsole != null){
+
+	private static void log(MouseEvent event, String tag) {
+		if (logging) {
+			String toString = tag + " " + (event.button == 1 ? "Left" : event.button == 3 ? "Right" : event.button)
+					+ " button x=" + event.x + " y=" + event.y + " count=" + event.count;
+			if (eventConsole != null) {
 				eventConsole.append(toString);
 				eventConsole.append("\n");
-			}			
+			}
 		}
-	}	
-	
-	private static void log(Event event, String tag){
-		if (logging){
+	}
+
+	private static void log(Event event, String tag) {
+		if (logging) {
 			String toString = tag + " x=" + event.x + " y=" + event.y + " count=" + event.count;
-			if (eventConsole != null){
+			if (eventConsole != null) {
 				eventConsole.append(toString);
 				eventConsole.append("\n");
-			}			
+			}
 		}
 	}
-	
-	private static void updateStatus(int x, int y, int ix, int iy){
-		statusLabel.setText("Mouse position at: (" + x + ", " + y + ")" );
+
+	private static void updateStatus(int x, int y, int ix, int iy) {
+		statusLabel.setText("Mouse position at: (" + x + ", " + y + ")");
 		imageLabel.setText("Image position at: (" + ix + ", " + iy + ")");
 	}
 
 	/**
-	 * Returns the IFigure of the image being drawn. The figure has an XYLayout and
-	 * the layout manager should not be changed.
+	 * Returns the IFigure of the image being drawn. The figure has an XYLayout and the layout manager should not be
+	 * changed.
+	 * 
 	 * @return top IFigure
 	 */
 	public IFigure getTopFigure() {
 		return topFig;
 	}
+
 	ImageData defaultImageData;
+
 	public void showDefaultImage() {
-		if( 	defaultImageData == null){
+		if (defaultImageData == null) {
 			defaultImageData = new ImageData(getClass().getResourceAsStream("imageViewerDefaultImage.png"));
 		}
 		loadImage(defaultImageData);
 		zoomFit();
-		
+
 	}
-	
-	public boolean isShowingDefault(){
+
+	public boolean isShowingDefault() {
 		return imageData != null ? imageData == defaultImageData : false;
 	}
 }
 
-
-class TestFigure extends Figure{
+class TestFigure extends Figure {
 	private Polyline horz;
 	private Polyline vert;
 	private Dimension crossHairSize = new Dimension(100, 100);
-	
-	public TestFigure(){
+
+	public TestFigure() {
 		setLayoutManager(new XYLayout());
 
 		horz = new Polyline();
 		horz.setLineWidth(2);
 		add(horz, new Rectangle(0, 0, -1, -1));
-		
+
 		vert = new Polyline();
 		vert.setLineWidth(2);
 		add(vert, new Rectangle(0, 0, -1, -1));
-		
+
 		update();
 	}
-	
+
 	@Override
 	protected boolean useLocalCoordinates() {
 		return true;
 	}
-	
+
 	/**
-	 * Updates label contents and box size
-	 * This needs to be called from UI thread
+	 * Updates label contents and box size This needs to be called from UI thread
 	 */
 	private void update() {
 		PointList horzPl = new PointList(2);
-		horzPl.addPoint(new Point(0, crossHairSize.width/2));
-		horzPl.addPoint(new Point(crossHairSize.width, crossHairSize.width/2));		
+		horzPl.addPoint(new Point(0, crossHairSize.width / 2));
+		horzPl.addPoint(new Point(crossHairSize.width, crossHairSize.width / 2));
 		horz.setPoints(horzPl);
-		
+
 		PointList vertPl = new PointList(2);
-		vertPl.addPoint(new Point(crossHairSize.height/2, 0));
-		vertPl.addPoint(new Point(crossHairSize.height/2, crossHairSize.height));		
+		vertPl.addPoint(new Point(crossHairSize.height / 2, 0));
+		vertPl.addPoint(new Point(crossHairSize.height / 2, crossHairSize.height));
 		vert.setPoints(vertPl);
-	}	
-	
-	public void setBeamSize(int size){
+	}
+
+	public void setBeamSize(int size) {
 		this.crossHairSize.height = size;
 		this.crossHairSize.width = size;
 		update();
 	}
-	
-	 public Dimension getCrossHairSize() {
-		 return crossHairSize;
-	 }	
-	
+
+	public Dimension getCrossHairSize() {
+		return crossHairSize;
+	}
+
 }
