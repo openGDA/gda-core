@@ -26,7 +26,7 @@ public class Activator implements BundleActivator {
 		Activator.context = bundleContext;
 		SpringObjectServer s = new SpringObjectServer(
 				new File(
-						"D:/gda/gda-i09/workspace/org.opengda.detector.electronanalyser.client.test/client.xml"),
+						"D:/gda/gda-i09/workspace_git/opengda-electronanalyser.git/org.opengda.detector.electronanalyser.client.test/client.xml"),
 				true);
 		s.configure();
 	}

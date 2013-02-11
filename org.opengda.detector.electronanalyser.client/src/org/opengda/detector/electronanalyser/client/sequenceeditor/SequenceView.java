@@ -47,17 +47,18 @@ public class SequenceView extends ViewPart {
 			"Energy Mode", "Energy Low",
 			"Energy High", "Energy Step", "Step Time", "Steps", "Total Time",
 			"X-Channel From", "X-Channel To", "Y-Channel from", "Y-Channel To",
-			"Slices" };
+			"Slices", "Mode" };
 	private ColumnLayoutData columnLayouts[] = {
 			new ColumnWeightData(10, false), new ColumnWeightData(10, false),
 			new ColumnWeightData(80, true), new ColumnWeightData(70, false),
 			new ColumnWeightData(40, false), new ColumnWeightData(50, true),
 			new ColumnWeightData(40, false), new ColumnWeightData(50, true),
-			new ColumnWeightData(50, true), new ColumnWeightData(50, true),
-			new ColumnWeightData(50, true), new ColumnWeightData(50, true),
-			new ColumnWeightData(50, true), new ColumnWeightData(40, true),
+			new ColumnWeightData(50, true), new ColumnWeightData(60, true),
 			new ColumnWeightData(40, true), new ColumnWeightData(40, true),
-			new ColumnWeightData(40, true), new ColumnWeightData(40, true)
+			new ColumnWeightData(40, true), new ColumnWeightData(40, true),
+			new ColumnWeightData(40, true), new ColumnWeightData(40, true),
+			new ColumnWeightData(40, true), new ColumnWeightData(40, true),
+			new ColumnWeightData(40, true)
 			};
 
 	public void createColumns(TableViewer tableViewer, TableColumnLayout layout) {
@@ -107,7 +108,7 @@ public class SequenceView extends ViewPart {
 
 		Composite leftArea = new Composite(controlArea, SWT.None);
 		leftArea.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		leftArea.setLayout(new GridLayout(2, false));
+		leftArea.setLayout(new GridLayout(4, false));
 
 		Composite rightArea = new Composite(controlArea, SWT.None);
 		rightArea.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false,
@@ -115,8 +116,12 @@ public class SequenceView extends ViewPart {
 		rightArea.setLayout(new GridLayout());
 
 		Group grpRegion = new Group(leftArea, SWT.NONE);
-		grpRegion.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		grpRegion.setText("Region");
+		GridData gd_grpRegion = new GridData(GridData.FILL_HORIZONTAL);
+		gd_grpRegion.grabExcessHorizontalSpace = false;
+		gd_grpRegion.horizontalAlignment = SWT.LEFT;
+		gd_grpRegion.widthHint = 226;
+		grpRegion.setLayoutData(gd_grpRegion);
+		grpRegion.setText("Region Control");
 		grpRegion.setLayout(new RowLayout());
 
 		Button btnNew = new Button(grpRegion, SWT.NONE);
@@ -150,16 +155,36 @@ public class SequenceView extends ViewPart {
 		btnRedo.setText("Redo");
 
 		Group grpActiveRegions = new Group(leftArea, SWT.NONE);
-		grpActiveRegions.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		GridData gd_grpActiveRegions = new GridData(GridData.FILL_HORIZONTAL);
+		gd_grpActiveRegions.grabExcessHorizontalSpace = false;
+		grpActiveRegions.setLayoutData(gd_grpActiveRegions);
 		grpActiveRegions.setText("Active regions");
 		grpActiveRegions.setLayout(new RowLayout());
 
 		text = new Text(grpActiveRegions, SWT.BORDER);
+		//TODO set active or enable region counts
 		text.setEditable(false);
-
+		
+		Group grpBeamControl = new Group(leftArea, SWT.NONE);
+		grpBeamControl.setLayout(new RowLayout());
+		grpBeamControl.setText("X-Ray Source");
+		
+		Button btnHard = new Button(grpBeamControl, SWT.RADIO);
+		btnHard.setText("Hard");
+		
+		Button btnSoft = new Button(grpBeamControl, SWT.RADIO);
+		btnSoft.setText("Soft");
+		
+		Group grpShutter = new Group(leftArea, SWT.NONE);
+		grpShutter.setLayout(new RowLayout());
+		grpShutter.setText("Shutter");
+		
+		Button btnOpen = new Button(grpShutter, SWT.NONE);
+		btnOpen.setText("Open");
+		
 		Group grpInfo = new Group(leftArea, SWT.NONE);
 		GridData layoutData1 = new GridData(GridData.FILL_HORIZONTAL);
-		layoutData1.horizontalSpan = 2;
+		layoutData1.horizontalSpan =4;
 		grpInfo.setLayoutData(layoutData1);
 		grpInfo.setText("Info");
 		grpInfo.setLayout(new GridLayout(3, false));
