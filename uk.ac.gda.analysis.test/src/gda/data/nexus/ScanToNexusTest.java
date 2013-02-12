@@ -37,9 +37,11 @@ import gda.data.scan.datawriter.DefaultDataWriterFactory;
 import gda.data.scan.datawriter.IDataWriterExtender;
 import gda.data.scan.datawriter.NXLinkCreator;
 import gda.data.scan.datawriter.NXSubEntryWriter;
+import gda.data.scan.datawriter.NXTomoEntryLinkCreator;
 import gda.device.Detector;
 import gda.device.Scannable;
 import gda.scan.ConcurrentScan;
+import gda.util.TestUtils;
 
 import java.io.File;
 import java.util.LinkedList;
@@ -52,6 +54,7 @@ import org.nexusformat.NexusFile;
 
 import uk.ac.gda.analysis.hdf5.Hdf5Helper;
 import uk.ac.gda.analysis.hdf5.Hdf5HelperData;
+import uk.ac.gda.util.io.FileUtils;
 
 /**
  * Class to test writing of nexus files during a scan
@@ -405,7 +408,51 @@ public class ScanToNexusTest {
 		
 	}
 	
-	
+	@Test
+	public void testNXTomoEntryLinkCreator() throws Exception {
+		String testScratchDirectoryName = TestHelpers.setUpTest(ScanToNexusTest.class, "testNXTomoEntryLinkCreator", true);
+		
+		String testFilesLocation = TestUtils.getGDALargeTestFilesLocation();
+		if( testFilesLocation == null){
+			Assert.fail("TestUtils.getGDALargeTestFilesLocation() returned null - test aborted");
+		}
+		
+		NXTomoEntryLinkCreator nxLinkCreator = new NXTomoEntryLinkCreator();
+		nxLinkCreator.setInstrument_detector_distance_target("entry1/scan_identifier");
+		nxLinkCreator.setInstrument_detector_x_pixel_size_target("entry1/scan_identifier");
+		nxLinkCreator.setInstrument_detector_y_pixel_size_target("entry1/scan_identifier");
+		nxLinkCreator.afterPropertiesSet();
+		
+		String targetFilename = testScratchDirectoryName + File.separator + "tomoScan.nxs";
+		FileUtils.copy( new File(testFilesLocation + File.separator + "tomoScan.nxs"), new File(targetFilename));
+
+		String fileAbsolutePath = new File(targetFilename).getAbsolutePath();
+		nxLinkCreator.makelinks(fileAbsolutePath);
+		nxLinkCreator.writeStringData(fileAbsolutePath, "definition", "NXtomo");
+		
+		
+		// test 1: rotation angle data
+		Hdf5HelperData helperData = Hdf5Helper.getInstance().readDataSetAll(fileAbsolutePath, "/entry1/tomo_entry/sample", "rotation_angle", true);
+		double[] data = (double[]) helperData.data;
+		
+		Hdf5HelperData helperData_ref = Hdf5Helper.getInstance().readDataSetAll(fileAbsolutePath, "/entry1/tomo_entry_ref/sample", "rotation_angle", true);
+		double[] data_ref = (double[]) helperData_ref.data;
+		
+		// test equality of entries for a given index
+		int zidx = 7;
+		Assert.assertEquals(data[zidx], data_ref[zidx], 1e-16);
+		
+		// test 2: detector data 
+		helperData = Hdf5Helper.getInstance().readDataSetAll(fileAbsolutePath, "/entry1/tomo_entry/instrument/detector", "data", false);
+		helperData_ref = Hdf5Helper.getInstance().readDataSetAll(fileAbsolutePath, "/entry1/tomo_entry_ref/instrument/detector", "data", false);
+		
+		// test equality of dims of detector data
+		Assert.assertEquals(helperData.dims.length, helperData_ref.dims.length);
+		Assert.assertEquals(helperData.dims[0], helperData_ref.dims[0]);
+		Assert.assertEquals(helperData.dims[1], helperData_ref.dims[1]);
+		Assert.assertEquals(helperData.dims[2], helperData_ref.dims[2]);
+	}
+
 }
 
 
