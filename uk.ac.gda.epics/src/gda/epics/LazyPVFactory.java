@@ -389,8 +389,7 @@ public class LazyPVFactory {
 				java.util.concurrent.TimeoutException {
 			logger.debug("'{}' waiting for value '{}'", pvName, predicate.toString());
 			if (!isValueMonitoring()) {
-				throw new IllegalStateException("Cannot wait for a value on " + getPvName()
-						+ " as this LazyPv is not set to monitor values");
+				this.setValueMonitoring(true);
 			}
 
 			initialiseLastMonitoredValue();
