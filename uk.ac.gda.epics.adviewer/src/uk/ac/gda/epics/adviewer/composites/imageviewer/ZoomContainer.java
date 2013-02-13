@@ -73,6 +73,10 @@ public class ZoomContainer extends Figure {
 		repaint();
 	}
 
+	public float getZoom() {
+		return zoom;
+	}
+
 	/**
 	 * @see org.eclipse.draw2d.Figure#translateToParent(Translatable)
 	 */

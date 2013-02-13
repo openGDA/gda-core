@@ -24,7 +24,6 @@ import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.FigureCanvas;
 import org.eclipse.draw2d.IClippingStrategy;
 import org.eclipse.draw2d.IFigure;
-import org.eclipse.draw2d.IImageFigure.ImageChangedListener;
 import org.eclipse.draw2d.ImageFigure;
 import org.eclipse.draw2d.LightweightSystem;
 import org.eclipse.draw2d.MouseListener;
@@ -68,6 +67,25 @@ import org.eclipse.swt.widgets.Text;
  */
 public class ImageViewer {
 
+	private final class LocalViewPort extends Viewport {
+		@Override
+		protected void readjustScrollBars() {
+			// expand left and right (or top and bottom)
+			// by half the extent size so that we can scroll the containing
+			// figure by half its width
+			// We don't base the overall width on the getContents().getBounds() as that
+			// may be the wrong size, force it to the width of the image itself
+
+			Rectangle imageBounds = getImageBounds();
+
+			int clientHeight = getClientArea().height;
+			getVerticalRangeModel().setAll(-clientHeight / 2, clientHeight, clientHeight / 2 + imageBounds.height);
+
+			int clientWidth = getClientArea().width;
+			getHorizontalRangeModel().setAll(-clientWidth / 2, clientWidth, clientWidth / 2 + imageBounds.width);
+
+		}
+	}
 
 	private static final float DEFAULT_ZOOM_LEVEL = 1.0f;
 	private static final float MAX_ZOOM_LEVEL = 5.0f;
@@ -98,7 +116,6 @@ public class ImageViewer {
 	private boolean keepZoomFit = false;
 	private float zoomLevel;
 	// private Cursor cursor;
-	private ImageFigure topImgFig;
 
 	private static Group listenersGroup;
 	private static Text eventConsole;
@@ -106,8 +123,6 @@ public class ImageViewer {
 	private static Label statusLabel;
 	private static Label imageLabel;
 
-	boolean updateQueued=false;
-	private Rectangle destinationRect = new Rectangle(0,0,100,100);
 	/**
 	 * Constructor for the image viewer
 	 * 
@@ -120,12 +135,7 @@ public class ImageViewer {
 		canvas = new FigureCanvas(parent, style);
 		canvas.setBackground(ColorConstants.white);
 
-		// make this mode-dependent
-		//cursor = new Cursor(parent.getDisplay(), SWT.CURSOR_CROSS);		
-		//canvas.setCursor(cursor);
-
 		GridData gridData = new GridData(GridData.FILL_HORIZONTAL | GridData.FILL_VERTICAL);
-//		gridData.widthHint = 700;
 		canvas.setLayoutData(gridData);
 
 		LightweightSystem lws = new LightweightSystem(canvas);
@@ -144,82 +154,37 @@ public class ImageViewer {
 		});
 
 		imgFig = new ImageFigure();
-		imgFig.addImageChangedListener(new ImageChangedListener() {
-			
-			@Override
-			public void imageChanged() {
-				if( updateQueued)
-					return;
-				updateQueued = true;
-				Display.getCurrent().asyncExec(new Runnable(){
 
-					@Override
-					public void run() {
-						updateQueued = false;
-						zoomContainer.setZoom(zoomLevel);
-						imgFig.revalidate();
-						imgFig.repaint();
-						
-					}});
-				
-			}
-		} );
-		topImgFig = new ImageFigure();
-		
-
-/*topImgFig.setSize(2000, 2000);
-
-topImgFig.setBackgroundColor(ColorConstants.black);
-topImgFig.setForegroundColor(ColorConstants.black);
-topImgFig.setOpaque(true);
-topImgFig.setFill(true);
-topImgFig.setBounds(new Rectangle(5, 5, 2000, 1500));
-*///topImgFig.setBackgroundColor())
-//topImgFig.setAlpha(100);
-		
 		topFig = new Figure();
 		topFig.setLayoutManager(new XYLayout());
-		topImgFig.setLayoutManager(new XYLayout());
-		topFig.add(topImgFig, new Rectangle(0, 0, -1, -1));
-		topImgFig.add(imgFig, new Rectangle(0,0,-1,-1));
+		topFig.add(imgFig, new Rectangle(0, 0, -1, -1));
 
+		// panning support
+		scrollPane = new ScrollPane();
+		scrollPane.setViewport(new LocalViewPort());
+		scrollPane.setContents(topFig);
+		scrollPane.setScrollBarVisibility(ScrollPane.NEVER);
+		scrollPane.getViewport().setContentsTracksWidth(true);
+		scrollPane.getViewport().setContentsTracksHeight(true);
 
 		// zoom support
 		zoomLevel = DEFAULT_ZOOM_LEVEL;
 		zoomContainer = new ZoomContainer();
-		zoomContainer.add(topFig);
+		zoomContainer.add(scrollPane);
 		zoomContainer.setZoom(zoomLevel);
 
-		// panning support
-		scrollPane = new ScrollPane();
-		scrollPane.setViewport(new Viewport());
-		scrollPane.setContents(zoomContainer);
-		scrollPane.setScrollBarVisibility(ScrollPane.ALWAYS);
-//		scrollPane.getViewport().setContentsTracksWidth(true);
-//		scrollPane.getViewport().setContentsTracksHeight(true);
-		scrollPane.setClippingStrategy(new IClippingStrategy() {
+		fig.add(zoomContainer);
+		layout.setConstraint(zoomContainer, BorderLayout.CENTER);
+		zoomContainer.setClippingStrategy(new IClippingStrategy() {
 			
 			@Override
 			public Rectangle[] getClip(IFigure childFigure) {
-				// TODO Auto-generated method stub
-				return new Rectangle[]{ scrollPane.getClientArea()};
+				return new Rectangle[]{ zoomContainer.getClientArea()};
 			}
 		});
-		
-		fig.add(scrollPane);
-		layout.setConstraint(scrollPane, BorderLayout.CENTER);
-
 		initialize();
 	}
-	public void setImageForTopImage(Image image){
-		topImgFig.setImage(image);
-		refreshView();
-		
-	}
-	
-	public void setCameraImagePosition(org.eclipse.draw2d.geometry.Rectangle rect){
-		destinationRect = rect;
-	}
+
 	/**
 	 * Initialize listeners and position tools
 	 */
@@ -245,7 +210,7 @@ topImgFig.setBounds(new Rectangle(5, 5, 2000, 1500));
 				if (!keepZoomFit && me.button == 2) {
 					panInProgress = true;
 					panStartMousePoint = me.getLocation();
-					panStartViewPoint = getViewLocation();//.getScaled(zoomLevel);
+					panStartViewPoint = getViewLocation().getScaled(zoomLevel);
 				}
 				if (image != null) {
 					Rectangle imageBounds = getImageBounds();
@@ -279,7 +244,8 @@ topImgFig.setBounds(new Rectangle(5, 5, 2000, 1500));
 					if (panInProgress) {
 						Point currentPoint = me.getLocation();
 						Dimension difference = currentPoint.getDifference(panStartMousePoint);
-						Point newPoint = panStartViewPoint.getTranslated(difference.getNegated());//.getScaled(	1 / zoomLevel);
+						Point newPoint = panStartViewPoint.getTranslated(difference.getNegated()).getScaled(
+								1 / zoomLevel);
 						scrollPane.scrollTo(newPoint);
 					}
 					Rectangle imageBounds = getImageBounds();
@@ -305,7 +271,7 @@ topImgFig.setBounds(new Rectangle(5, 5, 2000, 1500));
 	 * @return Point image bounds
 	 */
 	public Rectangle getImageBounds() {
-		return topImgFig.getBounds();
+		return imgFig.getBounds();
 	}
 
 	/**
@@ -363,17 +329,9 @@ topImgFig.setBounds(new Rectangle(5, 5, 2000, 1500));
 	public void loadImage(final ImageData imageDataIn) {
 
 		if (!canvas.isDisposed()) {
-			 Image image2 = new Image(canvas.getDisplay(), imageDataIn);
-			 final Image newImage = new Image(canvas.getDisplay(),destinationRect.width, destinationRect.height);
-
-			GC gc = new GC(newImage);
-			
-			org.eclipse.swt.graphics.Rectangle bounds2 = image2.getBounds();
-			
-			gc.drawImage(image2, 0,0,bounds2.width, bounds2.height, 0, 0, newImage.getBounds().width, newImage.getBounds().height);
-			gc.dispose();
 
 			if (!canvas.isDisposed()) {
+				final Image newImage = new Image(canvas.getDisplay(), imageDataIn);
 				canvas.getDisplay().syncExec(new Runnable() {
 					@Override
 					public void run() {
@@ -421,7 +379,7 @@ topImgFig.setBounds(new Rectangle(5, 5, 2000, 1500));
 			// in a delayed way after zoom is set, therefore tell the update
 			// manager to perform those calculations immediately so we can
 			// proceed
-//			zoomContainer.getUpdateManager().performValidation();
+			zoomContainer.getUpdateManager().performValidation();
 			Rectangle bounds = getImageBounds();
 			int horizontalExtent = viewport.getHorizontalRangeModel().getExtent();
 			int horizontalValue = -((horizontalExtent - bounds.width) / 2);
@@ -450,7 +408,7 @@ topImgFig.setBounds(new Rectangle(5, 5, 2000, 1500));
 	 */
 	public void zoomFit() {
 		centerScrollBars();
-		Rectangle clientArea = zoomContainer.getClientArea();
+		Rectangle clientArea = fig.getClientArea();
 		Rectangle imageArea = getImageBounds();
 		float heightZoomLevel = ((float) clientArea.height) / imageArea.height;
 		float widthZoomLevel = ((float) clientArea.width) / imageArea.width;
@@ -511,29 +469,25 @@ topImgFig.setBounds(new Rectangle(5, 5, 2000, 1500));
 	}
 
 	private void setZoomLevel(float newZoomLevel) {
-/*		Viewport viewport = scrollPane.getViewport();
+		Viewport viewport = scrollPane.getViewport();
 		RangeModel horizontalRangeModel = viewport.getHorizontalRangeModel();
 		RangeModel verticalRangeModel = viewport.getVerticalRangeModel();
 		double horizontalScrollFactor = calcScrollFactor(horizontalRangeModel);
 		double verticalScrollFactor = calcScrollFactor(verticalRangeModel);
-*/
-		double horizontalScrollFactor = 1.0;
-		double verticalScrollFactor = 1.0;
-		
-		
+
 		newZoomLevel = Math.max(MIN_ZOOM_LEVEL, newZoomLevel);
 		newZoomLevel = Math.min(MAX_ZOOM_LEVEL, newZoomLevel);
 		zoomLevel = newZoomLevel;
-//		zoomContainer.setZoom(zoomLevel);
+		zoomContainer.setZoom(zoomLevel);
 
 		// this recalculates the range models values
-//		zoomContainer.getUpdateManager().performValidation();
+		zoomContainer.getUpdateManager().performValidation();
 
-/*		int newHorizontalValue = calcPositionFromScrollFactor(horizontalRangeModel, horizontalScrollFactor);
+		int newHorizontalValue = calcPositionFromScrollFactor(horizontalRangeModel, horizontalScrollFactor);
 		int newVerticalValue = calcPositionFromScrollFactor(verticalRangeModel, verticalScrollFactor);
 		viewport.setHorizontalLocation(newHorizontalValue);
 		viewport.setVerticalLocation(newVerticalValue);
-*/	}
+	}
 
 	static boolean layoutReset = false;
 	static int size = 10;

@@ -47,7 +47,6 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 	private String detectorName;
 	private ADBase adBase;
 
-
 	private FfmpegStream ffmpegStream;
 
 	private int ffmpegImageOutWidthMax;
@@ -58,9 +57,9 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 
 	private int cameraImageHeightMax;
 
-	private int ffmpegImageInOffsetX=0;
+	private int ffmpegImageInOffsetX = 0;
 
-	private int ffmpegImageInOffsetY=0;
+	private int ffmpegImageInOffsetY = 0;
 
 	@Override
 	public NDStats getImageNDStats() {
@@ -144,7 +143,7 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 			throw new Exception("Dimensions of data from " + detectorName + " are zero length");
 		}
 		Object imageData;
-		
+
 		short dataType = imageNDArray.getPluginBase().getDataType_RBV();
 		switch (dataType) {
 		case NDPluginBase.UInt8: {
@@ -212,10 +211,8 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 			break;
 		default:
 			throw new DeviceException("Type of data is not understood :" + dataType);
-		}		
-		
-		
-		
+		}
+
 		ImageData data = new ImageData();
 		data.dimensions = dims;
 		data.data = imageData;
@@ -241,20 +238,20 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if( adBase == null) throw new Exception("adBase is null");
+		if (adBase == null)
+			throw new Exception("adBase is null");
 		if (ffmpegImageOutHeightMax < 1)
 			throw new IllegalArgumentException("ffmpegImageOutHeightMax < 1");
 		if (ffmpegImageOutWidthMax < 1)
-			throw new IllegalArgumentException("ffmpegImageOutWidthMax < 1");		
-		
+			throw new IllegalArgumentException("ffmpegImageOutWidthMax < 1");
+
 	}
 
 	@Override
 	public void setLiveViewRange(final double range_min, final double range_max) throws Exception {
-		//set a monitor on the imageStats array counter, switch on imageStats and histogram if off
-		//in monitor remove future updates, return to previous state 
-		
-		
+		// set a monitor on the imageStats array counter, switch on imageStats and histogram if off
+		// in monitor remove future updates, return to previous state
+
 		final int histSize = getImageHistSize();
 		int histMin = getImageMin();
 		int histMax = getImageMax();
@@ -268,26 +265,27 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 			range[i] = range[i - 1] + step;
 		}
 		final DoubleDataset xData = new DoubleDataset(range);
-		
+
 		final boolean wasEnabled = getImageNDStats().getPluginBase().isCallbacksEnabled_RBV();
 		final short histogramWasComputed = getImageNDStats().getComputeHistogram_RBV();
-		
+
 		final int counterBefore = getImageNDStats().getPluginBase().getArrayCounter_RBV();
 		final Observable<Integer> obsvble = getImageNDStats().getPluginBase().createArrayCounterObservable();
 		obsvble.addObserver(new Observer<Integer>() {
-			
-			boolean done=false;
+
+			boolean done = false;
+
 			@Override
 			public void update(Observable<Integer> source, Integer arg) {
-				if( arg == counterBefore || done)
+				if (arg == counterBefore || done)
 					return;
 				done = true;
 				obsvble.deleteIObserver(this);
-				try{
-					if( histogramWasComputed != 0){
+				try {
+					if (histogramWasComputed != 0) {
 						getImageNDStats().setComputeHistogram(histogramWasComputed);
 					}
-					if( !wasEnabled){
+					if (!wasEnabled) {
 						getImageNDStats().getPluginBase().disableCallbacks();
 					}
 
@@ -312,34 +310,34 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 					getLiveViewNDProc().setScale(scale);
 					getLiveViewNDProc().setOffset(offset);
 					getLiveViewNDProc().setEnableOffsetScale(1);
-				} catch (Exception e){
-					logger.error("Error autoscaling the live view",e);
+				} catch (Exception e) {
+					logger.error("Error autoscaling the live view", e);
 				}
-				
+
 			}
+
 			private int getPosToIncludeFractionOfPopulation(DoubleDataset yData, Double fractionOfPopulationToInclude) {
 				Double sum = (Double) yData.sum();
 				double[] data = yData.getData();
 				int popIncluded = 0;
-				int j=0;
+				int j = 0;
 				double popRequired = sum * fractionOfPopulationToInclude;
 				while (popIncluded < popRequired && j < data.length) {
 					popIncluded += data[j];
-					if( popIncluded < popRequired)
+					if (popIncluded < popRequired)
 						j++;
 				}
-				return Math.min(j, data.length-1);
+				return Math.min(j, data.length - 1);
 			}
 		});
-		
-		if( histogramWasComputed != 0){
+
+		if (histogramWasComputed != 0) {
 			getImageNDStats().setComputeHistogram(1);
 		}
-		if( !wasEnabled){
+		if (!wasEnabled) {
 			getImageNDStats().getPluginBase().enableCallbacks();
 		}
 
-		
 	}
 
 	@Override
@@ -351,7 +349,6 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 		this.ffmpegStream = ffmpegStream;
 	}
 
-
 	@Override
 	public int getFfmpegImageOutWidthMax() {
 		return ffmpegImageOutWidthMax;
@@ -362,7 +359,6 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 		return ffmpegImageOutHeightMax;
 	}
 
-	
 	public void setFfmpegImageOutWidthMax(int ffmpegImageOutWidthMax) {
 		this.ffmpegImageOutWidthMax = ffmpegImageOutWidthMax;
 	}
@@ -423,7 +419,7 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 		if (ndArrayPort_RBV2 == null || !ndArrayPort_RBV2.equals(procNdArrayPort_RBV))
 			arrayBase.setNDArrayPort(procNdArrayPort_RBV);
 		if (!arrayBase.isCallbacksEnabled_RBV())
-			arrayBase.enableCallbacks();		
+			arrayBase.enableCallbacks();
 	}
 
 	@Override
@@ -432,7 +428,7 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 		NDPluginBase procBase = ndProcess.getPluginBase();
 		if (procBase.isCallbacksEnabled_RBV())
 			procBase.disableCallbacks();
-		
+
 		FfmpegStream ffmpegStream = getFfmpegStream();
 		NDPluginBase ffmpegBase = ffmpegStream.getPluginBase();
 		if (ffmpegBase.isCallbacksEnabled_RBV())
@@ -448,23 +444,22 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 	public ImageDescriptor getLiveViewImageDescriptor() {
 		return Activator.getImageDescriptor("icons/AreaDetectorLiveView.gif");
 	}
-	
+
 	@Override
 	public ImageDescriptor getHistogramViewImageDescriptor() {
 		return Activator.getImageDescriptor("icons/AreaDetectorProfileView.gif");
 	}
-	
-	
+
 	@Override
 	public int getFfmpegImageInHeight() throws Exception {
 		int[] dimensions = getDataDimensions(getFfmpegStream().getPluginBase());
-		return dimensions[1];
+		return dimensions[0];
 	}
 
 	@Override
 	public int getFfmpegImageInWidth() throws Exception {
 		int[] dimensions = getDataDimensions(getFfmpegStream().getPluginBase());
-		return dimensions[0];
+		return dimensions[1];
 	}
 
 	@Override
@@ -484,5 +479,5 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 	public void setFfmpegImageInOffsetY(int ffmpegImageInOffsetY) {
 		this.ffmpegImageInOffsetY = ffmpegImageInOffsetY;
 	}
-	
+
 }

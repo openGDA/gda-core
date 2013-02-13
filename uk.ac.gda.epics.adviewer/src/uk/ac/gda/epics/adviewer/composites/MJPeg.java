@@ -39,8 +39,6 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -169,19 +167,10 @@ public class MJPeg extends Composite {
 				timeOfLastImage = ctime;
 			}
 		});
-
 		cameraComposite.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(cameraComposite);
 
-		// RaisedBorder border = new RaisedBorder(50,100,50,100);
-		// cameraComposite.getViewer().setImageBorder(border);
-
 		/*
-		 * SWT2DOverlayProvider fig = new SWT2DOverlayProvider(getTopFigure()); OverlayType type = OverlayType.IMAGE;
-		 * fig.begin(type ); int primitive = fig.registerPrimitive(PrimitiveType.BOX); fig.drawBox(primitive, 0, 0, 100,
-		 * 100); fig.end(type); addImagePositionListener(new ImagePositionListener() {
-		 * @Override public void imageStart(IImagePositionEvent event) { event.toString(); }
-		 * @Override public void imageFinished(IImagePositionEvent event) { }
 		 * @Override public void imageDragged(IImagePositionEvent event) { } }, fig);
 		 */
 		addDisposeListener(new DisposeListener() {
@@ -221,19 +210,7 @@ public class MJPeg extends Composite {
 
 	public void setADController(ADController config) {
 		this.config = config;
-
-		Display display = Display.getCurrent();
-		Image image = new Image(display, config.getCameraImageWidthMax(), config.getCameraImageHeightMax());
-		GC gc = new GC(image);
-		gc.setBackground(display.getSystemColor(SWT.COLOR_GRAY));
-		gc.fillRectangle(0, 0, config.getCameraImageWidthMax(), config.getCameraImageHeightMax());
-		gc.dispose();
-		cameraComposite.getViewer().setImageForTopImage(image);
-
 		try {
-			cameraComposite.getViewer().setCameraImagePosition(
-					new Rectangle(config.getFfmpegImageInOffsetX(), config.getFfmpegImageInOffsetY(), config
-							.getFfmpegImageInWidth(), config.getFfmpegImageInHeight()));
 			Observable<Boolean> connectionStateObservable = config.getFfmpegStream().getPluginBase()
 					.createConnectionStateObservable();
 			statusComposite.setObservable(connectionStateObservable);
