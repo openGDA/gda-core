@@ -118,8 +118,8 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin {
 		}
 		this.scanInfo = scanInfo;
 		statsPVs.getPluginBasePVs().getEnableCallbacksPVPair().putCallback(!getEnabledStats().isEmpty());
-		statsPVs.getComputeStatistsicsPV().putCallback(!getEnabledBasicStats().isEmpty());
-		statsPVs.getComputeCentroidPV().putCallback(!getEnabledCentroidStats().isEmpty());
+		statsPVs.getComputeStatistsicsPVPair().putCallback(!getEnabledBasicStats().isEmpty());
+		statsPVs.getComputeCentroidPVPair().putCallback(!getEnabledCentroidStats().isEmpty());
 	}
 
 	@Override

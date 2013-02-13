@@ -98,8 +98,8 @@ public class ADTimeSeriesStatsPluginTest {
 	private ADTimeSeriesStatsPlugin plugin;
 	@Before
 	public void setUp() {
-		when(pvs.getComputeStatistsicsPV()).thenReturn(computeStatisticsPV);
-		when(pvs.getComputeCentroidPV()).thenReturn(computeCentroidPV);
+		when(pvs.getComputeStatistsicsPVPair()).thenReturn(computeStatisticsPV);
+		when(pvs.getComputeCentroidPVPair()).thenReturn(computeCentroidPV);
 		when(pvs.getTSArrayPV(BasicStat.MaxValue)).thenReturn(maxArrayPV);
 		when(pvs.getTSArrayPV(CentroidStat.CentroidX)).thenReturn(cenxArrayPV);
 		when(pvs.getTSControlPV()).thenReturn(tsControlPV);
