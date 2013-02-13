@@ -59,4 +59,12 @@ public interface NDPluginBasePVs {
 	 */
 	PV<Boolean> getArrayCounterPVPair();
 
+	/**
+	 * Asyn port name for NDArray driver that will make callbacks to this plugin. This port can be changed at run time,
+	 * connecting the plugin to a different NDArray driver.
+	 * 
+	 * @return NDArrayPort / NDArrayPort_RBV pair.
+	 */
+	PV<String> getNDArrayPortPVPair();
+
 }

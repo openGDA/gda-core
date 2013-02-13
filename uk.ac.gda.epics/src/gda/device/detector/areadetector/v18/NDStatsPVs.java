@@ -22,6 +22,10 @@ import gda.device.detector.areadetector.v17.NDPluginBasePVs;
 import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
 
+
+/**
+ * From http://cars9.uchicago.edu/software/epics/NDPluginStats.html.
+ */
 public interface NDStatsPVs {
 
 	/**
@@ -70,13 +74,23 @@ public interface NDStatsPVs {
 
 	/**
 	 * Enable or disable the *basic* statistics.
+	 * <p>
+	 * Not computing statistics reduces CPU load. Basic statistics computations are quite fast, since they involve
+	 * mostly double precision addition, with 1 multiply to compute sigma, per array element.
 	 */
-	public PV<Boolean> getComputeStatistsicsPV();
+	public PV<Boolean> getComputeStatistsicsPVPair();
 
-	public PV<Boolean> getComputeCentroidPV();
-	
+	/**
+	 * Enable or disable the centroid statistics.
+	 * <p>
+	 * The centroids are computed from the average row and column profiles above the centroid threshold. These
+	 * calculations are also quite fast, since they just involve addition operations for each array element.
+	 * 
+	 */
+	public PV<Boolean> getComputeCentroidPVPair();
+
 	public NDPluginBasePVs getPluginBasePVs();
-	
+
 	public PV<TSControlCommands> getTSControlPV();
 
 	public PV<Integer> getTSNumPointsPV();
