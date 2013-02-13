@@ -8,6 +8,7 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUIAITION_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.DETECTOR_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE;
@@ -19,44 +20,110 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
 
 /**
- * <!-- begin-user-doc -->
- * An implementation of the model object '<em><b>Region</b></em>'.
- * <!-- end-user-doc -->
+ * <!-- begin-user-doc --> An implementation of the model object '
+ * <em><b>Region</b></em>'. <!-- end-user-doc -->
  * <p>
  * The following features are implemented:
  * <ul>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getStatus <em>Status</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#isEnabled <em>Enabled</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getName <em>Name</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getLensMode <em>Lens Mode</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getPassEnergy <em>Pass Energy</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getRunMode <em>Run Mode</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getExcitationEnergy <em>Excitation Energy</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getAcquisitionMode <em>Acquisition Mode</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getEnergyMode <em>Energy Mode</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getFixEnergy <em>Fix Energy</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getLowEnergy <em>Low Energy</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getHighEnergy <em>High Energy</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getEnergyStep <em>Energy Step</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getSetpTime <em>Setp Time</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getFirstXChannel <em>First XChannel</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getLastXChannel <em>Last XChannel</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getFirstYChannel <em>First YChannel</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getLastYChannel <em>Last YChannel</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getSlices <em>Slices</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getDetectorMode <em>Detector Mode</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getADCMask <em>ADC Mask</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getDiscriminatorLevel <em>Discriminator Level</em>}</li>
+ * <li>
+ * {@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getRegionId
+ * <em>Region Id</em>}</li>
+ * <li>
+ * {@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getStatus
+ * <em>Status</em>}</li>
+ * <li>
+ * {@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#isEnabled
+ * <em>Enabled</em>}</li>
+ * <li>
+ * {@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getName
+ * <em>Name</em>}</li>
+ * <li>
+ * {@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getLensMode
+ * <em>Lens Mode</em>}</li>
+ * <li>
+ * {@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getPassEnergy
+ * <em>Pass Energy</em>}</li>
+ * <li>
+ * {@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getRunMode
+ * <em>Run Mode</em>}</li>
+ * <li>
+ * {@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getExcitationEnergy
+ * <em>Excitation Energy</em>}</li>
+ * <li>
+ * {@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getAcquisitionMode
+ * <em>Acquisition Mode</em>}</li>
+ * <li>
+ * {@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getEnergyMode
+ * <em>Energy Mode</em>}</li>
+ * <li>
+ * {@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getFixEnergy
+ * <em>Fix Energy</em>}</li>
+ * <li>
+ * {@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getLowEnergy
+ * <em>Low Energy</em>}</li>
+ * <li>
+ * {@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getHighEnergy
+ * <em>High Energy</em>}</li>
+ * <li>
+ * {@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getEnergyStep
+ * <em>Energy Step</em>}</li>
+ * <li>
+ * {@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getSetpTime
+ * <em>Setp Time</em>}</li>
+ * <li>
+ * {@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getFirstXChannel
+ * <em>First XChannel</em>}</li>
+ * <li>
+ * {@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getLastXChannel
+ * <em>Last XChannel</em>}</li>
+ * <li>
+ * {@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getFirstYChannel
+ * <em>First YChannel</em>}</li>
+ * <li>
+ * {@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getLastYChannel
+ * <em>Last YChannel</em>}</li>
+ * <li>
+ * {@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getSlices
+ * <em>Slices</em>}</li>
+ * <li>
+ * {@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getDetectorMode
+ * <em>Detector Mode</em>}</li>
+ * <li>
+ * {@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getADCMask
+ * <em>ADC Mask</em>}</li>
+ * <li>
+ * {@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getDiscriminatorLevel
+ * <em>Discriminator Level</em>}</li>
  * </ul>
  * </p>
- *
+ * 
  * @generated
  */
 public class RegionImpl extends EObjectImpl implements Region {
 	/**
-	 * The default value of the '{@link #getStatus() <em>Status</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The default value of the '{@link #getRegionId() <em>Region Id</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
+	 * @see #getRegionId()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String REGION_ID_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getRegionId() <em>Region Id</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
+	 * @see #getRegionId()
+	 * @generated
+	 * @ordered
+	 */
+	protected String regionId = REGION_ID_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getStatus() <em>Status</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getStatus()
 	 * @generated
 	 * @ordered
@@ -65,8 +132,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 
 	/**
 	 * The cached value of the '{@link #getStatus() <em>Status</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getStatus()
 	 * @generated
 	 * @ordered
@@ -74,9 +141,9 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected STATUS status = STATUS_EDEFAULT;
 
 	/**
-	 * The default value of the '{@link #isEnabled() <em>Enabled</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The default value of the '{@link #isEnabled() <em>Enabled</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #isEnabled()
 	 * @generated
 	 * @ordered
@@ -84,9 +151,9 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected static final boolean ENABLED_EDEFAULT = true;
 
 	/**
-	 * The cached value of the '{@link #isEnabled() <em>Enabled</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The cached value of the '{@link #isEnabled() <em>Enabled</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #isEnabled()
 	 * @generated
 	 * @ordered
@@ -94,9 +161,9 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected boolean enabled = ENABLED_EDEFAULT;
 
 	/**
-	 * This is true if the Enabled attribute has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * This is true if the Enabled attribute has been set. <!-- begin-user-doc
+	 * --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 * @ordered
 	 */
@@ -104,8 +171,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 
 	/**
 	 * The default value of the '{@link #getName() <em>Name</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getName()
 	 * @generated
 	 * @ordered
@@ -114,8 +181,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 
 	/**
 	 * The cached value of the '{@link #getName() <em>Name</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getName()
 	 * @generated
 	 * @ordered
@@ -123,18 +190,18 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected String name = NAME_EDEFAULT;
 
 	/**
-	 * This is true if the Name attribute has been set.
-	 * <!-- begin-user-doc -->
+	 * This is true if the Name attribute has been set. <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 * @ordered
 	 */
 	protected boolean nameESet;
 
 	/**
-	 * The default value of the '{@link #getLensMode() <em>Lens Mode</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The default value of the '{@link #getLensMode() <em>Lens Mode</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getLensMode()
 	 * @generated
 	 * @ordered
@@ -142,9 +209,9 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected static final LENS_MODE LENS_MODE_EDEFAULT = LENS_MODE.TRANSMISSION;
 
 	/**
-	 * The cached value of the '{@link #getLensMode() <em>Lens Mode</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The cached value of the '{@link #getLensMode() <em>Lens Mode</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getLensMode()
 	 * @generated
 	 * @ordered
@@ -152,18 +219,18 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected LENS_MODE lensMode = LENS_MODE_EDEFAULT;
 
 	/**
-	 * This is true if the Lens Mode attribute has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * This is true if the Lens Mode attribute has been set. <!-- begin-user-doc
+	 * --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 * @ordered
 	 */
 	protected boolean lensModeESet;
 
 	/**
-	 * The default value of the '{@link #getPassEnergy() <em>Pass Energy</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The default value of the '{@link #getPassEnergy() <em>Pass Energy</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getPassEnergy()
 	 * @generated
 	 * @ordered
@@ -171,9 +238,9 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected static final PASS_ENERGY PASS_ENERGY_EDEFAULT = PASS_ENERGY._10;
 
 	/**
-	 * The cached value of the '{@link #getPassEnergy() <em>Pass Energy</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The cached value of the '{@link #getPassEnergy() <em>Pass Energy</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getPassEnergy()
 	 * @generated
 	 * @ordered
@@ -181,18 +248,18 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected PASS_ENERGY passEnergy = PASS_ENERGY_EDEFAULT;
 
 	/**
-	 * This is true if the Pass Energy attribute has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * This is true if the Pass Energy attribute has been set. <!--
+	 * begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 * @ordered
 	 */
 	protected boolean passEnergyESet;
 
 	/**
-	 * The cached value of the '{@link #getRunMode() <em>Run Mode</em>}' containment reference.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The cached value of the '{@link #getRunMode() <em>Run Mode</em>}'
+	 * containment reference. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getRunMode()
 	 * @generated
 	 * @ordered
@@ -200,18 +267,19 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected RunMode runMode;
 
 	/**
-	 * This is true if the Run Mode containment reference has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * This is true if the Run Mode containment reference has been set. <!--
+	 * begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 * @ordered
 	 */
 	protected boolean runModeESet;
 
 	/**
-	 * The default value of the '{@link #getExcitationEnergy() <em>Excitation Energy</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The default value of the '{@link #getExcitationEnergy()
+	 * <em>Excitation Energy</em>}' attribute. <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
+	 * 
 	 * @see #getExcitationEnergy()
 	 * @generated
 	 * @ordered
@@ -219,9 +287,10 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected static final double EXCITATION_ENERGY_EDEFAULT = 0.0;
 
 	/**
-	 * The cached value of the '{@link #getExcitationEnergy() <em>Excitation Energy</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The cached value of the '{@link #getExcitationEnergy()
+	 * <em>Excitation Energy</em>}' attribute. <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
+	 * 
 	 * @see #getExcitationEnergy()
 	 * @generated
 	 * @ordered
@@ -229,18 +298,19 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected double excitationEnergy = EXCITATION_ENERGY_EDEFAULT;
 
 	/**
-	 * This is true if the Excitation Energy attribute has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * This is true if the Excitation Energy attribute has been set. <!--
+	 * begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 * @ordered
 	 */
 	protected boolean excitationEnergyESet;
 
 	/**
-	 * The default value of the '{@link #getAcquisitionMode() <em>Acquisition Mode</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The default value of the '{@link #getAcquisitionMode()
+	 * <em>Acquisition Mode</em>}' attribute. <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
+	 * 
 	 * @see #getAcquisitionMode()
 	 * @generated
 	 * @ordered
@@ -248,9 +318,10 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected static final ACQUIAITION_MODE ACQUISITION_MODE_EDEFAULT = ACQUIAITION_MODE.SWEPT;
 
 	/**
-	 * The cached value of the '{@link #getAcquisitionMode() <em>Acquisition Mode</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The cached value of the '{@link #getAcquisitionMode()
+	 * <em>Acquisition Mode</em>}' attribute. <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
+	 * 
 	 * @see #getAcquisitionMode()
 	 * @generated
 	 * @ordered
@@ -258,18 +329,18 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected ACQUIAITION_MODE acquisitionMode = ACQUISITION_MODE_EDEFAULT;
 
 	/**
-	 * This is true if the Acquisition Mode attribute has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * This is true if the Acquisition Mode attribute has been set. <!--
+	 * begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 * @ordered
 	 */
 	protected boolean acquisitionModeESet;
 
 	/**
-	 * The default value of the '{@link #getEnergyMode() <em>Energy Mode</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The default value of the '{@link #getEnergyMode() <em>Energy Mode</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getEnergyMode()
 	 * @generated
 	 * @ordered
@@ -277,9 +348,9 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected static final ENERGY_MODE ENERGY_MODE_EDEFAULT = ENERGY_MODE.KINETIC;
 
 	/**
-	 * The cached value of the '{@link #getEnergyMode() <em>Energy Mode</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The cached value of the '{@link #getEnergyMode() <em>Energy Mode</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getEnergyMode()
 	 * @generated
 	 * @ordered
@@ -287,18 +358,18 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected ENERGY_MODE energyMode = ENERGY_MODE_EDEFAULT;
 
 	/**
-	 * This is true if the Energy Mode attribute has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * This is true if the Energy Mode attribute has been set. <!--
+	 * begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 * @ordered
 	 */
 	protected boolean energyModeESet;
 
 	/**
-	 * The default value of the '{@link #getFixEnergy() <em>Fix Energy</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The default value of the '{@link #getFixEnergy() <em>Fix Energy</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getFixEnergy()
 	 * @generated
 	 * @ordered
@@ -306,9 +377,9 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected static final double FIX_ENERGY_EDEFAULT = 0.0;
 
 	/**
-	 * The cached value of the '{@link #getFixEnergy() <em>Fix Energy</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The cached value of the '{@link #getFixEnergy() <em>Fix Energy</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getFixEnergy()
 	 * @generated
 	 * @ordered
@@ -316,18 +387,18 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected double fixEnergy = FIX_ENERGY_EDEFAULT;
 
 	/**
-	 * This is true if the Fix Energy attribute has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * This is true if the Fix Energy attribute has been set. <!--
+	 * begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 * @ordered
 	 */
 	protected boolean fixEnergyESet;
 
 	/**
-	 * The default value of the '{@link #getLowEnergy() <em>Low Energy</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The default value of the '{@link #getLowEnergy() <em>Low Energy</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getLowEnergy()
 	 * @generated
 	 * @ordered
@@ -335,9 +406,9 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected static final double LOW_ENERGY_EDEFAULT = 0.0;
 
 	/**
-	 * The cached value of the '{@link #getLowEnergy() <em>Low Energy</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The cached value of the '{@link #getLowEnergy() <em>Low Energy</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getLowEnergy()
 	 * @generated
 	 * @ordered
@@ -345,18 +416,18 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected double lowEnergy = LOW_ENERGY_EDEFAULT;
 
 	/**
-	 * This is true if the Low Energy attribute has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * This is true if the Low Energy attribute has been set. <!--
+	 * begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 * @ordered
 	 */
 	protected boolean lowEnergyESet;
 
 	/**
-	 * The default value of the '{@link #getHighEnergy() <em>High Energy</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The default value of the '{@link #getHighEnergy() <em>High Energy</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getHighEnergy()
 	 * @generated
 	 * @ordered
@@ -364,9 +435,9 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected static final double HIGH_ENERGY_EDEFAULT = 0.0;
 
 	/**
-	 * The cached value of the '{@link #getHighEnergy() <em>High Energy</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The cached value of the '{@link #getHighEnergy() <em>High Energy</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getHighEnergy()
 	 * @generated
 	 * @ordered
@@ -374,18 +445,18 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected double highEnergy = HIGH_ENERGY_EDEFAULT;
 
 	/**
-	 * This is true if the High Energy attribute has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * This is true if the High Energy attribute has been set. <!--
+	 * begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 * @ordered
 	 */
 	protected boolean highEnergyESet;
 
 	/**
-	 * The default value of the '{@link #getEnergyStep() <em>Energy Step</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The default value of the '{@link #getEnergyStep() <em>Energy Step</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getEnergyStep()
 	 * @generated
 	 * @ordered
@@ -393,9 +464,9 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected static final double ENERGY_STEP_EDEFAULT = 0.0;
 
 	/**
-	 * The cached value of the '{@link #getEnergyStep() <em>Energy Step</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The cached value of the '{@link #getEnergyStep() <em>Energy Step</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getEnergyStep()
 	 * @generated
 	 * @ordered
@@ -403,18 +474,18 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected double energyStep = ENERGY_STEP_EDEFAULT;
 
 	/**
-	 * This is true if the Energy Step attribute has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * This is true if the Energy Step attribute has been set. <!--
+	 * begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 * @ordered
 	 */
 	protected boolean energyStepESet;
 
 	/**
-	 * The default value of the '{@link #getSetpTime() <em>Setp Time</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The default value of the '{@link #getSetpTime() <em>Setp Time</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getSetpTime()
 	 * @generated
 	 * @ordered
@@ -422,9 +493,9 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected static final double SETP_TIME_EDEFAULT = 0.0;
 
 	/**
-	 * The cached value of the '{@link #getSetpTime() <em>Setp Time</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The cached value of the '{@link #getSetpTime() <em>Setp Time</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getSetpTime()
 	 * @generated
 	 * @ordered
@@ -432,18 +503,19 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected double setpTime = SETP_TIME_EDEFAULT;
 
 	/**
-	 * This is true if the Setp Time attribute has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * This is true if the Setp Time attribute has been set. <!-- begin-user-doc
+	 * --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 * @ordered
 	 */
 	protected boolean setpTimeESet;
 
 	/**
-	 * The default value of the '{@link #getFirstXChannel() <em>First XChannel</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The default value of the '{@link #getFirstXChannel()
+	 * <em>First XChannel</em>}' attribute. <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
+	 * 
 	 * @see #getFirstXChannel()
 	 * @generated
 	 * @ordered
@@ -451,9 +523,10 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected static final int FIRST_XCHANNEL_EDEFAULT = 1;
 
 	/**
-	 * The cached value of the '{@link #getFirstXChannel() <em>First XChannel</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The cached value of the '{@link #getFirstXChannel()
+	 * <em>First XChannel</em>}' attribute. <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
+	 * 
 	 * @see #getFirstXChannel()
 	 * @generated
 	 * @ordered
@@ -461,18 +534,19 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected int firstXChannel = FIRST_XCHANNEL_EDEFAULT;
 
 	/**
-	 * This is true if the First XChannel attribute has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * This is true if the First XChannel attribute has been set. <!--
+	 * begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 * @ordered
 	 */
 	protected boolean firstXChannelESet;
 
 	/**
-	 * The default value of the '{@link #getLastXChannel() <em>Last XChannel</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The default value of the '{@link #getLastXChannel()
+	 * <em>Last XChannel</em>}' attribute. <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
+	 * 
 	 * @see #getLastXChannel()
 	 * @generated
 	 * @ordered
@@ -480,9 +554,10 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected static final int LAST_XCHANNEL_EDEFAULT = 1024;
 
 	/**
-	 * The cached value of the '{@link #getLastXChannel() <em>Last XChannel</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The cached value of the '{@link #getLastXChannel()
+	 * <em>Last XChannel</em>}' attribute. <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
+	 * 
 	 * @see #getLastXChannel()
 	 * @generated
 	 * @ordered
@@ -490,18 +565,19 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected int lastXChannel = LAST_XCHANNEL_EDEFAULT;
 
 	/**
-	 * This is true if the Last XChannel attribute has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * This is true if the Last XChannel attribute has been set. <!--
+	 * begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 * @ordered
 	 */
 	protected boolean lastXChannelESet;
 
 	/**
-	 * The default value of the '{@link #getFirstYChannel() <em>First YChannel</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The default value of the '{@link #getFirstYChannel()
+	 * <em>First YChannel</em>}' attribute. <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
+	 * 
 	 * @see #getFirstYChannel()
 	 * @generated
 	 * @ordered
@@ -509,9 +585,10 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected static final int FIRST_YCHANNEL_EDEFAULT = 1;
 
 	/**
-	 * The cached value of the '{@link #getFirstYChannel() <em>First YChannel</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The cached value of the '{@link #getFirstYChannel()
+	 * <em>First YChannel</em>}' attribute. <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
+	 * 
 	 * @see #getFirstYChannel()
 	 * @generated
 	 * @ordered
@@ -519,18 +596,19 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected int firstYChannel = FIRST_YCHANNEL_EDEFAULT;
 
 	/**
-	 * This is true if the First YChannel attribute has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * This is true if the First YChannel attribute has been set. <!--
+	 * begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 * @ordered
 	 */
 	protected boolean firstYChannelESet;
 
 	/**
-	 * The default value of the '{@link #getLastYChannel() <em>Last YChannel</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The default value of the '{@link #getLastYChannel()
+	 * <em>Last YChannel</em>}' attribute. <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
+	 * 
 	 * @see #getLastYChannel()
 	 * @generated
 	 * @ordered
@@ -538,9 +616,10 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected static final int LAST_YCHANNEL_EDEFAULT = 1024;
 
 	/**
-	 * The cached value of the '{@link #getLastYChannel() <em>Last YChannel</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The cached value of the '{@link #getLastYChannel()
+	 * <em>Last YChannel</em>}' attribute. <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
+	 * 
 	 * @see #getLastYChannel()
 	 * @generated
 	 * @ordered
@@ -548,18 +627,18 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected int lastYChannel = LAST_YCHANNEL_EDEFAULT;
 
 	/**
-	 * This is true if the Last YChannel attribute has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * This is true if the Last YChannel attribute has been set. <!--
+	 * begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 * @ordered
 	 */
 	protected boolean lastYChannelESet;
 
 	/**
-	 * The default value of the '{@link #getSlices() <em>Slices</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The default value of the '{@link #getSlices() <em>Slices</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getSlices()
 	 * @generated
 	 * @ordered
@@ -568,8 +647,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 
 	/**
 	 * The cached value of the '{@link #getSlices() <em>Slices</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getSlices()
 	 * @generated
 	 * @ordered
@@ -577,18 +656,19 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected int slices = SLICES_EDEFAULT;
 
 	/**
-	 * This is true if the Slices attribute has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * This is true if the Slices attribute has been set. <!-- begin-user-doc
+	 * --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 * @ordered
 	 */
 	protected boolean slicesESet;
 
 	/**
-	 * The default value of the '{@link #getDetectorMode() <em>Detector Mode</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The default value of the '{@link #getDetectorMode()
+	 * <em>Detector Mode</em>}' attribute. <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
+	 * 
 	 * @see #getDetectorMode()
 	 * @generated
 	 * @ordered
@@ -596,9 +676,10 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected static final DETECTOR_MODE DETECTOR_MODE_EDEFAULT = DETECTOR_MODE.ADC;
 
 	/**
-	 * The cached value of the '{@link #getDetectorMode() <em>Detector Mode</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The cached value of the '{@link #getDetectorMode()
+	 * <em>Detector Mode</em>}' attribute. <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
+	 * 
 	 * @see #getDetectorMode()
 	 * @generated
 	 * @ordered
@@ -606,18 +687,18 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected DETECTOR_MODE detectorMode = DETECTOR_MODE_EDEFAULT;
 
 	/**
-	 * This is true if the Detector Mode attribute has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * This is true if the Detector Mode attribute has been set. <!--
+	 * begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 * @ordered
 	 */
 	protected boolean detectorModeESet;
 
 	/**
-	 * The default value of the '{@link #getADCMask() <em>ADC Mask</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The default value of the '{@link #getADCMask() <em>ADC Mask</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getADCMask()
 	 * @generated
 	 * @ordered
@@ -625,9 +706,9 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected static final int ADC_MASK_EDEFAULT = 255;
 
 	/**
-	 * The cached value of the '{@link #getADCMask() <em>ADC Mask</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The cached value of the '{@link #getADCMask() <em>ADC Mask</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @see #getADCMask()
 	 * @generated
 	 * @ordered
@@ -635,18 +716,19 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected int adcMask = ADC_MASK_EDEFAULT;
 
 	/**
-	 * This is true if the ADC Mask attribute has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * This is true if the ADC Mask attribute has been set. <!-- begin-user-doc
+	 * --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 * @ordered
 	 */
 	protected boolean adcMaskESet;
 
 	/**
-	 * The default value of the '{@link #getDiscriminatorLevel() <em>Discriminator Level</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The default value of the '{@link #getDiscriminatorLevel()
+	 * <em>Discriminator Level</em>}' attribute. <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
+	 * 
 	 * @see #getDiscriminatorLevel()
 	 * @generated
 	 * @ordered
@@ -654,9 +736,10 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected static final int DISCRIMINATOR_LEVEL_EDEFAULT = 10;
 
 	/**
-	 * The cached value of the '{@link #getDiscriminatorLevel() <em>Discriminator Level</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The cached value of the '{@link #getDiscriminatorLevel()
+	 * <em>Discriminator Level</em>}' attribute. <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
+	 * 
 	 * @see #getDiscriminatorLevel()
 	 * @generated
 	 * @ordered
@@ -664,26 +747,27 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected int discriminatorLevel = DISCRIMINATOR_LEVEL_EDEFAULT;
 
 	/**
-	 * This is true if the Discriminator Level attribute has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * This is true if the Discriminator Level attribute has been set. <!--
+	 * begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 * @ordered
 	 */
 	protected boolean discriminatorLevelESet;
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
+	 * @generated NOT
 	 */
 	protected RegionImpl() {
 		super();
+		setRegionId(EcoreUtil.generateUUID());
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	@Override
@@ -692,8 +776,31 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
+	 * @generated
+	 */
+	public String getRegionId() {
+		return regionId;
+	}
+
+	/**
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
+	 * @generated
+	 */
+	public void setRegionId(String newRegionId) {
+		String oldRegionId = regionId;
+		regionId = newRegionId;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					RegiondefinitionPackage.REGION__REGION_ID, oldRegionId,
+					regionId));
+	}
+
+	/**
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public String getName() {
@@ -701,8 +808,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void setName(String newName) {
@@ -711,12 +818,14 @@ public class RegionImpl extends EObjectImpl implements Region {
 		boolean oldNameESet = nameESet;
 		nameESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.REGION__NAME, oldName, name, !oldNameESet));
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					RegiondefinitionPackage.REGION__NAME, oldName, name,
+					!oldNameESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void unsetName() {
@@ -725,12 +834,14 @@ public class RegionImpl extends EObjectImpl implements Region {
 		name = NAME_EDEFAULT;
 		nameESet = false;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.REGION__NAME, oldName, NAME_EDEFAULT, oldNameESet));
+			eNotify(new ENotificationImpl(this, Notification.UNSET,
+					RegiondefinitionPackage.REGION__NAME, oldName,
+					NAME_EDEFAULT, oldNameESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public boolean isSetName() {
@@ -738,8 +849,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public LENS_MODE getLensMode() {
@@ -747,8 +858,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void setLensMode(LENS_MODE newLensMode) {
@@ -757,12 +868,14 @@ public class RegionImpl extends EObjectImpl implements Region {
 		boolean oldLensModeESet = lensModeESet;
 		lensModeESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.REGION__LENS_MODE, oldLensMode, lensMode, !oldLensModeESet));
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					RegiondefinitionPackage.REGION__LENS_MODE, oldLensMode,
+					lensMode, !oldLensModeESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void unsetLensMode() {
@@ -771,12 +884,14 @@ public class RegionImpl extends EObjectImpl implements Region {
 		lensMode = LENS_MODE_EDEFAULT;
 		lensModeESet = false;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.REGION__LENS_MODE, oldLensMode, LENS_MODE_EDEFAULT, oldLensModeESet));
+			eNotify(new ENotificationImpl(this, Notification.UNSET,
+					RegiondefinitionPackage.REGION__LENS_MODE, oldLensMode,
+					LENS_MODE_EDEFAULT, oldLensModeESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public boolean isSetLensMode() {
@@ -784,8 +899,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public PASS_ENERGY getPassEnergy() {
@@ -793,22 +908,25 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void setPassEnergy(PASS_ENERGY newPassEnergy) {
 		PASS_ENERGY oldPassEnergy = passEnergy;
-		passEnergy = newPassEnergy == null ? PASS_ENERGY_EDEFAULT : newPassEnergy;
+		passEnergy = newPassEnergy == null ? PASS_ENERGY_EDEFAULT
+				: newPassEnergy;
 		boolean oldPassEnergyESet = passEnergyESet;
 		passEnergyESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.REGION__PASS_ENERGY, oldPassEnergy, passEnergy, !oldPassEnergyESet));
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					RegiondefinitionPackage.REGION__PASS_ENERGY, oldPassEnergy,
+					passEnergy, !oldPassEnergyESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void unsetPassEnergy() {
@@ -817,12 +935,14 @@ public class RegionImpl extends EObjectImpl implements Region {
 		passEnergy = PASS_ENERGY_EDEFAULT;
 		passEnergyESet = false;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.REGION__PASS_ENERGY, oldPassEnergy, PASS_ENERGY_EDEFAULT, oldPassEnergyESet));
+			eNotify(new ENotificationImpl(this, Notification.UNSET,
+					RegiondefinitionPackage.REGION__PASS_ENERGY, oldPassEnergy,
+					PASS_ENERGY_EDEFAULT, oldPassEnergyESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public boolean isSetPassEnergy() {
@@ -830,8 +950,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public RunMode getRunMode() {
@@ -839,48 +959,62 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
-	public NotificationChain basicSetRunMode(RunMode newRunMode, NotificationChain msgs) {
+	public NotificationChain basicSetRunMode(RunMode newRunMode,
+			NotificationChain msgs) {
 		RunMode oldRunMode = runMode;
 		runMode = newRunMode;
 		boolean oldRunModeESet = runModeESet;
 		runModeESet = true;
 		if (eNotificationRequired()) {
-			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.REGION__RUN_MODE, oldRunMode, newRunMode, !oldRunModeESet);
-			if (msgs == null) msgs = notification; else msgs.add(notification);
+			ENotificationImpl notification = new ENotificationImpl(this,
+					Notification.SET, RegiondefinitionPackage.REGION__RUN_MODE,
+					oldRunMode, newRunMode, !oldRunModeESet);
+			if (msgs == null)
+				msgs = notification;
+			else
+				msgs.add(notification);
 		}
 		return msgs;
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void setRunMode(RunMode newRunMode) {
 		if (newRunMode != runMode) {
 			NotificationChain msgs = null;
 			if (runMode != null)
-				msgs = ((InternalEObject)runMode).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - RegiondefinitionPackage.REGION__RUN_MODE, null, msgs);
+				msgs = ((InternalEObject) runMode).eInverseRemove(this,
+						EOPPOSITE_FEATURE_BASE
+								- RegiondefinitionPackage.REGION__RUN_MODE,
+						null, msgs);
 			if (newRunMode != null)
-				msgs = ((InternalEObject)newRunMode).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - RegiondefinitionPackage.REGION__RUN_MODE, null, msgs);
+				msgs = ((InternalEObject) newRunMode).eInverseAdd(this,
+						EOPPOSITE_FEATURE_BASE
+								- RegiondefinitionPackage.REGION__RUN_MODE,
+						null, msgs);
 			msgs = basicSetRunMode(newRunMode, msgs);
-			if (msgs != null) msgs.dispatch();
-		}
-		else {
+			if (msgs != null)
+				msgs.dispatch();
+		} else {
 			boolean oldRunModeESet = runModeESet;
 			runModeESet = true;
 			if (eNotificationRequired())
-				eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.REGION__RUN_MODE, newRunMode, newRunMode, !oldRunModeESet));
+				eNotify(new ENotificationImpl(this, Notification.SET,
+						RegiondefinitionPackage.REGION__RUN_MODE, newRunMode,
+						newRunMode, !oldRunModeESet));
 		}
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public NotificationChain basicUnsetRunMode(NotificationChain msgs) {
@@ -889,35 +1023,46 @@ public class RegionImpl extends EObjectImpl implements Region {
 		boolean oldRunModeESet = runModeESet;
 		runModeESet = false;
 		if (eNotificationRequired()) {
-			ENotificationImpl notification = new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.REGION__RUN_MODE, oldRunMode, null, oldRunModeESet);
-			if (msgs == null) msgs = notification; else msgs.add(notification);
+			ENotificationImpl notification = new ENotificationImpl(this,
+					Notification.UNSET,
+					RegiondefinitionPackage.REGION__RUN_MODE, oldRunMode, null,
+					oldRunModeESet);
+			if (msgs == null)
+				msgs = notification;
+			else
+				msgs.add(notification);
 		}
 		return msgs;
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void unsetRunMode() {
 		if (runMode != null) {
 			NotificationChain msgs = null;
-			msgs = ((InternalEObject)runMode).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - RegiondefinitionPackage.REGION__RUN_MODE, null, msgs);
+			msgs = ((InternalEObject) runMode).eInverseRemove(this,
+					EOPPOSITE_FEATURE_BASE
+							- RegiondefinitionPackage.REGION__RUN_MODE, null,
+					msgs);
 			msgs = basicUnsetRunMode(msgs);
-			if (msgs != null) msgs.dispatch();
-		}
-		else {
+			if (msgs != null)
+				msgs.dispatch();
+		} else {
 			boolean oldRunModeESet = runModeESet;
 			runModeESet = false;
 			if (eNotificationRequired())
-				eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.REGION__RUN_MODE, null, null, oldRunModeESet));
+				eNotify(new ENotificationImpl(this, Notification.UNSET,
+						RegiondefinitionPackage.REGION__RUN_MODE, null, null,
+						oldRunModeESet));
 		}
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public boolean isSetRunMode() {
@@ -925,8 +1070,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public double getExcitationEnergy() {
@@ -934,8 +1079,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void setExcitationEnergy(double newExcitationEnergy) {
@@ -944,12 +1089,15 @@ public class RegionImpl extends EObjectImpl implements Region {
 		boolean oldExcitationEnergyESet = excitationEnergyESet;
 		excitationEnergyESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.REGION__EXCITATION_ENERGY, oldExcitationEnergy, excitationEnergy, !oldExcitationEnergyESet));
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					RegiondefinitionPackage.REGION__EXCITATION_ENERGY,
+					oldExcitationEnergy, excitationEnergy,
+					!oldExcitationEnergyESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void unsetExcitationEnergy() {
@@ -958,12 +1106,15 @@ public class RegionImpl extends EObjectImpl implements Region {
 		excitationEnergy = EXCITATION_ENERGY_EDEFAULT;
 		excitationEnergyESet = false;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.REGION__EXCITATION_ENERGY, oldExcitationEnergy, EXCITATION_ENERGY_EDEFAULT, oldExcitationEnergyESet));
+			eNotify(new ENotificationImpl(this, Notification.UNSET,
+					RegiondefinitionPackage.REGION__EXCITATION_ENERGY,
+					oldExcitationEnergy, EXCITATION_ENERGY_EDEFAULT,
+					oldExcitationEnergyESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public boolean isSetExcitationEnergy() {
@@ -971,8 +1122,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public ACQUIAITION_MODE getAcquisitionMode() {
@@ -980,22 +1131,26 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void setAcquisitionMode(ACQUIAITION_MODE newAcquisitionMode) {
 		ACQUIAITION_MODE oldAcquisitionMode = acquisitionMode;
-		acquisitionMode = newAcquisitionMode == null ? ACQUISITION_MODE_EDEFAULT : newAcquisitionMode;
+		acquisitionMode = newAcquisitionMode == null ? ACQUISITION_MODE_EDEFAULT
+				: newAcquisitionMode;
 		boolean oldAcquisitionModeESet = acquisitionModeESet;
 		acquisitionModeESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.REGION__ACQUISITION_MODE, oldAcquisitionMode, acquisitionMode, !oldAcquisitionModeESet));
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					RegiondefinitionPackage.REGION__ACQUISITION_MODE,
+					oldAcquisitionMode, acquisitionMode,
+					!oldAcquisitionModeESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void unsetAcquisitionMode() {
@@ -1004,12 +1159,15 @@ public class RegionImpl extends EObjectImpl implements Region {
 		acquisitionMode = ACQUISITION_MODE_EDEFAULT;
 		acquisitionModeESet = false;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.REGION__ACQUISITION_MODE, oldAcquisitionMode, ACQUISITION_MODE_EDEFAULT, oldAcquisitionModeESet));
+			eNotify(new ENotificationImpl(this, Notification.UNSET,
+					RegiondefinitionPackage.REGION__ACQUISITION_MODE,
+					oldAcquisitionMode, ACQUISITION_MODE_EDEFAULT,
+					oldAcquisitionModeESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public boolean isSetAcquisitionMode() {
@@ -1017,8 +1175,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public ENERGY_MODE getEnergyMode() {
@@ -1026,22 +1184,25 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void setEnergyMode(ENERGY_MODE newEnergyMode) {
 		ENERGY_MODE oldEnergyMode = energyMode;
-		energyMode = newEnergyMode == null ? ENERGY_MODE_EDEFAULT : newEnergyMode;
+		energyMode = newEnergyMode == null ? ENERGY_MODE_EDEFAULT
+				: newEnergyMode;
 		boolean oldEnergyModeESet = energyModeESet;
 		energyModeESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.REGION__ENERGY_MODE, oldEnergyMode, energyMode, !oldEnergyModeESet));
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					RegiondefinitionPackage.REGION__ENERGY_MODE, oldEnergyMode,
+					energyMode, !oldEnergyModeESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void unsetEnergyMode() {
@@ -1050,12 +1211,14 @@ public class RegionImpl extends EObjectImpl implements Region {
 		energyMode = ENERGY_MODE_EDEFAULT;
 		energyModeESet = false;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.REGION__ENERGY_MODE, oldEnergyMode, ENERGY_MODE_EDEFAULT, oldEnergyModeESet));
+			eNotify(new ENotificationImpl(this, Notification.UNSET,
+					RegiondefinitionPackage.REGION__ENERGY_MODE, oldEnergyMode,
+					ENERGY_MODE_EDEFAULT, oldEnergyModeESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public boolean isSetEnergyMode() {
@@ -1063,8 +1226,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public double getFixEnergy() {
@@ -1072,8 +1235,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void setFixEnergy(double newFixEnergy) {
@@ -1082,12 +1245,14 @@ public class RegionImpl extends EObjectImpl implements Region {
 		boolean oldFixEnergyESet = fixEnergyESet;
 		fixEnergyESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.REGION__FIX_ENERGY, oldFixEnergy, fixEnergy, !oldFixEnergyESet));
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					RegiondefinitionPackage.REGION__FIX_ENERGY, oldFixEnergy,
+					fixEnergy, !oldFixEnergyESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void unsetFixEnergy() {
@@ -1096,12 +1261,14 @@ public class RegionImpl extends EObjectImpl implements Region {
 		fixEnergy = FIX_ENERGY_EDEFAULT;
 		fixEnergyESet = false;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.REGION__FIX_ENERGY, oldFixEnergy, FIX_ENERGY_EDEFAULT, oldFixEnergyESet));
+			eNotify(new ENotificationImpl(this, Notification.UNSET,
+					RegiondefinitionPackage.REGION__FIX_ENERGY, oldFixEnergy,
+					FIX_ENERGY_EDEFAULT, oldFixEnergyESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public boolean isSetFixEnergy() {
@@ -1109,8 +1276,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public double getLowEnergy() {
@@ -1118,8 +1285,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void setLowEnergy(double newLowEnergy) {
@@ -1128,12 +1295,14 @@ public class RegionImpl extends EObjectImpl implements Region {
 		boolean oldLowEnergyESet = lowEnergyESet;
 		lowEnergyESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.REGION__LOW_ENERGY, oldLowEnergy, lowEnergy, !oldLowEnergyESet));
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					RegiondefinitionPackage.REGION__LOW_ENERGY, oldLowEnergy,
+					lowEnergy, !oldLowEnergyESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void unsetLowEnergy() {
@@ -1142,12 +1311,14 @@ public class RegionImpl extends EObjectImpl implements Region {
 		lowEnergy = LOW_ENERGY_EDEFAULT;
 		lowEnergyESet = false;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.REGION__LOW_ENERGY, oldLowEnergy, LOW_ENERGY_EDEFAULT, oldLowEnergyESet));
+			eNotify(new ENotificationImpl(this, Notification.UNSET,
+					RegiondefinitionPackage.REGION__LOW_ENERGY, oldLowEnergy,
+					LOW_ENERGY_EDEFAULT, oldLowEnergyESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public boolean isSetLowEnergy() {
@@ -1155,8 +1326,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public double getHighEnergy() {
@@ -1164,8 +1335,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void setHighEnergy(double newHighEnergy) {
@@ -1174,12 +1345,14 @@ public class RegionImpl extends EObjectImpl implements Region {
 		boolean oldHighEnergyESet = highEnergyESet;
 		highEnergyESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.REGION__HIGH_ENERGY, oldHighEnergy, highEnergy, !oldHighEnergyESet));
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					RegiondefinitionPackage.REGION__HIGH_ENERGY, oldHighEnergy,
+					highEnergy, !oldHighEnergyESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void unsetHighEnergy() {
@@ -1188,12 +1361,14 @@ public class RegionImpl extends EObjectImpl implements Region {
 		highEnergy = HIGH_ENERGY_EDEFAULT;
 		highEnergyESet = false;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.REGION__HIGH_ENERGY, oldHighEnergy, HIGH_ENERGY_EDEFAULT, oldHighEnergyESet));
+			eNotify(new ENotificationImpl(this, Notification.UNSET,
+					RegiondefinitionPackage.REGION__HIGH_ENERGY, oldHighEnergy,
+					HIGH_ENERGY_EDEFAULT, oldHighEnergyESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public boolean isSetHighEnergy() {
@@ -1201,8 +1376,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public double getEnergyStep() {
@@ -1210,8 +1385,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void setEnergyStep(double newEnergyStep) {
@@ -1220,12 +1395,14 @@ public class RegionImpl extends EObjectImpl implements Region {
 		boolean oldEnergyStepESet = energyStepESet;
 		energyStepESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.REGION__ENERGY_STEP, oldEnergyStep, energyStep, !oldEnergyStepESet));
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					RegiondefinitionPackage.REGION__ENERGY_STEP, oldEnergyStep,
+					energyStep, !oldEnergyStepESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void unsetEnergyStep() {
@@ -1234,12 +1411,14 @@ public class RegionImpl extends EObjectImpl implements Region {
 		energyStep = ENERGY_STEP_EDEFAULT;
 		energyStepESet = false;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.REGION__ENERGY_STEP, oldEnergyStep, ENERGY_STEP_EDEFAULT, oldEnergyStepESet));
+			eNotify(new ENotificationImpl(this, Notification.UNSET,
+					RegiondefinitionPackage.REGION__ENERGY_STEP, oldEnergyStep,
+					ENERGY_STEP_EDEFAULT, oldEnergyStepESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public boolean isSetEnergyStep() {
@@ -1247,8 +1426,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public double getSetpTime() {
@@ -1256,8 +1435,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void setSetpTime(double newSetpTime) {
@@ -1266,12 +1445,14 @@ public class RegionImpl extends EObjectImpl implements Region {
 		boolean oldSetpTimeESet = setpTimeESet;
 		setpTimeESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.REGION__SETP_TIME, oldSetpTime, setpTime, !oldSetpTimeESet));
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					RegiondefinitionPackage.REGION__SETP_TIME, oldSetpTime,
+					setpTime, !oldSetpTimeESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void unsetSetpTime() {
@@ -1280,12 +1461,14 @@ public class RegionImpl extends EObjectImpl implements Region {
 		setpTime = SETP_TIME_EDEFAULT;
 		setpTimeESet = false;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.REGION__SETP_TIME, oldSetpTime, SETP_TIME_EDEFAULT, oldSetpTimeESet));
+			eNotify(new ENotificationImpl(this, Notification.UNSET,
+					RegiondefinitionPackage.REGION__SETP_TIME, oldSetpTime,
+					SETP_TIME_EDEFAULT, oldSetpTimeESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public boolean isSetSetpTime() {
@@ -1293,8 +1476,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public int getFirstXChannel() {
@@ -1302,8 +1485,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void setFirstXChannel(int newFirstXChannel) {
@@ -1312,12 +1495,14 @@ public class RegionImpl extends EObjectImpl implements Region {
 		boolean oldFirstXChannelESet = firstXChannelESet;
 		firstXChannelESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.REGION__FIRST_XCHANNEL, oldFirstXChannel, firstXChannel, !oldFirstXChannelESet));
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					RegiondefinitionPackage.REGION__FIRST_XCHANNEL,
+					oldFirstXChannel, firstXChannel, !oldFirstXChannelESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void unsetFirstXChannel() {
@@ -1326,12 +1511,15 @@ public class RegionImpl extends EObjectImpl implements Region {
 		firstXChannel = FIRST_XCHANNEL_EDEFAULT;
 		firstXChannelESet = false;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.REGION__FIRST_XCHANNEL, oldFirstXChannel, FIRST_XCHANNEL_EDEFAULT, oldFirstXChannelESet));
+			eNotify(new ENotificationImpl(this, Notification.UNSET,
+					RegiondefinitionPackage.REGION__FIRST_XCHANNEL,
+					oldFirstXChannel, FIRST_XCHANNEL_EDEFAULT,
+					oldFirstXChannelESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public boolean isSetFirstXChannel() {
@@ -1339,8 +1527,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public int getLastXChannel() {
@@ -1348,8 +1536,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void setLastXChannel(int newLastXChannel) {
@@ -1358,12 +1546,14 @@ public class RegionImpl extends EObjectImpl implements Region {
 		boolean oldLastXChannelESet = lastXChannelESet;
 		lastXChannelESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.REGION__LAST_XCHANNEL, oldLastXChannel, lastXChannel, !oldLastXChannelESet));
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					RegiondefinitionPackage.REGION__LAST_XCHANNEL,
+					oldLastXChannel, lastXChannel, !oldLastXChannelESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void unsetLastXChannel() {
@@ -1372,12 +1562,15 @@ public class RegionImpl extends EObjectImpl implements Region {
 		lastXChannel = LAST_XCHANNEL_EDEFAULT;
 		lastXChannelESet = false;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.REGION__LAST_XCHANNEL, oldLastXChannel, LAST_XCHANNEL_EDEFAULT, oldLastXChannelESet));
+			eNotify(new ENotificationImpl(this, Notification.UNSET,
+					RegiondefinitionPackage.REGION__LAST_XCHANNEL,
+					oldLastXChannel, LAST_XCHANNEL_EDEFAULT,
+					oldLastXChannelESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public boolean isSetLastXChannel() {
@@ -1385,8 +1578,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public int getFirstYChannel() {
@@ -1394,8 +1587,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void setFirstYChannel(int newFirstYChannel) {
@@ -1404,12 +1597,14 @@ public class RegionImpl extends EObjectImpl implements Region {
 		boolean oldFirstYChannelESet = firstYChannelESet;
 		firstYChannelESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.REGION__FIRST_YCHANNEL, oldFirstYChannel, firstYChannel, !oldFirstYChannelESet));
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					RegiondefinitionPackage.REGION__FIRST_YCHANNEL,
+					oldFirstYChannel, firstYChannel, !oldFirstYChannelESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void unsetFirstYChannel() {
@@ -1418,12 +1613,15 @@ public class RegionImpl extends EObjectImpl implements Region {
 		firstYChannel = FIRST_YCHANNEL_EDEFAULT;
 		firstYChannelESet = false;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.REGION__FIRST_YCHANNEL, oldFirstYChannel, FIRST_YCHANNEL_EDEFAULT, oldFirstYChannelESet));
+			eNotify(new ENotificationImpl(this, Notification.UNSET,
+					RegiondefinitionPackage.REGION__FIRST_YCHANNEL,
+					oldFirstYChannel, FIRST_YCHANNEL_EDEFAULT,
+					oldFirstYChannelESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public boolean isSetFirstYChannel() {
@@ -1431,8 +1629,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public int getLastYChannel() {
@@ -1440,8 +1638,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void setLastYChannel(int newLastYChannel) {
@@ -1450,12 +1648,14 @@ public class RegionImpl extends EObjectImpl implements Region {
 		boolean oldLastYChannelESet = lastYChannelESet;
 		lastYChannelESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.REGION__LAST_YCHANNEL, oldLastYChannel, lastYChannel, !oldLastYChannelESet));
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					RegiondefinitionPackage.REGION__LAST_YCHANNEL,
+					oldLastYChannel, lastYChannel, !oldLastYChannelESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void unsetLastYChannel() {
@@ -1464,12 +1664,15 @@ public class RegionImpl extends EObjectImpl implements Region {
 		lastYChannel = LAST_YCHANNEL_EDEFAULT;
 		lastYChannelESet = false;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.REGION__LAST_YCHANNEL, oldLastYChannel, LAST_YCHANNEL_EDEFAULT, oldLastYChannelESet));
+			eNotify(new ENotificationImpl(this, Notification.UNSET,
+					RegiondefinitionPackage.REGION__LAST_YCHANNEL,
+					oldLastYChannel, LAST_YCHANNEL_EDEFAULT,
+					oldLastYChannelESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public boolean isSetLastYChannel() {
@@ -1477,8 +1680,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public int getSlices() {
@@ -1486,8 +1689,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void setSlices(int newSlices) {
@@ -1496,12 +1699,14 @@ public class RegionImpl extends EObjectImpl implements Region {
 		boolean oldSlicesESet = slicesESet;
 		slicesESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.REGION__SLICES, oldSlices, slices, !oldSlicesESet));
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					RegiondefinitionPackage.REGION__SLICES, oldSlices, slices,
+					!oldSlicesESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void unsetSlices() {
@@ -1510,12 +1715,14 @@ public class RegionImpl extends EObjectImpl implements Region {
 		slices = SLICES_EDEFAULT;
 		slicesESet = false;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.REGION__SLICES, oldSlices, SLICES_EDEFAULT, oldSlicesESet));
+			eNotify(new ENotificationImpl(this, Notification.UNSET,
+					RegiondefinitionPackage.REGION__SLICES, oldSlices,
+					SLICES_EDEFAULT, oldSlicesESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public boolean isSetSlices() {
@@ -1523,8 +1730,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public DETECTOR_MODE getDetectorMode() {
@@ -1532,22 +1739,25 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void setDetectorMode(DETECTOR_MODE newDetectorMode) {
 		DETECTOR_MODE oldDetectorMode = detectorMode;
-		detectorMode = newDetectorMode == null ? DETECTOR_MODE_EDEFAULT : newDetectorMode;
+		detectorMode = newDetectorMode == null ? DETECTOR_MODE_EDEFAULT
+				: newDetectorMode;
 		boolean oldDetectorModeESet = detectorModeESet;
 		detectorModeESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.REGION__DETECTOR_MODE, oldDetectorMode, detectorMode, !oldDetectorModeESet));
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					RegiondefinitionPackage.REGION__DETECTOR_MODE,
+					oldDetectorMode, detectorMode, !oldDetectorModeESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void unsetDetectorMode() {
@@ -1556,12 +1766,15 @@ public class RegionImpl extends EObjectImpl implements Region {
 		detectorMode = DETECTOR_MODE_EDEFAULT;
 		detectorModeESet = false;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.REGION__DETECTOR_MODE, oldDetectorMode, DETECTOR_MODE_EDEFAULT, oldDetectorModeESet));
+			eNotify(new ENotificationImpl(this, Notification.UNSET,
+					RegiondefinitionPackage.REGION__DETECTOR_MODE,
+					oldDetectorMode, DETECTOR_MODE_EDEFAULT,
+					oldDetectorModeESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public boolean isSetDetectorMode() {
@@ -1569,8 +1782,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public int getADCMask() {
@@ -1578,8 +1791,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void setADCMask(int newADCMask) {
@@ -1588,12 +1801,14 @@ public class RegionImpl extends EObjectImpl implements Region {
 		boolean oldADCMaskESet = adcMaskESet;
 		adcMaskESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.REGION__ADC_MASK, oldADCMask, adcMask, !oldADCMaskESet));
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					RegiondefinitionPackage.REGION__ADC_MASK, oldADCMask,
+					adcMask, !oldADCMaskESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void unsetADCMask() {
@@ -1602,12 +1817,14 @@ public class RegionImpl extends EObjectImpl implements Region {
 		adcMask = ADC_MASK_EDEFAULT;
 		adcMaskESet = false;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.REGION__ADC_MASK, oldADCMask, ADC_MASK_EDEFAULT, oldADCMaskESet));
+			eNotify(new ENotificationImpl(this, Notification.UNSET,
+					RegiondefinitionPackage.REGION__ADC_MASK, oldADCMask,
+					ADC_MASK_EDEFAULT, oldADCMaskESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public boolean isSetADCMask() {
@@ -1615,8 +1832,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public int getDiscriminatorLevel() {
@@ -1624,8 +1841,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void setDiscriminatorLevel(int newDiscriminatorLevel) {
@@ -1634,12 +1851,15 @@ public class RegionImpl extends EObjectImpl implements Region {
 		boolean oldDiscriminatorLevelESet = discriminatorLevelESet;
 		discriminatorLevelESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.REGION__DISCRIMINATOR_LEVEL, oldDiscriminatorLevel, discriminatorLevel, !oldDiscriminatorLevelESet));
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					RegiondefinitionPackage.REGION__DISCRIMINATOR_LEVEL,
+					oldDiscriminatorLevel, discriminatorLevel,
+					!oldDiscriminatorLevelESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void unsetDiscriminatorLevel() {
@@ -1648,12 +1868,15 @@ public class RegionImpl extends EObjectImpl implements Region {
 		discriminatorLevel = DISCRIMINATOR_LEVEL_EDEFAULT;
 		discriminatorLevelESet = false;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.REGION__DISCRIMINATOR_LEVEL, oldDiscriminatorLevel, DISCRIMINATOR_LEVEL_EDEFAULT, oldDiscriminatorLevelESet));
+			eNotify(new ENotificationImpl(this, Notification.UNSET,
+					RegiondefinitionPackage.REGION__DISCRIMINATOR_LEVEL,
+					oldDiscriminatorLevel, DISCRIMINATOR_LEVEL_EDEFAULT,
+					oldDiscriminatorLevelESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public boolean isSetDiscriminatorLevel() {
@@ -1661,8 +1884,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public STATUS getStatus() {
@@ -1670,20 +1893,21 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void setStatus(STATUS newStatus) {
 		STATUS oldStatus = status;
 		status = newStatus == null ? STATUS_EDEFAULT : newStatus;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.REGION__STATUS, oldStatus, status));
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					RegiondefinitionPackage.REGION__STATUS, oldStatus, status));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public boolean isEnabled() {
@@ -1691,8 +1915,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void setEnabled(boolean newEnabled) {
@@ -1701,12 +1925,14 @@ public class RegionImpl extends EObjectImpl implements Region {
 		boolean oldEnabledESet = enabledESet;
 		enabledESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.REGION__ENABLED, oldEnabled, enabled, !oldEnabledESet));
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					RegiondefinitionPackage.REGION__ENABLED, oldEnabled,
+					enabled, !oldEnabledESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public void unsetEnabled() {
@@ -1715,12 +1941,14 @@ public class RegionImpl extends EObjectImpl implements Region {
 		enabled = ENABLED_EDEFAULT;
 		enabledESet = false;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.REGION__ENABLED, oldEnabled, ENABLED_EDEFAULT, oldEnabledESet));
+			eNotify(new ENotificationImpl(this, Notification.UNSET,
+					RegiondefinitionPackage.REGION__ENABLED, oldEnabled,
+					ENABLED_EDEFAULT, oldEnabledESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	public boolean isSetEnabled() {
@@ -1728,342 +1956,417 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	@Override
-	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
+	public NotificationChain eInverseRemove(InternalEObject otherEnd,
+			int featureID, NotificationChain msgs) {
 		switch (featureID) {
-			case RegiondefinitionPackage.REGION__RUN_MODE:
-				return basicUnsetRunMode(msgs);
+		case RegiondefinitionPackage.REGION__RUN_MODE:
+			return basicUnsetRunMode(msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-			case RegiondefinitionPackage.REGION__STATUS:
-				return getStatus();
-			case RegiondefinitionPackage.REGION__ENABLED:
-				return isEnabled();
-			case RegiondefinitionPackage.REGION__NAME:
-				return getName();
-			case RegiondefinitionPackage.REGION__LENS_MODE:
-				return getLensMode();
-			case RegiondefinitionPackage.REGION__PASS_ENERGY:
-				return getPassEnergy();
-			case RegiondefinitionPackage.REGION__RUN_MODE:
-				return getRunMode();
-			case RegiondefinitionPackage.REGION__EXCITATION_ENERGY:
-				return getExcitationEnergy();
-			case RegiondefinitionPackage.REGION__ACQUISITION_MODE:
-				return getAcquisitionMode();
-			case RegiondefinitionPackage.REGION__ENERGY_MODE:
-				return getEnergyMode();
-			case RegiondefinitionPackage.REGION__FIX_ENERGY:
-				return getFixEnergy();
-			case RegiondefinitionPackage.REGION__LOW_ENERGY:
-				return getLowEnergy();
-			case RegiondefinitionPackage.REGION__HIGH_ENERGY:
-				return getHighEnergy();
-			case RegiondefinitionPackage.REGION__ENERGY_STEP:
-				return getEnergyStep();
-			case RegiondefinitionPackage.REGION__SETP_TIME:
-				return getSetpTime();
-			case RegiondefinitionPackage.REGION__FIRST_XCHANNEL:
-				return getFirstXChannel();
-			case RegiondefinitionPackage.REGION__LAST_XCHANNEL:
-				return getLastXChannel();
-			case RegiondefinitionPackage.REGION__FIRST_YCHANNEL:
-				return getFirstYChannel();
-			case RegiondefinitionPackage.REGION__LAST_YCHANNEL:
-				return getLastYChannel();
-			case RegiondefinitionPackage.REGION__SLICES:
-				return getSlices();
-			case RegiondefinitionPackage.REGION__DETECTOR_MODE:
-				return getDetectorMode();
-			case RegiondefinitionPackage.REGION__ADC_MASK:
-				return getADCMask();
-			case RegiondefinitionPackage.REGION__DISCRIMINATOR_LEVEL:
-				return getDiscriminatorLevel();
+		case RegiondefinitionPackage.REGION__REGION_ID:
+			return getRegionId();
+		case RegiondefinitionPackage.REGION__STATUS:
+			return getStatus();
+		case RegiondefinitionPackage.REGION__ENABLED:
+			return isEnabled();
+		case RegiondefinitionPackage.REGION__NAME:
+			return getName();
+		case RegiondefinitionPackage.REGION__LENS_MODE:
+			return getLensMode();
+		case RegiondefinitionPackage.REGION__PASS_ENERGY:
+			return getPassEnergy();
+		case RegiondefinitionPackage.REGION__RUN_MODE:
+			return getRunMode();
+		case RegiondefinitionPackage.REGION__EXCITATION_ENERGY:
+			return getExcitationEnergy();
+		case RegiondefinitionPackage.REGION__ACQUISITION_MODE:
+			return getAcquisitionMode();
+		case RegiondefinitionPackage.REGION__ENERGY_MODE:
+			return getEnergyMode();
+		case RegiondefinitionPackage.REGION__FIX_ENERGY:
+			return getFixEnergy();
+		case RegiondefinitionPackage.REGION__LOW_ENERGY:
+			return getLowEnergy();
+		case RegiondefinitionPackage.REGION__HIGH_ENERGY:
+			return getHighEnergy();
+		case RegiondefinitionPackage.REGION__ENERGY_STEP:
+			return getEnergyStep();
+		case RegiondefinitionPackage.REGION__SETP_TIME:
+			return getSetpTime();
+		case RegiondefinitionPackage.REGION__FIRST_XCHANNEL:
+			return getFirstXChannel();
+		case RegiondefinitionPackage.REGION__LAST_XCHANNEL:
+			return getLastXChannel();
+		case RegiondefinitionPackage.REGION__FIRST_YCHANNEL:
+			return getFirstYChannel();
+		case RegiondefinitionPackage.REGION__LAST_YCHANNEL:
+			return getLastYChannel();
+		case RegiondefinitionPackage.REGION__SLICES:
+			return getSlices();
+		case RegiondefinitionPackage.REGION__DETECTOR_MODE:
+			return getDetectorMode();
+		case RegiondefinitionPackage.REGION__ADC_MASK:
+			return getADCMask();
+		case RegiondefinitionPackage.REGION__DISCRIMINATOR_LEVEL:
+			return getDiscriminatorLevel();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-			case RegiondefinitionPackage.REGION__STATUS:
-				setStatus((STATUS)newValue);
-				return;
-			case RegiondefinitionPackage.REGION__ENABLED:
-				setEnabled((Boolean)newValue);
-				return;
-			case RegiondefinitionPackage.REGION__NAME:
-				setName((String)newValue);
-				return;
-			case RegiondefinitionPackage.REGION__LENS_MODE:
-				setLensMode((LENS_MODE)newValue);
-				return;
-			case RegiondefinitionPackage.REGION__PASS_ENERGY:
-				setPassEnergy((PASS_ENERGY)newValue);
-				return;
-			case RegiondefinitionPackage.REGION__RUN_MODE:
-				setRunMode((RunMode)newValue);
-				return;
-			case RegiondefinitionPackage.REGION__EXCITATION_ENERGY:
-				setExcitationEnergy((Double)newValue);
-				return;
-			case RegiondefinitionPackage.REGION__ACQUISITION_MODE:
-				setAcquisitionMode((ACQUIAITION_MODE)newValue);
-				return;
-			case RegiondefinitionPackage.REGION__ENERGY_MODE:
-				setEnergyMode((ENERGY_MODE)newValue);
-				return;
-			case RegiondefinitionPackage.REGION__FIX_ENERGY:
-				setFixEnergy((Double)newValue);
-				return;
-			case RegiondefinitionPackage.REGION__LOW_ENERGY:
-				setLowEnergy((Double)newValue);
-				return;
-			case RegiondefinitionPackage.REGION__HIGH_ENERGY:
-				setHighEnergy((Double)newValue);
-				return;
-			case RegiondefinitionPackage.REGION__ENERGY_STEP:
-				setEnergyStep((Double)newValue);
-				return;
-			case RegiondefinitionPackage.REGION__SETP_TIME:
-				setSetpTime((Double)newValue);
-				return;
-			case RegiondefinitionPackage.REGION__FIRST_XCHANNEL:
-				setFirstXChannel((Integer)newValue);
-				return;
-			case RegiondefinitionPackage.REGION__LAST_XCHANNEL:
-				setLastXChannel((Integer)newValue);
-				return;
-			case RegiondefinitionPackage.REGION__FIRST_YCHANNEL:
-				setFirstYChannel((Integer)newValue);
-				return;
-			case RegiondefinitionPackage.REGION__LAST_YCHANNEL:
-				setLastYChannel((Integer)newValue);
-				return;
-			case RegiondefinitionPackage.REGION__SLICES:
-				setSlices((Integer)newValue);
-				return;
-			case RegiondefinitionPackage.REGION__DETECTOR_MODE:
-				setDetectorMode((DETECTOR_MODE)newValue);
-				return;
-			case RegiondefinitionPackage.REGION__ADC_MASK:
-				setADCMask((Integer)newValue);
-				return;
-			case RegiondefinitionPackage.REGION__DISCRIMINATOR_LEVEL:
-				setDiscriminatorLevel((Integer)newValue);
-				return;
+		case RegiondefinitionPackage.REGION__REGION_ID:
+			setRegionId((String) newValue);
+			return;
+		case RegiondefinitionPackage.REGION__STATUS:
+			setStatus((STATUS) newValue);
+			return;
+		case RegiondefinitionPackage.REGION__ENABLED:
+			setEnabled((Boolean) newValue);
+			return;
+		case RegiondefinitionPackage.REGION__NAME:
+			setName((String) newValue);
+			return;
+		case RegiondefinitionPackage.REGION__LENS_MODE:
+			setLensMode((LENS_MODE) newValue);
+			return;
+		case RegiondefinitionPackage.REGION__PASS_ENERGY:
+			setPassEnergy((PASS_ENERGY) newValue);
+			return;
+		case RegiondefinitionPackage.REGION__RUN_MODE:
+			setRunMode((RunMode) newValue);
+			return;
+		case RegiondefinitionPackage.REGION__EXCITATION_ENERGY:
+			setExcitationEnergy((Double) newValue);
+			return;
+		case RegiondefinitionPackage.REGION__ACQUISITION_MODE:
+			setAcquisitionMode((ACQUIAITION_MODE) newValue);
+			return;
+		case RegiondefinitionPackage.REGION__ENERGY_MODE:
+			setEnergyMode((ENERGY_MODE) newValue);
+			return;
+		case RegiondefinitionPackage.REGION__FIX_ENERGY:
+			setFixEnergy((Double) newValue);
+			return;
+		case RegiondefinitionPackage.REGION__LOW_ENERGY:
+			setLowEnergy((Double) newValue);
+			return;
+		case RegiondefinitionPackage.REGION__HIGH_ENERGY:
+			setHighEnergy((Double) newValue);
+			return;
+		case RegiondefinitionPackage.REGION__ENERGY_STEP:
+			setEnergyStep((Double) newValue);
+			return;
+		case RegiondefinitionPackage.REGION__SETP_TIME:
+			setSetpTime((Double) newValue);
+			return;
+		case RegiondefinitionPackage.REGION__FIRST_XCHANNEL:
+			setFirstXChannel((Integer) newValue);
+			return;
+		case RegiondefinitionPackage.REGION__LAST_XCHANNEL:
+			setLastXChannel((Integer) newValue);
+			return;
+		case RegiondefinitionPackage.REGION__FIRST_YCHANNEL:
+			setFirstYChannel((Integer) newValue);
+			return;
+		case RegiondefinitionPackage.REGION__LAST_YCHANNEL:
+			setLastYChannel((Integer) newValue);
+			return;
+		case RegiondefinitionPackage.REGION__SLICES:
+			setSlices((Integer) newValue);
+			return;
+		case RegiondefinitionPackage.REGION__DETECTOR_MODE:
+			setDetectorMode((DETECTOR_MODE) newValue);
+			return;
+		case RegiondefinitionPackage.REGION__ADC_MASK:
+			setADCMask((Integer) newValue);
+			return;
+		case RegiondefinitionPackage.REGION__DISCRIMINATOR_LEVEL:
+			setDiscriminatorLevel((Integer) newValue);
+			return;
 		}
 		super.eSet(featureID, newValue);
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-			case RegiondefinitionPackage.REGION__STATUS:
-				setStatus(STATUS_EDEFAULT);
-				return;
-			case RegiondefinitionPackage.REGION__ENABLED:
-				unsetEnabled();
-				return;
-			case RegiondefinitionPackage.REGION__NAME:
-				unsetName();
-				return;
-			case RegiondefinitionPackage.REGION__LENS_MODE:
-				unsetLensMode();
-				return;
-			case RegiondefinitionPackage.REGION__PASS_ENERGY:
-				unsetPassEnergy();
-				return;
-			case RegiondefinitionPackage.REGION__RUN_MODE:
-				unsetRunMode();
-				return;
-			case RegiondefinitionPackage.REGION__EXCITATION_ENERGY:
-				unsetExcitationEnergy();
-				return;
-			case RegiondefinitionPackage.REGION__ACQUISITION_MODE:
-				unsetAcquisitionMode();
-				return;
-			case RegiondefinitionPackage.REGION__ENERGY_MODE:
-				unsetEnergyMode();
-				return;
-			case RegiondefinitionPackage.REGION__FIX_ENERGY:
-				unsetFixEnergy();
-				return;
-			case RegiondefinitionPackage.REGION__LOW_ENERGY:
-				unsetLowEnergy();
-				return;
-			case RegiondefinitionPackage.REGION__HIGH_ENERGY:
-				unsetHighEnergy();
-				return;
-			case RegiondefinitionPackage.REGION__ENERGY_STEP:
-				unsetEnergyStep();
-				return;
-			case RegiondefinitionPackage.REGION__SETP_TIME:
-				unsetSetpTime();
-				return;
-			case RegiondefinitionPackage.REGION__FIRST_XCHANNEL:
-				unsetFirstXChannel();
-				return;
-			case RegiondefinitionPackage.REGION__LAST_XCHANNEL:
-				unsetLastXChannel();
-				return;
-			case RegiondefinitionPackage.REGION__FIRST_YCHANNEL:
-				unsetFirstYChannel();
-				return;
-			case RegiondefinitionPackage.REGION__LAST_YCHANNEL:
-				unsetLastYChannel();
-				return;
-			case RegiondefinitionPackage.REGION__SLICES:
-				unsetSlices();
-				return;
-			case RegiondefinitionPackage.REGION__DETECTOR_MODE:
-				unsetDetectorMode();
-				return;
-			case RegiondefinitionPackage.REGION__ADC_MASK:
-				unsetADCMask();
-				return;
-			case RegiondefinitionPackage.REGION__DISCRIMINATOR_LEVEL:
-				unsetDiscriminatorLevel();
-				return;
+		case RegiondefinitionPackage.REGION__REGION_ID:
+			setRegionId(REGION_ID_EDEFAULT);
+			return;
+		case RegiondefinitionPackage.REGION__STATUS:
+			setStatus(STATUS_EDEFAULT);
+			return;
+		case RegiondefinitionPackage.REGION__ENABLED:
+			unsetEnabled();
+			return;
+		case RegiondefinitionPackage.REGION__NAME:
+			unsetName();
+			return;
+		case RegiondefinitionPackage.REGION__LENS_MODE:
+			unsetLensMode();
+			return;
+		case RegiondefinitionPackage.REGION__PASS_ENERGY:
+			unsetPassEnergy();
+			return;
+		case RegiondefinitionPackage.REGION__RUN_MODE:
+			unsetRunMode();
+			return;
+		case RegiondefinitionPackage.REGION__EXCITATION_ENERGY:
+			unsetExcitationEnergy();
+			return;
+		case RegiondefinitionPackage.REGION__ACQUISITION_MODE:
+			unsetAcquisitionMode();
+			return;
+		case RegiondefinitionPackage.REGION__ENERGY_MODE:
+			unsetEnergyMode();
+			return;
+		case RegiondefinitionPackage.REGION__FIX_ENERGY:
+			unsetFixEnergy();
+			return;
+		case RegiondefinitionPackage.REGION__LOW_ENERGY:
+			unsetLowEnergy();
+			return;
+		case RegiondefinitionPackage.REGION__HIGH_ENERGY:
+			unsetHighEnergy();
+			return;
+		case RegiondefinitionPackage.REGION__ENERGY_STEP:
+			unsetEnergyStep();
+			return;
+		case RegiondefinitionPackage.REGION__SETP_TIME:
+			unsetSetpTime();
+			return;
+		case RegiondefinitionPackage.REGION__FIRST_XCHANNEL:
+			unsetFirstXChannel();
+			return;
+		case RegiondefinitionPackage.REGION__LAST_XCHANNEL:
+			unsetLastXChannel();
+			return;
+		case RegiondefinitionPackage.REGION__FIRST_YCHANNEL:
+			unsetFirstYChannel();
+			return;
+		case RegiondefinitionPackage.REGION__LAST_YCHANNEL:
+			unsetLastYChannel();
+			return;
+		case RegiondefinitionPackage.REGION__SLICES:
+			unsetSlices();
+			return;
+		case RegiondefinitionPackage.REGION__DETECTOR_MODE:
+			unsetDetectorMode();
+			return;
+		case RegiondefinitionPackage.REGION__ADC_MASK:
+			unsetADCMask();
+			return;
+		case RegiondefinitionPackage.REGION__DISCRIMINATOR_LEVEL:
+			unsetDiscriminatorLevel();
+			return;
 		}
 		super.eUnset(featureID);
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
-			case RegiondefinitionPackage.REGION__STATUS:
-				return status != STATUS_EDEFAULT;
-			case RegiondefinitionPackage.REGION__ENABLED:
-				return isSetEnabled();
-			case RegiondefinitionPackage.REGION__NAME:
-				return isSetName();
-			case RegiondefinitionPackage.REGION__LENS_MODE:
-				return isSetLensMode();
-			case RegiondefinitionPackage.REGION__PASS_ENERGY:
-				return isSetPassEnergy();
-			case RegiondefinitionPackage.REGION__RUN_MODE:
-				return isSetRunMode();
-			case RegiondefinitionPackage.REGION__EXCITATION_ENERGY:
-				return isSetExcitationEnergy();
-			case RegiondefinitionPackage.REGION__ACQUISITION_MODE:
-				return isSetAcquisitionMode();
-			case RegiondefinitionPackage.REGION__ENERGY_MODE:
-				return isSetEnergyMode();
-			case RegiondefinitionPackage.REGION__FIX_ENERGY:
-				return isSetFixEnergy();
-			case RegiondefinitionPackage.REGION__LOW_ENERGY:
-				return isSetLowEnergy();
-			case RegiondefinitionPackage.REGION__HIGH_ENERGY:
-				return isSetHighEnergy();
-			case RegiondefinitionPackage.REGION__ENERGY_STEP:
-				return isSetEnergyStep();
-			case RegiondefinitionPackage.REGION__SETP_TIME:
-				return isSetSetpTime();
-			case RegiondefinitionPackage.REGION__FIRST_XCHANNEL:
-				return isSetFirstXChannel();
-			case RegiondefinitionPackage.REGION__LAST_XCHANNEL:
-				return isSetLastXChannel();
-			case RegiondefinitionPackage.REGION__FIRST_YCHANNEL:
-				return isSetFirstYChannel();
-			case RegiondefinitionPackage.REGION__LAST_YCHANNEL:
-				return isSetLastYChannel();
-			case RegiondefinitionPackage.REGION__SLICES:
-				return isSetSlices();
-			case RegiondefinitionPackage.REGION__DETECTOR_MODE:
-				return isSetDetectorMode();
-			case RegiondefinitionPackage.REGION__ADC_MASK:
-				return isSetADCMask();
-			case RegiondefinitionPackage.REGION__DISCRIMINATOR_LEVEL:
-				return isSetDiscriminatorLevel();
+		case RegiondefinitionPackage.REGION__REGION_ID:
+			return REGION_ID_EDEFAULT == null ? regionId != null
+					: !REGION_ID_EDEFAULT.equals(regionId);
+		case RegiondefinitionPackage.REGION__STATUS:
+			return status != STATUS_EDEFAULT;
+		case RegiondefinitionPackage.REGION__ENABLED:
+			return isSetEnabled();
+		case RegiondefinitionPackage.REGION__NAME:
+			return isSetName();
+		case RegiondefinitionPackage.REGION__LENS_MODE:
+			return isSetLensMode();
+		case RegiondefinitionPackage.REGION__PASS_ENERGY:
+			return isSetPassEnergy();
+		case RegiondefinitionPackage.REGION__RUN_MODE:
+			return isSetRunMode();
+		case RegiondefinitionPackage.REGION__EXCITATION_ENERGY:
+			return isSetExcitationEnergy();
+		case RegiondefinitionPackage.REGION__ACQUISITION_MODE:
+			return isSetAcquisitionMode();
+		case RegiondefinitionPackage.REGION__ENERGY_MODE:
+			return isSetEnergyMode();
+		case RegiondefinitionPackage.REGION__FIX_ENERGY:
+			return isSetFixEnergy();
+		case RegiondefinitionPackage.REGION__LOW_ENERGY:
+			return isSetLowEnergy();
+		case RegiondefinitionPackage.REGION__HIGH_ENERGY:
+			return isSetHighEnergy();
+		case RegiondefinitionPackage.REGION__ENERGY_STEP:
+			return isSetEnergyStep();
+		case RegiondefinitionPackage.REGION__SETP_TIME:
+			return isSetSetpTime();
+		case RegiondefinitionPackage.REGION__FIRST_XCHANNEL:
+			return isSetFirstXChannel();
+		case RegiondefinitionPackage.REGION__LAST_XCHANNEL:
+			return isSetLastXChannel();
+		case RegiondefinitionPackage.REGION__FIRST_YCHANNEL:
+			return isSetFirstYChannel();
+		case RegiondefinitionPackage.REGION__LAST_YCHANNEL:
+			return isSetLastYChannel();
+		case RegiondefinitionPackage.REGION__SLICES:
+			return isSetSlices();
+		case RegiondefinitionPackage.REGION__DETECTOR_MODE:
+			return isSetDetectorMode();
+		case RegiondefinitionPackage.REGION__ADC_MASK:
+			return isSetADCMask();
+		case RegiondefinitionPackage.REGION__DISCRIMINATOR_LEVEL:
+			return isSetDiscriminatorLevel();
 		}
 		return super.eIsSet(featureID);
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
 	 * @generated
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy()) return super.toString();
+		if (eIsProxy())
+			return super.toString();
 
 		StringBuffer result = new StringBuffer(super.toString());
-		result.append(" (Status: "); //$NON-NLS-1$
+		result.append(" (regionId: "); //$NON-NLS-1$
+		result.append(regionId);
+		result.append(", Status: "); //$NON-NLS-1$
 		result.append(status);
 		result.append(", Enabled: "); //$NON-NLS-1$
-		if (enabledESet) result.append(enabled); else result.append("<unset>"); //$NON-NLS-1$
+		if (enabledESet)
+			result.append(enabled);
+		else
+			result.append("<unset>"); //$NON-NLS-1$
 		result.append(", name: "); //$NON-NLS-1$
-		if (nameESet) result.append(name); else result.append("<unset>"); //$NON-NLS-1$
+		if (nameESet)
+			result.append(name);
+		else
+			result.append("<unset>"); //$NON-NLS-1$
 		result.append(", lensMode: "); //$NON-NLS-1$
-		if (lensModeESet) result.append(lensMode); else result.append("<unset>"); //$NON-NLS-1$
+		if (lensModeESet)
+			result.append(lensMode);
+		else
+			result.append("<unset>"); //$NON-NLS-1$
 		result.append(", passEnergy: "); //$NON-NLS-1$
-		if (passEnergyESet) result.append(passEnergy); else result.append("<unset>"); //$NON-NLS-1$
+		if (passEnergyESet)
+			result.append(passEnergy);
+		else
+			result.append("<unset>"); //$NON-NLS-1$
 		result.append(", excitationEnergy: "); //$NON-NLS-1$
-		if (excitationEnergyESet) result.append(excitationEnergy); else result.append("<unset>"); //$NON-NLS-1$
+		if (excitationEnergyESet)
+			result.append(excitationEnergy);
+		else
+			result.append("<unset>"); //$NON-NLS-1$
 		result.append(", acquisitionMode: "); //$NON-NLS-1$
-		if (acquisitionModeESet) result.append(acquisitionMode); else result.append("<unset>"); //$NON-NLS-1$
+		if (acquisitionModeESet)
+			result.append(acquisitionMode);
+		else
+			result.append("<unset>"); //$NON-NLS-1$
 		result.append(", energyMode: "); //$NON-NLS-1$
-		if (energyModeESet) result.append(energyMode); else result.append("<unset>"); //$NON-NLS-1$
+		if (energyModeESet)
+			result.append(energyMode);
+		else
+			result.append("<unset>"); //$NON-NLS-1$
 		result.append(", fixEnergy: "); //$NON-NLS-1$
-		if (fixEnergyESet) result.append(fixEnergy); else result.append("<unset>"); //$NON-NLS-1$
+		if (fixEnergyESet)
+			result.append(fixEnergy);
+		else
+			result.append("<unset>"); //$NON-NLS-1$
 		result.append(", lowEnergy: "); //$NON-NLS-1$
-		if (lowEnergyESet) result.append(lowEnergy); else result.append("<unset>"); //$NON-NLS-1$
+		if (lowEnergyESet)
+			result.append(lowEnergy);
+		else
+			result.append("<unset>"); //$NON-NLS-1$
 		result.append(", highEnergy: "); //$NON-NLS-1$
-		if (highEnergyESet) result.append(highEnergy); else result.append("<unset>"); //$NON-NLS-1$
+		if (highEnergyESet)
+			result.append(highEnergy);
+		else
+			result.append("<unset>"); //$NON-NLS-1$
 		result.append(", energyStep: "); //$NON-NLS-1$
-		if (energyStepESet) result.append(energyStep); else result.append("<unset>"); //$NON-NLS-1$
+		if (energyStepESet)
+			result.append(energyStep);
+		else
+			result.append("<unset>"); //$NON-NLS-1$
 		result.append(", setpTime: "); //$NON-NLS-1$
-		if (setpTimeESet) result.append(setpTime); else result.append("<unset>"); //$NON-NLS-1$
+		if (setpTimeESet)
+			result.append(setpTime);
+		else
+			result.append("<unset>"); //$NON-NLS-1$
 		result.append(", firstXChannel: "); //$NON-NLS-1$
-		if (firstXChannelESet) result.append(firstXChannel); else result.append("<unset>"); //$NON-NLS-1$
+		if (firstXChannelESet)
+			result.append(firstXChannel);
+		else
+			result.append("<unset>"); //$NON-NLS-1$
 		result.append(", lastXChannel: "); //$NON-NLS-1$
-		if (lastXChannelESet) result.append(lastXChannel); else result.append("<unset>"); //$NON-NLS-1$
+		if (lastXChannelESet)
+			result.append(lastXChannel);
+		else
+			result.append("<unset>"); //$NON-NLS-1$
 		result.append(", firstYChannel: "); //$NON-NLS-1$
-		if (firstYChannelESet) result.append(firstYChannel); else result.append("<unset>"); //$NON-NLS-1$
+		if (firstYChannelESet)
+			result.append(firstYChannel);
+		else
+			result.append("<unset>"); //$NON-NLS-1$
 		result.append(", lastYChannel: "); //$NON-NLS-1$
-		if (lastYChannelESet) result.append(lastYChannel); else result.append("<unset>"); //$NON-NLS-1$
+		if (lastYChannelESet)
+			result.append(lastYChannel);
+		else
+			result.append("<unset>"); //$NON-NLS-1$
 		result.append(", slices: "); //$NON-NLS-1$
-		if (slicesESet) result.append(slices); else result.append("<unset>"); //$NON-NLS-1$
+		if (slicesESet)
+			result.append(slices);
+		else
+			result.append("<unset>"); //$NON-NLS-1$
 		result.append(", detectorMode: "); //$NON-NLS-1$
-		if (detectorModeESet) result.append(detectorMode); else result.append("<unset>"); //$NON-NLS-1$
+		if (detectorModeESet)
+			result.append(detectorMode);
+		else
+			result.append("<unset>"); //$NON-NLS-1$
 		result.append(", ADCMask: "); //$NON-NLS-1$
-		if (adcMaskESet) result.append(adcMask); else result.append("<unset>"); //$NON-NLS-1$
+		if (adcMaskESet)
+			result.append(adcMask);
+		else
+			result.append("<unset>"); //$NON-NLS-1$
 		result.append(", discriminatorLevel: "); //$NON-NLS-1$
-		if (discriminatorLevelESet) result.append(discriminatorLevel); else result.append("<unset>"); //$NON-NLS-1$
+		if (discriminatorLevelESet)
+			result.append(discriminatorLevel);
+		else
+			result.append("<unset>"); //$NON-NLS-1$
 		result.append(')');
 		return result.toString();
 	}
 
-} //RegionImpl
+} // RegionImpl

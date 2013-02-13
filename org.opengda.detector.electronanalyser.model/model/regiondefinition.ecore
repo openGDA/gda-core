@@ -29,6 +29,8 @@
         unsettable="true" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Region">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="regionId" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        iD="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="Status" eType="#//STATUS"
         defaultValueLiteral="READY"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="Enabled" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"
@@ -143,5 +145,4 @@
     <eLiterals name="COMPLETED" value="2"/>
     <eLiterals name="ABORTED" value="3"/>
   </eClassifiers>
-  <eSubpackages name=""/>
 </ecore:EPackage>

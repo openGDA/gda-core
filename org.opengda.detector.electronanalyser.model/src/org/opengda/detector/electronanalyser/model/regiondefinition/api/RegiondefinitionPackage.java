@@ -186,13 +186,22 @@ public interface RegiondefinitionPackage extends EPackage {
 	int REGION = 2;
 
 	/**
+	 * The feature id for the '<em><b>Region Id</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REGION__REGION_ID = 0;
+
+	/**
 	 * The feature id for the '<em><b>Status</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int REGION__STATUS = 0;
+	int REGION__STATUS = 1;
 
 	/**
 	 * The feature id for the '<em><b>Enabled</b></em>' attribute.
@@ -201,7 +210,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REGION__ENABLED = 1;
+	int REGION__ENABLED = 2;
 
 	/**
 	 * The feature id for the '<em><b>Name</b></em>' attribute.
@@ -210,7 +219,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REGION__NAME = 2;
+	int REGION__NAME = 3;
 
 	/**
 	 * The feature id for the '<em><b>Lens Mode</b></em>' attribute.
@@ -219,7 +228,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REGION__LENS_MODE = 3;
+	int REGION__LENS_MODE = 4;
 
 	/**
 	 * The feature id for the '<em><b>Pass Energy</b></em>' attribute.
@@ -228,7 +237,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REGION__PASS_ENERGY = 4;
+	int REGION__PASS_ENERGY = 5;
 
 	/**
 	 * The feature id for the '<em><b>Run Mode</b></em>' containment reference.
@@ -237,7 +246,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REGION__RUN_MODE = 5;
+	int REGION__RUN_MODE = 6;
 
 	/**
 	 * The feature id for the '<em><b>Excitation Energy</b></em>' attribute.
@@ -246,7 +255,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REGION__EXCITATION_ENERGY = 6;
+	int REGION__EXCITATION_ENERGY = 7;
 
 	/**
 	 * The feature id for the '<em><b>Acquisition Mode</b></em>' attribute.
@@ -255,7 +264,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REGION__ACQUISITION_MODE = 7;
+	int REGION__ACQUISITION_MODE = 8;
 
 	/**
 	 * The feature id for the '<em><b>Energy Mode</b></em>' attribute.
@@ -264,7 +273,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REGION__ENERGY_MODE = 8;
+	int REGION__ENERGY_MODE = 9;
 
 	/**
 	 * The feature id for the '<em><b>Fix Energy</b></em>' attribute.
@@ -273,7 +282,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REGION__FIX_ENERGY = 9;
+	int REGION__FIX_ENERGY = 10;
 
 	/**
 	 * The feature id for the '<em><b>Low Energy</b></em>' attribute.
@@ -282,7 +291,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REGION__LOW_ENERGY = 10;
+	int REGION__LOW_ENERGY = 11;
 
 	/**
 	 * The feature id for the '<em><b>High Energy</b></em>' attribute.
@@ -291,7 +300,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REGION__HIGH_ENERGY = 11;
+	int REGION__HIGH_ENERGY = 12;
 
 	/**
 	 * The feature id for the '<em><b>Energy Step</b></em>' attribute.
@@ -300,7 +309,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REGION__ENERGY_STEP = 12;
+	int REGION__ENERGY_STEP = 13;
 
 	/**
 	 * The feature id for the '<em><b>Setp Time</b></em>' attribute.
@@ -309,7 +318,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REGION__SETP_TIME = 13;
+	int REGION__SETP_TIME = 14;
 
 	/**
 	 * The feature id for the '<em><b>First XChannel</b></em>' attribute.
@@ -318,7 +327,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REGION__FIRST_XCHANNEL = 14;
+	int REGION__FIRST_XCHANNEL = 15;
 
 	/**
 	 * The feature id for the '<em><b>Last XChannel</b></em>' attribute.
@@ -327,7 +336,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REGION__LAST_XCHANNEL = 15;
+	int REGION__LAST_XCHANNEL = 16;
 
 	/**
 	 * The feature id for the '<em><b>First YChannel</b></em>' attribute.
@@ -336,7 +345,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REGION__FIRST_YCHANNEL = 16;
+	int REGION__FIRST_YCHANNEL = 17;
 
 	/**
 	 * The feature id for the '<em><b>Last YChannel</b></em>' attribute.
@@ -345,7 +354,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REGION__LAST_YCHANNEL = 17;
+	int REGION__LAST_YCHANNEL = 18;
 
 	/**
 	 * The feature id for the '<em><b>Slices</b></em>' attribute.
@@ -354,7 +363,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REGION__SLICES = 18;
+	int REGION__SLICES = 19;
 
 	/**
 	 * The feature id for the '<em><b>Detector Mode</b></em>' attribute.
@@ -363,7 +372,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REGION__DETECTOR_MODE = 19;
+	int REGION__DETECTOR_MODE = 20;
 
 	/**
 	 * The feature id for the '<em><b>ADC Mask</b></em>' attribute.
@@ -372,7 +381,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REGION__ADC_MASK = 20;
+	int REGION__ADC_MASK = 21;
 
 	/**
 	 * The feature id for the '<em><b>Discriminator Level</b></em>' attribute.
@@ -381,7 +390,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REGION__DISCRIMINATOR_LEVEL = 21;
+	int REGION__DISCRIMINATOR_LEVEL = 22;
 
 	/**
 	 * The number of structural features of the '<em>Region</em>' class.
@@ -390,7 +399,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REGION_FEATURE_COUNT = 22;
+	int REGION_FEATURE_COUNT = 23;
 
 	/**
 	 * The meta object id for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RunModeImpl <em>Run Mode</em>}' class.
@@ -755,6 +764,17 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 */
 	EClass getRegion();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getRegionId <em>Region Id</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Region Id</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getRegionId()
+	 * @see #getRegion()
+	 * @generated
+	 */
+	EAttribute getRegion_RegionId();
 
 	/**
 	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getName <em>Name</em>}'.
@@ -1365,6 +1385,14 @@ public interface RegiondefinitionPackage extends EPackage {
 		 * @generated
 		 */
 		EClass REGION = eINSTANCE.getRegion();
+
+		/**
+		 * The meta object literal for the '<em><b>Region Id</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute REGION__REGION_ID = eINSTANCE.getRegion_RegionId();
 
 		/**
 		 * The meta object literal for the '<em><b>Name</b></em>' attribute feature.

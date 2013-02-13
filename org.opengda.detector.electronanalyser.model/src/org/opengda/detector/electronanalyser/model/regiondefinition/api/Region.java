@@ -14,6 +14,7 @@ import org.eclipse.emf.ecore.EObject;
  * <p>
  * The following features are supported:
  * <ul>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getRegionId <em>Region Id</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getStatus <em>Status</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#isEnabled <em>Enabled</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getName <em>Name</em>}</li>
@@ -44,6 +45,32 @@ import org.eclipse.emf.ecore.EObject;
  * @generated
  */
 public interface Region extends EObject {
+	/**
+	 * Returns the value of the '<em><b>Region Id</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Region Id</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Region Id</em>' attribute.
+	 * @see #setRegionId(String)
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_RegionId()
+	 * @model id="true"
+	 * @generated
+	 */
+	String getRegionId();
+
+	/**
+	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getRegionId <em>Region Id</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Region Id</em>' attribute.
+	 * @see #getRegionId()
+	 * @generated
+	 */
+	void setRegionId(String value);
+
 	/**
 	 * Returns the value of the '<em><b>Name</b></em>' attribute.
 	 * The default value is <code>"New Region"</code>.
