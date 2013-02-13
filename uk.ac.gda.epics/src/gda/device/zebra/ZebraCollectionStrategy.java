@@ -22,6 +22,7 @@ import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
+import gda.scan.ScanInformation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,10 +57,6 @@ public class ZebraCollectionStrategy implements NXCollectionStrategyPlugin {
 	@Override
 	public boolean willRequireCallbacks() {
 		return false; // not EPICS areaDetector plugin
-	}
-
-	@Override
-	public void prepareForCollection(int numberImagesPerCollection) throws Exception {
 	}
 
 	@Override
@@ -138,10 +135,6 @@ public class ZebraCollectionStrategy implements NXCollectionStrategyPlugin {
 	}
 
 	@Override
-	public void prepareForCollection(double collectionTime, int numberImagesPerCollection) throws Exception {
-	}
-
-	@Override
 	public void collectData() throws Exception {
 	}
 
@@ -167,6 +160,15 @@ public class ZebraCollectionStrategy implements NXCollectionStrategyPlugin {
 	@Override
 	public int getNumberImagesPerCollection(double collectionTime) throws Exception {
 		return 0;
+	}
+
+	@Override
+	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
+	}
+
+	@Override
+	public void prepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo)
+			throws Exception {
 	}
 
 }
