@@ -81,9 +81,9 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin {
 	public List<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
 			DeviceException {
 		if (getEnabledStats().isEmpty()) {
-			NXDetectorDataAppender[] points = new NXDetectorDataAppender[getNumPointsInLine()];
-			Arrays.fill(points, new NXDetectorDataNullAppender());
-			return Arrays.asList(points);
+			List<NXDetectorDataAppender> appenders = new ArrayList<NXDetectorDataAppender>();
+			appenders.add(new NXDetectorDataNullAppender());
+			return appenders;
 		}
 		return readFromTimeSeries(maxToRead);
 	}
