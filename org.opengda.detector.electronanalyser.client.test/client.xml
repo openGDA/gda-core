@@ -5,9 +5,9 @@
 
 
 	<bean id="regionDefinitionResourceUtil"
-		class="org.opengda.detector.electronanalyser.model.regiondefinition.util.RegionDefinitionResourceUtil">
+		class="org.opengda.detector.electronanalyser.client.RegionDefinitionResourceUtil">
 		<property name="fileName"
-			value="D:/gda/gda-i09/runtime-TestCleint/Test123/My1.regiondefinition" />
+			value="D:/gda/gda-i09/runtime-TestInClient/Test123/My.regiondefinition" />
 	</bean>
 	<bean id="regionviewfactory"
 		class="org.opengda.detector.electronanalyser.client.regioneditor.RegionViewFactory">
