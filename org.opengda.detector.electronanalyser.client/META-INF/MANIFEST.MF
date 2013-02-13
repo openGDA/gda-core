@@ -3,16 +3,22 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Client
 Bundle-SymbolicName: org.opengda.detector.electronanalyser.client;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: org.opengda.detector.electronanalyser.client.Activator
+Bundle-Activator: org.opengda.detector.electronanalyser.client.ElectronAnalyserClientPlugin
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
  uk.ac.gda.client;bundle-version="1.0.0",
  uk.ac.gda.api;bundle-version="8.26.0",
  uk.ac.diamond.org.springframework;bundle-version="1.0.0",
  uk.ac.gda.core;bundle-version="8.26.0",
- org.opengda.detector.electronanalyser.model;bundle-version="1.0.0"
+ org.opengda.detector.electronanalyser.model;bundle-version="1.0.0",
+ org.eclipse.emf.ecore.edit;bundle-version="2.7.0",
+ org.opengda.detector.electronanalyser.model.edit;bundle-version="1.0.0",
+ org.eclipse.emf.edit.ui;bundle-version="2.7.0",
+ org.eclipse.emf.transaction,
+ org.eclipse.emf.workspace;bundle-version="1.5.1"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.slf4j,
  org.springframework.beans.factory;version="3.0.4"
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
+Export-Package: org.opengda.detector.electronanalyser.client
