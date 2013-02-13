@@ -21,6 +21,15 @@
                optional="false">
          </commandParameter>
       </command>
+      <command
+            id="uk.ac.gda.epics.adviewer.command.zoomToFit"
+            name="ZoomToFit">
+         <commandParameter
+               id="uk.ac.gda.epics.adviewer.commandParameters.adcontrollerServiceName"
+               name="name"
+               optional="false">
+         </commandParameter>
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.commandImages">
@@ -32,6 +41,10 @@
             commandId="uk.ac.gda.epics.adviewer.commands.setExposure"
             icon="icons/setExposure.gif">
       </image>
+      <image
+            commandId="uk.ac.gda.epics.adviewer.command.zoomToFit"
+            icon="icons/arrow_out.png">
+      </image>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
@@ -42,6 +55,10 @@
       <handler
             class="uk.ac.gda.epics.adviewer.handlers.SetLiveViewScale"
             commandId="uk.ac.gda.epics.adviewer.commands.setLiveViewScale">
+      </handler>
+      <handler
+            class="uk.ac.gda.epics.adviewer.handlers.ZoomToFit"
+            commandId="uk.ac.gda.epics.adviewer.command.zoomToFit">
       </handler>
    </extension>
 
