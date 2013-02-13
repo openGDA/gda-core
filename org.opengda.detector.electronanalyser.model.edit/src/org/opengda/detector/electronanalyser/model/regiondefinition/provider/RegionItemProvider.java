@@ -13,17 +13,23 @@ import org.eclipse.emf.common.util.ResourceLocator;
 
 import org.eclipse.emf.ecore.EStructuralFeature;
 
+import org.eclipse.emf.ecore.EcoreFactory;
+import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.edit.provider.ComposeableAdapterFactory;
 import org.eclipse.emf.edit.provider.IEditingDomainItemProvider;
 import org.eclipse.emf.edit.provider.IItemLabelProvider;
 import org.eclipse.emf.edit.provider.IItemPropertyDescriptor;
 import org.eclipse.emf.edit.provider.IItemPropertySource;
 import org.eclipse.emf.edit.provider.IStructuredItemContentProvider;
+import org.eclipse.emf.edit.provider.ITableItemLabelProvider;
 import org.eclipse.emf.edit.provider.ITreeItemContentProvider;
 import org.eclipse.emf.edit.provider.ItemPropertyDescriptor;
 import org.eclipse.emf.edit.provider.ItemProviderAdapter;
 import org.eclipse.emf.edit.provider.ViewerNotification;
 
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.DETECTOR_MODE;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.LENS_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.PASS_ENERGY;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionFactory;
@@ -38,11 +44,7 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Regionde
 public class RegionItemProvider
 	extends ItemProviderAdapter
 	implements
-		IEditingDomainItemProvider,
-		IStructuredItemContentProvider,
-		ITreeItemContentProvider,
-		IItemLabelProvider,
-		IItemPropertySource {
+		IEditingDomainItemProvider, IStructuredItemContentProvider, ITreeItemContentProvider, IItemLabelProvider, IItemPropertySource, ITableItemLabelProvider {
 	/**
 	 * This constructs an instance from a factory and a notifier.
 	 * <!-- begin-user-doc -->
@@ -64,6 +66,7 @@ public class RegionItemProvider
 		if (itemPropertyDescriptors == null) {
 			super.getPropertyDescriptors(object);
 
+			addRegionIdPropertyDescriptor(object);
 			addStatusPropertyDescriptor(object);
 			addEnabledPropertyDescriptor(object);
 			addNamePropertyDescriptor(object);
@@ -87,6 +90,28 @@ public class RegionItemProvider
 			addDiscriminatorLevelPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
+	}
+
+	/**
+	 * This adds a property descriptor for the Region Id feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addRegionIdPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Region_regionId_feature"), //$NON-NLS-1$
+				 getString("_UI_PropertyDescriptor_description", "_UI_Region_regionId_feature", "_UI_Region_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				 RegiondefinitionPackage.Literals.REGION__REGION_ID,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 null,
+				 null));
 	}
 
 	/**
@@ -563,7 +588,23 @@ public class RegionItemProvider
 	public Collection<? extends EStructuralFeature> getChildrenFeatures(Object object) {
 		if (childrenFeatures == null) {
 			super.getChildrenFeatures(object);
-			childrenFeatures.add(RegiondefinitionPackage.Literals.REGION__RUN_MODE);
+			childrenFeatures.add(RegiondefinitionPackage.Literals.REGION__ENABLED);
+			childrenFeatures.add(RegiondefinitionPackage.Literals.REGION__NAME);
+			childrenFeatures.add(RegiondefinitionPackage.Literals.REGION__LENS_MODE);
+			childrenFeatures.add(RegiondefinitionPackage.Literals.REGION__PASS_ENERGY);
+			childrenFeatures.add(RegiondefinitionPackage.Literals.REGION__EXCITATION_ENERGY);
+			childrenFeatures.add(RegiondefinitionPackage.Literals.REGION__ENERGY_MODE);
+			childrenFeatures.add(RegiondefinitionPackage.Literals.REGION__FIX_ENERGY);
+			childrenFeatures.add(RegiondefinitionPackage.Literals.REGION__LOW_ENERGY);
+			childrenFeatures.add(RegiondefinitionPackage.Literals.REGION__HIGH_ENERGY);
+			childrenFeatures.add(RegiondefinitionPackage.Literals.REGION__ENERGY_STEP);
+			childrenFeatures.add(RegiondefinitionPackage.Literals.REGION__SETP_TIME);
+			childrenFeatures.add(RegiondefinitionPackage.Literals.REGION__FIRST_XCHANNEL);
+			childrenFeatures.add(RegiondefinitionPackage.Literals.REGION__LAST_XCHANNEL);
+			childrenFeatures.add(RegiondefinitionPackage.Literals.REGION__FIRST_YCHANNEL);
+			childrenFeatures.add(RegiondefinitionPackage.Literals.REGION__LAST_YCHANNEL);
+			childrenFeatures.add(RegiondefinitionPackage.Literals.REGION__SLICES);
+			childrenFeatures.add(RegiondefinitionPackage.Literals.REGION__DETECTOR_MODE);
 		}
 		return childrenFeatures;
 	}
@@ -618,13 +659,18 @@ public class RegionItemProvider
 		updateChildren(notification);
 
 		switch (notification.getFeatureID(Region.class)) {
+			case RegiondefinitionPackage.REGION__REGION_ID:
 			case RegiondefinitionPackage.REGION__STATUS:
+			case RegiondefinitionPackage.REGION__RUN_MODE:
+			case RegiondefinitionPackage.REGION__ACQUISITION_MODE:
+			case RegiondefinitionPackage.REGION__ADC_MASK:
+			case RegiondefinitionPackage.REGION__DISCRIMINATOR_LEVEL:
+				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
+				return;
 			case RegiondefinitionPackage.REGION__ENABLED:
-			case RegiondefinitionPackage.REGION__NAME:
 			case RegiondefinitionPackage.REGION__LENS_MODE:
 			case RegiondefinitionPackage.REGION__PASS_ENERGY:
 			case RegiondefinitionPackage.REGION__EXCITATION_ENERGY:
-			case RegiondefinitionPackage.REGION__ACQUISITION_MODE:
 			case RegiondefinitionPackage.REGION__ENERGY_MODE:
 			case RegiondefinitionPackage.REGION__FIX_ENERGY:
 			case RegiondefinitionPackage.REGION__LOW_ENERGY:
@@ -637,12 +683,10 @@ public class RegionItemProvider
 			case RegiondefinitionPackage.REGION__LAST_YCHANNEL:
 			case RegiondefinitionPackage.REGION__SLICES:
 			case RegiondefinitionPackage.REGION__DETECTOR_MODE:
-			case RegiondefinitionPackage.REGION__ADC_MASK:
-			case RegiondefinitionPackage.REGION__DISCRIMINATOR_LEVEL:
-				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
-				return;
-			case RegiondefinitionPackage.REGION__RUN_MODE:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), true, false));
+				return;
+			case RegiondefinitionPackage.REGION__NAME:
+				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), true, true));
 				return;
 		}
 		super.notifyChanged(notification);
@@ -661,8 +705,88 @@ public class RegionItemProvider
 
 		newChildDescriptors.add
 			(createChildParameter
-				(RegiondefinitionPackage.Literals.REGION__RUN_MODE,
-				 RegiondefinitionFactory.eINSTANCE.createRunMode()));
+				(RegiondefinitionPackage.Literals.REGION__ENABLED,
+				 EcoreFactory.eINSTANCE.createFromString(EcorePackage.Literals.EBOOLEAN, "true"))); //$NON-NLS-1$
+
+		newChildDescriptors.add
+			(createChildParameter
+				(RegiondefinitionPackage.Literals.REGION__NAME,
+				 "New Region")); //$NON-NLS-1$
+
+		newChildDescriptors.add
+			(createChildParameter
+				(RegiondefinitionPackage.Literals.REGION__LENS_MODE,
+				 LENS_MODE.TRANSMISSION));
+
+		newChildDescriptors.add
+			(createChildParameter
+				(RegiondefinitionPackage.Literals.REGION__PASS_ENERGY,
+				 PASS_ENERGY._10));
+
+		newChildDescriptors.add
+			(createChildParameter
+				(RegiondefinitionPackage.Literals.REGION__EXCITATION_ENERGY,
+				 EcoreFactory.eINSTANCE.createFromString(EcorePackage.Literals.EDOUBLE, "0.0"))); //$NON-NLS-1$
+
+		newChildDescriptors.add
+			(createChildParameter
+				(RegiondefinitionPackage.Literals.REGION__ENERGY_MODE,
+				 ENERGY_MODE.KINETIC));
+
+		newChildDescriptors.add
+			(createChildParameter
+				(RegiondefinitionPackage.Literals.REGION__FIX_ENERGY,
+				 EcoreFactory.eINSTANCE.createFromString(EcorePackage.Literals.EDOUBLE, "0.0"))); //$NON-NLS-1$
+
+		newChildDescriptors.add
+			(createChildParameter
+				(RegiondefinitionPackage.Literals.REGION__LOW_ENERGY,
+				 EcoreFactory.eINSTANCE.createFromString(EcorePackage.Literals.EDOUBLE, "0.0"))); //$NON-NLS-1$
+
+		newChildDescriptors.add
+			(createChildParameter
+				(RegiondefinitionPackage.Literals.REGION__HIGH_ENERGY,
+				 EcoreFactory.eINSTANCE.createFromString(EcorePackage.Literals.EDOUBLE, "0.0"))); //$NON-NLS-1$
+
+		newChildDescriptors.add
+			(createChildParameter
+				(RegiondefinitionPackage.Literals.REGION__ENERGY_STEP,
+				 EcoreFactory.eINSTANCE.createFromString(EcorePackage.Literals.EDOUBLE, "0.0"))); //$NON-NLS-1$
+
+		newChildDescriptors.add
+			(createChildParameter
+				(RegiondefinitionPackage.Literals.REGION__SETP_TIME,
+				 EcoreFactory.eINSTANCE.createFromString(EcorePackage.Literals.EDOUBLE, "0.0"))); //$NON-NLS-1$
+
+		newChildDescriptors.add
+			(createChildParameter
+				(RegiondefinitionPackage.Literals.REGION__FIRST_XCHANNEL,
+				 EcoreFactory.eINSTANCE.createFromString(EcorePackage.Literals.EINT, "1"))); //$NON-NLS-1$
+
+		newChildDescriptors.add
+			(createChildParameter
+				(RegiondefinitionPackage.Literals.REGION__LAST_XCHANNEL,
+				 EcoreFactory.eINSTANCE.createFromString(EcorePackage.Literals.EINT, "1024"))); //$NON-NLS-1$
+
+		newChildDescriptors.add
+			(createChildParameter
+				(RegiondefinitionPackage.Literals.REGION__FIRST_YCHANNEL,
+				 EcoreFactory.eINSTANCE.createFromString(EcorePackage.Literals.EINT, "1"))); //$NON-NLS-1$
+
+		newChildDescriptors.add
+			(createChildParameter
+				(RegiondefinitionPackage.Literals.REGION__LAST_YCHANNEL,
+				 EcoreFactory.eINSTANCE.createFromString(EcorePackage.Literals.EINT, "1024"))); //$NON-NLS-1$
+
+		newChildDescriptors.add
+			(createChildParameter
+				(RegiondefinitionPackage.Literals.REGION__SLICES,
+				 EcoreFactory.eINSTANCE.createFromString(EcorePackage.Literals.EINT, "1"))); //$NON-NLS-1$
+
+		newChildDescriptors.add
+			(createChildParameter
+				(RegiondefinitionPackage.Literals.REGION__DETECTOR_MODE,
+				 DETECTOR_MODE.ADC));
 	}
 
 	/**
