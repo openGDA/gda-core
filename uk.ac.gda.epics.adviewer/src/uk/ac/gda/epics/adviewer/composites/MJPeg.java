@@ -53,11 +53,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.epics.adviewer.ADController;
-import uk.ac.gda.epics.adviewer.composites.imageviewer.IImagePositionEvent;
 import uk.ac.gda.epics.adviewer.composites.imageviewer.ImagePositionListener;
 import uk.ac.gda.epics.adviewer.composites.imageviewer.NewImageListener;
-import uk.ac.gda.epics.adviewer.composites.imageviewer.OverlayType;
-import uk.ac.gda.epics.adviewer.composites.imageviewer.PrimitiveType;
 import uk.ac.gda.epics.adviewer.composites.imageviewer.SWT2DOverlayProvider;
 
 public class MJPeg extends Composite {
@@ -66,15 +63,11 @@ public class MJPeg extends Composite {
 
 	private ADController config;
 
-
 	private boolean liveMonitoring = false;
 	private Button liveMonitoringBtn;
 	private Label livwMonitoringLbl;
 
 	private CameraComposite cameraComposite;
-
-
-
 
 	public MJPeg(Composite parent, int style) {
 		super(parent, style);
@@ -86,13 +79,12 @@ public class MJPeg extends Composite {
 		left.setLayoutData(gd_left);
 		GridDataFactory.fillDefaults().grab(false, true).applyTo(left);
 		left.setLayout(new GridLayout(1, false));
-		
-		
+
 		statusComposite = new IOCStatus(left, SWT.NONE);
 		GridData gd_grpIocStatus1 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_grpIocStatus1.widthHint = 155;
 		statusComposite.setLayoutData(gd_grpIocStatus1);
-		
+
 		cameraStatus = new CameraStatus(left, SWT.NONE);
 
 		Group stateGroup = new Group(left, SWT.NONE);
@@ -129,7 +121,7 @@ public class MJPeg extends Composite {
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});
-		
+
 		composite = new Composite(left, SWT.NONE);
 		GridData gd_composite = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_composite.widthHint = 160;
@@ -138,75 +130,51 @@ public class MJPeg extends Composite {
 		gl_composite.marginWidth = 0;
 		gl_composite.marginHeight = 0;
 		composite.setLayout(gl_composite);
-		
+
 		lblTime = new Label(composite, SWT.NONE);
 		lblTime.setToolTipText("Time of last image");
 		lblTime.setText("Last image");
-		
+
 		txtTime = new Text(composite, SWT.BORDER);
 		txtTime.setText("Waiting ....");
-		
+
 		lblRates = new Label(composite, SWT.NONE);
 		lblRates.setText("Rate /s");
-		
+
 		txtRate = new Text(composite, SWT.BORDER);
 		txtRate.setText("Unknown");
-		
-		
+
 		Composite right = new Composite(this, SWT.NONE);
 		GridData gd_right = new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1);
 		gd_right.widthHint = 320;
 		right.setLayoutData(gd_right);
 		GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(right);
 		right.setLayout(new GridLayout(1, false));
-		
+
 		cameraComposite = new CameraComposite(right, SWT.NONE, parent.getDisplay(), new NewImageListener() {
-			
+
 			DateFormat df = new SimpleDateFormat("hh:mm:ss");
-			long timeOfLastImage=System.currentTimeMillis();
+			long timeOfLastImage = System.currentTimeMillis();
+
 			@Override
 			public void handlerNewImageNotification(ImageData lastImage2) throws Exception {
-				if(isDisposed())
+				if (isDisposed())
 					return;
 				// On the first image, ensure we reset the display to match incoming image dimensions
 				long ctime = System.currentTimeMillis();
 				txtTime.setText(df.format(new Date(ctime)));
-				txtRate.setText(String.format("%3.3g", 1000.0/(ctime-timeOfLastImage)));
+				txtRate.setText(String.format("%3.3g", 1000.0 / (ctime - timeOfLastImage)));
 				timeOfLastImage = ctime;
 			}
 		});
 		cameraComposite.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(cameraComposite);
 
-//		RaisedBorder border = new RaisedBorder(50,100,50,100);
-//		cameraComposite.getViewer().setImageBorder(border);
-		
-		SWT2DOverlayProvider fig = new SWT2DOverlayProvider(getTopFigure());
-		OverlayType type = OverlayType.IMAGE;
-		fig.begin(type );
-		int primitive = fig.registerPrimitive(PrimitiveType.BOX);
-		fig.drawBox(primitive, 0, 0, 100, 100);
-		fig.end(type);
-		
-		addImagePositionListener(new ImagePositionListener() {
-			
-			@Override
-			public void imageStart(IImagePositionEvent event) {
-				event.toString();
-				
-			}
-			
-			@Override
-			public void imageFinished(IImagePositionEvent event) {
-			}
-			
-			@Override
-			public void imageDragged(IImagePositionEvent event) {
-			}
-		}, fig);
-		
+		/*
+		 * @Override public void imageDragged(IImagePositionEvent event) { } }, fig);
+		 */
 		addDisposeListener(new DisposeListener() {
-			
+
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				try {
@@ -225,24 +193,26 @@ public class MJPeg extends Composite {
 			}
 		});
 	}
-	
-	public IFigure getTopFigure(){
-		return cameraComposite == null ? null : cameraComposite.getTopFigure();	
+
+	public IFigure getTopFigure() {
+		return cameraComposite == null ? null : cameraComposite.getTopFigure();
 	}
-	
-	public void addImagePositionListener(ImagePositionListener newListener, SWT2DOverlayProvider swtProvider){
-		if( cameraComposite != null)
+
+	public void addImagePositionListener(ImagePositionListener newListener, SWT2DOverlayProvider swtProvider) {
+		if (cameraComposite != null)
 			cameraComposite.getViewer().getPositionTool().addImagePositionListener(newListener, swtProvider);
 	}
-	public void removeImagePositionListener(ImagePositionListener listener){
-		if( cameraComposite != null)
+
+	public void removeImagePositionListener(ImagePositionListener listener) {
+		if (cameraComposite != null)
 			cameraComposite.getViewer().getPositionTool().removeImagePositionListener(listener);
 	}
-	
-	public void setADController(ADController config){
+
+	public void setADController(ADController config) {
 		this.config = config;
 		try {
-			Observable<Boolean> connectionStateObservable = config.getFfmpegStream().getPluginBase().createConnectionStateObservable();
+			Observable<Boolean> connectionStateObservable = config.getFfmpegStream().getPluginBase()
+					.createConnectionStateObservable();
 			statusComposite.setObservable(connectionStateObservable);
 		} catch (Exception e1) {
 			logger.error("Error monitoring ioc status", e1);
@@ -296,13 +266,13 @@ public class MJPeg extends Composite {
 			videoReceiver = motionJpegOverHttpReceiverSwt;
 		}
 		cameraComposite.setVideoReceiver(videoReceiver);
-		Display.getCurrent().asyncExec(new Runnable(){
+		Display.getCurrent().asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				videoReceiver.start();
-			}});
+			}
+		});
 
-		
 		setStarted(true);
 	}
 
@@ -321,14 +291,13 @@ public class MJPeg extends Composite {
 	}
 
 	public void zoomFit() {
-		if( cameraComposite != null)
+		if (cameraComposite != null)
 			cameraComposite.zoomFit();
 
-		
 	}
 
-
 }
+
 /**
  * @author Pratik Shah
  */

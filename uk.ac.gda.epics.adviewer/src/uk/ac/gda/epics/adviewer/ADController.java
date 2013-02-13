@@ -52,10 +52,24 @@ public interface ADController {
 
 	public abstract FfmpegStream getFfmpegStream();
 
-	public abstract int getfFMpegImgWidthRequired();
+	public abstract int getFfmpegImageOutWidthMax();
 
-	public abstract int getfFMpegImgHeightRequired();
+	public abstract int getFfmpegImageOutHeightMax();
 
+	/**
+	 * 
+	 * @return The maximum width of an image that the camera driver can deliver. The actual image width could be
+	 * smaller due to setting a region of interest or binning.
+	 */
+	public abstract int getCameraImageWidthMax();
+
+	/**
+	 * 
+	 * @return The maximum height of an image that the camera driver can deliver. The actual image width could be
+	 * smaller due to setting a region of interest or binning.
+	 */
+	public abstract int getCameraImageHeightMax();
+	
 	public abstract void startFfmpegStream() throws Exception;
 
 
@@ -68,10 +82,15 @@ public interface ADController {
 	public abstract ImageDescriptor getHistogramViewImageDescriptor();
 	
 	//height of the array passed to the mjpeg plugin
-	public abstract int getImageHeight() throws Exception;
+	public abstract int getFfmpegImageInHeight() throws Exception;
 
 	//width of the array passed to the mjpeg plugin
-	public abstract int getImageWidth() throws Exception;
+	public abstract int getFfmpegImageInWidth() throws Exception;
+
+	//due to use of a ROI the image arriving at the ffmpeg plugin may be offset in x and Y from the camera 0,0 position 
+	public abstract int getFfmpegImageInOffsetX() throws Exception;
+	
+	public abstract int getFfmpegImageInOffsetY() throws Exception;
 	
 
 }

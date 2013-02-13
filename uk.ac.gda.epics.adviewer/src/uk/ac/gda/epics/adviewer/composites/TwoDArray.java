@@ -27,6 +27,7 @@ import java.lang.reflect.Array;
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
+import org.dawb.common.ui.plot.axis.IAxis;
 import org.dawb.common.ui.plot.trace.IImageTrace;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -119,7 +120,9 @@ public class TwoDArray extends Composite {
 		}
 		plottingSystem.createPlotPart(right, "", parentViewPart.getViewSite().getActionBars(), PlotType.IMAGE,
 				parentViewPart);
-
+		for( IAxis axis : plottingSystem.getAxes()){
+			axis.setTitle("");
+		}
 		addDisposeListener(new DisposeListener() {
 
 			@Override
@@ -145,7 +148,7 @@ public class TwoDArray extends Composite {
 		try {
 			minCallbackTimeComposite.setMinTimeObservable(pluginBase.createMinCallbackTimeObservable());
 		} catch (Exception e2) {
-			logger.error("Error setting min cakkback time", e2);
+			logger.error("Error setting min callback time", e2);
 		}
 		
 		arrayMonitoringBtn.addSelectionListener(new SelectionListener() {
@@ -198,6 +201,9 @@ public class TwoDArray extends Composite {
 
 	private MinCallbackTimeComposite minCallbackTimeComposite;
 
+	private boolean viewIsVisible;
+	private Integer arrayCounter;
+
 	public void start() throws Exception {
 		config.getImageNDArray().getPluginBase().enableCallbacks();
 		if (arrayArrayCounterObservable == null) {
@@ -207,11 +213,15 @@ public class TwoDArray extends Composite {
 			arrayArrayCounterObserver = new Observer<Integer>() {
 
 				private IImageTrace trace;
-
+				private String getArrayName() {
+					return arrayCounter.toString();
+				}
+				
 				@Override
 				public void update(Observable<Integer> source, Integer arg) {
-					if (isDisposed())
+					if (isDisposed() || !viewIsVisible)
 						return;
+					TwoDArray.this.arrayCounter = arg;
 					if (updateArrayJob == null) {
 						updateArrayJob = new Job("Update array") {
 
@@ -248,18 +258,23 @@ public class TwoDArray extends Composite {
 											throw new IllegalArgumentException("Type of data not recognised: "
 													+ object.getClass().getName());
 										}
+										ads.setName(getArrayName());
 										if (updateUIRunnable == null) {
 											updateUIRunnable = new Runnable() {
 
 												@Override
 												public void run() {
 													runnableScheduled = false;
+													AbstractDataset dataToPlot = getDataToPlot();
 													if (trace == null) {
 														trace = (IImageTrace) plottingSystem.updatePlot2D(
-																getDataToPlot(), null, null);
+																dataToPlot, null, null);
 														trace.setRescaleHistogram(false);
 													} else {
-														plottingSystem.updatePlot2D(getDataToPlot(), null, null);
+														String title = dataToPlot.getName();
+														trace.setName(title);
+														plottingSystem.setTitle(title);
+														plottingSystem.updatePlot2D(dataToPlot, null, null);
 													}
 												}
 
@@ -278,6 +293,7 @@ public class TwoDArray extends Composite {
 								}
 								return Status.OK_STATUS;
 							}
+
 
 							private AbstractDataset getDataToPlot() {
 								return ads;
@@ -318,6 +334,12 @@ public class TwoDArray extends Composite {
 
 	public int getImageMax() {
 		return config.getImageMax();
+	}
+
+	public void setViewIsVisible(boolean b) {
+		this.viewIsVisible = b;
+		if(viewIsVisible)
+			arrayArrayCounterObserver.update(null, arrayCounter);
 	}
 
 }

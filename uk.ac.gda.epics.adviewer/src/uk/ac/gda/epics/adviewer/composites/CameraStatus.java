@@ -97,8 +97,9 @@ public class CameraStatus extends Composite {
 					
 					@Override
 					public void run() {
-						lblAcquireState.setText(arg);
-						btnStart.setEnabled(arg.equals("Done"));
+						boolean acquisitionStopped = arg.equals("Done");
+						lblAcquireState.setText(acquisitionStopped ? "Stopped": "Acquiring");
+						btnStart.setEnabled(acquisitionStopped);
 					}
 				});
 			}
