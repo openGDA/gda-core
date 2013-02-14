@@ -48,6 +48,7 @@ import gov.aps.jca.event.PutListener;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -354,6 +355,11 @@ public class LazyPVFactory {
 			} else {
 				dbrType = javaTypeToDBRType.get(javaType);
 			}
+		}
+		
+		@Override
+		public String toString() {
+			return MessageFormat.format("LazyPV({0}, {1})", pvName, javaType.getSimpleName());
 		}
 
 		private double defaultTimeout() {
@@ -1110,6 +1116,11 @@ public class LazyPVFactory {
 		public ReadOnly(PV<T> pv) {
 			super(pv);
 		}
+		
+		@Override
+		public String toString() {
+			return MessageFormat.format("ReadOnly({0})", getPV().toString());
+		}
 
 		@Override
 		protected T innerToOuter(T innerValue) {
@@ -1143,6 +1154,11 @@ public class LazyPVFactory {
 		}
 
 		@Override
+		public String toString() {
+			return MessageFormat.format("NoCallback({0})", getPV().toString());
+		}
+		
+		@Override
 		NoCallbackPV<T> getPV() {
 			return pv;
 		}
@@ -1166,6 +1182,11 @@ public class LazyPVFactory {
 		}
 
 		@Override
+		public String toString() {
+			return MessageFormat.format("StringFromWaveform({0})", getPV().toString());
+		}
+		
+		@Override
 		protected String innerToOuter(Byte[] innerValue) {
 			return new String(toPrimitive(innerValue)).trim();
 		}
@@ -1184,6 +1205,11 @@ public class LazyPVFactory {
 		}
 
 		@Override
+		public String toString() {
+			return MessageFormat.format("BooleanFromInteger({0})", getPV().toString());
+		}
+		
+		@Override
 		protected Boolean innerToOuter(Integer innerValue) {
 			return innerValue > 0;
 		}
@@ -1200,7 +1226,12 @@ public class LazyPVFactory {
 		private BooleanFromShort(LazyPV<Short> pv) {
 			super(pv);
 		}
-
+		
+		@Override
+		public String toString() {
+			return MessageFormat.format("BooleanFromShort({0})", getPV().toString());
+		}
+		
 		@Override
 		protected Boolean innerToOuter(Short innerValue) {
 			return innerValue > 0;

@@ -24,6 +24,7 @@ import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutListener;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -40,6 +41,11 @@ public class PVWithSeparateReadback<T> implements PV<T> {
 	public PVWithSeparateReadback(PV<T> putPV, ReadOnlyPV<T> getPV) {
 		this.putPV = putPV;
 		this.getPV = getPV;
+	}
+	
+	@Override
+	public String toString() {
+		return MessageFormat.format("PVWithSeparateReadback({0}, {1})", putPV, getPV);
 	}
 
 	@Override
