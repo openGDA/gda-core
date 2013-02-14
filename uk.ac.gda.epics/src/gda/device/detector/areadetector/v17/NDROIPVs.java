@@ -37,19 +37,12 @@ public interface NDROIPVs {
 	
 	public interface  ROIDimensionPVs { 
 		
-		PV<Boolean> getEnablePV();
+		PV<Boolean> getEnablePVPair();
 		
-		ReadOnlyPV<Integer> getMaxSizePV();
-		
-		PV<Integer>  getBinPVPair();
-
-		PV<Integer>  getStartPVPair();
+		PV<Integer>  getMinPVPair();
 
 		PV<Integer>  getSizePVPair();
 
-		PV<Boolean>  getReversePV();
-		
-		ReadOnlyPV<Integer> getArraySizePV();
 	} 
 	
 	public NDPluginBasePVs getPluginBasePVs();
@@ -60,7 +53,7 @@ public interface NDROIPVs {
 
 	PV<Boolean> getEnableScalePVPair();
 	
-	PV<Integer> getScalePV();
+	PV<Integer> getScalePVPair();
 	
 	ROIDimensionPVs getXDimension();
 	

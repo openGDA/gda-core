@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.nxdetector.plugin.areadetector.stats;
+package gda.device.detector.nxdetector.plugin.areadetector;
 
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;

@@ -22,90 +22,73 @@ import gda.device.detector.areadetector.v17.NDROIPVs;
 import gda.device.detector.nxdetector.plugin.NullNXPlugin;
 import gda.scan.ScanInformation;
 
-public class ADROIPlugin extends NullNXPlugin {
+public class ADRectangularROIPlugin extends NullNXPlugin {
 
-	public class RectangularROI {
-
-		final private int xstart;
-		final private int xsize;
-		final private int ystart;
-		final private int ysize;
-
-		public RectangularROI(int xstart, int xsize, int ystart, int ysize) {
-			this.xstart = xstart;
-			this.xsize = xsize;
-			this.ystart = ystart;
-			this.ysize = ysize;
-		}
-
-		public int getXstart() {
-			return xstart;
-		}
-
-		public int getXsize() {
-			return xsize;
-		}
-
-		public int getYstart() {
-			return ystart;
-		}
-
-		public int getYsize() {
-			return ysize;
-		}
-	}
 
 	private final NDROIPVs pvs;
 
-	private final String name;
-
-	private boolean enabled = false;
+	private final String pluginName;
 	
-	private RectangularROI roi;
+	private String roiName;
 
-	public boolean isEnabled() {
-		return enabled;
+	private ADRectangularROI roi;
+
+	/**
+	 * The name of the roi to push to Epics, and that {@link ADStatsROIPair} will use to prefix input names.
+	 */
+	public String getRoiName() {
+		return roiName;
 	}
 
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
+	public void setRoiName(String roiName) {
+		this.roiName = roiName;
 	}
-
-	public RectangularROI getRoi() {
+	
+	public ADRectangularROI getRoi() {
 		return roi;
 	}
 
-	public void setRoi(RectangularROI roi) {
+	/**
+	 * @param roi null to disable
+	 */
+	public void setRoi(ADRectangularROI roi) {
 		this.roi = roi;
 	}
 	
-	public ADROIPlugin(NDROIPVs ndROIPVs, String name) {
+	public ADRectangularROIPlugin(NDROIPVs ndROIPVs, String name) {
 		this.pvs = ndROIPVs;
-		this.name = name;
+		this.pluginName = name;
+		this.setRoiName(name); // initial value only
 	}
 	
 	@Override
 	public String getName() {
-		return name;
+		return pluginName;
 	}
 
 	@Override
 	public boolean willRequireCallbacks() {
-		return isEnabled();
+		return getRoi() != null;
 	}
 	
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
-		pvs.getNamePV().putCallback(getName());
-		pvs.getPluginBasePVs().getEnableCallbacksPVPair().putCallback(isEnabled());
-		pvs.getXDimension().getEnablePV().putCallback(isEnabled());
-		pvs.getYDimension().getEnablePV().putCallback(isEnabled());
-		pvs.getZDimension().getEnablePV().putCallback(false);
 		if (getRoi() != null) {
-			pvs.getXDimension().getStartPVPair().putCallback(getRoi().getXstart());
+			pvs.getNamePV().putCallback(getRoiName());
+			pvs.getPluginBasePVs().getEnableCallbacksPVPair().putCallback(true);
+			pvs.getXDimension().getEnablePVPair().putCallback(true);
+			pvs.getYDimension().getEnablePVPair().putCallback(true);
+			pvs.getZDimension().getEnablePVPair().putCallback(false);
+			pvs.getXDimension().getMinPVPair().putCallback(getRoi().getXstart());
 			pvs.getXDimension().getSizePVPair().putCallback(getRoi().getXsize());
-			pvs.getYDimension().getStartPVPair().putCallback(getRoi().getYstart());
+			pvs.getYDimension().getMinPVPair().putCallback(getRoi().getYstart());
 			pvs.getYDimension().getSizePVPair().putCallback(getRoi().getYsize());
+		} else {
+			pvs.getNamePV().putCallback("gda_inactive");
+			pvs.getPluginBasePVs().getEnableCallbacksPVPair().putCallback(false);
+			pvs.getXDimension().getEnablePVPair().putCallback(false);
+			pvs.getYDimension().getEnablePVPair().putCallback(false);
+			pvs.getZDimension().getEnablePVPair().putCallback(false);
 		}
 	}
 

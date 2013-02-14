@@ -20,13 +20,11 @@ package gda.device.detector.nxdetector.plugin.areadetector;
 
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
-import gda.device.detector.areadetector.v18.NDStatsPVs;
 import gda.device.detector.areadetector.v18.NDStatsPVs.BasicStat;
 import gda.device.detector.areadetector.v18.NDStatsPVs.CentroidStat;
 import gda.device.detector.areadetector.v18.NDStatsPVs.Stat;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdetector.NXPlugin;
-import gda.device.detector.nxdetector.plugin.areadetector.ADROIPlugin.RectangularROI;
 import gda.device.scannable.PositionInputStream;
 import gda.device.scannable.PositionInputStreamCombiner;
 import gda.scan.ScanInformation;
@@ -41,7 +39,7 @@ import java.util.NoSuchElementException;
  */
 public class ADStatsROIPair implements NXPlugin, PositionInputStream<NXDetectorDataAppender> {
 
-	final private ADROIPlugin roiPlugin;
+	final private ADRectangularROIPlugin roiPlugin;
 
 	final private ADTimeSeriesStatsPlugin statsPlugin;
 
@@ -49,7 +47,7 @@ public class ADStatsROIPair implements NXPlugin, PositionInputStream<NXDetectorD
 
 	private PositionInputStream<List<NXDetectorDataAppender>> combinedInputStream;
 
-	public ADStatsROIPair(String name, ADROIPlugin roiPlugin, ADTimeSeriesStatsPlugin statsPlugin) {
+	public ADStatsROIPair(String name, ADRectangularROIPlugin roiPlugin, ADTimeSeriesStatsPlugin statsPlugin) {
 		super();
 		this.name = name;
 		this.roiPlugin = roiPlugin;
@@ -73,17 +71,14 @@ public class ADStatsROIPair implements NXPlugin, PositionInputStream<NXDetectorD
 	}
 
 	private List<Stat> getEnabledStats() {
-		List<Stat> enabledStats = new ArrayList<NDStatsPVs.Stat>();
-		enabledStats.addAll(getEnabledBasicStats());
-		enabledStats.addAll(getEnabledCentroidStats());
-		return enabledStats;
+		return statsPlugin.getEnabledStats();
 	}
 
-	public RectangularROI getRoi() {
+	public ADRectangularROI getRoi() {
 		return roiPlugin.getRoi();
 	}
 
-	public void setRoi(RectangularROI roi) {
+	public void setRoi(ADRectangularROI roi) {
 		roiPlugin.setRoi(roi);
 	}
 
@@ -100,15 +95,13 @@ public class ADStatsROIPair implements NXPlugin, PositionInputStream<NXDetectorD
 
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
-		if (!getEnabledStats().isEmpty()) {
-			// Enable everything
-			if (getRoi()==null) {
-				throw new IllegalStateException("Stats where enabled, but no ROI configured");
-			}
-			roiPlugin.setEnabled(true);
-		} else {
-			roiPlugin.setEnabled(false);
+		if (!getEnabledStats().isEmpty() && (getRoi()==null)) {
+			throw new IllegalStateException("Stats where enabled, but no ROI configured");
 		}
+		if (!getEnabledStats().isEmpty() && (getRoi()!=null)) {
+			throw new IllegalStateException("An ROI was configured, but no stats enabled");
+		}
+		// prepare even if disabled ad preparation will in this case disable he plugins
 		roiPlugin.prepareForCollection(numberImagesPerCollection, scanInfo);
 		statsPlugin.prepareForCollection(numberImagesPerCollection, scanInfo);
 		List<PositionInputStream<NXDetectorDataAppender>> streams = new ArrayList<PositionInputStream<NXDetectorDataAppender>>();
@@ -147,14 +140,24 @@ public class ADStatsROIPair implements NXPlugin, PositionInputStream<NXDetectorD
 		statsPlugin.stop();
 	}
 
+	/**
+	 * Returns the roii and stats plugins names prefixed by the roi plugins name. (roi plugins names will probably be empty).
+	 */
 	@Override
 	public List<String> getInputStreamNames() {
-		throw new IllegalStateException("Please read from the multiple streams provided through getInputStreamProviders");
+		List<String> names = new ArrayList<String>();
+		for (String statName : roiPlugin.getInputStreamNames()) {
+			names.add(roiPlugin.getRoiName() + "_" + statName);
+		}
+		for (String statName : statsPlugin.getInputStreamNames()) {
+			names.add(roiPlugin.getRoiName() + "_" + statName);
+		}
+		return names;
 	}
 
 	@Override
 	public List<String> getInputStreamFormats() {
-		throw new IllegalStateException("Please read from the multiple streams provided through getInputStreamProviders");
+		return statsPlugin.getInputStreamFormats();
 	}
 	
 	@Override
