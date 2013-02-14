@@ -654,8 +654,7 @@ public class LazyPVFactory {
 			try {
 
 				if (javaType == Byte[].class) {
-					throw new IllegalStateException("EpicsController.caput(Channel, byte[], double) is missing!");
-					// controller.caput(channel, toPrimitive((Byte[]) value), timeoutS);
+					controller.caput(getChannel(), toPrimitive((Byte[]) value), pl);
 				} else if (javaType == Double[].class) {
 					controller.caput(getChannel(), toPrimitive((Double[]) value), pl);
 				} else if (javaType == Float[].class) {
