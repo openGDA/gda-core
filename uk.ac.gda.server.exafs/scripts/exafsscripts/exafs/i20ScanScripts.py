@@ -257,6 +257,7 @@ class I20XasScan(XasScan):
                     
                     y = cryoStatParameters.getYs()[i]
                     finepos = cryoStatParameters.getFinePositions()[i]
+                    name = cryoStatParameters.getSampleNames()[i]
                     desc = cryoStatParameters.getSampleDescriptions()[i]
                     
                     samy = self.finder.find("sample_y")
@@ -271,6 +272,7 @@ class I20XasScan(XasScan):
                     print "Sample stage move complete.\n"
                     ScriptBase.checkForPauses()
                     
+                    beanGroup.getSample().setName(name)
                     beanGroup.getSample().setDescriptions([desc])
 
                     for temp in temperatures:
@@ -291,6 +293,7 @@ class I20XasScan(XasScan):
                         
                         y = cryoStatParameters.getYs()[i]
                         finepos = cryoStatParameters.getFinePositions()[i]
+                        name = cryoStatParameters.getSampleNames()[i]
                         desc = cryoStatParameters.getSampleDescriptions()[i]
                         
                         samy = self.finder.find("sample_y")
@@ -305,6 +308,7 @@ class I20XasScan(XasScan):
                         print "Sample stage move complete.\n"
                         ScriptBase.checkForPauses()
                         
+                        beanGroup.getSample().setName(name)
                         beanGroup.getSample().setDescriptions([desc])
                         
                         energy_scannable.waitWhileBusy()

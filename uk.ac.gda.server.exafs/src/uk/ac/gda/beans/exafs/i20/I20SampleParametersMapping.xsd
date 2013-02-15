@@ -172,6 +172,8 @@
 								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="finePosition1" type="xsd:string"
 								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="sample1_name" type="xsd:string"
+								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="sampleDescription1" type="xsd:string"
 								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="useSample2" type="xsd:boolean"
@@ -180,6 +182,8 @@
 								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="finePosition2" type="xsd:double"
 								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="sample2_name" type="xsd:string"
+								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="sampleDescription2" type="xsd:string"
 								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="useSample3" type="xsd:boolean"
@@ -187,6 +191,8 @@
 							<xsd:element name="position3" type="xsd:double"
 								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="finePosition3" type="xsd:double"
+								maxOccurs="1" minOccurs="0" />
+							<xsd:element name="sample3_name" type="xsd:string"
 								maxOccurs="1" minOccurs="0" />
 							<xsd:element name="sampleDescription3" type="xsd:string"
 								maxOccurs="1" minOccurs="0" />

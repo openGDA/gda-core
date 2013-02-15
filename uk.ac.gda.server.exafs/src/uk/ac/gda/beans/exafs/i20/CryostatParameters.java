@@ -46,16 +46,19 @@ public class CryostatParameters implements Serializable {
 	private Boolean useSample1 = false;
 	private Double position1 = 0.0;
 	private Double finePosition1 = 0.0;
+	private String sample1_name  = "";
 	private String sampleDescription1 = "";
 
 	private Boolean useSample2 = false;
 	private Double position2 = 0.0;
 	private Double finePosition2 = 0.0;
+	private String sample2_name  = "";
 	private String sampleDescription2 = "";
 
 	private Boolean useSample3 = false;
 	private Double position3 = 0.0;
 	private Double finePosition3 = 0.0;
+	private String sample3_name  = "";
 	private String sampleDescription3 = "";
 	
 	/*
@@ -71,9 +74,13 @@ public class CryostatParameters implements Serializable {
 	}
 
 	public Double[] getFinePositions() {
-		return new Double[] { finePosition3, finePosition3, finePosition3 };
+		return new Double[] { finePosition1, finePosition2, finePosition3 };
 	}
 
+	public String[] getSampleNames() {
+		return new String[] { sample1_name, sample2_name, sample3_name };
+	}
+	
 	public String[] getSampleDescriptions() {
 		return new String[] { sampleDescription1, sampleDescription2, sampleDescription3 };
 	}
@@ -191,6 +198,14 @@ public class CryostatParameters implements Serializable {
 		this.finePosition1 = finePosition1;
 	}
 
+	public String getSample1_name() {
+		return sample1_name;
+	}
+
+	public void setSample1_name(String sample1_name) {
+		this.sample1_name = sample1_name;
+	}
+
 	public String getSampleDescription1() {
 		return sampleDescription1;
 	}
@@ -221,6 +236,14 @@ public class CryostatParameters implements Serializable {
 
 	public void setFinePosition2(Double finePosition2) {
 		this.finePosition2 = finePosition2;
+	}
+
+	public String getSample2_name() {
+		return sample2_name;
+	}
+
+	public void setSample2_name(String sample2_name) {
+		this.sample2_name = sample2_name;
 	}
 
 	public String getSampleDescription2() {
@@ -255,6 +278,14 @@ public class CryostatParameters implements Serializable {
 		this.finePosition3 = finePosition3;
 	}
 
+	public String getSample3_name() {
+		return sample3_name;
+	}
+
+	public void setSample3_name(String sample3_name) {
+		this.sample3_name = sample3_name;
+	}
+
 	public String getSampleDescription3() {
 		return sampleDescription3;
 	}
@@ -280,6 +311,9 @@ public class CryostatParameters implements Serializable {
 		result = prime * result + ((position1 == null) ? 0 : position1.hashCode());
 		result = prime * result + ((position2 == null) ? 0 : position2.hashCode());
 		result = prime * result + ((position3 == null) ? 0 : position3.hashCode());
+		result = prime * result + ((sample1_name == null) ? 0 : sample1_name.hashCode());
+		result = prime * result + ((sample2_name == null) ? 0 : sample2_name.hashCode());
+		result = prime * result + ((sample3_name == null) ? 0 : sample3_name.hashCode());
 		result = prime * result + ((sampleDescription1 == null) ? 0 : sampleDescription1.hashCode());
 		result = prime * result + ((sampleDescription2 == null) ? 0 : sampleDescription2.hashCode());
 		result = prime * result + ((sampleDescription3 == null) ? 0 : sampleDescription3.hashCode());
@@ -366,6 +400,21 @@ public class CryostatParameters implements Serializable {
 				return false;
 		} else if (!position3.equals(other.position3))
 			return false;
+		if (sample1_name == null) {
+			if (other.sample1_name != null)
+				return false;
+		} else if (!sample1_name.equals(other.sample1_name))
+			return false;
+		if (sample2_name == null) {
+			if (other.sample2_name != null)
+				return false;
+		} else if (!sample2_name.equals(other.sample2_name))
+			return false;
+		if (sample3_name == null) {
+			if (other.sample3_name != null)
+				return false;
+		} else if (!sample3_name.equals(other.sample3_name))
+			return false;
 		if (sampleDescription1 == null) {
 			if (other.sampleDescription1 != null)
 				return false;
@@ -413,5 +462,5 @@ public class CryostatParameters implements Serializable {
 			return false;
 		return true;
 	}
-
+	
 }
