@@ -44,7 +44,7 @@ public class Config {
 
 	boolean UsePreviousScanLineSetting(Config prevConfig, int xAxisIndex, IScanDataPoint point,
 			Vector<String> namesOfVisibleLinesInPreviousScan, Vector<String> namesOfInVisibleLinesInPreviousScan) {
-		if( !scanPlotSettings.isAllowUseOfPreviousScanSettings())
+		if( scanPlotSettings != null && !scanPlotSettings.isAllowUseOfPreviousScanSettings())
 			return false;
 		if (namesOfVisibleLinesInPreviousScan == null || namesOfVisibleLinesInPreviousScan.size() == 0
 				|| namesOfInVisibleLinesInPreviousScan == null) {
