@@ -453,13 +453,14 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 	@Override
 	public int getFfmpegImageInHeight() throws Exception {
 		int[] dimensions = getDataDimensions(getFfmpegStream().getPluginBase());
-		return dimensions[0];
+		return dimensions.length ==2 ? dimensions[0] : 1;
 	}
 
 	@Override
 	public int getFfmpegImageInWidth() throws Exception {
 		int[] dimensions = getDataDimensions(getFfmpegStream().getPluginBase());
-		return dimensions[1];
+		
+		return dimensions.length ==2 ? dimensions[1] : 1;
 	}
 
 	@Override
