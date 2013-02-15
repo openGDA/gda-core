@@ -25,7 +25,7 @@ import java.util.Map;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.continuouscontroller.TrajectoryMoveController;
-import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetector;
+import gda.device.detector.hardwaretriggerable.HardwareTriggeredDetector;
 import gda.device.scannable.PositionConvertorFunctions;
 import gda.device.scannable.VariableCollectionTimeDetector;
 import gda.jython.commands.ScannableCommands;
@@ -60,7 +60,7 @@ public class TrajectoryScanLine extends AbstractContinuousScanLine {
 	 */
 	private boolean allDetectorsHaveCollectionTimeProfilesSet() throws IllegalArgumentException, DeviceException {
 		int numberSupporting = 0;
-		for (HardwareTriggerableDetector det : detectors) {
+		for (HardwareTriggeredDetector det : detectors) {
 			if (det instanceof VariableCollectionTimeDetector) {
 				if (((VariableCollectionTimeDetector) det).getCollectionTimeProfile() != null) {
 					numberSupporting += 1;
@@ -79,7 +79,7 @@ public class TrajectoryScanLine extends AbstractContinuousScanLine {
 	
 	private double[] extractCommonCollectionTimeProfilesFromDetectors() throws DeviceException {		
 		double[] profile = ((VariableCollectionTimeDetector) detectors.get(0)).getCollectionTimeProfile();
-		for (HardwareTriggerableDetector det : detectors.subList(1, detectors.size())) {
+		for (HardwareTriggeredDetector det : detectors.subList(1, detectors.size())) {
 			double[] detsProfile = ((VariableCollectionTimeDetector) det).getCollectionTimeProfile();
 			if (detsProfile.length != profile.length) {
 				throw new DeviceException(

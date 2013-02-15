@@ -169,6 +169,7 @@ class ConcurrentScanWrapper(object):
         # Inform scan listeners the scan has completed
         self.updateScanListeners(scan)
         if len(self.scanListenerResults)==1:
+            print self.scanListenerResults[0]
             return self.scanListenerResults[0]
         elif len(self.scanListenerResults)>1:
             return self.scanListenerResults

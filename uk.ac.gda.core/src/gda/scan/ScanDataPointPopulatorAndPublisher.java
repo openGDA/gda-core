@@ -81,9 +81,9 @@ public class ScanDataPointPopulatorAndPublisher implements Runnable {
 			Object possiblyFuture = positions.get(i);
 			String name = names.get(i);
 			
-			logger.debug("'{}' converting '{}'", point.toString(), name);
+			logger.info("'{}' converting '{}'", point.toString(), name);
 			Object pos = convertPositionFutureToPosition(name, possiblyFuture);
-			logger.debug("'{}' converted '{}'", point.toString(), name);
+			logger.info("'{}' converted '{}'", point.toString(), name);
 			positions.set(i, pos);
 		}
 	}
@@ -97,16 +97,16 @@ public class ScanDataPointPopulatorAndPublisher implements Runnable {
 			Throwable cause = e.getCause();
 			if (cause instanceof DeviceException) {
 				throw new DeviceException(String.format(
-						"DeviceException while computing point %s's %s  position: %s", point.getCurrentPointNumber(), name, cause.getMessage()), cause);
+						"DeviceException while computing point %d %s position: %s", point.getCurrentPointNumber(), name, cause.getMessage()), cause);
 			} else if (cause instanceof PyException) {
-				return new DeviceException(MessageFormat.format(
-						"PyException while computing point %s's %s position: %s", point.getCurrentPointNumber(), name, cause.toString()) , cause);
+				throw new DeviceException(String.format(
+						"PyException while computing point %d %s position: %s", point.getCurrentPointNumber(), name, cause.toString()) , cause);
 			} //else
 			throw new Exception(String.format(
-					"Exception while computing point %s's %s  position: %s",point.getCurrentPointNumber(), name, cause.getMessage()), cause);
+					"Exception while computing point %d %s position: %s",point.getCurrentPointNumber(), name, cause.getMessage()), cause);
 		} catch (InterruptedException e) {
 			logger.warn(String.format(
-					"Interrupted while waiting for point %s's %s position computation to complete: %s", point.getCurrentPointNumber(), name, e.getMessage()), e);
+					"Interrupted while waiting for point %d %s position computation to complete: %s", point.getCurrentPointNumber(), name, e.getMessage()), e);
 			throw e;
 		}
 	}

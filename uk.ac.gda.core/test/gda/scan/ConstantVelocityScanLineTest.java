@@ -37,7 +37,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 
-
 /**
  *
  */
@@ -121,8 +120,6 @@ public class ConstantVelocityScanLineTest {
 		inOrder.verify(mockeddet1).setHardwareTriggering(true);
 		inOrder.verify(mockeddet2).setHardwareTriggering(true);
 		inOrder.verify(mockeddet1).setNumberImagesToCollect(3);
-
-
 		inOrder.verify(mockedController).stopAndReset();
 		inOrder.verify(mockscn).asynchronousMoveTo(0.);
 		inOrder.verify(mockscn).asynchronousMoveTo(1.);
@@ -160,9 +157,7 @@ public class ConstantVelocityScanLineTest {
 		inOrder.verify(mockeddet1).setHardwareTriggering(true);
 		inOrder.verify(mockeddet2).setHardwareTriggering(true);
 		inOrder.verify(mockeddet1).setNumberImagesToCollect(3);
-
 		inOrder.verify(mockedController).stopAndReset();
-		
 		inOrder.verify(mockscn).asynchronousMoveTo(0.);
 		inOrder.verify(mockscn).asynchronousMoveTo(1.);
 		inOrder.verify(mockscn).asynchronousMoveTo(2.);

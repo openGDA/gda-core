@@ -51,7 +51,9 @@ class FileRegistrar(object):
 
 class ProcessingDetectorWrapperPositionCallable(Callable):
 
-	def __init__(self, collectionTime, filepathToReport, processors, pathToRegister, panelName, panelNameRCP, datasetProvider, renderer, fileRegistrar, return_performance_metrics):
+	def __init__(self, collectionTime, filepathToReport, processors, pathToRegister,
+				panelName, panelNameRCP, datasetProvider, renderer, fileRegistrar,
+				return_performance_metrics):
 		self.collectionTime = collectionTime
 		self.filepathToReport = filepathToReport
 		self.processors = processors
@@ -62,11 +64,14 @@ class ProcessingDetectorWrapperPositionCallable(Callable):
 		self.renderer = renderer
 		self.fileRegistrar = fileRegistrar
 		self.return_performance_metrics = return_performance_metrics
+		
 		if return_performance_metrics:
 			self.time_created = time.time()
+		
 			
 
 	def call(self):
+		
 		# 1. Register file
 		if self.pathToRegister:
 			self.fileRegistrar.registerFile(self.pathToRegister)
@@ -133,8 +138,15 @@ class ProcessingDetectorWrapper(PseudoDevice, PositionCallableProvider):
 		self._operatingInScan = False
 		self._preparedForScan = False
 	
+	
+	
 	def _setDetector(self, det):
-		self.det = det
+		self._det = det
+	
+	@property
+	def det(self):
+		return self._det
+	
 	
 	def getExtraNames(self):
 		extraNames = ['path']
@@ -217,14 +229,13 @@ class ProcessingDetectorWrapper(PseudoDevice, PositionCallableProvider):
 						 % (self.name, self.name))	
 		panelName = self.panel_name if self.display_image else None
 		panelNameRCP = self.panel_name_rcp if self.display_image else None
+		
 		return ProcessingDetectorWrapperPositionCallable(
 			self.det.getCollectionTime(), self.__getFilePathRepresentation(),
 			processors, pathToRegister, panelName, panelNameRCP,
-			self.getDatasetProvider(), self.renderer, self.fileRegistrar, self.return_performance_metrics
-			)
+			self.getDatasetProvider(), self.renderer, self.fileRegistrar, self.return_performance_metrics)
 	
 	def getFilepath(self):
-
 		try:
 			# assume detector has read out an NXDetectorDataWithFilepathForSrs object
 			path_from_detector = self._readout().getFilepath()
@@ -262,18 +273,18 @@ class ProcessingDetectorWrapper(PseudoDevice, PositionCallableProvider):
 	
 	def getDatasetProvider(self):
 		if self.datasetProvider == None:
-			self.__configureNewDatasetProvider()
+			self._configureNewDatasetProvider()
 		return self.datasetProvider
 
 ###
 	
-	def __configureNewDatasetProvider(self):
+	def _configureNewDatasetProvider(self, wait_for_exposure_callable=None):
 		
 		def createDatasetProvider(path):
 			if path == '':
 				raise IOError("Could no load dataset: %s does not have a record of the last file saved" % self.name)
 			path = self.replacePartOfPath(path)
-			self.datasetProvider = LazyDataSetProvider(path, self.iFileLoader, self.fileLoadTimout, self.printNfsTimes)
+			self.datasetProvider = LazyDataSetProvider(path, self.iFileLoader, self.fileLoadTimout, self.printNfsTimes, wait_for_exposure_callable)
 		
 		if self.det.createsOwnFiles():
 			path = self.getFilepath()
@@ -358,7 +369,7 @@ class HardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorWrapper, Ha
 	def _setDetector(self, det):
 		if not isinstance(det, HardwareTriggerableDetector):
 			raise TypeError("expected detector to implement HardwareTriggerableDetector")
-		self.det = det
+		self._det = det
 	
 	# Scannable
 	
@@ -454,7 +465,8 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 				printNfsTimes=False,
 				returnPathAsImageNumberOnly=False,
 				panel_name_rcp=None,
-				return_performance_metrics=False):
+				return_performance_metrics=False,
+				array_monitor_for_hardware_triggering=None):
 		
 		ProcessingDetectorWrapper.__init__(self, name, detector, processors, panel_name, toreplace, replacement, iFileLoader,
 										 root_datadir, fileLoadTimout, printNfsTimes, returnPathAsImageNumberOnly, panel_name_rcp, return_performance_metrics)
@@ -465,13 +477,15 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 		self.hardware_triggered_detector = hardware_triggered_detector
 		self.hardware_triggering = False
 		self.detector_for_snaps = detector_for_snaps
+		self.array_monitor_for_hardware_triggering = array_monitor_for_hardware_triggering
+		self._seconds_to_wait_after_count_reached = 0
 	
 	def _setDetector(self, det):
 		self.detector = det
 		
 	@property
 	def det(self):
-		return self.hardware_triggered_detector if self.hardware_triggering else self.detector
+		return self.hardware_triggered_detector if self.isHardwareTriggering() else self.detector
 	
 #		return {'pilatus100k_path_template='123-pilatus100k/%5i.cbf.'}
 	
@@ -506,16 +520,28 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 	# Detector
 		
 	def setCollectionTime(self, t):
-		self.det.setCollectionTime(t)
+		if self.det is not None:
+			self.det.setCollectionTime(t)
+		if self.hardware_triggered_detector is not None:
+			self.hardware_triggered_detector.setCollectionTime(t)
+		if self.detector_for_snaps is not None:
+			self.detector_for_snaps.setCollectionTime(t)
+		self._seconds_to_wait_after_count_reached = t
 
 	def prepareForCollection(self):
 		self.det.prepareForCollection()
 
 	def atScanStart(self):
-		self.det.atScanStart()
+		ProcessingDetectorWrapper.atScanStart(self)
+		if self.array_monitor_for_hardware_triggering:
+			self.array_monitor_for_hardware_triggering.prepareForCollection(999) # Number not used
+
 
 	def getCollectionTime(self):
-		return self.det.getCollectionTime()
+		if self.isHardwareTriggering():
+			return self.hardware_triggered_detector.getCollectionTime()
+		else:
+			return self.det.getCollectionTime()
 
 	def collectData(self):
 		self.clearLastAcquisitionState()
@@ -525,14 +551,42 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 	def getStatus(self):
 		return self.det.getStatus()
 
+	def getDatasetProvider(self):
+		if self.datasetProvider == None:
+			if self.array_monitor_for_hardware_triggering and self._operatingInScan and self.isHardwareTriggering():
+				wait_for_exposure_callable = self.array_monitor_for_hardware_triggering.read(1)[0]
+				
+				class Adapter():
+					
+					def __init__(self, c, name, seconds_to_wait_after_count_reached):
+						self.c = c
+						self.name = name
+						self.seconds_to_wait_after_count_reached = seconds_to_wait_after_count_reached
+						
+					def call(self):
+						self.c.appendTo(None, self.name)
+						time.sleep(self.seconds_to_wait_after_count_reached)
+				
+				self._configureNewDatasetProvider(Adapter(wait_for_exposure_callable, self.name, self._seconds_to_wait_after_count_reached))
+			else:
+				self._configureNewDatasetProvider()
+		return self.datasetProvider
+
 	def readout(self):
+		if self.isHardwareTriggering():
+			self.clearLastAcquisitionState()
 		return self.getPositionCallable().call()
 		
 	def endCollection(self):
 		self.det.endCollection()
 
+#	def atScanLineEnd(self):
+#		self.det.atScanLineEnd()
+
 	def atScanEnd(self):
-		self.det.atScanEnd()
+		ProcessingDetectorWrapper.atScanEnd(self)
+		if self.array_monitor_for_hardware_triggering:
+			self.array_monitor_for_hardware_triggering.prepareForCollection(999) # Number not used
 
 	def getDataDimensions(self):
 		return [len(self.getExtraNames())]
@@ -551,6 +605,12 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 	
 	def prepareForAcquisition(self, collection_time):
 		self.detector_for_snaps.setCollectionTime(collection_time)
+		
+	def getPositionCallable(self):
+		if self.isHardwareTriggering():
+			self.clearLastAcquisitionState()
+			self.hardware_triggered_detector.lastReadoutValue = None
+		return ProcessingDetectorWrapper.getPositionCallable(self)
 
 
 #	public double getAcquireTime() throws Exception;
@@ -560,7 +620,7 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 
 
 	def acquire(self):
-		
+		self.clearLastAcquisitionState()
 		self.detector_for_snaps.atScanStart()
 		self.detector_for_snaps.atScanLineStart()
 		self.detector_for_snaps.collectData()

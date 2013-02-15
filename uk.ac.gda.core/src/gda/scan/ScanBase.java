@@ -46,6 +46,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.Vector;
@@ -173,7 +174,7 @@ public abstract class ScanBase implements Scan {
 	private Long _scanNumber=null;
 	
 	protected boolean callCollectDataOnDetectors = true;
-	
+
 	@Override
 	public Long getScanNumber() {
 		return _scanNumber;
@@ -562,11 +563,16 @@ public abstract class ScanBase implements Scan {
 			} finally  {
 				// disengage with the data handler, in case this scan is
 				// restarted
-				scanDataPointPipeline.shutdownNow();
+				try {
+					scanDataPointPipeline.shutdownNow();
+				} catch (InterruptedException e) {
+					// TODO endScan should throw InteruptedExceptions
+					throw new DeviceException("Problem shutting down scan pipeline while completing and interurupted scan.", e);
+				}
 			}
 
 
-		} else {
+		} else { // NOTE: Code will come through here even if there has been an exception in the run method.
 			if (getChild() == null) {
 				// wait for the last point to readout
 				try {
@@ -608,13 +614,19 @@ public abstract class ScanBase implements Scan {
 
 				// shutdown the ScanDataPointPipeline (will close DataWriter)
 				try {
-					this.scanDataPointPipeline.shutdown(Long.MAX_VALUE); // no timeout
+					if (this.scanDataPointPipeline != null) {
+						this.scanDataPointPipeline.shutdown(Long.MAX_VALUE); // no timeout
+					}
 				} catch (InterruptedException e) {
 					throw new DeviceException("Interupted while shutting down ScanDataPointPipeline from scan thread", e);
 
 				}
-
-				logger.info("Scan '{}' complete: {}", getName(), getDataWriter().getCurrentFileName());
+				try {
+					logger.info("Scan '{}' complete: {}", getName(), getDataWriter().getCurrentFileName());
+				} catch (IllegalStateException e) {
+					logger.info("Scan '{}' complete", getName());
+					
+				}
 
 				getTerminalPrinter().print("Scan complete.");
 			}
@@ -660,7 +672,7 @@ public abstract class ScanBase implements Scan {
 		if (scanDataPointPipeline == null) {
 			if (manuallySetDataWriter == null) {
 				throw new IllegalStateException(
-						"Could not get datawriter from data pipeline as there is no pipeline or"
+						"Could not get datawriter from data pipeline as there is no pipeline or "
 								+ "manually set datawriter");
 			}
 			return manuallySetDataWriter;
@@ -1014,13 +1026,40 @@ public abstract class ScanBase implements Scan {
 				} catch (Exception e) {
 					throw new Exception("Exception during scan collection: " + createMessage(e), e);
 				}
+			} catch (ScanInterruptedException e) {
+				throw e;
 			} catch (Exception e) {
-				logger.error(createMessage(e) + " during scan: calling atCommandFailure hooks and then interrupting scan.");
-				cancelReadoutAndPublishCompletion();
+				
+				report("====================================================================================================");
+				report(createMessage(e) + " during scan");
+				
+				report("Calling stop() on Scannables and Detectors used in scan, followed by atCommandFailure().");
 				callAtCommandFailureHooks();
+				for (Scannable scn : allScannables) {
+					logger.info("Stopping " + scn.getName());
+					scn.stop();
+				}
+				for (Scannable det : allDetectors) {
+					logger.info("Stopping " + det.getName());
+					det.stop();
+				}
+				
+				report("Interupting all scan pipeline tasks and shutting pipeline down now. Waiting indefinitely for task interuption.");
+				if (scanDataPointPipeline != null) {
+					scanDataPointPipeline.shutdownNow();  // This depends on the tasks being cancelable.
+				}
+				cancelReadoutAndPublishCompletion();  //TODO: This does nothing, why is this method available?
+
+				report("Ending scan and rethrowing exception");
+				
+				report("====================================================================================================");
+				
 				throw e;
 			} finally {
 				try {
+					// TODO: endScan now duplicates some of the exception handling performed above. 
+					// I do not understand the paths that result inScanBase.interupted being set well enougth to
+					// change the logic here. RobW
 					endScan();
 				} catch (DeviceException e) {
 					if ((e instanceof RedoScanLineThrowable) && (getChild() == null)) {
@@ -1037,6 +1076,10 @@ public abstract class ScanBase implements Scan {
 		} while (lineScanNeedsDoing);
 	}
 
+	private void report(String msg) {
+		InterfaceProvider.getTerminalPrinter().print("!- " + msg);
+		logger.info(msg);
+	}
 	
 	
 	@Override

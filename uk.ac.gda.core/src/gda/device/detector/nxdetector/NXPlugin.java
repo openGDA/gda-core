@@ -22,6 +22,7 @@ import java.util.List;
 
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.scannable.PositionInputStream;
+import gda.scan.ScanInformation;
 
 
 public interface NXPlugin extends PositionInputStream<NXDetectorDataAppender> {
@@ -30,7 +31,7 @@ public interface NXPlugin extends PositionInputStream<NXDetectorDataAppender> {
 	
 	boolean willRequireCallbacks();
 
-	void prepareForCollection(int numberImagesPerCollection) throws Exception;
+	void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception;
 	
 	void prepareForLine() throws Exception;
 

@@ -40,9 +40,7 @@ import java.io.Serializable;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.tree.TreePath;
@@ -50,10 +48,11 @@ import javax.swing.tree.TreePath;
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
+import org.dawb.common.ui.plot.axis.IPositionListener;
+import org.dawb.common.ui.plot.axis.PositionEvent;
 import org.dawb.common.ui.plot.trace.ILineTrace;
 import org.dawb.common.ui.plot.trace.ILineTrace.PointStyle;
 import org.dawb.common.ui.plot.trace.ITrace;
-import org.dawb.workbench.plotting.util.ColorUtility;
 import org.dawnsci.plotting.jreality.impl.Plot1DAppearance;
 import org.dawnsci.plotting.jreality.impl.Plot1DGraphTable;
 import org.dawnsci.plotting.jreality.impl.Plot1DStyles;
@@ -71,6 +70,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IMemento;
@@ -87,7 +87,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
-import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
@@ -159,7 +158,7 @@ public class LivePlotComposite extends Composite {
 	 * @param partName
 	 * @param toolbarActions
 	 */
-	void createAndRegisterPlotActions(final Composite parent, IActionBars actionBars, String partName,
+	void createAndRegisterPlotActions(@SuppressWarnings("unused") final Composite parent, IActionBars actionBars, @SuppressWarnings("unused") String partName,
 			                       final List<IAction> toolbarActions) {
 
 		for (IAction iAction : toolbarActions) {
@@ -179,18 +178,8 @@ public class LivePlotComposite extends Composite {
 //							dataDialog.open();
 //						}
 //					});
-//				} else {
-//					parent.getDisplay().asyncExec(new Runnable() {
-//						@Override
-//						public void run() {
-//							double x = event.getPosition()[0];
-//							double y = event.getPosition()[1];
-//							LivePlotComposite.this.plotView.setPositionLabel(String.format("X:%.6g Y:%.6g", x, y));
-//						}
-//					});
 //				}
 //			}
-
 
 	}
 	/*
@@ -454,6 +443,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 	LiveData dummy; // used when all other lines are invisible
 
 	private final String archiveFolder;
+	private Label positionLabel;
 
 	public SubLivePlotView(IWorkbenchPart parentPart, Composite parent, int style, String archiveFolder) {
 		
@@ -469,6 +459,15 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 		setLayout(layout);
 		GridUtils.removeMargins(this);
 
+		positionLabel = new Label(this, SWT.LEFT);
+		positionLabel.setText("");
+		{
+			GridData gridData = new GridData();
+			gridData.horizontalAlignment = SWT.FILL;
+			gridData.grabExcessHorizontalSpace = true;
+			positionLabel.setLayoutData(gridData);
+		}		
+		
 		Composite plotArea = new Composite(this, SWT.NONE);
 		plotArea.setLayout(new FillLayout());
 		{
@@ -493,6 +492,14 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 				            : null;
 		plottingSystem.createPlotPart(plotArea, parentPart.getTitle(), bars, PlotType.XY, parentPart);
 		plottingSystem.setXfirst(true);
+		plottingSystemPositionListener = new IPositionListener() {
+			
+			@Override
+			public void positionChanged(PositionEvent evt) {
+				positionLabel.setText(String.format("X:%.7g Y:%.7g", evt.x, evt.y));
+			}
+		};
+		plottingSystem.addPositionListener(plottingSystemPositionListener);		
 	}
 
 	void saveState(IMemento memento, String archiveFolder) {
@@ -519,10 +526,6 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 	}
 
 	
-	void setPositionLabel(String label) {
-		//positionLabel.setText(label);
-	}
-
 	/**
 	 * Entry in scans array that is to contain the next XYData
 	 */
@@ -530,6 +533,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 	LiveData scans[] = new LiveData[0];
 
 	private UpdatePlotQueue updateQueue = new UpdatePlotQueue();
+	private IPositionListener plottingSystemPositionListener;
 
 	LiveData getXYData(int line) {
 		if (line > scans.length - 1)
@@ -573,6 +577,10 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 	public void dispose() {
 		updateQueue.setKilled(true);
 		if (plottingSystem != null) {
+			if( plottingSystemPositionListener != null){
+				plottingSystem.removePositionListener(plottingSystemPositionListener);
+				plottingSystemPositionListener = null;
+			}
 			plottingSystem.dispose();
 			plottingSystem = null;
 		}

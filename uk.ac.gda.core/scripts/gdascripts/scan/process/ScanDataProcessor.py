@@ -40,7 +40,9 @@ class ScanDataProcessorResults(IterableUserDict):
 		return self.report
 
 	def __repr__(self):
-		return self.__str__()
+		return ""
+		# Blank so that when concurrentScanWrapper returns this after the
+		# scan after having printed the report explicitly, Jython does not show the report again
 
 
 class ScanDataProcessor(ScanListener):
@@ -95,12 +97,13 @@ class ScanDataProcessor(ScanListener):
 			except:
 				return "<cannot analyse axis %s in scan file - unable to retrieve>" % yfieldname
 			
+			lines = []
 			for processor in self.processors:
 				sdpr = processor.process(xDataSet, yDataSet)
 				sdpr = ScanDataProcessorResult(sdpr, self.sfh, allscannables, xfieldname, yfieldname)
 				self.results[sdpr.name] = sdpr
-				report += '   ' + (sdpr.name+':').ljust(8) + sdpr.report + "\n"
-	
+				lines.append('   ' + (sdpr.name+':').ljust(8) + sdpr.report)
+			report = '\n'.join(lines)
 			# add results to root namespace dictionary
 			d = self.rootNamespaceDict
 			for name, result in self.results.items():

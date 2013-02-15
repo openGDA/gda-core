@@ -27,6 +27,8 @@ import gda.device.detector.nxdetector.NXPlugin;
 import gda.device.scannable.MultiplePositionStreamIndexer;
 import gda.device.scannable.PositionCallableProvider;
 import gda.device.scannable.PositionInputStream;
+import gda.jython.InterfaceProvider;
+import gda.scan.ScanInformation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,7 +56,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 
 	private MultiplePositionStreamIndexer<NXDetectorDataAppender> pluginStreamsIndexer;
 
-	protected NexusTreeProvider lastReadoutValue = null;
+	public NexusTreeProvider lastReadoutValue = null;
 
 	public NXDetector(String name, NXCollectionStrategyPlugin collectionStrategy, List<NXPlugin> additionalPluginList) {
 		setName(name);
@@ -260,13 +262,13 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 	@Override
 	public void atScanStart() throws DeviceException {
 
-
+		ScanInformation scanInfo = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
 		try {
 			int numberImagesPerCollection = getCollectionStrategy().getNumberImagesPerCollection(getCollectionTime());
 			lastReadoutValue = null;
-			prepareCollectionStrategyAtScanStart(numberImagesPerCollection);
+			prepareCollectionStrategyAtScanStart(numberImagesPerCollection, scanInfo);
 			for (NXPlugin plugin : getAdditionalPluginList()) {
-				plugin.prepareForCollection(numberImagesPerCollection);
+				plugin.prepareForCollection(numberImagesPerCollection, scanInfo);
 			}
 		} catch (Exception e) {
 			throw new DeviceException(e);
@@ -276,9 +278,9 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 		pluginStreamsIndexer = new MultiplePositionStreamIndexer<NXDetectorDataAppender>(plugins);
 	}
 
-	protected void prepareCollectionStrategyAtScanStart(int numberImagesPerCollection) throws Exception, DeviceException {
+	protected void prepareCollectionStrategyAtScanStart(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception, DeviceException {
 		getCollectionStrategy().setGenerateCallbacks(areCallbacksRequired());
-		getCollectionStrategy().prepareForCollection(getCollectionTime(), numberImagesPerCollection);
+		getCollectionStrategy().prepareForCollection(getCollectionTime(), numberImagesPerCollection, scanInfo);
 	}
 
 	boolean areCallbacksRequired() {

@@ -71,6 +71,8 @@ import org.slf4j.LoggerFactory;
 public class ScannableCommands {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScannableCommands.class);
+	
+	private static boolean posCommandIsInTheProcessOfListingAllScannables = false;
 
 	/**
 	 * The pos command. Reports the current position of a scannable or moves one or more scannables concurrently.
@@ -325,55 +327,64 @@ public class ScannableCommands {
 	 * @throws DeviceException 
 	 */
 	public static void pos() throws DeviceException {
-		Map<String, Object> map = InterfaceProvider.getJythonNamespace().getAllFromJythonNamespace();
+		posCommandIsInTheProcessOfListingAllScannables = true;
+		try {
+			Map<String, Object> map = InterfaceProvider.getJythonNamespace().getAllFromJythonNamespace();
 
-		// create a list of all the members of scannable groups
-		String[] scannableGroupMembers =new String[0];
-		for (String objName : map.keySet()) {
-			Object obj = map.get(objName);
-			if (obj instanceof IScannableGroup) {
-				scannableGroupMembers = (String[]) ArrayUtils.addAll(scannableGroupMembers, ((IScannableGroup) obj)
-						.getGroupMemberNames());
-			}
-		}
-		
-		// remove those members from the global list, if they are there
-		for (String groupMember : scannableGroupMembers){
-			if (map.keySet().contains(groupMember))
-			{
-				map.remove(groupMember);
-			}
-		}
-		
-		// find the longest name, to help with formatting the output
-		int longestName = 0;
-		for (String objName : map.keySet()){
-			Object obj = map.get(objName);
-			if (obj instanceof Scannable && objName.length() > longestName){
-				longestName = objName.length();
-			}
-		}
-		
-		
-		// then loop over the reduced list and print each item separately, logging any errors if they occur
-		for (String objName : map.keySet()) {
-			Object obj = map.get(objName);
-			try {
+			// create a list of all the members of scannable groups
+			String[] scannableGroupMembers =new String[0];
+			for (String objName : map.keySet()) {
+				Object obj = map.get(objName);
 				if (obj instanceof IScannableGroup) {
-					InterfaceProvider.getTerminalPrinter().print(((IScannableGroup) obj).toFormattedString());
-				} else if (obj instanceof Scannable) {
-					InterfaceProvider.getTerminalPrinter().print(ScannableUtils.prettyPrintScannable((Scannable) obj,longestName + 1));
+					scannableGroupMembers = (String[]) ArrayUtils.addAll(scannableGroupMembers, ((IScannableGroup) obj)
+							.getGroupMemberNames());
 				}
-			} catch (PyException e) {
-				InterfaceProvider.getTerminalPrinter().print(objName);
-				logger.warn("Exception while getting position of " + objName + " : " + e.toString());
-			} catch (Exception e) {
-				InterfaceProvider.getTerminalPrinter().print(objName);
-				logger.warn("Exception while getting position of " + objName + " : " + e.getMessage());
 			}
+			
+			// remove those members from the global list, if they are there
+			for (String groupMember : scannableGroupMembers){
+				if (map.keySet().contains(groupMember))
+				{
+					map.remove(groupMember);
+				}
+			}
+			
+			// find the longest name, to help with formatting the output
+			int longestName = 0;
+			for (String objName : map.keySet()){
+				Object obj = map.get(objName);
+				if (obj instanceof Scannable && objName.length() > longestName){
+					longestName = objName.length();
+				}
+			}
+			
+			
+			// then loop over the reduced list and print each item separately, logging any errors if they occur
+			for (String objName : map.keySet()) {
+				Object obj = map.get(objName);
+				try {
+					if (obj instanceof IScannableGroup) {
+						InterfaceProvider.getTerminalPrinter().print(((IScannableGroup) obj).toFormattedString());
+					} else if (obj instanceof Scannable) {
+						InterfaceProvider.getTerminalPrinter().print(ScannableUtils.prettyPrintScannable((Scannable) obj,longestName + 1));
+					}
+				} catch (PyException e) {
+					InterfaceProvider.getTerminalPrinter().print(objName);
+					logger.warn("Exception while getting position of " + objName + " : " + e.toString());
+				} catch (Exception e) {
+					InterfaceProvider.getTerminalPrinter().print(objName);
+					logger.warn("Exception while getting position of " + objName + " : " + e.getMessage());
+				}
+			}
+		} finally {
+			posCommandIsInTheProcessOfListingAllScannables = false;
 		}
 	}
 
+	public static boolean isPosCommandIsInTheProcessOfListingAllScannables() {
+		return posCommandIsInTheProcessOfListingAllScannables;
+	}
+	
 	/**
 	 * Relative move version of pos.
 	 * 

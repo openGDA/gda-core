@@ -21,6 +21,7 @@ package gda.device.detector;
 import gda.device.DeviceException;
 import gda.device.continuouscontroller.HardwareTriggerProvider;
 import gda.device.detector.hardwaretriggerable.HardwareTriggeredDetector;
+import gda.scan.ScanInformation;
 
 public class HardwareTriggeredNXDetector extends NXDetector implements HardwareTriggeredDetector {
 
@@ -33,9 +34,9 @@ public class HardwareTriggeredNXDetector extends NXDetector implements HardwareT
 	}
 	
 	@Override
-	protected void prepareCollectionStrategyAtScanStart(int numberImagesPerCollection) throws Exception,
+	protected void prepareCollectionStrategyAtScanStart(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception,
 			DeviceException {
-		// Do nothing, prepare only when #arm() called
+		super.prepareCollectionStrategyAtScanStart(numberImagesPerCollection, scanInfo);
 	}
 	
 	@Override
@@ -53,7 +54,7 @@ public class HardwareTriggeredNXDetector extends NXDetector implements HardwareT
 		try {
 			// Set number of images: the last trigger to end the exposure is superfluous, although it will be created
 			// as this detector integratesBetweenPoints() returns true;
-			getCollectionStrategy().prepareForCollection(getCollectionTime(), getNumberImagesToCollect());
+			getCollectionStrategy().prepareForCollection(getCollectionTime(), getNumberImagesToCollect(), null);
 			getCollectionStrategy().collectData();
 		} catch (Exception e) {
 			throw new DeviceException(e);

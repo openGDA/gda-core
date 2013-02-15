@@ -45,7 +45,6 @@ import org.junit.runners.Suite;
 	ScannableMotionUnitsBaseTest.class,
 	PositionConvertorFunctionsTest.class,
 	MotorLimitsComponentTest.class,
-	DeferredAndTrajectoryScannableGroupTest.class,
 	ScannableMotionWithScannableFieldsBaseTest.class
 	})
 

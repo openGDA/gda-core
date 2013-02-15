@@ -44,8 +44,6 @@ import gda.device.scannable.ScannableMotor;
  * Point 6: decelerating to final stop position (close position + end position offset)
  */
 public interface ShutteredMotorController extends Device {
-
-	public static final double ACCELERATION = 10;
 	
 	public void setMotor(ScannableMotor theMotor);
 	/**
@@ -208,4 +206,7 @@ public interface ShutteredMotorController extends Device {
 	 */
 	public double getMoveDistance();
 	
+	public void setAcceleration(double acceleration);
+	
+	public double getAcceleration();
 }
