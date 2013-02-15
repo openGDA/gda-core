@@ -21,6 +21,8 @@ package gda.device.scannable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.util.ThreadManager;
+
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.exafs.xes.XesUtils;
@@ -39,25 +41,35 @@ import gda.observable.IObserver;
 public class XesSpectrometerScannable extends ScannableMotionUnitsBase implements Scannable, Findable, IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(XesSpectrometerScannable.class);
-	
+
+	private volatile boolean stopCalled = false;
+	private volatile Boolean isRunningTrajectoryMovement = false;
+
+	double bragg = 80;
+	double radius = 1000;
+	double trajectoryStepSize = 0.02; // the size of each bragg angle step when moving the detector.
+
+	Double[] additionalCrystalHorizontalOffsets = new Double[] { -137., 137. };
+	Boolean[] additionalCrystalsInUse = new Boolean[] { false, false, false, false };
+
 	ScannableMotor xtal_x; // also known as L
 	ScannableMotor det_y;
 	ScannableMotor det_x;
 	ScannableMotor det_rot;
 	DummyPersistentScannable radiusScannable;
-	double bragg = 80;
-	double radius = 1000;
-
-	Boolean[] additionalCrystalsInUse = new Boolean[] { false, false, false, false };
 
 	ScannableMotor[] xtalxs = new ScannableMotor[2];
 	ScannableMotor[] xtalys = new ScannableMotor[3];
 	ScannableMotor[] xtalbraggs = new ScannableMotor[3];
 	ScannableMotor[] xtaltilts = new ScannableMotor[3];
 
-	Double[] additionalCrystalHorizontalOffsets = new Double[] { -137., 137. };
+	private Double[] targetDetXArray;
+	private Double[] targetDetYArray;
+	private Double[] targetXtalThetaArray;
+	private Integer numTrajPoints;
 
-	Double trajectoryStepSize = 0.02; // the size of each bragg angle step when moving the detector.
+	// flag to prevent the warning about the position is an estimate being sent more than once at a time
+	private boolean hasGetPositionWarningBeenSent = false;
 
 	public XesSpectrometerScannable() {
 		this.inputNames = new String[] { "XES" };
@@ -71,6 +83,9 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 
 	@Override
 	public void stop() throws DeviceException {
+
+		stopCalled = true;
+
 		xtal_x.stop();
 		det_x.stop();
 		det_y.stop();
@@ -110,7 +125,7 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 
 	@Override
 	public boolean isBusy() throws DeviceException {
-		return xtal_x.isBusy() || det_y.isBusy() || det_x.isBusy() || det_rot.isBusy() || xtalxs[0].isBusy()
+		return isRunningTrajectoryMovement || det_y.isBusy() || det_x.isBusy() || xtal_x.isBusy() || det_rot.isBusy() || xtalxs[0].isBusy()
 				|| xtalxs[1].isBusy() || xtalys[0].isBusy() || xtalys[1].isBusy() || xtalys[2].isBusy()
 				|| xtalbraggs[0].isBusy() || xtalbraggs[1].isBusy() || xtalbraggs[2].isBusy() || xtaltilts[0].isBusy()
 				|| xtaltilts[1].isBusy() || xtaltilts[2].isBusy() || radiusScannable.isBusy();
@@ -124,59 +139,65 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 		double currentPosition = Double.parseDouble(getPosition().toString());
 		radius = Double.parseDouble(radiusScannable.getPosition().toString());
 
-		boolean doTrajectory = false; 
-		Double[] targetDetXArray = null;
-		Double[] targetDetYArray = null;
-		Double[] targetXtalThetaArray = null;
-		Integer numTrajPoints = null;
+		isRunningTrajectoryMovement = false;
+		targetDetXArray = null;
+		targetDetYArray = null;
+		targetXtalThetaArray = null;
+		numTrajPoints = null;
 
 		// test if it a 'large' movement, defined as more than 10 times the step size
-		if (Math.abs(currentPosition - targetBragg) > trajectoryStepSize /** 10*/) {
-			doTrajectory = true;
-			
+		if (Math.abs(currentPosition - targetBragg) > trajectoryStepSize /** 10 */
+		) {
+			isRunningTrajectoryMovement = true;
+
 			boolean positiveMove = true;
-			if (currentPosition > targetBragg){
+			if (currentPosition > targetBragg) {
 				positiveMove = false;
 			}
 
 			// create the trajectory points for the detector
-			numTrajPoints = (int) Math.round(Math.abs(currentPosition - targetBragg) / trajectoryStepSize) + 1;
-			targetDetXArray = new Double[numTrajPoints];
-			targetDetYArray = new Double[numTrajPoints];
-			targetXtalThetaArray = new Double[numTrajPoints];
+			numTrajPoints = (int) Math.round(Math.abs(currentPosition - targetBragg) / trajectoryStepSize);
+			targetDetXArray = new Double[numTrajPoints+2];
+			targetDetYArray = new Double[numTrajPoints+2];
+			targetXtalThetaArray = new Double[numTrajPoints+2];
 
 			double braggAtNode = currentPosition;
-			for (int node = 0; node < numTrajPoints; node++) {
-				targetDetXArray[node] = XesUtils.getDx(radius, braggAtNode);
-				if (targetDetXArray[node] == null){
+			for (int node = 0; node <= numTrajPoints; node++) {
+				
+				Double[] nodeDetectorPositions = getXYTheta(radius, braggAtNode);
+				targetDetXArray[node] = nodeDetectorPositions[0];
+				if (targetDetXArray[node] == null) {
 					throw new DeviceException("Could not calculate target positions. Will not perform move");
 				}
-				targetDetYArray[node] = XesUtils.getDy(radius, braggAtNode);
-				targetXtalThetaArray[node] = XesUtils.getCrystalRotation(braggAtNode) * 2;
+				targetDetYArray[node] = nodeDetectorPositions[1];
+				targetXtalThetaArray[node] = nodeDetectorPositions[2]*2;
+				
 				if (positiveMove) {
 					braggAtNode += trajectoryStepSize;
 				} else {
 					braggAtNode -= trajectoryStepSize;
 				}
 			}
+			Double[] finalNodeDetectorPositions = getXYTheta(radius, targetBragg);
+			targetDetXArray[numTrajPoints+1] = finalNodeDetectorPositions[0];
+			targetDetYArray[numTrajPoints+1] = finalNodeDetectorPositions[1];
+			targetXtalThetaArray[numTrajPoints+1] = finalNodeDetectorPositions[2]*2;
 		}
 
 		// test the final points are in limits
 
-		double targetDetX = XesUtils.getDx(radius, targetBragg);
-		double targetDetY = XesUtils.getDy(radius, targetBragg);
-		double targetXtalTheta = XesUtils.getCrystalRotation(targetBragg);
+		Double[] finalDetectorPositions = getXYTheta(radius, targetBragg);
 		double targetL = XesUtils.getL(radius, targetBragg);
 
-		checkPositionValid(det_x, targetDetX);
-		checkPositionValid(det_y, targetDetY);
-		checkPositionValid(det_rot, targetXtalTheta * 2);
+		checkPositionValid(det_x, finalDetectorPositions[0]);
+		checkPositionValid(det_y, finalDetectorPositions[1]);
+		checkPositionValid(det_rot, finalDetectorPositions[2] * 2);
 		checkPositionValid(xtal_x, targetL);
 
-		checkPositionValid(xtalbraggs[1], targetXtalTheta);
+		checkPositionValid(xtalbraggs[1], finalDetectorPositions[2]);
 
-		double[] iTargets = XesUtils
-				.getAdditionalCrystalPositions(radius, targetBragg, additionalCrystalHorizontalOffsets[0]);
+		double[] iTargets = XesUtils.getAdditionalCrystalPositions(radius, targetBragg,
+				additionalCrystalHorizontalOffsets[0]);
 
 		// the left hand xtal
 		checkPositionValid(xtalxs[0], iTargets[0]);
@@ -190,15 +211,18 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 		checkPositionValid(xtaltilts[2], -iTargets[2]);
 		checkPositionValid(xtalbraggs[2], iTargets[3]);
 
+		// reset the stop flag
+		stopCalled = false;
+
 		// only now store the new bragg value
 		bragg = targetBragg;
-		
+
 		// now do moves
 		notifyIObservers(this, new ScannableStatus(getName(), ScannableStatus.BUSY));
 
 		// central crystal
 		xtal_x.asynchronousMoveTo(targetL);
-		xtalbraggs[1].asynchronousMoveTo(targetXtalTheta);
+		xtalbraggs[1].asynchronousMoveTo(finalDetectorPositions[2]);
 
 		// crystal on the left
 		xtalxs[0].asynchronousMoveTo(iTargets[0]);
@@ -213,26 +237,57 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 		xtalbraggs[2].asynchronousMoveTo(iTargets[3]);
 
 		// loop over points for the detector only
-		if (doTrajectory && numTrajPoints != null && targetDetXArray != null && targetDetYArray != null
+		if (isRunningTrajectoryMovement && numTrajPoints != null && targetDetXArray != null && targetDetYArray != null
 				&& targetXtalThetaArray != null) {
-			try {
-				for (int node = 0; node < numTrajPoints; node++) {
-					det_x.waitWhileBusy();
-					det_y.waitWhileBusy();
-					det_rot.waitWhileBusy();
-					det_x.asynchronousMoveTo(targetDetXArray[node]);
-					det_y.asynchronousMoveTo(targetDetYArray[node]);
-					det_rot.asynchronousMoveTo(targetXtalThetaArray[node]);
+			ThreadManager.getThread(new Runnable() {
+				@Override
+				public void run() {
+					int node = 0;
+					try {
+						for (; node < targetDetXArray.length; node++) {
+							if (stopCalled) {
+								return;
+							}
+							det_x.waitWhileBusy();
+							det_y.waitWhileBusy();
+							det_rot.waitWhileBusy();
+							if (stopCalled) {
+								return;
+							}
+							det_x.asynchronousMoveTo(targetDetXArray[node]);
+							det_y.asynchronousMoveTo(targetDetYArray[node]);
+							det_rot.asynchronousMoveTo(targetXtalThetaArray[node]);
+						}
+					} catch (InterruptedException e) {
+						logger.warn("InterruptedException while running XESEnegry trajectory", e);
+					} catch (DeviceException e) {
+						logger.warn("DeviceException while running XESEnegry trajectory", e);
+					} finally {
+//						logger.info("Spectrometer move complete. XES Spectrometer final move positions: X:"+targetDetXArray[numTrajPoints-1]+" Y:"+targetDetYArray[numTrajPoints-1]+" Theta:"+targetXtalThetaArray[numTrajPoints-1]);
+						isRunningTrajectoryMovement = false;
+					}
 				}
-			} catch (InterruptedException e) {
-				throw new DeviceException("InterruptedException while moving " + getName(), e);
-			}
+			}).start();
 		} else {
 			// detector
-			det_x.asynchronousMoveTo(targetDetX);
-			det_y.asynchronousMoveTo(targetDetY);
-			det_rot.asynchronousMoveTo(targetXtalTheta * 2);
+			det_x.asynchronousMoveTo(finalDetectorPositions[0]);
+			det_y.asynchronousMoveTo(finalDetectorPositions[1]);
+			det_rot.asynchronousMoveTo(finalDetectorPositions[2] * 2);
 		}
+	}
+	
+	/**
+	 * The detector motor angle will be 2*theta.  The analyser crystals should be at theta.
+	 * 
+	 * @param radius
+	 * @param bragg
+	 * @return Double[] X,Y,theta
+	 */
+	private Double[] getXYTheta(Double radius, Double bragg ){
+		double detX = XesUtils.getDx(radius, bragg);
+		double detY = XesUtils.getDy(radius, bragg);
+		double theta = XesUtils.getCrystalRotation(bragg);
+		return new Double[]{detX,detY,theta};
 	}
 
 	private void checkPositionValid(ScannableMotor scannable, double target) throws DeviceException {
@@ -248,39 +303,44 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 	@Override
 	public Object rawGetPosition() throws DeviceException {
 		if (!doesMotorPositionAgreeWithExpectedBraggAngle()) {
-			logger.warn(getName()
+			if (!hasGetPositionWarningBeenSent) {
+				logger.warn(getName()
 					+ " cannot correctly determine its position: detector angle disagrees with expected position.\nReported position is based on detector rotation.\nIf you have not moved XES bragg or energy since restarting the GDA then please ignore this message");
+				hasGetPositionWarningBeenSent = true;
+			}
 			return braggBasedOnDetectorRotation();
 		}
+		hasGetPositionWarningBeenSent = false;
 		return bragg;
 	}
-	
+
 	private boolean doesMotorPositionAgreeWithExpectedBraggAngle() throws DeviceException {
 		return Math.abs(braggBasedOnDetectorRotation() - bragg) < 1;
 	}
-	
+
 	private double braggBasedOnDetectorRotation() throws NumberFormatException, DeviceException {
 		double yPosition = Double.parseDouble(det_y.getPosition().toString());
 		double lPosition = Double.parseDouble(xtal_x.getPosition().toString());
 		// In the Rowland condition: sin(2*(90-bragg)) = y/L
-		double derivedBragg = 90 - (0.5*Math.toDegrees(Math.asin(yPosition/lPosition)));
+		double derivedBragg = 90 - (0.5 * Math.toDegrees(Math.asin(yPosition / lPosition)));
 		return derivedBragg;
 
 	}
-	
+
 	@Override
 	public String toFormattedString() {
 		try {
 			if (!doesMotorPositionAgreeWithExpectedBraggAngle()) {
 				double position = braggBasedOnDetectorRotation();
 				String formattedPosition = String.format(getOutputFormat()[0], position);
-				return getName() + "\t: " + formattedPosition + " " + "deg. NB: this is derived from only the " + det_y.getName() +" and " + xtal_x.getName() + " motor positions.";
+				return getName() + "\t: " + formattedPosition + " " + "deg. NB: this is derived from only the "
+						+ det_y.getName() + " and " + xtal_x.getName() + " motor positions.";
 			}
 		} catch (Exception e) {
-			logger.error("Exception while deriving the " + getName() + " position",e);
+			logger.error("Exception while deriving the " + getName() + " position", e);
 			super.toFormattedString();
 		}
-		
+
 		return super.toFormattedString();
 	}
 
