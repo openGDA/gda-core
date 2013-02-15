@@ -308,7 +308,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final double FIX_ENERGY_EDEFAULT = 0.0;
+	protected static final double FIX_ENERGY_EDEFAULT = 9.0;
 
 	/**
 	 * The cached value of the '{@link #getFixEnergy() <em>Fix Energy</em>}' attribute.
@@ -335,7 +335,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final double LOW_ENERGY_EDEFAULT = 0.0;
+	protected static final double LOW_ENERGY_EDEFAULT = 8.0;
 
 	/**
 	 * The cached value of the '{@link #getLowEnergy() <em>Low Energy</em>}' attribute.
@@ -362,7 +362,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final double HIGH_ENERGY_EDEFAULT = 0.0;
+	protected static final double HIGH_ENERGY_EDEFAULT = 10.0;
 
 	/**
 	 * The cached value of the '{@link #getHighEnergy() <em>High Energy</em>}' attribute.
@@ -389,7 +389,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final double ENERGY_STEP_EDEFAULT = 0.0;
+	protected static final double ENERGY_STEP_EDEFAULT = 200.0;
 
 	/**
 	 * The cached value of the '{@link #getEnergyStep() <em>Energy Step</em>}' attribute.
@@ -416,7 +416,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final double SETP_TIME_EDEFAULT = 0.0;
+	protected static final double SETP_TIME_EDEFAULT = 0.043;
 
 	/**
 	 * The cached value of the '{@link #getSetpTime() <em>Setp Time</em>}' attribute.

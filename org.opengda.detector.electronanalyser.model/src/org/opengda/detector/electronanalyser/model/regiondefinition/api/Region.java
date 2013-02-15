@@ -462,7 +462,7 @@ public interface Region extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Fix Energy</b></em>' attribute.
-	 * The default value is <code>"0.0"</code>.
+	 * The default value is <code>"9.0"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Fix Energy</em>' attribute isn't clear,
@@ -474,7 +474,7 @@ public interface Region extends EObject {
 	 * @see #unsetFixEnergy()
 	 * @see #setFixEnergy(double)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_FixEnergy()
-	 * @model default="0.0" unsettable="true"
+	 * @model default="9.0" unsettable="true"
 	 * @generated
 	 */
 	double getFixEnergy();
@@ -516,7 +516,7 @@ public interface Region extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Low Energy</b></em>' attribute.
-	 * The default value is <code>"0.0"</code>.
+	 * The default value is <code>"8.0"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Low Energy</em>' attribute isn't clear,
@@ -528,7 +528,7 @@ public interface Region extends EObject {
 	 * @see #unsetLowEnergy()
 	 * @see #setLowEnergy(double)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_LowEnergy()
-	 * @model default="0.0" unsettable="true"
+	 * @model default="8.0" unsettable="true"
 	 * @generated
 	 */
 	double getLowEnergy();
@@ -570,7 +570,7 @@ public interface Region extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>High Energy</b></em>' attribute.
-	 * The default value is <code>"0.0"</code>.
+	 * The default value is <code>"10.0"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>High Energy</em>' attribute isn't clear,
@@ -582,7 +582,7 @@ public interface Region extends EObject {
 	 * @see #unsetHighEnergy()
 	 * @see #setHighEnergy(double)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_HighEnergy()
-	 * @model default="0.0" unsettable="true"
+	 * @model default="10.0" unsettable="true"
 	 * @generated
 	 */
 	double getHighEnergy();
@@ -624,7 +624,7 @@ public interface Region extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Energy Step</b></em>' attribute.
-	 * The default value is <code>"0.0"</code>.
+	 * The default value is <code>"200.0"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Energy Step</em>' attribute isn't clear,
@@ -636,7 +636,7 @@ public interface Region extends EObject {
 	 * @see #unsetEnergyStep()
 	 * @see #setEnergyStep(double)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_EnergyStep()
-	 * @model default="0.0" unsettable="true"
+	 * @model default="200.0" unsettable="true"
 	 * @generated
 	 */
 	double getEnergyStep();
@@ -678,7 +678,7 @@ public interface Region extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Setp Time</b></em>' attribute.
-	 * The default value is <code>"0.0"</code>.
+	 * The default value is <code>"0.043"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Setp Time</em>' attribute isn't clear,
@@ -690,7 +690,7 @@ public interface Region extends EObject {
 	 * @see #unsetSetpTime()
 	 * @see #setSetpTime(double)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_SetpTime()
-	 * @model default="0.0" unsettable="true"
+	 * @model default="0.043" unsettable="true"
 	 * @generated
 	 */
 	double getSetpTime();
