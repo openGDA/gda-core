@@ -24,11 +24,19 @@ class QexafsScan(Scan):
         Scan.__init__(self, loggingcontroller,detectorPreparer, samplePreparer, outputPreparer,None)
         self.energy_scannable = energy_scannable
         self.ion_chambers_scannable = ion_chambers_scannable
-        #self.t = None
+        if self.cirrusEnabled:
+            self.t = None
         self.beamCheck = True
+        self.cirrusEnabled = False
         
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, numRepetitions= -1, validation=True):
         xmlFolderName = ExafsEnvironment().getXMLFolder() + folderName + "/"
+
+        print "xmlFolderName=" + str(xmlFolderName)
+        print "sampleFileName=" + str(sampleFileName)
+        print "scanFileName=" + str(scanFileName)
+        print "detectorFileName=" + str(detectorFileName)
+        print "outputFileName=" + str(outputFileName)
 
         sampleBean, scanBean, detectorBean, outputBean = self._createBeans(xmlFolderName, sampleFileName, scanFileName, detectorFileName, outputFileName) 
         controller = Finder.getInstance().find("ExafsScriptObserver")
@@ -37,7 +45,6 @@ class QexafsScan(Scan):
         # work out which detectors to use (they will need to have been configured already by the GUI)
         detectorList = self._getQEXAFSDetectors(detectorBean, outputBean, scanBean) 
         print "detectors to be used:", str(detectorList)
-        
         
         # send initial message to the log
         from gda.jython.scriptcontroller.logging import LoggingScriptController
@@ -86,33 +93,33 @@ class QexafsScan(Scan):
                 loggingcontroller.update(None,logmsg)
                 loggingcontroller.update(None,ScanStartedMessage(scanBean,detectorBean))
 
-                ### cirrus test
-                #import threading
-                #import datetime
-                #from time import sleep
-                #from gda.data import PathConstructor
-                #from cirrus import ThreadClass
-
-                #finder = Finder.getInstance()
-                #cirrus=finder.find("cirrus")
-                #cirrus.setMasses([2, 28, 32])
-                #energyScannable = finder.find("qexafs_energy")
-                #self.t = ThreadClass(cirrus, energyScannable, initial_energy, final_energy, "cirrus_scan.dat")
-                #self.t.setName("cirrus")
-                #self.t.start()
-                ###
+                if self.cirrusEnabled:
+                    ### cirrus test
+                    import threading
+                    import datetime
+                    from time import sleep
+                    from gda.data import PathConstructor
+                    from cirrus import ThreadClass
+                    finder = Finder.getInstance()
+                    cirrus=finder.find("cirrus")
+                    cirrus.setMasses([2, 28, 32])
+                    energyScannable = finder.find("qexafs_energy")
+                    self.t = ThreadClass(cirrus, energyScannable, initial_energy, final_energy, "cirrus_scan.dat")
+                    self.t.setName("cirrus")
+                    self.t.start()
+                    ###
 
                 loggingbean = XasProgressUpdater(loggingcontroller,logmsg,timeRepetitionsStarted)
             
-                #3=closed
-                if self.beamCheck==True:
-                    feAbsPV = "FE18B-RS-ABSB-02:STA"
-                    feAbsStatus = int(CAClient().caget(feAbsPV))
-                    print "feAbsStatus=",feAbsStatus
-                    while feAbsStatus!=1 and self.beamCheck==True:
+                if (LocalProperties.get("gda.mode") == 'live'):
+                    if self.beamCheck==True:
+                        feAbsPV = "FE18B-RS-ABSB-02:STA"
                         feAbsStatus = int(CAClient().caget(feAbsPV))
-                        print "Checking whether front end absorber is open. Currently "+str(feAbsStatus)
-                        sleep(2)
+                        print "feAbsStatus=",feAbsStatus
+                        while feAbsStatus!=1 and self.beamCheck==True:
+                            feAbsStatus = int(CAClient().caget(feAbsPV))
+                            print "Checking whether front end absorber is open. Currently "+str(feAbsStatus)
+                            sleep(2)
             
                 print "running QEXAFS scan:", self.energy_scannable.getName(), scanBean.getInitialEnergy(), scanBean.getFinalEnergy(), numberPoints, scan_time, detectorList
                 controller.update(None, ScriptProgressEvent("Running QEXAFS scan"))
@@ -148,10 +155,10 @@ class QexafsScan(Scan):
                 self._runScript(outputBean.getAfterScriptName())
                 
                 #check if halt after current repetition set to true
-                if numRepetitions > 1 and LocalProperties.get(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY) == "true":
+                if LocalProperties.get(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY) == "true":
                     print "Paused scan after repetition",str(repetitionNumber),". To resume the scan, press the Start button in the Command Queue view. To abort this scan, press the Skip Task button."
                     LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY,"false")
-                    Finder.getInstance().find("commandQueueProcessor").pause(500);
+                    Finder.getInstance().find("commandQueueProcessor").pause(500)
                     ScriptBase.checkForPauses()
                 
                 #check if the number of repetitions has been altered and we should now end the loop
@@ -174,7 +181,8 @@ class QexafsScan(Scan):
             if (jython_mapper.original_header != None):
                 original_header=jython_mapper.original_header[:]
                 Finder.getInstance().find("datawriterconfig").setHeader(original_header)
-            #self.t.stop
+            if self.cirrusEnabled:
+                self.t.stop
 
  
     def _getNumberOfFrames(self, detectorBean, scanBean):
@@ -204,11 +212,14 @@ class QexafsScan(Scan):
         expt_type = detectorBean.getExperimentType()
         detectorList = []
         if expt_type == "Transmission":
+            print "This is a transmission scan"
             return self._createDetArray(["qexafs_counterTimer01"], scanBean)
         else:
             if detectorBean.getFluorescenceParameters().getDetectorType() == "Silicon":
+                print "This scan will use the vortex detector"
                 return self._createDetArray(["qexafs_counterTimer01", "qexafs_xmap", "VortexQexafsFFI0"], scanBean)
             else:
+                print "This scan will use the Xspress detector"
                 return self._createDetArray(["qexafs_counterTimer01", "qexafs_xspress", "QexafsFFI0"], scanBean)
         
         
@@ -234,3 +245,6 @@ class QexafsScan(Scan):
         
     def turnOffBeamCheck(self):
         self.beamCheck=False
+    
+    def useCirrus(self, isUsed):
+        self.cirrusEnabled = isUsed

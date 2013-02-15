@@ -21,9 +21,11 @@ from java.lang import String
 from gda.device import Detector
 from gda.scan import ContinuousScan
 
+import java.lang.Exception
+
 class RasterMapReturnWrite(Map):
     
-    def __init__(self, d7a, d7b, counterTimer01, trajectoryX, raster_counterTimer01, raster_xmap, realX, HTScaler, HTXmapMca):
+    def __init__(self, d7a, d7b, counterTimer01, trajectoryX, raster_counterTimer01, raster_xmap, realX, HTScaler, HTXmapMca, continuousSampleX):
         self.d7a=d7a
         self.d7b=d7b
         self.counterTimer01=counterTimer01
@@ -36,6 +38,7 @@ class RasterMapReturnWrite(Map):
         self.HTXmapMca=HTXmapMca
         self.mfd = None
         self.detectorBeanFileName=""
+        self.continuousSampleX=continuousSampleX
     
     def getMFD(self):
         return self.self.mfd
@@ -72,12 +75,11 @@ class RasterMapReturnWrite(Map):
         beanGroup.setScan(scanBean)
         XasAsciiDataWriter.setBeanGroup(beanGroup)
     
-        detectorList = self.getDetectors(detectorBean, outputBean, None) 
+        detectorList = self.getDetectors(detectorBean, outputBean) 
        
         self.setup(beanGroup)
         
         finder = self.finder
-        dataWriter = finder.find("DataWriterFactory")
         nx = ScannableUtils.getNumberSteps(self.finder.find(scanBean.getXScannableName()),scanBean.getXStart(), scanBean.getXEnd(),scanBean.getXStepSize()) + 1
         ny = ScannableUtils.getNumberSteps(self.finder.find(scanBean.getYScannableName()),scanBean.getYStart(), scanBean.getYEnd(),scanBean.getYStepSize()) + 1
         
@@ -86,6 +88,7 @@ class RasterMapReturnWrite(Map):
        
         energyList = [scanBean.getEnergy()]
         zScannablePos = scanBean.getZValue()
+        
         for energy in energyList:
             self.mfd = TwoWayMicroFocusWriterExtender(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize())
             globals()["microfocusScanWriter"] = self.mfd
@@ -111,7 +114,6 @@ class RasterMapReturnWrite(Map):
                 self.mfd.setDetectorBeanFileName(self.detectorBeanFileName)
                 bean = BeansFactory.getBean(File(self.detectorBeanFileName))   
                 detector = finder.find(bean.getDetectorName())   
-                firstDetector = detectorList[0]
                 detectorList=[]
                 detectorList.append(finder.find("counterTimer01"))
                 detectorList.append(detector)  
@@ -121,9 +123,7 @@ class RasterMapReturnWrite(Map):
             self.mfd.setEnergyValue(energy)
             self.mfd.setZValue(zScannablePos)
             
-            xScannable = finder.find(scanBean.getXScannableName())
             yScannable = finder.find(scanBean.getYScannableName())
-            useFrames = False
             energyScannable = self.finder.find(scanBean.getEnergyScannableName())
             zScannable = self.finder.find(scanBean.getZScannableName())
             print "energy is ", str(energy)
@@ -137,20 +137,32 @@ class RasterMapReturnWrite(Map):
     
             scanStart = time.asctime()
             try:
-                numberPoints = abs(scanBean.getXEnd()- scanBean.getXStart())/scanBean.getXStepSize()
                 if(detectorType == "Silicon"):
-                    self.HTScaler.setIntegrateBetweenPoints(True)
+                    
+                    print "1"
+                    
+                    #self.HTScaler.setIntegrateBetweenPoints(True)
                     self.HTXmapMca.setIntegrateBetweenPoints(True)
                     self.HTScaler.setCollectionTime(scanBean.getRowTime() / nx)
                     self.HTXmapMca.setCollectionTime(scanBean.getRowTime() / nx)
-                    self.HTScaler.setScanNumberOfPoints(nx)
+                    #self.HTScaler.setScanNumberOfPoints(nx)
                     self.HTXmapMca.setScanNumberOfPoints(nx)                
-    
-                    tsl = TrajectoryScanLine([self.continuousSampleX, ScanPositionsTwoWay(self.continuousSampleX,scanBean.getXStart(), scanBean.getXEnd(), scanBean.getXStepSize()),  self.HTScaler, self.HTXmapMca, scanBean.getRowTime()/(nx)] )
-                    tsl.setScanDataPointQueueLength(10000);tsl.setPositionCallableThreadPoolSize(10)
+                           
+                    print "2"
+                    sptw= ScanPositionsTwoWay(self.continuousSampleX,scanBean.getXStart(), scanBean.getXEnd(), scanBean.getXStepSize())
+                    print "3"
+                    
+                    tsl = TrajectoryScanLine([self.continuousSampleX, sptw,  self.HTScaler, self.HTXmapMca, scanBean.getRowTime()/(nx)] )
+                    print "4"
+                    tsl.setScanDataPointQueueLength(10000)
+                    print "5"
+                    tsl.setPositionCallableThreadPoolSize(10)
+                    print "6"
     
                     xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),tsl, self.realX])
                     xmapRasterscan.getScanPlotSettings().setIgnore(1)
+                    
+                    print "7"
                     
                     xasWriter = XasAsciiNexusDatapointCompletingDataWriter()
                     rowR = TwoDScanRowReverser()
@@ -161,6 +173,8 @@ class RasterMapReturnWrite(Map):
                     xasWriter.addDataWriterExtender(self.mfd)
                     xmapRasterscan.setDataWriter(xasWriter)
                     self.finder.find("elementListScriptController").update(None, self.detectorBeanFileName);
+                    
+                    print "5"
                     xmapRasterscan.runScan()
                 else:
                     xspressRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),ContinuousScan(self.trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [self.raster_counterTimer01, self.raster_xspress]),self.realX])
@@ -168,15 +182,27 @@ class RasterMapReturnWrite(Map):
                     self.finder.find("elementListScriptController").update(None, self.detectorBeanFileName);
                     xspressRasterscan.runScan()
     
-            finally:
-                scanEnd = time.asctime()
+            except (Exception, java.lang.Exception), scan_exception:
+                print "Handling exception raised during scan"
                 if(origScanPlotSettings):
                     LocalProperties.set("gda.scan.useScanPlotSettings", "true")
                 else:
                     LocalProperties.set("gda.scan.useScanPlotSettings", "false")
-                print "map start time " + str(scanStart)
-                print "map end time " + str(scanEnd)
-                self.finish()
+                try:
+                    self.finish()
+                except (Exception, java.lang.Exception), e:
+                    print "Exception while calling finish() during cleanup. Catching this inorder to reraise the *original* Exception"
+                    print "Caught exception:", e
+                    print "Raising original exception"
+                raise scan_exception
+            scanEnd = time.asctime()
+            if(origScanPlotSettings):
+                LocalProperties.set("gda.scan.useScanPlotSettings", "true")
+            else:
+                LocalProperties.set("gda.scan.useScanPlotSettings", "false")
+            print "map start time " + str(scanStart)
+            print "map end time " + str(scanEnd)
+            self.finish()
         
     def setup(self, beanGroup):
         rasterscan = beanGroup.getScan()

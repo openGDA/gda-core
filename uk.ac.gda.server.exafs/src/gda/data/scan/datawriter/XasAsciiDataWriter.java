@@ -233,7 +233,7 @@ public class XasAsciiDataWriter extends AsciiDataWriter{
 					currentFileName = filePrefix +"." + this.fileExtension;
 				} else {
 					filePrefix = nameFrag;
-					currentFileName = filePrefix + "_" + getFileNumber()+ "." + this.fileExtension;
+					currentFileName = getFileNumber() + "_" + filePrefix+ "." + this.fileExtension;
 				}
 			}
 		} catch (RuntimeException ne) {

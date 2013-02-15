@@ -208,7 +208,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 				controller.endRecording();
 			} catch (Exception e1) {
 				controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
-				logger.error("TODO put description of error here", e1);
+				logger.error("Unalble to end hdf5 capture", e1);
 				throw new DeviceException("Unalble to end hdf5 capture", e1);
 			}
 			controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
@@ -376,14 +376,16 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 			setupFilename();
 			controller.resetCounters();
 			int numberOfPointsPerScan = continuousParameters.getNumberDataPoints();
-			controller.setPixelsPerRun(numberOfPointsPerScan - 1);
+			//This has a -1 for b18 and not for i18. Need to figure out why.
+			controller.setPixelsPerRun(numberOfPointsPerScan);
+			//
 			controller.setAutoPixelsPerBuffer(true);
 			int buffPerRow = (numberOfPointsPerScan) / 124 + 1;
 			controller.setHdfNumCapture(buffPerRow);
 			controller.startRecording();
 		} catch (Exception e) {
 
-			logger.error("TODO put description of error here", e);
+			logger.error("Error occurred arming the xmap detector", e);
 			throw new DeviceException("Error occurred arming the xmap detector", e);
 		}
 		xmap.clearAndStart();
@@ -537,7 +539,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		output.setPlottableValue("FF", ff);
 
 		if (summation != null)
-			output.addData(detTree, "allElementSum", new int[] { summation.length }, NexusFile.NX_UINT16, summation,
+			output.addData(detTree, "allElementSum", new int[] { summation.length }, NexusFile.NX_FLOAT64, summation,
 					"counts", 1);
 		return output;
 	}
@@ -636,7 +638,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		CAClient ca_client = new CAClient();
 		try {
 			if (capturepv != null)
-				ca_client.caput("stoppv", 0);
+				ca_client.caput(capturepv, 0);
 		} catch (CAException e) {
 			logger.error("Could not stop xmap capture", e);
 		} catch (InterruptedException e) {

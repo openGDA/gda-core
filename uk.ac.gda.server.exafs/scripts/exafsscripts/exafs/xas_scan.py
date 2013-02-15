@@ -52,6 +52,13 @@ class XasScan(Scan):
         
         # Create the beans from the file names
         xmlFolderName = ExafsEnvironment().getXMLFolder() + folderName + "/"
+
+        print "xmlFolderName=" + str(xmlFolderName)
+        print "sampleFileName=" + str(sampleFileName)
+        print "scanFileName=" + str(scanFileName)
+        print "detectorFileName=" + str(detectorFileName)
+        print "outputFileName=" + str(outputFileName)
+        
         sampleBean, scanBean, detectorBean, outputBean = self._createBeans(xmlFolderName, sampleFileName, scanFileName, detectorFileName, outputFileName)
 
         # create unique ID for this scan (all repetitions will share the same ID)
@@ -174,7 +181,7 @@ class XasScan(Scan):
                 self._runScript(beanGroup.getOutput().getAfterScriptName())
                 
                 #check if halt after current repetition set to true
-                if numRepetitions > 1 and LocalProperties.get(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY) == "true":
+                if LocalProperties.get(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY) == "true":
                     print "Paused scan after repetition",str(repetitionNumber),". To resume the scan, press the Start button in the Command Queue view. To abort this scan, press the Skip Task button."
                     Finder.getInstance().find("commandQueueProcessor").pause(500);
                     LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY,"false")
@@ -218,6 +225,7 @@ class XasScan(Scan):
         expt_type = detectorBean.getExperimentType()
         detectorList = []
         if expt_type == "Transmission":
+            print "This is a transmission scan"
             for group in detectorBean.getDetectorGroups():
                 if group.getName() == detectorBean.getTransmissionParameters().getDetectorType():
                     return self._createDetArray(group.getDetector(), scanBean)
@@ -226,6 +234,7 @@ class XasScan(Scan):
                 if group.getName() == "XES":
                     return self._createDetArray(group.getDetector(), scanBean)
         else:
+            print "This is a fluoresence scan"
             for group in detectorBean.getDetectorGroups():
                 if group.getName() == detectorBean.getFluorescenceParameters().getDetectorType():
                     #print detectorBean.getFluorescenceParameters().getDetectorType(), "experiment"
