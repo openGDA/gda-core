@@ -661,14 +661,14 @@ public class Stepper extends Canvas {
 				f.setBounds(translated);
 				moveToLocation(f.getBounds().x);
 
-				long currentTimeMillis = System.currentTimeMillis();
-				// fires an update only if the previous update hadn't been fired within a timespan of 500 mill seconds.
-				// This was added to avoid the UI thread being held up by listeners.
-				if (currentTimeMillis - lastTime > 500) {
-					spinnerValNotified = spinner.getSelection();
-					fireNotifyChanged();
-					lastTime = currentTimeMillis;
-				}
+//				long currentTimeMillis = System.currentTimeMillis();
+//				// fires an update only if the previous update hadn't been fired within a timespan of 500 mill seconds.
+//				// This was added to avoid the UI thread being held up by listeners.
+//				if (currentTimeMillis - lastTime > 500) {
+//					spinnerValNotified = spinner.getSelection();
+//					fireNotifyChanged();
+//					lastTime = currentTimeMillis;
+//				}
 
 				movedPoint = p;
 			}
