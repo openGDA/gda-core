@@ -1,11 +1,22 @@
 package org.opengda.detector.electronanalyser.client.sequenceeditor;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.edit.provider.ComposedAdapterFactory;
+import org.eclipse.emf.edit.provider.ReflectiveItemProviderAdapterFactory;
+import org.eclipse.emf.edit.provider.resource.ResourceItemProviderAdapterFactory;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.ColumnLayoutData;
 import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
@@ -21,20 +32,24 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.ViewPart;
+import org.opengda.detector.electronanalyser.client.RegionDefinitionResourceUtil;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
-import org.opengda.detector.electronanalyser.model.regiondefinition.util.RegionDefinitionResourceUtil;
+import org.opengda.detector.electronanalyser.model.regiondefinition.provider.RegiondefinitionItemProviderAdapterFactory;
 
-public class SequenceView extends ViewPart {
+public class SequenceView extends ViewPart implements ISelectionProvider {
+	private List<ISelectionChangedListener> selectionChangedListeners;
+
 	public SequenceView() {
 		setTitleToolTip("Create a new or editing an existing region");
 		setContentDescription("A view for editing region parameters");
 		setPartName("Region Editor");
+		this.selectionChangedListeners = new ArrayList<ISelectionChangedListener>();
 	}
 
 	private RegionDefinitionResourceUtil regionDefinitionResourceUtil;
-	private Table table;
 	private Text text;
 	private Text txtLocation;
 	private Text txtUser;
@@ -42,12 +57,23 @@ public class SequenceView extends ViewPart {
 	private Text txtFilename;
 	private Text txtComments;
 
-	private final String columnHeaders[] = { "Status", "Enabled",
-			"Region Name", "Lens Mode", "Pass Energy", "Excitation Energy",
-			"Energy Mode", "Energy Low",
-			"Energy High", "Energy Step", "Step Time", "Steps", "Total Time",
-			"X-Channel From", "X-Channel To", "Y-Channel from", "Y-Channel To",
-			"Slices", "Mode" };
+	private final String columnHeaders[] = { SequenceTableConstants.STATUS,
+			SequenceTableConstants.ENABLED, SequenceTableConstants.REGION_NAME,
+			SequenceTableConstants.LENS_MODE,
+			SequenceTableConstants.PASS_ENERGY,
+			SequenceTableConstants.EXCITATION_ENERGY,
+			SequenceTableConstants.ENERGY_MODE,
+			SequenceTableConstants.LOW_ENERGY,
+			SequenceTableConstants.HIGH_ENERGY,
+			SequenceTableConstants.ENERGY_STEP,
+			SequenceTableConstants.STEP_TIME, SequenceTableConstants.STEPS,
+			SequenceTableConstants.TOTAL_TIME,
+			SequenceTableConstants.X_CHANNEL_FROM,
+			SequenceTableConstants.X_CHANNEL_TO,
+			SequenceTableConstants.Y_CHANNEL_FROM,
+			SequenceTableConstants.Y_CHANNEL_TO, SequenceTableConstants.SLICES,
+			SequenceTableConstants.MODE };
+
 	private ColumnLayoutData columnLayouts[] = {
 			new ColumnWeightData(10, false), new ColumnWeightData(10, false),
 			new ColumnWeightData(80, true), new ColumnWeightData(70, false),
@@ -58,22 +84,37 @@ public class SequenceView extends ViewPart {
 			new ColumnWeightData(40, true), new ColumnWeightData(40, true),
 			new ColumnWeightData(40, true), new ColumnWeightData(40, true),
 			new ColumnWeightData(40, true), new ColumnWeightData(40, true),
-			new ColumnWeightData(40, true)
-			};
+			new ColumnWeightData(40, true) };
+	private ComposedAdapterFactory adapterFactory;
+	private TableViewer sequenceTableViewer;
 
 	public void createColumns(TableViewer tableViewer, TableColumnLayout layout) {
 		for (int i = 0; i < columnHeaders.length; i++) {
 			TableViewerColumn tableViewerColumn = new TableViewerColumn(
 					tableViewer, SWT.None);
-			tableViewerColumn.getColumn().setResizable(
-					columnLayouts[i].resizable);
-			tableViewerColumn.getColumn().setText(columnHeaders[i]);
-			tableViewerColumn.getColumn().setToolTipText(columnHeaders[i]);
-			layout.setColumnData(tableViewerColumn.getColumn(),
-					columnLayouts[i]);
+			TableColumn column = tableViewerColumn.getColumn();
+			column.setResizable(columnLayouts[i].resizable);
+			column.setText(columnHeaders[i]);
+			column.setToolTipText(columnHeaders[i]);
+			layout.setColumnData(column, columnLayouts[i]);
 			// tableViewerColumn.setEditingSupport(new TomoColumnEditingSupport(
 			// tableViewer, tableViewerColumn));
 		}
+	}
+
+	protected void initializeEditingDomain() {
+		// Create an adapter factory that yields item providers.
+		//
+		adapterFactory = new ComposedAdapterFactory(
+				ComposedAdapterFactory.Descriptor.Registry.INSTANCE);
+
+		adapterFactory
+				.addAdapterFactory(new ResourceItemProviderAdapterFactory());
+		adapterFactory
+				.addAdapterFactory(new RegiondefinitionItemProviderAdapterFactory());
+		adapterFactory
+				.addAdapterFactory(new ReflectiveItemProviderAdapterFactory());
+
 	}
 
 	@Override
@@ -85,21 +126,77 @@ public class SequenceView extends ViewPart {
 
 		Composite tableViewerContainer = new Composite(rootComposite, SWT.None);
 
-		TableViewer tableViewer = new TableViewer(tableViewerContainer,
-				SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI);
-		//table = tableViewer.getTable();
-		tableViewer.getTable().setHeaderVisible(true);
-		tableViewer.getTable().setLinesVisible(true);
+		sequenceTableViewer = new TableViewer(tableViewerContainer, SWT.BORDER
+				| SWT.FULL_SELECTION | SWT.MULTI);
+		sequenceTableViewer.getTable().setHeaderVisible(true);
+		sequenceTableViewer.getTable().setLinesVisible(true);
+		sequenceTableViewer
+				.addSelectionChangedListener(new ISelectionChangedListener() {
+
+					@Override
+					public void selectionChanged(SelectionChangedEvent event) {
+						ISelection selection = event.getSelection();
+						if (selection instanceof IStructuredSelection) {
+							IStructuredSelection sel = (IStructuredSelection) selection;
+							Object firstElement = sel.getFirstElement();
+							if (firstElement instanceof Region) {
+								Region region = (Region) firstElement;
+								fireSelectionChanged(region);
+							}
+
+						}
+					}
+				});
 		TableColumnLayout tableLayout = new TableColumnLayout();
 		tableViewerContainer.setLayout(tableLayout);
 
-		createColumns(tableViewer, tableLayout);
+		createColumns(sequenceTableViewer, tableLayout);
 
 		// table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1,
 		// 1));
 		tableViewerContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
 				true, true, 1, 1));
-		
+
+		Resource resource = null;
+		try {
+			resource = regionDefinitionResourceUtil.getResource();
+		} catch (Exception e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+
+		sequenceTableViewer.setContentProvider(new SequenceViewContentProvider(
+				resource));
+		sequenceTableViewer.setLabelProvider(new SequenceViewLabelProvider());
+		List<Region> regions = Collections.EMPTY_LIST;
+		try {
+			regions = regionDefinitionResourceUtil.getRegions(false);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		sequenceTableViewer.setInput(regions);
+		// initializeEditingDomain();
+		// sequenceTableViewer
+		// .setContentProvider(new AdapterFactoryContentProvider(
+		// adapterFactory));
+		// sequenceTableViewer.setLabelProvider(new AdapterFactoryLabelProvider(
+		// adapterFactory));
+		// EditingDomain sequenceEditingDomain = null;
+		// try {
+		// sequenceEditingDomain = ElectronAnalyserClientPlugin.getDefault()
+		// .getSequenceEditingDomain();
+		// } catch (Exception e1) {
+		// // TODO Auto-generated catch block
+		// e1.printStackTrace();
+		// }
+		// if (sequenceEditingDomain != null) {
+		// ResourceSet resourceSet = sequenceEditingDomain.getResourceSet();
+		// Resource resource = (Resource)resourceSet.getResources().get(0);
+		// sequenceTableViewer
+		// .setInput(resource.getContents());
+		// }
+		//
 		Composite controlArea = new Composite(rootComposite, SWT.None);
 		// Contains region editing, sequence parameters, file saving info and
 		// comments.
@@ -162,29 +259,14 @@ public class SequenceView extends ViewPart {
 		grpActiveRegions.setLayout(new RowLayout());
 
 		text = new Text(grpActiveRegions, SWT.BORDER);
-		//TODO set active or enable region counts
+		// TODO set active or enable region counts
 		text.setEditable(false);
-		
-		Group grpBeamControl = new Group(leftArea, SWT.NONE);
-		grpBeamControl.setLayout(new RowLayout());
-		grpBeamControl.setText("X-Ray Source");
-		
-		Button btnHard = new Button(grpBeamControl, SWT.RADIO);
-		btnHard.setText("Hard");
-		
-		Button btnSoft = new Button(grpBeamControl, SWT.RADIO);
-		btnSoft.setText("Soft");
-		
-		Group grpShutter = new Group(leftArea, SWT.NONE);
-		grpShutter.setLayout(new RowLayout());
-		grpShutter.setText("Shutter");
-		
-		Button btnOpen = new Button(grpShutter, SWT.NONE);
-		btnOpen.setText("Open");
-		
+		new Label(leftArea, SWT.NONE);
+		new Label(leftArea, SWT.NONE);
+
 		Group grpInfo = new Group(leftArea, SWT.NONE);
 		GridData layoutData1 = new GridData(GridData.FILL_HORIZONTAL);
-		layoutData1.horizontalSpan =4;
+		layoutData1.horizontalSpan = 4;
 		grpInfo.setLayoutData(layoutData1);
 		grpInfo.setText("Info");
 		grpInfo.setLayout(new GridLayout(3, false));
@@ -281,14 +363,8 @@ public class SequenceView extends ViewPart {
 		Button btnCancel = new Button(actionArea, SWT.NONE);
 		btnCancel.setText("Cancel");
 		initaliseValues();
-		// for (Region region : getRegions()) {
-		// Label lblName = new Label(parent, SWT.None);
-		// lblName.setText(region.getName());
-		// GridData layoutData = new GridData();
-		// layoutData.horizontalSpan = 2;
-		// lblName.setLayoutData(layoutData);
-		// }
-
+		// register as selection provider to the SelectionService
+		getViewSite().setSelectionProvider(this);
 	}
 
 	private void initaliseValues() {
@@ -296,7 +372,11 @@ public class SequenceView extends ViewPart {
 
 	private List<Region> getRegions() {
 		if (regionDefinitionResourceUtil != null) {
-			return regionDefinitionResourceUtil.getRegions(false);
+			try {
+				return regionDefinitionResourceUtil.getRegions(false);
+			} catch (Exception e) {
+				// FIXME - logger
+			}
 		}
 		return Collections.emptyList();
 	}
@@ -313,5 +393,35 @@ public class SequenceView extends ViewPart {
 	public void setRegionDefinitionResourceUtil(
 			RegionDefinitionResourceUtil regionDefinition) {
 		this.regionDefinitionResourceUtil = regionDefinition;
+	}
+
+	@Override
+	public void addSelectionChangedListener(ISelectionChangedListener listener) {
+		selectionChangedListeners.add(listener);
+	}
+
+	@Override
+	public ISelection getSelection() {
+		return sequenceTableViewer.getSelection();
+	}
+
+	@Override
+	public void removeSelectionChangedListener(
+			ISelectionChangedListener listener) {
+		selectionChangedListeners.remove(listener);
+	}
+
+	@Override
+	public void setSelection(ISelection selection) {
+
+	}
+
+	private void fireSelectionChanged(Region region) {
+		for (ISelectionChangedListener listener : selectionChangedListeners) {
+			listener.selectionChanged(new SelectionChangedEvent(this,
+					new StructuredSelection(region)));
+
+		}
+
 	}
 }
