@@ -43,15 +43,15 @@ public class GainCalculation {
 		NOTCHES = new ArrayList<String>(13);
 		addGainSettings("pA/V", NOTCHES);
 		addGainSettings("nA/V", NOTCHES);
-		addGainSettings("\u03BCA/V", NOTCHES);
+		addGainSettings("uA/V", NOTCHES);
 		NOTCHES.add("1 mA/V");
 		
 		
 		OFFSET_NOTCHES = new ArrayList<String>(13);
-		addOffsetSettings("pA/V", OFFSET_NOTCHES);
-		addOffsetSettings("nA/V", OFFSET_NOTCHES);
-		addOffsetSettings("\u03BCA/V", OFFSET_NOTCHES);
-		OFFSET_NOTCHES.add("1 mA/V");
+		addOffsetSettings("pA", OFFSET_NOTCHES);
+		addOffsetSettings("nA", OFFSET_NOTCHES);
+		addOffsetSettings("uA", OFFSET_NOTCHES);
+		OFFSET_NOTCHES.add("1 mA");
 	}
 
 	private final static void addGainSettings(String unit, final List<String> items) {

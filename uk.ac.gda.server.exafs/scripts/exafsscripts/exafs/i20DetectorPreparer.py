@@ -29,6 +29,11 @@ class I20DetectorPreparer:
             else:
                 from gda.device.detector import VortexDetectorConfiguration
                 VortexDetectorConfiguration(self.ExafsScriptObserver,fullFileName,None,outputParameters).configure()
+        elif detectorParameters.getExperimentType() == "XES" :
+            fullFileName = str(scriptFolder) + str(detectorParameters.getXesParameters().getConfigFileName())
+            from gda.device.detector import VortexDetectorConfiguration
+            VortexDetectorConfiguration(self.ExafsScriptObserver,fullFileName,None,outputParameters).configure()
+            
         
         ionChamberParamsArray = None
         if detectorParameters.getExperimentType() == "Fluorescence" :

@@ -131,6 +131,8 @@ public class XasAsciiDataWriter extends AsciiDataWriter{
 				// write out the command if its not too long
 				if (!dataPoint.getCommand().contains("org.python.core")){
 					file.write("# command: " + dataPoint.getCommand() + "\n");
+				} else {
+					file.write("#");
 				}
 
 				file.write("#\n");
@@ -141,6 +143,8 @@ public class XasAsciiDataWriter extends AsciiDataWriter{
 					file.write("# Detector: Ge (XSPRESS)\n");
 				} else if (dataPoint.isDetector(xmapName)) {
 					file.write("# Detector: Si (XIA)\n");
+				} else {
+					file.write("#");
 				}
 
 				// write out dark current if a detector present is a DarkCurrentDetector
@@ -226,7 +230,7 @@ public class XasAsciiDataWriter extends AsciiDataWriter{
 					currentFileName = filePrefix +"." + this.fileExtension;
 				} else {
 					filePrefix = nameFrag;
-					currentFileName =  getFileNumber() + "_" + filePrefix+ "." + this.fileExtension;
+					currentFileName = getFileNumber() + "_" + filePrefix+ "." + this.fileExtension;
 				}
 			}
 		} catch (RuntimeException ne) {
