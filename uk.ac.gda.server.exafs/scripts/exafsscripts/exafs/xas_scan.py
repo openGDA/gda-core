@@ -50,6 +50,13 @@ class XasScan(Scan):
         
         # Create the beans from the file names
         xmlFolderName = ExafsEnvironment().getXMLFolder() + folderName + "/"
+
+        print "xmlFolderName=" + str(xmlFolderName)
+        print "sampleFileName=" + str(sampleFileName)
+        print "scanFileName=" + str(scanFileName)
+        print "detectorFileName=" + str(detectorFileName)
+        print "outputFileName=" + str(outputFileName)
+        
         sampleBean, scanBean, detectorBean, outputBean = self._createBeans(xmlFolderName, sampleFileName, scanFileName, detectorFileName, outputFileName)
 
         # create unique ID for this scan (all repetitions will share the same ID)
@@ -59,7 +66,7 @@ class XasScan(Scan):
         scan_unique_id = LoggingScriptController.createUniqueID(scriptType);
         
         # update to terminal
-        print ""
+        print "**********************************"
         print "Starting",scriptType,detectorBean.getExperimentType(),"scan over scannable '"+scanBean.getScannableName()+"'..."
         print ""
         print "Output to",xmlFolderName
@@ -102,8 +109,6 @@ class XasScan(Scan):
                 # send out initial messages for logging and display to user
                 outputFolder = beanGroup.getOutput().getAsciiDirectory()+ "/" + beanGroup.getOutput().getAsciiFileName()
                 
-                print "Starting "+scriptType+" scan...", str(repetitionNumber)
-
                 initialPercent = str(int((float(repetitionNumber - 1) / float(numRepetitions)) * 100)) + "%" 
                 logmsg = XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), initialPercent,str(0),str(0),beanGroup.getScan(),outputFolder)
                 self.loggingcontroller.update(None,logmsg)
@@ -145,7 +150,7 @@ class XasScan(Scan):
                         print "Starting repetition", str(repetitionNumber),"of",numRepetitions
                     else:
                         print ""
-                        print "Starting scan..."
+                        print "Starting "+scriptType+" scan..."
                     thisscan = ConcurrentScan(args)
                     thisscan = self._setUpDataWriter(thisscan,beanGroup)
                     thisscan.setReturnScannablesToOrginalPositions(False)
@@ -175,7 +180,7 @@ class XasScan(Scan):
                 self._runScript(beanGroup.getOutput().getAfterScriptName())
                 
                 #check if halt after current repetition set to true
-                if numRepetitions > 1 and LocalProperties.get(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY) == "true":
+                if LocalProperties.get(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY) == "true":
                     print "Paused scan after repetition",str(repetitionNumber),". To resume the scan, press the Start button in the Command Queue view. To abort this scan, press the Skip Task button."
                     Finder.getInstance().find("commandQueueProcessor").pause(500);
                     LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY,"false")
@@ -188,7 +193,7 @@ class XasScan(Scan):
                     break
                 elif numRepsFromProperty <= (repetitionNumber):
                     break
-                    
+                numRepetitions = numRepsFromProperty
         finally:    
             # repetition loop completed, so reset things
             if (self.beamlineReverter != None):
@@ -202,6 +207,8 @@ class XasScan(Scan):
             if (jython_mapper.original_header != None):
                 original_header=jython_mapper.original_header[:]
                 Finder.getInstance().find("datawriterconfig").setHeader(original_header)
+                
+            print "**********************************"
     
     def _beforeEachRepetition(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller, repNum):
         return
@@ -217,10 +224,16 @@ class XasScan(Scan):
         expt_type = detectorBean.getExperimentType()
         detectorList = []
         if expt_type == "Transmission":
+            print "This is a transmission scan"
             for group in detectorBean.getDetectorGroups():
                 if group.getName() == detectorBean.getTransmissionParameters().getDetectorType():
                     return self._createDetArray(group.getDetector(), scanBean)
+        elif expt_type == "XES":
+            for group in detectorBean.getDetectorGroups():
+                if group.getName() == "XES":
+                    return self._createDetArray(group.getDetector(), scanBean)
         else:
+            print "This is a fluoresence scan"
             for group in detectorBean.getDetectorGroups():
                 if group.getName() == detectorBean.getFluorescenceParameters().getDetectorType():
                     #print detectorBean.getFluorescenceParameters().getDetectorType(), "experiment"

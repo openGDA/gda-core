@@ -28,12 +28,12 @@ public class B18ScalersMonitorView extends ScalersMonitorView {
 	@SuppressWarnings("hiding")
 	public static final String ID = "uk.ac.gda.exafs.ui.views.B18ScalersMonitor"; //$NON-NLS-1$
 	private String qexafsState;
-	private IQexafsScannableState qexafsScannableState;
+	//private IQexafsScannableState qexafsScannableState;
 
 	
 	@Override
 	public void run() {
-		qexafsScannableState = Finder.getInstance().find("qexafs_energy");
+		//qexafsScannableState = Finder.getInstance().find("qexafs_energy");
 		while (keepOnTrucking) {
 			if (!runMonitoring || !amVisible) {
 				try {
@@ -50,7 +50,7 @@ public class B18ScalersMonitorView extends ScalersMonitorView {
 				}
 			} else {
 
-				qexafsState = qexafsScannableState.getState();
+				//qexafsState = qexafsScannableState.getState();
 				if (qexafsState.equals("idle")) {
 					final Double[] values;
 					final Double[] xspressStats;

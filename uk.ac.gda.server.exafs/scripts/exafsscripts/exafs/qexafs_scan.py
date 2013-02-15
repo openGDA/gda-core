@@ -15,6 +15,8 @@ from gda.jython.scriptcontroller.logging import XasLoggingMessage
 from gda.scan import ScanBase, ContinuousScan
 from scan import Scan
 from exafs_environment import ExafsEnvironment
+from gda.epics import CAClient
+from time import sleep
 
 class QexafsScan(Scan):
     
@@ -22,10 +24,17 @@ class QexafsScan(Scan):
         Scan.__init__(self, loggingcontroller,detectorPreparer, samplePreparer, outputPreparer,None)
         self.energy_scannable = energy_scannable
         self.ion_chambers_scannable = ion_chambers_scannable
-        self.t = None
-            
+        #self.t = None
+        self.beamCheck = True
+        
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, numRepetitions= -1, validation=True):
         xmlFolderName = ExafsEnvironment().getXMLFolder() + folderName + "/"
+
+        print "xmlFolderName=" + str(xmlFolderName)
+        print "sampleFileName=" + str(sampleFileName)
+        print "scanFileName=" + str(scanFileName)
+        print "detectorFileName=" + str(detectorFileName)
+        print "outputFileName=" + str(outputFileName)
 
         sampleBean, scanBean, detectorBean, outputBean = self._createBeans(xmlFolderName, sampleFileName, scanFileName, detectorFileName, outputFileName) 
         controller = Finder.getInstance().find("ExafsScriptObserver")
@@ -78,8 +87,8 @@ class QexafsScan(Scan):
 
                 initialPercent = str(int((float(repetitionNumber - 1) / float(numRepetitions)) * 100)) + "%" 
 
-                logmsg = XasLoggingMessage(unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), initialPercent,str(0),str(0),str(scanBean.getTime()) + "s",outputFolder)
-
+                logmsg = XasLoggingMessage(unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), initialPercent,str(0),str(0),beanGroup.getScan(),outputFolder)
+               
                 loggingcontroller.update(None,logmsg)
                 loggingcontroller.update(None,ScanStartedMessage(scanBean,detectorBean))
 
@@ -100,6 +109,16 @@ class QexafsScan(Scan):
                 ###
 
                 loggingbean = XasProgressUpdater(loggingcontroller,logmsg,timeRepetitionsStarted)
+            
+                if (LocalProperties.get("gda.mode") == 'live'):
+                    if self.beamCheck==True:
+                        feAbsPV = "FE18B-RS-ABSB-02:STA"
+                        feAbsStatus = int(CAClient().caget(feAbsPV))
+                        print "feAbsStatus=",feAbsStatus
+                        while feAbsStatus!=1 and self.beamCheck==True:
+                            feAbsStatus = int(CAClient().caget(feAbsPV))
+                            print "Checking whether front end absorber is open. Currently "+str(feAbsStatus)
+                            sleep(2)
             
                 print "running QEXAFS scan:", self.energy_scannable.getName(), scanBean.getInitialEnergy(), scanBean.getFinalEnergy(), numberPoints, scan_time, detectorList
                 controller.update(None, ScriptProgressEvent("Running QEXAFS scan"))
@@ -135,10 +154,10 @@ class QexafsScan(Scan):
                 self._runScript(outputBean.getAfterScriptName())
                 
                 #check if halt after current repetition set to true
-                if numRepetitions > 1 and LocalProperties.get(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY) == "true":
+                if LocalProperties.get(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY) == "true":
                     print "Paused scan after repetition",str(repetitionNumber),". To resume the scan, press the Start button in the Command Queue view. To abort this scan, press the Skip Task button."
                     LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY,"false")
-                    Finder.getInstance().find("commandQueueProcessor").pause(500);
+                    Finder.getInstance().find("commandQueueProcessor").pause(500)
                     ScriptBase.checkForPauses()
                 
                 #check if the number of repetitions has been altered and we should now end the loop
@@ -161,7 +180,7 @@ class QexafsScan(Scan):
             if (jython_mapper.original_header != None):
                 original_header=jython_mapper.original_header[:]
                 Finder.getInstance().find("datawriterconfig").setHeader(original_header)
-            self.t.stop
+            #self.t.stop
 
  
     def _getNumberOfFrames(self, detectorBean, scanBean):
@@ -191,11 +210,14 @@ class QexafsScan(Scan):
         expt_type = detectorBean.getExperimentType()
         detectorList = []
         if expt_type == "Transmission":
+            print "This is a transmission scan"
             return self._createDetArray(["qexafs_counterTimer01"], scanBean)
         else:
             if detectorBean.getFluorescenceParameters().getDetectorType() == "Silicon":
+                print "This scan will use the vortex detector"
                 return self._createDetArray(["qexafs_counterTimer01", "qexafs_xmap", "VortexQexafsFFI0"], scanBean)
             else:
+                print "This scan will use the Xspress detector"
                 return self._createDetArray(["qexafs_counterTimer01", "qexafs_xspress", "QexafsFFI0"], scanBean)
         
         
@@ -212,3 +234,12 @@ class QexafsScan(Scan):
         beanGroup.setOutput(outputBean)
         beanGroup.setScan(scanBean)
         return beanGroup
+
+    def isBeamCheck(self):
+        return self.beamCheck
+    
+    def turnOnBeamCheck(self):
+        self.beamCheck = True
+        
+    def turnOffBeamCheck(self):
+        self.beamCheck=False

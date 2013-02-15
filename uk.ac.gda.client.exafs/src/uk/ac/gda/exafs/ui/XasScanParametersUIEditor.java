@@ -206,6 +206,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		preEdgeStep.setMinimum(0.1);
 		preEdgeStep.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		preEdgeStep.setUnit("eV");
+		preEdgeStep.setDoNotUseExpressions(true);
 
 		final Label preedgeStepTimeLabel = new Label(edgeParametersGroup, SWT.NONE);
 		preedgeStepTimeLabel.setText("Pre-Edge Time Step");
@@ -215,6 +216,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		preEdgeTime.setUnit("s");
 		preEdgeTime.setMaximum(20);
 		preEdgeTime.setMinimum(0.1);
+		preEdgeTime.setDoNotUseExpressions(true);
 
 		final Label stepLabel_1 = new Label(edgeParametersGroup, SWT.NONE);
 		stepLabel_1.setText("Edge Energy Step");
@@ -224,7 +226,8 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		edgeStep.setMaximum(20);
 		edgeStep.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		edgeStep.setUnit("eV");
-
+		edgeStep.setDoNotUseExpressions(true);
+		
 		final Label edgeStepTimeLabel = new Label(edgeParametersGroup, SWT.NONE);
 		edgeStepTimeLabel.setText("Edge Time Step");
 
@@ -233,6 +236,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		edgeTime.setMaximum(20);
 		edgeTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		edgeTime.setUnit("s");
+		edgeTime.setDoNotUseExpressions(true);
 
 		final Label scanTypeLabel = new Label(edgeParametersGroup, SWT.NONE);
 		scanTypeLabel.setText("Exafs Step Type");
@@ -250,6 +254,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		exafsStep.setUnit("eV");
 		exafsStep.setMaximum(100d);
 		exafsStep.setDecimalPlaces(3);
+		exafsStep.setDoNotUseExpressions(true);
 
 		final Label exafsTimeTypeLabel = new Label(edgeParametersGroup, SWT.NONE);
 		exafsTimeTypeLabel.setText("Exafs Time Type");
@@ -265,7 +270,8 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		exafsTime = new ScaleBox(edgeParametersGroup, SWT.NONE);
 		exafsTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		exafsTime.setUnit("s");
-		exafsStep.setMaximum(20d);
+		exafsTime.setMaximum(20d);
+		exafsTime.setDoNotUseExpressions(true);
 
 		this.exafsFromLabel = new Label(edgeParametersGroup, SWT.NONE);
 		exafsFromLabel.setText("Exafs From Time");
@@ -275,6 +281,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		exafsFromTime.setMaximum(20);
 		exafsFromTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		exafsFromTime.setUnit("s");
+		exafsFromTime.setDoNotUseExpressions(true);
 
 		this.exafsToLabel = new Label(edgeParametersGroup, SWT.NONE);
 		exafsToLabel.setText("Exafs To Time");
@@ -284,6 +291,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		exafsToTime.setMaximum(20);
 		exafsToTime.setMinimum(exafsFromTime);
 		exafsToTime.setUnit("s");
+		exafsToTime.setDoNotUseExpressions(true);
 
 		this.kWeightingLabel = new Label(edgeParametersGroup, SWT.NONE);
 		kWeightingLabel.setText("K Weighting");
@@ -320,9 +328,10 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		e0Label.addSelectionListener(e0Listener);
 
 		initialEnergy = new ScaleBox(topCentre, SWT.NONE);
+		initialEnergy.setDoNotUseExpressions(true);
 		initialEnergy.setUnit("eV");
 		initialEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-
+		
 		this.e1Label = new Link(topCentre, SWT.NONE);
 		e1Label.setText("<a>Final Energy</a>");
 		e1Label.setToolTipText("Click to open preferences (and allow/disallow editing final energy).");
@@ -337,6 +346,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		
 		if(energyInK){
 			finalEnergy = new ScaleBoxAndFixedExpression(topCentre, SWT.NONE,getKInEv());
+			finalEnergy.setDoNotUseExpressions(true);
 			finalEnergy.setLabelWidth(10000);
 			finalEnergy.setLabelDecimalPlaces(1);
 			finalEnergy.setLabelUnit("eV");
@@ -345,11 +355,12 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			finalEnergy.setUnit("Å\u207B\u00b9");
 			finalEnergy.setMaximum(100.0);
 			finalEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-			//initialEnergy.setMaximum(edge);
+			initialEnergy.setMaximum(40000.0);
 			finalEnergy.setMinimum(0);
 		}
 		else{
 			finalEnergy = new ScaleBoxAndFixedExpression(topCentre, SWT.NONE, getKProvider());
+			finalEnergy.setDoNotUseExpressions(true);
 			finalEnergy.setLabelUnit("Å\u207B\u00b9");
 			finalEnergy.setLabelWidth(100);
 			finalEnergy.setLabelDecimalPlaces(3);
@@ -383,6 +394,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		gaf1 = new ScaleBox(topCentre, SWT.NONE);
 		gaf1.setActiveMode(ACTIVE_MODE.SET_ENABLED_AND_ACTIVE);
 		gaf1.setNumericValue(30);
+		gaf1.setDoNotUseExpressions(true);
 		gaf1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		gaf1.addValueListener(new ValueAdapter("gaf1Listener") {
 			@Override
@@ -405,6 +417,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		gaf2.setActiveMode(ACTIVE_MODE.SET_ENABLED_AND_ACTIVE);
 		gaf2.setNumericValue(10);
 		gaf2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+		gaf2.setDoNotUseExpressions(true);
 		gaf2.addValueListener(new ValueAdapter("gaf2Listener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
@@ -427,6 +440,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		gaf3 = new ScaleBox(topCentre, SWT.NONE);
 		gaf3.setActiveMode(ACTIVE_MODE.SET_ENABLED_AND_ACTIVE);
 		gaf3.setNumericValue(10);
+		gaf3.setDoNotUseExpressions(true);
 		gaf3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		gaf3.addValueListener(new ValueAdapter("gaf3Listener") {
 			@Override
@@ -448,6 +462,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		};
 		aLabel.addSelectionListener(aListener);
 		a = new ScaleBox(topCentre, SWT.NONE);
+		a.setDoNotUseExpressions(true);
 		a.setActiveMode(ACTIVE_MODE.SET_ENABLED_AND_ACTIVE);
 		a.setUnit("eV");
 		a.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -465,6 +480,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		};
 		bLabel.addSelectionListener(bListener);
 		b = new ScaleBox(topCentre, SWT.NONE);
+		b.setDoNotUseExpressions(true);
 		b.setActiveMode(ACTIVE_MODE.SET_ENABLED_AND_ACTIVE);
 		b.setUnit("eV");
 		b.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -485,6 +501,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		if(energyInK)
 		{
 			c = new ScaleBoxAndFixedExpression(topCentre, SWT.NONE, getKInEv());
+			c.setDoNotUseExpressions(true);
 			c.setLabelUnit("eV");			
 			c.setLabelDecimalPlaces(1);
 			c.setLabelWidth(1000000);
@@ -499,6 +516,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		else
 		{
 			c = new ScaleBoxAndFixedExpression(topCentre, SWT.NONE, getKProvider());
+			c.setDoNotUseExpressions(true);
 			c.setLabelUnit("Å\u207B\u00b9");
 			c.setLabelDecimalPlaces(3);
 			c.setLabelWidth(100);
@@ -537,11 +555,9 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		return new ExpressionProvider() {
 			@Override
 			public double getValue(double e) {
-
 				Converter.setEdgeEnergy(getEdgeValue() / 1000.0);
 				return Converter.convert(e, Converter.EV, Converter.PERANGSTROM);
 			}
-
 			@Override
 			public IFieldWidget[] getPrecedents() {
 				return null;

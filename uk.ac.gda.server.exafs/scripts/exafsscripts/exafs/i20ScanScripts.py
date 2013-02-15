@@ -611,7 +611,7 @@ class I20XesScan(XasScan):
                     break
                 elif numRepsFromProperty <= (repetitionNumber):
                     break
-
+                numRepetitions = numRepsFromProperty
         finally:
 #            LocalProperties.set("gda.data.scan.datawriter.dataFormat", originalDataFormat)
             # make sure the plotter is switched off

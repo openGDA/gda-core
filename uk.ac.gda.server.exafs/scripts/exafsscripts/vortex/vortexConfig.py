@@ -20,7 +20,6 @@ def vortex (vortexFileName, outputfile, path=None):
 	try:
 		print "from vortex config"
 		controller = Finder.getInstance().find("ExafsScriptObserver")
-		print "from orte config"
 		return vortexEx(controller, vortexFileName, outputfile, path)
 	except:
 		type, exception, traceback = sys.exc_info()
@@ -37,6 +36,7 @@ def worker (controller, vortexFileName,outputfile,path,LocalProperties=LocalProp
 		else:
 			conf = VortexDetectorConfiguration(controller, defaultScriptFolder(), vortexFileName,outputfile, path)
 		msg  = conf.configure() #  Might throw Exception
+		log(controller, "Xspress configuration successfully applied", None, None, None, False)
 		return msg
 	except :
 		type, exception, traceback = sys.exc_info()

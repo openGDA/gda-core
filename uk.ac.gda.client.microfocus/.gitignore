@@ -1,5 +1,12 @@
 # ignore build output
 /bin
+/build.xml
+/javaCompiler...args
+/src/corba/
+/temp.folder
+/test-reports
+/test-scratch
+*.class
 
 # ignore backup and temporary files
 *~

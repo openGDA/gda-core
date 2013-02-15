@@ -17,6 +17,7 @@
  */
 
 package gda.device.detector.xmap;
+
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
@@ -38,8 +39,11 @@ import gda.device.detector.xmap.edxd.EDXDMappingController;
 import gda.device.detector.xmap.util.XmapBufferedHdf5FileLoader;
 import gda.device.detector.xmap.util.XmapFileLoader;
 import gda.device.detector.xmap.util.XmapNexusFileLoader;
+import gda.epics.CAClient;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
+import gov.aps.jca.CAException;
+import gov.aps.jca.TimeoutException;
 
 import java.io.File;
 import java.util.List;
@@ -55,7 +59,6 @@ import uk.ac.gda.util.CorrectionUtils;
 public class XmapBufferedDetector extends DetectorBase implements BufferedDetector, NexusDetector {
 
 	NexusXmap xmap;
-	//private final ExecutorService pool = Executors.newFixedThreadPool(25);
 	private XmapFileLoader fileLoader;
 	private static final Logger logger = LoggerFactory.getLogger(XmapBufferedDetector.class);
 	protected ContinuousParameters continuousParameters = null;
@@ -64,10 +67,12 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 	EDXDMappingController controller;
 	private boolean isSlave = true;
 	private String daServerName;
-	private int lastScanNumber=0;
-	private int lastRowNumber =-1;
+	private int lastScanNumber = 0;
+	private int lastRowNumber = -1;
 	private String lastFileName = null;
 	private boolean lastFileReadStatus = false;
+	private String capturepv;
+	private boolean deadTimeEnabled = true;
 
 	public NexusXmap getXmap() {
 		return xmap;
@@ -76,8 +81,6 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 	public void setXmap(NexusXmap xmap) {
 		this.xmap = xmap;
 	}
-
-	
 
 	public String getDaServerName() {
 		return daServerName;
@@ -107,7 +110,6 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 
 	@Override
 	public void configure() throws FactoryException {
-		// A real system needs a connection to a real da.server via a DAServer object.
 		if (daServer == null) {
 			logger.debug("XmapBuffereddetector configure(): finding: " + daServerName);
 			if ((daServer = (DAServer) Finder.getInstance().find(daServerName)) == null) {
@@ -116,14 +118,13 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		}
 	}
 
-	// returns the current frame number
 	@Override
 	public int getNumberFrames() throws DeviceException {
 		String fileName = null;
 		try {
 			fileName = controller.getHDFFileName();
 		} catch (Exception e) {
-			logger.error("Error retreiving hdf5 filename", e);
+			logger.error("Error getting HDF filename", e);
 		}
 		if (fileName != null && isStillWriting(fileName))
 			return -1;
@@ -131,7 +132,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		try {
 			Thread.sleep(3000);
 		} catch (InterruptedException e) {
-			logger.error("Error sleeping for 3seconds", e);
+			logger.error("Error performing sleep", e);
 		}
 		return continuousParameters.getNumberDataPoints();
 	}
@@ -143,14 +144,14 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 
 	@Override
 	public int maximumReadFrames() throws DeviceException {
-		// TODO
-		if(continuousParameters != null)
+		if (continuousParameters != null)
 			return continuousParameters.getNumberDataPoints();
-		return 100;
+		return 9999;
 	}
 
 	@Override
 	public Object[] readAllFrames() throws DeviceException {
+		setCollectionTime(continuousParameters.getTotalTime());
 		Integer lastFrame = getNumberFrames() - 1;
 		return readFrames(0, lastFrame);
 	}
@@ -160,56 +161,54 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		String fileName = null;
 		NexusTreeProvider[] container = null;
 		try {
-			//System.out.println("wating for file");
-			if(lastFileName == null && !lastFileReadStatus){
-			fileName = this.controller.getHDFFileName();
+			// System.out.println("wating for file");
+			if (lastFileName == null && !lastFileReadStatus) {
+				fileName = this.controller.getHDFFileName();
 
-			
-			waitForFile(fileName);
-			// change to linux format
-			String beamline = LocalProperties.get("gda.factory.factoryName","").toLowerCase();
-			fileName = fileName.replace("X:/", "/dls/"+beamline);
-			if(controller.isBufferedArrayPort())
-				fileLoader = new XmapBufferedHdf5FileLoader(fileName);
-			else
-				fileLoader = new XmapNexusFileLoader(fileName);
-			fileLoader.loadFile();
-			lastFileName = fileName;
-			lastFileReadStatus = true;
+				waitForFile();
+				// change to linux format
+				String beamline = LocalProperties.get("gda.factory.factoryName", "").toLowerCase();
+				fileName = fileName.replace("X:/", "/dls/" + beamline);
+				if (controller.isBufferedArrayPort())
+					fileLoader = new XmapBufferedHdf5FileLoader(fileName);
+				else
+					fileLoader = new XmapNexusFileLoader(fileName);
+				fileLoader.loadFile();
+				lastFileName = fileName;
+				lastFileReadStatus = true;
 			}
 			int numOfPoints = fileLoader.getNumberOfDataPoints();
 			container = new NexusTreeProvider[numOfPoints];
-			if(finalFrame < numOfPoints){
+			if (finalFrame < numOfPoints) {
 				for (int i = startFrame; i <= finalFrame; i++) {
 					logger.info("writing point number " + i);
 					container[i] = writeToNexusFile(i, fileLoader.getData(i));
 				}
 			}
-			//last two points in the scan will have the same values
-			if(finalFrame == numOfPoints ){
-					if((finalFrame - startFrame) == 0)
-						container[finalFrame -1] = writeToNexusFile(finalFrame -1, fileLoader.getData(finalFrame-1));
-					else{
-						//always one less than the number of points
-						
-						for (int i = startFrame; i < finalFrame; i++) {
-							logger.info("writing point number " + i);
-							container[i] = writeToNexusFile(i, fileLoader.getData(i));
-						}
-						container[finalFrame -1] = (writeToNexusFile(finalFrame -1, fileLoader.getData(finalFrame-1)));
+			// last two points in the scan will have the same values
+			if (finalFrame == numOfPoints) {
+				if ((finalFrame - startFrame) == 0)
+					container[finalFrame - 1] = writeToNexusFile(finalFrame - 1, fileLoader.getData(finalFrame - 1));
+				else {
+					// always one less than the number of points
+
+					for (int i = startFrame; i < finalFrame; i++) {
+						logger.info("writing point number " + i);
+						container[i] = writeToNexusFile(i, fileLoader.getData(i));
 					}
+					container[finalFrame - 1] = (writeToNexusFile(finalFrame - 1, fileLoader.getData(finalFrame - 1)));
+				}
 			}
 			// readSoFar = totalToRead;
 			return container;
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			logger.error("Error reading frames from xmap", e);
+			logger.error("TODO put description of error here", e);
 			try {
 				stop();
 				controller.endRecording();
 			} catch (Exception e1) {
 				controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
-				logger.error("Error stopping xmap controller recording and stop", e1);
+				logger.error("Unalble to end hdf5 capture", e1);
 				throw new DeviceException("Unalble to end hdf5 capture", e1);
 			}
 			controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
@@ -220,17 +219,17 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 	@Override
 	public void setContinuousMode(boolean on) throws DeviceException {
 		isContinuousMode = on;
-		if(on)
+		if (on)
 			setupContinuousOperation();
 		if (!isSlave) {
 			if (on) {
-				setTimeFrames();				
+				setTimeFrames();
 			} else {
 				switchOffExtTrigger();
 			}
 		}
 	}
-	
+
 	private void switchOnExtTrigger() throws DeviceException {
 		getDaServer().sendCommand("tfg setup-trig start ttl0");
 	}
@@ -299,6 +298,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 
 	@Override
 	public void atScanStart() throws DeviceException {
+		stopAcq();
 		controller.setCollectionMode(COLLECTION_MODES.MCA_MAPPING);
 	}
 
@@ -308,12 +308,12 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 			stop();
 			controller.endRecording();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
-			logger.error("Error stopping xmap controller recording and stop at scan end", e);
+			logger.error("Unalble to end hdf5 capture", e);
 			throw new DeviceException("Unalble to end hdf5 capture", e);
 		}
 		controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
+		stopAcq();
 	}
 
 	@Override
@@ -322,9 +322,8 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 			stop();
 			controller.endRecording();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
-			logger.error("Error stopping xmap controller recording and stop after command failure", e);
+			logger.error("cannot set collection mode to mca spectra", e);
 			throw new DeviceException("Unalble to end hdf5 capture", e);
 		}
 		controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
@@ -355,59 +354,47 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		}
 
 		controller.setFilenamePrefix(beamline);
-		
 
 		// Check to see if the data directory has been defined.
 		String dataDir = PathConstructor.createFromDefaultProperty();
-		dataDir = dataDir + "tmp"+File.separator ;
-		dataDir = dataDir.replace("/dls/"+beamline.toLowerCase(), "X:/");
+		dataDir = dataDir + "tmp" + File.separator;
+		dataDir = dataDir.replace("/dls/" + beamline.toLowerCase(), "X:/");
 		controller.setDirectory(dataDir);
 
-		// Now lets try and setup the NumTracker...
 		NumTracker runNumber = new NumTracker("tmp");
-		// Get the current number
 		Number scanNumber = runNumber.getCurrentFileNumber();
-		if(! (scanNumber.intValue() == lastScanNumber))
+		if (!(scanNumber.intValue() == lastScanNumber))
 			lastRowNumber = -1;
 		lastScanNumber = scanNumber.intValue();
 		lastRowNumber++;
-		controller.setFilenamePostfix(lastRowNumber +"-"+getName());
+		controller.setFilenamePostfix(lastRowNumber + "-" + getName());
 		controller.setFileNumber(scanNumber);
 	}
-	
-	private void setupContinuousOperation() throws DeviceException{
+
+	private void setupContinuousOperation() throws DeviceException {
 		try {
 			setupFilename();
 			controller.resetCounters();
 			int numberOfPointsPerScan = continuousParameters.getNumberDataPoints();
-			controller.setPixelsPerRun(numberOfPointsPerScan );		
-			// controller.setNexusCapture(0);
+			//This has a -1 for b18 and not for i18. Need to figure out why.
+			controller.setPixelsPerRun(numberOfPointsPerScan);
+			//
 			controller.setAutoPixelsPerBuffer(true);
-			//controller.setPixelsPerBuffer(-1);
-			
-			// ??TODO should get the number of points per scan
-				
-			int buffPerRow = (numberOfPointsPerScan ) / 124 + 1;
+			int buffPerRow = (numberOfPointsPerScan) / 124 + 1;
 			controller.setHdfNumCapture(buffPerRow);
-			//controller.setHdfNumCapture(numberOfPointsPerScan);
-			// TODO prepare tfg for triggering
-			// controller.clearAndStart();
-			// controller.setNexusCapture(1);
 			controller.startRecording();
 		} catch (Exception e) {
-			logger.error("Error setting up continious operation", e);
+
+			logger.error("Error occurred arming the xmap detector", e);
 			throw new DeviceException("Error occurred arming the xmap detector", e);
 		}
-		//this.clearMemory();
 		xmap.clearAndStart();
-		
-
 	}
 
 	@Override
 	public void stop() throws DeviceException {
 		xmap.stop();
-
+		stopAcq();
 	}
 
 	@Override
@@ -421,27 +408,34 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 			if (controller.getHDFFileName().equals(fileName))
 				return controller.getCaptureStatus();
 		} catch (Exception e) {
-			logger.error("Error getting file writing status from xmap", e);
+			
+			logger.error("CAnnot read the file capture status", e);
 			throw new DeviceException("CAnnot read the file capture status", e);
 		}
 		return false;
 	}
 
-	public void waitForFile(String fileName) throws DeviceException, InterruptedException {
-		double timeoutMilliSeconds = getCollectionTime() * continuousParameters.getNumberDataPoints() * 1000;
+	public void waitForFile() throws InterruptedException {
+		double timeoutMilliSeconds = 100000;
 		double waitedSoFarMilliSeconds = 0;
 		int waitTime = 1000;
-		while (isStillWriting(fileName) || waitedSoFarMilliSeconds <= timeoutMilliSeconds) {
-			Thread.sleep(waitTime);
-			waitedSoFarMilliSeconds += waitTime;
+		CAClient ca_client = new CAClient();
+		try {
+			while (ca_client.caget(capturepv+"_RBV").equals("Capturing")
+					&& waitedSoFarMilliSeconds <= timeoutMilliSeconds) {
+				Thread.sleep(waitTime);
+				waitedSoFarMilliSeconds += waitTime;
+			}
+		} catch (CAException e) {
+			logger.error("Timeout waiting to connect to xmap capture pv", e);
+		} catch (TimeoutException e) {
+			logger.error("Timeout waiting to connect to xmap capture pv" , e);
 		}
-		// wait for another second to file to be closed
-		//Thread.sleep(3000);
-
+		Thread.sleep(3000);
 	}
 
 	// File r/w methods
-	public NXDetectorData writeToNexusFile(int dataPointNumber, short[][] s){
+	public NXDetectorData writeToNexusFile(int dataPointNumber, short[][] s) {
 		NXDetectorData output = new NXDetectorData(xmap);
 		INexusTree detTree = output.getDetTree(xmap.getName());
 
@@ -469,15 +463,10 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 			ocrs[element] = ocr;
 			final double icr = getICR(dataPointNumber, element);
 			icrs[element] = icr;
-			Double deadTimeCorrectionFactor = CorrectionUtils.getK(times.get(element), icr, ocr);
-
-			if (deadTimeCorrectionFactor.isInfinite() || deadTimeCorrectionFactor.isNaN()) {
-				deadTimeCorrectionFactor = 0.0;
-			}
 
 			// Total counts
 			double allCounts = getEvents(dataPointNumber, element);
-			correctedAllCounts[element] = allCounts * deadTimeCorrectionFactor;
+			correctedAllCounts[element] = allCounts;// * deadTimeCorrectionFactor;
 
 			// REGIONS
 			for (int iroi = 0; iroi < thisElement.getRegionList().size(); iroi++) {
@@ -486,7 +475,13 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 
 				// TODO calculate roi from the full spectrum data
 				double count = calculateROICounts(roi.getRoiStart(), roi.getRoiEnd(), detectorData[element]);
-				count *= deadTimeCorrectionFactor;
+				if (deadTimeEnabled) {
+					Double deadTimeCorrectionFactor = CorrectionUtils.getK(times.get(element), icr, ocr);
+					if (deadTimeCorrectionFactor.isInfinite() || deadTimeCorrectionFactor.isNaN())
+						deadTimeCorrectionFactor = 0.0;
+					else
+						count *= deadTimeCorrectionFactor;
+				}
 				roiCounts[iroi][element] = count;
 				roiNames[iroi] = roi.getRoiName();
 			}
@@ -498,12 +493,11 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 					summation[i] += detectorData[element][i];
 				}
 			}
-
 		}
 
 		// add total counts
 		final INexusTree counts = output.addData(detTree, "totalCounts", new int[] { numberOfElements },
-				NexusFile.NX_FLOAT64, correctedAllCounts, "counts", 1);
+				NexusFile.NX_UINT16, correctedAllCounts, "counts", 1);
 		for (int element = 0; element < numberOfElements; element++) {
 			DetectorElement thisElement = this.xmap.vortexParameters.getDetectorList().get(element);
 			output.setPlottableValue(thisElement.getName(), correctedAllCounts[element]);
@@ -519,15 +513,15 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 				new NexusGroupData(evtProcessTimeAsString)));
 
 		// ICR
-		output.addData(detTree, "icr", new int[] { numberOfElements }, NexusFile.NX_FLOAT64, icrs, "Hz", 1);
+		output.addData(detTree, "icr", new int[] { numberOfElements }, NexusFile.NX_UINT16, icrs, "Hz", 1);
 
 		// OCR
-		output.addData(detTree, "ocr", new int[] { numberOfElements }, NexusFile.NX_FLOAT64, ocrs, "Hz", 1);
+		output.addData(detTree, "ocr", new int[] { numberOfElements }, NexusFile.NX_UINT16, ocrs, "Hz", 1);
 
 		// roicounts
 		for (int iroi = 0; iroi < numberOfROIs; iroi++) {
 			String roiName = roiNames[iroi];
-			output.addData(detTree, roiName, new int[] { numberOfElements }, NexusFile.NX_FLOAT64, roiCounts[iroi],
+			output.addData(detTree, roiName, new int[] { numberOfElements }, NexusFile.NX_UINT16, roiCounts[iroi],
 					"counts", 1);
 			for (int element = 0; element < numberOfElements; element++) {
 				String elementName = this.xmap.vortexParameters.getDetectorList().get(element).getName();
@@ -541,14 +535,13 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 
 		// ToDo implement the getROI and readout scanler data
 		double ff = calculateScalerData(dataPointNumber, numberOfROIs, detectorData);
-		output.addData(detTree, "FF", new int[] { 1 }, NexusFile.NX_FLOAT64, new Double[] { ff }, "counts", 1);
+		output.addData(detTree, "FF", new int[] { 1 }, NexusFile.NX_UINT16, new Double[] { ff }, "counts", 1);
 		output.setPlottableValue("FF", ff);
 
 		if (summation != null)
 			output.addData(detTree, "allElementSum", new int[] { summation.length }, NexusFile.NX_FLOAT64, summation,
 					"counts", 1);
 		return output;
-
 	}
 
 	private double getEvents(int dataPointNumber, int element) {
@@ -556,13 +549,12 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		return event;
 	}
 
-	private double calculateScalerData(int dataPointNumber, int numberOfROIs, short[][] detectorData)
-	{
+	private double calculateScalerData(int dataPointNumber, int numberOfROIs, short[][] detectorData) {
 		final double[] k = new double[this.xmap.vortexParameters.getDetectorList().size()];
 		final List<Double> times = this.xmap.getEventProcessingTimes();
 		for (int i = 0; i < k.length; i++) {
-			Double correctionFactor = CorrectionUtils.getK(times.get(i), getICR(dataPointNumber, i), getOCR(
-					dataPointNumber, i));
+			Double correctionFactor = CorrectionUtils.getK(times.get(i), getICR(dataPointNumber, i),
+					getOCR(dataPointNumber, i));
 			if (correctionFactor.isInfinite() || correctionFactor.isNaN() || correctionFactor == 0.0) {
 				correctionFactor = 1.0;
 			}
@@ -579,8 +571,9 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 				DetectorElement element = this.xmap.vortexParameters.getDetectorList().get(j);
 				if (element.isExcluded())
 					continue;
-				RegionOfInterest region = element.getRegionList().get(i);
-				double correctedMCA = calculateROICounts(region.getRoiStart(), region.getRoiStart(), detectorData[j]) * k[j];
+				RegionOfInterest region = element.getRegionList().get(0);
+				double correctedMCA = calculateROICounts(region.getRoiStart(), region.getRoiEnd(), detectorData[j])
+						* k[j];
 				rois[i] += correctedMCA;
 			}
 		}
@@ -610,23 +603,13 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		return 0;
 	}
 
-	/*private double calculateROICounts(int roiIndex, int elementIndex, short[] data) throws DeviceException {
->>>>>>> .merge-right.r45860
-		int regionLow = (int) controller.getSubDetector(elementIndex).getLowROIs()[roiIndex];
-		int regionHigh =(int) controller.getSubDetector(elementIndex).getHighROIs()[roiIndex];
-		double count = 0.0;
-		for (int i = regionLow; i <= regionHigh; i++)
-			count += data[i];
-		return count;
-	}*/
-
 	private double calculateROICounts(int regionLow, int regionHigh, short[] data) {
 		double count = 0.0;
 		for (int i = regionLow; i <= regionHigh; i++)
 			count += data[i];
 		return count;
 	}
-	
+
 	public boolean isSlave() {
 		return isSlave;
 	}
@@ -643,4 +626,31 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		return daServer;
 	}
 
+	public String getCapturepv() {
+		return capturepv;
+	}
+
+	public void setCapturepv(String stoppv) {
+		this.capturepv = stoppv;
+	}
+
+	public void stopAcq() {
+		CAClient ca_client = new CAClient();
+		try {
+			if (capturepv != null)
+				ca_client.caput(capturepv, 0);
+		} catch (CAException e) {
+			logger.error("Could not stop xmap capture", e);
+		} catch (InterruptedException e) {
+			logger.error("Could not stop xmap capture", e);
+		}
+	}
+
+	public boolean isDeadTimeEnabled() {
+		return deadTimeEnabled;
+	}
+
+	public void setDeadTimeEnabled(boolean deadTimeEnabled) {
+		this.deadTimeEnabled = deadTimeEnabled;
+	}
 }

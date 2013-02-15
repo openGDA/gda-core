@@ -58,14 +58,14 @@ public final class SampleWheelParametersComposite extends FieldBeanComposite {
 	public SampleWheelParametersComposite(Composite parent, int style, B18SampleParameters bean) {
 		super(parent, style);
 
-		this.setLayout(new GridLayout(1, true));
+		setLayout(new GridLayout(1, true));
 
-		this.wheelEnabled = new BooleanWrapper(this, SWT.NONE);
+		wheelEnabled = new BooleanWrapper(this, SWT.NONE);
 		wheelEnabled.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		wheelEnabled.setText("Enabled");
 		show = bean.getSampleWheelParameters().isWheelEnabled();
 
-		this.manual = new BooleanWrapper(this, SWT.NONE);
+		manual = new BooleanWrapper(this, SWT.NONE);
 		manual.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		manual.setText("Manual Control");
 		showManual = bean.getSampleWheelParameters().isManual();
@@ -75,7 +75,7 @@ public final class SampleWheelParametersComposite extends FieldBeanComposite {
 
 		lblDemand = new Label(composite, SWT.NONE);
 		lblDemand.setText("Demand");
-		this.demand = new ScaleBox(composite, SWT.NONE);
+		demand = new ScaleBox(composite, SWT.NONE);
 		((GridData) demand.getControl().getLayoutData()).widthHint = 60;
 		demand.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		new Label(demand, SWT.NONE);
@@ -85,7 +85,7 @@ public final class SampleWheelParametersComposite extends FieldBeanComposite {
 		lblFilter = new Label(composite, SWT.NONE);
 		lblFilter.setText("Filter");
 
-		this.filter = new ComboWrapper(composite, SWT.NONE);
+		filter = new ComboWrapper(composite, SWT.NONE);
 		filter.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
 		updateFilters();

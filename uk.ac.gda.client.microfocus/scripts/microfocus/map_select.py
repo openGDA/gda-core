@@ -21,7 +21,8 @@ class MapSelect():
         self.non_raster(sampleFileName, scanFileName, detectorFileName, outputFileName, folderName, scanNumber, validation)
         
     def getMFD(self):
-        if(self.scanBean.isRaster()):
-            return self.raster.getMFD()
-        else:
-            return self.non_raster.getMFD()
+        if self.scanBean!=None:
+            if(self.scanBean.isRaster()):
+                return self.raster.getMFD()
+            else:
+                return self.non_raster.getMFD()

@@ -213,11 +213,12 @@ public class XasAsciiDataWriter extends AsciiDataWriter{
 				final ISampleParameters sampleParams = XasAsciiDataWriter.group.getSample();
 				String sampleName = sampleParams.getName().trim().replaceAll(" ", "_");
 				filePrefix = sampleName + "_";
-				if (nameFrag != null && nameFrag.equals("i20")){
+				
+				//Is this called? It isn't for b18
+				if (nameFrag != null && nameFrag.equals("i20"))
 					currentFileName = filePrefix + getFileNumber()+ "_" + group.getScanNumber() + "." + this.fileExtension;
-				} else {
-					currentFileName = getFileNumber()+ "_" + group.getScanNumber() +"_" + sampleName + "." + this.fileExtension;
-				}
+				else 
+					currentFileName = getFileNumber() + "_" + sampleName + "_" + group.getScanNumber() + "." + this.fileExtension;
 			} else {
 				dataDir += "ascii/";
 				if (nameFrag != null && nameFrag.equals("i20")){
@@ -225,7 +226,7 @@ public class XasAsciiDataWriter extends AsciiDataWriter{
 					currentFileName = filePrefix +"." + this.fileExtension;
 				} else {
 					filePrefix = nameFrag;
-					currentFileName = filePrefix + "_" + getFileNumber()+ "." + this.fileExtension;
+					currentFileName =  getFileNumber() + "_" + filePrefix+ "." + this.fileExtension;
 				}
 			}
 		} catch (RuntimeException ne) {
