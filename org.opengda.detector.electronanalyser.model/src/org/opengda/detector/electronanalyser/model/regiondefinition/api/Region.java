@@ -1179,7 +1179,7 @@ public interface Region extends EObject {
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS
 	 * @see #setStatus(STATUS)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_Status()
-	 * @model default="READY"
+	 * @model default="READY" transient="true"
 	 * @generated
 	 */
 	STATUS getStatus();
