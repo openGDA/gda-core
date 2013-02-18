@@ -30,37 +30,25 @@ import uk.ac.gda.beans.DetectorROI;
 public class RegionOfInterest implements DetectorROI, Serializable {
 	
 	private String roiName;
-	private int    counts; 
 	private int    windowStart;
 	private int    windowEnd;
-	/**
-	 * @return Returns the windowStart.
-	 */
+
 	public int getWindowStart() {
 		return windowStart;
 	}
-	/**
-	 * @param windowStart The windowStart to set.
-	 */
+
 	public void setWindowStart(int windowStart) {
 		this.windowStart = windowStart;
 	}
-	/**
-	 * @return Returns the windowEnd.
-	 */
+
 	public int getWindowEnd() {
 		return windowEnd;
 	}
-	/**
-	 * @param windowEnd The windowEnd to set.
-	 */
+
 	public void setWindowEnd(int windowEnd) {
 		this.windowEnd = windowEnd;
 	}
 
-	/**
-	 *
-	 */
 	@Override
 	public String toString() {
 		try {
@@ -73,7 +61,6 @@ public class RegionOfInterest implements DetectorROI, Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + counts;
 		result = prime * result + ((roiName == null) ? 0 : roiName.hashCode());
 		result = prime * result + windowEnd;
 		result = prime * result + windowStart;
@@ -91,9 +78,6 @@ public class RegionOfInterest implements DetectorROI, Serializable {
 			return false;
 		}
 		RegionOfInterest other = (RegionOfInterest) obj;
-		if (counts != other.counts) {
-			return false;
-		}
 		if (roiName == null) {
 			if (other.roiName != null) {
 				return false;
@@ -109,31 +93,16 @@ public class RegionOfInterest implements DetectorROI, Serializable {
 		}
 		return true;
 	}
-	/**
-	 * @return Returns the roiName.
-	 */
+
 	@Override
 	public String getRoiName() {
 		return roiName;
 	}
-	/**
-	 * @param roiName The roiName to set.
-	 */
+
 	public void setRoiName(String roiName) {
 		this.roiName = roiName;
 	}
-	/**
-	 * @return Returns the counts.
-	 */
-	public int getCounts() {
-		return counts;
-	}
-	/**
-	 * @param counts The counts to set.
-	 */
-	public void setCounts(int counts) {
-		this.counts = counts;
-	}
+
 	@Override
 	public int getRoiEnd() {
 		return getWindowEnd();

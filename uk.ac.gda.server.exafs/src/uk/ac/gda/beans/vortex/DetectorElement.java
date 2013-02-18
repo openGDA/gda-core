@@ -263,7 +263,6 @@ public class DetectorElement  implements Serializable, IDetectorElement {
 		Vector<RegionOfInterest> rois = new Vector<RegionOfInterest>();
 		for( RegionOfInterest rl : detectorElement.getRegionList()){
 			RegionOfInterest roi = new RegionOfInterest();
-			roi.setCounts(rl.getCounts());
 			roi.setRoiName(rl.getRoiName());
 			roi.setWindowEnd(rl.getWindowEnd());
 			roi.setWindowStart(rl.getWindowStart());

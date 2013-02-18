@@ -86,9 +86,6 @@
 		<field name="windowEnd" type="integer">
 			<bind-xml name="windowEnd" node="element"/>
 		</field>
-		<field name="counts" type="integer">
-			<bind-xml name="counts" node="element"/>
-		</field>
 	</class>
 	
 	
