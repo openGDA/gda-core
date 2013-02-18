@@ -147,111 +147,34 @@ public abstract class ExafsValidator extends AbstractValidator {
 
 		return null;
 	}
+	
 	public List<InvalidBeanMessage> validateIDetectorParameters(IDetectorParameters iDetectorParams) {
 
 		final List<InvalidBeanMessage> errors = new ArrayList<InvalidBeanMessage>(31);
 
-		if (!(iDetectorParams instanceof DetectorParameters)) {
-			if (iDetectorParams == null) {
-				errors.add(new InvalidBeanMessage("Missing or Invalid Detector Paramters"));
-			} else {
-				errors.add(new InvalidBeanMessage("Unknown Detector Type " + iDetectorParams.getClass().getName()));
-			}
-		} 
+		if (iDetectorParams == null) {
+			errors.add(new InvalidBeanMessage("Missing or Invalid Detector Paramters"));
+			return errors;
+		} else if (!(iDetectorParams instanceof DetectorParameters)) {
+			errors.add(new InvalidBeanMessage("Unknown Detector Type " + iDetectorParams.getClass().getName()));
+			return errors;
+		}
 
+		if (iDetectorParams.getExperimentType().equalsIgnoreCase(DetectorParameters.FLUORESCENCE_TYPE)) {
+			if (iDetectorParams.getFluorescenceParameters().getConfigFileName() == null || iDetectorParams.getFluorescenceParameters().getConfigFileName().isEmpty()) {
+				errors.add(new InvalidBeanMessage("Fluorescence detector XML configuration file not specified!"));
+			}
+		} else if (iDetectorParams.getExperimentType().equalsIgnoreCase(DetectorParameters.XES_TYPE)) {
+			if (iDetectorParams.getXesParameters().getConfigFileName() == null || iDetectorParams.getXesParameters().getConfigFileName().isEmpty()) {
+				errors.add(new InvalidBeanMessage("Fluorescence detector XML configuration file not specified!"));
+			}
+		}
+		
 		if (bean != null) {
 			setFileName(errors, bean.getDetectorFileName());
 		}
 		return errors;
 	}
-
-	
-	 // this section unused?
-//	private List<InvalidBeanMessage> validateDetectorParameters(DetectorParameters d) {
-//		if (!d.isShouldValidate()) {
-//			return Collections.emptyList();
-//		}
-//
-//		final List<InvalidBeanMessage> errors = new ArrayList<InvalidBeanMessage>(31);
-//		XasScanParameters xasScanParams;
-//		try {
-//			if (bean != null && bean.getScanParameters() instanceof XasScanParameters) {
-//				xasScanParams = (XasScanParameters) bean.getScanParameters();
-//			} else {
-//				xasScanParams = null;
-//			}
-//		} catch (Exception e) {
-//			logger.warn("Exception retrieving Scan Parameters" + e.getMessage());
-//			xasScanParams = null;
-//		}
-
-		// final XasScanParameters xasScanParams = xasScanParams1;
-//		final String exprType = d.getExperimentType();
-//		if ("Transmission".equalsIgnoreCase(exprType)) {
-//
-//			final TransmissionParameters t = d.getTransmissionParameters();
-//			final String message = "The transmission parameters are out of bounds.";
-//			checkBounds("Working energy", t.getWorkingEnergy(), MINENERGY, MAXENERGY, errors, message);
-//			if (xasScanParams != null) {
-//				checkBounds("Working energy", t.getWorkingEnergy(), xasScanParams.getInitialEnergy(),
-//						xasScanParams.getFinalEnergy(), errors, message);
-//			}
-//
-//			checkIonChambers(t.getIonChamberParameters(), t.getWorkingEnergy(), errors);
-//
-//		} else if (("Fluorescence").equalsIgnoreCase(exprType)) {
-//
-//			final FluorescenceParameters f = d.getFluorescenceParameters();
-//			final String message = "The fluorescence parameters are out of bounds.";
-//			checkBounds("Working energy", f.getWorkingEnergy(), MINENERGY, MAXENERGY, errors, message);
-//			if (xasScanParams != null) {
-//				checkBounds("Working energy", f.getWorkingEnergy(), xasScanParams.getInitialEnergy(),
-//						xasScanParams.getFinalEnergy(), errors, message);
-//			}
-//
-//			checkIonChambers(f.getIonChamberParameters(), f.getWorkingEnergy(), errors);
-//
-//		}
-//
-//		return errors;
-//	}
-
-//	private void checkIonChambers(final List<IonChamberParameters> ionChamberParameters, final double workingEnergy,
-//			final List<InvalidBeanMessage> errors) {
-//
-//		for (IonChamberParameters icp : ionChamberParameters) {
-//			if (icp.isUseGasProperties()) {
-//				checkValue("Gas Type", icp.getGasType(), new String[] { "He", "N", "Ar", "Kr" }, errors);
-//				checkBounds("Percent Absorption", icp.getPercentAbsorption(), 0, 100, errors);
-//				checkFindable("Device Name", icp.getDeviceName(), Detector.class, errors);
-//				checkBounds("Channel", icp.getChannel(), 1, 32, errors);
-//				checkFindable("Current Amplifier Name", icp.getCurrentAmplifierName(), CurrentAmplifier.class, errors);
-//				checkBounds("Total Pressure", icp.getTotalPressure(), 0, MAXPRESSURE, errors);
-//				checkBounds("Ion Chamber Length", icp.getIonChamberLength(), 1, 1000, errors);
-//
-//				try {
-//					icp.setWorkingEnergy(workingEnergy);
-//					if (icp.getAutoFillGas()){
-//						final PressureBean bean = PressureCalculation.getPressure(icp);
-//						if (bean != null) {
-//							if (bean.getErrorMessage() != null) {
-//								// ignore error messages about mucal code not working - these are logged anyway and
-//								// should
-//								// not prevent the experiment from proceeding
-//								if (!bean.getErrorMessage().contains("operating system")) {
-//									errors.add(new InvalidBeanMessage(bean.getErrorMessage(), bean.getErrorTooltip()));
-//								}
-//							}
-//						}
-//					}
-//				} catch (Exception e) {
-//					errors.add(new InvalidBeanMessage(e.getMessage()));
-//				}
-//			}
-//		}
-//	}
-
-
 
 	public List<InvalidBeanMessage> validateXanesScanParameters(XanesScanParameters x) {
 
