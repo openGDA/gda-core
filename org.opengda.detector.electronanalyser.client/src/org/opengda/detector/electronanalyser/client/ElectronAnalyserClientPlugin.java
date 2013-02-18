@@ -6,10 +6,14 @@ import java.io.File;
 
 import org.eclipse.emf.edit.domain.EditingDomain;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;
+import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 public class ElectronAnalyserClientPlugin extends AbstractUIPlugin {
+
+	public static final String EDITING_DOMAIN_ID = "org.opengda.detector.electronanalyser.client.sequence.editingdomain";
+	private static final String PLUGIN_ID = "org.opengda.detector.electronanalyser.client";
 
 	public ElectronAnalyserClientPlugin() {
 	}
@@ -43,8 +47,6 @@ public class ElectronAnalyserClientPlugin extends AbstractUIPlugin {
 		return plugin;
 	}
 
-	public static final String EDITING_DOMAIN_ID = "org.opengda.detector.electronanalyser.client.sequence.editingdomain";
-
 	public EditingDomain getSequenceEditingDomain() throws Exception {
 		try {
 			return TransactionalEditingDomain.Registry.INSTANCE
@@ -52,6 +54,13 @@ public class ElectronAnalyserClientPlugin extends AbstractUIPlugin {
 		} catch (Exception ex) {
 			throw new Exception("Unable to get editing domain:"
 					+ ex.getMessage());
+		}
+	}
+
+	@Override
+	protected void initializeImageRegistry(ImageRegistry reg) {
+		for (String imgPath : ImageConstants.IMAGES) {
+			reg.put(imgPath, imageDescriptorFromPlugin(PLUGIN_ID, imgPath));
 		}
 	}
 
