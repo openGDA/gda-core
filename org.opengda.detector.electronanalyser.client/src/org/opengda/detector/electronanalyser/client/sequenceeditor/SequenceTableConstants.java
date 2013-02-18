@@ -7,8 +7,8 @@ public interface SequenceTableConstants {
 	static final int COL_REGION_NAME = COL_ENABLED + 1;
 	static final int COL_LENS_MODE = COL_REGION_NAME + 1;
 	static final int COL_PASS_ENERGY = COL_LENS_MODE + 1;
-	static final int COL_EXCITATION_ENERGY = COL_PASS_ENERGY + 1;
-	static final int COL_ENERGY_MODE = COL_EXCITATION_ENERGY + 1;
+	static final int COL_X_RAY_SOURCE = COL_PASS_ENERGY + 1;
+	static final int COL_ENERGY_MODE = COL_X_RAY_SOURCE + 1;
 	static final int COL_LOW_ENERGY = COL_ENERGY_MODE + 1;
 	static final int COL_HIGH_ENERGY = COL_LOW_ENERGY + 1;
 	static final int COL_ENERGY_STEP = COL_HIGH_ENERGY + 1;
@@ -25,10 +25,10 @@ public interface SequenceTableConstants {
 	static final String STATUS = "Status";
 	static final String MODE = "Mode";
 	static final String SLICES = "Slices";
-	static final String Y_CHANNEL_TO = "Y-Channel To";
-	static final String Y_CHANNEL_FROM = "Y-Channel from";
-	static final String X_CHANNEL_TO = "X-Channel To";
-	static final String X_CHANNEL_FROM = "X-Channel From";
+	static final String Y_CHANNEL_TO = "Y To";
+	static final String Y_CHANNEL_FROM = "Y From";
+	static final String X_CHANNEL_TO = "X To";
+	static final String X_CHANNEL_FROM = "X From";
 	static final String TOTAL_TIME = "Total Time";
 	static final String STEPS = "Steps";
 	static final String STEP_TIME = "Step Time";
@@ -36,7 +36,7 @@ public interface SequenceTableConstants {
 	static final String HIGH_ENERGY = "High Energy";
 	static final String LOW_ENERGY = "Low Energy";
 	static final String ENERGY_MODE = "Energy Mode";
-	static final String EXCITATION_ENERGY = "Excitation Energy";
+	static final String X_RAY_SOURCE = "X-Ray Source";
 	static final String PASS_ENERGY = "Pass Energy";
 	static final String LENS_MODE = "Lens Mode";
 	static final String REGION_NAME = "Region Name";

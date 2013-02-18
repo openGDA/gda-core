@@ -1,16 +1,23 @@
 package org.opengda.detector.electronanalyser.client.sequenceeditor;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.edit.command.SetCommand;
 import org.eclipse.emf.edit.provider.ComposedAdapterFactory;
 import org.eclipse.emf.edit.provider.ReflectiveItemProviderAdapterFactory;
 import org.eclipse.emf.edit.provider.resource.ResourceItemProviderAdapterFactory;
 import org.eclipse.jface.layout.TableColumnLayout;
+import org.eclipse.jface.viewers.CellEditor;
+import org.eclipse.jface.viewers.CheckboxCellEditor;
 import org.eclipse.jface.viewers.ColumnLayoutData;
+import org.eclipse.jface.viewers.ColumnViewer;
 import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -37,6 +44,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.ViewPart;
 import org.opengda.detector.electronanalyser.client.RegionDefinitionResourceUtil;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
 import org.opengda.detector.electronanalyser.model.regiondefinition.provider.RegiondefinitionItemProviderAdapterFactory;
 
 public class SequenceView extends ViewPart implements ISelectionProvider {
@@ -61,7 +69,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider {
 			SequenceTableConstants.ENABLED, SequenceTableConstants.REGION_NAME,
 			SequenceTableConstants.LENS_MODE,
 			SequenceTableConstants.PASS_ENERGY,
-			SequenceTableConstants.EXCITATION_ENERGY,
+			SequenceTableConstants.X_RAY_SOURCE,
 			SequenceTableConstants.ENERGY_MODE,
 			SequenceTableConstants.LOW_ENERGY,
 			SequenceTableConstants.HIGH_ENERGY,
@@ -87,6 +95,26 @@ public class SequenceView extends ViewPart implements ISelectionProvider {
 			new ColumnWeightData(40, true) };
 	private ComposedAdapterFactory adapterFactory;
 	private TableViewer sequenceTableViewer;
+	private boolean sourceSelectable;
+
+	public boolean isSourceSelectable() {
+		return sourceSelectable;
+	}
+
+	public void setSourceSelectable(boolean sourceSelectable) {
+		this.sourceSelectable = sourceSelectable;
+	}
+
+	public double getXRaySourceEnergyLimit() {
+		return xRaySourceEnergyLimit;
+	}
+
+	public void setXRaySourceEnergyLimit(double xRaySourceEnergyLimit) {
+		this.xRaySourceEnergyLimit = xRaySourceEnergyLimit;
+	}
+
+	private double xRaySourceEnergyLimit;
+	private List<Region> regions;
 
 	public void createColumns(TableViewer tableViewer, TableColumnLayout layout) {
 		for (int i = 0; i < columnHeaders.length; i++) {
@@ -97,8 +125,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider {
 			column.setText(columnHeaders[i]);
 			column.setToolTipText(columnHeaders[i]);
 			layout.setColumnData(column, columnLayouts[i]);
-			// tableViewerColumn.setEditingSupport(new TomoColumnEditingSupport(
-			// tableViewer, tableViewerColumn));
+			tableViewerColumn
+					.setEditingSupport(new SequenceColumnEditingSupport(
+							tableViewer, tableViewerColumn));
 		}
 	}
 
@@ -167,8 +196,13 @@ public class SequenceView extends ViewPart implements ISelectionProvider {
 
 		sequenceTableViewer.setContentProvider(new SequenceViewContentProvider(
 				resource));
-		sequenceTableViewer.setLabelProvider(new SequenceViewLabelProvider());
-		List<Region> regions = Collections.EMPTY_LIST;
+		SequenceViewLabelProvider labelProvider = new SequenceViewLabelProvider();
+		labelProvider.setSourceSelectable(isSourceSelectable());
+		if (isSourceSelectable()) {
+			labelProvider.setXRaySourceEnergyLimit(xRaySourceEnergyLimit);
+		}
+		sequenceTableViewer.setLabelProvider(labelProvider);
+		regions = Collections.EMPTY_LIST;
 		try {
 			regions = regionDefinitionResourceUtil.getRegions(false);
 		} catch (Exception e1) {
@@ -216,7 +250,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider {
 		GridData gd_grpRegion = new GridData(GridData.FILL_HORIZONTAL);
 		gd_grpRegion.grabExcessHorizontalSpace = false;
 		gd_grpRegion.horizontalAlignment = SWT.LEFT;
-		gd_grpRegion.widthHint = 226;
+		gd_grpRegion.widthHint = 257;
 		grpRegion.setLayoutData(gd_grpRegion);
 		grpRegion.setText("Region Control");
 		grpRegion.setLayout(new RowLayout());
@@ -235,7 +269,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider {
 			public void widgetSelected(SelectionEvent e) {
 			}
 		});
-		button.setText("Copy");
+		button.setText("Duplicate");
 
 		Button btnDelete = new Button(grpRegion, SWT.NONE);
 		btnDelete.addSelectionListener(new SelectionAdapter() {
@@ -357,11 +391,41 @@ public class SequenceView extends ViewPart implements ISelectionProvider {
 
 		Button btnStart = new Button(actionArea, SWT.NONE);
 		btnStart.setText("Start");
+		btnStart.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				try {
+					regionDefinitionResourceUtil.getResource().save(null);
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+				//TODO the following need to run on a work thread, not on GUI thread??
+				for (Region region : regions) {
+					if (region.isEnabled()) {
+						//send region parameters to EPICS driver
+						//set a region running status before start collection in EPICS for this region
+						//status should be reset by monitor EPICS State PV
+						//wait for EPICS collection to finish i.e. status is not RUNNING before start next
+						// TODO using QUEUE here?
+					}
+				}
+			}
+		});
+		btnStart.setToolTipText("Save the sequence data to file, then start collection");
 
 		Button btnOK = new Button(actionArea, SWT.NONE);
+		btnOK.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				try {
+					regionDefinitionResourceUtil.getResource().save(null);
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
 		btnOK.setText("OK");
-		Button btnCancel = new Button(actionArea, SWT.NONE);
-		btnCancel.setText("Cancel");
+		btnOK.setToolTipText("Save the sequence data to file only");
 		initaliseValues();
 		// register as selection provider to the SelectionService
 		getViewSite().setSelectionProvider(this);
@@ -423,5 +487,71 @@ public class SequenceView extends ViewPart implements ISelectionProvider {
 
 		}
 
+	}
+
+	private class SequenceColumnEditingSupport extends EditingSupport {
+
+		private String columnIdentifier;
+		private Table table;
+
+		public SequenceColumnEditingSupport(ColumnViewer viewer,
+				TableViewerColumn tableViewerColumn) {
+			super(viewer);
+			table = ((TableViewer) viewer).getTable();
+			columnIdentifier = tableViewerColumn.getColumn().getText();
+		}
+
+		@Override
+		protected CellEditor getCellEditor(Object element) {
+			if (SequenceTableConstants.ENABLED.equals(columnIdentifier)) {
+				return new CheckboxCellEditor(table);
+			}
+			return null;
+		}
+
+		@Override
+		protected boolean canEdit(Object element) {
+			if (SequenceTableConstants.ENABLED.equals(columnIdentifier)) {
+				return true;
+			}
+			return false;
+		}
+
+		@Override
+		protected Object getValue(Object element) {
+			if (element instanceof Region) {
+				Region region = (Region) element;
+				if (SequenceTableConstants.ENABLED.equals(columnIdentifier)) {
+					return region.isEnabled();
+				}
+			}
+			return null;
+		}
+
+		@Override
+		protected void setValue(Object element, Object value) {
+			if (SequenceTableConstants.ENABLED.equals(columnIdentifier)) {
+				if (value instanceof Boolean) {
+					try {
+						runCommand(SetCommand
+								.create(regionDefinitionResourceUtil
+										.getEditingDomain(), element,
+										RegiondefinitionPackage.eINSTANCE
+												.getRegion_Enabled(), value));
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+
+			}
+		}
+	}
+
+	protected void runCommand(final Command rmCommand) throws Exception {
+
+		regionDefinitionResourceUtil.getEditingDomain().getCommandStack()
+				.execute(rmCommand);
+
+		// getModel().eResource().save(null);
 	}
 }
