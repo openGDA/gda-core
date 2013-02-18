@@ -3,15 +3,13 @@ package org.opengda.detector.electronanalyser.client.regioneditor;
 import gda.device.DeviceException;
 import gda.device.scannable.ScannableMotor;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.edit.command.SetCommand;
 import org.eclipse.emf.edit.domain.EditingDomain;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -34,6 +32,8 @@ import org.eclipse.ui.part.ViewPart;
 import org.opengda.detector.electronanalyser.client.RegionDefinitionResourceUtil;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A Region Editor View for defining new or editing existing Region Definition
@@ -43,6 +43,9 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Regionde
  * 
  */
 public class RegionView extends ViewPart {
+	private static final Logger logger = LoggerFactory
+			.getLogger(RegionView.class);
+
 	public RegionView() {
 		setTitleToolTip("Create a new or editing an existing region");
 		setContentDescription("A view for editing region parameters");
@@ -67,11 +70,19 @@ public class RegionView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
+
+		final ScrolledComposite sc2 = new ScrolledComposite(parent,
+				SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		
+		sc2.setExpandHorizontal(true);
+		sc2.setExpandVertical(true);
+
+		Composite rootComposite = new Composite(sc2, SWT.NONE);
+		sc2.setContent(rootComposite);
 		GridLayout gl_root = new GridLayout();
 		gl_root.horizontalSpacing = 2;
-		Composite rootComposite = new Composite(parent, SWT.NONE);
 		rootComposite.setLayout(gl_root);
-
+		
 		Group grpName = new Group(rootComposite, SWT.NONE);
 		grpName.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		grpName.setText("Name");
@@ -92,7 +103,8 @@ public class RegionView extends ViewPart {
 		grpLensMode.setLayout(new FillLayout());
 
 		lensMode = new Combo(grpLensMode, SWT.READ_ONLY);
-		// TODO replace the following values by sourcing it from detector
+		// TODO replace the following values by sourcing it from detector at
+		// initialisation
 		lensMode.setItems(new String[] { "Transmission", "Angular45",
 				"Angular60" });
 		lensMode.setToolTipText("List of available modes to select");
@@ -103,7 +115,8 @@ public class RegionView extends ViewPart {
 		grpPassEnergy.setText("Pass Energy");
 
 		passEnergy = new Combo(grpPassEnergy, SWT.READ_ONLY);
-		// TODO replace the following values by sourcing it from detector
+		// TODO replace the following values by sourcing it from detector at
+		// initialisation
 		passEnergy.setItems(new String[] { "5", "10", "50", "75", "100", "200",
 				"500" });
 		passEnergy.setToolTipText("List opf available pass energy to select");
@@ -125,13 +138,18 @@ public class RegionView extends ViewPart {
 		new Label(grpRunMode, SWT.NONE);
 
 		btnNumberOfIterations = new Button(grpRunMode, SWT.RADIO);
+		btnNumberOfIterations
+				.setToolTipText("Enable a number of iterations option");
 		btnNumberOfIterations.setText("Number of iterations");
 
 		numberOfIterationSpinner = new Spinner(grpRunMode, SWT.BORDER);
 		numberOfIterationSpinner.setMinimum(1);
-		numberOfIterationSpinner.setToolTipText("Set number of iterations required");
+		numberOfIterationSpinner
+				.setToolTipText("Set number of iterations required here");
 
 		btnRepeatuntilStopped = new Button(grpRunMode, SWT.RADIO);
+		btnRepeatuntilStopped
+				.setToolTipText("Enable repeat until stopped option");
 		btnRepeatuntilStopped.setText("Repeat until stopped");
 
 		new Label(grpRunMode, SWT.NONE);
@@ -140,6 +158,9 @@ public class RegionView extends ViewPart {
 		btnConfirmAfterEachInteration.setLayoutData(new GridData(
 				GridData.FILL_HORIZONTAL));
 		btnConfirmAfterEachInteration.setText("Confirm after each iteration");
+		btnConfirmAfterEachInteration
+				.setToolTipText("Enable confirm after each iteration");
+
 		new Label(grpRunMode, SWT.NONE);
 
 		Group grpAcquisitionMode = new Group(bigComposite, SWT.NONE);
@@ -279,6 +300,15 @@ public class RegionView extends ViewPart {
 		lblTotalSteps.setText("Total Steps");
 
 		txtTotalSteps = new Text(grpStep, SWT.BORDER);
+		txtTotalSteps.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				Object source = e.getSource();
+				if (source.equals(txtTotalSteps)
+						&& !txtTotalSteps.isFocusControl()) {
+					updateTotalTime();
+				}
+			}
+		});
 		txtTotalSteps.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtTotalSteps
 				.setToolTipText("Total number of steps for this collection");
@@ -364,7 +394,7 @@ public class RegionView extends ViewPart {
 		grpExcitationEnergy.setText("Excitation Energy [eV]");
 		grpExcitationEnergy
 				.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		grpExcitationEnergy.setLayout(new GridLayout(3, true));
+		grpExcitationEnergy.setLayout(new GridLayout(5, true));
 
 		Label lblXRaySource = new Label(grpExcitationEnergy, SWT.None);
 		lblXRaySource.setText("X-Ray Source:");
@@ -373,41 +403,36 @@ public class RegionView extends ViewPart {
 		btnHard.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		btnHard.setText("Hard");
 
+		new Label(grpExcitationEnergy, SWT.NONE);
+
 		btnSoft = new Button(grpExcitationEnergy, SWT.RADIO);
 		btnSoft.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		btnSoft.setText("Soft");
 
-		btnMoveMonochromator = new Button(grpExcitationEnergy, SWT.CHECK);
-		btnMoveMonochromator.setLayoutData(new GridData(
-				GridData.FILL_HORIZONTAL));
+		new Label(grpExcitationEnergy, SWT.NONE);
 
-		txtExcitationEnergy = new Text(grpExcitationEnergy, SWT.BORDER);
-		txtExcitationEnergy.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				txtExcitationEnergy.setText(String.format("%.4f",
-						Double.parseDouble(txtExcitationEnergy.getText())));
-			}
-		});
-		txtExcitationEnergy
-				.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		txtExcitationEnergy.setToolTipText("Photon energy value");
+		Label lblCurrentValue = new Label(grpExcitationEnergy, SWT.NONE);
+		lblCurrentValue.setText("Current Value:");
 
-		Button btnGetEnergy = new Button(grpExcitationEnergy, SWT.NONE);
-		btnGetEnergy.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				// TODO fetch X-ray beam energy from beamline energy object
-				try {
-					txtExcitationEnergy.setText(xrayenergy.getPosition()
-							.toString());
-				} catch (DeviceException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-			}
-		});
-		btnGetEnergy.setText("Get Excitation Energy");
+		txtHardEnergy = new Text(grpExcitationEnergy, SWT.BORDER
+				| SWT.READ_ONLY);
+		txtHardEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		txtHardEnergy.setToolTipText("Current hard X-ray beam energy");
+
+		Label lblKev = new Label(grpExcitationEnergy, SWT.NONE);
+		lblKev.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, true, false, 1, 1));
+		lblKev.setText("keV");
+
+		txtSoftEnergy = new Text(grpExcitationEnergy, SWT.BORDER
+				| SWT.READ_ONLY);
+		txtSoftEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		txtSoftEnergy.setToolTipText("Current soft X-ray beam energy");
+
+		Label lblev = new Label(grpExcitationEnergy, SWT.NONE);
+		lblev.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, true, false, 1, 1));
+		lblev.setText("eV");
+
+		sc2.setMinSize(rootComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
 		initaliseValues();
 
@@ -422,7 +447,8 @@ public class RegionView extends ViewPart {
 
 		@Override
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-			if (part!=RegionView.this && selection instanceof IStructuredSelection) {
+			if (part != RegionView.this
+					&& selection instanceof IStructuredSelection) {
 				IStructuredSelection sel = (IStructuredSelection) selection;
 				Object firstElement = sel.getFirstElement();
 				if (firstElement instanceof Region) {
@@ -469,10 +495,23 @@ public class RegionView extends ViewPart {
 		spinnerYChannelTo.setSelection(getCameraYSize());
 		spinnerSlices.setSelection(1);
 		btnADCMode.setSelection(true);
-		btnMoveMonochromator.setText("Move Mono");
-		btnMoveMonochromator.setSelection(false);
 		btnHard.setSelection(true);
-		txtExcitationEnergy.setText(String.format("%.4f", 0.0));
+		if (dcmenergy != null) {
+			try {
+				hardXRayEnergy = (double) dcmenergy.getPosition();
+			} catch (DeviceException e) {
+				logger.error("Cannot get X-ray energy from DCM.", e);
+			}
+		}
+		txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
+		if (pgmenergy != null) {
+			try {
+				softXRayEnergy = (double) pgmenergy.getPosition();
+			} catch (DeviceException e) {
+				logger.error("Cannot get X-ray energy from PGM.", e);
+			}
+		}
+		txtSoftEnergy.setText(String.format("%.4f", softXRayEnergy));
 		// add listener after initialisation otherwise return 'empty String'
 		passEnergy.addSelectionListener(passEnerySelectionAdapter);
 		passEnergy.addModifyListener(passEnergyModifyListener);
@@ -481,18 +520,50 @@ public class RegionView extends ViewPart {
 		txtLow.addSelectionListener(energySelectionListener);
 		txtHigh.addSelectionListener(energySelectionListener);
 		txtCenter.addSelectionListener(energySelectionListener);
+		txtWidth.addModifyListener(widthModifyListener);
 		spinnerFrames.addSelectionListener(framesSelectionListener);
 		// spinnerFrames.addModifyListener(framesModifyListener);
 		txtTime.addSelectionListener(timeSelectionListener);
+		txtTime.addModifyListener(timeModifiedListener);
 		txtSize.addSelectionListener(sizeSelectionListener);
+		txtSize.addModifyListener(sizeModifyListener);
 		txtMinimumSize.addModifyListener(minimumSizeModifyListener);
 		txtMinimumSize.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		btnHard.addSelectionListener(xRaySourceSelectionListener);
 		btnSoft.addSelectionListener(xRaySourceSelectionListener);
 
 		regionName.addSelectionListener(regionNameSelAdapter);
+		// TODO populate txtRegionName combo with active (enabled) region names.
+		// TODO add monitor to dcmenergy in EPICS
+		// TODO add monitor to pgmenergy in EPICS
+		// TODO add monitor to total steps in EPICS
 
 	}
+
+	private ModifyListener widthModifyListener = new ModifyListener() {
+		public void modifyText(ModifyEvent e) {
+			updateTotalSteps();
+		}
+	};
+	private ModifyListener sizeModifyListener = new ModifyListener() {
+		public void modifyText(ModifyEvent e) {
+			Object source = e.getSource();
+			if (source.equals(txtSize) && !txtSize.isFocusControl()) {
+				// TODO set to EPICS Size PV in order to get updated total
+				// steps value
+				// only update if txtSize is changed by others, not itself.
+				updateTotalSteps();
+			}
+		}
+	};
+	private ModifyListener timeModifiedListener = new ModifyListener() {
+		public void modifyText(ModifyEvent e) {
+			Object source = e.getSource();
+			if (source.equals(txtTime) && !txtTime.isFocusControl()) {
+				updateTotalTime();
+			}
+		}
+	};
 
 	private SelectionAdapter regionNameSelAdapter = new SelectionAdapter() {
 		public void widgetDefaultSelected(SelectionEvent e) {
@@ -535,27 +606,42 @@ public class RegionView extends ViewPart {
 					lensMode.setText(region.getLensMode().getLiteral());
 					passEnergy.setText(region.getPassEnergy().getLiteral());
 					runMode.setText(region.getRunMode().getMode().getLiteral());
-					btnNumberOfIterations.setSelection(!region.getRunMode().isRepeatUntilStopped());
-					btnRepeatuntilStopped.setSelection(region.getRunMode().isRepeatUntilStopped());
-					btnConfirmAfterEachInteration.setSelection(region.getRunMode().isConfirmAfterEachInteration());
-					numberOfIterationSpinner.setSelection(region.getRunMode().getNumIterations());
-					btnSwept.setSelection(region.getAcquisitionMode().getLiteral().equalsIgnoreCase("SWEPT"));
-					btnFixed.setSelection(region.getAcquisitionMode().getLiteral().equalsIgnoreCase("FIXED"));
-					btnKinetic.setSelection(region.getEnergyMode().getLiteral().equalsIgnoreCase("KINETIC"));
-					btnBinding.setSelection(region.getEnergyMode().getLiteral().equalsIgnoreCase("BINDING"));
+					btnNumberOfIterations.setSelection(!region.getRunMode()
+							.isRepeatUntilStopped());
+					btnRepeatuntilStopped.setSelection(region.getRunMode()
+							.isRepeatUntilStopped());
+					btnConfirmAfterEachInteration.setSelection(region
+							.getRunMode().isConfirmAfterEachInteration());
+					numberOfIterationSpinner.setSelection(region.getRunMode()
+							.getNumIterations());
+					btnSwept.setSelection(region.getAcquisitionMode()
+							.getLiteral().equalsIgnoreCase("SWEPT"));
+					btnFixed.setSelection(region.getAcquisitionMode()
+							.getLiteral().equalsIgnoreCase("FIXED"));
+					btnKinetic.setSelection(region.getEnergyMode().getLiteral()
+							.equalsIgnoreCase("KINETIC"));
+					btnBinding.setSelection(region.getEnergyMode().getLiteral()
+							.equalsIgnoreCase("BINDING"));
 					txtLow.setText(String.format("%.4f", region.getLowEnergy()));
-					txtHigh.setText(String.format("%.4f", region.getHighEnergy()));
-					txtCenter.setText(String.format("%.4f", region.getFixEnergy()));
+					txtHigh.setText(String.format("%.4f",
+							region.getHighEnergy()));
+					txtCenter.setText(String.format("%.4f",
+							region.getFixEnergy()));
 					txtLow.setText(String.format("%.4f", region.getLowEnergy()));
 					txtTime.setText(String.format("%.3f", region.getSetpTime()));
-					txtSize.setText(String.format("%.3f",region.getEnergyStep()));
-					spinnerEnergyChannelFrom.setSelection(region.getFirstXChannel());
-					spinnerEnergyChannelTo.setSelection(region.getLastXChannel());
+					txtSize.setText(String.format("%.3f",
+							region.getEnergyStep()));
+					spinnerEnergyChannelFrom.setSelection(region
+							.getFirstXChannel());
+					spinnerEnergyChannelTo.setSelection(region
+							.getLastXChannel());
 					spinnerYChannelFrom.setSelection(region.getFirstYChannel());
 					spinnerYChannelTo.setSelection(region.getLastYChannel());
 					spinnerSlices.setSelection(region.getSlices());
-					btnADCMode.setSelection(region.getDetectorMode().getLiteral().equalsIgnoreCase("ADC"));
-					btnPulseMode.setSelection(region.getDetectorMode().getLiteral().equalsIgnoreCase("PULSE_COUNTING"));			
+					btnADCMode.setSelection(region.getDetectorMode()
+							.getLiteral().equalsIgnoreCase("ADC"));
+					btnPulseMode.setSelection(region.getDetectorMode()
+							.getLiteral().equalsIgnoreCase("PULSE_COUNTING"));
 				}
 			});
 
@@ -651,7 +737,28 @@ public class RegionView extends ViewPart {
 				txtSize.setText(String.format("%.3f",
 						Double.parseDouble(txtSize.getText())));
 			}
+			// set Total steps
+			// TODO set to EPICS size PV to get total size update
+			updateTotalSteps();
 		}
+	}
+
+	private void updateTotalTime() {
+		txtTotalTime.setText(String.format(
+				"%.3f",
+				Double.parseDouble(txtTime.getText())
+						* Integer.parseInt(txtTotalSteps.getText())));
+	}
+
+	private void updateTotalSteps() {
+		// get number of steps required for the scan
+		long M = (long) Math.ceil(Double.parseDouble(txtWidth.getText()) * 1000
+				/ Double.parseDouble(txtSize.getText()));
+		// calculate image overlapping number per data point
+		long N = (long) (Math
+				.ceil((Double.parseDouble(txtMinimumSize.getText()) * getCameraXSize())
+						/ Double.parseDouble(txtSize.getText())));
+		txtTotalSteps.setText(String.format("%d", M + N));
 	}
 
 	private SelectionAdapter timeSelectionListener = new SelectionAdapter() {
@@ -668,6 +775,7 @@ public class RegionView extends ViewPart {
 			spinnerFrames.setSelection((int) frames);
 			txtTime.setText(String.format("%.3f",
 					Double.parseDouble(txtTime.getText())));
+			updateTotalTime();
 		}
 	}
 
@@ -706,6 +814,8 @@ public class RegionView extends ViewPart {
 			txtHigh.setText(String.format("%.4f",
 					Double.parseDouble(txtLow.getText())));
 			txtLow.setText(String.format("%.4f", Double.parseDouble(low)));
+			// TODO set lowEnergy, highEnergy to EPICS to get updated total
+			// steps.
 		} else {
 			txt.setText(String.format("%.4f", Double.parseDouble(txt.getText())));
 		}
@@ -741,11 +851,7 @@ public class RegionView extends ViewPart {
 			txtLow.setEditable(true);
 			txtHigh.setEditable(true);
 			txtSize.setEditable(true);
-			// TODO implement total steps calculation algorithm.
-			int totalsteps = 100;
-			txtTotalSteps.setText(String.format("%d", totalsteps));
-			txtTotalTime.setText(String.format("%.3f",
-					totalsteps * Double.parseDouble(txtTime.getText())));
+			updateTotalSteps();
 		}
 	};
 	private Button btnSwept;
@@ -756,9 +862,8 @@ public class RegionView extends ViewPart {
 	private Text txtFramesPerSecond;
 	private Spinner spinnerSlices;
 	private Button btnADCMode;
-	private Text txtExcitationEnergy;
+	private Text txtHardEnergy;
 	private ScannableMotor xrayenergy;
-	private Button btnMoveMonochromator;
 
 	private SelectionAdapter xRaySourceSelectionListener = new SelectionAdapter() {
 		@Override
@@ -779,14 +884,23 @@ public class RegionView extends ViewPart {
 	private Spinner spinnerEnergyChannelFrom;
 	private Spinner spinnerYChannelFrom;
 	private Button btnPulseMode;
+	private Text txtSoftEnergy;
+	private double excitationEnergy = 0.0;
+	private double hardXRayEnergy = 0.0; // keV
+	private double softXRayEnergy = 0.0; // eV
 
 	protected void onSelectEnergySource(Object source) {
 		if (source.equals(btnHard)) {
-			btnMoveMonochromator.setText("Move Mono");
 			this.xrayenergy = getDcmEnergy();
 		} else if (source.equals(btnSoft)) {
-			btnMoveMonochromator.setText("Move PGM");
 			this.xrayenergy = getPgmEnergy();
+		}
+		if (xrayenergy != null) {
+			try {
+				excitationEnergy = (double) xrayenergy.getPosition();
+			} catch (DeviceException e) {
+				logger.error("Cannot set excitation energy", e);
+			}
 		}
 	}
 
@@ -858,25 +972,21 @@ public class RegionView extends ViewPart {
 
 	private void onModifyEnergyMode(Object source) {
 		if (source.equals(btnKinetic) && btnKinetic.isFocusControl()) {
-			txtLow.setText(String.format("%.4f", (Double
-					.parseDouble(txtExcitationEnergy.getText()) - Double
-					.parseDouble(txtLow.getText()))));
-			txtHigh.setText(String.format("%.4f", (Double
-					.parseDouble(txtExcitationEnergy.getText()) - Double
-					.parseDouble(txtHigh.getText()))));
-			txtCenter.setText(String.format("%.4f", (Double
-					.parseDouble(txtExcitationEnergy.getText()) - Double
-					.parseDouble(txtCenter.getText()))));
+			txtLow.setText(String.format("%.4f",
+					(excitationEnergy - Double.parseDouble(txtLow.getText()))));
+			txtHigh.setText(String.format("%.4f",
+					(excitationEnergy - Double.parseDouble(txtHigh.getText()))));
+			txtCenter
+					.setText(String.format("%.4f", (excitationEnergy - Double
+							.parseDouble(txtCenter.getText()))));
 		} else if (source.equals(btnBinding) && btnBinding.isFocusControl()) {
-			txtLow.setText(String.format("%.4f", (Double
-					.parseDouble(txtExcitationEnergy.getText()) - Double
-					.parseDouble(txtLow.getText()))));
-			txtHigh.setText(String.format("%.4f", (Double
-					.parseDouble(txtExcitationEnergy.getText()) - Double
-					.parseDouble(txtHigh.getText()))));
-			txtCenter.setText(String.format("%.4f", (Double
-					.parseDouble(txtExcitationEnergy.getText()) - Double
-					.parseDouble(txtCenter.getText()))));
+			txtLow.setText(String.format("%.4f",
+					(excitationEnergy - Double.parseDouble(txtLow.getText()))));
+			txtHigh.setText(String.format("%.4f",
+					(excitationEnergy - Double.parseDouble(txtHigh.getText()))));
+			txtCenter
+					.setText(String.format("%.4f", (excitationEnergy - Double
+							.parseDouble(txtCenter.getText()))));
 		}
 	}
 
