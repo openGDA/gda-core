@@ -22,7 +22,11 @@ import java.util.List;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.ui.PlatformUI;
 
+import uk.ac.gda.beans.validation.AbstractValidator;
+import uk.ac.gda.beans.validation.InvalidBeanException;
 import uk.ac.gda.client.CommandQueueViewFactory;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentObject;
@@ -76,6 +80,18 @@ public class RunExperimentCommandHandler extends AbstractExperimentCommandHandle
 	}
 
 	private void addExperimentToQueue(final IExperimentObject ob) throws ExecutionException {
+		
+		
+		AbstractValidator validator = ExperimentFactory.getValidator();
+		if (validator != null){
+			try {
+				validator.validate(ob);
+			} catch (InvalidBeanException e) {
+				MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Experiment XML invalid",e.getMessage());
+				return;
+			}
+		}
+		
 		ExperimentCommandProvider command;
 		try {
 			command = new ExperimentCommandProvider(ob);
@@ -89,5 +105,4 @@ public class RunExperimentCommandHandler extends AbstractExperimentCommandHandle
 			throw new ExecutionException("Exception adding ExperimentCommandProvider to CommandQueue.", e);
 		}
 	}
-
 }
