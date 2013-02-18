@@ -32,10 +32,10 @@ public class NXTomoEntryLinkCreator extends NXLinkCreator implements Initializin
 	private String data_rotation_angle_target = "entry1/tomo_entry/sample/rotation_angle";
 	
 	private String instrument_detector_data_target = "entry1/instrument/pco1_hw_hdf/data";
-	private String instrument_detector_distance_target = null;
+	private String instrument_detector_distance_target = "entry1/scan_identifier";
 	private String instrument_detector_image_key_target = "entry1/instrument/tomoScanDevice/image_key";
-	private String instrument_detector_x_pixel_size_target = null;
-	private String instrument_detector_y_pixel_size_target = null;
+	private String instrument_detector_x_pixel_size_target = "entry1/scan_identifier";
+	private String instrument_detector_y_pixel_size_target = "entry1/scan_identifier";
 	
 	private String instrument_source_target = "entry1/instrument/source";
 	
@@ -92,6 +92,14 @@ public class NXTomoEntryLinkCreator extends NXLinkCreator implements Initializin
 
 	public void setInstrument_detector_y_pixel_size_target(String instrument_detector_y_pixel_size_target) {
 		this.instrument_detector_y_pixel_size_target = instrument_detector_y_pixel_size_target;
+	}
+	
+	public String getSample_rotation_angle_target() {
+		return sample_rotation_angle_target;
+	}
+
+	public void setSample_rotation_angle_target(String sample_rotation_angle_target) {
+		this.sample_rotation_angle_target = sample_rotation_angle_target;
 	}
 	
 	public String getInstrument_source_target() {
@@ -182,9 +190,9 @@ public class NXTomoEntryLinkCreator extends NXLinkCreator implements Initializin
 		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/source", null, getInstrument_source_target());
 		
 		// sample/rotation_angle
-		if (this.sample_rotation_angle_target == null)
+		if (this.getSample_rotation_angle_target() == null)
 			throw new IllegalStateException("sample_rotation_angle_target is not set");
-		addLink("/entry1:NXentry/tomo_entry:NXsubentry/sample:NXsample/rotation_angle", null, sample_rotation_angle_target);
+		addLink("/entry1:NXentry/tomo_entry:NXsubentry/sample:NXsample/rotation_angle", null, getSample_rotation_angle_target());
 		
 		// sample/x_translation
 		if (this.getSample_x_translation_target() == null)
@@ -235,5 +243,14 @@ public class NXTomoEntryLinkCreator extends NXLinkCreator implements Initializin
 				
 			}
 		}
+	}
+	
+	@Override
+	public void makelinks(String filename) throws Exception {
+		
+		super.makelinks(filename);
+		
+		// workaround: make non-link(s) as well
+		writeStringData(filename, "definition", "NXtomo");	
 	}
 }
