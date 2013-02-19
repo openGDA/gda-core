@@ -93,7 +93,7 @@ public class ShutterGroup implements IObserver, Runnable {
 					if (action.equals("Wait")) {
 						return;
 					}
-					shutter.moveTo(action);
+					shutter.asynchronousMoveTo(action);
 				} catch (DeviceException de) {
 					// Create the required Status object
 					Status status = new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Error Operating "
