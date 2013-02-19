@@ -22,6 +22,7 @@ package gda.util.persistence;
 import gda.configuration.properties.LocalProperties;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -190,7 +191,9 @@ public class LocalParameters {
 				try {
 					File dir = new File(configDir);
 					if (!dir.exists())
-						dir.mkdirs();
+						if (!dir.mkdirs()) {
+							throw new FileNotFoundException("Couldn't create directory: " + dir);
+						}
 					File file = new File(fullName);
 					PrintWriter out = new PrintWriter(new FileWriter(file));
 					out.println("<?xml version=\"1.0\" encoding=\"ISO-8859-1\" standalone=\"no\"?>");
