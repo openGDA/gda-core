@@ -48,6 +48,8 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getDetectorMode <em>Detector Mode</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getADCMask <em>ADC Mask</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getDiscriminatorLevel <em>Discriminator Level</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getTotalSteps <em>Total Steps</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getTotalTime <em>Total Time</em>}</li>
  * </ul>
  * </p>
  *
@@ -665,6 +667,46 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * @ordered
 	 */
 	protected boolean discriminatorLevelESet;
+
+	/**
+	 * The default value of the '{@link #getTotalSteps() <em>Total Steps</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getTotalSteps()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final int TOTAL_STEPS_EDEFAULT = 0;
+
+	/**
+	 * The cached value of the '{@link #getTotalSteps() <em>Total Steps</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getTotalSteps()
+	 * @generated
+	 * @ordered
+	 */
+	protected int totalSteps = TOTAL_STEPS_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getTotalTime() <em>Total Time</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getTotalTime()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final double TOTAL_TIME_EDEFAULT = 0.0;
+
+	/**
+	 * The cached value of the '{@link #getTotalTime() <em>Total Time</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getTotalTime()
+	 * @generated
+	 * @ordered
+	 */
+	protected double totalTime = TOTAL_TIME_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
@@ -1597,6 +1639,48 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public int getTotalSteps() {
+		return totalSteps;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setTotalSteps(int newTotalSteps) {
+		int oldTotalSteps = totalSteps;
+		totalSteps = newTotalSteps;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.REGION__TOTAL_STEPS, oldTotalSteps, totalSteps));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public double getTotalTime() {
+		return totalTime;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setTotalTime(double newTotalTime) {
+		double oldTotalTime = totalTime;
+		totalTime = newTotalTime;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.REGION__TOTAL_TIME, oldTotalTime, totalTime));
+	}
+
+	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
@@ -1724,6 +1808,10 @@ public class RegionImpl extends EObjectImpl implements Region {
 				return getADCMask();
 			case RegiondefinitionPackage.REGION__DISCRIMINATOR_LEVEL:
 				return getDiscriminatorLevel();
+			case RegiondefinitionPackage.REGION__TOTAL_STEPS:
+				return getTotalSteps();
+			case RegiondefinitionPackage.REGION__TOTAL_TIME:
+				return getTotalTime();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -1805,6 +1893,12 @@ public class RegionImpl extends EObjectImpl implements Region {
 			case RegiondefinitionPackage.REGION__DISCRIMINATOR_LEVEL:
 				setDiscriminatorLevel((Integer)newValue);
 				return;
+			case RegiondefinitionPackage.REGION__TOTAL_STEPS:
+				setTotalSteps((Integer)newValue);
+				return;
+			case RegiondefinitionPackage.REGION__TOTAL_TIME:
+				setTotalTime((Double)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
@@ -1885,6 +1979,12 @@ public class RegionImpl extends EObjectImpl implements Region {
 			case RegiondefinitionPackage.REGION__DISCRIMINATOR_LEVEL:
 				unsetDiscriminatorLevel();
 				return;
+			case RegiondefinitionPackage.REGION__TOTAL_STEPS:
+				setTotalSteps(TOTAL_STEPS_EDEFAULT);
+				return;
+			case RegiondefinitionPackage.REGION__TOTAL_TIME:
+				setTotalTime(TOTAL_TIME_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -1942,6 +2042,10 @@ public class RegionImpl extends EObjectImpl implements Region {
 				return isSetADCMask();
 			case RegiondefinitionPackage.REGION__DISCRIMINATOR_LEVEL:
 				return isSetDiscriminatorLevel();
+			case RegiondefinitionPackage.REGION__TOTAL_STEPS:
+				return totalSteps != TOTAL_STEPS_EDEFAULT;
+			case RegiondefinitionPackage.REGION__TOTAL_TIME:
+				return totalTime != TOTAL_TIME_EDEFAULT;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -1999,6 +2103,10 @@ public class RegionImpl extends EObjectImpl implements Region {
 		if (adcMaskESet) result.append(adcMask); else result.append("<unset>"); //$NON-NLS-1$
 		result.append(", discriminatorLevel: "); //$NON-NLS-1$
 		if (discriminatorLevelESet) result.append(discriminatorLevel); else result.append("<unset>"); //$NON-NLS-1$
+		result.append(", totalSteps: "); //$NON-NLS-1$
+		result.append(totalSteps);
+		result.append(", totalTime: "); //$NON-NLS-1$
+		result.append(totalTime);
 		result.append(')');
 		return result.toString();
 	}

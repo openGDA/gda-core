@@ -88,6 +88,8 @@ public class RegionItemProvider
 			addDetectorModePropertyDescriptor(object);
 			addADCMaskPropertyDescriptor(object);
 			addDiscriminatorLevelPropertyDescriptor(object);
+			addTotalStepsPropertyDescriptor(object);
+			addTotalTimePropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
 	}
@@ -489,6 +491,50 @@ public class RegionItemProvider
 	}
 
 	/**
+	 * This adds a property descriptor for the Total Steps feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addTotalStepsPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Region_totalSteps_feature"), //$NON-NLS-1$
+				 getString("_UI_PropertyDescriptor_description", "_UI_Region_totalSteps_feature", "_UI_Region_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				 RegiondefinitionPackage.Literals.REGION__TOTAL_STEPS,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.INTEGRAL_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
+	 * This adds a property descriptor for the Total Time feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addTotalTimePropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Region_totalTime_feature"), //$NON-NLS-1$
+				 getString("_UI_PropertyDescriptor_description", "_UI_Region_totalTime_feature", "_UI_Region_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				 RegiondefinitionPackage.Literals.REGION__TOTAL_TIME,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.REAL_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
 	 * This adds a property descriptor for the Status feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -665,6 +711,8 @@ public class RegionItemProvider
 			case RegiondefinitionPackage.REGION__DETECTOR_MODE:
 			case RegiondefinitionPackage.REGION__ADC_MASK:
 			case RegiondefinitionPackage.REGION__DISCRIMINATOR_LEVEL:
+			case RegiondefinitionPackage.REGION__TOTAL_STEPS:
+			case RegiondefinitionPackage.REGION__TOTAL_TIME:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;
 			case RegiondefinitionPackage.REGION__RUN_MODE:

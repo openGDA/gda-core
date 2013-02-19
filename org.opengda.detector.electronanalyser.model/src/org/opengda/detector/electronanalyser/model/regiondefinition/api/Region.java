@@ -37,6 +37,8 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getDetectorMode <em>Detector Mode</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getADCMask <em>ADC Mask</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getDiscriminatorLevel <em>Discriminator Level</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getTotalSteps <em>Total Steps</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getTotalTime <em>Total Time</em>}</li>
  * </ul>
  * </p>
  *
@@ -1164,6 +1166,60 @@ public interface Region extends EObject {
 	 * @generated
 	 */
 	boolean isSetDiscriminatorLevel();
+
+	/**
+	 * Returns the value of the '<em><b>Total Steps</b></em>' attribute.
+	 * The default value is <code>"0"</code>.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Total Steps</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Total Steps</em>' attribute.
+	 * @see #setTotalSteps(int)
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_TotalSteps()
+	 * @model default="0" transient="true"
+	 * @generated
+	 */
+	int getTotalSteps();
+
+	/**
+	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getTotalSteps <em>Total Steps</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Total Steps</em>' attribute.
+	 * @see #getTotalSteps()
+	 * @generated
+	 */
+	void setTotalSteps(int value);
+
+	/**
+	 * Returns the value of the '<em><b>Total Time</b></em>' attribute.
+	 * The default value is <code>"0.0"</code>.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Total Time</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Total Time</em>' attribute.
+	 * @see #setTotalTime(double)
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_TotalTime()
+	 * @model default="0.0"
+	 * @generated
+	 */
+	double getTotalTime();
+
+	/**
+	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getTotalTime <em>Total Time</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Total Time</em>' attribute.
+	 * @see #getTotalTime()
+	 * @generated
+	 */
+	void setTotalTime(double value);
 
 	/**
 	 * Returns the value of the '<em><b>Status</b></em>' attribute.

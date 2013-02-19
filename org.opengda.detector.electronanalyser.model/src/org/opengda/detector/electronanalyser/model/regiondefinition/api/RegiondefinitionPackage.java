@@ -393,13 +393,31 @@ public interface RegiondefinitionPackage extends EPackage {
 	int REGION__DISCRIMINATOR_LEVEL = 22;
 
 	/**
+	 * The feature id for the '<em><b>Total Steps</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REGION__TOTAL_STEPS = 23;
+
+	/**
+	 * The feature id for the '<em><b>Total Time</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REGION__TOTAL_TIME = 24;
+
+	/**
 	 * The number of structural features of the '<em>Region</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int REGION_FEATURE_COUNT = 23;
+	int REGION_FEATURE_COUNT = 25;
 
 	/**
 	 * The meta object id for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RunModeImpl <em>Run Mode</em>}' class.
@@ -1006,6 +1024,28 @@ public interface RegiondefinitionPackage extends EPackage {
 	EAttribute getRegion_DiscriminatorLevel();
 
 	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getTotalSteps <em>Total Steps</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Total Steps</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getTotalSteps()
+	 * @see #getRegion()
+	 * @generated
+	 */
+	EAttribute getRegion_TotalSteps();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getTotalTime <em>Total Time</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Total Time</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getTotalTime()
+	 * @see #getRegion()
+	 * @generated
+	 */
+	EAttribute getRegion_TotalTime();
+
+	/**
 	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getStatus <em>Status</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -1573,6 +1613,22 @@ public interface RegiondefinitionPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute REGION__DISCRIMINATOR_LEVEL = eINSTANCE.getRegion_DiscriminatorLevel();
+
+		/**
+		 * The meta object literal for the '<em><b>Total Steps</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute REGION__TOTAL_STEPS = eINSTANCE.getRegion_TotalSteps();
+
+		/**
+		 * The meta object literal for the '<em><b>Total Time</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute REGION__TOTAL_TIME = eINSTANCE.getRegion_TotalTime();
 
 		/**
 		 * The meta object literal for the '<em><b>Status</b></em>' attribute feature.

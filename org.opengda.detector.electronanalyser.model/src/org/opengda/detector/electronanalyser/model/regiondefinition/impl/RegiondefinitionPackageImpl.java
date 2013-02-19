@@ -487,6 +487,24 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EAttribute getRegion_TotalSteps() {
+        return (EAttribute)getRegion().getEStructuralFeatures().get(23);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getRegion_TotalTime() {
+        return (EAttribute)getRegion().getEStructuralFeatures().get(24);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EAttribute getRegion_Status() {
         return (EAttribute)getRegion().getEStructuralFeatures().get(1);
 	}

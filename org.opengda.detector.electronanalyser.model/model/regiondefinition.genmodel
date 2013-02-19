@@ -86,6 +86,8 @@
       <genFeatures createChild="false" propertyCategory="" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/detectorMode"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/ADCMask"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/discriminatorLevel"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/totalSteps"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/totalTime"/>
     </genClasses>
     <genClasses ecoreClass="regiondefinition.ecore#//RunMode">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//RunMode/mode"/>
