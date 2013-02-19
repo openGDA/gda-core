@@ -28,7 +28,7 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLowEnergy <em>Low Energy</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getHighEnergy <em>High Energy</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getEnergyStep <em>Energy Step</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getSetpTime <em>Setp Time</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getStepTime <em>Step Time</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getFirstXChannel <em>First XChannel</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLastXChannel <em>Last XChannel</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getFirstYChannel <em>First YChannel</em>}</li>
@@ -677,58 +677,58 @@ public interface Region extends EObject {
 	boolean isSetEnergyStep();
 
 	/**
-	 * Returns the value of the '<em><b>Setp Time</b></em>' attribute.
+	 * Returns the value of the '<em><b>Step Time</b></em>' attribute.
 	 * The default value is <code>"0.043"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
-	 * If the meaning of the '<em>Setp Time</em>' attribute isn't clear,
+	 * If the meaning of the '<em>Step Time</em>' attribute isn't clear,
 	 * there really should be more of a description here...
 	 * </p>
 	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Setp Time</em>' attribute.
-	 * @see #isSetSetpTime()
-	 * @see #unsetSetpTime()
-	 * @see #setSetpTime(double)
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_SetpTime()
+	 * @return the value of the '<em>Step Time</em>' attribute.
+	 * @see #isSetStepTime()
+	 * @see #unsetStepTime()
+	 * @see #setStepTime(double)
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_StepTime()
 	 * @model default="0.043" unsettable="true"
 	 * @generated
 	 */
-	double getSetpTime();
+	double getStepTime();
 
 	/**
-	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getSetpTime <em>Setp Time</em>}' attribute.
+	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getStepTime <em>Step Time</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Setp Time</em>' attribute.
-	 * @see #isSetSetpTime()
-	 * @see #unsetSetpTime()
-	 * @see #getSetpTime()
+	 * @param value the new value of the '<em>Step Time</em>' attribute.
+	 * @see #isSetStepTime()
+	 * @see #unsetStepTime()
+	 * @see #getStepTime()
 	 * @generated
 	 */
-	void setSetpTime(double value);
+	void setStepTime(double value);
 
 	/**
-	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getSetpTime <em>Setp Time</em>}' attribute.
+	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getStepTime <em>Step Time</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #isSetSetpTime()
-	 * @see #getSetpTime()
-	 * @see #setSetpTime(double)
+	 * @see #isSetStepTime()
+	 * @see #getStepTime()
+	 * @see #setStepTime(double)
 	 * @generated
 	 */
-	void unsetSetpTime();
+	void unsetStepTime();
 
 	/**
-	 * Returns whether the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getSetpTime <em>Setp Time</em>}' attribute is set.
+	 * Returns whether the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getStepTime <em>Step Time</em>}' attribute is set.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return whether the value of the '<em>Setp Time</em>' attribute is set.
-	 * @see #unsetSetpTime()
-	 * @see #getSetpTime()
-	 * @see #setSetpTime(double)
+	 * @return whether the value of the '<em>Step Time</em>' attribute is set.
+	 * @see #unsetStepTime()
+	 * @see #getStepTime()
+	 * @see #setStepTime(double)
 	 * @generated
 	 */
-	boolean isSetSetpTime();
+	boolean isSetStepTime();
 
 	/**
 	 * Returns the value of the '<em><b>First XChannel</b></em>' attribute.

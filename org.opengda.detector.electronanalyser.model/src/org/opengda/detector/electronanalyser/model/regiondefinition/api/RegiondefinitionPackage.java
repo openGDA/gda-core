@@ -312,13 +312,13 @@ public interface RegiondefinitionPackage extends EPackage {
 	int REGION__ENERGY_STEP = 13;
 
 	/**
-	 * The feature id for the '<em><b>Setp Time</b></em>' attribute.
+	 * The feature id for the '<em><b>Step Time</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int REGION__SETP_TIME = 14;
+	int REGION__STEP_TIME = 14;
 
 	/**
 	 * The feature id for the '<em><b>First XChannel</b></em>' attribute.
@@ -907,15 +907,15 @@ public interface RegiondefinitionPackage extends EPackage {
 	EAttribute getRegion_EnergyStep();
 
 	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getSetpTime <em>Setp Time</em>}'.
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getStepTime <em>Step Time</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Setp Time</em>'.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getSetpTime()
+	 * @return the meta object for the attribute '<em>Step Time</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getStepTime()
 	 * @see #getRegion()
 	 * @generated
 	 */
-	EAttribute getRegion_SetpTime();
+	EAttribute getRegion_StepTime();
 
 	/**
 	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getFirstXChannel <em>First XChannel</em>}'.
@@ -1503,12 +1503,12 @@ public interface RegiondefinitionPackage extends EPackage {
 		EAttribute REGION__ENERGY_STEP = eINSTANCE.getRegion_EnergyStep();
 
 		/**
-		 * The meta object literal for the '<em><b>Setp Time</b></em>' attribute feature.
+		 * The meta object literal for the '<em><b>Step Time</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EAttribute REGION__SETP_TIME = eINSTANCE.getRegion_SetpTime();
+		EAttribute REGION__STEP_TIME = eINSTANCE.getRegion_StepTime();
 
 		/**
 		 * The meta object literal for the '<em><b>First XChannel</b></em>' attribute feature.

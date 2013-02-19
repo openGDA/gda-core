@@ -406,7 +406,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getRegion_SetpTime() {
+	public EAttribute getRegion_StepTime() {
         return (EAttribute)getRegion().getEStructuralFeatures().get(14);
 	}
 

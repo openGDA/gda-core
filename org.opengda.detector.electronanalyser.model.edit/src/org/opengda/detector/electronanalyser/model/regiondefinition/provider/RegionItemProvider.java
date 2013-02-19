@@ -79,7 +79,7 @@ public class RegionItemProvider
 			addLowEnergyPropertyDescriptor(object);
 			addHighEnergyPropertyDescriptor(object);
 			addEnergyStepPropertyDescriptor(object);
-			addSetpTimePropertyDescriptor(object);
+			addStepTimePropertyDescriptor(object);
 			addFirstXChannelPropertyDescriptor(object);
 			addLastXChannelPropertyDescriptor(object);
 			addFirstYChannelPropertyDescriptor(object);
@@ -291,19 +291,19 @@ public class RegionItemProvider
 	}
 
 	/**
-	 * This adds a property descriptor for the Setp Time feature.
+	 * This adds a property descriptor for the Step Time feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addSetpTimePropertyDescriptor(Object object) {
+	protected void addStepTimePropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_Region_setpTime_feature"), //$NON-NLS-1$
-				 getString("_UI_PropertyDescriptor_description", "_UI_Region_setpTime_feature", "_UI_Region_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				 RegiondefinitionPackage.Literals.REGION__SETP_TIME,
+				 getString("_UI_Region_stepTime_feature"), //$NON-NLS-1$
+				 getString("_UI_PropertyDescriptor_description", "_UI_Region_stepTime_feature", "_UI_Region_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				 RegiondefinitionPackage.Literals.REGION__STEP_TIME,
 				 true,
 				 false,
 				 false,
@@ -656,7 +656,7 @@ public class RegionItemProvider
 			case RegiondefinitionPackage.REGION__LOW_ENERGY:
 			case RegiondefinitionPackage.REGION__HIGH_ENERGY:
 			case RegiondefinitionPackage.REGION__ENERGY_STEP:
-			case RegiondefinitionPackage.REGION__SETP_TIME:
+			case RegiondefinitionPackage.REGION__STEP_TIME:
 			case RegiondefinitionPackage.REGION__FIRST_XCHANNEL:
 			case RegiondefinitionPackage.REGION__LAST_XCHANNEL:
 			case RegiondefinitionPackage.REGION__FIRST_YCHANNEL:

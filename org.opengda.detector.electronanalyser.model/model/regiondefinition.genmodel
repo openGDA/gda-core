@@ -77,7 +77,7 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/lowEnergy"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/highEnergy"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/energyStep"/>
-      <genFeatures createChild="false" propertyCategory="" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/setpTime"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/stepTime"/>
       <genFeatures createChild="false" propertyCategory="" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/firstXChannel"/>
       <genFeatures createChild="false" propertyDescription="" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/lastXChannel"/>
       <genFeatures createChild="false" propertyDescription="" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Region/firstYChannel"/>

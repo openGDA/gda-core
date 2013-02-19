@@ -39,7 +39,7 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getLowEnergy <em>Low Energy</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getHighEnergy <em>High Energy</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getEnergyStep <em>Energy Step</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getSetpTime <em>Setp Time</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getStepTime <em>Step Time</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getFirstXChannel <em>First XChannel</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getLastXChannel <em>Last XChannel</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl#getFirstYChannel <em>First YChannel</em>}</li>
@@ -410,31 +410,33 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected boolean energyStepESet;
 
 	/**
-	 * The default value of the '{@link #getSetpTime() <em>Setp Time</em>}' attribute.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * @see #getSetpTime()
+	 * The default value of the '{@link #getStepTime() <em>Step Time</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getStepTime()
 	 * @generated
 	 * @ordered
 	 */
-	protected static final double SETP_TIME_EDEFAULT = 0.043;
+	protected static final double STEP_TIME_EDEFAULT = 0.043;
 
 	/**
-	 * The cached value of the '{@link #getSetpTime() <em>Setp Time</em>}' attribute.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * @see #getSetpTime()
+	 * The cached value of the '{@link #getStepTime() <em>Step Time</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getStepTime()
 	 * @generated
 	 * @ordered
 	 */
-	protected double setpTime = SETP_TIME_EDEFAULT;
+	protected double stepTime = STEP_TIME_EDEFAULT;
 
 	/**
-	 * This is true if the Setp Time attribute has been set.
-	 * <!-- begin-user-doc
-	 * --> <!-- end-user-doc -->
+	 * This is true if the Step Time attribute has been set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	protected boolean setpTimeESet;
+	protected boolean stepTimeESet;
 
 	/**
 	 * The default value of the '{@link #getFirstXChannel() <em>First XChannel</em>}' attribute.
@@ -1213,45 +1215,49 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public double getSetpTime() {
-		return setpTime;
+	public double getStepTime() {
+		return stepTime;
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public void setSetpTime(double newSetpTime) {
-		double oldSetpTime = setpTime;
-		setpTime = newSetpTime;
-		boolean oldSetpTimeESet = setpTimeESet;
-		setpTimeESet = true;
+	public void setStepTime(double newStepTime) {
+		double oldStepTime = stepTime;
+		stepTime = newStepTime;
+		boolean oldStepTimeESet = stepTimeESet;
+		stepTimeESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.REGION__SETP_TIME, oldSetpTime, setpTime, !oldSetpTimeESet));
+			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.REGION__STEP_TIME, oldStepTime, stepTime, !oldStepTimeESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public void unsetSetpTime() {
-		double oldSetpTime = setpTime;
-		boolean oldSetpTimeESet = setpTimeESet;
-		setpTime = SETP_TIME_EDEFAULT;
-		setpTimeESet = false;
+	public void unsetStepTime() {
+		double oldStepTime = stepTime;
+		boolean oldStepTimeESet = stepTimeESet;
+		stepTime = STEP_TIME_EDEFAULT;
+		stepTimeESet = false;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.REGION__SETP_TIME, oldSetpTime, SETP_TIME_EDEFAULT, oldSetpTimeESet));
+			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.REGION__STEP_TIME, oldStepTime, STEP_TIME_EDEFAULT, oldStepTimeESet));
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public boolean isSetSetpTime() {
-		return setpTimeESet;
+	public boolean isSetStepTime() {
+		return stepTimeESet;
 	}
 
 	/**
@@ -1700,8 +1706,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 				return getHighEnergy();
 			case RegiondefinitionPackage.REGION__ENERGY_STEP:
 				return getEnergyStep();
-			case RegiondefinitionPackage.REGION__SETP_TIME:
-				return getSetpTime();
+			case RegiondefinitionPackage.REGION__STEP_TIME:
+				return getStepTime();
 			case RegiondefinitionPackage.REGION__FIRST_XCHANNEL:
 				return getFirstXChannel();
 			case RegiondefinitionPackage.REGION__LAST_XCHANNEL:
@@ -1772,8 +1778,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 			case RegiondefinitionPackage.REGION__ENERGY_STEP:
 				setEnergyStep((Double)newValue);
 				return;
-			case RegiondefinitionPackage.REGION__SETP_TIME:
-				setSetpTime((Double)newValue);
+			case RegiondefinitionPackage.REGION__STEP_TIME:
+				setStepTime((Double)newValue);
 				return;
 			case RegiondefinitionPackage.REGION__FIRST_XCHANNEL:
 				setFirstXChannel((Integer)newValue);
@@ -1852,8 +1858,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 			case RegiondefinitionPackage.REGION__ENERGY_STEP:
 				unsetEnergyStep();
 				return;
-			case RegiondefinitionPackage.REGION__SETP_TIME:
-				unsetSetpTime();
+			case RegiondefinitionPackage.REGION__STEP_TIME:
+				unsetStepTime();
 				return;
 			case RegiondefinitionPackage.REGION__FIRST_XCHANNEL:
 				unsetFirstXChannel();
@@ -1918,8 +1924,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 				return isSetHighEnergy();
 			case RegiondefinitionPackage.REGION__ENERGY_STEP:
 				return isSetEnergyStep();
-			case RegiondefinitionPackage.REGION__SETP_TIME:
-				return isSetSetpTime();
+			case RegiondefinitionPackage.REGION__STEP_TIME:
+				return isSetStepTime();
 			case RegiondefinitionPackage.REGION__FIRST_XCHANNEL:
 				return isSetFirstXChannel();
 			case RegiondefinitionPackage.REGION__LAST_XCHANNEL:
@@ -1975,8 +1981,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 		if (highEnergyESet) result.append(highEnergy); else result.append("<unset>"); //$NON-NLS-1$
 		result.append(", energyStep: "); //$NON-NLS-1$
 		if (energyStepESet) result.append(energyStep); else result.append("<unset>"); //$NON-NLS-1$
-		result.append(", setpTime: "); //$NON-NLS-1$
-		if (setpTimeESet) result.append(setpTime); else result.append("<unset>"); //$NON-NLS-1$
+		result.append(", stepTime: "); //$NON-NLS-1$
+		if (stepTimeESet) result.append(stepTime); else result.append("<unset>"); //$NON-NLS-1$
 		result.append(", firstXChannel: "); //$NON-NLS-1$
 		if (firstXChannelESet) result.append(firstXChannel); else result.append("<unset>"); //$NON-NLS-1$
 		result.append(", lastXChannel: "); //$NON-NLS-1$

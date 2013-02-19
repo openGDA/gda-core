@@ -57,7 +57,7 @@
         defaultValueLiteral="10.0" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="energyStep" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"
         defaultValueLiteral="200.0" unsettable="true"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="setpTime" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="stepTime" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"
         defaultValueLiteral="0.043" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="firstXChannel" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
         defaultValueLiteral="1" unsettable="true"/>
