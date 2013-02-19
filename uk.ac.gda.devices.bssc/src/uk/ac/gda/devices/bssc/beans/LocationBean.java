@@ -73,7 +73,7 @@ public class LocationBean implements IRichBean {
 	public boolean equals(Object obj) {
 		if (obj instanceof LocationBean) {
 			LocationBean foreignLocation = (LocationBean) obj;
-			return foreignLocation.plate == plate && foreignLocation.column == column && foreignLocation.row == foreignLocation.row;
+			return foreignLocation.plate == plate && foreignLocation.column == column && foreignLocation.row == row;
 		}
 		return false;
 	}

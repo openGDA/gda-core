@@ -20,11 +20,11 @@ class BSSCRun:
         self.overheadsteps = 5
         self.stepspersample = 8
         self.stepsperbuffer = 3
+        self.ispyb = BioSAXSDBFactory.makeAPI()
+        self.visit = self.ispyb.getSessionForVisit(GDAMetadataProvider.getInstance().getMetadataValue("visit"))
         self.energy = float(GDAMetadataProvider.getInstance().getMetadataValue("instrument.monochromator.energy"))
         self.totalSteps = self.overheadsteps + self.bean.getMeasurements().size() * self.stepspersample + (self.bean.getMeasurements().size() + 1) * self.stepsperbuffer
         lastTitration=None
-        self.ispyb = BioSAXSDBFactory.makeAPI()
-        self.visit = self.ispyb.getSessionForVisit(GDAMetadataProvider.getInstance().getMetadataValue("visit"))
         for titration in self.bean.getMeasurements():
             if lastTitration != None and not self.tritrationsCanUseSameBufferMeasurement(lastTitration, titration):
                 self.totalSteps += self.stepsperbuffer
@@ -39,7 +39,7 @@ class BSSCRun:
         if self.isSimulation:
             self.scannables = [self.detector]
         else:
-            self.scannable = [self.detector, self.cam]
+            self.scannables = [self.detector, self.cam]
         
     def reportProgress(self, message):
         self.progresscounter += 1
@@ -129,7 +129,7 @@ class BSSCRun:
         self.shutter.asynchronousMoveTo("Open")
     
     def closeShutter(self):
-        self.shutter.asynchronousMoveTo("Closed")
+        self.shutter.asynchronousMoveTo("Close")
         
     def measureBuffer(self, titration, duration):
         if titration != None:
@@ -152,7 +152,7 @@ class BSSCRun:
             filename = self.expose(duration)
             id = self.ispyb.createSampleMeasurement(self.visit, titration.getLocation().getPlate(), titration.getLocation().getRowAsInt(), titration.getLocation().getColumn(), titration.getSampleName(), titration.getConcentration(), self.getStorageTemperature(), self.getExposureTemperature(), titration.getFrames(), titration.getTimePerFrame(), 0.0, self.samplevolume, self.energy, titration.getViscosity(), filename, "/entry1/Pilatus2M/data")
             self.ispyb.createMeasurementToDataCollection(self.datacollection, id)
-            if titration.isRecouperate() and not titration.isYellowSample():
+            if titration.isRecouperate():
                 self.reportSampleProgress(titration, "Recuperating Sample and Cleaning")
                 self.unloadIntoWell(titration.getLocation())
             else:
@@ -162,10 +162,6 @@ class BSSCRun:
     def setUpRobotAndDetector(self, titration):
             self.reportSampleProgress(titration, "Setting Up Robot")
             self.bssc.setViscosityLevel(titration.getViscosity())
-            if titration.isYellowSample():
-                self.bssc.setSampleType("yellow")
-            else:
-                self.bssc.setSampleType("green")
             self.reportSampleProgress(titration, "Checking Exposure Cell Temperature")
             self.setExposureTemperature(titration.getExposureTemperature())
             self.reportSampleProgress(titration, "Setting Up Time Frame Generator")
@@ -189,7 +185,6 @@ class BSSCRun:
         self.setStorageTemperature()
         self.reportProgress("Performing Courtesy Cell Wash")
         self.bssc.setViscosityLevel("high")
-        self.bssc.setSampleType("yellow")
         self.clean()
         
         self.datacollection = self.ispyb.createSaxsDataCollection(self.visit)
@@ -199,13 +194,22 @@ class BSSCRun:
         lastTitration=None
         duration=None
         for titration in self.bean.getMeasurements():
+            print  "\n              New Titration \n"
             if lastTitration != None and not self.tritrationsCanUseSameBufferMeasurement(lastTitration, titration):
+                print "Redo the buffer "+ str(lastTitration.getBufferLocation())
                 # everything would be set up from previous sample then
+                print "\n BUFFER "
                 self.measureBuffer(lastTitration, duration)
             duration = self.setUpRobotAndDetector(titration)
+            print "\n BUFFER "
+            print
             self.measureBuffer(titration, duration)
+            print "\n SAMPLE "
+            print
             self.measureSample(titration, duration)
             lastTitration = titration
+        print "\n BUFFER "
+        print
         self.measureBuffer(lastTitration, duration)
         self.reportProgress("Closing shutter")
         self.closeShutter()
