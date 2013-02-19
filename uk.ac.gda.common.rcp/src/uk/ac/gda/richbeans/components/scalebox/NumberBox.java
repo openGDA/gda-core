@@ -242,10 +242,10 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 		if (!isOn())
 			return;
 		try {
-			on = false;
+			off();
 			checkValue(text.getText());
 		} finally {
-			on = true;
+			on();
 		}
 	}
 

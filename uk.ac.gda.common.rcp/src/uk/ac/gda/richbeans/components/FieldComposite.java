@@ -97,7 +97,7 @@ public abstract class FieldComposite extends Composite implements IFieldWidget {
 	
 
 	/** DO not set this, use off() and on() **/
-	protected boolean on = false;
+	private volatile boolean on = false;
 	
 	/**
 	 * @return the on

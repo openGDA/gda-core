@@ -124,10 +124,10 @@ public class RangeBox extends NumberBox implements IRangeWidget {
 				if (!isOn())
 					return;
 				try {
-					on = false;
+					off();
 					checkValue(text.getText());
 				} finally {
-					on = true;
+					on();
 				}
 			}
 		};
