@@ -457,13 +457,22 @@ public interface RegiondefinitionPackage extends EPackage {
 	int RUN_MODE__CONFIRM_AFTER_EACH_INTERATION = 4;
 
 	/**
+	 * The feature id for the '<em><b>Num Iteration Option</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int RUN_MODE__NUM_ITERATION_OPTION = 5;
+
+	/**
 	 * The number of structural features of the '<em>Run Mode</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int RUN_MODE_FEATURE_COUNT = 5;
+	int RUN_MODE_FEATURE_COUNT = 6;
 
 	/**
 	 * The meta object id for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SpectrumImpl <em>Spectrum</em>}' class.
@@ -1084,6 +1093,17 @@ public interface RegiondefinitionPackage extends EPackage {
 	EAttribute getRunMode_ConfirmAfterEachInteration();
 
 	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode#isNumIterationOption <em>Num Iteration Option</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Num Iteration Option</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode#isNumIterationOption()
+	 * @see #getRunMode()
+	 * @generated
+	 */
+	EAttribute getRunMode_NumIterationOption();
+
+	/**
 	 * Returns the meta object for class '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum <em>Spectrum</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -1619,6 +1639,14 @@ public interface RegiondefinitionPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute RUN_MODE__CONFIRM_AFTER_EACH_INTERATION = eINSTANCE.getRunMode_ConfirmAfterEachInteration();
+
+		/**
+		 * The meta object literal for the '<em><b>Num Iteration Option</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute RUN_MODE__NUM_ITERATION_OPTION = eINSTANCE.getRunMode_NumIterationOption();
 
 		/**
 		 * The meta object literal for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SpectrumImpl <em>Spectrum</em>}' class.

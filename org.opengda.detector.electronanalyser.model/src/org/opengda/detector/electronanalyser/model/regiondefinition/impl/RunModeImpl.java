@@ -25,6 +25,7 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode;
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RunModeImpl#getNumIterations <em>Num Iterations</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RunModeImpl#isRepeatUntilStopped <em>Repeat Until Stopped</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RunModeImpl#isConfirmAfterEachInteration <em>Confirm After Each Interation</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RunModeImpl#isNumIterationOption <em>Num Iteration Option</em>}</li>
  * </ul>
  * </p>
  *
@@ -166,6 +167,26 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 	 * @ordered
 	 */
 	protected boolean confirmAfterEachInteration = CONFIRM_AFTER_EACH_INTERATION_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #isNumIterationOption() <em>Num Iteration Option</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isNumIterationOption()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final boolean NUM_ITERATION_OPTION_EDEFAULT = true;
+
+	/**
+	 * The cached value of the '{@link #isNumIterationOption() <em>Num Iteration Option</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isNumIterationOption()
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean numIterationOption = NUM_ITERATION_OPTION_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -396,6 +417,27 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public boolean isNumIterationOption() {
+		return numIterationOption;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setNumIterationOption(boolean newNumIterationOption) {
+		boolean oldNumIterationOption = numIterationOption;
+		numIterationOption = newNumIterationOption;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.RUN_MODE__NUM_ITERATION_OPTION, oldNumIterationOption, numIterationOption));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
@@ -409,6 +451,8 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 				return isRepeatUntilStopped();
 			case RegiondefinitionPackage.RUN_MODE__CONFIRM_AFTER_EACH_INTERATION:
 				return isConfirmAfterEachInteration();
+			case RegiondefinitionPackage.RUN_MODE__NUM_ITERATION_OPTION:
+				return isNumIterationOption();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -435,6 +479,9 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 				return;
 			case RegiondefinitionPackage.RUN_MODE__CONFIRM_AFTER_EACH_INTERATION:
 				setConfirmAfterEachInteration((Boolean)newValue);
+				return;
+			case RegiondefinitionPackage.RUN_MODE__NUM_ITERATION_OPTION:
+				setNumIterationOption((Boolean)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -463,6 +510,9 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 			case RegiondefinitionPackage.RUN_MODE__CONFIRM_AFTER_EACH_INTERATION:
 				setConfirmAfterEachInteration(CONFIRM_AFTER_EACH_INTERATION_EDEFAULT);
 				return;
+			case RegiondefinitionPackage.RUN_MODE__NUM_ITERATION_OPTION:
+				setNumIterationOption(NUM_ITERATION_OPTION_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -485,6 +535,8 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 				return isSetRepeatUntilStopped();
 			case RegiondefinitionPackage.RUN_MODE__CONFIRM_AFTER_EACH_INTERATION:
 				return confirmAfterEachInteration != CONFIRM_AFTER_EACH_INTERATION_EDEFAULT;
+			case RegiondefinitionPackage.RUN_MODE__NUM_ITERATION_OPTION:
+				return numIterationOption != NUM_ITERATION_OPTION_EDEFAULT;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -509,6 +561,8 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 		if (repeatUntilStoppedESet) result.append(repeatUntilStopped); else result.append("<unset>"); //$NON-NLS-1$
 		result.append(", confirmAfterEachInteration: "); //$NON-NLS-1$
 		result.append(confirmAfterEachInteration);
+		result.append(", numIterationOption: "); //$NON-NLS-1$
+		result.append(numIterationOption);
 		result.append(')');
 		return result.toString();
 	}

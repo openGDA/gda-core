@@ -63,6 +63,7 @@ public class RunModeItemProvider
 			addNumIterationsPropertyDescriptor(object);
 			addRepeatUntilStoppedPropertyDescriptor(object);
 			addConfirmAfterEachInterationPropertyDescriptor(object);
+			addNumIterationOptionPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
 	}
@@ -178,6 +179,28 @@ public class RunModeItemProvider
 	}
 
 	/**
+	 * This adds a property descriptor for the Num Iteration Option feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addNumIterationOptionPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_RunMode_numIterationOption_feature"), //$NON-NLS-1$
+				 getString("_UI_PropertyDescriptor_description", "_UI_RunMode_numIterationOption_feature", "_UI_RunMode_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				 RegiondefinitionPackage.Literals.RUN_MODE__NUM_ITERATION_OPTION,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.BOOLEAN_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
 	 * This returns RunMode.gif.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -220,6 +243,7 @@ public class RunModeItemProvider
 			case RegiondefinitionPackage.RUN_MODE__NUM_ITERATIONS:
 			case RegiondefinitionPackage.RUN_MODE__REPEAT_UNTIL_STOPPED:
 			case RegiondefinitionPackage.RUN_MODE__CONFIRM_AFTER_EACH_INTERATION:
+			case RegiondefinitionPackage.RUN_MODE__NUM_ITERATION_OPTION:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;
 		}

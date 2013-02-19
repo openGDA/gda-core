@@ -93,6 +93,7 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//RunMode/numIterations"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//RunMode/repeatUntilStopped"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//RunMode/confirmAfterEachInteration"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//RunMode/numIterationOption"/>
     </genClasses>
     <genClasses ecoreClass="regiondefinition.ecore#//Spectrum">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Spectrum/location"/>

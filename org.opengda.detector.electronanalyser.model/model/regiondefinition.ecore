@@ -92,6 +92,8 @@
         defaultValueLiteral="false" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="confirmAfterEachInteration"
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean" defaultValueLiteral="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="numIterationOption" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"
+        transient="true" defaultValueLiteral="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EEnum" name="RUN_MODES">
     <eLiterals name="NORMAL"/>

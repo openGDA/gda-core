@@ -562,6 +562,15 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EAttribute getRunMode_NumIterationOption() {
+        return (EAttribute)getRunMode().getEStructuralFeatures().get(5);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EClass getSpectrum() {
 		if (spectrumEClass == null) {
 			spectrumEClass = (EClass)EPackage.Registry.INSTANCE.getEPackage(RegiondefinitionPackage.eNS_URI).getEClassifiers().get(9);

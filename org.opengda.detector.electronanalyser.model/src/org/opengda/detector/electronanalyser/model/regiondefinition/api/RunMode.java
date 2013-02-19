@@ -17,6 +17,7 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode#getNumIterations <em>Num Iterations</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode#isRepeatUntilStopped <em>Repeat Until Stopped</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode#isConfirmAfterEachInteration <em>Confirm After Each Interation</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode#isNumIterationOption <em>Num Iteration Option</em>}</li>
  * </ul>
  * </p>
  *
@@ -270,5 +271,32 @@ public interface RunMode extends EObject {
 	 * @generated
 	 */
 	void setConfirmAfterEachInteration(boolean value);
+
+	/**
+	 * Returns the value of the '<em><b>Num Iteration Option</b></em>' attribute.
+	 * The default value is <code>"true"</code>.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Num Iteration Option</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Num Iteration Option</em>' attribute.
+	 * @see #setNumIterationOption(boolean)
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRunMode_NumIterationOption()
+	 * @model default="true" transient="true"
+	 * @generated
+	 */
+	boolean isNumIterationOption();
+
+	/**
+	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode#isNumIterationOption <em>Num Iteration Option</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Num Iteration Option</em>' attribute.
+	 * @see #isNumIterationOption()
+	 * @generated
+	 */
+	void setNumIterationOption(boolean value);
 
 } // RunMode
