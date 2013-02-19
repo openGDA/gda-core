@@ -48,6 +48,7 @@ import gov.aps.jca.event.PutListener;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -355,6 +356,11 @@ public class LazyPVFactory {
 				dbrType = javaTypeToDBRType.get(javaType);
 			}
 		}
+		
+		@Override
+		public String toString() {
+			return MessageFormat.format("LazyPV({0}, {1})", pvName, javaType.getSimpleName());
+		}
 
 		private double defaultTimeout() {
 			return EpicsGlobals.getTimeout();
@@ -389,8 +395,7 @@ public class LazyPVFactory {
 				java.util.concurrent.TimeoutException {
 			logger.debug("'{}' waiting for value '{}'", pvName, predicate.toString());
 			if (!isValueMonitoring()) {
-				throw new IllegalStateException("Cannot wait for a value on " + getPvName()
-						+ " as this LazyPv is not set to monitor values");
+				this.setValueMonitoring(true);
 			}
 
 			initialiseLastMonitoredValue();
@@ -655,8 +660,7 @@ public class LazyPVFactory {
 			try {
 
 				if (javaType == Byte[].class) {
-					throw new IllegalStateException("EpicsController.caput(Channel, byte[], double) is missing!");
-					// controller.caput(channel, toPrimitive((Byte[]) value), timeoutS);
+					controller.caput(getChannel(), toPrimitive((Byte[]) value), pl);
 				} else if (javaType == Double[].class) {
 					controller.caput(getChannel(), toPrimitive((Double[]) value), pl);
 				} else if (javaType == Float[].class) {
@@ -1112,6 +1116,11 @@ public class LazyPVFactory {
 		public ReadOnly(PV<T> pv) {
 			super(pv);
 		}
+		
+		@Override
+		public String toString() {
+			return MessageFormat.format("ReadOnly({0})", getPV().toString());
+		}
 
 		@Override
 		protected T innerToOuter(T innerValue) {
@@ -1145,6 +1154,11 @@ public class LazyPVFactory {
 		}
 
 		@Override
+		public String toString() {
+			return MessageFormat.format("NoCallback({0})", getPV().toString());
+		}
+		
+		@Override
 		NoCallbackPV<T> getPV() {
 			return pv;
 		}
@@ -1168,6 +1182,11 @@ public class LazyPVFactory {
 		}
 
 		@Override
+		public String toString() {
+			return MessageFormat.format("StringFromWaveform({0})", getPV().toString());
+		}
+		
+		@Override
 		protected String innerToOuter(Byte[] innerValue) {
 			return new String(toPrimitive(innerValue)).trim();
 		}
@@ -1186,6 +1205,11 @@ public class LazyPVFactory {
 		}
 
 		@Override
+		public String toString() {
+			return MessageFormat.format("BooleanFromInteger({0})", getPV().toString());
+		}
+		
+		@Override
 		protected Boolean innerToOuter(Integer innerValue) {
 			return innerValue > 0;
 		}
@@ -1202,7 +1226,12 @@ public class LazyPVFactory {
 		private BooleanFromShort(LazyPV<Short> pv) {
 			super(pv);
 		}
-
+		
+		@Override
+		public String toString() {
+			return MessageFormat.format("BooleanFromShort({0})", getPV().toString());
+		}
+		
 		@Override
 		protected Boolean innerToOuter(Short innerValue) {
 			return innerValue > 0;
