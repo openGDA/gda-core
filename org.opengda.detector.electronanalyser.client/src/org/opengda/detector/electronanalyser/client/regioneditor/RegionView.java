@@ -1,5 +1,8 @@
 package org.opengda.detector.electronanalyser.client.regioneditor;
 
+import java.util.Collections;
+import java.util.List;
+
 import gda.device.DeviceException;
 import gda.device.scannable.ScannableMotor;
 
@@ -47,8 +50,8 @@ public class RegionView extends ViewPart {
 			.getLogger(RegionView.class);
 
 	public RegionView() {
-		setTitleToolTip("Create a new or editing an existing region");
-		setContentDescription("A view for editing region parameters");
+		setTitleToolTip("Editing a selected region parameters");
+		// setContentDescription("A view for editing region parameters");
 		setPartName("Region Editor");
 	}
 
@@ -73,7 +76,7 @@ public class RegionView extends ViewPart {
 
 		final ScrolledComposite sc2 = new ScrolledComposite(parent,
 				SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
-		
+
 		sc2.setExpandHorizontal(true);
 		sc2.setExpandVertical(true);
 
@@ -82,7 +85,7 @@ public class RegionView extends ViewPart {
 		GridLayout gl_root = new GridLayout();
 		gl_root.horizontalSpacing = 2;
 		rootComposite.setLayout(gl_root);
-		
+
 		Group grpName = new Group(rootComposite, SWT.NONE);
 		grpName.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		grpName.setText("Name");
@@ -394,43 +397,43 @@ public class RegionView extends ViewPart {
 		grpExcitationEnergy.setText("Excitation Energy [eV]");
 		grpExcitationEnergy
 				.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		grpExcitationEnergy.setLayout(new GridLayout(5, true));
+		if (regionDefinitionResourceUtil.isSourceSelectable()) {
+			grpExcitationEnergy.setLayout(new GridLayout(3, true));
 
-		Label lblXRaySource = new Label(grpExcitationEnergy, SWT.None);
-		lblXRaySource.setText("X-Ray Source:");
+			Label lblXRaySource = new Label(grpExcitationEnergy, SWT.None);
+			lblXRaySource.setText("X-Ray Source:");
 
-		btnHard = new Button(grpExcitationEnergy, SWT.RADIO);
-		btnHard.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		btnHard.setText("Hard");
+			btnHard = new Button(grpExcitationEnergy, SWT.RADIO);
+			btnHard.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+			btnHard.setText("Hard");
 
-		new Label(grpExcitationEnergy, SWT.NONE);
+			btnSoft = new Button(grpExcitationEnergy, SWT.RADIO);
+			btnSoft.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+			btnSoft.setText("Soft");
 
-		btnSoft = new Button(grpExcitationEnergy, SWT.RADIO);
-		btnSoft.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		btnSoft.setText("Soft");
+			Label lblCurrentValue = new Label(grpExcitationEnergy, SWT.NONE);
+			lblCurrentValue.setText("Beam energy:");
 
-		new Label(grpExcitationEnergy, SWT.NONE);
+			txtHardEnergy = new Text(grpExcitationEnergy, SWT.BORDER
+					| SWT.READ_ONLY);
+			txtHardEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+			txtHardEnergy.setToolTipText("Current hard X-ray beam energy");
 
-		Label lblCurrentValue = new Label(grpExcitationEnergy, SWT.NONE);
-		lblCurrentValue.setText("Current Value:");
+			txtSoftEnergy = new Text(grpExcitationEnergy, SWT.BORDER
+					| SWT.READ_ONLY);
+			txtSoftEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+			txtSoftEnergy.setToolTipText("Current soft X-ray beam energy");
+		} else {
+			grpExcitationEnergy.setLayout(new GridLayout(2, true));
 
-		txtHardEnergy = new Text(grpExcitationEnergy, SWT.BORDER
-				| SWT.READ_ONLY);
-		txtHardEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		txtHardEnergy.setToolTipText("Current hard X-ray beam energy");
+			Label lblCurrentValue = new Label(grpExcitationEnergy, SWT.NONE);
+			lblCurrentValue.setText("Beam energy:");
 
-		Label lblKev = new Label(grpExcitationEnergy, SWT.NONE);
-		lblKev.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, true, false, 1, 1));
-		lblKev.setText("keV");
-
-		txtSoftEnergy = new Text(grpExcitationEnergy, SWT.BORDER
-				| SWT.READ_ONLY);
-		txtSoftEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		txtSoftEnergy.setToolTipText("Current soft X-ray beam energy");
-
-		Label lblev = new Label(grpExcitationEnergy, SWT.NONE);
-		lblev.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, true, false, 1, 1));
-		lblev.setText("eV");
+			txtHardEnergy = new Text(grpExcitationEnergy, SWT.BORDER
+					| SWT.READ_ONLY);
+			txtHardEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+			txtHardEnergy.setToolTipText("Current X-ray beam energy");
+		}
 
 		sc2.setMinSize(rootComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
@@ -495,23 +498,35 @@ public class RegionView extends ViewPart {
 		spinnerYChannelTo.setSelection(getCameraYSize());
 		spinnerSlices.setSelection(1);
 		btnADCMode.setSelection(true);
-		btnHard.setSelection(true);
-		if (dcmenergy != null) {
-			try {
-				hardXRayEnergy = (double) dcmenergy.getPosition();
-			} catch (DeviceException e) {
-				logger.error("Cannot get X-ray energy from DCM.", e);
+		if (regionDefinitionResourceUtil.isSourceSelectable()) {
+			btnHard.setSelection(true);
+			if (dcmenergy != null) {
+				try {
+					hardXRayEnergy = (double) dcmenergy.getPosition() * 1000; // eV
+				} catch (DeviceException e) {
+					logger.error("Cannot get X-ray energy from DCM.", e);
+				}
 			}
-		}
-		txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
-		if (pgmenergy != null) {
-			try {
-				softXRayEnergy = (double) pgmenergy.getPosition();
-			} catch (DeviceException e) {
-				logger.error("Cannot get X-ray energy from PGM.", e);
+			excitationEnergy = hardXRayEnergy;
+			txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
+			if (pgmenergy != null) {
+				try {
+					softXRayEnergy = (double) pgmenergy.getPosition();
+				} catch (DeviceException e) {
+					logger.error("Cannot get X-ray energy from PGM.", e);
+				}
 			}
+			txtSoftEnergy.setText(String.format("%.4f", softXRayEnergy));
+		} else {
+			if (dcmenergy != null) {
+				try {
+					hardXRayEnergy = (double) dcmenergy.getPosition();
+				} catch (DeviceException e) {
+					logger.error("Cannot get X-ray energy from DCM.", e);
+				}
+			}
+			txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
 		}
-		txtSoftEnergy.setText(String.format("%.4f", softXRayEnergy));
 		// add listener after initialisation otherwise return 'empty String'
 		passEnergy.addSelectionListener(passEnerySelectionAdapter);
 		passEnergy.addModifyListener(passEnergyModifyListener);
@@ -529,11 +544,27 @@ public class RegionView extends ViewPart {
 		txtSize.addModifyListener(sizeModifyListener);
 		txtMinimumSize.addModifyListener(minimumSizeModifyListener);
 		txtMinimumSize.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		btnHard.addSelectionListener(xRaySourceSelectionListener);
-		btnSoft.addSelectionListener(xRaySourceSelectionListener);
-
+		if (regionDefinitionResourceUtil.isSourceSelectable()) {
+			btnHard.addSelectionListener(xRaySourceSelectionListener);
+			btnSoft.addSelectionListener(xRaySourceSelectionListener);
+		}
 		regionName.addSelectionListener(regionNameSelAdapter);
-		// TODO populate txtRegionName combo with active (enabled) region names.
+		//populate txtRegionName combo with active (enabled) region names.
+		List<Region> regions = Collections.EMPTY_LIST;
+		try {
+			regions = regionDefinitionResourceUtil.getRegions(false);
+		} catch (Exception e1) {
+			logger.error("Cannot get regions from resource: ", e1);
+		}
+		if (regions.isEmpty()) {
+			logger.debug("Sequence is empty. create new sequence in the resource");
+		} else {
+			for (Region region : regions) {
+				if (region.isEnabled()) {
+					regionName.add(region.getName());
+				}
+			}
+		}
 		// TODO add monitor to dcmenergy in EPICS
 		// TODO add monitor to pgmenergy in EPICS
 		// TODO add monitor to total steps in EPICS

@@ -51,8 +51,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider {
 	private List<ISelectionChangedListener> selectionChangedListeners;
 
 	public SequenceView() {
-		setTitleToolTip("Create a new or editing an existing region");
-		setContentDescription("A view for editing region parameters");
+		setTitleToolTip("Create a new or editing an existing sequence");
+		//setContentDescription("A view for editing sequence parameters");
 		setPartName("Region Editor");
 		this.selectionChangedListeners = new ArrayList<ISelectionChangedListener>();
 	}
@@ -95,25 +95,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider {
 			new ColumnWeightData(40, true) };
 	private ComposedAdapterFactory adapterFactory;
 	private TableViewer sequenceTableViewer;
-	private boolean sourceSelectable;
-
-	public boolean isSourceSelectable() {
-		return sourceSelectable;
-	}
-
-	public void setSourceSelectable(boolean sourceSelectable) {
-		this.sourceSelectable = sourceSelectable;
-	}
-
-	public double getXRaySourceEnergyLimit() {
-		return xRaySourceEnergyLimit;
-	}
-
-	public void setXRaySourceEnergyLimit(double xRaySourceEnergyLimit) {
-		this.xRaySourceEnergyLimit = xRaySourceEnergyLimit;
-	}
-
-	private double xRaySourceEnergyLimit;
 	private List<Region> regions;
 
 	public void createColumns(TableViewer tableViewer, TableColumnLayout layout) {
@@ -197,9 +178,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider {
 		sequenceTableViewer.setContentProvider(new SequenceViewContentProvider(
 				resource));
 		SequenceViewLabelProvider labelProvider = new SequenceViewLabelProvider();
-		labelProvider.setSourceSelectable(isSourceSelectable());
-		if (isSourceSelectable()) {
-			labelProvider.setXRaySourceEnergyLimit(xRaySourceEnergyLimit);
+		labelProvider.setSourceSelectable(regionDefinitionResourceUtil.isSourceSelectable());
+		if (regionDefinitionResourceUtil.isSourceSelectable()) {
+			labelProvider.setXRaySourceEnergyLimit(regionDefinitionResourceUtil.getXRaySourceEnergyLimit());
 		}
 		sequenceTableViewer.setLabelProvider(labelProvider);
 		regions = Collections.EMPTY_LIST;

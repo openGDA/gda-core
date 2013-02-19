@@ -89,4 +89,24 @@ public class RegionDefinitionResourceUtil {
 		return ElectronAnalyserClientPlugin.getDefault()
 				.getSequenceEditingDomain();
 	}
+	private boolean sourceSelectable;
+
+	public boolean isSourceSelectable() {
+		return sourceSelectable;
+	}
+
+	public void setSourceSelectable(boolean sourceSelectable) {
+		this.sourceSelectable = sourceSelectable;
+	}
+
+	public double getXRaySourceEnergyLimit() {
+		return xRaySourceEnergyLimit;
+	}
+
+	public void setXRaySourceEnergyLimit(double xRaySourceEnergyLimit) {
+		this.xRaySourceEnergyLimit = xRaySourceEnergyLimit;
+	}
+
+	private double xRaySourceEnergyLimit;
+
 }

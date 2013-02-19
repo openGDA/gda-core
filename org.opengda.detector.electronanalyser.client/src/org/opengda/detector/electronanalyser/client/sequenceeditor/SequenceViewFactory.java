@@ -36,24 +36,6 @@ public class SequenceViewFactory implements FindableExecutableExtension {
 	private String viewPartName;
 	private String name;
 	private RegionDefinitionResourceUtil regionDefinitionResourceUtil;
-	private boolean sourceSelectable;
-	public boolean isSourceSelectable() {
-		return sourceSelectable;
-	}
-
-	public void setSourceSelectable(boolean sourceSelectable) {
-		this.sourceSelectable = sourceSelectable;
-	}
-
-	public double getXRaySourceEnergyLimit() {
-		return xRaySourceEnergyLimit;
-	}
-
-	public void setXRaySourceEnergyLimit(double xRaySourceEnergyLimit) {
-		this.xRaySourceEnergyLimit = xRaySourceEnergyLimit;
-	}
-
-	private double xRaySourceEnergyLimit;
 
 	public String getViewPartName() {
 		return viewPartName;
@@ -83,10 +65,6 @@ public class SequenceViewFactory implements FindableExecutableExtension {
 		SequenceView sequenceView = new SequenceView();
 		sequenceView.setViewPartName(viewPartName);
 		sequenceView.setRegionDefinitionResourceUtil(regionDefinitionResourceUtil);
-		sequenceView.setSourceSelectable(isSourceSelectable());
-		if (isSourceSelectable()) {
-			sequenceView.setXRaySourceEnergyLimit(xRaySourceEnergyLimit);
-		}
 		return sequenceView;
 	}
 

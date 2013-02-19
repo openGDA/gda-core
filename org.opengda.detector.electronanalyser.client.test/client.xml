@@ -8,6 +8,8 @@
 		class="org.opengda.detector.electronanalyser.client.RegionDefinitionResourceUtil">
 		<property name="fileName"
 			value="D:/gda/gda-i09/runtime-TestInClient/Test123/My.regiondefinition" />
+		<property name="sourceSelectable" value="true"/>
+		<property name="xRaySourceEnergyLimit" value="2100"/>
 	</bean>
 	<bean id="regionviewfactory"
 		class="org.opengda.detector.electronanalyser.client.regioneditor.RegionViewFactory">
