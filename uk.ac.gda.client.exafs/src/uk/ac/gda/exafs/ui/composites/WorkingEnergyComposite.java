@@ -36,10 +36,8 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.exafs.DetectorParameters;
-import uk.ac.gda.beans.exafs.FluorescenceParameters;
 import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
-import uk.ac.gda.beans.exafs.TransmissionParameters;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.beans.exafs.XesScanParameters;
@@ -175,24 +173,22 @@ public class WorkingEnergyComposite extends FieldBeanComposite {
 					"EdgeEnergyListener") {
 				@Override
 				public void valueChangePerformed(ValueEvent e) {
-					if(!workingEnergy.isDisposed())
-					workingEnergy.setValue(e.getValue());
+					updateWorkingEnergy(e);
 				}
+
 			});
 			BeanUI.addBeanFieldValueListener(XanesScanParameters.class, "EdgeEnergy", new ValueAdapter(
 					"EdgeEnergyListener") {
 				@Override
 				public void valueChangePerformed(ValueEvent e) {
-					if(!workingEnergy.isDisposed())
-					workingEnergy.setValue(e.getValue());
+					updateWorkingEnergy(e);
 				}
 			});
 			BeanUI.addBeanFieldValueListener(QEXAFSParameters.class, "EdgeEnergy", new ValueAdapter(
 					"EdgeEnergyListener") {
 				@Override
 				public void valueChangePerformed(ValueEvent e) {
-					if(!workingEnergy.isDisposed())
-					workingEnergy.setValue(e.getValue());
+					updateWorkingEnergy(e);
 				}
 			});
 
@@ -200,6 +196,15 @@ public class WorkingEnergyComposite extends FieldBeanComposite {
 			logger.error("Cannot add EdgeEnergy listeners.", ne);
 		}
 	}
+	
+	private void updateWorkingEnergy(ValueEvent e) {
+		if(!workingEnergy.isDisposed()){
+			workingEnergy.off();
+			workingEnergy.setValue(e.getValue());
+			workingEnergy.on();
+		}
+	}
+
 
 	protected Group getTabFolder() {
 		if (tabFolder == null) {
