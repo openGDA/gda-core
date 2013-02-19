@@ -105,8 +105,7 @@ public class SequenceViewLabelProvider extends LabelProvider implements
 			case SequenceTableConstants.COL_ENERGY_STEP:
 				return Double.toString(region.getEnergyStep());
 			case SequenceTableConstants.COL_STEP_TIME:
-				// FIXME - getSetpTime()
-				return Double.toString(region.getSetpTime());
+				return Double.toString(region.getStepTime());
 			case SequenceTableConstants.COL_STEPS:
 				// FIXME
 				return Integer.toString(1);

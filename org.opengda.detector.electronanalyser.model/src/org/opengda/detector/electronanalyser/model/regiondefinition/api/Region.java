@@ -129,7 +129,7 @@ public interface Region extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Lens Mode</b></em>' attribute.
-	 * The default value is <code>"TRANSMISSION"</code>.
+	 * The default value is <code>"Transmission"</code>.
 	 * The literals are from the enumeration {@link org.opengda.detector.electronanalyser.model.regiondefinition.api.LENS_MODE}.
 	 * <!-- begin-user-doc -->
 	 * <p>
@@ -143,7 +143,7 @@ public interface Region extends EObject {
 	 * @see #unsetLensMode()
 	 * @see #setLensMode(LENS_MODE)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_LensMode()
-	 * @model default="TRANSMISSION" unsettable="true"
+	 * @model default="Transmission" unsettable="true"
 	 * @generated
 	 */
 	LENS_MODE getLensMode();
@@ -1206,7 +1206,7 @@ public interface Region extends EObject {
 	 * @return the value of the '<em>Total Time</em>' attribute.
 	 * @see #setTotalTime(double)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_TotalTime()
-	 * @model default="0.0"
+	 * @model default="0.0" transient="true"
 	 * @generated
 	 */
 	double getTotalTime();

@@ -19,14 +19,14 @@ import org.eclipse.emf.common.util.Enumerator;
  */
 public enum LENS_MODE implements Enumerator {
 	/**
-	 * The '<em><b>TRANSMISSION</b></em>' literal object.
+	 * The '<em><b>Transmission</b></em>' literal object.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @see #TRANSMISSION_VALUE
 	 * @generated
 	 * @ordered
 	 */
-	TRANSMISSION(0, "TRANSMISSION", "TRANSMISSION"),
+	TRANSMISSION(0, "Transmission", "Transmission"),
 
 	/**
 	 * The '<em><b>Angular45</b></em>' literal object.
@@ -49,7 +49,7 @@ public enum LENS_MODE implements Enumerator {
 	ANGULAR60(2, "Angular60", "Angular60");
 
 	/**
-	 * The '<em><b>TRANSMISSION</b></em>' literal value.
+	 * The '<em><b>Transmission</b></em>' literal value.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of '<em><b>TRANSMISSION</b></em>' literal object isn't clear,
@@ -57,7 +57,7 @@ public enum LENS_MODE implements Enumerator {
 	 * </p>
 	 * <!-- end-user-doc -->
 	 * @see #TRANSMISSION
-	 * @model
+	 * @model name="Transmission"
 	 * @generated
 	 * @ordered
 	 */

@@ -38,7 +38,7 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         defaultValueLiteral="New Region" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="lensMode" eType="#//LENS_MODE"
-        defaultValueLiteral="TRANSMISSION" unsettable="true"/>
+        defaultValueLiteral="Transmission" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="passEnergy" eType="#//PASS_ENERGY"
         defaultValueLiteral="10" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="runMode" eType="#//RunMode"
@@ -78,10 +78,10 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="totalSteps" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
         transient="true" defaultValueLiteral="0"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="totalTime" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"
-        defaultValueLiteral="0.0"/>
+        transient="true" defaultValueLiteral="0.0"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EEnum" name="LENS_MODE">
-    <eLiterals name="TRANSMISSION"/>
+    <eLiterals name="Transmission"/>
     <eLiterals name="Angular45" value="1"/>
     <eLiterals name="Angular60" value="2"/>
   </eClassifiers>

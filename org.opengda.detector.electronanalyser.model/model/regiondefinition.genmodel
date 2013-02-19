@@ -11,7 +11,7 @@
       resource="XML" disposableProviderFactory="true" loadInitialization="true" interfacePackageSuffix="api"
       metaDataPackageSuffix="api" contentTypeIdentifier="" ecorePackage="regiondefinition.ecore#/">
     <genEnums typeSafeEnumCompatible="false" ecoreEnum="regiondefinition.ecore#//LENS_MODE">
-      <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//LENS_MODE/TRANSMISSION"/>
+      <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//LENS_MODE/Transmission"/>
       <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//LENS_MODE/Angular45"/>
       <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//LENS_MODE/Angular60"/>
     </genEnums>
