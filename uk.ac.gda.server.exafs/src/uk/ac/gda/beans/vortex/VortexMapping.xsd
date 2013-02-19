@@ -1,26 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-	<!-- N.B. this stuff breaks Xerlin
- targetNamespace="http://www.dl.ac.uk/GDASchema" xmlns="http://www.dl.ac.uk/GDASchema">
- -->
+	<!-- N.B. this stuff breaks Xerlin targetNamespace="http://www.dl.ac.uk/GDASchema" 
+		xmlns="http://www.dl.ac.uk/GDASchema"> -->
 	<xsd:element name="VortexParameters">
 		<xsd:complexType>
 			<xsd:sequence>
-				<xsd:element name="detectorName"   type="xsd:string" maxOccurs="1" minOccurs="1"/>
-				<xsd:element name="tfgName"        type="xsd:string" maxOccurs="1" minOccurs="1"/>
-				<xsd:element name="countType"      type="xsd:string" maxOccurs="1" minOccurs="0"/>
-				<xsd:element name="collectionTime" type="xsd:double" maxOccurs="1" minOccurs="0"/>
-				<xsd:element name="DetectorElement" maxOccurs="unbounded" minOccurs="1" />
-				<xsd:element name="deadTime"       type="xsd:double" maxOccurs="1" minOccurs="0"/>
-				<xsd:element name="saveRawSpectrum" type="xsd:boolean" maxOccurs="1" minOccurs="0" />
+				<xsd:element name="detectorName" type="xsd:string"
+					maxOccurs="1" minOccurs="1" />
+				<xsd:element name="tfgName" type="xsd:string" maxOccurs="1"
+					minOccurs="1" />
+				<xsd:element name="countType" type="xsd:string"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="collectionTime" type="xsd:double"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="DetectorElement" maxOccurs="unbounded"
+					minOccurs="1" />
+				<xsd:element name="saveRawSpectrum" type="xsd:boolean"
+					maxOccurs="1" minOccurs="0" />
 			</xsd:sequence>
 		</xsd:complexType>
 	</xsd:element>
-	
+
 	<xsd:element name="VortexDeadTimeParameters">
 		<xsd:complexType>
-			<xsd:sequence>				
-				<xsd:element name="DetectorDeadTimeElement" maxOccurs="unbounded" minOccurs="1" />
+			<xsd:sequence>
+				<xsd:element name="DetectorDeadTimeElement" maxOccurs="unbounded"
+					minOccurs="1" />
 			</xsd:sequence>
 		</xsd:complexType>
 	</xsd:element>
@@ -28,36 +33,49 @@
 	<xsd:element name="DetectorElement">
 		<xsd:complexType>
 			<xsd:sequence>
-				<xsd:element name="name" type="xsd:string" maxOccurs="1" minOccurs="1"/>
-				<xsd:element name="number" type="xsd:integer" maxOccurs="1" minOccurs="1"/>
+				<xsd:element name="name" type="xsd:string" maxOccurs="1"
+					minOccurs="1" />
+				<xsd:element name="number" type="xsd:integer" maxOccurs="1"
+					minOccurs="1" />
 				<xsd:element name="ROI" maxOccurs="unbounded" minOccurs="0" />
-				<xsd:element name="gain" type="xsd:double" maxOccurs="1" minOccurs="1"/>
-				<xsd:element name="peakingTime" type="xsd:double" maxOccurs="1" minOccurs="0"/>
-				<xsd:element name="offset" type="xsd:double" maxOccurs="1" minOccurs="1"/>
-				<xsd:element name="excluded" type="xsd:boolean" maxOccurs="1" minOccurs="0"/>
+				<xsd:element name="gain" type="xsd:double" maxOccurs="1"
+					minOccurs="1" />
+				<xsd:element name="peakingTime" type="xsd:double"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="offset" type="xsd:double" maxOccurs="1"
+					minOccurs="1" />
+				<xsd:element name="excluded" type="xsd:boolean"
+					maxOccurs="1" minOccurs="0" />
 			</xsd:sequence>
 		</xsd:complexType>
 	</xsd:element>
-	
+
 	<xsd:element name="DetectorDeadTimeElement">
 		<xsd:complexType>
 			<xsd:sequence>
-				<xsd:element name="name" type="xsd:string" maxOccurs="1" minOccurs="1"/>
-				<xsd:element name="number" type="xsd:integer" maxOccurs="1" minOccurs="1"/>
-				<xsd:element name="processDeadTimeAllEvent" type="xsd:double" maxOccurs="1" minOccurs="1"/>
-				<xsd:element name="processDeadTimeInWindow" type="xsd:double" maxOccurs="1" minOccurs="1"/>
+				<xsd:element name="name" type="xsd:string" maxOccurs="1"
+					minOccurs="1" />
+				<xsd:element name="number" type="xsd:integer" maxOccurs="1"
+					minOccurs="1" />
+				<xsd:element name="processDeadTimeAllEvent" type="xsd:double"
+					maxOccurs="1" minOccurs="1" />
+				<xsd:element name="processDeadTimeInWindow" type="xsd:double"
+					maxOccurs="1" minOccurs="1" />
 			</xsd:sequence>
 		</xsd:complexType>
 	</xsd:element>
 	<xsd:element name="ROI">
 		<xsd:complexType>
 			<xsd:sequence>
-				<xsd:element name="name" type="xsd:string" maxOccurs="1" minOccurs="1"/>
-				<xsd:element name="windowStart" type="xsd:integer" maxOccurs="1" minOccurs="1"/>
-				<xsd:element name="windowEnd" type="xsd:integer" maxOccurs="1" minOccurs="1"/>
+				<xsd:element name="name" type="xsd:string" maxOccurs="1"
+					minOccurs="1" />
+				<xsd:element name="windowStart" type="xsd:integer"
+					maxOccurs="1" minOccurs="1" />
+				<xsd:element name="windowEnd" type="xsd:integer"
+					maxOccurs="1" minOccurs="1" />
 			</xsd:sequence>
 		</xsd:complexType>
 	</xsd:element>
-	
+
 </xsd:schema>
 	

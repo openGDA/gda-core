@@ -36,7 +36,6 @@ public class VortexParameters implements Serializable, IRichBean {
 	private List<DetectorElement> detectorList;
 	private String countType;
 	private double collectionTime;
-	private double deadTime;
 	private ElementCountsData[] data;
 	private String detectorName;
 	private String tfgName;
@@ -88,8 +87,6 @@ public class VortexParameters implements Serializable, IRichBean {
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + ((countType == null) ? 0 : countType.hashCode());
 		result = prime * result + Arrays.hashCode(data);
-		temp = Double.doubleToLongBits(deadTime);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + ((detectorList == null) ? 0 : detectorList.hashCode());
 		result = prime * result + ((detectorName == null) ? 0 : detectorName.hashCode());
 		result = prime * result + ((tfgName == null) ? 0 : tfgName.hashCode());
@@ -119,9 +116,6 @@ public class VortexParameters implements Serializable, IRichBean {
 			return false;
 		}
 		if (!Arrays.equals(data, other.data)) {
-			return false;
-		}
-		if (Double.doubleToLongBits(deadTime) != Double.doubleToLongBits(other.deadTime)) {
 			return false;
 		}
 		if (detectorList == null) {
@@ -173,14 +167,6 @@ public class VortexParameters implements Serializable, IRichBean {
 		this.collectionTime = collectionTime;
 	}
 
-	public double getDeadTime() {
-		return deadTime;
-	}
-
-	public void setDeadTime(double deadTime) {
-		this.deadTime = deadTime;
-	}
-
 	public void setData(ElementCountsData[] data) {
 		this.data = data;
 	}
@@ -204,7 +190,7 @@ public class VortexParameters implements Serializable, IRichBean {
 	public void setTfgName(String tfgName) {
 		this.tfgName = tfgName;
 	}
-	
+
 	public void setSaveRawSpectrum(boolean saveRawSpectrum) {
 		this.saveRawSpectrum = saveRawSpectrum;
 	}
@@ -212,30 +198,29 @@ public class VortexParameters implements Serializable, IRichBean {
 	public boolean isSaveRawSpectrum() {
 		return saveRawSpectrum;
 	}
-	
+
 	/**
-	  * Copy constructor.
-	  */
-	  public VortexParameters(VortexParameters vp) {
-		  setDetectorName(vp.detectorName);
-		  setCountType(vp.countType);
-		  setSaveRawSpectrum(vp.saveRawSpectrum);
-		  setCollectionTime(vp.collectionTime);
-			
-		  Vector<DetectorElement> des= new Vector<DetectorElement>();
-		  for(DetectorElement d: vp.getDetectorList()){
-			  des.add(new DetectorElement(d));
-		  }
-		  setDetectorList(des);
-		  setDeadTime(vp.deadTime);
-		  setTfgName(vp.tfgName);
-	  }
+	 * Copy constructor.
+	 */
+	public VortexParameters(VortexParameters vp) {
+		setDetectorName(vp.detectorName);
+		setCountType(vp.countType);
+		setSaveRawSpectrum(vp.saveRawSpectrum);
+		setCollectionTime(vp.collectionTime);
+
+		Vector<DetectorElement> des = new Vector<DetectorElement>();
+		for (DetectorElement d : vp.getDetectorList()) {
+			des.add(new DetectorElement(d));
+		}
+		setDetectorList(des);
+		setTfgName(vp.tfgName);
+	}
 
 	public List<RegionOfInterest> getRois() {
 		List<RegionOfInterest> list = new Vector<RegionOfInterest>();
-		for(DetectorElement d:getDetectorList()){
+		for (DetectorElement d : getDetectorList()) {
 			list.addAll(d.getRegionList());
 		}
 		return list;
-	}	
+	}
 }

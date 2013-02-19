@@ -404,7 +404,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 					getDetectorElementComposite().setEndMaximum(detectorData[0][0].length - 1);
 					plot(getDetectorList().getSelectedIndex());
 					setEnabled(true);
-					getDeadTime().setValue(deadTimeFinal);
+					deadTimeLabel.setValue(deadTimeFinal);
 					lblDeadTime.setVisible(true);
 					deadTimeLabel.setVisible(true);
 					sashPlotForm.getLeft().layout();
@@ -517,10 +517,6 @@ public class VortexParametersUIEditor extends DetectorEditor {
 
 	public ScaleBox getCollectionTime() {
 		return acquireTime;
-	}
-
-	public LabelWrapper getDeadTime() {
-		return deadTimeLabel;
 	}
 
 	public ComboWrapper getCountType() {

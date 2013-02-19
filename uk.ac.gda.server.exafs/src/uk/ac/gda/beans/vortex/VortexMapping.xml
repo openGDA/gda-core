@@ -18,9 +18,6 @@
 			collection="collection" set-method="addDetectorElement" get-method="getDetectorList">
 			<bind-xml name="DetectorElement" node="element"/>
 		</field>
-		<field name="deadTime" type="double">
-			<bind-xml name="deadTime" node="element"/>
-		</field>
 		<field name="saveRawSpectrum" type="boolean">
 			<bind-xml name="saveRawSpectrum" node="element" />
 		</field>
