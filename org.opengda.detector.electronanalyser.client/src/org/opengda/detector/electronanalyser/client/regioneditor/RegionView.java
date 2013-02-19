@@ -35,6 +35,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.opengda.detector.electronanalyser.client.RegionDefinitionResourceUtil;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.LENS_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.PASS_ENERGY;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.RUN_MODES;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
 import org.slf4j.Logger;
@@ -491,9 +492,7 @@ public class RegionView extends ViewPart {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					if (e.getSource().equals(btnHard)) {
-						updateFeature(RegiondefinitionPackage.eINSTANCE
-								.getRegion_ExcitationEnergy(), txtHardEnergy
-								.getText());
+						updateExcitationEnergy(txtHardEnergy);
 					}
 				}
 			});
@@ -505,9 +504,7 @@ public class RegionView extends ViewPart {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					if (e.getSource().equals(btnSoft)) {
-						updateFeature(RegiondefinitionPackage.eINSTANCE
-								.getRegion_ExcitationEnergy(), txtSoftEnergy
-								.getText());
+						updateExcitationEnergy(txtSoftEnergy);
 					}
 				}
 			});
@@ -703,7 +700,7 @@ public class RegionView extends ViewPart {
 				// only update if txtSize is changed by others, not itself.
 				updateFeature(
 						RegiondefinitionPackage.eINSTANCE.getRegion_StepTime(),
-						txtSize.getText());
+						Double.parseDouble(txtSize.getText()));
 				updateTotalSteps();
 			}
 		}
@@ -715,7 +712,7 @@ public class RegionView extends ViewPart {
 				updateTotalTime();
 				updateFeature(
 						RegiondefinitionPackage.eINSTANCE.getRegion_StepTime(),
-						txtTime.getText());
+						Double.parseDouble(txtTime.getText()));
 			}
 		}
 	};
@@ -765,7 +762,7 @@ public class RegionView extends ViewPart {
 			if (e.getSource().equals(runMode)) {
 				updateFeature(
 						RegiondefinitionPackage.eINSTANCE.getRegion_RunMode(),
-						runMode.getText());
+						RUN_MODES.getByName(runMode.getText()));
 			}
 		}
 	};
@@ -932,6 +929,9 @@ public class RegionView extends ViewPart {
 					"%.3f",
 					Double.parseDouble(txtMinimumTime.getText())
 							* Integer.parseInt(spinnerFrames.getText())));
+			updateFeature(
+					RegiondefinitionPackage.eINSTANCE.getRegion_StepTime(),
+					Double.parseDouble(txtTime.getText()));
 		}
 	}
 
@@ -952,7 +952,7 @@ public class RegionView extends ViewPart {
 				updateFeature(
 						RegiondefinitionPackage.eINSTANCE
 								.getRegion_EnergyStep(),
-						txtSize.getText());
+						Double.parseDouble(txtSize.getText()));
 			}
 		}
 	}
@@ -975,7 +975,7 @@ public class RegionView extends ViewPart {
 			}
 			updateFeature(
 					RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(),
-					txtSize.getText());
+					Double.parseDouble(txtSize.getText()));
 			// set Total steps
 			// TODO set to EPICS size PV to get total size update
 			updateTotalSteps();
@@ -988,7 +988,7 @@ public class RegionView extends ViewPart {
 				Double.parseDouble(txtTime.getText())
 						* Integer.parseInt(txtTotalSteps.getText())));
 		updateFeature(RegiondefinitionPackage.eINSTANCE.getRegion_TotalTime(),
-				txtTotalTime.getText());
+				Double.parseDouble(txtTotalTime.getText()));
 	}
 
 	private void updateTotalSteps() {
@@ -1001,7 +1001,7 @@ public class RegionView extends ViewPart {
 						/ Double.parseDouble(txtSize.getText())));
 		txtTotalSteps.setText(String.format("%d", M + N));
 		updateFeature(RegiondefinitionPackage.eINSTANCE.getRegion_TotalSteps(),
-				txtTotalSteps.getText());
+				Integer.parseInt(txtTotalSteps.getText()));
 	}
 
 	private SelectionAdapter timeSelectionListener = new SelectionAdapter() {
@@ -1021,7 +1021,7 @@ public class RegionView extends ViewPart {
 			updateTotalTime();
 			updateFeature(
 					RegiondefinitionPackage.eINSTANCE.getRegion_StepTime(),
-					txtTime.getText());
+					Double.parseDouble(txtTime.getText()));
 		}
 	}
 
@@ -1053,10 +1053,10 @@ public class RegionView extends ViewPart {
 			// update domain features
 			updateFeature(
 					RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(),
-					txtLow.getText());
+					Double.parseDouble(txtLow.getText()));
 			updateFeature(
 					RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(),
-					txtHigh.getText());
+					Double.parseDouble(txtHigh.getText()));
 		}
 	}
 
@@ -1074,9 +1074,9 @@ public class RegionView extends ViewPart {
 		}
 		// update domain features
 		updateFeature(RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(),
-				txtLow.getText());
+				Double.parseDouble(txtLow.getText()));
 		updateFeature(RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(),
-				txtHigh.getText());
+				Double.parseDouble(txtHigh.getText()));
 
 		double center = (Double.parseDouble(txtLow.getText()) + Double
 				.parseDouble(txtHigh.getText())) / 2;
@@ -1258,9 +1258,9 @@ public class RegionView extends ViewPart {
 		txtCenter.setText(String.format("%.4f",
 				(excitationEnergy - Double.parseDouble(txtCenter.getText()))));
 		updateFeature(RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(),
-				txtLow.getText());
+				Double.parseDouble(txtLow.getText()));
 		updateFeature(RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(),
-				txtHigh.getText());
+				Double.parseDouble(txtHigh.getText()));
 	}
 
 	@Override
@@ -1271,5 +1271,12 @@ public class RegionView extends ViewPart {
 			selService.removeSelectionListener(selectionListener);
 		}
 		super.dispose();
+	}
+
+	private void updateExcitationEnergy(Text txt) {
+		excitationEnergy = Double.parseDouble(txt
+				.getText());
+		updateFeature(RegiondefinitionPackage.eINSTANCE
+				.getRegion_ExcitationEnergy(), excitationEnergy);
 	}
 }
