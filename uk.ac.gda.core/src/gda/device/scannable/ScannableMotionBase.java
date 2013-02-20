@@ -53,8 +53,7 @@ public class ScannableMotionBase extends ScannableBase implements ScannableMotio
 	private List<PositionValidator> additionalPositionValidators = new ArrayList<PositionValidator>();
 
 	/**
-	 * Array of tolerance values. Used by the isAt() method. Can be set manually, or if applicable will be gathered from
-	 * the appropriate Epics RDBD field.
+	 * Array of tolerance values. Used by the isAt() method. Can be set manually via setTolerance or setTolerances.
 	 */
 	protected Double[] tolerance = null;
 
