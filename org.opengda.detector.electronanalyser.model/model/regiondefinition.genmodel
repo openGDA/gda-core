@@ -10,18 +10,13 @@
   <genPackages prefix="Regiondefinition" basePackage="org.opengda.detector.electronanalyser.model"
       resource="XML" disposableProviderFactory="true" loadInitialization="true" interfacePackageSuffix="api"
       metaDataPackageSuffix="api" contentTypeIdentifier="" ecorePackage="regiondefinition.ecore#/">
-    <genEnums typeSafeEnumCompatible="false" ecoreEnum="regiondefinition.ecore#//LENS_MODE">
-      <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//LENS_MODE/Transmission"/>
-      <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//LENS_MODE/Angular45"/>
-      <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//LENS_MODE/Angular60"/>
-    </genEnums>
     <genEnums ecoreEnum="regiondefinition.ecore#//RUN_MODES">
       <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//RUN_MODES/NORMAL"/>
       <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//RUN_MODES/ADD_DIMENSION"/>
     </genEnums>
-    <genEnums typeSafeEnumCompatible="false" ecoreEnum="regiondefinition.ecore#//ACQUIAITION_MODE">
-      <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//ACQUIAITION_MODE/SWEPT"/>
-      <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//ACQUIAITION_MODE/FIXED"/>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="regiondefinition.ecore#//ACQUISITION_MODE">
+      <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//ACQUISITION_MODE/SWEPT"/>
+      <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//ACQUISITION_MODE/FIXED"/>
     </genEnums>
     <genEnums typeSafeEnumCompatible="false" ecoreEnum="regiondefinition.ecore#//ENERGY_MODE">
       <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//ENERGY_MODE/KINETIC"/>
@@ -30,15 +25,6 @@
     <genEnums typeSafeEnumCompatible="false" ecoreEnum="regiondefinition.ecore#//DETECTOR_MODE">
       <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//DETECTOR_MODE/ADC"/>
       <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//DETECTOR_MODE/PULSE_COUNTING"/>
-    </genEnums>
-    <genEnums typeSafeEnumCompatible="false" ecoreEnum="regiondefinition.ecore#//PASS_ENERGY">
-      <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//PASS_ENERGY/_5"/>
-      <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//PASS_ENERGY/_10"/>
-      <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//PASS_ENERGY/_50"/>
-      <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//PASS_ENERGY/_75"/>
-      <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//PASS_ENERGY/_100"/>
-      <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//PASS_ENERGY/_200"/>
-      <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//PASS_ENERGY/_500"/>
     </genEnums>
     <genEnums typeSafeEnumCompatible="false" ecoreEnum="regiondefinition.ecore#//STATUS">
       <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//STATUS/READY"/>

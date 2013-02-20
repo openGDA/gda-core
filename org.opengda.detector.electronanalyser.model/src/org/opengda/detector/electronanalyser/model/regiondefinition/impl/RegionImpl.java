@@ -8,6 +8,7 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUIAITION_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.DETECTOR_MODE;
@@ -255,7 +256,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final ACQUIAITION_MODE ACQUISITION_MODE_EDEFAULT = ACQUIAITION_MODE.SWEPT;
+	protected static final ACQUISITION_MODE ACQUISITION_MODE_EDEFAULT = ACQUISITION_MODE.SWEPT;
 
 	/**
 	 * The cached value of the '{@link #getAcquisitionMode() <em>Acquisition Mode</em>}' attribute.
@@ -265,7 +266,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * @generated
 	 * @ordered
 	 */
-	protected ACQUIAITION_MODE acquisitionMode = ACQUISITION_MODE_EDEFAULT;
+	protected ACQUISITION_MODE acquisitionMode = ACQUISITION_MODE_EDEFAULT;
 
 	/**
 	 * This is true if the Acquisition Mode attribute has been set. <!--
@@ -1010,16 +1011,17 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
-	public ACQUIAITION_MODE getAcquisitionMode() {
+	public ACQUISITION_MODE getAcquisitionMode() {
 		return acquisitionMode;
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public void setAcquisitionMode(ACQUIAITION_MODE newAcquisitionMode) {
-		ACQUIAITION_MODE oldAcquisitionMode = acquisitionMode;
+	public void setAcquisitionMode(ACQUISITION_MODE newAcquisitionMode) {
+		ACQUISITION_MODE oldAcquisitionMode = acquisitionMode;
 		acquisitionMode = newAcquisitionMode == null ? ACQUISITION_MODE_EDEFAULT : newAcquisitionMode;
 		boolean oldAcquisitionModeESet = acquisitionModeESet;
 		acquisitionModeESet = true;
@@ -1032,7 +1034,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * @generated
 	 */
 	public void unsetAcquisitionMode() {
-		ACQUIAITION_MODE oldAcquisitionMode = acquisitionMode;
+		ACQUISITION_MODE oldAcquisitionMode = acquisitionMode;
 		boolean oldAcquisitionModeESet = acquisitionModeESet;
 		acquisitionMode = ACQUISITION_MODE_EDEFAULT;
 		acquisitionModeESet = false;
@@ -1851,7 +1853,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 				setExcitationEnergy((Double)newValue);
 				return;
 			case RegiondefinitionPackage.REGION__ACQUISITION_MODE:
-				setAcquisitionMode((ACQUIAITION_MODE)newValue);
+				setAcquisitionMode((ACQUISITION_MODE)newValue);
 				return;
 			case RegiondefinitionPackage.REGION__ENERGY_MODE:
 				setEnergyMode((ENERGY_MODE)newValue);

@@ -73,13 +73,6 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	private EEnum lenS_MODEEEnum = null;
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	private EEnum ruN_MODESEEnum = null;
 
 	/**
@@ -87,7 +80,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	private EEnum acquiaitioN_MODEEEnum = null;
+	private EEnum acquisitioN_MODEEEnum = null;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -102,13 +95,6 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * @generated
 	 */
 	private EEnum detectoR_MODEEEnum = null;
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	private EEnum pasS_ENERGYEEnum = null;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -525,7 +511,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 */
 	public EClass getRunMode() {
 		if (runModeEClass == null) {
-			runModeEClass = (EClass)EPackage.Registry.INSTANCE.getEPackage(RegiondefinitionPackage.eNS_URI).getEClassifiers().get(4);
+			runModeEClass = (EClass)EPackage.Registry.INSTANCE.getEPackage(RegiondefinitionPackage.eNS_URI).getEClassifiers().get(3);
 		}
 		return runModeEClass;
 	}
@@ -591,7 +577,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 */
 	public EClass getSpectrum() {
 		if (spectrumEClass == null) {
-			spectrumEClass = (EClass)EPackage.Registry.INSTANCE.getEPackage(RegiondefinitionPackage.eNS_URI).getEClassifiers().get(9);
+			spectrumEClass = (EClass)EPackage.Registry.INSTANCE.getEPackage(RegiondefinitionPackage.eNS_URI).getEClassifiers().get(8);
 		}
 		return spectrumEClass;
 	}
@@ -682,21 +668,9 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EEnum getLENS_MODE() {
-		if (lenS_MODEEEnum == null) {
-			lenS_MODEEEnum = (EEnum)EPackage.Registry.INSTANCE.getEPackage(RegiondefinitionPackage.eNS_URI).getEClassifiers().get(3);
-		}
-		return lenS_MODEEEnum;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	public EEnum getRUN_MODES() {
 		if (ruN_MODESEEnum == null) {
-			ruN_MODESEEnum = (EEnum)EPackage.Registry.INSTANCE.getEPackage(RegiondefinitionPackage.eNS_URI).getEClassifiers().get(5);
+			ruN_MODESEEnum = (EEnum)EPackage.Registry.INSTANCE.getEPackage(RegiondefinitionPackage.eNS_URI).getEClassifiers().get(4);
 		}
 		return ruN_MODESEEnum;
 	}
@@ -706,11 +680,11 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EEnum getACQUIAITION_MODE() {
-		if (acquiaitioN_MODEEEnum == null) {
-			acquiaitioN_MODEEEnum = (EEnum)EPackage.Registry.INSTANCE.getEPackage(RegiondefinitionPackage.eNS_URI).getEClassifiers().get(6);
+	public EEnum getACQUISITION_MODE() {
+		if (acquisitioN_MODEEEnum == null) {
+			acquisitioN_MODEEEnum = (EEnum)EPackage.Registry.INSTANCE.getEPackage(RegiondefinitionPackage.eNS_URI).getEClassifiers().get(5);
 		}
-		return acquiaitioN_MODEEEnum;
+		return acquisitioN_MODEEEnum;
 	}
 
 	/**
@@ -720,7 +694,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 */
 	public EEnum getENERGY_MODE() {
 		if (energY_MODEEEnum == null) {
-			energY_MODEEEnum = (EEnum)EPackage.Registry.INSTANCE.getEPackage(RegiondefinitionPackage.eNS_URI).getEClassifiers().get(7);
+			energY_MODEEEnum = (EEnum)EPackage.Registry.INSTANCE.getEPackage(RegiondefinitionPackage.eNS_URI).getEClassifiers().get(6);
 		}
 		return energY_MODEEEnum;
 	}
@@ -732,7 +706,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 */
 	public EEnum getDETECTOR_MODE() {
 		if (detectoR_MODEEEnum == null) {
-			detectoR_MODEEEnum = (EEnum)EPackage.Registry.INSTANCE.getEPackage(RegiondefinitionPackage.eNS_URI).getEClassifiers().get(8);
+			detectoR_MODEEEnum = (EEnum)EPackage.Registry.INSTANCE.getEPackage(RegiondefinitionPackage.eNS_URI).getEClassifiers().get(7);
 		}
 		return detectoR_MODEEEnum;
 	}
@@ -742,21 +716,9 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EEnum getPASS_ENERGY() {
-		if (pasS_ENERGYEEnum == null) {
-			pasS_ENERGYEEnum = (EEnum)EPackage.Registry.INSTANCE.getEPackage(RegiondefinitionPackage.eNS_URI).getEClassifiers().get(10);
-		}
-		return pasS_ENERGYEEnum;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	public EEnum getSTATUS() {
 		if (statusEEnum == null) {
-			statusEEnum = (EEnum)EPackage.Registry.INSTANCE.getEPackage(RegiondefinitionPackage.eNS_URI).getEClassifiers().get(11);
+			statusEEnum = (EEnum)EPackage.Registry.INSTANCE.getEPackage(RegiondefinitionPackage.eNS_URI).getEClassifiers().get(9);
 		}
 		return statusEEnum;
 	}

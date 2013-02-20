@@ -345,7 +345,7 @@ public interface Region extends EObject {
 	/**
 	 * Returns the value of the '<em><b>Acquisition Mode</b></em>' attribute.
 	 * The default value is <code>"SWEPT"</code>.
-	 * The literals are from the enumeration {@link org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUIAITION_MODE}.
+	 * The literals are from the enumeration {@link org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE}.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Acquisition Mode</em>' attribute isn't clear,
@@ -353,28 +353,28 @@ public interface Region extends EObject {
 	 * </p>
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Acquisition Mode</em>' attribute.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUIAITION_MODE
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE
 	 * @see #isSetAcquisitionMode()
 	 * @see #unsetAcquisitionMode()
-	 * @see #setAcquisitionMode(ACQUIAITION_MODE)
+	 * @see #setAcquisitionMode(ACQUISITION_MODE)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_AcquisitionMode()
 	 * @model default="SWEPT" unsettable="true"
 	 * @generated
 	 */
-	ACQUIAITION_MODE getAcquisitionMode();
+	ACQUISITION_MODE getAcquisitionMode();
 
 	/**
 	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getAcquisitionMode <em>Acquisition Mode</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @param value the new value of the '<em>Acquisition Mode</em>' attribute.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUIAITION_MODE
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE
 	 * @see #isSetAcquisitionMode()
 	 * @see #unsetAcquisitionMode()
 	 * @see #getAcquisitionMode()
 	 * @generated
 	 */
-	void setAcquisitionMode(ACQUIAITION_MODE value);
+	void setAcquisitionMode(ACQUISITION_MODE value);
 
 	/**
 	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getAcquisitionMode <em>Acquisition Mode</em>}' attribute.
@@ -382,7 +382,7 @@ public interface Region extends EObject {
 	 * <!-- end-user-doc -->
 	 * @see #isSetAcquisitionMode()
 	 * @see #getAcquisitionMode()
-	 * @see #setAcquisitionMode(ACQUIAITION_MODE)
+	 * @see #setAcquisitionMode(ACQUISITION_MODE)
 	 * @generated
 	 */
 	void unsetAcquisitionMode();
@@ -394,7 +394,7 @@ public interface Region extends EObject {
 	 * @return whether the value of the '<em>Acquisition Mode</em>' attribute is set.
 	 * @see #unsetAcquisitionMode()
 	 * @see #getAcquisitionMode()
-	 * @see #setAcquisitionMode(ACQUIAITION_MODE)
+	 * @see #setAcquisitionMode(ACQUISITION_MODE)
 	 * @generated
 	 */
 	boolean isSetAcquisitionMode();

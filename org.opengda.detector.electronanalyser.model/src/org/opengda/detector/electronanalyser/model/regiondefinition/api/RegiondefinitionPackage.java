@@ -593,16 +593,6 @@ public interface RegiondefinitionPackage extends EPackage {
 	int SPECTRUM_FEATURE_COUNT = 9;
 
 	/**
-	 * The meta object id for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.PASS_ENERGY <em>PASS ENERGY</em>}' enum.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.PASS_ENERGY
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegiondefinitionPackageImpl#getPASS_ENERGY()
-	 * @generated
-	 */
-	int PASS_ENERGY = 10;
-
-	/**
 	 * The meta object id for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS <em>STATUS</em>}' enum.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -610,17 +600,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegiondefinitionPackageImpl#getSTATUS()
 	 * @generated
 	 */
-	int STATUS = 11;
-
-	/**
-	 * The meta object id for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.LENS_MODE <em>LENS MODE</em>}' enum.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.LENS_MODE
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegiondefinitionPackageImpl#getLENS_MODE()
-	 * @generated
-	 */
-	int LENS_MODE = 5;
+	int STATUS = 9;
 
 	/**
 	 * The meta object id for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.RUN_MODES <em>RUN MODES</em>}' enum.
@@ -630,17 +610,17 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegiondefinitionPackageImpl#getRUN_MODES()
 	 * @generated
 	 */
-	int RUN_MODES = 6;
+	int RUN_MODES = 5;
 
 	/**
-	 * The meta object id for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUIAITION_MODE <em>ACQUIAITION MODE</em>}' enum.
+	 * The meta object id for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE <em>ACQUISITION MODE</em>}' enum.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUIAITION_MODE
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegiondefinitionPackageImpl#getACQUIAITION_MODE()
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegiondefinitionPackageImpl#getACQUISITION_MODE()
 	 * @generated
 	 */
-	int ACQUIAITION_MODE = 7;
+	int ACQUISITION_MODE = 6;
 
 	/**
 	 * The meta object id for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE <em>ENERGY MODE</em>}' enum.
@@ -650,7 +630,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegiondefinitionPackageImpl#getENERGY_MODE()
 	 * @generated
 	 */
-	int ENERGY_MODE = 8;
+	int ENERGY_MODE = 7;
 
 	/**
 	 * The meta object id for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.DETECTOR_MODE <em>DETECTOR MODE</em>}' enum.
@@ -660,7 +640,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegiondefinitionPackageImpl#getDETECTOR_MODE()
 	 * @generated
 	 */
-	int DETECTOR_MODE = 9;
+	int DETECTOR_MODE = 8;
 
 
 	/**
@@ -1253,16 +1233,6 @@ public interface RegiondefinitionPackage extends EPackage {
 	EAttribute getSpectrum_Comments();
 
 	/**
-	 * Returns the meta object for enum '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.LENS_MODE <em>LENS MODE</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for enum '<em>LENS MODE</em>'.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.LENS_MODE
-	 * @generated
-	 */
-	EEnum getLENS_MODE();
-
-	/**
 	 * Returns the meta object for enum '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.RUN_MODES <em>RUN MODES</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -1273,14 +1243,14 @@ public interface RegiondefinitionPackage extends EPackage {
 	EEnum getRUN_MODES();
 
 	/**
-	 * Returns the meta object for enum '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUIAITION_MODE <em>ACQUIAITION MODE</em>}'.
+	 * Returns the meta object for enum '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE <em>ACQUISITION MODE</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for enum '<em>ACQUIAITION MODE</em>'.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUIAITION_MODE
+	 * @return the meta object for enum '<em>ACQUISITION MODE</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE
 	 * @generated
 	 */
-	EEnum getACQUIAITION_MODE();
+	EEnum getACQUISITION_MODE();
 
 	/**
 	 * Returns the meta object for enum '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE <em>ENERGY MODE</em>}'.
@@ -1301,16 +1271,6 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 */
 	EEnum getDETECTOR_MODE();
-
-	/**
-	 * Returns the meta object for enum '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.PASS_ENERGY <em>PASS ENERGY</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for enum '<em>PASS ENERGY</em>'.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.PASS_ENERGY
-	 * @generated
-	 */
-	EEnum getPASS_ENERGY();
 
 	/**
 	 * Returns the meta object for enum '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS <em>STATUS</em>}'.
@@ -1787,16 +1747,6 @@ public interface RegiondefinitionPackage extends EPackage {
 		EAttribute SPECTRUM__COMMENTS = eINSTANCE.getSpectrum_Comments();
 
 		/**
-		 * The meta object literal for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.PASS_ENERGY <em>PASS ENERGY</em>}' enum.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.PASS_ENERGY
-		 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegiondefinitionPackageImpl#getPASS_ENERGY()
-		 * @generated
-		 */
-		EEnum PASS_ENERGY = eINSTANCE.getPASS_ENERGY();
-
-		/**
 		 * The meta object literal for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS <em>STATUS</em>}' enum.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
@@ -1805,16 +1755,6 @@ public interface RegiondefinitionPackage extends EPackage {
 		 * @generated
 		 */
 		EEnum STATUS = eINSTANCE.getSTATUS();
-
-		/**
-		 * The meta object literal for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.LENS_MODE <em>LENS MODE</em>}' enum.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.LENS_MODE
-		 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegiondefinitionPackageImpl#getLENS_MODE()
-		 * @generated
-		 */
-		EEnum LENS_MODE = eINSTANCE.getLENS_MODE();
 
 		/**
 		 * The meta object literal for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.RUN_MODES <em>RUN MODES</em>}' enum.
@@ -1827,14 +1767,14 @@ public interface RegiondefinitionPackage extends EPackage {
 		EEnum RUN_MODES = eINSTANCE.getRUN_MODES();
 
 		/**
-		 * The meta object literal for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUIAITION_MODE <em>ACQUIAITION MODE</em>}' enum.
+		 * The meta object literal for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE <em>ACQUISITION MODE</em>}' enum.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
-		 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUIAITION_MODE
-		 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegiondefinitionPackageImpl#getACQUIAITION_MODE()
+		 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE
+		 * @see org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegiondefinitionPackageImpl#getACQUISITION_MODE()
 		 * @generated
 		 */
-		EEnum ACQUIAITION_MODE = eINSTANCE.getACQUIAITION_MODE();
+		EEnum ACQUISITION_MODE = eINSTANCE.getACQUISITION_MODE();
 
 		/**
 		 * The meta object literal for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE <em>ENERGY MODE</em>}' enum.

@@ -75,18 +75,14 @@ public class RegiondefinitionFactoryImpl extends EFactoryImpl implements Regiond
 	@Override
 	public Object createFromString(EDataType eDataType, String initialValue) {
 		switch (eDataType.getClassifierID()) {
-			case RegiondefinitionPackage.LENS_MODE:
-				return createLENS_MODEFromString(eDataType, initialValue);
 			case RegiondefinitionPackage.RUN_MODES:
 				return createRUN_MODESFromString(eDataType, initialValue);
-			case RegiondefinitionPackage.ACQUIAITION_MODE:
-				return createACQUIAITION_MODEFromString(eDataType, initialValue);
+			case RegiondefinitionPackage.ACQUISITION_MODE:
+				return createACQUISITION_MODEFromString(eDataType, initialValue);
 			case RegiondefinitionPackage.ENERGY_MODE:
 				return createENERGY_MODEFromString(eDataType, initialValue);
 			case RegiondefinitionPackage.DETECTOR_MODE:
 				return createDETECTOR_MODEFromString(eDataType, initialValue);
-			case RegiondefinitionPackage.PASS_ENERGY:
-				return createPASS_ENERGYFromString(eDataType, initialValue);
 			case RegiondefinitionPackage.STATUS:
 				return createSTATUSFromString(eDataType, initialValue);
 			default:
@@ -102,18 +98,14 @@ public class RegiondefinitionFactoryImpl extends EFactoryImpl implements Regiond
 	@Override
 	public String convertToString(EDataType eDataType, Object instanceValue) {
 		switch (eDataType.getClassifierID()) {
-			case RegiondefinitionPackage.LENS_MODE:
-				return convertLENS_MODEToString(eDataType, instanceValue);
 			case RegiondefinitionPackage.RUN_MODES:
 				return convertRUN_MODESToString(eDataType, instanceValue);
-			case RegiondefinitionPackage.ACQUIAITION_MODE:
-				return convertACQUIAITION_MODEToString(eDataType, instanceValue);
+			case RegiondefinitionPackage.ACQUISITION_MODE:
+				return convertACQUISITION_MODEToString(eDataType, instanceValue);
 			case RegiondefinitionPackage.ENERGY_MODE:
 				return convertENERGY_MODEToString(eDataType, instanceValue);
 			case RegiondefinitionPackage.DETECTOR_MODE:
 				return convertDETECTOR_MODEToString(eDataType, instanceValue);
-			case RegiondefinitionPackage.PASS_ENERGY:
-				return convertPASS_ENERGYToString(eDataType, instanceValue);
 			case RegiondefinitionPackage.STATUS:
 				return convertSTATUSToString(eDataType, instanceValue);
 			default:
@@ -176,26 +168,6 @@ public class RegiondefinitionFactoryImpl extends EFactoryImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public LENS_MODE createLENS_MODEFromString(EDataType eDataType, String initialValue) {
-		LENS_MODE result = LENS_MODE.get(initialValue);
-		if (result == null) throw new IllegalArgumentException("The value '" + initialValue + "' is not a valid enumerator of '" + eDataType.getName() + "'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		return result;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public String convertLENS_MODEToString(EDataType eDataType, Object instanceValue) {
-		return instanceValue == null ? null : instanceValue.toString();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	public RUN_MODES createRUN_MODESFromString(EDataType eDataType, String initialValue) {
 		RUN_MODES result = RUN_MODES.get(initialValue);
 		if (result == null) throw new IllegalArgumentException("The value '" + initialValue + "' is not a valid enumerator of '" + eDataType.getName() + "'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -216,8 +188,8 @@ public class RegiondefinitionFactoryImpl extends EFactoryImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public ACQUIAITION_MODE createACQUIAITION_MODEFromString(EDataType eDataType, String initialValue) {
-		ACQUIAITION_MODE result = ACQUIAITION_MODE.get(initialValue);
+	public ACQUISITION_MODE createACQUISITION_MODEFromString(EDataType eDataType, String initialValue) {
+		ACQUISITION_MODE result = ACQUISITION_MODE.get(initialValue);
 		if (result == null) throw new IllegalArgumentException("The value '" + initialValue + "' is not a valid enumerator of '" + eDataType.getName() + "'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		return result;
 	}
@@ -227,7 +199,7 @@ public class RegiondefinitionFactoryImpl extends EFactoryImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public String convertACQUIAITION_MODEToString(EDataType eDataType, Object instanceValue) {
+	public String convertACQUISITION_MODEToString(EDataType eDataType, Object instanceValue) {
 		return instanceValue == null ? null : instanceValue.toString();
 	}
 
@@ -268,26 +240,6 @@ public class RegiondefinitionFactoryImpl extends EFactoryImpl implements Regiond
 	 * @generated
 	 */
 	public String convertDETECTOR_MODEToString(EDataType eDataType, Object instanceValue) {
-		return instanceValue == null ? null : instanceValue.toString();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public PASS_ENERGY createPASS_ENERGYFromString(EDataType eDataType, String initialValue) {
-		PASS_ENERGY result = PASS_ENERGY.get(initialValue);
-		if (result == null) throw new IllegalArgumentException("The value '" + initialValue + "' is not a valid enumerator of '" + eDataType.getName() + "'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		return result;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public String convertPASS_ENERGYToString(EDataType eDataType, Object instanceValue) {
 		return instanceValue == null ? null : instanceValue.toString();
 	}
 
