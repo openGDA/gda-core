@@ -578,7 +578,8 @@ public class RegionView extends ViewPart {
 		txtWidth.setText(String.format("%.4f", (Double.parseDouble(txtHigh
 				.getText()) - Double.parseDouble(txtLow.getText()))));
 		txtFramesPerSecond.setText(String.format("%d", camera.getFrameRate()));
-		txtMinimumTime.setText(String.format("%f", 1.0 / camera.getFrameRate()));
+		txtMinimumTime
+				.setText(String.format("%f", 1.0 / camera.getFrameRate()));
 		txtMinimumSize.setText(String.format(
 				"%.3f",
 				camera.getEnergyResolution()
@@ -631,6 +632,7 @@ public class RegionView extends ViewPart {
 		}
 		// add listener after initialisation otherwise return 'empty String'
 		passEnergy.addSelectionListener(passEnerySelectionAdapter);
+		passEnergy.addModifyListener(passEnergyModifyListener);
 		btnSwept.addSelectionListener(sweptSelectionListener);
 		btnFixed.addSelectionListener(fixedSelectionListener);
 		txtLow.addSelectionListener(energySelectionListener);
@@ -865,12 +867,21 @@ public class RegionView extends ViewPart {
 							.equalsIgnoreCase("KINETIC"));
 					btnBinding.setSelection(region.getEnergyMode().getLiteral()
 							.equalsIgnoreCase("BINDING"));
+					if (btnKinetic.getSelection()) {
+						kineticSelected = true;
+						bindingSelected = false;
+					}
+					if (btnBinding.getSelection()) {
+						kineticSelected = false;
+						bindingSelected = true;
+					}
 					txtLow.setText(String.format("%.4f", region.getLowEnergy()));
 					txtHigh.setText(String.format("%.4f",
 							region.getHighEnergy()));
 					txtCenter.setText(String.format("%.4f",
 							region.getFixEnergy()));
-					txtLow.setText(String.format("%.4f", region.getLowEnergy()));
+					txtWidth.setText(String.format("%.4f",
+							(region.getHighEnergy() - region.getLowEnergy())));
 					txtTime.setText(String.format("%.3f", region.getStepTime()));
 					txtSize.setText(String.format("%.3f",
 							region.getEnergyStep()));
@@ -900,6 +911,12 @@ public class RegionView extends ViewPart {
 
 		@Override
 		public void widgetDefaultSelected(SelectionEvent e) {
+			Object source = e.getSource();
+			onModifyPassEnergy(source);
+		}
+	};
+	private ModifyListener passEnergyModifyListener = new ModifyListener() {
+		public void modifyText(ModifyEvent e) {
 			Object source = e.getSource();
 			onModifyPassEnergy(source);
 		}
@@ -1008,7 +1025,8 @@ public class RegionView extends ViewPart {
 				/ Double.parseDouble(txtSize.getText()));
 		// calculate image overlapping number per data point
 		long N = (long) (Math
-				.ceil((Double.parseDouble(txtMinimumSize.getText()) * camera.getCameraXSize())
+				.ceil((Double.parseDouble(txtMinimumSize.getText()) * camera
+						.getCameraXSize())
 						/ Double.parseDouble(txtSize.getText())));
 		txtTotalSteps.setText(String.format("%d", M + N));
 		updateFeature(region,
@@ -1205,6 +1223,7 @@ public class RegionView extends ViewPart {
 			RegionDefinitionResourceUtil regionDefinition) {
 		this.regionDefinitionResourceUtil = regionDefinition;
 	}
+
 	public Camera getCamera() {
 		return camera;
 	}
