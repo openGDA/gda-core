@@ -161,7 +161,7 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 		// this method is for step scan readout and so it assumed that the data
 		// has been collected by the time this method is called
 
-		if (framesRead == controller.getNumFramesToAcquire()) {
+		if (framesRead == controller.getTotalFramesAvailable()) {
 			// we have run out of data! This method should not have been called.
 			// Problem in the logic somewhere.
 			throw new DeviceException("Cannot readout - no more data in buffer");
@@ -195,7 +195,7 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 			throw new DeviceException("Only " + numFramesAvailable + " frames available, cannot return frames "
 					+ firstFrame + " to " + lastFrame);
 		}
-
+		
 		// readout ROI in format [frame][detector channel][ROIs]
 		Double[][][] data = controller.readoutDTCorrectedROI(firstFrame, lastFrame, firstChannelToRead,
 				numberOfChannelsToRead + firstChannelToRead - 1);
@@ -222,11 +222,21 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector {
 			thisFrame.addData(detTree, sumLabel, new int[] { numberOfChannelsToRead }, NexusFile.NX_FLOAT64,
 					FFs[frame], unitsLabel, 1);			
 			for (int chan = 0; chan < numberOfChannelsToRead; chan++) {
-				thisFrame.setPlottableValue(extraNames[chan], FFs[frame][chan]);
+				thisFrame.setPlottableValue(getExtraNames()[chan], FFs[frame][chan]);
 			}
 			results[frame] = thisFrame;
 		}
 		return results;
+	}
+	
+	@Override
+	public String[] getExtraNames() {
+		// these are the plottable values. For this detector it is the FF for each channel
+		String[] extraNames = new String[numberOfChannelsToRead];
+		for (int i = 0; i < numberOfChannelsToRead; i++){
+			extraNames[i] = "Chan" + (firstChannelToRead + i);
+		}
+		return extraNames;
 	}
 
 	private Double sumArray(Double[] doubles) {

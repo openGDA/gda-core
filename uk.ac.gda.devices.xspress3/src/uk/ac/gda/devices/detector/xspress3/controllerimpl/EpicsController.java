@@ -35,18 +35,18 @@ public class EpicsController implements Xspress3Controller, Configurable, Findab
 
 	private String name;
 
-	private int numRoiToRead;
+	private int numRoiToRead = 1;
 
 	@Override
 	public void configure() throws FactoryException {
-		if (epicsTemplate == null || epicsTemplate.isEmpty()) { 
+		if (epicsTemplate == null || epicsTemplate.isEmpty()) {
 			throw new FactoryException("Epics template has not been set!");
 		}
 		pvProvider = new EpicsControllerPvProvider(epicsTemplate);
 
 		try {
-			int epicsConnectionToHardware = pvProvider.pvConnectionStatus.get();
-			if (epicsConnectionToHardware != 1) {
+			Boolean epicsConnectionToHardware = pvProvider.pvIsConnected.get();
+			if (epicsConnectionToHardware) {
 				logger.error("EPICS is not connected to underlying Xspress3 hardware.\\nConnect EPICS to Xspreess3 before doing any more in GDA.");
 			}
 		} catch (IOException e) {
@@ -67,6 +67,7 @@ public class EpicsController implements Xspress3Controller, Configurable, Findab
 	@Override
 	public void doStart() throws DeviceException {
 		try {
+			pvProvider.pvErase.putCallback(1);
 			pvProvider.pvAcquire.putCallback(1);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while starting acquisition", e);
@@ -212,13 +213,26 @@ public class EpicsController implements Xspress3Controller, Configurable, Findab
 	public int getStatus() throws DeviceException {
 		try {
 			XSPRESS3_EPICS_STATUS currentStatus = pvProvider.pvGetState.get();
-			if (currentStatus == XSPRESS3_EPICS_STATUS.Idle) {
+			if (currentStatus == XSPRESS3_EPICS_STATUS.Idle || currentStatus == XSPRESS3_EPICS_STATUS.Aborted) {
 				return Detector.IDLE;
 			}
-			if (currentStatus == XSPRESS3_EPICS_STATUS.Acquire) {
+			if (currentStatus == XSPRESS3_EPICS_STATUS.Error) {
+				return Detector.FAULT;
+			}
+			if (currentStatus == XSPRESS3_EPICS_STATUS.Acquire || currentStatus == XSPRESS3_EPICS_STATUS.Readout
+					|| currentStatus == XSPRESS3_EPICS_STATUS.Correct || currentStatus == XSPRESS3_EPICS_STATUS.Saving
+					|| currentStatus == XSPRESS3_EPICS_STATUS.Aborting) {
 				return Detector.BUSY;
 			}
-			return Detector.STANDBY;
+			if (currentStatus == XSPRESS3_EPICS_STATUS.Waiting) {
+				return Detector.PAUSED;
+			}
+			if (currentStatus == XSPRESS3_EPICS_STATUS.Initializing
+					|| currentStatus == XSPRESS3_EPICS_STATUS.Disconnected) {
+				return Detector.STANDBY;
+			}
+			// unknown
+			return Detector.FAULT;
 		} catch (IOException e) {
 			throw new DeviceException("IOException while getting state", e);
 		}
@@ -377,18 +391,24 @@ public class EpicsController implements Xspress3Controller, Configurable, Findab
 	@Override
 	public Double[][] readoutDTCorrectedSCA1(int startFrame, int finalFrame, int startChannel, int finalChannel)
 			throws DeviceException {
+		updateArrays();
+
 		return readDoubleWaveform(pvProvider.pvsScalerWindow1, startFrame, finalFrame, startChannel, finalChannel);
 	}
 
 	@Override
 	public Double[][] readoutDTCorrectedSCA2(int startFrame, int finalFrame, int startChannel, int finalChannel)
 			throws DeviceException {
+		updateArrays();
+
 		return readDoubleWaveform(pvProvider.pvsScalerWindow2, startFrame, finalFrame, startChannel, finalChannel);
 	}
 
 	@Override
 	public Integer[][][] readoutScalerValues(int startFrame, int finalFrame, int startChannel, int finalChannel)
 			throws DeviceException {
+		updateArrays();
+
 		// there are six types of scaler values to return
 		Integer[][][] returnValuesWrongOrder = new Integer[6][][]; // scaler
 																	// values,
@@ -440,8 +460,14 @@ public class EpicsController implements Xspress3Controller, Configurable, Findab
 	public Double[][][] readoutDTCorrectedROI(int startFrame, int finalFrame, int startChannel, int finalChannel)
 			throws DeviceException {
 
+		updateArrays();
+
 		try {
 			int numROIs = getNumberROIToRead();
+
+			if (numROIs == 0) {
+				throw new DeviceException("The number of ROI to readout has not been defined!");
+			}
 
 			Double[][][] valuesWrongOrder = new Double[numROIs][][];
 			for (int roi = 0; roi < numROIs; roi++) {
@@ -475,6 +501,8 @@ public class EpicsController implements Xspress3Controller, Configurable, Findab
 	@Override
 	public Double[][] readoutDTCorrectedLatestMCA(int startChannel, int finalChannel) throws DeviceException {
 
+		updateArrays();
+
 		Double[][] mcas = new Double[finalChannel - startChannel + 1][];
 		for (int i = startChannel; i <= finalChannel; i++) {
 			try {
@@ -485,9 +513,19 @@ public class EpicsController implements Xspress3Controller, Configurable, Findab
 		}
 		return mcas;
 	}
-	
+
+	private void updateArrays() throws DeviceException {
+		try {
+			pvProvider.pvUpdate.put(1);
+		} catch (IOException e) {
+			throw new DeviceException("IOException while updating Xspress3 arrays", e);
+		}
+	}
+
 	@Override
 	public Double[][] readoutDTCorrectedLatestSummedMCA(int startChannel, int finalChannel) throws DeviceException {
+
+		updateArrays();
 
 		Double[][] mcas = new Double[finalChannel - startChannel + 1][];
 		for (int i = startChannel; i <= finalChannel; i++) {
@@ -499,7 +537,6 @@ public class EpicsController implements Xspress3Controller, Configurable, Findab
 		}
 		return mcas;
 	}
-
 
 	@Override
 	public void setROILimits(int channel, int roiNumber, int[] lowHighMCAChannels) throws DeviceException {
