@@ -23,6 +23,7 @@ import gda.rcp.views.FindableExecutableExtension;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
+import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.RegionDefinitionResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,10 +37,7 @@ public class RegionViewFactory implements FindableExecutableExtension {
 	private String viewPartName;
 	private String name;
 	private RegionDefinitionResourceUtil regionDefinitionResourceUtil;
-	private int framerate;
-	private double energyresolution;
-	private int cameraXSize;
-	private int cameraYSize;
+	private Camera camera;
 	private ScannableMotor dcmenergy;
 	private ScannableMotor pgmenergy;
 
@@ -71,10 +69,7 @@ public class RegionViewFactory implements FindableExecutableExtension {
 		RegionView regionView = new RegionView();
 		regionView.setViewPartName(viewPartName);
 		regionView.setRegionDefinitionResourceUtil(regionDefinitionResourceUtil);
-		if (!(getCameraEnergyResolution()==0)) regionView.setCameraEnergyResolution(energyresolution);
-		if (!(getCameraFrameRate()==0)) regionView.setCameraFrameRate(framerate);
-		if (!(getCameraXSize()==0)) regionView.setCameraXSize(cameraXSize);
-		if (!(getCameraYSize()==0)) regionView.setCameraYSize(cameraYSize);
+		if (getCamera()!=null) regionView.setCamera(camera);
 		if (dcmenergy!=null) regionView.setDcmEnergy(dcmenergy);
 		if (pgmenergy!=null) regionView.setPgmEnergy(pgmenergy);
 		
@@ -89,40 +84,7 @@ public class RegionViewFactory implements FindableExecutableExtension {
 	@Override
 	public void afterPropertiesSet() throws Exception {
 	}
-	public void setCameraFrameRate(int rate) {
-		if (rate < 1) {
-			throw new IllegalArgumentException(
-					"Camera frame rate must be great than and equal to 1.");
-		}
-		this.framerate = rate;
-	}
 
-	public int getCameraFrameRate() {
-		return this.framerate;
-	}
-
-	public void setCameraEnergyResolution(double resolution) {
-		this.energyresolution = resolution;
-	}
-
-	public double getCameraEnergyResolution() {
-		return this.energyresolution;
-	}
-	public int getCameraXSize() {
-		return cameraXSize;
-	}
-
-	public void setCameraXSize(int detecterXSize) {
-		this.cameraXSize = detecterXSize;
-	}
-
-	public int getCameraYSize() {
-		return cameraYSize;
-	}
-
-	public void setCameraYSize(int detecterYSize) {
-		this.cameraYSize = detecterYSize;
-	}
 
 	public void setDcmEnergy(ScannableMotor energy) {
 		this.dcmenergy=energy;
@@ -135,6 +97,14 @@ public class RegionViewFactory implements FindableExecutableExtension {
 	}
 	public ScannableMotor getPgmEnergy() {
 		return this.pgmenergy;
+	}
+
+	public Camera getCamera() {
+		return camera;
+	}
+
+	public void setCamera(Camera camera) {
+		this.camera = camera;
 	}
 
 }

@@ -22,6 +22,7 @@ import gda.rcp.views.FindableExecutableExtension;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
+import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.RegionDefinitionResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,18 +31,20 @@ import org.slf4j.LoggerFactory;
  * Factory method that invokes the View object
  */
 public class SequenceViewFactory implements FindableExecutableExtension {
-	
+
 	private final Logger logger = LoggerFactory
 			.getLogger(SequenceViewFactory.class);
 	private String viewPartName;
 	private String name;
 	private RegionDefinitionResourceUtil regionDefinitionResourceUtil;
+	private Camera camera;
 
 	public String getViewPartName() {
 		return viewPartName;
 	}
 
-	public void setRegionDefinitionResourceUtil(RegionDefinitionResourceUtil regionDefinitionResourceUtil) {
+	public void setRegionDefinitionResourceUtil(
+			RegionDefinitionResourceUtil regionDefinitionResourceUtil) {
 		this.regionDefinitionResourceUtil = regionDefinitionResourceUtil;
 	}
 
@@ -64,11 +67,12 @@ public class SequenceViewFactory implements FindableExecutableExtension {
 		logger.info("Creating region editor view");
 		SequenceView sequenceView = new SequenceView();
 		sequenceView.setViewPartName(viewPartName);
-		sequenceView.setRegionDefinitionResourceUtil(regionDefinitionResourceUtil);
+		sequenceView
+				.setRegionDefinitionResourceUtil(regionDefinitionResourceUtil);
+		sequenceView.setCamera(camera);
 		return sequenceView;
 	}
 
-	
 	@Override
 	public void setInitializationData(IConfigurationElement config,
 			String propertyName, Object data) throws CoreException {
@@ -76,5 +80,13 @@ public class SequenceViewFactory implements FindableExecutableExtension {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
+	}
+
+	public Camera getCamera() {
+		return camera;
+	}
+
+	public void setCamera(Camera camera) {
+		this.camera = camera;
 	}
 }

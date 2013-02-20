@@ -33,6 +33,7 @@ import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.ISelectionService;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
+import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.RegionDefinitionResourceUtil;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.DETECTOR_MODE;
@@ -61,11 +62,7 @@ public class RegionView extends ViewPart {
 	}
 
 	private RegionDefinitionResourceUtil regionDefinitionResourceUtil;
-	private int framerate = 70;
-	private double energyresolution = 0.0877;
-	private int cameraXSize = 1024;
-	private int cameraYSize = 1024;
-
+	private Camera camera;
 	private Text txtMinimumSize;
 	private Combo passEnergy;
 	private Text txtTime;
@@ -350,7 +347,7 @@ public class RegionView extends ViewPart {
 				GridData.FILL_HORIZONTAL));
 		spinnerEnergyChannelFrom.setToolTipText("Low bound");
 		spinnerEnergyChannelFrom.setMinimum(1);
-		spinnerEnergyChannelFrom.setMaximum(getCameraXSize());
+		spinnerEnergyChannelFrom.setMaximum(camera.getCameraXSize());
 
 		Label lblEnergyChannelTo = new Label(grpDetector, SWT.NONE);
 		lblEnergyChannelTo.setText("To");
@@ -370,7 +367,7 @@ public class RegionView extends ViewPart {
 				GridData.FILL_HORIZONTAL));
 		spinnerEnergyChannelTo.setToolTipText("High bound");
 		spinnerEnergyChannelTo.setMinimum(1);
-		spinnerEnergyChannelTo.setMaximum(getCameraXSize());
+		spinnerEnergyChannelTo.setMaximum(camera.getCameraXSize());
 
 		Label lblYChannel = new Label(grpDetector, SWT.NONE);
 		lblYChannel.setText("Y Channels:");
@@ -393,7 +390,7 @@ public class RegionView extends ViewPart {
 				.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		spinnerYChannelFrom.setToolTipText("Low bound");
 		spinnerYChannelFrom.setMinimum(1);
-		spinnerYChannelFrom.setMaximum(getCameraYSize());
+		spinnerYChannelFrom.setMaximum(camera.getCameraYSize());
 
 		Label lblYChannelTo = new Label(grpDetector, SWT.NONE);
 		lblYChannelTo.setText("To");
@@ -412,7 +409,7 @@ public class RegionView extends ViewPart {
 		spinnerYChannelTo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		spinnerYChannelTo.setToolTipText("High bound");
 		spinnerYChannelTo.setMinimum(1);
-		spinnerYChannelTo.setMaximum(getCameraYSize());
+		spinnerYChannelTo.setMaximum(camera.getCameraYSize());
 
 		Label lblSclies = new Label(grpDetector, SWT.NONE);
 		lblSclies.setText("Slices:");
@@ -580,11 +577,11 @@ public class RegionView extends ViewPart {
 				.getText()) + Double.parseDouble(txtHigh.getText())) / 2));
 		txtWidth.setText(String.format("%.4f", (Double.parseDouble(txtHigh
 				.getText()) - Double.parseDouble(txtLow.getText()))));
-		txtFramesPerSecond.setText(String.format("%d", getCameraFrameRate()));
-		txtMinimumTime.setText(String.format("%f", 1.0 / getCameraFrameRate()));
+		txtFramesPerSecond.setText(String.format("%d", camera.getFrameRate()));
+		txtMinimumTime.setText(String.format("%f", 1.0 / camera.getFrameRate()));
 		txtMinimumSize.setText(String.format(
 				"%.3f",
-				getCameraEnergyResolution()
+				camera.getEnergyResolution()
 						* Integer.parseInt(passEnergy.getText())));
 		spinnerFrames.setMinimum(1);
 		spinnerFrames.setMaximum(1000);
@@ -599,8 +596,8 @@ public class RegionView extends ViewPart {
 				"%.3f",
 				Double.parseDouble(txtTime.getText())
 						* Double.parseDouble(txtTotalSteps.getText())));
-		spinnerEnergyChannelTo.setSelection(getCameraXSize());
-		spinnerYChannelTo.setSelection(getCameraYSize());
+		spinnerEnergyChannelTo.setSelection(camera.getCameraXSize());
+		spinnerYChannelTo.setSelection(camera.getCameraYSize());
 		spinnerSlices.setSelection(1);
 		btnADCMode.setSelection(true);
 		if (regionDefinitionResourceUtil.isSourceSelectable()) {
@@ -913,7 +910,7 @@ public class RegionView extends ViewPart {
 			String passEnergyFromCombo = passEnergy.getText();
 			int passEnergyIntValue = Integer.parseInt(passEnergyFromCombo);
 			txtMinimumSize.setText(String.format("%.3f",
-					getCameraEnergyResolution() * passEnergyIntValue));
+					camera.getEnergyResolution() * passEnergyIntValue));
 			updateFeature(region,
 					RegiondefinitionPackage.eINSTANCE.getRegion_PassEnergy(),
 					passEnergyIntValue);
@@ -1011,7 +1008,7 @@ public class RegionView extends ViewPart {
 				/ Double.parseDouble(txtSize.getText()));
 		// calculate image overlapping number per data point
 		long N = (long) (Math
-				.ceil((Double.parseDouble(txtMinimumSize.getText()) * getCameraXSize())
+				.ceil((Double.parseDouble(txtMinimumSize.getText()) * camera.getCameraXSize())
 						/ Double.parseDouble(txtSize.getText())));
 		txtTotalSteps.setText(String.format("%d", M + N));
 		updateFeature(region,
@@ -1208,41 +1205,12 @@ public class RegionView extends ViewPart {
 			RegionDefinitionResourceUtil regionDefinition) {
 		this.regionDefinitionResourceUtil = regionDefinition;
 	}
-
-	public void setCameraFrameRate(int rate) {
-		if (rate < 1) {
-			throw new IllegalArgumentException(
-					"Camera frame rate must be great than and equal to 1.");
-		}
-		this.framerate = rate;
+	public Camera getCamera() {
+		return camera;
 	}
 
-	public int getCameraFrameRate() {
-		return this.framerate;
-	}
-
-	public void setCameraEnergyResolution(double resolution) {
-		this.energyresolution = resolution;
-	}
-
-	public double getCameraEnergyResolution() {
-		return this.energyresolution;
-	}
-
-	public int getCameraXSize() {
-		return cameraXSize;
-	}
-
-	public void setCameraXSize(int detecterXSize) {
-		this.cameraXSize = detecterXSize;
-	}
-
-	public int getCameraYSize() {
-		return cameraYSize;
-	}
-
-	public void setCameraYSize(int detecterYSize) {
-		this.cameraYSize = detecterYSize;
+	public void setCamera(Camera camera) {
+		this.camera = camera;
 	}
 
 	public void setDcmEnergy(ScannableMotor energy) {

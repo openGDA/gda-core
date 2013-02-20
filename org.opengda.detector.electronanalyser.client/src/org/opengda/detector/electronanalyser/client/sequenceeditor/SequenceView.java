@@ -1,6 +1,5 @@
 package org.opengda.detector.electronanalyser.client.sequenceeditor;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -42,6 +41,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.ViewPart;
+import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.RegionDefinitionResourceUtil;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
@@ -49,7 +49,7 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.provider.Reg
 
 public class SequenceView extends ViewPart implements ISelectionProvider {
 	private List<ISelectionChangedListener> selectionChangedListeners;
-
+	private Camera camera;
 	public SequenceView() {
 		setTitleToolTip("Create a new or editing an existing sequence");
 		//setContentDescription("A view for editing sequence parameters");
@@ -534,5 +534,13 @@ public class SequenceView extends ViewPart implements ISelectionProvider {
 				.execute(rmCommand);
 
 		// getModel().eResource().save(null);
+	}
+
+	public Camera getCamera() {
+		return camera;
+	}
+
+	public void setCamera(Camera camera) {
+		this.camera = camera;
 	}
 }
