@@ -2,6 +2,7 @@ package uk.ac.gda.tomography.scan.editor;
 
 import gda.commandqueue.JythonCommandCommandProvider;
 import gda.configuration.properties.LocalProperties;
+import gda.util.FileUtil;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -78,11 +79,9 @@ public class ScanParameterView extends ViewPart {
 		editingDomain = new AdapterFactoryEditingDomain(adapterFactory,
 				commandStack);
 
-		String defaultScanParametersFilePath = ScanEditorPlugin.getPlugin()
-				.getPreferenceStore()
-				.getString("DefaultScanParametersFilePath");
 		ResourceSet resourceSet = editingDomain.getResourceSet();
-		if (!defaultScanParametersFilePath.isEmpty()) {
+		String defaultScanParametersFilePath = ScanParameterDialog.getDefaultScanParameterFilePath();
+		if (!defaultScanParametersFilePath.isEmpty()&& (new File(defaultScanParametersFilePath)).exists()) {
 			resourceSet.getResource(
 					URI.createFileURI(defaultScanParametersFilePath), true);
 		} else {
@@ -124,7 +123,10 @@ public class ScanParameterView extends ViewPart {
 					options.put(XMLResource.OPTION_KEEP_DEFAULT_CONTENT, true);
 					resource.save(os, options);
 					os.close();
-					
+					String defaultScanParametersFilePath = ScanParameterDialog.getDefaultScanParameterFilePath();
+					if( !defaultScanParametersFilePath.isEmpty())
+						FileUtil.copy(gridScanFileWithTime.getAbsolutePath(), defaultScanParametersFilePath);
+						
 					String command = "tomographyScan.ProcessScanParameters('" + gridScanFileWithTime.getAbsolutePath() + "')";
 					String jobLabel = "TomoScan Scan: "+x.getTitle();
 					

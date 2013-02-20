@@ -7,7 +7,6 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EContentAdapter;
 import org.eclipse.emf.edit.command.SetCommand;
 import org.eclipse.emf.edit.domain.AdapterFactoryEditingDomain;
-import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -353,13 +352,13 @@ public class ParametersComposite extends Composite {
 						} else if( feature.equals(ScanPackage.eINSTANCE.getParameters_InBeamPosition())){
 							inBeamX.setText(Double.toString(parameters.getInBeamPosition()));
 						} else if( feature.equals(ScanPackage.eINSTANCE.getParameters_ImagesPerDark())){
-							imagesPerDark.setText(Double.toString(parameters.getImagesPerDark()));
+							imagesPerDark.setText(Integer.toString(parameters.getImagesPerDark()));
 						} else if( feature.equals(ScanPackage.eINSTANCE.getParameters_DarkFieldInterval())){
-							darkFieldInterval.setText(Double.toString(parameters.getDarkFieldInterval()));
+							darkFieldInterval.setText(Integer.toString(parameters.getDarkFieldInterval()));
 						} else if( feature.equals(ScanPackage.eINSTANCE.getParameters_ImagesPerFlat())){
-							imagesPerFlat.setText(Double.toString(parameters.getImagesPerFlat()));
+							imagesPerFlat.setText(Integer.toString(parameters.getImagesPerFlat()));
 						} else if( feature.equals(ScanPackage.eINSTANCE.getParameters_FlatFieldInterval())){
-							flatFieldInterval.setText(Double.toString(parameters.getFlatFieldInterval()));
+							flatFieldInterval.setText(Integer.toString(parameters.getFlatFieldInterval()));
 						}
 					}
 						

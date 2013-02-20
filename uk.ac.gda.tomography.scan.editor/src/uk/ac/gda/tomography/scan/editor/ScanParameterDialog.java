@@ -2,6 +2,7 @@ package uk.ac.gda.tomography.scan.editor;
 
 import gda.commandqueue.JythonCommandCommandProvider;
 import gda.configuration.properties.LocalProperties;
+import gda.util.FileUtil;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -19,11 +20,11 @@ import org.eclipse.emf.edit.domain.AdapterFactoryEditingDomain;
 import org.eclipse.emf.edit.provider.ComposedAdapterFactory;
 import org.eclipse.emf.edit.provider.ReflectiveItemProviderAdapterFactory;
 import org.eclipse.emf.edit.provider.resource.ResourceItemProviderAdapterFactory;
-import org.eclipse.emf.edit.ui.action.ValidateAction;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -56,7 +57,6 @@ public class ScanParameterDialog extends Dialog {
 		GridDataFactory.fillDefaults().applyTo(cmp);
 		cmp.setLayout(new FormLayout());
 
-
 		ParametersComposite parametersComposite = new ParametersComposite(cmp);
 		parametersComposite.setLayoutData(new FormData());
 
@@ -73,11 +73,9 @@ public class ScanParameterDialog extends Dialog {
 		editingDomain = new AdapterFactoryEditingDomain(adapterFactory,
 				commandStack);
 
-		String defaultScanParametersFilePath = ScanEditorPlugin.getPlugin()
-				.getPreferenceStore()
-				.getString("DefaultScanParametersFilePath");
 		ResourceSet resourceSet = editingDomain.getResourceSet();
-		if (!defaultScanParametersFilePath.isEmpty()) {
+		String defaultScanParametersFilePath = getDefaultScanParameterFilePath();
+		if (!defaultScanParametersFilePath.isEmpty() && (new File(defaultScanParametersFilePath)).exists()) {
 			resourceSet.getResource(
 					URI.createFileURI(defaultScanParametersFilePath), true);
 		} else {
@@ -96,6 +94,15 @@ public class ScanParameterDialog extends Dialog {
 		return cmp;
 	}
 
+	static String getDefaultScanParameterFilePath() {
+		String string = ScanEditorPlugin.getPlugin()
+				.getPreferenceStore()
+				.getString("DefaultScanParametersFilename");
+		if( string.isEmpty())
+			return string;
+		return LocalProperties.getVarDir() + File.separator + string;
+	}
+
 	@Override
 	protected void createButtonsForButtonBar(Composite parent) {
 		super.createButtonsForButtonBar(parent);
@@ -107,9 +114,9 @@ public class ScanParameterDialog extends Dialog {
 	protected void okPressed() {
 		OutputStream os;
 		try {
+			
 			final String uniqueFilename = ScanParameterView.getUniqueFilename("TomoScan", ".scan");
 			final File gridScanFileWithTime = new File(LocalProperties.getVarDir(), uniqueFilename);
-			
 			Resource resource = editingDomain.getResourceSet()
 					.getResources().get(0);
 			Parameters x = (Parameters) (resource.getContents().get(0));
@@ -118,6 +125,9 @@ public class ScanParameterDialog extends Dialog {
 			options.put(XMLResource.OPTION_KEEP_DEFAULT_CONTENT, true);
 			resource.save(os, options);
 			os.close();
+			String defaultScanParametersFilePath = getDefaultScanParameterFilePath();
+			if( !defaultScanParametersFilePath.isEmpty())
+				FileUtil.copy(gridScanFileWithTime.getAbsolutePath(), defaultScanParametersFilePath);
 			
 			String command = "tomographyScan.ProcessScanParameters('" + gridScanFileWithTime.getAbsolutePath() + "')";
 			String jobLabel = "TomoScan Scan: "+x.getTitle();
