@@ -13,6 +13,8 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Document
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionFactory;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum;
 import org.opengda.detector.electronanalyser.model.regiondefinition.util.RegiondefinitionResourceFactoryImpl;
 
 public class RegionDefinitionResourceUtil {
@@ -30,8 +32,10 @@ public class RegionDefinitionResourceUtil {
 	}
 
 	public List<Region> getRegions(boolean shouldCreate) throws Exception {
-		// Create a resource set to hold the resources.
-		//
+		return getSequence(shouldCreate).getRegion();
+	}
+
+	public Sequence getSequence(boolean shouldCreate) throws Exception {
 		ResourceSet resourceSet = getResourceSet();
 
 		// Register the appropriate resource factory to handle all file
@@ -57,13 +61,18 @@ public class RegionDefinitionResourceUtil {
 			EObject eobj = contents.get(0);
 			if (eobj instanceof DocumentRoot) {
 				DocumentRoot root = (DocumentRoot) eobj;
-				return root.getSequence().getRegion();
+				return root.getSequence();
 			}
 
 		}
-		return Collections.emptyList();
+
+		return null;
 	}
 
+	public Spectrum getSpectrum(boolean shouldCreate) throws Exception {
+		return getSequence(shouldCreate).getSpectrum();
+	}
+	
 	private ResourceSet getResourceSet() throws Exception {
 		EditingDomain sequenceEditingDomain = ElectronAnalyserClientPlugin
 				.getDefault().getSequenceEditingDomain();
