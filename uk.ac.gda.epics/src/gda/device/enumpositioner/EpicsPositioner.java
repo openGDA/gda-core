@@ -176,6 +176,9 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 			createChannelAccess();
 			channelManager.tryInitialize(100);
 			
+			// getPosition() returns a single String, so explain what it is
+			inputNames = new String[]{getName()};
+			
 			configured = true;
 		}
 	}
