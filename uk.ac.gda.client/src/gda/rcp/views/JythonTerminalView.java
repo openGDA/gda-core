@@ -26,6 +26,8 @@ import gda.jython.JythonServerFacade;
 import gda.jython.Terminal;
 import gda.jython.gui.JythonGuiConstants;
 import gda.rcp.util.ScanDataPointFormatterUtils;
+import gda.rcp.views.dashboard.DashboardView;
+import gda.rcp.views.dashboard.SimpleScannableObject;
 import gda.scan.IScanDataPoint;
 import gda.scan.ScanDataPointFormatter;
 import gda.util.PropertyUtils;
@@ -612,8 +614,29 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 			return;
 		}
 
+		// if its a watch
+		if (parts[0].toLowerCase().compareTo("watch") == 0) {
+			// print out what was typed
+			appendOutput(this.txtPrompt.getText() + txtInput.getText() + "\n");
+			
+			try {
+				DashboardView dashboard = (DashboardView)PlatformUI.
+					getWorkbench().getActiveWorkbenchWindow().getActivePage().
+					showView(DashboardView.ID);
+				if (parts.length > 1) {
+					for (int i = 1; i < parts.length; ++i) {
+						dashboard.addServerObject(new SimpleScannableObject(parts[i]));
+					}
+				}
+				addCommandToHistory(txtInput.getText());
+			} catch (PartInitException e) {
+				// TODO Auto-generated catch block
+				logger.error("Failed to get DashboardView", e);
+			}
+			txtInput.setText("");
+		}
 		// if its the history command
-		if (parts[0].toLowerCase().compareTo("history") == 0) {
+		else if (parts[0].toLowerCase().compareTo("history") == 0) {
 			// print out what was typed
 			appendOutput(this.txtPrompt.getText() + parts[0] + "\n");
 
