@@ -107,11 +107,9 @@ public class SequenceViewLabelProvider extends LabelProvider implements
 			case SequenceTableConstants.COL_STEP_TIME:
 				return Double.toString(region.getStepTime());
 			case SequenceTableConstants.COL_STEPS:
-				// FIXME
-				return Integer.toString(1);
+				return Integer.toString(region.getTotalSteps());
 			case SequenceTableConstants.COL_TOTAL_TIME:
-				// FIXME
-				return Double.toString(100.00);
+				return Double.toString(region.getTotalTime());
 			case SequenceTableConstants.COL_X_CHANNEL_FROM:
 				return Integer.toString(region.getFirstXChannel());
 			case SequenceTableConstants.COL_X_CHANNEL_TO:
