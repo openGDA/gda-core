@@ -86,9 +86,9 @@ public class SequenceViewLabelProvider extends LabelProvider implements
 			case SequenceTableConstants.COL_REGION_NAME:
 				return region.getName();
 			case SequenceTableConstants.COL_LENS_MODE:
-				return region.getLensMode().getLiteral();
+				return region.getLensMode();
 			case SequenceTableConstants.COL_PASS_ENERGY:
-				return region.getPassEnergy().getLiteral();
+				return Integer.toString(region.getPassEnergy());
 			case SequenceTableConstants.COL_X_RAY_SOURCE:
 				if (isSourceSelectable()) {
 					if (region.getExcitationEnergy() < xRaySourceEnergyLimit)

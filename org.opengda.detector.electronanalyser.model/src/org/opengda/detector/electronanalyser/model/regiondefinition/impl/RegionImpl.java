@@ -153,7 +153,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final LENS_MODE LENS_MODE_EDEFAULT = LENS_MODE.TRANSMISSION;
+	protected static final String LENS_MODE_EDEFAULT = "Transmission";
 
 	/**
 	 * The cached value of the '{@link #getLensMode() <em>Lens Mode</em>}' attribute.
@@ -162,7 +162,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * @generated
 	 * @ordered
 	 */
-	protected LENS_MODE lensMode = LENS_MODE_EDEFAULT;
+	protected String lensMode = LENS_MODE_EDEFAULT;
 
 	/**
 	 * This is true if the Lens Mode attribute has been set.
@@ -180,7 +180,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final PASS_ENERGY PASS_ENERGY_EDEFAULT = PASS_ENERGY._10;
+	protected static final int PASS_ENERGY_EDEFAULT = 10;
 
 	/**
 	 * The cached value of the '{@link #getPassEnergy() <em>Pass Energy</em>}' attribute.
@@ -189,7 +189,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * @generated
 	 * @ordered
 	 */
-	protected PASS_ENERGY passEnergy = PASS_ENERGY_EDEFAULT;
+	protected int passEnergy = PASS_ENERGY_EDEFAULT;
 
 	/**
 	 * This is true if the Pass Energy attribute has been set. <!--
@@ -792,17 +792,18 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
-	public LENS_MODE getLensMode() {
+	public String getLensMode() {
 		return lensMode;
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public void setLensMode(LENS_MODE newLensMode) {
-		LENS_MODE oldLensMode = lensMode;
-		lensMode = newLensMode == null ? LENS_MODE_EDEFAULT : newLensMode;
+	public void setLensMode(String newLensMode) {
+		String oldLensMode = lensMode;
+		lensMode = newLensMode;
 		boolean oldLensModeESet = lensModeESet;
 		lensModeESet = true;
 		if (eNotificationRequired())
@@ -814,7 +815,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * @generated
 	 */
 	public void unsetLensMode() {
-		LENS_MODE oldLensMode = lensMode;
+		String oldLensMode = lensMode;
 		boolean oldLensModeESet = lensModeESet;
 		lensMode = LENS_MODE_EDEFAULT;
 		lensModeESet = false;
@@ -834,17 +835,18 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
-	public PASS_ENERGY getPassEnergy() {
+	public int getPassEnergy() {
 		return passEnergy;
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public void setPassEnergy(PASS_ENERGY newPassEnergy) {
-		PASS_ENERGY oldPassEnergy = passEnergy;
-		passEnergy = newPassEnergy == null ? PASS_ENERGY_EDEFAULT : newPassEnergy;
+	public void setPassEnergy(int newPassEnergy) {
+		int oldPassEnergy = passEnergy;
+		passEnergy = newPassEnergy;
 		boolean oldPassEnergyESet = passEnergyESet;
 		passEnergyESet = true;
 		if (eNotificationRequired())
@@ -856,7 +858,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * @generated
 	 */
 	public void unsetPassEnergy() {
-		PASS_ENERGY oldPassEnergy = passEnergy;
+		int oldPassEnergy = passEnergy;
 		boolean oldPassEnergyESet = passEnergyESet;
 		passEnergy = PASS_ENERGY_EDEFAULT;
 		passEnergyESet = false;
@@ -1837,10 +1839,10 @@ public class RegionImpl extends EObjectImpl implements Region {
 				setName((String)newValue);
 				return;
 			case RegiondefinitionPackage.REGION__LENS_MODE:
-				setLensMode((LENS_MODE)newValue);
+				setLensMode((String)newValue);
 				return;
 			case RegiondefinitionPackage.REGION__PASS_ENERGY:
-				setPassEnergy((PASS_ENERGY)newValue);
+				setPassEnergy((Integer)newValue);
 				return;
 			case RegiondefinitionPackage.REGION__RUN_MODE:
 				setRunMode((RunMode)newValue);

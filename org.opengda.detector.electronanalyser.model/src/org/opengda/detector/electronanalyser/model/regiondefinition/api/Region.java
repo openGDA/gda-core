@@ -130,7 +130,6 @@ public interface Region extends EObject {
 	/**
 	 * Returns the value of the '<em><b>Lens Mode</b></em>' attribute.
 	 * The default value is <code>"Transmission"</code>.
-	 * The literals are from the enumeration {@link org.opengda.detector.electronanalyser.model.regiondefinition.api.LENS_MODE}.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Lens Mode</em>' attribute isn't clear,
@@ -138,28 +137,26 @@ public interface Region extends EObject {
 	 * </p>
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Lens Mode</em>' attribute.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.LENS_MODE
 	 * @see #isSetLensMode()
 	 * @see #unsetLensMode()
-	 * @see #setLensMode(LENS_MODE)
+	 * @see #setLensMode(String)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_LensMode()
 	 * @model default="Transmission" unsettable="true"
 	 * @generated
 	 */
-	LENS_MODE getLensMode();
+	String getLensMode();
 
 	/**
 	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLensMode <em>Lens Mode</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @param value the new value of the '<em>Lens Mode</em>' attribute.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.LENS_MODE
 	 * @see #isSetLensMode()
 	 * @see #unsetLensMode()
 	 * @see #getLensMode()
 	 * @generated
 	 */
-	void setLensMode(LENS_MODE value);
+	void setLensMode(String value);
 
 	/**
 	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getLensMode <em>Lens Mode</em>}' attribute.
@@ -167,7 +164,7 @@ public interface Region extends EObject {
 	 * <!-- end-user-doc -->
 	 * @see #isSetLensMode()
 	 * @see #getLensMode()
-	 * @see #setLensMode(LENS_MODE)
+	 * @see #setLensMode(String)
 	 * @generated
 	 */
 	void unsetLensMode();
@@ -179,7 +176,7 @@ public interface Region extends EObject {
 	 * @return whether the value of the '<em>Lens Mode</em>' attribute is set.
 	 * @see #unsetLensMode()
 	 * @see #getLensMode()
-	 * @see #setLensMode(LENS_MODE)
+	 * @see #setLensMode(String)
 	 * @generated
 	 */
 	boolean isSetLensMode();
@@ -187,7 +184,6 @@ public interface Region extends EObject {
 	/**
 	 * Returns the value of the '<em><b>Pass Energy</b></em>' attribute.
 	 * The default value is <code>"10"</code>.
-	 * The literals are from the enumeration {@link org.opengda.detector.electronanalyser.model.regiondefinition.api.PASS_ENERGY}.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Pass Energy</em>' attribute list isn't clear,
@@ -195,28 +191,26 @@ public interface Region extends EObject {
 	 * </p>
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Pass Energy</em>' attribute.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.PASS_ENERGY
 	 * @see #isSetPassEnergy()
 	 * @see #unsetPassEnergy()
-	 * @see #setPassEnergy(PASS_ENERGY)
+	 * @see #setPassEnergy(int)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_PassEnergy()
 	 * @model default="10" unsettable="true"
 	 * @generated
 	 */
-	PASS_ENERGY getPassEnergy();
+	int getPassEnergy();
 
 	/**
 	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getPassEnergy <em>Pass Energy</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @param value the new value of the '<em>Pass Energy</em>' attribute.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.PASS_ENERGY
 	 * @see #isSetPassEnergy()
 	 * @see #unsetPassEnergy()
 	 * @see #getPassEnergy()
 	 * @generated
 	 */
-	void setPassEnergy(PASS_ENERGY value);
+	void setPassEnergy(int value);
 
 	/**
 	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getPassEnergy <em>Pass Energy</em>}' attribute.
@@ -224,7 +218,7 @@ public interface Region extends EObject {
 	 * <!-- end-user-doc -->
 	 * @see #isSetPassEnergy()
 	 * @see #getPassEnergy()
-	 * @see #setPassEnergy(PASS_ENERGY)
+	 * @see #setPassEnergy(int)
 	 * @generated
 	 */
 	void unsetPassEnergy();
@@ -236,7 +230,7 @@ public interface Region extends EObject {
 	 * @return whether the value of the '<em>Pass Energy</em>' attribute is set.
 	 * @see #unsetPassEnergy()
 	 * @see #getPassEnergy()
-	 * @see #setPassEnergy(PASS_ENERGY)
+	 * @see #setPassEnergy(int)
 	 * @generated
 	 */
 	boolean isSetPassEnergy();
