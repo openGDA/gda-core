@@ -122,4 +122,8 @@ public class MJPegView extends ViewPart implements InitializingBean {
 	protected void createTopRowControls(@SuppressWarnings("unused") Composite composite_1) {
 	}
 
+	public void zoomToFit() {
+		mJPeg.zoomFit();
+	}
+
 }
