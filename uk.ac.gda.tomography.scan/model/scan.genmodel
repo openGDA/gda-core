@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" copyrightText="Diamond Light Source Ltd"
+    modelDirectory="/uk.ac.gda.tomography.scan/src" modelPluginID="uk.ac.gda.tomography.scan"
+    modelName="Scan" nonNLSMarkers="true" codeFormatting="true" importerID="org.eclipse.emf.importer.java"
+    complianceLevel="6.0" copyrightFields="false">
+  <foreignModel>@model</foreignModel>
+  <genPackages prefix="Scan" basePackage="uk.ac.gda.tomography" resource="XML" disposableProviderFactory="true"
+      ecorePackage="scan.ecore#/">
+    <genClasses ecoreClass="scan.ecore#//Parameters">
+      <genFeatures createChild="false" propertyCategory="" propertyDescription="Position of X motor when sample is in the beam. In mm"
+          ecoreFeature="ecore:EAttribute scan.ecore#//Parameters/inBeamPosition"/>
+      <genFeatures createChild="false" propertyDescription="Position of X motor when sample is out of the beam - used to take a flat image. In mm"
+          ecoreFeature="ecore:EAttribute scan.ecore#//Parameters/outOfBeamPosition"/>
+      <genFeatures createChild="false" propertyDescription="Exposure Time in s" ecoreFeature="ecore:EAttribute scan.ecore#//Parameters/exposureTime"/>
+      <genFeatures createChild="false" propertyDescription="First rotation angle . In degrees"
+          ecoreFeature="ecore:EAttribute scan.ecore#//Parameters/start"/>
+      <genFeatures createChild="false" propertyDescription="Last rotation angle . In degrees"
+          ecoreFeature="ecore:EAttribute scan.ecore#//Parameters/stop"/>
+      <genFeatures createChild="false" propertyDescription="Rotation step size (default = 0.1). In degrees"
+          ecoreFeature="ecore:EAttribute scan.ecore#//Parameters/step"/>
+      <genFeatures createChild="false" propertyCategory="" propertyDescription="number of projections between each dark field. Note that a dark is always taken at the start and end of a tomogram"
+          ecoreFeature="ecore:EAttribute scan.ecore#//Parameters/darkFieldInterval"/>
+      <genFeatures createChild="false" propertyDescription="number of projections between each flat field. Note that a dark is always taken at the start and end of a tomogram"
+          ecoreFeature="ecore:EAttribute scan.ecore#//Parameters/flatFieldInterval"/>
+      <genFeatures createChild="false" propertyDescription="number of images to be taken for each dark"
+          ecoreFeature="ecore:EAttribute scan.ecore#//Parameters/imagesPerDark"/>
+      <genFeatures createChild="false" propertyDescription="number of images to be taken for each flat"
+          ecoreFeature="ecore:EAttribute scan.ecore#//Parameters/imagesPerFlat"/>
+      <genFeatures createChild="false" propertyDescription="minimum value of ion chamber current required to take an image . A negative value means that the value is not checked )"
+          ecoreFeature="ecore:EAttribute scan.ecore#//Parameters/minI"/>
+      <genFeatures createChild="false" propertyCategory="" propertyDescription="The title of the scan"
+          ecoreFeature="ecore:EAttribute scan.ecore#//Parameters/title"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>

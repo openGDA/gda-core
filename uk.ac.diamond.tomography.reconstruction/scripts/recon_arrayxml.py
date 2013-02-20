@@ -403,7 +403,8 @@ sed -i "s|^.*GPUDeviceNumber.*$|<GPUDeviceNumber>$mycuda</GPUDeviceNumber>|" $my
 		#execute job in current working directory
 		args+=["-cwd"]
 		if self.qsub_project == "i12":
-			args+=[ "-pe", "smp", "4"]
+			#args+=[ "-pe", "smp", "4"]
+			args += [ "-l", "gpus=1"]
 		else:
 			#i13
 			args+=[ "-l", "tesla64", "-pe", "smp", "6"]

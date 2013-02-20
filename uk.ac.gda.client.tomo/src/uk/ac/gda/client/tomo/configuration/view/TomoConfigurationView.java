@@ -42,6 +42,7 @@ import org.eclipse.core.commands.operations.IUndoContext;
 import org.eclipse.core.commands.operations.IUndoableOperation;
 import org.eclipse.core.commands.operations.ObjectUndoContext;
 import org.eclipse.core.commands.operations.OperationHistoryEvent;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.common.notify.Adapter;
@@ -786,7 +787,7 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 	private TomoExperiment getModel() {
 		TomoExperiment tomoExperiment = null;
 		try {
-			tomoExperiment = configFileHandler.getTomoConfigResource(null, true);
+			tomoExperiment = configFileHandler.getTomoConfigResource(new NullProgressMonitor(), true);
 		} catch (InvocationTargetException e) {
 			logger.error("Problem getting model ite", e);
 		} catch (InterruptedException e) {
@@ -870,6 +871,10 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 					|| eventType == Notification.ADD_MANY || eventType == Notification.REMOVE
 					|| eventType == Notification.REMOVE_MANY || eventType == Notification.MOVE) {
 				refreshTable();
+			} else if (eventType == Notification.REMOVING_ADAPTER) {
+				if (!configModelTableViewer.getTable().isDisposed()) {
+					configModelTableViewer.setInput(getModel());
+				}
 			}
 		}
 
@@ -1241,17 +1246,15 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 		}
 
 		@Override
-		public void isScanRunning(boolean isScanRunning, String runningConfigId) {
+		public void isScanRunning(boolean isScanRunning, final String runningConfigId) {
 			if (isScanRunning) {
-
-				isScanRunning = true;
 				disableControls();
-				final HashMap<String, CONFIG_STATUS> configStatusForTomoConfigContent = getConfigStatusForTomoConfigContent(runningConfigId);
 				final Shell shell = getSite().getShell();
 				shell.getDisplay().asyncExec(new Runnable() {
 
 					@Override
 					public void run() {
+						HashMap<String, CONFIG_STATUS> configStatusForTomoConfigContent = getConfigStatusForTomoConfigContent(runningConfigId);
 						TableItem[] items = configModelTableViewer.getTable().getItems();
 						for (TableItem tableItem : items) {
 							TomoConfigContent c = (TomoConfigContent) tableItem.getData();
@@ -1263,8 +1266,7 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 								if (status == CONFIG_STATUS.STARTING) {
 									c.setProgress(0);
 								} else if (status == CONFIG_STATUS.COMPLETE) {
-									updateScanCollected(c);
-									c.setProgress(100);
+									updateScanCollected(configStatusForTomoConfigContent);
 								} else if (status == CONFIG_STATUS.NONE) {
 									c.setProgress(0);
 								}
@@ -1277,22 +1279,38 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 
 					}
 
-					private void updateScanCollected(TomoConfigContent c) {
+					private void updateScanCollected(HashMap<String, CONFIG_STATUS> configStatusForTomoConfigContent) {
 						try {
 							configFileHandler.reloadResource();
 						} catch (Exception e) {
 							logger.error("Problem reloading resource", e);
 						}
-						AlignmentConfiguration alignmentConfiguration = getModel().getParameters()
-								.getAlignmentConfiguration(c.getConfigId());
-						if (alignmentConfiguration != null) {
-							List<ScanCollected> scanCollected = alignmentConfiguration.getScanCollected();
 
-							for (ScanCollected sC : scanCollected) {
-								c.addScanInformation(Integer.parseInt(sC.getScanNumber()), sC.getStartTime(),
-										sC.getEndTime());
+						List<TomoConfigContent> configsToChange = new ArrayList<TomoConfigContent>();
+						TableItem[] items = configModelTableViewer.getTable().getItems();
+						for (TableItem tableItem : items) {
+							TomoConfigContent c = (TomoConfigContent) tableItem.getData();
+							if (configStatusForTomoConfigContent.keySet().contains(c.getConfigId())
+									&& configStatusForTomoConfigContent.get(c.getConfigId()) == CONFIG_STATUS.COMPLETE) {
+								configsToChange.add(c);
 							}
+						}
 
+						for (TomoConfigContent c : configsToChange) {
+							AlignmentConfiguration alignmentConfiguration = getModel().getParameters()
+									.getAlignmentConfiguration(c.getConfigId());
+							if (alignmentConfiguration != null) {
+								List<ScanCollected> scanCollected = alignmentConfiguration.getScanCollected();
+
+								for (ScanCollected sC : scanCollected) {
+									c.addScanInformation(Integer.parseInt(sC.getScanNumber()), sC.getStartTime(),
+											sC.getEndTime());
+								}
+
+							}
+							c.setProgress(100);
+							c.setStatus(CONFIG_STATUS.COMPLETE);
+							refreshRow(c);
 						}
 
 					}

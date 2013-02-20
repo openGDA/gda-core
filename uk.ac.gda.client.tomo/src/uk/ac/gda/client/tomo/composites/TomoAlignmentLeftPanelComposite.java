@@ -19,7 +19,6 @@
 package uk.ac.gda.client.tomo.composites;
 
 import java.lang.reflect.InvocationTargetException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,11 +53,11 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.client.tomo.composites.ZoomButtonComposite.ZOOM_LEVEL;
 
 public class TomoAlignmentLeftPanelComposite extends Composite {
+	private static final String EXPOSURE_TIME_FORMAT = "%.3g";
 	private static final String INVALID_VALUE = "Invalid value ";
 	private static final String DIFFERENT_FLAT_EXPOSURE_TIME_lbl = "Different Flat Exposure Time";
 	private static final String SECONDS_lbl = "s";
 	private static final String BLANK = "";
-	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.##");
 	private static final String EXPOSURE_TIME_lbl = "EXPOSURE TIME";
 	private static final String FLAT_lbl = "Flat";
 	private static final String SAMPLE_lbl = "Sample";
@@ -396,7 +395,7 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 					if (isValid(Double.class, txtSampleExposureTime.getText())) {
 
 						sampleExposureTime = Double.parseDouble(txtSampleExposureTime.getText());
-						txtSampleExposureTime.setText(DECIMAL_FORMAT.format(sampleExposureTime));
+						txtSampleExposureTime.setText(String.format(EXPOSURE_TIME_FORMAT, sampleExposureTime));
 						try {
 							for (ITomoAlignmentLeftPanelListener leftPanelLis : leftPanelListeners) {
 								leftPanelLis.sampleExposureTimeChanged(sampleExposureTime);
@@ -416,7 +415,7 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 						}
 					} else {
 						showErrorDialog(new IllegalArgumentException(INVALID_VALUE));
-						txtSampleExposureTime.setText(DECIMAL_FORMAT.format(sampleExposureTime));
+						txtSampleExposureTime.setText(String.format(EXPOSURE_TIME_FORMAT, sampleExposureTime));
 					}
 				}
 			} else if (e.getSource().equals(txtFlatExpTime)) {
@@ -424,7 +423,7 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 				if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
 					if (isValid(Double.class, txtFlatExpTime.getText())) {
 						flatExposureTime = Double.parseDouble(txtFlatExpTime.getText());
-						txtFlatExpTime.setText(DECIMAL_FORMAT.format(flatExposureTime));
+						txtFlatExpTime.setText(String.format(EXPOSURE_TIME_FORMAT, flatExposureTime));
 						try {
 							for (ITomoAlignmentLeftPanelListener leftPanelLis : leftPanelListeners) {
 								leftPanelLis.flatExposureTimeChanged(Double.parseDouble(txtFlatExpTime.getText()));
@@ -435,7 +434,7 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 						btnFlat.setFocus();
 					} else {
 						showErrorDialog(new IllegalArgumentException(INVALID_VALUE));
-						txtFlatExpTime.setText(DECIMAL_FORMAT.format(flatExposureTime));
+						txtFlatExpTime.setText(String.format(EXPOSURE_TIME_FORMAT, flatExposureTime));
 					}
 				}
 			}
@@ -468,10 +467,10 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 		public void focusLost(FocusEvent focusEvent) {
 			if (focusEvent.getSource().equals(txtSampleExposureTime)) {
 				logger.debug("sample exposure time focus lost");
-				txtSampleExposureTime.setText(DECIMAL_FORMAT.format(sampleExposureTime));
+				txtSampleExposureTime.setText(String.format(EXPOSURE_TIME_FORMAT, sampleExposureTime));
 			} else if (focusEvent.getSource().equals(txtFlatExpTime)) {
 				logger.debug("flat exposure time focus lost");
-				txtFlatExpTime.setText(DECIMAL_FORMAT.format(flatExposureTime));
+				txtFlatExpTime.setText(String.format(EXPOSURE_TIME_FORMAT, flatExposureTime));
 			}
 		}
 	};
@@ -858,7 +857,7 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 			txtFlatExpTime.getDisplay().syncExec(new Runnable() {
 				@Override
 				public void run() {
-					txtFlatExpTime.setText(String.format("%.3g", preferredFlatExposureTime));
+					txtFlatExpTime.setText(String.format(EXPOSURE_TIME_FORMAT, preferredFlatExposureTime));
 				}
 			});
 		}
@@ -870,7 +869,7 @@ public class TomoAlignmentLeftPanelComposite extends Composite {
 			txtSampleExposureTime.getDisplay().syncExec(new Runnable() {
 				@Override
 				public void run() {
-					txtSampleExposureTime.setText(String.format("%.3g", preferredExposureTime));
+					txtSampleExposureTime.setText(String.format(EXPOSURE_TIME_FORMAT, preferredExposureTime));
 				}
 			});
 		}
