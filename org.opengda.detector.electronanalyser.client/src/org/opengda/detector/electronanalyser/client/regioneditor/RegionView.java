@@ -348,6 +348,9 @@ public class RegionView extends ViewPart {
 					updateFeature(region, RegiondefinitionPackage.eINSTANCE
 							.getRegion_FirstXChannel(),
 							spinnerEnergyChannelFrom.getSelection());
+					if (btnFixed.getSelection()) {
+						txtSize.setText(String.format("%.3f", fixedEnergyRange()));
+					}
 				}
 			}
 		});
@@ -368,6 +371,9 @@ public class RegionView extends ViewPart {
 					updateFeature(region, RegiondefinitionPackage.eINSTANCE
 							.getRegion_LastXChannel(), spinnerEnergyChannelTo
 							.getSelection());
+					if (btnFixed.getSelection()) {
+						txtSize.setText(String.format("%.3f", fixedEnergyRange()));
+					}
 				}
 			}
 		});
@@ -1123,7 +1129,7 @@ public class RegionView extends ViewPart {
 	}
 
 	private double sweptStepSize;
-	double fixedEnergyRange;
+
 	private Text txtCenter;
 	private Text txtWidth;
 	SelectionAdapter fixedSelectionListener = new SelectionAdapter() {
@@ -1136,10 +1142,7 @@ public class RegionView extends ViewPart {
 				txtLow.setEditable(false);
 				txtHigh.setEditable(false);
 				txtSize.setEditable(false);
-				fixedEnergyRange = Double.parseDouble(txtMinimumSize.getText())
-						* (Integer.parseInt(spinnerEnergyChannelTo.getText()) - Integer
-								.parseInt(spinnerEnergyChannelFrom.getText()));
-				txtSize.setText(String.format("%.3f", fixedEnergyRange));
+				txtSize.setText(String.format("%.3f", fixedEnergyRange()));
 				txtTotalSteps.setText("1");
 				txtTotalTime.setText(String.format(
 						"%.3f",
@@ -1151,7 +1154,7 @@ public class RegionView extends ViewPart {
 						ACQUISITION_MODE.FIXED);
 				updateFeature(region,
 						RegiondefinitionPackage.eINSTANCE
-								.getRegion_EnergyStep(), fixedEnergyRange);
+								.getRegion_EnergyStep(), fixedEnergyRange());
 				updateFeature(region,
 						RegiondefinitionPackage.eINSTANCE
 								.getRegion_TotalSteps(),
@@ -1162,7 +1165,13 @@ public class RegionView extends ViewPart {
 						Double.parseDouble(txtTotalTime.getText()));
 			}
 		}
+
 	};
+	private double fixedEnergyRange() {
+		return Double.parseDouble(txtMinimumSize.getText())
+				* (Integer.parseInt(spinnerEnergyChannelTo.getText()) - Integer
+						.parseInt(spinnerEnergyChannelFrom.getText()));
+	}
 	private Text txtTotalSteps;
 	private Text txtTotalTime;
 	private SelectionAdapter sweptSelectionListener = new SelectionAdapter() {

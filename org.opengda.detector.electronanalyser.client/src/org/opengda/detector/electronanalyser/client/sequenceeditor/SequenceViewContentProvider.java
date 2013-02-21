@@ -8,17 +8,20 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EContentAdapter;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
+import org.opengda.detector.electronanalyser.client.RegionDefinitionResourceUtil;
 
 public class SequenceViewContentProvider implements IStructuredContentProvider {
 
 	private Viewer viewer;
 	private Resource res;
+	private RegionDefinitionResourceUtil resUtil;
 
-	public SequenceViewContentProvider(Resource res) {
-		this.res = res;
-		if (res != null) {
-			res.eAdapters().add(notifyListener);
-		}
+	public SequenceViewContentProvider(RegionDefinitionResourceUtil resUtil) {
+		this.resUtil = resUtil;
+		// this.res = res;
+		// if (res != null) {
+		// res.eAdapters().add(notifyListener);
+		// }
 	}
 
 	private Adapter notifyListener = new EContentAdapter() {
@@ -43,11 +46,25 @@ public class SequenceViewContentProvider implements IStructuredContentProvider {
 	@Override
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 		this.viewer = viewer;
+		// new input to be resource
+		if (newInput != null && newInput instanceof Resource) {
+			((Resource) newInput).eAdapters().add(notifyListener);
+			if (oldInput instanceof Resource) {
+				((Resource) oldInput).eAdapters().remove(notifyListener);
+			}
+		}
 	}
 
 	@Override
 	public Object[] getElements(Object inputElement) {
-		if (inputElement instanceof List) {
+		if (inputElement instanceof Resource) {
+			try {
+				return resUtil.getRegions(false).toArray();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else if (inputElement instanceof List) {
 			List regionList = (List) inputElement;
 			// for (Object object : regionList) {
 			// if (object instanceof Region) {

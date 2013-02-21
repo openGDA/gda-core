@@ -23,5 +23,40 @@
             id="org.opengda.detector.electronanalyser.client.sequence.editingdomain">
       </editingDomain>
    </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="org.opengda.detector.electronanalyser.client.newsequence"
+            name="New">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:org.opengda.detector.electronanalyser.client.sequenceeditor">
+         <command
+               commandId="org.opengda.detector.electronanalyser.client.newsequence"
+               label="New"
+               mode="FORCE_TEXT"
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="org.opengda.detector.electronanalyser.client.actions.NewSequenceAction"
+            commandId="org.opengda.detector.electronanalyser.client.newsequence">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="org.opengda.detector.electronanalyser.client.SESPerspective"
+            id="org.opengda.detector.electronanalyser.client.ses.perspective"
+            name="SES Perspective">
+      </perspective>
+   </extension>
 
 </plugin>

@@ -47,12 +47,14 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
 import org.opengda.detector.electronanalyser.model.regiondefinition.provider.RegiondefinitionItemProviderAdapterFactory;
 
-public class SequenceView extends ViewPart implements ISelectionProvider {
+public class SequenceView extends ViewPart implements ISelectionProvider,
+		IRegionDefinitionView {
 	private List<ISelectionChangedListener> selectionChangedListeners;
 	private Camera camera;
+
 	public SequenceView() {
 		setTitleToolTip("Create a new or editing an existing sequence");
-		//setContentDescription("A view for editing sequence parameters");
+		// setContentDescription("A view for editing sequence parameters");
 		setPartName("Region Editor");
 		this.selectionChangedListeners = new ArrayList<ISelectionChangedListener>();
 	}
@@ -129,6 +131,13 @@ public class SequenceView extends ViewPart implements ISelectionProvider {
 
 	@Override
 	public void createPartControl(Composite parent) {
+		// getViewSite().getActionBars().getMenuManager().add(new Action() {
+		// @Override
+		// public void run() {
+		// // TODO Auto-generated method stub
+		// super.run();
+		// }
+		// })
 		GridLayout gl_root = new GridLayout();
 		gl_root.horizontalSpacing = 2;
 		Composite rootComposite = new Composite(parent, SWT.NONE);
@@ -176,21 +185,24 @@ public class SequenceView extends ViewPart implements ISelectionProvider {
 		}
 
 		sequenceTableViewer.setContentProvider(new SequenceViewContentProvider(
-				resource));
+				regionDefinitionResourceUtil));
 		SequenceViewLabelProvider labelProvider = new SequenceViewLabelProvider();
-		labelProvider.setSourceSelectable(regionDefinitionResourceUtil.isSourceSelectable());
+		labelProvider.setSourceSelectable(regionDefinitionResourceUtil
+				.isSourceSelectable());
 		if (regionDefinitionResourceUtil.isSourceSelectable()) {
-			labelProvider.setXRaySourceEnergyLimit(regionDefinitionResourceUtil.getXRaySourceEnergyLimit());
+			labelProvider.setXRaySourceEnergyLimit(regionDefinitionResourceUtil
+					.getXRaySourceEnergyLimit());
 		}
 		sequenceTableViewer.setLabelProvider(labelProvider);
 		regions = Collections.EMPTY_LIST;
+
 		try {
-			regions = regionDefinitionResourceUtil.getRegions(false);
-		} catch (Exception e1) {
+			sequenceTableViewer.setInput(regionDefinitionResourceUtil
+					.getResource());
+		} catch (Exception e2) {
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			e2.printStackTrace();
 		}
-		sequenceTableViewer.setInput(regions);
 		// initializeEditingDomain();
 		// sequenceTableViewer
 		// .setContentProvider(new AdapterFactoryContentProvider(
@@ -380,13 +392,16 @@ public class SequenceView extends ViewPart implements ISelectionProvider {
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
-				//TODO the following need to run on a work thread, not on GUI thread??
+				// TODO the following need to run on a work thread, not on GUI
+				// thread??
 				for (Region region : regions) {
 					if (region.isEnabled()) {
-						//send region parameters to EPICS driver
-						//set a region running status before start collection in EPICS for this region
-						//status should be reset by monitor EPICS State PV
-						//wait for EPICS collection to finish i.e. status is not RUNNING before start next
+						// send region parameters to EPICS driver
+						// set a region running status before start collection
+						// in EPICS for this region
+						// status should be reset by monitor EPICS State PV
+						// wait for EPICS collection to finish i.e. status is
+						// not RUNNING before start next
 						// TODO using QUEUE here?
 					}
 				}
@@ -542,5 +557,22 @@ public class SequenceView extends ViewPart implements ISelectionProvider {
 
 	public void setCamera(Camera camera) {
 		this.camera = camera;
+	}
+
+	@Override
+	public void refreshTable() {
+		// sequenceTableViewer.refresh();
+		try {
+			sequenceTableViewer
+					.setInput(regionDefinitionResourceUtil.getResource());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public RegionDefinitionResourceUtil getRegionDefinitionResourceUtil() {
+		return regionDefinitionResourceUtil;
 	}
 }

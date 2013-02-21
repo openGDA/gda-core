@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -32,7 +33,12 @@ public class RegionDefinitionResourceUtil {
 	}
 
 	public List<Region> getRegions(boolean shouldCreate) throws Exception {
-		return getSequence(shouldCreate).getRegion();
+		
+		 Sequence sequence = getSequence(shouldCreate);
+		 if(sequence != null) {
+			 return sequence.getRegion();
+		 }
+		 return Collections.emptyList();
 	}
 
 	public Sequence getSequence(boolean shouldCreate) throws Exception {
