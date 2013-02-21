@@ -349,7 +349,8 @@ public class RegionView extends ViewPart {
 							.getRegion_FirstXChannel(),
 							spinnerEnergyChannelFrom.getSelection());
 					if (btnFixed.getSelection()) {
-						txtSize.setText(String.format("%.3f", fixedEnergyRange()));
+						txtSize.setText(String.format("%.3f",
+								fixedEnergyRange()));
 					}
 				}
 			}
@@ -372,7 +373,8 @@ public class RegionView extends ViewPart {
 							.getRegion_LastXChannel(), spinnerEnergyChannelTo
 							.getSelection());
 					if (btnFixed.getSelection()) {
-						txtSize.setText(String.format("%.3f", fixedEnergyRange()));
+						txtSize.setText(String.format("%.3f",
+								fixedEnergyRange()));
 					}
 				}
 			}
@@ -576,44 +578,68 @@ public class RegionView extends ViewPart {
 		passEnergy.setItems(new String[] { "5", "10", "50", "75", "100", "200",
 				"500" });
 
-		lensMode.setText(lensMode.getItem(0));
-		passEnergy.setText(passEnergy.getItem(1));
-		runMode.setText(runMode.getItem(0));
-		btnNumberOfIterations.setSelection(true);
-		btnSwept.setSelection(true);
-		btnKinetic.setSelection(true);
-		kineticSelected = true;
-		bindingSelected = false;
-		txtLow.setText(String.format("%.4f", 8.0));
-		txtHigh.setText(String.format("%.4f", 10.0));
-		txtCenter.setText(String.format("%.4f", (Double.parseDouble(txtLow
-				.getText()) + Double.parseDouble(txtHigh.getText())) / 2));
-		txtWidth.setText(String.format("%.4f", (Double.parseDouble(txtHigh
-				.getText()) - Double.parseDouble(txtLow.getText()))));
+		List<Region> regions = Collections.emptyList();
+		try {
+			regions = regionDefinitionResourceUtil.getRegions(false);
+		} catch (Exception e1) {
+			logger.error("Cannot get regions from resource: ", e1);
+		}
 		txtFramesPerSecond.setText(String.format("%d", camera.getFrameRate()));
 		txtMinimumTime
 				.setText(String.format("%f", 1.0 / camera.getFrameRate()));
-		txtMinimumSize.setText(String.format(
-				"%.3f",
-				camera.getEnergyResolution()
-						* Integer.parseInt(passEnergy.getText())));
 		spinnerFrames.setMinimum(1);
 		spinnerFrames.setMaximum(1000);
-		spinnerFrames.setSelection(3);
-		txtTime.setText(String.format(
-				"%.3f",
-				Double.parseDouble(txtMinimumTime.getText())
-						* Integer.parseInt(spinnerFrames.getText())));
-		txtSize.setText(String.format("%.3f", 200.0));
-		txtTotalSteps.setText(String.format("%d", 0));
-		txtTotalTime.setText(String.format(
-				"%.3f",
-				Double.parseDouble(txtTime.getText())
-						* Double.parseDouble(txtTotalSteps.getText())));
-		spinnerEnergyChannelTo.setSelection(camera.getCameraXSize());
-		spinnerYChannelTo.setSelection(camera.getCameraYSize());
-		spinnerSlices.setSelection(1);
-		btnADCMode.setSelection(true);
+
+		if (regions.isEmpty()) {
+			lensMode.setText(lensMode.getItem(0));
+			passEnergy.setText(passEnergy.getItem(1));
+			runMode.setText(runMode.getItem(0));
+			btnNumberOfIterations.setSelection(true);
+			btnSwept.setSelection(true);
+			btnKinetic.setSelection(true);
+			kineticSelected = true;
+			bindingSelected = false;
+			txtLow.setText(String.format("%.4f", 8.0));
+			txtHigh.setText(String.format("%.4f", 10.0));
+			txtCenter.setText(String.format("%.4f", (Double.parseDouble(txtLow
+					.getText()) + Double.parseDouble(txtHigh.getText())) / 2));
+			txtWidth.setText(String.format("%.4f", (Double.parseDouble(txtHigh
+					.getText()) - Double.parseDouble(txtLow.getText()))));
+			txtMinimumSize.setText(String.format(
+					"%.3f",
+					camera.getEnergyResolution()
+							* Integer.parseInt(passEnergy.getText())));
+			spinnerFrames.setSelection(3);
+			txtTime.setText(String.format(
+					"%.3f",
+					Double.parseDouble(txtMinimumTime.getText())
+							* Integer.parseInt(spinnerFrames.getText())));
+			txtSize.setText(String.format("%.3f", 200.0));
+			txtTotalSteps.setText(String.format(
+					"%d",
+					calculateTotalSteps(Double.parseDouble(txtWidth.getText()),
+							Double.parseDouble(txtSize.getText()), (Double
+									.parseDouble(txtMinimumSize.getText()) * camera
+									.getCameraXSize()))));
+			txtTotalTime.setText(String.format(
+					"%.3f",
+					Double.parseDouble(txtTime.getText())
+							* Integer.parseInt(txtTotalSteps.getText())));
+			// txtTotalSteps.setText(String.format("%d", 0));
+			// txtTotalTime.setText(String.format(
+			// "%.3f",
+			// Double.parseDouble(txtTime.getText())
+			// * Double.parseDouble(txtTotalSteps.getText())));
+			spinnerEnergyChannelTo.setSelection(camera.getCameraXSize());
+			spinnerYChannelTo.setSelection(camera.getCameraYSize());
+			spinnerSlices.setSelection(1);
+			btnADCMode.setSelection(true);
+		} else {
+			txtMinimumSize.setText(String.format("%.3f",
+					camera.getEnergyResolution()
+							* regions.get(0).getPassEnergy()));
+			initialiseRegionView(regions.get(0));
+		}
 		if (regionDefinitionResourceUtil.isSourceSelectable()) {
 			btnHard.setSelection(true);
 			if (dcmenergy != null) {
@@ -643,6 +669,7 @@ public class RegionView extends ViewPart {
 			}
 			txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
 		}
+
 		// add listener after initialisation otherwise return 'empty String'
 		passEnergy.addSelectionListener(passEnerySelectionAdapter);
 		passEnergy.addModifyListener(passEnergyModifyListener);
@@ -675,16 +702,6 @@ public class RegionView extends ViewPart {
 		numberOfIterationSpinner
 				.addSelectionListener(numIterationSpinnerSelAdaptor);
 
-		// populate txtRegionName combo with active (enabled) region names.
-		List<Region> regions = Collections.emptyList();
-		try {
-			regions = regionDefinitionResourceUtil.getRegions(false);
-		} catch (Exception e1) {
-			logger.error("Cannot get regions from resource: ", e1);
-		}
-		if (regions.isEmpty()) {
-			logger.debug("Sequence is empty. create new sequence in the resource");
-		} 
 		// TODO add monitor to dcmenergy in EPICS
 		// TODO add monitor to pgmenergy in EPICS
 		// TODO add monitor to total steps in EPICS
@@ -837,62 +854,7 @@ public class RegionView extends ViewPart {
 
 				@Override
 				public void run() {
-					regionName.setText(region.getName());
-					lensMode.setText(region.getLensMode());
-					passEnergy.setText(String.valueOf(region.getPassEnergy()));
-					runMode.setText(runMode.getItem(region.getRunMode()
-							.getMode().getValue()));
-					btnNumberOfIterations.setSelection(region.getRunMode()
-							.isNumIterationOption());
-					btnRepeatuntilStopped.setSelection(region.getRunMode()
-							.isRepeatUntilStopped());
-					btnConfirmAfterEachInteration.setSelection(region
-							.getRunMode().isConfirmAfterEachInteration());
-					numberOfIterationSpinner.setSelection(region.getRunMode()
-							.getNumIterations());
-					btnSwept.setSelection(region.getAcquisitionMode()
-							.getLiteral().equalsIgnoreCase("SWEPT"));
-					btnFixed.setSelection(region.getAcquisitionMode()
-							.getLiteral().equalsIgnoreCase("FIXED"));
-					btnKinetic.setSelection(region.getEnergyMode().getLiteral()
-							.equalsIgnoreCase("KINETIC"));
-					btnBinding.setSelection(region.getEnergyMode().getLiteral()
-							.equalsIgnoreCase("BINDING"));
-					if (btnKinetic.getSelection()) {
-						kineticSelected = true;
-						bindingSelected = false;
-					}
-					if (btnBinding.getSelection()) {
-						kineticSelected = false;
-						bindingSelected = true;
-					}
-					txtLow.setText(String.format("%.4f", region.getLowEnergy()));
-					txtHigh.setText(String.format("%.4f",
-							region.getHighEnergy()));
-					txtCenter.setText(String.format(
-							"%.4f",
-							(region.getLowEnergy() + region.getHighEnergy()) / 2));
-					txtWidth.setText(String.format("%.4f",
-							(region.getHighEnergy() - region.getLowEnergy())));
-					txtTime.setText(String.format("%.3f", region.getStepTime()));
-					if (btnSwept.getSelection()) {
-						sweptStepSize=region.getEnergyStep();
-						setToSweptMode();
-						updateTotalSteps();
-					} else {
-						setToFixedMode();
-					}
-					spinnerEnergyChannelFrom.setSelection(region
-							.getFirstXChannel());
-					spinnerEnergyChannelTo.setSelection(region
-							.getLastXChannel());
-					spinnerYChannelFrom.setSelection(region.getFirstYChannel());
-					spinnerYChannelTo.setSelection(region.getLastYChannel());
-					spinnerSlices.setSelection(region.getSlices());
-					btnADCMode.setSelection(region.getDetectorMode()
-							.getLiteral().equalsIgnoreCase("ADC"));
-					btnPulseMode.setSelection(region.getDetectorMode()
-							.getLiteral().equalsIgnoreCase("PULSE_COUNTING"));
+					initialiseRegionView(region);
 				}
 			});
 
@@ -1021,16 +983,22 @@ public class RegionView extends ViewPart {
 				Double.parseDouble(txtTotalTime.getText()));
 	}
 
-	private void updateTotalSteps() {
+	private long calculateTotalSteps(double energywidth, double energystep,
+			double energyrangperimage) {
 		// get number of steps required for the scan
-		long M = (long) Math.ceil(Double.parseDouble(txtWidth.getText()) * 1000
-				/ Double.parseDouble(txtSize.getText()));
+		long M = (long) Math.ceil(energywidth * 1000 / energystep);
 		// calculate image overlapping number per data point
-		long N = (long) (Math
-				.ceil((Double.parseDouble(txtMinimumSize.getText()) * camera
-						.getCameraXSize())
-						/ Double.parseDouble(txtSize.getText())));
-		txtTotalSteps.setText(String.format("%d", M + N));
+		long N = (long) (Math.ceil(energyrangperimage / energystep));
+		return M + N;
+	}
+
+	private void updateTotalSteps() {
+		txtTotalSteps.setText(String.format(
+				"%d",
+				calculateTotalSteps(Double.parseDouble(txtWidth.getText()),
+						Double.parseDouble(txtSize.getText()), (Double
+								.parseDouble(txtMinimumSize.getText()) * camera
+								.getCameraXSize()))));
 		updateFeature(region,
 				RegiondefinitionPackage.eINSTANCE.getRegion_TotalSteps(),
 				Integer.parseInt(txtTotalSteps.getText()));
@@ -1160,11 +1128,13 @@ public class RegionView extends ViewPart {
 		txtSize.setText(String.format("%.3f", fixedEnergyRange()));
 		txtTotalSteps.setText("1");
 	}
+
 	private double fixedEnergyRange() {
 		return Double.parseDouble(txtMinimumSize.getText())
-				* (Integer.parseInt(spinnerEnergyChannelTo.getText()) - Integer
-						.parseInt(spinnerEnergyChannelFrom.getText())+1);
+				* (Integer.parseInt(spinnerEnergyChannelTo.getText())
+						- Integer.parseInt(spinnerEnergyChannelFrom.getText()) + 1);
 	}
+
 	private Text txtTotalSteps;
 	private Text txtTotalTime;
 	private SelectionAdapter sweptSelectionListener = new SelectionAdapter() {
@@ -1185,6 +1155,7 @@ public class RegionView extends ViewPart {
 		}
 
 	};
+
 	private void setToSweptMode() {
 		txtLow.setEditable(true);
 		txtHigh.setEditable(true);
@@ -1324,5 +1295,64 @@ public class RegionView extends ViewPart {
 		updateFeature(region,
 				RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(),
 				excitationEnergy);
+	}
+
+	private void initialiseRegionView(final Region region) {
+		regionName.setText(region.getName());
+		lensMode.setText(region.getLensMode());
+		passEnergy.setText(String.valueOf(region.getPassEnergy()));
+		runMode.setText(runMode.getItem(region.getRunMode()
+				.getMode().getValue()));
+		btnNumberOfIterations.setSelection(region.getRunMode()
+				.isNumIterationOption());
+		btnRepeatuntilStopped.setSelection(region.getRunMode()
+				.isRepeatUntilStopped());
+		btnConfirmAfterEachInteration.setSelection(region
+				.getRunMode().isConfirmAfterEachInteration());
+		numberOfIterationSpinner.setSelection(region.getRunMode()
+				.getNumIterations());
+		btnSwept.setSelection(region.getAcquisitionMode()
+				.getLiteral().equalsIgnoreCase("SWEPT"));
+		btnFixed.setSelection(region.getAcquisitionMode()
+				.getLiteral().equalsIgnoreCase("FIXED"));
+		btnKinetic.setSelection(region.getEnergyMode().getLiteral()
+				.equalsIgnoreCase("KINETIC"));
+		btnBinding.setSelection(region.getEnergyMode().getLiteral()
+				.equalsIgnoreCase("BINDING"));
+		if (btnKinetic.getSelection()) {
+			kineticSelected = true;
+			bindingSelected = false;
+		}
+		if (btnBinding.getSelection()) {
+			kineticSelected = false;
+			bindingSelected = true;
+		}
+		txtLow.setText(String.format("%.4f", region.getLowEnergy()));
+		txtHigh.setText(String.format("%.4f",
+				region.getHighEnergy()));
+		txtCenter.setText(String.format(
+				"%.4f",
+				(region.getLowEnergy() + region.getHighEnergy()) / 2));
+		txtWidth.setText(String.format("%.4f",
+				(region.getHighEnergy() - region.getLowEnergy())));
+		txtTime.setText(String.format("%.3f", region.getStepTime()));
+		if (btnSwept.getSelection()) {
+			sweptStepSize = region.getEnergyStep();
+			setToSweptMode();
+			updateTotalSteps();
+		} else {
+			setToFixedMode();
+		}
+		spinnerEnergyChannelFrom.setSelection(region
+				.getFirstXChannel());
+		spinnerEnergyChannelTo.setSelection(region
+				.getLastXChannel());
+		spinnerYChannelFrom.setSelection(region.getFirstYChannel());
+		spinnerYChannelTo.setSelection(region.getLastYChannel());
+		spinnerSlices.setSelection(region.getSlices());
+		btnADCMode.setSelection(region.getDetectorMode()
+				.getLiteral().equalsIgnoreCase("ADC"));
+		btnPulseMode.setSelection(region.getDetectorMode()
+				.getLiteral().equalsIgnoreCase("PULSE_COUNTING"));
 	}
 }
