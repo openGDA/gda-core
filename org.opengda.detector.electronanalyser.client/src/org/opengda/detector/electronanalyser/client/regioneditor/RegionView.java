@@ -14,6 +14,8 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -43,8 +45,6 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.eclipse.swt.events.FocusAdapter;
-import org.eclipse.swt.events.FocusEvent;
 
 /**
  * A Region Editor View for defining new or editing existing Region Definition
@@ -96,7 +96,7 @@ public class RegionView extends ViewPart {
 		grpName.setText("Name");
 		grpName.setLayout(new FillLayout());
 
-		regionName = new Combo(grpName, SWT.NONE);
+		regionName = new Text(grpName, SWT.NONE);
 		regionName.setToolTipText("List of available active regions to select");
 
 		Composite bigComposite = new Composite(rootComposite, SWT.None);
@@ -566,7 +566,6 @@ public class RegionView extends ViewPart {
 		}
 	};
 
-	@SuppressWarnings("unchecked")
 	private void initaliseValues() {
 		// TODO replace the following values by sourcing it from detector at
 		// initialisation
@@ -685,13 +684,7 @@ public class RegionView extends ViewPart {
 		}
 		if (regions.isEmpty()) {
 			logger.debug("Sequence is empty. create new sequence in the resource");
-		} else {
-			for (Region region : regions) {
-				if (region.isEnabled()) {
-					regionName.add(region.getName());
-				}
-			}
-		}
+		} 
 		// TODO add monitor to dcmenergy in EPICS
 		// TODO add monitor to pgmenergy in EPICS
 		// TODO add monitor to total steps in EPICS
@@ -884,11 +877,10 @@ public class RegionView extends ViewPart {
 					txtTime.setText(String.format("%.3f", region.getStepTime()));
 					if (btnSwept.getSelection()) {
 						sweptStepSize=region.getEnergyStep();
-						txtSize.setText(String.format("%.3f",
-								sweptStepSize));
+						setToSweptMode();
+						updateTotalSteps();
 					} else {
-						txtSize.setText(String.format("%.3f",
-								region.getEnergyStep()));
+						setToFixedMode();
 					}
 					spinnerEnergyChannelFrom.setSelection(region
 							.getFirstXChannel());
@@ -1137,13 +1129,7 @@ public class RegionView extends ViewPart {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			if (e.getSource().equals(btnFixed)) {
-				// capture the energy step size of the SWEPT
-				// sweptStepSize = Double.parseDouble(txtSize.getText());
-				txtLow.setEditable(false);
-				txtHigh.setEditable(false);
-				txtSize.setEditable(false);
-				txtSize.setText(String.format("%.3f", fixedEnergyRange()));
-				txtTotalSteps.setText("1");
+				setToFixedMode();
 				txtTotalTime.setText(String.format(
 						"%.3f",
 						Integer.parseInt(txtTotalSteps.getText())
@@ -1165,12 +1151,19 @@ public class RegionView extends ViewPart {
 						Double.parseDouble(txtTotalTime.getText()));
 			}
 		}
-
 	};
+
+	private void setToFixedMode() {
+		txtLow.setEditable(false);
+		txtHigh.setEditable(false);
+		txtSize.setEditable(false);
+		txtSize.setText(String.format("%.3f", fixedEnergyRange()));
+		txtTotalSteps.setText("1");
+	}
 	private double fixedEnergyRange() {
 		return Double.parseDouble(txtMinimumSize.getText())
 				* (Integer.parseInt(spinnerEnergyChannelTo.getText()) - Integer
-						.parseInt(spinnerEnergyChannelFrom.getText()));
+						.parseInt(spinnerEnergyChannelFrom.getText())+1);
 	}
 	private Text txtTotalSteps;
 	private Text txtTotalTime;
@@ -1178,11 +1171,7 @@ public class RegionView extends ViewPart {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			if (e.getSource().equals(btnSwept)) {
-				txtLow.setEditable(true);
-				txtHigh.setEditable(true);
-				txtSize.setEditable(true);
-				// restore the original energy step size for the SWEPT
-				txtSize.setText(String.format("%.3f", sweptStepSize));
+				setToSweptMode();
 				updateFeature(region,
 						RegiondefinitionPackage.eINSTANCE
 								.getRegion_EnergyStep(), sweptStepSize);
@@ -1194,7 +1183,16 @@ public class RegionView extends ViewPart {
 						ACQUISITION_MODE.SWEPT);
 			}
 		}
+
 	};
+	private void setToSweptMode() {
+		txtLow.setEditable(true);
+		txtHigh.setEditable(true);
+		txtSize.setEditable(true);
+		// restore the original energy step size for the SWEPT
+		txtSize.setText(String.format("%.3f", sweptStepSize));
+	}
+
 	private Button btnSwept;
 	private Combo lensMode;
 	private Combo runMode;
@@ -1218,7 +1216,7 @@ public class RegionView extends ViewPart {
 	private ScannableMotor pgmenergy;
 	private Button btnFixed;
 	private Button btnBinding;
-	private Combo regionName;
+	private Text regionName;
 	private Spinner numberOfIterationSpinner;
 	private Button btnRepeatuntilStopped;
 	private Button btnConfirmAfterEachInteration;
