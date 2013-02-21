@@ -43,6 +43,8 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
 
 /**
  * A Region Editor View for defining new or editing existing Region Definition
@@ -169,6 +171,12 @@ public class RegionView extends ViewPart {
 				.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		btnSwept = new Button(grpAcquisitionMode, SWT.RADIO);
+		btnSwept.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				sweptStepSize = Double.parseDouble(txtSize.getText());
+			}
+		});
 		btnSwept.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		btnSwept.setText("Swept");
 
@@ -644,7 +652,6 @@ public class RegionView extends ViewPart {
 		txtTime.addSelectionListener(timeSelectionListener);
 		txtTime.addModifyListener(timeModifiedListener);
 		txtSize.addSelectionListener(sizeSelectionListener);
-		txtSize.addModifyListener(sizeModifyListener);
 		txtMinimumSize.addModifyListener(minimumSizeModifyListener);
 		txtMinimumSize.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		if (regionDefinitionResourceUtil.isSourceSelectable()) {
@@ -693,21 +700,6 @@ public class RegionView extends ViewPart {
 	private ModifyListener widthModifyListener = new ModifyListener() {
 		public void modifyText(ModifyEvent e) {
 			updateTotalSteps();
-		}
-	};
-	private ModifyListener sizeModifyListener = new ModifyListener() {
-		public void modifyText(ModifyEvent e) {
-			Object source = e.getSource();
-			if (source.equals(txtSize) && !txtSize.isFocusControl()) {
-				// TODO set to EPICS Size PV in order to get updated total
-				// steps value
-				// only update if txtSize is changed by others, not itself.
-				updateFeature(region,
-						RegiondefinitionPackage.eINSTANCE
-								.getRegion_EnergyStep(),
-						Double.parseDouble(txtSize.getText()));
-				updateTotalSteps();
-			}
 		}
 	};
 	private ModifyListener timeModifiedListener = new ModifyListener() {
@@ -878,13 +870,20 @@ public class RegionView extends ViewPart {
 					txtLow.setText(String.format("%.4f", region.getLowEnergy()));
 					txtHigh.setText(String.format("%.4f",
 							region.getHighEnergy()));
-					txtCenter.setText(String.format("%.4f",
-							region.getFixEnergy()));
+					txtCenter.setText(String.format(
+							"%.4f",
+							(region.getLowEnergy() + region.getHighEnergy()) / 2));
 					txtWidth.setText(String.format("%.4f",
 							(region.getHighEnergy() - region.getLowEnergy())));
 					txtTime.setText(String.format("%.3f", region.getStepTime()));
-					txtSize.setText(String.format("%.3f",
-							region.getEnergyStep()));
+					if (btnSwept.getSelection()) {
+						sweptStepSize=region.getEnergyStep();
+						txtSize.setText(String.format("%.3f",
+								sweptStepSize));
+					} else {
+						txtSize.setText(String.format("%.3f",
+								region.getEnergyStep()));
+					}
 					spinnerEnergyChannelFrom.setSelection(region
 							.getFirstXChannel());
 					spinnerEnergyChannelTo.setSelection(region
@@ -973,13 +972,18 @@ public class RegionView extends ViewPart {
 			if (txtSize.getText().isEmpty()
 					|| (Double.parseDouble(txtSize.getText()) < Double
 							.parseDouble(txtMinimumSize.getText()))) {
-				txtSize.setText(txtMinimumSize.getText());
+				sweptStepSize = Double.parseDouble(txtMinimumSize.getText());
+				txtSize.setText(String.format("%.3f", sweptStepSize));
 				updateFeature(region,
 						RegiondefinitionPackage.eINSTANCE
-								.getRegion_EnergyStep(),
-						Double.parseDouble(txtSize.getText()));
+								.getRegion_EnergyStep(), sweptStepSize);
+				if (btnSwept.getSelection()) {
+					updateTotalSteps();
+				}
 			} else {
-				updateTotalSteps();
+				if (btnSwept.getSelection()) {
+					updateTotalSteps();
+				}
 			}
 		}
 	}
@@ -987,27 +991,27 @@ public class RegionView extends ViewPart {
 	private SelectionAdapter sizeSelectionListener = new SelectionAdapter() {
 		public void widgetDefaultSelected(SelectionEvent e) {
 			Object source = e.getSource();
-			onModifySize(source);
+			if (source.equals(txtSize)) {
+				if (Double.parseDouble(txtSize.getText()) < Double
+						.parseDouble(txtMinimumSize.getText())) {
+					txtSize.setText(txtMinimumSize.getText());
+				} else {
+					txtSize.setText(String.format("%.3f",
+							Double.parseDouble(txtSize.getText())));
+				}
+				updateFeature(region,
+						RegiondefinitionPackage.eINSTANCE
+								.getRegion_EnergyStep(),
+						Double.parseDouble(txtSize.getText()));
+				// set Total steps
+				// TODO set to EPICS size PV to get total size update
+				updateTotalSteps();
+				if (btnSwept.getSelection()) {
+					sweptStepSize = Double.parseDouble(txtSize.getText());
+				}
+			}
 		}
 	};
-
-	protected void onModifySize(Object source) {
-		if (source.equals(txtSize)) {
-			if (Double.parseDouble(txtSize.getText()) < Double
-					.parseDouble(txtMinimumSize.getText())) {
-				txtSize.setText(txtMinimumSize.getText());
-			} else {
-				txtSize.setText(String.format("%.3f",
-						Double.parseDouble(txtSize.getText())));
-			}
-			updateFeature(region,
-					RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(),
-					Double.parseDouble(txtSize.getText()));
-			// set Total steps
-			// TODO set to EPICS size PV to get total size update
-			updateTotalSteps();
-		}
-	}
 
 	private void updateTotalTime() {
 		txtTotalTime.setText(String.format(
@@ -1118,17 +1122,25 @@ public class RegionView extends ViewPart {
 		txtWidth.setText(String.format("%.4f", width));
 	}
 
+	private double sweptStepSize;
+	double fixedEnergyRange;
 	private Text txtCenter;
 	private Text txtWidth;
 	SelectionAdapter fixedSelectionListener = new SelectionAdapter() {
+
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			if (e.getSource().equals(btnFixed)) {
+				// capture the energy step size of the SWEPT
+				// sweptStepSize = Double.parseDouble(txtSize.getText());
 				txtLow.setEditable(false);
 				txtHigh.setEditable(false);
 				txtSize.setEditable(false);
+				fixedEnergyRange = Double.parseDouble(txtMinimumSize.getText())
+						* (Integer.parseInt(spinnerEnergyChannelTo.getText()) - Integer
+								.parseInt(spinnerEnergyChannelFrom.getText()));
+				txtSize.setText(String.format("%.3f", fixedEnergyRange));
 				txtTotalSteps.setText("1");
-				txtSize.setText(txtMinimumSize.getText());
 				txtTotalTime.setText(String.format(
 						"%.3f",
 						Integer.parseInt(txtTotalSteps.getText())
@@ -1137,6 +1149,17 @@ public class RegionView extends ViewPart {
 						RegiondefinitionPackage.eINSTANCE
 								.getRegion_AcquisitionMode(),
 						ACQUISITION_MODE.FIXED);
+				updateFeature(region,
+						RegiondefinitionPackage.eINSTANCE
+								.getRegion_EnergyStep(), fixedEnergyRange);
+				updateFeature(region,
+						RegiondefinitionPackage.eINSTANCE
+								.getRegion_TotalSteps(),
+						Integer.parseInt(txtTotalSteps.getText()));
+				updateFeature(
+						region,
+						RegiondefinitionPackage.eINSTANCE.getRegion_TotalTime(),
+						Double.parseDouble(txtTotalTime.getText()));
 			}
 		}
 	};
@@ -1149,13 +1172,18 @@ public class RegionView extends ViewPart {
 				txtLow.setEditable(true);
 				txtHigh.setEditable(true);
 				txtSize.setEditable(true);
+				// restore the original energy step size for the SWEPT
+				txtSize.setText(String.format("%.3f", sweptStepSize));
+				updateFeature(region,
+						RegiondefinitionPackage.eINSTANCE
+								.getRegion_EnergyStep(), sweptStepSize);
+
 				updateTotalSteps();
 				updateFeature(region,
 						RegiondefinitionPackage.eINSTANCE
 								.getRegion_AcquisitionMode(),
 						ACQUISITION_MODE.SWEPT);
 			}
-
 		}
 	};
 	private Button btnSwept;
@@ -1261,18 +1289,17 @@ public class RegionView extends ViewPart {
 	}
 
 	private void updateEnergyFields() {
-		txtLow.setText(String.format("%.4f",
-				(excitationEnergy - Double.parseDouble(txtLow.getText()))));
-		txtHigh.setText(String.format("%.4f",
-				(excitationEnergy - Double.parseDouble(txtHigh.getText()))));
-		txtCenter.setText(String.format("%.4f",
-				(excitationEnergy - Double.parseDouble(txtCenter.getText()))));
+		double low = Double.parseDouble(txtLow.getText());
+		double high = Double.parseDouble(txtHigh.getText());
+		double center = Double.parseDouble(txtCenter.getText());
+		txtLow.setText(String.format("%.4f", excitationEnergy - high));
+		txtHigh.setText(String.format("%.4f", (excitationEnergy - low)));
+		txtCenter.setText(String.format("%.4f", (excitationEnergy - center)));
 		updateFeature(region,
 				RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(),
 				Double.parseDouble(txtLow.getText()));
 		updateFeature(region,
-				RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(),
-				Double.parseDouble(txtHigh.getText()));
+				RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(), high);
 	}
 
 	@Override
