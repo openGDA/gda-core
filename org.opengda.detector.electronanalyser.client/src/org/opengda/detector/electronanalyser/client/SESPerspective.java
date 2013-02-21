@@ -5,7 +5,7 @@ import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
 public class SESPerspective implements IPerspectiveFactory {
-
+	public static final String ID = "org.opengda.detector.electronanalyser.client.perspective";
 	@Override
 	public void createInitialLayout(IPageLayout layout) {
 		layout.setEditorAreaVisible(false);
