@@ -108,6 +108,12 @@ public class LazyPVFactory {
 		return new LazyPV<Integer>(EPICS_CONTROLLER, pvName, Integer.class);
 	}
 
+	public static PV<Integer> newIntegerFromEnumPV(String pvName) {
+		LazyPV<Integer> pv = new LazyPV<Integer>(EPICS_CONTROLLER, pvName, Integer.class);
+		pv.setShowTypeMismatchWarnings(false);
+		return pv;
+	}
+
 	public static PV<Short> newShortPV(String pvName) {
 		return new LazyPV<Short>(EPICS_CONTROLLER, pvName, Short.class);
 	}
