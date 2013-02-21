@@ -155,7 +155,9 @@ public class LazyPVFactory {
 
 	// NOTE: just uses a short under the covers, so there is no enumType parameter
 	public static PV<Boolean> newBooleanFromEnumPV(String pvName) {
-		return newBooleanFromShortPV(pvName);
+		LazyPV<Short> pv = new LazyPV<Short>(EPICS_CONTROLLER, pvName, Short.class);
+		pv.setShowTypeMismatchWarnings(false);
+		return new BooleanFromShort(pv);
 	}
 
 	//
@@ -294,7 +296,7 @@ public class LazyPVFactory {
 
 	// NOTE: just uses a short under the covers, so there is no enumType parameter.
 	public static ReadOnlyPV<Boolean> newReadOnlyBooleanFromEnumPV(String pvName) {
-		return new ReadOnly<Boolean>(newBooleanFromShortPV(pvName));
+		return new ReadOnly<Boolean>(newBooleanFromEnumPV(pvName));
 	}
 
 	static private class LazyPV<T> implements PV<T> {
@@ -344,6 +346,8 @@ public class LazyPVFactory {
 
 		private PVMonitor<T> observableMonitor;
 
+		private boolean showTypeMismatchWarnings = true;
+		
 		LazyPV(EpicsController controller, String pvName, Class<T> javaType) {
 			this.controller = controller;
 			this.pvName = pvName;
@@ -355,6 +359,10 @@ public class LazyPVFactory {
 			} else {
 				dbrType = javaTypeToDBRType.get(javaType);
 			}
+		}
+		
+		void setShowTypeMismatchWarnings(boolean showTypeMismatchWarnings) {
+			this.showTypeMismatchWarnings = showTypeMismatchWarnings;
 		}
 		
 		@Override
@@ -564,7 +572,7 @@ public class LazyPVFactory {
 			if (channel == null) {
 				try {
 					channel = (controller.createChannel(pvName));
-					if (channel.getFieldType() != dbrType) {
+					if (showTypeMismatchWarnings && channel.getFieldType() != dbrType) {
 						logger.warn(format(
 								"The pv ''{0}'' was expecting a channel of DBR type {1}, but the channel was discovered at runtime to be of DBR type {2}",
 								pvName, javaType, channel.getFieldType()));
