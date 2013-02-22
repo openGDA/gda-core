@@ -18,6 +18,8 @@
 
 package gda.device.detector.addetector.filewriter;
 
+import java.text.MessageFormat;
+
 import gda.data.PathConstructor;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.nxdetector.NXFileWriterPlugin;
@@ -236,7 +238,7 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 	protected long getScanNumber() throws Exception{
 		ScanInformation scanInformation = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
 		if (scanInformation == null || scanInformation.getScanNumber() == null ){
-			throw new Exception("ScanNumber not available");
+			throw new Exception(MessageFormat.format("ScanNumber not available, scanInformation= {0} - If null, check that gda.scan.sets.scannumber = True", scanInformation));
 		}
 		return scanInformation.getScanNumber();
 
