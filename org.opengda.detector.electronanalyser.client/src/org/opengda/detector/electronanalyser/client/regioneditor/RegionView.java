@@ -37,6 +37,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
 import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.RegionDefinitionResourceUtil;
+import org.opengda.detector.electronanalyser.client.RegionStepsTimeEstimation;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.DETECTOR_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE;
@@ -615,16 +616,19 @@ public class RegionView extends ViewPart {
 					Double.parseDouble(txtMinimumTime.getText())
 							* Integer.parseInt(spinnerFrames.getText())));
 			txtSize.setText(String.format("%.3f", 200.0));
-			txtTotalSteps.setText(String.format(
-					"%d",
-					calculateTotalSteps(Double.parseDouble(txtWidth.getText()),
-							Double.parseDouble(txtSize.getText()), (Double
-									.parseDouble(txtMinimumSize.getText()) * camera
-									.getCameraXSize()))));
+			txtTotalSteps
+					.setText(String.format("%d", RegionStepsTimeEstimation
+							.calculateTotalSteps(Double.parseDouble(txtWidth
+									.getText()), Double.parseDouble(txtSize
+									.getText()),
+									(Double.parseDouble(txtMinimumSize
+											.getText()) * camera
+											.getCameraXSize()))));
 			txtTotalTime.setText(String.format(
 					"%.3f",
-					Double.parseDouble(txtTime.getText())
-							* Integer.parseInt(txtTotalSteps.getText())));
+					RegionStepsTimeEstimation.calculateTotalTime(
+							Double.parseDouble(txtTime.getText()),
+							Integer.parseInt(txtTotalSteps.getText()))));
 			// txtTotalSteps.setText(String.format("%d", 0));
 			// txtTotalTime.setText(String.format(
 			// "%.3f",
@@ -977,26 +981,17 @@ public class RegionView extends ViewPart {
 	private void updateTotalTime() {
 		txtTotalTime.setText(String.format(
 				"%.3f",
-				Double.parseDouble(txtTime.getText())
-						* Integer.parseInt(txtTotalSteps.getText())));
+				RegionStepsTimeEstimation.calculateTotalTime(
+						Double.parseDouble(txtTime.getText()),
+						Integer.parseInt(txtTotalSteps.getText()))));
 		updateFeature(region,
 				RegiondefinitionPackage.eINSTANCE.getRegion_TotalTime(),
 				Double.parseDouble(txtTotalTime.getText()));
 	}
 
-	private long calculateTotalSteps(double energywidth, double energystep,
-			double energyrangperimage) {
-		// get number of steps required for the scan
-		long M = (long) Math.ceil(energywidth * 1000 / energystep);
-		// calculate image overlapping number per data point
-		long N = (long) (Math.ceil(energyrangperimage / energystep));
-		return M + N;
-	}
-
 	private void updateTotalSteps() {
-		txtTotalSteps.setText(String.format(
-				"%d",
-				calculateTotalSteps(Double.parseDouble(txtWidth.getText()),
+		txtTotalSteps.setText(String.format("%d", RegionStepsTimeEstimation
+				.calculateTotalSteps(Double.parseDouble(txtWidth.getText()),
 						Double.parseDouble(txtSize.getText()), (Double
 								.parseDouble(txtMinimumSize.getText()) * camera
 								.getCameraXSize()))));
@@ -1101,8 +1096,9 @@ public class RegionView extends ViewPart {
 				setToFixedMode();
 				txtTotalTime.setText(String.format(
 						"%.3f",
-						Integer.parseInt(txtTotalSteps.getText())
-								* Double.parseDouble(txtTime.getText())));
+						RegionStepsTimeEstimation.calculateTotalTime(
+								Double.parseDouble(txtTime.getText()),
+								Integer.parseInt(txtTotalSteps.getText()))));
 				updateFeature(region,
 						RegiondefinitionPackage.eINSTANCE
 								.getRegion_AcquisitionMode(),
@@ -1302,20 +1298,20 @@ public class RegionView extends ViewPart {
 		regionName.setText(region.getName());
 		lensMode.setText(region.getLensMode());
 		passEnergy.setText(String.valueOf(region.getPassEnergy()));
-		runMode.setText(runMode.getItem(region.getRunMode()
-				.getMode().getValue()));
+		runMode.setText(runMode.getItem(region.getRunMode().getMode()
+				.getValue()));
 		btnNumberOfIterations.setSelection(region.getRunMode()
 				.isNumIterationOption());
 		btnRepeatuntilStopped.setSelection(region.getRunMode()
 				.isRepeatUntilStopped());
-		btnConfirmAfterEachInteration.setSelection(region
-				.getRunMode().isConfirmAfterEachInteration());
+		btnConfirmAfterEachInteration.setSelection(region.getRunMode()
+				.isConfirmAfterEachInteration());
 		numberOfIterationSpinner.setSelection(region.getRunMode()
 				.getNumIterations());
-		btnSwept.setSelection(region.getAcquisitionMode()
-				.getLiteral().equalsIgnoreCase("SWEPT"));
-		btnFixed.setSelection(region.getAcquisitionMode()
-				.getLiteral().equalsIgnoreCase("FIXED"));
+		btnSwept.setSelection(region.getAcquisitionMode().getLiteral()
+				.equalsIgnoreCase("SWEPT"));
+		btnFixed.setSelection(region.getAcquisitionMode().getLiteral()
+				.equalsIgnoreCase("FIXED"));
 		btnKinetic.setSelection(region.getEnergyMode().getLiteral()
 				.equalsIgnoreCase("KINETIC"));
 		btnBinding.setSelection(region.getEnergyMode().getLiteral()
@@ -1329,10 +1325,8 @@ public class RegionView extends ViewPart {
 			bindingSelected = true;
 		}
 		txtLow.setText(String.format("%.4f", region.getLowEnergy()));
-		txtHigh.setText(String.format("%.4f",
-				region.getHighEnergy()));
-		txtCenter.setText(String.format(
-				"%.4f",
+		txtHigh.setText(String.format("%.4f", region.getHighEnergy()));
+		txtCenter.setText(String.format("%.4f",
 				(region.getLowEnergy() + region.getHighEnergy()) / 2));
 		txtWidth.setText(String.format("%.4f",
 				(region.getHighEnergy() - region.getLowEnergy())));
@@ -1344,19 +1338,18 @@ public class RegionView extends ViewPart {
 		} else {
 			setToFixedMode();
 		}
-		spinnerEnergyChannelFrom.setSelection(region
-				.getFirstXChannel());
-		spinnerEnergyChannelTo.setSelection(region
-				.getLastXChannel());
+		spinnerEnergyChannelFrom.setSelection(region.getFirstXChannel());
+		spinnerEnergyChannelTo.setSelection(region.getLastXChannel());
 		spinnerYChannelFrom.setSelection(region.getFirstYChannel());
 		spinnerYChannelTo.setSelection(region.getLastYChannel());
 		spinnerSlices.setSelection(region.getSlices());
-		btnADCMode.setSelection(region.getDetectorMode()
-				.getLiteral().equalsIgnoreCase("ADC"));
-		btnPulseMode.setSelection(region.getDetectorMode()
-				.getLiteral().equalsIgnoreCase("PULSE_COUNTING"));
+		btnADCMode.setSelection(region.getDetectorMode().getLiteral()
+				.equalsIgnoreCase("ADC"));
+		btnPulseMode.setSelection(region.getDetectorMode().getLiteral()
+				.equalsIgnoreCase("PULSE_COUNTING"));
 		if (regionDefinitionResourceUtil.isSourceSelectable()) {
-			if (region.getExcitationEnergy()>regionDefinitionResourceUtil.getXRaySourceEnergyLimit()) {
+			if (region.getExcitationEnergy() > regionDefinitionResourceUtil
+					.getXRaySourceEnergyLimit()) {
 				btnHard.setSelection(true);
 				btnSoft.setSelection(false);
 				if (dcmenergy != null) {
@@ -1376,7 +1369,7 @@ public class RegionView extends ViewPart {
 					}
 				}
 				txtSoftEnergy.setText(String.format("%.4f", softXRayEnergy));
-				
+
 			} else {
 				btnHard.setSelection(false);
 				btnSoft.setSelection(true);
@@ -1396,7 +1389,8 @@ public class RegionView extends ViewPart {
 					}
 				}
 				excitationEnergy = softXRayEnergy;
-				txtSoftEnergy.setText(String.format("%.4f", softXRayEnergy));			}
+				txtSoftEnergy.setText(String.format("%.4f", softXRayEnergy));
+			}
 		} else {
 			if (dcmenergy != null) {
 				try {
