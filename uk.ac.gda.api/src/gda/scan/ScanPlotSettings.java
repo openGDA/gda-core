@@ -30,9 +30,9 @@ public class ScanPlotSettings implements Serializable {
 	/**
 	 * The following are values for unlistedColumnBehaviour
 	 */
-	static int PLOT=0;
-	static int PLOT_NOT_VISIBLE=1;
-	static int IGNORE=2;
+	public static int PLOT=0;
+	public static int PLOT_NOT_VISIBLE=1;
+	public static int IGNORE=2;
 	
 	@SuppressWarnings("unused")
 	private static final Logger logger = LoggerFactory.getLogger(ScanPlotSettings.class);
