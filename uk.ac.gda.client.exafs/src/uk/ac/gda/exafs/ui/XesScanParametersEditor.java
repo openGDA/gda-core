@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2013 Diamond Light Source Ltd.
+ * Copyright © 2009 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,33 +18,42 @@
 
 package uk.ac.gda.exafs.ui;
 
-
 import java.net.URL;
 
-import uk.ac.gda.beans.exafs.XasScanParameters;
+import uk.ac.gda.beans.exafs.XesScanParameters;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
-public class XasScanParametersEditor extends XasXanesParametersEditor {
+/**
+ *
+ */
+public final class XesScanParametersEditor extends ExafsBeanFileSelectionEditor {
 
+	/**
+	 */
 	@Override
 	public Class<?> getBeanClass() {
-		return XasScanParameters.class;
+		return XesScanParameters.class;
 	}
 
+	/**
+	 */
 	@Override
 	public URL getMappingUrl() {
-		return XasScanParameters.mappingURL;
+		return XesScanParameters.mappingURL; // Please make sure this field is present and the mapping
 	}
 
+	/**
+	 */
+	@Override
+	public RichBeanEditorPart getRichBeanEditorPart(String path, Object editingBean) {
+		return new XesScanParametersUIEditor(path, getMappingUrl(), this, editingBean);
+	}
+
+	/**
+	 */
 	@Override
 	public URL getSchemaUrl() {
-		return XasScanParameters.schemaUrl;
+		return XesScanParameters.schemaURL; // Please make sure this field is present and the schema
 	}
 
-	@Override
-	protected RichBeanEditorPart getRichBeanEditorPart(String path,Object editingBean) {
-		return new XasScanParametersUIEditor(path, this, editingBean);
-	}
 }
-
-	
