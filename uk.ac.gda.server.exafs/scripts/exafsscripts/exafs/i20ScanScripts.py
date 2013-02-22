@@ -611,14 +611,14 @@ class I20XesScan(XasScan):
                 loggingcontroller.update(None,logmsg)
                 loggingcontroller.update(None,ScanStartedMessage(beanGroup.getScan(),beanGroup.getDetector())) # informs parts of the UI about current scan
                 loggingbean = XasProgressUpdater(loggingcontroller,logmsg,timeRepetitionsStarted)
-                args += [loggingbean]
+                argsForThisScan = args + [loggingbean]
                 try:
                     loggingcontroller.update(None, ScriptProgressEvent("Running scan"))
                     ScanBase.interrupted = False
                     if numRepetitions > 1:
                         print ""
                         print "Starting repetition", str(repetitionNumber),"of",numRepetitions
-                    thisscan = ConcurrentScan(args)
+                    thisscan = ConcurrentScan(argsForThisScan)
                     thisscan = self._setUpDataWriter(thisscan,beanGroup)
                     thisscan.setReturnScannablesToOrginalPositions(False)
                     loggingcontroller.update(None, ScanCreationEvent(thisscan.getName()))
