@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.emf.common.command.Command;
-import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.edit.command.SetCommand;
 import org.eclipse.emf.edit.provider.ComposedAdapterFactory;
 import org.eclipse.emf.edit.provider.ReflectiveItemProviderAdapterFactory;
@@ -46,9 +45,14 @@ import org.opengda.detector.electronanalyser.client.RegionDefinitionResourceUtil
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
 import org.opengda.detector.electronanalyser.model.regiondefinition.provider.RegiondefinitionItemProviderAdapterFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SequenceView extends ViewPart implements ISelectionProvider,
 		IRegionDefinitionView {
+	private static final Logger logger = LoggerFactory
+			.getLogger(SequenceView.class);
+
 	private List<ISelectionChangedListener> selectionChangedListeners;
 	private Camera camera;
 
@@ -131,6 +135,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 
 	@Override
 	public void createPartControl(Composite parent) {
+		//Add action programmablely
 		// getViewSite().getActionBars().getMenuManager().add(new Action() {
 		// @Override
 		// public void run() {
@@ -151,7 +156,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		sequenceTableViewer.getTable().setLinesVisible(true);
 		sequenceTableViewer
 				.addSelectionChangedListener(new ISelectionChangedListener() {
-
 					@Override
 					public void selectionChanged(SelectionChangedEvent event) {
 						ISelection selection = event.getSelection();
@@ -162,7 +166,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 								Region region = (Region) firstElement;
 								fireSelectionChanged(region);
 							}
-
 						}
 					}
 				});
@@ -171,18 +174,16 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 
 		createColumns(sequenceTableViewer, tableLayout);
 
-		// table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1,
-		// 1));
 		tableViewerContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
 				true, true, 1, 1));
 
-		Resource resource = null;
-		try {
-			resource = regionDefinitionResourceUtil.getResource();
-		} catch (Exception e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
+//		Resource resource = null;
+//		try {
+//			resource = regionDefinitionResourceUtil.getResource();
+//		} catch (Exception e2) {
+//			// TODO Auto-generated catch block
+//			e2.printStackTrace();
+//		}
 
 		sequenceTableViewer.setContentProvider(new SequenceViewContentProvider(
 				regionDefinitionResourceUtil));
@@ -194,14 +195,13 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 					.getXRaySourceEnergyLimit());
 		}
 		sequenceTableViewer.setLabelProvider(labelProvider);
-		regions = Collections.EMPTY_LIST;
+		regions = Collections.emptyList();
 
 		try {
 			sequenceTableViewer.setInput(regionDefinitionResourceUtil
 					.getResource());
 		} catch (Exception e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
+			logger.error("Cannot load resouce from file.", e2);
 		}
 		// initializeEditingDomain();
 		// sequenceTableViewer
@@ -428,6 +428,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 	}
 
 	private void initaliseValues() {
+		sequenceTableViewer.setSelection(new StructuredSelection(sequenceTableViewer.getElementAt(0)),true);
 	}
 
 	private List<Region> getRegions() {
@@ -443,7 +444,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 
 	@Override
 	public void setFocus() {
-
+		
 	}
 
 	public void setViewPartName(String viewPartName) {
@@ -538,7 +539,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 						e.printStackTrace();
 					}
 				}
-
 			}
 		}
 	}
@@ -563,11 +563,10 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 	public void refreshTable() {
 		// sequenceTableViewer.refresh();
 		try {
-			sequenceTableViewer
-					.setInput(regionDefinitionResourceUtil.getResource());
+			sequenceTableViewer.setInput(regionDefinitionResourceUtil
+					.getResource());
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Cannot refresh table.", e);
 		}
 	}
 
