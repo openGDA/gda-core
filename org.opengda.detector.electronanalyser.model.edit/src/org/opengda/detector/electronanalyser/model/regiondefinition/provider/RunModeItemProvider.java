@@ -62,7 +62,7 @@ public class RunModeItemProvider
 			addRunModeIndexPropertyDescriptor(object);
 			addNumIterationsPropertyDescriptor(object);
 			addRepeatUntilStoppedPropertyDescriptor(object);
-			addConfirmAfterEachInterationPropertyDescriptor(object);
+			addConfirmAfterEachIterationPropertyDescriptor(object);
 			addNumIterationOptionPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
@@ -157,19 +157,19 @@ public class RunModeItemProvider
 	}
 
 	/**
-	 * This adds a property descriptor for the Confirm After Each Interation feature.
+	 * This adds a property descriptor for the Confirm After Each Iteration feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addConfirmAfterEachInterationPropertyDescriptor(Object object) {
+	protected void addConfirmAfterEachIterationPropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_RunMode_confirmAfterEachInteration_feature"), //$NON-NLS-1$
-				 getString("_UI_PropertyDescriptor_description", "_UI_RunMode_confirmAfterEachInteration_feature", "_UI_RunMode_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				 RegiondefinitionPackage.Literals.RUN_MODE__CONFIRM_AFTER_EACH_INTERATION,
+				 getString("_UI_RunMode_confirmAfterEachIteration_feature"), //$NON-NLS-1$
+				 getString("_UI_PropertyDescriptor_description", "_UI_RunMode_confirmAfterEachIteration_feature", "_UI_RunMode_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				 RegiondefinitionPackage.Literals.RUN_MODE__CONFIRM_AFTER_EACH_ITERATION,
 				 true,
 				 false,
 				 false,
@@ -242,7 +242,7 @@ public class RunModeItemProvider
 			case RegiondefinitionPackage.RUN_MODE__RUN_MODE_INDEX:
 			case RegiondefinitionPackage.RUN_MODE__NUM_ITERATIONS:
 			case RegiondefinitionPackage.RUN_MODE__REPEAT_UNTIL_STOPPED:
-			case RegiondefinitionPackage.RUN_MODE__CONFIRM_AFTER_EACH_INTERATION:
+			case RegiondefinitionPackage.RUN_MODE__CONFIRM_AFTER_EACH_ITERATION:
 			case RegiondefinitionPackage.RUN_MODE__NUM_ITERATION_OPTION:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;

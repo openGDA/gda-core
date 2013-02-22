@@ -16,7 +16,7 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode#getRunModeIndex <em>Run Mode Index</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode#getNumIterations <em>Num Iterations</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode#isRepeatUntilStopped <em>Repeat Until Stopped</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode#isConfirmAfterEachInteration <em>Confirm After Each Interation</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode#isConfirmAfterEachIteration <em>Confirm After Each Iteration</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode#isNumIterationOption <em>Num Iteration Option</em>}</li>
  * </ul>
  * </p>
@@ -246,31 +246,31 @@ public interface RunMode extends EObject {
 	boolean isSetRepeatUntilStopped();
 
 	/**
-	 * Returns the value of the '<em><b>Confirm After Each Interation</b></em>' attribute.
+	 * Returns the value of the '<em><b>Confirm After Each Iteration</b></em>' attribute.
 	 * The default value is <code>"false"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
-	 * If the meaning of the '<em>Confirm After Each Interation</em>' attribute isn't clear,
+	 * If the meaning of the '<em>Confirm After Each Iteration</em>' attribute isn't clear,
 	 * there really should be more of a description here...
 	 * </p>
 	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Confirm After Each Interation</em>' attribute.
-	 * @see #setConfirmAfterEachInteration(boolean)
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRunMode_ConfirmAfterEachInteration()
+	 * @return the value of the '<em>Confirm After Each Iteration</em>' attribute.
+	 * @see #setConfirmAfterEachIteration(boolean)
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRunMode_ConfirmAfterEachIteration()
 	 * @model default="false"
 	 * @generated
 	 */
-	boolean isConfirmAfterEachInteration();
+	boolean isConfirmAfterEachIteration();
 
 	/**
-	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode#isConfirmAfterEachInteration <em>Confirm After Each Interation</em>}' attribute.
+	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode#isConfirmAfterEachIteration <em>Confirm After Each Iteration</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Confirm After Each Interation</em>' attribute.
-	 * @see #isConfirmAfterEachInteration()
+	 * @param value the new value of the '<em>Confirm After Each Iteration</em>' attribute.
+	 * @see #isConfirmAfterEachIteration()
 	 * @generated
 	 */
-	void setConfirmAfterEachInteration(boolean value);
+	void setConfirmAfterEachIteration(boolean value);
 
 	/**
 	 * Returns the value of the '<em><b>Num Iteration Option</b></em>' attribute.

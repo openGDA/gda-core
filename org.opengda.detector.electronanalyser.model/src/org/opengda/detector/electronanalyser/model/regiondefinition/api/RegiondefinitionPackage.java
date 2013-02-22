@@ -466,13 +466,13 @@ public interface RegiondefinitionPackage extends EPackage {
 	int RUN_MODE__REPEAT_UNTIL_STOPPED = 3;
 
 	/**
-	 * The feature id for the '<em><b>Confirm After Each Interation</b></em>' attribute.
+	 * The feature id for the '<em><b>Confirm After Each Iteration</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int RUN_MODE__CONFIRM_AFTER_EACH_INTERATION = 4;
+	int RUN_MODE__CONFIRM_AFTER_EACH_ITERATION = 4;
 
 	/**
 	 * The feature id for the '<em><b>Num Iteration Option</b></em>' attribute.
@@ -1102,15 +1102,15 @@ public interface RegiondefinitionPackage extends EPackage {
 	EAttribute getRunMode_RepeatUntilStopped();
 
 	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode#isConfirmAfterEachInteration <em>Confirm After Each Interation</em>}'.
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode#isConfirmAfterEachIteration <em>Confirm After Each Iteration</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Confirm After Each Interation</em>'.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode#isConfirmAfterEachInteration()
+	 * @return the meta object for the attribute '<em>Confirm After Each Iteration</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode#isConfirmAfterEachIteration()
 	 * @see #getRunMode()
 	 * @generated
 	 */
-	EAttribute getRunMode_ConfirmAfterEachInteration();
+	EAttribute getRunMode_ConfirmAfterEachIteration();
 
 	/**
 	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode#isNumIterationOption <em>Num Iteration Option</em>}'.
@@ -1649,12 +1649,12 @@ public interface RegiondefinitionPackage extends EPackage {
 		EAttribute RUN_MODE__REPEAT_UNTIL_STOPPED = eINSTANCE.getRunMode_RepeatUntilStopped();
 
 		/**
-		 * The meta object literal for the '<em><b>Confirm After Each Interation</b></em>' attribute feature.
+		 * The meta object literal for the '<em><b>Confirm After Each Iteration</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EAttribute RUN_MODE__CONFIRM_AFTER_EACH_INTERATION = eINSTANCE.getRunMode_ConfirmAfterEachInteration();
+		EAttribute RUN_MODE__CONFIRM_AFTER_EACH_ITERATION = eINSTANCE.getRunMode_ConfirmAfterEachIteration();
 
 		/**
 		 * The meta object literal for the '<em><b>Num Iteration Option</b></em>' attribute feature.

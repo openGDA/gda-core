@@ -557,7 +557,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getRunMode_ConfirmAfterEachInteration() {
+	public EAttribute getRunMode_ConfirmAfterEachIteration() {
         return (EAttribute)getRunMode().getEStructuralFeatures().get(4);
 	}
 

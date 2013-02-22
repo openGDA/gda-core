@@ -825,7 +825,7 @@ public class RegionView extends ViewPart {
 			if (e.getSource().equals(btnConfirmAfterEachInteration)) {
 				updateFeature(region.getRunMode(),
 						RegiondefinitionPackage.eINSTANCE
-								.getRunMode_ConfirmAfterEachInteration(),
+								.getRunMode_ConfirmAfterEachIteration(),
 						btnConfirmAfterEachInteration.getSelection());
 			}
 		}
@@ -1305,7 +1305,7 @@ public class RegionView extends ViewPart {
 		btnRepeatuntilStopped.setSelection(region.getRunMode()
 				.isRepeatUntilStopped());
 		btnConfirmAfterEachInteration.setSelection(region.getRunMode()
-				.isConfirmAfterEachInteration());
+				.isConfirmAfterEachIteration());
 		numberOfIterationSpinner.setSelection(region.getRunMode()
 				.getNumIterations());
 		btnSwept.setSelection(region.getAcquisitionMode().getLiteral()

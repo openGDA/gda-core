@@ -89,7 +89,7 @@
         defaultValueLiteral="1" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="repeatUntilStopped" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"
         defaultValueLiteral="false" unsettable="true"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="confirmAfterEachInteration"
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="confirmAfterEachIteration"
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean" defaultValueLiteral="false"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="numIterationOption" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"
         transient="true" defaultValueLiteral="true"/>

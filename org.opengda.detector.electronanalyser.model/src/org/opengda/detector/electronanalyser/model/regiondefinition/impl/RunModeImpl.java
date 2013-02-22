@@ -24,7 +24,7 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode;
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RunModeImpl#getRunModeIndex <em>Run Mode Index</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RunModeImpl#getNumIterations <em>Num Iterations</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RunModeImpl#isRepeatUntilStopped <em>Repeat Until Stopped</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RunModeImpl#isConfirmAfterEachInteration <em>Confirm After Each Interation</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RunModeImpl#isConfirmAfterEachIteration <em>Confirm After Each Iteration</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RunModeImpl#isNumIterationOption <em>Num Iteration Option</em>}</li>
  * </ul>
  * </p>
@@ -149,24 +149,24 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 	protected boolean repeatUntilStoppedESet;
 
 	/**
-	 * The default value of the '{@link #isConfirmAfterEachInteration() <em>Confirm After Each Interation</em>}' attribute.
+	 * The default value of the '{@link #isConfirmAfterEachIteration() <em>Confirm After Each Iteration</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #isConfirmAfterEachInteration()
+	 * @see #isConfirmAfterEachIteration()
 	 * @generated
 	 * @ordered
 	 */
-	protected static final boolean CONFIRM_AFTER_EACH_INTERATION_EDEFAULT = false;
+	protected static final boolean CONFIRM_AFTER_EACH_ITERATION_EDEFAULT = false;
 
 	/**
-	 * The cached value of the '{@link #isConfirmAfterEachInteration() <em>Confirm After Each Interation</em>}' attribute.
+	 * The cached value of the '{@link #isConfirmAfterEachIteration() <em>Confirm After Each Iteration</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #isConfirmAfterEachInteration()
+	 * @see #isConfirmAfterEachIteration()
 	 * @generated
 	 * @ordered
 	 */
-	protected boolean confirmAfterEachInteration = CONFIRM_AFTER_EACH_INTERATION_EDEFAULT;
+	protected boolean confirmAfterEachIteration = CONFIRM_AFTER_EACH_ITERATION_EDEFAULT;
 
 	/**
 	 * The default value of the '{@link #isNumIterationOption() <em>Num Iteration Option</em>}' attribute.
@@ -396,8 +396,8 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public boolean isConfirmAfterEachInteration() {
-		return confirmAfterEachInteration;
+	public boolean isConfirmAfterEachIteration() {
+		return confirmAfterEachIteration;
 	}
 
 	/**
@@ -405,11 +405,11 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public void setConfirmAfterEachInteration(boolean newConfirmAfterEachInteration) {
-		boolean oldConfirmAfterEachInteration = confirmAfterEachInteration;
-		confirmAfterEachInteration = newConfirmAfterEachInteration;
+	public void setConfirmAfterEachIteration(boolean newConfirmAfterEachIteration) {
+		boolean oldConfirmAfterEachIteration = confirmAfterEachIteration;
+		confirmAfterEachIteration = newConfirmAfterEachIteration;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.RUN_MODE__CONFIRM_AFTER_EACH_INTERATION, oldConfirmAfterEachInteration, confirmAfterEachInteration));
+			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.RUN_MODE__CONFIRM_AFTER_EACH_ITERATION, oldConfirmAfterEachIteration, confirmAfterEachIteration));
 	}
 
 	/**
@@ -449,8 +449,8 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 				return getNumIterations();
 			case RegiondefinitionPackage.RUN_MODE__REPEAT_UNTIL_STOPPED:
 				return isRepeatUntilStopped();
-			case RegiondefinitionPackage.RUN_MODE__CONFIRM_AFTER_EACH_INTERATION:
-				return isConfirmAfterEachInteration();
+			case RegiondefinitionPackage.RUN_MODE__CONFIRM_AFTER_EACH_ITERATION:
+				return isConfirmAfterEachIteration();
 			case RegiondefinitionPackage.RUN_MODE__NUM_ITERATION_OPTION:
 				return isNumIterationOption();
 		}
@@ -477,8 +477,8 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 			case RegiondefinitionPackage.RUN_MODE__REPEAT_UNTIL_STOPPED:
 				setRepeatUntilStopped((Boolean)newValue);
 				return;
-			case RegiondefinitionPackage.RUN_MODE__CONFIRM_AFTER_EACH_INTERATION:
-				setConfirmAfterEachInteration((Boolean)newValue);
+			case RegiondefinitionPackage.RUN_MODE__CONFIRM_AFTER_EACH_ITERATION:
+				setConfirmAfterEachIteration((Boolean)newValue);
 				return;
 			case RegiondefinitionPackage.RUN_MODE__NUM_ITERATION_OPTION:
 				setNumIterationOption((Boolean)newValue);
@@ -507,8 +507,8 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 			case RegiondefinitionPackage.RUN_MODE__REPEAT_UNTIL_STOPPED:
 				unsetRepeatUntilStopped();
 				return;
-			case RegiondefinitionPackage.RUN_MODE__CONFIRM_AFTER_EACH_INTERATION:
-				setConfirmAfterEachInteration(CONFIRM_AFTER_EACH_INTERATION_EDEFAULT);
+			case RegiondefinitionPackage.RUN_MODE__CONFIRM_AFTER_EACH_ITERATION:
+				setConfirmAfterEachIteration(CONFIRM_AFTER_EACH_ITERATION_EDEFAULT);
 				return;
 			case RegiondefinitionPackage.RUN_MODE__NUM_ITERATION_OPTION:
 				setNumIterationOption(NUM_ITERATION_OPTION_EDEFAULT);
@@ -533,8 +533,8 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 				return isSetNumIterations();
 			case RegiondefinitionPackage.RUN_MODE__REPEAT_UNTIL_STOPPED:
 				return isSetRepeatUntilStopped();
-			case RegiondefinitionPackage.RUN_MODE__CONFIRM_AFTER_EACH_INTERATION:
-				return confirmAfterEachInteration != CONFIRM_AFTER_EACH_INTERATION_EDEFAULT;
+			case RegiondefinitionPackage.RUN_MODE__CONFIRM_AFTER_EACH_ITERATION:
+				return confirmAfterEachIteration != CONFIRM_AFTER_EACH_ITERATION_EDEFAULT;
 			case RegiondefinitionPackage.RUN_MODE__NUM_ITERATION_OPTION:
 				return numIterationOption != NUM_ITERATION_OPTION_EDEFAULT;
 		}
@@ -559,8 +559,8 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 		if (numIterationsESet) result.append(numIterations); else result.append("<unset>"); //$NON-NLS-1$
 		result.append(", repeatUntilStopped: "); //$NON-NLS-1$
 		if (repeatUntilStoppedESet) result.append(repeatUntilStopped); else result.append("<unset>"); //$NON-NLS-1$
-		result.append(", confirmAfterEachInteration: "); //$NON-NLS-1$
-		result.append(confirmAfterEachInteration);
+		result.append(", confirmAfterEachIteration: "); //$NON-NLS-1$
+		result.append(confirmAfterEachIteration);
 		result.append(", numIterationOption: "); //$NON-NLS-1$
 		result.append(numIterationOption);
 		result.append(')');
