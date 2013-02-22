@@ -22,7 +22,9 @@ import java.util.List;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 
 import uk.ac.gda.beans.validation.AbstractValidator;
@@ -80,18 +82,22 @@ public class RunExperimentCommandHandler extends AbstractExperimentCommandHandle
 	}
 
 	private void addExperimentToQueue(final IExperimentObject ob) throws ExecutionException {
-		
-		
+
+		if (!saveAllOpenEditors()) {
+			return;
+		}
+
 		AbstractValidator validator = ExperimentFactory.getValidator();
-		if (validator != null){
+		if (validator != null) {
 			try {
 				validator.validate(ob);
 			} catch (InvalidBeanException e) {
-				MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Experiment XML invalid",e.getMessage());
+				MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+						"Experiment XML invalid", e.getMessage());
 				return;
 			}
 		}
-		
+
 		ExperimentCommandProvider command;
 		try {
 			command = new ExperimentCommandProvider(ob);
@@ -104,5 +110,21 @@ public class RunExperimentCommandHandler extends AbstractExperimentCommandHandle
 		} catch (Exception e) {
 			throw new ExecutionException("Exception adding ExperimentCommandProvider to CommandQueue.", e);
 		}
+	}
+
+	private boolean saveAllOpenEditors() {
+		if (PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getDirtyEditors().length == 0) {
+			return true;
+		}
+		if (MessageDialog.openConfirm(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+				"Unsaved editors", "All editors need to be saved before adding to the Command Queue.\nIs this OK?")) {
+			IEditorPart[] dirties = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+					.getDirtyEditors();
+			for (IEditorPart part : dirties) {
+				part.doSave(new NullProgressMonitor());
+			}
+			return true;
+		}
+		return false;
 	}
 }
