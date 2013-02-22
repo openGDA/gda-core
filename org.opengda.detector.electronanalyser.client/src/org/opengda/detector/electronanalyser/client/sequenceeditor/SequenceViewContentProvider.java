@@ -9,8 +9,12 @@ import org.eclipse.emf.ecore.util.EContentAdapter;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.opengda.detector.electronanalyser.client.RegionDefinitionResourceUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SequenceViewContentProvider implements IStructuredContentProvider {
+	private static final Logger logger = LoggerFactory
+			.getLogger(SequenceViewContentProvider.class);
 
 	private Viewer viewer;
 	private Resource res;
@@ -61,8 +65,7 @@ public class SequenceViewContentProvider implements IStructuredContentProvider {
 			try {
 				return resUtil.getRegions(false).toArray();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error("Cannot load regions in the sequence.",e);
 			}
 		} else if (inputElement instanceof List) {
 			List regionList = (List) inputElement;
@@ -76,5 +79,4 @@ public class SequenceViewContentProvider implements IStructuredContentProvider {
 		}
 		return null;
 	}
-
 }
