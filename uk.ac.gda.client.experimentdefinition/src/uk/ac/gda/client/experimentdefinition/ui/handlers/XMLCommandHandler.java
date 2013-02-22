@@ -190,7 +190,7 @@ public class XMLCommandHandler extends AbstractExperimentCommandHandler {
 //	}
 
 	public File getTemplatePath() {
-		return new File(ExperimentFactory.getTemplatesFolderPath());
+		return new File(ExperimentFactory.getTemplatesFolderPath() + templateFileName + ".xml");
 	}
 
 	/**
