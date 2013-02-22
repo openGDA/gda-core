@@ -122,6 +122,6 @@ public class RegionDefinitionResourceUtil {
 		this.xRaySourceEnergyLimit = xRaySourceEnergyLimit;
 	}
 
-	private double xRaySourceEnergyLimit;
+	private double xRaySourceEnergyLimit=2100.0;
 
 }
