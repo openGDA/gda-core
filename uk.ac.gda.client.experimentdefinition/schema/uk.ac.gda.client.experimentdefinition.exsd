@@ -31,6 +31,7 @@ This extension point is for use by plugins implementing a beamline-specific impl
             <element ref="experimentobjectmanager"/>
             <element ref="validator"/>
             <element ref="editormanager" minOccurs="0" maxOccurs="1"/>
+            <element ref="templatesLocation" minOccurs="0" maxOccurs="1"/>
          </sequence>
          <attribute name="point" type="string" use="required">
             <annotation>
@@ -104,6 +105,25 @@ This extension point is for use by plugins implementing a beamline-specific impl
                <appinfo>
                   <meta.attribute kind="java" basedOn=":uk.ac.gda.client.experimentdefinition.IExperimentEditorManager"/>
                </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="templatesLocation">
+      <annotation>
+         <documentation>
+            The name of the folder where the XML file templates are stored.  These are the default versions of the XML files which are used when creating new scans.
+
+If not defiend the a folder called templates in the GDA configuration location is assumed.
+         </documentation>
+      </annotation>
+      <complexType>
+         <attribute name="folderName" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
             </annotation>
          </attribute>
       </complexType>

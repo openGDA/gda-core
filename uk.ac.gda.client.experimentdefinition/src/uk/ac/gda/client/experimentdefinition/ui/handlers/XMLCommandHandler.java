@@ -18,8 +18,6 @@
 
 package uk.ac.gda.client.experimentdefinition.ui.handlers;
 
-import gda.configuration.properties.LocalProperties;
-
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
@@ -156,7 +154,7 @@ public class XMLCommandHandler extends AbstractExperimentCommandHandler {
 	}
 
 	public IFile doTemplateCopy(final IFolder runFolder, String fromFileName) {
-		File template = new File(getTemplateDirPath() + fromFileName);
+		File template = new File(ExperimentFactory.getTemplatesFolderPath() + fromFileName);
 		if (!template.exists()) {
 			logger.error("Template: '" + template + "' does not exist and cannot be copied to the file system.");
 			return null;
@@ -181,13 +179,18 @@ public class XMLCommandHandler extends AbstractExperimentCommandHandler {
 
 	}
 
-	public String getTemplateDirPath() {
-
-		return LocalProperties.getConfigDir() + File.separator + "templates" + File.separator;
-	}
+//	public String getTemplateDirPath() {
+////		change this to be configurable, and keep config dir to be the default
+////		
+////		and merge this method and the one below!!!
+////		return LocalProperties.getConfigDir() + File.separator + "templates" + File.separator;
+//		
+//		
+//
+//	}
 
 	public File getTemplatePath() {
-		return new File(LocalProperties.getConfigDir() + "/templates/" + templateFileName + ".xml");
+		return new File(ExperimentFactory.getTemplatesFolderPath());
 	}
 
 	/**

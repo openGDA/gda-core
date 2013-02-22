@@ -20,6 +20,7 @@ package uk.ac.gda.client.experimentdefinition;
 
 import gda.configuration.properties.LocalProperties;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -43,12 +44,13 @@ import uk.ac.gda.client.experimentdefinition.components.ExperimentObjectListener
  */
 public class ExperimentFactory {
 
-	// the name of the class used to manager the 
+	// the name of the class used to manager the
 	private static final String UK_AC_GDA_CLIENT_EXPERIMENTDEFINITION = "uk.ac.gda.client.experimentdefinition";
 	// the names of the elements in the uk.ac.gda.client.experimentdefinition extension point
 	public static final String EXPERIMENT_OBJECT_ELEMENT_NAME = "experimentobjectmanager";
-//	public static final String EXPERIMENT_ELEMENT_NAME = "experimentcontroller";
+	// public static final String EXPERIMENT_ELEMENT_NAME = "experimentcontroller";
 	public static final String VALIDATOR_ELEMENT_NAME = "validator";
+	static String templatesFolder = null;
 
 	private final static Logger logger = LoggerFactory.getLogger(ExperimentFactory.class);
 
@@ -66,7 +68,7 @@ public class ExperimentFactory {
 			managers = new ArrayList<IExperimentObjectManager>(3);
 		managers.add(runObjectManager);
 	}
-	
+
 	public static void emptyManagers() {
 		managers.removeAll(managers);
 		managers = null;
@@ -88,27 +90,27 @@ public class ExperimentFactory {
 		}
 	}
 
-//	/**
-//	 * Validates all the xml in the given folder
-//	 * 
-//	 * @param targetFolder
-//	 * @throws Exception
-//	 */
-//	public static void checkFolder(IContainer targetFolder) throws Exception {
-//		final List<IExperimentObjectManager> mans = getRunManagers(targetFolder);
-//		if (mans != null) {
-//			for (IExperimentObjectManager man : mans) {
-//				man.checkError();
-//			}
-//		}
-//	}
+	// /**
+	// * Validates all the xml in the given folder
+	// *
+	// * @param targetFolder
+	// * @throws Exception
+	// */
+	// public static void checkFolder(IContainer targetFolder) throws Exception {
+	// final List<IExperimentObjectManager> mans = getRunManagers(targetFolder);
+	// if (mans != null) {
+	// for (IExperimentObjectManager man : mans) {
+	// man.checkError();
+	// }
+	// }
+	// }
 
 	/**
 	 * Create a new multiscan in the given location.
 	 * 
 	 * @param file
 	 * @return the manager object of the new multiscan
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public static IExperimentObjectManager createExperimentObjectMananger(IFile file) throws Exception {
 
@@ -204,7 +206,8 @@ public class ExperimentFactory {
 				return element.getAttribute("class");
 			}
 		}
-		throw new Exception("No extension point found for ExperimentObjectManagerClass (" + UK_AC_GDA_CLIENT_EXPERIMENTDEFINITION + ")" );
+		throw new Exception("No extension point found for ExperimentObjectManagerClass ("
+				+ UK_AC_GDA_CLIENT_EXPERIMENTDEFINITION + ")");
 	}
 
 	/**
@@ -238,8 +241,8 @@ public class ExperimentFactory {
 		}
 		return createExperimentObjectMananger(file);
 	}
-	
-	protected static IExperimentObjectManager getManager(final IFolder folder, String multiScanName){
+
+	protected static IExperimentObjectManager getManager(final IFolder folder, String multiScanName) {
 		IFile scanFile = folder.getFile(multiScanName + ".scan");
 		try {
 			return getManager(scanFile);
@@ -247,11 +250,11 @@ public class ExperimentFactory {
 			logger.error("Exception trying to find the multiscan (ExperimentObjectManager) for " + multiScanName
 					+ " in folder " + folder.getName(), e);
 			return null;
-		}		
+		}
 	}
-	
-	public static IExperimentObjectManager getManager(IExperimentObject ob){
-		return getManager(ob.getFolder(),ob.getMultiScanName());
+
+	public static IExperimentObjectManager getManager(IExperimentObject ob) {
+		return getManager(ob.getFolder(), ob.getMultiScanName());
 	}
 
 	/**
@@ -375,7 +378,7 @@ public class ExperimentFactory {
 					for (IExperimentObject ob : runs) {
 						ob.renameFile(orig.getName(), name);
 					}
-//					m.checkError(); // Might have fixed an error.
+					// m.checkError(); // Might have fixed an error.
 					m.write();
 				}
 		} finally {
@@ -406,5 +409,26 @@ public class ExperimentFactory {
 			exafsName = "experiment";
 		}
 		return exafsName;
+	}
+
+	public static String getTemplatesFolderPath() {
+
+		if (templatesFolder == null) {
+			IConfigurationElement[] config = Platform.getExtensionRegistry().getConfigurationElementsFor(
+					ExperimentFactory.UK_AC_GDA_CLIENT_EXPERIMENTDEFINITION);
+			for (IConfigurationElement element : config) {
+				if (element.getName().equals("templatesLocation")) {
+					String valueInRegistry = element.getAttribute("folderName");
+					String passedValue = LocalProperties.get("lsdjfhlasdkfhsdlakjfhlasdkfhlsdafhl", valueInRegistry);
+					templatesFolder = passedValue;
+					if (!templatesFolder.endsWith(File.separator)) {
+						templatesFolder += File.separator;
+					}
+					return templatesFolder;
+				}
+			}
+			templatesFolder = LocalProperties.getConfigDir() + File.separator + "templates" + File.separator;
+		}
+		return templatesFolder;
 	}
 }
