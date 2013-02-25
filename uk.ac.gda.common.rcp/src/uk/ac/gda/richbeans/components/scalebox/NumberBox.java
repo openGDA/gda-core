@@ -425,8 +425,8 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 		StringBuilder buf = null;
 		if (!matches) {
 			try {
-				String valueFromText = Double.valueOf(txt).toString();
-				buf = new StringBuilder(String.format("%." + decimalPlaces + "f", valueFromText));
+//				String valueFromText = Double.valueOf(txt).toString();
+				buf = new StringBuilder(String.format("%." + decimalPlaces + "f", Double.valueOf(txt)));
 			} catch (NumberFormatException e) {
 				text.setForeground(red);
 				return;
