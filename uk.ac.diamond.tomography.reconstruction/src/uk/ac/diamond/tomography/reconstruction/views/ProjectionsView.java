@@ -22,7 +22,7 @@ import gda.analysis.io.ScanFileHolderException;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 
-import org.dawb.common.ui.image.PaletteFactory;
+import org.dawb.common.services.IPaletteService;
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
@@ -76,9 +76,6 @@ import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.diamond.scisoft.analysis.io.TIFFImageLoader;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
-import uk.ac.diamond.tomography.localtomo.LocalTomoType;
-import uk.ac.diamond.tomography.localtomo.TifNXSPathType;
-import uk.ac.diamond.tomography.localtomo.util.LocalTomoUtil;
 import uk.ac.diamond.tomography.reconstruction.Activator;
 import uk.ac.diamond.tomography.reconstruction.ReconUtil;
 import uk.ac.gda.ui.components.IStepperSelectionListener;
@@ -87,6 +84,9 @@ import uk.ac.gda.ui.components.StepperChangedEvent;
 
 public class ProjectionsView extends ViewPart implements ISelectionListener {
 
+	private static final String REGION_DRAG_LINE_NAME = "DragLine";
+	private static final String ERR_MESSAGE_UNABLE_TO_FIND_DATASET = "Unable to find dataset";
+	private static final String ERR_TITLE_DISPLAYING_PROJECTIONS = "Error while displaying projections";
 	private static final String PATH_TO_DATA_IN_NEXUS = "/entry1/tomo_entry/data/data";
 	private static final String UPDATING_DATA = "Updating data";
 	private static final String PROJECTIONS_PLOT = "Projections Plot";
@@ -118,10 +118,6 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 	private Composite emptyPage;
 	private Label lblEmptyPageLabel;
 	private Composite plotPage;
-
-	public ProjectionsView() {
-		// TODO Auto-generated constructor stub
-	}
 
 	private IStepperSelectionListener slicingSelectionStepperListener = new IStepperSelectionListener() {
 
@@ -308,7 +304,9 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 										for (ITrace trace : plottingSystem.getTraces()) {
 											if (trace instanceof IImageTrace) {
 												IImageTrace imageTrace = (IImageTrace) trace;
-												imageTrace.setPaletteData(PaletteFactory.makeGrayScalePalette());
+												final IPaletteService service = (IPaletteService) PlatformUI
+														.getWorkbench().getService(IPaletteService.class);
+												imageTrace.setPaletteData(service.getPaletteData(""));
 											}
 										}
 
@@ -316,16 +314,16 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 								});
 								logger.debug(dataset.getName());
 							} else {
-								showErrorMessage("Error while displaying projections", new IllegalArgumentException(
-										"Unable to find dataset"));
+								showErrorMessage(ERR_TITLE_DISPLAYING_PROJECTIONS, new IllegalArgumentException(
+										ERR_MESSAGE_UNABLE_TO_FIND_DATASET));
 							}
 
 						}
 					});
 				} catch (InvocationTargetException e) {
-					logger.error("TODO put description of error here", e);
+					logger.error("Unable to refresh view", e);
 				} catch (InterruptedException e) {
-					logger.error("TODO put description of error here", e);
+					logger.error("Refresh view interrupted.", e);
 				}
 				return Status.OK_STATUS;
 			}
@@ -334,19 +332,17 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 	}
 
 	private void createMouseFollowLineRegion() {
-
 		if (plottingSystem == null)
 			return;
 		try {
 			xHair = null;
 			if (xHair == null || plottingSystem.getRegion(xHair.getName()) == null) {
-				xHair = plottingSystem.createRegion(RegionUtils.getUniqueName("DragLine", plottingSystem),
+				xHair = plottingSystem.createRegion(RegionUtils.getUniqueName(REGION_DRAG_LINE_NAME, plottingSystem),
 						IRegion.RegionType.YAXIS_LINE);
 				xHair.setRegionColor(ColorConstants.red);
 				xHair.setVisible(true);
 				xHair.setTrackMouse(true);
-				xHair.setUserRegion(false); // They cannot see preferences or change
-											// it!
+				xHair.setUserRegion(false);
 				plottingSystem.addRegion(xHair);
 				xHair.addROIListener(mouseFollowRoiListener);
 
@@ -444,22 +440,12 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 		try {
 			loadFile = hdf5Loader.loadFile();
 			dataset = loadFile.getLazyDataset(PATH_TO_DATA_IN_NEXUS);
-			if (dataset.getRank() != 3) {
-				dataset = null;
-				LocalTomoType localTomoObject = LocalTomoUtil.getLocalTomoObject();
-
-				if (localTomoObject != null) {
-					TifNXSPathType tifNXSPath = localTomoObject.getTomodo().getNexusfile().getTifNXSPath();
-					dataset = loadFile.getLazyDataset(tifNXSPath.getValue());
-				}
-			}
-
 			if (dataset != null) {
 				int[] shape = dataset.getShape();
 				slicingStepper.setSteps(shape[0]);
 				slicingStepper.setSelection(0);
 			} else {
-				throw new IllegalArgumentException("Unable to find dataset");
+				throw new IllegalArgumentException(ERR_MESSAGE_UNABLE_TO_FIND_DATASET);
 			}
 		} catch (ScanFileHolderException e1) {
 			showErrorMessage("Cannot load hdf file", e1);

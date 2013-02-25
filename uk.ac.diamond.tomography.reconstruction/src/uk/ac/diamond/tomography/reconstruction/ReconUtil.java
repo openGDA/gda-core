@@ -30,50 +30,51 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
-import uk.ac.diamond.tomography.localtomo.LocalTomoType;
-import uk.ac.diamond.tomography.localtomo.util.LocalTomoUtil;
 
+/**
+ *
+ */
 public class ReconUtil {
+	private static final String PROCESSING_DIR_RELATIVE_TO_VISIT_DIR = "processing";
+	private static final String HM_SETTINGS_DIR_RELATIVE_TO_VISIT_DIR = IPath.SEPARATOR
+			+ PROCESSING_DIR_RELATIVE_TO_VISIT_DIR + "/sino/";
+	private static final String RECON_OUTDIR_RELATIVE_TO_VISIT_DIR = IPath.SEPARATOR
+			+ PROCESSING_DIR_RELATIVE_TO_VISIT_DIR + "/reconstruction/";
+	private static final String NXS_PATH_TO_BEAMLINE_NAME = "/entry1/instrument/name";
+	private static final String NXS_FILE_EXTN = "nxs";
 	private static final Logger logger = LoggerFactory.getLogger(ReconUtil.class);
 
-	public static File getPathToWriteTo(String nexusFileLocation) {
-
-		String parentPath = getPathRelativeToNxsForProcessing(nexusFileLocation);
-		File pathToRecon = new File(parentPath, "/processing/reconstruction/");
+	public static File getReconOutDir(String nexusFileLocation) {
+		String parentPath = getVisitDirectory(nexusFileLocation);
+		File pathToRecon = new File(parentPath, RECON_OUTDIR_RELATIVE_TO_VISIT_DIR);
 		return pathToRecon;
 	}
 
-	public static String getPathRelativeToNxsForProcessing(String path) {
-		int segmentsToRemove = 0;
+	/**
+	 * @param nexuFileLocation
+	 *            - should be the full path of the form "/dls/ixx/data/yyyy/cmxxxxx/yyyy/yyy"
+	 * @return the visit directory
+	 */
+	public static String getVisitDirectory(String nexuFileLocation) {
+		// the path is expected to be of the form /dls/ixx/data/yyyy/cmxxxxx/yyyy/yyy
+		Path nexusFilePath = new Path(nexuFileLocation);
 
-		LocalTomoType localTomoObject = LocalTomoUtil.getLocalTomoObject();
-
-		if (localTomoObject != null) {
-			segmentsToRemove = localTomoObject.getTomodo().getSegmentsToRemoveRelativeToNexusForOutdir();
+		int segmentCount = nexusFilePath.segmentCount();
+		String visitDir = null;
+		if (segmentCount > 5) {
+			IPath visitDirectoryPath = nexusFilePath.removeLastSegments(segmentCount - 5);
+			visitDir = visitDirectoryPath.toOSString();
+		} else {
+			throw new IllegalArgumentException("Unable to get visit directory from nexus file");
 		}
-
-		Path fileFullPath = new Path(path);
-		IPath parentPath = fileFullPath.removeLastSegments(1);
-		if (segmentsToRemove > 0) {
-			parentPath = parentPath.removeLastSegments(segmentsToRemove);
-		}
-		return parentPath.toOSString();
+		return visitDir;
 	}
 
 	public static File getSettingsFileLocation(IFile nexusFile) {
-		Path path2 = new Path(nexusFile.getName());
-		String fileNameWithoutExtension = path2.removeFileExtension().toOSString();
-		String parentPath = getPathRelativeToNxsForProcessing(nexusFile.getLocation().toOSString());
-
-		String postFixDir = "";
-		LocalTomoType localTomoObject = LocalTomoUtil.getLocalTomoObject();
-		if (localTomoObject != null) {
-			String postFixDirObj = localTomoObject.getTomodo().getSettingsfile().getSettingsDirPostfix();
-			if (postFixDirObj != null && postFixDirObj.length() > 0) {
-				postFixDir = postFixDirObj;
-			}
-		}
-		File pathToRecon = new File(parentPath, "/processing/sino/" + fileNameWithoutExtension + postFixDir);
+		Path nexusFilePath = new Path(nexusFile.getName());
+		String fileNameWithoutExtension = nexusFilePath.removeFileExtension().toOSString();
+		String parentPath = getVisitDirectory(nexusFile.getLocation().toOSString());
+		File pathToRecon = new File(parentPath, HM_SETTINGS_DIR_RELATIVE_TO_VISIT_DIR + fileNameWithoutExtension);
 		return pathToRecon;
 	}
 
@@ -81,29 +82,30 @@ public class ReconUtil {
 		Path path = new Path(hmFileLocation);
 		Path path2 = new Path(new Path(hmFileLocation).lastSegment());
 		String fileNameWithoutExtension = path2.removeFileExtension().toOSString();
-		IPath nxsFilePath = path.removeLastSegments(5).append(fileNameWithoutExtension).addFileExtension("nxs")
+		IPath nxsFilePath = path.removeLastSegments(5).append(fileNameWithoutExtension).addFileExtension(NXS_FILE_EXTN)
 				.setDevice(null);
 		return ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(URI.create(nxsFilePath.toString()))[0];
 	}
 
 	public static IPath getProcessingDir(IFile nexusFile) {
-		String parentPath = getPathRelativeToNxsForProcessing(nexusFile.getLocation().toOSString());
-		return new Path(parentPath).append("processing");
+		String parentPath = getVisitDirectory(nexusFile.getLocation().toOSString());
+		return new Path(parentPath).append(PROCESSING_DIR_RELATIVE_TO_VISIT_DIR);
 	}
 
 	public static File getReducedNexusFile(String nexusFileLocation) {
 		String nexusFileName = new Path(nexusFileLocation).lastSegment();
-		IPath nxsFileWithoutExtn = new Path(nexusFileName).removeFileExtension();
+		IPath nxsFileWithoutExtnPath = new Path(nexusFileName).removeFileExtension();
 		HDF5Loader hdf5Loader = new HDF5Loader(nexusFileLocation);
 		DataHolder loadFile;
 		String beamlineName = null;
 		try {
 			loadFile = hdf5Loader.loadFile();
-			beamlineName = loadFile.getDataset("/entry1/instrument/name").getStringAbs(0);
+			beamlineName = loadFile.getDataset(NXS_PATH_TO_BEAMLINE_NAME).getStringAbs(0);
 		} catch (Exception ex) {
 			logger.error("Problem getting beamline name", ex);
 		}
-
-		return new File(String.format("/dls/tmp/reduced/%s/%s.nxs", beamlineName, nxsFileWithoutExtn.toString()));
+		String nxsFileWithoutExtn = nxsFileWithoutExtnPath.toString();
+		String visitDirectory = getVisitDirectory(nexusFileLocation);
+		return new File(String.format("%s/tmp/reduced/%s/%s.nxs", visitDirectory, beamlineName, nxsFileWithoutExtn));
 	}
 }

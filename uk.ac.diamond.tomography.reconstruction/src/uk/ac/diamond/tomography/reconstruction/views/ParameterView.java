@@ -83,8 +83,6 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
-import uk.ac.diamond.tomography.localtomo.LocalTomoType;
-import uk.ac.diamond.tomography.localtomo.util.LocalTomoUtil;
 import uk.ac.diamond.tomography.reconstruction.Activator;
 import uk.ac.diamond.tomography.reconstruction.ReconUtil;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.BackprojectionType;
@@ -416,14 +414,14 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 				nexusFileLocation = reducedNexusFile.getPath();
 			}
 			File path = new File(nexusFileLocation);
-			File pathToRecon = new File(ReconUtil.getPathRelativeToNxsForProcessing(nexusFileLocation));
+			File pathToRecon = new File(ReconUtil.getVisitDirectory(nexusFileLocation));
 			String imagePath = path.getName().replace(".nxs", "");
 			File pathToImages = null;
 			if (quick) {
 				imagePath = imagePath + "_data_quick";
 				pathToImages = new File(pathToRecon, imagePath);
 			} else {
-				imagePath = String.format("%s/%s", ReconUtil.getPathToWriteTo(nexusFileLocation).toString(), imagePath);
+				imagePath = String.format("%s/%s", ReconUtil.getReconOutDir(nexusFileLocation).toString(), imagePath);
 				pathToImages = new File(imagePath);
 			}
 
@@ -510,10 +508,10 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 			if (quick) {
 				command.append(" --quick");
 			}
-			String localTomoUtilFileLocation = LocalTomoUtil.getLocalTomoUtilFileLocation();
-			if (localTomoUtilFileLocation != null) {
-				command.append(" --local " + localTomoUtilFileLocation);
-			}
+//			String localTomoUtilFileLocation = LocalTomoUtil.getLocalTomoUtilFileLocation();
+//			if (localTomoUtilFileLocation != null) {
+//				command.append(" --local " + localTomoUtilFileLocation);
+//			}
 
 			double inBeamVal = 0;
 			double outOfBeamVal = 0;
@@ -858,21 +856,14 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 	}
 
 	private void createSettingsFile() {
-		LocalTomoType localTomoObject = LocalTomoUtil.getLocalTomoObject();
-		String blueprintFileLoc = "";
+		String blueprintFileLoc = null;
 
-		if (localTomoObject != null) {
-			blueprintFileLoc = "file:" + localTomoObject.getTomodo().getSettingsfile().getBlueprint();
-		}
-		if (blueprintFileLoc == "") {
-			try {
-				blueprintFileLoc = new URL("platform:/plugin/" + Activator.PLUGIN_ID + "/" + "resources/settings.xml")
-						.toString();
-				logger.debug("shFileURL:{}", blueprintFileLoc);
-
-			} catch (MalformedURLException e) {
-				logger.error("TODO put description of error here", e);
-			}
+		try {
+			String urlSpec = String.format("platform:/plugin/%s/resources/settings.xml", Activator.PLUGIN_ID);
+			blueprintFileLoc = new URL(urlSpec).toString();
+			logger.debug("shFileURL:{}", blueprintFileLoc);
+		} catch (MalformedURLException e) {
+			logger.error("URL is malformed.", e);
 		}
 
 		fileOnFileSystem = null;
