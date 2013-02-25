@@ -44,6 +44,8 @@ import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.RegionDefinitionResourceUtil;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum;
 import org.opengda.detector.electronanalyser.model.regiondefinition.provider.RegiondefinitionItemProviderAdapterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,6 +105,20 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 	private TableViewer sequenceTableViewer;
 	private List<Region> regions;
 
+	private Sequence sequence;
+
+	private Spectrum spectrum;
+
+	private Combo runMode;
+
+	private Button btnNumberOfIterations;
+
+	private Spinner spinner;
+
+	private Button btnRepeatuntilStopped;
+
+	private Button btnConfirmAfterEachInteration;
+
 	public void createColumns(TableViewer tableViewer, TableColumnLayout layout) {
 		for (int i = 0; i < columnHeaders.length; i++) {
 			TableViewerColumn tableViewerColumn = new TableViewerColumn(
@@ -135,7 +151,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 
 	@Override
 	public void createPartControl(Composite parent) {
-		//Add action programmablely
+		// Add action programmablely
 		// getViewSite().getActionBars().getMenuManager().add(new Action() {
 		// @Override
 		// public void run() {
@@ -177,13 +193,13 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		tableViewerContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
 				true, true, 1, 1));
 
-//		Resource resource = null;
-//		try {
-//			resource = regionDefinitionResourceUtil.getResource();
-//		} catch (Exception e2) {
-//			// TODO Auto-generated catch block
-//			e2.printStackTrace();
-//		}
+		// Resource resource = null;
+		// try {
+		// resource = regionDefinitionResourceUtil.getResource();
+		// } catch (Exception e2) {
+		// // TODO Auto-generated catch block
+		// e2.printStackTrace();
+		// }
 
 		sequenceTableViewer.setContentProvider(new SequenceViewContentProvider(
 				regionDefinitionResourceUtil));
@@ -194,6 +210,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 			labelProvider.setXRaySourceEnergyLimit(regionDefinitionResourceUtil
 					.getXRaySourceEnergyLimit());
 		}
+		labelProvider.setCamera(camera);
 		sequenceTableViewer.setLabelProvider(labelProvider);
 		regions = Collections.emptyList();
 
@@ -348,31 +365,31 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		grpSequnceRunMode.setLayout(new GridLayout(2, false));
 		grpSequnceRunMode.setText("Sequence Run Mode");
 
-		Combo runMode = new Combo(grpSequnceRunMode, SWT.READ_ONLY);
+		runMode = new Combo(grpSequnceRunMode, SWT.READ_ONLY);
 		runMode.setItems(new String[] { "Normal", "Add Dimension" });
-		runMode.setToolTipText("List of available run modes");
+		runMode.setToolTipText("List of available sequence run modes");
 		runMode.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		runMode.setText(runMode.getItem(0));
 
 		new Label(grpSequnceRunMode, SWT.NONE);
 
-		Button btnNumberOfIterations = new Button(grpSequnceRunMode, SWT.RADIO);
+		btnNumberOfIterations = new Button(grpSequnceRunMode, SWT.RADIO);
 		btnNumberOfIterations.setText("Number of iterations");
 
-		Spinner spinner = new Spinner(grpSequnceRunMode, SWT.BORDER);
+		spinner = new Spinner(grpSequnceRunMode, SWT.BORDER);
 		spinner.setMinimum(1);
 		spinner.setToolTipText("Set number of iterations required");
 
-		Button btnRepeatuntilStopped = new Button(grpSequnceRunMode, SWT.RADIO);
+		btnRepeatuntilStopped = new Button(grpSequnceRunMode, SWT.RADIO);
 		btnRepeatuntilStopped.setText("Repeat until stopped");
 
 		new Label(grpSequnceRunMode, SWT.NONE);
 
-		Button btnConfirmAfterEachInteration = new Button(grpSequnceRunMode,
-				SWT.CHECK);
+		btnConfirmAfterEachInteration = new Button(grpSequnceRunMode, SWT.CHECK);
 		btnConfirmAfterEachInteration.setLayoutData(new GridData(
 				GridData.FILL_HORIZONTAL));
 		btnConfirmAfterEachInteration.setText("Confirm after each iteration");
+
 		new Label(grpSequnceRunMode, SWT.NONE);
 
 		Composite actionArea = new Composite(rootComposite, SWT.None);
@@ -428,8 +445,50 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 	}
 
 	private void initaliseValues() {
-		sequenceTableViewer.setSelection(new StructuredSelection(sequenceTableViewer.getElementAt(0)),true);
+		if (regionDefinitionResourceUtil != null) {
+			try {
+				sequence = regionDefinitionResourceUtil.getSequence(false);
+			} catch (Exception e) {
+				logger.error("Cannot get sequence from resource.", e);
+			}
+		}
+		if (sequence != null) {
+			spectrum = sequence.getSpectrum();
+			runMode.setText(runMode.getItem(sequence.getRunMode().getValue()));
+			btnNumberOfIterations
+					.setSelection(!sequence.isRepeatUntilStopped());
+			btnRepeatuntilStopped.setSelection(sequence.isRepeatUntilStopped());
+			btnConfirmAfterEachInteration.setSelection(sequence
+					.isConfirmAfterEachIteration());
+			spinner.setSelection(sequence.getNumIterations());
+
+			if (spectrum != null) {
+				txtLocation.setText(spectrum.getLocation());
+				txtUser.setText(spectrum.getUser());
+				txtSample.setText(spectrum.getSampleName());
+				txtFilename.setText(spectrum.getFilenamePrefix());
+				String comments = "";
+				for (String comment : spectrum.getComments()) {
+					comments += comment + "\n";
+				}
+				txtComments.setText(comments);
+			}
+		} else {
+			// start a new sequence
+			if (regionDefinitionResourceUtil != null) {
+				try {
+					sequence = regionDefinitionResourceUtil.getSequence(true);
+				} catch (Exception e) {
+					logger.error("Cannot create new sequence file", e);
+				}
+			}
+
+		}
+		sequenceTableViewer.setSelection(new StructuredSelection(
+				sequenceTableViewer.getElementAt(0)), true);
+
 	}
+	
 
 	private List<Region> getRegions() {
 		if (regionDefinitionResourceUtil != null) {
@@ -444,7 +503,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 
 	@Override
 	public void setFocus() {
-		
+		sequenceTableViewer.getTable().setFocus();
 	}
 
 	public void setViewPartName(String viewPartName) {

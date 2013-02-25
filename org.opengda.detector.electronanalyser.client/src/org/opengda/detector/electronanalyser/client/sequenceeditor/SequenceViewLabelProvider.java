@@ -6,14 +6,19 @@ import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
+import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.ElectronAnalyserClientPlugin;
 import org.opengda.detector.electronanalyser.client.ImageConstants;
+import org.opengda.detector.electronanalyser.client.RegionDefinitionResourceUtil;
+import org.opengda.detector.electronanalyser.client.RegionStepsTimeEstimation;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 
 public class SequenceViewLabelProvider extends LabelProvider implements
 		ITableLabelProvider, ITableColorProvider {
 	private double xRaySourceEnergyLimit = 2100.0; // must be in eV
 	private boolean sourceSelectable = false;
+	private Camera camera;
 
 	public double getXRaySourceEnergyLimit() {
 		return xRaySourceEnergyLimit;
@@ -61,13 +66,12 @@ public class SequenceViewLabelProvider extends LabelProvider implements
 							.getImageRegistry()
 							.get(ImageConstants.ICON_UNCHECKED_STATE);
 				}
-			}
-			else if (columnIndex == SequenceTableConstants.COL_STATUS) {
+			} else if (columnIndex == SequenceTableConstants.COL_STATUS) {
 				if (region.isEnabled()) {
 					return ElectronAnalyserClientPlugin.getDefault()
 							.getImageRegistry()
 							.get(ImageConstants.ICON_RUN_READY);
-				} 
+				}
 			}
 		}
 		return null;
@@ -107,9 +111,16 @@ public class SequenceViewLabelProvider extends LabelProvider implements
 			case SequenceTableConstants.COL_STEP_TIME:
 				return Double.toString(region.getStepTime());
 			case SequenceTableConstants.COL_STEPS:
-				return Integer.toString(region.getTotalSteps());
+				if (region.getAcquisitionMode()==ACQUISITION_MODE.SWEPT) {
+					return Long.toString(calculatedSteps(region));
+				} else {
+					Integer.toString(1);
+				}
 			case SequenceTableConstants.COL_TOTAL_TIME:
-				return Double.toString(region.getTotalTime());
+				if (region.getAcquisitionMode()==ACQUISITION_MODE.SWEPT) {
+					return Double.toString(region.getStepTime()*calculatedSteps(region));
+				}
+				Double.toString(region.getStepTime()*1);
 			case SequenceTableConstants.COL_X_CHANNEL_FROM:
 				return Integer.toString(region.getFirstXChannel());
 			case SequenceTableConstants.COL_X_CHANNEL_TO:
@@ -126,5 +137,19 @@ public class SequenceViewLabelProvider extends LabelProvider implements
 			}
 		}
 		return null;
+	}
+
+	private long calculatedSteps(Region region) {
+		return RegionStepsTimeEstimation.calculateTotalSteps(
+				(region.getHighEnergy() - region.getLowEnergy()),
+				region.getEnergyStep(),
+				camera.getEnergyResolution()*region.getPassEnergy()
+						* (region.getLastXChannel() - region
+								.getFirstXChannel()));
+	}
+
+	public void setCamera(Camera camera) {
+		this.camera = camera;
+
 	}
 }
