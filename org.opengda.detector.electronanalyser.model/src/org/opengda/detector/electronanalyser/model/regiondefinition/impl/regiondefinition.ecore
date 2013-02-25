@@ -7,7 +7,10 @@
         unsettable="true" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Sequence">
-    <eOperations name="getRegion" eType="#//Region">
+    <eOperations name="getRegionById" eType="#//Region">
+      <eParameters name="regionId" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eOperations>
+    <eOperations name="getRegionsByName" upperBound="-1" eType="#//Region">
       <eParameters name="regionName" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eOperations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="filename" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"

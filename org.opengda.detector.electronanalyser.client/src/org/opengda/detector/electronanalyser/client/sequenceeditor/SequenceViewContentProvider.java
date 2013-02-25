@@ -17,15 +17,10 @@ public class SequenceViewContentProvider implements IStructuredContentProvider {
 			.getLogger(SequenceViewContentProvider.class);
 
 	private Viewer viewer;
-	private Resource res;
 	private RegionDefinitionResourceUtil resUtil;
 
 	public SequenceViewContentProvider(RegionDefinitionResourceUtil resUtil) {
 		this.resUtil = resUtil;
-		// this.res = res;
-		// if (res != null) {
-		// res.eAdapters().add(notifyListener);
-		// }
 	}
 
 	private Adapter notifyListener = new EContentAdapter() {
@@ -42,8 +37,13 @@ public class SequenceViewContentProvider implements IStructuredContentProvider {
 
 	@Override
 	public void dispose() {
-		if (res != null) {
-			res.eAdapters().remove(notifyListener);
+		try {
+			if (resUtil.getResource() != null) {
+				resUtil.getResource().eAdapters().remove(notifyListener);
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 

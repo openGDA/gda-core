@@ -9,7 +9,7 @@
   <foreignModel>regiondefinition.ecore</foreignModel>
   <genPackages prefix="Regiondefinition" basePackage="org.opengda.detector.electronanalyser.model"
       resource="XML" disposableProviderFactory="true" loadInitialization="true" interfacePackageSuffix="api"
-      metaDataPackageSuffix="api" contentTypeIdentifier="" ecorePackage="regiondefinition.ecore#/">
+      metaDataPackageSuffix="api" contentTypeIdentifier="" fileExtensions="seq" ecorePackage="regiondefinition.ecore#/">
     <genEnums ecoreEnum="regiondefinition.ecore#//RUN_MODES">
       <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//RUN_MODES/NORMAL"/>
       <genEnumLiterals ecoreEnumLiteral="regiondefinition.ecore#//RUN_MODES/ADD_DIMENSION"/>
@@ -44,8 +44,11 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Sequence/repeatUntilStopped"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Sequence/confirmAfterEachIteration"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference regiondefinition.ecore#//Sequence/spectrum"/>
-      <genOperations ecoreOperation="regiondefinition.ecore#//Sequence/getRegion">
-        <genParameters ecoreParameter="regiondefinition.ecore#//Sequence/getRegion/regionName"/>
+      <genOperations ecoreOperation="regiondefinition.ecore#//Sequence/getRegionById">
+        <genParameters ecoreParameter="regiondefinition.ecore#//Sequence/getRegionById/regionId"/>
+      </genOperations>
+      <genOperations ecoreOperation="regiondefinition.ecore#//Sequence/getRegionsByName">
+        <genParameters ecoreParameter="regiondefinition.ecore#//Sequence/getRegionsByName/regionName"/>
       </genOperations>
     </genClasses>
     <genClasses ecoreClass="regiondefinition.ecore#//Region">

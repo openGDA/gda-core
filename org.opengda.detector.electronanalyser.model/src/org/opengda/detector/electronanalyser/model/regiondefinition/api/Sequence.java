@@ -396,6 +396,22 @@ public interface Sequence extends EObject {
 	boolean isSetSpectrum();
 
 	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @model
+	 * @generated
+	 */
+	Region getRegionById(String regionId);
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @model
+	 * @generated
+	 */
+	EList<Region> getRegionsByName(String regionName);
+
+	/**
 	 * Returns the value of the '<em><b>Filename</b></em>' attribute.
 	 * The default value is <code>"user.seq"</code>.
 	 * <!-- begin-user-doc -->
@@ -448,13 +464,5 @@ public interface Sequence extends EObject {
 	 * @generated
 	 */
 	boolean isSetFilename();
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @model
-	 * @generated
-	 */
-	Region getRegion(String regionName);
 
 } // Sequence

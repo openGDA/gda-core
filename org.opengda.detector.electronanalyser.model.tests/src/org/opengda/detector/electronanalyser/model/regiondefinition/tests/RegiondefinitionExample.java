@@ -61,7 +61,7 @@ public class RegiondefinitionExample {
 		if (args.length == 0) {
 			System.out.println("Enter a list of file paths or URIs that have content like this:"); //$NON-NLS-1$
 			try {
-				Resource resource = resourceSet.createResource(URI.createURI("http:///My.regiondefinition")); //$NON-NLS-1$
+				Resource resource = resourceSet.createResource(URI.createURI("http:///My.seq")); //$NON-NLS-1$
 				DocumentRoot root = RegiondefinitionFactory.eINSTANCE.createDocumentRoot();
 				resource.getContents().add(root);
 				resource.save(System.out, null);

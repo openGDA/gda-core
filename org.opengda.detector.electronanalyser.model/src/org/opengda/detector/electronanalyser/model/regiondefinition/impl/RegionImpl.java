@@ -16,6 +16,7 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_M
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.LENS_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.PASS_ENERGY;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionFactory;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
@@ -414,8 +415,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 
 	/**
 	 * The default value of the '{@link #getStepTime() <em>Step Time</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @see #getStepTime()
 	 * @generated
 	 * @ordered
@@ -424,8 +424,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 
 	/**
 	 * The cached value of the '{@link #getStepTime() <em>Step Time</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @see #getStepTime()
 	 * @generated
 	 * @ordered
@@ -434,8 +433,8 @@ public class RegionImpl extends EObjectImpl implements Region {
 
 	/**
 	 * This is true if the Step Time attribute has been set.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc
+	 * --> <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
@@ -671,8 +670,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 
 	/**
 	 * The default value of the '{@link #getTotalSteps() <em>Total Steps</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @see #getTotalSteps()
 	 * @generated
 	 * @ordered
@@ -681,8 +679,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 
 	/**
 	 * The cached value of the '{@link #getTotalSteps() <em>Total Steps</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @see #getTotalSteps()
 	 * @generated
 	 * @ordered
@@ -691,8 +688,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 
 	/**
 	 * The default value of the '{@link #getTotalTime() <em>Total Time</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @see #getTotalTime()
 	 * @generated
 	 * @ordered
@@ -701,8 +697,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 
 	/**
 	 * The cached value of the '{@link #getTotalTime() <em>Total Time</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @see #getTotalTime()
 	 * @generated
 	 * @ordered
@@ -717,6 +712,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected RegionImpl() {
 		super();
 		setRegionId(EcoreUtil.generateUUID());
+		setRunMode(RegiondefinitionFactory.eINSTANCE.createRunMode());
 	}
 
 	/**
@@ -798,8 +794,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	public void setLensMode(String newLensMode) {
@@ -841,8 +836,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	public void setPassEnergy(int newPassEnergy) {
@@ -1016,8 +1010,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	public void setAcquisitionMode(ACQUISITION_MODE newAcquisitionMode) {
@@ -1261,8 +1254,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	public double getStepTime() {
@@ -1270,8 +1262,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	public void setStepTime(double newStepTime) {
@@ -1284,8 +1275,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	public void unsetStepTime() {
@@ -1298,8 +1288,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	public boolean isSetStepTime() {
@@ -1643,8 +1632,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	public int getTotalSteps() {
@@ -1652,8 +1640,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	public void setTotalSteps(int newTotalSteps) {
@@ -1664,8 +1651,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	public double getTotalTime() {
@@ -1673,8 +1659,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	public void setTotalTime(double newTotalTime) {

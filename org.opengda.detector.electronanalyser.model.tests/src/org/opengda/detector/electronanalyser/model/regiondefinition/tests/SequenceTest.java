@@ -16,7 +16,8 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence
  * <p>
  * The following operations are tested:
  * <ul>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRegion(java.lang.String) <em>Get Region</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRegionById(java.lang.String) <em>Get Region By Id</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRegionsByName(java.lang.String) <em>Get Regions By Name</em>}</li>
  * </ul>
  * </p>
  * @generated
@@ -93,13 +94,26 @@ public class SequenceTest extends TestCase {
 	}
 
 	/**
-	 * Tests the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRegion(java.lang.String) <em>Get Region</em>}' operation.
+	 * Tests the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRegionById(java.lang.String) <em>Get Region By Id</em>}' operation.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRegion(java.lang.String)
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRegionById(java.lang.String)
 	 * @generated
 	 */
-	public void testGetRegion__String() {
+	public void testGetRegionById__String() {
+		// TODO: implement this operation test method
+		// Ensure that you remove @generated or mark it @generated NOT
+		fail();
+	}
+
+	/**
+	 * Tests the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRegionsByName(java.lang.String) <em>Get Regions By Name</em>}' operation.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRegionsByName(java.lang.String)
+	 * @generated
+	 */
+	public void testGetRegionsByName__String() {
 		// TODO: implement this operation test method
 		// Ensure that you remove @generated or mark it @generated NOT
 		fail();

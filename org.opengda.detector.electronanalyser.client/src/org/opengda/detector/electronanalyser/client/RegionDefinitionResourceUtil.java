@@ -1,15 +1,20 @@
 package org.opengda.detector.electronanalyser.client;
 
+import gda.data.PathConstructor;
+
+import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.common.command.CommandStack;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.edit.domain.EditingDomain;
+import org.eclipse.emf.transaction.RecordingCommand;
+import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.DocumentRoot;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionFactory;
@@ -19,6 +24,29 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum
 import org.opengda.detector.electronanalyser.model.regiondefinition.util.RegiondefinitionResourceFactoryImpl;
 
 public class RegionDefinitionResourceUtil {
+	String defaultSequenceFilename = "user.seq";
+
+	/**
+	 * returns the default sequence filename. The returned value depends on java
+	 * property {@code gda.data.scan.datawriter.datadir}. If this property is
+	 * set, it will use the path specified by this property to store the
+	 * sequence file. If this property is not set, it will use {@code use.home}
+	 * property to store the sequence file.
+	 * 
+	 * @return
+	 */
+	public String getDefaultSequenceFilename() {
+		String filename;
+		String defaultFolder = PathConstructor.createFromDefaultProperty();
+		if (defaultFolder.isEmpty()) {
+			filename = System.getProperty("user.home") + File.pathSeparator
+					+ defaultSequenceFilename;
+		} else {
+			filename = defaultFolder + File.pathSeparator
+					+ defaultSequenceFilename;
+		}
+		return filename;
+	}
 
 	private String fileName;
 
@@ -28,39 +56,71 @@ public class RegionDefinitionResourceUtil {
 
 	public Resource getResource() throws Exception {
 		ResourceSet resourceSet = getResourceSet();
-		URI fileURI = URI.createFileURI(fileName);
-		return resourceSet.getResource(fileURI, true);
+		File seqFile = new File(fileName);
+		if (seqFile.exists()) {
+			URI fileURI = URI.createFileURI(fileName);
+			return resourceSet.getResource(fileURI, true);
+		}
+		return null;
 	}
 
 	public List<Region> getRegions(boolean shouldCreate) throws Exception {
-		
-		 Sequence sequence = getSequence(shouldCreate);
-		 if(sequence != null) {
-			 return sequence.getRegion();
-		 }
-		 return Collections.emptyList();
+
+		Sequence sequence = getSequence();
+		if (sequence != null) {
+			return sequence.getRegion();
+		}
+		return Collections.emptyList();
 	}
 
-	public Sequence getSequence(boolean shouldCreate) throws Exception {
+	public Resource createResource(String filename) throws Exception {
 		ResourceSet resourceSet = getResourceSet();
+		Resource resource = resourceSet.createResource(URI.createURI(filename));
+		DocumentRoot root = RegiondefinitionFactory.eINSTANCE
+				.createDocumentRoot();
 
+		Sequence seq = RegiondefinitionFactory.eINSTANCE.createSequence();
+		root.setSequence(seq);
+
+		resource.getContents().add(root);
+		return resource;
+	}
+
+	public Sequence createSequence() throws Exception {
+		final Resource newResource = getResourceSet().createResource(
+				URI.createFileURI(fileName));
+		final DocumentRoot root = RegiondefinitionFactory.eINSTANCE
+				.createDocumentRoot();
+		
+		Spectrum spectrum = RegiondefinitionFactory.eINSTANCE.createSpectrum();
+		Sequence seq = RegiondefinitionFactory.eINSTANCE.createSequence();
+		seq.setSpectrum(spectrum);
+		root.setSequence(seq);
+		
+		EditingDomain editingDomain = getEditingDomain();
+		final CommandStack commandStack = editingDomain.getCommandStack();
+		commandStack.execute(new RecordingCommand(
+				(TransactionalEditingDomain) editingDomain) {
+
+			@Override
+			protected void doExecute() {
+				newResource.getContents().add(root);
+			}
+		});
+		try {
+			newResource.save(null);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return getSequence();
+	}
+
+	public Sequence getSequence() throws Exception {
 		// Register the appropriate resource factory to handle all file
 		// extensions.
 		//
-
 		Resource res = getResource();
-		if (res == null && shouldCreate) {
-			Resource resource = resourceSet.createResource(URI
-					.createURI(fileName));
-			DocumentRoot root = RegiondefinitionFactory.eINSTANCE
-					.createDocumentRoot();
-			resource.getContents().add(root);
-			try {
-				resource.save(null);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 
 		if (res != null) {
 			List<EObject> contents = res.getContents();
@@ -76,13 +136,16 @@ public class RegionDefinitionResourceUtil {
 	}
 
 	public Spectrum getSpectrum(boolean shouldCreate) throws Exception {
-		return getSequence(shouldCreate).getSpectrum();
+		return getSequence().getSpectrum();
 	}
-	
+
 	private ResourceSet getResourceSet() throws Exception {
 		EditingDomain sequenceEditingDomain = ElectronAnalyserClientPlugin
 				.getDefault().getSequenceEditingDomain();
+		// Create a resource set to hold the resources.
 		ResourceSet resourceSet = sequenceEditingDomain.getResourceSet();
+		// Register the appropriate resource factory to handle all file
+		// extensions.
 		resourceSet
 				.getResourceFactoryRegistry()
 				.getExtensionToFactoryMap()
@@ -104,6 +167,7 @@ public class RegionDefinitionResourceUtil {
 		return ElectronAnalyserClientPlugin.getDefault()
 				.getSequenceEditingDomain();
 	}
+
 	private boolean sourceSelectable;
 
 	public boolean isSourceSelectable() {
@@ -122,6 +186,6 @@ public class RegionDefinitionResourceUtil {
 		this.xRaySourceEnergyLimit = xRaySourceEnergyLimit;
 	}
 
-	private double xRaySourceEnergyLimit=2100.0;
+	private double xRaySourceEnergyLimit = 2100.0;
 
 }

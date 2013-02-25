@@ -1,10 +1,18 @@
 package org.opengda.detector.electronanalyser.client.sequenceeditor;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.emf.common.command.Command;
+import org.eclipse.emf.common.notify.Adapter;
+import org.eclipse.emf.common.notify.Notification;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.util.EContentAdapter;
+import org.eclipse.emf.edit.command.AddCommand;
 import org.eclipse.emf.edit.command.SetCommand;
 import org.eclipse.emf.edit.provider.ComposedAdapterFactory;
 import org.eclipse.emf.edit.provider.ReflectiveItemProviderAdapterFactory;
@@ -39,10 +47,12 @@ import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.ISaveablePart;
 import org.eclipse.ui.part.ViewPart;
 import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.RegionDefinitionResourceUtil;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionFactory;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum;
@@ -51,7 +61,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SequenceView extends ViewPart implements ISelectionProvider,
-		IRegionDefinitionView {
+		IRegionDefinitionView, ISaveablePart {
 	private static final Logger logger = LoggerFactory
 			.getLogger(SequenceView.class);
 
@@ -118,6 +128,10 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 	private Button btnRepeatuntilStopped;
 
 	private Button btnConfirmAfterEachInteration;
+
+	protected boolean isDirty;
+
+	private Resource resource;
 
 	public void createColumns(TableViewer tableViewer, TableColumnLayout layout) {
 		for (int i = 0; i < columnHeaders.length; i++) {
@@ -215,8 +229,10 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		regions = Collections.emptyList();
 
 		try {
-			sequenceTableViewer.setInput(regionDefinitionResourceUtil
-					.getResource());
+
+			resource = regionDefinitionResourceUtil.getResource();
+			resource.eAdapters().add(notifyListener);
+			sequenceTableViewer.setInput(resource);
 		} catch (Exception e2) {
 			logger.error("Cannot load resouce from file.", e2);
 		}
@@ -269,6 +285,23 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		btnNew.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				try {
+					regionDefinitionResourceUtil
+							.getEditingDomain()
+							.getCommandStack()
+							.execute(
+									AddCommand.create(
+											regionDefinitionResourceUtil
+													.getEditingDomain(),
+											regionDefinitionResourceUtil
+													.getSequence(),
+											RegiondefinitionPackage.eINSTANCE
+													.getSequence_Region(),
+											RegiondefinitionFactory.eINSTANCE
+													.createRegion()));
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
 			}
 		});
 		btnNew.setText("New");
@@ -405,7 +438,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				try {
-					regionDefinitionResourceUtil.getResource().save(null);
+					// resource.save(null);
+					doSave(new NullProgressMonitor());
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
@@ -431,7 +465,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				try {
-					regionDefinitionResourceUtil.getResource().save(null);
+					resource.save(null);
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
@@ -447,7 +481,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 	private void initaliseValues() {
 		if (regionDefinitionResourceUtil != null) {
 			try {
-				sequence = regionDefinitionResourceUtil.getSequence(false);
+				sequence = regionDefinitionResourceUtil.getSequence();
 			} catch (Exception e) {
 				logger.error("Cannot get sequence from resource.", e);
 			}
@@ -477,7 +511,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 			// start a new sequence
 			if (regionDefinitionResourceUtil != null) {
 				try {
-					sequence = regionDefinitionResourceUtil.getSequence(true);
+					sequence = regionDefinitionResourceUtil.getSequence();
 				} catch (Exception e) {
 					logger.error("Cannot create new sequence file", e);
 				}
@@ -488,7 +522,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 				sequenceTableViewer.getElementAt(0)), true);
 
 	}
-	
 
 	private List<Region> getRegions() {
 		if (regionDefinitionResourceUtil != null) {
@@ -633,4 +666,63 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 	public RegionDefinitionResourceUtil getRegionDefinitionResourceUtil() {
 		return regionDefinitionResourceUtil;
 	}
+
+	@Override
+	public void doSave(IProgressMonitor monitor) {
+		try {
+			regionDefinitionResourceUtil.getResource().save(null);
+			isDirty = false;
+			firePropertyChange(PROP_DIRTY);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void doSaveAs() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public boolean isDirty() {
+		return isDirty;
+	}
+
+	@Override
+	public boolean isSaveAsAllowed() {
+		return true;
+	}
+
+	@Override
+	public boolean isSaveOnCloseNeeded() {
+		return true;
+	}
+
+	private Adapter notifyListener = new EContentAdapter() {
+
+		@Override
+		public void notifyChanged(Notification notification) {
+			super.notifyChanged(notification);
+			if (notification.getNotifier() != null) {
+				isDirty = true;
+				firePropertyChange(PROP_DIRTY);
+			}
+		}
+
+	};
+
+	public void dispose() {
+		try {
+			regionDefinitionResourceUtil.getResource().eAdapters()
+					.remove(notifyListener);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 }
