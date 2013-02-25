@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -157,26 +157,25 @@ public class ComboWrapper extends ButtonComposite implements IFieldWidget{
 	
 	@Override
 	public void setValue(Object value) {
-		if (value==null) {
+		if (value == null) {
 			combo.clearSelection();
 			if (combo.getSelectionIndex() != -1) {
-				throw new IllegalArgumentException("Attempted to clearSelection of Read Only ComboWrapper " + getFieldName());
+				throw new IllegalArgumentException("Attempted to clearSelection of Read Only ComboWrapper "
+						+ getFieldName());
 			}
 			return;
 		}
-		
+
 		String textValue = itemMap != null ? getKeyForValue(value) : value.toString();
-		if (textValue == null && itemMap != null && !itemMap.isEmpty()) textValue = itemMap.keySet().iterator().next();
-		if (textValue!=null) {
-			final int index        = combo.indexOf(textValue);
-			if (index<0) {
+		if (textValue == null && itemMap != null && !itemMap.isEmpty())
+			textValue = itemMap.keySet().iterator().next();
+		if (textValue != null) {
+			final int index = combo.indexOf(textValue);
+			if (index < 0) {
 				combo.clearSelection();
-				if (combo.getSelectionIndex() != -1) {
-					throw new IllegalArgumentException("Attempted to clearSelection of Read Only ComboWrapper " + getFieldName());
-				}
-			} else {
-				combo.select(index);
+				throw new IllegalArgumentException("String '" + textValue + "' was not found for ComboBox");
 			}
+			combo.select(index);
 		}
 	}
 
