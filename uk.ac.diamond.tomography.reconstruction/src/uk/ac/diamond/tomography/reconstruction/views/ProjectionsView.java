@@ -36,9 +36,11 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.MouseListener;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -85,6 +87,7 @@ import uk.ac.gda.ui.components.StepperChangedEvent;
 
 public class ProjectionsView extends ViewPart implements ISelectionListener {
 
+	private static final String PATH_TO_DATA_IN_NEXUS = "/entry1/tomo_entry/data/data";
 	private static final String UPDATING_DATA = "Updating data";
 	private static final String PROJECTIONS_PLOT = "Projections Plot";
 	private static final String FILE_NAME = "File name";
@@ -93,7 +96,7 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 	private final String LBL_PREVIOUS = "PREVIOUS";
 	private final String LBL_NEXT = "NEXT";
 
-	private final int SPLITS = 100;
+	public final static int SPLITS = 128;
 	/**
 	 * Setup the logging facilities
 	 */
@@ -291,8 +294,8 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 							if (dataset != null) {
 								int[] shape = dataset.getShape();
 								shape[0] = position + 1;
-								IDataset slice = dataset.getSlice(new int[] { position, 0, 0 }, shape,
-										new int[] { 1, 1, 1 });
+								IDataset slice = dataset.getSlice(new int[] { position, 0, 0 }, shape, new int[] { 1,
+										1, 1 });
 								final ILazyDataset squeeze = slice.squeeze();
 
 								getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
@@ -440,10 +443,7 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 		DataHolder loadFile;
 		try {
 			loadFile = hdf5Loader.loadFile();
-
-			// if this is an HDF5 object, we need no local information
-			// TODO hardcoded for testing, but this needs to be sorted out when proper format is specified.
-			dataset = loadFile.getLazyDataset("/entry1/instrument/pco4000_dio_hdf/data");
+			dataset = loadFile.getLazyDataset(PATH_TO_DATA_IN_NEXUS);
 			if (dataset.getRank() != 3) {
 				dataset = null;
 				LocalTomoType localTomoObject = LocalTomoUtil.getLocalTomoObject();
@@ -451,7 +451,6 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 				if (localTomoObject != null) {
 					TifNXSPathType tifNXSPath = localTomoObject.getTomodo().getNexusfile().getTifNXSPath();
 					dataset = loadFile.getLazyDataset(tifNXSPath.getValue());
-					// dataset = loadFile.getLazyDataset("/entry1/instrument/pco1_hw_tif/image_data");
 				}
 			}
 
@@ -504,7 +503,7 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 		super.dispose();
 	}
 
-	public void displayReconstruction(final IFile nexusFile, final int pixelPosition) {
+	public void displayReconstruction(final String nexusFileLocation, final int pixelPosition) {
 
 		UIJob displayJob = new UIJob(getViewSite().getShell().getDisplay(), "Update Reconstruction Display") {
 
@@ -514,35 +513,45 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 				monitor.beginTask("Showing Reconstruction", 5);
 				// Update monitor
 				monitor.worked(1);
-
-				File path = new File(nexusFile.getLocation().toOSString());
-				File pathToRecon = ReconUtil.getPathToWriteTo(nexusFile);
-				File pathToImages = new File(pathToRecon, path.getName().replace(".nxs", "") + "_data_quick");
-				File imageFile = new File(pathToImages, String.format("image_%05d.tif", pixelPosition));
-
-				// update monitor
-				monitor.worked(1);
-
-				try {
-					DataHolder data = new TIFFImageLoader(imageFile.getAbsolutePath()).loadFile();
-
+				File reducedNexusFile = ReconUtil.getReducedNexusFile(nexusFileLocation);
+				String reducedNxsFileName = new Path(reducedNexusFile.getPath()).removeFileExtension().toOSString();
+				logger.debug("reducedNexusFile {}", reducedNexusFile);
+				// File path = new File(nexusFileLocation);
+				// File pathToRecon = ReconUtil.getPathToWriteTo(nexusFileLocation);
+				File pathToImages = new File(String.format("%s_data_quick", reducedNxsFileName));
+				File imageFile = new File(pathToImages, String.format("recon_%05d.tif", pixelPosition / SPLITS));
+				logger.debug("Looking for image file {}", imageFile.getPath());
+				if (imageFile.exists()) {
 					// update monitor
 					monitor.worked(1);
 
-					AbstractDataset image = data.getDataset(0);
-					image.isubtract(image.min());
-					image.imultiply(1000.0);
+					try {
+						DataHolder data = new TIFFImageLoader(imageFile.getAbsolutePath()).loadFile();
 
-					// update monitor
-					monitor.worked(1);
+						// update monitor
+						monitor.worked(1);
 
-					SDAPlotter.imagePlot("Plot 1", image);
+						AbstractDataset image = data.getDataset(0);
+						image.isubtract(image.min());
+						image.imultiply(1000.0);
 
-					// update monitor
-					monitor.worked(1);
-				} catch (Exception e) {
-					logger.error("TODO cannot Load reconstruction for display", e);
-					return Status.CANCEL_STATUS;
+						// update monitor
+						monitor.worked(1);
+
+						SDAPlotter.imagePlot("Plot 1", image);
+
+						// update monitor
+						monitor.worked(1);
+					} catch (Exception e) {
+						logger.error("TODO cannot Load reconstruction for display", e);
+						return Status.CANCEL_STATUS;
+					}
+				} else {
+					MessageDialog
+							.openError(
+									getViewSite().getShell(),
+									"Problem loading data",
+									"Unable to locate image for the slice. \n\nIt may be advisable to run a Preview Recon(from the Parameters View) and try loading the slice again. ");
 				}
 				return Status.OK_STATUS;
 			}
@@ -555,7 +564,7 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 
 	private void roiSet(double d) {
 		logger.debug("roi set:{}", d);
-		displayReconstruction(nexusFile, (int) d);
+		displayReconstruction(nexusFile.getLocation().toOSString(), (int) d);
 	}
 
 }

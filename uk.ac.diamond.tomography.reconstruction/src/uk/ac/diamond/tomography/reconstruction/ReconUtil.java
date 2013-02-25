@@ -25,20 +25,25 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.io.DataHolder;
+import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.diamond.tomography.localtomo.LocalTomoType;
 import uk.ac.diamond.tomography.localtomo.util.LocalTomoUtil;
 
 public class ReconUtil {
+	private static final Logger logger = LoggerFactory.getLogger(ReconUtil.class);
 
-	public static File getPathToWriteTo(IFile nexusFile) {
+	public static File getPathToWriteTo(String nexusFileLocation) {
 
-		String parentPath = getPathRelativeToNxsForProcessing(nexusFile.getLocation().toOSString());
+		String parentPath = getPathRelativeToNxsForProcessing(nexusFileLocation);
 		File pathToRecon = new File(parentPath, "/processing/reconstruction/");
 		return pathToRecon;
 	}
 
-	private static String getPathRelativeToNxsForProcessing(String path) {
+	public static String getPathRelativeToNxsForProcessing(String path) {
 		int segmentsToRemove = 0;
 
 		LocalTomoType localTomoObject = LocalTomoUtil.getLocalTomoObject();
@@ -84,5 +89,21 @@ public class ReconUtil {
 	public static IPath getProcessingDir(IFile nexusFile) {
 		String parentPath = getPathRelativeToNxsForProcessing(nexusFile.getLocation().toOSString());
 		return new Path(parentPath).append("processing");
+	}
+
+	public static File getReducedNexusFile(String nexusFileLocation) {
+		String nexusFileName = new Path(nexusFileLocation).lastSegment();
+		IPath nxsFileWithoutExtn = new Path(nexusFileName).removeFileExtension();
+		HDF5Loader hdf5Loader = new HDF5Loader(nexusFileLocation);
+		DataHolder loadFile;
+		String beamlineName = null;
+		try {
+			loadFile = hdf5Loader.loadFile();
+			beamlineName = loadFile.getDataset("/entry1/instrument/name").getStringAbs(0);
+		} catch (Exception ex) {
+			logger.error("Problem getting beamline name", ex);
+		}
+
+		return new File(String.format("/dls/tmp/reduced/%s/%s.nxs", beamlineName, nxsFileWithoutExtn.toString()));
 	}
 }

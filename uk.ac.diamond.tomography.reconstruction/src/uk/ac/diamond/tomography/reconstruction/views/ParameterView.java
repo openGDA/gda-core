@@ -40,6 +40,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -65,7 +66,6 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
@@ -84,7 +84,6 @@ import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.diamond.tomography.localtomo.LocalTomoType;
-import uk.ac.diamond.tomography.localtomo.TifNXSPathType;
 import uk.ac.diamond.tomography.localtomo.util.LocalTomoUtil;
 import uk.ac.diamond.tomography.reconstruction.Activator;
 import uk.ac.diamond.tomography.reconstruction.ReconUtil;
@@ -114,6 +113,7 @@ import uk.ac.gda.util.io.FileUtils;
 
 public class ParameterView extends ViewPart implements ISelectionListener, IParameterView {
 
+	private static final String DATA_PATH_IN_NEXUS = "/entry1/tomo_entry/data/data";
 	private static final String FULL_RECONSTRUCTION = "Full Reconstruction";
 	private static final String ADVANCED_SETTINGS = "Advanced Settings";
 	private static final String FILE_NAME = "File Name";
@@ -407,10 +407,25 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 			logger.debug("tomoDoShScript:{}", tomoDoShScript);
 
 			IPath fullPath = nexusFile.getLocation();
+			if (quick) {
+				fullPath = new Path(reducedNexusFile.getPath());
+			}
 
-			File path = new File(nexusFile.getLocation().toOSString());
-			File pathToRecon = ReconUtil.getPathToWriteTo(nexusFile);
-			File pathToImages = new File(pathToRecon, path.getName().replace(".nxs", "") + "_data_quick");
+			String nexusFileLocation = nexusFile.getLocation().toString();
+			if (quick) {
+				nexusFileLocation = reducedNexusFile.getPath();
+			}
+			File path = new File(nexusFileLocation);
+			File pathToRecon = new File(ReconUtil.getPathRelativeToNxsForProcessing(nexusFileLocation));
+			String imagePath = path.getName().replace(".nxs", "");
+			File pathToImages = null;
+			if (quick) {
+				imagePath = imagePath + "_data_quick";
+				pathToImages = new File(pathToRecon, imagePath);
+			} else {
+				imagePath = String.format("%s/%s", ReconUtil.getPathToWriteTo(nexusFileLocation).toString(), imagePath);
+				pathToImages = new File(imagePath);
+			}
 
 			if (pathToImages.exists()) {
 				final File[] files = pathToImages.listFiles();
@@ -435,36 +450,14 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 			String templateFileName = hmSettingsInProcessingDir.getAbsolutePath();
 
 			int height = hdfShape[1];
-			String centerOfRotText = txtCenterOfRotation.getText();
-			double centerOfRotationValue = 2000;
-			try {
-				centerOfRotationValue = Double.parseDouble(centerOfRotText);
-			} catch (NumberFormatException n) {
-				logger.error("Cant parse", n);
+			if (quick) {
+				height = reducedDataShape[1];
 			}
 
-			StringBuffer command = new StringBuffer(String.format("%s -e %d -n -t %s -c %f", shScriptName, height,
-					templateFileName, centerOfRotationValue));
-			if (quick) {
-				command.append(" -q 100");
-			}
+			StringBuffer command = new StringBuffer(String.format("%s -m 2 -e %d -n -t %s", shScriptName, height,
+					templateFileName));
 			command.append(" " + fileName);
 			command.append(" " + pathToImages.toString());
-
-			// String localTomoUtilFileLocation = LocalTomoUtil.getLocalTomoUtilFileLocation();
-			// if (localTomoUtilFileLocation != null) {
-			// command.append(" --local " + localTomoUtilFileLocation);
-			// }
-
-			double inBeamVal = 0;
-			double outOfBeamVal = 0;
-
-			// if (!isImageKeyAvailable && sampleInOutBeamPositionDialog != null) {
-			// inBeamVal = sampleInOutBeamPositionDialog.getInBeamPosition();
-			// outOfBeamVal = sampleInOutBeamPositionDialog.getOutOfBeamPosition();
-			// }
-			// command.append(String.format(" --stageInBeamPhys %s", inBeamVal));
-			// command.append(String.format(" --stageOutOfBeamPhys %s", outOfBeamVal));
 
 			logger.debug("Command that will be run:{}", command);
 			OSCommandRunner.runNoWait(command.toString(), LOGOPTION.ALWAYS, null);
@@ -535,9 +528,9 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 			logger.debug("Command that will be run:{}", command);
 			OSCommandRunner.runNoWait(command.toString(), LOGOPTION.ALWAYS, null);
 		} catch (URISyntaxException e) {
-			logger.error("TODO put description of error here", e);
+			logger.error("Unable to find the URI of the scripts file", e);
 		} catch (IOException e) {
-			logger.error("TODO put description of error here", e);
+			logger.error("Problem finding scripts for recon", e);
 		}
 	}
 
@@ -581,16 +574,8 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 				}
 				IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), tomoSettingsFile,
 						HmEditor.ID);
-			} catch (PartInitException e1) {
-				logger.error("TODO put description of error here", e1);
-			} catch (InvocationTargetException inve) {
-				// TODO Auto-generated catch block
-				logger.error("TODO put description of error here", inve);
-			} catch (InterruptedException intre) {
-				// TODO Auto-generated catch block
-				logger.error("TODO put description of error here", intre);
 			} catch (Exception ex) {
-				logger.error("TODO put description of error here", ex);
+				logger.error("Cannot open HM editor - ", ex);
 			}
 		}
 	}
@@ -757,6 +742,8 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 	private Composite emptyCmp;
 	private boolean isHdf = false;
 	private int[] hdfShape;
+	private File reducedNexusFile;
+	private int[] reducedDataShape;
 
 	protected void saveModel() {
 		HMxmlType model = getModel();
@@ -798,7 +785,7 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 
 			model.eResource().save(Collections.emptyMap());
 		} catch (IOException e) {
-			logger.error("TODO put description of error here", e);
+			logger.error("Problem saving model ", e);
 		}
 	}
 
@@ -893,11 +880,9 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 			URL fileURL = new URL(blueprintFileLoc);
 			fileOnFileSystem = new File(FileLocator.resolve(fileURL).toURI());
 		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			logger.error("TODO put description of error here", e);
+			logger.error("URI problem", e);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			logger.error("TODO put description of error here", e);
+			logger.error("File not found problem", e);
 		}
 		final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(Activator.TOMOGRAPHY_SETTINGS);
 		if (!project.exists()) {
@@ -913,11 +898,9 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 			try {
 				workspaceModifyOperation.run(null);
 			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
-				logger.error("TODO put description of error here", e);
+				logger.error("Cannot create project for tomo.", e);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				logger.error("TODO put description of error here", e);
+				logger.error("Interrupted creating tomo project.", e);
 			}
 		} else if (!project.isAccessible()) {
 
@@ -932,13 +915,10 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 			try {
 				workspaceModifyOperation.run(null);
 			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
-				logger.error("TODO put description of error here", e);
+				logger.error("Cannot open tomo project", e);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				logger.error("TODO put description of error here", e);
+				logger.error("Interrupted opening tomo project", e);
 			}
-
 		}
 
 		defaultSettingFile = project.getFile(pathname);
@@ -951,17 +931,16 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 					try {
 						defaultSettingFile.create(new FileInputStream(fileOnFileSystem), true, null);
 					} catch (FileNotFoundException e) {
-						logger.error("TODO put description of error here", e);
+						logger.error("Unable to create default Setting File.", e);
 					}
 				}
 			};
 			try {
-				workspaceModifyOperation.run(null);
+				workspaceModifyOperation.run(new NullProgressMonitor());
+
 			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
 				logger.error("TODO put description of error here", e);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				logger.error("TODO put description of error here", e);
 			}
 		}
@@ -999,21 +978,15 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 			}
 
 			if (nexusFile != null) {
+				reducedNexusFile = getReducedNexusFile(nexusFile);
 				hmSettingsInProcessingDir = getHmSettingsInProcessingDir();
 				String path = nexusFile.getLocation().toOSString();
-				HDF5Loader hdf5Loader = new HDF5Loader(path);
-				DataHolder loadFile;
-				ILazyDataset dataset = null;
-				try {
-					loadFile = hdf5Loader.loadFile();
-
-					dataset = loadFile.getLazyDataset("/entry1/instrument/pco4000_dio_hdf/data");
-				} catch (Exception ex) {
-					logger.error("Error", ex);
-				}
-				if (dataset != null && dataset.getRank() == 3) {
+				ILazyDataset actualDataset = getDataSetFromFileLocation(path);
+				ILazyDataset reducedDataset = getDataSetFromFileLocation(reducedNexusFile.getPath());
+				if (actualDataset != null && actualDataset.getRank() == 3) {
 					isHdf = true;
-					hdfShape = dataset.getShape();
+					hdfShape = actualDataset.getShape();
+					reducedDataShape = reducedDataset.getShape();
 				}
 				getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
 
@@ -1026,13 +999,54 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 			}
 		}
 
-		// getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
-		//
-		// @Override
-		// public void run() {
-		// pgBook.showPage(emptyCmp);
-		// }
-		// });
+	}
+
+	private ILazyDataset getDataSetFromFileLocation(String path) {
+		HDF5Loader hdf5Loader = new HDF5Loader(path);
+		DataHolder loadFile;
+		ILazyDataset dataset = null;
+		try {
+			loadFile = hdf5Loader.loadFile();
+			dataset = loadFile.getLazyDataset(DATA_PATH_IN_NEXUS);
+
+		} catch (Exception ex) {
+			logger.error("Error", ex);
+		}
+		return dataset;
+	}
+
+	private File getReducedNexusFile(IFile nexusFile) {
+		File reducedNexusFile = ReconUtil.getReducedNexusFile(nexusFile.getLocation().toString());
+		if (!reducedNexusFile.exists()) {
+			createReducedNexusFile(nexusFile.getLocation().toOSString(), reducedNexusFile.getPath());
+		}
+		return reducedNexusFile;
+	}
+
+	private void createReducedNexusFile(String actualNexusFileLocation, String outputNexusFileLocation) {
+		URL compressNxsURL = null;
+		try {
+			compressNxsURL = new URL("platform:/plugin/" + Activator.PLUGIN_ID + "/" + "scripts/compress_nxs.sh");
+		} catch (MalformedURLException e) {
+			logger.error("Cant find compress_nxs script", e);
+		}
+		logger.debug("shFileURL:{}", compressNxsURL);
+		File compressNexusScript = null;
+		try {
+			compressNexusScript = new File(FileLocator.toFileURL(compressNxsURL).toURI());
+		} catch (URISyntaxException e) {
+			logger.error("Wrong location", e);
+		} catch (IOException e) {
+			logger.error("Unable to find file compressScript", e);
+		}
+		if (compressNexusScript != null) {
+			String compressNxsScriptFullLocation = compressNexusScript.getAbsolutePath();
+			String command = String.format("%s %s %s", compressNxsScriptFullLocation, actualNexusFileLocation,
+					outputNexusFileLocation);
+			// new OSCommandRunner(command.toString(), true, null, null);//.runNoWait(command.toString(),
+			// LOGOPTION.ALWAYS, null);
+			OSCommandRunner.runNoWait(command.toString(), LOGOPTION.ALWAYS, null);
+		}
 	}
 
 	private IFile getNexusFileFromHmFileLocation(String hmFileLocation) {
@@ -1051,8 +1065,7 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 				File file = defaultSettingFile.getLocation().toFile();
 				FileUtils.copy(file, hmSettingsFile);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				logger.error("TODO put description of error here", e);
+				logger.error("Unable to create hm setting file.", e);
 			}
 		}
 
