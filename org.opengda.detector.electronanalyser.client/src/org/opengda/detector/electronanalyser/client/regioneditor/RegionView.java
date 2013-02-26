@@ -581,7 +581,7 @@ public class RegionView extends ViewPart {
 
 		List<Region> regions = Collections.emptyList();
 		try {
-			regions = regionDefinitionResourceUtil.getRegions(false);
+			regions = regionDefinitionResourceUtil.getRegions();
 		} catch (Exception e1) {
 			logger.error("Cannot get regions from resource: ", e1);
 		}

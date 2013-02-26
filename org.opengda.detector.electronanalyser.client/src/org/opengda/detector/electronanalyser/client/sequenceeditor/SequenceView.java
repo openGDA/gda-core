@@ -296,7 +296,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 											regionDefinitionResourceUtil
 													.getSequence(),
 											RegiondefinitionPackage.eINSTANCE
-													.getSequence_Region(),
+													.getSequence_Regions(),
 											RegiondefinitionFactory.eINSTANCE
 													.createRegion()));
 				} catch (Exception e1) {
@@ -526,7 +526,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 	private List<Region> getRegions() {
 		if (regionDefinitionResourceUtil != null) {
 			try {
-				return regionDefinitionResourceUtil.getRegions(false);
+				return regionDefinitionResourceUtil.getRegions();
 			} catch (Exception e) {
 				// FIXME - logger
 			}

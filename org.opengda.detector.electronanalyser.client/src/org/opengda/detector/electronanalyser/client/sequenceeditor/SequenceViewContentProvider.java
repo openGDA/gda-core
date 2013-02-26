@@ -63,7 +63,7 @@ public class SequenceViewContentProvider implements IStructuredContentProvider {
 	public Object[] getElements(Object inputElement) {
 		if (inputElement instanceof Resource) {
 			try {
-				return resUtil.getRegions(false).toArray();
+				return resUtil.getRegions().toArray();
 			} catch (Exception e) {
 				logger.error("Cannot load regions in the sequence.",e);
 			}
