@@ -376,6 +376,10 @@ public class LazyPVFactory {
 			return MessageFormat.format("LazyPV({0}, {1})", pvName, javaType.getSimpleName());
 		}
 
+		void setShowTypeMismatchWarnings(boolean showTypeMismatchWarnings) {
+			this.showTypeMismatchWarnings = showTypeMismatchWarnings;
+		}
+		
 		private double defaultTimeout() {
 			return EpicsGlobals.getTimeout();
 		}
