@@ -409,7 +409,8 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 		try{
 			setConnect(false);
 			Thread.sleep(500); //wait for any processing of scan data points to complete - hack
-			xyPlot.saveState(memento, archiveFolder);
+			if (xyPlot != null)
+				xyPlot.saveState(memento, archiveFolder);
 		} catch (InterruptedException e) {
 			logger.error("saveState interrupted", e);
 		}finally{
