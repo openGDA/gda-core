@@ -7,9 +7,8 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
-import org.eclipse.swt.SWT;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
@@ -40,14 +39,17 @@ public class NewSequenceAction extends AbstractHandler implements IHandler {
 					regionDefView.getRegionDefinitionResourceUtil()
 							.createSequence();
 				} else {
-					MessageBox msgbox = new MessageBox(
-							HandlerUtil.getActiveShell(event), SWT.ICON_WARNING
-									| SWT.OK | SWT.CANCEL);
-					msgbox.setText("Create a new sequence file");
-					msgbox.setMessage("file: " + fileName
-							+ " already exists. Do you want to open it?");
-					int returncode = msgbox.open();
-					if (returncode == SWT.OK) {
+					MessageDialog msgd = new MessageDialog(
+							shell,
+							"Create a new sequence file",
+							null,
+							"file: "
+									+ fileName
+									+ " already exists. Do you want to open it?",
+							MessageDialog.WARNING, new String[] { "OK",
+									"Cancel" }, 0);
+					int returncode = msgd.open();
+					if (returncode == 0) {
 						regionDefView.getRegionDefinitionResourceUtil()
 								.setFileName(fileName);
 					}
