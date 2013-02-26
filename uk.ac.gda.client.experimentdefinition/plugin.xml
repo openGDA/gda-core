@@ -202,6 +202,16 @@
               id="uk.ac.gda.client.experimentdefinition.ImportExperimentCommand"
               name="Import Experiment">
         </command>
+        <command
+              description="Collapse tree in Experiment View"
+              id="uk.ac.gda.client.experimentdefinition.ExperimentViewCollapseAll"
+              name="Collapse All">
+        </command>
+        <command
+              description="Expand tree in Experiment View"
+              id="uk.ac.gda.client.experimentdefinition.ExperimentViewExpandAll"
+              name="Expand All">
+        </command>
    </extension>   
    
 
@@ -551,6 +561,26 @@
                </with>
             </visibleWhen>
          </command>
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.ExperimentViewExpandAll"
+               icon="icons/expandall.gif"
+               label="Expand All"
+               style="push"
+               tooltip="Expand All">
+            <visibleWhen
+                  checkEnabled="true">
+            </visibleWhen>
+         </command>
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.ExperimentViewCollapseAll"
+               icon="icons/collapseall.gif"
+               label="Collapse All"
+               style="push"
+               tooltip="Collapse All">
+            <visibleWhen
+                  checkEnabled="true">
+            </visibleWhen>
+         </command>
          <menu
                icon="icons/page_add.png"
                label="New">
@@ -644,6 +674,11 @@
          <separator
                name="uk.ac.gda.client.experimentdefinition.separator7">
          </separator>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.ExperimentViewToolbarFactory"
+            locationURI="toolbar:uk.ac.diamond.gda.client.experimentdefinition.ExperimentView">
       </menuContribution>
 
     </extension>
@@ -757,6 +792,14 @@
       <handler
             class="uk.ac.gda.client.experimentdefinition.ui.handlers.ImportExperimentCommandHandler"
             commandId="uk.ac.gda.client.experimentdefinition.ImportExperimentCommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.ExperimentViewCollapseAllHandler"
+            commandId="uk.ac.gda.client.experimentdefinition.ExperimentViewCollapseAll">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.ExperimentViewExpandAllHandler"
+            commandId="uk.ac.gda.client.experimentdefinition.ExperimentViewExpandAll">
       </handler>
    </extension>
    

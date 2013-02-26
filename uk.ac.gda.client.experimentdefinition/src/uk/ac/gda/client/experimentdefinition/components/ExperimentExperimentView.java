@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -27,9 +27,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.MenuManager;
-import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.ISelection;
@@ -66,7 +64,6 @@ import uk.ac.gda.client.experimentdefinition.ExperimentObjectEvent;
 import uk.ac.gda.client.experimentdefinition.IExperimentEditorManager;
 import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 import uk.ac.gda.client.experimentdefinition.IExperimentObjectManager;
-import uk.ac.gda.client.experimentdefinition.ui.handlers.RefreshProjectAction;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.richbeans.components.cell.TreeTextCellEditor;
 import uk.ac.gda.util.io.FileUtils;
@@ -110,13 +107,6 @@ public class ExperimentExperimentView extends ViewPart implements ExperimentObje
 		addSelectionListener(treeViewer);
 
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(treeViewer.getControl(), "exafs.runs.viewer");
-
-		getSite().getShell().getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				updateToolbarVisibility(Boolean.TRUE);
-			}
-		});
 
 		ExperimentProjectNature nature = new ExperimentProjectNature();
 		try {
@@ -425,61 +415,12 @@ public class ExperimentExperimentView extends ViewPart implements ExperimentObje
 								((IExperimentObjectManager) element).getFile(), ExperimentRunEditor.ID, true);
 					}
 				} finally {
-					updateToolbarVisibility(element);
 					ExperimentFactory.getExperimentEditorManager().notifySelectionListeners();
 				}
 			}
 		} finally {
 			off = false;
 		}
-	}
-
-	/*
-	 * Something of a hack, programmatically change the toolbar visibility rather than using extension mechanism.
-	 * 
-	 */
-	private void updateToolbarVisibility(Object element) {
-		// NOTE Instead of this method could use the isEnabled() and isHandled() methods in the Handler.
-		// This requires a change to the extensions to have a visibleWhen that checks enabled.
-		ToolBarManager toolBarManager = (ToolBarManager) getViewSite().getActionBars().getToolBarManager();
-		final IContributionItem[] ca = toolBarManager.getItems();
-		for (int i = 0; i < ca.length; i++) {
-			final IContributionItem item = ca[i];
-			final String id = item.getId();
-
-			if (id.equals(RefreshProjectAction.ID)) {
-				item.setVisible(true);
-				continue;
-			}
-
-			// Allow adds if parent allowed
-			if (element instanceof IFolder && id.equals(ADD_SCAN_COMMAND)) {
-				item.setVisible(true);
-				continue;
-			}
-
-			if (element instanceof IExperimentObjectManager && id.equals(ExperimentExperimentView.ADD_RUN_COMMAND)) {
-				item.setVisible(true);
-				continue;
-			}
-
-			if (id.endsWith("FolderCommand") && ((element instanceof IFolder) || Boolean.TRUE.equals(element))) {
-				item.setVisible(true);
-				continue;
-			}
-
-			if (id.endsWith("ScanCommand") && element instanceof IExperimentObjectManager) {
-				item.setVisible(true);
-				continue;
-			}
-
-			if (id.endsWith("RunCommand") && element instanceof IExperimentObject) {
-				item.setVisible(true);
-				continue;
-			}
-			item.setVisible(false);
-		}
-		toolBarManager.update(true);
 	}
 
 	protected IWorkbenchPage getActivePage() {
@@ -569,6 +510,14 @@ public class ExperimentExperimentView extends ViewPart implements ExperimentObje
 			return man.getExperimentList().get(0);
 		}
 		return null;
+	}
+	
+	public void collapseAllTree() {
+		treeViewer.collapseAll();
+	}
+	
+	public void expandAllTree() {
+		treeViewer.expandAll();
 	}
 
 }
