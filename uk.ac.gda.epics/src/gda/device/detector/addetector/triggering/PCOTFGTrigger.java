@@ -19,12 +19,15 @@
 package gda.device.detector.addetector.triggering;
 
 import gda.device.DeviceException;
+import gda.device.Scannable;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.device.detector.areadetector.v17.ADDriverPco;
 import gda.device.detector.areadetector.v17.ADDriverPco.PcoTriggerMode;
 import gda.device.timer.Etfg;
 import gda.device.timer.Tfg;
+import gda.epics.LazyPVFactory;
+import gda.epics.PV;
 import gda.scan.ScanBase;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
@@ -52,10 +55,12 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class PCOTFGTrigger extends SimpleAcquire {
+	private String shutterPVName = "BL13I-EA-FSHTR-01:CONTROL";
 	private static Logger logger = LoggerFactory.getLogger(PCOTFGTrigger.class);
 	private final ADDriverPco adDriverPco;
 	private final Etfg etfg;
 	private double collectionTime = 0.;
+	PV<Integer> shutterPV;
 
 	public PCOTFGTrigger(ADBase adBase, ADDriverPco adDriverPco, Etfg tfg) {
 		super(adBase, 0.);
@@ -89,8 +94,6 @@ public class PCOTFGTrigger extends SimpleAcquire {
 		this.noLongerBusyTriggerInVal = noLongerBusyTriggerInVal;
 	}
 
-
-
 	public String getNoLongerBusyTriggerSetupCommand() {
 		return noLongerBusyTriggerSetupCommand;
 	}
@@ -98,8 +101,6 @@ public class PCOTFGTrigger extends SimpleAcquire {
 	public void setNoLongerBusyTriggerSetupCommand(String noLongerBusyTriggerSetupCommand) {
 		this.noLongerBusyTriggerSetupCommand = noLongerBusyTriggerSetupCommand;
 	}
-
-
 
 	int expectedCycle = 0;
 	final int CYCLES = 100000;// should be enough!
@@ -110,15 +111,18 @@ public class PCOTFGTrigger extends SimpleAcquire {
 	private boolean checkCameraUsage = true;
 	private Double cameraUsageUpperLimit = 90.;
 	private Double cameraUsageLowerLimit = 25.;
-	
-	//The port value used to trigger the camera in live mode
-	private short exposeTriggerOutVal=64; // TFG2 USER6 PCO TriggerIn 
 
-	//The pause value used to detect that the camera is no longer busy
-	private short noLongerBusyTriggerInVal=39; //Falling edge on adc5
-	
-	//command to setup the trigger used to detect that the camera is no longer busy
-	private String noLongerBusyTriggerSetupCommand="tfg setup-trig start adc5 alternate 1"; //// PCO BUSY Out on TFg2 TF3_OUT5
+	// The port value used to trigger the camera in live mode
+	private short exposeTriggerOutVal = 64; // TFG2 USER6 PCO TriggerIn
+
+	// The pause value used to detect that the camera is no longer busy
+	private short noLongerBusyTriggerInVal = 39; // Falling edge on adc5
+
+	// command to setup the trigger used to detect that the camera is no longer busy
+	private String noLongerBusyTriggerSetupCommand = "tfg setup-trig start adc5 alternate 1"; // // PCO BUSY Out on TFg2
+	private int shutterSleep=100;
+	private Scannable shutterDarkScannable;
+																								// TF3_OUT5
 
 	@Override
 	public void prepareForCollection(double collectionTime, int numImagesIgnored) throws Exception {
@@ -127,7 +131,7 @@ public class PCOTFGTrigger extends SimpleAcquire {
 			adDriverPco.getCameraUsagePV().addMonitorListener(getCameraUsageListener());
 
 		etfg.stop();
-		etfg.getDaServer().sendCommand(noLongerBusyTriggerSetupCommand); 
+		etfg.getDaServer().sendCommand(noLongerBusyTriggerSetupCommand);
 		etfg.setAttribute(Tfg.EXT_START_ATTR_NAME, false);
 		etfg.setAttribute(Tfg.EXT_INHIBIT_ATTR_NAME, false);
 		etfg.setAttribute(Tfg.VME_START_ATTR_NAME, true);
@@ -136,8 +140,9 @@ public class PCOTFGTrigger extends SimpleAcquire {
 
 		etfg.clearFrameSets();
 		etfg.addFrameSet(1, 0.0001, 0., 0, 0, -1, 0); // software continue - after start it waits for software start
-		etfg.addFrameSet(1, 0., collectionTime * 1000., 0, exposeTriggerOutVal, 0, 0); //set exposure trigger
-		etfg.addFrameSet(1, 0.0001, 0., 0, 0, noLongerBusyTriggerInVal, 0); // wait for PCo Trigger Out which is actually PCO Busy
+		etfg.addFrameSet(1, 0., collectionTime * 1000., 0, exposeTriggerOutVal, 0, 0); // set exposure trigger
+		etfg.addFrameSet(1, 0.0001, 0., 0, 0, noLongerBusyTriggerInVal, 0); // wait for PCo Trigger Out which is
+																			// actually PCO Busy
 		etfg.setCycles(CYCLES);
 		etfg.loadFrameSets();
 		etfg.setMonitorInBackground(false);
@@ -147,20 +152,22 @@ public class PCOTFGTrigger extends SimpleAcquire {
 		// we want 1 image per trigger - there will be multiple triggers per collection
 		getAdBase().setNumImages(1);
 		getAdBase().setImageModeWait(ImageMode.SINGLE);
-		adDriverPco.getAdcModePV().put(1); //2 adcs
-		adDriverPco.getTimeStampModePV().put(1); // BCD - if set to None then the image is blank. BCD means no timestamp on image
+		adDriverPco.getAdcModePV().put(1); // 2 adcs
+		adDriverPco.getTimeStampModePV().put(1); // BCD - if set to None then the image is blank. BCD means no timestamp
+													// on image
 		// getAdBase().setAcquirePeriod(0.0); //this is needed for PCO to make sure delay=0 - do not use as it effects
 		// delay
 		getAdBase().setTriggerMode(PcoTriggerMode.EXTERNAL_AND_SOFTWARE.ordinal()); // exposure time set by camera
 																					// rather than trigger
 		adDriverPco.getArmModePV().putCallback(true);
 		// the callback is coming back before the camera is ready as seen by the BUSY out is still high
-		while (!adDriverPco.getArmModePV().get()) {//this is not working as armMode does not reflect true state of arm - check with oscilloscope
+		while (!adDriverPco.getArmModePV().get()) {// this is not working as armMode does not reflect true state of arm
+													// - check with oscilloscope
 			Thread.sleep(50);
 			ScanBase.checkForInterrupts();
 		}
 		this.collectionTime = collectionTime;
-		Thread.sleep(2000); //without this the first trigger seems to be ignored
+		Thread.sleep(2000); // without this the first trigger seems to be ignored
 		etfg.start();
 		while (etfg.getStatus() != 2) {
 			Thread.sleep(50);
@@ -215,11 +222,57 @@ public class PCOTFGTrigger extends SimpleAcquire {
 				ScanBase.checkForInterrupts();
 			}
 		}
+		// open the shutter
+		openShutter(true);
 		etfg.cont();
 		collectingData = true;
 		expectedExposureEndTime = System.currentTimeMillis() + (long) (collectionTime * 1000.);
 		expectedCycle--;
 		logger.info("PCOTFGTrigger collectData out. expectedCycle:" + expectedCycle);
+	}
+
+	public int getShutterSleep() {
+		return shutterSleep;
+	}
+
+	public void setShutterSleep(int shutterSleep) {
+		this.shutterSleep = shutterSleep;
+	}
+
+	public String getShutterPVName() {
+		return shutterPVName;
+	}
+
+	public void setShutterPVName(String shutterPVName) {
+		this.shutterPVName = shutterPVName;
+	}
+
+	private void openShutter(Boolean open) throws DeviceException {
+		try{
+			if( !shutterPVName.isEmpty()){
+				if( shutterPV == null ){
+					shutterPV = LazyPVFactory.newIntegerPV(shutterPVName);
+					shutterPV.get();
+				}
+				if( open && ( shutterDarkScannable != null) && ( !shutterDarkScannable.getPosition().equals("Open"))){
+					open = false;
+				}
+				shutterPV.put(open ? 1 : 0);
+				if(open && (shutterSleep > 0))
+					Thread.sleep(shutterSleep);
+			}
+		}
+		catch (Exception e) {
+			throw new DeviceException("Error controlling the shutter", e);
+		}
+	}
+
+	public Scannable getShutterDarkScannable() {
+		return shutterDarkScannable;
+	}
+
+	public void setShutterDarkScannable(Scannable shutterDarkScannable) {
+		this.shutterDarkScannable = shutterDarkScannable;
 	}
 
 	private boolean isBusy() throws DeviceException {
@@ -248,6 +301,8 @@ public class PCOTFGTrigger extends SimpleAcquire {
 			}
 			ScanBase.checkForInterrupts();
 		}
+		// close the shutter
+		openShutter(false);
 		collectingData = false;
 		logger.info("PCOTFGTrigger not busy");
 
