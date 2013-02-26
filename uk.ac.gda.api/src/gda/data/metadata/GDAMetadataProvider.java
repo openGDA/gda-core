@@ -58,7 +58,7 @@ public class GDAMetadataProvider {
 	/*
 	 * key for metadataEntry used to provide value for experiment identifier
 	 */
-	public static final String EXPERIMENT_IDENTIFIER = "experiment_identifier";
+	public static final String EXPERIMENT_IDENTIFIER = "visit";
 
 	/*
 	 * key for metadataEntry used to provide value for proposal
