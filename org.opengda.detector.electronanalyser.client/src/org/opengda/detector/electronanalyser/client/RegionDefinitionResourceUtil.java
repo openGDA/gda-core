@@ -64,26 +64,13 @@ public class RegionDefinitionResourceUtil {
 		return null;
 	}
 
-	public List<Region> getRegions(boolean shouldCreate) throws Exception {
+	public List<Region> getRegions() throws Exception {
 
 		Sequence sequence = getSequence();
 		if (sequence != null) {
-			return sequence.getRegion();
+			return sequence.getRegions();
 		}
 		return Collections.emptyList();
-	}
-
-	public Resource createResource(String filename) throws Exception {
-		ResourceSet resourceSet = getResourceSet();
-		Resource resource = resourceSet.createResource(URI.createURI(filename));
-		DocumentRoot root = RegiondefinitionFactory.eINSTANCE
-				.createDocumentRoot();
-
-		Sequence seq = RegiondefinitionFactory.eINSTANCE.createSequence();
-		root.setSequence(seq);
-
-		resource.getContents().add(root);
-		return resource;
 	}
 
 	public Sequence createSequence() throws Exception {
@@ -117,11 +104,7 @@ public class RegionDefinitionResourceUtil {
 	}
 
 	public Sequence getSequence() throws Exception {
-		// Register the appropriate resource factory to handle all file
-		// extensions.
-		//
 		Resource res = getResource();
-
 		if (res != null) {
 			List<EObject> contents = res.getContents();
 			EObject eobj = contents.get(0);
@@ -129,13 +112,11 @@ public class RegionDefinitionResourceUtil {
 				DocumentRoot root = (DocumentRoot) eobj;
 				return root.getSequence();
 			}
-
 		}
-
 		return null;
 	}
 
-	public Spectrum getSpectrum(boolean shouldCreate) throws Exception {
+	public Spectrum getSpectrum() throws Exception {
 		return getSequence().getSpectrum();
 	}
 
@@ -151,9 +132,7 @@ public class RegionDefinitionResourceUtil {
 				.getExtensionToFactoryMap()
 				.put(Resource.Factory.Registry.DEFAULT_EXTENSION,
 						new RegiondefinitionResourceFactoryImpl());
-
 		// Register the package to ensure it is available during loading.
-		//
 		resourceSet.getPackageRegistry().put(RegiondefinitionPackage.eNS_URI,
 				RegiondefinitionPackage.eINSTANCE);
 		return resourceSet;

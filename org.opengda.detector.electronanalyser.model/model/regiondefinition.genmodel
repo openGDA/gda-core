@@ -37,7 +37,7 @@
     </genClasses>
     <genClasses ecoreClass="regiondefinition.ecore#//Sequence">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Sequence/filename"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference regiondefinition.ecore#//Sequence/region"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference regiondefinition.ecore#//Sequence/regions"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Sequence/runMode"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Sequence/runModeIndex"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Sequence/numIterations"/>

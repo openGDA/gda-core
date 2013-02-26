@@ -104,13 +104,13 @@ public interface RegiondefinitionPackage extends EPackage {
 	int SEQUENCE__FILENAME = 0;
 
 	/**
-	 * The feature id for the '<em><b>Region</b></em>' containment reference list.
+	 * The feature id for the '<em><b>Regions</b></em>' containment reference list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SEQUENCE__REGION = 1;
+	int SEQUENCE__REGIONS = 1;
 
 	/**
 	 * The feature id for the '<em><b>Run Mode</b></em>' attribute.
@@ -675,17 +675,6 @@ public interface RegiondefinitionPackage extends EPackage {
 	EClass getSequence();
 
 	/**
-	 * Returns the meta object for the containment reference list '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRegion <em>Region</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the containment reference list '<em>Region</em>'.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRegion()
-	 * @see #getSequence()
-	 * @generated
-	 */
-	EReference getSequence_Region();
-
-	/**
 	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRunMode <em>Run Mode</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -761,6 +750,17 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 */
 	EAttribute getSequence_Filename();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRegions <em>Regions</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Regions</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRegions()
+	 * @see #getSequence()
+	 * @generated
+	 */
+	EReference getSequence_Regions();
 
 	/**
 	 * Returns the meta object for class '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region <em>Region</em>}'.
@@ -1333,14 +1333,6 @@ public interface RegiondefinitionPackage extends EPackage {
 		EClass SEQUENCE = eINSTANCE.getSequence();
 
 		/**
-		 * The meta object literal for the '<em><b>Region</b></em>' containment reference list feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EReference SEQUENCE__REGION = eINSTANCE.getSequence_Region();
-
-		/**
 		 * The meta object literal for the '<em><b>Run Mode</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
@@ -1395,6 +1387,14 @@ public interface RegiondefinitionPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute SEQUENCE__FILENAME = eINSTANCE.getSequence_Filename();
+
+		/**
+		 * The meta object literal for the '<em><b>Regions</b></em>' containment reference list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference SEQUENCE__REGIONS = eINSTANCE.getSequence_Regions();
 
 		/**
 		 * The meta object literal for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl <em>Region</em>}' class.
