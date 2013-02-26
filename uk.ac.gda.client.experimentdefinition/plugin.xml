@@ -108,8 +108,8 @@
             name="Stop All">
       </command>
       <command
-            defaultHandler="uk.ac.gda.client.experimentdefinition.ui.handlers.RefreshProjectAction"
-            id="uk.ac.gda.experimentdefinition.ui.actions.RefreshProjectAction"
+            defaultHandler="uk.ac.gda.client.experimentdefinition.ui.handlers.RefreshProjectCommandHandler"
+            id="uk.ac.gda.client.experimentdefinition.ui.handlers.RefreshProjectCommandHandler"
             name="Refresh Project">
       </command>
       <command
@@ -219,50 +219,31 @@
          point="org.eclipse.ui.menus">
          <menuContribution
             locationURI="popup:uk.ac.diamond.gda.client.experimentdefinition.ExperimentView?after=additions">
+            <command
+                  commandId="uk.ac.gda.client.experimentdefinition.QueueAndRunMultiExperimentCommand"
+                  icon="icons/page_white_go.png"
+                  label="Queue Multiple Scan and Start Queue"
+                  style="push"
+                  tooltip="Add multiple scan to command queue and immediately start the queue">
+               <visibleWhen
+                     checkEnabled="false">
+                  <with
+                        variable="activeMenuSelection">
+                     <iterate
+                           ifEmpty="true">
+                        <instanceof
+                              value="uk.ac.gda.client.experimentdefinition.IExperimentObjectManager">
+                        </instanceof>
+                     </iterate>
+                  </with>
+               </visibleWhen>
+            </command>
          <command
                commandId="uk.ac.gda.client.experimentdefinition.RunMultiExperimentCommand"
                icon="icons/page_white_text.png"
                label="Queue Multiple Scan"
                style="push"
                tooltip="Add multiple scan to command queue">
-            <visibleWhen
-                  checkEnabled="false">
-               <with
-                     variable="activeMenuSelection">
-                  <iterate
-                        ifEmpty="true">
-                     <instanceof
-                           value="uk.ac.gda.client.experimentdefinition.IExperimentObjectManager">
-                     </instanceof>
-                  </iterate>
-               </with>
-            </visibleWhen>
-         </command>
-         <command
-               commandId="uk.ac.gda.client.experimentdefinition.RunSingleExperimentCommand"
-               icon="icons/page_white_text.png"
-               label="Queue Single Scan"
-               style="push"
-               tooltip="Add single scan to command queue">
-            <visibleWhen
-                  checkEnabled="false">
-               <with
-                     variable="activeMenuSelection">
-                  <iterate
-                        ifEmpty="true">
-                     <instanceof
-                           value="uk.ac.gda.client.experimentdefinition.IExperimentObject">
-                     </instanceof>
-                  </iterate>
-               </with>
-            </visibleWhen>
-         </command>
-         <command
-               commandId="uk.ac.gda.client.experimentdefinition.QueueAndRunMultiExperimentCommand"
-               icon="icons/page_white_go.png"
-               label="Queue Multiple Scan and Start Queue"
-               style="push"
-               tooltip="Add multiple scan to command queue and immediately start the queue">
             <visibleWhen
                   checkEnabled="false">
                <with
@@ -296,74 +277,59 @@
             </visibleWhen>
          </command>
          <command
-               commandId="uk.ac.gda.client.experimentdefinition.AddFolderCommand"
-               icon="icons/folder_add.png"
-               label="Create new folder"
-               style="push">
+               commandId="uk.ac.gda.client.experimentdefinition.RunSingleExperimentCommand"
+               icon="icons/page_white_text.png"
+               label="Queue Single Scan"
+               style="push"
+               tooltip="Add single scan to command queue">
             <visibleWhen
-                  checkEnabled="true">
+                  checkEnabled="false">
                <with
                      variable="activeMenuSelection">
-                  <iterate ifEmpty="true">
+                  <iterate
+                        ifEmpty="true">
                      <instanceof
-                           value="org.eclipse.core.resources.IFolder">
+                           value="uk.ac.gda.client.experimentdefinition.IExperimentObject">
                      </instanceof>
                   </iterate>
                </with>
             </visibleWhen>
          </command>
+         <separator
+               name="uk.ac.gda.client.experimentdefinition.separator3"
+               visible="true">
+         </separator>
          <command
                commandId="uk.ac.gda.client.experimentdefinition.AddScanCommand"
                icon="icons/chart_curve_add.png"
                label="Create new multi-scan"
                style="push">
             <visibleWhen
-                  checkEnabled="true">
+                  checkEnabled="false">
                <with
                      variable="activeMenuSelection">
                   <iterate
-                        ifEmpty="true"
-                        operator="or">
+                        ifEmpty="true">
                      <instanceof
                            value="uk.ac.gda.client.experimentdefinition.IExperimentObjectManager">
-                     </instanceof>
-                     <instanceof
-                           value="org.eclipse.core.resources.IFolder">
                      </instanceof>
                   </iterate>
                </with>
             </visibleWhen>
          </command>
-          <command
-               commandId="uk.ac.gda.client.experimentdefinition.AddRunCommand"
-               icon="icons/chart_line_add.png"
-               label="Create new scan"
-               style="push">
-             <visibleWhen
-                   checkEnabled="true">
-                <with
-                      variable="activeMenuSelection">
-                   <iterate
-                         ifEmpty="true">
-                      <instanceof
-                            value="uk.ac.gda.client.experimentdefinition.IExperimentObjectManager">
-                      </instanceof>
-                   </iterate>
-                </with>
-             </visibleWhen>
-         </command>
          <command
-               commandId="uk.ac.gda.client.experimentdefinition.DeleteFolderCommand"
-               icon="icons/folder_delete.png"
-               label="Delete folder"
+               commandId="uk.ac.gda.client.experimentdefinition.DuplicateScanCommand"
+               icon="icons/chart_curve_copy.png"
+               label="Repeat multi-scan (Reuse parameter files)"
                style="push">
             <visibleWhen
                   checkEnabled="true">
                <with
                      variable="activeMenuSelection">
-                  <iterate ifEmpty="true">
+                  <iterate
+                        ifEmpty="true">
                      <instanceof
-                           value="org.eclipse.core.resources.IFolder">
+                           value="uk.ac.gda.client.experimentdefinition.IExperimentObjectManager">
                      </instanceof>
                   </iterate>
                </with>
@@ -378,43 +344,10 @@
                   checkEnabled="true">
                <with
                      variable="activeMenuSelection">
-                  <iterate ifEmpty="true">
+                  <iterate
+                        ifEmpty="true">
                      <instanceof
                            value="uk.ac.gda.client.experimentdefinition.IExperimentObjectManager">
-                     </instanceof>
-                  </iterate>
-               </with>
-            </visibleWhen>
-         </command>
-         <command
-               commandId="uk.ac.gda.client.experimentdefinition.DeleteRunCommand"
-               icon="icons/chart_line_delete.png"
-               label="Delete scan"
-               style="push">
-            <visibleWhen
-                  checkEnabled="true">
-               <with
-                     variable="activeMenuSelection">
-                  <iterate ifEmpty="true">
-                     <instanceof
-                           value="uk.ac.gda.client.experimentdefinition.IExperimentObject">
-                     </instanceof>
-                  </iterate>
-               </with>
-            </visibleWhen>
-         </command>
-         <command
-               commandId="uk.ac.gda.client.experimentdefinition.RenameFolderCommand"
-               icon="icons/folder_edit.png"
-               label="Rename folder"
-               style="push">
-            <visibleWhen
-                  checkEnabled="true">
-               <with
-                     variable="activeMenuSelection">
-                  <iterate ifEmpty="true">
-                     <instanceof
-                           value="org.eclipse.core.resources.IFolder">
                      </instanceof>
                   </iterate>
                </with>
@@ -429,7 +362,8 @@
                   checkEnabled="true">
                <with
                      variable="activeMenuSelection">
-                  <iterate ifEmpty="true">
+                  <iterate
+                        ifEmpty="true">
                      <instanceof
                            value="uk.ac.gda.client.experimentdefinition.IExperimentObjectManager">
                      </instanceof>
@@ -438,17 +372,18 @@
             </visibleWhen>
          </command>
          <command
-               commandId="uk.ac.gda.client.experimentdefinition.RenameRunCommand"
-               icon="icons/chart_line_edit.png"
-               label="Rename scan"
+               commandId="uk.ac.gda.client.experimentdefinition.AddFolderCommand"
+               icon="icons/folder_add.png"
+               label="Create new folder"
                style="push">
             <visibleWhen
                   checkEnabled="true">
                <with
                      variable="activeMenuSelection">
-                  <iterate ifEmpty="true">
+                  <iterate
+                        ifEmpty="true">
                      <instanceof
-                           value="uk.ac.gda.client.experimentdefinition.IExperimentObject">
+                           value="org.eclipse.core.resources.IFolder">
                      </instanceof>
                   </iterate>
                </with>
@@ -463,7 +398,8 @@
                   checkEnabled="true">
                <with
                      variable="activeMenuSelection">
-                  <iterate ifEmpty="true">
+                  <iterate
+                        ifEmpty="true">
                      <instanceof
                            value="org.eclipse.core.resources.IFolder">
                      </instanceof>
@@ -471,18 +407,77 @@
                </with>
             </visibleWhen>
          </command>
-                  <command
-               commandId="uk.ac.gda.client.experimentdefinition.DuplicateScanCommand"
-               icon="icons/chart_curve_copy.png"
-               label="Repeat multi-scan (Reuse parameter files)"
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.DeleteFolderCommand"
+               icon="icons/folder_delete.png"
+               label="Delete folder"
                style="push">
             <visibleWhen
                   checkEnabled="true">
                <with
                      variable="activeMenuSelection">
-                  <iterate ifEmpty="true">
+                  <iterate
+                        ifEmpty="true">
+                     <instanceof
+                           value="org.eclipse.core.resources.IFolder">
+                     </instanceof>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.RenameFolderCommand"
+               icon="icons/folder_edit.png"
+               label="Rename folder"
+               style="push">
+            <visibleWhen
+                  checkEnabled="true">
+               <with
+                     variable="activeMenuSelection">
+                  <iterate
+                        ifEmpty="true">
+                     <instanceof
+                           value="org.eclipse.core.resources.IFolder">
+                     </instanceof>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+         <separator
+               name="uk.ac.gda.client.experimentdefinition.separator6"
+               visible="true">
+         </separator>
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.AddRunCommand"
+               icon="icons/chart_line_add.png"
+               label="Create new scan"
+               style="push">
+            <visibleWhen
+                  checkEnabled="true">
+               <with
+                     variable="activeMenuSelection">
+                  <iterate
+                        ifEmpty="true">
                      <instanceof
                            value="uk.ac.gda.client.experimentdefinition.IExperimentObjectManager">
+                     </instanceof>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.AddRunCommand"
+               icon="icons/chart_line_add.png"
+               label="Create new scan"
+               style="push">
+            <visibleWhen
+                  checkEnabled="true">
+               <with
+                     variable="activeMenuSelection">
+                  <iterate
+                        ifEmpty="true">
+                     <instanceof
+                           value="uk.ac.gda.client.experimentdefinition.IExperimentObject">
                      </instanceof>
                   </iterate>
                </with>
@@ -497,7 +492,8 @@
                   checkEnabled="true">
                <with
                      variable="activeMenuSelection">
-                  <iterate ifEmpty="true">
+                  <iterate
+                        ifEmpty="true">
                      <instanceof
                            value="uk.ac.gda.client.experimentdefinition.IExperimentObject">
                      </instanceof>
@@ -510,6 +506,42 @@
                icon="icons/chart_line_copy.png"
                id="uk.ac.diamond.gda.client.experimentdefinition.experimentview.menu.repeatscan"
                label="Repeat scan (Reuse parameter files)"
+               style="push">
+            <visibleWhen
+                  checkEnabled="true">
+               <with
+                     variable="activeMenuSelection">
+                  <iterate
+                        ifEmpty="true">
+                     <instanceof
+                           value="uk.ac.gda.client.experimentdefinition.IExperimentObject">
+                     </instanceof>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+          <command
+                commandId="uk.ac.gda.client.experimentdefinition.DeleteRunCommand"
+                icon="icons/chart_line_delete.png"
+                label="Delete scan"
+                style="push">
+             <visibleWhen
+                   checkEnabled="true">
+                <with
+                      variable="activeMenuSelection">
+                   <iterate
+                         ifEmpty="true">
+                      <instanceof
+                            value="uk.ac.gda.client.experimentdefinition.IExperimentObject">
+                      </instanceof>
+                   </iterate>
+                </with>
+             </visibleWhen>
+          </command>
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.RenameRunCommand"
+               icon="icons/chart_line_edit.png"
+               label="Rename scan"
                style="push">
             <visibleWhen
                   checkEnabled="true">
@@ -543,6 +575,10 @@
                </with>
             </visibleWhen>
          </command>
+         <separator
+               name="uk.ac.gda.client.experimentdefinition.separator2"
+               visible="true">
+         </separator>
          <command
                commandId="uk.ac.gda.client.experimentdefinition.ImportExperimentCommand"
                icon="icons/import_wiz.gif"
@@ -561,61 +597,22 @@
                </with>
             </visibleWhen>
          </command>
-         <command
-               commandId="uk.ac.gda.client.experimentdefinition.ExperimentViewExpandAll"
-               icon="icons/expandall.gif"
-               label="Expand All"
-               style="push"
-               tooltip="Expand All">
-            <visibleWhen
-                  checkEnabled="true">
-            </visibleWhen>
-         </command>
-         <command
-               commandId="uk.ac.gda.client.experimentdefinition.ExperimentViewCollapseAll"
-               icon="icons/collapseall.gif"
-               label="Collapse All"
-               style="push"
-               tooltip="Collapse All">
-            <visibleWhen
-                  checkEnabled="true">
-            </visibleWhen>
-         </command>
+         <separator
+               name="uk.ac.gda.client.experimentdefinition.separator1"
+               visible="true">
+         </separator>
          <menu
                icon="icons/page_add.png"
                label="New">
-            <visibleWhen
-                  checkEnabled="true">
-               <with
-                     variable="activeMenuSelection">
-                  <iterate
-                        ifEmpty="true">
-                     <instanceof
-                           value="org.eclipse.core.resources.IFolder">
-                     </instanceof>
-                  </iterate>
-               </with>
-            </visibleWhen>
          </menu>
-
          <command
-               commandId="uk.ac.gda.client.experimentdefinition.AddScanCommand"
-               icon="icons/chart_curve_add.png"
-               label="Create new multi-scan"
-               style="push">
-            <visibleWhen
-                  checkEnabled="true">
-               <with
-                     variable="activeMenuSelection">
-                  <iterate
-                        ifEmpty="true">
-                     <instanceof
-                           value="org.eclipse.core.resources.IFolder">
-                     </instanceof>
-                  </iterate>
-               </with>
-            </visibleWhen>
+               commandId="uk.ac.gda.client.experimentdefinition.ui.handlers.RefreshProjectCommandHandler"
+               icon="icons/refresh_nav.gif"
+               label="Refresh Folder"
+               style="push"
+               tooltip="Refresh folder contents">
          </command>
+
          
       </menuContribution>
       <menuContribution
@@ -662,7 +659,8 @@
                style="push">
          </command>
          <separator
-               name="uk.ac.gda.client.experimentdefinition.separator6">
+               name="uk.ac.gda.client.experimentdefinition.separator6"
+               visible="true">
          </separator>
          <command
                commandId="uk.ac.gda.client.experimentdefinition.OpenFolderCommand"
@@ -671,14 +669,29 @@
                style="push"
                tooltip="Open folder editor to show all the files in the experiment folder.">
          </command>
-         <separator
-               name="uk.ac.gda.client.experimentdefinition.separator7">
-         </separator>
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.ui.handlers.RefreshProjectCommandHandler"
+               icon="icons/refresh_nav.gif"
+               label="Refresh"
+               style="push"
+               tooltip="Refresh folder contents">
+         </command>
       </menuContribution>
       <menuContribution
             allPopups="false"
             class="uk.ac.gda.client.experimentdefinition.ui.handlers.ExperimentViewToolbarFactory"
             locationURI="toolbar:uk.ac.diamond.gda.client.experimentdefinition.ExperimentView">
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:uk.ac.gda.client.experimentdefinition.FolderEditor">
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.ui.handlers.RefreshProjectCommandHandler"
+               icon="icons/refresh_nav.gif"
+               label="Refresh"
+               style="push"
+               tooltip="Refresh folder contents">
+         </command>
       </menuContribution>
 
     </extension>

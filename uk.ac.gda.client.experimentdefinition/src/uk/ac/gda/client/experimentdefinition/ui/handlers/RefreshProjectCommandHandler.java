@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,7 +18,6 @@
 
 package uk.ac.gda.client.experimentdefinition.ui.handlers;
 
-
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
@@ -31,38 +30,36 @@ import uk.ac.gda.client.experimentdefinition.IExperimentEditorManager;
 import uk.ac.gda.client.experimentdefinition.components.ExperimentExperimentView;
 import uk.ac.gda.client.experimentdefinition.components.ExperimentFolderEditor;
 
-
 /**
  * Refreshes the project
  */
-public class RefreshProjectAction extends AbstractExperimentCommandHandler {
+public class RefreshProjectCommandHandler extends AbstractExperimentCommandHandler {
 
-	/**
-	 * 
-	 */
-	//public static final String ID = "uk.ac.gda.exafs.ui.actions.RefreshProjectAction";
-	public static final String ID ="uk.ac.gda.experimentdefinition.ui.actions.RefreshProjectAction";
-	
+	public static final String ID = "uk.ac.gda.client.experimentdefinition.ui.handlers.RefreshProjectCommandHandler";
+
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		
-        final IExperimentEditorManager man = ExperimentFactory.getExperimentEditorManager();
-        if (man == null) return false;
-        
-        final IProject project = man.getCurrentProject();
-        try {
+
+		final IExperimentEditorManager man = ExperimentFactory.getExperimentEditorManager();
+		if (man == null)
+			return false;
+
+		final IProject project = man.getCurrentProject();
+		try {
 			project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 		} catch (CoreException e) {
 			throw new ExecutionException("Cannot refresh project.", e);
 		}
-		
+
 		// If ExperimentExperimentView selected, refresh that.
 		final ExperimentExperimentView ev = man.getViewer();
-		if (ev != null) ev.refreshTree();
-        
+		if (ev != null)
+			ev.refreshTree();
+
 		final ExperimentFolderEditor fe = man.getActiveFolderEditor();
-		if (fe != null) fe.refresh();
- 
+		if (fe != null)
+			fe.refresh();
+
 		return true;
 	}
 
