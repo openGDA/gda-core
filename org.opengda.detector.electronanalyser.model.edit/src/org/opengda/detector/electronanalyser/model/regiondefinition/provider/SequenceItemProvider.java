@@ -215,7 +215,7 @@ public class SequenceItemProvider
 	public Collection<? extends EStructuralFeature> getChildrenFeatures(Object object) {
 		if (childrenFeatures == null) {
 			super.getChildrenFeatures(object);
-			childrenFeatures.add(RegiondefinitionPackage.Literals.SEQUENCE__REGIONS);
+			childrenFeatures.add(RegiondefinitionPackage.Literals.SEQUENCE__REGION);
 			childrenFeatures.add(RegiondefinitionPackage.Literals.SEQUENCE__SPECTRUM);
 		}
 		return childrenFeatures;
@@ -279,7 +279,7 @@ public class SequenceItemProvider
 			case RegiondefinitionPackage.SEQUENCE__CONFIRM_AFTER_EACH_ITERATION:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;
-			case RegiondefinitionPackage.SEQUENCE__REGIONS:
+			case RegiondefinitionPackage.SEQUENCE__REGION:
 			case RegiondefinitionPackage.SEQUENCE__SPECTRUM:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), true, false));
 				return;
@@ -300,7 +300,7 @@ public class SequenceItemProvider
 
 		newChildDescriptors.add
 			(createChildParameter
-				(RegiondefinitionPackage.Literals.SEQUENCE__REGIONS,
+				(RegiondefinitionPackage.Literals.SEQUENCE__REGION,
 				 RegiondefinitionFactory.eINSTANCE.createRegion()));
 
 		newChildDescriptors.add

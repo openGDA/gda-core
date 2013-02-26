@@ -296,7 +296,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 											regionDefinitionResourceUtil
 													.getSequence(),
 											RegiondefinitionPackage.eINSTANCE
-													.getSequence_Regions(),
+													.getSequence_Region(),
 											RegiondefinitionFactory.eINSTANCE
 													.createRegion()));
 				} catch (Exception e1) {

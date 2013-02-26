@@ -68,7 +68,7 @@ public class RegionDefinitionResourceUtil {
 
 		Sequence sequence = getSequence();
 		if (sequence != null) {
-			return sequence.getRegions();
+			return sequence.getRegion();
 		}
 		return Collections.emptyList();
 	}

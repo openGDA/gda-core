@@ -32,7 +32,7 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum
  * The following features are implemented:
  * <ul>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SequenceImpl#getFilename <em>Filename</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SequenceImpl#getRegions <em>Regions</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SequenceImpl#getRegion <em>Region</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SequenceImpl#getRunMode <em>Run Mode</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SequenceImpl#getRunModeIndex <em>Run Mode Index</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SequenceImpl#getNumIterations <em>Num Iterations</em>}</li>
@@ -73,14 +73,14 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	protected boolean filenameESet;
 
 	/**
-	 * The cached value of the '{@link #getRegions() <em>Regions</em>}' containment reference list.
+	 * The cached value of the '{@link #getRegion() <em>Region</em>}' containment reference list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getRegions()
+	 * @see #getRegion()
 	 * @generated
 	 * @ordered
 	 */
-	protected EList<Region> regions;
+	protected EList<Region> region;
 
 	/**
 	 * The default value of the '{@link #getRunMode() <em>Run Mode</em>}' attribute.
@@ -566,7 +566,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * @generated NOT
 	 */
 	public Region getRegionById(String regionId) {
-		for (Region region : getRegions()) {
+		for (Region region : getRegion()) {
 			if (region.getRegionId().equals(regionId)) {
 				return region;
 			}
@@ -581,7 +581,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 */
 	public EList<Region> getRegionsByName(String regionName) {
 		BasicEList<Region> regions = new BasicEList<Region>();
-		for (Region region : getRegions()) {
+		for (Region region : getRegion()) {
 			if (region.getRegionId().equals(regionName)) {
 				regions.add(region);
 			}
@@ -636,11 +636,11 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EList<Region> getRegions() {
-		if (regions == null) {
-			regions = new EObjectContainmentEList.Unsettable<Region>(Region.class, this, RegiondefinitionPackage.SEQUENCE__REGIONS);
+	public EList<Region> getRegion() {
+		if (region == null) {
+			region = new EObjectContainmentEList.Unsettable<Region>(Region.class, this, RegiondefinitionPackage.SEQUENCE__REGION);
 		}
-		return regions;
+		return region;
 	}
 
 	/**
@@ -648,8 +648,8 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public void unsetRegions() {
-		if (regions != null) ((InternalEList.Unsettable<?>)regions).unset();
+	public void unsetRegion() {
+		if (region != null) ((InternalEList.Unsettable<?>)region).unset();
 	}
 
 	/**
@@ -657,8 +657,8 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public boolean isSetRegions() {
-		return regions != null && ((InternalEList.Unsettable<?>)regions).isSet();
+	public boolean isSetRegion() {
+		return region != null && ((InternalEList.Unsettable<?>)region).isSet();
 	}
 
 	/**
@@ -669,8 +669,8 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	public NotificationChain eInverseRemove(InternalEObject otherEnd,
 			int featureID, NotificationChain msgs) {
 		switch (featureID) {
-			case RegiondefinitionPackage.SEQUENCE__REGIONS:
-				return ((InternalEList<?>)getRegions()).basicRemove(otherEnd, msgs);
+			case RegiondefinitionPackage.SEQUENCE__REGION:
+				return ((InternalEList<?>)getRegion()).basicRemove(otherEnd, msgs);
 			case RegiondefinitionPackage.SEQUENCE__SPECTRUM:
 				return basicUnsetSpectrum(msgs);
 		}
@@ -686,8 +686,8 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 		switch (featureID) {
 			case RegiondefinitionPackage.SEQUENCE__FILENAME:
 				return getFilename();
-			case RegiondefinitionPackage.SEQUENCE__REGIONS:
-				return getRegions();
+			case RegiondefinitionPackage.SEQUENCE__REGION:
+				return getRegion();
 			case RegiondefinitionPackage.SEQUENCE__RUN_MODE:
 				return getRunMode();
 			case RegiondefinitionPackage.SEQUENCE__RUN_MODE_INDEX:
@@ -715,9 +715,9 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 			case RegiondefinitionPackage.SEQUENCE__FILENAME:
 				setFilename((String)newValue);
 				return;
-			case RegiondefinitionPackage.SEQUENCE__REGIONS:
-				getRegions().clear();
-				getRegions().addAll((Collection<? extends Region>)newValue);
+			case RegiondefinitionPackage.SEQUENCE__REGION:
+				getRegion().clear();
+				getRegion().addAll((Collection<? extends Region>)newValue);
 				return;
 			case RegiondefinitionPackage.SEQUENCE__RUN_MODE:
 				setRunMode((RUN_MODES)newValue);
@@ -751,8 +751,8 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 			case RegiondefinitionPackage.SEQUENCE__FILENAME:
 				unsetFilename();
 				return;
-			case RegiondefinitionPackage.SEQUENCE__REGIONS:
-				unsetRegions();
+			case RegiondefinitionPackage.SEQUENCE__REGION:
+				unsetRegion();
 				return;
 			case RegiondefinitionPackage.SEQUENCE__RUN_MODE:
 				unsetRunMode();
@@ -785,8 +785,8 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 		switch (featureID) {
 			case RegiondefinitionPackage.SEQUENCE__FILENAME:
 				return isSetFilename();
-			case RegiondefinitionPackage.SEQUENCE__REGIONS:
-				return isSetRegions();
+			case RegiondefinitionPackage.SEQUENCE__REGION:
+				return isSetRegion();
 			case RegiondefinitionPackage.SEQUENCE__RUN_MODE:
 				return isSetRunMode();
 			case RegiondefinitionPackage.SEQUENCE__RUN_MODE_INDEX:

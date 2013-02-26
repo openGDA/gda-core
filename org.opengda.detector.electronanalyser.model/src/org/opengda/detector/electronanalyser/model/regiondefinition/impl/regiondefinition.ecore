@@ -15,7 +15,7 @@
     </eOperations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="filename" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         defaultValueLiteral="user.seq" unsettable="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="regions" upperBound="-1"
+    <eStructuralFeatures xsi:type="ecore:EReference" name="region" upperBound="-1"
         eType="#//Region" unsettable="true" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="runMode" unique="false"
         eType="#//RUN_MODES" defaultValueLiteral="" unsettable="true"/>

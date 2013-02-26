@@ -15,7 +15,7 @@ import org.eclipse.emf.ecore.EObject;
  * The following features are supported:
  * <ul>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getFilename <em>Filename</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRegions <em>Regions</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRegion <em>Region</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRunMode <em>Run Mode</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRunModeIndex <em>Run Mode Index</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getNumIterations <em>Num Iterations</em>}</li>
@@ -427,42 +427,42 @@ public interface Sequence extends EObject {
 	boolean isSetFilename();
 
 	/**
-	 * Returns the value of the '<em><b>Regions</b></em>' containment reference list.
+	 * Returns the value of the '<em><b>Region</b></em>' containment reference list.
 	 * The list contents are of type {@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region}.
 	 * <!-- begin-user-doc -->
 	 * <p>
-	 * If the meaning of the '<em>Regions</em>' containment reference list isn't clear,
+	 * If the meaning of the '<em>Region</em>' containment reference list isn't clear,
 	 * there really should be more of a description here...
 	 * </p>
 	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Regions</em>' containment reference list.
-	 * @see #isSetRegions()
-	 * @see #unsetRegions()
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getSequence_Regions()
+	 * @return the value of the '<em>Region</em>' containment reference list.
+	 * @see #isSetRegion()
+	 * @see #unsetRegion()
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getSequence_Region()
 	 * @model containment="true" unsettable="true"
 	 * @generated
 	 */
-	EList<Region> getRegions();
+	EList<Region> getRegion();
 
 	/**
-	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRegions <em>Regions</em>}' containment reference list.
+	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRegion <em>Region</em>}' containment reference list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #isSetRegions()
-	 * @see #getRegions()
+	 * @see #isSetRegion()
+	 * @see #getRegion()
 	 * @generated
 	 */
-	void unsetRegions();
+	void unsetRegion();
 
 	/**
-	 * Returns whether the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRegions <em>Regions</em>}' containment reference list is set.
+	 * Returns whether the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRegion <em>Region</em>}' containment reference list is set.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return whether the value of the '<em>Regions</em>' containment reference list is set.
-	 * @see #unsetRegions()
-	 * @see #getRegions()
+	 * @return whether the value of the '<em>Region</em>' containment reference list is set.
+	 * @see #unsetRegion()
+	 * @see #getRegion()
 	 * @generated
 	 */
-	boolean isSetRegions();
+	boolean isSetRegion();
 
 } // Sequence

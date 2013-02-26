@@ -263,7 +263,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EReference getSequence_Regions() {
+	public EReference getSequence_Region() {
         return (EReference)getSequence().getEStructuralFeatures().get(1);
 	}
 
