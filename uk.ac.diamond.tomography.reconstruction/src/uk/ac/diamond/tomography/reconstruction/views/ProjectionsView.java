@@ -36,7 +36,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.MouseListener;
@@ -57,9 +56,11 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.ViewPart;
@@ -84,6 +85,8 @@ import uk.ac.gda.ui.components.StepperChangedEvent;
 
 public class ProjectionsView extends ViewPart implements ISelectionListener {
 
+	private static final String PLOT_VIEW_TO_DISPLAY_RECON_IMAGE = "Plot 1";
+	private static final String JOB_UPDATE_RECONSTRUCTION_DISPLAY = "Update Reconstruction Display";
 	private static final String REGION_DRAG_LINE_NAME = "DragLine";
 	private static final String ERR_MESSAGE_UNABLE_TO_FIND_DATASET = "Unable to find dataset";
 	private static final String ERR_TITLE_DISPLAYING_PROJECTIONS = "Error while displaying projections";
@@ -93,7 +96,7 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 	private static final String FILE_NAME = "File name";
 	public static final String ID = "uk.ac.diamond.tomography.reconstruction.view.projection";
 
-	private final String LBL_PREVIOUS = "PREVIOUS";
+	private final String LBL_PREVIOUS = "PREV";
 	private final String LBL_NEXT = "NEXT";
 
 	public final static int SPLITS = 128;
@@ -128,6 +131,64 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 
 	};
 
+	private boolean isPartActive;
+
+	synchronized void setPartActive(boolean isActive) {
+		this.isPartActive = isActive;
+	}
+
+	private IPartListener2 partAdapter = new IPartListener2() {
+
+		@Override
+		public void partVisible(IWorkbenchPartReference partRef) {
+			if (partRef.getPart(false).equals(ProjectionsView.this)) {
+				setPartActive(true);
+			}
+		}
+
+		@Override
+		public void partOpened(IWorkbenchPartReference partRef) {
+
+		}
+
+		@Override
+		public void partInputChanged(IWorkbenchPartReference partRef) {
+
+		}
+
+		@Override
+		public void partHidden(IWorkbenchPartReference partRef) {
+			if (partRef.getPart(false).equals(ProjectionsView.this)) {
+				setPartActive(false);
+			}
+		}
+
+		@Override
+		public void partDeactivated(IWorkbenchPartReference partRef) {
+
+		}
+
+		@Override
+		public void partClosed(IWorkbenchPartReference partRef) {
+			if (partRef.getPart(false).equals(ProjectionsView.this)) {
+				setPartActive(false);
+			}
+		}
+
+		@Override
+		public void partBroughtToTop(IWorkbenchPartReference partRef) {
+			if (partRef.getPart(false).equals(ProjectionsView.this)) {
+				setPartActive(true);
+			}
+		}
+
+		@Override
+		public void partActivated(IWorkbenchPartReference partRef) {
+
+		}
+
+	};
+
 	@Override
 	public void createPartControl(Composite parent) {
 
@@ -142,10 +203,7 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 		plotPage = new Composite(pgBook, SWT.None);
 
 		GridLayout layout = new GridLayout();
-		layout.marginWidth = 0;
-		layout.marginHeight = 0;
-		layout.horizontalSpacing = 0;
-		layout.verticalSpacing = 0;
+		setGridLayoutMinimumSetting(layout);
 		plotPage.setLayout(layout);
 		// row 1
 		slicingStepper = new Stepper(plotPage, SWT.None, false);
@@ -156,20 +214,14 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 		// row 2
 		Composite plotContainingComposite = new Composite(plotPage, SWT.None);
 		layout = new GridLayout(2, false);
-		layout.marginWidth = 0;
-		layout.marginHeight = 0;
-		layout.horizontalSpacing = 0;
-		layout.verticalSpacing = 0;
+		setGridLayoutMinimumSetting(layout);
 		plotContainingComposite.setLayout(layout);
 		plotContainingComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
 
 		Composite btnsComposite = new Composite(plotContainingComposite, SWT.None);
 		btnsComposite.setLayoutData(new GridData(GridData.FILL_VERTICAL));
 		layout = new GridLayout();
-		layout.marginWidth = 0;
-		layout.marginHeight = 0;
-		layout.horizontalSpacing = 0;
-		layout.verticalSpacing = 0;
+		setGridLayoutMinimumSetting(layout);
 		plotPage.setLayout(layout);
 		btnsComposite.setLayout(layout);
 
@@ -254,10 +306,7 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 		layoutData = new GridData(GridData.FILL_HORIZONTAL);
 		extrasComposite.setLayoutData(layoutData);
 		layout = new GridLayout();
-		layout.marginWidth = 0;
-		layout.marginHeight = 0;
-		layout.horizontalSpacing = 0;
-		layout.verticalSpacing = 0;
+		setGridLayoutMinimumSetting(layout);
 
 		extrasComposite.setLayout(layout);
 
@@ -267,7 +316,16 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 		fileName.setText(FILE_NAME);
 
 		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(this);
+		getViewSite().getWorkbenchWindow().getPartService().addPartListener(partAdapter);
 		doCreateRefreshJob();
+
+	}
+
+	private void setGridLayoutMinimumSetting(GridLayout layout) {
+		layout.marginWidth = 0;
+		layout.marginHeight = 0;
+		layout.horizontalSpacing = 0;
+		layout.verticalSpacing = 0;
 	}
 
 	private int position = -1;
@@ -295,7 +353,6 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 								final ILazyDataset squeeze = slice.squeeze();
 
 								getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
-
 									@Override
 									public void run() {
 										plottingSystem.updatePlot2D((AbstractDataset) squeeze, null,
@@ -309,7 +366,6 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 												imageTrace.setPaletteData(service.getPaletteData(""));
 											}
 										}
-
 									}
 								});
 								logger.debug(dataset.getName());
@@ -317,7 +373,6 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 								showErrorMessage(ERR_TITLE_DISPLAYING_PROJECTIONS, new IllegalArgumentException(
 										ERR_MESSAGE_UNABLE_TO_FIND_DATASET));
 							}
-
 						}
 					});
 				} catch (InvocationTargetException e) {
@@ -348,7 +403,6 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 
 				xHair.addMouseListener(mouseFollowRegionMouseListner);
 			}
-
 		} catch (Exception ne) {
 			logger.error("Cannot create cross-hairs!", ne);
 		}
@@ -411,7 +465,6 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 				ROIBase roi = getYBounds(evt.getROI());
 				xHair.setROI(roi);
 				roiSet(roi.getPointY());
-
 			}
 		}
 
@@ -457,21 +510,23 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 
 	@Override
 	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-		if (selection instanceof IStructuredSelection) {
-			IStructuredSelection iss = (IStructuredSelection) selection;
-			Object firstElement = iss.getFirstElement();
-			if (firstElement instanceof IFile
-					&& Activator.NXS_FILE_EXTN.equals(((IFile) firstElement).getFileExtension())) {
-				nexusFile = (IFile) firstElement;
-				try {
-					getViewSite().getActionBars().getStatusLineManager()
-							.setMessage(String.format("Loading file %s ...", nexusFile.getFullPath().toOSString()));
-					updateData();
-					pgBook.showPage(plotPage);
-				} catch (Exception e) {
-					showErrorMessage("Problem with displaying dataset", e);
-				} finally {
-					getViewSite().getActionBars().getStatusLineManager().setMessage(null);
+		if (isPartActive) {
+			if (selection instanceof IStructuredSelection) {
+				IStructuredSelection iss = (IStructuredSelection) selection;
+				Object firstElement = iss.getFirstElement();
+				if (firstElement instanceof IFile
+						&& Activator.NXS_FILE_EXTN.equals(((IFile) firstElement).getFileExtension())) {
+					nexusFile = (IFile) firstElement;
+					try {
+						getViewSite().getActionBars().getStatusLineManager()
+								.setMessage(String.format("Loading file %s ...", nexusFile.getFullPath().toOSString()));
+						updateData();
+						pgBook.showPage(plotPage);
+					} catch (Exception e) {
+						showErrorMessage("Problem with displaying dataset", e);
+					} finally {
+						getViewSite().getActionBars().getStatusLineManager().setMessage(null);
+					}
 				}
 			}
 		}
@@ -479,33 +534,31 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 
 	private void showErrorMessage(String message, Exception e) {
 		logger.error("Problem with displaying dataset:" + message, e);
-		lblEmptyPageLabel.setText(message + ": " + e.getMessage());
+		lblEmptyPageLabel.setText(String.format("%s: %s", message, e.getMessage()));
 		pgBook.showPage(emptyPage);
 	}
 
 	@Override
 	public void dispose() {
 		getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(this);
+		getViewSite().getWorkbenchWindow().getPartService().removePartListener(partAdapter);
 		super.dispose();
 	}
 
 	public void displayReconstruction(final String nexusFileLocation, final int pixelPosition) {
 
-		UIJob displayJob = new UIJob(getViewSite().getShell().getDisplay(), "Update Reconstruction Display") {
+		UIJob displayJob = new UIJob(getViewSite().getShell().getDisplay(), JOB_UPDATE_RECONSTRUCTION_DISPLAY) {
 
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
 
-				monitor.beginTask("Showing Reconstruction", 5);
+				monitor.beginTask("", 5);
 				// Update monitor
 				monitor.worked(1);
-				File reducedNexusFile = ReconUtil.getReducedNexusFile(nexusFileLocation);
-				String reducedNxsFileName = new Path(reducedNexusFile.getPath()).removeFileExtension().toOSString();
-				logger.debug("reducedNexusFile {}", reducedNexusFile);
-				// File path = new File(nexusFileLocation);
-				// File pathToRecon = ReconUtil.getPathToWriteTo(nexusFileLocation);
-				File pathToImages = new File(String.format("%s_data_quick", reducedNxsFileName));
-				File imageFile = new File(pathToImages, String.format("recon_%05d.tif", pixelPosition / SPLITS));
+				String pathToImages = ReconUtil.getReconstructedReducedDataDirectoryPath(nexusFileLocation);
+
+				File imageFile = new File(pathToImages, String.format(ReconUtil.RECONSTRUCTED_IMAGE_FILE_FORMAT,
+						pixelPosition / SPLITS));
 				logger.debug("Looking for image file {}", imageFile.getPath());
 				if (imageFile.exists()) {
 					// update monitor
@@ -524,12 +577,12 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 						// update monitor
 						monitor.worked(1);
 
-						SDAPlotter.imagePlot("Plot 1", image);
+						SDAPlotter.imagePlot(PLOT_VIEW_TO_DISPLAY_RECON_IMAGE, image);
 
 						// update monitor
 						monitor.worked(1);
 					} catch (Exception e) {
-						logger.error("TODO cannot Load reconstruction for display", e);
+						logger.error("Cannot load recon image for display", e);
 						return Status.CANCEL_STATUS;
 					}
 				} else {

@@ -43,6 +43,8 @@ public class ReconUtil {
 	private static final String NXS_PATH_TO_BEAMLINE_NAME = "/entry1/instrument/name";
 	private static final String NXS_FILE_EXTN = "nxs";
 	private static final Logger logger = LoggerFactory.getLogger(ReconUtil.class);
+	
+	public static String RECONSTRUCTED_IMAGE_FILE_FORMAT="recon_%05d.tif";
 
 	public static File getReconOutDir(String nexusFileLocation) {
 		String parentPath = getVisitDirectory(nexusFileLocation);
@@ -95,17 +97,27 @@ public class ReconUtil {
 	public static File getReducedNexusFile(String nexusFileLocation) {
 		String nexusFileName = new Path(nexusFileLocation).lastSegment();
 		IPath nxsFileWithoutExtnPath = new Path(nexusFileName).removeFileExtension();
-		HDF5Loader hdf5Loader = new HDF5Loader(nexusFileLocation);
-		DataHolder loadFile;
-		String beamlineName = null;
-		try {
-			loadFile = hdf5Loader.loadFile();
-			beamlineName = loadFile.getDataset(NXS_PATH_TO_BEAMLINE_NAME).getStringAbs(0);
-		} catch (Exception ex) {
-			logger.error("Problem getting beamline name", ex);
-		}
+//		HDF5Loader hdf5Loader = new HDF5Loader(nexusFileLocation);
+//		DataHolder loadFile;
+//		String beamlineName = null;
+//		try {
+//			loadFile = hdf5Loader.loadFile();
+//			beamlineName = loadFile.getDataset(NXS_PATH_TO_BEAMLINE_NAME).getStringAbs(0);
+//		} catch (Exception ex) {
+//			logger.error("Problem getting beamline name", ex);
+//		}
 		String nxsFileWithoutExtn = nxsFileWithoutExtnPath.toString();
 		String visitDirectory = getVisitDirectory(nexusFileLocation);
-		return new File(String.format("%s/tmp/reduced/%s/%s.nxs", visitDirectory, beamlineName, nxsFileWithoutExtn));
+		return new File(String.format("%s/tmp/reduced/%s.nxs", visitDirectory, nxsFileWithoutExtn));
+	}
+
+	public static String getReconstructedReducedDataDirectoryPath(String nexusFileLocation) {
+		File reducedNexusFile = ReconUtil.getReducedNexusFile(nexusFileLocation);
+		String reducedNxsFileName = new Path(reducedNexusFile.getPath()).removeFileExtension().toOSString();
+		logger.debug("reducedNexusFile {}", reducedNexusFile);
+		// File path = new File(nexusFileLocation);
+		// File pathToRecon = ReconUtil.getPathToWriteTo(nexusFileLocation);
+		File pathToImages = new File(String.format("%s_data_quick", reducedNxsFileName));
+		return pathToImages.toString();
 	}
 }

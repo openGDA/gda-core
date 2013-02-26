@@ -64,8 +64,10 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
@@ -193,6 +195,64 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 	private Text txtRoiYMax;
 	private Text txtFileName;
 
+	private boolean isPartActive;
+
+	synchronized void setPartActive(boolean isActive) {
+		this.isPartActive = isActive;
+	}
+
+	private IPartListener2 partAdapter = new IPartListener2() {
+
+		@Override
+		public void partVisible(IWorkbenchPartReference partRef) {
+			if (partRef.getPart(false).equals(ParameterView.this)) {
+				setPartActive(true);
+			}
+		}
+
+		@Override
+		public void partOpened(IWorkbenchPartReference partRef) {
+
+		}
+
+		@Override
+		public void partInputChanged(IWorkbenchPartReference partRef) {
+
+		}
+
+		@Override
+		public void partHidden(IWorkbenchPartReference partRef) {
+			if (partRef.getPart(false).equals(ParameterView.this)) {
+				setPartActive(false);
+			}
+		}
+
+		@Override
+		public void partDeactivated(IWorkbenchPartReference partRef) {
+
+		}
+
+		@Override
+		public void partClosed(IWorkbenchPartReference partRef) {
+			if (partRef.getPart(false).equals(ParameterView.this)) {
+				setPartActive(false);
+			}
+		}
+
+		@Override
+		public void partBroughtToTop(IWorkbenchPartReference partRef) {
+			if (partRef.getPart(false).equals(ParameterView.this)) {
+				setPartActive(true);
+			}
+		}
+
+		@Override
+		public void partActivated(IWorkbenchPartReference partRef) {
+
+		}
+
+	};
+
 	/**
 	 * The constructor.
 	 */
@@ -313,6 +373,7 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 		// Read settings file from resource and copy to /tmp
 		createSettingsFile();
 		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(this);
+		getViewSite().getWorkbenchWindow().getPartService().addPartListener(partAdapter);
 	}
 
 	public static class SampleInOutBeamPosition extends Dialog {
@@ -414,12 +475,10 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 				nexusFileLocation = reducedNexusFile.getPath();
 			}
 			File path = new File(nexusFileLocation);
-			File pathToRecon = new File(ReconUtil.getVisitDirectory(nexusFileLocation));
 			String imagePath = path.getName().replace(".nxs", "");
 			File pathToImages = null;
 			if (quick) {
-				imagePath = imagePath + "_data_quick";
-				pathToImages = new File(pathToRecon, imagePath);
+				pathToImages = new File(ReconUtil.getReconstructedReducedDataDirectoryPath(nexusFileLocation));
 			} else {
 				imagePath = String.format("%s/%s", ReconUtil.getReconOutDir(nexusFileLocation).toString(), imagePath);
 				pathToImages = new File(imagePath);
@@ -508,10 +567,10 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 			if (quick) {
 				command.append(" --quick");
 			}
-//			String localTomoUtilFileLocation = LocalTomoUtil.getLocalTomoUtilFileLocation();
-//			if (localTomoUtilFileLocation != null) {
-//				command.append(" --local " + localTomoUtilFileLocation);
-//			}
+			// String localTomoUtilFileLocation = LocalTomoUtil.getLocalTomoUtilFileLocation();
+			// if (localTomoUtilFileLocation != null) {
+			// command.append(" --local " + localTomoUtilFileLocation);
+			// }
 
 			double inBeamVal = 0;
 			double outOfBeamVal = 0;
@@ -947,46 +1006,52 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 
 	@Override
 	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-		if (selection instanceof IStructuredSelection) {
-			IStructuredSelection iss = (IStructuredSelection) selection;
-			Object firstElement = iss.getFirstElement();
-			nexusFile = null;
-			if (firstElement instanceof IFile
-					&& Activator.NXS_FILE_EXTN.equals(((IFile) firstElement).getFileExtension())) {
-				nexusFile = (IFile) firstElement;
+		if (isPartActive) {
+			if (selection instanceof IStructuredSelection) {
+				IStructuredSelection iss = (IStructuredSelection) selection;
+				Object firstElement = iss.getFirstElement();
+				nexusFile = null;
+				if (firstElement instanceof IFile
+						&& Activator.NXS_FILE_EXTN.equals(((IFile) firstElement).getFileExtension())) {
+					nexusFile = (IFile) firstElement;
 
-			} else if (part instanceof IEditorPart) {
-				IEditorPart ed = (IEditorPart) part;
-				Object adapter = ed.getAdapter(IParameterView.class);
-				if (adapter != null) {
-					if (adapter instanceof IFile) {
-						IFile hmFile = (IFile) adapter;
-						if (hmFile.getFileExtension().equals("hm")) {
-							nexusFile = getNexusFileFromHmFileLocation(hmFile.getLocationURI().toString());
+				} else if (part instanceof IEditorPart) {
+					IEditorPart ed = (IEditorPart) part;
+					Object adapter = ed.getAdapter(IParameterView.class);
+					if (adapter != null) {
+						if (adapter instanceof IFile) {
+							IFile hmFile = (IFile) adapter;
+							if (HM_FILE_EXTN.equals(hmFile.getFileExtension())) {
+								nexusFile = getNexusFileFromHmFileLocation(hmFile.getLocationURI().toString());
+							}
 						}
 					}
 				}
-			}
 
-			if (nexusFile != null) {
-				reducedNexusFile = getReducedNexusFile(nexusFile);
-				hmSettingsInProcessingDir = getHmSettingsInProcessingDir();
-				String path = nexusFile.getLocation().toOSString();
-				ILazyDataset actualDataset = getDataSetFromFileLocation(path);
-				ILazyDataset reducedDataset = getDataSetFromFileLocation(reducedNexusFile.getPath());
-				if (actualDataset != null && actualDataset.getRank() == 3) {
-					isHdf = true;
-					hdfShape = actualDataset.getShape();
-					reducedDataShape = reducedDataset.getShape();
-				}
-				getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
-
-					@Override
-					public void run() {
-						initializeView();
+				if (nexusFile != null) {
+					reducedNexusFile = getReducedNexusFile(nexusFile);
+					hmSettingsInProcessingDir = getHmSettingsInProcessingDir();
+					String path = nexusFile.getLocation().toOSString();
+					ILazyDataset actualDataset = getDataSetFromFileLocation(path);
+					ILazyDataset reducedDataset = getDataSetFromFileLocation(reducedNexusFile.getPath());
+					if (actualDataset != null && actualDataset.getRank() == 3) {
+						isHdf = true;
+						hdfShape = actualDataset.getShape();
+						if (reducedDataset != null) {
+							reducedDataShape = reducedDataset.getShape();
+						} else {
+							logger.warn("Reduced data set not ready yet");
+						}
 					}
-				});
-				return;
+					getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
+
+						@Override
+						public void run() {
+							initializeView();
+						}
+					});
+					return;
+				}
 			}
 		}
 
@@ -1030,6 +1095,14 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 		} catch (IOException e) {
 			logger.error("Unable to find file compressScript", e);
 		}
+
+		File reducedNxsFileHandle = new File(outputNexusFileLocation);
+
+		String reducedNxsFileParentLocation = reducedNxsFileHandle.getParent();
+		File reducedNxsFileParentFileHandle = new File(reducedNxsFileParentLocation);
+
+		reducedNxsFileParentFileHandle.mkdirs();
+
 		if (compressNexusScript != null) {
 			String compressNxsScriptFullLocation = compressNexusScript.getAbsolutePath();
 			String command = String.format("%s %s %s", compressNxsScriptFullLocation, actualNexusFileLocation,
@@ -1066,6 +1139,7 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 	@Override
 	public void dispose() {
 		getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(this);
+		getViewSite().getWorkbenchWindow().getPartService().removePartListener(partAdapter);
 		super.dispose();
 	}
 
