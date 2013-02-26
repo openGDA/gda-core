@@ -45,7 +45,7 @@
                 <fileset dir="${GDA-plugin.basedir}/src">
                     <include name="**/*Test.java" />
                     <exclude name="**/*PluginTest.java" />
-                    <exclude name="**/AreaDetectorIOCIntegrationTest" />
+                    <exclude name="**/AreaDetectorIOCIntegrationTest.java" />
                 </fileset>
             </batchtest>
         </junit-call>
