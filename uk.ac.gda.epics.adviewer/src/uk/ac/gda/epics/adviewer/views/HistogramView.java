@@ -20,6 +20,7 @@ package uk.ac.gda.epics.adviewer.views;
 
 import org.dawb.common.ui.plot.tool.IToolPageSystem;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
@@ -50,12 +51,17 @@ public class HistogramView extends ViewPart implements InitializingBean{
 	@Override
 	public void createPartControl(Composite parent) {
 
-		parent.setLayout(new FillLayout());
 		try {
-			histogram = new Histogram(this, parent, SWT.NONE);
+			ScrolledComposite sc = new ScrolledComposite(parent, SWT.V_SCROLL | SWT.H_SCROLL| SWT.BORDER);
+			Composite c = new Composite(sc, SWT.NONE);
+			c.setLayout(new FillLayout());
+			
+			histogram = new Histogram(this, c, SWT.NONE);
+			sc.setContent(c);
+			sc.setExpandVertical(true);
+			sc.setExpandHorizontal(true);
+			sc.setMinSize(c.computeSize(500, 500));
 			histogram.setADController(config);
-//			areaDetectorProfileComposite.grabOnce();
-//			areaDetectorProfileComposite.grabOnceStats();
 		} catch (Exception e) {
 			logger.error("Error starting  areaDetectorProfileComposite", e);
 		}

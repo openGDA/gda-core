@@ -20,6 +20,7 @@ package gda.device.detector;
 
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
+import gda.configuration.epics.EpicsConfiguration;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.epics.connection.EpicsChannelManager;
@@ -88,6 +89,8 @@ public class EpicsScaler extends gda.device.detector.DetectorBase implements Det
 
 	private String pvName;
 
+	private EpicsConfiguration epicsConfiguration;
+
 	private Channel[] presetValues = null;
 
 	private Channel[] scalerValues = null;
@@ -151,8 +154,13 @@ public class EpicsScaler extends gda.device.detector.DetectorBase implements Det
 				else if (getDeviceName() != null) {
 					SimpleScalerType scalerConfig;
 					try {
-						scalerConfig = Configurator.getConfiguration(getDeviceName(),
-								gda.epics.interfaces.SimpleScalerType.class);
+						if (epicsConfiguration != null) {
+							scalerConfig = epicsConfiguration.getConfiguration(getDeviceName(),
+									gda.epics.interfaces.SimpleScalerType.class);
+						} else {
+							scalerConfig = Configurator.getConfiguration(getDeviceName(),
+									gda.epics.interfaces.SimpleScalerType.class);
+						}
 						pvName = scalerConfig.getRECORD().getPv();
 					} catch (ConfigurationNotFoundException e) {
 						/* Try to read from unchecked xml */
@@ -653,6 +661,16 @@ public class EpicsScaler extends gda.device.detector.DetectorBase implements Det
 	 */
 	public String getPvName() {
 		return pvName;
+	}
+
+	/**
+	 * Sets the EpicsConfiguration to use when looking up PV from deviceName.
+	 * 
+	 * @param epicsConfiguration
+	 *            the EpicsConfiguration
+	 */
+	public void setEpicsConfiguration(EpicsConfiguration epicsConfiguration) {
+		this.epicsConfiguration = epicsConfiguration;
 	}
 
 	/**

@@ -65,7 +65,9 @@ import org.eclipse.ui.handlers.IHandlerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 import uk.ac.gda.epics.adviewer.ADController;
 import uk.ac.gda.epics.adviewer.Ids;
@@ -389,15 +391,25 @@ public class Histogram extends Composite {
 										return Status.OK_STATUS;
 									}
 									DoubleDataset ds = new DoubleDataset(histogram_RBV);
+									Number max = ds.max();
+									int numItemsToShow=histogram_RBV.length;
+									for( int i=numItemsToShow; i>0;i-- ){
+										if( histogram_RBV[i-1] > max.doubleValue()/1E6){
+											numItemsToShow=i;
+											break;
+										}
+									}
 
-									ds.setName("");
-
+									
 									if (histogramTrace == null) {
 										histogramTrace = plottingSystem.createLineTrace(PROFILE);
 										histogramTrace.setTraceColor(ColorConstants.blue);
 									}
-
-									histogramTrace.setData(histogramXAxisRange, ds);
+									Slice slice = new Slice(0, numItemsToShow, 1); //stop 1 past last value
+									AbstractDataset dsToShow = ds.getSlice(slice);
+									dsToShow.setName("");
+									AbstractDataset histogramXAxisRangeToShow = histogramXAxisRange.getSlice(slice);
+									histogramTrace.setData(histogramXAxisRangeToShow, dsToShow);
 
 									if (updateUIRunnable == null) {
 										updateUIRunnable = new Runnable() {
