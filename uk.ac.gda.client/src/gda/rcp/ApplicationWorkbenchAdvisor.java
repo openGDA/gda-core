@@ -68,7 +68,6 @@ import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.ToolBarManager;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IPerspectiveDescriptor;
@@ -372,7 +371,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 			listenForUserMessages();
 			
 			// should these two be done during initialize instead of now when Windows have been created?
-			WorkspaceModifyOperation wkspaceModifyOperation = new WorkspaceModifyOperation() {
+			final WorkspaceModifyOperation wkspaceModifyOperation = new WorkspaceModifyOperation() {
 
 				@Override
 				protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException,
@@ -396,14 +395,19 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 					monitor.done();
 				}
 			};
-			try {
-				ProgressMonitorDialog dialog = new ProgressMonitorDialog(workbenchWindow.getShell());
-				dialog.run(true, false, wkspaceModifyOperation);
-			} catch (InvocationTargetException e) {
-				logger.error("Problem while creating GDA projects", e);
-			} catch (InterruptedException e) {
-				logger.error("Interrupted while creating GDA projects", e);
-			}
+			final WorkspaceJob workspaceJob = new WorkspaceJob("postStartup"){
+
+				@Override
+				public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
+					try {
+						wkspaceModifyOperation.run(monitor);
+					} catch (Exception e) {
+						logger.error("Error in postStartup", e);
+					}
+					return Status.OK_STATUS;
+				}
+			};
+			workspaceJob.schedule();
 			try {
 				refreshFromLocal();
 			} finally {// Resume background jobs after we startup
