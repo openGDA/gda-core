@@ -333,7 +333,7 @@ public class ADDetectorTest {
 		det().collectData();
 		det().collectData();
 		det().collectData();
-		verify(collectionStrategy, times(1)).prepareForCollection(1., 1, scanInfo);
+		verify(collectionStrategy, times(1)).prepareForCollection(1., 1, null);
 	}
 
 	@Test

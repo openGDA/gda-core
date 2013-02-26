@@ -140,8 +140,8 @@ public class ADPilatusTest extends ADDetectorTest {
 		pil().setNumberImagesToCollect(10);
 		pil().collectData();
 		InOrder inOrder = inOrder(adBase, mockAdDriverPilatus);
-		inOrder.verify(adBase).setAcquirePeriod(1. + READOUT_TIME);
-		inOrder.verify(adBase).setAcquireTime(1);
+		inOrder.verify(adBase).setAcquirePeriod(1.);
+		inOrder.verify(adBase).setAcquireTime(1 - READOUT_TIME);
 		inOrder.verify(adBase).setTriggerMode(HARDWARE_TRIGGER_MODE.ordinal());
 		inOrder.verify(adBase).setImageModeWait(ImageMode.MULTIPLE);
 		inOrder.verify(adBase).setNumImages(10);
