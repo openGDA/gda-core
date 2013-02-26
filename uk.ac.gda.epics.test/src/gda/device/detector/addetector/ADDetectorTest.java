@@ -23,6 +23,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,6 +37,9 @@ import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDStats;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
 import gda.device.detector.nxdetector.NXFileWriterPlugin;
+import gda.jython.ICurrentScanInformationHolder;
+import gda.jython.InterfaceProvider;
+import gda.scan.ScanInformation;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.junit.Before;
@@ -64,6 +68,8 @@ public class ADDetectorTest {
 
 	protected double READOUT_TIME = 0.1;
 	
+	protected ScanInformation scanInfo;
+	
 	public Detector det() {
 		return adDet;
 	}
@@ -78,6 +84,16 @@ public class ADDetectorTest {
 		MockitoAnnotations.initMocks(this);
 		setUpNoConfigure();
 		adDet().configure();
+		configureScanInformationHolder();
+	}
+	
+
+	protected void configureScanInformationHolder() {
+		scanInfo = mock(ScanInformation.class);
+		ICurrentScanInformationHolder currentScanHolder = mock(ICurrentScanInformationHolder.class);
+		when(currentScanHolder.getCurrentScanInformation()).thenReturn(scanInfo);
+		when(scanInfo.getScanNumber()).thenReturn((long) 12345);
+		InterfaceProvider.setCurrentScanInformationHolderForTesting(currentScanHolder);
 	}
 
 	protected void setUpNoConfigure() throws Exception {
@@ -317,7 +333,7 @@ public class ADDetectorTest {
 		det().collectData();
 		det().collectData();
 		det().collectData();
-		verify(collectionStrategy, times(1)).prepareForCollection(1., 1, null);
+		verify(collectionStrategy, times(1)).prepareForCollection(1., 1, scanInfo);
 	}
 
 	@Test

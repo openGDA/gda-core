@@ -23,6 +23,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import gda.data.nexus.tree.INexusTree;
@@ -36,6 +37,9 @@ import gda.device.detector.nxdata.NXDetectorDataNullAppender;
 import gda.device.detector.nxdetector.NXPlugin;
 import gda.device.detector.nxdetector.plugin.areadetector.ADArrayPlugin;
 import gda.device.detector.nxdetector.plugin.areadetector.ADBasicStats;
+import gda.jython.ICurrentScanInformationHolder;
+import gda.jython.InterfaceProvider;
+import gda.scan.ScanInformation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,6 +76,7 @@ public class NXDetectorAreaDetectorIntegrationTest extends ADDetectorTest {
 	private static String[] PLUGIN1_FORMATS = new String[] { "%.1f", "%.2f", "%.3f" };
 	private static String[] PLUGIN2_FORMATS = new String[] { "%.4f", "%.5f" };
 	private ADArrayPlugin adArrayPlugin;
+
 
 	@Override
 	public Detector det() {
@@ -112,7 +117,7 @@ public class NXDetectorAreaDetectorIntegrationTest extends ADDetectorTest {
 		enableReadAcquisitionTimeAndPeriod(true, false);
 		enableFileWriter(false);
 		enableStatsAndCentroid(false, false);
-
+		configureScanInformationHolder();
 	}
 
 	@Override
@@ -423,7 +428,7 @@ public class NXDetectorAreaDetectorIntegrationTest extends ADDetectorTest {
 		verify(collectionStrategy).setGenerateCallbacks(true);
 		verify(ndArrayBase).enableCallbacks();
 		verify(ndArrayBase).setBlockingCallbacks((short) 1);
-		verify(collectionStrategy).prepareForCollection(1., 1, null);
+		verify(collectionStrategy).prepareForCollection(1., 1, scanInfo);
 	}
 
 	@Override
