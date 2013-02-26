@@ -114,13 +114,14 @@ public class SequenceViewLabelProvider extends LabelProvider implements
 				if (region.getAcquisitionMode()==ACQUISITION_MODE.SWEPT) {
 					return Long.toString(calculatedSteps(region));
 				} else {
-					Integer.toString(1);
+					return Integer.toString(1);
 				}
 			case SequenceTableConstants.COL_TOTAL_TIME:
 				if (region.getAcquisitionMode()==ACQUISITION_MODE.SWEPT) {
 					return Double.toString(region.getStepTime()*calculatedSteps(region));
+				} else {
+					return Double.toString(region.getStepTime()*1);
 				}
-				Double.toString(region.getStepTime()*1);
 			case SequenceTableConstants.COL_X_CHANNEL_FROM:
 				return Integer.toString(region.getFirstXChannel());
 			case SequenceTableConstants.COL_X_CHANNEL_TO:
@@ -145,7 +146,7 @@ public class SequenceViewLabelProvider extends LabelProvider implements
 				region.getEnergyStep(),
 				camera.getEnergyResolution()*region.getPassEnergy()
 						* (region.getLastXChannel() - region
-								.getFirstXChannel()));
+								.getFirstXChannel()+1));
 	}
 
 	public void setCamera(Camera camera) {

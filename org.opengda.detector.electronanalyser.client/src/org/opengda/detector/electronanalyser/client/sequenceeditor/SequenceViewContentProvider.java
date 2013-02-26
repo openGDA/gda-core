@@ -24,7 +24,6 @@ public class SequenceViewContentProvider implements IStructuredContentProvider {
 	}
 
 	private Adapter notifyListener = new EContentAdapter() {
-
 		@Override
 		public void notifyChanged(Notification notification) {
 			super.notifyChanged(notification);
