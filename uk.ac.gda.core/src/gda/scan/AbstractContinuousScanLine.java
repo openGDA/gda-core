@@ -326,6 +326,7 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 	
 	public AbstractContinuousScanLine(Object[] args) throws IllegalArgumentException {
 		super(wrapContinuouslyScannables(args));
+		callCollectDataOnDetectors = false;
 		extractScannablesToScan();
 		extractDetectors();
 		if (detectors.size() == 0) {
@@ -439,6 +440,10 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 					.format("Requests to collect data on Detectors ({0}) will be collected by the TrajectoryMoveController ({1})",
 							scannablesToString(detectors), getController().getName()));
 
+			for (HardwareTriggeredDetector det : detectors) {
+				det.setNumberImagesToCollect(getNumberPoints());
+			}
+			
 		} catch (Exception e) {
 			logger.info("problem in prepareDevicesForCollection()");
 			for (ContinuouslyScannableViaController scn : scannablesToMove) {
