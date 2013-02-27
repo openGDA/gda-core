@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -76,13 +76,7 @@ import uk.ac.gda.richbeans.components.wrappers.LabelWrapper;
 import uk.ac.gda.richbeans.components.wrappers.TextWrapper;
 import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
-import uk.ac.gda.richbeans.event.ValueListener;
 
-import com.swtdesigner.SWTResourceManager;
-
-/**
- * @author fcp94556
- */
 public class IonChamberComposite extends Composite implements ListEditorUI {
 
 	private final Logger logger = LoggerFactory.getLogger(IonChamberComposite.class);
@@ -237,78 +231,85 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 		pressure.setUnit("bar");
 		pressure.setNotifyType(NOTIFY_TYPE.VALUE_CHANGED);
 		pressure.setDecimalPlaces(6);
-
-		fillGasButton = new Button(composite, SWT.NONE);
-		fillGasButton.setToolTipText("Click to fill the gas into the ion chamber.");
-		fillGasButton.setText("Fill Gas");
-
-		fillGasButton.addSelectionListener(new SelectionListener() {
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-
-				String ionc_name = name.getValue().toString();
-				String purge_pressure = "25.0";
-				String purge_period = "120";
-				double gas_fill1_pressure_mbar = Double.parseDouble(pressure.getValue().toString()) * 1000;
-				String gas_fill1_pressure = String.valueOf(gas_fill1_pressure_mbar);
-				String gas_fill1_period = gas_fill1_period_box.getValue().toString();
-				double totalPressureDbl = Double.parseDouble(totalPressure.getValue().toString());
-				String gas_fill2_pressure = String.valueOf((totalPressureDbl * 1000));
-				String gas_fill2_period = gas_fill2_period_box.getValue().toString();
-				String gas_select = gasType.getValue().toString();
-				int gas_select_val = -1;
-
-				if (flush.getValue())
-					flushString = "True";
-				else
-					flushString = "False";
-
-				if (gas_select.equals("Kr"))
-					gas_select_val = 0;
-				else if (gas_select.equals("N"))
-					gas_select_val = 1;
-				else if (gas_select.equals("Ar"))
-					gas_select_val = 2;
-
-				if (ionc_name.equals("I0")) {
-					String command = "pos ionc1_gas_injector [\"" + purge_pressure + "\",\"" + purge_period + "\",\""
-							+ gas_fill1_pressure + "\",\"" + gas_fill1_period + "\",\"" + gas_fill2_pressure + "\",\""
-							+ gas_fill2_period + "\",\"" + gas_select_val + "\",\"" + flushString + "\"]";
-					JythonServerFacade.getInstance().runCommand(command);
-				} else if (ionc_name.equals("It")) {
-					String command = "pos ionc2_gas_injector [\"" + purge_pressure + "\",\"" + purge_period + "\",\""
-							+ gas_fill1_pressure + "\",\"" + gas_fill1_period + "\",\"" + gas_fill2_pressure + "\",\""
-							+ gas_fill2_period + "\",\"" + gas_select_val + "\",\"" + flushString + "\"]";
-					JythonServerFacade.getInstance().runCommand(command);
-				} else if (ionc_name.equals("Iref")) {
-					String command = "pos ionc3_gas_injector [\"" + purge_pressure + "\",\"" + purge_period + "\",\""
-							+ gas_fill1_pressure + "\",\"" + gas_fill1_period + "\",\"" + gas_fill2_pressure + "\",\""
-							+ gas_fill2_period + "\",\"" + gas_select_val + "\",\"" + flushString + "\"]";
-					JythonServerFacade.getInstance().runCommand(command);
-				}
-			}
-		});
 		
-		abortFillButton = new Button(composite, SWT.NONE);
-		abortFillButton.setToolTipText("Click to abort the gas fill sequence.");
-		abortFillButton.setText("Abort");
+		
+		if (!ExafsActivator.getDefault().getPreferenceStore()
+				.getBoolean(ExafsPreferenceConstants.HIDE_GAS_FILL_CONTROLS)) {
+			fillGasButton = new Button(composite, SWT.NONE);
+			fillGasButton.setToolTipText("Click to fill the gas into the ion chamber.");
+			fillGasButton.setText("Fill Gas");
 
-		abortFillButton.addSelectionListener(new SelectionListener(){
+			fillGasButton.addSelectionListener(new SelectionListener() {
 
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				JythonServerFacade.getInstance().runCommand("ionc1_gas_injector.abort()");
-			}
+				@Override
+				public void widgetDefaultSelected(SelectionEvent e) {
+				}
 
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-		});
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+
+					String ionc_name = name.getValue().toString();
+					String purge_pressure = "25.0";
+					String purge_period = "120";
+					double gas_fill1_pressure_mbar = Double.parseDouble(pressure.getValue().toString()) * 1000;
+					String gas_fill1_pressure = String.valueOf(gas_fill1_pressure_mbar);
+					String gas_fill1_period = gas_fill1_period_box.getValue().toString();
+					double totalPressureDbl = Double.parseDouble(totalPressure.getValue().toString());
+					String gas_fill2_pressure = String.valueOf((totalPressureDbl * 1000));
+					String gas_fill2_period = gas_fill2_period_box.getValue().toString();
+					String gas_select = gasType.getValue().toString();
+					int gas_select_val = -1;
+
+					if (flush.getValue())
+						flushString = "True";
+					else
+						flushString = "False";
+
+					if (gas_select.equals("Kr"))
+						gas_select_val = 0;
+					else if (gas_select.equals("N"))
+						gas_select_val = 1;
+					else if (gas_select.equals("Ar"))
+						gas_select_val = 2;
+
+					if (ionc_name.equals("I0")) {
+						String command = "pos ionc1_gas_injector [\"" + purge_pressure + "\",\"" + purge_period
+								+ "\",\"" + gas_fill1_pressure + "\",\"" + gas_fill1_period + "\",\""
+								+ gas_fill2_pressure + "\",\"" + gas_fill2_period + "\",\"" + gas_select_val + "\",\""
+								+ flushString + "\"]";
+						JythonServerFacade.getInstance().runCommand(command);
+					} else if (ionc_name.equals("It")) {
+						String command = "pos ionc2_gas_injector [\"" + purge_pressure + "\",\"" + purge_period
+								+ "\",\"" + gas_fill1_pressure + "\",\"" + gas_fill1_period + "\",\""
+								+ gas_fill2_pressure + "\",\"" + gas_fill2_period + "\",\"" + gas_select_val + "\",\""
+								+ flushString + "\"]";
+						JythonServerFacade.getInstance().runCommand(command);
+					} else if (ionc_name.equals("Iref")) {
+						String command = "pos ionc3_gas_injector [\"" + purge_pressure + "\",\"" + purge_period
+								+ "\",\"" + gas_fill1_pressure + "\",\"" + gas_fill1_period + "\",\""
+								+ gas_fill2_pressure + "\",\"" + gas_fill2_period + "\",\"" + gas_select_val + "\",\""
+								+ flushString + "\"]";
+						JythonServerFacade.getInstance().runCommand(command);
+					}
+				}
+			});
+
+			abortFillButton = new Button(composite, SWT.NONE);
+			abortFillButton.setToolTipText("Click to abort the gas fill sequence.");
+			abortFillButton.setText("Abort");
+
+			abortFillButton.addSelectionListener(new SelectionListener() {
+
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					JythonServerFacade.getInstance().runCommand("ionc1_gas_injector.abort()");
+				}
+
+				@Override
+				public void widgetDefaultSelected(SelectionEvent e) {
+				}
+			});
+		}
 	}
 
 	private void createLeftSensitivityProperties(final Composite left) {
