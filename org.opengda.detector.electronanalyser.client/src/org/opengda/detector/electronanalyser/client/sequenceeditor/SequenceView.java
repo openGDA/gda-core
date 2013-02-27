@@ -546,17 +546,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 
 	}
 
-	private List<Region> getRegions() {
-		if (regionDefinitionResourceUtil != null) {
-			try {
-				return regionDefinitionResourceUtil.getRegions();
-			} catch (Exception e) {
-				// FIXME - logger
-			}
-		}
-		return Collections.emptyList();
-	}
-
 	@Override
 	public void setFocus() {
 		sequenceTableViewer.getTable().setFocus();
@@ -662,11 +651,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 	}
 
 	protected void runCommand(final Command rmCommand) throws Exception {
-
 		regionDefinitionResourceUtil.getEditingDomain().getCommandStack()
 				.execute(rmCommand);
-
-		// getModel().eResource().save(null);
 	}
 
 	public Camera getCamera() {
@@ -679,14 +665,12 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 
 	@Override
 	public void refreshTable() {
-		// sequenceTableViewer.refresh();
 		try {
 			Resource sequenceRes = regionDefinitionResourceUtil.getResource();
 			sequenceTableViewer.setInput(sequenceRes);
 
-			// if the sequnce is empty - then fire null
-			List<Region> regions = regionDefinitionResourceUtil.getSequence()
-					.getRegion();
+			// if the sequence is empty - then fire null
+			List<Region> regions = regionDefinitionResourceUtil.getRegions();
 			if (regions.isEmpty()) {
 				fireSelectionChanged(null);
 			} else {
