@@ -19,16 +19,17 @@
 		<property name="cameraYSize" value="1024"/>
 	</bean>
 	
-	<bean id="regionviewfactory"
-		class="org.opengda.detector.electronanalyser.client.regioneditor.RegionViewFactory">
-		<property name="viewPartName" value="Region Editor" />
-		<property name="regionDefinitionResourceUtil" ref="regionDefinitionResourceUtil" />
-		<property name="camera" ref="analysercamera"/>
-	</bean>
 
 	<bean id="sequenceviewfactory"
 		class="org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewFactory">
 		<property name="viewPartName" value="Sequence Editor" />
+		<property name="regionDefinitionResourceUtil" ref="regionDefinitionResourceUtil" />
+		<property name="camera" ref="analysercamera"/>
+	</bean>
+
+	<bean id="regionviewfactory"
+		class="org.opengda.detector.electronanalyser.client.regioneditor.RegionViewFactory">
+		<property name="viewPartName" value="Region Editor" />
 		<property name="regionDefinitionResourceUtil" ref="regionDefinitionResourceUtil" />
 		<property name="camera" ref="analysercamera"/>
 	</bean>
