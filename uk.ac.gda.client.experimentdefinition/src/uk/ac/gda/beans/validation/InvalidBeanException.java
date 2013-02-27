@@ -69,7 +69,7 @@ public class InvalidBeanException extends Exception {
 	@Override
 	public String getMessage() {
 		final StringBuilder buf = new StringBuilder();
-		buf.append("\n\n****** Errors identified in settings ******\n");
+		buf.append("\n\n****** Errors identified in XML ******\n");
 		for (InvalidBeanMessage m : messages) {
 			buf.append(m);
 			buf.append("\n");

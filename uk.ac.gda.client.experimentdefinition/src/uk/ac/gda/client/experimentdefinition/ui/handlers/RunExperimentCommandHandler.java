@@ -93,7 +93,7 @@ public class RunExperimentCommandHandler extends AbstractExperimentCommandHandle
 				validator.validate(ob);
 			} catch (InvalidBeanException e) {
 				MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-						"Experiment XML invalid", e.getMessage());
+						"Error(s) in XML file(s)", e.getMessage());
 				return;
 			}
 		}
