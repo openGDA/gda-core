@@ -2,10 +2,12 @@
 <?eclipse version="3.4"?>
 <plugin>
   <extension point="org.eclipse.ui.editors">
-    <editor class="uk.ac.gda.devices.bssc.ui.BSSCSessionBeanEditor"
-            default="true"
-            id="uk.ac.gda.devices.bssc.beans.BSSCSessionBeanEditor"
-            name="BSSC Session Editor">
+    <editor
+          class="uk.ac.gda.devices.bssc.ui.BSSCSessionBeanEditor"
+          default="true"
+          icon="icons/well.png"
+          id="uk.ac.gda.devices.bssc.beans.BSSCSessionBeanEditor"
+          name="BSSC Session Editor">
             <contentTypeBinding
                 contentTypeId="uk.ac.gda.devices.bssc.beans.BSSCSessionBeanContentType">
             </contentTypeBinding>
@@ -51,6 +53,14 @@
            Import a file from the local file system into the workspace.
         </description>
      </wizard>
+  </extension>
+  <extension
+        point="org.eclipse.ui.perspectives">
+     <perspective
+           class="uk.ac.gda.devices.bssc.perspectives.BSSCPerspective"
+           id="uk.ac.gda.devices.bssc.perspective"
+           name="BSSC Perspective">
+     </perspective>
   </extension>
 
 </plugin>
