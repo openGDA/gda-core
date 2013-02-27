@@ -24,13 +24,14 @@ class QexafsScan(Scan):
         Scan.__init__(self, loggingcontroller,detectorPreparer, samplePreparer, outputPreparer,None)
         self.energy_scannable = energy_scannable
         self.ion_chambers_scannable = ion_chambers_scannable
-        if self.cirrusEnabled:
-            self.t = None
-        self.beamCheck = True
         self.cirrusEnabled = False
+        self.beamCheck = True
         
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, numRepetitions= -1, validation=True):
         xmlFolderName = ExafsEnvironment().getXMLFolder() + folderName + "/"
+
+        if self.cirrusEnabled:
+            self.t = None
 
         print "xmlFolderName=" + str(xmlFolderName)
         print "sampleFileName=" + str(sampleFileName)

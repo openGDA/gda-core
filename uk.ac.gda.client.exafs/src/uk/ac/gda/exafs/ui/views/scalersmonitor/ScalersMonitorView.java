@@ -145,7 +145,8 @@ public class ScalersMonitorView extends MonitorViewBase {
 		String xspressName = LocalProperties.get("gda.exafs.xspressName", "xspress2system");
 		XspressDetector xspress = (XspressDetector) Finder.getInstance().find(xspressName);
 		numElements = xspress.getNumberOfDetectors();
-		return (Double[]) xspress.getAttribute("liveStats");
+		Double[] rates = (Double[]) xspress.getAttribute("liveStats");
+		return rates;
 	}
 
 	@Override

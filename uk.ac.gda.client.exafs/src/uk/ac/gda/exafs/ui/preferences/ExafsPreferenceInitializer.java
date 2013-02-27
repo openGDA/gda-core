@@ -42,7 +42,6 @@ public class ExafsPreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(ExafsPreferenceConstants.DISPLAY_GAS_FILL_PERIOD, false);
 		store.setDefault(ExafsPreferenceConstants.SHOW_METADATA_EDITOR, false);
 		store.setDefault(ExafsPreferenceConstants.HIDE_LnI0ItScanPlotView, false);
-		store.setDefault(ExafsPreferenceConstants.SHOW_B18ScalersMonitorView, false);
 		store.setDefault(ExafsPreferenceConstants.XAS_MAX_ENERGY, 35000.0);
 		store.setDefault(ExafsPreferenceConstants.XAS_MIN_ENERGY, 2000.0);
 		store.setDefault(ExafsPreferenceConstants.DETECTORS_SOFT_XRAY, false);

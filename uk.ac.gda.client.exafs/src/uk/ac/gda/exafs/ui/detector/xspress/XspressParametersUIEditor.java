@@ -424,6 +424,8 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		sashPlotForm.setWeights(new int[] { 30, 74 });
 
 		configureUI();
+		
+		createApplyToAllObserver();
 	}
 	
 	protected void createApplyToAllObserver() {

@@ -1047,7 +1047,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		// stop();
 		clear();
 		start();
-		tfg.countAsync(time);
+		tfg.countAsync(time);//run tfg for time
 		do {
 			synchronized (this) {
 				try {

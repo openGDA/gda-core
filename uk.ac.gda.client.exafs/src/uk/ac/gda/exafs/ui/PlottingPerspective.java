@@ -21,6 +21,7 @@ package uk.ac.gda.exafs.ui;
 import gda.configuration.properties.LocalProperties;
 import gda.gui.scriptcontroller.logging.ScriptControllerLogView;
 import gda.rcp.views.JythonTerminalView;
+import gda.simplescan.SimpleScanView;
 
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
@@ -34,7 +35,6 @@ import uk.ac.gda.exafs.ui.plot.FourierScanPlotView;
 import uk.ac.gda.exafs.ui.plot.LnI0ItScanPlotView;
 import uk.ac.gda.exafs.ui.plot.SubtractedBackgroundScanPlotView;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
-import uk.ac.gda.exafs.ui.views.scalersmonitor.B18ScalersMonitorView;
 import uk.ac.gda.exafs.ui.views.scalersmonitor.ScalersMonitorView;
 import uk.ac.gda.views.baton.BatonView;
 
@@ -62,7 +62,6 @@ public class PlottingPerspective implements IPerspectiveFactory {
 			IFolderLayout flBottomRight = layout.createFolder("flBottomRight", IPageLayout.RIGHT, 0.5f, "flBottom");
 			flBottomRight.addView(ScriptControllerLogView.ID);
 			flBottomRight.addView(ScalersMonitorView.ID);
-			flBottomRight.addView(BatonView.ID);
 
 			IFolderLayout flTopRight = layout.createFolder("flTopRight", IPageLayout.RIGHT, 0.5f, "flTop");
 			flTopRight.addView(LnI0ItScanPlotView.ID);
@@ -87,12 +86,7 @@ public class PlottingPerspective implements IPerspectiveFactory {
 		IFolderLayout folderLayout = layout.createFolder("folder", IPageLayout.BOTTOM, 0.5f, "folder1");
 		folderLayout.addView(JythonTerminalView.ID);
 
-		if (ExafsActivator.getDefault().getPreferenceStore()
-				.getBoolean(ExafsPreferenceConstants.SHOW_B18ScalersMonitorView)) {
-			folderLayout.addView(B18ScalersMonitorView.ID);
-		} else {
-			folderLayout.addView(ScalersMonitorView.ID);
-		}
+		folderLayout.addView(ScalersMonitorView.ID);
 
 		IFolderLayout folderLayout_1 = layout.createFolder("folder0", IPageLayout.BOTTOM, 0.7f, LivePlotView.ID);
 

@@ -65,11 +65,6 @@ public class ExafsPreferenceConstants {
 	// true for I18
 	public static final String HIDE_LnI0ItScanPlotView = "exafs.editor.hide.LnI0ItScanPlotView.Preference";
 	
-	/**
-	 * In the plotting perspective, show the B18ScalersMonitorView instead of the ScalersMonitorView
-	 */
-	public static final String SHOW_B18ScalersMonitorView = "exafs.editor.show.B18ScalersMonitorView.Preference";
-	
 	public static final String XAS_MAX_ENERGY = "exafs.editor.maxEnergy.Preference";
 	
 	public static final String XAS_MIN_ENERGY = "exafs.editor.minEnergy.Preference";

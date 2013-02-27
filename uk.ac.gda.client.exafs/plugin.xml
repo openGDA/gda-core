@@ -75,15 +75,6 @@
             name="Xmap Monitor"
             restorable="true">
       </view>
-      <view 
- 	        allowMultiple="false" 
- 	        category="uk.ac.gda.client.exafs.category" 
- 	        class="uk.ac.gda.exafs.ui.views.scalersmonitor.B18ScalersMonitorView" 
- 	        icon="icons/control_play_blue.png" 
- 	        id="uk.ac.gda.exafs.ui.views.B18ScalersMonitor" 
- 	        name="B18 Detector Rates" 
- 	        restorable="false"> 
- 	  </view>
       <view
             category="uk.ac.gda.client.exafs.category"
             class="uk.ac.gda.exafs.ui.views.scalersmonitor.XmapI1MonitorView"
