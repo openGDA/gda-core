@@ -37,7 +37,10 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.INullSelectionListener;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.ViewPart;
@@ -120,6 +123,10 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 	private Button btnADCMode;
 	private Text txtHardEnergy;
 	private ScannableMotor xrayenergy;
+	private List<Region> regions;
+	private PageBook regionPageBook;
+	private Composite plainComposite;
+	private ScrolledComposite regionComposite;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -127,7 +134,7 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		plainComposite = new Composite(regionPageBook, SWT.None);
 		plainComposite.setLayout(new FillLayout());
 		new Label(plainComposite, SWT.None)
-				.setText("There are no regions to be displayed in this sequence");
+				.setText("There are no regions to be displayed in this sequence.");
 
 		regionPageBook.showPage(plainComposite);
 		regionComposite = new ScrolledComposite(regionPageBook, SWT.H_SCROLL
@@ -575,14 +582,13 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		regionComposite.setMinSize(rootComposite.computeSize(SWT.DEFAULT,
 				SWT.DEFAULT));
 
-		initaliseValues();
+		initialisation();
 		getViewSite().setSelectionProvider(this);
 		getViewSite()
 				.getWorkbenchWindow()
 				.getSelectionService()
 				.addSelectionListener(SequenceViewExtensionFactory.ID,
 						selectionListener);
-
 	}
 
 	private ISelectionListener selectionListener = new INullSelectionListener() {
@@ -608,9 +614,14 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 	};
 
 	private Region getSelectedRegionInSequenceView() {
-		IViewPart findView = PlatformUI.getWorkbench()
-				.getActiveWorkbenchWindow().getActivePage()
-				.findView(SequenceViewExtensionFactory.ID);
+		IWorkbench workbench = PlatformUI.getWorkbench();
+		IWorkbenchWindow activeWorkbenchWindow = workbench
+				.getActiveWorkbenchWindow();
+		IWorkbenchPage activePage = activeWorkbenchWindow.getActivePage();
+		IViewPart findView = null;
+		if (activePage != null) {
+			findView = activePage.findView(SequenceViewExtensionFactory.ID);
+		}
 		if (findView != null) {
 			ISelection selection = findView.getViewSite()
 					.getSelectionProvider().getSelection();
@@ -620,14 +631,13 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 				if (firstElement instanceof Region) {
 					region = (Region) firstElement;
 					return region;
-
 				}
 			}
 		}
 		return null;
 	}
 
-	private void initaliseValues() {
+	private void initialisation() {
 		// TODO replace the following values by sourcing it from detector at
 		// initialisation
 		lensMode.setItems(new String[] { "Transmission", "Angular45",
@@ -1246,10 +1256,6 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 			onSelectEnergySource(source);
 		}
 	};
-	private List<Region> regions;
-	private PageBook regionPageBook;
-	private Composite plainComposite;
-	private ScrolledComposite regionComposite;
 
 	protected void onSelectEnergySource(Object source) {
 		if (source.equals(btnHard)) {
@@ -1351,7 +1357,11 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 	}
 
 	private void initialiseRegionView(final Region region) {
-		regionName.setText(region.getName());
+		if (region.isEnabled()) {
+			regionName.setText(region.getName());
+		} else {
+			regionName.setText("");
+		}
 		lensMode.setText(region.getLensMode());
 		passEnergy.setText(String.valueOf(region.getPassEnergy()));
 		txtMinimumSize.setText(String.format(
