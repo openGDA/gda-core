@@ -74,14 +74,12 @@ public class RegionView extends ViewPart {
 	private Button btnHard;
 	private Region region;
 	private EditingDomain editingDomain = null;
-	private boolean sweptSelected;
-	private boolean fixedSelected;
 	private Button btnSoft;
 	private ScannableMotor dcmenergy;
 	private ScannableMotor pgmenergy;
 	private Button btnFixed;
 	private Button btnBinding;
-	private Text regionName;
+	private Combo regionName;
 	private Spinner numberOfIterationSpinner;
 	private Button btnRepeatuntilStopped;
 	private Button btnConfirmAfterEachInteration;
@@ -92,8 +90,6 @@ public class RegionView extends ViewPart {
 	private double excitationEnergy = 0.0;
 	private double hardXRayEnergy = 5000.0; // eV
 	private double softXRayEnergy = 500.0; // eV
-	private boolean kineticSelected;
-	private boolean bindingSelected;
 	private Text txtLow;
 	private Text txtHigh;
 	private Text txtSize;
@@ -133,7 +129,7 @@ public class RegionView extends ViewPart {
 		grpName.setText("Name");
 		grpName.setLayout(new FillLayout());
 
-		regionName = new Text(grpName, SWT.NONE);
+		regionName = new Combo(grpName, SWT.NONE);
 		regionName.setToolTipText("List of available active regions to select");
 
 		Composite bigComposite = new Composite(rootComposite, SWT.None);
@@ -231,11 +227,6 @@ public class RegionView extends ViewPart {
 			public void widgetSelected(SelectionEvent e) {
 				Object source = e.getSource();
 				onModifyEnergyMode(source);
-				if (source.equals(btnKinetic)) {
-					updateFeature(region, RegiondefinitionPackage.eINSTANCE
-							.getRegion_EnergyMode(), ENERGY_MODE.KINETIC);
-				}
-
 			}
 		});
 		btnKinetic.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -247,10 +238,6 @@ public class RegionView extends ViewPart {
 			public void widgetSelected(SelectionEvent e) {
 				Object source = e.getSource();
 				onModifyEnergyMode(source);
-				if (source.equals(btnBinding)) {
-					updateFeature(region, RegiondefinitionPackage.eINSTANCE
-							.getRegion_EnergyMode(), ENERGY_MODE.BINDING);
-				}
 			}
 		});
 		btnBinding.setText("Binding");
@@ -623,11 +610,7 @@ public class RegionView extends ViewPart {
 			runMode.setText(runMode.getItem(0));
 			btnNumberOfIterations.setSelection(true);
 			btnSwept.setSelection(true);
-			sweptSelected = true;
-			fixedSelected = false;
 			btnKinetic.setSelection(true);
-			kineticSelected = true;
-			bindingSelected = false;
 			txtLow.setText(String.format("%.4f", 8.0));
 			txtHigh.setText(String.format("%.4f", 10.0));
 			txtCenter.setText(String.format("%.4f", (Double.parseDouble(txtLow
@@ -738,6 +721,12 @@ public class RegionView extends ViewPart {
 			editingDomain = regionDefinitionResourceUtil.getEditingDomain();
 		} catch (Exception e1) {
 			logger.error("Cannot get Editing Domain object.", e1);
+		}
+		// file regionName combo with active regions from region list
+		for (Region region : regions) {
+			if (region.isEnabled()) {
+				regionName.add(region.getName());
+			}
 		}
 
 	}
@@ -1020,7 +1009,6 @@ public class RegionView extends ViewPart {
 			txtHigh.setText(String.format("%.4f", high));
 			txtCenter.setText(String.format("%.4f",
 					Double.parseDouble(txtCenter.getText())));
-			// update domain features
 			updateFeature(region,
 					RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(),
 					Double.parseDouble(txtLow.getText()));
@@ -1042,7 +1030,6 @@ public class RegionView extends ViewPart {
 		} else {
 			txt.setText(String.format("%.4f", Double.parseDouble(txt.getText())));
 		}
-		// update domain features
 		updateFeature(region,
 				RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(),
 				Double.parseDouble(txtLow.getText()));
@@ -1076,8 +1063,7 @@ public class RegionView extends ViewPart {
 		txtLow.setEditable(false);
 		txtHigh.setEditable(false);
 		txtSize.setEditable(false);
-		double fixedEnergyRange = fixedEnergyRange();
-		txtSize.setText(String.format("%.3f", fixedEnergyRange));
+		txtSize.setText(String.format("%.3f", fixedEnergyRange()));
 		txtTotalSteps.setText("1");
 		txtTotalTime.setText(String.format(
 				"%.3f",
@@ -1103,11 +1089,10 @@ public class RegionView extends ViewPart {
 						ACQUISITION_MODE.SWEPT);
 			}
 		}
-
 	};
 
 	private void onModifyAcquisitionMode(Object source) {
-		if (source.equals(btnSwept) && !sweptSelected) {
+		if (source.equals(btnSwept)) {
 			setToSweptMode();
 			updateFeature(region,
 					RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(),
@@ -1121,9 +1106,7 @@ public class RegionView extends ViewPart {
 					RegionStepsTimeEstimation.calculateTotalTime(
 							Double.parseDouble(txtTime.getText()),
 							Integer.parseInt(txtTotalSteps.getText())));
-			sweptSelected = true;
-			fixedSelected = false;
-		} else if (source.equals(btnFixed) && !fixedSelected) {
+		} else if (source.equals(btnFixed)) {
 			setToFixedMode();
 			updateFeature(region,
 					RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(),
@@ -1140,8 +1123,6 @@ public class RegionView extends ViewPart {
 					RegionStepsTimeEstimation.calculateTotalTime(
 							Double.parseDouble(txtTime.getText()),
 							Integer.parseInt(txtTotalSteps.getText())));
-			sweptSelected = false;
-			fixedSelected = true;
 		}
 	}
 
@@ -1255,14 +1236,16 @@ public class RegionView extends ViewPart {
 	}
 
 	private void onModifyEnergyMode(Object source) {
-		if (source.equals(btnKinetic) && !kineticSelected) {
+		if (source.equals(btnKinetic) && btnKinetic.getSelection()) {
 			updateEnergyFields();
-			kineticSelected = true;
-			bindingSelected = false;
-		} else if (source.equals(btnBinding) && !bindingSelected) {
+			updateFeature(region,
+					RegiondefinitionPackage.eINSTANCE.getRegion_EnergyMode(),
+					ENERGY_MODE.KINETIC);
+		} else if (source.equals(btnBinding) && btnBinding.getSelection()) {
 			updateEnergyFields();
-			kineticSelected = false;
-			bindingSelected = true;
+			updateFeature(region,
+					RegiondefinitionPackage.eINSTANCE.getRegion_EnergyMode(),
+					ENERGY_MODE.BINDING);
 		}
 	}
 
@@ -1320,26 +1303,10 @@ public class RegionView extends ViewPart {
 				.equalsIgnoreCase("SWEPT"));
 		btnFixed.setSelection(region.getAcquisitionMode().getLiteral()
 				.equalsIgnoreCase("FIXED"));
-		if (btnSwept.getSelection()) {
-			sweptSelected = true;
-			fixedSelected = false;
-		}
-		if (btnFixed.getSelection()) {
-			sweptSelected = false;
-			fixedSelected = true;
-		}
 		btnKinetic.setSelection(region.getEnergyMode().getLiteral()
 				.equalsIgnoreCase("KINETIC"));
 		btnBinding.setSelection(region.getEnergyMode().getLiteral()
 				.equalsIgnoreCase("BINDING"));
-		if (btnKinetic.getSelection()) {
-			kineticSelected = true;
-			bindingSelected = false;
-		}
-		if (btnBinding.getSelection()) {
-			kineticSelected = false;
-			bindingSelected = true;
-		}
 		txtLow.setText(String.format("%.4f", region.getLowEnergy()));
 		txtHigh.setText(String.format("%.4f", region.getHighEnergy()));
 		txtCenter.setText(String.format("%.4f",
@@ -1362,7 +1329,6 @@ public class RegionView extends ViewPart {
 		if (btnSwept.getSelection()) {
 			sweptStepSize = region.getEnergyStep();
 			setToSweptMode();
-			// updateTotalSteps();
 		} else {
 			setToFixedMode();
 		}
