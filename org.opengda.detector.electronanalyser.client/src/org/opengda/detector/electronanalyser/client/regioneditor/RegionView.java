@@ -3,6 +3,7 @@ package org.opengda.detector.electronanalyser.client.regioneditor;
 import gda.device.DeviceException;
 import gda.device.scannable.ScannableMotor;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -11,7 +12,11 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.edit.command.SetCommand;
 import org.eclipse.emf.edit.domain.EditingDomain;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.FocusAdapter;
@@ -29,13 +34,17 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.INullSelectionListener;
 import org.eclipse.ui.ISelectionListener;
-import org.eclipse.ui.ISelectionService;
+import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.ViewPart;
 import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.RegionDefinitionResourceUtil;
 import org.opengda.detector.electronanalyser.client.RegionStepsTimeEstimation;
+import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewExtensionFactory;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.DETECTOR_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE;
@@ -52,7 +61,7 @@ import org.slf4j.LoggerFactory;
  * @author fy65
  * 
  */
-public class RegionView extends ViewPart {
+public class RegionView extends ViewPart implements ISelectionProvider {
 	private static final Logger logger = LoggerFactory
 			.getLogger(RegionView.class);
 
@@ -60,7 +69,10 @@ public class RegionView extends ViewPart {
 		setTitleToolTip("Editing a selected region parameters");
 		// setContentDescription("A view for editing region parameters");
 		setPartName("Region Editor");
+		this.selectionChangedListeners = new ArrayList<ISelectionChangedListener>();
 	}
+
+	private List<ISelectionChangedListener> selectionChangedListeners;
 
 	private RegionDefinitionResourceUtil regionDefinitionResourceUtil;
 	private Camera camera;
@@ -111,15 +123,21 @@ public class RegionView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
+		regionPageBook = new PageBook(parent, SWT.None);
+		plainComposite = new Composite(regionPageBook, SWT.None);
+		plainComposite.setLayout(new FillLayout());
+		new Label(plainComposite, SWT.None)
+				.setText("There are no regions to be displayed in this sequence");
 
-		final ScrolledComposite sc2 = new ScrolledComposite(parent,
-				SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		regionPageBook.showPage(plainComposite);
+		regionComposite = new ScrolledComposite(regionPageBook, SWT.H_SCROLL
+				| SWT.V_SCROLL | SWT.BORDER);
 
-		sc2.setExpandHorizontal(true);
-		sc2.setExpandVertical(true);
+		regionComposite.setExpandHorizontal(true);
+		regionComposite.setExpandVertical(true);
 
-		Composite rootComposite = new Composite(sc2, SWT.NONE);
-		sc2.setContent(rootComposite);
+		Composite rootComposite = new Composite(regionComposite, SWT.NONE);
+		regionComposite.setContent(rootComposite);
 		GridLayout gl_root = new GridLayout();
 		gl_root.horizontalSpacing = 2;
 		rootComposite.setLayout(gl_root);
@@ -554,33 +572,60 @@ public class RegionView extends ViewPart {
 			txtHardEnergy.setToolTipText("Current X-ray beam energy");
 		}
 
-		sc2.setMinSize(rootComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		regionComposite.setMinSize(rootComposite.computeSize(SWT.DEFAULT,
+				SWT.DEFAULT));
 
 		initaliseValues();
+		getViewSite().setSelectionProvider(this);
+		getViewSite()
+				.getWorkbenchWindow()
+				.getSelectionService()
+				.addSelectionListener(SequenceViewExtensionFactory.ID,
+						selectionListener);
 
-		Object service = getSite().getService(ISelectionService.class);
-		if (service instanceof ISelectionService) {
-			ISelectionService selService = (ISelectionService) service;
-			selService.addSelectionListener(selectionListener);
-		}
 	}
 
-	private ISelectionListener selectionListener = new ISelectionListener() {
+	private ISelectionListener selectionListener = new INullSelectionListener() {
 		@Override
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-			if (part != RegionView.this
-					&& selection instanceof IStructuredSelection) {
-				IStructuredSelection sel = (IStructuredSelection) selection;
-				Object firstElement = sel.getFirstElement();
-				if (firstElement instanceof Region) {
-					if (!firstElement.equals(region)) {
-						region = (Region) firstElement;
-						initialiseViewWithRegionData(region);
+			if (selection instanceof IStructuredSelection) {
+				if (StructuredSelection.EMPTY.equals(selection)) {
+					regionPageBook.showPage(plainComposite);
+				} else {
+					IStructuredSelection sel = (IStructuredSelection) selection;
+					Object firstElement = sel.getFirstElement();
+					if (firstElement instanceof Region) {
+						if (!firstElement.equals(region)) {
+							region = (Region) firstElement;
+							initialiseViewWithRegionData(region);
+							populateRegionNameCombo(regions);
+						}
+						regionPageBook.showPage(regionComposite);
 					}
 				}
 			}
 		}
 	};
+
+	private Region getSelectedRegionInSequenceView() {
+		IViewPart findView = PlatformUI.getWorkbench()
+				.getActiveWorkbenchWindow().getActivePage()
+				.findView(SequenceViewExtensionFactory.ID);
+		if (findView != null) {
+			ISelection selection = findView.getViewSite()
+					.getSelectionProvider().getSelection();
+			if (selection instanceof IStructuredSelection) {
+				IStructuredSelection structuredSel = (IStructuredSelection) selection;
+				Object firstElement = structuredSel.getFirstElement();
+				if (firstElement instanceof Region) {
+					region = (Region) firstElement;
+					return region;
+
+				}
+			}
+		}
+		return null;
+	}
 
 	private void initaliseValues() {
 		// TODO replace the following values by sourcing it from detector at
@@ -592,7 +637,7 @@ public class RegionView extends ViewPart {
 		passEnergy.setItems(new String[] { "5", "10", "50", "75", "100", "200",
 				"500" });
 
-		List<Region> regions = Collections.emptyList();
+		regions = Collections.emptyList();
 		try {
 			regions = regionDefinitionResourceUtil.getRegions();
 		} catch (Exception e1) {
@@ -722,13 +767,28 @@ public class RegionView extends ViewPart {
 		} catch (Exception e1) {
 			logger.error("Cannot get Editing Domain object.", e1);
 		}
+		populateRegionNameCombo(regions);
+		Region selectedRegionInSequenceView = getSelectedRegionInSequenceView();
+		if (selectedRegionInSequenceView != null) {
+			initialiseRegionView(selectedRegionInSequenceView);
+		} else if (regionName.getItemCount() > 0) {
+			regionPageBook.showPage(regionComposite);
+			fireSelectionChanged((Region) regionName.getData("0"));
+		}
+
+	}
+
+	private void populateRegionNameCombo(List<Region> regions) {
 		// file regionName combo with active regions from region list
+		int index = 0;
+		regionName.removeAll();
 		for (Region region : regions) {
 			if (region.isEnabled()) {
 				regionName.add(region.getName());
+				regionName.setData(String.valueOf(index), region);
+				index++;
 			}
 		}
-
 	}
 
 	// Update features when it changes in Region Editor
@@ -755,7 +815,12 @@ public class RegionView extends ViewPart {
 		// on selection from list
 		public void widgetSelected(SelectionEvent e) {
 			if (e.getSource().equals(regionName)) {
-				// TODO update all other fields in region view
+				Object data = regionName.getData(String.valueOf(regionName
+						.getSelectionIndex()));
+				if (data instanceof Region) {
+					initialiseViewWithRegionData((Region) data);
+					fireSelectionChanged((Region) data);
+				}
 			}
 
 		}
@@ -1181,6 +1246,10 @@ public class RegionView extends ViewPart {
 			onSelectEnergySource(source);
 		}
 	};
+	private List<Region> regions;
+	private PageBook regionPageBook;
+	private Composite plainComposite;
+	private ScrolledComposite regionComposite;
 
 	protected void onSelectEnergySource(Object source) {
 		if (source.equals(btnHard)) {
@@ -1266,11 +1335,11 @@ public class RegionView extends ViewPart {
 
 	@Override
 	public void dispose() {
-		Object service = getSite().getService(ISelectionService.class);
-		if (service instanceof ISelectionService) {
-			ISelectionService selService = (ISelectionService) service;
-			selService.removeSelectionListener(selectionListener);
-		}
+		getViewSite()
+				.getWorkbenchWindow()
+				.getSelectionService()
+				.removeSelectionListener(SequenceViewExtensionFactory.ID,
+						selectionListener);
 		super.dispose();
 	}
 
@@ -1388,4 +1457,56 @@ public class RegionView extends ViewPart {
 			txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
 		}
 	}
+
+	@Override
+	public void addSelectionChangedListener(ISelectionChangedListener listener) {
+		selectionChangedListeners.add(listener);
+	}
+
+	@Override
+	public ISelection getSelection() {
+		try {
+			Region selectedRegionInSequenceView = getSelectedRegionInSequenceView();
+			if (selectedRegionInSequenceView != null) {
+				return new StructuredSelection(selectedRegionInSequenceView);
+			} else {
+				List<Region> regions = regionDefinitionResourceUtil
+						.getRegions();
+				if (!regions.isEmpty()) {
+					for (Region region : regions) {
+						if (region.isEnabled()) {
+							return new StructuredSelection(region);
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return StructuredSelection.EMPTY;
+	}
+
+	@Override
+	public void removeSelectionChangedListener(
+			ISelectionChangedListener listener) {
+		selectionChangedListeners.remove(listener);
+	}
+
+	@Override
+	public void setSelection(ISelection selection) {
+
+	}
+
+	private void fireSelectionChanged(Region region) {
+		ISelection sel = StructuredSelection.EMPTY;
+		if (region != null) {
+			sel = new StructuredSelection(region);
+		}
+		SelectionChangedEvent event = new SelectionChangedEvent(this, sel);
+		for (ISelectionChangedListener listener : selectionChangedListeners) {
+			listener.selectionChanged(event);
+		}
+
+	}
+
 }

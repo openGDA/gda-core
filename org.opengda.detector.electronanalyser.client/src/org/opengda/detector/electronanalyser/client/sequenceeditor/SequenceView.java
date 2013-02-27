@@ -47,10 +47,14 @@ import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.INullSelectionListener;
 import org.eclipse.ui.ISaveablePart;
+import org.eclipse.ui.ISelectionListener;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
 import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.RegionDefinitionResourceUtil;
+import org.opengda.detector.electronanalyser.client.regioneditor.RegionViewExtensionFactory;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionFactory;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
@@ -476,7 +480,26 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		initaliseValues();
 		// register as selection provider to the SelectionService
 		getViewSite().setSelectionProvider(this);
+		getViewSite()
+				.getWorkbenchWindow()
+				.getSelectionService()
+				.addSelectionListener(RegionViewExtensionFactory.ID,
+						selectionListener);
+
 	}
+
+	private ISelectionListener selectionListener = new INullSelectionListener() {
+		@Override
+		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
+			if (selection instanceof IStructuredSelection) {
+				IStructuredSelection sel = (IStructuredSelection) selection;
+				Object firstElement = sel.getFirstElement();
+				if (firstElement instanceof Region) {
+					sequenceTableViewer.setSelection(sel);
+				}
+			}
+		}
+	};
 
 	private void initaliseValues() {
 		if (regionDefinitionResourceUtil != null) {
@@ -511,7 +534,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 			// start a new sequence
 			if (regionDefinitionResourceUtil != null) {
 				try {
-					sequence = regionDefinitionResourceUtil.getSequence();
+					sequence = regionDefinitionResourceUtil.createSequence();
 				} catch (Exception e) {
 					logger.error("Cannot create new sequence file", e);
 				}
@@ -570,10 +593,13 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 	}
 
 	private void fireSelectionChanged(Region region) {
+		ISelection sel = StructuredSelection.EMPTY;
+		if (region != null) {
+			sel = new StructuredSelection(region);
+		}
+		SelectionChangedEvent event = new SelectionChangedEvent(this, sel);
 		for (ISelectionChangedListener listener : selectionChangedListeners) {
-			listener.selectionChanged(new SelectionChangedEvent(this,
-					new StructuredSelection(region)));
-
+			listener.selectionChanged(event);
 		}
 
 	}
@@ -655,8 +681,18 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 	public void refreshTable() {
 		// sequenceTableViewer.refresh();
 		try {
-			sequenceTableViewer.setInput(regionDefinitionResourceUtil
-					.getResource());
+			Resource sequenceRes = regionDefinitionResourceUtil.getResource();
+			sequenceTableViewer.setInput(sequenceRes);
+
+			// if the sequnce is empty - then fire null
+			List<Region> regions = regionDefinitionResourceUtil.getSequence()
+					.getRegion();
+			if (regions.isEmpty()) {
+				fireSelectionChanged(null);
+			} else {
+				// otherwise fire the first region
+				fireSelectionChanged(regions.get(0));
+			}
 		} catch (Exception e) {
 			logger.error("Cannot refresh table.", e);
 		}
@@ -720,9 +756,15 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		try {
 			regionDefinitionResourceUtil.getResource().eAdapters()
 					.remove(notifyListener);
+			getViewSite()
+			.getWorkbenchWindow()
+			.getSelectionService()
+			.removeSelectionListener(RegionViewExtensionFactory.ID,
+					selectionListener);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
+		super.dispose();
 
+	}
 }
