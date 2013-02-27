@@ -143,18 +143,6 @@
 		<field name="scanType" type="int">
 			<bind-xml name="scanType" node="element" />
 		</field>
-		<field name="analyserType" type="string">
-			<bind-xml name="analyserType" node="element" />
-		</field>
-		<field name="analyserCut0" type="int">
-			<bind-xml name="analyserCut0" node="element" />
-		</field>
-		<field name="analyserCut1" type="int">
-			<bind-xml name="analyserCut1" node="element" />
-		</field>
-		<field name="analyserCut2" type="int">
-			<bind-xml name="analyserCut2" node="element" />
-		</field>
 		<field name="radiusOfCurvature" type="double">
 			<bind-xml name="radiusOfCurvature" node="element" />
 		</field>

@@ -456,17 +456,6 @@ class I20XesScan(XasScan):
             print "XESBragg is moving. Waiting for it to finish..."
             analyserAngle.waitWhileBusy()
             print "XESBragg move completed."
-
-#        originalDataFormat = LocalProperties.get("gda.data.scan.datawriter.dataFormat")
-
-#        from gda.exafs.xes.XesUtils import XesMaterial
-#        type = 1
-#        if beanGroup.getScan().getAnalyserType() == str("Si"):
-#            type = 0
-#        xes_energy.setMaterialType(type)
-        #xes_energy.setCut1Val(beanGroup.getScan().getAnalyserCut0())
-        #xes_energy.setCut2Val(beanGroup.getScan().getAnalyserCut1())
-        #xes_energy.setCut3Val(beanGroup.getScan().getAnalyserCut2())
         
         if scanType == XesScanParameters.SCAN_XES_FIXED_MONO:
             print "Starting XES scan with fixed mono..."
@@ -611,14 +600,14 @@ class I20XesScan(XasScan):
                 loggingcontroller.update(None,logmsg)
                 loggingcontroller.update(None,ScanStartedMessage(beanGroup.getScan(),beanGroup.getDetector())) # informs parts of the UI about current scan
                 loggingbean = XasProgressUpdater(loggingcontroller,logmsg,timeRepetitionsStarted)
-                args += [loggingbean]
+                argsForThisScan = args + [loggingbean]
                 try:
                     loggingcontroller.update(None, ScriptProgressEvent("Running scan"))
                     ScanBase.interrupted = False
                     if numRepetitions > 1:
                         print ""
                         print "Starting repetition", str(repetitionNumber),"of",numRepetitions
-                    thisscan = ConcurrentScan(args)
+                    thisscan = ConcurrentScan(argsForThisScan)
                     thisscan = self._setUpDataWriter(thisscan,beanGroup)
                     thisscan.setReturnScannablesToOrginalPositions(False)
                     loggingcontroller.update(None, ScanCreationEvent(thisscan.getName()))

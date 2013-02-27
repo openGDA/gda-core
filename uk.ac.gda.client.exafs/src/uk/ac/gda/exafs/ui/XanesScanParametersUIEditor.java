@@ -231,16 +231,10 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 		}
 	}
 
-	/**
-	 * @return Combo
-	 */
 	public ComboWrapper getElement() {
 		return element;
 	}
 
-	/**
-	 * @return Combo
-	 */
 	public ComboWrapper getEdge() {
 		return edge;
 	}
@@ -250,15 +244,11 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 		return "XANES Scan";
 	}
 
-	/**
-	 * @return ScaleBox
-	 */
 	public ScaleBox getFinalEnergy() {
 		return finalEnergy;
 	}
 
-	public void setDirty(boolean dirty)
-	{
+	public void setDirty(boolean dirty) {
 		this.dirtyContainer.setDirty(dirty);
 	}
 }

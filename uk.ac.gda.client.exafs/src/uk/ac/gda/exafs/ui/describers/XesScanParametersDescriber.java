@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -21,23 +21,16 @@ package uk.ac.gda.exafs.ui.describers;
 import uk.ac.gda.beans.exafs.XesScanParameters;
 import uk.ac.gda.richbeans.xml.XMLBeanContentDescriber;
 
-/**
- *
- */
 public final class XesScanParametersDescriber extends XMLBeanContentDescriber {
 
-	/**
-	 */
 	@Override
 	public String getBeanName() {
 		return XesScanParameters.class.getName();
 	}
 
-	/**
-	 */
 	@Override
 	public String getEditorId() {
-		return "gda.exafs.ui.XesScanParametersEditor";
+		return "uk.ac.gda.exafs.ui.XesScanParametersEditor";
 	}
 
 }

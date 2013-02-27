@@ -153,14 +153,6 @@
 					maxOccurs="1" minOccurs="0" />
 				<xsd:element name="scanType" type="xsd:int" maxOccurs="1"
 					minOccurs="0" />
-				<xsd:element name="analyserType" type="xsd:string"
-					maxOccurs="1" minOccurs="0" />
-				<xsd:element name="analyserCut0" type="xsd:int"
-					maxOccurs="1" minOccurs="0" />
-				<xsd:element name="analyserCut1" type="xsd:int"
-					maxOccurs="1" minOccurs="0" />
-				<xsd:element name="analyserCut2" type="xsd:int"
-					maxOccurs="1" minOccurs="0" />
 				<xsd:element name="radiusOfCurvature" type="xsd:double"
 					maxOccurs="1" minOccurs="0" />
 				<xsd:element name="element" type="xsd:string" maxOccurs="1"

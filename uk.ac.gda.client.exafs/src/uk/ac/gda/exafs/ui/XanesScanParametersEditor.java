@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,20 +18,12 @@
 
 package uk.ac.gda.exafs.ui;
 
-
 import java.net.URL;
 
 import uk.ac.gda.beans.exafs.XanesScanParameters;
-import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
-
-/**
- * @author fcp94556
- *
- */
-public class XanesScanParametersEditor extends ExafsBeanFileSelectionEditor implements DirtyContainer {
-
+public class XanesScanParametersEditor extends XasXanesParametersEditor {
 
 	@Override
 	public Class<?> getBeanClass() {
@@ -49,11 +41,8 @@ public class XanesScanParametersEditor extends ExafsBeanFileSelectionEditor impl
 	}
 
 	@Override
-	protected RichBeanEditorPart getRichBeanEditorPart(final String path,
-			                                           final Object editingBean) {
-		return new XanesScanParametersUIEditor(path,this,editingBean);
+	protected RichBeanEditorPart getRichBeanEditorPart(final String path, final Object editingBean) {
+		return new XanesScanParametersUIEditor(path, this, editingBean);
 	}
-	
-}
 
-	
+}

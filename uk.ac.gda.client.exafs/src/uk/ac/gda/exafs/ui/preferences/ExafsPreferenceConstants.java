@@ -54,6 +54,13 @@ public class ExafsPreferenceConstants {
 	public static final String DISPLAY_GAS_FILL_PERIOD = "exafs.editor.displayGasFillPeriod.Preference";
 	
 	/**
+	 * If true, then hide the Fill Gas button in the Detector Parameters editor.
+	 * <p>
+	 * False by default, true for I20.
+	 */
+	public static final String HIDE_GAS_FILL_CONTROLS = "exafs.editor.hideGasFillControls.Preference";
+	
+	/**
 	 * If true then add options to add additional metadata in the outputeditor
 	 */
 	// true for B18

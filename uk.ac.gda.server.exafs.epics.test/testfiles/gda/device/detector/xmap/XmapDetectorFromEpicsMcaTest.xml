@@ -11,13 +11,11 @@
             <name>Pb_K</name>
             <windowStart>202</windowStart>
             <windowEnd>206</windowEnd>
-            <counts>47343</counts>
         </ROI>
         <ROI>
             <name>Fe_K</name>
             <windowStart>305</windowStart>
             <windowEnd>308</windowEnd>
-            <counts>75362</counts>
         </ROI>
         <gain>2.0</gain>
         <peakingTime>1.04</peakingTime>
@@ -33,13 +31,11 @@
             <name>Pb_K</name>
             <windowStart>202</windowStart>
             <windowEnd>206</windowEnd>
-            <counts>47343</counts>
         </ROI>
         <ROI>
             <name>Fe_K</name>
             <windowStart>305</windowStart>
             <windowEnd>308</windowEnd>
-            <counts>75362</counts>
         </ROI>
         <gain>2.0</gain>
         <peakingTime>1.04</peakingTime>
@@ -48,5 +44,4 @@
         <processDeadTimeInWindow>3.8E-7</processDeadTimeInWindow>
         <excluded>false</excluded>
     </DetectorElement>
-    <deadTime>-1000.0</deadTime>
 </VortexParameters>
