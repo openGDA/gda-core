@@ -64,6 +64,7 @@ import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -141,7 +142,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	protected boolean isZooming = false;
 
 	private ExpansionAdapter expansionListener;
-	
+
 	private volatile boolean continuousAquire = false;
 	private Thread continuousThread;
 	private ReentrantLock lock = new ReentrantLock();
@@ -149,9 +150,8 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	private DetectorListComposite detectorListComposite;
 
 	private Composite importComposite;
-	
-	private Boolean calculateSingleElement = true;
 
+	private Boolean calculateSingleElement = true;
 
 	/**
 	 * @param path
@@ -177,7 +177,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	 * monitor can be null if the task is not being monitored.
 	 * 
 	 * @param monitor
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	protected abstract void acquire(final IProgressMonitor monitor, final double collectionTimeValue) throws Exception;
 
@@ -202,9 +202,9 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	 * @return the copier which can get the template file from the server.
 	 */
 	public abstract XMLCommandHandler getXMLCommandHandler();
-	
+
 	protected abstract void LoadAcquireFromFile();
-	
+
 	/**
 	 * Called when acquire started in display thread.
 	 */
@@ -214,7 +214,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	 * Called when acquire finished in display thread.
 	 */
 	public abstract void acquireFinished();
-	
+
 	/**
 	 * @return - String- the full path of the xml where the acquired data is persisted.
 	 */
@@ -241,7 +241,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			}
 		});
 	}
-	
+
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		writeStoredData(monitor);
@@ -353,7 +353,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		getDetectorList().addBeanSelectionListener(new BeanSelectionListener() {
 			@Override
 			public void selectionChanged(BeanSelectionEvent evt) {
-				//getDetectorList().
+				// getDetectorList().
 				plot(evt.getSelectionIndex());
 				calculateCounts(true);
 			}
@@ -378,6 +378,20 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		uploadAction.setImageDescriptor(icon);
 		uploadAction.setToolTipText("Applies the configuration settings to the detector.");
 		sashPlotForm.add(uploadAction);
+
+		if (!ExafsActivator.getDefault().getPreferenceStore()
+				.getBoolean(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED)) {
+			getDetectorElementComposite().getEnableDragRegions().addSelectionListener(new SelectionListener() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					currentOverlay.enableMouseListener(getDetectorElementComposite().getEnableDragRegions()
+							.getSelection());
+				}
+				@Override
+				public void widgetDefaultSelected(SelectionEvent e) {
+				}
+			});
+		}
 
 		return detectorListComposite;
 	}
@@ -444,7 +458,8 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		}
 
 		ScanObject scanObject = (ScanObject) ExperimentFactory.getExperimentEditorManager().getSelectedScan();
-		//The user may be editing a file e.g. VortexParameters outside of the ExperimentPerspective with no selected scan
+		// The user may be editing a file e.g. VortexParameters outside of the ExperimentPerspective with no selected
+		// scan
 		final Serializable outputBean = scanObject != null ? scanObject.getOutputParameters() : null;
 
 		final boolean ok = MessageDialog
@@ -469,12 +484,12 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 					data.put("XspressParametersToLoad", bean);
 					data.put("OutputParametersToLoad", outputBean);
 					monitor.worked(10);
-					if(saveToExtension){
+					if (saveToExtension) {
 						String additionalSaveName = new File(path).getName();
 						ScriptExecutor.Run(EXAFS_SCRIPT_OBSERVER, createObserver(), data, command
-								+ "(XspressParametersToLoad,OutputParametersToLoad,\""+ additionalSaveName+"\")", JythonGuiConstants.TERMINALNAME);
-					}
-					else
+								+ "(XspressParametersToLoad,OutputParametersToLoad,\"" + additionalSaveName + "\")",
+								JythonGuiConstants.TERMINALNAME);
+					} else
 						ScriptExecutor.Run(EXAFS_SCRIPT_OBSERVER, createObserver(), data, command
 								+ "(XspressParametersToLoad,OutputParametersToLoad)", JythonGuiConstants.TERMINALNAME);
 					monitor.worked(50);
@@ -612,11 +627,11 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			getDetectorElementComposite().addStartListener(new ValueAdapter("windowStartListener") {
 				@Override
 				public void valueChangePerformed(ValueEvent e) {
-					if (currentOverlay != null){
+					if (currentOverlay != null) {
 						currentOverlay.setXStart(e.getDoubleValue());
 					}
 					calculateCounts(null);
-						
+
 				}
 			});
 			getDetectorElementComposite().addEndListener(new ValueAdapter("windowEndListener") {
@@ -634,9 +649,9 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	}
 
 	protected void calculateCounts(Boolean currentEditIndividual) {
-		
+
 		// use last value or store new value;
-		if (currentEditIndividual == null){
+		if (currentEditIndividual == null) {
 			currentEditIndividual = calculateSingleElement;
 		} else {
 			calculateSingleElement = currentEditIndividual;
@@ -670,7 +685,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	}
 
 	protected int sumElementInWindowCounts(final int start, final int end, int total, int element) {
-		if( start == -1)
+		if (start == -1)
 			return 0;
 		final int numGrades = detectorData[element].length;
 		for (int igrade = 0; igrade < numGrades; ++igrade) {
@@ -724,18 +739,18 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 		getDetectorElementComposite().setTotalCounts(getTotalCounts());
 		getDetectorElementComposite().setTotalElementCounts(getTotalElementCounts(data));
-		
+
 		// always refresh the ROI/window values when replotting
 		calculateCounts(null);
 	}
 
 	private Double getTotalElementCounts(Collection<AbstractDataset> d) {
 
-			double sum = 0;
-			for (AbstractDataset dataSet : d) {
-				sum += (Double) dataSet.sum();
-			}
-			return new Double(sum);
+		double sum = 0;
+		for (AbstractDataset dataSet : d) {
+			sum += (Double) dataSet.sum();
+		}
+		return new Double(sum);
 	}
 
 	private Double getTotalCounts() {
@@ -815,18 +830,19 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		currentOverlay.setDraw(getDetectorElementComposite().getRegionList().getListSize() > 0);
 		sashPlotForm.getPlotter().registerOverlay(currentOverlay);
 
-		if (!ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED))
+		if (!ExafsActivator.getDefault().getPreferenceStore()
+				.getBoolean(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED))
 			currentOverlay.enableMouseListener(false);
-		
+
 		currentOverlay.addGraphSelectionListener(new GraphSelectionListener() {
 
 			@Override
 			public void graphSelectionPerformed(GraphSelectionEvent evt) {
-				
-				if (isZooming){
+
+				if (isZooming) {
 					return;
 				}
-				
+
 				currentOverlay.setBusy(true);
 				try {
 					double start = evt.getStart().getX();
@@ -875,7 +891,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	protected Control[] createButton(final Composite card, final String buttonText, final String tooltip,
 			final int buttonFlags, final int labelWidth, final SelectionAdapter buttonAction, final String icon) {
 
-		
 		Label lblCollect = new Label(card, SWT.NONE);
 		lblCollect.setText(buttonText);
 		{
@@ -895,9 +910,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		}
 		run.setImage(SWTResourceManager.getImage(DetectorEditor.class, icon));
 		run.addSelectionListener(buttonAction);
-		
 
-		
 		return new Control[] { lblCollect, run };
 	}
 
@@ -1037,7 +1050,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			}
 			writer.close();
 		} catch (IOException e) {
-			logger.warn("Exception writing acquire data to xml file",e);
+			logger.warn("Exception writing acquire data to xml file", e);
 		}
 	}
 
@@ -1047,7 +1060,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		}
 		return detectorListComposite.getDetectorElementComposite();
 	}
-	
+
 	protected DataWrapper readStoredData() {
 		DataWrapper newwrapper = new DataWrapper();
 
@@ -1067,8 +1080,8 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			}
 			// Close the input stream
 			in.close();
-			
-			if (elements.length == 0){
+
+			if (elements.length == 0) {
 				return newwrapper;
 			}
 

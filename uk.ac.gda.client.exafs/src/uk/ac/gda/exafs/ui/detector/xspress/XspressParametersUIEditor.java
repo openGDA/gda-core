@@ -139,7 +139,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	private ScaleBox acquireTime;
 	private BooleanWrapper showIndividualElements;
 
-	private Group detectorElementsLabel;
+	private Group detectorElementsGroup;
 	private boolean isAdditiveResolutionGradeMode = false;
 	private Action additiveResModeAction;
 	private Label resGradeLabel;
@@ -400,16 +400,16 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			}
 		});
 
-		detectorElementsLabel = new Group(grid, SWT.BORDER);
-		GridLayoutFactory.fillDefaults().applyTo(detectorElementsLabel);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(detectorElementsLabel);
-		detectorElementsLabel.setText("Detector Elements");
+		detectorElementsGroup = new Group(grid, SWT.BORDER);
+		GridLayoutFactory.fillDefaults().applyTo(detectorElementsGroup);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(detectorElementsGroup);
+		detectorElementsGroup.setText("Detector Elements");
 
 		try {
 			IDetectorROICompositeFactory factory = XspressParametersUIHelper.INSTANCE.getDetectorROICompositeFactory();
 			if (xspressParameters != null) {
 				List<DetectorElement> detectorList = xspressParameters.getDetectorList();
-				createDetectorList(detectorElementsLabel, DetectorElement.class, detectorList.size(), XspressROI.class, factory,
+				createDetectorList(detectorElementsGroup, DetectorElement.class, detectorList.size(), XspressROI.class, factory,
 						"Xspress", false);
 				XspressParametersUIHelper.INSTANCE.setDetectorListGridOrder(getDetectorList());
 				getDetectorElementComposite().setMinimumRegions(XspressParametersUIHelper.INSTANCE.getMinimumRegions());
@@ -624,9 +624,9 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			boolean currentEditIndividual = showIndividualElements.getValue();
 			
 			if (currentEditIndividual) {
-				detectorElementsLabel.setText("Detector Elements");
+				detectorElementsGroup.setText("Detector Elements");
 			} else {
-				detectorElementsLabel.setText("All Elements");
+				detectorElementsGroup.setText("All Elements");
 			}
 			
 			GridUtils.setVisibleAndLayout(middleComposite, currentEditIndividual);

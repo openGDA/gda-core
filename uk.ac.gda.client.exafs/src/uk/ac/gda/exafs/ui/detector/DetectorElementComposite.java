@@ -23,6 +23,7 @@ import java.text.NumberFormat;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -33,6 +34,8 @@ import org.eclipse.ui.forms.widgets.ExpandableComposite;
 
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.common.rcp.util.GridUtils;
+import uk.ac.gda.exafs.ExafsActivator;
+import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.beans.IFieldWidget;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.selector.VerticalListEditor;
@@ -63,6 +66,7 @@ public class DetectorElementComposite extends Composite {
 	private Composite mainComposite;
 	private boolean isIndividualElements = false;
 	private DetectorROIComposite detectorROIComposite;
+	private Button enableDragRegions;
 
 	public DetectorElementComposite(final Composite parent, final int style, final boolean isMultipleElements,
 			final Class<? extends DetectorROI> regionClass, final IDetectorROICompositeFactory regionEditorFactory,
@@ -107,7 +111,7 @@ public class DetectorElementComposite extends Composite {
 			totalCounts.setTextType(TEXT_TYPE.PLAIN_TEXT);
 			totalCounts.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 2, 1));
 			totalCounts.setText("");
-			
+
 			this.elementTotalCounts = new LabelWrapper(topComposite, SWT.NONE);
 			elementTotalCounts.setTextType(TEXT_TYPE.PLAIN_TEXT);
 			elementTotalCounts.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 2, 1));
@@ -148,6 +152,12 @@ public class DetectorElementComposite extends Composite {
 			windowCounts = new LabelWrapper(windowComposite, SWT.NONE);
 			windowCounts.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 			windowCounts.setDecimalPlaces(0);
+
+			if (!ExafsActivator.getDefault().getPreferenceStore()
+					.getBoolean(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED)) {
+				enableDragRegions = new Button(windowComposite, SWT.CHECK);
+				enableDragRegions.setText("Enable region dragging");
+			}
 
 		}
 
@@ -376,26 +386,24 @@ public class DetectorElementComposite extends Composite {
 
 	private void updateTotalCountsDisplay() {
 		// if too early in lifecycle of composite
-		if (elementTotalCounts == null || totalCounts == null){
+		if (elementTotalCounts == null || totalCounts == null) {
 			return;
 		}
-		
+
 		if (isIndividualElements && thisElementTotalCountsValue != null) {
 			elementTotalCounts.setValue("Element Total Counts "
 					+ NumberFormat.getInstance().format(thisElementTotalCountsValue));
-		}	
-		else {
+		} else {
 			elementTotalCounts.setValue("									");
 		}
-		
+
 		if (allElementTotalCountsValue != null) {
 			totalCounts.setValue("All Element Total Counts "
 					+ NumberFormat.getInstance().format(allElementTotalCountsValue));
-		}
-		else {
+		} else {
 			totalCounts.setValue("");
 		}
-		
+
 		GridUtils.layoutFull(totalCounts);
 	}
 
@@ -411,7 +419,7 @@ public class DetectorElementComposite extends Composite {
 		}
 		updateTotalCountsDisplay();
 	}
-	
+
 	public void setTotalCounts(final Double total) {
 		if (Double.isNaN(total))
 			return;
@@ -431,4 +439,9 @@ public class DetectorElementComposite extends Composite {
 	public boolean isIndividualElements() {
 		return isIndividualElements;
 	}
+
+	public Button getEnableDragRegions() {
+		return enableDragRegions;
+	}
+
 }
