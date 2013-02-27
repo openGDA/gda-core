@@ -11,13 +11,11 @@
             <name>Pb</name>
             <windowStart>150</windowStart>
             <windowEnd>500</windowEnd>
-            <counts>1723046337</counts>
         </ROI>
         <ROI>
             <name>ROI2</name>
             <windowStart>600</windowStart>
             <windowEnd>900</windowEnd>
-            <counts>1516152908</counts>
         </ROI>
         <gain>2.0</gain>
         <peakingTime>1.04</peakingTime>
@@ -33,13 +31,11 @@
             <name>Pb</name>
             <windowStart>150</windowStart>
             <windowEnd>500</windowEnd>
-            <counts>1700944529</counts>
         </ROI>
         <ROI>
             <name>ROI2</name>
             <windowStart>600</windowStart>
             <windowEnd>900</windowEnd>
-            <counts>1516152908</counts>
         </ROI>
         <gain>2.0</gain>
         <peakingTime>1.04</peakingTime>
@@ -55,13 +51,11 @@
             <name>Pb</name>
             <windowStart>150</windowStart>
             <windowEnd>500</windowEnd>
-            <counts>1792798452</counts>
         </ROI>
         <ROI>
             <name>ROI2</name>
             <windowStart>600</windowStart>
             <windowEnd>900</windowEnd>
-            <counts>1516152908</counts>
         </ROI>
         <gain>2.0</gain>
         <peakingTime>1.04</peakingTime>
@@ -77,13 +71,11 @@
             <name>ROI2</name>
             <windowStart>600</windowStart>
             <windowEnd>900</windowEnd>
-            <counts>1550409319</counts>
         </ROI>
         <ROI>
             <name>Pb</name>
             <windowStart>59</windowStart>
             <windowEnd>255</windowEnd>
-            <counts>971200066</counts>
         </ROI>
         <gain>2.0</gain>
         <peakingTime>1.04</peakingTime>
@@ -92,5 +84,4 @@
         <processDeadTimeInWindow>3.8E-7</processDeadTimeInWindow>
         <excluded>false</excluded>
     </DetectorElement>
-    <deadTime>999000.0</deadTime>
 </VortexParameters>
