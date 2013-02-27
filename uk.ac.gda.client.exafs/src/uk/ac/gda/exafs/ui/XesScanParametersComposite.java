@@ -18,8 +18,12 @@
 
 package uk.ac.gda.exafs.ui;
 
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.scannable.ScannableUtils;
 import gda.exafs.xes.XesUtils;
 import gda.exafs.xes.XesUtils.XesMaterial;
+import gda.factory.Finder;
 import gda.util.Element;
 
 import java.io.File;
@@ -65,7 +69,6 @@ import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.components.wrappers.LabelWrapper;
 import uk.ac.gda.richbeans.components.wrappers.LabelWrapper.TEXT_TYPE;
 import uk.ac.gda.richbeans.components.wrappers.RadioWrapper;
-import uk.ac.gda.richbeans.components.wrappers.SpinnerWrapper;
 import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
 
@@ -76,10 +79,6 @@ public final class XesScanParametersComposite extends Composite {
 	private static final Logger logger = LoggerFactory.getLogger(XesScanParametersComposite.class);
 
 	private ComboWrapper scanType;
-	private ComboWrapper analyserType;
-	private SpinnerWrapper analyserCut0;
-	private SpinnerWrapper analyserCut1;
-	private SpinnerWrapper analyserCut2;
 	private ScaleBox radiusOfCurvature;
 	private ScaleBox xesIntegrationTime;
 	private FileBox scanFileName;
@@ -108,6 +107,22 @@ public final class XesScanParametersComposite extends Composite {
 
 	private RadioWrapper loopChoice;
 
+	private Label lblLiveAnalyzerType;
+
+	private Label lblAnalyserCut0;
+
+	private Label lblAnalyserCut1;
+
+	private Label lblAnalyserCut2;
+
+	private int[] analyserCutValues;
+
+	private String analyserTypeValue;
+
+	private Composite scanTypeComposite;
+
+	private Group xesDataComp;
+
 	public XesScanParametersComposite(Composite parent, int style) {
 
 		super(parent, style);
@@ -116,7 +131,12 @@ public final class XesScanParametersComposite extends Composite {
 		this.updateListener = new ValueAdapter() {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
-				updateProperties();
+				try {
+					updateProperties();
+					scanTypeComposite.layout();
+				} catch (DeviceException e1) {
+					logger.error("Error trying to get latest XES spectrometer crysal values./n XES Editor will not run its calculations correctly.", e1);
+				}
 			}
 		};
 
@@ -127,53 +147,28 @@ public final class XesScanParametersComposite extends Composite {
 		Group crystallGroup = new Group(left, SWT.NONE);
 		crystallGroup.setText("Analyser Properties");
 		crystallGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		crystallGroup.setLayout(new GridLayout(2, false));
+		crystallGroup.setLayout(new GridLayout(4, false));
+		
+		Label lblAnalyzerType = new Label(crystallGroup, SWT.NONE);
+		lblAnalyzerType.setText("Type");
+		lblLiveAnalyzerType = new Label(crystallGroup, SWT.BORDER);
+		try {
+			lblLiveAnalyzerType.setText("      " + getAnalyserTypeValue()+ "      ");
 
-		Link lblAnalyzerType = new Link(crystallGroup, SWT.NONE);
-		lblAnalyzerType.setText("<a>Type</a>");
-		this.analyserType = new ComboWrapper(crystallGroup, SWT.READ_ONLY);
-		analyserType.addValueListener(updateListener);
-		analyserType.setItems(new String[] { "Si", "Ge" });
-		analyserType.select(0);
-		ScannableValueListener.createLinkedLabel(lblAnalyzerType, "material", analyserType);
-
-		Link lblAnalyzerCut = new Link(crystallGroup, SWT.NONE);
-		lblAnalyzerCut.setText("<a>Crystal Cut</a>");
-		Group analyserCutGroup = new Group(crystallGroup, SWT.NONE);
-		analyserCutGroup.setLayout(new org.eclipse.swt.layout.RowLayout());
-		this.analyserCut0 = new SpinnerWrapper(analyserCutGroup, SWT.NONE);
-		analyserCut0.addValueListener(updateListener);
-		analyserCut0.setMinimum(0);
-		analyserCut0.setMaximum(9);
-		analyserCut0.addValueListener(new ValueAdapter() {
-			@Override
-			public void valueChangePerformed(ValueEvent e) {
-				updateEnergies();
-			}
-		});
-		this.analyserCut1 = new SpinnerWrapper(analyserCutGroup, SWT.NONE);
-		analyserCut1.addValueListener(updateListener);
-		analyserCut1.setMinimum(0);
-		analyserCut1.setMaximum(9);
-		analyserCut1.addValueListener(new ValueAdapter() {
-			@Override
-			public void valueChangePerformed(ValueEvent e) {
-				updateEnergies();
-			}
-		});
-		this.analyserCut2 = new SpinnerWrapper(analyserCutGroup, SWT.NONE);
-		analyserCut2.addValueListener(updateListener);
-		analyserCut2.setMinimum(0);
-		analyserCut2.setMaximum(9);
-		analyserCut2.addValueListener(new ValueAdapter() {
-			@Override
-			public void valueChangePerformed(ValueEvent e) {
-				updateEnergies();
-			}
-		});
-		ScannableValueListener.createLinkedLabel(lblAnalyzerCut, "cut1", analyserCut0);
-		ScannableValueListener.createLinkedLabel(lblAnalyzerCut, "cut2", analyserCut1);
-		ScannableValueListener.createLinkedLabel(lblAnalyzerCut, "cut3", analyserCut2);
+			Label lblAnalyzerCut = new Label(crystallGroup, SWT.NONE);
+			lblAnalyzerCut.setText("Crystal Cut");
+			Group analyserCutGroup = new Group(crystallGroup, SWT.NONE);
+			analyserCutGroup.setLayout(new org.eclipse.swt.layout.RowLayout());
+			int[] values = getAnalyserCutValues();
+			lblAnalyserCut0 = new Label(analyserCutGroup, SWT.NONE);
+			lblAnalyserCut0.setText("    " + Integer.toString(values[0]));
+			lblAnalyserCut1 = new Label(analyserCutGroup, SWT.NONE);
+			lblAnalyserCut1.setText("    " + Integer.toString(values[1]));
+			lblAnalyserCut2 = new Label(analyserCutGroup, SWT.NONE);
+			lblAnalyserCut2.setText("    " + Integer.toString(values[2])+"    ");
+		} catch (DeviceException e2) {
+			logger.error("Error trying to get latest XES spectrometer crysal values./n XES Editor will not run its calculations correctly.", e2);
+		}
 
 		Link lblRadiusOfCurvature = new Link(crystallGroup, SWT.NONE);
 		lblRadiusOfCurvature.setText("<a>Radius</a>");
@@ -181,7 +176,7 @@ public final class XesScanParametersComposite extends Composite {
 		radiusOfCurvature.setMinimum(800.0);
 		radiusOfCurvature.setMaximum(1015.0);
 		radiusOfCurvature.setUnit("mm");
-		radiusOfCurvature.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		radiusOfCurvature.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		radiusOfCurvature.addValueListener(updateListener);
 		ScannableValueListener.createLinkedLabel(lblRadiusOfCurvature, "radius", radiusOfCurvature);
 
@@ -204,9 +199,7 @@ public final class XesScanParametersComposite extends Composite {
 		additionalCrystal3 = new BooleanWrapper(grpCrystals, SWT.NONE);
 		additionalCrystal3.addValueListener(updateListener);
 		additionalCrystal3.setText("crystal 2");
-		// TODO I was here - test if the GUI compiles and writes the xml file correctly - then move on to testing the
-		// script
-
+		
 		Group grpScan = new Group(left, SWT.NONE);
 		grpScan.setText("Scan");
 		grpScan.setLayout(new GridLayout(2, false));
@@ -255,7 +248,7 @@ public final class XesScanParametersComposite extends Composite {
 		Composite spacer = new Composite(grpScan, SWT.NONE);
 		spacer.setLayout(new GridLayout(1, false));
 
-		Composite scanTypeComposite = new Composite(grpScan, SWT.NONE);
+		scanTypeComposite = new Composite(grpScan, SWT.NONE);
 		GridLayout gridLayout = new GridLayout(1, false);
 		gridLayout.marginWidth = 0;
 		gridLayout.marginHeight = 0;
@@ -530,7 +523,7 @@ public final class XesScanParametersComposite extends Composite {
 			}
 		});
 
-		final Group xesDataComp = new Group(xesComp, SWT.NONE);
+		xesDataComp = new Group(xesComp, SWT.NONE);
 		xesDataComp.setText("Properties");
 		xesDataComp.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		xesDataComp.setLayout(new GridLayout(2, false));
@@ -622,22 +615,14 @@ public final class XesScanParametersComposite extends Composite {
 
 	public void linkUI() {
 		updateScanType();
-		updateProperties();
+		try {
+			updateProperties();
+		} catch (DeviceException e) {
+			logger.error("Error trying to get latest XES spectrometer crysal values./n XES Editor will not run its calculations correctly.", e);
+		}
 	}
 
-	/**
-	 * This method sets the energies when crystal cut changes. This is needed because the energy range with each cystall
-	 * cut is so limited.
-	 */
-	private void updateEnergies() {
-
-		xesInitialEnergy.setValue(xesInitialEnergy.getMinimum() + 1);
-		xesFinalEnergy.setValue(xesFinalEnergy.getMinimum() + 1);
-		xesEnergy.setValue(xesEnergy.getMinimum() + 1);
-
-	}
-
-	private void updateProperties() {
+	private void updateProperties() throws DeviceException {
 
 		double thetaE = updateXesTheta(xesEnergy);
 		double thetaS = updateXesTheta(xesInitialEnergy);
@@ -653,34 +638,64 @@ public final class XesScanParametersComposite extends Composite {
 		L.setValue(XesUtils.getL((Double) getRadiusOfCurvature().getValue(), theta));
 		dx.setValue(XesUtils.getDx((Double) getRadiusOfCurvature().getValue(), theta));
 		dy.setValue(XesUtils.getDy((Double) getRadiusOfCurvature().getValue(), theta));
+		
+		xesDataComp.getParent().layout();
 	}
 
-	private void updateEnergyMaxBounds(ScaleBoxAndFixedExpression energy) {
-		final XesMaterial material = "Si".equals(analyserType.getValue()) ? XesMaterial.SILICON : XesMaterial.GERMANIUM;
+	private void updateEnergyMaxBounds(ScaleBoxAndFixedExpression energy) throws DeviceException {
+		final XesMaterial material = "Si".equals(getAnalyserTypeValue()) ? XesMaterial.SILICON : XesMaterial.GERMANIUM;
 		final double E = XesUtils.getFluoEnergy(XesUtils.MIN_THETA, material, getAnalyserCutValues());
 		energy.setMaximum(E);
 	}
 
-	private void updateEnergyMinBounds(ScaleBoxAndFixedExpression energy) {
-		final XesMaterial material = "Si".equals(analyserType.getValue()) ? XesMaterial.SILICON : XesMaterial.GERMANIUM;
+	private void updateEnergyMinBounds(ScaleBoxAndFixedExpression energy) throws DeviceException {
+		final XesMaterial material = "Si".equals(getAnalyserTypeValue()) ? XesMaterial.SILICON : XesMaterial.GERMANIUM;
 		final double E = XesUtils.getFluoEnergy(XesUtils.MAX_THETA, material, getAnalyserCutValues());
 		energy.setMinimum(E);
 	}
 
-	private double updateXesTheta(ScaleBoxAndFixedExpression energyBox) {
-		final XesMaterial material = "Si".equals(analyserType.getValue()) ? XesMaterial.SILICON : XesMaterial.GERMANIUM;
+	private double updateXesTheta(ScaleBoxAndFixedExpression energyBox) throws DeviceException {
+		final XesMaterial material = "Si".equals(getAnalyserTypeValue()) ? XesMaterial.SILICON : XesMaterial.GERMANIUM;
 		final double energy = energyBox.getNumericValue();
 		final double theta = XesUtils.getBragg(energy, material, getAnalyserCutValues());
 		energyBox.setFixedExpressionValue(theta);
 		return theta;
 	}
+	
+	public String getAnalyserTypeValue() throws DeviceException {
+		if (analyserTypeValue == null){
+			analyserTypeValue = getScannableSinglePosition("material");
+		}
+		return analyserTypeValue;
+	}
 
-	public int[] getAnalyserCutValues() {
-		int int0 = (Integer) getAnalyserCut0().getValue();
-		int int1 = (Integer) getAnalyserCut1().getValue();
-		int int2 = (Integer) getAnalyserCut2().getValue();
-
-		return new int[] { int0, int1, int2 };
+	public int[] getAnalyserCutValues() throws DeviceException {
+		if (analyserCutValues == null) {
+			int int0 = getIntegerValue("cut1");
+			int int1 = getIntegerValue("cut2");
+			int int2 = getIntegerValue("cut3");
+			analyserCutValues = new int[] { int0, int1, int2 };
+		}
+		return analyserCutValues;
+	}
+	
+	private int getIntegerValue(String scannableName) throws DeviceException {
+		String pos = getScannableSinglePosition(scannableName);
+		return Integer.parseInt(pos);
+	}
+	
+	private String getScannableSinglePosition(String scannableName) throws DeviceException {
+		final Scannable scannable = (Scannable) Finder.getInstance().find(scannableName);
+		if (scannable == null) {
+			throw new DeviceException( "Scannable " + scannableName + " cannot be found");
+		}
+		String[] position;
+		try {
+			position = ScannableUtils.getFormattedCurrentPositionArray(scannable);
+		} catch (DeviceException e) {
+			throw new DeviceException( "Scannable " + scannableName + " position cannot be resolved.");
+		}
+		return position[0];
 	}
 
 	private void setExcluded(Composite comp, boolean b) {
@@ -782,22 +797,6 @@ public final class XesScanParametersComposite extends Composite {
 
 	public FieldComposite getScanType() {
 		return scanType;
-	}
-
-	public FieldComposite getAnalyserType() {
-		return analyserType;
-	}
-
-	public FieldComposite getAnalyserCut0() {
-		return analyserCut0;
-	}
-
-	public FieldComposite getAnalyserCut1() {
-		return analyserCut1;
-	}
-
-	public FieldComposite getAnalyserCut2() {
-		return analyserCut2;
 	}
 
 	public FieldComposite getRadiusOfCurvature() {

@@ -45,10 +45,10 @@ public class XesScanParameters implements Serializable, IScanParameters {
 	private int scanType;
 
 	// Always needed
-	private String analyserType;
-	private int analyserCut0;
-	private int analyserCut1;
-	private int analyserCut2;
+//	private String analyserType;
+//	private int analyserCut0;
+//	private int analyserCut1;
+//	private int analyserCut2;
 	private Double radiusOfCurvature;
 
 	// SCAN_XES_FIXED_MONO
@@ -105,14 +105,6 @@ public class XesScanParameters implements Serializable, IScanParameters {
 
 	public void setScanType(int scanType) {
 		this.scanType = scanType;
-	}
-
-	public String getAnalyserType() {
-		return analyserType;
-	}
-
-	public void setAnalyserType(String analyserType) {
-		this.analyserType = analyserType;
 	}
 
 	public Double getRadiusOfCurvature() {
@@ -253,30 +245,6 @@ public class XesScanParameters implements Serializable, IScanParameters {
 		this.monoEnergy = monoEnergy;
 	}
 
-	public int getAnalyserCut0() {
-		return analyserCut0;
-	}
-
-	public void setAnalyserCut0(int analyserCut0) {
-		this.analyserCut0 = analyserCut0;
-	}
-
-	public int getAnalyserCut1() {
-		return analyserCut1;
-	}
-
-	public void setAnalyserCut1(int analyserCut1) {
-		this.analyserCut1 = analyserCut1;
-	}
-
-	public int getAnalyserCut2() {
-		return analyserCut2;
-	}
-
-	public void setAnalyserCut2(int analyserCut2) {
-		this.analyserCut2 = analyserCut2;
-	}
-
 	public boolean isAdditionalCrystal0() {
 		return additionalCrystal0;
 	}
@@ -317,10 +285,6 @@ public class XesScanParameters implements Serializable, IScanParameters {
 		result = prime * result + (additionalCrystal1 ? 1231 : 1237);
 		result = prime * result + (additionalCrystal2 ? 1231 : 1237);
 		result = prime * result + (additionalCrystal3 ? 1231 : 1237);
-		result = prime * result + analyserCut0;
-		result = prime * result + analyserCut1;
-		result = prime * result + analyserCut2;
-		result = prime * result + ((analyserType == null) ? 0 : analyserType.hashCode());
 		result = prime * result + ((edge == null) ? 0 : edge.hashCode());
 		result = prime * result + ((element == null) ? 0 : element.hashCode());
 		result = prime * result + ((loopChoice == null) ? 0 : loopChoice.hashCode());
@@ -357,17 +321,6 @@ public class XesScanParameters implements Serializable, IScanParameters {
 		if (additionalCrystal2 != other.additionalCrystal2)
 			return false;
 		if (additionalCrystal3 != other.additionalCrystal3)
-			return false;
-		if (analyserCut0 != other.analyserCut0)
-			return false;
-		if (analyserCut1 != other.analyserCut1)
-			return false;
-		if (analyserCut2 != other.analyserCut2)
-			return false;
-		if (analyserType == null) {
-			if (other.analyserType != null)
-				return false;
-		} else if (!analyserType.equals(other.analyserType))
 			return false;
 		if (edge == null) {
 			if (other.edge != null)

@@ -104,22 +104,6 @@ public final class XesScanParametersUIEditor extends RichBeanEditorPart {
 		return beanComposite.getScanType();
 	}
 
-	public FieldComposite getAnalyserType() {
-		return beanComposite.getAnalyserType();
-	}
-
-	public FieldComposite getAnalyserCut0() {
-		return beanComposite.getAnalyserCut0();
-	}
-
-	public FieldComposite getAnalyserCut1() {
-		return beanComposite.getAnalyserCut1();
-	}
-
-	public FieldComposite getAnalyserCut2() {
-		return beanComposite.getAnalyserCut2();
-	}
-
 	public FieldComposite getRadiusOfCurvature() {
 		return beanComposite.getRadiusOfCurvature();
 	}

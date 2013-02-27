@@ -456,17 +456,6 @@ class I20XesScan(XasScan):
             print "XESBragg is moving. Waiting for it to finish..."
             analyserAngle.waitWhileBusy()
             print "XESBragg move completed."
-
-#        originalDataFormat = LocalProperties.get("gda.data.scan.datawriter.dataFormat")
-
-#        from gda.exafs.xes.XesUtils import XesMaterial
-#        type = 1
-#        if beanGroup.getScan().getAnalyserType() == str("Si"):
-#            type = 0
-#        xes_energy.setMaterialType(type)
-        #xes_energy.setCut1Val(beanGroup.getScan().getAnalyserCut0())
-        #xes_energy.setCut2Val(beanGroup.getScan().getAnalyserCut1())
-        #xes_energy.setCut3Val(beanGroup.getScan().getAnalyserCut2())
         
         if scanType == XesScanParameters.SCAN_XES_FIXED_MONO:
             print "Starting XES scan with fixed mono..."
