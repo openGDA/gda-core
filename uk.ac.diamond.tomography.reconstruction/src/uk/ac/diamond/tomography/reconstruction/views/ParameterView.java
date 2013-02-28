@@ -123,6 +123,8 @@ import uk.ac.gda.util.io.FileUtils;
 
 public class ParameterView extends ViewPart implements ISelectionListener, IParameterView {
 
+	private static final String COMPRESS_NXS_URL_FORMAT = "platform:/plugin/%s/scripts/compress_nxs.sh";
+
 	private static final String JOB_NAME_FULL_RECONSTRUCTION = "Full Reconstruction (%s)";
 
 	public static final String JOB_NAME_QUICK_RECONSTRUCTION = "Quick Reconstruction (%s)";
@@ -607,20 +609,20 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 					osCommandRunner.logOutput();
 				}
 				monitor.done();
-				if (!display.isDisposed()) {
-					display.asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							MessageDialog.openInformation(shell, SHELL_TITLE_RECONSTRUCTION_COMPLETE,
-									String.format("%s is now complete", jobName));
-						}
-					});
-				}
+				// if (!display.isDisposed()) {
+				// display.asyncExec(new Runnable() {
+				// @Override
+				// public void run() {
+				// MessageDialog.openInformation(shell, SHELL_TITLE_RECONSTRUCTION_COMPLETE,
+				// String.format("%s is now complete", jobName));
+				// }
+				// });
+				// }
 				return Status.OK_STATUS;
 			}
 		};
 		job.setRule(new ReconSchedulingRule(nexusFile));
-//		job.setUser(true);
+		// job.setUser(true);
 		job.schedule();
 	}
 
@@ -1187,7 +1189,9 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 	private void createReducedNexusFile(String actualNexusFileLocation, String outputNexusFileLocation) {
 		URL compressNxsURL = null;
 		try {
-			compressNxsURL = new URL("platform:/plugin/" + Activator.PLUGIN_ID + "/" + "scripts/compress_nxs.sh");
+			String compressNxsUrlString = String.format(COMPRESS_NXS_URL_FORMAT,
+					Activator.PLUGIN_ID);
+			compressNxsURL = new URL(compressNxsUrlString);
 		} catch (MalformedURLException e) {
 			logger.error("Cant find compress_nxs script", e);
 		}
