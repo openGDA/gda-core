@@ -26,12 +26,17 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
+            id="org.opengda.detector.electronanalyser.client.newsequence"
+            name="New">
+      </command>
+      <command
             id="org.opengda.detector.electronanalyser.client.opensequence"
             name="Open">
       </command>
       <command
-            id="org.opengda.detector.electronanalyser.client.newsequence"
-            name="New">
+            description="Start"
+            id="org.opengda.detector.electronanalyser.client.startcollection"
+            name="Start">
       </command>
    </extension>
    <extension
@@ -40,15 +45,40 @@
             allPopups="false"
             locationURI="menu:org.opengda.detector.electronanalyser.client.sequenceeditor">
          <command
+               commandId="org.opengda.detector.electronanalyser.client.newsequence"
+               label="New"
+               style="push">
+         </command>
+         <command
                commandId="org.opengda.detector.electronanalyser.client.opensequence"
                label="Open..."
                mode="FORCE_TEXT"
                style="push">
          </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:org.opengda.detector.electronanalyser.client.sequenceeditor">
+         <command
+               commandId="org.opengda.detector.electronanalyser.client.startcollection"
+               icon="icons/run_exc.gif"
+               label="Start"
+               style="push"
+               tooltip="Start collection active regions in this sequence">
+         </command>
          <command
                commandId="org.opengda.detector.electronanalyser.client.newsequence"
+               icon="icons/new_file.gif"
                label="New"
-               style="push">
+               style="push"
+               tooltip="Create a new sequence file">
+         </command>
+         <command
+               commandId="org.opengda.detector.electronanalyser.client.opensequence"
+               icon="icons/open-task.gif"
+               label="Open"
+               style="push"
+               tooltip="Open a sequence file">
          </command>
       </menuContribution>
    </extension>
@@ -61,6 +91,10 @@
       <handler
             class="org.opengda.detector.electronanalyser.client.actions.NewSequenceAction"
             commandId="org.opengda.detector.electronanalyser.client.newsequence">
+      </handler>
+      <handler
+            class="org.opengda.detector.electronanalyser.client.actions.StartCollectionAction"
+            commandId="org.opengda.detector.electronanalyser.client.startcollection">
       </handler>
    </extension>
    <extension

@@ -167,4 +167,8 @@ public class RegionDefinitionResourceUtil {
 
 	private double xRaySourceEnergyLimit = 2100.0;
 
+	public String getFilename() {
+		return this.fileName;
+	}
+
 }

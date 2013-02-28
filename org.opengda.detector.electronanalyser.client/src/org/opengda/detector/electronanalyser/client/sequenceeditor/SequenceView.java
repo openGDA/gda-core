@@ -1,6 +1,7 @@
 package org.opengda.detector.electronanalyser.client.sequenceeditor;
 
 import java.io.IOException;
+import org.eclipse.ui.dialogs.SaveAsDialog;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -134,6 +135,10 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 	private Button btnConfirmAfterEachInteration;
 
 	protected boolean isDirty;
+
+	public void setDirty(boolean isDirty) {
+		this.isDirty = isDirty;
+	}
 
 	private Resource resource;
 
@@ -705,6 +710,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 	@Override
 	public void doSaveAs() {
 		// TODO Auto-generated method stub
+		SaveAsDialog sad = new SaveAsDialog(this.getViewSite().getShell());
+		sad.setBlockOnOpen(isDirty());
+		sad.open();
 
 	}
 
@@ -721,6 +729,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 	@Override
 	public boolean isSaveOnCloseNeeded() {
 		return true;
+	}
+	public void firePropertyChanged() {
+		firePropertyChange(PROP_DIRTY);
 	}
 
 	private Adapter notifyListener = new EContentAdapter() {
@@ -741,10 +752,10 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 			regionDefinitionResourceUtil.getResource().eAdapters()
 					.remove(notifyListener);
 			getViewSite()
-			.getWorkbenchWindow()
-			.getSelectionService()
-			.removeSelectionListener(RegionViewExtensionFactory.ID,
-					selectionListener);
+					.getWorkbenchWindow()
+					.getSelectionService()
+					.removeSelectionListener(RegionViewExtensionFactory.ID,
+							selectionListener);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
