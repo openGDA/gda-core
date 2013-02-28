@@ -57,11 +57,16 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 	}
 
 	private static void enableControls(){
-		pauseScan.getAction().setEnabled(controlsEnabled);
-		haltScan.getAction().setEnabled(controlsEnabled);
-		haltScript.getAction().setEnabled(controlsEnabled);
-		pauseScript.getAction().setEnabled(controlsEnabled);
-		
+		enableControl(pauseScan);
+		enableControl(haltScan);
+		enableControl(haltScript);
+		enableControl(pauseScript);
+	}
+	
+	private static void enableControl(ActionContributionItem item) {
+		if (item != null) {
+			item.getAction().setEnabled(controlsEnabled);
+		}
 	}
 	
 	public static void disableUIControls(){
