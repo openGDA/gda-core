@@ -331,7 +331,7 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
-				monitor.beginTask("Plotting Data from "+nexusFile.getName(), IProgressMonitor.UNKNOWN);
+				monitor.beginTask("Plotting Data from " + nexusFile.getName(), IProgressMonitor.UNKNOWN);
 				if (nexusFile == null) {
 					return Status.CANCEL_STATUS;
 				}
@@ -347,6 +347,8 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 						public void run() {
 							plottingSystem.updatePlot2D((AbstractDataset) squeeze, null, new NullProgressMonitor());
 							fileName.setText(nexusFile.getLocation().toOSString());
+							//
+							slicingStepper.setSelection(position);
 							for (ITrace trace : plottingSystem.getTraces()) {
 								if (trace instanceof IImageTrace) {
 									IImageTrace imageTrace = (IImageTrace) trace;
@@ -367,7 +369,6 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 			}
 
 		};
-		refreshJob.setUser(true);
 	}
 
 	private void createMouseFollowLineRegion() {
@@ -474,13 +475,20 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 		String path = nexusFile.getLocation().toOSString();
 		HDF5Loader hdf5Loader = new HDF5Loader(path);
 		DataHolder loadFile;
+		int positionToUpdateTo = 0;
 		try {
 			loadFile = hdf5Loader.loadFile();
 			dataset = loadFile.getLazyDataset(PATH_TO_DATA_IN_NEXUS);
 			if (dataset != null) {
 				int[] shape = dataset.getShape();
-				slicingStepper.setSteps(shape[0]);
-				slicingStepper.setSelection(0);
+				int datasetShape = shape[0];
+				slicingStepper.setSteps(datasetShape);
+				if (datasetShape > 2) {
+					positionToUpdateTo = datasetShape / 2;
+					slicingStepper.setSelection(positionToUpdateTo);
+				} else {
+					slicingStepper.setSelection(0);
+				}
 			} else {
 				throw new IllegalArgumentException(ERR_MESSAGE_UNABLE_TO_FIND_DATASET);
 			}
@@ -489,7 +497,7 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 		} catch (IllegalArgumentException e2) {
 			showErrorMessage(e2.getMessage(), e2);
 		}
-		updateDataToPosition(0);
+		updateDataToPosition(positionToUpdateTo);
 	}
 
 	@Override
