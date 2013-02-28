@@ -47,13 +47,21 @@
          <command
                commandId="org.opengda.detector.electronanalyser.client.newsequence"
                label="New"
-               style="push">
+               style="push"
+               tooltip="Create a new sequence file">
          </command>
          <command
                commandId="org.opengda.detector.electronanalyser.client.opensequence"
                label="Open..."
                mode="FORCE_TEXT"
-               style="push">
+               style="push"
+               tooltip="Open a sequence file">
+         </command>
+         <command
+               commandId="org.opengda.detector.electronanalyser.client.startcollection"
+               label="Start"
+               style="push"
+               tooltip="Start collecting active regions in this sequence">
          </command>
       </menuContribution>
       <menuContribution
