@@ -30,7 +30,9 @@ import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -40,13 +42,19 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.IJobChangeListener;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.window.Window;
@@ -60,6 +68,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -87,6 +96,7 @@ import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.diamond.tomography.reconstruction.Activator;
 import uk.ac.diamond.tomography.reconstruction.ReconUtil;
+import uk.ac.diamond.tomography.reconstruction.jobs.ReconSchedulingRule;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.BackprojectionType;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.DarkFieldType;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.DocumentRoot;
@@ -112,6 +122,16 @@ import uk.ac.gda.util.io.FileUtils;
  */
 
 public class ParameterView extends ViewPart implements ISelectionListener, IParameterView {
+
+	private static final String JOB_NAME_FULL_RECONSTRUCTION = "Full Reconstruction (%s)";
+
+	public static final String JOB_NAME_QUICK_RECONSTRUCTION = "Quick Reconstruction (%s)";
+
+	public static final String JOB_NAME_CREATING_COMPRESSED_NEXUS = "Creating compressed Nexus(%s)";
+
+	private static final String SHELL_TITLE_RECONSTRUCTION_COMPLETE = "Reconstruction complete";
+
+	private static final String PATH_TO_IMAGE_KEY_IN_DATASET = "/entry1/tomo_entry/instrument/detector/image_key";
 
 	private static final String DATA_PATH_IN_NEXUS = "/entry1/tomo_entry/data/data";
 	private static final String FULL_RECONSTRUCTION = "Full Reconstruction";
@@ -145,6 +165,7 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 	private static final String ROTATION_CENTRE = "Rotation Centre";
 
 	private static final Logger logger = LoggerFactory.getLogger(ParameterView.class);
+	private List<String> jobNames = Collections.synchronizedList(new ArrayList<String>());
 
 	private FormToolkit toolkit;
 	/**
@@ -253,11 +274,31 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 
 	};
 
-	/**
-	 * The constructor.
-	 */
-	public ParameterView() {
-	}
+	private IJobChangeListener jobListener = new JobChangeAdapter() {
+
+		@Override
+		public void running(org.eclipse.core.runtime.jobs.IJobChangeEvent event) {
+			String jobName = event.getJob().getName();
+			if (jobName != null && nexusFile != null) {
+				String jobNameToSearchFor = String.format(JOB_NAME_CREATING_COMPRESSED_NEXUS, nexusFile.getName());
+				if (jobName.equals(jobNameToSearchFor)) {
+					jobNames.add(jobNameToSearchFor);
+				}
+			}
+
+		}
+
+		@Override
+		public void done(org.eclipse.core.runtime.jobs.IJobChangeEvent event) {
+			String jobName = event.getJob().getName();
+			if (jobName != null && nexusFile != null) {
+				String jobNameToSearchFor = String.format(JOB_NAME_CREATING_COMPRESSED_NEXUS, nexusFile.getName());
+				if (jobName.equals(jobNameToSearchFor)) {
+					jobNames.remove(jobNameToSearchFor);
+				}
+			}
+		}
+	};
 
 	/**
 	 * This is a callback that will allow us to create the viewer and initialize it.
@@ -374,6 +415,7 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 		createSettingsFile();
 		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(this);
 		getViewSite().getWorkbenchWindow().getPartService().addPartListener(partAdapter);
+		Job.getJobManager().addJobChangeListener(jobListener);
 	}
 
 	public static class SampleInOutBeamPosition extends Dialog {
@@ -507,7 +549,7 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 			String templateFileName = hmSettingsInProcessingDir.getAbsolutePath();
 
 			int height = hdfShape[1];
-			if (quick) {
+			if (quick && reducedDataShape != null) {
 				height = reducedDataShape[1];
 			}
 
@@ -517,12 +559,69 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 			command.append(" " + pathToImages.toString());
 
 			logger.debug("Command that will be run:{}", command);
-			OSCommandRunner.runNoWait(command.toString(), LOGOPTION.ALWAYS, null);
+			// OSCommandRunner.runNoWait(command.toString(), LOGOPTION.ALWAYS, null);
+			String jobNameToDisplay = null;
+
+			if (quick) {
+				jobNameToDisplay = String.format(JOB_NAME_QUICK_RECONSTRUCTION, nexusFile.getName());
+				// if (!(jobNames.contains(String.format(JOB_NAME_CREATING_COMPRESSED_NEXUS, nexusFile.getName())))) {
+				// runCommand(jobNameToDisplay, command.toString());
+				// } else {
+				// MessageDialog
+				// .openWarning(
+				// getViewSite().getShell(),
+				// "Preparing for reconstuction",
+				// "The system is preparing the Nexus file for reconstrution.\n\nPlease try to run the quick reconstruction after the preparation has completed. ");
+				// }
+			} else {
+				jobNameToDisplay = String.format(JOB_NAME_FULL_RECONSTRUCTION, nexusFile.getName());
+				// runCommand(jobNameToDisplay, command.toString());
+			}
+			runCommand(jobNameToDisplay, command.toString());
+
 		} catch (URISyntaxException e) {
-			logger.error("TODO put description of error here", e);
+			logger.error("Incorrect URI for script", e);
 		} catch (IOException e) {
-			logger.error("TODO put description of error here", e);
+			logger.error("Cannot find script file", e);
 		}
+	}
+
+	private void runCommand(final String jobName, final String command) {
+		final Shell shell = getViewSite().getShell();
+		final Display display = shell.getDisplay();
+		Job job = new Job(jobName) {
+			@Override
+			public IStatus run(IProgressMonitor monitor) {
+				monitor.beginTask(jobName, IProgressMonitor.UNKNOWN);
+				OSCommandRunner osCommandRunner = new OSCommandRunner(command, true, null, null);
+				if (osCommandRunner.exception != null) {
+					String msg = "Exception seen trying to run command " + osCommandRunner.getCommandAsString();
+					logger.error(msg);
+					logger.error(osCommandRunner.exception.toString());
+				} else if (osCommandRunner.exitValue != 0) {
+					String msg = "Exit code = " + Integer.toString(osCommandRunner.exitValue)
+							+ " returned from command " + osCommandRunner.getCommandAsString();
+					logger.warn(msg);
+					osCommandRunner.logOutput();
+				} else {
+					osCommandRunner.logOutput();
+				}
+				monitor.done();
+				if (!display.isDisposed()) {
+					display.asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							MessageDialog.openInformation(shell, SHELL_TITLE_RECONSTRUCTION_COMPLETE,
+									String.format("%s is now complete", jobName));
+						}
+					});
+				}
+				return Status.OK_STATUS;
+			}
+		};
+		job.setRule(new ReconSchedulingRule(nexusFile));
+//		job.setUser(true);
+		job.schedule();
 	}
 
 	private void runTiffReconstruction(boolean quick) {
@@ -583,6 +682,7 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 			command.append(String.format(" --stageOutOfBeamPhys %s", outOfBeamVal));
 
 			logger.debug("Command that will be run:{}", command);
+
 			OSCommandRunner.runNoWait(command.toString(), LOGOPTION.ALWAYS, null);
 		} catch (URISyntaxException e) {
 			logger.error("Unable to find the URI of the scripts file", e);
@@ -597,7 +697,7 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 		DataHolder loadFile;
 		try {
 			loadFile = hdf5Loader.loadFile();
-			ILazyDataset dataset = loadFile.getLazyDataset("/entry1/instrument/tomoScanDevice/image_key");
+			ILazyDataset dataset = loadFile.getLazyDataset(PATH_TO_IMAGE_KEY_IN_DATASET);
 			return dataset != null;
 		} catch (ScanFileHolderException e1) {
 			logger.error("Image key not available", e1);
@@ -1010,10 +1110,12 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 			if (selection instanceof IStructuredSelection) {
 				IStructuredSelection iss = (IStructuredSelection) selection;
 				Object firstElement = iss.getFirstElement();
-				nexusFile = null;
+				// nexusFile = null;
+				boolean newSelection = false;
 				if (firstElement instanceof IFile
 						&& Activator.NXS_FILE_EXTN.equals(((IFile) firstElement).getFileExtension())) {
 					nexusFile = (IFile) firstElement;
+					newSelection = true;
 
 				} else if (part instanceof IEditorPart) {
 					IEditorPart ed = (IEditorPart) part;
@@ -1023,24 +1125,27 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 							IFile hmFile = (IFile) adapter;
 							if (HM_FILE_EXTN.equals(hmFile.getFileExtension())) {
 								nexusFile = getNexusFileFromHmFileLocation(hmFile.getLocationURI().toString());
+								newSelection = true;
 							}
 						}
 					}
 				}
 
-				if (nexusFile != null) {
-					reducedNexusFile = getReducedNexusFile(nexusFile);
+				if (nexusFile != null && newSelection) {
 					hmSettingsInProcessingDir = getHmSettingsInProcessingDir();
 					String path = nexusFile.getLocation().toOSString();
 					ILazyDataset actualDataset = getDataSetFromFileLocation(path);
-					ILazyDataset reducedDataset = getDataSetFromFileLocation(reducedNexusFile.getPath());
 					if (actualDataset != null && actualDataset.getRank() == 3) {
 						isHdf = true;
 						hdfShape = actualDataset.getShape();
-						if (reducedDataset != null) {
-							reducedDataShape = reducedDataset.getShape();
-						} else {
-							logger.warn("Reduced data set not ready yet");
+						reducedNexusFile = getReducedNexusFile(nexusFile);
+						if (reducedNexusFile.exists()) {
+							ILazyDataset reducedDataset = getDataSetFromFileLocation(reducedNexusFile.getPath());
+							if (reducedDataset != null) {
+								reducedDataShape = reducedDataset.getShape();
+							} else {
+								logger.warn("Reduced data set not ready yet");
+							}
 						}
 					}
 					getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
@@ -1107,9 +1212,7 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 			String compressNxsScriptFullLocation = compressNexusScript.getAbsolutePath();
 			String command = String.format("%s %s %s", compressNxsScriptFullLocation, actualNexusFileLocation,
 					outputNexusFileLocation);
-			// new OSCommandRunner(command.toString(), true, null, null);//.runNoWait(command.toString(),
-			// LOGOPTION.ALWAYS, null);
-			OSCommandRunner.runNoWait(command.toString(), LOGOPTION.ALWAYS, null);
+			runCommand(String.format(JOB_NAME_CREATING_COMPRESSED_NEXUS, nexusFile.getName()), command);
 		}
 	}
 
@@ -1140,6 +1243,7 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 	public void dispose() {
 		getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(this);
 		getViewSite().getWorkbenchWindow().getPartService().removePartListener(partAdapter);
+		Job.getJobManager().removeJobChangeListener(jobListener);
 		super.dispose();
 	}
 

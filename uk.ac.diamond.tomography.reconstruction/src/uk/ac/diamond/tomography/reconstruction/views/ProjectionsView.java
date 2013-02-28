@@ -20,7 +20,6 @@ package uk.ac.diamond.tomography.reconstruction.views;
 import gda.analysis.io.ScanFileHolderException;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 
 import org.dawb.common.services.IPaletteService;
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
@@ -40,7 +39,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.MouseListener;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
@@ -58,13 +56,11 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.ISelectionListener;
-import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.ViewPart;
-import org.eclipse.ui.progress.IProgressService;
 import org.eclipse.ui.progress.UIJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,6 +75,7 @@ import uk.ac.diamond.scisoft.analysis.io.TIFFImageLoader;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.diamond.tomography.reconstruction.Activator;
 import uk.ac.diamond.tomography.reconstruction.ReconUtil;
+import uk.ac.diamond.tomography.reconstruction.jobs.ReconSchedulingRule;
 import uk.ac.gda.ui.components.IStepperSelectionListener;
 import uk.ac.gda.ui.components.Stepper;
 import uk.ac.gda.ui.components.StepperChangedEvent;
@@ -90,12 +87,12 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 	private static final String REGION_DRAG_LINE_NAME = "DragLine";
 	private static final String ERR_MESSAGE_UNABLE_TO_FIND_DATASET = "Unable to find dataset";
 	private static final String ERR_TITLE_DISPLAYING_PROJECTIONS = "Error while displaying projections";
-	private static final String PATH_TO_DATA_IN_NEXUS = "/entry1/tomo_entry/data/data";
 	private static final String UPDATING_DATA = "Updating data";
 	private static final String PROJECTIONS_PLOT = "Projections Plot";
 	private static final String FILE_NAME = "File name";
 	public static final String ID = "uk.ac.diamond.tomography.reconstruction.view.projection";
 
+	private static final String PATH_TO_DATA_IN_NEXUS = "/entry1/tomo_entry/data/data";
 	private final String LBL_PREVIOUS = "PREV";
 	private final String LBL_NEXT = "NEXT";
 
@@ -318,7 +315,6 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(this);
 		getViewSite().getWorkbenchWindow().getPartService().addPartListener(partAdapter);
 		doCreateRefreshJob();
-
 	}
 
 	private void setGridLayoutMinimumSetting(GridLayout layout) {
@@ -335,55 +331,43 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
+				monitor.beginTask("Plotting Data from "+nexusFile.getName(), IProgressMonitor.UNKNOWN);
 				if (nexusFile == null) {
 					return Status.CANCEL_STATUS;
 				}
-				final IWorkbench wb = PlatformUI.getWorkbench();
-				IProgressService ps = wb.getProgressService();
-				try {
-					ps.busyCursorWhile(new IRunnableWithProgress() {
+
+				if (dataset != null) {
+					int[] shape = dataset.getShape();
+					shape[0] = position + 1;
+					IDataset slice = dataset.getSlice(new int[] { position, 0, 0 }, shape, new int[] { 1, 1, 1 });
+					final ILazyDataset squeeze = slice.squeeze();
+
+					getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
 						@Override
-						public void run(IProgressMonitor pm) {
-
-							if (dataset != null) {
-								int[] shape = dataset.getShape();
-								shape[0] = position + 1;
-								IDataset slice = dataset.getSlice(new int[] { position, 0, 0 }, shape, new int[] { 1,
-										1, 1 });
-								final ILazyDataset squeeze = slice.squeeze();
-
-								getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
-									@Override
-									public void run() {
-										plottingSystem.updatePlot2D((AbstractDataset) squeeze, null,
-												new NullProgressMonitor());
-										fileName.setText(nexusFile.getLocation().toOSString());
-										for (ITrace trace : plottingSystem.getTraces()) {
-											if (trace instanceof IImageTrace) {
-												IImageTrace imageTrace = (IImageTrace) trace;
-												final IPaletteService service = (IPaletteService) PlatformUI
-														.getWorkbench().getService(IPaletteService.class);
-												imageTrace.setPaletteData(service.getPaletteData(""));
-											}
-										}
-									}
-								});
-								logger.debug(dataset.getName());
-							} else {
-								showErrorMessage(ERR_TITLE_DISPLAYING_PROJECTIONS, new IllegalArgumentException(
-										ERR_MESSAGE_UNABLE_TO_FIND_DATASET));
+						public void run() {
+							plottingSystem.updatePlot2D((AbstractDataset) squeeze, null, new NullProgressMonitor());
+							fileName.setText(nexusFile.getLocation().toOSString());
+							for (ITrace trace : plottingSystem.getTraces()) {
+								if (trace instanceof IImageTrace) {
+									IImageTrace imageTrace = (IImageTrace) trace;
+									final IPaletteService service = (IPaletteService) PlatformUI.getWorkbench()
+											.getService(IPaletteService.class);
+									imageTrace.setPaletteData(service.getPaletteData(""));
+								}
 							}
 						}
 					});
-				} catch (InvocationTargetException e) {
-					logger.error("Unable to refresh view", e);
-				} catch (InterruptedException e) {
-					logger.error("Refresh view interrupted.", e);
+					logger.debug(dataset.getName());
+				} else {
+					showErrorMessage(ERR_TITLE_DISPLAYING_PROJECTIONS, new IllegalArgumentException(
+							ERR_MESSAGE_UNABLE_TO_FIND_DATASET));
 				}
+				monitor.done();
 				return Status.OK_STATUS;
 			}
 
 		};
+		refreshJob.setUser(true);
 	}
 
 	private void createMouseFollowLineRegion() {
@@ -516,16 +500,22 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 				Object firstElement = iss.getFirstElement();
 				if (firstElement instanceof IFile
 						&& Activator.NXS_FILE_EXTN.equals(((IFile) firstElement).getFileExtension())) {
-					nexusFile = (IFile) firstElement;
-					try {
-						getViewSite().getActionBars().getStatusLineManager()
-								.setMessage(String.format("Loading file %s ...", nexusFile.getFullPath().toOSString()));
-						updateData();
-						pgBook.showPage(plotPage);
-					} catch (Exception e) {
-						showErrorMessage("Problem with displaying dataset", e);
-					} finally {
-						getViewSite().getActionBars().getStatusLineManager().setMessage(null);
+					IFile file = (IFile) firstElement;
+					if (!file.equals(nexusFile)) {
+						nexusFile = file;
+						try {
+							getViewSite()
+									.getActionBars()
+									.getStatusLineManager()
+									.setMessage(
+											String.format("Loading file %s ...", nexusFile.getFullPath().toOSString()));
+							updateData();
+							pgBook.showPage(plotPage);
+						} catch (Exception e) {
+							showErrorMessage("Problem with displaying dataset", e);
+						} finally {
+							getViewSite().getActionBars().getStatusLineManager().setMessage(null);
+						}
 					}
 				}
 			}
@@ -597,6 +587,7 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 		};
 
 		displayJob.setUser(true);
+		displayJob.setRule(new ReconSchedulingRule(nexusFile));
 		displayJob.schedule();
 
 	}
