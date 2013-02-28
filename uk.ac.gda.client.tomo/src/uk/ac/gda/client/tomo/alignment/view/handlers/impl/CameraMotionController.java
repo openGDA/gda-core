@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
+import uk.ac.gda.client.tomo.alignment.view.TomoAlignmentCommands;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraMotionController;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraMotionLookupTableHandler;
 import uk.ac.gda.client.tomo.alignment.view.handlers.ICameraStageMotorHandler;
@@ -45,8 +46,6 @@ public class CameraMotionController implements ICameraMotionController, Initiali
 	private IObservable tomoScriptController;
 
 	private static final Logger logger = LoggerFactory.getLogger(CameraMotionController.class);
-
-	private static final String MOVE_T3_M1_Z_COMMAND = "tomographyScani13.moveT3M1ZTo(%d, %f)";
 
 	private ICameraStageMotorHandler cameraStageMotorHandler;
 
@@ -64,7 +63,7 @@ public class CameraMotionController implements ICameraMotionController, Initiali
 		final Exception[] exceptions = new Exception[1];
 		final SubMonitor progress = SubMonitor.convert(monitor);
 		progress.beginTask("Moving camera stage", 5);
-		String moveModuleCmd = String.format(MOVE_T3_M1_Z_COMMAND, module.getValue().intValue(), t3m1ZValue);
+		String moveModuleCmd = String.format(TomoAlignmentCommands.MOVE_T3_M1_Z_COMMAND, module.getValue().intValue(), t3m1ZValue);
 		IObserver observer = new IObserver() {
 
 			@Override

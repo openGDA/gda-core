@@ -46,4 +46,6 @@ public interface TomoAlignmentCommands {
 
 	public static final String AUTO_FOCUS = "tomoAlignment.autoFocus(%f)";
 
+	public static final String MOVE_T3_M1_Z_COMMAND = "tomoAlignment.moveT3M1ZTo(%d, %f)";
+
 }
