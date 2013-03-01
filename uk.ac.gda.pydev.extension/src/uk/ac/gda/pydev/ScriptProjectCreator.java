@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -35,11 +35,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.ui.IEditorReference;
-import org.eclipse.ui.IPerspectiveDescriptor;
-import org.eclipse.ui.IPerspectiveListener;
 import org.eclipse.ui.IStartup;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.IWorkingSetManager;
 import org.eclipse.ui.PlatformUI;
@@ -58,13 +54,11 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.ClientManager;
 import uk.ac.gda.common.rcp.util.BundleUtils;
 import uk.ac.gda.jython.PydevConstants;
 import uk.ac.gda.pydev.extension.Activator;
 import uk.ac.gda.pydev.extension.builder.ConfigurationXMLNature;
 import uk.ac.gda.pydev.extension.builder.ExtendedSyntaxNature;
-import uk.ac.gda.pydev.extension.ui.perspective.JythonPerspective;
 import uk.ac.gda.pydev.ui.preferences.PreferenceConstants;
 import uk.ac.gda.ui.utils.ProjectUtils;
 
@@ -76,24 +70,9 @@ public class ScriptProjectCreator implements IStartup {
 	private static final Logger logger = LoggerFactory.getLogger(ScriptProjectCreator.class);
 	private static Map<String, IProject> pathProjectMap = new HashMap<String, IProject>();
 
-	/**
-	 * Important configuration of pydev. The other place which this is done is when the Jython interpreter is set from
-	 * the client plugin before the workbench is started.
-	 */
+
 	@Override
 	public void earlyStartup() {
-
-		if (!ClientManager.isClient())
-			return;
-
-		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				// Attempt to refresh the pydev package explorer.
-				createPerspectiveListener();
-			}
-
-		});
 	}
 
 	public static String getProjectNameXMLConfig() {
@@ -268,48 +247,6 @@ public class ScriptProjectCreator implements IStartup {
 				+ JythonServerFacade.getInstance().getProjectNameForPath(path));
 	}
 
-	private void createPerspectiveListener() {
-		PlatformUI.getWorkbench().getWorkbenchWindows()[0].addPerspectiveListener(new IPerspectiveListener() {
-
-			@Override
-			public void perspectiveChanged(IWorkbenchPage page, IPerspectiveDescriptor perspective, String changeId) {
-			}
-
-			@Override
-			public void perspectiveActivated(IWorkbenchPage page, IPerspectiveDescriptor perspective) {
-				if (perspective.getId().equals(JythonPerspective.ID)) {
-					closeRichBeanEditors(page);
-				}
-			}
-
-		});
-	}
-
-	protected void closeRichBeanEditors(final IWorkbenchPage page) {
-
-		if (!Activator.getDefault().getPreferenceStore().getBoolean(PreferenceConstants.CLOSE_RICH_BEAN_EDITORS))
-			return;
-
-		final IEditorReference[] refs = page.getEditorReferences();
-		final List<IEditorReference> toClose = new ArrayList<IEditorReference>(3);
-		for (int i = 0; i < refs.length; i++) {
-			if (refs[i].getPartProperty("RichBeanEditorPart") != null) {
-				toClose.add(refs[i]);
-			}
-		}
-
-		if (!toClose.isEmpty())
-			page.closeEditors(toClose.toArray(new IEditorReference[toClose.size()]), false);
-	}
-
-	/**
-	 * @param projectName
-	 * @param importFolder
-	 * @param chkGDASyntax
-	 * @param monitor
-	 * @return IProject created
-	 * @throws CoreException
-	 */
 	static private IProject createJythonProject(final String projectName, final String importFolder,
 			final boolean chkGDASyntax, IProgressMonitor monitor) throws CoreException {
 

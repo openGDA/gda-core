@@ -32,13 +32,10 @@ import uk.ac.gda.pydev.ScriptProjectCreator;
 import uk.ac.gda.pydev.extension.Activator;
 
 public class PreferenceInitializer extends AbstractPreferenceInitializer {
-//	private static final Logger logger = LoggerFactory.getLogger(PreferenceInitializer.class);
-
 
 	@Override
 	public void initializeDefaultPreferences() {
 		final IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-		store.setDefault(PreferenceConstants.CLOSE_RICH_BEAN_EDITORS, true);
 		store.setDefault(PreferenceConstants.SHOW_CONFIG_SCRIPTS,     false);
 		store.setDefault(PreferenceConstants.SHOW_GDA_SCRIPTS,        false);
 		store.setDefault(PreferenceConstants.SHOW_XML_CONFIG,         false);

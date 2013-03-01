@@ -19,8 +19,6 @@
 package uk.ac.gda.pydev.ui.preferences;
 
 public class PreferenceConstants {
-
-	public static final String CLOSE_RICH_BEAN_EDITORS = "uk.ac.gda.pydev.close.rich.bean.editors";
 	
 	/**
 	 * Create projects linking to beamline specific scripts. Not user editable

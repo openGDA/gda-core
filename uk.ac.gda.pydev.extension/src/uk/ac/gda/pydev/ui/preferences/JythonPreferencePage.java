@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -28,43 +28,34 @@ import uk.ac.gda.pydev.extension.Activator;
 
 public class JythonPreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-	/**
-	 * 
-	 */
 	public static final String ID = "uk.ac.gda.pydev.preferences.jythonPreferences";
 
-	/**
-	 * 
-	 */
 	public JythonPreferencePage() {
 		super(GRID);
 		setPreferenceStore(Activator.getDefault().getPreferenceStore());
 		setDescription("Preferences for the Scripts perspective. For instance it automatically closes XML file editors for the GDA confguration.");
 	}
+	
 	@Override
 	protected void createFieldEditors() {
-		BooleanFieldEditor closeRiches = new BooleanFieldEditor(PreferenceConstants.CLOSE_RICH_BEAN_EDITORS, "Close editors when entering Scripts perspective", getFieldEditorParent());
-    	addField(closeRiches);
-    	
-		BooleanFieldEditor showConfig = new BooleanFieldEditor(PreferenceConstants.SHOW_CONFIG_SCRIPTS, "Show all the scripts in the GDA Configuration", getFieldEditorParent());
-    	addField(showConfig);
-    	
-		BooleanFieldEditor showGDA = new BooleanFieldEditor(PreferenceConstants.SHOW_GDA_SCRIPTS, "Show all the scripts in the GDA", getFieldEditorParent());
-    	addField(showGDA);
-    	
-		BooleanFieldEditor showXML = new BooleanFieldEditor(PreferenceConstants.SHOW_XML_CONFIG, "Show all the XML in the GDA Configuration", getFieldEditorParent());
-    	addField(showXML);
+		BooleanFieldEditor showConfig = new BooleanFieldEditor(PreferenceConstants.SHOW_CONFIG_SCRIPTS,
+				"Show all the scripts in the GDA Configuration", getFieldEditorParent());
+		addField(showConfig);
 
-		BooleanFieldEditor chkGDASyntax = new BooleanFieldEditor(PreferenceConstants.CHECK_SCRIPT_SYNTAX, "Syntax check scripts during file editing", getFieldEditorParent());
-    	addField(chkGDASyntax);
-    	
-    	
- 	}
+		BooleanFieldEditor showGDA = new BooleanFieldEditor(PreferenceConstants.SHOW_GDA_SCRIPTS,
+				"Show all the scripts in the GDA", getFieldEditorParent());
+		addField(showGDA);
+
+		BooleanFieldEditor showXML = new BooleanFieldEditor(PreferenceConstants.SHOW_XML_CONFIG,
+				"Show all the XML in the GDA Configuration", getFieldEditorParent());
+		addField(showXML);
+
+		BooleanFieldEditor chkGDASyntax = new BooleanFieldEditor(PreferenceConstants.CHECK_SCRIPT_SYNTAX,
+				"Syntax check scripts during file editing", getFieldEditorParent());
+		addField(chkGDASyntax);
+	}
 
 	@Override
 	public void init(IWorkbench workbench) {
-		
-
 	}
-
 }
