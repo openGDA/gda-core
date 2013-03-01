@@ -23,6 +23,7 @@ import gda.commandqueue.JythonCommandCommandProvider;
 import gda.commandqueue.Processor;
 import gda.commandqueue.ProcessorCurrentItem;
 import gda.commandqueue.QueueChangeEvent;
+import gda.configuration.properties.LocalProperties;
 import gda.observable.IObserver;
 import gda.rcp.GDAClientActivator;
 
@@ -112,7 +113,8 @@ public class CommandProcessorComposite extends Composite {
 		final ImageDescriptor showLogImage = GDAClientActivator.getImageDescriptor("icons/book_open.png");
 
 		
-		final boolean useNewLayout = false;
+		final String newLayoutPropName = String.format("%s.showgroups", getClass().getName());
+		final boolean useNewLayout = LocalProperties.check(newLayoutPropName);
 		if (useNewLayout) {
 			createComponentsUsingNewLayout();
 		} else {
