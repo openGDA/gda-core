@@ -10,7 +10,7 @@
             extensions="py,pyw"
             icon="icons/script_edit.png"
             id="uk.ac.gda.pydev.extension.editor.PythonEditor"
-            name="Python Editor">
+            name="GDA Jython Editor">
          <contentTypeBinding
                contentTypeId="uk.ac.gda.pydev.extension.pyOverride">
          </contentTypeBinding>
