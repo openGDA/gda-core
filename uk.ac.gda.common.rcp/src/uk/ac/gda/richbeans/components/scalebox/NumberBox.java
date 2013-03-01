@@ -578,10 +578,24 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 
 		if (unit != null)
 			buf.append(" " + unit);
-		buf.append(" < ");
+		String minSignToAppend = null;
+		if (isMinimumValid()) {
+			minSignToAppend = " <= ";
+		} 
+		else {
+			minSignToAppend = " < ";
+		}
+		buf.append(minSignToAppend);
 		final String field = getFieldName() != null ? getFieldName() : "value";
 		buf.append(field);
-		buf.append(" < ");
+		String maxSignToAppend = null;
+		if (isMaximumValid()) {
+			maxSignToAppend = " <= ";
+		}
+		else {
+			maxSignToAppend = " < ";
+		}
+		buf.append(maxSignToAppend);
 
 		if (getMaximum() == Double.MAX_VALUE) {
 			buf.append("∞");
