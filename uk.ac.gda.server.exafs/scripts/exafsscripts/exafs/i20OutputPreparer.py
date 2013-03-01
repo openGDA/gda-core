@@ -79,9 +79,9 @@ class I20OutputPreparer:
                             visibleAxes += [axis]
                             
                     sps.setYAxesShown(visibleAxes)
-                    sps.setYAxesNotShown([invisibleAxes])
+                    sps.setYAxesNotShown(invisibleAxes)
                     # if anythign extra, such as columns added in the output parameters xml should also be plotted
-                    sps.setUnlistedColumnBehaviour(ScanPlotSettings.UnlistedColumnBehaviour.PLOT)
+                    sps.setUnlistedColumnBehaviour(2)
                     #print sps
                     return sps
         return None
