@@ -23,6 +23,7 @@ import gda.commandqueue.JythonCommandCommandProvider;
 import gda.commandqueue.Processor;
 import gda.commandqueue.ProcessorCurrentItem;
 import gda.commandqueue.QueueChangeEvent;
+import gda.configuration.properties.LocalProperties;
 import gda.observable.IObserver;
 import gda.rcp.GDAClientActivator;
 
@@ -31,6 +32,8 @@ import java.io.File;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.dialogs.InputDialog;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
@@ -49,6 +52,7 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.ui.IViewPart;
@@ -108,22 +112,14 @@ public class CommandProcessorComposite extends Composite {
 		final ImageDescriptor addImage = GDAClientActivator.getImageDescriptor("icons/add.png");
 		final ImageDescriptor showLogImage = GDAClientActivator.getImageDescriptor("icons/book_open.png");
 
-		// layout the GUI
-		setLayout(new FormLayout());
-
-		Composite btnPanel = new Composite(this, SWT.NONE);
-
-		FormData fd_txtState = new FormData();
-		fd_txtState.top = new FormAttachment(0, 7);
-		fd_txtState.left = new FormAttachment(0, 5);
-		fd_txtState.right = new FormAttachment(100, -5);
-		btnPanel.setLayoutData(fd_txtState);
-
-		btnPanel.setLayout(new RowLayout(SWT.HORIZONTAL));
 		
-		txtState = new Label(btnPanel, SWT.NONE);
-		txtState.setText("Waiting Start..."); // make long enough for all text values
-		
+		final String newLayoutPropName = String.format("%s.showgroups", getClass().getName());
+		final boolean useNewLayout = LocalProperties.check(newLayoutPropName);
+		if (useNewLayout) {
+			createComponentsUsingNewLayout();
+		} else {
+			createComponentsUsingOldLayout();
+		}
 		
 		btnRunPause = new Action(null, SWT.NONE) {
 			@Override
@@ -245,25 +241,10 @@ public class CommandProcessorComposite extends Composite {
 		toolBarManager.add(btnShowLog);
 		toolBarManager.update(true);
 		
-		txtCurrentDescription = new Label(this, SWT.WRAP | SWT.BORDER);
-		FormData fd_txtCurrentDescription = new FormData();
-		fd_txtCurrentDescription.left = new FormAttachment(btnPanel, 0, SWT.LEFT);
-		fd_txtCurrentDescription.bottom = new FormAttachment(txtCurrentDescription, 30, SWT.TOP);
-		fd_txtCurrentDescription.right = new FormAttachment(100, -5);
-		fd_txtCurrentDescription.top = new FormAttachment(btnPanel, 5, SWT.BOTTOM);
-		txtCurrentDescription.setLayoutData(fd_txtCurrentDescription);
 		txtCurrentDescription.setText("Description");
 
-		progressBar = new ProgressBar(this, SWT.SMOOTH | SWT.BORDER);
 		progressBar.setMinimum(0);
 		progressBar.setMaximum(2000);
-		FormData fd_txtCurrentProgress = new FormData();
-		fd_txtCurrentProgress.left = new FormAttachment(btnPanel, 0, SWT.LEFT);
-		// fd_txtCurrentProgress.bottom = new FormAttachment(100, -5);
-		fd_txtCurrentProgress.right = new FormAttachment(100, -5);
-		fd_txtCurrentProgress.top = new FormAttachment(txtCurrentDescription, 5, SWT.BOTTOM);
-		fd_txtCurrentProgress.bottom = new FormAttachment(progressBar, 20, SWT.TOP);
-		progressBar.setLayoutData(fd_txtCurrentProgress);
 		progressBar.addPaintListener(new PaintListener() {
 			@Override
 			public void paintControl(PaintEvent e) {
@@ -313,6 +294,63 @@ public class CommandProcessorComposite extends Composite {
 		});
 		
 		updateStateAndDescription(null);
+	}
+	
+	private void createComponentsUsingOldLayout() {
+		setLayout(new FormLayout());
+		
+		Composite btnPanel = new Composite(this, SWT.NONE);
+		
+		FormData fd_txtState = new FormData();
+		fd_txtState.top = new FormAttachment(0, 7);
+		fd_txtState.left = new FormAttachment(0, 5);
+		fd_txtState.right = new FormAttachment(100, -5);
+		btnPanel.setLayoutData(fd_txtState);
+		
+		btnPanel.setLayout(new RowLayout(SWT.HORIZONTAL));
+		
+		txtState = new Label(btnPanel, SWT.NONE);
+		txtState.setText("Waiting Start..."); // make long enough for all text values
+		
+		txtCurrentDescription = new Label(this, SWT.WRAP | SWT.BORDER);
+		FormData fd_txtCurrentDescription = new FormData();
+		fd_txtCurrentDescription.left = new FormAttachment(btnPanel, 0, SWT.LEFT);
+		fd_txtCurrentDescription.bottom = new FormAttachment(txtCurrentDescription, 30, SWT.TOP);
+		fd_txtCurrentDescription.right = new FormAttachment(100, -5);
+		fd_txtCurrentDescription.top = new FormAttachment(btnPanel, 5, SWT.BOTTOM);
+		txtCurrentDescription.setLayoutData(fd_txtCurrentDescription);
+		
+		progressBar = new ProgressBar(this, SWT.SMOOTH | SWT.BORDER);
+		FormData fd_txtCurrentProgress = new FormData();
+		fd_txtCurrentProgress.left = new FormAttachment(btnPanel, 0, SWT.LEFT);
+		// fd_txtCurrentProgress.bottom = new FormAttachment(100, -5);
+		fd_txtCurrentProgress.right = new FormAttachment(100, -5);
+		fd_txtCurrentProgress.top = new FormAttachment(txtCurrentDescription, 5, SWT.BOTTOM);
+		fd_txtCurrentProgress.bottom = new FormAttachment(100, -5);
+		progressBar.setLayoutData(fd_txtCurrentProgress);
+	}
+	
+	private void createComponentsUsingNewLayout() {
+		GridLayoutFactory.swtDefaults().applyTo(this);
+		
+		final Group statusGroup = new Group(this, SWT.BORDER);
+		statusGroup.setText("Queue status");
+		GridLayoutFactory.swtDefaults().margins(3, 3).applyTo(statusGroup);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(statusGroup);
+		
+		final Group currentTaskGroup = new Group(this, SWT.BORDER);
+		currentTaskGroup.setText("Current task");
+		GridLayoutFactory.swtDefaults().applyTo(currentTaskGroup);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(currentTaskGroup);
+		
+		txtState = new Label(statusGroup, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(txtState);
+		
+		txtCurrentDescription = new Label(currentTaskGroup, SWT.WRAP);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(txtCurrentDescription);
+		
+		progressBar = new ProgressBar(currentTaskGroup, SWT.SMOOTH | SWT.BORDER);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(progressBar);
 	}
 
 	private void setRunBtnState(boolean run){

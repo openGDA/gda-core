@@ -69,7 +69,7 @@ public class CommandQueueView extends ViewPart {
 		commandProcessorComposite.setLayoutData(fd_commandProcessorComposite);
 		commandQueueComposite = new CommandQueueComposite(top, SWT.NONE, getSite(), queue);
 		FormData formData = new FormData();
-		formData.top = new FormAttachment(commandProcessorComposite, 5, SWT.BOTTOM);
+		formData.top = new FormAttachment(commandProcessorComposite, 0, SWT.BOTTOM);
 		formData.left = new FormAttachment(0);
 		formData.right = new FormAttachment(100);
 		formData.bottom = new FormAttachment(100);
