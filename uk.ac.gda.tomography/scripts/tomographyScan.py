@@ -17,6 +17,12 @@ from gdascripts.metadata.metadata_commands import setTitle
 
 from gda.configuration.properties import LocalProperties
 
+from gda.data.scan.datawriter.DataWriter import *
+from gda.data.scan.datawriter.DefaultDataWriterFactory import createDataWriterFromFactory
+from gda.data.scan.datawriter.IDataWriterExtender import *
+
+from gda.data.scan.datawriter import *
+
 
 class EnumPositionerDelegateScannable(ScannableBase):
     """
@@ -54,6 +60,37 @@ def make_tomoScanDevice(tomography_theta, tomography_shutter, tomography_transla
     tomoScanDevice.configure()
     return tomoScanDevice
 
+def addNXTomoSubentry(scanObject, tomography_detector_name, tomography_theta_name):
+    if scanObject is None:
+        raise "Input scanObject must not be None"
+    
+    instrument_detector_data_target = "entry1/instrument/" + tomography_detector_name + "/image_data"
+    sample_rotation_angle_target = "entry1/instrument/tomoScanDevice/" + tomography_theta_name
+    print "instrument_detector_data_target = " + instrument_detector_data_target
+    print "sample_rotation_angle_target = " + sample_rotation_angle_target
+    
+    nxLinkCreator = NXTomoEntryLinkCreator()
+    nxLinkCreator.setInstrument_detector_data_target(instrument_detector_data_target)
+    nxLinkCreator.setSample_rotation_angle_target(sample_rotation_angle_target)
+    nxLinkCreator.setTitle_target("entry1/title")
+    
+    nxLinkCreator.afterPropertiesSet()
+    
+    dataWriter = createDataWriterFromFactory()
+    subEntryWriter = NXSubEntryWriter(nxLinkCreator)
+    dataWriter.addDataWriterExtender(subEntryWriter)
+    scanObject.setDataWriter(dataWriter)
+
+def reportJythonNamespaceMapping():
+    jns=beamline_parameters.JythonNameSpaceMapping()
+    objectOfInterest = {}
+    objectOfInterest['tomography_theta'] = jns.tomography_theta
+    objectOfInterest['tomography_shutter'] = jns.tomography_shutter
+    objectOfInterest['tomography_translation'] = jns.tomography_translation
+    objectOfInterest['tomography_detector'] = jns.tomography_detector
+   
+    for key, val in objectOfInterest.iteritems():
+        print key + ' = ' + str(val)
 
 class   tomoScan_positions(ScanPositionProvider):
     def __init__(self, start, stop, step, darkFieldInterval, imagesPerDark, flatFieldInterval, imagesPerFlat,
@@ -241,6 +278,7 @@ def tomoScan(description, inBeamPosition, outOfBeamPosition, exposureTime=1., st
             handle_messages.simpleLog("Data format inconsistent. Setting 'gda.data.scan.datawriter.dataFormat' to 'NexusDataWriter'")
             LocalProperties.set("gda.data.scan.datawriter.dataFormat", "NexusDataWriter")
         scanObject = createConcurrentScan(scan_args)
+        addNXTomoSubentry(scanObject, tomography_detector.name, tomography_theta.name)
         scanObject.runScan()
         return scanObject;
     except InterruptedException:
