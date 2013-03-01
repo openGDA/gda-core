@@ -760,6 +760,20 @@ public abstract class ScannableUtils {
 
 		return output;
 	}
+	
+	/**
+	 * @param scannables
+	 * @return list of Names from the provided list of scannables/detectors
+	 */
+	public static List<String> getScannableNames(List<? extends Scannable> scannables) {
+		Vector<String> names = new Vector<String>();
+		for (Scannable s : scannables) {
+			names.add(s.getName());
+		}
+		return names;
+		
+	}
+
 
 	/**
 	 * @param scannables

@@ -25,6 +25,7 @@ import gda.device.DeviceException;
 import gda.device.Motor;
 import gda.device.Scannable;
 import gda.device.Stoppable;
+import gda.device.scannable.ScannableUtils;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
@@ -1417,25 +1418,23 @@ public class JythonServer extends OutputStream implements Jython, LocalJython, C
 		return stopJythonScannablesOnStopAll;
 	}
 
-	/**
-	 * Public static method used by Mock versions of this class e.g. MockJythonserver
-	 * @param scan
-	 * @return SCanInformation
-	 */
-	static public ScanInformation getScanInformation(Scan scan){
+	static public ScanInformation getScanInformation(Scan scan) {
 		if (scan == null)
 			return null;
 		Scan topscan = scan;
-		while(topscan.getParent() != null) topscan = topscan.getParent();
+		while (topscan.getParent() != null)
+			topscan = topscan.getParent();
 		List<Integer> dims = new Vector<Integer>();
-		for(Scan s = topscan; ; s = s.getChild()) {
+		for (Scan s = topscan;; s = s.getChild()) {
 			dims.add(s.getDimension());
-			if (s.getChild() == null) 
+			if (s.getChild() == null)
 				break;
 		}
-		return new ScanInformation(dims, topscan.getScanNumber());
-		
+		String[] scannables = ScannableUtils.getScannableNames(scan.getScannables()).toArray(new String[] {});
+		String[] detectors = ScannableUtils.getScannableNames(scan.getDetectors()).toArray(new String[] {});
+		return new ScanInformation(dims, topscan.getScanNumber(), scannables, detectors);
 	}
+	
 	@Override
 	public ScanInformation getCurrentScanInformation() {
 		return getScanInformation(currentScan);

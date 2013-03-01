@@ -29,28 +29,44 @@ public class ScanInformation {
 
 	private int[] dimensions;
 	private final Long scanNumber;
+	private String[] scannableNames;
+	private String[] detectorNames;
 	
 	
-	public ScanInformation(int[] dimensions, Long scanNumber) {
+	public ScanInformation(int[] dimensions, Long scanNumber, String[] ScannableNames, String[] DetectorNames) {
 		this.dimensions = dimensions;
 		this.scanNumber = scanNumber;
+		scannableNames = ScannableNames;
+		detectorNames = DetectorNames;
 	}
 	
-	public ScanInformation(List<Integer> dimensions, Long scanNumber) {
+	public ScanInformation(List<Integer> dimensions, Long scanNumber, String[] ScannableNames, String[] DetectorNames) {
 		this.scanNumber = scanNumber;
 		int len = dimensions.size();
 		this.dimensions = new int[len];
 		for (int i = 0; i < this.dimensions.length; i++) {
 			this.dimensions[i] = dimensions.get(i);
 		}
+		scannableNames = ScannableNames;
+		detectorNames = DetectorNames;
 	}
 
 	public int[] getDimensions() {
 		return dimensions;
 	}
 	
+	public Long getScanNumber() {
+		return scanNumber;
+	}
 	
-	
+	public String[] getScannableNames() {
+		return scannableNames;
+	}
+
+	public String[] getDetectorNames() {
+		return detectorNames;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder(String.format("Scan %d : A Scan of rank %d with the dimensions: ", scanNumber, dimensions.length));
@@ -58,10 +74,17 @@ public class ScanInformation {
 			sb.append(dimensions[i]);
 			if ((i + 1) < dimensions.length) sb.append(" x ");
 		}
+		sb.append(" over scannables: ");
+		for (int i = 0; i < scannableNames.length; i++) {
+			sb.append(scannableNames[i]);
+			if ((i + 1) < scannableNames.length) sb.append(", ");
+		}
+		sb.append(" using detectors: ");
+		for (int i = 0; i < detectorNames.length; i++) {
+			sb.append(detectorNames[i]);
+			if ((i + 1) < detectorNames.length) sb.append(", ");
+		}
 		return sb.toString();
 	}
 
-	public Long getScanNumber() {
-		return scanNumber;
-	}
 }
