@@ -1,6 +1,7 @@
 from BeamlineParameters import JythonNameSpaceMapping
 from gda.jython.commands.GeneralCommands import run
 from uk.ac.gda.beans import BeansFactory
+from org.slf4j import LoggerFactory
 
 class Scan:
     
@@ -10,6 +11,14 @@ class Scan:
         self.outputPreparer = outputPreparer
         self.loggingcontroller = loggingcontroller
         self.beamlineReverter = beamlineReverter
+        
+    def log(self,*msg):
+        self.logger = LoggerFactory.getLogger("exafsscripts.exafs.i20ScanScripts")
+        message = ""
+        for part in msg:
+            message += str(part) + " "
+        print message
+        self.logger.info(message)
         
     def _createDetArray(self, names, scanBean=None):
         dets = []
