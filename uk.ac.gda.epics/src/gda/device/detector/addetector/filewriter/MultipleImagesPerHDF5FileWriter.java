@@ -120,6 +120,15 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 		this.rowChunks = rowChunks;
 	}
 
+	boolean setChunking=true;
+	
+	public boolean isSetChunking() {
+		return setChunking;
+	}
+
+	public void setSetChunking(boolean setChunking) {
+		this.setChunking = setChunking;
+	}
 
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
@@ -166,11 +175,12 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 			numberOfAcquires *= dim;
 		}
 		getNdFileHDF5().setNumCapture(numberOfAcquires);
-
-		getNdFileHDF5().setNumRowChunks(rowChunks);
-		getNdFileHDF5().setNumColChunks(colChunks);
-		getNdFileHDF5().setNumFramesChunks(framesChunks);
-		getNdFileHDF5().setNumFramesFlush(framesFlush);
+		if( isSetChunking()){
+			getNdFileHDF5().setNumRowChunks(rowChunks);
+			getNdFileHDF5().setNumColChunks(colChunks);
+			getNdFileHDF5().setNumFramesChunks(framesChunks);
+			getNdFileHDF5().setNumFramesFlush(framesFlush);
+		}
 	}
 	
 	private void setupFilename() throws Exception {

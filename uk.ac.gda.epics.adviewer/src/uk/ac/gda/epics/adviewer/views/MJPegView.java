@@ -18,6 +18,7 @@
 
 package uk.ac.gda.epics.adviewer.views;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
@@ -103,20 +104,13 @@ public class MJPegView extends ViewPart implements InitializingBean {
 
 	public static void reportErrorToUserAndLog(String s, Throwable th) {
 		logger.error(s, th);
-		MessageBox messageBox = new MessageBox(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-				SWT.ICON_ERROR);
-		messageBox.setMessage(s + ":" + th.getMessage());
-		messageBox.open();
-
+		MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error",
+				s + ":" + th.getMessage());
 	}
 
 	public static void reportErrorToUserAndLog(String s) {
 		logger.error(s);
-		MessageBox messageBox = new MessageBox(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-				SWT.ICON_ERROR);
-		messageBox.setMessage(s);
-		messageBox.open();
-
+		MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error", s);
 	}
 
 	protected void createTopRowControls(@SuppressWarnings("unused") Composite composite_1) {
