@@ -20,156 +20,165 @@ package gda.device.zebra.controller.impl;
 
 import gda.device.zebra.controller.Zebra;
 
-public class ZebraImpl implements Zebra{
+import java.io.IOException;
+
+import org.springframework.beans.factory.InitializingBean;
+
+public class ZebraImpl implements Zebra, InitializingBean {
+
+	String zebraPrefix;
+
+	DevicePVCreator dev;
 
 	@Override
-	public int getPCPulseOut() {
-		// TODO Auto-generated method stub
-		return 0;
+	public void setPCPulseSource(int val) throws IOException {
+		dev.getPVInteger(Zebra.PCPulseSource).putCallback(val);
 	}
 
 	@Override
-	public double getPCPulseDelay() {
-		// TODO Auto-generated method stub
-		return 0;
+	public int getPCPulseSource() throws IOException {
+		return dev.getPVInteger(Zebra.PCPulseSource).get();
 	}
 
 	@Override
-	public void setPCPulseDelay(double delay) {
-		// TODO Auto-generated method stub
-		
+	public void setPCPulseDelay(double val) throws IOException {
+		dev.getPVDouble(Zebra.PCPulseDelay).putCallback(val);
 	}
 
 	@Override
-	public double getPCPulseWidth() {
-		// TODO Auto-generated method stub
-		return 0;
+	public double getPCPulseDelay() throws IOException {
+		return dev.getPVDouble(Zebra.PCPulseDelay).get();
 	}
 
 	@Override
-	public void setPCPulseWidth(double width) {
-		// TODO Auto-generated method stub
-		
+	public void setPCPulseWidth(double val) throws IOException {
+		dev.getPVDouble(Zebra.PCPulseWidth).putCallback(val);
 	}
 
 	@Override
-	public double getPCPulseStep() {
-		// TODO Auto-generated method stub
-		return 0;
+	public double getPCPulseWidth() throws IOException {
+		return dev.getPVDouble(Zebra.PCPulseWidth).get();
 	}
 
 	@Override
-	public void setPCPulseStep(double step) {
-		// TODO Auto-generated method stub
-		
+	public void setPCPulseStep(double val) throws IOException {
+		dev.getPVDouble(Zebra.PCPulseStep).putCallback(val);
 	}
 
 	@Override
-	public void setPCPulseSource(int ordinal) {
-		// TODO Auto-generated method stub
-		
+	public double getPCPulseStep() throws IOException {
+		return dev.getPVDouble(Zebra.PCPulseStep).get();
 	}
 
 	@Override
-	public int getPCPulseSource() {
-		// TODO Auto-generated method stub
-		return 0;
+	public void setPCGateSource(int val) throws IOException {
+		dev.getPVInteger(Zebra.PCGateSource).putCallback(val);
 	}
 
 	@Override
-	public int getPCGateSource() {
-		// TODO Auto-generated method stub
-		return 0;
+	public int getPCGateSource() throws IOException {
+		return dev.getPVInteger(Zebra.PCGateSource).get();
 	}
 
 	@Override
-	public void setPCGateSource(int ordinal) {
-		// TODO Auto-generated method stub
-		
+	public void setPCGateStart(double val) throws IOException {
+		dev.getPVDouble(Zebra.PCGateStart).putCallback(val);
 	}
 
 	@Override
-	public int getPCGateOut() {
-		// TODO Auto-generated method stub
-		return 0;
+	public double getPCGateStart() throws IOException {
+		return dev.getPVDouble(Zebra.PCGateStart).get();
 	}
 
 	@Override
-	public double getPCGateStart() {
-		// TODO Auto-generated method stub
-		return 0;
+	public void setPCGateWidth(double val) throws IOException {
+		dev.getPVDouble(Zebra.PCGateWidth).putCallback(val);
 	}
 
 	@Override
-	public double getPCGateWidth() {
-		// TODO Auto-generated method stub
-		return 0;
+	public double getPCGateWidth() throws IOException {
+		return dev.getPVDouble(Zebra.PCGateWidth).get();
 	}
 
 	@Override
-	public double getPCGateNumberOfGates() {
-		// TODO Auto-generated method stub
-		return 0;
+	public void setPCGateStep(double val) throws IOException {
+		dev.getPVDouble(Zebra.PCGateStep).putCallback(val);
 	}
 
 	@Override
-	public double getPCGateStep() {
-		// TODO Auto-generated method stub
-		return 0;
+	public double getPCGateStep() throws IOException {
+		return dev.getPVDouble(Zebra.PCGateStep).get();
 	}
 
 	@Override
-	public void setPCGateStart(double start) {
-		// TODO Auto-generated method stub
-		
+	public void setPCArmSource(int val) throws IOException {
+		dev.getPVInteger(Zebra.PCArmSource).putCallback(val);
 	}
 
 	@Override
-	public void setPCGateWidth(double width) {
-		// TODO Auto-generated method stub
-		
+	public int getPCArmSource() throws IOException {
+		return dev.getPVInteger(Zebra.PCArmSource).get();
 	}
 
 	@Override
-	public void setPCGateNumberOfGates(double numberOfGates) {
-		// TODO Auto-generated method stub
-		
+	public void pcArm() throws IOException {
+		dev.getPVInteger(Zebra.PCArm).putCallback(1);
 	}
 
 	@Override
-	public void setPCGateStep(double step) {
-		// TODO Auto-generated method stub
-		
+	public void pcDisarm() throws IOException {
+		dev.getPVInteger(Zebra.PCDisArm).putCallback(1);
 	}
 
 	@Override
-	public int getPCArmSource() {
-		// TODO Auto-generated method stub
-		return 0;
+	public boolean isPCArmed() throws IOException {
+		return dev.getPVInteger(Zebra.PCArmOut).get() == 1;
 	}
 
 	@Override
-	public void setPCArmSource(int ordinal) {
-		// TODO Auto-generated method stub
-		
+	public void setPCCaptureBitField(int val) throws IOException {
+		dev.getPVInteger(Zebra.PCCaptureBitField).putCallback(val);
 	}
 
 	@Override
-	public int getPCArmOut() {
-		// TODO Auto-generated method stub
-		return 0;
+	public int getPCCaptureBitField() throws IOException {
+		return dev.getPVInteger(Zebra.PCCaptureBitField).get();
 	}
 
 	@Override
-	public void pcArm() {
-		// TODO Auto-generated method stub
-		
+	public void setPCEnc(int val) throws IOException {
+		dev.getPVInteger(Zebra.PCEnc).putCallback(val);
 	}
 
 	@Override
-	public void pcDisarm() {
-		// TODO Auto-generated method stub
-		
+	public int getPCEnc() throws IOException {
+		return dev.getPVInteger(Zebra.PCEnc).get();
+	}
+
+	@Override
+	public void setPCGateNumberOfGates(int val) throws IOException {
+		dev.getPVInteger(Zebra.PCGateNumberOfGates).putCallback(val);
+	}
+
+	@Override
+	public int getPCGateNumberOfGates() throws IOException {
+		return dev.getPVInteger(Zebra.PCGateNumberOfGates).get();
+	}
+
+	public String getZebraPrefix() {
+		return zebraPrefix;
+	}
+
+	public void setZebraPrefix(String zebraPrefix) {
+		this.zebraPrefix = zebraPrefix;
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		if (zebraPrefix == null || zebraPrefix.isEmpty())
+			throw new Exception("zebraPrefix is not set");
+		dev = new DevicePVCreator(zebraPrefix);
+
 	}
 
 	
