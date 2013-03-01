@@ -54,13 +54,10 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.PageBook;
-import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.UIJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +77,7 @@ import uk.ac.gda.ui.components.IStepperSelectionListener;
 import uk.ac.gda.ui.components.Stepper;
 import uk.ac.gda.ui.components.StepperChangedEvent;
 
-public class ProjectionsView extends ViewPart implements ISelectionListener {
+public class ProjectionsView extends BaseTomoReconPart implements ISelectionListener {
 
 	private static final String PLOT_VIEW_TO_DISPLAY_RECON_IMAGE = "Plot 1";
 	private static final String JOB_UPDATE_RECONSTRUCTION_DISPLAY = "Update Reconstruction Display";
@@ -128,67 +125,9 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 
 	};
 
-	private boolean isPartActive;
-
-	synchronized void setPartActive(boolean isActive) {
-		this.isPartActive = isActive;
-	}
-
-	private IPartListener2 partAdapter = new IPartListener2() {
-
-		@Override
-		public void partVisible(IWorkbenchPartReference partRef) {
-			if (partRef.getPart(false).equals(ProjectionsView.this)) {
-				setPartActive(true);
-			}
-		}
-
-		@Override
-		public void partOpened(IWorkbenchPartReference partRef) {
-
-		}
-
-		@Override
-		public void partInputChanged(IWorkbenchPartReference partRef) {
-
-		}
-
-		@Override
-		public void partHidden(IWorkbenchPartReference partRef) {
-			if (partRef.getPart(false).equals(ProjectionsView.this)) {
-				setPartActive(false);
-			}
-		}
-
-		@Override
-		public void partDeactivated(IWorkbenchPartReference partRef) {
-
-		}
-
-		@Override
-		public void partClosed(IWorkbenchPartReference partRef) {
-			if (partRef.getPart(false).equals(ProjectionsView.this)) {
-				setPartActive(false);
-			}
-		}
-
-		@Override
-		public void partBroughtToTop(IWorkbenchPartReference partRef) {
-			if (partRef.getPart(false).equals(ProjectionsView.this)) {
-				setPartActive(true);
-			}
-		}
-
-		@Override
-		public void partActivated(IWorkbenchPartReference partRef) {
-
-		}
-
-	};
-
 	@Override
 	public void createPartControl(Composite parent) {
-
+		super.createPartControl(parent);
 		pgBook = new PageBook(parent, SWT.None);
 
 		emptyPage = new Composite(pgBook, SWT.None);
@@ -313,7 +252,6 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 		fileName.setText(FILE_NAME);
 
 		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(this);
-		getViewSite().getWorkbenchWindow().getPartService().addPartListener(partAdapter);
 		doCreateRefreshJob();
 	}
 
@@ -462,7 +400,7 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 
 	@Override
 	public void setFocus() {
-
+		slicingStepper.setFocus();
 	}
 
 	public void updateDataToPosition(final int pos) {
@@ -502,7 +440,7 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 
 	@Override
 	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-		if (isPartActive) {
+		if (isPartActive()) {
 			if (selection instanceof IStructuredSelection) {
 				IStructuredSelection iss = (IStructuredSelection) selection;
 				Object firstElement = iss.getFirstElement();
@@ -539,7 +477,6 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 	@Override
 	public void dispose() {
 		getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(this);
-		getViewSite().getWorkbenchWindow().getPartService().removePartListener(partAdapter);
 		super.dispose();
 	}
 

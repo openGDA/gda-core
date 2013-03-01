@@ -30,9 +30,7 @@ import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -46,15 +44,12 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.IJobChangeListener;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.window.Window;
@@ -68,15 +63,12 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
@@ -87,7 +79,6 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.PageBook;
-import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -121,7 +112,7 @@ import uk.ac.gda.util.io.FileUtils;
  * <p>
  */
 
-public class ParameterView extends ViewPart implements ISelectionListener, IParameterView {
+public class ParameterView extends BaseTomoReconPart implements ISelectionListener, IParameterView {
 
 	private static final String COMPRESS_NXS_URL_FORMAT = "platform:/plugin/%s/scripts/compress_nxs.sh";
 
@@ -130,8 +121,6 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 	public static final String JOB_NAME_QUICK_RECONSTRUCTION = "Quick Reconstruction (%s)";
 
 	public static final String JOB_NAME_CREATING_COMPRESSED_NEXUS = "Creating compressed Nexus(%s)";
-
-	private static final String SHELL_TITLE_RECONSTRUCTION_COMPLETE = "Reconstruction complete";
 
 	private static final String PATH_TO_IMAGE_KEY_IN_DATASET = "/entry1/tomo_entry/instrument/detector/image_key";
 
@@ -167,7 +156,6 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 	private static final String ROTATION_CENTRE = "Rotation Centre";
 
 	private static final Logger logger = LoggerFactory.getLogger(ParameterView.class);
-	private List<String> jobNames = Collections.synchronizedList(new ArrayList<String>());
 
 	private FormToolkit toolkit;
 	/**
@@ -218,96 +206,12 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 	private Text txtRoiYMax;
 	private Text txtFileName;
 
-	private boolean isPartActive;
-
-	synchronized void setPartActive(boolean isActive) {
-		this.isPartActive = isActive;
-	}
-
-	private IPartListener2 partAdapter = new IPartListener2() {
-
-		@Override
-		public void partVisible(IWorkbenchPartReference partRef) {
-			if (partRef.getPart(false).equals(ParameterView.this)) {
-				setPartActive(true);
-			}
-		}
-
-		@Override
-		public void partOpened(IWorkbenchPartReference partRef) {
-
-		}
-
-		@Override
-		public void partInputChanged(IWorkbenchPartReference partRef) {
-
-		}
-
-		@Override
-		public void partHidden(IWorkbenchPartReference partRef) {
-			if (partRef.getPart(false).equals(ParameterView.this)) {
-				setPartActive(false);
-			}
-		}
-
-		@Override
-		public void partDeactivated(IWorkbenchPartReference partRef) {
-
-		}
-
-		@Override
-		public void partClosed(IWorkbenchPartReference partRef) {
-			if (partRef.getPart(false).equals(ParameterView.this)) {
-				setPartActive(false);
-			}
-		}
-
-		@Override
-		public void partBroughtToTop(IWorkbenchPartReference partRef) {
-			if (partRef.getPart(false).equals(ParameterView.this)) {
-				setPartActive(true);
-			}
-		}
-
-		@Override
-		public void partActivated(IWorkbenchPartReference partRef) {
-
-		}
-
-	};
-
-	private IJobChangeListener jobListener = new JobChangeAdapter() {
-
-		@Override
-		public void running(org.eclipse.core.runtime.jobs.IJobChangeEvent event) {
-			String jobName = event.getJob().getName();
-			if (jobName != null && nexusFile != null) {
-				String jobNameToSearchFor = String.format(JOB_NAME_CREATING_COMPRESSED_NEXUS, nexusFile.getName());
-				if (jobName.equals(jobNameToSearchFor)) {
-					jobNames.add(jobNameToSearchFor);
-				}
-			}
-
-		}
-
-		@Override
-		public void done(org.eclipse.core.runtime.jobs.IJobChangeEvent event) {
-			String jobName = event.getJob().getName();
-			if (jobName != null && nexusFile != null) {
-				String jobNameToSearchFor = String.format(JOB_NAME_CREATING_COMPRESSED_NEXUS, nexusFile.getName());
-				if (jobName.equals(jobNameToSearchFor)) {
-					jobNames.remove(jobNameToSearchFor);
-				}
-			}
-		}
-	};
-
 	/**
 	 * This is a callback that will allow us to create the viewer and initialize it.
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
-
+		super.createPartControl(parent);
 		toolkit = new FormToolkit(parent.getDisplay());
 		toolkit.setBorderStyle(SWT.BORDER);
 
@@ -416,8 +320,6 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 		// Read settings file from resource and copy to /tmp
 		createSettingsFile();
 		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(this);
-		getViewSite().getWorkbenchWindow().getPartService().addPartListener(partAdapter);
-		Job.getJobManager().addJobChangeListener(jobListener);
 	}
 
 	public static class SampleInOutBeamPosition extends Dialog {
@@ -561,23 +463,12 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 			command.append(" " + pathToImages.toString());
 
 			logger.debug("Command that will be run:{}", command);
-			// OSCommandRunner.runNoWait(command.toString(), LOGOPTION.ALWAYS, null);
 			String jobNameToDisplay = null;
 
 			if (quick) {
 				jobNameToDisplay = String.format(JOB_NAME_QUICK_RECONSTRUCTION, nexusFile.getName());
-				// if (!(jobNames.contains(String.format(JOB_NAME_CREATING_COMPRESSED_NEXUS, nexusFile.getName())))) {
-				// runCommand(jobNameToDisplay, command.toString());
-				// } else {
-				// MessageDialog
-				// .openWarning(
-				// getViewSite().getShell(),
-				// "Preparing for reconstuction",
-				// "The system is preparing the Nexus file for reconstrution.\n\nPlease try to run the quick reconstruction after the preparation has completed. ");
-				// }
 			} else {
 				jobNameToDisplay = String.format(JOB_NAME_FULL_RECONSTRUCTION, nexusFile.getName());
-				// runCommand(jobNameToDisplay, command.toString());
 			}
 			runCommand(jobNameToDisplay, command.toString());
 
@@ -589,8 +480,6 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 	}
 
 	private void runCommand(final String jobName, final String command) {
-		final Shell shell = getViewSite().getShell();
-		final Display display = shell.getDisplay();
 		Job job = new Job(jobName) {
 			@Override
 			public IStatus run(IProgressMonitor monitor) {
@@ -609,20 +498,10 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 					osCommandRunner.logOutput();
 				}
 				monitor.done();
-				// if (!display.isDisposed()) {
-				// display.asyncExec(new Runnable() {
-				// @Override
-				// public void run() {
-				// MessageDialog.openInformation(shell, SHELL_TITLE_RECONSTRUCTION_COMPLETE,
-				// String.format("%s is now complete", jobName));
-				// }
-				// });
-				// }
 				return Status.OK_STATUS;
 			}
 		};
 		job.setRule(new ReconSchedulingRule(nexusFile));
-		// job.setUser(true);
 		job.schedule();
 	}
 
@@ -1108,7 +987,7 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 
 	@Override
 	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-		if (isPartActive) {
+		if (isPartActive()) {
 			if (selection instanceof IStructuredSelection) {
 				IStructuredSelection iss = (IStructuredSelection) selection;
 				Object firstElement = iss.getFirstElement();
@@ -1189,8 +1068,7 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 	private void createReducedNexusFile(String actualNexusFileLocation, String outputNexusFileLocation) {
 		URL compressNxsURL = null;
 		try {
-			String compressNxsUrlString = String.format(COMPRESS_NXS_URL_FORMAT,
-					Activator.PLUGIN_ID);
+			String compressNxsUrlString = String.format(COMPRESS_NXS_URL_FORMAT, Activator.PLUGIN_ID);
 			compressNxsURL = new URL(compressNxsUrlString);
 		} catch (MalformedURLException e) {
 			logger.error("Cant find compress_nxs script", e);
@@ -1246,8 +1124,6 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 	@Override
 	public void dispose() {
 		getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(this);
-		getViewSite().getWorkbenchWindow().getPartService().removePartListener(partAdapter);
-		Job.getJobManager().removeJobChangeListener(jobListener);
 		super.dispose();
 	}
 
