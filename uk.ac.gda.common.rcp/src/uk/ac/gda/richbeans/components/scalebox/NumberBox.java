@@ -74,6 +74,8 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 	protected boolean isIntegerBox = false;
 	protected boolean validBounds = true;
 	protected String tooltipOveride;
+	protected boolean maximumValid = true;
+	protected boolean minimumValid = true;
 
 	protected NumberFormat numberFormat;
 	protected MouseTrackAdapter mouseTrackListener;
@@ -474,10 +476,12 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 				text.setForeground(red);
 			}
 			this.validBounds = false;
-			if (numericalValue > maximum) {
+			if ((numericalValue >= maximum && !isMaximumValid()) ||
+				(numericalValue > maximum && isMaximumValid())) {
 				evt.setMode(Mode.GREATER);
 				setTooltipOveride("The value '" + numericalValue + "' is greater than the upper limit.");
-			} else if (numericalValue < minimum) {
+			} else if ((numericalValue <= minimum && !isMinimumValid()) ||
+					(numericalValue < minimum && isMinimumValid())) {
 				evt.setMode(Mode.LESS);
 				setTooltipOveride("The value '" + numericalValue + "' is less than the lower limit.");
 			}
@@ -520,7 +524,10 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 		final double minimum = getMinimum();
 		if (Double.isNaN(numericalValue))
 			return true; // Something else is wrong.
-		return numericalValue >= minimum && numericalValue <= maximum;
+		return ((numericalValue >= minimum && isMinimumValid()) ||
+				(numericalValue > minimum && !isMinimumValid())) 
+				&& ((numericalValue <= maximum && isMaximumValid()) ||
+				(numericalValue < maximum && !isMaximumValid()));
 	}
 
 	protected void setupToolTip() {
@@ -984,6 +991,22 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 	 */
 	public void setTooltipOveride(String tooltipOveride) {
 		this.tooltipOveride = tooltipOveride;
+	}
+
+	public boolean isMaximumValid() {
+		return maximumValid;
+	}
+
+	public void setMaximumValid(boolean maximumValid) {
+		this.maximumValid = maximumValid;
+	}
+
+	public boolean isMinimumValid() {
+		return minimumValid;
+	}
+
+	public void setMinimumValid(boolean minimumValid) {
+		this.minimumValid = minimumValid;
 	}
 
 	@Override
