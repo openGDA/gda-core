@@ -31,6 +31,8 @@ import java.io.File;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.dialogs.InputDialog;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
@@ -49,6 +51,7 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.ui.IViewPart;
@@ -109,7 +112,12 @@ public class CommandProcessorComposite extends Composite {
 		final ImageDescriptor showLogImage = GDAClientActivator.getImageDescriptor("icons/book_open.png");
 
 		
-		createComponentsUsingOldLayout();
+		final boolean useNewLayout = false;
+		if (useNewLayout) {
+			createComponentsUsingNewLayout();
+		} else {
+			createComponentsUsingOldLayout();
+		}
 		
 		btnRunPause = new Action(null, SWT.NONE) {
 			@Override
@@ -316,8 +324,31 @@ public class CommandProcessorComposite extends Composite {
 		// fd_txtCurrentProgress.bottom = new FormAttachment(100, -5);
 		fd_txtCurrentProgress.right = new FormAttachment(100, -5);
 		fd_txtCurrentProgress.top = new FormAttachment(txtCurrentDescription, 5, SWT.BOTTOM);
-		fd_txtCurrentProgress.bottom = new FormAttachment(progressBar, 20, SWT.TOP);
+		fd_txtCurrentProgress.bottom = new FormAttachment(100, -5);
 		progressBar.setLayoutData(fd_txtCurrentProgress);
+	}
+	
+	private void createComponentsUsingNewLayout() {
+		GridLayoutFactory.swtDefaults().applyTo(this);
+		
+		final Group statusGroup = new Group(this, SWT.BORDER);
+		statusGroup.setText("Queue status");
+		GridLayoutFactory.swtDefaults().margins(3, 3).applyTo(statusGroup);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(statusGroup);
+		
+		final Group currentTaskGroup = new Group(this, SWT.BORDER);
+		currentTaskGroup.setText("Current task");
+		GridLayoutFactory.swtDefaults().applyTo(currentTaskGroup);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(currentTaskGroup);
+		
+		txtState = new Label(statusGroup, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(txtState);
+		
+		txtCurrentDescription = new Label(currentTaskGroup, SWT.WRAP);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(txtCurrentDescription);
+		
+		progressBar = new ProgressBar(currentTaskGroup, SWT.SMOOTH | SWT.BORDER);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(progressBar);
 	}
 
 	private void setRunBtnState(boolean run){
