@@ -34,6 +34,8 @@ import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionEvent;
@@ -301,6 +303,15 @@ public class CommandProcessorComposite extends Composite {
 			processor.addIObserver(processorObserver);
 		}
 
+		addDisposeListener(new DisposeListener() {
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				if (processor != null && processorObserver != null) {
+					processor.deleteIObserver(processorObserver);
+				}
+			}
+		});
+		
 		updateStateAndDescription(null);
 	}
 
@@ -444,14 +455,6 @@ public class CommandProcessorComposite extends Composite {
 
 		});
 
-	}
-
-	@Override
-	public void dispose() {
-		if (processor != null && processorObserver != null) {
-			processor.deleteIObserver(processorObserver);
-		}
-		super.dispose();
 	}
 }
 
