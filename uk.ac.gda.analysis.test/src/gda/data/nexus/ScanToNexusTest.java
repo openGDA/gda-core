@@ -428,8 +428,6 @@ public class ScanToNexusTest {
 
 		String fileAbsolutePath = new File(targetFilename).getAbsolutePath();
 		nxLinkCreator.makelinks(fileAbsolutePath);
-		nxLinkCreator.writeStringData(fileAbsolutePath, "definition", "NXtomo");
-		
 		
 		// test 1: rotation angle data
 		Hdf5HelperData helperData = Hdf5Helper.getInstance().readDataSetAll(fileAbsolutePath, "/entry1/tomo_entry/sample", "rotation_angle", true);
