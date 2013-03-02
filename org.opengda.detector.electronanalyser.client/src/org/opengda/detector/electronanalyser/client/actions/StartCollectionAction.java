@@ -32,11 +32,7 @@ public class StartCollectionAction extends AbstractHandler implements IHandler {
 			IRegionDefinitionView regionDefView = (IRegionDefinitionView) activePart;
 			try {
 				if (regionDefView instanceof SequenceView) {
-					regionDefView.getRegionDefinitionResourceUtil()
-							.getResource().save(null);
-					((SequenceView)regionDefView).setDirty(false);
-					((SequenceView)regionDefView).firePropertyChanged();
-
+					((SequenceView)regionDefView).doSave(new NullProgressMonitor());
 				}
 
 				// TODO the following need to run on a work thread, not on GUI

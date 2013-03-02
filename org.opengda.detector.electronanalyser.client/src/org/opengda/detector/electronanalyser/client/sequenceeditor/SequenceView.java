@@ -1,7 +1,6 @@
 package org.opengda.detector.electronanalyser.client.sequenceeditor;
 
 import java.io.IOException;
-import org.eclipse.ui.dialogs.SaveAsDialog;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,11 +12,18 @@ import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EContentAdapter;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.edit.command.AddCommand;
+import org.eclipse.emf.edit.command.RemoveCommand;
 import org.eclipse.emf.edit.command.SetCommand;
+import org.eclipse.emf.edit.domain.EditingDomain;
 import org.eclipse.emf.edit.provider.ComposedAdapterFactory;
 import org.eclipse.emf.edit.provider.ReflectiveItemProviderAdapterFactory;
 import org.eclipse.emf.edit.provider.resource.ResourceItemProviderAdapterFactory;
+import org.eclipse.emf.edit.ui.dnd.EditingDomainViewerDropAdapter;
+import org.eclipse.emf.edit.ui.dnd.LocalTransfer;
+import org.eclipse.emf.edit.ui.dnd.ViewerDragAdapter;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CheckboxCellEditor;
@@ -34,6 +40,8 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -52,6 +60,7 @@ import org.eclipse.ui.INullSelectionListener;
 import org.eclipse.ui.ISaveablePart;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.dialogs.SaveAsDialog;
 import org.eclipse.ui.part.ViewPart;
 import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.RegionDefinitionResourceUtil;
@@ -62,6 +71,7 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Regionde
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum;
 import org.opengda.detector.electronanalyser.model.regiondefinition.provider.RegiondefinitionItemProviderAdapterFactory;
+import org.opengda.detector.electronanalyser.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +86,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 	public SequenceView() {
 		setTitleToolTip("Create a new or editing an existing sequence");
 		// setContentDescription("A view for editing sequence parameters");
-		setPartName("Region Editor");
+		setPartName("Sequence Editor");
 		this.selectionChangedListeners = new ArrayList<ISelectionChangedListener>();
 	}
 
@@ -87,6 +97,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 	private Text txtSample;
 	private Text txtFilename;
 	private Text txtComments;
+	private int nameCount;
 
 	private final String columnHeaders[] = { SequenceTableConstants.STATUS,
 			SequenceTableConstants.ENABLED, SequenceTableConstants.REGION_NAME,
@@ -136,10 +147,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 
 	protected boolean isDirty;
 
-	public void setDirty(boolean isDirty) {
-		this.isDirty = isDirty;
-	}
-
 	private Resource resource;
 
 	public void createColumns(TableViewer tableViewer, TableColumnLayout layout) {
@@ -173,8 +180,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 	}
 
 	@Override
-	public void createPartControl(Composite parent) {
-		// Add action programmablely
+	public void createPartControl(final Composite parent) {
+		//// Add action
 		// getViewSite().getActionBars().getMenuManager().add(new Action() {
 		// @Override
 		// public void run() {
@@ -216,13 +223,16 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		tableViewerContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
 				true, true, 1, 1));
 
-		// Resource resource = null;
-		// try {
-		// resource = regionDefinitionResourceUtil.getResource();
-		// } catch (Exception e2) {
-		// // TODO Auto-generated catch block
-		// e2.printStackTrace();
-		// }
+		sequenceTableViewer.addDragSupport(DND.DROP_COPY | DND.DROP_MOVE
+				| DND.DROP_LINK,
+				new Transfer[] { LocalTransfer.getInstance() },
+				new ViewerDragAdapter(sequenceTableViewer));
+
+		sequenceTableViewer.addDropSupport(DND.DROP_COPY | DND.DROP_MOVE
+				| DND.DROP_LINK,
+				new Transfer[] { LocalTransfer.getInstance() },
+				new EditingDomainViewerDropAdapter(getEditingDomain(),
+						sequenceTableViewer));
 
 		sequenceTableViewer.setContentProvider(new SequenceViewContentProvider(
 				regionDefinitionResourceUtil));
@@ -238,34 +248,13 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		regions = Collections.emptyList();
 
 		try {
-
 			resource = regionDefinitionResourceUtil.getResource();
 			resource.eAdapters().add(notifyListener);
 			sequenceTableViewer.setInput(resource);
 		} catch (Exception e2) {
 			logger.error("Cannot load resouce from file.", e2);
 		}
-		// initializeEditingDomain();
-		// sequenceTableViewer
-		// .setContentProvider(new AdapterFactoryContentProvider(
-		// adapterFactory));
-		// sequenceTableViewer.setLabelProvider(new AdapterFactoryLabelProvider(
-		// adapterFactory));
-		// EditingDomain sequenceEditingDomain = null;
-		// try {
-		// sequenceEditingDomain = ElectronAnalyserClientPlugin.getDefault()
-		// .getSequenceEditingDomain();
-		// } catch (Exception e1) {
-		// // TODO Auto-generated catch block
-		// e1.printStackTrace();
-		// }
-		// if (sequenceEditingDomain != null) {
-		// ResourceSet resourceSet = sequenceEditingDomain.getResourceSet();
-		// Resource resource = (Resource)resourceSet.getResources().get(0);
-		// sequenceTableViewer
-		// .setInput(resource.getContents());
-		// }
-		//
+		
 		Composite controlArea = new Composite(rootComposite, SWT.None);
 		// Contains region editing, sequence parameters, file saving info and
 		// comments.
@@ -292,22 +281,25 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 
 		Button btnNew = new Button(grpRegion, SWT.NONE);
 		btnNew.addSelectionListener(new SelectionAdapter() {
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				try {
-					regionDefinitionResourceUtil
-							.getEditingDomain()
-							.getCommandStack()
-							.execute(
-									AddCommand.create(
-											regionDefinitionResourceUtil
-													.getEditingDomain(),
-											regionDefinitionResourceUtil
-													.getSequence(),
-											RegiondefinitionPackage.eINSTANCE
-													.getSequence_Region(),
-											RegiondefinitionFactory.eINSTANCE
-													.createRegion()));
+					Region newRegion = RegiondefinitionFactory.eINSTANCE
+							.createRegion();
+					nameCount = StringUtils.largestIntAtEndStringsWithPrefix(getRegionNames(),newRegion.getName());
+					if (nameCount != -1) {
+						// increment the name
+						nameCount++;
+						newRegion.setName(newRegion.getName() + nameCount);
+					}
+					getEditingDomain().getCommandStack().execute(
+							AddCommand.create(getEditingDomain(),
+									regionDefinitionResourceUtil.getSequence(),
+									RegiondefinitionPackage.eINSTANCE
+											.getSequence_Region(), newRegion));
+					sequenceTableViewer.setSelection(new StructuredSelection(
+							newRegion), true);
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
@@ -319,6 +311,35 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				try {
+					if (getSelectedRegion() != null) {
+						Region copy = EcoreUtil.copy(getSelectedRegion());
+						copy.setRegionId(EcoreUtil.generateUUID());
+						String regionNamePrefix = StringUtils.prefixBeforeInt(copy
+								.getName());
+						int largestIntInNames = StringUtils.largestIntAtEndStringsWithPrefix(getRegionNames(),regionNamePrefix);
+						if (largestIntInNames != -1) {
+							largestIntInNames++;
+							copy.setName(regionNamePrefix + largestIntInNames);
+						}
+						getEditingDomain().getCommandStack().execute(
+								AddCommand.create(getEditingDomain(),
+										regionDefinitionResourceUtil
+												.getSequence(),
+										RegiondefinitionPackage.eINSTANCE
+												.getSequence_Region(), copy));
+						sequenceTableViewer.setSelection(
+								new StructuredSelection(copy), true);
+					} else {
+						MessageDialog msgd = new MessageDialog(parent
+								.getShell(), "No region selected", null,
+								"You have not selected a region to duplicate.",
+								MessageDialog.ERROR, new String[] { "OK" }, 0);
+						msgd.open();
+					}
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
 			}
 		});
 		button.setText("Duplicate");
@@ -327,14 +348,64 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		btnDelete.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				try {
+					Region selectedRegion = getSelectedRegion();
+					int index = regions.indexOf(selectedRegion);
+					if (selectedRegion != null) {
+						getEditingDomain().getCommandStack().execute(
+								RemoveCommand.create(getEditingDomain(),
+										regionDefinitionResourceUtil
+												.getSequence(),
+										RegiondefinitionPackage.eINSTANCE
+												.getSequence_Region(),
+										selectedRegion));
+						if (index == regions.size()) {
+							sequenceTableViewer.setSelection(
+									new StructuredSelection(sequenceTableViewer
+											.getElementAt(index - 1)), true);
+						} else {
+							sequenceTableViewer.setSelection(
+									new StructuredSelection(sequenceTableViewer
+											.getElementAt(index)), true);
+						}
+					} else {
+						MessageDialog msgd = new MessageDialog(parent
+								.getShell(), "No region selected", null,
+								"You have not selected a region to delete.",
+								MessageDialog.ERROR, new String[] { "OK" }, 0);
+						msgd.open();
+					}
+				} catch (Exception e1) {
+					logger.error("Cannot not get Editing Domain object.", e1);
+				}
 			}
 		});
 		btnDelete.setText("Delete");
 
 		Button btnUndo = new Button(grpRegion, SWT.NONE);
+		btnUndo.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				try {
+					getEditingDomain().getCommandStack().undo();
+				} catch (Exception e1) {
+					logger.error("Cannot not get Editing Domain object.", e1);
+				}
+			}
+		});
 		btnUndo.setText("Undo");
 
 		Button btnRedo = new Button(grpRegion, SWT.NONE);
+		btnRedo.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				try {
+					getEditingDomain().getCommandStack().redo();
+				} catch (Exception e1) {
+					logger.error("Cannot not get Editing Domain object.", e1);
+				}
+			}
+		});
 		btnRedo.setText("Redo");
 
 		Group grpActiveRegions = new Group(leftArea, SWT.NONE);
@@ -493,6 +564,23 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 
 	}
 
+	protected List<String> getRegionNames() {
+		List<String> regionNames=new ArrayList<String>();
+		for (Region region : regions) {
+			regionNames.add(region.getName());
+		}
+		return regionNames;
+	}
+
+	private EditingDomain getEditingDomain() {
+		try {
+			return regionDefinitionResourceUtil.getEditingDomain();
+		} catch (Exception e) {
+			logger.error("Cannot get editing domain object.", e);
+		}
+		return null;
+	}
+
 	private ISelectionListener selectionListener = new INullSelectionListener() {
 		@Override
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
@@ -505,6 +593,19 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 			}
 		}
 	};
+
+	private Region getSelectedRegion() {
+		ISelection selection = getSelection();
+		if (selection instanceof IStructuredSelection) {
+			IStructuredSelection structuredSel = (IStructuredSelection) selection;
+			Object firstElement = structuredSel.getFirstElement();
+			if (firstElement instanceof Region) {
+				Region region = (Region) firstElement;
+				return region;
+			}
+		}
+		return null;
+	}
 
 	private void initaliseValues() {
 		if (regionDefinitionResourceUtil != null) {
@@ -535,6 +636,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 				}
 				txtComments.setText(comments);
 			}
+			regions = sequence.getRegion();
 		} else {
 			// start a new sequence
 			if (regionDefinitionResourceUtil != null) {
@@ -544,12 +646,12 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 					logger.error("Cannot create new sequence file", e);
 				}
 			}
-
 		}
 		sequenceTableViewer.setSelection(new StructuredSelection(
 				sequenceTableViewer.getElementAt(0)), true);
-
 	}
+
+
 
 	@Override
 	public void setFocus() {
@@ -656,8 +758,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 	}
 
 	protected void runCommand(final Command rmCommand) throws Exception {
-		regionDefinitionResourceUtil.getEditingDomain().getCommandStack()
-				.execute(rmCommand);
+		getEditingDomain().getCommandStack().execute(rmCommand);
 	}
 
 	public Camera getCamera() {
@@ -729,9 +830,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 	@Override
 	public boolean isSaveOnCloseNeeded() {
 		return true;
-	}
-	public void firePropertyChanged() {
-		firePropertyChange(PROP_DIRTY);
 	}
 
 	private Adapter notifyListener = new EContentAdapter() {
