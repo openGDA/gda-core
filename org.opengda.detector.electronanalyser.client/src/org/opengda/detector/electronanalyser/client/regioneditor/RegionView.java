@@ -11,6 +11,9 @@ import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.edit.command.SetCommand;
 import org.eclipse.emf.edit.domain.EditingDomain;
+import org.eclipse.jface.fieldassist.ControlDecoration;
+import org.eclipse.jface.fieldassist.FieldDecoration;
+import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -21,6 +24,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
@@ -29,6 +34,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -155,6 +161,28 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		grpName.setLayout(new FillLayout());
 
 		regionName = new Combo(grpName, SWT.NONE);
+		// Add decorator for errors
+		final ControlDecoration regionNameControlDecorator = new ControlDecoration(
+				regionName, SWT.TOP | SWT.LEFT);
+		FieldDecoration fieldDecoration = FieldDecorationRegistry.getDefault()
+				.getFieldDecoration(FieldDecorationRegistry.DEC_ERROR);
+		regionNameControlDecorator.setImage(fieldDecoration.getImage());
+		regionNameControlDecorator
+				.setDescriptionText("Problem with region name");
+		addDecorationMargin(regionName);
+		regionName.addModifyListener(new ModifyListener() {
+
+			@Override
+			public void modifyText(ModifyEvent e) {
+				if (regionName.getText().length() > 0) {
+					regionNameControlDecorator.hide();
+				} else {
+					regionNameControlDecorator.show();
+					regionNameControlDecorator.setShowHover(true);
+				}
+			}
+		});
+
 		regionName.setToolTipText("List of available active regions to select");
 
 		Composite bigComposite = new Composite(rootComposite, SWT.None);
@@ -786,6 +814,25 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 			fireSelectionChanged((Region) regionName.getData("0"));
 		}
 
+	}
+
+	/**
+	 * Adds enough space in the control's layout data margin for the content
+	 * assist decoration.
+	 * 
+	 * @param control
+	 *            the control that needs a margin
+	 * @since 3.3
+	 */
+	private void addDecorationMargin(Control control) {
+		Object layoutData = control.getLayoutData();
+		if (!(layoutData instanceof GridData))
+			return;
+		GridData gd = (GridData) layoutData;
+		FieldDecoration dec = FieldDecorationRegistry.getDefault()
+				.getFieldDecoration(
+						FieldDecorationRegistry.DEC_CONTENT_PROPOSAL);
+		gd.horizontalIndent = dec.getImage().getBounds().width;
 	}
 
 	private void populateRegionNameCombo(List<Region> regions) {
