@@ -60,6 +60,7 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_M
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RUN_MODES;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
+import org.opengda.detector.electronanalyser.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -863,6 +864,14 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		public void widgetDefaultSelected(SelectionEvent e) {
 			// on enter - change region name
 			if (e.getSource().equals(regionName)) {
+				String regionNamePrefix = StringUtils.prefixBeforeInt(regionName.getText());
+				if (!regionNamePrefix.isEmpty()) {
+					int largestIntInNames = StringUtils.largestIntAtEndStringsWithPrefix(getRegionNames(),regionNamePrefix);
+					if (largestIntInNames != -1) {
+						largestIntInNames++;
+						regionName.setText(regionNamePrefix + largestIntInNames);
+					}
+				}
 				updateFeature(region,
 						RegiondefinitionPackage.eINSTANCE.getRegion_Name(),
 						regionName.getText());
@@ -882,6 +891,14 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 
 		}
 	};
+	protected List<String> getRegionNames() {
+		List<String> regionNames=new ArrayList<String>();
+		for (Region region : regions) {
+			regionNames.add(region.getName());
+		}
+		return regionNames;
+	}
+
 	private SelectionAdapter lensModeSelAdaptor = new SelectionAdapter() {
 		@Override
 		public void widgetSelected(SelectionEvent e) {

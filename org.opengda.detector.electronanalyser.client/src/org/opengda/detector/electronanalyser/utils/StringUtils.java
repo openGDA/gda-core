@@ -76,6 +76,6 @@ public class StringUtils {
 		}
 		if (j - i >= 1)
 			return name.substring(0, i);
-		return null;
+		return name;
 	}
 }
