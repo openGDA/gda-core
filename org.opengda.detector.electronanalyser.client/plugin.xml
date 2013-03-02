@@ -88,6 +88,13 @@
                style="push"
                tooltip="Open a sequence file">
          </command>
+         <command
+               commandId="org.eclipse.ui.file.save"
+               icon="icons/save.gif"
+               id="org.eclipse.ui.file.saveSeq"
+               label="Save"
+               style="push">
+         </command>
       </menuContribution>
    </extension>
    <extension
