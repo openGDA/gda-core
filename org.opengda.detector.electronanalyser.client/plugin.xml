@@ -46,12 +46,14 @@
             locationURI="menu:org.opengda.detector.electronanalyser.client.sequenceeditor">
          <command
                commandId="org.opengda.detector.electronanalyser.client.newsequence"
+               icon="icons/new_file.gif"
                label="New"
                style="push"
                tooltip="Create a new sequence file">
          </command>
          <command
                commandId="org.opengda.detector.electronanalyser.client.opensequence"
+               icon="icons/open-task.gif"
                label="Open..."
                mode="FORCE_TEXT"
                style="push"
@@ -59,6 +61,7 @@
          </command>
          <command
                commandId="org.opengda.detector.electronanalyser.client.startcollection"
+               icon="icons/run_exc.gif"
                label="Start"
                style="push"
                tooltip="Start collecting active regions in this sequence">
@@ -100,12 +103,12 @@
    <extension
          point="org.eclipse.ui.handlers">
       <handler
-            class="org.opengda.detector.electronanalyser.client.actions.OpenSequenceAction"
-            commandId="org.opengda.detector.electronanalyser.client.opensequence">
-      </handler>
-      <handler
             class="org.opengda.detector.electronanalyser.client.actions.NewSequenceAction"
             commandId="org.opengda.detector.electronanalyser.client.newsequence">
+      </handler>
+      <handler
+            class="org.opengda.detector.electronanalyser.client.actions.OpenSequenceAction"
+            commandId="org.opengda.detector.electronanalyser.client.opensequence">
       </handler>
       <handler
             class="org.opengda.detector.electronanalyser.client.actions.StartCollectionAction"
