@@ -181,7 +181,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 
 	@Override
 	public void createPartControl(final Composite parent) {
-		//// Add action
+		// // Add action
 		// getViewSite().getActionBars().getMenuManager().add(new Action() {
 		// @Override
 		// public void run() {
@@ -231,7 +231,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		sequenceTableViewer.addDropSupport(DND.DROP_COPY | DND.DROP_MOVE
 				| DND.DROP_LINK,
 				new Transfer[] { LocalTransfer.getInstance() },
-				new EditingDomainViewerDropAdapter(getEditingDomain(),
+				new EditingDomainViewerDropAdapter(editingDomain,
 						sequenceTableViewer));
 
 		sequenceTableViewer.setContentProvider(new SequenceViewContentProvider(
@@ -254,7 +254,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		} catch (Exception e2) {
 			logger.error("Cannot load resouce from file.", e2);
 		}
-		
+
 		Composite controlArea = new Composite(rootComposite, SWT.None);
 		// Contains region editing, sequence parameters, file saving info and
 		// comments.
@@ -287,14 +287,15 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 				try {
 					Region newRegion = RegiondefinitionFactory.eINSTANCE
 							.createRegion();
-					nameCount = StringUtils.largestIntAtEndStringsWithPrefix(getRegionNames(),newRegion.getName());
+					nameCount = StringUtils.largestIntAtEndStringsWithPrefix(
+							getRegionNames(), newRegion.getName());
 					if (nameCount != -1) {
 						// increment the name
 						nameCount++;
 						newRegion.setName(newRegion.getName() + nameCount);
 					}
-					getEditingDomain().getCommandStack().execute(
-							AddCommand.create(getEditingDomain(),
+					editingDomain.getCommandStack().execute(
+							AddCommand.create(editingDomain,
 									regionDefinitionResourceUtil.getSequence(),
 									RegiondefinitionPackage.eINSTANCE
 											.getSequence_Region(), newRegion));
@@ -315,15 +316,17 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 					if (getSelectedRegion() != null) {
 						Region copy = EcoreUtil.copy(getSelectedRegion());
 						copy.setRegionId(EcoreUtil.generateUUID());
-						String regionNamePrefix = StringUtils.prefixBeforeInt(copy
-								.getName());
-						int largestIntInNames = StringUtils.largestIntAtEndStringsWithPrefix(getRegionNames(),regionNamePrefix);
+						String regionNamePrefix = StringUtils
+								.prefixBeforeInt(copy.getName());
+						int largestIntInNames = StringUtils
+								.largestIntAtEndStringsWithPrefix(
+										getRegionNames(), regionNamePrefix);
 						if (largestIntInNames != -1) {
 							largestIntInNames++;
 							copy.setName(regionNamePrefix + largestIntInNames);
 						}
-						getEditingDomain().getCommandStack().execute(
-								AddCommand.create(getEditingDomain(),
+						editingDomain.getCommandStack().execute(
+								AddCommand.create(editingDomain,
 										regionDefinitionResourceUtil
 												.getSequence(),
 										RegiondefinitionPackage.eINSTANCE
@@ -352,8 +355,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 					Region selectedRegion = getSelectedRegion();
 					int index = regions.indexOf(selectedRegion);
 					if (selectedRegion != null) {
-						getEditingDomain().getCommandStack().execute(
-								RemoveCommand.create(getEditingDomain(),
+						editingDomain.getCommandStack().execute(
+								RemoveCommand.create(editingDomain,
 										regionDefinitionResourceUtil
 												.getSequence(),
 										RegiondefinitionPackage.eINSTANCE
@@ -387,7 +390,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				try {
-					getEditingDomain().getCommandStack().undo();
+					editingDomain.getCommandStack().undo();
 				} catch (Exception e1) {
 					logger.error("Cannot not get Editing Domain object.", e1);
 				}
@@ -400,7 +403,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				try {
-					getEditingDomain().getCommandStack().redo();
+					editingDomain.getCommandStack().redo();
 				} catch (Exception e1) {
 					logger.error("Cannot not get Editing Domain object.", e1);
 				}
@@ -553,7 +556,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		});
 		btnOK.setText("OK");
 		btnOK.setToolTipText("Save the sequence data to file only");
-		initaliseValues();
+		initialisation();
 		// register as selection provider to the SelectionService
 		getViewSite().setSelectionProvider(this);
 		getViewSite()
@@ -565,20 +568,11 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 	}
 
 	protected List<String> getRegionNames() {
-		List<String> regionNames=new ArrayList<String>();
+		List<String> regionNames = new ArrayList<String>();
 		for (Region region : regions) {
 			regionNames.add(region.getName());
 		}
 		return regionNames;
-	}
-
-	private EditingDomain getEditingDomain() {
-		try {
-			return regionDefinitionResourceUtil.getEditingDomain();
-		} catch (Exception e) {
-			logger.error("Cannot get editing domain object.", e);
-		}
-		return null;
 	}
 
 	private ISelectionListener selectionListener = new INullSelectionListener() {
@@ -594,6 +588,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		}
 	};
 
+	private EditingDomain editingDomain;
+
 	private Region getSelectedRegion() {
 		ISelection selection = getSelection();
 		if (selection instanceof IStructuredSelection) {
@@ -607,7 +603,15 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		return null;
 	}
 
-	private void initaliseValues() {
+	private void initialisation() {
+		try {
+			editingDomain = regionDefinitionResourceUtil.getEditingDomain();
+		} catch (Exception e) {
+			logger.error("Cannot get editing domain object.", e);
+		}
+		if (editingDomain==null) {
+			throw new RuntimeException("Cannot get editing domain object.");
+		}
 		if (regionDefinitionResourceUtil != null) {
 			try {
 				sequence = regionDefinitionResourceUtil.getSequence();
@@ -650,8 +654,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		sequenceTableViewer.setSelection(new StructuredSelection(
 				sequenceTableViewer.getElementAt(0)), true);
 	}
-
-
 
 	@Override
 	public void setFocus() {
@@ -745,8 +747,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 				if (value instanceof Boolean) {
 					try {
 						runCommand(SetCommand
-								.create(regionDefinitionResourceUtil
-										.getEditingDomain(), element,
+								.create(editingDomain, element,
 										RegiondefinitionPackage.eINSTANCE
 												.getRegion_Enabled(), value));
 					} catch (Exception e) {
@@ -758,7 +759,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 	}
 
 	protected void runCommand(final Command rmCommand) throws Exception {
-		getEditingDomain().getCommandStack().execute(rmCommand);
+		editingDomain.getCommandStack().execute(rmCommand);
 	}
 
 	public Camera getCamera() {
