@@ -3,10 +3,12 @@ package org.opengda.detector.electronanalyser.client.regioneditor;
 import gda.device.DeviceException;
 import gda.device.scannable.ScannableMotor;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.edit.command.SetCommand;
@@ -166,10 +168,10 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		final ControlDecoration regionNameControlDecorator = new ControlDecoration(
 				regionName, SWT.TOP | SWT.LEFT);
 		FieldDecoration fieldDecoration = FieldDecorationRegistry.getDefault()
-				.getFieldDecoration(FieldDecorationRegistry.DEC_ERROR);
+				.getFieldDecoration(FieldDecorationRegistry.DEC_INFORMATION);
 		regionNameControlDecorator.setImage(fieldDecoration.getImage());
 		regionNameControlDecorator
-				.setDescriptionText("Problem with region name");
+				.setDescriptionText("Selected region is not active or enabled in sequence editor.");
 		addDecorationMargin(regionName);
 		regionName.addModifyListener(new ModifyListener() {
 
@@ -305,6 +307,7 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		lblLow.setText("Low");
 
 		txtLow = new Text(grpEnergy, SWT.BORDER | SWT.SINGLE);
+
 		txtLow.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtLow.setToolTipText("start energy");
 
@@ -566,7 +569,7 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 			btnHard.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					if (e.getSource().equals(btnHard)) {
+					if (e.getSource().equals(btnHard) && btnHard.getSelection()) {
 						updateExcitationEnergy(txtHardEnergy);
 					}
 				}
@@ -578,7 +581,7 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 			btnSoft.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					if (e.getSource().equals(btnSoft)) {
+					if (e.getSource().equals(btnSoft) && btnSoft.getSelection()) {
 						updateExcitationEnergy(txtSoftEnergy);
 					}
 				}
@@ -610,6 +613,9 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 
 		regionComposite.setMinSize(rootComposite.computeSize(SWT.DEFAULT,
 				SWT.DEFAULT));
+		addFieldDecoration(txtLow);
+		addFieldDecoration(txtHigh);
+		addFieldDecoration(txtCenter);
 
 		initialisation();
 		getViewSite().setSelectionProvider(this);
@@ -618,6 +624,31 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 				.getSelectionService()
 				.addSelectionListener(SequenceViewExtensionFactory.ID,
 						selectionListener);
+	}
+
+	private void addFieldDecoration(final Text txtControl) {
+		final ControlDecoration textControlDecorator = new ControlDecoration(
+				txtControl, SWT.TOP | SWT.LEFT);
+		FieldDecoration textFieldDecoration = FieldDecorationRegistry.getDefault()
+				.getFieldDecoration(FieldDecorationRegistry.DEC_ERROR);
+		textControlDecorator.setImage(textFieldDecoration.getImage());
+		textControlDecorator
+				.setDescriptionText("This value cannot be greater than current excitation energy selected");
+		addDecorationMargin(txtControl);
+		txtControl.addModifyListener(new ModifyListener() {
+
+			@Override
+			public void modifyText(ModifyEvent e) {
+				if (Double.parseDouble(txtControl.getText()) < excitationEnergy) {
+					textControlDecorator.hide();
+					txtControl.setForeground(ColorConstants.black);
+				} else {
+					textControlDecorator.show();
+					textControlDecorator.setShowHover(true);
+					txtControl.setForeground(ColorConstants.red);
+				}
+			}
+		});
 	}
 
 	private ISelectionListener selectionListener = new INullSelectionListener() {
@@ -689,6 +720,37 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		spinnerFrames.setMaximum(1000);
 
 		if (regions.isEmpty()) {
+			if (regionDefinitionResourceUtil.isSourceSelectable()) {
+				btnHard.setSelection(true);
+				btnSoft.setSelection(false);
+				if (dcmenergy != null) {
+					try {
+						hardXRayEnergy = (double) dcmenergy.getPosition() * 1000; // eV
+					} catch (DeviceException e) {
+						logger.error("Cannot get X-ray energy from DCM.", e);
+					}
+				}
+				excitationEnergy = hardXRayEnergy;
+				txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
+				if (pgmenergy != null) {
+					try {
+						softXRayEnergy = (double) pgmenergy.getPosition();
+					} catch (DeviceException e) {
+						logger.error("Cannot get X-ray energy from PGM.", e);
+					}
+				}
+				txtSoftEnergy.setText(String.format("%.4f", softXRayEnergy));
+			} else {
+				if (dcmenergy != null) {
+					try {
+						hardXRayEnergy = (double) dcmenergy.getPosition();
+					} catch (DeviceException e) {
+						logger.error("Cannot get X-ray energy from DCM.", e);
+					}
+				}
+				excitationEnergy = hardXRayEnergy;
+				txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
+			}
 			lensMode.setText(lensMode.getItem(0));
 			passEnergy.setText(passEnergy.getItem(1));
 			runMode.setText(runMode.getItem(0));
@@ -734,36 +796,7 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 					RegionStepsTimeEstimation.calculateTotalTime(
 							Double.parseDouble(txtTime.getText()),
 							Integer.parseInt(txtTotalSteps.getText()))));
-			if (regionDefinitionResourceUtil.isSourceSelectable()) {
-				btnHard.setSelection(true);
-				if (dcmenergy != null) {
-					try {
-						hardXRayEnergy = (double) dcmenergy.getPosition() * 1000; // eV
-					} catch (DeviceException e) {
-						logger.error("Cannot get X-ray energy from DCM.", e);
-					}
-				}
-				excitationEnergy = hardXRayEnergy;
-				txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
-				if (pgmenergy != null) {
-					try {
-						softXRayEnergy = (double) pgmenergy.getPosition();
-					} catch (DeviceException e) {
-						logger.error("Cannot get X-ray energy from PGM.", e);
-					}
-				}
-				txtSoftEnergy.setText(String.format("%.4f", softXRayEnergy));
-			} else {
-				if (dcmenergy != null) {
-					try {
-						hardXRayEnergy = (double) dcmenergy.getPosition();
-					} catch (DeviceException e) {
-						logger.error("Cannot get X-ray energy from DCM.", e);
-					}
-				}
-				excitationEnergy = hardXRayEnergy;
-				txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
-			}
+
 		} else {
 			txtMinimumSize.setText(String.format("%.3f",
 					camera.getEnergyResolution()
@@ -814,7 +847,6 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 			regionPageBook.showPage(regionComposite);
 			fireSelectionChanged((Region) regionName.getData("0"));
 		}
-
 	}
 
 	/**
@@ -1421,6 +1453,61 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 	}
 
 	private void initialiseRegionView(final Region region) {
+		if (regionDefinitionResourceUtil.isSourceSelectable()) {
+			if (region.getExcitationEnergy() > regionDefinitionResourceUtil
+					.getXRaySourceEnergyLimit()) {
+				btnHard.setSelection(true);
+				btnSoft.setSelection(false);
+				if (dcmenergy != null) {
+					try {
+						hardXRayEnergy = (double) dcmenergy.getPosition() * 1000; // eV
+					} catch (DeviceException e) {
+						logger.error("Cannot get X-ray energy from DCM.", e);
+					}
+				}
+				excitationEnergy = hardXRayEnergy;
+				txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
+				if (pgmenergy != null) {
+					try {
+						softXRayEnergy = (double) pgmenergy.getPosition();
+					} catch (DeviceException e) {
+						logger.error("Cannot get X-ray energy from PGM.", e);
+					}
+				}
+				txtSoftEnergy.setText(String.format("%.4f", softXRayEnergy));
+			} else {
+				btnHard.setSelection(false);
+				btnSoft.setSelection(true);
+				if (dcmenergy != null) {
+					try {
+						hardXRayEnergy = (double) dcmenergy.getPosition() * 1000; // eV
+					} catch (DeviceException e) {
+						logger.error("Cannot get X-ray energy from DCM.", e);
+					}
+				}
+				txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
+				if (pgmenergy != null) {
+					try {
+						softXRayEnergy = (double) pgmenergy.getPosition();
+					} catch (DeviceException e) {
+						logger.error("Cannot get X-ray energy from PGM.", e);
+					}
+				}
+				excitationEnergy = softXRayEnergy;
+				txtSoftEnergy.setText(String.format("%.4f", softXRayEnergy));
+			}
+		} else {
+			if (dcmenergy != null) {
+				try {
+					hardXRayEnergy = (double) dcmenergy.getPosition();
+				} catch (DeviceException e) {
+					logger.error("Cannot get X-ray energy from DCM.", e);
+				}
+			}
+			excitationEnergy = hardXRayEnergy;
+			txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
+		}		
+		
 		if (region.isEnabled()) {
 			regionName.setText(region.getName());
 		} else {
@@ -1474,61 +1561,6 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 			setToSweptMode();
 		} else {
 			setToFixedMode();
-		}
-		if (regionDefinitionResourceUtil.isSourceSelectable()) {
-			if (region.getExcitationEnergy() > regionDefinitionResourceUtil
-					.getXRaySourceEnergyLimit()) {
-				btnHard.setSelection(true);
-				btnSoft.setSelection(false);
-				if (dcmenergy != null) {
-					try {
-						hardXRayEnergy = (double) dcmenergy.getPosition() * 1000; // eV
-					} catch (DeviceException e) {
-						logger.error("Cannot get X-ray energy from DCM.", e);
-					}
-				}
-				excitationEnergy = hardXRayEnergy;
-				txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
-				if (pgmenergy != null) {
-					try {
-						softXRayEnergy = (double) pgmenergy.getPosition();
-					} catch (DeviceException e) {
-						logger.error("Cannot get X-ray energy from PGM.", e);
-					}
-				}
-				txtSoftEnergy.setText(String.format("%.4f", softXRayEnergy));
-
-			} else {
-				btnHard.setSelection(false);
-				btnSoft.setSelection(true);
-				if (dcmenergy != null) {
-					try {
-						hardXRayEnergy = (double) dcmenergy.getPosition() * 1000; // eV
-					} catch (DeviceException e) {
-						logger.error("Cannot get X-ray energy from DCM.", e);
-					}
-				}
-				txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
-				if (pgmenergy != null) {
-					try {
-						softXRayEnergy = (double) pgmenergy.getPosition();
-					} catch (DeviceException e) {
-						logger.error("Cannot get X-ray energy from PGM.", e);
-					}
-				}
-				excitationEnergy = softXRayEnergy;
-				txtSoftEnergy.setText(String.format("%.4f", softXRayEnergy));
-			}
-		} else {
-			if (dcmenergy != null) {
-				try {
-					hardXRayEnergy = (double) dcmenergy.getPosition();
-				} catch (DeviceException e) {
-					logger.error("Cannot get X-ray energy from DCM.", e);
-				}
-			}
-			excitationEnergy = hardXRayEnergy;
-			txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
 		}
 	}
 
