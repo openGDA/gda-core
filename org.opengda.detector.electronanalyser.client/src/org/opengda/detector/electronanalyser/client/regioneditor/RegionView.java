@@ -3,7 +3,6 @@ package org.opengda.detector.electronanalyser.client.regioneditor;
 import gda.device.DeviceException;
 import gda.device.scannable.ScannableMotor;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,7 +35,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -161,32 +159,36 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		Group grpName = new Group(rootComposite, SWT.NONE);
 		grpName.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		grpName.setText("Name");
-		grpName.setLayout(new FillLayout());
+		grpName.setLayout(new GridLayout());
 
 		regionName = new Combo(grpName, SWT.NONE);
+		GridData namelayoutData = new GridData(GridData.FILL_HORIZONTAL);
+		regionName.setLayoutData(namelayoutData);
+		regionName.setToolTipText("List of available active regions to select");
 		// Add decorator for errors
 		final ControlDecoration regionNameControlDecorator = new ControlDecoration(
 				regionName, SWT.TOP | SWT.LEFT);
 		FieldDecoration fieldDecoration = FieldDecorationRegistry.getDefault()
 				.getFieldDecoration(FieldDecorationRegistry.DEC_INFORMATION);
 		regionNameControlDecorator.setImage(fieldDecoration.getImage());
-		regionNameControlDecorator
-				.setDescriptionText("Selected region is not active or enabled in sequence editor.");
-		addDecorationMargin(regionName);
+		// addDecorationMargin(regionName);
+		FieldDecoration dec = FieldDecorationRegistry.getDefault()
+				.getFieldDecoration(
+						FieldDecorationRegistry.DEC_CONTENT_PROPOSAL);
+		namelayoutData.horizontalIndent = dec.getImage().getBounds().width;
 		regionName.addModifyListener(new ModifyListener() {
-
 			@Override
 			public void modifyText(ModifyEvent e) {
 				if (regionName.getText().length() > 0) {
 					regionNameControlDecorator.hide();
 				} else {
 					regionNameControlDecorator.show();
+					regionNameControlDecorator.setDescriptionText(region
+							.getName() + " is not enabled");
 					regionNameControlDecorator.setShowHover(true);
 				}
 			}
 		});
-
-		regionName.setToolTipText("List of available active regions to select");
 
 		Composite bigComposite = new Composite(rootComposite, SWT.None);
 		// Contains Lens model, pass energy, run mode, acquisition mode, and
@@ -197,13 +199,13 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		Group grpLensMode = new Group(bigComposite, SWT.NONE);
 		grpLensMode.setText("Lens Mode");
 		grpLensMode.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		grpLensMode.setLayout(new FillLayout());
+		grpLensMode.setLayout(new GridLayout());
 
 		lensMode = new Combo(grpLensMode, SWT.READ_ONLY);
 		lensMode.setToolTipText("List of available modes to select");
 
 		Group grpPassEnergy = new Group(bigComposite, SWT.NONE);
-		grpPassEnergy.setLayout(new FillLayout());
+		grpPassEnergy.setLayout(new GridLayout());
 		grpPassEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		grpPassEnergy.setText("Pass Energy");
 
@@ -213,7 +215,6 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		Group grpRunMode = new Group(bigComposite, SWT.NONE);
 		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
 		layoutData.widthHint = 300;
-		;
 		layoutData.verticalSpan = 2;
 		grpRunMode.setLayoutData(layoutData);
 		grpRunMode.setLayout(new GridLayout(2, false));
@@ -307,23 +308,110 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		lblLow.setText("Low");
 
 		txtLow = new Text(grpEnergy, SWT.BORDER | SWT.SINGLE);
-
-		txtLow.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		GridData lowLayoutData = new GridData(GridData.FILL_HORIZONTAL);
+		txtLow.setLayoutData(lowLayoutData);
 		txtLow.setToolTipText("start energy");
+		// addFieldDecoration(txtLow);
+		final ControlDecoration textLowControlDecorator = new ControlDecoration(
+				txtLow, SWT.TOP | SWT.LEFT);
+		FieldDecoration textLowFieldDecoration = FieldDecorationRegistry
+				.getDefault().getFieldDecoration(
+						FieldDecorationRegistry.DEC_ERROR);
+		textLowControlDecorator.setImage(textLowFieldDecoration.getImage());
+		// addDecorationMargin(txtLow);
+		FieldDecoration dec1 = FieldDecorationRegistry.getDefault()
+				.getFieldDecoration(
+						FieldDecorationRegistry.DEC_CONTENT_PROPOSAL);
+		lowLayoutData.horizontalIndent = dec1.getImage().getBounds().width;
+		txtLow.addModifyListener(new ModifyListener() {
+
+			@Override
+			public void modifyText(ModifyEvent e) {
+				if (Double.parseDouble(txtLow.getText()) < excitationEnergy) {
+					textLowControlDecorator.hide();
+					txtLow.setForeground(ColorConstants.black);
+				} else {
+					textLowControlDecorator.show();
+					textLowControlDecorator
+							.setDescriptionText("This value cannot be greater than current excitation energy "
+									+ excitationEnergy);
+					textLowControlDecorator.setShowHover(true);
+					txtLow.setForeground(ColorConstants.red);
+				}
+			}
+		});
 
 		Label lblCenter = new Label(grpEnergy, SWT.NONE);
 		lblCenter.setText("Center");
 
 		txtCenter = new Text(grpEnergy, SWT.BORDER | SWT.SINGLE);
-		txtCenter.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		GridData centerLayoutData = new GridData(GridData.FILL_HORIZONTAL);
+		txtCenter.setLayoutData(centerLayoutData);
 		txtCenter.setToolTipText("Center/Fixed energy");
+		// addFieldDecoration(txtCenter);
+		final ControlDecoration textCenterControlDecorator = new ControlDecoration(
+				txtCenter, SWT.TOP | SWT.LEFT);
+		FieldDecoration textCenterFieldDecoration = FieldDecorationRegistry
+				.getDefault().getFieldDecoration(
+						FieldDecorationRegistry.DEC_ERROR);
+		textCenterControlDecorator.setImage(textCenterFieldDecoration
+				.getImage());
+		// addDecorationMargin(txtCenter);
+		FieldDecoration dec2 = FieldDecorationRegistry.getDefault()
+				.getFieldDecoration(
+						FieldDecorationRegistry.DEC_CONTENT_PROPOSAL);
+		centerLayoutData.horizontalIndent = dec2.getImage().getBounds().width;
+		txtCenter.addModifyListener(new ModifyListener() {
+
+			@Override
+			public void modifyText(ModifyEvent e) {
+				if (Double.parseDouble(txtCenter.getText()) < excitationEnergy) {
+					textCenterControlDecorator.hide();
+					txtCenter.setForeground(ColorConstants.black);
+				} else {
+					textCenterControlDecorator.show();
+					textCenterControlDecorator
+					.setDescriptionText("This value cannot be greater than current excitation energy "+excitationEnergy);
+					textCenterControlDecorator.setShowHover(true);
+					txtCenter.setForeground(ColorConstants.red);
+				}
+			}
+		});
 
 		Label lblHigh = new Label(grpEnergy, SWT.NONE);
 		lblHigh.setText("High");
 
 		txtHigh = new Text(grpEnergy, SWT.BORDER | SWT.SINGLE);
-		txtHigh.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		GridData highLayoutData = new GridData(GridData.FILL_HORIZONTAL);
+		txtHigh.setLayoutData(highLayoutData);
 		txtHigh.setToolTipText("Stop enenery");
+		// addFieldDecoration(txtHigh);
+		final ControlDecoration textHighControlDecorator = new ControlDecoration(
+				txtHigh, SWT.TOP | SWT.LEFT);
+		FieldDecoration textHighFieldDecoration = FieldDecorationRegistry
+				.getDefault().getFieldDecoration(
+						FieldDecorationRegistry.DEC_ERROR);
+		textHighControlDecorator.setImage(textHighFieldDecoration.getImage());
+		// addDecorationMargin(txtHigh);
+		FieldDecoration dec3 = FieldDecorationRegistry.getDefault()
+				.getFieldDecoration(
+						FieldDecorationRegistry.DEC_CONTENT_PROPOSAL);
+		highLayoutData.horizontalIndent = dec3.getImage().getBounds().width;
+		txtHigh.addModifyListener(new ModifyListener() {
+			@Override
+			public void modifyText(ModifyEvent e) {
+				if (Double.parseDouble(txtHigh.getText()) < excitationEnergy) {
+					textHighControlDecorator.hide();
+					txtHigh.setForeground(ColorConstants.black);
+				} else {
+					textHighControlDecorator.show();
+					textHighControlDecorator
+					.setDescriptionText("This value cannot be greater than current excitation energy "+excitationEnergy);
+					textHighControlDecorator.setShowHover(true);
+					txtHigh.setForeground(ColorConstants.red);
+				}
+			}
+		});
 
 		Label lblWidth = new Label(grpEnergy, SWT.NONE);
 		lblWidth.setText("Width");
@@ -613,9 +701,6 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 
 		regionComposite.setMinSize(rootComposite.computeSize(SWT.DEFAULT,
 				SWT.DEFAULT));
-		addFieldDecoration(txtLow);
-		addFieldDecoration(txtHigh);
-		addFieldDecoration(txtCenter);
 
 		initialisation();
 		getViewSite().setSelectionProvider(this);
@@ -626,30 +711,31 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 						selectionListener);
 	}
 
-	private void addFieldDecoration(final Text txtControl) {
-		final ControlDecoration textControlDecorator = new ControlDecoration(
-				txtControl, SWT.TOP | SWT.LEFT);
-		FieldDecoration textFieldDecoration = FieldDecorationRegistry.getDefault()
-				.getFieldDecoration(FieldDecorationRegistry.DEC_ERROR);
-		textControlDecorator.setImage(textFieldDecoration.getImage());
-		textControlDecorator
-				.setDescriptionText("This value cannot be greater than current excitation energy selected");
-		addDecorationMargin(txtControl);
-		txtControl.addModifyListener(new ModifyListener() {
-
-			@Override
-			public void modifyText(ModifyEvent e) {
-				if (Double.parseDouble(txtControl.getText()) < excitationEnergy) {
-					textControlDecorator.hide();
-					txtControl.setForeground(ColorConstants.black);
-				} else {
-					textControlDecorator.show();
-					textControlDecorator.setShowHover(true);
-					txtControl.setForeground(ColorConstants.red);
-				}
-			}
-		});
-	}
+//	private void addFieldDecoration(final Text txtControl) {
+//		final ControlDecoration textControlDecorator = new ControlDecoration(
+//				txtControl, SWT.TOP | SWT.LEFT);
+//		FieldDecoration textFieldDecoration = FieldDecorationRegistry
+//				.getDefault().getFieldDecoration(
+//						FieldDecorationRegistry.DEC_ERROR);
+//		textControlDecorator.setImage(textFieldDecoration.getImage());
+//		addDecorationMargin(txtControl);
+//		txtControl.addModifyListener(new ModifyListener() {
+//
+//			@Override
+//			public void modifyText(ModifyEvent e) {
+//				if (Double.parseDouble(txtControl.getText()) < excitationEnergy) {
+//					textControlDecorator.hide();
+//					txtControl.setForeground(ColorConstants.black);
+//				} else {
+//					textControlDecorator.show();
+//					textControlDecorator
+//					.setDescriptionText("This value cannot be greater than current excitation energy "+excitationEnergy);
+//					textControlDecorator.setShowHover(true);
+//					txtControl.setForeground(ColorConstants.red);
+//				}
+//			}
+//		});
+//	}
 
 	private ISelectionListener selectionListener = new INullSelectionListener() {
 		@Override
@@ -857,16 +943,16 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 	 *            the control that needs a margin
 	 * @since 3.3
 	 */
-	private void addDecorationMargin(Control control) {
-		Object layoutData = control.getLayoutData();
-		if (!(layoutData instanceof GridData))
-			return;
-		GridData gd = (GridData) layoutData;
-		FieldDecoration dec = FieldDecorationRegistry.getDefault()
-				.getFieldDecoration(
-						FieldDecorationRegistry.DEC_CONTENT_PROPOSAL);
-		gd.horizontalIndent = dec.getImage().getBounds().width;
-	}
+//	private void addDecorationMargin(Control control) {
+//		Object layoutData = control.getLayoutData();
+//		if (!(layoutData instanceof GridData))
+//			return;
+//		GridData gd = (GridData) layoutData;
+//		FieldDecoration dec = FieldDecorationRegistry.getDefault()
+//				.getFieldDecoration(
+//						FieldDecorationRegistry.DEC_CONTENT_PROPOSAL);
+//		gd.horizontalIndent = dec.getImage().getBounds().width;
+//	}
 
 	private void populateRegionNameCombo(List<Region> regions) {
 		// file regionName combo with active regions from region list
@@ -896,12 +982,16 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		public void widgetDefaultSelected(SelectionEvent e) {
 			// on enter - change region name
 			if (e.getSource().equals(regionName)) {
-				String regionNamePrefix = StringUtils.prefixBeforeInt(regionName.getText());
+				String regionNamePrefix = StringUtils
+						.prefixBeforeInt(regionName.getText());
 				if (!regionNamePrefix.isEmpty()) {
-					int largestIntInNames = StringUtils.largestIntAtEndStringsWithPrefix(getRegionNames(),regionNamePrefix);
+					int largestIntInNames = StringUtils
+							.largestIntAtEndStringsWithPrefix(getRegionNames(),
+									regionNamePrefix);
 					if (largestIntInNames != -1) {
 						largestIntInNames++;
-						regionName.setText(regionNamePrefix + largestIntInNames);
+						regionName
+								.setText(regionNamePrefix + largestIntInNames);
 					}
 				}
 				updateFeature(region,
@@ -923,8 +1013,9 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 
 		}
 	};
+
 	protected List<String> getRegionNames() {
-		List<String> regionNames=new ArrayList<String>();
+		List<String> regionNames = new ArrayList<String>();
 		for (Region region : regions) {
 			regionNames.add(region.getName());
 		}
@@ -1506,8 +1597,8 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 			}
 			excitationEnergy = hardXRayEnergy;
 			txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
-		}		
-		
+		}
+
 		if (region.isEnabled()) {
 			regionName.setText(region.getName());
 		} else {
