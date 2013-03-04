@@ -58,9 +58,7 @@ public abstract class BaseTomoReconPart extends ViewPart {
 		}
 	}
 
-	protected void processNewNexusFile() {
-		// To be implemented by subclasses although not necessarily.
-	}
+	protected abstract void processNewNexusFile();
 
 	private IPartListener2 partAdapter = new IPartListener2() {
 

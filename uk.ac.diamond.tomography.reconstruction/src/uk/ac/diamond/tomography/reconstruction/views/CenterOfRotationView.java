@@ -33,8 +33,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -44,7 +42,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPart;
@@ -63,12 +60,15 @@ import uk.ac.diamond.scisoft.analysis.io.TIFFImageLoader;
 import uk.ac.diamond.tomography.reconstruction.Activator;
 import uk.ac.diamond.tomography.reconstruction.ReconUtil;
 import uk.ac.diamond.tomography.reconstruction.jobs.ReconSchedulingRule;
+import uk.ac.diamond.tomography.reconstruction.parameters.hm.BackprojectionType;
+import uk.ac.diamond.tomography.reconstruction.parameters.hm.FBPType;
+import uk.ac.diamond.tomography.reconstruction.parameters.hm.HMxmlType;
 import uk.ac.gda.ui.components.IStepperSelectionListener;
 import uk.ac.gda.ui.components.Stepper;
 import uk.ac.gda.ui.components.StepperChangedEvent;
 import uk.ac.gda.util.io.FileUtils;
 
-public class CenterOfRotationView extends BaseTomoReconPart implements ISelectionListener, ISelectionProvider {
+public class CenterOfRotationView extends BaseParameterView implements ISelectionListener {
 	private static final String PLOTVIEW_PLOT_1 = "Plot 1";
 	private static final String UPDATING_CENTRE_OF_ROTATION = "Updating Centre of Rotation";
 	private static final String MSG_ACTIVATE = "Please select a nexus file in the navigator view to activate the view.";
@@ -82,7 +82,6 @@ public class CenterOfRotationView extends BaseTomoReconPart implements ISelectio
 	private static final String CURRENT_CENTER_OF_ROTATION = "Current Center of Rotation";
 	private FormToolkit toolkit;
 	private Stepper sliceStepper;
-	private Text txtCentreOfRotation;
 	private PageBook pgBook_showSlider;
 	private Composite pg_showSlider_plainComposite;
 	private Composite pg_showSlider_sliderComposite;
@@ -390,8 +389,33 @@ public class CenterOfRotationView extends BaseTomoReconPart implements ISelectio
 
 		sliceStepper.setSelection(10);
 		pgBook_showSlider.showPage(pg_showSlider_plainComposite);
+
+		Composite fileNameComposite = toolkit.createComposite(pg_mainComposite_root);
+		fileNameComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
+		fileNameComposite.setLayout(new GridLayout());
+
+		txtFileName = createTextFileName(toolkit, fileNameComposite);
+		GridData layoutData = new GridData(GridData.FILL_BOTH);
+		layoutData.verticalAlignment = SWT.BOTTOM;
+		txtFileName.setLayoutData(layoutData);
+
 		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(NexusNavigator.ID, this);
 		pgBook_mainComposite.showPage(pg_mainComposite_plain);
+		initialiseView();
+	}
+
+	private void initialiseView() {
+		if (getHmXmlModel() != null) {
+			HMxmlType hmxmlType = getHmXmlModel();
+
+			FBPType fbp = hmxmlType.getFBP();
+			BackprojectionType backprojection = fbp.getBackprojection();
+
+			float floatValue = backprojection.getImageCentre().floatValue();
+			txtCentreOfRotation.setText(Float.toString(floatValue));
+
+			txtFileName.setText(nexusFile.getLocation().toOSString());
+		}
 	}
 
 	private UpdatePlotViewJob updatePlotViewJob;
@@ -420,22 +444,15 @@ public class CenterOfRotationView extends BaseTomoReconPart implements ISelectio
 				File fileName = fileNames[position];
 
 				if (fileName.exists()) {
-
 					// update monitor
-
 					try {
 						DataHolder data = new TIFFImageLoader(fileName.getAbsolutePath()).loadFile();
-
 						// update monitor
-
 						AbstractDataset image = data.getDataset(0);
 						image.isubtract(image.min());
 						image.imultiply(1000.0);
-
 						// update monitor
-
 						SDAPlotter.imagePlot(PLOTVIEW_PLOT_1, image);
-
 						// update monitor
 					} catch (Exception ex) {
 						logger.error("Cannot load recon image for display", ex);
@@ -447,7 +464,6 @@ public class CenterOfRotationView extends BaseTomoReconPart implements ISelectio
 			monitor.done();
 			return Status.OK_STATUS;
 		}
-
 	}
 
 	private UpdatePlotViewJob getUpdatePlotViewJob() {
@@ -471,6 +487,7 @@ public class CenterOfRotationView extends BaseTomoReconPart implements ISelectio
 
 	@Override
 	public void dispose() {
+		getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(NexusNavigator.ID, this);
 		super.dispose();
 	}
 
@@ -485,7 +502,7 @@ public class CenterOfRotationView extends BaseTomoReconPart implements ISelectio
 					if (Activator.NXS_FILE_EXTN.equals(fileElement.getFileExtension())) {
 						if (!fileElement.equals(nexusFile)) {
 							nexusFile = fileElement;
-							processNewNexusFile();
+							processSelectionChangeToNexus();
 						}
 					}
 				}
@@ -494,10 +511,32 @@ public class CenterOfRotationView extends BaseTomoReconPart implements ISelectio
 
 	}
 
-	@Override
-	protected void processNewNexusFile() {
+	private void processSelectionChangeToNexus() {
+		super.processNewNexusFile();
 		pgBook_showSlider.showPage(pg_showSlider_plainComposite);
 		pgBook_mainComposite.showPage(pg_mainComposite_root);
+
+		final float rotCentre = getHmXmlModel().getFBP().getBackprojection().getImageCentre().floatValue();
+		UIJob updateCentreOfRotation = new UIJob(getViewSite().getShell().getDisplay(), UPDATING_CENTRE_OF_ROTATION) {
+
+			@Override
+			public IStatus runInUIThread(IProgressMonitor monitor) {
+				if (nexusFile != null) {
+					txtCentreOfRotation.setText(Double.toString(rotCentre));
+					txtFileName.setText(nexusFile.getLocation().toOSString());
+				}
+				return Status.OK_STATUS;
+			}
+		};
+		updateCentreOfRotation.schedule();
+	}
+
+	@Override
+	protected void processNewNexusFile() {
+		super.processNewNexusFile();
+		pgBook_showSlider.showPage(pg_showSlider_plainComposite);
+		pgBook_mainComposite.showPage(pg_mainComposite_root);
+
 		IViewPart parameterView = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
 				.findView(ParameterView.ID);
 		if (parameterView != null) {
@@ -511,8 +550,8 @@ public class CenterOfRotationView extends BaseTomoReconPart implements ISelectio
 					public IStatus runInUIThread(IProgressMonitor monitor) {
 						if (nexusFile != null
 								&& parametersSel.getNexusFileFullPath().equals(nexusFile.getLocation().toOSString())) {
-
 							txtCentreOfRotation.setText(Double.toString(parametersSel.getCentreOfRotation()));
+							txtFileName.setText(nexusFile.getLocation().toOSString());
 						}
 						return Status.OK_STATUS;
 					}
@@ -521,35 +560,5 @@ public class CenterOfRotationView extends BaseTomoReconPart implements ISelectio
 			}
 		}
 
-	}
-
-	@Override
-	public void addSelectionChangedListener(ISelectionChangedListener listener) {
-
-	}
-
-	@Override
-	public ISelection getSelection() {
-		if (nexusFile != null) {
-			return new ParametersSelection(nexusFile.getLocation().toOSString(), Double.parseDouble(txtCentreOfRotation
-					.getText()));
-		}
-		return null;
-	}
-
-	@Override
-	public void removeSelectionChangedListener(ISelectionChangedListener listener) {
-
-	}
-
-	@Override
-	public void setSelection(ISelection selection) {
-		if (selection instanceof ParametersSelection) {
-			ParametersSelection parametersSelection = (ParametersSelection) selection;
-			if (nexusFile != null
-					&& parametersSelection.getNexusFileFullPath().equals(nexusFile.getLocation().toOSString())) {
-				txtCentreOfRotation.setText(Double.toString(parametersSelection.getCentreOfRotation()));
-			}
-		}
 	}
 }

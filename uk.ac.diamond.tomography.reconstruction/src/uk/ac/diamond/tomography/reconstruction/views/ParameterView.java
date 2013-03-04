@@ -22,12 +22,9 @@ import gda.util.OSCommandRunner;
 import gda.util.OSCommandRunner.LOGOPTION;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collections;
@@ -40,18 +37,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.window.Window;
@@ -91,10 +79,8 @@ import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.diamond.tomography.reconstruction.Activator;
 import uk.ac.diamond.tomography.reconstruction.ReconUtil;
-import uk.ac.diamond.tomography.reconstruction.jobs.ReconSchedulingRule;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.BackprojectionType;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.DarkFieldType;
-import uk.ac.diamond.tomography.reconstruction.parameters.hm.DocumentRoot;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.FBPType;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.FlatDarkFieldsType;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.FlatFieldType;
@@ -103,7 +89,6 @@ import uk.ac.diamond.tomography.reconstruction.parameters.hm.ROIType;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.RingArtefactsType;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.presentation.HmEditor;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.presentation.IParameterView;
-import uk.ac.gda.util.io.FileUtils;
 
 /**
  * This sample class demonstrates how to plug-in a new workbench view. The view shows data obtained from the model. The
@@ -116,25 +101,21 @@ import uk.ac.gda.util.io.FileUtils;
  * <p>
  */
 
-public class ParameterView extends BaseTomoReconPart implements ISelectionListener, IParameterView, ISelectionProvider {
+public class ParameterView extends BaseParameterView implements ISelectionListener, IParameterView, ISelectionProvider {
 
-	private static final String COMPRESS_NXS_URL_FORMAT = "platform:/plugin/%s/scripts/compress_nxs.sh";
+	private static final String FIND_CENTRE = "Find Centre";
 
 	private static final String JOB_NAME_FULL_RECONSTRUCTION = "Full Reconstruction (%s)";
 
 	public static final String JOB_NAME_QUICK_RECONSTRUCTION = "Quick Reconstruction (%s)";
 
-	public static final String JOB_NAME_CREATING_COMPRESSED_NEXUS = "Creating compressed Nexus(%s)";
-
 	private static final String PATH_TO_IMAGE_KEY_IN_DATASET = "/entry1/tomo_entry/instrument/detector/image_key";
 
-	private static final String DATA_PATH_IN_NEXUS = "/entry1/tomo_entry/data/data";
 	private static final String FULL_RECONSTRUCTION = "Full Reconstruction";
 	private static final String ADVANCED_SETTINGS = "Advanced Settings";
 	private static final String FILE_NAME = "File Name";
-	private static final String HM_FILE_EXTN = "hm";
 	private static final String DARK_FIELDS = "Dark Fields";
-	private static final String BLANK = "";
+	
 	private static final String RECTANGLE = "Rectangle";
 	private static final String STANDARD = "Standard";
 	private static final String Y_MAX = "Y max";
@@ -167,16 +148,6 @@ public class ParameterView extends BaseTomoReconPart implements ISelectionListen
 	 */
 	public static final String ID = "uk.ac.diamond.tomography.reconstruction.views.ParameterView";
 
-	private String pathname = "tomoSettings.hm";
-
-	private File fileOnFileSystem;
-
-	private IFile defaultSettingFile;
-
-	private File hmSettingsInProcessingDir;
-
-	private Text txtCentreOfRotation;
-
 	private CCombo cmbAml;
 
 	private Text txtNumSeries;
@@ -206,7 +177,6 @@ public class ParameterView extends BaseTomoReconPart implements ISelectionListen
 	private Text txtRoiYMin;
 
 	private Text txtRoiYMax;
-	private Text txtFileName;
 
 	/**
 	 * This is a callback that will allow us to create the viewer and initialize it.
@@ -254,8 +224,7 @@ public class ParameterView extends BaseTomoReconPart implements ISelectionListen
 		Label lblFileName = toolkit.createLabel(rotationCenterCmp, FILE_NAME);
 		lblFileName.setLayoutData(new GridData());
 
-		txtFileName = toolkit.createText(rotationCenterCmp, BLANK);
-		txtFileName.setEditable(false);
+		txtFileName = createTextFileName(toolkit, rotationCenterCmp);
 		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
 		layoutData.horizontalSpan = 2;
 		txtFileName.setLayoutData(layoutData);
@@ -267,7 +236,7 @@ public class ParameterView extends BaseTomoReconPart implements ISelectionListen
 		txtCentreOfRotation = toolkit.createText(rotationCenterCmp, BLANK);
 		txtCentreOfRotation.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		Button btnFindCentre = toolkit.createButton(rotationCenterCmp, "Find Centre", SWT.None);
+		Button btnFindCentre = toolkit.createButton(rotationCenterCmp, FIND_CENTRE, SWT.None);
 		btnFindCentre.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -346,7 +315,6 @@ public class ParameterView extends BaseTomoReconPart implements ISelectionListen
 		});
 
 		// Read settings file from resource and copy to /tmp
-		createSettingsFile();
 		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(NexusNavigator.ID, this);
 	}
 
@@ -477,7 +445,7 @@ public class ParameterView extends BaseTomoReconPart implements ISelectionListen
 
 			String fileName = fullPath.toOSString();
 
-			String templateFileName = hmSettingsInProcessingDir.getAbsolutePath();
+			String templateFileName = getHmSettingsInProcessingDir().getAbsolutePath();
 
 			int height = hdfShape[1];
 			if (quick && reducedDataShape != null) {
@@ -504,32 +472,6 @@ public class ParameterView extends BaseTomoReconPart implements ISelectionListen
 		} catch (IOException e) {
 			logger.error("Cannot find script file", e);
 		}
-	}
-
-	private void runCommand(final String jobName, final String command) {
-		Job job = new Job(jobName) {
-			@Override
-			public IStatus run(IProgressMonitor monitor) {
-				monitor.beginTask(jobName, IProgressMonitor.UNKNOWN);
-				OSCommandRunner osCommandRunner = new OSCommandRunner(command, true, null, null);
-				if (osCommandRunner.exception != null) {
-					String msg = "Exception seen trying to run command " + osCommandRunner.getCommandAsString();
-					logger.error(msg);
-					logger.error(osCommandRunner.exception.toString());
-				} else if (osCommandRunner.exitValue != 0) {
-					String msg = "Exit code = " + Integer.toString(osCommandRunner.exitValue)
-							+ " returned from command " + osCommandRunner.getCommandAsString();
-					logger.warn(msg);
-					osCommandRunner.logOutput();
-				} else {
-					osCommandRunner.logOutput();
-				}
-				monitor.done();
-				return Status.OK_STATUS;
-			}
-		};
-		job.setRule(new ReconSchedulingRule(nexusFile));
-		job.schedule();
 	}
 
 	private void runTiffReconstruction(boolean quick) {
@@ -566,7 +508,7 @@ public class ParameterView extends BaseTomoReconPart implements ISelectionListen
 
 			String pyScriptName = tomoDoPyScript.getAbsolutePath();
 			String shScriptName = tomoDoShScript.getAbsolutePath();
-			String templateFileName = hmSettingsInProcessingDir.getAbsolutePath();
+			String templateFileName = getHmSettingsInProcessingDir().getAbsolutePath();
 
 			StringBuffer command = new StringBuffer(String.format(
 					"%s %s -f %s --outdir %s --sino --recon --template %s", shScriptName, pyScriptName, fileName,
@@ -616,12 +558,12 @@ public class ParameterView extends BaseTomoReconPart implements ISelectionListen
 	}
 
 	private void openAdvancedSettings() {
-		if (defaultSettingFile.exists()) {
+		if (getDefaultSettingFile().exists()) {
 			try {
 
 				IProject tomoSettingsProject = ResourcesPlugin.getWorkspace().getRoot()
 						.getProject(Activator.TOMOGRAPHY_SETTINGS);
-				final IFile tomoSettingsFile = tomoSettingsProject.getFile(hmSettingsInProcessingDir.getName());
+				final IFile tomoSettingsFile = tomoSettingsProject.getFile(getHmSettingsInProcessingDir().getName());
 				if (!tomoSettingsFile.exists()) {
 					new WorkspaceModifyOperation() {
 
@@ -629,7 +571,7 @@ public class ParameterView extends BaseTomoReconPart implements ISelectionListen
 						protected void execute(IProgressMonitor monitor) throws CoreException,
 								InvocationTargetException, InterruptedException {
 							try {
-								tomoSettingsFile.createLink(new Path(hmSettingsInProcessingDir.getAbsolutePath()),
+								tomoSettingsFile.createLink(new Path(getHmSettingsInProcessingDir().getAbsolutePath()),
 										IResource.REPLACE, monitor);
 							} catch (IllegalArgumentException ex) {
 								logger.debug("Problem identified - eclipse doesn't refresh the right folder");
@@ -807,8 +749,6 @@ public class ParameterView extends BaseTomoReconPart implements ISelectionListen
 	private Composite emptyCmp;
 	private boolean isHdf = false;
 	private int[] hdfShape;
-	private File reducedNexusFile;
-	private int[] reducedDataShape;
 
 	protected void saveModel() {
 		HMxmlType model = getHmXmlModel();
@@ -927,107 +867,6 @@ public class ParameterView extends BaseTomoReconPart implements ISelectionListen
 		return null;
 	}
 
-	private HMxmlType getHmXmlModel() {
-		if (hmSettingsInProcessingDir != null && hmSettingsInProcessingDir.exists()) {
-			ResourceSet rset = new ResourceSetImpl();
-			Resource hmRes = rset.getResource(
-					org.eclipse.emf.common.util.URI.createFileURI(hmSettingsInProcessingDir.getAbsolutePath()), true);
-
-			EObject eObject = hmRes.getContents().get(0);
-			if (eObject != null) {
-
-				if (eObject instanceof DocumentRoot) {
-					DocumentRoot dr = (DocumentRoot) eObject;
-					return dr.getHMxml();
-				}
-			}
-		}
-
-		return null;
-	}
-
-	private void createSettingsFile() {
-		String blueprintFileLoc = null;
-
-		try {
-			String urlSpec = String.format("platform:/plugin/%s/resources/settings.xml", Activator.PLUGIN_ID);
-			blueprintFileLoc = new URL(urlSpec).toString();
-			logger.debug("shFileURL:{}", blueprintFileLoc);
-		} catch (MalformedURLException e) {
-			logger.error("URL is malformed.", e);
-		}
-
-		fileOnFileSystem = null;
-		try {
-			URL fileURL = new URL(blueprintFileLoc);
-			fileOnFileSystem = new File(FileLocator.resolve(fileURL).toURI());
-		} catch (URISyntaxException e) {
-			logger.error("URI problem", e);
-		} catch (IOException e) {
-			logger.error("File not found problem", e);
-		}
-		final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(Activator.TOMOGRAPHY_SETTINGS);
-		if (!project.exists()) {
-			WorkspaceModifyOperation workspaceModifyOperation = new WorkspaceModifyOperation() {
-
-				@Override
-				protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException,
-						InterruptedException {
-					project.create(monitor);
-					project.open(monitor);
-				}
-			};
-			try {
-				workspaceModifyOperation.run(null);
-			} catch (InvocationTargetException e) {
-				logger.error("Cannot create project for tomo.", e);
-			} catch (InterruptedException e) {
-				logger.error("Interrupted creating tomo project.", e);
-			}
-		} else if (!project.isAccessible()) {
-
-			WorkspaceModifyOperation workspaceModifyOperation = new WorkspaceModifyOperation() {
-
-				@Override
-				protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException,
-						InterruptedException {
-					project.open(monitor);
-				}
-			};
-			try {
-				workspaceModifyOperation.run(null);
-			} catch (InvocationTargetException e) {
-				logger.error("Cannot open tomo project", e);
-			} catch (InterruptedException e) {
-				logger.error("Interrupted opening tomo project", e);
-			}
-		}
-
-		defaultSettingFile = project.getFile(pathname);
-		if (!defaultSettingFile.exists()) {
-			WorkspaceModifyOperation workspaceModifyOperation = new WorkspaceModifyOperation() {
-
-				@Override
-				protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException,
-						InterruptedException {
-					try {
-						defaultSettingFile.create(new FileInputStream(fileOnFileSystem), true, null);
-					} catch (FileNotFoundException e) {
-						logger.error("Unable to create default Setting File.", e);
-					}
-				}
-			};
-			try {
-				workspaceModifyOperation.run(new NullProgressMonitor());
-
-			} catch (InvocationTargetException e) {
-				logger.error("TODO put description of error here", e);
-			} catch (InterruptedException e) {
-				logger.error("TODO put description of error here", e);
-			}
-		}
-	}
-
 	/**
 	 * Passing the focus request to the viewer's control.
 	 */
@@ -1074,21 +913,13 @@ public class ParameterView extends BaseTomoReconPart implements ISelectionListen
 
 	@Override
 	protected void processNewNexusFile() {
-		hmSettingsInProcessingDir = getHmSettingsInProcessingDir();
+		super.processNewNexusFile();
 		String path = nexusFile.getLocation().toOSString();
 		ILazyDataset actualDataset = getDataSetFromFileLocation(path);
 		if (actualDataset != null && actualDataset.getRank() == 3) {
 			isHdf = true;
 			hdfShape = actualDataset.getShape();
-			reducedNexusFile = getReducedNexusFile(nexusFile);
-			if (reducedNexusFile.exists()) {
-				ILazyDataset reducedDataset = getDataSetFromFileLocation(reducedNexusFile.getPath());
-				if (reducedDataset != null) {
-					reducedDataShape = reducedDataset.getShape();
-				} else {
-					logger.warn("Reduced data set not ready yet");
-				}
-			}
+
 		}
 		getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
 
@@ -1100,117 +931,14 @@ public class ParameterView extends BaseTomoReconPart implements ISelectionListen
 		return;
 	}
 
-	private ILazyDataset getDataSetFromFileLocation(String path) {
-		HDF5Loader hdf5Loader = new HDF5Loader(path);
-		DataHolder loadFile;
-		ILazyDataset dataset = null;
-		try {
-			loadFile = hdf5Loader.loadFile();
-			dataset = loadFile.getLazyDataset(DATA_PATH_IN_NEXUS);
-
-		} catch (Exception ex) {
-			logger.error("Error", ex);
-		}
-		return dataset;
-	}
-
-	private File getReducedNexusFile(IFile nexusFile) {
-		File reducedNexusFile = ReconUtil.getReducedNexusFile(nexusFile.getLocation().toString());
-		if (!reducedNexusFile.exists()) {
-			createReducedNexusFile(nexusFile.getLocation().toOSString(), reducedNexusFile.getPath());
-		}
-		return reducedNexusFile;
-	}
-
-	private void createReducedNexusFile(String actualNexusFileLocation, String outputNexusFileLocation) {
-		URL compressNxsURL = null;
-		try {
-			String compressNxsUrlString = String.format(COMPRESS_NXS_URL_FORMAT, Activator.PLUGIN_ID);
-			compressNxsURL = new URL(compressNxsUrlString);
-		} catch (MalformedURLException e) {
-			logger.error("Cant find compress_nxs script", e);
-		}
-		logger.debug("shFileURL:{}", compressNxsURL);
-		File compressNexusScript = null;
-		try {
-			compressNexusScript = new File(FileLocator.toFileURL(compressNxsURL).toURI());
-		} catch (URISyntaxException e) {
-			logger.error("Wrong location", e);
-		} catch (IOException e) {
-			logger.error("Unable to find file compressScript", e);
-		}
-
-		File reducedNxsFileHandle = new File(outputNexusFileLocation);
-
-		String reducedNxsFileParentLocation = reducedNxsFileHandle.getParent();
-		File reducedNxsFileParentFileHandle = new File(reducedNxsFileParentLocation);
-
-		reducedNxsFileParentFileHandle.mkdirs();
-
-		if (compressNexusScript != null) {
-			String compressNxsScriptFullLocation = compressNexusScript.getAbsolutePath();
-			String command = String.format("%s %s %s", compressNxsScriptFullLocation, actualNexusFileLocation,
-					outputNexusFileLocation);
-			runCommand(String.format(JOB_NAME_CREATING_COMPRESSED_NEXUS, nexusFile.getName()), command);
-		}
-	}
-
 	private IFile getNexusFileFromHmFileLocation(String hmFileLocation) {
 		return ReconUtil.getNexusFileFromHmFileLocation(hmFileLocation);
-	}
-
-	private File getHmSettingsInProcessingDir() {
-		IPath hmSettingsPath = new Path(ReconUtil.getSettingsFileLocation(nexusFile).getAbsolutePath()).append(
-				new Path(nexusFile.getName()).removeFileExtension().toString()).addFileExtension(HM_FILE_EXTN);
-
-		File hmSettingsFile = new File(hmSettingsPath.toOSString());
-		if (!hmSettingsFile.exists()) {
-			logger.debug("hm settings path:{}", hmSettingsPath);
-			try {
-				hmSettingsFile = new File(hmSettingsPath.toString());
-				File file = defaultSettingFile.getLocation().toFile();
-				FileUtils.copy(file, hmSettingsFile);
-			} catch (IOException e) {
-				logger.error("Unable to create hm setting file.", e);
-			}
-		}
-
-		return hmSettingsFile;
 	}
 
 	@Override
 	public void dispose() {
 		getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(NexusNavigator.ID, this);
 		super.dispose();
-	}
-
-	@Override
-	public void addSelectionChangedListener(ISelectionChangedListener listener) {
-	}
-
-	@Override
-	public ISelection getSelection() {
-		if (getHmXmlModel() != null && txtCentreOfRotation != null
-				&& (txtCentreOfRotation.getText() != null && txtCentreOfRotation.getText().length() > 0)) {
-			double centreOfRotation = Double.parseDouble(txtCentreOfRotation.getText());
-			return new ParametersSelection(nexusFile.getLocation().toOSString(), centreOfRotation);
-		}
-		return null;
-	}
-
-	@Override
-	public void removeSelectionChangedListener(ISelectionChangedListener listener) {
-	}
-
-	@Override
-	public void setSelection(ISelection selection) {
-		if (selection instanceof ParametersSelection) {
-			ParametersSelection parametersSelection = (ParametersSelection) selection;
-			if (nexusFile != null
-					&& parametersSelection.getNexusFileFullPath().equals(nexusFile.getLocation().toOSString())) {
-				txtCentreOfRotation.setText(Double.toString(parametersSelection.getCentreOfRotation()));
-			}
-		}
 	}
 
 }
