@@ -28,6 +28,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -44,6 +45,70 @@ import org.slf4j.LoggerFactory;
  */
 public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline {
 
+	public class ScannableSpecificExecutorService{
+
+		private ExecutorService service;
+		List<ExecutorService> namedES = new Vector<ExecutorService>();
+		private ThreadFactory threadFactory;
+
+		public ScannableSpecificExecutorService(int positionCallableThreadPoolSize, ThreadFactory threadFactory) {
+			this.threadFactory = threadFactory;
+			service = Executors.newFixedThreadPool(positionCallableThreadPoolSize, threadFactory);
+			
+		}
+
+		
+		public void shutdown() {
+			service.shutdown();
+			for(ExecutorService es : namedES)
+				es.shutdown();
+		}
+
+		public void shutdownNow() {
+			service.shutdownNow();
+			for(ExecutorService es : namedES)
+				es.shutdownNow();
+		}
+
+		public boolean isShutdown() {
+			boolean shutdown = service.isShutdown();
+			for(ExecutorService es : namedES)
+				shutdown &= es.isShutdown();
+			return shutdown;
+		}
+
+		public boolean isTerminated() {
+			boolean terminated = service.isTerminated();
+			for(ExecutorService es : namedES)
+				terminated &= es.isTerminated();
+			return terminated;
+			
+		}
+
+		public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
+			boolean awaitTermination = service.awaitTermination(timeout, unit);
+			for(ExecutorService es : namedES)
+				awaitTermination &= es.awaitTermination(timeout,unit);
+			return awaitTermination;
+			
+		}
+
+		public <T> Future<T> submit(Callable<T> task) {
+			ExecutorService es = service;
+			if( task instanceof NamedQueueTask){
+				NamedQueueTask task2 = (NamedQueueTask)task;
+				String name = task2.getName();
+				es = task2.getES();
+				if( !namedES.contains(es)){
+					namedES.add(es);
+					
+				}
+			}  
+			return es.submit(task);
+		}
+
+	}
+
 	private static final Logger logger = LoggerFactory.getLogger(MultithreadedScanDataPointPipeline.class);
 
 	private Throwable exception; // Guarded by 'this'
@@ -51,7 +116,7 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 	/**
 	 * Pool used to compute individual Scannable's positions from their position Callables.
 	 */
-	private ExecutorService positionCallableService;
+	private ScannableSpecificExecutorService positionCallableService;
 
 	/**
 	 * Single threaded, fixed length service used to populate and broadcast ScanDataPoints.
@@ -82,7 +147,7 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 		NamedThreadFactory threadFactory = new NamedThreadFactory(
 				" scan-" + scanName + "-MSDPP.positionCallableService-%d of " + positionCallableThreadPoolSize);
 		if (positionCallableThreadPoolSize > 0) {
-			positionCallableService = Executors.newFixedThreadPool(positionCallableThreadPoolSize, threadFactory);
+			positionCallableService = new ScannableSpecificExecutorService(positionCallableThreadPoolSize, threadFactory);
 		} // else leave it null.
 		createScannablePopulatorAndBroadcasterQueueAndThread(scanDataPointPipelineLength, scanName);
 	}
@@ -95,14 +160,7 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 	 * @param scanDataPointPipelineLength
 	 */
 	private void createScannablePopulatorAndBroadcasterQueueAndThread(int scanDataPointPipelineLength, String scanName) {
-		BlockingQueue<Runnable> workQueue;
-		
-		//  A queue cannot have zero length a customised SynchronousQueue is used if a Pipeline of length 1 is requested
-		if (scanDataPointPipelineLength == 1) {
-			workQueue = new SynchronousQueueWithBlockingOffer<Runnable>();
-		} else {	
-			workQueue = new ArrayBlockingQueueWithBlockingOffer<Runnable>(scanDataPointPipelineLength - 1);
-		}
+		BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<Runnable>();
 		broadcasterQueue = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, workQueue,  
 				new NamedThreadFactory(" scan-" + scanName + "-MSDPP.broadcaster"));
 	}

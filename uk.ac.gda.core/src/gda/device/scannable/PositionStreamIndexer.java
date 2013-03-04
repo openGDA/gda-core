@@ -19,12 +19,14 @@
 package gda.device.scannable;
 
 import gda.device.DeviceException;
+import gda.scan.NamedQueueTask;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -61,29 +63,37 @@ public class PositionStreamIndexer<T> implements PositionCallableProvider<T> {
 	 */
 	public T get(int index) throws NoSuchElementException, InterruptedException, DeviceException {
 		fairGetLock.lock();
-		// Keep reading until the indexed element is read from the stream.
-		while (index > lastIndexRead) {
-			List<T> values = stream.read(maxElementsToReadInOneGo);
-			if (values.isEmpty()) {
-				throw new IllegalStateException("stream returned an empty list (lastIndexRead=" + lastIndexRead +")");
+		try{
+			// Keep reading until the indexed element is read from the stream.
+			while (index > lastIndexRead) {
+				List<T> values = stream.read(maxElementsToReadInOneGo);
+				if (values.isEmpty()) {
+					throw new IllegalStateException("stream returned an empty list (lastIndexRead=" + lastIndexRead +")");
+				}
+				for (T value : values) {
+					readValuesNotGot.put(++lastIndexRead, value);
+				}
 			}
-			for (T value : values) {
-				readValuesNotGot.put(++lastIndexRead, value);
+			if (!readValuesNotGot.containsKey(index)) {
+				throw new IllegalStateException("Element " + index + " is not available. Values can only be got once (to avoid excessive memory use).");
 			}
+			return readValuesNotGot.remove(index);
+		} finally{
+			fairGetLock.unlock();
 		}
-		if (!readValuesNotGot.containsKey(index)) {
-			throw new IllegalStateException("Element " + index + " is not available. Values can only be got once (to avoid excessive memory use).");
-		}
-		T value = readValuesNotGot.remove(index);
-		fairGetLock.unlock();
-		return value;
 	}
 
 	@Override
 	public Callable<T> getPositionCallable() throws DeviceException {
-		lastIndexGivenOut += 1;
-		return new PositionStreamIndexPuller<T>(lastIndexGivenOut, this);
+		return getNamedPositionCallable(null,0, null);
 	}
+
+	public Callable<T> getNamedPositionCallable(String name, int i, ExecutorService es) {
+		lastIndexGivenOut += 1;
+		return name != null ? new NamedPositionStreamIndexPuller<T>(lastIndexGivenOut, this, name, i, es) : new PositionStreamIndexPuller<T>(lastIndexGivenOut, this);
+	}
+
+
 
 }
 
@@ -111,4 +121,34 @@ class PositionStreamIndexPuller<T> implements Callable<T> {
 		return value;
 	}
 
+}
+
+class NamedPositionStreamIndexPuller<T> extends PositionStreamIndexPuller<T> implements NamedQueueTask {
+
+	private String name;
+	private final int i;
+	private final ExecutorService es;
+
+	public NamedPositionStreamIndexPuller(int index, PositionStreamIndexer<T> indexer, String name, int i, ExecutorService es) {
+		super(index, indexer);
+		this.name = name;
+		this.i = i;
+		this.es = es;
+	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public int getI() {
+		return i;
+	}
+
+	@Override
+	public ExecutorService getES() {
+		return es;
+	}
+	
 }
