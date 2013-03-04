@@ -18,21 +18,18 @@
 
 package gda.data.scan.datawriter;
 
-import gda.configuration.properties.LocalProperties;
 import gda.data.nexus.NeXusUtils;
 
-import java.io.File;
-
+import org.eclipse.core.runtime.IPath;
 import org.nexusformat.NexusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.BeansFactory;
-import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 
 /**
- * A nexus data writer that stores the XAS xml files as strings.
+ * A nexus data writer that stores the XAS xml files contents.
  */
 public class XasNexusDataWriter extends NexusExtraMetadataDataWriter {
 
@@ -76,32 +73,17 @@ public class XasNexusDataWriter extends NexusExtraMetadataDataWriter {
 
 	protected void addDetectorXML() throws NexusException, Exception {
 		IDetectorParameters detParams = XasAsciiDataWriter.group.getDetector();
+		
+		String foldername = XasAsciiDataWriter.group.getScriptFolder();
+		foldername += IPath.SEPARATOR;
 
-		if (detParams instanceof DetectorParameters) {
-			DetectorParameters dp = (DetectorParameters) detParams;
-			if (dp.getExperimentType().equalsIgnoreCase("fluorescence")
-					&& dp.getFluorescenceParameters().getDetectorType().equals("Germanium")) {
-				if ((new File(LocalProperties.getConfigDir() + "/templates/Xspress_Parameters.xml")).exists())
-					writeXspressParameters();
-			} else if (dp.getExperimentType().equalsIgnoreCase("fluorescence")) {
-				if ((new File(LocalProperties.getConfigDir() + "/templates/Vortex_Parameters.xml")).exists())
-					writeVortexParameters();
-			} else if (dp.getExperimentType().equalsIgnoreCase("diffraction")) {
-				if ((new File(LocalProperties.getConfigDir() + "/templates/GSMD_Parameters.xml")).exists()) {
-					writeXml("GsmdParameters", LocalProperties.getConfigDir() + "/templates/GSMD_Parameters.xml");
-				}
-			}
+		if (detParams.getExperimentType().equalsIgnoreCase("fluorescence")) {
+			String filename = detParams.getFluorescenceParameters().getConfigFileName();
+			writeXml("DetectorConfigurationParameters", foldername + filename);
+		} else if (detParams.getExperimentType().equalsIgnoreCase("diffraction")) {
+			String filename = detParams.getSoftXRaysParameters().getConfigFileName();
+			writeXml("DetectorConfigurationParameters", foldername + filename);
 		}
-	}
-
-	private void writeVortexParameters() throws Exception {
-		String slurp = BeansFactory.getXMLString(LocalProperties.getConfigDir() + "/templates/Vortex_Parameters.xml");
-		NeXusUtils.writeNexusString(file, "VortexParameters", slurp);
-	}
-
-	protected void writeXspressParameters() throws Exception {
-		String slurp = BeansFactory.getXMLString(LocalProperties.getConfigDir() + "/templates/Xspress_Parameters.xml");
-		NeXusUtils.writeNexusString(file, "XspressParameters", slurp);
 	}
 
 	private void writeXml(final String name, final Object bean) throws NexusException, Exception {
