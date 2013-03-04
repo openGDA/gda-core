@@ -72,7 +72,6 @@ public class Stepper extends Canvas {
 	private ArrayList<IStepperSelectionListener> listeners;
 
 	private static final String TEXT_SMALL_7 = "TEXT_SMALL_6";
-
 	private int steps = 1;
 	private boolean moved;
 	private boolean showActualValueLabel;
@@ -202,11 +201,11 @@ public class Stepper extends Canvas {
 	public Stepper(Composite parent, int style) {
 		this(parent, style, true);
 	}
-	
+
 	public Stepper(Composite parent, int style, boolean showActualValueLabel) {
 		this(parent, style, showActualValueLabel, null);
 	}
-	
+
 	public Stepper(Composite parent, int style, Image sliderImage) {
 		this(parent, style, true, sliderImage);
 	}
@@ -215,7 +214,7 @@ public class Stepper extends Canvas {
 		super(parent, style);
 		this.setBackground(ColorConstants.white);
 		this.showActualValueLabel = showActualValueLabel;
-		
+
 		GridLayout layout = new GridLayout(3, false);
 		layout.marginWidth = 1;
 		layout.marginHeight = 1;
@@ -400,12 +399,22 @@ public class Stepper extends Canvas {
 
 	}
 
-	public void setSelection(int index) {
-		spinner.setSelection(index);
-		if (showActualValueLabel) {
-			actualValue.setText(getDisplayVal(index));
-		}
-		moveToStep(index);
+	public void setSelection(final int index) {
+		getDisplay().syncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				spinner.setSelection(index);
+				if (showActualValueLabel) {
+					actualValue.setText(getDisplayVal(index));
+				}
+				if (spinner.getMaximum() > 2 && markers.size() < 1) {
+					rootFigure.invalidate();
+				}
+				moveToStep(index);
+			}
+		});
+
 	}
 
 	private String getDisplayVal(int index) {
@@ -602,7 +611,6 @@ public class Stepper extends Canvas {
 		private final IFigure figure;
 
 		private int spinnerValNotified = -1;
-		private long lastTime;
 
 		public Dragger(IFigure figure) {
 			this.figure = figure;
@@ -661,14 +669,15 @@ public class Stepper extends Canvas {
 				f.setBounds(translated);
 				moveToLocation(f.getBounds().x);
 
-//				long currentTimeMillis = System.currentTimeMillis();
-//				// fires an update only if the previous update hadn't been fired within a timespan of 500 mill seconds.
-//				// This was added to avoid the UI thread being held up by listeners.
-//				if (currentTimeMillis - lastTime > 500) {
-//					spinnerValNotified = spinner.getSelection();
-//					fireNotifyChanged();
-//					lastTime = currentTimeMillis;
-//				}
+				// long currentTimeMillis = System.currentTimeMillis();
+				// // fires an update only if the previous update hadn't been fired within a timespan of 500 mill
+				// seconds.
+				// // This was added to avoid the UI thread being held up by listeners.
+				// if (currentTimeMillis - lastTime > 500) {
+				// spinnerValNotified = spinner.getSelection();
+				// fireNotifyChanged();
+				// lastTime = currentTimeMillis;
+				// }
 
 				movedPoint = p;
 			}
@@ -729,6 +738,18 @@ public class Stepper extends Canvas {
 
 	public int getSteps() {
 		return steps;
+	}
+
+	public double getSelectedValue() {
+		if (indexValues != null) {
+			return indexValues[getSelection()];
+		}
+
+		return getSelection();
+	}
+
+	public double[] getIndexValues() {
+		return indexValues;
 	}
 
 }
