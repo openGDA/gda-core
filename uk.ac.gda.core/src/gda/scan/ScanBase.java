@@ -1015,7 +1015,7 @@ public abstract class ScanBase implements Scan {
 					throw new Exception("Exception during scan collection: " + createMessage(e), e);
 				}
 			} catch (Exception e) {
-				logger.error(createMessage(e) + " during scan: calling atCommandFailure hooks and then interrupting scan.");
+				logger.error(createMessage(e) + " during scan: calling atCommandFailure hooks and then interrupting scan.",e);
 				cancelReadoutAndPublishCompletion();
 				callAtCommandFailureHooks();
 				throw e;
@@ -1028,7 +1028,7 @@ public abstract class ScanBase implements Scan {
 						lineScanNeedsDoing = true;
 						currentPointCount = pointNumberAtLineBeginning;
 					} else {
-						logger.error(createMessage(e) + " Calling atCommandFailure hooks.");
+						logger.error(createMessage(e) + " Calling atCommandFailure hooks.",e);
 						callAtCommandFailureHooks();
 						throw e;
 					}
