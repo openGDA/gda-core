@@ -23,18 +23,15 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.continuouscontroller.ContinuousMoveController;
 import gda.device.continuouscontroller.HardwareTriggerProvider;
-import gda.device.continuouscontroller.TrajectoryMoveController;
 import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetector;
 import gda.device.scannable.ContinuouslyScannableViaController;
+import gda.device.scannable.PositionCallableProvider;
 import gda.device.scannable.PositionConvertorFunctions;
-import gda.device.scannable.VariableCollectionTimeDetector;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
-import gda.jython.commands.ScannableCommands;
 import gda.observable.IObserver;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -59,7 +56,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 
-	static class PositionGrabbingAdapter implements ContinuouslyScannableViaController {
+	static class PositionGrabbingAdapter<T> implements ContinuouslyScannableViaController, PositionCallableProvider<T> {
 		
 		private final ContinuouslyScannableViaController delegate;
 		
@@ -288,6 +285,21 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 		public boolean isOperatingContinously() {
 			return delegate.isOperatingContinously();
 		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public Callable<T> getPositionCallable() throws DeviceException {
+			if( delegate instanceof PositionCallableProvider<?>){
+				return  ((PositionCallableProvider<T>)delegate).getPositionCallable();
+			}
+			final Object position = delegate.getPosition();
+			return new Callable<T>() {
+				@Override
+				public T call() throws Exception {
+					return (T) position;
+				}
+			};
+		}
 		
 		
 	}
@@ -313,7 +325,7 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 
 	}
 	
-	private static final Logger logger = LoggerFactory.getLogger(TrajectoryScanLine.class);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractContinuousScanLine.class);
 
 	// TODO: handle requirement for repeating a line
 
@@ -346,6 +358,7 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 		return false;  // should be false even if enabled for beamline
 	}
 	
+	@SuppressWarnings("rawtypes")
 	private static Object[] wrapContinuouslyScannables(Object[] args) {
 		for (int i = 0; i < args.length; i++) {
 			if (args[i] instanceof ContinuouslyScannableViaController) {
@@ -464,6 +477,7 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 		super.prepareDevicesForCollection();
 	}
 	
+	@SuppressWarnings("rawtypes")
 	@Override
 	public void doCollection() throws Exception {
 
@@ -508,8 +522,8 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 				det.waitWhileBusy();
 			}
 		} catch (Exception e) {
-			String msg = "problem in doCollection() so calling " + getController().getName() + "stopAndReset";
-			logger.info(msg);
+			String msg = "Problem in doCollection() so calling " + getController().getName() + " stopAndReset";
+			logger.error(msg,e);
 			InterfaceProvider.getTerminalPrinter().print(msg);
 			getController().stopAndReset();
 			throw e;
