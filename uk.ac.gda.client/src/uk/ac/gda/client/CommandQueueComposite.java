@@ -28,6 +28,7 @@ import gda.commandqueue.SimpleCommandSummary;
 import gda.observable.IObserver;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -472,9 +473,14 @@ class QueueContentProvider implements IStructuredContentProvider {
 	public Object[] getElements(Object inputElement) {
 		try {
 			List<QueuedCommandSummary> summaryList = currentQueue != null ? currentQueue.getSummaryList() : null;
-			return summaryList != null && summaryList.size() > 0 ? summaryList.toArray()
-					: new QueuedCommandSummary[] { new QueuedCommandSummary(CommandId.noneCommand,
-							new SimpleCommandSummary("Empty")) };
+			
+			if (summaryList == null || summaryList.isEmpty()) {
+				final QueuedCommandSummary emptyEntry = new QueuedCommandSummary(CommandId.noneCommand, new SimpleCommandSummary("Empty"));
+				summaryList = Collections.singletonList(emptyEntry);
+			}
+			
+			return summaryList.toArray();
+			
 		} catch (Exception e) {
 			logger.error("Error in getElements", e);
 		}
