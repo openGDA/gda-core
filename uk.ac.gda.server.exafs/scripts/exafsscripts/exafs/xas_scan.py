@@ -162,11 +162,12 @@ class XasScan(Scan):
                         thisscan.setScanPlotSettings(scanPlotSettings)
                     thisscan.runScan()
                 except InterruptedException, e:
+                    ScanBase.interrupted = False
                     if LocalProperties.get(RepetitionsProperties.SKIP_REPETITION_PROPERTY) == "true":
                         LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
-                        ScanBase.interrupted = False
                         # check if a panic stop has been issued, so the whole script should stop
                         if ScriptBase.isInterrupted():
+                            ScriptBase.interrupted = False
                             raise e
                         # only wanted to skip this repetition, so absorb the exception and continue the loop
                         if numRepetitions > 1:
