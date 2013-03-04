@@ -19,6 +19,7 @@
 package gda.device.zebra.controller.impl;
 
 import gda.device.zebra.controller.Zebra;
+import gda.epics.ReadOnlyPV;
 
 import java.io.IOException;
 
@@ -49,6 +50,10 @@ public class ZebraImpl implements Zebra, InitializingBean {
 	public double getPCPulseDelay() throws IOException {
 		return dev.getPVDouble(Zebra.PCPulseDelay).get();
 	}
+	@Override
+	public double getPCPulseDelayRBV() throws IOException {
+		return dev.getPVDouble(Zebra.PCPulseDelayRBV).get();
+	}
 
 	@Override
 	public void setPCPulseWidth(double val) throws IOException {
@@ -59,6 +64,10 @@ public class ZebraImpl implements Zebra, InitializingBean {
 	public double getPCPulseWidth() throws IOException {
 		return dev.getPVDouble(Zebra.PCPulseWidth).get();
 	}
+	@Override
+	public double getPCPulseWidthRBV() throws IOException {
+		return dev.getPVDouble(Zebra.PCPulseWidthRBV).get();
+	}
 
 	@Override
 	public void setPCPulseStep(double val) throws IOException {
@@ -68,6 +77,10 @@ public class ZebraImpl implements Zebra, InitializingBean {
 	@Override
 	public double getPCPulseStep() throws IOException {
 		return dev.getPVDouble(Zebra.PCPulseStep).get();
+	}
+	@Override
+	public double getPCPulseStepRBV() throws IOException {
+		return dev.getPVDouble(Zebra.PCPulseStepRBV).get();
 	}
 
 	@Override
@@ -89,6 +102,10 @@ public class ZebraImpl implements Zebra, InitializingBean {
 	public double getPCGateStart() throws IOException {
 		return dev.getPVDouble(Zebra.PCGateStart).get();
 	}
+	@Override
+	public double getPCGateStartRBV() throws IOException {
+		return dev.getPVDouble(Zebra.PCGateStartRBV).get();
+	}
 
 	@Override
 	public void setPCGateWidth(double val) throws IOException {
@@ -98,6 +115,10 @@ public class ZebraImpl implements Zebra, InitializingBean {
 	@Override
 	public double getPCGateWidth() throws IOException {
 		return dev.getPVDouble(Zebra.PCGateWidth).get();
+	}
+	@Override
+	public double getPCGateWidthRBV() throws IOException {
+		return dev.getPVDouble(Zebra.PCGateWidthRBV).get();
 	}
 
 	@Override
@@ -122,12 +143,12 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	@Override
 	public void pcArm() throws IOException {
-		dev.getPVInteger(Zebra.PCArm).putCallback(1);
+		dev.getPVInteger(Zebra.PCArm).putCallback(1,5); 
 	}
 
 	@Override
 	public void pcDisarm() throws IOException {
-		dev.getPVInteger(Zebra.PCDisArm).putCallback(1);
+		dev.getPVInteger(Zebra.PCDisArm).putCallback(1,5);
 	}
 
 	@Override
@@ -165,6 +186,17 @@ public class ZebraImpl implements Zebra, InitializingBean {
 		return dev.getPVInteger(Zebra.PCGateNumberOfGates).get();
 	}
 
+	@Override
+	public void setPCNumberOfPointsCaptured(final int val) throws IOException {
+		dev.getPVInteger(Zebra.PCNumberOfPointsCaptured).putCallback(val);
+	}
+
+	@Override
+	public int getPCNumberOfPointsCaptured() throws IOException {
+		return dev.getPVInteger(Zebra.PCNumberOfPointsCaptured).get();
+	}
+
+	
 	public String getZebraPrefix() {
 		return zebraPrefix;
 	}
@@ -179,6 +211,16 @@ public class ZebraImpl implements Zebra, InitializingBean {
 			throw new Exception("zebraPrefix is not set");
 		dev = new DevicePVCreator(zebraPrefix);
 
+	}
+
+	@Override
+	public ReadOnlyPV<Double[]> getEnc1AvalPV() {
+		return dev.getReadOnlyPVDoubleArray(Zebra.PCEnc1Aval);
+	}
+
+	@Override
+	public ReadOnlyPV<Integer> getNumberOfPointsCapturedPV() {
+		return dev.getPVInteger(Zebra.PCNumberOfPointsCaptured);
 	}
 
 	

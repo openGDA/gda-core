@@ -18,7 +18,7 @@
 
 package gda.device.zebra.controller;
 
-import gda.device.DeviceException;
+import gda.epics.ReadOnlyPV;
 
 import java.io.IOException;
 
@@ -63,16 +63,27 @@ public interface Zebra {
 	final public static String PCPulseStatus = "PC_PULSE_OUT";
 	public static final String PCCaptureBitField = "PC_CAP";
 	public static final String PCEnc = "PC_ENC";
+	public static final String PCEnc1Aval = "PC_ENC1.AVAL";
+	public static final String PCNumberOfPointsCaptured = "PC_NUM_CAP";
+	public static final String PCPulseStepRBV = "PC_PULSE_STEP:RBV";
+	public static final String PCPulseWidthRBV = "PC_PULSE_WID:RBV";
+	public static final String PCPulseDelayRBV = "PC_PULSE_DLY:RBV";
+	final public static String PCGateStartRBV = "PC_GATE_START:RBV";
+	final public static String PCGateWidthRBV = "PC_GATE_WID:RBV";
+	
 	
 	double getPCPulseDelay() throws IOException;
+	double getPCPulseDelayRBV() throws IOException;
 
 	void setPCPulseDelay(double delay) throws IOException;
 
 	double getPCPulseWidth() throws IOException;
+	double getPCPulseWidthRBV() throws IOException;
 
 	void setPCPulseWidth(double width) throws IOException;
 
 	double getPCPulseStep() throws IOException;
+	double getPCPulseStepRBV() throws IOException;
 
 	void setPCPulseStep(double step) throws IOException;
 
@@ -85,6 +96,7 @@ public interface Zebra {
 	void setPCGateSource(int ordinal) throws IOException;
 
 	double getPCGateStart() throws IOException;
+	double getPCGateStartRBV() throws IOException;
 
 	double getPCGateWidth() throws IOException;
 
@@ -95,6 +107,7 @@ public interface Zebra {
 	void setPCGateStart(double start) throws IOException;
 
 	void setPCGateWidth(double width) throws IOException;
+	double getPCGateWidthRBV()throws IOException;
 
 	void setPCGateNumberOfGates(int numberOfGates) throws IOException;
 
@@ -117,5 +130,13 @@ public interface Zebra {
 	void setPCEnc(int val) throws IOException;
 
 	int getPCEnc() throws IOException;
-	
+
+	ReadOnlyPV<Double[]> getEnc1AvalPV();
+
+	ReadOnlyPV<Integer> getNumberOfPointsCapturedPV();
+
+	void setPCNumberOfPointsCaptured(int val) throws IOException;
+
+	int getPCNumberOfPointsCaptured() throws IOException;
+
 }

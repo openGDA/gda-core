@@ -20,6 +20,7 @@ package gda.device.zebra.controller.impl;
 
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
+import gda.epics.ReadOnlyPV;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +37,28 @@ public class DevicePVCreator {
 		}
 		return pv;
 	}
+
+	protected Map<String, ReadOnlyPV<Double>> pvReadOnlyDoubles= new HashMap<String, ReadOnlyPV<Double>>();
+	
+	public ReadOnlyPV<Double> getReadOnlyPVDouble(String suffix){
+		ReadOnlyPV<Double> pv = pvReadOnlyDoubles.get(suffix);
+		if( pv == null){
+			pv = LazyPVFactory.newReadOnlyDoublePV(deviceprefix + suffix);
+			pvReadOnlyDoubles.put(suffix, pv);
+		}
+		return pv;
+	}
+	
+	protected Map<String, ReadOnlyPV<Double[]>> pvReadOnlyDoubleArrays= new HashMap<String, ReadOnlyPV<Double[]>>();
+	
+	public ReadOnlyPV<Double[]> getReadOnlyPVDoubleArray(String suffix){
+		ReadOnlyPV<Double[]> pv = pvReadOnlyDoubleArrays.get(suffix);
+		if( pv == null){
+			pv = LazyPVFactory.newReadOnlyDoubleArrayPV(deviceprefix + suffix);
+			pvReadOnlyDoubleArrays.put(suffix, pv);
+		}
+		return pv;
+	}
 	
 	protected Map<String, PV<Integer>> pvIntegers= new HashMap<String, PV<Integer>>();
 	
@@ -48,6 +71,18 @@ public class DevicePVCreator {
 		return pv;
 	}
 
+	protected Map<String, ReadOnlyPV<Integer>> pvReadOnlyIntegers= new HashMap<String, ReadOnlyPV<Integer>>();
+	
+	public ReadOnlyPV<Integer> getReadOnlyPVInteger(String suffix){
+		ReadOnlyPV<Integer> pv = pvReadOnlyIntegers.get(suffix);
+		if( pv == null){
+			pv = LazyPVFactory.newReadOnlyIntegerPV(deviceprefix + suffix);
+			pvReadOnlyIntegers.put(suffix, pv);
+		}
+		return pv;
+	}
+	
+	
 	public DevicePVCreator(String zebraPrefix) {
 		super();
 		this.deviceprefix = zebraPrefix;
