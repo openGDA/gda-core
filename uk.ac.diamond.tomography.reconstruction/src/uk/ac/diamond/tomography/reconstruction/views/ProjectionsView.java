@@ -36,10 +36,13 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.MouseListener;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
@@ -77,7 +80,7 @@ import uk.ac.gda.ui.components.IStepperSelectionListener;
 import uk.ac.gda.ui.components.Stepper;
 import uk.ac.gda.ui.components.StepperChangedEvent;
 
-public class ProjectionsView extends BaseTomoReconPart implements ISelectionListener {
+public class ProjectionsView extends BaseTomoReconPart implements ISelectionListener, ISelectionProvider {
 
 	private static final String PLOT_VIEW_TO_DISPLAY_RECON_IMAGE = "Plot 1";
 	private static final String JOB_UPDATE_RECONSTRUCTION_DISPLAY = "Update Reconstruction Display";
@@ -101,13 +104,9 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 
 	private AbstractPlottingSystem plottingSystem;
 
-	private IFile nexusFile;
-
 	private Text fileName;
 
 	private Stepper slicingStepper;
-
-	private UIJob refreshJob;
 
 	private ILazyDataset dataset;
 	private IRegion xHair = null;
@@ -128,6 +127,7 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 	@Override
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
+		getViewSite().setSelectionProvider(this);
 		pgBook = new PageBook(parent, SWT.None);
 
 		emptyPage = new Composite(pgBook, SWT.None);
@@ -252,7 +252,7 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 		fileName.setText(FILE_NAME);
 
 		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(this);
-		doCreateRefreshJob();
+		getRefreshJob();
 	}
 
 	private void setGridLayoutMinimumSetting(GridLayout layout) {
@@ -264,11 +264,11 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 
 	private int position = -1;
 
-	private void doCreateRefreshJob() {
-		refreshJob = new UIJob(getViewSite().getShell().getDisplay(), UPDATING_DATA) {
+	private Job getRefreshJob() {
+		Job refreshJob = new Job(UPDATING_DATA) {
 
 			@Override
-			public IStatus runInUIThread(IProgressMonitor monitor) {
+			protected IStatus run(IProgressMonitor monitor) {
 				monitor.beginTask("Plotting Data from " + nexusFile.getName(), IProgressMonitor.UNKNOWN);
 				if (nexusFile == null) {
 					return Status.CANCEL_STATUS;
@@ -307,6 +307,7 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 			}
 
 		};
+		return refreshJob;
 	}
 
 	private void createMouseFollowLineRegion() {
@@ -397,6 +398,7 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 		}
 
 	};
+	private int sliceNumber;
 
 	@Override
 	public void setFocus() {
@@ -405,37 +407,62 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 
 	public void updateDataToPosition(final int pos) {
 		this.position = pos;
-		refreshJob.cancel();
-		refreshJob.schedule(200);
+		if (nexusFile != null) {
+			// refreshJob.cancel();
+			getRefreshJob().setRule(new ReconSchedulingRule(nexusFile));
+			getRefreshJob().schedule(200);
+		}
 	}
 
 	public void updateData() {
-		String path = nexusFile.getLocation().toOSString();
-		HDF5Loader hdf5Loader = new HDF5Loader(path);
-		DataHolder loadFile;
-		int positionToUpdateTo = 0;
-		try {
-			loadFile = hdf5Loader.loadFile();
-			dataset = loadFile.getLazyDataset(PATH_TO_DATA_IN_NEXUS);
-			if (dataset != null) {
-				int[] shape = dataset.getShape();
-				int datasetShape = shape[0];
-				slicingStepper.setSteps(datasetShape);
-				if (datasetShape > 2) {
-					positionToUpdateTo = datasetShape / 2;
-					slicingStepper.setSelection(positionToUpdateTo);
-				} else {
-					slicingStepper.setSelection(0);
+		Job findPositionToUpdate = new Job(String.format("Finding position to update (%s)", nexusFile.getName())) {
+
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				int positionToUpdateTo = 0;
+				String path = nexusFile.getLocation().toOSString();
+				final HDF5Loader hdf5Loader = new HDF5Loader(path);
+				DataHolder loadFile;
+				try {
+					loadFile = hdf5Loader.loadFile();
+					dataset = loadFile.getLazyDataset(PATH_TO_DATA_IN_NEXUS);
+					if (dataset != null) {
+						int[] shape = dataset.getShape();
+						final int datasetShape = shape[0];
+						positionToUpdateTo = datasetShape / 2;
+						final int newStepperSelection = positionToUpdateTo;
+						new UIJob(getViewSite().getShell().getDisplay(), "Updating stepper") {
+
+							@Override
+							public IStatus runInUIThread(IProgressMonitor monitor) {
+								slicingStepper.setSteps(datasetShape);
+								if (datasetShape > 2) {
+									slicingStepper.setSelection(newStepperSelection);
+								} else {
+									slicingStepper.setSelection(0);
+								}
+								return Status.OK_STATUS;
+							}
+						}.schedule();
+
+					} else {
+						throw new IllegalArgumentException(ERR_MESSAGE_UNABLE_TO_FIND_DATASET);
+					}
+				} catch (ScanFileHolderException e1) {
+					showErrorMessage("Cannot load hdf file", e1);
+				} catch (IllegalArgumentException e2) {
+					showErrorMessage(e2.getMessage(), e2);
 				}
-			} else {
-				throw new IllegalArgumentException(ERR_MESSAGE_UNABLE_TO_FIND_DATASET);
+
+				updateDataToPosition(positionToUpdateTo);
+
+				return Status.OK_STATUS;
 			}
-		} catch (ScanFileHolderException e1) {
-			showErrorMessage("Cannot load hdf file", e1);
-		} catch (IllegalArgumentException e2) {
-			showErrorMessage(e2.getMessage(), e2);
-		}
-		updateDataToPosition(positionToUpdateTo);
+		};
+
+		findPositionToUpdate.setRule(new ReconSchedulingRule(nexusFile));
+		findPositionToUpdate.schedule();
+
 	}
 
 	@Override
@@ -449,22 +476,25 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 					IFile file = (IFile) firstElement;
 					if (!file.equals(nexusFile)) {
 						nexusFile = file;
-						try {
-							getViewSite()
-									.getActionBars()
-									.getStatusLineManager()
-									.setMessage(
-											String.format("Loading file %s ...", nexusFile.getFullPath().toOSString()));
-							updateData();
-							pgBook.showPage(plotPage);
-						} catch (Exception e) {
-							showErrorMessage("Problem with displaying dataset", e);
-						} finally {
-							getViewSite().getActionBars().getStatusLineManager().setMessage(null);
-						}
+						processNewNexusFile();
 					}
 				}
 			}
+		}
+	}
+
+	@Override
+	protected void processNewNexusFile() {
+		try {
+			getViewSite().getActionBars().getStatusLineManager()
+					.setMessage(String.format("Loading file %s ...", nexusFile.getFullPath().toOSString()));
+
+			updateData();
+			pgBook.showPage(plotPage);
+		} catch (Exception e) {
+			showErrorMessage("Problem with displaying dataset", e);
+		} finally {
+			getViewSite().getActionBars().getStatusLineManager().setMessage(null);
 		}
 	}
 
@@ -480,66 +510,106 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 		super.dispose();
 	}
 
-	public void displayReconstruction(final String nexusFileLocation, final int pixelPosition) {
+	private class UpdatePlotJob extends Job {
+		private static final String ERR_TITLE = "Problem loading data";
+		private static final String ERR_MESSAGE = "Unable to locate image for the slice. \n\nIt may be advisable to run a Preview Recon(from the Parameters View) and try loading the slice again. ";
+		private String nexusFileLocation;
+		private int pixelPosition;
 
-		UIJob displayJob = new UIJob(getViewSite().getShell().getDisplay(), JOB_UPDATE_RECONSTRUCTION_DISPLAY) {
+		public UpdatePlotJob() {
+			super(JOB_UPDATE_RECONSTRUCTION_DISPLAY);
+		}
 
-			@Override
-			public IStatus runInUIThread(IProgressMonitor monitor) {
+		@Override
+		protected void canceling() {
+			super.canceling();
+		}
 
-				monitor.beginTask("", 5);
-				// Update monitor
+		public void setNexusFileLocation(String nexusFileLocation) {
+			this.nexusFileLocation = nexusFileLocation;
+		}
+
+		public void setPixelPosition(int pixelPosition) {
+			this.pixelPosition = pixelPosition;
+		}
+
+		@Override
+		protected IStatus run(IProgressMonitor monitor) {
+			monitor.beginTask("", IProgressMonitor.UNKNOWN);
+			String pathToImages = ReconUtil.getReconstructedReducedDataDirectoryPath(nexusFileLocation);
+
+			File imageFile = new File(pathToImages, String.format(ReconUtil.RECONSTRUCTED_IMAGE_FILE_FORMAT,
+					pixelPosition / SPLITS));
+			logger.debug("Looking for image file {}", imageFile.getPath());
+			if (imageFile.exists()) {
+				// update monitor
 				monitor.worked(1);
-				String pathToImages = ReconUtil.getReconstructedReducedDataDirectoryPath(nexusFileLocation);
 
-				File imageFile = new File(pathToImages, String.format(ReconUtil.RECONSTRUCTED_IMAGE_FILE_FORMAT,
-						pixelPosition / SPLITS));
-				logger.debug("Looking for image file {}", imageFile.getPath());
-				if (imageFile.exists()) {
+				try {
+					DataHolder data = new TIFFImageLoader(imageFile.getAbsolutePath()).loadFile();
+
 					// update monitor
 					monitor.worked(1);
 
-					try {
-						DataHolder data = new TIFFImageLoader(imageFile.getAbsolutePath()).loadFile();
+					AbstractDataset image = data.getDataset(0);
+					image.isubtract(image.min());
+					image.imultiply(1000.0);
 
-						// update monitor
-						monitor.worked(1);
+					// update monitor
+					monitor.worked(1);
 
-						AbstractDataset image = data.getDataset(0);
-						image.isubtract(image.min());
-						image.imultiply(1000.0);
+					SDAPlotter.imagePlot(PLOT_VIEW_TO_DISPLAY_RECON_IMAGE, image);
 
-						// update monitor
-						monitor.worked(1);
-
-						SDAPlotter.imagePlot(PLOT_VIEW_TO_DISPLAY_RECON_IMAGE, image);
-
-						// update monitor
-						monitor.worked(1);
-					} catch (Exception e) {
-						logger.error("Cannot load recon image for display", e);
-						return Status.CANCEL_STATUS;
-					}
-				} else {
-					MessageDialog
-							.openError(
-									getViewSite().getShell(),
-									"Problem loading data",
-									"Unable to locate image for the slice. \n\nIt may be advisable to run a Preview Recon(from the Parameters View) and try loading the slice again. ");
+					// update monitor
+					monitor.worked(1);
+				} catch (Exception e) {
+					logger.error("Cannot load recon image for display", e);
+					return Status.CANCEL_STATUS;
 				}
-				return Status.OK_STATUS;
+			} else {
+				MessageDialog.openError(getViewSite().getShell(), ERR_TITLE, ERR_MESSAGE);
 			}
-		};
+			return Status.OK_STATUS;
+		}
+	}
 
-		displayJob.setUser(true);
-		displayJob.setRule(new ReconSchedulingRule(nexusFile));
-		displayJob.schedule();
+	public void displayReconstruction(final String nexusFileLocation, final int pixelPosition) {
+		UpdatePlotJob updatePlotJob = new UpdatePlotJob();
+
+		updatePlotJob.setNexusFileLocation(nexusFileLocation);
+		updatePlotJob.setPixelPosition(pixelPosition);
+
+		updatePlotJob.setRule(new ReconSchedulingRule(nexusFile));
+		updatePlotJob.schedule();
 
 	}
 
 	private void roiSet(double d) {
 		logger.debug("roi set:{}", d);
-		displayReconstruction(nexusFile.getLocation().toOSString(), (int) d);
+
+		sliceNumber = (int) d;
+		displayReconstruction(nexusFile.getLocation().toOSString(), sliceNumber);
+	}
+
+	@Override
+	public void addSelectionChangedListener(ISelectionChangedListener listener) {
+		// not intending to publish events yet
+
+	}
+
+	@Override
+	public ISelection getSelection() {
+		return new ProjectionSliceSelection(sliceNumber);
+	}
+
+	@Override
+	public void removeSelectionChangedListener(ISelectionChangedListener listener) {
+
+	}
+
+	@Override
+	public void setSelection(ISelection selection) {
+		// no intention of set selection now.
 	}
 
 }

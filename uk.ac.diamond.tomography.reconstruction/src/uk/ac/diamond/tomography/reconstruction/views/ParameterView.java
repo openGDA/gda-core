@@ -51,6 +51,8 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
@@ -68,7 +70,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.ISelectionListener;
+import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
@@ -112,7 +116,7 @@ import uk.ac.gda.util.io.FileUtils;
  * <p>
  */
 
-public class ParameterView extends BaseTomoReconPart implements ISelectionListener, IParameterView {
+public class ParameterView extends BaseTomoReconPart implements ISelectionListener, IParameterView, ISelectionProvider {
 
 	private static final String COMPRESS_NXS_URL_FORMAT = "platform:/plugin/%s/scripts/compress_nxs.sh";
 
@@ -169,11 +173,9 @@ public class ParameterView extends BaseTomoReconPart implements ISelectionListen
 
 	private IFile defaultSettingFile;
 
-	private IFile nexusFile;
-
 	private File hmSettingsInProcessingDir;
 
-	private Text txtCenterOfRotation;
+	private Text txtCentreOfRotation;
 
 	private CCombo cmbAml;
 
@@ -212,6 +214,7 @@ public class ParameterView extends BaseTomoReconPart implements ISelectionListen
 	@Override
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
+		getViewSite().setSelectionProvider(this);
 		toolkit = new FormToolkit(parent.getDisplay());
 		toolkit.setBorderStyle(SWT.BORDER);
 
@@ -246,21 +249,46 @@ public class ParameterView extends BaseTomoReconPart implements ISelectionListen
 		topComposite.setLayout(new GridLayout());
 		Composite rotationCenterCmp = toolkit.createComposite(topComposite);
 		rotationCenterCmp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		rotationCenterCmp.setLayout(new GridLayout(2, false));
+		rotationCenterCmp.setLayout(new GridLayout(3, false));
 
 		Label lblFileName = toolkit.createLabel(rotationCenterCmp, FILE_NAME);
 		lblFileName.setLayoutData(new GridData());
 
 		txtFileName = toolkit.createText(rotationCenterCmp, BLANK);
 		txtFileName.setEditable(false);
-		txtFileName.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
+		layoutData.horizontalSpan = 2;
+		txtFileName.setLayoutData(layoutData);
 
 		//
 		Label lblCenterOfRotation = toolkit.createLabel(rotationCenterCmp, ROTATION_CENTRE);
 		lblCenterOfRotation.setLayoutData(new GridData());
 
-		txtCenterOfRotation = toolkit.createText(rotationCenterCmp, BLANK);
-		txtCenterOfRotation.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		txtCentreOfRotation = toolkit.createText(rotationCenterCmp, BLANK);
+		txtCentreOfRotation.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Button btnFindCentre = toolkit.createButton(rotationCenterCmp, "Find Centre", SWT.None);
+		btnFindCentre.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				try {
+
+					IViewPart centreOfRotationView = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+							.getActivePage().showView(CenterOfRotationView.ID);
+					if (centreOfRotationView != null) {
+						centreOfRotationView
+								.getViewSite()
+								.getSelectionProvider()
+								.setSelection(
+										new ParametersSelection(nexusFile.getLocation().toOSString(), Double
+												.parseDouble(txtCentreOfRotation.getText())));
+					}
+				} catch (PartInitException e1) {
+					logger.error("Unable to find center of rotation view", e1);
+				}
+			}
+		});
+		btnFindCentre.setLayoutData(new GridData());
 
 		// Ring Artefacts
 		Composite ringArtefacts = createRingArtefacts(topComposite);
@@ -319,7 +347,7 @@ public class ParameterView extends BaseTomoReconPart implements ISelectionListen
 
 		// Read settings file from resource and copy to /tmp
 		createSettingsFile();
-		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(this);
+		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(NexusNavigator.ID, this);
 	}
 
 	public static class SampleInOutBeamPosition extends Dialog {
@@ -410,12 +438,12 @@ public class ParameterView extends BaseTomoReconPart implements ISelectionListen
 			logger.debug("shFileURL:{}", shFileURL);
 			tomoDoShScript = new File(FileLocator.toFileURL(shFileURL).toURI());
 			logger.debug("tomoDoShScript:{}", tomoDoShScript);
+			String shScriptName = tomoDoShScript.getAbsolutePath();
 
 			IPath fullPath = nexusFile.getLocation();
 			if (quick) {
 				fullPath = new Path(reducedNexusFile.getPath());
 			}
-
 			String nexusFileLocation = nexusFile.getLocation().toString();
 			if (quick) {
 				nexusFileLocation = reducedNexusFile.getPath();
@@ -449,7 +477,6 @@ public class ParameterView extends BaseTomoReconPart implements ISelectionListen
 
 			String fileName = fullPath.toOSString();
 
-			String shScriptName = tomoDoShScript.getAbsolutePath();
 			String templateFileName = hmSettingsInProcessingDir.getAbsolutePath();
 
 			int height = hdfShape[1];
@@ -784,12 +811,12 @@ public class ParameterView extends BaseTomoReconPart implements ISelectionListen
 	private int[] reducedDataShape;
 
 	protected void saveModel() {
-		HMxmlType model = getModel();
+		HMxmlType model = getHmXmlModel();
 		try {
 			FBPType fbp = model.getFBP();
 			BackprojectionType backprojection = fbp.getBackprojection();
 			//
-			backprojection.setImageCentre(BigDecimal.valueOf(Double.parseDouble(txtCenterOfRotation.getText())));
+			backprojection.setImageCentre(BigDecimal.valueOf(Double.parseDouble(txtCentreOfRotation.getText())));
 			RingArtefactsType ringArtefacts = fbp.getPreprocessing().getRingArtefacts();
 
 			ringArtefacts.getType().setValue(cmbAml.getText());
@@ -829,54 +856,78 @@ public class ParameterView extends BaseTomoReconPart implements ISelectionListen
 
 	private void initializeView() {
 		pgBook.showPage(mainForm);
-		HMxmlType hmxmlType = getModel();
 
-		FBPType fbp = hmxmlType.getFBP();
-		BackprojectionType backprojection = fbp.getBackprojection();
+		if (getHmXmlModel() != null) {
+			HMxmlType hmxmlType = getHmXmlModel();
 
-		txtFileName.setText(nexusFile.getLocation().toOSString());
+			FBPType fbp = hmxmlType.getFBP();
+			BackprojectionType backprojection = fbp.getBackprojection();
 
-		float floatValue = backprojection.getImageCentre().floatValue();
-		txtCenterOfRotation.setText(Float.toString(floatValue));
+			txtFileName.setText(nexusFile.getLocation().toOSString());
 
-		RingArtefactsType ringArtefacts = fbp.getPreprocessing().getRingArtefacts();
-		String amlValue = ringArtefacts.getType().getValue();
-		cmbAml.setText(amlValue);
+			float floatValue = backprojection.getImageCentre().floatValue();
+			txtCentreOfRotation.setText(Float.toString(floatValue));
 
-		float numSeriesVal = ringArtefacts.getNumSeries().getValue().floatValue();
-		txtNumSeries.setText(Float.toString(numSeriesVal));
+			RingArtefactsType ringArtefacts = fbp.getPreprocessing().getRingArtefacts();
+			String amlValue = ringArtefacts.getType().getValue();
+			cmbAml.setText(amlValue);
 
-		FlatDarkFieldsType flatDarkFields = fbp.getFlatDarkFields();
+			float numSeriesVal = ringArtefacts.getNumSeries().getValue().floatValue();
+			txtNumSeries.setText(Float.toString(numSeriesVal));
 
-		FlatFieldType flatField = flatDarkFields.getFlatField();
+			FlatDarkFieldsType flatDarkFields = fbp.getFlatDarkFields();
 
-		cmbFlatFieldType.setText(flatField.getType().getValue());
+			FlatFieldType flatField = flatDarkFields.getFlatField();
 
-		txtFlatFieldValueBefore.setText(Double.toString(flatField.getValueBefore()));
+			cmbFlatFieldType.setText(flatField.getType().getValue());
 
-		txtFlatFieldValueAfter.setText(Double.toString(flatField.getValueAfter()));
-		txtFlatFieldFileBefore.setText(flatField.getFileBefore());
+			txtFlatFieldValueBefore.setText(Double.toString(flatField.getValueBefore()));
 
-		DarkFieldType darkField = flatDarkFields.getDarkField();
+			txtFlatFieldValueAfter.setText(Double.toString(flatField.getValueAfter()));
+			txtFlatFieldFileBefore.setText(flatField.getFileBefore());
 
-		cmbDarkFieldType.setText(darkField.getType().getValue());
+			DarkFieldType darkField = flatDarkFields.getDarkField();
 
-		txtDarkFieldValueBefore.setText(Double.toString(darkField.getValueBefore()));
+			cmbDarkFieldType.setText(darkField.getType().getValue());
 
-		txtDarkFieldValueAfter.setText(Double.toString(darkField.getValueAfter()));
-		txtDarkFieldFileBefore.setText(darkField.getFileBefore());
+			txtDarkFieldValueBefore.setText(Double.toString(darkField.getValueBefore()));
 
-		//
-		ROIType roi = backprojection.getROI();
-		cmbRoiType.setText(roi.getType().getValue());
-		txtRoiXMin.setText(Integer.toString(roi.getXmin()));
-		txtRoiXMax.setText(Integer.toString(roi.getXmax()));
-		txtRoiYMin.setText(Integer.toString(roi.getYmin()));
-		txtRoiYMax.setText(Integer.toString(roi.getYmax()));
+			txtDarkFieldValueAfter.setText(Double.toString(darkField.getValueAfter()));
+			txtDarkFieldFileBefore.setText(darkField.getFileBefore());
+
+			//
+			ROIType roi = backprojection.getROI();
+			cmbRoiType.setText(roi.getType().getValue());
+			txtRoiXMin.setText(Integer.toString(roi.getXmin()));
+			txtRoiXMax.setText(Integer.toString(roi.getXmax()));
+			txtRoiYMin.setText(Integer.toString(roi.getYmin()));
+			txtRoiYMax.setText(Integer.toString(roi.getYmax()));
+
+			String centreOfRot = getCentreOfRotationFromCentreOfRotationView();
+			if (centreOfRot != null) {
+				txtCentreOfRotation.setText(centreOfRot);
+			}
+		}
 
 	}
 
-	private HMxmlType getModel() {
+	private String getCentreOfRotationFromCentreOfRotationView() {
+		IViewPart centreOfRotView = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+				.findView(CenterOfRotationView.ID);
+		if (centreOfRotView != null) {
+			ISelection selection = centreOfRotView.getViewSite().getSelectionProvider().getSelection();
+			if (selection instanceof ParametersSelection && nexusFile != null) {
+				ParametersSelection ps = (ParametersSelection) selection;
+				if (ps.getNexusFileFullPath().equals(nexusFile.getLocation().toOSString())) {
+					return Double.toString(ps.getCentreOfRotation());
+				}
+			}
+		}
+
+		return null;
+	}
+
+	private HMxmlType getHmXmlModel() {
 		if (hmSettingsInProcessingDir != null && hmSettingsInProcessingDir.exists()) {
 			ResourceSet rset = new ResourceSetImpl();
 			Resource hmRes = rset.getResource(
@@ -1013,34 +1064,40 @@ public class ParameterView extends BaseTomoReconPart implements ISelectionListen
 				}
 
 				if (nexusFile != null && newSelection) {
-					hmSettingsInProcessingDir = getHmSettingsInProcessingDir();
-					String path = nexusFile.getLocation().toOSString();
-					ILazyDataset actualDataset = getDataSetFromFileLocation(path);
-					if (actualDataset != null && actualDataset.getRank() == 3) {
-						isHdf = true;
-						hdfShape = actualDataset.getShape();
-						reducedNexusFile = getReducedNexusFile(nexusFile);
-						if (reducedNexusFile.exists()) {
-							ILazyDataset reducedDataset = getDataSetFromFileLocation(reducedNexusFile.getPath());
-							if (reducedDataset != null) {
-								reducedDataShape = reducedDataset.getShape();
-							} else {
-								logger.warn("Reduced data set not ready yet");
-							}
-						}
-					}
-					getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
-
-						@Override
-						public void run() {
-							initializeView();
-						}
-					});
+					processNewNexusFile();
 					return;
 				}
 			}
 		}
 
+	}
+
+	@Override
+	protected void processNewNexusFile() {
+		hmSettingsInProcessingDir = getHmSettingsInProcessingDir();
+		String path = nexusFile.getLocation().toOSString();
+		ILazyDataset actualDataset = getDataSetFromFileLocation(path);
+		if (actualDataset != null && actualDataset.getRank() == 3) {
+			isHdf = true;
+			hdfShape = actualDataset.getShape();
+			reducedNexusFile = getReducedNexusFile(nexusFile);
+			if (reducedNexusFile.exists()) {
+				ILazyDataset reducedDataset = getDataSetFromFileLocation(reducedNexusFile.getPath());
+				if (reducedDataset != null) {
+					reducedDataShape = reducedDataset.getShape();
+				} else {
+					logger.warn("Reduced data set not ready yet");
+				}
+			}
+		}
+		getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				initializeView();
+			}
+		});
+		return;
 	}
 
 	private ILazyDataset getDataSetFromFileLocation(String path) {
@@ -1123,8 +1180,37 @@ public class ParameterView extends BaseTomoReconPart implements ISelectionListen
 
 	@Override
 	public void dispose() {
-		getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(this);
+		getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(NexusNavigator.ID, this);
 		super.dispose();
+	}
+
+	@Override
+	public void addSelectionChangedListener(ISelectionChangedListener listener) {
+	}
+
+	@Override
+	public ISelection getSelection() {
+		if (getHmXmlModel() != null && txtCentreOfRotation != null
+				&& (txtCentreOfRotation.getText() != null && txtCentreOfRotation.getText().length() > 0)) {
+			double centreOfRotation = Double.parseDouble(txtCentreOfRotation.getText());
+			return new ParametersSelection(nexusFile.getLocation().toOSString(), centreOfRotation);
+		}
+		return null;
+	}
+
+	@Override
+	public void removeSelectionChangedListener(ISelectionChangedListener listener) {
+	}
+
+	@Override
+	public void setSelection(ISelection selection) {
+		if (selection instanceof ParametersSelection) {
+			ParametersSelection parametersSelection = (ParametersSelection) selection;
+			if (nexusFile != null
+					&& parametersSelection.getNexusFileFullPath().equals(nexusFile.getLocation().toOSString())) {
+				txtCentreOfRotation.setText(Double.toString(parametersSelection.getCentreOfRotation()));
+			}
+		}
 	}
 
 }

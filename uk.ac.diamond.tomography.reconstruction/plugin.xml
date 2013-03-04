@@ -39,6 +39,15 @@
             name="Nexus Navigator"
             restorable="true">
       </view>
+      <view
+            allowMultiple="false"
+            category="uk.ac.diamond.tomography.reconstruction"
+            class="uk.ac.diamond.tomography.reconstruction.views.CenterOfRotationView"
+            icon="icons/centreOfRotation.png"
+            id="uk.ac.diamond.tomography.reconstruction.view.centreOfRotation"
+            name="Centre of Rotation"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.help.contexts">

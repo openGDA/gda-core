@@ -18,16 +18,48 @@
 
 package uk.ac.diamond.tomography.reconstruction.views;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IPartListener2;
+import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPartReference;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 public abstract class BaseTomoReconPart extends ViewPart {
 
 	private boolean isPartActive;
 
+	protected IFile nexusFile;
+
 	synchronized void setPartActive(boolean isActive) {
 		this.isPartActive = isActive;
+
+		if (isActive) {
+			IFile newNexusFile = null;
+			IViewPart nexusNavigatorView = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+					.findView(NexusNavigator.ID);
+			if (nexusNavigatorView != null) {
+				ISelection selection = nexusNavigatorView.getViewSite().getSelectionProvider().getSelection();
+				if (selection instanceof IStructuredSelection) {
+					IStructuredSelection sel = (IStructuredSelection) selection;
+					Object firstElement = sel.getFirstElement();
+					if (firstElement instanceof IFile) {
+						newNexusFile = (IFile) firstElement;
+					}
+				}
+
+			}
+			if (newNexusFile != null && (nexusFile == null || !(nexusFile.equals(newNexusFile)))) {
+				nexusFile = newNexusFile;
+				processNewNexusFile();
+			}
+		}
+	}
+
+	protected void processNewNexusFile() {
+		// To be implemented by subclasses although not necessarily.
 	}
 
 	private IPartListener2 partAdapter = new IPartListener2() {
