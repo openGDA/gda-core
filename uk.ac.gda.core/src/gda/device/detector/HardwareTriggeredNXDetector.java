@@ -20,9 +20,10 @@ package gda.device.detector;
 
 import gda.device.DeviceException;
 import gda.device.continuouscontroller.HardwareTriggerProvider;
+import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetector;
 import gda.device.detector.hardwaretriggerable.HardwareTriggeredDetector;
 
-public class HardwareTriggeredNXDetector extends NXDetector implements HardwareTriggeredDetector {
+public class HardwareTriggeredNXDetector extends NXDetector implements HardwareTriggeredDetector , HardwareTriggerableDetector {
 
 	private HardwareTriggerProvider triggerProvider;
 	
@@ -68,6 +69,17 @@ public class HardwareTriggeredNXDetector extends NXDetector implements HardwareT
 
 	@Override
 	public boolean integratesBetweenPoints() {
+		return true;
+	}
+
+	@Override
+	public void setHardwareTriggering(boolean b) throws DeviceException {
+		//do nothing it is always hardwareTriggered
+		
+	}
+
+	@Override
+	public boolean isHardwareTriggering() {
 		return true;
 	}
 
