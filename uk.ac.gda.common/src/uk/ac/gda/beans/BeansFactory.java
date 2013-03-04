@@ -163,7 +163,7 @@ public class BeansFactory {
 		try {
 			XMLHelpers.writeToXML(mapping, bean, writer);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Exception writing bean " + beanOrPath + " to xml",e);
 		} finally {
 			writer.close();
 		}
