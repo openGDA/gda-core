@@ -180,7 +180,7 @@ public class XmapMonitorView extends MonitorViewBase {
 	}
 
 	@Override
-	protected Double[] getIonChamberValues() throws DeviceException {
+	protected Double[] getIonChamberValues() throws Exception {
 
 		String xmapName = LocalProperties.get("gda.exafs.xmapName", "xmapMca");
 		XmapDetector xmap = (XmapDetector) Finder.getInstance().find(xmapName);
@@ -188,18 +188,15 @@ public class XmapMonitorView extends MonitorViewBase {
 		CounterTimer ionchambers = (CounterTimer) Finder.getInstance().find(ionchambersName);
 
 		// only collect new data outside of scans else will readout the last data collected
-		try {
-			if (JythonServerFacade.getInstance().getScanStatus() == Jython.IDLE && !xmap.isBusy()
-					&& !ionchambers.isBusy()) {
-				xmap.collectData();
-				ionchambers.setCollectionTime(1);
-				ionchambers.collectData();
-				ionchambers.waitWhileBusy();
-				xmap.stop();
-			}
+		if (JythonServerFacade.getInstance().getScanStatus() == Jython.IDLE && !xmap.isBusy() && !ionchambers.isBusy()) {
+			xmap.collectData();
+			ionchambers.setCollectionTime(1);
+			ionchambers.collectData();
+			ionchambers.waitWhileBusy();
+			xmap.stop();
 			xmap.waitWhileBusy();
-		} catch (InterruptedException e) {
-			// ignore
+		} else {
+			throw new Exception("Scan and/or detectors already running, so stop the loop");
 		}
 
 		// read the latest frame
