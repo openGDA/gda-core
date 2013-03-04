@@ -419,6 +419,7 @@ public class ExperimentFactory {
 			for (IConfigurationElement element : config) {
 				if (element.getName().equals("templatesLocation")) {
 					String valueInRegistry = element.getAttribute("folderName");
+					// use the LocalProperties variable parsing to pick up variables such as ${gda.var} etc.
 					String passedValue = LocalProperties.get("lsdjfhlasdkfhsdlakjfhlasdkfhlsdafhl", valueInRegistry);
 					templatesFolder = passedValue;
 					if (!templatesFolder.endsWith(File.separator)) {
