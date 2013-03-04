@@ -18,8 +18,6 @@ import org.eclipse.emf.edit.command.RemoveCommand;
 import org.eclipse.emf.edit.command.SetCommand;
 import org.eclipse.emf.edit.domain.EditingDomain;
 import org.eclipse.emf.edit.provider.ComposedAdapterFactory;
-import org.eclipse.emf.edit.provider.ReflectiveItemProviderAdapterFactory;
-import org.eclipse.emf.edit.provider.resource.ResourceItemProviderAdapterFactory;
 import org.eclipse.emf.edit.ui.dnd.EditingDomainViewerDropAdapter;
 import org.eclipse.emf.edit.ui.dnd.LocalTransfer;
 import org.eclipse.emf.edit.ui.dnd.ViewerDragAdapter;
@@ -70,7 +68,6 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Regionde
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum;
-import org.opengda.detector.electronanalyser.model.regiondefinition.provider.RegiondefinitionItemProviderAdapterFactory;
 import org.opengda.detector.electronanalyser.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -127,7 +124,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 			new ColumnWeightData(40, true), new ColumnWeightData(40, true),
 			new ColumnWeightData(40, true), new ColumnWeightData(40, true),
 			new ColumnWeightData(40, true) };
-	private ComposedAdapterFactory adapterFactory;
+	
 	private TableViewer sequenceTableViewer;
 	private List<Region> regions;
 
@@ -164,20 +161,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		}
 	}
 
-	protected void initializeEditingDomain() {
-		// Create an adapter factory that yields item providers.
-		//
-		adapterFactory = new ComposedAdapterFactory(
-				ComposedAdapterFactory.Descriptor.Registry.INSTANCE);
-
-		adapterFactory
-				.addAdapterFactory(new ResourceItemProviderAdapterFactory());
-		adapterFactory
-				.addAdapterFactory(new RegiondefinitionItemProviderAdapterFactory());
-		adapterFactory
-				.addAdapterFactory(new ReflectiveItemProviderAdapterFactory());
-
-	}
 
 	@Override
 	public void createPartControl(final Composite parent) {
@@ -223,16 +206,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		tableViewerContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
 				true, true, 1, 1));
 
-		sequenceTableViewer.addDragSupport(DND.DROP_COPY | DND.DROP_MOVE
-				| DND.DROP_LINK,
-				new Transfer[] { LocalTransfer.getInstance() },
-				new ViewerDragAdapter(sequenceTableViewer));
-
-		sequenceTableViewer.addDropSupport(DND.DROP_COPY | DND.DROP_MOVE
-				| DND.DROP_LINK,
-				new Transfer[] { LocalTransfer.getInstance() },
-				new EditingDomainViewerDropAdapter(editingDomain,
-						sequenceTableViewer));
 
 		sequenceTableViewer.setContentProvider(new SequenceViewContentProvider(
 				regionDefinitionResourceUtil));
@@ -542,20 +515,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 			}
 		});
 		btnStart.setToolTipText("Save the sequence data to file, then start collection");
-
-		Button btnOK = new Button(actionArea, SWT.NONE);
-		btnOK.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				try {
-					resource.save(null);
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
-			}
-		});
-		btnOK.setText("OK");
-		btnOK.setToolTipText("Save the sequence data to file only");
 		initialisation();
 		// register as selection provider to the SelectionService
 		getViewSite().setSelectionProvider(this);
@@ -651,6 +610,17 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 				}
 			}
 		}
+		sequenceTableViewer.addDragSupport(DND.DROP_COPY | DND.DROP_MOVE
+				| DND.DROP_LINK,
+				new Transfer[] { LocalTransfer.getInstance() },
+				new ViewerDragAdapter(sequenceTableViewer));
+
+		sequenceTableViewer.addDropSupport(DND.DROP_COPY | DND.DROP_MOVE
+				| DND.DROP_LINK,
+				new Transfer[] { LocalTransfer.getInstance() },
+				new EditingDomainViewerDropAdapter(editingDomain,
+						sequenceTableViewer));
+
 		sequenceTableViewer.setSelection(new StructuredSelection(
 				sequenceTableViewer.getElementAt(0)), true);
 	}
