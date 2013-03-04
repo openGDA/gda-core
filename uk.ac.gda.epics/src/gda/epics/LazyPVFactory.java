@@ -604,8 +604,11 @@ public class LazyPVFactory {
 
 			@Override
 			public void monitorChanged(MonitorEvent ev) {
-				setLastValueFromMonitor(extractValueFromDbr(ev.getDBR()));
-				logger.debug("'{}' <-- {}  (monitored value changed)", pvName, lastMonitoredValue);
+				DBR dbr = ev.getDBR();
+				if(dbr != null){
+					setLastValueFromMonitor(extractValueFromDbr(dbr));
+					logger.debug("'{}' <-- {}  (monitored value changed)", pvName, lastMonitoredValue);
+				}
 			}
 		}
 
