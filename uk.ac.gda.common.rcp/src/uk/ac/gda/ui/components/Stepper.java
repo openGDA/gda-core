@@ -421,9 +421,9 @@ public class Stepper extends Canvas {
 		String displayVal = null;
 		if (indexValues != null) {
 			if (index == indexValues.length) {
-				displayVal = String.format("%.5g", indexValues[indexValues.length - 1]);
+				displayVal = String.format("%.02f", indexValues[indexValues.length - 1]);
 			} else {
-				displayVal = String.format("%.5g", indexValues[index]);
+				displayVal = String.format("%.02f", indexValues[index]);
 			}
 		} else {
 			displayVal = Integer.toString(index);
