@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.tomography.reconstruction.views;
 
+import gda.analysis.io.ScanFileHolderException;
 import gda.util.OSCommandRunner;
 
 import java.io.File;
@@ -55,6 +56,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.TIFFImageLoader;
 import uk.ac.diamond.tomography.reconstruction.Activator;
@@ -69,6 +71,7 @@ import uk.ac.gda.ui.components.StepperChangedEvent;
 import uk.ac.gda.util.io.FileUtils;
 
 public class CenterOfRotationView extends BaseParameterView implements ISelectionListener {
+	private static final String JOB_NAME_UPDATE_CENTRE_OF_ROTATION_SEARCH = "Update centre(%s): %.02f";
 	private static final String FIND_TOMO_CENTRE_SCRIPT_FILE_NAME = "platform:/plugin/%s/scripts/tomo_centre.sh";
 	private static final String FIND_CENTRE_JOB_NAME = "Finding Centre (%.02f) for %s";
 	private static final String FIND_CENTRE_COMMAND = "%s -s %d -c %f --ctot=%d --cstep=%f -n %s %s";
@@ -387,11 +390,10 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 
 	private class UpdatePlotViewJob extends Job {
 
-		private static final String JOB_NAME_UPDATE_CENTRE_OF_ROTATION_SEARCH = "Update centre search(%s)";
 		private int position;
 
 		public UpdatePlotViewJob() {
-			super(String.format(JOB_NAME_UPDATE_CENTRE_OF_ROTATION_SEARCH, nexusFile.getName()));
+			super("");
 		}
 
 		public synchronized void setStepperPosition(int position) {
@@ -431,21 +433,17 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 		}
 	}
 
-	private UpdatePlotViewJob getUpdatePlotViewJob() {
-		if (updatePlotViewJob == null) {
-			updatePlotViewJob = new UpdatePlotViewJob();
-		}
-		return updatePlotViewJob;
-	}
-
 	private IStepperSelectionListener stepperSelectionListener = new IStepperSelectionListener() {
 
 		@Override
 		public void stepperChanged(final StepperChangedEvent e) {
 			double value = sliceStepper.getIndexValues()[e.getPosition()];
 			txtCentreOfRotation.setText(getCentreOfRotationDisplayText(value));
-			UpdatePlotViewJob plotViewJob = getUpdatePlotViewJob();
+			UpdatePlotViewJob plotViewJob = new UpdatePlotViewJob();
+			plotViewJob.setName(String.format(JOB_NAME_UPDATE_CENTRE_OF_ROTATION_SEARCH, nexusFile.getName(), value));
 			plotViewJob.setStepperPosition(e.getPosition());
+			plotViewJob.setRule(new ReconSchedulingRule(nexusFile));
+			plotViewJob.setUser(true);
 			plotViewJob.schedule();
 		}
 	};
@@ -477,23 +475,34 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 	}
 
 	private void processSelectionChangeToNexus() {
-		super.processNewNexusFile();
-		pgBook_showSlider.showPage(pg_showSlider_plainComposite);
-		pgBook_mainComposite.showPage(pg_mainComposite_root);
+		ILazyDataset datasetFromNexusFile = null;
+		try {
+			datasetFromNexusFile = getDatasetFromNexusFile();
+		} catch (ScanFileHolderException e) {
+			logger.error("Unable to load dataset", e);
+		}
 
-		final float rotCentre = getHmXmlModel().getFBP().getBackprojection().getImageCentre().floatValue();
-		UIJob updateCentreOfRotation = new UIJob(getViewSite().getShell().getDisplay(), UPDATING_CENTRE_OF_ROTATION) {
+		if (datasetFromNexusFile != null) {
+			super.processNewNexusFile();
+			pgBook_showSlider.showPage(pg_showSlider_plainComposite);
+			pgBook_mainComposite.showPage(pg_mainComposite_root);
 
-			@Override
-			public IStatus runInUIThread(IProgressMonitor monitor) {
-				if (nexusFile != null) {
-					txtCentreOfRotation.setText(getCentreOfRotationDisplayText(rotCentre));
-					txtFileName.setText(nexusFile.getLocation().toOSString());
+			final float rotCentre = getHmXmlModel().getFBP().getBackprojection().getImageCentre().floatValue();
+			UIJob updateCentreOfRotation = new UIJob(getViewSite().getShell().getDisplay(), UPDATING_CENTRE_OF_ROTATION) {
+
+				@Override
+				public IStatus runInUIThread(IProgressMonitor monitor) {
+					if (nexusFile != null) {
+						txtCentreOfRotation.setText(getCentreOfRotationDisplayText(rotCentre));
+						txtFileName.setText(nexusFile.getLocation().toOSString());
+					}
+					return Status.OK_STATUS;
 				}
-				return Status.OK_STATUS;
-			}
-		};
-		updateCentreOfRotation.schedule();
+			};
+			updateCentreOfRotation.schedule();
+		} else {
+			pgBook_mainComposite.showPage(pg_mainComposite_plain);
+		}
 	}
 
 	@Override

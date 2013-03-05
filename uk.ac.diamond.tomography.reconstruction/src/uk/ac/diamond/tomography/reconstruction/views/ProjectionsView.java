@@ -19,8 +19,6 @@ package uk.ac.diamond.tomography.reconstruction.views;
 
 import gda.analysis.io.ScanFileHolderException;
 
-import java.io.File;
-
 import org.dawb.common.services.IPaletteService;
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlotType;
@@ -39,7 +37,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.MouseListener;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -66,16 +63,11 @@ import org.eclipse.ui.progress.UIJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
-import uk.ac.diamond.scisoft.analysis.io.DataHolder;
-import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
-import uk.ac.diamond.scisoft.analysis.io.TIFFImageLoader;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.diamond.tomography.reconstruction.Activator;
-import uk.ac.diamond.tomography.reconstruction.ReconUtil;
 import uk.ac.diamond.tomography.reconstruction.jobs.ReconSchedulingRule;
 import uk.ac.gda.ui.components.IStepperSelectionListener;
 import uk.ac.gda.ui.components.Stepper;
@@ -83,7 +75,7 @@ import uk.ac.gda.ui.components.StepperChangedEvent;
 
 public class ProjectionsView extends BaseTomoReconPart implements ISelectionListener, ISelectionProvider {
 
-	private static final String PLOT_VIEW_TO_DISPLAY_RECON_IMAGE = "Plot 1";
+	public static final String PLOT_VIEW_TO_DISPLAY_RECON_IMAGE = "Plot 1";
 	private static final String REGION_DRAG_LINE_NAME = "DragLine";
 	private static final String ERR_MESSAGE_UNABLE_TO_FIND_DATASET = "Unable to find dataset";
 	private static final String ERR_TITLE_DISPLAYING_PROJECTIONS = "Error while displaying projections";
@@ -92,7 +84,6 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 	private static final String FILE_NAME = "File name";
 	public static final String ID = "uk.ac.diamond.tomography.reconstruction.view.projection";
 
-	private static final String PATH_TO_DATA_IN_NEXUS = "/entry1/tomo_entry/data/data";
 	private final String LBL_PREVIOUS = "PREV";
 	private final String LBL_NEXT = "NEXT";
 
@@ -234,7 +225,9 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 
 		}
 		plottingSystem.createPlotPart(plotComposite, PROJECTIONS_PLOT, getViewSite().getActionBars(), PlotType.IMAGE,
-				this);
+				null);
+		
+		disablePlottingSystemActions(plottingSystem);
 		createMouseFollowLineRegion();
 
 		// row 3
@@ -254,7 +247,18 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(this);
 		getRefreshJob();
 	}
-
+	protected void disablePlottingSystemActions(AbstractPlottingSystem plottingSystem) {
+		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.ui.editors.plotting.swtxy.removeRegions");
+		plottingSystem.getPlotActionSystem().remove("org.csstudio.swt.xygraph.toolbar.configureConfigure Settings...");
+		plottingSystem.getPlotActionSystem().remove("org.csstudio.swt.xygraph.toolbar.configureShow Legend");
+		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.histo");
+		plottingSystem.getPlotActionSystem().remove("org.csstudio.swt.xygraph.toolbar.configure");
+		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.ui.editors.plotting.swtxy.addRegions");
+		
+		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.rescale");
+		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.plotIndex");
+		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.plotX");
+	}
 	private void setGridLayoutMinimumSetting(GridLayout layout) {
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
@@ -269,7 +273,7 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				monitor.beginTask("Plotting Data from " + nexusFile.getName(), IProgressMonitor.UNKNOWN);
+				monitor.beginTask(String.format("Plotting Data (%s)", nexusFile.getName()), IProgressMonitor.UNKNOWN);
 				if (nexusFile == null) {
 					return Status.CANCEL_STATUS;
 				}
@@ -423,12 +427,8 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				int positionToUpdateTo = 0;
-				String path = nexusFile.getLocation().toOSString();
-				final HDF5Loader hdf5Loader = new HDF5Loader(path);
-				DataHolder loadFile;
 				try {
-					loadFile = hdf5Loader.loadFile();
-					dataset = loadFile.getLazyDataset(PATH_TO_DATA_IN_NEXUS);
+					dataset = getDatasetFromNexusFile();
 					if (dataset != null) {
 						int[] shape = dataset.getShape();
 						final int datasetShape = shape[0];
@@ -493,6 +493,14 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 					.setMessage(String.format("Loading file %s ...", nexusFile.getFullPath().toOSString()));
 
 			updateData();
+
+			UpdatePlotJob updatePlotJob = new UpdatePlotJob();
+			updatePlotJob.setRule(new ReconSchedulingRule(nexusFile));
+			updatePlotJob.setPixelPosition(sliceNumber);
+			updatePlotJob.setName(String.format("Update plot after reconstruction:%s", nexusFile.getName()));
+			updatePlotJob.setNexusFileLocation(nexusFile.getLocation().toOSString());
+			updatePlotJob.schedule();
+
 			pgBook.showPage(plotPage);
 		} catch (Exception e) {
 			showErrorMessage("Problem with displaying dataset", e);
@@ -505,7 +513,7 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 		logger.error("Problem with displaying dataset:" + message, e);
 		Display display = getViewSite().getShell().getDisplay();
 
-		if (display != null && display.isDisposed()) {
+		if (display != null && !display.isDisposed()) {
 			display.asyncExec(new Runnable() {
 
 				@Override
@@ -521,81 +529,6 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 	public void dispose() {
 		getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(this);
 		super.dispose();
-	}
-
-	private class UpdatePlotJob extends Job {
-		private static final String ERR_TITLE = "Problem loading data";
-		private static final String ERR_MESSAGE = "Unable to locate image for the slice. \n\nIt may be advisable to run a Preview Recon(from the Parameters View) and try loading the slice again. ";
-		private String nexusFileLocation;
-		private int pixelPosition;
-
-		public UpdatePlotJob() {
-			super("");
-		}
-
-		@Override
-		protected void canceling() {
-			super.canceling();
-		}
-
-		public void setNexusFileLocation(String nexusFileLocation) {
-			this.nexusFileLocation = nexusFileLocation;
-		}
-
-		public void setPixelPosition(int pixelPosition) {
-			this.pixelPosition = pixelPosition;
-		}
-
-		@Override
-		protected IStatus run(IProgressMonitor monitor) {
-			monitor.beginTask("", IProgressMonitor.UNKNOWN);
-			String pathToImages = ReconUtil.getReconstructedReducedDataDirectoryPath(nexusFileLocation);
-
-			File imageFile = new File(pathToImages, String.format(ReconUtil.RECONSTRUCTED_IMAGE_FILE_FORMAT,
-					pixelPosition / SPLITS));
-			logger.debug("Looking for image file {}", imageFile.getPath());
-			if (imageFile.exists()) {
-				// update monitor
-				monitor.worked(1);
-
-				try {
-					DataHolder data = new TIFFImageLoader(imageFile.getAbsolutePath()).loadFile();
-
-					// update monitor
-					monitor.worked(1);
-
-					AbstractDataset image = data.getDataset(0);
-					image.isubtract(image.min());
-					image.imultiply(1000.0);
-
-					// update monitor
-					monitor.worked(1);
-
-					SDAPlotter.imagePlot(PLOT_VIEW_TO_DISPLAY_RECON_IMAGE, image);
-
-					// update monitor
-					monitor.worked(1);
-				} catch (Exception e) {
-					logger.error("Cannot load recon image for display", e);
-					return Status.CANCEL_STATUS;
-				}
-			} else {
-
-				Display display = getViewSite().getShell().getDisplay();
-
-				if (display != null && !display.isDisposed()) {
-					display.asyncExec(new Runnable() {
-
-						@Override
-						public void run() {
-							MessageDialog.openError(getViewSite().getShell(), ERR_TITLE, ERR_MESSAGE);
-
-						}
-					});
-				}
-			}
-			return Status.OK_STATUS;
-		}
 	}
 
 	public void displayReconstruction(final String nexusFileLocation, final int pixelPosition) {

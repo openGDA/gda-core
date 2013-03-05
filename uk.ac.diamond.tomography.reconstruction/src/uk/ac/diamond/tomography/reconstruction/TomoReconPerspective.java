@@ -39,7 +39,6 @@ public class TomoReconPerspective implements IPerspectiveFactory {
 				IPageLayout.BOTTOM, 0.7f, ProjectionsView.ID);
 		parameterCenterOfRotationFolder.addView(ParameterView.ID);
 		parameterCenterOfRotationFolder.addView(CenterOfRotationView.ID);
-		// layout.addView(ParameterView.ID, IPageLayout.BOTTOM, 0.7f, ProjectionsView.ID);
 		layout.addPlaceholder("org.dawb.workbench.plotting.views.toolPageView.1D_and_2D", IPageLayout.RIGHT, 0.7f,
 				"uk.ac.diamond.scisoft.analysis.rcp.plotView1");
 		layout.addView(IPageLayout.ID_PROGRESS_VIEW, IPageLayout.RIGHT, 0.7f,
@@ -50,6 +49,9 @@ public class TomoReconPerspective implements IPerspectiveFactory {
 		layout.addShowViewShortcut(NexusNavigator.ID);
 		layout.addShowViewShortcut(ProjectionsView.ID);
 		layout.addShowViewShortcut(ParameterView.ID);
+		layout.addShowViewShortcut(CenterOfRotationView.ID);
+		layout.addShowViewShortcut(IPageLayout.ID_PROGRESS_VIEW);
+		
 
 	}
 

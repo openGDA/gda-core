@@ -28,9 +28,6 @@ import org.eclipse.core.runtime.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.io.DataHolder;
-import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
-
 /**
  *
  */
@@ -40,7 +37,6 @@ public class ReconUtil {
 			+ PROCESSING_DIR_RELATIVE_TO_VISIT_DIR + "/sino/";
 	private static final String RECON_OUTDIR_RELATIVE_TO_VISIT_DIR = IPath.SEPARATOR
 			+ PROCESSING_DIR_RELATIVE_TO_VISIT_DIR + "/reconstruction/";
-	private static final String NXS_PATH_TO_BEAMLINE_NAME = "/entry1/instrument/name";
 	private static final String NXS_FILE_EXTN = "nxs";
 	private static final Logger logger = LoggerFactory.getLogger(ReconUtil.class);
 
@@ -67,7 +63,7 @@ public class ReconUtil {
 			IPath visitDirectoryPath = nexusFilePath.removeLastSegments(segmentCount - 5);
 			visitDir = visitDirectoryPath.toOSString();
 		} else {
-			throw new IllegalArgumentException("Unable to get visit directory from nexus file");
+			throw new IllegalArgumentException("Unable to get visit directory from nexus file:" + nexusFilePath);
 		}
 		return visitDir;
 	}

@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.tomography.reconstruction.views;
 
+import gda.analysis.io.ScanFileHolderException;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -27,11 +29,17 @@ import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
+import uk.ac.diamond.scisoft.analysis.io.DataHolder;
+import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
+
 public abstract class BaseTomoReconPart extends ViewPart {
 
 	private boolean isPartActive;
 
 	protected IFile nexusFile;
+
+	private static final String PATH_TO_DATA_IN_NEXUS = "/entry1/tomo_entry/data/data";
 
 	synchronized void setPartActive(boolean isActive) {
 		this.isPartActive = isActive;
@@ -125,5 +133,12 @@ public abstract class BaseTomoReconPart extends ViewPart {
 
 	public boolean isPartActive() {
 		return isPartActive;
+	}
+
+	protected ILazyDataset getDatasetFromNexusFile() throws ScanFileHolderException {
+		String path = nexusFile.getLocation().toOSString();
+		final HDF5Loader hdf5Loader = new HDF5Loader(path);
+		DataHolder loadFile = hdf5Loader.loadFile();
+		return loadFile.getLazyDataset(PATH_TO_DATA_IN_NEXUS);
 	}
 }

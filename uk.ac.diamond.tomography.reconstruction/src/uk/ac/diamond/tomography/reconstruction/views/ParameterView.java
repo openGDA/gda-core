@@ -79,6 +79,7 @@ import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.diamond.tomography.reconstruction.Activator;
 import uk.ac.diamond.tomography.reconstruction.ReconUtil;
+import uk.ac.diamond.tomography.reconstruction.jobs.ReconSchedulingRule;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.BackprojectionType;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.DarkFieldType;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.FBPType;
@@ -471,11 +472,29 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 				jobNameToDisplay = String.format(JOB_NAME_FULL_RECONSTRUCTION, nexusFile.getName());
 			}
 			runCommand(jobNameToDisplay, command.toString());
+			if (quick) {
+				updatePlotAfterQuickRecon(nexusFileLocation);
+			}
 
 		} catch (URISyntaxException e) {
 			logger.error("Incorrect URI for script", e);
 		} catch (IOException e) {
 			logger.error("Cannot find script file", e);
+		}
+	}
+
+	protected void updatePlotAfterQuickRecon(String nexusFileLocation) {
+		IViewPart projectionsView = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+				.findView(ProjectionsView.ID);
+		ISelection selection = projectionsView.getViewSite().getSelectionProvider().getSelection();
+		if (selection instanceof ProjectionSliceSelection) {
+			ProjectionSliceSelection sliceSelection = (ProjectionSliceSelection) selection;
+			UpdatePlotJob updatePlotJob = new UpdatePlotJob();
+			updatePlotJob.setRule(new ReconSchedulingRule(nexusFile));
+			updatePlotJob.setPixelPosition(sliceSelection.getSliceNumber());
+			updatePlotJob.setName(String.format("Update plot after reconstruction:%s", nexusFile.getName()));
+			updatePlotJob.setNexusFileLocation(nexusFileLocation);
+			updatePlotJob.schedule();
 		}
 	}
 
@@ -918,21 +937,32 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 
 	@Override
 	protected void processNewNexusFile() {
-		super.processNewNexusFile();
-		String path = nexusFile.getLocation().toOSString();
-		ILazyDataset actualDataset = getDataSetFromFileLocation(path);
-		if (actualDataset != null && actualDataset.getRank() == 3) {
-			isHdf = true;
-			hdfShape = actualDataset.getShape();
+		ILazyDataset datasetFromNexusFile = null;
+		try {
+			datasetFromNexusFile = getDatasetFromNexusFile();
+		} catch (ScanFileHolderException e) {
+			logger.error("Unable to load dataset", e);
 		}
-		getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
 
-			@Override
-			public void run() {
-				initializeView();
+		if (datasetFromNexusFile != null) {
+			super.processNewNexusFile();
+			pgBook.showPage(mainForm);
+			String path = nexusFile.getLocation().toOSString();
+			ILazyDataset actualDataset = getDataSetFromFileLocation(path);
+			if (actualDataset != null && actualDataset.getRank() == 3) {
+				isHdf = true;
+				hdfShape = actualDataset.getShape();
 			}
-		});
-		return;
+			getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					initializeView();
+				}
+			});
+		} else {
+			pgBook.showPage(emptyCmp);
+		}
 	}
 
 	private IFile getNexusFileFromHmFileLocation(String hmFileLocation) {
