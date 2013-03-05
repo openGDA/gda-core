@@ -30,8 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
 import org.slf4j.Logger;
@@ -53,6 +51,9 @@ public class ZebraConstantVelocityMoveController extends DeviceBase implements C
 
 	private double pcGateStartRBV;
 
+	private int mode=Zebra.PC_MODE_POSITION;
+
+
 	@Override
 	public void prepareForMove() throws DeviceException, InterruptedException {
 		try {
@@ -70,7 +71,8 @@ public class ZebraConstantVelocityMoveController extends DeviceBase implements C
 				//sources must be set first
 				zebra.setPCGateSource(step > 0 ? 0 : 3);// Posn +ve/-ve
 				zebra.setPCArmSource(0);// Soft
-				zebra.setPCPulseSource(0);// Position 
+				
+				zebra.setPCPulseSource(mode);// Position 
 
 				//set motor before setting gates and pulse parameters
 				zebra.setPCEnc(pcEnc); // enc1
@@ -78,23 +80,43 @@ public class ZebraConstantVelocityMoveController extends DeviceBase implements C
 				zebra.setPCGateStart(start);
 				zebra.setPCGateNumberOfGates(1);
 				
-				zebra.setPCPulseDelay(0.);
-				zebra.setPCPulseWidth(Math.abs(step/2));
-				zebra.setPCPulseStep(Math.abs(step));
+				
 				zebra.setPCCaptureBitField(pcCaptureBitField);
 
+				zebra.setPCPulseDelay(0.);
+				zebra.setPCPulseWidth(Math.abs(step/2));
 				pcPulseDelayRBV = zebra.getPCPulseDelayRBV();
 				pcPulseWidthRBV = zebra.getPCPulseWidthRBV();
-				pcPulseStepRBV = zebra.getPCPulseStepRBV();
-				
-				double gateWidth = pcPulseDelayRBV +  pcPulseStepRBV*(getNumberTriggers()-1) + pcPulseWidthRBV;
-				
-				zebra.setPCGateWidth(gateWidth);
-				
-				pcGateWidthRBV = zebra.getPCGateWidthRBV();
-				pcGateStartRBV = zebra.getPCGateStartRBV();
-				
-				
+
+				switch(mode){
+				case Zebra.PC_MODE_POSITION:
+					zebra.setPCPulseStep(Math.abs(step));
+
+					pcPulseStepRBV = zebra.getPCPulseStepRBV();
+					
+					double gateWidthPosn = pcPulseDelayRBV +  pcPulseStepRBV*(getNumberTriggers()-1) + pcPulseWidthRBV;
+					
+					zebra.setPCGateWidth(gateWidthPosn);
+					
+					pcGateWidthRBV = zebra.getPCGateWidthRBV();
+					pcGateStartRBV = zebra.getPCGateStartRBV();
+					requiredSpeed = (Math.abs(pcPulseStepRBV) / triggerPeriod)*zSM.getConstantVelocitySpeedFactor();
+					break;
+				case Zebra.PC_MODE_TIME:
+					zebra.setPCPulseStep(triggerPeriod+.01); //TODO plus readout time
+
+					pcPulseStepRBV = zebra.getPCPulseStepRBV();
+					
+					double gateWidthTime = pcPulseDelayRBV +  pcPulseStepRBV*(getNumberTriggers()-1) + pcPulseWidthRBV;
+					requiredSpeed = (Math.abs(step)/pcPulseStepRBV);
+					zebra.setPCGateWidth((gateWidthTime * requiredSpeed)/zSM.getConstantVelocitySpeedFactor());
+					
+					pcGateWidthRBV = zebra.getPCGateWidthRBV();
+					pcGateStartRBV = zebra.getPCGateStartRBV();
+					break;
+				default:
+					throw new DeviceException("Unacceptable mode " + mode);
+				}
 				
 				zSM.waitWhileBusy();
 			
@@ -103,19 +125,27 @@ public class ZebraConstantVelocityMoveController extends DeviceBase implements C
 			}
 
 			zebra.pcArm();
-			//get number of triggers the zebra is expected to generate
-			double pcGateWidth = zebra.getPCGateWidth();
-			int num = (int) ((pcGateWidth-pcPulseDelayRBV)/(pcPulseStepRBV) + 0.5 +1);
 			int numberTriggers = getNumberTriggers();
+			//get number of triggers the zebra is expected to generate
+/*			double pcGateWidth = zebra.getPCGateWidth();
+			int num = (int) ((pcGateWidth-pcPulseDelayRBV)/(pcPulseStepRBV) + 0.5 +1);
 			if( num < numberTriggers || num < numPosCallableReturned){
 				throw new DeviceException("inconsistent pulse numbers numZebra:" + num + " num(start,end,step):" + numberTriggers + " numPosCallableReturned:"+numPosCallableReturned);
 			}
-			timeSeriesCollection.start(numberTriggers);
+*/			timeSeriesCollection.start(numberTriggers);
 
 		} catch (Exception e) {
 			throw new DeviceException("Error arming the zebra", e);
 		}
 
+	}
+
+	public int getMode() {
+		return mode;
+	}
+
+	public void setMode(int mode) {
+		this.mode = mode;
 	}
 
 	public class ExecuteMoveTask implements Callable<Void> {
@@ -127,7 +157,6 @@ public class ZebraConstantVelocityMoveController extends DeviceBase implements C
 				try {
 					if (operatingContinously)
 						zSM.setOperatingContinuously(false);
-					double requiredSpeed = Math.abs(pcPulseStepRBV) / (triggerPeriod)*.8; //TODO 20% variation
 					zSM.setSpeed(requiredSpeed);
 					zSM.moveTo(pcGateStartRBV + (pcGateWidthRBV*(step > 0? 1: -1))); 
 					
@@ -193,7 +222,7 @@ public class ZebraConstantVelocityMoveController extends DeviceBase implements C
 	@Override
 	public void setTriggerPeriod(double seconds) throws DeviceException {
 		logger.info("setTriggerPeriod");
-		triggerPeriod = seconds+.1; //readout need to use readout time;
+		triggerPeriod = seconds; //readout need to use readout time;
 
 	}
 
@@ -290,14 +319,14 @@ public class ZebraConstantVelocityMoveController extends DeviceBase implements C
 
 	int numPosCallableReturned = 0;
 
-	private ExecutorService es;
-
 	private double pcPulseDelayRBV;
 
 	private double pcPulseWidthRBV;
 
 	private double pcPulseStepRBV;
-	public Callable<Double> getPositionCallable() throws DeviceException {
+
+	private double requiredSpeed;
+	public Callable<Double> getPositionCallable() {
 		if( lastImageNumberStreamIndexer == null){
 			logger.info("Creating lastImageNumberStreamIndexer");
 			timeSeriesCollection = new ZebraCaptureInputStreamCollection(zebra.getNumberOfPointsCapturedPV(),
@@ -305,14 +334,10 @@ public class ZebraConstantVelocityMoveController extends DeviceBase implements C
 			lastImageNumberStreamIndexer = new PositionStreamIndexer<Double>(timeSeriesCollection);
 		}
 		numPosCallableReturned++;
-		if( es == null){
-			es = Executors.newFixedThreadPool(1, Executors.defaultThreadFactory());
-		}
-		return lastImageNumberStreamIndexer.getNamedPositionCallable(zSM.getName(),1, es);
+		return lastImageNumberStreamIndexer.getNamedPositionCallable(zSM.getName(),1);
 	}
 
 	public void atScanLineStart() {
-		es=null;
 		lastImageNumberStreamIndexer=null;
 		points = null;
 		moveFuture=null;

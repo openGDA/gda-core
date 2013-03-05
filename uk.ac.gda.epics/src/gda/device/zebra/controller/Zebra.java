@@ -72,6 +72,10 @@ public interface Zebra {
 	final public static String PCGateWidthRBV = "PC_GATE_WID:RBV";
 	
 	
+	final public static int PC_MODE_POSITION=0;
+	final public static int PC_MODE_TIME=1;
+	
+	
 	double getPCPulseDelay() throws IOException;
 	double getPCPulseDelayRBV() throws IOException;
 

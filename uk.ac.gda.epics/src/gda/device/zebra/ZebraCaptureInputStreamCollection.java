@@ -10,11 +10,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Represents a single one-off collection from an Epics time series array, or arrays that hang off the same
  * control PVs. 
  */
 class ZebraCaptureInputStreamCollection implements PositionInputStream<Double> {
+	private static final Logger logger = LoggerFactory.getLogger(ZebraCaptureInputStreamCollection.class);
 
 //	private final PV<Integer> tsNumPointsPV;
 
@@ -116,7 +120,10 @@ class ZebraCaptureInputStreamCollection implements PositionInputStream<Double> {
 		}
 
 		numPointsReturned = numPointsAvailable;
-		if (numPointsReturned == numPointsToCollect) {
+		//The zebra may generate more points than expected so warn but finish
+		if (numPointsReturned >= numPointsToCollect) {
+			if(numPointsReturned > numPointsToCollect)
+				logger.warn("Zebra produced more points (" +numPointsReturned + ") than expected (" + numPointsToCollect + ")");
 			try {
 				collectionComplete();
 			} catch (IOException e) {

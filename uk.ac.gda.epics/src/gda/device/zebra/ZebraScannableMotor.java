@@ -35,6 +35,7 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 	private static final Logger logger = LoggerFactory.getLogger(ZebraScannableMotor.class);
 	private boolean operatingContinously;
 	private ZebraConstantVelocityMoveController continuousMoveController;
+	private double constantVelocitySpeedFactor=0.8;
 
 	@Override
 	public void setOperatingContinuously(boolean b) throws DeviceException {
@@ -114,5 +115,17 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 			super.waitWhileBusy();
 		}
 	}
+
+	public double getConstantVelocitySpeedFactor() {
+		return constantVelocitySpeedFactor;
+	}
+
+	public void setConstantVelocitySpeedFactor(double constantVelocitySpeedFactor) {
+		this.constantVelocitySpeedFactor = constantVelocitySpeedFactor;
+	}
+
+
+
+
 
 }
