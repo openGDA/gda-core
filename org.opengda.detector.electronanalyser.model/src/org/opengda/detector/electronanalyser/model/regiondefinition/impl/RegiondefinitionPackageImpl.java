@@ -227,7 +227,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getSequence_RepeatUntilStopped() {
+	public EAttribute getSequence_NumInterationOption() {
         return (EAttribute)getSequence().getEStructuralFeatures().get(5);
 	}
 
@@ -236,7 +236,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getSequence_ConfirmAfterEachIteration() {
+	public EAttribute getSequence_RepeatUntilStopped() {
         return (EAttribute)getSequence().getEStructuralFeatures().get(6);
 	}
 
@@ -245,8 +245,17 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EAttribute getSequence_ConfirmAfterEachIteration() {
+        return (EAttribute)getSequence().getEStructuralFeatures().get(7);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EReference getSequence_Spectrum() {
-        return (EReference)getSequence().getEStructuralFeatures().get(7);
+        return (EReference)getSequence().getEStructuralFeatures().get(8);
 	}
 
 	/**

@@ -19,6 +19,7 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRunMode <em>Run Mode</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getRunModeIndex <em>Run Mode Index</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getNumIterations <em>Num Iterations</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#isNumInterationOption <em>Num Interation Option</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#isRepeatUntilStopped <em>Repeat Until Stopped</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#isConfirmAfterEachIteration <em>Confirm After Each Iteration</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#getSpectrum <em>Spectrum</em>}</li>
@@ -194,6 +195,33 @@ public interface Sequence extends EObject {
 	 * @generated
 	 */
 	boolean isSetNumIterations();
+
+	/**
+	 * Returns the value of the '<em><b>Num Interation Option</b></em>' attribute.
+	 * The default value is <code>"true"</code>.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Num Interation Option</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Num Interation Option</em>' attribute.
+	 * @see #setNumInterationOption(boolean)
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getSequence_NumInterationOption()
+	 * @model default="true" transient="true"
+	 * @generated
+	 */
+	boolean isNumInterationOption();
+
+	/**
+	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#isNumInterationOption <em>Num Interation Option</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Num Interation Option</em>' attribute.
+	 * @see #isNumInterationOption()
+	 * @generated
+	 */
+	void setNumInterationOption(boolean value);
 
 	/**
 	 * Returns the value of the '<em><b>Repeat Until Stopped</b></em>' attribute.

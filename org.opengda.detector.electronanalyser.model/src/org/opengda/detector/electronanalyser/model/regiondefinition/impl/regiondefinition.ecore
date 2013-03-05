@@ -23,6 +23,8 @@
         defaultValueLiteral="0" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="numIterations" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
         defaultValueLiteral="1" unsettable="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="numInterationOption" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"
+        transient="true" defaultValueLiteral="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="repeatUntilStopped" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"
         defaultValueLiteral="false" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="confirmAfterEachIteration"

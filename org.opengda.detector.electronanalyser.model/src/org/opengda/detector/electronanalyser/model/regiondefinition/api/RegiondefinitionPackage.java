@@ -140,13 +140,22 @@ public interface RegiondefinitionPackage extends EPackage {
 	int SEQUENCE__NUM_ITERATIONS = 4;
 
 	/**
+	 * The feature id for the '<em><b>Num Interation Option</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SEQUENCE__NUM_INTERATION_OPTION = 5;
+
+	/**
 	 * The feature id for the '<em><b>Repeat Until Stopped</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SEQUENCE__REPEAT_UNTIL_STOPPED = 5;
+	int SEQUENCE__REPEAT_UNTIL_STOPPED = 6;
 
 	/**
 	 * The feature id for the '<em><b>Confirm After Each Iteration</b></em>' attribute.
@@ -155,7 +164,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SEQUENCE__CONFIRM_AFTER_EACH_ITERATION = 6;
+	int SEQUENCE__CONFIRM_AFTER_EACH_ITERATION = 7;
 
 	/**
 	 * The feature id for the '<em><b>Spectrum</b></em>' containment reference.
@@ -164,7 +173,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SEQUENCE__SPECTRUM = 7;
+	int SEQUENCE__SPECTRUM = 8;
 
 	/**
 	 * The number of structural features of the '<em>Sequence</em>' class.
@@ -173,7 +182,7 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SEQUENCE_FEATURE_COUNT = 8;
+	int SEQUENCE_FEATURE_COUNT = 9;
 
 	/**
 	 * The meta object id for the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.RegionImpl <em>Region</em>}' class.
@@ -706,6 +715,17 @@ public interface RegiondefinitionPackage extends EPackage {
 	 * @generated
 	 */
 	EAttribute getSequence_NumIterations();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#isNumInterationOption <em>Num Interation Option</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Num Interation Option</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#isNumInterationOption()
+	 * @see #getSequence()
+	 * @generated
+	 */
+	EAttribute getSequence_NumInterationOption();
 
 	/**
 	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence#isRepeatUntilStopped <em>Repeat Until Stopped</em>}'.
@@ -1355,6 +1375,14 @@ public interface RegiondefinitionPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute SEQUENCE__NUM_ITERATIONS = eINSTANCE.getSequence_NumIterations();
+
+		/**
+		 * The meta object literal for the '<em><b>Num Interation Option</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute SEQUENCE__NUM_INTERATION_OPTION = eINSTANCE.getSequence_NumInterationOption();
 
 		/**
 		 * The meta object literal for the '<em><b>Repeat Until Stopped</b></em>' attribute feature.

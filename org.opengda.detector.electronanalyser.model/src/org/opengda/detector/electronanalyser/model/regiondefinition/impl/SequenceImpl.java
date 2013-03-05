@@ -36,6 +36,7 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SequenceImpl#getRunMode <em>Run Mode</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SequenceImpl#getRunModeIndex <em>Run Mode Index</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SequenceImpl#getNumIterations <em>Num Iterations</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SequenceImpl#isNumInterationOption <em>Num Interation Option</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SequenceImpl#isRepeatUntilStopped <em>Repeat Until Stopped</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SequenceImpl#isConfirmAfterEachIteration <em>Confirm After Each Iteration</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SequenceImpl#getSpectrum <em>Spectrum</em>}</li>
@@ -166,6 +167,26 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * @ordered
 	 */
 	protected boolean numIterationsESet;
+
+	/**
+	 * The default value of the '{@link #isNumInterationOption() <em>Num Interation Option</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isNumInterationOption()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final boolean NUM_INTERATION_OPTION_EDEFAULT = true;
+
+	/**
+	 * The cached value of the '{@link #isNumInterationOption() <em>Num Interation Option</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isNumInterationOption()
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean numInterationOption = NUM_INTERATION_OPTION_EDEFAULT;
 
 	/**
 	 * The default value of the '{@link #isRepeatUntilStopped() <em>Repeat Until Stopped</em>}' attribute.
@@ -383,6 +404,27 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 */
 	public boolean isSetNumIterations() {
 		return numIterationsESet;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean isNumInterationOption() {
+		return numInterationOption;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setNumInterationOption(boolean newNumInterationOption) {
+		boolean oldNumInterationOption = numInterationOption;
+		numInterationOption = newNumInterationOption;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SEQUENCE__NUM_INTERATION_OPTION, oldNumInterationOption, numInterationOption));
 	}
 
 	/**
@@ -694,6 +736,8 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 				return getRunModeIndex();
 			case RegiondefinitionPackage.SEQUENCE__NUM_ITERATIONS:
 				return getNumIterations();
+			case RegiondefinitionPackage.SEQUENCE__NUM_INTERATION_OPTION:
+				return isNumInterationOption();
 			case RegiondefinitionPackage.SEQUENCE__REPEAT_UNTIL_STOPPED:
 				return isRepeatUntilStopped();
 			case RegiondefinitionPackage.SEQUENCE__CONFIRM_AFTER_EACH_ITERATION:
@@ -727,6 +771,9 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 				return;
 			case RegiondefinitionPackage.SEQUENCE__NUM_ITERATIONS:
 				setNumIterations((Integer)newValue);
+				return;
+			case RegiondefinitionPackage.SEQUENCE__NUM_INTERATION_OPTION:
+				setNumInterationOption((Boolean)newValue);
 				return;
 			case RegiondefinitionPackage.SEQUENCE__REPEAT_UNTIL_STOPPED:
 				setRepeatUntilStopped((Boolean)newValue);
@@ -763,6 +810,9 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 			case RegiondefinitionPackage.SEQUENCE__NUM_ITERATIONS:
 				unsetNumIterations();
 				return;
+			case RegiondefinitionPackage.SEQUENCE__NUM_INTERATION_OPTION:
+				setNumInterationOption(NUM_INTERATION_OPTION_EDEFAULT);
+				return;
 			case RegiondefinitionPackage.SEQUENCE__REPEAT_UNTIL_STOPPED:
 				unsetRepeatUntilStopped();
 				return;
@@ -793,6 +843,8 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 				return isSetRunModeIndex();
 			case RegiondefinitionPackage.SEQUENCE__NUM_ITERATIONS:
 				return isSetNumIterations();
+			case RegiondefinitionPackage.SEQUENCE__NUM_INTERATION_OPTION:
+				return numInterationOption != NUM_INTERATION_OPTION_EDEFAULT;
 			case RegiondefinitionPackage.SEQUENCE__REPEAT_UNTIL_STOPPED:
 				return isSetRepeatUntilStopped();
 			case RegiondefinitionPackage.SEQUENCE__CONFIRM_AFTER_EACH_ITERATION:
@@ -820,6 +872,8 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 		if (runModeIndexESet) result.append(runModeIndex); else result.append("<unset>"); //$NON-NLS-1$
 		result.append(", numIterations: "); //$NON-NLS-1$
 		if (numIterationsESet) result.append(numIterations); else result.append("<unset>"); //$NON-NLS-1$
+		result.append(", numInterationOption: "); //$NON-NLS-1$
+		result.append(numInterationOption);
 		result.append(", repeatUntilStopped: "); //$NON-NLS-1$
 		if (repeatUntilStoppedESet) result.append(repeatUntilStopped); else result.append("<unset>"); //$NON-NLS-1$
 		result.append(", confirmAfterEachIteration: "); //$NON-NLS-1$

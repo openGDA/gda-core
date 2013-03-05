@@ -65,6 +65,7 @@ public class SequenceItemProvider
 			addRunModePropertyDescriptor(object);
 			addRunModeIndexPropertyDescriptor(object);
 			addNumIterationsPropertyDescriptor(object);
+			addNumInterationOptionPropertyDescriptor(object);
 			addRepeatUntilStoppedPropertyDescriptor(object);
 			addConfirmAfterEachIterationPropertyDescriptor(object);
 		}
@@ -133,6 +134,28 @@ public class SequenceItemProvider
 				 false,
 				 false,
 				 ItemPropertyDescriptor.INTEGRAL_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
+	 * This adds a property descriptor for the Num Interation Option feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addNumInterationOptionPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Sequence_numInterationOption_feature"), //$NON-NLS-1$
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sequence_numInterationOption_feature", "_UI_Sequence_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				 RegiondefinitionPackage.Literals.SEQUENCE__NUM_INTERATION_OPTION,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.BOOLEAN_VALUE_IMAGE,
 				 null,
 				 null));
 	}
@@ -275,6 +298,7 @@ public class SequenceItemProvider
 			case RegiondefinitionPackage.SEQUENCE__RUN_MODE:
 			case RegiondefinitionPackage.SEQUENCE__RUN_MODE_INDEX:
 			case RegiondefinitionPackage.SEQUENCE__NUM_ITERATIONS:
+			case RegiondefinitionPackage.SEQUENCE__NUM_INTERATION_OPTION:
 			case RegiondefinitionPackage.SEQUENCE__REPEAT_UNTIL_STOPPED:
 			case RegiondefinitionPackage.SEQUENCE__CONFIRM_AFTER_EACH_ITERATION:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
