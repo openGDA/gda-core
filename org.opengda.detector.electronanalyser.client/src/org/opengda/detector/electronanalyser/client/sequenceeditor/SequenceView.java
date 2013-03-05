@@ -10,6 +10,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EContentAdapter;
 import org.eclipse.emf.ecore.util.EcoreUtil;
@@ -176,6 +177,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		gl_root.horizontalSpacing = 2;
 		Composite rootComposite = new Composite(parent, SWT.NONE);
 		rootComposite.setLayout(gl_root);
+		//new Label(rootComposite, SWT.NONE);
 
 		Composite tableViewerContainer = new Composite(rootComposite, SWT.None);
 
@@ -454,6 +456,23 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		grpSequnceRunMode.setText("Sequence Run Mode");
 
 		runMode = new Combo(grpSequnceRunMode, SWT.READ_ONLY);
+		runMode.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (e.getSource().equals(runMode) && runMode.isFocusControl()) {
+					try {
+						updateFeature(regionDefinitionResourceUtil.getSequence(),
+								RegiondefinitionPackage.eINSTANCE
+										.getSequence_RunModeIndex(), runMode.getSelectionIndex());
+						updateFeature(regionDefinitionResourceUtil.getSequence(),
+								RegiondefinitionPackage.eINSTANCE
+										.getSequence_RunMode(), runMode.getText());
+					} catch (Exception e1) {
+						logger.error("Cannot get the sequence", e);
+					}
+				}
+			}
+		});
 		runMode.setItems(new String[] { "Normal", "Add Dimension" });
 		runMode.setToolTipText("List of available sequence run modes");
 		runMode.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -462,18 +481,92 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		new Label(grpSequnceRunMode, SWT.NONE);
 
 		btnNumberOfIterations = new Button(grpSequnceRunMode, SWT.RADIO);
+		btnNumberOfIterations.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (e.getSource().equals(btnNumberOfIterations) && btnNumberOfIterations.getSelection()) {
+					try {
+						updateFeature(regionDefinitionResourceUtil.getSequence(),
+								RegiondefinitionPackage.eINSTANCE
+										.getSequence_NumInterationOption(), true);
+						updateFeature(regionDefinitionResourceUtil.getSequence(),
+								RegiondefinitionPackage.eINSTANCE
+										.getSequence_RepeatUntilStopped(), false);
+					} catch (Exception e1) {
+						logger.error("Cannot get the sequence", e);
+					}
+				}
+			}
+		});
 		btnNumberOfIterations.setText("Number of iterations");
 
 		spinner = new Spinner(grpSequnceRunMode, SWT.BORDER);
+		spinner.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (e.getSource().equals(spinner) && spinner.isFocusControl()) {
+					try {
+						updateFeature(regionDefinitionResourceUtil.getSequence(),
+								RegiondefinitionPackage.eINSTANCE
+										.getSequence_NumIterations(), spinner.getSelection());
+					} catch (Exception e1) {
+						logger.error("Cannot get the sequence", e);
+					}
+				}
+			}
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				if (e.getSource().equals(spinner) && spinner.isFocusControl()) {
+					try {
+						updateFeature(regionDefinitionResourceUtil.getSequence(),
+								RegiondefinitionPackage.eINSTANCE
+										.getSequence_NumIterations(), spinner.getSelection());
+					} catch (Exception e1) {
+						logger.error("Cannot get the sequence", e);
+					}
+				}
+			}
+		});
 		spinner.setMinimum(1);
 		spinner.setToolTipText("Set number of iterations required");
 
 		btnRepeatuntilStopped = new Button(grpSequnceRunMode, SWT.RADIO);
+		btnRepeatuntilStopped.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (e.getSource().equals(btnRepeatuntilStopped) && btnRepeatuntilStopped.getSelection()) {
+					try {
+						updateFeature(regionDefinitionResourceUtil.getSequence(),
+								RegiondefinitionPackage.eINSTANCE
+										.getSequence_NumInterationOption(), false);
+						updateFeature(regionDefinitionResourceUtil.getSequence(),
+								RegiondefinitionPackage.eINSTANCE
+										.getSequence_RepeatUntilStopped(), true);
+					} catch (Exception e1) {
+						logger.error("Cannot get the sequence", e);
+					}
+				}
+			}
+		});
 		btnRepeatuntilStopped.setText("Repeat until stopped");
 
 		new Label(grpSequnceRunMode, SWT.NONE);
 
 		btnConfirmAfterEachInteration = new Button(grpSequnceRunMode, SWT.CHECK);
+		btnConfirmAfterEachInteration.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (e.getSource().equals(btnConfirmAfterEachInteration) && btnConfirmAfterEachInteration.isFocusControl()) {
+					try {
+						updateFeature(regionDefinitionResourceUtil.getSequence(),
+								RegiondefinitionPackage.eINSTANCE
+										.getSequence_ConfirmAfterEachIteration(), btnConfirmAfterEachInteration.getSelection());
+					} catch (Exception e1) {
+						logger.error("Cannot get the sequence", e);
+					}
+				}
+			}
+		});
 		btnConfirmAfterEachInteration.setLayoutData(new GridData(
 				GridData.FILL_HORIZONTAL));
 		btnConfirmAfterEachInteration.setText("Confirm after each iteration");
@@ -845,6 +938,16 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 			e.printStackTrace();
 		}
 		super.dispose();
-
 	}
+	// Update features when it changes in Region Editor
+	private void updateFeature(EObject region, Object feature, Object value) {
+		if (region != null) {
+			if (editingDomain != null) {
+				Command setNameCmd = SetCommand.create(editingDomain, region,
+						feature, value);
+				editingDomain.getCommandStack().execute(setNameCmd);
+			}
+		}
+	}
+
 }
