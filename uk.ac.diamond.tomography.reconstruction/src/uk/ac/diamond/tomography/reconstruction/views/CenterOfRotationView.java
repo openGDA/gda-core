@@ -75,9 +75,6 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 	private static final String DEFAULT_CENTRE_OF_ROTATION = "2012";
 	private static final Logger logger = LoggerFactory.getLogger(CenterOfRotationView.class);
 	public static final String ID = "uk.ac.diamond.tomography.reconstruction.view.centreOfRotation";
-	private static final String FINE = "Fine";
-	private static final String VERY_FINE = "Very Fine";
-	private static final String COARSE = "Coarse";
 	private static final String USE_THIS = "Use This";
 	private static final String CURRENT_CENTER_OF_ROTATION = "Current Center of Rotation";
 	private FormToolkit toolkit;
@@ -94,41 +91,6 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 		sliceStepper.setFocus();
 	}
 
-	enum CENTRE_OF_ROTATION_MODE {
-		COARSE_MODE(COARSE) {
-
-			@Override
-			public double getStepSize() {
-				return 10;
-			}
-
-		},
-		FINE_MODE(FINE) {
-			@Override
-			public double getStepSize() {
-				return 2;
-			}
-		},
-		VERY_FINE_MODE(VERY_FINE) {
-			@Override
-			public double getStepSize() {
-				return 0.25;
-			}
-		};
-
-		private final String displayString;
-
-		public String getDisplayString() {
-			return displayString;
-		}
-
-		public abstract double getStepSize();
-
-		private CENTRE_OF_ROTATION_MODE(String display) {
-			this.displayString = display;
-		}
-	}
-
 	private double centreOfCentre;
 
 	private void runCentreOfRotation(CENTRE_OF_ROTATION_MODE detectCentreMode) {
@@ -137,16 +99,16 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 		try {
 			shFileURL = new URL("platform:/plugin/" + Activator.PLUGIN_ID + "/" + "scripts/tomo_centre.sh");
 		} catch (MalformedURLException e) {
-			logger.error("TODO put description of error here", e);
+			logger.error("Unable to resolve URL", e);
 		}
 		logger.debug("shFileURL:{}", shFileURL);
 		File centreOfRotationScriptFile = null;
 		try {
 			centreOfRotationScriptFile = new File(FileLocator.toFileURL(shFileURL).toURI());
 		} catch (URISyntaxException e) {
-			logger.error("TODO put description of error here", e);
+			logger.error("Unable to resolve URL", e);
 		} catch (IOException e) {
-			logger.error("TODO put description of error here", e);
+			logger.error("Unable to find script file.", e);
 		}
 		logger.debug("tomoDoShScript:{}", centreOfRotationScriptFile);
 		if (centreOfRotationScriptFile != null) {
@@ -156,7 +118,7 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 
 			centreOfCentre = Double.parseDouble(txtCentreOfRotation.getText());
 			double stepSize = detectCentreMode.getStepSize();
-			int totalSteps = 10;
+			int totalSteps = detectCentreMode.getTotalSteps();
 			String reducedNxsFileName = getReducedNexusFileName();
 			String outDir = getOutDir();
 

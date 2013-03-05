@@ -28,6 +28,18 @@ import org.osgi.framework.BundleContext;
 public class Activator extends AbstractUIPlugin {
 	public static final String NXS_FILE_EXTN = "nxs";
 
+	public static final String PREF_COARSE_TOTAL_STEPS = "pref_coarse_total_steps";
+
+	public static final String PREF_COARSE_STEP_SIZE = "pref_coarse_step_size";
+
+	public static final String PREF_FINE_TOTAL_STEPS = "pref_fine_total_steps";
+
+	public static final String PREF_FINE_STEP_SIZE = "pref_fine_step_size";
+
+	public static final String PREF_VERY_FINE_TOTAL_STEPS = "pref_very_fine_total_steps";
+
+	public static final String PREF_VERY_FINE_STEP_SIZE = "pref_very_fine_step_size";
+
 	// The plug-in ID
 	public static final String PLUGIN_ID = "uk.ac.diamond.tomography.reconstruction"; //$NON-NLS-1$
 

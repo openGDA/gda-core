@@ -168,4 +168,49 @@
             
             
   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.tomography.reconstruction.preferences.TomoReconPrefPage"
+            id="uk.ac.diamond.tomography.reconstruction.prefpage"
+            name="Tomo Recon">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="uk.ac.diamond.tomography.reconstruction.TomoReconPrefInitializer">
+      </initializer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="uk.ac.diamond.tomography.reconstruction.commands.OpenPreferenceCommandHandler"
+            id="uk.ac.diamond.tomography.reconstruction.openPreference"
+            name="Open Preference">
+         <commandParameter
+               id="reconPrefPage"
+               name="PreferencePageCommandParam"
+               optional="true">
+         </commandParameter>
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:uk.ac.diamond.tomography.reconstruction.view.centreOfRotation">
+         <command
+               commandId="uk.ac.diamond.tomography.reconstruction.openPreference"
+               icon="icons/open_pref.gif"
+               label="Open Preferences"
+               style="push">
+            <parameter
+                  name="reconPrefPage"
+                  value="uk.ac.diamond.tomography.reconstruction.prefpage">
+            </parameter>
+         </command>
+      </menuContribution>
+   </extension>
 </plugin>
