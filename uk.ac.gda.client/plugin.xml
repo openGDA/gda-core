@@ -985,7 +985,7 @@
             </count>
             <iterate>
                <instanceof
-                     value="gda.commandqueue.QueuedCommandSummary">
+                     value="uk.ac.gda.client.NumberedQueueEntry">
                </instanceof>
             </iterate>
          </and>

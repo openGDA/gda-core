@@ -21,15 +21,17 @@ package uk.ac.gda.client;
 import gda.commandqueue.CommandDetails;
 import gda.commandqueue.CommandDetailsPath;
 import gda.commandqueue.CommandId;
-import gda.commandqueue.CommandSummary;
 import gda.commandqueue.Queue;
 import gda.commandqueue.QueuedCommandSummary;
 import gda.commandqueue.SimpleCommandSummary;
+import gda.configuration.properties.LocalProperties;
 import gda.observable.IObserver;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Vector;
 
 import org.eclipse.core.commands.ExecutionEvent;
@@ -117,6 +119,26 @@ public class CommandQueueComposite extends Composite {
 		table.setLinesVisible(true);
 		// table.setHeaderVisible(true);
 
+		final String showRowNumbersPropName = String.format("%s.showrownumbers", getClass().getName());
+		final boolean showRowNumbers = LocalProperties.check(showRowNumbersPropName);
+		
+		if (showRowNumbers) {
+			final TableViewerColumn rowNumViewerColumn = new TableViewerColumn(tableViewer, SWT.LEFT);
+			final TableColumn rowNumColumn = rowNumViewerColumn.getColumn();
+			rowNumColumn.setText("#");
+			rowNumColumn.setWidth(30);
+			rowNumColumn.setResizable(true);
+			rowNumColumn.setMoveable(false);
+			rowNumViewerColumn.setLabelProvider(new ColumnLabelProvider() {
+				@Override
+				public String getText(Object element) {
+					final NumberedQueueEntry item = (NumberedQueueEntry) element;
+					final QueuedCommandSummary entry = item.entry;
+					return (entry.id == CommandId.noneCommand) ? "" : Integer.toString(item.index);
+				}
+			});
+		}
+		
 		// add Label and Content providers for Description column
 		TableViewerColumn tableViewerColumn = new TableViewerColumn(tableViewer, SWT.LEFT);
 		TableColumn column = tableViewerColumn.getColumn();
@@ -128,10 +150,9 @@ public class CommandQueueComposite extends Composite {
 
 			@Override
 			public String getText(Object element) {
-				if (element instanceof CommandSummary) {
-					return ((CommandSummary) element).getDescription();
-				}
-				return super.getText(element);
+				final NumberedQueueEntry item = (NumberedQueueEntry) element;
+				final QueuedCommandSummary entry = item.entry;
+				return entry.getDescription();
 			}
 
 		});
@@ -243,7 +264,8 @@ public class CommandQueueComposite extends Composite {
 				 * get selected CommandIds and move to before the row under the mouse
 				 */
 				try {
-					QueuedCommandSummary target = (QueuedCommandSummary) getCurrentTarget();
+					final NumberedQueueEntry item = (NumberedQueueEntry) getCurrentTarget();
+					final QueuedCommandSummary target = item.entry;
 					CommandId targetId = target.id;
 					List<CommandId> ids = getSelectedCommandIds();
 					if (!ids.isEmpty()) {
@@ -324,8 +346,9 @@ public class CommandQueueComposite extends Composite {
 			for (@SuppressWarnings("unchecked")
 			Iterator<Object> iterator = sel.iterator(); iterator.hasNext();) {
 				Object obj = iterator.next();
-				if (obj instanceof QueuedCommandSummary) {
-					QueuedCommandSummary cqs = (QueuedCommandSummary) obj;
+				if (obj instanceof NumberedQueueEntry) {
+					final NumberedQueueEntry item = (NumberedQueueEntry) obj;
+					final QueuedCommandSummary cqs = item.entry;
 					if (cqs.id != CommandId.noneCommand) {
 						ids.add(cqs.id);
 					}
@@ -472,12 +495,39 @@ class QueueContentProvider implements IStructuredContentProvider {
 	public Object[] getElements(Object inputElement) {
 		try {
 			List<QueuedCommandSummary> summaryList = currentQueue != null ? currentQueue.getSummaryList() : null;
-			return summaryList != null && summaryList.size() > 0 ? summaryList.toArray()
-					: new QueuedCommandSummary[] { new QueuedCommandSummary(CommandId.noneCommand,
-							new SimpleCommandSummary("Empty")) };
+			
+			if (summaryList == null || summaryList.isEmpty()) {
+				final QueuedCommandSummary emptyEntry = new QueuedCommandSummary(CommandId.noneCommand, new SimpleCommandSummary("Empty"));
+				summaryList = Collections.singletonList(emptyEntry);
+			}
+			
+			// Wrap each QueuedCommandSummary in a NumberedQueueEntry
+			final NumberedQueueEntry[] numberedEntries = new NumberedQueueEntry[summaryList.size()];
+			for (ListIterator<QueuedCommandSummary> it = summaryList.listIterator(); it.hasNext(); ) {
+				final int index = it.nextIndex();
+				final QueuedCommandSummary entry = it.next();
+				numberedEntries[index] = new NumberedQueueEntry();
+				numberedEntries[index].index = (index + 1);
+				numberedEntries[index].entry = entry;
+			}
+			
+			return numberedEntries;
+			
 		} catch (Exception e) {
 			logger.error("Error in getElements", e);
 		}
 		return new Object[0];
 	}
+}
+
+class NumberedQueueEntry {
+
+	public int index;
+	public QueuedCommandSummary entry;
+
+	@Override
+	public String toString() {
+		return String.format("%s(%d, %s)", getClass().getSimpleName(), index, entry);
+	}
+
 }
