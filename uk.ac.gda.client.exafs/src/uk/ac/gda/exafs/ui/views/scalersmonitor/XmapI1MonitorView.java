@@ -244,17 +244,11 @@ public class XmapI1MonitorView extends ViewPart implements Runnable, IPartListen
 			currentFrame /= 2;
 			currentFrame--;
 		}
-
-		double[] ion_results = (double[]) ionchambers.readout();
+		
+		// this view is bespoke to readout out the fourth ionchamber only (I1)
+		double[] ion_results = ionchambers.readFrame(4, 1, currentFrame);
 		Double collectionTime = (Double) ionchambers.getAttribute("collectionTime");
-		int dataCol = 0;
-		for (int i  = 0; i < ionchambers.getExtraNames().length; i++){
-			String extraName = ionchambers.getExtraNames()[i];
-			if (extraName.equalsIgnoreCase("i1")){
-				dataCol = i;
-			}
-		}
-		return ion_results[dataCol] /= collectionTime;
+		return ion_results[0] /= collectionTime;
 	}
 
 	@Override
