@@ -69,6 +69,9 @@ import uk.ac.gda.ui.components.StepperChangedEvent;
 import uk.ac.gda.util.io.FileUtils;
 
 public class CenterOfRotationView extends BaseParameterView implements ISelectionListener {
+	private static final String FIND_TOMO_CENTRE_SCRIPT_FILE_NAME = "platform:/plugin/%s/scripts/tomo_centre.sh";
+	private static final String FIND_CENTRE_JOB_NAME = "Finding Centre (%.02f) for %s";
+	private static final String FIND_CENTRE_COMMAND = "%s -s %d -c %f --ctot=%d --cstep=%f -n %s %s";
 	private static final String PLOTVIEW_PLOT_1 = "Plot 1";
 	private static final String UPDATING_CENTRE_OF_ROTATION = "Updating Centre of Rotation";
 	private static final String MSG_ACTIVATE = "Please select a nexus file in the navigator view to activate the view.";
@@ -97,7 +100,7 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 
 		URL shFileURL = null;
 		try {
-			shFileURL = new URL("platform:/plugin/" + Activator.PLUGIN_ID + "/" + "scripts/tomo_centre.sh");
+			shFileURL = new URL(String.format(FIND_TOMO_CENTRE_SCRIPT_FILE_NAME, Activator.PLUGIN_ID));
 		} catch (MalformedURLException e) {
 			logger.error("Unable to resolve URL", e);
 		}
@@ -125,12 +128,13 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 			File file = new File(outDir);
 			FileUtils.deleteContents(file);
 
-			String centreOfRotationCommand = String.format("%s -s %d -c %f --ctot=%d --cstep=%f -n %s %s",
-					shScriptName, sliceNumber, centreOfCentre, totalSteps, stepSize, reducedNxsFileName, outDir);
+			String centreOfRotationCommand = String.format(FIND_CENTRE_COMMAND, shScriptName, sliceNumber,
+					centreOfCentre, totalSteps, stepSize, reducedNxsFileName, outDir);
 
 			logger.debug("Centre of rotation command : {}", centreOfRotationCommand);
 
-			runCommand("Finding Centre of Rotation", centreOfRotationCommand, totalSteps, stepSize);
+			runCommand(String.format(FIND_CENTRE_JOB_NAME, centreOfCentre, nexusFile.getName()),
+					centreOfRotationCommand, totalSteps, stepSize);
 
 		} else {
 			logger.debug("Unable to locate script file");
@@ -143,7 +147,7 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 	}
 
 	private String getCentreOfCentreString() {
-		return String.format("%.02f", centreOfCentre).replace(".", "");
+		return getCentreOfRotationDisplayText(centreOfCentre).replace(".", "");
 	}
 
 	private double[] getStepValues(int totalSteps, double centreOfRotStart, double stepSize) {
@@ -169,12 +173,10 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 					if (firstElement instanceof IFile) {
 						nexusFile = (IFile) firstElement;
 					}
-
 				}
 			}
 		}
 		if (nexusFile != null) {
-
 			File reducedNexusFile = ReconUtil.getReducedNexusFile(nexusFile.getLocation().toOSString());
 			if (reducedNexusFile != null && reducedNexusFile.exists()) {
 				return reducedNexusFile.getPath();
@@ -188,7 +190,6 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 				.findView(ProjectionsView.ID);
 		if (findView != null) {
 			ISelection selection = findView.getViewSite().getSelectionProvider().getSelection();
-
 			if (selection instanceof ProjectionSliceSelection) {
 				ProjectionSliceSelection projectionsSliceSelection = (ProjectionSliceSelection) selection;
 				return projectionsSliceSelection.getSliceNumber();
@@ -198,8 +199,7 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 	}
 
 	private void runCommand(final String jobName, final String command, final int totalSteps, final double stepSize) {
-		UIJob job2 = new UIJob(getViewSite().getShell().getDisplay(), "Update Slider") {
-
+		UIJob job2 = new UIJob(getViewSite().getShell().getDisplay(), "") {
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
 				pgBook_showSlider.showPage(pg_showSlider_plainComposite);
@@ -211,7 +211,6 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 		job2.schedule();
 
 		Job job = new Job(jobName) {
-
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				monitor.beginTask(jobName, IProgressMonitor.UNKNOWN);
@@ -235,8 +234,7 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 		job.setRule(new ReconSchedulingRule(nexusFile));
 		job.schedule();
 
-		job2 = new UIJob(getViewSite().getShell().getDisplay(), "Update Slider") {
-
+		job2 = new UIJob(getViewSite().getShell().getDisplay(), "") {
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
 				pgBook_showSlider.showPage(pg_showSlider_sliderComposite);
@@ -246,6 +244,7 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 				return Status.OK_STATUS;
 			}
 		};
+		job2.setSystem(true);
 		job2.setRule(new ReconSchedulingRule(nexusFile));
 		job2.schedule();
 	}
@@ -374,21 +373,25 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 			BackprojectionType backprojection = fbp.getBackprojection();
 
 			float floatValue = backprojection.getImageCentre().floatValue();
-			txtCentreOfRotation.setText(Float.toString(floatValue));
+			txtCentreOfRotation.setText(getCentreOfRotationDisplayText(floatValue));
 
 			txtFileName.setText(nexusFile.getLocation().toOSString());
 		}
+	}
+
+	private String getCentreOfRotationDisplayText(double value) {
+		return String.format("%.02f", value);
 	}
 
 	private UpdatePlotViewJob updatePlotViewJob;
 
 	private class UpdatePlotViewJob extends Job {
 
-		private static final String JOB_NAME_UPDATE_CENTRE_OF_ROTATION_SEARCH = "Update centre of rotation search";
+		private static final String JOB_NAME_UPDATE_CENTRE_OF_ROTATION_SEARCH = "Update centre search(%s)";
 		private int position;
 
 		public UpdatePlotViewJob() {
-			super(JOB_NAME_UPDATE_CENTRE_OF_ROTATION_SEARCH);
+			super(String.format(JOB_NAME_UPDATE_CENTRE_OF_ROTATION_SEARCH, nexusFile.getName()));
 		}
 
 		public synchronized void setStepperPosition(int position) {
@@ -440,7 +443,7 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 		@Override
 		public void stepperChanged(final StepperChangedEvent e) {
 			double value = sliceStepper.getIndexValues()[e.getPosition()];
-			txtCentreOfRotation.setText(Double.toString(value));
+			txtCentreOfRotation.setText(getCentreOfRotationDisplayText(value));
 			UpdatePlotViewJob plotViewJob = getUpdatePlotViewJob();
 			plotViewJob.setStepperPosition(e.getPosition());
 			plotViewJob.schedule();
@@ -484,7 +487,7 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
 				if (nexusFile != null) {
-					txtCentreOfRotation.setText(Double.toString(rotCentre));
+					txtCentreOfRotation.setText(getCentreOfRotationDisplayText(rotCentre));
 					txtFileName.setText(nexusFile.getLocation().toOSString());
 				}
 				return Status.OK_STATUS;
@@ -512,7 +515,8 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 					public IStatus runInUIThread(IProgressMonitor monitor) {
 						if (nexusFile != null
 								&& parametersSel.getNexusFileFullPath().equals(nexusFile.getLocation().toOSString())) {
-							txtCentreOfRotation.setText(Double.toString(parametersSel.getCentreOfRotation()));
+							double centreOfRotation = parametersSel.getCentreOfRotation();
+							txtCentreOfRotation.setText(getCentreOfRotationDisplayText(centreOfRotation));
 							txtFileName.setText(nexusFile.getLocation().toOSString());
 						}
 						return Status.OK_STATUS;

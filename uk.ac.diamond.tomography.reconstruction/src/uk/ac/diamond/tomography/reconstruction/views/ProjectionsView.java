@@ -55,6 +55,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISelectionListener;
@@ -83,11 +84,10 @@ import uk.ac.gda.ui.components.StepperChangedEvent;
 public class ProjectionsView extends BaseTomoReconPart implements ISelectionListener, ISelectionProvider {
 
 	private static final String PLOT_VIEW_TO_DISPLAY_RECON_IMAGE = "Plot 1";
-	private static final String JOB_UPDATE_RECONSTRUCTION_DISPLAY = "Update Reconstruction Display";
 	private static final String REGION_DRAG_LINE_NAME = "DragLine";
 	private static final String ERR_MESSAGE_UNABLE_TO_FIND_DATASET = "Unable to find dataset";
 	private static final String ERR_TITLE_DISPLAYING_PROJECTIONS = "Error while displaying projections";
-	private static final String UPDATING_DATA = "Updating data";
+	private static final String UPDATING_DATA = "Updating data(%s)";
 	private static final String PROJECTIONS_PLOT = "Projections Plot";
 	private static final String FILE_NAME = "File name";
 	public static final String ID = "uk.ac.diamond.tomography.reconstruction.view.projection";
@@ -265,7 +265,7 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 	private int position = -1;
 
 	private Job getRefreshJob() {
-		Job refreshJob = new Job(UPDATING_DATA) {
+		Job refreshJob = new Job("") {
 
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
@@ -307,6 +307,9 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 			}
 
 		};
+		if (nexusFile != null) {
+			refreshJob.setName(String.format(UPDATING_DATA, nexusFile.getName()));
+		}
 		return refreshJob;
 	}
 
@@ -498,10 +501,20 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 		}
 	}
 
-	private void showErrorMessage(String message, Exception e) {
+	private void showErrorMessage(final String message, final Exception e) {
 		logger.error("Problem with displaying dataset:" + message, e);
-		lblEmptyPageLabel.setText(String.format("%s: %s", message, e.getMessage()));
-		pgBook.showPage(emptyPage);
+		Display display = getViewSite().getShell().getDisplay();
+
+		if (display != null && display.isDisposed()) {
+			display.asyncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					lblEmptyPageLabel.setText(String.format("%s: %s", message, e.getMessage()));
+					pgBook.showPage(emptyPage);
+				}
+			});
+		}
 	}
 
 	@Override
@@ -517,7 +530,7 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 		private int pixelPosition;
 
 		public UpdatePlotJob() {
-			super(JOB_UPDATE_RECONSTRUCTION_DISPLAY);
+			super("");
 		}
 
 		@Override
@@ -567,7 +580,19 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 					return Status.CANCEL_STATUS;
 				}
 			} else {
-				MessageDialog.openError(getViewSite().getShell(), ERR_TITLE, ERR_MESSAGE);
+
+				Display display = getViewSite().getShell().getDisplay();
+
+				if (display != null && !display.isDisposed()) {
+					display.asyncExec(new Runnable() {
+
+						@Override
+						public void run() {
+							MessageDialog.openError(getViewSite().getShell(), ERR_TITLE, ERR_MESSAGE);
+
+						}
+					});
+				}
 			}
 			return Status.OK_STATUS;
 		}
@@ -575,6 +600,9 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 
 	public void displayReconstruction(final String nexusFileLocation, final int pixelPosition) {
 		UpdatePlotJob updatePlotJob = new UpdatePlotJob();
+		if (nexusFile != null) {
+			updatePlotJob.setName(String.format(UPDATING_DATA, nexusFile.getName()));
+		}
 
 		updatePlotJob.setNexusFileLocation(nexusFileLocation);
 		updatePlotJob.setPixelPosition(pixelPosition);

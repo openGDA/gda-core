@@ -103,6 +103,10 @@ import uk.ac.diamond.tomography.reconstruction.parameters.hm.presentation.IParam
 
 public class ParameterView extends BaseParameterView implements ISelectionListener, IParameterView, ISelectionProvider {
 
+	private static final String NEXUS_EXTN = ".nxs";
+
+	private static final String HDF_RECON_SCRIPT_LOCATION = "platform:/plugin/%s/scripts/hdfrecon.sh";
+
 	private static final String FIND_CENTRE = "Find Centre";
 
 	private static final String JOB_NAME_FULL_RECONSTRUCTION = "Full Reconstruction (%s)";
@@ -115,7 +119,7 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 	private static final String ADVANCED_SETTINGS = "Advanced Settings";
 	private static final String FILE_NAME = "File Name";
 	private static final String DARK_FIELDS = "Dark Fields";
-	
+
 	private static final String RECTANGLE = "Rectangle";
 	private static final String STANDARD = "Standard";
 	private static final String Y_MAX = "Y max";
@@ -320,6 +324,9 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 
 	public static class SampleInOutBeamPosition extends Dialog {
 
+		private static final String OUT_OF_BEAM_POSITION = "Out of Beam Position";
+		private static final String IN_BEAM_POSITION = "In Beam Position";
+		private static final String IN_OUT_BEAM_POSITIONS = "In/Out Beam positions";
 		private Text txtInBeamPos;
 		private Text txtOutBeamPos;
 		private Double inBeamPosition;
@@ -332,7 +339,7 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 		@Override
 		public void create() {
 			super.create();
-			getShell().setText("In/Out Beam positions");
+			getShell().setText(IN_OUT_BEAM_POSITIONS);
 		}
 
 		@Override
@@ -346,14 +353,14 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 			lblErrStatus.setLayoutData(gd);
 
 			Label lblInBeamPos = new Label(cmp, SWT.None);
-			lblInBeamPos.setText("In Beam Position");
+			lblInBeamPos.setText(IN_BEAM_POSITION);
 			lblInBeamPos.setLayoutData(new GridData());
 
 			txtInBeamPos = new Text(cmp, SWT.BORDER);
 			txtInBeamPos.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 			Label lblOutBeamPos = new Label(cmp, SWT.None);
-			lblOutBeamPos.setText("Out of Beam Position");
+			lblOutBeamPos.setText(OUT_OF_BEAM_POSITION);
 			lblOutBeamPos.setLayoutData(new GridData());
 
 			txtOutBeamPos = new Text(cmp, SWT.BORDER);
@@ -402,7 +409,7 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 	private void runHdfReconstruction(boolean quick) {
 		File tomoDoShScript = null;
 		try {
-			URL shFileURL = new URL("platform:/plugin/" + Activator.PLUGIN_ID + "/" + "scripts/hdfrecon.sh");
+			URL shFileURL = new URL(String.format(HDF_RECON_SCRIPT_LOCATION, Activator.PLUGIN_ID));
 			logger.debug("shFileURL:{}", shFileURL);
 			tomoDoShScript = new File(FileLocator.toFileURL(shFileURL).toURI());
 			logger.debug("tomoDoShScript:{}", tomoDoShScript);
@@ -417,7 +424,7 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 				nexusFileLocation = reducedNexusFile.getPath();
 			}
 			File path = new File(nexusFileLocation);
-			String imagePath = path.getName().replace(".nxs", "");
+			String imagePath = path.getName().replace(NEXUS_EXTN, "");
 			File pathToImages = null;
 			if (quick) {
 				pathToImages = new File(ReconUtil.getReconstructedReducedDataDirectoryPath(nexusFileLocation));
@@ -452,10 +459,8 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 				height = reducedDataShape[1];
 			}
 
-			StringBuffer command = new StringBuffer(String.format("%s -m 2 -e %d -n -t %s", shScriptName, height,
-					templateFileName));
-			command.append(" " + fileName);
-			command.append(" " + pathToImages.toString());
+			StringBuffer command = new StringBuffer(String.format("%s -m 2 -e %d -n -t %s %s %s", shScriptName, height,
+					templateFileName, fileName, pathToImages.toString()));
 
 			logger.debug("Command that will be run:{}", command);
 			String jobNameToDisplay = null;
@@ -492,9 +497,9 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 		File tomoDoPyScript = null;
 		File tomoDoShScript = null;
 		try {
-			URL shFileURL = new URL("platform:/plugin/" + Activator.PLUGIN_ID + "/" + SCRIPTS_TOMODO_SH);
+			URL shFileURL = new URL(String.format("platform:/plugin/%s/%s", Activator.PLUGIN_ID, SCRIPTS_TOMODO_SH));
 			logger.debug("shFileURL:{}", shFileURL);
-			URL pyFileURL = new URL("platform:/plugin/" + Activator.PLUGIN_ID + "/" + SCRIPTS_TOMODO_PY);
+			URL pyFileURL = new URL(String.format("platform:/plugin/%s/%s", Activator.PLUGIN_ID, SCRIPTS_TOMODO_PY));
 			logger.debug("pyFileURL:{}", pyFileURL);
 			tomoDoPyScript = new File(FileLocator.toFileURL(pyFileURL).toURI());
 			logger.debug("tomoDoPyScript:{}", tomoDoPyScript);
@@ -919,7 +924,6 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 		if (actualDataset != null && actualDataset.getRank() == 3) {
 			isHdf = true;
 			hdfShape = actualDataset.getShape();
-
 		}
 		getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
 
