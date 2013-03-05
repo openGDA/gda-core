@@ -331,6 +331,8 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 					positionerStatus = EnumPositionerStatus.IDLE;
 				}
 			}
+			
+			sendUpdate();
 		}
 
 	}
@@ -351,6 +353,8 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 					positionerStatus = EnumPositionerStatus.MOVING;
 				}
 			}
+			
+			sendUpdate();
 		}
 	}
 
@@ -370,8 +374,14 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 					positionerStatus = EnumPositionerStatus.ERROR;
 				}
 			}
+			
+			sendUpdate();
 		}
 
+	}
+	
+	private void sendUpdate() {
+		notifyIObservers(this, positionerStatus);
 	}
 
 	/**
