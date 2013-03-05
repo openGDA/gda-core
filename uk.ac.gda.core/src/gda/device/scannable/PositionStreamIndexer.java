@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -85,12 +84,12 @@ public class PositionStreamIndexer<T> implements PositionCallableProvider<T> {
 
 	@Override
 	public Callable<T> getPositionCallable() throws DeviceException {
-		return getNamedPositionCallable(null,0, null);
+		return getNamedPositionCallable(null,0);
 	}
 
-	public Callable<T> getNamedPositionCallable(String name, int i, ExecutorService es) {
+	public Callable<T> getNamedPositionCallable(String name, int threadPoolSize) {
 		lastIndexGivenOut += 1;
-		return name != null ? new NamedPositionStreamIndexPuller<T>(lastIndexGivenOut, this, name, i, es) : new PositionStreamIndexPuller<T>(lastIndexGivenOut, this);
+		return name != null ? new NamedPositionStreamIndexPuller<T>(lastIndexGivenOut, this, name, threadPoolSize) : new PositionStreamIndexPuller<T>(lastIndexGivenOut, this);
 	}
 
 
@@ -126,29 +125,23 @@ class PositionStreamIndexPuller<T> implements Callable<T> {
 class NamedPositionStreamIndexPuller<T> extends PositionStreamIndexPuller<T> implements NamedQueueTask {
 
 	private String name;
-	private final int i;
-	private final ExecutorService es;
+	private final int threadPoolSize;
 
-	public NamedPositionStreamIndexPuller(int index, PositionStreamIndexer<T> indexer, String name, int i, ExecutorService es) {
+	public NamedPositionStreamIndexPuller(int index, PositionStreamIndexer<T> indexer, String name, int threadPoolSize) {
 		super(index, indexer);
 		this.name = name;
-		this.i = i;
-		this.es = es;
+		this.threadPoolSize = threadPoolSize;
 	}
 
 	@Override
-	public String getName() {
+	public String getExecutorServiceName() {
 		return name;
 	}
 
 	@Override
-	public int getI() {
-		return i;
+	public int getThreadPoolSize() {
+		return threadPoolSize;
 	}
 
-	@Override
-	public ExecutorService getES() {
-		return es;
-	}
 	
 }

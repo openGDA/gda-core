@@ -21,7 +21,10 @@ package gda.scan;
 import gda.data.scan.datawriter.DataWriter;
 import gda.device.DeviceException;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
@@ -48,7 +51,7 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 	public class ScannableSpecificExecutorService{
 
 		private ExecutorService service;
-		List<ExecutorService> namedES = new Vector<ExecutorService>();
+		Map<String, ExecutorService> namedES = new HashMap<String,ExecutorService>();
 		private ThreadFactory threadFactory;
 
 		public ScannableSpecificExecutorService(int positionCallableThreadPoolSize, ThreadFactory threadFactory) {
@@ -60,35 +63,36 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 		
 		public void shutdown() {
 			service.shutdown();
-			for(ExecutorService es : namedES)
-				es.shutdown();
+			for(Entry<String, ExecutorService> es : namedES.entrySet())
+				es.getValue().shutdown();
 		}
 
 		public void shutdownNow() {
 			service.shutdownNow();
-			for(ExecutorService es : namedES)
-				es.shutdownNow();
+
+			for(Entry<String, ExecutorService> es : namedES.entrySet())
+				es.getValue().shutdownNow();
 		}
 
 		public boolean isShutdown() {
 			boolean shutdown = service.isShutdown();
-			for(ExecutorService es : namedES)
-				shutdown &= es.isShutdown();
+			for(Entry<String, ExecutorService> es : namedES.entrySet())
+				shutdown &= es.getValue().isShutdown();
 			return shutdown;
 		}
 
 		public boolean isTerminated() {
 			boolean terminated = service.isTerminated();
-			for(ExecutorService es : namedES)
-				terminated &= es.isTerminated();
+			for(Entry<String, ExecutorService> es : namedES.entrySet())
+				terminated &= es.getValue().isTerminated();
 			return terminated;
 			
 		}
 
 		public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
 			boolean awaitTermination = service.awaitTermination(timeout, unit);
-			for(ExecutorService es : namedES)
-				awaitTermination &= es.awaitTermination(timeout,unit);
+			for(Entry<String, ExecutorService> es : namedES.entrySet())
+				awaitTermination &= es.getValue().awaitTermination(timeout,unit);
 			return awaitTermination;
 			
 		}
@@ -97,11 +101,11 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 			ExecutorService es = service;
 			if( task instanceof NamedQueueTask){
 				NamedQueueTask task2 = (NamedQueueTask)task;
-				String name = task2.getName();
-				es = task2.getES();
-				if( !namedES.contains(es)){
-					namedES.add(es);
-					
+				String name = task2.getExecutorServiceName();
+				es = namedES.get(name);
+				if( es == null){
+					es = Executors.newFixedThreadPool(task2.getThreadPoolSize(), threadFactory);
+					namedES.put(name, es);
 				}
 			}  
 			return es.submit(task);
@@ -149,17 +153,15 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 		if (positionCallableThreadPoolSize > 0) {
 			positionCallableService = new ScannableSpecificExecutorService(positionCallableThreadPoolSize, threadFactory);
 		} // else leave it null.
-		createScannablePopulatorAndBroadcasterQueueAndThread(scanDataPointPipelineLength, scanName);
+		createScannablePopulatorAndBroadcasterQueueAndThread(scanName);
 	}
 
 	/**
 	 * Uses a ThreadPoolExecutor with a custom queue designed to block rather than throw a RejectedExecutionException if
 	 * the thread is busy and queue is full. The total number of points in the Pipeline is the number of points in the
 	 * workQueue plus the one being worked on in the single thread.
-	 * 
-	 * @param scanDataPointPipelineLength
 	 */
-	private void createScannablePopulatorAndBroadcasterQueueAndThread(int scanDataPointPipelineLength, String scanName) {
+	private void createScannablePopulatorAndBroadcasterQueueAndThread(String scanName) {
 		BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<Runnable>();
 		broadcasterQueue = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, workQueue,  
 				new NamedThreadFactory(" scan-" + scanName + "-MSDPP.broadcaster"));

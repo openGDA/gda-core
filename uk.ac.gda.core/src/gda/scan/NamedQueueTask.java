@@ -18,12 +18,8 @@
 
 package gda.scan;
 
-import java.util.concurrent.ExecutorService;
 
 public interface NamedQueueTask {
-	public String getName();
-
-	int getI();
-	
-	public ExecutorService getES();
+	public String getExecutorServiceName();
+	int getThreadPoolSize();
 }
