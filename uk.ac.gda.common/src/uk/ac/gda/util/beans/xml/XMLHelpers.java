@@ -19,9 +19,13 @@
 package uk.ac.gda.util.beans.xml;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -131,6 +135,10 @@ public class XMLHelpers {
         return XMLHelpers.createFromXML(mappingURL,cl,schemaUrl,filename,true);
 	}
 	
+	public static Object createFromXML(URL mappingURL, Class<? extends Object> cl, URL schemaUrl, String filename, String encoding) throws Exception {
+        return XMLHelpers.createFromXML(mappingURL,cl,schemaUrl,filename,true, encoding);
+	}
+	
 	/**
 	 * Creates an object from an inputsource. To create an InputSource from a String use the form:
 	 * String xml = "<?xml version="1.0" encoding="UTF-8"?><expt-table-bean><beamsize_horz>beamsize_horz</beamsize_horz></expt-table-bean>"
@@ -184,6 +192,15 @@ public class XMLHelpers {
 		}
 	}
 	
+	public static Object createFromXML(URL mappingURL, Class<? extends Object> cl, URL schemaUrl, File file, String encoding) throws Exception {
+		InputStreamReader reader = new InputStreamReader(new FileInputStream(file), encoding);
+		try {
+			return XMLHelpers.createFromXMLInternal(mappingURL,cl,schemaUrl,new InputSource(reader),true);
+		} finally {
+			reader.close();
+		}
+	}
+	
 	/**
 	 * @param mappingURL
 	 * @param cl
@@ -195,6 +212,10 @@ public class XMLHelpers {
 	 * @throws XMLHelpersException
 	 */
 	public static Object createFromXML(URL mappingURL, Class<? extends Object> cl, URL schemaUrl, String filename, final boolean validate) throws Exception {
+		return createFromXML(mappingURL, cl, schemaUrl, filename, validate, null);
+	}
+	
+	public static Object createFromXML(URL mappingURL, Class<? extends Object> cl, URL schemaUrl, String filename, final boolean validate, String encoding) throws Exception {
 		InputSource source;
 		// GDA-3377 This fails on windows if filename is similar to
 		// c:/data/file because c: is considered the scheme
@@ -202,7 +223,12 @@ public class XMLHelpers {
 		if (uri.getScheme() != null && (uri.getScheme().equals("http") || uri.getScheme().equals("file"))) {
 			source = new InputSource(uri.toURL().openStream());
 		} else {
-			source = new InputSource(new FileReader(filename));
+			if (encoding == null) {
+				source = new InputSource(new FileReader(filename));
+			}
+			else {
+				source = new InputSource(new InputStreamReader(new FileInputStream(filename), encoding));
+			}
 		}
 		return XMLHelpers.createFromXMLInternal(mappingURL, cl, schemaUrl, source, validate);
 	}
@@ -300,6 +326,11 @@ public class XMLHelpers {
 		final Writer writer = new FileWriter(file);
 		XMLHelpers.writeToXMLInternal(mappingURL, object, writer);
 	}
+	
+	public static void writeToXML(URL mappingURL, Object object, File file, String encoding) throws Exception {
+		final Writer writer = new OutputStreamWriter(new FileOutputStream(file), encoding);
+		XMLHelpers.writeToXMLInternal(mappingURL, object, writer);
+	}
 
 	/**
 	 * Writes the object to a file.
@@ -310,11 +341,20 @@ public class XMLHelpers {
 	 * @throws XMLHelpersException
 	 */
 	public static void writeToXML(URL mappingURL, Object object, String filename) throws Exception {
-		if (filename.startsWith("file:")) filename = filename.substring(5);
-		final Writer writer = new FileWriter(filename);
-		XMLHelpers.writeToXMLInternal(mappingURL, object, writer);
+		writeToXML(mappingURL, object, filename, null);
 	}
 	
+	public static void writeToXML(URL mappingURL, Object object, String filename, String encoding) throws Exception {
+		if (filename.startsWith("file:")) filename = filename.substring(5);
+		Writer writer = null;
+		if (encoding == null) {
+			writer = new FileWriter(filename);
+		}
+		else {
+			writer = new OutputStreamWriter(new FileOutputStream(filename), encoding);
+		}
+		XMLHelpers.writeToXMLInternal(mappingURL, object, writer);
+	}
 	/**
 	 * Writes the object to a string
 	 * @param mappingURL
