@@ -52,6 +52,8 @@ public class XspressParameters implements Serializable,IRichBean {
 	private boolean xspressOnlyShowFF = false;
 	private boolean xspressShowDTRawValues = false;
 	private boolean saveRawSpectrum = false;
+
+	private int selectedRegionNumber =0;
 	
 	public XspressParameters() {
 		detectorList = new ArrayList<DetectorElement>();
@@ -61,6 +63,7 @@ public class XspressParameters implements Serializable,IRichBean {
 	public void clear() {
 		if (detectorList!=null) detectorList.clear();
 		editIndividualElements = true;
+		selectedRegionNumber=0;
 	}
 	
 	public void addDetectorElement(DetectorElement detectorElement) {
@@ -225,4 +228,11 @@ public class XspressParameters implements Serializable,IRichBean {
 		this.regionType = regionType;
 	}
 
+	public int getSelectedRegionNumber() {
+		return selectedRegionNumber;
+	}
+
+	public void setSelectedRegionNumber(int selectedRegionNumber) {
+		this.selectedRegionNumber = selectedRegionNumber;
+	}	
 }

@@ -85,6 +85,8 @@ import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.ElementCountsData;
 import uk.ac.gda.beans.exafs.IDetectorElement;
+import uk.ac.gda.beans.vortex.VortexParameters;
+import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
@@ -153,6 +155,10 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 	private Boolean calculateSingleElement = true;
 
+	int selectedRegionIndex;
+	int lastSelectedElementIndex;
+	private Object bean;
+
 	/**
 	 * @param path
 	 * @param mappingURL
@@ -164,6 +170,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			final Object editingBean, final String command) {
 		super(path, mappingURL, dirtyContainer, editingBean);
 		this.command = command;
+		this.bean = editingBean;
 	}
 
 	/**
@@ -330,19 +337,43 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		getDetectorElementComposite().getRegionList().addBeanSelectionListener(new BeanSelectionListener() {
 			@Override
 			public void selectionChanged(BeanSelectionEvent evt) {
+
+				if (getDetectorList().getSelectedIndex() == lastSelectedElementIndex) {
+					System.out.println(getDetectorList().getSelectedIndex());
+					System.out.println(lastSelectedElementIndex);
+					selectedRegionIndex = evt.getSelectionIndex();
+					if (bean instanceof XspressParameters) {
+						XspressParameters detBean = (XspressParameters) bean;
+						detBean.setSelectedRegionNumber(evt.getSelectionIndex());
+					}
+					else if(bean instanceof VortexParameters){
+						VortexParameters detBean = (VortexParameters) bean;
+						detBean.setSelectedRegionNumber(evt.getSelectionIndex());
+					}
+				}
+
+				lastSelectedElementIndex = getDetectorList().getSelectedIndex();
+
 				if (currentOverlay == null) {
 					return;
 				}
 				if (evt.getSelectedBean() != null) {
+
 					currentOverlay.setDraw(true);
+
 					if (getDetectorElementComposite().getStart().getValue() == null
 							|| getDetectorElementComposite().getEnd().getValue() == null) {
 						return;
 					}
+
 					currentOverlay.setXStart(((Number) getDetectorElementComposite().getStart().getValue())
 							.doubleValue());
+
 					currentOverlay.setXEnd(((Number) getDetectorElementComposite().getEnd().getValue()).doubleValue());
+
 					calculateCounts(true);
+					selectedRegionIndex = evt.getSelectionIndex();
+
 				} else {
 					currentOverlay.setDraw(false);
 					getDetectorElementComposite().getCount().setValue(null);
@@ -353,9 +384,16 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		getDetectorList().addBeanSelectionListener(new BeanSelectionListener() {
 			@Override
 			public void selectionChanged(BeanSelectionEvent evt) {
-				// getDetectorList().
 				plot(evt.getSelectionIndex());
 				calculateCounts(true);
+				if (bean instanceof XspressParameters) {
+					XspressParameters xspress = (XspressParameters) bean;
+					getDetectorElementComposite().getRegionList().setSelectedIndex(xspress.getSelectedRegionNumber());
+				}
+				else if (bean instanceof VortexParameters) {
+					VortexParameters vortex = (VortexParameters) bean;
+					getDetectorElementComposite().getRegionList().setSelectedIndex(vortex.getSelectedRegionNumber());
+				}
 			}
 		});
 
@@ -387,6 +425,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 					currentOverlay.enableMouseListener(getDetectorElementComposite().getEnableDragRegions()
 							.getSelection());
 				}
+
 				@Override
 				public void widgetDefaultSelected(SelectionEvent e) {
 				}

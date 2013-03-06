@@ -30,6 +30,9 @@
 		<field name="saveRawSpectrum" type="boolean">
 			<bind-xml name="saveRawSpectrum" node="element" />
 		</field>
+		<field name="selectedRegionNumber" type="integer">
+			<bind-xml name="selectedRegionNumber" node="element" />
+		</field>
 	</class>
 
 	<class name="uk.ac.gda.beans.xspress.XspressDeadTimeParameters">
