@@ -560,9 +560,9 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 	protected ByteBuffer getBinaryDataBuffer(String command, int ndata) throws Exception {
 		ByteBuffer bb = ByteBuffer.allocate(ndata * (Float.SIZE / Byte.SIZE));
 
-		if (dataport < 0) {
-			dataport = getDataPort();
-		}
+//		if (dataport < 0) {
+//			dataport = getDataPort();
+//		}
 
 		lock();
 		try {
@@ -583,6 +583,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 						dataport++;
 					}
 				}
+				// should this be re-sent every time ?
 				sendCommand("port " + dataport);
 				logger.debug(getName() + " getBinaryDataBuffer(): serverSocket created on port " + dataport);
 			}
@@ -596,19 +597,22 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 
 			SocketChannel dataSocket = null;
 			int tries = 0;
+			int maxNumberOfTries = 400; // originally 20000 i.e. 8m20s
+			int loopWaitTimeInMilliseconds = 25;
+			double timeoutInSeconds = (maxNumberOfTries*loopWaitTimeInMilliseconds)/1000;
 			while (true) {
 				dataSocket = serverSocket.accept();
 				if (dataSocket != null) {
 					break;
 				}
 				tries++;
-				if (tries > 20000) {
-					throw new IOException("no incoming connection in quite a while");
+				if (tries > maxNumberOfTries) {
+					throw new IOException("No incoming data connection made by da.server after " + timeoutInSeconds + "s.");
 				}
 				try {
-					Thread.sleep(25);
+					Thread.sleep(loopWaitTimeInMilliseconds);
 				} catch (InterruptedException e) {
-					throw new InterruptedException("interrupted while waiting for connection");
+					throw new InterruptedException("Interrupted while waiting for da.server to make a data connection.");
 				}
 			}
 			logger.debug(getName() + " getBinaryDataBuffer(): socket connection established");
@@ -617,6 +621,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 			}
 
 			dataSocket.close();
+			// get message from da.server over the comms socket about the outputted data. 
 			getReply(false);
 
 		} catch (IOException e) {
