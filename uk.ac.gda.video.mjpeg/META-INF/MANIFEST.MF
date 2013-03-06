@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: uk.ac.gda.video.mjpeg
+Bundle-SymbolicName: uk.ac.gda.video.mjpeg
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Diamond Light Source
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: uk.ac.gda.video;bundle-version="1.0.0",
+ uk.ac.gda.core;bundle-version="1.0.0",
+ uk.ac.gda.libs;bundle-version="1.0.0",
+ org.eclipse.swt
+Export-Package: gda.images.camera,
+ gda.images.camera.mjpeg
+Import-Package: org.slf4j;version="[1.5.0,2.0.0)",
+ org.springframework.beans.factory;version="3.0.4",
+ org.springframework.util;version="3.0.4"
+

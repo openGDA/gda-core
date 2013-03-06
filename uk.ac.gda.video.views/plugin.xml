@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension point="org.eclipse.ui.views">
+      <view
+            allowMultiple="true"
+            category="uk.ac.gda.client.general.category"
+            class="uk.ac.gda.video.views.CameraView"
+            id="uk.ac.gda.video.views.cameraview"
+            name="Camera View"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="toolbar:uk.ac.gda.video.views.cameraview">
+         <command
+               commandId="uk.ac.gda.video.views.cameraview.sendToPlotView"
+               icon="icons/chart_curve.png"
+               label="Analyse Image"
+               tooltip="Sends image to PlotView for analysis">
+         </command>
+         <command
+               commandId="uk.ac.gda.video.views.cameraview.sendToPlotViewContinuous"
+               icon="icons/chart_curve_go.png"
+               label="Analyse All Images "
+               tooltip="Sends all images to PlotView for analysis"
+               style="toggle">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="uk.ac.gda.video.handlers.SendToPlotViewHandler"
+            id="uk.ac.gda.video.views.cameraview.sendToPlotView"
+            name="SendToPlotView">
+      </command>
+      <command
+            defaultHandler="uk.ac.gda.video.handlers.SendToPlotViewHandlerContinuous"
+            id="uk.ac.gda.video.views.cameraview.sendToPlotViewContinuous"
+            name="SendAllToPlotView">
+		<state
+		         class="org.eclipse.ui.handlers.RegistryToggleState:false"
+		         id="org.eclipse.ui.commands.toggleState">
+		   </state>            
+      </command>
+   </extension>
+
+</plugin>

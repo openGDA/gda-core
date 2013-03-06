@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+	<!-- importing this gives us an easy way of setting Point property values -->
+	<import resource="classpath:gda/spring/propertyeditors/registration.xml" />
+
+	<bean class="gda.spring.FindableNameSetterPostProcessor" />
+
+	<bean id="rtpReceiver" class="gda.images.camera.RTPStreamReceiver">
+		<property name="host" value="224.120.120.120" />
+		<property name="port" value="22224" />
+		<property name="desiredFrameRate" value="30" />
+	</bean>
+	
+	<bean id="mjpegReceiver" class="gda.images.camera.MotionJpegOverHttpReceiver">
+		<property name="url" value="http://i11-webcam1.diamond.ac.uk/mjpg/video.mjpg" />
+		<!--<property name="url" value="http://i02-webcam2.diamond.ac.uk/mjpg/video.mjpg" />-->
+		<!--<property name="url" value="http://pc0032.cs.diamond.ac.uk:8080/?action=stream" />-->
+	</bean>
+	
+	<bean id="listener1" class="gda.images.camera.example.ImageListenerWindow">
+		<property name="videoReceiver" ref="rtpReceiver" />
+		<property name="location" value="0,0" />
+		<property name="desiredFrameRate" value="5" />
+	</bean>
+	
+	<bean id="listener2" class="gda.images.camera.example.ImageListenerWindow">
+		<property name="videoReceiver" ref="rtpReceiver" />
+		<property name="location" value="650,0" />
+		<property name="desiredFrameRate" value="10" />
+	</bean>
+	
+	<bean id="listener3" class="gda.images.camera.example.ImageListenerWindow">
+		<property name="videoReceiver" ref="mjpegReceiver" />
+		<property name="location" value="0,520" />
+		<property name="desiredFrameRate" value="20" />
+	</bean>
+	
+	<bean id="listener4" class="gda.images.camera.example.ImageListenerWindow">
+		<property name="videoReceiver" ref="mjpegReceiver" />
+		<property name="location" value="650,520" />
+		<property name="desiredFrameRate" value="30" />
+	</bean>
+	
+	<bean id="rtpControlWindow" class="gda.images.camera.example.VideoReceiverControlWindow">
+		<property name="videoReceiver" ref="rtpReceiver" />
+		<property name="location" value="1300,100" />
+	</bean>
+	
+	<bean id="mjpegControlWindow" class="gda.images.camera.example.VideoReceiverControlWindow">
+		<property name="videoReceiver" ref="mjpegReceiver" />
+		<property name="location" value="1300,600" />
+	</bean>
+	
+</beans>
