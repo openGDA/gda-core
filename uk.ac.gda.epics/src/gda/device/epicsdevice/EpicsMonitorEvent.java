@@ -53,4 +53,9 @@ public class EpicsMonitorEvent implements Serializable {
 		caStatus = null;
 		epicsDbr = object;
 	}
+	
+	@Override
+	public String toString() {
+		return caStatus.toString() + " : " + epicsDbr.toString();
+	}
 }
