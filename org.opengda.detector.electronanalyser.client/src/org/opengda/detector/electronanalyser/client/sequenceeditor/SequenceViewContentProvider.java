@@ -7,7 +7,11 @@ import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EContentAdapter;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
+import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableItem;
 import org.opengda.detector.electronanalyser.client.RegionDefinitionResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,9 +33,31 @@ public class SequenceViewContentProvider implements IStructuredContentProvider {
 			super.notifyChanged(notification);
 			if (notification.getNotifier() != null) {
 				viewer.refresh();
+				Table table = ((TableViewer) viewer).getTable();
+				int itemCount = table.getItemCount();
+				if (notification.getEventType() == Notification.ADD) {
+					if (itemCount > 0) {
+						TableItem item = table.getItem(itemCount - 1);
+						viewer.setSelection(new StructuredSelection(item
+								.getData()));
+					}
+				} else if (notification.getEventType() == Notification.REMOVE) {
+					int position = notification.getPosition();
+					TableItem item;
+					if (itemCount > 0) {
+						if (itemCount > position) {
+							item = table.getItem(position);
+						} else {
+							item = table.getItem(itemCount - 1);
+						}
+						viewer.setSelection(new StructuredSelection(item
+								.getData()));
+					} else {
+						viewer.setSelection(StructuredSelection.EMPTY);
+					}
+				}
 			}
 		}
-
 	};
 
 	@Override
@@ -64,7 +90,7 @@ public class SequenceViewContentProvider implements IStructuredContentProvider {
 			try {
 				return resUtil.getRegions().toArray();
 			} catch (Exception e) {
-				logger.error("Cannot load regions in the sequence.",e);
+				logger.error("Cannot load regions in the sequence.", e);
 			}
 		} else if (inputElement instanceof List) {
 			List regionList = (List) inputElement;
