@@ -206,7 +206,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		tableViewerContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
 				true, true, 1, 1));
 
-
 		sequenceTableViewer.setContentProvider(new SequenceViewContentProvider(
 				regionDefinitionResourceUtil));
 		SequenceViewLabelProvider labelProvider = new SequenceViewLabelProvider();
@@ -571,6 +570,18 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		if (editingDomain==null) {
 			throw new RuntimeException("Cannot get editing domain object.");
 		}
+
+		sequenceTableViewer.addDragSupport(DND.DROP_COPY | DND.DROP_MOVE
+				| DND.DROP_LINK,
+				new Transfer[] { LocalTransfer.getInstance() },
+				new ViewerDragAdapter(sequenceTableViewer));
+		// next statement requires editingDomain not null.
+		sequenceTableViewer.addDropSupport(DND.DROP_COPY | DND.DROP_MOVE
+				| DND.DROP_LINK,
+				new Transfer[] { LocalTransfer.getInstance() },
+				new EditingDomainViewerDropAdapter(editingDomain,
+						sequenceTableViewer));
+
 		if (regionDefinitionResourceUtil != null) {
 			try {
 				sequence = regionDefinitionResourceUtil.getSequence();
@@ -720,6 +731,11 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 								.create(editingDomain, element,
 										RegiondefinitionPackage.eINSTANCE
 												.getRegion_Enabled(), value));
+						if (element instanceof Region) {
+							Region region = (Region) element;
+							fireSelectionChanged(region);
+						}
+						
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
