@@ -31,13 +31,15 @@ public class NewSequenceAction extends AbstractHandler implements IHandler {
 					.getShell();
 			FileDialog fileDialog = new FileDialog(shell);
 			String fileName = fileDialog.open();
-			File file = new File(fileName);
+			File file=null;
+			if (fileName != null) file = new File(fileName);
 			try {
-				if (!file.exists()) {
+				if (file != null && !file.exists()) {
 					regionDefView.getRegionDefinitionResourceUtil()
 							.setFileName(fileName);
 					regionDefView.getRegionDefinitionResourceUtil()
 							.createSequence();
+					regionDefView.getRegionDefinitionResourceUtil().setFileChanged(true);
 				} else {
 					MessageDialog msgd = new MessageDialog(
 							shell,

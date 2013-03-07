@@ -16,11 +16,17 @@ public class OpenSequenceAction extends AbstractHandler implements IHandler {
 		IWorkbenchPart activePart = HandlerUtil.getActivePart(event);
 		if (activePart instanceof IRegionDefinitionView) {
 			IRegionDefinitionView regionDefView = (IRegionDefinitionView) activePart;
-			
-			FileDialog fileDialog = new FileDialog(HandlerUtil.getActiveShell(event));
+
+			FileDialog fileDialog = new FileDialog(
+					HandlerUtil.getActiveShell(event));
 			String fileName = fileDialog.open();
-			regionDefView.getRegionDefinitionResourceUtil().setFileName(fileName);
-			regionDefView.refreshTable();
+			if (fileName != null) {
+				regionDefView.getRegionDefinitionResourceUtil().setFileName(
+						fileName);
+				regionDefView.getRegionDefinitionResourceUtil().setFileChanged(true);
+				regionDefView.refreshTable();
+				
+			}
 		}
 		return null;
 	}

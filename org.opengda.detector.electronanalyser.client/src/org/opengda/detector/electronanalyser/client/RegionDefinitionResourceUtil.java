@@ -38,7 +38,7 @@ public class RegionDefinitionResourceUtil {
 	public String getDefaultSequenceFilename() {
 		String filename;
 		String defaultFolder = PathConstructor.createFromDefaultProperty();
-		if (defaultFolder.isEmpty()) {
+		if (defaultFolder != null && defaultFolder.isEmpty()) {
 			filename = System.getProperty("user.home") + File.pathSeparator
 					+ defaultSequenceFilename;
 		} else {
@@ -50,12 +50,29 @@ public class RegionDefinitionResourceUtil {
 
 	private String fileName;
 
+	public String getFileName() {
+		return fileName;
+	}
+	/**
+	 * enable file name to be set in Spring object configuration.
+	 * @param fileName
+	 */
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
 	}
-
+	/**
+	 * return the resource. The filename for this resource can be set in Spring object configuration property. 
+	 * If not set in Spring configuration, it is built using GDA property 
+	 * {@link gda.configuration.properties.LocalProperties.GDA_DATAWRITER_DIR} or {@code gda.data.scan.datawriter.datadir} 
+	 * and the default sequnece file name {@code user.seq}. If this propery is not set this sequence file will be created at {@code user.home}
+	 * @return
+	 * @throws Exception
+	 */
 	public Resource getResource() throws Exception {
 		ResourceSet resourceSet = getResourceSet();
+		if (fileName == null) {
+			fileName = getDefaultSequenceFilename();
+		}
 		File seqFile = new File(fileName);
 		if (seqFile.exists()) {
 			URI fileURI = URI.createFileURI(fileName);
@@ -63,7 +80,11 @@ public class RegionDefinitionResourceUtil {
 		}
 		return null;
 	}
-
+	/**
+	 * return the list of regions contained in a sequence or an empty list.
+	 * @return
+	 * @throws Exception
+	 */
 	public List<Region> getRegions() throws Exception {
 
 		Sequence sequence = getSequence();
@@ -78,12 +99,12 @@ public class RegionDefinitionResourceUtil {
 				URI.createFileURI(fileName));
 		final DocumentRoot root = RegiondefinitionFactory.eINSTANCE
 				.createDocumentRoot();
-		
+
 		Spectrum spectrum = RegiondefinitionFactory.eINSTANCE.createSpectrum();
 		Sequence seq = RegiondefinitionFactory.eINSTANCE.createSequence();
 		seq.setSpectrum(spectrum);
 		root.setSequence(seq);
-		
+
 		EditingDomain editingDomain = getEditingDomain();
 		final CommandStack commandStack = editingDomain.getCommandStack();
 		commandStack.execute(new RecordingCommand(
@@ -99,7 +120,7 @@ public class RegionDefinitionResourceUtil {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		return getSequence();
 	}
 
@@ -166,9 +187,17 @@ public class RegionDefinitionResourceUtil {
 	}
 
 	private double xRaySourceEnergyLimit = 2100.0;
+	private boolean fileChanged;
 
+	public boolean isFileChanged() {
+		return fileChanged;
+	}
 	public String getFilename() {
 		return this.fileName;
+	}
+	public void setFileChanged(boolean b) {
+		this.fileChanged=b;
+		
 	}
 
 }

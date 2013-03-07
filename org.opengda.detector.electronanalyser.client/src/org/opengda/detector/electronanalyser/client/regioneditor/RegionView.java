@@ -606,9 +606,19 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 							initialiseViewWithRegionData(region);
 							populateRegionNameCombo(regions);
 						}
-						regionPageBook.showPage(regionComposite);
+					}
+					regionPageBook.showPage(regionComposite);
+				}
+				if (regionDefinitionResourceUtil.isFileChanged()) {
+					try {
+						regions=regionDefinitionResourceUtil.getRegions();
+						populateRegionNameCombo(regions);
+						regionDefinitionResourceUtil.setFileChanged(false);
+					} catch (Exception e) {
+						logger.error("Cannot get regions list from {}", regionDefinitionResourceUtil.getFilename(),e);
 					}
 				}
+
 			}
 		}
 	};
@@ -792,12 +802,14 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		// file regionName combo with active regions from region list
 		int index = 0;
 		regionName.removeAll();
+		if (!regions.isEmpty()) {
 		for (Region region : regions) {
 			if (region.isEnabled()) {
 				regionName.add(region.getName());
 				regionName.setData(String.valueOf(index), region);
 				index++;
 			}
+		}
 		}
 	}
 
