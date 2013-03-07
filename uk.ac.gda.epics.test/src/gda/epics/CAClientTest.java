@@ -38,6 +38,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore("2013/03/07 Test ignored since it requires a resource that is not available")
 public class CAClientTest {
 	static boolean skipBL11test = false;
 	boolean putCompleted = false;
