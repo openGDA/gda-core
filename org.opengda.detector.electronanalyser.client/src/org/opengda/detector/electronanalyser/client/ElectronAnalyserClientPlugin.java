@@ -5,7 +5,6 @@ import gda.util.SpringObjectServer;
 import java.io.File;
 
 import org.eclipse.emf.edit.domain.EditingDomain;
-import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -49,8 +48,9 @@ public class ElectronAnalyserClientPlugin extends AbstractUIPlugin {
 
 	public EditingDomain getSequenceEditingDomain() throws Exception {
 		try {
-			return TransactionalEditingDomain.Registry.INSTANCE
-					.getEditingDomain(EDITING_DOMAIN_ID);
+//			return TransactionalEditingDomain.Registry.INSTANCE
+//					.getEditingDomain(EDITING_DOMAIN_ID);
+			return SequenceEditingDomain.INSTANCE.getEditingDomain();
 		} catch (Exception ex) {
 			throw new Exception("Unable to get editing domain:"
 					+ ex.getMessage());

@@ -802,17 +802,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 			throw new RuntimeException("Cannot get editing domain object.");
 		}
 
-		sequenceTableViewer.addDragSupport(DND.DROP_COPY | DND.DROP_MOVE
-				| DND.DROP_LINK,
-				new Transfer[] { LocalTransfer.getInstance() },
-				new ViewerDragAdapter(sequenceTableViewer));
-		// next statement requires editingDomain not null.
-		sequenceTableViewer.addDropSupport(DND.DROP_COPY | DND.DROP_MOVE
-				| DND.DROP_LINK,
-				new Transfer[] { LocalTransfer.getInstance() },
-				new EditingDomainViewerDropAdapter(editingDomain,
-						sequenceTableViewer));
-
 		if (regionDefinitionResourceUtil != null) {
 			try {
 				sequence = regionDefinitionResourceUtil.getSequence();

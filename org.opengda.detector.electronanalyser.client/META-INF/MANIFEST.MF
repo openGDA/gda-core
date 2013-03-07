@@ -11,12 +11,9 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.diamond.org.springframework;bundle-version="1.0.0",
  uk.ac.gda.core;bundle-version="8.26.0",
  org.opengda.detector.electronanalyser.model;bundle-version="1.0.0",
- org.eclipse.emf.ecore.edit;bundle-version="2.7.0",
  org.opengda.detector.electronanalyser.model.edit;bundle-version="1.0.0",
  org.eclipse.emf.edit.ui;bundle-version="2.7.0",
- org.eclipse.emf.transaction,
- org.eclipse.draw2d;bundle-version="3.7.1",
- org.eclipse.emf.workspace;bundle-version="1.5.1"
+ org.eclipse.draw2d;bundle-version="3.7.1"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.eclipse.ui.dialogs,

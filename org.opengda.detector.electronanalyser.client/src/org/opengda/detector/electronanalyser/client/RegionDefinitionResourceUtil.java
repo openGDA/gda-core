@@ -7,14 +7,11 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.emf.common.command.CommandStack;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.edit.domain.EditingDomain;
-import org.eclipse.emf.transaction.RecordingCommand;
-import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.DocumentRoot;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionFactory;
@@ -104,17 +101,20 @@ public class RegionDefinitionResourceUtil {
 		Sequence seq = RegiondefinitionFactory.eINSTANCE.createSequence();
 		seq.setSpectrum(spectrum);
 		root.setSequence(seq);
+		newResource.getContents().add(root);
 
-		EditingDomain editingDomain = getEditingDomain();
-		final CommandStack commandStack = editingDomain.getCommandStack();
-		commandStack.execute(new RecordingCommand(
-				(TransactionalEditingDomain) editingDomain) {
+		// use Transaction
+//		EditingDomain editingDomain = getEditingDomain();
+//		final CommandStack commandStack = editingDomain.getCommandStack();
 
-			@Override
-			protected void doExecute() {
-				newResource.getContents().add(root);
-			}
-		});
+//		commandStack.execute(new RecordingCommand(
+//				(TransactionalEditingDomain) editingDomain) {
+//
+//			@Override
+//			protected void doExecute() {
+//				newResource.getContents().add(root);
+//			}
+//		});
 		try {
 			newResource.save(null);
 		} catch (IOException e) {

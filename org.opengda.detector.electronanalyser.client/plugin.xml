@@ -18,10 +18,6 @@
    </extension>
    <extension
          point="org.eclipse.emf.transaction.editingDomains">
-      <editingDomain
-            factory="org.opengda.detector.electronanalyser.client.SequenceEditingDomain"
-            id="org.opengda.detector.electronanalyser.client.sequence.editingdomain">
-      </editingDomain>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
