@@ -90,7 +90,9 @@ public abstract class EpicsAttenuatorBase implements Attenuator, MonitorListener
 	@Override
 	public double setTransmission(double transmission) throws DeviceException {
 		try {
+			logger.info("Setting desired transmission to " + transmission);
 			controller.caput(desiredTransmission, transmission);
+			logger.info("Sending change filter command.");
 			controller.caputWait(change, 1);
 			Thread.sleep(250);
 			return controller.cagetDouble(actualTransmission);
