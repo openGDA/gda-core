@@ -519,15 +519,3 @@ class QueueContentProvider implements IStructuredContentProvider {
 		return new Object[0];
 	}
 }
-
-class NumberedQueueEntry {
-
-	public int index;
-	public QueuedCommandSummary entry;
-
-	@Override
-	public String toString() {
-		return String.format("%s(%d, %s)", getClass().getSimpleName(), index, entry);
-	}
-
-}
