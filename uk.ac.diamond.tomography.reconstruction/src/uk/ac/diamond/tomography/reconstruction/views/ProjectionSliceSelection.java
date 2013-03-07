@@ -19,12 +19,24 @@ package uk.ac.diamond.tomography.reconstruction.views;
 
 import org.eclipse.jface.viewers.ISelection;
 
+import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+
 public class ProjectionSliceSelection implements ISelection {
 
 	private int sliceNumber = 0;
 
+	private AbstractDataset dataSetPlotted;
+
 	public ProjectionSliceSelection(int sliceNumber) {
 		this.sliceNumber = sliceNumber;
+	}
+
+	public void setDataSetPlotted(AbstractDataset dataSetPlotted) {
+		this.dataSetPlotted = dataSetPlotted;
+	}
+
+	public AbstractDataset getDataSetPlotted() {
+		return dataSetPlotted;
 	}
 
 	@Override

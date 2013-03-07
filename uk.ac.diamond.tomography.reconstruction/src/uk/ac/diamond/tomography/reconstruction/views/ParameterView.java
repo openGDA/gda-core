@@ -37,13 +37,17 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -65,20 +69,27 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
+import org.eclipse.ui.forms.events.HyperlinkEvent;
+import org.eclipse.ui.forms.events.IHyperlinkListener;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.forms.widgets.Form;
 import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.eclipse.ui.forms.widgets.Hyperlink;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.PageBook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
+import uk.ac.diamond.scisoft.analysis.io.TIFFImageLoader;
 import uk.ac.diamond.tomography.reconstruction.Activator;
 import uk.ac.diamond.tomography.reconstruction.ReconUtil;
+import uk.ac.diamond.tomography.reconstruction.dialogs.DefineHeightRoiDialog;
+import uk.ac.diamond.tomography.reconstruction.dialogs.DefineRoiDialog;
 import uk.ac.diamond.tomography.reconstruction.jobs.ReconSchedulingRule;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.BackprojectionType;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.DarkFieldType;
@@ -103,6 +114,8 @@ import uk.ac.diamond.tomography.reconstruction.parameters.hm.presentation.IParam
  */
 
 public class ParameterView extends BaseParameterView implements ISelectionListener, IParameterView, ISelectionProvider {
+
+	private static final String DEFINE_ROI = "Define ROI";
 
 	private static final String NEXUS_EXTN = ".nxs";
 
@@ -263,6 +276,9 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 			}
 		});
 		btnFindCentre.setLayoutData(new GridData());
+		// ROI
+		Composite roiComp = createRoi(topComposite);
+		roiComp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		// Ring Artefacts
 		Composite ringArtefacts = createRingArtefacts(topComposite);
@@ -274,10 +290,6 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 		// Dark Fields
 		Composite darkFields = createDarkFields(topComposite);
 		darkFields.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		// ROI
-		Composite roiComp = createRoi(topComposite);
-		roiComp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		// scrolledCmp.setContent(topComposite);
 
@@ -459,23 +471,33 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 			if (quick && reducedDataShape != null) {
 				height = reducedDataShape[1];
 			}
-
-			StringBuffer command = new StringBuffer(String.format("%s -m 2 -e %d -n -t %s %s %s", shScriptName, height,
-					templateFileName, fileName, pathToImages.toString()));
-
-			logger.debug("Command that will be run:{}", command);
 			String jobNameToDisplay = null;
-
+			String command = null;
 			if (quick) {
+				// to add -p
+				command = String.format("%s -m 4 -p -e %d -n -t %s %s %s", shScriptName, height, templateFileName,
+						fileName, pathToImages.toString());
+
+				logger.debug("Command that will be run:{}", command);
 				jobNameToDisplay = String.format(JOB_NAME_QUICK_RECONSTRUCTION, nexusFile.getName());
-			} else {
-				jobNameToDisplay = String.format(JOB_NAME_FULL_RECONSTRUCTION, nexusFile.getName());
-			}
-			runCommand(jobNameToDisplay, command.toString());
-			if (quick) {
+				runCommand(jobNameToDisplay, command);
 				updatePlotAfterQuickRecon(nexusFileLocation);
-			}
+			} else {
+				DefineHeightRoiDialog defineHeightRoiDialog = new DefineHeightRoiDialog(getViewSite().getShell(),
+						getImageDataFromProjectionsView());
+				int returnCode = defineHeightRoiDialog.open();
+				if (returnCode != Window.CANCEL) {
+					int[] startEnd = defineHeightRoiDialog.getStartEnd();
+					int startHeight = startEnd[0];
+					int endHeight = startEnd[1];
+					command = String.format("%s -m 4 -b %d -e %d -n -t %s %s %s", shScriptName, startHeight, endHeight,
+							templateFileName, fileName, pathToImages.toString());
+					logger.debug("Command that will be run:{}", command);
 
+					jobNameToDisplay = String.format(JOB_NAME_FULL_RECONSTRUCTION, nexusFile.getName());
+					runCommand(jobNameToDisplay, command);
+				}
+			}
 		} catch (URISyntaxException e) {
 			logger.error("Incorrect URI for script", e);
 		} catch (IOException e) {
@@ -483,15 +505,34 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 		}
 	}
 
-	protected void updatePlotAfterQuickRecon(String nexusFileLocation) {
+	private AbstractDataset getImageDataFromProjectionsView() {
 		IViewPart projectionsView = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
 				.findView(ProjectionsView.ID);
 		ISelection selection = projectionsView.getViewSite().getSelectionProvider().getSelection();
 		if (selection instanceof ProjectionSliceSelection) {
 			ProjectionSliceSelection sliceSelection = (ProjectionSliceSelection) selection;
+			return sliceSelection.getDataSetPlotted();
+		}
+		return null;
+	}
+
+	private int getSliceSelectionFromProjectionsView() {
+		IViewPart projectionsView = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+				.findView(ProjectionsView.ID);
+		ISelection selection = projectionsView.getViewSite().getSelectionProvider().getSelection();
+		if (selection instanceof ProjectionSliceSelection) {
+			ProjectionSliceSelection sliceSelection = (ProjectionSliceSelection) selection;
+			return sliceSelection.getSliceNumber();
+		}
+		return -1;
+	}
+
+	protected void updatePlotAfterQuickRecon(String nexusFileLocation) {
+		int sliceNumber = getSliceSelectionFromProjectionsView();
+		if (sliceNumber >= 0) {
 			UpdatePlotJob updatePlotJob = new UpdatePlotJob();
 			updatePlotJob.setRule(new ReconSchedulingRule(nexusFile));
-			updatePlotJob.setPixelPosition(sliceSelection.getSliceNumber());
+			updatePlotJob.setPixelPosition(sliceNumber);
 			updatePlotJob.setName(String.format("Update plot after reconstruction:%s", nexusFile.getName()));
 			updatePlotJob.setNexusFileLocation(nexusFileLocation);
 			updatePlotJob.schedule();
@@ -612,13 +653,120 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 	}
 
 	private Composite createRoi(Composite formComposite) {
-		ExpandableComposite roiExpCmp = toolkit.createExpandableComposite(formComposite, ExpandableComposite.TWISTIE);
+		ExpandableComposite roiExpCmp = toolkit.createExpandableComposite(formComposite, ExpandableComposite.TWISTIE
+				| ExpandableComposite.EXPANDED);
 		roiExpCmp.setText(REGION_OF_INTEREST);
 		roiExpCmp.addExpansionListener(expansionAdapter);
 		roiExpCmp.setLayout(new FillLayout());
 
 		Composite cmpRoi = toolkit.createComposite(roiExpCmp);
 		cmpRoi.setLayout(new GridLayout(4, false));
+
+		Hyperlink defineRoi = toolkit.createHyperlink(cmpRoi, DEFINE_ROI, SWT.None);
+		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = 2;
+		defineRoi.setLayoutData(gd);
+		defineRoi.addHyperlinkListener(new IHyperlinkListener() {
+
+			@Override
+			public void linkExited(HyperlinkEvent e) {
+				// do nothing
+			}
+
+			@Override
+			public void linkEntered(HyperlinkEvent e) {
+				// do nothing
+			}
+
+			@Override
+			public void linkActivated(HyperlinkEvent e) {
+				final AbstractDataset[] images = new AbstractDataset[1];
+				BusyIndicator.showWhile(getViewSite().getShell().getDisplay(), new Runnable() {
+
+					@Override
+					public void run() {
+
+						String pathToImages = ReconUtil.getReconstructedReducedDataDirectoryPath(nexusFile
+								.getLocation().toOSString());
+						int sliceNumber = getSliceSelectionFromProjectionsView();
+
+						if (sliceNumber >= 0) {
+							File imageFile = new File(pathToImages, String.format(
+									ReconUtil.RECONSTRUCTED_IMAGE_FILE_FORMAT, sliceNumber / ProjectionsView.SPLITS));
+							logger.debug("Looking for image file {}", imageFile.getPath());
+							if (imageFile.exists()) {
+								DataHolder data = null;
+								try {
+									data = new TIFFImageLoader(imageFile.getAbsolutePath()).loadFile();
+								} catch (ScanFileHolderException e1) {
+									logger.error("Problem loading data", e1);
+								}
+
+								// update monitor
+								if (data != null) {
+									AbstractDataset image = data.getDataset(0);
+									image.isubtract(image.min());
+									image.imultiply(1000.0);
+									images[0] = image;
+								}
+							}
+						}
+
+					}
+				});
+
+				if (images[0] != null) {
+
+					DefineRoiDialog defineRoiDialog = new DefineRoiDialog(getViewSite().getShell(), images[0]);
+					defineRoiDialog.open();
+					int[] roi = defineRoiDialog.getRoi();
+					logger.debug("Roi values:{}", roi);
+					if (roi != null) {
+						String roiState = cmbRoiType.getText();
+						if (STANDARD.equals(roiState)) {
+							cmbRoiType.setText(RECTANGLE);
+							txtRoiXMin.setText(Integer.toString(roi[0]));
+							txtRoiYMin.setText(Integer.toString(roi[1]));
+							txtRoiXMax.setText(Integer.toString(roi[2]));
+							txtRoiYMax.setText(Integer.toString(roi[3]));
+						} else {
+							txtRoiXMin.setText(Integer.toString(roi[0] + Integer.parseInt(txtRoiXMin.getText())));
+							txtRoiYMin.setText(Integer.toString(roi[1] + Integer.parseInt(txtRoiYMin.getText())));
+							txtRoiXMax.setText(Integer.toString(roi[2] + Integer.parseInt(txtRoiXMin.getText())));
+							txtRoiYMax.setText(Integer.toString(roi[3] + Integer.parseInt(txtRoiYMin.getText())));
+						}
+						runReconScript(true);
+					}
+				} else {
+					ErrorDialog.openError(getViewSite().getShell(), "Problem setting ROI",
+							"Unable to set ROI.\n\nPlease run a 'Preview Recon' and try again", new Status(
+									IStatus.ERROR, Activator.PLUGIN_ID, "Problem loading image"));
+				}
+			}
+		});
+
+		Hyperlink resetRoi = toolkit.createHyperlink(cmpRoi, "Reset", SWT.None);
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = 2;
+		resetRoi.setLayoutData(gd);
+		resetRoi.addHyperlinkListener(new IHyperlinkListener() {
+
+			@Override
+			public void linkExited(HyperlinkEvent e) {
+
+			}
+
+			@Override
+			public void linkEntered(HyperlinkEvent e) {
+
+			}
+
+			@Override
+			public void linkActivated(HyperlinkEvent e) {
+				cmbRoiType.setText(STANDARD);
+				runReconScript(true);
+			}
+		});
 
 		Label lblRoiType = toolkit.createLabel(cmpRoi, TYPE);
 		lblRoiType.setLayoutData(new GridData());
@@ -658,7 +806,7 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 
 	private Composite createDarkFields(Composite formComposite) {
 		ExpandableComposite darkFieldsExpCmp = toolkit.createExpandableComposite(formComposite,
-				ExpandableComposite.TWISTIE | ExpandableComposite.EXPANDED);
+				ExpandableComposite.TWISTIE);
 		darkFieldsExpCmp.setText(DARK_FIELDS);
 		darkFieldsExpCmp.addExpansionListener(expansionAdapter);
 		darkFieldsExpCmp.setLayout(new FillLayout());
@@ -896,7 +1044,7 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 	 */
 	@Override
 	public void setFocus() {
-		scrolledForm.setFocus();
+		txtCentreOfRotation.setFocus();
 	}
 
 	@Override

@@ -226,7 +226,7 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 		}
 		plottingSystem.createPlotPart(plotComposite, PROJECTIONS_PLOT, getViewSite().getActionBars(), PlotType.IMAGE,
 				null);
-		
+
 		disablePlottingSystemActions(plottingSystem);
 		createMouseFollowLineRegion();
 
@@ -247,6 +247,7 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(this);
 		getRefreshJob();
 	}
+
 	protected void disablePlottingSystemActions(AbstractPlottingSystem plottingSystem) {
 		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.ui.editors.plotting.swtxy.removeRegions");
 		plottingSystem.getPlotActionSystem().remove("org.csstudio.swt.xygraph.toolbar.configureConfigure Settings...");
@@ -254,11 +255,12 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.histo");
 		plottingSystem.getPlotActionSystem().remove("org.csstudio.swt.xygraph.toolbar.configure");
 		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.ui.editors.plotting.swtxy.addRegions");
-		
+
 		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.rescale");
 		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.plotIndex");
 		plottingSystem.getPlotActionSystem().remove("org.dawb.workbench.plotting.plotX");
 	}
+
 	private void setGridLayoutMinimumSetting(GridLayout layout) {
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
@@ -267,6 +269,7 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 	}
 
 	private int position = -1;
+	private AbstractDataset datasetToPlot;
 
 	private Job getRefreshJob() {
 		Job refreshJob = new Job("") {
@@ -282,15 +285,14 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 					int[] shape = dataset.getShape();
 					shape[0] = position + 1;
 					IDataset slice = dataset.getSlice(new int[] { position, 0, 0 }, shape, new int[] { 1, 1, 1 });
-					final ILazyDataset squeeze = slice.squeeze();
+					datasetToPlot = (AbstractDataset) slice.squeeze();
 
 					getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
 						@Override
 						public void run() {
-							plottingSystem.updatePlot2D((AbstractDataset) squeeze, null, new NullProgressMonitor());
+							plottingSystem.updatePlot2D(datasetToPlot, null, new NullProgressMonitor());
 							fileName.setText(nexusFile.getLocation().toOSString());
 							//
-							slicingStepper.setSelection(position);
 							for (ITrace trace : plottingSystem.getTraces()) {
 								if (trace instanceof IImageTrace) {
 									IImageTrace imageTrace = (IImageTrace) trace;
@@ -560,7 +562,9 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 
 	@Override
 	public ISelection getSelection() {
-		return new ProjectionSliceSelection(sliceNumber);
+		ProjectionSliceSelection projectionSliceSelection = new ProjectionSliceSelection(sliceNumber);
+		projectionSliceSelection.setDataSetPlotted(datasetToPlot);
+		return projectionSliceSelection;
 	}
 
 	@Override

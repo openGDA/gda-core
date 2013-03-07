@@ -250,6 +250,8 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 		job2.setSystem(true);
 		job2.setRule(new ReconSchedulingRule(nexusFile));
 		job2.schedule();
+
+		scheduleUpdatePlotterJob(centreOfCentre, totalSteps / 2);
 	}
 
 	@Override
@@ -386,8 +388,6 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 		return String.format("%.02f", value);
 	}
 
-	private UpdatePlotViewJob updatePlotViewJob;
-
 	private class UpdatePlotViewJob extends Job {
 
 		private int position;
@@ -439,12 +439,8 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 		public void stepperChanged(final StepperChangedEvent e) {
 			double value = sliceStepper.getIndexValues()[e.getPosition()];
 			txtCentreOfRotation.setText(getCentreOfRotationDisplayText(value));
-			UpdatePlotViewJob plotViewJob = new UpdatePlotViewJob();
-			plotViewJob.setName(String.format(JOB_NAME_UPDATE_CENTRE_OF_ROTATION_SEARCH, nexusFile.getName(), value));
-			plotViewJob.setStepperPosition(e.getPosition());
-			plotViewJob.setRule(new ReconSchedulingRule(nexusFile));
-			plotViewJob.setUser(true);
-			plotViewJob.schedule();
+			int position = e.getPosition();
+			scheduleUpdatePlotterJob(value, position);
 		}
 	};
 
@@ -535,5 +531,14 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 			}
 		}
 
+	}
+
+	protected void scheduleUpdatePlotterJob(double value, int position) {
+		UpdatePlotViewJob plotViewJob = new UpdatePlotViewJob();
+		plotViewJob.setName(String.format(JOB_NAME_UPDATE_CENTRE_OF_ROTATION_SEARCH, nexusFile.getName(), value));
+		plotViewJob.setStepperPosition(position);
+		plotViewJob.setRule(new ReconSchedulingRule(nexusFile));
+		plotViewJob.setUser(true);
+		plotViewJob.schedule();
 	}
 }
