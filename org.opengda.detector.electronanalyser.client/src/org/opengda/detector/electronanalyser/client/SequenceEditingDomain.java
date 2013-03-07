@@ -39,22 +39,6 @@ public class SequenceEditingDomain implements IEditingDomainProvider {
 	private ComposedAdapterFactory adapterFactory;
 	private AdapterFactoryEditingDomain editingDomain;
 
-	// @Override
-	// public TransactionalEditingDomain createEditingDomain() {
-	// TransactionalEditingDomain result =
-	// WorkspaceEditingDomainFactory.INSTANCE.createEditingDomain();
-	// return result;
-	// }
-	//
-	// @Override
-	// public TransactionalEditingDomain createEditingDomain(ResourceSet rset) {
-	// return null;
-	// }
-	//
-	// @Override
-	// public TransactionalEditingDomain getEditingDomain(ResourceSet rset) {
-	// return null;
-	// }
 	/**
 	 * This sets up the editing domain for the model editor. <!-- begin-user-doc
 	 * --> <!-- end-user-doc -->
