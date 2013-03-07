@@ -38,6 +38,8 @@ public class SequenceViewFactory implements FindableExecutableExtension {
 	private String name;
 	private RegionDefinitionResourceUtil regionDefinitionResourceUtil;
 	private Camera camera;
+	private String location;
+	private String user;
 
 	public String getViewPartName() {
 		return viewPartName;
@@ -69,7 +71,12 @@ public class SequenceViewFactory implements FindableExecutableExtension {
 		sequenceView.setViewPartName(viewPartName);
 		sequenceView
 				.setRegionDefinitionResourceUtil(regionDefinitionResourceUtil);
-		sequenceView.setCamera(camera);
+		if (camera != null)
+			sequenceView.setCamera(camera);
+		if (location != null)
+			sequenceView.setLocation(location);
+		if (user != null)
+			sequenceView.setUser(user);
 		return sequenceView;
 	}
 
@@ -88,5 +95,21 @@ public class SequenceViewFactory implements FindableExecutableExtension {
 
 	public void setCamera(Camera camera) {
 		this.camera = camera;
+	}
+
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
+	}
+
+	public String getUser() {
+		return user;
+	}
+
+	public void setUser(String user) {
+		this.user = user;
 	}
 }

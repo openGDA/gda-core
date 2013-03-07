@@ -1,8 +1,16 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
-           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 
+<!-- 	<context:property-placeholder -->
+<!-- 		location="file:${gda.config}/properties/beamline.properties, -->
+<!-- 		file:${gda.config}/logging/live/log.properties, -->
+<!-- 		file:${gda.config}/epics/live/epics.properties, -->
+<!-- 		file:${gda.config}/properties/live/java.properties, -->
+<!-- 		file:${gda.config}/properties/gda.properties" /> -->
 
 	<bean id="regionDefinitionResourceUtil"
 		class="org.opengda.detector.electronanalyser.client.RegionDefinitionResourceUtil">
@@ -18,13 +26,15 @@
 		<property name="cameraXSize" value="1024"/>
 		<property name="cameraYSize" value="1024"/>
 	</bean>
-	
 
 	<bean id="sequenceviewfactory"
 		class="org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewFactory">
 		<property name="viewPartName" value="Sequence Editor" />
 		<property name="regionDefinitionResourceUtil" ref="regionDefinitionResourceUtil" />
 		<property name="camera" ref="analysercamera"/>
+		<property name="location" value="Diamond Test"/>
+<!-- 		<property name="user" value="${gda.defVisit}"/> -->
+		<property name="user" value="test2013-1"/>
 	</bean>
 
 	<bean id="regionviewfactory"
