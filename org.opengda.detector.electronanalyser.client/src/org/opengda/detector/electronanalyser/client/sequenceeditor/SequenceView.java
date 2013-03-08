@@ -1093,11 +1093,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 			isDirty = false;
 			firePropertyChange(PROP_DIRTY);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Cannot save the resource to a file.", e);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Cannot get resource from RegionDefinitionResourceUtil.",e);
 		}
 	}
 
