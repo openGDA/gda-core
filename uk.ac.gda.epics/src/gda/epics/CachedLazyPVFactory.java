@@ -16,16 +16,13 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.zebra.controller.impl;
+package gda.epics;
 
-import gda.epics.LazyPVFactory;
-import gda.epics.PV;
-import gda.epics.ReadOnlyPV;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class DevicePVCreator {
+public class CachedLazyPVFactory {
 	protected Map<String, PV<Double>> pvDoubles= new HashMap<String, PV<Double>>();
 	private String deviceprefix;
 	
@@ -83,7 +80,7 @@ public class DevicePVCreator {
 	}
 	
 	
-	public DevicePVCreator(String zebraPrefix) {
+	public CachedLazyPVFactory(String zebraPrefix) {
 		super();
 		this.deviceprefix = zebraPrefix;
 	}
