@@ -25,11 +25,11 @@ import gda.device.scannable.PositionStreamIndexer;
 import gda.device.scannable.ScannableUtils;
 import gda.device.zebra.controller.Zebra;
 import gda.factory.FactoryException;
+import gda.scan.ScanBase;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
 import org.slf4j.Logger;
@@ -76,6 +76,7 @@ public class ZebraConstantVelocityMoveController extends DeviceBase implements C
 
 				//set motor before setting gates and pulse parameters
 				zebra.setPCEnc(pcEnc); // enc1
+				zebra.setPCTimeUnit(Zebra.PC_TIMEUNIT_SEC); //s
 				
 				zebra.setPCGateStart(start);
 				zebra.setPCGateNumberOfGates(1);
@@ -205,11 +206,18 @@ public class ZebraConstantVelocityMoveController extends DeviceBase implements C
 			return;
 		}
 		try {
-			moveFuture.get();
-			timeSeriesCollection.waitForCompletion();
-		} catch (ExecutionException e) {
-			moveFuture = null;
-			throw new DeviceException(getName() + " problem executing move: " + e.getMessage(), e.getCause());
+			boolean done=false;
+			boolean complete=false;
+			while( !done || !complete){
+				done = moveFuture.isDone();
+				complete = timeSeriesCollection.isComplete();
+				ScanBase.checkForInterrupts();
+			}
+		} catch (InterruptedException e) {
+			zSM.stop();
+			throw e;
+		} finally{
+			moveFuture=null;
 		}
 	}
 
