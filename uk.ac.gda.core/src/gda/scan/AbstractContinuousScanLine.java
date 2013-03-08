@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 
-	static class PositionGrabbingAdapter<T> implements ContinuouslyScannableViaController, PositionCallableProvider<T> {
+	static class PositionGrabbingAdapter<T> implements ContinuouslyScannableViaController, PositionCallableProvider<T>, ScanPositionRecordable {
 		
 		private final ContinuouslyScannableViaController delegate;
 		
@@ -66,6 +66,7 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 			this.delegate = delegate;
 		}
 
+		@Override
 		public void setRecorder(ScanPositionRecorder recorder) {
 			this.recorder = recorder;
 			
@@ -361,8 +362,11 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 	@SuppressWarnings("rawtypes")
 	private static Object[] wrapContinuouslyScannables(Object[] args) {
 		for (int i = 0; i < args.length; i++) {
-			if (args[i] instanceof ContinuouslyScannableViaController) {
-				args[i] = new PositionGrabbingAdapter((ContinuouslyScannableViaController)args[i]);
+			Object object = args[i];
+			if (object instanceof ContinuouslyScannableViaController) {
+				if(  !(object instanceof ScanPositionRecordable)){
+					args[i] = new PositionGrabbingAdapter((ContinuouslyScannableViaController)args[i]);
+				}
 			}
 		}
 		return args;
