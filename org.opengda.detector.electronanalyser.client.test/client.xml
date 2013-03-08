@@ -15,7 +15,7 @@
 	<bean id="regionDefinitionResourceUtil"
 		class="org.opengda.detector.electronanalyser.client.RegionDefinitionResourceUtil">
 		<property name="fileName"
-			value="D:/gda/gda-i09/runtime-TestInClient/Test123/My.seq" />
+			value="D:/gda/i09/runtime-TestInClient/Test123/My.seq" />
 		<property name="sourceSelectable" value="true"/>
 		<property name="xRaySourceEnergyLimit" value="2100"/>
 	</bean>
