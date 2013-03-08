@@ -21,11 +21,7 @@ public class OpenSequenceAction extends AbstractHandler implements IHandler {
 					HandlerUtil.getActiveShell(event));
 			String fileName = fileDialog.open();
 			if (fileName != null) {
-				regionDefView.getRegionDefinitionResourceUtil().setFileName(
-						fileName);
-				regionDefView.getRegionDefinitionResourceUtil().setFileChanged(true);
-				regionDefView.refreshTable();
-				
+				regionDefView.refreshTable(fileName, false);
 			}
 		}
 		return null;

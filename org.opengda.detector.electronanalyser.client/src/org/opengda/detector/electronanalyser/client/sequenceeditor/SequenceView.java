@@ -1049,15 +1049,24 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 	public void setCamera(Camera camera) {
 		this.camera = camera;
 	}
-
-	@Override
-	public void refreshTable() {
+	/**
+	 * refresh the table viewer with the sequence file name provided. 
+	 * If it is a new file, an empty sequence will be created.
+	 */
+	public void refreshTable(String seqFileName, boolean newFile) {
 		try {
-			
+			resource.eAdapters().remove(notifyListener);
+			regionDefinitionResourceUtil.setFileName(seqFileName);
+			if (newFile) {
+				regionDefinitionResourceUtil.createSequence();
+			}
+			regionDefinitionResourceUtil.setFileChanged(true);
 			Resource sequenceRes = regionDefinitionResourceUtil.getResource();
 			sequenceTableViewer.setInput(sequenceRes);
+			//update the resource in this view.
+			resource=sequenceRes;
+			resource.eAdapters().add(notifyListener);
 			
-
 			// if the sequence is empty - then fire null
 			// replace existing regions list
 			regions = regionDefinitionResourceUtil.getRegions();
@@ -1121,7 +1130,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		@Override
 		public void notifyChanged(Notification notification) {
 			super.notifyChanged(notification);
-			if (notification.getNotifier() != null) {
+			if (notification.getFeature() !=null && !notification.getFeature().equals("null") && notification.getNotifier() != null) {
 				isDirty = true;
 				firePropertyChange(PROP_DIRTY);
 			}

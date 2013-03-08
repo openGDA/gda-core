@@ -26,7 +26,9 @@ public class SequenceViewContentProvider implements IStructuredContentProvider {
 	public SequenceViewContentProvider(RegionDefinitionResourceUtil resUtil) {
 		this.resUtil = resUtil;
 	}
-
+	/**
+	 * resource notify listener to update table selection during model instance modification. 
+	 */
 	private Adapter notifyListener = new EContentAdapter() {
 		@Override
 		public void notifyChanged(Notification notification) {
@@ -67,11 +69,15 @@ public class SequenceViewContentProvider implements IStructuredContentProvider {
 				resUtil.getResource().eAdapters().remove(notifyListener);
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(
+					"Cannot get resource from RegionDefinitionResourceUtil", e);
 		}
 	}
 
+	/**
+	 * set input changed, also remove and add model instance modification notify
+	 * listener from old input and new input respectively.
+	 */
 	@Override
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 		this.viewer = viewer;

@@ -5,5 +5,5 @@ import org.opengda.detector.electronanalyser.client.RegionDefinitionResourceUtil
 public interface IRegionDefinitionView {
 	RegionDefinitionResourceUtil getRegionDefinitionResourceUtil();
 	
-	void refreshTable();
+	void refreshTable(String seqFileName, boolean newFile);
 }
