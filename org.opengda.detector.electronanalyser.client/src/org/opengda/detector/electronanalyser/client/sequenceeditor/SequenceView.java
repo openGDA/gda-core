@@ -157,6 +157,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 
 	private Text txtEstimatedTime;
 
+	protected Region lastSelection;
+
 	public void createColumns(TableViewer tableViewer, TableColumnLayout layout) {
 		for (int i = 0; i < columnHeaders.length; i++) {
 			TableViewerColumn tableViewerColumn = new TableViewerColumn(
@@ -203,8 +205,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 							IStructuredSelection sel = (IStructuredSelection) selection;
 							Object firstElement = sel.getFirstElement();
 							if (firstElement instanceof Region) {
-								Region region = (Region) firstElement;
-								fireSelectionChanged(region);
+									Region region = (Region) firstElement;
+									fireSelectionChanged(region);
 							}
 						}
 					}
@@ -282,8 +284,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 									regionDefinitionResourceUtil.getSequence(),
 									RegiondefinitionPackage.eINSTANCE
 											.getSequence_Region(), newRegion));
-//					sequenceTableViewer.setSelection(new StructuredSelection(
-//							newRegion), true);
+					// sequenceTableViewer.setSelection(new StructuredSelection(
+					// newRegion), true);
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
@@ -314,8 +316,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 												.getSequence(),
 										RegiondefinitionPackage.eINSTANCE
 												.getSequence_Region(), copy));
-//						sequenceTableViewer.setSelection(
-//								new StructuredSelection(copy), true);
+						// sequenceTableViewer.setSelection(
+						// new StructuredSelection(copy), true);
 					} else {
 						MessageDialog msgd = new MessageDialog(parent
 								.getShell(), "No region selected", null,
@@ -336,7 +338,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 			public void widgetSelected(SelectionEvent e) {
 				try {
 					Region selectedRegion = getSelectedRegion();
-//					int index = regions.indexOf(selectedRegion);
+					// int index = regions.indexOf(selectedRegion);
 					if (selectedRegion != null) {
 						editingDomain.getCommandStack().execute(
 								RemoveCommand.create(editingDomain,
@@ -345,15 +347,15 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 										RegiondefinitionPackage.eINSTANCE
 												.getSequence_Region(),
 										selectedRegion));
-//						if (index == regions.size()) {
-//							sequenceTableViewer.setSelection(
-//									new StructuredSelection(sequenceTableViewer
-//											.getElementAt(index - 1)), true);
-//						} else {
-//							sequenceTableViewer.setSelection(
-//									new StructuredSelection(sequenceTableViewer
-//											.getElementAt(index)), true);
-//						}
+						// if (index == regions.size()) {
+						// sequenceTableViewer.setSelection(
+						// new StructuredSelection(sequenceTableViewer
+						// .getElementAt(index - 1)), true);
+						// } else {
+						// sequenceTableViewer.setSelection(
+						// new StructuredSelection(sequenceTableViewer
+						// .getElementAt(index)), true);
+						// }
 					} else {
 						MessageDialog msgd = new MessageDialog(parent
 								.getShell(), "No region selected", null,
@@ -373,29 +375,29 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				try {
-//					Region lastAffectedRegion = null;
-//					Collection<?> affectedObjects = editingDomain
-//							.getCommandStack().getMostRecentCommand()
-//							.getAffectedObjects();
-//					if (!affectedObjects.isEmpty()) {
-//						Object object = affectedObjects.toArray()[0];
-//						if (object instanceof Region) {
-//							lastAffectedRegion = (Region) object;
-//						}
-//					}
-//					int index = -1;
-//					if (lastAffectedRegion != null) {
-//						index = regions.indexOf(lastAffectedRegion);
-//						if (index == regions.size() - 1) {
-//							index--;
-//						}
-//					}
+					// Region lastAffectedRegion = null;
+					// Collection<?> affectedObjects = editingDomain
+					// .getCommandStack().getMostRecentCommand()
+					// .getAffectedObjects();
+					// if (!affectedObjects.isEmpty()) {
+					// Object object = affectedObjects.toArray()[0];
+					// if (object instanceof Region) {
+					// lastAffectedRegion = (Region) object;
+					// }
+					// }
+					// int index = -1;
+					// if (lastAffectedRegion != null) {
+					// index = regions.indexOf(lastAffectedRegion);
+					// if (index == regions.size() - 1) {
+					// index--;
+					// }
+					// }
 					editingDomain.getCommandStack().undo();
-//					if (index != -1) {
-//						sequenceTableViewer.setSelection(
-//								new StructuredSelection(sequenceTableViewer
-//										.getElementAt(index)), true);
-//					}
+					// if (index != -1) {
+					// sequenceTableViewer.setSelection(
+					// new StructuredSelection(sequenceTableViewer
+					// .getElementAt(index)), true);
+					// }
 				} catch (Exception e1) {
 					logger.error("Cannot not get Editing Domain object.", e1);
 				}
@@ -899,8 +901,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 				new EditingDomainViewerDropAdapter(editingDomain,
 						sequenceTableViewer));
 
-		sequenceTableViewer.setSelection(new StructuredSelection(
-				sequenceTableViewer.getElementAt(0)), true);
+//		sequenceTableViewer.setSelection(new StructuredSelection(
+//				sequenceTableViewer.getElementAt(0)), true);
 		updateCalculatedData();
 	}
 
@@ -1051,8 +1053,10 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 	@Override
 	public void refreshTable() {
 		try {
+			
 			Resource sequenceRes = regionDefinitionResourceUtil.getResource();
 			sequenceTableViewer.setInput(sequenceRes);
+			
 
 			// if the sequence is empty - then fire null
 			// replace existing regions list
