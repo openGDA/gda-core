@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -23,10 +23,13 @@ import gda.scan.IScanDataPoint;
 
 import java.util.ArrayList;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.dawnsci.plotting.jreality.core.AxisMode;
 
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
-import uk.ac.diamond.scisoft.analysis.rcp.views.plot.PlotData;
+import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
+import uk.ac.diamond.scisoft.analysis.rcp.views.plot.DataSetPlotData;
+import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
 
 public class LnI0ItScanPlotView extends AbstractCachedScanPlotView {
 
@@ -34,11 +37,6 @@ public class LnI0ItScanPlotView extends AbstractCachedScanPlotView {
 
 	private String yAxis = "ln(I0/It)";
 	private String graphTitle = "Absorption  -  ln(I0/It) vs. Energy";
-	
-	@Override
-	public void configurePlot(final DataSetPlotter plotter) {
-		plotter.setAxisOffset(0, -0.5, 0);
-	}
 
 	/**
 	 * Optionally override to change yAxis mode.
@@ -56,7 +54,7 @@ public class LnI0ItScanPlotView extends AbstractCachedScanPlotView {
 
 	@Override
 	protected String getCurrentPlotName(int scanNumber) {
-		return "Scan " + scanNumber + " [+ yAxis +]";
+		return graphTitle;
 	}
 
 	@Override
@@ -111,22 +109,21 @@ public class LnI0ItScanPlotView extends AbstractCachedScanPlotView {
 	}
 
 	@Override
-	protected PlotData getY(IScanDataPoint... points) {
-		return new PlotData(getYAxis(), cachedY);
+	protected IPlotData getY(IScanDataPoint... points) {
+		Double[] values = cachedY.toArray(new Double[]{});
+		double[] primitiveValues = ArrayUtils.toPrimitive(values, values.length);
+		AbstractDataset yValues = new DoubleDataset(primitiveValues,primitiveValues.length);
+		yValues.setName(getYAxisName());
+		return new DataSetPlotData(getYAxisName(), yValues);
 	}
 
 	@Override
-	protected String getXAxis() {
+	protected String getXAxisName() {
 		return "Energy (eV)";
 	}
 
 	@Override
-	protected String getYAxis() {
+	protected String getYAxisName() {
 		return yAxis;
-	}
-
-	@Override
-	protected String getGraphTitle() {
-		return graphTitle;
 	}
 }

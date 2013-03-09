@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2010 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -46,12 +46,12 @@ public class MapPlotView extends AbstractScanPlotView {
 	}
 
 	@Override
-	protected String getXAxis() {
+	protected String getXAxisName() {
 		return "X";
 	}
 
 	@Override
-	protected String getYAxis() {
+	protected String getYAxisName() {
 		return "y";
 	}
 

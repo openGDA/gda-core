@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -66,15 +66,16 @@ public class FourierScanPlotView extends ExafsScanPlotView {
 
 				if (lnI0It.getSize() > (idxStart + minPlotPoints)) {
 					AbstractDataset[] fft = xafsFittingUtils.getFFT(energy, lnI0It);
-
-					this.xDataSetData = new DataSetPlotData(getXAxis(), fft[0]);
+					fft[0].setName(getXAxisName());
+					this.xDataSetData = new DataSetPlotData(getXAxisName(), fft[0]);
 
 					// At the time of writing this code DataSet does not inherit from AbstractDataset!!
-					return new DataSetPlotData(getYAxis(), fft[1]);
+					fft[1].setName(getYAxisName());
+					return new DataSetPlotData(getYAxisName(), fft[1]);
 				}
 			}
-			this.xDataSetData = new DataSetPlotData(getXAxis(), energy);
-			return new DataSetPlotData(getYAxis(), AbstractDataset.zeros(lnI0It.getShape(), lnI0It.getDtype()));
+			energy.setName(getXAxisName());
+			return null;
 		} catch (Exception e) {
 			logger.warn("Exception in XafsFittingUtils calculating FFT",e);
 			return null;
@@ -105,26 +106,14 @@ public class FourierScanPlotView extends ExafsScanPlotView {
 	protected IPlotData getX(IScanDataPoint... points) {
 		return xDataSetData;
 	}
-
+	
 	@Override
-	protected String getCurrentPlotName(int scanNumber) {
-		return "Scan " + scanNumber;
-	}
-
-	@Override
-	protected String getYAxis() {
+	protected String getYAxisName() {
 		return "\u03c7(R)";
 	}
 
 	@Override
-	protected String getXAxis() {
+	protected String getXAxisName() {
 		return "R (\u212b)";
 	}
-
-	@Override
-	protected String getGraphTitle() {
-		String scanName = super.getGraphTitle() + " Fourier Transform";
-		return scanName;
-	}
-
 }

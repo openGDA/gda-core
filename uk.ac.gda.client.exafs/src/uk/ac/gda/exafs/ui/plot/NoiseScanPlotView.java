@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -57,11 +57,12 @@ public class NoiseScanPlotView extends ExafsScanPlotView {
 			final AbstractDataset energy = AbstractDataset.createFromList(cachedX);
 			final AbstractDataset lnI0It = AbstractDataset.createFromList(cachedY);
 			IPreferenceStore preferences = SpectroscopyRCPActivator.getDefault().getPreferenceStore();
-	        int windowSize = preferences.getInt(XafsPreferences.NOISE_WINDOW);
-	        int polyOrder = preferences.getInt(XafsPreferences.NOISE_ORDER);
+			int windowSize = preferences.getInt(XafsPreferences.NOISE_WINDOW);
+			int polyOrder = preferences.getInt(XafsPreferences.NOISE_ORDER);
 			final AbstractDataset medi = xafsFittingUtils.getPolynomialSmoothed(energy, lnI0It, windowSize, polyOrder);
 			final AbstractDataset noise = (new DoubleDataset(lnI0It)).isubtract(medi);
-			return new DataSetPlotData(getYAxis(), noise);
+			noise.setName(getYAxisName());
+			return new DataSetPlotData(getYAxisName(), noise);
 		} catch (Exception e) {
 			logger.warn("Cannot calculate noise profile", e);
 			return null;
@@ -69,19 +70,7 @@ public class NoiseScanPlotView extends ExafsScanPlotView {
 	}
 
 	@Override
-	protected String getCurrentPlotName(int scanNumber) {
-		return "Scan " + scanNumber + " [Noise Profile]";
-	}
-
-	@Override
-	protected String getYAxis() {
+	protected String getYAxisName() {
 		return "Noise";
 	}
-
-	@Override
-	protected String getGraphTitle() {
-		String scanName = super.getGraphTitle() + " Noise Profile";  
-		return  scanName;
-	}
-
 }

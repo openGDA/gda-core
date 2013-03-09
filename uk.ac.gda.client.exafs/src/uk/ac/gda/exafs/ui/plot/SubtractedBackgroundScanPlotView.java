@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -67,12 +67,14 @@ public class SubtractedBackgroundScanPlotView extends ExafsScanPlotView {
 
 				if (lnI0It.getSize() > (idxStart + minPlotPoints)) {
 					AbstractDataset[] exafs = xafsFittingUtils.getSubtractedBackgroundInK(energy, lnI0It);
-					this.xDataSetData = new DataSetPlotData(getXAxis(), exafs[0]);
-					return new DataSetPlotData(getYAxis(), exafs[1]);
+					exafs[0].setName(getXAxisName());
+					exafs[1].setName(getYAxisName());
+					this.xDataSetData = new DataSetPlotData(getXAxisName(), exafs[0]);
+					return new DataSetPlotData(getYAxisName(), exafs[1]);
 				}
 			}
-			this.xDataSetData = new DataSetPlotData(getXAxis(), energy);
-			return new DataSetPlotData(getYAxis(), AbstractDataset.zeros(lnI0It.getShape(), lnI0It.getDtype()));
+			energy.setName(getXAxisName());
+			return null;
 		} catch (Exception e) {
 			logger.warn("Exception in XafsFittingUtils calculating Subtracted background",e);
 		}
@@ -94,7 +96,6 @@ public class SubtractedBackgroundScanPlotView extends ExafsScanPlotView {
 			if (params == null)
 				return kStartEnergy; // Leave as last calculated
 
-			// final Object params = currentScan.getScanParameters();
 			return ExafsScanPointCreator.getStartOfConstantKRegion(params);
 		} catch (Exception e) {
 			return a + 300;
@@ -107,12 +108,7 @@ public class SubtractedBackgroundScanPlotView extends ExafsScanPlotView {
 	}
 
 	@Override
-	protected String getCurrentPlotName(int scanNumber) {
-		return "Scan " + scanNumber;
-	}
-
-	@Override
-	protected String getYAxis() {
+	protected String getYAxisName() {
 		int kw = xafsFittingUtils.getKweight();
 		String prefix = "";
 		switch (kw) {
@@ -132,14 +128,7 @@ public class SubtractedBackgroundScanPlotView extends ExafsScanPlotView {
 	}
 
 	@Override
-	protected String getXAxis() {
+	protected String getXAxisName() {
 		return "k (\u212b\u207b\u00b9)";
 	}
-
-	@Override
-	protected String getGraphTitle() {
-		String scanName = super.getGraphTitle() + " Subtracted Background (Estimate)";
-		return scanName;
-	}
-
 }
