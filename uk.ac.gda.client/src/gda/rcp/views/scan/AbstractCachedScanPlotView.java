@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -24,10 +24,13 @@ import gda.scan.IScanDataPoint;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.ui.PlatformUI;
 
+import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
+import uk.ac.diamond.scisoft.analysis.rcp.views.plot.DataSetPlotData;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
-import uk.ac.diamond.scisoft.analysis.rcp.views.plot.PlotData;
 
 /**
  * Extend to deal with plots which are simple functions.
@@ -57,8 +60,6 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 			cachedX = new ArrayList<Double>(89);
 		if (cachedY == null)
 			cachedY = new ArrayList<Double>(89);
-		cachedX.clear();
-		cachedY.clear();
 	}
 
 	@Override
@@ -68,8 +69,6 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 			cachedX = new ArrayList<Double>(89);
 		if (cachedY == null)
 			cachedY = new ArrayList<Double>(89);
-		// don't call the super method, instead add to the cache
-		// super.scanDataPointChanged(e);
 		latestEvent = e;
 		checkLoopRunning();
 	}
@@ -85,7 +84,7 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 	@Override
 	public void run() {
 		while (continueCalculations) {
-			if (!waitingForRefresh && updateCachedValues()) {
+			if (updateCachedValues() && !waitingForRefresh) {
 				y = getY((IScanDataPoint[]) null);
 				x = getX((IScanDataPoint[]) null); 
 				if (y != null && x != null) {
@@ -98,10 +97,12 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 							waitingForRefresh = false;
 						}
 					});
+				} else if (y == null){
+					stack.topControl = lblNoDataMessage;
 				}
 			}
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(100);
 			} catch (InterruptedException e) {
 				break;
 			}
@@ -134,11 +135,16 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 
 		if (currentScanUniqueName == null || currentScanUniqueName.isEmpty()) {
 			currentScanUniqueName = sdp.getUniqueName();
+			scanNumber = Integer.parseInt(sdp.getScanIdentifier());
 		}
 
 		if (currentScanUniqueName != sdp.getUniqueName()) {
-			// somehow missed the scan stopped event
-			scanStopped();
+			// only clear at this point - when points from a new scan are coming in
+			system.clear();
+			cachedX.clear();
+			cachedY.clear();
+			currentScanUniqueName = sdp.getUniqueName();
+			scanNumber = Integer.parseInt(sdp.getScanIdentifier());
 		}
 
 		if (!scanning) {
@@ -183,26 +189,25 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 
 		if (cachedX == null)
 			cachedX = new ArrayList<Double>(89);
-
-		return new PlotData(xAxisTitle, cachedX);
+		
+		Double[] values = cachedX.toArray(new Double[]{});
+		double[] primitiveValues = ArrayUtils.toPrimitive(values, values.length);
+		AbstractDataset xValues = new DoubleDataset(primitiveValues,primitiveValues.length);
+		xValues.setName(getXAxisName());
+		return new DataSetPlotData(getXAxisName(), xValues);	
 	}
 
 	@Override
-	protected String getXAxis() {
+	protected String getXAxisName() {
 		return xAxisTitle;
 	}
 
 	@Override
 	protected void plotPointsFromService() throws Exception {
-
 		if (cachedX == null)
 			cachedX = new ArrayList<Double>(89);
 		if (cachedY == null)
 			cachedY = new ArrayList<Double>(89);
-
-		cachedX.clear();
-		cachedY.clear();
-
 		super.plotPointsFromService();
 	}
 

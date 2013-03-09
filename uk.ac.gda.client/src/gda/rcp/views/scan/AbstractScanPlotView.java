@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -24,14 +24,10 @@ import gda.rcp.util.UIScanDataPointEventService;
 import gda.scan.IScanDataPoint;
 import gda.scan.ScanDataPoint;
 
-import java.awt.Color;
 import java.util.List;
 
 import javax.swing.Timer;
 
-import org.dawnsci.plotting.jreality.impl.Plot1DAppearance;
-import org.dawnsci.plotting.jreality.impl.Plot1DStyles;
-import org.dawnsci.plotting.jreality.impl.PlotException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -41,7 +37,6 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.AbstractPlotView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.PlotBean;
@@ -85,7 +80,13 @@ public abstract class AbstractScanPlotView extends AbstractPlotView implements S
 	protected abstract IPlotData getY(IScanDataPoint... point);
 
 	protected abstract String getCurrentPlotName(int scanNumber);
+	
 
+	@Override
+	protected String getGraphTitle() {
+		return getCurrentPlotName(scanNumber);
+	}
+	
 	@Override
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
@@ -115,12 +116,8 @@ public abstract class AbstractScanPlotView extends AbstractPlotView implements S
 
 	@Override
 	public void scanStopped() {
-
 		this.scanning = false;
 		legendEntries = false;
-
-		// We do *NOT* clear the xAxisValues as this breaks zooming.
-		// this.xAxisValues.clear();
 
 		if (isPlotDataSavable()) {
 			if (y != null)
@@ -160,14 +157,8 @@ public abstract class AbstractScanPlotView extends AbstractPlotView implements S
 
 	@Override
 	public void scanStarted() {
-		++scanNumber;
-		if (xAxisValues != null)
-			xAxisValues.clear();
-		// Prime numbers grow better.
 		scanning = true;
 		legendEntries = false;
-		plotter.getColourTable().clearLegend();
-		//stack.topControl = lblNoDataMessage; // Commented out in merge
 		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -237,7 +228,9 @@ public abstract class AbstractScanPlotView extends AbstractPlotView implements S
 	}
 
 	protected void rebuildPlot() {
-		createPlot(x, y, GRAPH_MODE.CHECK_VISIBLE_AND_TIMER);
+		system.clear();
+		system.createPlot1D(x.getDataSet(), y.getDataSets(), null);
+		system.setTitle(getCurrentPlotName(scanNumber));
 	}
 
 	/**
@@ -279,19 +272,11 @@ public abstract class AbstractScanPlotView extends AbstractPlotView implements S
 			if (!x.isDataSetValid())
 				return false;
 
-			xAxisValues.setValues(x.getDataSet());
-			final boolean plotted;
-			if (y.isMulti()) {
-				plotted = addMultiple(y);
-			} else {
-				plotted = addSingle(y);
-			}
-			if (!plotted)
-				return false;
-
-			plotter.setTitle(getGraphTitle());
-			plotter.setYAxisLabel(getYAxis());
-			plotter.refresh(false);
+			system.clear();
+			system.createPlot1D(x.getDataSet(), y.getDataSets(), null);
+			system.setShowLegend(false);
+			system.setTitle(getCurrentPlotName(scanNumber));
+			
 			if (timer != null)
 				timer.start();
 			return true;
@@ -314,69 +299,15 @@ public abstract class AbstractScanPlotView extends AbstractPlotView implements S
 
 		ret.setXAxisMode(getXAxisMode().asInt());
 		ret.setYAxisMode(getYAxisMode().asInt());
-		ret.setXAxisValues(getXAxisValues());
 
-		ret.setXAxis(getXAxis());
-		ret.setYAxis(getYAxis());
+		ret.setXAxis(getXAxisName());
+		ret.setYAxis(getYAxisName());
 
 		return ret;
 	}
 
-	/**
-	 * Method called to add single plot data, overide if required. By default all single plots are black as this is easy
-	 * to see and looks boring and professional.
-	 * 
-	 * @param y
-	 */
-	protected boolean addSingle(IPlotData y) {
-
-		if (!legendEntries) {
-			final Plot1DAppearance app = new Plot1DAppearance(Color.BLACK, Plot1DStyles.SOLID, 1,
-					getCurrentPlotName(scanNumber));
-			plotter.getColourTable().addEntryOnLegend(app);
-			legendEntries = true;
-		}
-		if (!y.isDataSetValid()) {
-			logger.warn("Calculated datasets for '" + this.getTitle() + "' contains infinities or NaNs.");
-			return false;
-		}
-		try {
-			plotter.replaceCurrentPlot(y.getDataSet());
-		} catch (PlotException ex) {
-			logger.warn("Calculated dataset for '" + this.getTitle() + "'.", ex);
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
-	 * Method called to add multiple plot data, overide if required.
-	 * 
-	 * @param y
-	 */
-	protected boolean addMultiple(IPlotData y) {
-
-		if (!legendEntries) {
-			AbstractPlotView.createMultipleLegend(plotter, y.getDataMap());
-			legendEntries = true;
-		}
-		if (!y.isDataSetsValid()) {
-			logger.info("Calculated datasets for '" + this.getTitle() + "' contains infinities or NaNs.");
-			return false;
-		}
-		try {
-			plotter.replaceAllPlots(y.getDataSets());
-		} catch (PlotException e) {
-			logger.info("Calculated datasets for '" + this.getTitle() + "'.", e);
-			return false;
-		}
-		return true;
-	}
-
 	@Override
 	public void scanPaused() {
-
 	}
 
 	/**
@@ -395,11 +326,6 @@ public abstract class AbstractScanPlotView extends AbstractPlotView implements S
 		if (timer != null)
 			timer.setDelay(sampleRate);
 	}
-
-	public AxisValues getXAxisValues() {
-		return scanning ? xAxisValues.clone() : new AxisValues(xSaved.getDataSet());
-	}
-
 	@Override
 	public void dispose() {
 		try {

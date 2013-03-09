@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -73,7 +73,6 @@ public class MultipleScanPlotView extends AbstractCachedScanPlotView {
 	protected void updateCache(ArrayList<IScanDataPoint> collection, int startIndex) {
 		for (int i = startIndex; i < collection.size(); i++){
 			IScanDataPoint point = collection.get(i);
-//			final IScanDataPoint point = sdpArray.get(i);
 			final List<Double> data = Arrays.asList(point.getDetectorDataAsDoubles());
 			final List<String> names = point.getDetectorHeader();
 			for (int j = 0; j < data.size(); j++) {
@@ -88,12 +87,12 @@ public class MultipleScanPlotView extends AbstractCachedScanPlotView {
 	}
 
 	@Override
-	protected String getYAxis() {
+	protected String getYAxisName() {
 		return "Scan Data";
 	}
 
 	@Override
-	protected String getXAxis() {
+	protected String getXAxisName() {
 		return "Point Number";
 	}
 }

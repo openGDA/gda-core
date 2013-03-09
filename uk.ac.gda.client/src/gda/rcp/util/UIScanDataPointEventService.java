@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -40,66 +40,60 @@ import uk.ac.gda.preferences.PreferenceConstants;
 
 /**
  * This class is used to minimise the number of runnables being added to the stack to process scan data points. It has
- * reduced the listeners to a client side list which is processes as one Runnable.
- * 
- * It is also required as the graph may not have been initialised when a scan is run. This class is always listening however and if a listener adds
+ * reduced the listeners to a client side list which is processes as one Runnable. It is also required as the graph may
+ * not have been initialised when a scan is run. This class is always listening however and if a listener adds
  * themselves later, they are updated with all points instead of just the latest. It currently keeps the ScanDataPoints
- * in memory.
- * 
- * NOTE: This class is not designed for listeners not updating UI. It is only for user interface which requires
- * updates when the scan data point is notified. 
- * 
- * Currently if you have many scan data points coming through, all will be notified on the UI thread in order as 
- * asyncExec. You may need to disconnect from the  UIScanDataPointEventService in this scenario. Also instead you may need
- * to update the UI with a timer to stop too many points coming through.
+ * in memory. NOTE: This class is not designed for listeners not updating UI. It is only for user interface which
+ * requires updates when the scan data point is notified. Currently if you have many scan data points coming through,
+ * all will be notified on the UI thread in order as asyncExec. You may need to disconnect from the
+ * UIScanDataPointEventService in this scenario. Also instead you may need to update the UI with a timer to stop too
+ * many points coming through.
  */
 public final class UIScanDataPointEventService {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(UIScanDataPointEventService.class);
 
 	private static UIScanDataPointEventService staticInstance;
 
-	/**
-	 * @return ScanDataPointUtils
-	 */
 	public static UIScanDataPointEventService getInstance() {
 		if (staticInstance == null)
 			staticInstance = new UIScanDataPointEventService();
 		return staticInstance;
 	}
 
-	private List<IScanDataPoint>          currentDataPoints;
-	private IAllScanDataPointsObserver       scanDataPointObserver;
+	private List<IScanDataPoint> currentDataPoints;
+	private IAllScanDataPointsObserver scanDataPointObserver;
 	private Collection<ScanPlotListener> listeners;
 	private boolean running = false;
 
 	/**
 	 * Called once to add a listener for scan data points. This also means that the scan data is built up even if the UI
-	 * as not been initialised.
-	 * 
-	 * If the class thinks that it is in testing mode (because normal GDA env variables are not present) it will need
-	 * calling to connect once the InterfaceProvider has been set.
+	 * as not been initialised. If the class thinks that it is in testing mode (because normal GDA env variables are not
+	 * present) it will need calling to connect once the InterfaceProvider has been set.
 	 */
 	private UIScanDataPointEventService() {
 
 		currentDataPoints = new ArrayList<IScanDataPoint>(89);
-		if (ClientManager.isClient()) connect();
+		if (ClientManager.isClient())
+			connect();
 	}
-	
-    /** 
-     * Can be called by tests that may change the IScanDataPointProvider
-     */
+
+	/**
+	 * Can be called by tests that may change the IScanDataPointProvider
+	 */
 	public void reconnect() {
 		dispose();
 		connect();
 	}
+
 	/**
 	 * Normally connects automatically, do not need to call connect.
 	 */
 	public void connect() {
-		
-		if (scanDataPointObserver!=null) throw new RuntimeException("The ScanDataPointEventService is already connected.");
-		
+
+		if (scanDataPointObserver != null)
+			throw new RuntimeException("The ScanDataPointEventService is already connected.");
+
 		this.scanDataPointObserver = new IAllScanDataPointsObserver() {
 
 			@Override
@@ -114,16 +108,13 @@ public final class UIScanDataPointEventService {
 					return;
 				}
 
-				if (info instanceof BatonChanged) return;
+				if (info instanceof BatonChanged)
+					return;
 
 				if (!(info instanceof JythonServerStatus) && !(info instanceof IScanDataPoint)) {
 					return;
 				}
 
-				// NOTE: If not all listeners fired on the UI
-//				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-//					@Override
-//					public void run() {
 				try {
 					if (info instanceof JythonServerStatus) {
 						final JythonServerStatus status = (JythonServerStatus) info;
@@ -134,55 +125,49 @@ public final class UIScanDataPointEventService {
 						} else {
 							fireScanStarted();
 						}
-					}
-
-					if (info instanceof IScanDataPoint) {
-
+					} else if (info instanceof IScanDataPoint) {
 						final IScanDataPoint currentPoint = (IScanDataPoint) info;
-
-						if (currentDataPoints != null && currentDataPoints.size() > 0
-								&& !currentPoint.getUniqueName().equals(currentDataPoints.get(0).getUniqueName())) {
-
-							currentDataPoints.clear();
-						}
-
-						cachePoint(currentDataPoints, currentPoint);
+						cachePoint(currentPoint);
 						fireScanDataPoint(new ScanDataPointEvent(currentDataPoints, currentPoint));
 					}
 				} catch (Throwable th) {
 					logger.error("Error in ScanDataPointEventService", th);
 				}
-//					}
-//				});
 			}
-
 		};
 
 		InterfaceProvider.getScanDataPointProvider().addIScanDataPointObserver(scanDataPointObserver);
 	}
 
+	private void cachePoint(IScanDataPoint currentPoint) {
 
-	private void cachePoint(List<IScanDataPoint> currentDataPoints, IScanDataPoint currentPoint) {
-		
-		final int maxSize = GDAClientActivator.getDefault().getPreferenceStore().getInt(PreferenceConstants.MAX_SIZE_CACHED_DATA_POINTS);	
+		if (currentDataPoints != null && currentDataPoints.size() > 0
+				&& !currentPoint.getUniqueName().equals(currentDataPoints.get(0).getUniqueName())) {
+
+			currentDataPoints.clear();
+		}
+
+		final int maxSize = GDAClientActivator.getDefault().getPreferenceStore()
+				.getInt(PreferenceConstants.MAX_SIZE_CACHED_DATA_POINTS);
 		currentDataPoints.add(currentPoint);
-		
-		if (currentDataPoints.size()>maxSize) {
+
+		if (currentDataPoints.size() > maxSize) {
 			currentDataPoints.remove(0);
 		}
 	}
-
 
 	/**
 	 * Called to remove listener from server and clear out local listeners.
 	 */
 	public void dispose() {
-		if (ClientManager.isClient()){
+		if (ClientManager.isClient()) {
 			InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(scanDataPointObserver);
 		}
 		scanDataPointObserver = null;
-		if (listeners != null)         listeners.clear();
-		if (currentDataPoints != null) currentDataPoints.clear();
+		if (listeners != null)
+			listeners.clear();
+		if (currentDataPoints != null)
+			currentDataPoints.clear();
 	}
 
 	public void addScanPlotListener(ScanPlotListener l) {
@@ -193,20 +178,20 @@ public final class UIScanDataPointEventService {
 	}
 
 	protected void fireScanPaused() {
-		
+
 		if (listeners == null) {
 			logger.debug("ScanDataPointEventService has empty list of listeners");
 			return;
 		}
-		
+
 		for (final ScanPlotListener l : listeners) {
 			try {
-		        l.scanPaused();
+				l.scanPaused();
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
 		}
-	
+
 	}
 
 	protected void fireScanStopped() {
@@ -225,9 +210,6 @@ public final class UIScanDataPointEventService {
 	}
 
 	protected void fireScanStarted() {
-		if (currentDataPoints != null) {
-			currentDataPoints.clear();
-		}
 		running = true;
 
 		if (listeners == null) {
@@ -237,7 +219,7 @@ public final class UIScanDataPointEventService {
 
 		for (final ScanPlotListener l : listeners) {
 			try {
-		        l.scanStarted();
+				l.scanStarted();
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
