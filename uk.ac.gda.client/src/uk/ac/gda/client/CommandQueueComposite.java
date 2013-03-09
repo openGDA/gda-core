@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2010 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -117,7 +117,6 @@ public class CommandQueueComposite extends Composite {
 		fd_table.top = new FormAttachment(0);
 		table.setLayoutData(fd_table);
 		table.setLinesVisible(true);
-		// table.setHeaderVisible(true);
 
 		final String showRowNumbersPropName = String.format("%s.showrownumbers", getClass().getName());
 		final boolean showRowNumbers = LocalProperties.check(showRowNumbersPropName);
@@ -520,14 +519,4 @@ class QueueContentProvider implements IStructuredContentProvider {
 	}
 }
 
-class NumberedQueueEntry {
 
-	public int index;
-	public QueuedCommandSummary entry;
-
-	@Override
-	public String toString() {
-		return String.format("%s(%d, %s)", getClass().getSimpleName(), index, entry);
-	}
-
-}
