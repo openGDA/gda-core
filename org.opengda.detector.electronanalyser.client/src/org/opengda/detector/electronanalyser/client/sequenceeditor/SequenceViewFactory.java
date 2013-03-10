@@ -66,7 +66,7 @@ public class SequenceViewFactory implements FindableExecutableExtension {
 
 	@Override
 	public Object create() throws CoreException {
-		logger.info("Creating region editor view");
+		logger.info("Creating sequence editor view");
 		SequenceView sequenceView = new SequenceView();
 		sequenceView.setViewPartName(viewPartName);
 		sequenceView
