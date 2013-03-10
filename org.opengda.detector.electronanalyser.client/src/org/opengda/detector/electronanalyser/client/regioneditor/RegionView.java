@@ -167,13 +167,11 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		GridData namelayoutData = new GridData(GridData.FILL_HORIZONTAL);
 		regionName.setLayoutData(namelayoutData);
 		regionName.setToolTipText("List of available active regions to select");
-		// Add decorator for errors
 		final ControlDecoration regionNameControlDecorator = new ControlDecoration(
 				regionName, SWT.TOP | SWT.LEFT);
 		FieldDecoration fieldDecoration = FieldDecorationRegistry.getDefault()
 				.getFieldDecoration(FieldDecorationRegistry.DEC_INFORMATION);
 		regionNameControlDecorator.setImage(fieldDecoration.getImage());
-		// addDecorationMargin(regionName);
 		FieldDecoration dec = FieldDecorationRegistry.getDefault()
 				.getFieldDecoration(
 						FieldDecorationRegistry.DEC_CONTENT_PROPOSAL);
@@ -206,6 +204,7 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		grpLensMode.setLayout(new GridLayout());
 
 		lensMode = new Combo(grpLensMode, SWT.READ_ONLY);
+		lensMode.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		lensMode.setToolTipText("List of available modes to select");
 
 		Group grpPassEnergy = new Group(bigComposite, SWT.NONE);
@@ -214,6 +213,7 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		grpPassEnergy.setText("Pass Energy");
 
 		passEnergy = new Combo(grpPassEnergy, SWT.READ_ONLY);
+		passEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		passEnergy.setToolTipText("List opf available pass energy to select");
 
 		Group grpRunMode = new Group(bigComposite, SWT.NONE);
