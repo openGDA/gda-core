@@ -286,8 +286,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 									regionDefinitionResourceUtil.getSequence(),
 									RegiondefinitionPackage.eINSTANCE
 											.getSequence_Region(), newRegion));
-					// sequenceTableViewer.setSelection(new StructuredSelection(
-					// newRegion), true);
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
@@ -318,8 +316,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 												.getSequence(),
 										RegiondefinitionPackage.eINSTANCE
 												.getSequence_Region(), copy));
-						// sequenceTableViewer.setSelection(
-						// new StructuredSelection(copy), true);
 					} else {
 						MessageDialog msgd = new MessageDialog(parent
 								.getShell(), "No region selected", null,
@@ -340,7 +336,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 			public void widgetSelected(SelectionEvent e) {
 				try {
 					Region selectedRegion = getSelectedRegion();
-					// int index = regions.indexOf(selectedRegion);
 					if (selectedRegion != null) {
 						editingDomain.getCommandStack().execute(
 								RemoveCommand.create(editingDomain,
@@ -349,15 +344,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 										RegiondefinitionPackage.eINSTANCE
 												.getSequence_Region(),
 										selectedRegion));
-						// if (index == regions.size()) {
-						// sequenceTableViewer.setSelection(
-						// new StructuredSelection(sequenceTableViewer
-						// .getElementAt(index - 1)), true);
-						// } else {
-						// sequenceTableViewer.setSelection(
-						// new StructuredSelection(sequenceTableViewer
-						// .getElementAt(index)), true);
-						// }
 					} else {
 						MessageDialog msgd = new MessageDialog(parent
 								.getShell(), "No region selected", null,
@@ -377,29 +363,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				try {
-					// Region lastAffectedRegion = null;
-					// Collection<?> affectedObjects = editingDomain
-					// .getCommandStack().getMostRecentCommand()
-					// .getAffectedObjects();
-					// if (!affectedObjects.isEmpty()) {
-					// Object object = affectedObjects.toArray()[0];
-					// if (object instanceof Region) {
-					// lastAffectedRegion = (Region) object;
-					// }
-					// }
-					// int index = -1;
-					// if (lastAffectedRegion != null) {
-					// index = regions.indexOf(lastAffectedRegion);
-					// if (index == regions.size() - 1) {
-					// index--;
-					// }
-					// }
 					editingDomain.getCommandStack().undo();
-					// if (index != -1) {
-					// sequenceTableViewer.setSelection(
-					// new StructuredSelection(sequenceTableViewer
-					// .getElementAt(index)), true);
-					// }
 				} catch (Exception e1) {
 					logger.error("Cannot not get Editing Domain object.", e1);
 				}
