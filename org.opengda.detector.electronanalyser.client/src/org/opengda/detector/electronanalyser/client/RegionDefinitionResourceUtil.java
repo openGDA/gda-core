@@ -22,6 +22,8 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.util.Regiond
 
 public class RegionDefinitionResourceUtil {
 	String defaultSequenceFilename = "user.seq";
+	private double xRaySourceEnergyLimit = 2100.0;
+	private boolean sourceSelectable;
 
 	/**
 	 * returns the default sequence filename. The returned value depends on java
@@ -168,8 +170,6 @@ public class RegionDefinitionResourceUtil {
 				.getSequenceEditingDomain();
 	}
 
-	private boolean sourceSelectable;
-
 	public boolean isSourceSelectable() {
 		return sourceSelectable;
 	}
@@ -186,18 +186,9 @@ public class RegionDefinitionResourceUtil {
 		this.xRaySourceEnergyLimit = xRaySourceEnergyLimit;
 	}
 
-	private double xRaySourceEnergyLimit = 2100.0;
-	private boolean fileChanged;
 
-	public boolean isFileChanged() {
-		return fileChanged;
-	}
 	public String getFilename() {
 		return this.fileName;
-	}
-	public void setFileChanged(boolean b) {
-		this.fileChanged=b;
-		
 	}
 
 }

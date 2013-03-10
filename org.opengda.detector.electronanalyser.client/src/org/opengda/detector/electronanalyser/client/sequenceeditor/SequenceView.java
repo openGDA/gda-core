@@ -4,7 +4,6 @@ import gda.configuration.properties.LocalProperties;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -21,7 +20,6 @@ import org.eclipse.emf.edit.command.AddCommand;
 import org.eclipse.emf.edit.command.RemoveCommand;
 import org.eclipse.emf.edit.command.SetCommand;
 import org.eclipse.emf.edit.domain.EditingDomain;
-import org.eclipse.emf.edit.provider.ComposedAdapterFactory;
 import org.eclipse.emf.edit.ui.dnd.EditingDomainViewerDropAdapter;
 import org.eclipse.emf.edit.ui.dnd.LocalTransfer;
 import org.eclipse.emf.edit.ui.dnd.ViewerDragAdapter;
@@ -48,6 +46,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
@@ -68,6 +67,8 @@ import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.RegionDefinitionResourceUtil;
 import org.opengda.detector.electronanalyser.client.RegionStepsTimeEstimation;
 import org.opengda.detector.electronanalyser.client.regioneditor.RegionViewExtensionFactory;
+import org.opengda.detector.electronanalyser.client.selection.FileSelection;
+import org.opengda.detector.electronanalyser.client.selection.RegionActivationSelection;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionFactory;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
@@ -76,7 +77,6 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum
 import org.opengda.detector.electronanalyser.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.eclipse.swt.layout.RowData;
 
 public class SequenceView extends ViewPart implements ISelectionProvider,
 		IRegionDefinitionView, ISaveablePart {
@@ -205,8 +205,10 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 							IStructuredSelection sel = (IStructuredSelection) selection;
 							Object firstElement = sel.getFirstElement();
 							if (firstElement instanceof Region) {
-									Region region = (Region) firstElement;
-									fireSelectionChanged(region);
+								Region region = (Region) firstElement;
+								fireSelectionChanged(region);
+							} else {
+								fireSelectionChanged(sel);
 							}
 						}
 					}
@@ -890,6 +892,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 				}
 			}
 		}
+		// add drag and drop support,must ensure editing domain not null at this point.
 		sequenceTableViewer.addDragSupport(DND.DROP_COPY | DND.DROP_MOVE
 				| DND.DROP_LINK,
 				new Transfer[] { LocalTransfer.getInstance() },
@@ -901,8 +904,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 				new EditingDomainViewerDropAdapter(editingDomain,
 						sequenceTableViewer));
 
-//		sequenceTableViewer.setSelection(new StructuredSelection(
-//				sequenceTableViewer.getElementAt(0)), true);
+		// sequenceTableViewer.setSelection(new StructuredSelection(
+		// sequenceTableViewer.getElementAt(0)), true);
 		updateCalculatedData();
 	}
 
@@ -970,11 +973,15 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		if (region != null) {
 			sel = new StructuredSelection(region);
 		}
+		fireSelectionChanged(sel);
+
+	}
+
+	private void fireSelectionChanged(ISelection sel) {
 		SelectionChangedEvent event = new SelectionChangedEvent(this, sel);
 		for (ISelectionChangedListener listener : selectionChangedListeners) {
 			listener.selectionChanged(event);
 		}
-
 	}
 
 	private class SequenceColumnEditingSupport extends EditingSupport {
@@ -1024,12 +1031,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 						runCommand(SetCommand.create(editingDomain, element,
 								RegiondefinitionPackage.eINSTANCE
 										.getRegion_Enabled(), value));
-						if (element instanceof Region) {
-							Region region = (Region) element;
-							fireSelectionChanged(region);
-							updateCalculatedData();
-						}
-
+						fireSelectionChanged(new RegionActivationSelection());
+						updateCalculatedData();
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -1049,9 +1052,10 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 	public void setCamera(Camera camera) {
 		this.camera = camera;
 	}
+
 	/**
-	 * refresh the table viewer with the sequence file name provided. 
-	 * If it is a new file, an empty sequence will be created.
+	 * refresh the table viewer with the sequence file name provided. If it is a
+	 * new file, an empty sequence will be created.
 	 */
 	public void refreshTable(String seqFileName, boolean newFile) {
 		try {
@@ -1060,18 +1064,19 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 			if (newFile) {
 				regionDefinitionResourceUtil.createSequence();
 			}
-			regionDefinitionResourceUtil.setFileChanged(true);
+			// regionDefinitionResourceUtil.setFileChanged(true);
+			fireSelectionChanged(new FileSelection());
 			Resource sequenceRes = regionDefinitionResourceUtil.getResource();
 			sequenceTableViewer.setInput(sequenceRes);
-			//update the resource in this view.
-			resource=sequenceRes;
+			// update the resource in this view.
+			resource = sequenceRes;
 			resource.eAdapters().add(notifyListener);
-			
+
 			// if the sequence is empty - then fire null
 			// replace existing regions list
 			regions = regionDefinitionResourceUtil.getRegions();
 			if (regions.isEmpty()) {
-				fireSelectionChanged(null);
+				fireSelectionChanged(StructuredSelection.EMPTY);
 			} else {
 				// otherwise fire the first region
 				fireSelectionChanged(regions.get(0));
@@ -1095,17 +1100,16 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		} catch (IOException e) {
 			logger.error("Cannot save the resource to a file.", e);
 		} catch (Exception e) {
-			logger.error("Cannot get resource from RegionDefinitionResourceUtil.",e);
+			logger.error(
+					"Cannot get resource from RegionDefinitionResourceUtil.", e);
 		}
 	}
 
 	@Override
 	public void doSaveAs() {
-		// TODO Auto-generated method stub
-		SaveAsDialog sad = new SaveAsDialog(this.getViewSite().getShell());
-		sad.setBlockOnOpen(isDirty());
-		sad.open();
-
+		SaveAsDialog saveAsDialog = new SaveAsDialog(getSite().getShell());
+		saveAsDialog.setOriginalName("Test1");
+		saveAsDialog.open();
 	}
 
 	@Override
@@ -1128,7 +1132,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		@Override
 		public void notifyChanged(Notification notification) {
 			super.notifyChanged(notification);
-			if (notification.getFeature() !=null && !notification.getFeature().equals("null") && notification.getNotifier() != null) {
+			if (notification.getFeature() != null
+					&& !notification.getFeature().equals("null")
+					&& notification.getNotifier() != null) {
 				isDirty = true;
 				firePropertyChange(PROP_DIRTY);
 			}
