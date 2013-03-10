@@ -79,7 +79,7 @@
                tooltip="Start collecting active regions in this sequence">
          </command>
          <command
-               commandId="org.opengda.detector.electronanalyser.client.command3"
+               commandId="org.opengda.detector.electronanalyser.client.stopcollection"
                icon="icons/stop.gif"
                id="org.opengda.detector.electronanalyser.client.sequence.stop"
                label="Stop"
@@ -105,7 +105,8 @@
                tooltip="Stop current data collection">
          </command>
          <separator
-               name="org.opengda.detector.electronanalyser.client.separator2">
+               name="org.opengda.detector.electronanalyser.client.separator2"
+               visible="true">
          </separator>
          <command
                commandId="org.opengda.detector.electronanalyser.client.newsequence"
