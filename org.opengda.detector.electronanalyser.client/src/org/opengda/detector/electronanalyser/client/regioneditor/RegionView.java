@@ -192,13 +192,13 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 			}
 		});
 
-		Composite bigComposite = new Composite(rootComposite, SWT.None);
+		Composite modeComposite = new Composite(rootComposite, SWT.None);
 		// Contains Lens model, pass energy, run mode, acquisition mode, and
 		// energy mode.
-		bigComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		bigComposite.setLayout(new GridLayout(2, false));
+		modeComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		modeComposite.setLayout(new GridLayout(2, false));
 
-		Group grpLensMode = new Group(bigComposite, SWT.NONE);
+		Group grpLensMode = new Group(modeComposite, SWT.NONE);
 		grpLensMode.setText("Lens Mode");
 		grpLensMode.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		grpLensMode.setLayout(new GridLayout());
@@ -207,7 +207,7 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		lensMode.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		lensMode.setToolTipText("List of available modes to select");
 
-		Group grpPassEnergy = new Group(bigComposite, SWT.NONE);
+		Group grpPassEnergy = new Group(modeComposite, SWT.NONE);
 		grpPassEnergy.setLayout(new GridLayout());
 		grpPassEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		grpPassEnergy.setText("Pass Energy");
@@ -216,7 +216,7 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		passEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		passEnergy.setToolTipText("List opf available pass energy to select");
 
-		Group grpRunMode = new Group(bigComposite, SWT.NONE);
+		Group grpRunMode = new Group(modeComposite, SWT.NONE);
 		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
 		layoutData.widthHint = 300;
 		layoutData.verticalSpan = 2;
@@ -257,7 +257,7 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 
 		new Label(grpRunMode, SWT.NONE);
 
-		Group grpAcquisitionMode = new Group(bigComposite, SWT.NONE);
+		Group grpAcquisitionMode = new Group(modeComposite, SWT.NONE);
 		grpAcquisitionMode.setText("Acquisition Mode");
 		GridLayout gl_grpAcquisitionMode = new GridLayout();
 		grpAcquisitionMode.setLayout(gl_grpAcquisitionMode);
@@ -277,7 +277,7 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		btnFixed = new Button(grpAcquisitionMode, SWT.RADIO);
 		btnFixed.setText("Fixed");
 
-		Group grpEnergyMode = new Group(bigComposite, SWT.NONE);
+		Group grpEnergyMode = new Group(modeComposite, SWT.NONE);
 		grpEnergyMode.setText("Energy Mode");
 		grpEnergyMode.setLayout(new GridLayout());
 		grpEnergyMode.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
