@@ -34,6 +34,10 @@
             id="org.opengda.detector.electronanalyser.client.startcollection"
             name="Start">
       </command>
+      <command
+            id="org.opengda.detector.electronanalyser.client.stopcollection"
+            name="Stop">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -56,11 +60,31 @@
                tooltip="Open a sequence file">
          </command>
          <command
+               commandId="org.eclipse.ui.file.save"
+               icon="icons/save.gif"
+               id="org.opengda.detector.electronanalyser.client.sequence.save"
+               label="Save"
+               style="push"
+               tooltip="Save the sequence">
+         </command>
+         <separator
+               name="org.opengda.detector.electronanalyser.client.separator1"
+               visible="true">
+         </separator>
+         <command
                commandId="org.opengda.detector.electronanalyser.client.startcollection"
                icon="icons/run_exc.gif"
                label="Start"
                style="push"
                tooltip="Start collecting active regions in this sequence">
+         </command>
+         <command
+               commandId="org.opengda.detector.electronanalyser.client.command3"
+               icon="icons/stop.gif"
+               id="org.opengda.detector.electronanalyser.client.sequence.stop"
+               label="Stop"
+               style="push"
+               tooltip="Stop current data collection">
          </command>
       </menuContribution>
       <menuContribution
@@ -71,8 +95,18 @@
                icon="icons/run_exc.gif"
                label="Start"
                style="push"
-               tooltip="Start collection active regions in this sequence">
+               tooltip="Start collecting active regions in this sequence">
          </command>
+         <command
+               commandId="org.opengda.detector.electronanalyser.client.stopcollection"
+               icon="icons/stop.gif"
+               label="Stop"
+               style="push"
+               tooltip="Stop current data collection">
+         </command>
+         <separator
+               name="org.opengda.detector.electronanalyser.client.separator2">
+         </separator>
          <command
                commandId="org.opengda.detector.electronanalyser.client.newsequence"
                icon="icons/new_file.gif"
@@ -90,7 +124,7 @@
          <command
                commandId="org.eclipse.ui.file.save"
                icon="icons/save.gif"
-               id="org.eclipse.ui.file.saveSeq"
+               id="org.eclipse.ui.file.savesequence"
                label="Save"
                style="push">
          </command>
@@ -109,6 +143,10 @@
       <handler
             class="org.opengda.detector.electronanalyser.client.actions.StartCollectionAction"
             commandId="org.opengda.detector.electronanalyser.client.startcollection">
+      </handler>
+      <handler
+            class="org.opengda.detector.electronanalyser.client.actions.StopCollectionAction"
+            commandId="org.opengda.detector.electronanalyser.client.stopcollection">
       </handler>
    </extension>
    <extension
