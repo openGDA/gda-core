@@ -34,6 +34,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
+import uk.ac.gda.epics.adviewer.views.ADViewerCompositeFactory;
+import uk.ac.gda.epics.adviewer.views.MJPegViewInitialiser;
 
 public abstract class ADControllerImpl implements ADController, InitializingBean {
 	private static final Logger logger = LoggerFactory.getLogger(ADControllerImpl.class);
@@ -64,6 +66,10 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 	private double histogramMinCallbackTime=1.0;
 
 	private double arrayMinCallbackTime=1.0;
+
+	private ADViewerCompositeFactory mjpegViewCompositeFactory;
+
+	private MJPegViewInitialiser mjpegViewInitialiser;
 
 	@Override
 	public NDStats getImageNDStats() {
@@ -248,6 +254,7 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 			throw new IllegalArgumentException("ffmpegImageOutHeightMax < 1");
 		if (ffmpegImageOutWidthMax < 1)
 			throw new IllegalArgumentException("ffmpegImageOutWidthMax < 1");
+		
 
 	}
 
@@ -503,4 +510,25 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 		this.arrayMinCallbackTime = arrayMinCallbackTime;
 	}
 
+	@Override
+	public ADViewerCompositeFactory getMjpegViewCompositeFactory() {
+		return mjpegViewCompositeFactory;
+	}
+
+	public void setMjpegViewCompositeFactory(ADViewerCompositeFactory mjpegViewCompositeFactory) {
+		this.mjpegViewCompositeFactory = mjpegViewCompositeFactory;
+	}
+
+	
+	@Override
+	public MJPegViewInitialiser getMjpegViewInitialiser() {
+		return mjpegViewInitialiser;
+	}
+
+	public void setMjpegViewInitialiser(MJPegViewInitialiser mjpegViewInitialiser) {
+		this.mjpegViewInitialiser = mjpegViewInitialiser;
+	}
+
+
+	
 }

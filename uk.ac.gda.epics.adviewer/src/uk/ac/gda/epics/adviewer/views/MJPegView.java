@@ -25,7 +25,6 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
@@ -60,10 +59,12 @@ public class MJPegView extends ViewPart implements InitializingBean {
 		Composite composite = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.fillDefaults().applyTo(composite);
 
-		Composite composite_1 = new Composite(composite, SWT.NONE);
-		composite_1.setLayout(new RowLayout(SWT.HORIZONTAL));
-
-		createTopRowControls(composite_1);
+		ADViewerCompositeFactory mjpegViewCompositeFactory = config.getMjpegViewCompositeFactory();
+		if( mjpegViewCompositeFactory != null){
+			Composite composite_1 = new Composite(composite, SWT.NONE);
+			composite_1.setLayout(new RowLayout(SWT.HORIZONTAL));
+			config.getMjpegViewCompositeFactory().createComposite(config, composite_1, SWT.NONE, getSite());
+		}
 
 		Composite composite_2 = new Composite(composite, SWT.NONE);
 		composite_2.setLayout(new FillLayout(SWT.HORIZONTAL));
@@ -71,6 +72,10 @@ public class MJPegView extends ViewPart implements InitializingBean {
 		mJPeg = new MJPeg(composite_2, SWT.NONE);
 		mJPeg.setADController(config);
 
+		MJPegViewInitialiser mjpegViewInitialiser = config.getMjpegViewInitialiser();
+		if( mjpegViewInitialiser != null){
+			config.getMjpegViewInitialiser().init(config, this, mJPeg);
+		}
 		setTitleImage(config.getLiveViewImageDescriptor().createImage());
 		setPartName(config.getDetectorName() + " Live View");
 
@@ -111,9 +116,6 @@ public class MJPegView extends ViewPart implements InitializingBean {
 	public static void reportErrorToUserAndLog(String s) {
 		logger.error(s);
 		MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error", s);
-	}
-
-	protected void createTopRowControls(@SuppressWarnings("unused") Composite composite_1) {
 	}
 
 	public void zoomToFit() {

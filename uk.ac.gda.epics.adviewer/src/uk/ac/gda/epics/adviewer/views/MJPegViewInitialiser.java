@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,11 +18,11 @@
 
 package uk.ac.gda.epics.adviewer.views;
 
+import uk.ac.gda.epics.adviewer.ADController;
+import uk.ac.gda.epics.adviewer.composites.MJPeg;
 
-public class MJPegViewCreator extends AreaDetectorViewCreatorBase {
-	
-	@Override
-	protected Object getView(ViewCreator adController) throws Exception {
-		return adController.createLiveView();
-	}	
+public interface MJPegViewInitialiser {
+
+	void init(ADController adController, MJPegView mjPegView, MJPeg mJPeg);
+
 }

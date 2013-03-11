@@ -26,6 +26,9 @@ import gda.device.detector.areadetector.v17.NDStats;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 
+import uk.ac.gda.epics.adviewer.views.ADViewerCompositeFactory;
+import uk.ac.gda.epics.adviewer.views.MJPegViewInitialiser;
+
 public interface ADController {
 
 	public abstract NDStats getImageNDStats();
@@ -90,10 +93,18 @@ public interface ADController {
 	//due to use of a ROI the image arriving at the ffmpeg plugin may be offset in x and Y from the camera 0,0 position 
 	public abstract int getFfmpegImageInOffsetX() throws Exception;
 	
+	//due to use of a ROI the image arriving at the ffmpeg plugin may be offset in x and Y from the camera 0,0 position 
 	public abstract int getFfmpegImageInOffsetY() throws Exception;
 
 	public abstract double getHistogramMinCallbackTime();
 	
 	public abstract double getArrayMinCallbackTime();
 
+	//composite factory to make the GUI component above the MJPeg composite
+	public abstract ADViewerCompositeFactory getMjpegViewCompositeFactory();
+
+	//object that can add additional behaviour to the view
+	public abstract MJPegViewInitialiser getMjpegViewInitialiser();
+
+	
 }
