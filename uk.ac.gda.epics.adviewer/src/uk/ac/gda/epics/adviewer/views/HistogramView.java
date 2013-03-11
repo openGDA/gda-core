@@ -62,6 +62,8 @@ public class HistogramView extends ViewPart implements InitializingBean{
 			sc.setExpandHorizontal(true);
 			sc.setMinSize(c.computeSize(500, 500));
 			histogram.setADController(config);
+			histogram.start();
+			histogram.startStats();
 		} catch (Exception e) {
 			logger.error("Error starting  areaDetectorProfileComposite", e);
 		}

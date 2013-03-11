@@ -294,6 +294,7 @@ public class Histogram extends Composite {
 		try {
 			minCallbackTimeComposite.setMinTimeObservable(config.getImageNDStats().getPluginBase()
 					.createMinCallbackTimeObservable());
+			minCallbackTimeComposite.setMinCallbackTime(config.getHistogramMinCallbackTime());
 		} catch (Exception e1) {
 			logger.error("Error setting up minCallback", e1);
 		}

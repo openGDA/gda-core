@@ -91,6 +91,9 @@ public interface ADController {
 	public abstract int getFfmpegImageInOffsetX() throws Exception;
 	
 	public abstract int getFfmpegImageInOffsetY() throws Exception;
+
+	public abstract double getHistogramMinCallbackTime();
 	
+	public abstract double getArrayMinCallbackTime();
 
 }
