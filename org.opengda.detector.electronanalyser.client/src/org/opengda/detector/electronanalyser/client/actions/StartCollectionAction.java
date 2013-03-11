@@ -53,7 +53,7 @@ public class StartCollectionAction extends AbstractHandler implements IHandler {
 			} catch (IOException e2) {
 				logger.error("Cannot save data to the sequence file: {}",
 						regionDefView.getRegionDefinitionResourceUtil()
-								.getFilename(), e2);
+								.getFileName(), e2);
 			} catch (Exception e2) {
 				logger.error("Cannot get resource.", e2);
 			}

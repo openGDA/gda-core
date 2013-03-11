@@ -185,10 +185,4 @@ public class RegionDefinitionResourceUtil {
 	public void setXRaySourceEnergyLimit(double xRaySourceEnergyLimit) {
 		this.xRaySourceEnergyLimit = xRaySourceEnergyLimit;
 	}
-
-
-	public String getFilename() {
-		return this.fileName;
-	}
-
 }
