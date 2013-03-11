@@ -123,6 +123,7 @@ public class JythonAdapter implements Jython, EventSubscriber {
 				jythonServer = CorbaJythonHelper.narrow(netService.reconnect(name));
 			} catch (Exception ex) {
 				//the command failed but ran successfully so do not rerun
+				logger.error("Error evaluating command '" + command + "'",ex );
 				break;
 				// other exceptions will be recorded by JythonServer, so no need to duplicate. Only log comms exceptions
 				// in this method.,otherwsie users get longer error messages and this may confuse
