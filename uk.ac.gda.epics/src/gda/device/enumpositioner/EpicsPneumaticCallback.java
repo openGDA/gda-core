@@ -23,6 +23,7 @@ import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
+import gda.device.scannable.ScannablePositionChangeEvent;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
@@ -83,6 +84,20 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 	protected Vector<String> statuspositions = new Vector<String>();
 	
 	private boolean readOnly = false;
+
+	/**
+	 * If statusPv is simply a list of positions and does not contains state such as IDLE, MOVING etc set this to true
+	 * 
+	 */
+	public boolean statusPvIndicatesPositionOnly=false;
+
+	public boolean isStatusPvIndicatesPositionOnly() {
+		return statusPvIndicatesPositionOnly;
+	}
+
+	public void setStatusPvIndicatesPositionOnly(boolean statusPvIndicatesPositionOnly) {
+		this.statusPvIndicatesPositionOnly = statusPvIndicatesPositionOnly;
+	}
 
 	/**
 	 * constructor
@@ -168,6 +183,28 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 		setAllPVsSet(true);
 	}
 
+	/**
+	 * Sets the control PV used by this object.
+	 * 
+	 * @param controlPv
+	 *            the control PV
+	 */
+	public void setControlPv(String controlPv) {
+		this.controlPv = controlPv;
+		setAllPVsSet(statusPv != null);
+	}
+
+	/**
+	 * Sets the status PV used by this object.
+	 * 
+	 * @param statusPv
+	 *            the status PV
+	 */
+	public void setStatusPv(String statusPv) {
+		this.statusPv = statusPv;
+		setAllPVsSet(controlPv != null);
+	}
+	
 	// method supporting EpicsDevice interface
 	private void setPvNames(gda.epics.interfaceSpec.Device device) {
 		controlPv = device.getField("CONTROL").getPV();
@@ -292,11 +329,13 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 	public void initializationCompleted() throws DeviceException {
 		String[] position = getPositions();
 		String[] statusposition = getStatusPositions();
+		super.positions.clear();
 		for (int i = 0; i < position.length; i++) {
 			if (position[i] != null || position[i] != "") {
 				super.positions.add(position[i]);
 			}
 		}
+		this.statuspositions.clear();
 		for (int i = 0; i < statusposition.length; i++) {
 			if (statusposition[i] != null || statusposition[i] != "") {
 				this.statuspositions.add(statusposition[i]);
@@ -313,23 +352,35 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 		public void monitorChanged(MonitorEvent arg0) {
 			short value = -1;
 			DBR dbr = arg0.getDBR();
-			if (dbr.isENUM()) {
-				value = ((DBR_Enum) dbr).getEnumValue()[0];
-			}
-			if (value == 0) {
-				synchronized (lock) {
-					positionerStatus = EnumPositionerStatus.ERROR;
-				}
-			} else if (value == 1 || value == 3) {
-				synchronized (lock) {
-					positionerStatus = EnumPositionerStatus.IDLE;
-				}
-			} else if (value == 2 || value == 4) {
-				synchronized (lock) {
-					positionerStatus = EnumPositionerStatus.MOVING;
+			if( statusPvIndicatesPositionOnly){
+				if( dbr != null){
+					try {
+						notifyIObservers(EpicsPneumaticCallback.this, new ScannablePositionChangeEvent(getPosition()));
+					} catch (DeviceException e) {
+						logger.error("Error getting position of " + getName(), e);
+					}
+					
 				}
 			}
-			notifyIObservers(this, positionerStatus);
+			else {
+				if (dbr.isENUM()) {
+					value = ((DBR_Enum) dbr).getEnumValue()[0];
+				}
+				if (value == 0) {
+					synchronized (lock) {
+						positionerStatus = EnumPositionerStatus.ERROR;
+					}
+				} else if (value == 1 || value == 3) {
+					synchronized (lock) {
+						positionerStatus = EnumPositionerStatus.IDLE;
+					}
+				} else if (value == 2 || value == 4) {
+					synchronized (lock) {
+						positionerStatus = EnumPositionerStatus.MOVING;
+					}
+				}
+				notifyIObservers(this, positionerStatus);
+			}
 		}
 	}
 	
