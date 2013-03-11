@@ -161,6 +161,7 @@ public class MultiRegionScan extends ScanBase {
 				// datahandler
 				// or return the baton whne it finishes.
 				scan.setIsChild(true);
+				scan.setParent(this);
 
 				// share the dataHandler with this scan
 				scan.setScanDataPointPipeline(scanDataPointPipeline);
