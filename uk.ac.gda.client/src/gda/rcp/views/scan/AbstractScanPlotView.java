@@ -37,6 +37,7 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.AbstractPlotView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.PlotBean;
@@ -284,6 +285,10 @@ public abstract class AbstractScanPlotView extends AbstractPlotView implements S
 
 		return false;
 	}
+	
+	public AxisValues getXAxisValues() {
+		return new AxisValues(xSaved.getDataSet());
+	}
 
 	/**
 	 * Adds current data to another plotter, also create legends.
@@ -299,6 +304,7 @@ public abstract class AbstractScanPlotView extends AbstractPlotView implements S
 
 		ret.setXAxisMode(getXAxisMode().asInt());
 		ret.setYAxisMode(getYAxisMode().asInt());
+		ret.setXAxisValues(getXAxisValues());
 
 		ret.setXAxis(getXAxisName());
 		ret.setYAxis(getYAxisName());
