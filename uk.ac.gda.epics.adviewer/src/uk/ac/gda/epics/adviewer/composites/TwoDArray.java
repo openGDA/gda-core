@@ -147,6 +147,7 @@ public class TwoDArray extends Composite {
 		minCallbackTimeComposite.setPluginBase(pluginBase);
 		try {
 			minCallbackTimeComposite.setMinTimeObservable(pluginBase.createMinCallbackTimeObservable());
+			minCallbackTimeComposite.setMinCallbackTime(config.getArrayMinCallbackTime());
 		} catch (Exception e2) {
 			logger.error("Error setting min callback time", e2);
 		}

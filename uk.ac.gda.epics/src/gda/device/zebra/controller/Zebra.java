@@ -18,61 +18,33 @@
 
 package gda.device.zebra.controller;
 
-import gda.device.DeviceException;
+import gda.epics.ReadOnlyPV;
 
 import java.io.IOException;
 
 public interface Zebra {
-	final public static String connected = "CONNECTED";
-	final public static String store = "STORE";
-	final public static String sysReset = "SYS_RESET";
-	final public static String sysVer = "SYS_VER";
-	final public static String sysStat1Lo = "SYS_STAT1LO";
-	final public static String sysStat1Hi = "SYS_STAT1HI";
-	final public static String sysStat1 = "SYS_STAT1";
-	final public static String sysStat2Lo = "SYS_STAT2LO";
-	final public static String sysStat2Hi = "SYS_STAT2HI";
-	final public static String sysStat2 = "SYS_STAT2";
-	final public static String sysErrState = "SYS_STATERR";
 
-	final public static String PCSource = "PC_ENC";
-	final public static String PCTimeUnits = "PC_TSPRE";
-	final public static String PCTimeUnits_ms = "ms";
-	final public static String PCTimeUnits_s = "s";
-	
-	
-	final public static String PCArmSource = "PC_ARM_SEL";
-	final public static String PCArm = "PC_ARM";
-	final public static String PCDisArm = "PC_DISARM";
-	final public static String PCArmOut = "PC_ARM_OUT";
-	final public static String PCArmSourceSoft = "Soft";
-	final public static String PCArmSourceExternal = "External";
+	final public static int PC_MODE_POSITION = 0;
+	final public static int PC_MODE_TIME = 1;
 
-	final public static String PCGateSource = "PC_GATE_SEL";
-	final public static String PCGateStart = "PC_GATE_START";
-	final public static String PCGateWidth = "PC_GATE_WID";
-	final public static String PCGateNumberOfGates = "PC_GATE_NGATE";
-	final public static String PCGateStep = "PC_GATE_STEP";
-	final public static String PCGateStatus = "PC_GATE_OUT";
-	
+	final public static int PC_TIMEUNIT_SEC = 1;
+	final public static int PC_TIMEUNIT_MS = 0;
 
-	final public static String PCPulseSource = "PC_PULSE_SEL";
-	final public static String PCPulseDelay = "PC_PULSE_DLY";
-	final public static String PCPulseWidth = "PC_PULSE_WID";
-	final public static String PCPulseStep = "PC_PULSE_STEP";
-	final public static String PCPulseStatus = "PC_PULSE_OUT";
-	public static final String PCCaptureBitField = "PC_CAP";
-	public static final String PCEnc = "PC_ENC";
-	
 	double getPCPulseDelay() throws IOException;
+
+	double getPCPulseDelayRBV() throws IOException;
 
 	void setPCPulseDelay(double delay) throws IOException;
 
 	double getPCPulseWidth() throws IOException;
 
+	double getPCPulseWidthRBV() throws IOException;
+
 	void setPCPulseWidth(double width) throws IOException;
 
 	double getPCPulseStep() throws IOException;
+
+	double getPCPulseStepRBV() throws IOException;
 
 	void setPCPulseStep(double step) throws IOException;
 
@@ -86,6 +58,8 @@ public interface Zebra {
 
 	double getPCGateStart() throws IOException;
 
+	double getPCGateStartRBV() throws IOException;
+
 	double getPCGateWidth() throws IOException;
 
 	int getPCGateNumberOfGates() throws IOException;
@@ -95,6 +69,8 @@ public interface Zebra {
 	void setPCGateStart(double start) throws IOException;
 
 	void setPCGateWidth(double width) throws IOException;
+
+	double getPCGateWidthRBV() throws IOException;
 
 	void setPCGateNumberOfGates(int numberOfGates) throws IOException;
 
@@ -117,5 +93,24 @@ public interface Zebra {
 	void setPCEnc(int val) throws IOException;
 
 	int getPCEnc() throws IOException;
-	
+
+	ReadOnlyPV<Double[]> getEnc1AvalPV();
+
+	ReadOnlyPV<Integer> getNumberOfPointsCapturedPV();
+
+	void setPCNumberOfPointsCaptured(int val) throws IOException;
+
+	int getPCNumberOfPointsCaptured() throws IOException;
+
+	/*
+	 * 0 - ms, 1-s
+	 */
+	void setPCTimeUnit(int i) throws IOException;
+
+	int getPCTimeUnit() throws IOException;
+
+	void setPCPulseMax(int numberTriggers) throws IOException;
+
+	int getPCPulseMax() throws IOException;
+
 }

@@ -16,15 +16,13 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.zebra.controller.impl;
+package gda.epics;
 
-import gda.epics.LazyPVFactory;
-import gda.epics.PV;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class DevicePVCreator {
+public class CachedLazyPVFactory {
 	protected Map<String, PV<Double>> pvDoubles= new HashMap<String, PV<Double>>();
 	private String deviceprefix;
 	
@@ -33,6 +31,28 @@ public class DevicePVCreator {
 		if( pv == null){
 			pv = LazyPVFactory.newDoublePV(deviceprefix + suffix);
 			pvDoubles.put(suffix, pv);
+		}
+		return pv;
+	}
+
+	protected Map<String, ReadOnlyPV<Double>> pvReadOnlyDoubles= new HashMap<String, ReadOnlyPV<Double>>();
+	
+	public ReadOnlyPV<Double> getReadOnlyPVDouble(String suffix){
+		ReadOnlyPV<Double> pv = pvReadOnlyDoubles.get(suffix);
+		if( pv == null){
+			pv = LazyPVFactory.newReadOnlyDoublePV(deviceprefix + suffix);
+			pvReadOnlyDoubles.put(suffix, pv);
+		}
+		return pv;
+	}
+	
+	protected Map<String, ReadOnlyPV<Double[]>> pvReadOnlyDoubleArrays= new HashMap<String, ReadOnlyPV<Double[]>>();
+	
+	public ReadOnlyPV<Double[]> getReadOnlyPVDoubleArray(String suffix){
+		ReadOnlyPV<Double[]> pv = pvReadOnlyDoubleArrays.get(suffix);
+		if( pv == null){
+			pv = LazyPVFactory.newReadOnlyDoubleArrayPV(deviceprefix + suffix);
+			pvReadOnlyDoubleArrays.put(suffix, pv);
 		}
 		return pv;
 	}
@@ -48,7 +68,19 @@ public class DevicePVCreator {
 		return pv;
 	}
 
-	public DevicePVCreator(String zebraPrefix) {
+	protected Map<String, ReadOnlyPV<Integer>> pvReadOnlyIntegers= new HashMap<String, ReadOnlyPV<Integer>>();
+	
+	public ReadOnlyPV<Integer> getReadOnlyPVInteger(String suffix){
+		ReadOnlyPV<Integer> pv = pvReadOnlyIntegers.get(suffix);
+		if( pv == null){
+			pv = LazyPVFactory.newReadOnlyIntegerPV(deviceprefix + suffix);
+			pvReadOnlyIntegers.put(suffix, pv);
+		}
+		return pv;
+	}
+	
+	
+	public CachedLazyPVFactory(String zebraPrefix) {
 		super();
 		this.deviceprefix = zebraPrefix;
 	}

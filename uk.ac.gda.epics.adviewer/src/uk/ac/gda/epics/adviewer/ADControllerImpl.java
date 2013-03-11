@@ -61,6 +61,10 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 
 	private int ffmpegImageInOffsetY = 0;
 
+	private double histogramMinCallbackTime=1.0;
+
+	private double arrayMinCallbackTime=1.0;
+
 	@Override
 	public NDStats getImageNDStats() {
 		return imageNDStats;
@@ -479,6 +483,24 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 
 	public void setFfmpegImageInOffsetY(int ffmpegImageInOffsetY) {
 		this.ffmpegImageInOffsetY = ffmpegImageInOffsetY;
+	}
+
+	@Override
+	public double getHistogramMinCallbackTime(){
+		return histogramMinCallbackTime;
+	}
+
+	public void setHistogramMinCallbackTime(double histogramMinCallbackTime) {
+		this.histogramMinCallbackTime = histogramMinCallbackTime;
+	}
+	
+	@Override
+	public double getArrayMinCallbackTime(){
+		return arrayMinCallbackTime;
+	}
+
+	public void setArrayMinCallbackTime(double arrayMinCallbackTime) {
+		this.arrayMinCallbackTime = arrayMinCallbackTime;
 	}
 
 }
