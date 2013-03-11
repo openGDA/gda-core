@@ -641,7 +641,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getSpectrum_FilenameFormet() {
+	public EAttribute getSpectrum_FilenameFormat() {
         return (EAttribute)getSpectrum().getEStructuralFeatures().get(5);
 	}
 

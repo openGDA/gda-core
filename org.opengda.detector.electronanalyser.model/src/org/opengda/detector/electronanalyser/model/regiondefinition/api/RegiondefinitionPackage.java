@@ -557,13 +557,13 @@ public interface RegiondefinitionPackage extends EPackage {
 	int SPECTRUM__BASE_DIRECTORY = 4;
 
 	/**
-	 * The feature id for the '<em><b>Filename Formet</b></em>' attribute.
+	 * The feature id for the '<em><b>Filename Format</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SPECTRUM__FILENAME_FORMET = 5;
+	int SPECTRUM__FILENAME_FORMAT = 5;
 
 	/**
 	 * The feature id for the '<em><b>File Extension</b></em>' attribute.
@@ -1209,15 +1209,15 @@ public interface RegiondefinitionPackage extends EPackage {
 	EAttribute getSpectrum_BaseDirectory();
 
 	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum#getFilenameFormet <em>Filename Formet</em>}'.
+	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum#getFilenameFormat <em>Filename Format</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Filename Formet</em>'.
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum#getFilenameFormet()
+	 * @return the meta object for the attribute '<em>Filename Format</em>'.
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum#getFilenameFormat()
 	 * @see #getSpectrum()
 	 * @generated
 	 */
-	EAttribute getSpectrum_FilenameFormet();
+	EAttribute getSpectrum_FilenameFormat();
 
 	/**
 	 * Returns the meta object for the attribute '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum#getFileExtension <em>File Extension</em>}'.
@@ -1743,12 +1743,12 @@ public interface RegiondefinitionPackage extends EPackage {
 		EAttribute SPECTRUM__BASE_DIRECTORY = eINSTANCE.getSpectrum_BaseDirectory();
 
 		/**
-		 * The meta object literal for the '<em><b>Filename Formet</b></em>' attribute feature.
+		 * The meta object literal for the '<em><b>Filename Format</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EAttribute SPECTRUM__FILENAME_FORMET = eINSTANCE.getSpectrum_FilenameFormet();
+		EAttribute SPECTRUM__FILENAME_FORMAT = eINSTANCE.getSpectrum_FilenameFormat();
 
 		/**
 		 * The meta object literal for the '<em><b>File Extension</b></em>' attribute feature.

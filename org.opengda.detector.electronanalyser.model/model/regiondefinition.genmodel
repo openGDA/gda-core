@@ -93,7 +93,7 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Spectrum/sampleName"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Spectrum/filenamePrefix"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Spectrum/baseDirectory"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Spectrum/filenameFormet"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Spectrum/filenameFormat"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Spectrum/fileExtension"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Spectrum/numberOfComments"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute regiondefinition.ecore#//Spectrum/comments"/>

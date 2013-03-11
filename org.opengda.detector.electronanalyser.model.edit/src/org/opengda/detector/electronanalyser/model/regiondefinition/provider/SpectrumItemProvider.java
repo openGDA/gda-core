@@ -62,7 +62,7 @@ public class SpectrumItemProvider
 			addSampleNamePropertyDescriptor(object);
 			addFilenamePrefixPropertyDescriptor(object);
 			addBaseDirectoryPropertyDescriptor(object);
-			addFilenameFormetPropertyDescriptor(object);
+			addFilenameFormatPropertyDescriptor(object);
 			addFileExtensionPropertyDescriptor(object);
 			addNumberOfCommentsPropertyDescriptor(object);
 			addCommentsPropertyDescriptor(object);
@@ -181,19 +181,19 @@ public class SpectrumItemProvider
 	}
 
 	/**
-	 * This adds a property descriptor for the Filename Formet feature.
+	 * This adds a property descriptor for the Filename Format feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addFilenameFormetPropertyDescriptor(Object object) {
+	protected void addFilenameFormatPropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_Spectrum_filenameFormet_feature"), //$NON-NLS-1$
-				 getString("_UI_PropertyDescriptor_description", "_UI_Spectrum_filenameFormet_feature", "_UI_Spectrum_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				 RegiondefinitionPackage.Literals.SPECTRUM__FILENAME_FORMET,
+				 getString("_UI_Spectrum_filenameFormat_feature"), //$NON-NLS-1$
+				 getString("_UI_PropertyDescriptor_description", "_UI_Spectrum_filenameFormat_feature", "_UI_Spectrum_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				 RegiondefinitionPackage.Literals.SPECTRUM__FILENAME_FORMAT,
 				 true,
 				 false,
 				 false,
@@ -310,7 +310,7 @@ public class SpectrumItemProvider
 			case RegiondefinitionPackage.SPECTRUM__SAMPLE_NAME:
 			case RegiondefinitionPackage.SPECTRUM__FILENAME_PREFIX:
 			case RegiondefinitionPackage.SPECTRUM__BASE_DIRECTORY:
-			case RegiondefinitionPackage.SPECTRUM__FILENAME_FORMET:
+			case RegiondefinitionPackage.SPECTRUM__FILENAME_FORMAT:
 			case RegiondefinitionPackage.SPECTRUM__FILE_EXTENSION:
 			case RegiondefinitionPackage.SPECTRUM__NUMBER_OF_COMMENTS:
 			case RegiondefinitionPackage.SPECTRUM__COMMENTS:

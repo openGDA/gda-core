@@ -19,7 +19,7 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum#getSampleName <em>Sample Name</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum#getFilenamePrefix <em>Filename Prefix</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum#getBaseDirectory <em>Base Directory</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum#getFilenameFormet <em>Filename Formet</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum#getFilenameFormat <em>Filename Format</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum#getFileExtension <em>File Extension</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum#getNumberOfComments <em>Number Of Comments</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum#getComments <em>Comments</em>}</li>
@@ -302,58 +302,58 @@ public interface Spectrum extends EObject {
 	boolean isSetBaseDirectory();
 
 	/**
-	 * Returns the value of the '<em><b>Filename Formet</b></em>' attribute.
+	 * Returns the value of the '<em><b>Filename Format</b></em>' attribute.
 	 * The default value is <code>"%s_%5d_%3d_%s"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
-	 * If the meaning of the '<em>Filename Formet</em>' attribute isn't clear,
+	 * If the meaning of the '<em>Filename Format</em>' attribute isn't clear,
 	 * there really should be more of a description here...
 	 * </p>
 	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Filename Formet</em>' attribute.
-	 * @see #isSetFilenameFormet()
-	 * @see #unsetFilenameFormet()
-	 * @see #setFilenameFormet(String)
-	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getSpectrum_FilenameFormet()
+	 * @return the value of the '<em>Filename Format</em>' attribute.
+	 * @see #isSetFilenameFormat()
+	 * @see #unsetFilenameFormat()
+	 * @see #setFilenameFormat(String)
+	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getSpectrum_FilenameFormat()
 	 * @model default="%s_%5d_%3d_%s" unsettable="true"
 	 * @generated
 	 */
-	String getFilenameFormet();
+	String getFilenameFormat();
 
 	/**
-	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum#getFilenameFormet <em>Filename Formet</em>}' attribute.
+	 * Sets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum#getFilenameFormat <em>Filename Format</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Filename Formet</em>' attribute.
-	 * @see #isSetFilenameFormet()
-	 * @see #unsetFilenameFormet()
-	 * @see #getFilenameFormet()
+	 * @param value the new value of the '<em>Filename Format</em>' attribute.
+	 * @see #isSetFilenameFormat()
+	 * @see #unsetFilenameFormat()
+	 * @see #getFilenameFormat()
 	 * @generated
 	 */
-	void setFilenameFormet(String value);
+	void setFilenameFormat(String value);
 
 	/**
-	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum#getFilenameFormet <em>Filename Formet</em>}' attribute.
+	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum#getFilenameFormat <em>Filename Format</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #isSetFilenameFormet()
-	 * @see #getFilenameFormet()
-	 * @see #setFilenameFormet(String)
+	 * @see #isSetFilenameFormat()
+	 * @see #getFilenameFormat()
+	 * @see #setFilenameFormat(String)
 	 * @generated
 	 */
-	void unsetFilenameFormet();
+	void unsetFilenameFormat();
 
 	/**
-	 * Returns whether the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum#getFilenameFormet <em>Filename Formet</em>}' attribute is set.
+	 * Returns whether the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum#getFilenameFormat <em>Filename Format</em>}' attribute is set.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return whether the value of the '<em>Filename Formet</em>' attribute is set.
-	 * @see #unsetFilenameFormet()
-	 * @see #getFilenameFormet()
-	 * @see #setFilenameFormet(String)
+	 * @return whether the value of the '<em>Filename Format</em>' attribute is set.
+	 * @see #unsetFilenameFormat()
+	 * @see #getFilenameFormat()
+	 * @see #setFilenameFormat(String)
 	 * @generated
 	 */
-	boolean isSetFilenameFormet();
+	boolean isSetFilenameFormat();
 
 	/**
 	 * Returns the value of the '<em><b>File Extension</b></em>' attribute.

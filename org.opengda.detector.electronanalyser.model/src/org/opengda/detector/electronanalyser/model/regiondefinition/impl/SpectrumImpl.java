@@ -31,7 +31,7 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SpectrumImpl#getSampleName <em>Sample Name</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SpectrumImpl#getFilenamePrefix <em>Filename Prefix</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SpectrumImpl#getBaseDirectory <em>Base Directory</em>}</li>
- *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SpectrumImpl#getFilenameFormet <em>Filename Formet</em>}</li>
+ *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SpectrumImpl#getFilenameFormat <em>Filename Format</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SpectrumImpl#getFileExtension <em>File Extension</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SpectrumImpl#getNumberOfComments <em>Number Of Comments</em>}</li>
  *   <li>{@link org.opengda.detector.electronanalyser.model.regiondefinition.impl.SpectrumImpl#getComments <em>Comments</em>}</li>
@@ -187,33 +187,33 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	protected boolean baseDirectoryESet;
 
 	/**
-	 * The default value of the '{@link #getFilenameFormet() <em>Filename Formet</em>}' attribute.
+	 * The default value of the '{@link #getFilenameFormat() <em>Filename Format</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getFilenameFormet()
+	 * @see #getFilenameFormat()
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String FILENAME_FORMET_EDEFAULT = "%s_%5d_%3d_%s";
+	protected static final String FILENAME_FORMAT_EDEFAULT = "%s_%5d_%3d_%s"; //$NON-NLS-1$
 
 	/**
-	 * The cached value of the '{@link #getFilenameFormet() <em>Filename Formet</em>}' attribute.
+	 * The cached value of the '{@link #getFilenameFormat() <em>Filename Format</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getFilenameFormet()
+	 * @see #getFilenameFormat()
 	 * @generated
 	 * @ordered
 	 */
-	protected String filenameFormet = FILENAME_FORMET_EDEFAULT;
+	protected String filenameFormat = FILENAME_FORMAT_EDEFAULT;
 
 	/**
-	 * This is true if the Filename Formet attribute has been set.
+	 * This is true if the Filename Format attribute has been set.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	protected boolean filenameFormetESet;
+	protected boolean filenameFormatESet;
 
 	/**
 	 * The default value of the '{@link #getFileExtension() <em>File Extension</em>}' attribute.
@@ -537,8 +537,8 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public String getFilenameFormet() {
-		return filenameFormet;
+	public String getFilenameFormat() {
+		return filenameFormat;
 	}
 
 	/**
@@ -546,13 +546,13 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public void setFilenameFormet(String newFilenameFormet) {
-		String oldFilenameFormet = filenameFormet;
-		filenameFormet = newFilenameFormet;
-		boolean oldFilenameFormetESet = filenameFormetESet;
-		filenameFormetESet = true;
+	public void setFilenameFormat(String newFilenameFormat) {
+		String oldFilenameFormat = filenameFormat;
+		filenameFormat = newFilenameFormat;
+		boolean oldFilenameFormatESet = filenameFormatESet;
+		filenameFormatESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SPECTRUM__FILENAME_FORMET, oldFilenameFormet, filenameFormet, !oldFilenameFormetESet));
+			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.SPECTRUM__FILENAME_FORMAT, oldFilenameFormat, filenameFormat, !oldFilenameFormatESet));
 	}
 
 	/**
@@ -560,13 +560,13 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public void unsetFilenameFormet() {
-		String oldFilenameFormet = filenameFormet;
-		boolean oldFilenameFormetESet = filenameFormetESet;
-		filenameFormet = FILENAME_FORMET_EDEFAULT;
-		filenameFormetESet = false;
+	public void unsetFilenameFormat() {
+		String oldFilenameFormat = filenameFormat;
+		boolean oldFilenameFormatESet = filenameFormatESet;
+		filenameFormat = FILENAME_FORMAT_EDEFAULT;
+		filenameFormatESet = false;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.SPECTRUM__FILENAME_FORMET, oldFilenameFormet, FILENAME_FORMET_EDEFAULT, oldFilenameFormetESet));
+			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.SPECTRUM__FILENAME_FORMAT, oldFilenameFormat, FILENAME_FORMAT_EDEFAULT, oldFilenameFormatESet));
 	}
 
 	/**
@@ -574,8 +574,8 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public boolean isSetFilenameFormet() {
-		return filenameFormetESet;
+	public boolean isSetFilenameFormat() {
+		return filenameFormatESet;
 	}
 
 	/**
@@ -718,8 +718,8 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 				return getFilenamePrefix();
 			case RegiondefinitionPackage.SPECTRUM__BASE_DIRECTORY:
 				return getBaseDirectory();
-			case RegiondefinitionPackage.SPECTRUM__FILENAME_FORMET:
-				return getFilenameFormet();
+			case RegiondefinitionPackage.SPECTRUM__FILENAME_FORMAT:
+				return getFilenameFormat();
 			case RegiondefinitionPackage.SPECTRUM__FILE_EXTENSION:
 				return getFileExtension();
 			case RegiondefinitionPackage.SPECTRUM__NUMBER_OF_COMMENTS:
@@ -754,8 +754,8 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 			case RegiondefinitionPackage.SPECTRUM__BASE_DIRECTORY:
 				setBaseDirectory((String)newValue);
 				return;
-			case RegiondefinitionPackage.SPECTRUM__FILENAME_FORMET:
-				setFilenameFormet((String)newValue);
+			case RegiondefinitionPackage.SPECTRUM__FILENAME_FORMAT:
+				setFilenameFormat((String)newValue);
 				return;
 			case RegiondefinitionPackage.SPECTRUM__FILE_EXTENSION:
 				setFileExtension((String)newValue);
@@ -794,8 +794,8 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 			case RegiondefinitionPackage.SPECTRUM__BASE_DIRECTORY:
 				unsetBaseDirectory();
 				return;
-			case RegiondefinitionPackage.SPECTRUM__FILENAME_FORMET:
-				unsetFilenameFormet();
+			case RegiondefinitionPackage.SPECTRUM__FILENAME_FORMAT:
+				unsetFilenameFormat();
 				return;
 			case RegiondefinitionPackage.SPECTRUM__FILE_EXTENSION:
 				unsetFileExtension();
@@ -828,8 +828,8 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 				return isSetFilenamePrefix();
 			case RegiondefinitionPackage.SPECTRUM__BASE_DIRECTORY:
 				return isSetBaseDirectory();
-			case RegiondefinitionPackage.SPECTRUM__FILENAME_FORMET:
-				return isSetFilenameFormet();
+			case RegiondefinitionPackage.SPECTRUM__FILENAME_FORMAT:
+				return isSetFilenameFormat();
 			case RegiondefinitionPackage.SPECTRUM__FILE_EXTENSION:
 				return isSetFileExtension();
 			case RegiondefinitionPackage.SPECTRUM__NUMBER_OF_COMMENTS:
@@ -860,8 +860,8 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 		if (filenamePrefixESet) result.append(filenamePrefix); else result.append("<unset>"); //$NON-NLS-1$
 		result.append(", baseDirectory: "); //$NON-NLS-1$
 		if (baseDirectoryESet) result.append(baseDirectory); else result.append("<unset>"); //$NON-NLS-1$
-		result.append(", filenameFormet: "); //$NON-NLS-1$
-		if (filenameFormetESet) result.append(filenameFormet); else result.append("<unset>"); //$NON-NLS-1$
+		result.append(", filenameFormat: "); //$NON-NLS-1$
+		if (filenameFormatESet) result.append(filenameFormat); else result.append("<unset>"); //$NON-NLS-1$
 		result.append(", fileExtension: "); //$NON-NLS-1$
 		if (fileExtensionESet) result.append(fileExtension); else result.append("<unset>"); //$NON-NLS-1$
 		result.append(", numberOfComments: "); //$NON-NLS-1$
