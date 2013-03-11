@@ -66,7 +66,7 @@ public class ZebraImpl implements Zebra, InitializingBean {
 	final public static String PCPulseWidth = "PC_PULSE_WID";
 	final public static String PCPulseStep = "PC_PULSE_STEP";
 	final public static String PCPulseStatus = "PC_PULSE_OUT";
-	public static final String PCCaptureBitField = "PC_CAP";
+	public static final String PCCaptureBitField = "PC_NUM_CAP";
 	public static final String PCEnc = "PC_ENC";
 	public static final String PCEnc1Aval = "PC_ENC1.AVAL";
 	public static final String PCNumberOfPointsCaptured = "PC_NUM_CAP";
@@ -75,7 +75,8 @@ public class ZebraImpl implements Zebra, InitializingBean {
 	public static final String PCPulseDelayRBV = "PC_PULSE_DLY:RBV";
 	final public static String PCGateStartRBV = "PC_GATE_START:RBV";
 	final public static String PCGateWidthRBV = "PC_GATE_WID:RBV";
-	final public static String PCTimeUnit = "PC_TSPRE";	
+	final public static String PCTimeUnit = "PC_TSPRE";
+	private static final String PCPulseMax = "PC_PULSE_MAX";	
 	
 	String zebraPrefix;
 
@@ -133,6 +134,16 @@ public class ZebraImpl implements Zebra, InitializingBean {
 		return dev.getPVDouble(PCPulseStepRBV).get();
 	}
 
+	@Override
+	public int getPCPulseMax() throws IOException {
+		return dev.getPVInteger(PCPulseMax).get();
+	}
+
+	@Override
+	public void setPCPulseMax(int val) throws IOException {
+		dev.getPVInteger(PCPulseMax).putCallback(val);
+	}
+	
 	@Override
 	public void setPCGateSource(int val) throws IOException {
 		dev.getPVInteger(PCGateSource).putCallback(val);

@@ -24,25 +24,26 @@ import java.io.IOException;
 
 public interface Zebra {
 
-	
-		
-	final public static int PC_MODE_POSITION=0;
-	final public static int PC_MODE_TIME=1;
-	
-	final public static int PC_TIMEUNIT_SEC=1;
-	final public static int PC_TIMEUNIT_MS=0;
-	
+	final public static int PC_MODE_POSITION = 0;
+	final public static int PC_MODE_TIME = 1;
+
+	final public static int PC_TIMEUNIT_SEC = 1;
+	final public static int PC_TIMEUNIT_MS = 0;
+
 	double getPCPulseDelay() throws IOException;
+
 	double getPCPulseDelayRBV() throws IOException;
 
 	void setPCPulseDelay(double delay) throws IOException;
 
 	double getPCPulseWidth() throws IOException;
+
 	double getPCPulseWidthRBV() throws IOException;
 
 	void setPCPulseWidth(double width) throws IOException;
 
 	double getPCPulseStep() throws IOException;
+
 	double getPCPulseStepRBV() throws IOException;
 
 	void setPCPulseStep(double step) throws IOException;
@@ -56,6 +57,7 @@ public interface Zebra {
 	void setPCGateSource(int ordinal) throws IOException;
 
 	double getPCGateStart() throws IOException;
+
 	double getPCGateStartRBV() throws IOException;
 
 	double getPCGateWidth() throws IOException;
@@ -67,7 +69,8 @@ public interface Zebra {
 	void setPCGateStart(double start) throws IOException;
 
 	void setPCGateWidth(double width) throws IOException;
-	double getPCGateWidthRBV()throws IOException;
+
+	double getPCGateWidthRBV() throws IOException;
 
 	void setPCGateNumberOfGates(int numberOfGates) throws IOException;
 
@@ -103,6 +106,11 @@ public interface Zebra {
 	 * 0 - ms, 1-s
 	 */
 	void setPCTimeUnit(int i) throws IOException;
+
 	int getPCTimeUnit() throws IOException;
+
+	void setPCPulseMax(int numberTriggers) throws IOException;
+
+	int getPCPulseMax() throws IOException;
 
 }
