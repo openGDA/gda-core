@@ -24,17 +24,25 @@ import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.device.detector.areadetector.v17.ADDriverPco.PcoTriggerMode;
 
 /*
-Class to set PCO into Continuous acquire
-
-call prepareForCollection and then collectData to start
+ * Class to set PCO into Continuous acquire call prepareForCollection and then collectData to start
  */
 public class PCOAutoContinuous extends SimpleAcquire {
+	private Integer adcMode = 1;// 2 adcs
+
+	// TF3_OUT5
+
+	public Integer getAdcMode() {
+		return adcMode;
+	}
+
+	public void setAdcMode(Integer adcMode) {
+		this.adcMode = adcMode;
+	}
 
 	private final ADDriverPco adDriverPco;
-	
 
 	public PCOAutoContinuous(ADBase adBase, ADDriverPco adDriverPco) {
-		super(adBase,-0.1); //force acquireTime to be 0.
+		super(adBase, -0.1); // force acquireTime to be 0.
 		this.adDriverPco = adDriverPco;
 	}
 
@@ -42,16 +50,16 @@ public class PCOAutoContinuous extends SimpleAcquire {
 		return adDriverPco;
 	}
 
-
 	@Override
 	public void prepareForCollection(double collectionTime, int numImagesIgnored) throws Exception {
-		getAdBase().stopAcquiring(); //to get out of armed state
- 
-		super.prepareForCollection(collectionTime, numImagesIgnored); 
+		getAdBase().stopAcquiring(); // to get out of armed state
+
+		super.prepareForCollection(collectionTime, numImagesIgnored);
 		getAdBase().setImageMode(ImageMode.CONTINUOUS.ordinal());
-		getAdBase().setTriggerMode(PcoTriggerMode.AUTO.ordinal()); 
-		adDriverPco.getAdcModePV().put(1); //2 adcs
-		adDriverPco.getTimeStampModePV().put(1); // BCD - if set to None then the image is blank. BCD means no timestamp on image
+		getAdBase().setTriggerMode(PcoTriggerMode.AUTO.ordinal());
+		adDriverPco.getAdcModePV().put(adcMode); // 2 adcs
+		adDriverPco.getTimeStampModePV().put(1); // BCD - if set to None then the image is blank. BCD means no timestamp
+													// on image
 	}
 
 	@Override
