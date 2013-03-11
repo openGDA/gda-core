@@ -69,14 +69,19 @@ import org.opengda.detector.electronanalyser.client.RegionStepsTimeEstimation;
 import org.opengda.detector.electronanalyser.client.regioneditor.RegionViewExtensionFactory;
 import org.opengda.detector.electronanalyser.client.selection.FileSelection;
 import org.opengda.detector.electronanalyser.client.selection.RegionActivationSelection;
+import org.opengda.detector.electronanalyser.client.selection.TotalTimeSelection;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionFactory;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum;
+import org.opengda.detector.electronanalyser.utils.OsUtil;
 import org.opengda.detector.electronanalyser.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
 
 public class SequenceView extends ViewPart implements ISelectionProvider,
 		IRegionDefinitionView, ISaveablePart {
@@ -176,14 +181,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 
 	@Override
 	public void createPartControl(final Composite parent) {
-		// // Add action
-		// getViewSite().getActionBars().getMenuManager().add(new Action() {
-		// @Override
-		// public void run() {
-		// // TODO Auto-generated method stub
-		// super.run();
-		// }
-		// })
 		GridLayout gl_root = new GridLayout();
 		gl_root.horizontalSpacing = 2;
 		Composite rootComposite = new Composite(parent, SWT.NONE);
@@ -418,11 +415,11 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		Label lblLocation = new Label(grpInfo, SWT.NONE);
 		lblLocation.setText("Location");
 
-		txtLocation = new Text(grpInfo, SWT.BORDER);
+		txtLocation = new Text(grpInfo, SWT.BORDER | SWT.READ_ONLY);
+		// this field is set in Spring configuration per beamline
 		txtLocation.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false,
 				false, 1, 1));
 		txtLocation.setText("Location");
-		txtLocation.setEditable(false);
 
 		Label lblComments = new Label(grpInfo, SWT.NONE);
 		lblComments.setText("Add comments below:");
@@ -430,19 +427,30 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		Label lblUser = new Label(grpInfo, SWT.NONE);
 		lblUser.setText("User");
 
-		txtUser = new Text(grpInfo, SWT.BORDER);
+		txtUser = new Text(grpInfo, SWT.BORDER | SWT.READ_ONLY);
+		// this field is set dynamically to user proposal number in GDA
 		txtUser.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1,
 				1));
 		txtUser.setText("User");
-		txtUser.setEditable(false);
 
 		txtComments = new Text(grpInfo, SWT.BORDER | SWT.MULTI | SWT.WRAP);
-		txtComments.addSelectionListener(new SelectionAdapter() {
+		txtComments.addFocusListener(new FocusAdapter() {
 			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
+			public void focusGained(FocusEvent e) {
+				Text t = (Text) e.widget;
+				t.selectAll();
+			}
+
+			@Override
+			public void focusLost(FocusEvent e) {
 				if (e.getSource().equals(txtComments)) {
 					try {
-						String[] comments = txtComments.getText().split("\n");
+						String[] comments;
+						if (OsUtil.isWindows()) {
+							comments = txtComments.getText().split("\r\n");
+						} else {
+							comments = txtComments.getText().split("\n");
+						}
 						List<String> commentList = new ArrayList<String>();
 						for (String string : comments) {
 							commentList.add(string);
@@ -452,28 +460,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 						updateFeature(spectrum,
 								RegiondefinitionPackage.eINSTANCE
 										.getSpectrum_Comments(), commentList);
-						updateFeature(spectrum,
-								RegiondefinitionPackage.eINSTANCE
-										.getSpectrum_NumberOfComments(),
-								spectrum.getComments().size());
-					} catch (Exception e1) {
-						logger.error(
-								"Cannot get the spectrum from this sequence.",
-								e1);
-					}
-				}
-			}
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if (e.getSource().equals(txtComments)) {
-					try {
-						Spectrum spectrum = regionDefinitionResourceUtil
-								.getSpectrum();
-						updateFeature(spectrum,
-								RegiondefinitionPackage.eINSTANCE
-										.getSpectrum_Comments(), txtComments
-										.getText());
 						updateFeature(spectrum,
 								RegiondefinitionPackage.eINSTANCE
 										.getSpectrum_NumberOfComments(),
@@ -549,11 +535,12 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		gd_txtFilename.widthHint = 104;
 		txtFilename.setLayoutData(gd_txtFilename);
 		txtFilename.setText("Filename Prefix");
-		
+
 		Label lblNewLabel = new Label(grpInfo, SWT.NONE);
-		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false,
+				false, 1, 1));
 		lblNewLabel.setText("Name Format");
-		
+
 		txtfilenameformat = new Text(grpInfo, SWT.BORDER);
 		txtfilenameformat.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -564,7 +551,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 								.getSpectrum(),
 								RegiondefinitionPackage.eINSTANCE
 										.getSpectrum_FilenameFormat(),
-										txtfilenameformat.getText());
+								txtfilenameformat.getText());
 					} catch (Exception e1) {
 						logger.error(
 								"Cannot get the spectrum from this sequence.",
@@ -574,7 +561,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 			}
 		});
 		txtfilenameformat.setText("%s_%5d_%3d_%s");
-		txtfilenameformat.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+		txtfilenameformat.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false,
+				false, 1, 1));
 
 		Group grpSequnceRunMode = new Group(rightArea, SWT.NONE);
 		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
@@ -730,37 +718,15 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		Composite actionArea = new Composite(rootComposite, SWT.None);
 		// Contains region editing, sequence parameters, file saving info and
 		// comments.
-		actionArea.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, false,
-				false, 1, 1));
-		actionArea.setLayout(new RowLayout());
+		actionArea.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		actionArea.setLayout(new GridLayout(2, false));
 
-		Button btnStart = new Button(actionArea, SWT.NONE);
-		btnStart.setText("Start");
-		btnStart.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				try {
-					// resource.save(null);
-					doSave(new NullProgressMonitor());
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
-				// TODO the following need to run on a work thread, not on GUI
-				// thread??
-				for (Region region : regions) {
-					if (region.isEnabled()) {
-						// send region parameters to EPICS driver
-						// set a region running status before start collection
-						// in EPICS for this region
-						// status should be reset by monitor EPICS State PV
-						// wait for EPICS collection to finish i.e. status is
-						// not RUNNING before start next
-						// TODO using QUEUE here?
-					}
-				}
-			}
-		});
-		btnStart.setToolTipText("Save the sequence data to file, then start collection");
+		Label lblSequnceFile = new Label(actionArea, SWT.None);
+		lblSequnceFile.setText("Sequence File: ");
+
+		txtSequenceFilePath = new Text(actionArea, SWT.BORDER | SWT.READ_ONLY);
+		txtSequenceFilePath.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
 		initialisation();
 		// register as selection provider to the SelectionService
 		getViewSite().setSelectionProvider(this);
@@ -769,7 +735,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 				.getSelectionService()
 				.addSelectionListener(RegionViewExtensionFactory.ID,
 						selectionListener);
-
 	}
 
 	protected List<String> getRegionNames() {
@@ -783,7 +748,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 	private ISelectionListener selectionListener = new INullSelectionListener() {
 		@Override
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-			if (selection instanceof IStructuredSelection) {
+			if (selection instanceof TotalTimeSelection) {
+				updateCalculatedData();
+			} else if (selection instanceof IStructuredSelection) {
 				IStructuredSelection sel = (IStructuredSelection) selection;
 				Object firstElement = sel.getFirstElement();
 				if (firstElement instanceof Region) {
@@ -864,12 +831,16 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 				}
 				txtSample.setText(spectrum.getSampleName());
 				txtFilename.setText(spectrum.getFilenamePrefix());
+				txtfilenameformat.setText(spectrum.getFilenameFormat());
+				txtSequenceFilePath.setText(regionDefinitionResourceUtil
+						.getFileName());
+
 				String comments = "";
 				for (String comment : spectrum.getComments()) {
 					comments += comment + "\n";
 				}
 				txtComments.setText(comments);
-				System.out.println(txtComments.getText());
+				// System.out.println(txtComments.getText());
 			}
 			regions = sequence.getRegion();
 		} else {
@@ -882,7 +853,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 				}
 			}
 		}
-		// add drag and drop support,must ensure editing domain not null at this point.
+		// add drag and drop support,must ensure editing domain not null at this
+		// point.
 		sequenceTableViewer.addDragSupport(DND.DROP_COPY | DND.DROP_MOVE
 				| DND.DROP_LINK,
 				new Transfer[] { LocalTransfer.getInstance() },
@@ -906,6 +878,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 			for (Region region : regions) {
 				if (region.isEnabled()) {
 					numActives++;
+					if (region.getAcquisitionMode()==ACQUISITION_MODE.SWEPT) {
 					totalTimes += region.getStepTime()
 							* RegionStepsTimeEstimation
 									.calculateTotalSteps(
@@ -916,6 +889,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 													* region.getPassEnergy()
 													* (region.getLastXChannel()
 															- region.getFirstXChannel() + 1));
+					} else if (region.getAcquisitionMode()==ACQUISITION_MODE.FIXED) {
+						totalTimes += region.getStepTime()*1;
+					}
 				}
 			}
 		}
@@ -1062,15 +1038,36 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 			resource = sequenceRes;
 			resource.eAdapters().add(notifyListener);
 
-			// if the sequence is empty - then fire null
-			// replace existing regions list
+			// update existing regions list
 			regions = regionDefinitionResourceUtil.getRegions();
 			if (regions.isEmpty()) {
 				fireSelectionChanged(StructuredSelection.EMPTY);
 			} else {
-				// otherwise fire the first region
 				fireSelectionChanged(regions.get(0));
 			}
+			// update spectrum parameters
+			spectrum = regionDefinitionResourceUtil.getSpectrum();
+			if (spectrum != null) {
+				txtSample.setText(spectrum.getSampleName());
+				txtFilename.setText(spectrum.getFilenamePrefix());
+				txtfilenameformat.setText(spectrum.getFilenameFormat());
+			} else {
+				txtSample.setText("");
+				txtFilename.setText("");
+				txtfilenameformat.setText("");
+			}
+			txtSequenceFilePath.setText(regionDefinitionResourceUtil
+					.getFileName());
+			// update sequence run mode
+			sequence = regionDefinitionResourceUtil.getSequence();
+			if (sequence != null) {
+				runMode.setText(sequence.getRunMode().getLiteral());
+				btnNumberOfIterations.setSelection(!sequence.isRepeatUntilStopped());
+				btnRepeatuntilStopped.setSelection(sequence.isRepeatUntilStopped());
+				btnConfirmAfterEachInteration.setSelection(sequence.isConfirmAfterEachIteration());
+				spinner.setSelection(sequence.getNumIterations());
+			}
+			updateCalculatedData();
 		} catch (Exception e) {
 			logger.error("Cannot refresh table.", e);
 		}
@@ -1132,6 +1129,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 
 	};
 	private Text txtfilenameformat;
+
+	private Text txtSequenceFilePath;
 
 	public void dispose() {
 		try {
