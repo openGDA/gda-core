@@ -489,7 +489,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		txtComments.setText("comments");
 		GridData gd_txtComments = new GridData(SWT.FILL, SWT.FILL, true, false,
 				1, 1);
-		gd_txtComments.verticalSpan = 3;
+		gd_txtComments.verticalSpan = 4;
 		txtComments.setLayoutData(gd_txtComments);
 
 		Label lblSample = new Label(grpInfo, SWT.NONE);
@@ -549,6 +549,32 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		gd_txtFilename.widthHint = 104;
 		txtFilename.setLayoutData(gd_txtFilename);
 		txtFilename.setText("Filename Prefix");
+		
+		Label lblNewLabel = new Label(grpInfo, SWT.NONE);
+		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblNewLabel.setText("Name Format");
+		
+		txtfilenameformat = new Text(grpInfo, SWT.BORDER);
+		txtfilenameformat.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				if (e.getSource().equals(txtfilenameformat)) {
+					try {
+						updateFeature(regionDefinitionResourceUtil
+								.getSpectrum(),
+								RegiondefinitionPackage.eINSTANCE
+										.getSpectrum_FilenameFormat(),
+										txtfilenameformat.getText());
+					} catch (Exception e1) {
+						logger.error(
+								"Cannot get the spectrum from this sequence.",
+								e1);
+					}
+				}
+			}
+		});
+		txtfilenameformat.setText("%s_%5d_%3d_%s");
+		txtfilenameformat.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
 
 		Group grpSequnceRunMode = new Group(rightArea, SWT.NONE);
 		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
@@ -1105,6 +1131,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		}
 
 	};
+	private Text txtfilenameformat;
 
 	public void dispose() {
 		try {
