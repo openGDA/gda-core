@@ -180,7 +180,10 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 				listOfElements.add(regionList.get(i).getRoiName());
 			}
 		}
-
+		
+		listOfElements.add("I0");
+		listOfElements.add("It");
+		
 		loadedDetectorFileName = xmlfile;
 	}
 
@@ -339,6 +342,7 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 				elements[i] = roiName;
 				listOfElements.add(roiName);
 			}
+			
 			selectedElement = listOfElements.getItem(0);
 
 			if (selectedElement != null && filePath != null) {
@@ -388,6 +392,7 @@ public class MicroFocusElementListView extends ViewPart implements Overlay2DCons
 				elements[i] = roiName;
 				listOfElements.add(roiName);
 			}
+			
 			selectedElement = listOfElements.getItem(0);
 
 			if (selectedElement != null && filePath != null) {

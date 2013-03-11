@@ -43,7 +43,9 @@ public class VortexParameters implements Serializable, IRichBean {
 	static public final URL mappingURL = VortexParameters.class.getResource("VortexMapping.xml");
 
 	static public final URL schemaURL = VortexParameters.class.getResource("VortexMapping.xsd");
-
+	
+	private int selectedRegionNumber =0;
+	
 	public static VortexParameters createFromXML(String filename) throws Exception {
 		return (VortexParameters) XMLHelpers.createFromXML(mappingURL, VortexParameters.class, schemaURL, filename);
 	}
@@ -60,6 +62,7 @@ public class VortexParameters implements Serializable, IRichBean {
 	public void clear() {
 		if (detectorList != null)
 			detectorList.clear();
+		selectedRegionNumber=0;
 	}
 
 	public void addDetectorElement(DetectorElement detectorElement) {
@@ -222,5 +225,13 @@ public class VortexParameters implements Serializable, IRichBean {
 			list.addAll(d.getRegionList());
 		}
 		return list;
+	}
+	
+	public int getSelectedRegionNumber() {
+		return selectedRegionNumber;
+	}
+
+	public void setSelectedRegionNumber(int selectedRegionNumber) {
+		this.selectedRegionNumber = selectedRegionNumber;
 	}
 }
