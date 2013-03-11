@@ -122,7 +122,16 @@ public class PCOTFGTrigger extends SimpleAcquire {
 	private String noLongerBusyTriggerSetupCommand = "tfg setup-trig start adc5 alternate 1"; // // PCO BUSY Out on TFg2
 	private int shutterSleep=100;
 	private Scannable shutterDarkScannable;
+	private Integer adcMode=1;//2 adcs
 																								// TF3_OUT5
+
+	public Integer getAdcMode() {
+		return adcMode;
+	}
+
+	public void setAdcMode(Integer adcMode) {
+		this.adcMode = adcMode;
+	}
 
 	@Override
 	public void prepareForCollection(double collectionTime, int numImagesIgnored) throws Exception {
@@ -152,7 +161,7 @@ public class PCOTFGTrigger extends SimpleAcquire {
 		// we want 1 image per trigger - there will be multiple triggers per collection
 		getAdBase().setNumImages(1);
 		getAdBase().setImageModeWait(ImageMode.SINGLE);
-		adDriverPco.getAdcModePV().put(1); // 2 adcs
+		adDriverPco.getAdcModePV().put(adcMode); // 2 adcs
 		adDriverPco.getTimeStampModePV().put(1); // BCD - if set to None then the image is blank. BCD means no timestamp
 													// on image
 		// getAdBase().setAcquirePeriod(0.0); //this is needed for PCO to make sure delay=0 - do not use as it effects
