@@ -62,7 +62,7 @@ public class NxsNavigatorContentProvider extends WorkbenchContentProvider {
 		ArrayList<IFile> nxsFiles = new ArrayList<IFile>();
 		IResource[] members = container.members();
 		for (IResource iResource : members) {
-			if (iResource instanceof IContainer) {
+			if (iResource instanceof IContainer && iResource.isAccessible()) {
 				List<IFile> allNexusFiles = getAllNexusFiles((IContainer) iResource);
 				if (!allNexusFiles.isEmpty()) {
 					nxsFiles.addAll(allNexusFiles);

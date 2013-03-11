@@ -26,6 +26,9 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.FileLocator;
@@ -407,9 +410,14 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 			String outDirStr = getOutDir();
 			File outDir = new File(outDirStr);
 			if (outDir.exists()) {
-				File[] fileNames = outDir.listFiles()[0].listFiles()[0].listFiles();
-				File fileName = fileNames[position];
-
+				File parentLocation = outDir.listFiles()[0].listFiles()[0];
+				String[] fileNames = parentLocation.list();
+				List<String> fileNameList = Arrays.asList(fileNames);
+				Collections.sort(fileNameList);
+				fileNames = fileNameList.toArray(new String[0]);
+				
+				File fileName = new File(parentLocation, fileNames[position]);
+				logger.debug("File trying to display:{}", fileNames[position]);
 				if (fileName.exists()) {
 					// update monitor
 					try {

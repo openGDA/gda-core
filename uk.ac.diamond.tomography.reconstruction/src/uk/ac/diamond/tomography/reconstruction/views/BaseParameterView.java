@@ -136,6 +136,10 @@ public abstract class BaseParameterView extends BaseTomoReconPart implements ISe
 	protected void processNewNexusFile() {
 		hmSettingsInProcessingDir = null;
 		hmSettingsInProcessingDir = getHmSettingsInProcessingDir();
+		getReducedDataShape();
+	}
+
+	protected int[] getReducedDataShape() {
 		reducedNexusFile = getReducedNexusFile(nexusFile);
 		if (reducedNexusFile.exists()) {
 			ILazyDataset reducedDataset = getDataSetFromFileLocation(reducedNexusFile.getPath());
@@ -145,6 +149,7 @@ public abstract class BaseParameterView extends BaseTomoReconPart implements ISe
 				logger.warn("Reduced data set not ready yet");
 			}
 		}
+		return reducedDataShape;
 	}
 
 	private File getReducedNexusFile(IFile nexusFile) {

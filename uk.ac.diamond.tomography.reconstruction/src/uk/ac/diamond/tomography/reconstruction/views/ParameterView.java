@@ -468,8 +468,13 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 			String templateFileName = getHmSettingsInProcessingDir().getAbsolutePath();
 
 			int height = hdfShape[1];
-			if (quick && reducedDataShape != null) {
-				height = reducedDataShape[1];
+			if (quick) {
+				if (reducedDataShape == null) {
+					reducedDataShape = getReducedDataShape();
+				}
+				if (reducedDataShape != null) {
+					height = reducedDataShape[1];
+				}
 			}
 			String jobNameToDisplay = null;
 			String command = null;
