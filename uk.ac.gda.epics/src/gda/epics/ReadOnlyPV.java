@@ -48,6 +48,19 @@ public interface ReadOnlyPV<T> extends Observable<T> {
 	public T get() throws IOException;
 
 	/**
+	 * Get numElements from the pv over CA.
+	 * 
+	 * @param numElements
+	 *            Number of elements to be read
+	 * 
+	 * @throws IOException
+	 *             if an Epics CA exception of some sort has occurred
+	 * @throws InterruptedIOException
+	 *             if an Epics CA operation has been interrupted
+	 */
+	public T get(int numElements) throws IOException;
+
+	/**
 	 * Get the most recent value monitored across CA. If no value has yet been received, then get a value across CA. The
 	 * PV must have been configured to monitor with {@link #setValueMonitoring(boolean)};
 	 * 
