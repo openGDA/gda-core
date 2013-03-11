@@ -21,8 +21,10 @@ package gda.jython.authoriser;
 
 import gda.configuration.properties.LocalProperties;
 import gda.jython.authenticator.LdapAuthenticator;
+import gda.jython.authenticator.LdapMixin;
 
 import java.util.Hashtable;
+import java.util.List;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -52,12 +54,13 @@ public class LdapAuthoriser extends FileAuthoriser implements Authoriser {
 
 	private static final Logger logger = LoggerFactory.getLogger(LdapAuthoriser.class);
 
-	private final String ldapURL = LocalProperties.get(LdapAuthenticator.LDAPURL_PROPERTY, "ldap://130.246.132.94:389");
 	private final String ldapContext = LocalProperties.get(LdapAuthenticator.LDAPCONTEXT_PROPERTY,
 			"com.sun.jndi.ldap.LdapCtxFactory");
 	private final String staffRole = LocalProperties.get(LDAPSTAFF_PROPERTY, "DLSLTD_Staff");
 	private final String staffContext = LocalProperties.get(LDAPSTAFFCONTEXT_PROPERTY, "DC=fed,DC=cclrc,DC=ac,DC=uk");
 
+	private LdapMixin ldap = new LdapMixin();
+	
 	@Override
 	public boolean hasAuthorisationLevel(String username) {
 		// use the xml file as an override
@@ -114,7 +117,7 @@ public class LdapAuthoriser extends FileAuthoriser implements Authoriser {
 		return false;
 	}
 
-	private InitialLdapContext getContext() throws NamingException {
+	private InitialLdapContext getContext(String ldapURL) throws NamingException {
 		Hashtable<String, String> env = new Hashtable<String, String>();
 
 		env.put(Context.INITIAL_CONTEXT_FACTORY, ldapContext);
@@ -125,6 +128,33 @@ public class LdapAuthoriser extends FileAuthoriser implements Authoriser {
 	}
 
 	private NamingEnumeration<SearchResult> searchLdapForUser(String fedId) {
+		
+		final List<String> urls = ldap.getUrlsToTry();
+		logger.debug("LDAP URLs: " + urls);
+		
+		if (urls.isEmpty()) {
+			logger.error("No LDAP servers defined");
+			return null;
+		}
+		
+		Exception lastException = null;
+		
+		for (String url : urls) {
+			try {
+				return searchOneLdapServerForUser(url, fedId);
+			} catch (Exception e) {
+				// try the next server
+				lastException = e;
+				logger.info("Unable to use LDAP server with URL '{}' - will try next server", url, e);
+			}
+		}
+		
+		logger.error("Unable to connect to any LDAP server", lastException);
+		return null;
+	}
+	
+	private NamingEnumeration<SearchResult> searchOneLdapServerForUser(String url, String fedId) throws NamingException {
+		
 		InitialLdapContext ctx = null;
 		try {
 			if( fedId == null || fedId.isEmpty())
@@ -140,12 +170,9 @@ public class LdapAuthoriser extends FileAuthoriser implements Authoriser {
 			cons.setReturningAttributes(returnedAtts);
 
 			// Search
-			ctx = getContext(/*fedId*/);
+			ctx = getContext(url);
 			return ctx.search(staffContext, filter, cons);
 
-		} catch (NamingException e) {
-			logger.error("Error searchingLdapForUser for fedid `"+ fedId + "`", e);
-			return null;
 		} finally {
 			if (ctx != null) {
 				try {

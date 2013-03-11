@@ -16,19 +16,22 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.client;
+package gda.jython.authenticator;
 
-import gda.commandqueue.QueuedCommandSummary;
+import java.net.UnknownHostException;
+import java.util.List;
 
-class NumberedQueueEntry {
+/**
+ * Resolves a hostname to the corresponding IP addresses.
+ */
+public interface HostnameResolver {
 
-	public int index;
-	public QueuedCommandSummary entry;
-
-	@Override
-	public String toString() {
-		return String.format("%s(%d, %s)", getClass().getSimpleName(), index, entry);
-	}
+	/**
+	 * Resolves a hostname.
+	 * 
+	 * @param hostname hostname
+	 * @return list of IP addresses
+	 */
+	public List<String> resolveHostname(String hostname) throws UnknownHostException;
 
 }
-

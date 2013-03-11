@@ -518,5 +518,3 @@ class QueueContentProvider implements IStructuredContentProvider {
 		return new Object[0];
 	}
 }
-
-
