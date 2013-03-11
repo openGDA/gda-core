@@ -54,7 +54,7 @@ public class ScanDataPointPopulatorAndPublisher implements Runnable {
 		try {
 			convertPositionFuturesToPositions(point);
 		} catch (Exception e) {
-			logger.info("Exception populating data point", e.getMessage());
+			logger.error("Exception populating data point", e);
 			pipeline.setExceptionAndShutdownNow(e);
 			return ; // don't move on to publish
 		}

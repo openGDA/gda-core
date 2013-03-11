@@ -440,7 +440,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			if (detector instanceof NexusDetector) {
 				writeNexusDetector((NexusDetector) detector);
 				// } else if (detector instanceof CounterTimer) {
-			} else if (detector.getExtraNames().length > 0) {
+			} else if (detector.getExtraNames() != null && detector.getExtraNames().length > 0) {
 				double[] data = extractDoubleData(detector.getName());
 				if (data != null) {
 					writeCounterTimer(detector, data);
@@ -919,7 +919,12 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 			// create an NXdetector for each detector...
 			for (Detector detector : detectors) {
-				makeDetectorEntry(detector);
+				try{
+					makeDetectorEntry(detector);
+				}
+				catch(Exception e){
+					throw new DeviceException("Error making detector entry for detector " + detector.getName(),e);
+				}
 			}
 		} catch (NexusException e) {
 			String error = "NeXus file creation failed during makeDetectors: ";

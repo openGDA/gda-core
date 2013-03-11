@@ -26,7 +26,7 @@ import org.springframework.beans.factory.InitializingBean;
  */
 public class NXTomoEntryLinkCreator extends NXLinkCreator implements InitializingBean {
 	
-	private String control_data_target = "entry1/instrument/source/current";
+	private String control_data_target = "entry1:NXentry/instrument:NXinstrument/source:NXsource/current:NXdata";
 	
 	private String data_data_target = "entry1/tomo_entry/instrument/detector/data";
 	private String data_rotation_angle_target = "entry1/tomo_entry/sample/rotation_angle";
@@ -147,72 +147,72 @@ public class NXTomoEntryLinkCreator extends NXLinkCreator implements Initializin
 		// control/data
 		if (this.control_data_target == null)
 			throw new IllegalStateException("control_data_target is not set");
-		addLink("/entry1:NXentry/tomo_entry:NXsubentry/control:NXMonitor/data", null, control_data_target);
+		addLink("/entry1:NXentry/tomo_entry:NXsubentry/control:NXMonitor/data", control_data_target);
 		
 		// data/data
 		if (this.data_data_target == null)
 			throw new IllegalStateException("data_data_target is not set");
-		addLink("/entry1:NXentry/tomo_entry:NXsubentry/data:NXdata/data", null, data_data_target);
+		addLink("/entry1:NXentry/tomo_entry:NXsubentry/data:NXdata/data", data_data_target);
 		
 		// data/rotation_angle
 		if (this.data_rotation_angle_target == null)
 			throw new IllegalStateException("data_rotation_angle_target is not set");
-		addLink("/entry1:NXentry/tomo_entry:NXsubentry/data:NXdata/rotation_angle", null, data_rotation_angle_target);
+		addLink("/entry1:NXentry/tomo_entry:NXsubentry/data:NXdata/rotation_angle", data_rotation_angle_target);
 		
 		// instrument/detector/data
 		if (this.getInstrument_detector_data_target() == null)
 			throw new IllegalStateException("instrument_detector_data_target is not set");
-		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/detector:NXdetector/data", null, getInstrument_detector_data_target());
+		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/detector:NXdetector/data", getInstrument_detector_data_target());
 		
 		// instrument/detector/distance
 		if (this.getInstrument_detector_distance_target() == null)
 			throw new IllegalStateException("instrument_detector_distance_target is not set");
-		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/detector:NXdetector/distance", null, getInstrument_detector_distance_target());
+		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/detector:NXdetector/distance", getInstrument_detector_distance_target());
 		
 		// instrument/detector/image_key
 		if (this.getInstrument_detector_image_key_target() == null)
 			throw new IllegalStateException("instrument_detector_image_key_target is not set");
-		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/detector:NXdetector/image_key", null, getInstrument_detector_image_key_target());
+		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/detector:NXdetector/image_key", getInstrument_detector_image_key_target());
 		
 		// instrument/detector/x_pixel_size
 		if (this.getInstrument_detector_x_pixel_size_target() == null)
 			throw new IllegalStateException("instrument_detector_x_pixel_size_target is not set");
-		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/detector:NXdetector/x_pixel_size", null, getInstrument_detector_x_pixel_size_target());
+		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/detector:NXdetector/x_pixel_size", getInstrument_detector_x_pixel_size_target());
 		
 		// instrument/detector/y_pixel_size
 		if (this.getInstrument_detector_x_pixel_size_target() == null)
 			throw new IllegalStateException("instrument_detector_y_pixel_size_target is not set");
-		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/detector:NXdetector/y_pixel_size", null, getInstrument_detector_y_pixel_size_target());
+		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/detector:NXdetector/y_pixel_size", getInstrument_detector_y_pixel_size_target());
 		
 		// instrument/source
 		if (this.getInstrument_source_target() == null)
 			throw new IllegalStateException("instrument_source_target is not set");
-		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/source", null, getInstrument_source_target());
+		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/source", getInstrument_source_target());
 		
 		// sample/rotation_angle
 		if (this.getSample_rotation_angle_target() == null)
 			throw new IllegalStateException("sample_rotation_angle_target is not set");
-		addLink("/entry1:NXentry/tomo_entry:NXsubentry/sample:NXsample/rotation_angle", null, getSample_rotation_angle_target());
+		addLink("/entry1:NXentry/tomo_entry:NXsubentry/sample:NXsample/rotation_angle", getSample_rotation_angle_target());
 		
 		// sample/x_translation
 		if (this.getSample_x_translation_target() == null)
 			throw new IllegalStateException("sample_x_translation_target is not set");
-		addLink("/entry1:NXentry/tomo_entry:NXsubentry/sample:NXsample/x_translation", null, getSample_x_translation_target());
+		addLink("/entry1:NXentry/tomo_entry:NXsubentry/sample:NXsample/x_translation", getSample_x_translation_target());
 		
 		// sample/y_translation
 		if (this.getSample_y_translation_target() == null)
 			throw new IllegalStateException("sample_y_translation_target is not set");
-		addLink("/entry1:NXentry/tomo_entry:NXsubentry/sample:NXsample/y_translation", null, getSample_y_translation_target());
+		addLink("/entry1:NXentry/tomo_entry:NXsubentry/sample:NXsample/y_translation", getSample_y_translation_target());
 		
 		// sample/z_translation
 		if (this.getSample_z_translation_target() == null)
 			throw new IllegalStateException("sample_z_translation_target is not set");
-		addLink("/entry1:NXentry/tomo_entry:NXsubentry/sample:NXsample/z_translation", null, getSample_z_translation_target());
+		addLink("/entry1:NXentry/tomo_entry:NXsubentry/sample:NXsample/z_translation", getSample_z_translation_target());
 		
 		// title
 		if (this.getTitle_target() == null)
 			throw new IllegalStateException("title_target is not set");
-		addLink("/entry1:NXentry/tomo_entry:NXsubentry/title", null, getTitle_target());
+		addLink("/entry1:NXentry/tomo_entry:NXsubentry/title", getTitle_target());
 		
 	}
 	

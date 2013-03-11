@@ -369,12 +369,13 @@ public class ScanToNexusTest {
 		
 		NXLinkCreator nxLinkCreator = new NXLinkCreator();
 		//create 3 links
-		//add link to simpleScannable1 in current file
-		nxLinkCreator.addLink("/entry2:NXentry/test", null, "entry1/default/simpleScannable1");
+		nxLinkCreator.addLink("/entry2:NXentry/test", "/entry1:NXentry/default:NXdata/simpleScannable1:NXdata");
 		//add link to simpleScannable1 in 1.nxs via nxfile 
-		nxLinkCreator.addLink("/entry2:NXentry/test2", (new File(testScratchDirectoryName + "/Data/1.nxs")).getAbsolutePath(), "entry1/SimpleDetector1/simpleScannable1");
+		nxLinkCreator.addLink("/entry2:NXentry/test2", 
+				"nxfile://" + (new File(testScratchDirectoryName + "/Data/1.nxs")).getAbsolutePath() + "#entry1/SimpleDetector1/simpleScannable1");
 		//add link to entry2/test2 in this file - which itself points to simpleScannable1 in 1.nxs using currentfile  
-		nxLinkCreator.addLink("/entry2:NXentry/test3", "", "entry2/test2");
+		nxLinkCreator.addLink("/entry2:NXentry/test3", "#entry2/test2");
+
 		
 
 		Scannable simpleScannable1 = TestHelpers.createTestScannable("SimpleScannable1", 0., new String[] {},

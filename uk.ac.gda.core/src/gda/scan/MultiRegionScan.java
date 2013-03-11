@@ -92,6 +92,12 @@ public class MultiRegionScan extends ScanBase {
 		// add to an overall list
 		for (Scannable scannable : toAdd.allScannables) {
 			if (!allScannables.contains(scannable)) {
+				for(Scannable s : allScannables){
+					String name2 = s.getName();
+					if(name2.equals(scannable.getName())){
+						throw new IllegalArgumentException("No two scannables can have the same name in a scan " + name2);
+					}
+				}
 				allScannables.add(scannable);
 			}
 		}
@@ -99,6 +105,11 @@ public class MultiRegionScan extends ScanBase {
 		// and in the same way build a list of all detectors
 		for (Detector detector : toAdd.allDetectors) {
 			if (!allDetectors.contains(detector)) {
+				for(Detector s : allDetectors){
+					if(s.getName().equals(detector.getName())){
+						throw new IllegalArgumentException("No two detectors can have the same name in a scan");
+					}
+				}
 				allDetectors.add(detector);
 			}
 		}
@@ -150,12 +161,14 @@ public class MultiRegionScan extends ScanBase {
 				// datahandler
 				// or return the baton whne it finishes.
 				scan.setIsChild(true);
+				scan.setParent(this);
 
 				// share the dataHandler with this scan
 				scan.setScanDataPointPipeline(scanDataPointPipeline);
 
 				// run the scan
 				((ScanBase)scan).currentPointCount = pointCount;
+				((ScanBase)scan).TotalNumberOfPoints = TotalNumberOfPoints;
 				((ScanBase)scan).name = name;
 				scan.doCollection();
 				pointCount = ((ScanBase)scan).currentPointCount;

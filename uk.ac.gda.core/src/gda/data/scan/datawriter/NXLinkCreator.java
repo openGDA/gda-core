@@ -18,39 +18,40 @@
 
 package gda.data.scan.datawriter;
 
-import java.util.Hashtable;
+import gda.data.nexus.extractor.NexusExtractor;
+
 import java.util.List;
 import java.util.Vector;
 
+import org.nexusformat.NXlink;
+import org.nexusformat.NexusException;
 import org.nexusformat.NexusFile;
 
-
 /**
- * Class used to create soft links to datasets in a nexus file. Links can be to datasets within the same file or in
- * external files nxc= new NXLinkCreator() nxc.addLink(...) nxc.addLink(...) ... nxc.makelinks(filename)
+ * Class used to create addition links in a nexus file.
+ * Links can be to datasets within the same file or in external files
  */
 public class NXLinkCreator {
 
 	List<SubEntryLink> links = new Vector<SubEntryLink>();
-
 	public NXLinkCreator() {
 	}
 
-	/**
-	 * @param filename
-	 *            - path to file in which to create the links
-	 * @throws Exception
-	 */
 	public void makelinks(String filename) throws Exception {
 		NexusFile file = new NexusFile(filename,NexusFile.NXACC_RDWR);
 		try {
 			for( SubEntryLink link : links){
-				String filepath = link.filepath;
-				if( filepath != null && !filepath.isEmpty()){
-					makelink(file, link.key,  filepath, link.target);
-				} else { 
-					makelink(file, link.key, filename, link.target);
-				} 
+				String value = link.value;
+				String key = link.key;
+				if( value.startsWith("nxfile")){
+					makelink(file, key, null, value);
+					
+				} else if( value.startsWith("#")){
+					makelink(file, key, null, "nxfile://"+filename+value);
+				} else {
+					NXlink nxlink = getLink(file,value);
+					makelink(file, key, nxlink, null);
+				}
 				
 			}
 			
@@ -66,23 +67,19 @@ public class NXLinkCreator {
 			}
 		}
 	}
-
-	private void makelink(NexusFile file, String key, String filepath, String target) throws Exception {
-		String[] keyParts = key.split("/", 2);
-		if (keyParts[0].isEmpty()) {
-			if (keyParts.length > 1) {
-				makelink(file, keyParts[1], filepath, target);
+	private void makelink(NexusFile file, String path, NXlink link, String url) throws Exception {
+		String [] parts = path.split("/",2);
+		if( parts[0].isEmpty()){
+			if( parts.length>1){
+				makelink(file,parts[1], link, url);
 			}
 			return;
 		}
-		if (keyParts.length > 1) {
-			String[] subParts = keyParts[0].split(":");
+		if( parts.length > 1){
+			String []subParts = parts[0].split(":");
 			String name = subParts[0];
 			String nxClass = subParts[1];
-			Hashtable groupdir = file.groupdir();
-			boolean folderKey = groupdir.containsKey(name);
-			Object folderName = groupdir.get(name);
-			if (!(folderKey && folderName.equals(nxClass))) {
+			if( !(file.groupdir().containsKey(name) && file.groupdir().get(name).equals(nxClass))){
 				try {
 					// workaround because opengroup(x) sometimes fails after a call to makegroup(x)
 					file.opengroup(name, nxClass);
@@ -92,46 +89,77 @@ public class NXLinkCreator {
 				}
 			}
 			file.opengroup(name, nxClass);
-			try {
-				makelink(file, keyParts[1], filepath, target);
+			try{
+				makelink(file, parts[1], link, url);
 			} finally {
 				file.closegroup();
 			}
 			return;
 		}
-		if (target.startsWith("/")) {
-			target = target.substring(1, target.length());
+		if( link != null)
+			file.makenamedlink(parts[0], link);
+		if( url != null)
+			file.linkexternaldataset(parts[0],url);
+	}
+
+
+	private NXlink getLink(NexusFile file, String path) throws NexusException, Exception {
+		String [] parts = path.split("/",2);
+		if( parts[0].isEmpty()){
+			if( parts.length>1){
+				return getLink(file,parts[1]);
+			}
+			return null;
 		}
-		file.linkexternaldataset(keyParts[0], "nxfile://" + filepath + "#" + target);
-		file.flush();
+		String []subParts = parts[0].split(":");
+		String name = subParts[0];
+		String nxClass = subParts[1];
+		if( parts.length > 1){
+			if( !(file.groupdir().containsKey(name) && file.groupdir().get(name).equals(nxClass))){
+				throw new Exception("Item not found " + name + ":" + nxClass);
+			}
+			file.opengroup(name, nxClass);
+			try{
+				return getLink(file, parts[1]);
+			} finally {
+				file.closegroup();
+			}
+		}
+		NXlink link=null;
+		if( nxClass.equals(NexusExtractor.NXDataClassName))
+		{
+			try{
+				file.opendata(name);
+			} catch( NexusException ne){
+				throw new Exception("Error calling opendata for "+name, ne);
+			}
+			link = file.getdataID();
+			file.closedata();
+		} 
+		return link;
 	}
 
 	/**
-	 * Adds a dataset soft link specification to create an item in the current file
-	 * 
-	 * @param key
-	 *            - path to item to be created e.g. /entry2/item1
-	 * @param filepath
-	 *            - absolute filepath to the file holding the target. Leave null or empty for current file
-	 * @param target
-	 *            - path to actual dataset to be linked e.g. entry1/default/detector1. Notice the lack of initial slash
+	 * Define the key to be generated  and its target
+	 * Formats for value:
+	 * "/entry1:NXentry/default:NXdata/simpleScannable1:NXdata" - creates a hard link to a location in current file
+	 * "nxfile://<filePath>#entry1/SimpleDetector1/simpleScannable1" - create soft link to a location in other file
+	 * "#entry2/test2" - create soft link to location in current file - NB h5py module in Python cannot read this
 	 */
-	public void addLink(String key, String filepath, String target) {
-		links.add(new SubEntryLink(key, filepath, target));
+	public void addLink(String key, String value) {
+		links.add( new SubEntryLink(key, value));
 	}
 
-	class SubEntryLink {
+	class SubEntryLink{
 		public String key;
-		public String filepath;
-		public String target;
-
-		public SubEntryLink(String key, String filepath, String target) {
+		public String value;
+		public SubEntryLink(String key, String value) {
 			super();
 			this.key = key;
-			this.filepath = filepath;
-			this.target = target;
+			this.value = value;
 		}
-
+		
 	}
 
 }
+

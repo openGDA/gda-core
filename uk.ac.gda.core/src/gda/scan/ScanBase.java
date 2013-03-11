@@ -173,7 +173,7 @@ public abstract class ScanBase implements Scan {
 	private Long _scanNumber=null;
 	
 	protected boolean callCollectDataOnDetectors = true;
-
+	
 	@Override
 	public Long getScanNumber() {
 		return _scanNumber;
@@ -1028,11 +1028,12 @@ public abstract class ScanBase implements Scan {
 			} catch (ScanInterruptedException e) {
 				throw e;
 			} catch (Exception e) {
-				
+				logger.error(createMessage(e) + " during scan: calling atCommandFailure hooks and then interrupting scan.",e);
 				report("====================================================================================================");
 				report(createMessage(e) + " during scan");
 				
 				report("Calling stop() on Scannables and Detectors used in scan, followed by atCommandFailure().");
+				cancelReadoutAndPublishCompletion();
 				callAtCommandFailureHooks();
 				for (Scannable scn : allScannables) {
 					logger.info("Stopping " + scn.getName());
@@ -1057,7 +1058,7 @@ public abstract class ScanBase implements Scan {
 			} finally {
 				try {
 					// TODO: endScan now duplicates some of the exception handling performed above. 
-					// I do not understand the paths that result inScanBase.interupted being set well enougth to
+					// I do not understand the paths that result inScanBase.interupted being set well enough to
 					// change the logic here. RobW
 					endScan();
 				} catch (DeviceException e) {
@@ -1066,7 +1067,7 @@ public abstract class ScanBase implements Scan {
 						lineScanNeedsDoing = true;
 						currentPointCount = pointNumberAtLineBeginning;
 					} else {
-						logger.error(createMessage(e) + " Calling atCommandFailure hooks.");
+						logger.error(createMessage(e) + " Calling atCommandFailure hooks.",e);
 						callAtCommandFailureHooks();
 						throw e;
 					}
