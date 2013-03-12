@@ -21,6 +21,7 @@ package gda.device.detector.areadetector.v17.impl;
 import gda.device.detector.areadetector.AreaDetectorROI;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDROI;
+import gda.observable.Observable;
 
 public class NDROISimulator implements NDROI {
 
@@ -385,56 +386,71 @@ public class NDROISimulator implements NDROI {
 
 	@Override
 	public boolean isEnableX() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean isEnableY() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean isEnableZ() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public void enableX() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void disableX() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void enableY() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void disableY() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void enableZ() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void disableZ() {
-		// TODO Auto-generated method stub
-		
+	}
+
+	@Override
+	public Observable<Integer> createMinXObservable() throws Exception {
+		return null;
+	}
+
+	@Override
+	public Observable<Integer> createMinYObservable() throws Exception {
+		return null;
+	}
+
+	@Override
+	public Observable<Integer> createSizeXObservable() throws Exception {
+		return null;
+	}
+
+	@Override
+	public Observable<Integer> createSizeYObservable() throws Exception {
+		return null;
+	}
+
+	@Override
+	public Observable<String> createEnableXObservable() throws Exception {
+		return null;
+	}
+
+	@Override
+	public Observable<String> createEnableYObservable() throws Exception {
+		return null;
 	}
 
 }
