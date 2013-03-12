@@ -22,12 +22,12 @@ import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.FfmpegStream;
 import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.areadetector.v17.NDProcess;
+import gda.device.detector.areadetector.v17.NDROI;
 import gda.device.detector.areadetector.v17.NDStats;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 
 import uk.ac.gda.epics.adviewer.views.ADViewerCompositeFactory;
-import uk.ac.gda.epics.adviewer.views.MJPegViewInitialiser;
 
 public interface ADController {
 
@@ -103,8 +103,8 @@ public interface ADController {
 	//composite factory to make the GUI component above the MJPeg composite
 	public abstract ADViewerCompositeFactory getMjpegViewCompositeFactory();
 
-	//object that can add additional behaviour to the view
-	public abstract MJPegViewInitialiser getMjpegViewInitialiser();
+	//NDROI for the ROI plugin that controls the ImageArray
+	public abstract NDROI getImageNDROI();
 
 	
 }

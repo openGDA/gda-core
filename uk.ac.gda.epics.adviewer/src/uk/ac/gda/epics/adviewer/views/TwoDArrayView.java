@@ -56,7 +56,11 @@ public class TwoDArrayView extends ViewPart implements InitializingBean{
 
 		parent.setLayout(new FillLayout());
 		twoDArray = new TwoDArray(this, parent, SWT.NONE);
-		twoDArray.setADController(config);
+		try {
+			twoDArray.setADController(config);
+		} catch (Exception e) {
+			logger.error("Error configuring twoDArray composite", e);
+		}
 		setTitleImage(config.getTwoDarrayViewImageDescriptor().createImage());
 		setPartName(config.getDetectorName() + " Array View" );
 

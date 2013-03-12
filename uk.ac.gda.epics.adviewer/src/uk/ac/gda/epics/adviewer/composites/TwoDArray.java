@@ -19,15 +19,20 @@
 package uk.ac.gda.epics.adviewer.composites;
 
 import gda.device.detector.areadetector.v17.NDPluginBase;
+import gda.device.detector.areadetector.v17.NDROI;
 import gda.observable.Observable;
 import gda.observable.Observer;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.List;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawb.common.ui.plot.axis.IAxis;
+import org.dawb.common.ui.plot.region.IRegion;
+import org.dawb.common.ui.plot.region.RegionUtils;
 import org.dawb.common.ui.plot.trace.IImageTrace;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -37,6 +42,7 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FillLayout;
@@ -58,6 +64,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.FloatDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.LongDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ShortDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.function.Histogram;
 import uk.ac.gda.epics.adviewer.ADController;
 import uk.ac.gda.epics.adviewer.ImageData;
 
@@ -76,6 +83,10 @@ public class TwoDArray extends Composite {
 	private Button arrayMonitoringBtn;
 	private Label arrayMonitoringLbl;
 
+	protected boolean autoScale;
+
+	private String mpegROIRegionName;
+
 	public TwoDArray(IViewPart parentViewPart, Composite parent, int style) {
 		super(parent, style);
 
@@ -86,12 +97,12 @@ public class TwoDArray extends Composite {
 		layout.center = true;
 		layout.pack = false;
 		left.setLayout(new GridLayout(1, false));
-		
+
 		statusComposite = new IOCStatus(left, SWT.NONE);
 		GridData gd_statusComposite = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_statusComposite.widthHint = 154;
 		statusComposite.setLayoutData(gd_statusComposite);
-		
+
 		minCallbackTimeComposite = new MinCallbackTimeComposite(left, SWT.NONE);
 		Group stateGroup = new Group(left, SWT.NONE);
 		GridData gd_stateGroup = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
@@ -107,7 +118,24 @@ public class TwoDArray extends Composite {
 		GridData gd_arrayMonitoringBtn = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);
 		gd_arrayMonitoringBtn.widthHint = 48;
 		arrayMonitoringBtn.setLayoutData(gd_arrayMonitoringBtn);
+		new Label(stateGroup, SWT.NONE);
 
+		btnAutoscale = new Button(left, SWT.CHECK);
+		btnAutoscale.setText("Auto Colour Range");
+		btnAutoscale.addSelectionListener(new SelectionAdapter() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				super.widgetSelected(e);
+				autoScale = btnAutoscale.getSelection();
+			}
+			
+		});
+		autoScale = true;
+		btnAutoscale.setSelection(autoScale);
+
+		twoDArrayROI = new TwoDArrayROI(left, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(twoDArrayROI);
 		Composite right = new Composite(this, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(right);
 		right.setLayout(new FillLayout());
@@ -120,7 +148,7 @@ public class TwoDArray extends Composite {
 		}
 		plottingSystem.createPlotPart(right, "", parentViewPart.getViewSite().getActionBars(), PlotType.IMAGE,
 				parentViewPart);
-		for( IAxis axis : plottingSystem.getAxes()){
+		for (IAxis axis : plottingSystem.getAxes()) {
 			axis.setTitle("");
 		}
 		addDisposeListener(new DisposeListener() {
@@ -140,9 +168,9 @@ public class TwoDArray extends Composite {
 		});
 	}
 
-	public void setADController(ADController config){
+	public void setADController(ADController config) throws Exception {
 		this.config = config;
-		
+
 		NDPluginBase pluginBase = config.getImageNDArray().getPluginBase();
 		minCallbackTimeComposite.setPluginBase(pluginBase);
 		try {
@@ -151,6 +179,14 @@ public class TwoDArray extends Composite {
 		} catch (Exception e2) {
 			logger.error("Error setting min callback time", e2);
 		}
+
+		String procNdArrayPort_RBV = config.getLiveViewNDProc().getPluginBase().getNDArrayPort_RBV();
+		String ndArrayPort_RBV2 = pluginBase.getNDArrayPort_RBV();
+		if (ndArrayPort_RBV2 == null || !ndArrayPort_RBV2.equals(procNdArrayPort_RBV))
+			pluginBase.setNDArrayPort(procNdArrayPort_RBV);
+		if (!pluginBase.isCallbacksEnabled_RBV())
+			pluginBase.enableCallbacks();		
+		
 		
 		arrayMonitoringBtn.addSelectionListener(new SelectionListener() {
 
@@ -183,8 +219,46 @@ public class TwoDArray extends Composite {
 			logger.error("Error monitoring connection state", e1);
 		}
 
-		
+		NDROI imageNDROI = config.getImageNDROI();
+		twoDArrayROI.setVisible(imageNDROI != null);
+		if (imageNDROI != null) {
+			try {
+				twoDArrayROI.setNDRoi(imageNDROI, getPlottingSystem());
+
+				//setup Port for NDROI to match that of the Proc plugin - this should be the camera.
+				String procNdArrayPort1_RBV = config.getLiveViewNDProc().getPluginBase().getNDArrayPort_RBV();
+				NDPluginBase imageNDROIPluginBase = imageNDROI.getPluginBase();
+				String ndArrayPort1_RBV2 = imageNDROIPluginBase.getNDArrayPort_RBV();
+				if (ndArrayPort1_RBV2 == null || !ndArrayPort1_RBV2.equals(procNdArrayPort1_RBV))
+					imageNDROIPluginBase.setNDArrayPort(procNdArrayPort_RBV);				
+				config.getImageNDArray().getPluginBase().setNDArrayPort(imageNDROIPluginBase.getPortName_RBV());
+				
+				imageNDROIPluginBase.enableCallbacks();
+				
+				twoDArrayROI.addMonitoringbtnSelectionListener(new SelectionAdapter() {
+
+					@Override
+					public void widgetSelected(SelectionEvent e) {
+						// TODO Auto-generated method stub
+						super.widgetSelected(e);
+						if(!arrayMonitoring){
+							try {
+								start();
+							} catch (Exception e1) {
+								logger.error("Error starting", e1);
+							}
+						}
+					}
+					
+				});
+				
+			} catch (Exception e1) {
+				logger.error("Error configuring the ROI", e1);
+			}
+		}
+
 	}
+
 	public void stop() throws Exception {
 		config.getImageNDArray().getPluginBase().disableCallbacks();
 		if (arrayArrayCounterObservable != null && arrayArrayCounterObserver != null) {
@@ -204,6 +278,8 @@ public class TwoDArray extends Composite {
 
 	private boolean viewIsVisible;
 	private Integer arrayCounter;
+	private TwoDArrayROI twoDArrayROI;
+	private Button btnAutoscale;
 
 	public void start() throws Exception {
 		config.getImageNDArray().getPluginBase().enableCallbacks();
@@ -214,25 +290,47 @@ public class TwoDArray extends Composite {
 			arrayArrayCounterObserver = new Observer<Integer>() {
 
 				private IImageTrace trace;
+
 				private String getArrayName() {
 					return arrayCounter.toString();
 				}
-				
+
 				@Override
 				public void update(Observable<Integer> source, Integer arg) {
 					if (isDisposed() || !viewIsVisible)
+						return;
+					if (arg == null)
 						return;
 					TwoDArray.this.arrayCounter = arg;
 					if (updateArrayJob == null) {
 						updateArrayJob = new Job("Update array") {
 
 							AbstractDataset ads = null;
+							Boolean setMinMax;
+							Integer min = null;
+							Integer max = null;
+							
 							private Runnable updateUIRunnable;
 							volatile boolean runnableScheduled = false;
 
 							@Override
 							public boolean belongsTo(Object family) {
 								return super.belongsTo(family);
+							}
+
+							private int getPosToIncludeFractionOfPopulation(AbstractDataset yData,
+									Double fractionOfPopulationToInclude) {
+								Double sum = (Double) yData.sum();
+								double popIncluded = 0;
+								int j = 0;
+								double popRequired = sum * fractionOfPopulationToInclude;
+								int size = yData.getSize();
+								while (popIncluded < popRequired && j < size) {
+									popIncluded += yData.getDouble(j);
+									if (popIncluded < popRequired)
+										j++;
+								}
+								return Math.min(j, size - 1);
 							}
 
 							@Override
@@ -260,6 +358,34 @@ public class TwoDArray extends Composite {
 													+ object.getClass().getName());
 										}
 										ads.setName(getArrayName());
+										
+										setMinMax = autoScale;
+										if( min == null || setMinMax){
+											min = ads.min().intValue();
+										}
+										if( max == null || setMinMax){
+											max = ads.max().intValue();
+										}
+										if (setMinMax) {
+											int num_bins = 100;
+											Histogram hist = new Histogram(num_bins, min, max, true);
+											List<AbstractDataset> histogram_values = hist.value(ads);
+											DoubleDataset histogramX = (DoubleDataset) histogram_values.get(1)
+													.getSlice(new int[] { 0 }, new int[] { num_bins }, new int[] { 1 });
+											histogramX.setName("Intensity");
+											AbstractDataset histogramY = histogram_values.get(0);
+											int j = getPosToIncludeFractionOfPopulation(histogramY, .95);
+											j = Math.min(j+1, histogramY.getSize() - 1);
+											if (j >= 0) {
+												max = (int) histogramX.getDouble(j);
+											}
+											j = getPosToIncludeFractionOfPopulation(histogramY, .05);
+											j = Math.min(j-1, histogramY.getSize() - 1);
+											if (j >= 0) {
+												min = (int) histogramX.getDouble(j);
+											}
+										} 
+
 										if (updateUIRunnable == null) {
 											updateUIRunnable = new Runnable() {
 
@@ -267,24 +393,26 @@ public class TwoDArray extends Composite {
 												public void run() {
 													runnableScheduled = false;
 													AbstractDataset dataToPlot = getDataToPlot();
-													if (trace == null) {
-														trace = (IImageTrace) plottingSystem.updatePlot2D(
-																dataToPlot, null, null);
-														trace.setRescaleHistogram(false);
-													} else {
-														String title = dataToPlot.getName();
-														trace.setName(title);
-														plottingSystem.setTitle(title);
-														plottingSystem.updatePlot2D(dataToPlot, null, null);
+													if (trace == null || !Arrays.equals(trace.getData().getShape(), dataToPlot.getShape())) {
+														trace = (IImageTrace) plottingSystem.updatePlot2D(dataToPlot,
+																null, null);
 													}
+													String title = dataToPlot.getName();
+													trace.setName(title);
+
+													trace.setMin(getMin());
+													trace.setMax(getMax());
+													trace.setRescaleHistogram(false);
+													plottingSystem.setTitle(title);
+													plottingSystem.updatePlot2D(dataToPlot, null, null);
 												}
 
 											};
 										}
 										if (!runnableScheduled) {
 											if (!isDisposed()) {
-												getDisplay().asyncExec(updateUIRunnable);
 												runnableScheduled = true;
+												getDisplay().asyncExec(updateUIRunnable);
 											}
 										}
 									}
@@ -295,9 +423,19 @@ public class TwoDArray extends Composite {
 								return Status.OK_STATUS;
 							}
 
-
 							private AbstractDataset getDataToPlot() {
 								return ads;
+							}
+							
+							private Integer getMin(){
+								return min;
+							}
+							private Integer getMax(){
+								return max;
+							}
+							
+							private boolean isSetMinMax(){
+								return setMinMax;
 							}
 						};
 						updateArrayJob.setUser(false);
@@ -339,7 +477,7 @@ public class TwoDArray extends Composite {
 
 	public void setViewIsVisible(boolean b) {
 		this.viewIsVisible = b;
-		if(viewIsVisible)
+		if (viewIsVisible)
 			arrayArrayCounterObserver.update(null, arrayCounter);
 	}
 

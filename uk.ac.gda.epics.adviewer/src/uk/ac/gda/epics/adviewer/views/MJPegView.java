@@ -58,12 +58,11 @@ public class MJPegView extends ViewPart implements InitializingBean {
 
 		Composite composite = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.fillDefaults().applyTo(composite);
-
+		Composite composite_1=null;
 		ADViewerCompositeFactory mjpegViewCompositeFactory = config.getMjpegViewCompositeFactory();
 		if( mjpegViewCompositeFactory != null){
-			Composite composite_1 = new Composite(composite, SWT.NONE);
+			composite_1 = new Composite(composite, SWT.NONE);
 			composite_1.setLayout(new RowLayout(SWT.HORIZONTAL));
-			config.getMjpegViewCompositeFactory().createComposite(config, composite_1, SWT.NONE, getSite());
 		}
 
 		Composite composite_2 = new Composite(composite, SWT.NONE);
@@ -72,10 +71,12 @@ public class MJPegView extends ViewPart implements InitializingBean {
 		mJPeg = new MJPeg(composite_2, SWT.NONE);
 		mJPeg.setADController(config);
 
-		MJPegViewInitialiser mjpegViewInitialiser = config.getMjpegViewInitialiser();
-		if( mjpegViewInitialiser != null){
-			config.getMjpegViewInitialiser().init(config, this, mJPeg);
+		
+		if( composite_1 != null){
+			config.getMjpegViewCompositeFactory().createComposite(config, composite_1, this, mJPeg);
 		}
+		
+		
 		setTitleImage(config.getLiveViewImageDescriptor().createImage());
 		setPartName(config.getDetectorName() + " Live View");
 
