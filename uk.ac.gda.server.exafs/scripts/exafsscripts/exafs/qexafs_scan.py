@@ -72,16 +72,16 @@ class QexafsScan(Scan):
                 repetitionNumber+= 1
                 self.detectorPreparer.prepare(detectorBean, outputBean, xmlFolderName)
                 self.samplePreparer.prepare(sampleBean)
-                self.outputPreparer.prepare(outputBean)
+                initial_energy = scanBean.getInitialEnergy()
+                final_energy = scanBean.getFinalEnergy()
+                step_size = scanBean.getStepSize()
+                self.outputPreparer.prepare(outputBean, initial_energy, final_energy)
                 beanGroup.setScanNumber(repetitionNumber)
                 XasAsciiDataWriter.setBeanGroup(beanGroup)
                 if len(outputBean.getCheckedSignalList()) > 0:
                     print "Signal parameters not available with QEXAFS"
                 if self.energy_scannable == None:
                     raise "No object for controlling energy during QEXAFS found! Expected qexafs_energy (or scannable1 for testing)"
-                initial_energy = scanBean.getInitialEnergy()
-                final_energy = scanBean.getFinalEnergy()
-                step_size = scanBean.getStepSize()
                 import math
                 numberPoints = int(math.ceil((final_energy-initial_energy)/step_size))
                 self._runScript(outputBean.getBeforeScriptName())

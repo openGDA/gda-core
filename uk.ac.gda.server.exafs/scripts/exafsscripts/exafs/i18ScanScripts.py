@@ -52,10 +52,9 @@ class I18XasScan(XasScan):
             self.trajBeamMonitor.setActive(False)
         
         
-    def _doLooping(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller):
+    def _doLooping(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller, scanBean, outputBean):
         self.configureMonitors(beanGroup)
-        self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
-        
+        self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller, scanBean, outputBean)
         
     def _beforeEachRepetition(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller, repNum):
         times = []
