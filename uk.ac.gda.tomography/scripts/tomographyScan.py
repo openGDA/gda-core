@@ -203,7 +203,9 @@ def reportJythonNamespaceMapping():
    
     for key, val in objectOfInterest.iteritems():
         print key + ' = ' + str(val)
-    print "\n These mappings can be changed by editing a file named jythonNamespaceMapping_live, \n located in GDA Client under Scripts:Config."
+    msg = "\n These mappings can be changed by editing a file named jythonNamespaceMapping_live, "
+    msg += "\n located in GDA Client under Scripts: Config (this can be done by beamline staff)."
+    print msg
 
 class   tomoScan_positions(ScanPositionProvider):
     def __init__(self, start, stop, step, darkFieldInterval, imagesPerDark, flatFieldInterval, imagesPerFlat,
