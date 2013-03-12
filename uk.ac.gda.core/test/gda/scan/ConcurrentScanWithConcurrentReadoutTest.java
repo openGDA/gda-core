@@ -178,7 +178,7 @@ public class ConcurrentScanWithConcurrentReadoutTest extends ConcurrentScanTest 
 // lev4, 0., 1., 1., lev5a, 1., lev5b, 2., lev6, 3., lev6b, detlev9a, 2., detlev9b, detlev5, 2.5
 	@Test
 	public void testBigScanWholeMalarchyDetlev5Path() throws InterruptedException, Exception {
-		testScratchDirectoryName = TestHelpers.setUpTest(this.getClass(), "testBigScanWholeMalarchy", true);
+		testScratchDirectoryName = TestHelpers.setUpTest(this.getClass(), "testBigScanWholeMalarchyDetlev5Path", true);
 
 		InOrder inOrder = runBigScan();
 		
@@ -239,7 +239,7 @@ public class ConcurrentScanWithConcurrentReadoutTest extends ConcurrentScanTest 
 	}
 	@Test
 	public void testBigScanWholeMalarchyDetlev9bPath() throws InterruptedException, Exception {
-		testScratchDirectoryName = TestHelpers.setUpTest(this.getClass(), "testBigScanWholeMalarchy", true);
+		testScratchDirectoryName = TestHelpers.setUpTest(this.getClass(), "testBigScanWholeMalarchyDetlev9bPath", true);
 		
 		InOrder inOrder = runBigScan();
 		

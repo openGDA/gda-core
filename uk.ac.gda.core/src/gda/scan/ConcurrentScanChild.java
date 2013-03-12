@@ -87,33 +87,16 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 		return readoutConcurrently;
 	}
 	
-	@Override
-	public IConcurrentScanChild getParent() {
-		return (IConcurrentScanChild) parent;
-	}
-
-	/**
-	 * @param parent
-	 */
-	@Override
-	public void setParent(IConcurrentScanChild parent) {
-		this.parent = parent;
-	}
-
+	
 	@Override
 	public IConcurrentScanChild getChild() {
-		return (IConcurrentScanChild) super.child;
+		return (IConcurrentScanChild) super.getChild();
 	}
 
-	/**
-	 * @param child
-	 */
 	@Override
 	public void setChild(IConcurrentScanChild child) {
-		this.child = child;
-	}
-	
-	
+		super.setChild(child);
+	}	
 	/**
 	 * @return Returns the scannableLevels.
 	 */
