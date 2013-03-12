@@ -31,8 +31,6 @@ import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawb.common.ui.plot.axis.IAxis;
-import org.dawb.common.ui.plot.region.IRegion;
-import org.dawb.common.ui.plot.region.RegionUtils;
 import org.dawb.common.ui.plot.trace.IImageTrace;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -85,7 +83,6 @@ public class TwoDArray extends Composite {
 
 	protected boolean autoScale;
 
-	private String mpegROIRegionName;
 
 	public TwoDArray(IViewPart parentViewPart, Composite parent, int style) {
 		super(parent, style);
@@ -109,7 +106,7 @@ public class TwoDArray extends Composite {
 		gd_stateGroup.widthHint = 150;
 		stateGroup.setLayoutData(gd_stateGroup);
 		stateGroup.setText("Array View");
-		stateGroup.setLayout(new GridLayout(3, false));
+		stateGroup.setLayout(new GridLayout(2, false));
 		arrayMonitoringLbl = new Label(stateGroup, SWT.CENTER);
 		GridData gd_arrayMonitoringLbl = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_arrayMonitoringLbl.widthHint = 81;
@@ -118,7 +115,7 @@ public class TwoDArray extends Composite {
 		GridData gd_arrayMonitoringBtn = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);
 		gd_arrayMonitoringBtn.widthHint = 48;
 		arrayMonitoringBtn.setLayoutData(gd_arrayMonitoringBtn);
-		new Label(stateGroup, SWT.NONE);
+
 
 		btnAutoscale = new Button(left, SWT.CHECK);
 		btnAutoscale.setText("Auto Colour Range");
@@ -129,12 +126,13 @@ public class TwoDArray extends Composite {
 				super.widgetSelected(e);
 				autoScale = btnAutoscale.getSelection();
 			}
-			
+
 		});
-		autoScale = true;
 		btnAutoscale.setSelection(autoScale);
+		autoScale = true;
 
 		twoDArrayROI = new TwoDArrayROI(left, SWT.NONE);
+		twoDArrayROI.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(twoDArrayROI);
 		Composite right = new Composite(this, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(right);
@@ -185,9 +183,8 @@ public class TwoDArray extends Composite {
 		if (ndArrayPort_RBV2 == null || !ndArrayPort_RBV2.equals(procNdArrayPort_RBV))
 			pluginBase.setNDArrayPort(procNdArrayPort_RBV);
 		if (!pluginBase.isCallbacksEnabled_RBV())
-			pluginBase.enableCallbacks();		
-		
-		
+			pluginBase.enableCallbacks();
+
 		arrayMonitoringBtn.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -225,23 +222,22 @@ public class TwoDArray extends Composite {
 			try {
 				twoDArrayROI.setNDRoi(imageNDROI, getPlottingSystem());
 
-				//setup Port for NDROI to match that of the Proc plugin - this should be the camera.
+				// setup Port for NDROI to match that of the Proc plugin - this should be the camera.
 				String procNdArrayPort1_RBV = config.getLiveViewNDProc().getPluginBase().getNDArrayPort_RBV();
 				NDPluginBase imageNDROIPluginBase = imageNDROI.getPluginBase();
 				String ndArrayPort1_RBV2 = imageNDROIPluginBase.getNDArrayPort_RBV();
 				if (ndArrayPort1_RBV2 == null || !ndArrayPort1_RBV2.equals(procNdArrayPort1_RBV))
-					imageNDROIPluginBase.setNDArrayPort(procNdArrayPort_RBV);				
+					imageNDROIPluginBase.setNDArrayPort(procNdArrayPort_RBV);
 				config.getImageNDArray().getPluginBase().setNDArrayPort(imageNDROIPluginBase.getPortName_RBV());
-				
+
 				imageNDROIPluginBase.enableCallbacks();
-				
+
 				twoDArrayROI.addMonitoringbtnSelectionListener(new SelectionAdapter() {
 
 					@Override
 					public void widgetSelected(SelectionEvent e) {
-						// TODO Auto-generated method stub
 						super.widgetSelected(e);
-						if(!arrayMonitoring){
+						if (!arrayMonitoring) {
 							try {
 								start();
 							} catch (Exception e1) {
@@ -249,9 +245,9 @@ public class TwoDArray extends Composite {
 							}
 						}
 					}
-					
+
 				});
-				
+
 			} catch (Exception e1) {
 				logger.error("Error configuring the ROI", e1);
 			}
@@ -309,7 +305,7 @@ public class TwoDArray extends Composite {
 							Boolean setMinMax;
 							Integer min = null;
 							Integer max = null;
-							
+
 							private Runnable updateUIRunnable;
 							volatile boolean runnableScheduled = false;
 
@@ -358,12 +354,12 @@ public class TwoDArray extends Composite {
 													+ object.getClass().getName());
 										}
 										ads.setName(getArrayName());
-										
+
 										setMinMax = autoScale;
-										if( min == null || setMinMax){
+										if (min == null || setMinMax) {
 											min = ads.min().intValue();
 										}
-										if( max == null || setMinMax){
+										if (max == null || setMinMax) {
 											max = ads.max().intValue();
 										}
 										if (setMinMax) {
@@ -375,16 +371,16 @@ public class TwoDArray extends Composite {
 											histogramX.setName("Intensity");
 											AbstractDataset histogramY = histogram_values.get(0);
 											int j = getPosToIncludeFractionOfPopulation(histogramY, .95);
-											j = Math.min(j+1, histogramY.getSize() - 1);
+											j = Math.min(j + 1, histogramY.getSize() - 1);
 											if (j >= 0) {
 												max = (int) histogramX.getDouble(j);
 											}
 											j = getPosToIncludeFractionOfPopulation(histogramY, .05);
-											j = Math.min(j-1, histogramY.getSize() - 1);
+											j = Math.min(j - 1, histogramY.getSize() - 1);
 											if (j >= 0) {
 												min = (int) histogramX.getDouble(j);
 											}
-										} 
+										}
 
 										if (updateUIRunnable == null) {
 											updateUIRunnable = new Runnable() {
@@ -393,7 +389,9 @@ public class TwoDArray extends Composite {
 												public void run() {
 													runnableScheduled = false;
 													AbstractDataset dataToPlot = getDataToPlot();
-													if (trace == null || !Arrays.equals(trace.getData().getShape(), dataToPlot.getShape())) {
+													if (trace == null
+															|| !Arrays.equals(trace.getData().getShape(),
+																	dataToPlot.getShape())) {
 														trace = (IImageTrace) plottingSystem.updatePlot2D(dataToPlot,
 																null, null);
 													}
@@ -426,17 +424,15 @@ public class TwoDArray extends Composite {
 							private AbstractDataset getDataToPlot() {
 								return ads;
 							}
-							
-							private Integer getMin(){
+
+							private Integer getMin() {
 								return min;
 							}
-							private Integer getMax(){
+
+							private Integer getMax() {
 								return max;
 							}
-							
-							private boolean isSetMinMax(){
-								return setMinMax;
-							}
+
 						};
 						updateArrayJob.setUser(false);
 						updateArrayJob.setPriority(Job.SHORT);

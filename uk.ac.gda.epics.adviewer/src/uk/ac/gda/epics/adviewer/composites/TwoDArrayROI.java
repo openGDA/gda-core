@@ -22,11 +22,11 @@ import gda.device.detector.areadetector.v17.NDROI;
 import gda.observable.Observable;
 import gda.observable.Observer;
 
+import java.util.List;
+
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
-import org.dawb.common.ui.plot.region.IROIListener;
-import org.dawb.common.ui.plot.region.IRegion;
-import org.dawb.common.ui.plot.region.ROIEvent;
-import org.dawb.common.ui.plot.region.RegionUtils;
+import org.dawb.common.ui.plot.axis.IAxis;
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -44,14 +44,13 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 import uk.ac.gda.richbeans.components.scalebox.StandardBox;
 import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
 
 public class TwoDArrayROI extends Composite {
-	private static final String SWITCH_ON = "Switch On";
-	private static final String SWITCH_OFF = "Switch Off";
+	private static final String SWITCH_ON = "Start";
+	private static final String SWITCH_OFF = "Stop";
 	private static final Logger logger = LoggerFactory.getLogger(TwoDArrayROI.class);
 	private boolean roiActive = false;
 	private Button monitoringBtn;
@@ -61,7 +60,7 @@ public class TwoDArrayROI extends Composite {
 	private boolean enableY;
 	private Observable<String> enableObservable;
 	private Observer<String> enableObserver;
-	private Composite composite_1;
+	private Composite runningCmp;
 	NDROI ndRoi;
 	private ValueBox1<Integer> minX;
 	private ValueBox1<Integer> minY;
@@ -71,8 +70,10 @@ public class TwoDArrayROI extends Composite {
 	private Observer<String> enableXObserver;
 	private Observable<String> enableYObservable;
 	private Observer<String> enableYObserver;
-	private String mpegROIRegionName;
-	private IRegion iRegion;
+	private AbstractPlottingSystem plottingSystem;
+	private Button btnSetToView;
+	private Composite minmaxcmp;
+	private Composite minmaxAndBtnCmp;
 
 	public TwoDArrayROI(Composite parent, int style) {
 		super(parent, style);
@@ -80,27 +81,70 @@ public class TwoDArrayROI extends Composite {
 		Group stateGroup = new Group(this, SWT.NONE);
 		stateGroup.setText("Array Source ROI");
 		GridLayout gl_stateGroup = new GridLayout(1, false);
+		gl_stateGroup.verticalSpacing = 0;
 		gl_stateGroup.marginWidth = 0;
 		gl_stateGroup.marginHeight = 0;
 		stateGroup.setLayout(gl_stateGroup);
 
-		composite_1 = new Composite(stateGroup, SWT.NONE);
-		composite_1.setLayout(new GridLayout(2, false));
-		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-		monitoringLbl = new Label(composite_1, SWT.CENTER);
+		runningCmp = new Composite(stateGroup, SWT.NONE);
+		runningCmp.setLayout(new GridLayout(2, false));
+		runningCmp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+		monitoringLbl = new Label(runningCmp, SWT.CENTER);
 		monitoringLbl.setText("Running__");
 
-		monitoringBtn = new Button(composite_1, SWT.NONE);
+		monitoringBtn = new Button(runningCmp, SWT.NONE);
 		monitoringBtn.setAlignment(SWT.LEFT);
 		monitoringBtn.setText(SWITCH_OFF);
+		
+		
+		minmaxAndBtnCmp = new Composite(stateGroup, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true,false).applyTo(minmaxAndBtnCmp);
+		GridLayout gl_composite_2 = new GridLayout(2, false);
+		gl_composite_2.marginLeft = 5;
+		gl_composite_2.marginHeight = 0;
+		gl_composite_2.verticalSpacing = 0;
+		gl_composite_2.marginWidth = 0;
+		gl_composite_2.horizontalSpacing = 0;
+		minmaxAndBtnCmp.setLayout(gl_composite_2);
+		
+		minmaxcmp = new Composite(minmaxAndBtnCmp, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true,false).applyTo(minmaxcmp);
 
-		minX = new ValueBox1<Integer>(stateGroup, SWT.NONE);
+		btnSetToView = new Button(minmaxAndBtnCmp, SWT.NONE);
+		btnSetToView.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				try {
+					setAxesRanges();
+					start();
+				} catch (Exception e1) {
+					logger.error("Error setting to axes ranges", e1);
+				}
+			}
+		});
+		btnSetToView.setText("Use\nVisible\nand\nStart");
+		GridDataFactory.fillDefaults().applyTo(btnSetToView);
+		
+		
+		
+		GridLayout gl_composite = new GridLayout(1, false);
+		gl_composite.verticalSpacing = 0;
+		gl_composite.marginWidth = 0;
+		gl_composite.marginHeight = 0;
+		gl_composite.horizontalSpacing = 0;
+		minmaxcmp.setLayout(gl_composite);
+
+		
+		
+		
+		minX = new ValueBox1<Integer>(minmaxcmp, SWT.NONE);
 		((GridData) minX.getControl().getLayoutData()).horizontalAlignment = SWT.LEFT;
 		minX.setLabel("Min X");
 		minX.setLabelWidth(50);
 		minX.setDecimalPlaces(0);
 		minX.setMaximum(Double.MAX_VALUE);
 		minX.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+		new Label(minX, SWT.NONE);
 		minX.addValueListener(new ValueAdapter("x value listener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
@@ -108,19 +152,19 @@ public class TwoDArrayROI extends Composite {
 				try {
 					ndRoi.setMinX(minx);
 				} catch (Exception e1) {
-					// TODO Auto-generated catch block
-					logger.error("TODO put description of error here", e1);
+					logger.error("Error setting minX", e1);
 				}
 			}
 		});
 
-		minY = new ValueBox1<Integer>(stateGroup, SWT.NONE);
+		minY = new ValueBox1<Integer>(minmaxcmp, SWT.NONE);
 		((GridData) minY.getControl().getLayoutData()).horizontalAlignment = SWT.LEFT;
 		minY.setLabel("Min Y");
 		minY.setLabelWidth(50);
 		minY.setDecimalPlaces(0);
 		minY.setMaximum(Double.MAX_VALUE);
 		minY.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+		new Label(minY, SWT.NONE);
 		minY.addValueListener(new ValueAdapter("x value listener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
@@ -128,19 +172,19 @@ public class TwoDArrayROI extends Composite {
 				try {
 					ndRoi.setMinY(minY);
 				} catch (Exception e1) {
-					// TODO Auto-generated catch block
-					logger.error("TODO put description of error here", e1);
+					logger.error("Error setting minY", e1);
 				}
 			}
 		});
 
-		sizeX = new ValueBox1<Integer>(stateGroup, SWT.NONE);
+		sizeX = new ValueBox1<Integer>(minmaxcmp, SWT.NONE);
 		((GridData) sizeX.getControl().getLayoutData()).horizontalAlignment = SWT.LEFT;
 		sizeX.setLabel("Size X");
 		sizeX.setLabelWidth(50);
 		sizeX.setDecimalPlaces(0);
 		sizeX.setMaximum(Double.MAX_VALUE);
 		sizeX.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+		new Label(sizeX, SWT.NONE);
 		sizeX.addValueListener(new ValueAdapter("x value listener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
@@ -148,19 +192,19 @@ public class TwoDArrayROI extends Composite {
 				try {
 					ndRoi.setSizeX(sizeX);
 				} catch (Exception e1) {
-					// TODO Auto-generated catch block
-					logger.error("TODO put description of error here", e1);
+					logger.error("Error setting sizeX", e1);
 				}
 			}
 		});
 
-		sizeY = new ValueBox1<Integer>(stateGroup, SWT.NONE);
+		sizeY = new ValueBox1<Integer>(minmaxcmp, SWT.NONE);
 		((GridData) sizeY.getControl().getLayoutData()).horizontalAlignment = SWT.LEFT;
 		sizeY.setLabel("Size Y");
 		sizeY.setLabelWidth(50);
 		sizeY.setDecimalPlaces(0);
 		sizeY.setMaximum(Double.MAX_VALUE);
 		sizeY.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+		new Label(sizeY, SWT.NONE);
 		sizeY.addValueListener(new ValueAdapter("x value listener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
@@ -168,8 +212,7 @@ public class TwoDArrayROI extends Composite {
 				try {
 					ndRoi.setSizeY(sizeY);
 				} catch (Exception e1) {
-					// TODO Auto-generated catch block
-					logger.error("TODO put description of error here", e1);
+					logger.error("Error setting sizeY", e1);
 				}
 			}
 		});
@@ -258,19 +301,10 @@ public class TwoDArrayROI extends Composite {
 		scheduleRoiActive();
 	}
 
-	private void setRoiActive(boolean b) throws Exception {
+	private void setRoiActive(boolean b)  {
 		roiActive = b;
 		monitoringBtn.setText(b ? SWITCH_OFF : SWITCH_ON);
-		monitoringLbl.setText(b ? "Active" : "Inactive");
-		if(iRegion != null){
-			iRegion.setVisible(!roiActive);
-			if(roiActive){
-				RectangularROI roi = new RectangularROI();
-				roi.setPoint(new double[] { ndRoi.getMinX_RBV(), ndRoi.getMinY_RBV() });
-				roi.setLengths(new double[] {ndRoi.getSizeX_RBV(), ndRoi.getSizeY_RBV() });
-				iRegion.setROI(roi);
-			}
-		}
+		monitoringLbl.setText(b ? "Running" : "Inactive");
 	}
 
 	public void setNDRoi(NDROI ndroi, AbstractPlottingSystem abstractPlottingSystem) throws Exception {
@@ -292,29 +326,23 @@ public class TwoDArrayROI extends Composite {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				
 				try {
 					if (getMonitoring()) {
 						ndRoi.disableX();
 						ndRoi.disableY();
 					} else {
-						RectangularROI roi = (RectangularROI) iRegion.getROI();
-						ndRoi.setMinX(roi.getIntPoint()[0]);
-						ndRoi.setMinY(roi.getIntPoint()[1]);
-						ndRoi.setSizeX(roi.getIntLengths()[0]);
-						ndRoi.setSizeY(roi.getIntLengths()[1]);
-						ndRoi.enableX();
-						ndRoi.enableY();
+						TwoDArrayROI.this.start();
 					}
 				} catch (Exception ex) {
 					logger.error("Error responding to start_stop button", ex);
 				}
+				
 			}
 		});
 
-		if (mpegROIRegionName == null) {
-			mpegROIRegionName = RegionUtils.getUniqueName("ROI Range", abstractPlottingSystem);
-		}
-		iRegion = abstractPlottingSystem.createRegion(mpegROIRegionName, IRegion.RegionType.BOX);
+		plottingSystem = abstractPlottingSystem;
+		
 	}
 
 	public void addMonitoringbtnSelectionListener(SelectionListener listener) {
@@ -324,7 +352,27 @@ public class TwoDArrayROI extends Composite {
 	public boolean getMonitoring() {
 		return roiActive;
 	}
-	
+
+	public void start() throws Exception {
+		setAxesRanges();
+		ndRoi.enableX();
+		ndRoi.enableY();
+	}
+
+	private void setAxesRanges() throws Exception {
+		List<IAxis> axes = plottingSystem.getAxes();
+		for( IAxis axis : axes){
+			double upper = axis.getUpper();
+			double lower = axis.getLower();
+			if( axis.isYAxis() ){
+				ndRoi.setMinY((int) Math.min(lower,upper)  + (roiActive? ndRoi.getMinY_RBV() : 0));
+				ndRoi.setSizeY((int) (Math.abs(lower-upper)));
+			} else {
+				ndRoi.setMinX((int) Math.min(lower,upper) + (roiActive? ndRoi.getMinX_RBV() : 0));
+				ndRoi.setSizeX((int) (Math.abs(upper-lower)));
+			}
+		}
+	}
 	
 }
 
