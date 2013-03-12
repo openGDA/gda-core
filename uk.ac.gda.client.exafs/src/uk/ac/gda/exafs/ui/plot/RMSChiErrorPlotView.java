@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -85,14 +85,14 @@ public class RMSChiErrorPlotView extends ExafsScanPlotView {
 						cachedE.add(chi2result[0]);
 						cachedChi2.add(chi2result[1]);
 					}
-					this.xDataSetData = new DataSetPlotData(getXAxis(), AbstractDataset.createFromList(cachedE));
-					return new DataSetPlotData(getYAxis(), AbstractDataset.createFromList(cachedChi2));
+					this.xDataSetData = new DataSetPlotData(getXAxisName(), AbstractDataset.createFromList(cachedE));
+					return new DataSetPlotData(getYAxisName(), AbstractDataset.createFromList(cachedChi2));
 				}
 			}
 			cachedE.clear();
 			cachedChi2.clear();
-			this.xDataSetData = new DataSetPlotData(getXAxis(), AbstractDataset.zeros(energy));
-			return new DataSetPlotData(getYAxis(), AbstractDataset.zeros(lnI0It));
+			this.xDataSetData = new DataSetPlotData(getXAxisName(), AbstractDataset.zeros(energy));
+			return new DataSetPlotData(getYAxisName(), AbstractDataset.zeros(lnI0It));
 		} catch (Exception e) {
 			logger.warn("Exception in XafsFittingUtils calculating Chi^2 error", e);
 			return null;
@@ -105,27 +105,12 @@ public class RMSChiErrorPlotView extends ExafsScanPlotView {
 	}
 
 	@Override
-	protected String getCurrentPlotName(int scanNumber) {
-
-		return "Scan " + scanNumber;
-	}
-
-	@Override
-	protected String getYAxis() {
-
+	protected String getYAxisName() {
 		return "RMS(\u03c7(k))";
 	}
 
 	@Override
-	protected String getXAxis() {
+	protected String getXAxisName() {
 		return "Energy (eV)";
 	}
-
-	@Override
-	protected String getGraphTitle() {
-
-		String scanName = super.getGraphTitle() + " \u03c7(k) RMS error (Estimate)";  
-		return  scanName;
-	}
-
 }

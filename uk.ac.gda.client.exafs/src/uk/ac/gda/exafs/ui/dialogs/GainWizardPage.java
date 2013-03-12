@@ -238,7 +238,7 @@ public class GainWizardPage extends WizardPage {
 		
 		
 		this.calculateButton = new Button(container, SWT.NONE);
-		calculateButton.setImage(SWTResourceManager.getImage(GainWizardPage.class, "/calculator_edit.png"));
+		calculateButton.setImage(SWTResourceManager.getImage(GainWizardPage.class, "/icons/calculator_edit.png"));
 		
 		final GridData gd_calculateButton = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
 		calculateButton.setLayoutData(gd_calculateButton);

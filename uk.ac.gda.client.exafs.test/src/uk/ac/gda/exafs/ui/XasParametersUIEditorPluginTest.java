@@ -49,9 +49,8 @@ public class XasParametersUIEditorPluginTest {
 	
 	private XasScanParametersEditor editor;
 	private XasScanParametersUIEditor uiEd;
-	/**
-	 * @throws Throwable
-	 */
+
+	
 	@Before
 	public void setUp() throws Throwable {
 		ClientManager.setTestingMode(true);
@@ -68,10 +67,6 @@ public class XasParametersUIEditorPluginTest {
 		this.uiEd = (XasScanParametersUIEditor)editor.getRichBeanEditor();
 	}
 	
-	/**
-	 * Bounds working
-	 * @throws Throwable
-	 */ 
 	@Test
 	public final void testBounds() throws Throwable {
 		
@@ -99,15 +94,11 @@ public class XasParametersUIEditorPluginTest {
 	 */
 	@Test
 	public final void testElements() throws Throwable {
-        checkElement("Ag", 25516.4d,  6.24d, 25316.4d,  26366.4d);
-        checkElement("Cr", 5988.74d,  1.01d, 5788.74d,  6838.74d);
-        checkElement("Ge", 11103.13d, 1.82d, 10903.13d, 11953.13d);
+        checkElement("Ag", 6.24d, 25316.4d,  26366.4d);
+        checkElement("Cr", 1.01d, 5788.74d,  6838.74d);
+        checkElement("Ge", 1.82d, 10903.13d, 11953.13d);
 	}
 	
-	/**
-	 * 
-	 * @throws Throwable
-	 */
 	@Test
 	public final void testStepUnits() throws Throwable {
 		
@@ -118,10 +109,6 @@ public class XasParametersUIEditorPluginTest {
 		if (!uiEd.getExafsStep().getUnit().equals("Å⁻¹")) throw new Exception("Funny unit for exafs step energy "+uiEd.getExafsStep().getUnit());
 	}
 
-	/**
-	 * 
-	 * @throws Throwable
-	 */
 	@Test
 	public final void testConstantTimeVisibility() throws Throwable {
 		
@@ -140,10 +127,9 @@ public class XasParametersUIEditorPluginTest {
 	}
 	
 	
-	private void checkElement(String ename, double edge, double cHole, double initialE, double finalE) throws Exception {
+	private void checkElement(String ename, double cHole, double initialE, double finalE) throws Exception {
 		
         uiEd.getElement().setValue(ename);
-        checkValue(edge,     uiEd.getEdgeEnergy_unused().getValue(),"Edge Energy");
         checkValue(cHole,    uiEd.getCoreHole_unused().getValue(), "Core Hole");
         checkValue(initialE, uiEd.getInitialEnergy().getValue(),   "Initial Energy");
         checkValue(finalE,   uiEd.getFinalEnergy().getValue(),     "Final Energy");

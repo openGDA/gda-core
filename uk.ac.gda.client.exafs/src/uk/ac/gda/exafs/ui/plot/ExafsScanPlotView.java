@@ -25,6 +25,7 @@ import gda.util.Element;
 
 import java.util.ArrayList;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -32,8 +33,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
+import uk.ac.diamond.scisoft.analysis.rcp.views.plot.DataSetPlotData;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
-import uk.ac.diamond.scisoft.analysis.rcp.views.plot.PlotData;
 import uk.ac.diamond.scisoft.spectroscopy.fitting.XafsFittingUtils;
 import uk.ac.diamond.scisoft.spectroscopy.rcp.SpectroscopyRCPActivator;
 import uk.ac.diamond.scisoft.spectroscopy.rcp.preferences.XafsPreferences;
@@ -62,7 +65,6 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 
 	protected final XafsFittingUtils xafsFittingUtils;
 	protected final int minPlotPoints = 10;  // Minimal number of points needed to start plotting
-	private String scanID = "";
 
 	public ExafsScanPlotView() {
 		super();
@@ -102,7 +104,7 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 			IScanParameters curScan = ScanObjectManager.getCurrentScan();
 			if (!(curScan instanceof MicroFocusScanParameters)) {
 				super.scanDataPointChanged(e);
-				scanID = e.getCurrentPoint().getScanIdentifier();
+//				scanID = e.getCurrentPoint().getScanIdentifier();
 			}
 		} catch (Exception exp) {
 			logger.error("Unable to determine the scan type", exp);
@@ -161,7 +163,7 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 
 	@Override
 	protected String getCurrentPlotName(int scanNumber) {
-		return "Scan " + scanNumber + " [EXAFS]";
+		return "Scan: " + scanNumber;
 	}
 
 	@Override
@@ -235,22 +237,15 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 
 	@Override
 	protected IPlotData getX(IScanDataPoint... points) {
-		return new PlotData(getXAxis(), cachedX);
+		Double[] values = cachedX.toArray(new Double[]{});
+		double[] primitiveValues = ArrayUtils.toPrimitive(values, values.length);
+		AbstractDataset xValues = new DoubleDataset(primitiveValues,primitiveValues.length);
+		xValues.setName(getXAxisName());
+		return new DataSetPlotData(getXAxisName(), xValues);
 	}
 
 	@Override
-	protected String getXAxis() {
+	protected String getXAxisName() {
 		return "Energy (eV)";
 	}
-
-	@Override
-	protected String getYAxis() {
-		return "EXAFS";
-	}
-
-	@Override
-	protected String getGraphTitle() {
-		return "Scan:" + scanID;
-	}
-
 }

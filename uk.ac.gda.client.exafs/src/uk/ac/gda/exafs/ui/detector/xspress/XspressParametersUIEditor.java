@@ -267,7 +267,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		grpAcquire.setLayout(gridLayout);
 
 		Button loadBtn = new Button(grpAcquire, SWT.NONE);
-		loadBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/folder.png"));
+		loadBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/icons/folder.png"));
 		loadBtn.setText("Load Saved mca");
 		loadBtn.addListener(SWT.Selection, new Listener() {
 			@Override
@@ -287,7 +287,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		acquire.setLayout(gridLayoutAcq);
 
 		Button acquireBtn = new Button(acquire, SWT.NONE);
-		acquireBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/application_side_expand.png"));
+		acquireBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/icons/application_side_expand.png"));
 		acquireBtn.setText("Acquire");
 		acquireBtn.addListener(SWT.Selection, new Listener() {
 			@Override
@@ -409,8 +409,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			IDetectorROICompositeFactory factory = XspressParametersUIHelper.INSTANCE.getDetectorROICompositeFactory();
 			if (xspressParameters != null) {
 				List<DetectorElement> detectorList = xspressParameters.getDetectorList();
-				createDetectorList(detectorElementsGroup, DetectorElement.class, detectorList.size(), XspressROI.class, factory,
-						"Xspress", false);
+				createDetectorList(detectorElementsGroup, DetectorElement.class, detectorList.size(), XspressROI.class, factory,false);
 				XspressParametersUIHelper.INSTANCE.setDetectorListGridOrder(getDetectorList());
 				getDetectorElementComposite().setMinimumRegions(XspressParametersUIHelper.INSTANCE.getMinimumRegions());
 				getDetectorElementComposite().setMaximumRegions(XspressParametersUIHelper.INSTANCE.getMaximumRegions());
@@ -563,9 +562,10 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	 * 
 	 * @param parent
 	 * @return SashFormPlotComposite
+	 * @throws Exception 
 	 */
 	@Override
-	protected SashFormPlotComposite createSashPlot(Composite parent) {
+	protected SashFormPlotComposite createSashPlot(Composite parent) throws Exception {
 		this.additiveResModeAction = new Action("Show resolution grades added", IAction.AS_CHECK_BOX) {
 			@Override
 			public void run() {
@@ -575,7 +575,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		};
 		additiveResModeAction.setImageDescriptor(ResourceManager.getImageDescriptor(XspressParametersUIEditor.class,
 				"/icons/chart_line_add.png"));
-		return new SashFormPlotComposite(parent, this, additiveResModeAction);
+		return new SashFormPlotComposite(parent, this,new RegionSynchronizer(), additiveResModeAction,createUpLoadAction());
 	}
 
 	@Override
@@ -640,7 +640,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			getDetectorList().setListVisible(currentEditIndividual);
 			autoApplyToAll(!currentEditIndividual);
 			sashPlotForm.layout();
-			calculateCounts(currentEditIndividual);
+			calculateAndPlotCountTotals(currentEditIndividual);
 		} finally {
 			GridUtils.endMultiLayout();
 		}
@@ -663,11 +663,12 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		final Composite roi = getDetectorElementComposite().getRegionList();
 		GridUtils.setVisibleAndLayout(roi, isRoi);
 		setImportCompositeVisible(isRoi);
-		try {
-			redrawOverlay();
-		} catch (Exception e) {
-			logger.error("Cannot draw overlay", e);
-		}
+		// FIXME make sure that the regions have been updated
+//		try {
+//			redrawOverlay();
+//		} catch (Exception e) {
+//			logger.error("Cannot draw overlay", e);
+//		}
 	}
 
 	@Override
@@ -780,13 +781,13 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			final int[][][] data = xsDetector.getMCData((int) collectionTime);
 			// Int array above is [element][grade (1, 2 or all 16)][mca channel]
 
-			getData().setValue(ElementCountsData.getDataFor(data));
+			getDataWrapper().setValue(ElementCountsData.getDataFor(data));
 			this.dirtyContainer.setDirty(true);
 			detectorData = getData(data);
 			getSite().getShell().getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					calculateCounts(showIndividualElements.getValue());
+					calculateAndPlotCountTotals(showIndividualElements.getValue());
 				}
 			});
 
@@ -891,11 +892,12 @@ public class XspressParametersUIEditor extends DetectorEditor {
 
 		// We are ResGrades.ALLGRADES and isAdditiveResolutionGradeMode, so we add them.
 		final List<AbstractDataset> ret = new ArrayList<AbstractDataset>(7);
-		final double[][] data = detectorData[ielement];
-		for (int i = 0; i < data.length; i++) {
-			AbstractDataset d = new DoubleDataset(data[i]);
+		final double[][] elementData = detectorData[ielement];
+		for (int resGrade = 0; resGrade < elementData.length; resGrade++) {
+			// must pass by value as we are going to do some maths on it!!!
+			AbstractDataset d = new DoubleDataset(Arrays.copyOf(elementData[resGrade],elementData[resGrade].length));
 			if (!ret.isEmpty()) {
-				final AbstractDataset p = ret.get(ret.size() - 1);
+				final AbstractDataset p = ret.get(resGrade - 1);
 				d.iadd(p);
 			}
 			ret.add(d);

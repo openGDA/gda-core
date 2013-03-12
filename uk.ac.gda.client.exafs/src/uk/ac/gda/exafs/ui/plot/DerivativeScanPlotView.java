@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -57,7 +57,8 @@ public class DerivativeScanPlotView extends ExafsScanPlotView {
 			final AbstractDataset energy = AbstractDataset.createFromList(cachedX);
 			final AbstractDataset lnI0It = AbstractDataset.createFromList(cachedY);
 			AbstractDataset derv = Maths.derivative(energy, lnI0It, 1);
-			return new DataSetPlotData(getYAxis(), derv);
+			derv.setName(getYAxisName());
+			return new DataSetPlotData(getYAxisName(), derv);
 		} catch (Exception e) {
 			logger.warn("Exception in XafsFittingUtils calculating Derivative",e);
 			return null;
@@ -65,19 +66,7 @@ public class DerivativeScanPlotView extends ExafsScanPlotView {
 	}
 
 	@Override
-	protected String getCurrentPlotName(int scanNumber) {
-		return "Scan " + scanNumber + " [First Derivative]";
-	}
-
-	@Override
-	protected String getYAxis() {
+	protected String getYAxisName() {
 		return "d(f[I0,It])/dE";
 	}
-
-	@Override
-	protected String getGraphTitle() {
-		String scanName = super.getGraphTitle() + " First Derivative";
-		return scanName;
-	}
-
 }

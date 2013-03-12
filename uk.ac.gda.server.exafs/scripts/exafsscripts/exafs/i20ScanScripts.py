@@ -613,9 +613,9 @@ class I20XesScan(XasScan):
                     loggingcontroller.update(None, ScanCreationEvent(thisscan.getName()))
                     thisscan.runScan()
                 except InterruptedException, e:
+                    ScanBase.interrupted = False
                     if LocalProperties.get(RepetitionsProperties.SKIP_REPETITION_PROPERTY) == "true":
                         LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
-                        ScanBase.interrupted = False
                     # only wanted to skip this repetition, so absorb the exception and continue the loop
                         if numRepetitions > 1:
                             print "Repetition", str(repetitionNumber),"skipped."

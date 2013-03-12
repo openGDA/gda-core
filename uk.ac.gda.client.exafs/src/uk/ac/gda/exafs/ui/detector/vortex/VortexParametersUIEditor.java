@@ -153,7 +153,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 			gridData.widthHint = 60;
 			gridData.minimumWidth = 60;
 			applyToAllButton.setLayoutData(gridData);
-			applyToAllButton.setImage(SWTResourceManager.getImage(VortexParametersUIEditor.class, "/camera_go.png"));
+			applyToAllButton.setImage(SWTResourceManager.getImage(VortexParametersUIEditor.class, "/icons/camera_go.png"));
 			applyToAllButton
 					.setToolTipText("Apply current detector regions of interest to all other detector elements.");
 			final SelectionAdapter applyToAllListener = new SelectionAdapter() {
@@ -178,8 +178,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 
 		try {
 			IDetectorROICompositeFactory factory = VortexParametersUIHelper.INSTANCE.getDetectorROICompositeFactory();
-			createDetectorList(grid, DetectorElement.class, detectorList.size(), RegionOfInterest.class, factory,
-					"Vortex", false);
+			createDetectorList(grid, DetectorElement.class, detectorList.size(), RegionOfInterest.class, factory, false);
 			VortexParametersUIHelper.INSTANCE.setDetectorListGridOrder(getDetectorList());
 			getDetectorElementComposite().setWindowsEditable(false);
 			getDetectorElementComposite().setMinimumRegions(VortexParametersUIHelper.INSTANCE.getMinimumRegions());
@@ -199,7 +198,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 		grpAcquire.setLayout(gridLayout);
 
 		Button loadBtn = new Button(grpAcquire, SWT.NONE);
-		loadBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/folder.png"));
+		loadBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/icons/folder.png"));
 		loadBtn.setText("Load");
 		loadBtn.addListener(SWT.Selection, new Listener() {
 			@Override
@@ -219,7 +218,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 		acquire.setLayout(gridLayoutAcq);
 
 		acquireBtn = new Button(acquire, SWT.NONE);
-		acquireBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/application_side_expand.png"));
+		acquireBtn.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/icons/application_side_expand.png"));
 		acquireBtn.setText("Acquire");
 
 		acquireTime = new ScaleBox(acquire, SWT.NONE);
@@ -387,7 +386,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 				monitor.worked(1);
 
 			final int[][][] data3d = get3DArray(data);
-			getData().setValue(ElementCountsData.getDataFor(data3d));
+			getDataWrapper().setValue(ElementCountsData.getDataFor(data3d));
 			detectorData = getData(data3d);
 
 			if (monitor != null)
