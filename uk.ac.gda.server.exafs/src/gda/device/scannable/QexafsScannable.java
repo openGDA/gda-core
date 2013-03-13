@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * TODO: change movement control based on exit mode (current behaviour is fixed exit mode); 
  */
-public class QexafsScannable extends ScannableMotor implements ContinuouslyScannable, InitializationListener, IQexafsScannableState {
+public class QexafsScannable extends ScannableMotor implements ContinuouslyScannable, InitializationListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(QexafsScannable.class);
 
@@ -93,8 +93,6 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 
 	private Double maxSpeed; // in deg/sec
 	private Double desiredSpeed; // in deg/sec
-
-	private String state = "idle";
 	
 	private double extraRunUp=0;
 	
@@ -136,9 +134,6 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 
 	@Override
 	public int prepareForContinuousMove() throws DeviceException {
-		
-		state = "preparing";
-		notifyIObservers(this, state);
 		
 		if (!channelsConfigured) {
 			throw new DeviceException("Cannot set continuous mode on for " + getName()
@@ -214,11 +209,6 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 	
 	@Override
 	public void performContinuousMove() throws DeviceException {
-		
-		state = "running";
-		notifyIObservers(this, state);
-
-		
 		if (channelsConfigured && continuousParameters != null) {
 			try {
 				//set the sped (do this now, after the motor has been moved to the run-up position)
@@ -252,9 +242,6 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 		} catch (Exception e) {
 			throw new DeviceException("Exception while switching output mode to \'off\'", e);
 		}
-		
-		state = "idle";
-		notifyIObservers(this, state);
 	}
 
 	@Override
@@ -268,15 +255,11 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 			// return to regular running values
 			controller.caputWait(outputModeChnl, 0);
 			controller.caputWait(currentSpeedChnl, getMaxSpeed());
-			
 			controller.caputWait(energySwitchChnl, 0); //off
 			controller.caputWait(energySwitchChnl, 1); //on
 		} catch (Exception e) {
 			throw new DeviceException("Exception while changing energy switch off/on to stop the motion", e);
 		}
-		
-		state = "idle";
-		notifyIObservers(this, state);
 	}
 
 	private double radToDeg(Angle angle) {
@@ -383,11 +366,6 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 	@Override
 	public void initializationCompleted() {
 		channelsConfigured = true;
-	}
-
-	@Override
-	public String getState() {
-		return state;
 	}
 
 	public String getOutputModePV() {
