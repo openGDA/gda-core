@@ -42,14 +42,18 @@ import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class SimpleScanView extends ViewPart {
-	public SimpleScanView() {
-	}
+	
+	public static final String ID = "gda.simplescan.SimpleScanView"; //$NON-NLS-1$
 	private static final Logger logger = LoggerFactory.getLogger(SimpleScanView.class);
 	private String path;
 	SimpleScan bean = null;
 	SimpleScanComposite simpleScanComposite;
 	PosComposite posComposite;
 	AddDevicesComposite addDevicesComposite;
+
+	public SimpleScanView() {
+	}
+	
 	
 	private IPartListener partListener = new IPartListener() {
 		@Override
