@@ -44,32 +44,23 @@ import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.dawnsci.plotting.jreality.impl.Plot1DAppearance;
-import org.dawnsci.plotting.jreality.impl.PlotException;
-import org.dawnsci.plotting.jreality.overlay.events.GraphSelectionEvent;
-import org.dawnsci.plotting.jreality.overlay.events.GraphSelectionListener;
+import org.dawb.common.ui.plot.region.IROIListener;
+import org.dawb.common.ui.plot.region.ROIEvent;
 import org.dawnsci.plotting.jreality.util.PlotColorUtility;
-import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
@@ -79,8 +70,8 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
+import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.ElementCountsData;
@@ -109,7 +100,6 @@ import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
 import uk.ac.gda.richbeans.event.ValueListener;
 
-import com.swtdesigner.ResourceManager;
 import com.swtdesigner.SWTResourceManager;
 
 /**
@@ -123,49 +113,33 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	private static final String EXAFS_SCRIPT_OBSERVER = "ExafsScriptObserver";
 	private static final Logger logger = LoggerFactory.getLogger(DetectorEditor.class);
 	protected boolean saveToExtension = LocalProperties.check("gda.xml.save.extension");
-	protected ROIWindowOverlay currentOverlay;
 	protected SashFormPlotComposite sashPlotForm;
-	private boolean changeElement = true;
 
 	// Used for temporary storage of data
 	protected volatile double[/* element */][/* grade */][/* mca */] detectorData;
 	// NOTE: Grades often not applicable in which case that dimension is size 1.
 
 	// Used for saving data to XML
-	protected DataWrapper data;
-
-	// Upload widgets
-	private Action uploadAction;
+	protected DataWrapper dataWrapper;
 
 	// The command run to send the parameters to the server
 	protected final String command;
-
-	// Gets set to true when the user has the graph zooming.
-	protected boolean isZooming = false;
 
 	private ExpansionAdapter expansionListener;
 
 	private volatile boolean continuousAquire = false;
 	private Thread continuousThread;
 	private ReentrantLock lock = new ReentrantLock();
-
 	private DetectorListComposite detectorListComposite;
-
 	private Composite importComposite;
-
 	private Boolean calculateSingleElement = true;
 
 	int selectedRegionIndex;
 	int lastSelectedElementIndex;
 	private Object bean;
+	private Action uploadAction;
+	private volatile Boolean updatingAfterROIDrag = null;
 
-	/**
-	 * @param path
-	 * @param mappingURL
-	 * @param dirtyContainer
-	 * @param editingBean
-	 * @param command
-	 */
 	public DetectorEditor(final String path, final URL mappingURL, final DirtyContainer dirtyContainer,
 			final Object editingBean, final String command) {
 		super(path, mappingURL, dirtyContainer, editingBean);
@@ -173,11 +147,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		this.bean = editingBean;
 	}
 
-	/**
-	 * return the logger for the class.
-	 * 
-	 * @return logger
-	 */
 	protected abstract Logger getLogger();
 
 	/**
@@ -229,24 +198,12 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		this.data = readStoredData();
-		this.sashPlotForm = createSashPlot(parent);
-		sashPlotForm.addZoomListener(new IPropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent event) {
-				getSite().getShell().getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						isZooming = sashPlotForm.getPlotter().isZoomEnabled();
-						getDetectorElementComposite().setStartEnabled(!isZooming);
-						getDetectorElementComposite().setEndEnabled(!isZooming);
-						if (currentOverlay != null) {
-							currentOverlay.setDraw(!isZooming);
-						}
-					}
-				});
-			}
-		});
+		this.dataWrapper = readStoredData();
+		try {
+			this.sashPlotForm = createSashPlot(parent);
+		} catch (Exception e) {
+			logger.error("Exception while creating detector editor", e);
+		}
 	}
 
 	@Override
@@ -260,9 +217,28 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	 * 
 	 * @param parent
 	 * @return SashFormPlotComposite
+	 * @throws Exception 
 	 */
-	protected SashFormPlotComposite createSashPlot(Composite parent) {
-		return new SashFormPlotComposite(parent, this);
+	protected SashFormPlotComposite createSashPlot(Composite parent) throws Exception {
+		return new SashFormPlotComposite(parent, this,new RegionSynchronizer(),   createUpLoadAction());
+	}
+
+	protected Action createUpLoadAction() {
+		this.uploadAction = new Action("Configure") {
+			@Override
+			public void run() {
+				try {
+					doSave(new NullProgressMonitor());
+					upload();
+				} catch (Exception ne) {
+					logger.error("Cannot configure Detector", ne);
+				}
+			}
+		};
+		uploadAction.setEnabled(false);
+		uploadAction.setText("Configure");
+		uploadAction.setToolTipText("Applies the configuration settings to the detector.");
+		return uploadAction;
 	}
 
 	/**
@@ -278,8 +254,8 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	public void linkUI(final boolean isPageChange) {
 		super.linkUI(isPageChange);
 
-		if (this.getData().getValue() != null) {
-			this.detectorData = getData(ElementCountsData.getDataFrom(getData().getValue()));
+		if (this.getDataWrapper().getValue() != null) {
+			this.detectorData = getData(ElementCountsData.getDataFrom(getDataWrapper().getValue()));
 			if (detectorData != null) {
 				getDetectorElementComposite().setEndMaximum((detectorData[0][0].length) - 1);
 			}
@@ -296,8 +272,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	// easier to use the method
 	protected DetectorListComposite createDetectorList(final Composite parent,
 			final Class<? extends IDetectorElement> editorClass, final int elementListSize,
-			final Class<? extends DetectorROI> regionClass, final IDetectorROICompositeFactory regionEditorFactory,
-			final String detectorName, final Boolean showAdvanced) {
+			final Class<? extends DetectorROI> regionClass, final IDetectorROICompositeFactory regionEditorFactory, final Boolean showAdvanced) {
 
 		importComposite = new Composite(parent, SWT.NONE);
 		{
@@ -309,7 +284,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			final Button importButton = new Button(importComposite, SWT.NONE);
 			GridDataFactory grab = GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER).grab(true, false);
 			grab.hint(60, SWT.DEFAULT).applyTo(importButton);
-			importButton.setImage(SWTResourceManager.getImage(VortexParametersUIEditor.class, "/calculator_edit.png"));
+			importButton.setImage(SWTResourceManager.getImage(VortexParametersUIEditor.class, "/icons/calculator_edit.png"));
 			importButton.setToolTipText("Import Regions Of Interest from other Parameters files");
 			final SelectionAdapter importButtonListener = new SelectionAdapter() {
 				@Override
@@ -353,31 +328,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 				}
 
 				lastSelectedElementIndex = getDetectorList().getSelectedIndex();
-
-				if (currentOverlay == null) {
-					return;
-				}
-				if (evt.getSelectedBean() != null) {
-
-					currentOverlay.setDraw(true);
-
-					if (getDetectorElementComposite().getStart().getValue() == null
-							|| getDetectorElementComposite().getEnd().getValue() == null) {
-						return;
-					}
-
-					currentOverlay.setXStart(((Number) getDetectorElementComposite().getStart().getValue())
-							.doubleValue());
-
-					currentOverlay.setXEnd(((Number) getDetectorElementComposite().getEnd().getValue()).doubleValue());
-
-					calculateCounts(true);
-					selectedRegionIndex = evt.getSelectionIndex();
-
-				} else {
-					currentOverlay.setDraw(false);
-					getDetectorElementComposite().getCount().setValue(null);
-				}
+				updateROIAfterElementCompositeChange();
 			}
 		});
 
@@ -385,7 +336,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			@Override
 			public void selectionChanged(BeanSelectionEvent evt) {
 				plot(evt.getSelectionIndex());
-				calculateCounts(true);
 				if (bean instanceof XspressParameters) {
 					XspressParameters xspress = (XspressParameters) bean;
 					getDetectorElementComposite().getRegionList().setSelectedIndex(xspress.getSelectedRegionNumber());
@@ -397,32 +347,12 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			}
 		});
 
-		sashPlotForm.setRightHandToolBarLabel("Apply settings");
-		sashPlotForm.setRightHandToolBarLabelEnabled(false);
-
-		final ImageDescriptor icon = ResourceManager.getImageDescriptor(getClass(), "/database_gear_configure.png");
-		this.uploadAction = new Action("Configure") {
-			@Override
-			public void run() {
-				try {
-					doSave(new NullProgressMonitor());
-					upload();
-				} catch (Exception ne) {
-					logger.error("Cannot configure " + detectorName + " Detector", ne);
-				}
-			}
-		};
-		uploadAction.setEnabled(false);
-		uploadAction.setImageDescriptor(icon);
-		uploadAction.setToolTipText("Applies the configuration settings to the detector.");
-		sashPlotForm.add(uploadAction);
-
 		if (!ExafsActivator.getDefault().getPreferenceStore()
 				.getBoolean(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED)) {
 			getDetectorElementComposite().getEnableDragRegions().addSelectionListener(new SelectionListener() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					currentOverlay.enableMouseListener(getDetectorElementComposite().getEnableDragRegions()
+					sashPlotForm.getRegionOnDisplay().setMobile(getDetectorElementComposite().getEnableDragRegions()
 							.getSelection());
 				}
 
@@ -666,28 +596,37 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			getDetectorElementComposite().addStartListener(new ValueAdapter("windowStartListener") {
 				@Override
 				public void valueChangePerformed(ValueEvent e) {
-					if (currentOverlay != null) {
-						currentOverlay.setXStart(e.getDoubleValue());
-					}
-					calculateCounts(null);
-
+					updateUIAfterDetectorElementCompositeChange();
 				}
 			});
 			getDetectorElementComposite().addEndListener(new ValueAdapter("windowEndListener") {
 				@Override
 				public void valueChangePerformed(ValueEvent e) {
-					if (currentOverlay != null) {
-						currentOverlay.setXEnd(e.getDoubleValue());
-					}
-					calculateCounts(null);
+					updateUIAfterDetectorElementCompositeChange();
 				}
 			});
 		} catch (Exception ne) {
 			logger.error("Cannot add listeners", ne);
 		}
 	}
+	
+	private void updateUIAfterDetectorElementCompositeChange() {
+		if (updatingAfterROIDrag == null){
+			updatingAfterROIDrag = false;
+			calculateAndPlotCountTotals(null);
+			updateROIAfterElementCompositeChange();
+			updatingAfterROIDrag = null;
+		}
+	}
 
-	protected void calculateCounts(Boolean currentEditIndividual) {
+	protected void updateROIAfterElementCompositeChange() {
+		double roiStart =((Number)  getDetectorElementComposite().getStart().getValue()).doubleValue();
+		double roiEnd = ((Number) getDetectorElementComposite().getEnd().getValue()).doubleValue();
+		sashPlotForm.getRegionOnDisplay().setROI(new RectangularROI(roiStart,0,roiEnd-roiStart,0,0));
+		sashPlotForm.getRegionOnDisplay().repaint();
+	}
+
+	protected void calculateAndPlotCountTotals(Boolean currentEditIndividual) {
 
 		// use last value or store new value;
 		if (currentEditIndividual == null) {
@@ -711,16 +650,27 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		final int start = (Integer) getDetectorElementComposite().getStart().getValue();
 		final int end = (Integer) getDetectorElementComposite().getEnd().getValue();
 
+		int total = getInWindowsCounts(currentEditIndividual, start, end);
+		getDetectorElementComposite().getCount().setValue(total);
+		getDetectorElementComposite().setTotalCounts(getTotalCounts());
+		getDetectorElementComposite().setTotalElementCounts(getTotalElementCounts(getCurrentSelectedElementIndex()));			
+
+	}
+	
+	protected int getCurrentSelectedElementIndex() {
+		return this.detectorListComposite.getDetectorList().getSelectedIndex();
+	}
+
+	private int getInWindowsCounts(Boolean currentEditIndividual, final int start, final int end) {
 		int total = 0;
 		if (currentEditIndividual) {
-			final int ele = this.detectorListComposite.getDetectorList().getSelectedIndex();
-			total = sumElementInWindowCounts(start, end, total, ele);
+			total = sumElementInWindowCounts(start, end, total, getCurrentSelectedElementIndex());
 		} else {
 			for (int element = 0; element < detectorData.length; element++) {
 				total = sumElementInWindowCounts(start, end, total, element);
 			}
 		}
-		getDetectorElementComposite().getCount().setValue(total);
+		return total;
 	}
 
 	protected int sumElementInWindowCounts(final int start, final int end, int total, int element) {
@@ -745,51 +695,49 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	public void setFocus() {
 		getDetectorList().setFocus();
 	}
-
-	protected void plot(final int ielement) {
-
-		final DataSetPlotter plotter = sashPlotForm.getPlotter();
-		plotter.getColourTable().clearLegend();
-
-		final List<AbstractDataset> data = unpackDataSets(ielement);
-		sashPlotForm.setDataSets(data.toArray(new AbstractDataset[data.size()]));
-		try {
-			for (int i = 0; i < data.size(); i++) {
-				final java.awt.Color colour = getChannelColor(i);
-				plotter.getColourTable().addEntryOnLegend(new Plot1DAppearance(colour, getChannelName(i)));
+	
+	public class RegionSynchronizer implements IROIListener {
+		@Override
+		public void roiDragged(ROIEvent evt) {
+		}
+		
+		@Override
+		public void roiChanged(ROIEvent evt) {
+			if (updatingAfterROIDrag == null) {
+				updatingAfterROIDrag = true;
+				final double start = ((RectangularROI)sashPlotForm.getRegionOnDisplay().getROI()).getPoint()[0];
+				final double end = ((RectangularROI)sashPlotForm.getRegionOnDisplay().getROI()).getEndPoint()[0];
+				getDetectorElementComposite().getStart().setValue(start);
+				getDetectorElementComposite().getEnd().setValue(end);
+				// then update the totals
+				calculateAndPlotCountTotals(null);
+				updatingAfterROIDrag = null;
 			}
-			plotter.replaceAllPlots(data);
-
-		} catch (PlotException ex) {
-			logger.error("Cannot plot", ex);
-			return;
 		}
-
-		plotter.updateAllAppearance();
-		plotter.refresh(false);
-
-		if (currentOverlay != null) {
-			plotter.unRegisterOverlay(currentOverlay);
+		
+		@Override
+		public void roiSelected(ROIEvent evt) {
 		}
-
-		if (ielement >= 0) {
-			createOverlay(getMin(data), getMax(data));
-		}
-
-		getDetectorElementComposite().setTotalCounts(getTotalCounts());
-		getDetectorElementComposite().setTotalElementCounts(getTotalElementCounts(data));
-
-		// always refresh the ROI/window values when replotting
-		calculateCounts(null);
 	}
 
-	private Double getTotalElementCounts(Collection<AbstractDataset> d) {
-
-		double sum = 0;
-		for (AbstractDataset dataSet : d) {
-			sum += (Double) dataSet.sum();
+	protected void plot(final int ielement) {		
+		final List<AbstractDataset> data = unpackDataSets(ielement);
+		for (int i = 0; i < data.size(); i++) {
+			data.get(i).setName(getChannelName(ielement));
 		}
-		return new Double(sum);
+		sashPlotForm.setDataSets(data.toArray(new AbstractDataset[data.size()]));
+		sashPlotForm.plotData();
+		calculateAndPlotCountTotals(true);
+	}
+
+	private double getTotalElementCounts(int elementNumber) {
+		double sum = 0;
+		for (int j = 0; j < detectorData[elementNumber].length; j++) {
+			for (int k = 0; k < detectorData[elementNumber][j].length; k++) {
+				sum += detectorData[elementNumber][j][k];
+			}
+		}
+		return sum;
 	}
 
 	private Double getTotalCounts() {
@@ -797,11 +745,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			return Double.NaN;
 		double sum = 0;
 		for (int i = 0; i < detectorData.length; i++) {
-			for (int j = 0; j < detectorData[i].length; j++) {
-				for (int k = 0; k < detectorData[i][j].length; k++) {
-					sum += detectorData[i][j][k];
-				}
-			}
+			sum += getTotalElementCounts(i);
 		}
 		return sum;
 	}
@@ -842,115 +786,12 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		for (int i = 0; i < data.length; i++) {
 			ret.add(new DoubleDataset(data[i]));
 		}
-
 		return ret;
 	}
 
-	protected void createOverlay(final int imca) {
-		final Collection<AbstractDataset> data = unpackDataSets(imca);
-		if (currentOverlay != null)
-			sashPlotForm.getPlotter().unRegisterOverlay(currentOverlay);
-		if (imca >= 0)
-			createOverlay(getMin(data), getMax(data));
-	}
 
-	protected void redrawOverlay() {
-		if (currentOverlay != null)
-			currentOverlay.draw((Number) getDetectorElementComposite().getStart().getValue(),
-					(Number) getDetectorElementComposite().getEnd().getValue());
-	}
-
-	protected void createOverlay(final double min, final double max) {
-
-		final Object start = getDetectorElementComposite().getStart().getValue();
-		final Object end = getDetectorElementComposite().getEnd().getValue();
-		this.currentOverlay = new ROIWindowOverlay(getSite().getShell().getDisplay(), min, max,
-				start != null ? (Integer) start : 0, end != null ? (Integer) end : 0);
-		currentOverlay.setDraw(getDetectorElementComposite().getRegionList().getListSize() > 0);
-		sashPlotForm.getPlotter().registerOverlay(currentOverlay);
-
-		if (!ExafsActivator.getDefault().getPreferenceStore()
-				.getBoolean(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED))
-			currentOverlay.enableMouseListener(false);
-
-		currentOverlay.addGraphSelectionListener(new GraphSelectionListener() {
-
-			@Override
-			public void graphSelectionPerformed(GraphSelectionEvent evt) {
-
-				if (isZooming) {
-					return;
-				}
-
-				currentOverlay.setBusy(true);
-				try {
-					double start = evt.getStart().getX();
-					double end = evt.getEnd().getX();
-					if (start > end) {
-						double tmp = start;
-						start = end;
-						end = tmp;
-					}
-
-					getDetectorElementComposite().getStart().setValue(start);
-					getDetectorElementComposite().getEnd().setValue(end);
-
-					// Select next element? Only if detector registered.
-
-					if (changeElement) {
-						IConfigurationElement[] config = Platform.getExtensionRegistry().getConfigurationElementsFor(
-								"uk.ac.gda.exafs.ui.detector");
-						final List<String> classes = new ArrayList<String>();
-						for (IConfigurationElement e : config) {
-
-							final String beanClass = e.getAttribute("consecutiveElementMode");
-							classes.add(beanClass);
-							logger.info("the mode is " + beanClass);
-							if (beanClass.equals("true")) {
-								int nextElement = getDetectorList().getSelectedIndex() + 1;
-								logger.info("the next selected index is " + nextElement);
-								getDetectorList().setSelectedIndex(nextElement);
-								changeElement = false;
-							}
-						}
-					} else
-						changeElement = true;
-				} finally {
-					currentOverlay.setBusy(false);
-				}
-			}
-
-		});
-	}
-
-	protected DataWrapper getData() {
-		return data;
-	}
-
-	protected Control[] createButton(final Composite card, final String buttonText, final String tooltip,
-			final int buttonFlags, final int labelWidth, final SelectionAdapter buttonAction, final String icon) {
-
-		Label lblCollect = new Label(card, SWT.NONE);
-		lblCollect.setText(buttonText);
-		{
-			GridData gridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-			gridData.widthHint = labelWidth;
-			gridData.minimumWidth = labelWidth;
-			lblCollect.setLayoutData(gridData);
-		}
-
-		final Button run = new Button(card, buttonFlags);
-		run.setToolTipText(tooltip);
-		{
-			GridData gridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-			gridData.widthHint = 60;
-			gridData.minimumWidth = 60;
-			run.setLayoutData(gridData);
-		}
-		run.setImage(SWTResourceManager.getImage(DetectorEditor.class, icon));
-		run.addSelectionListener(buttonAction);
-
-		return new Control[] { lblCollect, run };
+	protected DataWrapper getDataWrapper() {
+		return dataWrapper;
 	}
 
 	/**
@@ -1070,7 +911,6 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	public void setEnabled(final boolean isEnabled) {
 		getDetectorList().setEnabled(isEnabled);
 		uploadAction.setEnabled(isEnabled);
-		sashPlotForm.setRightHandToolBarLabelEnabled(isEnabled);
 	}
 
 	public void save(double[][][] data, String filePath) {
@@ -1137,7 +977,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	protected void writeStoredData(@SuppressWarnings("unused") IProgressMonitor monitor) {
 		try {
 			BufferedWriter out = new BufferedWriter(new FileWriter(getDataXMLName()));
-			ElementCountsData[] elements = (ElementCountsData[]) this.data.getValue();
+			ElementCountsData[] elements = (ElementCountsData[]) this.dataWrapper.getValue();
 			for (int i = 0; i < elements.length; i++) {
 				out.write(elements[i].getDataString());
 				out.write("\n");

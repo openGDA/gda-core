@@ -260,7 +260,7 @@ public class GainDialog extends Dialog {
 	protected void createButtonsForButtonBar(Composite parent) {
 
 		final Button button = createButton(parent, IDialogConstants.OK_ID, "Calculate", true);
-		button.setImage(SWTResourceManager.getImage(GainDialog.class, "/calculator_edit.png"));
+		button.setImage(SWTResourceManager.getImage(GainDialog.class, "/icons/calculator_edit.png"));
 
 		createButton(parent, IDialogConstants.CLOSE_ID, IDialogConstants.CLOSE_LABEL, true);
 	}
