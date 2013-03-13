@@ -49,7 +49,17 @@ public class DataSetFitter extends DataSetProcessorBase implements InitializingB
 
 	int dimensions=2;
 	
+	String prefix="";
 	
+	
+	public String getPrefix() {
+		return prefix;
+	}
+
+	public void setPrefix(String prefix) {
+		this.prefix = prefix;
+	}
+
 	public int getDimensions() {
 		return dimensions;
 	}
@@ -131,7 +141,7 @@ public class DataSetFitter extends DataSetProcessorBase implements InitializingB
 		formats = new Vector<String>();
 		for( int i=0; i< dimensions; i++){
 			for (String name : NAMES_PER_DIM){
-				extraNames.add( (i+1) + "_" + name);
+				extraNames.add( prefix + (i+1) + "_" + name);
 				formats.add("%5.5g");
 			}
 		}

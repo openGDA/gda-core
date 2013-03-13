@@ -67,7 +67,7 @@ public class CommandProcessorComposite extends Composite {
 	private static final Logger logger = LoggerFactory.getLogger(CommandProcessorComposite.class);
 	
 	final String strPause = "Pause Queue";
-	final String strRun = "Start Queue";
+	final String strRun = "  Start Queue  ";
 	Boolean runPauseIsPaused = false;
 	Boolean showText = false;
 	
