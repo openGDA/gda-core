@@ -151,16 +151,16 @@ class XasScan(Scan):
                     ScanBase.interrupted = False
                     if numRepetitions > 1:
                         print ""
-                        print "Starting repetition", str(repetitionNumber),"of",numRepetitions
+                        self.log( "Starting repetition", str(repetitionNumber),"of",numRepetitions)
                     else:
                         print ""
-                        print "Starting "+scriptType+" scan..."
+                        self.log( "Starting "+scriptType+" scan...")
                     thisscan = ConcurrentScan(args)
                     thisscan = self._setUpDataWriter(thisscan,beanGroup)
                     thisscan.setReturnScannablesToOrginalPositions(False)
                     controller.update(None, ScanCreationEvent(thisscan.getName()))
                     if (scanPlotSettings != None):
-                        print "Setting the filter for columns to plot..."
+                        self.log( "Setting the filter for columns to plot...")
                         thisscan.setScanPlotSettings(scanPlotSettings)
                     thisscan.runScan()
                 except InterruptedException, e:
@@ -173,7 +173,7 @@ class XasScan(Scan):
                             raise e
                         # only wanted to skip this repetition, so absorb the exception and continue the loop
                         if numRepetitions > 1:
-                            print "Repetition", str(repetitionNumber),"skipped."
+                            self.log( "Repetition", str(repetitionNumber),"skipped.")
                     else:
                         print e
                         raise # any other exception we are not expecting so raise whatever this is to abort the script
@@ -185,8 +185,8 @@ class XasScan(Scan):
                 self._runScript(beanGroup.getOutput().getAfterScriptName())
                 
                 #check if halt after current repetition set to true
-                if LocalProperties.get(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY) == "true":
-                    print "Paused scan after repetition",str(repetitionNumber),". To resume the scan, press the Start button in the Command Queue view. To abort this scan, press the Skip Task button."
+                if numRepetitions > 1 and LocalProperties.get(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY) == "true":
+                    self.log( "Paused scan after repetition",str(repetitionNumber),". To resume the scan, press the Start button in the Command Queue view. To abort this scan, press the Skip Task button.")
                     Finder.getInstance().find("commandQueueProcessor").pause(500);
                     LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY,"false")
                     ScriptBase.checkForPauses()
@@ -194,7 +194,7 @@ class XasScan(Scan):
                 #check if the number of repetitions has been altered and we should now end the loop
                 numRepsFromProperty = int(LocalProperties.get(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY))
                 if numRepsFromProperty != numRepetitions and numRepsFromProperty <= (repetitionNumber):
-                    print "The number of repetitions has been reset to",str(numRepsFromProperty), ". As",str(repetitionNumber),"repetitions have been completed this scan will now end."
+                    self.log( "The number of repetitions has been reset to",str(numRepsFromProperty), ". As",str(repetitionNumber),"repetitions have been completed this scan will now end.")
                     break
                 elif numRepsFromProperty <= (repetitionNumber):
                     break

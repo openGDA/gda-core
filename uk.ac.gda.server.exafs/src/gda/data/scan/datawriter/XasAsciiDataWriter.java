@@ -225,7 +225,7 @@ public class XasAsciiDataWriter extends AsciiDataWriter{
 					currentFileName = getFileNumber() + "_" + sampleName + "_" + group.getScanNumber() + "." + this.fileExtension;
 			} else {
 				dataDir += "ascii/";
-				if (nameFrag != null && nameFrag.equals("i20")){
+				if (nameFrag != null && (nameFrag.equals("i20") || nameFrag.equals("i20-1"))){
 					filePrefix = Long.toString(getFileNumber());
 					currentFileName = filePrefix +"." + this.fileExtension;
 				} else {
