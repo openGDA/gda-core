@@ -23,7 +23,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
+import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.io.SliceObject;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
@@ -156,7 +159,9 @@ public class SliceUtils {
 			                     final PlotWindow        plotWindow,
 			                     final IProgressMonitor  monitor) throws Exception {
 
-		final AbstractDataset slice = LoaderFactory.getSlice(currentSlice, new ProgressMonitorWrapper(monitor));
+		final DataHolder   dh = LoaderFactory.getData(currentSlice.getPath());
+		final ILazyDataset lz = dh.getLazyDataset(currentSlice.getName());
+		AbstractDataset  slice = (AbstractDataset)lz.getSlice(currentSlice.getSliceStart(), currentSlice.getSliceStop(), currentSlice.getSliceStep());
 		slice.setName("Slice of "+currentSlice.getName()+" (full shape "+Arrays.toString(dataShape)+")"+currentSlice.getShapeMessage());
 		
 		// We sum the data in the dimensions that are not axes
