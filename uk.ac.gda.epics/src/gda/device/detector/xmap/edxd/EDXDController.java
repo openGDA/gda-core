@@ -87,23 +87,13 @@ public class EDXDController extends DetectorBase implements Configurable {
 	public enum PIXEL_ADVANCE_MODE { GATE, SYNC}
 	public enum NEXUS_FILE_MODE {SINGLE, CAPTURE, STREAM}
 	
-
-	/**
-	 * Basic constructor, nothing done in here, waiting for configure
-	 */
 	public EDXDController() {	
 	}
 
-	/**
-	 * @return String
-	 */
 	public String getEpicsDeviceName() {
 		return epicsDeviceName;
 	}
 
-	/**
-	 * @param deviceName
-	 */
 	public void setEpicsDeviceName(String deviceName) {
 		this.epicsDeviceName = deviceName;
 	}
@@ -137,18 +127,31 @@ public class EDXDController extends DetectorBase implements Configurable {
 				}
 				
 			}
-        	
-        });
+		});
 		// Add all the EDXD Elements to the detector
-		for(int i = 0; i < NUMBER_OF_ELEMENTS; i++ ) {
-			subDetectors.add(new EDXDElement(xmap,i+1)); 
+		for (int i = 0; i < NUMBER_OF_ELEMENTS; i++) {
+			subDetectors.add(new EDXDElement(xmap, i + 1));
 
 		}
 	}
 
-        protected int getStatusObject() {
-    		return isBusy ? Detector.BUSY : Detector.IDLE;
-    	}
+	@Override
+	public void reconfigure() throws FactoryException {
+		try {
+			xmap.dispose();
+		} catch (DeviceException e) {
+			logger.warn(
+					"DeviceException while trying to shutdown EpicsDevice during reconfigure of EDXDController. Will continue with reconfigure anyway",
+					e);
+		}
+		xmap = null;
+		configure();
+	}
+
+	protected int getStatusObject() {
+		return isBusy ? Detector.BUSY : Detector.IDLE;
+	}
+	
 	@Override
 	public void collectData() throws DeviceException {
 
