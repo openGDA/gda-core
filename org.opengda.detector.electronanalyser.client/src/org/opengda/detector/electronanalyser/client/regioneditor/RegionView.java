@@ -143,7 +143,7 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		plainComposite = new Composite(regionPageBook, SWT.None);
 		plainComposite.setLayout(new FillLayout());
 
-		regionPageBook.showPage(plainComposite);
+		// regionPageBook.showPage(plainComposite);
 		regionComposite = new ScrolledComposite(regionPageBook, SWT.H_SCROLL
 				| SWT.V_SCROLL | SWT.BORDER);
 
@@ -434,6 +434,8 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		spinnerFrames = new Spinner(grpStep, SWT.BORDER);
 		spinnerFrames.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		spinnerFrames.setToolTipText("Number of frames per step");
+		spinnerFrames.setMinimum(1);
+		spinnerFrames.setMaximum(1000);
 
 		Label lblFramesPerSecond = new Label(grpStep, SWT.NONE);
 		lblFramesPerSecond.setText("Frames/s");
@@ -443,6 +445,7 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 				.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtFramesPerSecond.setToolTipText("Camera frame rate");
 		txtFramesPerSecond.setEditable(false);
+		txtFramesPerSecond.setText(String.format("%d", camera.getFrameRate()));
 
 		Label lblTime = new Label(grpStep, SWT.NONE);
 		lblTime.setText("Time [s]");
@@ -458,6 +461,8 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		txtMinimumTime.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtMinimumTime.setToolTipText("Minimum time per step allowed");
 		txtMinimumTime.setEditable(false);
+		txtMinimumTime
+				.setText(String.format("%f", 1.0 / camera.getFrameRate()));
 
 		Label lblSize = new Label(grpStep, SWT.NONE);
 		lblSize.setText("Size [meV]");
@@ -717,9 +722,27 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		@Override
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
 			if (selection instanceof FileSelection) {
+				// sequence file changed
 				try {
 					regions = regionDefinitionResourceUtil.getRegions();
 					populateRegionNameCombo(regions);
+					if (regions.isEmpty()) {
+						region=null;
+						regionPageBook.showPage(plainComposite);
+					} else {
+						regionPageBook.showPage(regionComposite);
+						if (regionName.getItemCount() > 0) {
+							// if there is enabled regions
+							region = (Region) regionName.getData("0");
+							initialiseViewWithRegionData(region);
+							fireSelectionChanged(region);
+						} else {
+							// no enabled region
+							region = regions.get(0);
+							initialiseViewWithRegionData(region);
+							fireSelectionChanged(region);
+						}
+					}
 				} catch (Exception e) {
 					logger.error("Cannot get regions list from {}",
 							regionDefinitionResourceUtil.getFileName(), e);
@@ -733,6 +756,7 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 				}
 			} else if (selection instanceof IStructuredSelection) {
 				if (StructuredSelection.EMPTY.equals(selection)) {
+					region=null;
 					regionPageBook.showPage(plainComposite);
 				} else {
 					IStructuredSelection sel = (IStructuredSelection) selection;
@@ -783,109 +807,46 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		passEnergy.setItems(new String[] { "5", "10", "50", "75", "100", "200",
 				"500" });
 
+		try {
+			editingDomain = regionDefinitionResourceUtil.getEditingDomain();
+		} catch (Exception e1) {
+			logger.error("Cannot get Editing Domain object.", e1);
+		}
 		regions = Collections.emptyList();
 		try {
 			regions = regionDefinitionResourceUtil.getRegions();
 		} catch (Exception e1) {
 			logger.error("Cannot get regions from resource: ", e1);
 		}
-		txtFramesPerSecond.setText(String.format("%d", camera.getFrameRate()));
-		txtMinimumTime
-				.setText(String.format("%f", 1.0 / camera.getFrameRate()));
-		spinnerFrames.setMinimum(1);
-		spinnerFrames.setMaximum(1000);
 
 		if (regions.isEmpty()) {
-			// set coded defaults
-			if (regionDefinitionResourceUtil.isSourceSelectable()) {
-				btnHard.setSelection(true);
-				btnSoft.setSelection(false);
-				if (dcmenergy != null) {
-					try {
-						hardXRayEnergy = (double) dcmenergy.getPosition() * 1000; // eV
-					} catch (DeviceException e) {
-						logger.error("Cannot get X-ray energy from DCM.", e);
-					}
-				}
-				excitationEnergy = hardXRayEnergy;
-				txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
-				if (pgmenergy != null) {
-					try {
-						softXRayEnergy = (double) pgmenergy.getPosition();
-					} catch (DeviceException e) {
-						logger.error("Cannot get X-ray energy from PGM.", e);
-					}
-				}
-				txtSoftEnergy.setText(String.format("%.4f", softXRayEnergy));
-			} else {
-				if (dcmenergy != null) {
-					try {
-						hardXRayEnergy = (double) dcmenergy.getPosition();
-					} catch (DeviceException e) {
-						logger.error("Cannot get X-ray energy from DCM.", e);
-					}
-				}
-				excitationEnergy = hardXRayEnergy;
-				txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
-			}
-			lensMode.setText(lensMode.getItem(0));
-			passEnergy.setText(passEnergy.getItem(1));
-			runMode.setText(runMode.getItem(0));
-			btnNumberOfIterations.setSelection(true);
-			btnSwept.setSelection(true);
-			btnKinetic.setSelection(true);
-			txtLow.setText(String.format("%.4f", 8.0));
-			txtHigh.setText(String.format("%.4f", 10.0));
-			txtCenter.setText(String.format("%.4f", (Double.parseDouble(txtLow
-					.getText()) + Double.parseDouble(txtHigh.getText())) / 2));
-			txtWidth.setText(String.format("%.4f", (Double.parseDouble(txtHigh
-					.getText()) - Double.parseDouble(txtLow.getText()))));
-			txtMinimumSize.setText(String.format(
-					"%.3f",
-					camera.getEnergyResolution()
-							* Integer.parseInt(passEnergy.getText())));
-			spinnerFrames.setSelection(3);
-			txtTime.setText(String.format(
-					"%.3f",
-					Double.parseDouble(txtMinimumTime.getText())
-							* Integer.parseInt(spinnerFrames.getText())));
-			txtSize.setText(String.format("%.3f", 200.0));
-			spinnerEnergyChannelTo.setSelection(camera.getCameraXSize());
-			spinnerYChannelTo.setSelection(camera.getCameraYSize());
-			spinnerSlices.setSelection(1);
-			btnADCMode.setSelection(true);
-			txtTotalSteps
-					.setText(String.format(
-							"%d",
-							RegionStepsTimeEstimation.calculateTotalSteps(
-									Double.parseDouble(txtWidth.getText()),
-									Double.parseDouble(txtSize.getText()),
-									(Double.parseDouble(txtMinimumSize
-											.getText()) * (Integer
-											.parseInt(spinnerEnergyChannelTo
-													.getText())
-											- Integer
-													.parseInt(spinnerEnergyChannelFrom
-															.getText()) + 1)))));
-			txtTotalTime.setText(String.format(
-					"%.3f",
-					RegionStepsTimeEstimation.calculateTotalTime(
-							Double.parseDouble(txtTime.getText()),
-							Integer.parseInt(txtTotalSteps.getText()))));
-
-		} else {
-			txtMinimumSize.setText(String.format("%.3f",
-					camera.getEnergyResolution()
-							* regions.get(0).getPassEnergy()));
-			initialiseRegionView(regions.get(0));
-		}
-		if (regions.isEmpty()) {
+			// open an empty sequence - no region
+			region = null;
 			new Label(plainComposite, SWT.None)
 					.setText("There is no regions to be displayed in this sequence.");
+			regionPageBook.showPage(plainComposite);
 		} else {
 			new Label(plainComposite, SWT.None)
-			.setText("There is no region selected in the sequence.");
+					.setText("There is no region selected in this sequence.");
+			regionPageBook.showPage(regionComposite);
+			populateRegionNameCombo(regions);
+			Region selectedRegionInSequenceView = getSelectedRegionInSequenceView();
+			if (selectedRegionInSequenceView != null) {
+				// open Region editor when sequence editor is already available
+				initialiseRegionView(selectedRegionInSequenceView);
+			} else if (regionName.getItemCount() > 0) {
+				// if there is enabled regions
+				region = (Region) regionName.getData("0");
+				initialiseRegionView(region);
+				fireSelectionChanged(region);
+			} else {
+				// no enabled region
+				region = regions.get(0);
+				initialiseRegionView(region);
+				fireSelectionChanged(region);
+			}
 		}
+
 		// add listener after initialisation otherwise return 'empty String'
 		passEnergy.addSelectionListener(passEnerySelectionAdapter);
 		btnSwept.addSelectionListener(sweptSelectionListener);
@@ -916,19 +877,6 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 		// TODO add monitor to dcmenergy in EPICS
 		// TODO add monitor to pgmenergy in EPICS
 		// TODO add monitor to total steps in EPICS
-		try {
-			editingDomain = regionDefinitionResourceUtil.getEditingDomain();
-		} catch (Exception e1) {
-			logger.error("Cannot get Editing Domain object.", e1);
-		}
-		populateRegionNameCombo(regions);
-		Region selectedRegionInSequenceView = getSelectedRegionInSequenceView();
-		if (selectedRegionInSequenceView != null) {
-			initialiseRegionView(selectedRegionInSequenceView);
-		} else if (regionName.getItemCount() > 0) {
-			regionPageBook.showPage(regionComposite);
-			fireSelectionChanged((Region) regionName.getData("0"));
-		}
 	}
 
 	private void populateRegionNameCombo(List<Region> regions) {
@@ -1363,12 +1311,13 @@ public class RegionView extends ViewPart implements ISelectionProvider {
 					RegiondefinitionPackage.eINSTANCE.getRegion_TotalTime(),
 					RegionStepsTimeEstimation.calculateTotalTime(
 							Double.parseDouble(txtTime.getText()),
-							Integer.parseInt(txtTotalSteps.getText())));		fireSelectionChanged(new TotalTimeSelection());
-							fireSelectionChanged(new TotalTimeSelection());
-							fireSelectionChanged(new TotalTimeSelection());
-							fireSelectionChanged(new TotalTimeSelection());
-							fireSelectionChanged(new TotalTimeSelection());
-							fireSelectionChanged(new TotalTimeSelection());
+							Integer.parseInt(txtTotalSteps.getText())));
+			fireSelectionChanged(new TotalTimeSelection());
+			fireSelectionChanged(new TotalTimeSelection());
+			fireSelectionChanged(new TotalTimeSelection());
+			fireSelectionChanged(new TotalTimeSelection());
+			fireSelectionChanged(new TotalTimeSelection());
+			fireSelectionChanged(new TotalTimeSelection());
 
 		}
 	}

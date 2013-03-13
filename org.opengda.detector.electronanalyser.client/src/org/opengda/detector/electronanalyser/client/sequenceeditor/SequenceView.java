@@ -7,11 +7,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EContentAdapter;
@@ -723,7 +727,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 		lblSequnceFile.setText("Sequence File: ");
 
 		txtSequenceFilePath = new Text(actionArea, SWT.BORDER | SWT.READ_ONLY);
-		txtSequenceFilePath.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		txtSequenceFilePath
+				.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		initialisation();
 		// register as selection provider to the SelectionService
@@ -876,19 +881,20 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 			for (Region region : regions) {
 				if (region.isEnabled()) {
 					numActives++;
-					if (region.getAcquisitionMode()==ACQUISITION_MODE.SWEPT) {
-					totalTimes += region.getStepTime()
-							* RegionStepsTimeEstimation
-									.calculateTotalSteps(
-											(region.getHighEnergy() - region
-													.getLowEnergy()),
-											region.getEnergyStep(),
-											camera.getEnergyResolution()
-													* region.getPassEnergy()
-													* (region.getLastXChannel()
-															- region.getFirstXChannel() + 1));
-					} else if (region.getAcquisitionMode()==ACQUISITION_MODE.FIXED) {
-						totalTimes += region.getStepTime()*1;
+					if (region.getAcquisitionMode() == ACQUISITION_MODE.SWEPT) {
+						totalTimes += region.getStepTime()
+								* RegionStepsTimeEstimation
+										.calculateTotalSteps(
+												(region.getHighEnergy() - region
+														.getLowEnergy()),
+												region.getEnergyStep(),
+												camera.getEnergyResolution()
+														* region.getPassEnergy()
+														* (region
+																.getLastXChannel()
+																- region.getFirstXChannel() + 1));
+					} else if (region.getAcquisitionMode() == ACQUISITION_MODE.FIXED) {
+						totalTimes += region.getStepTime() * 1;
 					}
 				}
 			}
@@ -1060,9 +1066,12 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 			sequence = regionDefinitionResourceUtil.getSequence();
 			if (sequence != null) {
 				runMode.setText(sequence.getRunMode().getLiteral());
-				btnNumberOfIterations.setSelection(!sequence.isRepeatUntilStopped());
-				btnRepeatuntilStopped.setSelection(sequence.isRepeatUntilStopped());
-				btnConfirmAfterEachInteration.setSelection(sequence.isConfirmAfterEachIteration());
+				btnNumberOfIterations.setSelection(!sequence
+						.isRepeatUntilStopped());
+				btnRepeatuntilStopped.setSelection(sequence
+						.isRepeatUntilStopped());
+				btnConfirmAfterEachInteration.setSelection(sequence
+						.isConfirmAfterEachIteration());
 				spinner.setSelection(sequence.getNumIterations());
 			}
 			updateCalculatedData();
@@ -1092,9 +1101,26 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 
 	@Override
 	public void doSaveAs() {
+		Resource resource = null;
+		try {
+			resource = regionDefinitionResourceUtil.getResource();
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		SaveAsDialog saveAsDialog = new SaveAsDialog(getSite().getShell());
-		saveAsDialog.setOriginalName("Test1");
 		saveAsDialog.open();
+		IPath path = saveAsDialog.getResult();
+		if (path != null) {
+			IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
+			if (file != null && resource != null) {
+				String newFilename = file.getLocation().toOSString();
+				regionDefinitionResourceUtil.saveAs(resource, newFilename);
+				isDirty = false;
+				firePropertyChange(PROP_DIRTY);
+				refreshTable(newFilename, false);
+			}
+		}
 	}
 
 	@Override

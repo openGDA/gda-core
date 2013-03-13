@@ -67,6 +67,13 @@
                style="push"
                tooltip="Save the sequence">
          </command>
+         <command
+               commandId="org.eclipse.ui.file.saveAs"
+               icon="icons/saveas.gif"
+               label="SaveAs"
+               style="push"
+               tooltip="Save the sequence in another file">
+         </command>
          <separator
                name="org.opengda.detector.electronanalyser.client.separator1"
                visible="true">
@@ -128,6 +135,13 @@
                id="org.eclipse.ui.file.savesequence"
                label="Save"
                style="push">
+         </command>
+         <command
+               commandId="org.eclipse.ui.file.saveAs"
+               icon="icons/saveas.gif"
+               label="SaveAs"
+               style="push"
+               tooltip="Save the sequence in another file">
          </command>
       </menuContribution>
    </extension>
