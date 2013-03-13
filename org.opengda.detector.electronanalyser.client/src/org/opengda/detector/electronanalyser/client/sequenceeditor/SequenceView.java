@@ -162,8 +162,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 
 	private Text txtEstimatedTime;
 
-	protected Region lastSelection;
-
 	public void createColumns(TableViewer tableViewer, TableColumnLayout layout) {
 		for (int i = 0; i < columnHeaders.length; i++) {
 			TableViewerColumn tableViewerColumn = new TableViewerColumn(
