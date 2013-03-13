@@ -656,12 +656,39 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 			return null;
 		}
 
+		boolean retry = false;
+		int numRetries = 0;
+		double[] results = null;
+		do {
+			try {
+				results = tryToGetBinaryData(message, ndata);
+			} catch (Exception e) {
+				if (numRetries >= 5) {
+					throw e;
+				}
+				logger.warn("Buffer returned from da.server was too small, retrying");
+				numRetries++;
+				retry = true;
+			}
+
+		} while (retry);
+		return results;
+	}
+
+	private double[] tryToGetBinaryData(String message, int ndata) throws Exception {
 		String command = message;
 		double[] binaryData = new double[ndata];
 		ByteBuffer bb = getBinaryDataBuffer(command, ndata);
 		if (bb == null)
 			return null;
+		int bufferSize = bb.array().length;
+		if (bufferSize != ndata * 4){
+			throw new Exception("Asked for " + ndata * 4 + "bytes but received " + bufferSize);
+		}
 		for (int i = 0; i < binaryData.length; i++) {
+			if (!bb.hasRemaining()) {
+				throw new Exception("Ran off end of buffer!");
+			}
 			binaryData[i] = bb.getFloat();
 		}
 		return binaryData;
