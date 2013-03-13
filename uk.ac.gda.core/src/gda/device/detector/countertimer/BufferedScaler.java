@@ -83,7 +83,7 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 		
 		double[][] frame = readData(startFrame, finalFrame);
 		framesRead=frame;
-		return readData(startFrame, finalFrame);
+		return frame;
 	}
 	
 	@Override
