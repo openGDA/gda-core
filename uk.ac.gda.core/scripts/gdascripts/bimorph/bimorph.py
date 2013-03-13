@@ -168,9 +168,11 @@ class RunOptimisation():
         if self.mirror_type == "hfm" or self.mirror_type == "x" or self.mirror_type == "HFM":
             centroid_column_name_suffix="peak2d_peakx"
             data_centroid_column_name="peak2d_peakx"
+            err_centroid_column_name="peak2d_peakx"
         elif self.mirror_type == "vfm" or self.mirror_type == "y" or self.mirror_type == "VFM":
             centroid_column_name_suffix="peak2d_peaky"
             data_centroid_column_name="peak2d_peaky"
+            err_centroid_column_name="peak2d_peaky"
         
         headings = errorData.getNames()
 
