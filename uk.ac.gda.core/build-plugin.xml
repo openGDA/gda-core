@@ -113,6 +113,8 @@
                 <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.analysis/bin" />
                 <pathelement location="${workspace.loc}/plugins/uk.ac.gda.swingclient/bin" />
                 <pathelement location="${workspace.loc}/plugins/uk.ac.gda.common.client/bin" />
+                <pathelement location="${workspace.git.loc}/gda-diamond.git/uk.ac.gda.dls/bin" />
+                <pathelement location="${workspace.git.loc}/gda-diamond.git/uk.ac.gda.dls/jars/*" />
                 <pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
                 <pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/bin" />
                 <pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/jars/*" />
