@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd.
+ * Copyright © 2011 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,11 +16,11 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.data.scan.datawriter;
+package gda.device.scannable;
 
-public class XesAsciiDataWriter extends XasAsciiDataWriter {
-	
-	public XesAsciiDataWriter() throws InstantiationException {
-		super();
-	}
+import gda.factory.Findable;
+import gda.observable.IObservable;
+
+public interface IQexafsScannableState extends IObservable, Findable{
+	public String getState();
 }

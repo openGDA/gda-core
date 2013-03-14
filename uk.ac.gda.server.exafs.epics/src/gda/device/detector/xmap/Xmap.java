@@ -29,6 +29,7 @@ import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.observable.IObserver;
+import gda.scan.ScanBase;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -116,6 +117,8 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 
 	private List<String> channelLabels = Collections.emptyList();
 
+	private boolean inAScan;
+
 	/**
 	 * Returns the region of interest names based on the first elements ROI names.
 	 * 
@@ -182,7 +185,30 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 
 	@Override
 	public int getStatus() throws DeviceException {
-		return tfg != null ? tfg.getStatus() : controller.getStatus();
+		// if in a scan then 
+		if (tfg != null && inAScan){
+			return tfg.getStatus();
+		}
+		return controller.getStatus();
+	}
+	
+	
+	@Override
+	public void atScanStart() throws DeviceException {
+		inAScan = true;
+		super.atScanStart();
+	}
+	
+	@Override
+	public void atScanEnd() throws DeviceException {
+		inAScan = false;
+		super.atScanEnd();
+	}
+	
+	@Override
+	public void atCommandFailure() throws DeviceException {
+		inAScan = false;
+		super.atCommandFailure();
 	}
 
 	/**
@@ -283,13 +309,22 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 
 	@Override
 	public int[] getData(int mcaNumber) throws DeviceException {
-
+		try {
+			waitWhileControllerBusy();
+		} catch (InterruptedException e) {
+			throw new DeviceException("InterruptedException while waiting for Xmap controller to return to Done state",e);
+		}
 		return controller.getData(mcaNumber);
 
 	}
 
 	@Override
 	public int[][] getData() throws DeviceException {
+		try {
+			waitWhileControllerBusy();
+		} catch (InterruptedException e) {
+			throw new DeviceException("InterruptedException while waiting for Xmap controller to return to Done state",e);
+		}
 		return controller.getData();
 	}
 
@@ -639,6 +674,8 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 	public Object getAttribute(String attributeName) throws DeviceException {
 		if (attributeName.equals("liveStats")) {
 			return calculateLiveStats();
+		} else if (attributeName.equals("countRates")) {
+			return getCountRates();
 		}
 		return null;
 	}
@@ -649,6 +686,17 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 
 	public void setSaveRawSpectrum(boolean saveawSpectrum) {
 		this.saveRawSpectrum = saveawSpectrum;
+	}
+	
+	public void waitWhileControllerBusy() throws DeviceException, InterruptedException {
+		if (controller.getStatus() != 0) {
+			logger.warn("getData() called when getData is not idle. Waiting for it to be idle before returning results");
+			while (controller.getStatus() != 0) {
+				ScanBase.checkForInterrupts();
+				Thread.sleep(100);
+			}
+			logger.warn("Now idle, results can be readout.");
+		}
 	}
 
 	/**
@@ -674,5 +722,14 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 		}
 		return results;
 	}
-
+	
+	private Object getCountRates() throws DeviceException {
+		Double results[] = new Double[2 * this.getNumberOfMca()];
+		int noOfMca = this.getNumberOfMca();
+		for (int i = 0; i < noOfMca; i++) {
+			results[i * 2] = controller.getICR(i);
+			results[i * 2 + 1] = controller.getOCR(i);
+		}
+		return results;
+	}
 }

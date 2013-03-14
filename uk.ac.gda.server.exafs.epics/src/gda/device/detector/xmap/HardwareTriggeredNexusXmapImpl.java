@@ -283,6 +283,8 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 			xmap.prepareForCollection();
 		}
 	}
+	
+	@Override
 	public void arm() throws DeviceException {
 		try {
 			controller.startRecording();
@@ -291,11 +293,12 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			armedForNewScan = false;
-			logger.error("TODO put description of error here", e);
+			logger.error("Error occurred arming the xmap detector", e);
 			throw new DeviceException("Error occurred arming the xmap detector", e);
 			
 		}
 	}
+	
 	private void setupFilename() throws Exception {
 		String beamline = null;
 		try {
@@ -352,10 +355,11 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 			
 			//controller.setNexusCapture(0);
 			controller.setAutoPixelsPerBuffer(true);
-			int numberOfPointsPerScan = getHardwareTriggerProvider().getNumberTriggers() ; 
-			if(numberOfPointsPerScan != 0 && integratesBetweenPoints())
-				numberOfPointsPerScan = numberOfPointsPerScan - 1;
-			if(numberOfPointsPerScan == 0)
+			int numberOfPointsPerScan = 0;
+			int numberOfTriggers = getHardwareTriggerProvider().getNumberTriggers() ; 
+			if(numberOfTriggers != 0 && integratesBetweenPoints())
+				numberOfPointsPerScan = numberOfTriggers - 1;
+			if(numberOfTriggers == 0)
 				numberOfPointsPerScan = this.scanNumberOfPoints;
 			//??TODO should get the number of points per scan 
 			controller.setPixelsPerRun(numberOfPointsPerScan);
@@ -371,30 +375,30 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 			
 		} catch (Exception e) {
 			armedForNewScan = false;
-			logger.error("TODO put description of error here", e);
+			logger.error("Error occurred arming the xmap detector", e);
 			throw new DeviceException("Error occurred arming the xmap detector", e);
 		}
 		this.indexer  = new PositionStreamIndexer<NexusTreeProvider>(new XmapPositionInputStream(this, this.xmap.isSumAllElementData()));
 			}
 
-	public void setupContinuousOperation(){
+	public void setupContinuousOperation() throws DeviceException{
 		if (!isSlave()) {
 				setTimeFrames();				
 			}
 		}
 	
-	private void setTimeFrames() {
+	private void setTimeFrames() throws DeviceException {
 		switchOnExtTrigger();
 		getDaServer().sendCommand("tfg setup-groups ext-start cycles 1");
 		getDaServer().sendCommand(this.scanNumberOfPoints + " 0.000001 0.00000001 0 0 0 8");
 		getDaServer().sendCommand("-1 0 0 0 0 0 0");
 		getDaServer().sendCommand("tfg arm");
 	}
-	private void switchOnExtTrigger() {
+	private void switchOnExtTrigger() throws DeviceException {
 		getDaServer().sendCommand("tfg setup-trig start ttl0");
 	}
 
-	private void switchOffExtTrigger() {
+	private void switchOffExtTrigger() throws DeviceException {
 		getDaServer().sendCommand("tfg setup-trig start"); // disables external triggering
 	}
 	public void setDaServer(DAServer daServer) {
@@ -418,9 +422,8 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 			xmap.stop();
 			controller.endRecording();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
-			logger.error("TODO put description of error here", e);
+			logger.error("Unalble to end hdf5 capture", e);
 			throw new DeviceException("Unalble to end hdf5 capture" , e);
 		}
 		controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
@@ -435,9 +438,8 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 			xmap.stop();
 			controller.endRecording();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
-			logger.error("TODO put description of error here", e);
+			logger.error("Unalble to end hdf5 capture", e);
 			throw new DeviceException("Unalble to end hdf5 capture" , e);
 		}
 		controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
@@ -488,9 +490,8 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 			if(controller.getHDFFileName().equals(fileName))
 				return controller.getCaptureStatus();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			logger.error("TODO put description of error here", e);
-			throw new DeviceException("CAnnot read the file capture status", e);
+			logger.error("Cannot read the file capture status", e);
+			throw new DeviceException("Cannot read the file capture status", e);
 		}
 		return false;
 	}

@@ -107,7 +107,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 
 	private Double deadtimeEnergy = null;  // in keV NOT eV!
 
-	protected int framesRead = 0;
+	protected int lastFrameCollected = 0;
 	// mode override property, when set to true the xspress is always set in SCAlers and MCA Mode
 	// does not change with the value in the parameters file, no rois are set
 	private boolean modeOverride = LocalProperties.check("gda.xspress.mode.override");
@@ -400,7 +400,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 			clear();
 			start();
 		}
-		framesRead = 0;
+		lastFrameCollected = -1;
 	}
 
 	@Override
@@ -411,7 +411,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		stop();
 		clear();
 		start();
-		framesRead = 0;
+		lastFrameCollected = -1;
 	}
 
 	@Override
@@ -726,7 +726,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
-				logger.error("TODO put description of error here", e);
+				logger.error("Error sleeping for 100ms", e);
 			}
 			sendCommand("enable ", mcaHandle);
 		}
@@ -761,7 +761,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	}
 
 	@Override
-	public void close() {
+	public void close() throws DeviceException {
 		if (mcaHandle >= 0 && daServer != null && daServer.isConnected()) {
 			daServer.sendCommand("close " + mcaHandle);
 			mcaHandle = -1;
@@ -1509,10 +1509,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	 */
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
-		NexusTreeProvider out = readout(framesRead, framesRead)[0];
-		if (!tfg.getAttribute("TotalFrames").equals(0)) {
-			framesRead++;
-		}
+		NexusTreeProvider out = readout(lastFrameCollected, lastFrameCollected)[0];
 		return out;
 	}
 
@@ -1747,28 +1744,34 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		return out;
 	}
 
-//	/**
-//	 * When only one res garde, removes the single dimension to convert [element][resGrade][mca] into a true 2D array of
-//	 * [element][mca]
-//	 * 
-//	 * @param correctedMCAArrays
-//	 * @return double[][]
-//	 */
-//	private double[][] removeSingleDimensionFromArray(int[][][] correctedMCAArrays) {
-//		double[][] out = new double[correctedMCAArrays.length][correctedMCAArrays[0][0].length];
-//
-//		for (int element = 0; element < correctedMCAArrays.length; element++) {
-//			for (int mcaChannel = 0; mcaChannel < correctedMCAArrays[0][0].length; mcaChannel++) {
-//				out[element][mcaChannel] = correctedMCAArrays[element][0][mcaChannel];
-//			}
-//		}
-//		return out;
-//	}
-
 	private NXDetectorData addDTValuesToNXDetectorData(NXDetectorData thisFrame, int[] unpackedScalerData) {
 		// always add raw scaler values to nexus data
-		thisFrame.addData(thisFrame.getDetTree(getName()), "raw scaler values",
-				new int[] { unpackedScalerData.length }, NexusFile.NX_INT32, unpackedScalerData, "counts", 1);
+		
+		if (unpackedScalerData.length != numberOfDetectors * 4){
+			logger.warn("Amount of scaler data inconsistent with the number of elements in Xspress2 detector. Raw scaler data will not be recorded.");
+			return thisFrame;
+		}
+		
+		int[] totalCounts = new int[numberOfDetectors];
+		int[] numResets = new int[numberOfDetectors];
+		int[] inWinCounts = new int[numberOfDetectors];
+		int[] numClockCounts = new int[numberOfDetectors];
+		
+		for (int i = 0; i < numberOfDetectors; i++){
+			totalCounts[i] = unpackedScalerData[i*4];
+			numResets[i] = unpackedScalerData[i*4 + 1];
+			inWinCounts[i] = unpackedScalerData[i*4 + 2];
+			numClockCounts[i] = unpackedScalerData[i*4 + 3];
+		}
+		
+		thisFrame.addData(thisFrame.getDetTree(getName()), "raw scaler total",
+				new int[] { numberOfDetectors }, NexusFile.NX_INT32, totalCounts, "counts", 1);
+		thisFrame.addData(thisFrame.getDetTree(getName()), "tfg resets",
+				new int[] { numberOfDetectors }, NexusFile.NX_INT32, numResets, "counts", 1);
+		thisFrame.addData(thisFrame.getDetTree(getName()), "raw scaler in-window",
+				new int[] { numberOfDetectors }, NexusFile.NX_INT32, inWinCounts, "counts", 1);
+		thisFrame.addData(thisFrame.getDetTree(getName()), "tfg clock cycles",
+				new int[] { numberOfDetectors }, NexusFile.NX_INT32, numClockCounts, "counts", 1);
 
 		return thisFrame;
 	}
@@ -1784,6 +1787,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		if (elementNames.size() == ds.length && ffColumn > -1) {
 			thisFrame.addData(detTree, "FF", new int[] { 1 }, NexusFile.NX_FLOAT64, new double[] { ds[ffColumn] },
 					"counts", 1);
+//			logger.info("FF measured to be"+ds[ffColumn]+" for frame  "+ lastFrameCollected);
 		}
 
 		if (mcaGrades == RES_THRES) {
@@ -1895,20 +1899,22 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	 * @return an array of doubles of dead time corrected 'in window' counts and the sum of all the dead time corrected
 	 *         data.
 	 * @throws DeviceException
+	 * @Deprecated since 8.26 do not use this as the array of doubles does not necessarily match to the outputNames
 	 */
 	@Override
+	@Deprecated
 	public double[] readoutScalerData() throws DeviceException {
 		if (tfg.getAttribute("TotalFrames").equals(0)) {
 			return readoutScalerData(0, 0, true)[0];
 		}
-		return readoutScalerData(framesRead, framesRead, true)[0];
+		return readoutScalerData(lastFrameCollected, lastFrameCollected, true)[0];
 	}
 
 	public double[] readoutScalerDataNoCorrection() throws DeviceException {
 		if (tfg.getAttribute("TotalFrames").equals(0)) {
 			return readoutScalerData(0, 0, false)[0];
 		}
-		return readoutScalerData(framesRead, framesRead, false)[0];
+		return readoutScalerData(lastFrameCollected, lastFrameCollected, false)[0];
 	}
 
 	private double[][] readoutScalerData(int startFrame, int finalFrame, boolean performCorrections)
@@ -2091,9 +2097,13 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 			open();
 		}
 		if (mcaHandle >= 0 && daServer != null && daServer.isConnected()) {
-			value = daServer.getIntBinaryData("read 0 0 " + startFrame + " " + mcaSize + " " + numberOfDetectors
-					* mcaGrades + " " + numberOfFrames + " from " + mcaHandle + " raw motorola", numberOfDetectors
-					* mcaGrades * mcaSize * numberOfFrames);
+			try {
+				value = daServer.getIntBinaryData("read 0 0 " + startFrame + " " + mcaSize + " " + numberOfDetectors
+						* mcaGrades + " " + numberOfFrames + " from " + mcaHandle + " raw motorola", numberOfDetectors
+						* mcaGrades * mcaSize * numberOfFrames);
+			} catch (Exception e) {
+				throw new DeviceException(e.getMessage(),e);
+			}
 		}
 		return value;
 	}
@@ -2104,9 +2114,13 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 			open();
 		}
 		if (scalerHandle >= 0 && daServer != null && daServer.isConnected()) {
-			value = daServer.getIntBinaryData("read 0 0 " + startFrame + " " + numberOfScalers + " "
-					+ numberOfDetectors + " " + numberOfFrames + " from " + scalerHandle + " raw motorola",
-					numberOfDetectors * numberOfScalers * numberOfFrames);
+			try {
+				value = daServer.getIntBinaryData("read 0 0 " + startFrame + " " + numberOfScalers + " "
+						+ numberOfDetectors + " " + numberOfFrames + " from " + scalerHandle + " raw motorola",
+						numberOfDetectors * numberOfScalers * numberOfFrames);
+			} catch (Exception e) {
+				throw new DeviceException(e.getMessage(),e);
+			}
 		}
 		return value;
 	}
@@ -2115,18 +2129,17 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	public void reconfigure() throws FactoryException {
 		// A real system needs a connection to a real da.server via a DAServer object.
 		logger.debug("Xspress2System.reconfigure(): reconnecting to: " + daServerName);
-		daServer.reconnect();
+		try {
+			daServer.reconnect();
 
-		// does not reconfigure the tfg -- need to check if it is needed
-		// If everything has been found send the open commands.
-		if (tfg != null && (daServer != null)) {
-			try {
+			// does not reconfigure the tfg -- need to check if it is needed
+			// If everything has been found send the open commands.
+			if (tfg != null && (daServer != null)) {
 				open();
-			} catch (DeviceException e) {
-				throw new FactoryException(e.getMessage(), e);
 			}
+		} catch (DeviceException e) {
+			throw new FactoryException(e.getMessage(), e);
 		}
-
 	}
 
 	@Override
@@ -2140,6 +2153,10 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		if (tfg.getAttribute("TotalFrames").equals(0)) {
 			clear();
 			start();
+			lastFrameCollected = 0;
+		} else {
+			// so all readout methods will read from the same frame
+			lastFrameCollected++;
 		}
 	}
 
@@ -2171,8 +2188,9 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	// this method is only for Junit testing
 	/**
 	 * for use by junit tests
+	 * @throws DeviceException 
 	 */
-	protected void setFail() {
+	protected void setFail() throws DeviceException {
 		if (daServer != null && daServer.isConnected()) {
 			daServer.sendCommand("Fail");
 		}
@@ -2420,11 +2438,15 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	}
 	
 	public int getNumberFrames() throws DeviceException {
-
+		// this value will be non-zero if collecting from a series of time frames outside of the continuous scan mechanism
 		if (tfg.getAttribute("TotalFrames").equals(0)) {
 			return 0;
 		}
 
+		return getNumberFramesFromTFGStatus();
+	}
+
+	public int getNumberFramesFromTFGStatus() throws DeviceException {
 		String[] cmds = new String[] { "status show-armed", "progress", "status", "full", "lap", "frame" };
 		HashMap<String, String> currentVals = new HashMap<String, String>();
 		for (String cmd : cmds) {

@@ -18,9 +18,13 @@
 
 package uk.ac.gda.exafs.ui.plot;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.exafs.scan.ExafsScanPointCreator;
 import gda.scan.IScanDataPoint;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.DataSetPlotData;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
 import uk.ac.gda.beans.exafs.IScanParameters;
@@ -30,6 +34,8 @@ import uk.ac.gda.exafs.ui.data.ScanObjectManager;
  * This class assumes that the point with energy less than A are to be included in the pre-edge.
  */
 public class SubtractedBackgroundScanPlotView extends ExafsScanPlotView {
+
+	private static final Logger logger = LoggerFactory.getLogger(SubtractedBackgroundScanPlotView.class);
 
 	@SuppressWarnings("hiding")
 	public static final String ID = "gda.rcp.views.scan.SubtractedBackgroundScanPlotView"; //$NON-NLS-1$
@@ -55,13 +61,18 @@ public class SubtractedBackgroundScanPlotView extends ExafsScanPlotView {
 			AbstractDataset lnI0It = AbstractDataset.createFromList(cachedY);
 
 			Double[] edgePos = xafsFittingUtils.estimateEdgePosition(energy, lnI0It);
-			if (edgePos != null && (edgePos[0] > (edgePos[1] + 200))) {
-				AbstractDataset[] exafs = xafsFittingUtils.getSubtractedBackgroundInK(energy, lnI0It);
-				this.xDataSetData = new DataSetPlotData(getXAxis(), exafs[0]);
-				return new DataSetPlotData(getYAxis(), exafs[1]);
+			if (edgePos != null) {
+				double postEdgeStart = xafsFittingUtils.getPostEdgeGap();
+				int idxStart = DatasetUtils.findIndexGreaterThanorEqualTo(energy, edgePos[1] + postEdgeStart);
+
+				if (lnI0It.getSize() > (idxStart + minPlotPoints)) {
+					AbstractDataset[] exafs = xafsFittingUtils.getSubtractedBackgroundInK(energy, lnI0It);
+					this.xDataSetData = new DataSetPlotData(getXAxis(), exafs[0]);
+					return new DataSetPlotData(getYAxis(), exafs[1]);
+				}
 			}
 		} catch (Exception e) {
-			// logger.error("Cannot normalise data", e);
+			logger.warn("Exception in XafsFittingUtils calculating Subtracted background",e);
 		}
 		return null;
 

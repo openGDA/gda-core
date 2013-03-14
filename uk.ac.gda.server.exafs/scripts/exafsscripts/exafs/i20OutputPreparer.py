@@ -1,10 +1,18 @@
+from gda.configuration.properties import LocalProperties
 from gda.factory import Finder
+from gda.scan import ScanPlotSettings
+
+from uk.ac.gda.beans import BeansFactory
+from uk.ac.gda.beans.exafs import XesScanParameters
+
 from gdascripts.parameters import beamline_parameters
 
 from BeamlineParameters import JythonNameSpaceMapping
 
 class I20OutputPreparer:
+    
     def __init__(self):
+        self.mode = "xas"
         pass
     
     def prepare(self, outputParameters):
@@ -18,6 +26,71 @@ class I20OutputPreparer:
         
         return []
 
+    #
+    # Determines the AsciiDataWriterConfiguration to use to format the header/footer of the ascii data files
+    #
+    # If this returns None, then let the Ascii Data Writer class find the config for itself.
+    #
+    def getAsciiDataWriterConfig(self,beanGroup):
+        scan = beanGroup.getScan()
+        if self.mode == "xes" or isinstance(scan,XesScanParameters):
+            # will return None if not found
+            print "Ascii (.dat) files will have XES header."
+            return Finder.getInstance().find("datawriterconfig_xes")
+        else:
+            # will return None if not found
+            print "Ascii (.dat) files will have XAS format header."
+            return Finder.getInstance().find("datawriterconfig")
+
+    #
+    # For any specific plotting requirements based on all the options in this experiment
+    #
+    def getPlotSettings(self,beanGroup):
+        
+        if beanGroup.getDetector().getExperimentType() == "Fluorescence" :
+            detType = beanGroup.getDetector().getFluorescenceParameters().getDetectorType()
+            if detType == "Germanium" :
+                fluoDetBean = BeansFactory.getBeanObject(beanGroup.getScriptFolder(), beanGroup.getDetector().getFluorescenceParameters().getConfigFileName())
+                if fluoDetBean.isXspressShowDTRawValues():
+                    # create a filter for the DT columns and return it
+                    LocalProperties.set("gda.scan.useScanPlotSettings", "true")
+                    jython_mapper = JythonNameSpaceMapping()
+                    sps = ScanPlotSettings()
+                    sps.setXAxisName("Energy")  # column will be converted to this name
+                    
+                    fluoDetGroup = None
+                    listDetectorGroups = beanGroup.getDetector().getDetectorGroups()
+                    for detGroup in listDetectorGroups:
+                        if detGroup.getName() == "Germanium":
+                            fluoDetGroup = detGroup
+
+                    axes = []
+                    for det in fluoDetGroup.getDetector():
+                        thisDet =  jython_mapper.__getattr__(str(det))
+                        extraNames = thisDet.getExtraNames()
+                        axes += extraNames
+
+                    visibleAxes = []
+                    invisibleAxes = []
+                    for axis in axes:
+                        if str(axis).startswith("Element") and self._containsUnderbar(str(axis)):
+                            invisibleAxes += [axis]
+                        else:
+                            visibleAxes += [axis]
+                            
+                    sps.setYAxesShown(visibleAxes)
+                    sps.setYAxesNotShown(invisibleAxes)
+                    # if anythign extra, such as columns added in the output parameters xml should also be plotted
+                    sps.setUnlistedColumnBehaviour(2)
+                    #print sps
+                    return sps
+        return None
+    
+    def _containsUnderbar(self,string):
+        for c in string:
+            if c == "_":
+                return True
+        return False
          
 def redefineNexusMetadata(beanGroup):
 

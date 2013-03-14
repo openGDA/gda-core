@@ -57,7 +57,7 @@ public class XmapI1MonitorView extends ViewPart implements Runnable, IPartListen
 
 	protected volatile boolean runMonitoring = false;
 	protected volatile boolean keepOnTrucking = true;
-	protected volatile double refreshRate = 1.0; // seconds
+	protected volatile double refreshRate = 0.1; // seconds
 
 	protected boolean amVisible = true;
 	protected XmapI1MonitorViewData displayData;
@@ -161,9 +161,15 @@ public class XmapI1MonitorView extends ViewPart implements Runnable, IPartListen
 				try {
 					i1 = updateValues();
 					xmapStats = getXmapCountRatesAndDeadTimes();
-				} catch (DeviceException e1) {
-					logger.error(e1.getMessage(), e1);
-					runMonitoring = false;
+				} catch (Exception e1) {
+					logger.debug(e1.getMessage(), e1);
+					setRunMonitoring(false);
+					PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							btnRunPause.setImageDescriptor(runImage);
+						}
+					});
 					continue;
 				}
 
@@ -196,11 +202,11 @@ public class XmapI1MonitorView extends ViewPart implements Runnable, IPartListen
 
 		double rate = xmapStats[0]; // Hz
 		double dt = (xmapStats[1] - 1) * 100; // %
-		Double FF = xmapStats[0];
+		Double FF = xmapStats[2] * xmapStats[1];
 		displayData.setDeadTime(dt);
-		displayData.setRate(rate);
-		displayData.setTotalCounts(FF);
-		displayData.setFFI1(xmapStats[2] / i1);
+		displayData.setFF(FF);
+		displayData.setICR(rate);
+		displayData.setFFI1(FF / i1);
 	}
 
 	protected Double[] getXmapCountRatesAndDeadTimes() throws DeviceException {
@@ -208,7 +214,7 @@ public class XmapI1MonitorView extends ViewPart implements Runnable, IPartListen
 		return (Double[]) xmap.getAttribute("liveStats");
 	}
 
-	protected Double updateValues() throws DeviceException {
+	protected Double updateValues() throws Exception {
 
 		String xmapName = LocalProperties.get("gda.exafs.xmapName", "xmapMca");
 		XmapDetector xmap = (XmapDetector) Finder.getInstance().find(xmapName);
@@ -216,18 +222,18 @@ public class XmapI1MonitorView extends ViewPart implements Runnable, IPartListen
 		CounterTimer ionchambers = (CounterTimer) Finder.getInstance().find(ionchambersName);
 
 		// only collect new data outside of scans else will readout the last data collected
-		try {
-			if (JythonServerFacade.getInstance().getScanStatus() == Jython.IDLE && !xmap.isBusy()
-					&& !ionchambers.isBusy()) {
-				xmap.collectData();
-				ionchambers.setCollectionTime(1);
-				ionchambers.collectData();
-			}
-			xmap.waitWhileBusy();
+		if (JythonServerFacade.getInstance().getScanStatus() == Jython.IDLE && !xmap.isBusy()
+				&& !ionchambers.isBusy()) {
+			xmap.collectData();
+			ionchambers.setCollectionTime(1);
+			ionchambers.collectData();
 			ionchambers.waitWhileBusy();
-		} catch (InterruptedException e) {
-			throw new DeviceException(e);
+			xmap.stop();
+			xmap.waitWhileBusy();
+		} else {
+			throw new Exception("Scan and/or detectors already running, so stop the loop");
 		}
+
 
 		// read the latest frame
 		int currentFrame = ionchambers.getCurrentFrame();
@@ -238,8 +244,9 @@ public class XmapI1MonitorView extends ViewPart implements Runnable, IPartListen
 			currentFrame /= 2;
 			currentFrame--;
 		}
-
-		double[] ion_results = (double[]) ionchambers.readout();
+		
+		// this view is bespoke to readout out the fourth ionchamber only (I1)
+		double[] ion_results = ionchambers.readFrame(4, 1, currentFrame);
 		Double collectionTime = (Double) ionchambers.getAttribute("collectionTime");
 		return ion_results[0] /= collectionTime;
 	}

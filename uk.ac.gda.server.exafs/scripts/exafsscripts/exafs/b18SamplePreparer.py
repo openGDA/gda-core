@@ -46,8 +46,6 @@ class B18SamplePreparer:
 			elif sampleParameters.getTemperatureControl() == "pulsetubecryostat":
 				return self._control_pulsetube(sampleParameters.getPulseTubeCryostatParameters())
 		
-			
-
 	def _control_furnace(self, furnace_bean):
 		self.log("furnace is the temperature controller")
 		temperature = furnace_bean.getTemperature()
@@ -103,9 +101,6 @@ class B18SamplePreparer:
 			self.lakeshore_scannable.setTempSelect(2);
 		if selectTemp3 == True:
 			self.lakeshore_scannable.setTempSelect(3);
-		#self.lakeshore_scannable.setExtraNames(["temp"])
-		#self.lakeshore_scannable.setInputNames([])
-		#self.lakeshore_scannable.setOutputFormat([u'%5.5g'])
 		meta = NexusFileMetadata("temp", str(self.lakeshore_scannable()), EntryTypes.NXsample, NXinstrumentSubTypes.NXpositioner, "temp") #@UndefinedVariable
 		NexusExtraMetadataDataWriter.removeMetadataEntry(meta)
 		NexusExtraMetadataDataWriter.addMetadataEntry(meta)
@@ -241,4 +236,3 @@ class B18SamplePreparer:
 			filter = bean.getFilter()
 			print "moving sample wheel to ", filter
 			self.samplewheel_scannable.moveToFilter(filter)
-		

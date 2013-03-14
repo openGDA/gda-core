@@ -328,12 +328,16 @@ public class XmapNexusFileLoader implements XmapFileLoader{
 			int outputEvents;
 
 			void read(short[] in , int startIndex) {
+				float clock = 3125000;
 				int right = in[startIndex++];
 				int left = in[startIndex++];
-				realtime = Float.intBitsToFloat(left <<16 | (right & 0xFFFF));
+				int lreal = left <<16;
+				int rreal = (right & 0xFFFF);
+				int ored = lreal| rreal;
+				realtime = ored/clock;
 				right = in[startIndex++];
 				left = in[startIndex++];
-				livetime = Float.intBitsToFloat(left <<16 | (right & 0xFFFF));
+				livetime = (left <<16 | (right & 0xFFFF))/clock;
 				right = in[startIndex++];
 				left = in[startIndex++];
 				triggers =left <<16 | (right & 0xFFFF);

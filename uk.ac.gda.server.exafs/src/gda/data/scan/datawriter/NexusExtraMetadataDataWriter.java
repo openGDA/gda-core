@@ -105,11 +105,11 @@ public class NexusExtraMetadataDataWriter extends NexusDataWriter {
 					if (file.groupdir().get(group.get(0).getTypeLabel()) == null) {
 						file.makegroup(group.get(0).getTypeLabel(), group.get(0).getNxEntrySubType().toString());
 					}
-					file.opengroup(group.get(0).getTypeLabel().toString(), group.get(0).getNxEntrySubType().toString());					
+					file.opengroup(group.get(0).getTypeLabel().toString(), group.get(0).getNxEntrySubType().toString());
 					madeSubGroup = true;
 				} else {
 					file.makegroup(group.get(0).getTypeLabel(), group.get(0).getNxEntryType().toString());
-					file.opengroup(group.get(0).getTypeLabel().toString(), group.get(0).getNxEntryType().toString());										
+					file.opengroup(group.get(0).getTypeLabel().toString(), group.get(0).getNxEntryType().toString());
 				}
 				
 				try {

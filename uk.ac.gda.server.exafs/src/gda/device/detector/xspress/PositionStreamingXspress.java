@@ -96,7 +96,7 @@ public class PositionStreamingXspress extends Xspress2System implements Position
 		for (NexusTreeProvider tree : trees) {
 			listOfTress.add(tree);
 		}
-		framesRead = highestFrameNumAvailable;
+		lastFrameCollected = highestFrameNumAvailable;
 		nextFrameToRead = highestFrameNumAvailable + 1;
 		return listOfTress;
 	}

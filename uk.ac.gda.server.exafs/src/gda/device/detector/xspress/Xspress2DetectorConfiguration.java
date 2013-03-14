@@ -95,9 +95,9 @@ public class Xspress2DetectorConfiguration extends DetectorConfiguration {
 				xspress2.setSaveRawSpectrum(xspressParameters.isSaveRawSpectrum());
 			}
 
-			if(additionalSavePath != null && !additionalSavePath.equals(templateFile.getName())){
-				saveBeanToTemplate(xspressParameters, new File(templateFile.getParent() + File.separator+additionalSavePath));
-			}
+//			if(additionalSavePath != null && !additionalSavePath.equals(templateFile.getName())){
+//				saveBeanToTemplate(xspressParameters, new File(templateFile.getParent() + File.separator+additionalSavePath));
+//			}
 			message = " The Xspress detector configuration updated.";
 			controller.notifyIObservers("Message", new ScriptProgressEvent(message));
 		} catch (Exception ne) {

@@ -40,7 +40,6 @@ import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DAppearance;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DGraphTable;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotException;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.Plot1DStyles;
 
@@ -101,8 +100,7 @@ public class ScalersMonitorView extends MonitorViewBase {
 				displayData.setFFI0(xspressStats[8 * 3 + 2] / values[0]);
 				break;
 			case 64:
-				// TODO check that this is one of the higher rate elements in the 64Ge
-				displayData.setFFI0(xspressStats[16 * 3 + 2] / values[0]);
+				displayData.setFFI0(xspressStats[36 * 3 + 2] / values[0]);  // use element 37 as I think this is one of the more central ones
 				break;
 			default:
 				displayData.setFFI0(xspressStats[2] / values[0]);
@@ -133,7 +131,7 @@ public class ScalersMonitorView extends MonitorViewBase {
 
 			myPlotter.updateAllAppearance();
 			myPlotter.refresh(true);
-		} catch (PlotException e) {
+		} catch (Exception e) {
 			// log and stop plotting
 			runMonitoring = false;
 			logger.error("Exception trying to plot Xspress statistics " + e.getMessage());
@@ -150,7 +148,7 @@ public class ScalersMonitorView extends MonitorViewBase {
 	}
 
 	@Override
-	protected Double[] getIonChamberValues() throws DeviceException {
+	protected Double[] getIonChamberValues() throws Exception {
 
 		String xspressName = LocalProperties.get("gda.exafs.xspressName", "xspress2system");
 		XspressDetector xspress = (XspressDetector) Finder.getInstance().find(xspressName);
@@ -158,18 +156,18 @@ public class ScalersMonitorView extends MonitorViewBase {
 		CounterTimer ionchambers = (CounterTimer) Finder.getInstance().find(ionchambersName);
 
 		// only collect new data outside of scans else will readout the last data collected
-		try {
-			if (JythonServerFacade.getInstance().getScanStatus() == Jython.IDLE && !xspress.isBusy()
-					&& !ionchambers.isBusy()) {
-				xspress.collectData();
-				ionchambers.setCollectionTime(1);
-				ionchambers.collectData();
-			}
+		if (JythonServerFacade.getInstance().getScanStatus() == Jython.IDLE && !xspress.isBusy()
+				&& !ionchambers.isBusy()) {
+			xspress.collectData();
+			ionchambers.setCollectionTime(1);
+			ionchambers.collectData();
+
 			xspress.waitWhileBusy();
 			ionchambers.waitWhileBusy();
-		} catch (InterruptedException e) {
-			// ignore
+		} else {
+			throw new Exception("Scan and/or detectors already running, so stop the loop");
 		}
+
 
 		// read the latest frame
 		int currentFrame = ionchambers.getCurrentFrame();
@@ -182,6 +180,7 @@ public class ScalersMonitorView extends MonitorViewBase {
 		}
 
 		int numChannels = ionchambers.getExtraNames().length;
+		// works for TFG2 only where time if the first channel
 		double[] ion_results = ionchambers.readFrame(1, numChannels, currentFrame);
 
 		Double collectionTime = (Double) ionchambers.getAttribute("collectionTime");

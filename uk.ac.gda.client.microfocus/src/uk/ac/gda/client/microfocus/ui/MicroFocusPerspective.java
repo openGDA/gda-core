@@ -22,7 +22,9 @@ import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
-public class MicroFocusPespective implements IPerspectiveFactory {
+import uk.ac.gda.client.CommandQueueViewFactory;
+
+public class MicroFocusPerspective implements IPerspectiveFactory {
 
 	public static final String ID = "uk.ac.gda.microfocus.ui.MicroFocusPerspective";
 
@@ -33,22 +35,24 @@ public class MicroFocusPespective implements IPerspectiveFactory {
 
 	private void defineLayout(IPageLayout layout) {
 		String editorArea = layout.getEditorArea();
-		IFolderLayout bottomfolder = layout.createFolder("bottom", IPageLayout.BOTTOM, 0.88f, editorArea); //$NON-NLS-1$
 		
-		IFolderLayout rightfolder = layout.createFolder("right", IPageLayout.RIGHT, 0.6f, editorArea); //$NON-NLS-1$
+		IFolderLayout rightfolder = layout.createFolder("right", IPageLayout.RIGHT, 0.6f, editorArea);
+		IFolderLayout leftFolder = layout.createFolder("left", IPageLayout.LEFT, 0.16f, editorArea);
+		IFolderLayout outputfolder = layout.createFolder("top", IPageLayout.TOP, 0.76f, editorArea);
 		
-		IFolderLayout leftFolder = layout.createFolder("left", IPageLayout.LEFT, 0.16f, editorArea); //$NON-NLS-1$
-		//IFolderLayout leftFolder2 = layout.createFolder("left2", , 0.32f, editorArea); //$NON-NLS-1$
-		IFolderLayout outputfolder = layout.createFolder("top", IPageLayout.TOP, 0.76f, editorArea); //$NON-NLS-1$
+		IFolderLayout detfolder = layout.createFolder("middle", IPageLayout.BOTTOM, 0.05f, IPageLayout.ID_EDITOR_AREA);
 		
-		IFolderLayout detfolder = layout.createFolder("middle", IPageLayout.BOTTOM, 0.05f, IPageLayout.ID_EDITOR_AREA); //$NON-NLS-1$
 		outputfolder.addView("uk.ac.gda.beamline.i18.MapView");
-		leftFolder.addView("uk.ac.gda.client.microfocus.MFElementListView");
+		
+		leftFolder.addView("uk.ac.gda.client.microfocus.SelectExafsView");
+		leftFolder.addView("uk.ac.gda.client.microfocus.XspressElementListView");
 		leftFolder.addView("uk.ac.gda.client.microfocus.VortexElementListView");
+		
+		detfolder.addView(CommandQueueViewFactory.ID);
 		detfolder.addView("gda.rcp.jythonterminalview");
+
+		detfolder.addView(CommandQueueViewFactory.ID);
 		rightfolder.addView("uk.ac.gda.beamline.i18.McaView");
-		//rightfolder.addView("uk.ac.diamond.scisoft.analysis.rcp.views.SidePlotView");
-		//bottomfolder.addView("uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView");
 		
 		layout.setEditorAreaVisible(false);
 	}

@@ -29,8 +29,6 @@ import uk.ac.gda.client.microfocus.views.scan.MicroFocusElementListView;
 
 public class LoadFileHandler extends AbstractHandler implements IHandler {
 
-	
-
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		if(HandlerUtil.getActivePart(event).getClass().equals(MicroFocusElementListView.class)){
@@ -38,5 +36,4 @@ public class LoadFileHandler extends AbstractHandler implements IHandler {
 		}
 		return null;
 	}
-
 }

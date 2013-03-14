@@ -172,8 +172,7 @@ public class DummyXmapBufferedDetector extends DetectorBase implements BufferedD
 			// readSoFar = totalToRead;
 			return container;
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			logger.error("TODO put description of error here", e);
+			logger.error("Unable to load file " + fileName, e);
 			throw new DeviceException("Unable to load file " + fileName, e);
 		}
 	}
@@ -259,10 +258,8 @@ public class DummyXmapBufferedDetector extends DetectorBase implements BufferedD
 	public void atScanEnd() throws DeviceException {
 		try {
 			stop();
-			
 		} catch (Exception e) {
-			
-			logger.error("TODO put description of error here", e);
+			logger.error("Unalble to end hdf5 capture", e);
 			throw new DeviceException("Unalble to end hdf5 capture", e);
 		}
 	}
@@ -272,7 +269,7 @@ public class DummyXmapBufferedDetector extends DetectorBase implements BufferedD
 		try {
 			stop();
 		} catch (Exception e) {
-			logger.error("TODO put description of error here", e);
+			logger.error("Unalble to end hdf5 capture", e);
 			throw new DeviceException("Unalble to end hdf5 capture", e);
 		}
 	}

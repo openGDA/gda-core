@@ -32,31 +32,26 @@ public class MapPlotView extends AbstractScanPlotView {
 
 	@Override
 	protected PlotData getX(IScanDataPoint... point) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	protected PlotData getY(IScanDataPoint... point) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	protected String getGraphTitle() {
-		// TODO Auto-generated method stub
 		return "MicroFocus Map";
 	}
 
 	@Override
 	protected String getXAxis() {
-		// TODO Auto-generated method stub
 		return "X";
 	}
 
 	@Override
 	protected String getYAxis() {
-		// TODO Auto-generated method stub
 		return "y";
 	}
 

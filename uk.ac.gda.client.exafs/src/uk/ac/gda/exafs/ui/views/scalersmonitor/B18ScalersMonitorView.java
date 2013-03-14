@@ -18,7 +18,7 @@
 
 package uk.ac.gda.exafs.ui.views.scalersmonitor;
 
-import gda.device.DeviceException;
+import gda.device.scannable.IQexafsScannableState;
 import gda.factory.Finder;
 
 import org.eclipse.ui.PlatformUI;
@@ -28,12 +28,12 @@ public class B18ScalersMonitorView extends ScalersMonitorView {
 	@SuppressWarnings("hiding")
 	public static final String ID = "uk.ac.gda.exafs.ui.views.B18ScalersMonitor"; //$NON-NLS-1$
 	private String qexafsState;
-	private IQexafsScannableState qexafsScannableState;
+	//private IQexafsScannableState qexafsScannableState;
 
 	
 	@Override
 	public void run() {
-		qexafsScannableState = Finder.getInstance().find("qexafs_energy");
+		//qexafsScannableState = Finder.getInstance().find("qexafs_energy");
 		while (keepOnTrucking) {
 			if (!runMonitoring || !amVisible) {
 				try {
@@ -50,16 +50,22 @@ public class B18ScalersMonitorView extends ScalersMonitorView {
 				}
 			} else {
 
-				qexafsState = qexafsScannableState.getState();
+				//qexafsState = qexafsScannableState.getState();
 				if (qexafsState.equals("idle")) {
 					final Double[] values;
 					final Double[] xspressStats;
 					try {
 						values = getIonChamberValues();
 						xspressStats = getFluoDetectorCountRatesAndDeadTimes();
-					} catch (DeviceException e1) {
+					} catch (Exception e1) {
 						logger.error(e1.getMessage(), e1);
 						runMonitoring = false;
+						PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								btnRunPause.setImageDescriptor(runImage);
+							}
+						});
 						continue;
 					}
 

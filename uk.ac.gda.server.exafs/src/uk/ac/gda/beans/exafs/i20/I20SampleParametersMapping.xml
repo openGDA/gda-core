@@ -50,6 +50,9 @@
 
 	<class name="uk.ac.gda.beans.exafs.i20.CryostatParameters">
 		<map-to xml="cryostat" />
+		<field name="loopChoice" type="string">
+			<bind-xml name="loopChoice" node="element" />
+		</field>
 		<field name="temperature" type="double">
 			<bind-xml name="temperature" node="element" />
 		</field>
@@ -160,6 +163,9 @@
 		<field name="sample1_rotation" type="double">
 			<bind-xml name="sample1_rotation" node="element" />
 		</field>
+		<field name="sample1_finerotation" type="double">
+			<bind-xml name="sample1_finerotation" node="element" />
+		</field>
 		<field name="sample1_roll" type="double">
 			<bind-xml name="sample1_roll" node="element" />
 		</field>
@@ -177,6 +183,9 @@
 		</field>
 		<field name="sample2_rotation" type="double">
 			<bind-xml name="sample2_rotation" node="element" />
+		</field>
+		<field name="sample2_finerotation" type="double">
+			<bind-xml name="sample2_finerotation" node="element" />
 		</field>
 		<field name="sample2_roll" type="double">
 			<bind-xml name="sample2_roll" node="element" />
@@ -196,6 +205,9 @@
 		<field name="sample3_rotation" type="double">
 			<bind-xml name="sample3_rotation" node="element" />
 		</field>
+		<field name="sample3_finerotation" type="double">
+			<bind-xml name="sample3_finerotation" node="element" />
+		</field>
 		<field name="sample3_roll" type="double">
 			<bind-xml name="sample3_roll" node="element" />
 		</field>
@@ -213,6 +225,9 @@
 		</field>
 		<field name="sample4_rotation" type="double">
 			<bind-xml name="sample4_rotation" node="element" />
+		</field>
+		<field name="sample4_finerotation" type="double">
+			<bind-xml name="sample4_finerotation" node="element" />
 		</field>
 		<field name="sample4_roll" type="double">
 			<bind-xml name="sample4_roll" node="element" />

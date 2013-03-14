@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -25,12 +25,18 @@ import gda.util.Element;
 
 import java.util.ArrayList;
 
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.PlotData;
 import uk.ac.diamond.scisoft.spectroscopy.fitting.XafsFittingUtils;
+import uk.ac.diamond.scisoft.spectroscopy.rcp.SpectroscopyRCPActivator;
+import uk.ac.diamond.scisoft.spectroscopy.rcp.preferences.XafsPreferences;
 import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
@@ -54,12 +60,41 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 
 	protected double a = Double.NaN;
 
-	protected final XafsFittingUtils xafsFittingUtils = new XafsFittingUtils();
+	protected final XafsFittingUtils xafsFittingUtils;
+	protected final int minPlotPoints = 10;  // Minimal number of points needed to start plotting
 
 	public ExafsScanPlotView() {
 		super();
+		xafsFittingUtils = new XafsFittingUtils();
 	}
 
+	@Override
+	public void createPartControl(Composite parent) {
+		super.createPartControl(parent);
+		
+		setXafsPreferences();
+		
+		SpectroscopyRCPActivator.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent event) {
+				if (event.getProperty() == XafsPreferences.CHEBYSHEV)
+					xafsFittingUtils.setUseChebyshevSeries((Boolean) event.getNewValue());
+				if (event.getProperty() == XafsPreferences.FILTER)
+					xafsFittingUtils.setDoFilter((Boolean) event.getNewValue());
+				if (event.getProperty() == XafsPreferences.KWEIGHT)
+					xafsFittingUtils.setKweight((Integer) event.getNewValue());
+				if (event.getProperty() == XafsPreferences.MAXORDER)
+					xafsFittingUtils.setMaxPolynomialOrder((Integer) event.getNewValue());
+				if (event.getProperty() == XafsPreferences.OVERSAMPLE)
+					xafsFittingUtils.setDoOversample((Boolean) event.getNewValue());
+				if (event.getProperty() == XafsPreferences.PRE_EDGE)
+					xafsFittingUtils.setPreEdgeGap((Double) event.getNewValue());
+				if (event.getProperty() == XafsPreferences.POST_EDGE)
+					xafsFittingUtils.setPostEdgeGap((Double) event.getNewValue());
+			}
+		});
+	}
+	
 	@Override
 	public void scanDataPointChanged(ScanDataPointEvent e) {
 		try {
@@ -73,24 +108,11 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 	}
 
 	@Override
-	public void scanStopped() {
-		try {
-			IScanParameters curScan = ScanObjectManager.getCurrentScan();
-			if (curScan != null && !(curScan instanceof MicroFocusScanParameters)) {
-				super.scanStopped();
-				a = Double.NaN;
-			}
-		} catch (Exception e) {
-			logger.error("Unable to determine the scan type", e);
-		}
-	}
-
-	@Override
 	public void scanStarted() {
 		try {
+			super.scanStarted();
 			IScanParameters curScan = ScanObjectManager.getCurrentScan();
 			if (curScan != null && !(curScan instanceof MicroFocusScanParameters)) {
-				super.scanStarted();
 				calculateA();
 			}
 		} catch (Exception e) {
@@ -107,7 +129,6 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 			if (params == null)
 				return false; // Leave a as last calculated
 
-//			final IScanParameters params = currentScan.getScanParameters();
 			if (params instanceof XasScanParameters) {
 				final XasScanParameters scanParams = (XasScanParameters) params;
 				final Double A = scanParams.getA();
@@ -157,22 +178,57 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 	@Override
 	protected void updateCache(ArrayList<IScanDataPoint> collection, int startIndex) {
 		calculateA();
+		
 		if (cachedX == null)
 			cachedX = new ArrayList<Double>(89);
 		if (cachedY == null)
 			cachedY = new ArrayList<Double>(89);
-		for (int i = startIndex; i < collection.size(); i++){
+		for (int i = startIndex; i < collection.size(); i++) {
 			IScanDataPoint point = collection.get(i);
-			final double i0 = ScanDataPointUtils.getI0(point);
-			final double it = ScanDataPointUtils.getIt(point);
-			final double ln = Math.log(i0 / it);
-			if (Double.isNaN(ln))
+			double x = point.getAllValuesAsDoubles()[0];
+			double ffi0 = ScanDataPointUtils.getFFI0(point);
+			double ffi1 = ScanDataPointUtils.getFFI1(point);
+			double ff = ScanDataPointUtils.getFF(point);
+			double i0 = ScanDataPointUtils.getI0(point);
+			double i1 = ScanDataPointUtils.getI1(point);
+			double it = ScanDataPointUtils.getIt(point);
+			if (Double.isNaN(i0) && Double.isNaN(i1))
 				continue;
-			if (Double.isNaN(point.getAllValuesAsDoubles()[0]))
+			if (!Double.isNaN(ffi0)) {
+				cachedY.add(ffi0);
+				cachedX.add(x);
+			} else if (!Double.isNaN(ffi1)) {
+				cachedY.add(ffi1);
+				cachedX.add(x);
+			} else if (!Double.isNaN(ff)) {
+				Double y = ff / i0;
+				if (y.isInfinite() || y.isNaN()) {
+					y = 0.0;
+				}
+				cachedY.add(y);
+				cachedX.add(x);
+			} else if (!Double.isNaN(it)) {
+				Double y = Math.log(i0 / it);
+				if (y == null || y.isInfinite() || y.isNaN()){
+					y = 0.0;
+				}
+				cachedY.add(y);
+				cachedX.add(x);
+			} else {
 				continue;
-			cachedY.add(ln);
-			cachedX.add(point.getAllValuesAsDoubles()[0]);
+			}
 		}
+	}
+
+	private void setXafsPreferences() {
+		IPreferenceStore preferences = SpectroscopyRCPActivator.getDefault().getPreferenceStore();
+        xafsFittingUtils.setDoFilter(preferences.getBoolean(XafsPreferences.FILTER));
+        xafsFittingUtils.setDoOversample(preferences.getBoolean(XafsPreferences.OVERSAMPLE));
+        xafsFittingUtils.setKweight(preferences.getInt(XafsPreferences.KWEIGHT));
+        xafsFittingUtils.setMaxPolynomialOrder(preferences.getInt(XafsPreferences.MAXORDER));
+        xafsFittingUtils.setPostEdgeGap(preferences.getDouble(XafsPreferences.POST_EDGE));
+        xafsFittingUtils.setPreEdgeGap(preferences.getDouble(XafsPreferences.PRE_EDGE));
+        xafsFittingUtils.setUseChebyshevSeries(preferences.getBoolean(XafsPreferences.CHEBYSHEV));
 	}
 
 	@Override

@@ -250,6 +250,7 @@ public class ImportVortexROIWizardPage extends ImportROIWizardPage {
 				validSource = true;
 			}
 		} catch (Exception e1) {
+			logger.error("Error ",e1);
 		} 
 	}
 	

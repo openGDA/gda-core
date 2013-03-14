@@ -18,13 +18,15 @@
 
 package gda.device.detector;
 
+import gda.device.DeviceException;
+
 
 /**
  * Version of Xspress2BufferedDetector which takes a software trigger. For system testing.
  */
 public class Xspress2BufferedDetectorForTesting extends Xspress2BufferedDetector implements SimulatedBufferedDetector {
 	@Override
-	public void setContinuousMode(boolean on) {
+	public void setContinuousMode(boolean on) throws DeviceException {
 		isContinuousMode = on;
 
 		if (on) {
@@ -40,7 +42,7 @@ public class Xspress2BufferedDetectorForTesting extends Xspress2BufferedDetector
 	}
 
 	@Override
-	public void addPoint() {
+	public void addPoint() throws DeviceException {
 		xspress2system.getDaServer().sendCommand("tfg cont");	
 	}
 

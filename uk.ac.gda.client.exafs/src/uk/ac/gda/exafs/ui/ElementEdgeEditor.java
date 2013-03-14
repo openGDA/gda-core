@@ -208,10 +208,10 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 						@Override
 						public void run() {
 							try {
-								if (!suspendGraphUpdate) {
+								if (!suspendGraphUpdate && updateValueAllowed) {
 									updatePlottedPoints();
 								} else {
-									System.out.println("cannot update plot!");
+									//System.out.println("cannot update plot!");
 								}
 							} catch (Exception e1) {
 								logger.error("Cannot update plot of points.", e1);
@@ -308,7 +308,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 
 			plotter.setTitle("EXAFS Energy Profile");
 			plotter.refresh(false);
-			System.out.println("refreshupdatePlottedPoints");
+//			System.out.println("refreshupdatePlottedPoints");
 			
 			lastPlottedBean = BeansFactory.deepClone(scanBean);
 

@@ -18,9 +18,11 @@
 
 package gda.jython.scriptcontroller.logging;
 
+import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableBase;
+import gda.exafs.scan.RepetitionsProperties;
 import gda.jython.IScanDataPointObserver;
 import gda.jython.IScanDataPointProvider;
 import gda.jython.InterfaceProvider;
@@ -39,29 +41,33 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 	private final String predictedTotalTime;
 	private final String scriptName;
 	private final String repetition;
+	private final String totalRepetitions;
 	private final String outputFolder;
+	private final long timeRepetitionsStarted;
 	private long timeStarted;
 	private String lastPercentComplete = "0%";
-	
-	public XasProgressUpdater(LoggingScriptController controller,XasLoggingMessage msg){
+
+	public XasProgressUpdater(LoggingScriptController controller, XasLoggingMessage msg, long timeRepetitionsStarted) {
 		this.controller = controller;
+		this.timeRepetitionsStarted = timeRepetitionsStarted;
 		this.id = msg.getUniqueID();
 		this.scriptName = msg.getName();
-		this.repetition = msg.getRepetition();
+		this.repetition = Integer.toString(msg.getRepetitionNumber());
+		this.totalRepetitions = msg.getTotalRepetitions();
 		this.predictedTotalTime = msg.getPredictedTotalTime();
 		this.outputFolder = msg.getOutputFolder();
 		this.setInputNames(new String[] {});
 		this.setExtraNames(new String[] {});
 		this.setOutputFormat(new String[] {});
 		this.setName("XAS Progress Updater");
-		
+
 	}
-	
+
 	@Override
 	public String toFormattedString() {
 		return getName();
 	}
-	
+
 	@Override
 	public String toString() {
 		return toFormattedString();
@@ -76,16 +82,16 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 	@Override
 	public void atScanEnd() throws DeviceException {
 		InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(this);
-		XasLoggingMessage msg = new XasLoggingMessage(id, scriptName, "complete", repetition, "100%", getElapsedTime(),
-				predictedTotalTime, outputFolder);
+		XasLoggingMessage msg = new XasLoggingMessage(id, scriptName, "complete", repetition, getTotalRepetitions(), lastPercentComplete,
+				getElapsedTime(), getElapsedTotalTime(), predictedTotalTime, outputFolder);
 		controller.update(this, msg);
 	}
-	
+
 	@Override
 	public void atCommandFailure() throws DeviceException {
 		InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(this);
-		XasLoggingMessage msg = new XasLoggingMessage(id, scriptName, "scan aborted", repetition, lastPercentComplete, getElapsedTime(),
-				predictedTotalTime, outputFolder);
+		XasLoggingMessage msg = new XasLoggingMessage(id, scriptName, "scan aborted", repetition, getTotalRepetitions(),
+				lastPercentComplete, getElapsedTime(), getElapsedTotalTime(), predictedTotalTime, outputFolder);
 		controller.update(this, msg);
 	}
 
@@ -93,7 +99,7 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 	public Object rawGetPosition() throws DeviceException {
 		return null;
 	}
-	
+
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		// do nothing
@@ -108,20 +114,36 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 	public void update(Object source, Object arg) {
 		if (source instanceof IScanDataPointProvider && arg instanceof ScanDataPoint) {
 			ScanDataPoint sdp = (ScanDataPoint) arg;
-			int currentPoint = sdp.getCurrentPointNumber() + 1;
-			int totalPoints = sdp.getNumberOfPoints();
-			int percentComplete = (int) Math.round((currentPoint * 100.0)/ totalPoints );
-			lastPercentComplete = percentComplete+ "%";
+			int currentPoint = sdp.getCurrentPointNumber() + 1 + (sdp.getNumberOfPoints() * (Integer.parseInt(repetition) - 1));
+			int totalPoints = sdp.getNumberOfPoints() * Integer.parseInt(getTotalRepetitions());
+			int percentComplete = (int) Math.round((currentPoint * 100.0) / totalPoints);
+			lastPercentComplete = percentComplete + "%";
 
-			XasLoggingMessage msg = new XasLoggingMessage(id, scriptName, "in progress", repetition, percentComplete
-					+ "%", getElapsedTime(), predictedTotalTime, outputFolder);
+			XasLoggingMessage msg = new XasLoggingMessage(id, scriptName, "in progress", repetition, getTotalRepetitions(),
+					percentComplete + "%", getElapsedTime(),getElapsedTotalTime() , predictedTotalTime, outputFolder);
 			controller.update(this, msg);
 		}
 	}
+	
+	private String getTotalRepetitions() {
+		String property = LocalProperties.get(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY);
+		if (property == null || property.isEmpty()){
+				return totalRepetitions;
+		}
+		return property;
+	}
 
 	private String getElapsedTime() {
+		return calTimeDiff(timeStarted);
+	}
+
+	private String getElapsedTotalTime() {
+		return calTimeDiff(timeRepetitionsStarted);
+	}
+
+	private String calTimeDiff(long startTime) {
 		long now = System.currentTimeMillis();
-		long duration = now - timeStarted;
+		long duration = now - startTime;
 		long hours = TimeUnit.MILLISECONDS.toHours(duration);
 		long minutes = TimeUnit.MILLISECONDS.toMinutes(duration) - TimeUnit.HOURS.toMinutes(hours);
 		long seconds = TimeUnit.MILLISECONDS.toSeconds(duration) - TimeUnit.HOURS.toSeconds(hours)
@@ -129,5 +151,5 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 		String diff = String.format("%dh%dm%ds", hours, minutes, seconds);
 		return diff;
 	}
-
+	
 }

@@ -18,9 +18,12 @@
 
 package gda.jython.scriptcontroller.logging;
 
+import gda.configuration.properties.LocalProperties;
+import gda.exafs.scan.ExafsTimeEstimator;
+import gda.exafs.scan.RepetitionsProperties;
+
 import java.util.concurrent.TimeUnit;
 
-import gda.exafs.scan.ExafsTimeEstimator;
 import uk.ac.gda.beans.exafs.IScanParameters;
 
 public class XasLoggingMessage implements ScriptControllerLoggingMessage {
@@ -29,34 +32,40 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 	private String scriptName;
 	private String message;
 	private String repetition;
+	private String totalRepetitions;
 	private String percentComplete;
-	private String elaspedTime;
+	private String elaspedScanTime;
+	private String elaspedTotalTime;
 	private String predictedTotalTime;
 	private String outputFolder;
 	
 	
-	protected XasLoggingMessage(String id, String scriptName, String message, String repetition, String percentComplete,
-			String elaspedTime, String predictedTotalTime, String outputFolder) {
+	protected XasLoggingMessage(String id, String scriptName, String message, String repetition, String totalRepetitions, String percentComplete,
+			String elaspedScanTime, String elaspedTotalTime, String predictedTotalTime, String outputFolder) {
 		super();
 		this.id = id;
 		this.scriptName = scriptName;
 		this.message = message;
 		this.repetition = repetition;
+		this.totalRepetitions = totalRepetitions;
 		this.percentComplete = percentComplete;
-		this.elaspedTime = elaspedTime;
+		this.elaspedScanTime = elaspedScanTime;
+		this.elaspedTotalTime = elaspedTotalTime;
 		this.predictedTotalTime = predictedTotalTime;
 		this.outputFolder = outputFolder;
 	}
 	
-	public XasLoggingMessage(String id, String scriptName, String message, String repetition, String percentComplete,
-			String elaspedTime, IScanParameters parameters, String outputFolder) throws Exception {
+	public XasLoggingMessage(String id, String scriptName, String message, String repetition, String totalRepetitions, String percentComplete,
+			String elaspedScanTime, String elaspedTotalTime, IScanParameters parameters, String outputFolder) throws Exception {
 		super();
 		this.id = id;
 		this.scriptName = scriptName;
 		this.message = message;
 		this.repetition = repetition;
+		this.totalRepetitions = totalRepetitions;
 		this.percentComplete = percentComplete;
-		this.elaspedTime = elaspedTime;
+		this.elaspedScanTime = elaspedScanTime;
+		this.elaspedTotalTime = elaspedTotalTime;
 		this.outputFolder = outputFolder;
 		
 		long totalTime = ExafsTimeEstimator.getTime(parameters);
@@ -87,7 +96,19 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 
 	@ScriptControllerLogColumn(columnName = "Repetition", refresh = true, columnIndex = 1)
 	public String getRepetition() {
-		return repetition;
+		return repetition + " of " + getTotalRepetitions();
+	}
+	
+	public Integer getRepetitionNumber() {
+		return Integer.parseInt(repetition);
+	}
+
+	public String getTotalRepetitions() {
+		String property = LocalProperties.get(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY);
+		if (property == null || property.isEmpty()){
+				return totalRepetitions;
+		}
+		return property;
 	}
 
 	@ScriptControllerLogColumn(columnName = "Percent Complete", refresh = true, columnIndex = 2)
@@ -95,17 +116,22 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 		return percentComplete;
 	}
 
-	@ScriptControllerLogColumn(columnName = "Elapsed Time", refresh = true, columnIndex = 3)
-	public String getElaspedTime() {
-		return elaspedTime;
+	@ScriptControllerLogColumn(columnName = "Scan Elapsed Time", refresh = true, columnIndex = 3)
+	public String getElaspedScanTime() {
+		return elaspedScanTime;
 	}
 
-	@ScriptControllerLogColumn(columnName = "Total Time", refresh = false, columnIndex = 4)
+	@ScriptControllerLogColumn(columnName = "Total Elapsed Time", refresh = true, columnIndex = 4)
+	public String getElaspedTotalTime() {
+		return elaspedTotalTime;
+	}
+
+	@ScriptControllerLogColumn(columnName = "Total Time", refresh = false, columnIndex = 5)
 	public String getPredictedTotalTime() {
 		return predictedTotalTime;
 	}
 	
-	@ScriptControllerLogColumn(columnName = "output Folder", refresh = false, columnIndex = 5)
+	@ScriptControllerLogColumn(columnName = "output Folder", refresh = false, columnIndex = 6)
 	public String getOutputFolder() {
 		return outputFolder;
 	}

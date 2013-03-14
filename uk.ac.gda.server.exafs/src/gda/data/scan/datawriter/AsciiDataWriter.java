@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2012 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -34,20 +34,15 @@ import org.slf4j.LoggerFactory;
  * Generic and configurable writer of ascii files. The format of the file is defined using an
  * AsciiDataWriterConfiguration object.
  */
-public class AsciiDataWriter extends ExafsIncrementalFile {
+public class AsciiDataWriter extends IncrementalFile implements ConfigurableAsciiFormat{
 
-	ScanDataPointFormatter scanDataPointFormatter = null;
-	
 	private static Logger logger = LoggerFactory.getLogger(AsciiDataWriter.class);
 
 	protected AsciiDataWriterConfiguration configuration;
 
+	ScanDataPointFormatter scanDataPointFormatter = null;
+	String columnHeader = "";
 
-	/**
-	 * Constructor
-	 * 
-	 * @throws InstantiationException
-	 */
 	public AsciiDataWriter() throws InstantiationException {
 
 		ArrayList<Findable> configs = Finder.getInstance().listAllObjects("AsciiDataWriterConfiguration");
@@ -58,15 +53,9 @@ public class AsciiDataWriter extends ExafsIncrementalFile {
 		configuration = ((AsciiDataWriterConfiguration) configs.get(0));
 	}
 	
-	/**
-	 * @param configuration 
-	 * @throws InstantiationException 
-	 */
 	public AsciiDataWriter(AsciiDataWriterConfiguration configuration) throws InstantiationException{
 		this.configuration = configuration;
 	}
-
-	String columnHeader = "";
 
 	@Override
 	public void addData(IScanDataPoint dataPoint) throws Exception {
@@ -148,10 +137,12 @@ public class AsciiDataWriter extends ExafsIncrementalFile {
 		// ignore - for this class this is set by the configuration
 	}
 
+	@Override
 	public AsciiDataWriterConfiguration getConfiguration() {
 		return configuration;
 	}
 
+	@Override
 	public void setConfiguration(AsciiDataWriterConfiguration configuration) {
 		this.configuration = configuration;
 	}
@@ -164,7 +155,7 @@ public class AsciiDataWriter extends ExafsIncrementalFile {
 		return scanDataPointFormatter;
 	}
 
-	/**
+	/*
 	 * This allows inheriting classes to extend the functionality at this point
 	 * 
 	 * @throws Exception 

@@ -28,27 +28,39 @@ import org.apache.commons.beanutils.BeanUtils;
  */
 public class CryostatParameters implements Serializable {
 		
+	public static final String[] LOOP_OPTION = new String[]{"Loop over sample, then temperature", "Loop over temperature, then sample"};
+	public static final String[] SAMPLE_HOLDER_OPTION = new String[]{"3 Samples", "Liquid Cell"};
 
-	private Double  temperature;
-	private Integer heaterRange;
-	private Double  time;
-	private String  profileType;
-	private Double  p,i,d,ramp;
-	private Double  tolerance;
-	private String  sampleHolder;
+	private Double  temperature;	// desired temp
+	private Double  time;			// timeout while waiting for heat to reach desired value
+	private Double  tolerance;		// temperature deadband (GDA-level concept, this is not in EPICS)
+	private Double  p,i,d,ramp;		// ramp rate unused in UI
+	private Integer heaterRange;	// power output 1-5
+	
+	// TODO add ramp rate, ramp enable, 
+
+	private String  profileType;	// unused  TODO remove
+	
+	private String  sampleHolder;	// liquid cell or '4 samples' TODO stic final string[]
 	private String  sampleNumbers = "";
+	
 	private Double  position1 = 0.0;
 	private Double  finePosition1 = 0.0;
 	private String  sampleDescription1 = "";
+	
 	private Double  position2 = 0.0;
 	private Double  finePosition2 = 0.0;
 	private String  sampleDescription2 = "";
+	
 	private Double  position3 = 0.0;
 	private Double  finePosition3 = 0.0;
 	private String  sampleDescription3 = "";
-	private Double  position4 = 0.0;
+	
+	private Double  position4 = 0.0;				// TODO remove 4th
 	private Double  finePosition4 = 0.0;
 	private String  sampleDescription4 = "";
+	
+	private String loopChoice;
 
 	public Double getTemperature() {
 		return temperature;
@@ -241,6 +253,14 @@ public class CryostatParameters implements Serializable {
 		this.sampleDescription4 = sampleDescription4;
 	}
 
+	public String getLoopChoice() {
+		return loopChoice;
+	}
+
+	public void setLoopChoice(String loopChoice) {
+		this.loopChoice = loopChoice;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -252,6 +272,7 @@ public class CryostatParameters implements Serializable {
 		result = prime * result + ((finePosition4 == null) ? 0 : finePosition4.hashCode());
 		result = prime * result + ((heaterRange == null) ? 0 : heaterRange.hashCode());
 		result = prime * result + ((i == null) ? 0 : i.hashCode());
+		result = prime * result + ((loopChoice == null) ? 0 : loopChoice.hashCode());
 		result = prime * result + ((p == null) ? 0 : p.hashCode());
 		result = prime * result + ((position1 == null) ? 0 : position1.hashCode());
 		result = prime * result + ((position2 == null) ? 0 : position2.hashCode());
@@ -314,6 +335,11 @@ public class CryostatParameters implements Serializable {
 			if (other.i != null)
 				return false;
 		} else if (!i.equals(other.i))
+			return false;
+		if (loopChoice == null) {
+			if (other.loopChoice != null)
+				return false;
+		} else if (!loopChoice.equals(other.loopChoice))
 			return false;
 		if (p == null) {
 			if (other.p != null)

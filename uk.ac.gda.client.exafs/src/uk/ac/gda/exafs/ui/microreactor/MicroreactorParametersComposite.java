@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.exafs.ui.composites;
+package uk.ac.gda.exafs.ui.microreactor;
 
 
 import java.util.regex.Pattern;
@@ -59,15 +59,16 @@ public final class MicroreactorParametersComposite extends FieldBeanComposite {
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("Furnace temp");
 		this.temperature = new ScaleBox(tempComposite, SWT.NONE);
+		((GridData) temperature.getControl().getLayoutData()).widthHint = 98;
 		temperature.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		temperature.setUnit("C");
 		temperature.setMinimum(100);
 		temperature.setMaximum(300);
+		new Label(temperature, SWT.NONE);
 		
 		final Group gasPressures = new Group(this, SWT.NONE);
 		gasPressures.setText("Gas pressures (ml/min)");
-		final GridData gd_gasPressures = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		gasPressures.setLayoutData(gd_gasPressures);
+		gasPressures.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		GridLayout gridLayout = new GridLayout(2, false);
 		gasPressures.setLayout(gridLayout);
 
@@ -137,8 +138,7 @@ public final class MicroreactorParametersComposite extends FieldBeanComposite {
 		
 		final Group massGroup = new Group(this, SWT.NONE);
 		massGroup.setText("Spectrometer Masses (AMU)");
-		final GridData gd_massGroup = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		massGroup.setLayoutData(gd_massGroup);
+		massGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		gridLayout = new GridLayout(1, false);
 		massGroup.setLayout(gridLayout);
 

@@ -45,8 +45,11 @@ import uk.ac.gda.util.CorrectionUtils;
  * Version of Xmap which returns its data in a format which works with the NexusFileWriter better than raw data
  */
 public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
-	private boolean sumAllElementData = false;
 	private static final Logger logger = LoggerFactory.getLogger(NexusXmap.class);
+	
+	private boolean sumAllElementData = false;
+	
+	
 
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
@@ -172,7 +175,7 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 				ffFromRoi +=roiCounts[iroi][element];
 			}
 		}
-		//logger.info("the ff from roi is " + ffFromRoi);
+		
 		// add the full spectrum
 		if (numberOfElements == 1) {
 			output.addData(detTree, "fullSpectrum", new int[] {detDataToWrite[0].length },
@@ -185,6 +188,13 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 		double ff = ffFromRoi;
 		output.addData(detTree, "FF", new int[] { 1 }, NexusFile.NX_FLOAT64, new Double[] { ff }, "counts", 1);
 		output.setPlottableValue("FF", ff);
+		
+		if (saveRawSpectrum) {
+			for (int element = 0; element < numberOfElements; element++) {
+				output.setPlottableValue(getIcrColumnName(element), icrs[element]);
+				output.setPlottableValue(getOcrColumnName(element), ocrs[element]);
+			}
+		}
 
 		if (summation != null)
 			output.addData(detTree, "allElementSum", new int[] { summation.length }, NexusFile.NX_FLOAT64, summation,
@@ -231,6 +241,14 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 			}
 		}
 		extraNames = (String[]) ArrayUtils.add(extraNames, "FF");
+		
+		if (saveRawSpectrum) {
+			int numberOfElements = vortexParameters.getDetectorList().size();
+			for (int element = 0; element < numberOfElements; element++) {
+				extraNames = (String[]) ArrayUtils.add(extraNames, getIcrColumnName(element));
+				extraNames = (String[]) ArrayUtils.add(extraNames,  getOcrColumnName(element));
+			}
+		}
 
 		return extraNames;
 	}
@@ -247,5 +265,20 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 	public boolean isSumAllElementData() {
 		return sumAllElementData;
 	}
-
+	
+	private String[] getElementNames() {
+		String[] names = new String[vortexParameters.getDetectorList().size()];
+		for(int i = 0; i < names.length; i++){
+			names[i] = vortexParameters.getDetectorList().get(i).getName();
+		}
+		return names;
+	}
+	
+	private String getIcrColumnName(int elementNumber){
+		return getElementNames()[elementNumber]+ "_icr";
+	}
+	
+	private String getOcrColumnName(int elementNumber){
+		return getElementNames()[elementNumber]+ "_ocr";
+	}
 }

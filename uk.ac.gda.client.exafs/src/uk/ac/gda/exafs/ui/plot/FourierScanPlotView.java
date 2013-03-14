@@ -18,9 +18,13 @@
 
 package uk.ac.gda.exafs.ui.plot;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.exafs.scan.ExafsScanPointCreator;
 import gda.scan.IScanDataPoint;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.DataSetPlotData;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
 import uk.ac.gda.beans.exafs.IScanParameters;
@@ -30,6 +34,8 @@ import uk.ac.gda.exafs.ui.data.ScanObjectManager;
  * This class assumes that the point with energy less than A are to be included in the pre-edge.
  */
 public class FourierScanPlotView extends ExafsScanPlotView {
+	
+	private static final Logger logger = LoggerFactory.getLogger(FourierScanPlotView.class);
 
 	@SuppressWarnings("hiding")
 	public static final String ID = "gda.rcp.views.scan.FourierScanPlotView"; //$NON-NLS-1$
@@ -54,16 +60,22 @@ public class FourierScanPlotView extends ExafsScanPlotView {
 			AbstractDataset lnI0It = AbstractDataset.createFromList(cachedY);
 
 			Double[] edgePos = xafsFittingUtils.estimateEdgePosition(energy, lnI0It);
-			if (edgePos != null && edgePos[0] > (edgePos[1] + 200)) {
-				AbstractDataset[] fft = xafsFittingUtils.getFFT(energy, lnI0It);
+			if (edgePos != null) {
+				double postEdgeStart = xafsFittingUtils.getPostEdgeGap();
+				int idxStart = DatasetUtils.findIndexGreaterThanorEqualTo(energy, edgePos[1] + postEdgeStart);
 
-				this.xDataSetData = new DataSetPlotData(getXAxis(), fft[0]);
+				if (lnI0It.getSize() > (idxStart + minPlotPoints)) {
+					AbstractDataset[] fft = xafsFittingUtils.getFFT(energy, lnI0It);
 
-				// At the time of writing this code DataSet does not inherit from AbstractDataset!!
-				return new DataSetPlotData("fft", fft[1]);
+					this.xDataSetData = new DataSetPlotData(getXAxis(), fft[0]);
+
+					// At the time of writing this code DataSet does not inherit from AbstractDataset!!
+					return new DataSetPlotData("fft", fft[1]);
+				}
 			}
 			return null;
 		} catch (Exception e) {
+			logger.warn("Exception in XafsFittingUtils calculating FFT",e);
 			return null;
 		}
 	}
