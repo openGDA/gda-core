@@ -80,8 +80,8 @@ class I20OutputPreparer:
                         if not str(axis).startswith("Element"):
                              visibleAxes += [axis]
                     sps.setYAxesShown(visibleAxes)
-                    #sps.setYAxesNotShown(invisibleAxes)
-                    # if anything extra, such as columns added in the output parameters xml should also be plotted
+                    sps.setYAxesNotShown(invisibleAxes)
+                    # if anythign extra, such as columns added in the output parameters xml should also be plotted
                     sps.setUnlistedColumnBehaviour(2)
                     #print sps
                     return sps
