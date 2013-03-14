@@ -151,7 +151,7 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements DataWrite
 			} else {
 				xasDir += "/ascii" ;
 				nexusFileTemplate = "nexus/%d";
-				if (nameFrag != null && !nameFrag.equals("i20")){
+				if (nameFrag != null && !nameFrag.equals("i20") && !nameFrag.equals("i20-1")){
 					nexusFileTemplate += "_" + nameFrag;
 				}
 				nexusFileTemplate += ".nxs";
