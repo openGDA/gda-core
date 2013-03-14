@@ -241,9 +241,13 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 	}
 	
 	@Override
-	public int getNumberImagesPerCollection(double collectionTime) throws Exception {
-		double localExposureTime = getExposureTime();
-		return ndProcess == null ? calcNumberImagesPerCollection(collectionTime, localExposureTime) : 1;
+	public int getNumberImagesPerCollection(double collectionTime){
+		try{
+			double localExposureTime = getExposureTime();
+			return ndProcess == null ? calcNumberImagesPerCollection(collectionTime, localExposureTime) : 1;
+		} catch (Exception e){
+			throw new IllegalArgumentException("Error in getNumberImagesPerCollection",e);
+		}
 	}
 
 }

@@ -647,6 +647,10 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 
 	static private int[] dims = new int[] { 1 };
 
+	/*
+	 * To allow multiple calls to getPositionCallable for the same point hold onto the result of the first call. Clear
+	 * at atPointStart
+	 */
 	private ADDetectorPositionCallable latestPositionCallable=null;
 
 	private void addDoubleItemToNXData(NXDetectorData data, String name, Double val) {
@@ -723,14 +727,26 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 		this.checkFileExists = checkFileExists;
 	}
 
+	
+	@Override
+	public void atPointStart() throws DeviceException {
+		super.atPointStart();
+		latestPositionCallable=null;
+	}
+
 	@Override
 	public Callable<NexusTreeProvider> getPositionCallable() throws DeviceException {
-		latestPositionCallable = new ADDetectorPositionCallable(getPositionCallableData());
+		Callable<NexusTreeProvider> thisCallable= null;
+		if (latestPositionCallable == null) {
+			latestPositionCallable = new ADDetectorPositionCallable(getPositionCallableData());
+		}
+		thisCallable =  latestPositionCallable;
+
 		if( usePipeline){
-			return latestPositionCallable;
+			return thisCallable;
 		} 
 		try {
-			final NexusTreeProvider treeProvider = latestPositionCallable.call();
+			final NexusTreeProvider treeProvider = thisCallable.call();
 			return new Callable<NexusTreeProvider>(){
 				@Override
 				public NexusTreeProvider call() throws Exception {
