@@ -1,4 +1,4 @@
-package org.opengda.detector.electronanalyser.client;
+package org.opengda.detector.electronanalyser.utils;
 
 public class RegionStepsTimeEstimation {
 

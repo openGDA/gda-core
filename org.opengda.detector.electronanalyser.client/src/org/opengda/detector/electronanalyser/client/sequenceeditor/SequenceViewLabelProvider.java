@@ -9,9 +9,9 @@ import org.eclipse.swt.graphics.Image;
 import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.ElectronAnalyserClientPlugin;
 import org.opengda.detector.electronanalyser.client.ImageConstants;
-import org.opengda.detector.electronanalyser.client.RegionStepsTimeEstimation;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
+import org.opengda.detector.electronanalyser.utils.RegionStepsTimeEstimation;
 
 public class SequenceViewLabelProvider extends LabelProvider implements
 		ITableLabelProvider, ITableColorProvider {

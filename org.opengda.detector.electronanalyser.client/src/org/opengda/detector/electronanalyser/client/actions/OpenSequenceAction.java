@@ -30,7 +30,8 @@ public class OpenSequenceAction extends AbstractHandler implements IHandler {
 							new String[] { "Yes", "No" }, 0);
 					int result = msgDialog.open();
 					if (result == 0) {
-						((SequenceView) regionDefView).doSave(new NullProgressMonitor());
+						((SequenceView) regionDefView)
+								.doSave(new NullProgressMonitor());
 					}
 				}
 			}

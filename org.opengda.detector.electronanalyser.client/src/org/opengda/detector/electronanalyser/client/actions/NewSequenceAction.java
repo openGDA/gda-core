@@ -48,7 +48,7 @@ public class NewSequenceAction extends AbstractHandler implements IHandler {
 					}
 				}
 			}
-		}
+		} 
 		Shell shell = HandlerUtil.getActiveShell(event);
 		NewSequenceFileWizard newWizard = new NewSequenceFileWizard();
 		IWorkbench workbench = HandlerUtil.getActiveWorkbenchWindow(event)
