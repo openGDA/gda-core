@@ -122,6 +122,11 @@
 							<xsd:enumeration value="L1" />
 							<xsd:enumeration value="L2" />
 							<xsd:enumeration value="L3" />
+							<xsd:enumeration value="M1" />
+							<xsd:enumeration value="M2" />
+							<xsd:enumeration value="M3" />
+							<xsd:enumeration value="M4" />
+							<xsd:enumeration value="M5" />
 						</xsd:restriction>
 					</xsd:simpleType>
 				</xsd:element>
