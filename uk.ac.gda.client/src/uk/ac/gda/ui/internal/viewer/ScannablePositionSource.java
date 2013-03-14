@@ -26,6 +26,7 @@ import uk.ac.gda.ui.viewer.IUnitsDescriptor;
 public class ScannablePositionSource implements IPositionSource, IUnitsDescriptor{
 	private String label=null;
 	
+	private boolean hideLabel = false;
 	
 	public String getLabel() {
 		return label;
@@ -89,6 +90,14 @@ public class ScannablePositionSource implements IPositionSource, IUnitsDescripto
 	@Override
 	public String getUnit() {
 		return "";
+	}
+
+	public void setHideLabel(boolean hideLabel) {
+		this.hideLabel = hideLabel;
+	}
+	@Override
+	public boolean getHideLabel() {
+		return hideLabel;
 	}	
 	
 }
