@@ -115,7 +115,7 @@ class XasScan(Scan):
                 
                 initialPercent = str(int((float(repetitionNumber - 1) / float(numRepetitions)) * 100)) + "%" 
                 logmsg = XasLoggingMessage(scan_unique_id, scriptType, "Starting "+scriptType+" scan...", str(repetitionNumber), str(numRepetitions), initialPercent,str(0),str(0),beanGroup.getScan(),outputFolder)
-                self.loggingcontroller.update(None,logmsg)
+                #self.loggingcontroller.update(None,logmsg)
                 self.loggingcontroller.update(None,ScanStartedMessage(beanGroup.getScan(),beanGroup.getDetector())) # informs parts of the UI about current scan
                 loggingbean = XasProgressUpdater(self.loggingcontroller,logmsg,timeRepetitionsStarted)
     

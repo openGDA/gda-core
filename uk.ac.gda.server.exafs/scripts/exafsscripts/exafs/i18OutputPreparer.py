@@ -12,6 +12,7 @@ class I18OutputPreparer:
         metadata = outputParameters.getMetadataList()
         if len(metadata)>0:
             self.add_to_metadata(metadata)
+            
         self.add_to_nexus_metadata("initial_energy", str(initial_energy), "additional_scannables", NXinstrumentSubTypes.NXmonochromator)
         self.add_to_nexus_metadata("final_energy", str(final_energy), "additional_scannables", NXinstrumentSubTypes.NXmonochromator)
                 
