@@ -291,4 +291,12 @@ public class MotorPositionViewer {
 	public void setNewPositionDialog(IPositionVerifierDialogCreator newPositionDialog) {
 		this.newPositionDialog = newPositionDialog;
 	}
+	
+	public void setPermanentlyEnabled(boolean enabled) {
+		motorBox.setPermanentlyEnabled(enabled);
+	}
+	
+	public void setEditable(boolean editable) {
+		motorBox.setEditable(editable);
+	}
 }
