@@ -30,17 +30,17 @@ import uk.ac.gda.ui.viewer.MotorPositionViewer;
 public class MotorPositionViewerComposite extends Composite {
 
 	public MotorPositionViewerComposite(Composite parent, int style, Scannable scannable, Boolean layoutHoriz,
-			String label, Integer decimalPlaces, String commandFormat, Boolean restoreValueWhenFocusLost) {
-		this(parent, style, null, scannable, layoutHoriz, label, decimalPlaces, commandFormat, restoreValueWhenFocusLost); 
+			String label, Integer decimalPlaces, String commandFormat, Boolean restoreValueWhenFocusLost, Boolean hideLabel) {
+		this(parent, style, null, scannable, layoutHoriz, label, decimalPlaces, commandFormat, restoreValueWhenFocusLost, hideLabel); 
 	}
 	
 	public MotorPositionViewerComposite(Composite parent, int style, final Display display, Scannable scannable, Boolean layoutHoriz,
-				String label, Integer decimalPlaces, String commandFormat, Boolean restoreValueWhenFocusLost) {
+				String label, Integer decimalPlaces, String commandFormat, Boolean restoreValueWhenFocusLost, Boolean hideLabel) {
 		super(parent, style);
 		
 		GridLayoutFactory.fillDefaults().numColumns(layoutHoriz ? 2: 1).applyTo(this);
 		GridDataFactory.fillDefaults().applyTo(this);
-		MotorPositionViewer mpv = new MotorPositionViewer(this, scannable, label);		
+		MotorPositionViewer mpv = new MotorPositionViewer(this, scannable, label, hideLabel);		
 		mpv.setCommandFormat(commandFormat);
 		if (decimalPlaces != null) 
 			mpv.setDecimalPlaces(decimalPlaces.intValue());
