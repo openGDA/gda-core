@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2010 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,6 +18,11 @@
 
 package gda.device.scannable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import uk.ac.gda.util.ThreadManager;
+
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.exafs.xes.XesUtils;
@@ -31,27 +36,40 @@ import gda.observable.IObserver;
  * Provides a mapping between the motors which support the detector and analyser crystals, and the energy of the x-rays
  * incident on the detector.
  * <p>
- * Assumes the detector motor has been calibrated in such a way that its position is the same as the Bragg angle. TODO
- * this may need changing...
+ * Assumes the detector motor has been calibrated in such a way that its position is the same as the Bragg angle.
  */
 public class XesSpectrometerScannable extends ScannableMotionUnitsBase implements Scannable, Findable, IObserver {
+
+	private static final Logger logger = LoggerFactory.getLogger(XesSpectrometerScannable.class);
+
+	private volatile boolean stopCalled = false;
+	private volatile Boolean isRunningTrajectoryMovement = false;
+
+	double bragg = 80;
+	double radius = 1000;
+	double trajectoryStepSize = 0.02; // the size of each bragg angle step when moving the detector.
+
+	Double[] additionalCrystalHorizontalOffsets = new Double[] { -137., 137. };
+	Boolean[] additionalCrystalsInUse = new Boolean[] { false, false, false, false };
 
 	ScannableMotor xtal_x; // also known as L
 	ScannableMotor det_y;
 	ScannableMotor det_x;
 	ScannableMotor det_rot;
 	DummyPersistentScannable radiusScannable;
-	double bragg =80;
-	double radius = 1000;
-
-	Boolean[] additionalCrystalsInUse = new Boolean[] { false, false, false, false };
 
 	ScannableMotor[] xtalxs = new ScannableMotor[2];
 	ScannableMotor[] xtalys = new ScannableMotor[3];
 	ScannableMotor[] xtalbraggs = new ScannableMotor[3];
 	ScannableMotor[] xtaltilts = new ScannableMotor[3];
 
-	Double[] additionalCrystalHorizontalOffsets = new Double[] { -137., 137. };
+	private Double[] targetDetXArray;
+	private Double[] targetDetYArray;
+	private Double[] targetXtalThetaArray;
+	private Integer numTrajPoints;
+
+	// flag to prevent the warning about the position is an estimate being sent more than once at a time
+	private boolean hasGetPositionWarningBeenSent = false;
 
 	public XesSpectrometerScannable() {
 		this.inputNames = new String[] { "XES" };
@@ -66,30 +84,48 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 	@Override
 	public void stop() throws DeviceException {
 
+		stopCalled = true;
+
 		xtal_x.stop();
-		det_y.stop();
 		det_x.stop();
+		det_y.stop();
 		det_rot.stop();
 
-		xtalxs[0].stop();
-		xtalxs[1].stop();
-
-		xtalys[0].stop();
-		xtalys[1].stop();
-		xtalys[2].stop();
-
-		xtalbraggs[0].stop();
 		xtalbraggs[1].stop();
+		xtalxs[0].stop();
+		xtalys[0].stop();
+		xtaltilts[0].stop();
+		xtalbraggs[0].stop();
+
+		xtalxs[1].stop();
+		xtalys[2].stop();
+		xtaltilts[2].stop();
 		xtalbraggs[2].stop();
 
-		xtaltilts[0].stop();
-		xtaltilts[1].stop();
-		xtaltilts[2].stop();
+		try {
+			xtal_x.waitWhileBusy();
+			det_x.waitWhileBusy();
+			det_y.waitWhileBusy();
+			det_rot.waitWhileBusy();
+
+			xtalbraggs[1].waitWhileBusy();
+			xtalxs[0].waitWhileBusy();
+			xtalys[0].waitWhileBusy();
+			xtaltilts[0].waitWhileBusy();
+			xtalbraggs[0].waitWhileBusy();
+
+			xtalxs[1].waitWhileBusy();
+			xtalys[2].waitWhileBusy();
+			xtaltilts[2].waitWhileBusy();
+			xtalbraggs[2].waitWhileBusy();
+		} catch (InterruptedException e) {
+			throw new DeviceException("InterruptedException while waiting for motors to stop");
+		}
 	}
 
 	@Override
 	public boolean isBusy() throws DeviceException {
-		return xtal_x.isBusy() || det_y.isBusy() || det_x.isBusy() || det_rot.isBusy() || xtalxs[0].isBusy()
+		return isRunningTrajectoryMovement || det_y.isBusy() || det_x.isBusy() || xtal_x.isBusy() || det_rot.isBusy() || xtalxs[0].isBusy()
 				|| xtalxs[1].isBusy() || xtalys[0].isBusy() || xtalys[1].isBusy() || xtalys[2].isBusy()
 				|| xtalbraggs[0].isBusy() || xtalbraggs[1].isBusy() || xtalbraggs[2].isBusy() || xtaltilts[0].isBusy()
 				|| xtaltilts[1].isBusy() || xtaltilts[2].isBusy() || radiusScannable.isBusy();
@@ -97,95 +133,215 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
-		notifyIObservers(this, new ScannableStatus(getName(), ScannableStatus.BUSY));
-		String pos = position.toString();
-		double posVal = Double.parseDouble(pos);
-		bragg = posVal;
 
+		String pos = position.toString();
+		double targetBragg = Double.parseDouble(pos);
+		double currentPosition = Double.parseDouble(getPosition().toString());
 		radius = Double.parseDouble(radiusScannable.getPosition().toString());
 
-		double targetDetX = XesUtils.getDx(radius, bragg);
-		double targetDetY = XesUtils.getDy(radius, bragg);
-		double targetL = XesUtils.getL(radius, bragg);
-		double targetXtalTheta = XesUtils.getCrystalRotation(bragg);
+		isRunningTrajectoryMovement = false;
+		targetDetXArray = null;
+		targetDetYArray = null;
+		targetXtalThetaArray = null;
+		numTrajPoints = null;
 
-		checkPositionValid(xtal_x,targetL);
-		checkPositionValid(det_x,targetDetX);
-		checkPositionValid(det_y,targetDetY);
-		checkPositionValid(det_rot,targetXtalTheta * 2);
+		// test if it a 'large' movement, defined as more than 10 times the step size
+		if (Math.abs(currentPosition - targetBragg) > trajectoryStepSize /** 10 */
+		) {
+			isRunningTrajectoryMovement = true;
 
-		checkPositionValid(xtalbraggs[1],targetXtalTheta);
+			boolean positiveMove = true;
+			if (currentPosition > targetBragg) {
+				positiveMove = false;
+			}
 
-		double[] iTargets = XesUtils
-				.getAdditionalCrystalPositions(radius, bragg, additionalCrystalHorizontalOffsets[0]);
+			// create the trajectory points for the detector
+			numTrajPoints = (int) Math.round(Math.abs(currentPosition - targetBragg) / trajectoryStepSize);
+			targetDetXArray = new Double[numTrajPoints+2];
+			targetDetYArray = new Double[numTrajPoints+2];
+			targetXtalThetaArray = new Double[numTrajPoints+2];
 
-		// double R = radius;
-		//
-		// double braggRad = Math.toRadians(bragg);
-		//
-		// double sin_bragg = Math.sin(braggRad);
-		// double p1 = R*R*Math.pow(sin_bragg,4)-(137*137);
-		//
-		// double p = Math.sqrt(Math.abs(p1));
-		//
-		// double tilt = Math.toDegrees(Math.atan(137/(p*sin_bragg)));
-		//
-		// double topLine = (Math.sqrt((137*137)+(p*p)*Math.pow(sin_bragg, 2)));
-		// double bottomLine = (p*Math.cos(braggRad));
-		//
-		// double pitch = 90 - Math.toDegrees((Math.atan(topLine/bottomLine)));
+			double braggAtNode = currentPosition;
+			for (int node = 0; node <= numTrajPoints; node++) {
+				
+				Double[] nodeDetectorPositions = getXYTheta(radius, braggAtNode);
+				targetDetXArray[node] = nodeDetectorPositions[0];
+				if (targetDetXArray[node] == null) {
+					throw new DeviceException("Could not calculate target positions. Will not perform move");
+				}
+				targetDetYArray[node] = nodeDetectorPositions[1];
+				targetXtalThetaArray[node] = nodeDetectorPositions[2]*2;
+				
+				if (positiveMove) {
+					braggAtNode += trajectoryStepSize;
+				} else {
+					braggAtNode -= trajectoryStepSize;
+				}
+			}
+			Double[] finalNodeDetectorPositions = getXYTheta(radius, targetBragg);
+			targetDetXArray[numTrajPoints+1] = finalNodeDetectorPositions[0];
+			targetDetYArray[numTrajPoints+1] = finalNodeDetectorPositions[1];
+			targetXtalThetaArray[numTrajPoints+1] = finalNodeDetectorPositions[2]*2;
+		}
 
-		// xtalxs[0].asynchronousMoveTo((targetL-iTargets[0])*-1);
+		// test the final points are in limits
 
-		// TODO may need to handle case where there are 5 crystals in the future...
+		Double[] finalDetectorPositions = getXYTheta(radius, targetBragg);
+		double targetL = XesUtils.getL(radius, targetBragg);
+
+		checkPositionValid(det_x, finalDetectorPositions[0]);
+		checkPositionValid(det_y, finalDetectorPositions[1]);
+		checkPositionValid(det_rot, finalDetectorPositions[2] * 2);
+		checkPositionValid(xtal_x, targetL);
+
+		checkPositionValid(xtalbraggs[1], finalDetectorPositions[2]);
+
+		double[] iTargets = XesUtils.getAdditionalCrystalPositions(radius, targetBragg,
+				additionalCrystalHorizontalOffsets[0]);
 
 		// the left hand xtal
-		checkPositionValid(xtalxs[0],iTargets[0]);
-		checkPositionValid(xtalys[0],iTargets[1]);
-		checkPositionValid(xtaltilts[0],iTargets[2]);
-		checkPositionValid(xtalbraggs[0],iTargets[3]);
-
-		// xtalxs[1].asynchronousMoveTo((targetL-iTargets[0])*-1);
+		checkPositionValid(xtalxs[0], iTargets[0]);
+		checkPositionValid(xtalys[0], iTargets[1]);
+		checkPositionValid(xtaltilts[0], iTargets[2]);
+		checkPositionValid(xtalbraggs[0], iTargets[3]);
 
 		// the right hand xtal
-		checkPositionValid(xtalxs[1],iTargets[0]);
-		checkPositionValid(xtalys[2],iTargets[1]);
-		checkPositionValid(xtaltilts[2],-iTargets[2]);
-		checkPositionValid(xtalbraggs[2],iTargets[3]);
-		
-		
-		// actual moves, once we know everything is OK.
-		xtal_x.asynchronousMoveTo(targetL);
-		det_x.asynchronousMoveTo(targetDetX);
-		det_y.asynchronousMoveTo(targetDetY);
-		det_rot.asynchronousMoveTo(targetXtalTheta * 2);
+		checkPositionValid(xtalxs[1], iTargets[0]);
+		checkPositionValid(xtalys[2], iTargets[1]);
+		checkPositionValid(xtaltilts[2], -iTargets[2]);
+		checkPositionValid(xtalbraggs[2], iTargets[3]);
 
-		xtalbraggs[1].asynchronousMoveTo(targetXtalTheta);
+		// reset the stop flag
+		stopCalled = false;
+
+		// only now store the new bragg value
+		bragg = targetBragg;
+
+		// now do moves
+		notifyIObservers(this, new ScannableStatus(getName(), ScannableStatus.BUSY));
+
+		// central crystal
+		xtal_x.asynchronousMoveTo(targetL);
+		xtalbraggs[1].asynchronousMoveTo(finalDetectorPositions[2]);
+
+		// crystal on the left
 		xtalxs[0].asynchronousMoveTo(iTargets[0]);
 		xtalys[0].asynchronousMoveTo(iTargets[1]);
 		xtaltilts[0].asynchronousMoveTo(iTargets[2]);
 		xtalbraggs[0].asynchronousMoveTo(iTargets[3]);
 
-
+		// crystal on the right
 		xtalxs[1].asynchronousMoveTo(iTargets[0]);
 		xtalys[2].asynchronousMoveTo(iTargets[1]);
 		xtaltilts[2].asynchronousMoveTo(-iTargets[2]);
 		xtalbraggs[2].asynchronousMoveTo(iTargets[3]);
 
+		// loop over points for the detector only
+		if (isRunningTrajectoryMovement && numTrajPoints != null && targetDetXArray != null && targetDetYArray != null
+				&& targetXtalThetaArray != null) {
+			ThreadManager.getThread(new Runnable() {
+				@Override
+				public void run() {
+					int node = 0;
+					try {
+						for (; node < targetDetXArray.length; node++) {
+							if (stopCalled) {
+								return;
+							}
+							det_x.waitWhileBusy();
+							det_y.waitWhileBusy();
+							det_rot.waitWhileBusy();
+							if (stopCalled) {
+								return;
+							}
+							det_x.asynchronousMoveTo(targetDetXArray[node]);
+							det_y.asynchronousMoveTo(targetDetYArray[node]);
+							det_rot.asynchronousMoveTo(targetXtalThetaArray[node]);
+						}
+					} catch (InterruptedException e) {
+						logger.warn("InterruptedException while running XESEnegry trajectory", e);
+					} catch (DeviceException e) {
+						logger.warn("DeviceException while running XESEnegry trajectory", e);
+					} finally {
+//						logger.info("Spectrometer move complete. XES Spectrometer final move positions: X:"+targetDetXArray[numTrajPoints-1]+" Y:"+targetDetYArray[numTrajPoints-1]+" Theta:"+targetXtalThetaArray[numTrajPoints-1]);
+						isRunningTrajectoryMovement = false;
+					}
+				}
+			}).start();
+		} else {
+			// detector
+			det_x.asynchronousMoveTo(finalDetectorPositions[0]);
+			det_y.asynchronousMoveTo(finalDetectorPositions[1]);
+			det_rot.asynchronousMoveTo(finalDetectorPositions[2] * 2);
+		}
+	}
+	
+	/**
+	 * The detector motor angle will be 2*theta.  The analyser crystals should be at theta.
+	 * 
+	 * @param radius
+	 * @param bragg
+	 * @return Double[] X,Y,theta
+	 */
+	private Double[] getXYTheta(Double radius, Double bragg ){
+		double detX = XesUtils.getDx(radius, bragg);
+		double detY = XesUtils.getDy(radius, bragg);
+		double theta = XesUtils.getCrystalRotation(bragg);
+		return new Double[]{detX,detY,theta};
 	}
 
-	private void checkPositionValid(ScannableMotor scannable, double target) throws DeviceException{
+	private void checkPositionValid(ScannableMotor scannable, double target) throws DeviceException {
 		Double min = scannable.getLowerMotorLimit();
-		Double max  = scannable.getUpperMotorLimit();
-		
-		if (min != null && max != null  && (target > max || target < min)){
-			throw new DeviceException("Move not valid. " + target + " outside of limits of " + scannable.getName() + " motor.");
+		Double max = scannable.getUpperMotorLimit();
+
+		if (min != null && max != null && (target > max || target < min)) {
+			throw new DeviceException("Move not valid. " + target + " outside of limits of " + scannable.getName()
+					+ " motor.");
 		}
 	}
 
 	@Override
 	public Object rawGetPosition() throws DeviceException {
+		if (!doesMotorPositionAgreeWithExpectedBraggAngle()) {
+			if (!hasGetPositionWarningBeenSent) {
+				logger.warn(getName()
+					+ " cannot correctly determine its position: detector angle disagrees with expected position.\nReported position is based on detector rotation.\nIf you have not moved XES bragg or energy since restarting the GDA then please ignore this message");
+				hasGetPositionWarningBeenSent = true;
+			}
+			return braggBasedOnDetectorRotation();
+		}
+		hasGetPositionWarningBeenSent = false;
 		return bragg;
+	}
+
+	private boolean doesMotorPositionAgreeWithExpectedBraggAngle() throws DeviceException {
+		return Math.abs(braggBasedOnDetectorRotation() - bragg) < 1;
+	}
+
+	private double braggBasedOnDetectorRotation() throws NumberFormatException, DeviceException {
+		double yPosition = Double.parseDouble(det_y.getPosition().toString());
+		double lPosition = Double.parseDouble(xtal_x.getPosition().toString());
+		// In the Rowland condition: sin(2*(90-bragg)) = y/L
+		double derivedBragg = 90 - (0.5 * Math.toDegrees(Math.asin(yPosition / lPosition)));
+		return derivedBragg;
+
+	}
+
+	@Override
+	public String toFormattedString() {
+		try {
+			if (!doesMotorPositionAgreeWithExpectedBraggAngle()) {
+				double position = braggBasedOnDetectorRotation();
+				String formattedPosition = String.format(getOutputFormat()[0], position);
+				return getName() + "\t: " + formattedPosition + " " + "deg. NB: this is derived from only the "
+						+ det_y.getName() + " and " + xtal_x.getName() + " motor positions.";
+			}
+		} catch (Exception e) {
+			logger.error("Exception while deriving the " + getName() + " position", e);
+			super.toFormattedString();
+		}
+
+		return super.toFormattedString();
 	}
 
 	public Double getRadius() {
@@ -318,6 +474,14 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 
 	public void setxtal_plus1_rot(ScannableMotor xtal_plus1_rot) {
 		this.xtaltilts[2] = xtal_plus1_rot;
+	}
+
+	public Double getTrajectoryStepSize() {
+		return trajectoryStepSize;
+	}
+
+	public void setTrajectoryStepSize(Double trajectoryStepSize) {
+		this.trajectoryStepSize = trajectoryStepSize;
 	}
 
 	public ScannableMotor getDet_y() {
