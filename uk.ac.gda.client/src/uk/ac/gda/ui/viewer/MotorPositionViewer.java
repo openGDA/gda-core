@@ -78,9 +78,14 @@ public class MotorPositionViewer {
 	private IPositionVerifierDialogCreator newPositionDialog;
 
 	public MotorPositionViewer(Composite parent, Scannable scannable){
-		this(parent, scannable, null);
+		this(parent, scannable, null, false);
 	}
+	
 	public MotorPositionViewer(Composite parent, Scannable scannable, String label){
+		this(parent, scannable, label, false);
+	}
+	
+	public MotorPositionViewer(Composite parent, Scannable scannable, String label, boolean hideLabel){
 		this.scannable = scannable;
 		ScannablePositionSource positionSource=null;
 		if (scannable instanceof ScannableMotionUnits) {
@@ -89,6 +94,7 @@ public class MotorPositionViewer {
 			positionSource = new ScannablePositionSource(scannable);
 		}
 		positionSource.setLabel(label);
+		positionSource.setHideLabel(hideLabel);
 		motor = positionSource;
 		this.parent = parent;
 		createControls(parent);
@@ -242,7 +248,9 @@ public class MotorPositionViewer {
 	
 	private void createReadbacksGroup(Composite readBacksGroup) {
 		Label label = new Label(readBacksGroup, SWT.NONE);
-		label.setText( motor.getDescriptor().getLabelText());
+		if (!motor.getDescriptor().getHideLabel()) {
+			label.setText( motor.getDescriptor().getLabelText());
+		}
 		motorBox = new DemandBox(readBacksGroup, SWT.NONE, 60);
 		GridDataFactory.swtDefaults().hint(120, SWT.DEFAULT).applyTo(motorBox);
 	}
