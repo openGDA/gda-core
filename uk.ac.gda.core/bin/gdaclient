@@ -1,0 +1,134 @@
+#!/bin/sh 
+
+# Command to start the gda client
+#gdaclient options are:
+#	--help	Print this help and exit.
+#	--reset	Delete default workspace (use in case gdaclient does not start).
+#	--data	Set workspace to following argument
+#	--	End argument parsing. Send rest of command line to gdaclient
+#
+
+if [ -z $BEAMLINE ] ; then
+	cat 1>&2 <<EOF
+ERROR: BEAMLINE not set 
+EOF
+	exit 1
+fi
+
+#default values for folders
+WORKSPACE="/scratch/${BEAMLINE}_workspace-$(whoami)"
+CONFIG="/scratch/${BEAMLINE}_config-$(whoami)"
+
+ARGS=$(getopt -a -o \? -l help,data:,reset -n "gdaclient" -- "$@")
+
+#Bad arguments - getopt returns non-zero
+if [ $? -ne 0 ];
+then
+	cat 1>&2 <<EOF
+gdaclient options are:
+	--help	Print this help and exit.
+	--data	Set workspace to following argument
+	--reset	Delete workspace. Either default or the value specified in data if follows data option
+	--	End argument parsing. Send rest of command line to gdaclient
+
+Default workspace is ${WORKSPACE}
+e.g.
+	gdaclient
+This will start the client using the preference and projects stored in the default workspace
+
+
+	gdaclient -reset
+
+This will reset the client preferences and projects back to the initial state.
+
+	gdaclient -data /scratch/myworkspace
+
+This will start the client using the preference and projects stored in /scratch/myworkspace
+
+	gdaclient -data /scratch/myworkspace -reset
+
+This will delete /scratch/myworkspace and and start the client with workspace set to /scratch/myworkspace
+
+EOF
+	exit 1
+fi
+
+#put the values in ARGS into the standard argument variables $1, $2...
+eval set -- "$ARGS";
+
+
+#now handle each argument in turn.
+
+while true; do
+  case "$1" in
+    --help)
+	cat 1>&2 <<EOF
+gdaclient options are:
+	--help	Print this help and exit.
+	--data	Set workspace to following argument
+	--reset	Delete workspace. Either default or the value specified in data if follows data option
+	--	End argument parsing. Send rest of command line to gdaclient
+
+Default workspace is ${WORKSPACE}
+e.g.
+	gdaclient
+This will start the client using the preference and projects stored in the default workspace
+
+
+	gdaclient -reset
+
+This will reset the client preferences and projects back to the initial state.
+
+	gdaclient -data /scratch/myworkspace
+
+This will start the client using the preference and projects stored in /scratch/myworkspace
+
+	gdaclient -data /scratch/myworkspace -reset
+
+This will delete /scratch/myworkspace and and start the client with workspace set to /scratch/myworkspace
+
+EOF
+	exit 0
+      ;;
+    --reset)
+      shift;
+	echo deleting workspaces ${WORKSPACE}
+	rm -rf ${WORKSPACE}
+	echo deleting config ${CONFIG}
+	rm -rf ${CONFIG}
+	break;
+      ;;
+    --data)
+      shift;
+      if [ -n "$1" ]; then
+	WORKSPACE="$1"
+        shift;
+      fi
+      ;;
+    --)
+      shift;
+      break;
+      ;;
+  esac
+done
+
+
+. /usr/share/Modules/init/bash
+module load java/gda828-64
+
+gdalog
+
+ARCH=`/bin/arch`
+
+export LD_LIBRARY_PATH=/dls_sw/$BEAMLINE/software/gda/workspace_git/gda-nexus.git/uk.ac.gda.nexus/lib/linux-${ARCH}:/dls_sw/$BEAMLINE/software/gda/workspace_git/gda-core.git/uk.ac.gda.core/lib/linux-${ARCH}
+
+export http_proxy=http://WWWcache.RL.ac.UK:8080/
+export MOZILLA_FIVE_HOME=/dls_sw/apps/firefox/8/${ARCH}/
+
+#set max size of core file created if process terminates unexpectedly
+ulimit -c 10000000
+
+notify-send -t 10000 "GDA Client is starting...if it fails to open try 'gdaclient -reset'"
+COMMAND="/dls_sw/$BEAMLINE/software/gda/client/gda-${BEAMLINE}i -showLocation -data ${WORKSPACE} -configuration ${CONFIG} $@"
+echo $COMMAND
+exec $COMMAND
