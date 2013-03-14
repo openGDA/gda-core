@@ -195,16 +195,18 @@ class SlitScanner():
         self.exposure = None
         self.settleTime = None
         self.otherSlitSizeValue = None
+        self.otherSlitPosValue = None
         self.peak2d = None
         self.doOptimization = None
         self.grouped = None
         self.groups_string = None
         self.scanAborter = None
         
+        
     def setScanAborter(self, aborter):
         self.scanAborter = aborter
         
-    def run(self, namespace, mirrorName=None, increment=None, slitToScanSizeName=None, slitToScanPosName=None, slitSize=None, otherSlitSizeName=None, otherSlitPosName=None, slitStart=None, slitEnd=None, slitStep=None, detectorName=None, exposure=None, settleTime=None, otherSlitSizeValue=None, doOptimization=None, grouped=None, groups_string=None):
+    def run(self, namespace, mirrorName=None, increment=None, slitToScanSizeName=None, slitToScanPosName=None, slitSize=None, otherSlitSizeName=None, otherSlitPosName=None, slitStart=None, slitEnd=None, slitStep=None, detectorName=None, exposure=None, settleTime=None, otherSlitSizeValue=None, otherSlitPosValue=None, doOptimization=None, grouped=None, groups_string=None):
         
         if self.scanAborter==None:
             self.scanAborter=defScanAborter
@@ -224,6 +226,7 @@ class SlitScanner():
         self.exposure = exposure
         self.settleTime = settleTime
         self.otherSlitSizeValue = otherSlitSizeValue
+        self.otherSlitPosValue = otherSlitPosValue
         self.peak2d = self.namespace.get("peak2d")
         self.grouped = grouped
         self.groups_string = groups_string
@@ -234,7 +237,7 @@ class SlitScanner():
             targetPositions = generateGroupedPositions(self.mirror.getPosition()[0:number_electrodes], self.increment, groups_string)
         
         print targetPositions
-        self.otherSlitPos(0)
+        self.otherSlitPos(self.otherSlitPosValue)
         self.otherSlitSize(self.otherSlitSizeValue)
         self.slitToScanSize(self.slitSize)
         for position in targetPositions:

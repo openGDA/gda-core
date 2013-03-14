@@ -11,17 +11,16 @@ class ScanFileLoader:
 	def __init__(self, filespec=None, dir=None):
 		
 		self.format = LocalProperties.get("gda.data.scan.datawriter.dataFormat")
-		if dir!=None:
+		if dir!=None and dir != "None":
 			self.dir=dir
 		else:
 			self.dir = PathConstructor.createFromDefaultProperty()
 		self.beamline = GDAMetadataProvider.getInstance().getMetadataValue("instrument", "gda.instrument", "tmp")
-		
 		if (self.format == "NexusDataWriter"):
-
-			self.prefix = self.beamline+"-"
-			if self.prefix == "tmp-":
-				self.prefix=""
+			#really should use scanFileName prefix rather than forcing to beamline-
+#			self.prefix = self.beamline+"-"
+#			if self.prefix == "tmp-":
+			self.prefix=""
 			self.ext = "nxs"
 			self.loader = NexusLoader
 			if filespec==None:
@@ -43,7 +42,9 @@ class ScanFileLoader:
 
 	def tryFiles(self, filespeclist):
 		for filespec in filespeclist:
+			print "Looking for " +filespec
 			if os.path.isfile(filespec):	
+				print "Found file :" + filespec
 				return filespec
 		return None
 			

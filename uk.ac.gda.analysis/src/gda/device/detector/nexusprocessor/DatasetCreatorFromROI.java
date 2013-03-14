@@ -18,6 +18,8 @@
 
 package gda.device.detector.nexusprocessor;
 
+import java.util.Arrays;
+
 import gda.factory.Findable;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
@@ -28,6 +30,7 @@ public class DatasetCreatorFromROI implements DatasetCreator, Findable {
 
 	public void setROI( int startX, int stopX, int startY, int stopY){
 		setSliceArray( new Slice[]{ new Slice(startX, stopX, 1),new Slice(startY, stopY, 1)}); 
+		setEnable(true);
 	}
 	@Override
 	public AbstractDataset createDataSet(AbstractDataset ds) {
@@ -69,6 +72,11 @@ public class DatasetCreatorFromROI implements DatasetCreator, Findable {
 
 	public void setEnable(boolean enable) {
 		this.enable = enable;
+	}
+	@Override
+	public String toString() {
+		return "DatasetCreatorFromROI [sliceArray=" + Arrays.toString(sliceArray) + ", enable="
+				+ enable + "]";
 	}
 	
 }
