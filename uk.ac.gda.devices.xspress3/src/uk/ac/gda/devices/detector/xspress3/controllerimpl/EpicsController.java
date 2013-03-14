@@ -68,7 +68,9 @@ public class EpicsController implements Xspress3Controller, Configurable, Findab
 	public void doStart() throws DeviceException {
 		try {
 			pvProvider.pvErase.putCallback(1);
-			pvProvider.pvAcquire.putCallback(1);
+			// nowait
+//			pvProvider.pvAcquire.putCallback(1);
+			pvProvider.pvAcquire.put(1);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while starting acquisition", e);
 		}
