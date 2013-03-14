@@ -27,7 +27,7 @@ package uk.ac.gda.ui.viewer;
 public interface IBasicDescriptor {
 
 	/**
-	 * Return text to be displayed in labels
+	 * Return text to be displayed in labels. This is also the name used in messages when the object is moved
 	 * @return user friendly string
 	 */
 	public String getLabelText();
@@ -39,4 +39,10 @@ public interface IBasicDescriptor {
 	 * @return user friendly string
 	 */
 	public String getToolTipText();
+	
+	/**
+	 * Hide label of a viewer when one is created
+	 * @return hide label in viewer
+	 */
+	public boolean getHideLabel();
 }
