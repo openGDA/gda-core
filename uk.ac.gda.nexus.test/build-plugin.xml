@@ -27,7 +27,7 @@
            Invoke the tests
          ==================================================================== -->
 
-    <target name="junit-tests" depends="toolCheck, set-test-base">
+    <target name="junit-tests" depends="toolCheck, set-test-base-GDA">
         <loadfile property="redhat_release" srcFile="/etc/redhat-release" failonerror="false" />
         <property name="redhat_release" value="probably not 5" />
         <condition property="exclude_if_RH5" value="" else="SuffixToNullifyExclude">
