@@ -34,13 +34,15 @@ public class Xspress3FFCalculatorNXPlugin implements NXPlugin{
 	public List<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
 			DeviceException {
 		// return as much data is available to read out
-		int numFramesAvailable = controller.getTotalFramesAvailable();
+//		int numFramesAvailable = controller.getTotalFramesAvailable();
 
 		// readout ROI in format [frame][detector channel][ROIs]
-		Double[][][] data = controller.readoutDTCorrectedROI(framesRead, numFramesAvailable, firstChannelToRead,
+		Double[][][] data = controller.readoutDTCorrectedROI(framesRead, framesRead + 1, firstChannelToRead,
 				numberOfChannelsToRead + firstChannelToRead - 1);
+		
+		framesRead++;
 		// calc FF from ROI
-		int numFramesRead = numFramesAvailable - framesRead + 1;
+		int numFramesRead = 1;//numFramesAvailable - framesRead + 1;
 		Double[][] FFs = new Double[numFramesRead][numberOfChannelsToRead]; // [frame][detector
 																			// channel]
 		for (int frame = 0; frame < numFramesRead; frame++) {

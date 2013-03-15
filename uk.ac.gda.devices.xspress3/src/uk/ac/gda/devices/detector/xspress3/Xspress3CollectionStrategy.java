@@ -5,6 +5,7 @@ import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
+import gda.epics.CAClient;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.scan.ScanInformation;
@@ -17,6 +18,7 @@ import java.util.Vector;
 public class Xspress3CollectionStrategy implements NXCollectionStrategyPlugin, Configurable{
 
 	private Xspress3Controller controller;
+	private Integer frameToLookFor = null;
 //	private int framesRead;
 //	private boolean writeHDF5Files = false;
 
@@ -61,6 +63,11 @@ public class Xspress3CollectionStrategy implements NXCollectionStrategyPlugin, C
 //			controller.setSavingFiles(writeHDF5Files);
 //		}
 		controller.doStart();
+		
+		//wait for 2s
+		Thread.sleep(2000);
+		
+		frameToLookFor = 0;
 	}
 
 	@Override
@@ -117,10 +124,18 @@ public class Xspress3CollectionStrategy implements NXCollectionStrategyPlugin, C
 	public void prepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo)
 			throws Exception {
 		controller.setNumFramesToAcquire(scanInfo.getDimensions()[0]);
+		testForErrorState();
 	}
 
 	@Override
 	public void collectData() throws Exception {
+		testForErrorState();
+		// at each point set the PV to rin the binary output to drive the xspress3
+		CAClient ca =new CAClient();
+		ca.caput("BL24I-EA-USER-01:BO2",1);
+		Thread.sleep(1100);
+		// then set the number of the frame we are waiting for
+		frameToLookFor++;
 	}
 
 	@Override
@@ -130,8 +145,22 @@ public class Xspress3CollectionStrategy implements NXCollectionStrategyPlugin, C
 
 	@Override
 	public void waitWhileBusy() throws InterruptedException, Exception {
+		// overrule the status if the frame we are waiting for becomes available (as set by the collectData() method).
+		//FIXME this will probably not work in continuous scans where repeated calls to collectData() are not made.
 		while (getStatus() == Detector.BUSY){
+			int framesAvailable = controller.getTotalFramesAvailable();
+			if (frameToLookFor != null && frameToLookFor > 0 && framesAvailable >= frameToLookFor) {
+				return;
+			}
 			Thread.sleep(100);
+		}
+		
+		testForErrorState();
+	}
+
+	private void testForErrorState() throws Exception, DeviceException {
+		if (getStatus() == Detector.FAULT){
+			throw new DeviceException(getName() + " is in an error state!");
 		}
 	}
 

@@ -20,7 +20,7 @@
            Invoke the tests
          ==================================================================== -->
 
-    <target name="junit-tests" depends="toolCheck, set-ncsa-hdf-context-GDA, set-test-base">
+    <target name="junit-tests" depends="toolCheck, set-test-base-GDA">
         <junit-call description="${ant.project.name} Java JUnit tests">
             <formatter type="xml" />
             <classpath>
@@ -44,7 +44,8 @@
                 <pathelement path="${workspace.loc}/tp/plugins/com.springsource.slf4j.api_1.5.6.jar" />  <!--ensure that required org.slf4j.LoggerFactory appears first in classpath -->
                 <pathelement path="${workspace.loc}/tp/plugins/com.springsource.slf4j.org.apache.commons.logging_1.5.6.jar" />  <!--ensure that matching imp appears first in classpath -->
                 <pathelement location="${workspace.loc}/tp/plugins/*" />
-                <path refid="ncsa.hdf.classpath" />
+                <pathelement location="${workspace.git.loc}/dawn-third.git/ncsa.hdf/bin" />
+                <pathelement location="${workspace.git.loc}/dawn-third.git/ncsa.hdf/jars/*" />
             </classpath>
             <batchtest todir="@{report.dir}">
                 <fileset dir="${GDA-plugin.basedir}/src">

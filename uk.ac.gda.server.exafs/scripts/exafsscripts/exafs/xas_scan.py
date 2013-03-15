@@ -77,13 +77,13 @@ class XasScan(Scan):
         # give the beans to the xasdatawriter class to help define the folders/filenames 
         beanGroup = self._defineBeanGroup(folderName, validation, controller, xmlFolderName, sampleBean, scanBean, detectorBean, outputBean)
         
-        self._doLooping(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
+        self._doLooping(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller, scanBean, outputBean)
 
-    def _doLooping(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller):
+    def _doLooping(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller, scanBean, outputBean):
         # Insert sample environment looping logic here by subclassing
-        self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
+        self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller, scanBean, outputBean)
         
-    def _doScan(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller):
+    def _doScan(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller, scanBean, outputBean):
         # reset the properties used to control repetition behaviour
         LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY,"false")
         LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
@@ -127,7 +127,9 @@ class XasScan(Scan):
                 # run the beamline specific preparers            
                 self.detectorPreparer.prepare(beanGroup.getDetector(), beanGroup.getOutput(), xmlFolderName)
                 sampleScannables = self.samplePreparer.prepare(beanGroup.getSample())
-                outputScannables = self.outputPreparer.prepare(beanGroup.getOutput())
+                initial_energy = scanBean.getInitialEnergy()
+                final_energy = scanBean.getFinalEnergy()
+                outputScannables = self.outputPreparer.prepare(outputBean, initial_energy, final_energy)
                 scanPlotSettings = self.outputPreparer.getPlotSettings(beanGroup)
                 #print scanPlotSettings
                 # run the before scan script

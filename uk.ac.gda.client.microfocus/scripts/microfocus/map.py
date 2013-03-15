@@ -25,13 +25,14 @@ from gda.configuration.properties import LocalProperties
 
 class Map(Scan):
     
-    def __init__(self, d7a, d7b, counterTimer01):
+    def __init__(self, d7a, d7b, counterTimer01, rcpController):
         self.d7a=d7a
         self.d7b=d7b
         self.counterTimer01=counterTimer01
         self.finder = Finder.getInstance()
         self.mfd = None
         self.detectorBeanFileName = ""
+        self.rcpController = rcpController
     
     def getMFD(self):
         return self.mfd
@@ -237,7 +238,6 @@ class Map(Scan):
                 detectorFillingMonitor.setCollectionTime(collectionTime)
             trajBeamMonitor.setActive(False)
 
-
         outputBean=beanGroup.getOutput()
         sampleParameters = beanGroup.getSample()
         outputBean.setAsciiFileName(sampleParameters.getName())
@@ -250,8 +250,7 @@ class Map(Scan):
         self.d7b(att2.getSelectedPosition())
         LocalProperties.set("gda.scan.useScanPlotSettings", "true")
         
-        
-        self.finder.find("RCPController").openPesrpective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")
+        self.rcpController.openPerspective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")
         
     def redefineNexusMetadataForMaps(self, beanGroup):
         from gda.data.scan.datawriter import NexusFileMetadata

@@ -15,7 +15,7 @@ class I20OutputPreparer:
         self.mode = "xas"
         pass
     
-    def prepare(self, outputParameters):
+    def prepare(self, outputParameters, initial_energy, final_energy):
         
         from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
         NexusExtraMetadataDataWriter.removeAllMetadataEntries();

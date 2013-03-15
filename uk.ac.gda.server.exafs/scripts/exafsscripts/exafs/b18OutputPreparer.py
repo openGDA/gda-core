@@ -5,14 +5,15 @@ from gda.data.scan.datawriter import NexusFileMetadata
 from gda.data.scan.datawriter.NexusFileMetadata import EntryTypes, NXinstrumentSubTypes
     
 class B18OutputPreparer:
-    def __init__(self):
-        pass
     
-    def prepare(self, outputParameters):
+    def prepare(self, outputParameters, initial_energy, final_energy):
+        from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
+        NexusExtraMetadataDataWriter.removeAllMetadataEntries();
         metadata = outputParameters.getMetadataList()
         if len(metadata)>0:
             self.add_to_metadata(metadata)
-        self.add_default_nexus_metadata()
+        self.add_to_nexus_metadata("initial_energy", str(initial_energy), "additional_scannables", NXinstrumentSubTypes.NXmonochromator)
+        self.add_to_nexus_metadata("final_energy", str(final_energy), "additional_scannables", NXinstrumentSubTypes.NXmonochromator)
         
     # Determines the AsciiDataWriterConfiguration to use to format the header/footer of the ascii data files
     # If this returns None, then let the Ascii Data Writer class find the config for itself.
@@ -36,9 +37,8 @@ class B18OutputPreparer:
             asciiConfig.setLabelValues([scannable])
             header = Finder.getInstance().find("datawriterconfig").getHeader()
             header.add(asciiConfig)
-            # NXpositioner is not right and there is no generic subcategory.
-            NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata(name,str(scannable),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXpositioner,name))            
-            print "----- scannable added to metadata -----", name
+            self.add_to_nexus_metadata(name, str(scannable), "additional_scannables", NXinstrumentSubTypes.NXpositioner)
             
-    def add_default_nexus_metadata(self):
-        pass
+    def add_to_nexus_metadata(self, name, value, type, subtype):
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata(name,value,EntryTypes.NXcharacterization,subtype,type))
+    

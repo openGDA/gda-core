@@ -24,7 +24,7 @@ class I18SamplePreparer:
 	
 	def prepare(self, sampleParameters):
 		
-		self.rcpController.openPesrpective("org.diamond.exafs.ui.PlottingPerspective")
+		#self.rcpController.openPesrpective("org.diamond.exafs.ui.PlottingPerspective")
 
 		stage = sampleParameters.getSampleStageParameters()
 		self.sc_MicroFocusSampleX(stage.getX())
