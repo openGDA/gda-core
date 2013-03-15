@@ -118,7 +118,7 @@ public class VGScientaController implements Configurable {
 		EPICS_CONTROLLER.caput(getChannel(ENERGYMODE), value);
 	}
 	
-	public String getENERGYMode() throws Exception {
+	public String getEnergyMode() throws Exception {
 		return EPICS_CONTROLLER.cagetString(getChannel(ENERGYMODE_RBV));
 	}
 
