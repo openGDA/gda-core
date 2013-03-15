@@ -180,7 +180,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 
 		try {
 			this.aLine = plottingsystem.createRegion("a", RegionType.XAXIS_LINE);
-			aLine.setRegionColor(Display.getDefault().getSystemColor(SWT.COLOR_GREEN));
+			aLine.setRegionColor(Display.getDefault().getSystemColor(SWT.COLOR_RED));
 			plottingsystem.addRegion(aLine);
 			new ARegionSynchronizer(aLine, getA(), getGaf1());
 			aLine.setMobile(ExafsActivator.getDefault().getPreferenceStore()
@@ -191,7 +191,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 
 		try {
 			this.bLine = plottingsystem.createRegion("b", RegionType.XAXIS_LINE);
-			bLine.setRegionColor(Display.getDefault().getSystemColor(SWT.COLOR_MAGENTA));
+			bLine.setRegionColor(Display.getDefault().getSystemColor(SWT.COLOR_YELLOW));
 			plottingsystem.addRegion(bLine);
 			new BRegionSynchronizer(bLine, getB(), getGaf2(), getGaf3());
 			bLine.setMobile(ExafsActivator.getDefault().getPreferenceStore()
@@ -202,7 +202,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 
 		try {
 			this.cLine = plottingsystem.createRegion("c", RegionType.XAXIS_LINE);
-			cLine.setRegionColor(Display.getDefault().getSystemColor(SWT.COLOR_CYAN));
+			cLine.setRegionColor(Display.getDefault().getSystemColor(SWT.COLOR_BLUE));
 			plottingsystem.addRegion(cLine);
 			new CRegionSynchronizer(cLine, getC(), getGaf3());
 			cLine.setMobile(ExafsActivator.getDefault().getPreferenceStore()
@@ -213,7 +213,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		
 		try {
 			this.edgeLine = plottingsystem.createRegion("edge", RegionType.XAXIS_LINE);
-			edgeLine.setRegionColor(Display.getDefault().getSystemColor(SWT.COLOR_BLACK));
+			edgeLine.setRegionColor(Display.getDefault().getSystemColor(SWT.COLOR_GREEN));
 			plottingsystem.addRegion(edgeLine);
 			new EdgeRegionSynchronizer(edgeLine, getEdgeEnergy());
 			edgeLine.setMobile(false);
