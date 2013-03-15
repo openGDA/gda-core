@@ -43,6 +43,12 @@ public class VGScientaController implements Configurable {
 	public static final String LENSMODE_RBV = "LENS_MODE_RBV";
 	public static final String ACQMODE = "ACQ_MODE";
 	public static final String ACQMODE_RBV = "ACQ_MODE_RBV";
+	public static final String ENERGYMODE="ENERGY_MODE";
+	public static final String ENERGYMODE_RBV="ENERGY_MODE_RBV";
+	public static final String DETECTORMODE="DETECTOR_MODE";
+	public static final String DETECTORMODE_RBV="DETECTOR_MODE_RBV";
+	public static final String ELEMENTSET="ELEMENT_SET";
+	public static final String ELEMENTSET_RBV="ELEMENT_SET_RBV";
 	public static final String PASSENERGY = "PASS_ENERGY";
 	public static final String PASSENERGY_RBV = "PASS_ENERGY_RBV";
 	public static final String STARTENERGY = "LOW_ENERGY";
@@ -55,9 +61,13 @@ public class VGScientaController implements Configurable {
 	public static final String ENERGYSTEP_RBV = "STEP_SIZE_RBV";
 	public static final String FRAMES = "FRAMES";
 	public static final String FRAMES_RBV = "FRAMES_RBV";
+	public static final String STEPTIME = "STEP_TIME";
 	public static final String SLICE = "SLICES";
 	public static final String SLICE_RBV = "SLICES_RBV";
+	public static final String INTERATIONS = "SLICES";
 	public static final String ZERO_SUPPLIES = "ZERO_SUPPLIES";
+	public static final String TOTALSTEPS = "TOTAL_POINTS_RBV";
+
 	
 	/**
 	 * Map that stores the channel against the PV name
@@ -104,6 +114,31 @@ public class VGScientaController implements Configurable {
 		return EPICS_CONTROLLER.cagetString(getChannel(ACQMODE_RBV));
 	}
 
+	public void setEnergyMode(String value) throws Exception {
+		EPICS_CONTROLLER.caput(getChannel(ENERGYMODE), value);
+	}
+	
+	public String getENERGYMode() throws Exception {
+		return EPICS_CONTROLLER.cagetString(getChannel(ENERGYMODE_RBV));
+	}
+
+	public void setDetectorMode(String value) throws Exception {
+		EPICS_CONTROLLER.caput(getChannel(DETECTORMODE), value);
+	}
+	
+	public String getDetectorMode() throws Exception {
+		return EPICS_CONTROLLER.cagetString(getChannel(DETECTORMODE_RBV));
+	}
+	
+	public void setElement(String value) throws Exception {
+		EPICS_CONTROLLER.caput(getChannel(ELEMENTSET), value);
+	}
+	
+	public String getElement() throws Exception {
+		return EPICS_CONTROLLER.cagetString(getChannel(ELEMENTSET_RBV));
+	}
+
+	
 	public void setPassEnergy(Integer value) throws Exception {
 		int i = 0;
 		for(Integer pes: passenergies) {
@@ -192,6 +227,9 @@ public class VGScientaController implements Configurable {
 	public Integer getFrames() throws Exception {
 		return EPICS_CONTROLLER.cagetInt(getChannel(FRAMES_RBV));
 	}
+	public void setStepTime(Double value) throws Exception {
+		EPICS_CONTROLLER.caput(getChannel(STEPTIME), value);
+	}
 
 	public void setSlice(Integer value) throws Exception {
 		EPICS_CONTROLLER.caput(getChannel(SLICE), value);
@@ -199,6 +237,9 @@ public class VGScientaController implements Configurable {
 	
 	public Integer getSlice() throws Exception {
 		return EPICS_CONTROLLER.cagetInt(getChannel(SLICE_RBV));
+	}
+	public Integer getTotalSteps() throws Exception {
+		return EPICS_CONTROLLER.cagetInt(getChannel(TOTALSTEPS));
 	}
 	
 	public void zeroSupplies() throws Exception {
