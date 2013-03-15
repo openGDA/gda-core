@@ -55,7 +55,7 @@
                     <include name="**/*Test.java" />
                     <exclude name="**/NexusExtractorTest.java${exclude_if_RH5}" />  <!-- doesn't always work on RedHat 5 -->
                     <exclude name="**/NexusReadinTest.java${exclude_if_RH5}" />  <!-- doesn't always work on RedHat 5 -->
-                    <exclude name="**/NexusTreeBuilderTest.java${exclude_if_RH5}" />  <!-- doesn't always work on RedHat 5 -->
+                    <exclude name="**/NexusTreeBuilderTest.java" />  <!-- excluded, see GDA-5474 -->
                 </fileset>
             </batchtest>
         </junit-call>
