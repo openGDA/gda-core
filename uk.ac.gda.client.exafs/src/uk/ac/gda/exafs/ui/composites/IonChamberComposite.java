@@ -311,7 +311,8 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 			});
 		}
 	}
-
+	
+	@SuppressWarnings("unused")
 	private void createLeftSensitivityProperties(final Composite left) {
 		final Composite gainProperties = new Composite(left, SWT.NONE);
 		final GridLayout gridLayout = new GridLayout();
@@ -334,8 +335,7 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 				.setToolTipText("Select for the amplifier sensitivity to be adjust during data collection.\nIf unselected then the current sensitivity will be left unchanged.");
 		changeSensitivity.setValue(false);
 
-		@SuppressWarnings("unused")
-		final Label blank = new Label(gainProperties, SWT.NONE);
+		new Label(gainProperties, SWT.NONE);
 
 		gainLabel = new Label(gainProperties, SWT.NONE);
 		gainLabel.setText("Sensitivity");

@@ -21,8 +21,8 @@ package uk.ac.gda.exafs.ui;
 import gda.configuration.properties.LocalProperties;
 import gda.gui.scriptcontroller.logging.ScriptControllerLogView;
 import gda.rcp.views.JythonTerminalView;
-import gda.simplescan.SimpleScanView;
 
+import org.dawb.common.ui.plot.tool.IToolPageSystem;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
@@ -36,12 +36,11 @@ import uk.ac.gda.exafs.ui.plot.LnI0ItScanPlotView;
 import uk.ac.gda.exafs.ui.plot.SubtractedBackgroundScanPlotView;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.exafs.ui.views.scalersmonitor.ScalersMonitorView;
-import uk.ac.gda.views.baton.BatonView;
 
 public class PlottingPerspective implements IPerspectiveFactory {
 
 	public static final String ID = "org.diamond.exafs.ui.PlottingPerspective";
-
+	IToolPageSystem system;
 	@Override
 	public void createInitialLayout(IPageLayout layout) {
 		String editorArea = layout.getEditorArea();
@@ -82,7 +81,14 @@ public class PlottingPerspective implements IPerspectiveFactory {
 				.getBoolean(ExafsPreferenceConstants.HIDE_LnI0ItScanPlotView)) {
 			folderLayout_0.addView(LnI0ItScanPlotView.ID);
 		}
+		
 
+		//IToolPageSystem system = (IToolPageSystem)LivePlotView.getAdapter(IToolPageSystem.class);
+
+		//system.setToolVisible("org.dawb.workbench.plotting.tools.region.editor",
+		//ToolPageRole.ROLE_2D,
+		//"org.dawb.workbench.plotting.views.toolPageView.fixed");
+		
 		IFolderLayout folderLayout = layout.createFolder("folder", IPageLayout.BOTTOM, 0.5f, "folder1");
 		folderLayout.addView(JythonTerminalView.ID);
 
@@ -94,6 +100,8 @@ public class PlottingPerspective implements IPerspectiveFactory {
 
 		IFolderLayout folderLayout_2 = layout.createFolder("folder2", IPageLayout.RIGHT, 0.5f, "folder0");
 		folderLayout_2.addView(ScriptControllerLogView.ID);
+		
+		
 	}
 
 }

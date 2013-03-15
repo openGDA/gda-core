@@ -21,6 +21,7 @@ package uk.ac.gda.exafs.ui.composites;
 import gda.util.Element;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -30,6 +31,9 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -219,6 +223,23 @@ public class WorkingEnergyComposite extends FieldBeanComposite {
 
 	protected void setWorkingFromEdge() {
 		try {
+			IEditorPart[] dirtyEditors = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getDirtyEditors();
+			
+			
+			
+			if(dirtyEditors.length>0){
+				MessageBox dialog = 
+						  new MessageBox(this.getShell(), SWT.ICON_QUESTION | SWT.OK| SWT.CANCEL);
+						dialog.setText("Save Editor");
+						dialog.setMessage("The editors need to be saved to get the edge energy. Would you like to save?");
+						int returnCode = dialog.open(); 
+						if(returnCode==32){
+							for(int i=0;i<dirtyEditors.length;i++){
+								dirtyEditors[i].doSave(new NullProgressMonitor());
+							}
+						}
+			}
+			
 			final ScanObject ob = (ScanObject) ExperimentFactory.getExperimentEditorManager().getSelectedScan();
 
 			if (ob != null) {

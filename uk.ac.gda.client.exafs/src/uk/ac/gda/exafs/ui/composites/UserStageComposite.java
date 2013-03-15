@@ -28,15 +28,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.richbeans.components.FieldBeanComposite;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 
 public class UserStageComposite extends FieldBeanComposite {
-
-	private static final Logger logger = LoggerFactory.getLogger(UserStageComposite.class);
 
 	private ScaleBox axis2;
 	private ScaleBox axis4;
@@ -52,6 +48,7 @@ public class UserStageComposite extends FieldBeanComposite {
 	private String axis7Name;
 	private String axis8Name;
 
+	@SuppressWarnings("unused")
 	public UserStageComposite(Composite parent, int style, String axis2Name, String axis4Name, String axis5Name,
 			String axis6Name, String axis7Name, String axis8Name) {
 		super(parent, style);
@@ -135,9 +132,9 @@ public class UserStageComposite extends FieldBeanComposite {
 	public void setMotorLimits(String motorName, ScaleBox box) throws Exception {
 		String lowerLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getLowerMotorLimit()");
 		String upperLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getUpperMotorLimit()");
-		if (!lowerLimit.equals("None") && lowerLimit != null && !lowerLimit.isEmpty())
+		if (!lowerLimit.equals("None") && !lowerLimit.isEmpty())
 			box.setMinimum(Double.parseDouble(lowerLimit));
-		if (!upperLimit.equals("None") && upperLimit != null && !upperLimit.isEmpty())
+		if (!upperLimit.equals("None") && !upperLimit.isEmpty())
 			box.setMaximum(Double.parseDouble(upperLimit));
 	}
 

@@ -58,6 +58,7 @@ public class DrainCurrentComposite extends Composite implements ListEditorUI {
 	 * @param parent
 	 * @param style
 	 */
+	@SuppressWarnings("unused")
 	public DrainCurrentComposite(Composite parent, int style) {
 		
 		
@@ -82,8 +83,7 @@ public class DrainCurrentComposite extends Composite implements ListEditorUI {
 				.setToolTipText("Select for the amplifier sensitivity to be adjust during data collection.\nIf unselected then the current sensitivity will be left unchanged.");
 		changeSensitivity.setValue(false);
 
-		@SuppressWarnings("unused")
-		final Label blank = new Label(gainProperties, SWT.NONE);
+		new Label(gainProperties, SWT.NONE);
 
 		final Label gainLabel = new Label(gainProperties, SWT.NONE);
 		gainLabel.setText("Sensitivity");

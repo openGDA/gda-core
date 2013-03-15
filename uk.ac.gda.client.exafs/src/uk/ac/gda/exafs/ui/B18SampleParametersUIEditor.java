@@ -136,6 +136,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 	/**
 	 * 
 	 */
+	@SuppressWarnings("unused")
 	@Override
 	public void createPartControl(Composite comp) {
 		comp.setLayout(new FillLayout());
@@ -361,6 +362,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	public void createTemp() {
 		if (tempComp == null) {
 

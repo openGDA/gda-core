@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.richbeans.components.FieldBeanComposite;
 import uk.ac.gda.richbeans.components.FieldComposite;
-import uk.ac.gda.richbeans.components.scalebox.RangeBox;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 
@@ -90,9 +89,9 @@ public class B18FurnaceComposite extends FieldBeanComposite {
 	public void setMotorLimits(String motorName, ScaleBox box) throws Exception {
 		String lowerLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getLowerLimit()");
 		String upperLimit = JythonServerFacade.getInstance().evaluateCommand(motorName + ".getUpperLimit()");
-		if (!lowerLimit.equals("None") && lowerLimit != null && !lowerLimit.isEmpty())
+		if (!lowerLimit.equals("None") && !lowerLimit.isEmpty())
 			box.setMinimum(Double.parseDouble(lowerLimit));
-		if (!upperLimit.equals("None") && upperLimit != null && !upperLimit.isEmpty())
+		if (!upperLimit.equals("None") && !upperLimit.isEmpty())
 			box.setMaximum(Double.parseDouble(upperLimit));
 	}
 
