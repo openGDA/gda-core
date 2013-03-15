@@ -23,9 +23,9 @@
            Invoke the tests
          ==================================================================== -->
 
-    <target name="junit-tests" depends="toolCheck, set-test-base, Xvfb_start, _junit-tests, Xvfb_stop" />
+    <target name="junit-tests" depends="toolCheck, set-test-base-GDA, Xvfb_start, _junit-tests, Xvfb_stop" />
 
-    <target name="_junit-tests" depends="toolCheck, set-test-base">
+    <target name="_junit-tests" depends="toolCheck, set-test-base-GDA">
         <junit-call description="${ant.project.name} Java JUnit tests" maxmemory="1024m"
         Xvfb-display-name="${Xvfb-display-name}" Xvfb-display-number="${Xvfb-display-number}">
             <jvmarg value="-Dgda.install.workspace.loc=${workspace.loc}" />
@@ -100,7 +100,7 @@
         </junit-call>
     </target>
 
-    <target name="jyunit-tests-scripts" depends="toolCheck, set-ncsa-hdf-context-GDA, set-test-base">
+    <target name="jyunit-script-tests" depends="toolCheck, set-test-base-GDA">
         <jython-call description="${ant.project.name} JyUnit tests (scripts)"
             jython.file="${GDA-plugin.basedir}/scripts/all_tests.py"
             python.path="${GDA-plugin.basedir}/scripts">
@@ -113,8 +113,6 @@
                 <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.analysis/bin" />
                 <pathelement location="${workspace.loc}/plugins/uk.ac.gda.swingclient/bin" />
                 <pathelement location="${workspace.loc}/plugins/uk.ac.gda.common.client/bin" />
-                <pathelement location="${workspace.git.loc}/gda-diamond.git/uk.ac.gda.dls/bin" />
-                <pathelement location="${workspace.git.loc}/gda-diamond.git/uk.ac.gda.dls/jars/*" />
                 <pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
                 <pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/bin" />
                 <pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/jars/*" />
@@ -127,16 +125,17 @@
                 <pathelement location="${workspace.git.loc}/diamond-jacorb.git/uk.ac.diamond.org.jacorb/jars/jacorb.jar" />
                 <pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.python/bin" />
                 <pathelement location="${workspace.git.loc}/diamond-springframework.git/uk.ac.diamond.org.springframework/jars/*" />
+                <pathelement location="${workspace.git.loc}/dawn-third.git/ncsa.hdf/bin" />
+                <pathelement location="${workspace.git.loc}/dawn-third.git/ncsa.hdf/jars/*" />
                 <pathelement path="${workspace.loc}/tp/plugins/uk.ac.diamond.org.jscience_2.0.2.jar" />  <!--ensure that 2.0.2 appears first in classpath -->
                 <pathelement path="${workspace.loc}/tp/plugins/com.springsource.slf4j.api_1.5.6.jar" />  <!--ensure that required org.slf4j.LoggerFactory appears first in classpath -->
                 <pathelement location="${workspace.loc}/tp/plugins/*" />
-                <path refid="ncsa.hdf.classpath" />
                 <path refid="libs.jars.path" />
             </classpath>
         </jython-call>
     </target>
 
-    <target name="jyunit-tests" depends="jyunit-tests-scripts">
+    <target name="jyunit-tests" depends="jyunit-script-tests">
     </target>
 
     <target name="all-tests" depends="clean-test, junit-tests, jyunit-tests">
