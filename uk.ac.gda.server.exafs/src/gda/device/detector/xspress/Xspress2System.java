@@ -127,6 +127,11 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	private XspressDeadTimeParameters xspressDeadTimeParameters;
 
 	private String dtcConfigFileName;
+	
+	/**
+	 * If true, then always write non-deadtime corrected MCAs to nexus file, irrespective of any other settings.
+	 */
+	private boolean alwaysRecordRawMCAs = false;
 
 	public String getDtcConfigFileName() {
 		return dtcConfigFileName;
@@ -687,6 +692,14 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 
 	public void setIonChambersCounterTimer(TfgScaler ionChambersCounterTimer) {
 		this.ionChambersCounterTimer = ionChambersCounterTimer;
+	}
+
+	public boolean isAlwaysRecordRawMCAs() {
+		return alwaysRecordRawMCAs;
+	}
+
+	public void setAlwaysRecordRawMCAs(boolean alwaysRecordRawMCAs) {
+		this.alwaysRecordRawMCAs = alwaysRecordRawMCAs;
 	}
 
 	/**
@@ -1638,10 +1651,10 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 			NXDetectorData thisFrame = new NXDetectorData(this);
 			INexusTree detTree = thisFrame.getDetTree(getName());
 			double[] deadtimeCorrectionFactors = new double[getNumberOfDetectors()];
-			if (!saveRawSpectrum) {
-				deadtimeCorrectionFactors = calculateDeadtimeCorrectionFactors(convertUnsignedIntToLong(unpackedScalerData[frame]));
-			} else {
+			if (saveRawSpectrum || alwaysRecordRawMCAs) {
 				Arrays.fill(deadtimeCorrectionFactors, 1.0);
+			} else {
+				deadtimeCorrectionFactors = calculateDeadtimeCorrectionFactors(convertUnsignedIntToLong(unpackedScalerData[frame]));
 			}
 
 			double[][][] correctedMCAArrays = correctMCAArrays(data[frame], deadtimeCorrectionFactors);
