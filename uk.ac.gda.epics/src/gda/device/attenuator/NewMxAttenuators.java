@@ -69,6 +69,7 @@ public class NewMxAttenuators extends EpicsAttenuatorBase {
 			actualEnergy = channelManager.createChannel(pvPrefix + ":ENERGYMATCH", true);
 			actualTransmission = channelManager.createChannel(pvPrefix + ":MATCH", true);
 			change = channelManager.createChannel(pvPrefix + ":FANOUT", true);
+			useCurrentEnergy = channelManager.createChannel(pvPrefix + ":E2WL:USECURRENTENERGY.PROC", true);
 			
 			filterChannels = new Channel[NUMBER_OF_FILTERS];
 			calculatedChannels = new Channel[NUMBER_OF_FILTERS];
