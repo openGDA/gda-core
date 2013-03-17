@@ -55,8 +55,6 @@ public final class AttenuatorParametersComposite extends FieldBeanComposite {
 		GridData gridData = new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1);
 		gridData.heightHint = 188;
 		position.setLayoutData(gridData);
-		this.selectedPosition = new TextWrapper(this, SWT.NONE);
-		this.selectedPosition.setVisible(false);
 	}
 	
 	public void setPosition(String pos){

@@ -32,7 +32,8 @@ import uk.ac.gda.richbeans.components.FieldComposite;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 
 /**
- *
+ * This is a non generic (unlike how its name implies) composite used for I18 with hard coded scannable names.
+ * TODO rename composite or make configurable. The latter is prefered.
  */
 public final class SampleStageParametersComposite extends FieldBeanComposite {
 
@@ -48,33 +49,43 @@ public final class SampleStageParametersComposite extends FieldBeanComposite {
 		Label label = new Label(this, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("x");
-		this.x = new ScaleBox(this, SWT.NONE);
+		
+		x = new ScaleBox(this, SWT.NONE);
+		GridData gridData_2 = (GridData) x.getControl().getLayoutData();
+		gridData_2.widthHint = 100;
+		gridData_2.horizontalAlignment = SWT.LEFT;
 		x.setDecimalPlaces(4);
-		x.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		x.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
 
 		label = new Label(this, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("y");
-		this.y = new ScaleBox(this, SWT.NONE);
+		
+		y = new ScaleBox(this, SWT.NONE);
+		GridData gridData = (GridData) y.getControl().getLayoutData();
+		gridData.widthHint = 100;
+		gridData.horizontalAlignment = SWT.LEFT;
 		y.setDecimalPlaces(4);
-		y.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		y.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
 
 		label = new Label(this, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("z");
-		this.z = new ScaleBox(this, SWT.NONE);
+		
+		z = new ScaleBox(this, SWT.NONE);
+		GridData gridData_1 = (GridData) z.getControl().getLayoutData();
+		gridData_1.widthHint = 100;
+		gridData_1.horizontalAlignment = SWT.LEFT;
 		z.setDecimalPlaces(4);
-		z.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		z.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
 
 		try {
 			setMotorLimits("sc_MicroFocusSampleX", (x));
 			setMotorLimits("sc_MicroFocusSampleX", y);
 			setMotorLimits("sc_sample_z", z);
-
 		} catch (Exception e) {
-			logger.warn("exception while fetching hardware limits: " + e.getMessage(), e);
+			logger.warn("exception while setting hardware limits: " + e.getMessage(), e);
 		}
-
 	}
 
 	public FieldComposite getX() {
