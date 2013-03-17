@@ -21,7 +21,6 @@ package gda.device.detector.countertimer;
 import gda.device.DeviceException;
 import gda.device.continuouscontroller.HardwareTriggerProvider;
 import gda.device.detector.DAServer;
-import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetector;
 import gda.device.detector.hardwaretriggerable.HardwareTriggeredDetector;
 import gda.device.scannable.PositionCallableProvider;
 import gda.device.scannable.PositionInputStream;
