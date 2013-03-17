@@ -57,6 +57,10 @@ public interface HardwareTriggeredDetector extends Detector {
 	 */
 	public HardwareTriggerProvider getHardwareTriggerProvider();
 
+	/**
+	 * Tell the detector how many scan points to collect. (Unfortunately named images).
+	 * @param numberImagesToCollect
+	 */
 	public void setNumberImagesToCollect(int numberImagesToCollect);
 	
 	/**
