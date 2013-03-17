@@ -26,7 +26,7 @@ import gda.util.OutOfRangeException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
 
-public interface TrajectoryScanControllerDev812 extends Device, Configurable, Findable {
+public interface TrajectoryScanController extends Device, Configurable, Findable {
 	public enum TrajectoryScanProperty {
 		/** */
 		BUILD,

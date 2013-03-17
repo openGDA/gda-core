@@ -31,7 +31,7 @@ import gda.device.DeviceException;
 import gda.device.MotorException;
 import gda.device.MotorStatus;
 import gda.device.continuouscontroller.EpicsTrajectoryMoveControllerAdapter;
-import gda.device.continuouscontroller.EpicsTrajectoryScanControllerDev812;
+import gda.device.continuouscontroller.EpicsTrajectoryScanController;
 import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.device.scannable.ScannableMotor;
 import gda.device.scannable.scannablegroup.DeferredAndTrajectoryScannableGroup;
@@ -71,7 +71,7 @@ public class EpicsTrajectoryMoveControllerAdapterIntegrationTest {
 	ScannableMotor scnc;
 
 	private EpicsTrajectoryMoveControllerAdapter controller;
-	private EpicsTrajectoryScanControllerDev812 mockedController;
+	private EpicsTrajectoryScanController mockedController;
 	
 	@Before
 	public void setUp() throws DeviceException, FactoryException {
@@ -82,7 +82,7 @@ public class EpicsTrajectoryMoveControllerAdapterIntegrationTest {
 		mockedControlPoint = mock(ControlPoint.class);
 		when(mockedControlPoint.getPosition()).thenReturn(0);
 
-		mockedController = mock(EpicsTrajectoryScanControllerDev812.class);
+		mockedController = mock(EpicsTrajectoryScanController.class);
 		when(mockedController.getMaximumNumberMotors()).thenReturn(8);
 		controller = new EpicsTrajectoryMoveControllerAdapter();
 		controller.setController(mockedController);

@@ -39,6 +39,28 @@ import gov.aps.jca.TimeoutException;
 
 public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements TrajectoryMoveController {
 
+	private static final Logger logger = LoggerFactory.getLogger(EpicsTrajectoryMoveControllerAdapter.class);
+
+	private EpicsTrajectoryScanController controller;
+	
+	private String[] axisNames;
+	
+	private int[] axisMotorOrder;
+	
+	private FutureTask<Void> moveFuture;
+	
+	private Double triggerPeriod = 1.;
+	
+	private Scannable scannableForMovingGroupToStart;
+	
+	List<Double[]> points = new ArrayList<Double[]>();
+
+	private final Double[] triggerDeltas = null; // final as not yet used
+	
+	private boolean useAlternateMethod;
+	
+	private boolean verifyEpicsReadbackEnabled = true;
+	
 	public static String almostEqual(double[] a, double[] b, double eps){
 		if (a == null) {
 			return "first is null";
@@ -71,44 +93,14 @@ public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements 
 				throw e;
 			}
 			return null;
-			
 		}
+	}
 		
-	}
-	private static final Logger logger = LoggerFactory.getLogger(EpicsTrajectoryMoveControllerAdapter.class);
-
-	private EpicsTrajectoryScanControllerDev812 controller;
-	
-	private String[] axisNames;
-	
-	private int[] axisMotorOrder;
-	
-	private FutureTask<Void> moveFuture;
-	
-	private Double triggerPeriod = 1.;
-	
-	private Scannable scannableForMovingGroupToStart;
-	
-	List<Double[]> points = new ArrayList<Double[]>();
-
-	private final Double[] triggerDeltas = null; // final as not yet used
-	
-	private boolean useAlternateMethod;
-	
-	
-	public boolean isUseAlternateMethod() {
-		return useAlternateMethod;
-	}
-
-	public void setUseAlternateMethod(boolean useAlternateMethod) {
-		this.useAlternateMethod = useAlternateMethod;
-	}
-	
-	public EpicsTrajectoryScanControllerDev812 getController() {
+	public EpicsTrajectoryScanController getController() {
 		return controller;
 	}
 
-	public void setController(EpicsTrajectoryScanControllerDev812 controller) {
+	public void setController(EpicsTrajectoryScanController controller) {
 		this.controller = controller;
 	}
 
@@ -221,17 +213,18 @@ public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements 
 		
 		List<Integer> motorsToMove = pushEnableAxisSettings();		
 
-		
 		// Verify Epics settings. Getting this wrong could be expensive.
-		verifyEpicsSettingsForNumberOfElementsAndPulses();
-		verifyEpicsSettingsForPathTrajectories();
-		verifyEpicsSettingsForTrajectoryTime();
-		try {
-			verifyEpicsSettingsAxisEnabled(motorsToMove);
-		} catch (CAException e) {
-			throw new DeviceException(e);
-		} catch (TimeoutException e) {
-			throw new DeviceException(e);
+		if(verifyEpicsReadbackEnabled){
+			verifyEpicsSettingsForNumberOfElementsAndPulses();
+			verifyEpicsSettingsForPathTrajectories();
+			verifyEpicsSettingsForTrajectoryTime();
+			try {
+				verifyEpicsSettingsAxisEnabled(motorsToMove);
+			} catch (CAException e) {
+				throw new DeviceException(e);
+			} catch (TimeoutException e) {
+				throw new DeviceException(e);
+			}
 		}
 		
 		controller.build(); // will throw an exception with no points (this is okay)
@@ -561,4 +554,19 @@ public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements 
 		controller.setTrajectoryTime(trajectory.getTotalTime());
 	}
 
+	public boolean isUseAlternateMethod() {
+		return useAlternateMethod;
+	}
+
+	public void setUseAlternateMethod(boolean useAlternateMethod) {
+		this.useAlternateMethod = useAlternateMethod;
+	}
+	
+	public boolean isVerifyEpicsReadbackEnabled() {
+		return verifyEpicsReadbackEnabled;
+	}
+
+	public void setVerifyEpicsReadbackEnabled(boolean verifyEpicsReadbackEnabled) {
+		this.verifyEpicsReadbackEnabled = verifyEpicsReadbackEnabled;
+	}
 }
