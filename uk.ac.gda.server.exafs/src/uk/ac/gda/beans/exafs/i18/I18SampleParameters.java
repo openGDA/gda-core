@@ -34,6 +34,8 @@ public class I18SampleParameters implements Serializable, ISampleParameters {
 	private AttenuatorParameters attenuatorParameter1;
 	private AttenuatorParameters attenuatorParameter2;
 	private String description="";
+	private double vfmx;
+	private boolean vfmxActive;
 
 	static public final URL mappingURL = I18SampleParameters.class.getResource("I18SampleParametersMapping.xml");
 
@@ -141,6 +143,8 @@ public class I18SampleParameters implements Serializable, ISampleParameters {
 	public void clear() {
 		this.attenuatorParameter1 = null;
 		this.attenuatorParameter2 = null;
+		vfmx=0;
+		vfmxActive=false;
 	}
 	public String getDescription() { 
 		return description; 
@@ -163,6 +167,20 @@ public class I18SampleParameters implements Serializable, ISampleParameters {
 	public void setName(String name) {
 		this.name = name;
 	}
-	
 
+	public double getVfmx() {
+		return vfmx;
+	}
+
+	public void setVfmx(double vfmx) {
+		this.vfmx = vfmx;
+	}
+
+	public boolean isVfmxActive() {
+		return vfmxActive;
+	}
+
+	public void setVfmxActive(boolean vfmxActive) {
+		this.vfmxActive = vfmxActive;
+	}
 }

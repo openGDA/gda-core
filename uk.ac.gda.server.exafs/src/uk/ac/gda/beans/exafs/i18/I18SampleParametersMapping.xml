@@ -17,6 +17,12 @@
 		<field name="attenuatorParameter2" type="uk.ac.gda.beans.exafs.i18.AttenuatorParameters">
 			<bind-xml name="Attenuator2" node="element" />
 		</field>
+		<field name="vfmx" type="double">
+			<bind-xml name="vfmx" node="element" />
+		</field>	
+		<field name="vfmxActive" type="boolean">
+			<bind-xml name="vfmxActive" node="element" />
+		</field>
 	</class>
 	<class name="uk.ac.gda.beans.exafs.i18.SampleStageParameters">
 		<map-to xml="SampleStage" />

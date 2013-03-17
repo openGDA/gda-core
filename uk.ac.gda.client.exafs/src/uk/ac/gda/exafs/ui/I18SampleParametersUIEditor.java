@@ -32,6 +32,8 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.ui.forms.events.ExpansionAdapter;
+import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,9 +50,13 @@ import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
  *
  */
 public final class I18SampleParametersUIEditor extends RichBeanEditorPart {
+	
 	private static final Logger logger = LoggerFactory.getLogger(I18SampleParametersUIEditor.class);
+	private DirtyContainer dirtyContainer;
+	
 	public I18SampleParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
 		super(path, mappingURL, dirtyContainer, editingBean);
+		this.dirtyContainer=dirtyContainer;
 	}
 
 	private I18SampleParametersComposite beanComposite;
@@ -82,14 +88,21 @@ public final class I18SampleParametersUIEditor extends RichBeanEditorPart {
 		} catch (Exception e) {
 			logger.error("Error enabling/disabling sample", e);
 		}
-		((GridData) beanComposite.getSampleStageParameters().getZ().getLayoutData()).widthHint = 544;
+		
+		ExpansionAdapter stageExpansionListener = new ExpansionAdapter() {
+			@Override
+			public void expansionStateChanged(ExpansionEvent e) {
+				beanComposite.setVfmxActive(e.getState());
+				dirtyContainer.setDirty(true);
+			}
+		};
+		beanComposite.getKbExpandableComposite().addExpansionListener(stageExpansionListener);
+		
 		fillAttenuatorPositions();
 		addListeners();
-		//loadRealPositions();
 		scrolledComposite.setContent(beanComposite);
 		beanComposite.layout();
 		scrolledComposite.setMinSize(beanComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-		
 	}
 
 	private void addListeners() {
@@ -103,22 +116,17 @@ public final class I18SampleParametersUIEditor extends RichBeanEditorPart {
 			beanComposite.getAttenuatorParameter2().getSelectedPosition().setValue(att2val);
 			beanComposite.getAttenuatorParameter1().setPosition(att1val);
 			beanComposite.getAttenuatorParameter2().setPosition(att2val);
-		
 	}
 	});
 
 		this.beanComposite.getAttenuatorParameter1().getPosition().addSelectionListener(new SelectionListener(){
-
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
-
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				beanComposite.getAttenuatorParameter1().getSelectedPosition().setValue(beanComposite.getAttenuatorParameter1().getPosition().getText());
-				
 			}
-			
 		});
 		this.beanComposite.getAttenuatorParameter2().getPosition().addSelectionListener(new SelectionListener(){
 
@@ -129,11 +137,9 @@ public final class I18SampleParametersUIEditor extends RichBeanEditorPart {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				beanComposite.getAttenuatorParameter2().getSelectedPosition().setValue(beanComposite.getAttenuatorParameter2().getPosition().getText());
-				
 			}
-			
 		});
-			}
+	}
 			
 	private void fillAttenuatorPositions() {
 		AttenuatorParametersComposite at1 = this.beanComposite.getAttenuatorParameter1();
@@ -151,7 +157,6 @@ public final class I18SampleParametersUIEditor extends RichBeanEditorPart {
 				at2.getPosition().add(pos);
 			}
 		at2.getPosition().setText(sampleBean.getAttenuatorParameter2().getSelectedPosition());
-		
 	}
 
 	/**
@@ -180,7 +185,14 @@ public final class I18SampleParametersUIEditor extends RichBeanEditorPart {
 		return beanComposite.getAttenuatorParameter2();
 	}
 	
+	public FieldComposite getVfmx() {
+		return beanComposite.getVfmx();
+	} 
 
+	public boolean isVfmxActive() {
+		return beanComposite.isVfmxActive();
+	}
+	
 	@Override
 	public void linkUI(final boolean isPageChange) {
 		super.linkUI(isPageChange);
@@ -189,10 +201,8 @@ public final class I18SampleParametersUIEditor extends RichBeanEditorPart {
 				this.beanComposite.disableSample();
 			else
 				this.beanComposite.enableSample();
-			
 		} catch (Exception e) {
 			logger.error("Error while trying to enable/disable sample on the bean for sample parameters", e);
 		}
 	}
-	
 }
