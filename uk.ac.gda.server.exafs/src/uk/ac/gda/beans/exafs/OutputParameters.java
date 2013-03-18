@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -28,14 +28,11 @@ import org.apache.commons.beanutils.BeanUtils;
 
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
-/**
- *
- */
 public class OutputParameters implements Serializable, IOutputParameters {
 
-	static public final URL mappingURL = OutputParameters.class.getResource("ExafsParameterMapping.xml");
+	static public URL mappingURL = OutputParameters.class.getResource("ExafsParameterMapping.xml");
 
-	static public final URL schemaUrl = OutputParameters.class.getResource("ExafsParameterMapping.xsd");
+	static public URL schemaUrl = OutputParameters.class.getResource("ExafsParameterMapping.xsd");
 
 	private String asciiFileName;
 	private String asciiDirectory;

@@ -18,8 +18,6 @@
 
 package uk.ac.gda.beans.exafs.i20;
 
-import java.net.URL;
-
 import uk.ac.gda.beans.exafs.OutputParameters;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
@@ -28,11 +26,10 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  */
 public class I20OutputParameters extends OutputParameters {
 
-	@SuppressWarnings("hiding")
-	static public final URL mappingURL = I20OutputParameters.class.getResource("I20SampleParametersMapping.xml");
-
-	@SuppressWarnings("hiding")
-	static public final URL schemaUrl = I20OutputParameters.class.getResource("I20SampleParametersMapping.xsd");
+	static {
+		mappingURL = I20OutputParameters.class.getResource("I20SampleParametersMapping.xml");
+		schemaUrl = I20OutputParameters.class.getResource("I20SampleParametersMapping.xsd");
+	}
 	
 	public static I20OutputParameters createFromXML(String filename) throws Exception {
 		return (I20OutputParameters) XMLHelpers.createFromXML(mappingURL, I20OutputParameters.class, schemaUrl, filename);
