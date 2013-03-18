@@ -139,19 +139,12 @@ class RasterMapReturnWrite(Map):
             scanStart = time.asctime()
             try:
                 if(detectorType == "Silicon"):
-                    
-                    #Added by RW 12/03/13
                     point_collection_time = scanBean.getRowTime() / nx
-                    noOfXPoints = (scanBean.getXEnd() - scanBean.getXStart()) + 1                    
-                    Finder.getInstance().find("HTScaler").addFrameSet(int(noOfXPoints),0.0001,point_collection_time,0,0,-1,0)
-                    #Finder.getInstance().find("xpsTrajController").
-                    
-                    #self.HTScaler.setIntegrateBetweenPoints(True)  #???
+                    self.HTScaler.setIntegrateBetweenPoints(True)
                     self.HTXmapMca.setIntegrateBetweenPoints(True)
                     self.HTScaler.setCollectionTime(point_collection_time)
                     self.HTXmapMca.setCollectionTime(point_collection_time)
-                    #self.HTScaler.setScanNumberOfPoints(nx)
-                    self.HTXmapMca.setScanNumberOfPoints(nx)                     
+                    self.HTXmapMca.setScanNumberOfPoints(nx)
                     sptw= ScanPositionsTwoWay(self.continuousSampleX,scanBean.getXStart(), scanBean.getXEnd(), scanBean.getXStepSize())
                     tsl = TrajectoryScanLine([self.continuousSampleX, sptw,  self.HTScaler, self.HTXmapMca, scanBean.getRowTime()/(nx)] )
                     tsl.setScanDataPointQueueLength(10000)
@@ -168,11 +161,6 @@ class RasterMapReturnWrite(Map):
                     xmapRasterscan.setDataWriter(xasWriter)
                     self.finder.find("elementListScriptController").update(None, self.detectorBeanFileName);
                     xmapRasterscan.runScan()
-                else:
-                    xspressRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),ContinuousScan(self.trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [self.raster_counterTimer01, self.raster_xspress]),self.realX])
-                    xspressRasterscan.getScanPlotSettings().setIgnore(1)
-                    self.finder.find("elementListScriptController").update(None, self.detectorBeanFileName);
-                    xspressRasterscan.runScan()
     
             except (Exception, java.lang.Exception), scan_exception:
                 print "Handling exception raised during scan"
@@ -212,7 +200,7 @@ class RasterMapReturnWrite(Map):
             topupMonitor.setPauseBeforeLine(True)
             topupMonitor.setCollectionTime(collectionTime)
         if(not (beam == None)):
-            self.finder.find("command_server").addDefault(beam);
+            #self.finder.find("command_server").addDefault(beam);
             beam.setPauseBeforePoint(False)
             beam.setPauseBeforeLine(True)
         if(beanGroup.getDetector().getExperimentType() == "Fluorescence" and beanGroup.getDetector().getFluorescenceParameters().getDetectorType() == "Germanium" and not (detectorFillingMonitor == None)):
@@ -233,4 +221,4 @@ class RasterMapReturnWrite(Map):
         self.d7b(att2.getSelectedPosition())
         configFluoDetector(beanGroup)
         LocalProperties.set("gda.scan.useScanPlotSettings", "true")
-        self.finder.find("RCPController").openPesrpective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")
+        #self.finder.find("RCPController").openPesrpective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")
