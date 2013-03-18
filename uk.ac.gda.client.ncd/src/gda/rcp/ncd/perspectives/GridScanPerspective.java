@@ -32,7 +32,7 @@ public class GridScanPerspective implements IPerspectiveFactory {
 			folderLayout.addView("uk.ac.gda.client.ncd.gridcameraview");
 			folderLayout.addView("uk.ac.gda.client.ncd.mappingthumb");
 		}
-		layout.addView("uk.ac.gda.exafs.ui.dashboardView", IPageLayout.TOP, 0.15f, "uk.ac.gda.client.ncd.gridcameraview");
+		layout.addView("uk.ac.gda.rcp.views.dashboardView", IPageLayout.TOP, 0.15f, "uk.ac.gda.client.ncd.gridcameraview");
 		layout.addView("gda.rcp.jythonterminalview", IPageLayout.LEFT, 0.95f, IPageLayout.ID_EDITOR_AREA);
 		{
 			IFolderLayout folderLayout = layout.createFolder("folder_1", IPageLayout.BOTTOM, 0.87f, "gda.rcp.jythonterminalview");

@@ -40,8 +40,7 @@ public class SetupPerspective implements IPerspectiveFactory {
 		layout.addView("gda.rcp.jythonterminalview", IPageLayout.BOTTOM, 0.42f, "gda.rcp.ncd.views.NCDStatus");
 		{
 			IFolderLayout folderLayout = layout.createFolder("folder", IPageLayout.BOTTOM, 0.67f, "gda.rcp.jythonterminalview");
-			folderLayout.addView("gda.rcp.ncd.views.WatchView");
-//			folderLayout.addView("uk.ac.gda.exafs.ui.dashboardView");
+			folderLayout.addView("uk.ac.gda.rcp.views.dashboardView");
 		}
 	}
 }
