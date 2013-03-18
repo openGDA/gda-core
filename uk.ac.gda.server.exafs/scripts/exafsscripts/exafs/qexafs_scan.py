@@ -75,7 +75,7 @@ class QexafsScan(Scan):
                 initial_energy = scanBean.getInitialEnergy()
                 final_energy = scanBean.getFinalEnergy()
                 step_size = scanBean.getStepSize()
-                self.outputPreparer.prepare(outputBean, initial_energy, final_energy)
+                self.outputPreparer.prepare(outputBean, scanBean)
                 beanGroup.setScanNumber(repetitionNumber)
                 XasAsciiDataWriter.setBeanGroup(beanGroup)
                 if len(outputBean.getCheckedSignalList()) > 0:
