@@ -259,10 +259,47 @@ public class LocalProperties {
 	public static final String GDA_SCAN_MULTITHREADED_SCANDATA_POINT_PIPElINE_POINTS_TO_COMPUTE_SIMULTANEOUSELY = "gda.scan.multithreadedScanDataPointPipeline.pointsToComputeSimultaneousely";
 
 	/**
+	 * Starting width for the GDA application window
+	 */
+	public static final String GDA_GUI_START_WIDTH = "gda.gui.window.start.width";
+	
+	/**
+	 * Starting height for the GDA application window
+	 */
+	public static final String GDA_GUI_START_HEIGHT = "gda.gui.window.start.height";
+
+	/**
+	 * Maximise the application window at startup
+	 */
+	public static final String GDA_GUI_START_MAXIMISE = "gda.gui.window.start.maximise";
+
+	/**
 	 * Prefix for the title of the GDA window
 	 */
 	public static final String GDA_GUI_TITLEBAR_PREFIX = "gda.gui.titlebar.prefix";
-	
+
+	/**
+	 * Option to display RCP Workbench default menus (default usually true)
+	 */
+	public static final String GDA_GUI_USE_ACTIONS_NEW = "gda.gui.useNewActions";
+	public static final String GDA_GUI_USE_ACTIONS_SEARCH = "gda.gui.useSearchActions";
+	public static final String GDA_GUI_USE_ACTIONS_RUN = "gda.gui.useRunActions";
+	public static final String GDA_GUI_USE_ACTIONS_PERSPECTIVE_CUSTOM = "gda.gui.usePerspectiveCustomActions";
+	public static final String GDA_GUI_USE_ACTIONS_NEW_EDITOR = "gda.gui.useNewEditorActions";
+	public static final String GDA_GUI_USE_ACTIONS_NEW_WINDOW = "gda.gui.useNewWindowActions";
+	public static final String GDA_GUI_USE_ACTIONS_EXPORT = "gda.gui.useExportActions";
+	public static final String GDA_GUI_USE_ACTIONS_IMPORT = "gda.gui.useImportActions";
+
+	/**
+	 * Option to display the RCP Perspective bar
+	 */
+	public static final String GDA_GUI_USE_PERSPECTIVE_BAR = "gda.gui.usePerspectiveBar";
+
+	/**
+	 * Option to display the RCP main tool bar
+	 */
+	public static final String GDA_GUI_USE_TOOL_BAR = "gda.gui.useToolBar";
+
 	/**
 	 * Name of the numtracker used to derive the scan id. If not set then the scan id is not set and relies on filewriters to set it.
 	 */
