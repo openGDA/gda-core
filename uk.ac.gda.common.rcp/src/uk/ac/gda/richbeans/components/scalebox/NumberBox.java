@@ -37,6 +37,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -520,6 +521,12 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 				red = getDisplay().getSystemColor(SWT.COLOR_RED);
 			if (!red.isDisposed()) {
 				text.setStyleRange(null);
+				if (!isEditable()) {
+					text.setFont(new Font(text.getDisplay(), "sans", 10, SWT.ITALIC));
+				}
+				else {
+					text.setFont(new Font(text.getDisplay(), "sans", 10, SWT.NORMAL));
+				}
 				text.setForeground(red);
 			}
 			this.validBounds = false;
@@ -533,6 +540,7 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 				setTooltipOveride("The value '" + numericalValue + "' is less than the lower limit.");
 			}
 		} else {
+			text.setFont(new Font(text.getDisplay(), "sans", 10, SWT.NORMAL));
 			setTooltipOveride(null);
 			if (isEditable()) {
 				if (this.blue == null)
@@ -550,7 +558,7 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 			evt.setMode(Mode.LEGAL);
 		}
 		
-		if (!isEditable()) {
+		if (isValidBounds(numericalValue) && !isEditable()) {
 			if (grey == null)
 				grey = getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY);
 			if (!grey.isDisposed())
@@ -735,11 +743,16 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 			if (!black.isDisposed() && !grey.isDisposed()) {
 				text.setForeground(isEditable ? black : grey);
 			}
+
 		} else {
 			if (red == null)
 				red = getDisplay().getSystemColor(SWT.COLOR_RED);
 			if (!red.isDisposed())
 				text.setForeground(red);
+			if (!isEditable) {
+				text.setFont(new Font(text.getDisplay(), "sans", 10, SWT.ITALIC));
+			}
+			
 		}
 		if (button != null)
 			button.setEnabled(isEditable);
