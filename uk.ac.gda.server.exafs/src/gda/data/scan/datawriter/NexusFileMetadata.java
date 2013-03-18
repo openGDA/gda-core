@@ -53,10 +53,7 @@ public class NexusFileMetadata {
 	}
 	
 	public String getUniqueCategory(){
-		if (nxEntryType != EntryTypes.NXinstrument ){
-			return nxEntryType.toString();
-		}
-		return nxEntrySubType.toString();
+		return this.typeLabel;
 	}
 	
 	public EntryTypes getNxEntryType() {

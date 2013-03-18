@@ -93,34 +93,35 @@ public class NexusExtraMetadataDataWriter extends NexusDataWriter {
 		
 		for (String groupName : groups.keySet()){
 			Vector<NexusFileMetadata> group = groupedMetadata.get(groupName);
-	
-			if (group.size() > 0){
-				
+
+			if (group.size() > 0) {
+
 				boolean madeSubGroup = false;
-				if (group.get(0).getNxEntryType() == NexusFileMetadata.EntryTypes.NXinstrument){
+				// if its part of the instrument, then put it inside the existing 'instrument' section of the Nexus file.
+				if (group.get(0).getNxEntryType() == NexusFileMetadata.EntryTypes.NXinstrument) {
 					if (file.groupdir().get("instrument") == null) {
 						file.makegroup("instrument", group.get(0).getNxEntryType().toString());
 					}
 					file.opengroup("instrument", group.get(0).getNxEntryType().toString());
 					if (file.groupdir().get(group.get(0).getTypeLabel()) == null) {
-						file.makegroup(group.get(0).getTypeLabel(), group.get(0).getNxEntrySubType().toString());
+							file.makegroup(group.get(0).getTypeLabel(), group.get(0).getNxEntrySubType().toString());
 					}
-					file.opengroup(group.get(0).getTypeLabel().toString(), group.get(0).getNxEntrySubType().toString());
+					file.opengroup(group.get(0).getTypeLabel(), group.get(0).getNxEntrySubType().toString());
 					madeSubGroup = true;
 				} else {
 					file.makegroup(group.get(0).getTypeLabel(), group.get(0).getNxEntryType().toString());
-					file.opengroup(group.get(0).getTypeLabel().toString(), group.get(0).getNxEntryType().toString());
+					file.opengroup(group.get(0).getTypeLabel(), group.get(0).getNxEntryType().toString());
 				}
-				
+
 				try {
-					for (NexusFileMetadata thisEntry : group){
+					for (NexusFileMetadata thisEntry : group) {
 						NeXusUtils.writeNexusString(file, thisEntry.getName(), thisEntry.getValue());
 					}
 				} finally {
-					if (madeSubGroup){
+					if (madeSubGroup) {
 						file.closegroup();
 					}
-				    file.closegroup();
+					file.closegroup();
 				}
 			}
 		}

@@ -13,16 +13,23 @@ class I20OutputPreparer:
     
     def __init__(self):
         self.mode = "xas"
+        self.jython_mapper = JythonNameSpaceMapping()
         pass
     
     def prepare(self, outputParameters, initial_energy, final_energy):
         
         from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
         NexusExtraMetadataDataWriter.removeAllMetadataEntries();
-        #redefineNexusMetadata(beanGroup)
+        self.redefineNexusMetadata()
 
-        jython_mapper = JythonNameSpaceMapping()
-        jython_mapper.ionchambers.setOutputLogValues(True) 
+        self.jython_mapper.ionchambers.setOutputLogValues(True) 
+        # Custom for I20, which is why it is here instead of the shared DetectorConfiguration.java classes.
+        # Set the output options for the fluo detectors. Hope that this output preparer has been called AFTER the
+        # detector preparer or these settings will be overwritten.
+        self.jython_mapper.xspress2system.setOnlyDisplayFF(outputParameters.isXspressOnlyShowFF());
+        self.jython_mapper.xspress2system.setAddDTScalerValuesToAscii(outputParameters.isXspressShowDTRawValues());
+        self.jython_mapper.xspress2system.setSaveRawSpectrum(outputParameters.isXspressSaveRawSpectrum());
+        self.jython_mapper.xmapMca.setSaveRawSpectrum(outputParameters.isVortexSaveRawSpectrum());
         
         return []
 
@@ -54,7 +61,6 @@ class I20OutputPreparer:
                 if fluoDetBean.isXspressShowDTRawValues():
                     # create a filter for the DT columns and return it
                     LocalProperties.set("gda.scan.useScanPlotSettings", "true")
-                    jython_mapper = JythonNameSpaceMapping()
                     sps = ScanPlotSettings()
                     sps.setXAxisName("Energy")  # column will be converted to this name
                     
@@ -66,7 +72,7 @@ class I20OutputPreparer:
 
                     axes = []
                     for det in fluoDetGroup.getDetector():
-                        thisDet =  jython_mapper.__getattr__(str(det))
+                        thisDet =  self.jython_mapper.__getattr__(str(det))
                         extraNames = thisDet.getExtraNames()
                         axes += extraNames
                         
@@ -93,99 +99,117 @@ class I20OutputPreparer:
                 return True
         return False
          
-def redefineNexusMetadata(beanGroup):
+    def redefineNexusMetadata(self):
 
-    from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
-    from gda.data.scan.datawriter import NexusFileMetadata
-    from gda.data.scan.datawriter.NexusFileMetadata import EntryTypes, NXinstrumentSubTypes
-    
-    jython_mapper = JythonNameSpaceMapping()
-    
-    if (LocalProperties.get("gda.mode") == 'dummy'):
-        return
-    
-    # primary slits
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Xsize",str(jython_mapper.s1_hgap()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXaperture,"primary slits"))
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Xcentre",str(jython_mapper.s1_hoffset()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXaperture,"primary slits"))
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Ysize",str(jython_mapper.s1_vgap()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXaperture,"primary slits"))
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Ycentre",str(jython_mapper.s1_voffset()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXaperture,"primary slits"))
-
-    # M1
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Pitch",str(jython_mapper.m1_pitch()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M1"))
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Stripe",str(jython_mapper.m1m2_stripe()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M1"))
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Y",str(jython_mapper.m1_height()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M1"))
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Curvature",str(jython_mapper.m1_bend()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M1"))
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Ellipticity",str(jython_mapper.m1_elip()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M1"))
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Sag",str(jython_mapper.m1_yaw()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M1"))
-
-    # M2
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Pitch",str(jython_mapper.m2_pitch()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M2"))
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Y",str(jython_mapper.m2_height()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M2"))
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Curvature",str(jython_mapper.m2_bend()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M2"))
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Ellipticity",str(jython_mapper.m1_elip()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M2"))
-
-    # ATNs 1,2&3
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Position",str(jython_mapper.atn1()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXattenuator,"ATN1"))
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Position",str(jython_mapper.atn2()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXattenuator,"ATN2"))
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Position",str(jython_mapper.atn3()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXattenuator,"ATN3"))
-    
-    #Y slits  ????
-#    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("YPlus",str(jython_mapper.s1_voffset()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXaperture,"Y slits"))
-
-    # Mono
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Crystal Cut",str(jython_mapper.crystalcut()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmonochromator,"Mono"))
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Crystal 1 pitch",str(jython_mapper.crystal1_pitch()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmonochromator,"Mono"))
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Crystal 2 roll",str(jython_mapper.crystal2_roll()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmonochromator,"Mono"))
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Pair 2 roll",str(jython_mapper.pair2_roll()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmonochromator,"Mono"))
-    
-    # Mono slits S2
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Xsize",str(jython_mapper.s2_hgap()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXaperture,"mono slits"))
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Xcentre",str(jython_mapper.s2_hoffset()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXaperture,"mono slits"))
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Ysize",str(jython_mapper.s2_vgap()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXaperture,"mono slits"))
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Ycentre",str(jython_mapper.s2_voffset()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXaperture,"mono slits"))
-    
-    # M3
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Crystal 3 Pitch",str(jython_mapper.m3_pitch()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M3"))
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Crystal 3 Stripe",str(jython_mapper.m3_stripe()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M3"))
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Crystal 3 Sag",str(jython_mapper.m3_yaw()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M3"))
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Crystal 3 Y",str(jython_mapper.m3_height()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M3"))
-    
-    # M4
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Crystal 4 Pitch",str(jython_mapper.m4_pitch()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M4"))
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Crystal 4 Stripe",str(jython_mapper.m4_stripe()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M4"))
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Crystal 4 Y",str(jython_mapper.m4_height()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M4"))
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Crystal 4 Curvature",str(jython_mapper.m4_curvature()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M4"))
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Crystal 4 Ellipticity",str(jython_mapper.m4_yaw()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M4"))
-    
-    # HR mirror
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Pitch",str(jython_mapper.hr_pitch()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"HR mirror"))
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Y",str(jython_mapper.hr_height()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"HR mirror"))
-    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Stripe",str(jython_mapper.hr_stripe()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"HR mirror"))
-    
-    # filter
-    
-    # mono slits
-    
-    # ST1?
-    
-    # Gain and HV for Io, it anf iref
-    
-    # pos of reference wheel
-    
-    # ring current
-    
-    # YSlits drian current
-    
-#    if isInstance(beanGroup.getScan,XesScanParameters):
+        from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
+        from gda.data.scan.datawriter import NexusFileMetadata
+        from gda.data.scan.datawriter.NexusFileMetadata import EntryTypes, NXinstrumentSubTypes
         
-        # analysertype and crystal cut
+#        if (LocalProperties.get("gda.mode") == 'dummy'):
+#            return
         
-        # ST2 x and y pos
+        # primary slits
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Xsize",str(self.jython_mapper.s1_hgap()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXaperture,"primary slits"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Xcentre",str(self.jython_mapper.s1_hoffset()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXaperture,"primary slits"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Ysize",str(self.jython_mapper.s1_vgap()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXaperture,"primary slits"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Ycentre",str(self.jython_mapper.s1_voffset()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXaperture,"primary slits"))
+    
+        # M1
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Pitch",str(self.jython_mapper.m1_pitch()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M1"))
+        if (LocalProperties.get("gda.mode") != 'dummy'):
+            NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Stripe",str(self.jython_mapper.m1m2_stripe()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M1"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Y",str(self.jython_mapper.m1_height()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M1"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Curvature",str(self.jython_mapper.m1_bend()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M1"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Ellipticity",str(self.jython_mapper.m1_elip()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M1"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Sag",str(self.jython_mapper.m1_yaw()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M1"))
+    
+        # M2
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Pitch",str(self.jython_mapper.m2_pitch()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M2"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Y",str(self.jython_mapper.m2_height()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M2"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Curvature",str(self.jython_mapper.m2_bend()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M2"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Ellipticity",str(self.jython_mapper.m1_elip()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M2"))
+    
+        # ATNs 1,2&3
+        if (LocalProperties.get("gda.mode") != 'dummy'):
+            NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Position",str(self.jython_mapper.atn1()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXattenuator,"ATN1"))
+            NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Position",str(self.jython_mapper.atn2()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXattenuator,"ATN2"))
+            NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Position",str(self.jython_mapper.atn3()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXattenuator,"ATN3"))
+            NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Position",str(self.jython_mapper.atn4()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXattenuator,"ATN4"))
         
-        # xes sample stage positions ??
+        #Y slits  ????
+    #    NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("YPlus",str(self.jython_mapper.s1_voffset()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXaperture,"Y slits"))
+    
+        # Mono
+        if (LocalProperties.get("gda.mode") != 'dummy'):
+            NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Crystal Cut",str(self.jython_mapper.crystalcut()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmonochromator,"Mono"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Crystal 1 pitch",str(self.jython_mapper.crystal1_pitch()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmonochromator,"Mono"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Crystal 2 roll",str(self.jython_mapper.crystal2_roll()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmonochromator,"Mono"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Pair 2 roll",str(self.jython_mapper.pair2_roll()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmonochromator,"Mono"))
         
-        # xes bragg (deg)
+        # Mono slits S2
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Xsize",str(self.jython_mapper.s2_hgap()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXaperture,"mono slits"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Xcentre",str(self.jython_mapper.s2_hoffset()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXaperture,"mono slits"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Ysize",str(self.jython_mapper.s2_vgap()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXaperture,"mono slits"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Ycentre",str(self.jython_mapper.s2_voffset()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXaperture,"mono slits"))
         
-        # detector x and y
+        # M3
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Crystal 3 Pitch",str(self.jython_mapper.m3_pitch()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M3"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Crystal 3 Stripe",str(self.jython_mapper.m3_stripe()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M3"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Crystal 3 Sag",str(self.jython_mapper.m3_yaw()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M3"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Crystal 3 Y",str(self.jython_mapper.m3_height()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M3"))
         
-        # analyser hor and rot    
+        # M4
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Crystal 4 Pitch",str(self.jython_mapper.m4_pitch()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M4"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Crystal 4 Stripe",str(self.jython_mapper.m4_stripe()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M4"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Crystal 4 Y",str(self.jython_mapper.m4_height()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M4"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Crystal 4 Curvature",str(self.jython_mapper.m4_bend()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M4"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Crystal 4 Ellipticity",str(self.jython_mapper.m4_yaw()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"M4"))
+        
+        # HR mirror
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Pitch",str(self.jython_mapper.hr_pitch()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"HR mirror"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Y",str(self.jython_mapper.hr_height()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"HR mirror"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Stripe",str(self.jython_mapper.hr_stripe()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"HR mirror"))
+        
+        # filter
+        
+        # mono slits
+        
+        # ST1?
+        
+        # Gain and HV for Io, it anf iref
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Offset",str(self.jython_mapper.i0_stanford_offset()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"I0 stanford"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Offset units",str(self.jython_mapper.i0_stanford_offset_units()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"I0 stanford"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Sensitivity",str(self.jython_mapper.i0_stanford_sensitivity()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"I0 stanford"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Sensitivity units",str(self.jython_mapper.i0_stanford_sensitivity_units()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"I0 stanford"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Offset",str(self.jython_mapper.i1_stanford_offset()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"I1 stanford"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Offset units",str(self.jython_mapper.i1_stanford_offset_units()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"I1 stanford"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Sensitivity",str(self.jython_mapper.i1_stanford_sensitivity()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"I1 stanford"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Sensitivity units",str(self.jython_mapper.i1_stanford_sensitivity_units()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"I1 stanford"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Offset",str(self.jython_mapper.it_stanford_offset()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"It stanford"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Offset units",str(self.jython_mapper.it_stanford_offset_units()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"It stanford"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Sensitivity",str(self.jython_mapper.it_stanford_sensitivity()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"It stanford"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Sensitivity units",str(self.jython_mapper.it_stanford_sensitivity_units()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"It stanford"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Offset",str(self.jython_mapper.iref_stanford_offset()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"Iref stanford"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Offset units",str(self.jython_mapper.iref_stanford_offset_units()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"Iref stanford"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Sensitivity",str(self.jython_mapper.iref_stanford_sensitivity()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"Iref stanford"))
+        NexusExtraMetadataDataWriter.addMetadataEntry(NexusFileMetadata("Sensitivity units",str(self.jython_mapper.iref_stanford_sensitivity_units()),EntryTypes.NXinstrument,NXinstrumentSubTypes.NXmirror,"Iref stanford"))
+        
+        # pos of reference wheel
+        
+        # ring current
+        
+        # YSlits drian current
+        
+    #    if isInstance(beanGroup.getScan,XesScanParameters):
+            
+            # analysertype and crystal cut
+            
+            # ST2 x and y pos
+            
+            # xes sample stage positions ??
+            
+            # xes bragg (deg)
+            
+            # detector x and y
+            
+            # analyser hor and rot    
