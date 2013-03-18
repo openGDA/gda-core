@@ -28,23 +28,28 @@ public class NXTomoEntryLinkCreator extends NXLinkCreator implements Initializin
 	
 	private String control_data_target = "entry1:NXentry/instrument:NXinstrument/source:NXsource/current:NXdata";
 	
-	private String data_data_target = "entry1/tomo_entry/instrument/detector/data";
-	private String data_rotation_angle_target = "entry1/tomo_entry/sample/rotation_angle";
+	private String data_data_target = "entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/detector:NXdetector/data:SDS";
+	private String data_rotation_angle_target = "entry1:NXentry/tomo_entry:NXsubentry/sample:NXsample/rotation_angle:NXdata";
 	
-	private String instrument_detector_data_target = "entry1/instrument/pco1_hw_hdf/data";
-	private String instrument_detector_distance_target = "entry1/scan_identifier";
-	private String instrument_detector_image_key_target = "entry1/instrument/tomoScanDevice/image_key";
-	private String instrument_detector_x_pixel_size_target = "entry1/scan_identifier";
-	private String instrument_detector_y_pixel_size_target = "entry1/scan_identifier";
+	private String instrument_detector_data_target = "entry1:NXentry/instrument:NXinstrument/pco1_hw_hdf:NXdetector/data:SDS";
+	private String instrument_detector_distance_target = "entry1:NXentry/scan_identifier:NXdata";
+	private String instrument_detector_image_key_target = "entry1:NXentry/instrument:NXinstrument/tomoScanDevice:NXpositioner/image_key:NXdata";
+	private String instrument_detector_x_pixel_size_target = "entry1:NXentry/scan_identifier:NXdata";
+	private String instrument_detector_y_pixel_size_target = "entry1:NXentry/scan_identifier:NXdata";
 	
-	private String instrument_source_target = "entry1/instrument/source";
+	private String instrument_source_target = "entry1:NXentry/instrument:NXinstrument/source:NXsource";
+	private String instrument_source_current_target = "entry1:NXentry/instrument:NXinstrument/source:NXsource/current:NXdata";
+	private String instrument_source_energy_target = "entry1:NXentry/instrument:NXinstrument/source:NXsource/energy:NXdata";
+	private String instrument_source_name_target = "entry1:NXentry/instrument:NXinstrument/source:NXsource/name:NXdata";
+	private String instrument_source_probe_target = "entry1:NXentry/instrument:NXinstrument/source:NXsource/probe:NXdata";
+	private String instrument_source_type_target = "entry1:NXentry/instrument:NXinstrument/source:NXsource/type:NXdata";
 	
-	private String sample_rotation_angle_target = "entry1/instrument/tomoScanDevice/ss1_rot";
-	private String sample_x_translation_target = "entry1/instrument/sample_stage/ss1_samplex";
-	private String sample_y_translation_target = "entry1/instrument/sample_stage/ss1_sampley";
-	private String sample_z_translation_target = "entry1/instrument/sample_stage/ss1_samplez";
+	private String sample_rotation_angle_target = "entry1:NXentry/instrument:NXinstrument/tomoScanDevice:NXpositioner/ss1_rot:NXdata";
+	private String sample_x_translation_target = "entry1:NXentry/instrument:NXinstrument/sample_stage:NXpositioner/ss1_samplex:NXdata";
+	private String sample_y_translation_target = "entry1:NXentry/instrument:NXinstrument/sample_stage:NXpositioner/ss1_sampley:NXdata";
+	private String sample_z_translation_target = "entry1:NXentry/instrument:NXinstrument/sample_stage:NXpositioner/ss1_samplez:NXdata";
 	
-	private String title_target = "entry1/scan_identifier";
+	private String title_target = "entry1:NXentry/scan_identifier:NXdata";
 	
 	public String getControl_data_target() {
 		return control_data_target;
@@ -60,6 +65,7 @@ public class NXTomoEntryLinkCreator extends NXLinkCreator implements Initializin
 
 	public void setInstrument_detector_data_target(String instrument_detector_data_target) {
 		this.instrument_detector_data_target = instrument_detector_data_target;
+		this.data_data_target = this.instrument_detector_data_target;
 	}
 
 	public String getInstrument_detector_distance_target() {
@@ -108,6 +114,12 @@ public class NXTomoEntryLinkCreator extends NXLinkCreator implements Initializin
 
 	public void setInstrument_source_target(String instrument_source_target) {
 		this.instrument_source_target = instrument_source_target;
+		
+		this.instrument_source_current_target = this.instrument_source_target + "/current:NXdata";
+		this.instrument_source_energy_target = this.instrument_source_target + "/energy:NXdata";
+		this.instrument_source_name_target = this.instrument_source_target + "/name:NXdata";
+		this.instrument_source_probe_target = this.instrument_source_target + "/probe:NXdata";
+		this.instrument_source_type_target = this.instrument_source_target + "/type:NXdata";
 	}
 	
 	public String getSample_x_translation_target() {
@@ -145,25 +157,15 @@ public class NXTomoEntryLinkCreator extends NXLinkCreator implements Initializin
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		// control/data
-		if (this.control_data_target == null)
+		if (this.getControl_data_target() == null)
 			throw new IllegalStateException("control_data_target is not set");
-		addLink("/entry1:NXentry/tomo_entry:NXsubentry/control:NXMonitor/data", control_data_target);
-		
-		// data/data
-		if (this.data_data_target == null)
-			throw new IllegalStateException("data_data_target is not set");
-		addLink("/entry1:NXentry/tomo_entry:NXsubentry/data:NXdata/data", data_data_target);
-		
-		// data/rotation_angle
-		if (this.data_rotation_angle_target == null)
-			throw new IllegalStateException("data_rotation_angle_target is not set");
-		addLink("/entry1:NXentry/tomo_entry:NXsubentry/data:NXdata/rotation_angle", data_rotation_angle_target);
+		addLink("/entry1:NXentry/tomo_entry:NXsubentry/control:NXMonitor/data", getControl_data_target());
 		
 		// instrument/detector/data
 		if (this.getInstrument_detector_data_target() == null)
 			throw new IllegalStateException("instrument_detector_data_target is not set");
 		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/detector:NXdetector/data", getInstrument_detector_data_target());
-		
+				
 		// instrument/detector/distance
 		if (this.getInstrument_detector_distance_target() == null)
 			throw new IllegalStateException("instrument_detector_distance_target is not set");
@@ -187,7 +189,12 @@ public class NXTomoEntryLinkCreator extends NXLinkCreator implements Initializin
 		// instrument/source
 		if (this.getInstrument_source_target() == null)
 			throw new IllegalStateException("instrument_source_target is not set");
-		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/source", getInstrument_source_target());
+		//addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/source", getInstrument_source_target());
+		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/source:NXsource/current", this.instrument_source_current_target);
+		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/source:NXsource/energy", this.instrument_source_energy_target);
+		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/source:NXsource/name", this.instrument_source_name_target);
+		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/source:NXsource/probe", this.instrument_source_probe_target);
+		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/source:NXsource/type", this.instrument_source_type_target);
 		
 		// sample/rotation_angle
 		if (this.getSample_rotation_angle_target() == null)
@@ -214,6 +221,16 @@ public class NXTomoEntryLinkCreator extends NXLinkCreator implements Initializin
 			throw new IllegalStateException("title_target is not set");
 		addLink("/entry1:NXentry/tomo_entry:NXsubentry/title", getTitle_target());
 		
+		
+		// data/data
+		if (this.data_data_target == null)
+			throw new IllegalStateException("data_data_target is not set");
+		addLink("/entry1:NXentry/tomo_entry:NXsubentry/data:NXdata/data", this.data_data_target);
+		
+		// data/rotation_angle
+		if (this.data_rotation_angle_target == null)
+			throw new IllegalStateException("data_rotation_angle_target is not set");
+		addLink("/entry1:NXentry/tomo_entry:NXsubentry/data:NXdata/rotation_angle", this.data_rotation_angle_target);
 	}
 	
 	public void writeStringData(String filename, String dataName, String dataValue ) throws Exception {

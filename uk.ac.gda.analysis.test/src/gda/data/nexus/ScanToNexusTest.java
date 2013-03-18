@@ -419,9 +419,7 @@ public class ScanToNexusTest {
 		}
 		
 		NXTomoEntryLinkCreator nxLinkCreator = new NXTomoEntryLinkCreator();
-		nxLinkCreator.setInstrument_detector_distance_target("entry1/scan_identifier");
-		nxLinkCreator.setInstrument_detector_x_pixel_size_target("entry1/scan_identifier");
-		nxLinkCreator.setInstrument_detector_y_pixel_size_target("entry1/scan_identifier");
+		nxLinkCreator.setInstrument_detector_data_target("!entry1:NXentry/instrument:NXinstrument/pco1_hw_hdf:NXdetector/data:SDS");
 		nxLinkCreator.afterPropertiesSet();
 		
 		String targetFilename = testScratchDirectoryName + File.separator + "tomoScan.nxs";
