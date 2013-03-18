@@ -96,6 +96,17 @@ public class Stepper extends Canvas {
 
 	private double[] indexValues;
 
+	private boolean notifyWhenDragged = false;
+
+	/**
+	 * Switch to request Stepper to notify caller when the stepper is dragged.
+	 * 
+	 * @param notifyWhenDragged
+	 */
+	public void setNotifyWhenDragged(boolean notifyWhenDragged) {
+		this.notifyWhenDragged = notifyWhenDragged;
+	}
+
 	/**
 	 * Set the max number of steps
 	 * 
@@ -177,7 +188,7 @@ public class Stepper extends Canvas {
 						int index = selection - mf.getMarkerIndex();
 						locToMove = mf.getLocation().x + (int) (index * pixelsForStep);
 					} else {
-						double stepsPerPixel = numStepsBetweenMarkers / (numPixelsBetweenMarkers - 8);
+						double stepsPerPixel = numStepsBetweenMarkers / ((double)numPixelsBetweenMarkers - 8);
 						int stepsFromMarker = selection - mf.getMarkerIndex();
 						int pixelsToMove = (int) (stepsFromMarker / stepsPerPixel);
 						locToMove = mf.getLocation().x + pixelsToMove;
@@ -611,6 +622,7 @@ public class Stepper extends Canvas {
 		private final IFigure figure;
 
 		private int spinnerValNotified = -1;
+		private long lastTime;
 
 		public Dragger(IFigure figure) {
 			this.figure = figure;
@@ -669,15 +681,17 @@ public class Stepper extends Canvas {
 				f.setBounds(translated);
 				moveToLocation(f.getBounds().x);
 
-				// long currentTimeMillis = System.currentTimeMillis();
-				// // fires an update only if the previous update hadn't been fired within a timespan of 500 mill
-				// seconds.
-				// // This was added to avoid the UI thread being held up by listeners.
-				// if (currentTimeMillis - lastTime > 500) {
-				// spinnerValNotified = spinner.getSelection();
-				// fireNotifyChanged();
-				// lastTime = currentTimeMillis;
-				// }
+				if (notifyWhenDragged) {
+					long currentTimeMillis = System.currentTimeMillis();
+					// fires an update only if the previous update hadn't been fired within a timespan of 500 mill
+					// seconds.
+					// This was added to avoid the UI thread being held up by listeners.
+					if (currentTimeMillis - lastTime > 500) {
+						spinnerValNotified = spinner.getSelection();
+						fireNotifyChanged();
+						lastTime = currentTimeMillis;
+					}
+				}
 
 				movedPoint = p;
 			}
