@@ -18,27 +18,27 @@
 
 package gda.device.continuouscontroller;
 
+import static java.text.MessageFormat.format;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.factory.FactoryException;
 import gda.util.OutOfRangeException;
+import gov.aps.jca.CAException;
+import gov.aps.jca.TimeoutException;
 
-import static java.text.MessageFormat.format;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import gda.scan.Trajectory;
-import gov.aps.jca.CAException;
-import gov.aps.jca.TimeoutException;
 
 public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements TrajectoryMoveController {
-
+	
 	private static final Logger logger = LoggerFactory.getLogger(EpicsTrajectoryMoveControllerAdapter.class);
 
 	private EpicsTrajectoryScanController controller;
@@ -54,48 +54,11 @@ public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements 
 	private Scannable scannableForMovingGroupToStart;
 	
 	List<Double[]> points = new ArrayList<Double[]>();
+	
+	private boolean verifyEpicsReadbackEnabled = true;
 
 	private final Double[] triggerDeltas = null; // final as not yet used
 	
-	private boolean useAlternateMethod;
-	
-	private boolean verifyEpicsReadbackEnabled = true;
-	
-	public static String almostEqual(double[] a, double[] b, double eps){
-		if (a == null) {
-			return "first is null";
-		}
-		if (b == null) {
-			return "second is null";
-		}
-		if (a.length != b.length) {
-			return "Lengths differ. First=" + a.length + " Second:" + b.length;
-		}
-		for (int i = 0; i < a.length; i++) {
-			if (Math.abs(a[i] - b[i]) > eps) {
-				return "Element " + i + " differs. First=" + a[i] + " Second:" + b[i];
-			}
-		}
-		
-		return null;
-	}
-	
-	public class ExecuteMoveTask implements Callable<Void> {
-		@Override
-		public Void call() throws DeviceException, InterruptedException{
-			try {
-				controller.execute();
-			} catch (DeviceException e) {
-				logger.error("Problem in trajectory move Thread (will be thrown in waitWhileMoving()): \n", e.getMessage());
-				throw e;
-			} catch (InterruptedException e) {
-				logger.error("Interupted in trajectory move Thread (will be thrown in waitWhileMoving()): \n", e.getMessage());
-				throw e;
-			}
-			return null;
-		}
-	}
-		
 	public EpicsTrajectoryScanController getController() {
 		return controller;
 	}
@@ -196,23 +159,13 @@ public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements 
 	@Override
 	public void prepareForMove() throws DeviceException, InterruptedException {
 		// note: these methods all work with no points (they clear in this case)
-		if(useAlternateMethod)
-		{
-			try {
-				setTrajectory();
-			} catch (OutOfRangeException e) {
-				throw new DeviceException("Unable to buld trajectory ", e);
-			}
-		}
-		else
-		{
-			pushNumberOfElementsAndPulses();
-			pushPathsFromPoints();
-			controller.setTrajectoryTime(getTotalTime());
-		}
 		
-		List<Integer> motorsToMove = pushEnableAxisSettings();		
-
+		pushNumberOfElementsAndPulses();
+		pushPathsFromPoints();
+		controller.setTrajectoryTime(getTotalTime());
+				
+		List<Integer> motorsToMove = pushEnableAxisSettings();
+		
 		// Verify Epics settings. Getting this wrong could be expensive.
 		if(verifyEpicsReadbackEnabled){
 			verifyEpicsSettingsForNumberOfElementsAndPulses();
@@ -525,41 +478,42 @@ public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements 
 		return points;
 	}
 	
-	public List<Double[]> getPointsList() {
-		return points;
+	public static String almostEqual(double[] a, double[] b, double eps){
+		if (a == null) {
+			return "first is null";
+		}
+		if (b == null) {
+			return "second is null";
+		}
+		if (a.length != b.length) {
+			return "Lengths differ. First=" + a.length + " Second:" + b.length;
+		}
+		for (int i = 0; i < a.length; i++) {
+			if (Math.abs(a[i] - b[i]) > eps) {
+				return "Element " + i + " differs. First=" + a[i] + " Second:" + b[i];
+			}
+		}
+		return null;
 	}
 	
-	private void setTrajectory() throws DeviceException, InterruptedException, OutOfRangeException {
-		Trajectory trajectory = new Trajectory();
-		int pointsSize = points.size();
-		trajectory.setTotalElementNumber(pointsSize );
-		trajectory.setTotalPulseNumber(pointsSize );
-		int movingMotorIndex =-1;
-		Double[] first = points.get(0);
-			for (int i = 0; i < first.length; i++) {
-				if(first[i] != null)
-					movingMotorIndex = i;
+	public class ExecuteMoveTask implements Callable<Void> {
+		@Override
+		public Void call() throws DeviceException, InterruptedException{
+			try {
+				controller.execute();
+			} catch (DeviceException e) {
+				logger.error("Problem in trajectory move Thread (will be thrown in waitWhileMoving()): \n", e.getMessage());
+				throw e;
+			} catch (InterruptedException e) {
+				logger.error("Interupted in trajectory move Thread (will be thrown in waitWhileMoving()): \n", e.getMessage());
+				throw e;
 			}
-		double[] path = trajectory.defineCVPath(points.get(0)[movingMotorIndex],points.get(pointsSize -1)[movingMotorIndex],getTotalTime());		
-		controller.setMTraj(motorFromIndex(movingMotorIndex), path);
-		
-		controller.setNumberOfElements((int)trajectory.getElementNumbers());
-		controller.setNumberOfPulses((int) trajectory.getPulseNumbers());
-		controller.setStartPulseElement((int) trajectory.getStartPulseElement());
-		controller.setStopPulseElement((int) trajectory.getStopPulseElement());
-
-		if (controller.getStopPulseElement() != (int) (trajectory.getStopPulseElement())){
-			controller.setStopPulseElement((int) (trajectory.getStopPulseElement()));	
+			return null;
 		}
-		controller.setTrajectoryTime(trajectory.getTotalTime());
 	}
-
-	public boolean isUseAlternateMethod() {
-		return useAlternateMethod;
-	}
-
-	public void setUseAlternateMethod(boolean useAlternateMethod) {
-		this.useAlternateMethod = useAlternateMethod;
+	
+	public List<Double[]> getPointsList() {
+		return points;
 	}
 	
 	public boolean isVerifyEpicsReadbackEnabled() {
