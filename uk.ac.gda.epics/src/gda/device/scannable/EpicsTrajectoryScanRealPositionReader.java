@@ -42,10 +42,11 @@ public class EpicsTrajectoryScanRealPositionReader extends EpicsSingleTrajectory
 	public void atScanLineEnd() throws DeviceException{
 		try {
 			double tempPositions[]= tracController.getMActual(trajectoryIndex);
+			int stopPulseElement = tracController.getStopPulseElement();
 			//for the first scan line end get the total number of points per row
 			if(numberOfScanPointsPerRow == -1)
 			{				
-				numberOfScanPointsPerRow = tempPositions.length;
+				numberOfScanPointsPerRow = stopPulseElement;
 			}
 			int lineIndex = ((lastIndex )/numberOfScanPointsPerRow);
 			positions.add(lineIndex ,tempPositions);
