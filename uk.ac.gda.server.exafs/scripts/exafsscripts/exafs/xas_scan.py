@@ -53,11 +53,11 @@ class XasScan(Scan):
         # Create the beans from the file names
         xmlFolderName = ExafsEnvironment().getXMLFolder() + folderName + "/"
 
-        print "xmlFolderName=" + str(xmlFolderName)
-        print "sampleFileName=" + str(sampleFileName)
-        print "scanFileName=" + str(scanFileName)
-        print "detectorFileName=" + str(detectorFileName)
-        print "outputFileName=" + str(outputFileName)
+        self.log( "xmlFolderName=" + str(xmlFolderName))
+        self.log( "sampleFileName=" + str(sampleFileName))
+        self.log( "scanFileName=" + str(scanFileName))
+        self.log( "detectorFileName=" + str(detectorFileName))
+        self.log( "outputFileName=" + str(outputFileName))
         
         sampleBean, scanBean, detectorBean, outputBean = self._createBeans(xmlFolderName, sampleFileName, scanFileName, detectorFileName, outputFileName)
 
@@ -69,21 +69,23 @@ class XasScan(Scan):
         
         # update to terminal
         print "**********************************"
-        print "Starting",scriptType,detectorBean.getExperimentType(),"scan over scannable '"+scanBean.getScannableName()+"'..."
+        self.log( "Starting",scriptType,detectorBean.getExperimentType(),"scan over scannable '"+scanBean.getScannableName()+"'...")
         print ""
-        print "Output to",xmlFolderName
+        self.log( "Output to",xmlFolderName)
         print ""
 
         # give the beans to the xasdatawriter class to help define the folders/filenames 
         beanGroup = self._defineBeanGroup(folderName, validation, controller, xmlFolderName, sampleBean, scanBean, detectorBean, outputBean)
         
-        self._doLooping(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller, scanBean, outputBean)
+        self._doLooping(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
 
-    def _doLooping(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller, scanBean, outputBean):
+    def _doLooping(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller):
         # Insert sample environment looping logic here by subclassing
-        self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller, scanBean, outputBean)
+        self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
         
-    def _doScan(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller, scanBean, outputBean):
+    def _doScan(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller):
+        scanBean = beanGroup.getScan()
+        outputBean = beanGroup.getOutput()
         # reset the properties used to control repetition behaviour
         LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY,"false")
         LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY,"false")
@@ -229,7 +231,7 @@ class XasScan(Scan):
         expt_type = detectorBean.getExperimentType()
         detectorList = []
         if expt_type == "Transmission":
-            print "This is a transmission scan"
+            self.log( "This is a transmission scan")
             for group in detectorBean.getDetectorGroups():
                 if group.getName() == detectorBean.getTransmissionParameters().getDetectorType():
                     return self._createDetArray(group.getDetector(), scanBean)
@@ -238,7 +240,7 @@ class XasScan(Scan):
                 if group.getName() == "XES":
                     return self._createDetArray(group.getDetector(), scanBean)
         else:
-            print "This is a fluoresence scan"
+            self.log( "This is a fluoresence scan")
             for group in detectorBean.getDetectorGroups():
                 if group.getName() == detectorBean.getFluorescenceParameters().getDetectorType():
                     #print detectorBean.getFluorescenceParameters().getDetectorType(), "experiment"

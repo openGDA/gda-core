@@ -30,7 +30,7 @@ class I18XasScan(XasScan):
             collectionTime = scan.getExafsTime()
             if(scan.getExafsToTime() > collectionTime):
                 collectionTime = scan.getExafsToTime()
-        print "setting collection time to" , str(collectionTime)
+        self.log( "setting collection time to" , str(collectionTime))
 
         if self.topupMonitor!=None:
             self.topupMonitor.setPauseBeforePoint(True)
@@ -63,7 +63,7 @@ class I18XasScan(XasScan):
         elif isinstance(beanGroup.getScan(),XanesScanParameters):
             times = XanesScanPointCreator.getScanTimeArray(beanGroup.getScan())
         if len(times) > 0:
-            print "Setting scan times, using array of length",len(times)
+            self.log( "Setting scan times, using array of length",len(times))
             jython_mapper = JythonNameSpaceMapping()
             jython_mapper.counterTimer01.setTimes(times)
             ScriptBase.checkForPauses()

@@ -106,9 +106,9 @@ class XasScan(Scan):
         scan_unique_id = LoggingScriptController.createUniqueID(scriptType);
         
         # update to terminal
-        print "Starting",scriptType,detectorBean.getExperimentType(),"scan over scannable '"+scanBean.getScannableName()+"'..."
+        self.log( "Starting",scriptType,detectorBean.getExperimentType(),"scan over scannable '"+scanBean.getScannableName()+"'...")
         print ""
-        print "Output to",xmlFolderName
+        self.log( "Output to",xmlFolderName)
         print ""
 
         # give the beans to the xasdatawriter class to help define the folders/filenames 
@@ -185,13 +185,13 @@ class XasScan(Scan):
                     ScanBase.interrupted = False
                     if numRepetitions > 1:
                         print ""
-                        print "Starting repetition", str(repetitionNumber),"of",numRepetitions
+                        self.log( "Starting repetition", str(repetitionNumber),"of",numRepetitions)
                     else:
-                        print "Starting scan..."
+                        self.log( "Starting scan...")
                     thisscan = ConcurrentScan(args)
                     controller.update(None, ScanCreationEvent(thisscan.getName()))
                     if (scanPlotSettings != None):
-                        print "Setting the filer for columns to plot"
+                        self.log( "Setting the filer for columns to plot")
                         thisscan.setScanPlotSettings(scanPlotSettings)
                     thisscan.runScan()
                 except InterruptedException, e:
@@ -203,7 +203,7 @@ class XasScan(Scan):
                             raise e
                         # only wanted to skip this repetition, so absorb the exception and continue the loop
                         if numRepetitions > 1:
-                            print "Repetition", str(repetitionNumber),"skipped."
+                            self.log( "Repetition", str(repetitionNumber),"skipped.")
                     else:
                         print e
                         raise # any other exception we are not expecting so raise whatever this is to abort the script
@@ -216,7 +216,7 @@ class XasScan(Scan):
                 
                 #check if halt after current repetition set to true
                 if numRepetitions > 1 and LocalProperties.get(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY) == "true":
-                    print "Paused scan after repetition",str(repetitionNumber),". To resume the scan, press the Start button in the Command Queue view. To abort this scan, press the Skip Task button."
+                    self.log( "Paused scan after repetition",str(repetitionNumber),". To resume the scan, press the Start button in the Command Queue view. To abort this scan, press the Skip Task button.")
                     Finder.getInstance().find("commandQueueProcessor").pause(500);
                     LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY,"false")
                     ScriptBase.checkForPauses()
@@ -224,7 +224,7 @@ class XasScan(Scan):
                 #check if the number of repetitions has been altered and we should now end the loop
                 numRepsFromProperty = int(LocalProperties.get(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY))
                 if numRepsFromProperty != numRepetitions and numRepsFromProperty <= (repetitionNumber):
-                    print "The number of repetitions has been reset to",str(numRepsFromProperty), ". As",str(repetitionNumber),"repetitions have been completed this scan will now end."
+                    self.log( "The number of repetitions has been reset to",str(numRepsFromProperty), ". As",str(repetitionNumber),"repetitions have been completed this scan will now end.")
                     break
                 elif numRepsFromProperty <= (repetitionNumber):
                     break
@@ -291,7 +291,7 @@ class QexafsScan(Scan):
         beanGroup = self._createBeanGroup(controller, xmlFolderName, folderName, sampleBean, detectorBean, outputBean, scanBean)
         # work out which detectors to use (they will need to have been configured already by the GUI)
         detectorList = self._getQEXAFSDetectors(detectorBean, outputBean, scanBean) 
-        print "detectors to be used:", str(detectorList)
+        self.log( "detectors to be used:", str(detectorList))
         
         
         # send initial message to the log
@@ -305,9 +305,9 @@ class QexafsScan(Scan):
         #print "output folder=", outputFolder
         
                 # update to terminal
-        print "Starting Qexafs scan..."
+        self.log( "Starting Qexafs scan...")
         print ""
-        print "Output to",xmlFolderName
+        self.log( "Output to",xmlFolderName)
         print ""
 
         
@@ -331,7 +331,7 @@ class QexafsScan(Scan):
         
                 # no signal parameters
                 if len(outputBean.getCheckedSignalList()) > 0:
-                    print "Signal parameters not available with QEXAFS"
+                    self.log( "Signal parameters not available with QEXAFS")
                 if self.energy_scannable == None:
                     raise "No object for controlling energy during QEXAFS found! Expected qexafs_energy (or scannable1 for testing)"
             
@@ -354,14 +354,14 @@ class QexafsScan(Scan):
                 #atScanStart, atScanEnd and atCommandFailure in this script
     
             
-                print "running QEXAFS scan:", self.energy_scannable.getName(), scanBean.getInitialEnergy(), scanBean.getFinalEnergy(), numberPoints, scan_time, detectorList
+                self.log( "running QEXAFS scan:", self.energy_scannable.getName(), scanBean.getInitialEnergy(), scanBean.getFinalEnergy(), numberPoints, scan_time, detectorList)
                 controller.update(None, ScriptProgressEvent("Running QEXAFS scan"))
                 thisscan = ContinuousScan(self.energy_scannable , scanBean.getInitialEnergy(), scanBean.getFinalEnergy(), numberPoints, scan_time, detectorList)
                 controller.update(None, ScanCreationEvent(thisscan.getName()))
                 try:
                     if numRepetitions > 1:
                         print ""
-                        print "Starting repetition", str(repetitionNumber),"of",numRepetitions
+                        self.log( "Starting repetition", str(repetitionNumber),"of",numRepetitions)
                     loggingbean.atScanStart()
                     thisscan.runScan()  
                     controller.update(None, ScanFinishEvent(thisscan.getName(), ScanFinishEvent.FinishType.OK));
@@ -376,7 +376,7 @@ class QexafsScan(Scan):
                             raise e
                         # only wanted to skip this repetition, so absorb the exception and continue the loop
                         if numRepetitions > 1:
-                            print "Repetition", str(repetitionNumber),"skipped."
+                            self.log( "Repetition", str(repetitionNumber),"skipped.")
                     else:
                         print e
                         raise # any other exception we are not expecting so raise whatever this is to abort the script
@@ -389,7 +389,7 @@ class QexafsScan(Scan):
                 
                 #check if halt after current repetition set to true
                 if numRepetitions > 1 and LocalProperties.get(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY) == "true":
-                    print "Paused scan after repetition",str(repetitionNumber),". To resume the scan, press the Start button in the Command Queue view. To abort this scan, press the Skip Task button."
+                    self.log( "Paused scan after repetition",str(repetitionNumber),". To resume the scan, press the Start button in the Command Queue view. To abort this scan, press the Skip Task button.")
                     LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY,"false")
                     Finder.getInstance().find("commandQueueProcessor").pause(500);
                     ScriptBase.checkForPauses()
@@ -397,7 +397,7 @@ class QexafsScan(Scan):
                 #check if the number of repetitions has been altered and we should now end the loop
                 numRepsFromProperty = int(LocalProperties.get(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY))
                 if numRepsFromProperty != numRepetitions and numRepsFromProperty <= (repetitionNumber):
-                    print "The number of repetitions has been reset to",str(numRepsFromProperty), ". As",str(repetitionNumber),"repetitions have been completed this scan will now end."
+                    self.log( "The number of repetitions has been reset to",str(numRepsFromProperty), ". As",str(repetitionNumber),"repetitions have been completed this scan will now end.")
                     break
                 elif numRepsFromProperty <= (repetitionNumber):
                     break
@@ -430,7 +430,7 @@ class QexafsScan(Scan):
                 return numberPoints
         # for ion chambers only use a default value
         elif scanBean.isChooseNumberPoints():
-            print "using default number of frames: 1000"
+            self.log( "using default number of frames: 1000")
             return 1000 # a default value as user has selected max possible but is only using the ion chambers (so max will be very high)
         # have a limit anyway of 4096
         else:
