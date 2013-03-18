@@ -30,14 +30,6 @@ import java.util.Vector;
 public interface IConcurrentScanChild extends Scan {
 
 	@Override
-	public IConcurrentScanChild getParent();
-
-	/**
-	 * @param parent
-	 */
-	public void setParent(IConcurrentScanChild parent);
-
-	@Override
 	public IConcurrentScanChild getChild();
 
 	/**
