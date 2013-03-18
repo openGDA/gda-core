@@ -281,5 +281,62 @@
 		</xsd:complexType>
 	</xsd:element>
 
+	<xsd:complexType name="signalType">
+		<xsd:sequence>
+			<xsd:element name="label" type="xsd:string" maxOccurs="1"
+				minOccurs="1" />
+			<xsd:element name="name" type="xsd:string" maxOccurs="1"
+				minOccurs="0" />
+			<xsd:element name="dataFormat" type="xsd:string"
+				maxOccurs="1" minOccurs="1" />
+			<xsd:element name="expression" type="xsd:string"
+				maxOccurs="1" minOccurs="0" />
+			<xsd:element name="scannableName" type="xsd:string"
+				maxOccurs="1" minOccurs="1" />
+		</xsd:sequence>
+	</xsd:complexType>
 
+	<xsd:complexType name="metadataType">
+		<xsd:sequence>
+			<xsd:element name="scannableName" type="xsd:string" maxOccurs="1"
+				minOccurs="0" />
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:element name="I20OutputParameters">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="shouldValidate" type="xsd:boolean"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="asciiFileName" type="xsd:string"
+					maxOccurs="1" minOccurs="1" />
+				<xsd:element name="asciiDirectory" type="xsd:string"
+					maxOccurs="1" minOccurs="1" />
+				<xsd:element name="nexusDirectory" type="xsd:string"
+					maxOccurs="1" minOccurs="1" />
+				<xsd:element name="extraData" type="xsd:boolean"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="signalActive" type="xsd:boolean"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="metadataActive" type="xsd:boolean"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="beforeScriptName" type="xsd:string"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="afterScriptName" type="xsd:string"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="signal" type="signalType" maxOccurs="unbounded"
+					minOccurs="0" />
+				<xsd:element name="metadata" type="metadataType" maxOccurs="unbounded"
+					minOccurs="0" />
+				<xsd:element name="vortexSaveRawSpectrum" type="xsd:boolean"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="xspressOnlyShowFF" type="xsd:boolean"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="xspressShowDTRawValues" type="xsd:boolean"
+					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="xspressSaveRawSpectrum" type="xsd:boolean"
+					maxOccurs="1" minOccurs="0" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
 </xsd:schema>

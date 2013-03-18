@@ -65,9 +65,11 @@ import uk.ac.gda.beans.vortex.RegionOfInterest;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
+import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.composites.FluorescenceComposite;
 import uk.ac.gda.exafs.ui.detector.DetectorEditor;
 import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
+import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
@@ -130,7 +132,11 @@ public class VortexParametersUIEditor extends DetectorEditor {
 
 		sashPlotForm.setWeights(new int[] { 35, 74 });
 
-		addOutputPreferences(left);
+		if (!ExafsActivator.getDefault().getPreferenceStore()
+				.getBoolean(ExafsPreferenceConstants.DETECTOR_OUTPUT_IN_OUTPUT_PARAMETERS)) {
+			addOutputPreferences(left);
+		}
+		
 		configureUI();
 	}
 

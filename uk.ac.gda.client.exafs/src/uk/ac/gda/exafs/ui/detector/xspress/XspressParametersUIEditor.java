@@ -77,12 +77,14 @@ import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
 import uk.ac.gda.common.rcp.util.GridUtils;
+import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.composites.FluorescenceComposite;
 import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.exafs.ui.data.ScanObjectManager;
 import uk.ac.gda.exafs.ui.detector.DetectorEditor;
 import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.exafs.ui.detector.XspressROIComposite;
+import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.selector.ListEditor;
@@ -417,8 +419,11 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		} catch (Exception e1) {
 			logger.error("Cannot create region editor.", e1);
 		}
-
-		addOutputPreferences(left);
+		
+		if (!ExafsActivator.getDefault().getPreferenceStore()
+				.getBoolean(ExafsPreferenceConstants.DETECTOR_OUTPUT_IN_OUTPUT_PARAMETERS)) {
+			addOutputPreferences(left);
+		}
 
 		sashPlotForm.setWeights(new int[] { 30, 74 });
 

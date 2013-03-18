@@ -109,4 +109,10 @@ public class ExafsPreferenceConstants {
 	 * When false, mca windows in xspress and vortex editors cannot be dragged with the mouse
 	 */
 	public static final String DETECTOR_OVERLAY_ENABLED = "exafs.editor.overlay.Preference";
+	
+	/**
+	 * When true then the Fluo detector output options should be shown in the output parameters editor and not the
+	 * individual detector editors.  The beans will also have to have matching information.
+	 */
+	public static final String DETECTOR_OUTPUT_IN_OUTPUT_PARAMETERS = "exafs.outputeditor.showFluoOptions.preference";
 }
