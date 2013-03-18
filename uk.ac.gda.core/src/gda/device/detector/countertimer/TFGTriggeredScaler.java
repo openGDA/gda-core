@@ -248,7 +248,8 @@ PositionCallableProvider<double[]> {
 				container.add(dataRead[i]);
 			}
 			readOutFromHardwareSoFar = totalCollectedByHarwdare;
-			if(readOutFromHardwareSoFar >= maxToRead)
+		
+			if(readOutFromHardwareSoFar >= numberScanPointsToCollect)
 				setReadingOut(false);
 			return container;
 		}
