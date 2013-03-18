@@ -45,12 +45,13 @@ public class SetLiveViewScale extends AbstractHandler {
 			pd.run(true /* fork */, true /* cancelable */, new IRunnableWithProgress() {
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-					String title = "Setting scaling range to .05 - 0.95 of full range.";
+					String title = "Setting scaling to .05 - 0.95 full range. It will take 2 exposures to have an effect";
 
 					monitor.beginTask(title, 100);
 
 					try {
 						adController.setLiveViewRange(.05, .95);
+						Thread.sleep(1000);
 					} catch (Exception e) {
 						throw new InvocationTargetException(e, "Error in " + title);
 					}

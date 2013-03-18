@@ -22,7 +22,7 @@ package uk.ac.gda.epics.adviewer.views;
 public class HistogramViewCreator extends AreaDetectorViewCreatorBase{
 	
 	@Override
-	protected Object getView(ViewCreator adController) {
+	protected Object getView(ViewCreator adController) throws Exception {
 		return adController.createProfileView();
 	}
 }

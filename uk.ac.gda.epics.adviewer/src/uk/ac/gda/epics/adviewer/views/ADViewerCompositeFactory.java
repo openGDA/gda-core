@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2011 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,11 +18,18 @@
 
 package uk.ac.gda.epics.adviewer.views;
 
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.IWorkbenchPartSite;
 
-public class MJPegViewCreator extends AreaDetectorViewCreatorBase {
-	
-	@Override
-	protected Object getView(ViewCreator adController) throws Exception {
-		return adController.createLiveView();
-	}	
+import uk.ac.gda.epics.adviewer.ADController;
+
+/**
+ * Interface for Factories that create composites. 
+ * Part of work to allow views to be configured in Spring
+ */
+
+
+public interface ADViewerCompositeFactory {
+	public Composite createComposite(ADController adController, Composite parent, int style, IWorkbenchPartSite iWorkbenchPartSite);
+
 }
