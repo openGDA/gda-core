@@ -437,7 +437,23 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 
 		final Pattern pattern = getRegExpression();
 		final Matcher matcher = pattern.matcher(txt);
-		StringBuilder buf = matcher.matches() ? null : StringUtils.keepDigits(txt, decimalPlaces);
+
+		final boolean matches = matcher.matches();
+		StringBuilder buf = null;
+		if (!matches) {
+			try {
+//				String valueFromText = Double.valueOf(txt).toString();
+				buf = new StringBuilder(String.format("%." + decimalPlaces + "f", Double.valueOf(txt)));
+			} catch (NumberFormatException e) {
+				text.setForeground(red);
+				return;
+			}
+			
+		}
+		text.setForeground(black);
+
+		if (buf != null && "-".equals(buf.toString()))
+			return;
 
 		// An exception here is a fatal error so we do not catch it but throw it up.
 		double numericalValue = Double.NaN;

@@ -337,9 +337,11 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 					public void process(Entry<Object, Object> prop, IFieldWidget box) throws Exception {
 						if (box instanceof IExpressionWidget) {
 							final IExpressionWidget expressionBox = (IExpressionWidget)box;
-							final BeanExpressionManager man       = new BeanExpressionManager(expressionBox, RichBeanEditorPart.this);
-							man.setAllowedSymbols(getExpressionFields());
-							expressionBox.setExpressionManager(man);
+							if (expressionBox.isExpressionAllowed()){
+								final BeanExpressionManager man       = new BeanExpressionManager(expressionBox, RichBeanEditorPart.this);
+								man.setAllowedSymbols(getExpressionFields());
+								expressionBox.setExpressionManager(man);
+							}
 						}
 					}
 				});
