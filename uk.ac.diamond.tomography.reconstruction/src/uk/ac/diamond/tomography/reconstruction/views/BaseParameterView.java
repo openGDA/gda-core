@@ -235,7 +235,7 @@ public abstract class BaseParameterView extends BaseTomoReconPart implements ISe
 		} catch (IOException e) {
 			logger.error("File not found problem", e);
 		}
-		final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(Activator.TOMOGRAPHY_SETTINGS);
+		final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(Activator.PROJECT_TOMOGRAPHY_SETTINGS);
 		if (!project.exists()) {
 			WorkspaceModifyOperation workspaceModifyOperation = new WorkspaceModifyOperation() {
 

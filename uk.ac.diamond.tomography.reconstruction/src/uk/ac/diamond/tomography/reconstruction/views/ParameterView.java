@@ -27,12 +27,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.text.DateFormat;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
@@ -40,8 +43,15 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.emf.common.command.Command;
+import org.eclipse.emf.common.command.CompoundCommand;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.edit.command.AddCommand;
+import org.eclipse.emf.edit.command.SetCommand;
+import org.eclipse.emf.edit.domain.EditingDomain;
 import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -101,6 +111,11 @@ import uk.ac.diamond.tomography.reconstruction.parameters.hm.ROIType;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.RingArtefactsType;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.presentation.HmEditor;
 import uk.ac.diamond.tomography.reconstruction.parameters.hm.presentation.IParameterView;
+import uk.ac.diamond.tomography.reconstruction.results.reconresults.ReconResults;
+import uk.ac.diamond.tomography.reconstruction.results.reconresults.ReconresultsFactory;
+import uk.ac.diamond.tomography.reconstruction.results.reconresults.ReconresultsPackage;
+import uk.ac.diamond.tomography.reconstruction.results.reconresults.ReconstructionDetail;
+import uk.ac.diamond.tomography.reconstruction.results.reconresults.util.ReconresultsResourceImpl;
 
 /**
  * This sample class demonstrates how to plug-in a new workbench view. The view shows data obtained from the model. The
@@ -421,7 +436,18 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 
 	private void runHdfReconstruction(boolean quick) {
 		File tomoDoShScript = null;
+
+		int[] startEnd = null;
 		try {
+			if (!quick) {
+				DefineHeightRoiDialog defineHeightRoiDialog = new DefineHeightRoiDialog(getViewSite().getShell(),
+						getImageDataFromProjectionsView());
+				int returnCode = defineHeightRoiDialog.open();
+				if (returnCode == Window.CANCEL) {
+					return;
+				}
+				startEnd = defineHeightRoiDialog.getStartEnd();
+			}
 			URL shFileURL = new URL(String.format(HDF_RECON_SCRIPT_LOCATION, Activator.PLUGIN_ID));
 			logger.debug("shFileURL:{}", shFileURL);
 			tomoDoShScript = new File(FileLocator.toFileURL(shFileURL).toURI());
@@ -446,22 +472,33 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 				pathToImages = new File(imagePath);
 			}
 
-			if (pathToImages.exists()) {
-				final File[] files = pathToImages.listFiles();
-				for (File f : files) {
-					try {
-						f.delete();
-					} catch (Exception e) {
-						logger.warn("Cannot delete file");
+			final File pathImgs = pathToImages;
+
+			Job deleteOldReconJob = new Job(String.format("Deleting old reconstruction files(%s)", nexusFile.getName())) {
+
+				@Override
+				protected IStatus run(IProgressMonitor monitor) {
+					if (pathImgs.exists()) {
+						final File[] files = pathImgs.listFiles();
+						for (File f : files) {
+							try {
+								f.delete();
+							} catch (Exception e) {
+								logger.warn("Cannot delete file");
+							}
+						}
+					} else {
+						try {
+							pathImgs.mkdirs();
+						} catch (Exception ex) {
+							logger.warn("Cannot create writing directory");
+						}
 					}
+					return Status.OK_STATUS;
 				}
-			} else {
-				try {
-					pathToImages.mkdirs();
-				} catch (Exception ex) {
-					logger.warn("Cannot create writing directory");
-				}
-			}
+			};
+			deleteOldReconJob.setRule(new ReconSchedulingRule(nexusFile));
+			deleteOldReconJob.schedule();
 
 			String fileName = fullPath.toOSString();
 
@@ -488,20 +525,55 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 				runCommand(jobNameToDisplay, command);
 				updatePlotAfterQuickRecon(nexusFileLocation);
 			} else {
-				DefineHeightRoiDialog defineHeightRoiDialog = new DefineHeightRoiDialog(getViewSite().getShell(),
-						getImageDataFromProjectionsView());
-				int returnCode = defineHeightRoiDialog.open();
-				if (returnCode != Window.CANCEL) {
-					int[] startEnd = defineHeightRoiDialog.getStartEnd();
-					int startHeight = startEnd[0];
-					int endHeight = startEnd[1];
-					command = String.format("%s -m 4 -b %d -e %d -n -t %s %s %s", shScriptName, startHeight, endHeight,
-							templateFileName, fileName, pathToImages.toString());
-					logger.debug("Command that will be run:{}", command);
 
-					jobNameToDisplay = String.format(JOB_NAME_FULL_RECONSTRUCTION, nexusFile.getName());
-					runCommand(jobNameToDisplay, command);
+				int startHeight = 0;
+				int endHeight = hdfShape[1];
+				if (startEnd != null) {
+					startHeight = startEnd[0];
+					endHeight = startEnd[1];
 				}
+				command = String.format("%s -m 4 -b %d -e %d -n -t %s %s %s", shScriptName, startHeight, endHeight,
+						templateFileName, fileName, pathToImages.toString());
+				logger.debug("Command that will be run:{}", command);
+
+				jobNameToDisplay = String.format(JOB_NAME_FULL_RECONSTRUCTION, nexusFile.getName());
+
+				Resource reconResultsResource = Activator.getDefault().getReconResultsResource();
+				if (reconResultsResource != null) {
+					EObject eObject = reconResultsResource.getContents().get(0);
+					String formattedDate = DateFormat.getTimeInstance().format(new Date());
+					if (eObject instanceof ReconResults) {
+						ReconResults results = (ReconResults) eObject;
+						ReconstructionDetail reconstructionDetail = results.getReconstructionDetail(nexusFileLocation);
+						EditingDomain reconResultsEditingDomain = Activator.getDefault().getReconResultsEditingDomain();
+						if (reconstructionDetail == null) {
+							ReconstructionDetail detail = ReconresultsFactory.eINSTANCE.createReconstructionDetail();
+							detail.setNexusFileLocation(nexusFileLocation);
+							detail.setNexusFileName(nexusFile.getName());
+							detail.setReconstructedLocation(pathToImages.toString());
+
+							// DateFormat.getDateInstance("dd/MM/yyyy hh:mm:ss");
+							detail.setTimeReconStarted(formattedDate);
+
+							Command addCommand = AddCommand.create(reconResultsEditingDomain, results,
+									ReconresultsPackage.eINSTANCE.getReconResults_Reconresult(), detail);
+
+							reconResultsEditingDomain.getCommandStack().execute(addCommand);
+						} else {
+							CompoundCommand cmd = new CompoundCommand();
+							cmd.append(SetCommand.create(reconResultsEditingDomain, reconstructionDetail,
+									ReconresultsPackage.eINSTANCE.getReconstructionDetail_TimeReconStarted(),
+									formattedDate));
+							cmd.append(SetCommand.create(reconResultsEditingDomain, reconstructionDetail,
+									ReconresultsPackage.eINSTANCE.getReconstructionDetail_ReconstructedLocation(),
+									pathToImages.toString()));
+							reconResultsEditingDomain.getCommandStack().execute(cmd);
+						}
+						reconResultsResource.save(((ReconresultsResourceImpl) reconResultsResource)
+								.getDefaultSaveOptions());
+					}
+				}
+				// runCommand(jobNameToDisplay, command);
 			}
 		} catch (URISyntaxException e) {
 			logger.error("Incorrect URI for script", e);
@@ -631,8 +703,7 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 		if (getDefaultSettingFile().exists()) {
 			try {
 
-				IProject tomoSettingsProject = ResourcesPlugin.getWorkspace().getRoot()
-						.getProject(Activator.TOMOGRAPHY_SETTINGS);
+				IProject tomoSettingsProject = Activator.getDefault().getTomoSettingsProject();
 				final IFile tomoSettingsFile = tomoSettingsProject.getFile(getHmSettingsInProcessingDir().getName());
 				if (!tomoSettingsFile.exists()) {
 					new WorkspaceModifyOperation() {
@@ -743,9 +814,11 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 						runReconScript(true);
 					}
 				} else {
-					ErrorDialog.openError(getViewSite().getShell(), "Problem setting ROI",
-							"Unable to set ROI.\n\nPlease run a 'Preview Recon' and try again", new Status(
-									IStatus.ERROR, Activator.PLUGIN_ID, "Problem loading image"));
+					// ErrorDialog.openError(getViewSite().getShell(), "Problem setting ROI",
+					// "Unable to set ROI.\n\nPlease run a 'Preview Recon' and try again", new Status(
+					// IStatus.ERROR, Activator.PLUGIN_ID, "Problem loading image"));
+					getViewSite().getActionBars().getStatusLineManager()
+							.setErrorMessage("Unable to set ROI.Please run a 'Preview Recon' and try again");
 				}
 			}
 		});

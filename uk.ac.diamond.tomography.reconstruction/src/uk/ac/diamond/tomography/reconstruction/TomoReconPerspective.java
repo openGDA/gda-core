@@ -25,6 +25,7 @@ import uk.ac.diamond.tomography.reconstruction.views.CenterOfRotationView;
 import uk.ac.diamond.tomography.reconstruction.views.NexusNavigator;
 import uk.ac.diamond.tomography.reconstruction.views.ParameterView;
 import uk.ac.diamond.tomography.reconstruction.views.ProjectionsView;
+import uk.ac.diamond.tomography.reconstruction.views.ReconResultsView;
 
 public class TomoReconPerspective implements IPerspectiveFactory {
 
@@ -43,6 +44,9 @@ public class TomoReconPerspective implements IPerspectiveFactory {
 				"uk.ac.diamond.scisoft.analysis.rcp.plotView1");
 		layout.addView(IPageLayout.ID_PROGRESS_VIEW, IPageLayout.RIGHT, 0.7f,
 				"org.dawb.workbench.plotting.views.toolPageView.1D_and_2D");
+
+		layout.addView(ReconResultsView.ID, IPageLayout.BOTTOM, 0.7f, IPageLayout.ID_PROGRESS_VIEW);
+
 		layout.setEditorAreaVisible(false);
 
 		layout.addShowViewShortcut("uk.ac.diamond.scisoft.analysis.rcp.plotView1");
@@ -51,7 +55,6 @@ public class TomoReconPerspective implements IPerspectiveFactory {
 		layout.addShowViewShortcut(ParameterView.ID);
 		layout.addShowViewShortcut(CenterOfRotationView.ID);
 		layout.addShowViewShortcut(IPageLayout.ID_PROGRESS_VIEW);
-		
 
 	}
 

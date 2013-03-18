@@ -71,11 +71,11 @@ public class UpdatePlotJob extends Job {
 				monitor.worked(1);
 			} catch (Exception e) {
 				logger.error("Cannot load recon image for display", e);
-				return Status.CANCEL_STATUS;
+				return Status.OK_STATUS;
 			}
 		} else {
 
-			return new Status(IStatus.ERROR, Activator.PLUGIN_ID, ERR_MESSAGE);
+			return new Status(IStatus.WARNING, Activator.PLUGIN_ID, ERR_MESSAGE);
 			// Display display = getViewSite().getShell().getDisplay();
 			//
 			// if (display != null && !display.isDisposed()) {

@@ -305,8 +305,9 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 					});
 					logger.debug(dataset.getName());
 				} else {
-					showErrorMessage(ERR_TITLE_DISPLAYING_PROJECTIONS, new IllegalArgumentException(
-							ERR_MESSAGE_UNABLE_TO_FIND_DATASET));
+					 showErrorMessage(ERR_TITLE_DISPLAYING_PROJECTIONS, new IllegalArgumentException(
+					 ERR_MESSAGE_UNABLE_TO_FIND_DATASET));
+					
 				}
 				monitor.done();
 				return Status.OK_STATUS;

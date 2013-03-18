@@ -48,6 +48,14 @@
             name="Centre of Rotation"
             restorable="true">
       </view>
+      <view
+            category="uk.ac.diamond.tomography.reconstruction"
+            class="uk.ac.diamond.tomography.reconstruction.views.ReconResultsView"
+            icon="icons/open_pref.gif"
+            id="uk.ac.diamond.tomography.reconstruction.results"
+            name="Recon Results"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.help.contexts">
@@ -205,6 +213,26 @@
                optional="true">
          </commandParameter>
       </command>
+      <command
+            defaultHandler="uk.ac.diamond.tomography.reconstruction.dialogs.OpenNexusFileCommandHandler"
+            id="uk.ac.diamond.tomography.reconstruction.open.nexus"
+            name="Open Nexus File">
+         <commandParameter
+               id="openWizardPageId"
+               name="OpenWizardPageWizardId"
+               optional="true">
+         </commandParameter>
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.tomography.reconstruction.dialogs.RefreshHandler"
+            id="uk.ac.diamond.tomography.reconstruction.ref"
+            name="Refresh Viewer">
+         <commandParameter
+               id="openWizardPageId"
+               name="OpenWizardPageWizardId"
+               optional="true">
+         </commandParameter>
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -222,5 +250,42 @@
             </parameter>
          </command>
       </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:uk.ac.diamond.tomography.reconstruction.NexusNavigator">
+         <command
+               commandId="uk.ac.diamond.tomography.reconstruction.open.nexus"
+               icon="icons/nexus.png"
+               label="Open Nxs"
+               style="push">
+            <parameter
+                  name="openWizardPageId"
+                  value="uk.ac.diamond.tomography.reconstruction.importNxs">
+            </parameter>
+         </command>
+         <command
+               commandId="uk.ac.diamond.tomography.reconstruction.ref"
+               icon="icons/refresh_tab.gif"
+               label="Refresh Viewer"
+               style="push">
+            <parameter
+                  name="openWizardPageId"
+                  value="uk.ac.diamond.tomography.reconstruction.importNxs">
+            </parameter>
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.importWizards">
+      <wizard
+            class="uk.ac.diamond.tomography.reconstruction.dialogs.ImportSingleNxsWizard"
+            icon="icons/nexus.png"
+            id="uk.ac.diamond.tomography.reconstruction.importNxs"
+            name="Nexus File">
+      </wizard>
+      <category
+            id="uk.ac.diamond.tomography.reconstruction.wizards"
+            name="name">
+      </category>
    </extension>
 </plugin>
