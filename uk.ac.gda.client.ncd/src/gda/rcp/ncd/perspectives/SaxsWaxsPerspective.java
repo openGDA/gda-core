@@ -50,7 +50,7 @@ public class SaxsWaxsPerspective implements IPerspectiveFactory {
 			IFolderLayout folderLayout = layout.createFolder("folder_3", IPageLayout.BOTTOM, 0.85f, "folder");
 			folderLayout.addView("uk.ac.gda.client.ncd.NcdButtonPanelView");
 			folderLayout.addView("gda.rcp.views.baton.BatonView");
-			folderLayout.addView("uk.ac.gda.exafs.ui.dashboardView");
+			folderLayout.addView("uk.ac.gda.rcp.views.dashboardView");
 		}
 		{
 			IFolderLayout folderLayout = layout.createFolder("folder_4", IPageLayout.RIGHT, 0.5f, "folder");

@@ -31,7 +31,7 @@ public class WaxsPerspective implements IPerspectiveFactory {
 		layout.addView("uk.ac.gda.client.ncd.waxsview", IPageLayout.RIGHT, 0.5f, IPageLayout.ID_EDITOR_AREA);
 		{
 			IFolderLayout folderLayout = layout.createFolder("folder_1", IPageLayout.TOP, 0.15f, "uk.ac.gda.client.ncd.waxsview");
-			folderLayout.addView("gda.rcp.ncd.views.WatchView");
+			folderLayout.addView("uk.ac.gda.rcp.views.dashboardView");
 		}
 		{
 			IFolderLayout folderLayout = layout.createFolder("folder", IPageLayout.LEFT, 0.95f, IPageLayout.ID_EDITOR_AREA);

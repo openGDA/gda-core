@@ -39,6 +39,11 @@
             id="gda.rcp.ncd.perspectives.DataPerspective"
             name="Ncd Data">
       </perspective>
+      <perspective
+           class="gda.rcp.ncd.perspectives.SaxsWaxsPerspective"
+           id="gda.rcp.ncd.perspectives.SaxsWaxsPerspective"
+           name="Live Saxs/Waxs Data">
+      </perspective>
    </extension>
    <extension
          point="org.eclipse.ui.views">
