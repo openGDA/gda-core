@@ -67,7 +67,7 @@ public class VGScientaController implements Configurable {
 	public static final String INTERATIONS = "SLICES";
 	public static final String ZERO_SUPPLIES = "ZERO_SUPPLIES";
 	public static final String TOTALSTEPS = "TOTAL_POINTS_RBV";
-
+	public static final String CURRENTPOINT = "CURRENT_CHANNEL_RBV";
 	
 	/**
 	 * Map that stores the channel against the PV name
@@ -240,6 +240,9 @@ public class VGScientaController implements Configurable {
 	}
 	public Integer getTotalSteps() throws Exception {
 		return EPICS_CONTROLLER.cagetInt(getChannel(TOTALSTEPS));
+	}
+	public Integer getCurrentPoint() throws Exception {
+		return EPICS_CONTROLLER.cagetInt(getChannel(CURRENTPOINT));
 	}
 	
 	public void zeroSupplies() throws Exception {
