@@ -1,0 +1,3 @@
+All scripts in the protoscripts directory are for reference only (they can also be found in /dls_sw/i12/software/tomography_scripts).
+Some of them have provided an initial inspiration for a number of Python scripts which can be found in the scripts directory located 
+in the parent directory of the protoscripts directory.
