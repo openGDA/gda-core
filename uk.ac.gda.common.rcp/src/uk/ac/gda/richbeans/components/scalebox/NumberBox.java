@@ -38,6 +38,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -475,10 +476,10 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 			if (!red.isDisposed()) {
 				text.setStyleRange(null);
 				if (!isEditable()) {
-					text.setFont(new Font(text.getDisplay(), "sans", 10, SWT.ITALIC));
+					setCurrentFontStyle(text, SWT.ITALIC);
 				}
 				else {
-					text.setFont(new Font(text.getDisplay(), "sans", 10, SWT.NORMAL));
+					setCurrentFontStyle(text, SWT.NORMAL);
 				}
 				text.setForeground(red);
 			}
@@ -493,7 +494,7 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 				setTooltipOveride("The value '" + numericalValue + "' is less than the lower limit.");
 			}
 		} else {
-			text.setFont(new Font(text.getDisplay(), "sans", 10, SWT.NORMAL));
+			setCurrentFontStyle(text, SWT.NORMAL);
 			setTooltipOveride(null);
 			if (isEditable()) {
 				if (this.blue == null)
@@ -708,12 +709,18 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 			if (!red.isDisposed())
 				text.setForeground(red);
 			if (!isEditable) {
-				text.setFont(new Font(text.getDisplay(), "sans", 10, SWT.ITALIC));
+				setCurrentFontStyle(text, SWT.ITALIC);
 			}
 			
 		}
 		if (button != null)
 			button.setEnabled(isEditable);
+	}
+
+	private void setCurrentFontStyle(StyledText text, int style) {
+		FontData currentFontData = text.getFont().getFontData()[0];
+		currentFontData.setStyle(style);
+		text.setFont(new Font(text.getDisplay(), currentFontData));
 	}
 
 	/**
