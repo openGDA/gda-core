@@ -760,9 +760,11 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 	 */
 	@Override
 	public void setEnabled(final boolean isEnabled) {
-		setEditable(isEnabled);
-		text.setEnabled(isEnabled);
-		checkBounds();
+		if (!permanentlyEnabled) {
+			setEditable(isEnabled);
+			text.setEnabled(isEnabled);
+			checkBounds();
+		}
 	}
 
 	/**
@@ -1091,6 +1093,8 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 		return true;
 	}
 
+	private boolean permanentlyEnabled;
+
 	/**
 	 * The bounds key for this instance can be the field name or if a field name has not been set, it will be a unique
 	 * and cached string.
@@ -1121,6 +1125,15 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 			// on linux RHEL5 ok.
 			bLayout.heightHint = 25;
 		}
+	}
+	
+	/**
+	 * Set the state of the box permanently. Set any desired states *before* this state is set to false or else
+	 * they will not be applied. For example, setEditable(false), then setPermanentlyEnabled(true)
+	 * @param enabled
+	 */
+	public void setPermanentlyEnabled(boolean enabled) {
+		this.permanentlyEnabled = enabled;
 	}
 
 }
