@@ -28,6 +28,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+@Deprecated
 public class WatchView extends ViewPart {
 
 	public static final String ID = "gda.rcp.ncd.views.WatchView"; //$NON-NLS-1$
