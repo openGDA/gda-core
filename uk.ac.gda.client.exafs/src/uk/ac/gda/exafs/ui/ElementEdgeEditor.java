@@ -439,26 +439,35 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 
 			if (points == null || points.isEmpty())
 				throw new Exception("Cannot esitmate points!");
-			estimatePointsLabel.setText(points.size() + " points");
-			estimatePointsLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
-
+			if(estimatePointsLabel!=null){
+				estimatePointsLabel.setText(points.size() + " points");
+				estimatePointsLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
+			}
 			final long time = ExafsTimeEstimator.getTime(points);
 			final Date date = new Date(time);
 			final DateFormat format = DateFormat.getTimeInstance(DateFormat.MEDIUM, Locale.UK);
 			format.setCalendar(Calendar.getInstance(TimeZone.getTimeZone("GMT")));
-			estimateTimeLabel.setText(format.format(date));
-			estimateTimeLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
-
+			if(estimateTimeLabel!=null){
+				estimateTimeLabel.setText(format.format(date));
+				estimateTimeLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
+			}
 		} catch(ExafsScanPointCreatorException e){
-			estimatePointsLabel.setText(e.getMessage());
-			estimatePointsLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
-			estimateTimeLabel.setText(e.getMessage());
-			estimateTimeLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
+			if(estimatePointsLabel!=null){
+				estimatePointsLabel.setText(e.getMessage());
+				estimatePointsLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
+			}
+			if(estimateTimeLabel!=null){
+				estimateTimeLabel.setText(e.getMessage());
+				estimateTimeLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
+			}
 		}catch (Exception ne) {
-			estimatePointsLabel.setText("-");
-			estimateTimeLabel.setText("-");
+			if(estimatePointsLabel!=null)
+				estimatePointsLabel.setText("-");
+			if(estimateTimeLabel!=null)
+				estimateTimeLabel.setText("-");
 		}
-		expandContainer.layout();
+		if(expandContainer!=null)
+			expandContainer.layout();
 	}
 
 	protected Object fetchEditingBean() {

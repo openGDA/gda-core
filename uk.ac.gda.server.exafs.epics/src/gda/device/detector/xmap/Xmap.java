@@ -89,7 +89,7 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 			try {
 				loadConfigurationFromFile();
 			} catch (Exception e) {
-				throw new FactoryException("Cannot load xml file " + getConfigFileName(), e);
+				throw new FactoryException("Cannot configure vortex using " + getConfigFileName(), e);
 			}
 
 			controller.addIObserver(this);
