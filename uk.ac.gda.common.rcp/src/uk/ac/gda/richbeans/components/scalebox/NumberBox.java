@@ -55,7 +55,6 @@ import uk.ac.gda.richbeans.components.ButtonComposite;
 import uk.ac.gda.richbeans.event.BoundsEvent;
 import uk.ac.gda.richbeans.event.BoundsEvent.Mode;
 import uk.ac.gda.richbeans.event.ValueEvent;
-import uk.ac.gda.ui.utils.StringUtils;
 
 /**
  * Base class for any box with a range and unit. Abstract class does not currently have abstract methods, but is not
