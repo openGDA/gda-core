@@ -34,16 +34,21 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.BooleanDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.ContiguousIterator;
+import uk.ac.diamond.scisoft.analysis.dataset.ContiguousIteratorWithPosition;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
+import uk.ac.diamond.scisoft.analysis.dataset.DiscontiguousIterator;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Maths;
+import uk.ac.diamond.scisoft.analysis.dataset.SliceIterator;
 import uk.ac.diamond.scisoft.analysis.dataset.Stats;
 import uk.ac.diamond.scisoft.analysis.dataset.function.Downsample;
 import uk.ac.diamond.scisoft.analysis.dataset.function.DownsampleMode;
+import uk.ac.diamond.scisoft.python.PythonUtils;
 import Jama.Matrix;
 
 /**
@@ -83,6 +88,304 @@ public class DataSet extends DoubleDataset {
 					logger.info(String.format("this is throttled (and rate-limited) - you are only seeing one message out of %d", warnEverySoMany));
 			}
 		}
+	}
+
+	/**
+	 * The shape of the entire dataset memory footprint
+	 */
+	private int[] dataShape;
+	private int dataSize; // true size of data
+
+	private static final float ARRAY_ALLOCATION_EXTENSION = 0.5f;
+
+	private void expandDataShape(final int[] nshape) {
+		// expand the allocated memory by the amount specified in ARRAY_ALLOCATION_EXTENSION
+
+		// now check to see whether the additional space is required
+		final int rank = dataShape.length;
+		for (int i = 0; i < rank; i++) {
+			if (dataShape[i] > 0) {
+				double change = nshape[i] - dataShape[i];
+				if (change > 0) {
+					change /= dataShape[i];
+					if (change < 0.1) {
+						change = ARRAY_ALLOCATION_EXTENSION;
+					}
+					dataShape[i] *= 1 + change;
+				}
+			}
+		}
+	}
+
+	/**
+	 * Check the shape given against the reserved shape to make sure it is valid
+	 * 
+	 * @param shape
+	 * @return boolean
+	 */
+	private boolean isShapeInDataShape(final int[] shape) {
+
+		// if it's the right size or less, check to see if it's within bounds
+		for (int i = 0; i < dataShape.length; i++) {
+			if (shape[i] >= dataShape[i]) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	private void allocateArray(final int... nshape) {
+		if (data == null) {
+			throw new IllegalStateException("Data buffer in dataset is null");
+		}
+
+		if (dataShape != null) {
+			// see if reserved space is sufficient
+			if (isShapeInDataShape(nshape)) {
+				shape = nshape;
+				size = calcSize(shape);
+				if (Arrays.equals(shape, dataShape)) {
+					dataShape = null; // no reserved space
+				}
+				return;
+			}
+		}
+
+		final IndexIterator iter = getIterator();
+
+		// not enough room so need to expand the allocated memory
+		if (dataShape == null)
+			dataShape = shape.clone();
+		expandDataShape(nshape);
+		dataSize = calcSize(dataShape);
+
+		final double[] ndata = createArray(dataSize); // PRIM_TYPE
+		final int[] oshape = shape;
+
+		// now this object has the new dimensions so specify them correctly
+		shape = nshape;
+		size = calcSize(nshape);
+
+		// make sure that all the data is set to NaN, minimum value or false
+		Arrays.fill(ndata, Double.NaN); // CLASS_TYPE // DEFAULT_VAL
+
+		// now copy the data back to the correct positions
+		final IndexIterator niter = getSliceIterator(null, oshape, null);
+
+		while (niter.hasNext() && iter.hasNext())
+			ndata[niter.index] = data[iter.index];
+
+		odata = data = ndata;
+
+		// if fully expanded then reset the reserved space dimensions
+		if (dataSize == size) {
+			dataShape = null;
+		}
+	}
+
+	private static boolean isAllZeros(final int[] a) {
+		int amax = a.length;
+		for (int i = 0; i < amax; i++) {
+			if (a[i] != 0) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	@Override
+	public void setShape(final int... shape) {
+		if (dataShape != null) {
+			throw new UnsupportedOperationException("Cannot set a new shape to discontiguous dataset");
+		}
+
+		super.setShape(shape);
+	}
+
+	@Override
+	public DataSet reshape(int... shape) {
+		return (DataSet) super.reshape(shape);
+	}
+
+	/**
+	 * @param withPosition
+	 *            set true if position is needed
+	 * @return an IndexIterator tailored for this dataset
+	 */
+	@Override
+	public IndexIterator getIterator(final boolean withPosition) {
+		if (shape.length <= 1 || dataShape == null || isAllZeros(dataShape)) {
+			return (withPosition) ? new ContiguousIteratorWithPosition(shape, size) : new ContiguousIterator(size);
+		}
+		return new DiscontiguousIterator(shape, dataShape, dataSize);
+		// return getSliceIterator(null, null, null, null); // alternative way (probably a little slower)
+	}
+
+	@Override
+	public IndexIterator getSliceIterator(final int[] start, final int[] stop, final int[] step) {
+		int rank = shape.length;
+
+		int[] lstart, lstop, lstep;
+
+		if (step == null) {
+			lstep = new int[rank];
+			Arrays.fill(lstep, 1);
+		} else {
+			lstep = step;
+		}
+
+		if (start == null) {
+			lstart = new int[rank];
+		} else {
+			lstart = start;
+		}
+
+		if (stop == null) {
+			lstop = new int[rank];
+		} else {
+			lstop = stop;
+		}
+
+		int[] newShape;
+		if (rank > 1 || (rank > 0 && shape[0] > 0)) {
+			newShape = checkSlice(start, stop, lstart, lstop, lstep);
+		} else {
+			newShape = new int[rank];
+		}
+
+		if (rank <= 1 || dataShape == null) {
+			return new SliceIterator(shape, size, lstart, lstep, newShape);
+		}
+
+		return new SliceIterator(dataShape, dataSize, lstart, lstep, newShape);
+	}
+
+	/**
+	 * Sets the value at a particular point to the passed value. Note, this will automatically expand the dataset if the
+	 * given position is outside its bounds and make it discontiguous.
+	 * 
+	 * @param value
+	 * @param pos
+	 */
+	@Override
+	public void setItem(final double value, final int... pos) { // PRIM_TYPE
+		try {
+			if (!isPositionInShape(pos)) {
+				int[] nshape = shape.clone();
+
+				for (int i = 0; i < pos.length; i++)
+					if (pos[i] >= nshape[i])
+						nshape[i] = pos[i] + 1;
+
+				allocateArray(nshape);
+			}
+			setAbs(get1DIndex(pos), value);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new ArrayIndexOutOfBoundsException("Index out of bounds - need to make dataset extendible");
+		}
+	}
+
+	@Override
+	protected int get1DIndex(final int... n) {
+		final int imax = n.length;
+		final int rank = shape.length;
+		if (imax == 0) {
+			if (rank == 0)
+				return 0;
+			if (rank == 1 && shape[0] == 0) {
+				return 0;
+			}
+			throw new IllegalArgumentException("One or more index parameters must be supplied");
+		} else if (imax > rank) {
+			throw new IllegalArgumentException("No of index parameters is different to the shape of data: " + imax
+					+ " given " + rank + " required");
+		}
+
+		// once checked return the appropriate value.
+		int index = n[0];
+		final int sz = shape[0];
+		if (index < -sz || index >= sz) {
+			throw new ArrayIndexOutOfBoundsException("Index (" + index + ") out of range [-" + sz + "," + sz
+					+ ") in dimension 0");
+		}
+		if (index < 0) {
+			index += sz;
+		}
+
+		if (rank == 1) {
+			return index;
+		}
+
+		final int[] lshape = dataShape == null ? shape : dataShape;
+
+		int i = 1;
+		for (; i < imax; i++) {
+			final int ni = n[i];
+			final int si = shape[i];
+			if (ni < -si || ni >= si) {
+				throw new ArrayIndexOutOfBoundsException("Index (" + ni + ") out of range [-" + si + "," + si
+						+ ") in dimension " + i);
+			}
+			index = index * lshape[i] + ni;
+			if (ni < 0) {
+				index += si;
+			}
+		}
+		for (; i < lshape.length; i++) {
+			index *= lshape[i];
+		}
+
+		return index;
+	}
+
+	/**
+	 * The n-D position in the dataset of the given index in the data array
+	 * 
+	 * @param n
+	 *            The index in the array
+	 * @return the corresponding [a,b,...,n] position in the dataset
+	 */
+	@Override
+	public int[] getNDPosition(final int n) {
+		if (n >= size && dataShape != null && n >= dataSize) {
+			throw new IllegalArgumentException("Index provided " + n
+					+ "is larger then the size of the containing array " + dataSize);
+		}
+
+		if (shape.length == 1) {
+			return new int[] { n };
+		}
+
+		final int[] lshape = dataShape == null ? shape : dataShape;
+
+		int r = lshape.length;
+		int[] output = new int[r];
+
+		int inValue = n;
+		for (r--; r > 0; r--) {
+			output[r] = inValue % lshape[r];
+			inValue /= lshape[r];
+		}
+		output[0] = inValue;
+
+		return output;
+	}
+
+	/**
+	 * Translate from an index value to an actual index (if dataset is discontiguous)
+	 * 
+	 * @return real index
+	 */
+	@Override
+	protected int to1DIndex(final int n) {
+		if (shape.length > 1 && dataShape != null) {
+			return get1DIndex(getNDPosition(n));
+		}
+		if (n < 0 || n >= size) {
+			throw new IndexOutOfBoundsException("Index out of bounds: " + n + " cf " + size);
+		}
+		return n;
 	}
 
 	/**
@@ -441,7 +744,7 @@ public class DataSet extends DoubleDataset {
 			shape = inputDataSet.getShape();
 
 			// copy across the data
-			if (inputDataSet.isContiguous()) {
+			if (inputDataSet.dataShape == null) {
 				odata = data = inputDataSet.data.clone();
 			} else {
 				odata = data = new double[inputDataSet.size];
@@ -470,7 +773,8 @@ public class DataSet extends DoubleDataset {
 	@Deprecated
 	public DataSet(PySequence seq) {
 		issueDeprecatedWarning();
-		DataSet d = convertToDataSet(createFromObject(seq));
+		Object obj = PythonUtils.convertToJava(seq);
+		DataSet d = convertToDataSet(createFromObject(obj));
 		odata = data = d.data;
 		shape = d.shape;
 		name = d.name;
@@ -497,6 +801,11 @@ public class DataSet extends DoubleDataset {
 		result.setName(data.getName());
 		result.metadataStructure = dds.getMetadata();
 		return result;
+	}
+
+	@Override
+	public String toString() {
+		return super.toString(true);
 	}
 
 	/**
@@ -1156,7 +1465,7 @@ public class DataSet extends DoubleDataset {
 	 */
 	@Deprecated
 	public static DataSet repeat(DataSet a, int[] repeats, int axis) {
-		return convertToDataSet(DatasetUtils.repeat(a, repeats, axis));
+		return convertToDataSet(DatasetUtils.repeat(a.getView(), repeats, axis));
 	}
 
 	/**
@@ -2019,8 +2328,16 @@ public class DataSet extends DoubleDataset {
 	}
 
 	// override methods that create new datasets to return DataSet
+
+	/**
+	 * This ensures a contiguous view or copy so that {@link DatasetUtils#convertToAbstractDataset(ILazyDataset)}
+	 * returns a proper DoubleDataset
+	 */
 	@Override
 	public DataSet getView() {
+		if (dataShape != null) {
+			return new DataSet(this);
+		}
 		return convertToDataSet(super.getView());
 	}
 
@@ -2097,6 +2414,14 @@ public class DataSet extends DoubleDataset {
 
 	@Override
 	public DataSet sort(Integer axis) {
+		if (axis == null) {
+			if (dataShape != null) { // make contiguous
+				AbstractDataset s = clone();
+				odata = s.getBuffer();
+				setData();
+				dataShape = null;
+			}
+		}
 		return convertToDataSet(super.sort(axis));
 	}
 

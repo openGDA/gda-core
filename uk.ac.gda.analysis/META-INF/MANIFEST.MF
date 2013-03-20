@@ -47,21 +47,26 @@ Export-Package: gda.analysis,
  uk.ac.diamond.scisoft.analysis.plotserver,
  uk.ac.diamond.scisoft.analysis.plotserver.corba.impl,
  uk.ac.gda.analysis.hdf5
-Require-Bundle: uk.ac.diamond.scisoft.analysis;bundle-version="1.0.0",
- uk.ac.diamond.scisoft.deprecated;bundle-version="1.0.0",
- uk.ac.gda.core;bundle-version="1.0.0",
+Require-Bundle: uk.ac.diamond.scisoft.analysis,
+ uk.ac.diamond.scisoft.deprecated,
+ uk.ac.gda.core,
  uk.ac.gda.libs;bundle-version="1.0.0",
  org.apache.commons.math;bundle-version="[2.2.0,3.0.0)",
  uk.ac.diamond.jama;bundle-version="1.0.1",
  uk.ac.gda.common,
  uk.ac.gda.nexus,
  uk.ac.gda.api,
- uk.ac.diamond.CBFlib;bundle-version="1.0.0",
+ uk.ac.diamond.CBFlib,
  uk.ac.diamond.org.jfree.chart;bundle-version="1.0.0",
- ncsa.hdf;bundle-version="2.7.0",
- uk.ac.diamond.jython;bundle-version="[2.5.3,3.0.0)"
+ uk.ac.diamond.jython;bundle-version="[2.5.3,3.0.0)",
+ uk.ac.diamond.scisoft.python
 Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.diamond.scisoft.analysis,
  uk.ac.diamond.org.jacorb, uk.ac.gda.api, uk.ac.gda.core
 Eclipse-BuddyPolicy: registered
-Import-Package: org.slf4j;version="[1.5.0,2.0.0)",
+Import-Package: ncsa.hdf.hdf5lib,
+ ncsa.hdf.hdf5lib.exceptions,
+ ncsa.hdf.object,
+ ncsa.hdf.object.h5,
+ org.apache.commons.lang,
+ org.slf4j;version="[1.5.0,2.0.0)",
  org.springframework.beans.factory;version="3.0.4"

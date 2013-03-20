@@ -18,19 +18,26 @@
 
 package gda.analysis;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import gda.analysis.utils.DatasetMaths;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Vector;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PySystemState;
 
+import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
-
+import uk.ac.diamond.scisoft.analysis.dataset.SliceIterator;
 import Jama.Matrix;
 
 /**
@@ -1134,4 +1141,568 @@ public class DataSetTest {
 			assertEquals(it.index / (it.index + 1.), x.getAbs(it.index), 1e-6);
 		}
 	}
+
+	private void testExpandedDataset(AbstractDataset ta, int ipos, int index) {
+		IndexIterator iter = ta.getIterator(true);
+		double[] data = (double[]) ta.getBuffer();
+		int[] pos = iter.getPos();
+
+		for (int i = 0; iter.hasNext(); i++) {
+			if (pos[ipos] == index) {
+				assertEquals("Position " + Arrays.toString(pos), 0, data[iter.index], 0);
+				i--;
+			} else {
+				assertEquals("Position " + Arrays.toString(pos), i, data[iter.index], 1e-5*i);
+			}
+		}
+
+		iter.reset();
+		for (int i = 0; iter.hasNext(); i++) {
+			if (pos[ipos] == index) {
+				assertEquals("Position " + Arrays.toString(pos), 0, data[iter.index], 0);
+				i--;
+			} else {
+				assertEquals("Position " + Arrays.toString(pos), i, data[iter.index], 1e-5*i);
+			}
+		}
+	}
+
+	/**
+	 * 
+	 */
+	@Test
+	public void testExpandedIterations() {
+		int size = 1024;
+		testExpandedIterationsND(size);
+	}
+
+	private void testExpandedIterationsND(int size) {
+		DataSet ta;
+
+		System.out.println("Size: " + size);
+
+		// 1D
+		ta = DataSet.arange(0, size, 1);
+		ta.set(0, size);
+		System.out.println(" New size: " + ta.getSize());
+		testExpandedDataset(ta, 0, size);
+
+		// 2D
+		ta = DataSet.arange(0, size, 1).reshape(16, size / 16);
+		for (int k = 0, kmax = ta.getShape()[1]; k < kmax; k++)
+			ta.set(0, 16, k);
+		System.out.println(" New size: " + ta.getSize());
+		System.out.println(" Shape: " + Arrays.toString(ta.getShape()));
+		testExpandedDataset(ta, 0, 16);
+
+		ta = DataSet.arange(0, size, 1).reshape(size / 32, 32);
+		for (int k = 0, kmax = ta.getShape()[0]; k < kmax; k++)
+			ta.set(0, k, 32);
+		System.out.println(" New size: " + ta.getSize());
+		System.out.println(" Shape: " + Arrays.toString(ta.getShape()));
+		testExpandedDataset(ta, 1, 32);
+
+		// 3D
+		ta = DataSet.arange(0, size, 1).reshape(16, 8, size / (16 * 8));
+		for (int k = 0, kmax = ta.getShape()[1]; k < kmax; k++)
+			for (int l = 0, lmax = ta.getShape()[2]; l < lmax; l++)
+				ta.set(0, 16, k, l);
+		System.out.println(" New size: " + ta.getSize());
+		System.out.println(" Shape: " + Arrays.toString(ta.getShape()));
+		testExpandedDataset(ta, 0, 16);
+
+		ta = DataSet.arange(0, size, 1).reshape(size / (16 * 8), 16, 8);
+		for (int k = 0, kmax = ta.getShape()[0]; k < kmax; k++)
+			for (int l = 0, lmax = ta.getShape()[1]; l < lmax; l++)
+				ta.set(0, k, l, 8);
+		System.out.println(" New size: " + ta.getSize());
+		System.out.println(" Shape: " + Arrays.toString(ta.getShape()));
+		testExpandedDataset(ta, 2, 8);
+	}
+
+	private int get1DIndex(int[] pos, int[] shape) {
+		int rank = shape.length;
+		int index = pos[0];
+
+		for (int i = 1; i < rank; i++) {
+			index = (index * shape[i]) + pos[i];
+		}
+		return index;
+	}
+
+	private int[] getNDPosition(int n, int[] shape) {
+		int rank = shape.length;
+		int[] output = new int[rank];
+
+		int inValue = n;
+		for (int i = rank - 1; i > 0; i--) {
+			output[i] = inValue % shape[i];
+			inValue /= shape[i];
+		}
+		output[0] = inValue;
+
+		return output;
+	}
+
+	private void testSlicedExpandedDataset(AbstractDataset t, int[] oshape, int ipos, int index, int start, int startaxis, int step, int stepaxis) {
+		int rank = t.getRank();
+		int[] steps = new int[rank];
+		int[] starts = new int[rank];
+
+
+		Arrays.fill(steps, 1);
+		while (stepaxis > rank) {
+			stepaxis -= rank;
+		}
+		if (stepaxis < 0)
+			stepaxis += rank;
+
+		steps[stepaxis] = step;
+
+		//Arrays.fill(starts, 1);
+		while (startaxis > rank) {
+			startaxis -= rank;
+		}
+		if (startaxis < 0)
+			startaxis += rank;
+
+		starts[startaxis] = start;
+
+		SliceIterator iter = (SliceIterator) t.getSliceIterator(starts.clone(), null, steps);
+
+		int[] pos = iter.getPos();
+		int[] sshape = iter.getSliceShape();
+
+//		System.out.println("Shape: original " + Arrays.toString(oshape) + "; new " + Arrays.toString(t.getShape()) + "; true " + Arrays.toString(t.getTrueShape()));
+//		System.out.println("Step " + Arrays.toString(iter.getStep()) + "; slice " + Arrays.toString(sshape) + "; gaps " + Arrays.toString(iter.getGap()));
+
+		sshape = getSliceShape(oshape, starts, steps);
+//		System.out.println("Shape: adj slice " + Arrays.toString(sshape));
+		double[] data = (double[]) t.getBuffer();
+//		int off = get1DIndex(starts, oshape);
+		for (int i = 0; iter.hasNext(); i++) {
+			int[] spos; // position within slice
+			int j;
+			if (pos[ipos] == index) {
+				assertEquals("Position " + Arrays.toString(pos), 0, data[iter.index], 0);
+				i--;
+			} else {
+				spos = getNDPosition(i, sshape);
+//				System.out.println("spos " + Arrays.toString(spos));
+				spos[stepaxis] *= step; // can do this as only one non-unit step
+				if (spos[stepaxis] >= oshape[stepaxis]) {
+					spos[stepaxis] = 0;
+					if (stepaxis > 0)
+						spos[stepaxis-1]++;
+				}
+				spos[startaxis] += start; // also only one non-zero start
+				int s = startaxis;
+				int d = spos[s] - oshape[s];
+				while (d >= 0 && s > 0) { // carry
+					spos[s] = d;
+					if (s == startaxis)
+						spos[s] += start;
+					if (s-1 == stepaxis) {
+						spos[s-1] += step;
+					} else {
+						spos[s-1]++;
+					}
+					s--;
+					d = spos[s] - oshape[s];
+				}
+				j = get1DIndex(spos, oshape);
+//				System.out.println(" Index " + iter.index + ", " + i + ", " + j + "; pos " +  Arrays.toString(pos) + "; " + Arrays.toString(spos) + "; data " + data[iter.index]);
+				assertEquals("Position " + Arrays.toString(pos), j, data[iter.index], 1e-5*i);
+			}
+		}
+	}
+
+	private int[] getSliceShape(int[] shape, int[] start, int[] step) {
+		int rank = shape.length;
+		int[] sshape = new int[rank];
+
+		for (int i = 0; i < rank; i++) {
+			if (start[i] < 0) {
+				start[i] += shape[i];
+			}
+			if (start[i] < 0) {
+				start[i] = step[i] > 0 ? 0 : -1;
+			}
+			if (start[i] > shape[i]) {
+				start[i] = step[i] > 0 ? shape[i] : shape[i] - 1;
+			}
+			int stop = step[i] > 0 ? shape[i] : -1;
+			if (step[i] > 0) {
+				sshape[i] = (stop - start[i] - 1) / step[i] + 1;
+			} else {
+				sshape[i] = (stop - start[i] + 1) / step[i] + 1;
+			}
+		}
+		return sshape;
+	}
+
+	/**
+	 * 
+	 */
+	@Test
+	public void testExpandedSliceIterations() {
+		int size = 1024;
+		testExpandedSliceIterationND(size);
+	}
+
+	private void testExpandedSliceIterationND(int size) {
+		DataSet ta;
+		int[] oshape;
+		System.out.println("Size: " + size);
+
+		// 1D
+		ta = DataSet.arange(0, size, 1);
+		oshape = ta.getShape().clone();
+		ta.set(0, size);
+		System.out.println(" New size: " + ta.getSize());
+
+		testSlicedExpandedDataset(ta, oshape, 0, size, 0, 0, 3, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, size, 0, 0, size+1, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, size, 23, 0, 3, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, size, 23, 0, size+1, 0);
+
+		// 2D
+		ta = DataSet.arange(0, size, 1).reshape(16, size / 16);
+		oshape = ta.getShape().clone();
+		for (int k = 0, kmax = ta.getShape()[1]; k < kmax; k++)
+			ta.set(0, 16, k);
+		System.out.println(" New size: " + ta.getSize());
+		System.out.println(" Shape: " + Arrays.toString(ta.getShape()));
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 0, 0, 3, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 0, 0, 3, 1);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 2, 0, 3, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 2, 0, 3, 1);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 3, 1, 3, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 3, 1, 3, 1);
+
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 0, 0, 4, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 0, 0, 4, 1);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 2, 0, 4, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 2, 0, 4, 1);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 3, 1, 4, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 3, 1, 4, 1);
+
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 0, 0, -1, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 0, 0, -1, 1);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 2, 0, -1, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 2, 0, -1, 1);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 3, 1, -1, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 3, 1, -1, 1);
+
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 0, 0, -2, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 0, 0, -2, 1);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 2, 0, -2, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 2, 0, -2, 1);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 3, 1, -2, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 3, 1, -2, 1);
+
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 0, 0, -3, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 0, 0, -3, 1);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 2, 0, -3, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 2, 0, -3, 1);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 3, 1, -3, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 3, 1, -3, 1);
+
+		ta = DataSet.arange(0, size, 1).reshape(size / 32, 32);
+		oshape = ta.getShape().clone();
+		for (int k = 0, kmax = ta.getShape()[0]; k < kmax; k++)
+			ta.set(0, k, 32);
+		System.out.println(" New size: " + ta.getSize());
+		System.out.println(" Shape: " + Arrays.toString(ta.getShape()));
+		testSlicedExpandedDataset(ta, oshape, 1, 32, 0, 0, 3, 0);
+		testSlicedExpandedDataset(ta, oshape, 1, 32, 0, 0, 3, 1);
+		testSlicedExpandedDataset(ta, oshape, 1, 32, 2, 0, 3, 0);
+		testSlicedExpandedDataset(ta, oshape, 1, 32, 2, 0, 3, 1);
+		testSlicedExpandedDataset(ta, oshape, 1, 32, 3, 1, 3, 0);
+		testSlicedExpandedDataset(ta, oshape, 1, 32, 3, 1, 3, 1);
+
+		testSlicedExpandedDataset(ta, oshape, 1, 32, 0, 0, 4, 0);
+		testSlicedExpandedDataset(ta, oshape, 1, 32, 0, 0, 4, 1);
+		testSlicedExpandedDataset(ta, oshape, 1, 32, 2, 0, 4, 0);
+		testSlicedExpandedDataset(ta, oshape, 1, 32, 2, 0, 4, 1);
+		testSlicedExpandedDataset(ta, oshape, 1, 32, 3, 1, 4, 0);
+		testSlicedExpandedDataset(ta, oshape, 1, 32, 3, 1, 4, 1);
+
+		testSlicedExpandedDataset(ta, oshape, 1, 32, 0, 0, -1, 0);
+		testSlicedExpandedDataset(ta, oshape, 1, 32, 0, 0, -1, 1);
+		testSlicedExpandedDataset(ta, oshape, 1, 32, 2, 0, -1, 0);
+		testSlicedExpandedDataset(ta, oshape, 1, 32, 2, 0, -1, 1);
+		testSlicedExpandedDataset(ta, oshape, 1, 32, 3, 1, -1, 0);
+		testSlicedExpandedDataset(ta, oshape, 1, 32, 3, 1, -1, 1);
+
+		testSlicedExpandedDataset(ta, oshape, 1, 32, 0, 0, -2, 0);
+		testSlicedExpandedDataset(ta, oshape, 1, 32, 0, 0, -2, 1);
+		testSlicedExpandedDataset(ta, oshape, 1, 32, 2, 0, -2, 0);
+		testSlicedExpandedDataset(ta, oshape, 1, 32, 2, 0, -2, 1);
+		testSlicedExpandedDataset(ta, oshape, 1, 32, 3, 1, -2, 0);
+		testSlicedExpandedDataset(ta, oshape, 1, 32, 3, 1, -2, 1);
+
+		testSlicedExpandedDataset(ta, oshape, 1, 32, 0, 0, -3, 0);
+		testSlicedExpandedDataset(ta, oshape, 1, 32, 0, 0, -3, 1);
+		testSlicedExpandedDataset(ta, oshape, 1, 32, 2, 0, -3, 0);
+		testSlicedExpandedDataset(ta, oshape, 1, 32, 2, 0, -3, 1);
+		testSlicedExpandedDataset(ta, oshape, 1, 32, 3, 1, -3, 0);
+		testSlicedExpandedDataset(ta, oshape, 1, 32, 3, 1, -3, 1);
+
+		// 3D
+		ta = DataSet.arange(0, size, 1).reshape(16, 8, size / (16 * 8));
+		oshape = ta.getShape().clone();
+		for (int k = 0, kmax = ta.getShape()[1]; k < kmax; k++)
+			for (int l = 0, lmax = ta.getShape()[2]; l < lmax; l++)
+				ta.set(0, 16, k, l);
+		System.out.println(" New size: " + ta.getSize());
+		System.out.println(" Shape: " + Arrays.toString(ta.getShape()));
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 0, 0, 3, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 0, 0, 3, 1);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 0, 0, 3, 2);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 3, 0, 3, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 3, 0, 3, 1);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 3, 0, 3, 2);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 1, 1, 3, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 1, 1, 3, 1);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 1, 1, 3, 2);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 2, 2, 3, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 2, 2, 3, 1);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 2, 2, 3, 2);
+
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 0, 0, 4, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 0, 0, 4, 1);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 0, 0, 4, 2);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 3, 0, 4, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 3, 0, 4, 1);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 3, 0, 4, 2);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 1, 1, 4, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 1, 1, 4, 1);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 1, 1, 4, 2);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 2, 2, 4, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 2, 2, 4, 1);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 2, 2, 4, 2);
+
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 0, 0, -1, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 0, 0, -1, 1);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 0, 0, -1, 2);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 3, 0, -1, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 3, 0, -1, 1);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 3, 0, -1, 2);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 1, 1, -1, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 1, 1, -1, 1);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 1, 1, -1, 2);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 2, 2, -1, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 2, 2, -1, 1);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 2, 2, -1, 2);
+
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 0, 0, -2, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 0, 0, -2, 1);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 0, 0, -2, 2);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 3, 0, -2, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 3, 0, -2, 1);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 3, 0, -2, 2);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 1, 1, -2, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 1, 1, -2, 1);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 1, 1, -2, 2);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 2, 2, -2, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 2, 2, -2, 1);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 2, 2, -2, 2);
+
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 0, 0, -3, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 0, 0, -3, 1);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 0, 0, -3, 2);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 3, 0, -3, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 3, 0, -3, 1);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 3, 0, -3, 2);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 1, 1, -3, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 1, 1, -3, 1);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 1, 1, -3, 2);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 2, 2, -3, 0);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 2, 2, -3, 1);
+		testSlicedExpandedDataset(ta, oshape, 0, 16, 2, 2, -3, 2);
+
+		//
+		ta = DataSet.arange(0, size, 1).reshape(size / (16 * 8), 16, 8);
+		oshape = ta.getShape().clone();
+		for (int k = 0, kmax = ta.getShape()[0]; k < kmax; k++)
+			for (int l = 0, lmax = ta.getShape()[1]; l < lmax; l++)
+				ta.set(0, k, l, 8);
+		System.out.println(" New size: " + ta.getSize());
+		System.out.println(" Shape: " + Arrays.toString(ta.getShape()));
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 0, 0, 3, 0);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 0, 0, 3, 1);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 0, 0, 3, 2);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 3, 0, 3, 0);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 3, 0, 3, 1);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 3, 0, 3, 2);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 1, 1, 3, 0);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 1, 1, 3, 1);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 1, 1, 3, 2);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 2, 2, 3, 0);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 2, 2, 3, 1);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 2, 2, 3, 2);
+
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 0, 0, 4, 0);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 0, 0, 4, 1);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 0, 0, 4, 2);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 3, 0, 4, 0);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 3, 0, 4, 1);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 3, 0, 4, 2);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 1, 1, 4, 0);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 1, 1, 4, 1);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 1, 1, 4, 2);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 2, 2, 4, 0);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 2, 2, 4, 1);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 2, 2, 4, 2);
+
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 0, 0, -1, 0);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 0, 0, -1, 1);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 0, 0, -1, 2);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 3, 0, -1, 0);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 3, 0, -1, 1);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 3, 0, -1, 2);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 1, 1, -1, 0);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 1, 1, -1, 1);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 1, 1, -1, 2);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 2, 2, -1, 0);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 2, 2, -1, 1);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 2, 2, -1, 2);
+
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 0, 0, -2, 0);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 0, 0, -2, 1);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 0, 0, -2, 2);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 3, 0, -2, 0);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 3, 0, -2, 1);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 3, 0, -2, 2);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 1, 1, -2, 0);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 1, 1, -2, 1);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 1, 1, -2, 2);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 2, 2, -2, 0);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 2, 2, -2, 1);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 2, 2, -2, 2);
+
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 0, 0, -3, 0);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 0, 0, -3, 1);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 0, 0, -3, 2);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 3, 0, -3, 0);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 3, 0, -3, 1);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 3, 0, -3, 2);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 1, 1, -3, 0);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 1, 1, -3, 1);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 1, 1, -3, 2);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 2, 2, -3, 0);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 2, 2, -3, 1);
+		testSlicedExpandedDataset(ta, oshape, 2, 8, 2, 2, -3, 2);
+	}
+
+	@Test
+	public void testExpansion() {
+		DataSet d = new DataSet(2,2);
+		d.set(8920,2,0);
+		d.set(8853,2,1);
+		try {
+			d.get(2,2);
+			fail("access to uninitialised values allowed");
+		} catch (ArrayIndexOutOfBoundsException e) {
+			// expected
+		}
+		assertArrayEquals("shape incorrect", new int[] {3,2}, d.getShape());
+		assertEquals("array length incorrect", 6, d.getData().length);
+		assertArrayEquals("array incorrect", new double[] {0,0,0,0,8920,8853}, d.getData(), 1e-5);
+
+		DataSet ta = DataSet.arange(1024);
+		ta.set(3., 1024);
+		assertEquals(false, ta.containsNans());
+		assertEquals(false, ta.containsInfs());
+	}
+
+
+	private final static int WARMUP = 3;
+	private final static int REPEAT = 7;
+
+	class TimeStats {
+		double min, max, med;
+		public TimeStats(List<Double> times) {
+			Collections.sort(times);
+			int len = times.size();
+			min = times.get(0)*1e-6;
+			max = times.get(len - 1)*1e-6;
+			med = times.get(len/2)*1e-6;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("(%.2f, %.2f, %.2f ms)", min, max, med);
+		}
+
+		public double getValue() {
+			return min;
+		}
+	}
+
+	@Test
+	@Ignore("This test is for benchmarking only")
+	public void testExtending() {
+		List<Double> times = new ArrayList<Double>();
+
+		int end = 100000;
+
+		times.clear();
+		for (int j = 0; j < REPEAT; j++) {
+			final double time = timeList(100, end);
+			times.add(time);
+		}
+		final TimeStats otime = new TimeStats(times);
+
+		times.clear();
+		for (int j = 0; j < REPEAT; j++) {
+			final double time = timeDataset(100, end);
+			times.add(time);
+		}
+		final TimeStats ntime = new TimeStats(times);
+
+		System.out.printf("Time taken by extend for %s: %s; %s (%.1f%%)\n", end, otime, ntime, 100.*(otime.getValue() - ntime.getValue())/otime.getValue());
+	}
+
+	private double timeDataset(int n, int end) {
+		for (int i = 0; i < WARMUP; i++) {
+			extendDataset(end);
+		}
+		long start = -System.nanoTime();
+		for (int i = 0; i < n; i++) {
+			extendDataset(end);
+		}
+		start += System.nanoTime();
+
+		return ((double) start)/n;
+	}
+
+	private void extendDataset(int end) {
+		DataSet result = new DataSet(100);
+		for (int i = 0; i < end; i++) {
+			result.setItem((double) i, i);
+		}
+	}
+
+	private double timeList(int n, int end) {
+		for (int i = 0; i < WARMUP; i++) {
+			extendList(end);
+		}
+		long start = -System.nanoTime();
+		for (int i = 0; i < n; i++) {
+			extendList(end);
+		}
+		start += System.nanoTime();
+
+		return ((double) start)/n;
+	}
+
+	private void extendList(int end) {
+		List<Double> result = new ArrayList<Double>(100);
+		for (int i = 0; i < end; i++) {
+			result.add((double) i);
+		}
+	}
+
 }
