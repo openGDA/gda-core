@@ -375,7 +375,7 @@ public class LazyPVFactory {
 		public String toString() {
 			return MessageFormat.format("LazyPV({0}, {1})", pvName, javaType.getSimpleName());
 		}
-
+		
 		private double defaultTimeout() {
 			return EpicsGlobals.getTimeout();
 		}
@@ -392,6 +392,13 @@ public class LazyPVFactory {
 			return value;
 		}
 
+		@Override
+		public T get(int numElements) throws IOException {
+			T value = extractValueFromDbr(getDBR(dbrType, numElements));
+			logger.debug("'{}' get() <-- {}", pvName, value);
+			return value;
+		}
+		
 		@Override
 		public T getLast() throws IOException {
 			if (!isValueMonitoring()) {
@@ -605,12 +612,28 @@ public class LazyPVFactory {
 			}
 		}
 
+		private synchronized DBR getDBR(DBRType dbrType, int numElements) throws IOException {
+
+			try {
+				return controller.getDBR(getChannel(), dbrType, numElements);
+			} catch (CAException e) {
+				throw new IOException("Problem getting value from Epics pv '" + pvName + "'", e);
+			} catch (TimeoutException e) {
+				throw new IOException("Timed out getting value from Epics pv '" + pvName + "'", e);
+			} catch (InterruptedException e) {
+				throw new InterruptedIOException("Interupted while getting value from Epics pv '" + pvName + "'");
+			}
+		}
+		
 		private class ValueMonitorListener implements MonitorListener {
 
 			@Override
 			public void monitorChanged(MonitorEvent ev) {
-				setLastValueFromMonitor(extractValueFromDbr(ev.getDBR()));
-				logger.debug("'{}' <-- {}  (monitored value changed)", pvName, lastMonitoredValue);
+				DBR dbr = ev.getDBR();
+				if(dbr != null){
+					setLastValueFromMonitor(extractValueFromDbr(dbr));
+					logger.debug("'{}' <-- {}  (monitored value changed)", pvName, lastMonitoredValue);
+				}
 			}
 		}
 
@@ -933,6 +956,11 @@ public class LazyPVFactory {
 		@Override
 		public T get() throws IOException {
 			return innerToOuter(getPV().get());
+		}
+
+		@Override
+		public T get(int numElements) throws IOException {
+			return innerToOuter(getPV().get(numElements));
 		}
 
 		@Override

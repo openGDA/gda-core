@@ -160,4 +160,9 @@ public class PVWithSeparateReadback<T> implements PV<T> {
 		return getPV.extractValueFromDbr(dbr);
 	}
 
+	@Override
+	public T get(int numElements) throws IOException {
+		return getPV.get(numElements);
+	}
+
 }

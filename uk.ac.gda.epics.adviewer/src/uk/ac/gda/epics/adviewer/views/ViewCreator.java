@@ -20,9 +20,9 @@ package uk.ac.gda.epics.adviewer.views;
 
 public interface ViewCreator {
 
-	public abstract Object createLiveView();
+	public abstract Object createLiveView() throws Exception;
 
-	public abstract Object createArrayView();
+	public abstract Object createArrayView() throws Exception;
 
-	public abstract Object createProfileView();
+	public abstract Object createProfileView() throws Exception;
 }

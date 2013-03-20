@@ -16,24 +16,13 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.zebra.model;
+package uk.ac.gda.epics.adviewer.views;
 
-import gda.device.zebra.controller.Zebra;
+import uk.ac.gda.epics.adviewer.ADController;
+import uk.ac.gda.epics.adviewer.composites.MJPeg;
 
-public class ZebraPosnComp {
-	public ZebraPosNCompArm arm;
-	public ZebraPosnCompGate gate;
-	public ZebraPosnCompPulse pulse;
-	public ZebraPosnComp(Zebra zebra) {
-		super();
-		arm = new ZebraPosNCompArm();
-		arm.setZebra(zebra);
-		gate = new ZebraPosnCompGate();
-		gate.setZebra(zebra);
-		pulse = new ZebraPosnCompPulse();
-		pulse.setZebra(zebra);
-	}
-	
-	
-	
+public interface MJPegViewInitialiser {
+
+	void init(ADController adController, MJPegView mjPegView, MJPeg mJPeg);
+
 }

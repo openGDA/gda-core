@@ -39,18 +39,24 @@ public class ViewCreatorImpl implements ViewCreator, InitializingBean {
 	}
 
 	@Override
-	public Object createLiveView() {
-		return new MJPegView(adController);
+	public Object createLiveView() throws Exception {
+		MJPegView mjPegView = new MJPegView(adController);
+		mjPegView.afterPropertiesSet();
+		return mjPegView;
 	}
 
 	@Override
-	public Object createArrayView() {
-		return new TwoDArrayView(adController);
+	public Object createArrayView() throws Exception {
+		TwoDArrayView twoDArrayView = new TwoDArrayView(adController);
+		twoDArrayView.afterPropertiesSet();
+		return twoDArrayView;
 	}
 
 	@Override
-	public Object createProfileView() {
-		return new HistogramView(adController);
+	public Object createProfileView() throws Exception {
+		HistogramView histogramView = new HistogramView(adController);
+		histogramView.afterPropertiesSet();
+		return histogramView;
 	}
 }
 

@@ -47,6 +47,8 @@ public class MinCallbackTimeComposite extends Composite {
 
 	private Observable<Double> minTimeObservable;
 
+	private NDPluginBase pluginBase;
+
 	public MinCallbackTimeComposite(Composite parent, int style) {
 		
 		super(parent, style);
@@ -81,13 +83,14 @@ public class MinCallbackTimeComposite extends Composite {
 		
 	}
 	
-	void setPluginBase(final NDPluginBase pluginBase){
+	void setPluginBase(NDPluginBase pluginBase){
+		this.pluginBase = pluginBase;
 		valueBox.addValueListener(new ValueListener() {
 			
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
 				try {
-					pluginBase.setMinCallbackTime(e.getDoubleValue());
+					MinCallbackTimeComposite.this.pluginBase.setMinCallbackTime(e.getDoubleValue());
 				} catch (Exception e1) {
 					logger.error("Error setting min update time", e1);
 				}
@@ -121,5 +124,10 @@ public class MinCallbackTimeComposite extends Composite {
 			}
 		};
 		observable.addObserver(minTimeObserver);
+	}
+
+	public void setMinCallbackTime(double minCallbackTime) throws Exception {
+		if( pluginBase.getMinCallbackTime_RBV() < minCallbackTime)
+			pluginBase.setMinCallbackTime(minCallbackTime);
 	}
 }

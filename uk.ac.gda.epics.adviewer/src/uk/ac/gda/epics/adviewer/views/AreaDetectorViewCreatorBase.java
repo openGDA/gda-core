@@ -59,7 +59,7 @@ public abstract class AreaDetectorViewCreatorBase implements IExecutableExtensio
 
 	}
 	
-	abstract protected Object getView(ViewCreator adController);
+	abstract protected Object getView(ViewCreator adController) throws Exception;
 
 
 }

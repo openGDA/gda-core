@@ -18,95 +18,99 @@
 
 package gda.device.zebra.controller;
 
+import gda.epics.ReadOnlyPV;
+
+import java.io.IOException;
+
 public interface Zebra {
-	final public static String connected = "CONNECTED";
-	final public static String store = "STORE";
-	final public static String sysReset = "SYS_RESET";
-	final public static String sysVer = "SYS_VER";
-	final public static String sysStat1Lo = "SYS_STAT1LO";
-	final public static String sysStat1Hi = "SYS_STAT1HI";
-	final public static String sysStat1 = "SYS_STAT1";
-	final public static String sysStat2Lo = "SYS_STAT2LO";
-	final public static String sysStat2Hi = "SYS_STAT2HI";
-	final public static String sysStat2 = "SYS_STAT2";
-	final public static String sysErrState = "SYS_STATERR";
 
-	final public static String pcSource = "PC_ENC";
-	final public static String pcTimeUnits = "PC_TSPRE";
-	final public static String pcTimeUnits_ms = "ms";
-	final public static String pcTimeUnits_s = "s";
-	
-	
-	final public static String pcArmSource = "PC_ARM_SEL";
-	final public static String pcArm = "PC_ARM";
-	final public static String pcDisArm = "PC_DISARM";
-	final public static String pcArmOut = "PC_ARM_OUT";
-	final public static String pcArmSourceSoft = "Soft";
-	final public static String pcArmSourceExternal = "External";
+	final public static int PC_MODE_POSITION = 0;
+	final public static int PC_MODE_TIME = 1;
 
-	final public static String pcGateSource = "PC_GATE_SEL";
-	final public static String pcGateStart = "PC_GATE_START";
-	final public static String pcGateWidth = "PC_GATE_WID";
-	final public static String pcGateNumGates = "PC_GATE_NGATE";
-	final public static String pcGateStep = "PC_GATE_STEP";
-	final public static String pcGateStatus = "PC_GATE_OUT";
-	
+	final public static int PC_TIMEUNIT_SEC = 1;
+	final public static int PC_TIMEUNIT_MS = 0;
 
-	final public static String pcPulseSource = "PC_PULSE_SEL";
-	final public static String pcPulseDelay = "PC_PULSE_DLY";
-	final public static String pcPulseWidth = "PC_PULSE_WID";
-	final public static String pcPulseStep = "PC_PULSE_STEP";
-	final public static String pcPulseStatus = "PC_PULSE_OUT";
-	
-	int getPCPulseOut();
+	double getPCPulseDelay() throws IOException;
 
-	double getPCPulseDelay();
+	double getPCPulseDelayRBV() throws IOException;
 
-	void setPCPulseDelay(double delay);
+	void setPCPulseDelay(double delay) throws IOException;
 
-	double getPCPulseWidth();
+	double getPCPulseWidth() throws IOException;
 
-	void setPCPulseWidth(double width);
+	double getPCPulseWidthRBV() throws IOException;
 
-	double getPCPulseStep();
+	void setPCPulseWidth(double width) throws IOException;
 
-	void setPCPulseStep(double step);
+	double getPCPulseStep() throws IOException;
 
-	void setPCPulseSource(int ordinal);
+	double getPCPulseStepRBV() throws IOException;
 
-	int getPCPulseSource();
+	void setPCPulseStep(double step) throws IOException;
 
-	int getPCGateSource();
+	void setPCPulseSource(int ordinal) throws IOException;
 
-	void setPCGateSource(int ordinal);
+	int getPCPulseSource() throws IOException;
 
-	int getPCGateOut();
+	int getPCGateSource() throws IOException;
 
-	double getPCGateStart();
+	void setPCGateSource(int ordinal) throws IOException;
 
-	double getPCGateWidth();
+	double getPCGateStart() throws IOException;
 
-	double getPCGateNumberOfGates();
+	double getPCGateStartRBV() throws IOException;
 
-	double getPCGateStep();
+	double getPCGateWidth() throws IOException;
 
-	void setPCGateStart(double start);
+	int getPCGateNumberOfGates() throws IOException;
 
-	void setPCGateWidth(double width);
+	double getPCGateStep() throws IOException;
 
-	void setPCGateNumberOfGates(double numberOfGates);
+	void setPCGateStart(double start) throws IOException;
 
-	void setPCGateStep(double step);
+	void setPCGateWidth(double width) throws IOException;
 
-	int getPCArmSource();
+	double getPCGateWidthRBV() throws IOException;
 
-	void setPCArmSource(int ordinal);
+	void setPCGateNumberOfGates(int numberOfGates) throws IOException;
 
-	int getPCArmOut();
+	void setPCGateStep(double step) throws IOException;
 
-	void pcArm();
+	int getPCArmSource() throws IOException;
 
-	void pcDisarm();
+	void setPCArmSource(int ordinal) throws IOException;
 
-	
+	boolean isPCArmed() throws IOException;
+
+	void pcArm() throws IOException;
+
+	void pcDisarm() throws IOException;
+
+	void setPCCaptureBitField(int val) throws IOException;
+
+	int getPCCaptureBitField() throws IOException;
+
+	void setPCEnc(int val) throws IOException;
+
+	int getPCEnc() throws IOException;
+
+	ReadOnlyPV<Double[]> getEnc1AvalPV();
+
+	ReadOnlyPV<Integer> getNumberOfPointsCapturedPV();
+
+	void setPCNumberOfPointsCaptured(int val) throws IOException;
+
+	int getPCNumberOfPointsCaptured() throws IOException;
+
+	/*
+	 * 0 - ms, 1-s
+	 */
+	void setPCTimeUnit(int i) throws IOException;
+
+	int getPCTimeUnit() throws IOException;
+
+	void setPCPulseMax(int numberTriggers) throws IOException;
+
+	int getPCPulseMax() throws IOException;
+
 }

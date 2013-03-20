@@ -61,6 +61,16 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 	 */
 	private boolean readAcquireTimeFromHardware=false;
 
+	private int procDataTypeOut=5; // UINT32	
+
+	public int getProcDataTypeOut() {
+		return procDataTypeOut;
+	}
+
+	public void setProcDataTypeOut(int procDataTypeOut) {
+		this.procDataTypeOut = procDataTypeOut;
+	}
+
 	public boolean isReadAcquireTimeFromHardware() {
 		return readAcquireTimeFromHardware;
 	}
@@ -140,7 +150,7 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 			ndProcess.setEnableBackground(0);
 			ndProcess.getPluginBase().setArrayCounter(0);
 			ndProcess.getPluginBase().setDroppedArrays(0);
-			ndProcess.setDataTypeOut(5); // UINT32			
+			ndProcess.setDataTypeOut(procDataTypeOut);		
 			ndProcess.getPluginBase().disableCallbacks();
 		}
 		enableOrDisableCallbacks();
@@ -231,9 +241,13 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 	}
 	
 	@Override
-	public int getNumberImagesPerCollection(double collectionTime) throws Exception {
-		double localExposureTime = getExposureTime();
-		return ndProcess == null ? calcNumberImagesPerCollection(collectionTime, localExposureTime) : 1;
+	public int getNumberImagesPerCollection(double collectionTime){
+		try{
+			double localExposureTime = getExposureTime();
+			return ndProcess == null ? calcNumberImagesPerCollection(collectionTime, localExposureTime) : 1;
+		} catch (Exception e){
+			throw new IllegalArgumentException("Error in getNumberImagesPerCollection",e);
+		}
 	}
 
 }

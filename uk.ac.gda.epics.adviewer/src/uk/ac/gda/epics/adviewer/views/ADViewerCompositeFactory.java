@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2013 Diamond Light Source Ltd.
+ * Copyright © 2011 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,22 +16,20 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.zebra.model;
+package uk.ac.gda.epics.adviewer.views;
 
-import gda.device.zebra.controller.Zebra;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.IWorkbenchPartSite;
 
-public class ZebraModel {
-	public ZebraPosnComp posnComp;
-	Zebra zebra;
-	public ZebraModel(Zebra zebra) {
-		super();
-		posnComp = new ZebraPosnComp(zebra);
-	}
-	public Zebra getZebra() {
-		return zebra;
-	}
-	public void setZebra(Zebra zebra) {
-		this.zebra = zebra;
-	}
-	
+import uk.ac.gda.epics.adviewer.ADController;
+
+/**
+ * Interface for Factories that create composites. 
+ * Part of work to allow views to be configured in Spring
+ */
+
+
+public interface ADViewerCompositeFactory {
+	public Composite createComposite(ADController adController, Composite parent, int style, IWorkbenchPartSite iWorkbenchPartSite);
+
 }

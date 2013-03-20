@@ -275,6 +275,10 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	public void setPvName(String pvName) {
 		this.pvName = pvName;
 	}
+	
+	public String getPvName() {
+		return pvName;
+	}
 
 	protected EpicsConfiguration epicsConfiguration;
 
