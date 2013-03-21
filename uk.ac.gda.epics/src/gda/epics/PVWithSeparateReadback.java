@@ -55,7 +55,7 @@ public class PVWithSeparateReadback<T> implements PV<T> {
 
 	@Override
 	public void deleteIObserver(Observer<T> observer) {
-		getPV.deleteIObserver(observer);
+		getPV.removeObserver(observer);
 	}
 
 	@Override

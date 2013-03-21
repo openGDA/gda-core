@@ -926,7 +926,7 @@ public class LazyPVFactory {
 			if( observableMonitor == null){
 				return;
 			}
-			observableMonitor.deleteIObserver(observer);
+			observableMonitor.removeObserver(observer);
 		}
 
 	}
@@ -1050,10 +1050,10 @@ public class LazyPVFactory {
 			}
 
 			@Override
-			public void deleteIObserver(Observer<T> observer) {
-				oc.deleteIObserver(observer);
+			public void removeObserver(Observer<T> observer) {
+				oc.removeObserver(observer);
 				if( !oc.IsBeingObserved())
-					stringFromWaveform.deleteIObserver(observerN);
+					stringFromWaveform.removeObserver(observerN);
 			}
 
 		}
@@ -1074,10 +1074,10 @@ public class LazyPVFactory {
 		}
 
 		@Override
-		public void deleteIObserver(Observer<T> observer) {
+		public void removeObserver(Observer<T> observer) {
 			if( obs == null)
 				return;
-			obs.deleteIObserver(observer);
+			obs.removeObserver(observer);
 		}
 
 	}
@@ -1180,8 +1180,8 @@ public class LazyPVFactory {
 		}
 
 		@Override
-		public void deleteIObserver(Observer<T> observer) {
-			getPV().deleteIObserver(observer);
+		public void removeObserver(Observer<T> observer) {
+			getPV().removeObserver(observer);
 		}
 
 	}
@@ -1346,10 +1346,10 @@ class PVMonitor<E> implements Observable<E>{
 	}
 
 	@Override
-	public void deleteIObserver(Observer<E> observer) {
+	public void removeObserver(Observer<E> observer) {
 		if( oc == null)
 			return;
-		oc.deleteIObserver(observer);
+		oc.removeObserver(observer);
 		if (!IsBeingObserved()){
 			if ( monitorAdded){
 				pv.removeMonitorListener(monitorListener);

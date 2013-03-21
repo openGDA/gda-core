@@ -887,8 +887,8 @@ class ConnectionStateObservable implements Observable<Boolean>{
 	}
 
 	@Override
-	public void deleteIObserver(Observer<Boolean> observer) {
-		delegate.deleteIObserver(observer);
+	public void removeObserver(Observer<Boolean> observer) {
+		delegate.removeObserver(observer);
 	}
 	ConnectionStateObservable(String pv) throws Exception{
 		EpicsController.getInstance().createChannel(pv, new ConnectionListener() {
