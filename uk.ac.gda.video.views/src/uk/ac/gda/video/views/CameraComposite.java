@@ -712,7 +712,7 @@ class PVMonitorListener {
 				@Override
 				public void run() {
 					try {
-						pv.put(destPosition);
+						pv.putNoWait(destPosition);
 					} catch (IOException e) {
 						CameraComposite.logger.error("Error sending value " + destPosition + " to " + pvName, e);
 					}
