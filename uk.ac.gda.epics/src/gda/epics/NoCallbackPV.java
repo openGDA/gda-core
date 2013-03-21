@@ -36,7 +36,7 @@ public interface NoCallbackPV<T> extends ReadOnlyPV<T> {
 	 *             if an Epics CA operation has been interrupted
 	 */
 
-	public abstract void put(T value) throws IOException;
+	public abstract void putNoWait(T value) throws IOException;
 
 	/**
 	 * Put a value over CA and return immediately specifying a {@link PutListener} which will be called when the put is
@@ -49,6 +49,6 @@ public interface NoCallbackPV<T> extends ReadOnlyPV<T> {
 	 * @throws InterruptedIOException
 	 *             if an Epics CA operation has been interrupted
 	 */
-	public abstract void put(T value, PutListener pl) throws IOException;
+	public abstract void putNoWait(T value, PutListener pl) throws IOException;
 
 }

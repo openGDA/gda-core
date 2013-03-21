@@ -135,7 +135,7 @@ public class AreaDetectorIOCIntegrationTest {
 		det = new NXDetector();
 		det.setCollectionStrategy(collectionStrategy);
 		
-		stat1basePVs.getNDArrayPortPVPair().putCallback(STAT1_INITIAL_ARRAY_PORT);
+		stat1basePVs.getNDArrayPortPVPair().putWait(STAT1_INITIAL_ARRAY_PORT);
 		
 		resetPV = LazyPVFactory.newBooleanFromShortPV(BASE_PV_NAME + "CAMReset");
 		
@@ -143,7 +143,7 @@ public class AreaDetectorIOCIntegrationTest {
 		adBase.setSizeX(100);
 		adBase.setSizeY(100);
 		det.stop();
-		resetPV.putCallback(true);
+		resetPV.putWait(true);
 	}
 	
 	@Test
@@ -174,7 +174,7 @@ public class AreaDetectorIOCIntegrationTest {
 	
 	@Test
 	public void testWithStat1WiredToCAMDelayedRead() throws Exception {
-		stat1basePVs.getNDArrayPortPVPair().putCallback("DCAM1.CAM");
+		stat1basePVs.getNDArrayPortPVPair().putWait("DCAM1.CAM");
 
 		when(scanInfo.getDimensions()).thenReturn(new int[] {0, 2});
 		List<NXPlugin> plugins = new ArrayList<NXPlugin>(Arrays.asList(adTimeSeriesStatsPlugin));
@@ -196,8 +196,8 @@ public class AreaDetectorIOCIntegrationTest {
 
 	@Test
 	public void testWithStat1WiredToROI1wireToCAMDelayedReadWithROIAsPartOfDet() throws Exception {
-		roi1basePVs.getNDArrayPortPVPair().putCallback("DCAM1.CAM");
-		stat1basePVs.getNDArrayPortPVPair().putCallback("DCAM1.ROI1");
+		roi1basePVs.getNDArrayPortPVPair().putWait("DCAM1.CAM");
+		stat1basePVs.getNDArrayPortPVPair().putWait("DCAM1.ROI1");
 		when(scanInfo.getDimensions()).thenReturn(new int[] {0, 2});
 		List<NXPlugin> plugins = new ArrayList<NXPlugin>(Arrays.asList(adTimeSeriesStatsPlugin, adRoiPlugin));
 		det.setAdditionalPluginList(plugins);
@@ -219,8 +219,8 @@ public class AreaDetectorIOCIntegrationTest {
 
 	@Test
 	public void testWithStat1WiredToROI1wireToCAMDelayedReadWithROIPairPartOfDet() throws Exception {
-		roi1basePVs.getNDArrayPortPVPair().putCallback("DCAM1.CAM");
-		stat1basePVs.getNDArrayPortPVPair().putCallback("DCAM1.ROI1");
+		roi1basePVs.getNDArrayPortPVPair().putWait("DCAM1.CAM");
+		stat1basePVs.getNDArrayPortPVPair().putWait("DCAM1.ROI1");
 		when(scanInfo.getDimensions()).thenReturn(new int[] {0, 2});
 		List<NXPlugin> plugins = new ArrayList<NXPlugin>(Arrays.asList(adStatsROIPair));
 		det.setAdditionalPluginList(plugins);

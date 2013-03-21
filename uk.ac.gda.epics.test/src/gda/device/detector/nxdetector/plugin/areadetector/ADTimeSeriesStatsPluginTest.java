@@ -145,18 +145,18 @@ public class ADTimeSeriesStatsPluginTest {
 	@Test
 	public void testPrepareForCollectionNoneEnabled() throws Exception{
 		plugin.prepareForCollection(1, scanInfo);
-		verify(enableCallbacksPV).putCallback(false);
-		verify(computeStatisticsPV).putCallback(false);
-		verify(computeCentroidPV).putCallback(false);
+		verify(enableCallbacksPV).putWait(false);
+		verify(computeStatisticsPV).putWait(false);
+		verify(computeCentroidPV).putWait(false);
 	}
 
 	@Test
 	public void testPrepareForCollectionStatsEnabled() throws Exception{
 		plugin.setEnabledBasicStats(asList(BasicStat.MaxX, BasicStat.Total));
 		plugin.prepareForCollection(1, scanInfo);
-		verify(enableCallbacksPV).putCallback(true);
-		verify(computeStatisticsPV).putCallback(true);
-		verify(computeCentroidPV).putCallback(false);
+		verify(enableCallbacksPV).putWait(true);
+		verify(computeStatisticsPV).putWait(true);
+		verify(computeCentroidPV).putWait(false);
 	}
 
 	@Test
@@ -169,9 +169,9 @@ public class ADTimeSeriesStatsPluginTest {
 		plugin.prepareForLine();
 		InOrder inOrder = Mockito.inOrder(tsControlPV, tsNumPointsPV);
 
-		inOrder.verify(tsNumPointsPV).putCallback(3);
+		inOrder.verify(tsNumPointsPV).putWait(3);
 		inOrder.verify(tsNumPointsPV).setValueMonitoring(true);
-		inOrder.verify(tsControlPV).putCallback(TSControlCommands.ERASE_AND_START);
+		inOrder.verify(tsControlPV).putWait(TSControlCommands.ERASE_AND_START);
 	}
 	
 	@Test
@@ -180,7 +180,7 @@ public class ADTimeSeriesStatsPluginTest {
 		when(scanInfo.getDimensions()).thenReturn(new int[] {99, 9, 3});
 		plugin.prepareForCollection(1, scanInfo);
 		plugin.prepareForLine();
-		verify(tsControlPV, never()).putCallback(TSControlCommands.ERASE_AND_START);
+		verify(tsControlPV, never()).putWait(TSControlCommands.ERASE_AND_START);
 
 	}
 
@@ -211,7 +211,7 @@ public class ADTimeSeriesStatsPluginTest {
 		testPrepareForLine();
 		plugin.stop();
 		verify(tsNumPointsPV).setValueMonitoring(false);
-		verify(tsControlPV).putCallback(TSControlCommands.STOP);
+		verify(tsControlPV).putWait(TSControlCommands.STOP);
 	}
 
 	@Test
@@ -219,7 +219,7 @@ public class ADTimeSeriesStatsPluginTest {
 		testPrepareForLine();
 		plugin.stop();
 		verify(tsNumPointsPV).setValueMonitoring(false);
-		verify(tsControlPV).putCallback(TSControlCommands.STOP);
+		verify(tsControlPV).putWait(TSControlCommands.STOP);
 	}
 
 	@Test

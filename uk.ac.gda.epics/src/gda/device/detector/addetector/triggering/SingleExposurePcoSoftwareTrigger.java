@@ -46,7 +46,7 @@ public class SingleExposurePcoSoftwareTrigger extends SingleExposureStandard {
 	@Override
 	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo) throws Exception {
 		super.prepareForCollection(collectionTime, numImages, scanInfo);
-		adDriverPco.getArmModePV().putCallback(false);
+		adDriverPco.getArmModePV().putWait(false);
 	}
 
 	@Override
@@ -55,7 +55,7 @@ public class SingleExposurePcoSoftwareTrigger extends SingleExposureStandard {
 		logger.info("endCollection:Before waitWhileBusy");
 		super.waitWhileBusy();
 		super.completeCollection();
-		adDriverPco.getArmModePV().putCallback(false);
+		adDriverPco.getArmModePV().putWait(false);
 	}
 	
 	

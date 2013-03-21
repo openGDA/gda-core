@@ -61,7 +61,7 @@ class TimeSeriesInputStreamCollection implements PositionInputStream<List<Double
 	}
 
 	private void start() throws IOException {
-		tsNumPointsPV.putCallback(numPointsToCollect);
+		tsNumPointsPV.putWait(numPointsToCollect);
 		tsNumPointsPV.setValueMonitoring(true);
 		Integer configuredNumPoints = tsNumPointsPV.get();
 		if (numPointsToCollect != configuredNumPoints) {
@@ -70,7 +70,7 @@ class TimeSeriesInputStreamCollection implements PositionInputStream<List<Double
 							.format("The number of points requested ({0}) exceeds the maximum configured for this EPICS installation ({1}).",
 									numPointsToCollect, configuredNumPoints));
 		}
-		tsControlPV.putCallback(TSControlCommands.ERASE_AND_START);
+		tsControlPV.putWait(TSControlCommands.ERASE_AND_START);
 	}
 
 	public void waitForCompletion() throws InterruptedException {
@@ -94,7 +94,7 @@ class TimeSeriesInputStreamCollection implements PositionInputStream<List<Double
 	}
 
 	public void stop() throws IOException {
-		tsControlPV.putCallback(TSControlCommands.STOP);
+		tsControlPV.putWait(TSControlCommands.STOP);
 		tidyup();
 	}
 

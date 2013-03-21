@@ -84,7 +84,7 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	@Override
 	public void setPCPulseSource(int val) throws IOException {
-		dev.getPVInteger(PCPulseSource).putCallback(val);
+		dev.getPVInteger(PCPulseSource).putWait(val);
 	}
 
 	@Override
@@ -94,7 +94,7 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	@Override
 	public void setPCPulseDelay(double val) throws IOException {
-		dev.getPVDouble(PCPulseDelay).putCallback(val);
+		dev.getPVDouble(PCPulseDelay).putWait(val);
 	}
 
 	@Override
@@ -108,7 +108,7 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	@Override
 	public void setPCPulseWidth(double val) throws IOException {
-		dev.getPVDouble(PCPulseWidth).putCallback(val);
+		dev.getPVDouble(PCPulseWidth).putWait(val);
 	}
 
 	@Override
@@ -122,7 +122,7 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	@Override
 	public void setPCPulseStep(double val) throws IOException {
-		dev.getPVDouble(PCPulseStep).putCallback(val);
+		dev.getPVDouble(PCPulseStep).putWait(val);
 	}
 
 	@Override
@@ -141,12 +141,12 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	@Override
 	public void setPCPulseMax(int val) throws IOException {
-		dev.getPVInteger(PCPulseMax).putCallback(val);
+		dev.getPVInteger(PCPulseMax).putWait(val);
 	}
 	
 	@Override
 	public void setPCGateSource(int val) throws IOException {
-		dev.getPVInteger(PCGateSource).putCallback(val);
+		dev.getPVInteger(PCGateSource).putWait(val);
 	}
 
 	@Override
@@ -156,7 +156,7 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	@Override
 	public void setPCGateStart(double val) throws IOException {
-		dev.getPVDouble(PCGateStart).putCallback(val);
+		dev.getPVDouble(PCGateStart).putWait(val);
 	}
 
 	@Override
@@ -170,7 +170,7 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	@Override
 	public void setPCGateWidth(double val) throws IOException {
-		dev.getPVDouble(PCGateWidth).putCallback(val);
+		dev.getPVDouble(PCGateWidth).putWait(val);
 	}
 
 	@Override
@@ -184,7 +184,7 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	@Override
 	public void setPCGateStep(double val) throws IOException {
-		dev.getPVDouble(PCGateStep).putCallback(val);
+		dev.getPVDouble(PCGateStep).putWait(val);
 	}
 
 	@Override
@@ -194,7 +194,7 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	@Override
 	public void setPCArmSource(int val) throws IOException {
-		dev.getPVInteger(PCArmSource).putCallback(val);
+		dev.getPVInteger(PCArmSource).putWait(val);
 	}
 
 	@Override
@@ -204,12 +204,12 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	@Override
 	public void pcArm() throws IOException {
-		dev.getPVInteger(PCArm).putCallback(1,5); 
+		dev.getPVInteger(PCArm).putWait(1,5); 
 	}
 
 	@Override
 	public void pcDisarm() throws IOException {
-		dev.getPVInteger(PCDisArm).putCallback(1,5);
+		dev.getPVInteger(PCDisArm).putWait(1,5);
 	}
 
 	@Override
@@ -219,7 +219,7 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	@Override
 	public void setPCCaptureBitField(int val) throws IOException {
-		dev.getPVInteger(PCCaptureBitField).putCallback(val);
+		dev.getPVInteger(PCCaptureBitField).putWait(val);
 	}
 
 	@Override
@@ -229,7 +229,7 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	@Override
 	public void setPCEnc(int val) throws IOException {
-		dev.getPVInteger(PCEnc).putCallback(val);
+		dev.getPVInteger(PCEnc).putWait(val);
 	}
 
 	@Override
@@ -239,7 +239,7 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	@Override
 	public void setPCTimeUnit(int val) throws IOException {
-		dev.getPVInteger(PCTimeUnit).putCallback(val);
+		dev.getPVInteger(PCTimeUnit).putWait(val);
 	}
 
 	@Override
@@ -249,7 +249,7 @@ public class ZebraImpl implements Zebra, InitializingBean {
 	
 	@Override
 	public void setPCGateNumberOfGates(int val) throws IOException {
-		dev.getPVInteger(PCGateNumberOfGates).putCallback(val);
+		dev.getPVInteger(PCGateNumberOfGates).putWait(val);
 	}
 
 	@Override
@@ -259,7 +259,7 @@ public class ZebraImpl implements Zebra, InitializingBean {
 
 	@Override
 	public void setPCNumberOfPointsCaptured(final int val) throws IOException {
-		dev.getPVInteger(PCNumberOfPointsCaptured).putCallback(val);
+		dev.getPVInteger(PCNumberOfPointsCaptured).putWait(val);
 	}
 
 	@Override

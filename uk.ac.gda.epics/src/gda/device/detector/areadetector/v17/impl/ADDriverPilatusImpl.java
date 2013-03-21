@@ -229,7 +229,7 @@ public class ADDriverPilatusImpl implements ADDriverPilatus, InitializingBean {
 	@Override
 	public void setDelayTime(float delayTimeSeconds) throws DeviceException {
 		try {
-			pvDelayTime.putCallback(delayTimeSeconds);
+			pvDelayTime.putWait(delayTimeSeconds);
 		} catch (IOException e) {
 			throw new DeviceException(e);
 		}
@@ -247,7 +247,7 @@ public class ADDriverPilatusImpl implements ADDriverPilatus, InitializingBean {
 	@Override
 	public void setThresholdEnergy(float thresholdEnergy) throws DeviceException {
 		try {
-			pvThresholdEnergy.putCallback(thresholdEnergy);
+			pvThresholdEnergy.putWait(thresholdEnergy);
 		} catch (IOException e) {
 			throw new DeviceException(e);
 		}
@@ -265,7 +265,7 @@ public class ADDriverPilatusImpl implements ADDriverPilatus, InitializingBean {
 	@Override
 	public void setGain(Gain gain) throws DeviceException {
 		try {
-			pvGain.putCallback(gain);
+			pvGain.putWait(gain);
 		} catch (IOException e) {
 			throw new DeviceException(e);
 		}
@@ -283,7 +283,7 @@ public class ADDriverPilatusImpl implements ADDriverPilatus, InitializingBean {
 	@Override
 	public void setImageFileTmot(float timeoutSeconds) throws DeviceException {
 		try {
-			pvImageFileTmot.putCallback(timeoutSeconds);
+			pvImageFileTmot.putWait(timeoutSeconds);
 		} catch (IOException e) {
 			throw new DeviceException(e);
 		}
@@ -292,7 +292,7 @@ public class ADDriverPilatusImpl implements ADDriverPilatus, InitializingBean {
 	@Override
 	public void setBadPixelFile(String filename) throws DeviceException {
 		try {
-			pvBadPixelFile.putCallback(filename);
+			pvBadPixelFile.putWait(filename);
 		} catch (IOException e) {
 			throw new DeviceException(e);
 		}
@@ -310,7 +310,7 @@ public class ADDriverPilatusImpl implements ADDriverPilatus, InitializingBean {
 	@Override
 	public void setFlatFieldFile(String filename) throws DeviceException {
 		try {
-			pvFlatFieldFile.put(filename);
+			pvFlatFieldFile.putNoWait(filename);
 		} catch (IOException e) {
 			throw new DeviceException(e);
 		}
@@ -322,7 +322,7 @@ public class ADDriverPilatusImpl implements ADDriverPilatus, InitializingBean {
 	@Override
 	public void setMinFlatField(int minIntensity) throws DeviceException {
 		try {
-			pvMinFlatField.putCallback(minIntensity);
+			pvMinFlatField.putWait(minIntensity);
 		} catch (IOException e) {
 			throw new DeviceException(e);
 		}

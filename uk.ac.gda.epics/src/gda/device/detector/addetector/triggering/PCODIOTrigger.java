@@ -99,13 +99,13 @@ public class PCODIOTrigger extends SimpleAcquire {
 		// we want 1 image per trigger - there will be multiple triggers per collection
 		getAdBase().setNumImages(1);
 		getAdBase().setImageModeWait(ImageMode.SINGLE);
-		adDriverPco.getAdcModePV().put(1); //2 adcs
-		adDriverPco.getTimeStampModePV().put(1); // BCD - if set to None then the image is blank. BCD means no timestamp on image
+		adDriverPco.getAdcModePV().putNoWait(1); //2 adcs
+		adDriverPco.getTimeStampModePV().putNoWait(1); // BCD - if set to None then the image is blank. BCD means no timestamp on image
 		// getAdBase().setAcquirePeriod(0.0); //this is needed for PCO to make sure delay=0 - do not use as it effects
 		// delay
 		getAdBase().setTriggerMode(PcoTriggerMode.EXTERNAL_AND_SOFTWARE.ordinal()); // exposure time set by camera
 																					// rather than trigger
-		adDriverPco.getArmModePV().putCallback(true);
+		adDriverPco.getArmModePV().putWait(true);
 		// the callback is coming back before the camera is ready as seen by the BUSY out is still high
 		while (!adDriverPco.getArmModePV().get()) {//this is not working as armMode does not reflect true state of arm - check with oscilloscope
 			Thread.sleep(50);
@@ -139,7 +139,7 @@ public class PCODIOTrigger extends SimpleAcquire {
 		getAdBase().stopAcquiring();
 		getAdBase().setImageModeWait(ImageMode.SINGLE);
 		getAdBase().setNumImages(1);
-		adDriverPco.getArmModePV().putCallback(false);
+		adDriverPco.getArmModePV().putWait(false);
 
 	}
 
@@ -157,7 +157,7 @@ public class PCODIOTrigger extends SimpleAcquire {
 		collectingData = true;
 		expectedExposureEndTime = System.currentTimeMillis() + (long) (collectionTime * 1000.);
 		try{
-			dioTrigger.put(1, dioTriggerPutListener);
+			dioTrigger.putNoWait(1, dioTriggerPutListener);
 		} catch(Exception ex){
 			collectingData = false;
 			throw ex;

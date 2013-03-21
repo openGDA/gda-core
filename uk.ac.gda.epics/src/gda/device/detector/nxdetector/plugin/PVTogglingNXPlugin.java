@@ -77,7 +77,7 @@ public class PVTogglingNXPlugin implements NXPlugin {
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 		if (getValueDuringCollection() != null) {
-			pv.putCallback(getValueDuringCollection());
+			pv.putWait(getValueDuringCollection());
 		}
 	}
 
@@ -92,7 +92,7 @@ public class PVTogglingNXPlugin implements NXPlugin {
 	@Override
 	public void completeCollection() throws Exception {
 		if (getValueOutsideCollection()!=null) {
-			pv.putCallback(getValueOutsideCollection());
+			pv.putWait(getValueOutsideCollection());
 		}
 	}
 

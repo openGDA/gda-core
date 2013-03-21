@@ -117,9 +117,9 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin {
 			throw new NullPointerException("scanInfo is required");
 		}
 		this.scanInfo = scanInfo;
-		statsPVs.getPluginBasePVs().getEnableCallbacksPVPair().putCallback(!getEnabledStats().isEmpty());
-		statsPVs.getComputeStatistsicsPVPair().putCallback(!getEnabledBasicStats().isEmpty());
-		statsPVs.getComputeCentroidPVPair().putCallback(!getEnabledCentroidStats().isEmpty());
+		statsPVs.getPluginBasePVs().getEnableCallbacksPVPair().putWait(!getEnabledStats().isEmpty());
+		statsPVs.getComputeStatistsicsPVPair().putWait(!getEnabledBasicStats().isEmpty());
+		statsPVs.getComputeCentroidPVPair().putWait(!getEnabledCentroidStats().isEmpty());
 	}
 
 	@Override

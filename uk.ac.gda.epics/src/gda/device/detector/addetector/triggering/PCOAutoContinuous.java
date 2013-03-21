@@ -57,21 +57,21 @@ public class PCOAutoContinuous extends SimpleAcquire {
 		super.prepareForCollection(collectionTime, numImagesIgnored, scanInfo); 
 		getAdBase().setImageMode(ImageMode.CONTINUOUS.ordinal());
 		getAdBase().setTriggerMode(PcoTriggerMode.AUTO.ordinal());
-		adDriverPco.getAdcModePV().put(adcMode); // 2 adcs
-		adDriverPco.getTimeStampModePV().put(1); // BCD - if set to None then the image is blank. BCD means no timestamp
+		adDriverPco.getAdcModePV().putNoWait(adcMode); // 2 adcs
+		adDriverPco.getTimeStampModePV().putNoWait(1); // BCD - if set to None then the image is blank. BCD means no timestamp
 													// on image
 	}
 
 	@Override
 	public void completeCollection() throws Exception {
 		getAdBase().stopAcquiring();
-		adDriverPco.getArmModePV().putCallback(false);
+		adDriverPco.getArmModePV().putWait(false);
 
 	}
 
 	@Override
 	public void collectData() throws Exception {
-		adDriverPco.getArmModePV().putCallback(true);
+		adDriverPco.getArmModePV().putWait(true);
 	}
 
 }

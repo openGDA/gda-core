@@ -74,21 +74,21 @@ public class ADRectangularROIPlugin extends NullNXPlugin {
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 		if (getRoi() != null) {
-			pvs.getNamePV().putCallback(getRoiName());
-			pvs.getPluginBasePVs().getEnableCallbacksPVPair().putCallback(true);
-			pvs.getXDimension().getEnablePVPair().putCallback(true);
-			pvs.getYDimension().getEnablePVPair().putCallback(true);
-			pvs.getZDimension().getEnablePVPair().putCallback(false);
-			pvs.getXDimension().getMinPVPair().putCallback(getRoi().getXstart());
-			pvs.getXDimension().getSizePVPair().putCallback(getRoi().getXsize());
-			pvs.getYDimension().getMinPVPair().putCallback(getRoi().getYstart());
-			pvs.getYDimension().getSizePVPair().putCallback(getRoi().getYsize());
+			pvs.getNamePV().putWait(getRoiName());
+			pvs.getPluginBasePVs().getEnableCallbacksPVPair().putWait(true);
+			pvs.getXDimension().getEnablePVPair().putWait(true);
+			pvs.getYDimension().getEnablePVPair().putWait(true);
+			pvs.getZDimension().getEnablePVPair().putWait(false);
+			pvs.getXDimension().getMinPVPair().putWait(getRoi().getXstart());
+			pvs.getXDimension().getSizePVPair().putWait(getRoi().getXsize());
+			pvs.getYDimension().getMinPVPair().putWait(getRoi().getYstart());
+			pvs.getYDimension().getSizePVPair().putWait(getRoi().getYsize());
 		} else {
-			pvs.getNamePV().putCallback("gda_inactive");
-			pvs.getPluginBasePVs().getEnableCallbacksPVPair().putCallback(false);
-			pvs.getXDimension().getEnablePVPair().putCallback(false);
-			pvs.getYDimension().getEnablePVPair().putCallback(false);
-			pvs.getZDimension().getEnablePVPair().putCallback(false);
+			pvs.getNamePV().putWait("gda_inactive");
+			pvs.getPluginBasePVs().getEnableCallbacksPVPair().putWait(false);
+			pvs.getXDimension().getEnablePVPair().putWait(false);
+			pvs.getYDimension().getEnablePVPair().putWait(false);
+			pvs.getZDimension().getEnablePVPair().putWait(false);
 		}
 	}
 

@@ -65,7 +65,7 @@ public interface PV<T> extends NoCallbackPV<T> {
 	 * @throws InterruptedIOException
 	 *             if an Epics CA operation has been interrupted
 	 */
-	public void putCallback(T value) throws IOException;
+	public void putWait(T value) throws IOException;
 
 	/**
 	 * Put a value over CA and wait for callback.
@@ -78,11 +78,11 @@ public interface PV<T> extends NoCallbackPV<T> {
 	 * @throws InterruptedIOException
 	 *             if an Epics CA operation has been interrupted
 	 */
-	public void putCallback(T value, double timeoutS) throws IOException;
+	public void putWait(T value, double timeoutS) throws IOException;
 
 	/**
 	 * Put value over CA asking for a later callback and <bold>return immediately</bold>. A later call to
-	 * {@link #waitForCallback()} can be used to wait for the callback.
+	 * {@link #putAsyncWait()} can be used to wait for the callback.
 	 * <p>
 	 * If second request to putCallback is made while a callback is pending this will result in an
 	 * {@link IllegalStateException}
@@ -100,10 +100,10 @@ public interface PV<T> extends NoCallbackPV<T> {
 	 * @throws InterruptedIOException
 	 *             if an Epics CA operation has been interrupted
 	 */
-	public void startPutCallback(T value) throws IOException;
+	public void putAsyncStart(T value) throws IOException;
 
 	/**
-	 * Waits for a previously made {@link #startPutCallback} call to complete. Waits up to the default epics timeout
+	 * Waits for a previously made {@link #putAsyncStart} call to complete. Waits up to the default epics timeout
 	 * determined using {@link EpicsGlobals#getTimeout()}. Currently this will be 30s unless {@link LocalProperties}
 	 * "gda.epics.request.timeout" was set at startup.
 	 * 
@@ -112,21 +112,21 @@ public interface PV<T> extends NoCallbackPV<T> {
 	 * @throws InterruptedIOException
 	 *             if an Epics CA operation has been interrupted
 	 */
-	public void waitForCallback() throws IOException;
+	public void putAsyncWait() throws IOException;
 
 	/**
 	 * Return true if a callback is pending
 	 * @return true if a callback is pending
 	 */
-	boolean isCallbackPending();
+	boolean putAsyncIsWaiting();
 	
 	/**
 	 * Cancel a pending callback. This will cause waitForCallback() to return if blocked.
 	 */
-	void cancelPendingCallback();
+	void putAsyncCancel();
 	
 	/**
-	 * Waits for a previously made {@link #startPutCallback} call to complete.
+	 * Waits for a previously made {@link #putAsyncStart} call to complete.
 	 * 
 	 * @throws IOException
 	 *             if an Epics CA exception of some sort has occurred
@@ -134,7 +134,7 @@ public interface PV<T> extends NoCallbackPV<T> {
 	 *             if an Epics CA operation has been interrupted
 	 */
 
-	public void waitForCallback(double timeoutS) throws IOException;
+	public void putAsyncWait(double timeoutS) throws IOException;
 
 	/**
 	 * Put a value over CA and wait for callback, then return the values for PVs specified by toReturn at the time of
@@ -150,7 +150,7 @@ public interface PV<T> extends NoCallbackPV<T> {
 	 * @throws InterruptedIOException
 	 *             if an Epics CA operation has been interrupted
 	 */
-	public PVValues putCallbackResult(T value, ReadOnlyPV<?>... toReturn) throws IOException;
+	public PVValues putWait(T value, ReadOnlyPV<?>... toReturn) throws IOException;
 
 	/**
 	 * Put a value over CA and wait for callback with specified timeout, then return the values for PVs specified by
@@ -166,6 +166,6 @@ public interface PV<T> extends NoCallbackPV<T> {
 	 * @throws InterruptedIOException
 	 *             if an Epics CA operation has been interrupted
 	 */
-	public PVValues putCallbackResult(T value, double timeoutS, ReadOnlyPV<?>... toReturn) throws IOException;
+	public PVValues putWait(T value, double timeoutS, ReadOnlyPV<?>... toReturn) throws IOException;
 
 }

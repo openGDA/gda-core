@@ -85,59 +85,59 @@ public class PVWithSeparateReadback<T> implements PV<T> {
 	}
 
 	@Override
-	public void put(T value) throws IOException {
-		putPV.put(value);
+	public void putNoWait(T value) throws IOException {
+		putPV.putNoWait(value);
 	}
 
 	@Override
-	public void put(T value, PutListener pl) throws IOException {
-		putPV.put(value, pl);
+	public void putNoWait(T value, PutListener pl) throws IOException {
+		putPV.putNoWait(value, pl);
 	}
 
 	@Override
-	public void putCallback(T value) throws IOException {
-		putPV.putCallback(value);
+	public void putWait(T value) throws IOException {
+		putPV.putWait(value);
 	}
 
 	@Override
-	public void putCallback(T value, double timeoutS) throws IOException {
-		putPV.putCallback(value, timeoutS);
+	public void putWait(T value, double timeoutS) throws IOException {
+		putPV.putWait(value, timeoutS);
 	}
 
 	@Override
-	public void startPutCallback(T value) throws IOException {
-		putPV.startPutCallback(value);
+	public void putAsyncStart(T value) throws IOException {
+		putPV.putAsyncStart(value);
 	}
 
 	@Override
-	public void waitForCallback() throws IOException {
-		putPV.waitForCallback();
+	public void putAsyncWait() throws IOException {
+		putPV.putAsyncWait();
 	}
 
 	@Override
-	public boolean isCallbackPending() {
-		return putPV.isCallbackPending();
+	public boolean putAsyncIsWaiting() {
+		return putPV.putAsyncIsWaiting();
 	}
 
 	@Override
-	public void cancelPendingCallback() {
-		putPV.cancelPendingCallback();
+	public void putAsyncCancel() {
+		putPV.putAsyncCancel();
 	}
 
 	@Override
-	public void waitForCallback(double timeoutS) throws IOException {
-		putPV.waitForCallback(timeoutS);
+	public void putAsyncWait(double timeoutS) throws IOException {
+		putPV.putAsyncWait(timeoutS);
 	}
 
 	@Override
-	public gda.epics.PV.PVValues putCallbackResult(T value, ReadOnlyPV<?>... toReturn) throws IOException {
-		return putPV.putCallbackResult(value, toReturn);
+	public gda.epics.PV.PVValues putWait(T value, ReadOnlyPV<?>... toReturn) throws IOException {
+		return putPV.putWait(value, toReturn);
 	}
 
 	@Override
-	public gda.epics.PV.PVValues putCallbackResult(T value, double timeoutS, ReadOnlyPV<?>... toReturn)
+	public gda.epics.PV.PVValues putWait(T value, double timeoutS, ReadOnlyPV<?>... toReturn)
 			throws IOException {
-		return putPV.putCallbackResult(value, timeoutS, toReturn);
+		return putPV.putWait(value, timeoutS, toReturn);
 	}
 
 	@Override

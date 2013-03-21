@@ -257,8 +257,8 @@ public class LazyPVFactoryTest {
 
 	@Test
 	public void testPut() throws Exception {
-		pv.put(1);
-		pv.put(2);
+		pv.putNoWait(1);
+		pv.putNoWait(2);
 		InOrder inOrder = inOrder(mockEpicsController);
 		inOrder.verify(mockEpicsController, times(1)).createChannel("full:pv:name.ext");
 		inOrder.verify(mockEpicsController).caput(mockChannel, 1);
@@ -267,8 +267,8 @@ public class LazyPVFactoryTest {
 
 	@Test
 	public void testPutArray() throws Exception {
-		pvArray.put(new Integer[] { 1, 2, 3, 4, 5 });
-		pvArray.put(new Integer[] { 5, 4, 3, 2, 1 });
+		pvArray.putNoWait(new Integer[] { 1, 2, 3, 4, 5 });
+		pvArray.putNoWait(new Integer[] { 5, 4, 3, 2, 1 });
 		InOrder inOrder = inOrder(mockEpicsController);
 		inOrder.verify(mockEpicsController, times(1)).createChannel("full:pv:name.ext");
 		inOrder.verify(mockEpicsController).caput(mockChannel, new int[] { 1, 2, 3, 4, 5 });
@@ -326,7 +326,7 @@ public class LazyPVFactoryTest {
 		FutureTask<Void> futureTask = new FutureTask<Void>(new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
-				pv.putCallback(1, 5);
+				pv.putWait(1, 5);
 				return null;
 			}
 		});
@@ -392,8 +392,8 @@ public class LazyPVFactoryTest {
 	@Test
 	public void testPutEnum() throws Exception {
 		setUpEnum();
-		enumPV.put(TestEnum.ZERO);
-		enumPV.put(TestEnum.TWO);
+		enumPV.putNoWait(TestEnum.ZERO);
+		enumPV.putNoWait(TestEnum.TWO);
 		InOrder inOrder = inOrder(mockEpicsController);
 		inOrder.verify(mockEpicsController, times(1)).createChannel("full:pv:name.ext");
 		inOrder.verify(mockEpicsController).caput(mockChannel, 0);
@@ -420,8 +420,8 @@ public class LazyPVFactoryTest {
 	@Test
 	public void testPutWithBinaryFromInteger() throws Exception {
 		setUpBinaryFromInteger();
-		binaryPV.put(true);
-		binaryPV.put(false);
+		binaryPV.putNoWait(true);
+		binaryPV.putNoWait(false);
 		InOrder inOrder = inOrder(mockEpicsController);
 		inOrder.verify(mockEpicsController, times(1)).createChannel("full:pv:name.ext");
 		inOrder.verify(mockEpicsController).caput(mockChannel, 1);

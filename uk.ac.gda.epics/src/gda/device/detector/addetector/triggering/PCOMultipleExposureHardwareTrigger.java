@@ -141,8 +141,8 @@ public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftware
 		getAdBase().setImageModeWait(ImageMode.SINGLE);
 		// getAdBase().setAcquirePeriod(0.0); //this is needed for PCO to make sure delay=0 - do not use as it effects
 		// delay
-		adDriverPco.getAdcModePV().put(adcMode); // 2 adcs
-		adDriverPco.getTimeStampModePV().put(timeStamp); // BCD - if set to None then the image is blank. BCD means no timestamp
+		adDriverPco.getAdcModePV().putNoWait(adcMode); // 2 adcs
+		adDriverPco.getTimeStampModePV().putNoWait(timeStamp); // BCD - if set to None then the image is blank. BCD means no timestamp
 		
 		getAdBase().setTriggerMode(PcoTriggerMode.EXTERNAL_AND_SOFTWARE.ordinal()); // exposure time set by camera
 																					// rather than trigger
@@ -162,7 +162,7 @@ public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftware
 		}
 		getAdBase().setImageModeWait(ImageMode.SINGLE);
 		getAdBase().setNumImages(1);
-		adDriverPco.getArmModePV().putCallback(false);
+		adDriverPco.getArmModePV().putWait(false);
 
 	}
 
@@ -171,8 +171,8 @@ public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftware
 		//toggle armed state to clear memeory of images taken at last position
 		if( etfg != null)
 			etfg.stop(); 
-		adDriverPco.getArmModePV().putCallback(false);
-		adDriverPco.getArmModePV().putCallback(true);
+		adDriverPco.getArmModePV().putWait(false);
+		adDriverPco.getArmModePV().putWait(true);
 		// the callback is coming back before the camera is ready as seen by the BUSY out is still high
 		while (!adDriverPco.getArmModePV().get()) {// this is not working as armMode does not reflect true state of arm
 													// - check with oscilloscope

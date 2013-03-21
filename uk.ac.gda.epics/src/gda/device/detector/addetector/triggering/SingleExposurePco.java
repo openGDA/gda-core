@@ -38,7 +38,7 @@ public class SingleExposurePco extends SingleExposureStandard {
 		super.prepareForCollection(collectionTime, numImages, scanInfo);
 		getAdBase().setAcquirePeriod(0.); // for pco always set acq period to 0 to force delay to 0.
 		if (LiveModeUtil.isLiveMode()) {
-			adDriverPco.getArmModePV().putCallback(true);
+			adDriverPco.getArmModePV().putWait(true);
 		}
 	}
 
@@ -46,7 +46,7 @@ public class SingleExposurePco extends SingleExposureStandard {
 	public void completeCollection() throws Exception {
 		super.completeCollection();
 		if (LiveModeUtil.isLiveMode()) {
-			adDriverPco.getArmModePV().putCallback(false);
+			adDriverPco.getArmModePV().putWait(false);
 		}
 	}
 

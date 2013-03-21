@@ -640,7 +640,7 @@ public class LazyPVFactory {
 		// NoCallbackPV
 
 		@Override
-		public void put(T value) throws IOException {
+		public void putNoWait(T value) throws IOException {
 
 			logger.debug("'{}' put() --> {}", pvName, value);
 
@@ -689,7 +689,7 @@ public class LazyPVFactory {
 		}
 
 		@Override
-		public void put(T value, PutListener pl) throws IOException {
+		public void putNoWait(T value, PutListener pl) throws IOException {
 
 			logger.debug("'{}' put() --> {}, with listener '{}'",
 					new Object[] { pvName, value, pl.getClass().getName() });
@@ -740,18 +740,18 @@ public class LazyPVFactory {
 		// PV (with callback)
 
 		@Override
-		public void putCallback(T value) throws IOException {
-			putCallback(value, defaultTimeout());
+		public void putWait(T value) throws IOException {
+			putWait(value, defaultTimeout());
 		}
 
 		@Override
-		public void putCallback(T value, double timeoutS) throws IOException {
-			startPutCallback(value);
-			waitForCallback(timeoutS);
+		public void putWait(T value, double timeoutS) throws IOException {
+			putAsyncStart(value);
+			putAsyncWait(timeoutS);
 		}
 
 		@Override
-		public void startPutCallback(T value) throws IllegalStateException, IOException {
+		public void putAsyncStart(T value) throws IllegalStateException, IOException {
 			synchronized (putCallbackGuard) {
 				if (putCallbackListener.isCallbackPending()) {
 					throw new IllegalStateException("The pv " + getPvName()
@@ -759,7 +759,7 @@ public class LazyPVFactory {
 				}
 				putCallbackListener = new PutCallbackListener();
 				try {
-					put(value, putCallbackListener);
+					putNoWait(value, putCallbackListener);
 				} catch (IllegalStateException e) {
 					putCallbackListener.cancelPendingCallback();
 					throw e;
@@ -771,25 +771,25 @@ public class LazyPVFactory {
 		}
 
 		@Override
-		public void waitForCallback() throws IOException {
-			waitForCallback(defaultTimeout());
+		public void putAsyncWait() throws IOException {
+			putAsyncWait(defaultTimeout());
 		}
 
 		@Override
-		public boolean isCallbackPending() {
+		public boolean putAsyncIsWaiting() {
 			return putCallbackListener.isCallbackPending();
 		}
 		
 		@Override
-		public void cancelPendingCallback() {
-			if (isCallbackPending()) {
+		public void putAsyncCancel() {
+			if (putAsyncIsWaiting()) {
 				logger.info("Cancelling pending callback on the pv " + getPvName());
 			}
 			putCallbackListener.cancelPendingCallback();
 		}
 		
 		@Override
-		public void waitForCallback(double timeoutS) throws IOException {
+		public void putAsyncWait(double timeoutS) throws IOException {
 			synchronized (putCallbackGuard) {
 				try {
 					putCallbackListener.waitForCallback(timeoutS);
@@ -810,8 +810,8 @@ public class LazyPVFactory {
 		 * values of each PV specified in toReturn just AFTER the callback returns.
 		 */
 		@Override
-		public PVValues putCallbackResult(T value, ReadOnlyPV<?>... toReturn) throws IOException {
-			return putCallbackResult(value, defaultTimeout(), toReturn);
+		public PVValues putWait(T value, ReadOnlyPV<?>... toReturn) throws IOException {
+			return putWait(value, defaultTimeout(), toReturn);
 		}
 
 		/**
@@ -819,8 +819,8 @@ public class LazyPVFactory {
 		 * values of each PV specified in toReturn just AFTER the callback returns.
 		 */
 		@Override
-		public PVValues putCallbackResult(T value, double timeoutS, ReadOnlyPV<?>... toReturn) throws IOException {
-			putCallback(value);
+		public PVValues putWait(T value, double timeoutS, ReadOnlyPV<?>... toReturn) throws IOException {
+			putWait(value);
 			CallbackResult result = new CallbackResult();
 			for (ReadOnlyPV<?> pv : toReturn) {
 				result.put(pv, pv.get());
@@ -1097,58 +1097,58 @@ public class LazyPVFactory {
 		}
 
 		@Override
-		public void put(T value) throws IOException {
-			getPV().put(outerToInner(value));
+		public void putNoWait(T value) throws IOException {
+			getPV().putNoWait(outerToInner(value));
 		}
 
 		@Override
-		public void put(T value, PutListener pl) throws IOException {
-			getPV().put(outerToInner(value), pl);
+		public void putNoWait(T value, PutListener pl) throws IOException {
+			getPV().putNoWait(outerToInner(value), pl);
 		}
 
 		@Override
-		public void putCallback(T value) throws IOException {
-			getPV().putCallback(outerToInner(value));
+		public void putWait(T value) throws IOException {
+			getPV().putWait(outerToInner(value));
 		}
 
 		@Override
-		public void putCallback(T value, double timeoutS) throws IOException {
-			getPV().putCallback(outerToInner(value), timeoutS);
+		public void putWait(T value, double timeoutS) throws IOException {
+			getPV().putWait(outerToInner(value), timeoutS);
 		}
 
 		@Override
-		public void startPutCallback(T value) throws IOException {
-			getPV().startPutCallback(outerToInner(value));
+		public void putAsyncStart(T value) throws IOException {
+			getPV().putAsyncStart(outerToInner(value));
 		}
 
 		@Override
-		public void waitForCallback() throws IOException {
-			getPV().waitForCallback();
+		public void putAsyncWait() throws IOException {
+			getPV().putAsyncWait();
 		}
 
 		@Override
-		public void waitForCallback(double timeoutS) throws IOException {
-			getPV().waitForCallback(timeoutS);
+		public void putAsyncWait(double timeoutS) throws IOException {
+			getPV().putAsyncWait(timeoutS);
 		}
 
 		@Override
-		public boolean isCallbackPending() {
-			return getPV().isCallbackPending();
+		public boolean putAsyncIsWaiting() {
+			return getPV().putAsyncIsWaiting();
 		}
 		
 		@Override
-		public void cancelPendingCallback() {
-			getPV().cancelPendingCallback();
+		public void putAsyncCancel() {
+			getPV().putAsyncCancel();
 		}
 		
 		@Override
-		public PVValues putCallbackResult(T value, ReadOnlyPV<?>... toReturn) throws IOException {
-			return getPV().putCallbackResult(outerToInner(value), toReturn);
+		public PVValues putWait(T value, ReadOnlyPV<?>... toReturn) throws IOException {
+			return getPV().putWait(outerToInner(value), toReturn);
 		}
 
 		@Override
-		public PVValues putCallbackResult(T value, double timeoutS, ReadOnlyPV<?>... toReturn) throws IOException {
-			return getPV().putCallbackResult(outerToInner(value), timeoutS, toReturn);
+		public PVValues putWait(T value, double timeoutS, ReadOnlyPV<?>... toReturn) throws IOException {
+			return getPV().putWait(outerToInner(value), timeoutS, toReturn);
 		}
 
 	}
@@ -1206,13 +1206,13 @@ public class LazyPVFactory {
 		}
 
 		@Override
-		public void put(T value) throws IOException {
-			getPV().put(value);
+		public void putNoWait(T value) throws IOException {
+			getPV().putNoWait(value);
 		}
 
 		@Override
-		public void put(T value, PutListener pl) throws IOException {
-			getPV().put(value, pl);
+		public void putNoWait(T value, PutListener pl) throws IOException {
+			getPV().putNoWait(value, pl);
 		}
 
 	}

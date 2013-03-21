@@ -108,7 +108,7 @@ public class ADPcoTest extends ADDetectorTest {
 		inOrder.verify(adBase).setNumImages(1);
 
 		// Arming
-		inOrder.verify(mockArmModePv).putCallback(true);
+		inOrder.verify(mockArmModePv).putWait(true);
 		
 		// File writing
 //		inOrder.verify(mockNdFilePluginBase).enableCallbacks();

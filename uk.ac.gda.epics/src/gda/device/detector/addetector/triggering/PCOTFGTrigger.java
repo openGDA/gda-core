@@ -162,14 +162,14 @@ public class PCOTFGTrigger extends SimpleAcquire {
 		// we want 1 image per trigger - there will be multiple triggers per collection
 		getAdBase().setNumImages(1);
 		getAdBase().setImageModeWait(ImageMode.SINGLE);
-		adDriverPco.getAdcModePV().put(adcMode); // 2 adcs
-		adDriverPco.getTimeStampModePV().put(1); // BCD - if set to None then the image is blank. BCD means no timestamp
+		adDriverPco.getAdcModePV().putNoWait(adcMode); // 2 adcs
+		adDriverPco.getTimeStampModePV().putNoWait(1); // BCD - if set to None then the image is blank. BCD means no timestamp
 													// on image
 		// getAdBase().setAcquirePeriod(0.0); //this is needed for PCO to make sure delay=0 - do not use as it effects
 		// delay
 		getAdBase().setTriggerMode(PcoTriggerMode.EXTERNAL_AND_SOFTWARE.ordinal()); // exposure time set by camera
 																					// rather than trigger
-		adDriverPco.getArmModePV().putCallback(true);
+		adDriverPco.getArmModePV().putWait(true);
 		// the callback is coming back before the camera is ready as seen by the BUSY out is still high
 		while (!adDriverPco.getArmModePV().get()) {// this is not working as armMode does not reflect true state of arm
 													// - check with oscilloscope
@@ -212,7 +212,7 @@ public class PCOTFGTrigger extends SimpleAcquire {
 		getAdBase().stopAcquiring();
 		getAdBase().setImageModeWait(ImageMode.SINGLE);
 		getAdBase().setNumImages(1);
-		adDriverPco.getArmModePV().putCallback(false);
+		adDriverPco.getArmModePV().putWait(false);
 
 	}
 
@@ -267,7 +267,7 @@ public class PCOTFGTrigger extends SimpleAcquire {
 				if( open && ( shutterDarkScannable != null) && ( !shutterDarkScannable.getPosition().equals("Open"))){
 					open = false;
 				}
-				shutterPV.put(open ? 1 : 0);
+				shutterPV.putNoWait(open ? 1 : 0);
 				if(open && (shutterSleep > 0))
 					Thread.sleep(shutterSleep);
 			}
