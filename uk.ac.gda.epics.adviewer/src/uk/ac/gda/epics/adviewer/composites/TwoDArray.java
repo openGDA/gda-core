@@ -188,7 +188,7 @@ public class TwoDArray extends Composite {
 	public void stop() throws Exception {
 		config.getImageNDArray().getPluginBase().disableCallbacks();
 		if (arrayArrayCounterObservable != null && arrayArrayCounterObserver != null) {
-			arrayArrayCounterObservable.deleteIObserver(arrayArrayCounterObserver);
+			arrayArrayCounterObservable.removeObserver(arrayArrayCounterObserver);
 			arrayArrayCounterObserver = null;
 			arrayArrayCounterObservable = null;
 		}

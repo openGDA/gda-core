@@ -122,10 +122,10 @@ public class StatisticsStatus extends Composite {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				if(enableObservable != null && enableObserver != null ){
-					enableObservable.deleteIObserver(enableObserver);
+					enableObservable.removeObserver(enableObserver);
 				}
 				if(computeObservable != null && computeObserver != null ){
-					computeObservable.deleteIObserver(computeObserver);
+					computeObservable.removeObserver(computeObserver);
 				}
 			}
 		});
@@ -229,7 +229,7 @@ class ValueBox extends StandardBox{
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				if(observable != null && observer != null )
-					observable.deleteIObserver(observer);
+					observable.removeObserver(observer);
 			}
 		});
 	}

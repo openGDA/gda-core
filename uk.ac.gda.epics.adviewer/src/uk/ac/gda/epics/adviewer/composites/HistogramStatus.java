@@ -87,10 +87,10 @@ public class HistogramStatus extends Composite {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				if(enableObservable != null && enableObserver != null ){
-					enableObservable.deleteIObserver(enableObserver);
+					enableObservable.removeObserver(enableObserver);
 				}
 				if(computeHistogramObservable != null && computeHistogramObserver != null ){
-					computeHistogramObservable.deleteIObserver(computeHistogramObserver);
+					computeHistogramObservable.removeObserver(computeHistogramObserver);
 				}
 			}
 		});

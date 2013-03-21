@@ -172,9 +172,9 @@ public class Histogram extends Composite {
 			public void widgetDisposed(DisposeEvent e) {
 				if (mpegProcObserver != null) {
 					if (mpegProcOffsetObservable != null && mpegProcObserver != null)
-						mpegProcOffsetObservable.deleteIObserver(mpegProcObserver);
+						mpegProcOffsetObservable.removeObserver(mpegProcObserver);
 					if (mpegProcScaleObservable != null && mpegProcObserver != null)
-						mpegProcScaleObservable.deleteIObserver(mpegProcObserver);
+						mpegProcScaleObservable.removeObserver(mpegProcObserver);
 					mpegProcObserver = null;
 				}
 				mpegProcOffsetObservable = null;
@@ -188,10 +188,10 @@ public class Histogram extends Composite {
 					plottingSystem = null;
 				}
 				if (statsArrayCounterObservable != null && statsArrayCounterObserverStats != null) {
-					statsArrayCounterObservable.deleteIObserver(statsArrayCounterObserverStats);
+					statsArrayCounterObservable.removeObserver(statsArrayCounterObserverStats);
 				}
 				if (statsArrayCounterObservable != null && statsArrayCounterObserver != null) {
-					statsArrayCounterObservable.deleteIObserver(statsArrayCounterObserver);
+					statsArrayCounterObservable.removeObserver(statsArrayCounterObserver);
 				}
 
 			}

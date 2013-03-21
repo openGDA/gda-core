@@ -75,7 +75,7 @@ public class MinCallbackTimeComposite extends Composite {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				if(minTimeObservable != null && minTimeObserver != null ){
-					minTimeObservable.deleteIObserver(minTimeObserver);
+					minTimeObservable.removeObserver(minTimeObserver);
 				}
 			}
 		});

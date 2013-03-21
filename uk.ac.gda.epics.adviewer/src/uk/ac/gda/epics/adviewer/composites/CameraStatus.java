@@ -80,9 +80,9 @@ public class CameraStatus extends Composite {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				if( stateObservable != null && stateObserver != null)
-					stateObservable.deleteIObserver(stateObserver);
+					stateObservable.removeObserver(stateObserver);
 				if( timeObservable != null && timeObserver != null)
-					timeObservable.deleteIObserver(timeObserver);
+					timeObservable.removeObserver(timeObserver);
 			}
 		});
 	}

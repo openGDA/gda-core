@@ -54,7 +54,7 @@ public class IOCStatus extends Composite {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				if( connectionStateObservable != null && observer!=null)
-					connectionStateObservable.deleteIObserver(observer);
+					connectionStateObservable.removeObserver(observer);
 			}
 		});
 	}

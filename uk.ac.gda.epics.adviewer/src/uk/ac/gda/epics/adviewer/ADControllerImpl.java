@@ -291,7 +291,7 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 				if (arg == counterBefore || done)
 					return;
 				done = true;
-				obsvble.deleteIObserver(this);
+				obsvble.removeObserver(this);
 				try {
 					if (histogramWasComputed != 0) {
 						getImageNDStats().setComputeHistogram(histogramWasComputed);
