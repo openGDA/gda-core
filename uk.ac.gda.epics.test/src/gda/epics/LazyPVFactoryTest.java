@@ -284,14 +284,14 @@ public class LazyPVFactoryTest {
 	@Test
 	public void testStartPutCallback() throws Exception {
 		ArgumentCaptor<PutListener> putListenerArgument = ArgumentCaptor.forClass(PutListener.class);
-		pv.startPutCallback(1);
+		pv.putAsyncStart(1);
 		verify(mockEpicsController, times(1)).caput(eq(mockChannel), eq(1), putListenerArgument.capture());
 	}
 
 	@Test
 	public void testWaitForPutCallback() throws Exception {
 		ArgumentCaptor<PutListener> putListenerArgument = ArgumentCaptor.forClass(PutListener.class);
-		pv.startPutCallback(1);
+		pv.putAsyncStart(1);
 		verify(mockEpicsController, times(1)).caput(eq(mockChannel), eq(1), putListenerArgument.capture());
 		PutListener putListener = putListenerArgument.getValue();
 
@@ -301,7 +301,7 @@ public class LazyPVFactoryTest {
 		FutureTask<Void> futureTask = new FutureTask<Void>(new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
-				pv.waitForCallback();
+				pv.putAsyncWait();
 				return null;
 			}
 		});
@@ -356,7 +356,7 @@ public class LazyPVFactoryTest {
 		FutureTask<PVValues> futureTask = new FutureTask<PVValues>(new Callable<PVValues>() {
 			@Override
 			public PVValues call() throws Exception {
-				return pv.putCallbackResult(1, mockIntPV);
+				return pv.putWait(1, mockIntPV);
 			}
 		});
 		
