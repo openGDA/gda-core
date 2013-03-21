@@ -37,6 +37,6 @@ public interface Observable<E> {
 	 * @param observer
 	 *            object that implement Observer and wishes to be notified by this object
 	 */
-	void deleteIObserver(Observer<E> observer);
+	void removeObserver(Observer<E> observer);
 
 }

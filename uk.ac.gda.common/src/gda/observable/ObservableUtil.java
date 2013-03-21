@@ -55,10 +55,10 @@ public class ObservableUtil<E> implements Observable<E>, IIsBeingObserved {
 	 * 
 	 * @param observer
 	 *            the observer
-	 * @see gda.observable.Observable#deleteIObserver(gda.observable.Observer)
+	 * @see gda.observable.Observable#removeObserver(gda.observable.Observer)
 	 */
 	@Override
-	public void deleteIObserver(Observer<E> observer) {
+	public void removeObserver(Observer<E> observer) {
 		if( observer  == null)
 			return;
 		synchronized(myObservers){
