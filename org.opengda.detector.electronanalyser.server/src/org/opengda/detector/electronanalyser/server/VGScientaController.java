@@ -32,12 +32,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class VGScientaController implements Configurable {
-	private static final Logger logger = LoggerFactory
-			.getLogger(VGScientaController.class);
+	private static final Logger logger = LoggerFactory.getLogger(VGScientaController.class);
 
 	// Values internal to the object for Channel Access
-	private final EpicsController EPICS_CONTROLLER = EpicsController
-			.getInstance();
+	private final EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 	private String basePVName = null;
 	private IPVProvider pvProvider;
 	public static final String LENSMODE = "LENS_MODE";
@@ -65,10 +63,17 @@ public class VGScientaController implements Configurable {
 	public static final String STEPTIME = "STEP_TIME";
 	public static final String SLICE = "SLICES";
 	public static final String SLICE_RBV = "SLICES_RBV";
-	public static final String INTERATIONS = "SLICES";
+	public static final String INTERATIONS = "NumExposures";
 	public static final String ZERO_SUPPLIES = "ZERO_SUPPLIES";
-	public static final String TOTALSTEPS = "TOTAL_POINTS_RBV";
+	public static final String TOTALPOINTS = "TOTAL_POINTS_RBV";
 	public static final String CURRENTPOINT = "CURRENT_CHANNEL_RBV";
+	public static final String SPECTRUMDATA = "INT_SPECTRUM";
+	public static final String IMAGEDATA = "IMAGE";
+	public static final String EXTIODATA = "EXTIO";
+	public static final String EXCITATIONENERGY = "EXCITATION_ENERGY";
+	public static final String EXCITATIONENERGY_RBV = "EXCITATION_ENERGY_RBV";
+	public static final String XUNITS_RBV = "X_UNITS_RBV";
+	public static final String YUNITS_RBV = "Y_UNITS_RBV";
 
 	/**
 	 * Map that stores the channel against the PV name
@@ -153,8 +158,7 @@ public class VGScientaController implements Configurable {
 	}
 
 	public Integer getPassEnergy() throws Exception {
-		return passenergies.get(EPICS_CONTROLLER
-				.cagetInt(getChannel(PASSENERGY_RBV)));
+		return passenergies.get(EPICS_CONTROLLER.cagetInt(getChannel(PASSENERGY_RBV)));
 	}
 
 	/**
@@ -166,8 +170,7 @@ public class VGScientaController implements Configurable {
 	public String[] getPassEnergies() throws DeviceException {
 		String[] positionLabels = new String[0];
 		try {
-			positionLabels = EPICS_CONTROLLER
-					.cagetLabels(getChannel(PASSENERGY));
+			positionLabels = EPICS_CONTROLLER.cagetLabels(getChannel(PASSENERGY));
 		} catch (Exception e) {
 			if (e instanceof RuntimeException)
 				throw (RuntimeException) e;
@@ -243,7 +246,7 @@ public class VGScientaController implements Configurable {
 	}
 
 	public Integer getTotalSteps() throws Exception {
-		return EPICS_CONTROLLER.cagetInt(getChannel(TOTALSTEPS));
+		return EPICS_CONTROLLER.cagetInt(getChannel(TOTALPOINTS));
 	}
 
 	public Integer getCurrentPoint() throws Exception {
@@ -252,5 +255,33 @@ public class VGScientaController implements Configurable {
 
 	public void zeroSupplies() throws Exception {
 		EPICS_CONTROLLER.caput(getChannel(ZERO_SUPPLIES), 1);
+	}
+
+	public double[] getSpectrum() throws Exception {
+		return EPICS_CONTROLLER.cagetDoubleArray(getChannel(SPECTRUMDATA));
+	}
+
+	public double[] getImage() throws Exception {
+		return EPICS_CONTROLLER.cagetDoubleArray(getChannel(IMAGEDATA));
+	}
+
+	public double[] getExtIO() throws Exception {
+		return EPICS_CONTROLLER.cagetDoubleArray(getChannel(EXTIODATA));
+	}
+
+	public void setExcitationEnergy(Integer value) throws Exception {
+		EPICS_CONTROLLER.caput(getChannel(EXCITATIONENERGY), value);
+	}
+
+	public double getExcitationEnergy() throws Exception {
+		return EPICS_CONTROLLER.cagetDouble(getChannel(EXCITATIONENERGY_RBV));
+	}
+
+	public String getXUnits() throws Exception {
+		return EPICS_CONTROLLER.cagetString(getChannel(XUNITS_RBV));
+	}
+
+	public String getYUnits() throws Exception {
+		return EPICS_CONTROLLER.cagetString(getChannel(YUNITS_RBV));
 	}
 }
