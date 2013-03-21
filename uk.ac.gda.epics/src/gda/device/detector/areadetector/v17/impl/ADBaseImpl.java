@@ -30,7 +30,7 @@ import gda.device.detector.areadetector.impl.AreaDetectorROIImpl;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
-import gda.epics.Predicate;
+import gda.observable.Predicate;
 import gda.epics.connection.EpicsController;
 import gda.epics.interfaces.ADBaseType;
 import gda.factory.FactoryException;

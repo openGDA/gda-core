@@ -26,7 +26,7 @@ import gda.device.detector.areadetector.v17.ADDriverPilatus;
 import gda.epics.LazyPVFactory;
 import gda.epics.NoCallbackPV;
 import gda.epics.PV;
-import gda.epics.Predicate;
+import gda.observable.Predicate;
 import gda.epics.ReadOnlyPV;
 import gda.epics.interfaces.ADPilatusType;
 import gda.epics.interfaces.ElementType;

@@ -26,6 +26,7 @@ import gda.epics.util.EpicsGlobals;
 import gda.observable.Observable;
 import gda.observable.Observer;
 import gda.observable.ObservableUtil;
+import gda.observable.Predicate;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.CAStatusException;

@@ -1,6 +1,6 @@
 package gda.device.zebra;
 
-import gda.epics.Predicate;
+import gda.observable.Predicate;
 
 public class GreaterThanOrEqualTo implements Predicate<Integer> {
 

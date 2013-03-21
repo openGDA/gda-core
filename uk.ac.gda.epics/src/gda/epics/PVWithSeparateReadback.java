@@ -19,6 +19,7 @@
 package gda.epics;
 
 import gda.observable.Observer;
+import gda.observable.Predicate;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutListener;

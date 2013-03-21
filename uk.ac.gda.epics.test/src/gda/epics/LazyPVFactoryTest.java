@@ -33,6 +33,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import gda.epics.PV.PVValues;
 import gda.epics.connection.EpicsController;
+import gda.observable.Predicate;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
