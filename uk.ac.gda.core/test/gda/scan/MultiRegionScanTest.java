@@ -81,6 +81,7 @@ public class MultiRegionScanTest {
 
 	}
 
+	@Test
 	public void testSingleScan() throws Exception {
 		TestHelpers.setUpTest(ConstantVelocityScanLineTest.class, "testSingleScan", true);
 		// LocalProperties.set("gda.data.scan.datawriter.dataFormat", "DummyDataWriter");
