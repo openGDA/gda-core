@@ -934,6 +934,8 @@ public class LazyPVFactory {
 
 	static abstract private class AbstractReadOnlyAdapter<N, T> implements ReadOnlyPV<T> {
 
+		Observable<T> obs = null;
+		
 		abstract protected T innerToOuter(N innerValue);
 
 		abstract protected N outerToInner(T outerValue);
@@ -1030,13 +1032,14 @@ public class LazyPVFactory {
 		private class GenericObservable implements Observable<T> {
 
 			private final Observable<N> stringFromWaveform;
+			
 			ObservableUtil<T> oc = new ObservableUtil<T>();
+			
 			private Observer<N> observerN;
 
 			public GenericObservable(Observable<N> stringFromWaveform) throws Exception {
 				this.stringFromWaveform = stringFromWaveform;
 				observerN = new Observer<N>() {
-					
 					@Override
 					public void update(Observable<N> source, N arg) {
 						oc.notifyIObservers(AbstractReadOnlyAdapter.this, innerToOuter(arg));
@@ -1061,12 +1064,9 @@ public class LazyPVFactory {
 
 		@Override
 		public void addObserver(final Observer<T> observer) throws Exception {
-
 			createStringObservable(getPV()).addObserver(observer);
-			
 		}
-		Observable<T> obs=null;
-
+		
 		private Observable<T> createStringObservable(ReadOnlyPV<N> pv) throws Exception {
 			if( obs== null){
 				obs = new GenericObservable(pv);
@@ -1291,28 +1291,29 @@ public class LazyPVFactory {
 }
 
 /**
- * Class to adapter between a monitor and the gda IObserver system
+ * Class to adapt between a monitor and the gda IObserver system
  *
  * @param <E>
  */
 class PVMonitor<E> implements Observable<E>{
+	
 	static final Logger logger = LoggerFactory.getLogger(PVMonitor.class);	
+	
 	private final PV<E> pv;
+	
 	private final Observable<E> observable;
 
-	public PVMonitor(Observable<E> observable, PV<E> pv){
-		this.observable = observable;
-		this.pv = pv;
-	}
-	ObservableUtil<E> oc=null;
+	ObservableUtil<E> oc = null;
+
+	private boolean monitorAdded = false;
+	
 	MonitorListener monitorListener = new MonitorListener() {
-		
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
 			E extractValueFromDbr;
 			try {
 				DBR dbr = arg0.getDBR();
-				if(dbr != null){
+				if (dbr != null){
 					extractValueFromDbr = pv.extractValueFromDbr(dbr);
 					if( oc != null){
 						oc.notifyIObservers(observable, extractValueFromDbr);
@@ -1325,16 +1326,19 @@ class PVMonitor<E> implements Observable<E>{
 			}
 		}
 	};
-	private boolean monitorAdded=false;
-
-
+	
+	public PVMonitor(Observable<E> observable, PV<E> pv){
+		this.observable = observable;
+		this.pv = pv;
+	}
 
 	@Override
 	public void addObserver(Observer<E> observer) throws Exception {
-		if( oc == null)
+		if( oc == null) {
 			oc = new ObservableUtil<E>();
+		}
 		oc.addObserver(observer);
-		if (! monitorAdded ){
+		if (!monitorAdded){
 			try {
 				pv.addMonitorListener(monitorListener);
 				monitorAdded = true;
@@ -1342,17 +1346,16 @@ class PVMonitor<E> implements Observable<E>{
 				throw new IllegalStateException("Error adding monitor to pv:"+ pv.getPvName(),e);
 			}
 		}
-		
-		
 	}
 
 	@Override
 	public void removeObserver(Observer<E> observer) {
-		if( oc == null)
+		if( oc == null){
 			return;
+		}
 		oc.removeObserver(observer);
 		if (!IsBeingObserved()){
-			if ( monitorAdded){
+			if (monitorAdded){
 				pv.removeMonitorListener(monitorListener);
 				monitorAdded = false;
 			}
