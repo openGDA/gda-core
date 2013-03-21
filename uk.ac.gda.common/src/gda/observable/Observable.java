@@ -32,6 +32,16 @@ public interface Observable<E> {
 	void addObserver(Observer<E> observer) throws Exception;
 
 	/**
+	 * Add an object to this objects's list of Observers, in a way that the Observable will send
+	 * events only if they pass the provided predicate.
+	 * 
+	 * On adding the observer the Observable will call the Observer's update method.
+	 * @param observer
+	 *            object that implement Observer and wishes to be notified by this object
+	 */
+	void addObserver(Observer<E> observer, Predicate<E> predicate) throws Exception;
+
+	/**
 	 * Delete an object from this objects's list of IObservers.
 	 * 
 	 * @param observer

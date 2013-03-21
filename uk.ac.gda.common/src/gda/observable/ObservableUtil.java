@@ -19,6 +19,8 @@
 
 package gda.observable;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 import org.slf4j.Logger;
@@ -29,12 +31,16 @@ import org.slf4j.LoggerFactory;
  * DO NOT synchronize the methods of this class as doing so in the past led to deadlocks when used with DOFS and AbosulteMove objects
  */
 public class ObservableUtil<E> implements Observable<E>, IIsBeingObserved {
+	
 	private Vector<Observer<E>> myObservers = new Vector<Observer<E>>();
+
+	private Map<Observer<E>, Predicate<E>> observersPredicates = new HashMap<Observer<E>, Predicate<E>>();
+	
 	private static final Logger logger = LoggerFactory.getLogger(ObservableUtil.class);
 
 	/**
 	 * Add an observer to the list of observers providing that the list does not already contain an instance of the
-	 * observer on it. {@inheritDoc}
+	 * observer on it. If a predicate was associated with this observer then remove it. {@inheritDoc}
 	 * 
 	 * @param observer
 	 *            the observer
@@ -42,11 +48,33 @@ public class ObservableUtil<E> implements Observable<E>, IIsBeingObserved {
 	 */
 	@Override
 	public void addObserver(Observer<E> observer) {
-		if( observer  == null)
+		if (observer == null)
 			return;
 		synchronized(myObservers){
-			if (!myObservers.contains(observer))
+			if (!myObservers.contains(observer)){
 				myObservers.addElement(observer);
+			}
+			observersPredicates.remove(observer);
+		}
+	}
+
+	/**
+	 * Add an observer to the list of observers providing that the list does not already contain an instance of the
+	 * observer on it. Either way, associate the specified predicate with the observer. {@inheritDoc}
+	 * 
+	 * @param observer
+	 *            the observer
+	 * @see gda.observable.Observable#addObserver(gda.observable.Observer)
+	 */
+	@Override
+	public void addObserver(Observer<E> observer, Predicate<E> predicate) {
+		if (observer == null)
+			return;
+		synchronized(myObservers){
+			if (!myObservers.contains(observer)){
+				myObservers.addElement(observer);
+			}
+			observersPredicates.put(observer, predicate);
 		}
 	}
 
@@ -59,10 +87,11 @@ public class ObservableUtil<E> implements Observable<E>, IIsBeingObserved {
 	 */
 	@Override
 	public void removeObserver(Observer<E> observer) {
-		if( observer  == null)
+		if (observer == null)
 			return;
 		synchronized(myObservers){
 			myObservers.removeElement(observer);
+			observersPredicates.remove(observer);
 		}
 	}
 
@@ -72,6 +101,7 @@ public class ObservableUtil<E> implements Observable<E>, IIsBeingObserved {
 	public void deleteIObservers() {
 		synchronized(myObservers){
 			myObservers.removeAllElements();
+			observersPredicates.clear();
 		}
 	}
 
@@ -85,14 +115,23 @@ public class ObservableUtil<E> implements Observable<E>, IIsBeingObserved {
 	 */
 	@SuppressWarnings("unchecked")
 	public void notifyIObservers(Observable<E> theObserved, E changeCode) {
+		
 		Observer<E>[] observers;
+		
 		synchronized(myObservers){
 			observers = (Observer<E>[]) myObservers.toArray(new Observer<?>[0]);
 		}
 		
-		for (Observer<E> anIObserver : observers) {
+		for (Observer<E> observer : observers) {
 			try {
-				anIObserver.update(theObserved, changeCode);
+				Predicate<E> predicate = observersPredicates.get(observer);
+				if (predicate != null) {
+					// if predicate is configured and it is *not* true then don't send the update.
+					if (!predicate.apply(changeCode)) {
+						return;
+					}
+				}
+				observer.update(theObserved, changeCode);
 			} catch (Exception ex) {
 				logger.error("notifyIObservers of " + theObserved.toString(), ex);
 			}
