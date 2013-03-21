@@ -922,7 +922,7 @@ public class LazyPVFactory {
 
 
 		@Override
-		public void deleteIObserver(Observer<T>  observer) {
+		public void removeObserver(Observer<T>  observer) {
 			if( observableMonitor == null){
 				return;
 			}
