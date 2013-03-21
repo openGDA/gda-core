@@ -29,6 +29,7 @@ import gda.factory.FactoryException;
 import gda.observable.Observable;
 import gda.observable.ObservableUtil;
 import gda.observable.Observer;
+import gda.observable.Predicate;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
@@ -877,19 +878,11 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 }
 
 class ConnectionStateObservable implements Observable<Boolean>{
+	
 	Channel ch;
 	
 	ObservableUtil<Boolean> delegate= new ObservableUtil<Boolean>();
-
-	@Override
-	public void addObserver(Observer<Boolean> observer) {
-		delegate.addObserver(observer);
-	}
-
-	@Override
-	public void removeObserver(Observer<Boolean> observer) {
-		delegate.removeObserver(observer);
-	}
+	
 	ConnectionStateObservable(String pv) throws Exception{
 		EpicsController.getInstance().createChannel(pv, new ConnectionListener() {
 			
@@ -898,6 +891,21 @@ class ConnectionStateObservable implements Observable<Boolean>{
 				delegate.notifyIObservers(ConnectionStateObservable.this, arg0.isConnected());
 			}
 		});
+	}
+	
+	@Override
+	public void addObserver(Observer<Boolean> observer) {
+		delegate.addObserver(observer);
+	}
+	
+	@Override
+	public void addObserver(Observer<Boolean> observer, Predicate<Boolean> predicate) {
+		delegate.addObserver(observer, predicate);
+	}
+	
+	@Override
+	public void removeObserver(Observer<Boolean> observer) {
+		delegate.removeObserver(observer);
 	}
 
 	@Override

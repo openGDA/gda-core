@@ -918,7 +918,14 @@ public class LazyPVFactory {
 				observableMonitor = new PVMonitor<T>(this, this);
 			}
 			observableMonitor.addObserver(observer);
-			
+		}
+
+		@Override
+		public void addObserver(Observer<T> observer, Predicate<T> predicate) throws Exception {
+			if( observableMonitor == null){
+				observableMonitor = new PVMonitor<T>(this, this);
+			}
+			observableMonitor.addObserver(observer, predicate);
 		}
 
 
@@ -1052,6 +1059,11 @@ public class LazyPVFactory {
 			public void addObserver(Observer<T> observer) throws Exception {
 				oc.addObserver(observer);
 			}
+			
+			@Override
+			public void addObserver(Observer<T> observer, Predicate<T> predicate) throws Exception {
+				oc.addObserver(observer, predicate);
+			}
 
 			@Override
 			public void removeObserver(Observer<T> observer) {
@@ -1065,6 +1077,11 @@ public class LazyPVFactory {
 		@Override
 		public void addObserver(final Observer<T> observer) throws Exception {
 			createStringObservable(getPV()).addObserver(observer);
+		}
+		
+		@Override
+		public void addObserver(final Observer<T> observer, Predicate<T> predicate) throws Exception {
+			createStringObservable(getPV()).addObserver(observer, predicate);
 		}
 		
 		private Observable<T> createStringObservable(ReadOnlyPV<N> pv) throws Exception {
@@ -1174,10 +1191,15 @@ public class LazyPVFactory {
 		protected T outerToInner(T outerValue) {
 			return outerValue;
 		}
+		
 		@Override
 		public void addObserver(Observer<T> observer) throws Exception {
 			getPV().addObserver(observer);
-			
+		}
+		
+		@Override
+		public void addObserver(Observer<T> observer, Predicate<T> predicate) throws Exception {
+			getPV().addObserver(observer, predicate);
 		}
 
 		@Override
@@ -1284,8 +1306,7 @@ public class LazyPVFactory {
 		protected Short outerToInner(Boolean outerValue) {
 			return (short) (outerValue ? 1 : 0);
 		}
-
-
+		
 	}
 
 }
@@ -1297,7 +1318,7 @@ public class LazyPVFactory {
  */
 class PVMonitor<E> implements Observable<E>{
 	
-	static final Logger logger = LoggerFactory.getLogger(PVMonitor.class);	
+	static final Logger logger = LoggerFactory.getLogger(PVMonitor.class);
 	
 	private final PV<E> pv;
 	
@@ -1334,10 +1355,24 @@ class PVMonitor<E> implements Observable<E>{
 
 	@Override
 	public void addObserver(Observer<E> observer) throws Exception {
-		if( oc == null) {
+		getObservableComponent().addObserver(observer);
+		addMonitorListenerIfRequired();
+	}
+
+	@Override
+	public void addObserver(Observer<E> observer, Predicate<E> predicate) throws Exception {
+		getObservableComponent().addObserver(observer, predicate);
+		addMonitorListenerIfRequired();
+	}
+	
+	private ObservableUtil<E> getObservableComponent() {
+		if (oc == null) {
 			oc = new ObservableUtil<E>();
 		}
-		oc.addObserver(observer);
+		return oc;
+	}
+
+	private void addMonitorListenerIfRequired() {
 		if (!monitorAdded){
 			try {
 				pv.addMonitorListener(monitorListener);
@@ -1365,6 +1400,8 @@ class PVMonitor<E> implements Observable<E>{
 	public boolean IsBeingObserved() {
 		return oc == null ? false : oc.IsBeingObserved();
 	}
+
+
 	
 }
 
