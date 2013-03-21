@@ -318,16 +318,16 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 					logger.error("Error getting description of command");
 				}
 				try {
-					String msg = "Started:"+description;
+					String msg = "Started: "+description;
 					log(msg);
 					notifyObserversOfProgress(0, msg);
 					cmdBeingProcessed.run();
-					msg = String.format((cmdBeingProcessed.getState().equals(Command.STATE.COMPLETED)? "Completed:%s" : "Aborted:%s"),description);
+					msg = String.format((cmdBeingProcessed.getState().equals(Command.STATE.COMPLETED)? "Completed: %s" : "Aborted: %s"),description);
 					log(msg);
 					notifyObserversOfProgress(100, msg);
 				} catch (Exception e) {
-					logger.error("Error in run of current command:"+description,e);
-					String msg = "Error in:"+description + e.getMessage();
+					logger.error("Error in run of current command: "+description,e);
+					String msg = "Error in: "+description + e.getMessage();
 					notifyObserversOfProgress(100, msg);
 					log(msg);
 				}
@@ -552,12 +552,12 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 	}
 	
 	private void log(String msg){
-		writer.println(getDateTime() + ":" + msg);
+		writer.println(getDateTime() + ": " + msg);
 		writer.flush();
 	}
 	
 	private void log(CommandProgress p){
-		log(p.getPercentDone() + "%:" + p.getMsg());
+		log(p.getPercentDone() + "%: " + p.getMsg());
 	}
 	/**
 	 * @param startImmediately The startImmediately to set.
