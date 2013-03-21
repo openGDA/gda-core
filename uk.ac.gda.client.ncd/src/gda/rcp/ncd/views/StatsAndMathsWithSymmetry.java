@@ -95,7 +95,6 @@ public class StatsAndMathsWithSymmetry extends PlotViewStatsAndMaths {
 				// in case be get a dodgy mask, we create our own empty one
 				md =  new BooleanDataset(image.getShape());
 				md.setName("mask");
-				md.setExtendible(false);
 				md.fill(true);
 			} else {
 				md = mb.mask;
@@ -240,7 +239,6 @@ public class StatsAndMathsWithSymmetry extends PlotViewStatsAndMaths {
 		
 		int[] newshape = new int[] { getNewLength(shape[0], dwc.y), shape[1] };
 		AbstractDataset sumdata = new IntegerDataset(newshape);
-		sumdata.setExtendible(false);
 		
 		int unflippedOffset = getUnflippedOffsetInNewDataset(shape[0], dwc.y);
 		int flippedOffset = getFlippedOffsetInNewDataset(shape[0], dwc.y);
@@ -264,7 +262,6 @@ public class StatsAndMathsWithSymmetry extends PlotViewStatsAndMaths {
 		
 		int[] newshape = new int[] {  shape[0], getNewLength(shape[1], dwc.x) };
 		AbstractDataset sumdata = new IntegerDataset(newshape);
-		sumdata.setExtendible(false);
 
 		int unflippedOffset = getUnflippedOffsetInNewDataset(shape[1], dwc.x);
 		int flippedOffset = getFlippedOffsetInNewDataset(shape[1], dwc.x);
