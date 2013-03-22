@@ -128,7 +128,7 @@ public final class XesScanParametersComposite extends Composite {
 		super(parent, style);
 		setLayout(new GridLayout(2, false));
 
-		this.updateListener = new ValueAdapter() {
+		this.updateListener = new ValueAdapter("XesScanParametersComposite Listener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
 				try {

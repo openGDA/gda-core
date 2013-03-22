@@ -200,7 +200,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 		super.linkUI(isPageChange);
 
 		try {
-			BeanUI.addValueListener(editingBean, this, new ValueAdapter() {
+			BeanUI.addValueListener(editingBean, this, new ValueAdapter("Element Edge Bean Listener") {
 				@Override
 				public void valueChangePerformed(ValueEvent e) {
 					getSite().getShell().getDisplay().asyncExec(new Runnable() {

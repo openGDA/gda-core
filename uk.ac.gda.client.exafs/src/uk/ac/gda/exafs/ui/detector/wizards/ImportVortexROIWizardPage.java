@@ -179,7 +179,7 @@ public class ImportVortexROIWizardPage extends ImportROIWizardPage {
 			regionList.setListHeight(250);
 			regionList.setMinItems(VortexParametersUIHelper.INSTANCE.getMinimumRegions());
 			regionList.setMaxItems(VortexParametersUIHelper.INSTANCE.getMaximumRegions());
-			regionList.addValueListener(new ValueAdapter() {
+			regionList.addValueListener(new ValueAdapter("Vortex Region List Listener") {
 				@Override
 				public void valueChangePerformed(ValueEvent e) {
 					updateAddButtonEnables();

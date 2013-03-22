@@ -253,6 +253,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 
 			this.abc = abc;
 			abc.addValueListener(this);
+			this.name = "RegionSynchronizer";
 		}
 
 		protected abstract Double getNewEnergyFromScaleBox(final ValueEvent e);
@@ -309,6 +310,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			super(line, abc);
 			this.gaf = gaf;
 			this.gaf.addValueListener(this);
+			this.name = "A Region Synchronizer";
 		}
 
 		@Override
@@ -349,6 +351,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			this.gafb = gaf2;
 			this.gafb.addValueListener(this);
 			this.gafc = gaf3;
+			this.name = "B Region Synchronizer";
 		}
 
 		@Override
@@ -394,6 +397,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			super(line, abc);
 			this.gaf = gaf3;
 			this.gaf.addValueListener(this);
+			this.name = "C Region Synchronizer";
 		}
 
 		@Override
@@ -429,6 +433,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 
 		EdgeRegionSynchronizer(IRegion line, ScaleBox abc) {
 			super(line, abc);
+			this.name = "Edge Region Synchronizer";
 		}
 
 		@Override
@@ -963,18 +968,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 				correctC();
 			}
 
-			Display.getDefault().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						suspendGraphUpdate = true;
-						drawLines();
-						updatePlottedPoints();
-					} catch (Exception e1) {
-						logger.error("Cannot update XAS points", e1);
-					}
-				}
-			});
+			rebuildGraph();
 			setupEstimationWidgets();
 		} catch (Exception e) {
 			logger.error("Error trying to linkUI in the xas scan editor", e);
@@ -992,6 +986,25 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 				}
 			});
 		}
+	}
+
+	private void rebuildGraph() {
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					suspendGraphUpdate = true;
+					drawLines();
+					updatePlottedPoints();
+					plottingsystem.repaint(true);
+				} catch (Exception e1) {
+					logger.error("Cannot update XAS points", e1);
+				} finally {
+					setPointsUpdate(true);
+					suspendGraphUpdate = false;					
+				}
+			}
+		});
 	}
 
 	@Override
@@ -1115,7 +1128,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 						.getBoolean(ExafsPreferenceConstants.FINAL_ENERGY_ELEMENT_LINK)) {
 					getFinalEnergy().setValue(getFinalEnergyFromElement());
 				}
-
+				rebuildGraph();
 			} else {
 				final XasScanParameters scanParams = (XasScanParameters) editingBean;
 				if (ExafsActivator.getDefault().getPreferenceStore()

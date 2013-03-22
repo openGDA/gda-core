@@ -179,7 +179,7 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 			regionList.setListHeight(250);
 			regionList.setMinItems(XspressParametersUIHelper.INSTANCE.getMinimumRegions());
 			regionList.setMaxItems(XspressParametersUIHelper.INSTANCE.getMaximumRegions());
-			regionList.addValueListener(new ValueAdapter() {
+			regionList.addValueListener(new ValueAdapter("Xspress Region List Listener") {
 				@Override
 				public void valueChangePerformed(ValueEvent e) {
 					updateAddButtonEnables();

@@ -84,7 +84,7 @@ public class SignalParametersComposite extends Composite {
 
 		scannableName = new FindableNameWrapper(this, SWT.BORDER, Scannable.class);
 		scannableName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		scannableName.addValueListener(new ValueAdapter() {
+		scannableName.addValueListener(new ValueAdapter("Sig Params Listener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
 				updateLabelContents();

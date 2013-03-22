@@ -50,7 +50,7 @@ public class MetadataComposite extends Composite {
 		GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		gd.widthHint=260;
 		scannableName.setLayoutData(gd);
-		scannableName.addValueListener(new ValueAdapter() {
+		scannableName.addValueListener(new ValueAdapter("Metadata Listener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
 
