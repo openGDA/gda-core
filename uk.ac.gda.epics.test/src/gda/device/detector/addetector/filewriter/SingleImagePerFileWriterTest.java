@@ -64,6 +64,7 @@ public class SingleImagePerFileWriterTest {
 		when(currentScanHolder.getCurrentScanInformation()).thenReturn(scanInfo);
 		when(scanInfo.getScanNumber()).thenReturn((long) 12345);
 		InterfaceProvider.setCurrentScanInformationHolderForTesting(currentScanHolder);
+		InterfaceProvider.setTerminalPrinterForTesting(mock(ITerminalPrinter.class));
 	}
 	
 	@Test
