@@ -114,7 +114,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 	private LabelWrapper coreHole_Label;
 	private ScaleBox edgeEnergy_Label;
 	private ValueListener updateValueListener;
-	private boolean updateValueAllowed = true;
+	protected boolean updateValueAllowed = true;
 	private Color red, black;
 	protected PlotUpdateJob plotUpdateJob;
 
@@ -243,6 +243,11 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 	}
 	
 	public void updatePlottedPoints() {
+		try {
+			updateFromUIAndReturnEditingBean();
+		} catch (Exception e) {
+			logger.error("Exception updating from UI. This may cause instabilities in the editor.", e);
+		}
 		this.plotUpdateJob.plot();
 	}
 
@@ -421,7 +426,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 	protected void updatePointsLabels() {
 
 		try {
-			final List<PyObject[]> points = getScanPoints(getEditingBean());
+			final List<PyObject[]> points = getScanPoints(updateFromUIAndReturnEditingBean());
 
 			if (points == null || points.isEmpty())
 				throw new Exception("Cannot esitmate points!");
@@ -445,6 +450,10 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 			estimateTimeLabel.setText("-");
 		}
 		expandContainer.layout();
+	}
+
+	protected Object fetchEditingBean() {
+		return editingBean;
 	}
 
 	/**
@@ -604,22 +613,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 		protected IStatus run(final IProgressMonitor monitor) {
 
 			try {
-
 				final Object scanBean = editingBean;
-
-				if (monitor.isCanceled())
-					return Status.CANCEL_STATUS;
-
-				Display.getDefault().syncExec(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							BeanUI.uiToBean(this, scanBean);
-						} catch (Exception e) {
-							logger.error("Cannot get values from UI into scanBean for energy calculation!", e);
-						}
-					}
-				});
 
 				if (monitor.isCanceled())
 					return Status.CANCEL_STATUS;

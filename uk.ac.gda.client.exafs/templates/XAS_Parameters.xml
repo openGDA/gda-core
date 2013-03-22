@@ -1,17 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <XasScanParameters>
+    <shouldValidate>true</shouldValidate>
     <scannableName>energy</scannableName>
     <element>Fe</element>
     <edge>K</edge>
-    <initialEnergy>6911.14</initialEnergy>
-    <finalEnergy>7961.14</finalEnergy>
-    <gaf1>25.0</gaf1>
+    <initialEnergy>5912.0</initialEnergy>
+    <finalEnergy>7962.4</finalEnergy>
+    <edgeEnergy>7112.0</edgeEnergy>
+    <gaf1>81.0</gaf1>
     <gaf2>10.0</gaf2>
+    <gaf3>10.0</gaf3>
+    <A>7074.51</A>
+    <B>7099.5</B>
+    <C>7124.48</C>
     <preEdgeStep>5.0</preEdgeStep>
-    <preEdgeTime>0.5</preEdgeTime>
+    <preEdgeTime>1.0</preEdgeTime>
     <edgeStep>1.0</edgeStep>
     <edgeTime>0.5</edgeTime>
-    <exafsStep>2.0</exafsStep>
+    <exafsStep>0.04</exafsStep>
     <exafsTime>0.5</exafsTime>
-    <exafsStepType>E</exafsStepType>
+    <exafsStepType>k</exafsStepType>
 </XasScanParameters>

@@ -97,7 +97,7 @@ public final class EstimatePointsWidget extends QueuedCommandWidget {
 			@Override
 			public void run() {
 				try {
-					bean.put(getFileKey(file.getName()), (Serializable)editorPart.getEditingBean());
+					bean.put(getFileKey(file.getName()), (Serializable)editorPart.updateFromUIAndReturnEditingBean());
 				} catch (Exception e) {
 					// TODO Find out why this sometimes gives unwanted errors.
 					//logger.error("Cannot determine editing bean.", e);

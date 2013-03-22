@@ -47,26 +47,26 @@
 					maxOccurs="1" minOccurs="1" />
 				<xsd:element name="edgeEnergy" type="xsd:double"
 					maxOccurs="1" minOccurs="0" />
-				<xsd:choice>
-					<xsd:sequence>
-						<xsd:element name="coreHole" type="xsd:double"
-							maxOccurs="1" minOccurs="0" />
-						<xsd:element name="gaf1" type="xsd:double" maxOccurs="1"
-							minOccurs="1" />
-						<xsd:element name="gaf2" type="xsd:double" maxOccurs="1"
-							minOccurs="1" />
-						<xsd:element name="gaf3" type="xsd:double" maxOccurs="1"
-							minOccurs="0" />
-					</xsd:sequence>
-					<xsd:sequence>
-						<xsd:element name="A" type="xsd:double" maxOccurs="1"
-							minOccurs="1" />
-						<xsd:element name="B" type="xsd:double" maxOccurs="1"
-							minOccurs="1" />
-						<xsd:element name="C" type="xsd:double" maxOccurs="1"
-							minOccurs="0" />
-					</xsd:sequence>
-				</xsd:choice>
+<!-- 				<xsd:choice> -->
+				<xsd:sequence maxOccurs="1" minOccurs="0" >
+					<xsd:element name="coreHole" type="xsd:double"
+						maxOccurs="1" minOccurs="0" />
+					<xsd:element name="gaf1" type="xsd:double" maxOccurs="1"
+						minOccurs="1" />
+					<xsd:element name="gaf2" type="xsd:double" maxOccurs="1"
+						minOccurs="1" />
+					<xsd:element name="gaf3" type="xsd:double" maxOccurs="1"
+						minOccurs="0" />
+				</xsd:sequence>
+				<xsd:sequence maxOccurs="1" minOccurs="0">
+					<xsd:element name="A" type="xsd:double" maxOccurs="1"
+						minOccurs="1" />
+					<xsd:element name="B" type="xsd:double" maxOccurs="1"
+						minOccurs="1" />
+					<xsd:element name="C" type="xsd:double" maxOccurs="1"
+						minOccurs="0" />
+				</xsd:sequence>
+<!-- 				</xsd:choice> -->
 				<xsd:element name="preEdgeStep" type="xsd:double"
 					maxOccurs="1" minOccurs="1" />
 				<xsd:element name="preEdgeTime" type="xsd:double"
@@ -77,12 +77,14 @@
 					maxOccurs="1" minOccurs="1" />
 				<xsd:element name="exafsStep" type="xsd:double"
 					maxOccurs="1" minOccurs="1" />
-				<xsd:choice>
-					<xsd:sequence>
+<!-- 				<xsd:choice> -->
+					<xsd:sequence maxOccurs="1"
+						minOccurs="0">
 						<xsd:element name="exafsTime" type="xsd:double"
 							maxOccurs="1" minOccurs="1" />
 					</xsd:sequence>
-					<xsd:sequence>
+					<xsd:sequence maxOccurs="1"
+						minOccurs="0">
 						<xsd:element name="exafsFromTime" type="xsd:double"
 							maxOccurs="1" minOccurs="1" />
 						<xsd:element name="exafsToTime" type="xsd:double"
@@ -90,7 +92,7 @@
 						<xsd:element name="kWeighting" type="xsd:double"
 							maxOccurs="1" minOccurs="1" />
 					</xsd:sequence>
-				</xsd:choice>
+<!-- 				</xsd:choice> -->
 
 				<xsd:element name="exafsStepType" maxOccurs="1"
 					minOccurs="1">

@@ -105,7 +105,7 @@ public class XasScanParameters implements Serializable, IScanParameters {
 	 * @param stopEnergy
 	 */
 	public void setFinalEnergy(Double stopEnergy) {
-		this.finalEnergy = stopEnergy;
+			this.finalEnergy = stopEnergy;
 	}
 
 	/**
@@ -583,7 +583,11 @@ public class XasScanParameters implements Serializable, IScanParameters {
 	}
 
 	public void setC(Double c) {
-		this.c = c;
+		if (c != null){
+			this.c = c;
+		} else {
+			System.out.println("got here!");
+		}
 	}
 
 	public Double getGaf3() {
