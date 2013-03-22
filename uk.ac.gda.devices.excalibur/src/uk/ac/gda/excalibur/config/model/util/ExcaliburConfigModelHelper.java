@@ -84,6 +84,14 @@ public class ExcaliburConfigModelHelper {
 		return rSet.createResource(fileURI);
 	}
 
+	public void reloadResource(Resource resource) throws IOException {
+		if (resource instanceof ExcaliburConfigResourceImpl) {
+			ExcaliburConfigResourceImpl excaliburConfigRes = (ExcaliburConfigResourceImpl) resource;
+			excaliburConfigRes.unload();
+			excaliburConfigRes.load(excaliburConfigRes.getDefaultLoadOptions());
+		}
+	}
+
 	/**
 	 * @param fileName
 	 * @return {@link Resource}
@@ -95,7 +103,8 @@ public class ExcaliburConfigModelHelper {
 		URI fileURI = URI.createFileURI(fileName);
 		// Create a resource for this file.
 		//
-		return rSet.getResource(fileURI, true);
+		Resource resource = rSet.getResource(fileURI, true);
+		return resource;
 	}
 
 	/**
@@ -267,7 +276,6 @@ public class ExcaliburConfigModelHelper {
 	 */
 	public ExcaliburConfig getExcaliburConfigFromFile(String filename) {
 		Resource resource = getResource(filename);
-		//TODO need to handle external change to the file
 		EObject eObject = resource.getContents().get(0);
 		if (eObject instanceof ExcaliburConfig) {
 			ExcaliburConfig excaliburConfig = (ExcaliburConfig) eObject;
