@@ -6,21 +6,11 @@ import gda.commandqueue.CommandDetails;
 import gda.commandqueue.CommandSummary;
 import gda.commandqueue.SimpleCommandDetails;
 import gda.commandqueue.SimpleCommandSummary;
-import gda.device.Analyser;
 import gda.device.detector.areadetector.v17.ADBase.ImageMode;
-import gda.epics.connection.EpicsController;
-import gda.factory.FactoryException;
-import gov.aps.jca.Channel;
-import gov.aps.jca.Monitor;
-import gov.aps.jca.dbr.DBR;
-import gov.aps.jca.dbr.DBR_Int;
-import gov.aps.jca.event.MonitorEvent;
-import gov.aps.jca.event.MonitorListener;
 
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
-import org.opengda.detector.electronanalyser.server.VGScientaController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,11 +20,8 @@ public class RegionCommand extends CommandBase implements Command {
 	CommandDetails details;
 	private Region region;
 	private VGScientaAnalyser analyser;
-	private EpicsController controller = EpicsController.getInstance();
 	private static final Logger logger = LoggerFactory
 			.getLogger(RegionCommand.class);
-	private Monitor currentPointMonitor;
-	private Monitor totalPointsMonitor;
 
 	public RegionCommand(Region region) {
 		this.region = region;
@@ -60,7 +47,6 @@ public class RegionCommand extends CommandBase implements Command {
 	@Override
 	public void run() throws Exception {
 		beginRun();
-		addMonitors();
 		configureCollection(region);
 		configureCamera(region);
 		addRegionStatusMonitor();
@@ -86,58 +72,9 @@ public class RegionCommand extends CommandBase implements Command {
 			startCollection();
 			analyser.getCollectionStrategy().waitWhileBusy();
 		}
-		removeMonitors();
 		endRun();
 	}
 
-	CurrentPointListener ml = new CurrentPointListener();
-	TotalPointsMonitor ml2 = new TotalPointsMonitor();
-
-	public void addMonitors() throws Exception {
-		analyser.getController();
-		currentPointChannel = analyser.getController().getChannel(
-				VGScientaController.CURRENTPOINT);
-		currentPointMonitor = controller.setMonitor(currentPointChannel, ml);
-		analyser.getController();
-		totalPointsChannel = analyser.getController().getChannel(
-				VGScientaController.TOTALSTEPS);
-		totalPointsMonitor = controller.setMonitor(totalPointsChannel, ml2);
-	}
-
-	public void removeMonitors() {
-		currentPointMonitor.removeMonitorListener(ml);
-		totalPointsMonitor.removeMonitorListener(ml2);
-	}
-
-	int totalSteps = 0;
-	private Channel currentPointChannel;
-	private Channel totalPointsChannel;
-
-	private class CurrentPointListener implements MonitorListener {
-
-		@Override
-		public void monitorChanged(MonitorEvent arg0) {
-			// TODO Auto-generated method stub
-			DBR dbr = arg0.getDBR();
-			if (dbr.isINT()) {
-				int currentpoint = ((DBR_Int) dbr).getIntValue()[0];
-				if (totalSteps != 0) {
-					obsComp.notifyIObservers(this, currentpoint / totalSteps);
-				}
-			}
-		}
-	}
-
-	private class TotalPointsMonitor implements MonitorListener {
-
-		@Override
-		public void monitorChanged(MonitorEvent arg0) {
-			DBR dbr = arg0.getDBR();
-			if (dbr.isINT()) {
-				totalSteps = ((DBR_Int) dbr).getIntValue()[0];
-			}
-		}
-	}
 
 	private void configureCamera(Region region2) throws Exception {
 		analyser.setCameraMinX(region.getFirstXChannel());
