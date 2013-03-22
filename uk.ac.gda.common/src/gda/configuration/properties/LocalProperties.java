@@ -259,6 +259,17 @@ public class LocalProperties {
 	public static final String GDA_SCAN_MULTITHREADED_SCANDATA_POINT_PIPElINE_POINTS_TO_COMPUTE_SIMULTANEOUSELY = "gda.scan.multithreadedScanDataPointPipeline.pointsToComputeSimultaneousely";
 
 	/**
+	 * Option to force application window to open with Intro / Welcome screen (default usually false)
+	 */
+	public static final String GDA_GUI_FORCE_INTRO = "gda.gui.window.force.intro";
+
+	/**
+	 * Option to save and restore the GUI state between sessions. Default 'true'. 
+	 * If 'true' the setting to force the Intro/Welcome Screen may have no effect
+	 */
+	public static final String GDA_GUI_SAVE_RESTORE = "gda.gui.save.restore";
+
+	/**
 	 * Starting width for the GDA application window
 	 */
 	public static final String GDA_GUI_START_WIDTH = "gda.gui.window.start.width";
@@ -304,6 +315,7 @@ public class LocalProperties {
 	 * Name of the numtracker used to derive the scan id. If not set then the scan id is not set and relies on filewriters to set it.
 	 */
 	private static final String GDA_SCAN_SETS_SCANNUMBER = "gda.scan.sets.scannumber";
+
 	
 	
 	public static boolean isScanSetsScanNumber(){
