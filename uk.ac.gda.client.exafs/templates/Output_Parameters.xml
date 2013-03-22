@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<OutputParameters>
-    <asciiFileName>FeKedge</asciiFileName>
-    <asciiDirectory>ascii</asciiDirectory>
-    <nexusDirectory>nexus</nexusDirectory>
-</OutputParameters>
