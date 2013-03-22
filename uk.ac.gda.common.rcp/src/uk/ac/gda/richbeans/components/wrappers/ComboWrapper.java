@@ -73,7 +73,9 @@ public class ComboWrapper extends ButtonComposite implements IFieldWidget{
 		this.selectionListener = new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				fireValueListeners();
+				if (ComboWrapper.this.isOn()){
+					fireValueListeners();
+				}
 			}
 		};
 		combo.addSelectionListener(selectionListener);
@@ -85,7 +87,9 @@ public class ComboWrapper extends ButtonComposite implements IFieldWidget{
 				final String txt = combo.getText();
 				if (items==null) items = Arrays.asList(combo.getItems());
 				if (items.contains(txt)) {
-					fireValueListeners();
+					if (ComboWrapper.this.isOn()){
+						fireValueListeners();
+					}
 				}						
 			}
 		};

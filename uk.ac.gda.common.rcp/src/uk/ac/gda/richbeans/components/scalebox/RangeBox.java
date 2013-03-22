@@ -121,7 +121,7 @@ public class RangeBox extends NumberBox implements IRangeWidget {
 		this.focusListener = new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
-				if (!isOn())
+				if (!RangeBox.this.isOn())
 					return;
 				try {
 					off();

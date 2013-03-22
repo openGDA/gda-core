@@ -55,7 +55,6 @@ import uk.ac.gda.richbeans.components.ButtonComposite;
 import uk.ac.gda.richbeans.event.BoundsEvent;
 import uk.ac.gda.richbeans.event.BoundsEvent.Mode;
 import uk.ac.gda.richbeans.event.ValueEvent;
-import uk.ac.gda.ui.utils.StringUtils;
 
 /**
  * Base class for any box with a range and unit. Abstract class does not currently have abstract methods, but is not
@@ -197,7 +196,9 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 		this.modifyListener = new ModifyListener() {
 			@Override
 			public void modifyText(final ModifyEvent e) {
-				textUpdateAndFireListeners();
+				if (NumberBox.this.isOn()){
+					textUpdateAndFireListeners();
+				}
 			}
 		};
 		text.addModifyListener(modifyListener);
@@ -207,7 +208,9 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 		this.selectionListener = new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				textUpdateAndFireListeners();
+				if (NumberBox.this.isOn()){
+					textUpdateAndFireListeners();
+				}
 			}
 		};
 		text.addSelectionListener(selectionListener);
