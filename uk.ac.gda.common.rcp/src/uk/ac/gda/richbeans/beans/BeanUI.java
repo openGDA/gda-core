@@ -38,8 +38,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.beanutils.BeanUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.richbeans.event.ValueListener;
@@ -54,7 +52,7 @@ import uk.ac.gda.richbeans.event.ValueListener;
  */
 public class BeanUI {
 
-	private static Logger logger = LoggerFactory.getLogger(BeanUI.class);
+//	private static Logger logger = LoggerFactory.getLogger(BeanUI.class);
 
 	/**
 	 * NOTE: The order of the arguments. The first object is the bean, the second object is the uiObject which we are
@@ -75,7 +73,7 @@ public class BeanUI {
 			public void process(Entry<Object, Object> prop, IFieldWidget box) throws Exception {
 				final Object value = prop.getValue();
 				box.setFieldName(prop.getKey().toString());
-				if (value == null && !box.isActivated()) {
+				if (value == null /*&& !box.isActivated()*/) {
 					return;
 				}
 				box.setValue(value);
@@ -133,21 +131,6 @@ public class BeanUI {
 		BeanUI.notify(bean, uiObject, new BeanProcessor() {
 			@Override
 			public void process(Entry<Object, Object> prop, IFieldWidget box) throws Exception {
-				try {
-					if (!(box instanceof IFieldCollection)) {
-						prop.setValue(null); // If the method is a primitive type and null does not work.
-					}
-				} catch (IllegalArgumentException ignored) {
-					// This is thrown normally for primitive types in the setter method.
-					// It is because null does not work. However if the bean has an object
-					// wrapper like Integer or Double, null does work.
-
-					// If the method setXXX does not exist at all - often the case with setters
-					// for Collections (which have getXXX and addXXX), it throws an exception
-					// below. You must have getXXX in your bean.
-				}
-				if (!box.isActivated())
-					return;
 				final Object ob = box.getValue();
 				if (ob != null && !"".equals(ob) && !isNaN(ob) && !isInfinity(ob)) {
 					prop.setValue(ob); // Throws IllegalArgumentException if method does not exist.
