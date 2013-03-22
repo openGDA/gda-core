@@ -161,7 +161,9 @@ public class ADPilatusTest extends ADDetectorTest {
 	public void testGetPositionCallableInAHardwareTriggeredScan() throws Exception {
 		setupGetPositionCallableInAHardwareTriggeredScan("/full/path/to/");
 		Callable<NexusTreeProvider> callablePoint0 = pil().getPositionCallable();
+		pil().atPointStart();
 		Callable<NexusTreeProvider> callablePoint1 = pil().getPositionCallable();
+		pil().atPointStart();
 		Callable<NexusTreeProvider> callablePoint2 = pil().getPositionCallable();
 		checkReadoutWithFilenameAndTimes((NXDetectorData) callablePoint0.call(), "/full/path/to/file99_00000.cbf");
 		checkReadoutWithFilenameAndTimes((NXDetectorData) callablePoint1.call(), "/full/path/to/file99_00001.cbf");
