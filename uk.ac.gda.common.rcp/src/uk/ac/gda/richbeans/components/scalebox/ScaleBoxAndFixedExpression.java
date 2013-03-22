@@ -93,7 +93,7 @@ public class ScaleBoxAndFixedExpression extends ScaleBox{
 	    
 	    final IFieldWidget[] fw = provider.getPrecedents();
 	    if (fw!=null) for (int i = 0; i < fw.length; i++) {
-			fw[i].addValueListener(new ValueAdapter() {
+			fw[i].addValueListener(new ValueAdapter(fw[i].toString() + " Listener") {
 				@Override
 				public void valueChangePerformed(ValueEvent e) {
 					updateLabel();

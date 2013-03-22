@@ -80,7 +80,7 @@ public class RangeComposite extends Composite {
 		size = new LabelWrapper(this, SWT.NONE);
 		size.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
-		final ValueListener sizeUpdate = new ValueAdapter() {
+		final ValueListener sizeUpdate = new ValueAdapter("Size Update Listener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
 				try {
