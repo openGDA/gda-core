@@ -193,10 +193,7 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 	 * @return DoubleDataset
 	 */
 	protected DoubleDataset createFullRangeDataset(double maxValue) {
-		DoubleDataset fullData = DoubleDataset.arange(2);
-		fullData.set(0, new int[] { 0 });
-		fullData.set(maxValue, new int[] { 1 });
-		return fullData;
+		return new DoubleDataset(new double[] {0, maxValue});
 	}
 
 	public void setRunMonitoring(boolean runMonitoring) {

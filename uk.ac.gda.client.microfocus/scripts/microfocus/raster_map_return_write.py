@@ -25,7 +25,7 @@ import java.lang.Exception
 
 class RasterMapReturnWrite(Map):
     
-    def __init__(self, d7a, d7b, counterTimer01, trajectoryX, raster_counterTimer01, raster_xmap, realX, HTScaler, HTXmapMca, continuousSampleX):
+    def __init__(self, d7a, d7b, counterTimer01, trajectoryX, raster_counterTimer01, raster_xmap, realX, HTScaler, HTXmapMca, continuousSampleX, raster_xspress):
         self.d7a=d7a
         self.d7b=d7b
         self.counterTimer01=counterTimer01
@@ -39,9 +39,10 @@ class RasterMapReturnWrite(Map):
         self.mfd = None
         self.detectorBeanFileName=""
         self.continuousSampleX=continuousSampleX
+        self.raster_xspress = raster_xspress
     
     def getMFD(self):
-        return self.self.mfd
+        return self.mfd
     
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, scanNumber= -1, validation=True):
 
@@ -139,31 +140,24 @@ class RasterMapReturnWrite(Map):
             try:
                 if(detectorType == "Silicon"):
                     
-                    print "1"
+                    #Added by RW 12/03/13
+                    point_collection_time = scanBean.getRowTime() / nx
+                    noOfXPoints = (scanBean.getXEnd() - scanBean.getXStart()) + 1                    
+                    Finder.getInstance().find("HTScaler").addFrameSet(int(noOfXPoints),0.0001,point_collection_time,0,0,-1,0)
+                    #Finder.getInstance().find("xpsTrajController").
                     
-                    #self.HTScaler.setIntegrateBetweenPoints(True)
+                    #self.HTScaler.setIntegrateBetweenPoints(True)  #???
                     self.HTXmapMca.setIntegrateBetweenPoints(True)
-                    self.HTScaler.setCollectionTime(scanBean.getRowTime() / nx)
-                    self.HTXmapMca.setCollectionTime(scanBean.getRowTime() / nx)
+                    self.HTScaler.setCollectionTime(point_collection_time)
+                    self.HTXmapMca.setCollectionTime(point_collection_time)
                     #self.HTScaler.setScanNumberOfPoints(nx)
-                    self.HTXmapMca.setScanNumberOfPoints(nx)                
-                           
-                    print "2"
+                    self.HTXmapMca.setScanNumberOfPoints(nx)                     
                     sptw= ScanPositionsTwoWay(self.continuousSampleX,scanBean.getXStart(), scanBean.getXEnd(), scanBean.getXStepSize())
-                    print "3"
-                    
                     tsl = TrajectoryScanLine([self.continuousSampleX, sptw,  self.HTScaler, self.HTXmapMca, scanBean.getRowTime()/(nx)] )
-                    print "4"
                     tsl.setScanDataPointQueueLength(10000)
-                    print "5"
                     tsl.setPositionCallableThreadPoolSize(10)
-                    print "6"
-    
                     xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),tsl, self.realX])
                     xmapRasterscan.getScanPlotSettings().setIgnore(1)
-                    
-                    print "7"
-                    
                     xasWriter = XasAsciiNexusDatapointCompletingDataWriter()
                     rowR = TwoDScanRowReverser()
                     rowR.setNoOfColumns(nx)
@@ -173,8 +167,6 @@ class RasterMapReturnWrite(Map):
                     xasWriter.addDataWriterExtender(self.mfd)
                     xmapRasterscan.setDataWriter(xasWriter)
                     self.finder.find("elementListScriptController").update(None, self.detectorBeanFileName);
-                    
-                    print "5"
                     xmapRasterscan.runScan()
                 else:
                     xspressRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(),ContinuousScan(self.trajectoryX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), [self.raster_counterTimer01, self.raster_xspress]),self.realX])
