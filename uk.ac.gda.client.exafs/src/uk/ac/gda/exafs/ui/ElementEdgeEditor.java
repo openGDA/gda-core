@@ -347,9 +347,12 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
 				try {
+					setPointsUpdate(false);
 					updateElement(ELEMENT_EVENT_TYPE.ELEMENT_CHANGE);
 				} catch (Exception e1) {
 					logger.error("Cannot update element.", e1);
+				} finally {
+					setPointsUpdate(true);
 				}
 			}
 		});
@@ -357,9 +360,12 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
 				try {
+					setPointsUpdate(false);
 					updateElement(ELEMENT_EVENT_TYPE.EDGE_CHANGE);
 				} catch (Exception e1) {
 					logger.error("Cannot update element.", e1);
+				} finally {
+					setPointsUpdate(true);
 				}
 			}
 		});
@@ -367,9 +373,12 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
 				try {
+					setPointsUpdate(false);
 					updateElement(ELEMENT_EVENT_TYPE.ENERGY_CHANGE);
 				} catch (Exception e1) {
 					logger.error("Cannot update element.", e1);
+				} finally {
+					setPointsUpdate(true);
 				}
 			}
 		});
@@ -473,7 +482,11 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 				final List<String> edges = element.getAllowedEdges();
 				this.edge.setItems(edges.toArray(new String[edges.size()]));
 				if (edgeValue != null && !edge.isDisposed()) {
-					this.edge.setValue(edgeValue);
+					if (edges.contains(edgeValue)){
+						this.edge.setValue(edgeValue);
+					} else {
+						this.edge.setValue(edges.get(0));
+					}
 				} else {
 					try {
 						Method method = this.editingBean.getClass().getMethod("getEdge");
