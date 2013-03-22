@@ -492,14 +492,6 @@ public abstract class RichBeanMultiPageEditorPart extends MultiPageEditorPart im
 			richBeanEditor.doSave(monitor);
 		} else if (index == 1) {
 			xmlEditor.doSave(monitor);
-			try {
-				allowDirtyUpdates = false;
-				BeanUI.beanToUI(editingBean, richBeanEditor);
-			} catch (Exception e) {
-				e.printStackTrace();
-			} finally {
-				allowDirtyUpdates = true;
-			}
 		}
 	}
 	
