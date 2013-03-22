@@ -18,6 +18,7 @@
 
 package gda.rcp;
 
+import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
 import gda.factory.Findable;
 import gda.factory.Finder;
@@ -138,7 +139,10 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		// This may have other effects of causing "cheese" to appear.
 		System.setProperty("sun.awt.noerasebackground", "true");
 
-		configurer.setSaveAndRestore(true);
+		 // Option to save and restore the GUI state between sessions. Default 'true'. 
+		 // If 'true' the setting to force the Intro/Welcome Screen may have no effect
+		boolean doSaveRestore = LocalProperties.check(LocalProperties.GDA_GUI_SAVE_RESTORE,true);
+		configurer.setSaveAndRestore(doSaveRestore);
 
 		/*
 		 * Makes the images in the problems view work correctly.

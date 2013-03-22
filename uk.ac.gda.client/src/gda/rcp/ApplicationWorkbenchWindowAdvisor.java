@@ -22,6 +22,8 @@ import gda.configuration.properties.LocalProperties;
 
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IWorkbenchPreferenceConstants;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.application.ActionBarAdvisor;
 import org.eclipse.ui.application.IActionBarConfigurer;
 import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
@@ -43,6 +45,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 		
 		boolean useToolBar = LocalProperties.check(LocalProperties.GDA_GUI_USE_TOOL_BAR,true);
 		boolean usePerspectiveBar = LocalProperties.check(LocalProperties.GDA_GUI_USE_PERSPECTIVE_BAR,true);
+		boolean useIntroScreen = LocalProperties.check(LocalProperties.GDA_GUI_FORCE_INTRO,false);
 		int width = LocalProperties.getAsInt(LocalProperties.GDA_GUI_START_WIDTH,1450);
 		int height = LocalProperties.getAsInt(LocalProperties.GDA_GUI_START_HEIGHT,900);
 
@@ -63,6 +66,10 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 				gda.util.Version.getRelease());
 		}
 		configurer.setTitle(title);
+		
+		 // Option to save and restore the GUI state between sessions. For GDA default is 'false'. 
+		 // If LocalProperties.GDA_GUI_SAVE_RESTORE is set to true, this setting to force Intro may have no effect
+		PlatformUI.getPreferenceStore().setValue(IWorkbenchPreferenceConstants.SHOW_INTRO,useIntroScreen);
 	}
 	
 	@Override
