@@ -63,7 +63,8 @@ import uk.ac.gda.client.tomo.view.handlers.exceptions.ExternalProcessingFailedEx
  */
 public class TiltController implements ITiltController {
 
-	// private Pattern doublePattern = Pattern.compile("(\\d)*.?(\\d)*");
+	private static final String MATLAB_OUTPUT_PREFIX = "output =";
+	private static final String NAN_VALUE = "NaN";
 	private Pattern doublePattern = Pattern.compile("\\-?[0-9]*\\.?[0-9]*");
 	private static final String SUBDIRECTORY = "Subdirectory:";
 	private ExternalFunction externalProgram1;
@@ -162,7 +163,7 @@ public class TiltController implements ITiltController {
 					// 2. scan 0 to 340 deg in steps of 20
 					logger.debug("will run scan command next");
 					if (!monitor.isCanceled()) {
-						scanThetha(progress, exposureTime);
+						//scanThetha(progress, exposureTime);
 						if (!monitor.isCanceled()) {
 
 							// 3. call matlab - first time
@@ -400,7 +401,7 @@ public class TiltController implements ITiltController {
 				logger.info(line);
 				if (!line.equals("")) {
 					monitor.subTask(line);
-					if (line.startsWith("output =")) {
+					if (line.startsWith(MATLAB_OUTPUT_PREFIX)) {
 						result = line;
 					}
 				}
@@ -499,9 +500,9 @@ public class TiltController implements ITiltController {
 		return lookupTableHandler.getMaxX(selectedCameraModule.getValue());
 	}
 
-	private Double[] getTiltMotorPositions(String result) {
+	private Double[] getTiltMotorPositions(String result) throws Exception {
 		if (result != null) {
-			String values = result.substring("output =".length());
+			String values = result.substring(MATLAB_OUTPUT_PREFIX.length());
 			StringTokenizer tokenizer = new StringTokenizer(values, ",");
 			int count = 0;
 			Double[] motorsToMove = new Double[tokenizer.countTokens()];
@@ -512,6 +513,10 @@ public class TiltController implements ITiltController {
 				// return null;
 				// }
 				try {
+					if (NAN_VALUE.equals(token)) {
+						throw new Exception("Unable to get correct tilt values");
+					}
+
 					motorsToMove[count] = Double.parseDouble(token);
 					count = count + 1;
 					// Only interested in the first two decimals
@@ -520,7 +525,7 @@ public class TiltController implements ITiltController {
 					}
 				} catch (NumberFormatException nfe) {
 					logger.error("Not a number", nfe);
-					return null;
+					throw new Exception("Values received are not numbers", nfe);
 				}
 			}
 			return motorsToMove;
