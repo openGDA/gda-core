@@ -67,13 +67,13 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 	/**
 	 * The bean used for state
 	 */
-	protected       Object         editingBean;
+	protected volatile Object editingBean;
 	
 	/**
 	 * A bean used in the undo stack assigned when the editor
 	 * changes IEditorInput (normally at start up)
 	 */
-	protected       Object         previousUndoBean;
+	protected volatile Object previousUndoBean;
 	
 	/**
 	 * An interface which provides for if the editor is dirty.
@@ -140,8 +140,7 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 		monitor.beginTask(file.getName(), 100);
 		try {
 			try {
-				//BeanUI.uiToBean(RichBeanEditorPart.this, editingBean);
-				getEditingBean();
+				updateFromUIAndReturnEditingBean();
 				WorkspaceModifyOperation saveOp = new WorkspaceModifyOperation()  {
 					@Override
 					protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException,
@@ -219,7 +218,7 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 	 * @return the editingBean
 	 * @throws Exception 
 	 */
-	public Object getEditingBean() throws Exception {
+	public Object updateFromUIAndReturnEditingBean() throws Exception {
 		BeanUI.uiToBean(this, editingBean);
 		return editingBean;
 	}
@@ -274,7 +273,7 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 			// this code correctly generic, try with many editors before 
 			// committing a change.
 			Object newBean = BeansFactory.deepClone(editingBean);
-			BeanUI.uiToBean(this, newBean);
+			updateFromUIAndReturnEditingBean();
 			newBean =  BeansFactory.deepClone(newBean);
 
 			// If the values are the same as last edited, do nothing.
