@@ -25,6 +25,8 @@ import static org.mockito.Mockito.when;
 import gda.device.detector.areadetector.v18.NDStatsPVs;
 import gda.device.detector.areadetector.v18.NDStatsPVs.BasicStat;
 import gda.device.detector.areadetector.v18.NDStatsPVs.Stat;
+import gda.device.detector.nxdetector.ADStatsROIPair;
+import gda.device.detector.nxdetector.roi.ImutableRectangularROI;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,7 +64,7 @@ public class ADStatsROIPairTest {
 	
 	@Test(expected=IllegalStateException.class)
 	public void testPrepareForCollectionAndWillRequireCallbacksOn() throws Exception {
-		when(roiPlugin.getRoi()).thenReturn(new ADRectangularROI(0, 0, 0, 0));
+		when(roiPlugin.getRoi()).thenReturn(new ImutableRectangularROI(0, 0, 0, 0, "name"));
 		List<Stat> stats = new ArrayList<NDStatsPVs.Stat>();
 		stats.add(BasicStat.MaxValue);
 		when(statsPlugin.getEnabledStats()).thenReturn(stats);
@@ -82,7 +84,7 @@ public class ADStatsROIPairTest {
 	
 	@Test
 	public void testPrepareForCollectionAndWillRequireCallbacksInconsitant2() throws Exception {
-		when(roiPlugin.getRoi()).thenReturn(new ADRectangularROI(0, 0, 0, 0));
+		when(roiPlugin.getRoi()).thenReturn(new ImutableRectangularROI(0, 0, 0, 0, "name"));
 		List<Stat> stats = new ArrayList<NDStatsPVs.Stat>();
 		when(statsPlugin.getEnabledStats()).thenReturn(stats);
 		assertFalse(pair.willRequireCallbacks());
@@ -91,7 +93,7 @@ public class ADStatsROIPairTest {
 
 	@Test
 	public void testGetInputStreamNamesOff() {
-		when(roiPlugin.getRoiName()).thenReturn("middle");
+		when(roiPlugin.getRoi()).thenReturn(new ImutableRectangularROI(0, 0, 0, 0, "middle"));
 		when(statsPlugin.getInputStreamNames()).thenReturn(Arrays.asList("maxvalue", "total"));
 		assertEquals(Arrays.asList("middle_maxvalue", "middle_total"), pair.getInputStreamNames());
 	}

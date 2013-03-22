@@ -58,7 +58,7 @@ public class TwoDArrayView extends ViewPart implements InitializingBean{
 		twoDArray = new TwoDArray(this, parent, SWT.NONE);
 		twoDArray.setADController(config);
 		setTitleImage(config.getTwoDarrayViewImageDescriptor().createImage());
-		setPartName(config.getDetectorName() + " Array View" );
+		setPartName(config.getDetectorName() + " Array View" ); // WARNING: Duplicated in TwoDArray
 
 		partListener = new IPartListener2() {
 			

@@ -16,35 +16,47 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.nxdetector.plugin.areadetector;
+package gda.device.detector.nxdetector.roi;
 
-public class ADRectangularROI {
+
+public class ImutableRectangularROI implements RectangularROI {
 
 	final private int xstart;
 	final private int xsize;
 	final private int ystart;
 	final private int ysize;
+	final private String name;
 
-	public ADRectangularROI(int xstart, int xsize, int ystart, int ysize) {
+	public ImutableRectangularROI(int xstart, int xsize, int ystart, int ysize, String name) {
 		this.xstart = xstart;
 		this.xsize = xsize;
 		this.ystart = ystart;
 		this.ysize = ysize;
+		this.name = name;
 	}
 
+	@Override
 	public int getXstart() {
 		return xstart;
 	}
 
+	@Override
 	public int getXsize() {
 		return xsize;
 	}
 
+	@Override
 	public int getYstart() {
 		return ystart;
 	}
 
+	@Override
 	public int getYsize() {
 		return ysize;
+	}
+
+	@Override
+	public String getName() {
+		return name;
 	}
 }

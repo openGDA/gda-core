@@ -22,12 +22,16 @@ import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.observable.Observable;
 import gda.observable.Observer;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
+import java.util.Map;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawb.common.ui.plot.axis.IAxis;
+import uk.ac.diamond.scisoft.analysis.plotserver.PlotServerGuiBeanUpdater;
+import org.dawb.common.ui.plot.region.RegionGuiParameterAdapter;
 import org.dawb.common.ui.plot.trace.IImageTrace;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -58,6 +62,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.FloatDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.LongDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ShortDataset;
+import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.gda.epics.adviewer.ADController;
 import uk.ac.gda.epics.adviewer.ImageData;
 
@@ -86,12 +91,12 @@ public class TwoDArray extends Composite {
 		layout.center = true;
 		layout.pack = false;
 		left.setLayout(new GridLayout(1, false));
-		
+
 		statusComposite = new IOCStatus(left, SWT.NONE);
 		GridData gd_statusComposite = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_statusComposite.widthHint = 154;
 		statusComposite.setLayoutData(gd_statusComposite);
-		
+
 		minCallbackTimeComposite = new MinCallbackTimeComposite(left, SWT.NONE);
 		Group stateGroup = new Group(left, SWT.NONE);
 		GridData gd_stateGroup = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
@@ -120,7 +125,7 @@ public class TwoDArray extends Composite {
 		}
 		plottingSystem.createPlotPart(right, "", parentViewPart.getViewSite().getActionBars(), PlotType.IMAGE,
 				parentViewPart);
-		for( IAxis axis : plottingSystem.getAxes()){
+		for (IAxis axis : plottingSystem.getAxes()) {
 			axis.setTitle("");
 		}
 		addDisposeListener(new DisposeListener() {
@@ -140,18 +145,33 @@ public class TwoDArray extends Composite {
 		});
 	}
 
-	public void setADController(ADController config){
+	public void setADController(ADController config) {
+
 		this.config = config;
-		
+
+		String viewName = config.getDetectorName() + " Array View"; // WARNING: Duplicated in TwoDArrayView
+
+		// Connect the plotting system via an adapter and an updater to the gui bean named after this view.
+		Observable<Map<GuiParameters, Serializable>> regionParameterObservable = new RegionGuiParameterAdapter(
+				plottingSystem);
+
+		Observer<Map<GuiParameters, Serializable>> plotServerGuiBeanUpdater = new PlotServerGuiBeanUpdater(viewName);
+
+		try {
+			regionParameterObservable.addObserver(plotServerGuiBeanUpdater);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+		// Configure AreaDetector
 		NDPluginBase pluginBase = config.getImageNDArray().getPluginBase();
 		minCallbackTimeComposite.setPluginBase(pluginBase);
 		try {
 			minCallbackTimeComposite.setMinTimeObservable(pluginBase.createMinCallbackTimeObservable());
-			minCallbackTimeComposite.setMinCallbackTime(config.getArrayMinCallbackTime());
 		} catch (Exception e2) {
 			logger.error("Error setting min callback time", e2);
 		}
-		
+
 		arrayMonitoringBtn.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -183,12 +203,12 @@ public class TwoDArray extends Composite {
 			logger.error("Error monitoring connection state", e1);
 		}
 
-		
 	}
+
 	public void stop() throws Exception {
 		config.getImageNDArray().getPluginBase().disableCallbacks();
 		if (arrayArrayCounterObservable != null && arrayArrayCounterObserver != null) {
-			arrayArrayCounterObservable.removeObserver(arrayArrayCounterObserver);
+			arrayArrayCounterObservable.deleteIObserver(arrayArrayCounterObserver);
 			arrayArrayCounterObserver = null;
 			arrayArrayCounterObservable = null;
 		}
@@ -214,10 +234,11 @@ public class TwoDArray extends Composite {
 			arrayArrayCounterObserver = new Observer<Integer>() {
 
 				private IImageTrace trace;
+
 				private String getArrayName() {
 					return arrayCounter.toString();
 				}
-				
+
 				@Override
 				public void update(Observable<Integer> source, Integer arg) {
 					if (isDisposed() || !viewIsVisible)
@@ -268,8 +289,8 @@ public class TwoDArray extends Composite {
 													runnableScheduled = false;
 													AbstractDataset dataToPlot = getDataToPlot();
 													if (trace == null) {
-														trace = (IImageTrace) plottingSystem.updatePlot2D(
-																dataToPlot, null, null);
+														trace = (IImageTrace) plottingSystem.updatePlot2D(dataToPlot,
+																null, null);
 														trace.setRescaleHistogram(false);
 													} else {
 														String title = dataToPlot.getName();
@@ -294,7 +315,6 @@ public class TwoDArray extends Composite {
 								}
 								return Status.OK_STATUS;
 							}
-
 
 							private AbstractDataset getDataToPlot() {
 								return ads;
@@ -339,7 +359,7 @@ public class TwoDArray extends Composite {
 
 	public void setViewIsVisible(boolean b) {
 		this.viewIsVisible = b;
-		if(viewIsVisible)
+		if (viewIsVisible)
 			arrayArrayCounterObserver.update(null, arrayCounter);
 	}
 
