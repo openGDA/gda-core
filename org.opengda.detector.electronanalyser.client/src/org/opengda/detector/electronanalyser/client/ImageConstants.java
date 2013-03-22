@@ -18,6 +18,8 @@
 
 package org.opengda.detector.electronanalyser.client;
 
+import org.eclipse.swt.graphics.Image;
+
 /**
  *
  */
@@ -63,6 +65,8 @@ public class ImageConstants {
 	public static final String ICON_RUNNING = "icons/running.gif";
 	public static final String ICON_RUN_COMPLETE = "icons/runcomplete.png";
 	public static final String ICON_RUN_FAILURE = "icons/runerror.png";
+
+	public static final String ICON_STOP = "icons/stop.gif";
 	
 
 	public static String[] IMAGES = new String[] { ICON_RESET_DETECTOR, ICON_HORIZONTAL_FLIP, ICON_PITCH_ROTATE,
