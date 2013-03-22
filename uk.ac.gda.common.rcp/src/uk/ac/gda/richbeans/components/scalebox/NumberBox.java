@@ -37,6 +37,8 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -524,6 +526,12 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 				red = getDisplay().getSystemColor(SWT.COLOR_RED);
 			if (!red.isDisposed()) {
 				text.setStyleRange(null);
+				if (!isEditable()) {
+					setCurrentFontStyle(text, SWT.ITALIC);
+				}
+				else {
+					setCurrentFontStyle(text, SWT.NORMAL);
+				}
 				text.setForeground(red);
 			}
 			this.validBounds = false;
@@ -537,6 +545,7 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 				setTooltipOveride("The value '" + numericalValue + "' is less than the lower limit.");
 			}
 		} else {
+			setCurrentFontStyle(text, SWT.NORMAL);
 			setTooltipOveride(null);
 			if (isEditable()) {
 				if (this.blue == null)
@@ -554,7 +563,7 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 			evt.setMode(Mode.LEGAL);
 		}
 		
-		if (!isEditable()) {
+		if (isValidBounds(numericalValue) && !isEditable()) {
 			if (grey == null)
 				grey = getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY);
 			if (!grey.isDisposed())
@@ -739,14 +748,25 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 			if (!black.isDisposed() && !grey.isDisposed()) {
 				text.setForeground(isEditable ? black : grey);
 			}
+
 		} else {
 			if (red == null)
 				red = getDisplay().getSystemColor(SWT.COLOR_RED);
 			if (!red.isDisposed())
 				text.setForeground(red);
+			if (!isEditable) {
+				setCurrentFontStyle(text, SWT.ITALIC);
+			}
+			
 		}
 		if (button != null)
 			button.setEnabled(isEditable);
+	}
+
+	private void setCurrentFontStyle(StyledText text, int style) {
+		FontData currentFontData = text.getFont().getFontData()[0];
+		currentFontData.setStyle(style);
+		text.setFont(new Font(text.getDisplay(), currentFontData));
 	}
 
 	/**
@@ -763,9 +783,11 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 	 */
 	@Override
 	public void setEnabled(final boolean isEnabled) {
-		setEditable(isEnabled);
-		text.setEnabled(isEnabled);
-		checkBounds();
+		if (!permanentlyEnabled) {
+			setEditable(isEnabled);
+			text.setEnabled(isEnabled);
+			checkBounds();
+		}
 	}
 
 	/**
@@ -1094,6 +1116,8 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 		return true;
 	}
 
+	private boolean permanentlyEnabled;
+
 	/**
 	 * The bounds key for this instance can be the field name or if a field name has not been set, it will be a unique
 	 * and cached string.
@@ -1124,6 +1148,15 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 			// on linux RHEL5 ok.
 			bLayout.heightHint = 25;
 		}
+	}
+	
+	/**
+	 * Set the state of the box permanently. Set any desired states *before* this state is set to false or else
+	 * they will not be applied. For example, setEditable(false), then setPermanentlyEnabled(true)
+	 * @param enabled
+	 */
+	public void setPermanentlyEnabled(boolean enabled) {
+		this.permanentlyEnabled = enabled;
 	}
 
 }
