@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: GDA Core Tests
+Bundle-SymbolicName: uk.ac.gda.core.test
+Bundle-Version: 1.0.0.qualifier
+Fragment-Host: uk.ac.gda.core
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-Vendor: Diamond Light Source
+Require-Bundle: org.junit4;bundle-version="4.8.1",
+ uk.ac.gda.test.helpers;bundle-version="1.0.0"
