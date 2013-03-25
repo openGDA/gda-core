@@ -1,4 +1,4 @@
-<project name="plugin-uk.ac.gda.common" basedir=".">
+<project name="plugin-uk.ac.gda.common.test" basedir=".">
 
     <dirname property="GDA-plugin.basedir" file="${ant.file.${ant.project.name}}" />
     <pathconvert property="workspace.loc" setonempty="false">
@@ -10,6 +10,10 @@
         <path><pathelement location="${GDA-plugin.basedir}" /></path>
     </pathconvert>
     <property name="workspace.git.loc" value="${workspace.loc}_git" />
+    <pathconvert property="GDA-plugin.host.basedir" setonempty="false">
+            <regexpmapper from="(.*).test" to="\1"/>
+            <path><pathelement location="${GDA-plugin.basedir}" /></path>
+    </pathconvert>
     <import file="${workspace.loc}/builder/build-common.xml" />
 
     <!-- ====================================================================
@@ -29,6 +33,9 @@
             <classpath>
                 <pathelement location="${junitjar.loc}" />
                 <pathelement location="${GDA-plugin.basedir}/bin" />
+                <pathelement location="${GDA-plugin.basedir}/testfiles/logging" />  <!-- to pick up logback-test.xml -->
+                <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.test.helpers/bin" />
+                <pathelement location="${GDA-plugin.host.basedir}/bin" />
                 <pathelement location="${workspace.git.loc}/diamond-springframework.git/uk.ac.diamond.org.springframework/jars/*" />
                 <pathelement path="${workspace.loc}/tp/plugins/com.springsource.slf4j.api_1.5.6.jar" />  <!--ensure that required org.slf4j.LoggerFactory appears first in classpath -->
                 <pathelement path="${workspace.loc}/tp/plugins/com.springsource.slf4j.org.apache.commons.logging_1.5.6.jar" />  <!--ensure that matching imp appears first in classpath -->
@@ -36,9 +43,6 @@
                 <path refid="libs.jars.path" />
             </classpath>
             <batchtest todir="@{report.dir}">
-                <fileset dir="${GDA-plugin.basedir}/test">
-                    <include name="**/*Test.java" />
-                </fileset>
                 <fileset dir="${GDA-plugin.basedir}/src">
                     <include name="**/*Test.java" />
                 </fileset>
