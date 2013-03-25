@@ -8,4 +8,5 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.eclipse.core.runtime.content,
  org.eclipse.ui.actions,
  uk.ac.gda.beans.exafs
-Require-Bundle: org.junit4;bundle-version="4.8.1"
+Require-Bundle: org.junit4;bundle-version="4.8.1",
+ uk.ac.gda.test.helpers;bundle-version="1.0.0"
