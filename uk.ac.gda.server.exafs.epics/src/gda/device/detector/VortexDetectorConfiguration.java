@@ -20,6 +20,7 @@
 package gda.device.detector;
 
 import gda.device.detector.xmap.Xmap;
+import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.jython.scriptcontroller.event.ScriptProgressEvent;
 import gda.observable.ObservableComponent;
@@ -43,63 +44,40 @@ public class VortexDetectorConfiguration extends DetectorConfiguration {
 	
 	private VortexParameters    vortexParameters;
 	private ObservableComponent controller;
-	private OutputParameters    outputParameters;
 
 	private String additionalSavePath;
 
-	/**
-	 * @param controller
-	 * @param path
-	 * @param vortexName
-	 * @throws Exception
-	 */
 	public VortexDetectorConfiguration(final Object controller, 
 			                           final String path,
 			                           final Object vortexName) throws Exception{
 		this.controller       = (ObservableComponent)controller;
 		this.vortexParameters = (VortexParameters)getBean(path,vortexName);
 	}
-	/**
-	 * @param controller
-	 * @param path
-	 * @param vortexName
-	 * @throws Exception
-	 */
+
 	public VortexDetectorConfiguration(final Object controller, 
 			                           final String path,
-			                           final Object vortexName, final OutputParameters output) throws Exception{
+			                           final Object vortexName, @SuppressWarnings("unused") final OutputParameters output) throws Exception{
 		this.controller       = (ObservableComponent)controller;
 		this.vortexParameters = (VortexParameters)getBean(path,vortexName);
-		this.outputParameters = output;
 	}
 	
-	/**
-	 * @param controller
-	 * @param path
-	 * @param vortexName
-	 * @throws Exception
-	 */
 	public VortexDetectorConfiguration(final Object controller, 
 			                           final String path,
-			                           final Object vortexName, final OutputParameters output, final String additionalSavePath) throws Exception{
+ final Object vortexName,
+			@SuppressWarnings("unused") final OutputParameters output, final String additionalSavePath) throws Exception{
 		this.controller       = (ObservableComponent)controller;
 		this.vortexParameters = (VortexParameters)getBean(path,vortexName);
-		this.outputParameters = output;
 		this.additionalSavePath = additionalSavePath;
 	}
 	
 	@Override
-	public void configure() {
+	public void configure() throws FactoryException {
 		doSetup();
 	}
 	
-	/**
-	 * Called by Jython script
-	 * @return status
-	 */
-	private String doSetup() {
+
+	private String doSetup() throws FactoryException {
 		
-		String message = null;
 		try {
 			// Warning concrete class used here. This code must be called on the server.
 			final Xmap xmapDetector = (Xmap)Finder.getInstance().find(vortexParameters.getDetectorName());
@@ -118,9 +96,9 @@ public class VortexDetectorConfiguration extends DetectorConfiguration {
 				saveBeanToTemplate(vortexParameters, new File(templateFile.getParent() + File.separator +additionalSavePath));
 		} catch (Exception ne) {
 			logger.error("Cannot configure Vortex", ne);
-			message = " !Error with vortex detector configuration!";
+			throw new FactoryException("Error during configuration:" + ne.getMessage());
 		}
-		if (message==null) message = " The vortex detector configuration updated.";
+		String message = " The vortex detector configuration updated.";
 		controller.notifyIObservers("Message", new ScriptProgressEvent(message));
 		return message;
 	}

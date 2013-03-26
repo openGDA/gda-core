@@ -623,15 +623,21 @@ public final class XesScanParametersComposite extends Composite {
 	}
 
 	private void updateProperties() throws DeviceException {
-
+		
+		final XesMaterial material = "Si".equals(getAnalyserTypeValue()) ? XesMaterial.SILICON : XesMaterial.GERMANIUM;
+		final double minXESEnergy= XesUtils.getFluoEnergy(XesUtils.MAX_THETA, material, getAnalyserCutValues());
+		final double maxXESEnergy= XesUtils.getFluoEnergy(XesUtils.MIN_THETA, material, getAnalyserCutValues());
+		
+		xesInitialEnergy.setMinimum(minXESEnergy);
+		xesInitialEnergy.setMaximum(xesFinalEnergy.getNumericValue());
+		xesFinalEnergy.setMinimum(xesInitialEnergy.getNumericValue());
+		xesFinalEnergy.setMaximum(maxXESEnergy);
+		xesEnergy.setMinimum(minXESEnergy);
+		xesEnergy.setMaximum(maxXESEnergy);
+		
 		double thetaE = updateXesTheta(xesEnergy);
 		double thetaS = updateXesTheta(xesInitialEnergy);
 		updateXesTheta(xesFinalEnergy);
-
-		updateEnergyMaxBounds(xesEnergy);
-		updateEnergyMaxBounds(xesFinalEnergy);
-		updateEnergyMinBounds(xesEnergy);
-		updateEnergyMinBounds(xesInitialEnergy);
 
 		final double theta = ((Integer) scanType.getValue() == XesScanParameters.FIXED_XES_SCAN_XAS || (Integer) scanType
 				.getValue() == XesScanParameters.FIXED_XES_SCAN_XANES) ? thetaE : thetaS;
@@ -640,18 +646,6 @@ public final class XesScanParametersComposite extends Composite {
 		dy.setValue(XesUtils.getDy((Double) getRadiusOfCurvature().getValue(), theta));
 		
 		xesDataComp.getParent().layout();
-	}
-
-	private void updateEnergyMaxBounds(ScaleBoxAndFixedExpression energy) throws DeviceException {
-		final XesMaterial material = "Si".equals(getAnalyserTypeValue()) ? XesMaterial.SILICON : XesMaterial.GERMANIUM;
-		final double E = XesUtils.getFluoEnergy(XesUtils.MIN_THETA, material, getAnalyserCutValues());
-		energy.setMaximum(E);
-	}
-
-	private void updateEnergyMinBounds(ScaleBoxAndFixedExpression energy) throws DeviceException {
-		final XesMaterial material = "Si".equals(getAnalyserTypeValue()) ? XesMaterial.SILICON : XesMaterial.GERMANIUM;
-		final double E = XesUtils.getFluoEnergy(XesUtils.MAX_THETA, material, getAnalyserCutValues());
-		energy.setMinimum(E);
 	}
 
 	private double updateXesTheta(ScaleBoxAndFixedExpression energyBox) throws DeviceException {
@@ -681,7 +675,7 @@ public final class XesScanParametersComposite extends Composite {
 	
 	private int getIntegerValue(String scannableName) throws DeviceException {
 		String pos = getScannableSinglePosition(scannableName);
-		return Integer.parseInt(pos);
+		return Math.round(Float.parseFloat(pos));
 	}
 	
 	private String getScannableSinglePosition(String scannableName) throws DeviceException {
