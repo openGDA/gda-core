@@ -709,6 +709,8 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			listEditorUI.notifySelected(getDetectorElementComposite().getRegionList());
 			// setup for all future notifications
 			getDetectorElementComposite().getRegionList().setListEditorUI(listEditorUI);
+			
+			updateROIAfterElementCompositeChange();
 		} finally {
 			GridUtils.endMultiLayout();
 		}
