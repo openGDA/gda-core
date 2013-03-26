@@ -26,7 +26,7 @@
 		<property name="cameraXSize" value="1024"/>
 		<property name="cameraYSize" value="1024"/>
 	</bean>
-
+	
 	<bean id="sequenceviewfactory"
 		class="org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewFactory">
 		<property name="viewPartName" value="Sequence Editor" />
@@ -42,6 +42,26 @@
 		<property name="viewPartName" value="Region Editor" />
 		<property name="regionDefinitionResourceUtil" ref="regionDefinitionResourceUtil" />
 		<property name="camera" ref="analysercamera"/>
+	</bean>
+	
+	<bean id="analyserCapability"
+		class="org.opengda.detector.electronanalyser.server.AnalyserCapabilities"/>
+
+	<bean id="analysercontroller"
+		class="org.opengda.detector.electronanalyser.server.VGScientaController">
+		<property name="basePVName"	value="ELECTRON-ANALYSER-01:TEST:" />
+	</bean>
+	
+	<bean id="analyser"
+		class="org.opengda.detector.electronanalyser.server.VGScientaAnalyser">
+		<property name="controller"	ref="analysercontroller" />
+		<property name="capabilities" ref="analyserCapability"/>
+	</bean>
+
+	<bean id="spectrumviewfactory"
+		class="org.opengda.detector.electronanalyser.client.plot.SpectrumViewFactory">
+		<property name="viewPartName" value="Spectrum Plot" />
+		<property name="analyser" ref="analyser" />
 	</bean>
 
 

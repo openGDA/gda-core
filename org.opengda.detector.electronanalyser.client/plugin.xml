@@ -4,15 +4,61 @@
    <extension
          point="org.eclipse.ui.views">
       <view
+            category="org.opengda.detector.electronanalyser.client.ses"
             class="org.opengda.detector.electronanalyser.client.regioneditor.RegionViewExtensionFactory:regionviewfactory"
             id="org.opengda.detector.electronanalyser.client.regioneditor"
             name="Region Editor"
             restorable="true">
       </view>
       <view
+            category="org.opengda.detector.electronanalyser.client.ses"
             class="org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewExtensionFactory:sequenceviewfactory"
             id="org.opengda.detector.electronanalyser.client.sequenceeditor"
             name="Sequence Editor"
+            restorable="true">
+      </view>
+      <category
+            id="org.opengda.detector.electronanalyser.client.liveplot"
+            name="Live Plot"
+            parentCategory="org.opengda.detector.electronanalyser.client.ses">
+      </category>
+      <view
+            category="org.opengda.detector.electronanalyser.client.liveplot"
+            class="org.opengda.detector.electronanalyser.client.plot.SpectrumViewExtensionFactory:spectrumviewfactory"
+            id="org.opengda.detector.electronanalyser.client.plot.spectrumview"
+            name="Spectrum"
+            restorable="true">
+      </view>
+      <category
+            id="org.opengda.detector.electronanalyser.client.ses"
+            name="SES">
+      </category>
+      <view
+            category="org.opengda.detector.electronanalyser.client.liveplot"
+            class="org.opengda.detector.electronanalyser.client.plot.SpectrumViewExtensionFactory:spectrumviewfactory"
+            id="org.opengda.detector.electronanalyser.client.plot.externalioview"
+            name="External IO"
+            restorable="true">
+      </view>
+      <view
+            category="org.opengda.detector.electronanalyser.client.liveplot"
+            class="org.opengda.detector.electronanalyser.client.plot.SpectrumViewExtensionFactory:spectrumviewfactory"
+            id="org.opengda.detector.electronanalyser.client.plot.imageview"
+            name="Image"
+            restorable="true">
+      </view>
+      <view
+            category="org.opengda.detector.electronanalyser.client.liveplot"
+            class="org.opengda.detector.electronanalyser.client.plot.SpectrumViewExtensionFactory:spectrumviewfactory"
+            id="org.opengda.detector.electronanalyser.client.plot.sliceview"
+            name="Slice"
+            restorable="true">
+      </view>
+      <view
+            category="org.opengda.detector.electronanalyser.client.liveplot"
+            class="org.opengda.detector.electronanalyser.client.plot.SpectrumViewExtensionFactory:spectrumviewfactory"
+            id="org.opengda.detector.electronanalyser.client.plot.progress"
+            name="Progress"
             restorable="true">
       </view>
    </extension>
@@ -37,6 +83,27 @@
       <command
             id="org.opengda.detector.electronanalyser.client.stopcollection"
             name="Stop">
+      </command>
+      <command
+            defaultHandler="org.opengda.detector.electronanalyser.client.actions.ChangeLayoutHandler"
+            id="org.opengda.detector.electronanalyser.client.showTile"
+            name="Change Layout">
+         <commandParameter
+               id="org.opengda.detector.electronanalyser.client.plotLayoutPreference"
+               name="PlotLayoutPreference"
+               optional="true">
+         </commandParameter>
+      </command>
+      <category
+            description="Change plot layout"
+            id="org.opengda.detector.electronanalyser.client.plotlayout"
+            name="Plot Layout">
+      </category>
+      <command
+            categoryId="org.opengda.detector.electronanalyser.client.plotlayout"
+            defaultHandler="org.opengda.detector.electronanalyser.client.actions.PlotLayoutDropDownHandler"
+            id="org.opengda.detector.electronanalyser.client.plotlayoutdopdown"
+            name="Drop">
       </command>
    </extension>
    <extension
@@ -144,6 +211,108 @@
                tooltip="Save the sequence in another file">
          </command>
       </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:org.eclipse.ui.main.toolbar">
+         <toolbar
+               id="org.opengda.detector.electronanalyser.client.toolbar2">
+            <command
+                  commandId="org.opengda.detector.electronanalyser.client.plotlayoutdopdown"
+                  label="SES Plot Layout"
+                  style="pulldown"
+                  tooltip="Change SES data plot layout">
+               <visibleWhen
+                     checkEnabled="false">
+                  <with
+                        variable="activeWorkbenchWindow.activePerspective">
+                     <equals
+                           value="org.opengda.detector.electronanalyser.client.ses.perspective">
+                     </equals>
+                  </with>
+               </visibleWhen>
+            </command>
+         </toolbar>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:org.opengda.detector.electronanalyser.client.plotlayoutdopdown">
+         <command
+               commandId="org.opengda.detector.electronanalyser.client.showTile"
+               icon="icons/tile_quad.png"
+               label="Tile Quad"
+               style="push">
+            <parameter
+                  name="org.opengda.detector.electronanalyser.client.plotLayoutPreference"
+                  value="TILEQUAD">
+            </parameter>
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="activeWorkbenchWindow.activePerspective">
+                  <equals
+                        value="org.opengda.detector.electronanalyser.client.ses.perspective">
+                  </equals>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="org.opengda.detector.electronanalyser.client.showTile"
+               icon="icons/stack.png"
+               label="Stack Plots"
+               style="push">
+            <parameter
+                  name="org.opengda.detector.electronanalyser.client.plotLayoutPreference"
+                  value="STACKPLOT">
+            </parameter>
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="activeWorkbenchWindow.activePerspective">
+                  <equals
+                        value="org.opengda.detector.electronanalyser.client.ses.perspective">
+                  </equals>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="org.opengda.detector.electronanalyser.client.showTile"
+               icon="icons/tile-vertical.png"
+               label="Tile Vertical"
+               style="push">
+            <parameter
+                  name="org.opengda.detector.electronanalyser.client.plotLayoutPreference"
+                  value="TILEVERTICAL">
+            </parameter>
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="activeWorkbenchWindow.activePerspective">
+                  <equals
+                        value="org.opengda.detector.electronanalyser.client.ses.perspective">
+                  </equals>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="org.opengda.detector.electronanalyser.client.showTile"
+               icon="icons/tile-horizontal.png"
+               label="Tile Horizontal"
+               style="push">
+            <parameter
+                  name="org.opengda.detector.electronanalyser.client.plotLayoutPreference"
+                  value="TILEHORIZONTAL">
+            </parameter>
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="activeWorkbenchWindow.activePerspective">
+                  <equals
+                        value="org.opengda.detector.electronanalyser.client.ses.perspective">
+                  </equals>
+               </with>
+            </visibleWhen>
+         </command>
+      </menuContribution>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
@@ -183,6 +352,13 @@
                class="org.eclipse.core.resources.IResource">
          </selection>
       </wizard>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commandImages">
+      <image
+            commandId="org.opengda.detector.electronanalyser.client.plotlayoutdopdown"
+            icon="icons/layout_edit.png">
+      </image>
    </extension>
 
 </plugin>
