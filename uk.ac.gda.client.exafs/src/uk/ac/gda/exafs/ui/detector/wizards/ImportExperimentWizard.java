@@ -92,6 +92,5 @@ public class ImportExperimentWizard extends Wizard implements IWizard {
 				out.close();
 			}
 		}
-		System.out.println("Directory copied.");
 	}
 }
