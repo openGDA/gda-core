@@ -75,7 +75,7 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 		if (bragg >= 60.0 && bragg <= 85.0){
 			xes.asynchronousMoveTo(bragg);
 		} else {
-			throw new DeviceException("Move to " + bragg + "deg out of limits. Must be 60 to 80 deg.");
+			throw new DeviceException("Move to " + bragg + "deg out of limits. Must be 60 to 85 deg.");
 		}
 	}
 
