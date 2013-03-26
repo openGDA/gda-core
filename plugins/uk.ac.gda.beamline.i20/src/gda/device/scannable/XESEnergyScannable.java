@@ -31,11 +31,7 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 	private Scannable cut2Scannable;
 	private Scannable cut3Scannable;
 	private Scannable materialScannable;
-	private int materialType = -1;
-	private int cut1Val = -1;
-	private int cut2Val = -1;
-	private int cut3Val = -1;
-	
+
 	@Override
 	public void configure() {
 		this.inputNames = new String[] { getName() };
@@ -56,37 +52,20 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 	}
 
 	public int[] getCrystalCut() throws DeviceException {
-		int cut1;
-		int cut2;
-		int cut3;
-		if(cut1Val==-1||cut2Val==-1||cut3Val==-1){
-			cut1 = (int) Double.parseDouble(cut1Scannable.getPosition().toString());
-			cut2 = (int) Double.parseDouble(cut2Scannable.getPosition().toString());
-			cut3 = (int) Double.parseDouble(cut3Scannable.getPosition().toString());
-		}
-		else{
-			cut1 = this.cut1Val;
-			cut2 = this.cut2Val;
-			cut3 = this.cut3Val;
-		}
-		int[] cut = { cut1, cut2, cut3 };
+		int cut1Val = (int) Double.parseDouble(cut1Scannable.getPosition().toString());
+		int cut2Val = (int) Double.parseDouble(cut2Scannable.getPosition().toString());
+		int cut3Val = (int) Double.parseDouble(cut3Scannable.getPosition().toString());
+		int[] cut = { cut1Val, cut2Val, cut3Val };
 		return cut;
 	}
 
-	public void setMaterialType(int type) {
-		materialType = type;
-	}
-
 	public int getMaterialType() throws DeviceException {
-		if (materialType == -1) {
-			String materialVal = materialScannable.getPosition().toString();
-			if (materialVal.equals("Si"))
-				return 0;
-			else if (materialVal.equals("Ge"))
-				return 1;
-			return -1;
-		}
-		return materialType;
+		String materialVal = materialScannable.getPosition().toString();
+		if (materialVal.equals("Si"))
+			return 0;
+		else if (materialVal.equals("Ge"))
+			return 1;
+		return -1;
 	}
 
 	@Override
@@ -102,7 +81,7 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 		if (bragg >= 60.0 && bragg <= 85.0){
 			xes.asynchronousMoveTo(bragg);
 		} else {
-			throw new DeviceException("Move to " + bragg + "deg out of limits. Must be 60 to 80 deg.");
+			throw new DeviceException("Move to " + bragg + "deg out of limits. Must be 60 to 85 deg.");
 		}
 	}
 
@@ -167,29 +146,17 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 	public void setCut3(Scannable cut3) {
 		this.cut3Scannable = cut3;
 	}
-
-	public void setCut1Val(int cut){
-		cut1Val = cut;
+	
+	public int getCut1Val() throws DeviceException{
+		return getCrystalCut()[0];
 	}
 	
-	public void setCut2Val(int cut){
-		cut2Val = cut;
+	public int getCut2Val() throws DeviceException{
+		return getCrystalCut()[0];
 	}
 	
-	public void setCut3Val(int cut){
-		cut3Val = cut;
-	}
-	
-	public int getCut1Val(){
-		return cut1Val;
-	}
-	
-	public int getCut2Val(){
-		return cut2Val;
-	}
-	
-	public int getCut3Val(){
-		return cut3Val;
+	public int getCut3Val() throws DeviceException{
+		return getCrystalCut()[0];
 	}
 	
 	public Scannable getMaterial() {
