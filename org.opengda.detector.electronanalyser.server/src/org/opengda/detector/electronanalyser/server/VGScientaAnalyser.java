@@ -35,15 +35,15 @@ public class VGScientaAnalyser extends
 			.getLogger(VGScientaAnalyser.class);
 
 	private VGScientaController controller;
-	private AnalyserCapabilties ac;
+	private AnalyserCapabilities capabilites;
 	private int[] fixedModeRegion;
 
-	public AnalyserCapabilties getCapabilities() {
-		return ac;
+	public AnalyserCapabilities getCapabilities() {
+		return capabilites;
 	}
 
-	public void setCapabilities(AnalyserCapabilties ac) {
-		this.ac = ac;
+	public void setCapabilities(AnalyserCapabilities ac) {
+		this.capabilites = ac;
 	}
 
 	public VGScientaController getController() {

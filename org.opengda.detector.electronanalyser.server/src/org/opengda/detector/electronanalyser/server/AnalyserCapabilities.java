@@ -24,13 +24,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AnalyserCapabilties implements Findable {
+public class AnalyserCapabilities implements Findable {
 
 	private String name = "AnalyserCapabilties";
 	
 	private Map<String, double[]> lens2angles = new HashMap<String, double[]>(8);
 	
-	public AnalyserCapabilties() {
+	public AnalyserCapabilities() {
 		for(Object[] o: new Object[][] {
 											{"Transmission",
 												new double[] {
