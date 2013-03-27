@@ -36,6 +36,7 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 	private boolean operatingContinously;
 	private ZebraConstantVelocityMoveController continuousMoveController;
 	private double constantVelocitySpeedFactor=0.8;
+	private double scurveTimeToVelocity=.03;//default set to rotation stage on I13
 
 	@Override
 	public void setOperatingContinuously(boolean b) throws DeviceException {
@@ -124,8 +125,22 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 		this.constantVelocitySpeedFactor = constantVelocitySpeedFactor;
 	}
 
+	/**
+	 * 
+	 * @param velocity  in units of motor units/second e.g. mm/s
+	 * @return distance in motor units e.g. mm
+	 */
+	public double distanceToAccToVelocity(double velocity) {
+		//for an S curve with time to velocity of 30ms
+		return scurveTimeToVelocity * velocity/2;
+	}
 
+	public double getScurveTimeToVelocity() {
+		return scurveTimeToVelocity;
+	}
 
-
+	public void setScurveTimeToVelocity(double scurveTimeToVelocity) {
+		this.scurveTimeToVelocity = scurveTimeToVelocity;
+	}
 
 }

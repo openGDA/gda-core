@@ -51,9 +51,10 @@ public class ZebraConstantVelocityMoveController extends DeviceBase implements C
 
 	private double pcGateStartRBV;
 
-	private int mode=Zebra.PC_MODE_POSITION;
+	private int mode=Zebra.PC_MODE_TIME;
 
 
+	@SuppressWarnings("unused")
 	@Override
 	public void prepareForMove() throws DeviceException, InterruptedException {
 		try {
@@ -66,7 +67,9 @@ public class ZebraConstantVelocityMoveController extends DeviceBase implements C
 
 				if (operatingContinously)
 					zSM.setOperatingContinuously(false);
-				zSM.asynchronousMoveTo(start - step); //TODO desiredSpeed*desiredSpeed/(2*acceleration)
+				requiredSpeed = (Math.abs(step)/triggerPeriod);
+				
+				zSM.asynchronousMoveTo(start - (step>0 ? 1.0 : -1.0)*zSM.distanceToAccToVelocity(requiredSpeed));
 
 				//sources must be set first
 				zebra.setPCGateSource(step > 0 ? 0 : 3);// Posn +ve/-ve
@@ -85,12 +88,14 @@ public class ZebraConstantVelocityMoveController extends DeviceBase implements C
 				zebra.setPCCaptureBitField(pcCaptureBitField);
 
 				zebra.setPCPulseDelay(0.);
-				zebra.setPCPulseWidth(Math.abs(step/2));
 				pcPulseDelayRBV = zebra.getPCPulseDelayRBV();
-				pcPulseWidthRBV = zebra.getPCPulseWidthRBV();
 
 				switch(mode){
 				case Zebra.PC_MODE_POSITION:
+					if(true)
+						throw new IllegalStateException("PC_MODE_POSITION is not yet tested");
+					zebra.setPCPulseWidth(Math.abs(step/2));
+					pcPulseWidthRBV = zebra.getPCPulseWidthRBV();
 					zebra.setPCPulseStep(Math.abs(step));
 
 					pcPulseStepRBV = zebra.getPCPulseStepRBV();
@@ -104,13 +109,16 @@ public class ZebraConstantVelocityMoveController extends DeviceBase implements C
 					requiredSpeed = (Math.abs(pcPulseStepRBV) / triggerPeriod)*zSM.getConstantVelocitySpeedFactor();
 					break;
 				case Zebra.PC_MODE_TIME:
-					zebra.setPCPulseStep(triggerPeriod+.01); //TODO plus readout time
+					zebra.setPCTimeUnit(Zebra.PC_TIMEUNIT_MS); //s
+					zebra.setPCPulseWidth(.1); //.01ms
+					pcPulseWidthRBV = zebra.getPCPulseWidthRBV()/1000;
+					zebra.setPCPulseStep(triggerPeriod*1000); // in  ms
 
-					pcPulseStepRBV = zebra.getPCPulseStepRBV();
+					pcPulseStepRBV = zebra.getPCPulseStepRBV()/1000;
 					
 					double gateWidthTime = pcPulseDelayRBV +  pcPulseStepRBV*(getNumberTriggers()-1) + pcPulseWidthRBV;
 					requiredSpeed = (Math.abs(step)/pcPulseStepRBV);
-					zebra.setPCGateWidth((gateWidthTime * requiredSpeed)/zSM.getConstantVelocitySpeedFactor());
+					zebra.setPCGateWidth((gateWidthTime * requiredSpeed));
 					
 					pcGateWidthRBV = zebra.getPCGateWidthRBV();
 					pcGateStartRBV = zebra.getPCGateStartRBV();
@@ -124,16 +132,10 @@ public class ZebraConstantVelocityMoveController extends DeviceBase implements C
 			} finally {
 				zSM.setOperatingContinuously(operatingContinously);
 			}
-
-			zebra.pcArm();
 			int numberTriggers = getNumberTriggers();
-			//get number of triggers the zebra is expected to generate
-/*			double pcGateWidth = zebra.getPCGateWidth();
-			int num = (int) ((pcGateWidth-pcPulseDelayRBV)/(pcPulseStepRBV) + 0.5 +1);
-			if( num < numberTriggers || num < numPosCallableReturned){
-				throw new DeviceException("inconsistent pulse numbers numZebra:" + num + " num(start,end,step):" + numberTriggers + " numPosCallableReturned:"+numPosCallableReturned);
-			}
-*/			timeSeriesCollection.start(numberTriggers);
+			zebra.setPCPulseMax(numberTriggers);
+			zebra.pcArm();
+			timeSeriesCollection.start(numberTriggers);
 
 		} catch (Exception e) {
 			throw new DeviceException("Error arming the zebra", e);
@@ -146,6 +148,8 @@ public class ZebraConstantVelocityMoveController extends DeviceBase implements C
 	}
 
 	public void setMode(int mode) {
+		if(mode!= Zebra.PC_MODE_TIME)
+			throw new IllegalArgumentException("Only PC_MODE_TIME is supported at the moment");
 		this.mode = mode;
 	}
 
@@ -159,7 +163,7 @@ public class ZebraConstantVelocityMoveController extends DeviceBase implements C
 					if (operatingContinously)
 						zSM.setOperatingContinuously(false);
 					zSM.setSpeed(requiredSpeed);
-					zSM.moveTo(pcGateStartRBV + (pcGateWidthRBV*(step > 0? 1: -1))); 
+					zSM.moveTo(pcGateStartRBV + (pcGateWidthRBV*(step > 0? 1: -1)+(step>0 ? 1.0 : -1.0)*zSM.distanceToAccToVelocity(requiredSpeed))); 
 					
 				} finally {
 					zSM.setSpeed(speed);
@@ -229,7 +233,7 @@ public class ZebraConstantVelocityMoveController extends DeviceBase implements C
 
 	@Override
 	public void setTriggerPeriod(double seconds) throws DeviceException {
-		logger.info("setTriggerPeriod");
+		logger.info("setTriggerPeriod:"+seconds);
 		triggerPeriod = seconds; //readout need to use readout time;
 
 	}
@@ -258,19 +262,19 @@ public class ZebraConstantVelocityMoveController extends DeviceBase implements C
 
 	@Override
 	public void setStart(double start) throws DeviceException {
-		logger.info("setStart"); 
+		logger.info("setStart:" + start); 
 		this.start = start;
 	}
 
 	@Override
 	public void setEnd(double end) throws DeviceException {
-		logger.info("setEnd");
+		logger.info("setEnd:" + end);
 		this.end = end;
 	}
 
 	@Override
 	public void setStep(double step) throws DeviceException {
-		logger.info("setStep");
+		logger.info("setStep:"+ step);
 		this.step = step;
 
 	}
