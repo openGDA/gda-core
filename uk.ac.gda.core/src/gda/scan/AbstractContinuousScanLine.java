@@ -548,9 +548,16 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 	abstract protected void configureControllerPositions(boolean detectorsIntegrateBetweenTriggers) throws DeviceException, InterruptedException, Exception;
 
 	final protected double extractCommonCollectionTimeFromDetectors() throws DeviceException {
-		double period = detectors.get(0).getCollectionTime();
+		HardwareTriggeredDetector firstDetector = detectors.get(0);
+		double period = firstDetector.getCollectionTime();
+		if(firstDetector instanceof DetectorWithReadoutTime){
+			period += ((DetectorWithReadoutTime)firstDetector).getReadOutTime();
+		}
 		for (HardwareTriggeredDetector det : detectors.subList(1, detectors.size())) {
 			double detsPeriod = det.getCollectionTime();
+			if(det instanceof DetectorWithReadoutTime){
+				detsPeriod += ((DetectorWithReadoutTime)det).getReadOutTime();
+			}
 			if ((Math.abs(detsPeriod - period) / period) > .1 / 100) {
 				throw new DeviceException(
 						MessageFormat
