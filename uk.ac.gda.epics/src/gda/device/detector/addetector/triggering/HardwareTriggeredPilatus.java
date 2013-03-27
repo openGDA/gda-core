@@ -18,13 +18,9 @@
 
 package gda.device.detector.addetector.triggering;
 
-import gda.device.detector.addetector.ADDetector;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADDriverPilatus;
 import gda.device.detector.areadetector.v17.ADDriverPilatus.PilatusTriggerMode;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class HardwareTriggeredPilatus extends HardwareTriggeredStandard {
 
