@@ -21,6 +21,9 @@ package uk.ac.gda.epics.adviewer.composites;
 import gda.observable.Observable;
 import gda.observable.Observer;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -34,14 +37,14 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.epics.adviewer.ADController;
 import uk.ac.gda.richbeans.components.scalebox.StandardBox;
-import uk.ac.gda.richbeans.event.ValueEvent;
-import uk.ac.gda.richbeans.event.ValueListener;
 
 public class CameraStatus extends Composite {
-
+	static final Logger logger = LoggerFactory.getLogger(CameraStatus.class);
 	private Label lblAcquireState;
 	private StandardBox acquireTimeBox;
 	private Observable<String> stateObservable;
@@ -127,21 +130,22 @@ public class CameraStatus extends Composite {
 		btnStart.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				 adController.setExposure(acquireTimeBox.getNumericValue());
-			}
-		});
-		
-		
-		acquireTimeBox.addValueListener(new ValueListener() {
-			
-			@Override
-			public void valueChangePerformed(ValueEvent e) {
-				 adController.setExposure(e.getDoubleValue());
-			}
-			
-			@Override
-			public String getValueListenerName() {
-				return "CameraStatus";
+				final double exposureTime = acquireTimeBox.getNumericValue();
+				ProgressMonitorDialog pd = new ProgressMonitorDialog(Display.getCurrent().getActiveShell());
+				try {
+					pd.run(true /* fork */, true /* cancelable */, new IRunnableWithProgress() {
+						@Override
+						public void run(IProgressMonitor monitor) {
+							String title = "Setting exposure time to " + exposureTime;
+
+							monitor.beginTask(title, 100);
+							adController.setExposure(exposureTime);
+							monitor.done();
+						}
+					});
+				} catch (Exception e1) {
+					logger.error("Error setting exposureTime ", e1);
+				}
 			}
 		});
 		acquireTimeBox.on();

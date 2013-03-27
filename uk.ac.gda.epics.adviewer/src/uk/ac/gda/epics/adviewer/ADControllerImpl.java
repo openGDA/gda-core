@@ -280,6 +280,9 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 		final boolean wasEnabled = getImageNDStats().getPluginBase().isCallbacksEnabled_RBV();
 		final short histogramWasComputed = getImageNDStats().getComputeHistogram_RBV();
 
+		getImageNDStats().setComputeHistogram(1);
+		getImageNDStats().getPluginBase().enableCallbacks();
+		
 		final int counterBefore = getImageNDStats().getPluginBase().getArrayCounter_RBV();
 		final Observable<Integer> obsvble = getImageNDStats().getPluginBase().createArrayCounterObservable();
 		obsvble.addObserver(new Observer<Integer>() {
@@ -295,6 +298,7 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 				try {
 					if (histogramWasComputed != 0) {
 						getImageNDStats().setComputeHistogram(histogramWasComputed);
+						
 					}
 					if (!wasEnabled) {
 						getImageNDStats().getPluginBase().disableCallbacks();

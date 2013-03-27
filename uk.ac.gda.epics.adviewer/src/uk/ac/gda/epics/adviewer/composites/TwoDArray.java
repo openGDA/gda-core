@@ -88,7 +88,7 @@ public class TwoDArray extends Composite {
 		super(parent, style);
 
 		this.setLayout(new GridLayout(2, false));
-		Composite left = new Composite(this, SWT.NONE);
+		left = new Composite(this, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(false, true).applyTo(left);
 		RowLayout layout = new RowLayout(SWT.VERTICAL);
 		layout.center = true;
@@ -128,12 +128,9 @@ public class TwoDArray extends Composite {
 			}
 
 		});
-		btnAutoscale.setSelection(autoScale);
 		autoScale = true;
+		btnAutoscale.setSelection(autoScale);
 
-		twoDArrayROI = new TwoDArrayROI(left, SWT.NONE);
-		twoDArrayROI.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(twoDArrayROI);
 		Composite right = new Composite(this, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(right);
 		right.setLayout(new FillLayout());
@@ -158,6 +155,10 @@ public class TwoDArray extends Composite {
 				} catch (Exception ee) {
 					logger.error("Error stopping histogram computation", ee);
 				}
+				if(minCallbackTimeObservable != null && minCallbackTimeObserver!=null ){
+					minCallbackTimeObservable.deleteIObserver(minCallbackTimeObserver);
+					minCallbackTimeObserver=null;
+				}
 				if (plottingSystem != null) {
 					plottingSystem.dispose();
 					plottingSystem = null;
@@ -172,7 +173,8 @@ public class TwoDArray extends Composite {
 		NDPluginBase pluginBase = config.getImageNDArray().getPluginBase();
 		minCallbackTimeComposite.setPluginBase(pluginBase);
 		try {
-			minCallbackTimeComposite.setMinTimeObservable(pluginBase.createMinCallbackTimeObservable());
+			minCallbackTimeObservable = pluginBase.createMinCallbackTimeObservable();
+			minCallbackTimeComposite.setMinTimeObservable(minCallbackTimeObservable);
 			minCallbackTimeComposite.setMinCallbackTime(config.getArrayMinCallbackTime());
 		} catch (Exception e2) {
 			logger.error("Error setting min callback time", e2);
@@ -217,14 +219,20 @@ public class TwoDArray extends Composite {
 		}
 
 		NDROI imageNDROI = config.getImageNDROI();
-		twoDArrayROI.setVisible(imageNDROI != null);
 		if (imageNDROI != null) {
+			TwoDArrayROI twoDArrayROI;
+			twoDArrayROI = new TwoDArrayROI(left, SWT.NONE);
+			twoDArrayROI.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+			GridDataFactory.fillDefaults().grab(true, false).applyTo(twoDArrayROI);
+			twoDArrayROI.setVisible(true);
+			layout(true);
+			
 			try {
 				twoDArrayROI.setNDRoi(imageNDROI, getPlottingSystem());
 
 				// setup Port for NDROI to match that of the Proc plugin - this should be the camera.
 				String procNdArrayPort1_RBV = config.getLiveViewNDProc().getPluginBase().getNDArrayPort_RBV();
-				NDPluginBase imageNDROIPluginBase = imageNDROI.getPluginBase();
+				imageNDROIPluginBase = imageNDROI.getPluginBase();
 				String ndArrayPort1_RBV2 = imageNDROIPluginBase.getNDArrayPort_RBV();
 				if (ndArrayPort1_RBV2 == null || !ndArrayPort1_RBV2.equals(procNdArrayPort1_RBV))
 					imageNDROIPluginBase.setNDArrayPort(procNdArrayPort_RBV);
@@ -247,7 +255,22 @@ public class TwoDArray extends Composite {
 					}
 
 				});
+				if( minCallbackTimeObservable != null){
+					minCallbackTimeObserver = new Observer<Double>() {
 
+						@Override
+						public void update(Observable<Double> source, Double mincallbacktime) {
+							try {
+								imageNDROIPluginBase.setMinCallbackTime(mincallbacktime);
+							} catch (Exception e) {
+								logger.error("Error setting minCallbackTime", e);
+							}
+							
+						}
+					};
+					minCallbackTimeObservable.addObserver(minCallbackTimeObserver);
+					minCallbackTimeObserver.update(null, config.getImageNDArray().getPluginBase().getMinCallbackTime_RBV());
+				}
 			} catch (Exception e1) {
 				logger.error("Error configuring the ROI", e1);
 			}
@@ -274,8 +297,15 @@ public class TwoDArray extends Composite {
 
 	private boolean viewIsVisible;
 	private Integer arrayCounter;
-	private TwoDArrayROI twoDArrayROI;
 	private Button btnAutoscale;
+
+	private Composite left;
+
+	private Observable<Double> minCallbackTimeObservable;
+
+	private NDPluginBase imageNDROIPluginBase;
+
+	private Observer<Double> minCallbackTimeObserver;
 
 	public void start() throws Exception {
 		config.getImageNDArray().getPluginBase().enableCallbacks();

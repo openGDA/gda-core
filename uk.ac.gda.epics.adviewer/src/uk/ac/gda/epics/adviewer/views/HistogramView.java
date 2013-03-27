@@ -57,10 +57,11 @@ public class HistogramView extends ViewPart implements InitializingBean{
 			c.setLayout(new FillLayout());
 			
 			histogram = new Histogram(this, c, SWT.NONE);
+			c.setSize(400, 500);
 			sc.setContent(c);
 			sc.setExpandVertical(true);
 			sc.setExpandHorizontal(true);
-			sc.setMinSize(c.computeSize(500, 500));
+			sc.setMinSize(c.computeSize(400, 500));
 			histogram.setADController(config);
 			histogram.start();
 			histogram.startStats();
