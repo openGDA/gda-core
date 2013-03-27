@@ -12,6 +12,19 @@
 
    <extension point="org.eclipse.emf.ecore.generated_package">
       <package
+            uri="http://diamond.org/reconresults"
+            class="uk.ac.diamond.tomography.reconstruction.results.reconresults.ReconresultsPackage"
+            genModel="model/reconresults.genmodel"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.extension_parser">
+      <parser
+            type="reconresults"
+            class="uk.ac.diamond.tomography.reconstruction.results.reconresults.util.ReconresultsResourceFactoryImpl"/>
+   </extension>
+   
+      <extension point="org.eclipse.emf.ecore.generated_package">
+      <package
             uri="platform:/resource/uk.ac.diamond.tomography.reconstruction.parameters/model/hm.xsd"
             class="uk.ac.diamond.tomography.reconstruction.parameters.hm.HmPackage"
             genModel="model/hm.genmodel"/>

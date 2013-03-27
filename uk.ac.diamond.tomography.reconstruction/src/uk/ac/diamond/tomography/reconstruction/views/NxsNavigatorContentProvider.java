@@ -46,7 +46,7 @@ import uk.ac.diamond.tomography.reconstruction.Activator;
 public class NxsNavigatorContentProvider extends WorkbenchContentProvider {
 
 	private static final Object[] NO_CHILDREN = new Object[0];
-	private Viewer viewer;
+	private StructuredViewer viewer;
 
 	private static final Logger logger = LoggerFactory.getLogger(NxsNavigatorContentProvider.class);
 
@@ -62,7 +62,7 @@ public class NxsNavigatorContentProvider extends WorkbenchContentProvider {
 		ArrayList<IFile> nxsFiles = new ArrayList<IFile>();
 		IResource[] members = container.members();
 		for (IResource iResource : members) {
-			if (iResource instanceof IContainer) {
+			if (iResource instanceof IContainer && iResource.isAccessible()) {
 				List<IFile> allNexusFiles = getAllNexusFiles((IContainer) iResource);
 				if (!allNexusFiles.isEmpty()) {
 					nxsFiles.addAll(allNexusFiles);
@@ -85,12 +85,20 @@ public class NxsNavigatorContentProvider extends WorkbenchContentProvider {
 			ArrayList<IFile> allNexusFiles = new ArrayList<IFile>();
 			for (IProject iProject : projects) {
 				try {
+
 					allNexusFiles.addAll(getAllNexusFiles(iProject));
 				} catch (CoreException e) {
 					logger.error("TODO put description of error here", e);
 				}
 			}
 			return allNexusFiles.toArray();
+		} else if (element instanceof IProject) {
+			try {
+				List<IFile> allNexusFiles = getAllNexusFiles((IProject) element);
+				return allNexusFiles.toArray();
+			} catch (CoreException e) {
+				logger.error("TODO put description of error here", e);
+			}
 		}
 		return new Object[0];
 	}
@@ -135,7 +143,7 @@ public class NxsNavigatorContentProvider extends WorkbenchContentProvider {
 	@Override
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 		super.inputChanged(viewer, oldInput, newInput);
-		this.viewer = viewer;
+		this.viewer = (StructuredViewer) viewer;
 	}
 
 	/**

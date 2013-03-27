@@ -17,38 +17,45 @@
  */
 package uk.ac.diamond.tomography.reconstruction;
 
+import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
+import uk.ac.diamond.tomography.reconstruction.views.CenterOfRotationView;
 import uk.ac.diamond.tomography.reconstruction.views.NexusNavigator;
 import uk.ac.diamond.tomography.reconstruction.views.ParameterView;
 import uk.ac.diamond.tomography.reconstruction.views.ProjectionsView;
+import uk.ac.diamond.tomography.reconstruction.views.ReconResultsView;
 
 public class TomoReconPerspective implements IPerspectiveFactory {
 
-	
 	@Override
 	public void createInitialLayout(IPageLayout layout) {
 
-		layout.addView(NexusNavigator.ID, IPageLayout.LEFT, 0.3f,
+		layout.addView(NexusNavigator.ID, IPageLayout.LEFT, 0.3f, IPageLayout.ID_EDITOR_AREA);
+		layout.addView("uk.ac.diamond.scisoft.analysis.rcp.plotView1", IPageLayout.RIGHT, 0.5f,
 				IPageLayout.ID_EDITOR_AREA);
-		layout.addView("uk.ac.diamond.scisoft.analysis.rcp.plotView1",
-				IPageLayout.RIGHT, 0.5f, IPageLayout.ID_EDITOR_AREA);
-		layout.addView(ProjectionsView.ID, IPageLayout.BOTTOM, 0.2f,
-				NexusNavigator.ID);
-		layout.addView(ParameterView.ID, IPageLayout.BOTTOM, 0.7f,
-				ProjectionsView.ID);
-		layout.addPlaceholder(
-				"org.dawb.workbench.plotting.views.toolPageView.1D_and_2D",
-				IPageLayout.RIGHT, 0.7f,
+		layout.addView(ProjectionsView.ID, IPageLayout.BOTTOM, 0.2f, NexusNavigator.ID);
+		IFolderLayout parameterCenterOfRotationFolder = layout.createFolder("ParameterCenterOfRotation",
+				IPageLayout.BOTTOM, 0.6f, ProjectionsView.ID);
+		parameterCenterOfRotationFolder.addView(ParameterView.ID);
+		parameterCenterOfRotationFolder.addView(CenterOfRotationView.ID);
+		layout.addPlaceholder("org.dawb.workbench.plotting.views.toolPageView.1D_and_2D", IPageLayout.RIGHT, 0.7f,
 				"uk.ac.diamond.scisoft.analysis.rcp.plotView1");
+		layout.addView(IPageLayout.ID_PROGRESS_VIEW, IPageLayout.RIGHT, 0.7f,
+				"org.dawb.workbench.plotting.views.toolPageView.1D_and_2D");
+
+		layout.addView(ReconResultsView.ID, IPageLayout.BOTTOM, 0.7f, IPageLayout.ID_PROGRESS_VIEW);
+
 		layout.setEditorAreaVisible(false);
-		
+
 		layout.addShowViewShortcut("uk.ac.diamond.scisoft.analysis.rcp.plotView1");
 		layout.addShowViewShortcut(NexusNavigator.ID);
 		layout.addShowViewShortcut(ProjectionsView.ID);
 		layout.addShowViewShortcut(ParameterView.ID);
-		
+		layout.addShowViewShortcut(CenterOfRotationView.ID);
+		layout.addShowViewShortcut(IPageLayout.ID_PROGRESS_VIEW);
+
 	}
 
 }

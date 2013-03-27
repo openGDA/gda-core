@@ -219,9 +219,7 @@ public class TomoPlotComposite extends Composite {
 		plotComposite.setLayout(new FillLayout());
 
 		plottingSystem = PlottingFactory.createPlottingSystem();
-		//FIXME - DAWN API Changed and cannot map to old API.
-//		plottingSystem.createPlotPart(plotComposite, "", null, PlotType.PT1D_MULTI, null);
-		plottingSystem.createPlotPart(plotComposite, "", null, PlotType.XY_STACKED, null);
+		plottingSystem.createPlotPart(plotComposite, "TomoPlotPart", null, PlotType.XY_STACKED, null);
 		lineListeners = new ArrayList<TomoPlotComposite.PlottingSystemActionListener>();
 		//
 
@@ -403,18 +401,19 @@ public class TomoPlotComposite extends Composite {
 			timeSinceLastUpdate = currentTimeMillis;
 			final ArrayList<AbstractDataset> plotDataSets = new ArrayList<AbstractDataset>();
 
-			// DoubleDataset axis = DoubleDataset.arange(xStart, xEnd, 1);
-			final DoubleDataset axis = DoubleDataset.arange(4008);
-
 			if (rawImgDs != null) {
 				rawDataSlice = rawImgDs.getSlice(new int[] { y - 1, 0 }, new int[] { y, 4008 }, new int[] { 1, 1 });
 				rawDataSlice.squeeze();
+				rawDataSlice.getName();
+				
+				rawDataSlice.setName("Intensity slice");
 				plotDataSets.add(rawDataSlice);
 			}
 			if (darkImgDs != null) {
 				AbstractDataset darkDataSlice = darkImgDs.getSlice(new int[] { y - 1, 0 }, new int[] { y, 4008 },
 						new int[] { 1, 1 });
 				darkDataSlice.squeeze();
+				darkDataSlice.setName("Dark data slice");
 				plotDataSets.add(darkDataSlice);
 			}
 
@@ -422,7 +421,7 @@ public class TomoPlotComposite extends Composite {
 				getDisplay().syncExec(new Runnable() {
 					@Override
 					public void run() {
-						final List<ITrace> profileLineTraces = plottingSystem.updatePlot1D(axis, plotDataSets, monitor);
+						final List<ITrace> profileLineTraces = plottingSystem.updatePlot1D(null, plotDataSets, monitor);
 
 						if (!profileLineTraces.isEmpty()) {
 							profileLineTrace = (ILineTrace) profileLineTraces.get(0);
@@ -468,8 +467,6 @@ public class TomoPlotComposite extends Composite {
 		try {
 			DataHolder dataHolder = tiffImageLoader.loadFile();
 			dataset = dataHolder.getDataset(0);
-			dataset.setName(dsName);
-
 		} catch (ScanFileHolderException e) {
 			logger.error("Tiff loading problem", e);
 		} catch (Exception e) {

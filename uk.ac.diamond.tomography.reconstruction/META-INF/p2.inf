@@ -1,5 +1,10 @@
 # The install process does not preserve permissions, so set the execute permission where appropriate
+# Note that wildcards are not supported for the targetFile
+
 instructions.install = \
+chmod(targetDir:${artifact.location}/scripts,targetFile:compress_nxs.sh,permissions:+x); \
+chmod(targetDir:${artifact.location}/scripts,targetFile:hdfrecon.sh,permissions:+x); \
+chmod(targetDir:${artifact.location}/scripts,targetFile:tomo_centre.sh,permissions:+x); \
 chmod(targetDir:${artifact.location}/scripts,targetFile:tomodo.sh,permissions:+x);
 
 instructions.install.import= \

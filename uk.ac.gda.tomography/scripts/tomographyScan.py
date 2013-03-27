@@ -60,14 +60,126 @@ def make_tomoScanDevice(tomography_theta, tomography_shutter, tomography_transla
     tomoScanDevice.configure()
     return tomoScanDevice
 
+def generateScanPoints(inBeamPosition, outOfBeamPosition, theta_points, darkFieldInterval, flatFieldInterval,
+              imagesPerDark, imagesPerFlat, optimizeBeamInterval, pattern="default"):
+    numberSteps = len(theta_points) - 1
+    optimizeBeamNo = 0
+    optimizeBeamYes = 1
+    shutterOpen = 1
+    shutterClosed = 0
+    shutterNoChange = 2
+    scan_points = []
+    if pattern == 'default' or pattern == 'DFPFD':
+        print "Using scan-points pattern = ", pattern
+        theta_pos = theta_points[0]
+        index = 0
+        #Added shutterNoChange state for the shutter. The scan points are added using the ternary operator, 
+        #if index is 0 then the shutterPosition is added to the scan point, else shutterNoChange is added to scan points.
+        for i in range(imagesPerDark):
+            scan_points.append((theta_pos, [shutterClosed, shutterNoChange][i != 0], inBeamPosition, optimizeBeamNo, image_key_dark, index)) #dark
+            index = index + 1
+        
+        for i in range(imagesPerFlat): 
+            scan_points.append((theta_pos, [shutterOpen, shutterNoChange][i != 0], outOfBeamPosition, optimizeBeamNo, image_key_flat, index)) #flat
+            index = index + 1
+        
+        scan_points.append((theta_pos, shutterOpen, inBeamPosition, optimizeBeamNo, image_key_project, index)) #first
+        index = index + 1
+        imageSinceDark = 1
+        imageSinceFlat = 1
+        optimizeBeam = 0
+        for i in range(numberSteps):
+            theta_pos = theta_points[i + 1]
+            scan_points.append((theta_pos, [shutterOpen, shutterNoChange][i != 0], inBeamPosition, optimizeBeamNo, image_key_project, index))#main image
+            index = index + 1
+            
+            imageSinceFlat = imageSinceFlat + 1
+            if imageSinceFlat == flatFieldInterval and flatFieldInterval != 0:
+                for i in range(imagesPerFlat):
+                    scan_points.append((theta_pos, [shutterOpen, shutterNoChange][i != 0], outOfBeamPosition, optimizeBeamNo, image_key_flat, index))
+                    index = index + 1
+                    imageSinceFlat = 0
+            
+            imageSinceDark = imageSinceDark + 1
+            if imageSinceDark == darkFieldInterval and darkFieldInterval != 0:
+                for i in range(imagesPerDark):
+                    scan_points.append((theta_pos, [shutterClosed, shutterNoChange][i != 0], inBeamPosition, optimizeBeamNo, image_key_dark, index))
+                    index = index + 1
+                    imageSinceDark = 0
+            
+            optimizeBeam = optimizeBeam + 1
+            if optimizeBeam == optimizeBeamInterval and optimizeBeamInterval != 0:
+                scan_points.append((theta_pos, [shutterOpen, shutterNoChange][i != 0], inBeamPosition, optimizeBeamYes, image_key_project, index))
+                index = index + 1
+                optimizeBeam = 0
+        
+        #add dark and flat only if not done in last steps
+        if imageSinceFlat != 0:
+            for i in range(imagesPerFlat):
+                scan_points.append((theta_pos, [shutterOpen, shutterNoChange][i != 0], outOfBeamPosition, optimizeBeamNo, image_key_flat, index)) #flat
+                index = index + 1
+        if imageSinceDark != 0:
+            for i in range(imagesPerDark):
+                scan_points.append((theta_pos, [shutterClosed, shutterNoChange][i != 0], inBeamPosition, optimizeBeamNo, image_key_dark, index)) #dark
+                index = index + 1
+    elif pattern == 'PFD':
+        print "Using scan-points pattern = ", pattern
+        theta_pos = theta_points[0]
+        index = 0
+        
+        # Don't take any dark or flat images at the beginning
+        scan_points.append((theta_pos, shutterOpen, inBeamPosition, optimizeBeamNo, image_key_project, index)) #first
+        index = index + 1
+        imageSinceDark = 1
+        imageSinceFlat = 1
+        optimizeBeam = 0
+        for i in range(numberSteps):
+            theta_pos = theta_points[i + 1]
+            scan_points.append((theta_pos, [shutterOpen, shutterNoChange][i != 0], inBeamPosition, optimizeBeamNo, image_key_project, index))#main image
+            index = index + 1
+            
+            imageSinceFlat = imageSinceFlat + 1
+            if imageSinceFlat == flatFieldInterval and flatFieldInterval != 0:
+                for i in range(imagesPerFlat):
+                    scan_points.append((theta_pos, [shutterOpen, shutterNoChange][i != 0], outOfBeamPosition, optimizeBeamNo, image_key_flat, index))
+                    index = index + 1
+                    imageSinceFlat = 0
+            
+            imageSinceDark = imageSinceDark + 1
+            if imageSinceDark == darkFieldInterval and darkFieldInterval != 0:
+                for i in range(imagesPerDark):
+                    scan_points.append((theta_pos, [shutterClosed, shutterNoChange][i != 0], inBeamPosition, optimizeBeamNo, image_key_dark, index))
+                    index = index + 1
+                    imageSinceDark = 0
+            
+            optimizeBeam = optimizeBeam + 1
+            if optimizeBeam == optimizeBeamInterval and optimizeBeamInterval != 0:
+                scan_points.append((theta_pos, [shutterOpen, shutterNoChange][i != 0], inBeamPosition, optimizeBeamYes, image_key_project, index))
+                index = index + 1
+                optimizeBeam = 0
+        
+        #add dark and flat only if not done in last steps
+        if imageSinceFlat != 0:
+            for i in range(imagesPerFlat):
+                scan_points.append((theta_pos, [shutterOpen, shutterNoChange][i != 0], outOfBeamPosition, optimizeBeamNo, image_key_flat, index)) #flat
+                index = index + 1
+        if imageSinceDark != 0:
+            for i in range(imagesPerDark):
+                scan_points.append((theta_pos, [shutterClosed, shutterNoChange][i != 0], inBeamPosition, optimizeBeamNo, image_key_dark, index)) #dark
+                index = index + 1
+    else:
+        print "Unsupported scan-points pattern requested = ", pattern
+    
+    return scan_points
+
 def addNXTomoSubentry(scanObject, tomography_detector_name, tomography_theta_name):
     if scanObject is None:
         raise "Input scanObject must not be None"
     
     instrument_detector_data_target = "entry1/instrument/" + tomography_detector_name + "/image_data"
     sample_rotation_angle_target = "entry1/instrument/tomoScanDevice/" + tomography_theta_name
-    print "instrument_detector_data_target = " + instrument_detector_data_target
-    print "sample_rotation_angle_target = " + sample_rotation_angle_target
+    #print "instrument_detector_data_target = " + instrument_detector_data_target
+    #print "sample_rotation_angle_target = " + sample_rotation_angle_target
     
     nxLinkCreator = NXTomoEntryLinkCreator()
     nxLinkCreator.setInstrument_detector_data_target(instrument_detector_data_target)
@@ -91,6 +203,9 @@ def reportJythonNamespaceMapping():
    
     for key, val in objectOfInterest.iteritems():
         print key + ' = ' + str(val)
+    msg = "\n These mappings can be changed by editing a file named jythonNamespaceMapping_live, "
+    msg += "\n located in GDA Client under Scripts: Config (this can be done by beamline staff)."
+    print msg
 
 class   tomoScan_positions(ScanPositionProvider):
     def __init__(self, start, stop, step, darkFieldInterval, imagesPerDark, flatFieldInterval, imagesPerFlat,

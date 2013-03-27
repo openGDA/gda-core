@@ -163,7 +163,7 @@ def createDirs(refFilename, outdir, mandatorydir="processing", verbose=False):
 			outdir_head, outdir_tail=os.path.split(outdir)
 			if outdir_tail!=mandatorydir:
 				outdir_loc=outdir_loc+os.sep+mandatorydir
-				print "\nMandatory dirname appended to outdir_loc=%s"%outdir_loc
+				print "\nINFO: Mandatory dirname appended to outdir_loc=%s"%outdir_loc
 
 
 		processing_dir=outdir_loc
@@ -196,8 +196,11 @@ def createDirs(refFilename, outdir, mandatorydir="processing", verbose=False):
 	sino_dir="sino"+os.sep+scanNumber_str
 	dark_dir="sino"+os.sep+scanNumber_str+os.sep+"dark"
 	flat_dir="sino"+os.sep+scanNumber_str+os.sep+"flat"
+	
+	darks_dir="rawdata"+os.sep+scanNumber_str+os.sep+"darks"
+	flats_dir="rawdata"+os.sep+scanNumber_str+os.sep+"flats"
 
-	dirs=[proj_dir, dark_dir, flat_dir, ("reconstruction"+os.sep+scanNumber_str)]
+	dirs=[proj_dir, dark_dir, flat_dir, ("reconstruction"+os.sep+scanNumber_str), darks_dir, flats_dir]
 
 	for dirname in dirs:
 		dirname=head+os.sep+dirname
@@ -212,8 +215,8 @@ def createDirs(refFilename, outdir, mandatorydir="processing", verbose=False):
 			print "The required directory already exists: %s"%dirname
 
 
-	print "\nFinished creating directories." 
-	return scanNumber_str, head, sino_dir, dark_dir, flat_dir, proj_dir
+	print "\nINFO: Finished creating directories." 
+	return scanNumber_str, head, sino_dir, dark_dir, flat_dir, proj_dir, darks_dir, flats_dir
 
 
 def decimate(inList, decimationRate=1):
@@ -238,7 +241,7 @@ def decimate(inList, decimationRate=1):
 	return outList
 
 
-def populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, tif_lst, dark_idx, flat_idx, proj_idx, decimationRate=1, verbose=False):
+def populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, darks_dir, flats_dir, tif_lst, dark_idx, flat_idx, proj_idx, unpicked_idx_dct, decimationRate=1, verbose=False):
 
 	"""
 	Create:
@@ -310,7 +313,40 @@ def populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, tif_lst, da
 							, outdir=(head+os.sep+proj_dir)\
 							, outFilenameFmt=filenameFmt)
 
-	print "\nFinished populating directories." 
+	filenameFmt="p_%05d.tif"
+	#outFnameFmt="d_%03d_%05d.tif"
+	outPrefixFnameFmt="d_%03d_"
+	outPostixFnameFmt="%05d.tif"
+	outFnameFmt=""
+	subseq=0
+	for listOfImgIdx in unpicked_idx_dct['dark']:
+		outFnameFmt=outPrefixFnameFmt %(subseq)
+		outFnameFmt += outPostixFnameFmt
+		makeLinksToOriginalFiles(\
+								listOfProjIdx=listOfImgIdx\
+								, indir=genAncestorPath(refFilename, 1)\
+								, inFilenameFmt=filenameFmt\
+								, outdir=(head+os.sep+darks_dir)\
+								, outFilenameFmt=outFnameFmt)
+		subseq += 1
+		
+	filenameFmt="p_%05d.tif"
+	#outFnameFmt="f_%03d_%05d.tif"
+	outPrefixFnameFmt="f_%03d_"
+	outPostixFnameFmt="%05d.tif"
+	outFnameFmt=""
+	subseq=0
+	for listOfImgIdx in unpicked_idx_dct['flat']:
+		outFnameFmt=outPrefixFnameFmt %(subseq)
+		outFnameFmt += outPostixFnameFmt
+		makeLinksToOriginalFiles(\
+								listOfProjIdx=listOfImgIdx\
+								, indir=genAncestorPath(refFilename, 1)\
+								, inFilenameFmt=filenameFmt\
+								, outdir=(head+os.sep+flats_dir)\
+								, outFilenameFmt=outFnameFmt)
+		subseq += 1
+	print "INFO: Finished populating directories." 
 	return len(proj_idx_decimated), detectorName
 
 
@@ -535,6 +571,49 @@ def makeLinksForNXSFile(\
 	proj_idx=[]
 	unclassified_idx=[]
 	
+	# for storing indices of sub-sequences of flats and darks
+	unpicked_idx_dct = {}
+	unpicked_idx_dct['dark']=[]
+	unpicked_idx_dct['flat']=[] 
+	unpicked_idx_dct['proj']=[]
+	unpicked_idx_dct['uncl']=[]
+	
+	dfp_encoding={}
+	dfp_encoding['dark']=2
+	dfp_encoding['flat']=1
+	dfp_encoding['proj']=0
+	dfp_encoding['uncl']=-1
+	dfp_encoding_reverse = {}
+	dfp_encoding_reverse[dfp_encoding['dark']]='dark'
+	dfp_encoding_reverse[dfp_encoding['flat']]='flat'
+	dfp_encoding_reverse[dfp_encoding['proj']]='proj'
+	dfp_encoding_reverse[dfp_encoding['uncl']]='uncl'
+		
+	image_key_idx_0=None
+	if not imgkeyNXS:
+		if (inBeamPos is None) or (outOfBeamPos is None):
+			msg = "INFO: Image-key data are not available in input NeXus file - please re-run this script using \n"
+			msg += "the stageInBeamPhys and stageOutOfBeamPhys options, followed by appropriate values \n"
+			msg += "(the latter can be found in scan_command recorded in scan's NeXus file)."
+			raise Exception(msg)
+			
+		image_key_idx_0_dct = genImageKey(inShutterPos=tomography_shutter[0], map01Def_shutter=map01Def_shutter, inStagePos=ss1_x[0], map01Def_stage=map01Def_stage, dfpDef=dfpDef)
+		image_key_idx_0=dfp_encoding['uncl']
+		if image_key_idx_0_dct['dark']==1 and image_key_idx_0_dct['flat']==0 and image_key_idx_0_dct['proj']==0:
+			image_key_idx_0=dfp_encoding['dark']
+		elif image_key_idx_0_dct['dark']==0 and image_key_idx_0_dct['flat']==1 and image_key_idx_0_dct['proj']==0:
+			image_key_idx_0=dfp_encoding['flat']
+		elif image_key_idx_0_dct['dark']==0 and image_key_idx_0_dct['flat']==0 and image_key_idx_0_dct['proj']==1:
+			image_key_idx_0=dfp_encoding['proj']
+	else:
+		image_key_idx_0 = int(imgkey[0])
+	
+	if image_key_idx_0 is None:
+		raise Exception("Invalid image key at index 0.")
+	# init
+	image_key_of_curr_subseq = image_key_idx_0
+	image_key_curr_subseq_lst = []
+	
 	# use min just in case
 	N=min(len_ss1_x, len_tomography_shutter, len_tif)
 	
@@ -547,41 +626,75 @@ def makeLinksForNXSFile(\
 	if not imgkeyNXS:
 
 		if (inBeamPos is None) or (outOfBeamPos is None):
-			raise Exception("INFO: Image-key data are not available in input NeXus file - please re-run this script using the stageInBeamPhys and stageOutOfBeamPhys options accompanied by appropriate values (the latter can be found in scan_command recorded in scan's NeXus file).")
+			msg = "INFO: Image-key data are not available in input NeXus file - please re-run this script using \n"
+			msg += "the stageInBeamPhys and stageOutOfBeamPhys options, followed by appropriate values \n"
+			msg += "(the latter can be found in scan_command recorded in scan's NeXus file)."
+			raise Exception(msg)
 			
-		image_key_curr={}
-	# identify each entry as DARK, FLAT, PROJ or UNCLASSIFIED image
+		image_key_curr_dct={}
+		image_key_curr=dfp_encoding['uncl']
+		# identify each entry as DARK, FLAT, PROJ or UNCLASSIFIED image
 		for i in range(0, N):
-			image_key_curr=genImageKey(inShutterPos=tomography_shutter[i], map01Def_shutter=map01Def_shutter, inStagePos=ss1_x[i], map01Def_stage=map01Def_stage, dfpDef=dfpDef) 
+			image_key_curr_dct=genImageKey(inShutterPos=tomography_shutter[i], map01Def_shutter=map01Def_shutter, inStagePos=ss1_x[i], map01Def_stage=map01Def_stage, dfpDef=dfpDef) 
 			
-			if image_key_curr['dark']==1 and image_key_curr['flat']==0 and image_key_curr['proj']==0:
+			if image_key_curr_dct['dark']==1 and image_key_curr_dct['flat']==0 and image_key_curr_dct['proj']==0:
 				dark_idx.append(i)
-			elif image_key_curr['dark']==0 and image_key_curr['flat']==1 and image_key_curr['proj']==0:
+				image_key_curr=dfp_encoding['dark']
+			elif image_key_curr_dct['dark']==0 and image_key_curr_dct['flat']==1 and image_key_curr_dct['proj']==0:
 				flat_idx.append(i)
-			elif image_key_curr['dark']==0 and image_key_curr['flat']==0 and image_key_curr['proj']==1:
+				image_key_curr=dfp_encoding['flat']
+			elif image_key_curr_dct['dark']==0 and image_key_curr_dct['flat']==0 and image_key_curr_dct['proj']==1:
 				proj_idx.append(i)
+				image_key_curr=dfp_encoding['proj']
 			else:
 				unclassified_idx.append(i)
+			
+			# handle sub-sequences 
+			if image_key_of_curr_subseq != image_key_curr:
+				# offload old subseq
+				unpicked_idx_dct[ dfp_encoding_reverse[image_key_of_curr_subseq] ].append(image_key_curr_subseq_lst)
+				# reset all for new subseq
+				image_key_of_curr_subseq = image_key_curr
+				image_key_curr_subseq_lst = []
+				# and add curr idx to new subseq!
+				image_key_curr_subseq_lst.append(i)
+			else:
+				# add curr idx to curr subseq
+				image_key_curr_subseq_lst.append(i)
+		
+		# must offload the last subseq by brute force		
+		unpicked_idx_dct[ dfp_encoding_reverse[image_key_of_curr_subseq] ].append(image_key_curr_subseq_lst)
 	else:
 		msg="INFO: Using image keys found in input NeXus file.\n"
 		print msg
-		dfp={}
-		dfp['dark']=2
-		dfp['flat']=1
-		dfp['proj']=0
-		image_key_curr=-1
+		image_key_curr=dfp_encoding['uncl']
 		for i in range(0, N):
 			image_key_curr=int(imgkey[i])
-			if image_key_curr==dfp['dark']:
+			if image_key_curr==dfp_encoding['dark']:
 				dark_idx.append(i)
-			elif image_key_curr==dfp['flat']:
+			elif image_key_curr==dfp_encoding['flat']:
 				flat_idx.append(i)
-			elif image_key_curr==dfp['proj']:
+			elif image_key_curr==dfp_encoding['proj']:
 				proj_idx.append(i)
 			else:
 				unclassified_idx.append(i)
-
-	
+			
+			# handle sub-sequences 
+			if image_key_of_curr_subseq != image_key_curr:
+				# offload old subseq
+				unpicked_idx_dct[ dfp_encoding_reverse[image_key_of_curr_subseq] ].append(image_key_curr_subseq_lst)
+				# reset all for new subseq
+				image_key_of_curr_subseq = image_key_curr
+				image_key_curr_subseq_lst = []
+				# and add curr idx to new subseq!
+				image_key_curr_subseq_lst.append(i)
+			else:
+				# add curr idx to curr subseq
+				image_key_curr_subseq_lst.append(i)
+		
+		# must offload the last subseq by brute force		
+		unpicked_idx_dct[ dfp_encoding_reverse[image_key_of_curr_subseq] ].append(image_key_curr_subseq_lst)
+		
 	if verbose:
 		print "List of DARK indices:"
 		print dark_idx
@@ -591,6 +704,17 @@ def makeLinksForNXSFile(\
 		print proj_idx
 		print "List of UNCLASSIFIED indices:"
 		print unclassified_idx
+		
+		print "Sub-sequences of DARK indices:"
+		cnt=0
+		for lst in unpicked_idx_dct['dark']:
+			print cnt, lst
+			cnt += 1
+		print "Sub-sequences of FLAT indices:"
+		cnt = 0
+		for lst in unpicked_idx_dct['flat']:
+			print cnt, lst
+			cnt += 1
 	
 	# check if we've identified a sufficient number of images as DARK, FLAT and PROJ images to perform a reconstruction 
 	len_proj_idx=len(proj_idx)
@@ -652,9 +776,9 @@ def makeLinksForNXSFile(\
 	
 	mandatory_parent_foldername="processing"
 	
-	scanNumber_str, head, sino_dir, dark_dir, flat_dir, proj_dir=createDirs(refFilename=srcfile_proj, outdir=outdir, mandatorydir=mandatory_parent_foldername, verbose=verbose)
+	scanNumber_str, head, sino_dir, dark_dir, flat_dir, proj_dir, darks_dir, flats_dir=createDirs(refFilename=srcfile_proj, outdir=outdir, mandatorydir=mandatory_parent_foldername, verbose=verbose)
 	
-	len_proj_idx_decimated, detectorName=populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, tif, dark_idx, flat_idx, proj_idx, decimationRate, verbose=verbose)
+	len_proj_idx_decimated, detectorName=populateDirs(scanNumber_str, head, dark_dir, flat_dir, proj_dir, darks_dir, flats_dir, tif, dark_idx, flat_idx, proj_idx, unpicked_idx_dct, decimationRate, verbose=verbose)
 	
 	if sino:
 		#print "\n\tAbout to launch the sino_listener script from CWD = %s"%os.getcwd()
@@ -683,7 +807,7 @@ def makeLinksForNXSFile(\
 		print "\nAfter launching the sino_listener script CWD = %s"%os.getcwd()
 		
 	else:
-		print "\nLaunching of the sino_listener script was not requested at the end of makeLinksForNXSFile." 
+		print "\nINFO: Launching of the sino_listener script was not requested at the end of makeLinksForNXSFile." 
 	
 	#print "\nJust before closing NeXus file CWD = %s"%os.getcwd()
 	#don't forget to close the input NeXus file
@@ -713,7 +837,7 @@ creates directories and links to projection, dark and flat images required for s
 	parser.add_option("--shutterNXSPath", action="store", type="string", dest="shutNXSPath", default="/entry1/instrument/tomoScanDevice/tomography_shutter", help="The path to the location of SHUTTER's physical positions inside the input NeXus file.")
 	parser.add_option("--stagePosNXSPath", action="store", type="string", dest="stagePosNXSPath", default="/entry1/instrument/tomoScanDevice/ss1_x", help="The path to the location of SAMPLE STAGE's physical positions inside the input NeXus file.")
 	parser.add_option("--stageRotNXSPath", action="store", type="string", dest="stageRotNXSPath", default="/entry1/instrument/tomoScanDevice/ss1_theta", help="The path to the location of SAMPLE STAGE's physical rotations inside the input NeXus file.")
-	parser.add_option("--tifNXSPath", action="store", type="string", dest="tifNXSPath", default="/entry1/instrument/pco/data_file/file_name", help="The path to the location of TIFF filenames inside the input NeXus file.")
+	parser.add_option("--tifNXSPath", action="store", type="string", dest="tifNXSPath", default="/entry1/instrument/pco4000_dio_tif/image_data", help="The path to the location of TIFF filenames inside the input NeXus file.")
 	parser.add_option("--imgkeyNXSPath", action="store", type="string", dest="imgkeyNXSPath", default="/entry1/instrument/tomoScanDevice/image_key", help="The path to the location of image-key data inside the input NeXus file.")
 	parser.add_option("-o", "--outdir", action="store", type="string", dest="outdir", help="Path to folder in which directories and files are to be made. Default is current working folder")
 	parser.add_option("--verbose", action="store_true", dest="verbose", default=False, help="Verbose - useful for diagnosing the script")
