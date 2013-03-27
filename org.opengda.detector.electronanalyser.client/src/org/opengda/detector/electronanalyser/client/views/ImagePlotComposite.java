@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.opengda.detector.electronanalyser.client.plot;
+package org.opengda.detector.electronanalyser.client.views;
 
 import gda.epics.connection.EpicsController;
 import gda.factory.Finder;

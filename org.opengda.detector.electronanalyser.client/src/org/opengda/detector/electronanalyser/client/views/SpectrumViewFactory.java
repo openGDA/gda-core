@@ -1,4 +1,4 @@
-package org.opengda.detector.electronanalyser.client.plot;
+package org.opengda.detector.electronanalyser.client.views;
 
 import gda.rcp.views.FindableExecutableExtension;
 

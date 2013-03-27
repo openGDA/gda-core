@@ -1,4 +1,4 @@
-package org.opengda.detector.electronanalyser.client.plot;
+package org.opengda.detector.electronanalyser.client.views;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
