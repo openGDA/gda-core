@@ -123,6 +123,8 @@ public class PCOTFGTrigger extends SimpleAcquire {
 	private int shutterSleep=100;
 	private Scannable shutterDarkScannable;
 	private Integer adcMode=1;//2 adcs
+	private boolean useShutterPV=false;
+	private Integer timeStamp=1; //BCD
 																								// TF3_OUT5
 
 	public Integer getAdcMode() {
@@ -131,6 +133,22 @@ public class PCOTFGTrigger extends SimpleAcquire {
 
 	public void setAdcMode(Integer adcMode) {
 		this.adcMode = adcMode;
+	}
+
+	public boolean isUseShutterPV() {
+		return useShutterPV;
+	}
+
+	public void setUseShutterPV(boolean useShutterPV) {
+		this.useShutterPV = useShutterPV;
+	}
+
+	public Integer getTimeStamp() {
+		return timeStamp;
+	}
+
+	public void setTimeStamp(Integer timeStamp) {
+		this.timeStamp = timeStamp;
 	}
 
 	@Override
@@ -162,7 +180,7 @@ public class PCOTFGTrigger extends SimpleAcquire {
 		getAdBase().setNumImages(1);
 		getAdBase().setImageModeWait(ImageMode.SINGLE);
 		adDriverPco.getAdcModePV().put(adcMode); // 2 adcs
-		adDriverPco.getTimeStampModePV().put(1); // BCD - if set to None then the image is blank. BCD means no timestamp
+		adDriverPco.getTimeStampModePV().put(timeStamp); // BCD - if set to None then the image is blank. BCD means no timestamp
 													// on image
 		// getAdBase().setAcquirePeriod(0.0); //this is needed for PCO to make sure delay=0 - do not use as it effects
 		// delay
@@ -258,7 +276,7 @@ public class PCOTFGTrigger extends SimpleAcquire {
 
 	private void openShutter(Boolean open) throws DeviceException {
 		try{
-			if( !shutterPVName.isEmpty()){
+			if( !shutterPVName.isEmpty() && useShutterPV){
 				if( shutterPV == null ){
 					shutterPV = LazyPVFactory.newIntegerPV(shutterPVName);
 					shutterPV.get();
