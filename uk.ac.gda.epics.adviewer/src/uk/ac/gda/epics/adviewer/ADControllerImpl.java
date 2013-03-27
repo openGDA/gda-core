@@ -24,6 +24,7 @@ import gda.device.detector.areadetector.v17.FfmpegStream;
 import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDProcess;
+import gda.device.detector.areadetector.v17.NDROI;
 import gda.device.detector.areadetector.v17.NDStats;
 import gda.observable.Observable;
 import gda.observable.Observer;
@@ -35,7 +36,6 @@ import org.springframework.beans.factory.InitializingBean;
 
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.gda.epics.adviewer.views.ADViewerCompositeFactory;
-import uk.ac.gda.epics.adviewer.views.MJPegViewInitialiser;
 
 public abstract class ADControllerImpl implements ADController, InitializingBean {
 	private static final Logger logger = LoggerFactory.getLogger(ADControllerImpl.class);
@@ -69,7 +69,7 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 
 	private ADViewerCompositeFactory mjpegViewCompositeFactory;
 
-	private MJPegViewInitialiser mjpegViewInitialiser;
+	private NDROI imageNDROI;
 
 	@Override
 	public NDStats getImageNDStats() {
@@ -280,6 +280,9 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 		final boolean wasEnabled = getImageNDStats().getPluginBase().isCallbacksEnabled_RBV();
 		final short histogramWasComputed = getImageNDStats().getComputeHistogram_RBV();
 
+		getImageNDStats().setComputeHistogram(1);
+		getImageNDStats().getPluginBase().enableCallbacks();
+		
 		final int counterBefore = getImageNDStats().getPluginBase().getArrayCounter_RBV();
 		final Observable<Integer> obsvble = getImageNDStats().getPluginBase().createArrayCounterObservable();
 		obsvble.addObserver(new Observer<Integer>() {
@@ -295,6 +298,7 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 				try {
 					if (histogramWasComputed != 0) {
 						getImageNDStats().setComputeHistogram(histogramWasComputed);
+						
 					}
 					if (!wasEnabled) {
 						getImageNDStats().getPluginBase().disableCallbacks();
@@ -424,13 +428,7 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 		if (!ffmpegBase.isCallbacksEnabled_RBV())
 			ffmpegBase.enableCallbacks();
 
-		NDPluginBase arrayBase = getImageNDArray().getPluginBase();
-		String procNdArrayPort_RBV = procBase.getNDArrayPort_RBV();
-		String ndArrayPort_RBV2 = arrayBase.getNDArrayPort_RBV();
-		if (ndArrayPort_RBV2 == null || !ndArrayPort_RBV2.equals(procNdArrayPort_RBV))
-			arrayBase.setNDArrayPort(procNdArrayPort_RBV);
-		if (!arrayBase.isCallbacksEnabled_RBV())
-			arrayBase.enableCallbacks();
+
 	}
 
 	@Override
@@ -521,12 +519,12 @@ public abstract class ADControllerImpl implements ADController, InitializingBean
 
 	
 	@Override
-	public MJPegViewInitialiser getMjpegViewInitialiser() {
-		return mjpegViewInitialiser;
+	public NDROI getImageNDROI() {
+		return imageNDROI;
 	}
 
-	public void setMjpegViewInitialiser(MJPegViewInitialiser mjpegViewInitialiser) {
-		this.mjpegViewInitialiser = mjpegViewInitialiser;
+	public void setImageNDROI(NDROI imageNDROI) {
+		this.imageNDROI = imageNDROI;
 	}
 
 

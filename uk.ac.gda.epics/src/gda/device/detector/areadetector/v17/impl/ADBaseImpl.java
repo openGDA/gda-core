@@ -2291,14 +2291,15 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public int waitWhileStatusBusy() throws InterruptedException {
 		synchronized (statusMonitor) {
-			while (status == Detector.BUSY) {
-				statusMonitor.wait(1000);
-				//if interrupted clear the status state as the IOC may have crashed
-				if( ScanBase.isInterrupted()){
-					setStatus(0);
+			try{
+				while (status == Detector.BUSY) {
+					statusMonitor.wait(1000);
+					ScanBase.checkForInterrupts();
 				}
-				ScanBase.checkForInterrupts();
-
+			}  finally{
+				//if interrupted clear the status state as the IOC may have crashed
+				if ( status != 0)
+					setStatus(0);
 			}
 			return status;
 		}

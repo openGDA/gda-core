@@ -25,9 +25,11 @@ import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.impl.AreaDetectorROIImpl;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDROI;
+import gda.epics.LazyPVFactory;
 import gda.epics.connection.EpicsController;
 import gda.epics.interfaces.NDROIType;
 import gda.factory.FactoryException;
+import gda.observable.Observable;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
@@ -1389,4 +1391,55 @@ public class NDROIImpl implements InitializingBean, NDROI {
 			throw ex;
 		}
 	}
+
+	
+	private String getChannelName(String pvElementName, String... args)throws Exception{
+		String pvPostFix = null;
+		if (args.length > 0) {
+			// PV element name is different from the pvPostFix
+			pvPostFix = args[0];
+		} else {
+			pvPostFix = pvElementName;
+		}
+
+		String fullPvName;
+		if (pvProvider != null) {
+			fullPvName = pvProvider.getPV(pvElementName);
+		} else {
+			fullPvName = basePVName + pvPostFix;
+		}
+		return fullPvName;
+	}
+	
+	
+	@Override
+	public Observable<Integer> createMinXObservable() throws Exception {
+		return LazyPVFactory.newReadOnlyIntegerPV(getChannelName(MinX_RBV));
+	}
+
+	@Override
+	public Observable<Integer> createMinYObservable() throws Exception {
+		return LazyPVFactory.newReadOnlyIntegerPV(getChannelName(MinY_RBV));
+	}
+	@Override
+	public Observable<Integer> createSizeXObservable() throws Exception {
+		return LazyPVFactory.newReadOnlyIntegerPV(getChannelName(SizeX_RBV));
+	}
+
+	@Override
+	public Observable<Integer> createSizeYObservable() throws Exception {
+		return LazyPVFactory.newReadOnlyIntegerPV(getChannelName(SizeY_RBV));
+	}
+
+	@Override
+	public Observable<String> createEnableXObservable() throws Exception {
+		return LazyPVFactory.newReadOnlyEnumPV(getChannelName(EnableX), String.class);
+	}
+
+	@Override
+	public Observable<String> createEnableYObservable() throws Exception {
+		return LazyPVFactory.newReadOnlyEnumPV(getChannelName(EnableY), String.class);
+	}
+	
+	
 }

@@ -19,9 +19,9 @@
 package uk.ac.gda.epics.adviewer.views;
 
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.IWorkbenchPartSite;
 
 import uk.ac.gda.epics.adviewer.ADController;
+import uk.ac.gda.epics.adviewer.composites.MJPeg;
 
 /**
  * Interface for Factories that create composites. 
@@ -30,6 +30,8 @@ import uk.ac.gda.epics.adviewer.ADController;
 
 
 public interface ADViewerCompositeFactory {
-	public Composite createComposite(ADController adController, Composite parent, int style, IWorkbenchPartSite iWorkbenchPartSite);
+	
+	//The composite should dispose resources within a dispose listener
+	public Composite createComposite(ADController config, Composite parent, MJPegView mjPegView, MJPeg mJPeg);
 
 }

@@ -121,6 +121,10 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 	}
 
 	boolean setChunking=true;
+
+	private boolean storeAttr=false;
+
+	private boolean storePerform=false;
 	
 	public boolean isSetChunking() {
 		return setChunking;
@@ -130,6 +134,30 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 		this.setChunking = setChunking;
 	}
 
+	public boolean isStoreAttr() {
+		return storeAttr;
+	}
+
+	/**
+	 * 
+	 * @param storeAttr if true the hdf5 plugin stores metadata in image file
+	 */
+	public void setStoreAttr(boolean storeAttr) {
+		this.storeAttr = storeAttr;
+	}
+
+	public boolean isStorePerform() {
+		return storePerform;
+	}
+
+	/**
+	 * 
+	 * @param storePerform if true the hdf5 plugin stores performance data in image file
+	 */
+	public void setStorePerform(boolean storePerform) {
+		this.storePerform = storePerform;
+	}
+
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 		if(!isEnabled())
@@ -137,6 +165,8 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase {
 		setNDArrayPortAndAddress();
 		getNdFile().getPluginBase().disableCallbacks();
 		getNdFile().getPluginBase().setBlockingCallbacks(blocking ? 1:0); //use camera memory 
+		getNdFileHDF5().setStoreAttr(storeAttr? 1:0);
+		getNdFileHDF5().setStorePerform(storePerform?1:0);
 		getNdFile().setFileWriteMode(FileWriteMode.STREAM); 
 		ScanInformation scanInformation = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
 		//if not scan setup then act as if this is a 1 point scan

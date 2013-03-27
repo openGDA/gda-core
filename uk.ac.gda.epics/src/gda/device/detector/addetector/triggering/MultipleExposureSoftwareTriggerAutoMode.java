@@ -122,7 +122,7 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 	
 	@Override
 	public void prepareForCollection(double collectionTime, int numImagesIgnored, ScanInformation scanInfo) throws Exception {
-		double localExposureTime = getExposureTime();
+		double localExposureTime = ndProcess != null ? getExposureTime() : collectionTime;
 		numberImagesPerCollection = calcNumberImagesPerCollection(collectionTime, localExposureTime);
 		getAdBase().setTriggerMode(StandardTriggerMode.INTERNAL.ordinal()); 		 
 		if( getNdFile() != null){

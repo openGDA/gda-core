@@ -260,6 +260,8 @@ public class MJPeg extends Composite {
 
 		} else {
 			MotionJpegOverHttpReceiverSwt motionJpegOverHttpReceiverSwt = new MotionJpegOverHttpReceiverSwt();
+			motionJpegOverHttpReceiverSwt.setAcceptReadTimeouts(true);
+			motionJpegOverHttpReceiverSwt.setReadTimeOut(5000);
 			motionJpegOverHttpReceiverSwt.setUrl(url);
 			motionJpegOverHttpReceiverSwt.configure();
 			motionJpegOverHttpReceiverSwt.start();
