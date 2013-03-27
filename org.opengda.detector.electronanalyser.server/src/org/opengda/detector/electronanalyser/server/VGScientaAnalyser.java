@@ -20,14 +20,14 @@ package org.opengda.detector.electronanalyser.server;
 
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
+import gda.device.detector.addetector.ADDetector;
 import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 
 import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VGScientaAnalyser extends
-		gda.device.detector.addetector.ADDetector {
+public class VGScientaAnalyser extends ADDetector {
 
 	private static final long serialVersionUID = -2907729482321978030L;
 
