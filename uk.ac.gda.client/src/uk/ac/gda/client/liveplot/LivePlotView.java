@@ -81,6 +81,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiUpdate;
 import uk.ac.diamond.scisoft.analysis.plotserver.OneDDataFilePlotDefinition;
+import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.gda.client.ScanPlotView;
 import uk.ac.gda.preferences.PreferenceConstants;
 
@@ -90,6 +91,8 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 	private static final String MEMENTO_GROUP = "LivePlotView";
 
 	static {
+		//We need to activate the SciSoftRCP bundle as that sets up the PlotServer
+		AnalysisRCPActivator.getDefault();
 		PlotServerProvider.getPlotServer().addIObserver(new IObserver() {
 
 			@Override
@@ -450,9 +453,8 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 	public Object getAdapter(@SuppressWarnings("rawtypes") Class clazz) {
 		if (clazz == IToolPageSystem.class) {
 			return this.xyPlot.getPlottingSystem();
-		} else {
-			return super.getAdapter(clazz);
 		}
+		return super.getAdapter(clazz);
 	}
 
 	/**
@@ -480,6 +482,7 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 	/**
 	 * Hide all scans
 	 */
+	@Override
 	public void hideAll() {
 		xyPlot.hideAll();
 
@@ -488,6 +491,7 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 	/**
 	 * Clear the graph
 	 */
+	@Override
 	public void clearGraph() {
 		xyPlot.clearGraph();
 	}
