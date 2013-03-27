@@ -144,7 +144,7 @@ public class XasAsciiDataWriter extends AsciiDataWriter{
 				} else if (dataPoint.isDetector(xmapName)) {
 					file.write("# Detector: Si (XIA)\n");
 				} else {
-					file.write("#");
+					file.write("#\n");
 				}
 
 				// write out dark current if a detector present is a DarkCurrentDetector
