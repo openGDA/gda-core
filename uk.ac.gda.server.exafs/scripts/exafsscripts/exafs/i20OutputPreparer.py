@@ -87,8 +87,6 @@ class I20OutputPreparer:
                             invisibleAxes += [axis]
                         else:
                             visibleAxes += [axis]
-                    print invisibleAxes
-                    print visibleAxes
                     sps.setYAxesShown(visibleAxes)
                     sps.setYAxesNotShown(invisibleAxes)
                     # if anythign extra, such as columns added in the output parameters xml should also be plotted
