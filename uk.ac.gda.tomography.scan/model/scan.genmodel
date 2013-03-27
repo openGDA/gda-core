@@ -32,6 +32,7 @@
           ecoreFeature="ecore:EAttribute scan.ecore#//Parameters/minI"/>
       <genFeatures createChild="false" propertyCategory="" propertyDescription="The title of the scan"
           ecoreFeature="ecore:EAttribute scan.ecore#//Parameters/title"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute scan.ecore#//Parameters/flyScan"/>
     </genClasses>
   </genPackages>
 </genmodel:GenModel>

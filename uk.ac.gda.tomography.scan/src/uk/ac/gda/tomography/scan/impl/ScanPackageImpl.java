@@ -216,6 +216,15 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EAttribute getParameters_FlyScan() {
+		return (EAttribute) parametersEClass.getEStructuralFeatures().get(12);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public ScanFactory getScanFactory() {
 		return (ScanFactory) getEFactoryInstance();
 	}
@@ -253,6 +262,7 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 		createEAttribute(parametersEClass, PARAMETERS__IMAGES_PER_FLAT);
 		createEAttribute(parametersEClass, PARAMETERS__MIN_I);
 		createEAttribute(parametersEClass, PARAMETERS__TITLE);
+		createEAttribute(parametersEClass, PARAMETERS__FLY_SCAN);
 	}
 
 	/**
@@ -338,6 +348,10 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 				getParameters_Title(),
 				ecorePackage.getEString(),
 				"title", "Unknown", 1, 1, Parameters.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED); //$NON-NLS-1$ //$NON-NLS-2$
+		initEAttribute(
+				getParameters_FlyScan(),
+				ecorePackage.getEBoolean(),
+				"flyScan", "false", 1, 1, Parameters.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED); //$NON-NLS-1$ //$NON-NLS-2$
 
 		// Create resource
 		createResource(eNS_URI);

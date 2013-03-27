@@ -70,6 +70,7 @@ public class ParametersItemProvider extends ItemProviderAdapter implements
 			addImagesPerFlatPropertyDescriptor(object);
 			addMinIPropertyDescriptor(object);
 			addTitlePropertyDescriptor(object);
+			addFlyScanPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
 	}
@@ -286,6 +287,26 @@ public class ParametersItemProvider extends ItemProviderAdapter implements
 	}
 
 	/**
+	 * This adds a property descriptor for the Fly Scan feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addFlyScanPropertyDescriptor(Object object) {
+		itemPropertyDescriptors
+				.add(createItemPropertyDescriptor(
+						((ComposeableAdapterFactory) adapterFactory)
+								.getRootAdapterFactory(),
+						getResourceLocator(),
+						getString("_UI_Parameters_flyScan_feature"), //$NON-NLS-1$
+						getString(
+								"_UI_PropertyDescriptor_description", "_UI_Parameters_flyScan_feature", "_UI_Parameters_type"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						ScanPackage.Literals.PARAMETERS__FLY_SCAN, true, false,
+						false, ItemPropertyDescriptor.BOOLEAN_VALUE_IMAGE,
+						null, null));
+	}
+
+	/**
 	 * This returns Parameters.gif.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -333,6 +354,7 @@ public class ParametersItemProvider extends ItemProviderAdapter implements
 		case ScanPackage.PARAMETERS__IMAGES_PER_FLAT:
 		case ScanPackage.PARAMETERS__MIN_I:
 		case ScanPackage.PARAMETERS__TITLE:
+		case ScanPackage.PARAMETERS__FLY_SCAN:
 			fireNotifyChanged(new ViewerNotification(notification,
 					notification.getNotifier(), false, true));
 			return;
