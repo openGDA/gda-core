@@ -11,7 +11,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.IRegionDefinitionView;
-import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceView;
+import org.opengda.detector.electronanalyser.client.views.SequenceView;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 
 public class StopCollectionAction extends AbstractHandler implements IHandler {

@@ -1,4 +1,4 @@
-package org.opengda.detector.electronanalyser.client.regioneditor;
+package org.opengda.detector.electronanalyser.client.views;
 
 import gda.device.DeviceException;
 import gda.device.scannable.ScannableMotor;
@@ -54,7 +54,7 @@ import org.opengda.detector.electronanalyser.client.RegionDefinitionResourceUtil
 import org.opengda.detector.electronanalyser.client.selection.FileSelection;
 import org.opengda.detector.electronanalyser.client.selection.RegionActivationSelection;
 import org.opengda.detector.electronanalyser.client.selection.TotalTimeSelection;
-import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewExtensionFactory;
+import org.opengda.detector.electronanalyser.client.viewextensionfactories.SequenceViewExtensionFactory;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.DETECTOR_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE;

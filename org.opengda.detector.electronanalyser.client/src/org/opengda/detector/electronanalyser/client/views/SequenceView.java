@@ -1,4 +1,4 @@
-package org.opengda.detector.electronanalyser.client.sequenceeditor;
+package org.opengda.detector.electronanalyser.client.views;
 
 import gda.configuration.properties.LocalProperties;
 
@@ -69,10 +69,14 @@ import org.eclipse.ui.dialogs.SaveAsDialog;
 import org.eclipse.ui.part.ViewPart;
 import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.RegionDefinitionResourceUtil;
-import org.opengda.detector.electronanalyser.client.regioneditor.RegionViewExtensionFactory;
 import org.opengda.detector.electronanalyser.client.selection.FileSelection;
 import org.opengda.detector.electronanalyser.client.selection.RegionActivationSelection;
 import org.opengda.detector.electronanalyser.client.selection.TotalTimeSelection;
+import org.opengda.detector.electronanalyser.client.sequenceeditor.IRegionDefinitionView;
+import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceTableConstants;
+import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewContentProvider;
+import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewLabelProvider;
+import org.opengda.detector.electronanalyser.client.viewextensionfactories.RegionViewExtensionFactory;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionFactory;

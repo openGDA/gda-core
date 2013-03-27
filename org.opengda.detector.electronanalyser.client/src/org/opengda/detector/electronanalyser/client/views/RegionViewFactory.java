@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.opengda.detector.electronanalyser.client.regioneditor;
+package org.opengda.detector.electronanalyser.client.views;
 
 import gda.device.scannable.ScannableMotor;
 import gda.rcp.views.FindableExecutableExtension;

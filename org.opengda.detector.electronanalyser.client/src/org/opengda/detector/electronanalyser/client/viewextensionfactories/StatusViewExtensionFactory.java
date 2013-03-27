@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.opengda.detector.electronanalyser.client.viewfactories;
+package org.opengda.detector.electronanalyser.client.viewextensionfactories;
 
 import gda.rcp.views.ViewFactory;
 
@@ -24,5 +24,5 @@ import gda.rcp.views.ViewFactory;
  *
  */
 public class StatusViewExtensionFactory extends ViewFactory {
-	public static String ID = "uk.ac.gda.epics.client.status.view";
+	public static String ID = "org.opengda.detector.electronanalyser.status.view";
 }

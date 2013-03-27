@@ -5,14 +5,14 @@
          point="org.eclipse.ui.views">
       <view
             category="org.opengda.detector.electronanalyser.client.ses"
-            class="org.opengda.detector.electronanalyser.client.regioneditor.RegionViewExtensionFactory:regionviewfactory"
+            class="org.opengda.detector.electronanalyser.client.viewextensionfactories.RegionViewExtensionFactory:regionviewfactory"
             id="org.opengda.detector.electronanalyser.client.regioneditor"
             name="Region Editor"
             restorable="true">
       </view>
       <view
             category="org.opengda.detector.electronanalyser.client.ses"
-            class="org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewExtensionFactory:sequenceviewfactory"
+            class="org.opengda.detector.electronanalyser.client.viewextensionfactories.SequenceViewExtensionFactory:sequenceviewfactory"
             id="org.opengda.detector.electronanalyser.client.sequenceeditor"
             name="Sequence Editor"
             restorable="true">
@@ -24,7 +24,7 @@
       </category>
       <view
             category="org.opengda.detector.electronanalyser.client.liveplot"
-            class="org.opengda.detector.electronanalyser.client.views.SpectrumViewExtensionFactory:spectrumviewfactory"
+            class="org.opengda.detector.electronanalyser.client.viewextensionfactories.SpectrumViewExtensionFactory:spectrumviewfactory"
             id="org.opengda.detector.electronanalyser.client.plot.spectrumview"
             name="Spectrum"
             restorable="true">
@@ -35,28 +35,28 @@
       </category>
       <view
             category="org.opengda.detector.electronanalyser.client.liveplot"
-            class="org.opengda.detector.electronanalyser.client.views.SpectrumViewExtensionFactory:spectrumviewfactory"
+            class="org.opengda.detector.electronanalyser.client.viewextensionfactories.SpectrumViewExtensionFactory:spectrumviewfactory"
             id="org.opengda.detector.electronanalyser.client.plot.externalioview"
             name="External IO"
             restorable="true">
       </view>
       <view
             category="org.opengda.detector.electronanalyser.client.liveplot"
-            class="org.opengda.detector.electronanalyser.client.views.SpectrumViewExtensionFactory:spectrumviewfactory"
+            class="org.opengda.detector.electronanalyser.client.viewextensionfactories.SpectrumViewExtensionFactory:spectrumviewfactory"
             id="org.opengda.detector.electronanalyser.client.plot.imageview"
             name="Image"
             restorable="true">
       </view>
       <view
             category="org.opengda.detector.electronanalyser.client.liveplot"
-            class="org.opengda.detector.electronanalyser.client.views.SpectrumViewExtensionFactory:spectrumviewfactory"
+            class="org.opengda.detector.electronanalyser.client.viewextensionfactories.SpectrumViewExtensionFactory:spectrumviewfactory"
             id="org.opengda.detector.electronanalyser.client.plot.sliceview"
             name="Slice"
             restorable="true">
       </view>
       <view
             category="org.opengda.detector.electronanalyser.client.liveplot"
-            class="org.opengda.detector.electronanalyser.client.views.SpectrumViewExtensionFactory:spectrumviewfactory"
+            class="org.opengda.detector.electronanalyser.client.viewextensionfactories.SpectrumViewExtensionFactory:spectrumviewfactory"
             id="org.opengda.detector.electronanalyser.client.plot.progress"
             name="Progress"
             restorable="true">

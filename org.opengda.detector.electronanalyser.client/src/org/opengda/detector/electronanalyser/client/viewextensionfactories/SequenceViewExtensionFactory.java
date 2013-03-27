@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.opengda.detector.electronanalyser.client.sequenceeditor;
+package org.opengda.detector.electronanalyser.client.viewextensionfactories;
 
 import gda.rcp.views.ViewFactory;
 

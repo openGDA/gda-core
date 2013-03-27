@@ -1,4 +1,4 @@
-package org.opengda.detector.electronanalyser.client.views;
+package org.opengda.detector.electronanalyser.client.viewextensionfactories;
 
 import gda.rcp.views.ViewFactory;
 

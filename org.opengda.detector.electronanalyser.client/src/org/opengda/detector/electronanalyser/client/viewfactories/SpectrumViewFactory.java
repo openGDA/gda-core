@@ -1,10 +1,11 @@
-package org.opengda.detector.electronanalyser.client.views;
+package org.opengda.detector.electronanalyser.client.viewfactories;
 
 import gda.rcp.views.FindableExecutableExtension;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExecutableExtensionFactory;
+import org.opengda.detector.electronanalyser.client.views.SpectrumView;
 import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -10,7 +10,7 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.IRegionDefinitionView;
-import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceView;
+import org.opengda.detector.electronanalyser.client.views.SequenceView;
 
 public class OpenSequenceAction extends AbstractHandler implements IHandler {
 
