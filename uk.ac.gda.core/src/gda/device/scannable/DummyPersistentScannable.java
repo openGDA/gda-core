@@ -52,7 +52,7 @@ public class DummyPersistentScannable extends DummyScannable {
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		Double[] positionArray = ScannableUtils.objectToArray(position);
-		configuration.setProperty(getName()+"PersistentPosition",position);
+		configuration.setProperty(getName()+"PersistentPosition",position.toString());
 		try {
 			configuration.save();
 			final Double newPosition = positionArray[0];
