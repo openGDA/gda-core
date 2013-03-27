@@ -16,8 +16,8 @@ class I20OutputPreparer:
         self.jython_mapper = JythonNameSpaceMapping()
         pass
     
-    def prepare(self, outputParameters, initial_energy, final_energy):
-        
+    def prepare(self, outputParameters, scanBean):
+
         from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
         NexusExtraMetadataDataWriter.removeAllMetadataEntries();
         self.redefineNexusMetadata()
