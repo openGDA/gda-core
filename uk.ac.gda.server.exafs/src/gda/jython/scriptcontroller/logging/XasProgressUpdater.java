@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd.
+ * Copyright © 2013 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -46,6 +46,7 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 	private final long timeRepetitionsStarted;
 	private long timeStarted;
 	private String lastPercentComplete = "0%";
+	private volatile boolean atEndCalled = false;
 
 	public XasProgressUpdater(LoggingScriptController controller, XasLoggingMessage msg, long timeRepetitionsStarted) {
 		this.controller = controller;
@@ -75,20 +76,23 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 
 	@Override
 	public void atScanStart() throws DeviceException {
+		atEndCalled = false;
 		InterfaceProvider.getScanDataPointProvider().addIScanDataPointObserver(this);
 		timeStarted = System.currentTimeMillis();
 	}
 
 	@Override
 	public void atScanEnd() throws DeviceException {
+		atEndCalled = true;
 		InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(this);
-		XasLoggingMessage msg = new XasLoggingMessage(id, scriptName, "complete", repetition, getTotalRepetitions(), lastPercentComplete,
+		XasLoggingMessage msg = new XasLoggingMessage(id, scriptName, "complete", repetition, getTotalRepetitions(), "100%",
 				getElapsedTime(), getElapsedTotalTime(), predictedTotalTime, outputFolder);
 		controller.update(this, msg);
 	}
 
 	@Override
 	public void atCommandFailure() throws DeviceException {
+		atEndCalled = true;
 		InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(this);
 		XasLoggingMessage msg = new XasLoggingMessage(id, scriptName, "scan aborted", repetition, getTotalRepetitions(),
 				lastPercentComplete, getElapsedTime(), getElapsedTotalTime(), predictedTotalTime, outputFolder);
@@ -112,7 +116,7 @@ public class XasProgressUpdater extends ScannableBase implements Scannable, ISca
 
 	@Override
 	public void update(Object source, Object arg) {
-		if (source instanceof IScanDataPointProvider && arg instanceof ScanDataPoint) {
+		if (source instanceof IScanDataPointProvider && arg instanceof ScanDataPoint && !atEndCalled) {
 			ScanDataPoint sdp = (ScanDataPoint) arg;
 			int currentPoint = sdp.getCurrentPointNumber() + 1 + (sdp.getNumberOfPoints() * (Integer.parseInt(repetition) - 1));
 			int totalPoints = sdp.getNumberOfPoints() * Integer.parseInt(getTotalRepetitions());
