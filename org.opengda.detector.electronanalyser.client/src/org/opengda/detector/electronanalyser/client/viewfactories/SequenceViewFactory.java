@@ -23,8 +23,8 @@ import gda.rcp.views.FindableExecutableExtension;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.opengda.detector.electronanalyser.client.Camera;
-import org.opengda.detector.electronanalyser.client.RegionDefinitionResourceUtil;
 import org.opengda.detector.electronanalyser.client.views.SequenceView;
+import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

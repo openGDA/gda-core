@@ -3,6 +3,7 @@ package org.opengda.detector.electronanalyser.client;
 import org.eclipse.emf.edit.domain.EditingDomain;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.opengda.detector.electronanalyser.utils.SequenceEditingDomain;
 import org.osgi.framework.BundleContext;
 
 public class ElectronAnalyserClientPlugin extends AbstractUIPlugin {

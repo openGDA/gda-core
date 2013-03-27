@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.opengda.detector.electronanalyser.client;
+package org.opengda.detector.electronanalyser.utils;
 
 import java.util.HashMap;
 

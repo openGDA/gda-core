@@ -68,7 +68,6 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.dialogs.SaveAsDialog;
 import org.eclipse.ui.part.ViewPart;
 import org.opengda.detector.electronanalyser.client.Camera;
-import org.opengda.detector.electronanalyser.client.RegionDefinitionResourceUtil;
 import org.opengda.detector.electronanalyser.client.selection.FileSelection;
 import org.opengda.detector.electronanalyser.client.selection.RegionActivationSelection;
 import org.opengda.detector.electronanalyser.client.selection.TotalTimeSelection;
@@ -84,6 +83,7 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Regionde
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum;
 import org.opengda.detector.electronanalyser.utils.OsUtil;
+import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.opengda.detector.electronanalyser.utils.RegionStepsTimeEstimation;
 import org.opengda.detector.electronanalyser.utils.StringUtils;
 import org.slf4j.Logger;
