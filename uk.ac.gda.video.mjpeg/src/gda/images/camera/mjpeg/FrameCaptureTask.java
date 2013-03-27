@@ -26,6 +26,7 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.concurrent.BlockingQueue;
@@ -72,11 +73,29 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 	final static byte[] contentLength = new byte[] { 67, 111, 110, 116, 101, 110, 116, 45, 76, 101, 110, 103, 116, 104,
 			58, 32 };
 
+	private final int readTimeout;
+
+	private final boolean acceptReadTimeout;
+
 	public FrameCaptureTask(String urlSpec, ExecutorService imageDecodingService,
 			BlockingQueue<Future<E>> receivedImages) {
+		this(urlSpec, imageDecodingService, receivedImages,0,false);
+	}
+	/**
+	 * 
+	 * @param urlSpec
+	 * @param imageDecodingService
+	 * @param receivedImages
+	 * @param readTimeout connection read timeout in ms. If 0 then no timeout. Less than 0 is unacceptable
+	 * @param acceptReadTimeout if true socketReadTimeouts do not cause the thread to abort
+	 */
+	public FrameCaptureTask(String urlSpec, ExecutorService imageDecodingService,
+			BlockingQueue<Future<E>> receivedImages, int readTimeout, boolean acceptReadTimeout) {
 		this.urlSpec = urlSpec;
 		this.imageDecodingService = imageDecodingService;
 		this.receivedImages = receivedImages;
+		this.readTimeout = readTimeout;
+		this.acceptReadTimeout = acceptReadTimeout;
 	}
 
 	private volatile boolean keepRunning;
@@ -88,8 +107,20 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 	@Override
 	public void run() {
 		try {
-			receiveImages();
-		} catch (Exception e) {
+			while(true){
+				try{
+					receiveImages();
+				} catch(SocketTimeoutException e){
+					if (acceptReadTimeout){
+						logger.debug("SocketTimeOutException ",e);
+					} else {
+						throw e;
+					}
+				} catch(Throwable th){
+					throw th;
+				}
+			}
+		} catch (Throwable e) {
 			logger.error("Unable to capture frames from the MJPEG stream", e);
 			shutdown();
 		}
@@ -112,6 +143,7 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 
 		URL url = new URL(urlSpec);
 		conn = url.openConnection();
+		conn.setReadTimeout(readTimeout);
 		InputStream instream = conn.getInputStream();
 		BufferedInputStream bis = new BufferedInputStream(instream);
 		dis = new DataInputStream(bis);
@@ -218,7 +250,7 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 		try {
 			JPEGImageDecoder decoder = JPEGCodec.createJPEGDecoder(dis);
 			image = decoder.decodeAsBufferedImage();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			logger.error("Problem reading JPG->", e);
 			disconnect(dis);
 			shutdown();

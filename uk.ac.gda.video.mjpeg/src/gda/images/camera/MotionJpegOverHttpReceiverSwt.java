@@ -45,6 +45,8 @@ public class MotionJpegOverHttpReceiverSwt extends MotionJpegOverHttpReceiverBas
 	}
 
 	private String name;
+	private int readTimeOut=0;
+	private boolean acceptReadTimeouts=false;
 
 
 	public MotionJpegOverHttpReceiverSwt() {
@@ -57,7 +59,7 @@ public class MotionJpegOverHttpReceiverSwt extends MotionJpegOverHttpReceiverBas
 
 	@Override
 	protected FrameCaptureTask<ImageData> createFrameCaptureTask(String urlSpec, ExecutorService imageDecodingService, BlockingQueue<Future<ImageData>> receivedImages) {
-		return new SwtFrameCaptureTask(urlSpec, imageDecodingService, receivedImages);
+		return new SwtFrameCaptureTask(urlSpec, imageDecodingService, receivedImages, readTimeOut, acceptReadTimeouts);
 	}
 
 	@Override
@@ -68,6 +70,26 @@ public class MotionJpegOverHttpReceiverSwt extends MotionJpegOverHttpReceiverBas
 	@Override
 	public void setName(String name) {
 		this.name = name;
+	}
+
+
+	public int getReadTimeOut() {
+		return readTimeOut;
+	}
+
+
+	public void setReadTimeOut(int readTimeOut) {
+		this.readTimeOut = readTimeOut;
+	}
+
+
+	public boolean isAcceptReadTimeouts() {
+		return acceptReadTimeouts;
+	}
+
+
+	public void setAcceptReadTimeouts(boolean acceptReadTimeouts) {
+		this.acceptReadTimeouts = acceptReadTimeouts;
 	}
 
 }
