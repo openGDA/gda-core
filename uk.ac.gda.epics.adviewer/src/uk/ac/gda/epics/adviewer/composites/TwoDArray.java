@@ -156,7 +156,7 @@ public class TwoDArray extends Composite {
 					logger.error("Error stopping histogram computation", ee);
 				}
 				if(minCallbackTimeObservable != null && minCallbackTimeObserver!=null ){
-					minCallbackTimeObservable.deleteIObserver(minCallbackTimeObserver);
+					minCallbackTimeObservable.removeObserver(minCallbackTimeObserver);
 					minCallbackTimeObserver=null;
 				}
 				if (plottingSystem != null) {

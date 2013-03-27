@@ -222,13 +222,13 @@ public class TwoDArrayROI extends Composite {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				if (enableObservable != null && enableObserver != null) {
-					enableObservable.deleteIObserver(enableObserver);
+					enableObservable.removeObserver(enableObserver);
 				}
 				if (enableXObservable != null && enableXObserver != null) {
-					enableXObservable.deleteIObserver(enableXObserver);
+					enableXObservable.removeObserver(enableXObserver);
 				}
 				if (enableYObservable != null && enableYObserver != null) {
-					enableYObservable.deleteIObserver(enableYObserver);
+					enableYObservable.removeObserver(enableYObserver);
 				}
 			}
 		});
@@ -389,7 +389,7 @@ class ValueBox1<T> extends StandardBox {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				if (observable != null && observer != null)
-					observable.deleteIObserver(observer);
+					observable.removeObserver(observer);
 			}
 		});
 	}

@@ -24,6 +24,7 @@ import gda.device.detector.areadetector.v17.ADDriverPco.PcoTriggerMode;
 import gda.device.timer.Etfg;
 import gda.device.timer.Tfg;
 import gda.scan.ScanBase;
+import gda.scan.ScanInformation;
 
 public class HardwareTriggeredPCO extends HardwareTriggeredStandard {
 
@@ -118,7 +119,7 @@ public class HardwareTriggeredPCO extends HardwareTriggeredStandard {
 
 
 	@Override
-	public void prepareForCollection(double collectionTime, int numImages) throws Exception {
+	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo) throws Exception {
 		getAdBase().stopAcquiring();
 		
 		if(etfg != null){
@@ -144,7 +145,7 @@ public class HardwareTriggeredPCO extends HardwareTriggeredStandard {
 		}
 		
 		
-		super.prepareForCollection(collectionTime, numImages);
+		super.prepareForCollection(collectionTime, numImages,scanInfo);
 
 	}
 
@@ -157,8 +158,8 @@ public class HardwareTriggeredPCO extends HardwareTriggeredStandard {
 	
 	@Override
 	protected void configureTriggerMode() throws Exception {
-		adDriverPco.getAdcModePV().put(adcMode); 
-		adDriverPco.getTimeStampModePV().put(timeStamp); 
+		adDriverPco.getAdcModePV().putWait(adcMode); 
+		adDriverPco.getTimeStampModePV().putWait(timeStamp); 
 		getAdBase().setTriggerMode(triggerMode.ordinal()); 
 	}
 	
