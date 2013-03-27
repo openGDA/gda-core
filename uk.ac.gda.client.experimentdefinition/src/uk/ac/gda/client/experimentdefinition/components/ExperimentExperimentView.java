@@ -47,6 +47,8 @@ import org.eclipse.swt.dnd.DropTarget;
 import org.eclipse.swt.dnd.DropTargetAdapter;
 import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
@@ -84,6 +86,7 @@ public class ExperimentExperimentView extends ViewPart implements ExperimentObje
 	public static final String ID = "uk.ac.diamond.gda.client.experimentdefinition.ExperimentView";
 
 	private TreeViewer treeViewer;
+	private boolean lastClickWasRHButton;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -368,6 +371,8 @@ public class ExperimentExperimentView extends ViewPart implements ExperimentObje
 	private boolean off = false;
 	private ISelectionChangedListener selectionChangedListener;
 
+	private MouseListener selectionMouseListener;
+
 	/**
 	 * Rather complex method. Need to extract this functionality to a generic common class to make making views for
 	 * controlling editors easy.
@@ -379,7 +384,7 @@ public class ExperimentExperimentView extends ViewPart implements ExperimentObje
 
 			@Override
 			public void selectionChanged(final SelectionChangedEvent event) {
-				if (off)
+				if (off || lastClickWasRHButton)
 					return;
 				// if the selection is empty clear the label
 				if (event.getSelection().isEmpty()) {
@@ -391,6 +396,26 @@ public class ExperimentExperimentView extends ViewPart implements ExperimentObje
 
 		};
 		treeViewer.addSelectionChangedListener(selectionChangedListener);
+		
+		this.selectionMouseListener = new MouseListener() {
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseDown(MouseEvent e) {
+				if (e.button == 3){
+					lastClickWasRHButton = true;
+				} else {
+					lastClickWasRHButton = false;
+				}
+			}
+
+			@Override
+			public void mouseUp(MouseEvent e) {
+			}
+		};
+		treeViewer.getTree().addMouseListener(this.selectionMouseListener);	
 	}
 
 	private void updateSelected(ISelection sel) {
