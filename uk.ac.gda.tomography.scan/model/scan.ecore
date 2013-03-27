@@ -28,5 +28,7 @@
         defaultValueLiteral="-1."/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="title" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         defaultValueLiteral="Unknown"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="flyScan" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean" defaultValueLiteral="false"/>
   </eClassifiers>
 </ecore:EPackage>

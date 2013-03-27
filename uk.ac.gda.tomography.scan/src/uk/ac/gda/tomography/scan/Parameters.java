@@ -212,4 +212,21 @@ public interface Parameters extends EObject {
 	 */
 	void setMinI(double value);
 
+	/**
+	 * @model required="true" default="false" unsettable="false"
+	 * 
+	 * @return True if the scan is to be a flyscan
+	 */
+	boolean isFlyScan();
+
+	/**
+	 * Sets the value of the '{@link uk.ac.gda.tomography.scan.Parameters#isFlyScan <em>Fly Scan</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Fly Scan</em>' attribute.
+	 * @see #isFlyScan()
+	 * @generated
+	 */
+	void setFlyScan(boolean value);
+
 }
