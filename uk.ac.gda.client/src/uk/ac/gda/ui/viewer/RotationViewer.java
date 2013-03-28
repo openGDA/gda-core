@@ -38,10 +38,12 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Layout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -120,7 +122,7 @@ public class RotationViewer {
 	private Button resetToZeroButton;
 
 	private MotorPositionViewer motorPositionViewer;
-	
+
 	private static final int ACCEPTED_STYLES = SWT.SINGLE;
 	
 	/**
@@ -194,8 +196,10 @@ public class RotationViewer {
 	 * <LI>SINGLE - step buttons displayed in 1 row, provided configureFixedStepButtons has not been set</LI>
 	 * </UL>	 *           
 	 */
-	public void createControls(Composite parent, int style){	
-		createWidgets(parent, checkStyle(style));
+	public void createControls(Composite parent, int style, Layout rotationGroupLayout, Layout motorPositionLayout, Object labelLayoutData){	
+
+		createWidgets(parent, checkStyle(style),rotationGroupLayout, motorPositionLayout, labelLayoutData);
+
 		nudgeSizeBox.setUnit(motor.getDescriptor().getUnit());
 
 		nudgeSizeBox.setValue(standardStep);
@@ -208,6 +212,25 @@ public class RotationViewer {
 	}
 
 	/**
+	 * 
+	 * @param parent
+	 * @param style
+	 * @param singleLineLayout - if true the controls are put into a single line
+	 * @param rotationGroupLayout - layout for top level composite that holds the rest of the controls
+	 * @param motorPositionLayout - layout of the motorPostion Viewer
+	 * @param labelLayoutData - layoutData ( e.g. GridData if using GridLayout) for the label of the motorPositionViewer 
+	 */
+	public void createControls(Composite parent, int style,boolean singleLineLayout, 
+			Layout rotationGroupLayout, Layout motorPositionLayout, Object labelLayoutData) {
+		this.singleLineLayout = singleLineLayout;
+		createControls(parent,style, rotationGroupLayout, motorPositionLayout, labelLayoutData);
+	}
+
+	
+	public void createControls(Composite parent, int style){
+		createControls(parent, style, null, null, null);
+	}
+	/**
 	 * As createControls(Composite,int) except that the buttons appear on the same line as the textfield when
 	 * singleLineLayout is set to true.
 	 * 
@@ -216,8 +239,7 @@ public class RotationViewer {
 	 * @param singleLineLayout
 	 */
 	public void createControls(Composite parent, int style,boolean singleLineLayout) {
-		this.singleLineLayout = singleLineLayout;
-		createControls(parent,style);
+		createControls(parent,style, singleLineLayout, null, null, null);
 	}
 
 	
@@ -330,7 +352,7 @@ public class RotationViewer {
 	 * @param parent composite
 	 * @param style 
 	 */
-	private void createWidgets(Composite parent, int style) {
+	private void createWidgets(Composite parent, int style, Layout rotationGroupLayout, Layout motorPositionLayout, Object labelLayoutData) {
 		
 		final boolean DEBUG_LAYOUT = false;
 		
@@ -338,7 +360,10 @@ public class RotationViewer {
 		
 		final Composite rotationGroup = new Composite(parent, SWT.NONE);
 		int numColumns = singleLineLayout ? 2 : 1;
-		GridLayoutFactory.swtDefaults().numColumns(numColumns).equalWidth(false).margins(1, 1).spacing(2, 2).applyTo(rotationGroup);
+		if( rotationGroupLayout == null){
+			rotationGroupLayout = GridLayoutFactory.swtDefaults().numColumns(numColumns).equalWidth(false).margins(1, 1).spacing(2, 2).create();
+		}
+		rotationGroup.setLayout(rotationGroupLayout);
 		
 		if (DEBUG_LAYOUT) {
 			rotationGroup.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_GREEN));
@@ -348,10 +373,14 @@ public class RotationViewer {
 			motorLabel = scannable.getName();
 		
 		{
+			if( motorPositionLayout == null){
+				motorPositionLayout = GridLayoutFactory.swtDefaults().numColumns(3).margins(1,1).spacing(2,2).create();
+			}
+			
 			Composite motorPositionContainer = new Composite(rotationGroup, SWT.NONE);
 			GridDataFactory.fillDefaults().applyTo(motorPositionContainer);
-			GridLayoutFactory.swtDefaults().numColumns(3).margins(1,1).spacing(2,2).applyTo(motorPositionContainer);
-			motorPositionViewer = new MotorPositionViewer(motorPositionContainer, scannable, motorLabel);
+			motorPositionContainer.setLayout(motorPositionLayout);
+			motorPositionViewer = new MotorPositionViewer(motorPositionContainer, scannable, motorLabel, false, labelLayoutData);
 			if (DEBUG_LAYOUT) {
 				motorPositionContainer.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
 			}
