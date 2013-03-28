@@ -117,72 +117,72 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	/**
 	 * EPICS channels to connect
 	 */
-	private Channel val = null; // user desired value .VAL, double in EGU
+	protected Channel val = null; // user desired value .VAL, double in EGU
 
-	private Channel rbv = null; // User readback value .RBV, double in EGU
+	protected Channel rbv = null; // User readback value .RBV, double in EGU
 
-	private Channel offset = null; // set motor offset without moving motor
+	protected Channel offset = null; // set motor offset without moving motor
 
-	private Channel stop = null; // the motor stop control
+	protected Channel stop = null; // the motor stop control
 
-	private Channel velo = null; // Velocity (EGU/s) .VELO, FLOAT
+	protected Channel velo = null; // Velocity (EGU/s) .VELO, FLOAT
 
-	private Channel accl;
+	protected Channel accl;
 
-	private Channel lvio = null; // Limit Violation, .LVIO, SHORT
+	protected Channel lvio = null; // Limit Violation, .LVIO, SHORT
 
-	private Channel dmov = null; // Done move to value, .DMOV, SHORT
+	protected Channel dmov = null; // Done move to value, .DMOV, SHORT
 
-	private Channel rdbd = null; // retry deadband
+	protected Channel rdbd = null; // retry deadband
 
-	private Channel hlm = null; // User High Limit .HLM, FLOAT
+	protected Channel hlm = null; // User High Limit .HLM, FLOAT
 
-	private Channel llm = null; // User Lower Limit .LLM, FLOAT
+	protected Channel llm = null; // User Lower Limit .LLM, FLOAT
 
-	private Channel dhlm;
+	protected Channel dhlm;
 
-	private Channel dllm;
+	protected Channel dllm;
 
 	protected Channel homf = null; // Home Forward, .HOMF, SHORT
 
-	private Channel mres = null; // motor resolution
+	protected Channel mres = null; // motor resolution
 
-	private Channel unitString = null; // EPICS motor Unit
+	protected Channel unitString = null; // EPICS motor Unit
 
-	private Channel msta = null;// Hardware status
+	protected Channel msta = null;// Hardware status
 
-	private Channel spmg = null; // motor template mode (Go or Stop)
+	protected Channel spmg = null; // motor template mode (Go or Stop)
 
 	/**
 	 * monitor EPICS motor position
 	 */
-	private RBVMonitorListener positionMonitor;
+	protected RBVMonitorListener positionMonitor;
 
 	/**
 	 * Monitor EPICS motor's DMOV - EPICS motor motion completion status
 	 */
-	private DMOVMonitorListener statusMonitor;
+	protected DMOVMonitorListener statusMonitor;
 
 	/**
 	 * Monitor EPICS motor lower limit
 	 */
-	private LLMMonitorListener lowLimitMonitor;
+	protected LLMMonitorListener lowLimitMonitor;
 
 	/**
 	 * Monitor EPICS motor higher limit
 	 */
-	private HLMMonitorListener highLimitMonitor;
-	private MSTAMonitorListener mstaMonitorListener;
+	protected HLMMonitorListener highLimitMonitor;
+	protected MSTAMonitorListener mstaMonitorListener;
 	/**
 	 * Monitor EPICS motor limit violation
 	 */
 	@SuppressWarnings("unused")
-	private LVIOMonitorListener lvioMonitor;
+	protected LVIOMonitorListener lvioMonitor;
 
 	/**
 	 * EPICS Put call back handler
 	 */
-	private PutCallbackListener putCallbackListener;
+	protected PutCallbackListener putCallbackListener;
 
 	// private MSTAMonitorListener mstaMonitorListener;
 
@@ -382,7 +382,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	 * 
 	 * @throws FactoryException
 	 */
-	private void createChannelAccess() throws FactoryException {
+	protected void createChannelAccess() throws FactoryException {
 		try {
 			val = channelManager.createChannel(pvName + ".VAL", false);
 			rbv = channelManager.createChannel(pvName + ".RBV", positionMonitor, MonitorType.TIME, false);
