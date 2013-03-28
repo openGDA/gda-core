@@ -2479,4 +2479,14 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	public int getMonitorCount() {
 		return monitorCount.get();
 	}
+	/**
+	 * return a PV value monitor to the specified channel.
+	 * @param dataChannel
+	 * @return the monitor
+	 * @throws IllegalStateException
+	 * @throws CAException
+	 */
+	public Monitor addMonitor(Channel dataChannel) throws IllegalStateException, CAException {
+		return dataChannel.addMonitor(Monitor.VALUE);
+	}
 }
