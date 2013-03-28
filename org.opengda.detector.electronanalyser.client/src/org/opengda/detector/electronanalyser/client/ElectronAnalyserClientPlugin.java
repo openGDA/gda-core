@@ -1,5 +1,9 @@
 package org.opengda.detector.electronanalyser.client;
 
+import java.io.File;
+
+import gda.util.SpringObjectServer;
+
 import org.eclipse.emf.edit.domain.EditingDomain;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -27,11 +31,8 @@ public class ElectronAnalyserClientPlugin extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
-		// SpringObjectServer s = new SpringObjectServer(
-		// new File(
-		// "D:/gda/i09/workspace_git/opengda-electronanalyser.git/org.opengda.detector.electronanalyser.client.test/client.xml"),
-		// true);
-		// s.configure();
+		SpringObjectServer s = new SpringObjectServer(new File("D:/gda/i09/workspace_git/opengda-electronanalyser.git/org.opengda.detector.electronanalyser.client.test/client.xml"), true);
+		s.configure();
 	}
 
 	@Override

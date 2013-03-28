@@ -1,0 +1,205 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+	<!-- Set up the Area Detector base class which will manage the pix.cam -->
+	<bean id="analyser.cam" class="gda.device.detector.areadetector.v17.impl.ADBaseImpl">
+		<!-- <property name="deviceName" value="analyser.cam_ADBase" /> -->
+		<property name="basePVName" value="ELECTRON-ANALYSER-01:TEST:" />
+		<property name="initialDataType" value="UInt16" />
+		<property name="initialMinX" value="1" />
+		<property name="initialMinY" value="1" />
+		<property name="initialSizeX" value="1024" />
+		<property name="initialSizeY" value="1024" />
+		<property name="initialBinX" value="1" />
+		<property name="initialBinY" value="1" />
+		<!-- <property name="initialNDAttributesFile" value="Z:/epics/areadetector/pixiumattributes.xml" 
+			/> -->
+	</bean>
+
+	<bean id="analyser.proc" class="gda.device.detector.areadetector.v17.impl.NDProcessImpl">
+		<!-- <property name="deviceName" value="analyser.proc_NDProcess" /> -->
+		<property name="basePVName" value="ELECTRON-ANALYSER-01:PROC:" />
+		<property name="pluginBase">
+			<bean class="gda.device.detector.areadetector.v17.impl.NDPluginBaseImpl">
+				<!-- <property name="deviceName" value="analyser.proc_NDPluginBase" /> -->
+				<property name="basePVName" value="ELECTRON-ANALYSER-01:PROC:" />
+				<property name="initialArrayPort" value="analyser.cam" />
+				<property name="initialArrayAddress" value="0" />
+				<property name="initialEnableCallbacks" value="1" />
+				<property name="initialBlockingCallbacks" value="false" />
+			</bean>
+		</property>
+		<property name="initialEnableBackground" value="0" />
+		<property name="initialEnableFlatField" value="0" />
+		<property name="initialEnableOffsetScale" value="0" />
+		<property name="initialEnableHighClip" value="0" />
+		<property name="initialEnableLowClip" value="0" />
+		<property name="initialEnableFilter" value="0" />
+	</bean>
+	<bean id="analyser.roi" class="gda.device.detector.areadetector.v17.impl.NDROIImpl">
+		<!-- <property name="deviceName" value="analyser.roi1_NDROI" /> -->
+		<property name="basePVName" value="ELECTRON-ANALYSER-01:ROI:" />
+		<property name="pluginBase">
+			<bean class="gda.device.detector.areadetector.v17.impl.NDPluginBaseImpl">
+				<!-- <property name="deviceName" value="analyser.roi1_NDPluginBase" /> -->
+				<property name="basePVName" value="ELECTRON-ANALYSER-01:ROI:" />
+				<property name="initialArrayPort" value="analyser.proc" />
+				<property name="initialArrayAddress" value="0" />
+				<property name="initialEnableCallbacks" value="1" />
+				<property name="initialBlockingCallbacks" value="false" />
+			</bean>
+		</property>
+		<property name="initialEnableScale" value="true" />
+		<property name="initialScale" value="16" />
+		<property name="initialBinX" value="4" />
+		<property name="initialBinY" value="4" />
+		<property name="initialMinX" value="1" />
+		<property name="initialMinY" value="1" />
+		<property name="initialSizeX" value="4008" />
+		<property name="initialSizeY" value="2672" />
+		<property name="initialEnableX" value="true" />
+		<property name="initialEnableY" value="true" />
+	</bean>
+	<bean id="analyser.arr" class="gda.device.detector.areadetector.v17.impl.NDArrayImpl">
+		<!-- <property name="deviceName" value="analyser.arr_NDStdArrays" /> -->
+		<property name="basePVName" value="ELECTRON-ANALYSER-01:ARR:" />
+		<property name="pluginBase">
+			<bean class="gda.device.detector.areadetector.v17.impl.NDPluginBaseImpl">
+				<!-- <property name="deviceName" value="analyser.arr_NDPluginBase" /> -->
+				<property name="basePVName" value="ELECTRON-ANALYSER-01:ARR:" />
+				<property name="initialArrayPort" value="analyser.proc" />
+				<property name="initialArrayAddress" value="0" />
+				<property name="initialEnableCallbacks" value="1" />
+				<property name="initialBlockingCallbacks" value="false" />
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="analyser.stat" class="gda.device.detector.areadetector.v17.impl.NDStatsImpl">
+		<!-- <property name="deviceName" value="analyser.stat_NDStats" /> -->
+		<property name="basePVName" value="ELECTRON-ANALYSER-01:STAT:" />
+		<property name="pluginBase">
+			<bean class="gda.device.detector.areadetector.v17.impl.NDPluginBaseImpl">
+				<property name="basePVName" value="ELECTRON-ANALYSER-01:STAT:" />
+				<!-- <property name="deviceName" value="analyser.stat_NDPluginBase" /> -->
+				<property name="initialArrayPort" value="analyser.proc" />
+				<property name="initialArrayAddress" value="0" />
+				<property name="initialEnableCallbacks" value="1" />
+				<property name="initialBlockingCallbacks" value="false" />
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="analyser_hdf_file" class="gda.device.detector.areadetector.v17.impl.NDFileImpl">
+		<!-- <property name="deviceName" value="analyser.hdf_NDFile" /> -->
+		<property name="basePVName" value="ELECTRON-ANALYSER-01:HDF:" />
+		<property name="pluginBase">
+			<bean class="gda.device.detector.areadetector.v17.impl.NDPluginBaseImpl">
+				<!-- <property name="deviceName" value="analyser.hdf_NDPluginBase" /> -->
+				<property name="basePVName" value="ELECTRON-ANALYSER-01:HDF:" />
+				<property name="initialArrayPort" value="analyser.cam" />
+				<property name="initialArrayAddress" value="0" />
+				<property name="initialEnableCallbacks" value="1" />
+				<property name="initialBlockingCallbacks" value="false" />
+			</bean>
+		</property>
+		<property name="initialAutoSave" value="Yes" />
+		<property name="initialAutoIncrement" value="Yes" />
+		<property name="initialWriteMode" value="2" />
+		<property name="initialNumCapture" value="1" />
+		<property name="initialFileName" value="Prefix" />
+		<property name="initialFileTemplate" value="%s/%s.h5" />
+		<property name="filePathConverter">
+			<bean class="uk.ac.gda.util.UnixToWindowsFilePathConverter">
+				<property name="unixSubString" value="/dls/i09/data" />
+				<property name="windowsSubString" value="z:\data" />
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="analyser.hdf"
+		class="gda.device.detector.areadetector.v17.impl.NDFileHDF5Impl">
+		<!-- <property name="deviceName" value="analyser.hdf_NDFileHDF5" /> -->
+		<property name="basePVName" value="ELECTRON-ANALYSER-01:HDF:" />
+		<property name="file" ref="analyser_hdf_file" />
+		<property name="initialNumExtraDims" value="0" />
+		<property name="initialExtraDimSizeN" value="1" />
+		<property name="initialExtraDimSizeX" value="0" />
+		<property name="initialExtraDimSizeY" value="0" />
+		<property name="initialNumRowChunks" value="2672" />
+		<property name="initialCompression" value="None" />
+		<property name="initialNumBitOffset" value="0" />
+		<property name="initialNumBitPrecision" value="8" />
+		<property name="initialSzipNumPixels" value="16" />
+		<property name="initialZCompressLevel" value="6" />
+	</bean>
+
+	<bean id="analyser.mpeg"
+		class="gda.device.detector.areadetector.v17.impl.FfmpegStreamImpl">
+		<!-- <property name="deviceName" value="analyser.mpeg_ffmpegStream" /> -->
+		<property name="basePVName" value="ELECTRON-ANALYSER-01:MPG:" />
+		<property name="pluginBase">
+			<bean class="gda.device.detector.areadetector.v17.impl.NDPluginBaseImpl">
+				<property name="basePVName" value="ELECTRON-ANALYSER-01:MPG:" />
+				<!-- <property name="deviceName" value="analyser.mpeg_NDPluginBase" /> -->
+				<property name="initialArrayPort" value="analyser.roi" />
+				<property name="initialArrayAddress" value="0" />
+				<property name="initialEnableCallbacks" value="1" />
+				<property name="initialBlockingCallbacks" value="false" />
+			</bean>
+		</property>
+		<property name="initialQuality" value="100" />
+		<property name="initialFalseColor" value="0" />
+		<property name="initialAlwaysOn" value="0" />
+	</bean>
+
+	<bean id="analyserCapability"
+		class="org.opengda.detector.electronanalyser.server.AnalyserCapabilities" />
+
+	<bean id="analysercontroller"
+		class="org.opengda.detector.electronanalyser.server.VGScientaController">
+		<!-- <property name="deviceName" value="analyser.cam_analysercam" /> -->
+		<property name="basePVName" value="ELECTRON-ANALYSER-01:TEST:" />
+	</bean>
+
+	<bean id="analyser_hdf_simpleacquire" class="gda.device.detector.addetector.triggering.SimpleAcquire">
+		<constructor-arg ref="analyser.cam" />
+		<constructor-arg value="0.1" />
+	</bean>
+
+	<bean id="analyser_hdf_fileWriter"
+		class="gda.device.detector.addetector.filewriter.MultipleImagesPerHDF5FileWriter">
+		<property name="ndFileHDF5" ref="analyser.hdf" />
+		<property name="fileNameTemplate" value="Prefix" />
+		<property name="filePathTemplate" value="$datadir$" />
+		<property name="fileTemplate" value="%s/%s_%05d.hdf" />
+		<property name="fileNumberAtScanStart" value="-1" />
+		<property name="setFileNameAndNumber" value="true" />
+		<property name="rowChunks" value="1024" />
+		<property name="colChunks" value="1024" />
+		<property name="framesChunks" value="1" />
+		<property name="framesFlush" value="64" />
+		<property name="blocking" value="False" />
+	</bean>
+
+	<bean id="analyser"
+		class="org.opengda.detector.electronanalyser.server.VGScientaAnalyser">
+		<property name="controller" ref="analysercontroller" />
+		<property name="capabilities" ref="analyserCapability" />
+		<property name="adBase" ref="analyser.cam" />
+		<property name="ndStats" ref="analyser.stat" />
+		<property name="computeCentroid" value="false" />
+		<property name="computeStats" value="false" />
+		<property name="ndArray" ref="analyser.arr" />
+		<property name="ndFile" ref="analyser_hdf_file" />
+		<property name="collectionStrategy" ref="analyser_hdf_simpleacquire" />
+		<property name="fileWriter" ref="analyser_hdf_fileWriter" />
+		<property name="readAcquisitionTime" value="true" />
+		<property name="readFilepath" value="true" />
+		<property name="readAcquisitionPeriod" value="false" />
+		<property name="readArray" value="false" />
+	</bean>
+
+
+</beans>

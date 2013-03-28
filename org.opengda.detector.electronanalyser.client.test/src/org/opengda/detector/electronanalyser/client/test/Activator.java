@@ -29,9 +29,9 @@ public class Activator implements BundleActivator {
 //						"D:/gda/gda-i09/workspace/org.opengda.detector.electronanalyser.client.test/client.xml"),
 //				true);
 //		s.configure();
-		// FileSystemXmlApplicationContext applicationContext = new
-		// FileSystemXmlApplicationContext(
-		// "file:D:\\gda\\gda-i09\\workspace\\org.opengda.detector.electroanalyser.client\\client.xml");
+//		 FileSystemXmlApplicationContext applicationContext = new
+//		 FileSystemXmlApplicationContext(
+//		 "file:D:\\gda\\gda-i09\\workspace\\org.opengda.detector.electroanalyser.client\\client.xml");
 	}
 
 	/*

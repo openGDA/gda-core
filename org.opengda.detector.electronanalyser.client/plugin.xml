@@ -17,13 +17,8 @@
             name="Sequence Editor"
             restorable="true">
       </view>
-      <category
-            id="org.opengda.detector.electronanalyser.client.liveplot"
-            name="Live Plot"
-            parentCategory="org.opengda.detector.electronanalyser.client.ses">
-      </category>
       <view
-            category="org.opengda.detector.electronanalyser.client.liveplot"
+            category="org.opengda.detector.electronanalyser.client.ses"
             class="org.opengda.detector.electronanalyser.client.viewextensionfactories.SpectrumViewExtensionFactory:spectrumviewfactory"
             id="org.opengda.detector.electronanalyser.client.plot.spectrumview"
             name="Spectrum"
@@ -34,31 +29,39 @@
             name="SES">
       </category>
       <view
-            category="org.opengda.detector.electronanalyser.client.liveplot"
+            category="org.opengda.detector.electronanalyser.client.ses"
             class="org.opengda.detector.electronanalyser.client.viewextensionfactories.SpectrumViewExtensionFactory:spectrumviewfactory"
             id="org.opengda.detector.electronanalyser.client.plot.externalioview"
             name="External IO"
             restorable="true">
       </view>
       <view
-            category="org.opengda.detector.electronanalyser.client.liveplot"
+            category="org.opengda.detector.electronanalyser.client.ses"
             class="org.opengda.detector.electronanalyser.client.viewextensionfactories.SpectrumViewExtensionFactory:spectrumviewfactory"
             id="org.opengda.detector.electronanalyser.client.plot.imageview"
             name="Image"
             restorable="true">
       </view>
       <view
-            category="org.opengda.detector.electronanalyser.client.liveplot"
+            category="org.opengda.detector.electronanalyser.client.ses"
             class="org.opengda.detector.electronanalyser.client.viewextensionfactories.SpectrumViewExtensionFactory:spectrumviewfactory"
             id="org.opengda.detector.electronanalyser.client.plot.sliceview"
             name="Slice"
             restorable="true">
       </view>
       <view
-            category="org.opengda.detector.electronanalyser.client.liveplot"
+            category="org.opengda.detector.electronanalyser.client.ses"
             class="org.opengda.detector.electronanalyser.client.viewextensionfactories.SpectrumViewExtensionFactory:spectrumviewfactory"
             id="org.opengda.detector.electronanalyser.client.plot.progress"
             name="Progress"
+            restorable="true">
+      </view>
+      <view
+            category="org.opengda.detector.electronanalyser.client.ses"
+            class="org.opengda.detector.electronanalyser.client.viewextensionfactories.StatusViewExtensionFactory:statusviewfactory"
+            icon="icons/status.png"
+            id="org.opengda.detector.electronanalyser.client.staus"
+            name="Status"
             restorable="true">
       </view>
    </extension>

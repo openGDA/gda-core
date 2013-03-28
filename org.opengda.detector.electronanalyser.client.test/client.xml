@@ -5,19 +5,19 @@
            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 
-<!-- 	<context:property-placeholder -->
-<!-- 		location="file:${gda.config}/properties/beamline.properties, -->
-<!-- 		file:${gda.config}/logging/live/log.properties, -->
-<!-- 		file:${gda.config}/epics/live/epics.properties, -->
-<!-- 		file:${gda.config}/properties/live/java.properties, -->
-<!-- 		file:${gda.config}/properties/gda.properties" /> -->
+	<context:property-placeholder
+		location="file:${gda.config}/properties/beamline.properties,
+ 		file:${gda.config}/logging/dummy/log.properties,
+		file:${gda.config}/epics/dummy/epics.properties, 
+ 		file:${gda.config}/properties/dummy/java.properties, 
+ 		file:${gda.config}/properties/gda.properties" /> 
 
 	<bean id="regionDefinitionResourceUtil"
-		class="org.opengda.detector.electronanalyser.client.RegionDefinitionResourceUtil">
+		class="org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil">
 		<property name="fileName"
 			value="D:/gda/i09/runtime-TestInClient/Test123/My.seq" />
 		<property name="sourceSelectable" value="true"/>
-		<property name="xRaySourceEnergyLimit" value="2100"/>
+		<property name="XRaySourceEnergyLimit" value="2100"/>
 	</bean>
 	<bean id="analysercamera"
 		class="org.opengda.detector.electronanalyser.client.Camera">
@@ -28,7 +28,7 @@
 	</bean>
 	
 	<bean id="sequenceviewfactory"
-		class="org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewFactory">
+		class="org.opengda.detector.electronanalyser.client.viewfactories.SequenceViewFactory">
 		<property name="viewPartName" value="Sequence Editor" />
 		<property name="regionDefinitionResourceUtil" ref="regionDefinitionResourceUtil" />
 		<property name="camera" ref="analysercamera"/>
@@ -38,31 +38,23 @@
 	</bean>
 
 	<bean id="regionviewfactory"
-		class="org.opengda.detector.electronanalyser.client.regioneditor.RegionViewFactory">
+		class="org.opengda.detector.electronanalyser.client.viewfactories.RegionViewFactory">
 		<property name="viewPartName" value="Region Editor" />
 		<property name="regionDefinitionResourceUtil" ref="regionDefinitionResourceUtil" />
 		<property name="camera" ref="analysercamera"/>
 	</bean>
-	
-	<bean id="analyserCapability"
-		class="org.opengda.detector.electronanalyser.server.AnalyserCapabilities"/>
-
-	<bean id="analysercontroller"
-		class="org.opengda.detector.electronanalyser.server.VGScientaController">
-		<property name="basePVName"	value="ELECTRON-ANALYSER-01:TEST:" />
-	</bean>
-	
-	<bean id="analyser"
-		class="org.opengda.detector.electronanalyser.server.VGScientaAnalyser">
-		<property name="controller"	ref="analysercontroller" />
-		<property name="capabilities" ref="analyserCapability"/>
-	</bean>
+	<import resource="analyser.xml"/>
 
 	<bean id="spectrumviewfactory"
-		class="org.opengda.detector.electronanalyser.client.plot.SpectrumViewFactory">
+		class="org.opengda.detector.electronanalyser.client.viewfactories.SpectrumViewFactory">
 		<property name="viewPartName" value="Spectrum Plot" />
 		<property name="analyser" ref="analyser" />
 	</bean>
 
+	<bean class="gda.spring.FindableNameSetterPostProcessor" />
+	<bean class="gda.spring.SingletonRegistrationPostProcessor" />
+	<!--enable types supported by the PropertyEditors listed in the GdaPropertyEditorRegistrar 
+		class -->
+	<import resource="classpath:gda/spring/propertyeditors/registration.xml" />
 
 </beans>
