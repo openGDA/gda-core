@@ -23,11 +23,6 @@ import java.util.regex.Pattern;
 
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.events.FocusAdapter;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -44,7 +39,6 @@ import uk.ac.gda.richbeans.beans.IRangeWidget;
 import uk.ac.gda.richbeans.components.scalebox.internal.RangeDialog;
 import uk.ac.gda.richbeans.event.BoundsEvent;
 import uk.ac.gda.richbeans.event.BoundsListener;
-import uk.ac.gda.richbeans.event.ValueEvent;
 import uk.ac.gda.ui.utils.SWTUtils;
 
 import com.swtdesigner.SWTResourceManager;
@@ -122,37 +116,7 @@ public class RangeBox extends NumberBox implements IRangeWidget {
 	public void closeDialog() {
 		if (dialog != null)
 			dialog.close();
-	}
-
-	@Override
-	protected void createTextListeners(final StyledText text) {
-		this.focusListener = new FocusAdapter() {
-			@Override
-			public void focusLost(FocusEvent e) {
-				if (!RangeBox.this.isOn())
-					return;
-				try {
-					off();
-					checkValue(text.getText());
-				} finally {
-					on();
-				}
-			}
-		};
-		text.addFocusListener(focusListener);
-
-		this.modifyListener = new ModifyListener() {
-			@Override
-			public void modifyText(final ModifyEvent e) {
-				checkValue(text.getText());
-				final ValueEvent evt = new ValueEvent(RangeBox.this, getFieldName());
-				evt.setValue(getValue());
-				eventDelegate.notifyValueListeners(evt);
-			}
-		};
-		text.addModifyListener(modifyListener);
-
-	}
+	}	
 
 	@Override
 	protected void checkValue(String txt) {
@@ -327,6 +291,7 @@ public class RangeBox extends NumberBox implements IRangeWidget {
 		box1.setUnit("eV");
 		box1.setLabel("Fred");
 		box1.setLabelWidth(200);
+		box1.setValue(10);
 		box1.addBoundsListener(new BoundsListener () {
 
 			@Override
@@ -345,14 +310,17 @@ public class RangeBox extends NumberBox implements IRangeWidget {
 			}
 			
 		});
+		box1.on();
 				
 		final RangeBox box2 = new RangeBox(comp, SWT.NONE);
 		box2.setLayoutData(new ColumnLayoutData(200));
 		box2.setMaximum(1000);
-		box2.setMinimum(0);
+		box2.setMinimum(box1);
 		box2.setUnit("eV");
+		box2.setValue(1);
 		box2.setLabelWidth(200);
 		box2.setDecimalPlaces(4);
+		box2.on();
 		
 		final RangeBox box3 = new RangeBox(comp, SWT.NONE);
 		box3.setLayoutData(new ColumnLayoutData(200));
@@ -360,6 +328,7 @@ public class RangeBox extends NumberBox implements IRangeWidget {
 		box3.setMaximum(20.51);
 		box3.setMinimum(-20.51);
 		box3.setUnit("eV");
+		box3.on();
 		
 		
 		final RangeBox box4 = new RangeBox(comp, SWT.NONE);
@@ -369,6 +338,7 @@ public class RangeBox extends NumberBox implements IRangeWidget {
 		box4.setIntegerValue(-25);
 		box4.setMaximum(-20);
 		box4.setMinimum(-50);
+		box4.on();
 		
 		shell.pack();
 		shell.setSize(400,400);
