@@ -143,10 +143,4 @@ public class ObservableUtil<E> implements Observable<E>, IIsBeingObserved {
 		return !myObservers.isEmpty();
 	}
 
-	@Override
-	public void deleteIObserver(Observer<E> observer) {
-		removeObserver(observer);
-		
-	}
-
 }
