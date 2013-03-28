@@ -32,12 +32,20 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.forms.widgets.ColumnLayout;
+import org.eclipse.ui.forms.widgets.ColumnLayoutData;
 
+import swing2swt.layout.BorderLayout;
 import uk.ac.gda.doe.DOEUtils;
 import uk.ac.gda.richbeans.beans.IExpressionManager;
 import uk.ac.gda.richbeans.beans.IRangeWidget;
 import uk.ac.gda.richbeans.components.scalebox.internal.RangeDialog;
+import uk.ac.gda.richbeans.event.BoundsEvent;
+import uk.ac.gda.richbeans.event.BoundsListener;
 import uk.ac.gda.richbeans.event.ValueEvent;
+import uk.ac.gda.ui.utils.SWTUtils;
 
 import com.swtdesigner.SWTResourceManager;
 
@@ -296,6 +304,76 @@ public class RangeBox extends NumberBox implements IRangeWidget {
 
 	public boolean isError() {
 		return error;
+	}
+
+	
+	/**
+	 * Testing use only.
+	 * @param args
+	 */
+	public static void main(String... args) {
+		
+		Display display = new Display();
+		Shell shell = new Shell(display);
+		shell.setLayout(new BorderLayout());
+		
+		final Composite comp = new Composite(shell,SWT.NONE);
+		comp.setLayoutData(BorderLayout.NORTH);
+		
+		comp.setLayout(new ColumnLayout());
+
+		final RangeBox box1 = new RangeBox(comp, SWT.NONE);
+		box1.setLayoutData(new ColumnLayoutData(200));
+		box1.setUnit("eV");
+		box1.setLabel("Fred");
+		box1.setLabelWidth(200);
+		box1.addBoundsListener(new BoundsListener () {
+
+			@Override
+			public void valueGreater(BoundsEvent e) {
+				System.out.println(e);
+			}
+
+			@Override
+			public void valueLegal(BoundsEvent e) {
+				System.out.println(e);
+			}
+
+			@Override
+			public void valueLess(BoundsEvent e) {
+				System.out.println(e);
+			}
+			
+		});
+				
+		final RangeBox box2 = new RangeBox(comp, SWT.NONE);
+		box2.setLayoutData(new ColumnLayoutData(200));
+		box2.setMaximum(1000);
+		box2.setMinimum(0);
+		box2.setUnit("eV");
+		box2.setLabelWidth(200);
+		box2.setDecimalPlaces(4);
+		
+		final RangeBox box3 = new RangeBox(comp, SWT.NONE);
+		box3.setLayoutData(new ColumnLayoutData(200));
+		box3.setDecimalPlaces(2);
+		box3.setMaximum(20.51);
+		box3.setMinimum(-20.51);
+		box3.setUnit("eV");
+		
+		
+		final RangeBox box4 = new RangeBox(comp, SWT.NONE);
+		box4.setLayoutData(new ColumnLayoutData(200));		
+		box4.setDecimalPlaces(0);
+		box4.setUnit("s");
+		box4.setIntegerValue(-25);
+		box4.setMaximum(-20);
+		box4.setMinimum(-50);
+		
+		shell.pack();
+		shell.setSize(400,400);
+
+		SWTUtils.showCenteredShell(shell);
 	}
 
 }
