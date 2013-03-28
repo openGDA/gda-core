@@ -762,4 +762,9 @@ public class ADBaseSimulator implements ADBase {
 		return null;
 	}
 
+	@Override
+	public void setImageMode(gda.device.detector.areadetector.v17.ADBase.ImageMode imagemode) throws Exception {
+		
+	}
+
 }

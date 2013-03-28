@@ -2356,4 +2356,19 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	public Observable<Double> createAcquireTimeObservable() throws Exception {
 		return LazyPVFactory.newReadOnlyDoublePV(getChannelName(AcquireTime_RBV));
 	}
+
+	@Override
+	public void setImageMode(ImageMode imagemode) throws Exception {
+		try {
+			if (config != null) {
+				EPICS_CONTROLLER.caput(createChannel(config.getImageMode().getPv()), imagemode.ordinal());
+			} else {
+				EPICS_CONTROLLER.caput(getChannel(ImageMode), imagemode.ordinal());
+			}
+		} catch (Exception ex) {
+			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot setImageMode", ex);
+			throw ex;
+		}
+
+	}
 }
