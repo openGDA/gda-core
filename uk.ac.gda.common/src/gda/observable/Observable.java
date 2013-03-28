@@ -49,4 +49,6 @@ public interface Observable<E> {
 	 */
 	void removeObserver(Observer<E> observer);
 
+	void deleteIObserver(Observer<E> observer);
+
 }
