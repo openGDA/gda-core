@@ -68,7 +68,6 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 	private Vector<String> data = new Vector<String>();
 	private ServerSocketChannel serverSocket = null;
 	private long replyTimeOut = 30000;
-	private int dataport = -1;
 
 	/**
 	 * Set the host on which da.server is running
@@ -570,22 +569,22 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 			if (serverSocket == null) {
 				boolean bound = false;
 				while (!bound) {
-					if (dataport < 0) {
+					if (dataPort < 0) {
 						throw new IOException("no bindable ports found");
 					}
 
 					try {
 						serverSocket = ServerSocketChannel.open();
-						serverSocket.socket().bind(new InetSocketAddress(dataport));
+						serverSocket.socket().bind(new InetSocketAddress(dataPort));
 						serverSocket.configureBlocking(false);
 						bound = true;
 					} catch (IOException e) {
-						dataport++;
+						dataPort++;
 					}
 				}
 				// should this be re-sent every time ?
-				sendCommand("port " + dataport);
-				logger.debug(getName() + " getBinaryDataBuffer(): serverSocket created on port " + dataport);
+				sendCommand("port " + dataPort);
+				logger.debug(getName() + " getBinaryDataBuffer(): serverSocket created on port " + dataPort);
 			}
 			out.flush();
 			// The reply to the command will not come until after the

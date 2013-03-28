@@ -47,6 +47,8 @@ import org.eclipse.swt.dnd.DropTarget;
 import org.eclipse.swt.dnd.DropTargetAdapter;
 import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
@@ -84,6 +86,7 @@ public class ExperimentExperimentView extends ViewPart implements ExperimentObje
 	public static final String ID = "uk.ac.diamond.gda.client.experimentdefinition.ExperimentView";
 
 	private TreeViewer treeViewer;
+	private boolean lastClickWasRHButton;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -368,6 +371,8 @@ public class ExperimentExperimentView extends ViewPart implements ExperimentObje
 	private boolean off = false;
 	private ISelectionChangedListener selectionChangedListener;
 
+	private MouseListener selectionMouseListener;
+
 	/**
 	 * Rather complex method. Need to extract this functionality to a generic common class to make making views for
 	 * controlling editors easy.
@@ -386,14 +391,34 @@ public class ExperimentExperimentView extends ViewPart implements ExperimentObje
 					return;
 				}
 
-				updateSelected(event.getSelection());
+				updateSelected(event.getSelection(),!lastClickWasRHButton);
 			}
 
 		};
 		treeViewer.addSelectionChangedListener(selectionChangedListener);
+		
+		this.selectionMouseListener = new MouseListener() {
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseDown(MouseEvent e) {
+				if (e.button == 3){
+					lastClickWasRHButton = true;
+				} else {
+					lastClickWasRHButton = false;
+				}
+			}
+
+			@Override
+			public void mouseUp(MouseEvent e) {
+			}
+		};
+		treeViewer.getTree().addMouseListener(this.selectionMouseListener);	
 	}
 
-	private void updateSelected(ISelection sel) {
+	private void updateSelected(ISelection sel, boolean openEditors) {
 		try {
 			off = true;
 			if (sel instanceof IStructuredSelection) {
@@ -401,21 +426,23 @@ public class ExperimentExperimentView extends ViewPart implements ExperimentObje
 				final Object element = selection.getFirstElement();
 				ExperimentFactory.getExperimentEditorManager().setSelected(element);
 
-				try {
-					if (element instanceof IExperimentObject) {
-						final IExperimentObject ob = (IExperimentObject) element;
-						ExperimentFactory.getExperimentEditorManager().openDefaultEditors(ob, true);
+				if (openEditors) {
+					try {
+						if (element instanceof IExperimentObject) {
+							final IExperimentObject ob = (IExperimentObject) element;
+							ExperimentFactory.getExperimentEditorManager().openDefaultEditors(ob, true);
 
-					} else if (element instanceof IFolder) {
-						ExperimentFactory.getExperimentEditorManager().openEditor((IFolder) element,
-								ExperimentFolderEditor.ID, true);
+						} else if (element instanceof IFolder) {
+							ExperimentFactory.getExperimentEditorManager().openEditor((IFolder) element,
+									ExperimentFolderEditor.ID, true);
 
-					} else if (element instanceof IExperimentObjectManager) {
-						ExperimentFactory.getExperimentEditorManager().openEditor(
-								((IExperimentObjectManager) element).getFile(), ExperimentRunEditor.ID, true);
+						} else if (element instanceof IExperimentObjectManager) {
+							ExperimentFactory.getExperimentEditorManager().openEditor(
+									((IExperimentObjectManager) element).getFile(), ExperimentRunEditor.ID, true);
+						}
+					} finally {
+						ExperimentFactory.getExperimentEditorManager().notifySelectionListeners();
 					}
-				} finally {
-					ExperimentFactory.getExperimentEditorManager().notifySelectionListeners();
 				}
 			}
 		} finally {
