@@ -4,26 +4,26 @@ import gda.rcp.views.FindableExecutableExtension;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
-import org.opengda.detector.electronanalyser.client.views.SpectrumView;
+import org.opengda.detector.electronanalyser.client.views.ExternalIOView;
 import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SpectrumViewFactory implements FindableExecutableExtension {
-	private static final Logger logger=LoggerFactory.getLogger(SpectrumViewFactory.class);
+public class ExternalIOViewFactory implements FindableExecutableExtension {
+	private static final Logger logger=LoggerFactory.getLogger(ExternalIOViewFactory.class);
 	private String viewPartName;
 	private String name;
 	private VGScientaAnalyser analyser;
 	@Override
 	public Object create() throws CoreException {
-		logger.info("Creating Spectrum plot view");
-		SpectrumView spectrumView = new SpectrumView();
-		spectrumView.setViewPartName(viewPartName);
+		logger.info("Creating external IO plot view");
+		ExternalIOView externalIOView = new ExternalIOView();
+		externalIOView.setViewPartName(viewPartName);
 		if (analyser != null) {
-			spectrumView.setAnalyser(analyser);
+			externalIOView.setAnalyser(analyser);
 		}
 		
-		return spectrumView;
+		return externalIOView;
 	}
 
 	@Override

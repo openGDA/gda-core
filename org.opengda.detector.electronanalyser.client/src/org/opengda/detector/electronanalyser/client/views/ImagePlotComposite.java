@@ -39,12 +39,9 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPart;
 import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
 import org.opengda.detector.electronanalyser.server.VGScientaController;
@@ -83,12 +80,6 @@ public class ImagePlotComposite extends Composite {
 	public ImagePlotComposite(IWorkbenchPart part, Composite parent, int style)
 			throws Exception {
 		super(parent, style);
-		if (Display.getCurrent() != null) {
-			fontRegistry = new FontRegistry(Display.getCurrent());
-			String fontName = Display.getCurrent().getSystemFont().getFontData()[0].getName();
-			fontRegistry.put(BOLD_TEXT_11, new FontData[] { new FontData(fontName, 11, SWT.BOLD) });
-			fontRegistry.put(BOLD_TEXT_9, new FontData[] { new FontData(fontName, 9, SWT.BOLD) });
-		}
 		this.setBackground(ColorConstants.white);
 
 		GridLayout layout = new GridLayout();
@@ -103,8 +94,9 @@ public class ImagePlotComposite extends Composite {
 		plotComposite.setLayout(new GridLayout(1, true));
 
 		plottingSystem = PlottingFactory.createPlottingSystem();
-		plottingSystem.createPlotPart(plotComposite, "Image", part instanceof IViewPart ? ((IViewPart) part).getViewSite().getActionBars()
-				: null, PlotType.XY_STACKED, part);
+//		plottingSystem.createPlotPart(plotComposite, "Image", part instanceof IViewPart ? ((IViewPart) part).getViewSite().getActionBars()
+//				: null, PlotType.XY_STACKED, part);
+		plottingSystem.createPlotPart(plotComposite, "Image", null, PlotType.XY_STACKED, part);
 
 		initialise();
 	}
@@ -199,8 +191,9 @@ public class ImagePlotComposite extends Composite {
 					getAnalyser().getNdArray().getPluginBase().getArraySize1_RBV(),
 					getAnalyser().getNdArray().getPluginBase().getArraySize0_RBV() };
 			int arraysize = dims[0] * dims[1];
-			if (arraysize < 1)
+			if (arraysize < 1) {
 				return;
+			}
 			double[] values = Arrays.copyOf(value, arraysize);
 			final AbstractDataset ds = new DoubleDataset(values, dims);
 

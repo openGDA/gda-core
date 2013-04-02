@@ -4,26 +4,26 @@ import gda.rcp.views.FindableExecutableExtension;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
-import org.opengda.detector.electronanalyser.client.views.SpectrumView;
+import org.opengda.detector.electronanalyser.client.views.SlicesView;
 import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SpectrumViewFactory implements FindableExecutableExtension {
-	private static final Logger logger=LoggerFactory.getLogger(SpectrumViewFactory.class);
+public class SlicesViewFactory implements FindableExecutableExtension {
+	private static final Logger logger=LoggerFactory.getLogger(SlicesViewFactory.class);
 	private String viewPartName;
 	private String name;
 	private VGScientaAnalyser analyser;
 	@Override
 	public Object create() throws CoreException {
-		logger.info("Creating Spectrum plot view");
-		SpectrumView spectrumView = new SpectrumView();
-		spectrumView.setViewPartName(viewPartName);
+		logger.info("Creating slices plot view");
+		SlicesView slicesView = new SlicesView();
+		slicesView.setViewPartName(viewPartName);
 		if (analyser != null) {
-			spectrumView.setAnalyser(analyser);
+			slicesView.setAnalyser(analyser);
 		}
 		
-		return spectrumView;
+		return slicesView;
 	}
 
 	@Override
@@ -45,7 +45,7 @@ public class SpectrumViewFactory implements FindableExecutableExtension {
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if (analyser == null ) {
-			throw new IllegalArgumentException("analyser cannot be null in Spectrum View.");
+			throw new IllegalArgumentException("analyser cannot be null in slices View.");
 		}
 		
 	}

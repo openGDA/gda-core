@@ -20,39 +20,35 @@
       <view
             category="org.opengda.detector.electronanalyser.client.ses"
             class="org.opengda.detector.electronanalyser.client.viewextensionfactories.SpectrumViewExtensionFactory:spectrumviewfactory"
-            id="org.opengda.detector.electronanalyser.client.plot.spectrumview"
+            id="org.opengda.detector.electronanalyser.client.views.spectrumview"
             name="Spectrum"
             restorable="true">
       </view>
-      <category
-            id="org.opengda.detector.electronanalyser.client.ses"
-            name="SES">
-      </category>
       <view
             category="org.opengda.detector.electronanalyser.client.ses"
-            class="org.opengda.detector.electronanalyser.client.viewextensionfactories.SpectrumViewExtensionFactory:spectrumviewfactory"
-            id="org.opengda.detector.electronanalyser.client.plot.externalioview"
+            class="org.opengda.detector.electronanalyser.client.viewextensionfactories.ExternalIOViewExtensionFactory:externalioviewfactory"
+            id="org.opengda.detector.electronanalyser.client.views.externalioview"
             name="External IO"
             restorable="true">
       </view>
       <view
             category="org.opengda.detector.electronanalyser.client.ses"
-            class="org.opengda.detector.electronanalyser.client.viewextensionfactories.SpectrumViewExtensionFactory:spectrumviewfactory"
-            id="org.opengda.detector.electronanalyser.client.plot.imageview"
+            class="org.opengda.detector.electronanalyser.client.viewextensionfactories.ImageViewExtensionFactory:imageviewfactory"
+            id="org.opengda.detector.electronanalyser.client.views.imageview"
             name="Image"
             restorable="true">
       </view>
       <view
             category="org.opengda.detector.electronanalyser.client.ses"
-            class="org.opengda.detector.electronanalyser.client.viewextensionfactories.SpectrumViewExtensionFactory:spectrumviewfactory"
-            id="org.opengda.detector.electronanalyser.client.plot.sliceview"
-            name="Slice"
+            class="org.opengda.detector.electronanalyser.client.viewextensionfactories.SlicesViewExtensionFactory:slicesviewfactory"
+            id="org.opengda.detector.electronanalyser.client.views.slicesview"
+            name="Slices"
             restorable="true">
       </view>
       <view
             category="org.opengda.detector.electronanalyser.client.ses"
-            class="org.opengda.detector.electronanalyser.client.viewextensionfactories.SpectrumViewExtensionFactory:spectrumviewfactory"
-            id="org.opengda.detector.electronanalyser.client.plot.progress"
+            class="org.opengda.detector.electronanalyser.client.viewextensionfactories.ProgressViewExtensionFactory:progressviewfactory"
+            id="org.opengda.detector.electronanalyser.client.views.progressview"
             name="Progress"
             restorable="true">
       </view>
@@ -60,10 +56,14 @@
             category="org.opengda.detector.electronanalyser.client.ses"
             class="org.opengda.detector.electronanalyser.client.viewextensionfactories.StatusViewExtensionFactory:statusviewfactory"
             icon="icons/status.png"
-            id="org.opengda.detector.electronanalyser.client.staus"
+            id="org.opengda.detector.electronanalyser.views.statusview"
             name="Status"
             restorable="true">
       </view>
+      <category
+            id="org.opengda.detector.electronanalyser.client.ses"
+            name="SES">
+      </category>
    </extension>
    <extension
          point="org.eclipse.emf.transaction.editingDomains">

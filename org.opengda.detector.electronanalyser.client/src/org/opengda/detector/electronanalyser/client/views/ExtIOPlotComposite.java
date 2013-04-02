@@ -95,7 +95,8 @@ public class ExtIOPlotComposite extends Composite {
 
 		plottingSystem = PlottingFactory.createPlottingSystem();
 		plottingSystem.createPlotPart(plotComposite, "ExtIO", part instanceof IViewPart ? ((IViewPart) part).getViewSite().getActionBars()
-				: null, PlotType.XY_STACKED, part);
+				: null, PlotType.XY_STACKED, null);
+//		: null, PlotType.XY_STACKED, part);
 		initialise();
 	}
 

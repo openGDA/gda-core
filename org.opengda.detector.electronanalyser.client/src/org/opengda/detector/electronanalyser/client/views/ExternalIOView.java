@@ -8,15 +8,15 @@ import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SpectrumView extends ViewPart {
+public class ExternalIOView extends ViewPart {
 
-	private static final Logger logger=LoggerFactory .getLogger(SpectrumView.class);
+	private static final Logger logger=LoggerFactory .getLogger(ExternalIOView.class);
 	private VGScientaAnalyser analyser;
 
-	public SpectrumView() {
-		setTitleToolTip("live display of integrated spectrum");
-		// setContentDescription("A view for displaying integrated spectrum.");
-		setPartName("Spectrum");
+	public ExternalIOView() {
+		setTitleToolTip("live display of external IO data");
+		// setContentDescription("A view for external IO data.");
+		setPartName("ExternalIO");
 	}
 
 	@Override
@@ -25,10 +25,10 @@ public class SpectrumView extends ViewPart {
 		rootComposite.setLayout(new GridLayout());
 
 		try {
-			SpectrumPlotComposite spectrumPlotComposite = new SpectrumPlotComposite(this, rootComposite, SWT.None);
-			spectrumPlotComposite.setAnalyser(getAnalyser());
+			ExtIOPlotComposite externalIOPlotComposite = new ExtIOPlotComposite(this, rootComposite, SWT.None);
+			externalIOPlotComposite.setAnalyser(getAnalyser());
 		} catch (Exception e) {
-			logger.error("Cannot create spectrum plot composite.", e);
+			logger.error("Cannot create external IO plot composite.", e);
 		}
 	}
 

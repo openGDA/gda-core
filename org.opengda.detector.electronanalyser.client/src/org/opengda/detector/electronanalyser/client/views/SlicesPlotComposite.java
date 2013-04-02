@@ -51,7 +51,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
-import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPart;
 import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
 import org.opengda.detector.electronanalyser.server.VGScientaController;
@@ -141,8 +140,9 @@ public class SlicesPlotComposite extends Composite {
 		plotComposite.setLayout(new GridLayout(1, true));
 
 		plottingSystem = PlottingFactory.createPlottingSystem();
-		plottingSystem.createPlotPart(plotComposite, "Slices", part instanceof IViewPart ? ((IViewPart) part).getViewSite().getActionBars()
-				: null, PlotType.XY_STACKED, part);
+//		plottingSystem.createPlotPart(plotComposite, "Slices", part instanceof IViewPart ? ((IViewPart) part).getViewSite().getActionBars()
+//				: null, PlotType.XY_STACKED, part);
+		plottingSystem.createPlotPart(plotComposite, "Slices", null, PlotType.XY_STACKED, null);
 
 		initialise();
 	}
@@ -241,8 +241,9 @@ public class SlicesPlotComposite extends Composite {
 					getAnalyser().getNdArray().getPluginBase().getArraySize1_RBV(),
 					getAnalyser().getNdArray().getPluginBase().getArraySize0_RBV() };
 			int arraysize = dims[0] * dims[1];
-			if (arraysize < 1)
+			if (arraysize < 1) {
 				return;
+			}
 			double[] values = Arrays.copyOf(value, arraysize);
 			final AbstractDataset ds = new DoubleDataset(values, dims);
 

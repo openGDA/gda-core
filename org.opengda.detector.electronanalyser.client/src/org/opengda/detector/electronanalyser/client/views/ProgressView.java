@@ -8,15 +8,15 @@ import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SpectrumView extends ViewPart {
+public class ProgressView extends ViewPart {
 
-	private static final Logger logger=LoggerFactory .getLogger(SpectrumView.class);
+	private static final Logger logger=LoggerFactory .getLogger(ProgressView.class);
 	private VGScientaAnalyser analyser;
 
-	public SpectrumView() {
-		setTitleToolTip("live display of integrated spectrum");
-		// setContentDescription("A view for displaying integrated spectrum.");
-		setPartName("Spectrum");
+	public ProgressView() {
+		setTitleToolTip("display progress view");
+		// setContentDescription("A view for displaying progresses.");
+		setPartName("Progress");
 	}
 
 	@Override
@@ -25,10 +25,10 @@ public class SpectrumView extends ViewPart {
 		rootComposite.setLayout(new GridLayout());
 
 		try {
-			SpectrumPlotComposite spectrumPlotComposite = new SpectrumPlotComposite(this, rootComposite, SWT.None);
-			spectrumPlotComposite.setAnalyser(getAnalyser());
+			RegionProgressComposite regionProgressComposite = new RegionProgressComposite(rootComposite, SWT.None);
+			regionProgressComposite.setAnalyser(getAnalyser());
 		} catch (Exception e) {
-			logger.error("Cannot create spectrum plot composite.", e);
+			logger.error("Cannot create region progress composite.", e);
 		}
 	}
 

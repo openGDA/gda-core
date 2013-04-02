@@ -17,18 +17,11 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.resources,
  org.dawb.common.ui,
  uk.ac.diamond.scisoft.analysis,
- uk.ac.gda.client.tomo,
  uk.ac.gda.epics;bundle-version="1.0.0",
  org.opengda.detector.electronanalyser.server;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: gda.analysis.io,
- gov.aps.jca,
- org.apache.commons.lang;version="2.5.0",
- org.dawb.common.ui.plot,
- org.eclipse.ui.dialogs,
- org.slf4j,
- org.springframework.beans.factory;version="3.0.4",
- uk.ac.diamond.scisoft.analysis.io
+Import-Package: org.eclipse.ui.dialogs,
+ org.slf4j
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Export-Package: org.opengda.detector.electronanalyser.client
