@@ -42,23 +42,22 @@ public class NexusExtraMetadataDataWriterTest {
 		
 		HashMap<String,Vector<NexusFileMetadata>> storedEntries = NexusExtraMetadataDataWriter.getMetadataEntries();
 		
-		assertEquals("10.0",storedEntries.get(NexusFileMetadata.NXinstrumentSubTypes.NXmirror.toString()).get(0).getValue());
-		assertEquals("2",storedEntries.get(NexusFileMetadata.NXinstrumentSubTypes.NXmirror.toString()).get(1).getValue());
-		assertEquals("5.5",storedEntries.get(NexusFileMetadata.NXinstrumentSubTypes.NXaperture.toString()).get(0).getValue());
-		assertEquals("12.34",storedEntries.get(NexusFileMetadata.EntryTypes.NXsample.toString()).get(0).getValue());
+		assertEquals("10.0",storedEntries.get("M1").get(0).getValue());
+		assertEquals("2",storedEntries.get("M1").get(1).getValue());
+		assertEquals("5.5",storedEntries.get("S1").get(0).getValue());
+		assertEquals("12.34",storedEntries.get("SAM1").get(0).getValue());
 		
 		//remove one of the sample entries
 		NexusExtraMetadataDataWriter.removeMetadataEntry(entry1);
-		assertEquals(1,storedEntries.get(NexusFileMetadata.NXinstrumentSubTypes.NXmirror.toString()).size());
+		assertEquals(1,storedEntries.get("M1").size());
 		
 		// remove from the wrong category
 		NexusExtraMetadataDataWriter.removeMetadataEntry(entry2);
-		assertEquals(0,storedEntries.get(NexusFileMetadata.NXinstrumentSubTypes.NXmirror.toString()).size());
-		assertEquals(1,storedEntries.get(NexusFileMetadata.NXinstrumentSubTypes.NXaperture.toString()).size());
+		assertEquals(0,storedEntries.get("M1").size());
+		assertEquals(1,storedEntries.get("S1").size());
 		
 		// remove from the right category
 		NexusExtraMetadataDataWriter.removeMetadataEntry(entry3);
-		assertEquals(0,storedEntries.get(NexusFileMetadata.NXinstrumentSubTypes.NXaperture.toString()).size());
-
+		assertEquals(0,storedEntries.get("S1").size());
 	}
 }
