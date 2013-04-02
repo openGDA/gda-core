@@ -77,16 +77,26 @@ public class MotorPositionViewer {
 	
 	private IPositionVerifierDialogCreator newPositionDialog;
 
+	private Object labelLayoutData;
+
 	public MotorPositionViewer(Composite parent, Scannable scannable){
-		this(parent, scannable, null, false);
+		this(parent, scannable, null, false, null);
 	}
 	
 	public MotorPositionViewer(Composite parent, Scannable scannable, String label){
-		this(parent, scannable, label, false);
+		this(parent, scannable, label, false, null);
+	}
+
+	public MotorPositionViewer(Composite parent, Scannable scannable, String label, boolean hideLabel){
+		this(parent, scannable, label, hideLabel, null);
 	}
 	
-	public MotorPositionViewer(Composite parent, Scannable scannable, String label, boolean hideLabel){
+	public MotorPositionViewer(Composite parent, Scannable scannable, String label, boolean hideLabel, Object labelLayoutData){
 		this.scannable = scannable;
+		this.labelLayoutData = labelLayoutData;
+		if( this.labelLayoutData == null){
+			this.labelLayoutData = GridDataFactory.swtDefaults().create();
+		}
 		ScannablePositionSource positionSource=null;
 		if (scannable instanceof ScannableMotionUnits) {
 			positionSource = new ScannableMotionUnitsPositionSource((ScannableMotionUnits)scannable);
@@ -252,7 +262,7 @@ public class MotorPositionViewer {
 		if (!motor.getDescriptor().getHideLabel()) {
 			label.setText( motor.getDescriptor().getLabelText());
 		}
-		GridDataFactory.swtDefaults().applyTo(label);
+		label.setLayoutData(labelLayoutData);
 		motorBox = new DemandBox(readBacksGroup, SWT.NONE, 60);
 		GridDataFactory.swtDefaults().hint(120, SWT.DEFAULT).applyTo(motorBox);
 	}
