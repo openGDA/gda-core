@@ -23,11 +23,10 @@
            Invoke the tests
          ==================================================================== -->
 
-    <target name="junit-tests" depends="toolCheck, set-test-base-GDA, Xvfb_start, _junit-tests, Xvfb_stop" />
+    <target name="junit-tests" depends="toolCheck, set-test-base-GDA, _junit-tests" />
 
     <target name="_junit-tests" depends="toolCheck, set-test-base-GDA">
-        <junit-call description="${ant.project.name} Java JUnit tests" maxmemory="1024m"
-        Xvfb-display-name="${Xvfb-display-name}" Xvfb-display-number="${Xvfb-display-number}">
+        <junit-call description="${ant.project.name} Java JUnit tests" maxmemory="1024m">
             <jvmarg value="-Dgda.install.workspace.loc=${workspace.loc}" />
             <jvmarg value="-Dgda.install.git.loc=${workspace.git.loc}" />
             <sysproperty key="basedir" value="${GDA-plugin.basedir}" />

@@ -40,7 +40,7 @@ import org.python.core.PyTuple;
 public class PositionConvertorFunctions {
 
 	/**
-	 * Converts an object to an object array. If the object is an array it is cast directly to an array, otherwise it
+	 * Converts an object to an object array. If the object is an array it is caste directly to an array, otherwise it
 	 * is put into a single element array. No length checking is performed.
 	 * 
 	 * @param object
@@ -88,10 +88,6 @@ public class PositionConvertorFunctions {
 				}
 			}
 			return objectArray;
-		}
-		
-		if (object instanceof PyFloat){
-			object = new Double(((PyFloat)object).asDouble());
 		}
 
 		// The object is not an array of understandable form. Assume it is a single element

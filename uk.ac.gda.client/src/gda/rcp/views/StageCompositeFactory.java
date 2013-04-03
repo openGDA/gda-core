@@ -50,6 +50,7 @@ public class StageCompositeFactory implements CompositeFactory {
 	}
 
 	String label;
+	private int labelWidth;
 
 	public String getLabel() {
 		return label;
@@ -57,6 +58,14 @@ public class StageCompositeFactory implements CompositeFactory {
 
 	public void setLabel(String label) {
 		this.label = label;
+	}
+
+	public int getLabelWidth() {
+		return labelWidth;
+	}
+
+	public void setLabelWidth(int labelWidth) {
+		this.labelWidth = labelWidth;
 	}
 
 	public Control getTabControl(Composite parent) {
@@ -69,7 +78,7 @@ public class StageCompositeFactory implements CompositeFactory {
 			cmp = new Composite(parent, SWT.NONE);
 		}
 		GridDataFactory.fillDefaults().applyTo(cmp);
-		GridLayoutFactory.fillDefaults().margins(1, 1).spacing(2, 2).applyTo(cmp);
+		GridLayoutFactory.fillDefaults().margins(1, 1).spacing(1, 1).applyTo(cmp);
 
 		Composite c1 = new Composite(cmp, SWT.NONE);
 		GridLayoutFactory.swtDefaults().margins(1,1).spacing(2,2).numColumns(2).applyTo(c1);
@@ -96,7 +105,13 @@ public class StageCompositeFactory implements CompositeFactory {
 
 		});
 		
-		
+		GridLayoutFactory rotationGroupLayoutFactory = GridLayoutFactory.swtDefaults().numColumns(3).margins(0,0).spacing(0,0);
+		GridLayoutFactory layoutFactory = GridLayoutFactory.swtDefaults().numColumns(3).margins(0,0).spacing(0,0);
+		GridDataFactory dataFactory = GridDataFactory.swtDefaults().hint(labelWidth, SWT.DEFAULT);
+
+
+		Label sep = new Label(cmp, SWT.SEPARATOR | SWT.HORIZONTAL);
+		GridDataFactory.fillDefaults().grab(true,false).applyTo(sep);
 		for (StageCompositeDefinition s : stageCompositeDefinitions) {
 			RotationViewer rotViewer = new RotationViewer(s.scannable, s.getLabel() != null ? s.getLabel()
 					: s.scannable.getName(), s.isResetToZero());
@@ -105,8 +120,11 @@ public class StageCompositeFactory implements CompositeFactory {
 			if (s.isUseSteps()) {
 				rotViewer.configureFixedStepButtons(s.smallStep, s.bigStep);
 			}
-			rotViewer.createControls(cmp, s.isSingleLineNudge() ? SWT.SINGLE : SWT.NONE, s.isSingleLine());
-
+			rotViewer.createControls(cmp, s.isSingleLineNudge() ? SWT.SINGLE : SWT.NONE, s.isSingleLine(),
+					rotationGroupLayoutFactory.create(), layoutFactory.create(),
+					dataFactory.create());
+			Label sep1 = new Label(cmp, SWT.SEPARATOR | SWT.HORIZONTAL);
+			GridDataFactory.fillDefaults().grab(true,false).applyTo(sep1);
 		}
 
 		return cmp;
