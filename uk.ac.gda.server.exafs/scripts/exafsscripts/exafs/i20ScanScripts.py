@@ -245,9 +245,9 @@ class I20XasScan(XasScan):
 
         energy_scannable_name = beanGroup.getScan().getScannableName()
         energy_scannable = self.finder.find(energy_scannable_name)
+        cryostat_scannable = self.finder.find("cryostat")
 
-        # TODO set up the cryostat here at this point
-        print "would set up the cryostat parameters at this point"
+        self._configureCryostat(cryoStatParameters)
         
         if loopSampleFirst:
                 # there are 3 samples in the bean
@@ -277,16 +277,19 @@ class I20XasScan(XasScan):
                     beanGroup.getSample().setDescriptions([desc])
 
                     for temp in temperatures:
-                        print "Setting cryostat to",str(temp),"K"
-                        print "Would change cryostat temp here." 
+                        print "Setting cryostat to",str(temp),"K..."
+                        cryostat_scannable.moveTo(temp)
+                        print "Cryostat temperature change complete."
+                        # wait for async move of mono to the initial scan energy
                         energy_scannable.waitWhileBusy()
                         self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
                         
         else:
                 for temp in temperatures:
-                    print "Setting cryostat to",str(temp),"K"
-                    print "Would change cryostat temp here." 
-                     
+                    print "Setting cryostat to",str(temp),"K..."
+                    cryostat_scannable.moveTo(temp)
+                    print "Cryostat temperature change complete."
+                    
                     for i in range(0,3):
                         doUse = cryoStatParameters.getUses()[i]
                         if not doUse:
@@ -312,6 +315,7 @@ class I20XasScan(XasScan):
                         beanGroup.getSample().setName(name)
                         beanGroup.getSample().setDescriptions([desc])
                         
+                        # wait for async move of mono to the initial scan energy
                         energy_scannable.waitWhileBusy()
                         self._doScan(beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller)
 
@@ -324,6 +328,10 @@ class I20XasScan(XasScan):
             dblArray.append(float(part))
         return dblArray
         
+    def _configureCryostat(self, cryoStatParameters):
+        cryostat_scannable = self.finder.find("cryostat")
+        #hold the logic in Java
+        cryostat_scannable.setupFromBean(cryoStatParameters)
         
 class I20XesScan(XasScan):
     
