@@ -81,6 +81,10 @@ public class VortexDetectorConfiguration extends DetectorConfiguration {
 		try {
 			// Warning concrete class used here. This code must be called on the server.
 			final Xmap xmapDetector = (Xmap)Finder.getInstance().find(vortexParameters.getDetectorName());
+			
+			// occasionally the xmap may not have been stopped, which prevents it being reconfigured.
+			// If we are here in the code then we need it stopped to be reconfigured.
+			xmapDetector.stop();
 
 			// 1. Save parameters file.
 			File templateFile = new File(xmapDetector.getConfigFileName());
