@@ -560,6 +560,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 				}
 			}
+		} else {
+			logger.warn("Name or class is empty:");
 		}
 		try {
 			if (loopNodes) {
@@ -954,6 +956,14 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 				if (det.getNxClass().equals(NexusExtractor.NXDetectorClassName)) {
 					makeGenericDetector(det.getName(), null, 0, detector, det);
 				} else if (det.getNxClass().equals(NexusExtractor.NXMonitorClassName)) {
+					// FIXME -- if this doesn't explode I am truly surprised
+					file.opengroup(this.entryName, NexusExtractor.NXEntryClassName);
+					try {
+						writeHere(file, det, firstData, false, null);
+					} finally {
+						file.closegroup();
+					}
+				} else if (det.getNxClass().equals("NXCollection")) {
 					// FIXME -- if this doesn't explode I am truly surprised
 					file.opengroup(this.entryName, NexusExtractor.NXEntryClassName);
 					try {
