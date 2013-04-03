@@ -240,8 +240,10 @@ class I20XasScan(XasScan):
     def _runCryoStatLoop(self,beanGroup,scriptType,scan_unique_id, numRepetitions, xmlFolderName, controller):
         cryoStatParameters = beanGroup.getSample().getCryostatParameters()
         loopSampleFirst = cryoStatParameters.getLoopChoice() == CryostatParameters.LOOP_OPTION[0]
-        #temperatures = self._createTemperaturesArrayFromString(cryoStatParameters.getTemperature())
-        temperatures = DOEUtils.getRange(cryoStatParameters.getTemperature(),None)
+        
+        temperatures = [cryoStatParameters.getTemperature()]
+        if DOEUtils.isRange(cryoStatParameters.getTemperature(),None):
+            temperatures = DOEUtils.getRange(cryoStatParameters.getTemperature(),None)
 
         energy_scannable_name = beanGroup.getScan().getScannableName()
         energy_scannable = self.finder.find(energy_scannable_name)

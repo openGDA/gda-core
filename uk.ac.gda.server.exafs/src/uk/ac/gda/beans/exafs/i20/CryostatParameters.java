@@ -29,7 +29,7 @@ public class CryostatParameters implements Serializable {
 
 	public static final String[] LOOP_OPTION = new String[] { "Loop over sample, then temperature",
 			"Loop over temperature, then sample" };
-	public static final String[] CONTROL_MODE = new String[] { "Manual PID", "Zone control", "Open Loop",
+	public static final String[] CONTROL_MODE = new String[] { "None", "Manual PID", "Zone control", "Open Loop",
 			"Auto-tune PID" };
 	public static final String[] HEATER_RANGE = new String[] { "4mW", "40mW", "400mW", "4W", "40W" };
 
