@@ -384,14 +384,14 @@ public class ExperimentExperimentView extends ViewPart implements ExperimentObje
 
 			@Override
 			public void selectionChanged(final SelectionChangedEvent event) {
-				if (off || lastClickWasRHButton)
+				if (off)
 					return;
 				// if the selection is empty clear the label
 				if (event.getSelection().isEmpty()) {
 					return;
 				}
 
-				updateSelected(event.getSelection());
+				updateSelected(event.getSelection(),!lastClickWasRHButton);
 			}
 
 		};
@@ -418,7 +418,7 @@ public class ExperimentExperimentView extends ViewPart implements ExperimentObje
 		treeViewer.getTree().addMouseListener(this.selectionMouseListener);	
 	}
 
-	private void updateSelected(ISelection sel) {
+	private void updateSelected(ISelection sel, boolean openEditors) {
 		try {
 			off = true;
 			if (sel instanceof IStructuredSelection) {
@@ -426,21 +426,23 @@ public class ExperimentExperimentView extends ViewPart implements ExperimentObje
 				final Object element = selection.getFirstElement();
 				ExperimentFactory.getExperimentEditorManager().setSelected(element);
 
-				try {
-					if (element instanceof IExperimentObject) {
-						final IExperimentObject ob = (IExperimentObject) element;
-						ExperimentFactory.getExperimentEditorManager().openDefaultEditors(ob, true);
+				if (openEditors) {
+					try {
+						if (element instanceof IExperimentObject) {
+							final IExperimentObject ob = (IExperimentObject) element;
+							ExperimentFactory.getExperimentEditorManager().openDefaultEditors(ob, true);
 
-					} else if (element instanceof IFolder) {
-						ExperimentFactory.getExperimentEditorManager().openEditor((IFolder) element,
-								ExperimentFolderEditor.ID, true);
+						} else if (element instanceof IFolder) {
+							ExperimentFactory.getExperimentEditorManager().openEditor((IFolder) element,
+									ExperimentFolderEditor.ID, true);
 
-					} else if (element instanceof IExperimentObjectManager) {
-						ExperimentFactory.getExperimentEditorManager().openEditor(
-								((IExperimentObjectManager) element).getFile(), ExperimentRunEditor.ID, true);
+						} else if (element instanceof IExperimentObjectManager) {
+							ExperimentFactory.getExperimentEditorManager().openEditor(
+									((IExperimentObjectManager) element).getFile(), ExperimentRunEditor.ID, true);
+						}
+					} finally {
+						ExperimentFactory.getExperimentEditorManager().notifySelectionListeners();
 					}
-				} finally {
-					ExperimentFactory.getExperimentEditorManager().notifySelectionListeners();
 				}
 			}
 		} finally {
