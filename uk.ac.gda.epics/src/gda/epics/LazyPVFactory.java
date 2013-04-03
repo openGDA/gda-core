@@ -1330,16 +1330,14 @@ public class LazyPVFactory {
 		
 		@Override
 		protected Boolean innerToOuter(Double innerValue) {
-			return innerValue > 0 && innerValue < 0;
+			return innerValue > 0;
 		}
 
 		@Override
 		protected Double outerToInner(Boolean outerValue) {
 			return (outerValue ? 1.0 : 0.0);
 		}
-
 	}
-
 }
 
 /**
