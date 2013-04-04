@@ -18,6 +18,8 @@
 
 package uk.ac.gda.richbeans.components.scalebox;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.Calendar;
 import java.util.regex.Matcher;
@@ -131,10 +133,13 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 		};
 		text.addMouseTrackListener(mouseTrackListener);
 
-		this.numberFormat = NumberFormat.getInstance();
+		this.numberFormat = new DecimalFormat();
 		numberFormat.setMaximumFractionDigits(decimalPlaces);
 		numberFormat.setMinimumFractionDigits(decimalPlaces);
 		numberFormat.setGroupingUsed(false);
+		DecimalFormatSymbols dfs = ((DecimalFormat)numberFormat).getDecimalFormatSymbols();
+		dfs.setInfinity(String.valueOf(Double.POSITIVE_INFINITY));
+		((DecimalFormat)numberFormat).setDecimalFormatSymbols(dfs);
 	}
 
 	@Override
@@ -320,13 +325,13 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 	}
 
 	protected String getRegExpressionString() {
-		final String ndec = decimalPlaces > 0 ? "\\.?\\d{0," + decimalPlaces + "})" : ")";
-		final String digitExpr = "^(\\-?\\d*" + ndec;
 
+		final String digitExpr = "^([-+\\s]?\\d*\\.?\\d+|[-+\\s]?Infinity)";
+		
 		if (unit == null) {
 			return digitExpr;
 		}
-		return digitExpr + "\\ {1}\\Q" + unit + "\\E";
+		return digitExpr + "\\s*\\Q" + unit + "\\E";
 	}
 
 	protected void updateValue() {
@@ -444,58 +449,34 @@ public abstract class NumberBox extends ButtonComposite implements BoundsProvide
 		final Matcher matcher = pattern.matcher(txt);
 
 		final boolean matches = matcher.matches();
-		StringBuilder buf = null;
-		if (!matches) {
+		double numericalValue = Double.NaN;
+
+		
+		if (matches) {
+			numericalValue = Double.parseDouble(matcher.group(1));
+		} else {
 			try {
-//				String valueFromText = Double.valueOf(txt).toString();
-				buf = new StringBuilder(String.format("%." + decimalPlaces + "f", Double.valueOf(txt)));
+				numericalValue = Double.valueOf(txt);
 			} catch (NumberFormatException e) {
 				text.setForeground(red);
 				return;
 			}
-			
 		}
 		text.setForeground(black);
+		StringBuilder buf = new StringBuilder(formatValue(numericalValue));
+		
+		int pos = buf.toString().length() < text.getCaretOffset() ? buf.toString().length(): text.getCaretOffset();
 
-		if (buf != null && "-".equals(buf.toString()))
-			return;
-
-		// An exception here is a fatal error so we do not catch it but throw it up.
-		double numericalValue = Double.NaN;
-		PARSE_BLOCK: try {
-			if (String.valueOf(Double.POSITIVE_INFINITY).equals(txt)) {
-				numericalValue = Double.POSITIVE_INFINITY;
-				buf = new StringBuilder(String.valueOf(Double.POSITIVE_INFINITY));
-				break PARSE_BLOCK;
-			}
-			if (String.valueOf(Double.NEGATIVE_INFINITY).equals(txt)) {
-				numericalValue = Double.NEGATIVE_INFINITY;
-				buf = new StringBuilder(String.valueOf(Double.NEGATIVE_INFINITY));
-				break PARSE_BLOCK;
-			}
-			numericalValue = (buf != null && buf.length() > 0) ? Double.parseDouble(buf.toString()) : Double
-					.parseDouble(matcher.group(1));
-			buf = new StringBuilder(formatValue(numericalValue));
-		} catch (Exception ignored) {
-			numericalValue = Double.NaN;
-		}
-
-		if (unit != null && buf != null && buf.length() > 0) {
+		if (unit != null && buf.length() > 0) {
 			final String unitLine = " " + unit;
 			buf.append(unitLine);
 		}
 
-		// Assigned buf, must have needed correction.
-		if (buf != null) {
-			final int pos = text.getCaretOffset();
-			text.setText(buf.toString());
-			text.setCaretOffset(pos);
-		}
-
+		text.setText(buf.toString());
+		text.setCaretOffset(pos);
+		
 		checkBounds(numericalValue);
-
 		GridUtils.layout(this);
-
 	}
 
 	/**
