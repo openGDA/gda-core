@@ -129,9 +129,7 @@ class XasScan(Scan):
                 # run the beamline specific preparers            
                 self.detectorPreparer.prepare(beanGroup.getDetector(), beanGroup.getOutput(), xmlFolderName)
                 sampleScannables = self.samplePreparer.prepare(beanGroup.getSample())
-                initial_energy = scanBean.getInitialEnergy()
-                final_energy = scanBean.getFinalEnergy()
-                outputScannables = self.outputPreparer.prepare(outputBean, initial_energy, final_energy)
+                outputScannables = self.outputPreparer.prepare(outputBean, scanBean)
                 scanPlotSettings = self.outputPreparer.getPlotSettings(beanGroup)
                 #print scanPlotSettings
                 # run the before scan script

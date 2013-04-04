@@ -25,6 +25,7 @@ import gda.device.DeviceException;
 import gda.device.Timer;
 import gda.device.XmapDetector;
 import gda.factory.Finder;
+import gda.jython.accesscontrol.AccessDeniedException;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -415,23 +416,43 @@ public class VortexParametersUIEditor extends DetectorEditor {
 					sashPlotForm.getLeft().layout();
 				}
 			});
+			if (monitor != null) {
+				monitor.worked(1);
+				sashPlotForm.appendStatus("Collected data from detector successfully.", logger);
+			}
+		} catch (IllegalArgumentException e) {
+			getSite().getShell().getDisplay().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					MessageDialog
+							.openWarning(getSite().getShell(), "Cannot write out detector data",
+									"The Java property gda.device.vortex.spoolDir has not been defined or is invalid. Contact Data Acquisition.");
+				}
+			});
+			logger.error("Cannot read out detector data.", e);
+			return;
+		} catch (AccessDeniedException e) {
+			getSite().getShell().getDisplay().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					MessageDialog.openWarning(getSite().getShell(), "Cannot operate detector",
+							"You do not hold the baton and so cannot operate the detector.");
+				}
+			});
+			sashPlotForm
+					.appendStatus("Cannot read out detector data. Check the log and inform beamline staff.", logger);
+			return;
 		} catch (DeviceException e) {
 			getSite().getShell().getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
 					MessageDialog.openWarning(getSite().getShell(), "Cannot read out detector data",
-							"Problem acquiring data. See log for details.\n(Do you hold the baton?)");
+							"Problem acquiring data. See log for details.");
 				}
 			});
-
-			logger.error("Cannot get xMap data from Vortex detector.", e);
+			sashPlotForm.appendStatus(
+					"Cannot get xMap data from Vortex detector. Check the log and inform beamline staff.", logger);
 			return;
-		} finally {
-			if (monitor != null) {
-				monitor.worked(1);
-				sashPlotForm.appendStatus("Collected data from detector successfully.", logger);
-			}
-
 		}
 
 		if (writeToDisk && autoSaveEnabled && monitor != null) {

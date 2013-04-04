@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd., Science and Technology
+ * Copyright © 2013 Diamond Light Source Ltd., Science and Technology
  * Facilities Council
  *
  * This file is part of GDA.
@@ -35,7 +35,7 @@ import uk.ac.gda.beans.exafs.OutputParameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
 
 /**
- * Called by Jython script vortexConfig
+ * Called by Jython script xspressConfig
  */
 public class Xspress2DetectorConfiguration extends DetectorConfiguration {
 
@@ -43,25 +43,18 @@ public class Xspress2DetectorConfiguration extends DetectorConfiguration {
 
 	private XspressParameters xspressParameters;
 	private ObservableComponent controller;
-//	private OutputParameters outputParameters;
-
-	private String additionalSavePath;
 
 	public Xspress2DetectorConfiguration(final ObservableComponent controller, final String path, final Object beanName,
 			@SuppressWarnings("unused") final OutputParameters outputParams) throws Exception {
 
 		this.controller = controller;
 		this.xspressParameters = (XspressParameters) getBean(path, beanName);
-//		this.outputParameters = outputParams;
-		additionalSavePath =new File(path).getName();
 	}
 	public Xspress2DetectorConfiguration(final ObservableComponent controller, final String path, final Object beanName,
-			@SuppressWarnings("unused") final OutputParameters outputParams, final String addtionalSavePath) throws Exception {
+			@SuppressWarnings("unused") final OutputParameters outputParams, @SuppressWarnings("unused") final String addtionalSavePath) throws Exception {
 
 		this.controller = controller;
 		this.xspressParameters = (XspressParameters) getBean(path, beanName);
-//		this.outputParameters = outputParams;
-		this.additionalSavePath = addtionalSavePath;
 	}
 
 	@Override
@@ -95,15 +88,11 @@ public class Xspress2DetectorConfiguration extends DetectorConfiguration {
 				xspress2.setSaveRawSpectrum(xspressParameters.isSaveRawSpectrum());
 			}
 
-//			if(additionalSavePath != null && !additionalSavePath.equals(templateFile.getName())){
-//				saveBeanToTemplate(xspressParameters, new File(templateFile.getParent() + File.separator+additionalSavePath));
-//			}
 			message = " The Xspress detector configuration updated.";
 			controller.notifyIObservers("Message", new ScriptProgressEvent(message));
 		} catch (Exception ne) {
 			logger.error("Cannot configure Xspress", ne);
-			message = " !Error with Xspress detector configuration!";
-			throw new FactoryException("Cannot configure Xspress", ne);
+			throw new FactoryException("Error during configuration:" + ne.getMessage());
 		}
 		return message;
 	}

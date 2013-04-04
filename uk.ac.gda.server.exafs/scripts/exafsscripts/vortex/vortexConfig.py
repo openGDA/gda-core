@@ -18,12 +18,11 @@ def vortex (vortexFileName, outputfile, path=None):
 	The filepaths are relative to the gda user folder
 	"""
 	try:
-		print "from vortex config"
 		controller = Finder.getInstance().find("ExafsScriptObserver")
 		return vortexEx(controller, vortexFileName, outputfile, path)
 	except:
-		type, exception, traceback = sys.exc_info()
-		log(None,"Error in vortex", type, exception, traceback, False)
+		# do nothing here as exceptions would have already been logged
+		pass
 
 def vortexEx(controller, vortexFileName, outputfile,path):
 	""" Version of vortex that does not catch exception """
@@ -36,11 +35,11 @@ def worker (controller, vortexFileName,outputfile,path,LocalProperties=LocalProp
 		else:
 			conf = VortexDetectorConfiguration(controller, defaultScriptFolder(), vortexFileName,outputfile, path)
 		msg  = conf.configure() #  Might throw Exception
-		log(controller, "Xspress configuration successfully applied", None, None, None, False)
+		log(controller, "Vortex configuration successfully applied", None, None, None, False)
 		return msg
 	except :
 		type, exception, traceback = sys.exc_info()
-		log(controller, "Error configuring ", type, exception, traceback, True)
+		log(controller, "Error configuring Vortex", type, exception, traceback, True)
 
 
 def log(controller, msg, exceptionType=None, exception=None, traceback=None, Raise=False):

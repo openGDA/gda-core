@@ -25,6 +25,7 @@ import gda.device.DeviceException;
 import gda.device.detector.xspress.ResGrades;
 import gda.device.detector.xspress.XspressDetector;
 import gda.factory.Finder;
+import gda.jython.accesscontrol.AccessDeniedException;
 
 import java.awt.Color;
 import java.io.BufferedReader;
@@ -637,7 +638,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			GridUtils.setVisibleAndLayout(middleComposite, currentEditIndividual);
 			GridUtils.setVisibleAndLayout(applyToAllLabel, currentEditIndividual);
 			GridUtils.setVisibleAndLayout(applyToAllButton, currentEditIndividual);
-//			GridUtils.setVisibleAndLayout(detectorElementsLabel, currentEditIndividual);
 			GridUtils.setVisibleAndLayout(getDetectorElementComposite().getName(), currentEditIndividual);
 			GridUtils.setVisibleAndLayout(getDetectorElementComposite().getExcluded(), currentEditIndividual);
 			getDetectorElementComposite().setIndividualElements(currentEditIndividual);
@@ -668,12 +668,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		final Composite roi = getDetectorElementComposite().getRegionList();
 		GridUtils.setVisibleAndLayout(roi, isRoi);
 		setImportCompositeVisible(isRoi);
-		// FIXME make sure that the regions have been updated
-//		try {
-//			redrawOverlay();
-//		} catch (Exception e) {
-//			logger.error("Cannot draw overlay", e);
-//		}
 	}
 
 	@Override
@@ -709,6 +703,8 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			listEditorUI.notifySelected(getDetectorElementComposite().getRegionList());
 			// setup for all future notifications
 			getDetectorElementComposite().getRegionList().setListEditorUI(listEditorUI);
+			
+			updateROIAfterElementCompositeChange();
 		} finally {
 			GridUtils.endMultiLayout();
 		}
@@ -814,38 +810,51 @@ public class XspressParametersUIEditor extends DetectorEditor {
 				});
 			}
 
+			if (monitor != null)
+				monitor.done();
+			sashPlotForm.appendStatus("Collected data from detector successfully.", logger);
+
 		} catch (IllegalArgumentException e) {
 			getSite().getShell().getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					MessageDialog.openWarning(getSite().getShell(), "Cannot write out detector data",
-							"The Java property gda.device.xspress.spoolDir has not been defined or is invalid.");
+					MessageDialog
+							.openWarning(getSite().getShell(), "Cannot write out detector data",
+									"The Java property gda.device.xspress.spoolDir has not been defined or is invalid. Contact Data Acquisition.");
 				}
 			});
 			logger.error("Cannot read out detector data.", e);
+			return;
+		} catch (AccessDeniedException e) {
+			getSite().getShell().getDisplay().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					MessageDialog.openWarning(getSite().getShell(), "Cannot operate detector",
+							"You do not hold the baton and so cannot operate the detector.");
+				}
+			});
+			sashPlotForm
+					.appendStatus("Cannot read out detector data. Check the log and inform beamline staff.", logger);
 			return;
 		} catch (Exception e) {
 			getSite().getShell().getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
 					MessageDialog.openWarning(getSite().getShell(), "Cannot read out detector data",
-							"Problem acquiring data. See log for details.\n(Do you hold the baton?)");
+							"Problem acquiring data. See log for details.");
 				}
 			});
-			logger.error("Cannot read out detector data.", e);
+			sashPlotForm
+					.appendStatus("Cannot read out detector data. Check the log and inform beamline staff.", logger);
 			return;
 		} finally {
 			try {
 				xsDetector.setResGrade(resGrade_orig);
 				xsDetector.setReadoutMode(readoutMode_orig);
 			} catch (DeviceException e) {
-				logger.error("Cannot reset res grade, detector may be compromised.", e);
+				sashPlotForm.appendStatus("Cannot reset res grade, detector may be in an error state.", logger);
 			}
 			sashPlotForm.appendStatus("Reset detector to resolution grade '" + resGrade_orig + "'.", logger);
-
-			if (monitor != null)
-				monitor.done();
-			sashPlotForm.appendStatus("Collected data from detector successfully.", logger);
 		}
 
 		// Note: currently has to be in this order.
@@ -869,9 +878,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		return 1100l;
 	}
 
-	/**
-	 * @return the number of regions for the selected element
-	 */
 	@SuppressWarnings("unchecked")
 	public int _testGetNumberOfRegions() {
 		return ((List<? extends Object>) this.getDetectorElementComposite().getRegionList().getValue()).size();

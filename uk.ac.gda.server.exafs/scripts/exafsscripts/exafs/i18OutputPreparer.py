@@ -6,7 +6,9 @@ from gda.data.scan.datawriter.NexusFileMetadata import EntryTypes, NXinstrumentS
     
 class I18OutputPreparer:
     
-    def prepare(self, outputParameters, initial_energy, final_energy):
+    def prepare(self, outputParameters, scanBean):
+        initial_energy = scanBean.getInitialEnergy()
+        final_energy = scanBean.getFinalEnergy()
         from gda.data.scan.datawriter import NexusExtraMetadataDataWriter
         NexusExtraMetadataDataWriter.removeAllMetadataEntries();
         metadata = outputParameters.getMetadataList()
