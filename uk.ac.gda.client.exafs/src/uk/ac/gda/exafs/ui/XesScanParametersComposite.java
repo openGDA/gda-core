@@ -681,7 +681,7 @@ public final class XesScanParametersComposite extends Composite {
 	
 	private int getIntegerValue(String scannableName) throws DeviceException {
 		String pos = getScannableSinglePosition(scannableName);
-		return Integer.parseInt(pos);
+		return Math.round(Float.parseFloat(pos));
 	}
 	
 	private String getScannableSinglePosition(String scannableName) throws DeviceException {
