@@ -417,6 +417,12 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		start();
 		lastFrameCollected = -1;
 	}
+	
+	@Override
+	public void atCommandFailure() throws DeviceException {
+		super.atCommandFailure();
+		lastFrameCollected = -1;
+	}
 
 	@Override
 	public String[] getOutputFormat() {
@@ -765,6 +771,8 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 		if (scalerHandle >= 0 && daServer != null && daServer.isConnected()) {
 			sendCommand("disable ", scalerHandle);
 		}
+		
+		lastFrameCollected = -1;
 
 		close();
 	}
