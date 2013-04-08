@@ -224,4 +224,4 @@ class RasterMap(Map):
       
         LocalProperties.set("gda.scan.useScanPlotSettings", "true")
        
-        self.finder.find("RCPController").openPesrpective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")
+        #self.finder.find("RCPController").openPesrpective("uk.ac.gda.microfocus.ui.MicroFocusPerspective")
