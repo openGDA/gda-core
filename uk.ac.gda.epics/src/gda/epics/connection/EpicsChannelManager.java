@@ -154,6 +154,9 @@ public class EpicsChannelManager implements ConnectionListener, PutListener {
 
 			Channel channel = controller.createChannel(pvName, this);
 
+			if (channels.containsKey(pvName)) {
+				logger.warn("Warning, channel for PV '" + pvName + "' already exists");
+			}
 			channels.put(pvName, channel);
 
 			if (!optional) {
