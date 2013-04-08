@@ -18,30 +18,30 @@
 
 package gda.device.continuouscontroller;
 
+import static java.text.MessageFormat.format;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.factory.FactoryException;
 import gda.util.OutOfRangeException;
+import gov.aps.jca.CAException;
+import gov.aps.jca.TimeoutException;
 
-import static java.text.MessageFormat.format;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import gda.scan.Trajectory;
-import gov.aps.jca.CAException;
-import gov.aps.jca.TimeoutException;
 
 public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements TrajectoryMoveController {
 	
 	private static final Logger logger = LoggerFactory.getLogger(EpicsTrajectoryMoveControllerAdapter.class);
 
-	private EpicsTrajectoryScanControllerDev812 controller;
+	private EpicsTrajectoryScanController controller;
 	
 	private String[] axisNames;
 	
@@ -59,13 +59,11 @@ public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements 
 
 	private final Double[] triggerDeltas = null; // final as not yet used
 	
-	private boolean useAlternateMethod;
-	
-	public EpicsTrajectoryScanControllerDev812 getController() {
+	public EpicsTrajectoryScanController getController() {
 		return controller;
 	}
 
-	public void setController(EpicsTrajectoryScanControllerDev812 controller) {
+	public void setController(EpicsTrajectoryScanController controller) {
 		this.controller = controller;
 	}
 

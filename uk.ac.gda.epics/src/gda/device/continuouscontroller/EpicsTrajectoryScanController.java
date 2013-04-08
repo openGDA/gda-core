@@ -57,9 +57,9 @@ import org.slf4j.LoggerFactory;
  * </ol>
  * Detector data collection will be handled by MCA object.
  */
-public class EpicsTrajectoryScanControllerDev812 extends DeviceBase implements TrajectoryScanControllerDev812, InitializationListener, Configurable, Findable {
+public class EpicsTrajectoryScanController extends DeviceBase implements TrajectoryScanController, InitializationListener, Configurable, Findable {
 
-	private static final Logger logger = LoggerFactory.getLogger(EpicsTrajectoryScanControllerDev812.class);
+	private static final Logger logger = LoggerFactory.getLogger(EpicsTrajectoryScanController.class);
 
 	/**
 	 * /** Maximum array size of the defined trajectory path
@@ -187,7 +187,7 @@ public class EpicsTrajectoryScanControllerDev812 extends DeviceBase implements T
 	/**
 	 * default constructor
 	 */
-	public EpicsTrajectoryScanControllerDev812() {
+	public EpicsTrajectoryScanController() {
 		controller = EpicsController.getInstance();
 		channelManager = new EpicsChannelManager(this);
 		bstatel = new BuildStateListener();

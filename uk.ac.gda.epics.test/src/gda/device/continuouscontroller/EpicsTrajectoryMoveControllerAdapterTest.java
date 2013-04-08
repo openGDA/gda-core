@@ -48,11 +48,11 @@ public class EpicsTrajectoryMoveControllerAdapterTest {
 	}
 
 	private EpicsTrajectoryMoveControllerAdapter adapter;
-	private EpicsTrajectoryScanControllerDev812 mockedController;
+	private EpicsTrajectoryScanController mockedController;
 
 	@Before
 	public void setUp() {
-		mockedController = mock(EpicsTrajectoryScanControllerDev812.class);
+		mockedController = mock(EpicsTrajectoryScanController.class);
 		when(mockedController.getMaximumNumberMotors()).thenReturn(8);
 		adapter = new EpicsTrajectoryMoveControllerAdapter();
 		adapter.setController(mockedController);
