@@ -21,14 +21,15 @@ import gda.analysis.io.ScanFileHolderException;
 
 import org.dawb.common.services.IPaletteService;
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
-import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
-import org.dawb.common.ui.plot.region.IROIListener;
-import org.dawb.common.ui.plot.region.IRegion;
-import org.dawb.common.ui.plot.region.ROIEvent;
-import org.dawb.common.ui.plot.region.RegionUtils;
-import org.dawb.common.ui.plot.trace.IImageTrace;
-import org.dawb.common.ui.plot.trace.ITrace;
+import org.dawnsci.plotting.api.PlotType;
+import org.dawnsci.plotting.api.region.IROIListener;
+import org.dawnsci.plotting.api.region.IRegion;
+import org.dawnsci.plotting.api.region.MouseEvent;
+import org.dawnsci.plotting.api.region.ROIEvent;
+import org.dawnsci.plotting.api.region.RegionUtils;
+import org.dawnsci.plotting.api.trace.IImageTrace;
+import org.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -344,9 +345,9 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 
 	private ROIBase yBounds;
 
-	private MouseListener mouseFollowRegionMouseListner = new MouseListener.Stub() {
+	private org.dawnsci.plotting.api.region.MouseListener mouseFollowRegionMouseListner = new org.dawnsci.plotting.api.region.MouseListener.Stub() {
 		@Override
-		public void mousePressed(org.eclipse.draw2d.MouseEvent me) {
+		public void mousePressed(MouseEvent me) {
 			try {
 				xHair.setTrackMouse(false);
 				ROIBase roi = getYBounds(yBounds);
