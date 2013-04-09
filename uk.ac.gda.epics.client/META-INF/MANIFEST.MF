@@ -26,6 +26,7 @@ Export-Package: uk.ac.gda.epics.client,
  uk.ac.gda.epics.client.perspective,
  uk.ac.gda.epics.client.views,
  uk.ac.gda.epics.client.views.controllers,
+ uk.ac.gda.epics.client.views.factories,
  uk.ac.gda.epics.client.views.model,
  uk.ac.gda.epics.client.views.model.impl,
  uk.ac.gda.epics.client.views.model.simulator
