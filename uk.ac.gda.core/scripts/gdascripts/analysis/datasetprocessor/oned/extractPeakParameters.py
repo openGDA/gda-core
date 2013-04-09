@@ -52,7 +52,7 @@ class ExtractPeakParameters(XYDataSetFunction):
         maxpos=xDataSet.getElementDoubleAbs(ymaxindex)
         basey=self.baseline(xDataSet, yDataSet, 1)
         halfmax=ymax/2+basey/2
-        xcrossingvalues=dnp.crossings(yDataSet, halfmax, xDataSet)
+        xcrossingvalues=dnp.jython.jyscisoft.crossings(yDataSet, halfmax, xDataSet)
         #print xcrossingvalues, maxpos
         if len(xcrossingvalues)>2:
             print "multiple peaks exists in the data set!, only process the highest peak."
@@ -62,11 +62,13 @@ class ExtractPeakParameters(XYDataSetFunction):
     def baseline(self,xdataset, ydataset, smoothness):
         '''find the baseline y value for a peak in y dataset'''
         ymaxindex=ydataset.argMax()
-        result=dnp.derivative(xdataset, ydataset, smoothness)
+        #TODO
+        result=dnp.jython.jymaths.gradient(ydataset,xdataset)
+        #derivative(xdataset, ydataset, smoothness)
         leftresult=result[:ymaxindex]
         rightresult=result[ymaxindex+1:]
-        leftminderivativeindex=dnp.abs(leftresult).argMin()
-        rightminderivativeindex=dnp.abs(rightresult).argMin()
+        leftminderivativeindex=dnp.jython.jymaths.abs(leftresult).argMin()
+        rightminderivativeindex=dnp.jython.jymaths.abs(rightresult).argMin()
         leftbasey=ydataset.getElementDoubleAbs(leftminderivativeindex)
         rightbasey=ydataset.getElementDoubleAbs(rightminderivativeindex+1+leftresult.shape[0])
         basey=(leftbasey+rightbasey)/2
@@ -76,11 +78,11 @@ class ExtractPeakParameters(XYDataSetFunction):
         '''returns a list of peaks and troughs in tuple of (peak_position, peak_value). 
         If x data set is not provided, it returns as tuple of (peak_index, peak_value)'''
         if xdataset:
-            peaks,troughs=peakdet(dnp.array(ydataset), delta, dnp.array(xdataset))
+            peaks,troughs=peakdet(dnp.jython.jycore.array(ydataset), delta, dnp.jython.jycore.array(xdataset))
             #print "Peaks (position, value)   : ", peaks
             #print "Troughs (position, value) : ", troughs
         else:
-            peaks,troughs=peakdet(dnp.array(ydataset), delta)
+            peaks,troughs=peakdet(dnp.jython.jycore.array(ydataset), delta)
             #print "Peaks (index, value)      : ", peaks
             #print "Troughs (index, value)    : ", troughs
         return peaks, troughs
@@ -93,15 +95,15 @@ class ExtractPeakParameters(XYDataSetFunction):
         xslices=[]
         startindex=0
         for index,value in peaks: #@UnusedVariable
-            yslices.append(dnp.array(ydataset)[startindex:index])
-            xslices.append(dnp.array(xdataset)[startindex:index])
+            yslices.append(dnp.jython.jycore.array(ydataset)[startindex:index])
+            xslices.append(dnp.jython.jycore.array(xdataset)[startindex:index])
             startindex=index+1
-        yslices.append(dnp.array(ydataset)[startindex:])
-        xslices.append(dnp.array(xdataset)[startindex:])
+        yslices.append(dnp.jython.jycore.array(ydataset)[startindex:])
+        xslices.append(dnp.jython.jycore.array(xdataset)[startindex:])
 
         for xset, yset in zip(xslices, yslices):
-            result=dnp.derivative(xset, yset, smoothness)
-            minimumderivativeindex=dnp.abs(result).argMin()
+            result=dnp.jython.jymaths.gradient(yset, xset)
+            minimumderivativeindex=dnp.jython.jymaths.abs(result).argMin()
             bases.append((xset[minimumderivativeindex],yset[minimumderivativeindex]))
         #print "Base Points (position, value)   : ", bases
         return bases
@@ -127,7 +129,7 @@ class ExtractPeakParameters(XYDataSetFunction):
                 fwhm=None
             else:
                 halfmax=peaky/2+peakbase/2
-                xcrossingvalues=dnp.crossings(yDataSet, halfmax, xDataSet)
+                xcrossingvalues=dnp.jython.jyscisoft.crossings(yDataSet, halfmax, xDataSet)
                 leftcrossing=find_lt(xcrossingvalues, peakx)
                 rightcrossing=find_gt(xcrossingvalues, peakx)
                 fwhm=round(rightcrossing-leftcrossing,4)
