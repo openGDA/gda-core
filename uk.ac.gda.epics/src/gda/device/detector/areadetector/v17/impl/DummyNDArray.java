@@ -86,5 +86,10 @@ public class DummyNDArray implements NDArray {
 		return floatArrayData;
 	}
 
+	@Override
+	public Object getImageData(int expectedNumPixels) throws Exception {
+		return null;
+	}
+
 }
 

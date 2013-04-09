@@ -107,6 +107,12 @@ public class LazyPVFactory {
 		return new LazyPV<Integer>(EPICS_CONTROLLER, pvName, Integer.class);
 	}
 
+	public static PV<Integer> newIntegerFromEnumPV(String pvName) {
+		LazyPV<Integer> pv = new LazyPV<Integer>(EPICS_CONTROLLER, pvName, Integer.class);
+		pv.setShowTypeMismatchWarnings(false);
+		return pv;
+	}
+
 	public static PV<Short> newShortPV(String pvName) {
 		return new LazyPV<Short>(EPICS_CONTROLLER, pvName, Short.class);
 	}
@@ -154,7 +160,9 @@ public class LazyPVFactory {
 
 	// NOTE: just uses a short under the covers, so there is no enumType parameter
 	public static PV<Boolean> newBooleanFromEnumPV(String pvName) {
-		return newBooleanFromShortPV(pvName);
+		LazyPV<Short> pv = new LazyPV<Short>(EPICS_CONTROLLER, pvName, Short.class);
+		pv.setShowTypeMismatchWarnings(false);
+		return new BooleanFromShort(pv);
 	}
 
 	//
@@ -293,7 +301,7 @@ public class LazyPVFactory {
 
 	// NOTE: just uses a short under the covers, so there is no enumType parameter.
 	public static ReadOnlyPV<Boolean> newReadOnlyBooleanFromEnumPV(String pvName) {
-		return new ReadOnly<Boolean>(newBooleanFromShortPV(pvName));
+		return new ReadOnly<Boolean>(newBooleanFromEnumPV(pvName));
 	}
 
 	static private class LazyPV<T> implements PV<T> {
@@ -343,6 +351,8 @@ public class LazyPVFactory {
 
 		private PVMonitor<T> observableMonitor;
 
+		private boolean showTypeMismatchWarnings = true;
+		
 		LazyPV(EpicsController controller, String pvName, Class<T> javaType) {
 			this.controller = controller;
 			this.pvName = pvName;
@@ -356,6 +366,10 @@ public class LazyPVFactory {
 			}
 		}
 
+		void setShowTypeMismatchWarnings(boolean showTypeMismatchWarnings) {
+			this.showTypeMismatchWarnings = showTypeMismatchWarnings;
+		}
+		
 		private double defaultTimeout() {
 			return EpicsGlobals.getTimeout();
 		}
@@ -372,6 +386,13 @@ public class LazyPVFactory {
 			return value;
 		}
 
+		@Override
+		public T get(int numElements) throws IOException {
+			T value = extractValueFromDbr(getDBR(dbrType, numElements));
+			logger.debug("'{}' get() <-- {}", pvName, value);
+			return value;
+		}
+		
 		@Override
 		public T getLast() throws IOException {
 			if (!isValueMonitoring()) {
@@ -559,7 +580,7 @@ public class LazyPVFactory {
 			if (channel == null) {
 				try {
 					channel = (controller.createChannel(pvName));
-					if (channel.getFieldType() != dbrType) {
+					if (showTypeMismatchWarnings && channel.getFieldType() != dbrType) {
 						logger.warn(format(
 								"The pv ''{0}'' was expecting a channel of DBR type {1}, but the channel was discovered at runtime to be of DBR type {2}",
 								pvName, javaType, channel.getFieldType()));
@@ -586,12 +607,28 @@ public class LazyPVFactory {
 			}
 		}
 
+		private synchronized DBR getDBR(DBRType dbrType, int numElements) throws IOException {
+
+			try {
+				return controller.getDBR(getChannel(), dbrType, numElements);
+			} catch (CAException e) {
+				throw new IOException("Problem getting value from Epics pv '" + pvName + "'", e);
+			} catch (TimeoutException e) {
+				throw new IOException("Timed out getting value from Epics pv '" + pvName + "'", e);
+			} catch (InterruptedException e) {
+				throw new InterruptedIOException("Interupted while getting value from Epics pv '" + pvName + "'");
+			}
+		}
+		
 		private class ValueMonitorListener implements MonitorListener {
 
 			@Override
 			public void monitorChanged(MonitorEvent ev) {
-				setLastValueFromMonitor(extractValueFromDbr(ev.getDBR()));
-				logger.debug("'{}' <-- {}  (monitored value changed)", pvName, lastMonitoredValue);
+				DBR dbr = ev.getDBR();
+				if(dbr != null){
+					setLastValueFromMonitor(extractValueFromDbr(dbr));
+					logger.debug("'{}' <-- {}  (monitored value changed)", pvName, lastMonitoredValue);
+				}
 			}
 		}
 
@@ -875,7 +912,7 @@ public class LazyPVFactory {
 			if( observableMonitor == null){
 				observableMonitor = new PVMonitor<T>(this, this);
 			}
-			observableMonitor.addObserver(observer);			
+			observableMonitor.addObserver(observer);
 			
 		}
 
@@ -915,6 +952,11 @@ public class LazyPVFactory {
 		@Override
 		public T get() throws IOException {
 			return innerToOuter(getPV().get());
+		}
+
+		@Override
+		public T get(int numElements) throws IOException {
+			return innerToOuter(getPV().get(numElements));
 		}
 
 		@Override
@@ -1239,15 +1281,21 @@ class PVMonitor<E> implements Observable<E>{
 		public void monitorChanged(MonitorEvent arg0) {
 			E extractValueFromDbr;
 			try {
-				extractValueFromDbr = pv.extractValueFromDbr(arg0.getDBR());
-				if( oc != null){
-					oc.notifyIObservers(observable, extractValueFromDbr);
+				DBR dbr = arg0.getDBR();
+				if(dbr != null){
+					extractValueFromDbr = pv.extractValueFromDbr(dbr);
+					if( oc != null){
+						oc.notifyIObservers(observable, extractValueFromDbr);
+					}
+				} else {
+					arg0.toString();
 				}
 			} catch (Exception e) {
 				logger.error("Error extracting data from histogram update", e);
 			}
 		}
 	};
+	private boolean monitorAdded=false;
 
 
 
@@ -1256,9 +1304,10 @@ class PVMonitor<E> implements Observable<E>{
 		if( oc == null)
 			oc = new ObservableUtil<E>();
 		oc.addObserver(observer);
-		if( !pv.isValueMonitoring()){
+		if (! monitorAdded ){
 			try {
 				pv.addMonitorListener(monitorListener);
+				monitorAdded = true;
 			} catch (IOException e) {
 				throw new IllegalStateException("Error adding monitor to pv:"+ pv.getPvName(),e);
 			}
@@ -1272,9 +1321,10 @@ class PVMonitor<E> implements Observable<E>{
 		if( oc == null)
 			return;
 		oc.deleteIObserver(observer);
-		if (!oc.IsBeingObserved()){
-			if ( !pv.isValueMonitoring()){
+		if (!IsBeingObserved()){
+			if ( monitorAdded){
 				pv.removeMonitorListener(monitorListener);
+				monitorAdded = false;
 			}
 		}
 	}

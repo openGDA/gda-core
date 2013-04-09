@@ -60,6 +60,16 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 	 */
 	private boolean readAcquireTimeFromHardware=false;
 
+	private int procDataTypeOut=5; // UINT32	
+
+	public int getProcDataTypeOut() {
+		return procDataTypeOut;
+	}
+
+	public void setProcDataTypeOut(int procDataTypeOut) {
+		this.procDataTypeOut = procDataTypeOut;
+	}
+
 	public boolean isReadAcquireTimeFromHardware() {
 		return readAcquireTimeFromHardware;
 	}
@@ -111,7 +121,7 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 	
 	@Override
 	public void prepareForCollection(double collectionTime, int numImagesIgnored) throws Exception {
-		double localExposureTime = getExposureTime();
+		double localExposureTime = ndProcess != null ? getExposureTime() : collectionTime;
 		numberImagesPerCollection = calcNumberImagesPerCollection(collectionTime, localExposureTime);
 		getAdBase().setTriggerMode(StandardTriggerMode.INTERNAL.ordinal()); 		 
 		if( getNdFile() != null){
@@ -139,7 +149,7 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 			ndProcess.setEnableBackground(0);
 			ndProcess.getPluginBase().setArrayCounter(0);
 			ndProcess.getPluginBase().setDroppedArrays(0);
-			ndProcess.setDataTypeOut(5); // UINT32			
+			ndProcess.setDataTypeOut(procDataTypeOut);		
 			ndProcess.getPluginBase().disableCallbacks();
 		}
 		enableOrDisableCallbacks();

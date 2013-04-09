@@ -18,6 +18,8 @@
 
 package gda.device.scannable;
 
+import java.io.Serializable;
+
 import gda.device.DeviceException;
 import gda.device.epicsdevice.EpicsDBR;
 import gda.epics.PVProvider;
@@ -123,7 +125,8 @@ public class EpicsScannable extends ScannableMotionUnitsBase implements Initiali
 			public void monitorChanged(MonitorEvent arg0) {
 				DBR dbr = arg0.getDBR();
 				Object arg = getAsString ? convertDBRToString(dbr) : valFromDBR(dbr);
-				notifyIObservers(this, arg);
+				notifyIObservers(this, arg);//TODO remove this.
+				notifyIObservers(this, new ScannablePositionChangeEvent((Serializable) arg));
 			}
 			
 			Object valFromDBR(DBR dbr){

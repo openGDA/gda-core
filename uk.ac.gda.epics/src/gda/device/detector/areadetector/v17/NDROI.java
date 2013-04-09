@@ -19,6 +19,7 @@
 package gda.device.detector.areadetector.v17;
 
 import gda.device.detector.areadetector.AreaDetectorROI;
+import gda.observable.Observable;
 
 /**
  * This maps to the roi plugin on the edm screen.
@@ -460,4 +461,16 @@ public interface NDROI {
 	 * 
 	 */
 	void reset() throws Exception;
+
+	Observable<Integer> createMinXObservable() throws Exception;
+
+	Observable<Integer> createMinYObservable() throws Exception;
+
+	Observable<Integer> createSizeXObservable() throws Exception;
+
+	Observable<Integer> createSizeYObservable() throws Exception;
+
+	Observable<String> createEnableXObservable() throws Exception;
+
+	Observable<String> createEnableYObservable() throws Exception;
 }

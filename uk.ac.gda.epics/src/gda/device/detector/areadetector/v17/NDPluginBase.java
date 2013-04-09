@@ -305,5 +305,11 @@ public interface NDPluginBase {
 	Integer getInitialArrayAddress();
 	
 	Observable<Integer> createArrayCounterObservable() throws Exception;
+	
+	Observable<Boolean> createConnectionStateObservable() throws Exception;
+
+	Observable<String> createEnableObservable() throws Exception;
+
+	Observable<Double> createMinCallbackTimeObservable() throws Exception;
 
 }

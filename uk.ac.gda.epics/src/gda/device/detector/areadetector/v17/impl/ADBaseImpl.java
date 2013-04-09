@@ -34,6 +34,8 @@ import gda.epics.Predicate;
 import gda.epics.connection.EpicsController;
 import gda.epics.interfaces.ADBaseType;
 import gda.factory.FactoryException;
+import gda.observable.Observable;
+import gda.scan.ScanBase;
 import gda.util.Sleep;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
@@ -2289,8 +2291,15 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public int waitWhileStatusBusy() throws InterruptedException {
 		synchronized (statusMonitor) {
-			while (status == Detector.BUSY) {
-				statusMonitor.wait();
+			try{
+				while (status == Detector.BUSY) {
+					statusMonitor.wait(1000);
+					ScanBase.checkForInterrupts();
+				}
+			}  finally{
+				//if interrupted clear the status state as the IOC may have crashed
+				if ( status != 0)
+					setStatus(0);
 			}
 			return status;
 		}
@@ -2332,5 +2341,19 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 				return (object >= exposureNumber);
 			}
 		}, timeoutS);
+	}
+
+	private String getChannelName(String pvElementName, String... args)throws Exception{
+		return genenerateFullPvName(pvElementName, args);
+	}	
+	
+	@Override
+	public Observable<String> createAcquireStateObservable() throws Exception {
+		return LazyPVFactory.newReadOnlyStringPV(getChannelName(Acquire_RBV));
+	}
+
+	@Override
+	public Observable<Double> createAcquireTimeObservable() throws Exception {
+		return LazyPVFactory.newReadOnlyDoublePV(getChannelName(AcquireTime_RBV));
 	}
 }

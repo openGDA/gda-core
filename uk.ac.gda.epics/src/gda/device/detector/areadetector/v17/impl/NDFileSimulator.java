@@ -31,6 +31,8 @@ public class NDFileSimulator implements NDFile{
 	public NDFileSimulator(NDPluginBase pluginBase){
 		this.pluginBase = pluginBase;
 	}
+	public NDFileSimulator(){
+	}
 
 	@Override
 	public NDPluginBase getPluginBase() {
@@ -58,7 +60,7 @@ public class NDFileSimulator implements NDFile{
 	String fileTemplate="";
 
 	@Override
-	public String getFullFileName_RBV() throws Exception {
+	public String getFullFileName_RBV() throws Exception { 
 		return String.format(fileTemplate, getFilePath(), getFileName(), getFileNumber());
 	}
 

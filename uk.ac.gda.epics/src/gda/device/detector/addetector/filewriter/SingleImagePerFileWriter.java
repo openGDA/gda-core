@@ -170,7 +170,7 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 		}
 
 		getNdFile().setFileWriteMode(fileWriteMode);
-		if( fileWriteMode == FileWriteMode.CAPTURE){
+		if( fileWriteMode == FileWriteMode.CAPTURE || fileWriteMode == FileWriteMode.STREAM){
 			getNdFile().setNumCapture(1);
 		}
 		

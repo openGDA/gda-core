@@ -20,6 +20,7 @@ package gda.device.detector.areadetector.v17.impl;
 
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDStats;
+import gda.observable.Observable;
 
 public class NDStatsSimulator implements NDStats {
 
@@ -409,6 +410,41 @@ public class NDStatsSimulator implements NDStats {
 
 	@Override
 	public void reset() throws Exception {
+	}
+
+	@Override
+	public Observable<String> createComputeHistogramObservable() throws Exception {
+		return null;
+	}
+
+	@Override
+	public Observable<String> createComputeStatisticsObservable() throws Exception {
+		return null;
+	}
+
+	@Override
+	public Observable<Double> createMinObservable() throws Exception {
+		return null;
+	}
+
+	@Override
+	public Observable<Double> createMaxObservable() throws Exception {
+		return null;
+	}
+
+	@Override
+	public Observable<Double> createMeanObservable() throws Exception {
+		return null;
+	}
+
+	@Override
+	public Observable<Double> createTotalObservable() throws Exception {
+		return null;
+	}
+
+	@Override
+	public Observable<Double> createSigmaObservable() throws Exception {
+		return null;
 	}
 
 }

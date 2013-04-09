@@ -68,32 +68,6 @@ public class PCODIOTrigger extends SimpleAcquire {
 		return adDriverPco;
 	}
 
-	public short getExposeTriggerOutVal() {
-		return exposeTriggerOutVal;
-	}
-
-	public void setExposeTriggerOutVal(short exposeTriggerOutVal) {
-		this.exposeTriggerOutVal = exposeTriggerOutVal;
-	}
-
-	public short getNoLongerBusyTriggerInVal() {
-		return noLongerBusyTriggerInVal;
-	}
-
-	public void setNoLongerBusyTriggerInVal(short noLongerBusyTriggerInVal) {
-		this.noLongerBusyTriggerInVal = noLongerBusyTriggerInVal;
-	}
-
-
-
-	public String getNoLongerBusyTriggerSetupCommand() {
-		return noLongerBusyTriggerSetupCommand;
-	}
-
-	public void setNoLongerBusyTriggerSetupCommand(String noLongerBusyTriggerSetupCommand) {
-		this.noLongerBusyTriggerSetupCommand = noLongerBusyTriggerSetupCommand;
-	}
-
 
 	PV<Integer> dioTrigger = LazyPVFactory.newIntegerPV("BL12I-EA-DET-02:DIO:CAPTURE");
 	
@@ -105,14 +79,6 @@ public class PCODIOTrigger extends SimpleAcquire {
 	private Double cameraUsageUpperLimit = 90.;
 	private Double cameraUsageLowerLimit = 25.;
 	
-	//The port value used to trigger the camera in live mode
-	private short exposeTriggerOutVal=64; // TFG2 USER6 PCO TriggerIn 
-
-	//The pause value used to detect that the camera is no longer busy
-	private short noLongerBusyTriggerInVal=39; //Falling edge on adc5
-	
-	//command to setup the trigger used to detect that the camera is no longer busy
-	private String noLongerBusyTriggerSetupCommand="tfg setup-trig start adc5 alternate 1"; //// PCO BUSY Out on TFg2 TF3_OUT5
 	private PutListener dioTriggerPutListener = new PutListener() {
 		
 		@Override
@@ -187,9 +153,14 @@ public class PCODIOTrigger extends SimpleAcquire {
 			}
 		}
 		
-		dioTrigger.put(1, dioTriggerPutListener);
 		collectingData = true;
 		expectedExposureEndTime = System.currentTimeMillis() + (long) (collectionTime * 1000.);
+		try{
+			dioTrigger.put(1, dioTriggerPutListener);
+		} catch(Exception ex){
+			collectingData = false;
+			throw ex;
+		}
 		
 	}
 

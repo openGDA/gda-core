@@ -26,6 +26,7 @@ import gda.device.detector.areadetector.v17.ADDriverPco.PcoTriggerMode;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.device.timer.Etfg;
 import gda.device.timer.Tfg;
+import gda.scan.ScanBase;
 
 /*
  * Class of detector used to take multiple exposures that are then added together to make a single collection image
@@ -43,6 +44,8 @@ public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftware
 	
 	//time in s between detecting trigger (PCO Trigger Out) and sending trigger to PCO (PCO Trigger In)
 	private double delayTime=0;
+	private Integer adcMode=1; //2 ADCs
+	private Integer timeStamp=1; // BCD
 	
 	public double getDelayTime() {
 		return delayTime;
@@ -69,10 +72,26 @@ public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftware
 		this.etfg = etfg;
 	}
 
+	public Integer getAdcMode() {
+		return adcMode;
+	}
+
+	public void setAdcMode(Integer adcMode) {
+		this.adcMode = adcMode;
+	}
+
+	public Integer getTimeStamp() {
+		return timeStamp;
+	}
+
+	public void setTimeStamp(Integer timeStamp) {
+		this.timeStamp = timeStamp;
+	}
+
 	@Override
 	public void prepareForCollection(double collectionTime, int numImagesIgnored) throws Exception {
 		getAdBase().stopAcquiring();
-		double localExposureTime = getExposureTime();
+		double localExposureTime = ndProcess != null ? getExposureTime() : collectionTime;
 		numberImagesPerCollection = calcNumberImagesPerCollection(collectionTime, localExposureTime);
 		if( !isReadAcquireTimeFromHardware())
 			getAdBase().setAcquireTime(numberImagesPerCollection > 1 ? localExposureTime : collectionTime);
@@ -121,6 +140,9 @@ public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftware
 		getAdBase().setImageModeWait(ImageMode.SINGLE);
 		// getAdBase().setAcquirePeriod(0.0); //this is needed for PCO to make sure delay=0 - do not use as it effects
 		// delay
+		adDriverPco.getAdcModePV().put(adcMode); // 2 adcs
+		adDriverPco.getTimeStampModePV().put(timeStamp); // BCD - if set to None then the image is blank. BCD means no timestamp
+		
 		getAdBase().setTriggerMode(PcoTriggerMode.EXTERNAL_AND_SOFTWARE.ordinal()); // exposure time set by camera
 																					// rather than trigger
 		enableOrDisableCallbacks();
@@ -150,6 +172,14 @@ public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftware
 			etfg.stop(); 
 		adDriverPco.getArmModePV().putCallback(false);
 		adDriverPco.getArmModePV().putCallback(true);
+		// the callback is coming back before the camera is ready as seen by the BUSY out is still high
+		while (!adDriverPco.getArmModePV().get()) {// this is not working as armMode does not reflect true state of arm
+													// - check with oscilloscope
+			Thread.sleep(50);
+			ScanBase.checkForInterrupts();
+		}
+
+		Thread.sleep(2000); // without this the first trigger seems to be ignored		
 
 		if (ndProcess != null) {
 			ndProcess.setResetFilter(1);
