@@ -653,7 +653,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 	 */
 	private ADDetectorPositionCallable latestPositionCallable=null;
 
-	private void addDoubleItemToNXData(NXDetectorData data, String name, Double val) {
+	protected void addDoubleItemToNXData(NXDetectorData data, String name, Double val) {
 		data.addData(getName(), name, dims, NexusFile.NX_FLOAT64, new double[] { val }, null, null);
 		data.setDoubleVals((Double[]) ArrayUtils.add(data.getDoubleVals(), val));
 	}
@@ -912,7 +912,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 		data.addData(detectorName, "data", dims, nexusType, dataVals, ARRAY_DATA_NAME, 1);
 	}
 
-	private void appendNXDetectorDataFromCollectionStrategy(NXDetectorData data) throws Exception {
+	protected void appendNXDetectorDataFromCollectionStrategy(NXDetectorData data) throws Exception {
 		if (isReadAcquisitionTime()) {
 			double acquireTime_RBV = getCollectionStrategy().getAcquireTime(); // TODO: PERFORMANCE, cache or listen
 			addDoubleItemToNXData(data, "count_time", acquireTime_RBV);
