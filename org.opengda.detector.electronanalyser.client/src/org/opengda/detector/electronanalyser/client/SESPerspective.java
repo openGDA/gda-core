@@ -27,14 +27,17 @@ public class SESPerspective implements IPerspectiveFactory {
 	@Override
 	public void createInitialLayout(IPageLayout layout) {
 		layout.setFixed(false);
-		layout.addView(SEQUENCEEDITOR, IPageLayout.LEFT, 0.75f, layout.getEditorArea());
 
-		layout.addView(REGIONEDITOR, IPageLayout.RIGHT, 0.5f, layout.getEditorArea());
+		String editorArea = layout.getEditorArea();
+		layout.addView(SEQUENCEEDITOR, IPageLayout.LEFT, 0.75f, editorArea);
+		layout.addView(REGIONEDITOR, IPageLayout.RIGHT, 0.5f, editorArea);
+		IFolderLayout topLeft = layout.createFolder("topLeft", IPageLayout.LEFT, (float)0.2, SEQUENCEEDITOR); //$NON-NLS-1$
+        topLeft.addView(IPageLayout.ID_PROJECT_EXPLORER);
 
 		IFolderLayout plotFolder = null;
 
 		String plotLayoutString = ElectronAnalyserClientPlugin.getDefault().getPreferenceStore().getString(ElectronAnalyserClientPlugin.PLOT_LAYOUT);
-		if (plotLayoutString == null
+		if (plotLayoutString == null || plotLayoutString.isEmpty() 
 				|| ElectronAnalyserClientPlugin.STACK_PLOT.equals(plotLayoutString)) {
 			plotFolder = layout.createFolder("PlotFolder", IPageLayout.BOTTOM, 0.5f, SEQUENCEEDITOR);
 
@@ -60,7 +63,6 @@ public class SESPerspective implements IPerspectiveFactory {
 			layout.addView(IMAGEVIEW, IPageLayout.RIGHT, 0.25f, SPECTRUMVIEW);
 			layout.addView(EXTERNALIOVIEW, IPageLayout.RIGHT, 0.33f, IMAGEVIEW);
 			layout.addView(SLICEVIEW, IPageLayout.RIGHT, 0.5f, EXTERNALIOVIEW);
-			
 		}
 
 		layout.addView(PROGRESSVIEW, IPageLayout.BOTTOM, 0.5f, REGIONEDITOR);
