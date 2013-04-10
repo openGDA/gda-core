@@ -11,11 +11,9 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
-import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EContentAdapter;
@@ -46,6 +44,8 @@ import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -88,8 +88,6 @@ import org.opengda.detector.electronanalyser.utils.RegionStepsTimeEstimation;
 import org.opengda.detector.electronanalyser.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.eclipse.swt.events.FocusAdapter;
-import org.eclipse.swt.events.FocusEvent;
 
 public class SequenceView extends ViewPart implements ISelectionProvider,
 		IRegionDefinitionView, ISaveablePart {
@@ -199,6 +197,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 				| SWT.FULL_SELECTION | SWT.MULTI | SWT.VIRTUAL);
 		sequenceTableViewer.getTable().setHeaderVisible(true);
 		sequenceTableViewer.getTable().setLinesVisible(true);
+
 		sequenceTableViewer
 				.addSelectionChangedListener(new ISelectionChangedListener() {
 					@Override
@@ -1031,6 +1030,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 	 * refresh the table viewer with the sequence file name provided. If it is a
 	 * new file, an empty sequence will be created.
 	 */
+	@Override
 	public void refreshTable(String seqFileName, boolean newFile) {
 		try {
 			resource.eAdapters().remove(notifyListener);
@@ -1160,6 +1160,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 
 	private Text txtSequenceFilePath;
 
+	@Override
 	public void dispose() {
 		try {
 			regionDefinitionResourceUtil.getResource().eAdapters()
