@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.nxdetector.plugin.areadetector;
+package gda.device.detector.nxdetector;
 
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
@@ -25,6 +25,9 @@ import gda.device.detector.areadetector.v18.NDStatsPVs.CentroidStat;
 import gda.device.detector.areadetector.v18.NDStatsPVs.Stat;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdetector.NXPlugin;
+import gda.device.detector.nxdetector.plugin.areadetector.ADRectangularROIPlugin;
+import gda.device.detector.nxdetector.plugin.areadetector.ADTimeSeriesStatsPlugin;
+import gda.device.detector.nxdetector.roi.RectangularROI;
 import gda.device.scannable.PositionInputStream;
 import gda.device.scannable.PositionInputStreamCombiner;
 import gda.scan.ScanInformation;
@@ -74,11 +77,11 @@ public class ADStatsROIPair implements NXPlugin, PositionInputStream<NXDetectorD
 		return statsPlugin.getEnabledStats();
 	}
 
-	public ADRectangularROI getRoi() {
+	public RectangularROI getRoi() {
 		return roiPlugin.getRoi();
 	}
 
-	public void setRoi(ADRectangularROI roi) {
+	public void setRoi(RectangularROI roi) {
 		roiPlugin.setRoi(roi);
 	}
 
@@ -147,10 +150,10 @@ public class ADStatsROIPair implements NXPlugin, PositionInputStream<NXDetectorD
 	public List<String> getInputStreamNames() {
 		List<String> names = new ArrayList<String>();
 		for (String statName : roiPlugin.getInputStreamNames()) {
-			names.add(roiPlugin.getRoiName() + "_" + statName);
+			names.add(roiPlugin.getRoi().getName() + "_" + statName);
 		}
 		for (String statName : statsPlugin.getInputStreamNames()) {
-			names.add(roiPlugin.getRoiName() + "_" + statName);
+			names.add(roiPlugin.getRoi().getName() + "_" + statName);
 		}
 		return names;
 	}

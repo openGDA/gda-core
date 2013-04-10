@@ -16,35 +16,56 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.nxdetector.plugin.areadetector;
+package gda.device.detector.nxdetector.roi;
 
-public class ADRectangularROI {
+
+public class ImutableRectangularIntegerROI implements RectangularROI<Integer> {
 
 	final private int xstart;
 	final private int xsize;
 	final private int ystart;
 	final private int ysize;
+	final private String name;
 
-	public ADRectangularROI(int xstart, int xsize, int ystart, int ysize) {
+	public static ImutableRectangularIntegerROI valueOf(uk.ac.diamond.scisoft.analysis.roi.RectangularROI scisoftRoi) {
+		String name = scisoftRoi.getName();
+		int xstart = (int) scisoftRoi.getPointX();
+		int xsize = (int) scisoftRoi.getLength(0);
+		int ystart = (int) scisoftRoi.getPointY();
+		int ysize = (int) scisoftRoi.getLength(1);
+		return new ImutableRectangularIntegerROI(xstart, xsize, ystart, ysize, name);
+	}
+	
+	public ImutableRectangularIntegerROI(Integer xstart, Integer xsize, Integer ystart, Integer ysize, String name) {
 		this.xstart = xstart;
 		this.xsize = xsize;
 		this.ystart = ystart;
 		this.ysize = ysize;
+		this.name = name;
 	}
 
-	public int getXstart() {
+	@Override
+	public Integer getXstart() {
 		return xstart;
 	}
 
-	public int getXsize() {
+	@Override
+	public Integer getXsize() {
 		return xsize;
 	}
 
-	public int getYstart() {
+	@Override
+	public Integer getYstart() {
 		return ystart;
 	}
 
-	public int getYsize() {
+	@Override
+	public Integer getYsize() {
 		return ysize;
+	}
+
+	@Override
+	public String getName() {
+		return name;
 	}
 }
