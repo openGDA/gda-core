@@ -5,7 +5,7 @@ import gda.rcp.views.FindableExecutableExtension;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.opengda.detector.electronanalyser.client.views.ProgressView;
-import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
+import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +13,7 @@ public class ProgressViewFactory implements FindableExecutableExtension {
 	private static final Logger logger=LoggerFactory.getLogger(ProgressViewFactory.class);
 	private String viewPartName;
 	private String name;
-	private VGScientaAnalyser analyser;
+	private IVGScientaAnalyser analyser;
 	@Override
 	public Object create() throws CoreException {
 		logger.info("Creating Progress view");
@@ -45,16 +45,16 @@ public class ProgressViewFactory implements FindableExecutableExtension {
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if (analyser == null ) {
-			throw new IllegalArgumentException("analyser cannot be null in Spectrum View.");
+			throw new IllegalArgumentException("analyser cannot be null in progress View.");
 		}
 		
 	}
 
-	public VGScientaAnalyser getAnalyser() {
+	public IVGScientaAnalyser getAnalyser() {
 		return analyser;
 	}
 
-	public void setAnalyser(VGScientaAnalyser analyser) {
+	public void setAnalyser(IVGScientaAnalyser analyser) {
 		this.analyser = analyser;
 	}
 

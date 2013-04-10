@@ -24,5 +24,5 @@ import gda.rcp.views.ViewFactory;
  *
  */
 public class ProgressViewExtensionFactory extends ViewFactory {
-	public static String ID = "org.opengda.detector.electronanalyser.views.progressview";
+	public static String ID = "org.opengda.detector.electronanalyser.client.views.progressview";
 }

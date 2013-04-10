@@ -5,6 +5,7 @@ import gda.rcp.views.FindableExecutableExtension;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.opengda.detector.electronanalyser.client.views.ExternalIOView;
+import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +51,7 @@ public class ExternalIOViewFactory implements FindableExecutableExtension {
 		
 	}
 
-	public VGScientaAnalyser getAnalyser() {
+	public IVGScientaAnalyser getAnalyser() {
 		return analyser;
 	}
 

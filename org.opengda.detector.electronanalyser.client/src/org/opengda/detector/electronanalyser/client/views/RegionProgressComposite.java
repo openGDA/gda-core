@@ -22,7 +22,7 @@ import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Text;
 import org.opengda.detector.electronanalyser.client.ElectronAnalyserClientPlugin;
 import org.opengda.detector.electronanalyser.client.ImageConstants;
-import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
+import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.opengda.detector.electronanalyser.server.VGScientaController;
 
 /**
@@ -37,7 +37,7 @@ import org.opengda.detector.electronanalyser.server.VGScientaController;
 public class RegionProgressComposite extends Composite {
 
 	private ProgressBar progressBar;
-	private VGScientaAnalyser analyser;
+	private IVGScientaAnalyser analyser;
 
 	public RegionProgressComposite(Composite parent, int style) {
 		super(parent, style);
@@ -81,7 +81,7 @@ public class RegionProgressComposite extends Composite {
 	private void initialise() {
 		if (getAnalyser() == null) {
 			// Analyser must be called 'analyser' in Spring configuration
-			analyser = (VGScientaAnalyser) (Finder.getInstance()
+			analyser = (IVGScientaAnalyser) (Finder.getInstance()
 					.find("analyser"));
 		}
 		currentPointListener = new CurrentPointListener();
@@ -174,11 +174,11 @@ public class RegionProgressComposite extends Composite {
 		super.dispose();
 	}
 
-	public VGScientaAnalyser getAnalyser() {
+	public IVGScientaAnalyser getAnalyser() {
 		return analyser;
 	}
 
-	public void setAnalyser(VGScientaAnalyser analyser) {
+	public void setAnalyser(IVGScientaAnalyser analyser) {
 		this.analyser = analyser;
 	}
 }

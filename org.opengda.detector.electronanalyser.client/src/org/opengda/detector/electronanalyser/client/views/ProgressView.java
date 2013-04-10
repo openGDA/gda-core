@@ -4,14 +4,14 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
-import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
+import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ProgressView extends ViewPart {
 
 	private static final Logger logger=LoggerFactory .getLogger(ProgressView.class);
-	private VGScientaAnalyser analyser;
+	private IVGScientaAnalyser analyser;
 
 	public ProgressView() {
 		setTitleToolTip("display progress view");
@@ -37,11 +37,11 @@ public class ProgressView extends ViewPart {
 
 	}
 
-	public VGScientaAnalyser getAnalyser() {
+	public IVGScientaAnalyser getAnalyser() {
 		return analyser;
 	}
 
-	public void setAnalyser(VGScientaAnalyser analyser) {
+	public void setAnalyser(IVGScientaAnalyser analyser) {
 		this.analyser = analyser;
 	}
 
