@@ -61,7 +61,7 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 		this.plotName = plotName;
 	}
 
-	public VGScientaAnalyser getAnalyser() {
+	public IVGScientaAnalyser getAnalyser() {
 		return analyser;
 	}
 

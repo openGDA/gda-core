@@ -22,16 +22,11 @@ public class Activator implements BundleActivator {
 	 * org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext
 	 * )
 	 */
+	@Override
 	public void start(BundleContext bundleContext) throws Exception {
 		Activator.context = bundleContext;
-//		SpringObjectServer s = new SpringObjectServer(
-//				new File(
-//						"D:/gda/gda-i09/workspace/org.opengda.detector.electronanalyser.client.test/client.xml"),
-//				true);
-//		s.configure();
-//		 FileSystemXmlApplicationContext applicationContext = new
-//		 FileSystemXmlApplicationContext(
-//		 "file:D:\\gda\\gda-i09\\workspace\\org.opengda.detector.electroanalyser.client\\client.xml");
+		SpringObjectServer s = new SpringObjectServer(new File("D:/gda/i09/workspace_git/opengda-electronanalyser.git/org.opengda.detector.electronanalyser.client.test/client.xml"), true);
+		s.configure();
 	}
 
 	/*
@@ -40,6 +35,7 @@ public class Activator implements BundleActivator {
 	 * @see
 	 * org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
 	 */
+	@Override
 	public void stop(BundleContext bundleContext) throws Exception {
 		Activator.context = null;
 	}

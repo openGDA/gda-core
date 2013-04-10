@@ -61,7 +61,7 @@ class AnalyserSweptLiveDataDispatcher implements MonitorListener, Configurable, 
 		this.plotName = plotName;
 	}
 
-	public VGScientaAnalyser getAnalyser() {
+	public IVGScientaAnalyser getAnalyser() {
 		return analyser;
 	}
 

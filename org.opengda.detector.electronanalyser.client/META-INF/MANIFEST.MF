@@ -18,10 +18,19 @@ Require-Bundle: org.eclipse.core.runtime,
  org.dawb.common.ui,
  uk.ac.diamond.scisoft.analysis,
  uk.ac.gda.epics;bundle-version="1.0.0",
- org.opengda.detector.electronanalyser.server;bundle-version="1.0.0"
+ org.opengda.detector.electronanalyser.server;bundle-version="1.0.0",
+ uk.ac.gda.epics.client;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.eclipse.ui.dialogs,
  org.slf4j
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
-Export-Package: org.opengda.detector.electronanalyser.client
+Export-Package: org.opengda.detector.electronanalyser.client,
+ org.opengda.detector.electronanalyser.client.actions,
+ org.opengda.detector.electronanalyser.client.dialogs,
+ org.opengda.detector.electronanalyser.client.selection,
+ org.opengda.detector.electronanalyser.client.sequenceeditor,
+ org.opengda.detector.electronanalyser.client.viewextensionfactories,
+ org.opengda.detector.electronanalyser.client.viewfactories,
+ org.opengda.detector.electronanalyser.client.views,
+ org.opengda.detector.electronanalyser.utils
