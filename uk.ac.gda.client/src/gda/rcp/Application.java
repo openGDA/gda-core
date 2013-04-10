@@ -432,6 +432,8 @@ public class Application implements IApplication {
 				}
 				
 				logger.warn("Not using visit based workspace " + url + " because instance location has been set with -data command line argument to " + instanceLocation.getURL());
+				// for correct reporting further on
+				url = instanceLocation.getURL();
 			}
 		} catch (Exception e) {
 			final String msg = "Cannot set workspace to " + workspace.getAbsolutePath();
