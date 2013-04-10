@@ -25,10 +25,10 @@ import java.text.DecimalFormat;
 import java.util.EventObject;
 import java.util.List;
 
-import org.dawb.common.ui.plot.region.IROIListener;
-import org.dawb.common.ui.plot.region.IRegion;
-import org.dawb.common.ui.plot.region.IRegion.RegionType;
-import org.dawb.common.ui.plot.region.ROIEvent;
+import org.dawnsci.plotting.api.region.IROIListener;
+import org.dawnsci.plotting.api.region.IRegion;
+import org.dawnsci.plotting.api.region.IRegion.RegionType;
+import org.dawnsci.plotting.api.region.ROIEvent;
 import org.eclipse.jface.dialogs.IPageChangedListener;
 import org.eclipse.jface.dialogs.PageChangedEvent;
 import org.eclipse.jface.util.IPropertyChangeListener;

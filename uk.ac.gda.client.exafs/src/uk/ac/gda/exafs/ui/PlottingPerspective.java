@@ -22,7 +22,7 @@ import gda.configuration.properties.LocalProperties;
 import gda.gui.scriptcontroller.logging.ScriptControllerLogView;
 import gda.rcp.views.JythonTerminalView;
 
-import org.dawb.common.ui.plot.tool.IToolPageSystem;
+import org.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;

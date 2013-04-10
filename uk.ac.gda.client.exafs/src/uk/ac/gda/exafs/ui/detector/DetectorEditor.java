@@ -44,8 +44,8 @@ import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.dawb.common.ui.plot.region.IROIListener;
-import org.dawb.common.ui.plot.region.ROIEvent;
+import org.dawnsci.plotting.api.region.IROIListener;
+import org.dawnsci.plotting.api.region.ROIEvent;
 import org.dawnsci.plotting.jreality.util.PlotColorUtility;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
