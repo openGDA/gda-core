@@ -80,7 +80,7 @@ public class DefineHeightRoiDialog extends BaseRoiDialog {
 			public void widgetSelected(SelectionEvent e) {
 				startEnd = new int[2];
 				if (plottingSystem.getRegions().contains(selectedRegion)) {
-					ROIBase roi = selectedRegion.getROI();
+					ROIBase roi = (ROIBase)selectedRegion.getROI();
 					if (roi instanceof RectangularROI) {
 						RectangularROI rec = (RectangularROI) roi;
 						int[] intPoint = rec.getIntPoint();

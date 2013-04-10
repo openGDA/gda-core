@@ -161,7 +161,7 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (!xHair.isTrackMouse()) {
-					ROIBase roi = xHair.getROI();
+					ROIBase roi = (ROIBase)xHair.getROI();
 					if (roi.getPointY() >= SPLITS) {
 						roi.setPoint(roi.getPointX(), roi.getPointY() - SPLITS);
 						ROIBase roiModified = getYBounds(roi);
@@ -205,7 +205,7 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 			public void widgetSelected(SelectionEvent e) {
 				if (!xHair.isTrackMouse() && dataset != null && dataset.getShape().length == 3) {
 					int max = dataset.getShape()[1];
-					ROIBase roi = xHair.getROI();
+					ROIBase roi = (ROIBase)xHair.getROI();
 					if (roi.getPointY() < max - SPLITS) {
 						roi.setPoint(roi.getPointX(), roi.getPointY() + SPLITS);
 						ROIBase roiModified = getYBounds(roi);
@@ -380,7 +380,7 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 
 		private void update(ROIEvent evt) {
 			final IRegion region = (IRegion) evt.getSource();
-			ROIBase roi = region.getROI();
+			ROIBase roi = (ROIBase)region.getROI();
 			yBounds = roi;
 		}
 
@@ -397,7 +397,7 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 			update(evt);
 			if (dragged && !(xHair.isTrackMouse())) {
 				dragged = false;
-				ROIBase roi = getYBounds(evt.getROI());
+				ROIBase roi = getYBounds((ROIBase)evt.getROI());
 				xHair.setROI(roi);
 				roiSet(roi.getPointY());
 			}
