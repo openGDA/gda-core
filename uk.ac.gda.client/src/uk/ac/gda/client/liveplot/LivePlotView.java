@@ -38,7 +38,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Vector;
 
-import org.dawb.common.ui.plot.tool.IToolPageSystem;
+import org.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.IPath;

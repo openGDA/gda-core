@@ -235,7 +235,7 @@ public abstract class AbstractScanPlotView extends AbstractPlotView implements S
 	}
 
 	/**
-	 * Used for sending data to the plot programatically. Currently for testing only.
+	 * Used for sending data to the plot programmatically. Currently for testing only.
 	 * 
 	 * @param x
 	 * @param y
