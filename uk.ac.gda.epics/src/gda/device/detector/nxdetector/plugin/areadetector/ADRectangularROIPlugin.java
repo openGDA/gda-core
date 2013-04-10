@@ -20,6 +20,8 @@ package gda.device.detector.nxdetector.plugin.areadetector;
 
 import gda.device.detector.areadetector.v17.NDROIPVs;
 import gda.device.detector.nxdetector.plugin.NullNXPlugin;
+import gda.device.detector.nxdetector.roi.RectangularROI;
+import gda.device.detector.nxdetector.roi.RectangularROIProvider;
 import gda.scan.ScanInformation;
 
 public class ADRectangularROIPlugin extends NullNXPlugin {
@@ -29,36 +31,64 @@ public class ADRectangularROIPlugin extends NullNXPlugin {
 
 	private final String pluginName;
 	
-	private String roiName;
+	private RectangularROI<Integer> roi;
+	
+	private RectangularROIProvider<Integer> roiProvider; // optional
 
-	private ADRectangularROI roi;
+	private Integer roiProviderIndex = null; // optional
+	
+	public final String INACTIVE_ROI_NAME = "gda_inactive";
+	
+	/**
+	 * Get the roi provider
+	 * @return the RectangularROIProvider or null if unset
+	 */
+	public RectangularROIProvider<Integer> getRoiProvider() {
+		return roiProvider;
+	}
 
 	/**
-	 * The name of the roi to push to Epics, and that {@link ADStatsROIPair} will use to prefix input names.
+	 * Set the optional ROIProvider. Disables manual setting of ROI to avoid confusion.
+	 * @param roiProvider null to remove
 	 */
-	public String getRoiName() {
-		return roiName;
+	public void setRoiProvider(RectangularROIProvider<Integer> roiProvider) {
+		this.roiProvider = roiProvider;
 	}
 
-	public void setRoiName(String roiName) {
-		this.roiName = roiName;
+	public Integer getRoiProviderIndex() {
+		return roiProviderIndex;
 	}
-	
-	public ADRectangularROI getRoi() {
+
+	public void setRoiProviderIndex(Integer roiProviderIndex) {
+		this.roiProviderIndex = roiProviderIndex;
+	}
+
+	public RectangularROI<Integer> getRoi() {
+		if (roiProvider != null) {
+			try {
+				return roiProvider.getROI(getRoiProviderIndex());
+			} catch (Exception e) {
+				throw new IllegalStateException("Problem querying the configured roiProvider.", e);
+			}
+		}
 		return roi;
 	}
-
+	
 	/**
+	 * Set the roi to configure.
 	 * @param roi null to disable
+	 * @throws IllegalStateException if called with an ROI provider set
 	 */
-	public void setRoi(ADRectangularROI roi) {
+	public void setRoi(RectangularROI<Integer> roi) throws IllegalStateException{
+		if (roiProvider != null) {
+			throw new IllegalStateException("An ROI cannot be set when an roiProvider is specified");
+		}
 		this.roi = roi;
 	}
 	
 	public ADRectangularROIPlugin(NDROIPVs ndROIPVs, String name) {
 		this.pvs = ndROIPVs;
 		this.pluginName = name;
-		this.setRoiName(name); // initial value only
 	}
 	
 	@Override
@@ -74,7 +104,7 @@ public class ADRectangularROIPlugin extends NullNXPlugin {
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 		if (getRoi() != null) {
-			pvs.getNamePV().putWait(getRoiName());
+			pvs.getNamePV().putWait(getRoi().getName());
 			pvs.getPluginBasePVs().getEnableCallbacksPVPair().putWait(true);
 			pvs.getXDimension().getEnablePVPair().putWait(true);
 			pvs.getYDimension().getEnablePVPair().putWait(true);
@@ -84,7 +114,7 @@ public class ADRectangularROIPlugin extends NullNXPlugin {
 			pvs.getYDimension().getMinPVPair().putWait(getRoi().getYstart());
 			pvs.getYDimension().getSizePVPair().putWait(getRoi().getYsize());
 		} else {
-			pvs.getNamePV().putWait("gda_inactive");
+			pvs.getNamePV().putWait(INACTIVE_ROI_NAME);
 			pvs.getPluginBasePVs().getEnableCallbacksPVPair().putWait(false);
 			pvs.getXDimension().getEnablePVPair().putWait(false);
 			pvs.getYDimension().getEnablePVPair().putWait(false);

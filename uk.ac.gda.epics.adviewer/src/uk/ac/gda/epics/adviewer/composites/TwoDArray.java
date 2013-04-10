@@ -23,9 +23,11 @@ import gda.device.detector.areadetector.v17.NDROI;
 import gda.observable.Observable;
 import gda.observable.Observer;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlotType;
@@ -63,8 +65,11 @@ import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.LongDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ShortDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.function.Histogram;
+import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.gda.epics.adviewer.ADController;
 import uk.ac.gda.epics.adviewer.ImageData;
+import uk.ac.gda.epics.adviewer.composites.tomove.PlotServerGuiBeanUpdater;
+import uk.ac.gda.epics.adviewer.composites.tomove.RegionGuiParameterAdapter;
 
 public class TwoDArray extends Composite {
 
@@ -170,6 +175,22 @@ public class TwoDArray extends Composite {
 	public void setADController(ADController config) throws Exception {
 		this.config = config;
 
+
+		String viewName = config.getDetectorName() + " Array View"; // WARNING: Duplicated in TwoDArrayView
+
+		// Connect the plotting system via an adapter and an updater to the gui bean named after this view.
+		Observable<Map<GuiParameters, Serializable>> regionParameterObservable = new RegionGuiParameterAdapter(
+				plottingSystem);
+
+		Observer<Map<GuiParameters, Serializable>> plotServerGuiBeanUpdater = new PlotServerGuiBeanUpdater(viewName);
+
+		try {
+			regionParameterObservable.addObserver(plotServerGuiBeanUpdater);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+		// Configure AreaDetector
 		NDPluginBase pluginBase = config.getImageNDArray().getPluginBase();
 		minCallbackTimeComposite.setPluginBase(pluginBase);
 		try {
