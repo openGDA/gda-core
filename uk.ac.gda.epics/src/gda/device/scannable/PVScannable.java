@@ -91,30 +91,33 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 	 */
 	@Override
 	public void configure() throws FactoryException {
-		this.setInputNames(new String[] { getName() });
+		if (!isConfigured()) {
+			this.setInputNames(new String[] { getName() });
 
-		// connect to PV
-		controller = EpicsController.getInstance();
-		channelManager = new EpicsChannelManager(this);
-		if (pvName==""){
-			SimplePvType config;
+			// connect to PV
+			controller = EpicsController.getInstance();
+			channelManager = new EpicsChannelManager(this);
+			if (pvName==""){
+				SimplePvType config;
+				try {
+					config = Configurator.getConfiguration(getDeviceName(), SimplePvType.class);
+				} catch (ConfigurationNotFoundException e) {
+					logger.error(
+							"Can NOT find EPICS configuration for PV scannable " + getDeviceName() + "."
+									+ e.getMessage(), e);
+					throw new FactoryException("Can NOT find EPICS configuration for PV scannable " + getDeviceName()
+							+ "." + e.getMessage(), e);
+				}	
+				pvName=config.getRECORD().getPv();
+			}
 			try {
-				config = Configurator.getConfiguration(getDeviceName(), SimplePvType.class);
-			} catch (ConfigurationNotFoundException e) {
-				logger.error(
-						"Can NOT find EPICS configuration for PV scannable " + getDeviceName() + "."
-								+ e.getMessage(), e);
-				throw new FactoryException("Can NOT find EPICS configuration for PV scannable " + getDeviceName()
-						+ "." + e.getMessage(), e);
-			}	
-			pvName=config.getRECORD().getPv();
+				theChannel = channelManager.createChannel(pvName, this);
+				channelManager.creationPhaseCompleted();
+			} catch (CAException e) {
+				logger.warn("CAException while configuring " + getName() + ": " + e.getMessage());
+			}
 		}
-		try {
-			theChannel = channelManager.createChannel(pvName, this);
-			channelManager.creationPhaseCompleted();
-		} catch (CAException e) {
-			logger.warn("CAException while configuring " + getName() + ": " + e.getMessage());
-		}
+		setConfigured(true);
 	}
 
 	/**
