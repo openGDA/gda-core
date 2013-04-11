@@ -25,8 +25,9 @@ import static org.mockito.Mockito.when;
 import gda.device.detector.areadetector.v18.NDStatsPVs;
 import gda.device.detector.areadetector.v18.NDStatsPVs.BasicStat;
 import gda.device.detector.areadetector.v18.NDStatsPVs.Stat;
-import gda.device.detector.nxdetector.ADStatsROIPair;
 import gda.device.detector.nxdetector.roi.ImutableRectangularIntegerROI;
+import gda.device.detector.nxdetector.roi.RectangularROIProvider;
+import gda.device.detector.nxdetector.roi.SimpleRectangularROIProvider;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,11 +48,13 @@ public class ADStatsROIPairTest {
 	@Mock
 	private ADTimeSeriesStatsPlugin statsPlugin;
 	
-	private ADStatsROIPair pair;
+	private ADRoiStatsPair pair;
+	
+	private RectangularROIProvider<Integer> roiProvider = new SimpleRectangularROIProvider();
 
 	@Before
 	public void setUp() {
-		pair = new ADStatsROIPair("roi1", roiPlugin, statsPlugin);
+		pair = new ADRoiStatsPair("roi1", roiPlugin, statsPlugin, null, roiProvider);
 	}
 
 	@Test
@@ -92,7 +95,7 @@ public class ADStatsROIPairTest {
 	}
 
 	@Test
-	public void testGetInputStreamNamesOff() {
+	public void testGetInputStreamNamesOff() throws IllegalArgumentException, IndexOutOfBoundsException, Exception {
 		when(roiPlugin.getRoi()).thenReturn(new ImutableRectangularIntegerROI(0, 0, 0, 0, "middle"));
 		when(statsPlugin.getInputStreamNames()).thenReturn(Arrays.asList("maxvalue", "total"));
 		assertEquals(Arrays.asList("middle_maxvalue", "middle_total"), pair.getInputStreamNames());

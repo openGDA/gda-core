@@ -28,13 +28,15 @@ import gda.device.detector.areadetector.v17.impl.ADBaseImpl;
 import gda.device.detector.areadetector.v17.impl.NDPluginBasePVsImpl;
 import gda.device.detector.areadetector.v17.impl.NDROIPVsImpl;
 import gda.device.detector.areadetector.v18.NDStatsPVs.BasicStat;
-import gda.device.detector.areadetector.v18.impl.NDStatsImpl;
-import gda.device.detector.nxdetector.ADStatsROIPair;
+import gda.device.detector.areadetector.v18.impl.NDStatsPVsImpl;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
 import gda.device.detector.nxdetector.NXPlugin;
 import gda.device.detector.nxdetector.plugin.areadetector.ADRectangularROIPlugin;
+import gda.device.detector.nxdetector.plugin.areadetector.ADRoiStatsPair;
 import gda.device.detector.nxdetector.plugin.areadetector.ADTimeSeriesStatsPlugin;
 import gda.device.detector.nxdetector.roi.ImutableRectangularIntegerROI;
+import gda.device.detector.nxdetector.roi.RectangularROIProvider;
+import gda.device.detector.nxdetector.roi.SimpleRectangularROIProvider;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.jython.ICurrentScanInformationHolder;
@@ -64,7 +66,7 @@ public class AreaDetectorIOCIntegrationTest {
 	
 	private NDPluginBasePVsImpl stat1basePVs;
 	
-	private NDStatsImpl stat1PVs;
+	private NDStatsPVsImpl stat1PVs;
 	
 	private NXDetector det;
 
@@ -80,7 +82,9 @@ public class AreaDetectorIOCIntegrationTest {
 
 	private ADRectangularROIPlugin adRoiPlugin;
 
-	private ADStatsROIPair adStatsROIPair;
+	private ADRoiStatsPair adStatsROIPair;
+	
+	private RectangularROIProvider<Integer> roiProvider = new SimpleRectangularROIProvider();
 
 	@BeforeClass
 	public static void setUpBeforeClass() {
@@ -113,7 +117,7 @@ public class AreaDetectorIOCIntegrationTest {
 		stat1basePVs.setBasePVName(BASE_PV_NAME + "STAT1");
 		stat1basePVs.afterPropertiesSet();
 		
-		stat1PVs = new NDStatsImpl();
+		stat1PVs = new NDStatsPVsImpl();
 		stat1PVs.setBasePVName(BASE_PV_NAME + "STAT1");
 		stat1PVs.setPluginBasePVs(stat1basePVs);
 		stat1PVs.afterPropertiesSet();
@@ -128,9 +132,9 @@ public class AreaDetectorIOCIntegrationTest {
 		roi1PVs.afterPropertiesSet();
 		
 		collectionStrategy = new SingleExposureStandard(adBase, 0);
-		adTimeSeriesStatsPlugin = new ADTimeSeriesStatsPlugin(stat1PVs, "stat1");
-		adRoiPlugin = new ADRectangularROIPlugin(roi1PVs, "roi1");
-		adStatsROIPair = new ADStatsROIPair("pair1", adRoiPlugin, adTimeSeriesStatsPlugin);
+		adTimeSeriesStatsPlugin = new ADTimeSeriesStatsPlugin(stat1PVs, "stat1", roiProvider);
+		adRoiPlugin = new ADRectangularROIPlugin(roi1PVs, "roi1", roiProvider);
+		adStatsROIPair = new ADRoiStatsPair("pair1", adRoiPlugin, adTimeSeriesStatsPlugin, null, roiProvider);
 		
 		det = new NXDetector();
 		det.setCollectionStrategy(collectionStrategy);
@@ -202,7 +206,7 @@ public class AreaDetectorIOCIntegrationTest {
 		List<NXPlugin> plugins = new ArrayList<NXPlugin>(Arrays.asList(adTimeSeriesStatsPlugin, adRoiPlugin));
 		det.setAdditionalPluginList(plugins);
 		adTimeSeriesStatsPlugin.setEnabledBasicStats(Arrays.asList(BasicStat.MaxX));
-		adRoiPlugin.setRoi(new ImutableRectangularIntegerROI(20, 30, 40, 50, "name"));
+		adStatsROIPair.setRoi(new ImutableRectangularIntegerROI(20, 30, 40, 50, "name"));
 		det.stop();
 		det.setCollectionTime(.5);
 		det.atScanStart();

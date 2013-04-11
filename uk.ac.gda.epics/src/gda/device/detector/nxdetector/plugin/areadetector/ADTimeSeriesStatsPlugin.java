@@ -23,35 +23,57 @@ import gda.device.detector.areadetector.v18.NDStatsPVs;
 import gda.device.detector.areadetector.v18.NDStatsPVs.BasicStat;
 import gda.device.detector.areadetector.v18.NDStatsPVs.CentroidStat;
 import gda.device.detector.areadetector.v18.NDStatsPVs.Stat;
+import gda.device.detector.areadetector.v18.impl.NDStatsPVsImpl;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
 import gda.device.detector.nxdetector.NXPlugin;
+import gda.device.detector.nxdetector.roi.RectangularROI;
+import gda.device.detector.nxdetector.roi.RectangularROIProvider;
 import gda.epics.ReadOnlyPV;
 import gda.scan.ScanInformation;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public class ADTimeSeriesStatsPlugin implements NXPlugin {
+public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin {
 
-	private final NDStatsPVs statsPVs;
+	public static ADTimeSeriesStatsPlugin createFromBasePVName(String pluginName, String basePVName, RectangularROIProvider<Integer> roiProvider) {
+		NDStatsPVs statsPVs = NDStatsPVsImpl.createFromBasePVName(basePVName);
+		return new ADTimeSeriesStatsPlugin(statsPVs, pluginName, roiProvider);
+	}
+	
+	private final NDStatsPVs pvs;
 
 	private final String name;
+	
+	private final RectangularROIProvider<Integer> roiProvider;
 
 	private List<BasicStat> enabledBasicStats = Arrays.asList();
 
 	private List<CentroidStat> enabledCentroidStats = Arrays.asList();
-
+	
 	private ScanInformation scanInfo;
 
 	private TimeSeriesInputStreamCollection timeSeriesCollection;
 
-	public ADTimeSeriesStatsPlugin(NDStatsPVs statsPVs, String name) {
-		this.statsPVs = statsPVs;
+	private String inputNdArrayPort;
+	
+	public ADTimeSeriesStatsPlugin(NDStatsPVs statsPVs, String name, RectangularROIProvider<Integer> roiProvider) {
+		this.pvs = statsPVs;
 		this.name = name;
+		this.roiProvider = roiProvider;
+	}
+	
+	public boolean isEnabled() {
+		try {
+			return ((this.roiProvider.getRoi() != null) && (!getEnabledStats().isEmpty()));
+		} catch (Exception e) {
+			throw new RuntimeException("Problem getting ROI", e);
+		}
 	}
 
 	public List<BasicStat> getEnabledBasicStats() {
@@ -70,6 +92,37 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin {
 		this.enabledCentroidStats = enabledCentroidStats;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @return ndArrayPort name that *will be configured* during prepareforCollection if an roi were configured.
+	 */
+	@Override
+	public String getInputNDArrayPort() {
+		return inputNdArrayPort; 
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @param nDArrayPort ndArrayPort name that *will be configured* during prepareforCollection if an roi were configured.
+	 */
+	@Override
+	public void setInputNDArrayPort(String nDArrayPort) {
+		this.inputNdArrayPort = nDArrayPort;
+	}
+
+	/**
+	 * Get the permanent Epics port name.
+	 * @return portName
+	 * @throws IOException 
+	 */
+	@Override
+	public String getPortName() throws IOException {
+		return pvs.getPluginBasePVs().getPortNamePV().get();
+	}
+	
+	
 	public List<Stat> getEnabledStats() {
 		List<Stat> enabledStats = new ArrayList<NDStatsPVs.Stat>();
 		enabledStats.addAll(getEnabledBasicStats());
@@ -80,7 +133,7 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin {
 	@Override
 	public List<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
 			DeviceException {
-		if (getEnabledStats().isEmpty()) {
+		if (!isEnabled()) {
 			List<NXDetectorDataAppender> appenders = new ArrayList<NXDetectorDataAppender>();
 			appenders.add(new NXDetectorDataNullAppender());
 			return appenders;
@@ -108,7 +161,7 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin {
 
 	@Override
 	public boolean willRequireCallbacks() {
-		return !getEnabledStats().isEmpty();
+		return isEnabled();
 	}
 
 	@Override
@@ -117,9 +170,15 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin {
 			throw new NullPointerException("scanInfo is required");
 		}
 		this.scanInfo = scanInfo;
-		statsPVs.getPluginBasePVs().getEnableCallbacksPVPair().putWait(!getEnabledStats().isEmpty());
-		statsPVs.getComputeStatistsicsPVPair().putWait(!getEnabledBasicStats().isEmpty());
-		statsPVs.getComputeCentroidPVPair().putWait(!getEnabledCentroidStats().isEmpty());
+		if (isEnabled()) {
+			if (getInputNDArrayPort() != null) {
+				pvs.getPluginBasePVs().getNDArrayPortPVPair().putWait(getInputNDArrayPort());
+			}
+			pvs.getTSReadScanPV().putWait(0);
+		}
+		pvs.getPluginBasePVs().getEnableCallbacksPVPair().putWait(isEnabled());
+		pvs.getComputeStatistsicsPVPair().putWait(!getEnabledBasicStats().isEmpty() && isEnabled());
+		pvs.getComputeCentroidPVPair().putWait(!getEnabledCentroidStats().isEmpty() && isEnabled());
 	}
 
 	@Override
@@ -131,15 +190,15 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin {
 			throw new IllegalStateException("prepareForLine called before prepareForCollection");
 		}
 
-		if (getEnabledStats().isEmpty()) {
+		if ((getEnabledStats().isEmpty()) || (!isEnabled())) {
 			return; // Don't start a collection
 		}
 		int numPointsToCollect = getNumPointsInLine();
 		List<ReadOnlyPV<Double[]>> tsArrayPVList = new ArrayList<ReadOnlyPV<Double[]>>();
 		for (Stat stat: getEnabledStats()) {
-			tsArrayPVList.add(statsPVs.getTSArrayPV(stat));
+			tsArrayPVList.add(pvs.getTSArrayPV(stat));
 		}
-		timeSeriesCollection = new TimeSeriesInputStreamCollection(statsPVs.getTSControlPV(), statsPVs.getTSNumPointsPV(), statsPVs.getTSCurrentPointPV(), tsArrayPVList , numPointsToCollect);
+		timeSeriesCollection = new TimeSeriesInputStreamCollection(pvs.getTSControlPV(), pvs.getTSNumPointsPV(), pvs.getTSCurrentPointPV(), tsArrayPVList , numPointsToCollect);
 	}
 
 	private int getNumPointsInLine() {
@@ -180,11 +239,13 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin {
 	@Override
 	public List<String> getInputStreamNames() {
 		List<String> names = new ArrayList<String>();
-		for (BasicStat stat : getEnabledBasicStats()) {
-			names.add(stat.name().toLowerCase());
-		}
-		for (CentroidStat stat : getEnabledCentroidStats()) {
-			names.add(stat.name().toLowerCase());
+		if (isEnabled()) {
+			for (BasicStat stat : getEnabledBasicStats()) {
+				names.add(getInputStreamNamesPrefix() + stat.name().toLowerCase());
+			}
+			for (CentroidStat stat : getEnabledCentroidStats()) {
+				names.add(getInputStreamNamesPrefix() + stat.name().toLowerCase());
+			}
 		}
 		return names;
 	}
@@ -195,6 +256,17 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin {
 		Arrays.fill(formats, "%f");
 		return Arrays.asList(formats);
 	}
+
+	public String getInputStreamNamesPrefix() {
+		RectangularROI<Integer> roi;
+		try {
+			roi = roiProvider.getRoi();
+		} catch (Exception e) {
+			throw new RuntimeException("Problem getting ROI", e);
+		}
+		return (roi == null) ? "" : roi.getName() + "_";
+	}
+
 }
 
 

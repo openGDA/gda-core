@@ -19,76 +19,39 @@
 package gda.device.detector.nxdetector.plugin.areadetector;
 
 import gda.device.detector.areadetector.v17.NDROIPVs;
+import gda.device.detector.areadetector.v17.impl.NDROIPVsImpl;
 import gda.device.detector.nxdetector.plugin.NullNXPlugin;
 import gda.device.detector.nxdetector.roi.RectangularROI;
 import gda.device.detector.nxdetector.roi.RectangularROIProvider;
 import gda.scan.ScanInformation;
 
-public class ADRectangularROIPlugin extends NullNXPlugin {
+import java.io.IOException;
 
+public class ADRectangularROIPlugin extends NullNXPlugin implements NDPlugin{
+
+	public static ADRectangularROIPlugin createFromBasePVName(String pluginName, String basePVName, RectangularROIProvider<Integer> roiProvider) {
+		NDROIPVs ndROIPVs = NDROIPVsImpl.createFromBasePVName(basePVName);
+		return new ADRectangularROIPlugin(ndROIPVs, pluginName, roiProvider);
+	}
 
 	private final NDROIPVs pvs;
 
 	private final String pluginName;
 	
-	private RectangularROI<Integer> roi;
-	
-	private RectangularROIProvider<Integer> roiProvider; // optional
-
-	private Integer roiProviderIndex = null; // optional
+	private final RectangularROIProvider<Integer> roiProvider; // optional
 	
 	public final String INACTIVE_ROI_NAME = "gda_inactive";
-	
-	/**
-	 * Get the roi provider
-	 * @return the RectangularROIProvider or null if unset
-	 */
-	public RectangularROIProvider<Integer> getRoiProvider() {
-		return roiProvider;
-	}
 
-	/**
-	 * Set the optional ROIProvider. Disables manual setting of ROI to avoid confusion.
-	 * @param roiProvider null to remove
-	 */
-	public void setRoiProvider(RectangularROIProvider<Integer> roiProvider) {
-		this.roiProvider = roiProvider;
-	}
+	private String ndInputArrayPort;
 
-	public Integer getRoiProviderIndex() {
-		return roiProviderIndex;
-	}
-
-	public void setRoiProviderIndex(Integer roiProviderIndex) {
-		this.roiProviderIndex = roiProviderIndex;
-	}
-
-	public RectangularROI<Integer> getRoi() {
-		if (roiProvider != null) {
-			try {
-				return roiProvider.getROI(getRoiProviderIndex());
-			} catch (Exception e) {
-				throw new IllegalStateException("Problem querying the configured roiProvider.", e);
-			}
-		}
-		return roi;
-	}
-	
-	/**
-	 * Set the roi to configure.
-	 * @param roi null to disable
-	 * @throws IllegalStateException if called with an ROI provider set
-	 */
-	public void setRoi(RectangularROI<Integer> roi) throws IllegalStateException{
-		if (roiProvider != null) {
-			throw new IllegalStateException("An ROI cannot be set when an roiProvider is specified");
-		}
-		this.roi = roi;
-	}
-	
-	public ADRectangularROIPlugin(NDROIPVs ndROIPVs, String name) {
+	public ADRectangularROIPlugin(NDROIPVs ndROIPVs, String pluginName, RectangularROIProvider<Integer> roiProvider) {
 		this.pvs = ndROIPVs;
-		this.pluginName = name;
+		this.roiProvider = roiProvider;
+		this.pluginName = pluginName;
+	}
+	
+	public RectangularROI<Integer> getRoi() throws IllegalArgumentException, IndexOutOfBoundsException, Exception {
+		return roiProvider.getRoi();
 	}
 	
 	@Override
@@ -98,12 +61,19 @@ public class ADRectangularROIPlugin extends NullNXPlugin {
 
 	@Override
 	public boolean willRequireCallbacks() {
-		return getRoi() != null;
+		try {
+			return getRoi() != null;
+		} catch (Exception e) {
+			throw new IllegalStateException("Could not get ROI", e);
+		}
 	}
 	
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 		if (getRoi() != null) {
+			if (getInputNDArrayPort() != null) {
+				pvs.getPluginBasePVs().getNDArrayPortPVPair().putWait(getInputNDArrayPort());
+			}
 			pvs.getNamePV().putWait(getRoi().getName());
 			pvs.getPluginBasePVs().getEnableCallbacksPVPair().putWait(true);
 			pvs.getXDimension().getEnablePVPair().putWait(true);
@@ -121,5 +91,36 @@ public class ADRectangularROIPlugin extends NullNXPlugin {
 			pvs.getZDimension().getEnablePVPair().putWait(false);
 		}
 	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @return ndArrayPort name that will be configured during prepareforCollection if an roi were configured.
+	 */
+	@Override
+	public String getInputNDArrayPort() {
+		return ndInputArrayPort; 
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @param nDArrayPort ndArrayPort name that will be configured during prepareforCollection if an roi were configured.
+	 */
+	@Override
+	public void setInputNDArrayPort(String nDArrayPort) {
+		this.ndInputArrayPort = nDArrayPort;
+	}
+
+	/**
+	 * Get the permanent Epics port name.
+	 * @return portName
+	 * @throws IOException 
+	 */
+	@Override
+	public String getPortName() throws IOException {
+		return pvs.getPluginBasePVs().getPortNamePV().get();
+	}
+
 
 }

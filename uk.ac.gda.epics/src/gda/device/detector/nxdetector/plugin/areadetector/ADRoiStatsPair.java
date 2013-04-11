@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.nxdetector;
+package gda.device.detector.nxdetector.plugin.areadetector;
 
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
@@ -25,14 +25,16 @@ import gda.device.detector.areadetector.v18.NDStatsPVs.CentroidStat;
 import gda.device.detector.areadetector.v18.NDStatsPVs.Stat;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdetector.NXPlugin;
-import gda.device.detector.nxdetector.plugin.areadetector.ADRectangularROIPlugin;
-import gda.device.detector.nxdetector.plugin.areadetector.ADTimeSeriesStatsPlugin;
+import gda.device.detector.nxdetector.roi.ImutableRectangularIntegerROI;
 import gda.device.detector.nxdetector.roi.RectangularROI;
+import gda.device.detector.nxdetector.roi.RectangularROIProvider;
+import gda.device.detector.nxdetector.roi.SimpleRectangularROIProvider;
 import gda.device.scannable.PositionInputStream;
 import gda.device.scannable.PositionInputStreamCombiner;
 import gda.scan.ScanInformation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -40,7 +42,7 @@ import java.util.NoSuchElementException;
  * Enabled if any stats are enabled. If stats are enabled an ROI must have been set. The names of the specidfied roi and
  * stats plugins are ignored in favour of this plugins name (could be revisited--RobW Feb2013).
  */
-public class ADStatsROIPair implements NXPlugin, PositionInputStream<NXDetectorDataAppender> {
+public class ADRoiStatsPair implements NXPlugin, PositionInputStream<NXDetectorDataAppender>, RectangularROIProvider<Integer> {
 
 	final private ADRectangularROIPlugin roiPlugin;
 
@@ -48,41 +50,97 @@ public class ADStatsROIPair implements NXPlugin, PositionInputStream<NXDetectorD
 
 	final private String name;
 
+	private final String roiInputPort;
+	
+	private final RectangularROIProvider<Integer> roiProvider;
+
 	private PositionInputStream<List<NXDetectorDataAppender>> combinedInputStream;
 
-	public ADStatsROIPair(String name, ADRectangularROIPlugin roiPlugin, ADTimeSeriesStatsPlugin statsPlugin) {
+
+	public ADRoiStatsPair(String name, ADRectangularROIPlugin roiPlugin, ADTimeSeriesStatsPlugin statsPlugin,
+			String roiInputPort, RectangularROIProvider<Integer> roiProvider) {
 		super();
 		this.name = name;
-		this.roiPlugin = roiPlugin;
+		this.roiPlugin = roiPlugin; 
 		this.statsPlugin = statsPlugin;
+		this.roiInputPort = roiInputPort;
+		this.roiProvider = roiProvider;
+	}
+	
+	@Override
+	public String toString() {
+		String str = "";
+		RectangularROI<Integer> roi = getRoi();
+		ArrayList<String> names = new ArrayList<String>();
+
+		for (BasicStat stat : getEnabledBasicStats()) {
+			names.add(stat.name().toLowerCase());
+		}
+		for (CentroidStat stat : getEnabledCentroidStats()) {
+			names.add(stat.name().toLowerCase());
+		} 
+		
+		str += Arrays.toString(names.toArray());
+		if (roi == null) {
+			str += " *disabled*";
+		} else {
+			str += " " + roi;
+		}
+		return str;
+	}
+	
+	public ADRectangularROIPlugin getRoiPlugin() {
+		return roiPlugin;
+	}
+
+	public ADTimeSeriesStatsPlugin getStatsPlugin() {
+		return statsPlugin;
 	}
 
 	public List<BasicStat> getEnabledBasicStats() {
-		return statsPlugin.getEnabledBasicStats();
+		return getStatsPlugin().getEnabledBasicStats();
 	}
 
 	public void setEnabledBasicStats(List<BasicStat> enabledBasicStats) {
-		statsPlugin.setEnabledBasicStats(enabledBasicStats);
+		getStatsPlugin().setEnabledBasicStats(enabledBasicStats);
 	}
 
 	public List<CentroidStat> getEnabledCentroidStats() {
-		return statsPlugin.getEnabledCentroidStats();
+		return getStatsPlugin().getEnabledCentroidStats();
 	}
 
 	public void setEnabledCentroidStats(List<CentroidStat> enabledCentroidStats) {
-		statsPlugin.setEnabledCentroidStats(enabledCentroidStats);
+		getStatsPlugin().setEnabledCentroidStats(enabledCentroidStats);
 	}
 
 	private List<Stat> getEnabledStats() {
-		return statsPlugin.getEnabledStats();
+		return getStatsPlugin().getEnabledStats();
 	}
 
-	public RectangularROI getRoi() {
-		return roiPlugin.getRoi();
-	}
+	/**
+	 * Set the roi to configure.
+	 * @param roi null to disable
+	 * @throws IllegalStateException if called with an ROI provider set
+	 */
+	public void setRoi(RectangularROI<Integer> roi) throws IllegalStateException{
+		if (roiProvider instanceof SimpleRectangularROIProvider) {
+			((SimpleRectangularROIProvider) roiProvider).setRoi(roi);
+		} else {
+			throw new IllegalStateException("Not configured to have a manually configurable roi");
+		}
+	}	
 
-	public void setRoi(RectangularROI roi) {
-		roiPlugin.setRoi(roi);
+	@Override
+	public RectangularROI<Integer> getRoi() {
+		try {
+			return roiProvider.getRoi();
+		} catch (Exception e) {
+			throw new RuntimeException("Problem querying the configured roiProvider.", e);
+		}
+	}
+	
+	public void setRoi(Integer xstart, Integer ystart, Integer xsize, Integer ysize, String name) {
+		setRoi(new ImutableRectangularIntegerROI(xstart, ystart, xsize, ysize, name));
 	}
 
 	@Override
@@ -98,49 +156,59 @@ public class ADStatsROIPair implements NXPlugin, PositionInputStream<NXDetectorD
 
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
-		if (!getEnabledStats().isEmpty() && (getRoi()==null)) {
-			throw new IllegalStateException("Stats where enabled, but no ROI configured");
+//		if (!getEnabledStats().isEmpty() && (getRoi()==null)) {
+//			throw new IllegalStateException("Stats where enabled, but no ROI configured");
+//		}
+//		if (!getEnabledStats().isEmpty() && (getRoi()!=null)) {
+//			throw new IllegalStateException("An ROI was configured, but no stats enabled");
+//		}
+		
+		boolean enabled = (!getEnabledStats().isEmpty() && (getRoi()!=null));
+
+		if (enabled) {
+			getRoiPlugin().setInputNDArrayPort(roiInputPort);
+			String roiPortName = getRoiPlugin().getPortName();
+			getStatsPlugin().setInputNDArrayPort(roiPortName);
 		}
-		if (!getEnabledStats().isEmpty() && (getRoi()!=null)) {
-			throw new IllegalStateException("An ROI was configured, but no stats enabled");
-		}
-		// prepare even if disabled ad preparation will in this case disable he plugins
-		roiPlugin.prepareForCollection(numberImagesPerCollection, scanInfo);
-		statsPlugin.prepareForCollection(numberImagesPerCollection, scanInfo);
+		
+		// prepare even if disabled as preparation will in this case disable the plugins
+		
+		getRoiPlugin().prepareForCollection(numberImagesPerCollection, scanInfo);
+		getStatsPlugin().prepareForCollection(numberImagesPerCollection, scanInfo);
 		List<PositionInputStream<NXDetectorDataAppender>> streams = new ArrayList<PositionInputStream<NXDetectorDataAppender>>();
-		streams.add(roiPlugin);
-		streams.add(statsPlugin);
+		streams.add(getRoiPlugin());
+		streams.add(getStatsPlugin());
 		combinedInputStream = new PositionInputStreamCombiner<NXDetectorDataAppender>(streams);
 	}
 
 	@Override
 	public void prepareForLine() throws Exception {
-		roiPlugin.prepareForLine();
-		statsPlugin.prepareForLine();
+		getRoiPlugin().prepareForLine();
+		getStatsPlugin().prepareForLine();
 	}
 
 	@Override
 	public void completeLine() throws Exception {
-		roiPlugin.completeLine();
-		statsPlugin.completeLine();
+		getRoiPlugin().completeLine();
+		getStatsPlugin().completeLine();
 	}
 
 	@Override
 	public void completeCollection() throws Exception {
-		roiPlugin.completeCollection();
-		statsPlugin.completeCollection();
+		getRoiPlugin().completeCollection();
+		getStatsPlugin().completeCollection();
 	}
 
 	@Override
 	public void atCommandFailure() throws Exception {
-		roiPlugin.atCommandFailure();
-		statsPlugin.atCommandFailure();
+		getRoiPlugin().atCommandFailure();
+		getStatsPlugin().atCommandFailure();
 	}
 
 	@Override
 	public void stop() throws Exception {
-		roiPlugin.stop();
-		statsPlugin.stop();
+		getRoiPlugin().stop();
+		getStatsPlugin().stop();
 	}
 
 	/**
@@ -148,19 +216,12 @@ public class ADStatsROIPair implements NXPlugin, PositionInputStream<NXDetectorD
 	 */
 	@Override
 	public List<String> getInputStreamNames() {
-		List<String> names = new ArrayList<String>();
-		for (String statName : roiPlugin.getInputStreamNames()) {
-			names.add(roiPlugin.getRoi().getName() + "_" + statName);
-		}
-		for (String statName : statsPlugin.getInputStreamNames()) {
-			names.add(roiPlugin.getRoi().getName() + "_" + statName);
-		}
-		return names;
+		return getStatsPlugin().getInputStreamNames();
 	}
 
 	@Override
 	public List<String> getInputStreamFormats() {
-		return statsPlugin.getInputStreamFormats();
+		return getStatsPlugin().getInputStreamFormats();
 	}
 	
 	@Override

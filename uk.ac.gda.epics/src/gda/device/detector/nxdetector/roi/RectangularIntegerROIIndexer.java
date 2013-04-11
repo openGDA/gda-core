@@ -18,17 +18,21 @@
 
 package gda.device.detector.nxdetector.roi;
 
+public class RectangularIntegerROIIndexer implements RectangularROIProvider<Integer> {
 
-public interface RectangularROIProvider<T extends Number> {
+	private final IndexedRectangularROIProvider<Integer> roiProvider;
+
+	private final Integer roiProviderIndex;
+
+	public RectangularIntegerROIIndexer(IndexedRectangularROIProvider<Integer> roiProvider, Integer roiProviderIndex) {
+		super();
+		this.roiProvider = roiProvider;
+		this.roiProviderIndex = roiProviderIndex;
+	}
 	
-	/**
-	 * Return a RectangularROI, or null if none is available/enabled.
-	 * 
-	 * @return an roi or null if none available/active
-	 * @throws IllegalArgumentException if the index is out of bounds
-	 * @throws Exception If the RCPPlotter.getBean throws an exception
-	 * @throws IndexOutOfBoundsException 
-	 */
-	public RectangularROI<T> getRoi() throws IllegalArgumentException, IndexOutOfBoundsException, Exception;
+	@Override
+	public RectangularROI<Integer> getRoi() throws IllegalArgumentException, IndexOutOfBoundsException, Exception {
+		return roiProvider.getRoi(roiProviderIndex);
+	}
 
 }

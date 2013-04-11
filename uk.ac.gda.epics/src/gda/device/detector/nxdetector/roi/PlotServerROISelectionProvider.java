@@ -32,7 +32,7 @@ import uk.ac.diamond.scisoft.analysis.roi.RectangularROIList;
 /**
  * 
  */
-public class PlotServerROISelectionProvider implements RectangularROIProvider<Integer>{
+public class PlotServerROISelectionProvider implements IndexedRectangularROIProvider<Integer>{
 	
 	final private int maximumActiveRois;
 	
@@ -72,12 +72,17 @@ public class PlotServerROISelectionProvider implements RectangularROIProvider<In
 					"Problem getting gui bean for view named ''{0}''. Available: {1}",
 					viewName, Arrays.toString(guiNames)), eOriginal);
 		}
+		if (guiBean == null) {
+			throw new Exception(MessageFormat.format(
+					"No gui bean for view named ''{0}''. Available: {1}",
+					viewName, Arrays.toString(SDAPlotter.getGuiNames())));
+		}
 		List<uk.ac.diamond.scisoft.analysis.roi.RectangularROI> scisoftRoiList = (RectangularROIList) guiBean.get(GuiParameters.ROIDATALIST);
 		return scisoftRoiList;
 	}
 
 	@Override
-	public RectangularROI<Integer> getROI(int index) throws IndexOutOfBoundsException, Exception {
+	public RectangularROI<Integer> getRoi(int index) throws IndexOutOfBoundsException, Exception {
 		if (index >= maximumActiveRois) {
 			throw new IndexOutOfBoundsException("Maximum index is: " + maximumActiveRois);
 		}

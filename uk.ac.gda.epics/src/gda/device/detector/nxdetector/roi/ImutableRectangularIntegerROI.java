@@ -32,16 +32,16 @@ public class ImutableRectangularIntegerROI implements RectangularROI<Integer> {
 	public static ImutableRectangularIntegerROI valueOf(uk.ac.diamond.scisoft.analysis.roi.RectangularROI scisoftRoi) {
 		String name = scisoftRoi.getName();
 		int xstart = (int) scisoftRoi.getPointX();
-		int xsize = (int) scisoftRoi.getLength(0);
 		int ystart = (int) scisoftRoi.getPointY();
+		int xsize = (int) scisoftRoi.getLength(0);
 		int ysize = (int) scisoftRoi.getLength(1);
-		return new ImutableRectangularIntegerROI(xstart, xsize, ystart, ysize, name);
+		return new ImutableRectangularIntegerROI(xstart, ystart, xsize, ysize, name);
 	}
 	
-	public ImutableRectangularIntegerROI(Integer xstart, Integer xsize, Integer ystart, Integer ysize, String name) {
+	public ImutableRectangularIntegerROI(Integer xstart, Integer ystart, Integer xsize, Integer ysize, String name) {
 		this.xstart = xstart;
-		this.xsize = xsize;
 		this.ystart = ystart;
+		this.xsize = xsize;
 		this.ysize = ysize;
 		this.name = name;
 	}
@@ -74,6 +74,7 @@ public class ImutableRectangularIntegerROI implements RectangularROI<Integer> {
 	@Override
 	public String toString() {
 		return MessageFormat.format(
-				"name:'{0}', xstart:{1}, ystart:{2}, xsize:{3}, ysize:{4}", name, xstart, ystart, xsize, ysize);
+				//"xstart:{0} ystart:{1} xsize:{2} ysize:{3}  ''{4}''", xstart, ystart, xsize, ysize, name);
+				"start=({0}, {1}) size={2}x{3} *{4}*", xstart, ystart, xsize, ysize, name);
 	}
 }

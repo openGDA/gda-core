@@ -19,6 +19,7 @@
 package gda.device.detector.areadetector.v17;
 
 import gda.epics.PV;
+import gda.epics.ReadOnlyPV;
 
 /**
  * Represents an NDPluginDriver. Name reflects the unfortunately named {@link NDPluginBase}.
@@ -66,5 +67,11 @@ public interface NDPluginBasePVs {
 	 * @return NDArrayPort / NDArrayPort_RBV pair.
 	 */
 	PV<String> getNDArrayPortPVPair();
+	
+	/**
+	 * Asyn port name of this plugin.
+	 * @return PortName
+	 */
+	ReadOnlyPV<String> getPortNamePV();
 
 }
