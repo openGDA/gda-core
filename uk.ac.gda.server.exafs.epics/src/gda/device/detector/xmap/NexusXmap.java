@@ -189,10 +189,10 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 		if (saveRawSpectrum || alwaysRecordRawMCAs){
 			if (numberOfElements == 1) {
 				output.addData(detTree, "fullSpectrum", new int[] {detectorData[0].length },
-						NexusFile.NX_INT64, detectorData[0], "counts", 1);
+						NexusFile.NX_INT32, detectorData[0], "counts", 1);
 			} else {
 				output.addData(detTree, "fullSpectrum", new int[] { numberOfElements, detectorData[0].length },
-						NexusFile.NX_INT64, detectorData, "counts", 1);
+						NexusFile.NX_INT32, detectorData, "counts", 1);
 			}
 			
 		} else {
