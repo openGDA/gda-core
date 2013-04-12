@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
+import org.dawb.common.ui.plot.IPlottingSystem;
 import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawb.common.ui.plot.trace.ILineTrace;
@@ -105,7 +105,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 	protected Label estimatePointsLabel;
 	protected Label estimateTimeLabel;
 	protected Composite expandContainer;
-	protected AbstractPlottingSystem plottingsystem;
+	protected IPlottingSystem plottingsystem;
 	protected AxisValues xAxisValues;
 	protected volatile boolean suspendGraphUpdate = false;
 	protected Object lastPlottedBean;
@@ -175,7 +175,6 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 		ActionBarWrapper wrapper = ActionBarWrapper.createActionBars(plotArea,null);
 		plottingsystem.createPlotPart(plotArea, getTitle(), null, PlotType.XY, this);
 		plottingsystem.getPlotActionSystem().fillZoomActions(wrapper.getToolBarManager());
-		plottingsystem.setRescale(true);
 		plottingsystem.getPlotComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		wrapper.update(true);
 		
@@ -679,7 +678,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 							plottingsystem.repaint();
 							first = false;
 						}
-
+						plottingsystem.autoscaleAxes();
 					}
 				});
 
