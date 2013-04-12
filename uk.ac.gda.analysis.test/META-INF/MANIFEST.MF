@@ -11,3 +11,5 @@ Require-Bundle: org.junit4;bundle-version="4.8.1",
  org.mockito.mockito-core;bundle-version="[1.9.5,2.0.0)",
  com.springsource.org.hamcrest.core;bundle-version="[1.1.0,2.0.0)",
  com.springsource.org.objenesis;bundle-version="[1.0.0,2.0.0)"
+Import-Package: ncsa.hdf.object,
+ ncsa.hdf.object.h5
