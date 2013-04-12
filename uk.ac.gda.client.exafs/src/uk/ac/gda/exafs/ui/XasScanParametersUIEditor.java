@@ -49,8 +49,8 @@ import org.eclipse.swt.widgets.Link;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.roi.IROI;
 import uk.ac.diamond.scisoft.analysis.roi.LinearROI;
-import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
@@ -290,7 +290,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 				}
 				// event from the ROI in the graph being dragged
 				else {
-					ROIBase roi = ((ROIEvent) e).getROI();
+					IROI roi = ((ROIEvent) e).getROI();
 					newEnergy = roi.getPoint()[0];
 				}
 				updateScaleBoxes(newEnergy, e);
