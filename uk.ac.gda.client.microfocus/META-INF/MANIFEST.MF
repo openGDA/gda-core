@@ -31,6 +31,7 @@ Export-Package: uk.ac.gda.client.microfocus.scan.datawriter,
  uk.ac.gda.microfocus.ui.describers
 Bundle-ActivationPolicy: lazy
 Import-Package: Jama,
+ org.apache.commons.lang,
  org.eclipse.draw2d,
  org.eclipse.draw2d.geometry,
  org.slf4j;version="[1.5.0,2.0.0)"
