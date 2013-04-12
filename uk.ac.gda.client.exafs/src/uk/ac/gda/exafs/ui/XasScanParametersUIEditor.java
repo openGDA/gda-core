@@ -25,10 +25,15 @@ import java.text.DecimalFormat;
 import java.util.EventObject;
 import java.util.List;
 
+import org.dawb.common.ui.plot.annotation.AnnotationUtils;
+import org.dawb.common.ui.plot.annotation.IAnnotation;
 import org.dawb.common.ui.plot.region.IROIListener;
 import org.dawb.common.ui.plot.region.IRegion;
 import org.dawb.common.ui.plot.region.IRegion.RegionType;
 import org.dawb.common.ui.plot.region.ROIEvent;
+import org.dawb.common.ui.plot.trace.ITrace;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.IPageChangedListener;
 import org.eclipse.jface.dialogs.PageChangedEvent;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -49,6 +54,8 @@ import org.eclipse.swt.widgets.Link;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.roi.LinearROI;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.gda.beans.exafs.XasScanParameters;
@@ -114,6 +121,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	private IRegion bLine;
 	private IRegion cLine;
 	private IRegion edgeLine;
+	private boolean showLineAnnotations = false;
 
 	public XasScanParametersUIEditor(final String path, final RichBeanMultiPageEditorPart containingEditor,
 			final Object xasScanParameters) {
@@ -162,12 +170,27 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 
 		createEstimationComposite(right);
 		createPlotRegions();
-
+		createShowHideLineAnnotationsButton();
+		
 		scrolledComposite.setMinSize(container.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
 		ExafsActivator.getDefault().getPreferenceStore().addPropertyChangeListener(this);
+		
 
 		updateLayout();
+	}
+	
+	private void createShowHideLineAnnotationsButton() {
+		Action menuAction = new Action("Show labels", IAction.AS_CHECK_BOX) {
+			@Override
+			public void run() {
+				showLineAnnotations = !showLineAnnotations;
+				updatePlottedPoints();
+				plottingsystem.repaint();
+			}
+		};
+		plottingsystemActionBarWrapper.getRightManager().add(menuAction);
+		plottingsystemActionBarWrapper.update(true);
 	}
 
 	/**
@@ -175,7 +198,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	 */
 	@SuppressWarnings("unused")
 	private void createPlotRegions() {
-
+		
 		try {
 			this.aLine = plottingsystem.createRegion("a", RegionType.XAXIS_LINE);
 			aLine.setRegionColor(Display.getDefault().getSystemColor(SWT.COLOR_RED));
@@ -240,7 +263,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		cLine.setROI(new LinearROI(pnt, pnt));
 		pnt = new double[] { edgeEnergy, 0d };
 		edgeLine.setROI(new LinearROI(pnt, pnt));
-
+		
 		plottingsystem.repaint();
 
 	}
@@ -640,7 +663,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 
 		abGafChoice = new Combo(topCentre, SWT.READ_ONLY);
 		abGafChoice.setItems(new String[] { "A/B", "Gaf1/Gaf2" });
-		abGafChoice.select(0);
+		abGafChoice.select(1);
 		abGafChoice.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		this.abGafListener = new SelectionAdapter() {
 			@Override
@@ -910,11 +933,11 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 					exafsTimeType.select(0);
 				}
 
-				if (scanParams.getA() == null) {
-					abGafChoice.select(1);
-				} else {
-					abGafChoice.select(0);
-				}
+//				if (scanParams.getA() == null && !isPageChange) {
+//					abGafChoice.select(1);
+//				} else {
+//					abGafChoice.select(0);
+//				}
 
 			} catch (Exception e1) {
 				logger.error("Cannot process ui.", e1);
@@ -996,7 +1019,6 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 					suspendGraphUpdate = true;
 					drawLines();
 					updatePlottedPoints();
-					plottingsystem.repaint(true);
 				} catch (Exception e1) {
 					logger.error("Cannot update XAS points", e1);
 				} finally {
@@ -1005,6 +1027,59 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 				}
 			}
 		});
+	}
+	
+	
+	@Override
+	public void updatePlottedPoints() {
+			super.updatePlottedPoints();
+
+			ITrace trace = plottingsystem.getTrace("\u0394E (eV)");
+			AbstractDataset ds = trace.getData();
+			Double max;
+			if (ds instanceof DoubleDataset){
+				max = (Double) ds.max();
+			} else {
+				max = Double.valueOf(ds.max().toString());
+			}
+//			Integer plotMax = (Integer) ds.max();
+			Double stepHeight = (double) (max /6);
+
+			try {
+				double aEnergy = getA().getNumericValue();
+				double bEnergy = getB().getNumericValue();
+				double edgeEnergy = getEdgeEnergy().getNumericValue();
+				double cEnergy = getC().getNumericValue();
+				if (energyInK) {
+					cEnergy = getKInEv().getValue(cEnergy);
+				}
+				plottingsystem.clearAnnotations();
+				IAnnotation aAnnotation = AnnotationUtils.replaceCreateAnnotation(plottingsystem, "A energy");
+				aAnnotation.setLocation(aEnergy, stepHeight * 2);
+				aAnnotation.setVisible(showLineAnnotations);
+				aAnnotation.setShowPosition(false);
+				plottingsystem.addAnnotation(aAnnotation);
+				IAnnotation bAnnotation = AnnotationUtils.replaceCreateAnnotation(plottingsystem, "B energy");
+				bAnnotation.setLocation(bEnergy, stepHeight * 3);
+				bAnnotation.setVisible(showLineAnnotations);
+				bAnnotation.setShowPosition(false);
+				plottingsystem.addAnnotation(bAnnotation);
+				IAnnotation edgeAnnotation = AnnotationUtils.replaceCreateAnnotation(plottingsystem, "Edge energy");
+				edgeAnnotation.setLocation(edgeEnergy, stepHeight * 4);
+				edgeAnnotation.setVisible(showLineAnnotations);
+				edgeAnnotation.setShowPosition(false);
+				plottingsystem.addAnnotation(edgeAnnotation);
+				IAnnotation cAnnotation = AnnotationUtils.replaceCreateAnnotation(plottingsystem, "C energy");
+				cAnnotation.setLocation(cEnergy, stepHeight * 5);
+				cAnnotation.setVisible(showLineAnnotations);
+				cAnnotation.setShowPosition(false);
+				plottingsystem.addAnnotation(cAnnotation);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				logger.error("TODO put description of error here", e);
+			}
+
+		
 	}
 
 	@Override

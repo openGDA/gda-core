@@ -106,6 +106,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 	protected Label estimateTimeLabel;
 	protected Composite expandContainer;
 	protected IPlottingSystem plottingsystem;
+	protected ActionBarWrapper plottingsystemActionBarWrapper;
 	protected AxisValues xAxisValues;
 	protected volatile boolean suspendGraphUpdate = false;
 	protected Object lastPlottedBean;
@@ -172,12 +173,12 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 		grid.marginHeight = 0;
 		plotArea.setLayout(grid);
 
-		ActionBarWrapper wrapper = ActionBarWrapper.createActionBars(plotArea,null);
+		plottingsystemActionBarWrapper = ActionBarWrapper.createActionBars(plotArea, null);
 		plottingsystem.createPlotPart(plotArea, getTitle(), null, PlotType.XY, this);
-		plottingsystem.getPlotActionSystem().fillZoomActions(wrapper.getToolBarManager());
+		plottingsystem.getPlotActionSystem().fillZoomActions(plottingsystemActionBarWrapper.getToolBarManager());
 		plottingsystem.getPlotComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		wrapper.update(true);
-		
+		plottingsystemActionBarWrapper.update(true);
+
 		plotUpdateJob.createTrace();
 
 		xasScanExpandableComposite.setClient(plotArea);
