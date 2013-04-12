@@ -75,7 +75,7 @@ class QexafsScan(Scan):
                 initial_energy = scanBean.getInitialEnergy()
                 final_energy = scanBean.getFinalEnergy()
                 step_size = scanBean.getStepSize()
-                self.outputPreparer.prepare(outputBean, initial_energy, final_energy)
+                self.outputPreparer.prepare(outputBean, scanBean)
                 beanGroup.setScanNumber(repetitionNumber)
                 XasAsciiDataWriter.setBeanGroup(beanGroup)
                 if len(outputBean.getCheckedSignalList()) > 0:
@@ -98,7 +98,6 @@ class QexafsScan(Scan):
                     ### cirrus test
                     import threading
                     import datetime
-                    from time import sleep
                     from gda.data import PathConstructor
                     from cirrus import ThreadClass
                     finder = Finder.getInstance()
@@ -120,6 +119,7 @@ class QexafsScan(Scan):
                         while feAbsStatus!=1 and self.beamCheck==True:
                             feAbsStatus = int(CAClient().caget(feAbsPV))
                             print "Checking whether front end absorber is open. Currently "+str(feAbsStatus)
+                            from time import sleep
                             sleep(2)
             
                 print "running QEXAFS scan:", self.energy_scannable.getName(), scanBean.getInitialEnergy(), scanBean.getFinalEnergy(), numberPoints, scan_time, detectorList

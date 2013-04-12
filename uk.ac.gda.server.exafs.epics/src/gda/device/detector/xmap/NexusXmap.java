@@ -48,14 +48,8 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 	private static final Logger logger = LoggerFactory.getLogger(NexusXmap.class);
 	
 	private boolean sumAllElementData = false;
-
-	/**
-	 * If true, then always write non-deadtime corrected MCAs to nexus file, irrespective of any other settings.
-	 * <p>
-	 * So this is an override of the saveRawSpectrum which is temporarily stopping deadtime corrections for diagnostic
-	 * purposes.
-	 */
-	private boolean alwaysRecordRawMCAs = false;
+	
+	
 
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
@@ -96,10 +90,8 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 		double[][] roiCounts = new double[numberOfROIs][numberOfElements];
 		String[] roiNames = new String[numberOfROIs];
 		int detectorData[][] = controller.getData();
-		double correctedDetData[][] = new double[detectorData.length][];
+		double detDataToWrite[][] = new double[detectorData.length][];
 		int numberOfDetectorElements = vortexParameters.getDetectorList().size();
-		
-		// create deadtime corrected values
 		for (int element = 0; element < numberOfDetectorElements; element++) {
 
 			DetectorElement thisElement = vortexParameters.getDetectorList().get(element);
@@ -130,18 +122,17 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 				roiCounts[iroi][element] = count;
 				roiNames[iroi] = roi.getRoiName();
 			}
-			
-			// full mca
-			correctedDetData[element] = new double[detectorData[element].length];
+			detDataToWrite[element] = new double[detectorData[element].length];
 			for (int specElement = 0; specElement < detectorData[element].length; specElement++) {
-				correctedDetData[element][specElement] = detectorData[element][specElement] * deadTimeCorrectionFactor;
+				detDataToWrite[element][specElement] = detectorData[element][specElement]
+							* deadTimeCorrectionFactor;
 			}
 
 			if (sumAllElementData) {
 				if (summation == null)
-					summation = new double[correctedDetData[element].length];
-				for (int i = 0; i < correctedDetData[element].length; i++) {
-					summation[i] += correctedDetData[element][i];
+					summation = new double[detDataToWrite[element].length];
+				for (int i = 0; i < detDataToWrite[element].length; i++) {
+					summation[i] += detDataToWrite[element][i];
 				}
 			}
 
@@ -186,23 +177,12 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 		}
 		
 		// add the full spectrum
-		if (saveRawSpectrum || alwaysRecordRawMCAs){
-			if (numberOfElements == 1) {
-				output.addData(detTree, "fullSpectrum", new int[] {detectorData[0].length },
-						NexusFile.NX_INT32, detectorData[0], "counts", 1);
-			} else {
-				output.addData(detTree, "fullSpectrum", new int[] { numberOfElements, detectorData[0].length },
-						NexusFile.NX_INT32, detectorData, "counts", 1);
-			}
-			
+		if (numberOfElements == 1) {
+			output.addData(detTree, "fullSpectrum", new int[] {detDataToWrite[0].length },
+					NexusFile.NX_FLOAT64, detDataToWrite[0], "counts", 1);
 		} else {
-			if (numberOfElements == 1) {
-				output.addData(detTree, "fullSpectrum", new int[] { correctedDetData[0].length }, NexusFile.NX_FLOAT64,
-						correctedDetData[0], "counts", 1);
-			} else {
-				output.addData(detTree, "fullSpectrum", new int[] { numberOfElements, correctedDetData[0].length },
-						NexusFile.NX_FLOAT64, correctedDetData, "counts", 1);
-			}
+			output.addData(detTree, "fullSpectrum", new int[] { numberOfElements, detDataToWrite[0].length },
+					NexusFile.NX_FLOAT64, detDataToWrite, "counts", 1);
 		}
 
 		double ff = ffFromRoi;
@@ -286,16 +266,6 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 		return sumAllElementData;
 	}
 	
-	public boolean isAlwaysRecordRawMCAs() {
-		return alwaysRecordRawMCAs;
-	}
-
-
-	public void setAlwaysRecordRawMCAs(boolean alwaysRecordRawMCAs) {
-		this.alwaysRecordRawMCAs = alwaysRecordRawMCAs;
-	}
-
-
 	private String[] getElementNames() {
 		String[] names = new String[vortexParameters.getDetectorList().size()];
 		for(int i = 0; i < names.length; i++){

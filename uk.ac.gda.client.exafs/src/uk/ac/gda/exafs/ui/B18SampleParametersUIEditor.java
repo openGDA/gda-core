@@ -197,11 +197,12 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 		wheelExpandableComposite.setText("Sample Wheel");
 		wheelExpandableComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 
+		createStage();
 		// stage
 		ExpansionAdapter stageExpansionListener = new ExpansionAdapter() {
 			@Override
 			public void expansionStateChanged(ExpansionEvent e) {
-				createStage();
+//				createStage();
 				if (!stage.getValue().toString().equals("none")) {
 					sampleStageExpandableComposite.setExpanded(true);
 				}
@@ -212,12 +213,12 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 		sampleStageExpandableComposite.addExpansionListener(stageExpansionListener);
 
 		if (!bean.getStage().toString().equals("none")) {
-			createStage();
 			sampleStageExpandableComposite.setExpanded(true);
 			linkuiForDynamicLoading(false);
 			updateStageType();
 		}
 
+//		createTemp();
 		createTemp();
 
 		// temp
@@ -233,17 +234,17 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 		temperatureExpandableComposite.addExpansionListener(tempExpansionListener);
 
 		if (!bean.getTemperatureControl().toString().equals("none")) {
-			createTemp();
 			temperatureExpandableComposite.setExpanded(true);
 			linkuiForDynamicLoading(false);
 			updateEnvironmentType();
 		}
 
 		// wheel
+		createWheel();
 		ExpansionAdapter wheelExpansionAdapter = new ExpansionAdapter() {
 			@Override
 			public void expansionStateChanged(ExpansionEvent e) {
-				createWheel();
+//				createWheel();
 				if (bean.getSampleWheelParameters().isWheelEnabled()) {
 					wheelExpandableComposite.setExpanded(true);
 				} else
@@ -255,7 +256,6 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 		wheelExpandableComposite.addExpansionListener(wheelExpansionAdapter);
 
 		if (bean.getSampleWheelParameters().isWheelEnabled()) {
-			createWheel();
 			wheelExpandableComposite.setExpanded(true);
 		}
 	}

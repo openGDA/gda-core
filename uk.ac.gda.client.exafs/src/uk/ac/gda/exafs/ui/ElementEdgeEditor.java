@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import org.dawb.common.ui.plot.AbstractPlottingSystem;
+import org.dawb.common.ui.plot.IPlottingSystem;
 import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawb.common.ui.plot.trace.ILineTrace;
@@ -105,7 +105,8 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 	protected Label estimatePointsLabel;
 	protected Label estimateTimeLabel;
 	protected Composite expandContainer;
-	protected AbstractPlottingSystem plottingsystem;
+	protected IPlottingSystem plottingsystem;
+	protected ActionBarWrapper plottingsystemActionBarWrapper;
 	protected AxisValues xAxisValues;
 	protected volatile boolean suspendGraphUpdate = false;
 	protected Object lastPlottedBean;
@@ -172,13 +173,12 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 		grid.marginHeight = 0;
 		plotArea.setLayout(grid);
 
-		ActionBarWrapper wrapper = ActionBarWrapper.createActionBars(plotArea,null);
+		plottingsystemActionBarWrapper = ActionBarWrapper.createActionBars(plotArea, null);
 		plottingsystem.createPlotPart(plotArea, getTitle(), null, PlotType.XY, this);
-		plottingsystem.getPlotActionSystem().fillZoomActions(wrapper.getToolBarManager());
-		plottingsystem.setRescale(true);
+		plottingsystem.getPlotActionSystem().fillZoomActions(plottingsystemActionBarWrapper.getToolBarManager());
 		plottingsystem.getPlotComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		wrapper.update(true);
-		
+		plottingsystemActionBarWrapper.update(true);
+
 		plotUpdateJob.createTrace();
 
 		xasScanExpandableComposite.setClient(plotArea);
@@ -439,26 +439,35 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 
 			if (points == null || points.isEmpty())
 				throw new Exception("Cannot esitmate points!");
-			estimatePointsLabel.setText(points.size() + " points");
-			estimatePointsLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
-
+			if(estimatePointsLabel!=null){
+				estimatePointsLabel.setText(points.size() + " points");
+				estimatePointsLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
+			}
 			final long time = ExafsTimeEstimator.getTime(points);
 			final Date date = new Date(time);
 			final DateFormat format = DateFormat.getTimeInstance(DateFormat.MEDIUM, Locale.UK);
 			format.setCalendar(Calendar.getInstance(TimeZone.getTimeZone("GMT")));
-			estimateTimeLabel.setText(format.format(date));
-			estimateTimeLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
-
+			if(estimateTimeLabel!=null){
+				estimateTimeLabel.setText(format.format(date));
+				estimateTimeLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
+			}
 		} catch(ExafsScanPointCreatorException e){
-			estimatePointsLabel.setText(e.getMessage());
-			estimatePointsLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
-			estimateTimeLabel.setText(e.getMessage());
-			estimateTimeLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
+			if(estimatePointsLabel!=null){
+				estimatePointsLabel.setText(e.getMessage());
+				estimatePointsLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
+			}
+			if(estimateTimeLabel!=null){
+				estimateTimeLabel.setText(e.getMessage());
+				estimateTimeLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
+			}
 		}catch (Exception ne) {
-			estimatePointsLabel.setText("-");
-			estimateTimeLabel.setText("-");
+			if(estimatePointsLabel!=null)
+				estimatePointsLabel.setText("-");
+			if(estimateTimeLabel!=null)
+				estimateTimeLabel.setText("-");
 		}
-		expandContainer.layout();
+		if(expandContainer!=null)
+			expandContainer.layout();
 	}
 
 	protected Object fetchEditingBean() {
@@ -670,7 +679,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 							plottingsystem.repaint();
 							first = false;
 						}
-
+						plottingsystem.autoscaleAxes();
 					}
 				});
 
