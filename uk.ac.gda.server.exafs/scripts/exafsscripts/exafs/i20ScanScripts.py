@@ -46,7 +46,7 @@ class I20XasScan(XasScan):
         if beanGroup.getSample().getUseSampleWheel():
             filter = beanGroup.getSample().getSampleWheelPosition()
             self.log( "Moving filter wheel to",filter,"...")
-
+            self.jython_mapper.filterwheel(filter)
             ScriptBase.checkForPauses()
             
         # I20 always moves things back to initial positions after ecah scan. To save time, move mono to intial position here
