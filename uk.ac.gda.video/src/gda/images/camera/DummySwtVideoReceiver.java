@@ -61,7 +61,7 @@ public class DummySwtVideoReceiver extends DummyVideoReceiverBase<ImageData>{
 		
 		// erase old circle
 		gc.setBackground(backgroundColour);
-		gc.fillOval(circleX, circleY, CIRCLE_SIZE, CIRCLE_SIZE);
+		gc.fillOval(circleX-2, circleY-2, CIRCLE_SIZE+4, CIRCLE_SIZE+4);
 		
 		// move circle to new position
 		circleX += circleDeltaX;
