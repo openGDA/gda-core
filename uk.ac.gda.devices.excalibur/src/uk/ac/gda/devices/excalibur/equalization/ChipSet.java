@@ -18,14 +18,12 @@
 
 package uk.ac.gda.devices.excalibur.equalization;
 
-import gda.analysis.io.ScanFileHolderException;
-
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.io.ILazyLoader;
 
 /**
@@ -251,11 +249,11 @@ class Chip {
 	public long getPixelsPerRow(){
 		return chipSet.pixelsPerRow;
 	}
-	public AbstractDataset getDataset(ILazyLoader loader) throws ScanFileHolderException{
+	public IDataset getDataset(ILazyLoader loader) throws Exception{
 		return getDataset(loader,0);
 	}
 	
-	public AbstractDataset getDataset(ILazyLoader loader, int length3d) throws ScanFileHolderException{
+	public IDataset getDataset(ILazyLoader loader, int length3d) throws Exception{
 		int dim = length3d == 0? 2  : 3;
 		int[] start = new int[dim]; 
 		int[] stop = new int[dim]; 
