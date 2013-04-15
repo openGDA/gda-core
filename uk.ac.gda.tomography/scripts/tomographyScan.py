@@ -238,6 +238,7 @@ def reportJythonNamespaceMapping():
     objectOfInterest['tomography_translation'] = jns.tomography_translation
     objectOfInterest['tomography_detector'] = jns.tomography_detector
     objectOfInterest['tomography_camera_stage'] = jns.tomography_camera_stage
+    objectOfInterest['tomography_sample_stage'] = jns.tomography_sample_stage
    
     for key, val in objectOfInterest.iteritems():
         print key + ' = ' + str(val)
@@ -338,6 +339,10 @@ def tomoScan(description, inBeamPosition, outOfBeamPosition, exposureTime=1., st
         if tomography_camera_stage is None:
             raise "tomography_camera_stage is not defined in Jython namespace"
         
+        tomography_sample_stage = jns.tomography_sample_stage
+        if tomography_sample_stage is None:
+            raise "tomography_sample_stage is not defined in Jython namespace"
+        
         index = SimpleScannable()
         index.setCurrentPosition(0.0)
         index.setInputNames(["imageNumber"])
@@ -436,7 +441,7 @@ def tomoScan(description, inBeamPosition, outOfBeamPosition, exposureTime=1., st
         #return None
         positionProvider = tomoScan_positions(start, stop, step, darkFieldInterval, imagesPerDark, flatFieldInterval, imagesPerFlat, \
                                                inBeamPosition, outOfBeamPosition, optimizeBeamInterval, scan_points) 
-        scan_args = [tomoScanDevice, positionProvider, tomography_time, tomography_beammonitor, tomography_detector, exposureTime, tomography_camera_stage]
+        scan_args = [tomoScanDevice, positionProvider, tomography_time, tomography_beammonitor, tomography_detector, exposureTime, tomography_camera_stage, tomography_sample_stage]
         for scannable in additionalScannables:
             scan_args.append(scannable)
         ''' setting the description provided as the title'''
