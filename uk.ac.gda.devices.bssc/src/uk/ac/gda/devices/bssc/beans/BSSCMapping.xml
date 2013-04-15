@@ -16,14 +16,17 @@
 		<field name="location" type="uk.ac.gda.devices.bssc.beans.LocationBean">
 			<bind-xml name="location" node="element"/>
 		</field>
+		<field name="bufferLocation" type="uk.ac.gda.devices.bssc.beans.LocationBean">
+			<bind-xml name="bufferLocation" node="element"/>
+		</field>
 		<field name="sampleName" type="string">
 			<bind-xml name="sampleName" node="element"/>
 		</field>
-		<field name="bufferName" type="string">
-			<bind-xml name="bufferName" node="element"/>
-		</field>
 		<field name="yellowSample" type="boolean">
 			<bind-xml name="yellowSample" node="element"/>
+		</field>
+		<field name="recouperate" type="boolean">
+			<bind-xml name="recouperate" node="element"/>
 		</field>
 		<field name="concentration" type="double">
 			<bind-xml name="concentration" node="element"/>

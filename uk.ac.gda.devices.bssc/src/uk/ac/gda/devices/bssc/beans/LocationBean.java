@@ -20,10 +20,10 @@ package uk.ac.gda.devices.bssc.beans;
 
 import uk.ac.gda.beans.IRichBean;
 
-public class LocationBean implements IRichBean{
-	short plate;
-	char row;
-	short column;
+public class LocationBean implements IRichBean {
+	short plate = 1;
+	char row = 'A';
+	short column = 1;
 	
 	public short getPlate() {
 		return plate;
@@ -67,7 +67,19 @@ public class LocationBean implements IRichBean{
 	}
 
 	@Override
-	public void clear() {
-		
+	public void clear() {	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof LocationBean) {
+			LocationBean foreignLocation = (LocationBean) obj;
+			return foreignLocation.plate == plate && foreignLocation.column == column && foreignLocation.row == row;
+		}
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		return plate + 5 * row + 31 * column;
 	}
 }
