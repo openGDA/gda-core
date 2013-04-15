@@ -699,7 +699,7 @@ public class ParameterView extends ViewPart implements ISelectionListener, IPara
 		DataHolder loadFile;
 		try {
 			loadFile = hdf5Loader.loadFile();
-			ILazyDataset dataset = loadFile.getLazyDataset(PATH_TO_IMAGE_KEY_IN_DATASET);
+			ILazyDataset dataset = loadFile.getLazyDataset(PATH_TO_IMAGE_KEY_IN_DATASET); 
 			return dataset != null;
 		} catch (ScanFileHolderException e1) {
 			logger.error("Image key not available", e1);
