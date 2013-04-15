@@ -25,7 +25,6 @@ import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.FfmpegStream;
 import gda.device.detector.areadetector.v17.NDArray;
-import gda.device.detector.areadetector.v17.NDFileHDF5;
 import gda.device.detector.areadetector.v17.NDOverlay;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.device.detector.areadetector.v17.NDROI;
@@ -42,6 +41,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
+import uk.ac.gda.server.ncd.epics.NDFileHDF5Impl;
+
 public class PilatusADController implements InitializingBean {
 
 	static final Logger logger = LoggerFactory.getLogger(PilatusADController.class);
@@ -51,6 +52,8 @@ public class PilatusADController implements InitializingBean {
 
 	private static final String ACQUISITION_MODE_RBV = "AcquisitionMode_RBV";
 
+	private int framesinscan = 1;
+	
 	/**
 	 * Map that stores the channel against the PV name
 	 */
@@ -65,7 +68,7 @@ public class PilatusADController implements InitializingBean {
 	private NDStats stats;
 	private NDArray array;
 	private NDOverlay draw;
-	private NDFileHDF5 hdf5;
+	private NDFileHDF5Impl hdf5;
 	private FfmpegStream mjpeg;
 
 	public void configure() throws FactoryException {
@@ -120,11 +123,11 @@ public class PilatusADController implements InitializingBean {
 		this.draw = draw;
 	}
 	
-	public NDFileHDF5 getHDF5() {
+	public NDFileHDF5Impl getHDF5() {
 		return hdf5;
 	}
 
-	public void setHDF5(NDFileHDF5 hdf5) {
+	public void setHDF5(NDFileHDF5Impl hdf5) {
 		this.hdf5 = hdf5;
 	}
 	
@@ -266,10 +269,11 @@ public class PilatusADController implements InitializingBean {
 	}
 
 	public void stopAcquiringWithTimeout() throws Exception {
-		int totalmillis = 2 * 1000;
+		int totalmillis = 10 * 1000;
 		int grain = 25;
 		for (int i = 0; i < totalmillis/grain; i++) {
-			if (areaDetector.getAcquireState() == 0) break;
+			if (areaDetector.getAcquireState() == 0) 
+				return;
 			Thread.sleep(grain);
 		}
 		stopAcquiring();
@@ -368,9 +372,9 @@ public class PilatusADController implements InitializingBean {
 			}
 			hdf5.setExtraDimSizeY(dimensions[0]);
 			hdf5.setExtraDimSizeX(totalother);
-		} else
+		} else {
 			hdf5.setExtraDimSizeX(dimensions[0]);
-
+		}
 	}
 
 	public void startRecording() throws Exception {
@@ -393,13 +397,14 @@ public class PilatusADController implements InitializingBean {
 		// when we are called here there no more frames will be collected, so we just need to make sure
 		// all the ones in the system are written out
 		
-		// apparently we can get one frame stuck in area detector, I just had one collected but never written to file
-		// then we still have to wait forever here
+		// which the current settings writing a 2M frame on i22 takes ~50ms first time around and the same amount on closing
+
+		throwIfWriteError();
 		
 		int totalFramesCollected = areaDetector.getArrayCounter();
 		
-		int totalmillis = 10 * 1000;
-		int grain = 25;
+		int totalmillis = 30 * 1000 + framesinscan * 60;
+		int grain = 50;
 		for (int i = 0; i < totalmillis/grain; i++) {
 			
 			if (hdf5.getFile().getCapture_RBV() == 0) return;
@@ -408,14 +413,33 @@ public class PilatusADController implements InitializingBean {
 				hdf5.stopCapture();
 			}
 		
+			if (hdf5.getQueueUse() > 1) {
+				// reset wait time while we still churn through frames, keep waiting loop for closing only
+				i = 0;
+			}
+				
+			
 			if (hdf5.getPluginBase().getDroppedArrays_RBV() > 0)
 				throw new DeviceException("hdf5 recording missed frames");
 			
+			throwIfWriteError();
+				
 			Thread.sleep(grain);
 		}
 		
 		hdf5.stopCapture();
 		logger.warn("Waited very long for hdf writing to finish, still not done. Hope all will be ok in the end.");
+		throwIfWriteError();
+	}
+	
+	private void throwIfWriteError() throws Exception {
+		if (hdf5.getWriteStatus() != 0) {
+			String message = "error in EPICS hdf5 file writer";
+			try {
+				message = message + " " + hdf5.getWriteMessage();
+			} catch (Exception e) { }
+			throw new DeviceException(message);
+		}
 	}
 	
 	public void stop() throws Exception {
@@ -424,6 +448,7 @@ public class PilatusADController implements InitializingBean {
 	}
 
 	public String getHDFFileName() throws Exception {
+		throwIfWriteError();
 		return hdf5.getFullFileName_RBV();
 	}
 
