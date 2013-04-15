@@ -26,19 +26,20 @@ import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
-import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
-import org.dawb.common.ui.plot.region.IROIListener;
-import org.dawb.common.ui.plot.region.IRegion;
-import org.dawb.common.ui.plot.region.IRegion.RegionType;
-import org.dawb.common.ui.plot.region.ROIEvent;
-import org.dawb.common.ui.plot.region.RegionUtils;
-import org.dawb.common.ui.plot.trace.ILineTrace;
-import org.dawb.common.ui.plot.trace.ILineTrace.PointStyle;
-import org.dawb.common.ui.plot.trace.ITrace;
+import org.dawnsci.plotting.api.PlotType;
+import org.dawnsci.plotting.api.region.IROIListener;
+import org.dawnsci.plotting.api.region.IRegion;
+import org.dawnsci.plotting.api.region.IRegion.RegionType;
+import org.dawnsci.plotting.api.region.MouseEvent;
+import org.dawnsci.plotting.api.region.MouseListener;
+import org.dawnsci.plotting.api.region.ROIEvent;
+import org.dawnsci.plotting.api.region.RegionUtils;
+import org.dawnsci.plotting.api.trace.ILineTrace;
+import org.dawnsci.plotting.api.trace.ITrace;
+import org.dawnsci.plotting.api.trace.ILineTrace.PointStyle;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.draw2d.ColorConstants;
-import org.eclipse.draw2d.MouseListener;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.swt.SWT;
@@ -64,6 +65,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.TIFFImageLoader;
+import uk.ac.diamond.scisoft.analysis.roi.IROI;
 import uk.ac.diamond.scisoft.analysis.roi.PolygonalROI;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.gda.client.tomo.DoublePointList;
@@ -135,7 +137,7 @@ public class TomoPlotComposite extends Composite {
 
 	private boolean shouldUpdatePlot = true;
 
-	private ROIBase xBounds;
+	private IROI xBounds;
 
 	private ILineTrace histogramTrace;
 
@@ -219,8 +221,8 @@ public class TomoPlotComposite extends Composite {
 		plotComposite.setLayout(new FillLayout());
 
 		plottingSystem = PlottingFactory.createPlottingSystem();
-		//FIXME - DAWN API Changed and cannot map to old API.
-//		plottingSystem.createPlotPart(plotComposite, "", null, PlotType.PT1D_MULTI, null);
+		// FIXME - DAWN API Changed and cannot map to old API.
+		// plottingSystem.createPlotPart(plotComposite, "", null, PlotType.PT1D_MULTI, null);
 		plottingSystem.createPlotPart(plotComposite, "", null, PlotType.XY_STACKED, null);
 		lineListeners = new ArrayList<TomoPlotComposite.PlottingSystemActionListener>();
 		//
@@ -814,8 +816,9 @@ public class TomoPlotComposite extends Composite {
 
 		private void update(ROIEvent evt) {
 			final IRegion region = (IRegion) evt.getSource();
-			ROIBase roi = region.getROI();
+			IROI roi = region.getROI();
 			xBounds = roi;
+
 		}
 
 		@Override
@@ -841,8 +844,10 @@ public class TomoPlotComposite extends Composite {
 	};
 
 	private MouseListener mouseFollowRegionMouseListner = new MouseListener.Stub() {
+
 		@Override
-		public void mousePressed(org.eclipse.draw2d.MouseEvent me) {
+		public void mousePressed(MouseEvent me) {
+
 			if (mode == MODE.HISTOGRAM_SINGLE || mode == MODE.HISTOGRAM_STREAM) {
 				try {
 
@@ -876,7 +881,7 @@ public class TomoPlotComposite extends Composite {
 
 	private Button btnApplyExposureSettings;
 
-	private IRegion createStaticRegion(String nameStub, final ROIBase bounds, final Color snapShotColor,
+	private IRegion createStaticRegion(String nameStub, final IROI bounds, final Color snapShotColor,
 			final RegionType regionType) throws Exception {
 
 		final IRegion region = plottingSystem.createRegion(RegionUtils.getUniqueName(nameStub, plottingSystem),
@@ -914,6 +919,7 @@ public class TomoPlotComposite extends Composite {
 				}
 
 			}
+
 			@Override
 			public void roiSelected(ROIEvent evt) {
 
@@ -946,7 +952,6 @@ public class TomoPlotComposite extends Composite {
 		});
 
 	}
-
 
 	public void setYLabelValue(final String yLblValue) {
 		if (!getDisplay().isDisposed()) {
@@ -984,7 +989,6 @@ public class TomoPlotComposite extends Composite {
 		}
 	}
 
-
 	public Double getHistogramFactor() {
 		if (mode == MODE.HISTOGRAM_STREAM) {
 			return histogramFactor;
@@ -996,4 +1000,3 @@ public class TomoPlotComposite extends Composite {
 		histogramFactor = DEFAULT_HISTOGRAM_FACTOR;
 	}
 }
-
