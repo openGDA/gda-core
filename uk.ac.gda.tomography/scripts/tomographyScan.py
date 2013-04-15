@@ -176,15 +176,52 @@ def addNXTomoSubentry(scanObject, tomography_detector_name, tomography_theta_nam
     if scanObject is None:
         raise "Input scanObject must not be None"
     
-    instrument_detector_data_target = "entry1/instrument/" + tomography_detector_name + "/image_data"
-    sample_rotation_angle_target = "entry1/instrument/tomoScanDevice/" + tomography_theta_name
-    #print "instrument_detector_data_target = " + instrument_detector_data_target
-    #print "sample_rotation_angle_target = " + sample_rotation_angle_target
-    
     nxLinkCreator = NXTomoEntryLinkCreator()
-    nxLinkCreator.setInstrument_detector_data_target(instrument_detector_data_target)
-    nxLinkCreator.setSample_rotation_angle_target(sample_rotation_angle_target)
-    nxLinkCreator.setTitle_target("entry1/title")
+    
+    # detector independent items
+    nxLinkCreator.setControl_data_target("entry1:NXentry/instrument:NXinstrument/source:NXsource/current:NXdata")
+    
+    #instrument_detector_distance_target = "entry1:NXentry/scan_identifier:NXdata";
+    
+    nxLinkCreator.setInstrument_detector_image_key_target("entry1:NXentry/instrument:NXinstrument/tomoScanDevice:NXpositioner/image_key:NXdata")
+    #instrument_detector_x_pixel_size_target = "entry1:NXentry/scan_identifier:NXdata";
+    #instrument_detector_y_pixel_size_target = "entry1:NXentry/scan_identifier:NXdata";
+    
+    nxLinkCreator.setInstrument_source_target("entry1:NXentry/instrument:NXinstrument/source:NXsource")
+    
+    sample_rotation_angle_target = "entry1:NXentry/instrument:NXinstrument/tomoScanDevice:NXpositioner/" 
+    sample_rotation_angle_target += tomography_theta_name + ":NXdata"
+    nxLinkCreator.setSample_rotation_angle_target(sample_rotation_angle_target);
+    #sample_x_translation_target = "entry1:NXentry/instrument:NXinstrument/sample_stage:NXpositioner/ss1_samplex:NXdata";
+    #sample_y_translation_target = "entry1:NXentry/instrument:NXinstrument/sample_stage:NXpositioner/ss1_sampley:NXdata";
+    #sample_z_translation_target = "entry1:NXentry/instrument:NXinstrument/sample_stage:NXpositioner/ss1_samplez:NXdata";
+    
+    nxLinkCreator.setTitle_target("entry1:NXentry/title:NXdata")
+    
+    # detector dependent items
+    if tomography_detector_name == "pco4000_dio_hdf":
+        # external file
+        instrument_detector_data_target = "!entry1:NXentry/instrument:NXinstrument/"
+        instrument_detector_data_target += tomography_detector_name + ":NXdetector/"
+        instrument_detector_data_target += "data:SDS"
+        nxLinkCreator.setInstrument_detector_data_target(instrument_detector_data_target)
+    elif tomography_detector_name == "pco4000_dio_tif":
+        # image filenames
+        instrument_detector_data_target = "entry1:NXentry/instrument:NXinstrument/"
+        instrument_detector_data_target += tomography_detector_name + ":NXdetector/"
+        instrument_detector_data_target += "image_data:NXdata"
+        nxLinkCreator.setInstrument_detector_data_target(instrument_detector_data_target)
+    elif tomography_detector_name == "pco":
+        # image filenames
+        instrument_detector_data_target = "entry1:NXentry/instrument:NXinstrument/"
+        instrument_detector_data_target += tomography_detector_name + ":NXdetector/"
+        instrument_detector_data_target += "data_file:NXnote/file_name:NXdata"
+        nxLinkCreator.setInstrument_detector_data_target(instrument_detector_data_target)
+    else:
+        print "Defaults used for unsupported tomography detector in addNXTomoSubentry: " + tomography_detector_name
+    
+    print "instrument_detector_data_target = " + instrument_detector_data_target
+    print "sample_rotation_angle_target = " + sample_rotation_angle_target
     
     nxLinkCreator.afterPropertiesSet()
     
