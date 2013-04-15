@@ -72,7 +72,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.diamond.scisoft.analysis.io.TIFFImageLoader;
-import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
+import uk.ac.diamond.scisoft.analysis.roi.IROI;
 import uk.ac.diamond.tomography.reconstruction.Activator;
 import uk.ac.diamond.tomography.reconstruction.ReconUtil;
 import uk.ac.diamond.tomography.reconstruction.jobs.ReconSchedulingRule;
@@ -230,10 +230,10 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (!xHair.isTrackMouse()) {
-					ROIBase roi = xHair.getROI();
+					IROI roi = xHair.getROI();
 					if (roi.getPointY() >= SPLITS) {
 						roi.setPoint(roi.getPointX(), roi.getPointY() - SPLITS);
-						ROIBase roiModified = getYBounds(roi);
+						IROI roiModified = getYBounds(roi);
 						xHair.setROI(roiModified);
 						roiSet(roiModified.getPointY());
 					}
@@ -274,10 +274,10 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 			public void widgetSelected(SelectionEvent e) {
 				if (!xHair.isTrackMouse() && dataset != null && dataset.getShape().length == 3) {
 					int max = dataset.getShape()[1];
-					ROIBase roi = xHair.getROI();
+					IROI roi = xHair.getROI();
 					if (roi.getPointY() < max - SPLITS) {
 						roi.setPoint(roi.getPointX(), roi.getPointY() + SPLITS);
-						ROIBase roiModified = getYBounds(roi);
+						IROI roiModified = getYBounds(roi);
 						xHair.setROI(roiModified);
 						roiSet(roiModified.getPointY());
 					}
@@ -393,14 +393,14 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 		}
 	}
 
-	private ROIBase yBounds;
+	private IROI yBounds;
 
 	private MouseListener mouseFollowRegionMouseListner = new MouseListener.Stub() {
 		@Override
 		public void mousePressed(org.eclipse.draw2d.MouseEvent me) {
 			try {
 				xHair.setTrackMouse(false);
-				ROIBase roi = getYBounds(yBounds);
+				IROI roi = getYBounds(yBounds);
 				xHair.setROI(roi);
 				roiSet(roi.getPointY());
 			} catch (Exception e) {
@@ -410,7 +410,7 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 
 	};
 
-	private ROIBase getYBounds(ROIBase bounds) {
+	private IROI getYBounds(IROI bounds) {
 		double pointY = bounds.getPointY();
 
 		double rem = pointY % SPLITS;
@@ -430,7 +430,7 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 
 		private void update(ROIEvent evt) {
 			final IRegion region = (IRegion) evt.getSource();
-			ROIBase roi = region.getROI();
+			IROI roi = region.getROI();
 			yBounds = roi;
 		}
 
@@ -447,7 +447,7 @@ public class ProjectionsView extends ViewPart implements ISelectionListener {
 			update(evt);
 			if (dragged && !(xHair.isTrackMouse())) {
 				dragged = false;
-				ROIBase roi = getYBounds(evt.getROI());
+				IROI roi = getYBounds(evt.getROI());
 				xHair.setROI(roi);
 				roiSet(roi.getPointY());
 			}
