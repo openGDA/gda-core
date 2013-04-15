@@ -18,7 +18,7 @@
 
 package uk.ac.gda.epics.adviewer.views;
 
-import org.dawb.common.ui.plot.tool.IToolPageSystem;
+import org.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;

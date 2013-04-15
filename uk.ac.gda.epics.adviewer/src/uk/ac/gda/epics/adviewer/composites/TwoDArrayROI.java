@@ -25,7 +25,7 @@ import gda.observable.Observer;
 import java.util.List;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
-import org.dawb.common.ui.plot.axis.IAxis;
+import org.dawnsci.plotting.api.axis.IAxis;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
