@@ -92,7 +92,7 @@ public class MessageView extends ViewPart implements IObserver {
 		Composite container = new Composite(parent, SWT.NONE);
 		container.setLayout(new GridLayout());
 		
-		history = new StyledText(container, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.SEARCH | SWT.CANCEL | SWT.MULTI);
+		history = new StyledText(container, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.SEARCH | SWT.CANCEL | SWT.MULTI | SWT.WRAP);
 		history.setEditable(false);
 		history.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
