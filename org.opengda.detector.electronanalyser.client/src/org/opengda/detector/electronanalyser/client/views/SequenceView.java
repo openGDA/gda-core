@@ -29,7 +29,6 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CheckboxCellEditor;
-import org.eclipse.jface.viewers.ColumnLayoutData;
 import org.eclipse.jface.viewers.ColumnViewer;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.EditingSupport;
@@ -133,17 +132,17 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 			SequenceTableConstants.Y_CHANNEL_TO, SequenceTableConstants.SLICES,
 			SequenceTableConstants.MODE };
 
-	private ColumnLayoutData columnLayouts[] = {
-			new ColumnWeightData(10, false), new ColumnWeightData(10, false),
-			new ColumnWeightData(80, true), new ColumnWeightData(70, false),
-			new ColumnWeightData(40, false), new ColumnWeightData(50, true),
-			new ColumnWeightData(40, false), new ColumnWeightData(50, true),
-			new ColumnWeightData(50, true), new ColumnWeightData(60, true),
-			new ColumnWeightData(40, true), new ColumnWeightData(40, true),
-			new ColumnWeightData(40, true), new ColumnWeightData(40, true),
-			new ColumnWeightData(40, true), new ColumnWeightData(40, true),
-			new ColumnWeightData(40, true), new ColumnWeightData(40, true),
-			new ColumnWeightData(40, true) };
+	private ColumnWeightData columnLayouts[] = {
+			new ColumnWeightData(10,20,false), new ColumnWeightData(10,20, false),
+			new ColumnWeightData(80,100,true), new ColumnWeightData(70,90,false),
+			new ColumnWeightData(40,50, false), new ColumnWeightData(40,50,true),
+			new ColumnWeightData(40,80, false), new ColumnWeightData(50,70, true),
+			new ColumnWeightData(50,70, true), new ColumnWeightData(50,90, true),
+			new ColumnWeightData(50,70, true), new ColumnWeightData(50,50, true),
+			new ColumnWeightData(50,70, true), new ColumnWeightData(50,50, true),
+			new ColumnWeightData(40,50, true), new ColumnWeightData(40,50, true),
+			new ColumnWeightData(40,50, true), new ColumnWeightData(40,50, true),
+			new ColumnWeightData(40,120, true) };
 
 	private TableViewer sequenceTableViewer;
 	private List<Region> regions;
@@ -176,7 +175,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 			column.setResizable(columnLayouts[i].resizable);
 			column.setText(columnHeaders[i]);
 			column.setToolTipText(columnHeaders[i]);
-			layout.setColumnData(column, columnLayouts[i]);
+
+			column.setWidth(columnLayouts[i].minimumWidth);
+
 			tableViewerColumn
 					.setEditingSupport(new SequenceColumnEditingSupport(
 							tableViewer, tableViewerColumn));
@@ -215,13 +216,20 @@ public class SequenceView extends ViewPart implements ISelectionProvider,
 						}
 					}
 				});
-		TableColumnLayout tableLayout = new TableColumnLayout();
-		tableViewerContainer.setLayout(tableLayout);
+		// TableColumnLayout tableLayout = new TableColumnLayout();
+		// tableViewerContainer.setLayout(tableLayout);
 
-		createColumns(sequenceTableViewer, tableLayout);
+		// createColumns(sequenceTableViewer, tableLayout);
 
-		tableViewerContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
-				true, true, 1, 1));
+		tableViewerContainer.setLayout(new GridLayout());
+		GridData gd1 = new GridData(GridData.FILL_BOTH);
+		gd1.widthHint = 500;
+		sequenceTableViewer.getTable().setLayoutData(gd1);
+		createColumns(sequenceTableViewer, null);
+
+		GridData layoutData5 = new GridData(SWT.FILL, SWT.FILL, true, true, 1,
+				1);
+		tableViewerContainer.setLayoutData(layoutData5);
 
 		sequenceTableViewer.setContentProvider(new SequenceViewContentProvider(
 				regionDefinitionResourceUtil));
