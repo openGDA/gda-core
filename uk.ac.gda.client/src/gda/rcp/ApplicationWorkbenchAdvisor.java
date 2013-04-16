@@ -399,7 +399,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 					monitor.done();
 				}
 			};
-			final WorkspaceJob workspaceJob = new WorkspaceJob("postStartup"){
+			final WorkspaceJob workspaceJob = new WorkspaceJob("Setting up workspace") {
 
 				@Override
 				public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
