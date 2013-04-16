@@ -519,6 +519,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 
 	@Override
 	public void collectData() throws DeviceException {
+		latestPositionCallable = null;
 		try {
 			getCollectionStrategy().collectData();
 		} catch (Exception e) {
@@ -725,13 +726,6 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 
 	public void setCheckFileExists(boolean checkFileExists) {
 		this.checkFileExists = checkFileExists;
-	}
-
-	
-	@Override
-	public void atPointStart() throws DeviceException {
-		super.atPointStart();
-		latestPositionCallable=null;
 	}
 
 	@Override
