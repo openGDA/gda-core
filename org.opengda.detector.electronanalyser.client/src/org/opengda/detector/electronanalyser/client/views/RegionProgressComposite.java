@@ -1,7 +1,6 @@
 package org.opengda.detector.electronanalyser.client.views;
 
 import gda.epics.connection.EpicsController;
-import gda.factory.Finder;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Monitor;
@@ -10,9 +9,8 @@ import gov.aps.jca.dbr.DBR_Int;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
-import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -22,8 +20,8 @@ import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Text;
 import org.opengda.detector.electronanalyser.client.ElectronAnalyserClientPlugin;
 import org.opengda.detector.electronanalyser.client.ImageConstants;
-import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
-import org.opengda.detector.electronanalyser.server.VGScientaController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * class to display data colection progress for a
@@ -35,62 +33,53 @@ import org.opengda.detector.electronanalyser.server.VGScientaController;
  * 
  */
 public class RegionProgressComposite extends Composite {
-
-	private ProgressBar progressBar;
-	private IVGScientaAnalyser analyser;
+	private String currentPointPV;
+	private String totalPointsPV;
+	private static final Logger logger=LoggerFactory.getLogger(RegionProgressComposite.class);
 
 	public RegionProgressComposite(Composite parent, int style) {
 		super(parent, style);
-		Composite rootComposite = new Composite(parent, SWT.NONE);
-		rootComposite.setLayout(new GridLayout(6, false));
-
-		Label lblMin = new Label(rootComposite, SWT.None);
-
-		progressBar = new ProgressBar(rootComposite, SWT.SMOOTH
-				| SWT.HORIZONTAL);
+		
+		this.setLayout(new FillLayout());
+		Composite rootComposite = new Composite(this, SWT.NONE);
+		GridLayout layout = new GridLayout(6, false);
+		layout.marginWidth = 0;
+		layout.marginHeight = 0;
+		rootComposite.setLayout(layout);
+		
+		Label lblMin = new Label(rootComposite, SWT.NONE);
+		
+		progressBar = new ProgressBar(rootComposite, SWT.HORIZONTAL);
 		progressBar.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		Rectangle clientArea = rootComposite.getClientArea();
-		progressBar.setBounds(clientArea.x, clientArea.y, 200, 20);
-
+		
 		lblMin.setText(String.valueOf(progressBar.getMinimum()));
-
-		Label lblMax = new Label(rootComposite, SWT.None);
+		
+		Label lblMax = new Label(rootComposite, SWT.NONE);
 		lblMax.setText(String.valueOf(progressBar.getMaximum()));
-
-		Label lblStep = new Label(rootComposite, SWT.None);
-		lblStep.setText("Step");
-
+		
+		Label lblStep = new Label(rootComposite, SWT.NONE);
+		lblStep.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblStep.setText("Step:");
+		
 		txtCurrentStep = new Text(rootComposite, SWT.BORDER);
-		txtCurrentStep.setToolTipText("Display current step");
-		txtCurrentStep.setEditable(false);
-		GridData gd_txtCurrentStep = new GridData(SWT.RIGHT, SWT.CENTER, false,
-				false, 1, 1);
-		gd_txtCurrentStep.widthHint = 30;
-		txtCurrentStep.setLayoutData(gd_txtCurrentStep);
-		txtCurrentStep.setText("000");
-		txtCurrentStep.setBackground(ColorConstants.black);
-		txtCurrentStep.setForeground(ColorConstants.green);
-
-		Button btnStop = new Button(rootComposite, SWT.None);
+		txtCurrentStep.setText("currentStep");
+		txtCurrentStep.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		
+		Button btnStop = new Button(rootComposite, SWT.CENTER);
+		btnStop.setImage(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_STOP));
 		btnStop.setToolTipText("Stop current region collection");
-		btnStop.setImage(ElectronAnalyserClientPlugin.getDefault()
-				.getImageRegistry().get(ImageConstants.ICON_STOP));
-		initialise();
 	}
 
-	private void initialise() {
-		if (getAnalyser() == null) {
-			// Analyser must be called 'analyser' in Spring configuration
-			analyser = (IVGScientaAnalyser) (Finder.getInstance()
-					.find("analyser"));
+	public void initialise() {
+		if (getCurrentPointPV()==null || getTotalPointsPV() == null) {
+			throw new IllegalStateException("required parameters for 'currentPointPV' and/or 'totalPointsPV' are missing.");
 		}
 		currentPointListener = new CurrentPointListener();
 		totalPointsListener = new TotalPointsListener();
 		try {
 			addMonitors();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Region progress composite failed to add monitors to the electron analyser.", e);
 		}
 		addMonitorListeners();
 	}
@@ -102,13 +91,9 @@ public class RegionProgressComposite extends Composite {
 	private EpicsController controller = EpicsController.getInstance();
 
 	public void addMonitors() throws Exception {
-		getAnalyser().getController();
-		currentPointChannel = getAnalyser().getController().getChannel(
-				VGScientaController.CURRENTPOINT);
+		currentPointChannel = controller.createChannel(currentPointPV);
 		currentPointMonitor = controller.addMonitor(currentPointChannel);
-		getAnalyser().getController();
-		totalPointsChannel = getAnalyser().getController().getChannel(
-				VGScientaController.TOTALPOINTS);
+		totalPointsChannel = controller.createChannel(totalPointsPV);
 		totalPointsMonitor = controller.addMonitor(totalPointsChannel);
 	}
 
@@ -131,6 +116,7 @@ public class RegionProgressComposite extends Composite {
 	private Channel currentPointChannel;
 	private Channel totalPointsChannel;
 	private Text txtCurrentStep;
+	private ProgressBar progressBar;
 
 	private class CurrentPointListener implements MonitorListener {
 
@@ -174,11 +160,19 @@ public class RegionProgressComposite extends Composite {
 		super.dispose();
 	}
 
-	public IVGScientaAnalyser getAnalyser() {
-		return analyser;
+	public String getTotalPointsPV() {
+		return totalPointsPV;
 	}
 
-	public void setAnalyser(IVGScientaAnalyser analyser) {
-		this.analyser = analyser;
+	public void setTotalPointsPV(String totalPointsPV) {
+		this.totalPointsPV = totalPointsPV;
+	}
+
+	public String getCurrentPointPV() {
+		return currentPointPV;
+	}
+
+	public void setCurrentPointPV(String currentPointPV) {
+		this.currentPointPV = currentPointPV;
 	}
 }

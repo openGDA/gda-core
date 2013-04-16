@@ -19,7 +19,6 @@
 package org.opengda.detector.electronanalyser.client.views;
 
 import gda.epics.connection.EpicsController;
-import gda.factory.Finder;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Monitor;
@@ -42,6 +41,7 @@ import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -50,8 +50,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPart;
-import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
-import org.opengda.detector.electronanalyser.server.VGScientaController;
+import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,8 +65,9 @@ public class SpectrumPlotComposite extends Composite {
 
 	private FontRegistry fontRegistry;
 	private static final Logger logger = LoggerFactory.getLogger(SpectrumPlotComposite.class);
+	private String arrayPV;
 
-	private VGScientaAnalyser analyser;
+	private IVGScientaAnalyser analyser;
 
 	private Label lblProfileIntensityValue;
 
@@ -116,12 +116,13 @@ public class SpectrumPlotComposite extends Composite {
 		this.setLayout(layout);
 
 		Composite plotComposite = new Composite(this, SWT.None);
-		plotComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
-		plotComposite.setLayout(new GridLayout(1, true));
-
+//		plotComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
+//		plotComposite.setLayout(new GridLayout(1, true));
+		plotComposite.setLayout(new FillLayout());
 		plottingSystem = PlottingFactory.createPlottingSystem();
 		plottingSystem.createPlotPart(plotComposite, "Spectrum", part instanceof IViewPart ? ((IViewPart) part).getViewSite().getActionBars()
 				: null, PlotType.XY_STACKED, part);
+		plotComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
 
 		statsComposite = new Composite(this, SWT.None);
 		statsComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -175,14 +176,13 @@ public class SpectrumPlotComposite extends Composite {
 		txtArea.setBackground(ColorConstants.yellow);
 		txtArea.setText("0000");
 
-		initialise();
+//		initialise();
 
 	}
 
-	private void initialise() {
-		if (getAnalyser() == null) {
-			// Analyser must be called 'analyser' in Spring configuration
-			analyser = (VGScientaAnalyser) (Finder.getInstance().find("analyser"));
+	public void initialise() {
+		if (getAnalyser() == null || getArrayPV() == null) {
+			throw new IllegalStateException("required parameters for 'analyser' and/or 'arrayPV' are missing.");
 		}
 		spectrumDataListener = new SpectrumDataListener();
 		try {
@@ -194,7 +194,7 @@ public class SpectrumPlotComposite extends Composite {
 	}
 
 	public void addMonitors() throws Exception {
-		spectrumChannel = getAnalyser().getController().getChannel(VGScientaController.SPECTRUMDATA);
+		spectrumChannel = controller.createChannel(arrayPV);
 		spectrumMonitor = controller.addMonitor(spectrumChannel);
 	}
 
@@ -360,11 +360,19 @@ public class SpectrumPlotComposite extends Composite {
 		return fwhm;
 	}
 
-	public VGScientaAnalyser getAnalyser() {
+	public IVGScientaAnalyser getAnalyser() {
 		return analyser;
 	}
 
-	public void setAnalyser(VGScientaAnalyser analyser) {
+	public void setAnalyser(IVGScientaAnalyser analyser) {
 		this.analyser = analyser;
+	}
+
+	public String getArrayPV() {
+		return arrayPV;
+	}
+
+	public void setArrayPV(String arrayPV) {
+		this.arrayPV = arrayPV;
 	}
 }

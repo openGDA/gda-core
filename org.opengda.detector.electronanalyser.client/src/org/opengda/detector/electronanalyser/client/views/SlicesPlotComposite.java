@@ -19,7 +19,6 @@
 package org.opengda.detector.electronanalyser.client.views;
 
 import gda.epics.connection.EpicsController;
-import gda.factory.Finder;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Monitor;
@@ -43,6 +42,7 @@ import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -51,9 +51,9 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPart;
-import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
-import org.opengda.detector.electronanalyser.server.VGScientaController;
+import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,9 +62,11 @@ import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 public class SlicesPlotComposite extends Composite {
 
-	private static final Logger logger = LoggerFactory.getLogger(SlicesPlotComposite.class);
+	private static final Logger logger = LoggerFactory
+			.getLogger(SlicesPlotComposite.class);
 
-	private VGScientaAnalyser analyser;
+	private IVGScientaAnalyser analyser;
+	private String arrayPV;
 	private EpicsController controller = EpicsController.getInstance();
 
 	private static final String SLICE_PLOT = "Slice plot";
@@ -114,7 +116,8 @@ public class SlicesPlotComposite extends Composite {
 		lblSlice.setText("Slice:");
 		lblSlice.setBackground(ColorConstants.yellow);
 
-		final Spinner sliceControl = new Spinner(composite, SWT.BORDER | SWT.RIGHT);
+		final Spinner sliceControl = new Spinner(composite, SWT.BORDER
+				| SWT.RIGHT);
 		sliceControl.setBounds(20, 17, 44, 22);
 		sliceControl.setBackground(ColorConstants.white);
 		sliceControl.setMinimum(1);
@@ -124,46 +127,53 @@ public class SlicesPlotComposite extends Composite {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				selectedSlice=sliceControl.getSelection();
-				updateSlicesPlot(new NullProgressMonitor(), value, selectedSlice);
+				selectedSlice = sliceControl.getSelection();
+				updateSlicesPlot(new NullProgressMonitor(), value,
+						selectedSlice);
 			}
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-				selectedSlice=sliceControl.getSelection();
-				updateSlicesPlot(new NullProgressMonitor(), value, selectedSlice);
+				selectedSlice = sliceControl.getSelection();
+				updateSlicesPlot(new NullProgressMonitor(), value,
+						selectedSlice);
 			}
 		});
 
 		Composite plotComposite = new Composite(this, SWT.None);
 		plotComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
-		plotComposite.setLayout(new GridLayout(1, true));
+		plotComposite.setLayout(new FillLayout());
 
 		plottingSystem = PlottingFactory.createPlottingSystem();
-//		plottingSystem.createPlotPart(plotComposite, "Slices", part instanceof IViewPart ? ((IViewPart) part).getViewSite().getActionBars()
-//				: null, PlotType.XY_STACKED, part);
-		plottingSystem.createPlotPart(plotComposite, "Slices", null, PlotType.XY_STACKED, null);
+		plottingSystem.createPlotPart(plotComposite, "Slices",
+				part instanceof IViewPart ? ((IViewPart) part).getViewSite()
+						.getActionBars() : null, PlotType.XY_STACKED, part);
+		// plottingSystem.createPlotPart(plotComposite, "Slices", null,
+		// PlotType.XY_STACKED, null);
 
-		initialise();
+		// initialise();
 	}
-
-	private void initialise() {
-		if (getAnalyser() == null) {
-			// Analyser must be called 'analyser' in Spring configuration
-			setAnalyser((VGScientaAnalyser) (Finder.getInstance().find("analyser")));
+	/**
+	 * initialise object
+	 * 1. add monitor to data channel and 
+	 * 2. create and add a monitor listener to handle Monitor changed event.
+	 * This method must be called after the analyser object and data PV are set.
+	 */
+	public void initialise() {
+		if (getAnalyser() == null || getArrayPV()==null) {
+			throw new IllegalStateException("required parameters for 'analyser' and/or 'arrayPV' are missing.");
 		}
 		dataListener = new SlicesDataListener();
 		try {
 			addMonitors();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Slice Plot Composite cannot add monitor to its data channel.",e);
 		}
 		addMonitorListeners();
 	}
 
 	public void addMonitors() throws Exception {
-		dataChannel = getAnalyser().getController().getChannel(VGScientaController.IMAGEDATA);
+		dataChannel = controller.createChannel(arrayPV);
 		dataMonitor = controller.addMonitor(dataChannel);
 	}
 
@@ -190,7 +200,8 @@ public class SlicesPlotComposite extends Composite {
 		try {
 			removeMonitors();
 		} catch (CAException e) {
-			logger.error("Failed to remove monitors on Spectrum Plot dispose.", e);
+			logger.error("Failed to remove monitors on Spectrum Plot dispose.",
+					e);
 		}
 		dataChannel.dispose();
 		super.dispose();
@@ -211,8 +222,8 @@ public class SlicesPlotComposite extends Composite {
 
 	private double[] value;
 	private int selectedSlice;
-	private class SlicesDataListener implements MonitorListener {
 
+	private class SlicesDataListener implements MonitorListener {
 
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
@@ -228,7 +239,8 @@ public class SlicesPlotComposite extends Composite {
 				try {
 					updateSlicesPlot(monitor, value, selectedSlice);
 				} catch (Exception e) {
-					logger.error("exception caught preparing analyser live plot", e);
+					logger.error(
+							"exception caught preparing analyser live plot", e);
 				}
 			}
 		}
@@ -237,9 +249,8 @@ public class SlicesPlotComposite extends Composite {
 	private void updateSlicesPlot(final IProgressMonitor monitor,
 			final double[] value, final int slice) {
 		try {
-			int[] dims = new int[] {
-					getAnalyser().getNdArray().getPluginBase().getArraySize1_RBV(),
-					getAnalyser().getNdArray().getPluginBase().getArraySize0_RBV() };
+			int[] dims = new int[] { getAnalyser().getNdarrayYsize(),
+					getAnalyser().getNdarrayXsize() };
 			int arraysize = dims[0] * dims[1];
 			if (arraysize < 1) {
 				return;
@@ -250,12 +261,14 @@ public class SlicesPlotComposite extends Composite {
 			double[] xdata = getAnalyser().getEnergyAxis(); // TODO do this once
 															// per analyser
 															// region
-			final DoubleDataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
+			final DoubleDataset xAxis = new DoubleDataset(xdata,
+					new int[] { xdata.length });
 			xAxis.setName("energies (eV)");
 			final ArrayList<AbstractDataset> yaxes = new ArrayList<AbstractDataset>();
 
 			for (int i = 0; i < dims[0]; i++) {
-				AbstractDataset slice2 = ds.getSlice(new int[] { 0, i }, new int[] { dims[1], i }, new int[] {1, 1 });
+				AbstractDataset slice2 = ds.getSlice(new int[] { 0, i },
+						new int[] { dims[1], i }, new int[] { 1, 1 });
 				slice2.setName("Intensity (counts");
 				yaxes.add(slice2);
 			}
@@ -265,30 +278,44 @@ public class SlicesPlotComposite extends Composite {
 
 					@Override
 					public void run() {
-						final List<ITrace> profileLineTraces = plottingSystem.updatePlot1D(xAxis, yaxes, monitor);
+						final List<ITrace> profileLineTraces = plottingSystem
+								.updatePlot1D(xAxis, yaxes, monitor);
 
-						if (!profileLineTraces.isEmpty() && profileLineTraces.size()>slice) {
-							//Highlight selected slice in blue color
-							profileLineTrace = (ILineTrace) profileLineTraces.get(slice);
+						if (!profileLineTraces.isEmpty()
+								&& profileLineTraces.size() > slice) {
+							// Highlight selected slice in blue color
+							profileLineTrace = (ILineTrace) profileLineTraces
+									.get(slice);
 							profileLineTrace.setTraceColor(ColorConstants.blue);
 						}
 
 						plottingSystem.setTitle(SLICE_PLOT);
-						plottingSystem.getSelectedYAxis().setFormatPattern("######.#");
-						plottingSystem.getSelectedXAxis().setFormatPattern("#####.#");
+						plottingSystem.getSelectedYAxis().setFormatPattern(
+								"######.#");
+						plottingSystem.getSelectedXAxis().setFormatPattern(
+								"#####.#");
 					}
 				});
 			}
 		} catch (Exception e) {
-			logger.error("exception caught preparing analyser live image plot", e);
+			logger.error("exception caught preparing analyser live image plot",
+					e);
 		}
 	}
 
-	public VGScientaAnalyser getAnalyser() {
+	public IVGScientaAnalyser getAnalyser() {
 		return analyser;
 	}
 
-	public void setAnalyser(VGScientaAnalyser analyser) {
+	public void setAnalyser(IVGScientaAnalyser analyser) {
 		this.analyser = analyser;
+	}
+
+	public String getArrayPV() {
+		return arrayPV;
+	}
+
+	public void setArrayPV(String arrayPV) {
+		this.arrayPV = arrayPV;
 	}
 }

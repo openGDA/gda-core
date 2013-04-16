@@ -6,15 +6,15 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.opengda.detector.electronanalyser.client.views.ExternalIOView;
 import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
-import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ExternalIOViewFactory implements FindableExecutableExtension {
 	private static final Logger logger=LoggerFactory.getLogger(ExternalIOViewFactory.class);
 	private String viewPartName;
+	private String arrayPV;
 	private String name;
-	private VGScientaAnalyser analyser;
+	private IVGScientaAnalyser analyser;
 	@Override
 	public Object create() throws CoreException {
 		logger.info("Creating external IO plot view");
@@ -22,6 +22,9 @@ public class ExternalIOViewFactory implements FindableExecutableExtension {
 		externalIOView.setViewPartName(viewPartName);
 		if (analyser != null) {
 			externalIOView.setAnalyser(analyser);
+		}
+		if (arrayPV != null) {
+			externalIOView.setArrayPV(arrayPV);
 		}
 		
 		return externalIOView;
@@ -55,7 +58,7 @@ public class ExternalIOViewFactory implements FindableExecutableExtension {
 		return analyser;
 	}
 
-	public void setAnalyser(VGScientaAnalyser analyser) {
+	public void setAnalyser(IVGScientaAnalyser analyser) {
 		this.analyser = analyser;
 	}
 
@@ -65,6 +68,14 @@ public class ExternalIOViewFactory implements FindableExecutableExtension {
 
 	public void setViewPartName(String viewPartName) {
 		this.viewPartName = viewPartName;
+	}
+
+	public String getArrayPV() {
+		return arrayPV;
+	}
+
+	public void setArrayPV(String arrayPV) {
+		this.arrayPV = arrayPV;
 	}
 
 }

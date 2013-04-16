@@ -19,7 +19,6 @@
 package org.opengda.detector.electronanalyser.client.views;
 
 import gda.epics.connection.EpicsController;
-import gda.factory.Finder;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Monitor;
@@ -37,14 +36,14 @@ import org.dawb.common.ui.plot.PlottingFactory;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.draw2d.ColorConstants;
-import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPart;
-import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
-import org.opengda.detector.electronanalyser.server.VGScientaController;
+import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,15 +55,12 @@ import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
  */
 public class ImagePlotComposite extends Composite {
 
-	private FontRegistry fontRegistry;
-	private static final Logger logger = LoggerFactory.getLogger(ImagePlotComposite.class);
+	private static final Logger logger = LoggerFactory
+			.getLogger(ImagePlotComposite.class);
 
-	private VGScientaAnalyser analyser;
+	private IVGScientaAnalyser analyser;
+	private String arrayPV;
 	private EpicsController controller = EpicsController.getInstance();
-
-	private static final String BOLD_TEXT_11 = "bold-text_11";
-
-	private static final String BOLD_TEXT_9 = "bold-text_9";
 
 	private AbstractPlottingSystem plottingSystem;
 
@@ -91,20 +87,21 @@ public class ImagePlotComposite extends Composite {
 
 		Composite plotComposite = new Composite(this, SWT.None);
 		plotComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
-		plotComposite.setLayout(new GridLayout(1, true));
+		plotComposite.setLayout(new FillLayout());
 
 		plottingSystem = PlottingFactory.createPlottingSystem();
-//		plottingSystem.createPlotPart(plotComposite, "Image", part instanceof IViewPart ? ((IViewPart) part).getViewSite().getActionBars()
-//				: null, PlotType.XY_STACKED, part);
-		plottingSystem.createPlotPart(plotComposite, "Image", null, PlotType.XY_STACKED, part);
+		plottingSystem.createPlotPart(plotComposite, "Image",
+				part instanceof IViewPart ? ((IViewPart) part).getViewSite()
+						.getActionBars() : null, PlotType.XY_STACKED, part);
+		//		plottingSystem.createPlotPart(plotComposite, "Image", null,
+//				PlotType.XY_STACKED, part);
 
-		initialise();
+//		initialise();
 	}
 
-	private void initialise() {
+	public void initialise() {
 		if (getAnalyser() == null) {
-			// Analyser must be called 'analyser' in Spring configuration
-			setAnalyser((VGScientaAnalyser) (Finder.getInstance().find("analyser")));
+			throw new IllegalStateException("required parameters for 'analyser' and/or 'arrayPV' are missing.");
 		}
 		dataListener = new ImageDataListener();
 		try {
@@ -117,7 +114,7 @@ public class ImagePlotComposite extends Composite {
 	}
 
 	public void addMonitors() throws Exception {
-		dataChannel = getAnalyser().getController().getChannel(VGScientaController.IMAGEDATA);
+		dataChannel = controller.createChannel(arrayPV);
 		dataMonitor = controller.addMonitor(dataChannel);
 	}
 
@@ -144,7 +141,8 @@ public class ImagePlotComposite extends Composite {
 		try {
 			removeMonitors();
 		} catch (CAException e) {
-			logger.error("Failed to remove monitors on Spectrum Plot dispose.", e);
+			logger.error("Failed to remove monitors on Spectrum Plot dispose.",
+					e);
 		}
 		dataChannel.dispose();
 		super.dispose();
@@ -178,7 +176,8 @@ public class ImagePlotComposite extends Composite {
 				try {
 					updateImagePlot(monitor, value);
 				} catch (Exception e) {
-					logger.error("exception caught preparing analyser live plot", e);
+					logger.error(
+							"exception caught preparing analyser live plot", e);
 				}
 			}
 		}
@@ -187,9 +186,8 @@ public class ImagePlotComposite extends Composite {
 	private void updateImagePlot(final IProgressMonitor monitor,
 			final double[] value) {
 		try {
-			int[] dims = new int[] {
-					getAnalyser().getNdArray().getPluginBase().getArraySize1_RBV(),
-					getAnalyser().getNdArray().getPluginBase().getArraySize0_RBV() };
+			int[] dims = new int[] { getAnalyser().getNdarrayYsize(),
+					getAnalyser().getNdarrayXsize() };
 			int arraysize = dims[0] * dims[1];
 			if (arraysize < 1) {
 				return;
@@ -201,8 +199,10 @@ public class ImagePlotComposite extends Composite {
 															// per
 			// analyser region
 			double[] ydata = getAnalyser().getAngleAxis();
-			DoubleDataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
-			DoubleDataset yAxis = new DoubleDataset(ydata, new int[] { ydata.length });
+			DoubleDataset xAxis = new DoubleDataset(xdata,
+					new int[] { xdata.length });
+			DoubleDataset yAxis = new DoubleDataset(ydata,
+					new int[] { ydata.length });
 			xAxis.setName("energies (eV)");
 			if ("Transmission".equalsIgnoreCase(getAnalyser().getLensMode())) {
 				yAxis.setName("location (mm)");
@@ -222,15 +222,24 @@ public class ImagePlotComposite extends Composite {
 				});
 			}
 		} catch (Exception e) {
-			logger.error("exception caught preparing analyser live image plot", e);
+			logger.error("exception caught preparing analyser live image plot",
+					e);
 		}
 	}
 
-	public VGScientaAnalyser getAnalyser() {
+	public IVGScientaAnalyser getAnalyser() {
 		return analyser;
 	}
 
-	public void setAnalyser(VGScientaAnalyser analyser) {
+	public void setAnalyser(IVGScientaAnalyser analyser) {
 		this.analyser = analyser;
+	}
+
+	public String getArrayPV() {
+		return arrayPV;
+	}
+
+	public void setArrayPV(String arrayPV) {
+		this.arrayPV = arrayPV;
 	}
 }

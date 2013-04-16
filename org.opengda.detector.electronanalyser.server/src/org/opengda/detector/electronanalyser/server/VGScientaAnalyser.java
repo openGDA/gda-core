@@ -76,9 +76,6 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	@Override
 	public int getNumberOfSweeptSteps() throws Exception {
 		return controller.getTotalSteps();
-		// FIXME this is unreliable if not wrong
-		// return (int) Math.round((controller.getEndEnergy() -
-		// controller.getStartEnergy()) / controller.getEnergyStep());
 	}
 
 	/* (non-Javadoc)
@@ -494,5 +491,15 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	@Override
 	public void zeroSupplies() throws Exception {
 		controller.zeroSupplies();
+	}
+
+	@Override
+	public int getNdarrayXsize() throws Exception {
+		return getNdArray().getPluginBase().getArraySize0_RBV();
+	}
+
+	@Override
+	public int getNdarrayYsize() throws Exception {
+		return getNdArray().getPluginBase().getArraySize1_RBV();
 	}
 }

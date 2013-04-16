@@ -19,7 +19,6 @@
 package org.opengda.detector.electronanalyser.client.views;
 
 import gda.epics.connection.EpicsController;
-import gda.factory.Finder;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Monitor;
@@ -45,8 +44,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPart;
-import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
-import org.opengda.detector.electronanalyser.server.VGScientaController;
+import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +58,8 @@ public class ExtIOPlotComposite extends Composite {
 
 	private static final Logger logger = LoggerFactory.getLogger(ExtIOPlotComposite.class);
 
-	private VGScientaAnalyser analyser;
+	private IVGScientaAnalyser analyser;
+	private String arrayPV;
 	private EpicsController controller=EpicsController.getInstance();
 
 	private static final String EXTIO_PLOT = "External IO plot";
@@ -95,15 +94,13 @@ public class ExtIOPlotComposite extends Composite {
 
 		plottingSystem = PlottingFactory.createPlottingSystem();
 		plottingSystem.createPlotPart(plotComposite, "ExtIO", part instanceof IViewPart ? ((IViewPart) part).getViewSite().getActionBars()
-				: null, PlotType.XY_STACKED, null);
-//		: null, PlotType.XY_STACKED, part);
-		initialise();
+		: null, PlotType.XY_STACKED, part);
+//		initialise();
 	}
 
-	private void initialise() {
+	public void initialise() {
 		if (getAnalyser() == null) {
-			// Analyser must be called 'analyser' in Spring configuration
-			setAnalyser((VGScientaAnalyser) (Finder.getInstance().find("analyser")));
+			throw new IllegalStateException("required parameters for 'analyser' and/or 'arrayPV' are missing.");
 		}
 		dataListener = new ExtIODataListener();
 		try {
@@ -115,7 +112,7 @@ public class ExtIOPlotComposite extends Composite {
 	}
 
 	public void addMonitors() throws Exception {
-		dataChannel = getAnalyser().getController().getChannel(VGScientaController.EXTIODATA);
+		dataChannel = controller.createChannel(arrayPV);
 		dataMonitor = controller.addMonitor(dataChannel);
 	}
 
@@ -212,11 +209,19 @@ public class ExtIOPlotComposite extends Composite {
 		}
 	}
 
-	public VGScientaAnalyser getAnalyser() {
+	public IVGScientaAnalyser getAnalyser() {
 		return analyser;
 	}
 
-	public void setAnalyser(VGScientaAnalyser analyser) {
+	public void setAnalyser(IVGScientaAnalyser analyser) {
 		this.analyser = analyser;
+	}
+
+	public String getArrayPV() {
+		return arrayPV;
+	}
+
+	public void setArrayPV(String arrayPV) {
+		this.arrayPV = arrayPV;
 	}
 }

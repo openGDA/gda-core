@@ -2,9 +2,13 @@ package org.opengda.detector.electronanalyser.server;
 
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase.ImageMode;
+import gda.factory.Findable;
 
-public interface IVGScientaAnalyser {
+public interface IVGScientaAnalyser extends Findable {
+	public abstract int getNdarrayXsize() throws Exception;
 
+	public abstract int getNdarrayYsize() throws Exception;
+	
 	public abstract AnalyserCapabilities getCapabilities();
 
 	public abstract void setCapabilities(AnalyserCapabilities ac);
