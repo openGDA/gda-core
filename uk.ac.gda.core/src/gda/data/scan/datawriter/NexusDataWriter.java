@@ -25,6 +25,7 @@ import gda.data.PathConstructor;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.IMetadataEntry;
 import gda.data.metadata.Metadata;
+import gda.data.metadata.NXMetaDataProvider;
 import gda.data.nexus.INeXusInfoWriteable;
 import gda.data.nexus.NeXusUtils;
 import gda.data.nexus.NexusFileFactory;
@@ -38,6 +39,7 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.NexusDetector;
 import gda.device.scannable.ScannableUtils;
+import gda.factory.Finder;
 import gda.scan.IScanDataPoint;
 
 import java.io.File;
@@ -70,6 +72,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	 * Property to control the file format. Defaults to {@link NexusGlobals#GDA_NX_DEFAULT}
 	 */
 	public static final String GDA_DATA_NEXUS_BACKEND = "gda.data.nexus.backend";
+	
+	public static final String GDA_NEXUS_METADATAPROVIDER_NAME = "gda.nexus.metadata.provider.name";
 
 	/**
 	 * Property specifying whether SRS data files should be written in addition to NeXus files. Default is {@code true}.
@@ -218,6 +222,10 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		// Check to see if we want to create a text/SRS file as well.
 		createSrsFile = LocalProperties.check(GDA_NEXUS_CREATE_SRS, true);
 
+		String metaDataProviderName = LocalProperties.get(GDA_NEXUS_METADATAPROVIDER_NAME);
+		if( metaDataProviderName != null){
+			metaDataProvider = Finder.getInstance().find(metaDataProviderName);
+		}
 		setupPropertiesDone = true;
 
 	}
@@ -331,6 +339,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	 * for the first which is NexusFile.NX_UNLIMITED;
 	 */
 	int[] dataDimPrefix;
+
+	private NXMetaDataProvider metaDataProvider;
 
 	@Override
 	public void addData(IScanDataPoint dataPoint) throws Exception {
@@ -774,9 +784,13 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	 * 
 	 * @throws NexusException
 	 */
-	@SuppressWarnings("unused")
 	// allow inheriting classes to throw this exception
 	protected void createCustomMetaData() throws NexusException {
+		
+		if( metaDataProvider != null ){
+			INexusTree nexusTree = metaDataProvider.getAtScanStartNexusTree();
+			writeHere(file, nexusTree, true, false, null);
+		}
 	}
 
 	private String getGroupNameFor(@SuppressWarnings("unused") Scannable s) {
@@ -956,14 +970,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 				if (det.getNxClass().equals(NexusExtractor.NXDetectorClassName)) {
 					makeGenericDetector(det.getName(), null, 0, detector, det);
 				} else if (det.getNxClass().equals(NexusExtractor.NXMonitorClassName)) {
-					// FIXME -- if this doesn't explode I am truly surprised
-					file.opengroup(this.entryName, NexusExtractor.NXEntryClassName);
-					try {
-						writeHere(file, det, firstData, false, null);
-					} finally {
-						file.closegroup();
-					}
-				} else if (det.getNxClass().equals("NXCollection")) {
 					// FIXME -- if this doesn't explode I am truly surprised
 					file.opengroup(this.entryName, NexusExtractor.NXEntryClassName);
 					try {

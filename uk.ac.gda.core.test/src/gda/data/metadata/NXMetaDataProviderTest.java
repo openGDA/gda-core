@@ -22,10 +22,10 @@ import gda.TestHelpers;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
+import gda.device.Scannable;
 import gda.device.detector.NXDetector;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
-import gda.device.detector.nxdata.NXDetectorDataChildNodeAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
 import gda.device.detector.nxdetector.NXPlugin;
 import gda.device.detector.nxdetector.plugin.NXDetectorMetadataPlugin;
@@ -37,12 +37,36 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Random;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 public class NXMetaDataProviderTest {
-
+	Random rand;
+	
+	@Before
+	public void setUp() {
+		this.rand = new Random();
+	}
+	
+	private NXMetaDataProvider createNXMetaDataProvider(int numEntries, String entryKeyRoot, String entryValueRoot){
+		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
+		
+		if (numEntries > 1){
+			for(int i=0; i<numEntries; i++){
+				String currIdx = Integer.toString(i);
+				String currEntryKey = entryKeyRoot+"_"+currIdx;
+				String currEntryValue = entryValueRoot+"_"+currIdx;
+				metaDataProvider.add(currEntryKey, currEntryValue);
+			}
+		}else{
+			metaDataProvider.add(entryKeyRoot, entryValueRoot);
+		}
+		return metaDataProvider;
+	}
+	
 	@Test
 	public void testInScan() throws InterruptedException, Exception {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testInScan", true);
@@ -52,8 +76,29 @@ public class NXMetaDataProviderTest {
 		d.setName("det");
 		d.setCollectionStrategy(new NullNXCollectionStrategy("test"));
 //		d.setAppendToNXDetectorData(false);
-		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
-		metaDataProvider.add("key","value");
+		NXMetaDataProvider metaDataProvider = createNXMetaDataProvider(4, "key", "value");
+		metaDataProvider.setName("metashop");
+//		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
+//		
+//		String elementKey = "key";
+//		String elementValue = "value";
+//		int numElements = 3;
+//		if (numElements > 1){
+//			for(int i=0; i<numElements; i++){
+//				String elmIdx = Integer.toString(i);
+//				String elmKey = elementKey+"_"+elmIdx;
+//				String elmValue = elementValue+"_"+elmIdx;
+//				metaDataProvider.add(elmKey,elmValue);
+//			}
+//		}else{
+//			metaDataProvider.add(elementKey,elementValue);
+//		}
+		//metaDataProvider.add("key","value");
+		
+		Scannable splScn1 = TestHelpers.createTestScannable("SimpleScannable1", 13., new String[] {},
+				new String[] { "simpleScannable1" }, 0, new String[] { "%5.2g" }, new String[] { "\u212B" }); // Angstrom
+		
+		metaDataProvider.add(splScn1);
 
 		d.setAdditionalPluginList(Arrays.asList(new NXPlugin[]{ new  NXDetectorMetadataPlugin2(metaDataProvider)}));
 		d.configure();
@@ -71,43 +116,72 @@ public class NXMetaDataProviderTest {
 		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testList", true);
 		NXMetaDataProvider metaDataProvider = new NXMetaDataProvider();
 		metaDataProvider.add("key","value");
+		metaDataProvider.add("key","value1");
+		metaDataProvider.add("key1","value");
+		metaDataProvider.add("key1","value1");
 		
-		Assert.assertEquals(",key:value", metaDataProvider.listAsString());
+		Scannable splScn1 = TestHelpers.createTestScannable("SimpleScannable1", 13., new String[] {},
+				new String[] { "simpleScannable1" }, 0, new String[] { "%5.2g" }, new String[] { "\u212B" }); // Angstrom
+		
+		metaDataProvider.add(splScn1);
+		
+		
+		//Assert.assertEquals(",key:value", metaDataProvider.listAsString());
+		String fmt = "%s:%s";
+		String delimiter = ",";
+		String expected = metaDataProvider.concatenateKeyAndValueForListAsString(fmt, delimiter);
+		Assert.assertEquals(expected, metaDataProvider.listAsString(fmt, delimiter));
 	}
 	
-}
-class NXDetectorMetadataPlugin2 extends NXDetectorMetadataPlugin{
-
-	public NXDetectorMetadataPlugin2(NexusTreeProvider metaDataProvider) {
-		super(metaDataProvider);
-		// TODO Auto-generated constructor stub
-	}
-	@Override
-	public List<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
-			DeviceException {
-		List<NXDetectorDataAppender> appenders = new ArrayList<NXDetectorDataAppender>();
-		if (firstReadoutInScan) {
-			INexusTree treeToAppend = getMetaDataProvider().getNexusTree();
-			appenders.add(new NXDetectorDataChildNodeAppender1(treeToAppend));
-		} else {
-			appenders.add(new NXDetectorDataNullAppender());
-		}
-		firstReadoutInScan = false;
-		return appenders;
-	}	
-}
-
-class NXDetectorDataChildNodeAppender1 implements NXDetectorDataAppender {
-
-	private final INexusTree treeToAppend;
-	
-	public NXDetectorDataChildNodeAppender1(INexusTree treeToAppend) {
-		this.treeToAppend = treeToAppend;
+	@Test
+	public void testAdd() throws InterruptedException, Exception {
+		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testAdd", true);
+		NXMetaDataProvider metaDataProvider = createNXMetaDataProvider(4, "key", "value");
+		//Random rand = new Random();
+		int randomIntForTestKey = rand.nextInt(181081);
+		String randomPostfixForTestKey = Integer.toString(randomIntForTestKey);
+		String addedKey = "last_added_key" + "_" + randomPostfixForTestKey;
+		String addedValue = "value_mapped_to_" + addedKey;
+		System.out.println("***addedKey = " +addedKey);
+		System.out.println("***addedValue = " +addedValue);
 		
+		// test before adding
+		boolean doesContainAddedKey_before = metaDataProvider.containsKey(addedKey);
+		Assert.assertEquals(false, doesContainAddedKey_before);
+		
+		// add
+		metaDataProvider.add(addedKey, addedValue); 
+		
+		// test after adding
+		boolean doesContainAddedKey_after = metaDataProvider.containsKey(addedKey);
+		Assert.assertEquals(true, doesContainAddedKey_after);
+		
+		String valueMappedToAddedKey = metaDataProvider.get(addedKey);
+		Assert.assertEquals(addedValue, valueMappedToAddedKey);
 	}
-	@Override
-	public void appendTo(NXDetectorData data, String detectorName) {
-		data.getNexusTree().addChildNode(treeToAppend);
+	
+	@Test
+	public void testRemove() throws InterruptedException, Exception {
+		TestHelpers.setUpTest(NXMetaDataProviderTest.class, "testRemove", true);
+		NXMetaDataProvider metaDataProvider = createNXMetaDataProvider(4, "key", "value");
+		//Random rand = new Random();
+		int randomIntForTestKey = rand.nextInt(181081);
+		String randomPostfixForTestKey = Integer.toString(randomIntForTestKey);
+		String removedKey = "removed_key" + "_" + randomPostfixForTestKey;
+		String removedValue = "value_mapped_to_" + removedKey;
+		System.out.println("***removedKey = " +removedKey);
+		System.out.println("***removedValue = " +removedValue);
+		
+		// first add 
+		metaDataProvider.add(removedKey, removedValue);
+		
+		// then remove 
+		metaDataProvider.remove(removedKey);
+		
+		// test
+		boolean doesContainRemovedKey = metaDataProvider.containsKey(removedKey);
+		Assert.assertEquals(false, doesContainRemovedKey);
 	}
-
 }
+
+
