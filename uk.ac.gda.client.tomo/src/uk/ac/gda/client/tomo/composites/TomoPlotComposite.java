@@ -405,9 +405,6 @@ public class TomoPlotComposite extends Composite {
 			timeSinceLastUpdate = currentTimeMillis;
 			final ArrayList<AbstractDataset> plotDataSets = new ArrayList<AbstractDataset>();
 
-			// DoubleDataset axis = DoubleDataset.arange(xStart, xEnd, 1);
-			final DoubleDataset axis = DoubleDataset.arange(4008);
-
 			if (rawImgDs != null) {
 				rawDataSlice = rawImgDs.getSlice(new int[] { y - 1, 0 }, new int[] { y, 4008 }, new int[] { 1, 1 });
 				rawDataSlice.squeeze();
@@ -424,7 +421,7 @@ public class TomoPlotComposite extends Composite {
 				getDisplay().syncExec(new Runnable() {
 					@Override
 					public void run() {
-						final List<ITrace> profileLineTraces = plottingSystem.updatePlot1D(axis, plotDataSets, monitor);
+						final List<ITrace> profileLineTraces = plottingSystem.updatePlot1D(null, plotDataSets, monitor);
 
 						if (!profileLineTraces.isEmpty()) {
 							profileLineTrace = (ILineTrace) profileLineTraces.get(0);

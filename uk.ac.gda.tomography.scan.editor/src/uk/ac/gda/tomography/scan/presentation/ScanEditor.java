@@ -966,7 +966,8 @@ public class ScanEditor extends MultiPageEditorPart implements
 		if (!getEditingDomain().getResourceSet().getResources().isEmpty()) {
 			//
 			{
-				ParametersComposite composite = new ParametersComposite(getContainer());
+				ParametersComposite composite = new ParametersComposite(
+						getContainer());
 				composite.setInput(editingDomain);
 				int pageIndex = addPage(composite);
 				setPageText(pageIndex,
@@ -979,7 +980,6 @@ public class ScanEditor extends MultiPageEditorPart implements
 			});
 		}
 
-		
 		// Ensures that this editor will only display the page's tab
 		// area if there are more than one page
 		//

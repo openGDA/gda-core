@@ -35,6 +35,7 @@ import uk.ac.gda.tomography.scan.ScanPackage;
  *   <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getImagesPerFlat <em>Images Per Flat</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getMinI <em>Min I</em>}</li>
  *   <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#getTitle <em>Title</em>}</li>
+ *   <li>{@link uk.ac.gda.tomography.scan.impl.ParametersImpl#isFlyScan <em>Fly Scan</em>}</li>
  * </ul>
  * </p>
  *
@@ -280,6 +281,26 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	 * @ordered
 	 */
 	protected String title = TITLE_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #isFlyScan() <em>Fly Scan</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isFlyScan()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final boolean FLY_SCAN_EDEFAULT = false;
+
+	/**
+	 * The cached value of the '{@link #isFlyScan() <em>Fly Scan</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isFlyScan()
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean flyScan = FLY_SCAN_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -576,6 +597,28 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public boolean isFlyScan() {
+		return flyScan;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setFlyScan(boolean newFlyScan) {
+		boolean oldFlyScan = flyScan;
+		flyScan = newFlyScan;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET,
+					ScanPackage.PARAMETERS__FLY_SCAN, oldFlyScan, flyScan));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
@@ -603,6 +646,8 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 			return getMinI();
 		case ScanPackage.PARAMETERS__TITLE:
 			return getTitle();
+		case ScanPackage.PARAMETERS__FLY_SCAN:
+			return isFlyScan();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -650,6 +695,9 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 			return;
 		case ScanPackage.PARAMETERS__TITLE:
 			setTitle((String) newValue);
+			return;
+		case ScanPackage.PARAMETERS__FLY_SCAN:
+			setFlyScan((Boolean) newValue);
 			return;
 		}
 		super.eSet(featureID, newValue);
@@ -699,6 +747,9 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 		case ScanPackage.PARAMETERS__TITLE:
 			setTitle(TITLE_EDEFAULT);
 			return;
+		case ScanPackage.PARAMETERS__FLY_SCAN:
+			setFlyScan(FLY_SCAN_EDEFAULT);
+			return;
 		}
 		super.eUnset(featureID);
 	}
@@ -736,6 +787,8 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 		case ScanPackage.PARAMETERS__TITLE:
 			return TITLE_EDEFAULT == null ? title != null : !TITLE_EDEFAULT
 					.equals(title);
+		case ScanPackage.PARAMETERS__FLY_SCAN:
+			return flyScan != FLY_SCAN_EDEFAULT;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -775,6 +828,8 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 		result.append(minI);
 		result.append(", title: "); //$NON-NLS-1$
 		result.append(title);
+		result.append(", flyScan: "); //$NON-NLS-1$
+		result.append(flyScan);
 		result.append(')');
 		return result.toString();
 	}

@@ -178,13 +178,22 @@ public interface ScanPackage extends EPackage {
 	int PARAMETERS__TITLE = 11;
 
 	/**
+	 * The feature id for the '<em><b>Fly Scan</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int PARAMETERS__FLY_SCAN = 12;
+
+	/**
 	 * The number of structural features of the '<em>Parameters</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int PARAMETERS_FEATURE_COUNT = 12;
+	int PARAMETERS_FEATURE_COUNT = 13;
 
 	/**
 	 * Returns the meta object for class '{@link uk.ac.gda.tomography.scan.Parameters <em>Parameters</em>}'.
@@ -329,6 +338,17 @@ public interface ScanPackage extends EPackage {
 	EAttribute getParameters_Title();
 
 	/**
+	 * Returns the meta object for the attribute '{@link uk.ac.gda.tomography.scan.Parameters#isFlyScan <em>Fly Scan</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Fly Scan</em>'.
+	 * @see uk.ac.gda.tomography.scan.Parameters#isFlyScan()
+	 * @see #getParameters()
+	 * @generated
+	 */
+	EAttribute getParameters_FlyScan();
+
+	/**
 	 * Returns the factory that creates the instances of the model.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -462,6 +482,14 @@ public interface ScanPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute PARAMETERS__TITLE = eINSTANCE.getParameters_Title();
+
+		/**
+		 * The meta object literal for the '<em><b>Fly Scan</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute PARAMETERS__FLY_SCAN = eINSTANCE.getParameters_FlyScan();
 
 	}
 

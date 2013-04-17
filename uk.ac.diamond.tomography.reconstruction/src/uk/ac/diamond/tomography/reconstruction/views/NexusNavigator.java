@@ -50,6 +50,8 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.navigator.CommonNavigator;
 import org.eclipse.ui.progress.WorkbenchJob;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.tomography.reconstruction.Activator;
 import uk.ac.diamond.tomography.reconstruction.ImageConstants;
@@ -64,7 +66,7 @@ public class NexusNavigator extends CommonNavigator {
 
 	private static final long SOFT_MAX_EXPAND_TIME = 200;
 
-
+	private static final Logger logger = LoggerFactory.getLogger(NexusNavigator.class);
 	private Text filterText;
 
 	/**

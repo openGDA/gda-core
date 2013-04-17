@@ -24,6 +24,7 @@ import gda.commandqueue.QueuedCommandSummary;
 import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
+import gda.util.Sleep;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -692,7 +693,7 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 				}
 
 			} else if (e.getSource().equals(btnStopTomoRuns)) {
-				if (JythonServerFacade.getInstance().getScanStatus() == Jython.RUNNING) {
+				if (isScanOrScriptIsRunning()) {
 					boolean openConfirm = MessageDialog.openConfirm(getSite().getShell(), SCAN_STOP_TITLE,
 							SCAN_STOP_MSG);
 					if (openConfirm) {
@@ -715,6 +716,11 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 						} catch (Exception e1) {
 							logger.error("Problem stopping Tomography Runs", e1);
 						}
+
+						// This is an annoying usage of sleep, however, the command queue doesn't seem to be sychronous
+						// in executing its commands. I found no better way to get the command queue to go into a paused
+						// state rather than a empty queue state after stopping the queue.
+						Sleep.sleep(2000);
 						CommandExecutor.executeCommand(getViewSite(),
 								CommandQueueContributionFactory.UK_AC_GDA_CLIENT_START_COMMAND_QUEUE);
 					}
@@ -722,6 +728,11 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 					MessageDialog.openInformation(getSite().getShell(), NO_SCAN_RUNNING_TITLE, NO_SCAN_RUNNING_MSG);
 				}
 			}
+		}
+
+		private boolean isScanOrScriptIsRunning() {
+			return JythonServerFacade.getInstance().getScanStatus() == Jython.RUNNING
+					|| JythonServerFacade.getInstance().getScriptStatus() == Jython.RUNNING;
 		}
 	};
 

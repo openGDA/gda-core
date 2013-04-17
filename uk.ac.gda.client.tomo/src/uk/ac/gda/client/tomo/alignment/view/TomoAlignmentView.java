@@ -323,16 +323,27 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 				@Override
 				public void run() {
 					// Check if there is already an existing image in the imageviewer
-					try {
-						imgViewer.loadMainImage(image);
+					if (image != null && (fullImgReceiverStarted || zoomReceiverStarted)) {
+						try {
+							imgViewer.loadMainImage(image);
 
-						//
-						if (ZOOM_LEVEL.NO_ZOOM.equals(leftPanelComposite.getSelectedZoomLevel())) {
-							page_nonProfile_streamZoom.clearZoomWindow();
+							//
+							if (ZOOM_LEVEL.NO_ZOOM.equals(leftPanelComposite.getSelectedZoomLevel())) {
+								page_nonProfile_streamZoom.clearZoomWindow();
+							}
+						} catch (Exception ex) {
+							logger.error("Error loading image :{}", ex);
+							loadErrorInDisplay("Error loading image", ex.getMessage());
 						}
-					} catch (Exception ex) {
-						logger.error("Error loading image :{}", ex);
-						loadErrorInDisplay("Error loading image", ex.getMessage());
+					} else {
+						try {
+							imgViewer.loadMainImage(null);
+							page_nonProfile_streamZoom.clearZoomWindow();
+						} catch (Exception ex) {
+							logger.error("Error loading image :{}", ex);
+							loadErrorInDisplay("Error loading image", ex.getMessage());
+						}
+
 					}
 				}
 			});
@@ -675,7 +686,7 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 
 		lblExpTime = toolkit.createLabel(exposureTimeComposite, "", SWT.LEFT);
 		lblExpTime.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		
+
 		lblLeftWindowInfoNumPixels = toolkit.createLabel(infoViewerComposite, DEFAULT_LEFT_WINDOW_INFO_SIZE, SWT.LEFT);
 		lblLeftWindowInfoNumPixels.setFont(fontRegistry.get(BOLD_TEXT_11));
 		lblLeftWindowInfoNumPixels.setLayoutData(new GridData());
@@ -1200,9 +1211,12 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 			if (leftWindowDisplayMode == ViewerDisplayMode.STREAM_STOPPED) {
 				loadImageInUIThread(leftWindowImageViewer, null);
 				leftPanelComposite.switchOffCrosshair();
+				leftPanelComposite.setZoom(ZOOM_LEVEL.NO_ZOOM);
 				lblPixelX.setText(EMPTY_STRING_VALUE);
 				lblPixelY.setText(EMPTY_STRING_VALUE);
 				lblPixelIntensityVal.setText(EMPTY_STRING_VALUE);
+				// Stop the histogram
+				leftPanelComposite.stopHistogram();
 			}
 		}
 	}
@@ -1399,7 +1413,7 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 		page_nonProfile_streamZoom.clearZoomWindow();
 	}
 
-	private void setLeftWindowDisplayMode(ViewerDisplayMode viewerDisplayMode) {
+	private synchronized void setLeftWindowDisplayMode(ViewerDisplayMode viewerDisplayMode) {
 		leftWindowDisplayMode = viewerDisplayMode;
 	}
 
@@ -1735,7 +1749,6 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 		return IOC_RUNNING_CONTEXT;
 	}
 
-
 	@Override
 	public void updateExposureTimeToWidget(final double acqExposure) {
 		if (lblExpTime != null && !lblExpTime.isDisposed()) {
@@ -1750,4 +1763,3 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 	}
 
 }
-

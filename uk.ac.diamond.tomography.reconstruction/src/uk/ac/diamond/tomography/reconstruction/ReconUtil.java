@@ -28,9 +28,6 @@ import org.eclipse.core.runtime.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.io.DataHolder;
-import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
-
 /**
  *
  */
@@ -40,11 +37,10 @@ public class ReconUtil {
 			+ PROCESSING_DIR_RELATIVE_TO_VISIT_DIR + "/sino/";
 	private static final String RECON_OUTDIR_RELATIVE_TO_VISIT_DIR = IPath.SEPARATOR
 			+ PROCESSING_DIR_RELATIVE_TO_VISIT_DIR + "/reconstruction/";
-	private static final String NXS_PATH_TO_BEAMLINE_NAME = "/entry1/instrument/name";
 	private static final String NXS_FILE_EXTN = "nxs";
 	private static final Logger logger = LoggerFactory.getLogger(ReconUtil.class);
-	
-	public static String RECONSTRUCTED_IMAGE_FILE_FORMAT="recon_%05d.tif";
+
+	public static String RECONSTRUCTED_IMAGE_FILE_FORMAT = "recon_%05d.tif";
 
 	public static File getReconOutDir(String nexusFileLocation) {
 		String parentPath = getVisitDirectory(nexusFileLocation);
@@ -53,13 +49,13 @@ public class ReconUtil {
 	}
 
 	/**
-	 * @param nexuFileLocation
+	 * @param nexusFileLocation
 	 *            - should be the full path of the form "/dls/ixx/data/yyyy/cmxxxxx/yyyy/yyy"
 	 * @return the visit directory
 	 */
-	public static String getVisitDirectory(String nexuFileLocation) {
+	public static String getVisitDirectory(String nexusFileLocation) {
 		// the path is expected to be of the form /dls/ixx/data/yyyy/cmxxxxx/yyyy/yyy
-		Path nexusFilePath = new Path(nexuFileLocation);
+		Path nexusFilePath = new Path(nexusFileLocation);
 
 		int segmentCount = nexusFilePath.segmentCount();
 		String visitDir = null;
@@ -67,7 +63,7 @@ public class ReconUtil {
 			IPath visitDirectoryPath = nexusFilePath.removeLastSegments(segmentCount - 5);
 			visitDir = visitDirectoryPath.toOSString();
 		} else {
-			throw new IllegalArgumentException("Unable to get visit directory from nexus file");
+			throw new IllegalArgumentException("Unable to get visit directory from nexus file:" + nexusFilePath);
 		}
 		return visitDir;
 	}
@@ -97,15 +93,15 @@ public class ReconUtil {
 	public static File getReducedNexusFile(String nexusFileLocation) {
 		String nexusFileName = new Path(nexusFileLocation).lastSegment();
 		IPath nxsFileWithoutExtnPath = new Path(nexusFileName).removeFileExtension();
-//		HDF5Loader hdf5Loader = new HDF5Loader(nexusFileLocation);
-//		DataHolder loadFile;
-//		String beamlineName = null;
-//		try {
-//			loadFile = hdf5Loader.loadFile();
-//			beamlineName = loadFile.getDataset(NXS_PATH_TO_BEAMLINE_NAME).getStringAbs(0);
-//		} catch (Exception ex) {
-//			logger.error("Problem getting beamline name", ex);
-//		}
+		// HDF5Loader hdf5Loader = new HDF5Loader(nexusFileLocation);
+		// DataHolder loadFile;
+		// String beamlineName = null;
+		// try {
+		// loadFile = hdf5Loader.loadFile();
+		// beamlineName = loadFile.getDataset(NXS_PATH_TO_BEAMLINE_NAME).getStringAbs(0);
+		// } catch (Exception ex) {
+		// logger.error("Problem getting beamline name", ex);
+		// }
 		String nxsFileWithoutExtn = nxsFileWithoutExtnPath.toString();
 		String visitDirectory = getVisitDirectory(nexusFileLocation);
 		return new File(String.format("%s/tmp/reduced/%s.nxs", visitDirectory, nxsFileWithoutExtn));
@@ -119,5 +115,12 @@ public class ReconUtil {
 		// File pathToRecon = ReconUtil.getPathToWriteTo(nexusFileLocation);
 		File pathToImages = new File(String.format("%s_data_quick", reducedNxsFileName));
 		return pathToImages.toString();
+	}
+
+	public static String getCentreOfRotationDirectory(String nexusFullPath) {
+		String visitDirectory = getVisitDirectory(nexusFullPath);
+		String nexusFileName = new Path(nexusFullPath).lastSegment();
+		IPath nxsFileWithoutExtnPath = new Path(nexusFileName).removeFileExtension();
+		return String.format("%s/tmp/reduced/centerofrotation/%s/", visitDirectory, nxsFileWithoutExtnPath.toString());
 	}
 }

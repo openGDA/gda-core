@@ -19,6 +19,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -63,6 +64,7 @@ public class ParametersComposite extends Composite {
 	private Text inBeamX;
 	private Text outBeamX;
 	private Text minI;
+	private Button flyscan;
 
 	public ParametersComposite(Composite parent) {
 		super(parent, SWT.NONE);
@@ -168,10 +170,20 @@ public class ParametersComposite extends Composite {
 		step = new Text(rotationAngleGroup, SWT.BORDER);
 		step.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
+		
+		flyscan = new Button(this, SWT.CHECK);
+		FormData fd_flyscan = new FormData();
+		fd_flyscan.top = new FormAttachment(rotationAngleGroup);
+		fd_flyscan.right = new FormAttachment(100);
+		fd_flyscan.left = new FormAttachment(0);
+		flyscan.setLayoutData(fd_flyscan);
+		flyscan.setText("Fly Scan");
+		flyscan.setToolTipText("The scan can be performe as a step scan or flyscan");
+		
 		Group grpDarksFlats = new Group(this, SWT.NONE);
 		grpDarksFlats.setLayout(new GridLayout(2, false));
 		FormData fd_grpDarksFlats = new FormData();
-		fd_grpDarksFlats.top = new FormAttachment(rotationAngleGroup);
+		fd_grpDarksFlats.top = new FormAttachment(flyscan);
 		fd_grpDarksFlats.right = new FormAttachment(100);
 		fd_grpDarksFlats.left = new FormAttachment(0);
 		grpDarksFlats.setLayoutData(fd_grpDarksFlats);
@@ -222,6 +234,8 @@ public class ParametersComposite extends Composite {
 		addTextToDoubleListeners(stop, ScanPackage.eINSTANCE.getParameters_Stop());
 		addTextToDoubleListeners(step, ScanPackage.eINSTANCE.getParameters_Step());
 		
+		addButtonSelectionListeners(flyscan, ScanPackage.eINSTANCE.getParameters_FlyScan());		
+		
 		addDisposeListener(new DisposeListener() {
 			
 			@Override
@@ -239,7 +253,24 @@ public class ParametersComposite extends Composite {
 		});
 	}
 	
+	private void addButtonSelectionListeners(final Button btn, final EAttribute eAttribute) {
+		btn.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				addModelUpdateCommand(eAttribute,btn.getSelection());
+			}
+		});
+		
+		btn.addFocusListener(new FocusAdapter() {
+			
+			@Override
+			public void focusLost(FocusEvent e) {
+				addModelUpdateCommand(eAttribute,btn.getSelection());
+			}
+		});
+	}
 
+	
 	private void addTextToDoubleListeners(final Text text, final EAttribute eAttribute) {
 		text.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -325,6 +356,8 @@ public class ParametersComposite extends Composite {
 		imagesPerFlat.setText(Integer.toString(x.getImagesPerFlat()));
 		flatFieldInterval.setText(Integer.toString(x.getFlatFieldInterval()));
 		
+		flyscan.setSelection(x.isFlyScan());
+		
 		adapter = new EContentAdapter() {
 
 			@Override
@@ -359,6 +392,8 @@ public class ParametersComposite extends Composite {
 							imagesPerFlat.setText(Integer.toString(parameters.getImagesPerFlat()));
 						} else if( feature.equals(ScanPackage.eINSTANCE.getParameters_FlatFieldInterval())){
 							flatFieldInterval.setText(Integer.toString(parameters.getFlatFieldInterval()));
+						} else if( feature.equals(ScanPackage.eINSTANCE.getParameters_FlyScan())){
+							flyscan.setSelection(parameters.isFlyScan());
 						}
 					}
 						
