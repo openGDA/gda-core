@@ -25,6 +25,7 @@ import gda.plots.ScanPair;
 import gda.plots.Type;
 import gda.plots.UpdatePlotQueue;
 import gda.plots.XYDataHandler;
+import gda.rcp.GDAClientActivator;
 import gda.scan.IScanDataPoint;
 import gda.util.FileUtil;
 
@@ -38,7 +39,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
@@ -63,6 +63,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
@@ -95,6 +96,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotAppearanceDialog;
 import uk.ac.gda.client.LineAppearanceProvider;
 import uk.ac.gda.common.rcp.util.GridUtils;
+import uk.ac.gda.preferences.PreferenceConstants;
 /**
  * Composite for displaying XY data from ScanDataPoints.
  * 
@@ -505,6 +507,11 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 			}
 		};
 		plottingSystem.addPositionListener(plottingSystemPositionListener);		
+		
+		IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
+		int plotPeriodMS = preferenceStore.getInt(PreferenceConstants.GDA_CLIENT_PLOT_PERIOD_MS);
+		updateQueue.setPlotPeriodMS(plotPeriodMS);
+		
 	}
 
 	void saveState(IMemento memento, String archiveFolder) {

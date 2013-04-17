@@ -46,6 +46,11 @@ public class PreferenceConstants {
 	public static final String GDA_CLIENT_PLOT_LINEWIDTH  = "gda.client.plot.linewidth";
 
 	/**
+	 * Integer value for min. scan plot update period in ms. Default=500;
+	 */
+	public static final String GDA_CLIENT_PLOT_PERIOD_MS  = "gda.client.plot.period.ms";
+
+	/**
 	 * Boolean value to control whether XYPlotView hides previous scan when displaying new scan. Default is True
 	 */
 	public static final String GDA_CLIENT_PLOT_AUTOHIDE_LAST_SCAN  = "gda.client.plot.autohide.lastscan";
