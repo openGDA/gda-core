@@ -66,9 +66,6 @@
       </category>
    </extension>
    <extension
-         point="org.eclipse.emf.transaction.editingDomains">
-   </extension>
-   <extension
          point="org.eclipse.ui.commands">
       <command
             id="org.opengda.detector.electronanalyser.client.newsequence"
@@ -367,7 +364,9 @@
          point="org.eclipse.ui.navigator.navigatorContent">
       <actionProvider
             class="org.opengda.detector.electronanalyser.client.actions.OpenSequenceActionProvider"
-            id="org.opengda.detector.electronanalyser.client.actions.OpenSequenceActionProvider">
+            id="org.opengda.detector.electronanalyser.client.actions.OpenSequenceActionProvider"
+            overrides="org.eclipse.ui.navigator.resources.OpenActions"
+            priority="highest">
          <enablement>
             <and>
                <instanceof
